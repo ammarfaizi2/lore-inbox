@@ -1,45 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261446AbVFMVto@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261462AbVFMVtp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261446AbVFMVto (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 17:49:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261462AbVFMVtg
+	id S261462AbVFMVtp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 17:49:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261436AbVFMVsJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 17:49:36 -0400
-Received: from colin.muc.de ([193.149.48.1]:63505 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S261446AbVFMVsZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 17:48:25 -0400
-Date: 13 Jun 2005 23:48:21 +0200
-Date: Mon, 13 Jun 2005 23:48:21 +0200
-From: Andi Kleen <ak@muc.de>
-To: Bongani Hlope <bonganilinux@mweb.co.za>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: Tracking a bug in x86-64
-Message-ID: <20050613214821.GD86745@muc.de>
-References: <200506132259.22151.bonganilinux@mweb.co.za> <200506132339.13614.bonganilinux@mweb.co.za>
+	Mon, 13 Jun 2005 17:48:09 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:18570 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S261458AbVFMVrA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 17:47:00 -0400
+Subject: Re: What breaks aic7xxx in post 2.6.12-rc2 ?
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Gregoire Favre <gregoire.favre@gmail.com>
+Cc: dino@in.ibm.com, Andrew Morton <akpm@osdl.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050613213307.GA8534@gmail.com>
+References: <20050530160147.GD14351@gmail.com>
+	 <1117477040.4913.12.camel@mulgrave> <20050530190716.GA9239@gmail.com>
+	 <1118081857.5045.49.camel@mulgrave> <20050607085710.GB9230@gmail.com>
+	 <1118590709.4967.6.camel@mulgrave> <20050613145000.GA12057@gmail.com>
+	 <1118674783.5079.9.camel@mulgrave> <20050613183719.GA8653@gmail.com>
+	 <1118695847.5079.41.camel@mulgrave>  <20050613213307.GA8534@gmail.com>
+Content-Type: text/plain
+Date: Mon, 13 Jun 2005 16:46:31 -0500
+Message-Id: <1118699191.5079.49.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200506132339.13614.bonganilinux@mweb.co.za>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 13, 2005 at 11:39:13PM +0200, Bongani Hlope wrote:
-> On Monday 13 June 2005 10:59 pm, Bongani Hlope wrote:
-> > Hi Andrew and Andi
-> > 
-> > I've been trying to track dow an bug that causes my userspace applications to 
-> > randomly segfault. I've tracked it down to 2.6.11-mm4 (I'm not sure about mm[1-3]).  
-> > The bug does not exist in the 2.6.11 kernel. The 2.6.12-rc1 kernel has the bug. The bug 
-> > is easly triggered by compiling KDE or the kernel using make -j4
-> > 
+On Mon, 2005-06-13 at 23:33 +0200, Gregoire Favre wrote:
+> On Mon, Jun 13, 2005 at 03:50:47PM -0500, James Bottomley wrote:
+> I was really sure I should work and I booted it without the console
+> switch to log on my palm, so I miss the beginning of the log, I hope
+> this dmesg is enough (yes, this time it booted perfectly, thank you very
+> much) :-)
 > 
-> I've just tested 2.6.11-mm1 it has that bug as well. So the bug was introduced on that kernel.
+> I wonder if the speed read for my first controller with U2 and U160
+> drive are right ?
 
-Can you please get the individual patches from -mm1 and test them?
-I would just unapply the various x86-64 patches and do a binary search.
+No ... unfortunately there's a precedence bug in the u160 code ...
+
+Try the attached (on top of everything else).
 
 Thanks,
 
--Andi
+James
+
+diff -u b/drivers/scsi/aic7xxx/aic7xxx_osm.c b/drivers/scsi/aic7xxx/aic7xxx_osm.c
+--- b/drivers/scsi/aic7xxx/aic7xxx_osm.c
++++ b/drivers/scsi/aic7xxx/aic7xxx_osm.c
+@@ -640,7 +640,7 @@
+ 		}
+ 	    
+ 		if ((ahc->features & AHC_ULTRA2) != 0) {
+-			scsirate = (flags & CFXFER) | ultra ? 0x8 : 0;
++			scsirate = (flags & CFXFER) | (ultra ? 0x8 : 0);
+ 			dev_printk(KERN_ERR, &starget->dev, "ULTRA2, flags 0x%x\n", flags);
+ 		} else {
+ 			scsirate = (flags & CFXFER) << 4;
+
+

@@ -1,61 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261216AbVFMTDc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261237AbVFMTDI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261216AbVFMTDc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 15:03:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbVFMTDb
+	id S261237AbVFMTDI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 15:03:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261227AbVFMTDH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 15:03:31 -0400
-Received: from main.gmane.org ([80.91.229.2]:41400 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S261220AbVFMS7o (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 14:59:44 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-Subject: Re: A Great Idea (tm) about reimplementing NLS.
-Date: Mon, 13 Jun 2005 20:58:03 +0200
-Message-ID: <yw1xekb69j9g.fsf@ford.inprovide.com>
-References: <f192987705061303383f77c10c@mail.gmail.com> <1118664352.898.16.camel@tara.firmix.at>
- <f1929877050613065461ad3253@mail.gmail.com>
- <1118673175.898.55.camel@tara.firmix.at>
- <f192987705061310385260ca06@mail.gmail.com>
+	Mon, 13 Jun 2005 15:03:07 -0400
+Received: from zproxy.gmail.com ([64.233.162.207]:45416 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261222AbVFMTAE convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 15:00:04 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=psEd0G0YY/2zhRhkWr7bCpc3zcHXtMcZgNjVrn8XM0WGe7UMkVsLhk8ceZzYFb+EcK+ojukj2GnLV1ak4BLjIPsjiJbAvz7ucS0FZuS3E348rI4xh7THwyxj8TZcPO75USYto7kwS+W23wh9rsDuTXPAIGJVo2PFqnDoASLlaII=
+Message-ID: <9a87484905061312004b2b91e8@mail.gmail.com>
+Date: Mon, 13 Jun 2005 21:00:02 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
+To: Mark Bidewell <mark.bidewell@alumni.clemson.edu>
+Subject: Re: kernel 2.6.11.12 I2C error
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <42ADD458.3090906@alumni.clemson.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 76.80-203-227.nextgentel.com
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.15 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:7jaixtFag5EwrFOajmCQJ388Jzk=
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <42ADD458.3090906@alumni.clemson.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexey Zaytsev <alexey.zaytsev@gmail.com> writes:
+On 6/13/05, Mark Bidewell <mark.bidewell@alumni.clemson.edu> wrote:
+> When I attempt to compile 2.6.11.12 from a full download. I get the
+> following messages:
+> 
+> include/linux/i2c.h:58: error: array type has incomplete element type
+> include/linux/i2c.h:197: error: array type has incomplete element type
+> 
+> I think the problem has to do with the forward declartion used in those
+> lines.
+> 
+> I am using gcc 4.0 on FC4 final
+> 
+Try an older gcc or a recent gcc snapshot. gcc 4.0 has known issues
+when compiling the kernel.
 
-> On 13/06/05, Bernd Petrovitsch <bernd@firmix.at> wrote:
->> > The main idea of VFS is that you can access your files in the same way
->> > on any supported file system. But actually you can't simple access
->> > different-encoded non-ascii files on a filesystem that has no NLS,
->> > like ext or reiser.
->> 
->> I don't think that any filesystem knows about the encoding of every
->> filename - after all it is up to the user which encoding he uses for a
->> given file (and no, no one forces me to use the same encoding on the
->> names of all of "mine" files).
->> IOW given a FAT filesystem on an USB stick, which codepage should be
->> used?
->
-> Yes, most if not all filesystems don't have any information about file
-> names encoding, but the user can often guess it. Hawing files with
-> differently-encoded names on the same filesystem is nonsense, which
-> could only appear because of the current NLS misfeatures.
-
-Different users of the same system may have perfectly valid reasons to
-use different locale settings, and thus different filename encodings.
-Forcing one thing or another is just a useless restriction, and
-probably not POSIX compliant.
 
 -- 
-Måns Rullgård
-mru@inprovide.com
-
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

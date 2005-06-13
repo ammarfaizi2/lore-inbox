@@ -1,60 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbVFMKCs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261457AbVFMKG3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261451AbVFMKCs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 06:02:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261455AbVFMKCq
+	id S261457AbVFMKG3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 06:06:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261455AbVFMKG3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 06:02:46 -0400
-Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:44633 "HELO
-	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261451AbVFMKC1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 06:02:27 -0400
-Message-ID: <42AD59A9.3030404@yahoo.com.au>
-Date: Mon, 13 Jun 2005 20:02:17 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] blkstat
-References: <42AD55FA.50109@yahoo.com.au> <200506131954.45361.kernel@kolivas.org>
-In-Reply-To: <200506131954.45361.kernel@kolivas.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 13 Jun 2005 06:06:29 -0400
+Received: from colin.muc.de ([193.149.48.1]:26376 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S261457AbVFMKGF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 06:06:05 -0400
+Date: 13 Jun 2005 12:06:04 +0200
+Date: Mon, 13 Jun 2005 12:06:04 +0200
+From: Andi Kleen <ak@muc.de>
+To: Jacob Martin <martin@cs.uga.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM:  OOPSes in PREEMPT SMP for AMD Opteron Dual-Core with Memhole Mapping (non tainted kernel)
+Message-ID: <20050613100604.GA18976@muc.de>
+References: <200506071836.12076.martin@cs.uga.edu> <m1wtp1ch07.fsf@muc.de> <200506121529.50259.martin@cs.uga.edu>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="AhhlLboLdkugWU4S"
+Content-Disposition: inline
+In-Reply-To: <200506121529.50259.martin@cs.uga.edu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote:
-> On Mon, 13 Jun 2005 19:46, Nick Piggin wrote:
 
->>Oh, and before I go further, does anyone know of any program
->>or statistic that allows the same functionality? Any comments?
+--AhhlLboLdkugWU4S
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Sun, Jun 12, 2005 at 03:29:50PM -0400, Jacob Martin wrote:
+> Hardware memhole mapping never seems to work, or causes lockups right away.  I 
+> need to test it further though.
 > 
+> I have discovered that with the following features enabled:
 > 
-> Would something like iostat give similar results?
+> 1.  Software memhole mapping
+> 2.  Continuous,
 > 
+> linux sees the entire 4GB of memory.  However, when things start getting 
+> requested from the upper half, there are Oopses generated.  Attached are two 
+> Oopses that occurred under the test scenario described.  
 
-The problem with that is that it does not give you a % idle
-figure on the block device, so you basically can't see if
-the device is becoming a bottleneck.
+What happens when you boot with numa=off or with numa=noacpi ? 
 
-You can kind of guess if you take into account the seeks,
-and the throughput, but you're still missing things like
-head position (eg. changes throughput), settle time and
-rotational latency, and lots of other stuff.
+The system seems to believe it has memory in an area not covered
+by mem_map.
 
-Thanks,
-Nick
 
-Also, BTW. the way I have done the kernel patch make a
-device show 100% utilisation even if it is not doing anything
-but waiting for a plug, or an anticipatory scheduler. This
-is basically all the end user wants to know, although for
-development purposes it may be interesting to know the other
-metric too.
+> launch big memory apps.
+> 
+> I suppose I could write a program to consume/probe the upper memory half.  
+> Anyone know of a good/quicky way to do that?  
 
--- 
-SUSE Labs, Novell Inc.
+You can use the attached program which I often use for similar purposes.
+It writes nearly all free memory in a loop and also often triggers memory 
+problems.
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+-Andi
+
+
+--AhhlLboLdkugWU4S
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="memeat.c"
+
+#define _GNU_SOURCE 1
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+int main(void)
+{
+	size_t linelen = 0;
+	char *line = NULL;
+	unsigned long freemem = 0;
+	FILE *f = fopen("/proc/meminfo", "r");
+	while (getdelim(&line, &linelen, '\n', f) > 0) { 
+		if (sscanf(line, "LowFree: %lu", &freemem) == 1)
+			break; 
+	} 
+
+	freemem *= 1024; 
+
+	freemem -= freemem/20;
+	char *s = malloc(freemem);
+	if (s) {
+		long i;
+		for (;;) { 
+		printf("\nwrite\n");
+		for (i = 0; i < freemem; i += 10*1024*1024) {
+			long w = freemem - i;
+			if (w > 10*1024*1024)
+				w = 10*1024*1024;
+			memset(s + i, 0xff, w);
+			putchar('.');
+			fflush(stdout);
+		}
+		printf("\nread\n");
+		for (i = 0; i < freemem; i += 10*1024*1024) {
+			long w = freemem - i;
+			if (w > 10*1024*1024)
+				w = 10*1024*1024;
+			memcpy(s, s + i, w);
+			putchar('.');
+			fflush(stdout);
+		}
+		}
+	} else
+		printf("Cannot allocate memory\n");
+	
+	return 0;
+}
+
+--AhhlLboLdkugWU4S--

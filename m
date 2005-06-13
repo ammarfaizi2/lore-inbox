@@ -1,58 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261321AbVFMQCL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261634AbVFMQCm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261321AbVFMQCL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 12:02:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261634AbVFMQCL
+	id S261634AbVFMQCm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 12:02:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261663AbVFMQCm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 12:02:11 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:31409 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261321AbVFMQCI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 12:02:08 -0400
-Subject: Re: Add pselect, ppoll system calls.
-From: David Woodhouse <dwmw2@infradead.org>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: Jakub Jelinek <jakub@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org
-In-Reply-To: <42ADA880.60303@redhat.com>
-References: <1118444314.4823.81.camel@localhost.localdomain>
-	 <1118616499.9949.103.camel@localhost.localdomain>
-	 <Pine.LNX.4.58.0506121725250.2286@ppc970.osdl.org>
-	 <Pine.LNX.4.62.0506121815070.24789@fhozvffvba.vaabprapr-ybfg.arg>
-	 <Pine.LNX.4.58.0506122018230.2286@ppc970.osdl.org>
-	 <42AD2640.5040601@redhat.com> <20050613091600.GA32364@outpost.ds9a.nl>
-	 <1118655702.2840.24.camel@localhost.localdomain>
-	 <20050613110556.GA26039@infradead.org>
-	 <20050613111422.GT22349@devserv.devel.redhat.com>
-	 <1118661848.2840.34.camel@localhost.localdomain>
-	 <42ADA880.60303@redhat.com>
+	Mon, 13 Jun 2005 12:02:42 -0400
+Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:51479 "EHLO
+	mta07-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S261634AbVFMQCi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 12:02:38 -0400
+Subject: Re: [RFC] Observations on x86 process.c
+From: Ian Campbell <ijc@hellion.org.uk>
+To: cutaway@bellsouth.net
+Cc: Denis Vlasenko <vda@ilport.com.ua>, linux-kernel@vger.kernel.org
+In-Reply-To: <000a01c57035$79738a80$2800000a@pc365dualp2>
+References: <002301c57018$266079b0$2800000a@pc365dualp2>
+	 <200506131618.09718.vda@ilport.com.ua>
+	 <000a01c57035$79738a80$2800000a@pc365dualp2>
 Content-Type: text/plain
-Date: Mon, 13 Jun 2005 17:02:27 +0100
-Message-Id: <1118678548.25956.200.camel@hades.cambridge.redhat.com>
+Date: Mon, 13 Jun 2005 17:02:30 +0100
+Message-Id: <1118678551.23816.3.camel@icampbell-debian>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+X-Mailer: Evolution 2.2.2 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-06-13 at 08:38 -0700, Ulrich Drepper wrote:
-> And change it to expect a 64bit value I hope...
+On Mon, 2005-06-13 at 12:32 -0400, cutaway@bellsouth.net wrote:
+> Where __attribute__((slowcode)) is defined in some macro.
 
-64-bit value for which? For seconds? Do we need to support timeouts of
-longer than 4 milliard seconds? We can't currently come close to that
-anyway -- we're limited to LONG_MAX / HZ seconds, and if the user asks
-for more than that then it appears to be silently switched to an
-infinite timeout.
-
-> As long as there is a configuration where the timeout value is not
-> modified, it doesn't matter.  That is the case for select() using a
-> personality switch.
-
-I think it would be best to behave likewise for pselect().
+I think you should probably checkout the likely() and unlikely() macros
+which are already defined for use in the kernel.
+Ian.
 
 -- 
-dwmw2
+Ian Campbell
+Current Noise: Metallica - Fuel
+
+When the cup is full, carry it level.
 

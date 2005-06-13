@@ -1,69 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261539AbVFMWUw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261555AbVFMWW4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261539AbVFMWUw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 18:20:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261536AbVFMWTU
+	id S261555AbVFMWW4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 18:22:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261552AbVFMWVT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 18:19:20 -0400
-Received: from lyle.provo.novell.com ([137.65.81.174]:15129 "EHLO
-	lyle.provo.novell.com") by vger.kernel.org with ESMTP
-	id S261511AbVFMWRO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 18:17:14 -0400
-Date: Mon, 13 Jun 2005 15:16:57 -0700
-From: Greg KH <gregkh@suse.de>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-hotplug-devel@lists.sourceforge.net,
-       Vojtech Pavlik <vojtech@suse.cz>, Kay Sievers <kay.sievers@vrfy.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Input sysbsystema and hotplug
-Message-ID: <20050613221657.GB15381@suse.de>
-References: <200506131607.51736.dtor_core@ameritech.net>
+	Mon, 13 Jun 2005 18:21:19 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:34958 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261515AbVFMWTD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 18:19:03 -0400
+Date: Mon, 13 Jun 2005 15:19:40 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+Cc: yuasa@hh.iij4u.or.jp, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.12-rc6] add vr41xx gpio support
+Message-Id: <20050613151940.24ac347d.akpm@osdl.org>
+In-Reply-To: <20050612032827.31ac649a.yuasa@hh.iij4u.or.jp>
+References: <20050612032827.31ac649a.yuasa@hh.iij4u.or.jp>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200506131607.51736.dtor_core@ameritech.net>
-User-Agent: Mutt/1.5.8i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 13, 2005 at 04:07:51PM -0500, Dmitry Torokhov wrote:
-> Hi,
-> 
-> I am trying to convert input systsem to play nicely with sysfs and I am
-> having trouble with hotplug agent. The old hotplug mechanism was using
-> "input" as agent/subsystem name, unfortunately I can't simply use "input"
-> class because when Greg added class_simple support to input handlers
-> (evdev, mousedev, joydev, etc) he used that name.
+Yoichi Yuasa <yuasa@hh.iij4u.or.jp> wrote:
+>
+> This patch had added vr41xx gpio support.
 
-Why not?  What's wrong with using the existing input class?  I was
-hopeing it would get flushed out into something "real" someday.  All you
-have to do is keep the "dev" stuff in there somewhere and udev will be
-happy.
 
-> /sys/class/input---input0
-> 		 |
-> 		 |-input1
-> 		 |
-> 		 |-input2
-> 		 |
-> 		 |-mouse---mouse0
-> 		 |	 |
-> 		 |	 |-mouse1
-> 		 |	 |
-> 		 |	 --mice
-> 		 |
-> 		 |-event---event0
-> 			 |
-> 			 |-event1
-> 			 |
-> 			 |-event2
-> 
-> where inputX are class devices, mouse and event are subclasses of input
-> class and mouseX and eventX are again class devices.
+> --- git5-orig/drivers/char/Kconfig	Tue Jun  7 00:22:29 2005
+> +++ git5/drivers/char/Kconfig	Sun Jun 12 02:37:20 2005
+> @@ -929,6 +929,10 @@
+>  
+>  	  If compiled as a module, it will be called scx200_gpio.
+>  
+> +config GPIO_VR41XX
+> +	tristate "NEC VR4100 series General-purpose I/O Unit support"
+> +	depends CPU_VR41XX
+> +
 
-Yes, lots of people want class devices to have children.  Unfortunatly
-they don't provide patches with their requests :)
+Does that even work?  We normally use "depends on".  I'll change it.
 
-thanks,
+> +EXPORT_SYMBOL_GPL(vr41xx_set_irq_trigger);
+> +EXPORT_SYMBOL_GPL(vr41xx_set_irq_level);
+> +EXPORT_SYMBOL_GPL(vr41xx_gpio_get_pin);
+> +EXPORT_SYMBOL_GPL(vr41xx_gpio_set_pin);
+> +EXPORT_SYMBOL_GPL(vr41xx_gpio_set_direction);
+> +EXPORT_SYMBOL_GPL(vr41xx_gpio_pullupdown);
 
-greg k-h
+Why are these symbols exported?

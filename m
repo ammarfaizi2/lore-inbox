@@ -1,64 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261322AbVFMUiR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261332AbVFMUeI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261322AbVFMUiR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 16:38:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261349AbVFMUfN
+	id S261332AbVFMUeI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 16:34:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261331AbVFMUat
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 16:35:13 -0400
-Received: from post-22.mail.nl.demon.net ([194.159.73.192]:13841 "EHLO
-	post-22.mail.nl.demon.net") by vger.kernel.org with ESMTP
-	id S261303AbVFMUa4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 16:30:56 -0400
-Date: Mon, 13 Jun 2005 22:31:06 +0200
-From: Rutger Nijlunsing <rutger@nospam.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Alexey Zaytsev <alexey.zaytsev@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: A Great Idea (tm) about reimplementing NLS.
-Message-ID: <20050613203106.GA19007@nospam.com>
-Reply-To: linux-kernel@tux.tmfweb.nl
-References: <f192987705061303383f77c10c@mail.gmail.com> <1118669746.13260.20.camel@localhost.localdomain> <f192987705061310202e2d9309@mail.gmail.com> <1118690448.13770.12.camel@localhost.localdomain>
+	Mon, 13 Jun 2005 16:30:49 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:38648 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261303AbVFMU2f
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 16:28:35 -0400
+Subject: Re: Attempted summary of "RT patch acceptance" thread
+From: Daniel Walker <dwalker@mvista.com>
+Reply-To: dwalker@mvista.com
+To: karim@opersys.com
+Cc: paulmck@us.ibm.com, Andrea Arcangeli <andrea@suse.de>,
+       Bill Huey <bhuey@lnxw.com>, Lee Revell <rlrevell@joe-job.com>,
+       Tim Bird <tim.bird@am.sony.com>, linux-kernel@vger.kernel.org,
+       tglx@linutronix.de, mingo@elte.hu, pmarques@grupopie.com,
+       bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au, ak@muc.de,
+       sdietrich@mvista.com, hch@infradead.org, akpm@osdl.org
+In-Reply-To: <42ADEC0E.4020907@opersys.com>
+References: <20050610223724.GA20853@nietzsche.lynx.com>
+	 <20050610225231.GF6564@g5.random>
+	 <20050610230836.GD21618@nietzsche.lynx.com>
+	 <20050610232955.GH6564@g5.random> <20050611014133.GO1300@us.ibm.com>
+	 <20050611155459.GB5796@g5.random> <20050611210417.GC1299@us.ibm.com>
+	 <42AB7857.1090907@opersys.com> <20050612214519.GB1340@us.ibm.com>
+	 <42ACE2D3.9080106@opersys.com> <20050613144022.GA1305@us.ibm.com>
+	 <42ADE334.4030002@opersys.com>
+	 <1118693033.2725.21.camel@dhcp153.mvista.com>
+	 <42ADEC0E.4020907@opersys.com>
+Content-Type: text/plain
+Organization: MontaVista
+Date: Mon, 13 Jun 2005 13:28:15 -0700
+Message-Id: <1118694495.2725.32.camel@dhcp153.mvista.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1118690448.13770.12.camel@localhost.localdomain>
-Organization: M38c
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 13, 2005 at 08:20:53PM +0100, Alan Cox wrote:
-> On Llu, 2005-06-13 at 18:20, Alexey Zaytsev wrote:
-> > Yes, that's how it works, but if I want ext or reiser or whatever to
-> > have NLS, I'll have to make them support it (btw, if I do so, wont it
-> > be rejected?). I want to move the NLS one level upper so the
-> > filesystem imlementations won't have to worry about it any more. I
-> > don't have much kernel experience, and none in the fs area, so I can't
-> > explain it any better, but hope you get the idea.
+On Mon, 2005-06-13 at 16:26 -0400, Karim Yaghmour wrote:
+> Daniel Walker wrote:
+> > I think this is mistake. Projects that create separation like this are
+> > begging for the community to reject them. I see this as a design for
+> > one, instead of design for many mistake. From what I've seen, a project
+> > would want to do as much clean integration as possible.
 > 
-> An ext3fs is always utf-8. People might have chosen to put other
-> encodings on it but thats "not our fault" ;)
-> 
-> There are some good technical reasons too
-> 
-> Encodings don't map 1:1 - two names may cease to be unique
-> 
-> Encodings vary in length - image a file name that is longer than the
-> allowed maximum on your system with your encoding choice - that could
-> occur with KOI8-R to UTF-8 I believe
-> 
-> That said it ought to be possible to use the stackable fs work (FUSE
-> etc) to write a layer you can mount over any fs that does NLS
-> translation.
+> I understand what you're saying, but based on the feedback
+> PREEMPT_RT has gotten up until now, and now outright suggestions
+> that the debate is not even relevant to the LKML, I think that
+> some people are trying to give those interested a hint: integration
+> with mainline code is NOT on the agenda.
 
-Or just make a symbolic linked shadow FS with translated filenames
-(UNTESTED):
+I wouldn't work on RT if mainline integration wasn't on the agenda. 
 
-cd /tmp
-cp -src /mnt/problem_dir .
-find problem_dir -exec bash -c "mv \'{}\' \'$(echo {} | iconv -f KOI8-R -t UTF-8)\'" \;
+> Some may want to continue trying to force-feed mainstream
+> maintainers. I can't stop anyone from trying, that's for sure.
+> However, I think what I'm suggesting is a reasonable compromise:
+> mainstream maintainers don't need to care about RT on a day-to-
+> day basis and the RT folks get to be part of mainline.
 
--- 
-Rutger Nijlunsing ---------------------------------- eludias ed dse.nl
-never attribute to a conspiracy which can be explained by incompetence
-----------------------------------------------------------------------
+There is going to be positive , and negative discussion on this. I think
+in the end the maintainers (Linus, and Andrew) don't want "people" to
+get a patch or modification from the outside. It's best if the community
+is not separated .. If you make a clean integration , and people want
+what you are doing, there is no reason for it to be rejected.
+
+Daniel
+

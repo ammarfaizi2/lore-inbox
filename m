@@ -1,118 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261286AbVFMUOw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261276AbVFMUNp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261286AbVFMUOw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 16:14:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261296AbVFMUOv
+	id S261276AbVFMUNp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 16:13:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261266AbVFMULl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 16:14:51 -0400
-Received: from H190.C26.B96.tor.eicat.ca ([66.96.26.190]:25553 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S261275AbVFMUNg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 16:13:36 -0400
-Date: Mon, 13 Jun 2005 16:13:15 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Hans Reiser <reiser@namesys.com>
-Cc: fs <fs@ercist.iscas.ac.cn>, linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, zhiming@admin.iscas.ac.cn,
-       qufuping@ercist.iscas.ac.cn, madsys@ercist.iscas.ac.cn,
-       xuh@nttdata.com.cn, koichi@intellilink.co.jp,
-       kuroiwaj@intellilink.co.jp, okuyama@intellilink.co.jp,
-       matsui_v@valinux.co.jp, kikuchi_v@valinux.co.jp,
-       fernando@intellilink.co.jp, kskmori@intellilink.co.jp,
-       takenakak@intellilink.co.jp, yamaguchi@intellilink.co.jp,
-       ext2-devel@lists.sourceforge.net, shaggy@austin.ibm.com,
-       xfs-masters@oss.sgi.com,
-       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>
-Subject: Re: [Ext2-devel] Re: [RFD] FS behavior (I/O failure) in kernel summit
-Message-ID: <20050613201315.GC19319@moraine.clusterfs.com>
-Mail-Followup-To: Hans Reiser <reiser@namesys.com>,
-	fs <fs@ercist.iscas.ac.cn>,
-	linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	zhiming@admin.iscas.ac.cn, qufuping@ercist.iscas.ac.cn,
-	madsys@ercist.iscas.ac.cn, xuh@nttdata.com.cn,
-	koichi@intellilink.co.jp, kuroiwaj@intellilink.co.jp,
-	okuyama@intellilink.co.jp, matsui_v@valinux.co.jp,
-	kikuchi_v@valinux.co.jp, fernando@intellilink.co.jp,
-	kskmori@intellilink.co.jp, takenakak@intellilink.co.jp,
-	yamaguchi@intellilink.co.jp, ext2-devel@lists.sourceforge.net,
-	shaggy@austin.ibm.com, xfs-masters@oss.sgi.com,
-	Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>
-References: <1118692436.2512.157.camel@CoolQ> <42ADC99D.5000801@namesys.com>
+	Mon, 13 Jun 2005 16:11:41 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:22204 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261255AbVFMUK2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 16:10:28 -0400
+Date: Mon, 13 Jun 2005 13:10:46 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Karim Yaghmour <karim@opersys.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, Bill Huey <bhuey@lnxw.com>,
+       Lee Revell <rlrevell@joe-job.com>, Tim Bird <tim.bird@am.sony.com>,
+       linux-kernel@vger.kernel.org, tglx@linutronix.de, mingo@elte.hu,
+       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
+       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org
+Subject: Re: Attempted summary of "RT patch acceptance" thread
+Message-ID: <20050613201046.GE1305@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20050610230836.GD21618@nietzsche.lynx.com> <20050610232955.GH6564@g5.random> <20050611014133.GO1300@us.ibm.com> <20050611155459.GB5796@g5.random> <20050611210417.GC1299@us.ibm.com> <42AB7857.1090907@opersys.com> <20050612214519.GB1340@us.ibm.com> <42ACE2D3.9080106@opersys.com> <20050613144022.GA1305@us.ibm.com> <42ADE334.4030002@opersys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42ADC99D.5000801@namesys.com>
+In-Reply-To: <42ADE334.4030002@opersys.com>
 User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jun 13, 2005  10:59 -0700, Hans Reiser wrote:
-> If you write a patch to implement 1a and 3a for reiserfs and reiser4 I
-> will accept them.  2a is too vague for me to support --- I can only
-> answer the question of whether error conditions are fs independent when
-> it is regarding specified error conditions.  I suspect there are times
-> when it needs to be fs dependent, but only a comprehensive review could
-> answer to that.
+On Mon, Jun 13, 2005 at 03:49:08PM -0400, Karim Yaghmour wrote:
+> 
+> Paul E. McKenney wrote:
+> > OK...  Then the idea is to dynamically redirect the symbolic link
+> > to include/linux-srt or include/linux-srt that you mentioned in your
+> > previous email, or is the symlink serving some other purpose?
+> 
+> What I'm suggesting is that rt patches shouldn't touch the existing
+> codebase. Instead, functionality having to do with rt should be
+> integrated in separate directories, and depending the way you
+> configure the kernel, include/linux would point to either
+> include/linux-srt or include/linux-hrt, much like include/asm
+> points to one of inclux/asm-*.
 
-Hans, it would probably be preferrable to get ext2-like behaviour where
-action is configurable (see below), I personally would be annoyed if my
-workstation rebooted if there is a read error from the disk.
-Better to mark filesystem read-only on error and continue to allow
-users to read from rest of filesystem than to just reboot the node.
-That is my experience in any case.  For those systems where there is
-e.g. an HA server with dual-channel disk it might be better to reboot
-and failover to another server, but even that isn't clear as a real
-media error will just cause both nodes to reboot endlessly instead of
-providing the best service they can.
+I would guess that the end result would be a mixed strategy, where some
+things (e.g., the existing CONFIG_PREEMPT) are intermingled with the
+rest of the Linux code based, while other things (e.g., nanokernel
+implementations) are in separate directories.  But this is quickly
+getting -way- outside of my area.
 
-> fs wrote:
-> >Dear Linus, Andrew Morton, and all FS maintainers,
-> >1) When I/O failure occurs(e.g.: unrecoverable media failure - USB
-> >unplug), FS should
-> >   a. shutdown the FS right now(XFS does this)
-> >   b. try to make the media serve as long as possible(EXT3 remounts 
-> >      read-only, cache is still valid for read)
-> >   c. do not care, just print some kernel debugging info(EXT2 JFS 
-> >      ReiserFS)
+So I must leave this aspect of the discussion to others.
 
-Actually, 1b is just the default behaviour for ext3 (because of journal
-errors).  It is also possible to mount the filesystem with error=panic,
-which will implement 1a, and it is also possible to mount ext2 with
-error=remount-ro (which is default on Debian for ext2) which implements
-1b.  I don't think it is possible to get 1c behaviour for journal
-errors on ext3.
+> > So your focus is on system calls that can have totally separate
+> > realtime and non-realtime implementations?  Or am I missing some
+> > trick here?
+> 
+> There's no trick. It's just a layout thing. Hope the above
+> explains what I'm trying to say.
 
-> >2) When I/O failure occurs, FS should
-> >   a. give a unified error
-> >   b. give errors according to the FS type
+OK.  However, should the discussion get to the point where something
+like RTAI-Fusion has realtime versions of system calls that have
+globally-visible side-effects (such as I/O, networking, IPC, ...),
+then the issue of how to get the non-realtime and the realtime variants
+to play nicely with each other will arise.
 
-What is "unified error"?  Does this mean "-EIO" for all cases?  I also
-don't understand why this is so important to your application...  If
-you get an error back from the filesystem that isn't expected, that is
-generally a problem regardless of what the error is...
+It may well be that system calls containing such side-effects need to be
+Linux-only, or maybe someone will come up with the necessary tricks to
+make it all work nicely.  Not particularly worried about it myself --
+yet, anyway.  There are plenty of things to worry about before we get
+to that point!
 
-> >3) the returned errno should be
-> >   a. real cause of failure, e.g. USB unplug returns EIO
-> >   b. cause from FS, e.g. USB unplug made FS remount read-only,
-> >      so open(O_RDONLY) returns ENOENT while open(O_RDWR) returns
-> >      EROFS
-> >   c. errno means nothing, you already get -1, that's enough
+> > How are you and Kristian looking to benchmark/compare the various
+> > combinations you call out above?  Seems like one would have to look
+> > at more than straight scheduling/interrupt latency to make a reasonable
+> > comparison.
+> 
+> I'm not sure that benchmarking would be relevant. This is just a
+> integration/layout/configuration/build suggestion. I don't think
+> that this organization will change anything to the benchmark
+> results.
 
-This doesn't make sense.  If the "real cause of failure" is that the
-journal code detected an inconsistency (it might not be an IO error at
-the time, just some structure that is not what it should be, maybe the
-user tried to format their partition while in use ;-) then the real
-error is that the journal turned the filesystem read-only.  In any case,
-you can't expect to get more information that "EIO", regardless of the
-root cause (e.g. ENOMEM causes async buffer read to not complete, caller
-checks buffer_uptodate() and it isn't uptodate, returns EIO).
+Sorry, side issue.
 
-Cheers, Andreas
---
-Andreas Dilger
-Principal Software Engineer
-Cluster File Systems, Inc.
+I was responding to your list of combinations of CONFIG_PREEMPT_RT, Adeos,
+and Fusion, assuming (probably incorrectly) that you and Kristian were
+looking to compare all the possible combinations.  If my assumption is
+incorrect, then my question was irrelevant, and I apologize for the noise.
 
+						Thanx, Paul

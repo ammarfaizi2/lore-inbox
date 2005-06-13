@@ -1,63 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261315AbVFMCLY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261318AbVFMCW4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261315AbVFMCLY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Jun 2005 22:11:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261316AbVFMCLX
+	id S261318AbVFMCW4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Jun 2005 22:22:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261324AbVFMCW4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Jun 2005 22:11:23 -0400
-Received: from vms046pub.verizon.net ([206.46.252.46]:20671 "EHLO
-	vms046pub.verizon.net") by vger.kernel.org with ESMTP
-	id S261315AbVFMCLT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Jun 2005 22:11:19 -0400
-Date: Sun, 12 Jun 2005 22:11:03 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
-In-reply-to: <20050612134907.GA17467@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: Ingo Molnar <mingo@elte.hu>, Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       "Eugeny S. Mints" <emints@ru.mvista.com>,
-       Daniel Walker <dwalker@mvista.com>
-Message-id: <200506122211.04152.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <20050608112801.GA31084@elte.hu>
- <200506120940.11698.gene.heskett@verizon.net> <20050612134907.GA17467@elte.hu>
-User-Agent: KMail/1.7
+	Sun, 12 Jun 2005 22:22:56 -0400
+Received: from warden2-p.diginsite.com ([209.195.52.120]:6548 "HELO
+	warden2.diginsite.com") by vger.kernel.org with SMTP
+	id S261318AbVFMCWy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Jun 2005 22:22:54 -0400
+Date: Sun, 12 Jun 2005 19:22:45 -0700 (PDT)
+From: David Lang <dlang@digitalinsight.com>
+X-X-Sender: dlang@dlang.diginsite.com
+To: Willy Tarreau <willy@w.ods.org>
+cc: subbie subbie <subbie_subbie@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: optional delay after partition detection at boot time
+In-Reply-To: <20050612102726.GA8470@alpha.home.local>
+Message-ID: <Pine.LNX.4.62.0506121919310.3896@qynat.qvtvafvgr.pbz>
+References: <20050612071213.GG28759@alpha.home.local>
+ <20050612101514.81433.qmail@web30707.mail.mud.yahoo.com>
+ <20050612102726.GA8470@alpha.home.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Humm, I think I hijacked a thread.  Anyway, for exercise I just built 48-17,
-but had to interrupt the boot & go back to 48-13 as I was drowning in 
-a near DOS caused by:
+On Sun, 12 Jun 2005, Willy Tarreau wrote:
 
-Jun 12 21:54:16 coyote kernel: ACPI: PCI Interrupt 0000:00:04.0[A] -> Link [LMAC] -> GSI 11 (level, low) -> IRQ 11
-Jun 12 21:54:16 coyote kernel: BUG: scheduling while atomic: softirq-timer/0/0x10000100/3
-Jun 12 21:54:16 coyote kernel: caller is __cond_resched+0x3d/0x50
-Jun 12 21:54:16 coyote kernel:  [<c036fb7f>] __schedule+0x67f/0x6d0 (8)
-Jun 12 21:54:16 coyote kernel:  [<c0113c3d>] __cond_resched+0x3d/0x50 (8)
-Jun 12 21:54:16 coyote kernel:  [<c0120c40>] process_timeout+0x0/0x10 (32)
-Jun 12 21:54:16 coyote kernel:  [<c0120999>] run_timer_softirq+0x259/0x400 (4)
-Jun 12 21:54:16 coyote kernel:  [<c0113c3d>] __cond_resched+0x3d/0x50 (32)
-Jun 12 21:54:16 coyote kernel:  [<c03704ac>] cond_resched+0x1c/0x30 (12)
-Jun 12 21:54:16 coyote kernel:  [<c011c74c>] ksoftirqd+0xec/0x150 (8)
-Jun 12 21:54:16 coyote kernel:  [<c011c660>] ksoftirqd+0x0/0x150 (24)
-Jun 12 21:54:16 coyote kernel:  [<c012c825>] kthread+0xa5/0xb0 (4)
-Jun 12 21:54:16 coyote kernel:  [<c012c780>] kthread+0x0/0xb0 (28)
-Jun 12 21:54:16 coyote kernel:  [<c0100e41>] kernel_thread_helper+0x5/0x14 (16)
-Jun 12 21:54:16 coyote random: Initializing random number generator:  succeeded
+>  - you don't know the root device, so the kernel will
+>    panic at boot because it cannot find the root device.
+>    In this case, you have the partition list still on
+>    the screen as it's among the latest things in the
+>    boot order. And if your kernel reboots upon panic,
+>    just boot it with panic=30 so get 30 seconds to read
+>    the partition table.
 
-That was the first of several hundred that went by by the time I 3 fingered it.
-Virtually all were carbon copies of each other.
+I have one machine inmy lab that turns out to need to boot from /dev/sdq1
+
+trust me, that partition info has LONG since scrolled off the screen by 
+the time it fails to mount and panics.
+
+I ended up setting up a serial console to capture the boot to figure this 
+machine out, but that's a pretty extreme measure to have to go to.
+
+David Lang
+
+P.S. I had to do this after grub failed to mount by label (my guess is 
+that grub only looks at so many drives before giving up on finding the 
+label) so don't tell me that I should just use labels and then I wouldn't 
+have to worry about this type of thing
 
 -- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.35% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
+  -- C.A.R. Hoare

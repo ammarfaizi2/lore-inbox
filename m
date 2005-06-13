@@ -1,79 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261177AbVFMSOQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261179AbVFMSQO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261177AbVFMSOQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 14:14:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbVFMSOQ
+	id S261179AbVFMSQO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 14:16:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261154AbVFMSQN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 14:14:16 -0400
-Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:18577 "EHLO
-	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S261177AbVFMSOI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 14:14:08 -0400
-From: Grant Coady <grant_lkml@dodo.com.au>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Ondrej Zary <linux@rainbow-software.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Odd IDE performance drop 2.4 vs 2.6?
-Date: Tue, 14 Jun 2005 04:13:58 +1000
-Organization: <http://scatter.mine.nu/>
-Message-ID: <hlira1pdvh0hsk3mui9m9ghk949ljm4v0l@4ax.com>
-References: <ac0qa19omlt7bsh8mcfsfr2uhshk338f0c@4ax.com> <42AD6362.1000109@rainbow-software.org> <1118669975.13260.23.camel@localhost.localdomain>
-In-Reply-To: <1118669975.13260.23.camel@localhost.localdomain>
-X-Mailer: Forte Agent 2.0/32.652
-MIME-Version: 1.0
+	Mon, 13 Jun 2005 14:16:13 -0400
+Received: from mail.kroah.org ([69.55.234.183]:19605 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261179AbVFMSQC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 14:16:02 -0400
+Date: Mon, 13 Jun 2005 11:13:23 -0700
+From: Greg KH <gregkh@suse.de>
+To: Armin Schindler <armin@melware.de>
+Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Remove devfs_mk_cdev() function from the kernel tree
+Message-ID: <20050613181323.GA13025@kroah.com>
+References: <11184761113499@kroah.com> <Pine.LNX.4.61.0506121042420.30907@phoenix.one.melware.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0506121042420.30907@phoenix.one.melware.de>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Jun 2005 14:39:37 +0100, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+On Sun, Jun 12, 2005 at 10:44:04AM +0200, Armin Schindler wrote:
+> It didn't follow the development, is devfs now obsolete in kernel?
+> If not, these funktions still makes sense.
 
->On Llu, 2005-06-13 at 11:43, Ondrej Zary wrote:
->> I see this problem too with i430TX chipset (the south bridge and thus 
->> IDE controller is the same as in i440LX/EX and BX/ZX).
->
->Make sure you have pre-empt disabled and the antcipatory I/O scheduler
->disabled. 
-I don't set pre-empt, not sure about scheduler, recheck that in daytime,
-SATA (Via chipset) on different box doesn't have the problem, neither 
-another box with SATA and ICH5, this is Via chipset, two runs after boot:
+I'm guessing you missed the [00/22] announcement of this patch?  Please
+see that one for links to the issues surrounding this topic.
 
-Linux 2.4.31-sp
+thanks,
 
-root@sempro:~# hdparm -tT /dev/sda
-
-/dev/sda:
- Timing cached reads:   1172 MB in  2.00 seconds = 586.00 MB/sec
-HDIO_DRIVE_CMD(null) (wait for flush complete) failed: Inappropriate ioctl for device
- Timing buffered disk reads:  172 MB in  3.02 seconds =  56.95 MB/sec
-HDIO_DRIVE_CMD(null) (wait for flush complete) failed: Inappropriate ioctl for device
-root@sempro:~# hdparm -tT /dev/sda
-
-/dev/sda:
- Timing cached reads:   1056 MB in  2.00 seconds = 528.00 MB/sec
-HDIO_DRIVE_CMD(null) (wait for flush complete) failed: Inappropriate ioctl for device
- Timing buffered disk reads:  170 MB in  3.00 seconds =  56.67 MB/sec
-HDIO_DRIVE_CMD(null) (wait for flush complete) failed: Inappropriate ioctl for device
-root@sempro:~#
-
-Linux 2.6.11.12a
-
-/dev/sda:
- Timing cached reads:   1308 MB in  2.00 seconds = 653.77 MB/sec
-HDIO_DRIVE_CMD(null) (wait for flush complete) failed: Inappropriate ioctl for device
- Timing buffered disk reads:  170 MB in  3.00 seconds =  56.60 MB/sec
-HDIO_DRIVE_CMD(null) (wait for flush complete) failed: Inappropriate ioctl for device
-root@sempro:~# hdparm -tT /dev/sda
-
-/dev/sda:
- Timing cached reads:   1124 MB in  2.00 seconds = 560.96 MB/sec
-HDIO_DRIVE_CMD(null) (wait for flush complete) failed: Inappropriate ioctl for device
- Timing buffered disk reads:  170 MB in  3.00 seconds =  56.66 MB/sec
-HDIO_DRIVE_CMD(null) (wait for flush complete) failed: Inappropriate ioctl for device
-root@sempro:~#
-
-HDD specified as 58MB/s at the fast end, so these figures look reasonable.
-http://scatter.mine.nu/test/boxen/sempro/ for hardware / config info
-
---Grant.
-
+greg k-h

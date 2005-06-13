@@ -1,71 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbVFMDYx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261336AbVFMDbc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261347AbVFMDYx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Jun 2005 23:24:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261340AbVFMDYZ
+	id S261336AbVFMDbc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Jun 2005 23:31:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261344AbVFMDbb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Jun 2005 23:24:25 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:45264 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261336AbVFMDYT (ORCPT
+	Sun, 12 Jun 2005 23:31:31 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:56289 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S261336AbVFMDba (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Jun 2005 23:24:19 -0400
-Date: Sun, 12 Jun 2005 20:26:05 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: jnf <jnf@innocence-lost.net>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, David Woodhouse <dwmw2@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org,
-       drepper@redhat.com
-Subject: Re: Add pselect, ppoll system calls.
-In-Reply-To: <Pine.LNX.4.62.0506121815070.24789@fhozvffvba.vaabprapr-ybfg.arg>
-Message-ID: <Pine.LNX.4.58.0506122018230.2286@ppc970.osdl.org>
-References: <1118444314.4823.81.camel@localhost.localdomain>
- <1118616499.9949.103.camel@localhost.localdomain>
- <Pine.LNX.4.58.0506121725250.2286@ppc970.osdl.org>
- <Pine.LNX.4.62.0506121815070.24789@fhozvffvba.vaabprapr-ybfg.arg>
+	Sun, 12 Jun 2005 23:31:30 -0400
+Message-ID: <42ACFE0C.1080604@pobox.com>
+Date: Sun, 12 Jun 2005 23:31:24 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "John W. Linville" <linville@tuxdriver.com>
+CC: netdev@oss.sgi.com, linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [patch 2.6.12-rc6] 3c59x: remove superfluous vortex_debug test
+ from boomerang_start_xmit
+References: <20050610142702.GC10449@tuxdriver.com>
+In-Reply-To: <20050610142702.GC10449@tuxdriver.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sun, 12 Jun 2005, jnf wrote:
-
-> Hi. I realize this is off subject to the mailing list, however its not
-> really off subject to the thread. What is the suggested method for
-> dealing with this? i.e. catching sigint which sets a global variable and
-> then having select() inside the loop, i.e.
+John W. Linville wrote:
+> Remove the superfluous test of "if (vortex_debug > 3)" inside the
+> "if (vortex_debug > 6)" clause early in boomerang_start_xmit.
 > 
-> while (boolean < 1 ) {
->    [...]
->    select(...);
+> Signed-off-by: John W. Linville <linville@tuxdriver.com>
 
-Nope, that will have a race in between testing "boolean" and the select.
+ACK (I presume akpm will send this one upstream)
 
-The simplest way is to do
 
-	if (sigsetjmp(..)) {
-		... handle signal ...
-	}
-	for (;;) {
-		select(..)
-	}
-
-but a lot of people find the control flow very confusing, and I can't much 
-blame them. 
-
-One pretty simple alternative is to just make the timeout be a global, and 
-have the signal handler clear it, guaranteeing that if we're just about to 
-hit the select(), we'll exit immediately.
-
-A third alternative that some people prefer (although I personally find it
-to be the most complex of the bunch and it's also the least efficient, but
-it works in threaded environments) is to have the signal handler write a
-byte to a pipe, and have the select() mask contain that pipe as one of the
-inputs so that the main loop sees the signal even as a pipe readability
-test.
-
-Anyway, that's three different approaches, all of which are portable and 
-thus preferable to pselect() which is not.
-
-			Linus

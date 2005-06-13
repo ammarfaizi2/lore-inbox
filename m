@@ -1,80 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261418AbVFMHxy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261416AbVFMHxT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261418AbVFMHxy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 03:53:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261419AbVFMHxy
+	id S261416AbVFMHxT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 03:53:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261418AbVFMHxT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 03:53:54 -0400
-Received: from lirs02.phys.au.dk ([130.225.28.43]:34178 "EHLO
-	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S261418AbVFMHxq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 03:53:46 -0400
-Date: Mon, 13 Jun 2005 09:53:24 +0200 (METDST)
-From: Esben Nielsen <simlo@phys.au.dk>
+	Mon, 13 Jun 2005 03:53:19 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:19641 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261416AbVFMHxP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 03:53:15 -0400
+Date: Mon, 13 Jun 2005 09:47:13 +0200
+From: Ingo Molnar <mingo@elte.hu>
 To: Sven-Thorsten Dietrich <sdietrich@mvista.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org
+Cc: Esben Nielsen <simlo@phys.au.dk>, Daniel Walker <dwalker@mvista.com>,
+       linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] local_irq_disable removal
-In-Reply-To: <1118646095.5729.57.camel@sdietrich-xp.vilm.net>
-Message-Id: <Pine.OSF.4.05.10506130946010.10063-100000@da410.phys.au.dk>
+Message-ID: <20050613074713.GB13878@elte.hu>
+References: <20050611191654.GA22301@elte.hu> <Pine.OSF.4.05.10506112123260.2917-100000@da410.phys.au.dk> <20050611200352.GA1477@elte.hu> <1118646527.5729.60.camel@sdietrich-xp.vilm.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1118646527.5729.60.camel@sdietrich-xp.vilm.net>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Mon, 13 Jun 2005, Sven-Thorsten Dietrich wrote:
+* Sven-Thorsten Dietrich <sdietrich@mvista.com> wrote:
 
-> On Sun, 2005-06-12 at 13:15 +0200, Esben Nielsen wrote:
-> > On Sun, 12 Jun 2005, Ingo Molnar wrote:
-> > I am surprised that is should actually be faster, but I give in to the
-> > experts. I will see if I can find time to perform a test or I should spend
-> > it on something else.
+> On Sat, 2005-06-11 at 22:03 +0200, Ingo Molnar wrote:
+> > * Esben Nielsen <simlo@phys.au.dk> wrote:
 > > 
-> > That said, this long discussion have not been a complete waste of time: I
-> > think this thread have learned us that we do have different goals and
-> > clarifies stuff.
+> > > > the jury is still out on the accuracy of those numbers. The test had 
+> > > > RT_DEADLOCK_DETECT (and other -RT debugging features) turned on, which 
+> > > > mostly work with interrupts disabled. The other question is how were 
+> > > > interrupt response times measured.
+> > > > 
+> > > You would accept a patch where I made this stuff optional?
 > > 
-> > I am not happy about the soft-irq thing. Mostly due to naming.
-> > local_irq_disable() is really just preempt_disable() with some extra stuff
-> > to make it backward combatible. 
-> > I still believe local_irq_disable() (also in the soft version) should be
-> > completely forbidden when PREEMPT_RT is set. All places using it should be
-> > replaced with a mutex or a ???_local_irq_disable() to mark that the code
-> > have been reviewed for PREEMPT_RT. With your argument above 
-> > ???_local_irq_disable() should really be preempt_disable() as that is
-> > faster.
+> > I'm not sure why. The soft-flag based local_irq_disable() should in fact 
+> > be a tiny bit faster than the cli based approach, on a fair number of 
+> > CPUs. But it should definitely not be slower in any measurable way.
 > > 
 > 
-> Hi Esben,
-> 
-> I just wondered if you are talking about the scenario where an interrupt
-> is executing on one processor, and gets preempted. Then some code runs
-> on the same CPU, which does local_irq_disable (now preempt_disable), to
-> keep that IRQ from running, but the IRQ thread is already started?
-> 
-> In the community kernel, this could never happen, because IRQs can't be
-> preempted. But in RT, its possible an IRQ could be preempted, and under
-> some circumstance, this sequence could occur.
-> 
-> Is that is what you are talking about? If not, it might be over my head,
-> and I am sorry. If so, I think that scenario is covered under SMP.
-> 
-> Sven
-> 
-No, Sven it is not. I am not so worried about that scenario.
-I am worried about some coder somewhere still using local_irq_disable() -
-there is a lot of code out there doing that. We have not confirmed that
-all of it really locks small enough regions to preserver RT preemption.
-I for one is doubtfull about the cmos_lock thingy. (Sorry, can't connect
-to my machine at home to check where it is, right now.) A very weird setup
-with a kind of homebrewn spinlock.
-All these cases needs to be reviewed to see if it is valid to use a
-global lock type like local_irq_disable() or a local mutex must be used.
-The former is only "allowed" if the time being within the locked is
-deterministicly only in the order of the time for scheduling.
-I wanted to add a extra name to the namespace stating "this usage of
-local_irq_disable() have been reviwed wrt. RT_PREEMPT".
+> Is there any such SMP concept as a local_preempt_disable()  ?
 
-Esben
+preempt_disable() is always 'local'. (has effect only on the current 
+CPU)
 
+	Ingo

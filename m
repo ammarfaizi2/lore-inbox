@@ -1,42 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261155AbVFMRoH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261156AbVFMRun@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261155AbVFMRoH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 13:44:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261157AbVFMRoH
+	id S261156AbVFMRun (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 13:50:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261158AbVFMRum
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 13:44:07 -0400
-Received: from lyle.provo.novell.com ([137.65.81.174]:44042 "EHLO
-	lyle.provo.novell.com") by vger.kernel.org with ESMTP
-	id S261155AbVFMRoF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 13:44:05 -0400
-Date: Mon, 13 Jun 2005 10:43:55 -0700
-From: Greg KH <gregkh@suse.de>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Patch series to remove devfs [00/22]
-Message-ID: <20050613174355.GB12517@suse.de>
-References: <20050611074327.GA27785@kroah.com> <1118616273l.18059l.0l@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 13 Jun 2005 13:50:42 -0400
+Received: from [217.204.244.146] ([217.204.244.146]:64260 "EHLO
+	linux233.linicks.net") by vger.kernel.org with ESMTP
+	id S261156AbVFMRuh convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 13:50:37 -0400
+From: Nick Warne <nick@linicks.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 'hello world' module
+Date: Mon, 13 Jun 2005 18:50:16 +0100
+User-Agent: KMail/1.8.1
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <1118616273l.18059l.0l@werewolf.able.es>
-User-Agent: Mutt/1.5.8i
+Message-Id: <200506131850.16088.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 12, 2005 at 10:44:33PM +0000, J.A. Magallon wrote:
-> 
-> On 06.11, Greg KH wrote:
-> > As everyone knows[1], devfs is going to be removed from the kernel soon.
-> > To accomplish this, here is a series of patches (22 in all) that do just
-> > that.  Surprisingly enough, devfs was almost everywhere in the kernel,
-> > that's why it takes so many patches :)
-> > 
-> 
-> You missed this for -mm, do not know if they apply to mainline:
+Jesper Juhl wrote:
 
-This patch series was not for -mm, as my comments stated :)
+> I don't have that book, so I can't really say, but here's an example
+> from "Linux Kernel Development, 2ed" by rml
+> (http://rlove.org/kernel_book/)
 
-But thanks for the patch anyway.
+I bought this today!  If you are in UK, here is the best deal I could find - 
+£22.00 + free delivery - I ordered this morning, it is dispatched already:
 
-greg k-h
+http://www.compman.co.uk/scripts/browse.asp?ref=706766
+
+Why US on-line books are at least half the price of UK ones, I don't know., 
+but of course then shipping costs/time buggers that up.
+Rip-off UK, I suppose.
+
+Thanks for the tip - I have been after a kernel book for ages, but wasn't sure 
+what to get.
+
+Nick
+-- 
+"When you're chewing on life's gristle,
+Don't grumble, Give a whistle..."

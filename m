@@ -1,55 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261248AbVFMTt7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261257AbVFMTub@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261248AbVFMTt7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 15:49:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261257AbVFMTt6
+	id S261257AbVFMTub (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 15:50:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261262AbVFMTub
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 15:49:58 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:56080 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261248AbVFMTtH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 15:49:07 -0400
-Message-Id: <200506131948.j5DJmh0j019532@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Andi Kleen <ak@muc.de>
-Cc: Tony Lindgren <tony@atomide.com>, vatsa@in.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Dynamic tick for x86 version 050609-2 
-In-Reply-To: Your message of "Mon, 13 Jun 2005 20:51:09 +0200."
-             <20050613185109.GA86745@muc.de> 
-From: Valdis.Kletnieks@vt.edu
-References: <88056F38E9E48644A0F562A38C64FB6004EBD10C@scsmsx403.amr.corp.intel.com> <20050609014033.GA30827@atomide.com> <20050610043018.GE18103@atomide.com> <20050613170941.GA1043@in.ibm.com> <m1k6kyb0px.fsf@muc.de> <20050613183716.GH8020@atomide.com>
-            <20050613185109.GA86745@muc.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1118692123_5914P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 13 Jun 2005 15:48:43 -0400
+	Mon, 13 Jun 2005 15:50:31 -0400
+Received: from znsun1.ifh.de ([141.34.1.16]:60074 "EHLO znsun1.ifh.de")
+	by vger.kernel.org with ESMTP id S261246AbVFMTtF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 15:49:05 -0400
+Date: Mon, 13 Jun 2005 21:48:54 +0200 (CEST)
+From: Patrick Boettcher <patrick.boettcher@desy.de>
+X-X-Sender: pboettch@pub4.ifh.de
+To: randy_dunlap <rdunlap@xenotime.net>
+Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
+Subject: Re: [PATCH -mm] dvb: dibusb needs license
+In-Reply-To: <20050613122751.4e7820b4.rdunlap@xenotime.net>
+Message-ID: <Pine.LNX.4.61.0506132147030.22217@pub4.ifh.de>
+References: <20050613122751.4e7820b4.rdunlap@xenotime.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-Spam-Report: ALL_TRUSTED,AWL,BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1118692123_5914P
-Content-Type: text/plain; charset=us-ascii
+Hi,
 
-On Mon, 13 Jun 2005 20:51:09 +0200, Andi Kleen said:
+On Mon, 13 Jun 2005, randy_dunlap wrote:
+> From: Randy Dunlap <rdunlap@xenotime.net>
+>
+> Module needs a license to prevent kernel tainting.
+>
+> Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+>
+> diffstat:=
+> drivers/media/dvb/dvb-usb/dibusb-common.c |    2 +-
+> drivers/media/dvb/dvb-usb/dvb-usb.h       |    1 +
+> 2 files changed, 2 insertions(+), 1 deletion(-)
+>
+> diff -Naurp ./drivers/media/dvb/dvb-usb/dibusb-common.c~taint_dvb ./drivers/media/dvb/dvb-usb/dibusb-common.c
+> --- ./drivers/media/dvb/dvb-usb/dibusb-common.c~taint_dvb	2005-06-10 18:42:28.000000000 -0700
+> +++ ./drivers/media/dvb/dvb-usb/dibusb-common.c	2005-06-13 11:07:17.000000000 -0700
+> @@ -13,6 +13,7 @@
+> static int debug;
+> module_param(debug, int, 0644);
+> MODULE_PARM_DESC(debug, "set debugging level (1=info (|-able))." DVB_USB_DEBUG_STATUS);
+> +MODULE_LICENSE("GPL");
+>
+> #define deb_info(args...) dprintk(debug,0x01,args)
 
-> The main issue with HPET is that many BIOS even though the chipsets
-> have it don't set up the HPET table because Windows doesn't use
-> it right now. However that can be avoided with some chipset
-> specific code.
+Thanks for pointing that out. Committed to linux-dvb CVS for being in 
+sync.
 
-If the Intel 845 chipset in my laptop has an HPET, I'm willing to test code. ;)
+regards,
+Patrick.
 
---==_Exmh_1118692123_5914P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFCreMbcC3lWbTT17ARAkxXAJ91KREZaB0S8VLwtKGUI53ydQqcbgCgoXSl
-puf4QuHj5ca3Tj+4kzsopMg=
-=ZXOA
------END PGP SIGNATURE-----
-
---==_Exmh_1118692123_5914P--
+--
+   Mail: patrick.boettcher@desy.de
+   WWW:  http://www.wi-bw.tfh-wildau.de/~pboettch/

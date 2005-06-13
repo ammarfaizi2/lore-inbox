@@ -1,54 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261574AbVFMNzD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261579AbVFMN4j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261574AbVFMNzD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 09:55:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbVFMNzD
+	id S261579AbVFMN4j (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 09:56:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261577AbVFMN4j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 09:55:03 -0400
-Received: from wproxy.gmail.com ([64.233.184.195]:62618 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261574AbVFMNy6 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 09:54:58 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=nDi2HoNPZO4hN11y7U5kqmOl+9qgLRV6wEKBH4vV+lHXlPW2eQ2ZN+u/QRJtC4aoHAttsA0oCUZUEh+5KJ5nopJVKgTSNwEteOTdxjPZodwJLkHYI7u8IrIXpRx9ToLAPhKyA3eam6wVpf0MDdz6PUcpuc+uo2eCN5uQv02GwUk=
-Message-ID: <f1929877050613065461ad3253@mail.gmail.com>
-Date: Mon, 13 Jun 2005 17:54:58 +0400
-From: Alexey Zaytsev <alexey.zaytsev@gmail.com>
-Reply-To: Alexey Zaytsev <alexey.zaytsev@gmail.com>
-To: Bernd Petrovitsch <bernd@firmix.at>
-Subject: Re: A Great Idea (tm) about reimplementing NLS.
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1118664352.898.16.camel@tara.firmix.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <f192987705061303383f77c10c@mail.gmail.com>
-	 <1118664352.898.16.camel@tara.firmix.at>
+	Mon, 13 Jun 2005 09:56:39 -0400
+Received: from ns1.suse.de ([195.135.220.2]:2779 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261575AbVFMN40 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 09:56:26 -0400
+Message-ID: <42AD9089.5080006@suse.de>
+Date: Mon, 13 Jun 2005 15:56:25 +0200
+From: Hannes Reinecke <hare@suse.de>
+Organization: SuSE Linux AG
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.5) Gecko/20050317
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [RFT][PATCH] aic79xx: remove busyq
+References: <20050529074620.GA26151@havoc.gtf.org>
+In-Reply-To: <20050529074620.GA26151@havoc.gtf.org>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 13/06/05, Bernd Petrovitsch <bernd@firmix.at> wrote:
-> On Mon, 2005-06-13 at 14:38 +0400, Alexey Zaytsev wrote:
-> [ Filenames with another encoding ]
-> > Some would suggest not to use non-ascii file names at all, some would
-> > say that I should temporary change my locale, some could even offer me
-> > a perl script they wrote when faced the same problem. All these
-> > solutions are inconvenient and conflict with fundamental VFS concepts.
->                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> In what way?
-> Basically you just rename the files. How can this conflict with
-> "fundamental VFS concepts" (and with which).
+Jeff Garzik wrote:
+> Can anyone with aic79xx hardware give me a simple "it works"
+> or "this breaks things" answer, for the patch below?
+> 
+> This changes the aic79xx driver to use the standard Linux SCSI queueing
+> code, rather than its own.  After applying this patch, NO behavior
+> changes should be seen.
+> 
+> The patch is against 2.6.12-rc5, but probably applies OK to recent 2.6.x
+> kernels.
+> 
+Hmm. Does not quite work here:
 
-I can't rename files on Pupkin's drive because he won't like it. ;)
-In the case with a flash drive I can copy all the files to my computer
-and rename them, but I can't do it with a bigger media like hard disk.
+scsi0: Starting DV
+scsi0 : Adaptec AIC79XX PCI-X SCSI HBA DRIVER, Rev 1.3.11
+        <Adaptec 29320 Ultra320 SCSI adapter>
+        aic7902: Ultra320 Wide Channel A, SCSI Id=7, PCI 33 or 66Mhz,
+512 SCBs
 
-The main idea of VFS is that you can access your files in the same way
-on any supported file system. But actually you can't simple access
-different-encoded non-ascii files on a filesystem that has no NLS,
-like ext or reiser.
- 
->        Bernd
+In DV Thread
+scsi0: Beginning Domain Validation
+scsi0:A:0:0: Performing DV
+scsi0:2223: Going from state 0 to state 1
+scsi0:A:0:0: Sending INQ
+scsi0: Timeout while doing DV command 12.
+
+And from there all hell breaks loose.
+
+It looks as if it simply refuses to send any commands ...
+Investigating.
+
+Cheers,
+
+Hannes
+-- 
+Dr. Hannes Reinecke			hare@suse.de
+SuSE Linux AG				S390 & zSeries
+Maxfeldstraße 5				+49 911 74053 688
+90409 Nürnberg				http://www.suse.de

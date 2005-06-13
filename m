@@ -1,81 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261517AbVFMX4I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261496AbVFMX4G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261517AbVFMX4I (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 19:56:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261484AbVFMXyn
+	id S261496AbVFMX4G (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 19:56:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261572AbVFMXzC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 19:54:43 -0400
-Received: from mxsf25.cluster1.charter.net ([209.225.28.225]:63460 "EHLO
-	mxsf25.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S261500AbVFMXwR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 19:52:17 -0400
-X-IronPort-AV: i="3.93,196,1115006400"; 
-   d="scan'208"; a="1004645416:sNHT31109864"
-From: Jacob Martin <martin@cs.uga.edu>
-Reply-To: martin@cs.uga.edu
-Organization: University of Georgia
-To: Andi Kleen <ak@muc.de>
-Subject: Re: PROBLEM:  OOPSes in PREEMPT SMP for AMD Opteron Dual-Core with Memhole Mapping (non tainted kernel)
-Date: Mon, 13 Jun 2005 19:53:16 +0000
-User-Agent: KMail/1.8
-Cc: linux-kernel@vger.kernel.org
-References: <200506071836.12076.martin@cs.uga.edu> <200506121529.50259.martin@cs.uga.edu> <20050613100604.GA18976@muc.de>
-In-Reply-To: <20050613100604.GA18976@muc.de>
+	Mon, 13 Jun 2005 19:55:02 -0400
+Received: from one.firstfloor.org ([213.235.205.2]:4838 "EHLO
+	one.firstfloor.org") by vger.kernel.org with ESMTP id S261496AbVFMXyC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 19:54:02 -0400
+To: "David S. Miller" <davem@davemloft.net>
+Cc: jesper.juhl@gmail.com, mru@inprovide.com, rommer@active.by,
+       bernd@firmix.at, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: udp.c
+References: <E1Dhwho-0001mn-00@gondolin.me.apana.org.au>
+	<20050613.145716.88477054.davem@davemloft.net>
+	<20050613230422.GA7269@gondor.apana.org.au>
+	<20050613.162052.41635836.davem@davemloft.net>
+From: Andi Kleen <ak@muc.de>
+Date: Tue, 14 Jun 2005 01:53:56 +0200
+In-Reply-To: <20050613.162052.41635836.davem@davemloft.net> (David S.
+ Miller's message of "Mon, 13 Jun 2005 16:20:52 -0700 (PDT)")
+Message-ID: <m1fyvlbyp7.fsf@muc.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506131953.16958.martin@cs.uga.edu>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 13 June 2005 10:06 am, Andi Kleen wrote:
-> On Sun, Jun 12, 2005 at 03:29:50PM -0400, Jacob Martin wrote:
-> > Hardware memhole mapping never seems to work, or causes lockups right
-> > away.  I need to test it further though.
-> >
-> > I have discovered that with the following features enabled:
-> >
-> > 1.  Software memhole mapping
-> > 2.  Continuous,
-> >
-> > linux sees the entire 4GB of memory.  However, when things start getting
-> > requested from the upper half, there are Oopses generated.  Attached are
-> > two Oopses that occurred under the test scenario described.
+"David S. Miller" <davem@davemloft.net> writes:
+
+> From: Herbert Xu <herbert@gondor.apana.org.au>
+> Date: Tue, 14 Jun 2005 09:04:22 +1000
 >
-> What happens when you boot with numa=off or with numa=noacpi ?
-
-You got it!  It seems to be working just fine without it compiled into the 
-kernel.
-
-> The system seems to believe it has memory in an area not covered
-> by mem_map.
-
-I think you hit it right on the head.
-
-I enabled NUMA because I had anticipated upgrading later.  So I guess if you 
-don't actually have NUMA set up hardware-wise, and enable this module, then 
-you will have problems.
-
-Maybe a simple update to the kernel "K8 NUMA support" Processor feature's help 
-section should be made to note this?  Or, is there something that could be 
-fixed somewhere.  I wouldn't mind helping, it was baffling me for two weeks.
-
-> > launch big memory apps.
-> >
-> > I suppose I could write a program to consume/probe the upper memory half.
-> > Anyone know of a good/quicky way to do that?
+>> On Mon, Jun 13, 2005 at 02:57:16PM -0700, David S. Miller wrote:
+>> > From: Herbert Xu <herbert@gondor.apana.org.au>
+>> > Date: Tue, 14 Jun 2005 07:42:52 +1000
+>> > 
+>> > > It'll dump the stack anyway if we just make it a NULL pointer.
+>> > 
+>> > Some platforms don't handle that very cleanly, for example
+>> > it may be necessary to have something mapped at page zero
+>> > for one reason or another.
+>> 
+>> Are there any existing platforms that do that in kernel mode?
 >
-> You can use the attached program which I often use for similar purposes.
-> It writes nearly all free memory in a loop and also often triggers memory
-> problems.
+> X86 did, especially during bootup, for a long time.
 
-Thanks for that too!
+Still does, as does x86-64, but actually it could be changed now using
+change_page_attr (and then later undoing it). Is it worth it?
 
-Sincerely,
-Jacob Martin
-
-
--- 
-Jacob Martin
+-Andi

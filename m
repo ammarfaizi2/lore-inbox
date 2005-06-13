@@ -1,62 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261614AbVFMP0f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261593AbVFMPjI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261614AbVFMP0f (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 11:26:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261611AbVFMP0e
+	id S261593AbVFMPjI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 11:39:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbVFMPjI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 11:26:34 -0400
-Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:40323 "EHLO
-	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S261614AbVFMPZ6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 11:25:58 -0400
-X-ORBL: [67.117.73.34]
-Date: Mon, 13 Jun 2005 08:25:07 -0700
-From: Tony Lindgren <tony@atomide.com>
-To: Valdis.Kletnieks@vt.edu
-Cc: linux-kernel@vger.kernel.org,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       Jonathan Corbet <corbet@lwn.net>, Pavel Machek <pavel@ucw.cz>,
-       Bernard Blackham <b-lkml@blackham.com.au>,
-       Christian Hesse <mail@earthworm.de>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Thomas Renninger <trenn@suse.de>
-Subject: Re: [PATCH] Dynamic tick for x86 version 050609-2
-Message-ID: <20050613152507.GB7862@atomide.com>
-References: <88056F38E9E48644A0F562A38C64FB6004EBD10C@scsmsx403.amr.corp.intel.com> <20050609014033.GA30827@atomide.com> <20050610043018.GE18103@atomide.com> <200506130454.j5D4suNY006032@turing-police.cc.vt.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200506130454.j5D4suNY006032@turing-police.cc.vt.edu>
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 13 Jun 2005 11:39:08 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:8870 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261593AbVFMPjC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 11:39:02 -0400
+Message-ID: <42ADA7B6.2060203@redhat.com>
+Date: Mon, 13 Jun 2005 08:35:18 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>
+CC: David Woodhouse <dwmw2@infradead.org>,
+       bert hubert <bert.hubert@netherlabs.nl>,
+       Linus Torvalds <torvalds@osdl.org>, jnf <jnf@innocence-lost.net>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org
+Subject: Re: Add pselect, ppoll system calls.
+References: <1118444314.4823.81.camel@localhost.localdomain> <1118616499.9949.103.camel@localhost.localdomain> <Pine.LNX.4.58.0506121725250.2286@ppc970.osdl.org> <Pine.LNX.4.62.0506121815070.24789@fhozvffvba.vaabprapr-ybfg.arg> <Pine.LNX.4.58.0506122018230.2286@ppc970.osdl.org> <42AD2640.5040601@redhat.com> <20050613091600.GA32364@outpost.ds9a.nl> <1118655702.2840.24.camel@localhost.localdomain> <20050613110556.GA26039@infradead.org>
+In-Reply-To: <20050613110556.GA26039@infradead.org>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig7580CC32E7B6F80B6186E382"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Valdis.Kletnieks@vt.edu <Valdis.Kletnieks@vt.edu> [050612 21:55]:
-> On Thu, 09 Jun 2005 21:30:18 PDT, Tony Lindgren said:
-> 
-> > Thanks for all the comments. Here's an updated dyntick patch.
-> 
-> Patches with 3 minor rejects against -rc6-mm1, boots, and seems to work well on
-> my Dell Latitude C840 laptop - although running at full load with seti@home
-> causes the expected 250 timer ticks/sec, running a mostly-idle  X session only
-> gets about 117, and having xmms and a few other things running it hits about
-> 170 tics/sec. I've had the CPU speed bounce between 1.2G and 1.6G a few times
-> and it didn't seem to blink either. Even NTP is happy with what it sees.. ;)
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig7580CC32E7B6F80B6186E382
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-Cool.
+Christoph Hellwig wrote:
+> Yes, it kinda makes sense.  Question to Uli: would you put ppoll() into=
 
-> Need to rebuild with CONFIG_HZ=1000 and see what it does, and see what it does
-> to actual power consumption.
+> glibc as GNU extension?
 
-You may also want to check out the patch by Thomas Renninger for ACPI
-C-states. I've added a link to it at:
+Of course.  I would rather not add pselect() and deprecate select() than
+not adding ppoll().  In fact, we just discussed a similar issue in the
+POSIX base working group.  Due to the limitations select() might indeed
+get the axe in a future revision.
 
-http://muru.com/dyntick/
+--=20
+=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
+=E2=9E=A7 Mountain View, CA =E2=9D=96
 
-> Minor nit:  The implementation of /sys/devices/system/timer/timer0/dyn_tick_state
-> violates the one-value-per-file rule for sysfs.  I suspect this needs to
-> become a directory with 3-4 files in it, each containing one value.
 
-Yeah, I'll clean up that for the next version.
+--------------enig7580CC32E7B6F80B6186E382
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-Tony
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iD8DBQFCrae22ijCOnn/RHQRAi1rAJ9Ywu7huFprPp4y5RQp/vKEOEPDdgCgiV0e
+sxS7HzQEop3NjyNFAFyn1IQ=
+=VXJ/
+-----END PGP SIGNATURE-----
+
+--------------enig7580CC32E7B6F80B6186E382--

@@ -1,65 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261623AbVFMXS2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261533AbVFMWW6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261623AbVFMXS2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 19:18:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261622AbVFMXQQ
+	id S261533AbVFMWW6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 18:22:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261519AbVFMWSk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 19:16:16 -0400
-Received: from smtp04.auna.com ([62.81.186.14]:61604 "EHLO smtp04.retemail.es")
-	by vger.kernel.org with ESMTP id S261641AbVFMXPR convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 19:15:17 -0400
-Date: Mon, 13 Jun 2005 23:14:47 +0000
-From: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: [RFT][PATCH] aic79xx: remove busyq
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-References: <20050529074620.GA26151@havoc.gtf.org>
-	<1117488507l.7621l.0l@werewolf.able.es> <429B9311.9000608@pobox.com>
-In-Reply-To: <429B9311.9000608@pobox.com> (from jgarzik@pobox.com on Tue May
-	31 00:26:25 2005)
-X-Mailer: Balsa 2.3.3
-Message-Id: <1118704487l.14239l.0l@werewolf.able.es>
+	Mon, 13 Jun 2005 18:18:40 -0400
+Received: from opersys.com ([64.40.108.71]:4110 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S261533AbVFMWRr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 18:17:47 -0400
+Message-ID: <42AE0875.8010001@opersys.com>
+Date: Mon, 13 Jun 2005 18:28:05 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
 MIME-Version: 1.0
+To: "Bill Huey (hui)" <bhuey@lnxw.com>
+CC: dwalker@mvista.com, paulmck@us.ibm.com, Andrea Arcangeli <andrea@suse.de>,
+       Lee Revell <rlrevell@joe-job.com>, Tim Bird <tim.bird@am.sony.com>,
+       linux-kernel@vger.kernel.org, tglx@linutronix.de, mingo@elte.hu,
+       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
+       ak@muc.de, sdietrich@mvista.com, hch@infradead.org, akpm@osdl.org
+Subject: Re: Attempted summary of "RT patch acceptance" thread
+References: <42AB7857.1090907@opersys.com> <20050612214519.GB1340@us.ibm.com> <42ACE2D3.9080106@opersys.com> <20050613144022.GA1305@us.ibm.com> <42ADE334.4030002@opersys.com> <1118693033.2725.21.camel@dhcp153.mvista.com> <42ADEC0E.4020907@opersys.com> <1118694495.2725.32.camel@dhcp153.mvista.com> <42AE01EA.10905@opersys.com> <42AE04AE.8070107@opersys.com> <20050613221810.GA820@nietzsche.lynx.com>
+In-Reply-To: <20050613221810.GA820@nietzsche.lynx.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-X-Auth-Info: Auth:LOGIN IP:[83.138.215.85] Login:jamagallon@able.es Fecha:Tue, 14 Jun 2005 01:14:58 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 05.31, Jeff Garzik wrote:
-> J.A. Magallon wrote:
-> > On 05.29, Jeff Garzik wrote:
-> > 
-> >>Can anyone with aic79xx hardware give me a simple "it works"
-> >>or "this breaks things" answer, for the patch below?
-> >>
-> >>This changes the aic79xx driver to use the standard Linux SCSI queueing
-> >>code, rather than its own.  After applying this patch, NO behavior
-> >>changes should be seen.
-> >>
-> >>The patch is against 2.6.12-rc5, but probably applies OK to recent 2.6.x
-> >>kernels.
-> >>
-> > 
-> > 
-> > Applied with even no offsets to -rc5-mm1. Booted and working fine:
-> 
-> Thanks a bunch!
-> 
+Bill Huey (hui) wrote:
+> Ignore it. They are misinformed and ignorant about these issues.
 
-Oops, don't be so happy.
-Following the other aic thread, I realized I applied the patch but booted on
-an U160 box :).
+Actually, what often happens on the LKML is that there a handfull
+who are ready to get flamed, and there's a pack in the back that
+would rather get some work done and have others take the heat for
+ideas they themselves share. So some may discount Andrea and
+Christoph, but I have a hunch there are others out there who
+think the same but just don't want to waste time feeding flames.
+... after all, the patch isn't up for inclusion just yet ... :|
 
-Will try shortly on a real 320.. sorry.
+> Be a leader, not a follower. :)
 
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
-werewolf!able!es                         \         It's better when it's free
-Mandriva Linux release 2006.0 (Cooker) for i586
-Linux 2.6.11-jam25 (gcc 4.0.0 (4.0.0-3mdk for Mandriva Linux release 2006.0))
+Oh believe me, leading is not a problem here.
 
+> You're never going to get anything cool done if you are "beat down"
+> by easily offended folks that don't understand what you're doing.
 
+Been there done that. This is not about leadership, it's about
+equilibrium.
+
+Karim
+-- 
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546

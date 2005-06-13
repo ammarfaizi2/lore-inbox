@@ -1,36 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261435AbVFMWDS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261487AbVFMWDS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261435AbVFMWDS (ORCPT <rfc822;willy@w.ods.org>);
+	id S261487AbVFMWDS (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 13 Jun 2005 18:03:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261490AbVFMWA6
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261435AbVFMWAS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 18:00:58 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:7652
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S261436AbVFMV5z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 17:57:55 -0400
-Date: Mon, 13 Jun 2005 14:57:16 -0700 (PDT)
-Message-Id: <20050613.145716.88477054.davem@davemloft.net>
-To: herbert@gondor.apana.org.au
-Cc: jesper.juhl@gmail.com, mru@inprovide.com, rommer@active.by,
-       bernd@firmix.at, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: udp.c
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <E1Dhwho-0001mn-00@gondolin.me.apana.org.au>
-References: <20050613.124515.104034144.davem@davemloft.net>
-	<E1Dhwho-0001mn-00@gondolin.me.apana.org.au>
-X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Mon, 13 Jun 2005 18:00:18 -0400
+Received: from baythorne.infradead.org ([81.187.226.107]:18151 "EHLO
+	baythorne.infradead.org") by vger.kernel.org with ESMTP
+	id S261491AbVFMV7B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 17:59:01 -0400
+Subject: Re: Add pselect, ppoll system calls.
+From: David Woodhouse <dwmw2@infradead.org>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: Jakub Jelinek <jakub@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org
+In-Reply-To: <42ADB4E4.2010504@redhat.com>
+References: <1118444314.4823.81.camel@localhost.localdomain>
+	 <1118616499.9949.103.camel@localhost.localdomain>
+	 <Pine.LNX.4.58.0506121725250.2286@ppc970.osdl.org>
+	 <Pine.LNX.4.62.0506121815070.24789@fhozvffvba.vaabprapr-ybfg.arg>
+	 <Pine.LNX.4.58.0506122018230.2286@ppc970.osdl.org>
+	 <42AD2640.5040601@redhat.com> <20050613091600.GA32364@outpost.ds9a.nl>
+	 <1118655702.2840.24.camel@localhost.localdomain>
+	 <20050613110556.GA26039@infradead.org>
+	 <20050613111422.GT22349@devserv.devel.redhat.com>
+	 <1118661848.2840.34.camel@localhost.localdomain>
+	 <42ADA880.60303@redhat.com>
+	 <1118678548.25956.200.camel@hades.cambridge.redhat.com>
+	 <42ADAFE5.5050206@redhat.com>
+	 <1118680177.25956.213.camel@hades.cambridge.redhat.com>
+	 <42ADB4E4.2010504@redhat.com>
+Content-Type: text/plain
+Date: Mon, 13 Jun 2005 22:58:42 +0100
+Message-Id: <1118699922.14833.0.camel@baythorne.infradead.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Date: Tue, 14 Jun 2005 07:42:52 +1000
+On Mon, 2005-06-13 at 09:31 -0700, Ulrich Drepper wrote:
+> I don't see the need for higher precision in this API and a change is
+> confusing.  There is nanosleep() for people who only want a delay and
+> that can be done with high precision.
 
-> It'll dump the stack anyway if we just make it a NULL pointer.
+If that's the case, might one enquire as to why pselect() has a struct
+timespec instead of a struct timeval?
 
-Some platforms don't handle that very cleanly, for example
-it may be necessary to have something mapped at page zero
-for one reason or another.
+Or would the answer just depress me?
+> 
+-- 
+dwmw2
+
+

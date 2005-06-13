@@ -1,64 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261317AbVFMUaP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261324AbVFMUaO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261317AbVFMUaP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 16:30:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261255AbVFMU1H
+	id S261324AbVFMUaO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 16:30:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261317AbVFMU1g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 16:27:07 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:17929 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261324AbVFMUZJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 16:25:09 -0400
-Message-Id: <200506132023.j5DKNhoG021339@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: =?ISO-8859-1?Q?Mattias Engdeg=E5rd?= <mattias@virtutech.se>
-Cc: cfriesen@nortel.com, jakub@redhat.com, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, dwmw2@infradead.org,
-       drepper@redhat.com
-Subject: Re: Add pselect, ppoll system calls. 
-In-Reply-To: Your message of "Mon, 13 Jun 2005 22:08:55 +0200."
-             <200506132008.j5DK8t010817@virtutech.se> 
-From: Valdis.Kletnieks@vt.edu
-References: <200506131938.j5DJcKc10799@virtutech.se> <42ADE52E.1040705@nortel.com>
-            <200506132008.j5DK8t010817@virtutech.se>
+	Mon, 13 Jun 2005 16:27:36 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:46253 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261322AbVFMUYu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 16:24:50 -0400
+Date: Mon, 13 Jun 2005 22:25:56 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
+       Ondrej Zary <linux@rainbow-software.org>,
+       Grant Coady <grant_lkml@dodo.com.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Odd IDE performance drop 2.4 vs 2.6?
+Message-ID: <20050613202555.GB27774@suse.de>
+References: <ac0qa19omlt7bsh8mcfsfr2uhshk338f0c@4ax.com> <42AD6362.1000109@rainbow-software.org> <1118669975.13260.23.camel@localhost.localdomain> <42AD92F2.7080108@yahoo.com.au> <1118675343.13773.1.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1118694222_5914P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 13 Jun 2005 16:23:42 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1118675343.13773.1.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1118694222_5914P
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+On Mon, Jun 13 2005, Alan Cox wrote:
+> On Llu, 2005-06-13 at 15:06, Nick Piggin wrote:
+> > > Make sure you have pre-empt disabled and the antcipatory I/O scheduler
+> > > disabled. 
+> > > 
+> > I don't think that those could explain it.
+> 
+> Try it and see. The anticipatory I/O scheduler does horrible things to
+> my IDE streaming performance numbers and to swap performance. It tries
+> to merge I/O by delaying it which is deeply ungood when it comes to IDE
+> streaming even if its good for general I/O.
 
-On Mon, 13 Jun 2005 22:08:55 +0200, =3D?ISO-8859-1?Q?Mattias Engdeg=3DE5r=
-d?=3D said:
-> >Mattias Engdeg=E5rd wrote:
+Well, AS should only intentionally delay when it has competing threads
+fighting for the disk. For a single threaded io case like hdparm, it
+should never idle the drive. It never delays to increase merge rate, or
+anything like that - only to increase spatial locality on the drive for
+two or more processes accessing it simultanously.
 
-> >Absolute timestamps are messy though.  How do you deal with system tim=
-e=20
-> >changes?
->=20
-> Monotonic clocks are there for exactly that, no?
+-- 
+Jens Axboe
 
-Monotonic clocks are guaranteed to not go backward.  A sudden warp 35 sec=
-onds
-into the future when you have timers set for 15 and 20 seconds into the f=
-uture
-is still ugly....
-
---==_Exmh_1118694222_5914P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFCretOcC3lWbTT17ARAgemAJ9FgUAmGdL+u7y1ChaHBozKbGHivgCgzV+p
-ZLIcnvZhS7Atzr2KnGPQEEE=
-=2vRV
------END PGP SIGNATURE-----
-
---==_Exmh_1118694222_5914P--

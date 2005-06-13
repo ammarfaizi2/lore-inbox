@@ -1,69 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261305AbVFMBJz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261306AbVFMBLk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261305AbVFMBJz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Jun 2005 21:09:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261306AbVFMBJz
+	id S261306AbVFMBLk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Jun 2005 21:11:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261307AbVFMBLk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Jun 2005 21:09:55 -0400
-Received: from opersys.com ([64.40.108.71]:46086 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261305AbVFMBJg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Jun 2005 21:09:36 -0400
-Message-ID: <42ACDF4D.80503@opersys.com>
-Date: Sun, 12 Jun 2005 21:20:13 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
-MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-CC: Ingo Molnar <mingo@elte.hu>, Kristian Benoit <kbenoit@opersys.com>,
-       linux-kernel@vger.kernel.org, paulmck@us.ibm.com, bhuey@lnxw.com,
-       tglx@linutronix.de, pmarques@grupopie.com, bruce@andrew.cmu.edu,
-       nickpiggin@yahoo.com.au, ak@muc.de, sdietrich@mvista.com,
-       dwalker@mvista.com, hch@infradead.org, akpm@osdl.org, rpm@xenomai.org
-Subject: Re: PREEMPT_RT vs ADEOS: the numbers, part 1
-References: <42AA6A6B.5040907@opersys.com> <20050611191448.GA24152@elte.hu> <42AB662B.4010104@opersys.com> <20050612061108.GA4554@elte.hu> <42AC8D00.4030809@opersys.com> <20050612205902.GA31928@elte.hu> <20050613004530.GH5796@g5.random>
-In-Reply-To: <20050613004530.GH5796@g5.random>
-Content-Type: text/plain; charset=us-ascii
+	Sun, 12 Jun 2005 21:11:40 -0400
+Received: from fmr17.intel.com ([134.134.136.16]:7620 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261306AbVFMBLP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Jun 2005 21:11:15 -0400
+Subject: Re: [PATCH]x86-x86_64 flush cache for CPU hotplug
+From: Shaohua Li <shaohua.li@intel.com>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
+       Ashok Raj <ashok.raj@intel.com>, ak <ak@muc.de>
+In-Reply-To: <Pine.LNX.4.61.0506101310120.31175@montezuma.fsmlabs.com>
+References: <1118374208.7510.6.camel@linux-hp.sh.intel.com>
+	 <Pine.LNX.4.61.0506101310120.31175@montezuma.fsmlabs.com>
+Content-Type: text/plain
+Date: Mon, 13 Jun 2005 09:18:44 +0800
+Message-Id: <1118625524.3822.12.camel@linux-hp.sh.intel.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Andrea Arcangeli wrote:
-> Karim, just in case you're not very familiar with parport, this should
-> do the trick:
+On Fri, 2005-06-10 at 13:11 -0600, Zwane Mwaikambo wrote:
+> Hello Shaohua,
 > 
-> diff --git a/drivers/parport/parport_pc.c b/drivers/parport/parport_pc.c
-> --- a/drivers/parport/parport_pc.c
-> +++ b/drivers/parport/parport_pc.c
-> @@ -2286,7 +2286,7 @@ struct parport *parport_pc_probe_port (u
->  	}
->  	if (p->irq != PARPORT_IRQ_NONE) {
->  		if (request_irq (p->irq, parport_pc_interrupt,
-> -				 0, p->name, p)) {
-> +				 SA_NODELAY, p->name, p)) {
->  			printk (KERN_WARNING "%s: irq %d in use, "
->  				"resorting to polled operation\n",
->  				p->name, p->irq);
+> On Fri, 10 Jun 2005, Shaohua Li wrote:
+> 
+> > We should flush cache at CPU hotplug. An error has been observed data is
+> > corrupted after CPU hotplug in CPUs with bigger cache.
+> > I guess IA64 requires similar change, Ashok?
+> 
+> Interesting, which processor was this?
+It's a kind of Pentium M. 
 
-Thanks for the patch. However, we actually wrote our own driver requesting
-the parport int instead of using the one in Linux. We just wanted to
-really customize the driver in as much as possible for benchmarking
-purposes.
+> > 
+> >  linux-2.6.12-rc6-mm1-root/arch/i386/kernel/process.c   |    1 +
+> >  linux-2.6.12-rc6-mm1-root/arch/x86_64/kernel/process.c |    1 +
+> >  2 files changed, 2 insertions(+)
+> > 
+> > diff -puN arch/i386/kernel/process.c~flush_cache_cpuhotplug arch/i386/kernel/process.c
+> > --- linux-2.6.12-rc6-mm1/arch/i386/kernel/process.c~flush_cache_cpuhotplug	2005-06-10 10:56:05.082247160 +0800
+> > +++ linux-2.6.12-rc6-mm1-root/arch/i386/kernel/process.c	2005-06-10 11:05:10.597316264 +0800
+> > @@ -155,6 +155,7 @@ static inline void play_dead(void)
+> >  {
+> >  	/* This must be done before dead CPU ack */
+> >  	cpu_exit_clear();
+> > +	wbinvd();
+> >  	mb();
+> 
+> We shouldn't need that mb() there anymore then, ditto for the other 
+> location.
+Indead. How about just leave it here for clearness?
 
-> With above patch applied my crystal ball expects preempt-RT to perform
-> much closer to adeos, but with the difference that the non-RT part of
-> the system will still get the burden of the added complexity that adeos
-> won't have.
+Thanks,
+Shaohua
 
-We'll be redoing some of the tests, and we'll keep you posted on
-the results.
-
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546

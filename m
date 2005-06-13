@@ -1,69 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261579AbVFMN4j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261211AbVFMOGG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261579AbVFMN4j (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 09:56:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261577AbVFMN4j
+	id S261211AbVFMOGG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 10:06:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbVFMOGG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 09:56:39 -0400
-Received: from ns1.suse.de ([195.135.220.2]:2779 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S261575AbVFMN40 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 09:56:26 -0400
-Message-ID: <42AD9089.5080006@suse.de>
-Date: Mon, 13 Jun 2005 15:56:25 +0200
-From: Hannes Reinecke <hare@suse.de>
-Organization: SuSE Linux AG
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.5) Gecko/20050317
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [RFT][PATCH] aic79xx: remove busyq
-References: <20050529074620.GA26151@havoc.gtf.org>
-In-Reply-To: <20050529074620.GA26151@havoc.gtf.org>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	Mon, 13 Jun 2005 10:06:06 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:63960 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261211AbVFMOF7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 10:05:59 -0400
+Subject: Re: [Patch][RFC] fcntl: add ability to stop monitored processes
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Neil Horman <nhorman@redhat.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, Matthew Wilcox <matthew@wil.cx>,
+       linux-fsdevel@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050613134826.GB8810@hmsendeavour.rdu.redhat.com>
+References: <20050611000548.GA6549@hmsendeavour.rdu.redhat.com>
+	 <20050611180715.GK24611@parcelfarce.linux.theplanet.co.uk>
+	 <20050611193500.GC1097@devserv.devel.redhat.com>
+	 <20050612181006.GC2229@hmsendeavour.rdu.redhat.com>
+	 <1118643185.5260.12.camel@laptopd505.fenrus.org>
+	 <20050613134826.GB8810@hmsendeavour.rdu.redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1118671411.13260.31.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 13 Jun 2005 15:03:32 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Can anyone with aic79xx hardware give me a simple "it works"
-> or "this breaks things" answer, for the patch below?
-> 
-> This changes the aic79xx driver to use the standard Linux SCSI queueing
-> code, rather than its own.  After applying this patch, NO behavior
-> changes should be seen.
-> 
-> The patch is against 2.6.12-rc5, but probably applies OK to recent 2.6.x
-> kernels.
-> 
-Hmm. Does not quite work here:
+On Llu, 2005-06-13 at 14:48, Neil Horman wrote:
+> The idea I had was to catch processes which are preforming ostensibly
+> undesireable filesystem operations (as defined by the actions that F_NOTIFY can
+> monitor).  I'm not sure how else to avoid the race condition that can arise
+> between the delivery of the F_NOTIFY signal to the monitoring process, and the
+> exiting of the monitored process. If you have another thought, I'm certainly
+> open to it.
 
-scsi0: Starting DV
-scsi0 : Adaptec AIC79XX PCI-X SCSI HBA DRIVER, Rev 1.3.11
-        <Adaptec 29320 Ultra320 SCSI adapter>
-        aic7902: Ultra320 Wide Channel A, SCSI Id=7, PCI 33 or 66Mhz,
-512 SCBs
+I'm more worried you will make things worse not better. My first thought
+was what stops me just filling up the file table with admin work
+possibly also involving setuid processes so the end user cannot rescue
+the situation.
 
-In DV Thread
-scsi0: Beginning Domain Validation
-scsi0:A:0:0: Performing DV
-scsi0:2223: Going from state 0 to state 1
-scsi0:A:0:0: Sending INQ
-scsi0: Timeout while doing DV command 12.
+If its trying to do debugging then ptrace makes sense and the parent
+would be notified. Ptrace deals with exit of tracer and security for
+you. If you are trying to implement a security policy then the selinux
+hooks already allow you to block access to those files by selected
+processes anyway just as your F_NOTIFY hook would do, and you could even
+write a new security layer with a daemon that decided for the F_NOTIFY
+equivalents.
 
-And from there all hell breaks loose.
+Alan
 
-It looks as if it simply refuses to send any commands ...
-Investigating.
-
-Cheers,
-
-Hannes
--- 
-Dr. Hannes Reinecke			hare@suse.de
-SuSE Linux AG				S390 & zSeries
-Maxfeldstraße 5				+49 911 74053 688
-90409 Nürnberg				http://www.suse.de

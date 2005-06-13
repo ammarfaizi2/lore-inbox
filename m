@@ -1,62 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261423AbVFMRJ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261398AbVFMRS4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261423AbVFMRJ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 13:09:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261814AbVFMRJ4
+	id S261398AbVFMRS4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 13:18:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261814AbVFMRS4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 13:09:56 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:64174 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261423AbVFMRJ1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 13:09:27 -0400
-Date: Mon, 13 Jun 2005 22:39:41 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Tony Lindgren <tony@atomide.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Dynamic tick for x86 version 050609-2
-Message-ID: <20050613170941.GA1043@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <88056F38E9E48644A0F562A38C64FB6004EBD10C@scsmsx403.amr.corp.intel.com> <20050609014033.GA30827@atomide.com> <20050610043018.GE18103@atomide.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050610043018.GE18103@atomide.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 13 Jun 2005 13:18:56 -0400
+Received: from [62.138.14.87] ([62.138.14.87]:10256 "EHLO mail.hk30.de")
+	by vger.kernel.org with ESMTP id S261398AbVFMRSv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 13:18:51 -0400
+Message-ID: <39833.212.114.70.5.1118683110.squirrel@62.138.14.87>
+Date: Mon, 13 Jun 2005 19:18:30 +0200 (CEST)
+From: "Hans Korneder" <hans@korneder.de>
+To: linux-kernel@vger.kernel.org
+Reply-To: hans@korneder.de
+User-Agent: SquirrelMail/1.4.2
+MIME-Version: 1.0
+X-Priority: 3
+Importance: Normal
+X-SA-Exim-Connect-IP: 127.0.0.1
+X-SA-Exim-Mail-From: hans@korneder.de
+Subject: alarms do not get fired when booting thru pxelinux
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-SA-Exim-Version: 4.0 (built Tue, 27 Jul 2004 15:39:04 +0200)
+X-SA-Exim-Scanned: Yes (on mail.hk30.de)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Tony,
-        I went through the dynamic-tick patch on your website
-(patch-dynamic-tick-2.6.12-rc6-050610-1) and was having some
-questions about it:
+Hello,
 
-1. dyn_tick->skip is set to the number of ticks that have
-   to be skipped. This is set on the CPU which is the last
-   (in online_map) to go idle and is based on when that
-   CPU's next timer is set to expire.
+I just stumbled over a strange behaviour of 2.6-Kernels when being bootet
+thru pxelinux: alarms do not occur.
 
-   Other CPUs also seem to use the same interval
-   to skip ticks. Shouldnt other CPU check their nearest timer
-   rather than blindly skipping dyn_tick->skip number of ticks?
+Example:
+/* ------------------------------------------------------- */
+#include <stdio.h>
+#include <signal.h>
 
-2. reprogram_apic_timer seems to reprogram the count-down
-   APIC timer (APIC_TMICT) with an integral number of apic_timer_val.
-   How accurate will this be? Shouldnt this take into account
-   that we may not be reprogramming the timer on exactly "jiffy"
-   boundary?
+void catch_sig(int sig_num)
+{
+fprintf(stderr,"catch_sig %d\n", sig_num);
+(void)signal(sig_num, catch_sig);
+}
 
-3. Is there any strong reason why you reprogram timers only when
-   _all_ CPUs are idle?
+main()
+{
 
-4. In what aspects you think does your patch differ from VST (other
-   than not relying on HRT!)?
+catch_sig(SIGALRM);
+
+alarm(3);
+pause();
+exit(0);
+}
+/* ---------------------------------------------- */
+
+The program sleeps endlessly in pause().
+
+The problem occurs with kernel 2.6.11, 2.6.11.4, 2.6.11.11
+when being booted thru pxelinux (tested with 3.08 and 2.11) only,
+that is the program behaves as intended when exactly the same kernel
+is booted with lilo or grub.
+The problem did not occur on 2.4-kernels (the latest running version I
+tested was 2.4.25).
+The same problem happens when using setitimer() as within the following
+example:
+/* ---------------------------------------------- */
+#include <stdio.h>
+#include <signal.h>
+#include <sys/time.h>
+
+void catch_sig(int sig_num)
+{
+fprintf(stderr,"catch_sig %d\n", sig_num);
+(void)signal(sig_num, catch_sig);
+}
+
+main()
+{
+int res;
+struct itimerval itimer;
+
+catch_sig(SIGALRM);
+
+itimer.it_value.tv_sec = 0;
+itimer.it_value.tv_usec = 200*1000;
+
+itimer.it_interval.tv_sec = 0;
+itimer.it_interval.tv_usec = 300*1000;
+
+res = setitimer(ITIMER_REAL, &itimer, (struct itimerval *)0);
+fprintf(stderr,"setitimer: res=%d\n", res);
+
+for(;;)  pause() ;
+}
+/* ---------------------------------------------- */
+
+Any ideas?
+Any ideas for tracking down the problem?
+
+Regards,
+Hans
 
 
 -- 
+Hans Korneder         hans (at) korneder (dot) de
 
-
-Thanks and Regards,
-Srivatsa Vaddagiri,
-Linux Technology Center,
-IBM Software Labs,
-Bangalore, INDIA - 560017

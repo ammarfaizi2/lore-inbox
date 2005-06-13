@@ -1,53 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261627AbVFMPTB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261614AbVFMP0f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261627AbVFMPTB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 11:19:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261607AbVFMPRx
+	id S261614AbVFMP0f (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 11:26:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261611AbVFMP0e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 11:17:53 -0400
-Received: from wproxy.gmail.com ([64.233.184.197]:18704 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261634AbVFMPRU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 11:17:20 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:content-transfer-encoding:in-reply-to:user-agent:from;
-        b=FFD4jMF0LD6ChMmRto4K/I+mc+qegaW2bbUoNQg2lW2q0od9KHqpkKvORMdt2s81BKvYGDNJozrSg9HMB1kJ0Lg2nKotUCZs4JhIJgRrCm+HAkgq9xZg2ZKBSqt0S/gtxBy+5Dvxt+dR0QEZdHHEFnDDDkjgePwWitgMYRJ4uM4=
-Date: Mon, 13 Jun 2005 17:17:08 +0200
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: dino@in.ibm.com, Andrew Morton <akpm@osdl.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: What breaks aic7xxx in post 2.6.12-rc2 ?
-Message-ID: <20050613151708.GB12057@gmail.com>
-References: <20050530150950.GA14351@gmail.com> <1117467248.4913.9.camel@mulgrave> <20050530160147.GD14351@gmail.com> <1117477040.4913.12.camel@mulgrave> <20050530190716.GA9239@gmail.com> <1118081857.5045.49.camel@mulgrave> <20050607085710.GB9230@gmail.com> <1118590709.4967.6.camel@mulgrave> <20050613145000.GA12057@gmail.com> <1118674783.5079.9.camel@mulgrave>
+	Mon, 13 Jun 2005 11:26:34 -0400
+Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:40323 "EHLO
+	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S261614AbVFMPZ6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 11:25:58 -0400
+X-ORBL: [67.117.73.34]
+Date: Mon, 13 Jun 2005 08:25:07 -0700
+From: Tony Lindgren <tony@atomide.com>
+To: Valdis.Kletnieks@vt.edu
+Cc: linux-kernel@vger.kernel.org,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       Jonathan Corbet <corbet@lwn.net>, Pavel Machek <pavel@ucw.cz>,
+       Bernard Blackham <b-lkml@blackham.com.au>,
+       Christian Hesse <mail@earthworm.de>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Thomas Renninger <trenn@suse.de>
+Subject: Re: [PATCH] Dynamic tick for x86 version 050609-2
+Message-ID: <20050613152507.GB7862@atomide.com>
+References: <88056F38E9E48644A0F562A38C64FB6004EBD10C@scsmsx403.amr.corp.intel.com> <20050609014033.GA30827@atomide.com> <20050610043018.GE18103@atomide.com> <200506130454.j5D4suNY006032@turing-police.cc.vt.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1118674783.5079.9.camel@mulgrave>
-User-Agent: Mutt/1.5.6i
-From: =?iso-8859-1?Q?Gr=E9goire?= Favre <gregoire.favre@gmail.com>
+In-Reply-To: <200506130454.j5D4suNY006032@turing-police.cc.vt.edu>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 13, 2005 at 09:59:43AM -0500, James Bottomley wrote:
+* Valdis.Kletnieks@vt.edu <Valdis.Kletnieks@vt.edu> [050612 21:55]:
+> On Thu, 09 Jun 2005 21:30:18 PDT, Tony Lindgren said:
+> 
+> > Thanks for all the comments. Here's an updated dyntick patch.
+> 
+> Patches with 3 minor rejects against -rc6-mm1, boots, and seems to work well on
+> my Dell Latitude C840 laptop - although running at full load with seti@home
+> causes the expected 250 timer ticks/sec, running a mostly-idle  X session only
+> gets about 117, and having xmms and a few other things running it hits about
+> 170 tics/sec. I've had the CPU speed bounce between 1.2G and 1.6G a few times
+> and it didn't seem to blink either. Even NTP is happy with what it sees.. ;)
 
-> Actually, the kernel appears to be wrong:
+Cool.
 
-Oops, sorry, I took my grub conf and edited the bad entry :
+> Need to rebuild with CONFIG_HZ=1000 and see what it does, and see what it does
+> to actual power consumption.
 
-title 2.6.12-rc6
-#kernel (hd0,2)/bzImage-2.6.12-rc6 root=/dev/sdc2 parport=auto video=vesafb:mtrr,ywrap,1024x800-16@75 vga=0xF07
-kernel (hd0,2)/bzImage-2.6.12-rc5 root=/dev/sdc2 parport=auto video=vesafb:mtrr,ywrap,1024x800-16@75 vga=0xF07 console=ttyS0
+You may also want to check out the patch by Thomas Renninger for ACPI
+C-states. I've added a link to it at:
 
-to take the second option with the "console=ttyS0" and forgot to update
-it to (hd0,2)/bzImage-2.6.12-rc6.
+http://muru.com/dyntick/
 
-Sorry for it, I can reboot my computer at 9pm (vdr is reccording till
-9pm) and then I post the result :)
+> Minor nit:  The implementation of /sys/devices/system/timer/timer0/dyn_tick_state
+> violates the one-value-per-file rule for sysfs.  I suspect this needs to
+> become a directory with 3-4 files in it, each containing one value.
 
-And don't worry, it's a vanilla 2.6.12-rc6 with only the scsi-misc and
-the last patch, I even didn't patch for latest DVB.
--- 
-	Grégoire Favre
+Yeah, I'll clean up that for the next version.
+
+Tony

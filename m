@@ -1,69 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261663AbVFMQEJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261733AbVFMQGb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261663AbVFMQEJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 12:04:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261664AbVFMQEJ
+	id S261733AbVFMQGb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 12:06:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261732AbVFMQGa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 12:04:09 -0400
-Received: from main.gmane.org ([80.91.229.2]:58296 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S261663AbVFMQDj (ORCPT
+	Mon, 13 Jun 2005 12:06:30 -0400
+Received: from lug-owl.de ([195.71.106.12]:60351 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S261664AbVFMQEu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 12:03:39 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Jan Rychter <jan@rychter.com>
-Subject: Re: ipw2100: firmware problem
-Date: Mon, 13 Jun 2005 18:42:52 +0200
-Message-ID: <m2slzmmcmr.fsf@tnuctip.rychter.com>
-References: <000f01c56dbf$9b15de90$600cc60a@amer.sykes.com>
-	<1118435188.6423.26.camel@mindpipe>
+	Mon, 13 Jun 2005 12:04:50 -0400
+Date: Mon, 13 Jun 2005 18:04:49 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Pausing a task
+Message-ID: <20050613160449.GJ3008@lug-owl.de>
+Mail-Followup-To: Linux kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.61.0506131142120.17826@chaos.analogic.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 81.210.81.243
-User-Agent: Gnus/5.110003 (No Gnus v0.3) XEmacs/21.5-b20 (linux)
-X-Spammers-Please: blackholeme@rychter.com
-Cancel-Lock: sha1:pgzxpmGJN5nQRQ1+8KC5/QzXArk=
-Cc: netdev@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="BEa57a89OpeoUzGD"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0506131142120.17826@chaos.analogic.com>
+X-Operating-System: Linux mail 2.6.11.10lug-owl 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Lee" == Lee Revell <rlrevell@joe-job.com> writes:
- Lee> On Fri, 2005-06-10 at 07:23 -0600, Alejandro Bonilla wrote:
- >> >
- >> > Adding kernel level wireless autoconfiguration duplicates the
- >> > effort.  Since I am not going to give up a requirement to be able
- >> > to stay radio silent at boot (me too wants freedom, not only you),
- >> > you need to add disable=1 module parameter to each driver, which
- >> > adds to the mess.
- >> >
- >> > ALSA does the Right Thing. Sound is completely muted out at module
- >> > load.  It's a user freedom to set desired volume level after that.
- >>
- >> Yeah right. I remember I had to google for 10 minutes to find the
- >> answer for this one. Why would you install something, for it to not
- >> work?
- >>
- >> It thing of Mute in ALSA is stupid. If you want Sound, you install
- >> the Sound and enable it. Why would it make you google for more
- >> things to do? ALSA mute on install is WAY way, not OK.
 
- Lee> It took you 10 minutes of googling before you thought to try the
- Lee> mixer?  Sorry dude, this is PEBKAC.
+--BEa57a89OpeoUzGD
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Oh, really, you think this works so well? Ever tried to use more than
-one soundcard? A USB audio device? Ever wondered why oh why one has to
-always check and twiddle with the mixers? Why (it seems) setting the
-volume of USB audio devices via alsamixer doesn't work for apps which
-use OSS emulation? Ever wondered why alsactl restore doesn't get called
-by udev by default?
+On Mon, 2005-06-13 11:50:34 -0400, Richard B. Johnson <linux-os@analogic.co=
+m> wrote:
+>=20
+> How can I (as root) pause or suspend a process?
+> On VAX/VMS one could do `set process=3Dsuspend`. This
+> would allow the system manager to check on a possibly
+> rogue user.
+>=20
+> Let's say that "Hacker Jack" just got fired because
+> he was disrupting a project. One needs to find any of
+> his processes where he might be deleting a project
+> tree. Pausing, rather than killing the tasks would
+> allow evidence to be gathered. Basically, I need
+> to set the task(s) priorities to something that
+> will take them out of the run-queue altogether.
 
-The current Linux approach (most distributions) is to let the user be
-the master. Which means lots of typing, configuring, tweaking. Try that
-on a tablet pc without a keyboard.
+~# pkill -SIGSTOP -U richard
 
-Things should Just Work. I wish most Linux developers tried using a Mac
-at least once in their lifetimes.
+< examine the situation, attach gdb/strace/ltrace/whatever >
 
---J.
+If you just want to let'em continue:
 
+~# pkill -SIGCONG -U richard
+
+MfG, JBG
+
+--=20
+Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
+_ O _
+"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
+_ _ O
+ fuer einen Freien Staat voll Freier B=C3=BCrger" | im Internet! |   im Ira=
+k!   O O O
+ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
+);
+
+--BEa57a89OpeoUzGD
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFCra6hHb1edYOZ4bsRAnUHAJ4x9/3EWCLmf4gGOepYXSYeo8zwHwCeILnb
+aVFYq6OHwoevfoOmwcidzCU=
+=0m2m
+-----END PGP SIGNATURE-----
+
+--BEa57a89OpeoUzGD--

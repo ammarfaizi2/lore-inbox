@@ -1,66 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261325AbVFMQOB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261706AbVFMQRF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261325AbVFMQOB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 12:14:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261664AbVFMQOB
+	id S261706AbVFMQRF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 12:17:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261689AbVFMQRF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 12:14:01 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:57020 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261325AbVFMQNl (ORCPT
+	Mon, 13 Jun 2005 12:17:05 -0400
+Received: from fmr18.intel.com ([134.134.136.17]:4776 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261706AbVFMQQu convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 12:13:41 -0400
-Message-ID: <42ADAFE5.5050206@redhat.com>
-Date: Mon, 13 Jun 2005 09:10:13 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
+	Mon, 13 Jun 2005 12:16:50 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: David Woodhouse <dwmw2@infradead.org>
-CC: Jakub Jelinek <jakub@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org
-Subject: Re: Add pselect, ppoll system calls.
-References: <1118444314.4823.81.camel@localhost.localdomain>	 <1118616499.9949.103.camel@localhost.localdomain>	 <Pine.LNX.4.58.0506121725250.2286@ppc970.osdl.org>	 <Pine.LNX.4.62.0506121815070.24789@fhozvffvba.vaabprapr-ybfg.arg>	 <Pine.LNX.4.58.0506122018230.2286@ppc970.osdl.org>	 <42AD2640.5040601@redhat.com> <20050613091600.GA32364@outpost.ds9a.nl>	 <1118655702.2840.24.camel@localhost.localdomain>	 <20050613110556.GA26039@infradead.org>	 <20050613111422.GT22349@devserv.devel.redhat.com>	 <1118661848.2840.34.camel@localhost.localdomain>	 <42ADA880.60303@redhat.com> <1118678548.25956.200.camel@hades.cambridge.redhat.com>
-In-Reply-To: <1118678548.25956.200.camel@hades.cambridge.redhat.com>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig49025BDEC33A66241D5CF3D4"
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [Penance PATCH] PCI: clean up the MSI code a bit
+Date: Mon, 13 Jun 2005 09:15:22 -0700
+Message-ID: <C7AB9DA4D0B1F344BF2489FA165E502408E23C39@orsmsx404.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [Penance PATCH] PCI: clean up the MSI code a bit
+Thread-Index: AcVt1H5cco+xX5rhS/232VRlN8tLZQCXatIA
+From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+To: "Stefan Smietanowski" <stesmi@stesmi.com>
+Cc: "Andi Kleen" <ak@suse.de>, "Greg KH" <gregkh@suse.de>,
+       "Grant Grundler" <grundler@parisc-linux.org>,
+       <linux-pci@atrey.karlin.mff.cuni.cz>, <linux-kernel@vger.kernel.org>,
+       "Roland Dreier" <roland@topspin.com>,
+       "Arjan van de Ven" <arjan@infradead.org>,
+       "Andrew Vasquez" <andrew.vasquez@qlogic.com>,
+       "Jeff Garzik" <jgarzik@pobox.com>,
+       "David S. Miller" <davem@davemloft.net>,
+       "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+X-OriginalArrivalTime: 13 Jun 2005 16:15:24.0233 (UTC) FILETIME=[1AA10390:01C57033]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig49025BDEC33A66241D5CF3D4
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+On Friday, June 10, 2005 8:56 AM Stefan Smietanowski wrote:
+> If we default to MSI mode, then that is replaced by
+> pci_disable_msi(dev); pci_enable_msix(dev, .., ..);
+> with any error checking required, etc.
+>
+> If we implement an error code for each of the cases, so that
+> the driver KNOWS which mode it's in after pci_enable_msix() is called
+> I don't see a difference. I'm not an expert on the subject and likely
+> missing things but ..
 
-David Woodhouse wrote:
-> 64-bit value for which? For seconds?
+You have a good point. Please save your discussion and bring it back
+when Linux Community's inputs agree that we should default to MSI mode.
 
-poll()'s timeout value is measrued in milliseconds.  Using a 32bit
-value, as implied by using 'int' for the type, limits the mximum timeout
-to be 2^31-1 milliseconds, which means about 24 days.  Believe it or
-not, people are complaining about this.  Changing the timeout to a 64
-bit millisecond timeout would lift the limitation from the API's POV.  I
-don't know what limitations exist in the kernel itself.
-
---=20
-=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
-=E2=9E=A7 Mountain View, CA =E2=9D=96
-
-
---------------enig49025BDEC33A66241D5CF3D4
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iD8DBQFCra/l2ijCOnn/RHQRAqeGAKC6XxatgY958Ro7b86/4JQSDF7xxACffY3/
-gElDkfRDmp6fMhLijxLzX2U=
-=35Lx
------END PGP SIGNATURE-----
-
---------------enig49025BDEC33A66241D5CF3D4--
+Thanks,
+Long

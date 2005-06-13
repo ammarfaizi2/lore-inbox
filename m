@@ -1,41 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261610AbVFMPNn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261592AbVFMPOt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261610AbVFMPNn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 11:13:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261607AbVFMPNm
+	id S261592AbVFMPOt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 11:14:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261627AbVFMPOd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 11:13:42 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:15833 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261616AbVFMPMt
+	Mon, 13 Jun 2005 11:14:33 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:14809 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261592AbVFMPLZ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 11:12:49 -0400
-Subject: Re: [Patch][RFC] fcntl: add ability to stop monitored processes
+	Mon, 13 Jun 2005 11:11:25 -0400
+Subject: Re: Odd IDE performance drop 2.4 vs 2.6?
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Neil Horman <nhorman@redhat.com>
-Cc: Matthew Wilcox <matthew@wil.cx>, linux-fsdevel@vger.kernel.org,
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Ondrej Zary <linux@rainbow-software.org>,
+       Grant Coady <grant_lkml@dodo.com.au>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050613135029.GC8810@hmsendeavour.rdu.redhat.com>
-References: <20050611000548.GA6549@hmsendeavour.rdu.redhat.com>
-	 <20050611180715.GK24611@parcelfarce.linux.theplanet.co.uk>
-	 <20050611193500.GC1097@devserv.devel.redhat.com>
-	 <20050612181006.GC2229@hmsendeavour.rdu.redhat.com>
-	 <1118670162.13250.25.camel@localhost.localdomain>
-	 <20050613135029.GC8810@hmsendeavour.rdu.redhat.com>
+In-Reply-To: <42AD92F2.7080108@yahoo.com.au>
+References: <ac0qa19omlt7bsh8mcfsfr2uhshk338f0c@4ax.com>
+	 <42AD6362.1000109@rainbow-software.org>
+	 <1118669975.13260.23.camel@localhost.localdomain>
+	 <42AD92F2.7080108@yahoo.com.au>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1118675421.13770.3.camel@localhost.localdomain>
+Message-Id: <1118675343.13773.1.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 13 Jun 2005 16:10:23 +0100
+Date: Mon, 13 Jun 2005 16:09:04 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2005-06-13 at 14:50, Neil Horman wrote:
-> You mean add the ability to monitor directories for changes to the ptrace
-> interface entirely?
+On Llu, 2005-06-13 at 15:06, Nick Piggin wrote:
+> > Make sure you have pre-empt disabled and the antcipatory I/O scheduler
+> > disabled. 
+> > 
+> I don't think that those could explain it.
 
-If you are using it for debugging and tracking file accesses then ptrace
-seems to be the right interface. 
+Try it and see. The anticipatory I/O scheduler does horrible things to
+my IDE streaming performance numbers and to swap performance. It tries
+to merge I/O by delaying it which is deeply ungood when it comes to IDE
+streaming even if its good for general I/O.
 
 Alan
 

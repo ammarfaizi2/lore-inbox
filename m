@@ -1,48 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261552AbVFMWW5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261458AbVFMXcx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261552AbVFMWW5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 18:22:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261533AbVFMWTA
+	id S261458AbVFMXcx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 19:32:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261656AbVFMXai
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 18:19:00 -0400
-Received: from lyle.provo.novell.com ([137.65.81.174]:19225 "EHLO
-	lyle.provo.novell.com") by vger.kernel.org with ESMTP
-	id S261530AbVFMWRo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 18:17:44 -0400
-Date: Mon, 13 Jun 2005 15:17:36 -0700
-From: Greg KH <gregkh@suse.de>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-hotplug-devel@lists.sourceforge.net,
-       Kay Sievers <kay.sievers@vrfy.org>, Vojtech Pavlik <vojtech@suse.cz>,
-       LKML <linux-kernel@vger.kernel.org>, Hannes Reinecke <hare@suse.de>
-Subject: Re: Input sysbsystema and hotplug
-Message-ID: <20050613221736.GC15381@suse.de>
-References: <200506131607.51736.dtor_core@ameritech.net> <20050613212654.GB11182@vrfy.org> <200506131638.09140.dtor_core@ameritech.net>
+	Mon, 13 Jun 2005 19:30:38 -0400
+Received: from fmr24.intel.com ([143.183.121.16]:3542 "EHLO
+	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261458AbVFMX30 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 19:29:26 -0400
+Date: Mon, 13 Jun 2005 16:29:16 -0700
+From: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Handle CPU cores in CPU cache information
+Message-ID: <20050613162916.A5178@unix-os.sc.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200506131638.09140.dtor_core@ameritech.net>
-User-Agent: Mutt/1.5.8i
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 13, 2005 at 04:38:08PM -0500, Dmitry Torokhov wrote:
-> On Monday 13 June 2005 16:26, Kay Sievers wrote:
-> > On Mon, Jun 13, 2005 at 04:07:51PM -0500, Dmitry Torokhov wrote:
-> > > 
-> > > where inputX are class devices, mouse and event are subclasses of input
-> > > class and mouseX and eventX are again class devices.
-> > 
-> > We don't support childs of class devices until now. Would be nice maybe, but
-> > someone needs to add that to the driver-core first and we would need to make
-> > a bunch of userspace stuff aware of it ...
-> > 
-> 
-> Something like patch below will suffice I think (not tested).
 
-No, you need to increment the parent when you register the child.  Look
-at the device code for what's needed for this.
 
-thanks,
+Handle the case of all the cores in a package sharing the cache,
+in cache_shared_cpu_map_setup().
 
-greg k-h
+Signed-off-by: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+
+diff -purN linux-2.6.12-rc4-mm2/arch/i386/kernel/cpu/intel_cacheinfo.c linux-2.6.12-rc4-mm2-cache/arch/i386/kernel/cpu/intel_cacheinfo.c
+--- linux-2.6.12-rc4-mm2/arch/i386/kernel/cpu/intel_cacheinfo.c	2005-05-17 05:50:03.000000000 -0700
++++ linux-2.6.12-rc4-mm2-cache/arch/i386/kernel/cpu/intel_cacheinfo.c	2005-06-11 04:53:59.749155936 -0700
+@@ -305,6 +305,9 @@ static void __devinit cache_shared_cpu_m
+ {
+ 	struct _cpuid4_info	*this_leaf;
+ 	unsigned long num_threads_sharing;
++#ifdef CONFIG_X86_HT
++	struct cpuinfo_x86 *c = cpu_data + cpu;
++#endif
+ 
+ 	this_leaf = CPUID4_INFO_IDX(cpu, index);
+ 	num_threads_sharing = 1 + this_leaf->eax.split.num_threads_sharing;
+@@ -314,10 +317,12 @@ static void __devinit cache_shared_cpu_m
+ #ifdef CONFIG_X86_HT
+ 	else if (num_threads_sharing == smp_num_siblings)
+ 		this_leaf->shared_cpu_map = cpu_sibling_map[cpu];
+-#endif
++	else if (num_threads_sharing == (c->x86_num_cores * smp_num_siblings))
++		this_leaf->shared_cpu_map = cpu_core_map[cpu];
+ 	else
+-		printk(KERN_INFO "Number of CPUs sharing cache didn't match "
++		printk(KERN_DEBUG "Number of CPUs sharing cache didn't match "
+ 				"any known set of CPUs\n");
++#endif
+ }
+ #else
+ static void __init cache_shared_cpu_map_setup(unsigned int cpu, int index) {}

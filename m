@@ -1,46 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261209AbVFMS6U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261219AbVFMS6t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261209AbVFMS6U (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 14:58:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261218AbVFMS6S
+	id S261219AbVFMS6t (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 14:58:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261218AbVFMS6s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 14:58:18 -0400
-Received: from fed1rmmtao12.cox.net ([68.230.241.27]:63636 "EHLO
-	fed1rmmtao12.cox.net") by vger.kernel.org with ESMTP
-	id S261209AbVFMS4u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 14:56:50 -0400
-Date: Mon, 13 Jun 2005 11:56:49 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 2.6.12-rc6] <linux/if_tr.h> needs <asm/byteorder.h>
-Message-ID: <20050613185649.GA29200@smtp.west.cox.net>
+	Mon, 13 Jun 2005 14:58:48 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:46254 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261216AbVFMS6D (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 14:58:03 -0400
+Date: Mon, 13 Jun 2005 20:56:42 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Kristian Benoit <kbenoit@opersys.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: network driver disabled interrupts in PREEMPT_RT
+Message-ID: <20050613185642.GA12463@elte.hu>
+References: <1118688347.5792.12.camel@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <1118688347.5792.12.camel@localhost>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<linux/if_tr.h> uses __be16, but does not directly include
-<asm/byteorder.h>.  Add this in, so that dhcp/net-tools token ring code
-can compile again.
 
-Signed-off-by: Tom Rini <trini@kernel.crashing.org>
+* Kristian Benoit <kbenoit@opersys.com> wrote:
 
-diff --git a/include/linux/if_tr.h b/include/linux/if_tr.h
---- a/include/linux/if_tr.h
-+++ b/include/linux/if_tr.h
-@@ -19,6 +19,8 @@
- #ifndef _LINUX_IF_TR_H
- #define _LINUX_IF_TR_H
+> Hi,
+> I got lots of these messages when accessing the net running
+> 2.6.12-rc6-RT-V0.7.48-25 :
+> 
+> "network driver disabled interrupts: tg3_start_xmit+0x0/0x629 [tg3]"
+> 
+> it seem to come from net/sched/sch_generic.c.
+
+does the patch below fix it?
+
+	Ingo
+
+--- linux/drivers/net/tg3.c.orig
++++ linux/drivers/net/tg3.c
+@@ -3242,9 +3242,9 @@ static int tg3_start_xmit(struct sk_buff
+ 	 * So we really do need to disable interrupts when taking
+ 	 * tx_lock here.
+ 	 */
+-	local_irq_save(flags);
++	local_irq_save_nort(flags);
+ 	if (!spin_trylock(&tp->tx_lock)) { 
+-		local_irq_restore(flags);
++		local_irq_restore_nort(flags);
+ 		return NETDEV_TX_LOCKED; 
+ 	} 
  
-+#include <asm/byteorder.h>	/* For __be16 */
-+
- /* IEEE 802.5 Token-Ring magic constants.  The frame sizes omit the preamble
-    and FCS/CRC (frame check sequence). */
- #define TR_ALEN		6		/* Octets in one token-ring addr */
-
--- 
-Tom Rini
-http://gate.crashing.org/~trini/

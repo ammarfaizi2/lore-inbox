@@ -1,73 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261609AbVFMWrc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261615AbVFMWrb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261609AbVFMWrc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 18:47:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbVFMWqG
+	id S261615AbVFMWrb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 18:47:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261609AbVFMWq1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 18:46:06 -0400
-Received: from amdext4.amd.com ([163.181.251.6]:42628 "EHLO amdext4.amd.com")
-	by vger.kernel.org with ESMTP id S261618AbVFMWpP convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 18:45:15 -0400
-X-Server-Uuid: 5FC0E2DF-CD44-48CD-883A-0ED95B391E89
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Subject: RE: [discuss] [OOPS] powernow on smp dual core amd64
-Date: Mon, 13 Jun 2005 17:44:55 -0500
-Message-ID: <84EA05E2CA77634C82730353CBE3A84301CFC14D@SAUSEXMB1.amd.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [discuss] [OOPS] powernow on smp dual core amd64
-Thread-Index: AcVwZiv7cvc79z8nRxuodjK7cDSeHAAASfCQ
-From: "Langsdorf, Mark" <mark.langsdorf@amd.com>
-To: "Tom Duffy" <tduffy@sun.com>
-cc: discuss@x86-64.org,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-X-WSS-ID: 6EB0D3E22DO7608542-01-01
-Content-Type: text/plain;
- charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+	Mon, 13 Jun 2005 18:46:27 -0400
+Received: from smtp.lnxw.com ([207.21.185.24]:5 "EHLO smtp.lnxw.com")
+	by vger.kernel.org with ESMTP id S261615AbVFMWm5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 18:42:57 -0400
+Date: Mon, 13 Jun 2005 15:43:30 -0700
+To: "Saksena, Manas" <Manas.Saksena@timesys.com>
+Cc: karim@opersys.com, dwalker@mvista.com, paulmck@us.ibm.com,
+       Andrea Arcangeli <andrea@suse.de>, Bill Huey <bhuey@lnxw.com>,
+       Lee Revell <rlrevell@joe-job.com>, Tim Bird <tim.bird@am.sony.com>,
+       linux-kernel@vger.kernel.org, tglx@linutronix.de, mingo@elte.hu,
+       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
+       ak@muc.de, sdietrich@mvista.com, hch@infradead.org, akpm@osdl.org
+Subject: Re: Attempted summary of "RT patch acceptance" thread
+Message-ID: <20050613224330.GA1113@nietzsche.lynx.com>
+References: <3D848382FB72E249812901444C6BDB1D01588198@exchange.timesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D848382FB72E249812901444C6BDB1D01588198@exchange.timesys.com>
+User-Agent: Mutt/1.5.9i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, 2005-06-13 at 16:47 -0500, Langsdorf, Mark wrote:
-> > Okay, I think I have figured this out.  During initialization, the 
-> > cpufreq infrastruture only initializes the first core of each 
-> > processor.  When a request comes into the second core, it's data 
-> > structre is unitialized and we get the null point dereference.
-> > 
-> > The solution is to assign the pointer to the data structure for the 
-> > first core to all the other cores.
-> > 
-> > Tom, could you try this patch and see if it helps?
-> 
-> Yes!  It fixed the panic.  I get much further.
+On Mon, Jun 13, 2005 at 06:20:10PM -0400, Saksena, Manas wrote:
+> Keep in mind that Linux has been making inroads into traditional
+> RTOS markets for 4+ years. RTOSes have been used in many devices
+> and systems -- many of which do not need the "ruby/diamond" hard
+> variety of real-time -- preempt-rt would be hard-enough for a 
+> very large number of devices/systems that currently use an RTOS
+> (or non mainline Linux kernel). 
 
-Great, I'll test that some more then submit it.
+It's better to use different terminology. The notion of real time
+is *not* a single dimensional vector that is either "more" or "less"
+than of any particular thing. It's much more complicated than that.
 
-> Unfortunately, after starting cpuspeed daemon, I get this:
+There's at least more than one definition of hard real time floating
+around with various degrees of determinism. Deterministic is
+deterministic and many RTOS are capable of that. Theoretically provable
+anything is pushing it and is not RTOSes are typically constructed.
 
-It looks like it's happening sometime after cpuspeed starts.
-Could you disable cpuspeed and see if the problem still
-occurs? 
+I recommend dropping that ridiculous terminology because how complex
+this problem/domain is as well as how misleading it can be.
 
-> Starting cpuspeed: [  OK  ]
-> Starting pcmcia:  Starting PCMCIA services:
-> CPU 6: Machine Check Exception:                4 Bank 4: 
-> b200000000070f0f
-> TSC 4129a3d70d
-
-> Code:  Bad RIP value.
-> RIP [<00000000000000ff>] RSP <ffff81003fe63fa0>
-> CR2: 00000000000000ff
->  <0>Kernel panic - not syncing: Oops
-
-Andi said that "Something tried to access a physical memory 
-address that was not mapped in the CPU."  Andi, is this
-related to the bug that you thought might have been fixed
-in 2.6.12-rc6-git4?
-
--Mark Langsdorf
-AMD, Inc.
+bill
 

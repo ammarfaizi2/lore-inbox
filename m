@@ -1,48 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261403AbVFMHKG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261408AbVFMHZ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261403AbVFMHKG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 03:10:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261405AbVFMHKF
+	id S261408AbVFMHZ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 03:25:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261338AbVFMHZ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 03:10:05 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:27377 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261403AbVFMHKB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 03:10:01 -0400
-Subject: Re: [PATCH] local_irq_disable removal
-From: Sven-Thorsten Dietrich <sdietrich@mvista.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Esben Nielsen <simlo@phys.au.dk>, Daniel Walker <dwalker@mvista.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050611200352.GA1477@elte.hu>
-References: <20050611191654.GA22301@elte.hu>
-	 <Pine.OSF.4.05.10506112123260.2917-100000@da410.phys.au.dk>
-	 <20050611200352.GA1477@elte.hu>
+	Mon, 13 Jun 2005 03:25:28 -0400
+Received: from gate.crashing.org ([63.228.1.57]:3278 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261408AbVFMHZZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 03:25:25 -0400
+Subject: Re: Add pselect, ppoll system calls.
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: jnf <jnf@innocence-lost.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       David Woodhouse <dwmw2@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org,
+       drepper@redhat.com
+In-Reply-To: <Pine.LNX.4.58.0506122018230.2286@ppc970.osdl.org>
+References: <1118444314.4823.81.camel@localhost.localdomain>
+	 <1118616499.9949.103.camel@localhost.localdomain>
+	 <Pine.LNX.4.58.0506121725250.2286@ppc970.osdl.org>
+	 <Pine.LNX.4.62.0506121815070.24789@fhozvffvba.vaabprapr-ybfg.arg>
+	 <Pine.LNX.4.58.0506122018230.2286@ppc970.osdl.org>
 Content-Type: text/plain
-Date: Mon, 13 Jun 2005 00:08:47 -0700
-Message-Id: <1118646527.5729.60.camel@sdietrich-xp.vilm.net>
+Date: Mon, 13 Jun 2005 17:23:21 +1000
+Message-Id: <1118647401.5986.91.camel@gaston>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+X-Mailer: Evolution 2.2.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-06-11 at 22:03 +0200, Ingo Molnar wrote:
-> * Esben Nielsen <simlo@phys.au.dk> wrote:
-> 
-> > > the jury is still out on the accuracy of those numbers. The test had 
-> > > RT_DEADLOCK_DETECT (and other -RT debugging features) turned on, which 
-> > > mostly work with interrupts disabled. The other question is how were 
-> > > interrupt response times measured.
-> > > 
-> > You would accept a patch where I made this stuff optional?
-> 
-> I'm not sure why. The soft-flag based local_irq_disable() should in fact 
-> be a tiny bit faster than the cli based approach, on a fair number of 
-> CPUs. But it should definitely not be slower in any measurable way.
-> 
 
-Is there any such SMP concept as a local_preempt_disable()  ?
+> One pretty simple alternative is to just make the timeout be a global, and 
+> have the signal handler clear it, guaranteeing that if we're just about to 
+> hit the select(), we'll exit immediately.
 
+That is still racy ... if the signal hits between loading that global to
+to pass it to select and the actual syscall entry ... pretty narrow but
+still there.
 
 

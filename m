@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261348AbVFMEkj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261352AbVFMEsr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261348AbVFMEkj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 00:40:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbVFMEkj
+	id S261352AbVFMEsr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 00:48:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261355AbVFMEsq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 00:40:39 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:53127 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S261348AbVFMEke (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 00:40:34 -0400
-Subject: [RT] Re: [PATCH] local_irq_disable removal
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: sdietrich@mvista.com, linux-kernel@vger.kernel.org,
-       Daniel Walker <dwalker@mvista.com>, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <20050612092856.GB1206@infradead.org>
-References: <1118214519.4759.17.camel@dhcp153.mvista.com>
-	 <20050611165115.GA1012@infradead.org> <20050612062350.GB4554@elte.hu>
-	 <20050612092856.GB1206@infradead.org>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Mon, 13 Jun 2005 00:39:56 -0400
-Message-Id: <1118637596.29495.6.camel@localhost.localdomain>
+	Mon, 13 Jun 2005 00:48:46 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:14602 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261352AbVFMEsp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 00:48:45 -0400
+Date: Mon, 13 Jun 2005 14:48:10 +1000
+To: Willy Tarreau <willy@w.ods.org>
+Cc: davem@davemloft.net, xschmi00@stud.feec.vutbr.cz, alastair@unixtrix.com,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [PATCH] fix small DoS on connect() (was Re: BUG: Unusual TCP Connect() results.)
+Message-ID: <20050613044810.GA32103@gondor.apana.org.au>
+References: <20050612083409.GA8220@alpha.home.local> <20050612103020.GA25111@gondor.apana.org.au> <20050612114039.GI28759@alpha.home.local> <20050612120627.GA5858@gondor.apana.org.au> <20050612123253.GK28759@alpha.home.local> <20050612131323.GA10188@gondor.apana.org.au> <20050612133349.GA6279@gondor.apana.org.au> <20050612134725.GB8951@alpha.home.local> <20050612135018.GA10910@gondor.apana.org.au> <20050612142401.GA10772@alpha.home.local>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050612142401.GA10772@alpha.home.local>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-06-12 at 10:28 +0100, Christoph Hellwig wrote:
-> On Sun, Jun 12, 2005 at 08:23:50AM +0200, Ingo Molnar wrote:
-> 
-> Then send patches when you think they're ready.  Everything directly
-> related to PREEPT_RT except the highlevel discussion is defintly offotpic.
-> Just create your preempt-rt mailinglist and get interested parties there,
-> lkml is for _general_ kernel discussion - even most subsystems that are
-> in mainline have their own lists.
+On Sun, Jun 12, 2005 at 04:24:01PM +0200, Willy Tarreau wrote:
+>
+> 1) no firewall in front of A
+>   - C spoofs A and sends a fake SYN to B
+>   - B responds to A with a SYN-ACK
+>   - A sends an RST to B, which clears the session
+>   - A wants to connect and sends its SYN to B which accepts it.
 
-Actually Ingo, I think it might be a good time to create a RT list. I'm
-much more interested in this topic than the average stuff that is on the
-LKML.  The reason I'm more for setting up a mailing list, is that I keep
-missing stuff that is related to your patch because there's no common
-subject line. For instance, I missed the first 4 messages in this thread
-since it didn't have anything about RT in the subject.  If there wasn't
-a fifth message, I would never have seen the previous messages.
+Well the attacker simply has to keep sending the same SYN packet
+over and over again until A runs out of SYN retries.
 
-If anything, please have RT in the Subject.
+What I really don't like about your patch is the fact that it is
+trying to impose a policy decision (that of forbidding all
+simultaneous connection initiations) inside the TCP stack.
 
-Thank you,
+A much better place to do that is netfilter.  If you do it there
+then not only will your protect all Linux machines from this attack,
+but you'll also protect all the other BSD-derived TCP stacks.
 
--- Steve
-
-
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

@@ -1,44 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261346AbVFMEZv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261348AbVFMEkj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261346AbVFMEZv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 00:25:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261348AbVFMEZv
+	id S261348AbVFMEkj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 00:40:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbVFMEkj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 00:25:51 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:46092 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S261346AbVFMEZr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 00:25:47 -0400
-Date: Mon, 13 Jun 2005 06:25:38 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Christian Leber <christian@leber.de>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH 2/2] lzma support: lzma compressed kernel image
-Message-ID: <20050613042538.GE8907@alpha.home.local>
-References: <20050607214128.GB2645@core.home> <20050612223150.GA26370@core.home>
+	Mon, 13 Jun 2005 00:40:39 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:53127 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261348AbVFMEke (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 00:40:34 -0400
+Subject: [RT] Re: [PATCH] local_irq_disable removal
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: sdietrich@mvista.com, linux-kernel@vger.kernel.org,
+       Daniel Walker <dwalker@mvista.com>, Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <20050612092856.GB1206@infradead.org>
+References: <1118214519.4759.17.camel@dhcp153.mvista.com>
+	 <20050611165115.GA1012@infradead.org> <20050612062350.GB4554@elte.hu>
+	 <20050612092856.GB1206@infradead.org>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Mon, 13 Jun 2005 00:39:56 -0400
+Message-Id: <1118637596.29495.6.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050612223150.GA26370@core.home>
-User-Agent: Mutt/1.4i
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 13, 2005 at 12:31:50AM +0200, Christian Leber wrote:
-> On Tue, Jun 07, 2005 at 11:41:28PM +0200, Christian Leber wrote:
+On Sun, 2005-06-12 at 10:28 +0100, Christoph Hellwig wrote:
+> On Sun, Jun 12, 2005 at 08:23:50AM +0200, Ingo Molnar wrote:
 > 
-> Also refined.
-> And btw. it is together with PATCH 1/2 allready used by a rescue
-> distribution :-)
-(...)
+> Then send patches when you think they're ready.  Everything directly
+> related to PREEPT_RT except the highlevel discussion is defintly offotpic.
+> Just create your preempt-rt mailinglist and get interested parties there,
+> lkml is for _general_ kernel discussion - even most subsystems that are
+> in mainline have their own lists.
 
-> +$(obj)/vmlinux.bin.lzma: $(obj)/vmlinux.bin FORCE
-> +	lzma e $(obj)/vmlinux.bin $(obj)/vmlinux.bin.lzma
-        ^^^^
-Would you please use $(call if_changed,lzma) as it is in other places ?
-This is very handy as it allows you to use another binary by simply
-passing "cmd_lzma=" to make.
+Actually Ingo, I think it might be a good time to create a RT list. I'm
+much more interested in this topic than the average stuff that is on the
+LKML.  The reason I'm more for setting up a mailing list, is that I keep
+missing stuff that is related to your patch because there's no common
+subject line. For instance, I missed the first 4 messages in this thread
+since it didn't have anything about RT in the subject.  If there wasn't
+a fifth message, I would never have seen the previous messages.
 
-Thanks,
-Willy
+If anything, please have RT in the Subject.
+
+Thank you,
+
+-- Steve
+
 

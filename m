@@ -1,55 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261163AbVFMRzo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261166AbVFMR7U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261163AbVFMRzo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 13:55:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261161AbVFMRzn
+	id S261166AbVFMR7U (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 13:59:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261167AbVFMR7T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 13:55:43 -0400
-Received: from one.firstfloor.org ([213.235.205.2]:32741 "EHLO
-	one.firstfloor.org") by vger.kernel.org with ESMTP id S261163AbVFMRzj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 13:55:39 -0400
-To: vatsa@in.ibm.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Dynamic tick for x86 version 050609-2
-References: <88056F38E9E48644A0F562A38C64FB6004EBD10C@scsmsx403.amr.corp.intel.com>
-	<20050609014033.GA30827@atomide.com>
-	<20050610043018.GE18103@atomide.com>
-	<20050613170941.GA1043@in.ibm.com>
-From: Andi Kleen <ak@muc.de>
-Date: Mon, 13 Jun 2005 19:55:38 +0200
-In-Reply-To: <20050613170941.GA1043@in.ibm.com> (Srivatsa Vaddagiri's
- message of "Mon, 13 Jun 2005 22:39:41 +0530")
-Message-ID: <m1k6kyb0px.fsf@muc.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+	Mon, 13 Jun 2005 13:59:19 -0400
+Received: from osten.wh.uni-dortmund.de ([129.217.129.130]:37793 "EHLO
+	osten.wh.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S261166AbVFMR7S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 13:59:18 -0400
+Message-ID: <42ADC974.3070204@web.de>
+Date: Mon, 13 Jun 2005 19:59:16 +0200
+From: Alexander Fieroch <fieroch@web.de>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050402)
+X-Accept-Language: de-de, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Newsgroups: gmane.linux.kernel
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: Re: [2.6.12rc4] PROBLEM: "drive appears confused" and "irq 18:  
+ nobody cared!"
+References: <d6gf8j$jnb$1@sea.gmane.org> <20050527171613.5f949683.akpm@osdl.org>
+In-Reply-To: <20050527171613.5f949683.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Srivatsa Vaddagiri <vatsa@in.ibm.com> writes:
->
-> 2. reprogram_apic_timer seems to reprogram the count-down
->    APIC timer (APIC_TMICT) with an integral number of apic_timer_val.
->    How accurate will this be? Shouldnt this take into account
->    that we may not be reprogramming the timer on exactly "jiffy"
->    boundary?
-
-All PIT based reprogramming schemes will lose time.
-
-Only with HPET you can do better (but even there it is difficult to
-do properly) 
-
-> 3. Is there any strong reason why you reprogram timers only when
->    _all_ CPUs are idle?
-
-There is none imho - my x86-64 no idle tick patch doesn't do it.
-
-Actually there is a small reason - RCU currently does not get 
-updated by a fully idle CPU and can stall other CPUs. But that is in 
-practice not too big an issue yet because so many subsystems
-cause ticks now and then, so the CPUs tend to wake up often
-enough to not stall the rest of the system too badly.
-
-
--Andi
+The problem still occurs in linux kernel 2.6.12rc6-git6. Is there any news?
+I hope the stable version of linux 2.6.12 is not released with that bug,
+isn't it?

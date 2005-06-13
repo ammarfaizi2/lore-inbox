@@ -1,48 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261387AbVFMHhm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261415AbVFMHpK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261387AbVFMHhm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 03:37:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261416AbVFMHhm
+	id S261415AbVFMHpK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 03:45:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261417AbVFMHpK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 03:37:42 -0400
-Received: from zproxy.gmail.com ([64.233.162.194]:29994 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261387AbVFMHhh convert rfc822-to-8bit
+	Mon, 13 Jun 2005 03:45:10 -0400
+Received: from lirs02.phys.au.dk ([130.225.28.43]:49024 "EHLO
+	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S261415AbVFMHpE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 03:37:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=hKNq+YB3bkACL5QU0CeFQiP9Ksu8ORXp0lS8BhfWTxLY0F31nzzF95GfnMFbnS/4pLeIcthqN4eTzZipVWdCoI+D9MruBldZcxqLpK37/iX4HdHxKPsT7AuBkUQw+wA/SuPJGuNw1yKjP/+hXq3s1PTy2vyRhHviRnUGH2q48l4=
-Message-ID: <9a8748490506130037efae4b@mail.gmail.com>
-Date: Mon, 13 Jun 2005 09:37:37 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
-To: Dave Jones <davej@redhat.com>, Jesper Juhl <juhl-lkml@dif.dk>,
+	Mon, 13 Jun 2005 03:45:04 -0400
+Date: Mon, 13 Jun 2005 09:44:45 +0200 (METDST)
+From: Esben Nielsen <simlo@phys.au.dk>
+To: Sven-Thorsten Dietrich <sdietrich@mvista.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Daniel Walker <dwalker@mvista.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Documentation: update sparse.txt to list actual location
-In-Reply-To: <20050613054853.GA4753@redhat.com>
+Subject: Re: [PATCH] local_irq_disable removal
+In-Reply-To: <1118646527.5729.60.camel@sdietrich-xp.vilm.net>
+Message-Id: <Pine.OSF.4.05.10506130942140.10063-100000@da410.phys.au.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <Pine.LNX.4.62.0506122346250.16521@dragon.hyggekrogen.localhost>
-	 <20050613054853.GA4753@redhat.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/13/05, Dave Jones <davej@redhat.com> wrote:
-> On Sun, Jun 12, 2005 at 11:49:30PM +0200, Jesper Juhl wrote:
-> 
->  > -and DaveJ has tar-balls at
->  > +like this:
->  >
->  > -    http://www.codemonkey.org.uk/projects/bitkeeper/sparse/
-> 
-> + http://www.codemonkey.org.uk/projects/git-snapshots/sparse/
-> 
-Ahh, great, I'll update the patch later today.  Thanks.
+On Mon, 13 Jun 2005, Sven-Thorsten Dietrich wrote:
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+> On Sat, 2005-06-11 at 22:03 +0200, Ingo Molnar wrote:
+> > * Esben Nielsen <simlo@phys.au.dk> wrote:
+> > 
+> > > > the jury is still out on the accuracy of those numbers. The test had 
+> > > > RT_DEADLOCK_DETECT (and other -RT debugging features) turned on, which 
+> > > > mostly work with interrupts disabled. The other question is how were 
+> > > > interrupt response times measured.
+> > > > 
+> > > You would accept a patch where I made this stuff optional?
+> > 
+> > I'm not sure why. The soft-flag based local_irq_disable() should in fact 
+> > be a tiny bit faster than the cli based approach, on a fair number of 
+> > CPUs. But it should definitely not be slower in any measurable way.
+> > 
+> 
+> Is there any such SMP concept as a local_preempt_disable()  ?
+> 
+You must think of preempt_disable() ? Except for the interface is a little
+bit different using flags in local_irq_save(), preempt_disable() works
+exactly the same way, blocking for everything but interrupts - on the
+_local_ CPU. (Under PREEMPT_RT it ofcourse also blocks for threaded IRQ
+handlers.)
+
+
+Esben
+

@@ -1,65 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261376AbVFMG0c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261382AbVFMGl5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261376AbVFMG0c (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 02:26:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261377AbVFMG0c
+	id S261382AbVFMGl5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 02:41:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261384AbVFMGl4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 02:26:32 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:64973 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261376AbVFMG0a (ORCPT
+	Mon, 13 Jun 2005 02:41:56 -0400
+Received: from khan.acc.umu.se ([130.239.18.139]:47081 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id S261382AbVFMGlz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 02:26:30 -0400
-Message-ID: <42AD2640.5040601@redhat.com>
-Date: Sun, 12 Jun 2005 23:22:56 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: jnf <jnf@innocence-lost.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org
-Subject: Re: Add pselect, ppoll system calls.
-References: <1118444314.4823.81.camel@localhost.localdomain> <1118616499.9949.103.camel@localhost.localdomain> <Pine.LNX.4.58.0506121725250.2286@ppc970.osdl.org> <Pine.LNX.4.62.0506121815070.24789@fhozvffvba.vaabprapr-ybfg.arg> <Pine.LNX.4.58.0506122018230.2286@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0506122018230.2286@ppc970.osdl.org>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig766CCA4FDADAB9C26B3F6991"
+	Mon, 13 Jun 2005 02:41:55 -0400
+Date: Mon, 13 Jun 2005 08:41:52 +0200
+From: David Weinehall <tao@acc.umu.se>
+To: Ron Peterson <rpeterso@mtholyoke.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: slow directory listing
+Message-ID: <20050613064152.GJ20439@khan.acc.umu.se>
+Mail-Followup-To: Ron Peterson <rpeterso@mtholyoke.edu>,
+	linux-kernel@vger.kernel.org
+References: <20050610143720.GA14454@mtholyoke.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050610143720.GA14454@mtholyoke.edu>
+User-Agent: Mutt/1.4.1i
+X-Editor: Vi Improved <http://www.vim.org/>
+X-Accept-Language: Swedish, English
+X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
+X-GPG-Key: http://www.acc.umu.se/~tao/files/pub_dc47ca16.gpg.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig766CCA4FDADAB9C26B3F6991
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+On Fri, Jun 10, 2005 at 10:37:20AM -0400, Ron Peterson wrote:
+[snip]
+> The times taken to do a directory listing are significantly different.
+> 
+> 1037# time ls /test/a2 > /dev/null
 
-Linus Torvalds wrote:
-> Anyway, that's three different approaches, all of which are portable an=
-d=20
-> thus preferable to pselect() which is not.
+[snip]
 
-pselect is portable, just not to current and old Linux systems.  It's in
-POSIX for a while and the other Unixes have the interface.
-
---=20
-=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
-=E2=9E=A7 Mountain View, CA =E2=9D=96
+Do you get the same results if you use ls with the -U (unsorted) flag?
 
 
---------------enig766CCA4FDADAB9C26B3F6991
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iD8DBQFCrSZA2ijCOnn/RHQRAkd0AKCrl6xuXBvng/Z1u/CMPUPvPkeqVACfblu0
-WZhUTBTh16O662gCBW1sE84=
-=k35N
------END PGP SIGNATURE-----
-
---------------enig766CCA4FDADAB9C26B3F6991--
+Regards: David Weinehall
+-- 
+ /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/

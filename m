@@ -1,65 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261598AbVFMPBh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261590AbVFMPE5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261598AbVFMPBh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 11:01:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261593AbVFMPBh
+	id S261590AbVFMPE5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 11:04:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261601AbVFMPEd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 11:01:37 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:64914 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261590AbVFMPBb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 11:01:31 -0400
-Date: Mon, 13 Jun 2005 17:00:21 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Karim Yaghmour <karim@opersys.com>
-Cc: Kristian Benoit <kbenoit@opersys.com>, linux-kernel@vger.kernel.org,
-       paulmck@us.ibm.com, bhuey@lnxw.com, andrea@suse.de, tglx@linutronix.de,
-       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
-       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, rpm@xenomai.org, Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: PREEMPT_RT vs ADEOS: the numbers, part 1
-Message-ID: <20050613150021.GA5891@elte.hu>
-References: <42AA6A6B.5040907@opersys.com> <20050611191448.GA24152@elte.hu> <42AB662B.4010104@opersys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42AB662B.4010104@opersys.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Mon, 13 Jun 2005 11:04:33 -0400
+Received: from bugs.comnets.uni-bremen.de ([134.102.186.10]:43018 "EHLO
+	bugs.comnets.uni-bremen.de") by vger.kernel.org with ESMTP
+	id S261590AbVFMPDz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 11:03:55 -0400
+Date: Mon, 13 Jun 2005 17:03:51 +0200 (MEST)
+From: Markus Becker <mab@comnets.uni-bremen.de>
+To: linux-kernel@vger.kernel.org
+cc: Yu Ran <yuran@uni-bremen.de>
+Subject: Yenta TI. PCI interrupt probing fails. TI PCI1420. Unknown device.
+Message-ID: <Pine.LNX.4.21.0506131629440.32627-100000@bugs.comnets.uni-bremen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-* Karim Yaghmour <karim@opersys.com> wrote:
+we're having problems with a special device 'Em104P-PCM/2' which is a
+PCMCIA stackable card with PC/104-form factor. It uses a TI PCI1420 chip.
 
-> Ingo Molnar wrote:
-> > how were interrupt response times measured, precisely? What did the 
-> > target (measured) system have to do to respond to an interrupt? Did you 
-> > use the RTC to measure IRQ latencies?
-> 
-> The logger used two TSC values. One prior to shooting the interrupt to 
-> the target, and one when receiving the response. Responding to an 
-> interrupt meant that a driver was hooked to the target's parallel port 
-> interrupt and simply acted by toggling an output pin on the parallel 
-> port, which in turn was hooked onto the logger's parallel port in a 
-> similar fashion. [...]
+It seems that the probing of PCI interrupts fails. We tried 2.4.27 and
+2.6.11 debian stock kernels with several boot options such as irq_mode=0
+and p2cclk=0.
 
-FYI, there's a new feature in the -V0.7.48-25 (and later) -RT patches 
-that implements this: CONFIG_LPPTEST. It is a simple standalone driver 
-and userspace utility from Thomas Gleixner that can be used to measure 
-the IRQ-latency of the system over a null-modem-parallel-cable.
+Output follows, if something is missing, contact me:
 
-to use it, enable CONFIG_LPPEST in the .config [disable CONFIG_PARPORT 
-first], boot the kernel on both the target and the host systems, and 
-then run the scripts/testlpp utility on the host system which will 
-measure latencies and will do a maximum-search.
+*****dmesg*****
+[...]
+Linux Kernel Card Services
+  options:  [pci] [cardbus] [pm]
+PCI: Found IRQ 5 for device 0000:00:0b.0
+PCI: Sharing IRQ 5 with 0000:00:07.2
+PCI: Sharing IRQ 5 with 0000:00:07.3
+Yenta: CardBus bridge found at 0000:00:0b.0 [3412:7856]
+Yenta: Enabling burst memory read transactions
+Yenta: Using CSCINT to route CSC interrupts to PCI
+Yenta: Routing CardBus interrupts to PCI
+Yenta TI: socket 0000:00:0b.0, mfunc 0x00001000, devctl 0x62
+Yenta TI: socket 0000:00:0b.0 probing PCI interrupt failed, trying to fix
+Yenta TI: socket 0000:00:0b.0 no PCI interrupts. Fish. Please report.
+Yenta: ISA IRQ mask 0x0000, PCI irq 0
+Socket status: 30000006
+PCI: Found IRQ 10 for device 0000:00:0b.1
+PCI: Sharing IRQ 10 with 0000:00:08.0
+PCI: Sharing IRQ 10 with 0000:00:0c.0
+Yenta: CardBus bridge found at 0000:00:0b.1 [3412:7856]
+Yenta: Using CSCINT to route CSC interrupts to PCI
+Yenta: Routing CardBus interrupts to PCI
+Yenta TI: socket 0000:00:0b.1, mfunc 0x00001000, devctl 0x62
+Yenta TI: socket 0000:00:0b.1 probing PCI interrupt failed, trying to fix
+Yenta TI: socket 0000:00:0b.1 no PCI interrupts. Fish. Please report.
+Yenta: ISA IRQ mask 0x0000, PCI irq 0
+Socket status: 30000006
+[...]
 
-(the driver assumes normal LPT1 PC layout - 0x378/IRQ7)
 
-	Ingo
+*****lspci*****
+[...]
+0000:00:0b.0 CardBus bridge: Texas Instruments PCI1420
+	Subsystem: Unknown device 3412:7856
+	Flags: bus master, medium devsel, latency 168, IRQ 5
+	Memory at e4100000 (32-bit, non-prefetchable) [size=4K]
+	Bus: primary=00, secondary=01, subordinate=04, sec-latency=176
+	Memory window 0: e4101000-e4102000 (prefetchable)
+	Memory window 1: e4103000-e4104000
+	I/O window 0: 0000cc00-0000d003
+	I/O window 1: 0000d400-0000d803
+	16-bit legacy interface ports at 0001
+
+0000:00:0b.1 CardBus bridge: Texas Instruments PCI1420
+	Subsystem: Unknown device 3412:7856
+	Flags: bus master, medium devsel, latency 168, IRQ 10
+	Memory at e4105000 (32-bit, non-prefetchable) [size=4K]
+	Bus: primary=00, secondary=05, subordinate=08, sec-latency=176
+	Memory window 0: e4106000-e4107000 (prefetchable)
+	Memory window 1: e4108000-e4109000
+	I/O window 0: 0000dc00-0000e003
+	I/O window 1: 0000e400-0000e803
+	16-bit legacy interface ports at 0001
+[...]
+
+*****/proc/interrupts*****
+           CPU0       
+  0:     388035          XT-PIC  timer
+  1:       1261          XT-PIC  i8042
+  2:          0          XT-PIC  cascade
+  5:          0          XT-PIC  uhci_hcd, uhci_hcd
+  7:          0          XT-PIC  parport0
+ 10:        112          XT-PIC  eth0
+ 12:          0          XT-PIC  via82cxxx
+ 15:     104336          XT-PIC  ide1
+NMI:          0 
+LOC:          0 
+ERR:          0
+MIS:          0
+
+*****uname -a*****
+Linux pc104-1 2.6.11-1-386 #1 Fri May 20 06:15:52 UTC 2005 i686 GNU/Linux
+
+*****lsmod*****
+Module                  Size  Used by
+[...]
+pcmcia                 23432  4 
+yenta_socket           20616  2 
+rsrc_nonstatic          9856  1 yenta_socket
+pcmcia_core            44848  3 pcmcia,yenta_socket,rsrc_nonstatic
+[...]
+
+*****cardctl*****
+Socket 0:
+  no card
+Socket 1:
+  no card
+
+Please cc me, when replying. Thanks for any hints in advance.
+
+Best regards,
+Markus Becker
+
+---
+Dipl.-Ing. Markus Becker   | web: http://www.comnets.uni-bremen.de/~mab/
+Communication Networks     | mailto: mab@comnets.uni-bremen.de
+University Bremen, Germany | telephone: +49 421 218 2287
+
+
+
+

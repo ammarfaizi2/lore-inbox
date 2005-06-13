@@ -1,35 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261274AbVFMUFA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261263AbVFMUJ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261274AbVFMUFA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 16:05:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261255AbVFMUDe
+	id S261263AbVFMUJ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 16:09:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261279AbVFMUJ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 16:03:34 -0400
-Received: from opersys.com ([64.40.108.71]:55564 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261234AbVFMT72 (ORCPT
+	Mon, 13 Jun 2005 16:09:57 -0400
+Received: from gorgon.vtab.com ([62.20.90.195]:11475 "EHLO gorgon.vtab.com")
+	by vger.kernel.org with ESMTP id S261263AbVFMUI5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 15:59:28 -0400
-Subject: Re: network driver disabled interrupts in PREEMPT_RT
-From: Kristian Benoit <kbenoit@opersys.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050613185642.GA12463@elte.hu>
-References: <1118688347.5792.12.camel@localhost>
-	 <20050613185642.GA12463@elte.hu>
-Content-Type: text/plain
-Date: Mon, 13 Jun 2005 15:56:37 -0400
-Message-Id: <1118692597.5792.14.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+	Mon, 13 Jun 2005 16:08:57 -0400
+Date: Mon, 13 Jun 2005 22:08:55 +0200
+Message-Id: <200506132008.j5DK8t010817@virtutech.se>
+From: "=?ISO-8859-1?Q?Mattias Engdeg=E5rd?=" <mattias@virtutech.se>
+To: cfriesen@nortel.com
+Cc: jakub@redhat.com, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, dwmw2@infradead.org, drepper@redhat.com
+In-reply-to: <42ADE52E.1040705@nortel.com> (message from Chris Friesen on Mon,
+	13 Jun 2005 13:57:34 -0600)
+Subject: Re: Add pselect, ppoll system calls.
+Content-Type: text/plain; charset=iso-8859-1
+References: <200506131938.j5DJcKc10799@virtutech.se> <42ADE52E.1040705@nortel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-06-13 at 20:56 +0200, Ingo Molnar wrote:
-> does the patch below fix it?
+>Mattias Engdegård wrote:
+>
+>> If we can design ppoll() any way we like, which seems likely, I would
+>> prefer having the timeout given as an absolute timestamp.
+>
+>Absolute timestamps are messy though.  How do you deal with system time 
+>changes?
 
-It does!
-thank you, the data I'm collecting make much more sens now !!
-
-Kristian
-
+Monotonic clocks are there for exactly that, no?

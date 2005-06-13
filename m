@@ -1,39 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261732AbVFMQTq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261765AbVFMQ15@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261732AbVFMQTq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 12:19:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261765AbVFMQTq
+	id S261765AbVFMQ15 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 12:27:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261791AbVFMQ15
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 12:19:46 -0400
-Received: from smtp-101-monday.noc.nerim.net ([62.4.17.101]:44817 "EHLO
-	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
-	id S261732AbVFMQTm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 12:19:42 -0400
-Date: Mon, 13 Jun 2005 18:19:45 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-Cc: Andrew Morton <akpm@osdl.org>, video4linux-list@redhat.com,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fixes removal of normal_i2c_range on V4L
-Message-Id: <20050613181945.76a3da6b.khali@linux-fr.org>
-In-Reply-To: <42ACF624.3050904@brturbo.com.br>
-References: <42ACF389.40205@brturbo.com.br>
-	<42ACF624.3050904@brturbo.com.br>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 13 Jun 2005 12:27:57 -0400
+Received: from mail28.sea5.speakeasy.net ([69.17.117.30]:13027 "EHLO
+	mail28.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S261765AbVFMQ1n convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 12:27:43 -0400
+Date: Mon, 13 Jun 2005 09:27:41 -0700 (PDT)
+From: Vadim Lobanov <vlobanov@speakeasy.net>
+To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Pausing a task
+In-Reply-To: <20050613160449.GJ3008@lug-owl.de>
+Message-ID: <Pine.LNX.4.58.0506130927040.12298@shell2.speakeasy.net>
+References: <Pine.LNX.4.61.0506131142120.17826@chaos.analogic.com>
+ <20050613160449.GJ3008@lug-owl.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Mauro,
+On Mon, 13 Jun 2005, Jan-Benedict Glaw wrote:
 
-> This patch is necessary to correct I2C detect after normal_i2c_range
-> removal applied by  gregkh-i2c-i2c-address_range_removal.patch at -mm
-> series.
+> On Mon, 2005-06-13 11:50:34 -0400, Richard B. Johnson <linux-os@analogic.com> wrote:
+> >
+> > How can I (as root) pause or suspend a process?
+> > On VAX/VMS one could do `set process=suspend`. This
+> > would allow the system manager to check on a possibly
+> > rogue user.
+> >
+> > Let's say that "Hacker Jack" just got fired because
+> > he was disrupting a project. One needs to find any of
+> > his processes where he might be deleting a project
+> > tree. Pausing, rather than killing the tasks would
+> > allow evidence to be gathered. Basically, I need
+> > to set the task(s) priorities to something that
+> > will take them out of the run-queue altogether.
+>
+> ~# pkill -SIGSTOP -U richard
+>
+> < examine the situation, attach gdb/strace/ltrace/whatever >
+>
+> If you just want to let'em continue:
+>
+> ~# pkill -SIGCONG -U richard
 
-No. Check 2.6.12-rc6-mm1, it already has all these changes. You must
-have messed up somewhere.
+I think that's supposed to be "-SIGCONT" instead. :-)
 
--- 
-Jean Delvare
+> MfG, JBG
+>
+> --
+> Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             _ O _
+> "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  _ _ O
+>  fuer einen Freien Staat voll Freier Bürger" | im Internet! |   im Irak!   O O O
+> ret = do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA));
+>
+
+-Vadim L

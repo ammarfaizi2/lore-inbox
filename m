@@ -1,43 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261395AbVFMHCn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261401AbVFMHCz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261395AbVFMHCn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 03:02:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261403AbVFMHCn
+	id S261401AbVFMHCz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 03:02:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261403AbVFMHCz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 03:02:43 -0400
-Received: from warden2-p.diginsite.com ([209.195.52.120]:34518 "HELO
-	warden2.diginsite.com") by vger.kernel.org with SMTP
-	id S261395AbVFMHCl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 03:02:41 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: subbie subbie <subbie_subbie@yahoo.com>, linux-kernel@vger.kernel.org
-Date: Mon, 13 Jun 2005 00:02:34 -0700 (PDT)
-X-X-Sender: dlang@dlang.diginsite.com
-Subject: Re: optional delay after partition detection at boot time
-In-Reply-To: <20050613041705.GD8907@alpha.home.local>
-Message-ID: <Pine.LNX.4.62.0506122358460.4268@qynat.qvtvafvgr.pbz>
-References: <20050612071213.GG28759@alpha.home.local>
- <20050612101514.81433.qmail@web30707.mail.mud.yahoo.com>
- <20050612102726.GA8470@alpha.home.local> <Pine.LNX.4.62.0506121919310.3896@qynat.qvtvafvgr.pbz>
- <20050613041705.GD8907@alpha.home.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 13 Jun 2005 03:02:55 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:52468 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261401AbVFMHCv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 03:02:51 -0400
+Subject: Re: [PATCH] local_irq_disable removal
+From: Sven-Thorsten Dietrich <sdietrich@mvista.com>
+To: Esben Nielsen <simlo@phys.au.dk>
+Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.OSF.4.05.10506121250310.2917-100000@da410.phys.au.dk>
+References: <Pine.OSF.4.05.10506121250310.2917-100000@da410.phys.au.dk>
+Content-Type: text/plain
+Date: Mon, 13 Jun 2005 00:01:35 -0700
+Message-Id: <1118646095.5729.57.camel@sdietrich-xp.vilm.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Interesting. How many total partitions do you have ? I ask this because
-> David Alan Gilbert proposed a patch to dump the partition list on the
-> screen upon panic. Perhaps it's larger than the screen in you case ? If
-> you have more than 25 partitions, to you think they can fit with 2 or 3
-> columns ?
+On Sun, 2005-06-12 at 13:15 +0200, Esben Nielsen wrote:
+> On Sun, 12 Jun 2005, Ingo Molnar wrote:
+> I am surprised that is should actually be faster, but I give in to the
+> experts. I will see if I can find time to perform a test or I should spend
+> it on something else.
+> 
+> That said, this long discussion have not been a complete waste of time: I
+> think this thread have learned us that we do have different goals and
+> clarifies stuff.
+> 
+> I am not happy about the soft-irq thing. Mostly due to naming.
+> local_irq_disable() is really just preempt_disable() with some extra stuff
+> to make it backward combatible. 
+> I still believe local_irq_disable() (also in the soft version) should be
+> completely forbidden when PREEMPT_RT is set. All places using it should be
+> replaced with a mutex or a ???_local_irq_disable() to mark that the code
+> have been reviewed for PREEMPT_RT. With your argument above 
+> ???_local_irq_disable() should really be preempt_disable() as that is
+> faster.
+> 
 
-This machine has 16 SATA drives with 1 partition each plus a (hardware) 
-mirrored pair of SCSI drives with 4 partions, so only 20 partitions total 
-in my config. however there are people who use more drives then this.
+Hi Esben,
 
-David Lang
+I just wondered if you are talking about the scenario where an interrupt
+is executing on one processor, and gets preempted. Then some code runs
+on the same CPU, which does local_irq_disable (now preempt_disable), to
+keep that IRQ from running, but the IRQ thread is already started?
 
--- 
-There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
-  -- C.A.R. Hoare
+In the community kernel, this could never happen, because IRQs can't be
+preempted. But in RT, its possible an IRQ could be preempted, and under
+some circumstance, this sequence could occur.
+
+Is that is what you are talking about? If not, it might be over my head,
+and I am sorry. If so, I think that scenario is covered under SMP.
+
+Sven
+
+

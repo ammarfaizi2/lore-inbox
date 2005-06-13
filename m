@@ -1,54 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261524AbVFMMKo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261532AbVFMMTy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261524AbVFMMKo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 08:10:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261534AbVFMMJc
+	id S261532AbVFMMTy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 08:19:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261537AbVFMMTx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 08:09:32 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:60426 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261524AbVFMMIh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 08:08:37 -0400
-Date: Mon, 13 Jun 2005 14:08:32 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Rommer <rommer@active.by>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: udp.c
-Message-ID: <20050613120832.GW3770@stusta.de>
-References: <42AD74A3.1050006@active.by>
+	Mon, 13 Jun 2005 08:19:53 -0400
+Received: from lirs02.phys.au.dk ([130.225.28.43]:25772 "EHLO
+	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S261532AbVFMMTm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 08:19:42 -0400
+Date: Mon, 13 Jun 2005 14:19:22 +0200 (METDST)
+From: Esben Nielsen <simlo@phys.au.dk>
+To: Paulo Marques <pmarques@grupopie.com>
+Cc: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] local_irq_disable removal
+In-Reply-To: <42AD761C.6060709@grupopie.com>
+Message-Id: <Pine.OSF.4.05.10506131411080.23074-100000@da410.phys.au.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42AD74A3.1050006@active.by>
-User-Agent: Mutt/1.5.9i
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 13, 2005 at 02:57:23PM +0300, Rommer wrote:
 
-> Hello,
+On Mon, 13 Jun 2005, Paulo Marques wrote:
 
-Hi Roman,
+> Gene Heskett wrote:
+> > [...]
+> > Lets add the operation of 4 or more stepper motors in real time for 
+> > smaller milling machines.  There, the constraints are more related to 
+> > maintaining a steady flow of step/direction data at high enough 
+> > speeds to make a stepper, with 8 microsteps per step, and 240 steps 
+> > per revolution, run smoothly at speeds up to say 20 kilohertz, or 50 
+> > microseconds per step, maintaining that 50 microseconds plus or minus 
+> > not more than 5 microseconds else the motors will start sounding 
+> > ragged and stuttering.
+> 
+> This is the kind of problem that is screaming "give me dedicated 
+> hardware!". Why would one spend $500+ on a PC to do the work of a $2 
+> microcontroller (and possibly throw in an FPGA to the mix)?. Not to 
+> mention that the microcontroller/FPGA would maintain 50us +/- 0us 
+> instead of the 50 +/- 5 you've mentioned.
+>
+Linux does not always run on a $500+ PC. People also use Linux on
+_embedded_ devices costing only a small fraction of a $500+ PC. But I do
+agree it is kind of silly to use the OS for this example. 
 
-> Where used strange function udp_v4_hash?
-> linux-2.6.11.11, net/ipv4/udp.c:204
->...
+Assuming you do not put any "highlevel" calculations in a IRQ handler,
+the only usefull place to have fast IRQ handlers, as far as I can see,
+without having fast preemption is with cheap hardware without a lot of 
+buffering. 
 
-do a simple
+I can come up with CAN controllers, which only have very little
+bufferspace (because they are cheap as they are sold in large volumes).
+Worst case you will have to empty it every 100-200 us or so to avoid
+having an overrun and loosing packages. The interpretation of the packets
+should ofcourse be deferred to a task. The tolerated latency of that task
+ofcourse depend on what you want to use the data for....
 
-  grep -r udp_v4_hash *
-
-in the main directory of the kernel sources and you'll find it.
-
-> Best regards, Roman
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Esben
 

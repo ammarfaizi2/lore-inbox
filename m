@@ -1,66 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261445AbVFMJ2v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261281AbVFMJcn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261445AbVFMJ2v (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 05:28:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261447AbVFMJ2v
+	id S261281AbVFMJcn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 05:32:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261447AbVFMJcn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 05:28:51 -0400
-Received: from gate.corvil.net ([213.94.219.177]:55047 "EHLO corvil.com")
-	by vger.kernel.org with ESMTP id S261445AbVFMJ2t (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 05:28:49 -0400
-Message-ID: <42AD51C8.4000703@draigBrady.com>
-Date: Mon, 13 Jun 2005 10:28:40 +0100
-From: P@draigBrady.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040124
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: =?ISO-8859-1?Q?Remy_B=F6hmer?= <remy.bohmer@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] bigphysarea for 2.6.10 en 2.6.11
-References: <a7fe805f05061113426c86ba92@mail.gmail.com>
-In-Reply-To: <a7fe805f05061113426c86ba92@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Mon, 13 Jun 2005 05:32:43 -0400
+Received: from mailservice.tudelft.nl ([130.161.131.5]:49434 "EHLO
+	mailservice.tudelft.nl") by vger.kernel.org with ESMTP
+	id S261281AbVFMJck (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 05:32:40 -0400
+Subject: [FIX] apm.c: ignore_normal_resume is set to 1 a bit too late
+From: Thomas Hood <jdthood@aglu.demon.nl>
+To: linux-kernel@vger.kernel.org
+Cc: sfr@canb.auug.org.au
+Content-Type: text/plain
+Date: Mon, 13 Jun 2005 11:45:39 +0200
+Message-Id: <1118655939.7066.37.camel@thanatos>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remy Böhmer wrote:
-> I have pulled the bigphysarea patch (as posted by Nick Martin for
-> kernel 2.6.9) towards the kernels 2.6.10 and 2.6.11.
-> Maybe there is somebody out there who can use it.
-> 
-> (it only suits the i386 kernel, I have not done this job for other platforms.)
-> First the 2.6.10 version is listed below, after this the 2.6.11 version
-> 
-> Have fun with it!
-> 
-> Remy
-> 
-> linux-2.6.10.bigphys/mm/bigphysarea.c
-> --- linux-2.6.10.orig/mm/bigphysarea.c   Wed Dec 31 19:00:00 1969
-> +++ linux-2.6.10.bigphys/mm/bigphysarea.c        Mon Nov 15 15:49:01 2004
-> +static
-> +int __init bigphysarea_setup(char *str)
-> +{
-> +       int par;
-> +       if (get_option(&str,&par)) {
-> +               bigphysarea_pages = par;
-> +               // Alloc the memory
-> +               bigphysarea =
-> alloc_bootmem_low_pages(bigphysarea_pages<<PAGE_SHIFT);
-> +               if (!bigphysarea) {
-> +                       printk(KERN_CRIT "bigphysarea: not enough
-> memory for %d pages\n",bigphysarea_pages);
-> +                       return -ENOMEM;
-> +               }
-> +
-> +               // register the resource for it
-> +               mem_resource.start = bigphysarea;
+This message contains a fix for a bug in the apm driver.
 
-That should be:   mem_resource.start = virt_to_phys(bigphysarea);
-Otherwise you could get a collision?
+A bug report was submitted to the Debian BTS saying that on the
+submitter's system the apmd proxy script was being run twice on resume.
 
+Having seen exactly the same problem some years ago and knowing that the
+solution then was to ensure that the ignore_normal_resume flag got set
+before there was any chance of an APM RESUME event being processed, I
+checked the current apm.c and I found that ignore_normal_resume was once
+again being set too late.  I asked the submitter to move the line where
+the flag was set and he reported that this change solved the problem.  I
+append the message in question.  The line numbers I mention there are
+for Linux 2.6.11.
+
+Please make the indicated change to the apm driver.
+
+-------- Forwarded Message --------
+jdthood@aglu.demon.nl wrote to the submitter of Debian bug #310865:
+> In arch/i386/kernel/apm.c there is at approximately line 1229:
+> 
+>         ignore_normal_resume = 1;
+> 
+> Move this up so that it occurs right after line 1222:
+> 
+>         err = set_system_power_state(APM_STATE_SUSPEND);
+> 
+> Let us know if that helps.
+
+
+It does. Very nice.
+I don't understand what I did and how it works. Will you try to
+push that into kernel sources or is this no permanent fix?
 -- 
-Pádraig Brady - http://www.pixelbeat.org
---
+Thomas Hood <jdthood@aglu.demon.nl>
+

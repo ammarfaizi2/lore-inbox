@@ -1,114 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261475AbVFMVyL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261492AbVFMV76@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261475AbVFMVyL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 17:54:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261458AbVFMVw7
+	id S261492AbVFMV76 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 17:59:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261485AbVFMV74
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 17:52:59 -0400
-Received: from locomotive.csh.rit.edu ([129.21.60.149]:12644 "EHLO
-	locomotive.unixthugs.org") by vger.kernel.org with ESMTP
-	id S261475AbVFMVv0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 17:51:26 -0400
-Message-ID: <42ADFFD5.1090905@suse.com>
-Date: Mon, 13 Jun 2005 17:51:17 -0400
-From: Jeff Mahoney <jeffm@suse.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Hans Reiser <reiser@namesys.com>
-Cc: fs <fs@ercist.iscas.ac.cn>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>,
-       viro VFS <viro@parcelfarce.linux.theplanet.co.uk>,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, zhiming@admin.iscas.ac.cn,
-       qufuping@ercist.iscas.ac.cn, madsys@ercist.iscas.ac.cn,
-       xuh@nttdata.com.cn, koichi@intellilink.co.jp,
-       kuroiwaj@intellilink.co.jp, okuyama@intellilink.co.jp,
-       matsui_v@valinux.co.jp, kikuchi_v@valinux.co.jp,
-       fernando@intellilink.co.jp, kskmori@intellilink.co.jp,
-       takenakak@intellilink.co.jp, yamaguchi@intellilink.co.jp,
-       ext2-devel@lists.sourceforge.net, sct@redhat.com, shaggy@austin.ibm.com,
-       xfs-masters@oss.sgi.com,
-       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>
-Subject: Re: [RFD] FS behavior (I/O failure) in kernel summit
-References: <1118692436.2512.157.camel@CoolQ> <42ADC99D.5000801@namesys.com>
-In-Reply-To: <42ADC99D.5000801@namesys.com>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Mon, 13 Jun 2005 17:59:56 -0400
+Received: from msg-mx1.usc.edu ([128.125.137.6]:41140 "EHLO msg-mx1.usc.edu")
+	by vger.kernel.org with ESMTP id S261492AbVFMV7G (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 17:59:06 -0400
+Date: Mon, 13 Jun 2005 14:59:01 -0700 (PDT)
+From: bhaskara <bhaskara@aludra.usc.edu>
+Subject: Re: mouse still losing sync and thus jumping around
+In-reply-to: <20050613234039.7d3ed895.lista1@telia.com>
+To: Voluspa <lista1@telia.com>
+Cc: dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org
+Message-id: <Pine.GSO.4.33.0506131450100.21818-100000@aludra.usc.edu>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+> On 2005-02-23 16:53:04 Dmitry Torokhov wrote:
+> > On Wed, 23 Feb 2005 17:29:49 +0100, Nils Kalchhauser wrote:
+> [...]
+> >> it seems to me like it is connected to disk activity... is that
+> >> possible?
+>
+> > Yes, It usually happens either under high load, when mouse interrupts
+> > are significantly delayed. Or sometimes it happen when applications
+> > poll battey status and on some boxes it takes pretty long time. And
+> > because it is usually the same chip that serves keyboard/mouse it
+> > again delays mouse interrupts.
+>
+> My notebook is an Acer Aspire 1520 (1524) with a Synaptics Touchpad,
+> model: 1, fw: 5.8, id: 0x9248b1, caps: 0x904713/0x4000
+>
+> Kernels 2.6.11.11 and 2.6.12-rc6
+> Synaptics driver 0.14.2
+>
+> The "lost sync at byte" and "driver resynched" began flooding the logs
+> when I enabled Sensors --> Temperatures --> thermal_zone [THRC/THRS] in
+> the system monitor gkrellm. I haven't tried battery monitoring.
+>
+> There are only occasional mouse pointer jumps, but the logfiles grow
+> very quickly. I tried reducing the gkrellm updates from 10 times a
+> second to 2, but it only had a marginal effect. It seems a bit silly
+> that this powerful notebook (AMD64 Athlon 3400+) can't 'multitask'
+> correctly.
+>
+> I thought about just erasing the warning messages from the kernel
+> source (don't want to disable warn in syslog completely), but when I
+> found the gkrellm culprit I turned off the monitoring instead,
+> reluctantly.
+>
+> My system has no taxing desktop, just a window manager.
+>
 
-Hans Reiser wrote:
-> fs wrote:
-> 
->>Dear Linus, Andrew Morton, and all FS maintainers,
->>
->>   I've posted email before, but received no response. So I send
->>another email in the hope of getting feedback from the community.
->>   From the HA application developer's perspective, we want a 
->>robust, stable, fast-error-responsive kernel. But the file system
->>seems to be a disappointment. 
->> 
->> We want to make things clear:
->>
->>1) When I/O failure occurs(e.g.: unrecoverable media failure - USB
->>unplug), FS should
->>  a. shutdown the FS right now(XFS does this)
->>  b. try to make the media serve as long as possible(EXT3 remounts 
->>     read-only, cache is still valid for read)
->>  c. do not care, just print some kernel debugging info(EXT2 JFS 
->>     ReiserFS)
->>
->>2) When I/O failure occurs, FS should
->>  a. give a unified error
->>  b. give errors according to the FS type
->>
->>3) the returned errno should be
->>  a. real cause of failure, e.g. USB unplug returns EIO
->>  b. cause from FS, e.g. USB unplug made FS remount read-only,
->>     so open(O_RDONLY) returns ENOENT while open(O_RDWR) returns
->>     EROFS
->>  c. errno means nothing, you already get -1, that's enough
->>
->>   Unfortunately, recent kernel FSes give mixed answers to the above
->>questions. As an end user/developer, this is really BAD! Also, there's
->>no correspondent docs/standard, 'de facto' standard varies for different
->>people.
->>
-> If you write a patch to implement 1a and 3a for reiserfs and reiser4 I
-> will accept them.  2a is too vague for me to support --- I can only
-> answer the question of whether error conditions are fs independent when
-> it is regarding specified error conditions.  I suspect there are times
-> when it needs to be fs dependent, but only a comprehensive review could
-> answer to that.
+I had this problem with the ps2 mouse on my desktop even under very light
+load. This problem went away the very instant I started using a USB mouse.
+So, I don't buy the delayed interrupts explanation.
 
-[quote repositioned so it's not top-posted]
+My 2 cents
 
-Hans -
+-G
 
-These tests must have been run on a kernel prior to 2.6.10-rc1. The I/O
-error code exhibits behavior similar to ext3, so (1b). There are still
-kinks to be worked out, but it's definitely not the "throw up our arms
-and give up" that it used to be.
-
-Implementing behavior 1a for ext3 and reiserfs should be fairly trivial
-- - it just means that tests to check if the filesystem is in an aborted
-state ("shutdown" in xfs terms) need to added to the call path in some
-places, and be moved earlier in others.
-
-- -Jeff
-
-- --
-Jeff Mahoney
-SuSE Labs
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQFCrf/VLPWxlyuTD7IRAqN6AJ9InmmuRbhle00JiHgRyIfKkF6cMACffyim
-rM1y80zO5AexaDWbzXrD5iA=
-=qXFS
------END PGP SIGNATURE-----

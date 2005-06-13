@@ -1,63 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261547AbVFMMex@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261548AbVFMMho@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261547AbVFMMex (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 08:34:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261545AbVFMMeb
+	id S261548AbVFMMho (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 08:37:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261546AbVFMMho
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 08:34:31 -0400
-Received: from gs.bofh.at ([193.154.150.68]:24784 "EHLO gs.bofh.at")
-	by vger.kernel.org with ESMTP id S261541AbVFMMeY (ORCPT
+	Mon, 13 Jun 2005 08:37:44 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:30080 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261541AbVFMMhl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 08:34:24 -0400
-Subject: Re: udp.c
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-Cc: linux-kernel@vger.kernel.org, Rommer <rommer@active.by>
-In-Reply-To: <yw1xy89ebg14.fsf@ford.inprovide.com>
-References: <42AD74A3.1050006@active.by>
-	 <1118664180.898.13.camel@tara.firmix.at>
-	 <yw1xy89ebg14.fsf@ford.inprovide.com>
-Content-Type: text/plain; charset=ISO-8859-15
-Organization: Firmix Software GmbH
-Date: Mon, 13 Jun 2005 14:34:18 +0200
-Message-Id: <1118666058.898.23.camel@tara.firmix.at>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 8bit
+	Mon, 13 Jun 2005 08:37:41 -0400
+Date: Mon, 13 Jun 2005 14:37:38 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: cutaway@bellsouth.net
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Observations on x86 process.c
+In-Reply-To: <002301c57018$266079b0$2800000a@pc365dualp2>
+Message-ID: <Pine.LNX.4.61.0506131436180.1658@yvahk01.tjqt.qr>
+References: <002301c57018$266079b0$2800000a@pc365dualp2>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-06-13 at 14:24 +0200, Måns Rullgård wrote:
-> Bernd Petrovitsch <bernd@firmix.at> writes:
-> 
-> > On Mon, 2005-06-13 at 14:57 +0300, Rommer wrote:
-> >> Where used strange function udp_v4_hash?
-> >> linux-2.6.11.11, net/ipv4/udp.c:204
-> >> 
-> >> static void udp_v4_hash(struct sock *sk)
-> >
-> > Since it is "static" the user must be in the same source file (or -
-> > theoretically - any included header).
-> 
-> It's not that simple.  It is assigned to the 'hash' field of a struct
 
-If you interpret "called" word-by-word yes. I assumed "used".
+>A) dump_thread() and dump_task_regs() are in the middle of the file, but
+>will be infrequently used. With default 16 byte alignment, this may cause
+>bits of them to wind up polluting the L1 on anything with L1 lines > 16
+>bytes.  L2 lines could be similarly polluted too of course.
 
-> proto, which is exported.  It could be used from anywhere, but
+C compilers are free to reorder functions (are they?), especially GCC when it 
+is passed -funit-at-a-time (which currently is not in CFLAGS).
 
-The the OP has to grep for dereferences for this hash variable and check
-if it is (or may be) from the given struct.
-Well, that's the virtue of object-orientation: Follow the objects, not
-the functions/methods.
 
-> hopefully isn't.  Something else is supposed to ensure that it is
-> never called when using the UDP protocol.
 
-Apparently.
-
-	Bernd
--- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
-
+Jan Engelhardt                                                               
+--                                                                            
+| Gesellschaft fuer Wissenschaftliche Datenverarbeitung Goettingen,
+| Am Fassberg, 37077 Goettingen, www.gwdg.de

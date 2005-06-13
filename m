@@ -1,67 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261186AbVFMS1g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261168AbVFMSfP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261186AbVFMS1g (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 14:27:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261187AbVFMS1f
+	id S261168AbVFMSfP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 14:35:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261187AbVFMSfP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 14:27:35 -0400
-Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:46776 "EHLO
-	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S261186AbVFMS1c
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 14:27:32 -0400
-X-ORBL: [67.117.73.34]
-Date: Mon, 13 Jun 2005 11:27:23 -0700
-From: Tony Lindgren <tony@atomide.com>
-To: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Dynamic tick for x86 version 050609-2
-Message-ID: <20050613182723.GG8020@atomide.com>
-References: <88056F38E9E48644A0F562A38C64FB6004EBD10C@scsmsx403.amr.corp.intel.com> <20050609014033.GA30827@atomide.com> <20050610043018.GE18103@atomide.com> <20050613170941.GA1043@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050613170941.GA1043@in.ibm.com>
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 13 Jun 2005 14:35:15 -0400
+Received: from mail.dif.dk ([193.138.115.101]:20963 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S261168AbVFMSfC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 14:35:02 -0400
+Date: Mon, 13 Jun 2005 20:40:20 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Dave Jones <davej@redhat.com>
+Cc: Jesper Juhl <jesper.juhl@gmail.com>, Jesper Juhl <juhl-lkml@dif.dk>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Documentation: update sparse.txt to list actual location
+In-Reply-To: <20050613164513.GA19239@redhat.com>
+Message-ID: <Pine.LNX.4.62.0506132037290.2555@dragon.hyggekrogen.localhost>
+References: <Pine.LNX.4.62.0506122346250.16521@dragon.hyggekrogen.localhost>
+ <20050613054853.GA4753@redhat.com> <9a8748490506130037efae4b@mail.gmail.com>
+ <20050613164513.GA19239@redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Srivatsa Vaddagiri <vatsa@in.ibm.com> [050613 10:09]:
-> Hi Tony,
->         I went through the dynamic-tick patch on your website
-> (patch-dynamic-tick-2.6.12-rc6-050610-1) and was having some
-> questions about it:
+On Mon, 13 Jun 2005, Dave Jones wrote:
+
+> On Mon, Jun 13, 2005 at 09:37:37AM +0200, Jesper Juhl wrote:
+>  > On 6/13/05, Dave Jones <davej@redhat.com> wrote:
+>  > > On Sun, Jun 12, 2005 at 11:49:30PM +0200, Jesper Juhl wrote:
+>  > > 
+>  > >  > -and DaveJ has tar-balls at
+>  > >  > +like this:
+>  > >  >
+>  > >  > -    http://www.codemonkey.org.uk/projects/bitkeeper/sparse/
+>  > > 
+>  > > + http://www.codemonkey.org.uk/projects/git-snapshots/sparse/
+>  > > 
+>  > Ahh, great, I'll update the patch later today.  Thanks.
 > 
-> 1. dyn_tick->skip is set to the number of ticks that have
->    to be skipped. This is set on the CPU which is the last
->    (in online_map) to go idle and is based on when that
->    CPU's next timer is set to expire.
+> I'm about to jump on a plane, and be net.dead for the
+> best part of the next week, with sporadic internet access,
+> which is obviously the best time to start cron running
+> a hastily hacked up script.
 > 
->    Other CPUs also seem to use the same interval
->    to skip ticks. Shouldnt other CPU check their nearest timer
->    rather than blindly skipping dyn_tick->skip number of ticks?
-
-Probably, unless the wake-up of the first CPU will also wake up the
-rest.
-
+> If it blows up horribly, I'll get to it when I get back on Sunday,
+> but it should be fine..  I hope :-)
 > 
-> 2. reprogram_apic_timer seems to reprogram the count-down
->    APIC timer (APIC_TMICT) with an integral number of apic_timer_val.
->    How accurate will this be? Shouldnt this take into account
->    that we may not be reprogramming the timer on exactly "jiffy"
->    boundary?
+Have a nice trip.  I've updated the patch to include the new location of 
+your tarballs.
 
-The timer reprogramming functions should be converted to use usecs. We just
-currently get the time in jifies from next_timer_interrupt().
 
-> 3. Is there any strong reason why you reprogram timers only when
->    _all_ CPUs are idle?
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+---
 
-I don't know this for sure. It seemed like the safest way to go for now.
+ Documentation/sparse.txt |   21 +++++++++++++++++----
+ 1 files changed, 17 insertions(+), 4 deletions(-)
 
-> 4. In what aspects you think does your patch differ from VST (other
->    than not relying on HRT!)?
+--- linux-2.6.12-rc6-mm1-orig/Documentation/sparse.txt	2005-03-02 08:37:53.000000000 +0100
++++ linux-2.6.12-rc6-mm1/Documentation/sparse.txt	2005-06-13 20:30:09.000000000 +0200
+@@ -51,13 +51,26 @@
+ Where to get sparse
+ ~~~~~~~~~~~~~~~~~~~
+ 
+-With BK, you can just get it from
++With git, you can get it from
+ 
+-        bk://sparse.bkbits.net/sparse
++	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/torvalds/sparse.git/
+ 
+-and DaveJ has tar-balls at
++like this:
+ 
+-	http://www.codemonkey.org.uk/projects/bitkeeper/sparse/
++	$ mkdir -p sparse/.git
++	$ cd sparse
++	$ rsync -a --delete --verbose --stats --progress \
++	  rsync://rsync.kernel.org/pub/scm/linux/kernel/git/torvalds/sparse.git/ \
++	  .git
++	$ git-pull-script \
++	  rsync://rsync.kernel.org/pub/scm/linux/kernel/git/torvalds/sparse.git
++	$ git-read-tree -m HEAD && git-checkout-cache -q -f -u -a
++
++
++If you do not wish to keep the entire git tree around, then DaveJ has
++tarballs at
++
++	http://www.codemonkey.org.uk/projects/git-snapshots/sparse/
+ 
+ 
+ Once you have it, just do
 
-Dyntick uses next_timer_interrupt(), which is already part of the mainline
-kernel. It also works with PIT + PM timer or TSC.
 
-Tony
+

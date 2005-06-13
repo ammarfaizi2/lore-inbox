@@ -1,61 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261603AbVFMPLM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261610AbVFMPNn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261603AbVFMPLM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 11:11:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261592AbVFMPLL
+	id S261610AbVFMPNn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 11:13:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261607AbVFMPNm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 11:11:11 -0400
-Received: from imf23aec.mail.bellsouth.net ([205.152.59.71]:25850 "EHLO
-	imf23aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
-	id S261603AbVFMPIr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 11:08:47 -0400
-Message-ID: <008201c57031$2be937a0$2800000a@pc365dualp2>
-From: <cutaway@bellsouth.net>
-To: "Denis Vlasenko" <vda@ilport.com.ua>
-Cc: <linux-kernel@vger.kernel.org>
-References: <002301c57018$266079b0$2800000a@pc365dualp2> <200506131618.09718.vda@ilport.com.ua> <000e01c57028$c82dba90$2800000a@pc365dualp2> <200506131726.50264.vda@ilport.com.ua>
-Subject: Re: [RFC] Observations on x86 process.c
-Date: Mon, 13 Jun 2005 12:01:28 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Mon, 13 Jun 2005 11:13:42 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:15833 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261616AbVFMPMt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 11:12:49 -0400
+Subject: Re: [Patch][RFC] fcntl: add ability to stop monitored processes
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Neil Horman <nhorman@redhat.com>
+Cc: Matthew Wilcox <matthew@wil.cx>, linux-fsdevel@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050613135029.GC8810@hmsendeavour.rdu.redhat.com>
+References: <20050611000548.GA6549@hmsendeavour.rdu.redhat.com>
+	 <20050611180715.GK24611@parcelfarce.linux.theplanet.co.uk>
+	 <20050611193500.GC1097@devserv.devel.redhat.com>
+	 <20050612181006.GC2229@hmsendeavour.rdu.redhat.com>
+	 <1118670162.13250.25.camel@localhost.localdomain>
+	 <20050613135029.GC8810@hmsendeavour.rdu.redhat.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1478
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1478
+Message-Id: <1118675421.13770.3.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 13 Jun 2005 16:10:23 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message ----- 
-From: "Denis Vlasenko" <vda@ilport.com.ua>
->
-> I am not affected. I compile my kernels with zero alignment.
->
-> Not my itch to scratch.
+On Llu, 2005-06-13 at 14:50, Neil Horman wrote:
+> You mean add the ability to monitor directories for changes to the ptrace
+> interface entirely?
 
-Does some clueless user who needs a custom kernel for something even
-understand what you just said?  Probably not...
+If you are using it for debugging and tracking file accesses then ptrace
+seems to be the right interface. 
 
->
-> Do you realize how large linux kernel is? Are you going to optimize all of
-it
-> by hand?!
-
-Its big, but not as big as some I've worked on.  I'm willing to tune the
-"arch" specific stuff where I can do better than the compiler.  A few bytes
-here, a few there, pretty soon you got a page back.  BTW, there's just under
-100K of fluff zero padding in locked pages because of the way kernel
-messages are being 32 byte aligned.  Do you think getting 100K of locked
-kernel memory back essentially "for free" is worth taking a shot at?  I do.
-
->
-> People tend to gradually update their systems. Make gcc better, and it
-will
-> pay back with time. If you want that benefit _now_, then use your better
-gcc
-> immediately instead of stone age one. Others will take care of themselves.
->
-Pretty harsh attitude IMO.  People use compilers because they DO want
-someone to take care of some things for them.
+Alan
 

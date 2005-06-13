@@ -1,38 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261455AbVFMKIw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261459AbVFMKTz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261455AbVFMKIw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 06:08:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261459AbVFMKIw
+	id S261459AbVFMKTz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 06:19:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261461AbVFMKTz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 06:08:52 -0400
-Received: from fmr15.intel.com ([192.55.52.69]:48547 "EHLO
-	fmsfmr005.fm.intel.com") by vger.kernel.org with ESMTP
-	id S261455AbVFMKIm convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 06:08:42 -0400
-Subject: Re: ipw2100: firmware problem
-From: Zhu Yi <yi.zhu@intel.com>
-To: Eric.Brunet@lps.ens.fr
-Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050611170623.E72B513365@quatramaran.ens.fr>
-References: <20050608142310.GA2339@elf.ucw.cz>
-	 <20050611170623.E72B513365@quatramaran.ens.fr>
-Content-Type: text/plain; charset=ISO-8859-1
-Organization: Intel Corp.
-Date: Mon, 13 Jun 2005 18:05:23 +0800
-Message-Id: <1118657123.10234.190.camel@debian.sh.intel.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 8BIT
+	Mon, 13 Jun 2005 06:19:55 -0400
+Received: from smtp203.mail.sc5.yahoo.com ([216.136.129.93]:62542 "HELO
+	smtp203.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261459AbVFMKTx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 06:19:53 -0400
+Message-ID: <42AD5DC6.6090205@yahoo.com.au>
+Date: Mon, 13 Jun 2005 20:19:50 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Con Kolivas <kernel@kolivas.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] blkstat
+References: <42AD55FA.50109@yahoo.com.au> <200506131954.45361.kernel@kolivas.org> <42AD59A9.3030404@yahoo.com.au> <200506132005.40846.kernel@kolivas.org>
+In-Reply-To: <200506132005.40846.kernel@kolivas.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-06-11 at 19:06 +0200, Éric Brunet wrote:
-> By the way, can you get an ipw2100 working with suspend to ram ?
+Con Kolivas wrote:
+> On Mon, 13 Jun 2005 20:02, Nick Piggin wrote:
+> 
 
-You can report a bug here:
-http://bughost.org/bugzilla/
+>>The problem with that is that it does not give you a % idle
+>>figure on the block device, so you basically can't see if
+>>the device is becoming a bottleneck.
+> 
+> 
+> I've often wondered how iostat gives a %busy figure and whether this 
+> translated accurately without further info from the kernel.
+> 
+> 
+
+Oh, it does havea "%util" in its extended stats. Sorry I missed
+that so you might be right.
+
+Hmm, so I guess it uses io_ticks and that does appear to give
+the valid measure. I'll have a think about that - perhaps there
+is still a place for the split read/write statistics I'm using...
 
 Thanks,
--yi
+Nick
 
+-- 
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

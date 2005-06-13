@@ -1,96 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261295AbVFMA36@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261280AbVFMApt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261295AbVFMA36 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Jun 2005 20:29:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261297AbVFMA36
+	id S261280AbVFMApt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Jun 2005 20:45:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbVFMApt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Jun 2005 20:29:58 -0400
-Received: from wproxy.gmail.com ([64.233.184.205]:63026 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261295AbVFMA3l convert rfc822-to-8bit
+	Sun, 12 Jun 2005 20:45:49 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:28266
+	"EHLO g5.random") by vger.kernel.org with ESMTP id S261280AbVFMApl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Jun 2005 20:29:41 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=dPLFD7g8/g2hWL996TX9JY4gOe5dG6uA0i9nnx8BblxIHwxnIauuA25NLB+7M9DzGD1FD54hH6l2+eG/amV/+XgkUElrgnyXaASlpuXurujNQ+N+KMeS8H3PrydLmbLUUsLShMZdRlPMqHW3zJ6bWlrnHoN30lzv4VGFmU704Hg=
-Message-ID: <e27e3474050612172973387597@mail.gmail.com>
-Date: Mon, 13 Jun 2005 03:29:39 +0300
-From: Kemal Hadimli <disqkk@gmail.com>
-Reply-To: Kemal Hadimli <disqkk@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: poor performance with HIGHMEM?
+	Sun, 12 Jun 2005 20:45:41 -0400
+Date: Mon, 13 Jun 2005 02:45:30 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Karim Yaghmour <karim@opersys.com>, Kristian Benoit <kbenoit@opersys.com>,
+       linux-kernel@vger.kernel.org, paulmck@us.ibm.com, bhuey@lnxw.com,
+       tglx@linutronix.de, pmarques@grupopie.com, bruce@andrew.cmu.edu,
+       nickpiggin@yahoo.com.au, ak@muc.de, sdietrich@mvista.com,
+       dwalker@mvista.com, hch@infradead.org, akpm@osdl.org, rpm@xenomai.org
+Subject: Re: PREEMPT_RT vs ADEOS: the numbers, part 1
+Message-ID: <20050613004530.GH5796@g5.random>
+References: <42AA6A6B.5040907@opersys.com> <20050611191448.GA24152@elte.hu> <42AB662B.4010104@opersys.com> <20050612061108.GA4554@elte.hu> <42AC8D00.4030809@opersys.com> <20050612205902.GA31928@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20050612205902.GA31928@elte.hu>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Sun, Jun 12, 2005 at 10:59:02PM +0200, Ingo Molnar wrote:
+> if you want to measure hw-interrupt delays then under PREEMPT_RT you'll 
+> need to use an SA_NODELAY interrupt handler. (which is a PREEMPT_RT 
+> specific flag) If you use normal request_irq() or some parport driver 
+> then the driver function will run in an interrupt thread and what you 
+> are measuring is not interrupt latency but rescheduling latency.
 
-Recently i'm having performance problems with my P4-HT highmem system.
-Tried two motherboards, different RAM chips (4x1gig and 4x512mb), but
-the problem remains unchanged. In my case i found that the 2.4 (2.4.26
-and 2.4.30) series are faster than the 2.6 (tried with 2.6.0, 2.6.6,
-2.6.7, 2.6.7-bk4, 2.6.10, and the recent 2.6.11.12) series. But the
-performance is still very poor compared to what i get with lowmem.
+Karim, just in case you're not very familiar with parport, this should
+do the trick:
 
-The performance gets much better if I force 768megs of ram (passing
-the "mem=768" parameter) so it looks like the problem is highmem. The
-box normally has 4 gigabytes of ram (4 sticks of 1 Gig, PC3200) and
-handles mostly mySQL+Apache2+PHP4.
+diff --git a/drivers/parport/parport_pc.c b/drivers/parport/parport_pc.c
+--- a/drivers/parport/parport_pc.c
++++ b/drivers/parport/parport_pc.c
+@@ -2286,7 +2286,7 @@ struct parport *parport_pc_probe_port (u
+ 	}
+ 	if (p->irq != PARPORT_IRQ_NONE) {
+ 		if (request_irq (p->irq, parport_pc_interrupt,
+-				 0, p->name, p)) {
++				 SA_NODELAY, p->name, p)) {
+ 			printk (KERN_WARNING "%s: irq %d in use, "
+ 				"resorting to polled operation\n",
+ 				p->name, p->irq);
 
-Kernel parameters:
-CONFIG_HIGHMEM64G=y (I am told that CONFIG_HIGHMEM4G would lead to bad
-performance. there's no other reason i'm using 64G and not 4G)
+Unless I'm missing something, this mode is only valid if coding the RT
+code in the hardirq handler, which didn't seem the main benefit of
+preempt-RT to me, but it's still an interesting basic benchmark,
+especially now that local_irq_disable is "soft".
 
-whole configs are accessible at:
-http://www.ehore.com/kernel/config-2.4.30
-http://www.ehore.com/kernel/config-2.6.11.12
+But I'd be nice to also measure the performance of the non-RT part of
+the workload, just a suggestion if you have time.
 
+With above patch applied my crystal ball expects preempt-RT to perform
+much closer to adeos, but with the difference that the non-RT part of
+the system will still get the burden of the added complexity that adeos
+won't have.
 
-The motherboards I tried and the /proc/mtrr and E820 output:
-
-ASUS P4P800-SE
-reg00: base=0x00000000 (   0MB), size=2048MB: write-back, count=1
-reg01: base=0x80000000 (2048MB), size=1024MB: write-back, count=1
-reg02: base=0xc0000000 (3072MB), size= 512MB: write-back, count=1
-reg03: base=0xe0000000 (3584MB), size= 256MB: write-back, count=1
-reg04: base=0xf0000000 (3840MB), size= 128MB: write-back, count=1
-reg05: base=0xf8000000 (3968MB), size=  64MB: write-back, count=1
-
- BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
- BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
- BIOS-e820: 00000000000e8000 - 0000000000100000 (reserved)
- BIOS-e820: 0000000000100000 - 00000000fd430000 (usable)
- BIOS-e820: 00000000fd430000 - 00000000fd440000 (ACPI data)
- BIOS-e820: 00000000fd440000 - 00000000fd4f0000 (ACPI NVS)
- BIOS-e820: 00000000fd4f0000 - 00000000fd500000 (reserved)
- BIOS-e820: 00000000ffb80000 - 0000000100000000 (reserved)
-
-
-Gigabyte GA-8IG1000-G (onboard vga, configured as 1mb)
-reg00: base=0x00000000 (   0MB), size=2048MB: write-back, count=1
-reg01: base=0x80000000 (2048MB), size=1024MB: write-back, count=1
-reg02: base=0xc0000000 (3072MB), size= 512MB: write-back, count=1
-reg03: base=0xe0000000 (3584MB), size= 128MB: write-back, count=1
-reg04: base=0xe7f00000 (3711MB), size=   1MB: uncachable, count=1
-
- BIOS-e820: 0000000000000000 - 000000000009f800 (usable)
- BIOS-e820: 000000000009f800 - 00000000000a0000 (reserved)
- BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
- BIOS-e820: 0000000000100000 - 00000000e7ef0000 (usable)
- BIOS-e820: 00000000e7ef0000 - 00000000e7ef3000 (ACPI NVS)
- BIOS-e820: 00000000e7ef3000 - 00000000e7f00000 (ACPI data)
- BIOS-e820: 00000000fec00000 - 0000000100000000 (reserved)
-
-
-
-So, what are your .config/patch/version recommendations for a highmem
-system like this one?
-
-
-Hoping to get some replies, and thanks for your time :)
-
---
-Kemal
+Thanks.

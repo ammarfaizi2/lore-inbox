@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261366AbVFMUzG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261380AbVFMU5x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261366AbVFMUzG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 16:55:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261365AbVFMUyd
+	id S261380AbVFMU5x (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 16:57:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261378AbVFMU5F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 16:54:33 -0400
-Received: from fmr18.intel.com ([134.134.136.17]:31174 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261341AbVFMUwi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 16:52:38 -0400
-Message-Id: <20050613205236.351353000@linux.jf.intel.com>
+	Mon, 13 Jun 2005 16:57:05 -0400
+Received: from fmr19.intel.com ([134.134.136.18]:40076 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261349AbVFMUwk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 16:52:40 -0400
+Message-Id: <20050613205235.839201000@linux.jf.intel.com>
 References: <20050613205153.349171000@linux.jf.intel.com>
-Date: Mon, 13 Jun 2005 13:51:57 -0700
+Date: Mon, 13 Jun 2005 13:51:56 -0700
 From: rusty.lynch@intel.com
 To: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
        linuxppc64-dev@ozlabs.org
-Subject: [patch 4/5] [kprobes] Tweak to the function return probe design 
-Content-Disposition: inline; filename=kprobes-return-probes-redux-ia64.patch
+Subject: [patch 3/5] [kprobes] Tweak to the function return probe design 
+Content-Disposition: inline; filename=kprobes-return-probes-redux-x86_64.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -24,50 +24,111 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 did not seem to get my email, so I am resending the patch series from another
 machine.)
 
-The following patch implements function return probes for ia64 using
-the revised design.  With this new design we no longer need to do some
-of the odd hacks previous required on the last ia64 return probe port
-that I sent out for comments.
-
-Note that this new implementation still does not resolve the problem noted
-by Keith Owens where backtrace data is lost after a return probe is hit.
-
-    --rusty
+The following provides the x86_64 specific changes for the new
+return probe design. Note that with this new design, the dependency
+on calculating a pointer to the task off the stack pointer no longer
+exist (resolving the problem of interruption stacks as pointed out
+in the original feedback to this port.)
 
 signed-off-by: Rusty Lynch <Rusty.lynch@intel.com>
 
- arch/ia64/kernel/kprobes.c |  102 ++++++++++++++++++++++++++++++++++++++++++++-
- arch/ia64/kernel/process.c |   16 +++++++
- include/asm-ia64/kprobes.h |    2 
- 3 files changed, 118 insertions(+), 2 deletions(-)
+ arch/x86_64/kernel/kprobes.c |  130 ++++++++++++++++++++++---------------------
+ 1 files changed, 68 insertions(+), 62 deletions(-)
 
-Index: linux-2.6.12-rc6/arch/ia64/kernel/kprobes.c
+Index: linux-2.6.12-rc6-mm1/arch/x86_64/kernel/kprobes.c
 ===================================================================
---- linux-2.6.12-rc6.orig/arch/ia64/kernel/kprobes.c
-+++ linux-2.6.12-rc6/arch/ia64/kernel/kprobes.c
-@@ -290,6 +290,93 @@ static inline void set_current_kprobe(st
- 	current_kprobe = p;
+--- linux-2.6.12-rc6-mm1.orig/arch/x86_64/kernel/kprobes.c
++++ linux-2.6.12-rc6-mm1/arch/x86_64/kernel/kprobes.c
+@@ -274,48 +274,23 @@ static void prepare_singlestep(struct kp
+ 		regs->rip = (unsigned long)p->ainsn.insn;
  }
  
-+static void kretprobe_trampoline(void)
-+{
-+}
-+
-+/*
-+ * At this point the target function has been tricked into
-+ * returning into our trampoline.  Lookup the associated instance
-+ * and then:
-+ *    - call the handler function
-+ *    - cleanup by marking the instance as unused
-+ *    - long jump back to the original return address
-+ */
-+int trampoline_probe_handler(struct kprobe *p, struct pt_regs *regs)
-+{
-+	struct kretprobe_instance *ri = NULL;
-+	struct hlist_head *head;
-+	struct hlist_node *node, *tmp;
+-struct task_struct  *arch_get_kprobe_task(void *ptr)
+-{
+-	return ((struct thread_info *) (((unsigned long) ptr) &
+-					(~(THREAD_SIZE -1))))->task;
+-}
+-
+ void arch_prepare_kretprobe(struct kretprobe *rp, struct pt_regs *regs)
+ {
+ 	unsigned long *sara = (unsigned long *)regs->rsp;
+-	struct kretprobe_instance *ri;
+-	static void *orig_ret_addr;
++        struct kretprobe_instance *ri;
+ 
+-	/*
+-	 * Save the return address when the return probe hits
+-	 * the first time, and use it to populate the (krprobe
+-	 * instance)->ret_addr for subsequent return probes at
+-	 * the same addrress since stack address would have
+-	 * the kretprobe_trampoline by then.
+-	 */
+-	if (((void*) *sara) != kretprobe_trampoline)
+-		orig_ret_addr = (void*) *sara;
++        if ((ri = get_free_rp_inst(rp)) != NULL) {
++                ri->rp = rp;
++                ri->task = current;
++		ri->ret_addr = (kprobe_opcode_t *) *sara;
+ 
+-	if ((ri = get_free_rp_inst(rp)) != NULL) {
+-		ri->rp = rp;
+-		ri->stack_addr = sara;
+-		ri->ret_addr = orig_ret_addr;
+-		add_rp_inst(ri);
+ 		/* Replace the return addr with trampoline addr */
+ 		*sara = (unsigned long) &kretprobe_trampoline;
+-	} else {
+-		rp->nmissed++;
+-	}
+-}
+ 
+-void arch_kprobe_flush_task(struct task_struct *tk)
+-{
+-	struct kretprobe_instance *ri;
+-	while ((ri = get_rp_inst_tsk(tk)) != NULL) {
+-		*((unsigned long *)(ri->stack_addr)) =
+-					(unsigned long) ri->ret_addr;
+-		recycle_rp_inst(ri);
+-	}
++                add_rp_inst(ri);
++        } else {
++                rp->nmissed++;
++        }
+ }
+ 
+ /*
+@@ -428,36 +403,58 @@ no_kprobe:
+  */
+ int trampoline_probe_handler(struct kprobe *p, struct pt_regs *regs)
+ {
+-	struct task_struct *tsk;
+-	struct kretprobe_instance *ri;
+-	struct hlist_head *head;
+-	struct hlist_node *node;
+-	unsigned long *sara = (unsigned long *)regs->rsp - 1;
+-
+-	tsk = arch_get_kprobe_task(sara);
+-	head = kretprobe_inst_table_head(tsk);
+-
+-	hlist_for_each_entry(ri, node, head, hlist) {
+-		if (ri->stack_addr == sara && ri->rp) {
+-			if (ri->rp->handler)
+-				ri->rp->handler(ri, regs);
+-		}
+-	}
+-	return 0;
+-}
++        struct kretprobe_instance *ri = NULL;
++        struct hlist_head *head;
++        struct hlist_node *node, *tmp;
 +	unsigned long orig_ret_address = 0;
-+
+ 
+-void trampoline_post_handler(struct kprobe *p, struct pt_regs *regs,
+-						unsigned long flags)
+-{
+-	struct kretprobe_instance *ri;
+-	/* RA already popped */
+-	unsigned long *sara = ((unsigned long *)regs->rsp) - 1;
 +        head = kretprobe_inst_table_head(current);
 +
 +	/*
@@ -79,7 +140,7 @@ Index: linux-2.6.12-rc6/arch/ia64/kernel/kprobes.c
 +	 * We can handle this because:
 +	 *     - instances are always inserted at the head of the list
 +	 *     - when multiple return probes are registered for the same
-+	 *       function, the first instance's ret_addr will point to the
++         *       function, the first instance's ret_addr will point to the
 +	 *       real return address, and all the rest will point to
 +	 *       kretprobe_trampoline
 +	 */
@@ -90,22 +151,24 @@ Index: linux-2.6.12-rc6/arch/ia64/kernel/kprobes.c
 +
 +		if (ri->rp && ri->rp->handler)
 +			ri->rp->handler(ri, regs);
-+
+ 
+-	while ((ri = get_rp_inst(sara))) {
+-		regs->rip = (unsigned long)ri->ret_addr;
 +		orig_ret_address = (unsigned long)ri->ret_addr;
-+		recycle_rp_inst(ri);
+ 		recycle_rp_inst(ri);
 +
-+		if (orig_ret_address !=
-+		    ((struct fnptr *)kretprobe_trampoline)->ip)
++		if (orig_ret_address != (unsigned long) &kretprobe_trampoline)
 +			/*
 +			 * This is the real return address. Any other
 +			 * instances associated with this task are for
 +			 * other calls deeper on the call stack
 +			 */
 +			break;
-+	}
+ 	}
+-	regs->eflags &= ~TF_MASK;
 +
 +	BUG_ON(!orig_ret_address);
-+	regs->cr_iip = orig_ret_address;
++	regs->rip = orig_ret_address;
 +
 +	unlock_kprobes();
 +	preempt_enable_no_resched();
@@ -116,108 +179,32 @@ Index: linux-2.6.12-rc6/arch/ia64/kernel/kprobes.c
 +         * and re-enabling preemption.
 +         */
 +        return 1;
-+}
-+
-+void arch_prepare_kretprobe(struct kretprobe *rp, struct pt_regs *regs)
-+{
-+	struct kretprobe_instance *ri;
-+
-+	if ((ri = get_free_rp_inst(rp)) != NULL) {
-+		ri->rp = rp;
-+		ri->task = current;
-+		ri->ret_addr = (kprobe_opcode_t *)regs->b0;
-+
-+		/* Replace the return addr with trampoline addr */
-+		regs->b0 = ((struct fnptr *)kretprobe_trampoline)->ip;
-+
-+		add_rp_inst(ri);
-+	} else {
-+		rp->nmissed++;
-+	}
-+}
-+
- int arch_prepare_kprobe(struct kprobe *p)
- {
- 	unsigned long addr = (unsigned long) p->addr;
-@@ -492,8 +579,8 @@ static int pre_kprobes_handler(struct di
- 	if (p->pre_handler && p->pre_handler(p, regs))
- 		/*
- 		 * Our pre-handler is specifically requesting that we just
--		 * do a return.  This is handling the case where the
--		 * pre-handler is really our special jprobe pre-handler.
-+		 * do a return.  This is used for both the jprobe pre-handler
-+		 * and the kretprobe trampoline
- 		 */
- 		return 1;
+ }
  
-@@ -599,3 +686,14 @@ int longjmp_break_handler(struct kprobe 
- 	*regs = jprobe_saved_regs;
- 	return 1;
+ /*
+@@ -550,8 +547,7 @@ int post_kprobe_handler(struct pt_regs *
+ 		current_kprobe->post_handler(current_kprobe, regs, 0);
+ 	}
+ 
+-	if (current_kprobe->post_handler != trampoline_post_handler)
+-		resume_execution(current_kprobe, regs);
++	resume_execution(current_kprobe, regs);
+ 	regs->eflags |= kprobe_saved_rflags;
+ 
+ 	/* Restore the original saved kprobes variables and continue. */
+@@ -790,3 +786,13 @@ static void free_insn_slot(kprobe_opcode
+ 		}
+ 	}
  }
 +
 +static struct kprobe trampoline_p = {
++	.addr = (kprobe_opcode_t *) &kretprobe_trampoline,
 +	.pre_handler = trampoline_probe_handler
 +};
 +
 +int __init arch_init(void)
 +{
-+	trampoline_p.addr =
-+		(kprobe_opcode_t *)((struct fnptr *)kretprobe_trampoline)->ip;
 +	return register_kprobe(&trampoline_p);
 +}
-Index: linux-2.6.12-rc6/include/asm-ia64/kprobes.h
-===================================================================
---- linux-2.6.12-rc6.orig/include/asm-ia64/kprobes.h
-+++ linux-2.6.12-rc6/include/asm-ia64/kprobes.h
-@@ -63,6 +63,8 @@ typedef struct _bundle {
- 
- #define JPROBE_ENTRY(pentry)	(kprobe_opcode_t *)pentry
- 
-+#define ARCH_SUPPORTS_KRETPROBES
-+
- #define SLOT0_OPCODE_SHIFT	(37)
- #define SLOT1_p1_OPCODE_SHIFT	(37 - (64-46))
- #define SLOT2_OPCODE_SHIFT 	(37)
-Index: linux-2.6.12-rc6/arch/ia64/kernel/process.c
-===================================================================
---- linux-2.6.12-rc6.orig/arch/ia64/kernel/process.c
-+++ linux-2.6.12-rc6/arch/ia64/kernel/process.c
-@@ -27,6 +27,7 @@
- #include <linux/efi.h>
- #include <linux/interrupt.h>
- #include <linux/delay.h>
-+#include <linux/kprobes.h>
- 
- #include <asm/cpu.h>
- #include <asm/delay.h>
-@@ -707,6 +708,13 @@ kernel_thread_helper (int (*fn)(void *),
- void
- flush_thread (void)
- {
-+	/*
-+	 * Remove function-return probe instances associated with this task
-+	 * and put them back on the free list. Do not insert an exit probe for
-+	 * this function, it will be disabled by kprobe_flush_task if you do.
-+	 */
-+	kprobe_flush_task(current);
-+
- 	/* drop floating-point and debug-register state if it exists: */
- 	current->thread.flags &= ~(IA64_THREAD_FPH_VALID | IA64_THREAD_DBG_VALID);
- 	ia64_drop_fpu(current);
-@@ -721,6 +729,14 @@ flush_thread (void)
- void
- exit_thread (void)
- {
-+
-+	/*
-+	 * Remove function-return probe instances associated with this task
-+	 * and put them back on the free list. Do not insert an exit probe for
-+	 * this function, it will be disabled by kprobe_flush_task if you do.
-+	 */
-+	kprobe_flush_task(current);
-+
- 	ia64_drop_fpu(current);
- #ifdef CONFIG_PERFMON
-        /* if needed, stop monitoring and flush state to perfmon context */
 
 --

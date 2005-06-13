@@ -1,53 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261578AbVFMNuz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261574AbVFMNzD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261578AbVFMNuz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 09:50:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261576AbVFMNuz
+	id S261574AbVFMNzD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 09:55:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbVFMNzD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 09:50:55 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:56781 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261573AbVFMNui (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 09:50:38 -0400
-Date: Mon, 13 Jun 2005 09:50:29 -0400
-From: Neil Horman <nhorman@redhat.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Neil Horman <nhorman@redhat.com>, Matthew Wilcox <matthew@wil.cx>,
-       linux-fsdevel@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Patch][RFC] fcntl: add ability to stop monitored processes
-Message-ID: <20050613135029.GC8810@hmsendeavour.rdu.redhat.com>
-References: <20050611000548.GA6549@hmsendeavour.rdu.redhat.com> <20050611180715.GK24611@parcelfarce.linux.theplanet.co.uk> <20050611193500.GC1097@devserv.devel.redhat.com> <20050612181006.GC2229@hmsendeavour.rdu.redhat.com> <1118670162.13250.25.camel@localhost.localdomain>
+	Mon, 13 Jun 2005 09:55:03 -0400
+Received: from wproxy.gmail.com ([64.233.184.195]:62618 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261574AbVFMNy6 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 09:54:58 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=nDi2HoNPZO4hN11y7U5kqmOl+9qgLRV6wEKBH4vV+lHXlPW2eQ2ZN+u/QRJtC4aoHAttsA0oCUZUEh+5KJ5nopJVKgTSNwEteOTdxjPZodwJLkHYI7u8IrIXpRx9ToLAPhKyA3eam6wVpf0MDdz6PUcpuc+uo2eCN5uQv02GwUk=
+Message-ID: <f1929877050613065461ad3253@mail.gmail.com>
+Date: Mon, 13 Jun 2005 17:54:58 +0400
+From: Alexey Zaytsev <alexey.zaytsev@gmail.com>
+Reply-To: Alexey Zaytsev <alexey.zaytsev@gmail.com>
+To: Bernd Petrovitsch <bernd@firmix.at>
+Subject: Re: A Great Idea (tm) about reimplementing NLS.
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1118664352.898.16.camel@tara.firmix.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <1118670162.13250.25.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+References: <f192987705061303383f77c10c@mail.gmail.com>
+	 <1118664352.898.16.camel@tara.firmix.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 13, 2005 at 02:42:43PM +0100, Alan Cox wrote:
-> On Sul, 2005-06-12 at 19:10, Neil Horman wrote:
-> > How about this?  Its the same feature, with an added check in fcntl_dirnotify to
-> > ensure that only processes with CAP_SYS_ADMIN set can tell processes preforming
-> 
-> Once you are monitoring and sending signals I think its time to ask if
-> the interface is in totally the wrong place. Would it not be better if
-> it was part of the ptrace interface to the monitored process ?
-> 
+On 13/06/05, Bernd Petrovitsch <bernd@firmix.at> wrote:
+> On Mon, 2005-06-13 at 14:38 +0400, Alexey Zaytsev wrote:
+> [ Filenames with another encoding ]
+> > Some would suggest not to use non-ascii file names at all, some would
+> > say that I should temporary change my locale, some could even offer me
+> > a perl script they wrote when faced the same problem. All these
+> > solutions are inconvenient and conflict with fundamental VFS concepts.
+>                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> In what way?
+> Basically you just rename the files. How can this conflict with
+> "fundamental VFS concepts" (and with which).
 
-You mean add the ability to monitor directories for changes to the ptrace
-interface entirely?
+I can't rename files on Pupkin's drive because he won't like it. ;)
+In the case with a flash drive I can copy all the files to my computer
+and rename them, but I can't do it with a bigger media like hard disk.
 
-Regards
-Neil
-
--- 
-/***************************************************
- *Neil Horman
- *Software Engineer
- *Red Hat, Inc.
- *nhorman@redhat.com
- *gpg keyid: 1024D / 0x92A74FA1
- *http://pgp.mit.edu
- ***************************************************/
+The main idea of VFS is that you can access your files in the same way
+on any supported file system. But actually you can't simple access
+different-encoded non-ascii files on a filesystem that has no NLS,
+like ext or reiser.
+ 
+>        Bernd

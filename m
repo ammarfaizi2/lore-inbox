@@ -1,65 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261624AbVFMPof@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261605AbVFMPvE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261624AbVFMPof (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 11:44:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbVFMPof
+	id S261605AbVFMPvE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 11:51:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbVFMPvE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 11:44:35 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:9129 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261671AbVFMPoQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 11:44:16 -0400
-Message-ID: <42ADA8F5.6050905@redhat.com>
-Date: Mon, 13 Jun 2005 08:40:37 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
+	Mon, 13 Jun 2005 11:51:04 -0400
+Received: from alog0263.analogic.com ([208.224.222.39]:23780 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261605AbVFMPui
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 11:50:38 -0400
+Date: Mon, 13 Jun 2005 11:50:34 -0400 (EDT)
+From: "Richard B. Johnson" <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Pausing a task
+Message-ID: <Pine.LNX.4.61.0506131142120.17826@chaos.analogic.com>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org
-Subject: Re: Add pselect, ppoll system calls.
-References: <1118444314.4823.81.camel@localhost.localdomain>	 <1118616499.9949.103.camel@localhost.localdomain>	 <Pine.LNX.4.58.0506121725250.2286@ppc970.osdl.org> <1118661326.9949.127.camel@localhost.localdomain>
-In-Reply-To: <1118661326.9949.127.camel@localhost.localdomain>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigE67FFECD36F6D9977DBC19FE"
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigE67FFECD36F6D9977DBC19FE
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
 
-Alan Cox wrote:
-> Right but why can't glibc be fixed to use the longjmp trick internally.=
+How can I (as root) pause or suspend a process?
+On VAX/VMS one could do `set process=suspend`. This
+would allow the system manager to check on a possibly
+rogue user.
 
+Let's say that "Hacker Jack" just got fired because
+he was disrupting a project. One needs to find any of
+his processes where he might be deleting a project
+tree. Pausing, rather than killing the tasks would
+allow evidence to be gathered. Basically, I need
+to set the task(s) priorities to something that
+will take them out of the run-queue altogether.
 
-
-How, Alan?  Remember, these are not the days of V7.  We have threads.
-And we have signal handlers as a process-wide property, shared by all
-threads.
-
---=20
-=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
-=E2=9E=A7 Mountain View, CA =E2=9D=96
-
-
---------------enigE67FFECD36F6D9977DBC19FE
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iD8DBQFCraj12ijCOnn/RHQRAuocAJsGsFcGWsYFUoJlfrc9oEcHepPz4ACggNcY
-7ADIvFu2zoKq1pFqO+VIdm0=
-=GXVq
------END PGP SIGNATURE-----
-
---------------enigE67FFECD36F6D9977DBC19FE--
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.11.9 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

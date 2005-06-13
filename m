@@ -1,68 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261280AbVFMApt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261302AbVFMAxm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261280AbVFMApt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Jun 2005 20:45:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbVFMApt
+	id S261302AbVFMAxm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Jun 2005 20:53:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbVFMAxm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Jun 2005 20:45:49 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:28266
-	"EHLO g5.random") by vger.kernel.org with ESMTP id S261280AbVFMApl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Jun 2005 20:45:41 -0400
-Date: Mon, 13 Jun 2005 02:45:30 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Karim Yaghmour <karim@opersys.com>, Kristian Benoit <kbenoit@opersys.com>,
+	Sun, 12 Jun 2005 20:53:42 -0400
+Received: from titan.genwebhost.com ([209.9.226.66]:57038 "EHLO
+	titan.genwebhost.com") by vger.kernel.org with ESMTP
+	id S261302AbVFMAxk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Jun 2005 20:53:40 -0400
+Date: Sun, 12 Jun 2005 17:53:17 -0700
+From: randy_dunlap <rdunlap@xenotime.net>
+To: Sven-Thorsten Dietrich <sdietrich@mvista.com>
+Cc: andrea@suse.de, karim@opersys.com, mingo@elte.hu, kbenoit@opersys.com,
        linux-kernel@vger.kernel.org, paulmck@us.ibm.com, bhuey@lnxw.com,
        tglx@linutronix.de, pmarques@grupopie.com, bruce@andrew.cmu.edu,
-       nickpiggin@yahoo.com.au, ak@muc.de, sdietrich@mvista.com,
-       dwalker@mvista.com, hch@infradead.org, akpm@osdl.org, rpm@xenomai.org
+       nickpiggin@yahoo.com.au, ak@muc.de, dwalker@mvista.com,
+       hch@infradead.org, akpm@osdl.org, rpm@xenomai.org
 Subject: Re: PREEMPT_RT vs ADEOS: the numbers, part 1
-Message-ID: <20050613004530.GH5796@g5.random>
-References: <42AA6A6B.5040907@opersys.com> <20050611191448.GA24152@elte.hu> <42AB662B.4010104@opersys.com> <20050612061108.GA4554@elte.hu> <42AC8D00.4030809@opersys.com> <20050612205902.GA31928@elte.hu>
+Message-Id: <20050612175317.1fa416e6.rdunlap@xenotime.net>
+In-Reply-To: <1118617421.12889.71.camel@sdietrich-xp.vilm.net>
+References: <42AA6A6B.5040907@opersys.com>
+	<20050611191448.GA24152@elte.hu>
+	<42AB662B.4010104@opersys.com>
+	<20050612222011.GG5796@g5.random>
+	<1118617421.12889.71.camel@sdietrich-xp.vilm.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050612205902.GA31928@elte.hu>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - titan.genwebhost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - xenotime.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 12, 2005 at 10:59:02PM +0200, Ingo Molnar wrote:
-> if you want to measure hw-interrupt delays then under PREEMPT_RT you'll 
-> need to use an SA_NODELAY interrupt handler. (which is a PREEMPT_RT 
-> specific flag) If you use normal request_irq() or some parport driver 
-> then the driver function will run in an interrupt thread and what you 
-> are measuring is not interrupt latency but rescheduling latency.
+On Sun, 12 Jun 2005 16:03:41 -0700 Sven-Thorsten Dietrich wrote:
 
-Karim, just in case you're not very familiar with parport, this should
-do the trick:
+| On Mon, 2005-06-13 at 00:20 +0200, Andrea Arcangeli wrote:
+| > On Sat, Jun 11, 2005 at 06:31:07PM -0400, Karim Yaghmour wrote:
+| > > The logger used two TSC values. One prior to shooting the interrupt to the
+| > > target, and one when receiving the response. Responding to an interrupt
+| > 
+| > Real life RT apps would run the second rdtsc in user space and not
+| > kernel space, right?
+| > 
+| > And thanks for your benchmarking efforts!
+| 
+| Real-life RT apps are not benchmarks!
+| 
+| There is not requirement for them to run in user space or in kernel
+| space.
+| 
+| The choice is left to the application designer.
 
-diff --git a/drivers/parport/parport_pc.c b/drivers/parport/parport_pc.c
---- a/drivers/parport/parport_pc.c
-+++ b/drivers/parport/parport_pc.c
-@@ -2286,7 +2286,7 @@ struct parport *parport_pc_probe_port (u
- 	}
- 	if (p->irq != PARPORT_IRQ_NONE) {
- 		if (request_irq (p->irq, parport_pc_interrupt,
--				 0, p->name, p)) {
-+				 SA_NODELAY, p->name, p)) {
- 			printk (KERN_WARNING "%s: irq %d in use, "
- 				"resorting to polled operation\n",
- 				p->name, p->irq);
+Wouldn't the company's attorney/lawyer/counsel be considered too?
+After all, in-kernel would likely have some legal ramifications...
 
-Unless I'm missing something, this mode is only valid if coding the RT
-code in the hardirq handler, which didn't seem the main benefit of
-preempt-RT to me, but it's still an interesting basic benchmark,
-especially now that local_irq_disable is "soft".
-
-But I'd be nice to also measure the performance of the non-RT part of
-the workload, just a suggestion if you have time.
-
-With above patch applied my crystal ball expects preempt-RT to perform
-much closer to adeos, but with the difference that the non-RT part of
-the system will still get the burden of the added complexity that adeos
-won't have.
-
-Thanks.
+---
+~Randy

@@ -1,72 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261877AbVFMRBb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261423AbVFMRJ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261877AbVFMRBb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 13:01:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261880AbVFMRBa
+	id S261423AbVFMRJ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 13:09:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261814AbVFMRJ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 13:01:30 -0400
-Received: from mailhub3.nextra.sk ([195.168.1.146]:55556 "EHLO
-	mailhub3.nextra.sk") by vger.kernel.org with ESMTP id S261877AbVFMRB2
+	Mon, 13 Jun 2005 13:09:56 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:64174 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261423AbVFMRJ1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 13:01:28 -0400
-Message-ID: <42ADBBE0.1030901@rainbow-software.org>
-Date: Mon, 13 Jun 2005 19:01:20 +0200
-From: Ondrej Zary <linux@rainbow-software.org>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Nick Piggin <nickpiggin@yahoo.com.au>,
-       Grant Coady <grant_lkml@dodo.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Odd IDE performance drop 2.4 vs 2.6?
-References: <ac0qa19omlt7bsh8mcfsfr2uhshk338f0c@4ax.com>	 <42AD6362.1000109@rainbow-software.org>	 <1118669975.13260.23.camel@localhost.localdomain>	 <42AD92F2.7080108@yahoo.com.au> <1118675343.13773.1.camel@localhost.localdomain>
-In-Reply-To: <1118675343.13773.1.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 13 Jun 2005 13:09:27 -0400
+Date: Mon, 13 Jun 2005 22:39:41 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Tony Lindgren <tony@atomide.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Dynamic tick for x86 version 050609-2
+Message-ID: <20050613170941.GA1043@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <88056F38E9E48644A0F562A38C64FB6004EBD10C@scsmsx403.amr.corp.intel.com> <20050609014033.GA30827@atomide.com> <20050610043018.GE18103@atomide.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050610043018.GE18103@atomide.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Llu, 2005-06-13 at 15:06, Nick Piggin wrote:
-> 
->>>Make sure you have pre-empt disabled and the antcipatory I/O scheduler
->>>disabled. 
->>>
->>
->>I don't think that those could explain it.
-> 
-> 
-> Try it and see. The anticipatory I/O scheduler does horrible things to
-> my IDE streaming performance numbers and to swap performance. It tries
-> to merge I/O by delaying it which is deeply ungood when it comes to IDE
-> streaming even if its good for general I/O.
+Hi Tony,
+        I went through the dynamic-tick patch on your website
+(patch-dynamic-tick-2.6.12-rc6-050610-1) and was having some
+questions about it:
 
-Changing the scheduler did not help (the results are about the same with 
-any of the 4 schedulers). Read ahead is already set to 256 (increasing 
-to 1024 did not help either). Kernel compilation takes too much time 
-here so I didn't test with preempt disabled.
-The drive is WD300BB (7200RPM) in UDMA2 mode.
+1. dyn_tick->skip is set to the number of ticks that have
+   to be skipped. This is set on the CPU which is the last
+   (in online_map) to go idle and is based on when that
+   CPU's next timer is set to expire.
 
-root@pentium:~# cat /sys/block/hda/queue/scheduler
-noop anticipatory [deadline] cfq
-root@pentium:~# hdparm -tT /dev/hda
+   Other CPUs also seem to use the same interval
+   to skip ticks. Shouldnt other CPU check their nearest timer
+   rather than blindly skipping dyn_tick->skip number of ticks?
 
-/dev/hda:
-  Timing cached reads:   176 MB in  2.00 seconds =  88.00 MB/sec
-  Timing buffered disk reads:   34 MB in  3.02 seconds =  11.26 MB/sec
-root@pentium:~# hdparm /dev/hda
+2. reprogram_apic_timer seems to reprogram the count-down
+   APIC timer (APIC_TMICT) with an integral number of apic_timer_val.
+   How accurate will this be? Shouldnt this take into account
+   that we may not be reprogramming the timer on exactly "jiffy"
+   boundary?
 
-/dev/hda:
-  multcount    = 16 (on)
-  IO_support   =  1 (32-bit)
-  unmaskirq    =  1 (on)
-  using_dma    =  1 (on)
-  keepsettings =  1 (on)
-  readonly     =  0 (off)
-  readahead    = 256 (on)
-  geometry     = 58168/16/63, sectors = 58633344, start = 0
+3. Is there any strong reason why you reprogram timers only when
+   _all_ CPUs are idle?
+
+4. In what aspects you think does your patch differ from VST (other
+   than not relying on HRT!)?
 
 
 -- 
-Ondrej Zary
+
+
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

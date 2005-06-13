@@ -1,35 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261615AbVFMWrb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261600AbVFMWfi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261615AbVFMWrb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 18:47:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261609AbVFMWq1
+	id S261600AbVFMWfi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 18:35:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261571AbVFMWdN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 18:46:27 -0400
-Received: from smtp.lnxw.com ([207.21.185.24]:5 "EHLO smtp.lnxw.com")
-	by vger.kernel.org with ESMTP id S261615AbVFMWm5 (ORCPT
+	Mon, 13 Jun 2005 18:33:13 -0400
+Received: from opersys.com ([64.40.108.71]:25870 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S261515AbVFMWcE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 18:42:57 -0400
-Date: Mon, 13 Jun 2005 15:43:30 -0700
+	Mon, 13 Jun 2005 18:32:04 -0400
+Message-ID: <42AE0BCB.3080106@opersys.com>
+Date: Mon, 13 Jun 2005 18:42:19 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+MIME-Version: 1.0
 To: "Saksena, Manas" <Manas.Saksena@timesys.com>
-Cc: karim@opersys.com, dwalker@mvista.com, paulmck@us.ibm.com,
-       Andrea Arcangeli <andrea@suse.de>, Bill Huey <bhuey@lnxw.com>,
-       Lee Revell <rlrevell@joe-job.com>, Tim Bird <tim.bird@am.sony.com>,
-       linux-kernel@vger.kernel.org, tglx@linutronix.de, mingo@elte.hu,
-       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
-       ak@muc.de, sdietrich@mvista.com, hch@infradead.org, akpm@osdl.org
+CC: dwalker@mvista.com, paulmck@us.ibm.com, Andrea Arcangeli <andrea@suse.de>,
+       Bill Huey <bhuey@lnxw.com>, Lee Revell <rlrevell@joe-job.com>,
+       Tim Bird <tim.bird@am.sony.com>, linux-kernel@vger.kernel.org,
+       tglx@linutronix.de, mingo@elte.hu, pmarques@grupopie.com,
+       bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au, ak@muc.de,
+       sdietrich@mvista.com, hch@infradead.org, akpm@osdl.org
 Subject: Re: Attempted summary of "RT patch acceptance" thread
-Message-ID: <20050613224330.GA1113@nietzsche.lynx.com>
 References: <3D848382FB72E249812901444C6BDB1D01588198@exchange.timesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <3D848382FB72E249812901444C6BDB1D01588198@exchange.timesys.com>
-User-Agent: Mutt/1.5.9i
-From: Bill Huey (hui) <bhuey@lnxw.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 13, 2005 at 06:20:10PM -0400, Saksena, Manas wrote:
+
+Saksena, Manas wrote:
+> The needs that Linux and QNX (or, whatever your favorite RTOS is)
+> fulfill are not that separate. 
+
+That point of view may not be shared by others.
+
 > Keep in mind that Linux has been making inroads into traditional
 > RTOS markets for 4+ years. RTOSes have been used in many devices
 > and systems -- many of which do not need the "ruby/diamond" hard
@@ -37,17 +46,17 @@ On Mon, Jun 13, 2005 at 06:20:10PM -0400, Saksena, Manas wrote:
 > very large number of devices/systems that currently use an RTOS
 > (or non mainline Linux kernel). 
 
-It's better to use different terminology. The notion of real time
-is *not* a single dimensional vector that is either "more" or "less"
-than of any particular thing. It's much more complicated than that.
+Please, Manas, go teach someone else about how Linux has been doing
+in the real-time world for the 10 years.
 
-There's at least more than one definition of hard real time floating
-around with various degrees of determinism. Deterministic is
-deterministic and many RTOS are capable of that. Theoretically provable
-anything is pushing it and is not RTOSes are typically constructed.
+> And, likewise SMP and large system scalability will often conflict
+> with desktop performance. Or, interactive performance goals conflict
+> with server throughput goals, and so on.... 
 
-I recommend dropping that ridiculous terminology because how complex
-this problem/domain is as well as how misleading it can be.
+Not at this scale.
 
-bill
-
+Karim
+-- 
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546

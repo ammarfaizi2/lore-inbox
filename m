@@ -1,44 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261544AbVFMW16@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261553AbVFMW17@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261544AbVFMW16 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 18:27:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261553AbVFMW0d
+	id S261553AbVFMW17 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 18:27:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261511AbVFMW0R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 18:26:33 -0400
-Received: from smtp.lnxw.com ([207.21.185.24]:15364 "EHLO smtp.lnxw.com")
-	by vger.kernel.org with ESMTP id S261515AbVFMWYW (ORCPT
+	Mon, 13 Jun 2005 18:26:17 -0400
+Received: from rproxy.gmail.com ([64.233.170.204]:63634 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261558AbVFMWZ3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 18:24:22 -0400
-Date: Mon, 13 Jun 2005 15:29:09 -0700
-To: Karim Yaghmour <karim@opersys.com>
-Cc: "Bill Huey (hui)" <bhuey@lnxw.com>, dwalker@mvista.com, paulmck@us.ibm.com,
-       Andrea Arcangeli <andrea@suse.de>, Lee Revell <rlrevell@joe-job.com>,
-       Tim Bird <tim.bird@am.sony.com>, linux-kernel@vger.kernel.org,
-       tglx@linutronix.de, mingo@elte.hu, pmarques@grupopie.com,
-       bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au, ak@muc.de,
-       sdietrich@mvista.com, hch@infradead.org, akpm@osdl.org
-Subject: Re: Attempted summary of "RT patch acceptance" thread
-Message-ID: <20050613222909.GA880@nietzsche.lynx.com>
-References: <42ACE2D3.9080106@opersys.com> <20050613144022.GA1305@us.ibm.com> <42ADE334.4030002@opersys.com> <1118693033.2725.21.camel@dhcp153.mvista.com> <42ADEC0E.4020907@opersys.com> <1118694495.2725.32.camel@dhcp153.mvista.com> <42AE01EA.10905@opersys.com> <42AE04AE.8070107@opersys.com> <20050613221810.GA820@nietzsche.lynx.com> <42AE0875.8010001@opersys.com>
+	Mon, 13 Jun 2005 18:25:29 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:from;
+        b=aICdFux6OiOCo7iif6aYmipyHFbtPkYKrBZ9piLEwyT3bYGh6fkhZ5dYnELFhG2hPfKzvyJv+tiS1AK85WPb/Gu+PIckcqR7m2/NZgMyP2lviWYnsGTUUfowBE3z9EySegsB0ITNFdjNiVSkTDyFXcy2G040G/sOd14B/eOISPY=
+Date: Tue, 14 Jun 2005 00:25:28 +0200
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: dino@in.ibm.com, Andrew Morton <akpm@osdl.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: What breaks aic7xxx in post 2.6.12-rc2 ?
+Message-ID: <20050613222527.GB8629@gmail.com>
+References: <20050607085710.GB9230@gmail.com> <1118590709.4967.6.camel@mulgrave> <20050613145000.GA12057@gmail.com> <1118674783.5079.9.camel@mulgrave> <20050613183719.GA8653@gmail.com> <1118695847.5079.41.camel@mulgrave> <20050613213307.GA8534@gmail.com> <1118699191.5079.49.camel@mulgrave> <20050613215923.GA8629@gmail.com> <1118700284.5079.52.camel@mulgrave>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42AE0875.8010001@opersys.com>
-User-Agent: Mutt/1.5.9i
-From: Bill Huey (hui) <bhuey@lnxw.com>
+In-Reply-To: <1118700284.5079.52.camel@mulgrave>
+User-Agent: Mutt/1.5.6i
+From: Gregoire Favre <gregoire.favre@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 13, 2005 at 06:28:05PM -0400, Karim Yaghmour wrote:
-> Been there done that. This is not about leadership, it's about
-> equilibrium.
+On Mon, Jun 13, 2005 at 05:04:44PM -0500, James Bottomley wrote:
 
-I'm tell'n you that there is no way that this patch is going to
-die. The commercial vendors and the general community is going
-use this once they figure out what it can do and there will be
-no stopping it. You can bet on some body extremity that this
-will happen. It's inevitable and ultimately the future of Linux
-whether they like it or not.
+> Well ... just to confirm for this one: although it's on a u160
+> controller, you have its speed configured in bios to 40MHz (rather than
+> 80Mhz)?  That's what the value of flags seems to say, and we look to be
+> interpreting it correctly.
 
-bill
+Yes, due to those problem, I have reduced all devices speed on both
+controllers. Now I think I can put the HD to 160 and my CD-writers to
+20 :-) (Maybe I could try to also put the DVD-Rom to 20).
 
+Do you think it's safe to use this patched 2.6.12-rc6 (I could stay
+under 2.6.12-rc2 till 2.6.12-rc7 or 2.6.12 comes out) ?
+
+Thank you very much,
+-- 
+	Gr\'egoire Favre

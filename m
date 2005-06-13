@@ -1,52 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261816AbVFMQph@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261797AbVFMQsl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261816AbVFMQph (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 12:45:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261814AbVFMQpg
+	id S261797AbVFMQsl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 12:48:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261855AbVFMQsk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 12:45:36 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:36559 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261797AbVFMQpT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 12:45:19 -0400
-Date: Mon, 13 Jun 2005 12:45:13 -0400
-From: Dave Jones <davej@redhat.com>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: Jesper Juhl <juhl-lkml@dif.dk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Documentation: update sparse.txt to list actual location
-Message-ID: <20050613164513.GA19239@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Jesper Juhl <jesper.juhl@gmail.com>, Jesper Juhl <juhl-lkml@dif.dk>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.62.0506122346250.16521@dragon.hyggekrogen.localhost> <20050613054853.GA4753@redhat.com> <9a8748490506130037efae4b@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9a8748490506130037efae4b@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 13 Jun 2005 12:48:40 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:42918 "EHLO
+	zcars04e.ca.nortel.com") by vger.kernel.org with ESMTP
+	id S261797AbVFMQs3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 12:48:29 -0400
+Message-ID: <42ADB8D1.9090503@nortel.com>
+Date: Mon, 13 Jun 2005 10:48:17 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: quade <quade@hsnr.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: latency error (~2ms) with nanosleep
+References: <20050613133047.GA11979@hsnr.de>
+In-Reply-To: <20050613133047.GA11979@hsnr.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 13, 2005 at 09:37:37AM +0200, Jesper Juhl wrote:
- > On 6/13/05, Dave Jones <davej@redhat.com> wrote:
- > > On Sun, Jun 12, 2005 at 11:49:30PM +0200, Jesper Juhl wrote:
- > > 
- > >  > -and DaveJ has tar-balls at
- > >  > +like this:
- > >  >
- > >  > -    http://www.codemonkey.org.uk/projects/bitkeeper/sparse/
- > > 
- > > + http://www.codemonkey.org.uk/projects/git-snapshots/sparse/
- > > 
- > Ahh, great, I'll update the patch later today.  Thanks.
+quade wrote:
+> Playing around with the (simple) measurement of latency-times
+> I noticed, that the systemcall "nanosleep" has always a minimal
+> latency from about ~2ms (haven't run it all night, so...). It
+> seems to be a systematical error.
 
-I'm about to jump on a plane, and be net.dead for the
-best part of the next week, with sporadic internet access,
-which is obviously the best time to start cron running
-a hastily hacked up script.
+Known issue.  The x86 interrupt usually has a period of slightly less 
+than a ms.  It will therefore generally add nearly a whole ms to ensure 
+that it does not ever wait for *less* than specified.
 
-If it blows up horribly, I'll get to it when I get back on Sunday,
-but it should be fine..  I hope :-)
-
-		Dave
-
+Chris

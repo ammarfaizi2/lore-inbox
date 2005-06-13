@@ -1,52 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261415AbVFMHpK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261417AbVFMHqD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261415AbVFMHpK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 03:45:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261417AbVFMHpK
+	id S261417AbVFMHqD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 03:46:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261418AbVFMHqD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 03:45:10 -0400
-Received: from lirs02.phys.au.dk ([130.225.28.43]:49024 "EHLO
-	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S261415AbVFMHpE
+	Mon, 13 Jun 2005 03:46:03 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:56330 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261417AbVFMHpx
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 03:45:04 -0400
-Date: Mon, 13 Jun 2005 09:44:45 +0200 (METDST)
-From: Esben Nielsen <simlo@phys.au.dk>
-To: Sven-Thorsten Dietrich <sdietrich@mvista.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Daniel Walker <dwalker@mvista.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] local_irq_disable removal
-In-Reply-To: <1118646527.5729.60.camel@sdietrich-xp.vilm.net>
-Message-Id: <Pine.OSF.4.05.10506130942140.10063-100000@da410.phys.au.dk>
+	Mon, 13 Jun 2005 03:45:53 -0400
+Date: Mon, 13 Jun 2005 17:45:21 +1000
+To: Willy Tarreau <willy@w.ods.org>
+Cc: davem@davemloft.net, xschmi00@stud.feec.vutbr.cz, alastair@unixtrix.com,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [PATCH] fix small DoS on connect() (was Re: BUG: Unusual TCP Connect() results.)
+Message-ID: <20050613074521.GA21661@gondor.apana.org.au>
+References: <20050612123253.GK28759@alpha.home.local> <20050612131323.GA10188@gondor.apana.org.au> <20050612133349.GA6279@gondor.apana.org.au> <20050612134725.GB8951@alpha.home.local> <20050612135018.GA10910@gondor.apana.org.au> <20050612142401.GA10772@alpha.home.local> <20050613044810.GA32103@gondor.apana.org.au> <20050613052148.GF8907@alpha.home.local> <20050613052404.GA7611@gondor.apana.org.au> <20050613061748.GA13144@alpha.home.local>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050613061748.GA13144@alpha.home.local>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Jun 2005, Sven-Thorsten Dietrich wrote:
-
-> On Sat, 2005-06-11 at 22:03 +0200, Ingo Molnar wrote:
-> > * Esben Nielsen <simlo@phys.au.dk> wrote:
-> > 
-> > > > the jury is still out on the accuracy of those numbers. The test had 
-> > > > RT_DEADLOCK_DETECT (and other -RT debugging features) turned on, which 
-> > > > mostly work with interrupts disabled. The other question is how were 
-> > > > interrupt response times measured.
-> > > > 
-> > > You would accept a patch where I made this stuff optional?
-> > 
-> > I'm not sure why. The soft-flag based local_irq_disable() should in fact 
-> > be a tiny bit faster than the cli based approach, on a fair number of 
-> > CPUs. But it should definitely not be slower in any measurable way.
-> > 
+On Mon, Jun 13, 2005 at 08:17:48AM +0200, Willy Tarreau wrote:
 > 
-> Is there any such SMP concept as a local_preempt_disable()  ?
-> 
-You must think of preempt_disable() ? Except for the interface is a little
-bit different using flags in local_irq_save(), preempt_disable() works
-exactly the same way, blocking for everything but interrupts - on the
-_local_ CPU. (Under PREEMPT_RT it ofcourse also blocks for threaded IRQ
-handlers.)
+> What's the problem with the sysctl ? If you prefer, I can change the patch
+> to keep the feature enabled by default so that only people aware of the
+> problem have to fix it by hand. But I found it better the other way : people
+> who need the feature enable it by hand.
 
+Well that's exactly my problem :)
 
-Esben
+I reckon it should be off by default because the threat posed by
+this problem is IMHO small compared to some of the other standard
+threats that are applicable to TCP.  Plus this is a well-documented
+feature so we can't be sure that someone somewhere isn't depending
+on it.
 
+However, if it were off by default then there is very little value
+in providing it at all since the same thing can be achived easily
+through netfilter.
+
+Anyway, let's leave it to Dave to make the decision.
+
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

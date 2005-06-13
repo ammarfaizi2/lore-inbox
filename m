@@ -1,40 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261245AbVFMTqk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261236AbVFMTpx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261245AbVFMTqk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 15:46:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261241AbVFMTqK
+	id S261236AbVFMTpx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 15:45:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261246AbVFMTn0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 15:46:10 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:50151
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S261245AbVFMTpw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 15:45:52 -0400
-Date: Mon, 13 Jun 2005 12:45:15 -0700 (PDT)
-Message-Id: <20050613.124515.104034144.davem@davemloft.net>
-To: jesper.juhl@gmail.com
-Cc: mru@inprovide.com, rommer@active.by, bernd@firmix.at,
-       linux-kernel@vger.kernel.org
-Subject: Re: udp.c
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <9a87484905061310237e031c1a@mail.gmail.com>
-References: <42AD81FC.9020404@active.by>
-	<yw1xu0k2beeh.fsf@ford.inprovide.com>
-	<9a87484905061310237e031c1a@mail.gmail.com>
-X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Mon, 13 Jun 2005 15:43:26 -0400
+Received: from titan.genwebhost.com ([209.9.226.66]:36553 "EHLO
+	titan.genwebhost.com") by vger.kernel.org with ESMTP
+	id S261236AbVFMTjn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 15:39:43 -0400
+Date: Mon, 13 Jun 2005 12:27:51 -0700
+From: randy_dunlap <rdunlap@xenotime.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: patrick.boettcher@desy.de, akpm <akpm@osdl.org>
+Subject: [PATCH -mm] dvb: dibusb needs license
+Message-Id: <20050613122751.4e7820b4.rdunlap@xenotime.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - titan.genwebhost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - xenotime.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Jesper Juhl <jesper.juhl@gmail.com>
-Date: Mon, 13 Jun 2005 19:23:36 +0200
 
-> Why not remove the function and audit the code for users (and if any,
-> remove them)...? Let's get rid of it instead of having a function sit
-> around the only purpose of which is to BUG();
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-Then if someone breaks that invariant, we'll never find out.
+Module needs a license to prevent kernel tainting.
 
-The code is staying, sorry.
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
 
+diffstat:=
+ drivers/media/dvb/dvb-usb/dibusb-common.c |    2 +-
+ drivers/media/dvb/dvb-usb/dvb-usb.h       |    1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+
+diff -Naurp ./drivers/media/dvb/dvb-usb/dibusb-common.c~taint_dvb ./drivers/media/dvb/dvb-usb/dibusb-common.c
+--- ./drivers/media/dvb/dvb-usb/dibusb-common.c~taint_dvb	2005-06-10 18:42:28.000000000 -0700
++++ ./drivers/media/dvb/dvb-usb/dibusb-common.c	2005-06-13 11:07:17.000000000 -0700
+@@ -13,6 +13,7 @@
+ static int debug;
+ module_param(debug, int, 0644);
+ MODULE_PARM_DESC(debug, "set debugging level (1=info (|-able))." DVB_USB_DEBUG_STATUS);
++MODULE_LICENSE("GPL");
+ 
+ #define deb_info(args...) dprintk(debug,0x01,args)
+ 
+@@ -269,4 +270,3 @@ int dibusb_rc_query(struct dvb_usb_devic
+ 	return 0;
+ }
+ EXPORT_SYMBOL(dibusb_rc_query);
+-
+diff -Naurp ./drivers/media/dvb/dvb-usb/dvb-usb.h~taint_dvb ./drivers/media/dvb/dvb-usb/dvb-usb.h
+--- ./drivers/media/dvb/dvb-usb/dvb-usb.h~taint_dvb	2005-06-10 18:42:28.000000000 -0700
++++ ./drivers/media/dvb/dvb-usb/dvb-usb.h	2005-06-13 10:42:18.000000000 -0700
+@@ -10,6 +10,7 @@
+ 
+ #include <linux/config.h>
+ #include <linux/input.h>
++#include <linux/module.h>
+ #include <linux/usb.h>
+ 
+ #include "dvb_frontend.h"
+
+
+---

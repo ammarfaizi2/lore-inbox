@@ -1,45 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261612AbVFMPTA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261621AbVFMPXU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261612AbVFMPTA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 11:19:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbVFMPSH
+	id S261621AbVFMPXU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 11:23:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261607AbVFMPXO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 11:18:07 -0400
-Received: from opersys.com ([64.40.108.71]:56074 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261612AbVFMPPU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 11:15:20 -0400
-Subject: Re: PREEMPT_RT vs ADEOS: the numbers, part 1
-From: Kristian Benoit <kbenoit@opersys.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Karim Yaghmour <karim@opersys.com>, linux-kernel@vger.kernel.org,
-       paulmck@us.ibm.com, bhuey@lnxw.com, andrea@suse.de, tglx@linutronix.de,
-       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
-       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, rpm@xenomai.org
-In-Reply-To: <20050613150021.GA5891@elte.hu>
-References: <42AA6A6B.5040907@opersys.com> <20050611191448.GA24152@elte.hu>
-	 <42AB662B.4010104@opersys.com>  <20050613150021.GA5891@elte.hu>
-Content-Type: text/plain
-Date: Mon, 13 Jun 2005 11:12:30 -0400
-Message-Id: <1118675550.5792.4.camel@localhost>
+	Mon, 13 Jun 2005 11:23:14 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61405 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261620AbVFMPVd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 11:21:33 -0400
+Date: Mon, 13 Jun 2005 16:22:35 +0100
+From: Matthew Wilcox <matthew@wil.cx>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Neil Horman <nhorman@redhat.com>, Matthew Wilcox <matthew@wil.cx>,
+       linux-fsdevel@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch][RFC] fcntl: add ability to stop monitored processes
+Message-ID: <20050613152235.GL24611@parcelfarce.linux.theplanet.co.uk>
+References: <20050611000548.GA6549@hmsendeavour.rdu.redhat.com> <20050611180715.GK24611@parcelfarce.linux.theplanet.co.uk> <20050611193500.GC1097@devserv.devel.redhat.com> <20050612181006.GC2229@hmsendeavour.rdu.redhat.com> <1118670162.13250.25.camel@localhost.localdomain> <20050613135029.GC8810@hmsendeavour.rdu.redhat.com> <1118675421.13770.3.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1118675421.13770.3.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-06-13 at 17:00 +0200, Ingo Molnar wrote:
-> FYI, there's a new feature in the -V0.7.48-25 (and later) -RT patches 
-> that implements this: CONFIG_LPPTEST. It is a simple standalone
-> driver 
-> and userspace utility from Thomas Gleixner that can be used to
-> measure 
-> the IRQ-latency of the system over a null-modem-parallel-cable.
+On Mon, Jun 13, 2005 at 04:10:23PM +0100, Alan Cox wrote:
+> On Llu, 2005-06-13 at 14:50, Neil Horman wrote:
+> > You mean add the ability to monitor directories for changes to the ptrace
+> > interface entirely?
+> 
+> If you are using it for debugging and tracking file accesses then ptrace
+> seems to be the right interface. 
 
-Thanks a lot, I must check that and make an adeos and adeos/PREEMPT_RT
-version of it. That will probably provide different info than the simple
-driver I wrote.
+It all depends what you're trying to track.  If you want to ask what
+"this task" is accessing, then yes, ptrace.  But if you want to know
+who's chmod'ing /dev/null to 600 you really want a file- or directory-
+based scheme.  Rather than extending F_NOTIFY, it might be better to
+look at selinux policies?
 
-Kristian
-
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

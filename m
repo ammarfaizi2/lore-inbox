@@ -1,65 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261462AbVFMVtp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261481AbVFMVyK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261462AbVFMVtp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 17:49:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261436AbVFMVsJ
+	id S261481AbVFMVyK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 17:54:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261475AbVFMVxW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 17:48:09 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:18570 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261458AbVFMVrA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 17:47:00 -0400
-Subject: Re: What breaks aic7xxx in post 2.6.12-rc2 ?
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Gregoire Favre <gregoire.favre@gmail.com>
-Cc: dino@in.ibm.com, Andrew Morton <akpm@osdl.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050613213307.GA8534@gmail.com>
-References: <20050530160147.GD14351@gmail.com>
-	 <1117477040.4913.12.camel@mulgrave> <20050530190716.GA9239@gmail.com>
-	 <1118081857.5045.49.camel@mulgrave> <20050607085710.GB9230@gmail.com>
-	 <1118590709.4967.6.camel@mulgrave> <20050613145000.GA12057@gmail.com>
-	 <1118674783.5079.9.camel@mulgrave> <20050613183719.GA8653@gmail.com>
-	 <1118695847.5079.41.camel@mulgrave>  <20050613213307.GA8534@gmail.com>
-Content-Type: text/plain
-Date: Mon, 13 Jun 2005 16:46:31 -0500
-Message-Id: <1118699191.5079.49.camel@mulgrave>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+	Mon, 13 Jun 2005 17:53:22 -0400
+Received: from opersys.com ([64.40.108.71]:45581 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S261436AbVFMVuF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 17:50:05 -0400
+Message-ID: <42AE01EA.10905@opersys.com>
+Date: Mon, 13 Jun 2005 18:00:10 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+MIME-Version: 1.0
+To: dwalker@mvista.com
+CC: paulmck@us.ibm.com, Andrea Arcangeli <andrea@suse.de>,
+       Bill Huey <bhuey@lnxw.com>, Lee Revell <rlrevell@joe-job.com>,
+       Tim Bird <tim.bird@am.sony.com>, linux-kernel@vger.kernel.org,
+       tglx@linutronix.de, mingo@elte.hu, pmarques@grupopie.com,
+       bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au, ak@muc.de,
+       sdietrich@mvista.com, hch@infradead.org, akpm@osdl.org
+Subject: Re: Attempted summary of "RT patch acceptance" thread
+References: <20050610223724.GA20853@nietzsche.lynx.com>	 <20050610225231.GF6564@g5.random>	 <20050610230836.GD21618@nietzsche.lynx.com>	 <20050610232955.GH6564@g5.random> <20050611014133.GO1300@us.ibm.com>	 <20050611155459.GB5796@g5.random> <20050611210417.GC1299@us.ibm.com>	 <42AB7857.1090907@opersys.com> <20050612214519.GB1340@us.ibm.com>	 <42ACE2D3.9080106@opersys.com> <20050613144022.GA1305@us.ibm.com>	 <42ADE334.4030002@opersys.com>	 <1118693033.2725.21.camel@dhcp153.mvista.com>	 <42ADEC0E.4020907@opersys.com> <1118694495.2725.32.camel@dhcp153.mvista.com>
+In-Reply-To: <1118694495.2725.32.camel@dhcp153.mvista.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-06-13 at 23:33 +0200, Gregoire Favre wrote:
-> On Mon, Jun 13, 2005 at 03:50:47PM -0500, James Bottomley wrote:
-> I was really sure I should work and I booted it without the console
-> switch to log on my palm, so I miss the beginning of the log, I hope
-> this dmesg is enough (yes, this time it booted perfectly, thank you very
-> much) :-)
-> 
-> I wonder if the speed read for my first controller with U2 and U160
-> drive are right ?
 
-No ... unfortunately there's a precedence bug in the u160 code ...
+Daniel Walker wrote:
+> I wouldn't work on RT if mainline integration wasn't on the agenda. 
 
-Try the attached (on top of everything else).
+Mainline integration IS what I'm talking about. It's just not done
+the same way.
 
-Thanks,
+> There is going to be positive , and negative discussion on this. I think
+> in the end the maintainers (Linus, and Andrew) don't want "people" to
+> get a patch or modification from the outside. It's best if the community
+> is not separated .. If you make a clean integration , and people want
+> what you are doing, there is no reason for it to be rejected.
 
-James
+I'm not suggesting the separation of the community, I'm suggesting
+a strategy of integration based on the fact that a large portion of
+kernel contributors don't necessarily care about RT, and most don't
+want to care about it in their day-to-day work (though I think most
+would care that Linux could have an additional spade down its
+sleeve, and would certainly try to help in as much they can from
+time to time.)
 
-diff -u b/drivers/scsi/aic7xxx/aic7xxx_osm.c b/drivers/scsi/aic7xxx/aic7xxx_osm.c
---- b/drivers/scsi/aic7xxx/aic7xxx_osm.c
-+++ b/drivers/scsi/aic7xxx/aic7xxx_osm.c
-@@ -640,7 +640,7 @@
- 		}
- 	    
- 		if ((ahc->features & AHC_ULTRA2) != 0) {
--			scsirate = (flags & CFXFER) | ultra ? 0x8 : 0;
-+			scsirate = (flags & CFXFER) | (ultra ? 0x8 : 0);
- 			dev_printk(KERN_ERR, &starget->dev, "ULTRA2, flags 0x%x\n", flags);
- 		} else {
- 			scsirate = (flags & CFXFER) << 4;
+I'm not suggesting asking "people" to get patches from the outside.
+What I'm saying is that those developing mainstream code shouldn't
+need to worry about anything real-time, including modifications to
+locking primitives in headers (be they defined out or in).
 
+In essence, what you ask can only hold if all kernel developers
+intend for Linux to become QNX. Clearly this isn't going to happen.
+Whatever changes are made to such core functionality as locking
+primitives and interrupt handling can hardly be "transparent"
+simply by wrapping #ifdef CONFIG_X around it in mainstream headers.
 
+>From my point of view, determinism and best overall performance are
+conflicting goals. Having separate derectories for something as
+fundamentally different from best overall performance as determinism
+is not too much to ask.
+
+Karim
+-- 
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546

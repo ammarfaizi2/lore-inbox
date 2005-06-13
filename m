@@ -1,76 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261481AbVFMVyK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261475AbVFMVyL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261481AbVFMVyK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 17:54:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261475AbVFMVxW
+	id S261475AbVFMVyL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 17:54:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261458AbVFMVw7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 17:53:22 -0400
-Received: from opersys.com ([64.40.108.71]:45581 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261436AbVFMVuF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 17:50:05 -0400
-Message-ID: <42AE01EA.10905@opersys.com>
-Date: Mon, 13 Jun 2005 18:00:10 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+	Mon, 13 Jun 2005 17:52:59 -0400
+Received: from locomotive.csh.rit.edu ([129.21.60.149]:12644 "EHLO
+	locomotive.unixthugs.org") by vger.kernel.org with ESMTP
+	id S261475AbVFMVv0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 17:51:26 -0400
+Message-ID: <42ADFFD5.1090905@suse.com>
+Date: Mon, 13 Jun 2005 17:51:17 -0400
+From: Jeff Mahoney <jeffm@suse.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: dwalker@mvista.com
-CC: paulmck@us.ibm.com, Andrea Arcangeli <andrea@suse.de>,
-       Bill Huey <bhuey@lnxw.com>, Lee Revell <rlrevell@joe-job.com>,
-       Tim Bird <tim.bird@am.sony.com>, linux-kernel@vger.kernel.org,
-       tglx@linutronix.de, mingo@elte.hu, pmarques@grupopie.com,
-       bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au, ak@muc.de,
-       sdietrich@mvista.com, hch@infradead.org, akpm@osdl.org
-Subject: Re: Attempted summary of "RT patch acceptance" thread
-References: <20050610223724.GA20853@nietzsche.lynx.com>	 <20050610225231.GF6564@g5.random>	 <20050610230836.GD21618@nietzsche.lynx.com>	 <20050610232955.GH6564@g5.random> <20050611014133.GO1300@us.ibm.com>	 <20050611155459.GB5796@g5.random> <20050611210417.GC1299@us.ibm.com>	 <42AB7857.1090907@opersys.com> <20050612214519.GB1340@us.ibm.com>	 <42ACE2D3.9080106@opersys.com> <20050613144022.GA1305@us.ibm.com>	 <42ADE334.4030002@opersys.com>	 <1118693033.2725.21.camel@dhcp153.mvista.com>	 <42ADEC0E.4020907@opersys.com> <1118694495.2725.32.camel@dhcp153.mvista.com>
-In-Reply-To: <1118694495.2725.32.camel@dhcp153.mvista.com>
-Content-Type: text/plain; charset=us-ascii
+To: Hans Reiser <reiser@namesys.com>
+Cc: fs <fs@ercist.iscas.ac.cn>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>,
+       viro VFS <viro@parcelfarce.linux.theplanet.co.uk>,
+       linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, zhiming@admin.iscas.ac.cn,
+       qufuping@ercist.iscas.ac.cn, madsys@ercist.iscas.ac.cn,
+       xuh@nttdata.com.cn, koichi@intellilink.co.jp,
+       kuroiwaj@intellilink.co.jp, okuyama@intellilink.co.jp,
+       matsui_v@valinux.co.jp, kikuchi_v@valinux.co.jp,
+       fernando@intellilink.co.jp, kskmori@intellilink.co.jp,
+       takenakak@intellilink.co.jp, yamaguchi@intellilink.co.jp,
+       ext2-devel@lists.sourceforge.net, sct@redhat.com, shaggy@austin.ibm.com,
+       xfs-masters@oss.sgi.com,
+       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>
+Subject: Re: [RFD] FS behavior (I/O failure) in kernel summit
+References: <1118692436.2512.157.camel@CoolQ> <42ADC99D.5000801@namesys.com>
+In-Reply-To: <42ADC99D.5000801@namesys.com>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Daniel Walker wrote:
-> I wouldn't work on RT if mainline integration wasn't on the agenda. 
+Hans Reiser wrote:
+> fs wrote:
+> 
+>>Dear Linus, Andrew Morton, and all FS maintainers,
+>>
+>>   I've posted email before, but received no response. So I send
+>>another email in the hope of getting feedback from the community.
+>>   From the HA application developer's perspective, we want a 
+>>robust, stable, fast-error-responsive kernel. But the file system
+>>seems to be a disappointment. 
+>> 
+>> We want to make things clear:
+>>
+>>1) When I/O failure occurs(e.g.: unrecoverable media failure - USB
+>>unplug), FS should
+>>  a. shutdown the FS right now(XFS does this)
+>>  b. try to make the media serve as long as possible(EXT3 remounts 
+>>     read-only, cache is still valid for read)
+>>  c. do not care, just print some kernel debugging info(EXT2 JFS 
+>>     ReiserFS)
+>>
+>>2) When I/O failure occurs, FS should
+>>  a. give a unified error
+>>  b. give errors according to the FS type
+>>
+>>3) the returned errno should be
+>>  a. real cause of failure, e.g. USB unplug returns EIO
+>>  b. cause from FS, e.g. USB unplug made FS remount read-only,
+>>     so open(O_RDONLY) returns ENOENT while open(O_RDWR) returns
+>>     EROFS
+>>  c. errno means nothing, you already get -1, that's enough
+>>
+>>   Unfortunately, recent kernel FSes give mixed answers to the above
+>>questions. As an end user/developer, this is really BAD! Also, there's
+>>no correspondent docs/standard, 'de facto' standard varies for different
+>>people.
+>>
+> If you write a patch to implement 1a and 3a for reiserfs and reiser4 I
+> will accept them.  2a is too vague for me to support --- I can only
+> answer the question of whether error conditions are fs independent when
+> it is regarding specified error conditions.  I suspect there are times
+> when it needs to be fs dependent, but only a comprehensive review could
+> answer to that.
 
-Mainline integration IS what I'm talking about. It's just not done
-the same way.
+[quote repositioned so it's not top-posted]
 
-> There is going to be positive , and negative discussion on this. I think
-> in the end the maintainers (Linus, and Andrew) don't want "people" to
-> get a patch or modification from the outside. It's best if the community
-> is not separated .. If you make a clean integration , and people want
-> what you are doing, there is no reason for it to be rejected.
+Hans -
 
-I'm not suggesting the separation of the community, I'm suggesting
-a strategy of integration based on the fact that a large portion of
-kernel contributors don't necessarily care about RT, and most don't
-want to care about it in their day-to-day work (though I think most
-would care that Linux could have an additional spade down its
-sleeve, and would certainly try to help in as much they can from
-time to time.)
+These tests must have been run on a kernel prior to 2.6.10-rc1. The I/O
+error code exhibits behavior similar to ext3, so (1b). There are still
+kinks to be worked out, but it's definitely not the "throw up our arms
+and give up" that it used to be.
 
-I'm not suggesting asking "people" to get patches from the outside.
-What I'm saying is that those developing mainstream code shouldn't
-need to worry about anything real-time, including modifications to
-locking primitives in headers (be they defined out or in).
+Implementing behavior 1a for ext3 and reiserfs should be fairly trivial
+- - it just means that tests to check if the filesystem is in an aborted
+state ("shutdown" in xfs terms) need to added to the call path in some
+places, and be moved earlier in others.
 
-In essence, what you ask can only hold if all kernel developers
-intend for Linux to become QNX. Clearly this isn't going to happen.
-Whatever changes are made to such core functionality as locking
-primitives and interrupt handling can hardly be "transparent"
-simply by wrapping #ifdef CONFIG_X around it in mainstream headers.
+- -Jeff
 
->From my point of view, determinism and best overall performance are
-conflicting goals. Having separate derectories for something as
-fundamentally different from best overall performance as determinism
-is not too much to ask.
+- --
+Jeff Mahoney
+SuSE Labs
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
 
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+iD8DBQFCrf/VLPWxlyuTD7IRAqN6AJ9InmmuRbhle00JiHgRyIfKkF6cMACffyim
+rM1y80zO5AexaDWbzXrD5iA=
+=qXFS
+-----END PGP SIGNATURE-----

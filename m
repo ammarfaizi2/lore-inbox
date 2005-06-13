@@ -1,55 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261249AbVFMTmG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261229AbVFMTmg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261249AbVFMTmG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 15:42:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261229AbVFMTmE
+	id S261229AbVFMTmg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 15:42:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261241AbVFMTmf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 15:42:04 -0400
-Received: from titan.genwebhost.com ([209.9.226.66]:12717 "EHLO
-	titan.genwebhost.com") by vger.kernel.org with ESMTP
-	id S261249AbVFMTlG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 15:41:06 -0400
-Date: Mon, 13 Jun 2005 12:34:41 -0700
-From: randy_dunlap <rdunlap@xenotime.net>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: geert@linux-m68k.org, akpm <akpm@osdl.org>
-Subject: [PATCH] macmodes: needs a license
-Message-Id: <20050613123441.56721c61.rdunlap@xenotime.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 13 Jun 2005 15:42:35 -0400
+Received: from main.gmane.org ([80.91.229.2]:22482 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S261238AbVFMTkd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 15:40:33 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+Subject: Re: A Great Idea (tm) about reimplementing NLS.
+Date: Mon, 13 Jun 2005 21:38:30 +0200
+Message-ID: <yw1x1x769he1.fsf@ford.inprovide.com>
+References: <f192987705061303383f77c10c@mail.gmail.com> <1118669746.13260.20.camel@localhost.localdomain>
+ <f192987705061310202e2d9309@mail.gmail.com>
+ <1118690448.13770.12.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - titan.genwebhost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - xenotime.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 76.80-203-227.nextgentel.com
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.15 (Security Through
+ Obscurity, linux)
+Cancel-Lock: sha1:lLk/NgVfGdxNBXSBnLc1br7C3I4=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-From: Randy Dunlap <rdunlap@xenotime.net>
+> On Llu, 2005-06-13 at 18:20, Alexey Zaytsev wrote:
+>> Yes, that's how it works, but if I want ext or reiser or whatever to
+>> have NLS, I'll have to make them support it (btw, if I do so, wont it
+>> be rejected?). I want to move the NLS one level upper so the
+>> filesystem imlementations won't have to worry about it any more. I
+>> don't have much kernel experience, and none in the fs area, so I can't
+>> explain it any better, but hope you get the idea.
+>
+> An ext3fs is always utf-8. People might have chosen to put other
+> encodings on it but thats "not our fault" ;)
 
-Module needs a license to prevent kernel tainting.
+I was of the impression that most filesystems (ext3 included) treated
+file names as a sequence of bytes, and didn't care about encoding.
+Please correct me if I am wrong.
 
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+-- 
+Måns Rullgård
+mru@inprovide.com
 
-diffstat:=
- drivers/video/macmodes.c |    1 +
- 1 files changed, 1 insertion(+)
-
-diff -Naurp ./drivers/video/macmodes.c~taint_video ./drivers/video/macmodes.c
---- ./drivers/video/macmodes.c~taint_video	2005-06-10 18:41:17.000000000 -0700
-+++ ./drivers/video/macmodes.c	2005-06-13 10:30:59.000000000 -0700
-@@ -387,3 +387,4 @@ int __init mac_find_mode(struct fb_var_s
- }
- EXPORT_SYMBOL(mac_find_mode);
- 
-+MODULE_LICENSE("GPL");
-
-
----

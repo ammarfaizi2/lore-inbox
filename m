@@ -1,69 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261593AbVFMPjI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261607AbVFMPkn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261593AbVFMPjI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 11:39:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbVFMPjI
+	id S261607AbVFMPkn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 11:40:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbVFMPkc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 11:39:08 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:8870 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261593AbVFMPjC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 11:39:02 -0400
-Message-ID: <42ADA7B6.2060203@redhat.com>
-Date: Mon, 13 Jun 2005 08:35:18 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
+	Mon, 13 Jun 2005 11:40:32 -0400
+Received: from imf21aec.mail.bellsouth.net ([205.152.59.69]:41656 "EHLO
+	imf21aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
+	id S261605AbVFMPjd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 11:39:33 -0400
+Message-ID: <000a01c57035$79738a80$2800000a@pc365dualp2>
+From: <cutaway@bellsouth.net>
+To: "Denis Vlasenko" <vda@ilport.com.ua>, <linux-kernel@vger.kernel.org>
+References: <002301c57018$266079b0$2800000a@pc365dualp2> <200506131618.09718.vda@ilport.com.ua>
+Subject: Re: [RFC] Observations on x86 process.c
+Date: Mon, 13 Jun 2005 12:32:08 -0400
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: David Woodhouse <dwmw2@infradead.org>,
-       bert hubert <bert.hubert@netherlabs.nl>,
-       Linus Torvalds <torvalds@osdl.org>, jnf <jnf@innocence-lost.net>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org
-Subject: Re: Add pselect, ppoll system calls.
-References: <1118444314.4823.81.camel@localhost.localdomain> <1118616499.9949.103.camel@localhost.localdomain> <Pine.LNX.4.58.0506121725250.2286@ppc970.osdl.org> <Pine.LNX.4.62.0506121815070.24789@fhozvffvba.vaabprapr-ybfg.arg> <Pine.LNX.4.58.0506122018230.2286@ppc970.osdl.org> <42AD2640.5040601@redhat.com> <20050613091600.GA32364@outpost.ds9a.nl> <1118655702.2840.24.camel@localhost.localdomain> <20050613110556.GA26039@infradead.org>
-In-Reply-To: <20050613110556.GA26039@infradead.org>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig7580CC32E7B6F80B6186E382"
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1478
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1478
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig7580CC32E7B6F80B6186E382
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+This is a good idea BTW.
 
-Christoph Hellwig wrote:
-> Yes, it kinda makes sense.  Question to Uli: would you put ppoll() into=
+It could be expanded upon further by adding something else to designate
+error case and infrequent oddball situation code blocks.  Even "fast"
+functions often include large sections of stuff that doesn't need speed
+optimizations.  That stuff just winds up puffing up the L1/L2 when bits of
+it get touched.  A compiler smart enough to emit function code to two
+different .text regions could take advantage of this.
 
-> glibc as GNU extension?
+ex.
 
-Of course.  I would rather not add pselect() and deprecate select() than
-not adding ppoll().  In fact, we just discussed a similar issue in the
-POSIX base working group.  Due to the limitations select() might indeed
-get the axe in a future revision.
+int __fast fast1(whatever...)
+{
+    if (rare_case) {
+    ...large blob of non-speed critical code...
+    }
+    ...fast code...
+}
 
---=20
-=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
-=E2=9E=A7 Mountain View, CA =E2=9D=96
+int __fast fast2(whatever...)
+
+The way it happens today is GCC (usually) relocates the blob of speed
+insensitive code towards the bottom of the function, which means you're less
+likely to pick up a bit of fast2()'s prolog as you're exiting fast1, and
+more likely to pollute the caches with worthless stuff.
+
+If blocks can be designated as infrequent/error paths and relocatable to a
+different .text section you stand a much better chance of picking up
+something useful as functions exit.  ex:
+
+int __fast fast1(whatever...)
+{
+    if (rare_case) __attribute__((slowcode)) {
+    ...large blob of non-speed critical code...
+    }
+    ...fast code...
+}
+
+Where __attribute__((slowcode)) is defined in some macro.
 
 
---------------enig7580CC32E7B6F80B6186E382
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+----- Original Message ----- 
+From: "Denis Vlasenko" <vda@ilport.com.ua>
+>
+> What about having a __speed macro:
+>
+> int very_frequently_user_func() __speed {
+> ...
+> }
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iD8DBQFCrae22ijCOnn/RHQRAi1rAJ9Ywu7huFprPp4y5RQp/vKEOEPDdgCgiV0e
-sxS7HzQEop3NjyNFAFyn1IQ=
-=VXJ/
------END PGP SIGNATURE-----
-
---------------enig7580CC32E7B6F80B6186E382--

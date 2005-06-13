@@ -1,60 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261257AbVFMTub@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261258AbVFMTzN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261257AbVFMTub (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 15:50:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261262AbVFMTub
+	id S261258AbVFMTzN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 15:55:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261275AbVFMTzN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 15:50:31 -0400
-Received: from znsun1.ifh.de ([141.34.1.16]:60074 "EHLO znsun1.ifh.de")
-	by vger.kernel.org with ESMTP id S261246AbVFMTtF (ORCPT
+	Mon, 13 Jun 2005 15:55:13 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:22225 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261258AbVFMTvK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 15:49:05 -0400
-Date: Mon, 13 Jun 2005 21:48:54 +0200 (CEST)
-From: Patrick Boettcher <patrick.boettcher@desy.de>
-X-X-Sender: pboettch@pub4.ifh.de
-To: randy_dunlap <rdunlap@xenotime.net>
-Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
-Subject: Re: [PATCH -mm] dvb: dibusb needs license
-In-Reply-To: <20050613122751.4e7820b4.rdunlap@xenotime.net>
-Message-ID: <Pine.LNX.4.61.0506132147030.22217@pub4.ifh.de>
-References: <20050613122751.4e7820b4.rdunlap@xenotime.net>
+	Mon, 13 Jun 2005 15:51:10 -0400
+Message-ID: <42ADE2FF.5020604@redhat.com>
+Date: Mon, 13 Jun 2005 15:48:15 -0400
+From: Ananth N Mavinakayanahalli <amavin@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050511
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-Spam-Report: ALL_TRUSTED,AWL,BAYES_00
+To: rusty.lynch@intel.com
+CC: akpm@osdl.org, systemtap@sources.redhat.com, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Hien Nguyen <hien@us.ibm.com>,
+       Prasanna S Panchamukhi <prasanna@in.ibm.com>, Andi Kleen <ak@suse.de>,
+       linuxppc64-dev@ozlabs.org
+Subject: Re: [patch 5/5] [kprobes] Tweak to the function return probe design
+References: <20050613190207.954385000@tuna.jf.intel.com> <20050613190323.672988000@tuna.jf.intel.com>
+In-Reply-To: <20050613190323.672988000@tuna.jf.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+rusty.lynch@intel.com wrote:
 
-On Mon, 13 Jun 2005, randy_dunlap wrote:
-> From: Randy Dunlap <rdunlap@xenotime.net>
->
-> Module needs a license to prevent kernel tainting.
->
-> Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
->
-> diffstat:=
-> drivers/media/dvb/dvb-usb/dibusb-common.c |    2 +-
-> drivers/media/dvb/dvb-usb/dvb-usb.h       |    1 +
-> 2 files changed, 2 insertions(+), 1 deletion(-)
->
-> diff -Naurp ./drivers/media/dvb/dvb-usb/dibusb-common.c~taint_dvb ./drivers/media/dvb/dvb-usb/dibusb-common.c
-> --- ./drivers/media/dvb/dvb-usb/dibusb-common.c~taint_dvb	2005-06-10 18:42:28.000000000 -0700
-> +++ ./drivers/media/dvb/dvb-usb/dibusb-common.c	2005-06-13 11:07:17.000000000 -0700
-> @@ -13,6 +13,7 @@
-> static int debug;
-> module_param(debug, int, 0644);
-> MODULE_PARM_DESC(debug, "set debugging level (1=info (|-able))." DVB_USB_DEBUG_STATUS);
-> +MODULE_LICENSE("GPL");
->
-> #define deb_info(args...) dprintk(debug,0x01,args)
+Hi Rusty,
 
-Thanks for pointing that out. Committed to linux-dvb CVS for being in 
-sync.
+Thanks for doing this. However...
 
-regards,
-Patrick.
+> +
+> +		orig_ret_address = (unsigned long)ri->ret_addr;
+> +		recycle_rp_inst(ri);
+> +
+> +		if (orig_ret_address != (unsigned long) &kretprobe_trampoline)
+> +			/*
+> +			 * This is the real return address. Any other
+> +			 * instances associated with this task are for
+> +			 * other calls deeper on the call stack
+> +			 */
+> +			break;
+> +	}
+> +
+> +	BUG_ON(!orig_ret_address);
+> +	regs->nip = orig_ret_address;
+> +
+> +	unlock_kprobes();
+> +	preempt_enable_no_resched();
+         ^^^^^^^
 
---
-   Mail: patrick.boettcher@desy.de
-   WWW:  http://www.wi-bw.tfh-wildau.de/~pboettch/
+We don't need this here - on ppc64, we do a preempt_disable/enable in
+kprobe_exceptions_notify() and so this will cause a spurious 
+preempt_enable().
+
+Thanks,
+Ananth

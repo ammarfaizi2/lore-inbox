@@ -1,41 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261605AbVFMPvE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261321AbVFMQCL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261605AbVFMPvE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 11:51:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbVFMPvE
+	id S261321AbVFMQCL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 12:02:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261634AbVFMQCL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 11:51:04 -0400
-Received: from alog0263.analogic.com ([208.224.222.39]:23780 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261605AbVFMPui
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 11:50:38 -0400
-Date: Mon, 13 Jun 2005 11:50:34 -0400 (EDT)
-From: "Richard B. Johnson" <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Pausing a task
-Message-ID: <Pine.LNX.4.61.0506131142120.17826@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 13 Jun 2005 12:02:11 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:31409 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261321AbVFMQCI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 12:02:08 -0400
+Subject: Re: Add pselect, ppoll system calls.
+From: David Woodhouse <dwmw2@infradead.org>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: Jakub Jelinek <jakub@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org
+In-Reply-To: <42ADA880.60303@redhat.com>
+References: <1118444314.4823.81.camel@localhost.localdomain>
+	 <1118616499.9949.103.camel@localhost.localdomain>
+	 <Pine.LNX.4.58.0506121725250.2286@ppc970.osdl.org>
+	 <Pine.LNX.4.62.0506121815070.24789@fhozvffvba.vaabprapr-ybfg.arg>
+	 <Pine.LNX.4.58.0506122018230.2286@ppc970.osdl.org>
+	 <42AD2640.5040601@redhat.com> <20050613091600.GA32364@outpost.ds9a.nl>
+	 <1118655702.2840.24.camel@localhost.localdomain>
+	 <20050613110556.GA26039@infradead.org>
+	 <20050613111422.GT22349@devserv.devel.redhat.com>
+	 <1118661848.2840.34.camel@localhost.localdomain>
+	 <42ADA880.60303@redhat.com>
+Content-Type: text/plain
+Date: Mon, 13 Jun 2005 17:02:27 +0100
+Message-Id: <1118678548.25956.200.camel@hades.cambridge.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2005-06-13 at 08:38 -0700, Ulrich Drepper wrote:
+> And change it to expect a 64bit value I hope...
 
-How can I (as root) pause or suspend a process?
-On VAX/VMS one could do `set process=suspend`. This
-would allow the system manager to check on a possibly
-rogue user.
+64-bit value for which? For seconds? Do we need to support timeouts of
+longer than 4 milliard seconds? We can't currently come close to that
+anyway -- we're limited to LONG_MAX / HZ seconds, and if the user asks
+for more than that then it appears to be silently switched to an
+infinite timeout.
 
-Let's say that "Hacker Jack" just got fired because
-he was disrupting a project. One needs to find any of
-his processes where he might be deleting a project
-tree. Pausing, rather than killing the tasks would
-allow evidence to be gathered. Basically, I need
-to set the task(s) priorities to something that
-will take them out of the run-queue altogether.
+> As long as there is a configuration where the timeout value is not
+> modified, it doesn't matter.  That is the case for select() using a
+> personality switch.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11.9 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+I think it would be best to behave likewise for pselect().
+
+-- 
+dwmw2
+

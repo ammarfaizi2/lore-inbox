@@ -1,55 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261353AbVFMDkA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261362AbVFMEDH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261353AbVFMDkA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Jun 2005 23:40:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbVFMDkA
+	id S261362AbVFMEDH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 00:03:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261364AbVFMEDH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Jun 2005 23:40:00 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:60129 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S261346AbVFMDja (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Jun 2005 23:39:30 -0400
-Message-ID: <42ACFFED.9050701@pobox.com>
-Date: Sun, 12 Jun 2005 23:39:25 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
+	Mon, 13 Jun 2005 00:03:07 -0400
+Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:41188 "EHLO
+	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S261362AbVFMEDD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 00:03:03 -0400
+From: Grant Coady <grant_lkml@dodo.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: Odd IDE performance drop 2.4 vs 2.6?
+Date: Mon, 13 Jun 2005 14:03:01 +1000
+Organization: <http://scatter.mine.nu/>
+Message-ID: <ac0qa19omlt7bsh8mcfsfr2uhshk338f0c@4ax.com>
+X-Mailer: Forte Agent 2.0/32.652
 MIME-Version: 1.0
-To: kallol@nucleodyne.com
-CC: Mark Lord <liml@rtr.ca>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: Re: Fwd: Re: Performance figure for sx8 driver
-References: <20050611021814.riaatwh8ztskw4g4@www.nucleodyne.com>	 <42AC6310.7030809@rtr.ca> <1118598197.25250.20.camel@driver>
-In-Reply-To: <1118598197.25250.20.camel@driver>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kallol Biswas wrote:
-> I have been investigating what the cause of performance loss could be.
-> 
-> I have noticed several things:
-> 
-> 0) Setting to CARM_MAX_Q to 30 hangs. So we have been testing only with
-> CARM_MAX_Q == 1. The firmware has not been updated yet.
+Hi there,
 
-Note that CARM_MAX_Q controls the --host-- queue.
+A new 'old' box, with near 3:1 hdparm -Tt /dev/hda performance drop 
+comparing 2.4.31 with 2.6.11.12. pII/266 on 440LX chipset. HDD set 
+to udma2 (max for h/w) with manuf. utility.  Single master on ribbon.
+CDROM on other ribbon.  Two runs each via ssh login soon after boot:
 
-This means that, with CARM_MAX_Q==1, only one command can be sent to 
---any-- disk, at a time.  disks 1-7 must wait for disk 0 to complete an 
-I/O, and so on.  Each command is host-synchronous.
+Linux 2.4.31-si.
+root@silly:~# hdparm -tT /dev/hda
 
-As such, this limits multi-disk performance quite severely, but does not 
-hamper single disk performance.
+/dev/hda:
+ Timing cached reads:   344 MB in  1.99 seconds = 172.86 MB/sec
+ Timing buffered disk reads:   68 MB in  3.02 seconds =  22.52 MB/sec
+root@silly:~# hdparm -tT /dev/hda
 
-CARM_MAX_Q==1 is set as such (as mentioned earlier in the thread) 
-because early firmwares would lock up if that value was increased.
+/dev/hda:
+ Timing cached reads:   356 MB in  2.00 seconds = 178.00 MB/sec
+ Timing buffered disk reads:   68 MB in  3.04 seconds =  22.37 MB/sec
+root@silly:~#
 
-It has been reported that newer firmwares work fine with CARM_MAX_Q==30, 
-which completely eliminates the host-synchronous condition.
+Linux 2.6.11.12a.
+root@silly:~# hdparm -tT /dev/hda
 
-	Jeff
+/dev/hda:
+ Timing cached reads:   340 MB in  2.01 seconds = 168.76 MB/sec
+ Timing buffered disk reads:   26 MB in  3.02 seconds =   8.60 MB/sec
+root@silly:~# hdparm -tT /dev/hda
 
+/dev/hda:
+ Timing cached reads:   340 MB in  2.01 seconds = 169.26 MB/sec
+ Timing buffered disk reads:   26 MB in  3.02 seconds =   8.61 MB/sec
+root@silly:~#
+
+Hardware info, configs, etc at http://scatter.mine.nu/test/boxen/silly/
+--Grant.
 

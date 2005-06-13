@@ -1,52 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261611AbVFMQf1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261671AbVFMQfR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261611AbVFMQf1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 12:35:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261791AbVFMQf1
+	id S261671AbVFMQfR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 12:35:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261791AbVFMQfR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 12:35:27 -0400
-Received: from smtp-101-monday.nerim.net ([62.4.16.101]:45574 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S261611AbVFMQfQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 12:35:16 -0400
-Date: Mon, 13 Jun 2005 18:35:23 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       video4linux-list@redhat.com
-Subject: Re: [PATCH] Adds support for TEA5767 chipset on V4L
-Message-Id: <20050613183523.322529e0.khali@linux-fr.org>
-In-Reply-To: <42ACAA3B.8050307@brturbo.com.br>
-References: <42ACAA3B.8050307@brturbo.com.br>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 13 Jun 2005 12:35:17 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:19913 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261671AbVFMQfH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 12:35:07 -0400
+Message-ID: <42ADB4E4.2010504@redhat.com>
+Date: Mon, 13 Jun 2005 09:31:32 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David Woodhouse <dwmw2@infradead.org>
+CC: Jakub Jelinek <jakub@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org
+Subject: Re: Add pselect, ppoll system calls.
+References: <1118444314.4823.81.camel@localhost.localdomain>	 <1118616499.9949.103.camel@localhost.localdomain>	 <Pine.LNX.4.58.0506121725250.2286@ppc970.osdl.org>	 <Pine.LNX.4.62.0506121815070.24789@fhozvffvba.vaabprapr-ybfg.arg>	 <Pine.LNX.4.58.0506122018230.2286@ppc970.osdl.org>	 <42AD2640.5040601@redhat.com> <20050613091600.GA32364@outpost.ds9a.nl>	 <1118655702.2840.24.camel@localhost.localdomain>	 <20050613110556.GA26039@infradead.org>	 <20050613111422.GT22349@devserv.devel.redhat.com>	 <1118661848.2840.34.camel@localhost.localdomain>	 <42ADA880.60303@redhat.com>	 <1118678548.25956.200.camel@hades.cambridge.redhat.com>	 <42ADAFE5.5050206@redhat.com> <1118680177.25956.213.camel@hades.cambridge.redhat.com>
+In-Reply-To: <1118680177.25956.213.camel@hades.cambridge.redhat.com>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig2A6CA12B629D9BB85D7C015F"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Mauro,
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig2A6CA12B629D9BB85D7C015F
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-> PS 3: There were some I2C changes that affected V4L on 2.6.12-rc6-mm1.
-> Now, it is necessary to use probe option in tuner to have its I2C
-> addresses recognized by V4L. New patches will come to correct this
-> behavior.
+David Woodhouse wrote:
+> Yes, we should make the time for ppoll() a 64-bit value, so you can
+> request a time period longer than 24 days. Shall we also switch to
+> microseconds?
 
-Which i2c patch please? The changes I made should not cause any trouble
-to V4L drivers. If they do this is a bug, please report it as such.
+I don't see the need for higher precision in this API and a change is
+confusing.  There is nanosleep() for people who only want a delay and
+that can be done with high precision.
 
-Also, a comment on your patch (which I didn't actually review, as I do
-not feel qualified to do so):
+--=20
+=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
+=E2=9E=A7 Mountain View, CA =E2=9D=96
 
-> +#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
-> +#include "tuner.h"
-> +#include "i2c-compat.h"
-> +#else
-> +#include <media/tuner.h>
-> +#endif
 
-No such test please, it is useless. This is Linux 2.6.x, no need to
-check this.
+--------------enig2A6CA12B629D9BB85D7C015F
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
--- 
-Jean Delvare
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iD8DBQFCrbTk2ijCOnn/RHQRAu/VAKCoRgqfqLFk2FhQCcxwxOQanCY3DQCfTJM9
+Wf4w43OhF8gBqZqAz5i79yY=
+=idQw
+-----END PGP SIGNATURE-----
+
+--------------enig2A6CA12B629D9BB85D7C015F--

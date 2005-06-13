@@ -1,55 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261410AbVFMVZu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261425AbVFMV3a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261410AbVFMVZu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 17:25:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261327AbVFMVZl
+	id S261425AbVFMV3a (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 17:29:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261400AbVFMV0b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 17:25:41 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:60301
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S261410AbVFMVYj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 17:24:39 -0400
-Date: Mon, 13 Jun 2005 14:24:18 -0700 (PDT)
-Message-Id: <20050613.142418.08323454.davem@davemloft.net>
-To: ak@muc.de
-Cc: gnuwind@gmail.com, casavan@sgi.com, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: Is kernel 2.6.11 adjust tcp_max_syn_backlog incorrectly?
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <m11x79dwcb.fsf@muc.de>
-References: <75052be7050606070691c302d@mail.gmail.com>
-	<75052be705060607106a6c0882@mail.gmail.com>
-	<m11x79dwcb.fsf@muc.de>
-X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Mon, 13 Jun 2005 17:26:31 -0400
+Received: from zproxy.gmail.com ([64.233.162.207]:43855 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261392AbVFMVWE convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 17:22:04 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=BvUTUV7NhpRiiDhpr35zAHYtu2+tohAV9qE0Mr1ogGQuITr83Qka50bOFHjZmFfitEm+FU0en+pqAFo9cY2iSw2mX5gA8vkVlW8AeW+J1bXSh6dUotsQRNeuEP0WD0vRfDu8Dv+q1FkgFAvZzeLQ4vT5y4nLZU/AbLKJyRKjAlg=
+Message-ID: <9a8748490506131421707008ed@mail.gmail.com>
+Date: Mon, 13 Jun 2005 23:21:56 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
+To: "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH] net: fix sparse warning (plain int as NULL)
+Cc: juhl-lkml@dif.dk, linux-kernel@vger.kernel.org, ross.biro@gmail.com,
+       netdev@oss.sgi.com
+In-Reply-To: <20050613.135950.48528369.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <Pine.LNX.4.62.0506122358570.16521@dragon.hyggekrogen.localhost>
+	 <20050613.135950.48528369.davem@davemloft.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andi Kleen <ak@muc.de>
-Date: Sat, 11 Jun 2005 12:25:08 +0200
-
-> Yes, there were some changes here when it was converted to a common
-> function for all hash tables (alloc_large_system_hash - the function
-> with the argument list from hell).  Anyways, here's a quick fix.
+On 6/13/05, David S. Miller <davem@davemloft.net> wrote:
+> From: Jesper Juhl <juhl-lkml@dif.dk>
+> Date: Mon, 13 Jun 2005 00:05:33 +0200 (CEST)
 > 
-> DaveM for your consideration.
+> > Here's a patch to fix a small sparse warning in net/ipv4/tcp_input.c :
+> > net/ipv4/tcp_input.c:4179:29: warning: Using plain integer as NULL pointer
+> >
+> > Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
 > 
-> Adjust TCP mem order check to new alloc_large_system_hash
+> Please patch against Linus's tree, -mm has a ton of TCP changes
+> in it so this patch wouldn't apply to the current GIT tree
+> without rejects.
 > 
-> Signed-off-by: Andi Kleen <ak@suse.de>
+Since tcp_ack_saw_tstamp() in 2.6.12-rc6-git6 only takes two arguments
+this patch is only relevant for -mm.
 
-I just reread those NUMA changes, and they changed the heuristics
-for sizing things at the same time as moving over to the
-alloc_large_system_hash() change.
-
-The change was to move from (21 - PAGE_SHIFT) and (23 - PAGE_SHIFT)
-to (25 - PAGE_SHIFT) and (27 - PAGE_SHIFT) respectively.
-
-This is the part of the NUMA TCP changes that made the sysctl setting
-behavior differ.
-
-Andi's patch is the least intrusive fix for 2.6.12, so I will
-apply it.  But longer term these heuristics need to be revisited
-as a whole.
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

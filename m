@@ -1,63 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261426AbVFMVmX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261400AbVFMVl4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261426AbVFMVmX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 17:42:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261436AbVFMVmV
+	id S261400AbVFMVl4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 17:41:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261435AbVFMVjX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 17:42:21 -0400
-Received: from pne-smtpout2-sn1.fre.skanova.net ([81.228.11.159]:64921 "EHLO
-	pne-smtpout2-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S261426AbVFMVkr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 17:40:47 -0400
-Date: Mon, 13 Jun 2005 23:40:39 +0200
-From: Voluspa <lista1@telia.com>
-To: dmitry.torokhov@gmail.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: mouse still losing sync and thus jumping around
-Message-Id: <20050613234039.7d3ed895.lista1@telia.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 13 Jun 2005 17:39:23 -0400
+Received: from smtp838.mail.sc5.yahoo.com ([66.163.171.25]:58016 "HELO
+	smtp838.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261432AbVFMVib (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 17:38:31 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-hotplug-devel@lists.sourceforge.net
+Subject: Re: Input sysbsystema and hotplug
+Date: Mon, 13 Jun 2005 16:38:08 -0500
+User-Agent: KMail/1.8.1
+Cc: Kay Sievers <kay.sievers@vrfy.org>, Greg KH <gregkh@suse.de>,
+       Vojtech Pavlik <vojtech@suse.cz>, LKML <linux-kernel@vger.kernel.org>,
+       Hannes Reinecke <hare@suse.de>
+References: <200506131607.51736.dtor_core@ameritech.net> <20050613212654.GB11182@vrfy.org>
+In-Reply-To: <20050613212654.GB11182@vrfy.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200506131638.09140.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 13 June 2005 16:26, Kay Sievers wrote:
+> On Mon, Jun 13, 2005 at 04:07:51PM -0500, Dmitry Torokhov wrote:
+> > 
+> > where inputX are class devices, mouse and event are subclasses of input
+> > class and mouseX and eventX are again class devices.
+> 
+> We don't support childs of class devices until now. Would be nice maybe, but
+> someone needs to add that to the driver-core first and we would need to make
+> a bunch of userspace stuff aware of it ...
+> 
 
-On 2005-02-23 16:53:04 Dmitry Torokhov wrote:
-> On Wed, 23 Feb 2005 17:29:49 +0100, Nils Kalchhauser wrote:
-[...]
->> it seems to me like it is connected to disk activity... is that
->> possible?
+Something like patch below will suffice I think (not tested).
 
-> Yes, It usually happens either under high load, when mouse interrupts
-> are significantly delayed. Or sometimes it happen when applications
-> poll battey status and on some boxes it takes pretty long time. And
-> because it is usually the same chip that serves keyboard/mouse it
-> again delays mouse interrupts.
+-- 
+Dmitry
 
-My notebook is an Acer Aspire 1520 (1524) with a Synaptics Touchpad,
-model: 1, fw: 5.8, id: 0x9248b1, caps: 0x904713/0x4000
+ drivers/base/class.c   |    5 ++++-
+ include/linux/device.h |    1 +
+ 2 files changed, 5 insertions(+), 1 deletion(-)
 
-Kernels 2.6.11.11 and 2.6.12-rc6
-Synaptics driver 0.14.2
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
 
-The "lost sync at byte" and "driver resynched" began flooding the logs
-when I enabled Sensors --> Temperatures --> thermal_zone [THRC/THRS] in
-the system monitor gkrellm. I haven't tried battery monitoring.
-
-There are only occasional mouse pointer jumps, but the logfiles grow
-very quickly. I tried reducing the gkrellm updates from 10 times a
-second to 2, but it only had a marginal effect. It seems a bit silly
-that this powerful notebook (AMD64 Athlon 3400+) can't 'multitask'
-correctly.
-
-I thought about just erasing the warning messages from the kernel
-source (don't want to disable warn in syslog completely), but when I
-found the gkrellm culprit I turned off the monitoring instead,
-reluctantly.
-
-My system has no taxing desktop, just a window manager.
-
-Mvh
-Mats Johannesson
---
+Index: work/drivers/base/class.c
+===================================================================
+--- work.orig/drivers/base/class.c
++++ work/drivers/base/class.c
+@@ -145,7 +145,10 @@ int class_register(struct class * cls)
+ 	if (error)
+ 		return error;
+ 
+-	subsys_set_kset(cls, class_subsys);
++	if (cls->parent)
++		subsys_set_kset(cls, cls->parent->subsys);
++	else
++		subsys_set_kset(cls, class_subsys);
+ 
+ 	error = subsystem_register(&cls->subsys);
+ 	if (!error) {
+Index: work/include/linux/device.h
+===================================================================
+--- work.orig/include/linux/device.h
++++ work/include/linux/device.h
+@@ -145,6 +145,7 @@ struct class {
+ 	char			* name;
+ 
+ 	struct subsystem	subsys;
++	struct class		* parent;
+ 	struct list_head	children;
+ 	struct list_head	interfaces;
+ 	struct semaphore	sem;	/* locks both the children and interfaces lists */

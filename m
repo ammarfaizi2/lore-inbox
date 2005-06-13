@@ -1,67 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261540AbVFMW0A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261623AbVFMXS2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261540AbVFMW0A (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 18:26:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261511AbVFMWYE
+	id S261623AbVFMXS2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 19:18:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261622AbVFMXQQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 18:24:04 -0400
-Received: from soundwarez.org ([217.160.171.123]:23520 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S261515AbVFMWVe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 18:21:34 -0400
-Date: Tue, 14 Jun 2005 00:21:29 +0200
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-hotplug-devel@lists.sourceforge.net, Greg KH <gregkh@suse.de>,
-       Vojtech Pavlik <vojtech@suse.cz>, LKML <linux-kernel@vger.kernel.org>,
-       Hannes Reinecke <hare@suse.de>, Andrew Morton <akpm@osdl.org>
-Subject: Re: Input sysbsystema and hotplug
-Message-ID: <20050613222129.GA11671@vrfy.org>
-References: <200506131607.51736.dtor_core@ameritech.net> <20050613212654.GB11182@vrfy.org> <200506131658.37583.dtor_core@ameritech.net> <200506131705.30159.dtor_core@ameritech.net>
-Mime-Version: 1.0
+	Mon, 13 Jun 2005 19:16:16 -0400
+Received: from smtp04.auna.com ([62.81.186.14]:61604 "EHLO smtp04.retemail.es")
+	by vger.kernel.org with ESMTP id S261641AbVFMXPR convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 19:15:17 -0400
+Date: Mon, 13 Jun 2005 23:14:47 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: Re: [RFT][PATCH] aic79xx: remove busyq
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+References: <20050529074620.GA26151@havoc.gtf.org>
+	<1117488507l.7621l.0l@werewolf.able.es> <429B9311.9000608@pobox.com>
+In-Reply-To: <429B9311.9000608@pobox.com> (from jgarzik@pobox.com on Tue May
+	31 00:26:25 2005)
+X-Mailer: Balsa 2.3.3
+Message-Id: <1118704487l.14239l.0l@werewolf.able.es>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200506131705.30159.dtor_core@ameritech.net>
-User-Agent: Mutt/1.5.9i
+Content-Transfer-Encoding: 8BIT
+X-Auth-Info: Auth:LOGIN IP:[83.138.215.85] Login:jamagallon@able.es Fecha:Tue, 14 Jun 2005 01:14:58 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 13, 2005 at 05:05:29PM -0500, Dmitry Torokhov wrote:
-> On Monday 13 June 2005 16:58, Dmitry Torokhov wrote:
-> > On Monday 13 June 2005 16:26, Kay Sievers wrote:
-> > > On Mon, Jun 13, 2005 at 04:07:51PM -0500, Dmitry Torokhov wrote:
-> > > > I am trying to convert input systsem to play nicely with sysfs and I am
-> > > > having trouble with hotplug agent. The old hotplug mechanism was using
-> > > > "input" as agent/subsystem name, unfortunately I can't simply use "input"
-> > > > class because when Greg added class_simple support to input handlers
-> > > > (evdev, mousedev, joydev, etc) he used that name. So currently stock
-> > > > kernel gets 2 types of hotplug events (from input core and from input
-> > > > handlers) with completely different arguments processed by the same
-> > > > input agent.
-> > > > 
-> > > > So I guess my question is: is there anyone who uses hotplug events
-> > > > for input interface devices (as in mouseX, eventX) as opposed to
-> > > > parent input devices (inputX).
-> > > 
-> > > Hmm, udev uses it. But, who needs device nodes. :)
-> > > 
+
+On 05.31, Jeff Garzik wrote:
+> J.A. Magallon wrote:
+> > On 05.29, Jeff Garzik wrote:
 > > 
-> > Oh, OK. Damn, Andrew will hate us for breaking mouse support yet again :(
-> > because there are people (like me) relying on hotplug to load input handlers.
-> > First time I booted by new input hotplug kernel I lost my mouse.
+> >>Can anyone with aic79xx hardware give me a simple "it works"
+> >>or "this breaks things" answer, for the patch below?
+> >>
+> >>This changes the aic79xx driver to use the standard Linux SCSI queueing
+> >>code, rather than its own.  After applying this patch, NO behavior
+> >>changes should be seen.
+> >>
+> >>The patch is against 2.6.12-rc5, but probably applies OK to recent 2.6.x
+> >>kernels.
+> >>
 > > 
-> > I wonder should we hack something allowing overriding subsystem name
-> > so we could keep the same hotplug agent? Or should we bite teh bullet and
-> > change it?
-> >
+> > 
+> > Applied with even no offsets to -rc5-mm1. Booted and working fine:
 > 
-> Any chance we could quickly agree on a new name for hander devices (other
-> than "input") and roll out updated udev before the changes get into the
-> kernel? For some reason it feels like udev is mmuch quicker moving than
-> hotplug...
+> Thanks a bunch!
+> 
 
-Hmm, not sure. It is not udev itself, it's the rule set which is
-different on every distro and not really in our control. The hotplug agent
-is just one symlink if you want a quick & dirty fix.
+Oops, don't be so happy.
+Following the other aic thread, I realized I applied the patch but booted on
+an U160 box :).
 
-Kay
+Will try shortly on a real 320.. sorry.
+
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
+werewolf!able!es                         \         It's better when it's free
+Mandriva Linux release 2006.0 (Cooker) for i586
+Linux 2.6.11-jam25 (gcc 4.0.0 (4.0.0-3mdk for Mandriva Linux release 2006.0))
+
+

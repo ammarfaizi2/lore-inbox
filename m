@@ -1,56 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261365AbVFMVRa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261370AbVFMVVa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261365AbVFMVRa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 17:17:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261392AbVFMVPv
+	id S261370AbVFMVVa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 17:21:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261334AbVFMVPZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 17:15:51 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:24798 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S261365AbVFMVOI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 17:14:08 -0400
-Date: Mon, 13 Jun 2005 23:13:50 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: randy_dunlap <rdunlap@xenotime.net>
-cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
-Subject: Re: [PATCH] macmodes: needs a license
-In-Reply-To: <20050613123441.56721c61.rdunlap@xenotime.net>
-Message-ID: <Pine.LNX.4.62.0506132313180.27959@numbat.sonytel.be>
-References: <20050613123441.56721c61.rdunlap@xenotime.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 13 Jun 2005 17:15:25 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:29407
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S261331AbVFMU6O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 16:58:14 -0400
+Date: Mon, 13 Jun 2005 13:57:48 -0700 (PDT)
+Message-Id: <20050613.135748.85419529.davem@davemloft.net>
+To: willy@w.ods.org
+Cc: herbert@gondor.apana.org.au, xschmi00@stud.feec.vutbr.cz,
+       alastair@unixtrix.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [PATCH] fix small DoS on connect()
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20050613081025.GA13407@alpha.home.local>
+References: <20050613061748.GA13144@alpha.home.local>
+	<20050613074521.GA21661@gondor.apana.org.au>
+	<20050613081025.GA13407@alpha.home.local>
+X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Jun 2005, randy_dunlap wrote:
-> From: Randy Dunlap <rdunlap@xenotime.net>
+From: Willy Tarreau <willy@w.ods.org>
+Date: Mon, 13 Jun 2005 10:10:26 +0200
+
+> On Mon, Jun 13, 2005 at 05:45:21PM +1000, Herbert Xu wrote:
+> > Anyway, let's leave it to Dave to make the decision.
 > 
-> Module needs a license to prevent kernel tainting.
-> 
-> Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+> At least, he has enough elements in his mailbox now :-)
 
-Ack'ed by Geert Uytterhoeven <geert@linux-m68k.org>
-
-> diffstat:=
->  drivers/video/macmodes.c |    1 +
->  1 files changed, 1 insertion(+)
-> 
-> diff -Naurp ./drivers/video/macmodes.c~taint_video ./drivers/video/macmodes.c
-> --- ./drivers/video/macmodes.c~taint_video	2005-06-10 18:41:17.000000000 -0700
-> +++ ./drivers/video/macmodes.c	2005-06-13 10:30:59.000000000 -0700
-> @@ -387,3 +387,4 @@ int __init mac_find_mode(struct fb_var_s
->  }
->  EXPORT_SYMBOL(mac_find_mode);
->  
-> +MODULE_LICENSE("GPL");
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+I'm still thinking about this one, sit tight :)

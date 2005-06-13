@@ -1,80 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261327AbVFMVds@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261426AbVFMVmX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261327AbVFMVds (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 17:33:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261400AbVFMVdC
+	id S261426AbVFMVmX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 17:42:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261436AbVFMVmV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 17:33:02 -0400
-Received: from soundwarez.org ([217.160.171.123]:41692 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S261327AbVFMV07 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 17:26:59 -0400
-Date: Mon, 13 Jun 2005 23:26:54 +0200
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-hotplug-devel@lists.sourceforge.net, Greg KH <gregkh@suse.de>,
-       Vojtech Pavlik <vojtech@suse.cz>, LKML <linux-kernel@vger.kernel.org>,
-       Hannes Reinecke <hare@suse.de>
-Subject: Re: Input sysbsystema and hotplug
-Message-ID: <20050613212654.GB11182@vrfy.org>
-References: <200506131607.51736.dtor_core@ameritech.net>
+	Mon, 13 Jun 2005 17:42:21 -0400
+Received: from pne-smtpout2-sn1.fre.skanova.net ([81.228.11.159]:64921 "EHLO
+	pne-smtpout2-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S261426AbVFMVkr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 17:40:47 -0400
+Date: Mon, 13 Jun 2005 23:40:39 +0200
+From: Voluspa <lista1@telia.com>
+To: dmitry.torokhov@gmail.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: mouse still losing sync and thus jumping around
+Message-Id: <20050613234039.7d3ed895.lista1@telia.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200506131607.51736.dtor_core@ameritech.net>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 13, 2005 at 04:07:51PM -0500, Dmitry Torokhov wrote:
-> I am trying to convert input systsem to play nicely with sysfs and I am
-> having trouble with hotplug agent. The old hotplug mechanism was using
-> "input" as agent/subsystem name, unfortunately I can't simply use "input"
-> class because when Greg added class_simple support to input handlers
-> (evdev, mousedev, joydev, etc) he used that name. So currently stock
-> kernel gets 2 types of hotplug events (from input core and from input
-> handlers) with completely different arguments processed by the same
-> input agent.
-> 
-> So I guess my question is: is there anyone who uses hotplug events
-> for input interface devices (as in mouseX, eventX) as opposed to
-> parent input devices (inputX).
 
-Hmm, udev uses it. But, who needs device nodes. :)
+On 2005-02-23 16:53:04 Dmitry Torokhov wrote:
+> On Wed, 23 Feb 2005 17:29:49 +0100, Nils Kalchhauser wrote:
+[...]
+>> it seems to me like it is connected to disk activity... is that
+>> possible?
 
-> If not then I could rename Greg's class
-> to "input_dev" and my new class to "input" and that will be compatible
-> with older installations. 
+> Yes, It usually happens either under high load, when mouse interrupts
+> are significantly delayed. Or sometimes it happen when applications
+> poll battey status and on some boxes it takes pretty long time. And
+> because it is usually the same chip that serves keyboard/mouse it
+> again delays mouse interrupts.
 
-I still think we should rename the parent-input device class and keep
-the more interesting class named "input", cause this will not break current
-setups besides one hotplug-handler and follows the usual style in sysfs.
+My notebook is an Acer Aspire 1520 (1524) with a Synaptics Touchpad,
+model: 1, fw: 5.8, id: 0x9248b1, caps: 0x904713/0x4000
 
-> Also, in the long run I would probably want to see something like this:
-> 
-> /sys/class/input---input0
-> 		 |
-> 		 |-input1
-> 		 |
-> 		 |-input2
-> 		 |
-> 		 |-mouse---mouse0
-> 		 |	 |
-> 		 |	 |-mouse1
-> 		 |	 |
-> 		 |	 --mice
-> 		 |
-> 		 |-event---event0
-> 			 |
-> 			 |-event1
-> 			 |
-> 			 |-event2
-> 
-> where inputX are class devices, mouse and event are subclasses of input
-> class and mouseX and eventX are again class devices.
+Kernels 2.6.11.11 and 2.6.12-rc6
+Synaptics driver 0.14.2
 
-We don't support childs of class devices until now. Would be nice maybe, but
-someone needs to add that to the driver-core first and we would need to make
-a bunch of userspace stuff aware of it ...
+The "lost sync at byte" and "driver resynched" began flooding the logs
+when I enabled Sensors --> Temperatures --> thermal_zone [THRC/THRS] in
+the system monitor gkrellm. I haven't tried battery monitoring.
 
-Kay
+There are only occasional mouse pointer jumps, but the logfiles grow
+very quickly. I tried reducing the gkrellm updates from 10 times a
+second to 2, but it only had a marginal effect. It seems a bit silly
+that this powerful notebook (AMD64 Athlon 3400+) can't 'multitask'
+correctly.
+
+I thought about just erasing the warning messages from the kernel
+source (don't want to disable warn in syslog completely), but when I
+found the gkrellm culprit I turned off the monitoring instead,
+reluctantly.
+
+My system has no taxing desktop, just a window manager.
+
+Mvh
+Mats Johannesson
+--

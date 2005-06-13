@@ -1,69 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261192AbVFMSkB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261197AbVFMSmU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261192AbVFMSkB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 14:40:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261194AbVFMSkA
+	id S261197AbVFMSmU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 14:42:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261194AbVFMSkO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 14:40:00 -0400
-Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:39100 "EHLO
-	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S261192AbVFMShi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 14:37:38 -0400
-X-ORBL: [67.117.73.34]
-Date: Mon, 13 Jun 2005 11:37:16 -0700
-From: Tony Lindgren <tony@atomide.com>
-To: Andi Kleen <ak@muc.de>
-Cc: vatsa@in.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Dynamic tick for x86 version 050609-2
-Message-ID: <20050613183716.GH8020@atomide.com>
-References: <88056F38E9E48644A0F562A38C64FB6004EBD10C@scsmsx403.amr.corp.intel.com> <20050609014033.GA30827@atomide.com> <20050610043018.GE18103@atomide.com> <20050613170941.GA1043@in.ibm.com> <m1k6kyb0px.fsf@muc.de>
+	Mon, 13 Jun 2005 14:40:14 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26017 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261193AbVFMSjO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 14:39:14 -0400
+Date: Mon, 13 Jun 2005 10:42:11 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.4.31 0/9] gcc4 fixes overview
+Message-ID: <20050613134211.GA23160@logos.cnet>
+References: <200506121116.j5CBGJPs019683@harpo.it.uu.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m1k6kyb0px.fsf@muc.de>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <200506121116.j5CBGJPs019683@harpo.it.uu.se>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Andi Kleen <ak@muc.de> [050613 10:57]:
-> Srivatsa Vaddagiri <vatsa@in.ibm.com> writes:
-> >
-> > 2. reprogram_apic_timer seems to reprogram the count-down
-> >    APIC timer (APIC_TMICT) with an integral number of apic_timer_val.
-> >    How accurate will this be? Shouldnt this take into account
-> >    that we may not be reprogramming the timer on exactly "jiffy"
-> >    boundary?
+
+Hi Mikael,
+
+I believe its about time for v2.4 to reject such kind of modifications, 
+they can live outside the mainline repository. 
+
+On Sun, Jun 12, 2005 at 01:16:19PM +0200, Mikael Pettersson wrote:
+> This set of patches fixes gcc4 problems in the 2.4.31
+> kernel's 'core' code. I've been running gcc4-compiled 2.4
+> kernels for several months on i386, x86_64, and ppc32, and
+> there are currently no known regressions compared to gcc34.
 > 
-> All PIT based reprogramming schemes will lose time.
-
-Not true if the timesource is different from interrupt source.
-
-Consider PM timer for timesource, and PIT for interrupt source. Reprogamming
-PIT should not affect PM timer. Time is always updated from PM timer.
-
-> Only with HPET you can do better (but even there it is difficult to
-> do properly) 
+> Note: you'll want to use recent gcc-4.0.1 snapshots as
+> gcc-4.0.0 is known to be broken.
 > 
-> > 3. Is there any strong reason why you reprogram timers only when
-> >    _all_ CPUs are idle?
+> This set of patches do not include fixes to drivers,
+> file systems, or architectures I don't use myself. I
+> have a preliminary patch kit for those, but as it
+> has received only limited compile testing I'm not
+> submitting it unless these core patches are accepted.
 > 
-> There is none imho - my x86-64 no idle tick patch doesn't do it.
->
-> Actually there is a small reason - RCU currently does not get 
-> updated by a fully idle CPU and can stall other CPUs. But that is in 
-> practice not too big an issue yet because so many subsystems
-> cause ticks now and then, so the CPUs tend to wake up often
-> enough to not stall the rest of the system too badly.
-
-I guess it should be safe to reprogram timer even if other CPUs are not
-idle, assuming the busy CPUs reprogramming timer will also wake up the idle
-CPUs.
-
-There's one thing that should be considered though; Reprogamming
-timers should be avoided if the system is busy as it causes
-performance issues. Especially reprogramming PIT.
-
-Andi, where's your latest x86-64 patch BTW? I'd like to try it out
-on my laptop :)
-
-Tony
+> The patch set consists of the following 9 parts:
+> [1/9] fix incomplete array errors
+> [2/9] fix static-vs-nonstatic redefinition errors
+> [3/9] fix nested function declaration errors
+> [4/9] fix undefined strcpy linkage errors
+> [5/9] fix x86_64 acpi assembly error
+> [6/9] fix x86_64 sys_iopl() bug
+> [7/9] fix const function warnings
+> [8/9] silence pointer signedness warnings
+> [9/9] fix i386 struct_cpy() warnings

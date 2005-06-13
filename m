@@ -1,50 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261602AbVFMXZF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261653AbVFMXUk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261602AbVFMXZF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 19:25:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261519AbVFMXX3
+	id S261653AbVFMXUk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 19:20:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261535AbVFMWXd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 19:23:29 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:23427
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S261635AbVFMXVp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 19:21:45 -0400
-Date: Mon, 13 Jun 2005 16:20:52 -0700 (PDT)
-Message-Id: <20050613.162052.41635836.davem@davemloft.net>
-To: herbert@gondor.apana.org.au
-Cc: jesper.juhl@gmail.com, mru@inprovide.com, rommer@active.by,
-       bernd@firmix.at, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: udp.c
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20050613230422.GA7269@gondor.apana.org.au>
-References: <E1Dhwho-0001mn-00@gondolin.me.apana.org.au>
-	<20050613.145716.88477054.davem@davemloft.net>
-	<20050613230422.GA7269@gondor.apana.org.au>
-X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Mon, 13 Jun 2005 18:23:33 -0400
+Received: from msg-mx4.usc.edu ([128.125.137.9]:54665 "EHLO msg-mx4.usc.edu")
+	by vger.kernel.org with ESMTP id S261553AbVFMWWC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 18:22:02 -0400
+Date: Mon, 13 Jun 2005 15:22:00 -0700 (PDT)
+From: bhaskara <bhaskara@aludra.usc.edu>
+Subject: Re: mouse still losing sync and thus jumping around
+In-reply-to: <200506131703.07315.dtor_core@ameritech.net>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: Voluspa <lista1@telia.com>, linux-kernel@vger.kernel.org
+Message-id: <Pine.GSO.4.33.0506131506030.21818-100000@aludra.usc.edu>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Date: Tue, 14 Jun 2005 09:04:22 +1000
+> On Monday 13 June 2005 16:59, bhaskara wrote:
+> > > On 2005-02-23 16:53:04 Dmitry Torokhov wrote:
+> > > > On Wed, 23 Feb 2005 17:29:49 +0100, Nils Kalchhauser wrote:
+> > > [...]
+> > > >> it seems to me like it is connected to disk activity... is that
+> > > >> possible?
+> > >
+> > > > Yes, It usually happens either under high load, when mouse interrupts
+> > > > are significantly delayed. Or sometimes it happen when applications
+> > > > poll battey status and on some boxes it takes pretty long time. And
+> > > > because it is usually the same chip that serves keyboard/mouse it
+> > > > again delays mouse interrupts.
+> > >
+> > > My notebook is an Acer Aspire 1520 (1524) with a Synaptics Touchpad,
+> > > model: 1, fw: 5.8, id: 0x9248b1, caps: 0x904713/0x4000
+> > >
+> > > Kernels 2.6.11.11 and 2.6.12-rc6
+> > > Synaptics driver 0.14.2
+> > >
+> > > The "lost sync at byte" and "driver resynched" began flooding the logs
+> > > when I enabled Sensors --> Temperatures --> thermal_zone [THRC/THRS] in
+> > > the system monitor gkrellm. I haven't tried battery monitoring.
+> > >
+> > > There are only occasional mouse pointer jumps, but the logfiles grow
+> > > very quickly. I tried reducing the gkrellm updates from 10 times a
+> > > second to 2, but it only had a marginal effect. It seems a bit silly
+> > > that this powerful notebook (AMD64 Athlon 3400+) can't 'multitask'
+> > > correctly.
+> > >
+> > > I thought about just erasing the warning messages from the kernel
+> > > source (don't want to disable warn in syslog completely), but when I
+> > > found the gkrellm culprit I turned off the monitoring instead,
+> > > reluctantly.
+> > >
+> > > My system has no taxing desktop, just a window manager.
+> > >
+> >
+> > I had this problem with the ps2 mouse on my desktop even under very light
+> > load. This problem went away the very instant I started using a USB mouse.
+> > So, I don't buy the delayed interrupts explanation.
+> >
+>
+> You do not have to buy anything, you just need to read the code. pmouse
+> driver emits this warning if delay between 2 bytes in a middle of a packet
+> exceeds 0.5 sec. USB works slightly differently.
 
-> On Mon, Jun 13, 2005 at 02:57:16PM -0700, David S. Miller wrote:
-> > From: Herbert Xu <herbert@gondor.apana.org.au>
-> > Date: Tue, 14 Jun 2005 07:42:52 +1000
-> > 
-> > > It'll dump the stack anyway if we just make it a NULL pointer.
-> > 
-> > Some platforms don't handle that very cleanly, for example
-> > it may be necessary to have something mapped at page zero
-> > for one reason or another.
-> 
-> Are there any existing platforms that do that in kernel mode?
+No offense ..... but, I did some googling and figured out where the mesg
+was being printed from. So I ripped out all the unnecessary stuff from the
+kernel and also stopped all the unnecessary services, but still got this
+behavior (with XFCE and KDE). By the way , my desktop
+started exhibiting this behaviour after  a couple of months of usage and
+not immediately after a kernel upgrade (2.6.8+).  However, I remember not
+seeing this behavior on older 2.6.* kernels.
 
-X86 did, especially during bootup, for a long time.
+The .5 second delay is a symptom rather than the cause ( bad hardware ? ).
 
-I know the highly optimized sparc64 instruction TLB miss handler
-doesn't handle this properly and this usually hangs the machine.
-I've put some checks in there that tries to handle it properly,
-but there are still some cases that pass through.
+-G
+

@@ -1,64 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261326AbVFNU1z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261328AbVFNUhS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261326AbVFNU1z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 16:27:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261328AbVFNU1z
+	id S261328AbVFNUhS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 16:37:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261329AbVFNUhS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 16:27:55 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:20941 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261326AbVFNU1w (ORCPT
+	Tue, 14 Jun 2005 16:37:18 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:36563 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261328AbVFNUhK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 16:27:52 -0400
-Date: Tue, 14 Jun 2005 13:27:21 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: bonganilinux@mweb.co.za, ak@muc.de, linux-kernel@vger.kernel.org
-Subject: Re: Tracking a bug in x86-64
-Message-Id: <20050614132721.3b55c196.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0506140819440.8487@ppc970.osdl.org>
-References: <200506132259.22151.bonganilinux@mweb.co.za>
-	<200506132339.13614.bonganilinux@mweb.co.za>
-	<Pine.LNX.4.58.0506140819440.8487@ppc970.osdl.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 14 Jun 2005 16:37:10 -0400
+Date: Tue, 14 Jun 2005 13:37:37 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, "Eugeny S. Mints" <emints@ru.mvista.com>,
+       Daniel Walker <dwalker@mvista.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
+Message-ID: <20050614203737.GA1297@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20050608112801.GA31084@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050608112801.GA31084@elte.hu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> wrote:
->
-> The way to do the binary searach is to get the
+On Wed, Jun 08, 2005 at 01:28:01PM +0200, Ingo Molnar wrote:
 > 
->  	ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11/2.6.11-mm1/2.6.11-mm1-broken-out.tar.gz 
+> i have released the -V0.7.48-00 Real-Time Preemption patch, which can be 
+> downloaded from the usual place:
+
+FYI, -V0.7.48-25 runs a round of kernbench and LTP on a 4-CPU x86 box.
+
+						Thanx, Paul
+
+>     http://redhat.com/~mingo/realtime-preempt/
 > 
->  file, and then to apply half of the patches
-
-Or:
-
-- install https://savannah.nongnu.org/projects/quilt/
-
-cd /usr/src/linux
-wget ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11/2.6.11-mm1/2.6.11-mm1-broken-out.tar.gz
-tar xfz 2.6.11-mm1-broken-out.tar.gz
-mv broken-out patches
-mv patches/series .
-
-Now you can do `quilt push 100' to apply 100 patches, `quilt pop 50' to
-remove half of them, etc.
-
-Open a copy of the series file in an editor and add markers to it as you
-proceed through the search so you don't get lost.
-
-Avoid applying obviously-broken patches.  For example, we have, in the
-series file:
-
-posix-timers-cpu-clock-support-for-posix-timers.patch
-posix-timers-cpu-clock-support-for-posix-timers-fix.patch
-posix-timers-cpu-clock-support-for-posix-timers-fix3.patch
-
-That's one patch plus two fixes to it.  You'd either apply all of these or none.
-
-There's a bit of setup but once quilt is installed it's all pretty easy and
-quick.
-
+> this release includes an improved version of Daniel Walker's soft 
+> irq-flag (hardirq-disable removal) feature. It is an unconditional part
+> of the PREEMPT_RT preemption model - other preemption models should not
+> be affected that much (besides possible build issues). Non-x86 arches
+> wont build. Some regressions might happen, so take care..
+> 
+> Changes since -47-29:
+> 
+>  - soft IRQ flag support (Daniel Walker)
+> 
+>  - fix race in usbnet.c (Eugeny S. Mints)
+> 
+>  - further improvements to the soft IRQ flag code
+> 
+> to build a -V0.7.48-00 tree, the following patches should to be applied:
+> 
+>    http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.11.tar.bz2
+>    http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.12-rc6.bz2
+>    http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.12-rc6-V0.7.48-00
+> 
+> 	Ingo
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 

@@ -1,102 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261221AbVFNAxZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbVFNBMR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261221AbVFNAxZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 20:53:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261239AbVFNAxZ
+	id S261239AbVFNBMR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 21:12:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261284AbVFNBMQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 20:53:25 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:12961 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261221AbVFNAxL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 20:53:11 -0400
-Subject: Re: [PATCH 1/4] new timeofday core subsystem (v. B2)
-From: john stultz <johnstul@us.ibm.com>
-To: Pekka Enberg <penberg@gmail.com>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>,
-       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Christoph Lameter <clameter@sgi.com>,
-       Dominik Brodowski <linux@dominikbrodowski.de>,
-       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
-       paulus@samba.org, schwidefsky@de.ibm.com,
-       keith maanthey <kmannth@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
-       Max Asbock <masbock@us.ibm.com>, mahuja@us.ibm.com,
-       Nishanth Aravamudan <nacc@us.ibm.com>, Darren Hart <darren@dvhart.com>,
-       "Darrick J. Wong" <djwong@us.ibm.com>,
-       Anton Blanchard <anton@samba.org>, donf@us.ibm.com, mpm@selenic.com,
-       benh@kernel.crashing.org, kernel-stuff@comcast.net, frank@tuxrocks.com,
-       Pekka Enberg <penberg@cs.helsinki.fi>
-In-Reply-To: <84144f020506090615f6d67fc@mail.gmail.com>
-References: <1118286702.5754.44.camel@cog.beaverton.ibm.com>
-	 <84144f020506090615f6d67fc@mail.gmail.com>
-Content-Type: text/plain
-Date: Mon, 13 Jun 2005 17:53:00 -0700
-Message-Id: <1118710380.27071.8.camel@cog.beaverton.ibm.com>
+	Mon, 13 Jun 2005 21:12:16 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:65003
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S261239AbVFNBMN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 21:12:13 -0400
+Date: Mon, 13 Jun 2005 18:11:55 -0700 (PDT)
+Message-Id: <20050613.181155.63129744.davem@davemloft.net>
+To: ak@muc.de
+Cc: jesper.juhl@gmail.com, mru@inprovide.com, rommer@active.by,
+       bernd@firmix.at, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: udp.c
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20050614001249.GF86745@muc.de>
+References: <m1fyvlbyp7.fsf@muc.de>
+	<20050613.170045.74749212.davem@davemloft.net>
+	<20050614001249.GF86745@muc.de>
+X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-06-09 at 16:15 +0300, Pekka Enberg wrote:
-> Hi John,
-> 
-> Some coding style comments below.
+From: Andi Kleen <ak@muc.de>
+Date: 14 Jun 2005 02:12:49 +0200,Tue, 14 Jun 2005 02:12:49 +0200
 
-[snip]
-> Please drop this redundant comment.
-> 
-> > +	interval_sum += interval;
-> > +
-> > +	write_seqlock_irqsave(&ntp_lock, flags);
-> > +
-> > +	/* decrement singleshot offset interval */
-> 
-> Ditto.
-> 
-> > +	ss_offset_len -= interval;
-> > +	if(ss_offset_len < 0) /* make sure it doesn't go negative */
-> 
-> Ditto.
-> 
-> > +		ss_offset_len = 0;
-> > +
-> > +	/* Do second overflow code */
-> 
-> Drop redundant comment.
-> 
-> > +		ntp_maxerror += shiftR(ntp_tolerance, SHIFT_USEC);
-> > +		if (ntp_maxerror > NTP_PHASE_LIMIT) {
-> > +			ntp_maxerror = NTP_PHASE_LIMIT;
-> > +			ntp_status |= STA_UNSYNC;
-> > +		}
-> > +
-> > +		/* Calculate offset_adj for the next second */
-> 
-> Ditto.
-> 
-> > +		tmp = ntp_offset;
-> 
-> tmp could use a more descriptive name.
-> 
-> > +		if (!(ntp_status & STA_FLL))
-> > +		    tmp = shiftR(tmp, SHIFT_KG + ntp_constant);
-> > +
-> > +		/* bound the adjustment to MAXPHASE/MINSEC */
-> 
-> Redundant comment.
+> Ok I can fix it, but only reasonably after mem_init (at least without
+> hacking up change_page_attr a lot to deal with bootmem).
+> Is that still worth it? 
 
-
-Thanks for the uh, redundant redundant-comment comments ;)
-
-Much is from the transition from psudo-code to actual code, so I
-appreciate you pointing it out. There are a few spots where I feel there
-is still value in the comments, so I've left them, but overall I think
-you'll see an improvement.
-
-thanks again for the feedback!
--john
-
-
-
+I think so.

@@ -1,107 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261259AbVFNGoR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261261AbVFNGtw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261259AbVFNGoR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 02:44:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261261AbVFNGoR
+	id S261261AbVFNGtw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 02:49:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261264AbVFNGtw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 02:44:17 -0400
-Received: from ercist.iscas.ac.cn ([159.226.5.94]:11534 "EHLO
-	ercist.iscas.ac.cn") by vger.kernel.org with ESMTP id S261259AbVFNGnq
+	Tue, 14 Jun 2005 02:49:52 -0400
+Received: from RT-soft-2.Moscow.itn.ru ([80.240.96.70]:2967 "HELO
+	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S261261AbVFNGtr
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 02:43:46 -0400
-Subject: Re: [Ext2-devel] Re: [RFD] FS behavior (I/O failure) in kernel
-	summit
-From: fs <fs@ercist.iscas.ac.cn>
-To: Andreas Dilger <adilger@clusterfs.com>
-Cc: Hans Reiser <reiser@namesys.com>,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       zhiming <zhiming@admin.iscas.ac.cn>, madsys <madsys@ercist.iscas.ac.cn>,
-       xuh <xuh@nttdata.com.cn>, koichi@intellilink.co.jp,
-       kuroiwaj@intellilink.co.jp, Kenichi Okuyama <okuyama@intellilink.co.jp>,
-       matsui_v@valinux.co.jp, kikuchi_v@valinux.co.jp,
-       fernando@intellilink.co.jp, kskmori@intellilink.co.jp,
-       takenakak@intellilink.co.jp, yamaguchi@intellilink.co.jp,
-       ext2-devel@lists.sourceforge.net, shaggy@austin.ibm.com,
-       xfs-masters@oss.sgi.com,
-       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>
-In-Reply-To: <20050613201315.GC19319@moraine.clusterfs.com>
-References: <1118692436.2512.157.camel@CoolQ> <42ADC99D.5000801@namesys.com>
-	 <20050613201315.GC19319@moraine.clusterfs.com>
-Content-Type: text/plain
-Organization: iscas
-Message-Id: <1118770916.2516.14.camel@CoolQ>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 14 Jun 2005 13:41:56 -0400
+	Tue, 14 Jun 2005 02:49:47 -0400
+Message-ID: <42AE8086.80609@ru.mvista.com>
+Date: Tue, 14 Jun 2005 11:00:22 +0400
+From: "Eugeny S. Mints" <emints@ru.mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: karim@opersys.com
+CC: dwalker@mvista.com, paulmck@us.ibm.com, Andrea Arcangeli <andrea@suse.de>,
+       Bill Huey <bhuey@lnxw.com>, Lee Revell <rlrevell@joe-job.com>,
+       Tim Bird <tim.bird@am.sony.com>, linux-kernel@vger.kernel.org,
+       tglx@linutronix.de, mingo@elte.hu, pmarques@grupopie.com,
+       bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au, ak@muc.de,
+       sdietrich@mvista.com, hch@infradead.org, akpm@osdl.org
+Subject: Re: Attempted summary of "RT patch acceptance" thread
+References: <20050610223724.GA20853@nietzsche.lynx.com>	 <20050610225231.GF6564@g5.random>	 <20050610230836.GD21618@nietzsche.lynx.com>	 <20050610232955.GH6564@g5.random> <20050611014133.GO1300@us.ibm.com>	 <20050611155459.GB5796@g5.random> <20050611210417.GC1299@us.ibm.com>	 <42AB7857.1090907@opersys.com> <20050612214519.GB1340@us.ibm.com>	 <42ACE2D3.9080106@opersys.com> <20050613144022.GA1305@us.ibm.com>	 <42ADE334.4030002@opersys.com>	 <1118693033.2725.21.camel@dhcp153.mvista.com>	 <42ADEC0E.4020907@opersys.com> <1118694495.2725.32.camel@dhcp153.mvista.com> <42AE01EA.10905@opersys.com>
+In-Reply-To: <42AE01EA.10905@opersys.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-ArGoMail-Authenticated: fs@ercist.iscas.ac.cn
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-06-13 at 16:13, Andreas Dilger wrote:
-
-> > fs wrote:
-> > >Dear Linus, Andrew Morton, and all FS maintainers,
-> > >1) When I/O failure occurs(e.g.: unrecoverable media failure - USB
-> > >unplug), FS should
-> > >   a. shutdown the FS right now(XFS does this)
-> > >   b. try to make the media serve as long as possible(EXT3 remounts 
-> > >      read-only, cache is still valid for read)
-> > >   c. do not care, just print some kernel debugging info(EXT2 JFS 
-> > >      ReiserFS)
+Karim Yaghmour wrote:
+> Daniel Walker wrote:
 > 
-> Actually, 1b is just the default behaviour for ext3 (because of journal
-> errors).  It is also possible to mount the filesystem with error=panic,
-> which will implement 1a, and it is also possible to mount ext2 with
-> error=remount-ro (which is default on Debian for ext2) which implements
-> 1b.  I don't think it is possible to get 1c behaviour for journal
-> errors on ext3.
+>>I wouldn't work on RT if mainline integration wasn't on the agenda. 
 > 
-> > >2) When I/O failure occurs, FS should
-> > >   a. give a unified error
-> > >   b. give errors according to the FS type
-
-Of coz EIO is not always right. But suppose the same unplug action 
-results different errors, just because of FS type? You think both EIO
-and EROFS are right, what if new FS return EXXX? Even it's correct, the
-community should AT LEAST define a set of error values which are 
-considered right. So, the application user can handle these errors one
-by one. If not, that means errno can't provide enough info, that's the
-case of 3)c
-
-Well, I give question 1) 2) and 3), they're just examples. FS developers
-use 'de facto' standard, it's ambiguous. We need an accurate one.
-
-> What is "unified error"?  Does this mean "-EIO" for all cases?  I also
-> don't understand why this is so important to your application...  If
-> you get an error back from the filesystem that isn't expected, that is
-> generally a problem regardless of what the error is...
 > 
-> > >3) the returned errno should be
-> > >   a. real cause of failure, e.g. USB unplug returns EIO
-> > >   b. cause from FS, e.g. USB unplug made FS remount read-only,
-> > >      so open(O_RDONLY) returns ENOENT while open(O_RDWR) returns
-> > >      EROFS
-> > >   c. errno means nothing, you already get -1, that's enough
-
-> This doesn't make sense.  If the "real cause of failure" is that the
-> journal code detected an inconsistency (it might not be an IO error at
-> the time, just some structure that is not what it should be, maybe the
-> user tried to format their partition while in use ;-) then the real
-> error is that the journal turned the filesystem read-only.  In any case,
-> you can't expect to get more information that "EIO", regardless of the
-> root cause (e.g. ENOMEM causes async buffer read to not complete, caller
-> checks buffer_uptodate() and it isn't uptodate, returns EIO).
+> Mainline integration IS what I'm talking about. It's just not done
+> the same way.
 > 
-> Cheers, Andreas
-> --
-> Andreas Dilger
-> Principal Software Engineer
-> Cluster File Systems, Inc.
+> 
+>>There is going to be positive , and negative discussion on this. I think
+>>in the end the maintainers (Linus, and Andrew) don't want "people" to
+>>get a patch or modification from the outside. It's best if the community
+>>is not separated .. If you make a clean integration , and people want
+>>what you are doing, there is no reason for it to be rejected.
+> 
+> 
+> I'm not suggesting the separation of the community, I'm suggesting
+> a strategy of integration based on the fact that a large portion of
+> kernel contributors don't necessarily care about RT, and most don't
+> want to care about it in their day-to-day work 
+I would suggest that "don't want to care about it" already led and could 
+lead to more bugs similar to the bugs discovered due to RT 
+enchancements. But the bottom line here is that these bugs are almost 
+always bugs in SMP kernel as well about which each kernel developer have 
+to worry about.
+>(though I think most
+> would care that Linux could have an additional spade down its
+> sleeve, and would certainly try to help in as much they can from
+> time to time.)
+> 
+> I'm not suggesting asking "people" to get patches from the outside.
+> What I'm saying is that those developing mainstream code shouldn't
+> need to worry about anything real-time, including modifications to
+> locking primitives in headers (be they defined out or in).
+> 
+> In essence, what you ask can only hold if all kernel developers
+> intend for Linux to become QNX. Clearly this isn't going to happen.
+> Whatever changes are made to such core functionality as locking
+> primitives and interrupt handling can hardly be "transparent"
+> simply by wrapping #ifdef CONFIG_X around it in mainstream headers.
+Do you hardly working on the kernel patched with RT patch in other 
+configurations than PREEMPT_RT? But I'm working and can;t report any 
+outstanding issues/degradation. These changes _are_ "transperent" due to 
+preemtp modes configurability. So what do you have behind "can hardly be 
+"transparent" simply by wrapping #ifdef CONFIG_X around it"?
+> 
+>>From my point of view, determinism and best overall performance are
+> conflicting goals. Having separate derectories for something as
+> fundamentally different from best overall performance as determinism
+> is not too much to ask.
+configurability of the kernel gives you possibily to choose what you 
+want in your custom case. Source code organization is a matter of 
+whatever else (readability, complexity, separation of completely 
+different functionality (but this is not this case), desire for 
+community acceptance, etc) but not that determinism and best overall 
+performance are conflicting goals. Why don;t you object against SMP 
+though it definitly could conflict with goals of desktop kernel 
+configurations?
 
-yours,
-----
-Qu Fuping
+	Eugeny
+> Karim
 
 

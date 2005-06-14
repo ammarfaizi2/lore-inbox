@@ -1,78 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261197AbVFNPmz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261171AbVFNPvg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261197AbVFNPmz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 11:42:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261183AbVFNPmz
+	id S261171AbVFNPvg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 11:51:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261177AbVFNPvg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 11:42:55 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:15 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261171AbVFNPlV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 11:41:21 -0400
-Message-Id: <200506141540.j5EFeh6d014592@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Thomas Renninger <trenn@suse.de>
-Cc: Tony Lindgren <tony@atomide.com>, linux-kernel@vger.kernel.org,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       Jonathan Corbet <corbet@lwn.net>, Pavel Machek <pavel@ucw.cz>,
-       Bernard Blackham <b-lkml@blackham.com.au>,
-       Christian Hesse <mail@earthworm.de>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Subject: Re: [PATCH] Dynamic tick for x86 version 050609-2 
-In-Reply-To: Your message of "Tue, 14 Jun 2005 11:39:27 +0200."
-             <42AEA5CF.30100@suse.de> 
-From: Valdis.Kletnieks@vt.edu
-References: <88056F38E9E48644A0F562A38C64FB6004EBD10C@scsmsx403.amr.corp.intel.com> <20050609014033.GA30827@atomide.com> <20050610043018.GE18103@atomide.com> <200506130454.j5D4suNY006032@turing-police.cc.vt.edu> <20050613152507.GB7862@atomide.com> <200506131647.j5DGl0ke009926@turing-police.cc.vt.edu> <42ADC9E7.30901@suse.de> <200506131907.j5DJ7e4G017545@turing-police.cc.vt.edu>
-            <42AEA5CF.30100@suse.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1118763643_3658P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 14 Jun 2005 11:40:43 -0400
+	Tue, 14 Jun 2005 11:51:36 -0400
+Received: from smtp-auth.no-ip.com ([8.4.112.95]:43180 "HELO
+	smtp-auth.no-ip.com") by vger.kernel.org with SMTP id S261171AbVFNPvd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Jun 2005 11:51:33 -0400
+From: dagit@codersbase.com
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Shaohua Li <shaohua.li@intel.com>, stefandoesinger@gmx.at,
+       acpi-dev <acpi-devel@lists.sourceforge.net>,
+       Matthew Garrett <mjg59@srcf.ucam.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: S3 test tool (was : Re: Bizarre oops after suspend to RAM (was:
+ Re: [ACPI] Resume from Suspend to RAM))
+References: <200506061531.41132.stefandoesinger@gmx.at>
+	<1118125410.3828.12.camel@linux-hp.sh.intel.com>
+	<87ll5diemh.fsf@www.codersbase.com> <20050614090652.GA1863@elf.ucw.cz>
+Organization: Coders' Base
+Date: Tue, 14 Jun 2005 08:51:26 -0700
+In-Reply-To: <20050614090652.GA1863@elf.ucw.cz> (Pavel Machek's message of
+ "Tue, 14 Jun 2005 11:06:52 +0200")
+Message-ID: <87aclthr7l.fsf@www.codersbase.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-REPORT-SPAM-TO: abuse@no-ip.com
+X-NO-IP: codersbase.com@noip-smtp
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1118763643_3658P
-Content-Type: text/plain; charset=us-ascii
+Pavel Machek <pavel@ucw.cz> writes:
 
-On Tue, 14 Jun 2005 11:39:27 +0200, Thomas Renninger said:
+> Hi!
+>
+>> If you've looked at this bug you will know that myself at and atleast
+>> one other person experience a reboot on resume at a specific line in
+>> the wakeup code:
+>> http://bugme.osdl.org/show_bug.cgi?id=3586
+>> 
+>> One note about the code in the bug, my code for detecting PM is
+>> backwards, so ignore it, what I say in this email is still valid.
+>> 
+>> Specifically, if I get rid of the pushl;popl then the computer does
+>> not reboot.  See the attached diff.  The question is 1) is this
+>> pushl;popl the final nail in the coffin? 2) Does windows not clear the
+>> flags completely, but instead sets them to some "special value"?
+>> 
+>> The reason for (1) is because as I understand it, when a certain
+>> number of illegal operations (3 iirc) are issued at certain times
+>> (real mode iirc) the machine automatically reboots.  That could be
+>> what we are seeing here.
+>
+> You got this wrong. It is three illegal instructions but
+> *nested*. Like error, error in fault handler, error in doublefault
+> handler.
 
-> There are two ways C-state addresses are exported to OS.
-> 
->      - Some flags in the FADT (-> ACPI spec) -> this gives you two C-states maximum, AFAIK.
+Ah.  Yeah, this isn't an area I know much about :)  Thanks for the
+correction. 
 
-This must be what I have, because...
+> Try replacing flags manipulation with any stack manipulation to see
+> what is wrong.
 
->      - Through the _CST function in your DSDT (-> ACPI spec, sorry). If you have
->        have a look in dsdt.dsl at the _CST function there are that much packages returned as
->        your BIOS claims to support. Hmm, _CST code is often in the SSDT an extention
->        of the DSDT code. If you have one: acpidmp > acpidmp; acpixtract ssdt acpidmp >my_ssdt;
->        iasl -d my_ssdt.
+Do you mean try something like this? Replace the push 0 with push
+0x1234 ; push 0x1234 ; pop ; pop and try to figure out which line
+causes the reboot?
 
-I tried (using pmtools-20031210 and acpica-unix-20050513):
+> Like perhaps processor docs?
 
-acpidmp > c840.dmp
-acpixtract dsdt c840.dmp > c840.dsdt
-acpixtract ssdt c840.dmp > c840.ssdt
-iasl -d c840.dsdt
-iasl -d c840.ssdt
+Is that what I want to look at?  I was the one asking the question. ;)
 
-No signs of a _CST in either the DSDT or SSDT (in fact, xtract ssdt got me a
-zero-length file, so I suspect there's no SSDT at all in there).
+Thanks,
+Jason
 
-Oh well.. looks like short of BIOS/DSDT hacking, I'm stuck.  At least the
-dynamic tick code got some testing out of all this... ;)
-
---==_Exmh_1118763643_3658P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFCrvp7cC3lWbTT17ARAiLvAKDo0ZK4nl17ftWI+53MunD6O+F/cQCdE8An
-YkA3/Gebwwrik4R3wF7ZbI4=
-=+FJU
------END PGP SIGNATURE-----
-
---==_Exmh_1118763643_3658P--

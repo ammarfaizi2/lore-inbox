@@ -1,42 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261193AbVFNMGF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261198AbVFNMNY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261193AbVFNMGF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 08:06:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261198AbVFNMGE
+	id S261198AbVFNMNY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 08:13:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261206AbVFNMNY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 08:06:04 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:64961 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261193AbVFNMGD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 08:06:03 -0400
-Date: Mon, 13 Jun 2005 21:59:53 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Jurriaan <thunder7@xs4all.nl>
-Cc: linux-kernel@vger.kernel.org, adaplas@pol.net, benh@kernel.crashing.org,
-       linux-fbdev-devel@lists.sourceforge.net
-Subject: Re: new framebuffer fonts + updated 12x22 font available
-Message-ID: <20050613195953.GA467@openzaurus.ucw.cz>
-References: <20050610132331.GA8643@middle.of.nowhere>
+	Tue, 14 Jun 2005 08:13:24 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:36753 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S261198AbVFNMNV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Jun 2005 08:13:21 -0400
+Date: Tue, 14 Jun 2005 14:13:20 +0200
+From: bert hubert <bert.hubert@netherlabs.nl>
+To: P@draigBrady.com
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: optimal file order for reading from disk
+Message-ID: <20050614121320.GA4739@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <bert.hubert@netherlabs.nl>,
+	P@draigBrady.com,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <42AEBDC4.2050907@draigBrady.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050610132331.GA8643@middle.of.nowhere>
-User-Agent: Mutt/1.3.27i
+In-Reply-To: <42AEBDC4.2050907@draigBrady.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> I've spent my offline-vacation on improving the fonts for use with the
-> framebuffer.
+On Tue, Jun 14, 2005 at 12:21:40PM +0100, P@draigBrady.com wrote:
+> I know this will be dependent on filesystem, I/O scheduler, ...
+> but given a list of files, what is the best (filesystem
+> agnostic) order to read from disk (to minimise seeks).
 > 
-> I've added all the characters marked 'FIXME' in the sun12x22 font and
-> created a 10x18 font (based on the sun12x22 font) and a 7x14 font (based
-> on the vga8x16 font).
+> Should I sort by path, inode number, getdents, or something else?
 
-Great! Is there any chance for bigger than 12x22 fonts? With some hi-res
-panels in notebooks, even 12x22 looks pretty small...
-				Pavel
+I know several projects that sort on inode number and benefit from that,
+sometimes in a big way. The effect of this will probably be less on a
+matured filesystem image.
+
+I can't really explain why it helps though. I don't think the kernel will do
+'crossfile readahead', although your disk might do so.
+
+Google on 'orlov allocator', is enlightning.
+
 -- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
-
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://netherlabs.nl              Open and Closed source services

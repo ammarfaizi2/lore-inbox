@@ -1,91 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261315AbVFNIAd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261326AbVFNIE3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261315AbVFNIAd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 04:00:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbVFNIAd
+	id S261326AbVFNIE3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 04:04:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261323AbVFNIE1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 04:00:33 -0400
-Received: from ns2.suse.de ([195.135.220.15]:46810 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261315AbVFNIAQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 04:00:16 -0400
-Message-ID: <42AE8E8F.5070404@suse.de>
-Date: Tue, 14 Jun 2005 10:00:15 +0200
-From: Hannes Reinecke <hare@suse.de>
-Organization: SuSE Linux AG
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.5) Gecko/20050317
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-hotplug-devel@lists.sourceforge.net, Greg KH <gregkh@suse.de>,
-       Vojtech Pavlik <vojtech@suse.cz>, Kay Sievers <kay.sievers@vrfy.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Input sysbsystema and hotplug
-References: <200506131607.51736.dtor_core@ameritech.net> <42AE8A9E.5040406@suse.de> <200506140252.42306.dtor_core@ameritech.net>
-In-Reply-To: <200506140252.42306.dtor_core@ameritech.net>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	Tue, 14 Jun 2005 04:04:27 -0400
+Received: from wproxy.gmail.com ([64.233.184.203]:896 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261325AbVFNIEV convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Jun 2005 04:04:21 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=f2bgljP0Xegjqcrmnzdk1r39wPIsUXPHTpfFwjB7Xf09gnaRmEW/h0j+li35GSyPEkLCr8iphAloKnd+Uxec11ClU2epGipYQrTZ3gyDpUVMmxcnxIQBW2BY3fRVH619Unfk+48aTHumDl57oscDSYL+TAPC7QVevNfO5S4d3so=
+Message-ID: <58cb370e05061401041a67cfa7@mail.gmail.com>
+Date: Tue, 14 Jun 2005 10:04:20 +0200
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Alexander Fieroch <Fieroch@web.de>
+Subject: Re: [2.6.12rc4] PROBLEM: "drive appears confused" and "irq 18: nobody cared!"
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Jens Axboe <axboe@suse.de>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+In-Reply-To: <429A2397.6090609@web.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <d6gf8j$jnb$1@sea.gmane.org>
+	 <20050527171613.5f949683.akpm@osdl.org> <429A2397.6090609@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitry Torokhov wrote:
-> On Tuesday 14 June 2005 02:43, Hannes Reinecke wrote:
->>Dmitry Torokhov wrote:
->>>	 
->>Hmm. I don't like it very much as it mixes two different types of
->>devices (class devices and subclasses) into one directory.
->>
-> 
-> If one could come up with a good name to group inputX under I think
-> it will be OK. We'd have XXX, mouse, joystick, event, ... as subclasses
-> and all class_devices will be on level below. OTOH input_devs are parents
-> for mice, joysticks etc so they might be on the higher level.
-> 
->>I think it's cleaner to have two distinct class device types
->>(one for input_dev and one for input).
->>
-> 
-> I actually detest this practice:
-> 
-> [dtor@core ~]$ ls /sys/class/
-> firmware     ieee1394       ieee1394_protocol  mem   pci_bus        sound  usb_host
-> graphics     ieee1394_host  input              misc  pcmcia_socket  tty    vc
-> i2c-adapter  ieee1394_node  input_dev          net   printer        usb
-> [dtor@core ~]$
-> 
-> dtor@anvil ~]$ ls /sys/class/
-> cpuid     i2c-adapter  ieee1394_host      input  msr      printer      sound  usb_host
-> firmware  i2c-dev      ieee1394_node      mem    net      scsi_device  tty    vc
-> graphics  ieee1394     ieee1394_protocol  misc   pci_bus  scsi_host    usb    video4linux
-> [dtor@anvil ~]$
-> 
-> Firewire has 4 classes on the uppper level, I2C, USB, SCSI and Input got
-> 2 each. It would be much nicer IMHO if we merge them into trees of classes
-> with poarent class actually defining subsystem.  
-> 
-Correct.
-And this in indeed a shortcoming of the driver model, as it basically
-only knows about classes and devices.
-Maybe it's about time to introduce a subsystem?
+On 5/29/05, Alexander Fieroch <Fieroch@web.de> wrote:
 
->>subclasses for the input class devices are a neat idea; but I fear the
->>hotplug event name will change for each subclass device ('input' will
->>become eg 'mouse'), so we again have to change all hotplug handlers.
->>And I don't see an easy solution for that ...
->>
-> 
-> We could have parent class define agent/subsystem name for all its children.
-> 
-Hmm.
-We probably could.
+> That would be very great. I would like to give you any more information
+> that is needed.
 
-Cheers,
+dmesg output and .config for a start
 
-Hannes
--- 
-Dr. Hannes Reinecke			hare@suse.de
-SuSE Linux AG				S390 & zSeries
-Maxfeldstraße 5				+49 911 74053 688
-90409 Nürnberg				http://www.suse.de
+Bartlomiej

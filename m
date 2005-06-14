@@ -1,62 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261410AbVFNXOO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261408AbVFNXRC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261410AbVFNXOO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 19:14:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261411AbVFNXOO
+	id S261408AbVFNXRC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 19:17:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261409AbVFNXRC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 19:14:14 -0400
-Received: from gate.crashing.org ([63.228.1.57]:26591 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261410AbVFNXMe (ORCPT
+	Tue, 14 Jun 2005 19:17:02 -0400
+Received: from fmr16.intel.com ([192.55.52.70]:20954 "EHLO
+	fmsfmr006.fm.intel.com") by vger.kernel.org with ESMTP
+	id S261408AbVFNXQx convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 19:12:34 -0400
-Subject: Re: [PATCH 2.6][PPC32] RESEND: don't recursively crash in die() on
-	CHRP/PReP machines
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Jakub Bogusz <qboosh@pld-linux.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linuxppc-dev@ozlabs.org
-In-Reply-To: <20050614193826.GE13702@fngna.oyu>
-References: <20050614193826.GE13702@fngna.oyu>
-Content-Type: text/plain
-Date: Wed, 15 Jun 2005 09:11:29 +1000
-Message-Id: <1118790689.5986.183.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+	Tue, 14 Jun 2005 19:16:53 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Fwd: hpet patches
+Date: Tue, 14 Jun 2005 16:16:22 -0700
+Message-ID: <88056F38E9E48644A0F562A38C64FB6004F7837A@scsmsx403.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Fwd: hpet patches
+Thread-Index: AcVxNl2gw5CIZwAuRGO6OrZdXxKQdwAAHEWA
+From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+To: "Jon Smirl" <jonsmirl@gmail.com>
+Cc: "Bob Picco" <bob.picco@hp.com>, "Andrew Morton" <akpm@osdl.org>,
+       "lkml" <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 14 Jun 2005 23:15:39.0688 (UTC) FILETIME=[FA9FDA80:01C57136]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-06-14 at 21:38 +0200, Jakub Bogusz wrote:
-> This patch avoids recursive crash (leading to kernel stack overflow) in
-> die() on CHRP/PReP machines when CONFIG_PMAC_BACKLIGHT=y.
-> set_backlight_* functions are placed in pmac section, which is discarded
-> when _machine != _MACH_Pmac.
-> 
-> I already posted this patch to LKML few months ago:
-> http://www.ussg.iu.edu/hypermail/linux/kernel/0412.0/0300.html
-> and it has been applied to linux-2.4 tree, but still not 2.6.
-> (patch was made against 2.4.27, but still applies cleanly against
-> kernels up to 2.6.11.12)
-> 
-> Signed-off-by: Jakub Bogusz <qboosh@pld-linux.org>
 
-Acked-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+>-----Original Message-----
+>From: Jon Smirl [mailto:jonsmirl@gmail.com] 
+>Sent: Tuesday, June 14, 2005 4:11 PM
+>To: Pallipadi, Venkatesh
+>Cc: Bob Picco; Andrew Morton; lkml
+>Subject: Re: Fwd: hpet patches
+>
+>On 6/14/05, Pallipadi, Venkatesh <venkatesh.pallipadi@intel.com> wrote:
+>> OK. I was thinking PCI fixup is to late in the initialization for
+>> HPET fixup. But, we should be OK with a new ACPI_FIXUP macro. My only
+>> other concern is, we should safely fallback to PIT, when our fixed_up
+>> HPET address isn't right.
+>
+>If we're keying off from the PCI ID for the chip, how can it not have
+>the device? On the other hand, it would probably be good to always do
+>a little test on the HPET and fall back to the PIT if the HPET is
+>dead.
 
-> --- linux-2.4.27/arch/ppc/kernel/traps.c.orig	Wed Apr 14 15:05:27 2004
-> +++ linux-2.4.27/arch/ppc/kernel/traps.c	Mon Nov 29 19:05:28 2004
-> @@ -88,8 +88,10 @@
->  	console_verbose();
->  	spin_lock_irq(&die_lock);
->  #ifdef CONFIG_PMAC_BACKLIGHT
-> -	set_backlight_enable(1);
-> -	set_backlight_level(BACKLIGHT_MAX);
-> +	if (_machine == _MACH_Pmac) {
-> +		set_backlight_enable(1);
-> +		set_backlight_level(BACKLIGHT_MAX);
-> +	}
->  #endif
->  	printk("Oops: %s, sig: %ld\n", str, err);
->  	show_regs(fp);
-> 
-> 
+HPET device itself can be there. But, it can appear in different 
+addresses. Most commonly used address is 0xfed00000. But, it can be 
+different as well. 
 
+Thanks,
+Venki

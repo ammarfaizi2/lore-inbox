@@ -1,47 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261280AbVFNSQw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261279AbVFNSSN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261280AbVFNSQw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 14:16:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261281AbVFNSQw
+	id S261279AbVFNSSN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 14:18:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261281AbVFNSSN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 14:16:52 -0400
-Received: from smtp804.mail.sc5.yahoo.com ([66.163.168.183]:4690 "HELO
-	smtp804.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261280AbVFNSQt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 14:16:49 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Jon Smirl <jonsmirl@gmail.com>
-Subject: Re: Input sysbsystema and hotplug
-Date: Tue, 14 Jun 2005 13:16:40 -0500
-User-Agent: KMail/1.8.1
-Cc: Greg KH <gregkh@suse.de>, linux-hotplug-devel@lists.sourceforge.net,
-       Vojtech Pavlik <vojtech@suse.cz>, Kay Sievers <kay.sievers@vrfy.org>,
-       LKML <linux-kernel@vger.kernel.org>
-References: <200506131607.51736.dtor_core@ameritech.net> <20050614063851.GA19620@suse.de> <9e473391050614080230ae359d@mail.gmail.com>
-In-Reply-To: <9e473391050614080230ae359d@mail.gmail.com>
+	Tue, 14 Jun 2005 14:18:13 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:2026 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S261279AbVFNSRn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Jun 2005 14:17:43 -0400
+Message-ID: <42AF1F3E.9070704@pobox.com>
+Date: Tue, 14 Jun 2005 14:17:34 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Florian Engelhardt <flo@dotbox.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: AHCI chipset for AMD64
+References: <1118750451.42aec6f325fc8@www.domainfactory-webmail.de>	<42AF014A.5000104@pobox.com> <20050614200310.143359bc@discovery.hal.lan>
+In-Reply-To: <20050614200310.143359bc@discovery.hal.lan>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506141316.42266.dtor_core@ameritech.net>
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 14 June 2005 10:02, Jon Smirl wrote:
-> On 6/14/05, Greg KH <gregkh@suse.de> wrote:
-> > Heh, yes, sorry, you did.
-> > 
-> > Hm, I don't even remember why I didn't like it anymore, last I remember,
-> > I think you got the parent reference counting correct, right?  Care to
-> > dig out the patch and send it again?
-> 
-> I brought this forward from a kernel a couple of months old so it may
-> need some checking.
->
+Florian Engelhardt wrote:
+> Sorry, but i forgot to ask one technical question about AHCI.
+> Will every AHCI capable controller be supported, for example
+> this chipset:
+> http://www.vitalitycomputer.com/msirsamd64so.html
 
-Ah, this one allows adding subdevices to class devices whereas mine is for
-adding subclasses to classes. Both are needed in the long run IMHO.
- 
--- 
-Dmitry
+
+The driver is written to the AHCI specification.
+
+As long as the hardware faithfully follows the specification, yes.
+
+	Jeff
+
+

@@ -1,87 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261207AbVFNMUM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261208AbVFNMjf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261207AbVFNMUM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 08:20:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261208AbVFNMUM
+	id S261208AbVFNMjf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 08:39:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261216AbVFNMjf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 08:20:12 -0400
-Received: from alog0098.analogic.com ([208.224.220.113]:392 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261207AbVFNMUB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 08:20:01 -0400
-Date: Tue, 14 Jun 2005 08:19:50 -0400 (EDT)
-From: "Richard B. Johnson" <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: gzip zombie / spawned from init
-In-Reply-To: A<yw1xvf4h6uni.fsf@ford.inprovide.com>
-Message-ID: <Pine.LNX.4.61.0506140815590.9068@chaos.analogic.com>
-References: <20050614085436.GA1467@schottelius.org> <42AEB756.2030809@etpmod.phys.tue.nl>
- A<yw1xvf4h6uni.fsf@ford.inprovide.com>
+	Tue, 14 Jun 2005 08:39:35 -0400
+Received: from [195.23.16.24] ([195.23.16.24]:24470 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S261208AbVFNMjc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Jun 2005 08:39:32 -0400
+Message-ID: <42AECFF3.7030604@grupopie.com>
+Date: Tue, 14 Jun 2005 13:39:15 +0100
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1879706418-647636777-1118751590=:9068"
+To: Andrew Morton <akpm@osdl.org>
+Cc: Christian Leber <christian@leber.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] lzma support: decompression lib, initrd support
+References: <20050607213204.GA2645@core.home> <20050607145903.4b2ac9bf.akpm@osdl.org>
+In-Reply-To: <20050607145903.4b2ac9bf.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+Andrew Morton wrote:
+> Christian Leber <christian@leber.de> wrote:
+> [...]
+>>+	for (pb = 0; prop0 >= (9 * 5); pb++, prop0 -= (9 * 5));
+>>+	for (lp = 0; prop0 >= 9; lp++, prop0 -= 9);
+> 
+> Put the ";" on a line of its own.
+> 
+> I'd have thought the above could be done arithmetically?
 
---1879706418-647636777-1118751590=:9068
-Content-Type: TEXT/PLAIN; charset=iso-8859-1; format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+I just tried a small test program to see the speed/code size difference 
+to this code, which is the arithmetic equivalent:
 
-On Tue, 14 Jun 2005, [iso-8859-1] M=E5ns Rullg=E5rd wrote:
+   pb = prop0 / (9 * 5);
+   prop0 %= (9 * 5);
+   lp = prop0 / 9;
+   prop0 %= 9;
 
-> Bart Hartgers <bart@etpmod.phys.tue.nl> writes:
->
->> Nico Schottelius wrote:
->>> Hello!
->>> I wrote an init replacement (cinit), which is now in the beta-phase.
->>> The only problem I do have currently is that when calling
->>> 'loadkeys dvorak' directly from init (without a shell or anything)
->>> it will leave behind a gzip zombie (which was forked by loadkeys).
->>> Now my question is: Is that a problem of loadkeys or from my init
->>> and what could be the reasons that it's still there?
->>
->> Not really a kernel issue but:
->>
->> Yes and no. If a parent exits before its child, the child is
->> reparented to init. loadkeys probably doesn't wait properly for gzip
->> to finish.
->>
->>> cinit forks() loadkeys and does waitpid() for it. There is no
->> > loadkeys zombie, only gzip.
->>
->> Use waitpid(-1,...) or wait(...) to wait on all childeren in your
->> init. gzip will become a child of cinit.
->
-> In fact, init must reap any zombies that are reparented to it.
-> Otherwise, the system will sooner or later run out of PIDs.  There are
-> a lot of misbehaving programs out there, and even if they were all
-> well-behaved, they could be killed before having waited for their
-> children, leaving zombies behind.
->
-> --=20
-> M=E5ns Rullg=E5rd
-> mru@inprovide.com
+This code runs a lot faster than the original. This is not very 
+important since it runs only once AFAICT.
 
+As for the code size, it is smaller if compiled with -Os, but larger 
+when compiled with -O2 or -O3.
 
-Normally an `init` program will provide a SIGCHLD handler like:
+When compiled with -Os, gcc uses the idiv instruction and it even uses 
+its reminder so that it only does 2 idiv instructions to do the 4 
+operations above.
 
-void reaper(int sig)
-{
-     while(wait3(&sig, WNOHANG, NULL) > 0)
-         ;
-}
+With -O2 or -O3, it does a hard to follow division "by hand" using 
+several instructions, rendering the code about 2.5x larger (but 
+amazingly a lot faster).
 
-This will 'reap' and throw away the status of all dead children,
-preventing zombies.
+The tests were done with gcc 3.3.2.
 
+-- 
+Paulo Marques - www.grupopie.com
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11.9 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
---1879706418-647636777-1118751590=:9068--
+An expert is a person who has made all the mistakes that can be
+made in a very narrow field.
+Niels Bohr (1885 - 1962)

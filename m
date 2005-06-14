@@ -1,95 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261238AbVFNBqL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261341AbVFNBwN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261238AbVFNBqL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 21:46:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261298AbVFNBqL
+	id S261341AbVFNBwN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 21:52:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261342AbVFNBwN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 21:46:11 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:32013 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261238AbVFNBp6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 21:45:58 -0400
-Date: Tue, 14 Jun 2005 03:45:53 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org, R.E.Wolff@BitWizard.nl
-Subject: [2.6 patch] drivers/char/rio/: kill rio_udelay
-Message-ID: <20050614014553.GD3770@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Mon, 13 Jun 2005 21:52:13 -0400
+Received: from www.tuxrocks.com ([64.62.190.123]:48134 "EHLO tuxrocks.com")
+	by vger.kernel.org with ESMTP id S261341AbVFNBwH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 21:52:07 -0400
+Message-ID: <42AE453B.4050507@tuxrocks.com>
+Date: Mon, 13 Jun 2005 20:47:23 -0600
+From: Frank Sorenson <frank@tuxrocks.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: john stultz <johnstul@us.ibm.com>
+CC: lkml <linux-kernel@vger.kernel.org>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>,
+       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Christoph Lameter <clameter@sgi.com>,
+       Dominik Brodowski <linux@dominikbrodowski.de>,
+       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
+       paulus@samba.org, schwidefsky@de.ibm.com,
+       keith maanthey <kmannth@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
+       Max Asbock <masbock@us.ibm.com>, mahuja@us.ibm.com,
+       Nishanth Aravamudan <nacc@us.ibm.com>, Darren Hart <darren@dvhart.com>,
+       "Darrick J. Wong" <djwong@us.ibm.com>,
+       Anton Blanchard <anton@samba.org>, donf@us.ibm.com, mpm@selenic.com,
+       benh@kernel.crashing.org, kernel-stuff@comcast.net
+Subject: Re: [PATCH 1/4] new timeofday core subsystem (v. B2)
+References: <1118286702.5754.44.camel@cog.beaverton.ibm.com>
+In-Reply-To: <1118286702.5754.44.camel@cog.beaverton.ibm.com>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There's no need for a function that only calls udelays.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+john stultz wrote:
+> Hey Everyone,
+> 	I'm heading out on vacation until Monday, so I'm just re-spinning my
+> current tree for testing. If there's no major issues on Monday, I'll re-
+> diff against Andrew's tree and re-submit the patches for inclusion.
 
----
+John,
 
- drivers/char/rio/func.h      |    1 -
- drivers/char/rio/rio_linux.c |    5 -----
- drivers/char/rio/rioinit.c   |    7 ++++---
- 3 files changed, 4 insertions(+), 9 deletions(-)
+I'm not sure what change caused this, but it seems that keyboard and
+mouse interrupts are firing more than once when I'm using the c3tsc
+timesource.  It manifests itself as multiple keypresses and odd mouse
+tapping.  The problem seems to appear only in X, and it's definitely
+confined to c3tsc (jiffies, pit, tsc-interp, and acpi_pm all seem to
+work fine [1]).
 
---- linux-2.6.12-rc6-mm1-full/drivers/char/rio/func.h.old	2005-06-14 02:45:06.000000000 +0200
-+++ linux-2.6.12-rc6-mm1-full/drivers/char/rio/func.h	2005-06-14 02:45:12.000000000 +0200
-@@ -147,7 +147,6 @@
- extern int    rio_pcicopy(char *src, char *dst, int n);
- extern int rio_minor (struct tty_struct *tty);
- extern int rio_ismodem (struct tty_struct *tty);
--extern void rio_udelay (int usecs);
- 
- extern void rio_start_card_running (struct Host * HostP);
- 
---- linux-2.6.12-rc6-mm1-full/drivers/char/rio/rio_linux.c.old	2005-06-14 02:45:19.000000000 +0200
-+++ linux-2.6.12-rc6-mm1-full/drivers/char/rio/rio_linux.c	2005-06-14 02:45:27.000000000 +0200
-@@ -354,11 +354,6 @@
- }
- 
- 
--void rio_udelay (int usecs)
--{
--  udelay (usecs);
--}
--
- static int rio_set_real_termios (void *ptr)
- {
-   int rv, modem;
---- linux-2.6.12-rc6-mm1-full/drivers/char/rio/rioinit.c.old	2005-06-14 02:45:35.000000000 +0200
-+++ linux-2.6.12-rc6-mm1-full/drivers/char/rio/rioinit.c	2005-06-14 02:55:17.000000000 +0200
-@@ -37,6 +37,7 @@
- #include <linux/module.h>
- #include <linux/slab.h>
- #include <linux/errno.h>
-+#include <linux/delay.h>
- #include <asm/io.h>
- #include <asm/system.h>
- #include <asm/string.h>
-@@ -1560,14 +1561,14 @@
- 					  INTERRUPT_DISABLE | BYTE_OPERATION |
- 					  SLOW_LINKS | SLOW_AT_BUS);
- 			WBYTE(DpRamP->DpResetTpu, 0xFF);
--			rio_udelay (3);
-+			udelay(3);
- 
- 			rio_dprintk (RIO_DEBUG_INIT,  "RIOHostReset: Don't know if it worked. Try reset again\n");
- 			WBYTE(DpRamP->DpControl,  BOOT_FROM_RAM | EXTERNAL_BUS_OFF |
- 					  INTERRUPT_DISABLE | BYTE_OPERATION |
- 					  SLOW_LINKS | SLOW_AT_BUS);
- 			WBYTE(DpRamP->DpResetTpu, 0xFF);
--			rio_udelay (3);
-+			udelay(3);
- 			break;
- #ifdef FUTURE_RELEASE
- 	case RIO_EISA:
-@@ -1599,7 +1600,7 @@
- 		DpRamP->DpControl  = RIO_PCI_BOOT_FROM_RAM;
- 		DpRamP->DpResetInt = 0xFF;
- 		DpRamP->DpResetTpu = 0xFF;
--		rio_udelay (100);
-+		udelay(100);
- 		/* for (i=0; i<6000; i++);  */
- 		/* suspend( 3 ); */
- 		break;
+[1] Note: Don't try to force-load the hpet timesource if you don't have
+one, or if you aren't certain of the address :)
 
+Frank
+- --
+Frank Sorenson - KD7TZK
+Systems Manager, Computer Science Department
+Brigham Young University
+frank@tuxrocks.com
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFCrkU7aI0dwg4A47wRAmfPAKCumk2XAILQ8tPEBWoawfmEmpUjTgCgz1k6
+N50mf7Fnoha2nJmLOJ38Qt0=
+=4bj2
+-----END PGP SIGNATURE-----

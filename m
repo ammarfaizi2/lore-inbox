@@ -1,52 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261301AbVFNHhi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261307AbVFNHmP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261301AbVFNHhi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 03:37:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261306AbVFNHhi
+	id S261307AbVFNHmP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 03:42:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261310AbVFNHmP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 03:37:38 -0400
-Received: from general.keba.co.at ([193.154.24.243]:37970 "EHLO
-	helga.keba.co.at") by vger.kernel.org with ESMTP id S261301AbVFNHhc convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 03:37:32 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Tue, 14 Jun 2005 03:42:15 -0400
+Received: from smtp823.mail.sc5.yahoo.com ([66.163.171.9]:34213 "HELO
+	smtp823.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261307AbVFNHmM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Jun 2005 03:42:12 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Hannes Reinecke <hare@suse.de>
+Subject: Re: Input sysbsystema and hotplug
+Date: Tue, 14 Jun 2005 02:42:07 -0500
+User-Agent: KMail/1.8.1
+Cc: linux-hotplug-devel@lists.sourceforge.net,
+       Kay Sievers <kay.sievers@vrfy.org>, Greg KH <gregkh@suse.de>,
+       Vojtech Pavlik <vojtech@suse.cz>, LKML <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+References: <200506131607.51736.dtor_core@ameritech.net> <200506131705.30159.dtor_core@ameritech.net> <42AE8820.2010102@suse.de>
+In-Reply-To: <42AE8820.2010102@suse.de>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: RT and kernel debugger ( 2.6.12rc6  + RT  > 48-00 )
-Date: Tue, 14 Jun 2005 09:37:42 +0200
-Message-ID: <AAD6DA242BC63C488511C611BD51F36732323C@MAILIT.keba.co.at>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: RT and kernel debugger ( 2.6.12rc6  + RT  > 48-00 )
-Thread-Index: AcVws1K4HtEYqxq5RuaOJ2/knSzMggAAC6RQ
-From: "kus Kusche Klaus" <kus@keba.com>
-To: "Ingo Molnar" <mingo@elte.hu>, "kus Kusche Klaus" <kus@keba.com>
-Cc: "Serge Noiraud" <serge.noiraud@bull.net>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200506140242.08982.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> * kus Kusche Klaus <kus@keba.com> wrote:
-> > I was one of those who tried to get kgdb working.
-> > 
-> > Here I described how far I came:
-> > http://www.ussg.iu.edu/hypermail/linux/kernel/0505.1/0700.html
-> 
-> does ethernet debugging work if you disable the netpoll 
-> WARN_ON() that 
-> triggers?
+On Tuesday 14 June 2005 02:32, Hannes Reinecke wrote:
+> And yes, we should break compability and come up with a clean
+> implementation.
 
-Sorry, I can't try at the moment:
-That installation doesn't exist any longer,
-and debuggers aren't on the current agenda of our RT linux analysis.
+But those pesky users scream every time we break their mice ;)
 
-I'll try if I've some spare time, but no promises.
+> And as the original input event is an abomination I 
+> don't see the point in keeping compability with a broken interface.
+>
+
+Why is it abomination (aside from using old mechanism to call
+hotplug)? It looks like it transmits all data necessary to load
+appropriate input handler...
 
 -- 
-Klaus Kusche                 (Software Development - Control Systems)
-KEBA AG             Gewerbepark Urfahr, A-4041 Linz, Austria (Europe)
-Tel: +43 / 732 / 7090-3120                 Fax: +43 / 732 / 7090-6301
-E-Mail: kus@keba.com                                WWW: www.keba.com
+Dmitry

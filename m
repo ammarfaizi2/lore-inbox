@@ -1,44 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261243AbVFNQjT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261247AbVFNQkZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261243AbVFNQjT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 12:39:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261246AbVFNQjT
+	id S261247AbVFNQkZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 12:40:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261253AbVFNQkV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 12:39:19 -0400
-Received: from karma.reboot.ca ([67.15.48.17]:1235 "EHLO karma.reboot.ca")
-	by vger.kernel.org with ESMTP id S261243AbVFNQjQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 12:39:16 -0400
-X-ClientAddr: 70.67.196.121
-Message-ID: <009701c570ff$fc7dc740$6702a8c0@niro>
-From: "Andre" <andre@rocklandocean.com>
-To: "Andrey Panin" <pazke@donpac.ru>
-Cc: <linux-kernel@vger.kernel.org>
-References: <00fb01c56dec$91f0e440$6702a8c0@niro> <20050614053918.GC2460@pazke>
-Subject: Re: ZFx86 support broken?
-Date: Tue, 14 Jun 2005 09:41:59 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-X-Reboot-MailScanner-Information: Please contact the ISP for more information
-X-Reboot-MailScanner: Not scanned: please contact your Internet E-Mail Service Provider for details
-X-Reboot-MailScanner-SpamCheck: not spam, SpamAssassin (score=-0.729,
-	required 5, autolearn=spam, AWL -0.12, BAYES_00 -2.60,
-	RCVD_IN_SORBS_DUL 1.99)
-X-MailScanner-From: andre@rocklandocean.com
+	Tue, 14 Jun 2005 12:40:21 -0400
+Received: from zproxy.gmail.com ([64.233.162.203]:8730 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261247AbVFNQkE convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Jun 2005 12:40:04 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=t/qRuxBx7LtsdKajfaYZRRL3/mFHmudrPW57e00qdrGKgubML1B1UC+lS+8GVpDUe+dsbtiRwzxCYt+lZjWkeZcU+4tiNkLwKEzBadBUXoXlCFfCdv+8oLFYLEu5ZOhiPBwAUQWeV7yT5K2PMqjBOtWU7AZhMIsuBMtiKu+5C8U=
+Message-ID: <9a874849050614093925f95837@mail.gmail.com>
+Date: Tue, 14 Jun 2005 18:39:58 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
+To: "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH] net: fix sparse warning (plain int as NULL)
+Cc: juhl-lkml@dif.dk, linux-kernel@vger.kernel.org, ross.biro@gmail.com,
+       netdev@vger.kernel.org
+In-Reply-To: <20050613.143114.35469427.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <Pine.LNX.4.62.0506122358570.16521@dragon.hyggekrogen.localhost>
+	 <20050613.135950.48528369.davem@davemloft.net>
+	 <9a8748490506131421707008ed@mail.gmail.com>
+	 <20050613.143114.35469427.davem@davemloft.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrey Panin wrote:
+On 6/13/05, David S. Miller <davem@davemloft.net> wrote:
+> From: Jesper Juhl <jesper.juhl@gmail.com>
+> Date: Mon, 13 Jun 2005 23:21:56 +0200
+> 
+> > Since tcp_ack_saw_tstamp() in 2.6.12-rc6-git6 only takes two arguments
+> > this patch is only relevant for -mm.
+> 
+> Thanks for the clarification.
+> 
+You are welcome. Should I just send the patch on to Andrew for inclusion, or?
 
->  Are you sure that userspace on livecd is not compiled for 586+ CPU ?
-
-No, I am not sure. Thank you for this suggestion - I will find out from the
-lfs folks.
-
-
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

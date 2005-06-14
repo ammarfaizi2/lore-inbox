@@ -1,79 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261380AbVFNWSX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261381AbVFNWTm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261380AbVFNWSX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 18:18:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261381AbVFNWSX
+	id S261381AbVFNWTm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 18:19:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261385AbVFNWTm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 18:18:23 -0400
-Received: from smtp-auth.no-ip.com ([8.4.112.95]:8914 "HELO
-	smtp-auth.no-ip.com") by vger.kernel.org with SMTP id S261380AbVFNWSM
+	Tue, 14 Jun 2005 18:19:42 -0400
+Received: from wproxy.gmail.com ([64.233.184.196]:58127 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261381AbVFNWTX convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 18:18:12 -0400
-From: dagit@codersbase.com
-To: Pavel Machek <pavel@suse.cz>
-Cc: Shaohua Li <shaohua.li@intel.com>, stefandoesinger@gmx.at,
-       acpi-dev <acpi-devel@lists.sourceforge.net>,
-       Matthew Garrett <mjg59@srcf.ucam.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: S3 test tool (was : Re: Bizarre oops after suspend to RAM (was:
- Re: [ACPI] Resume from Suspend to RAM))
-References: <200506061531.41132.stefandoesinger@gmx.at>
-	<1118125410.3828.12.camel@linux-hp.sh.intel.com>
-	<87ll5diemh.fsf@www.codersbase.com> <20050614090652.GA1863@elf.ucw.cz>
-	<87aclthr7l.fsf@www.codersbase.com> <20050614213728.GB2172@elf.ucw.cz>
-	<87u0k061jx.fsf@www.codersbase.com> <20050614220911.GD2172@elf.ucw.cz>
-Organization: Coders' Base
-Date: Tue, 14 Jun 2005 15:18:06 -0700
-In-Reply-To: <20050614220911.GD2172@elf.ucw.cz> (Pavel Machek's message of
- "Wed, 15 Jun 2005 00:09:11 +0200")
-Message-ID: <87oea860rl.fsf@www.codersbase.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-REPORT-SPAM-TO: abuse@no-ip.com
-X-NO-IP: codersbase.com@noip-smtp
+	Tue, 14 Jun 2005 18:19:23 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=Ai0bs2h6/cPBf2vkncsUjog0tedaROSjrvzk/iIbBmxs3xwsFzgLWN+SOSAug3pv4SPfdnvEVfo3K6dNf8qzhC4C8kPBPw6d1NnG9LvbDf3US5Lq2lHeJgDxNJuIQIBQkznlTHJ77mGwBW9ePv31nmxI7avuai0sqDp8N/Mj/uw=
+Message-ID: <b0fbeec4050614151973f0eec7@mail.gmail.com>
+Date: Wed, 15 Jun 2005 10:19:23 +1200
+From: John Duthie <beyondgeek@gmail.com>
+Reply-To: John Duthie <beyondgeek@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: SATA - SCSI Partition limit
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@suse.cz> writes:
+Problem:
+     Need to simulate CDs shares on a linux/samba File server... has a
+120 GB SATA drive in there ...
 
-> Hi!
->
->> >> > You got this wrong. It is three illegal instructions but
->> >> > *nested*. Like error, error in fault handler, error in doublefault
->> >> > handler.
->> >> 
->> >> Ah.  Yeah, this isn't an area I know much about :)  Thanks for the
->> >> correction. 
->> >> 
->> >> > Try replacing flags manipulation with any stack manipulation to see
->> >> > what is wrong.
->> >> 
->> >> Do you mean try something like this? Replace the push 0 with push
->> >> 0x1234 ; push 0x1234 ; pop ; pop and try to figure out which line
->> >> causes the reboot?
->> >
->> > Yep, try pushl $0, popl %eax; if that causes problems, something is
->> > seriously wrong with stack, otherwise changing flags hurts.
->> 
->> pushl $0, popl %eax gets the reboot.  So it's changing the flags that
->> is bad?
->> 
->> What should we try next?
->
-> ??? You wanted it to reboot? If not, something is wrong with
-> stack. Not sure whats next.
+( linux-2.6.10 ) 
 
-I don't want it to reboot, I guess I got confused.  As you say, maybe
-something is wrong with the stack.  It's weird that something would be
-wrong with the stack, because the other test to check the
-suspend/resume code path works like a charm, the machine will do the
-fake suspend/resume just fine.
+long story ...
+      Shares had the wrong size for the evil VB program 
+     (Tried mounting *.iso via loopbak - it didn't like it )
+     Windows boxes that work just have lots of 700 mb partitions  ( 4
+x extended with 6 or 7 logical in each )
+     SO i thought "I know I'll just make lots of partitions"  oops ,
+SCSI sub system only allows 15 Drives
+  So now I could "Boot 2.6.11ac7 on it and specify the boot option
+"all-generic-ide" " which worked wonders last time i had a problem
+(Thanks Alan) because ide will allow more than 15 partitions.
+  But the machine is now about 500 km away from me and changing a
+linux system to boot from scsi to ide over ssh is not my idea of fun,
+1 typo and I've got a long drive ahead :-(,
+  are there any hard reasions for the 15 partition limit on scsi (
+other than lots of dev files )
 
-So the bios must be messing up the stack right?  Is there a way to
-examine or dump the stack so that we can compare the stack when
-windows does the suspend/resume compared to when linux does it?
+  how much work would a patch to halve the number of /dev/sd? files
+and double the /dev/sd?[12]? files ( same number of devices
+minor/major ) ?
 
-thanks,
-Jason
+I'm sure this will be a problem more people have as the SATA drives
+get bigger.......
 
+TIA

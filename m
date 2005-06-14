@@ -1,120 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261467AbVFNDvm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261469AbVFNDxL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261467AbVFNDvm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 23:51:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261442AbVFNDvl
+	id S261469AbVFNDxL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 23:53:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261450AbVFNDwM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 23:51:41 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:50343 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261467AbVFNDt3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 23:49:29 -0400
-Date: Mon, 13 Jun 2005 20:49:16 -0700
-From: Nishanth Aravamudan <nacc@us.ibm.com>
-To: john stultz <johnstul@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>,
-       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Christoph Lameter <clameter@sgi.com>,
-       Dominik Brodowski <linux@dominikbrodowski.de>,
-       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
-       paulus@samba.org, schwidefsky@de.ibm.com,
-       keith maanthey <kmannth@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
-       Max Asbock <masbock@us.ibm.com>, mahuja@us.ibm.com,
-       Darren Hart <darren@dvhart.com>, "Darrick J. Wong" <djwong@us.ibm.com>,
-       Anton Blanchard <anton@samba.org>, donf@us.ibm.com, mpm@selenic.com,
-       benh@kernel.crashing.org, kernel-stuff@comcast.net, frank@tuxrocks.com
-Subject: [PATCH 2/4] 
-Message-ID: <20050614034916.GC4180@us.ibm.com>
-References: <1118286702.5754.44.camel@cog.beaverton.ibm.com> <20050614034655.GA4180@us.ibm.com>
+	Mon, 13 Jun 2005 23:52:12 -0400
+Received: from h80ad2544.async.vt.edu ([128.173.37.68]:7948 "EHLO
+	h80ad2544.async.vt.edu") by vger.kernel.org with ESMTP
+	id S261432AbVFNDvP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 23:51:15 -0400
+Message-Id: <200506140346.j5E3koe7015011@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Andreas Dilger <adilger@clusterfs.com>
+Cc: Hans Reiser <reiser@namesys.com>, fs <fs@ercist.iscas.ac.cn>,
+       linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, zhiming@admin.iscas.ac.cn,
+       qufuping@ercist.iscas.ac.cn, madsys@ercist.iscas.ac.cn,
+       xuh@nttdata.com.cn, koichi@intellilink.co.jp,
+       kuroiwaj@intellilink.co.jp, okuyama@intellilink.co.jp,
+       matsui_v@valinux.co.jp, kikuchi_v@valinux.co.jp,
+       fernando@intellilink.co.jp, kskmori@intellilink.co.jp,
+       takenakak@intellilink.co.jp, yamaguchi@intellilink.co.jp,
+       ext2-devel@lists.sourceforge.net, shaggy@austin.ibm.com,
+       xfs-masters@oss.sgi.com,
+       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>
+Subject: Re: [Ext2-devel] Re: [RFD] FS behavior (I/O failure) in kernel summit 
+In-Reply-To: Your message of "Mon, 13 Jun 2005 16:13:15 EDT."
+             <20050613201315.GC19319@moraine.clusterfs.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <1118692436.2512.157.camel@CoolQ> <42ADC99D.5000801@namesys.com>
+            <20050613201315.GC19319@moraine.clusterfs.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050614034655.GA4180@us.ibm.com>
-X-Operating-System: Linux 2.6.12-rc5 (i686)
-User-Agent: Mutt/1.5.9i
+Content-Type: multipart/signed; boundary="==_Exmh_1118720809_4874P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 13 Jun 2005 23:46:49 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 13.06.2005 [20:46:55 -0700], Nishanth Aravamudan wrote:
-> On 08.06.2005 [20:11:42 -0700], john stultz wrote:
-> > Hey Everyone,
-> > 	I'm heading out on vacation until Monday, so I'm just re-spinning my
-> > current tree for testing. If there's no major issues on Monday, I'll re-
-> > diff against Andrew's tree and re-submit the patches for inclusion.
-> 
-> Here is an update of my soft-timer rework to John's latest patches. I
-> have made some major changes in this revision. I would still greatly
-> appreciate any comments.
+--==_Exmh_1118720809_4874P
+Content-Type: text/plain; charset=us-ascii
 
-Description: Convert sys_nanosleep() to use the new timerinterval-based
-soft-timer interfaces.
+On Mon, 13 Jun 2005 16:13:15 EDT, Andreas Dilger said:
+> > fs wrote:
+> > >   c. do not care, just print some kernel debugging info(EXT2 JFS 
+> > >      ReiserFS)
 
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
+> 1b.  I don't think it is possible to get 1c behaviour for journal
+> errors on ext3.
 
-diff -urpN 2.6.12-rc6-tod-timer-base/kernel/timer.c 2.6.12-rc6-tod-timer-dev/kernel/timer.c
---- 2.6.12-rc6-tod-timer-base/kernel/timer.c	2005-06-13 19:47:40.000000000 -0700
-+++ 2.6.12-rc6-tod-timer-dev/kernel/timer.c	2005-06-13 19:48:53.000000000 -0700
-@@ -1484,21 +1484,21 @@ asmlinkage long sys_gettid(void)
- 
- static long __sched nanosleep_restart(struct restart_block *restart)
- {
--	unsigned long expire = restart->arg0, now = jiffies;
-+	nsec_t expire = restart->arg0, now = do_monotonic_clock();
- 	struct timespec __user *rmtp = (struct timespec __user *) restart->arg1;
- 	long ret;
- 
- 	/* Did it expire while we handled signals? */
--	if (!time_after(expire, now))
-+	if (now > expire)
- 		return 0;
- 
--	current->state = TASK_INTERRUPTIBLE;
--	expire = schedule_timeout(expire - now);
-+	set_current_state(TASK_INTERRUPTIBLE);
-+	expire = schedule_timeout_nsecs(expire - now);
- 
- 	ret = 0;
- 	if (expire) {
- 		struct timespec t;
--		jiffies_to_timespec(expire, &t);
-+		t = ns_to_timespec(expire);
- 
- 		ret = -ERESTART_RESTARTBLOCK;
- 		if (rmtp && copy_to_user(rmtp, &t, sizeof(t)))
-@@ -1511,7 +1511,7 @@ static long __sched nanosleep_restart(st
- asmlinkage long sys_nanosleep(struct timespec __user *rqtp, struct timespec __user *rmtp)
- {
- 	struct timespec t;
--	unsigned long expire;
-+	nsec_t expire;
- 	long ret;
- 
- 	if (copy_from_user(&t, rqtp, sizeof(t)))
-@@ -1520,20 +1520,20 @@ asmlinkage long sys_nanosleep(struct tim
- 	if ((t.tv_nsec >= 1000000000L) || (t.tv_nsec < 0) || (t.tv_sec < 0))
- 		return -EINVAL;
- 
--	expire = timespec_to_jiffies(&t) + (t.tv_sec || t.tv_nsec);
--	current->state = TASK_INTERRUPTIBLE;
--	expire = schedule_timeout(expire);
-+	expire = timespec_to_ns(&t);
-+	set_current_state(TASK_INTERRUPTIBLE);
-+	expire = schedule_timeout_nsecs(expire);
- 
- 	ret = 0;
- 	if (expire) {
- 		struct restart_block *restart;
--		jiffies_to_timespec(expire, &t);
-+		t = ns_to_timespec(expire);
- 		if (rmtp && copy_to_user(rmtp, &t, sizeof(t)))
- 			return -EFAULT;
- 
- 		restart = &current_thread_info()->restart_block;
- 		restart->fn = nanosleep_restart;
--		restart->arg0 = jiffies + expire;
-+		restart->arg0 = do_monotonic_clock() + expire;
- 		restart->arg1 = (unsigned long) rmtp;
- 		ret = -ERESTART_RESTARTBLOCK;
- 	}
+Are there any realistic cases where you'd *want* behavior 1c?
+
+(The very idea makes me cringe - I had 2 different vendor's 4.3BSD-based
+systems basically do 1c when a Fujitsu Super-Eagle went oxide plow - it merrily
+went along all night dragging the crashed head hither and yon failing to write
+into newly-destroyed blocks all over the disk....)
+
+
+
+--==_Exmh_1118720809_4874P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFCrlMpcC3lWbTT17ARAoCGAJ0S8mpQmIb3dWifXyy0W8h74W0Y4ACgpMr8
+/4YzGmPdE3BtQiUJy1edqdg=
+=nayt
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1118720809_4874P--

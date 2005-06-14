@@ -1,46 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261183AbVFNQHs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261215AbVFNQJx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261183AbVFNQHs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 12:07:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261215AbVFNQHr
+	id S261215AbVFNQJx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 12:09:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261217AbVFNQJx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 12:07:47 -0400
-Received: from cdc868fe.powerlandcomputers.com ([205.200.104.254]:13641 "EHLO
-	pl6w2kex.lan.powerlandcomputers.com") by vger.kernel.org with ESMTP
-	id S261183AbVFNQHo convert rfc822-to-8bit (ORCPT
+	Tue, 14 Jun 2005 12:09:53 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:37097 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S261215AbVFNQJu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 12:07:44 -0400
-Content-Class: urn:content-classes:message
+	Tue, 14 Jun 2005 12:09:50 -0400
+Message-ID: <42AF014A.5000104@pobox.com>
+Date: Tue, 14 Jun 2005 12:09:46 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
-Subject: RE: gzip zombie / spawned from init
-Date: Tue, 14 Jun 2005 11:07:42 -0500
-Message-ID: <18DFD6B776308241A200853F3F83D50702128D37@pl6w2kex.lan.powerlandcomputers.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: gzip zombie / spawned from init
-Thread-Index: AcVw0PkcWa/uriCaQu+o949vDCLzAwAJi0NQ
-From: "Chad Kitching" <CKitching@powerlandcomputers.com>
-To: "Nico Schottelius" <nico-kernel@schottelius.org>,
-       "Bart Hartgers" <bart@etpmod.phys.tue.nl>
-Cc: <linux-kernel@vger.kernel.org>
+To: Florian Engelhardt <dot@dot-matrix.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: AHCI chipset for AMD64
+References: <1118750451.42aec6f325fc8@www.domainfactory-webmail.de>
+In-Reply-To: <1118750451.42aec6f325fc8@www.domainfactory-webmail.de>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Nico Schottelius
->
->Well, wait waitpid(-1, ...) cannot be used, as there are many other
->children (the system is booting up at the time the gzip process
->becomes a zombie).
->
-try waitpid(-1, &status, WNOHANG)
+Florian Engelhardt wrote:
+> Hello,
+> 
+> is there right now a mainboard on the market,
+> which has an ahci capable sata-controller
+> for an amd64 CPU?
+> It looks to me like the only chip that is a ahci
+> chip is the via vt8251, but i couldn´t find
+> a mainboard for amd64 cpu´s with that chip.
 
-You will need to implement this in your replacement init because 
-one of init's jobs is to wait on unparented zombie tasks.  In the 
-sysvinit package, see chld_handler() in init.c which handles the 
-SIGCHLD signal.
+Specifically AMD64?
 
-Basically, I believe all you need to do is waitpid() in the SIGCHLD
-handler until you get a 0 return code.
+The current Intel EM64T computers ship with AHCI.
+
+	Jeff
+
+
+

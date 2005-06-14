@@ -1,86 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261393AbVFNDOW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261349AbVFNDbN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261393AbVFNDOW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 23:14:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261406AbVFNDOW
+	id S261349AbVFNDbN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 23:31:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261407AbVFNDbN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 23:14:22 -0400
-Received: from opersys.com ([64.40.108.71]:39952 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261393AbVFNDOP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 23:14:15 -0400
-Message-ID: <42AE4DDB.2040603@opersys.com>
-Date: Mon, 13 Jun 2005 23:24:11 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
-MIME-Version: 1.0
-To: Nicolas Pitre <nico@cam.org>
-CC: "Bill Huey (hui)" <bhuey@lnxw.com>, dwalker@mvista.com, paulmck@us.ibm.com,
-       Andrea Arcangeli <andrea@suse.de>, Lee Revell <rlrevell@joe-job.com>,
-       Tim Bird <tim.bird@am.sony.com>, lkml <linux-kernel@vger.kernel.org>,
-       tglx@linutronix.de, mingo@elte.hu, pmarques@grupopie.com,
-       bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au, ak@muc.de,
-       sdietrich@mvista.com, hch@infradead.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: Attempted summary of "RT patch acceptance" thread
-References: <42ACE2D3.9080106@opersys.com> <20050613144022.GA1305@us.ibm.com> <42ADE334.4030002@opersys.com> <1118693033.2725.21.camel@dhcp153.mvista.com> <42ADEC0E.4020907@opersys.com> <1118694495.2725.32.camel@dhcp153.mvista.com> <42AE01EA.10905@opersys.com> <42AE04AE.8070107@opersys.com> <20050613221810.GA820@nietzsche.lynx.com> <42AE0875.8010001@opersys.com> <20050613222909.GA880@nietzsche.lynx.com> <42AE0EF8.1090509@opersys.com> <Pine.LNX.4.63.0506132052590.1667@localhost.localdomain> <42AE3BEB.2070309@opersys.com> <Pine.LNX.4.63.0506132204460.1667@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.63.0506132204460.1667@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii
+	Mon, 13 Jun 2005 23:31:13 -0400
+Received: from h80ad2544.async.vt.edu ([128.173.37.68]:36878 "EHLO
+	h80ad2544.async.vt.edu") by vger.kernel.org with ESMTP
+	id S261349AbVFNDbL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 23:31:11 -0400
+Message-Id: <200506140329.j5E3TGYD014420@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: dwalker@mvista.com
+Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       Andi Kleen <ak@muc.de>, Sven-Thorsten Dietrich <sdietrich@mvista.com>,
+       bhuey@lnxw.com, nickpiggin@yahoo.com.au, hch@infradead.org,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: RT patch acceptance 
+In-Reply-To: Your message of "Mon, 13 Jun 2005 17:48:56 PDT."
+             <1118710136.2725.36.camel@dhcp153.mvista.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <20050524184351.47d1a147.akpm@osdl.org> <4293DCB1.8030904@mvista.com> <20050524192029.2ef75b89.akpm@osdl.org> <20050525063306.GC5164@elte.hu> <m1br6zxm1b.fsf@muc.de> <1117044019.5840.32.camel@sdietrich-xp.vilm.net> <20050526193230.GY86087@muc.de> <1117138270.1583.44.camel@sdietrich-xp.vilm.net> <20050526202747.GB86087@muc.de> <1117184630.6736.415.camel@tglx.tec.linutronix.de> <20050527091432.GB20512@elte.hu>
+            <1118710136.2725.36.camel@dhcp153.mvista.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1118719754_4874P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Mon, 13 Jun 2005 23:29:15 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_1118719754_4874P
+Content-Type: text/plain; charset=us-ascii
 
-Nicolas Pitre wrote:
-> Wow...  Did I really offend you so much?
+On Mon, 13 Jun 2005 17:48:56 PDT, Daniel Walker said:
+> On Fri, 2005-05-27 at 11:14 +0200, Ingo Molnar wrote:
 
-People have been edgy on these thread, so I read your response in
-light of that.
+> > to make sure the wide context has not been lost: no way is IRQ threading 
+> > ever going to be the main or even the preferred mode of operation.
+> 
+> That's depressing .. You not ever submitting IRQ threading upstream ?
 
-> I pretty know who you are, in case you forgot that we know each other, 
-> and your reading into my words that I somehow might have been suggesting 
-> that you would do that work yourself is rather amusing.
+My reading was "in the same sense that NUMA and cpusets aren't the main or
+preferred mode of operation".  But that's just my reading of it - Ingo may
+have meant something else...
 
-Yes, I'd say we know each other quite well, hence my surprise at
-the reading I made of your tone. I'm glad that you've read this
-must amusement, we'll laugh it off next month at OLS :)
 
-> Thing is that there is just no existing clash.  At least not yet.  The 
-> whole thing is not ready for merging as Ingo said and therefore any 
-> discussion on merging issues are rather premature at this point.
+--==_Exmh_1118719754_4874P
+Content-Type: application/pgp-signature
 
-I know Ingo's clearly stated that he isn't asking for it to be
-included at this point. This I don't deny. Ingo, however, is
-not alone in working on this, as you noted yourself ...
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-> Exactly.  How often has it been said on this very list and elsewhere: 
-> "show me the patch"?  In other words, there is no point discussing any 
-> merging issues when the project leader himself says it is not ready and 
-> has not posted any patch labeled as merge candidate.  I somehow trust 
-> Ingo for posting patches when they are ready to be reviewed for 
-> integration into mainline +_if_ and _when_ it is time.  Until then loads 
-> of changes may happen in the PREEMPT_RT code randering any present 
-> discussion on merging rather moot.
+iD8DBQFCrk8KcC3lWbTT17ARAm4tAJwLlgK6UTXXcqsbI15ery4Dr6cO4ACgyU1j
+bFuHqnQHX7MfAUlUNrfoWyw=
+=Sq93
+-----END PGP SIGNATURE-----
 
-Ah, well then please read my proposals in light of the sub-topic
-that's been floating around in those threads regarding PREEMPT_RT
-and fusion being orthogonal and how they could be used together.
-
-As for "show me the patch", posting patches to LKML is by
-definition asking for some measure of feedback. You're correct
-in stating that until a proposal is made for inclusion, things
-may change. Nothing precludes making suggestions though ...
-
-In any case, I hope the above has clarified a few things. In
-the mean time, I'll get back to the load of unrelated stuff that
-I need to work on here.
-
-Cheers,
-
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+--==_Exmh_1118719754_4874P--

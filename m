@@ -1,74 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261223AbVFNFjy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261170AbVFNFsa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261223AbVFNFjy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 01:39:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261230AbVFNFjy
+	id S261170AbVFNFsa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 01:48:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261231AbVFNFsa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 01:39:54 -0400
-Received: from relay.rost.ru ([80.254.111.11]:58305 "EHLO relay.rost.ru")
-	by vger.kernel.org with ESMTP id S261223AbVFNFjY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 01:39:24 -0400
-Date: Tue, 14 Jun 2005 09:39:18 +0400
-To: Andre <andre@rocklandocean.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ZFx86 support broken?
-Message-ID: <20050614053918.GC2460@pazke>
-Mail-Followup-To: Andre <andre@rocklandocean.com>,
-	linux-kernel@vger.kernel.org
-References: <00fb01c56dec$91f0e440$6702a8c0@niro>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="XMCwj5IQnwKtuyBG"
-Content-Disposition: inline
-In-Reply-To: <00fb01c56dec$91f0e440$6702a8c0@niro>
-X-Uname: Linux 2.6.11-pazke i686
-User-Agent: Mutt/1.5.9i
-From: Andrey Panin <pazke@donpac.ru>
+	Tue, 14 Jun 2005 01:48:30 -0400
+Received: from web33314.mail.mud.yahoo.com ([68.142.206.129]:7549 "HELO
+	web33314.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S261170AbVFNFsV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Jun 2005 01:48:21 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=FEyDpTicvnTAdHox78m8WF8KICQmBXI8yYgHQvJ96QmyXM1HBYH1NZDyx2kMKUeaM6epLlHO5Zh60lMByAO+Mxc+2n24+vWbqeMcW51Dtq70jravLCvYY2asZkWMepvHlNLK4SsTtg6TF9VOzj2mQGGDVXqjw53LbBJefkPjqwM=  ;
+Message-ID: <20050614054813.63362.qmail@web33314.mail.mud.yahoo.com>
+Date: Mon, 13 Jun 2005 22:48:13 -0700 (PDT)
+From: li nux <lnxluv@yahoo.com>
+Subject: Re: rmap.c: try_to_unmap_file(): VM_LOCKED not respected
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: linux <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050614052219.GH3879@holomorphy.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I first use mmap(MAP_LOCKED) and then
+remap_file_pages.
+This should set VM_LOCKED in the vma.
 
---XMCwj5IQnwKtuyBG
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+-li
 
-On 161, 06 10, 2005 at 11:45:27AM -0700, Andre wrote:
-> I am trying to boot LFS6.0.1 livecd which has 2.6.8.1, but the kernel han=
-gs
-> at:
-> Freeing unused kernel memory: 456k freed
->=20
-> My system is a pc/104 board based on ZFx86 with 64M ram
-> I also found this posting:
-> http://linux.derkeiler.com/Mailing-Lists/Kernel/2004-03/5939.html
-> Looking at the console output, the cpu gets recognized as 486, whereas
-> 2.4.22 detects the cpu as Cyrix Cx486DX4
->=20
-> Looking at the kernel source, it seems to get stuck after the call to
-> free_initmem and when I tried to specify init=3D/bin/sh it still got stuc=
-k at
-> the same place so I figured it doesn't even get to the run_init_process
-> calls in ..../init/main.c. Could the call to unlock_kernel get stuck?
+--- William Lee Irwin III <wli@holomorphy.com> wrote:
 
-Are you sure that userspace on livecd is not compiled for 586+ CPU ?
+> On Mon, Jun 13, 2005 at 10:14:05PM -0700, li nux
+> wrote:
+> > My application is using remap_file_pages and
+> mlocks
+> > those pages.
+> > So in the code of  try_to_unmap_file (see below),
+> > I should never reach the call to
+> try_to_unmap_cluster,
+> > because for those pages VM_LOCKED is always set.
+> > But, under heavy load I am seeing
+> try_to_unmap_cluster
+> > is getting called. Stack:
+> 
+> Does your app use remap_file_pages() before mlock()?
+> 
+> If so, the VM may be trying to reclaim pages between
+> the call to
+> remap_file_pages() and the call to mlock().
+> 
+> 
+> -- wli
+> -
+> To unsubscribe from this list: send the line
+> "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at 
+> http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
---=20
-Andrey Panin		| Linux and UNIX system administrator
-pazke@donpac.ru		| PGP key: wwwkeys.pgp.net
 
---XMCwj5IQnwKtuyBG
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFCrm2GR2OTnxNuAyMRAtoCAJ411koG0YtdV9bDneQ+Nt58XjzrHwCcDRbW
-jej93D6jDMnlHzsci88ES6Y=
-=wwSG
------END PGP SIGNATURE-----
-
---XMCwj5IQnwKtuyBG--
+		
+__________________________________ 
+Discover Yahoo! 
+Have fun online with music videos, cool games, IM and more. Check it out! 
+http://discover.yahoo.com/online.html

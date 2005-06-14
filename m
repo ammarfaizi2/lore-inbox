@@ -1,60 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261403AbVFNXHP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261404AbVFNXL0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261403AbVFNXHP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 19:07:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261404AbVFNXHP
+	id S261404AbVFNXL0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 19:11:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261408AbVFNXL0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 19:07:15 -0400
-Received: from mail16.syd.optusnet.com.au ([211.29.132.197]:60809 "EHLO
-	mail16.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261403AbVFNXHC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 19:07:02 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17071.25351.996975.416810@wombat.chubb.wattle.id.au>
-Date: Wed, 15 Jun 2005 09:06:47 +1000
-From: Peter Chubb <peterc@gelato.unsw.edu.au>
-To: linux-kernel@vger.kernel.org
-Subject: Tuning ext3 for large disk arrays
-X-Mailer: VM 7.17 under 21.4 (patch 17) "Jumbo Shrimp" XEmacs Lucid
-CC: Andreas Hirstius <Andreas.Hirstius@cern.ch>
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+	Tue, 14 Jun 2005 19:11:26 -0400
+Received: from wproxy.gmail.com ([64.233.184.201]:40399 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261404AbVFNXLP convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Jun 2005 19:11:15 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=FRsf240GH4b54Yj+p582EvhJF55YxZBlSN0hc0aKmJMLjZi+wiTJjDKekXxmFtqmWtvuNVS3LcvH3JMmXwblRffHJlctgLsEtHOiWE6Gt6Bn1tC5SiXy1BBK9sekpbhw/kaH9tv7CV+cWFfz4NUIYvIXyzV8Cxr1LNY4R3eFO7c=
+Message-ID: <9e473391050614161117592eb5@mail.gmail.com>
+Date: Tue, 14 Jun 2005 19:11:13 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+Subject: Re: Fwd: hpet patches
+Cc: Bob Picco <bob.picco@hp.com>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <88056F38E9E48644A0F562A38C64FB6004F782CB@scsmsx403.amr.corp.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <88056F38E9E48644A0F562A38C64FB6004F782CB@scsmsx403.amr.corp.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 6/14/05, Pallipadi, Venkatesh <venkatesh.pallipadi@intel.com> wrote:
+> OK. I was thinking PCI fixup is to late in the initialization for
+> HPET fixup. But, we should be OK with a new ACPI_FIXUP macro. My only
+> other concern is, we should safely fallback to PIT, when our fixed_up
+> HPET address isn't right.
 
-Hi folks,
-   We've been doing a few scalability measurements on disk arrays.  We
-know how to tune xfs to give reasonable performance.  But I'm not sure
-how to tune ext3, and the default parameters give poor performance.
+If we're keying off from the PCI ID for the chip, how can it not have
+the device? On the other hand, it would probably be good to always do
+a little test on the HPET and fall back to the PIT if the HPET is
+dead.
 
-See http://scalability.gelato.org/DiskScalability/Results for the
-graphs.
-
-iozone for 24 10k SATA disks spread across 3 3ware controllers gives a
-peak read throughput on XFS of around 1050M/sec; but ext3 conks out
-at around half that.  The maximum single threaded read performance we
-got was 450M/sec, and it's pretty constant from 12 through 24
-spindles.  We see no difference between setting -E stride=XX and
-leaving this parameter off.
-
-The system uses 64k pages; we can set XFS up with 64k blocks; it may
-be that part of the problem is that ext3 can't use larger blocks.  We
-repeated the XFs measurements configuring the kernel and filesystem to
-use 4k pages/blocks, and although the throughput is lower than with
-the 64k page size, it's still significantly better than with ext3.
-Moreover, configuring XFS with 4k blocks, but using 64k pages gives
-results (not shown on the Wiki page) almost the same as the 64k
-pages/64k blocks.
-
-Before going on and starting to look for bottlenecks, I'd like to be
-sure that ext3 is tuned appropriately.  mke2fs doesn't seem to have
-many appropriate tweaks, however...???
-
---
-Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
-The technical we do immediately,  the political takes *forever*
+-- 
+Jon Smirl
+jonsmirl@gmail.com

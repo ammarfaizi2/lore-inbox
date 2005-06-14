@@ -1,69 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261158AbVFNPLD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261156AbVFNPKv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261158AbVFNPLD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 11:11:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261151AbVFNPLC
+	id S261156AbVFNPKv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 11:10:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261151AbVFNPKv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 11:11:02 -0400
-Received: from mail.gmx.net ([213.165.64.20]:14292 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261335AbVFNOxq (ORCPT
+	Tue, 14 Jun 2005 11:10:51 -0400
+Received: from gs.bofh.at ([193.154.150.68]:10963 "EHLO gs.bofh.at")
+	by vger.kernel.org with ESMTP id S261328AbVFNOzE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 10:53:46 -0400
-X-Authenticated: #137701
-From: Alexander Gretencord <arutha@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: Swapping in 2.6.10 and 2.6.11.11 on a desktop system
-Date: Tue, 14 Jun 2005 16:53:30 +0200
-User-Agent: KMail/1.8.1
-MIME-Version: 1.0
-Content-Disposition: inline
-X-Length: 1578
-Content-Type: text/plain;
-  charset="us-ascii"
+	Tue, 14 Jun 2005 10:55:04 -0400
+Subject: Re: Add pselect, ppoll system calls.
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: =?ISO-8859-1?Q?Mattias Engdeg=E5rd?= <mattias@virtutech.se>
+Cc: Valdis.Kletnieks@vt.edu, cfriesen@nortel.com, linux-kernel@vger.kernel.org,
+       dwmw2@infradead.org
+In-Reply-To: <200506141442.j5EEgKJ11377@virtutech.se>
+References: <200506131938.j5DJcKc10799@virtutech.se>
+	 <42ADE52E.1040705@nortel.com> <200506132008.j5DK8t010817@virtutech.se>
+	 <200506132023.j5DKNhoG021339@turing-police.cc.vt.edu>
+	 <200506141407.j5EE7sZ11314@virtutech.se>
+	 <1118758583.11557.87.camel@tara.firmix.at>
+	 <200506141442.j5EEgKJ11377@virtutech.se>
+Content-Type: text/plain
+Organization: Firmix Software GmbH
+Date: Tue, 14 Jun 2005 16:54:53 +0200
+Message-Id: <1118760893.11557.94.camel@tara.firmix.at>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
-Message-Id: <200506141653.32093.arutha@gmx.de>
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Trimmed Cc: so reduce mail on already mail-overloaded folks.
 
-[1] With swappiness = 60 I either get swap hell (2.6.10) or the oom killer 
-kicks in (2.6.11.11)
+On Tue, 2005-06-14 at 16:42 +0200, =?ISO-8859-1?Q?Mattias Engdeg=E5rd?=
+wrote:
+> >> I don't have the POSIX specs handy, but I see no reason we could not let
+> >> it use a warpless monotonic clock.
+> >
+> >You have already one - the uptime of the system.
+> 
+> For example, yes. 
+> 
+> >Doing "Relative timeouts" with "gettimeofday()" is a strategic error.
+> >Specify the timeout und use (the return value of) times(2) for this.
+> 
+> Having an interface use absolute timeouts will avoid this strategic error,
 
-[2] I upgraded to 2.6.11.11 from 2.6.8.1 yesterday and tried to compile 
-something. After some time I come back and the compile has aborted because 
-the oom killer killed the compiler process. There is no additional use of 
-swap space (although some applications that were also running could have been 
-swapped out). There was a similar bugreport with this behaviour some time ago 
-for 2.6.11.8 but that one included a swappiness value of 0, i got 60.
+If the absolute timeouts means "the uptime in some point in the future",
+yes.
+If the absolute timeouts means "the time in the real world", then it
+*is* the strategic error. This "time in the real world" (if it is usable
+on the user interface), is neither monotonic nor warpless.
 
-Then I tried 2.6.10. The oom bugs were gone, the compile finished over night. 
-About an hour ago I started a very RAM consuming application and at 2/3 RAM 
-usage I get swap hell. The system constantly swaps, yet ram usage _and_ swap 
-usage stay about the same. Even setting swappiness to 0 from an ssh login 
-(switching to a console does not work) did not help, only killing the 
-consuming application.
+> simplify common code, and reduce the number of needed syscalls.
 
-I also applied the ck hard-swappiness Patch to my 2.6.10 and tested a bit 
-further. Depending on the swappiness I get hellish swapping behaviour at 
-different levels of RAM usage and even managed to get the oom killer to step 
-in (at swappiness=20). I had about 250MB of RAM used and boom -> oom killer 
-shoots down some bigger java processes. At swappiness=80 I get massive 
-swapping with 250MB of RAM usage. When reaching that level, the fs cache goes 
-up to 300MB while the applications that need the ram are left with about 120 
-megs. Rest was buffers.
+	Bernd
+-- 
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
 
-I'm really out of ideas. 2.6.8.1 with swappiness=0 is by far the best I've 
-managed to get by now. With that I can use my system until RAM and swap are 
-completely full. No swap hell and no oom killer yet. Maybe I just have to 
-search the lkml a bit more to find something usable. If someone else already 
-has, please tell me (and tell me why it's not in the mainline kernel 
-already :))
-
-I have 512MB of RAM and another 512MB of swap.
-
-Please cc me in replies as I'm not on the list.
-
-
-Alex

@@ -1,44 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261415AbVFNXUs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261416AbVFNXWe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261415AbVFNXUs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 19:20:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261411AbVFNXUZ
+	id S261416AbVFNXWe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 19:22:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261411AbVFNXWe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 19:20:25 -0400
-Received: from mail.suse.de ([195.135.220.2]:11656 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S261416AbVFNXTM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 19:19:12 -0400
-Date: Wed, 15 Jun 2005 01:19:11 +0200
-From: Andi Kleen <ak@suse.de>
-To: Christoph Lameter <christoph@lameter.com>
-Cc: Andi Kleen <ak@suse.de>, christoph <christoph@scalex86.org>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, shai@scalex86.org
-Subject: Re: [PATCH] Move some variables into the "most_readonly" section??
-Message-ID: <20050614231911.GV11898@wotan.suse.de>
-References: <Pine.LNX.4.62.0506071253020.2850@ScMPusgw> <20050608131839.GP23831@wotan.suse.de> <Pine.LNX.4.62.0506141551350.3676@ScMPusgw> <20050614230411.GU11898@wotan.suse.de> <Pine.LNX.4.62.0506141614570.23117@graphe.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0506141614570.23117@graphe.net>
+	Tue, 14 Jun 2005 19:22:34 -0400
+Received: from web30701.mail.mud.yahoo.com ([68.142.200.134]:63623 "HELO
+	web30701.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S261416AbVFNXWH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Jun 2005 19:22:07 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=iuuxVn/KVKk3y9+nA0E/UhGlOpFKEirMcwkgvkbtFhwRDz7vpn/pQPkhbTrEZOkBxeLQTk73KBDY+YMF6dOrC5+bi1qwVMdM6z+X0taSO5VXBgZUm/dJ7i3re7jm1dUMgMSWiDWL9brekQU2sbMyqHFUKwjMtz950pI16f4ZJPM=  ;
+Message-ID: <20050614232154.17077.qmail@web30701.mail.mud.yahoo.com>
+Date: Tue, 14 Jun 2005 16:21:54 -0700 (PDT)
+From: <spaminos-ker@yahoo.com>
+Reply-To: spaminos-ker@yahoo.com
+Subject: Re: cfq misbehaving on 2.6.11-1.14_FC3
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050614000352.7289d8f1.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 14, 2005 at 04:17:14PM -0700, Christoph Lameter wrote:
-> On Wed, 15 Jun 2005, Andi Kleen wrote:
+--- Andrew Morton <akpm@osdl.org> wrote:
+> > For some reason, doing a "cp" or appending to files is very fast. I suspect
+> > that vi's mmap calls are the reason for the latency problem.
 > 
-> > > Hmm. No. The bigger cpu maps may benefit from cacheline alignment for 
-> > > even for read access. 
-> > 
-> > Why? Can you please explain that. It doesn't make sense to me.
+> Don't know.  Try to work out (from vmstat or diskstats) how much reading is
+> going on.
 > 
-> Its more likely to get a big piece of the array in a single 
-> cacheline if the array starts at the beginning of a cacheline.
-> 
-> If these maps would start in the middle of a cacheline then additional 
-> cacheline fetches may become necessary to scan an array etc.
+> Try stracing the check, see if your version of vi is doing a sync() or
+> something odd like that.
 
-But the CPUs do prefetching anyways for that. Do you have numbers
-that this is actually worth it? 
+The read/write patterns of the background process is about 35% reads.
 
--Andi
+vi is indeed doing a sync on the open file, and that's where the time was
+spend.
+So I just changed my test to simply opening a file, writing some data in it and
+calling flush on the fd.
+
+I also reduced the sleep to 1s instead of 1m, and here are the results:
+
+cfq: 20,20,21,21,20,22,20,20,18,21 - avg 20.3
+noop: 12,12,12,13,5,10,10,12,12,13 - avg 11.1
+deadline: 16,9,16,14,10,6,8,8,15,9 - avg 11.1
+as: 6,11,14,11,9,15,16,9,8,9 - avg 10.8
+
+As you can see, cfq stands out (and it should stand out the other way).
+
+> OK, well if the latency is mainly due to reads then one would hope that the
+> anticipatory scheduler would do better than that.
+
+I suspect the latency is due to writes: it seems (and correct me if I am wrong)
+that write requests are enqueued in one giant queue, thus the cfq algorithm can
+not be applied to the requests.
+
+Either that, or there is a different queue that cancels out the benefits of cfq
+when writing (because even though the writes are down the right way, this other
+queue to the device keeps way too much data).
+
+But then, why would other i/o schedulers perform better in that case?
+
+> 
+> But what happened to this, from your first report?
+> 
+> > On the other hand, opening a blank new file in vi and saving it takes about
+> 5
+> > minutes or so.
+> 
+> Are you able to reproduce that 5-minute stall in the more recent testing?
+> 
+> 
+The most I got with this kernel, is a 1 minute stall, so there is improvement
+there. Yet, a single process should not be able to cause this kind of stall
+with cfq.
+
+Nicolas
+
+
+------------------------------------------------------------
+video meliora proboque deteriora sequor
+------------------------------------------------------------

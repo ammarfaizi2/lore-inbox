@@ -1,86 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261316AbVFNUBh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261315AbVFNUBK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261316AbVFNUBh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 16:01:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261317AbVFNUBh
+	id S261315AbVFNUBK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 16:01:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261316AbVFNUBK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 16:01:37 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:57031 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261316AbVFNUBU (ORCPT
+	Tue, 14 Jun 2005 16:01:10 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:14726 "EHLO suse.cz")
+	by vger.kernel.org with ESMTP id S261315AbVFNUAv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 16:01:20 -0400
-Date: Tue, 14 Jun 2005 13:00:52 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: John Baboval <baboval@spineless.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11: kernel BUG at fs/jbd/checkpoint.c:247! - Also on
- 2.6.12-rc5
-Message-Id: <20050614130052.5e672405.akpm@osdl.org>
-In-Reply-To: <42AEE3DA.8060201@spineless.org>
-References: <42AEE3DA.8060201@spineless.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 14 Jun 2005 16:00:51 -0400
+Date: Tue, 14 Jun 2005 22:00:43 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Stas Sergeev <stsp@aknet.ru>
+Cc: Andrew Morton <akpm@osdl.org>, Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 2/2] pcspeaker driver update
+Message-ID: <20050614200043.GA4171@ucw.cz>
+References: <42AF25C7.90109@aknet.ru> <20050614185535.GA4041@ucw.cz> <42AF2FFC.8010601@aknet.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42AF2FFC.8010601@aknet.ru>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Baboval <baboval@spineless.org> wrote:
->
-> On Fri, 3 Jun 2005 16:33:56 -0700 Andrew Morton <akpm@osdl.org> wrote:
->  > Please test
->  > 
->  > ftp://ftp.kernel.org/pub/linux/kernel/v2.6/testing/linux-2.6.12-rc5.tar.bz2
->  > plus
->  > ftp://ftp.kernel.org/pub/linux/kernel/v2.6/snapshots/patch-2.6.12-rc5-git8.bz2
+On Tue, Jun 14, 2005 at 11:29:00PM +0400, Stas Sergeev wrote:
+> Hello.
 > 
-> 
->  I've just reproduced this on 2.6.12-rc5.
-> 
->  It was hapening every 4 hours or so with 2.6.11.9. 2.6.12-rc5 ran for a week... The system is being used as a fairly high traffic NFS server.
+> Vojtech Pavlik wrote:
+> >>- changes the pcspeaker driver to
+> >>use the i8253_lock instead of i8253_beep_lock
+> >This doesn't seem right. The driver programs an independent part of the
+> >chip and I don't see a reason to cause the time code to wait because
+> >we're trying to do a beep.
+> Yes, you program 0x42 which is independant,
+> but, unless I am missing something, you also
+> touch 0x43 and 0x61, which are not, and so I
+> thought it would be better to just use the
+> i8253_lock alltogether. And it doesn't look
+> like the lock is held during the entire beep,
+> so it probably doesn't really make anything
+> to wait for too long. What am I missing?
 
-Could you try this, please?
+You're right, we need to serialize access to 0x43, since it selects
+which of the timers will be accessed next. I had to refresh my memory on
+how that piece of hardware works.
 
+Regarding 0x61, it's rarely used elsewhere (in MCA case, and for NMI
+traps). We may need to modify the other code, but I doubt there is much
+worth in it. Anyway, we do a read-modify-write, so locking would be
+appropriate.
 
-From: Jan Kara <jack@suse.cz>
+So I agree with that part of the patch.
 
-On one path, cond_resched_lock() fails to return true if it dropped the lock. 
-We think this might be causing the crashes in JBD's log_do_checkpoint().
+> >Can't you just use input_grab() for this?
+> I am not sure, I thought I can't. I looked at
+> the code and it seems input_event() would call
+> the dev->event() regardless, and only at the
+> bottom - dev->grab->handler->event().
+> While it seems like I want to prevent the
+> dev->event() from being called, at the first
+> place. And it doesn't look like the grab
+> functionality is described in
+> Documentation/input at all, and no examples
+> around the code that I could use. So I just
+> don't know what functionality is that...
+> Will try to play around it and maybe I'll
+> figure something out:)
 
-Cc: Ingo Molnar <mingo@elte.hu>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
+Indeed, input_grab() doesn't work on events _to_ the device. And
+unfortunately, it probably can't be made to work, since there is no way
+to figure out in input_event() which handler it was called from.
 
- kernel/sched.c |    7 +++++--
- 1 files changed, 5 insertions(+), 2 deletions(-)
+It might be desirable to separate the in/out paths in the input layer in
+the future.
 
-diff -puN kernel/sched.c~cond_resched-lock-fix kernel/sched.c
---- 25/kernel/sched.c~cond_resched-lock-fix	Mon Jun 13 15:51:22 2005
-+++ 25-akpm/kernel/sched.c	Mon Jun 13 15:51:22 2005
-@@ -3755,19 +3755,22 @@ EXPORT_SYMBOL(cond_resched);
-  */
- int cond_resched_lock(spinlock_t * lock)
- {
-+	int ret = 0;
-+
- 	if (need_lockbreak(lock)) {
- 		spin_unlock(lock);
- 		cpu_relax();
-+		ret = 1;
- 		spin_lock(lock);
- 	}
- 	if (need_resched()) {
- 		_raw_spin_unlock(lock);
- 		preempt_enable_no_resched();
- 		__cond_resched();
-+		ret = 1;
- 		spin_lock(lock);
--		return 1;
- 	}
--	return 0;
-+	return ret;
- }
- 
- EXPORT_SYMBOL(cond_resched_lock);
-_
+So indeed, you can't use it.
 
+> >SND_SUSPEND really seems
+> >inappropriate, since it's not a sound event.
+
+> Is it just a problem of the name (i.e.
+> would the SND_STOP be better), or is it
+> conceptually wrong? (I guess for both:)
+
+I don't have a problem with the naming, but indeed the concept. The
+SND_* events are for generating sounds, SND_SUSPEND (or _STOP) would be
+for enabling/disabling the driver. If anything, it would fall into the
+EV_SYN class, but still that doesn't seem like a clean solution.
+
+I don't want to pollute the input API with ad hoc stuff like that.
+
+I think that it'd be best, if you need to share the PC-speaker hardware
+with a different driver, to just provide an interface between the two
+drivers that doesn't go through the input subsystem.
+
+> >>Can this please be applied?
+> >Not yet.
+
+> OK. I'll try to find the better solution.
+> Let's just apply the first patch then - it is a
+> cleanup, I don't think it could do any harm.
+
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,57 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261350AbVFNVhv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261352AbVFNVi4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261350AbVFNVhv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 17:37:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbVFNVhv
+	id S261352AbVFNVi4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 17:38:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261353AbVFNViu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 17:37:51 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:1925 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261350AbVFNVhp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 17:37:45 -0400
-Date: Tue, 14 Jun 2005 23:37:28 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: dagit@codersbase.com
-Cc: Shaohua Li <shaohua.li@intel.com>, stefandoesinger@gmx.at,
-       acpi-dev <acpi-devel@lists.sourceforge.net>,
-       Matthew Garrett <mjg59@srcf.ucam.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: S3 test tool (was : Re: Bizarre oops after suspend to RAM (was: Re: [ACPI] Resume from Suspend to RAM))
-Message-ID: <20050614213728.GB2172@elf.ucw.cz>
-References: <200506061531.41132.stefandoesinger@gmx.at> <1118125410.3828.12.camel@linux-hp.sh.intel.com> <87ll5diemh.fsf@www.codersbase.com> <20050614090652.GA1863@elf.ucw.cz> <87aclthr7l.fsf@www.codersbase.com>
-Mime-Version: 1.0
+	Tue, 14 Jun 2005 17:38:50 -0400
+Received: from smtp06.auna.com ([62.81.186.16]:39579 "EHLO smtp06.retemail.es")
+	by vger.kernel.org with ESMTP id S261352AbVFNVij convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Jun 2005 17:38:39 -0400
+Date: Tue, 14 Jun 2005 21:27:11 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: Re: [RFT][PATCH] aic79xx: remove busyq
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+References: <20050529074620.GA26151@havoc.gtf.org>
+	<1117488507l.7621l.0l@werewolf.able.es> <429B9311.9000608@pobox.com>
+	<1118704487l.14239l.0l@werewolf.able.es>
+In-Reply-To: <1118704487l.14239l.0l@werewolf.able.es> (from
+	jamagallon@able.es on Tue Jun 14 01:14:47 2005)
+X-Mailer: Balsa 2.3.3
+Message-Id: <1118784431l.7621l.0l@werewolf.able.es>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87aclthr7l.fsf@www.codersbase.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Content-Transfer-Encoding: 8BIT
+X-Auth-Info: Auth:LOGIN IP:[83.138.215.85] Login:jamagallon@able.es Fecha:Tue, 14 Jun 2005 23:27:11 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > You got this wrong. It is three illegal instructions but
-> > *nested*. Like error, error in fault handler, error in doublefault
-> > handler.
+On 06.14, J.A. Magallon wrote:
 > 
-> Ah.  Yeah, this isn't an area I know much about :)  Thanks for the
-> correction. 
+> On 05.31, Jeff Garzik wrote:
+> > J.A. Magallon wrote:
+> > > On 05.29, Jeff Garzik wrote:
+> > > 
+> > >>Can anyone with aic79xx hardware give me a simple "it works"
+> > >>or "this breaks things" answer, for the patch below?
+> > >>
+> > >>This changes the aic79xx driver to use the standard Linux SCSI queueing
+> > >>code, rather than its own.  After applying this patch, NO behavior
+> > >>changes should be seen.
+> > >>
+> > >>The patch is against 2.6.12-rc5, but probably applies OK to recent 2.6.x
+> > >>kernels.
+> > >>
+> > > 
+> > > 
+> > > Applied with even no offsets to -rc5-mm1. Booted and working fine:
+> > 
+> > Thanks a bunch!
+> > 
 > 
-> > Try replacing flags manipulation with any stack manipulation to see
-> > what is wrong.
+> Oops, don't be so happy.
+> Following the other aic thread, I realized I applied the patch but booted on
+> an U160 box :).
 > 
-> Do you mean try something like this? Replace the push 0 with push
-> 0x1234 ; push 0x1234 ; pop ; pop and try to figure out which line
-> causes the reboot?
+> Will try shortly on a real 320.. sorry.
+> 
 
-Yep, try pushl $0, popl %eax; if that causes problems, something is
-seriously wrong with stack, otherwise changing flags hurts.
+Bad news, it just hangs forever after detecting the first SCSI disk.
+No sysrq-p, sysrq-t, nothing.
 
-> > Like perhaps processor docs?
-> 
-> Is that what I want to look at?  I was the one asking the question. ;)
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
+werewolf!able!es                         \         It's better when it's free
+Mandriva Linux release 2006.0 (Cooker) for i586
+Linux 2.6.11-jam25 (gcc 4.0.0 (4.0.0-3mdk for Mandriva Linux release 2006.0))
 
-Yes.
-								Pavel
--- 
-teflon -- maybe it is a trademark, but it should not be.
+

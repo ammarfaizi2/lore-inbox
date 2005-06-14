@@ -1,38 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261182AbVFNLKK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261186AbVFNLVq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261182AbVFNLKK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 07:10:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261186AbVFNLKK
+	id S261186AbVFNLVq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 07:21:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261187AbVFNLVp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 07:10:10 -0400
-Received: from one.firstfloor.org ([213.235.205.2]:54246 "EHLO
-	one.firstfloor.org") by vger.kernel.org with ESMTP id S261182AbVFNLKG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 07:10:06 -0400
-To: Wolfgang Draxinger <wdraxinger@darkstargames.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: =?iso-8859-1?q?J=F6rg?= Schilling again... [Please reply CC: wdraxinger@darkstargames.de]
-References: <200506141218.29200.wdraxinger@darkstargames.de>
-From: Andi Kleen <ak@muc.de>
-Date: Tue, 14 Jun 2005 13:10:05 +0200
-In-Reply-To: <200506141218.29200.wdraxinger@darkstargames.de> (Wolfgang
- Draxinger's message of "Tue, 14 Jun 2005 12:18:21 +0200")
-Message-ID: <m1br69b3ea.fsf@muc.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+	Tue, 14 Jun 2005 07:21:45 -0400
+Received: from gate.corvil.net ([213.94.219.177]:41736 "EHLO corvil.com")
+	by vger.kernel.org with ESMTP id S261186AbVFNLVp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Jun 2005 07:21:45 -0400
+Message-ID: <42AEBDC4.2050907@draigBrady.com>
+Date: Tue, 14 Jun 2005 12:21:40 +0100
+From: P@draigBrady.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040124
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: optimal file order for reading from disk
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wolfgang Draxinger <wdraxinger@darkstargames.de> writes:
->
-> So what's the Linux Kernel developers' opinion on the lack of SCSI 
-> error code return, technically?
+I know this will be dependent on filesystem, I/O scheduler, ...
+but given a list of files, what is the best (filesystem
+agnostic) order to read from disk (to minimise seeks).
 
-The Linux Kernel developers' opinion is that J.S. is offtopic 
-on this list. 
+Should I sort by path, inode number, getdents, or something else?
 
-If you want to discuss specific SCSI technical issues send a mail with
-only technical content to linux-scsi@vger.kernel.org
-
--Andi
+thanks,
+Pádraig.

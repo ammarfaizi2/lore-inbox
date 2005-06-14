@@ -1,56 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261302AbVFNHap@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261304AbVFNHdG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261302AbVFNHap (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 03:30:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261304AbVFNHap
+	id S261304AbVFNHdG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 03:33:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261306AbVFNHdF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 03:30:45 -0400
-Received: from hirsch.in-berlin.de ([192.109.42.6]:27827 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S261302AbVFNHaj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 03:30:39 -0400
-X-Envelope-From: kraxel@suse.de
-To: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-Cc: Jean Delvare <khali@linux-fr.org>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>, video4linux-list@redhat.com
-Subject: Re: [PATCH] Adds support for TEA5767 chipset on V4L
-References: <42ACAA3B.8050307@brturbo.com.br>
-	<20050613183523.322529e0.khali@linux-fr.org>
-	<42ADD33F.3020100@brturbo.com.br>
-From: Gerd Knorr <kraxel@suse.de>
-Organization: SUSE Labs, Berlin
-Date: 14 Jun 2005 09:29:42 +0200
-In-Reply-To: <42ADD33F.3020100@brturbo.com.br>
-Message-ID: <8764wh2y6x.fsf@bytesex.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Tue, 14 Jun 2005 03:33:05 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:63724 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261304AbVFNHdB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Jun 2005 03:33:01 -0400
+Date: Tue, 14 Jun 2005 09:20:15 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: kus Kusche Klaus <kus@keba.com>
+Cc: Serge Noiraud <serge.noiraud@bull.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: RT and kernel debugger ( 2.6.12rc6  + RT  > 48-00 )
+Message-ID: <20050614072015.GA31891@elte.hu>
+References: <AAD6DA242BC63C488511C611BD51F36732323B@MAILIT.keba.co.at>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <AAD6DA242BC63C488511C611BD51F36732323B@MAILIT.keba.co.at>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mauro Carvalho Chehab <mchehab@brturbo.com.br> writes:
 
-> >>+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
-> >>+#include "tuner.h"
-> >>+#include "i2c-compat.h"
-> >>+#else
-> >>+#include <media/tuner.h>
-> >>+#endif
+* kus Kusche Klaus <kus@keba.com> wrote:
 
-> >No such test please, it is useless. This is Linux 2.6.x, no need to
-> >check this.
+> I was one of those who tried to get kgdb working.
+> 
+> Here I described how far I came:
+> http://www.ussg.iu.edu/hypermail/linux/kernel/0505.1/0700.html
 
->     There's a script to eliminate this before submiting the patch... For
-> some reason, as you pointed, it had failed for this code... I'll review
-> it next time.
+does ethernet debugging work if you disable the netpoll WARN_ON() that 
+triggers?
 
-btw: is anyone testing the v4l cvs on 2.4 kernels?  I stopped doing
-that quite a while ago, alot of stuff (dvb support) doesn't build on
-2.4 kernels anyway, so its probably reasonable to cleanup the code in
-cvs as well and simply drop the 2.4 code ...
-
-  Gerd
-
--- 
--mm seems unusually stable at present.
-	-- akpm about 2.6.12-rc3-mm3
+	Ingo

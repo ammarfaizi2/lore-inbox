@@ -1,60 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261282AbVFNSV4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261285AbVFNSYu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261282AbVFNSV4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 14:21:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261283AbVFNSVy
+	id S261285AbVFNSYu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 14:24:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261290AbVFNSYt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 14:21:54 -0400
-Received: from nwkea-mail-1.sun.com ([192.18.42.13]:17832 "EHLO
-	nwkea-mail-1.sun.com") by vger.kernel.org with ESMTP
-	id S261281AbVFNSVa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 14:21:30 -0400
-Subject: RE: [discuss] [OOPS] powernow on smp dual core amd64
-From: Tom Duffy <tduffy@sun.com>
-To: "Langsdorf, Mark" <mark.langsdorf@amd.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       discuss@x86-64.org
-In-Reply-To: <84EA05E2CA77634C82730353CBE3A84301CFC14D@SAUSEXMB1.amd.com>
-References: <84EA05E2CA77634C82730353CBE3A84301CFC14D@SAUSEXMB1.amd.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ikGOA4Iac1F8cAtlpmxo"
-Date: Tue, 14 Jun 2005 11:19:23 -0700
-Message-Id: <1118773163.22484.13.camel@duffman>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-8) 
+	Tue, 14 Jun 2005 14:24:49 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:9623 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261284AbVFNSYZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Jun 2005 14:24:25 -0400
+Message-ID: <42AF2088.3090605@sgi.com>
+Date: Tue, 14 Jun 2005 14:23:04 -0400
+From: Prarit Bhargava <prarit@sgi.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Steve Lord <lord@xfs.org>
+CC: "K.R. Foley" <kr@cybsft.com>, Andrew Morton <akpm@osdl.org>,
+       pozsy@uhulinux.hu, linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
+Subject: Re: Race condition in module load causing undefined symbols
+References: <42A99D9D.7080900@xfs.org>	<20050610112515.691dcb6e.akpm@osdl.org>	<20050611082642.GB17639@ojjektum.uhulinux.hu>	<42AAE5C8.9060609@xfs.org>	<20050611150525.GI17639@ojjektum.uhulinux.hu>	<42AB25E7.5000405@xfs.org> <20050611120040.084942ed.akpm@osdl.org> <42AEDCFB.8080002@xfs.org> <42AEF979.2000207@cybsft.com> <42AF080A.1000307@xfs.org> <42AF0FA2.2050407@cybsft.com> <42AF165E.1020702@xfs.org>
+In-Reply-To: <42AF165E.1020702@xfs.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Colleagues,
 
---=-ikGOA4Iac1F8cAtlpmxo
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+(Copied and edited from a post I made on linux-hotplug-devel last month.)
 
-On Mon, 2005-06-13 at 17:44 -0500, Langsdorf, Mark wrote:
-> > > Tom, could you try this patch and see if it helps?
-> >=20
-> > Yes!  It fixed the panic.  I get much further.
->=20
-> Great, I'll test that some more then submit it.
+I've privately emailed Steve with a quick-and-dirty solution for the problems he 
+was experiencing with the system boot.  I wasn't sure if he was having the same 
+problems I've had with 2.6.12 and old packages but it looks like he was.
 
-I would like it if this patch could make it into 2.6.12 before it is
-released.
+I'm surprised we haven't had more people on this list wondering about the 
+strange behaviour of their initrd/initramfs :) .
 
-Any possibility?
+When I looked at the original output Steve had posted I noticed that it looked 
+like drivers were attempting to load at the same time and because of this he 
+eventually hit an oops.  I (and an engineer from another company working on 
+another arch) have hit the same problem due to the requirements of our current work.
 
-Thanks,
+(Unfortunately, I'm more familiar with RedHat/Fedora than I am with other 
+distro's -- please bear with me.)
 
--tduffy
+The issue is that David Howells posted a patch that changed the behaviour of 
+kallsyms/insmod/rmmod sometime ago.  The patch *is correct* in what it does, 
+however, the patch requires that /sbin/sh must be aware of pid returns by wait().
 
---=-ikGOA4Iac1F8cAtlpmxo
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+     http://lkml.org/lkml/2005/1/17/132
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+There are two fixes that I'm aware of, and depending on what you're doing they 
+are both "correct" (although in the case of developing in 2.6.12, IMO, you
+_must_ do the latter).
 
-iD8DBQBCrx+rdY502zjzwbwRAmgFAJ4qiWkq7a2m0IUTiIJw3I7r8J8qcwCfUBhH
-LA5I1veQcsD1iTV1MYThg/A=
-=xIw8
------END PGP SIGNATURE-----
+The first fix is for the situation where you're developing for a specific 
+distribution.  If this is the case, then you should back out the patch above and 
+continue moving forward.
 
---=-ikGOA4Iac1F8cAtlpmxo--
+The second fix, and again you must do this if you're developing 2.6.12, is to 
+*update the mkinitrd package* which has a new version of /bin/sh.
+
+P.

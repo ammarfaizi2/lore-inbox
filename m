@@ -1,45 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261235AbVFNQMS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261223AbVFNQOI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261235AbVFNQMS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 12:12:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261229AbVFNQKr
+	id S261223AbVFNQOI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 12:14:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261229AbVFNQMb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 12:10:47 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:26284 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S261223AbVFNQKe (ORCPT
+	Tue, 14 Jun 2005 12:12:31 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:39401 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S261223AbVFNQLA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 12:10:34 -0400
-Date: Tue, 14 Jun 2005 18:10:33 +0200
-From: bert hubert <bert.hubert@netherlabs.nl>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Jim Grisanzio <jim.grisanzio@sun.com>, linux-kernel@vger.kernel.org
-Subject: Re: Opening Day for OpenSolaris
-Message-ID: <20050614161033.GA10422@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <bert.hubert@netherlabs.nl>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	Jim Grisanzio <jim.grisanzio@sun.com>, linux-kernel@vger.kernel.org
-References: <0II2009R4XOZVX@olm-ms1.sun.com> <42AEFEF9.2050106@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42AEFEF9.2050106@pobox.com>
-User-Agent: Mutt/1.3.28i
+	Tue, 14 Jun 2005 12:11:00 -0400
+Message-ID: <42AF018A.3030705@pobox.com>
+Date: Tue, 14 Jun 2005 12:10:50 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Luca Falavigna <dktrkranz@gmail.com>
+CC: akpm@osdl.org, mingo@elte.hu,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Using msleep() instead of HZ
+References: <42AEC01A.3060403@gmail.com>
+In-Reply-To: <42AEC01A.3060403@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 14, 2005 at 11:59:53AM -0400, Jeff Garzik wrote:
-> >The OpenSolaris source base is large, around 10 million lines, but if you 
-> >go to 
-> >http://see.sun.com/Apps/DCS/mcp?r=70043his4ElHi012000418NM043his0mRdwBRd7v&=1 you will see hundreds of OpenSolaris engineering blogs from across Sun's engineering community explaining in detail the code they have written. The amount of technical content in these engineering blogs is impressive, and you can expect even more as we go. You can also find those blogs, as well as the pilot community blogs, at opensolaris.org. 
+Luca Falavigna wrote:
+> Hi Andrew,
+> Ingo suggested me to forward you my patches which do use of msleep in order to
+> perform short delays instead of using HZ directly.
+> I already sent him some, but they are against his -RT tree.
+> This is a modified patch, built against 2.6.12-rc6.
 > 
-> A blog is a poor tool for storing engineering knowledge.
-> 
-> A wiki would probably work better.
+> Signed-off by: Luca Falavigna <dktrkranz@gmail.com>
 
-Have you ever kissed a girl? 
+ACK
 
-:-)
 
--- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://netherlabs.nl              Open and Closed source services

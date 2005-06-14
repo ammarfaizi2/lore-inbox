@@ -1,68 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261208AbVFNMjf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261219AbVFNMvj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261208AbVFNMjf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 08:39:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261216AbVFNMjf
+	id S261219AbVFNMvj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 08:51:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261220AbVFNMvj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 08:39:35 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:24470 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S261208AbVFNMjc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 08:39:32 -0400
-Message-ID: <42AECFF3.7030604@grupopie.com>
-Date: Tue, 14 Jun 2005 13:39:15 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: Christian Leber <christian@leber.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] lzma support: decompression lib, initrd support
-References: <20050607213204.GA2645@core.home> <20050607145903.4b2ac9bf.akpm@osdl.org>
-In-Reply-To: <20050607145903.4b2ac9bf.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 14 Jun 2005 08:51:39 -0400
+Received: from dtp.xs4all.nl ([80.126.206.180]:1351 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S261219AbVFNMvb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Jun 2005 08:51:31 -0400
+Date: Tue, 14 Jun 2005 14:51:30 +0200
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Andreas Dilger <adilger@clusterfs.com>, fs <fs@ercist.iscas.ac.cn>,
+       linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, zhiming@admin.iscas.ac.cn,
+       qufuping@ercist.iscas.ac.cn, madsys@ercist.iscas.ac.cn,
+       xuh@nttdata.com.cn, koichi@intellilink.co.jp,
+       kuroiwaj@intellilink.co.jp, okuyama@intellilink.co.jp,
+       matsui_v@valinux.co.jp, kikuchi_v@valinux.co.jp,
+       fernando@intellilink.co.jp, kskmori@intellilink.co.jp,
+       takenakak@intellilink.co.jp, yamaguchi@intellilink.co.jp,
+       ext2-devel@lists.sourceforge.net, shaggy@austin.ibm.com,
+       xfs-masters@oss.sgi.com,
+       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>
+Subject: Re: [Ext2-devel] Re: [RFD] FS behavior (I/O failure) in kernel summit
+Message-ID: <20050614125130.GA30812@harddisk-recovery.com>
+References: <1118692436.2512.157.camel@CoolQ> <42ADC99D.5000801@namesys.com> <20050613201315.GC19319@moraine.clusterfs.com> <42AE1D4A.3030504@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42AE1D4A.3030504@namesys.com>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Christian Leber <christian@leber.de> wrote:
-> [...]
->>+	for (pb = 0; prop0 >= (9 * 5); pb++, prop0 -= (9 * 5));
->>+	for (lp = 0; prop0 >= 9; lp++, prop0 -= 9);
-> 
-> Put the ";" on a line of its own.
-> 
-> I'd have thought the above could be done arithmetically?
+On Mon, Jun 13, 2005 at 04:56:58PM -0700, Hans Reiser wrote:
+> Andreas Dilger wrote:
+> >Hans, it would probably be preferrable to get ext2-like behaviour where
+> >action is configurable (see below),
+> >
+> > I personally would be annoyed if my
+> >workstation rebooted if there is a read error from the disk.
+> >  
+> My concern is that real users don't read their logs and won't notice
+> that a disk is going bad, and there is no effective method for the
+> kernel notifying userspace of an error requiring user attention.
 
-I just tried a small test program to see the speed/code size difference 
-to this code, which is the arithmetic equivalent:
+Speaking from experience (not only by profession, but also as a real
+user), you figure out pretty fast something is wrong with an Ext[23]
+filesystem mounted with 'errors=remount-ro'. All kind of file writes go
+wrong and soon enough you figure out a hardware error is the problem.
+Umount the filesystem, recover the filesystem image to a new drive,
+fsck it, recover most of your data, and you're up and running again.
 
-   pb = prop0 / (9 * 5);
-   prop0 %= (9 * 5);
-   lp = prop0 / 9;
-   prop0 %= 9;
+Reiserfs will just continue and only issues a few warning in the log,
+which on its turn will not be read. Only after a few days when things
+have turn worse you will figure out there's something wrong that
+requires uses attention. By that time, changes are that the single disk
+error (be it hardware or software) changed into multiple errors which
+can make you loose quite some data.
 
-This code runs a lot faster than the original. This is not very 
-important since it runs only once AFAICT.
+I don't want to discredit Reiserfs or Ext[23], but filesystems are not
+well tested with real disk errors. In my experience a filesystem trying
+to continue to use a faulty medium usually makes things worse and
+decreases the probability for a succesful recovery.
 
-As for the code size, it is smaller if compiled with -Os, but larger 
-when compiled with -O2 or -O3.
+I'd rather have a filesystem which I can tell to warn me immediately
+about a problem and not make things worse by trying to continue.
+A mount option for Reiserfs like Andreas proposed would be a good idea.
 
-When compiled with -Os, gcc uses the idiv instruction and it even uses 
-its reminder so that it only does 2 idiv instructions to do the 4 
-operations above.
 
-With -O2 or -O3, it does a hard to follow division "by hand" using 
-several instructions, rendering the code about 2.5x larger (but 
-amazingly a lot faster).
-
-The tests were done with gcc 3.3.2.
+Erik
 
 -- 
-Paulo Marques - www.grupopie.com
-
-An expert is a person who has made all the mistakes that can be
-made in a very narrow field.
-Niels Bohr (1885 - 1962)
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

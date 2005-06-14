@@ -1,53 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261310AbVFNHnb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261314AbVFNHoG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261310AbVFNHnb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 03:43:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261312AbVFNHna
+	id S261314AbVFNHoG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 03:44:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261315AbVFNHoG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 03:43:30 -0400
-Received: from mf01.sitadelle.com ([212.94.174.80]:20375 "EHLO
-	smtp.cegetel.net") by vger.kernel.org with ESMTP id S261310AbVFNHnP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 03:43:15 -0400
-Message-ID: <42AE8A92.2040305@tremplin-utc.net>
-Date: Tue, 14 Jun 2005 09:43:14 +0200
-From: Eric Piel <Eric.Piel@tremplin-utc.net>
-User-Agent: Mozilla Thunderbird 1.0.2-3mdk (X11/20050322)
-X-Accept-Language: en, fr, ja, es
+	Tue, 14 Jun 2005 03:44:06 -0400
+Received: from mail.suse.de ([195.135.220.2]:53961 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261311AbVFNHnb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Jun 2005 03:43:31 -0400
+Message-ID: <42AE8A9E.5040406@suse.de>
+Date: Tue, 14 Jun 2005 09:43:26 +0200
+From: Hannes Reinecke <hare@suse.de>
+Organization: SuSE Linux AG
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.5) Gecko/20050317
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [2/2] IDE CD more STANDARD_ATAPI ifdef
-References: <42AE09FA.404@tremplin-utc.net> <20050614054947.GC1484@suse.de>
-In-Reply-To: <20050614054947.GC1484@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-hotplug-devel@lists.sourceforge.net, Greg KH <gregkh@suse.de>,
+       Vojtech Pavlik <vojtech@suse.cz>, Kay Sievers <kay.sievers@vrfy.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Input sysbsystema and hotplug
+References: <200506131607.51736.dtor_core@ameritech.net>
+In-Reply-To: <200506131607.51736.dtor_core@ameritech.net>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-14.06.2005 07:49, Jens Axboe wrote/a écrit:
-> On Tue, Jun 14 2005, Eric Piel wrote:
->>This little patch adds more ifdef's to surround code not necessary for 
->>the standard ATAPI drives. I've tried to find all the code that was 
->>handling special cases. It reduces slightly more the module size :-) As 
->>most of the non standard drives handled seem quite old, this is very safe.
->>
->>This patch has to be applied after my previous patch 
->>(ide-cd-2.6.12-report-current-speed.patch) but I can remake it directly 
->>against latest vanilla kernel if you prefer. BTW, I'd like to make a 
->>Kconfig option for STANDARD_ATAPI, would you accept it?
+Dmitry Torokhov wrote:
+> Hi,
 > 
+> I am trying to convert input systsem to play nicely with sysfs and I am
+> having trouble with hotplug agent. The old hotplug mechanism was using
+> "input" as agent/subsystem name, unfortunately I can't simply use "input"
+> class because when Greg added class_simple support to input handlers
+> (evdev, mousedev, joydev, etc) he used that name. So currently stock
+> kernel gets 2 types of hotplug events (from input core and from input
+> handlers) with completely different arguments processed by the same
+> input agent.
 > 
-> To be honest, I'd rather remove the STANDARD_ATAPI ifdef instead. It's
-> really not a lot of code, and the ifdefs are just cluttering it up. BTW,
-> if we were to honor STANDARD_ATAPI completely (ie strictly follow the
-> spec), there would be far more outside of such an ifdef. It's pretty
-> much an illusion and hasn't been followed for at least the last 5 years.
+> So I guess my question is: is there anyone who uses hotplug events
+> for input interface devices (as in mouseX, eventX) as opposed to
+> parent input devices (inputX). If not then I could rename Greg's class
+> to "input_dev" and my new class to "input" and that will be compatible
+> with older installations. 
 > 
+> Also, in the long run I would probably want to see something like this:
+> 
+> /sys/class/input---input0
+> 		 |
+> 		 |-input1
+> 		 |
+> 		 |-input2
+> 		 |
+> 		 |-mouse---mouse0
+> 		 |	 |
+> 		 |	 |-mouse1
+> 		 |	 |
+> 		 |	 --mice
+> 		 |
+> 		 |-event---event0
+> 			 |
+> 			 |-event1
+> 			 |
+> 			 |-event2
+> 
+> where inputX are class devices, mouse and event are subclasses of input
+> class and mouseX and eventX are again class devices.
+> 
+> Objections, suggestions, etc? 
+> 	 
+Hmm. I don't like it very much as it mixes two different types of
+devices (class devices and subclasses) into one directory.
 
-Ok. That's a pity though, I discovered this option last week and was so 
-happy to reduce the driver size of my little cute standard ATAPI drive 
-;-) Well... then let's do the contrary: would accept a patch which 
-remove every occurence of STANDARD_ATAPI ? :-)
+I think it's cleaner to have two distinct class device types
+(one for input_dev and one for input).
 
-Eric
+subclasses for the input class devices are a neat idea; but I fear the
+hotplug event name will change for each subclass device ('input' will
+become eg 'mouse'), so we again have to change all hotplug handlers.
+And I don't see an easy solution for that ...
+
+Cheers,
+
+Hannes
+-- 
+Dr. Hannes Reinecke			hare@suse.de
+SuSE Linux AG				S390 & zSeries
+Maxfeldstraße 5				+49 911 74053 688
+90409 Nürnberg				http://www.suse.de

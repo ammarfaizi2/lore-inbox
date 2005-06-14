@@ -1,149 +1,334 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261504AbVFNAV0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261454AbVFNAWY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261504AbVFNAV0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 20:21:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbVFNAUK
+	id S261454AbVFNAWY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 20:22:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261473AbVFNATV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 20:20:10 -0400
-Received: from amdext4.amd.com ([163.181.251.6]:62954 "EHLO amdext4.amd.com")
-	by vger.kernel.org with ESMTP id S261467AbVFMVrx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 17:47:53 -0400
-X-Server-Uuid: 5FC0E2DF-CD44-48CD-883A-0ED95B391E89
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Subject: RE: [discuss] [OOPS] powernow on smp dual core amd64
-Date: Mon, 13 Jun 2005 16:47:35 -0500
-Message-ID: <84EA05E2CA77634C82730353CBE3A84301CFC14C@SAUSEXMB1.amd.com>
-X-MS-Has-Attach: yes
-X-MS-TNEF-Correlator: 
-Thread-Topic: [discuss] [OOPS] powernow on smp dual core amd64
-Thread-Index: AcVwXtL5QTmAHd/jRm2DXC6YGKj5VAAAUNRA
-From: "Langsdorf, Mark" <mark.langsdorf@amd.com>
-To: "Tom Duffy" <tduffy@sun.com>
-cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       discuss@x86-64.org
-X-WSS-ID: 6EB321722DO7600284-01-01
-Content-Type: multipart/mixed;
- boundary="----_=_NextPart_001_01C57061.828EB914"
+	Mon, 13 Jun 2005 20:19:21 -0400
+Received: from fed1rmmtao09.cox.net ([68.230.241.30]:56260 "EHLO
+	fed1rmmtao09.cox.net") by vger.kernel.org with ESMTP
+	id S261650AbVFNAOh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 20:14:37 -0400
+Date: Mon, 13 Jun 2005 17:14:31 -0700
+From: mporter@kernel.crashing.org
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, linuxppc-embedded@ozlabs.org
+Subject: [PATCH] -mm: add error checking to mpc85xx rapidio support
+Message-ID: <20050613171431.A7798@cox.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Add more error checking to the MPC85xx RIO support. Clean up some
+printks.
 
-------_=_NextPart_001_01C57061.828EB914
-Content-Type: text/plain;
- charset=us-ascii
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Matt Porter <mporter@kernel.crashing.org>
 
-> powernow-k8: Found 8 AMD Athlon 64 / Opteron processors=20
-> (version 1.40.2)
-> powernow-k8:    0 : fid 0xe (2200 MHz), vid 0x8 (1350 mV)
-> powernow-k8:    1 : fid 0xc (2000 MHz), vid 0xa (1300 mV)
-> powernow-k8:    2 : fid 0xa (1800 MHz), vid 0xc (1250 mV)
-> cpu_init done, current fid 0xe, vid 0x8
-> powernow-k8:    0 : fid 0xe (2200 MHz), vid 0x8 (1350 mV)
-> powernow-k8:    1 : fid 0xc (2000 MHz), vid 0xa (1300 mV)
-> powernow-k8:    2 : fid 0xa (1800 MHz), vid 0xc (1250 mV)
-> cpu_init done, current fid 0xe, vid 0x8
-> powernow-k8:    0 : fid 0xe (2200 MHz), vid 0x8 (1350 mV)
-> powernow-k8:    1 : fid 0xc (2000 MHz), vid 0xa (1300 mV)
-> powernow-k8:    2 : fid 0xa (1800 MHz), vid 0xc (1250 mV)
-> cpu_init done, current fid 0xe, vid 0x8
-> powernow-k8:    0 : fid 0xe (2200 MHz), vid 0x8 (1350 mV)
-> powernow-k8:    1 : fid 0xc (2000 MHz), vid 0xa (1300 mV)
-> powernow-k8:    2 : fid 0xa (1800 MHz), vid 0xc (1250 mV)
-> cpu_init done, current fid 0xe, vid 0x8
-
->  sdb:<3>powernowk8_get() cpu is 1
-> Unable to handle kernel NULL pointer dereference at=20
-> 0000000000000024 RIP:=20
-> <ffffffff8011d94c>{query_current_values_with_pending_wait+60}=20
-> sdb1 sdb2
->=20
-> PGD 3fe74067 PUD 3fd28067 PMD 0
-> Oops: 0002 [1] SMP
-> CPU 1
-> Modules linked in: mptscsih mptbase sd_mod scsi_mod
-> Pid: 25, comm: events/7 Not tainted 2.6.12-rc6andro
-> RIP: 0010:[<ffffffff8011d94c>]=20
-> <ffffffff8011d94c>{query_current_values_with_pending_wait+60}
-> RSP: 0000:ffff81007fddbdc8  EFLAGS: 00010202
-> RAX: 000000000000000e RBX: 0000000000000000 RCX: 00000000c0010042
-> RDX: 0000000000000008 RSI: 0000000000000001 RDI: 0000000000000000
-> RBP: 0000000000000080 R08: ffff81007fdda000 R09: ffff81003fd421f0
-> R10: 000000000000001c R11: 0000000000000000 R12: 0000000000000000
-> R13: 0000000000000000 R14: 0000000000000283 R15: ffffffff80112630
-> FS:  000000000057d850(0000) GS:ffffffff80498180(0000)=20
-> knlGS:0000000000000000
-> CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
-> CR2: 0000000000000024 CR3: 000000003f415000 CR4:=20
-> 00000000000006e0 Process events/7 (pid: 25, threadinfo=20
-> ffff81007fdda000, task ffff81003fd421f0)
-> Stack: 0000000000000080 ffffffff8011dea1 0000000000000001=20
-> ffff81003fd91430
->        ffff81003fd91400 ffffffff802e2b90 0000000000000000=20
-> 0000000000000003
->        ffff81007fddbe48 0000000000000001
-> Call Trace:<ffffffff8011dea1>{powernowk8_get+145}=20
-> <ffffffff802e2b90>{cpufreq_get+96}
->        <ffffffff8011266a>{handle_cpufreq_delayed_get+58}=20
-> <ffffffff80148eec>{worker_thread+476}
->        <ffffffff801326d0>{default_wake_function+0}=20
-> <ffffffff80130733>{__wake_up_common+67}
->        <ffffffff80148d10>{worker_thread+0}=20
-> <ffffffff8014d7a9>{kthread+217}
->        <ffffffff80133be0>{schedule_tail+64}=20
-> <ffffffff8010f5b7>{child_rip+8}
->        <ffffffff8011d4f0>{flat_send_IPI_mask+0}=20
-> <ffffffff8014d6d0>{kthread+0}
->        <ffffffff8010f5af>{child_rip+0}
->=20
-> Code: 89 47 24 89 57 20 31 c0 48 83 c4 08 c3 66 66 66 90 66=20
-> 66 90 RIP=20
-> <ffffffff8011d94c>{query_current_values_with_pending_wait+60}=20
-> RSP <ffff81007fddbdc8>
-> CR2: 0000000000000024
->  <5>Attached scsi disk sdb at scsi0, channel 0, id 1, lun 0=20
-
-Okay, I think I have figured this out.  During initialization,
-the cpufreq infrastruture only initializes the first core of
-each processor.  When a request comes into the second core,
-it's data structre is unitialized and we get the null point
-dereference.
-
-The solution is to assign the pointer to the data structure for
-the first core to all the other cores.
-
-Tom, could you try this patch and see if it helps?
-
--Mark Langsdorf
-AMD, Inc.
-
-------_=_NextPart_001_01C57061.828EB914
-Content-Type: application/octet-stream;
- name=jhpn-2.6.12-rc6.patch
-Content-Transfer-Encoding: base64
-Content-Description: jhpn-2.6.12-rc6.patch
-Content-Disposition: attachment;
- filename=jhpn-2.6.12-rc6.patch
-
-LS0tIGxpbnV4LTIuNi4xMi1yYzYvYXJjaC9pMzg2L2tlcm5lbC9jcHUvY3B1ZnJlcS9wb3dlcm5v
-dy1rOC5jLm9sZAkyMDA1LTA2LTEyIDE3OjQxOjU1LjEyMzY1MTE4NCAtMDUwMAorKysgbGludXgt
-Mi42LjEyLXJjNi9hcmNoL2kzODYva2VybmVsL2NwdS9jcHVmcmVxL3Bvd2Vybm93LWs4LmMJMjAw
-NS0wNi0xMiAxNzo0NjozMi43ODA0NDA5MzYgLTA1MDAKQEAgLTQ0LDcgKzQ0LDcgQEAKIAogI2Rl
-ZmluZSBQRlggInBvd2Vybm93LWs4OiAiCiAjZGVmaW5lIEJGWCBQRlggIkJJT1MgZXJyb3I6ICIK
-LSNkZWZpbmUgVkVSU0lPTiAidmVyc2lvbiAxLjQwLjIiCisjZGVmaW5lIFZFUlNJT04gInZlcnNp
-b24gMS40MC40IgogI2luY2x1ZGUgInBvd2Vybm93LWs4LmgiCiAKIC8qIHNlcmlhbGl6ZSBmcmVx
-IGNoYW5nZXMgICovCkBAIC05NzgsNyArOTc4LDcgQEAKIHsKIAlzdHJ1Y3QgcG93ZXJub3dfazhf
-ZGF0YSAqZGF0YTsKIAljcHVtYXNrX3Qgb2xkbWFzayA9IENQVV9NQVNLX0FMTDsKLQlpbnQgcmM7
-CisJaW50IHJjLCBpOwogCiAJaWYgKCFjaGVja19zdXBwb3J0ZWRfY3B1KHBvbC0+Y3B1KSkKIAkJ
-cmV0dXJuIC1FTk9ERVY7CkBAIC0xMDY0LDcgKzEwNjQsOSBAQAogCXByaW50aygiY3B1X2luaXQg
-ZG9uZSwgY3VycmVudCBmaWQgMHgleCwgdmlkIDB4JXhcbiIsCiAJICAgICAgIGRhdGEtPmN1cnJm
-aWQsIGRhdGEtPmN1cnJ2aWQpOwogCi0JcG93ZXJub3dfZGF0YVtwb2wtPmNwdV0gPSBkYXRhOwor
-CWZvcl9lYWNoX2NwdV9tYXNrKGksIGNwdV9jb3JlX21hcFtwb2wtPmNwdV0pIHsKKwkJcG93ZXJu
-b3dfZGF0YVtpXSA9IGRhdGE7CisJfQogCiAJcmV0dXJuIDA7CiAK
-
-------_=_NextPart_001_01C57061.828EB914--
-
+diff --git a/arch/ppc/syslib/ppc85xx_rio.c b/arch/ppc/syslib/ppc85xx_rio.c
+--- a/arch/ppc/syslib/ppc85xx_rio.c
++++ b/arch/ppc/syslib/ppc85xx_rio.c
+@@ -41,6 +41,7 @@
+ #define RIO_MSG_ISR_DIQI	0x00000001
+ 
+ #define RIO_MSG_DESC_SIZE	32
++#define RIO_MSG_BUFFER_SIZE	4096
+ #define RIO_MIN_TX_RING_SIZE	2
+ #define RIO_MAX_TX_RING_SIZE	2048
+ #define RIO_MIN_RX_RING_SIZE	2
+@@ -301,9 +302,9 @@ rio_hw_add_outb_message(struct rio_mport
+ 	    (struct rio_tx_desc *)msg_tx_ring.virt + msg_tx_ring.tx_slot;
+ 	int ret = 0;
+ 
+-	pr_debug(KERN_INFO
+-		 "RIO: rio_hw_add_outb_message(): destid %4.4x mbox %d buffer %8.8x len %8.8x\n",
+-		 rdev->destid, mbox, (int)buffer, len);
++	pr_debug
++	    ("RIO: rio_hw_add_outb_message(): destid %4.4x mbox %d buffer %8.8x len %8.8x\n",
++	     rdev->destid, mbox, (int)buffer, len);
+ 
+ 	if ((len < 8) || (len > RIO_MAX_MSG_SIZE)) {
+ 		ret = -EINVAL;
+@@ -361,13 +362,13 @@ mpc85xx_rio_tx_handler(int irq, void *de
+ 	osr = in_be32((void *)&msg_regs->osr);
+ 
+ 	if (osr & RIO_MSG_OSR_TE) {
+-		printk(KERN_INFO "RIO: outbound message transmission error\n");
++		pr_info("RIO: outbound message transmission error\n");
+ 		out_be32((void *)&msg_regs->osr, RIO_MSG_OSR_TE);
+ 		goto out;
+ 	}
+ 
+ 	if (osr & RIO_MSG_OSR_QOI) {
+-		printk(KERN_INFO "RIO: outbound message queue overflow\n");
++		pr_info("RIO: outbound message queue overflow\n");
+ 		out_be32((void *)&msg_regs->osr, RIO_MSG_OSR_QOI);
+ 		goto out;
+ 	}
+@@ -392,12 +393,12 @@ mpc85xx_rio_tx_handler(int irq, void *de
+  * @entries: Number of entries in the outbound mailbox ring
+  *
+  * Initializes buffer ring, request the outbound message interrupt,
+- * and enables the outbound message unit. Returns %0 on success or
+- * %-EINVAL on failure.
++ * and enables the outbound message unit. Returns %0 on success and
++ * %-EINVAL or %-ENOMEM on failure.
+  */
+ int rio_open_outb_mbox(struct rio_mport *mport, int mbox, int entries)
+ {
+-	int i, rc = 0;
++	int i, j, rc = 0;
+ 
+ 	if ((entries < RIO_MIN_TX_RING_SIZE) ||
+ 	    (entries > RIO_MAX_TX_RING_SIZE) || (!is_power_of_2(entries))) {
+@@ -409,17 +410,33 @@ int rio_open_outb_mbox(struct rio_mport 
+ 	msg_tx_ring.size = entries;
+ 
+ 	for (i = 0; i < msg_tx_ring.size; i++) {
+-		msg_tx_ring.virt_buffer[i] =
+-		    (void *)__get_free_page(GFP_KERNEL);
+-		msg_tx_ring.phys_buffer[i] =
+-		    (dma_addr_t) __pa(msg_tx_ring.virt_buffer[i]);
++		if (!
++		    (msg_tx_ring.virt_buffer[i] =
++		     dma_alloc_coherent(NULL, RIO_MSG_BUFFER_SIZE,
++					&msg_tx_ring.phys_buffer[i],
++					GFP_KERNEL))) {
++			rc = -ENOMEM;
++			for (j = 0; j < msg_tx_ring.size; j++)
++				if (msg_tx_ring.virt_buffer[j])
++					dma_free_coherent(NULL,
++							  RIO_MSG_BUFFER_SIZE,
++							  msg_tx_ring.
++							  virt_buffer[j],
++							  msg_tx_ring.
++							  phys_buffer[j]);
++			goto out;
++		}
+ 	}
+ 
+ 	/* Initialize outbound message descriptor ring */
+-	msg_tx_ring.virt = dma_alloc_coherent(NULL,
+-					      msg_tx_ring.size *
+-					      RIO_MSG_DESC_SIZE,
+-					      &msg_tx_ring.phys, GFP_KERNEL);
++	if (!(msg_tx_ring.virt = dma_alloc_coherent(NULL,
++						    msg_tx_ring.size *
++						    RIO_MSG_DESC_SIZE,
++						    &msg_tx_ring.phys,
++						    GFP_KERNEL))) {
++		rc = -ENOMEM;
++		goto out_dma;
++	}
+ 	memset(msg_tx_ring.virt, 0, msg_tx_ring.size * RIO_MSG_DESC_SIZE);
+ 	msg_tx_ring.tx_slot = 0;
+ 
+@@ -434,8 +451,10 @@ int rio_open_outb_mbox(struct rio_mport 
+ 	out_be32((void *)&msg_regs->osr, 0x000000b3);
+ 
+ 	/* Hook up outbound message handler */
+-	request_irq(MPC85xx_IRQ_RIO_TX, mpc85xx_rio_tx_handler, 0, "msg_tx",
+-		    (void *)mport);
++	if ((rc =
++	     request_irq(MPC85xx_IRQ_RIO_TX, mpc85xx_rio_tx_handler, 0,
++			 "msg_tx", (void *)mport)) < 0)
++		goto out_irq;
+ 
+ 	/*
+ 	 * Configure outbound message unit
+@@ -456,6 +475,18 @@ int rio_open_outb_mbox(struct rio_mport 
+ 
+       out:
+ 	return rc;
++
++      out_irq:
++	dma_free_coherent(NULL, msg_tx_ring.size * RIO_MSG_DESC_SIZE,
++			  msg_tx_ring.virt, msg_tx_ring.phys);
++
++      out_dma:
++	for (i = 0; i < msg_tx_ring.size; i++)
++		dma_free_coherent(NULL, RIO_MSG_BUFFER_SIZE,
++				  msg_tx_ring.virt_buffer[i],
++				  msg_tx_ring.phys_buffer[i]);
++
++	return rc;
+ }
+ 
+ /**
+@@ -497,7 +528,7 @@ mpc85xx_rio_rx_handler(int irq, void *de
+ 	isr = in_be32((void *)&msg_regs->isr);
+ 
+ 	if (isr & RIO_MSG_ISR_TE) {
+-		printk(KERN_INFO "RIO: inbound message reception error\n");
++		pr_info("RIO: inbound message reception error\n");
+ 		out_be32((void *)&msg_regs->isr, RIO_MSG_ISR_TE);
+ 		goto out;
+ 	}
+@@ -528,7 +559,7 @@ mpc85xx_rio_rx_handler(int irq, void *de
+  *
+  * Initializes buffer ring, request the inbound message interrupt,
+  * and enables the inbound message unit. Returns %0 on success
+- * or %-EINVAL on failure.
++ * and %-EINVAL or %-ENOMEM on failure.
+  */
+ int rio_open_inb_mbox(struct rio_mport *mport, int mbox, int entries)
+ {
+@@ -547,10 +578,14 @@ int rio_open_inb_mbox(struct rio_mport *
+ 		msg_rx_ring.virt_buffer[i] = NULL;
+ 
+ 	/* Initialize inbound message ring */
+-	msg_rx_ring.virt = dma_alloc_coherent(NULL,
+-					      msg_rx_ring.size *
+-					      RIO_MAX_MSG_SIZE,
+-					      &msg_rx_ring.phys, GFP_KERNEL);
++	if (!(msg_rx_ring.virt = dma_alloc_coherent(NULL,
++						    msg_rx_ring.size *
++						    RIO_MAX_MSG_SIZE,
++						    &msg_rx_ring.phys,
++						    GFP_KERNEL))) {
++		rc = -ENOMEM;
++		goto out;
++	}
+ 
+ 	/* Point dequeue/enqueue pointers at first entry in ring */
+ 	out_be32((void *)&msg_regs->ifqdpar, (u32) msg_rx_ring.phys);
+@@ -560,8 +595,14 @@ int rio_open_inb_mbox(struct rio_mport *
+ 	out_be32((void *)&msg_regs->isr, 0x00000091);
+ 
+ 	/* Hook up inbound message handler */
+-	request_irq(MPC85xx_IRQ_RIO_RX, mpc85xx_rio_rx_handler, 0, "msg_rx",
+-		    (void *)mport);
++	if ((rc =
++	     request_irq(MPC85xx_IRQ_RIO_RX, mpc85xx_rio_rx_handler, 0,
++			 "msg_rx", (void *)mport)) < 0) {
++		dma_free_coherent(NULL, RIO_MSG_BUFFER_SIZE,
++				  msg_tx_ring.virt_buffer[i],
++				  msg_tx_ring.phys_buffer[i]);
++		goto out;
++	}
+ 
+ 	/*
+ 	 * Configure inbound message unit:
+@@ -665,8 +706,8 @@ void *rio_hw_get_inb_message(struct rio_
+ 	buf = msg_rx_ring.virt_buffer[buf_idx];
+ 
+ 	if (!buf) {
+-		pr_debug(KERN_ERR
+-			 "RIO: inbound message copy failed, no buffers\n");
++		printk(KERN_ERR
++		       "RIO: inbound message copy failed, no buffers\n");
+ 		goto out1;
+ 	}
+ 
+@@ -704,13 +745,13 @@ mpc85xx_rio_dbell_handler(int irq, void 
+ 	dsr = in_be32((void *)&msg_regs->dsr);
+ 
+ 	if (dsr & DOORBELL_DSR_TE) {
+-		printk(KERN_INFO "RIO: doorbell reception error\n");
++		pr_info("RIO: doorbell reception error\n");
+ 		out_be32((void *)&msg_regs->dsr, DOORBELL_DSR_TE);
+ 		goto out;
+ 	}
+ 
+ 	if (dsr & DOORBELL_DSR_QFI) {
+-		printk(KERN_INFO "RIO: doorbell queue full\n");
++		pr_info("RIO: doorbell queue full\n");
+ 		out_be32((void *)&msg_regs->dsr, DOORBELL_DSR_QFI);
+ 		goto out;
+ 	}
+@@ -724,9 +765,9 @@ mpc85xx_rio_dbell_handler(int irq, void 
+ 		struct rio_dbell *dbell;
+ 		int found = 0;
+ 
+-		pr_debug(KERN_INFO
+-			 "RIO: processing doorbell, sid %2.2x tid %2.2x info %4.4x\n",
+-			 DBELL_SID(dmsg), DBELL_TID(dmsg), DBELL_INF(dmsg));
++		pr_debug
++		    ("RIO: processing doorbell, sid %2.2x tid %2.2x info %4.4x\n",
++		     DBELL_SID(dmsg), DBELL_TID(dmsg), DBELL_INF(dmsg));
+ 
+ 		list_for_each_entry(dbell, &port->dbells, node) {
+ 			if ((dbell->res->start <= DBELL_INF(dmsg)) &&
+@@ -739,10 +780,9 @@ mpc85xx_rio_dbell_handler(int irq, void 
+ 			dbell->dinb(port, DBELL_SID(dmsg), DBELL_TID(dmsg),
+ 				    DBELL_INF(dmsg));
+ 		} else {
+-			pr_debug(KERN_INFO
+-				 "RIO: spurious doorbell, sid %2.2x tid %2.2x info %4.4x\n",
+-				 DBELL_SID(dmsg), DBELL_TID(dmsg),
+-				 DBELL_INF(dmsg));
++			pr_debug
++			    ("RIO: spurious doorbell, sid %2.2x tid %2.2x info %4.4x\n",
++			     DBELL_SID(dmsg), DBELL_TID(dmsg), DBELL_INF(dmsg));
+ 		}
+ 		dmr = in_be32((void *)&msg_regs->dmr);
+ 		out_be32((void *)&msg_regs->dmr, dmr | DOORBELL_DMR_DI);
+@@ -758,19 +798,33 @@ mpc85xx_rio_dbell_handler(int irq, void 
+  * @mport: Master port implementing the inbound doorbell unit
+  *
+  * Initializes doorbell unit hardware and inbound DMA buffer
+- * ring. Called from mpc85xx_rio_setup().
++ * ring. Called from mpc85xx_rio_setup(). Returns %0 on success
++ * or %-ENOMEM on failure.
+  */
+-static void mpc85xx_rio_doorbell_init(struct rio_mport *mport)
++static int mpc85xx_rio_doorbell_init(struct rio_mport *mport)
+ {
++	int rc = 0;
++
+ 	/* Map outbound doorbell window immediately after maintenance window */
+-	dbell_win =
+-	    (u32) ioremap(mport->iores.start + RIO_MAINT_WIN_SIZE,
+-			  RIO_DBELL_WIN_SIZE);
++	if (!(dbell_win =
++	      (u32) ioremap(mport->iores.start + RIO_MAINT_WIN_SIZE,
++			    RIO_DBELL_WIN_SIZE))) {
++		printk(KERN_ERR
++		       "RIO: unable to map outbound doorbell window\n");
++		rc = -ENOMEM;
++		goto out;
++	}
+ 
+ 	/* Initialize inbound doorbells */
+-	dbell_ring.virt = dma_alloc_coherent(NULL,
+-					     512 * DOORBELL_MESSAGE_SIZE,
+-					     &dbell_ring.phys, GFP_KERNEL);
++	if (!(dbell_ring.virt = dma_alloc_coherent(NULL,
++						   512 * DOORBELL_MESSAGE_SIZE,
++						   &dbell_ring.phys,
++						   GFP_KERNEL))) {
++		printk(KERN_ERR "RIO: unable allocate inbound doorbell ring\n");
++		rc = -ENOMEM;
++		iounmap((void *)dbell_win);
++		goto out;
++	}
+ 
+ 	/* Point dequeue/enqueue pointers at first entry in ring */
+ 	out_be32((void *)&msg_regs->dqdpar, (u32) dbell_ring.phys);
+@@ -780,11 +834,22 @@ static void mpc85xx_rio_doorbell_init(st
+ 	out_be32((void *)&msg_regs->dsr, 0x00000091);
+ 
+ 	/* Hook up doorbell handler */
+-	request_irq(MPC85xx_IRQ_RIO_BELL, mpc85xx_rio_dbell_handler, 0,
+-		    "dbell_rx", (void *)mport);
++	if ((rc =
++	     request_irq(MPC85xx_IRQ_RIO_BELL, mpc85xx_rio_dbell_handler, 0,
++			 "dbell_rx", (void *)mport) < 0)) {
++		iounmap((void *)dbell_win);
++		dma_free_coherent(NULL, 512 * DOORBELL_MESSAGE_SIZE,
++				  dbell_ring.virt, dbell_ring.phys);
++		printk(KERN_ERR
++		       "MPC85xx RIO: unable to request inbound doorbell irq");
++		goto out;
++	}
+ 
+ 	/* Configure doorbells for snooping, 512 entries, and enable */
+ 	out_be32((void *)&msg_regs->dmr, 0x00108161);
++
++      out:
++	return rc;
+ }
+ 
+ static char *cmdline = NULL;

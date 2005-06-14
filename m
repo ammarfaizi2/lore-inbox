@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261307AbVFNTcW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261308AbVFNThQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261307AbVFNTcW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 15:32:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbVFNTcV
+	id S261308AbVFNThQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 15:37:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbVFNThQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 15:32:21 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:209 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261307AbVFNTcP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 15:32:15 -0400
-Date: Tue, 14 Jun 2005 20:32:01 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Steve Lord <lord@xfs.org>
-Cc: Prarit Bhargava <prarit@sgi.com>, "K.R. Foley" <kr@cybsft.com>,
-       Andrew Morton <akpm@osdl.org>, pozsy@uhulinux.hu,
-       linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
-Subject: Re: Race condition in module load causing undefined symbols
-Message-ID: <20050614193201.GA2730@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Steve Lord <lord@xfs.org>, Prarit Bhargava <prarit@sgi.com>,
-	"K.R. Foley" <kr@cybsft.com>, Andrew Morton <akpm@osdl.org>,
-	pozsy@uhulinux.hu, linux-kernel@vger.kernel.org,
-	rusty@rustcorp.com.au
-References: <20050611150525.GI17639@ojjektum.uhulinux.hu> <42AB25E7.5000405@xfs.org> <20050611120040.084942ed.akpm@osdl.org> <42AEDCFB.8080002@xfs.org> <42AEF979.2000207@cybsft.com> <42AF080A.1000307@xfs.org> <42AF0FA2.2050407@cybsft.com> <42AF165E.1020702@xfs.org> <42AF2088.3090605@sgi.com> <42AF2FA1.7080403@xfs.org>
+	Tue, 14 Jun 2005 15:37:16 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:29705 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261308AbVFNThK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Jun 2005 15:37:10 -0400
+Message-Id: <200506141935.j5EJZtZ7024713@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Bill Huey (hui) <bhuey@lnxw.com>
+Cc: Gerrit Huizenga <gh@us.ibm.com>, karim@opersys.com, dwalker@mvista.com,
+       paulmck@us.ibm.com, Andrea Arcangeli <andrea@suse.de>,
+       Lee Revell <rlrevell@joe-job.com>, Tim Bird <tim.bird@am.sony.com>,
+       linux-kernel@vger.kernel.org, tglx@linutronix.de, mingo@elte.hu,
+       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
+       ak@muc.de, sdietrich@mvista.com, hch@infradead.org, akpm@osdl.org
+Subject: Re: Attempted summary of "RT patch acceptance" thread 
+In-Reply-To: Your message of "Tue, 14 Jun 2005 12:20:56 PDT."
+             <20050614192056.GA2985@nietzsche.lynx.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <42AE0EF8.1090509@opersys.com> <E1DiETa-000450-00@w-gerrit.beaverton.ibm.com>
+            <20050614192056.GA2985@nietzsche.lynx.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42AF2FA1.7080403@xfs.org>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: multipart/signed; boundary="==_Exmh_1118777754_24083P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 14 Jun 2005 15:35:55 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 14, 2005 at 02:27:29PM -0500, Steve Lord wrote:
-> Thanks Prarit,
-> 
-> I updated mkinitrd from 4.1.18 to 4.2.15 and udev from 039 to 058.
-> This appears to have cured it on my work machine, I will try the
-> other box later.
-> 
-> Looking at Documentation/Changes, which appears to still be the
-> official repository for required tool versions, it seems somewhat
-> dated, and makes no mention of mkinitrd version requirements.
+--==_Exmh_1118777754_24083P
+Content-Type: text/plain; charset=us-ascii
 
-One of the reasons for that is that there is not generic mkinitrd.
-Every distribution has it's own variant.
+On Tue, 14 Jun 2005 12:20:56 PDT, Bill Huey said:
 
+> This implications of this patch are huge. It's transparent and will ultimately
+> change the userspace land scape for just about everything despite the paranoia
+> and disinformation spread by various arch-conservatives in this community.
+
+Is this patch running for political office? :)
+
+--==_Exmh_1118777754_24083P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFCrzGacC3lWbTT17ARAuzwAJ0Qnid94Oj1bTSgOjB7GcA3dSMFwgCcCzNO
+DlJ7IYh2/bXUOvFgMB4AN8M=
+=18Yj
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1118777754_24083P--

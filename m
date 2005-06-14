@@ -1,180 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261263AbVFNRiK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261267AbVFNRkL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261263AbVFNRiK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 13:38:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261266AbVFNRiK
+	id S261267AbVFNRkL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 13:40:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261260AbVFNRkK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 13:38:10 -0400
-Received: from rrcs-24-199-11-214.west.biz.rr.com ([24.199.11.214]:51407 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261263AbVFNRhw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 13:37:52 -0400
-Message-ID: <42AEB30B.1070808@cyte.com>
-Date: Tue, 14 Jun 2005 03:35:55 -0700
-From: Jeff Wiegley <jeffw@cyte.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050611)
-X-Accept-Language: en-us, en
+	Tue, 14 Jun 2005 13:40:10 -0400
+Received: from [80.71.243.242] ([80.71.243.242]:8155 "EHLO tau.rusteko.ru")
+	by vger.kernel.org with ESMTP id S261267AbVFNRja (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Jun 2005 13:39:30 -0400
+To: P@draigBrady.com
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: optimal file order for reading from disk
+References: <42AEBDC4.2050907@draigBrady.com>
+	<20050614121320.GA4739@outpost.ds9a.nl> <42AEE2D5.50902@draigBrady.com>
+From: Nikita Danilov <nikita@clusterfs.com>
+Date: Tue, 14 Jun 2005 21:39:31 +0400
+In-Reply-To: <42AEE2D5.50902@draigBrady.com> (P.'s message of "Tue, 14 Jun
+ 2005 14:59:49 +0100")
+Message-ID: <m1br6896ss.fsf@clusterfs.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.5 (chayote, linux)
 MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-CC: B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, Jens Axboe <axboe@suse.de>
-Subject: Re: amd64 cdrom access locks system
-References: <42A64556.4060405@cyte.com> <20050608052354.7b70052c.akpm@osdl.org>	 <42A861F8.9000301@cyte.com> <20050609160045.69c579d2.akpm@osdl.org>	 <42ADB5B4.1020704@cyte.com> <58cb370e05061400555407d144@mail.gmail.com>
-In-Reply-To: <58cb370e05061400555407d144@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-using "dev=/dev/hda" yeilds the exact same behavior...
+P@draigBrady.com writes:
 
-   Jun 14 03:21:50 localhost kernel: ide-cd: cmd 0x3 timed out
-   Jun 14 03:21:50 localhost kernel: hda: lost interrupt
-   Jun 14 03:22:50 localhost kernel: ide-cd: cmd 0x3 timed out
-   Jun 14 03:22:50 localhost kernel: hda: lost interrupt
-   Jun 14 03:23:30 localhost kernel: hda: lost interrupt
-
-And I'm a little confused by Robert's suggestion... Should it
-ever be possible for a user-space application to cause lost
-interrupts and other kernel state problems regardless of what
-"interface" is used?? Sure, if the application uses the wrong
-interface it should get spanked somehow but should it be able to
-mess up the kernel for other applications as well? (Like now
-I can't read or eject.)
-
-The output from the cdrecord command was:
-   root@mail:~# cdrecord -v -eject -tao dev=/dev/hda stupid.iso
-   Cdrecord-Clone 2.01.01a01 (x86_64-unknown-linux-gnu) Copyright (C) 
-1995-2004 Joerg Schilling
-   NOTE: this version of cdrecord is an inofficial (modified) release of 
-cdrecord
-         and thus may have bugs that are not present in the original 
-version.
-         Please send bug reports and support requests to 
-<cdrtools@packages.debian.org>.
-         The original author should not be bothered with problems of 
-this version.
-
-   cdrecord: Warning: Running on Linux-2.6.12-rc6-jw14
-   cdrecord: There are unsettled issues with Linux-2.5 and newer.
-   cdrecord: If you have unexpected problems, please try Linux-2.4 or 
-Solaris.
-   TOC Type: 1 = CD-ROM
-   scsidev: '/dev/hda'
-   devname: '/dev/hda'
-   scsibus: -2 target: -2 lun: -2
-   Warning: Open by 'devname' is unintentional and not supported.
-   Linux sg driver version: 3.5.27
-   Using libscg version 'ubuntu-0.8ubuntu1'.
-   cdrecord: Warning: using inofficial version of libscg 
-(ubuntu-0.8ubuntu1 '@(#)scsitransp.c      1.91 04/06/17 Copyright 
-1988,1995,2000-2004 J. Schilling').
-   SCSI buffer size: 64512
-   atapi: 1
-   Device type    : Removable CD-ROM
-   Version        : 0
-   Response Format: 2
-   Capabilities   :
-   Vendor_info    : 'SONY    '
-   Identifikation : 'DVD RW DRU-500A '
-   Revision       : '2.0h'
-   Device seems to be: Generic mmc2 DVD-R/DVD-RW.
-   Current: 0x0009
-   Profile: 0x001B
-   Profile: 0x001A
-   Profile: 0x0014
-   Profile: 0x0013
-   Profile: 0x0011
-   Profile: 0x0010
-   Profile: 0x000A
-   Profile: 0x0009 (current)
-   Profile: 0x0008
-
-Since the kernel gets messed up and reports losts interrupts I'm
-inclined to believe that this is a kernel/driver issue and not my
-misuse of an application/interface. Though I realize cdrecord is
-being run as the superuser and therefore might be overiding some
-kernel security checks and messing with the kernel so I might be
-wrong about that.
-
-One question comes to mind... Would Robert's suggestion and my
-results be affected by the fact that I don't have Packet Writing
-for CD drives turned on the current kernel?
-
-Any other ideas?
-
-Bartlomiej Zolnierkiewicz wrote:
-> [ Jens added to cc: ]
-> 
-> On 6/13/05, Jeff Wiegley <jeffw@cyte.com> wrote:
-> 
->>Andrew Morton said I should carbon copy the IDE developer on this
->>issue so I have in the hopes of re-opening this issue and making
->>some progress since I'm still unable to write anything with my
->>cd-burner.
+> bert hubert wrote:
+>> On Tue, Jun 14, 2005 at 12:21:40PM +0100, P@draigBrady.com wrote:
 >>
->>Here's what I know to date:
->>
->>    I have the alim15x3 IDE driver installed and running.
->>    I do NOT have any of the generic IDE drivers installed or
->>       even compiled as they grossly interfere with the alim15x3
->>       and cause a kernel panic.
->>    My hardware is an AMD64 FX55 in a Shuttle ST20G5 case with a
->>       serial ATA harddrive.
->>    I'm using a stock 2.6.12-rc6 kernel.
->>    Debian unstable distribution.
->>
->>At first I can read from the drive fine.
->>    For instance I did two "cdparanoia -B -d /dev/hda" without
->>    a hitch. Nothing was reported in /var/log/kernel as a result.
->>
->>The problem is that I can't write to the drive (burn cds with
->>cdrecord) with causing a lost interrupt and then nothing works;
->>even reads don't respond.
->>
->>When I do:
->>    cdrecord -v -tao dev=ATAPI:/dev/hda something.iso
->>
->>I get this output:
->>   Cdrecord-Clone 2.01.01a01 (x86_64-unknown-linux-gnu) Copyright (C)
->>1995-2004 Joerg Schilling
->>   NOTE: this version of cdrecord is an inofficial (modified) release of
->>cdrecord
->>         and thus may have bugs that are not present in the original
->>version.
->>         Please send bug reports and support requests to
->><cdrtools@packages.debian.org>.
->>         The original author should not be bothered with problems of
->>this version.
->>
->>   cdrecord: Warning: Running on Linux-2.6.12-rc6-jw14
->>   cdrecord: There are unsettled issues with Linux-2.5 and newer.
->>   cdrecord: If you have unexpected problems, please try Linux-2.4 or
->>Solaris.
->>   TOC Type: 1 = CD-ROM
->>   scsidev: 'ATAPI:/dev/hda'
->>   devname: 'ATAPI:/dev/hda'
->>   scsibus: -2 target: -2 lun: -2
->>   Warning: Using ATA Packet interface.
->>   Warning: The related Linux kernel interface code seems to be
->>unmaintained.
-> 
-> 
-> ^^^
-> 
-> 
->>   Warning: There is absolutely NO DMA, operations thus are slow.
-> 
-> 
-> ^^^
-> 
-> What is the result of using "dev=/dev/hda" interface instead
-> (as suggested by Robert)?
-> 
-> Bartlomiej
+>>>I know this will be dependent on filesystem, I/O scheduler, ...
+>>>but given a list of files, what is the best (filesystem
+>>>agnostic) order to read from disk (to minimise seeks).
+>>>
+>>>Should I sort by path, inode number, getdents, or something else?
+>> I know several projects that sort on inode number and benefit from
+>> that,
+>> sometimes in a big way. The effect of this will probably be less on a
+>> matured filesystem image.
+>
+> Thanks for that. Yep I'm torn between sorting by inode which
+> should be good for new filesystems, but maybe sorting by
+> path would be better for mature filesystems?
 
+Sorting by either inode number, or file name is not "file system
+agnostic" way to minimize seeks.
 
--- 
-Jeff Wiegley, PhD
-Cyte.Com, LLC
-(ignore:cea2d3a38843531c7def1deff59114de)
+You should call fibmap ioctl on all files, to obtain lists of block
+numbers used by them, and then sort file list to minimize seeks.
+
+>
+>> I can't really explain why it helps though. I don't think the kernel will do
+>> 'crossfile readahead', although your disk might do so.
+>> Google on 'orlov allocator', is enlightning.
+>
+> I found some interesting into here thanks:
+> http://kerneltrap.org/node/2157
+>
+> cheers,
+> Pádraig.
+
+Nikita.

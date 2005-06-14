@@ -1,63 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261163AbVFNPeT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261165AbVFNPlF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261163AbVFNPeT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 11:34:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261165AbVFNPeT
+	id S261165AbVFNPlF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 11:41:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261171AbVFNPlE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 11:34:19 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:45444 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261163AbVFNPeO (ORCPT
+	Tue, 14 Jun 2005 11:41:04 -0400
+Received: from mail1.utc.com ([192.249.46.190]:13212 "EHLO mail1.utc.com")
+	by vger.kernel.org with ESMTP id S261165AbVFNPk4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 11:34:14 -0400
-Date: Tue, 14 Jun 2005 08:36:05 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Bongani Hlope <bonganilinux@mweb.co.za>
-cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Tracking a bug in x86-64
-In-Reply-To: <200506132339.13614.bonganilinux@mweb.co.za>
-Message-ID: <Pine.LNX.4.58.0506140819440.8487@ppc970.osdl.org>
-References: <200506132259.22151.bonganilinux@mweb.co.za>
- <200506132339.13614.bonganilinux@mweb.co.za>
+	Tue, 14 Jun 2005 11:40:56 -0400
+Message-ID: <42AEF979.2000207@cybsft.com>
+Date: Tue, 14 Jun 2005 10:36:25 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Steve Lord <lord@xfs.org>
+CC: Andrew Morton <akpm@osdl.org>, pozsy@uhulinux.hu,
+       linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
+Subject: Re: Race condition in module load causing undefined symbols
+References: <42A99D9D.7080900@xfs.org>	<20050610112515.691dcb6e.akpm@osdl.org>	<20050611082642.GB17639@ojjektum.uhulinux.hu>	<42AAE5C8.9060609@xfs.org>	<20050611150525.GI17639@ojjektum.uhulinux.hu>	<42AB25E7.5000405@xfs.org> <20050611120040.084942ed.akpm@osdl.org> <42AEDCFB.8080002@xfs.org>
+In-Reply-To: <42AEDCFB.8080002@xfs.org>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 13 Jun 2005, Bongani Hlope wrote:
+Steve Lord wrote:
+> Andrew Morton wrote:
 > 
-> I've just tested 2.6.11-mm1 it has that bug as well. So the bug was introduced on that kernel.
+>> Stephen Lord <lord@xfs.org> wrote:
+>>
+>>> Pozsár Balázs wrote:
+>>> > On Sat, Jun 11, 2005 at 08:23:20AM -0500, Steve Lord wrote:
+>>> > >>I think this is not actually module loading itself, but a problem
+>>> >>between the fork/exec/wait code in nash and the kernel.
+>>> > > > I do not use nash, only bash, so this is not a nash-specific 
+>>> issue.
+>>> > >
+>>> I disabled hyperthreading and things started working, so are there any
+>>> HT related scheduling bugs right now?
+>>
+>>
+>>
+>> There haven't been any scheduler changes for some time.  There have 
+>> been a
+>> few low-level SMT changes I think.
+>>
+>> Are you able to identify which kernel version broke it?
+>>
+> 
+> Still have not narrowed this down too far, disabling SMT made no
+> difference, disabling SMP did, which I was expecting.
+> 
+> Steve
+> 
 
-Bongani,
- can you try to narrow it down even further, since nobody sees what coul 
-dbe wrong..
+I initially saw this with 2.6.12-rc1 and every version up through rc3. I
+haven't tried with later versions. :-/ I initially reported here:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=111235814529008&w=2
 
-The easiest way to narrow it down some more is to get a clean 2.6.11, and
-get all the broken-out patches in 2.6.11-mm1, and do a binary search.  
-Testing just four or five kernels should already have narrowed it down a
-lot.
+The way that I got around it was to compile in my aic7xxx driver instead
+of making it a module. I have also recently received an email from
+someone saying that disabling module unloading would also solve it. That
+very well may be true since I did run into another booting problem
+(2.6.12-rc5) that disabling module unloading fixed :-/ I haven't had a
+chance to go back and check this out though.
 
-The way to do the binary searach is to get the
+So to summarize: I have a dual 933 with aic7xxx compiled in to get
+passed the problem described above. I have a dual 2.6 w/HT that I have
+disabled module unloading to get passed another boot condition.
 
-	ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11/2.6.11-mm1/2.6.11-mm1-broken-out.tar.gz 
 
-file, and then to apply half of the patches you do basically
+-- 
+    kr
 
-	grep -v '^#' broken-out/series | wc
-
-gives you 821, so start with the 410 first patches:
-
-	grep -v '^#' broken-out/series | head -410 > apply
-	cat apply | while read i; do ( cd linux-2.6.11 ; patch -p1 ) < broken-out/$i; done
-
-and then you test that. If that doesn't show the problem, try with 615
-patches, and so on..
-
-There are smarter ways to do it than just the brute-force approach, but
-they're also more likely to break, and doing the brute-force approach for
-a small number of kernels should already pinpoint the problem to just a
-few patches, and then that is when it is worth starting to think about it.
-
-			Linus

@@ -1,58 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261341AbVFNVTL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261346AbVFNVWV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261341AbVFNVTL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 17:19:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261342AbVFNVTL
+	id S261346AbVFNVWV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 17:22:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261343AbVFNVWU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 17:19:11 -0400
-Received: from lyle.provo.novell.com ([137.65.81.174]:65131 "EHLO
-	lyle.provo.novell.com") by vger.kernel.org with ESMTP
-	id S261341AbVFNVTG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 17:19:06 -0400
-Date: Tue, 14 Jun 2005 14:18:52 -0700
-From: Greg KH <gregkh@suse.de>
-To: "V. ANANDA KRISHNAN" <mansarov@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: serial port driver 8250_pci - pci_device_id structure
-Message-ID: <20050614211852.GA20037@suse.de>
-References: <1118783140.7069.12.camel@siliver.austin.ibm.com>
+	Tue, 14 Jun 2005 17:22:20 -0400
+Received: from wproxy.gmail.com ([64.233.184.200]:63672 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261345AbVFNVV7 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Jun 2005 17:21:59 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=aJIO2GvnL3bKyRC91zCvqLspbEwWpuCQc0io0EtI5xBZDx6hDvDhRuceF+Q6eonXXQRV+/vF12YNj4M8eRngTbMmJ7vuVNdjTPHPF+WAZqX6kqk6JucEe9Ub1wXe53IVF0hqsKSU7SR8U22LPDbvYjLv/4vCIF9k+Ct40Oau4Ac=
+Message-ID: <9e4733910506141421382961d2@mail.gmail.com>
+Date: Tue, 14 Jun 2005 17:21:54 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Greg KH <greg@kroah.com>
+Subject: Re: off by one in sysfs
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050614210729.GC19875@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <1118783140.7069.12.camel@siliver.austin.ibm.com>
-User-Agent: Mutt/1.5.8i
+References: <9e47339105061120007061d7b1@mail.gmail.com>
+	 <20050614210729.GC19875@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 14, 2005 at 04:05:40PM -0500, V. ANANDA KRISHNAN wrote:
-> Hi All,
+On 6/14/05, Greg KH <greg@kroah.com> wrote:
+> On Sat, Jun 11, 2005 at 11:00:00PM -0400, Jon Smirl wrote:
+> > My attribute is a color_map described by 255 lines of 15 chars plus \n.
 > 
->   In ppc architecture, I am trying to find out the codes that populate
-> the pci_devic_id structure ( drivers/serial/8250_pci.c file) in the
-> following init_one function:
+> Heh, that's pretty big for a single attribute.  Would it be easier to
+> just use the binary sysfs file interface for this attribute?
+
+The attribute is formatted in ascii. You can use a script to set it if
+you want. It is the gamma correction table for the monitor.
+
 > 
-> static int __devinit
-> pciserial_init_one(struct pci_dev *dev, const struct pci_device_id *ent)
+> thanks,
+> 
+> greg k-h
+> 
 
-It comes from the driver itself, as you point out:
 
->   I have the (pci card) data hard-coded in the following tables of
-> 8250_pci.c file:
->           static struct pci_device_id serial_pci_tbl[]
->           static struct pci_board pci_boards[] __devinitdata={...}
-
-Yup, that's what the pci core sets that pointer to.
-
-> Since I could not find the data in the pci_device_id for pci card, I
-> went thru the drivers/pci/search.c and drivers/pci/pci-driver.c files. I
-> am not successful in locating those codes that populate the
-> pci_device_id structure for a given pci card.
-
-drivers/pci/pci-driver.c::pci_device_probe_static() does it.  See the
-latest edition of the Linux Device Drivers book for a full description
-and walk-through of how a pci device get added and removed from the
-driver core (it's free online if you don't want to buy it.)
-
-Hope this helps,
-
-greg k-h
+-- 
+Jon Smirl
+jonsmirl@gmail.com

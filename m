@@ -1,57 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261200AbVFNNez@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261202AbVFNNlh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261200AbVFNNez (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 09:34:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261202AbVFNNez
+	id S261202AbVFNNlh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 09:41:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261203AbVFNNlg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 09:34:55 -0400
-Received: from [63.81.117.10] ([63.81.117.10]:7410 "EHLO mail00hq.adic.com")
-	by vger.kernel.org with ESMTP id S261200AbVFNNex (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 09:34:53 -0400
-Message-ID: <42AEDCFB.8080002@xfs.org>
-Date: Tue, 14 Jun 2005 08:34:51 -0500
-From: Steve Lord <lord@xfs.org>
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.3 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: pozsy@uhulinux.hu, linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
-Subject: Re: Race condition in module load causing undefined symbols
-References: <42A99D9D.7080900@xfs.org>	<20050610112515.691dcb6e.akpm@osdl.org>	<20050611082642.GB17639@ojjektum.uhulinux.hu>	<42AAE5C8.9060609@xfs.org>	<20050611150525.GI17639@ojjektum.uhulinux.hu>	<42AB25E7.5000405@xfs.org> <20050611120040.084942ed.akpm@osdl.org>
-In-Reply-To: <20050611120040.084942ed.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-OriginalArrivalTime: 14 Jun 2005 13:34:52.0206 (UTC) FILETIME=[D7E814E0:01C570E5]
+	Tue, 14 Jun 2005 09:41:36 -0400
+Received: from wproxy.gmail.com ([64.233.184.194]:47300 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261202AbVFNNlf convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Jun 2005 09:41:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=N2udiavgJAeqTVb2G9sQ0/Fu4CXT9TgZZW29056j3og3sC0f0nBuZgfk6pK4dbz7WkkLTF5Mib8le7ifjdplXAhQ8C7QuFZbm2q+gcjiJ3dW/yAARQsg2c1dndJenHm/RUkdli04XvXxx4HdiAJY8XDhJTn3jcFzr+lVEvchiOg=
+Message-ID: <9e473391050614064111451333@mail.gmail.com>
+Date: Tue, 14 Jun 2005 09:41:34 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Greg KH <gregkh@suse.de>
+Subject: Re: Input sysbsystema and hotplug
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>,
+       linux-hotplug-devel@lists.sourceforge.net,
+       Vojtech Pavlik <vojtech@suse.cz>, Kay Sievers <kay.sievers@vrfy.org>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050614063851.GA19620@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200506131607.51736.dtor_core@ameritech.net>
+	 <20050613221657.GB15381@suse.de>
+	 <9e473391050613232170f57ea3@mail.gmail.com>
+	 <20050614063851.GA19620@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Stephen Lord <lord@xfs.org> wrote:
+On 6/14/05, Greg KH <gregkh@suse.de> wrote:
+> > > Yes, lots of people want class devices to have children.  Unfortunatly
+> > > they don't provide patches with their requests :)
+> >
+> > I did, but you didn't like it.
 > 
->>Pozsár Balázs wrote:
->> > On Sat, Jun 11, 2005 at 08:23:20AM -0500, Steve Lord wrote:
->> > 
->> >>I think this is not actually module loading itself, but a problem
->> >>between the fork/exec/wait code in nash and the kernel.
->> > 
->> > 
->> > I do not use nash, only bash, so this is not a nash-specific issue.
->> > 
->> > 
->>
->> I disabled hyperthreading and things started working, so are there any
->> HT related scheduling bugs right now?
+> Heh, yes, sorry, you did.
 > 
-> 
-> There haven't been any scheduler changes for some time.  There have been a
-> few low-level SMT changes I think.
-> 
-> Are you able to identify which kernel version broke it?
-> 
+> Hm, I don't even remember why I didn't like it anymore, last I remember,
+> I think you got the parent reference counting correct, right?  Care to
+> dig out the patch and send it again?
 
-Still have not narrowed this down too far, disabling SMT made no
-difference, disabling SMP did, which I was expecting.
+Check out the thread "event sequencing" in the hotplug group. 
 
-Steve
-
+-- 
+Jon Smirl
+jonsmirl@gmail.com

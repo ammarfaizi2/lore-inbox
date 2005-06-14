@@ -1,88 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261416AbVFNXWe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261417AbVFNXYs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261416AbVFNXWe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 19:22:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261411AbVFNXWe
+	id S261417AbVFNXYs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 19:24:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261412AbVFNXYr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 19:22:34 -0400
-Received: from web30701.mail.mud.yahoo.com ([68.142.200.134]:63623 "HELO
-	web30701.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S261416AbVFNXWH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 19:22:07 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=iuuxVn/KVKk3y9+nA0E/UhGlOpFKEirMcwkgvkbtFhwRDz7vpn/pQPkhbTrEZOkBxeLQTk73KBDY+YMF6dOrC5+bi1qwVMdM6z+X0taSO5VXBgZUm/dJ7i3re7jm1dUMgMSWiDWL9brekQU2sbMyqHFUKwjMtz950pI16f4ZJPM=  ;
-Message-ID: <20050614232154.17077.qmail@web30701.mail.mud.yahoo.com>
-Date: Tue, 14 Jun 2005 16:21:54 -0700 (PDT)
-From: <spaminos-ker@yahoo.com>
-Reply-To: spaminos-ker@yahoo.com
-Subject: Re: cfq misbehaving on 2.6.11-1.14_FC3
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050614000352.7289d8f1.akpm@osdl.org>
-MIME-Version: 1.0
+	Tue, 14 Jun 2005 19:24:47 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:23692 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261418AbVFNXXH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Jun 2005 19:23:07 -0400
+Date: Tue, 14 Jun 2005 16:23:54 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: christoph <christoph@scalex86.org>
+Cc: ak@suse.de, linux-kernel@vger.kernel.org, shai@scalex86.org
+Subject: Re: [PATCH] Move some variables into the "most_readonly" section??
+Message-Id: <20050614162354.6aabe57e.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.62.0506141551350.3676@ScMPusgw>
+References: <Pine.LNX.4.62.0506071253020.2850@ScMPusgw>
+	<20050608131839.GP23831@wotan.suse.de>
+	<Pine.LNX.4.62.0506141551350.3676@ScMPusgw>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Andrew Morton <akpm@osdl.org> wrote:
-> > For some reason, doing a "cp" or appending to files is very fast. I suspect
-> > that vi's mmap calls are the reason for the latency problem.
+christoph <christoph@scalex86.org> wrote:
+>
+> On Wed, 8 Jun 2005, Andi Kleen wrote:
 > 
-> Don't know.  Try to work out (from vmstat or diskstats) how much reading is
-> going on.
+> > However this means __cacheline_aligned_mostly_readonly doesnt make much
+> > sense since there is no need for alignment in read only. How about
+> > replacing it with a __mostly_readonly that doesnt align and remove
+> > __cacheline_aligned_mostly_readonly? 
 > 
-> Try stracing the check, see if your version of vi is doing a sync() or
-> something odd like that.
+> Hmm. No.
 
-The read/write patterns of the background process is about 35% reads.
+Think so.  If an object is in its own cacheline then it won't be pingponged
+around by writes to unrelated nearby objects.
 
-vi is indeed doing a sync on the open file, and that's where the time was
-spend.
-So I just changed my test to simply opening a file, writing some data in it and
-calling flush on the fd.
+> The bigger cpu maps may benefit from cacheline alignment for 
+> even for read access.
 
-I also reduced the sleep to 1s instead of 1m, and here are the results:
+A tiny bit, because the bitmaps might straddle one more cacheline than they
+strictly need to.
 
-cfq: 20,20,21,21,20,22,20,20,18,21 - avg 20.3
-noop: 12,12,12,13,5,10,10,12,12,13 - avg 11.1
-deadline: 16,9,16,14,10,6,8,8,15,9 - avg 11.1
-as: 6,11,14,11,9,15,16,9,8,9 - avg 10.8
+> Here is a patch that introduces __mostly_readonly in 
+> addition to __cacheline_aligned_mostly_readonly:
 
-As you can see, cfq stands out (and it should stand out the other way).
+I think readmostliness and alignment are mostly-unrelated concepts and
+should have separate tag thingies.  IOW,
+__cacheline_aligned_mostly_readonly goes away and to handle things like the
+cpu maps we do:
 
-> OK, well if the latency is mainly due to reads then one would hope that the
-> anticipatory scheduler would do better than that.
-
-I suspect the latency is due to writes: it seems (and correct me if I am wrong)
-that write requests are enqueued in one giant queue, thus the cfq algorithm can
-not be applied to the requests.
-
-Either that, or there is a different queue that cancels out the benefits of cfq
-when writing (because even though the writes are down the right way, this other
-queue to the device keeps way too much data).
-
-But then, why would other i/o schedulers perform better in that case?
-
-> 
-> But what happened to this, from your first report?
-> 
-> > On the other hand, opening a blank new file in vi and saving it takes about
-> 5
-> > minutes or so.
-> 
-> Are you able to reproduce that 5-minute stall in the more recent testing?
-> 
-> 
-The most I got with this kernel, is a 1 minute stall, so there is improvement
-there. Yet, a single process should not be able to cause this kind of stall
-with cfq.
-
-Nicolas
+char foo[8] __cacheline_aligned _mostly_readonly = { whatever };
 
 
-------------------------------------------------------------
-video meliora proboque deteriora sequor
-------------------------------------------------------------
+(I shall now go away and quietly tear my hair out.  Those mostly-readonly
+patches caused a mountain of grief:
+
+optimise-storage-of-read-mostly-variables.patch
+optimise-storage-of-read-mostly-variables-fix.patch
+optimise-storage-of-read-mostly-variables-x86_64-fix.patch
+optimise-storage-of-read-mostly-variables-x86_64-fix-fix.patch
+optimise-storage-of-read-mostly-variables-x86_64-fix-fix-fix.patch
+move-some-more-structures-into-mostly_readonly-and-readonly.patch
+kexec-x86_64-optimise-storage-of-read-mostly-variables-x86_64-fix.patch
+
+Once this is sorted I'll drop the lot and we start from a clean slate).

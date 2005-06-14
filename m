@@ -1,202 +1,180 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261241AbVFNRYX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261263AbVFNRiK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261241AbVFNRYX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 13:24:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261260AbVFNRYX
+	id S261263AbVFNRiK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 13:38:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261266AbVFNRiK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 13:24:23 -0400
-Received: from dbl.q-ag.de ([213.172.117.3]:19903 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S261241AbVFNRYD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 13:24:03 -0400
-Message-ID: <42AF12A8.4060007@colorfullife.com>
-Date: Tue, 14 Jun 2005 19:23:52 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.8) Gecko/20050513 Fedora/1.7.8-1.3.1
+	Tue, 14 Jun 2005 13:38:10 -0400
+Received: from rrcs-24-199-11-214.west.biz.rr.com ([24.199.11.214]:51407 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261263AbVFNRhw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Jun 2005 13:37:52 -0400
+Message-ID: <42AEB30B.1070808@cyte.com>
+Date: Tue, 14 Jun 2005 03:35:55 -0700
+From: Jeff Wiegley <jeffw@cyte.com>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050611)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Jim Grisanzio <jim.grisanzio@sun.com>
-Subject: [PATCH] optimization for sys_semtimedop() (was: Opening Day for OpenSolaris)
-Content-Type: multipart/mixed;
- boundary="------------050800060201010709060705"
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+CC: B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, Jens Axboe <axboe@suse.de>
+Subject: Re: amd64 cdrom access locks system
+References: <42A64556.4060405@cyte.com> <20050608052354.7b70052c.akpm@osdl.org>	 <42A861F8.9000301@cyte.com> <20050609160045.69c579d2.akpm@osdl.org>	 <42ADB5B4.1020704@cyte.com> <58cb370e05061400555407d144@mail.gmail.com>
+In-Reply-To: <58cb370e05061400555407d144@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050800060201010709060705
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+using "dev=/dev/hda" yeilds the exact same behavior...
 
-Hi,
+   Jun 14 03:21:50 localhost kernel: ide-cd: cmd 0x3 timed out
+   Jun 14 03:21:50 localhost kernel: hda: lost interrupt
+   Jun 14 03:22:50 localhost kernel: ide-cd: cmd 0x3 timed out
+   Jun 14 03:22:50 localhost kernel: hda: lost interrupt
+   Jun 14 03:23:30 localhost kernel: hda: lost interrupt
 
-semtimedop() performs a semaphore operation and if the operation cannot 
-be performed immediately, then the function blocks until the timeout 
-expires.
-The current Linux implementation loads the timeout immediately, even if 
-the operation doesn't block.
-As explained in the OpenSolaris sources, this is not needed. The 
-attached patch changes the Linux code.
+And I'm a little confused by Robert's suggestion... Should it
+ever be possible for a user-space application to cause lost
+interrupts and other kernel state problems regardless of what
+"interface" is used?? Sure, if the application uses the wrong
+interface it should get spanked somehow but should it be able to
+mess up the kernel for other applications as well? (Like now
+I can't read or eject.)
 
-The patch is trivial, but not tested. It shrinks the .text size by 32 
-bytes on x86.
+The output from the cdrecord command was:
+   root@mail:~# cdrecord -v -eject -tao dev=/dev/hda stupid.iso
+   Cdrecord-Clone 2.01.01a01 (x86_64-unknown-linux-gnu) Copyright (C) 
+1995-2004 Joerg Schilling
+   NOTE: this version of cdrecord is an inofficial (modified) release of 
+cdrecord
+         and thus may have bugs that are not present in the original 
+version.
+         Please send bug reports and support requests to 
+<cdrtools@packages.debian.org>.
+         The original author should not be bothered with problems of 
+this version.
 
---
-    Manfred
+   cdrecord: Warning: Running on Linux-2.6.12-rc6-jw14
+   cdrecord: There are unsettled issues with Linux-2.5 and newer.
+   cdrecord: If you have unexpected problems, please try Linux-2.4 or 
+Solaris.
+   TOC Type: 1 = CD-ROM
+   scsidev: '/dev/hda'
+   devname: '/dev/hda'
+   scsibus: -2 target: -2 lun: -2
+   Warning: Open by 'devname' is unintentional and not supported.
+   Linux sg driver version: 3.5.27
+   Using libscg version 'ubuntu-0.8ubuntu1'.
+   cdrecord: Warning: using inofficial version of libscg 
+(ubuntu-0.8ubuntu1 '@(#)scsitransp.c      1.91 04/06/17 Copyright 
+1988,1995,2000-2004 J. Schilling').
+   SCSI buffer size: 64512
+   atapi: 1
+   Device type    : Removable CD-ROM
+   Version        : 0
+   Response Format: 2
+   Capabilities   :
+   Vendor_info    : 'SONY    '
+   Identifikation : 'DVD RW DRU-500A '
+   Revision       : '2.0h'
+   Device seems to be: Generic mmc2 DVD-R/DVD-RW.
+   Current: 0x0009
+   Profile: 0x001B
+   Profile: 0x001A
+   Profile: 0x0014
+   Profile: 0x0013
+   Profile: 0x0011
+   Profile: 0x0010
+   Profile: 0x000A
+   Profile: 0x0009 (current)
+   Profile: 0x0008
 
---------------050800060201010709060705
-Content-Type: text/plain;
- name="patch-ipcsem-latetimeout"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-ipcsem-latetimeout"
+Since the kernel gets messed up and reports losts interrupts I'm
+inclined to believe that this is a kernel/driver issue and not my
+misuse of an application/interface. Though I realize cdrecord is
+being run as the superuser and therefore might be overiding some
+kernel security checks and messing with the kernel so I might be
+wrong about that.
 
---- 2.6/ipc/sem.c	2005-06-14 19:01:23.000000000 +0200
-+++ build-2.6/ipc/sem.c	2005-06-14 19:00:32.000000000 +0200
-@@ -1056,13 +1056,12 @@
- 	struct sem_undo *un;
- 	int undos = 0, alter = 0, max;
- 	struct sem_queue queue;
--	unsigned long jiffies_left = 0;
- 
- 	if (nsops < 1 || semid < 0)
- 		return -EINVAL;
- 	if (nsops > sc_semopm)
- 		return -E2BIG;
--	if(nsops > SEMOPM_FAST) {
-+	if (nsops > SEMOPM_FAST) {
- 		sops = kmalloc(sizeof(*sops)*nsops,GFP_KERNEL);
- 		if(sops==NULL)
- 			return -ENOMEM;
-@@ -1071,19 +1070,6 @@
- 		error=-EFAULT;
- 		goto out_free;
- 	}
--	if (timeout) {
--		struct timespec _timeout;
--		if (copy_from_user(&_timeout, timeout, sizeof(*timeout))) {
--			error = -EFAULT;
--			goto out_free;
--		}
--		if (_timeout.tv_sec < 0 || _timeout.tv_nsec < 0 ||
--			_timeout.tv_nsec >= 1000000000L) {
--			error = -EINVAL;
--			goto out_free;
--		}
--		jiffies_left = timespec_to_jiffies(&_timeout);
--	}
- 	max = 0;
- 	for (sop = sops; sop < sops + nsops; sop++) {
- 		if (sop->sem_num >= max)
-@@ -1160,21 +1146,66 @@
- 	current->state = TASK_INTERRUPTIBLE;
- 	sem_unlock(sma);
- 
--	if (timeout)
--		jiffies_left = schedule_timeout(jiffies_left);
--	else
-+	if (timeout) {
-+		/*
-+		 * Neat trick mentioned in the OpenSolaris source
-+		 * (but not implemented by them):
-+		 * There is no need to load the timeout early, its sufficient
-+		 * to load the timeout when we are about to block.
-+		 * Unfortunately that makes error handling tricky:
-+		 * Our request is already alive and another cpu
-+		 * could fulfill it while we try to handle the error condition.
-+		 * Solution: Behave as if a signal woke us up immediately
-+		 * and replace the error code at the end.
-+		 */
-+		struct timespec _timeout;
-+		if (copy_from_user(&_timeout, timeout, sizeof(*timeout))) {
-+			error = -EFAULT;
-+		} else if (_timeout.tv_sec < 0 || _timeout.tv_nsec < 0 ||
-+			_timeout.tv_nsec >= 1000000000L) {
-+			error = -EINVAL;
-+		} else {
-+			unsigned long jiffies_left;
-+			jiffies_left = timespec_to_jiffies(&_timeout);
-+			jiffies_left = schedule_timeout(jiffies_left);
-+			if (jiffies_left)
-+				error = -EAGAIN;
-+			else
-+				error = -EINTR;
-+		}
-+	} else {
- 		schedule();
--
--	error = queue.status;
--	while(unlikely(error == IN_WAKEUP)) {
--		cpu_relax();
--		error = queue.status;
-+		error = -EINTR;
- 	}
- 
--	if (error != -EINTR) {
--		/* fast path: update_queue already obtained all requested
--		 * resources */
--		goto out_free;
-+	/*
-+	 * lockless fast path:
-+	 * If queue.status != -EINTR we were woken up by another semop().
-+	 * But then update_queue removed us from the queue already,
-+	 * we can/must exit immediately without trying to acquire the
-+	 * semaphore lock.
-+	 * There is no need for memory barriers: We only read
-+	 * a single integer and use it as the return code. Thus
-+	 * we use barrier() and copy the status code into a local
-+	 * variable.
-+	 */
-+	{
-+		int tmp;
-+
-+		tmp = queue.status;
-+		while(unlikely(tmp == IN_WAKEUP)) {
-+			cpu_relax();
-+			tmp = queue.status;
-+			barrier();
-+		}
-+		barrier();
-+
-+		if (tmp != -EINTR) {
-+			/* fast path: update_queue already obtained all requested
-+			 * resources */
-+			error = tmp;
-+			goto out_free;
-+		}
- 	}
- 
- 	sma = sem_lock(semid);
-@@ -1185,22 +1216,16 @@
- 		goto out_free;
- 	}
- 
--	/*
--	 * If queue.status != -EINTR we are woken up by another process
--	 */
--	error = queue.status;
--	if (error != -EINTR) {
--		goto out_unlock_free;
-+	if (queue.status == -EINTR) {
-+		/*
-+		 * If an interrupt occurred we have to clean up the queue
-+		 * ourself.
-+		 */
-+		remove_from_queue(sma,&queue);
-+	} else {
-+		error = queue.status;
- 	}
- 
--	/*
--	 * If an interrupt occurred we have to clean up the queue
--	 */
--	if (timeout && jiffies_left == 0)
--		error = -EAGAIN;
--	remove_from_queue(sma,&queue);
--	goto out_unlock_free;
--
- out_unlock_free:
- 	sem_unlock(sma);
- out_free:
+One question comes to mind... Would Robert's suggestion and my
+results be affected by the fact that I don't have Packet Writing
+for CD drives turned on the current kernel?
 
---------------050800060201010709060705--
+Any other ideas?
+
+Bartlomiej Zolnierkiewicz wrote:
+> [ Jens added to cc: ]
+> 
+> On 6/13/05, Jeff Wiegley <jeffw@cyte.com> wrote:
+> 
+>>Andrew Morton said I should carbon copy the IDE developer on this
+>>issue so I have in the hopes of re-opening this issue and making
+>>some progress since I'm still unable to write anything with my
+>>cd-burner.
+>>
+>>Here's what I know to date:
+>>
+>>    I have the alim15x3 IDE driver installed and running.
+>>    I do NOT have any of the generic IDE drivers installed or
+>>       even compiled as they grossly interfere with the alim15x3
+>>       and cause a kernel panic.
+>>    My hardware is an AMD64 FX55 in a Shuttle ST20G5 case with a
+>>       serial ATA harddrive.
+>>    I'm using a stock 2.6.12-rc6 kernel.
+>>    Debian unstable distribution.
+>>
+>>At first I can read from the drive fine.
+>>    For instance I did two "cdparanoia -B -d /dev/hda" without
+>>    a hitch. Nothing was reported in /var/log/kernel as a result.
+>>
+>>The problem is that I can't write to the drive (burn cds with
+>>cdrecord) with causing a lost interrupt and then nothing works;
+>>even reads don't respond.
+>>
+>>When I do:
+>>    cdrecord -v -tao dev=ATAPI:/dev/hda something.iso
+>>
+>>I get this output:
+>>   Cdrecord-Clone 2.01.01a01 (x86_64-unknown-linux-gnu) Copyright (C)
+>>1995-2004 Joerg Schilling
+>>   NOTE: this version of cdrecord is an inofficial (modified) release of
+>>cdrecord
+>>         and thus may have bugs that are not present in the original
+>>version.
+>>         Please send bug reports and support requests to
+>><cdrtools@packages.debian.org>.
+>>         The original author should not be bothered with problems of
+>>this version.
+>>
+>>   cdrecord: Warning: Running on Linux-2.6.12-rc6-jw14
+>>   cdrecord: There are unsettled issues with Linux-2.5 and newer.
+>>   cdrecord: If you have unexpected problems, please try Linux-2.4 or
+>>Solaris.
+>>   TOC Type: 1 = CD-ROM
+>>   scsidev: 'ATAPI:/dev/hda'
+>>   devname: 'ATAPI:/dev/hda'
+>>   scsibus: -2 target: -2 lun: -2
+>>   Warning: Using ATA Packet interface.
+>>   Warning: The related Linux kernel interface code seems to be
+>>unmaintained.
+> 
+> 
+> ^^^
+> 
+> 
+>>   Warning: There is absolutely NO DMA, operations thus are slow.
+> 
+> 
+> ^^^
+> 
+> What is the result of using "dev=/dev/hda" interface instead
+> (as suggested by Robert)?
+> 
+> Bartlomiej
+
+
+-- 
+Jeff Wiegley, PhD
+Cyte.Com, LLC
+(ignore:cea2d3a38843531c7def1deff59114de)

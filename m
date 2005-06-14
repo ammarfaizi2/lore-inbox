@@ -1,80 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261170AbVFNPlL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261197AbVFNPmz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261170AbVFNPlL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 11:41:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261167AbVFNPlL
+	id S261197AbVFNPmz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 11:42:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261183AbVFNPmz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 11:41:11 -0400
-Received: from mail2.utc.com ([192.249.46.191]:6311 "EHLO mail2.utc.com")
-	by vger.kernel.org with ESMTP id S261170AbVFNPlD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 11:41:03 -0400
-Message-ID: <42AEF8D2.7070507@cybsft.com>
-Date: Tue, 14 Jun 2005 10:33:38 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Steve Lord <lord@xfs.org>
-CC: Andrew Morton <akpm@osdl.org>, pozsy@uhulinux.hu,
-       linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
-Subject: Re: Race condition in module load causing undefined symbols
-References: <42A99D9D.7080900@xfs.org>	<20050610112515.691dcb6e.akpm@osdl.org>	<20050611082642.GB17639@ojjektum.uhulinux.hu>	<42AAE5C8.9060609@xfs.org>	<20050611150525.GI17639@ojjektum.uhulinux.hu>	<42AB25E7.5000405@xfs.org> <20050611120040.084942ed.akpm@osdl.org> <42AEDCFB.8080002@xfs.org>
-In-Reply-To: <42AEDCFB.8080002@xfs.org>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Tue, 14 Jun 2005 11:42:55 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:15 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261171AbVFNPlV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Jun 2005 11:41:21 -0400
+Message-Id: <200506141540.j5EFeh6d014592@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Thomas Renninger <trenn@suse.de>
+Cc: Tony Lindgren <tony@atomide.com>, linux-kernel@vger.kernel.org,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       Jonathan Corbet <corbet@lwn.net>, Pavel Machek <pavel@ucw.cz>,
+       Bernard Blackham <b-lkml@blackham.com.au>,
+       Christian Hesse <mail@earthworm.de>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Subject: Re: [PATCH] Dynamic tick for x86 version 050609-2 
+In-Reply-To: Your message of "Tue, 14 Jun 2005 11:39:27 +0200."
+             <42AEA5CF.30100@suse.de> 
+From: Valdis.Kletnieks@vt.edu
+References: <88056F38E9E48644A0F562A38C64FB6004EBD10C@scsmsx403.amr.corp.intel.com> <20050609014033.GA30827@atomide.com> <20050610043018.GE18103@atomide.com> <200506130454.j5D4suNY006032@turing-police.cc.vt.edu> <20050613152507.GB7862@atomide.com> <200506131647.j5DGl0ke009926@turing-police.cc.vt.edu> <42ADC9E7.30901@suse.de> <200506131907.j5DJ7e4G017545@turing-police.cc.vt.edu>
+            <42AEA5CF.30100@suse.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1118763643_3658P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 14 Jun 2005 11:40:43 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steve Lord wrote:
-> Andrew Morton wrote:
+--==_Exmh_1118763643_3658P
+Content-Type: text/plain; charset=us-ascii
+
+On Tue, 14 Jun 2005 11:39:27 +0200, Thomas Renninger said:
+
+> There are two ways C-state addresses are exported to OS.
 > 
->> Stephen Lord <lord@xfs.org> wrote:
->>
->>> Pozsár Balázs wrote:
->>> > On Sat, Jun 11, 2005 at 08:23:20AM -0500, Steve Lord wrote:
->>> > >>I think this is not actually module loading itself, but a problem
->>> >>between the fork/exec/wait code in nash and the kernel.
->>> > > > I do not use nash, only bash, so this is not a nash-specific 
->>> issue.
->>> > >
->>> I disabled hyperthreading and things started working, so are there any
->>> HT related scheduling bugs right now?
->>
->>
->>
->> There haven't been any scheduler changes for some time.  There have 
->> been a
->> few low-level SMT changes I think.
->>
->> Are you able to identify which kernel version broke it?
->>
-> 
-> Still have not narrowed this down too far, disabling SMT made no
-> difference, disabling SMP did, which I was expecting.
-> 
-> Steve
-> 
+>      - Some flags in the FADT (-> ACPI spec) -> this gives you two C-states maximum, AFAIK.
 
-I initially saw this with 2.6.12-rc1 and every version up through rc3. I
-haven't tried with later versions. :-/ I initially reported here:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=111235814529008&w=2
+This must be what I have, because...
 
-The way that I got around it was to compile in my aic7xxx driver instead
-of making it a module. I have also recently received an email from
-someone saying that disabling module unloading would also solve it. That
-very well may be true since I did run into another booting problem
-(2.6.12-rc5) that disabling module unloading fixed :-/ I haven't had a
-chance to go back and check this out though.
+>      - Through the _CST function in your DSDT (-> ACPI spec, sorry). If you have
+>        have a look in dsdt.dsl at the _CST function there are that much packages returned as
+>        your BIOS claims to support. Hmm, _CST code is often in the SSDT an extention
+>        of the DSDT code. If you have one: acpidmp > acpidmp; acpixtract ssdt acpidmp >my_ssdt;
+>        iasl -d my_ssdt.
 
-So to summarize: I have a dual 933 with aic7xxx compiled in to get
-passed the problem described above. I have a dual 2.6 w/HT that I have
-disabled module unloading to get passed another boot condition.
+I tried (using pmtools-20031210 and acpica-unix-20050513):
 
+acpidmp > c840.dmp
+acpixtract dsdt c840.dmp > c840.dsdt
+acpixtract ssdt c840.dmp > c840.ssdt
+iasl -d c840.dsdt
+iasl -d c840.ssdt
 
--- 
-    kr
+No signs of a _CST in either the DSDT or SSDT (in fact, xtract ssdt got me a
+zero-length file, so I suspect there's no SSDT at all in there).
 
+Oh well.. looks like short of BIOS/DSDT hacking, I'm stuck.  At least the
+dynamic tick code got some testing out of all this... ;)
+
+--==_Exmh_1118763643_3658P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFCrvp7cC3lWbTT17ARAiLvAKDo0ZK4nl17ftWI+53MunD6O+F/cQCdE8An
+YkA3/Gebwwrik4R3wF7ZbI4=
+=+FJU
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1118763643_3658P--

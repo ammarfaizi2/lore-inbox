@@ -1,47 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261310AbVFNToU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261316AbVFNUBh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261310AbVFNToU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 15:44:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261312AbVFNToU
+	id S261316AbVFNUBh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 16:01:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261317AbVFNUBh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 15:44:20 -0400
-Received: from cpe-24-93-204-161.neo.res.rr.com ([24.93.204.161]:36995 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id S261310AbVFNToR (ORCPT
+	Tue, 14 Jun 2005 16:01:37 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:57031 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261316AbVFNUBU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 15:44:17 -0400
-Date: Tue, 14 Jun 2005 15:40:16 -0400
-From: Adam Belay <ambx1@neo.rr.com>
-To: Michael Tokarev <mjt@tls.msk.ru>
-Cc: matthieu castet <castet.matthieu@free.fr>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: PNP parallel&serial ports: module reload fails (2.6.11)?
-Message-ID: <20050614194016.GA5351@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
-	Michael Tokarev <mjt@tls.msk.ru>,
-	matthieu castet <castet.matthieu@free.fr>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20050602222400.GA8083@mut38-1-82-67-62-65.fbx.proxad.net> <429FA1F3.9000001@tls.msk.ru> <42A2D37A.5050408@free.fr> <42A46551.9010707@tls.msk.ru> <20050606211855.GA3289@neo.rr.com> <42A4D1AB.3090508@tls.msk.ru> <1118224334.3245.89.camel@localhost.localdomain> <42A75525.3050704@tls.msk.ru> <1118274762.29855.2.camel@localhost.localdomain> <42A8AFA5.3090703@tls.msk.ru>
+	Tue, 14 Jun 2005 16:01:20 -0400
+Date: Tue, 14 Jun 2005 13:00:52 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: John Baboval <baboval@spineless.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11: kernel BUG at fs/jbd/checkpoint.c:247! - Also on
+ 2.6.12-rc5
+Message-Id: <20050614130052.5e672405.akpm@osdl.org>
+In-Reply-To: <42AEE3DA.8060201@spineless.org>
+References: <42AEE3DA.8060201@spineless.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42A8AFA5.3090703@tls.msk.ru>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 10, 2005 at 01:07:49AM +0400, Michael Tokarev wrote:
-
+John Baboval <baboval@spineless.org> wrote:
+>
+> On Fri, 3 Jun 2005 16:33:56 -0700 Andrew Morton <akpm@osdl.org> wrote:
+>  > Please test
+>  > 
+>  > ftp://ftp.kernel.org/pub/linux/kernel/v2.6/testing/linux-2.6.12-rc5.tar.bz2
+>  > plus
+>  > ftp://ftp.kernel.org/pub/linux/kernel/v2.6/snapshots/patch-2.6.12-rc5-git8.bz2
 > 
-> First of all, why disable the device on module unload?
-> If it was enabled initially, before any module has been
-> loaded, why it needs to be disabled, why not leave it
-> enabled and all, just like it has been before?
+> 
+>  I've just reproduced this on 2.6.12-rc5.
+> 
+>  It was hapening every 4 hours or so with 2.6.11.9. 2.6.12-rc5 ran for a week... The system is being used as a fairly high traffic NFS server.
 
-The original idea here was to free up resources for allocation
-to other devices.  The ACPI spec claims we should call _DIS
-when powering down the device to _D3.  So, I'm considering not
-disabling the device when the driver is unbound, especially with
-PNPACPI.  I need to think about it more.
+Could you try this, please?
 
-Thanks,
-Adam
+
+From: Jan Kara <jack@suse.cz>
+
+On one path, cond_resched_lock() fails to return true if it dropped the lock. 
+We think this might be causing the crashes in JBD's log_do_checkpoint().
+
+Cc: Ingo Molnar <mingo@elte.hu>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+ kernel/sched.c |    7 +++++--
+ 1 files changed, 5 insertions(+), 2 deletions(-)
+
+diff -puN kernel/sched.c~cond_resched-lock-fix kernel/sched.c
+--- 25/kernel/sched.c~cond_resched-lock-fix	Mon Jun 13 15:51:22 2005
++++ 25-akpm/kernel/sched.c	Mon Jun 13 15:51:22 2005
+@@ -3755,19 +3755,22 @@ EXPORT_SYMBOL(cond_resched);
+  */
+ int cond_resched_lock(spinlock_t * lock)
+ {
++	int ret = 0;
++
+ 	if (need_lockbreak(lock)) {
+ 		spin_unlock(lock);
+ 		cpu_relax();
++		ret = 1;
+ 		spin_lock(lock);
+ 	}
+ 	if (need_resched()) {
+ 		_raw_spin_unlock(lock);
+ 		preempt_enable_no_resched();
+ 		__cond_resched();
++		ret = 1;
+ 		spin_lock(lock);
+-		return 1;
+ 	}
+-	return 0;
++	return ret;
+ }
+ 
+ EXPORT_SYMBOL(cond_resched_lock);
+_
+

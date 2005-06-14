@@ -1,50 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261254AbVFNQ42@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261257AbVFNRAa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261254AbVFNQ42 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 12:56:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261255AbVFNQ42
+	id S261257AbVFNRAa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 13:00:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261255AbVFNRAa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 12:56:28 -0400
-Received: from one.firstfloor.org ([213.235.205.2]:10471 "EHLO
-	one.firstfloor.org") by vger.kernel.org with ESMTP id S261254AbVFNQ4Z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 12:56:25 -0400
-To: Steve Lord <lord@xfs.org>
-Cc: "K.R. Foley" <kr@cybsft.com>, pozsy@uhulinux.hu,
-       linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
-Subject: Re: Race condition in module load causing undefined symbols
-References: <42A99D9D.7080900@xfs.org> <20050610112515.691dcb6e.akpm@osdl.org>
-	<20050611082642.GB17639@ojjektum.uhulinux.hu>
-	<42AAE5C8.9060609@xfs.org>
-	<20050611150525.GI17639@ojjektum.uhulinux.hu>
-	<42AB25E7.5000405@xfs.org> <20050611120040.084942ed.akpm@osdl.org>
-	<42AEDCFB.8080002@xfs.org> <42AEF979.2000207@cybsft.com>
-	<42AF080A.1000307@xfs.org>
-From: Andi Kleen <ak@muc.de>
-Date: Tue, 14 Jun 2005 18:56:22 +0200
-In-Reply-To: <42AF080A.1000307@xfs.org> (Steve Lord's message of "Tue, 14
- Jun 2005 11:38:34 -0500")
-Message-ID: <m14qc0c1xl.fsf@muc.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+	Tue, 14 Jun 2005 13:00:30 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:23169 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261257AbVFNRAS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Jun 2005 13:00:18 -0400
+Date: Tue, 14 Jun 2005 10:00:11 -0700
+From: Nishanth Aravamudan <nacc@us.ibm.com>
+To: john stultz <johnstul@us.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>,
+       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Christoph Lameter <clameter@sgi.com>,
+       Dominik Brodowski <linux@dominikbrodowski.de>,
+       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
+       paulus@samba.org, schwidefsky@de.ibm.com,
+       keith maanthey <kmannth@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
+       Max Asbock <masbock@us.ibm.com>, mahuja@us.ibm.com,
+       Darren Hart <darren@dvhart.com>, "Darrick J. Wong" <djwong@us.ibm.com>,
+       Anton Blanchard <anton@samba.org>, donf@us.ibm.com, mpm@selenic.com,
+       benh@kernel.crashing.org, kernel-stuff@comcast.net, frank@tuxrocks.com
+Subject: Re: [PATCH 0/4] new timeofday-based soft-timer subsystem
+Message-ID: <20050614170011.GF4180@us.ibm.com>
+References: <1118286702.5754.44.camel@cog.beaverton.ibm.com> <20050614034655.GA4180@us.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050614034655.GA4180@us.ibm.com>
+X-Operating-System: Linux 2.6.12-rc5 (i686)
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steve Lord <lord@xfs.org> writes:
->
-> So is this some P4 specific optimization which is not working as
-> intended?
+On 13.06.2005 [20:46:55 -0700], Nishanth Aravamudan wrote:
+> On 08.06.2005 [20:11:42 -0700], john stultz wrote:
+> > Hey Everyone,
+> > 	I'm heading out on vacation until Monday, so I'm just re-spinning my
+> > current tree for testing. If there's no major issues on Monday, I'll re-
+> > diff against Andrew's tree and re-submit the patches for inclusion.
+> 
+> Here is an update of my soft-timer rework to John's latest patches. I
+> have made some major changes in this revision. I would still greatly
+> appreciate any comments.
 
-The only pentium specific optimizations that are enabled by MPENTIUM4
-is to tell the compiler to compile for pentium4 and a few settings
-in arch/i386/Kconfig.
+<snip>
 
-You could enable/disable these individually and see if you can track
-it down with a binary search.
+> Notes / Blocking Issues:
 
-Most of this stuff should be fairly harmless though and be only
-microoptimizations; I cannot see how they should cause user visible
-races.
+<snip>
 
--Andi
+> 	NUMA-Q is definitely broken with my patch, but not NUMA itself.
+> 	Honestly not sure why, but timeofday seems to also be broken on
+> 	NUMA-Q -- it sets up the TSC as the timesource, even though it
+> 	shouldn't be (booting with notsc on NUMA-Qs seems to fix the
+> 	problem for John's patches, at least).
+
+Hrm, I just tried the same emulation on NUMA-Q that I did for ppc64:
+
+inline do_monotonic_clock()
+{
+	return jiffies_to_nsecs(jiffies - INITIAL_JIFFIES);
+}
+
+and kernbench ran ok with just my patches on top of 2.6.12-rc6-git5. So,
+I think -- not positive, admittedly, the problem may be with John's
+patches on NUMA-Q, maybe even just some of the timesources.
+
+Thanks,
+Nish

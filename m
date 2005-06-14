@@ -1,54 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261202AbVFNNlh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261189AbVFNNuI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261202AbVFNNlh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 09:41:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261203AbVFNNlg
+	id S261189AbVFNNuI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 09:50:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261210AbVFNNuH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 09:41:36 -0400
-Received: from wproxy.gmail.com ([64.233.184.194]:47300 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261202AbVFNNlf convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 09:41:35 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=N2udiavgJAeqTVb2G9sQ0/Fu4CXT9TgZZW29056j3og3sC0f0nBuZgfk6pK4dbz7WkkLTF5Mib8le7ifjdplXAhQ8C7QuFZbm2q+gcjiJ3dW/yAARQsg2c1dndJenHm/RUkdli04XvXxx4HdiAJY8XDhJTn3jcFzr+lVEvchiOg=
-Message-ID: <9e473391050614064111451333@mail.gmail.com>
-Date: Tue, 14 Jun 2005 09:41:34 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Greg KH <gregkh@suse.de>
-Subject: Re: Input sysbsystema and hotplug
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>,
-       linux-hotplug-devel@lists.sourceforge.net,
-       Vojtech Pavlik <vojtech@suse.cz>, Kay Sievers <kay.sievers@vrfy.org>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050614063851.GA19620@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200506131607.51736.dtor_core@ameritech.net>
-	 <20050613221657.GB15381@suse.de>
-	 <9e473391050613232170f57ea3@mail.gmail.com>
-	 <20050614063851.GA19620@suse.de>
+	Tue, 14 Jun 2005 09:50:07 -0400
+Received: from gold.veritas.com ([143.127.12.110]:11385 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S261189AbVFNNuB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Jun 2005 09:50:01 -0400
+Date: Tue, 14 Jun 2005 14:51:05 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: li nux <lnxluv@yahoo.com>
+cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+Subject: Re: rmap.c: try_to_unmap_file(): VM_LOCKED not respected
+In-Reply-To: <20050614051405.42342.qmail@web33307.mail.mud.yahoo.com>
+Message-ID: <Pine.LNX.4.61.0506141444040.9201@goblin.wat.veritas.com>
+References: <20050614051405.42342.qmail@web33307.mail.mud.yahoo.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 14 Jun 2005 13:49:58.0780 (UTC) FILETIME=[F4444BC0:01C570E7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/14/05, Greg KH <gregkh@suse.de> wrote:
-> > > Yes, lots of people want class devices to have children.  Unfortunatly
-> > > they don't provide patches with their requests :)
-> >
-> > I did, but you didn't like it.
+On Mon, 13 Jun 2005, li nux wrote:
+> My application is using remap_file_pages and mlocks
+> those pages.
+> So in the code of  try_to_unmap_file (see below),
+> I should never reach the call to try_to_unmap_cluster,
+> because for those pages VM_LOCKED is always set.
+> But, under heavy load I am seeing try_to_unmap_cluster
+> is getting called. Stack:
+> try_to_unmap_cluster
+> try_to_unmap_file
+> try_to_unmap
+> shrink_list
 > 
-> Heh, yes, sorry, you did.
-> 
-> Hm, I don't even remember why I didn't like it anymore, last I remember,
-> I think you got the parent reference counting correct, right?  Care to
-> dig out the patch and send it again?
+> Any idea why VM_LOCKED is not being respected ?
 
-Check out the thread "event sequencing" in the hotplug group. 
+Does your application fork occasionally, probably to exec something?
+VM_LOCKED is masked off the flags of the child's copy vma (see dup_mmap),
+so you might be seeing page reclaim hitting the child in between fork
+and exec.  The parent's should remain safely VM_LOCKED as you intended.
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+Hugh

@@ -1,44 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261211AbVFNN7W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261212AbVFNN77@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261211AbVFNN7W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 09:59:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261212AbVFNN7W
+	id S261212AbVFNN77 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 09:59:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261213AbVFNN77
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 09:59:22 -0400
-Received: from wproxy.gmail.com ([64.233.184.200]:2028 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261211AbVFNN7T (ORCPT
+	Tue, 14 Jun 2005 09:59:59 -0400
+Received: from gate.corvil.net ([213.94.219.177]:35601 "EHLO corvil.com")
+	by vger.kernel.org with ESMTP id S261212AbVFNN7z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 09:59:19 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=sm3m4R+M4D5EDJJz7WGsIH3TzNTOoOgDRe0ZgHy83jY3DtXEiOSQCXNHY021ySWI/gphoMeeL1U0Mg9FvpdQzvm5rH+2JE5G3ENODRrO9czsW00dYPZOfUQ32zTT3al9RoMedPi7TQpCeDd8vKwCEYTiclUWMzJ1DTWjHZNsiSo=
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Brian Marete <bgmarete@gmail.com>
-Subject: Re: PROBLEM: Kernel oops accompanied by complete system lock-up.
-Date: Tue, 14 Jun 2005 18:04:45 +0400
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org
-References: <6dd519ae05061406222d60c6bc@mail.gmail.com>
-In-Reply-To: <6dd519ae05061406222d60c6bc@mail.gmail.com>
+	Tue, 14 Jun 2005 09:59:55 -0400
+Message-ID: <42AEE2D5.50902@draigBrady.com>
+Date: Tue, 14 Jun 2005 14:59:49 +0100
+From: P@draigBrady.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040124
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506141804.46316.adobriyan@gmail.com>
+To: bert hubert <bert.hubert@netherlabs.nl>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: optimal file order for reading from disk
+References: <42AEBDC4.2050907@draigBrady.com> <20050614121320.GA4739@outpost.ds9a.nl>
+In-Reply-To: <20050614121320.GA4739@outpost.ds9a.nl>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 14 June 2005 17:22, Brian Marete wrote:
+bert hubert wrote:
+> On Tue, Jun 14, 2005 at 12:21:40PM +0100, P@draigBrady.com wrote:
+> 
+>>I know this will be dependent on filesystem, I/O scheduler, ...
+>>but given a list of files, what is the best (filesystem
+>>agnostic) order to read from disk (to minimise seeks).
+>>
+>>Should I sort by path, inode number, getdents, or something else?
+> 
+> I know several projects that sort on inode number and benefit from that,
+> sometimes in a big way. The effect of this will probably be less on a
+> matured filesystem image.
 
-> 3. KERNEL VERSION (/proc/version): Linux version 2.6.11-debug
+Thanks for that. Yep I'm torn between sorting by inode which
+should be good for new filesystems, but maybe sorting by
+path would be better for mature filesystems?
 
-> Jun 11 05:20:18 gamma kernel: EIP:    0060:[del_timer+97/176]    Tainted: P      VLI
-> Jun 11 05:20:18 gamma kernel: EIP:    0060:[<c01235f1>]    Tainted: P      VLI
+> I can't really explain why it helps though. I don't think the kernel will do
+> 'crossfile readahead', although your disk might do so.
+> 
+> Google on 'orlov allocator', is enlightning.
 
-> * My kernel is "tainted" by the module "slamr" which controls a
->   SmartLink "soft" modem. I compiled this propreitery module from a
->   Debian Source package: slmodem-2.9.9a.tar.gz
+I found some interesting into here thanks:
+http://kerneltrap.org/node/2157
 
-Care to reproduce with recent untainted kernel?
+cheers,
+Pádraig.

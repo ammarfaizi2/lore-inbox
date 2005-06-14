@@ -1,42 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261279AbVFNSSN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261282AbVFNSV4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261279AbVFNSSN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 14:18:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261281AbVFNSSN
+	id S261282AbVFNSV4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 14:21:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261283AbVFNSVy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 14:18:13 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:2026 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S261279AbVFNSRn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 14:17:43 -0400
-Message-ID: <42AF1F3E.9070704@pobox.com>
-Date: Tue, 14 Jun 2005 14:17:34 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Florian Engelhardt <flo@dotbox.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: AHCI chipset for AMD64
-References: <1118750451.42aec6f325fc8@www.domainfactory-webmail.de>	<42AF014A.5000104@pobox.com> <20050614200310.143359bc@discovery.hal.lan>
-In-Reply-To: <20050614200310.143359bc@discovery.hal.lan>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Tue, 14 Jun 2005 14:21:54 -0400
+Received: from nwkea-mail-1.sun.com ([192.18.42.13]:17832 "EHLO
+	nwkea-mail-1.sun.com") by vger.kernel.org with ESMTP
+	id S261281AbVFNSVa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Jun 2005 14:21:30 -0400
+Subject: RE: [discuss] [OOPS] powernow on smp dual core amd64
+From: Tom Duffy <tduffy@sun.com>
+To: "Langsdorf, Mark" <mark.langsdorf@amd.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       discuss@x86-64.org
+In-Reply-To: <84EA05E2CA77634C82730353CBE3A84301CFC14D@SAUSEXMB1.amd.com>
+References: <84EA05E2CA77634C82730353CBE3A84301CFC14D@SAUSEXMB1.amd.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ikGOA4Iac1F8cAtlpmxo"
+Date: Tue, 14 Jun 2005 11:19:23 -0700
+Message-Id: <1118773163.22484.13.camel@duffman>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-8) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Florian Engelhardt wrote:
-> Sorry, but i forgot to ask one technical question about AHCI.
-> Will every AHCI capable controller be supported, for example
-> this chipset:
-> http://www.vitalitycomputer.com/msirsamd64so.html
 
+--=-ikGOA4Iac1F8cAtlpmxo
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-The driver is written to the AHCI specification.
+On Mon, 2005-06-13 at 17:44 -0500, Langsdorf, Mark wrote:
+> > > Tom, could you try this patch and see if it helps?
+> >=20
+> > Yes!  It fixed the panic.  I get much further.
+>=20
+> Great, I'll test that some more then submit it.
 
-As long as the hardware faithfully follows the specification, yes.
+I would like it if this patch could make it into 2.6.12 before it is
+released.
 
-	Jeff
+Any possibility?
 
+Thanks,
 
+-tduffy
+
+--=-ikGOA4Iac1F8cAtlpmxo
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBCrx+rdY502zjzwbwRAmgFAJ4qiWkq7a2m0IUTiIJw3I7r8J8qcwCfUBhH
+LA5I1veQcsD1iTV1MYThg/A=
+=xIw8
+-----END PGP SIGNATURE-----
+
+--=-ikGOA4Iac1F8cAtlpmxo--

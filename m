@@ -1,44 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261215AbVFNFhO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261223AbVFNFjy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261215AbVFNFhO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 01:37:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261223AbVFNFhO
+	id S261223AbVFNFjy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 01:39:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261230AbVFNFjy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 01:37:14 -0400
-Received: from smtp818.mail.sc5.yahoo.com ([66.163.170.4]:29577 "HELO
-	smtp818.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261215AbVFNFhI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 01:37:08 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Adam Morley <adam.morley@gmail.com>
-Subject: Re: psmouse doesn't seem to reinitialize after mem suspend (acpi) when using i8042 on ALi M1553 ISA bridge with 2.6.11.11 or 2.6.12-rc5?
-Date: Tue, 14 Jun 2005 00:37:04 -0500
-User-Agent: KMail/1.8.1
+	Tue, 14 Jun 2005 01:39:54 -0400
+Received: from relay.rost.ru ([80.254.111.11]:58305 "EHLO relay.rost.ru")
+	by vger.kernel.org with ESMTP id S261223AbVFNFjY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Jun 2005 01:39:24 -0400
+Date: Tue, 14 Jun 2005 09:39:18 +0400
+To: Andre <andre@rocklandocean.com>
 Cc: linux-kernel@vger.kernel.org
-References: <b70d73800506051924546c8931@mail.gmail.com> <b70d738005060821032cc1a4a@mail.gmail.com> <b70d738005061322223fc7942@mail.gmail.com>
-In-Reply-To: <b70d738005061322223fc7942@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Subject: Re: ZFx86 support broken?
+Message-ID: <20050614053918.GC2460@pazke>
+Mail-Followup-To: Andre <andre@rocklandocean.com>,
+	linux-kernel@vger.kernel.org
+References: <00fb01c56dec$91f0e440$6702a8c0@niro>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="XMCwj5IQnwKtuyBG"
 Content-Disposition: inline
-Message-Id: <200506140037.05242.dtor_core@ameritech.net>
+In-Reply-To: <00fb01c56dec$91f0e440$6702a8c0@niro>
+X-Uname: Linux 2.6.11-pazke i686
+User-Agent: Mutt/1.5.9i
+From: Andrey Panin <pazke@donpac.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 14 June 2005 00:22, Adam Morley wrote:
-> Hi All,
-> 
-> I hadn't heard anything from Dimitry in a few days, so I thought I'd
-> resend and see if anyone else had any pointers for where I should
-> look.  I'd still love to have a functional mouse post-mem suspend.
->
 
-Unfortunately I don't have any ideas so far why your mouse does not
-want to respond, it looks the kernel tries to do the right thing...
+--XMCwj5IQnwKtuyBG
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-What we could try is to force PNP layer to re-enable the device, but
-I don't have code for that yet.
+On 161, 06 10, 2005 at 11:45:27AM -0700, Andre wrote:
+> I am trying to boot LFS6.0.1 livecd which has 2.6.8.1, but the kernel han=
+gs
+> at:
+> Freeing unused kernel memory: 456k freed
+>=20
+> My system is a pc/104 board based on ZFx86 with 64M ram
+> I also found this posting:
+> http://linux.derkeiler.com/Mailing-Lists/Kernel/2004-03/5939.html
+> Looking at the console output, the cpu gets recognized as 486, whereas
+> 2.4.22 detects the cpu as Cyrix Cx486DX4
+>=20
+> Looking at the kernel source, it seems to get stuck after the call to
+> free_initmem and when I tried to specify init=3D/bin/sh it still got stuc=
+k at
+> the same place so I figured it doesn't even get to the run_init_process
+> calls in ..../init/main.c. Could the call to unlock_kernel get stuck?
 
--- 
-Dmitry
+Are you sure that userspace on livecd is not compiled for 586+ CPU ?
+
+--=20
+Andrey Panin		| Linux and UNIX system administrator
+pazke@donpac.ru		| PGP key: wwwkeys.pgp.net
+
+--XMCwj5IQnwKtuyBG
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFCrm2GR2OTnxNuAyMRAtoCAJ411koG0YtdV9bDneQ+Nt58XjzrHwCcDRbW
+jej93D6jDMnlHzsci88ES6Y=
+=wwSG
+-----END PGP SIGNATURE-----
+
+--XMCwj5IQnwKtuyBG--

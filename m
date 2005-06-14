@@ -1,38 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261264AbVFNGyt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261260AbVFNGzz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261264AbVFNGyt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 02:54:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261272AbVFNGyt
+	id S261260AbVFNGzz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 02:55:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261268AbVFNGzz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 02:54:49 -0400
-Received: from moutng.kundenserver.de ([212.227.126.186]:57596 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S261264AbVFNGyr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 02:54:47 -0400
-Date: Tue, 14 Jun 2005 08:54:43 +0200 (CEST)
-From: Armin Schindler <armin@melware.de>
-To: Greg KH <gregkh@suse.de>
-Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Remove devfs_mk_cdev() function from the kernel tree
-In-Reply-To: <20050613181323.GA13025@kroah.com>
-Message-ID: <Pine.LNX.4.61.0506140853590.32158@phoenix.one.melware.de>
-References: <11184761113499@kroah.com> <Pine.LNX.4.61.0506121042420.30907@phoenix.one.melware.de>
- <20050613181323.GA13025@kroah.com>
-Organization: Cytronics & Melware
+	Tue, 14 Jun 2005 02:55:55 -0400
+Received: from [151.38.19.110] ([151.38.19.110]:14771 "HELO develer.com")
+	by vger.kernel.org with SMTP id S261260AbVFNGzr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Jun 2005 02:55:47 -0400
+Message-ID: <42AE7F5C.3000209@develer.com>
+Date: Tue, 14 Jun 2005 08:55:24 +0200
+From: Bernardo Innocenti <bernie@develer.com>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:4f0aeee4703bc17a8237042c4702a75a
+To: linux-kernel@vger.kernel.org
+Subject: Audit / Netlink slowness
+X-Enigmail-Version: 0.91.0.0
+OpenPGP: id=FC6A66CA;
+	url=https://www.develer.com/~bernie/gpgkey.txt
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Jun 2005, Greg KH wrote:
-> On Sun, Jun 12, 2005 at 10:44:04AM +0200, Armin Schindler wrote:
-> > It didn't follow the development, is devfs now obsolete in kernel?
-> > If not, these funktions still makes sense.
-> 
-> I'm guessing you missed the [00/22] announcement of this patch?  Please
-> see that one for links to the issues surrounding this topic.
+Hello,
 
-Yes, I missed that one. Thanks.
+on a server running kernel 2.6.11-1.1369_FC4, both ssh
+and su where taking a longish amount of time (over >1.5 sec.)
 
-Armin
+Running "strace -r 2>strace.out su", I discovered that
+netlink communication is the major cause of slowdown.
+
+"su" connects to a NETLINK_AUDIT socket 3 or 4 times.
+Each time it does 2 sendto() + recvfrom() operations,
+with a latency of ~200ms.  This adds up to 800ms wasted
+time.
+
+Disabling CONFIG_AUDIT in the kernel makes su and ssh
+very fast again.
+
+Is this behavior to be expected?  CONFIG_AUDIT is enabled
+by default in FC4, so many people are going to be hit by
+this problem.
+
+Please Cc me in replies as I'm not subrscribed to the lkml.
+
+-- 
+  // Bernardo Innocenti - Develer S.r.l., R&D dept.
+\X/  http://www.develer.com/
+

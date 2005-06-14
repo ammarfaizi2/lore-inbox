@@ -1,54 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261197AbVFNI55@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261154AbVFNJFQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261197AbVFNI55 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 04:57:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261154AbVFNI55
+	id S261154AbVFNJFQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 05:05:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261165AbVFNJFP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 04:57:57 -0400
-Received: from postman4.arcor-online.net ([151.189.20.158]:50891 "EHLO
-	postman.arcor.de") by vger.kernel.org with ESMTP id S261197AbVFNI5z
+	Tue, 14 Jun 2005 05:05:15 -0400
+Received: from 76.80-203-227.nextgentel.com ([80.203.227.76]:60638 "EHLO
+	mail.inprovide.com") by vger.kernel.org with ESMTP id S261154AbVFNJFJ convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 04:57:55 -0400
-Date: Tue, 14 Jun 2005 10:57:44 +0200
-From: quade <quade@hsnr.de>
-To: Nish Aravamudan <nish.aravamudan@gmail.com>
-Cc: Chris Friesen <cfriesen@nortel.com>, linux-kernel@vger.kernel.org
-Subject: Re: latency error (~2ms) with nanosleep
-Message-ID: <20050614085744.GA10668@hsnr.de>
-References: <20050613133047.GA11979@hsnr.de> <42ADB8D1.9090503@nortel.com> <29495f1d05061309543a88f9bb@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <29495f1d05061309543a88f9bb@mail.gmail.com>
-User-Agent: Mutt/1.5.6+20040907i
+	Tue, 14 Jun 2005 05:05:09 -0400
+To: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: A Great Idea (tm) about reimplementing NLS.
+References: <f192987705061303383f77c10c@mail.gmail.com>
+	<f192987705061310385260ca06@mail.gmail.com>
+	<yw1xekb69j9g.fsf@ford.inprovide.com>
+	<200506141404.06888.patrakov@ums.usu.ru>
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+Date: Tue, 14 Jun 2005 11:05:05 +0200
+In-Reply-To: <200506141404.06888.patrakov@ums.usu.ru> (Alexander E.
+ Patrakov's message of "Tue, 14 Jun 2005 14:04:06 +0600")
+Message-ID: <yw1xslzl8g1q.fsf@ford.inprovide.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.15 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 13, 2005 at 09:54:47AM -0700, Nish Aravamudan wrote:
-> On 6/13/05, Chris Friesen <cfriesen@nortel.com> wrote:
-> > quade wrote:
-> > > Playing around with the (simple) measurement of latency-times
-> > > I noticed, that the systemcall "nanosleep" has always a minimal
-> > > latency from about ~2ms (haven't run it all night, so...). It
-> > > seems to be a systematical error.
-> > 
-> > Known issue.  The x86 interrupt usually has a period of slightly less
-> > than a ms.  It will therefore generally add nearly a whole ms to ensure
-> > that it does not ever wait for *less* than specified.
-> 
-> Exactly. And the sys_nanosleep() code adds one more if the parameter
-> has any positive value at all:
-> 
->         expire = timespec_to_jiffies(&t) + (t.tv_sec || t.tv_nsec);
+"Alexander E. Patrakov" <patrakov@ums.usu.ru> writes:
 
+> Måns Rullgård wrote:
+>> Different users of the same system may have perfectly valid reasons to
+>> use different locale settings, and thus different filename encodings.
+>> Forcing one thing or another is just a useless restriction, and
+>> probably not POSIX compliant.
+>
+> I agree.
+>
+> Although some people (like glib2 developers) try to say that
+> filenames should be in UTF-8, this doesn't work, just because the
 
->         current->state = TASK_INTERRUPTIBLE;
->         expire = schedule_timeout(expire);
-> 
-> Thanks,
-> Nish
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+IMHO, the glib developers are clueless, and the GNOME crew even more
+so.  I remember when the gtk file selection dialog stopped displaying
+files with "bad" names, unless I set some wacky undocumented
+environment variable first.
+
+> "ls" command assumes that they are in the locale charset. Please fix
+> glibc and/or coreutils and all other programs first.
+
+I use utf-8 exclusively for my filenames (the few that are not 7-bit
+ascii).  Forcing others who use the system to do the same would cause
+them a lot of trouble, as they must transfer files to and from Windows
+machines that use anything but utf-8.  The result is that some
+filenames are in utf-8, some iso-8859-1, and some euc-kr.  As long as
+these stay in each users' home directory, it all works quite well,
+though.
+
+-- 
+Måns Rullgård
+mru@inprovide.com

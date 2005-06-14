@@ -1,59 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261268AbVFNRkV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261262AbVFNRu6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261268AbVFNRkV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 13:40:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261260AbVFNRkV
+	id S261262AbVFNRu6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 13:50:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261273AbVFNRu6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 13:40:21 -0400
-Received: from mail00hq.adic.com ([63.81.117.10]:43847 "EHLO mail00hq.adic.com")
-	by vger.kernel.org with ESMTP id S261270AbVFNRjr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 13:39:47 -0400
-Message-ID: <42AF165E.1020702@xfs.org>
-Date: Tue, 14 Jun 2005 12:39:42 -0500
-From: Steve Lord <lord@xfs.org>
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.3 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "K.R. Foley" <kr@cybsft.com>
-CC: Andrew Morton <akpm@osdl.org>, pozsy@uhulinux.hu,
-       linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
-Subject: Re: Race condition in module load causing undefined symbols
-References: <42A99D9D.7080900@xfs.org>	<20050610112515.691dcb6e.akpm@osdl.org>	<20050611082642.GB17639@ojjektum.uhulinux.hu>	<42AAE5C8.9060609@xfs.org>	<20050611150525.GI17639@ojjektum.uhulinux.hu>	<42AB25E7.5000405@xfs.org> <20050611120040.084942ed.akpm@osdl.org> <42AEDCFB.8080002@xfs.org> <42AEF979.2000207@cybsft.com> <42AF080A.1000307@xfs.org> <42AF0FA2.2050407@cybsft.com>
-In-Reply-To: <42AF0FA2.2050407@cybsft.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 Jun 2005 17:39:44.0533 (UTC) FILETIME=[0D374450:01C57108]
+	Tue, 14 Jun 2005 13:50:58 -0400
+Received: from wproxy.gmail.com ([64.233.184.206]:37218 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261262AbVFNRut convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Jun 2005 13:50:49 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=QrpyNZwEUYIu955LpMYzYcwot7wzo0FpwplkK+H5oZycMynYZNwp+QXzhAxhMiuA3K5aiPHu3WHyH/7uWX/aqtUHrB8zVHQTiNlbn5vdBJE549ppx9F8eMd1UZQXntFV+Vr6f+v4RSUmRZ1qjBaatDKkEHSilzQVsKPAiKcEYiE=
+Message-ID: <9e4733910506141050a7c7728@mail.gmail.com>
+Date: Tue, 14 Jun 2005 13:50:49 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Bob Picco <bob.picco@hp.com>
+Subject: Re: Fwd: hpet patches
+Cc: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050614164605.GQ3728@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <88056F38E9E48644A0F562A38C64FB6004F77C29@scsmsx403.amr.corp.intel.com>
+	 <9e473391050614092661d665ee@mail.gmail.com>
+	 <20050614164605.GQ3728@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-K.R. Foley wrote:
-> Steve Lord wrote:
-> <snip>
+On 6/14/05, Bob Picco <bob.picco@hp.com> wrote:
+> Jon,
+> Jon Smirl wrote:        [Tue Jun 14 2005, 12:26:41PM EDT]
+> > Apparently there are many Dell systems that have an HPET but Dell is
+> > not providing the ACPI entry. Can we add some probing for the HPET or
+> > use something like the ICH5 PCI ID to enable it?
+> This is also true of HP x86 and x86_64 (AMD 8000 chipset) hardware.  I enabled
+> it on my HP x86_64 with the appropriate PCI commands but it has been a while
+> and can't recall the details.  This solution is good for platform specific
+> configuration but of course doesn't enable the driver discovery to work.
 > 
->> So is this some P4 specific optimization which is not working as
->> intended?
->>
->> Steve
->>
->>
+> I also verified that the Documentation/hpet.txt sample program worked. I can't
+> remember who (SuSE ?) posted the x86_64 HPET stuff just before I
+> finished.  So I never posted. I didn't feel great about the solution because
+> the address was hardcoded. I found myself more irritated at HP for not having
+> configured it in the BIOS and ACPI table.
+> >
+> > I have verified that all Dimension 8300, PE400, Precision 360 have
+> > this problem. From what I can tell many other Dell models are also
+> > missing HPET ACPI. The problem is not universal, there are a few Dell
+> > models that do have the ACPI entry.
 > 
-> I'd say not since the first system I saw this on was a dual PIII Xeon. 
-> While I am not 100% sure that the problems are related, the problem that 
-> I saw on my 2.6 system also went away when I disabled hyper-threading in 
-> the bios. It really just seems to me like it is some hard-to-trigger race.
+> bob
 > 
 
-Not too hard for me :-(
+Problem like this are usually fixed with quirks:
 
-Definitely a race, and it appears to be somewhere in the fork/exec/wait
-complex at the very least. insmod is not built into nash, so is getting
-run as a seperate process. Since module loading itself is synchronous,
-the error would seem most likely to be happening in sys_wait4.
+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,   
+PCI_DEVICE_ID_INTEL_82801EB_0,  quirk_intel_ich5_hpet);
 
-It could be the compiler doing a bad optimization, it could be
-some other optimization code triggered by the Pentium 4 config
-option, or, as you say, it could be a race which is being
-opened up by the changed build flags.
+quirk_intel_ich5_hpet()
+{
+    if (!hpet_address)
+          hpet_address = 0xfed00000ULL;
+}
 
-Steve
+0xfed00000ULL is right for ICH5, do you want to start adding these as
+part of HPET support? My hpet works fine once the address is set. For
+complete coverage you need a list of these for all of the AMD/Intel
+chipsets with hpet support. The list isn't very big.
+
+-- 
+Jon Smirl
+jonsmirl@gmail.com

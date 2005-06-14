@@ -1,55 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261389AbVFNWpg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261393AbVFNWqn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261389AbVFNWpg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 18:45:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261391AbVFNWpg
+	id S261393AbVFNWqn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 18:46:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261392AbVFNWqn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 18:45:36 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:49401 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261389AbVFNWpa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 18:45:30 -0400
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
-From: Daniel Walker <dwalker@mvista.com>
-Reply-To: dwalker@mvista.com
-To: Ingo Molnar <mingo@elte.hu>
-Cc: "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       "Eugeny S. Mints" <emints@ru.mvista.com>
-In-Reply-To: <20050614185448.GA26731@elte.hu>
-References: <20050608112801.GA31084@elte.hu> <42AF20F9.20704@cybsft.com>
-	 <20050614185448.GA26731@elte.hu>
-Content-Type: text/plain
-Organization: MontaVista
-Date: Tue, 14 Jun 2005 15:45:22 -0700
-Message-Id: <1118789122.10106.1.camel@dhcp153.mvista.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
+	Tue, 14 Jun 2005 18:46:43 -0400
+Received: from mail-in-05.arcor-online.net ([151.189.21.45]:45224 "EHLO
+	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261393AbVFNWqj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Jun 2005 18:46:39 -0400
+From: Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>
+Subject: Re: =?ISO-8859-1?Q?J=F6rg?= Schilling again... [Please reply CC: wdraxinger@darkstargames.de]
+To: Wolfgang Draxinger <wdraxinger@darkstargames.de>,
+       linux-kernel@vger.kernel.org
+Reply-To: 7eggert@gmx.de
+Date: Wed, 15 Jun 2005 00:46:21 +0200
+References: <4fgGA-7S1-7@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1DiKAo-0003LH-Mu@be1.7eggert.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-06-14 at 20:54 +0200, Ingo Molnar wrote:
-> * K.R. Foley <kr@cybsft.com> wrote:
-> 
-> > Ingo Molnar wrote:
-> > >i have released the -V0.7.48-00 Real-Time Preemption patch, which can be 
-> > >downloaded from the usual place:
-> > 
-> > Ingo,
-> > 
-> > I just got this soft lock with -RT-2.6.12-rc6-V0.7.48-32 on my dual 
-> > 2.6G Xeon W/HT. Not sure what causes it. Just typing away and its like 
-> > a key sticks. It keeps printing the same key, even if I use the mouse 
-> > to change focus the typing follows the focus, and then it finally 
-> > hangs.
-> 
-> ah ... accidentaly had debug_direct_keyboard = 1 in kernel/irq/handle.c.  
-> Change it to 0 & recompile, or pick up the -48-33 patch i just uploaded.
+Wolfgang Draxinger <wdraxinger@darkstargames.de> wrote:
 
-I think your putting to many raw_local_irq_disable calls back in .. Are
-you planning to do an audit at some point ?
+> Well I didn't cared about the so called issues, as I never had
+> problems with cdrecord - ok the SUID bug required me to workaround,
+> but nothing that a 5 line sh script and a "%cdrw  ALL=(ALL)
+> NOPASSWD: /usr/bin/cdrecord.real" rule for sudo can't solve.
 
-Daniel
-
-
-
+The new alpha version of cdrtools has the workaround.
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

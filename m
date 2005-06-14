@@ -1,75 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261220AbVFNM6e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261226AbVFNNCs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261220AbVFNM6e (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 08:58:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261227AbVFNM6e
+	id S261226AbVFNNCs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 09:02:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261227AbVFNNCr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 08:58:34 -0400
-Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:8326 "EHLO
-	faui3es.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S261220AbVFNM6b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 08:58:31 -0400
-Date: Tue, 14 Jun 2005 14:58:28 +0200
-From: Martin Waitz <tali@admingilde.org>
-To: Nico Schottelius <nico-kernel@schottelius.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Why is one sync() not enough?
-Message-ID: <20050614125828.GM446@admingilde.org>
-Mail-Followup-To: Nico Schottelius <nico-kernel@schottelius.org>,
-	linux-kernel@vger.kernel.org
-References: <20050614094141.GE1467@schottelius.org>
+	Tue, 14 Jun 2005 09:02:47 -0400
+Received: from mo00.iij4u.or.jp ([210.130.0.19]:32766 "EHLO mo00.iij4u.or.jp")
+	by vger.kernel.org with ESMTP id S261226AbVFNNCp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Jun 2005 09:02:45 -0400
+Date: Tue, 14 Jun 2005 22:02:27 +0900
+From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+To: Andrew Morton <akpm@osdl.org>
+Cc: yuasa@hh.iij4u.or.jp, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.12-rc6] add vr41xx gpio support
+Message-Id: <20050614220227.755b0fe3.yuasa@hh.iij4u.or.jp>
+In-Reply-To: <20050613151940.24ac347d.akpm@osdl.org>
+References: <20050612032827.31ac649a.yuasa@hh.iij4u.or.jp>
+	<20050613151940.24ac347d.akpm@osdl.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="20XocjIeMTCm4X0r"
-Content-Disposition: inline
-In-Reply-To: <20050614094141.GE1467@schottelius.org>
-X-Habeas-SWE-1: winter into spring
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
-X-PGP-Fingerprint: B21B 5755 9684 5489 7577  001A 8FF1 1AC5 DFE8 0FB2
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Andrew,
 
---20XocjIeMTCm4X0r
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Mon, 13 Jun 2005 15:19:40 -0700
+Andrew Morton <akpm@osdl.org> wrote:
 
-hoi :)
+> Yoichi Yuasa <yuasa@hh.iij4u.or.jp> wrote:
+> >
+> > This patch had added vr41xx gpio support.
+> 
+> 
+> > --- git5-orig/drivers/char/Kconfig	Tue Jun  7 00:22:29 2005
+> > +++ git5/drivers/char/Kconfig	Sun Jun 12 02:37:20 2005
+> > @@ -929,6 +929,10 @@
+> >  
+> >  	  If compiled as a module, it will be called scx200_gpio.
+> >  
+> > +config GPIO_VR41XX
+> > +	tristate "NEC VR4100 series General-purpose I/O Unit support"
+> > +	depends CPU_VR41XX
+> > +
+> 
+> Does that even work?  We normally use "depends on".  I'll change it.
 
-On Tue, Jun 14, 2005 at 11:41:41AM +0200, Nico Schottelius wrote:
-> When my system shuts down and init calls sync() and after that
-> umount and then reboot, the filesystem is left in an unclean state.
->=20
-> If I do sync() two times (one before umount, one after umount) it
-> seems to work.
+Oh, thanks.
 
-unmounting the filesystem writes to the disk.
-If you don't wait for those writes to reach the disk, then
-you still have a dirty filesystem.
+> > +EXPORT_SYMBOL_GPL(vr41xx_set_irq_trigger);
+> > +EXPORT_SYMBOL_GPL(vr41xx_set_irq_level);
+> > +EXPORT_SYMBOL_GPL(vr41xx_gpio_get_pin);
+> > +EXPORT_SYMBOL_GPL(vr41xx_gpio_set_pin);
+> > +EXPORT_SYMBOL_GPL(vr41xx_gpio_set_direction);
+> > +EXPORT_SYMBOL_GPL(vr41xx_gpio_pullupdown);
+> 
+> Why are these symbols exported?
 
---=20
-Martin Waitz
+I'm going to send patches that use this symbol.
 
---20XocjIeMTCm4X0r
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFCrtR0j/Eaxd/oD7IRAnSFAJ92ifN+bFNldxsrftYewBb4Z4XcDQCdHJoY
-5SD41xZyv642ch1odF52ezA=
-=3M7i
------END PGP SIGNATURE-----
-
---20XocjIeMTCm4X0r--
+Yoichi

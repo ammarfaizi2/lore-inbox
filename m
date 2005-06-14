@@ -1,46 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261404AbVFNXL0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261406AbVFNXLr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261404AbVFNXL0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 19:11:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261408AbVFNXL0
+	id S261406AbVFNXLr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 19:11:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261407AbVFNXLr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 19:11:26 -0400
-Received: from wproxy.gmail.com ([64.233.184.201]:40399 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261404AbVFNXLP convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 19:11:15 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=FRsf240GH4b54Yj+p582EvhJF55YxZBlSN0hc0aKmJMLjZi+wiTJjDKekXxmFtqmWtvuNVS3LcvH3JMmXwblRffHJlctgLsEtHOiWE6Gt6Bn1tC5SiXy1BBK9sekpbhw/kaH9tv7CV+cWFfz4NUIYvIXyzV8Cxr1LNY4R3eFO7c=
-Message-ID: <9e473391050614161117592eb5@mail.gmail.com>
-Date: Tue, 14 Jun 2005 19:11:13 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-Subject: Re: Fwd: hpet patches
-Cc: Bob Picco <bob.picco@hp.com>, Andrew Morton <akpm@osdl.org>,
+	Tue, 14 Jun 2005 19:11:47 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:38574 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261406AbVFNXLh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Jun 2005 19:11:37 -0400
+Date: Wed, 15 Jun 2005 01:11:15 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: dagit@codersbase.com
+Cc: Shaohua Li <shaohua.li@intel.com>, stefandoesinger@gmx.at,
+       acpi-dev <acpi-devel@lists.sourceforge.net>,
+       Matthew Garrett <mjg59@srcf.ucam.org>,
        lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <88056F38E9E48644A0F562A38C64FB6004F782CB@scsmsx403.amr.corp.intel.com>
+Subject: Re: S3 test tool (was : Re: Bizarre oops after suspend to RAM (was: Re: [ACPI] Resume from Suspend to RAM))
+Message-ID: <20050614231115.GE2172@elf.ucw.cz>
+References: <200506061531.41132.stefandoesinger@gmx.at> <1118125410.3828.12.camel@linux-hp.sh.intel.com> <87ll5diemh.fsf@www.codersbase.com> <20050614090652.GA1863@elf.ucw.cz> <87aclthr7l.fsf@www.codersbase.com> <20050614213728.GB2172@elf.ucw.cz> <87u0k061jx.fsf@www.codersbase.com> <20050614220911.GD2172@elf.ucw.cz> <87oea860rl.fsf@www.codersbase.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <88056F38E9E48644A0F562A38C64FB6004F782CB@scsmsx403.amr.corp.intel.com>
+In-Reply-To: <87oea860rl.fsf@www.codersbase.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/14/05, Pallipadi, Venkatesh <venkatesh.pallipadi@intel.com> wrote:
-> OK. I was thinking PCI fixup is to late in the initialization for
-> HPET fixup. But, we should be OK with a new ACPI_FIXUP macro. My only
-> other concern is, we should safely fallback to PIT, when our fixed_up
-> HPET address isn't right.
+Hi!
 
-If we're keying off from the PCI ID for the chip, how can it not have
-the device? On the other hand, it would probably be good to always do
-a little test on the HPET and fall back to the PIT if the HPET is
-dead.
+> >> >> Do you mean try something like this? Replace the push 0 with push
+> >> >> 0x1234 ; push 0x1234 ; pop ; pop and try to figure out which line
+> >> >> causes the reboot?
+> >> >
+> >> > Yep, try pushl $0, popl %eax; if that causes problems, something is
+> >> > seriously wrong with stack, otherwise changing flags hurts.
+> >> 
+> >> pushl $0, popl %eax gets the reboot.  So it's changing the flags that
+> >> is bad?
+> >> 
+> >> What should we try next?
+> >
+> > ??? You wanted it to reboot? If not, something is wrong with
+> > stack. Not sure whats next.
+> 
+> I don't want it to reboot, I guess I got confused.  As you say, maybe
+> something is wrong with the stack.  It's weird that something would be
+> wrong with the stack, because the other test to check the
+> suspend/resume code path works like a charm, the machine will do the
+> fake suspend/resume just fine.
 
+Well, we set up stack few instructions before that. But we do it in
+quite a complicated way; could you just put stack at 0x00:0x200 or
+something like that? Also test if push alone is enough to kill it.
+
+								Pavel
 -- 
-Jon Smirl
-jonsmirl@gmail.com
+teflon -- maybe it is a trademark, but it should not be.

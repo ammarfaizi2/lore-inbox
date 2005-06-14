@@ -1,40 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261345AbVFNV2B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbVFNVaC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261345AbVFNV2B (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 17:28:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbVFNV2B
+	id S261347AbVFNVaC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 17:30:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261348AbVFNVaB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 17:28:01 -0400
-Received: from mail.kroah.org ([69.55.234.183]:27046 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261345AbVFNV17 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 17:27:59 -0400
-Date: Tue, 14 Jun 2005 14:27:47 -0700
-From: Greg KH <greg@kroah.com>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: off by one in sysfs
-Message-ID: <20050614212747.GA20136@kroah.com>
-References: <9e47339105061120007061d7b1@mail.gmail.com> <20050614210729.GC19875@kroah.com> <9e4733910506141421382961d2@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9e4733910506141421382961d2@mail.gmail.com>
-User-Agent: Mutt/1.5.8i
+	Tue, 14 Jun 2005 17:30:01 -0400
+Received: from vms040pub.verizon.net ([206.46.252.40]:20867 "EHLO
+	vms040pub.verizon.net") by vger.kernel.org with ESMTP
+	id S261347AbVFNV34 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Jun 2005 17:29:56 -0400
+Date: Tue, 14 Jun 2005 17:29:53 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: Attempted summary of "RT patch acceptance" thread
+In-reply-to: <200506141935.j5EJZtZ7024713@turing-police.cc.vt.edu>
+To: linux-kernel@vger.kernel.org
+Cc: Valdis.Kletnieks@vt.edu, Bill Huey (hui) <bhuey@lnxw.com>,
+       Gerrit Huizenga <gh@us.ibm.com>, karim@opersys.com, dwalker@mvista.com,
+       paulmck@us.ibm.com, Andrea Arcangeli <andrea@suse.de>,
+       Lee Revell <rlrevell@joe-job.com>, Tim Bird <tim.bird@am.sony.com>,
+       tglx@linutronix.de, mingo@elte.hu, pmarques@grupopie.com,
+       bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au, ak@muc.de,
+       sdietrich@mvista.com, hch@infradead.org, akpm@osdl.org
+Message-id: <200506141729.54302.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <42AE0EF8.1090509@opersys.com>
+ <20050614192056.GA2985@nietzsche.lynx.com>
+ <200506141935.j5EJZtZ7024713@turing-police.cc.vt.edu>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 14, 2005 at 05:21:54PM -0400, Jon Smirl wrote:
-> On 6/14/05, Greg KH <greg@kroah.com> wrote:
-> > On Sat, Jun 11, 2005 at 11:00:00PM -0400, Jon Smirl wrote:
-> > > My attribute is a color_map described by 255 lines of 15 chars plus \n.
-> > 
-> > Heh, that's pretty big for a single attribute.  Would it be easier to
-> > just use the binary sysfs file interface for this attribute?
-> 
-> The attribute is formatted in ascii. You can use a script to set it if
-> you want. It is the gamma correction table for the monitor.
+On Tuesday 14 June 2005 15:35, Valdis.Kletnieks@vt.edu wrote:
+>On Tue, 14 Jun 2005 12:20:56 PDT, Bill Huey said:
+>> This implications of this patch are huge. It's transparent and
+>> will ultimately change the userspace land scape for just about
+>> everything despite the paranoia and disinformation spread by
+>> various arch-conservatives in this community.
+>
+>Is this patch running for political office? :)
 
-Ok, just curious, no big deal.
+That's entirely possible Valdis.  This patch has intrigued me for 
+almost all the time that Ingo has been working on it, and I'm 
+currently running 48-19.  Now he has converted a few others to both 
+help and guide.  This cannot be anything but a plus for linux in the 
+long view.  Unforch, I see, call it from the vantage point of an 
+elder geek or whatever viewpoint, the digging in of heels and the 
+speechifying against the changes proposed by those that in some sense 
+consider themselves the 'guardian of the flame' or something.
 
-greg k-h
+I am somewhat reminded of Peter the Great, whose statement at the time 
+was that he was going to bring Russia into the 20th century, kicking 
+and screaming if neccessary.   I guess this is the kicking and 
+screaming phase?
+
+But, I also see this as a sign of health because I've read some pretty 
+decent and very educational arguments here (I even half understood 
+some of them!), with only minimal name-calling (I guess you all 
+reserve that for JS maybe?) and have seen a few change their mind to 
+become 'supporters of the cause'.
+
+So lets all just keep on keeping on.  This WILL sort itself given 
+enough time to get the application programmers onboard.  It is they 
+who will find that they are the ones who need this, but they will 
+also need to learn how to code to take advantage of it to its 
+fullest.  For that, it needs a stable interface.  But its only going 
+to become 'stable' by going mainline so it gets enough exposure and 
+everything gets sorted eventually.
+
+A sample app that needs help badly is kmail, any background processes 
+involved with incoming mail sorting and filtering result in a frozen 
+user interface for the duration of the background process.  So any 
+kde people copying the mail here, sic 'em!  My guess is that this is 
+exactly what you need to remove that particular user headache/itch.  
+That's one of my personal itches...
+
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.35% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

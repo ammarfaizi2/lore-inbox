@@ -1,98 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261312AbVFNHzW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261313AbVFNH40@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261312AbVFNHzW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 03:55:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbVFNHzW
+	id S261313AbVFNH40 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 03:56:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261318AbVFNH4Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 03:55:22 -0400
-Received: from wproxy.gmail.com ([64.233.184.197]:25626 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261312AbVFNHzI convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 03:55:08 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=W03YkyyWKMYVzYl56San0B/qHtS357VDu7VfVa0/oNRNtJDQIDd1egMU68oyW6gl7rMOkFJcZumQWBjNDzUr41pJHvKBKL/hsTdrkmVlelpOgq1gUBDp44vp63jmwcf2nU17Gt3Zf03QC4iyDqEFEaI6Ud4bsMuoxU44M9AefSQ=
-Message-ID: <58cb370e05061400555407d144@mail.gmail.com>
-Date: Tue, 14 Jun 2005 09:55:08 +0200
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Jeff Wiegley <jeffw@cyte.com>
-Subject: Re: amd64 cdrom access locks system
-Cc: B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, Jens Axboe <axboe@suse.de>
-In-Reply-To: <42ADB5B4.1020704@cyte.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 14 Jun 2005 03:56:25 -0400
+Received: from smtp805.mail.sc5.yahoo.com ([66.163.168.184]:24202 "HELO
+	smtp805.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261313AbVFNH4Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Jun 2005 03:56:16 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Hannes Reinecke <hare@suse.de>
+Subject: Re: Input sysbsystema and hotplug
+Date: Tue, 14 Jun 2005 02:56:09 -0500
+User-Agent: KMail/1.8.1
+Cc: linux-hotplug-devel@lists.sourceforge.net,
+       Kay Sievers <kay.sievers@vrfy.org>, Greg KH <gregkh@suse.de>,
+       Vojtech Pavlik <vojtech@suse.cz>, LKML <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+References: <200506131607.51736.dtor_core@ameritech.net> <200506140242.08982.dtor_core@ameritech.net> <42AE8BA4.5020702@suse.de>
+In-Reply-To: <42AE8BA4.5020702@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <42A64556.4060405@cyte.com> <20050608052354.7b70052c.akpm@osdl.org>
-	 <42A861F8.9000301@cyte.com> <20050609160045.69c579d2.akpm@osdl.org>
-	 <42ADB5B4.1020704@cyte.com>
+Message-Id: <200506140256.10313.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ Jens added to cc: ]
+On Tuesday 14 June 2005 02:47, Hannes Reinecke wrote:
+> Dmitry Torokhov wrote:
+> > On Tuesday 14 June 2005 02:32, Hannes Reinecke wrote:
+> >>And yes, we should break compability and come up with a clean
+> >>implementation.
+> > 
+> > But those pesky users scream every time we break their mice ;)
+> > 
+> >>And as the original input event is an abomination I 
+> >>don't see the point in keeping compability with a broken interface.
+> >>
+> > 
+> > Why is it abomination (aside from using old mechanism to call
+> > hotplug)? It looks like it transmits all data necessary to load
+> > appropriate input handler...
+> > 
+> Because there are _two_ events with the name 'input'.
+> Both run under the same name but carry different information.
+> One is required to load the module and the other is required to create
+> the device node.
+> 
+> That's what I call an abomination.
+>
 
-On 6/13/05, Jeff Wiegley <jeffw@cyte.com> wrote:
-> Andrew Morton said I should carbon copy the IDE developer on this
-> issue so I have in the hopes of re-opening this issue and making
-> some progress since I'm still unable to write anything with my
-> cd-burner.
-> 
-> Here's what I know to date:
-> 
->     I have the alim15x3 IDE driver installed and running.
->     I do NOT have any of the generic IDE drivers installed or
->        even compiled as they grossly interfere with the alim15x3
->        and cause a kernel panic.
->     My hardware is an AMD64 FX55 in a Shuttle ST20G5 case with a
->        serial ATA harddrive.
->     I'm using a stock 2.6.12-rc6 kernel.
->     Debian unstable distribution.
-> 
-> At first I can read from the drive fine.
->     For instance I did two "cdparanoia -B -d /dev/hda" without
->     a hitch. Nothing was reported in /var/log/kernel as a result.
-> 
-> The problem is that I can't write to the drive (burn cds with
-> cdrecord) with causing a lost interrupt and then nothing works;
-> even reads don't respond.
-> 
-> When I do:
->     cdrecord -v -tao dev=ATAPI:/dev/hda something.iso
-> 
-> I get this output:
->    Cdrecord-Clone 2.01.01a01 (x86_64-unknown-linux-gnu) Copyright (C)
-> 1995-2004 Joerg Schilling
->    NOTE: this version of cdrecord is an inofficial (modified) release of
-> cdrecord
->          and thus may have bugs that are not present in the original
-> version.
->          Please send bug reports and support requests to
-> <cdrtools@packages.debian.org>.
->          The original author should not be bothered with problems of
-> this version.
-> 
->    cdrecord: Warning: Running on Linux-2.6.12-rc6-jw14
->    cdrecord: There are unsettled issues with Linux-2.5 and newer.
->    cdrecord: If you have unexpected problems, please try Linux-2.4 or
-> Solaris.
->    TOC Type: 1 = CD-ROM
->    scsidev: 'ATAPI:/dev/hda'
->    devname: 'ATAPI:/dev/hda'
->    scsibus: -2 target: -2 lun: -2
->    Warning: Using ATA Packet interface.
->    Warning: The related Linux kernel interface code seems to be
-> unmaintained.
+Ah, I see. Yep, it "input" wasn't reused when input_handlers were converted
+to class_simple we probably would not have this discussion now.
 
-^^^
-
->    Warning: There is absolutely NO DMA, operations thus are slow.
-
-^^^
-
-What is the result of using "dev=/dev/hda" interface instead
-(as suggested by Robert)?
-
-Bartlomiej
+-- 
+Dmitry

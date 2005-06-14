@@ -1,122 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261156AbVFNJgg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261163AbVFNJjf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261156AbVFNJgg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 05:36:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261159AbVFNJgf
+	id S261163AbVFNJjf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 05:39:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261166AbVFNJjf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 05:36:35 -0400
-Received: from wproxy.gmail.com ([64.233.184.207]:51205 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261156AbVFNJg0 (ORCPT
+	Tue, 14 Jun 2005 05:39:35 -0400
+Received: from mail.suse.de ([195.135.220.2]:5844 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261163AbVFNJjb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 05:36:26 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:x-enigmail-version:x-enigmail-supports:content-type:content-transfer-encoding;
-        b=ZwoDtCJkfGeUU2l0hlqvSDIvd0aM5CrV4XZUVWj7CpsUeigbUr7XATSEO3PHXXHVJQPonNd+t6elo6pOYuvkDEqYhbbDNx8K4Y19y/tuBqRcWLqh0Pwp/2Siv4+2GzGpzP5wvBFwWYIx9Nn1398EpCmRB6qHiWmu2CVD5fX881Q=
-Message-ID: <42AEC01A.3060403@gmail.com>
-Date: Tue, 14 Jun 2005 11:31:38 +0000
-From: Luca Falavigna <dktrkranz@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: it, it-it, en-us, en
+	Tue, 14 Jun 2005 05:39:31 -0400
+Message-ID: <42AEA5CF.30100@suse.de>
+Date: Tue, 14 Jun 2005 11:39:27 +0200
+From: Thomas Renninger <trenn@suse.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.5) Gecko/20050524
+X-Accept-Language: de, en-us, en
 MIME-Version: 1.0
-To: akpm@osdl.org
-CC: mingo@elte.hu, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Using msleep() instead of HZ
-X-Enigmail-Version: 0.89.5.0
+To: Valdis.Kletnieks@vt.edu
+Cc: Tony Lindgren <tony@atomide.com>, linux-kernel@vger.kernel.org,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       Jonathan Corbet <corbet@lwn.net>, Pavel Machek <pavel@ucw.cz>,
+       Bernard Blackham <b-lkml@blackham.com.au>,
+       Christian Hesse <mail@earthworm.de>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Subject: Re: [PATCH] Dynamic tick for x86 version 050609-2
+References: <88056F38E9E48644A0F562A38C64FB6004EBD10C@scsmsx403.amr.corp.intel.com> <20050609014033.GA30827@atomide.com> <20050610043018.GE18103@atomide.com> <200506130454.j5D4suNY006032@turing-police.cc.vt.edu> <20050613152507.GB7862@atomide.com> <200506131647.j5DGl0ke009926@turing-police.cc.vt.edu>            <42ADC9E7.30901@suse.de> <200506131907.j5DJ7e4G017545@turing-police.cc.vt.edu>
+In-Reply-To: <200506131907.j5DJ7e4G017545@turing-police.cc.vt.edu>
+X-Enigmail-Version: 0.90.1.0
 X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-15
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
-Ingo suggested me to forward you my patches which do use of msleep in order to
-perform short delays instead of using HZ directly.
-I already sent him some, but they are against his -RT tree.
-This is a modified patch, built against 2.6.12-rc6.
+Valdis.Kletnieks@vt.edu wrote:
+> On Mon, 13 Jun 2005 20:01:11 +0200, Thomas Renninger said:
+> 
+>>>Should there be a C3/C4?  Is my laptop just plain borked? :)
+>>Depends on your machine and BIOS, whether it's supported -> seems as if it's not.
+>>
+>>You could verify by having a deeper look in your FADT/DSDT.
+>>You need the acpi tools from Len Brown (acpidmp/acpixtract) and the iasl Intel ACPI
+>>compiler.
+>>AFAIK checking for C-support is rather robust in recent kernels as long as you don't have a broken
+>>DSDT table.
+> 
+> OK, found acpidmp and iasl, now have a decompiled DSDT - now to figure out
+> if it's busticated or not.... :)
 
-Signed-off by: Luca Falavigna <dktrkranz@gmail.com>
+There are two ways C-state addresses are exported to OS.
 
---- ./drivers/char/rtc.c.orig	2005-06-14 11:25:52.000000000 +0000
-+++ ./drivers/char/rtc.c	2005-06-14 11:27:21.000000000 +0000
-@@ -894,7 +894,6 @@ static int __init rtc_init(void)
- 	struct proc_dir_entry *ent;
- #if defined(__alpha__) || defined(__mips__)
- 	unsigned int year, ctrl;
--	unsigned long uip_watchdog;
- 	char *guess = NULL;
- #endif
- #ifdef __sparc__
-@@ -1000,12 +999,8 @@ no_irq:
- 	/* Each operating system on an Alpha uses its own epoch.
- 	   Let's try to guess which one we are using now. */
- 	
--	uip_watchdog = jiffies;
- 	if (rtc_is_updating() != 0)
--		while (jiffies - uip_watchdog < 2*HZ/100) {
--			barrier();
--			cpu_relax();
--		}
-+		msleep(20);
- 	
- 	spin_lock_irq(&rtc_lock);
- 	year = CMOS_READ(RTC_YEAR);
-@@ -1213,7 +1208,6 @@ static int rtc_proc_open(struct inode *i
+     - Some flags in the FADT (-> ACPI spec) -> this gives you two C-states maximum, AFAIK.
+     - Through the _CST function in your DSDT (-> ACPI spec, sorry). If you have
+       have a look in dsdt.dsl at the _CST function there are that much packages returned as
+       your BIOS claims to support. Hmm, _CST code is often in the SSDT an extention
+       of the DSDT code. If you have one: acpidmp > acpidmp; acpixtract ssdt acpidmp >my_ssdt;
+       iasl -d my_ssdt.
 
- void rtc_get_rtc_time(struct rtc_time *rtc_tm)
- {
--	unsigned long uip_watchdog = jiffies;
- 	unsigned char ctrl;
- #ifdef CONFIG_MACH_DECSTATION
- 	unsigned int real_year;
-@@ -1221,7 +1215,7 @@ void rtc_get_rtc_time(struct rtc_time *r
+If your dsdt/ssdt compiles again without errors (better tell me privately if you get some),
+you should not have much hope, higher states are probably not supported.
 
- 	/*
- 	 * read RTC once any update in progress is done. The update
--	 * can take just over 2ms. We wait 10 to 20ms. There is no need to
-+	 * can take just over 2ms. We wait 20ms. There is no need to
- 	 * to poll-wait (up to 1s - eeccch) for the falling edge of RTC_UIP.
- 	 * If you need to know *exactly* when a second has started, enable
- 	 * periodic update complete interrupts, (via ioctl) and then
-@@ -1230,10 +1224,7 @@ void rtc_get_rtc_time(struct rtc_time *r
- 	 */
+You could also increase ACPI debug output when loading the processor module to get more information:
+cat /proc/acpi/debug_level /proc/acpi/debug_layer
+echo 0x00000FFF >/proc/acpi/debug_level      (or whatever enables INFO, you need ACPI_DEBUG defined)
+modprobe processor
 
- 	if (rtc_is_updating() != 0)
--		while (jiffies - uip_watchdog < 2*HZ/100) {
--			barrier();
--			cpu_relax();
--		}
-+		msleep(20);
-
- 	/*
- 	 * Only the values that we read from the RTC are set. We leave
---- ./kernel/irq/autoprobe.c.orig	2005-06-14 11:29:01.000000000 +0000
-+++ ./kernel/irq/autoprobe.c	2005-06-14 11:29:08.000000000 +0000
-@@ -45,8 +45,7 @@ unsigned long probe_irq_on(void)
- 	}
-
- 	/* Wait for longstanding interrupts to trigger. */
--	for (delay = jiffies + HZ/50; time_after(delay, jiffies); )
--		/* about 20ms delay */ barrier();
-+	msleep(20);
-
- 	/*
- 	 * enable any unassigned irqs
-@@ -68,8 +67,7 @@ unsigned long probe_irq_on(void)
- 	/*
- 	 * Wait for spurious interrupts to trigger
- 	 */
--	for (delay = jiffies + HZ/10; time_after(delay, jiffies); )
--		/* about 100ms delay */ barrier();
-+	msleep(100);
-
- 	/*
- 	 * Now filter out any obviously spurious interrupts
-
-
-I'm a bit late. I'm having troubles with my ISP. Sorry.
-Regards,
--- 
-					Luca
-
+      Thomas
+> 
+>>Maybe you find a newer BIOS supporting C3?
+> 
+> Nope, I just checked, and the A13 BIOS from 02/06/2004 is the latest that Dell
+> has released for the C840.  Not much hope there unless there's some special
+> secret site that even newer BIOS updates hide until they escape.. ;)
+>  
+>>To be honest, I doubt you save much power even with dyn tick enabled if you only have support
+>>for C1 and C2. The pmstats tool from Tony (see link above)
+>>could tell you nicely whether you gain anything.
+> 
+> Well, it's a start, anyhow. :)
 

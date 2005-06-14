@@ -1,65 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261285AbVFNSYu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261283AbVFNSZg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261285AbVFNSYu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 14:24:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261290AbVFNSYt
+	id S261283AbVFNSZg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 14:25:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261284AbVFNSZg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 14:24:49 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:9623 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261284AbVFNSYZ (ORCPT
+	Tue, 14 Jun 2005 14:25:36 -0400
+Received: from mail1.utc.com ([192.249.46.190]:46234 "EHLO mail1.utc.com")
+	by vger.kernel.org with ESMTP id S261283AbVFNSZO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 14:24:25 -0400
-Message-ID: <42AF2088.3090605@sgi.com>
-Date: Tue, 14 Jun 2005 14:23:04 -0400
-From: Prarit Bhargava <prarit@sgi.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+	Tue, 14 Jun 2005 14:25:14 -0400
+Message-ID: <42AF20F9.20704@cybsft.com>
+Date: Tue, 14 Jun 2005 13:24:57 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Steve Lord <lord@xfs.org>
-CC: "K.R. Foley" <kr@cybsft.com>, Andrew Morton <akpm@osdl.org>,
-       pozsy@uhulinux.hu, linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
-Subject: Re: Race condition in module load causing undefined symbols
-References: <42A99D9D.7080900@xfs.org>	<20050610112515.691dcb6e.akpm@osdl.org>	<20050611082642.GB17639@ojjektum.uhulinux.hu>	<42AAE5C8.9060609@xfs.org>	<20050611150525.GI17639@ojjektum.uhulinux.hu>	<42AB25E7.5000405@xfs.org> <20050611120040.084942ed.akpm@osdl.org> <42AEDCFB.8080002@xfs.org> <42AEF979.2000207@cybsft.com> <42AF080A.1000307@xfs.org> <42AF0FA2.2050407@cybsft.com> <42AF165E.1020702@xfs.org>
-In-Reply-To: <42AF165E.1020702@xfs.org>
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org, "Eugeny S. Mints" <emints@ru.mvista.com>,
+       Daniel Walker <dwalker@mvista.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
+References: <20050608112801.GA31084@elte.hu>
+In-Reply-To: <20050608112801.GA31084@elte.hu>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Colleagues,
+Ingo Molnar wrote:
+> i have released the -V0.7.48-00 Real-Time Preemption patch, which can be 
+> downloaded from the usual place:
 
-(Copied and edited from a post I made on linux-hotplug-devel last month.)
+Ingo,
 
-I've privately emailed Steve with a quick-and-dirty solution for the problems he 
-was experiencing with the system boot.  I wasn't sure if he was having the same 
-problems I've had with 2.6.12 and old packages but it looks like he was.
+I just got this soft lock with -RT-2.6.12-rc6-V0.7.48-32 on my dual 2.6G 
+Xeon W/HT. Not sure what causes it. Just typing away and its like a key 
+sticks. It keeps printing the same key, even if I use the mouse to 
+change focus the typing follows the focus, and then it finally hangs.
 
-I'm surprised we haven't had more people on this list wondering about the 
-strange behaviour of their initrd/initramfs :) .
 
-When I looked at the original output Steve had posted I noticed that it looked 
-like drivers were attempting to load at the same time and because of this he 
-eventually hit an oops.  I (and an engineer from another company working on 
-another arch) have hit the same problem due to the requirements of our current work.
+Jun 14 13:07:40 swdev14 kernel: BUG: soft lockup detected on CPU#1!
+Jun 14 13:07:40 swdev14 kernel:
+Jun 14 13:07:40 swdev14 kernel: Pid: 13, comm:      softirq-timer/1
+Jun 14 13:07:40 swdev14 kernel: EIP: 0060:[<c02c5608>] CPU: 1
+Jun 14 13:07:40 swdev14 kernel: EIP is at _raw_spin_lock+0x69/0x85
+Jun 14 13:07:40 swdev14 kernel:  EFLAGS: 00000202    Not tainted 
+(2.6.12-rc6-RT-V0.7.48-32)
+Jun 14 13:07:40 swdev14 kernel: EAX: 00000001 EBX: c141f804 ECX: 
+c02c55ba EDX: 00000000
+Jun 14 13:07:40 swdev14 kernel: ESI: c1560000 EDI: c0727520 EBP: 
+c1561e2c DS: 007b ES: 007b
+Jun 14 13:07:40 swdev14 kernel: CR0: 8005003b CR2: b7fe0000 CR3: 
+1ff55000 CR4: 000006d0
+Jun 14 13:07:40 swdev14 kernel:  [<c01014d2>] show_regs+0x14b/0x175 (36)
+Jun 14 13:07:40 swdev14 kernel:  [<c01436b2>] softlockup_tick+0x75/0x86 (28)
+Jun 14 13:07:40 swdev14 kernel:  [<c010815c>] timer_interrupt+0x39/0x9e (20)
+Jun 14 13:07:40 swdev14 kernel:  [<c0143981>] handle_IRQ_event+0x6a/0xe4 
+(52)
+Jun 14 13:07:40 swdev14 kernel:  [<c0143b03>] __do_IRQ+0xec/0x159 (52)
+Jun 14 13:07:40 swdev14 kernel:  [<c01059fa>] do_IRQ+0x3a/0x4b (28)
+Jun 14 13:07:40 swdev14 kernel:  [<c0103d26>] common_interrupt+0x1a/0x20 
+(72)
+Jun 14 13:07:40 swdev14 kernel:  [<c0127a17>] __mod_timer+0xaa/0x17c (44)
+Jun 14 13:07:40 swdev14 kernel:  [<c020d302>] i8042_interrupt+0x26/0x241 
+(56)
+Jun 14 13:07:40 swdev14 kernel:  [<c0143981>] handle_IRQ_event+0x6a/0xe4 
+(52)
+Jun 14 13:07:40 swdev14 kernel:  [<c0143b03>] __do_IRQ+0xec/0x159 (52)
+Jun 14 13:07:40 swdev14 kernel:  [<c01059fa>] do_IRQ+0x3a/0x4b (28)
+Jun 14 13:07:40 swdev14 kernel:  [<c0103d26>] common_interrupt+0x1a/0x20 
+(64)
+Jun 14 13:07:40 swdev14 kernel:  [<c0128562>] 
+run_timer_softirq+0x25c/0x404 (64)
+Jun 14 13:07:40 swdev14 kernel:  [<c01245b2>] ksoftirqd+0xe9/0x19d (32)
+Jun 14 13:07:40 swdev14 kernel:  [<c013416b>] kthread+0xab/0xd3 (48)
+Jun 14 13:07:40 swdev14 kernel:  [<c0101501>] 
+kernel_thread_helper+0x5/0xb (1051320348)
+Jun 14 13:07:40 swdev14 kernel: ---------------------------
+Jun 14 13:07:40 swdev14 kernel: | preempt count: 20020005 ]
+Jun 14 13:07:40 swdev14 kernel: | 5-level deep critical section nesting:
+Jun 14 13:07:40 swdev14 kernel: ----------------------------------------
+Jun 14 13:07:40 swdev14 kernel: .. [<c02c55ba>] .... 
+_raw_spin_lock+0x1b/0x85
+Jun 14 13:07:40 swdev14 kernel: .....[<c012841e>] ..   ( <= 
+run_timer_softirq+0x118/0x404)
+Jun 14 13:07:40 swdev14 kernel: .. [<c02c55ba>] .... 
+_raw_spin_lock+0x1b/0x85
+Jun 14 13:07:40 swdev14 kernel: .....[<c01279b1>] ..   ( <= 
+__mod_timer+0x44/0x17c)
+Jun 14 13:07:40 swdev14 kernel: .. [<c02c55ba>] .... 
+_raw_spin_lock+0x1b/0x85
+Jun 14 13:07:40 swdev14 kernel: .....[<c010813c>] ..   ( <= 
+timer_interrupt+0x19/0x9e)
+Jun 14 13:07:40 swdev14 kernel: .. [<c02c55ba>] .... 
+_raw_spin_lock+0x1b/0x85
+Jun 14 13:07:40 swdev14 kernel: .....[<c0143697>] ..   ( <= 
+softlockup_tick+0x5a/0x86)
+Jun 14 13:07:40 swdev14 kernel: .. [<c013d423>] .... print_traces+0x1b/0x52
+Jun 14 13:07:40 swdev14 kernel: .....[<c01014d2>] ..   ( <= 
+show_regs+0x14b/0x175)
 
-(Unfortunately, I'm more familiar with RedHat/Fedora than I am with other 
-distro's -- please bear with me.)
-
-The issue is that David Howells posted a patch that changed the behaviour of 
-kallsyms/insmod/rmmod sometime ago.  The patch *is correct* in what it does, 
-however, the patch requires that /sbin/sh must be aware of pid returns by wait().
-
-     http://lkml.org/lkml/2005/1/17/132
-
-There are two fixes that I'm aware of, and depending on what you're doing they 
-are both "correct" (although in the case of developing in 2.6.12, IMO, you
-_must_ do the latter).
-
-The first fix is for the situation where you're developing for a specific 
-distribution.  If this is the case, then you should back out the patch above and 
-continue moving forward.
-
-The second fix, and again you must do this if you're developing 2.6.12, is to 
-*update the mkinitrd package* which has a new version of /bin/sh.
-
-P.
+-- 
+    kr

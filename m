@@ -1,69 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261442AbVFNDyn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261450AbVFNDxM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261442AbVFNDyn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 23:54:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261478AbVFNDxj
+	id S261450AbVFNDxM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 23:53:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261442AbVFNDwC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 23:53:39 -0400
-Received: from [143.106.24.129] ([143.106.24.129]:11742 "EHLO
-	emilia.lsd.ic.unicamp.br") by vger.kernel.org with ESMTP
-	id S261432AbVFNDwO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 23:52:14 -0400
-To: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: sbp2 slab corruption
-From: Alexandre Oliva <oliva@lsd.ic.unicamp.br>
-Date: 14 Jun 2005 00:49:59 -0300
-Message-ID: <orhdg161i0.fsf@livre.redhat.lsd.ic.unicamp.br>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
+	Mon, 13 Jun 2005 23:52:02 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:17832 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261450AbVFNDuB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 23:50:01 -0400
+Date: Mon, 13 Jun 2005 20:49:53 -0700
+From: Nishanth Aravamudan <nacc@us.ibm.com>
+To: john stultz <johnstul@us.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>,
+       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Christoph Lameter <clameter@sgi.com>,
+       Dominik Brodowski <linux@dominikbrodowski.de>,
+       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
+       paulus@samba.org, schwidefsky@de.ibm.com,
+       keith maanthey <kmannth@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
+       Max Asbock <masbock@us.ibm.com>, mahuja@us.ibm.com,
+       Darren Hart <darren@dvhart.com>, "Darrick J. Wong" <djwong@us.ibm.com>,
+       Anton Blanchard <anton@samba.org>, donf@us.ibm.com, mpm@selenic.com,
+       benh@kernel.crashing.org, kernel-stuff@comcast.net, frank@tuxrocks.com
+Subject: [PATCH 2/4] convert sys_nanosleep() to use new soft-timer subsystem
+Message-ID: <20050614034953.GD4180@us.ibm.com>
+References: <1118286702.5754.44.camel@cog.beaverton.ibm.com> <20050614034655.GA4180@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050614034655.GA4180@us.ibm.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
+On 13.06.2005 [20:46:55 -0700], Nishanth Aravamudan wrote:
+> On 08.06.2005 [20:11:42 -0700], john stultz wrote:
+> > Hey Everyone,
+> > 	I'm heading out on vacation until Monday, so I'm just re-spinning my
+> > current tree for testing. If there's no major issues on Monday, I'll re-
+> > diff against Andrew's tree and re-submit the patches for inclusion.
+> 
+> Here is an update of my soft-timer rework to John's latest patches. I
+> have made some major changes in this revision. I would still greatly
+> appreciate any comments.
 
-Sorry for taking so long to post this patch.  I fixed this bug just
-before two weeks in which I've been mostly away and disconnected.
+Sorry, the mail got sent without a subject :(
 
-This fixed a problem that showed up in the Fedora development tree a
-few weeks before the Fedora Core 4 release, initially as slab
-corruption, later as hard crashes on boot up, when slab debugging
-was disabled for the release.  More details on the history at
-https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=158424
+Description: Convert sys_nanosleep() to use the new timerinterval-based
+soft-timer interfaces.
 
-The problem is caused by sbp2's use of scsi_host->hostdata[0] to hold
-a scsi_id, without explicitly requesting space for it.  Since hostdata
-is declared as a zero-sized array, we don't get any such space by
-default, so it must be explicitly requested.  The patch below
-implements just that.
+Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
 
-Signed-off-by: Alexandre Oliva <aoliva@redhat.com>
-
-
---=-=-=
-Content-Type: text/x-patch
-Content-Disposition: inline;
-  filename=firewire-scsi-host-slab-corruption.patch
-
---- drivers/ieee1394/sbp2.c~	2005-05-29 14:00:06.000000000 -0300
-+++ drivers/ieee1394/sbp2.c	2005-05-29 20:04:07.000000000 -0300
-@@ -745,7 +745,8 @@
- 	list_add_tail(&scsi_id->scsi_list, &hi->scsi_ids);
+diff -urpN 2.6.12-rc6-tod-timer-base/kernel/timer.c 2.6.12-rc6-tod-timer-dev/kernel/timer.c
+--- 2.6.12-rc6-tod-timer-base/kernel/timer.c	2005-06-13 19:47:40.000000000 -0700
++++ 2.6.12-rc6-tod-timer-dev/kernel/timer.c	2005-06-13 19:48:53.000000000 -0700
+@@ -1484,21 +1484,21 @@ asmlinkage long sys_gettid(void)
  
- 	/* Register our host with the SCSI stack. */
--	scsi_host = scsi_host_alloc(&scsi_driver_template, 0);
-+	scsi_host = scsi_host_alloc(&scsi_driver_template,
-+				    sizeof (unsigned long));
- 	if (!scsi_host) {
- 		SBP2_ERR("failed to register scsi host");
- 		goto failed_alloc;
-
---=-=-=
-
-
--- 
-Alexandre Oliva         http://www.lsd.ic.unicamp.br/~oliva/
-Red Hat Compiler Engineer   aoliva@{redhat.com, gcc.gnu.org}
-Free Software Evangelist  oliva@{lsd.ic.unicamp.br, gnu.org}
-
---=-=-=--
+ static long __sched nanosleep_restart(struct restart_block *restart)
+ {
+-	unsigned long expire = restart->arg0, now = jiffies;
++	nsec_t expire = restart->arg0, now = do_monotonic_clock();
+ 	struct timespec __user *rmtp = (struct timespec __user *) restart->arg1;
+ 	long ret;
+ 
+ 	/* Did it expire while we handled signals? */
+-	if (!time_after(expire, now))
++	if (now > expire)
+ 		return 0;
+ 
+-	current->state = TASK_INTERRUPTIBLE;
+-	expire = schedule_timeout(expire - now);
++	set_current_state(TASK_INTERRUPTIBLE);
++	expire = schedule_timeout_nsecs(expire - now);
+ 
+ 	ret = 0;
+ 	if (expire) {
+ 		struct timespec t;
+-		jiffies_to_timespec(expire, &t);
++		t = ns_to_timespec(expire);
+ 
+ 		ret = -ERESTART_RESTARTBLOCK;
+ 		if (rmtp && copy_to_user(rmtp, &t, sizeof(t)))
+@@ -1511,7 +1511,7 @@ static long __sched nanosleep_restart(st
+ asmlinkage long sys_nanosleep(struct timespec __user *rqtp, struct timespec __user *rmtp)
+ {
+ 	struct timespec t;
+-	unsigned long expire;
++	nsec_t expire;
+ 	long ret;
+ 
+ 	if (copy_from_user(&t, rqtp, sizeof(t)))
+@@ -1520,20 +1520,20 @@ asmlinkage long sys_nanosleep(struct tim
+ 	if ((t.tv_nsec >= 1000000000L) || (t.tv_nsec < 0) || (t.tv_sec < 0))
+ 		return -EINVAL;
+ 
+-	expire = timespec_to_jiffies(&t) + (t.tv_sec || t.tv_nsec);
+-	current->state = TASK_INTERRUPTIBLE;
+-	expire = schedule_timeout(expire);
++	expire = timespec_to_ns(&t);
++	set_current_state(TASK_INTERRUPTIBLE);
++	expire = schedule_timeout_nsecs(expire);
+ 
+ 	ret = 0;
+ 	if (expire) {
+ 		struct restart_block *restart;
+-		jiffies_to_timespec(expire, &t);
++		t = ns_to_timespec(expire);
+ 		if (rmtp && copy_to_user(rmtp, &t, sizeof(t)))
+ 			return -EFAULT;
+ 
+ 		restart = &current_thread_info()->restart_block;
+ 		restart->fn = nanosleep_restart;
+-		restart->arg0 = jiffies + expire;
++		restart->arg0 = do_monotonic_clock() + expire;
+ 		restart->arg1 = (unsigned long) rmtp;
+ 		ret = -ERESTART_RESTARTBLOCK;
+ 	}

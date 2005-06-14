@@ -1,74 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261311AbVFNHwx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261312AbVFNHzW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261311AbVFNHwx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 03:52:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261312AbVFNHwx
+	id S261312AbVFNHzW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 03:55:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbVFNHzW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 03:52:53 -0400
-Received: from smtp800.mail.sc5.yahoo.com ([66.163.168.179]:50098 "HELO
-	smtp800.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261311AbVFNHws (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 03:52:48 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Hannes Reinecke <hare@suse.de>
-Subject: Re: Input sysbsystema and hotplug
-Date: Tue, 14 Jun 2005 02:52:41 -0500
-User-Agent: KMail/1.8.1
-Cc: linux-hotplug-devel@lists.sourceforge.net, Greg KH <gregkh@suse.de>,
-       Vojtech Pavlik <vojtech@suse.cz>, Kay Sievers <kay.sievers@vrfy.org>,
-       LKML <linux-kernel@vger.kernel.org>
-References: <200506131607.51736.dtor_core@ameritech.net> <42AE8A9E.5040406@suse.de>
-In-Reply-To: <42AE8A9E.5040406@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 14 Jun 2005 03:55:22 -0400
+Received: from wproxy.gmail.com ([64.233.184.197]:25626 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261312AbVFNHzI convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Jun 2005 03:55:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=W03YkyyWKMYVzYl56San0B/qHtS357VDu7VfVa0/oNRNtJDQIDd1egMU68oyW6gl7rMOkFJcZumQWBjNDzUr41pJHvKBKL/hsTdrkmVlelpOgq1gUBDp44vp63jmwcf2nU17Gt3Zf03QC4iyDqEFEaI6Ud4bsMuoxU44M9AefSQ=
+Message-ID: <58cb370e05061400555407d144@mail.gmail.com>
+Date: Tue, 14 Jun 2005 09:55:08 +0200
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Jeff Wiegley <jeffw@cyte.com>
+Subject: Re: amd64 cdrom access locks system
+Cc: B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, Jens Axboe <axboe@suse.de>
+In-Reply-To: <42ADB5B4.1020704@cyte.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200506140252.42306.dtor_core@ameritech.net>
+References: <42A64556.4060405@cyte.com> <20050608052354.7b70052c.akpm@osdl.org>
+	 <42A861F8.9000301@cyte.com> <20050609160045.69c579d2.akpm@osdl.org>
+	 <42ADB5B4.1020704@cyte.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 14 June 2005 02:43, Hannes Reinecke wrote:
-> Dmitry Torokhov wrote:
-> > 	 
-> Hmm. I don't like it very much as it mixes two different types of
-> devices (class devices and subclasses) into one directory.
+[ Jens added to cc: ]
+
+On 6/13/05, Jeff Wiegley <jeffw@cyte.com> wrote:
+> Andrew Morton said I should carbon copy the IDE developer on this
+> issue so I have in the hopes of re-opening this issue and making
+> some progress since I'm still unable to write anything with my
+> cd-burner.
 > 
-
-If one could come up with a good name to group inputX under I think
-it will be OK. We'd have XXX, mouse, joystick, event, ... as subclasses
-and all class_devices will be on level below. OTOH input_devs are parents
-for mice, joysticks etc so they might be on the higher level.
-
-> I think it's cleaner to have two distinct class device types
-> (one for input_dev and one for input).
+> Here's what I know to date:
 > 
+>     I have the alim15x3 IDE driver installed and running.
+>     I do NOT have any of the generic IDE drivers installed or
+>        even compiled as they grossly interfere with the alim15x3
+>        and cause a kernel panic.
+>     My hardware is an AMD64 FX55 in a Shuttle ST20G5 case with a
+>        serial ATA harddrive.
+>     I'm using a stock 2.6.12-rc6 kernel.
+>     Debian unstable distribution.
+> 
+> At first I can read from the drive fine.
+>     For instance I did two "cdparanoia -B -d /dev/hda" without
+>     a hitch. Nothing was reported in /var/log/kernel as a result.
+> 
+> The problem is that I can't write to the drive (burn cds with
+> cdrecord) with causing a lost interrupt and then nothing works;
+> even reads don't respond.
+> 
+> When I do:
+>     cdrecord -v -tao dev=ATAPI:/dev/hda something.iso
+> 
+> I get this output:
+>    Cdrecord-Clone 2.01.01a01 (x86_64-unknown-linux-gnu) Copyright (C)
+> 1995-2004 Joerg Schilling
+>    NOTE: this version of cdrecord is an inofficial (modified) release of
+> cdrecord
+>          and thus may have bugs that are not present in the original
+> version.
+>          Please send bug reports and support requests to
+> <cdrtools@packages.debian.org>.
+>          The original author should not be bothered with problems of
+> this version.
+> 
+>    cdrecord: Warning: Running on Linux-2.6.12-rc6-jw14
+>    cdrecord: There are unsettled issues with Linux-2.5 and newer.
+>    cdrecord: If you have unexpected problems, please try Linux-2.4 or
+> Solaris.
+>    TOC Type: 1 = CD-ROM
+>    scsidev: 'ATAPI:/dev/hda'
+>    devname: 'ATAPI:/dev/hda'
+>    scsibus: -2 target: -2 lun: -2
+>    Warning: Using ATA Packet interface.
+>    Warning: The related Linux kernel interface code seems to be
+> unmaintained.
 
-I actually detest this practice:
+^^^
 
-[dtor@core ~]$ ls /sys/class/
-firmware     ieee1394       ieee1394_protocol  mem   pci_bus        sound  usb_host
-graphics     ieee1394_host  input              misc  pcmcia_socket  tty    vc
-i2c-adapter  ieee1394_node  input_dev          net   printer        usb
-[dtor@core ~]$
+>    Warning: There is absolutely NO DMA, operations thus are slow.
 
-dtor@anvil ~]$ ls /sys/class/
-cpuid     i2c-adapter  ieee1394_host      input  msr      printer      sound  usb_host
-firmware  i2c-dev      ieee1394_node      mem    net      scsi_device  tty    vc
-graphics  ieee1394     ieee1394_protocol  misc   pci_bus  scsi_host    usb    video4linux
-[dtor@anvil ~]$
+^^^
 
-Firewire has 4 classes on the uppper level, I2C, USB, SCSI and Input got
-2 each. It would be much nicer IMHO if we merge them into trees of classes
-with poarent class actually defining subsystem.  
+What is the result of using "dev=/dev/hda" interface instead
+(as suggested by Robert)?
 
-> subclasses for the input class devices are a neat idea; but I fear the
-> hotplug event name will change for each subclass device ('input' will
-> become eg 'mouse'), so we again have to change all hotplug handlers.
-> And I don't see an easy solution for that ...
->
-
-We could have parent class define agent/subsystem name for all its children.
-
--- 
-Dmitry
+Bartlomiej

@@ -1,68 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261168AbVFNKbi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261177AbVFNKoT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261168AbVFNKbi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 06:31:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261173AbVFNKbi
+	id S261177AbVFNKoT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 06:44:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261178AbVFNKoS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 06:31:38 -0400
-Received: from mail4.worldserver.net ([217.13.200.24]:57477 "EHLO
-	mail4.worldserver.net") by vger.kernel.org with ESMTP
-	id S261168AbVFNKbg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 06:31:36 -0400
-Date: Tue, 14 Jun 2005 12:31:35 +0200
-From: Christian Leber <christian@leber.de>
-To: Frank Sorenson <frank@tuxrocks.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH 2/2] lzma support: lzma compressed kernel image
-Message-ID: <20050614103135.GA4319@core.home>
-References: <20050607214128.GB2645@core.home> <20050612223150.GA26370@core.home> <42AE3C91.4090904@tuxrocks.com>
+	Tue, 14 Jun 2005 06:44:18 -0400
+Received: from [213.69.232.60] ([213.69.232.60]:24837 "HELO ei.schottelius.org")
+	by vger.kernel.org with SMTP id S261177AbVFNKoC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Jun 2005 06:44:02 -0400
+Date: Tue, 14 Jun 2005 10:54:36 +0200
+From: Nico Schottelius <nico-kernel@schottelius.org>
+To: linux-kernel@vger.kernel.org
+Subject: gzip zombie / spawned from init
+Message-ID: <20050614085436.GA1467@schottelius.org>
+Mail-Followup-To: Nico Schottelius <nico-kernel@schottelius.org>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="VbJkn9YxBvnuCH5J"
 Content-Disposition: inline
-In-Reply-To: <42AE3C91.4090904@tuxrocks.com>
-X-Accept-Language: de en
-X-Location: Europe, Germany, Mannheim
-X-Operating-System: Debian GNU/Linux (sid)
-User-Agent: Mutt/1.5.9i
+User-Agent: echo $message | gpg -e $sender  -s | netcat mailhost 25
+X-Linux-Info: http://linux.schottelius.org/
+X-Operating-System: Linux 2.6.11.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 13, 2005 at 08:10:25PM -0600, Frank Sorenson wrote:
 
-> patches appear to work as advertised.
+--VbJkn9YxBvnuCH5J
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I don't like the moving of the initrd, but i don't know another way to
-get it working otherwise.
+Hello!
 
-> lzma reduced my kernel by
-> approximately 25%, so I'd say it looks promising.
+I wrote an init replacement (cinit), which is now in the beta-phase.
+The only problem I do have currently is that when calling
+'loadkeys dvorak' directly from init (without a shell or anything)
+it will leave behind a gzip zombie (which was forked by loadkeys).
 
-25%? i would have expected a smaller saving
+Now my question is: Is that a problem of loadkeys or from my init
+and what could be the reasons that it's still there?
 
-> I think one or more of the following ought to happen:
-> - - Modify the help text in the Kconfig option to show people how to
-> obtain, compile, and install lzma (and warn them they'll need to install
-> it).
+cinit forks() loadkeys and does waitpid() for it. There is no
+loadkeys zombie, only gzip.
 
-How to obtain should be enough, i'll add it.
+Thanks for any input,
 
-> - - Detect that the lzma application isn't present, and fall back to gzip
-> (with a warning) if lzma fails.
+Nico
 
-No.
-If you select lzma you have to have it, you also don't download a
-compiler when somebody tries to compile the kernel without a compiler.
+P.S.: Replying to me directly will result in a confirmation mail,
+      I'll read lkml directly anyhow.
 
-> - - If we can embed the decompressor into the boot-time kernel, can't we
-> put a compressor into the kernel source, and avoid the need for the
-> external program?
+--=20
+Keep it simple & stupid, use what's available.
+Please use pgp encryption: 8D0E 27A4 is my id.
+http://nico.schotteli.us | http://linux.schottelius.org
 
-How do think will people react to a hundreds of kb sized C++ patch that
-is not - i repeat - NOT in proper coding style?
+--VbJkn9YxBvnuCH5J
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-Christian Leber
+iQIVAwUBQq6bS7OTBMvCUbrlAQJMzw/9Go84sDOcXP1hDhySRLJ1JtoHGM2JbQ77
+ULZ7tjVH5ySUO9bAP9I+I+1ppc5uBzmCPPE/mvg7uoU+xDM1NCtS7awUKLAxGNbr
+xJHVNxbWaeYysTYQL2EGg3GHk1E3mVZ1iI3ov8Bwe2jS21UbyMCUnF1bQmvLpIGw
++WoHA25WNH2jmuFEF4IOCt2aKOeajX6JsJDDMQV9UZVh8DJm2JoVfWrGUEkeis6S
+5fRdvK1Uf/KyVTUaAGDtmsC/9n5vBxXA8Uzo/3TJl9VqnyK99Ek044TtUGPOqmAT
+mdnSTAQ8d/vxqBseYj/ddsacs1kIlEKFmxoBOnDt9fezn0xinFLzjQB/LCUcqz3d
+MGLW7UKEvcXLbAjmyOGkY9LiStXDZGVUc06+i9kEQ7yzDhoD/xKGj2tZfkCcm+xf
+imUtNCcxe9Rc+VmTYRiOKk7Cqu5Z6ZDi9pxZLsiPRMWNDqVj7v2WIYpyX16oSKTf
+qPJLAFC2T62dEOlenRtbKW3G20z0JUVGZ3wvXQLBR1Dwu6OnbAn3TUogukuHIJ7Q
+Hrgnl6bhAwHYwG/oh4u+F8KorzpuQWsU8RWa4FiuT/cahS/STJa4PL8NiMfKqugb
+s7ETqPug4wldWRtsdcjk6VwJocSTQj6dlr6ShF1z760IFm6zUsbdoOCYC9/w74ls
+XGuy3RgID7s=
+=Jf1K
+-----END PGP SIGNATURE-----
 
--- 
-http://www.nosoftwarepatents.com
-
+--VbJkn9YxBvnuCH5J--

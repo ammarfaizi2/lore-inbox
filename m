@@ -1,21 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261183AbVFNBnk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261238AbVFNBqL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261183AbVFNBnk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 21:43:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261238AbVFNBnk
+	id S261238AbVFNBqL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 21:46:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261298AbVFNBqL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 21:43:40 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:31501 "HELO
+	Mon, 13 Jun 2005 21:46:11 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:32013 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261183AbVFNBnb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 21:43:31 -0400
-Date: Tue, 14 Jun 2005 03:43:26 +0200
+	id S261238AbVFNBp6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 21:45:58 -0400
+Date: Tue, 14 Jun 2005 03:45:53 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: David Teigland <teigland@redhat.com>,
-       Patrick Caulfield <pcaulfie@redhat.com>, linux-kernel@vger.kernel.org
-Subject: [-mm patch] drivers/dlm/: make code static
-Message-ID: <20050614014325.GC3770@stusta.de>
+To: linux-kernel@vger.kernel.org, R.E.Wolff@BitWizard.nl
+Subject: [2.6 patch] drivers/char/rio/: kill rio_udelay
+Message-ID: <20050614014553.GD3770@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,159 +21,75 @@ User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes needlessly global code static.
+There's no need for a function that only calls udelays.
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
-This patch was already sent on:
-- 2 Jun 2005
+ drivers/char/rio/func.h      |    1 -
+ drivers/char/rio/rio_linux.c |    5 -----
+ drivers/char/rio/rioinit.c   |    7 ++++---
+ 3 files changed, 4 insertions(+), 9 deletions(-)
 
- drivers/dlm/lock.c      |   10 +++++-----
- drivers/dlm/lockspace.c |    6 +++---
- drivers/dlm/main.c      |    4 ++--
- drivers/dlm/member.c    |    6 +++---
- drivers/dlm/recover.c   |    2 +-
- drivers/dlm/recoverd.c  |    2 +-
- 6 files changed, 15 insertions(+), 15 deletions(-)
-
---- linux-2.6.12-rc5-mm2-full/drivers/dlm/lock.c.old	2005-06-02 22:09:02.000000000 +0200
-+++ linux-2.6.12-rc5-mm2-full/drivers/dlm/lock.c	2005-06-02 22:10:22.000000000 +0200
-@@ -94,7 +94,7 @@
-  * Usage: matrix[grmode+1][rqmode+1]  (although m[rq+1][gr+1] is the same)
-  */
+--- linux-2.6.12-rc6-mm1-full/drivers/char/rio/func.h.old	2005-06-14 02:45:06.000000000 +0200
++++ linux-2.6.12-rc6-mm1-full/drivers/char/rio/func.h	2005-06-14 02:45:12.000000000 +0200
+@@ -147,7 +147,6 @@
+ extern int    rio_pcicopy(char *src, char *dst, int n);
+ extern int rio_minor (struct tty_struct *tty);
+ extern int rio_ismodem (struct tty_struct *tty);
+-extern void rio_udelay (int usecs);
  
--const int __dlm_compat_matrix[8][8] = {
-+static const int __dlm_compat_matrix[8][8] = {
-       /* UN NL CR CW PR PW EX PD */
-         {1, 1, 1, 1, 1, 1, 1, 0},       /* UN */
-         {1, 1, 1, 1, 1, 1, 1, 0},       /* NL */
-@@ -141,7 +141,7 @@
-  * Usage: matrix[grmode+1][rqmode+1]
-  */
+ extern void rio_start_card_running (struct Host * HostP);
  
--const int __quecvt_compat_matrix[8][8] = {
-+static const int __quecvt_compat_matrix[8][8] = {
-       /* UN NL CR CW PR PW EX PD */
-         {0, 0, 0, 0, 0, 0, 0, 0},       /* UN */
-         {0, 0, 1, 1, 1, 1, 1, 0},       /* NL */
-@@ -1632,8 +1632,8 @@
- 	return 0;
+--- linux-2.6.12-rc6-mm1-full/drivers/char/rio/rio_linux.c.old	2005-06-14 02:45:19.000000000 +0200
++++ linux-2.6.12-rc6-mm1-full/drivers/char/rio/rio_linux.c	2005-06-14 02:45:27.000000000 +0200
+@@ -354,11 +354,6 @@
  }
  
--int validate_lock_args(struct dlm_ls *ls, struct dlm_lkb *lkb,
--		       struct dlm_args *args)
-+static int validate_lock_args(struct dlm_ls *ls, struct dlm_lkb *lkb,
-+			      struct dlm_args *args)
+ 
+-void rio_udelay (int usecs)
+-{
+-  udelay (usecs);
+-}
+-
+ static int rio_set_real_termios (void *ptr)
  {
- 	int rv = -EINVAL;
+   int rv, modem;
+--- linux-2.6.12-rc6-mm1-full/drivers/char/rio/rioinit.c.old	2005-06-14 02:45:35.000000000 +0200
++++ linux-2.6.12-rc6-mm1-full/drivers/char/rio/rioinit.c	2005-06-14 02:55:17.000000000 +0200
+@@ -37,6 +37,7 @@
+ #include <linux/module.h>
+ #include <linux/slab.h>
+ #include <linux/errno.h>
++#include <linux/delay.h>
+ #include <asm/io.h>
+ #include <asm/system.h>
+ #include <asm/string.h>
+@@ -1560,14 +1561,14 @@
+ 					  INTERRUPT_DISABLE | BYTE_OPERATION |
+ 					  SLOW_LINKS | SLOW_AT_BUS);
+ 			WBYTE(DpRamP->DpResetTpu, 0xFF);
+-			rio_udelay (3);
++			udelay(3);
  
-@@ -1687,7 +1687,7 @@
- 	return rv;
- }
- 
--int validate_unlock_args(struct dlm_lkb *lkb, struct dlm_args *args)
-+static int validate_unlock_args(struct dlm_lkb *lkb, struct dlm_args *args)
- {
- 	int rv = -EINVAL;
- 
---- linux-2.6.12-rc5-mm2-full/drivers/dlm/lockspace.c.old	2005-06-02 22:10:40.000000000 +0200
-+++ linux-2.6.12-rc5-mm2-full/drivers/dlm/lockspace.c	2005-06-02 22:10:54.000000000 +0200
-@@ -39,7 +39,7 @@
- 	return 0;
- }
- 
--int dlm_scand(void *data)
-+static int dlm_scand(void *data)
- {
- 	struct dlm_ls *ls;
- 
-@@ -52,7 +52,7 @@
- 	return 0;
- }
- 
--int dlm_scand_start(void)
-+static int dlm_scand_start(void)
- {
- 	struct task_struct *p;
- 	int error = 0;
-@@ -65,7 +65,7 @@
- 	return error;
- }
- 
--void dlm_scand_stop(void)
-+static void dlm_scand_stop(void)
- {
- 	kthread_stop(scand_task);
- }
---- linux-2.6.12-rc5-mm2-full/drivers/dlm/main.c.old	2005-06-02 22:11:11.000000000 +0200
-+++ linux-2.6.12-rc5-mm2-full/drivers/dlm/main.c	2005-06-02 22:11:36.000000000 +0200
-@@ -36,7 +36,7 @@
- int dlm_node_ioctl_init(void);
- void dlm_node_ioctl_exit(void);
- 
--int __init init_dlm(void)
-+static int __init init_dlm(void)
- {
- 	int error;
- 
-@@ -80,7 +80,7 @@
- 	return error;
- }
- 
--void __exit exit_dlm(void)
-+static void __exit exit_dlm(void)
- {
- 	dlm_lowcomms_exit();
- 	dlm_member_sysfs_exit();
---- linux-2.6.12-rc5-mm2-full/drivers/dlm/member.c.old	2005-06-02 22:11:53.000000000 +0200
-+++ linux-2.6.12-rc5-mm2-full/drivers/dlm/member.c	2005-06-02 22:12:20.000000000 +0200
-@@ -47,7 +47,7 @@
- 	}
- }
- 
--int dlm_add_member(struct dlm_ls *ls, int nodeid)
-+static int dlm_add_member(struct dlm_ls *ls, int nodeid)
- {
- 	struct dlm_member *memb;
- 
-@@ -61,13 +61,13 @@
- 	return 0;
- }
- 
--void dlm_remove_member(struct dlm_ls *ls, struct dlm_member *memb)
-+static void dlm_remove_member(struct dlm_ls *ls, struct dlm_member *memb)
- {
- 	list_move(&memb->list, &ls->ls_nodes_gone);
- 	ls->ls_num_nodes--;
- }
- 
--int dlm_is_member(struct dlm_ls *ls, int nodeid)
-+static int dlm_is_member(struct dlm_ls *ls, int nodeid)
- {
- 	struct dlm_member *memb;
- 
---- linux-2.6.12-rc5-mm2-full/drivers/dlm/recover.c.old	2005-06-02 22:12:34.000000000 +0200
-+++ linux-2.6.12-rc5-mm2-full/drivers/dlm/recover.c	2005-06-02 22:13:18.000000000 +0200
-@@ -237,7 +237,7 @@
- 	return r;
- }
- 
--void recover_list_clear(struct dlm_ls *ls)
-+static void recover_list_clear(struct dlm_ls *ls)
- {
- 	struct dlm_rsb *r, *s;
- 
---- linux-2.6.12-rc5-mm2-full/drivers/dlm/recoverd.c.old	2005-06-02 22:13:28.000000000 +0200
-+++ linux-2.6.12-rc5-mm2-full/drivers/dlm/recoverd.c	2005-06-02 22:13:36.000000000 +0200
-@@ -658,7 +658,7 @@
- 	}
- }
- 
--int dlm_recoverd(void *arg)
-+static int dlm_recoverd(void *arg)
- {
- 	struct dlm_ls *ls;
- 
+ 			rio_dprintk (RIO_DEBUG_INIT,  "RIOHostReset: Don't know if it worked. Try reset again\n");
+ 			WBYTE(DpRamP->DpControl,  BOOT_FROM_RAM | EXTERNAL_BUS_OFF |
+ 					  INTERRUPT_DISABLE | BYTE_OPERATION |
+ 					  SLOW_LINKS | SLOW_AT_BUS);
+ 			WBYTE(DpRamP->DpResetTpu, 0xFF);
+-			rio_udelay (3);
++			udelay(3);
+ 			break;
+ #ifdef FUTURE_RELEASE
+ 	case RIO_EISA:
+@@ -1599,7 +1600,7 @@
+ 		DpRamP->DpControl  = RIO_PCI_BOOT_FROM_RAM;
+ 		DpRamP->DpResetInt = 0xFF;
+ 		DpRamP->DpResetTpu = 0xFF;
+-		rio_udelay (100);
++		udelay(100);
+ 		/* for (i=0; i<6000; i++);  */
+ 		/* suspend( 3 ); */
+ 		break;
 

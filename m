@@ -1,73 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261170AbVFNFsa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261231AbVFNFuJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261170AbVFNFsa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 01:48:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261231AbVFNFsa
+	id S261231AbVFNFuJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 01:50:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbVFNFuJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 01:48:30 -0400
-Received: from web33314.mail.mud.yahoo.com ([68.142.206.129]:7549 "HELO
-	web33314.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S261170AbVFNFsV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 01:48:21 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=FEyDpTicvnTAdHox78m8WF8KICQmBXI8yYgHQvJ96QmyXM1HBYH1NZDyx2kMKUeaM6epLlHO5Zh60lMByAO+Mxc+2n24+vWbqeMcW51Dtq70jravLCvYY2asZkWMepvHlNLK4SsTtg6TF9VOzj2mQGGDVXqjw53LbBJefkPjqwM=  ;
-Message-ID: <20050614054813.63362.qmail@web33314.mail.mud.yahoo.com>
-Date: Mon, 13 Jun 2005 22:48:13 -0700 (PDT)
-From: li nux <lnxluv@yahoo.com>
-Subject: Re: rmap.c: try_to_unmap_file(): VM_LOCKED not respected
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: linux <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050614052219.GH3879@holomorphy.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 14 Jun 2005 01:50:09 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:9681 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261231AbVFNFtx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Jun 2005 01:49:53 -0400
+Date: Tue, 14 Jun 2005 07:47:52 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Eric Piel <Eric.Piel@tremplin-utc.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [1/2] IDE CD reports current speed
+Message-ID: <20050614054752.GB1484@suse.de>
+References: <42AE09BB.2090201@tremplin-utc.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42AE09BB.2090201@tremplin-utc.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I first use mmap(MAP_LOCKED) and then
-remap_file_pages.
-This should set VM_LOCKED in the vma.
-
--li
-
---- William Lee Irwin III <wli@holomorphy.com> wrote:
-
-> On Mon, Jun 13, 2005 at 10:14:05PM -0700, li nux
-> wrote:
-> > My application is using remap_file_pages and
-> mlocks
-> > those pages.
-> > So in the code of  try_to_unmap_file (see below),
-> > I should never reach the call to
-> try_to_unmap_cluster,
-> > because for those pages VM_LOCKED is always set.
-> > But, under heavy load I am seeing
-> try_to_unmap_cluster
-> > is getting called. Stack:
+On Tue, Jun 14 2005, Eric Piel wrote:
+> Hello,
 > 
-> Does your app use remap_file_pages() before mlock()?
+> The current ide-cd driver reports the CDROM speed (as found in 
+> /proc/sys/dev/cdrom/info) as the current speed when loading the driver. 
+> Changing the speed of the cdrom drive (by "eject -x" for instance) 
+> doesn't update the speed reported by the kernel. Updating the info could 
+> be valuable for the user as it's the only way to know if the drive 
+> accepted the request or discarded it. It could even be used to list all 
+> the available speeds of the drive.
 > 
-> If so, the VM may be trying to reclaim pages between
-> the call to
-> remap_file_pages() and the call to mlock().
+> The attached patch modifies the ide-cd driver so that after every speed 
+> change request the new speed is updated. Please note that the actual 
+> modification is very little but I had to touch quite a few lines in 
+> order to avoid to pre-declare the sub-functions.
 > 
-> 
-> -- wli
-> -
-> To unsubscribe from this list: send the line
-> "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at 
-> http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> Please, let me know if that sounds a good behaviour for the CDROM 
+> interface. I hope you apply :-)
 
+Looks sane, thanks.
 
+-- 
+Jens Axboe
 
-		
-__________________________________ 
-Discover Yahoo! 
-Have fun online with music videos, cool games, IM and more. Check it out! 
-http://discover.yahoo.com/online.html

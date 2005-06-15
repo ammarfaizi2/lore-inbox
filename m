@@ -1,68 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261256AbVFOSQh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261261AbVFOSXw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261256AbVFOSQh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 14:16:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261258AbVFOSQh
+	id S261261AbVFOSXw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 14:23:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261262AbVFOSXw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 14:16:37 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:10399 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261256AbVFOSQc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 14:16:32 -0400
-Subject: Re: DMA mapping (was Re: [PATCH] cciss 2.6; replaces DMA masks
-	with kernel defines)
-From: Lee Revell <rlrevell@joe-job.com>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Arjan van de Ven <arjan@infradead.org>, Jeff Garzik <jgarzik@pobox.com>,
-       mike.miller@hp.com, akpm@osdl.org, axboe@suse.de,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-In-Reply-To: <20050611135411.GJ24611@parcelfarce.linux.theplanet.co.uk>
-References: <20050610143453.GA26476@beardog.cca.cpqcorp.net>
-	 <42A9C60E.3080604@pobox.com> <1118436000.6423.42.camel@mindpipe>
-	 <1118436306.5272.37.camel@laptopd505.fenrus.org>
-	 <1118438253.6423.72.camel@mindpipe>
-	 <20050610213003.GI24611@parcelfarce.linux.theplanet.co.uk>
-	 <1118444891.6423.130.camel@mindpipe>
-	 <20050611135411.GJ24611@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain
-Date: Wed, 15 Jun 2005 14:19:03 -0400
-Message-Id: <1118859544.23353.14.camel@mindpipe>
+	Wed, 15 Jun 2005 14:23:52 -0400
+Received: from ns1.suse.de ([195.135.220.2]:22683 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261261AbVFOSXt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 14:23:49 -0400
+Date: Wed, 15 Jun 2005 20:23:47 +0200
+From: Andi Kleen <ak@suse.de>
+To: Greg KH <gregkh@suse.de>
+Cc: Andi Kleen <ak@suse.de>, len.brown@intel.com,
+       acpi-devel@lists.sourceforge.net, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 02/04] PCI: use the MCFG table to properly access pci devices (i386)
+Message-ID: <20050615182346.GQ11898@wotan.suse.de>
+References: <20050615052916.GA23394@kroah.com> <20050615053031.GB23394@kroah.com> <20050615053120.GC23394@kroah.com> <20050615094833.GB11898@wotan.suse.de> <20050615175447.GA29138@suse.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.3.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050615175447.GA29138@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-06-11 at 14:54 +0100, Matthew Wilcox wrote:
-> On Fri, Jun 10, 2005 at 07:08:11PM -0400, Lee Revell wrote:
-> > Should I just add everything from 24 to 63?
+On Wed, Jun 15, 2005 at 10:54:47AM -0700, Greg KH wrote:
+> On Wed, Jun 15, 2005 at 11:48:33AM +0200, Andi Kleen wrote:
+> > On Tue, Jun 14, 2005 at 10:31:20PM -0700, Greg KH wrote:
+> > > Now that we have access to the whole MCFG table, let's properly use it
+> > > for all pci device accesses (as that's what it is there for, some boxes
+> > > don't put all the busses into one entry.)
+> > > 
+> > > If, for some reason, the table is incorrect, we fallback to the "old
+> > > style" of mmconfig accesses, namely, we just assume the first entry in
+> > > the table is the one for us, and blindly use it.
+> > 
+> > I think it would be better to set different bus->ops at probe
+> > time, not walk the table at runtime.
 > 
-> Actually, it'd be useful to have a central list of what DMA masks devices
-> really take.  It might provide some arguments for changing the zone allocater.
+> Yeah, I thought of that, but it's the same ops pointers that we want to
+> have called for the different devices.  The only thing different is the
+> base address of the bus.
+
+There can be bus segments that don't support it at all and still
+need the old port based access method
+(e.g. on a AMD K8 box the busses of the internal northbridge need this) 
+
+For those you would have bus->ops pointing to the old port code,
+for the others to the mmconfig code.
+
+That's the whole point of the patch btw - to support mmconfig even
+on these machines ;-) 
+
 > 
+> In sleeping on it, I thought about just using the void * we have
+> availble for the bus to use to hold this base address, that way we only
+> have to look it up at bus creation time, not for every device access.
+> 
+> Of course to do that I might need another callback in the ops structure,
+> but hey, what's one more pointer :)
+> 
+> Sound a bit more reasonable?  I'll try to prototype this later tonight.
 
-OK, patch attached.  I don't have time to cover every case, maybe
-someone else can run with this.
+Yes, caching the base address would be a good idea too.
 
-Lee
-
-Summary: Add DMA mask constants other than 32 and 64 bit
-
-Signed-Off-By: Lee Revell <rlrevell@joe-job.com>
-
---- linux-2.6.12-rc5-k7/include/linux/dma-mapping.h-orig	2005-06-15 14:14:04.000000000 -0400
-+++ linux-2.6.12-rc5-k7/include/linux/dma-mapping.h	2005-06-15 14:17:13.000000000 -0400
-@@ -14,7 +14,12 @@
- };
- 
- #define DMA_64BIT_MASK	0xffffffffffffffffULL
-+#define DMA_40BIT_MASK	0x000000ffffffffffULL
-+#define DMA_39BIT_MASK	0x0000007fffffffffULL
- #define DMA_32BIT_MASK	0x00000000ffffffffULL
-+#define DMA_31BIT_MASK	0x000000007fffffffULL
-+#define DMA_30BIT_MASK	0x000000003fffffffULL
-+#define DMA_29BIT_MASK	0x000000001fffffffULL
- 
- #include <asm/dma-mapping.h>
-
-
+-Andi

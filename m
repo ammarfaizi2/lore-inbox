@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261600AbVFOVhA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261603AbVFOVjE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261600AbVFOVhA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 17:37:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261271AbVFOVfL
+	id S261603AbVFOVjE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 17:39:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbVFOVew
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 17:35:11 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:24780 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261584AbVFOVeB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 17:34:01 -0400
-Subject: Re: [RFC] Linux memory error handling
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Russ Anderson <rja@sgi.com>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200506152127.j5FLRvvl1466135@clink.americas.sgi.com>
-References: <200506152127.j5FLRvvl1466135@clink.americas.sgi.com>
-Content-Type: text/plain
-Date: Wed, 15 Jun 2005 14:33:54 -0700
-Message-Id: <1118871234.6620.41.camel@localhost>
+	Wed, 15 Jun 2005 17:34:52 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:62427 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261594AbVFOVe0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 17:34:26 -0400
+Date: Wed, 15 Jun 2005 14:30:39 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Alexander Fieroch <fieroch@web.de>
+Cc: bzolnier@gmail.com, linux-kernel@vger.kernel.org, axboe@suse.de,
+       B.Zolnierkiewicz@elka.pw.edu.pl, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [2.6.12rc4] PROBLEM: "drive appears confused" and "irq 18:
+ nobody cared!"
+Message-Id: <20050615143039.24132251.akpm@osdl.org>
+In-Reply-To: <42B091EE.4020802@web.de>
+References: <d6gf8j$jnb$1@sea.gmane.org>
+	<20050527171613.5f949683.akpm@osdl.org>
+	<429A2397.6090609@web.de>
+	<58cb370e05061401041a67cfa7@mail.gmail.com>
+	<42B091EE.4020802@web.de>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-06-15 at 16:27 -0500, Russ Anderson wrote:
-> How about /sys/devices/system/memory/dimmX with links in
-> /sys/devices/system/node/nodeX/ ?  Does that sound better?
+Alexander Fieroch <fieroch@web.de> wrote:
+>
+>  The "Integrated Technology Express, Inc. IT/ITE8212 Dual channel ATA
+>  RAID controller" and a missing driver in the current kernel is
+>  responsible for that problem.
+> 
+>  I've found a GPL ITE8212 driver at
+>  ftp://ftp.asus.de/pub/ASUSCOM/TREIBER/CONTROLLER/IDE/ITE/ITE8212.zip
+> 
+>  The driver is compiling and working up to kernel 2.6.9.
+>  With newer kernel versions I get following error while compiling:
 
-Much better than /proc :)
+hm, I thought Alan did a driver for the ITE RAID controller?
 
-However, we're already using /sys/devices/system/memory/ for memory
-hotplug to represent Linux's view of memory, and which physical
-addresses it is currently using.  I've thought about this before, and I
-think that we may want to have /sys/.../memory/hardware for the DIMM
-information and memory/logical for the memory hotplug controls.
+I had a driver from ITE in the -mm tree for a while.  It still seems to
+apply and I think it fixes the compile warnings which you saw:
 
-One other minor thing.  You might want to think about referring to the
-pieces of memory as things other than DIMMs.  On ppc64, for instance,
-the hypervisor hands off memory in sections called LMBs (logical memory
-blocks), and they're not directly related to any hardware DIMM.  The
-same things will show up in other virtualized environments.
 
--- Dave
+	http://www.zip.com.au/~akpm/linux/patches/stuff/iteraid.patch
 

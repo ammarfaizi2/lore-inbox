@@ -1,113 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261440AbVFONGm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261441AbVFONJ3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261440AbVFONGm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 09:06:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261441AbVFONGl
+	id S261441AbVFONJ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 09:09:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261442AbVFONJ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 09:06:41 -0400
-Received: from alog0529.analogic.com ([208.224.223.66]:12196 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261440AbVFONGg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 09:06:36 -0400
-Date: Wed, 15 Jun 2005 09:06:21 -0400 (EDT)
-From: "Richard B. Johnson" <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Gene Heskett <gene.heskett@verizon.net>
-cc: Linux kernel <linux-kernel@vger.kernel.org>, cutaway@bellsouth.net
-Subject: Re: .../asm-i386/bitops.h  performance improvements
-In-Reply-To: <200506150818.24465.gene.heskett@verizon.net>
-Message-ID: <Pine.LNX.4.61.0506150849380.20514@chaos.analogic.com>
-References: <000b01c57187$ade6b9b0$2800000a@pc365dualp2>
- <200506150818.24465.gene.heskett@verizon.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 15 Jun 2005 09:09:29 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:38799 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261441AbVFONJ1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 09:09:27 -0400
+Date: Wed, 15 Jun 2005 15:05:11 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Serge Noiraud <serge.noiraud@bull.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: network driver disabled interrupts in PREEMPT_RT
+Message-ID: <20050615130511.GA376@elte.hu>
+References: <1118688347.5792.12.camel@localhost> <20050613185642.GA12463@elte.hu> <1118839004.17063.19.camel@ibiza.btsn.frna.bull.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1118839004.17063.19.camel@ibiza.btsn.frna.bull.fr>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-LEA was designed for address calculation on ix86 processors.
-If it is used to ready the value of an index register for the
-next memory access, it can run in parallel with the next operations.
-However, if it is just used to put a value into a register, where
-the CPU can't proceed until that value is finalized, it does
-nothing more useful than shifts and adds.
+* Serge Noiraud <serge.noiraud@bull.net> wrote:
 
-In other words, don't substitute LEA for INC or ADD just because
-you can.
+> Le lun 13/06/2005 à 20:56, Ingo Molnar a écrit :
+> > * Kristian Benoit <kbenoit@opersys.com> wrote:
+> > 
+> > > Hi,
+> > > I got lots of these messages when accessing the net running
+> > > 2.6.12-rc6-RT-V0.7.48-25 :
+> > > 
+> > > "network driver disabled interrupts: tg3_start_xmit+0x0/0x629 [tg3]"
+> > > 
+> > > it seem to come from net/sched/sch_generic.c.
+> > 
+> > does the patch below fix it?
+> > 
+> > 	Ingo
+> I have the same problem with an e1000 card for 2.6.12-rc6-RT-V0.7.48-32 :
+> #dmesg
+> ...
+> network driver disabled interrupts: e1000_xmit_frame+0x0/0xbc0 [e1000]
+> ...
 
- 	leal	0x04(%ebx), %ebx
-... and
- 	addl	$0x04, %ebx
+does -48-33 fix it for you?
 
-... are functionally the same if the CPU needs the value in ebx
-immediately. In the code sequence....
-
- 	movl	(%ebx), %eax
- 	leal	0x04(%ebx), %ebx	# Next address
- 	xorl	%ecx, %eax
- 	movl	%eax, (%ebx)
-
-... the address calculation for the marked next address can proceed
-in parallel with the xorl operation that follows. This makes LEA
-helpful. However, in the following...
-
->> leal (%%eax,%%edi,8),%%eax
-
-... the CPU needs to complete the whole operation before proceeding.
-If you measure this, LEA with two index registers, you will find
-that the shift and add is faster, guaranteed.
-
-On Wed, 15 Jun 2005, Gene Heskett wrote:
-
-> On Wednesday 15 June 2005 04:53, cutaway@bellsouth.net wrote:
->> In find_first_bit() there exists this the sequence:
->>
->> shll $3,%%edi
->> addl %%edi,%%eax
->>
->> LEA knows how to multiply by small powers of 2 and add all in one
->> shot very efficiently:
->>
->> leal (%%eax,%%edi,8),%%eax
->>
->>
->> In find_first_zero_bit() the sequence:
->>
->> shll $3,%%edi
->> addl %%edi,%%edx
->>
->> could similarly become:
->>
->> leal (%%edx,%%edi,8),%%edx
->>
-> To what cpu families does this apply?  eg, this may be true for intel,
-> but what about amd, via etc?
->>
->>
->> -
->> To unsubscribe from this list: send the line "unsubscribe
->> linux-kernel" in the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->> Please read the FAQ at  http://www.tux.org/lkml/
->
-> -- 
-> Cheers, Gene
-> "There are four boxes to be used in defense of liberty:
-> soap, ballot, jury, and ammo. Please use in that order."
-> -Ed Howdershelt (Author)
-> 99.35% setiathome rank, not too shabby for a WV hillbilly
-> Yahoo.com and AOL/TW attorneys please note, additions to the above
-> message by Gene Heskett are:
-> Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11.9 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+	Ingo

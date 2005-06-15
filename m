@@ -1,58 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261597AbVFOWiY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261601AbVFOWjw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261597AbVFOWiY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 18:38:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261601AbVFOWiY
+	id S261601AbVFOWjw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 18:39:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbVFOWjv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 18:38:24 -0400
-Received: from 216-239-45-4.google.com ([216.239.45.4]:6846 "EHLO
-	216-239-45-4.google.com") by vger.kernel.org with ESMTP
-	id S261597AbVFOWiU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 18:38:20 -0400
-Message-ID: <42B0ADD5.3080502@google.com>
-Date: Wed, 15 Jun 2005 15:38:13 -0700
-From: Hareesh Nagarajan <hareesh@google.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050207)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Porting kref to a 2.4 kernel (2.4.20 or greater)
-References: <42B06344.4040909@google.com> <20050615220734.GC620@kroah.com>
-In-Reply-To: <20050615220734.GC620@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 15 Jun 2005 18:39:51 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:50826 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261601AbVFOWjj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 18:39:39 -0400
+Date: Wed, 15 Jun 2005 17:38:32 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: Chris Wright <chrisw@osdl.org>, Tom Lendacky <toml@us.ibm.com>,
+       Greg KH <greg@kroah.com>, LSM <linux-security-module@wirex.com>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Reiner Sailer <sailer@watson.ibm.com>,
+       Emily Rattlif <emilyr@us.ibm.com>, Kylene Hall <kylene@us.ibm.com>
+Subject: Re: [PATCH] 3 of 5 IMA: LSM-based measurement code
+Message-ID: <20050615223832.GA3492@IBM-BWN8ZTBWA01.austin.ibm.com>
+References: <20050615215019.GB3660@serge.austin.ibm.com> <20050615220032.67977.qmail@web31612.mail.mud.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050615220032.67977.qmail@web31612.mail.mud.yahoo.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Wed, Jun 15, 2005 at 10:20:04AM -0700, Hareesh Nagarajan wrote:
-> 
->>What stumbling blocks do you think I would encounter if I wanted to port 
->>kref to a 2.4.xx kernel? Is kref tightly coupled with the kernel object 
->>infrastructure found in the 2.6.xx kernel?
-> 
-> Have you looked at the kref code to see if there is any such coupling?
+Quoting Casey Schaufler (casey@schaufler-ca.com):
+> You could, of course, add code to act on the
+> integrity measurements you've made, in which
+> case you could be in conformance with the
+> stated eligibilty requirements.
 
-Not really. Kref seems pretty light and loosely coupled with the 2.6 
-kernel. There just appears to be a C file (and a .h of course).
+:)
 
-> Can you describe any problems you are having doing the uncoupling?
+IIUC, another (separately implemented) module - whose
+release I'm anxiously awaiting - will actually basically
+be doing that...
 
-I'm having problems porting the KObject and Work Queue infrastructure to 
-the 2.4 kernel. Any ideas if anyone has tried this port?
+-serge
 
-> What do you want this in the 2.4 kernel for?  
-
-I need to port RelayFS into a 2.4 kernel.
-
-> You know that no new
-> features are being accepted for that tree, right?
-
-Yes, I am aware of that :(
-
-Thank you very much!
-
-Hareesh
--= Engineering Intern =-
-cs.uic.edu/~hnagaraj

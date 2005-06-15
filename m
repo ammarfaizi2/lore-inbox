@@ -1,73 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261617AbVFOWpp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261618AbVFOWsV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261617AbVFOWpp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 18:45:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261616AbVFOWpp
+	id S261618AbVFOWsV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 18:48:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261619AbVFOWsV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 18:45:45 -0400
-Received: from igw2.watson.ibm.com ([129.34.20.6]:58558 "EHLO
-	igw2.watson.ibm.com") by vger.kernel.org with ESMTP id S261619AbVFOWpE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 18:45:04 -0400
-Date: Wed, 15 Jun 2005 18:44:22 -0400 (Eastern Daylight Time)
-From: Reiner Sailer <sailer@us.ibm.com>
-To: Chris Wright <chrisw@osdl.org>
-cc: serue@us.ibm.com, James Morris <jmorris@redhat.com>,
-       Reiner Sailer <sailer@watson.ibm.com>,
-       LKML <linux-kernel@vger.kernel.org>,
-       LSM <linux-security-module@wirex.com>, Toml@us.ibm.com,
-       Greg KH <greg@kroah.com>, Emilyr@us.ibm.com, kylene@us.ibm.com
-Subject: Re: [PATCH] 3 of 5 IMA: LSM-based measurement code
-Message-ID: <Pine.WNT.4.63.0506151754150.2452@laptop>
-X-Warning: UNAuthenticated Sender
+	Wed, 15 Jun 2005 18:48:21 -0400
+Received: from 216-239-45-4.google.com ([216.239.45.4]:39997 "EHLO
+	216-239-45-4.google.com") by vger.kernel.org with ESMTP
+	id S261618AbVFOWsA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 18:48:00 -0400
+Message-ID: <42B0B017.60001@google.com>
+Date: Wed, 15 Jun 2005 15:47:51 -0700
+From: Hareesh Nagarajan <hareesh@google.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050207)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Greg KH <greg@kroah.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Porting kref to a 2.4 kernel (2.4.20 or greater)
+References: <42B06344.4040909@google.com> <20050615220734.GC620@kroah.com>
+In-Reply-To: <20050615220734.GC620@kroah.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Correction:
+(Appears with a *)
 
-Chris Wright <chrisw@osdl.org> wrote on 06/15/2005 05:53:01 PM:
-
-> * serue@us.ibm.com (serue@us.ibm.com) wrote:
-> > Quoting Chris Wright (chrisw@osdl.org):
-> > > The primary purpose of the hooks is access control.  Some of them, of
-> > > course, are helpers to keep labels coherent.  IIRC, James objected
-> > > because the measurement data was simply collected from these hooks.
-> > 
-> > Ok, so to be clear, any module which does not directly impose some form
-> > of access control is not eligible for an LSM?
+Greg KH wrote:
+> On Wed, Jun 15, 2005 at 10:20:04AM -0700, Hareesh Nagarajan wrote:
 > 
-> That's exactly the intention, yes.
+>>What stumbling blocks do you think I would encounter if I wanted to port 
+>>kref to a 2.4.xx kernel? Is kref tightly coupled with the kernel object 
+>>infrastructure found in the 2.6.xx kernel?
+> 
+> Have you looked at the kref code to see if there is any such coupling?
 
-Chris,
+Not really. Kref seems pretty light and loosely coupled with the 2.6
+kernel. There just appears to be a C file (and a .h of course).
 
-Access control is a very broad term. Before I go into details, I would 
-like to make clear that I do not have a preference for or against LSM. We 
-are working hard to make the functionality available and it does not 
-matter to the user where IMA will be located. The true potential of 
-Trusted Computing will only show with experimenting going on outside 
-the research labs. IMA can help by being one modest building block 
-for experiments only if it is broadly available.
+> Can you describe any problems you are having doing the uncoupling?
 
-Regarding the access control discussion, one can map (almost) anything 
-onto access control. There are (many) people that teach today that the 
-whole security issue is about access control. The question is: 
-controlling access of whom to what?
+I'm having problems porting the KObject* and Work Queue infrastructure 
+to the 2.4 kernel. Any ideas if anyone has tried this port?
 
-IMA does control access by forcing measurements on executables
-before they are loaded. Access control is more than saying yes or no at 
-some point on the code path. IMA enables remote parties to figure out 
-whether a system has some (usage dependent) properties. This can serve as 
-the basis for controlling such systems' access to resources. IMA supplies 
-input into a remote Access Control Decision Function.
+(Correction: * => I meant KThread)
 
-These properties neither justify IMA to be excluded as LSM, nor force IMA 
-to be an LSM.
+Sorry about that!
 
-
-> thanks,
-> -chris
-
-Thanks 
-Reiner
-
+Hareesh
+-= Engineering Intern =-
+cs.uic.edu/~hnagaraj

@@ -1,79 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261405AbVFOLPf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261407AbVFOL2z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261405AbVFOLPf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 07:15:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261407AbVFOLPf
+	id S261407AbVFOL2z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 07:28:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261418AbVFOL2z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 07:15:35 -0400
-Received: from styx.suse.cz ([82.119.242.94]:56014 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S261405AbVFOLPW (ORCPT
+	Wed, 15 Jun 2005 07:28:55 -0400
+Received: from [62.206.217.67] ([62.206.217.67]:4819 "EHLO kaber.coreworks.de")
+	by vger.kernel.org with ESMTP id S261407AbVFOL2u (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 07:15:22 -0400
-Date: Wed, 15 Jun 2005 13:15:20 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Linus Torvalds <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] ALPS: fix enabling hardware tapping
-Message-ID: <20050615111520.GB18773@ucw.cz>
-References: <200506150138.49880.dtor_core@ameritech.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200506150138.49880.dtor_core@ameritech.net>
-User-Agent: Mutt/1.5.6i
+	Wed, 15 Jun 2005 07:28:50 -0400
+Message-ID: <42B010F1.7060505@trash.net>
+Date: Wed, 15 Jun 2005 13:28:49 +0200
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.8) Gecko/20050514 Debian/1.7.8-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: thibault dory <dory.thibault@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Kernel BUG using iptable
+References: <243922d60506150304348bb817@mail.gmail.com>
+In-Reply-To: <243922d60506150304348bb817@mail.gmail.com>
+Content-Type: multipart/mixed;
+ boundary="------------080503010907070109030707"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 15, 2005 at 01:38:49AM -0500, Dmitry Torokhov wrote:
-> Hi Linus, Vojtech,
-> 
-> It looks like logic for enabling hardware tapping in ALPS driver was
-> inverted and we enable it only if it was already enabled by BIOS or
-> firmware.
-> 
-> I have a confirmation from one user that the patch below fixes the
-> problem for him and it might be beneficial if we could get it into
-> 2.6.12.
+This is a multi-part message in MIME format.
+--------------080503010907070109030707
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Linus, Andrew, please include this patch. I don't have a git tree setup
-yet for pulls, and it won't be ready before 2.6.12, however this patch
-should definitely go in.
+thibault dory wrote:
+> Since I try to use iptable with kernel 2.6.11.X serie I get the same
+> bug with iptable. It didn't work at all and I experience problems with
+> my connection. I give you my kernel config file in attachement.
+> For the moment I'm using 2.6.11.12 kernel on a 1.4Ghz Centrino.
+> 
+> BUG: using smp_processor_id() in preemptible [00000001] code: modprobe/1529
+> caller is ip_conntrack_helper_register+0x18/0x170
 
-Thanks,
-	Vojtech
+You need to disable CONFIG_NETFILTER_DEBUG or apply this patch.
 
-> Thanks!
-> 
-> -- 
-> Dmitry
-> 
-> ===================================================================
-> 
-> Input: ALPS - try enabling tap mode if it was disabled, not if
->        it is already enabled.
-> 
-> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-> ---
-> 
->  drivers/input/mouse/alps.c |    2 +-
->  1 files changed, 1 insertion(+), 1 deletion(-)
-> 
-> Index: work/drivers/input/mouse/alps.c
-> ===================================================================
-> --- work.orig/drivers/input/mouse/alps.c
-> +++ work/drivers/input/mouse/alps.c
-> @@ -364,7 +364,7 @@ static int alps_reconnect(struct psmouse
->  	if (alps_get_status(psmouse, param))
->  		return -1;
->  
-> -	if (param[0] & 0x04)
-> +	if (!(param[0] & 0x04))
->  		alps_tap_mode(psmouse, 1);
->  
->  	if (alps_absolute_mode(psmouse)) {
-> 
+--------------080503010907070109030707
+Content-Type: text/plain;
+ name="x"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="x"
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Avoid smp_processor_id() in premptible code in the netfilter lock debugging
+code.
+
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+ include/linux/netfilter_ipv4/lockhelp.h |   16 +++++++++++-----
+ 1 files changed, 11 insertions(+), 5 deletions(-)
+
+diff -puN include/linux/netfilter_ipv4/lockhelp.h~netfilter-debug-locking-fix include/linux/netfilter_ipv4/lockhelp.h
+--- 25/include/linux/netfilter_ipv4/lockhelp.h~netfilter-debug-locking-fix	Thu Apr 28 20:53:26 2005
++++ 25-akpm/include/linux/netfilter_ipv4/lockhelp.h	Thu Apr 28 20:53:26 2005
+@@ -63,9 +63,11 @@ do { if ((l)->read_locked_map & (1UL << 
+ 
+ #define LOCK_BH(lk)						\
+ do {								\
++	preempt_disable();					\
+ 	MUST_BE_UNLOCKED(lk);					\
+ 	spin_lock_bh(&(lk)->l);					\
+ 	atomic_set(&(lk)->locked_by, smp_processor_id());	\
++	preempt_enable();					\
+ } while(0)
+ 
+ #define UNLOCK_BH(lk)				\
+@@ -77,16 +79,20 @@ do {						\
+ 
+ #define READ_LOCK(lk) 						\
+ do {								\
++	preempt_disable();					\
+ 	MUST_BE_READ_WRITE_UNLOCKED(lk);			\
+ 	read_lock_bh(&(lk)->l);					\
+ 	set_bit(smp_processor_id(), &(lk)->read_locked_map);	\
++	preempt_enable();					\
+ } while(0)
+ 
+-#define WRITE_LOCK(lk)							  \
+-do {									  \
+-	MUST_BE_READ_WRITE_UNLOCKED(lk);				  \
+-	write_lock_bh(&(lk)->l);					  \
+-	set_bit(smp_processor_id(), &(lk)->write_locked_map);		  \
++#define WRITE_LOCK(lk)						\
++do {								\
++	preempt_disable();					\
++	MUST_BE_READ_WRITE_UNLOCKED(lk);			\
++	write_lock_bh(&(lk)->l);				\
++	set_bit(smp_processor_id(), &(lk)->write_locked_map);	\
++	preempt_enable();					\
+ } while(0)
+ 
+ #define READ_UNLOCK(lk)							\
+
+--------------080503010907070109030707--

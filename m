@@ -1,52 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261567AbVFOVDC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261570AbVFOVDB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261567AbVFOVDC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 17:03:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261553AbVFOUpn
+	id S261570AbVFOVDB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 17:03:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261567AbVFOVA6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 16:45:43 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:65235 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261565AbVFOUpL (ORCPT
+	Wed, 15 Jun 2005 17:00:58 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:16593 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261578AbVFOU7l (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 16:45:11 -0400
-Subject: Re: [RFC] Linux memory error handling
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Russ Anderson <rja@sgi.com>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200506152028.j5FKSuw91463066@clink.americas.sgi.com>
-References: <200506152028.j5FKSuw91463066@clink.americas.sgi.com>
-Content-Type: text/plain
-Date: Wed, 15 Jun 2005 13:45:02 -0700
-Message-Id: <1118868302.6620.34.camel@localhost>
+	Wed, 15 Jun 2005 16:59:41 -0400
+Date: Wed, 15 Jun 2005 13:59:26 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: serue@us.ibm.com
+Cc: James Morris <jmorris@redhat.com>, Reiner Sailer <sailer@watson.ibm.com>,
+       LKML <linux-kernel@vger.kernel.org>,
+       LSM <linux-security-module@wirex.com>, Tom Lendacky <toml@us.ibm.com>,
+       Greg KH <greg@kroah.com>, Chris Wright <chrisw@osdl.org>,
+       Emily Rattlif <emilyr@us.ibm.com>, Kylene Hall <kylene@us.ibm.com>
+Subject: Re: [PATCH] 3 of 5 IMA: LSM-based measurement code
+Message-ID: <20050615205926.GP9046@shell0.pdx.osdl.net>
+References: <1118846413.2269.18.camel@secureip.watson.ibm.com> <Xine.LNX.4.44.0506151601310.27162-100000@thoron.boston.redhat.com> <20050615204936.GA3517@serge.austin.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050615204936.GA3517@serge.austin.ibm.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-06-15 at 15:28 -0500, Russ Anderson wrote:
-> Russell King wrote:
-> > On Wed, Jun 15, 2005 at 04:26:13PM +0100, Maciej W. Rozycki wrote:
-> > > On Wed, 15 Jun 2005, Russ Anderson wrote:
-> > > > 	Memory DIMM information & settings:
-> > > > 
-> > > > 	    Use a /proc/dimm_info interface to pass DIMM information to Linux.
-> > > > 	    Hardware vendors could add their hardware specific settings.
-> > > 
-> > >  I'd recommend a more generic name rather than "dimm_info" if that is to 
-> > > be reused universally.
-> > 
-> I really don't care what it's called, as long as it's descriptive.
-> /proc/meminfo is taken.  :-)
+* serue@us.ibm.com (serue@us.ibm.com) wrote:
+> Since IMA provides support for a new type of security policy,
+> specifically remote system integrity verification, I don't see
+> where LSM shouldn't necessarily be used.
 > 
-> One idea would follow the concept of /proc/bus/ and have /proc/memory/
-> with different memory types.  /proc/memory/dimm0 /proc/memory/dimm1
-> /proc/memory/flash0 .  
+> I'm also curious about the current kernel development approach:
+> On the one hand, when filesystem auditing was introduced, Christoph
+> asked whether inotify and audit should be merged because they hook
+> some of the same places.  Can someone reconcile these points of view
+> for me, please?  If Reiner goes ahead and moves the IMA code straight
+> into the kernel, does anyone doubt that he'll be asked to merge it
+> with LSM?
 
-Please don't do this in /proc.  If it's a piece of hardware, and it
-needs to have some information about it exported, then you need to use
-kobjects and sysfs.  
-
--- Dave
-
+The primary purpose of the hooks is access control.  Some of them, of
+course, are helpers to keep labels coherent.  IIRC, James objected
+because the measurement data was simply collected from these hooks.

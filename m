@@ -1,51 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261626AbVFOXBu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261619AbVFOXBv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261626AbVFOXBu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 19:01:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261642AbVFOW7t
+	id S261619AbVFOXBv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 19:01:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261640AbVFOW7c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 18:59:49 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:59074 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261626AbVFOW6x
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 18:58:53 -0400
-Subject: RE: 2.6.12-rc6-mm1 & 2K lun testing
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org
-In-Reply-To: <200506152139.j5FLd3g26510@unix-os.sc.intel.com>
-References: <200506152139.j5FLd3g26510@unix-os.sc.intel.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1118874915.4301.461.camel@dyn9047017072.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 15 Jun 2005 15:35:15 -0700
-Content-Transfer-Encoding: 7bit
+	Wed, 15 Jun 2005 18:59:32 -0400
+Received: from mail.dif.dk ([193.138.115.101]:30172 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S261619AbVFOWz7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 18:55:59 -0400
+Date: Thu, 16 Jun 2005 01:01:21 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: "David S. Miller" <davem@davemloft.net>,
+       Corey Minyard <wf-rch!minyard@relay.EU.net>,
+       "Donald J. Becker" <becker@cesdis.gsfc.nasa.gov>,
+       Alan Cox <Alan.Cox@linux.org>, "Bjorn Ekwall." <bj0rn@blox.se>,
+       Pekka Riikonen <priikone@poseidon.pspt.fi>
+Subject: [PATCH] fix gcc -W warning in netdevice.h
+Message-ID: <Pine.LNX.4.62.0506160053210.3842@dragon.hyggekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-06-15 at 14:39, Chen, Kenneth W wrote:
-> Badari Pulavarty wrote on Wednesday, June 15, 2005 10:36 AM
-> > I sniff tested 2K lun support with 2.6.12-rc6-mm1 on
-> > my AMD64 box. I had to tweak qlogic driver and
-> > scsi_scan.c to see all the luns.
-> > 
-> > (2.6.12-rc6 doesn't see all the LUNS due to max_lun
-> > issue - which is fixed in scsi-git tree).
-> > 
-> > Test 1:
-> > 	run dds on all 2048 "raw" devices - worked
-> > great. No issues.
-> 
-> Just curious, how many physical disks do you have for this test?
-> 
+This might be a slightly controversial patch in that it adds a cast purely 
+to shut up a gcc -W warning, but this header file is used in *lots* of 
+places, so when building with gcc -W this warning shows up all over the 
+place :
+	include/linux/netdevice.h:781: warning: comparison between signed and unsigned
+With my normal .config I over 120 instances of this one, so shutting it up 
+cuts down on the stuff I have to wade through to try and spot real 
+potential problems quite a bit.
+The cast is completely harmless since the unsigned value that gcc is 
+complaining about will never exceed the storage capacity of a plain int, 
+and it will not change any actual code behaviour.
 
-2048 luns are created using NetApp FAS 270C - which has 28 drives.
-I am accessing the luns through fiber channel.
+Please consider merging.
 
 
-Thanks,
-Badari
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+---
+
+ include/linux/netdevice.h |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+--- linux-2.6.12-rc6-mm1-orig/include/linux/netdevice.h	2005-06-12 15:58:58.000000000 +0200
++++ linux-2.6.12-rc6-mm1/include/linux/netdevice.h	2005-06-16 00:52:14.000000000 +0200
+@@ -778,7 +778,7 @@ enum {
+ static inline u32 netif_msg_init(int debug_value, int default_msg_enable_bits)
+ {
+ 	/* use default */
+-	if (debug_value < 0 || debug_value >= (sizeof(u32) * 8))
++	if (debug_value < 0 || debug_value >= (int)(sizeof(u32) * 8))
+ 		return default_msg_enable_bits;
+ 	if (debug_value == 0)	/* no output */
+ 		return 0;
+
+
 

@@ -1,97 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261435AbVFOM60@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261440AbVFONGm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261435AbVFOM60 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 08:58:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261440AbVFOM60
+	id S261440AbVFONGm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 09:06:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261441AbVFONGl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 08:58:26 -0400
-Received: from lyle.provo.novell.com ([137.65.81.174]:49050 "EHLO
-	lyle.provo.novell.com") by vger.kernel.org with ESMTP
-	id S261435AbVFOM6S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 08:58:18 -0400
-Message-Id: <s2afd189.042@lyle.provo.novell.com>
-X-Mailer: Novell GroupWise Internet Agent 6.5.4 Beta
-Date: Wed, 15 Jun 2005 06:58:22 -0600
-From: "Jan Beulich" <JBeulich@novell.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] prevent page fault from screen blanking code during
-	early boot
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=__Part4162BEFE.0__="
+	Wed, 15 Jun 2005 09:06:41 -0400
+Received: from alog0529.analogic.com ([208.224.223.66]:12196 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261440AbVFONGg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 09:06:36 -0400
+Date: Wed, 15 Jun 2005 09:06:21 -0400 (EDT)
+From: "Richard B. Johnson" <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Gene Heskett <gene.heskett@verizon.net>
+cc: Linux kernel <linux-kernel@vger.kernel.org>, cutaway@bellsouth.net
+Subject: Re: .../asm-i386/bitops.h  performance improvements
+In-Reply-To: <200506150818.24465.gene.heskett@verizon.net>
+Message-ID: <Pine.LNX.4.61.0506150849380.20514@chaos.analogic.com>
+References: <000b01c57187$ade6b9b0$2800000a@pc365dualp2>
+ <200506150818.24465.gene.heskett@verizon.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME message. If you are reading this text, you may want to 
-consider changing to a mail reader or gateway that understands how to 
-properly handle MIME multipart messages.
 
---=__Part4162BEFE.0__=
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+LEA was designed for address calculation on ix86 processors.
+If it is used to ready the value of an index register for the
+next memory access, it can run in parallel with the next operations.
+However, if it is just used to put a value into a register, where
+the CPU can't proceed until that value is finalized, it does
+nothing more useful than shifts and adds.
 
-(Sorry for the resend, I failed to add a proper subject on the first =
-send.)
+In other words, don't substitute LEA for INC or ADD just because
+you can.
 
-(Note: Patch also attached because the inline version is certain to get
-line wrapped.)
+ 	leal	0x04(%ebx), %ebx
+... and
+ 	addl	$0x04, %ebx
 
-When significant delays happen during boot (e.g. with a kernel debugger, =
-but
-the problem has also seen in other cases) the timeout for blanking the
-console may trigger, but the work scheduler may not have been initialized,
-yet. This previously led to a page fault due to a NULL pointer access.
+... are functionally the same if the CPU needs the value in ebx
+immediately. In the code sequence....
 
-Signed-off-by: Jan Beulich <jbeulich@novell.com>
+ 	movl	(%ebx), %eax
+ 	leal	0x04(%ebx), %ebx	# Next address
+ 	xorl	%ecx, %eax
+ 	movl	%eax, (%ebx)
 
-diff -Npru linux-2.6.12-rc6.base/drivers/char/vt.c linux-2.6.12-rc6/drivers=
-/char/vt.c
---- linux-2.6.12-rc6.base/drivers/char/vt.c	2005-06-15 13:24:51.0000000=
-00 +0200
-+++ linux-2.6.12-rc6/drivers/char/vt.c	2005-06-15 13:30:39.933774576 =
-+0200
-@@ -2867,6 +2867,10 @@ void unblank_screen(void)
-  */
- static void blank_screen_t(unsigned long dummy)
- {
-+	if (unlikely(!keventd_up())) {
-+		mod_timer(&console_timer, jiffies + blankinterval);
-+		return;
-+	}
- 	blank_timer_expired =3D 1;
- 	schedule_work(&console_work);
- }
+... the address calculation for the marked next address can proceed
+in parallel with the xorl operation that follows. This makes LEA
+helpful. However, in the following...
 
+>> leal (%%eax,%%edi,8),%%eax
 
+... the CPU needs to complete the whole operation before proceeding.
+If you measure this, LEA with two index registers, you will find
+that the shift and add is faster, guaranteed.
 
---=__Part4162BEFE.0__=
-Content-Type: text/plain; name="linux-2.6.12-rc6-blank-timeout.patch"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: attachment; filename="linux-2.6.12-rc6-blank-timeout.patch"
+On Wed, 15 Jun 2005, Gene Heskett wrote:
 
-(Note: Patch also attached because the inline version is certain to get
-line wrapped.)
+> On Wednesday 15 June 2005 04:53, cutaway@bellsouth.net wrote:
+>> In find_first_bit() there exists this the sequence:
+>>
+>> shll $3,%%edi
+>> addl %%edi,%%eax
+>>
+>> LEA knows how to multiply by small powers of 2 and add all in one
+>> shot very efficiently:
+>>
+>> leal (%%eax,%%edi,8),%%eax
+>>
+>>
+>> In find_first_zero_bit() the sequence:
+>>
+>> shll $3,%%edi
+>> addl %%edi,%%edx
+>>
+>> could similarly become:
+>>
+>> leal (%%edx,%%edi,8),%%edx
+>>
+> To what cpu families does this apply?  eg, this may be true for intel,
+> but what about amd, via etc?
+>>
+>>
+>> -
+>> To unsubscribe from this list: send the line "unsubscribe
+>> linux-kernel" in the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> Please read the FAQ at  http://www.tux.org/lkml/
+>
+> -- 
+> Cheers, Gene
+> "There are four boxes to be used in defense of liberty:
+> soap, ballot, jury, and ammo. Please use in that order."
+> -Ed Howdershelt (Author)
+> 99.35% setiathome rank, not too shabby for a WV hillbilly
+> Yahoo.com and AOL/TW attorneys please note, additions to the above
+> message by Gene Heskett are:
+> Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-When significant delays happen during boot (e.g. with a kernel debugger, but
-the problem has also seen in other cases) the timeout for blanking the
-console may trigger, but the work scheduler may not have been initialized,
-yet. This previously led to a page fault due to a NULL pointer access.
-
-Signed-off-by: Jan Beulich <jbeulich@novell.com>
-
-diff -Npru linux-2.6.12-rc6.base/drivers/char/vt.c linux-2.6.12-rc6/drivers/char/vt.c
---- linux-2.6.12-rc6.base/drivers/char/vt.c	2005-06-15 13:24:51.000000000 +0200
-+++ linux-2.6.12-rc6/drivers/char/vt.c	2005-06-15 13:30:39.933774576 +0200
-@@ -2867,6 +2867,10 @@ void unblank_screen(void)
-  */
- static void blank_screen_t(unsigned long dummy)
- {
-+	if (unlikely(!keventd_up())) {
-+		mod_timer(&console_timer, jiffies + blankinterval);
-+		return;
-+	}
- 	blank_timer_expired = 1;
- 	schedule_work(&console_work);
- }
-
---=__Part4162BEFE.0__=--
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.11.9 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

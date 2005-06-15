@@ -1,94 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261612AbVFOVs1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261585AbVFOVaX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261612AbVFOVs1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 17:48:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261607AbVFOVre
+	id S261585AbVFOVaX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 17:30:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261586AbVFOV3U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 17:47:34 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:53696 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261601AbVFOVn5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 17:43:57 -0400
-Date: Wed, 15 Jun 2005 16:48:54 -0500
-From: serue@us.ibm.com
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: serue@us.ibm.com, James Morris <jmorris@redhat.com>,
-       Tom Lendacky <toml@us.ibm.com>, Greg KH <greg@kroah.com>,
-       LKML <linux-kernel@vger.kernel.org>,
-       LSM <linux-security-module@wirex.com>, Chris Wright <chrisw@osdl.org>,
-       Reiner Sailer <sailer@watson.ibm.com>,
-       Emily Rattlif <emilyr@us.ibm.com>, Kylene Hall <kylene@us.ibm.com>
-Subject: Re: [PATCH] 3 of 5 IMA: LSM-based measurement code
-Message-ID: <20050615214854.GA3660@serge.austin.ibm.com>
-References: <1118846413.2269.18.camel@secureip.watson.ibm.com> <Xine.LNX.4.44.0506151601310.27162-100000@thoron.boston.redhat.com> <20050615204936.GA3517@serge.austin.ibm.com> <1118869090.16874.46.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1118869090.16874.46.camel@moss-spartans.epoch.ncsc.mil>
-User-Agent: Mutt/1.5.8i
+	Wed, 15 Jun 2005 17:29:20 -0400
+Received: from mail.dif.dk ([193.138.115.101]:984 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S261585AbVFOV06 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 17:26:58 -0400
+Date: Wed, 15 Jun 2005 23:32:22 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       James Morris <jmorris@redhat.com>, Ross Biro <ross.biro@gmail.com>,
+       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: [-mm PATCH][4/4] net: signed vs unsigned cleanup in net/ipv4/raw.c
+Message-ID: <Pine.LNX.4.62.0506152316060.3842@dragon.hyggekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Stephen Smalley (sds@tycho.nsa.gov):
-> On Wed, 2005-06-15 at 15:49 -0500, serue@us.ibm.com wrote:
-> > A long, long time ago, Crispin defined LSM's purpose as:
-> > 
-> > >> Main goal : we have to design a generic framework to be able to use
-> > >> better
-> > >> security policies than the current ones (DAC and capabilities).
-> > >
-> > >Sort of. We have to design a generic interface that exports enough
-> > >kernel
-> > >functionality to allow security developers to go off and create these
-> > >better
-> > >security policy modules. 
-> > 
-> > Since IMA provides support for a new type of security policy,
-> > specifically remote system integrity verification, I don't see
-> > where LSM shouldn't necessarily be used.
-> 
-> IMA isn't an access control model.  Also, LSM is overkill for its needs
-> in many ways (IMA only needs a few LSM hooks)
+This patch changes the type of the third parameter 'length' of the 
+raw_send_hdrinc() function from 'int' to 'size_t'.
+This makes sense since this function is only ever called from one 
+location, and the value passed as the third parameter in that location is 
+itself of type size_t, so this makes the recieving functions parameter 
+type match. Also, inside raw_send_hdrinc() the 'length' variable is 
+used in comparisons with unsigned values and passed as parameter to 
+functions expecting unsigned values (it's used in a single comparison with 
+a signed value, but that one can never actually be negative so the patch 
+also casts that one to size_t to stop gcc worrying, and it is passed in a 
+single instance to memcpy_fromiovecend() which expects a signed int, but 
+as far as I can see that's not a problem since the value of 'length' 
+shouldn't ever exceed the value of a signed int).
 
-I don't think only needing a few of the hooks should disqualify it -
-same is true of capability.  On the other hand the fact that it always
-grants permission could be taken to imply LSM is overkill.  It seems
-to come down to a question of aesthetics.
 
-> and is inadequate in other
-> ways (LSM lacks a hook needed by IMA for measuring modules, although one
-> might argue that there could be benefit in adding such a hook to LSM
-> itself for access control purposes).  
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+---
 
-True.  In fact, since those hooks were originally dropped because there
-wasn't a user for them, refusing a user because the hooks aren't there
-would be hillarious!
+ net/ipv4/raw.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-> If you look at the inotify patch, I think that they've moved the dnotify
-> hooks into a more generic set of fsnotify hooks that are leveraged by
-> both dnotify and inotify to reduce duplication in the core kernel.  The
+--- linux-2.6.12-rc6-mm1/net/ipv4/raw.c.with_patch-3	2005-06-15 23:17:23.000000000 +0200
++++ linux-2.6.12-rc6-mm1/net/ipv4/raw.c	2005-06-15 23:26:48.000000000 +0200
+@@ -259,7 +259,7 @@ int raw_rcv(struct sock *sk, struct sk_b
+ 	return 0;
+ }
+ 
+-static int raw_send_hdrinc(struct sock *sk, void *from, int length,
++static int raw_send_hdrinc(struct sock *sk, void *from, size_t length,
+ 			struct rtable *rt, 
+ 			unsigned int flags)
+ {
+@@ -298,7 +298,7 @@ static int raw_send_hdrinc(struct sock *
+ 		goto error_fault;
+ 
+ 	/* We don't modify invalid header */
+-	if (length >= sizeof(*iph) && iph->ihl * 4 <= length) {
++	if (length >= sizeof(*iph) && (size_t)(iph->ihl * 4) <= length) {
+ 		if (!iph->saddr)
+ 			iph->saddr = rt->rt_src;
+ 		iph->check   = 0;
 
-Oh, cool, I actually hadn't noticed that.  (Last I checked inotify was
-in... november?)
 
-> same approach could be used for hooks that would be co-located by audit
-> and LSM or by integrity measurement and LSM.  Of course, you don't want
 
-In that case it seems to further obfuscate the code, though.  We then
-have a common update hook to just call integrity+LSM hooks, which
-then call into their own subsystems...
-
-Is there a distinct advantage to be gained by separating the two?
-
-> to blindly place the integrity measurement hooks at the same locations
-> if a different placement would be more optimal for your purposes, so
-> you'd want to give it some thought.
-
-That's true, of course.  Reiner, would any of the integrity measurement
-hooks be moved to a better place than the current LSM hooks?  Is there a
-preferred ordering - ie measurement should always happen before the LSM
-modules, or always after?  Either of these would of course be clear
-reasons to separate IMA into its own subsystem.
-
-thanks,
--serge

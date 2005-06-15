@@ -1,36 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261235AbVFORXN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261243AbVFORYs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261235AbVFORXN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 13:23:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261238AbVFORXN
+	id S261243AbVFORYs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 13:24:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261238AbVFORXT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 13:23:13 -0400
-Received: from 216-239-45-4.google.com ([216.239.45.4]:18465 "EHLO
-	216-239-45-4.google.com") by vger.kernel.org with ESMTP
-	id S261235AbVFORUK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 13:20:10 -0400
-Message-ID: <42B06344.4040909@google.com>
-Date: Wed, 15 Jun 2005 10:20:04 -0700
-From: Hareesh Nagarajan <hareesh@google.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050207)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Wed, 15 Jun 2005 13:23:19 -0400
+Received: from mxsf11.cluster1.charter.net ([209.225.28.211]:22990 "EHLO
+	mxsf11.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S261237AbVFORUV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 13:20:21 -0400
+X-IronPort-AV: i="3.93,201,1115006400"; 
+   d="scan'208"; a="1184450307:sNHT18003156"
+Subject: Re: via-rhine broken in 2.6.12-rc6 and 2.6.11 stable
+From: Avery Fay <avery@ravencode.com>
 To: linux-kernel@vger.kernel.org
-CC: greg@kroah.com
-Subject: Porting kref to a 2.4 kernel (2.4.20 or greater)
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+In-Reply-To: <1118854779.3107.7.camel@localhost.localdomain>
+References: <1118854779.3107.7.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Wed, 15 Jun 2005 13:20:16 -0400
+Message-Id: <1118856017.2987.1.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Nevermind about the stable kernel part. For some reason, my symbolic
+links were not getting updated right. But it definitely doesn't work on
+2.6.12-rc6 and it's definitely related to vmware. Is this something that
+vmware needs to fix?
 
-What stumbling blocks do you think I would encounter if I wanted to port 
-kref to a 2.4.xx kernel? Is kref tightly coupled with the kernel object 
-infrastructure found in the 2.6.xx kernel?
+On Wed, 2005-06-15 at 12:59 -0400, Avery Fay wrote:
+> Hello,
+> 
+> I just upgraded to the latest Debian release of 2.6.11. via-rhine
+> breaks. I also tried 2.6.12-rc6 and it's broken too. A few notes:
+> 
+> 1.) this is an Averatec 3225hs laptop
+> 2.) I'm using vmware too w/vmnet module
+> 3.) Worked on previous 2.6.11 debian releases
+> 4.) when i bring this interface up, i'm also enabling nat
 
-Many thanks!
-
-Hareesh
--= Engineering Intern =-
-cs.uic.edu/~hnagaraj
+-- 
+Avery Fay <avery@ravencode.com>

@@ -1,30 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261306AbVFOIWQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261303AbVFOI0f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261306AbVFOIWQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 04:22:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261311AbVFOIWQ
+	id S261303AbVFOI0f (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 04:26:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261311AbVFOI0f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 04:22:16 -0400
-Received: from quechua.inka.de ([193.197.184.2]:3782 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S261306AbVFOIWP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 04:22:15 -0400
-From: Bernd Eckenfels <ecki@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Why is one sync() not enough?
-Organization: Private Site running Debian GNU/Linux
-In-Reply-To: <20050614215032.35d44e93.akpm@osdl.org>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.7.8-20050315 ("Scalpay") (UNIX) (Linux/2.6.8.1 (i686))
-Message-Id: <E1DiT8f-00071G-00@calista.eckenfels.6bone.ka-ip.net>
-Date: Wed, 15 Jun 2005 10:20:45 +0200
+	Wed, 15 Jun 2005 04:26:35 -0400
+Received: from smtp2.poczta.interia.pl ([213.25.80.232]:25734 "EHLO
+	smtp.poczta.interia.pl") by vger.kernel.org with ESMTP
+	id S261303AbVFOI0d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 04:26:33 -0400
+Message-ID: <42AFE624.4020403@poczta.fm>
+Date: Wed, 15 Jun 2005 10:26:12 +0200
+From: Lukasz Stelmach <stlman@poczta.fm>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: pl, en-us, en
+MIME-Version: 1.0
+To: =?UTF-8?B?TcOlbnMgUnVsbGfDpXJk?= <mru@inprovide.com>
+Cc: "Alexander E. Patrakov" <patrakov@ums.usu.ru>,
+       linux-kernel@vger.kernel.org
+Subject: Re: A Great Idea (tm) about reimplementing NLS.
+References: <f192987705061303383f77c10c@mail.gmail.com>	<f192987705061310385260ca06@mail.gmail.com>	<yw1xekb69j9g.fsf@ford.inprovide.com>	<200506141404.06888.patrakov@ums.usu.ru> <yw1xslzl8g1q.fsf@ford.inprovide.com>
+In-Reply-To: <yw1xslzl8g1q.fsf@ford.inprovide.com>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigA69992F0D1A0F2DFAB6D7C53"
+X-EMID: 134b1138
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20050614215032.35d44e93.akpm@osdl.org> you wrote:
-> What filesystem?  What kernel version?  Any unusual bind mounts, loopback
-> mounts, etc?  There must be something there...
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigA69992F0D1A0F2DFAB6D7C53
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-most likely unmount fils, or the ro-remount of root was not possible.
+M=C3=A5ns Rullg=C3=A5rd napisa=C5=82(a):
 
-bernd
+> I use utf-8 exclusively for my filenames (the few that are not 7-bit
+> ascii).  Forcing others who use the system to do the same would cause
+> them a lot of trouble, as they must transfer files to and from Windows
+> machines that use anything but utf-8.
+
+But VFAT (and NTFS???) use unicode, i.e. UTF-16 (???). AFAIK
+
+--=20
+By=C5=82o mi bardzo mi=C5=82o.                    Trzecia pospolita kl=C4=
+=99ska, [...]
+>=C5=81ukasz<                      Ju=C5=BC nie katolicka lecz z=C5=82odz=
+iejska.  (c)PP
+
+
+--------------enigA69992F0D1A0F2DFAB6D7C53
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFCr+YoNdzY8sm9K9wRAt0OAJ9UqWi1s0Gmq7lQ0/1fTjsY/ABQ2QCggBEw
+MSVhQzXI+WbDUBXdfVSLh0k=
+=h6nR
+-----END PGP SIGNATURE-----
+
+--------------enigA69992F0D1A0F2DFAB6D7C53--

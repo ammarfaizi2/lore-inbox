@@ -1,44 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261671AbVFOV6w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261595AbVFOWAa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261671AbVFOV6w (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 17:58:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261617AbVFOVyt
+	id S261595AbVFOWAa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 18:00:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261668AbVFOV65
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 17:54:49 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:6369 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261601AbVFOVxV (ORCPT
+	Wed, 15 Jun 2005 17:58:57 -0400
+Received: from mail.kroah.org ([69.55.234.183]:53218 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261614AbVFOV6i (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 17:53:21 -0400
-Date: Wed, 15 Jun 2005 14:53:01 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: serue@us.ibm.com
-Cc: Chris Wright <chrisw@osdl.org>, James Morris <jmorris@redhat.com>,
-       Reiner Sailer <sailer@watson.ibm.com>,
-       LKML <linux-kernel@vger.kernel.org>,
-       LSM <linux-security-module@wirex.com>, Tom Lendacky <toml@us.ibm.com>,
-       Greg KH <greg@kroah.com>, Emily Rattlif <emilyr@us.ibm.com>,
-       Kylene Hall <kylene@us.ibm.com>
-Subject: Re: [PATCH] 3 of 5 IMA: LSM-based measurement code
-Message-ID: <20050615215301.GQ9046@shell0.pdx.osdl.net>
-References: <1118846413.2269.18.camel@secureip.watson.ibm.com> <Xine.LNX.4.44.0506151601310.27162-100000@thoron.boston.redhat.com> <20050615204936.GA3517@serge.austin.ibm.com> <20050615205926.GP9046@shell0.pdx.osdl.net> <20050615215019.GB3660@serge.austin.ibm.com>
+	Wed, 15 Jun 2005 17:58:38 -0400
+Date: Wed, 15 Jun 2005 14:58:23 -0700
+From: Greg KH <greg@kroah.com>
+To: Reiner Sailer <sailer@watson.ibm.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, LSM <linux-security-module@wirex.com>,
+       Tom Lendacky <toml@us.ibm.com>, Chris Wright <chrisw@osdl.org>,
+       Emily Rattlif <emilyr@us.ibm.com>, Kylene Hall <kylene@us.ibm.com>
+Subject: Re: [PATCH] 4 of 5 IMA: module measurement patch
+Message-ID: <20050615215823.GA539@kroah.com>
+References: <1118847443.2269.22.camel@secureip.watson.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050615215019.GB3660@serge.austin.ibm.com>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <1118847443.2269.22.camel@secureip.watson.ibm.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* serue@us.ibm.com (serue@us.ibm.com) wrote:
-> Quoting Chris Wright (chrisw@osdl.org):
-> > The primary purpose of the hooks is access control.  Some of them, of
-> > course, are helpers to keep labels coherent.  IIRC, James objected
-> > because the measurement data was simply collected from these hooks.
-> 
-> Ok, so to be clear, any module which does not directly impose some form
-> of access control is not eligible for an LSM?
+On Wed, Jun 15, 2005 at 10:57:23AM -0400, Reiner Sailer wrote:
+> +extern int ima_terminating;
+> +extern void measure_kernel_module(void *start, unsigned long len, const char __user *uargs);
 
-That's exactly the intention, yes.
+These belong in a .h file somewhere.
+
+The later one is not a good global symbol name either.
+
+So, from what I can see, you dropped your sysfs interfaces entirely?
 
 thanks,
--chris
+
+greg k-h

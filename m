@@ -1,47 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261311AbVFOIcu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261314AbVFOIee@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261311AbVFOIcu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 04:32:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261314AbVFOIcu
+	id S261314AbVFOIee (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 04:34:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261317AbVFOIee
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 04:32:50 -0400
-Received: from main.gmane.org ([80.91.229.2]:61353 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S261311AbVFOIcs (ORCPT
+	Wed, 15 Jun 2005 04:34:34 -0400
+Received: from odin2.bull.net ([192.90.70.84]:56232 "EHLO odin2.bull.net")
+	by vger.kernel.org with ESMTP id S261314AbVFOIeW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 04:32:48 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-Subject: Re: =?iso-8859-1?q?J=F6rg?= Schilling again... [Please reply CC: wdraxinger@darkstargames.de]
-Date: Wed, 15 Jun 2005 10:32:02 +0200
-Message-ID: <yw1xpsuo2f7h.fsf@ford.inprovide.com>
-References: <4fgGA-7S1-7@gated-at.bofh.it> <E1DiKAo-0003LH-Mu@be1.7eggert.dyndns.org>
+	Wed, 15 Jun 2005 04:34:22 -0400
+Subject: RT :  nvidia driver and perhaps others
+From: "Serge Noiraud" <serge.noiraud@bull.net>
+To: linux-kernel <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>
+Content-Type: text/plain
+Organization: BTS
+Message-Id: <1118823704.10717.129.camel@ibiza.btsn.frna.bull.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 76.80-203-227.nextgentel.com
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.15 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:s8PYksq3F7HfOENnqqCnSsEbVwY=
+X-Mailer: Ximian Evolution 1.4.6-5.1.100mdk 
+Date: Wed, 15 Jun 2005 10:21:45 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org> writes:
+Hi,
 
-> Wolfgang Draxinger <wdraxinger@darkstargames.de> wrote:
->
->> Well I didn't cared about the so called issues, as I never had
->> problems with cdrecord - ok the SUID bug required me to workaround,
->> but nothing that a 5 line sh script and a "%cdrw  ALL=(ALL)
->> NOPASSWD: /usr/bin/cdrecord.real" rule for sudo can't solve.
->
-> The new alpha version of cdrtools has the workaround.
+	I try to compile the nvidia driver for my RT kernel.
+It does not work anymore.
 
-Workaround for what?  The only workaround I've ever needed with
-cdrecord is closing my eyes while all those silly warnings scroll by.
+I have a great question : Do we need to modify all drivers ?
 
--- 
-Måns Rullgård
-mru@inprovide.com
+Isn't there a better way to avoid these modifications ?
+for example to have the external fonction the same than non RT kernel.
+and have an internal link to the new one or something like that ?
+
+I will have the same problem with PVIC drivers I think.
+
+These drivers are proprietary, so I can't modify them.
+I think we should change :
+
+1 - local_irq_* to raw_local_irq_*  : is it always true ?
+    I done this and now the driver loads OK
+    #  define NV_CLI()                      local_irq_disable()
+    #  define NV_SAVE_FLAGS(eflags)         local_save_flags(eflags)
+    #  define NV_RESTORE_FLAGS(eflags)      local_irq_restore(eflags)
+
+
+2 - spin_* to raw_spin_*  ?
+
+   #define nv_init_lock(lock)  spin_lock_init(&lock)
+   #define nv_lock(lock)       spin_lock(&lock)
+   #define nv_unlock(lock)     spin_unlock(&lock)
+   #define nv_lock_irq(lock,flags)    spin_lock_irqsave(&lock,flags)
+   #define nv_unlock_irq(lock,flags) spin_unlock_irqrestore(&lock,flags)
+
+and other in two files ... too many modifications.
 

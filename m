@@ -1,41 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261482AbVFOCuN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261193AbVFODXM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261482AbVFOCuN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 22:50:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261483AbVFOCuN
+	id S261193AbVFODXM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 23:23:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261306AbVFODXM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 22:50:13 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:30385 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261482AbVFOCuJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 22:50:09 -0400
-Subject: Re: RT and kernel debugger ( 2.6.12rc6  + RT  > 48-00 )
-From: Lee Revell <rlrevell@joe-job.com>
-To: Serge Noiraud <serge.noiraud@bull.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <1118673083.10717.83.camel@ibiza.btsn.frna.bull.fr>
-References: <1118673083.10717.83.camel@ibiza.btsn.frna.bull.fr>
-Content-Type: text/plain
-Date: Tue, 14 Jun 2005 21:50:49 -0400
-Message-Id: <1118800250.6093.61.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.3.1 
+	Tue, 14 Jun 2005 23:23:12 -0400
+Received: from mail.tmr.com ([64.65.253.246]:64404 "EHLO gaimboi.tmr.com")
+	by vger.kernel.org with ESMTP id S261193AbVFODXJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Jun 2005 23:23:09 -0400
+Message-ID: <42AF9F95.8020909@tmr.com>
+Date: Tue, 14 Jun 2005 23:25:09 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+Organization: TMR Associates Inc, Schenectady NY
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@muc.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: =?ISO-8859-1?Q?J=F6rg_Schilling_again=2E=2E=2E_=5BPlea?=
+ =?ISO-8859-1?Q?se_reply_CC=3A_wdraxinger=40darkstargames=2Ede=5D?=
+References: <200506141218.29200.wdraxinger@darkstargames.de> <m1br69b3ea.fsf@muc.de>
+In-Reply-To: <m1br69b3ea.fsf@muc.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-06-13 at 16:31 +0200, Serge Noiraud wrote:
-> Hi,
+Andi Kleen wrote:
+> Wolfgang Draxinger <wdraxinger@darkstargames.de> writes:
 > 
-> 	I would like to know what kernel debugger you propose over the RT
-> patch. I used to test kgdb, but since spinlock modification, it doesn't
-> work anymore.
+>>So what's the Linux Kernel developers' opinion on the lack of SCSI 
+>>error code return, technically?
 > 
-> Does someone work over RT to port a kernel debugger ?
+> 
+> The Linux Kernel developers' opinion is that J.S. is offtopic 
+> on this list. 
+> 
+> If you want to discuss specific SCSI technical issues send a mail with
+> only technical content to linux-scsi@vger.kernel.org
 
-I got kdb to work a few months ago.  I might have only been using
-PREEMPT_DESKTOP + irq threading + hard/softirq preemption.  All that was
-needed are some trivial adjustments to get the patch to apply.
+That seems an unintuitive place to comment on a problem which appears to 
+be in ide-cd.
 
-Lee
-
+-- 
+bill davidsen <davidsen@tmr.com>
+   CTO TMR Associates, Inc
+   Doing interesting things with small computers since 1979

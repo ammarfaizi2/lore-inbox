@@ -1,83 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261474AbVFOBWw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261471AbVFOBeD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261474AbVFOBWw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 21:22:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261471AbVFOBWw
+	id S261471AbVFOBeD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 21:34:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261476AbVFOBeD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 21:22:52 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:55243 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261470AbVFOBWo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 21:22:44 -0400
-Subject: Re: Tuning ext3 for large disk arrays
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Peter Chubb <peterc@gelato.unsw.edu.au>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andreas Hirstius <Andreas.Hirstius@cern.ch>
-In-Reply-To: <17071.32978.176262.634056@wombat.chubb.wattle.id.au>
-References: <17071.25351.996975.416810@wombat.chubb.wattle.id.au>
-	 <1118794936.4301.363.camel@dyn9047017072.beaverton.ibm.com>
-	 <17071.32978.176262.634056@wombat.chubb.wattle.id.au>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1118797160.4301.374.camel@dyn9047017072.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 14 Jun 2005 17:59:20 -0700
+	Tue, 14 Jun 2005 21:34:03 -0400
+Received: from omta03ps.mx.bigpond.com ([144.140.82.155]:65369 "EHLO
+	omta03ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S261471AbVFOBd6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Jun 2005 21:33:58 -0400
+Message-ID: <42AF8584.4010306@bigpond.net.au>
+Date: Wed, 15 Jun 2005 11:33:56 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Parag Warudkar <kernel-stuff@comcast.net>
+CC: Nick Newcomb <nranewcomb@hotmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Design Level Documentation for the Linux kernel (V2.6)
+References: <BAY108-F279928792F980CAFB2AEDCDF20@phx.gbl> <200506142113.07902.kernel-stuff@comcast.net>
+In-Reply-To: <200506142113.07902.kernel-stuff@comcast.net>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta03ps.mx.bigpond.com from [147.10.132.202] using ID pwil3058@bigpond.net.au at Wed, 15 Jun 2005 01:33:56 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-06-14 at 18:13, Peter Chubb wrote:
-> >>>>> "Badari" == Badari Pulavarty <pbadari@us.ibm.com> writes:
+Parag Warudkar wrote:
+> On Tuesday 14 June 2005 20:34, Nick Newcomb wrote:
 > 
-> Badari> What kernel are you running ?  Does the kernel has ext3
-> Badari> "reservation" support enabled ? 
-> 2.6.11, and yes, although it's not set in the mount options.
-
-2.6.11 has "reservation" turned ON by default. You should be
-fine.
-
+>>http://www.softwarerevolution.com/jeneral/open-source-docs.html
+>>
+>>Any questions or comments anyone might have are more than welcome. Thanks
+>>for your time and we hope you'll find our services useful.
+>>
+>>~ Nick w/ TSRI
 > 
+>>From the site : Documentation is best viewed with the most recent versions of 
+> Microsoft Internet Explorer or Mozilla Firefox (w/ plugin).
 > 
-> Badari> Do you see performance problem
-> Badari> with "read" tests also ? 
+> Well, both options require the use of Windows
+
+There's an Adobe SVG plugin that works on Linux (at least on FC3).
+
+<http://download.adobe.com/pub/adobe/magic/svgviewer/linux/3.x/3.01x88/en/adobesvg-3.01x88-linux-i386.tar.gz>
+
+This works fine with a test SVG link at Adobe but after installing it 
+Firefox only displays the above link as source :-(
+
+Before I installed the plug in Firefox displayed the above link OK but 
+couldn't display the SVG stuff. :-(
+
+> - most guys around here aren't 
+> going to be able to view it. (I would really like to view the docs but 
+> couldn't - Firefox displayed plain text and Konqueror displayed the page 
+> properly but there were no links on the page as displayed by Konqueror.) 
 > 
-> Yes.
+> BTW,  both Konqueror and Firefox support SVG (not in their stable versions but 
+> none the less, bleeding edge versions do give an option to enable SVG 
+> support.) So it would be helpful to have a version viewable using Linux 
+> browsers.
 
-Hmm. 
+Yes, it seems that it needs some work.
 
-> 
-> Badari> And also, does the write test writes
-> Badari> to multiple files in the same directory ? Or multiple threads
-> Badari> writing to same file ?
-> 
-> It's standard iozone --- mutliple processes writing to multiple files in
-> the same directory.
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-If you are running multiple files in the same directory, without
-reservations files will be badly fragmented. 
-
-Can you run "filefrag" on the files ?
-
-(I am also assuming each process writes to its own file).
-
-
-Thanks,
-Badari
-
-> 
-> All the mount options are the defaults.
-> 
-> A sample test is:
-> 
-> mdadm -Ss
-> mdadm -C /dev/md0 -l 0 -c 1024 -n 2 -R  /dev/sdc /dev/sdk 
-> mke2fs -j  /dev/md0 
-> mount /dev/md0 /shift/oplapro97/data01
-> cd /shift/oplapro97/data01
-> iozone -MCew -t1 -f IOZONE -s32g -r256k -i0 -i1 > ~/tests/unsw_ext3/iozone_2_disk_1stream_ext3
-> rm -rf /shift/oplapro97/data01/*
-> iozone -MCew -t2 -f IOZONE -s32g -r256k -i0 -i1 > ~/tests/unsw_ext3/iozone_2_disk_2stream_ext3
-> 
-
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

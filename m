@@ -1,105 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261536AbVFOUY5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261538AbVFOU3O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261536AbVFOUY5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 16:24:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbVFOUY5
+	id S261538AbVFOU3O (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 16:29:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbVFOU3O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 16:24:57 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:22470 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261536AbVFOUYw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 16:24:52 -0400
-Date: Wed, 15 Jun 2005 13:25:22 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu,
-       Roland McGrath <roland@redhat.com>
-Subject: Re: [BUG] Race condition with it_real_fn in kernel/itimer.c
-Message-Id: <20050615132522.3b6a857c.akpm@osdl.org>
-In-Reply-To: <1118852632.4508.48.camel@localhost.localdomain>
-References: <1118852632.4508.48.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 15 Jun 2005 16:29:14 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:41400 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S261538AbVFOU3I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 16:29:08 -0400
+From: Russ Anderson <rja@sgi.com>
+Message-Id: <200506152028.j5FKSuw91463066@clink.americas.sgi.com>
+Subject: Re: [RFC] Linux memory error handling
+To: rmk+lkml@arm.linux.org.uk (Russell King)
+Date: Wed, 15 Jun 2005 15:28:56 -0500 (CDT)
+Cc: linux-kernel@vger.kernel.org, rja@sgi.com (Russ Anderson)
+In-Reply-To: <20050615204659.A14853@flint.arm.linux.org.uk> from "Russell King" at Jun 15, 2005 08:46:59 PM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Rostedt <rostedt@goodmis.org> wrote:
->
-> OK, I found this bug on an older version of Ingo's RT kernel with my own
-> customizations. This is a very hard to get race condition but my logging
-> traced it pretty good and this looks like it may also be a bug for both
-> Ingo's RT kernel and the vanilla kernel. This was on an SMP machine.
+Russell King wrote:
+> On Wed, Jun 15, 2005 at 04:26:13PM +0100, Maciej W. Rozycki wrote:
+> > On Wed, 15 Jun 2005, Russ Anderson wrote:
+> > > 	Memory DIMM information & settings:
+> > > 
+> > > 	    Use a /proc/dimm_info interface to pass DIMM information to Linux.
+> > > 	    Hardware vendors could add their hardware specific settings.
+> > 
+> >  I'd recommend a more generic name rather than "dimm_info" if that is to 
+> > be reused universally.
 > 
-> Here's the race (since this was initiated with XFree86, I'll use it as
-> the userland process that started this):
-> 
-> XFree86: calls sys_call 
->     -> sys_setitimer
->        -> do_setitimer 
->            (grabs tsk->sighand->siglock)
->            -> del_timer_sync
->      which has the following code:
-> 
-> 	for_each_online_cpu(i) {
-> 		base = &per_cpu(tvec_bases, i);
-> 		if (base->running_timer == timer) {
-> 			while (base->running_timer == timer) {
-> 				cpu_relax();
-> 				preempt_check_resched();
-> 			}
-> 			break;
-> 		}
-> 	}
-> 
-> If the timer hasn't gone off yet on another cpu, it will spin until it
-> is finished. Now here's the problem:
-> 
-> ksoftirqd: calls do_softirq -> ... -> run_timer_softirq
->       -> __run_timers
->         -> it_real_fn
->             -> send_group_sig_info
->               -> group_send_sig_info
->                   (grabs p->sighand->siglock)
-> 
-> Now, since the ksoftirqd is what changes running_timer, we have a
-> deadlock! 
+> Agree.
 
-Yes, that's a deadlock.
+I really don't care what it's called, as long as it's descriptive.
+/proc/meminfo is taken.  :-)
 
-> What would be the harm in doing something like:
+One idea would follow the concept of /proc/bus/ and have /proc/memory/
+with different memory types.  /proc/memory/dimm0 /proc/memory/dimm1
+/proc/memory/flash0 .  
+ 
+> I'd also suggest that there be some method to tell the kernel from
+> architecture code about this "dimm_info" stuff - many embedded
+> platforms already know their memory organisation.
 > 
-> --- linux-2.6.12-rc6/kernel/itimer.c.orig	2005-06-15 12:14:13.000000000 -0400
-> +++ linux-2.6.12-rc6/kernel/itimer.c	2005-06-15 12:18:31.000000000 -0400
-> @@ -153,11 +153,15 @@
->  
->  	switch (which) {
->  	case ITIMER_REAL:
-> +	try_again:
->  		spin_lock_irq(&tsk->sighand->siglock);
->  		interval = tsk->signal->it_real_incr;
->  		val = it_real_value(tsk->signal);
-> -		if (val)
-> +		if (val) {
-> +			spin_unlock_irq(&tsk->sighand->siglock);
->  			del_timer_sync(&tsk->signal->real_timer);
-> +			goto try_again;
-> +		}
->  		tsk->signal->it_real_incr =
->  			timeval_to_jiffies(&value->it_interval);
->  		it_real_arm(tsk, timeval_to_jiffies(&value->it_value));
-> 
-> 
+> BTW, Russ, could we have a better description of what information is
+> intended to be supplied?
 
-And that will fix it.  (Labels start in column zero, and a comment is
-needed here).
+Part tracking info and configuration info.  For example, we were doing
+some experiments to determine the relationship between refresh rates
+and memory errors.  Could increasing the refresh rate reduce the number
+of memory errors, therefor making memory more reliable for customers?
+Could decreasing the refresh rate in manufacturing be used to identify
+questionable DIMMs?  Having a convient interface to read the current
+refresh rate setting and write a new setting would be useful.
 
-However I wonder if it would be sufficient to remove the del_timer_sync()
-call altogether and just do mod_timer() in it_real_arm().
+This type info, not necessarily in this format:
+------------------------------------------------------------------------------
 
-If the handler happens to be running on another CPU and if the handler
-tries to run mod_timer() _after_ the do_setitimer() has run mod_timer(),
-the handler will use the desired value of it_real_incr anyway.
+EEPROM     JEDEC-SPD Info           Part Number        Rev  Speed  SGI      BC
+---------- ------------------------ ------------------ ---- ------ -------- --
+DIMM0 N0 L CE0000000000000006071D84 M3 12L6423DT0-CB3   0D    6.0  09/02/03 00
+DIMM1 N0 L CE0000000000000006051CB2 M3 12L6423DT0-CB3   0D    6.0  09/02/03 00
+DIMM2 N0 L no hardware detected
+DIMM3 N0 L no hardware detected
 
 
+-- 
+Russ Anderson, OS RAS/Partitioning Project Lead  
+SGI - Silicon Graphics Inc          rja@sgi.com

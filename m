@@ -1,76 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbVFOApx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261454AbVFOAus@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261451AbVFOApx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 20:45:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261453AbVFOApx
+	id S261454AbVFOAus (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 20:50:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261455AbVFOAus
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 20:45:53 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:47552 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261451AbVFOApl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 20:45:41 -0400
-Subject: Re: Tuning ext3 for large disk arrays
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Peter Chubb <peterc@gelato.unsw.edu.au>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andreas Hirstius <Andreas.Hirstius@cern.ch>
-In-Reply-To: <17071.25351.996975.416810@wombat.chubb.wattle.id.au>
-References: <17071.25351.996975.416810@wombat.chubb.wattle.id.au>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1118794936.4301.363.camel@dyn9047017072.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 14 Jun 2005 17:22:16 -0700
-Content-Transfer-Encoding: 7bit
+	Tue, 14 Jun 2005 20:50:48 -0400
+Received: from smtp-auth.no-ip.com ([8.4.112.95]:3560 "HELO
+	smtp-auth.no-ip.com") by vger.kernel.org with SMTP id S261454AbVFOAun
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Jun 2005 20:50:43 -0400
+From: dagit@codersbase.com
+To: Pavel Machek <pavel@suse.cz>
+Cc: Shaohua Li <shaohua.li@intel.com>, stefandoesinger@gmx.at,
+       acpi-dev <acpi-devel@lists.sourceforge.net>,
+       Matthew Garrett <mjg59@srcf.ucam.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: S3 test tool (was : Re: Bizarre oops after suspend to RAM (was:
+ Re: [ACPI] Resume from Suspend to RAM))
+References: <200506061531.41132.stefandoesinger@gmx.at>
+	<1118125410.3828.12.camel@linux-hp.sh.intel.com>
+	<87ll5diemh.fsf@www.codersbase.com> <20050614090652.GA1863@elf.ucw.cz>
+	<87aclthr7l.fsf@www.codersbase.com> <20050614213728.GB2172@elf.ucw.cz>
+	<87u0k061jx.fsf@www.codersbase.com> <20050614220911.GD2172@elf.ucw.cz>
+	<87oea860rl.fsf@www.codersbase.com> <20050614231115.GE2172@elf.ucw.cz>
+	<87ekb45u5a.fsf@www.codersbase.com>
+Organization: Coders' Base
+Date: Tue, 14 Jun 2005 17:50:41 -0700
+In-Reply-To: <87ekb45u5a.fsf@www.codersbase.com> (dagit@codersbase.com's
+ message of "Tue, 14 Jun 2005 17:41:05 -0700")
+Message-ID: <87acls5tpa.fsf@www.codersbase.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-REPORT-SPAM-TO: abuse@no-ip.com
+X-NO-IP: codersbase.com@noip-smtp
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What kernel are you running ?  Does the kernel has ext3 "reservation"
-support enabled ? Do you see performance problem with "read" tests also
-? And also, does the write test writes to multiple files in the same
-directory ? Or multiple threads writing to same file ?
+> As for check about the push alone causing the reboot, I removed the
+> pop, and it still reboots, but to me that doesn't say that it's the
+> push that does it.  It could be the next line.  I'll try to put in an
+> infinite loop.
+
+I added a loop "jmp ." right after the pushl and the machine still
+reboots.  So the pushl does cause the reboot.
+
+Hopefully, you can show me how to move the stack and I will try that
+as well.
 
 Thanks,
-Badari
-
-On Tue, 2005-06-14 at 16:06, Peter Chubb wrote:
-> Hi folks,
->    We've been doing a few scalability measurements on disk arrays.  We
-> know how to tune xfs to give reasonable performance.  But I'm not sure
-> how to tune ext3, and the default parameters give poor performance.
-> 
-> See http://scalability.gelato.org/DiskScalability/Results for the
-> graphs.
-> 
-> iozone for 24 10k SATA disks spread across 3 3ware controllers gives a
-> peak read throughput on XFS of around 1050M/sec; but ext3 conks out
-> at around half that.  The maximum single threaded read performance we
-> got was 450M/sec, and it's pretty constant from 12 through 24
-> spindles.  We see no difference between setting -E stride=XX and
-> leaving this parameter off.
-> 
-> The system uses 64k pages; we can set XFS up with 64k blocks; it may
-> be that part of the problem is that ext3 can't use larger blocks.  We
-> repeated the XFs measurements configuring the kernel and filesystem to
-> use 4k pages/blocks, and although the throughput is lower than with
-> the 64k page size, it's still significantly better than with ext3.
-> Moreover, configuring XFS with 4k blocks, but using 64k pages gives
-> results (not shown on the Wiki page) almost the same as the 64k
-> pages/64k blocks.
-> 
-> Before going on and starting to look for bottlenecks, I'd like to be
-> sure that ext3 is tuned appropriately.  mke2fs doesn't seem to have
-> many appropriate tweaks, however...???
-> 
-> --
-> Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
-> The technical we do immediately,  the political takes *forever*
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
+Jason
 

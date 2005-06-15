@@ -1,96 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261497AbVFOFdm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261496AbVFOFdd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261497AbVFOFdm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 01:33:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261495AbVFOFdl
+	id S261496AbVFOFdd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 01:33:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbVFOFdd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 01:33:41 -0400
-Received: from mail.kroah.org ([69.55.234.183]:7080 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261497AbVFOFda (ORCPT
+	Wed, 15 Jun 2005 01:33:33 -0400
+Received: from mail.kroah.org ([69.55.234.183]:6824 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261496AbVFOFda (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 15 Jun 2005 01:33:30 -0400
-Date: Tue, 14 Jun 2005 22:31:20 -0700
+Date: Tue, 14 Jun 2005 22:33:16 -0700
 From: Greg KH <gregkh@suse.de>
 To: len.brown@intel.com, ak@suse.de
 Cc: acpi-devel@lists.sourceforge.net, linux-pci@atrey.karlin.mff.cuni.cz,
        linux-kernel@vger.kernel.org
-Subject: [PATCH 02/04] PCI: use the MCFG table to properly access pci devices (i386)
-Message-ID: <20050615053120.GC23394@kroah.com>
-References: <20050615052916.GA23394@kroah.com> <20050615053031.GB23394@kroah.com>
+Subject: [PATCH 04/04] PCI: let AMD boxes use MMCONFIG
+Message-ID: <20050615053316.GE23394@kroah.com>
+References: <20050615052916.GA23394@kroah.com> <20050615053031.GB23394@kroah.com> <20050615053120.GC23394@kroah.com> <20050615053214.GD23394@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050615053031.GB23394@kroah.com>
+In-Reply-To: <20050615053214.GD23394@kroah.com>
 User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Now that we have access to the whole MCFG table, let's properly use it
-for all pci device accesses (as that's what it is there for, some boxes
-don't put all the busses into one entry.)
 
-If, for some reason, the table is incorrect, we fallback to the "old
-style" of mmconfig accesses, namely, we just assume the first entry in
-the table is the one for us, and blindly use it.
+Now that we parse and handle the MCFG table properly, we can hopefully
+remove the AMD check and let those boxes use MMCONFIG.
+
+Note, this needs _lots_ of testing on lots of boxes before going to
+mainline...
 
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 
 ---
- arch/i386/pci/mmconfig.c |   29 +++++++++++++++++++++++++----
- 1 files changed, 25 insertions(+), 4 deletions(-)
+ arch/i386/pci/mmconfig.c   |    7 -------
+ arch/x86_64/pci/mmconfig.c |    7 -------
+ 2 files changed, 14 deletions(-)
 
---- gregkh-2.6.orig/arch/i386/pci/mmconfig.c	2005-06-14 21:53:11.000000000 -0700
-+++ gregkh-2.6/arch/i386/pci/mmconfig.c	2005-06-14 22:07:52.000000000 -0700
-@@ -22,10 +22,31 @@
- /*
-  * Functions for accessing PCI configuration space with MMCONFIG accesses
-  */
-+static u32 get_base_addr(unsigned int seg, int bus)
-+{
-+	int cfg_num = -1;
-+	struct acpi_table_mcfg_config *cfg;
-+
-+	while (1) {
-+		++cfg_num;
-+		if (cfg_num >= pci_mmcfg_config_num) {
-+			/* something bad is going on, no cfg table is found. */
-+			/* so we fall back to the old way we used to do this */
-+			/* and just rely on the first entry to be correct. */
-+			return pci_mmcfg_config[0].base_address;
-+		}
-+		cfg = &pci_mmcfg_config[cfg_num];
-+		if (cfg->pci_segment_group_number != seg)
-+			continue;
-+		if ((cfg->start_bus_number <= bus) &&
-+		    (cfg->end_bus_number >= bus))
-+			return cfg->base_address;
-+	}
-+}
+--- gregkh-2.6.orig/arch/i386/pci/mmconfig.c	2005-06-14 22:07:52.000000000 -0700
++++ gregkh-2.6/arch/i386/pci/mmconfig.c	2005-06-14 22:09:16.000000000 -0700
+@@ -127,13 +127,6 @@
+ 	    (pci_mmcfg_config[0].base_address == 0))
+ 		goto out;
  
--static inline void pci_exp_set_dev_base(int bus, int devfn)
-+static inline void pci_exp_set_dev_base(unsigned int seg, int bus, int devfn)
- {
--	u32 dev_base = pci_mmcfg_config[0].base_address | (bus << 20) | (devfn << 12);
-+	u32 dev_base = get_base_addr(seg, bus) | (bus << 20) | (devfn << 12);
- 	if (dev_base != mmcfg_last_accessed_device) {
- 		mmcfg_last_accessed_device = dev_base;
- 		set_fixmap_nocache(FIX_PCIE_MCFG, dev_base);
-@@ -42,7 +63,7 @@
+-	/* Kludge for now. Don't use mmconfig on AMD systems because
+-	   those have some busses where mmconfig doesn't work,
+-	   and we don't parse ACPI MCFG well enough to handle that. 
+-	   Remove when proper handling is added. */
+-	if (boot_cpu_data.x86_vendor == X86_VENDOR_AMD)
+-		goto out; 
+-
+ 	printk(KERN_INFO "PCI: Using MMCONFIG\n");
+ 	raw_pci_ops = &pci_mmcfg;
+ 	pci_probe = (pci_probe & ~PCI_PROBE_MASK) | PCI_PROBE_MMCONF;
+--- gregkh-2.6.orig/arch/x86_64/pci/mmconfig.c	2005-06-14 22:08:44.000000000 -0700
++++ gregkh-2.6/arch/x86_64/pci/mmconfig.c	2005-06-14 22:09:11.000000000 -0700
+@@ -111,13 +111,6 @@
+ 	    (pci_mmcfg_config[0].base_address == 0))
+ 		return 0;
  
- 	spin_lock_irqsave(&pci_config_lock, flags);
- 
--	pci_exp_set_dev_base(bus, devfn);
-+	pci_exp_set_dev_base(seg, bus, devfn);
- 
- 	switch (len) {
- 	case 1:
-@@ -71,7 +92,7 @@
- 
- 	spin_lock_irqsave(&pci_config_lock, flags);
- 
--	pci_exp_set_dev_base(bus, devfn);
-+	pci_exp_set_dev_base(seg, bus, devfn);
- 
- 	switch (len) {
- 	case 1:
+-	/* Kludge for now. Don't use mmconfig on AMD systems because
+-	   those have some busses where mmconfig doesn't work,
+-	   and we don't parse ACPI MCFG well enough to handle that. 
+-	   Remove when proper handling is added. */
+-	if (boot_cpu_data.x86_vendor == X86_VENDOR_AMD)
+-		return 0; 
+-
+ 	/* RED-PEN i386 doesn't do _nocache right now */
+ 	pci_mmcfg_virt = kmalloc(sizeof(*pci_mmcfg_virt) * pci_mmcfg_config_num, GFP_KERNEL);
+ 	if (pci_mmcfg_virt == NULL) {

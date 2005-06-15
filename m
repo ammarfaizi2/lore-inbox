@@ -1,52 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261391AbVFOTPv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261458AbVFOTQy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261391AbVFOTPv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 15:15:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261438AbVFOTPv
+	id S261458AbVFOTQy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 15:16:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261449AbVFOTQx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 15:15:51 -0400
-Received: from mailhub3.nextra.sk ([195.168.1.146]:30214 "EHLO
-	mailhub3.nextra.sk") by vger.kernel.org with ESMTP id S261391AbVFOTPp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 15:15:45 -0400
-Message-ID: <42B07E5D.9070004@rainbow-software.org>
-Date: Wed, 15 Jun 2005 21:15:41 +0200
-From: Ondrej Zary <linux@rainbow-software.org>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Nick Piggin <nickpiggin@yahoo.com.au>,
-       Grant Coady <grant_lkml@dodo.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Odd IDE performance drop 2.4 vs 2.6?
-References: <ac0qa19omlt7bsh8mcfsfr2uhshk338f0c@4ax.com>	 <42AD6362.1000109@rainbow-software.org>	 <1118669975.13260.23.camel@localhost.localdomain>	 <42AD92F2.7080108@yahoo.com.au> <1118675343.13773.1.camel@localhost.localdomain>
-In-Reply-To: <1118675343.13773.1.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 15 Jun 2005 15:16:53 -0400
+Received: from kanga.kvack.org ([66.96.29.28]:4590 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S261438AbVFOTQi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 15:16:38 -0400
+Date: Wed, 15 Jun 2005 15:18:30 -0400
+From: Benjamin LaHaise <bcrl@kvack.org>
+To: Suparna Bhattacharya <suparna@in.ibm.com>
+Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] aio_down() for i386 and x86_64
+Message-ID: <20050615191830.GA28261@kvack.org>
+References: <20050614215022.GC21286@kvack.org> <20050615165349.GA4521@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050615165349.GA4521@in.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Llu, 2005-06-13 at 15:06, Nick Piggin wrote:
-> 
->>>Make sure you have pre-empt disabled and the antcipatory I/O scheduler
->>>disabled. 
->>>
->>
->>I don't think that those could explain it.
-> 
-> 
-> Try it and see. The anticipatory I/O scheduler does horrible things to
-> my IDE streaming performance numbers and to swap performance. It tries
-> to merge I/O by delaying it which is deeply ungood when it comes to IDE
-> streaming even if its good for general I/O.
+On Wed, Jun 15, 2005 at 10:23:49PM +0530, Suparna Bhattacharya wrote:
+> Interesting approach - using ki_wait.private for this.
+> Could we make aio_down take a wait queue parameter as well instead of
+> the iocb ?
 
-Now I've tested it with preempt disabled and nothing has changed. When 
-fiddling around with hdparm, I got about 16MB/s max. with 2.6.12-rc5. 
-With 2.4.31, I got about 21MB/s when just the DMA was enabled 
-(read-ahead and multcount set to 0 - changing them does not make almost 
-any difference).
+Hmmm, I guess there might be instances where someone has to wait on 
+multiple wait queues.  Will add that to the next version of the patch.
 
--- 
-Ondrej Zary
+> Need to think a little about impact on io cancellation.
+
+It should be possible to cancel semaphore operations fairly easily -- 
+the aio_down function can set ->ki_cancel to point to a semaphore cancel 
+routine.  I'll give coding that a try.
+
+> BTW, is the duplication of functions across architectures still needed ? I
+> thought that one of advantages of implementing a separate aio_down
+> routine vs modifiying down to become retryable was to get away from
+> that ... or wasn't it ?
+
+Good point.  The fast path for down() will probably need to remain a 
+separate function, but we could well unify the code with the 
+down_interruptible() codepath.
+
+> Meanwhile, I probably need to repost my aio_wait_bit patches - there
+> may be some impact here.
+
+Sure -- any version of those would be useful to build on.  Cheers!
+
+		-ben

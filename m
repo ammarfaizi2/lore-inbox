@@ -1,60 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261382AbVFONVa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261422AbVFONh3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261382AbVFONVa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 09:21:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261422AbVFONVa
+	id S261422AbVFONh3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 09:37:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261428AbVFONh3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 09:21:30 -0400
-Received: from odin2.bull.net ([192.90.70.84]:5796 "EHLO odin2.bull.net")
-	by vger.kernel.org with ESMTP id S261382AbVFONV0 convert rfc822-to-8bit
+	Wed, 15 Jun 2005 09:37:29 -0400
+Received: from ausmtp01.au.ibm.com ([202.81.18.186]:4303 "EHLO
+	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP id S261422AbVFONh0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 09:21:26 -0400
-Subject: Re: network driver disabled interrupts in PREEMPT_RT
-From: "Serge Noiraud" <serge.noiraud@bull.net>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050615130511.GA376@elte.hu>
-References: <1118688347.5792.12.camel@localhost>
-	 <20050613185642.GA12463@elte.hu>
-	 <1118839004.17063.19.camel@ibiza.btsn.frna.bull.fr>
-	 <20050615130511.GA376@elte.hu>
-Content-Type: text/plain; charset=iso-8859-15
-Organization: BTS
-Message-Id: <1118840928.17063.28.camel@ibiza.btsn.frna.bull.fr>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-5.1.100mdk 
-Date: Wed, 15 Jun 2005 15:08:49 +0200
-Content-Transfer-Encoding: 8BIT
+	Wed, 15 Jun 2005 09:37:26 -0400
+To: linux-kernel@vger.kernel.org, fastboot@lists.osdl.org
+MIME-Version: 1.0
+Subject: Analysis of IO bug with kdump
+X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
+Message-ID: <OF73B8CDF4.A3A85473-ON65257021.004478CB-65257021.0045DE0F@in.ibm.com>
+From: Nagesh Sharyathi <sharyathi@in.ibm.com>
+Date: Wed, 15 Jun 2005 18:08:07 +0530
+X-MIMETrack: Serialize by Router on d23m0069/23/M/IBM(Release 6.51HF653 | October 18, 2004) at
+ 15/06/2005 18:08:41,
+	Serialize complete at 15/06/2005 18:08:41
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le mer 15/06/2005 à 15:05, Ingo Molnar a écrit :
-> * Serge Noiraud <serge.noiraud@bull.net> wrote:
-> 
-> > Le lun 13/06/2005 à 20:56, Ingo Molnar a écrit :
-> > > * Kristian Benoit <kbenoit@opersys.com> wrote:
-> > > 
-> > > > Hi,
-> > > > I got lots of these messages when accessing the net running
-> > > > 2.6.12-rc6-RT-V0.7.48-25 :
-> > > > 
-> > > > "network driver disabled interrupts: tg3_start_xmit+0x0/0x629 [tg3]"
-> > > > 
-> > > > it seem to come from net/sched/sch_generic.c.
-> > > 
-> > > does the patch below fix it?
-> > > 
-> > > 	Ingo
-> > I have the same problem with an e1000 card for 2.6.12-rc6-RT-V0.7.48-32 :
-> > #dmesg
-> > ...
-> > network driver disabled interrupts: e1000_xmit_frame+0x0/0xbc0 [e1000]
-> > ...
-> 
-> does -48-33 fix it for you?
-> 
-> 	Ingo
-No and I have the tg3_start_xmit too. So the first problem is not solved.
-I have the following :
-network driver disabled interrupts: tg3_start_xmit+0x0/0x620 [tg3]
+I have encountered kernel oops while testing AIO. 
+Since I had set panic_on_oops I  was able to take the memory dump through 
+kdump,
+I have run preliminary analysis over the dump using gdb and have attached 
+the analysis, please look into the bug
 
+http://bugme.osdl.org/show_bug.cgi?id=4721
+
+and let me know if further analysis is needed

@@ -1,61 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261619AbVFOXBv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261640AbVFOXCe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261619AbVFOXBv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 19:01:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261640AbVFOW7c
+	id S261640AbVFOXCe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 19:02:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261635AbVFOXCT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 18:59:32 -0400
-Received: from mail.dif.dk ([193.138.115.101]:30172 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S261619AbVFOWz7 (ORCPT
+	Wed, 15 Jun 2005 19:02:19 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:50562 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261664AbVFOXAH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 18:55:59 -0400
-Date: Thu, 16 Jun 2005 01:01:21 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: "David S. Miller" <davem@davemloft.net>,
-       Corey Minyard <wf-rch!minyard@relay.EU.net>,
-       "Donald J. Becker" <becker@cesdis.gsfc.nasa.gov>,
-       Alan Cox <Alan.Cox@linux.org>, "Bjorn Ekwall." <bj0rn@blox.se>,
-       Pekka Riikonen <priikone@poseidon.pspt.fi>
-Subject: [PATCH] fix gcc -W warning in netdevice.h
-Message-ID: <Pine.LNX.4.62.0506160053210.3842@dragon.hyggekrogen.localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 15 Jun 2005 19:00:07 -0400
+Date: Wed, 15 Jun 2005 15:59:51 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Reiner Sailer <sailer@us.ibm.com>
+Cc: Chris Wright <chrisw@osdl.org>, serue@us.ibm.com,
+       James Morris <jmorris@redhat.com>,
+       Reiner Sailer <sailer@watson.ibm.com>,
+       LKML <linux-kernel@vger.kernel.org>,
+       LSM <linux-security-module@wirex.com>, Toml@us.ibm.com,
+       Greg KH <greg@kroah.com>, Emilyr@us.ibm.com, kylene@us.ibm.com
+Subject: Re: [PATCH] 3 of 5 IMA: LSM-based measurement code
+Message-ID: <20050615225951.GU9046@shell0.pdx.osdl.net>
+References: <Pine.WNT.4.63.0506151754150.2452@laptop>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.WNT.4.63.0506151754150.2452@laptop>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This might be a slightly controversial patch in that it adds a cast purely 
-to shut up a gcc -W warning, but this header file is used in *lots* of 
-places, so when building with gcc -W this warning shows up all over the 
-place :
-	include/linux/netdevice.h:781: warning: comparison between signed and unsigned
-With my normal .config I over 120 instances of this one, so shutting it up 
-cuts down on the stuff I have to wade through to try and spot real 
-potential problems quite a bit.
-The cast is completely harmless since the unsigned value that gcc is 
-complaining about will never exceed the storage capacity of a plain int, 
-and it will not change any actual code behaviour.
+* Reiner Sailer (sailer@us.ibm.com) wrote:
+> Access control is a very broad term. Before I go into details, I would 
+> like to make clear that I do not have a preference for or against LSM. We 
+> are working hard to make the functionality available and it does not 
+> matter to the user where IMA will be located. The true potential of 
+> Trusted Computing will only show with experimenting going on outside 
+> the research labs. IMA can help by being one modest building block 
+> for experiments only if it is broadly available.
 
-Please consider merging.
+Yeah, understood.
 
+> Regarding the access control discussion, one can map (almost) anything 
+> onto access control. There are (many) people that teach today that the 
+> whole security issue is about access control. The question is: 
+> controlling access of whom to what?
 
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
----
+OK, let's look at it another way.  Say your access control model used
+kernel profiling data as part of policy.  It still makes sense to let
+oprofile do that collection, and the LSM is just a consumer of that
+data when it makes an acces control decision.  Perhaps a klunky analogy,
+but do you see the idea?
 
- include/linux/netdevice.h |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+> IMA does control access by forcing measurements on executables
+> before they are loaded. Access control is more than saying yes or no at 
+> some point on the code path. IMA enables remote parties to figure out 
+> whether a system has some (usage dependent) properties. This can serve as 
+> the basis for controlling such systems' access to resources. IMA supplies 
+> input into a remote Access Control Decision Function.
 
---- linux-2.6.12-rc6-mm1-orig/include/linux/netdevice.h	2005-06-12 15:58:58.000000000 +0200
-+++ linux-2.6.12-rc6-mm1/include/linux/netdevice.h	2005-06-16 00:52:14.000000000 +0200
-@@ -778,7 +778,7 @@ enum {
- static inline u32 netif_msg_init(int debug_value, int default_msg_enable_bits)
- {
- 	/* use default */
--	if (debug_value < 0 || debug_value >= (sizeof(u32) * 8))
-+	if (debug_value < 0 || debug_value >= (int)(sizeof(u32) * 8))
- 		return default_msg_enable_bits;
- 	if (debug_value == 0)	/* no output */
- 		return 0;
+Right, the measurement data collection stand alone, which no access
+control decisions in sight (talking about the IMA LSM now), is what
+tipped the scale.
 
-
-
+thanks,
+-chris

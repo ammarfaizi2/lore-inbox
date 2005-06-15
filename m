@@ -1,45 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261204AbVFOUWR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261536AbVFOUY5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261204AbVFOUWR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 16:22:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261536AbVFOUWR
+	id S261536AbVFOUY5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 16:24:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbVFOUY5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 16:22:17 -0400
-Received: from mail.kroah.org ([69.55.234.183]:35771 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261204AbVFOUWO (ORCPT
+	Wed, 15 Jun 2005 16:24:57 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:22470 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261536AbVFOUYw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 16:22:14 -0400
-Date: Wed, 15 Jun 2005 13:21:58 -0700
-From: Greg KH <gregkh@suse.de>
-To: Andi Kleen <ak@suse.de>
-Cc: Greg KH <gregkh@suse.de>, len.brown@intel.com,
-       acpi-devel@lists.sourceforge.net, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 02/04] PCI: use the MCFG table to properly access pci devices (i386)
-Message-ID: <20050615202158.GC31022@kroah.com>
-References: <20050615052916.GA23394@kroah.com> <20050615053031.GB23394@kroah.com> <20050615053120.GC23394@kroah.com> <20050615094833.GB11898@wotan.suse.de> <20050615175447.GA29138@suse.de> <20050615182346.GQ11898@wotan.suse.de> <20050615183547.GA29587@suse.de> <20050615190338.GT11898@wotan.suse.de>
+	Wed, 15 Jun 2005 16:24:52 -0400
+Date: Wed, 15 Jun 2005 13:25:22 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu,
+       Roland McGrath <roland@redhat.com>
+Subject: Re: [BUG] Race condition with it_real_fn in kernel/itimer.c
+Message-Id: <20050615132522.3b6a857c.akpm@osdl.org>
+In-Reply-To: <1118852632.4508.48.camel@localhost.localdomain>
+References: <1118852632.4508.48.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050615190338.GT11898@wotan.suse.de>
-User-Agent: Mutt/1.5.8i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 15, 2005 at 09:03:38PM +0200, Andi Kleen wrote:
-> > > For those you would have bus->ops pointing to the old port code,
-> > > for the others to the mmconfig code.
-> > 
-> > Well, for that, I'll have to set the bus ops when they are discovered.
-> > So the same callback I mentioned can be used for that (due to the need
-> > to check the ranges in the MCFG table).  I'll work on that too.
-> > 
-> > Does the K8 box just not have MCFG entries for the northbridge busses?
+Steven Rostedt <rostedt@goodmis.org> wrote:
+>
+> OK, I found this bug on an older version of Ingo's RT kernel with my own
+> customizations. This is a very hard to get race condition but my logging
+> traced it pretty good and this looks like it may also be a bug for both
+> Ingo's RT kernel and the vanilla kernel. This was on an SMP machine.
 > 
-> I believe so. 
+> Here's the race (since this was initiated with XFree86, I'll use it as
+> the userland process that started this):
+> 
+> XFree86: calls sys_call 
+>     -> sys_setitimer
+>        -> do_setitimer 
+>            (grabs tsk->sighand->siglock)
+>            -> del_timer_sync
+>      which has the following code:
+> 
+> 	for_each_online_cpu(i) {
+> 		base = &per_cpu(tvec_bases, i);
+> 		if (base->running_timer == timer) {
+> 			while (base->running_timer == timer) {
+> 				cpu_relax();
+> 				preempt_check_resched();
+> 			}
+> 			break;
+> 		}
+> 	}
+> 
+> If the timer hasn't gone off yet on another cpu, it will spin until it
+> is finished. Now here's the problem:
+> 
+> ksoftirqd: calls do_softirq -> ... -> run_timer_softirq
+>       -> __run_timers
+>         -> it_real_fn
+>             -> send_group_sig_info
+>               -> group_send_sig_info
+>                   (grabs p->sighand->siglock)
+> 
+> Now, since the ksoftirqd is what changes running_timer, we have a
+> deadlock! 
 
-Ok, that give us a fighting chance to get this to work...
+Yes, that's a deadlock.
 
-thanks,
+> What would be the harm in doing something like:
+> 
+> --- linux-2.6.12-rc6/kernel/itimer.c.orig	2005-06-15 12:14:13.000000000 -0400
+> +++ linux-2.6.12-rc6/kernel/itimer.c	2005-06-15 12:18:31.000000000 -0400
+> @@ -153,11 +153,15 @@
+>  
+>  	switch (which) {
+>  	case ITIMER_REAL:
+> +	try_again:
+>  		spin_lock_irq(&tsk->sighand->siglock);
+>  		interval = tsk->signal->it_real_incr;
+>  		val = it_real_value(tsk->signal);
+> -		if (val)
+> +		if (val) {
+> +			spin_unlock_irq(&tsk->sighand->siglock);
+>  			del_timer_sync(&tsk->signal->real_timer);
+> +			goto try_again;
+> +		}
+>  		tsk->signal->it_real_incr =
+>  			timeval_to_jiffies(&value->it_interval);
+>  		it_real_arm(tsk, timeval_to_jiffies(&value->it_value));
+> 
+> 
 
-greg k-h
+And that will fix it.  (Labels start in column zero, and a comment is
+needed here).
+
+However I wonder if it would be sufficient to remove the del_timer_sync()
+call altogether and just do mod_timer() in it_real_arm().
+
+If the handler happens to be running on another CPU and if the handler
+tries to run mod_timer() _after_ the do_setitimer() has run mod_timer(),
+the handler will use the desired value of it_real_incr anyway.
+
+

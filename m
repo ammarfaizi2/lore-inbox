@@ -1,65 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261572AbVFOU4f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261566AbVFOU4e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261572AbVFOU4f (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 16:56:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261571AbVFOUzD
+	id S261566AbVFOU4e (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 16:56:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261573AbVFOUzf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 16:55:03 -0400
-Received: from wproxy.gmail.com ([64.233.184.201]:42410 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261564AbVFOUuV convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 16:50:21 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=JMlVez88HDrHlDZClV8055ImmNj23V+GIG7A7Y3qnE6jHghgL4AEsIzTw6JgAcU+VZN9XO33ucCgVEnDID1vFc7YcitliqVdTAgYInEF+7//3A+I/XAvMa9FloYX2OpZ5Rx+u/C1u5ZAOMP2mfFfbwkIFkVUT2UptSEt6zr3WSY=
-Message-ID: <f192987705061513503afb73cb@mail.gmail.com>
-Date: Thu, 16 Jun 2005 00:50:15 +0400
-From: Alexey Zaytsev <alexey.zaytsev@gmail.com>
-Reply-To: Alexey Zaytsev <alexey.zaytsev@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: A Great Idea (tm) about reimplementing NLS.
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1118690448.13770.12.camel@localhost.localdomain>
+	Wed, 15 Jun 2005 16:55:35 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:46535
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S261566AbVFOUvQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 16:51:16 -0400
+Date: Wed, 15 Jun 2005 13:51:14 -0700 (PDT)
+Message-Id: <20050615.135114.41634180.davem@davemloft.net>
+To: cndougla@purdue.edu
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: TCP prequeue performance
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <BED5FA3B.2A0%cndougla@purdue.edu>
+References: <BED5FA3B.2A0%cndougla@purdue.edu>
+X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <f192987705061303383f77c10c@mail.gmail.com>
-	 <1118669746.13260.20.camel@localhost.localdomain>
-	 <f192987705061310202e2d9309@mail.gmail.com>
-	 <1118690448.13770.12.camel@localhost.localdomain>
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 13/06/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> On Llu, 2005-06-13 at 18:20, Alexey Zaytsev wrote:
-> > Yes, that's how it works, but if I want ext or reiser or whatever to
-> > have NLS, I'll have to make them support it (btw, if I do so, wont it
-> > be rejected?). I want to move the NLS one level upper so the
-> > filesystem imlementations won't have to worry about it any more. I
-> > don't have much kernel experience, and none in the fs area, so I can't
-> > explain it any better, but hope you get the idea.
-> 
-> An ext3fs is always utf-8. People might have chosen to put other
-> encodings on it but thats "not our fault" ;)
-> 
-> There are some good technical reasons too
-> 
-> Encodings don't map 1:1 - two names may cease to be unique
-> 
-> Encodings vary in length - image a file name that is longer than the
-> allowed maximum on your system with your encoding choice - that could
-> occur with KOI8-R to UTF-8 I believe
+From: Chase Douglas <cndougla@purdue.edu>
+Date: Wed, 15 Jun 2005 15:31:07 -0500
 
-> 
-> That said it ought to be possible to use the stackable fs work (FUSE
-> etc) to write a layer you can mount over any fs that does NLS
-> translation.
+> Note the decreases in the system and real times. These numbers are fairly
+> stable through 10 consecutive benchmarks of each. If I change message sizes
+> and number of connections, the difference can narrow or widen, but usually
+> the non-prequeue beats the prequeue with respect to system and real time.
 
-Now I quite agree that it isn't a Great Idea to do such conversion in
-the kernel, but the problem still remains and there is no other place
-we can do it. I belive that it should be done now and removed after
-the world finishes to move to utf. Maybe it should not be applyed to
-the main kernel tree, but I'm sure that at least Russian linux
-distributions will like it.
+Please take this discussion to the networking development list,
+netdev@vger.kernel.org.  It is an interesting issue, but let's discuss
+it in the right place. :-)
+
+Prequeue has many advantages, in that processes are properly charged
+for TCP processing overhead, and copying to userspace happens directly
+in the TCP input path.
+
+This paces TCP senders, in that ACKs do not come back faster than the
+kernel can get the process on the cpu to drain the recvmsg() queue.
+ACKs sent immediately (without prequeue) give the sender the illusion
+that the system can handle a higher data rate than is actually
+feasible.
+
+Unfortunately, if there are bugs or bad heuristics in the process
+scheduler, this can impact TCP performance quite a bit.
+
+Also, applications using small messages and which are sensitive to
+latency can also be harmed by prequeue, that's why we have the
+"tcp_low_latency" sysctl.  It actually has a slight bug, in that one
+of the checks (where you placed the "if (0") was missing, which is
+fixed by the patch below:
+
+[TCP]: Fix sysctl_tcp_low_latency
+
+When enabled, this should disable UCOPY prequeue'ing altogether,
+but it does not due to a missing test.
+
+Signed-off-by: David S. Miller <davem@davemloft.net>
+
+--- 1/net/ipv4/tcp.c.~1~	2005-06-09 12:29:41.000000000 -0700
++++ 2/net/ipv4/tcp.c	2005-06-09 16:39:46.000000000 -0700
+@@ -1345,7 +1345,7 @@
+ 
+ 		cleanup_rbuf(sk, copied);
+ 
+-		if (tp->ucopy.task == user_recv) {
++		if (!sysctl_tcp_low_latency && tp->ucopy.task == user_recv) {
+ 			/* Install new reader */
+ 			if (!user_recv && !(flags & (MSG_TRUNC | MSG_PEEK))) {
+ 				user_recv = current;

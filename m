@@ -1,72 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261558AbVFOUje@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261545AbVFOUlz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261558AbVFOUje (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 16:39:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261550AbVFOUj3
+	id S261545AbVFOUlz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 16:41:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261550AbVFOUlu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 16:39:29 -0400
-Received: from osten.wh.Uni-Dortmund.DE ([129.217.129.130]:25291 "EHLO
-	osten.wh.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S261545AbVFOUjP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 16:39:15 -0400
-Message-ID: <42B091EE.4020802@web.de>
-Date: Wed, 15 Jun 2005 22:39:10 +0200
-From: Alexander Fieroch <fieroch@web.de>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050402)
-X-Accept-Language: de-de, en-us, en
-MIME-Version: 1.0
-Newsgroups: gmane.linux.kernel
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Jens Axboe <axboe@suse.de>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Subject: Re: [2.6.12rc4] PROBLEM: "drive appears confused" and "irq 18: nobody
- cared!"
-References: <d6gf8j$jnb$1@sea.gmane.org>	 <20050527171613.5f949683.akpm@osdl.org> <429A2397.6090609@web.de> <58cb370e05061401041a67cfa7@mail.gmail.com>
-In-Reply-To: <58cb370e05061401041a67cfa7@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Wed, 15 Jun 2005 16:41:50 -0400
+Received: from thunk.org ([69.25.196.29]:60058 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S261545AbVFOUl2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 16:41:28 -0400
+Date: Wed, 15 Jun 2005 16:37:50 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Kenichi Okuyama <okuyamak@dd.iij4u.or.jp>
+Cc: reiser@namesys.com, adilger@clusterfs.com, fs@ercist.iscas.ac.cn,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       zhiming@admin.iscas.ac.cn, qufuping@ercist.iscas.ac.cn,
+       madsys@ercist.iscas.ac.cn, xuh@nttdata.com.cn, koichi@intellilink.co.jp,
+       kuroiwaj@intellilink.co.jp, matsui_v@valinux.co.jp,
+       kikuchi_v@valinux.co.jp, fernando@intellilink.co.jp,
+       kskmori@intellilink.co.jp, takenakak@intellilink.co.jp,
+       yamaguchi@intellilink.co.jp, ext2-devel@lists.sourceforge.net,
+       shaggy@austin.ibm.com, xfs-masters@oss.sgi.com,
+       Reiserfs-Dev@namesys.com
+Subject: Re: [Ext2-devel] Re: [RFD] FS behavior (I/O failure) in kernel summit
+Message-ID: <20050615203750.GC7722@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Kenichi Okuyama <okuyamak@dd.iij4u.or.jp>, reiser@namesys.com,
+	adilger@clusterfs.com, fs@ercist.iscas.ac.cn,
+	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+	zhiming@admin.iscas.ac.cn, qufuping@ercist.iscas.ac.cn,
+	madsys@ercist.iscas.ac.cn, xuh@nttdata.com.cn,
+	koichi@intellilink.co.jp, kuroiwaj@intellilink.co.jp,
+	matsui_v@valinux.co.jp, kikuchi_v@valinux.co.jp,
+	fernando@intellilink.co.jp, kskmori@intellilink.co.jp,
+	takenakak@intellilink.co.jp, yamaguchi@intellilink.co.jp,
+	ext2-devel@lists.sourceforge.net, shaggy@austin.ibm.com,
+	xfs-masters@oss.sgi.com, Reiserfs-Dev@namesys.com
+References: <42AE1D4A.3030504@namesys.com> <42AE450C.5020908@dd.iij4u.or.jp> <20050615140105.GE4228@thunk.org> <20050616.044045.26507987.okuyamak@dd.iij4u.or.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050616.044045.26507987.okuyamak@dd.iij4u.or.jp>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The "Integrated Technology Express, Inc. IT/ITE8212 Dual channel ATA
-RAID controller" and a missing driver in the current kernel is
-responsible for that problem.
+On Thu, Jun 16, 2005 at 04:40:45AM +0900, Kenichi Okuyama wrote:
+> Ted> And while the write()
+> Ted> which causes an I/O error that remounts the filesystem read/only can
+> Ted> (and probably does) return EIO
+> 
+> No. they return EROFS from beginning.
+> 
 
-I've found a GPL ITE8212 driver at
-ftp://ftp.asus.de/pub/ASUSCOM/TREIBER/CONTROLLER/IDE/ITE/ITE8212.zip
+No, trust me, the *first* read/write to a device which is returning
+errors is returning EIO.  But it might not be the application which
+you are testing.  It might be an attempt to update the inode last
+access time that fails, so it might not even be returned to user space
+at all.    
 
-The driver is compiling and working up to kernel 2.6.9.
-With newer kernel versions I get following error while compiling:
+But once the filesystem is remounted read-only the reason why EROFS is
+being returned is not because of an I/O error, but because the
+filesystem is now read-only.  It makes perfect sense, if you think
+like a computer....
 
-# make
-make -C /usr/src/linux-2.6.12rc6-git6
-SUBDIRS=/usr/src/linux-2.6.12rc6-git6/drivers/scsi modules
-make[1]: Entering directory `/usr/src/linux-2.6.12rc6-git6'
-  CC [M]  /usr/src/linux-2.6.12rc6-git6/drivers/scsi/iteraid.o
-In file included from
-/usr/src/linux-2.6.12rc6-git6/drivers/scsi/iteraid.c:250:
-/usr/src/linux-2.6.12rc6-git6/drivers/scsi/hosts.h:1:2: warning:
-#warning "This file is obsolete, please use <scsi/scsi_host.h> instead"
-/usr/src/linux-2.6.12rc6-git6/drivers/scsi/iteraid.c: In function
-`itedev_open':
-/usr/src/linux-2.6.12rc6-git6/drivers/scsi/iteraid.c:5580: error:
-`MOD_INC_USE_COUNT' undeclared (first use in this function)
-/usr/src/linux-2.6.12rc6-git6/drivers/scsi/iteraid.c:5580: error: (Each
-undeclared identifier is reported only once
-/usr/src/linux-2.6.12rc6-git6/drivers/scsi/iteraid.c:5580: error: for
-each function it appears in.)
-/usr/src/linux-2.6.12rc6-git6/drivers/scsi/iteraid.c: In function
-`itedev_close':
-/usr/src/linux-2.6.12rc6-git6/drivers/scsi/iteraid.c:5817: error:
-`MOD_DEC_USE_COUNT' undeclared (first use in this function)
-make[2]: *** [/usr/src/linux-2.6.12rc6-git6/drivers/scsi/iteraid.o] Error 1
-make[1]: *** [_module_/usr/src/linux-2.6.12rc6-git6/drivers/scsi] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.6.12rc6-git6'
-make: *** [modules] Error 2
+> The point is pretty easy ( I think ).
+> 
+> Q1.  Why does file system succeed in re-mounting as r/o, when device
+>      is totally lost?
 
+That's because right now there is no way for block devices to inform
+the filesystem that device is totally gone.
 
+> But in case of Mr. Qu's test, device is lost. USB cabel is
+> unplugged. They are unreachable. How could such device be *MOUNTED*?
+> # In other word, why can't I mount device which does not exist,
+> # while I can re-mount them?
 
-Because of the driver is published under GPL could you please adapt this
-to newer kernel versions and include it in the next kernel 2.6.12?
+Because remounting a filesystem means toggling the in-core data
+structures that writes are no longer being tolerated.  It doesn't
+require reading from the device, which a fresh mount requires.
 
+> 1) devices and file systems are still under control of kernel.
+> 2) devices or file systems are not under control of kernel anymore.
+> 
+> I do agree that, for devices, it is device driver's responsibility
+> to identify which type of error have arised. But when file system
+> recieved type 2 error, he should not change it to type 1 error
+> ( unless fs could really guarantee that ).
+> 
+> And, therefore, for type 2, I belive they can be standardize, and I
+> think we should.
+
+The problem is the filesystem right now can't tell the difference
+between type 1 and type 2 errors.  All we know is that an attempt to
+read or write from a block as failed.  We don't know why it failed.   
+
+I agree that *if* the filesystem could be told that a block device has
+disappeared, then we should do the equivalent of umount -l on the
+filesystem, and revoke all open file descriptors, much like the BSD
+revoke(2) system call.  
+
+But this isn't matter of "standardizing" error returns, but rather a
+feature/enhancement request.
+
+						- Ted

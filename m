@@ -1,64 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbVFOH36@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261187AbVFOH6G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261239AbVFOH36 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 03:29:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261255AbVFOH36
+	id S261187AbVFOH6G (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 03:58:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbVFOH6G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 03:29:58 -0400
-Received: from holomorphy.com ([66.93.40.71]:41110 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261239AbVFOH3z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 03:29:55 -0400
-Date: Wed, 15 Jun 2005 00:29:52 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
+	Wed, 15 Jun 2005 03:58:06 -0400
+Received: from ms003msg.fastwebnet.it ([213.140.2.42]:26861 "EHLO
+	ms003msg.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S261187AbVFOH6C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 03:58:02 -0400
+Date: Wed, 15 Jun 2005 09:57:04 +0200
+From: Paolo Ornati <ornati@fastwebnet.it>
 To: "liyu@LAN" <liyu@ccoss.com.cn>
-Cc: linux-kernel@vger.kernel.org
+Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
 Subject: Re: one question about LRU mechanism
-Message-ID: <20050615072952.GB3913@holomorphy.com>
-References: <1118812376.32766.4.camel@liyu.ccoss.com.cn> <20050615052530.GA3913@holomorphy.com> <1118817991.5828.23.camel@liyu.ccoss.com.cn>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Message-ID: <20050615095704.558a2eb6@localhost>
 In-Reply-To: <1118817991.5828.23.camel@liyu.ccoss.com.cn>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.9i
+References: <1118812376.32766.4.camel@liyu.ccoss.com.cn>
+	<20050615052530.GA3913@holomorphy.com>
+	<1118817991.5828.23.camel@liyu.ccoss.com.cn>
+X-Mailer: Sylpheed-Claws 1.0.0 (GTK+ 1.2.10; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 15, 2005 at 02:46:30PM +0800, liyu@LAN wrote:
+On Wed, 15 Jun 2005 14:46:30 +0800
+"liyu@LAN" <liyu@ccoss.com.cn> wrote:
+
 > In 2.6.11.11, mm do not have function isolate_lru_pages(), but I
 > downloaded linux-2.6.11.12.tar.bz2 source tarball, and apply follow two
 > patches in order:
+> 
 > patch-2.6.12-rc6
 > 2.6.12-rc6-mm1
-> Oh, Have any error in this process? patch program say it can not change
-> some files , and save some *.rej files. but these *rej do not include
-> mm/vmscan.c.
-> This new function called two times in shrink_cache() and
-> refill_inactive_zone(). 
-> The main part of isolate_lru_pages() is 
-[...]
-> I think, this change that new function isolate_lru_pages() is one kind
-> of refactoring (method extract ??), not one essence change. 
 
-Agreed. Mainly I mentioned it in case the symbol was recently enough
-introduced to not be visible in the sources you'd reviewed.
-:
+"patch-2.6.12-rc6" applies to 2.6.11... not 2.6.11.X.
 
-On Wed, Jun 15, 2005 at 02:46:30PM +0800, liyu@LAN wrote:
-> the call:
->                 list_del(&page->lru);
-> as I known, just delete its argument from list, but not its previous
-> element. so, It is most newest page that just be appended to
-> active_list.
-> I think, may be, codes like this will be better.
-[...]
-> This is just my flimsy perspective.
+This is beacuse a new 2.6.11.X version can come out in any time before
+2.6.12...
 
-Not so flimsy. You seem to understand things well. Unfortunately I am
-the kind of person who thinks less about how things should be to be the
-best they could be than about how they work now and could work for some
-specific effect. I don't have any opinion about it being better or worse.
+IOW a rule that says: "patch-2.6.X-rcZ applies to linux-2.6.(X-1)" is much
+better than "patch-2.6.X-rcZ applies to
+linux-2.6.(X-1).LAST_RELEASE_WHEN_THIS_RC_COME_OUT"
 
+becose you don't have to dicover LAST_RELEASE_WHEN_THIS_RC_COME_OUT...
 
--- wli
+--
+	Paolo Ornati
+	Linux 2.6.12-rc6 on x86_64

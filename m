@@ -1,151 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261505AbVFOG2r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261508AbVFOGad@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261505AbVFOG2r (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 02:28:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261508AbVFOG2r
+	id S261508AbVFOGad (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 02:30:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261510AbVFOGad
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 02:28:47 -0400
-Received: from fmr19.intel.com ([134.134.136.18]:30160 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261505AbVFOG2k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 02:28:40 -0400
-Subject: [PATCH] set cpu_state for CPU hotplug
-From: Shaohua Li <shaohua.li@intel.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>, Zwane Mwaikambo <zwane@linuxpower.ca>,
-       ak <ak@muc.de>, Ashok Raj <ashok.raj@intel.com>
-Content-Type: text/plain
-Date: Wed, 15 Jun 2005 14:36:05 +0800
-Message-Id: <1118817365.3896.5.camel@linux-hp.sh.intel.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+	Wed, 15 Jun 2005 02:30:33 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:55189 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S261508AbVFOGaA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 02:30:00 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: Wakko Warner <wakko@animx.eu.org>
+Subject: Re: Problem found: kaweth fails to work on 2.6.12-rc[456]
+Date: Wed, 15 Jun 2005 08:29:52 +0200
+User-Agent: KMail/1.8
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <20050612004136.GA8107@animx.eu.org> <200506121722.09813.oliver@neukum.org> <20050615010238.GA9215@animx.eu.org>
+In-Reply-To: <20050615010238.GA9215@animx.eu.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200506150829.52765.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-Dead CPU notify online CPU it's dead using cpu_state variable. After
-switching to physical cpu hotplug, we forgot setting the variable. This
-patch fixes it. Currently only __cpu_die uses it. We changed other
-locations for consistency in case others use it.
+Am Mittwoch, 15. Juni 2005 03:02 schrieb Wakko Warner:
+> Here's my modified int_callback:
+> static void int_callback(struct urb *u, struct pt_regs *regs)
+> {
+>         struct kaweth_device *kaweth = u->context;
+>         int act_state;
+> 
+> printk(KERN_INFO "kaweth: begin callback\n");
+> printk(KERN_INFO "kaweth: u->status: %d\n", u->status);
+>         switch (u->status) {
+>         case 0:                 /* success */
+>                 break;
+>         case -ECONNRESET:       /* unlink */
+>         case -ENOENT:   
+>         case -ESHUTDOWN:
+>                 return;
+>         /* -EPIPE:  should clear the halt */
+>         default:                /* error */
+>                 goto resubmit;
+>         }
+> 
+>         /* we check the link state to report changes */
+>         if (kaweth->linkstate != (act_state = ( kaweth->intbuffer[STATE_OFFSET]
+> printk(KERN_INFO "kaweth: Link state change.  kaweth->linkstate: %d act_state:
+>         kaweth->linkstate, act_state);
+>                 if (!act_state) {
+> printk(KERN_INFO "kaweth: netif_carrier_on\n");
+>                         netif_carrier_on(kaweth->net);
+>                 } else {
+> printk(KERN_INFO "kaweth: netif_carrier_off\n");
+>                         netif_carrier_off(kaweth->net);
+>                 }
+> 
+>                 kaweth->linkstate = act_state;
+> printk(KERN_INFO "kaweth: new link state: %d\n", act_state);
+>         }
+> resubmit:
+>         kaweth_resubmit_int_urb(kaweth, GFP_ATOMIC);
+> printk(KERN_INFO "kaweth: end callback\n");
+> }
 
-Thanks,
-Shaohua
+Very well.
 
-Signed-off-by: Shaohua Li<shaohua.li@intel.com>
-Acked-by: Ashok Raj<ashok.raj@intel.com>
----
+> Results (after ifconfig up, ethernet cable was plugged in at the time):
+> Jun 14 20:50:25 gonzales kernel: [80756.691742] kaweth: begin callback
+> Jun 14 20:50:25 gonzales kernel: [80756.691754] kaweth: u->status: 0
+> Jun 14 20:50:25 gonzales kernel: [80756.691759] kaweth: Link state change.  kaweth->linkstate: 0 act_state: 2
+> Jun 14 20:50:25 gonzales kernel: [80756.691764] kaweth: netif_carrier_off
 
- linux-2.6.12-rc6-mm1-root/arch/i386/kernel/smpboot.c   |    7 ++++++-
- linux-2.6.12-rc6-mm1-root/arch/ia64/kernel/smpboot.c   |    3 +++
- linux-2.6.12-rc6-mm1-root/arch/x86_64/kernel/smpboot.c |    7 ++++++-
- 3 files changed, 15 insertions(+), 2 deletions(-)
+OK, that should not happen.
 
-diff -puN arch/i386/kernel/smpboot.c~cpu_state_fix arch/i386/kernel/smpboot.c
---- linux-2.6.12-rc6-mm1/arch/i386/kernel/smpboot.c~cpu_state_fix	2005-06-14 11:23:31.000000000 +0800
-+++ linux-2.6.12-rc6-mm1-root/arch/i386/kernel/smpboot.c	2005-06-15 08:50:54.122672032 +0800
-@@ -514,6 +514,7 @@ static void __devinit start_secondary(vo
- 	lock_ipi_call_lock();
- 	cpu_set(smp_processor_id(), cpu_online_map);
- 	unlock_ipi_call_lock();
-+	per_cpu(cpu_state, smp_processor_id()) = CPU_ONLINE;
- 
- 	/* We can take interrupts now: we're officially "up". */
- 	local_irq_enable();
-@@ -1270,6 +1271,7 @@ void __devinit smp_prepare_boot_cpu(void
- 	cpu_set(smp_processor_id(), cpu_online_map);
- 	cpu_set(smp_processor_id(), cpu_callout_map);
- 	cpu_set(smp_processor_id(), cpu_present_map);
-+	per_cpu(cpu_state, smp_processor_id()) = CPU_ONLINE;
- }
- 
- #ifdef CONFIG_HOTPLUG_CPU
-@@ -1327,8 +1329,10 @@ void __cpu_die(unsigned int cpu)
- 
- 	for (i = 0; i < 10; i++) {
- 		/* They ack this in play_dead by setting CPU_DEAD */
--		if (per_cpu(cpu_state, cpu) == CPU_DEAD)
-+		if (per_cpu(cpu_state, cpu) == CPU_DEAD) {
-+			printk ("CPU %d is now offline\n", cpu);
- 			return;
-+		}
- 		current->state = TASK_UNINTERRUPTIBLE;
- 		schedule_timeout(HZ/10);
- 	}
-@@ -1357,6 +1361,7 @@ int __devinit __cpu_up(unsigned int cpu)
- 	}
- 
- 	local_irq_enable();
-+	per_cpu(cpu_state, cpu) = CPU_UP_PREPARE;
- 	/* Unleash the CPU! */
- 	cpu_set(cpu, smp_commenced_mask);
- 	while (!cpu_isset(cpu, cpu_online_map))
-diff -puN arch/x86_64/kernel/smpboot.c~cpu_state_fix arch/x86_64/kernel/smpboot.c
---- linux-2.6.12-rc6-mm1/arch/x86_64/kernel/smpboot.c~cpu_state_fix	2005-06-14 11:25:04.000000000 +0800
-+++ linux-2.6.12-rc6-mm1-root/arch/x86_64/kernel/smpboot.c	2005-06-15 08:51:17.743081184 +0800
-@@ -511,6 +511,7 @@ void __cpuinit start_secondary(void)
- 	 * Allow the master to continue.
- 	 */
- 	cpu_set(smp_processor_id(), cpu_online_map);
-+	per_cpu(cpu_state, smp_processor_id()) = CPU_ONLINE;
- 	mb();
- 
- 	/* Wait for TSC sync to not schedule things before.
-@@ -1038,6 +1039,7 @@ void __init smp_prepare_boot_cpu(void)
- 	cpu_set(me, cpu_callout_map);
- 	cpu_set(0, cpu_sibling_map[0]);
- 	cpu_set(0, cpu_core_map[0]);
-+	per_cpu(cpu_state, me) = CPU_ONLINE;
- }
- 
- /*
-@@ -1066,6 +1068,7 @@ int __cpuinit __cpu_up(unsigned int cpu)
-  		return -ENOSYS;
- 	}
- 
-+	per_cpu(cpu_state, cpu) = CPU_UP_PREPARE;
- 	/* Boot it! */
- 	err = do_boot_cpu(cpu, apicid);
- 	if (err < 0) {
-@@ -1170,8 +1173,10 @@ void __cpu_die(unsigned int cpu)
- 
- 	for (i = 0; i < 10; i++) {
- 		/* They ack this in play_dead by setting CPU_DEAD */
--		if (per_cpu(cpu_state, cpu) == CPU_DEAD)
-+		if (per_cpu(cpu_state, cpu) == CPU_DEAD) {
-+			printk ("CPU %d is now offline\n", cpu);
- 			return;
-+		}
- 		current->state = TASK_UNINTERRUPTIBLE;
- 		schedule_timeout(HZ/10);
- 	}
-diff -puN arch/ia64/kernel/smpboot.c~cpu_state_fix arch/ia64/kernel/smpboot.c
---- linux-2.6.12-rc6-mm1/arch/ia64/kernel/smpboot.c~cpu_state_fix	2005-06-14 11:25:53.000000000 +0800
-+++ linux-2.6.12-rc6-mm1-root/arch/ia64/kernel/smpboot.c	2005-06-15 08:51:37.199123416 +0800
-@@ -346,6 +346,7 @@ smp_callin (void)
- 	lock_ipi_calllock();
- 	cpu_set(cpuid, cpu_online_map);
- 	unlock_ipi_calllock();
-+	per_cpu(cpu_state, cpuid) = CPU_ONLINE;
- 
- 	smp_setup_percpu_timer();
- 
-@@ -611,6 +612,7 @@ void __devinit smp_prepare_boot_cpu(void
- {
- 	cpu_set(smp_processor_id(), cpu_online_map);
- 	cpu_set(smp_processor_id(), cpu_callin_map);
-+	per_cpu(cpu_state, smp_processor_id()) = CPU_ONLINE;
- }
- 
- /*
-@@ -775,6 +777,7 @@ __cpu_up (unsigned int cpu)
- 	if (cpu_isset(cpu, cpu_callin_map))
- 		return -EINVAL;
- 
-+	per_cpu(cpu_state, cpu) = CPU_UP_PREPARE;
- 	/* Processor goes to start_secondary(), sets online flag */
- 	ret = do_boot_cpu(sapicid, cpu);
- 	if (ret < 0)
-_
+Could you remove the "!" at 'if (!act_state) {' and retest?
+The documentation I got says that it should be there, but who knows
+how accurate it is for all devices.
 
+> Jun 14 20:50:25 gonzales kernel: [80756.691769] kaweth: new link state: 2
+> Jun 14 20:50:25 gonzales kernel: [80756.691776] kaweth: end callback
+> 
+> the next thing was:
+> Jun 14 20:50:25 gonzales kernel: [80756.819793] kaweth: begin callback
+> Jun 14 20:50:25 gonzales kernel: [80756.819800] kaweth: u->status: 0
+> Jun 14 20:50:25 gonzales kernel: [80756.819807] kaweth: end callback
+> many times, last occurence:
+> Jun 14 20:50:36 gonzales kernel: [80767.576134] kaweth: begin callback
+> Jun 14 20:50:36 gonzales kernel: [80767.576143] kaweth: u->status: 0
+> Jun 14 20:50:36 gonzales kernel: [80767.576157] kaweth: end callback
+> 
+> then I ifconfig down since it was spewing that information:
+> Jun 14 20:50:36 gonzales kernel: [80767.618157] kaweth: begin callback
+> Jun 14 20:50:36 gonzales kernel: [80767.618172] kaweth: u->status: -2
+> 
+> I assume it didn't print the end since the status was -2 (not sure what -2 is)
 
+Killing the URB due to ifconfig.
+
+	Thank you
+		Oliver

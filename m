@@ -1,42 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261557AbVFOUpT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261561AbVFOUrg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261557AbVFOUpT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 16:45:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261553AbVFOUnr
+	id S261561AbVFOUrg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 16:47:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261559AbVFOUqO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 16:43:47 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:6619 "EHLO e33.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261550AbVFOUmJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 16:42:09 -0400
-Message-ID: <42B09298.4000600@austin.ibm.com>
-Date: Wed, 15 Jun 2005 15:42:00 -0500
-From: Joel Schopp <jschopp@austin.ibm.com>
-Reply-To: jschopp@austin.ibm.com
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Russ Anderson <rja@sgi.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [RCF] Linux memory error handling
-References: <200506151430.j5FEUD7J1393603@clink.americas.sgi.com>
-In-Reply-To: <200506151430.j5FEUD7J1393603@clink.americas.sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 15 Jun 2005 16:46:14 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:19423 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261564AbVFOUoh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 16:44:37 -0400
+Date: Wed, 15 Jun 2005 15:49:36 -0500
+From: serue@us.ibm.com
+To: James Morris <jmorris@redhat.com>
+Cc: Reiner Sailer <sailer@watson.ibm.com>, LKML <linux-kernel@vger.kernel.org>,
+       LSM <linux-security-module@wirex.com>, Tom Lendacky <toml@us.ibm.com>,
+       Greg KH <greg@kroah.com>, Chris Wright <chrisw@osdl.org>,
+       Emily Rattlif <emilyr@us.ibm.com>, Kylene Hall <kylene@us.ibm.com>
+Subject: Re: [PATCH] 3 of 5 IMA: LSM-based measurement code
+Message-ID: <20050615204936.GA3517@serge.austin.ibm.com>
+References: <1118846413.2269.18.camel@secureip.watson.ibm.com> <Xine.LNX.4.44.0506151601310.27162-100000@thoron.boston.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Xine.LNX.4.44.0506151601310.27162-100000@thoron.boston.redhat.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 	A common question is whether single bit (corrected) errors will 
-> 	turn into double bit (uncorrected) errors.  The answer is it
-> 	depends on the underlying cause of the memory error.  There are
-> 	some errors that show up as single bits, especially transient 
-> 	and soft errors, that do not degrade over time.  There are other
-> 	failures that do degrade over time.
+Quoting James Morris (jmorris@redhat.com):
+> On Wed, 15 Jun 2005, Reiner Sailer wrote:
+> 
+> > This patch applies against linux-2.6.12-rc6-mm1 and provides the main
+> > Integrity Measurement Architecture code (LSM-based).
+> 
+> Why are you still trying to use LSM for this?
 
-This sounds like one of our primary motivations for working on memory 
-hotplug remove.  Detection of recoverable errors that degrade to 
-unrecoverable errors, but don't because we remove the memory before it 
-gets that far.
+A long, long time ago, Crispin defined LSM's purpose as:
 
-Much PPC64 hardware/firmware already supports this detection.
+>> Main goal : we have to design a generic framework to be able to use
+>> better
+>> security policies than the current ones (DAC and capabilities).
+>
+>Sort of. We have to design a generic interface that exports enough
+>kernel
+>functionality to allow security developers to go off and create these
+>better
+>security policy modules. 
 
+Since IMA provides support for a new type of security policy,
+specifically remote system integrity verification, I don't see
+where LSM shouldn't necessarily be used.
+
+I'm also curious about the current kernel development approach:
+On the one hand, when filesystem auditing was introduced, Christoph
+asked whether inotify and audit should be merged because they hook
+some of the same places.  Can someone reconcile these points of view
+for me, please?  If Reiner goes ahead and moves the IMA code straight
+into the kernel, does anyone doubt that he'll be asked to merge it
+with LSM?
+
+I'm not pushing one way or the other - I don't care whether IMA is
+an LSM or not :)  I just don't understand the current climate.
+
+thanks,
+-serge

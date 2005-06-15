@@ -1,83 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261488AbVFOOr4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261487AbVFOOwb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261488AbVFOOr4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 10:47:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261519AbVFOOrz
+	id S261487AbVFOOwb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 10:52:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261519AbVFOOwb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 10:47:55 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:61103 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S261488AbVFOOqO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 10:46:14 -0400
-Subject: Re: RT : nvidia driver and perhaps others
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Valdis.Kletnieks@vt.edu
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Serge Noiraud <serge.noiraud@bull.net>
-In-Reply-To: <200506151240.j5FCeO6l027298@turing-police.cc.vt.edu>
-References: <1118823704.10717.129.camel@ibiza.btsn.frna.bull.fr>
-	 <200506151240.j5FCeO6l027298@turing-police.cc.vt.edu>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Wed, 15 Jun 2005 10:45:54 -0400
-Message-Id: <1118846754.4508.20.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+	Wed, 15 Jun 2005 10:52:31 -0400
+Received: from smtp2.poczta.interia.pl ([213.25.80.232]:56382 "EHLO
+	smtp.poczta.interia.pl") by vger.kernel.org with ESMTP
+	id S261487AbVFOOwP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 10:52:15 -0400
+Message-ID: <42B04090.7050703@poczta.fm>
+Date: Wed, 15 Jun 2005 16:52:00 +0200
+From: Lukasz Stelmach <stlman@poczta.fm>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: pl, en-us, en
+MIME-Version: 1.0
+To: mru@inprovide.com
+Cc: Patrick McFarland <pmcfarland@downeast.net>,
+       "Alexander E. Patrakov" <patrakov@ums.usu.ru>,
+       linux-kernel@vger.kernel.org
+Subject: Re: A Great Idea (tm) about reimplementing NLS.
+References: <f192987705061303383f77c10c@mail.gmail.com>	<yw1xslzl8g1q.fsf@ford.inprovide.com> <42AFE624.4020403@poczta.fm>	<200506150454.11532.pmcfarland@downeast.net>	<42AFF184.2030209@poczta.fm> <yw1xd5qo2bzd.fsf@ford.inprovide.com>
+In-Reply-To: <yw1xd5qo2bzd.fsf@ford.inprovide.com>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig440315F6C92317B174B6019E"
+X-EMID: ce0d138
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-06-15 at 08:40 -0400, Valdis.Kletnieks@vt.edu wrote:
-> On Wed, 15 Jun 2005 10:21:45 +0200, Serge Noiraud said:
-> 
-> > 	I try to compile the nvidia driver for my RT kernel.
-> > It does not work anymore.
-> 
-> You aren't going to get much sympathy here on that one...:)
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig440315F6C92317B174B6019E
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-You do from me :)  I have a NVidia on two machines that I run RT on. But
-they are both SMP (well one is just hyper threaded) and I couldn't get
-them working with SMP. So I just use the vesa driver when running RT on
-those machines :-(  It's been several versions back since I had it
-working on UP with NVidia (about a month or two back, which at Ingo's
-speed is an eternity).
+M=C3=A5ns Rullg=C3=A5rd napisa=C5=82(a):
 
-> 
-> > Isn't there a better way to avoid these modifications ?
-> > for example to have the external fonction the same than non RT kernel.
-> > and have an internal link to the new one or something like that ?
-> 
-> However, he *does* have a point here - GPL'ed out-of-tree drivers will
-> have these same issues.  Yes, I know the standard "get them into the tree"
-> refrain here...
+>>IMHO for *every* filesystem there need to be an *option* to:
+>>
+>>1. store filenames in utf-8 (that is quite possible today) or any other=
 
-Well, if local_irq_disable doesn't turn off irqs and you don't have it
-bugging per Esben's patch, it shouldn't be a problem to just recompile
-it again.
+>>unicode form.
+>=20
+> export LC_CTYPE=3Dwhatever.utf-8
 
-> 
-> > These drivers are proprietary, so I can't modify them.
-> 
-> Fortunately, NVidia supplies enough pieces to make things work..
+Translate and store them in utf-8 at kernel level same as VFAT mounted
+with iocharset option.
 
-But you don't know what those pieces that you don't see do and if they
-really need irqs disabled.  I had to hack a little to get interrupts off
-to call one of the NVidia's hooks. I don't really remember all that I
-did, but I still wasn't able to get it working on SMP.
+>>2. convert them to/from a desired iocharset. I prefere using ISO-8859-2=
 
-> 
-> > I think we should change :
-> > 
-> > 1 - local_irq_* to raw_local_irq_*  : is it always true ?
-> 
-> > 2 - spin_* to raw_spin_*  ?
-> 
-> Ingo et al - what *is* the recommended magic to make a driver compile and
-> work cleanly with or without RT?  Hopefully there's a simple "will work correctly,
-> but possibly sub-optimal latency" cookbook scheme....
+>>on my system for not every tool support utf-8 today (hopefuly yet).
+>=20
+> man iconv
 
-Hopefully, just compiling the way it is would work.  The idea of Ingo's
-magic code is to have what is already in place work with RT.
+There are far more programmes than only iconv. First of all readline
+library is kind of broken because it counts (or at least it did a year
+ago) bytes instead of characters. I won't use UTF-8 nor force anybody
+else to do so until readline will handle it properly.
 
--- Steve
 
+>>Of course if a user whishes to store filenames in some other encoding
+>>she should be *able* to do so (that is why i like linux).
+>=20
+> That's the current situation.
+
+And it is good in a way, however, i think kernel level translation
+should be also possible. Either done by a code in each filsystem or by
+some layer above it.
+
+>>Generally. IMHO VFAT is a good example how character encoding needs
+>>to be handeled.
+>=20
+> IMHO, VFAT is only a good example of bad design.
+
+It depend's on what it is used for. It is very good fs for removable
+media. None of linux native filesystems is good for this because of
+different uids on different machines. Since VFAT uses unicode it is
+possible to see the filenames properly on systems using different
+codepages for the same language (1:1 is possible).
+
+--=20
+By=C5=82o mi bardzo mi=C5=82o.                    Trzecia pospolita kl=C4=
+=99ska, [...]
+>=C5=81ukasz<                      Ju=C5=BC nie katolicka lecz z=C5=82odz=
+iejska.  (c)PP
+
+
+--------------enig440315F6C92317B174B6019E
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFCsECVNdzY8sm9K9wRAsseAJ4/CcoD/WZAZVxJ4PlXVO8dIkKU8gCfY4YT
+lMQgLYZxiVvKDq5KNYd7IPs=
+=/qki
+-----END PGP SIGNATURE-----
+
+--------------enig440315F6C92317B174B6019E--

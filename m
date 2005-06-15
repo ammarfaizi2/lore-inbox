@@ -1,70 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261362AbVFOJ2q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261374AbVFOJbz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261362AbVFOJ2q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 05:28:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261367AbVFOJ2p
+	id S261374AbVFOJbz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 05:31:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261367AbVFOJby
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 05:28:45 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:57258 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S261362AbVFOJ2n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 05:28:43 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Helge Hafting <helge.hafting@aitel.hist.no>,
-       Nico Schottelius <nico-kernel@schottelius.org>
-Subject: Re: Why is one sync() not enough?
-Date: Wed, 15 Jun 2005 12:28:27 +0300
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-References: <20050614094141.GE1467@schottelius.org> <42AFE432.8000204@aitel.hist.no>
-In-Reply-To: <42AFE432.8000204@aitel.hist.no>
+	Wed, 15 Jun 2005 05:31:54 -0400
+Received: from weber.sscnet.ucla.edu ([128.97.42.3]:34208 "EHLO
+	weber.sscnet.ucla.edu") by vger.kernel.org with ESMTP
+	id S261374AbVFOJbA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 05:31:00 -0400
+Message-ID: <42AFF53A.5060107@cogweb.net>
+Date: Wed, 15 Jun 2005 02:30:34 -0700
+From: David Liontooth <liontooth@cogweb.net>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050402)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+To: linux-kernel@vger.kernel.org
+CC: Linux and Kernel Video <video4linux-list@redhat.com>,
+       Mauro Carvalho Chehab <mchehab@brturbo.com.br>,
+       Michael Schimek <mschimek@gmx.at>
+Subject: Re: [PATCH3/5] Synchronize patch for SAA7134 cards
+References: <42ABBE6F.8080406@brturbo.com.br> <42ABC3C4.4050406@brturbo.com.br> <20050614170137.690e0328.akpm@osdl.org>
+In-Reply-To: <20050614170137.690e0328.akpm@osdl.org>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506151228.27474.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 15 June 2005 11:17, Helge Hafting wrote:
-> Nico Schottelius wrote:
-> 
-> >Hello again!
-> >
-> >When my system shuts down and init calls sync() and after that
-> >umount and then reboot, the filesystem is left in an unclean state.
-> >
-> >If I do sync() two times (one before umount, one after umount) it
-> >seems to work.
+Andrew Morton wrote:
 
-sync before umount is superfluous.
-
-> >Can someboy explain that to me?
-> >  
-> >
-> You shouldn't need those syncs, as umount does its own
-> syncing.  There may be other explanations:
-> 
-> * Your reboot actually powers down (or resets) the disk.
->    IDE disks are known for caching stuff, they may indicate
->    that data is written slightly before it actually happens.
->    (The same applies to scsi - if you enable caching there for
->    the little extra performance it buys.)
+>Mauro Carvalho Chehab <mchehab@brturbo.com.br> wrote:
 >  
->    Rebooting really quickly after umount in such a case can cut
->    power to the disk before it finishes writing.  If this is the case,
->    then a few seconds of sleep after umount before reboot
->    will work just as well as that sync.  I don't recommend this
->    as a solution, but it is an easy diagnostic!
-> 
-> * Your startup script accidentally mounted the fs twice.
->   (Yes - linux support that, and the first umount won't undo
->    both mounts.)  This simply means the fs isn't umounted
->   when you reboot, but an extra sync and you might get lucky.
+>
+>>--- linux-2.6.12/drivers/media/video/saa7134/saa7134-video.c	2005-06-07 15:39:55.000000000 -0300
+>>+++ linux/drivers/media/video/saa7134/saa7134-video.c	2005-06-12 01:22:34.000000000 -0300
+>>@@ -1,5 +1,5 @@
+>> /*
+>>...
+>> 		.h_start       = 0,
+>> 		.h_stop        = 719,
+>>- 		.video_v_start = 23,
+>>- 		.video_v_stop  = 262,
+>>- 		.vbi_v_start_0 = 10,
+>>- 		.vbi_v_stop_0  = 21,
+>>- 		.vbi_v_start_1 = 273,
+>>- 		.src_timing    = 7,
+>>-
+>>+		.video_v_start = 22,
+>>+  		.video_v_start = 23,
+>>    
+>>
+>
+>That doesn't compile.  I'll assume it's supposed to be 22.
+>  
+>
+Wrong, use 23. In fact don't apply this patch; it's a dud.
 
-My reboot script is checking (/proc/mounts) for stray rw mounts on reboot,
-prints a warning and waits for a keypress. This helps spot such things.
---
-vda
+Michael Schimek's vbi changes got messed up somewhere along the line.
+It should be 23, not 22 as you understandably assume -- Michael included this note in his patch:
 
++/* mhs 2005-05-14: Properly video capturing should start in line 22,
++   but for some reason video task A will not execute without a one
++   line gap after vbi task A/B ends, if that is enabled. */
+
+With 22, turning on ntsc closed captioning on saa7134 cards will block the video.
+
+Dave
+
+>--
+>video4linux-list mailing list
+>Unsubscribe mailto:video4linux-list-request@redhat.com?subject=unsubscribe
+>https://www.redhat.com/mailman/listinfo/video4linux-list
+>  
+>

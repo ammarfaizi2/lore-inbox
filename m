@@ -1,66 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261544AbVFOUbY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261542AbVFOUdt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261544AbVFOUbY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 16:31:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261545AbVFOUbY
+	id S261542AbVFOUdt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 16:33:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261545AbVFOUdj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 16:31:24 -0400
-Received: from mailhub128.itcs.purdue.edu ([128.210.5.128]:2445 "EHLO
-	mailhub128.itcs.purdue.edu") by vger.kernel.org with ESMTP
-	id S261544AbVFOUaL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 16:30:11 -0400
-User-Agent: Microsoft-Entourage/11.1.0.040913
-Date: Wed, 15 Jun 2005 15:31:07 -0500
-Subject: TCP prequeue performance
-From: Chase Douglas <cndougla@purdue.edu>
-To: lkml <linux-kernel@vger.kernel.org>
-Message-ID: <BED5FA3B.2A0%cndougla@purdue.edu>
-Mime-version: 1.0
-Content-type: text/plain;
-	charset="US-ASCII"
-Content-transfer-encoding: 7bit
-X-PMX-Version: 4.7.1.128075
-X-PerlMx-Virus-Scanned: Yes
+	Wed, 15 Jun 2005 16:33:39 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:33736 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261542AbVFOUc4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 16:32:56 -0400
+Date: Wed, 15 Jun 2005 13:33:38 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Stas Sergeev <stsp@aknet.ru>
+Cc: linux-kernel@vger.kernel.org, vojtech@ucw.cz
+Subject: Re: [patch 1/2] pcspeaker driver update
+Message-Id: <20050615133338.398febbc.akpm@osdl.org>
+In-Reply-To: <42B056A3.4040202@aknet.ru>
+References: <42AF2454.8090806@aknet.ru>
+	<20050614134518.68df565d.akpm@osdl.org>
+	<42B056A3.4040202@aknet.ru>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been working with tcp_recvmsg trying to implement a new feature. While
-implementing this and benchmarking, I found something rather odd. I've
-created a benchmark which connects to a server 100,000 times receiving two
-10,000 byte messages each time. I used the time program to find out how much
-system time was being used during the receives. The first data shows the
-statistics on a normal receive call:
+Stas Sergeev <stsp@aknet.ru> wrote:
+>
+> Andrew Morton wrote:
+> >> Attached one is just a clean-up:
+> >>  it removes the extern definitions
+> >>  for the i8253_lock and i8259A_lock,
+> >>  making the use of the appropriate
+> >>  headers instead.
+> > A nice cleanup to make, however we cannot include asm/timer.h from generic
+> > code, because only a few architectures have such a file.
+> OK, what a bugger...
+> Does the attached one look any better?
 
-time ./client 10000 10000 100000 1 500000000 recv
+Well not really - for example you now have drivers/input/joystick/analog.c
+including asm/8253pit.h, which not all architectures implement.
 
-real    1m27.301s
-user    0m1.568s
-sys     0m13.464s
+The basic problem is that we have generic code referring to an x86-specific
+lock inside `#ifdef __i386__'.
 
-I then disabled the prequeue mechanism by changing net/ipv4/tcp.c:1347 of
-2.6.11:
+Perhaps what you could do is to declare those locks in
+include/asm-i386/hardirq.h and then make sure that all the relevant files
+include <linux/hardirq.h>.  That's a bit of an abuse of hardirq.h, but we
+don't have a generic "platform.h" place to put things like this.
 
-if (tp->ucopy.task == user_recv) {
-    to
-if (0 && tp->ucopy.task == user_recv) {
+If abusing hardirq.h offends you then you could make sure that all
+architectures implement asm/rtc.h (most already do) (just copy
+include/asm-alpha/rtc.h) and put the declarations in
+include/asm-i386/rtc.h, which is more appropriate.
 
-The same benchmark then yielded:
-
-time ./client 10000 10000 100000 1 500000000 recv
-
-real    1m21.928s
-user    0m1.579s
-sys     0m8.330ss
-
-Note the decreases in the system and real times. These numbers are fairly
-stable through 10 consecutive benchmarks of each. If I change message sizes
-and number of connections, the difference can narrow or widen, but usually
-the non-prequeue beats the prequeue with respect to system and real time.
-
-It might be that I've just found an instance where the prequeue is slower
-than the "slow" path. I'm not quite sure why this would be. Does anyone have
-any thoughts on this?
-
-Thanks
-
-
+Whichever way you go, please check that x86_64 works OK too.

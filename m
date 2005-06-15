@@ -1,116 +1,143 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261519AbVFOTeq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261522AbVFOTlQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261519AbVFOTeq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 15:34:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261521AbVFOTeq
+	id S261522AbVFOTlQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 15:41:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261523AbVFOTlP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 15:34:46 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:17891 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S261519AbVFOTeg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 15:34:36 -0400
-Subject: [PATCH] Re: [BUG] Race condition with it_real_fn in kernel/itimer.c
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1118860623.4508.70.camel@localhost.localdomain>
-References: <42B067BD.F4526CD@tv-sign.ru>
-	 <1118860623.4508.70.camel@localhost.localdomain>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Wed, 15 Jun 2005 15:34:03 -0400
-Message-Id: <1118864043.4508.81.camel@localhost.localdomain>
+	Wed, 15 Jun 2005 15:41:15 -0400
+Received: from mo00.iij4u.or.jp ([210.130.0.19]:44247 "EHLO mo00.iij4u.or.jp")
+	by vger.kernel.org with ESMTP id S261522AbVFOTlD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 15:41:03 -0400
+Date: Thu, 16 Jun 2005 04:40:45 +0900 (JST)
+Message-Id: <20050616.044045.26507987.okuyamak@dd.iij4u.or.jp>
+To: tytso@mit.edu
+Cc: reiser@namesys.com, adilger@clusterfs.com, fs@ercist.iscas.ac.cn,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       zhiming@admin.iscas.ac.cn, qufuping@ercist.iscas.ac.cn,
+       madsys@ercist.iscas.ac.cn, xuh@nttdata.com.cn, koichi@intellilink.co.jp,
+       kuroiwaj@intellilink.co.jp, matsui_v@valinux.co.jp,
+       kikuchi_v@valinux.co.jp, fernando@intellilink.co.jp,
+       kskmori@intellilink.co.jp, takenakak@intellilink.co.jp,
+       yamaguchi@intellilink.co.jp, ext2-devel@lists.sourceforge.net,
+       shaggy@austin.ibm.com, xfs-masters@oss.sgi.com,
+       Reiserfs-Dev@namesys.com
+Subject: Re: [Ext2-devel] Re: [RFD] FS behavior (I/O failure) in kernel
+ summit
+From: Kenichi Okuyama <okuyamak@dd.iij4u.or.jp>
+In-Reply-To: <20050615140105.GE4228@thunk.org>
+References: <42AE1D4A.3030504@namesys.com>
+	<42AE450C.5020908@dd.iij4u.or.jp>
+	<20050615140105.GE4228@thunk.org>
+X-Mailer: Mew version 4.0.65 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-06-15 at 14:37 -0400, Steven Rostedt wrote:
+Dear Ted-san, and all,
 
-> 
-> I haven't played too much with the itimer, what harm can happen if the
-> timer is running while this is deleted?  [examines code here] This also
-> looks bad. Since the softirq function can be running and then call
-> it_real_arm unprotected! And you can see here that it_real_arm is also
-> called and they both call add_timer! This would not work, so far the
-> first patch seems to handle this. 
-
-Ha! There's even another problem that I just noticed.  it_real_value
-could return zero while the function is running! So you don't get the
-protection here either!  Take a look here to see what the problem is.
-
-static unsigned long it_real_value(struct signal_struct *sig)
-{
-	unsigned long val = 0;
-	if (timer_pending(&sig->real_timer)) {
-		val = sig->real_timer.expires - jiffies;
-
-		/* look out for negative/zero itimer.. */
-		if ((long) val <= 0)
-			val = 1;
-	}
-	return val;
-}
-
-and 
-
-static inline int timer_pending(const struct timer_list * timer)
-{
-	return timer->base != NULL;
-}
-
-and
-
-static inline void __run_timers(tvec_base_t *base)
-{
-  ...
-			timer = list_entry(head->next,struct timer_list,entry);
- 			fn = timer->function;
- 			data = timer->data;
-
-			list_del(&timer->entry);
-			set_running_timer(base, timer);
-			smp_wmb();
-			timer->base = NULL;
-			spin_unlock_irq(&base->lock);
-			{
-				u32 preempt_count = preempt_count();
-				fn(data);
-...
-}
+>>>>> "Ted" == Theodore Ts'o <tytso@mit.edu> writes:
+Ted> Part of the problem is that we are limited by the constraints of the
+Ted> POSIX specification for error handling.  For example, we don't have a
+Ted> way of telling the application, "the reason why you the filesystem was
+Ted> remounted-read-only was in reaction to an I/O error that appears to be
+Ted> caused by the multiple CRC checksum errors reported by the SCSI
+Ted> controller".  We can only return EIO or EROFS.  And while the write()
+Ted> which causes an I/O error that remounts the filesystem read/only can
+Ted> (and probably does) return EIO, any subsequent writes will return
+Ted> EROFS, and changing this would be hard, hackish, and probably wouldn't
+Ted> be accepted.
 
 
-So, timer_pending tests if timer->base is NULL, but here we see that
-timer->base IS NULL before the function is called, and as I have said
-earlier, the it_real_arm can be called on two CPUS simultaneously. So
-here's another patch that should fix this race condition too.
+You said:
+
+Ted> And while the write()
+Ted> which causes an I/O error that remounts the filesystem read/only can
+Ted> (and probably does) return EIO
+
+No. they return EROFS from beginning.
 
 
---- linux-2.6.12-rc6/kernel/itimer.c.orig	2005-06-15 12:14:13.000000000 -0400
-+++ linux-2.6.12-rc6/kernel/itimer.c	2005-06-15 15:31:12.000000000 -0400
-@@ -156,8 +156,15 @@
- 		spin_lock_irq(&tsk->sighand->siglock);
- 		interval = tsk->signal->it_real_incr;
- 		val = it_real_value(tsk->signal);
--		if (val)
--			del_timer_sync(&tsk->signal->real_timer);
-+		/*
-+		 * Call del_timer_sync unconditionally, since we don't
-+		 * know if it is running or not. We also need to unlock
-+		 * the siglock so that the it_real_fn called by ksoftirqd
-+		 * doesn't wait for us.
-+		 */
-+		spin_unlock(&tsk->sighand->siglock);
-+		del_timer_sync(&tsk->signal->real_timer);
-+		spin_lock(&tsk->sighand->siglock);
- 		tsk->signal->it_real_incr =
- 			timeval_to_jiffies(&value->it_interval);
- 		it_real_arm(tsk, timeval_to_jiffies(&value->it_value));
+Ted> We can only return EIO or EROFS.
 
-
--- Steve
+I do understand about EIO. What I don't see is EROFS.
+EROFS could be returned if file system is being mounted as r/o from
+beginning.
 
 
 
+The point is pretty easy ( I think ).
+
+Q1.  Why does file system succeed in re-mounting as r/o, when device
+     is totally lost?
+
+If device did exist, and throwing away the dirty pages did succeed,
+then unmount that device/mount them as read only, should succeed
+too. If this is what's happening, EROFS is good result. I agree with
+this.
+
+But in case of Mr. Qu's test, device is lost. USB cabel is
+unplugged. They are unreachable. How could such device be *MOUNTED*?
+# In other word, why can't I mount device which does not exist,
+# while I can re-mount them?
+
+
+
+Ted> So instead of trying to standardize the existing error returns, which
+Ted> are they way they are and for which trying to standardize them would
+Ted> probably be not worth the effort, since they don't return enough
+Ted> context to the application anyway
+
+I'm sorry, but I can't agree with this.
+
+When error arise from system call, what application first care is to
+divide error into two types.
+
+1) devices and file systems are still under control of kernel.
+2) devices or file systems are not under control of kernel anymore.
+
+In case of 1, application will wonder if application have done
+something wrong ( including user mistakenly mounted filesystem r/o
+when it should be r/w, or application writing to r/o file system ).
+
+In case of 2, application can do nothing ( and so should be kernel
+). It's human who have to decide what to do.
+# usualy, it means "give up the data", but sometimes, you may
+# have choice of writing that data to some other devices.
+
+Once type 2 error arise, system should not go back to type 1.
+It should be one way path.
+
+
+EROFS is typically error of type 1.
+EIO is typically type 2.
+ (SIGBUS is typically type2 too. But is there any other type 2
+  error? None that I know of. )
+
+What I believe (I'm sorry, but this is only my believe) is, we
+should not mix error of type 1 with error of type 2.  If type 2
+problem arised, type 2 error should be passed to application.  The
+mode should be one-way.
+
+I do agree that, for devices, it is device driver's responsibility
+to identify which type of error have arised. But when file system
+recieved type 2 error, he should not change it to type 1 error
+( unless fs could really guarantee that ).
+
+
+And, therefore, for type 2, I belive they can be standardize, and I
+think we should.
+
+I strongly agree that, for type 1, there are many ways we can
+handle. I agree how you treat type 1 error would be characteristics
+of each file system. Standardizing type 1 error is (in most cases)
+nonsense.
+
+
+I hope, Mr. Qu is looking for same thing.
+
+regards,
+---- 
+Kenichi Okuyama

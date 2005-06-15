@@ -1,105 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261487AbVFOOwb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261159AbVFOOx0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261487AbVFOOwb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 10:52:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261519AbVFOOwb
+	id S261159AbVFOOx0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 10:53:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261155AbVFOOx0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 10:52:31 -0400
-Received: from smtp2.poczta.interia.pl ([213.25.80.232]:56382 "EHLO
-	smtp.poczta.interia.pl") by vger.kernel.org with ESMTP
-	id S261487AbVFOOwP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 10:52:15 -0400
-Message-ID: <42B04090.7050703@poczta.fm>
-Date: Wed, 15 Jun 2005 16:52:00 +0200
-From: Lukasz Stelmach <stlman@poczta.fm>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: pl, en-us, en
-MIME-Version: 1.0
-To: mru@inprovide.com
-Cc: Patrick McFarland <pmcfarland@downeast.net>,
-       "Alexander E. Patrakov" <patrakov@ums.usu.ru>,
-       linux-kernel@vger.kernel.org
-Subject: Re: A Great Idea (tm) about reimplementing NLS.
-References: <f192987705061303383f77c10c@mail.gmail.com>	<yw1xslzl8g1q.fsf@ford.inprovide.com> <42AFE624.4020403@poczta.fm>	<200506150454.11532.pmcfarland@downeast.net>	<42AFF184.2030209@poczta.fm> <yw1xd5qo2bzd.fsf@ford.inprovide.com>
-In-Reply-To: <yw1xd5qo2bzd.fsf@ford.inprovide.com>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig440315F6C92317B174B6019E"
-X-EMID: ce0d138
+	Wed, 15 Jun 2005 10:53:26 -0400
+Received: from igw2.watson.ibm.com ([129.34.20.6]:36304 "EHLO
+	igw2.watson.ibm.com") by vger.kernel.org with ESMTP id S261159AbVFOOxN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 10:53:13 -0400
+Subject: [PATCH] 4 of 5 IMA: module measurement patch
+From: Reiner Sailer <sailer@watson.ibm.com>
+To: LKML <linux-kernel@vger.kernel.org>,
+       LSM <linux-security-module@mail.wirex.com>
+Cc: Chris Wright <chrisw@osdl.org>, Greg KH <greg@kroah.com>,
+       Kylene Hall <kylene@us.ibm.com>, Emily Rattlif <emilyr@us.ibm.com>,
+       Tom Lendacky <toml@us.ibm.com>, Reiner Sailer <sailer@us.ibm.com>
+Content-Type: text/plain
+Date: Wed, 15 Jun 2005 10:57:23 -0400
+Message-Id: <1118847443.2269.22.camel@secureip.watson.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig440315F6C92317B174B6019E
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+This patch applies against linux-2.6.12-rc6-mm1 and provides an additional
+measurement hook for measuring kernel modules before they are relocated
+and available. At this point, the modules are still an exact copy of the 
+file on the disk and yield representative measurements.
 
-M=C3=A5ns Rullg=C3=A5rd napisa=C5=82(a):
+This is a kernel patch because we could not find a fitting LSM-hook.
 
->>IMHO for *every* filesystem there need to be an *option* to:
->>
->>1. store filenames in utf-8 (that is quite possible today) or any other=
-
->>unicode form.
->=20
-> export LC_CTYPE=3Dwhatever.utf-8
-
-Translate and store them in utf-8 at kernel level same as VFAT mounted
-with iocharset option.
-
->>2. convert them to/from a desired iocharset. I prefere using ISO-8859-2=
-
->>on my system for not every tool support utf-8 today (hopefuly yet).
->=20
-> man iconv
-
-There are far more programmes than only iconv. First of all readline
-library is kind of broken because it counts (or at least it did a year
-ago) bytes instead of characters. I won't use UTF-8 nor force anybody
-else to do so until readline will handle it properly.
+Signed-off-by: Reiner Sailer <sailer@watson.ibm.com>
+---
 
 
->>Of course if a user whishes to store filenames in some other encoding
->>she should be *able* to do so (that is why i like linux).
->=20
-> That's the current situation.
+diff -uprN linux-2.6.12-rc6-mm1_orig/include/linux/ima_module.h linux-2.6.12-rc6-mm1-ima/include/linux/ima_module.h
+--- linux-2.6.12-rc6-mm1_orig/include/linux/ima_module.h	1969-12-31 19:00:00.000000000 -0500
++++ linux-2.6.12-rc6-mm1-ima/include/linux/ima_module.h	2005-06-14 16:25:13.000000000 -0400
+@@ -0,0 +1,33 @@
++/*
++ * Copyright (C) 2005 IBM Corporation
++ *
++ * Authors:
++ * Reiner Sailer <sailer@watson.ibm.com>
++ *
++ * Maintained by: Reiner Sailer <sailer@watson.ibm.com>
++ *
++ * LSM IBM Integrity Measurement Architecture.		  
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License as
++ * published by the Free Software Foundation, version 2 of the
++ * License.
++ *
++ * File: ima_module.h
++ *             define modules measurement hook (no LSM hook) to measure
++ *             modules before they are relocated
++ */
++#ifdef CONFIG_IMA_MEASURE
++extern int ima_terminating;
++extern void measure_kernel_module(void *start, unsigned long len, const char __user *uargs);
++
++static inline void ima_measure_module(void *start, unsigned long len, const char __user *uargs)
++{
++	if (!ima_terminating)
++		measure_kernel_module(start, len, uargs);
++}
++#else
++static inline void ima_measure_module(void *start, unsigned long len, const char __user *uargs)
++{
++}
++#endif
+diff -uprN linux-2.6.12-rc6-mm1_orig/kernel/module.c linux-2.6.12-rc6-mm1-ima/kernel/module.c
+--- linux-2.6.12-rc6-mm1_orig/kernel/module.c	2005-06-14 11:34:27.000000000 -0400
++++ linux-2.6.12-rc6-mm1-ima/kernel/module.c	2005-06-14 16:25:13.000000000 -0400
+@@ -39,6 +39,7 @@
+ #include <asm/uaccess.h>
+ #include <asm/semaphore.h>
+ #include <asm/cacheflush.h>
++#include <linux/ima_module.h>
+ 
+ #if 0
+ #define DEBUGP printk
+@@ -1531,6 +1532,8 @@ static struct module *load_module(void _
+ 	if (len < hdr->e_shoff + hdr->e_shnum * sizeof(Elf_Shdr))
+ 		goto truncated;
+ 
++	ima_measure_module((void *)hdr, len, uargs);
++
+ 	/* Convenience variables */
+ 	sechdrs = (void *)hdr + hdr->e_shoff;
+ 	secstrings = (void *)hdr + sechdrs[hdr->e_shstrndx].sh_offset;
 
-And it is good in a way, however, i think kernel level translation
-should be also possible. Either done by a code in each filsystem or by
-some layer above it.
 
->>Generally. IMHO VFAT is a good example how character encoding needs
->>to be handeled.
->=20
-> IMHO, VFAT is only a good example of bad design.
-
-It depend's on what it is used for. It is very good fs for removable
-media. None of linux native filesystems is good for this because of
-different uids on different machines. Since VFAT uses unicode it is
-possible to see the filenames properly on systems using different
-codepages for the same language (1:1 is possible).
-
---=20
-By=C5=82o mi bardzo mi=C5=82o.                    Trzecia pospolita kl=C4=
-=99ska, [...]
->=C5=81ukasz<                      Ju=C5=BC nie katolicka lecz z=C5=82odz=
-iejska.  (c)PP
-
-
---------------enig440315F6C92317B174B6019E
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFCsECVNdzY8sm9K9wRAsseAJ4/CcoD/WZAZVxJ4PlXVO8dIkKU8gCfY4YT
-lMQgLYZxiVvKDq5KNYd7IPs=
-=/qki
------END PGP SIGNATURE-----
-
---------------enig440315F6C92317B174B6019E--

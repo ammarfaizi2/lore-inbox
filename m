@@ -1,58 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261418AbVFOL3W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261338AbVFOLac@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261418AbVFOL3W (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 07:29:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261422AbVFOL3V
+	id S261338AbVFOLac (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 07:30:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261422AbVFOL32
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 07:29:21 -0400
-Received: from [80.71.243.242] ([80.71.243.242]:41884 "EHLO tau.rusteko.ru")
-	by vger.kernel.org with ESMTP id S261418AbVFOL3P (ORCPT
+	Wed, 15 Jun 2005 07:29:28 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:30437 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261419AbVFOL3T (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 07:29:15 -0400
-From: Nikita Danilov <nikita@clusterfs.com>
+	Wed, 15 Jun 2005 07:29:19 -0400
+Message-ID: <42B010C0.90707@sgi.com>
+Date: Wed, 15 Jun 2005 07:28:00 -0400
+From: Prarit Bhargava <prarit@sgi.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17072.4363.161693.887061@gargle.gargle.HOWL>
-Date: Wed, 15 Jun 2005 15:29:15 +0400
-To: "liyu@LAN" <liyu@ccoss.com.cn>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: one question about LRU mechanism
-Newsgroups: gmane.linux.kernel
-In-Reply-To: <1118817991.5828.23.camel@liyu.ccoss.com.cn>
-References: <1118812376.32766.4.camel@liyu.ccoss.com.cn>
-	<20050615052530.GA3913@holomorphy.com>
-	<1118817991.5828.23.camel@liyu.ccoss.com.cn>
-X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
+To: =?ISO-8859-1?Q?Pozs=E1r_Bal=E1zs?= <pozsy@uhulinux.hu>
+CC: Steve Lord <lord@xfs.org>, "K.R. Foley" <kr@cybsft.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       rusty@rustcorp.com.au
+Subject: Re: Race condition in module load causing undefined symbols
+References: <42AAE5C8.9060609@xfs.org> <20050611150525.GI17639@ojjektum.uhulinux.hu> <42AB25E7.5000405@xfs.org> <20050611120040.084942ed.akpm@osdl.org> <42AEDCFB.8080002@xfs.org> <42AEF979.2000207@cybsft.com> <42AF080A.1000307@xfs.org> <42AF0FA2.2050407@cybsft.com> <42AF165E.1020702@xfs.org> <42AF2088.3090605@sgi.com> <20050614205933.GC7082@ojjektum.uhulinux.hu>
+In-Reply-To: <20050614205933.GC7082@ojjektum.uhulinux.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-liyu@LAN writes:
+Pozsár Balázs wrote:
+> On Tue, Jun 14, 2005 at 02:23:04PM -0400, Prarit Bhargava wrote:
+> 
+>>The second fix, and again you must do this if you're developing 2.6.12, is 
+>>to *update the mkinitrd package* which has a new version of /bin/sh.
+> 
+> 
+> This sounds insane to me. I am using bash in my initrd, does this mean 
+> that every shell and whatever has to be updated? Exactly what 
+> modifications has to be made?
+> 
+> 
 
-[...]
+If you're using bash, I would suggest starting with an update of the bash package.
 
- > 
- > /************************************************************/
- >         while (scan++ < nr_to_scan && !list_empty(src)) {
- >                 page = lru_to_page(src);
- >                 prefetchw_prev_lru_page(page, src, flags);
- >                                                                                                     
- >                 if (!TestClearPageLRU(page))
- >                         BUG();
- >                 list_del(&page->lru);
+It's interesting to note that Steve also needed to update his udev package. 
+Steve, IIRC you were using Fedora 3/4?
 
-[...]
-
- > 
- > /***************************************************/
- >         while (scan++ < nr_to_scan && !list_empty(src->prev)) {
-
-list_empty(something) and list_empty(something->prev) are equivalent for
-well-formed lists.
-
-list_empty(src) check in isolate_lru_pages() is for pathological case
-when active list becomes empty. Also active and inactive lists are not
-LRU, they are closer to second-chance-FIFO, it is _together_ that they
-emulate LRU.
-
-Nikita.
+P.

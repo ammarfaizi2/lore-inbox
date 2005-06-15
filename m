@@ -1,44 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261447AbVFOAed@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261448AbVFOAlS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261447AbVFOAed (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 20:34:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261448AbVFOAec
+	id S261448AbVFOAlS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 20:41:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261449AbVFOAlS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 20:34:32 -0400
-Received: from bay108-f2.bay108.hotmail.com ([65.54.162.12]:62883 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S261447AbVFOAe1
+	Tue, 14 Jun 2005 20:41:18 -0400
+Received: from smtp-auth.no-ip.com ([8.4.112.95]:26591 "HELO
+	smtp-auth.no-ip.com") by vger.kernel.org with SMTP id S261448AbVFOAlM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 20:34:27 -0400
-Message-ID: <BAY108-F279928792F980CAFB2AEDCDF20@phx.gbl>
-X-Originating-IP: [65.54.162.200]
-X-Originating-Email: [nranewcomb@hotmail.com]
-From: "Nick Newcomb" <nranewcomb@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Design Level Documentation for the Linux kernel (V2.6)
-Date: Wed, 15 Jun 2005 00:34:26 +0000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 15 Jun 2005 00:34:26.0357 (UTC) FILETIME=[FBF04E50:01C57141]
+	Tue, 14 Jun 2005 20:41:12 -0400
+From: dagit@codersbase.com
+To: Pavel Machek <pavel@suse.cz>
+Cc: Shaohua Li <shaohua.li@intel.com>, stefandoesinger@gmx.at,
+       acpi-dev <acpi-devel@lists.sourceforge.net>,
+       Matthew Garrett <mjg59@srcf.ucam.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: S3 test tool (was : Re: Bizarre oops after suspend to RAM (was:
+ Re: [ACPI] Resume from Suspend to RAM))
+References: <200506061531.41132.stefandoesinger@gmx.at>
+	<1118125410.3828.12.camel@linux-hp.sh.intel.com>
+	<87ll5diemh.fsf@www.codersbase.com> <20050614090652.GA1863@elf.ucw.cz>
+	<87aclthr7l.fsf@www.codersbase.com> <20050614213728.GB2172@elf.ucw.cz>
+	<87u0k061jx.fsf@www.codersbase.com> <20050614220911.GD2172@elf.ucw.cz>
+	<87oea860rl.fsf@www.codersbase.com> <20050614231115.GE2172@elf.ucw.cz>
+Organization: Coders' Base
+Date: Tue, 14 Jun 2005 17:41:05 -0700
+In-Reply-To: <20050614231115.GE2172@elf.ucw.cz> (Pavel Machek's message of
+ "Wed, 15 Jun 2005 01:11:15 +0200")
+Message-ID: <87ekb45u5a.fsf@www.codersbase.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-REPORT-SPAM-TO: abuse@no-ip.com
+X-NO-IP: codersbase.com@noip-smtp
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, I'm working with the Software Revolution and I thought you guys might 
-like to know that we just completed the automatic generation of a full, 
-design-level documentation of the LINUX kernel and associated sub-systems. 
-This documentation set is made up of hyperlinked graphics and text documents 
-of all the major subsystems and all of the source code fields and functions 
-and is organized by complexity and file-system location. It covers the Linux 
-kernel, memory management, file-system, security, cryptography, 
-initialization, drivers, architecture and interprocess communication 
-subsystems. Furthermore, we're offering this for... well free. I just 
-thought it was something maybe you guys could use. If you would like to view 
-this information, just go to:
+Pavel Machek <pavel@suse.cz> writes:
 
-http://www.softwarerevolution.com/jeneral/open-source-docs.html
+> Hi!
+>
+>> >> >> Do you mean try something like this? Replace the push 0 with push
+>> >> >> 0x1234 ; push 0x1234 ; pop ; pop and try to figure out which line
+>> >> >> causes the reboot?
+>> >> >
+>> >> > Yep, try pushl $0, popl %eax; if that causes problems, something is
+>> >> > seriously wrong with stack, otherwise changing flags hurts.
+>> >> 
+>> >> pushl $0, popl %eax gets the reboot.  So it's changing the flags that
+>> >> is bad?
+>> >> 
+>> >> What should we try next?
+>> >
+>> > ??? You wanted it to reboot? If not, something is wrong with
+>> > stack. Not sure whats next.
+>> 
+>> I don't want it to reboot, I guess I got confused.  As you say, maybe
+>> something is wrong with the stack.  It's weird that something would be
+>> wrong with the stack, because the other test to check the
+>> suspend/resume code path works like a charm, the machine will do the
+>> fake suspend/resume just fine.
+>
+> Well, we set up stack few instructions before that. But we do it in
+> quite a complicated way; could you just put stack at 0x00:0x200 or
+> something like that? Also test if push alone is enough to kill it.
 
-Any questions or comments anyone might have are more than welcome. Thanks 
-for your time and we hope you'll find our services useful.
+Could you send me the code you want me to test, I'd don't know enough
+asm to move the stack.  I tried replacing the line with the comment
+about the ASUS board private stack with a line like, "mov $0x200,
+%sp", but I don't understand it.
 
-~ Nick w/ TSRI
+As for check about the push alone causing the reboot, I removed the
+pop, and it still reboots, but to me that doesn't say that it's the
+push that does it.  It could be the next line.  I'll try to put in an
+infinite loop.
 
+Thanks,
+Jason
 

@@ -1,75 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261566AbVFOU4e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261559AbVFOUtz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261566AbVFOU4e (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 16:56:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261573AbVFOUzf
+	id S261559AbVFOUtz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 16:49:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261565AbVFOUsZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 16:55:35 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:46535
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S261566AbVFOUvQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 16:51:16 -0400
-Date: Wed, 15 Jun 2005 13:51:14 -0700 (PDT)
-Message-Id: <20050615.135114.41634180.davem@davemloft.net>
-To: cndougla@purdue.edu
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: TCP prequeue performance
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <BED5FA3B.2A0%cndougla@purdue.edu>
-References: <BED5FA3B.2A0%cndougla@purdue.edu>
-X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 15 Jun 2005 16:48:25 -0400
+Received: from mail.enyo.de ([212.9.189.167]:7430 "EHLO mail.enyo.de")
+	by vger.kernel.org with ESMTP id S261559AbVFOUrt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 16:47:49 -0400
+From: Florian Weimer <fw@deneb.enyo.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [NETFILTER]: Advance seq-file position in exp_next_seq()
+References: <200506140159.j5E1xRb7019657@hera.kernel.org>
+Date: Wed, 15 Jun 2005 22:47:43 +0200
+In-Reply-To: <200506140159.j5E1xRb7019657@hera.kernel.org> (Linux Kernel
+	Mailing List's message of "Mon, 13 Jun 2005 18:59:27 -0700")
+Message-ID: <87u0jzny8g.fsf@deneb.enyo.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Chase Douglas <cndougla@purdue.edu>
-Date: Wed, 15 Jun 2005 15:31:07 -0500
+* Linux Kernel Mailing List:
 
-> Note the decreases in the system and real times. These numbers are fairly
-> stable through 10 consecutive benchmarks of each. If I change message sizes
-> and number of connections, the difference can narrow or widen, but usually
-> the non-prequeue beats the prequeue with respect to system and real time.
+> tree f33460f2f2452807483ba6453e3319dcfe4bf856
+> parent 814d8ffd5009e13f1266759b583ef847c5350d77
+> author Patrick McHardy <kaber@trash.net> Tue, 14 Jun 2005 08:27:13 -0700
+> committer David S. Miller <davem@davemloft.net> Tue, 14 Jun 2005 08:27:13 -0700
+>
+> [NETFILTER]: Advance seq-file position in exp_next_seq()
 
-Please take this discussion to the networking development list,
-netdev@vger.kernel.org.  It is an interesting issue, but let's discuss
-it in the right place. :-)
-
-Prequeue has many advantages, in that processes are properly charged
-for TCP processing overhead, and copying to userspace happens directly
-in the TCP input path.
-
-This paces TCP senders, in that ACKs do not come back faster than the
-kernel can get the process on the cpu to drain the recvmsg() queue.
-ACKs sent immediately (without prequeue) give the sender the illusion
-that the system can handle a higher data rate than is actually
-feasible.
-
-Unfortunately, if there are bugs or bad heuristics in the process
-scheduler, this can impact TCP performance quite a bit.
-
-Also, applications using small messages and which are sensitive to
-latency can also be harmed by prequeue, that's why we have the
-"tcp_low_latency" sysctl.  It actually has a slight bug, in that one
-of the checks (where you placed the "if (0") was missing, which is
-fixed by the patch below:
-
-[TCP]: Fix sysctl_tcp_low_latency
-
-When enabled, this should disable UCOPY prequeue'ing altogether,
-but it does not due to a missing test.
-
-Signed-off-by: David S. Miller <davem@davemloft.net>
-
---- 1/net/ipv4/tcp.c.~1~	2005-06-09 12:29:41.000000000 -0700
-+++ 2/net/ipv4/tcp.c	2005-06-09 16:39:46.000000000 -0700
-@@ -1345,7 +1345,7 @@
- 
- 		cleanup_rbuf(sk, copied);
- 
--		if (tp->ucopy.task == user_recv) {
-+		if (!sysctl_tcp_low_latency && tp->ucopy.task == user_recv) {
- 			/* Install new reader */
- 			if (!user_recv && !(flags & (MSG_TRUNC | MSG_PEEK))) {
- 				user_recv = current;
+Unfortunately, this still doesn't fix the "ip_ct_tcp: SEQ is over the
+upper bound (over the window of the receiver)" regression some people
+see since 2.6.9.  (It probably doesn't intent to, either, but I was
+associating freely and arranged for a test.)

@@ -1,66 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261277AbVFOTCf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261286AbVFOTCv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261277AbVFOTCf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 15:02:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261286AbVFOTCe
+	id S261286AbVFOTCv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 15:02:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261324AbVFOTCv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 15:02:34 -0400
-Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:16746 "HELO
-	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261277AbVFOTCc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 15:02:32 -0400
-Message-ID: <42B07B44.9040408@yahoo.com.au>
-Date: Thu, 16 Jun 2005 05:02:28 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en
+	Wed, 15 Jun 2005 15:02:51 -0400
+Received: from mailout06.infosat.net ([66.18.69.6]:31906 "EHLO
+	mail02.infosat.net") by vger.kernel.org with ESMTP id S261286AbVFOTCk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 15:02:40 -0400
+From: "owen williams" <owintalwilliam202@tsamail.co.za>
+Subject: Aide =?ISO-8859-1?Q?Orph=E9lin?=
+X-Mailer: CommuniGate Pro WebUser Interface v.4.1.8
+Date: Wed, 15 Jun 2005 21:02:32 +0200
+Message-ID: <web-794084815@mail01.infosat.net>
 MIME-Version: 1.0
-To: Badari Pulavarty <pbadari@us.ibm.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org
-Subject: Re: 2.6.12-rc6-mm1 & 2K lun testing
-References: <1118856977.4301.406.camel@dyn9047017072.beaverton.ibm.com>	 <42B073C1.3010908@yahoo.com.au> <1118860223.4301.449.camel@dyn9047017072.beaverton.ibm.com>
-In-Reply-To: <1118860223.4301.449.camel@dyn9047017072.beaverton.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 8bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Badari Pulavarty wrote:
-> On Wed, 2005-06-15 at 11:30, Nick Piggin wrote:
-> 
->>Badari Pulavarty wrote:
->>
->>
->>>------------------------------------------------------------------------
->>>
->>>elm3b29 login: dd: page allocation failure. order:0, mode:0x20
->>>
->>>Call Trace: <IRQ> <ffffffff801632ae>{__alloc_pages+990} <ffffffff801668da>{cache_grow+314}
->>>       <ffffffff80166d7f>{cache_alloc_refill+543} <ffffffff80166e86>{kmem_cache_alloc+54}
->>>       <ffffffff8033d021>{scsi_get_command+81} <ffffffff8034181d>{scsi_prep_fn+301}
->>
->>They look like they're all in scsi_get_command.
->>I would consider masking off __GFP_HIGH in the gfp_mask of that
->>function, and setting __GFP_NOWARN. It looks like it has a mempoolish
->>thingy in there, so perhaps it shouldn't delve so far into reserves.
-> 
-> 
-> You want me to take off GFP_HIGH ? or just set GFP_NOWARN with GFP_HIGH
-> ?
-> 
+ 
+ 
+ 
+OWEN WILLIAMS
+ABIDJAN COTE D'IVOIRE 
 
-Yeah, take off GFP_HIGH and set GFP_NOWARN (always). I would be
-interested to see how that goes.
 
-Obviously it won't eliminate your failures there (it will probably
-produce more of them), however it might help the scsi command
-allocation from overwhelming the system.
+Cher , 
+Je suis Monsieur OWEN WILLIAMS le seul fils de l'ancien
+chef PAUL WILLIAMS de la SIERA LEONNE. La source de votre
+contact me donne le courage et laconfiance de me confier à
+vous. Je vous écris avec une confidence absolue
+premièrement pour demander votre assistance pour transférer
+notre liquidité de 25 000 000 de dollar qui actuellement se
+trouve dans
+le coffre fort d'une compagnie de sécurité ici en Abidjan
+dans votre compte personnel jusqu'à notre
+arrivée dans votre pays. 
+           
+                           SOURCE DE L'ARGENT
 
-THanks,
-Nick
+Mon défunt père, chef PAUL WILLIAMS, etais le patron des
+extracteur d'or et de diamant en Sierra Leone (S.L.M.C)
+Freetown. Concernant mon père, cet argent est le résultat
+de l'or et le diamant extraient des mines Sierra Léonaise
+avant le début de la guerre civil entre les forces rebelles
+et les forces de maintien de la paix de l'ECOMOG qui a
+détruit mon pays après le coup de force qui a chassé du
+pouvoir, le président démocratiquement élu AHMED TEJAN
+KABBAH. 
 
--- 
-SUSE Labs, Novell Inc.
+Mon père avait déjà mis en place un plan pour nous évacuer
+(notre famille) ma mère, ma petite s?ur et moi même sur
+Abidjan en Cote d'ivoire avec nos effets personnels et la
+boite contenant l'argent par le biais des forces
+d'évacuation des nations unies. 
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Mon père a demandé à ma mère de déposer la boite dans une
+compagnie privée de sécurité jusqu'à ce qu'il nous rejoigne
+après la guerre. Pendant la guerre dans mon pays, et avec
+pour conséquence le pillage des propriétés publiques et du
+gouvernement par les forces rebelles, la coopération des
+mines sierra léonaise étaient l'une des cibles pillées et
+détruites. Mon père et plusieurs autres haut fonctionnaires
+ont été attaqués et tués par les rebelles en novembre 2000
+pour leur relation avec le gouvernement civil de AHMED
+TEJAN KABBAH. 
+
+Suite à la mort de mon père, et avec l?annonce du décès de
+mon oncle suite à l?accident d'avion qui sais produit en
+décembre 2001 sur Abidjan, nos espoirs de survie étaient
+complètement noyés. Cette mort prématurée de mon père et de
+mon oncle a provoqué d'autres complications et un arrêt
+cardiaque chez ma mère qui ont provoqués sa mort plus tard
+dans un hôpital après qu?on ai eu à dépenser une importante
+somme d'argent pour ses soins médicaux. 
+
+Actuellement ma s?ur et moi même sommes seuls dans ce pays
+étranger, souffrant et sans aucun soutien . sans aucune
+relations, nous sommes actuellement comme des réfugiés et
+orphelins. Notre seul espoir actuellement est en vous et au
+coffre qu'on à déposé dans la compagnie de sécurité. 
+
+Depuis les événements qui se sont produit ici (19 septembre
+2002) en cote d?ivoire le directeur de la compagnie de
+sécurité à fait partir par vol diplomatique les colis qui
+avait été déposer dans sa
+compagnie , vers l? Europe où ils ont des représentants
+
+A cet effet, je sollicite humblement votre assistance
+dans le sens suivant :
+
+1- m'aider à faire sortir le colis de l?agence en
+Europe. vous, comme CO- bénéficiaire afin de pouvoir
+ensuite transférer cet argent en votre nom dans votre
+compte bancaire dans votre pays pour un
+investissement lucratif .avec vous comme principal
+acteur. 
+
+2- Le plus important c'est que la compagnie de
+sécurité ne connaît pas le contenu exact de la boite 
+parce qu'on l'a déclaré comme richesses familiales.
+
+3- Tous les documents relatifs au dépôts sont en ma
+possession. 
+
+4- Pour votre assistance, je vous céderai 20% de cet 
+argent (de la sommes total) pour vos efforts et votre
+assistance. 
+
+5- Enfin je vous prie de garder cette transaction 
+strictement confidentiel. 
+
+Merci et que Dieu vous bénisses pour votre assistance
+à notre égard. 
+
+Très sincèrement 
+OWEN WILLIAMS 

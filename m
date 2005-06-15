@@ -1,53 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbVFOJn6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261363AbVFOJsg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261375AbVFOJn6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 05:43:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261377AbVFOJn6
+	id S261363AbVFOJsg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 05:48:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261377AbVFOJsg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 05:43:58 -0400
-Received: from nproxy.gmail.com ([64.233.182.205]:50384 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261375AbVFOJny convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 05:43:54 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Aj8q2f5XeHi0kya56VK6HhePvX38QmDfnZ7gBQwisjIv5bzHGFc41PV5yGK7u3QAPLg6R0DpDv/8zc3HqBDFtoEG6rcmssbm0v9c7452K5HWAAJcvswSgr2N14mOVRfCK1QsKms1KWzi+tZl1dkJVRjEM9KAza9ym5P5DWCwemw=
-Message-ID: <2cd57c9005061502432a44bbef@mail.gmail.com>
-Date: Wed, 15 Jun 2005 17:43:51 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-Reply-To: coywolf@lovecn.org
-To: Denis Vlasenko <vda@ilport.com.ua>
-Subject: Re: Why is one sync() not enough?
-Cc: Helge Hafting <helge.hafting@aitel.hist.no>,
-       Nico Schottelius <nico-kernel@schottelius.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200506151228.27474.vda@ilport.com.ua>
+	Wed, 15 Jun 2005 05:48:36 -0400
+Received: from ns2.suse.de ([195.135.220.15]:49314 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S261363AbVFOJsf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 05:48:35 -0400
+Date: Wed, 15 Jun 2005 11:48:33 +0200
+From: Andi Kleen <ak@suse.de>
+To: Greg KH <gregkh@suse.de>
+Cc: len.brown@intel.com, ak@suse.de, acpi-devel@lists.sourceforge.net,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 02/04] PCI: use the MCFG table to properly access pci devices (i386)
+Message-ID: <20050615094833.GB11898@wotan.suse.de>
+References: <20050615052916.GA23394@kroah.com> <20050615053031.GB23394@kroah.com> <20050615053120.GC23394@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20050614094141.GE1467@schottelius.org>
-	 <42AFE432.8000204@aitel.hist.no>
-	 <200506151228.27474.vda@ilport.com.ua>
+In-Reply-To: <20050615053120.GC23394@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/15/05, Denis Vlasenko <vda@ilport.com.ua> wrote:
-> On Wednesday 15 June 2005 11:17, Helge Hafting wrote:
-> > Nico Schottelius wrote:
-> >
-> > >Hello again!
-> > >
-> > >When my system shuts down and init calls sync() and after that
-> > >umount and then reboot, the filesystem is left in an unclean state.
-> > >
-> > >If I do sync() two times (one before umount, one after umount) it
-> > >seems to work.
+On Tue, Jun 14, 2005 at 10:31:20PM -0700, Greg KH wrote:
+> Now that we have access to the whole MCFG table, let's properly use it
+> for all pci device accesses (as that's what it is there for, some boxes
+> don't put all the busses into one entry.)
 > 
-> sync before umount is superfluous.
- 
-BTW, how about sysrq-s and sysrq-u? The same?
--- 
-Coywolf Qi Hunt
-http://ahbl.org/~coywolf/
+> If, for some reason, the table is incorrect, we fallback to the "old
+> style" of mmconfig accesses, namely, we just assume the first entry in
+> the table is the one for us, and blindly use it.
+
+I think it would be better to set different bus->ops at probe
+time, not walk the table at runtime.
+
+-Andi

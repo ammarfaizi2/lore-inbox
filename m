@@ -1,37 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261532AbVFOT6e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261533AbVFOUDI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261532AbVFOT6e (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 15:58:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261533AbVFOT6b
+	id S261533AbVFOUDI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 16:03:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261534AbVFOUDI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 15:58:31 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:36028
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S261532AbVFOT63 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 15:58:29 -0400
-Date: Wed, 15 Jun 2005 12:58:04 -0700 (PDT)
-Message-Id: <20050615.125804.126575159.davem@davemloft.net>
-To: juhl-lkml@dif.dk
-Cc: yoshfuji@linux-ipv6.org, kuznet@ms2.inr.ac.ru, jmorris@redhat.com,
-       waltje@uWalt.NL.Mugnet.ORG, ross.biro@gmail.com, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [-mm PATCH] signed vs unsigned cleanup in net/ipv4/raw.c
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <Pine.LNX.4.62.0506152127150.3842@dragon.hyggekrogen.localhost>
-References: <Pine.LNX.4.62.0506152101350.3842@dragon.hyggekrogen.localhost>
-	<20050615.121628.112622743.davem@davemloft.net>
-	<Pine.LNX.4.62.0506152127150.3842@dragon.hyggekrogen.localhost>
-X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 15 Jun 2005 16:03:08 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:55175 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261533AbVFOUDF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 16:03:05 -0400
+Date: Wed, 15 Jun 2005 16:02:52 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Reiner Sailer <sailer@watson.ibm.com>
+cc: LKML <linux-kernel@vger.kernel.org>, LSM <linux-security-module@wirex.com>,
+       Tom Lendacky <toml@us.ibm.com>, Greg KH <greg@kroah.com>,
+       Chris Wright <chrisw@osdl.org>, Emily Rattlif <emilyr@us.ibm.com>,
+       Kylene Hall <kylene@us.ibm.com>
+Subject: Re: [PATCH] 3 of 5 IMA: LSM-based measurement code
+In-Reply-To: <1118846413.2269.18.camel@secureip.watson.ibm.com>
+Message-ID: <Xine.LNX.4.44.0506151601310.27162-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Jesper Juhl <juhl-lkml@dif.dk>
-Date: Wed, 15 Jun 2005 21:28:23 +0200 (CEST)
+On Wed, 15 Jun 2005, Reiner Sailer wrote:
 
-> Fair enough, I'll split it into little bits and submit them one by one 
-> with explanations. Not a problem at all.
+> This patch applies against linux-2.6.12-rc6-mm1 and provides the main
+> Integrity Measurement Architecture code (LSM-based).
 
-Thanks a lot Jesper.
+Why are you still trying to use LSM for this?
+
+Last time, there was discussion on the issue, ending here:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=111665641301726&w=2
+
+
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
+
+

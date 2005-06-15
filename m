@@ -1,47 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261611AbVFOVqc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261607AbVFOVs2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261611AbVFOVqc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 17:46:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbVFOVoG
+	id S261607AbVFOVs2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 17:48:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbVFOVqn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 17:44:06 -0400
-Received: from mail.dif.dk ([193.138.115.101]:64728 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S261607AbVFOVm4 (ORCPT
+	Wed, 15 Jun 2005 17:46:43 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:25752 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261609AbVFOVpT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 17:42:56 -0400
-Date: Wed, 15 Jun 2005 23:48:19 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: yoshfuji@linux-ipv6.org, kuznet@ms2.inr.ac.ru, jmorris@redhat.com,
-       ross.biro@gmail.com, netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [-mm PATCH][4/4] net: signed vs unsigned cleanup in net/ipv4/raw.c
-In-Reply-To: <20050615.144116.41632938.davem@davemloft.net>
-Message-ID: <Pine.LNX.4.62.0506152347270.3842@dragon.hyggekrogen.localhost>
-References: <Pine.LNX.4.62.0506152316060.3842@dragon.hyggekrogen.localhost>
- <20050615.142953.59469324.davem@davemloft.net>
- <Pine.LNX.4.62.0506152338450.3842@dragon.hyggekrogen.localhost>
- <20050615.144116.41632938.davem@davemloft.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 15 Jun 2005 17:45:19 -0400
+Date: Wed, 15 Jun 2005 16:50:19 -0500
+From: serue@us.ibm.com
+To: Chris Wright <chrisw@osdl.org>
+Cc: serue@us.ibm.com, James Morris <jmorris@redhat.com>,
+       Reiner Sailer <sailer@watson.ibm.com>,
+       LKML <linux-kernel@vger.kernel.org>,
+       LSM <linux-security-module@wirex.com>, Tom Lendacky <toml@us.ibm.com>,
+       Greg KH <greg@kroah.com>, Emily Rattlif <emilyr@us.ibm.com>,
+       Kylene Hall <kylene@us.ibm.com>
+Subject: Re: [PATCH] 3 of 5 IMA: LSM-based measurement code
+Message-ID: <20050615215019.GB3660@serge.austin.ibm.com>
+References: <1118846413.2269.18.camel@secureip.watson.ibm.com> <Xine.LNX.4.44.0506151601310.27162-100000@thoron.boston.redhat.com> <20050615204936.GA3517@serge.austin.ibm.com> <20050615205926.GP9046@shell0.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050615205926.GP9046@shell0.pdx.osdl.net>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Jun 2005, David S. Miller wrote:
+Quoting Chris Wright (chrisw@osdl.org):
+> The primary purpose of the hooks is access control.  Some of them, of
+> course, are helpers to keep labels coherent.  IIRC, James objected
+> because the measurement data was simply collected from these hooks.
 
-> From: Jesper Juhl <juhl-lkml@dif.dk>
-> Date: Wed, 15 Jun 2005 23:40:12 +0200 (CEST)
-> 
-> > On Wed, 15 Jun 2005, David S. Miller wrote:
-> > 
-> > > I think I'd prefer that.
-> > > 
-> > No problem. Here's a replacement patch nr. 4 : 
-> 
-> Thanks a lot.  All 4 patches applied to my 2.6.13-pending tree.
-> 
-Great, thanks, 'twas a pleasure working with you :)
+Ok, so to be clear, any module which does not directly impose some form
+of access control is not eligible for an LSM?
 
--- 
-Jesper
+(in that case that clearly settles the issue)
 
-
+thanks,
+-serge

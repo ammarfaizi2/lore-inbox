@@ -1,102 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261360AbVFOJRP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261361AbVFOJT6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261360AbVFOJRP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 05:17:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261363AbVFOJRP
+	id S261361AbVFOJT6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 05:19:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261359AbVFOJT5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 05:17:15 -0400
-Received: from smtp2.poczta.interia.pl ([213.25.80.232]:56628 "EHLO
-	smtp.poczta.interia.pl") by vger.kernel.org with ESMTP
-	id S261360AbVFOJPB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 05:15:01 -0400
-Message-ID: <42AFF184.2030209@poczta.fm>
-Date: Wed, 15 Jun 2005 11:14:44 +0200
-From: Lukasz Stelmach <stlman@poczta.fm>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: pl, en-us, en
+	Wed, 15 Jun 2005 05:19:57 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:47828 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S261361AbVFOJTm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 05:19:42 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: "Nick Newcomb" <nranewcomb@hotmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Design Level Documentation for the Linux kernel (V2.6)
+Date: Wed, 15 Jun 2005 12:19:26 +0300
+User-Agent: KMail/1.5.4
+References: <BAY108-F279928792F980CAFB2AEDCDF20@phx.gbl>
+In-Reply-To: <BAY108-F279928792F980CAFB2AEDCDF20@phx.gbl>
 MIME-Version: 1.0
-To: Patrick McFarland <pmcfarland@downeast.net>
-Cc: =?UTF-8?B?TcOlbnMgUnVsbGfDpXJk?= <mru@inprovide.com>,
-       "Alexander E. Patrakov" <patrakov@ums.usu.ru>,
-       linux-kernel@vger.kernel.org
-Subject: Re: A Great Idea (tm) about reimplementing NLS.
-References: <f192987705061303383f77c10c@mail.gmail.com> <yw1xslzl8g1q.fsf@ford.inprovide.com> <42AFE624.4020403@poczta.fm> <200506150454.11532.pmcfarland@downeast.net>
-In-Reply-To: <200506150454.11532.pmcfarland@downeast.net>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig37E9F98E8E86D70C08B78979"
-X-EMID: a2133138
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200506151219.26060.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig37E9F98E8E86D70C08B78979
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+On Wednesday 15 June 2005 03:34, Nick Newcomb wrote:
+> Hi, I'm working with the Software Revolution and I thought you guys might 
+> like to know that we just completed the automatic generation of a full, 
+> design-level documentation of the LINUX kernel and associated sub-systems. 
+> This documentation set is made up of hyperlinked graphics and text documents 
+> of all the major subsystems and all of the source code fields and functions 
+> and is organized by complexity and file-system location. It covers the Linux 
+> kernel, memory management, file-system, security, cryptography, 
+> initialization, drivers, architecture and interprocess communication 
+> subsystems. Furthermore, we're offering this for... well free. I just 
+> thought it was something maybe you guys could use. If you would like to view 
+> this information, just go to:
+> 
+> http://www.softwarerevolution.com/jeneral/open-source-docs.html
 
-Patrick McFarland napisa=C5=82(a):
-> On Wednesday 15 June 2005 04:26 am, Lukasz Stelmach wrote:
->=20
->>M=C3=A5ns Rullg=C3=A5rd napisa=C5=82(a):
->>
->>>I use utf-8 exclusively for my filenames (the few that are not 7-bit
->>>ascii).  Forcing others who use the system to do the same would cause
->>>them a lot of trouble, as they must transfer files to and from Windows=
+Firefox does not believe it's HTML:
 
->>>machines that use anything but utf-8.
->>
->>But VFAT (and NTFS???) use unicode, i.e. UTF-16 (???). AFAIK
->=20
-> No, VFAT and NTFS use an 8-bit encoding,
+HTTP/1.0 200 OK
+Date: Wed, 15 Jun 2005 09:16:37 GMT
+Server: Apache-AdvancedExtranetServer/2.0.48 (Mandrake Linux/6.8.100mdk) mod_perl/1.99_11 Perl/v5.8.3 mod_ssl/2.0.48 OpenSSL/0.9.7c PHP/4.3
+ETag: "e86b7-3dae-8308aa80"
+Accept-Ranges: bytes
+Last-Modified: Fri, 10 Jun 2005 23:27:22 GMT
+Content-Length: 15790
+Content-Type: text/plain
+              ^^^^^^^^^^
 
-I meant that they don't use utf-8 but it is still the unicode. I am not
-sure i've made myself clear.
+--
+vda
 
-> Forcing people to use unicode isn't a bad thing btw, especially since
-> it is a culture agnostic encoding that can represent wide characters
-> (eg. from Asian languages) in a uniform manner*, and allowing to use
-> multiple languages (eg. Chinese and Japanese) at once without needing
-> to switch encodings.
-
-Yes. I also think UTF-8 is a good idea, however it is not an ideal one.
-It *preferes* Roman encodings since some Asian characters need even four
-bytes.
-
-IMHO for *every* filesystem there need to be an *option* to:
-
-1. store filenames in utf-8 (that is quite possible today) or any other
-unicode form.
-2. convert them to/from a desired iocharset. I prefere using ISO-8859-2
-on my system for not every tool support utf-8 today (hopefuly yet).
-
-Of course if a user whishes to store filenames in some other encoding
-she should be *able* to do so (that is why i like linux).
-
-Generally. IMHO VFAT is a good example how character encoding needs to
-be handeled.
-
-Best regards.
---=20
-By=C5=82o mi bardzo mi=C5=82o.                    Trzecia pospolita kl=C4=
-=99ska, [...]
->=C5=81ukasz<                      Ju=C5=BC nie katolicka lecz z=C5=82odz=
-iejska.  (c)PP
-
-
---------------enig37E9F98E8E86D70C08B78979
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFCr/GJNdzY8sm9K9wRAq4QAJ9G/89trokYUfnGnKK1a3tK8+N71gCfdGKe
-07A9z9cDldavL+UO45WHhOo=
-=XdgF
------END PGP SIGNATURE-----
-
---------------enig37E9F98E8E86D70C08B78979--

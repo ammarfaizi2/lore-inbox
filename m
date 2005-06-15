@@ -1,65 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261521AbVFOTlD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261530AbVFOTnA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261521AbVFOTlD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 15:41:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261523AbVFOTlC
+	id S261530AbVFOTnA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 15:43:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbVFOTm6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 15:41:02 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:62647 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261521AbVFOTky (ORCPT
+	Wed, 15 Jun 2005 15:42:58 -0400
+Received: from mail.dif.dk ([193.138.115.101]:25296 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S261523AbVFOTlb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 15:40:54 -0400
-Date: Wed, 15 Jun 2005 12:41:39 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Nico Schottelius <nico-kernel@schottelius.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Why is one sync() not enough?
-Message-Id: <20050615124139.6859bf07.akpm@osdl.org>
-In-Reply-To: <20050615105537.GO1467@schottelius.org>
-References: <20050614215032.35d44e93.akpm@osdl.org>
-	<20050615105537.GO1467@schottelius.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 15 Jun 2005 15:41:31 -0400
+Date: Wed, 15 Jun 2005 21:46:53 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: Laurence Culhane <loz@holmes.demon.co.uk>, linux-serial@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] SLIP: simplify sl_free_bufs
+Message-ID: <Pine.LNX.4.62.0506152136310.3842@dragon.hyggekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nico Schottelius <nico-kernel@schottelius.org> wrote:
->
-> Hello Andrew,
-> 
-> you wrote:
-> > What filesystem?
-> 
-> jfs
+We can avoid assignments to the local variable 'tmp' and 
+actually get rid of tmp alltogether in sl_free_bufs(). This patch does 
+that.  This is safe since both kfree() and slhc_free() handles NULL 
+pointers gracefully.
 
-It would be useful to test with a different filesystem (ext3 mounted with
-data=writeback is close to equivalent).  That'll help us identify the bug.
+A related question: Why the use of NULLSLCOMPR & NULLSLSTATE instead of 
+plain NULL for struct slcompress and its members?
+They are defined as 
+	#define NULLSLCOMPR     (struct slcompress *)0
+	#define NULLSLSTATE     (struct cstate *)0
+Seems to me that plain NULL might as well be used (and if so I have a few 
+more potential cleanups in the queue).
 
-> > What kernel version?
-> 
-> 2.6.11.11
-> 
-> > Any unusual bind mounts, loopback
-> > mounts, etc?  There must be something there...>
-> 
-> Yes, dm-crypt-mounted-jfs.
 
-Again, if you can temporarily eliminate dm-crypt as well it will help
-narrow it down.
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+---
 
-> So if I understood everything correctly, a simple umount() without
-> a sync() before should be enough?
+ drivers/net/slip.c |   14 ++++----------
+ 1 files changed, 4 insertions(+), 10 deletions(-)
 
-Yes.
+--- linux-2.6.12-rc6-orig/drivers/net/slip.c	2005-06-07 00:07:22.000000000 +0200
++++ linux-2.6.12-rc6-mm1/drivers/net/slip.c	2005-06-15 21:39:39.000000000 +0200
+@@ -198,18 +198,12 @@ err_exit:
+ static void
+ sl_free_bufs(struct slip *sl)
+ {
+-	void * tmp;
+-
+ 	/* Free all SLIP frame buffers. */
+-	tmp = xchg(&sl->rbuff, NULL);
+-	kfree(tmp);
+-	tmp = xchg(&sl->xbuff, NULL);
+-	kfree(tmp);
++	kfree(xchg(&sl->rbuff, NULL));
++	kfree(xchg(&sl->xbuff, NULL));
+ #ifdef SL_INCLUDE_CSLIP
+-	tmp = xchg(&sl->cbuff, NULL);
+-	kfree(tmp);
+-	if ((tmp = xchg(&sl->slcomp, NULL)) != NULL)
+-		slhc_free(tmp);
++	kfree(xchg(&sl->cbuff, NULL));
++	slhc_free(xchg(&sl->slcomp, NULL));
+ #endif
+ }
+ 
 
-> If so, I'll try that, I am happy about every less function call
-> I need to do.
 
-OK.  sync()+umount() shouldn't take any longer than a bare umount() (which
-has to do a sync too).  Unless you have multiple disks, in which case
-there's no point in syncing the disks which aren't being umounted.  But
-then, I have a feeling that standard util-linux umount(8) does a global
-sync anyway.
+
+Please CC me on replies.
+
+-- 
+Jesper Juhl
+
 

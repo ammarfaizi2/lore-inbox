@@ -1,43 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261594AbVFOV4z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261671AbVFOV6w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261594AbVFOV4z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 17:56:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261677AbVFOVzG
+	id S261671AbVFOV6w (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 17:58:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261617AbVFOVyt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 17:55:06 -0400
-Received: from fmr24.intel.com ([143.183.121.16]:20922 "EHLO
-	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
-	id S261602AbVFOVjS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 17:39:18 -0400
-Message-Id: <200506152139.j5FLd3g26510@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Badari Pulavarty'" <pbadari@us.ibm.com>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       <linux-mm@kvack.org>
-Subject: RE: 2.6.12-rc6-mm1 & 2K lun testing
-Date: Wed, 15 Jun 2005 14:39:03 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcVx1DqgW4QqkdJPQxec/1r8sj8ZMQAHiaDA
-In-Reply-To: <1118856977.4301.406.camel@dyn9047017072.beaverton.ibm.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+	Wed, 15 Jun 2005 17:54:49 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:6369 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261601AbVFOVxV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 17:53:21 -0400
+Date: Wed, 15 Jun 2005 14:53:01 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: serue@us.ibm.com
+Cc: Chris Wright <chrisw@osdl.org>, James Morris <jmorris@redhat.com>,
+       Reiner Sailer <sailer@watson.ibm.com>,
+       LKML <linux-kernel@vger.kernel.org>,
+       LSM <linux-security-module@wirex.com>, Tom Lendacky <toml@us.ibm.com>,
+       Greg KH <greg@kroah.com>, Emily Rattlif <emilyr@us.ibm.com>,
+       Kylene Hall <kylene@us.ibm.com>
+Subject: Re: [PATCH] 3 of 5 IMA: LSM-based measurement code
+Message-ID: <20050615215301.GQ9046@shell0.pdx.osdl.net>
+References: <1118846413.2269.18.camel@secureip.watson.ibm.com> <Xine.LNX.4.44.0506151601310.27162-100000@thoron.boston.redhat.com> <20050615204936.GA3517@serge.austin.ibm.com> <20050615205926.GP9046@shell0.pdx.osdl.net> <20050615215019.GB3660@serge.austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050615215019.GB3660@serge.austin.ibm.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Badari Pulavarty wrote on Wednesday, June 15, 2005 10:36 AM
-> I sniff tested 2K lun support with 2.6.12-rc6-mm1 on
-> my AMD64 box. I had to tweak qlogic driver and
-> scsi_scan.c to see all the luns.
+* serue@us.ibm.com (serue@us.ibm.com) wrote:
+> Quoting Chris Wright (chrisw@osdl.org):
+> > The primary purpose of the hooks is access control.  Some of them, of
+> > course, are helpers to keep labels coherent.  IIRC, James objected
+> > because the measurement data was simply collected from these hooks.
 > 
-> (2.6.12-rc6 doesn't see all the LUNS due to max_lun
-> issue - which is fixed in scsi-git tree).
-> 
-> Test 1:
-> 	run dds on all 2048 "raw" devices - worked
-> great. No issues.
+> Ok, so to be clear, any module which does not directly impose some form
+> of access control is not eligible for an LSM?
 
-Just curious, how many physical disks do you have for this test?
+That's exactly the intention, yes.
 
+thanks,
+-chris

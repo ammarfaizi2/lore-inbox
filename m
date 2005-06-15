@@ -1,77 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261530AbVFOTnA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261528AbVFOTrR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261530AbVFOTnA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 15:43:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbVFOTm6
+	id S261528AbVFOTrR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 15:47:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261531AbVFOTrR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 15:42:58 -0400
-Received: from mail.dif.dk ([193.138.115.101]:25296 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S261523AbVFOTlb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 15:41:31 -0400
-Date: Wed, 15 Jun 2005 21:46:53 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: Laurence Culhane <loz@holmes.demon.co.uk>, linux-serial@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] SLIP: simplify sl_free_bufs
-Message-ID: <Pine.LNX.4.62.0506152136310.3842@dragon.hyggekrogen.localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 15 Jun 2005 15:47:17 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:39697 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261528AbVFOTrJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 15:47:09 -0400
+Date: Wed, 15 Jun 2005 20:46:59 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: "Maciej W. Rozycki" <macro@linux-mips.org>, Russ Anderson <rja@sgi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RCF] Linux memory error handling
+Message-ID: <20050615204659.A14853@flint.arm.linux.org.uk>
+Mail-Followup-To: "Maciej W. Rozycki" <macro@linux-mips.org>,
+	Russ Anderson <rja@sgi.com>, linux-kernel@vger.kernel.org
+References: <200506151430.j5FEUD7J1393603@clink.americas.sgi.com> <Pine.LNX.4.61L.0506151545410.13835@blysk.ds.pg.gda.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.61L.0506151545410.13835@blysk.ds.pg.gda.pl>; from macro@linux-mips.org on Wed, Jun 15, 2005 at 04:26:13PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We can avoid assignments to the local variable 'tmp' and 
-actually get rid of tmp alltogether in sl_free_bufs(). This patch does 
-that.  This is safe since both kfree() and slhc_free() handles NULL 
-pointers gracefully.
+On Wed, Jun 15, 2005 at 04:26:13PM +0100, Maciej W. Rozycki wrote:
+> On Wed, 15 Jun 2005, Russ Anderson wrote:
+> > 	Memory DIMM information & settings:
+> > 
+> > 	    Use a /proc/dimm_info interface to pass DIMM information to Linux.
+> > 	    Hardware vendors could add their hardware specific settings.
+> 
+>  I'd recommend a more generic name rather than "dimm_info" if that is to 
+> be reused universally.
 
-A related question: Why the use of NULLSLCOMPR & NULLSLSTATE instead of 
-plain NULL for struct slcompress and its members?
-They are defined as 
-	#define NULLSLCOMPR     (struct slcompress *)0
-	#define NULLSLSTATE     (struct cstate *)0
-Seems to me that plain NULL might as well be used (and if so I have a few 
-more potential cleanups in the queue).
+Agree.
 
+I'd also suggest that there be some method to tell the kernel from
+architecture code about this "dimm_info" stuff - many embedded
+platforms already know their memory organisation.
 
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
----
-
- drivers/net/slip.c |   14 ++++----------
- 1 files changed, 4 insertions(+), 10 deletions(-)
-
---- linux-2.6.12-rc6-orig/drivers/net/slip.c	2005-06-07 00:07:22.000000000 +0200
-+++ linux-2.6.12-rc6-mm1/drivers/net/slip.c	2005-06-15 21:39:39.000000000 +0200
-@@ -198,18 +198,12 @@ err_exit:
- static void
- sl_free_bufs(struct slip *sl)
- {
--	void * tmp;
--
- 	/* Free all SLIP frame buffers. */
--	tmp = xchg(&sl->rbuff, NULL);
--	kfree(tmp);
--	tmp = xchg(&sl->xbuff, NULL);
--	kfree(tmp);
-+	kfree(xchg(&sl->rbuff, NULL));
-+	kfree(xchg(&sl->xbuff, NULL));
- #ifdef SL_INCLUDE_CSLIP
--	tmp = xchg(&sl->cbuff, NULL);
--	kfree(tmp);
--	if ((tmp = xchg(&sl->slcomp, NULL)) != NULL)
--		slhc_free(tmp);
-+	kfree(xchg(&sl->cbuff, NULL));
-+	slhc_free(xchg(&sl->slcomp, NULL));
- #endif
- }
- 
-
-
-
-Please CC me on replies.
+BTW, Russ, could we have a better description of what information is
+intended to be supplied?
 
 -- 
-Jesper Juhl
-
-
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

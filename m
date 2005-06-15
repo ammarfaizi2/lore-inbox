@@ -1,159 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261463AbVFOObJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261517AbVFOOc2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261463AbVFOObJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 10:31:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261464AbVFOObJ
+	id S261517AbVFOOc2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 10:32:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261488AbVFOOb1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 10:31:09 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:704 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261463AbVFOOaQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 10:30:16 -0400
-From: Russ Anderson <rja@sgi.com>
-Message-Id: <200506151430.j5FEUD7J1393603@clink.americas.sgi.com>
-Subject: [RCF] Linux memory error handling
-To: linux-kernel@vger.kernel.org
-Date: Wed, 15 Jun 2005 09:30:13 -0500 (CDT)
-Cc: rja@sgi.com (Russ Anderson)
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+	Wed, 15 Jun 2005 10:31:27 -0400
+Received: from extgw-uk.mips.com ([62.254.210.129]:58130 "EHLO
+	bacchus.net.dhis.org") by vger.kernel.org with ESMTP
+	id S261487AbVFOOaZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 10:30:25 -0400
+Date: Wed, 15 Jun 2005 15:27:17 +0100
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Finn Thain <fthain@telegraphics.com.au>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Linux/m68k <linux-m68k@vger.kernel.org>,
+       Linux/m68k on Mac <linux-mac68k@mac.linux-m68k.org>,
+       Linux MIPS <linux-mips@vger.kernel.org>,
+       Linux kernel <linux-kernel@vger.kernel.org>,
+       Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: Re: [PATCH] Jazzsonic driver updates
+Message-ID: <20050615142717.GD9411@linux-mips.org>
+References: <200503070210.j272ARii023023@hera.kernel.org> <Pine.LNX.4.62.0503221807160.20753@numbat.sonytel.be> <20050323100139.GB8813@linux-mips.org> <Pine.LNX.4.61.0506121454410.1470@loopy.telegraphics.com.au> <20050615114158.GA9411@linux-mips.org> <Pine.LNX.4.61.0506152220460.22046@loopy.telegraphics.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0506152220460.22046@loopy.telegraphics.com.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-		[RCF] Linux memory error handling.
+On Thu, Jun 16, 2005 at 12:02:33AM +1000, Finn Thain wrote:
 
-Summary: One of the most common hardware failures in a computer 
-	is a memory failure.   There has been efforts in various
-	architectures to support recover from memory errors.  This
-	is an attempt to define a common support infrastructure
-	in Linux to support memory error handling.
+> > The Jazz DMA hardware is an MMU that translates virtual DMA to physical 
+> > addresses.  It's virtual DMA address space is 16MB in size, it's page 
+> > size is 4kB.  That's a set of capabilities that nicely translates into 
+> > the DMA API.
+> 
+> I gather that someone has already put this hardware under the control of 
+> the generic DMA API?
 
-Background:  There has been considerable work on recovering from
-	Machine Check Aborts (MCAs) in arch/ia64.  One result is
-	that many memory errors encountered by user applications
-	not longer cause a kernel panic.  The application is 
-	terminated, but linux and other applications keep running.
-	Additional improvements are becoming dependent on mainline
-	linux support.  That requires involvement of lkml, not
-	just linux-ia64.
+That's being worked on.
 
-Types of memory failures:
+> > > Would I be right to say that vdma_{alloc,free}() can be changed to 
+> > > dma_{,un}map_single? The other Jazz specific routine that sonic uses 
+> > > is vdma_log2phys, and I don't know if that has a better alternative.
+> > 
+> > The use of that call should simply be eleminated entirely.  DMA API
+> > functions such as dma_alloc_coherent or dma_map_single will return a
+> > dma_handle which along with the virtual address returned is everything
+> > ever needed to program a DMA engine.
+> 
+> The sonic chip stores packets inside a "receive resource area" at a 
+> physical address that depends on the packets it previously stored there. 
+> 
+> So the chip determines that address and the driver has to convert it from 
+> a physical to a virtual address with KSEG1ADDR(vdma_log2phys(x)), in order 
+> to memcpy the received packet.
 
-	Memory hardware failures are very hardware implementation 
-	specific, but there are some general characteristics.
+Wrong.  The Sonic only does DMA to DMA addresses which will be translated
+to physical addresses by the IOMMU.  That is it never ever deals with
+physical addresses directly.
 
-	    Corrected errors: Error Correction Codes (ECC) in memory 
-		hardware can correct Single Bit Errors (SBEs).  
+When transmitting or receiving a buffer it has to be mapped into the
+DMA controller's address space first, for example through dma_map_single.
 
-	    Uncorrected errors: Parity errors and Multiple Bit Errors (MBEs)
-		are errors that hardware cannot correct.  In this case the
-		data in memory is no longer valid and cannot be used.
+As the result you will obtain a DMA address which you will feed to the
+Sonic or put into a rx or tx ring, whatever.  And you need to remember it
+in the driver private data, just like the virtual address of the buffer
+or the struct sk_buff pointer.  So all you need is to look at your private
+data to find that virtual address you need for memcpy.
 
-	There are different types of memory errors:
+tg3 is a reasonable example of a driver - albeit not a simple one.
 
-	    Transient errors: The bit showed up bad, but re-reading the
-		data returns the correct data.
+> >From what code I've looked at, and from what you've told me, I'm guessing 
+> that bus_to_virt() won't cut it here (?)
 
-	    Soft errors: A bit in memory has changed state, but the 
-		the underlying memory cell still works.  For example
-		a particle strike can sometimes cause a bit to switch.
-		In this case, re-writing the data corrects the error.
+bus_to_virt and virt_to_bus are shooting offences these days, no less.
 
-	    Hard errors:  The memory storage cell cannot hold the bit.  
-		The underlying memory cell could be stuck at 0 or 1.
-
-	A common question is whether single bit (corrected) errors will 
-	turn into double bit (uncorrected) errors.  The answer is it
-	depends on the underlying cause of the memory error.  There are
-	some errors that show up as single bits, especially transient 
-	and soft errors, that do not degrade over time.  There are other
-	failures that do degrade over time.  The details of the memory
-	technology are implementation specific and too detailed for
-	this discussion.
-
-Handling memory errors:
-
-	Some memory error handling functionality is common to
-	most architectures.
-
-	Corrected error handling:
-
-	    Logging:  When ECC hardware corrects a Single Bit Error (SBE),
-		an interrupt is generated to inform linux that there is 
-		a corrected error record available for logging.
-
-	    Polling Threshold:  A solid single bit error can cause a burst
-		of correctable errors that can cause a significant logging
-		overhead.  SBE thresholding counts the number of SBEs for
-		a given page and if too many SBEs are detected in a given
-		period of time, the interrupt is disabled and instead 
-		linux periodically polls for corrected errors.
-
-	    Data Migration:  If a page of memory has too many single bit
-		errors, it may be prudent to move the data off that
-		physical page before the correctable SBE turns into an
-		uncorrectable MBE. 
-
-	    Memory handling parameters:
-
-		Since memory failure modes are due to specific DIMM
-		failure characteristics, there is will be no way to 
-		reach agreement on one set of thresholds that will
-		be appropriate for all configurations.  Therefore there
-		needs to be a way to modify the thresholds.  One alternative
-		is a /proc/sys/kernel/ interface to control settings, such
-		as polling thresholds.  That provides an easy standard
-		way of modifying thresholds to match the characteristics
-		of the specific DIMM type.
-
-	Uncorrected error handling:
-
-	    Kill the application:  One recovery technique to avoid a kernel
-		panic when an application process hits an uncorrectable 
-		memory error is to SIGKILL the application.  The page is 
-		marked PG_reserved to avoid re-use.  A (new) PG_hard_error
-		flag would be useful to indicate that the physical page has
-		a hard memory error.
-
-	    Disable memory for next reboot:  When a hard error is detected,
-		notify SAL/BIOS of the bad physical memory.  SAL/BIOS can
-		save the bad addresses and, when building the EFI map after
-		reset/reboot, mark the bad pages as EFI_UNUSABLE_MEMORY,
-		and type = 0, so Linux will ignore granules contains these 
-		pages.
-
-	    Dumping:  Dump programs should not try to dump pages with bad
-		memory.  A PG_hard_error flag would indicate to dump
-		programs which pages have bad memory.
-
-	Memory DIMM information & settings:
-
-	    Use a /proc/dimm_info interface to pass DIMM information to Linux.
-	    Hardware vendors could add their hardware specific settings.
-
-Linux infrastructure:
-
-	Some infrastructure that could be added to linux that would be
-	useful to various architectures.
-
-	Page Flags:  When a page is discarded, PG_reserved is set so that the
-		page is no longer used.  A PG_hard_error flag could be added
-		to indicate the physical page has bad memory.
-
-	/proc interfaces:  Use /proc interfaces to change thresholds and
-		pass information to/from BIOS/SAL.  
-
-	Pseudo task switching:  Some architectures signal memory errors via
-		non maskable interrupts, with unusual calling sequences into
-		the OS.  It is often easier to process these non-maskable
-		errors on a stack that is separate from the normal kernel
-		stacks.  This requires non-blocking scheduler interfaces
-		to obtain the current running task, to modify the pointer
-		to the current running task and to reset that pointer when
-		the memory error has been processed.
-
--- 
-Russ Anderson, OS RAS/Partitioning Project Lead  
-SGI - Silicon Graphics Inc          rja@sgi.com
+  Ralf

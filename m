@@ -1,52 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261379AbVFOMcb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261434AbVFOMlD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261379AbVFOMcb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 08:32:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261434AbVFOMcb
+	id S261434AbVFOMlD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 08:41:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261435AbVFOMlD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 08:32:31 -0400
-Received: from relay02.roc.ny.frontiernet.net ([66.133.182.165]:1936 "EHLO
-	relay02.roc.ny.frontiernet.net") by vger.kernel.org with ESMTP
-	id S261379AbVFOMc1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 08:32:27 -0400
-Message-ID: <42B02004.6020306@xfs.org>
-Date: Wed, 15 Jun 2005 07:33:08 -0500
-From: Stephen Lord <lord@xfs.org>
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.3 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Prarit Bhargava <prarit@sgi.com>
-Cc: =?ISO-8859-1?Q?Pozs=E1r_Bal=E1zs?= <pozsy@uhulinux.hu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Race condition in module load causing undefined symbols
-References: <42AAE5C8.9060609@xfs.org> <20050611150525.GI17639@ojjektum.uhulinux.hu> <42AB25E7.5000405@xfs.org> <20050611120040.084942ed.akpm@osdl.org> <42AEDCFB.8080002@xfs.org> <42AEF979.2000207@cybsft.com> <42AF080A.1000307@xfs.org> <42AF0FA2.2050407@cybsft.com> <42AF165E.1020702@xfs.org> <42AF2088.3090605@sgi.com> <20050614205933.GC7082@ojjektum.uhulinux.hu> <42B010C0.90707@sgi.com>
-In-Reply-To: <42B010C0.90707@sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 15 Jun 2005 08:41:03 -0400
+Received: from h80ad267a.async.vt.edu ([128.173.38.122]:56585 "EHLO
+	h80ad267a.async.vt.edu") by vger.kernel.org with ESMTP
+	id S261434AbVFOMky (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 08:40:54 -0400
+Message-Id: <200506151240.j5FCeO6l027298@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Serge Noiraud <serge.noiraud@bull.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: RT : nvidia driver and perhaps others 
+In-Reply-To: Your message of "Wed, 15 Jun 2005 10:21:45 +0200."
+             <1118823704.10717.129.camel@ibiza.btsn.frna.bull.fr> 
+From: Valdis.Kletnieks@vt.edu
+References: <1118823704.10717.129.camel@ibiza.btsn.frna.bull.fr>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1118839223_11523P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Wed, 15 Jun 2005 08:40:23 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Prarit Bhargava wrote:
+--==_Exmh_1118839223_11523P
+Content-Type: text/plain; charset=us-ascii
+
+On Wed, 15 Jun 2005 10:21:45 +0200, Serge Noiraud said:
+
+> 	I try to compile the nvidia driver for my RT kernel.
+> It does not work anymore.
+
+You aren't going to get much sympathy here on that one...:)
+
+> Isn't there a better way to avoid these modifications ?
+> for example to have the external fonction the same than non RT kernel.
+> and have an internal link to the new one or something like that ?
+
+However, he *does* have a point here - GPL'ed out-of-tree drivers will
+have these same issues.  Yes, I know the standard "get them into the tree"
+refrain here...
+
+> These drivers are proprietary, so I can't modify them.
+
+Fortunately, NVidia supplies enough pieces to make things work..
+
+> I think we should change :
 > 
-> If you're using bash, I would suggest starting with an update of the 
-> bash package.
-> 
-> It's interesting to note that Steve also needed to update his udev 
-> package. Steve, IIRC you were using Fedora 3/4?
-> 
-> P.
-> 
+> 1 - local_irq_* to raw_local_irq_*  : is it always true ?
 
-I am running an updated Fedora Core 3 - on both machines which have the
-problem. I used rpms from Fedora Core 4 to update the system, this led
-to a chain of updates, mkinitrd, udev, initscripts and a few others
-with cross dependencies.
+> 2 - spin_* to raw_spin_*  ?
 
-Still puzzled about what could have been fixed in user space since this
-appears to affect more than one shell. Module loading appears to be
-very synchronous, so unless the shell was not waiting for exit status
-on children correctly, it seems hard to explain in user space.
+Ingo et al - what *is* the recommended magic to make a driver compile and
+work cleanly with or without RT?  Hopefully there's a simple "will work correctly,
+but possibly sub-optimal latency" cookbook scheme....
 
-Steve
+> and other in two files ... too many modifications.
+
+The C preprocessor is your friend - we *should* be able to make a change in one .h
+like '#ifdef SOME_RT_FLAG .. #else ... #endif' to do most of the work...
 
 
+--==_Exmh_1118839223_11523P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFCsCG2cC3lWbTT17ARAtSIAJ9gZcnrLb2m3SJ/02VXE0ldO+Hm7gCguhfH
+2wHxwAKtFi8l2aV8wop9IUI=
+=y4lu
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1118839223_11523P--

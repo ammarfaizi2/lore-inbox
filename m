@@ -1,45 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261243AbVFORYs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261238AbVFORae@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261243AbVFORYs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 13:24:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261238AbVFORXT
+	id S261238AbVFORae (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 13:30:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261240AbVFORae
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 13:23:19 -0400
-Received: from mxsf11.cluster1.charter.net ([209.225.28.211]:22990 "EHLO
-	mxsf11.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S261237AbVFORUV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 13:20:21 -0400
-X-IronPort-AV: i="3.93,201,1115006400"; 
-   d="scan'208"; a="1184450307:sNHT18003156"
-Subject: Re: via-rhine broken in 2.6.12-rc6 and 2.6.11 stable
-From: Avery Fay <avery@ravencode.com>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <1118854779.3107.7.camel@localhost.localdomain>
-References: <1118854779.3107.7.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Wed, 15 Jun 2005 13:20:16 -0400
-Message-Id: <1118856017.2987.1.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+	Wed, 15 Jun 2005 13:30:34 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:57245 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S261238AbVFORa2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 13:30:28 -0400
+Message-ID: <42B067BD.F4526CD@tv-sign.ru>
+Date: Wed, 15 Jun 2005 21:39:09 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] Race condition with it_real_fn in kernel/itimer.c
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nevermind about the stable kernel part. For some reason, my symbolic
-links were not getting updated right. But it definitely doesn't work on
-2.6.12-rc6 and it's definitely related to vmware. Is this something that
-vmware needs to fix?
+Steven Rostedt wrote:
+>
+> +	try_again:
+>  		spin_lock_irq(&tsk->sighand->siglock);
+>  		interval = tsk->signal->it_real_incr;
+>  		val = it_real_value(tsk->signal);
+> -		if (val)
+> +		if (val) {
+> +			spin_unlock_irq(&tsk->sighand->siglock);
+>  			del_timer_sync(&tsk->signal->real_timer);
+> +			goto try_again;
 
-On Wed, 2005-06-15 at 12:59 -0400, Avery Fay wrote:
-> Hello,
-> 
-> I just upgraded to the latest Debian release of 2.6.11. via-rhine
-> breaks. I also tried 2.6.12-rc6 and it's broken too. A few notes:
-> 
-> 1.) this is an Averatec 3225hs laptop
-> 2.) I'm using vmware too w/vmnet module
-> 3.) Worked on previous 2.6.11 debian releases
-> 4.) when i bring this interface up, i'm also enabling nat
+I think we don't need del_timer_sync() at all, just del_timer().
 
--- 
-Avery Fay <avery@ravencode.com>
+Because it_real_value() returns 0 when timer is not pending. And
+in this case the timer may still be running, but do_setitimer()
+doesn't call del_timer_sync().
+
+Oleg.

@@ -1,69 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261465AbVFOBO0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261469AbVFOBQP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261465AbVFOBO0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 21:14:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261464AbVFOBOT
+	id S261469AbVFOBQP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 21:16:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261462AbVFOBQO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 21:14:19 -0400
-Received: from mail13.syd.optusnet.com.au ([211.29.132.194]:14316 "EHLO
-	mail13.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261462AbVFOBOJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 21:14:09 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 14 Jun 2005 21:16:14 -0400
+Received: from smtpout.mac.com ([17.250.248.73]:16099 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S261469AbVFOBP6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Jun 2005 21:15:58 -0400
+In-Reply-To: <BAY108-F279928792F980CAFB2AEDCDF20@phx.gbl>
+References: <BAY108-F279928792F980CAFB2AEDCDF20@phx.gbl>
+Mime-Version: 1.0 (Apple Message framework v728)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <8BE994F9-CC13-4900-AFBC-EDC384D38250@mac.com>
+Cc: linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7bit
-Message-ID: <17071.32978.176262.634056@wombat.chubb.wattle.id.au>
-Date: Wed, 15 Jun 2005 11:13:54 +1000
-From: Peter Chubb <peterc@gelato.unsw.edu.au>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: Peter Chubb <peterc@gelato.unsw.edu.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andreas Hirstius <Andreas.Hirstius@cern.ch>
-Subject: Re: Tuning ext3 for large disk arrays
-In-Reply-To: <1118794936.4301.363.camel@dyn9047017072.beaverton.ibm.com>
-References: <17071.25351.996975.416810@wombat.chubb.wattle.id.au>
-	<1118794936.4301.363.camel@dyn9047017072.beaverton.ibm.com>
-X-Mailer: VM 7.17 under 21.4 (patch 17) "Jumbo Shrimp" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Design Level Documentation for the Linux kernel (V2.6)
+Date: Tue, 14 Jun 2005 21:15:48 -0400
+To: Nick Newcomb <nranewcomb@hotmail.com>
+X-Mailer: Apple Mail (2.728)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Badari" == Badari Pulavarty <pbadari@us.ibm.com> writes:
+On Jun 14, 2005, at 20:34:26, Nick Newcomb wrote:
+> http://www.softwarerevolution.com/jeneral/open-source-docs.html
 
-Badari> What kernel are you running ?  Does the kernel has ext3
-Badari> "reservation" support enabled ? 
-2.6.11, and yes, although it's not set in the mount options.
+This looks really nice, and I can load the SVG images just fine, but  
+could
+you use something other than image maps?  They seem to give my favorite
+browsers (OmniWeb and Safari on Mac OS X) some sort of heartburn.  Other
+than that this looks really awesome!  Thanks!
 
+Cheers,
+Kyle Moffett
 
-Badari> Do you see performance problem
-Badari> with "read" tests also ? 
+Somone asked my why I work on this free (http://www.fsf.org/philosophy/)
+software stuff and not get a real job. Charles Shultz had the best  
+answer:
 
-Yes.
+"Why do musicians compose symphonies and poets write poems? They do it
+because life wouldn't have any meaning for them if they didn't.  
+That's why
+I draw cartoons. It's my life." -- Charles Shultz
 
-Badari> And also, does the write test writes
-Badari> to multiple files in the same directory ? Or multiple threads
-Badari> writing to same file ?
-
-It's standard iozone --- mutliple processes writing to multiple files in
-the same directory.
-
-All the mount options are the defaults.
-
-A sample test is:
-
-mdadm -Ss
-mdadm -C /dev/md0 -l 0 -c 1024 -n 2 -R  /dev/sdc /dev/sdk 
-mke2fs -j  /dev/md0 
-mount /dev/md0 /shift/oplapro97/data01
-cd /shift/oplapro97/data01
-iozone -MCew -t1 -f IOZONE -s32g -r256k -i0 -i1 > ~/tests/unsw_ext3/iozone_2_disk_1stream_ext3
-rm -rf /shift/oplapro97/data01/*
-iozone -MCew -t2 -f IOZONE -s32g -r256k -i0 -i1 > ~/tests/unsw_ext3/iozone_2_disk_2stream_ext3
-
-
--- 
-Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
-The technical we do immediately,  the political takes *forever*

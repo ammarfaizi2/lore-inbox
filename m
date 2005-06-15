@@ -1,53 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261454AbVFOAus@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261455AbVFOAwN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261454AbVFOAus (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 20:50:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261455AbVFOAus
+	id S261455AbVFOAwN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 20:52:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261456AbVFOAwM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 20:50:48 -0400
-Received: from smtp-auth.no-ip.com ([8.4.112.95]:3560 "HELO
-	smtp-auth.no-ip.com") by vger.kernel.org with SMTP id S261454AbVFOAun
+	Tue, 14 Jun 2005 20:52:12 -0400
+Received: from one.firstfloor.org ([213.235.205.2]:55015 "EHLO
+	one.firstfloor.org") by vger.kernel.org with ESMTP id S261455AbVFOAwB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 20:50:43 -0400
-From: dagit@codersbase.com
-To: Pavel Machek <pavel@suse.cz>
-Cc: Shaohua Li <shaohua.li@intel.com>, stefandoesinger@gmx.at,
-       acpi-dev <acpi-devel@lists.sourceforge.net>,
-       Matthew Garrett <mjg59@srcf.ucam.org>,
+	Tue, 14 Jun 2005 20:52:01 -0400
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Bob Picco <bob.picco@hp.com>, Andrew Morton <akpm@osdl.org>,
        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: S3 test tool (was : Re: Bizarre oops after suspend to RAM (was:
- Re: [ACPI] Resume from Suspend to RAM))
-References: <200506061531.41132.stefandoesinger@gmx.at>
-	<1118125410.3828.12.camel@linux-hp.sh.intel.com>
-	<87ll5diemh.fsf@www.codersbase.com> <20050614090652.GA1863@elf.ucw.cz>
-	<87aclthr7l.fsf@www.codersbase.com> <20050614213728.GB2172@elf.ucw.cz>
-	<87u0k061jx.fsf@www.codersbase.com> <20050614220911.GD2172@elf.ucw.cz>
-	<87oea860rl.fsf@www.codersbase.com> <20050614231115.GE2172@elf.ucw.cz>
-	<87ekb45u5a.fsf@www.codersbase.com>
-Organization: Coders' Base
-Date: Tue, 14 Jun 2005 17:50:41 -0700
-In-Reply-To: <87ekb45u5a.fsf@www.codersbase.com> (dagit@codersbase.com's
- message of "Tue, 14 Jun 2005 17:41:05 -0700")
-Message-ID: <87acls5tpa.fsf@www.codersbase.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+Subject: Re: Fwd: hpet patches
+References: <88056F38E9E48644A0F562A38C64FB6004F7837A@scsmsx403.amr.corp.intel.com>
+	<9e47339105061416365f4cd1eb@mail.gmail.com>
+From: Andi Kleen <ak@muc.de>
+Date: Wed, 15 Jun 2005 02:51:55 +0200
+In-Reply-To: <9e47339105061416365f4cd1eb@mail.gmail.com> (Jon Smirl's
+ message of "Tue, 14 Jun 2005 19:36:42 -0400")
+Message-ID: <m1slzka1ck.fsf@muc.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-REPORT-SPAM-TO: abuse@no-ip.com
-X-NO-IP: codersbase.com@noip-smtp
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> As for check about the push alone causing the reboot, I removed the
-> pop, and it still reboots, but to me that doesn't say that it's the
-> push that does it.  It could be the next line.  I'll try to put in an
-> infinite loop.
+Jon Smirl <jonsmirl@gmail.com> writes:
 
-I added a loop "jmp ." right after the pushl and the machine still
-reboots.  So the pushl does cause the reboot.
+> On 6/14/05, Pallipadi, Venkatesh <venkatesh.pallipadi@intel.com> wrote:
+>> HPET device itself can be there. But, it can appear in different
+>> addresses. Most commonly used address is 0xfed00000. But, it can be
+>> different as well.
+>
+> Does Intel build different versions of something like an 82801EB with
+> the HPET at different addresses and still have the same part number?
 
-Hopefully, you can show me how to move the stack and I will try that
-as well.
+Sometimes the address can be configured in the chipset and HPET also
+be disabled. So the only reliable way would be to check the chipset 
+registers for each chipset. Unfortunately some are undocumented
+(e.g. i've been trying to figure that out for Nvidia for quite some time
+to no avail :/) 
 
-Thanks,
-Jason
-
+-Andi

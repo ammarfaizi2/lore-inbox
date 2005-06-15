@@ -1,54 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261216AbVFOQwa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261221AbVFOQyQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261216AbVFOQwa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 12:52:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261220AbVFOQwa
+	id S261221AbVFOQyQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 12:54:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261226AbVFOQyP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 12:52:30 -0400
-Received: from mail1.kontent.de ([81.88.34.36]:13734 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S261216AbVFOQw2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 12:52:28 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: Wakko Warner <wakko@animx.eu.org>
-Subject: Re: Problem found: kaweth fails to work on 2.6.12-rc[456]
-Date: Wed, 15 Jun 2005 18:52:25 +0200
-User-Agent: KMail/1.8
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <20050612004136.GA8107@animx.eu.org> <200506151330.02486.oliver@neukum.org> <20050615165358.GA10993@animx.eu.org>
-In-Reply-To: <20050615165358.GA10993@animx.eu.org>
+	Wed, 15 Jun 2005 12:54:15 -0400
+Received: from loopy.telegraphics.com.au ([202.45.126.152]:58327 "EHLO
+	loopy.telegraphics.com.au") by vger.kernel.org with ESMTP
+	id S261220AbVFOQx1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 12:53:27 -0400
+Date: Thu, 16 Jun 2005 02:53:22 +1000 (EST)
+From: Finn Thain <fthain@telegraphics.com.au>
+To: Ralf Baechle <ralf@linux-mips.org>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Linux/m68k <linux-m68k@vger.kernel.org>,
+       Linux/m68k on Mac <linux-mac68k@mac.linux-m68k.org>,
+       Linux MIPS <linux-mips@vger.kernel.org>,
+       Linux kernel <linux-kernel@vger.kernel.org>,
+       Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: Re: [PATCH] Jazzsonic driver updates
+In-Reply-To: <20050615142717.GD9411@linux-mips.org>
+Message-ID: <Pine.LNX.4.61.0506160218310.24328@loopy.telegraphics.com.au>
+References: <200503070210.j272ARii023023@hera.kernel.org>
+ <Pine.LNX.4.62.0503221807160.20753@numbat.sonytel.be> <20050323100139.GB8813@linux-mips.org>
+ <Pine.LNX.4.61.0506121454410.1470@loopy.telegraphics.com.au>
+ <20050615114158.GA9411@linux-mips.org> <Pine.LNX.4.61.0506152220460.22046@loopy.telegraphics.com.au>
+ <20050615142717.GD9411@linux-mips.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506151852.25582.oliver@neukum.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mittwoch, 15. Juni 2005 18:53 schrieb Wakko Warner:
-> Oliver Neukum wrote:
-> > > I meant I didn't know the name to number translation.
-> > 
-> > Sorry, ENOENT.
-> 
-> Ok.
-> 
-> > > For the next tests, I think it would be best to remove the 3 printks I added
-> > > to show beginning, u->status, and ending.  Spews too much stuff =)
-> > 
-> > Please do so and try removing and reattaching the cable.
-> 
-> I removed the printks that were spewing lines that are now no longer useful. 
-> I left the ones that are in the block for the if statement.   There is no
-> change when I unplug and replug the ethernet cable.  The link light on the
-> device does go off.  Is it possible that the hardware cannot report link
-> state?
 
-It is unfortunately possible. It is even more unfortunately a violation
-of the specifications I've got from the manifacturer. Even worse, I don't
-know which devices have a working link detection and which don't.
-This means that I'll make a patch disabling it for all for the time being.
 
-	Regards
-		Oliver
+On Wed, 15 Jun 2005, Ralf Baechle wrote:
+
+> On Thu, Jun 16, 2005 at 12:02:33AM +1000, Finn Thain wrote:
+> 
+> > > The Jazz DMA hardware is an MMU that translates virtual DMA to 
+> > > physical addresses.  It's virtual DMA address space is 16MB in size, 
+> > > it's page size is 4kB.  That's a set of capabilities that nicely 
+> > > translates into the DMA API.
+> > 
+> > I gather that someone has already put this hardware under the control 
+> > of the generic DMA API?
+> 
+> That's being worked on.
+
+OK, I guess I should code for it then. It is difficult to avoid converting 
+the sonic core to the DMA API if I'm going to adopt it for macsonic. It 
+just means that my changes to jazzsonic can't be tested yet, and so my 
+work will remain out-of-tree.
+
+> > > > Would I be right to say that vdma_{alloc,free}() can be changed to 
+> > > > dma_{,un}map_single? The other Jazz specific routine that sonic 
+> > > > uses is vdma_log2phys, and I don't know if that has a better 
+> > > > alternative.
+> > > 
+> > > The use of that call should simply be eleminated entirely.  DMA API 
+> > > functions such as dma_alloc_coherent or dma_map_single will return a 
+> > > dma_handle which along with the virtual address returned is 
+> > > everything ever needed to program a DMA engine.
+> > 
+> > The sonic chip stores packets inside a "receive resource area" at a 
+> > physical address that depends on the packets it previously stored 
+> > there.
+> > 
+> > So the chip determines that address and the driver has to convert it 
+> > from a physical to a virtual address with KSEG1ADDR(vdma_log2phys(x)), 
+> > in order to memcpy the received packet.
+> 
+> Wrong.  The Sonic only does DMA to DMA addresses which will be 
+> translated to physical addresses by the IOMMU.  That is it never ever 
+> deals with physical addresses directly.
+
+OK.
+
+> When transmitting or receiving a buffer it has to be mapped into the DMA 
+> controller's address space first, for example through dma_map_single.
+> 
+> As the result you will obtain a DMA address which you will feed to the 
+> Sonic or put into a rx or tx ring, whatever.  And you need to remember 
+> it in the driver private data, just like the virtual address of the 
+> buffer or the struct sk_buff pointer.  So all you need is to look at 
+> your private data to find that virtual address you need for memcpy.
+
+Not quite. The virtual address you are talking about is the beginning of 
+the receive resource area, which is mapped as you describe. But, the chip 
+then decides where in that area the recieved packet gets buffered, and the 
+chip reports the address of that packet as a pointer. And this is why 
+vdma_log2phys is used to convert the location of the packet (in IOMMU 
+virtual address space) into CPU virtual address where the packet can be 
+found by memcpy. And that is why I was asking for an alternative to 
+vdma_log2phys. But I think calculating the offset of the packet with some 
+IOMMU virtual pointer arithmetic will suffice in this case, since the 
+initial mapping is probably going to be linear.
+
+-f
+
+> tg3 is a reasonable example of a driver - albeit not a simple one.
+> 
+> > >From what code I've looked at, and from what you've told me, I'm guessing 
+> > that bus_to_virt() won't cut it here (?)
+> 
+> bus_to_virt and virt_to_bus are shooting offences these days, no less.
+> 
+>   Ralf
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-mips" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 

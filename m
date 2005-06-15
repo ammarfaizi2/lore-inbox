@@ -1,60 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261384AbVFOLoy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261373AbVFOLoQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261384AbVFOLoy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 07:44:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261379AbVFOLoy
+	id S261373AbVFOLoQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 07:44:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261400AbVFOLoQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 07:44:54 -0400
-Received: from ojjektum.uhulinux.hu ([62.112.194.64]:14558 "EHLO
-	ojjektum.uhulinux.hu") by vger.kernel.org with ESMTP
-	id S261400AbVFOLo1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 07:44:27 -0400
-Date: Wed, 15 Jun 2005 13:43:25 +0200
-From: =?iso-8859-1?Q?Pozs=E1r_Bal=E1zs?= <pozsy@uhulinux.hu>
-To: Prarit Bhargava <prarit@sgi.com>
-Cc: Steve Lord <lord@xfs.org>, "K.R. Foley" <kr@cybsft.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       rusty@rustcorp.com.au
-Subject: Re: Race condition in module load causing undefined symbols
-Message-ID: <20050615114325.GG20567@ojjektum.uhulinux.hu>
-References: <42AEDCFB.8080002@xfs.org> <42AEF979.2000207@cybsft.com> <42AF080A.1000307@xfs.org> <42AF0FA2.2050407@cybsft.com> <42AF165E.1020702@xfs.org> <42AF2088.3090605@sgi.com> <20050614205933.GC7082@ojjektum.uhulinux.hu> <42B010C0.90707@sgi.com> <20050615113423.GF20567@ojjektum.uhulinux.hu> <42B0127A.4000309@sgi.com>
+	Wed, 15 Jun 2005 07:44:16 -0400
+Received: from lyle.provo.novell.com ([137.65.81.174]:45204 "EHLO
+	lyle.provo.novell.com") by vger.kernel.org with ESMTP
+	id S261373AbVFOLlm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 07:41:42 -0400
+Message-Id: <s2afbf95.067@lyle.provo.novell.com>
+X-Mailer: Novell GroupWise Internet Agent 6.5.4 Beta
+Date: Wed, 15 Jun 2005 05:41:47 -0600
+From: "Jan Beulich" <JBeulich@novell.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: [PATCH]
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <42B0127A.4000309@sgi.com>
-User-Agent: Mutt/1.5.7i
+Content-Type: multipart/mixed; boundary="=__Part62419DEB.0__="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 15, 2005 at 07:35:22AM -0400, Prarit Bhargava wrote:
-> Pozsár Balázs wrote:
-> 
-> >>If you're using bash, I would suggest starting with an update of the bash 
-> >>package.
-> >
-> >
-> >Well, I'm using 3.0 and afaik there's no newer version, but I don't 
-> >think this is the problem either.
-> >
-> >Exactlywhat modifications have to be made and to what to work around 
-> >this kernel regression?
-> >
-> 
-> Just to be clear, this isn't a kernel regression -- it's a problem with 
-> packages ;).
+This is a MIME message. If you are reading this text, you may want to 
+consider changing to a mail reader or gateway that understands how to 
+properly handle MIME multipart messages.
 
-Let me this very clear: I've got a few initscripts written in bash, 
-which load some modules.
-These are very basic and trivial straightforward, basically some
-"modprobe whatever".
+--=__Part62419DEB.0__=
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+(Note: Patch also attached because the inline version is certain to get
+line wrapped.)
+
+When significant delays happen during boot (e.g. with a kernel debugger, =
+but
+the problem has also seen in other cases) the timeout for blanking the
+console may trigger, but the work scheduler may not have been initialized,
+yet. This previously led to a page fault due to a NULL pointer access.
+
+Signed-off-by: Jan Beulich <jbeulich@novell.com>
+
+diff -Npru linux-2.6.12-rc6.base/drivers/char/vt.c linux-2.6.12-rc6/drivers=
+/char/vt.c
+--- linux-2.6.12-rc6.base/drivers/char/vt.c	2005-06-15 13:24:51.0000000=
+00 +0200
++++ linux-2.6.12-rc6/drivers/char/vt.c	2005-06-15 13:30:39.933774576 =
++0200
+@@ -2867,6 +2867,10 @@ void unblank_screen(void)
+  */
+ static void blank_screen_t(unsigned long dummy)
+ {
++	if (unlikely(!keventd_up())) {
++		mod_timer(&console_timer, jiffies + blankinterval);
++		return;
++	}
+ 	blank_timer_expired =3D 1;
+ 	schedule_work(&console_work);
+ }
 
 
-All works fine with 2.6.9.
-It does not work properly with 2.6.12-rc5.
-This is a regression.
 
+--=__Part62419DEB.0__=
+Content-Type: text/plain; name="linux-2.6.12-rc6-blank-timeout.patch"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: attachment; filename="linux-2.6.12-rc6-blank-timeout.patch"
 
+(Note: Patch also attached because the inline version is certain to get
+line wrapped.)
 
--- 
-pozsy
+When significant delays happen during boot (e.g. with a kernel debugger, but
+the problem has also seen in other cases) the timeout for blanking the
+console may trigger, but the work scheduler may not have been initialized,
+yet. This previously led to a page fault due to a NULL pointer access.
+
+Signed-off-by: Jan Beulich <jbeulich@novell.com>
+
+diff -Npru linux-2.6.12-rc6.base/drivers/char/vt.c linux-2.6.12-rc6/drivers/char/vt.c
+--- linux-2.6.12-rc6.base/drivers/char/vt.c	2005-06-15 13:24:51.000000000 +0200
++++ linux-2.6.12-rc6/drivers/char/vt.c	2005-06-15 13:30:39.933774576 +0200
+@@ -2867,6 +2867,10 @@ void unblank_screen(void)
+  */
+ static void blank_screen_t(unsigned long dummy)
+ {
++	if (unlikely(!keventd_up())) {
++		mod_timer(&console_timer, jiffies + blankinterval);
++		return;
++	}
+ 	blank_timer_expired = 1;
+ 	schedule_work(&console_work);
+ }
+
+--=__Part62419DEB.0__=--

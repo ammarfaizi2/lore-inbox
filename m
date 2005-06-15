@@ -1,47 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261469AbVFOBQP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261462AbVFOBSF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261469AbVFOBQP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 21:16:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261462AbVFOBQO
+	id S261462AbVFOBSF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 21:18:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261467AbVFOBSF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 21:16:14 -0400
-Received: from smtpout.mac.com ([17.250.248.73]:16099 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S261469AbVFOBP6 (ORCPT
+	Tue, 14 Jun 2005 21:18:05 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:6346 "EHLO e34.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261462AbVFOBQ2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 21:15:58 -0400
-In-Reply-To: <BAY108-F279928792F980CAFB2AEDCDF20@phx.gbl>
-References: <BAY108-F279928792F980CAFB2AEDCDF20@phx.gbl>
-Mime-Version: 1.0 (Apple Message framework v728)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <8BE994F9-CC13-4900-AFBC-EDC384D38250@mac.com>
-Cc: linux-kernel@vger.kernel.org
+	Tue, 14 Jun 2005 21:16:28 -0400
+Subject: Re: Tuning ext3 for large disk arrays
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Peter Chubb <peterc@gelato.unsw.edu.au>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andreas Hirstius <Andreas.Hirstius@cern.ch>
+In-Reply-To: <17071.25351.996975.416810@wombat.chubb.wattle.id.au>
+References: <17071.25351.996975.416810@wombat.chubb.wattle.id.au>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1118796785.4301.368.camel@dyn9047017072.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 14 Jun 2005 17:53:05 -0700
 Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: Design Level Documentation for the Linux kernel (V2.6)
-Date: Tue, 14 Jun 2005 21:15:48 -0400
-To: Nick Newcomb <nranewcomb@hotmail.com>
-X-Mailer: Apple Mail (2.728)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jun 14, 2005, at 20:34:26, Nick Newcomb wrote:
-> http://www.softwarerevolution.com/jeneral/open-source-docs.html
+On Tue, 2005-06-14 at 16:06, Peter Chubb wrote:
+> Hi folks,
+>    We've been doing a few scalability measurements on disk arrays.  We
+> know how to tune xfs to give reasonable performance.  But I'm not sure
+> how to tune ext3, and the default parameters give poor performance.
+> 
+> See http://scalability.gelato.org/DiskScalability/Results for the
+> graphs.
+> 
+> iozone for 24 10k SATA disks spread across 3 3ware controllers gives a
+> peak read throughput on XFS of around 1050M/sec; but ext3 conks out
+> at around half that.  The maximum single threaded read performance we
+> got was 450M/sec, and it's pretty constant from 12 through 24
+> spindles.  We see no difference between setting -E stride=XX and
+> leaving this parameter off.
+> 
+> The system uses 64k pages; we can set XFS up with 64k blocks; it may
+> be that part of the problem is that ext3 can't use larger blocks.  We
+> repeated the XFs measurements configuring the kernel and filesystem to
+> use 4k pages/blocks, and although the throughput is lower than with
+> the 64k page size, it's still significantly better than with ext3.
+> Moreover, configuring XFS with 4k blocks, but using 64k pages gives
+> results (not shown on the Wiki page) almost the same as the 64k
+> pages/64k blocks.
+> 
 
-This looks really nice, and I can load the SVG images just fine, but  
-could
-you use something other than image maps?  They seem to give my favorite
-browsers (OmniWeb and Safari on Mac OS X) some sort of heartburn.  Other
-than that this looks really awesome!  Thanks!
+Ted mentioned that you can force ext3 mkfs to use "64k" as blocksize
+through "-b 65536" option.
 
-Cheers,
-Kyle Moffett
+And also, while using 64K blocksize - can you compare performance with
+other mount options like: "writeback" and  "nobh,writeback" ? 
+I am curious.
 
-Somone asked my why I work on this free (http://www.fsf.org/philosophy/)
-software stuff and not get a real job. Charles Shultz had the best  
-answer:
+Thanks,
+Badari
 
-"Why do musicians compose symphonies and poets write poems? They do it
-because life wouldn't have any meaning for them if they didn't.  
-That's why
-I draw cartoons. It's my life." -- Charles Shultz
+
 

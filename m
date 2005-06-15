@@ -1,73 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261398AbVFOLPV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261405AbVFOLPf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261398AbVFOLPV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 07:15:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261405AbVFOLPV
+	id S261405AbVFOLPf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 07:15:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261407AbVFOLPf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 07:15:21 -0400
-Received: from animx.eu.org ([216.98.75.249]:12697 "EHLO animx.eu.org")
-	by vger.kernel.org with ESMTP id S261398AbVFOLPM (ORCPT
+	Wed, 15 Jun 2005 07:15:35 -0400
+Received: from styx.suse.cz ([82.119.242.94]:56014 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S261405AbVFOLPW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 07:15:12 -0400
-Date: Wed, 15 Jun 2005 07:31:59 -0400
-From: Wakko Warner <wakko@animx.eu.org>
-To: Oliver Neukum <oliver@neukum.org>
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: Problem found: kaweth fails to work on 2.6.12-rc[456]
-Message-ID: <20050615113159.GA10188@animx.eu.org>
-Mail-Followup-To: Oliver Neukum <oliver@neukum.org>,
-	linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <20050612004136.GA8107@animx.eu.org> <200506121722.09813.oliver@neukum.org> <20050615010238.GA9215@animx.eu.org> <200506150829.52765.oliver@neukum.org>
+	Wed, 15 Jun 2005 07:15:22 -0400
+Date: Wed, 15 Jun 2005 13:15:20 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: Linus Torvalds <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] ALPS: fix enabling hardware tapping
+Message-ID: <20050615111520.GB18773@ucw.cz>
+References: <200506150138.49880.dtor_core@ameritech.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200506150829.52765.oliver@neukum.org>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <200506150138.49880.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver Neukum wrote:
-> Very well.
+On Wed, Jun 15, 2005 at 01:38:49AM -0500, Dmitry Torokhov wrote:
+> Hi Linus, Vojtech,
 > 
-> > Results (after ifconfig up, ethernet cable was plugged in at the time):
-> > Jun 14 20:50:25 gonzales kernel: [80756.691742] kaweth: begin callback
-> > Jun 14 20:50:25 gonzales kernel: [80756.691754] kaweth: u->status: 0
-> > Jun 14 20:50:25 gonzales kernel: [80756.691759] kaweth: Link state change.  kaweth->linkstate: 0 act_state: 2
-> > Jun 14 20:50:25 gonzales kernel: [80756.691764] kaweth: netif_carrier_off
+> It looks like logic for enabling hardware tapping in ALPS driver was
+> inverted and we enable it only if it was already enabled by BIOS or
+> firmware.
 > 
-> OK, that should not happen.
+> I have a confirmation from one user that the patch below fixes the
+> problem for him and it might be beneficial if we could get it into
+> 2.6.12.
+
+Linus, Andrew, please include this patch. I don't have a git tree setup
+yet for pulls, and it won't be ready before 2.6.12, however this patch
+should definitely go in.
+
+Thanks,
+	Vojtech
+
+> Thanks!
 > 
-> Could you remove the "!" at 'if (!act_state) {' and retest?
-> The documentation I got says that it should be there, but who knows
-> how accurate it is for all devices.
-
-Ok, I removed the ! and it now says "netif_carrier_on" and still blasting
-the messages.  I'm unable to ping the other end when configured.
-
-> > Jun 14 20:50:25 gonzales kernel: [80756.691769] kaweth: new link state: 2
-> > Jun 14 20:50:25 gonzales kernel: [80756.691776] kaweth: end callback
-> > 
-> > the next thing was:
-> > Jun 14 20:50:25 gonzales kernel: [80756.819793] kaweth: begin callback
-> > Jun 14 20:50:25 gonzales kernel: [80756.819800] kaweth: u->status: 0
-> > Jun 14 20:50:25 gonzales kernel: [80756.819807] kaweth: end callback
-> > many times, last occurence:
-> > Jun 14 20:50:36 gonzales kernel: [80767.576134] kaweth: begin callback
-> > Jun 14 20:50:36 gonzales kernel: [80767.576143] kaweth: u->status: 0
-> > Jun 14 20:50:36 gonzales kernel: [80767.576157] kaweth: end callback
-> > 
-> > then I ifconfig down since it was spewing that information:
-> > Jun 14 20:50:36 gonzales kernel: [80767.618157] kaweth: begin callback
-> > Jun 14 20:50:36 gonzales kernel: [80767.618172] kaweth: u->status: -2
-> > 
-> > I assume it didn't print the end since the status was -2 (not sure what -2 is)
+> -- 
+> Dmitry
 > 
-> Killing the URB due to ifconfig.
-
-I meant I didn't know the name to number translation.
-
-For the next tests, I think it would be best to remove the 3 printks I added
-to show beginning, u->status, and ending.  Spews too much stuff =)
+> ===================================================================
+> 
+> Input: ALPS - try enabling tap mode if it was disabled, not if
+>        it is already enabled.
+> 
+> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+> ---
+> 
+>  drivers/input/mouse/alps.c |    2 +-
+>  1 files changed, 1 insertion(+), 1 deletion(-)
+> 
+> Index: work/drivers/input/mouse/alps.c
+> ===================================================================
+> --- work.orig/drivers/input/mouse/alps.c
+> +++ work/drivers/input/mouse/alps.c
+> @@ -364,7 +364,7 @@ static int alps_reconnect(struct psmouse
+>  	if (alps_get_status(psmouse, param))
+>  		return -1;
+>  
+> -	if (param[0] & 0x04)
+> +	if (!(param[0] & 0x04))
+>  		alps_tap_mode(psmouse, 1);
+>  
+>  	if (alps_absolute_mode(psmouse)) {
+> 
 
 -- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+Vojtech Pavlik
+SuSE Labs, SuSE CR

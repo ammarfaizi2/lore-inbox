@@ -1,59 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261385AbVFOTLI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261391AbVFOTPv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261385AbVFOTLI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 15:11:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261391AbVFOTLI
+	id S261391AbVFOTPv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 15:15:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261438AbVFOTPv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 15:11:08 -0400
-Received: from mail-in-05.arcor-online.net ([151.189.21.45]:63873 "EHLO
-	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
-	id S261385AbVFOTKt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 15:10:49 -0400
-Date: Wed, 15 Jun 2005 21:10:26 +0200 (CEST)
-From: Bodo Eggert <7eggert@gmx.de>
-To: "Maciej W. Rozycki" <macro@linux-mips.org>
-cc: "Richard B. Johnson" <linux-os@analogic.com>,
-       Gene Heskett <gene.heskett@verizon.net>, cutaway@bellsouth.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: .../asm-i386/bitops.h  performance improvements
-In-Reply-To: <Pine.LNX.4.61L.0506151723460.13835@blysk.ds.pg.gda.pl>
-Message-ID: <Pine.LNX.4.58.0506152053010.3184@be1.lrz>
-References: <4fB8l-73q-9@gated-at.bofh.it> <4fF2j-1Lo-19@gated-at.bofh.it>
- <E1DiZKe-0000em-58@be1.7eggert.dyndns.org> <Pine.LNX.4.61L.0506151629270.13835@blysk.ds.pg.gda.pl>
- <Pine.LNX.4.61.0506151200490.24211@chaos.analogic.com>
- <Pine.LNX.4.61L.0506151723460.13835@blysk.ds.pg.gda.pl>
+	Wed, 15 Jun 2005 15:15:51 -0400
+Received: from mailhub3.nextra.sk ([195.168.1.146]:30214 "EHLO
+	mailhub3.nextra.sk") by vger.kernel.org with ESMTP id S261391AbVFOTPp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 15:15:45 -0400
+Message-ID: <42B07E5D.9070004@rainbow-software.org>
+Date: Wed, 15 Jun 2005 21:15:41 +0200
+From: Ondrej Zary <linux@rainbow-software.org>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Nick Piggin <nickpiggin@yahoo.com.au>,
+       Grant Coady <grant_lkml@dodo.com.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Odd IDE performance drop 2.4 vs 2.6?
+References: <ac0qa19omlt7bsh8mcfsfr2uhshk338f0c@4ax.com>	 <42AD6362.1000109@rainbow-software.org>	 <1118669975.13260.23.camel@localhost.localdomain>	 <42AD92F2.7080108@yahoo.com.au> <1118675343.13773.1.camel@localhost.localdomain>
+In-Reply-To: <1118675343.13773.1.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Jun 2005, Maciej W. Rozycki wrote:
-> On Wed, 15 Jun 2005, Richard B. Johnson wrote:
-
-> > Well the __documented__ '486 LEA instruction doesn't
-> > even allow the double-register indirect. It's just
-> > 
-> > LEA r16,m
-> > LEA r32,m
-> > 
-> > ... repeated twice
-> > 
-> > Page 26-190,  Intel486(tm) Microprocessor Programmer's Reference
-> > Manual. ISBN 1-55512-195-4. The instruction may have been one
-> > of those "immature features", read broken.
+Alan Cox wrote:
+> On Llu, 2005-06-13 at 15:06, Nick Piggin wrote:
 > 
->  And "m" is presumably described in details elsewhere as the semantics is 
-> common for all instructions involving address calculation.
+>>>Make sure you have pre-empt disabled and the antcipatory I/O scheduler
+>>>disabled. 
+>>>
+>>
+>>I don't think that those could explain it.
+> 
+> 
+> Try it and see. The anticipatory I/O scheduler does horrible things to
+> my IDE streaming performance numbers and to swap performance. It tries
+> to merge I/O by delaying it which is deeply ungood when it comes to IDE
+> streaming even if its good for general I/O.
 
-My documentation says:
+Now I've tested it with preempt disabled and nothing has changed. When 
+fiddling around with hdparm, I got about 16MB/s max. with 2.6.12-rc5. 
+With 2.4.31, I got about 21MB/s when just the DMA was enabled 
+(read-ahead and multcount set to 0 - changing them does not make almost 
+any difference).
 
-lea reg16, mem
-Available on 8086, 80186, 80286, 80386, 80486
-32-bit-extension available
-Opcode: 8D mod reg r/m
-
-reg will be the target register (AX .. DI), and mod and r/m will select
-something like a direct address, a register or a combination like 
-BP+DI+ofs (I won't copy the table). A multiplier is not mentioned there.
 -- 
-Microwave: Signal from a friendly micro... 
+Ondrej Zary

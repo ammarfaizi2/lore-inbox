@@ -1,81 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261226AbVFORP2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261228AbVFORQO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261226AbVFORP2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 13:15:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261228AbVFORP1
+	id S261228AbVFORQO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 13:16:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261229AbVFORQO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 13:15:27 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:48302 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261226AbVFORPS (ORCPT
+	Wed, 15 Jun 2005 13:16:14 -0400
+Received: from fmr13.intel.com ([192.55.52.67]:34237 "EHLO
+	fmsfmr001.fm.intel.com") by vger.kernel.org with ESMTP
+	id S261228AbVFORQE convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 13:15:18 -0400
-Date: Wed, 15 Jun 2005 09:57:51 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@zip.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: [patch] fix int vs. pm_message_t confusion in airo
-Message-ID: <20050615075751.GA2754@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Wed, 15 Jun 2005 13:16:04 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Fwd: hpet patches
+Date: Wed, 15 Jun 2005 10:15:59 -0700
+Message-ID: <88056F38E9E48644A0F562A38C64FB6004FB6BED@scsmsx403.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Fwd: hpet patches
+Thread-Index: AcVxOezyGbyw2HEOROWXQg74wmZxRQAk7Adw
+From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+To: "Jon Smirl" <jonsmirl@gmail.com>
+Cc: "Bob Picco" <bob.picco@hp.com>, "Andrew Morton" <akpm@osdl.org>,
+       "lkml" <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 15 Jun 2005 17:15:15.0868 (UTC) FILETIME=[CC3C85C0:01C571CD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix int vs. pm_message_t confusion in airo. Should change no code.
-
-Signed-off-by: Pavel Machek <pavel@suse.cz>
-
----
-commit f2b14bd02f8d56402661d8dd88cbdf838a7e3b8d
-tree 1fb8859524d5919e3445d49cf350acdb9e70896c
-parent 985bb2179202a400ac320f1729a657cf4450c009
-author <pavel@amd.(none)> Wed, 15 Jun 2005 09:57:13 +0200
-committer <pavel@amd.(none)> Wed, 15 Jun 2005 09:57:13 +0200
-
- drivers/net/wireless/airo.c |   10 +++++-----
- 1 files changed, 5 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/net/wireless/airo.c b/drivers/net/wireless/airo.c
---- a/drivers/net/wireless/airo.c
-+++ b/drivers/net/wireless/airo.c
-@@ -1209,7 +1209,7 @@ struct airo_info {
- 	unsigned char		__iomem *pciaux;
- 	unsigned char		*shared;
- 	dma_addr_t		shared_dma;
--	int			power;
-+	pm_message_t		power;
- 	SsidRid			*SSID;
- 	APListRid		*APList;
- #define	PCI_SHARED_LEN		2*MPI_MAX_FIDS*PKTSIZE+RIDSIZE
-@@ -5499,9 +5499,9 @@ static int airo_pci_suspend(struct pci_d
- 	cmd.cmd=HOSTSLEEP;
- 	issuecommand(ai, &cmd, &rsp);
  
--	pci_enable_wake(pdev, state, 1);
-+	pci_enable_wake(pdev, pci_choose_state(pdev, state), 1);
- 	pci_save_state(pdev);
--	return pci_set_power_state(pdev, state);
-+	return pci_set_power_state(pdev, pci_choose_state(pdev, state));
- }
- 
- static int airo_pci_resume(struct pci_dev *pdev)
-@@ -5512,7 +5512,7 @@ static int airo_pci_resume(struct pci_de
- 
- 	pci_set_power_state(pdev, 0);
- 	pci_restore_state(pdev);
--	pci_enable_wake(pdev, ai->power, 0);
-+	pci_enable_wake(pdev, pci_choose_state(pdev, ai->power), 0);
- 
- 	if (ai->power > 1) {
- 		reset_card(dev, 0);
-@@ -5541,7 +5541,7 @@ static int airo_pci_resume(struct pci_de
- 	}
- 	writeConfigRid(ai, 0);
- 	enable_MAC(ai, &rsp, 0);
--	ai->power = 0;
-+	ai->power = PMSG_ON;
- 	netif_device_attach(dev);
- 	netif_wake_queue(dev);
- 	enable_interrupts(ai);
+
+>-----Original Message-----
+>From: Jon Smirl [mailto:jonsmirl@gmail.com] 
+>Sent: Tuesday, June 14, 2005 4:37 PM
+>To: Pallipadi, Venkatesh
+>Cc: Bob Picco; Andrew Morton; lkml
+>Subject: Re: Fwd: hpet patches
+>
+>On 6/14/05, Pallipadi, Venkatesh <venkatesh.pallipadi@intel.com> wrote:
+>> HPET device itself can be there. But, it can appear in different
+>> addresses. Most commonly used address is 0xfed00000. But, it can be
+>> different as well.
+>
+>Does Intel build different versions of something like an 82801EB with
+>the HPET at different addresses and still have the same part number?
+>For a specific part number/PCI ID isn't HPET always in the same place?
+>If the HPET is going to be in a different place I would expected the
+>chip would have a different PCI ID.
+>
+
+The specification for ICH5 has the details about this address
+http://www.intel.com/design/chipsets/datashts/25251601.pdf (Chapter 17).
+We need to look at specific device address to figure out the HPET base 
+address in this case.
+
+
+Thanks,
+Venki

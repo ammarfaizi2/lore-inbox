@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261466AbVFOTXD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261467AbVFOTZk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261466AbVFOTXD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 15:23:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261467AbVFOTXD
+	id S261467AbVFOTZk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 15:25:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261475AbVFOTZk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 15:23:03 -0400
-Received: from mail.dif.dk ([193.138.115.101]:24783 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S261466AbVFOTXA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 15:23:00 -0400
-Date: Wed, 15 Jun 2005 21:28:23 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: juhl-lkml@dif.dk, yoshfuji@linux-ipv6.org, kuznet@ms2.inr.ac.ru,
-       jmorris@redhat.com, waltje@uWalt.NL.Mugnet.ORG, ross.biro@gmail.com,
-       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [-mm PATCH] signed vs unsigned cleanup in net/ipv4/raw.c
-In-Reply-To: <20050615.121628.112622743.davem@davemloft.net>
-Message-ID: <Pine.LNX.4.62.0506152127150.3842@dragon.hyggekrogen.localhost>
-References: <Pine.LNX.4.62.0506152101350.3842@dragon.hyggekrogen.localhost>
- <20050615.121628.112622743.davem@davemloft.net>
+	Wed, 15 Jun 2005 15:25:40 -0400
+Received: from web51809.mail.yahoo.com ([206.190.38.240]:60337 "HELO
+	web51809.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261467AbVFOTZe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 15:25:34 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=fyoRvQ97yBSGpIUh2vzCse44yCCvYnJ8obw0xX5/YkX56fogTt1Xl4LoAtW8WEkp1WcZoBnOXhjRXBbAHMWulYQ39vNKkDiMIxr7XOJeinNBAmUuPoXxo/Z13hTwxH84lyhgvj0gP7ee7QRsXcKM2L+NqydBpnC3fbryAzzeTiI=  ;
+Message-ID: <20050615192534.35702.qmail@web51809.mail.yahoo.com>
+Date: Wed, 15 Jun 2005 12:25:33 -0700 (PDT)
+From: Phy Prabab <phyprabab@yahoo.com>
+Subject: lib unwind
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Jun 2005, David S. Miller wrote:
+Hello to all!
 
-> 
-> I'm not merging this thing, at least no all at once.
-> 
-> "size_t" vs. "unsigned int" vs. "int" length comparisons are where all
-> the security problems come from in the protocol stack
-> 
-> Therefore you should make a seperate patch for each type
-> change you make and explain why it doesn't add some regression
-> in terms of signedness issues.
-> 
+Does anyone know if there is an unwinding library for
+user level apps available somewhere for amd64 linux?
 
-Fair enough, I'll split it into little bits and submit them one by one 
-with explanations. Not a problem at all.
+I have a simple unwinder that I wrote that just grabs
+the fp and steps through looking for symbols, however,
+I can not get it work on amd64 platform (my trace gets
+lost when it enters a sig handler).
 
--- 
-Jesper Juhl
+I have searched around and found one for itanic, but
+nothing else.
 
+TIA!
+Phy
 
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

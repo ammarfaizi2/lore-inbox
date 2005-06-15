@@ -1,102 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261623AbVFOWSa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261628AbVFOWVl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261623AbVFOWSa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 18:18:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261622AbVFOWSM
+	id S261628AbVFOWVl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 18:21:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261622AbVFOWVk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 18:18:12 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:62675 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261628AbVFOWJX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 18:09:23 -0400
-From: Russ Anderson <rja@sgi.com>
-Message-Id: <200506152209.j5FM9HgD1464876@clink.americas.sgi.com>
-Subject: Re: [RFC] Linux memory error handling
-To: macro@linux-mips.org (Maciej W. Rozycki)
-Date: Wed, 15 Jun 2005 17:09:17 -0500 (CDT)
-Cc: rja@sgi.com (Russ Anderson), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61L.0506151545410.13835@blysk.ds.pg.gda.pl> from "Maciej W. Rozycki" at Jun 15, 2005 04:26:13 PM
-X-Mailer: ELM [version 2.5 PL2]
+	Wed, 15 Jun 2005 18:21:40 -0400
+Received: from mollusk.mweb.co.za ([196.2.24.27]:56187 "EHLO
+	mollusk.mweb.co.za") by vger.kernel.org with ESMTP id S261643AbVFOWTi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 18:19:38 -0400
+From: Bongani Hlope <bonganilinux@mweb.co.za>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: Tracking a bug in x86-64
+Date: Thu, 16 Jun 2005 00:20:21 +0200
+User-Agent: KMail/1.8.50
+Cc: Linus Torvalds <torvalds@osdl.org>, ak@muc.de,
+       linux-kernel@vger.kernel.org
+References: <200506132259.22151.bonganilinux@mweb.co.za> <Pine.LNX.4.58.0506140819440.8487@ppc970.osdl.org> <20050614132721.3b55c196.akpm@osdl.org>
+In-Reply-To: <20050614132721.3b55c196.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200506160020.21688.bonganilinux@mweb.co.za>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maciej W. Rozycki wrote:
-> On Wed, 15 Jun 2005, Russ Anderson wrote:
+On Tuesday 14 June 2005 10:27 pm, Andrew Morton wrote:
+> Linus Torvalds <torvalds@osdl.org> wrote:
+> >
+> > The way to do the binary searach is to get the
+> >  	ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11/2.6.11-mm1/2.6.11-mm1-broken-out.tar.gz 
+> >  file, and then to apply half of the patches
 > 
-> > Handling memory errors:
-> > 
-> > 	    Polling Threshold:  A solid single bit error can cause a burst
-> > 		of correctable errors that can cause a significant logging
-> > 		overhead.  SBE thresholding counts the number of SBEs for
-> > 		a given page and if too many SBEs are detected in a given
-> > 		period of time, the interrupt is disabled and instead 
-> > 		linux periodically polls for corrected errors.
+> Or:
+> - install https://savannah.nongnu.org/projects/quilt/
 > 
->  This is highly undesirable if the same interrupt is used for MBEs.  A 
-> page that causes an excessive number of SBEs should rather be removed from 
-> the available pool instead.
-
-As a practical point I think you are right that if there are enough 
-SBEs to cause a performance hit, migrating the data to a different 
-physical page would be a prudent thing to do.  But that functionality
-hasn't been implemented yet.
-
-That may not always be the right setting for all customers.
-One possible way to deal with that would be to have different
-threshold settings for logging and page migration.  That would
-provide flexibility.
-
->                              Logging should probably take recent events 
-> into account anyway and take care of not overloading the system, e.g. by 
-> keeping only statistical data instead of detailed information about each 
-> event under load.
-
-That's what the SBE thresholding does.  It avoids overloading the
-system by switching from interrupt mode to periodic polling
-mode, where detailed information can get dropped.
-
-> > 	    Memory handling parameters:
-> > 
-> > 		Since memory failure modes are due to specific DIMM
-> > 		failure characteristics, there is will be no way to 
-> > 		reach agreement on one set of thresholds that will
-> > 		be appropriate for all configurations.  Therefore there
-> > 		needs to be a way to modify the thresholds.  One alternative
-> > 		is a /proc/sys/kernel/ interface to control settings, such
-> > 		as polling thresholds.  That provides an easy standard
-> > 		way of modifying thresholds to match the characteristics
-> > 		of the specific DIMM type.
+> cd /usr/src/linux
+> wget ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11/2.6.11-mm1/2.6.11-mm1-broken-out.tar.gz
+> tar xfz 2.6.11-mm1-broken-out.tar.gz
+> mv broken-out patches
+> mv patches/series .
 > 
->  Note that scrubbing may also be required depending on hardware 
-> capabilities as data could have been corrected on the fly for the purpose 
-> of providing a correct value for the bus transaction, but memory may still 
-> hold corrupted data.
-
-Good point.
-
->  And of course not all memory is DIMM!
-
-Another good point.
-
-> > 	Uncorrected error handling:
-> > 
-> > 	    Kill the application:  One recovery technique to avoid a kernel
-> > 		panic when an application process hits an uncorrectable 
-> > 		memory error is to SIGKILL the application.  The page is 
-> > 		marked PG_reserved to avoid re-use.  A (new) PG_hard_error
-> > 		flag would be useful to indicate that the physical page has
-> > 		a hard memory error.
+> Now you can do `quilt push 100' to apply 100 patches, `quilt pop 50' to
+> remove half of them, etc.
 > 
->  Note we have some infrastructure for that in the MIPS port -- we kill the 
-> triggering process, but we don't mark the problematic memory page as 
-> unusable (which is an area for improvement). 
+> Open a copy of the series file in an editor and add markers to it as you
+> proceed through the search so you don't get lost.
+> 
 
-Mips has some nice features when it comes to error recovery.
+Hi
 
-Thanks,
--- 
-Russ Anderson, OS RAS/Partitioning Project Lead  
-SGI - Silicon Graphics Inc          rja@sgi.com
+I've used quilt to et to the patch that is causing problems (quilt is great thanx Andrew). This is the sequence, which led me to
+the possible culprit:
+push 410, pop 205, pop 103, push 103, pop 51, pop 26, push 13, pop 6, push 4 and push 1
+This points to: randomisation-top-of-stack-randomization.patch
+
+Regards

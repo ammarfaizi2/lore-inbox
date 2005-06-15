@@ -1,52 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261187AbVFOH6G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbVFOH6R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261187AbVFOH6G (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 03:58:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbVFOH6G
+	id S261232AbVFOH6R (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 03:58:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261297AbVFOH6R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 03:58:06 -0400
-Received: from ms003msg.fastwebnet.it ([213.140.2.42]:26861 "EHLO
-	ms003msg.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S261187AbVFOH6C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 03:58:02 -0400
-Date: Wed, 15 Jun 2005 09:57:04 +0200
-From: Paolo Ornati <ornati@fastwebnet.it>
-To: "liyu@LAN" <liyu@ccoss.com.cn>
-Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
-Subject: Re: one question about LRU mechanism
-Message-ID: <20050615095704.558a2eb6@localhost>
-In-Reply-To: <1118817991.5828.23.camel@liyu.ccoss.com.cn>
-References: <1118812376.32766.4.camel@liyu.ccoss.com.cn>
-	<20050615052530.GA3913@holomorphy.com>
-	<1118817991.5828.23.camel@liyu.ccoss.com.cn>
-X-Mailer: Sylpheed-Claws 1.0.0 (GTK+ 1.2.10; x86_64-pc-linux-gnu)
+	Wed, 15 Jun 2005 03:58:17 -0400
+Received: from mout2.freenet.de ([194.97.50.155]:46511 "EHLO mout2.freenet.de")
+	by vger.kernel.org with ESMTP id S261232AbVFOH6I (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 03:58:08 -0400
+Subject: FIGETBSZ and FIBMAP for directorys
+From: Sebastian =?ISO-8859-1?Q?Cla=DFen?= 
+	<Sebastian.Classen@freenet-ag.de>
+Reply-To: Sebastian.Classen@freenet-ag.de
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Wed, 15 Jun 2005 09:58:07 +0200
+Message-Id: <1118822287.28239.10.camel@basti79.freenet-ag.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Jun 2005 14:46:30 +0800
-"liyu@LAN" <liyu@ccoss.com.cn> wrote:
+Hi list...
 
-> In 2.6.11.11, mm do not have function isolate_lru_pages(), but I
-> downloaded linux-2.6.11.12.tar.bz2 source tarball, and apply follow two
-> patches in order:
-> 
-> patch-2.6.12-rc6
-> 2.6.12-rc6-mm1
+I'm using this little program to find out which blocks are use by a
+particular file:
+int main(int argc, char **argv) {
+        int             fd,
+                        i,
+                        block,
+                        blocksize,
+                        bcount;
+        struct stat     st;
 
-"patch-2.6.12-rc6" applies to 2.6.11... not 2.6.11.X.
+        assert(argv[1] != NULL);
+        assert(fd=open(argv[1], O_RDONLY));
+        assert(ioctl(fd, FIGETBSZ, &blocksize) == 0);
+        assert(!fstat(fd, &st));
+        bcount = (st.st_size + blocksize - 1) / blocksize;
+        printf("File: %s Size: %d Blocks: %d Blocksize: %d\n", 
+                argv[1], st.st_size, bcount, blocksize);
+        for(i=0;i < bcount;i++) {
+                block=i;
+                if (ioctl(fd, FIBMAP, &block)) {
+                        printf("FIBMAP ioctl failed - errno: %s\n",
+                                        strerror(errno));
+                }
+                printf("%3d %10d\n", i, block);
+        }
+        close(fd);
+}
 
-This is beacuse a new 2.6.11.X version can come out in any time before
-2.6.12...
 
-IOW a rule that says: "patch-2.6.X-rcZ applies to linux-2.6.(X-1)" is much
-better than "patch-2.6.X-rcZ applies to
-linux-2.6.(X-1).LAST_RELEASE_WHEN_THIS_RC_COME_OUT"
+This works fine for regular files, but not for directorys. Both ioctl's,
+FIGETBSZ and FIBMAP, are implemented for regular files only. 
 
-becose you don't have to dicover LAST_RELEASE_WHEN_THIS_RC_COME_OUT...
+Is there a patch to make this FIGETBSZ and FIBMAP work on directorys
+too?
+Or alternativly, is there a way to find out which blocks are used by a
+directory?
 
---
-	Paolo Ornati
-	Linux 2.6.12-rc6 on x86_64
+Thanks for answers in advance
+  Sebastian.
+
+

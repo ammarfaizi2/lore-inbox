@@ -1,44 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261269AbVFOWh7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261597AbVFOWiY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261269AbVFOWh7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 18:37:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261597AbVFOWh7
+	id S261597AbVFOWiY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 18:38:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261601AbVFOWiY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 18:37:59 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:23531 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261269AbVFOWhy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 18:37:54 -0400
-Date: Wed, 15 Jun 2005 15:39:32 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Bongani Hlope <bonganilinux@mweb.co.za>
-cc: Andrew Morton <akpm@osdl.org>, ak@muc.de,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: Tracking a bug in x86-64
-In-Reply-To: <200506160020.21688.bonganilinux@mweb.co.za>
-Message-ID: <Pine.LNX.4.58.0506151536000.8487@ppc970.osdl.org>
-References: <200506132259.22151.bonganilinux@mweb.co.za>
- <Pine.LNX.4.58.0506140819440.8487@ppc970.osdl.org> <20050614132721.3b55c196.akpm@osdl.org>
- <200506160020.21688.bonganilinux@mweb.co.za>
+	Wed, 15 Jun 2005 18:38:24 -0400
+Received: from 216-239-45-4.google.com ([216.239.45.4]:6846 "EHLO
+	216-239-45-4.google.com") by vger.kernel.org with ESMTP
+	id S261597AbVFOWiU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 18:38:20 -0400
+Message-ID: <42B0ADD5.3080502@google.com>
+Date: Wed, 15 Jun 2005 15:38:13 -0700
+From: Hareesh Nagarajan <hareesh@google.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050207)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Greg KH <greg@kroah.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Porting kref to a 2.4 kernel (2.4.20 or greater)
+References: <42B06344.4040909@google.com> <20050615220734.GC620@kroah.com>
+In-Reply-To: <20050615220734.GC620@kroah.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Greg KH wrote:
+> On Wed, Jun 15, 2005 at 10:20:04AM -0700, Hareesh Nagarajan wrote:
+> 
+>>What stumbling blocks do you think I would encounter if I wanted to port 
+>>kref to a 2.4.xx kernel? Is kref tightly coupled with the kernel object 
+>>infrastructure found in the 2.6.xx kernel?
+> 
+> Have you looked at the kref code to see if there is any such coupling?
 
+Not really. Kref seems pretty light and loosely coupled with the 2.6 
+kernel. There just appears to be a C file (and a .h of course).
 
-On Thu, 16 Jun 2005, Bongani Hlope wrote:
->
-> push 410, pop 205, pop 103, push 103, pop 51, pop 26, push 13, pop 6, push 4 and push 1
-> This points to: randomisation-top-of-stack-randomization.patch
+> Can you describe any problems you are having doing the uncoupling?
 
-Goodie.
+I'm having problems porting the KObject and Work Queue infrastructure to 
+the 2.4 kernel. Any ideas if anyone has tried this port?
 
-Can you verify (just to make doubly sure that there are no subtle
-interactions anywhere) that the current top-of-tree with that _one_ patch
-reverted ends up working for you?
+> What do you want this in the 2.4 kernel for?  
 
-Anyway, thanks a heap for spending the time narrowing this down!
+I need to port RelayFS into a 2.4 kernel.
 
-		Linus
+> You know that no new
+> features are being accepted for that tree, right?
+
+Yes, I am aware of that :(
+
+Thank you very much!
+
+Hareesh
+-= Engineering Intern =-
+cs.uic.edu/~hnagaraj

@@ -1,60 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261588AbVFOVaW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261589AbVFOWJU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261588AbVFOVaW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 17:30:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261585AbVFOV3e
+	id S261589AbVFOWJU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 18:09:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261628AbVFOWHr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 17:29:34 -0400
-Received: from mail.dif.dk ([193.138.115.101]:60631 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S261584AbVFOV0Z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 17:26:25 -0400
-Date: Wed, 15 Jun 2005 23:31:44 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       James Morris <jmorris@redhat.com>, Ross Biro <ross.biro@gmail.com>,
-       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: [-mm PATCH][3/4] net: signed vs unsigned cleanup in net/ipv4/raw.c
-Message-ID: <Pine.LNX.4.62.0506152308480.3842@dragon.hyggekrogen.localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 15 Jun 2005 18:07:47 -0400
+Received: from pih-relay04.plus.net ([212.159.14.131]:10669 "EHLO
+	pih-relay04.plus.net") by vger.kernel.org with ESMTP
+	id S261589AbVFOWFz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 18:05:55 -0400
+Date: Wed, 15 Jun 2005 23:05:54 +0100
+From: Simon Richard Grint <rgrint@compsoc.man.ac.uk>
+To: linux-kernel@vger.kernel.org
+Subject: arch/i386/boot/video.S hang
+Message-ID: <20050615220554.GA1911@srg.demon.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch changes the type of the local variable 'i' in 
-raw_probe_proto_opt() from 'int' to 'unsigned int'. The only use of 'i' in 
-this function is as a counter in a for() loop and subsequent index into 
-the msg->msg_iov[] array.
-Since 'i' is compared in a loop to the unsigned variable msg->msg_iovlen 
-gcc -W generates this warning : 
 
-net/ipv4/raw.c:340: warning: comparison between signed and unsigned
+I'm trying to upgrade an old AMD K6-2 machine (aladdin bios/gigabyte GA-5AX
+motherboard, latest version of the bios) to 2.6.11. Unfortunately kernels later 
+than 2.6.9 hang very early in the boot process just after the vga= mode selection, 
+but before the kernel announces "uncompressing linux".
 
-Changing 'i' to unsigned silences this warning and is safe since the array 
-index can never be negative anyway, so unsigned int is the logical type to 
-use for 'i' and also enables a larger msg_iov[] array (but I don't know if 
-that will ever matter).
+I have narrowed the problem down to the store_edid function in
+arch/i386/boot/video.S where the edid block is obtained and stored before
+entering protected mode.  The exact patch which seems to cause me problems
+is http://www.ussg.iu.edu/hypermail/linux/kernel/0409.3/1786.html
 
+Storing the edid block at 0x140 causes this machine to hang, whereas backing
+this patch out and instead using 0x440 (or even 0x160) seems to work fine.
 
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
----
+Is this problem just because of an old and buggy bios or is there another
+reason?
 
- net/ipv4/raw.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+Thanks for your help
 
---- linux-2.6.12-rc6-mm1/net/ipv4/raw.c.with_patch-2	2005-06-15 23:04:40.000000000 +0200
-+++ linux-2.6.12-rc6-mm1/net/ipv4/raw.c	2005-06-15 23:09:42.000000000 +0200
-@@ -332,7 +332,7 @@ static void raw_probe_proto_opt(struct f
- 	u8 __user *type = NULL;
- 	u8 __user *code = NULL;
- 	int probed = 0;
--	int i;
-+	unsigned int i;
- 
- 	if (!msg->msg_iov)
- 		return;
-
-
+sr
 

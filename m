@@ -1,57 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261206AbVFOQHQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261208AbVFOQYO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261206AbVFOQHQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 12:07:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261207AbVFOQHQ
+	id S261208AbVFOQYO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 12:24:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261209AbVFOQYO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 12:07:16 -0400
-Received: from alog0147.analogic.com ([208.224.220.162]:43708 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261206AbVFOQHG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 12:07:06 -0400
-Date: Wed, 15 Jun 2005 12:06:28 -0400 (EDT)
-From: "Richard B. Johnson" <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: "Maciej W. Rozycki" <macro@linux-mips.org>
-cc: 7eggert@gmx.de, Gene Heskett <gene.heskett@verizon.net>,
-       cutaway@bellsouth.net, linux-kernel@vger.kernel.org
-Subject: Re: .../asm-i386/bitops.h  performance improvements
-In-Reply-To: <Pine.LNX.4.61L.0506151629270.13835@blysk.ds.pg.gda.pl>
-Message-ID: <Pine.LNX.4.61.0506151200490.24211@chaos.analogic.com>
-References: <4fB8l-73q-9@gated-at.bofh.it> <4fF2j-1Lo-19@gated-at.bofh.it>
- <E1DiZKe-0000em-58@be1.7eggert.dyndns.org> <Pine.LNX.4.61L.0506151629270.13835@blysk.ds.pg.gda.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 15 Jun 2005 12:24:14 -0400
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:59130 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261208AbVFOQYG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 12:24:06 -0400
+Subject: [BUG] Race condition with it_real_fn in kernel/itimer.c
+From: Steven Rostedt <rostedt@goodmis.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Wed, 15 Jun 2005 12:23:52 -0400
+Message-Id: <1118852632.4508.48.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Jun 2005, Maciej W. Rozycki wrote:
+OK, I found this bug on an older version of Ingo's RT kernel with my own
+customizations. This is a very hard to get race condition but my logging
+traced it pretty good and this looks like it may also be a bug for both
+Ingo's RT kernel and the vanilla kernel. This was on an SMP machine.
 
-> On Wed, 15 Jun 2005, Bodo Eggert wrote:
->
->> lea is an 8086 instruction. All clones have it in it's basic form. However,
->> the multiplicator is not documented for i486, therefore it will be a i586
->> extension.
->
-> Huh?  The SIB byte has been added in the original i386 with 32-bit
-> addressing.
->
->  Maciej
+Here's the race (since this was initiated with XFree86, I'll use it as
+the userland process that started this):
 
-Well the __documented__ '486 LEA instruction doesn't
-even allow the double-register indirect. It's just
+XFree86: calls sys_call 
+    -> sys_setitimer
+       -> do_setitimer 
+           (grabs tsk->sighand->siglock)
+           -> del_timer_sync
+     which has the following code:
 
- 	LEA r16,m
- 	LEA r32,m
+	for_each_online_cpu(i) {
+		base = &per_cpu(tvec_bases, i);
+		if (base->running_timer == timer) {
+			while (base->running_timer == timer) {
+				cpu_relax();
+				preempt_check_resched();
+			}
+			break;
+		}
+	}
 
-... repeated twice
+If the timer hasn't gone off yet on another cpu, it will spin until it
+is finished. Now here's the problem:
 
-Page 26-190,  Intel486(tm) Microprocessor Programmer's Reference
-Manual. ISBN 1-55512-195-4. The instruction may have been one
-of those "immature features", read broken.
+ksoftirqd: calls do_softirq -> ... -> run_timer_softirq
+      -> __run_timers
+        -> it_real_fn
+            -> send_group_sig_info
+              -> group_send_sig_info
+                  (grabs p->sighand->siglock)
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11.9 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+Now, since the ksoftirqd is what changes running_timer, we have a
+deadlock! 
+
+What would be the harm in doing something like:
+
+--- linux-2.6.12-rc6/kernel/itimer.c.orig	2005-06-15 12:14:13.000000000 -0400
++++ linux-2.6.12-rc6/kernel/itimer.c	2005-06-15 12:18:31.000000000 -0400
+@@ -153,11 +153,15 @@
+ 
+ 	switch (which) {
+ 	case ITIMER_REAL:
++	try_again:
+ 		spin_lock_irq(&tsk->sighand->siglock);
+ 		interval = tsk->signal->it_real_incr;
+ 		val = it_real_value(tsk->signal);
+-		if (val)
++		if (val) {
++			spin_unlock_irq(&tsk->sighand->siglock);
+ 			del_timer_sync(&tsk->signal->real_timer);
++			goto try_again;
++		}
+ 		tsk->signal->it_real_incr =
+ 			timeval_to_jiffies(&value->it_interval);
+ 		it_real_arm(tsk, timeval_to_jiffies(&value->it_value));
+
+
+-- Steve
+
+

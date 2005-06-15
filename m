@@ -1,42 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261632AbVFOWM1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261614AbVFOWM2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261632AbVFOWM1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 18:12:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261634AbVFOWKA
+	id S261614AbVFOWM2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 18:12:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261646AbVFOWJq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 18:10:00 -0400
-Received: from mail.kroah.org ([69.55.234.183]:58855 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261614AbVFOWI7 (ORCPT
+	Wed, 15 Jun 2005 18:09:46 -0400
+Received: from mail.dif.dk ([193.138.115.101]:38106 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S261634AbVFOWJC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 18:08:59 -0400
-Date: Wed, 15 Jun 2005 15:07:34 -0700
-From: Greg KH <greg@kroah.com>
-To: Hareesh Nagarajan <hareesh@google.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Porting kref to a 2.4 kernel (2.4.20 or greater)
-Message-ID: <20050615220734.GC620@kroah.com>
-References: <42B06344.4040909@google.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42B06344.4040909@google.com>
-User-Agent: Mutt/1.5.8i
+	Wed, 15 Jun 2005 18:09:02 -0400
+Date: Thu, 16 Jun 2005 00:14:21 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Hannu Savolainen <hannu@opensound.com>,
+       Matthias Urlichs <matthias@urlichs.de>,
+       Nick Holloway <Nick.Holloway@pyrites.org.uk>, Martin Mares <mj@ucw.cz>,
+       Hans Lermen <lermen@elserv.ffm.fgan.de>,
+       Werner Almesberger <werner@almesberger.net>,
+       Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] trivial warning fix and whitespace cleanup for
+ arch/i386/boot/compressed/misc.c
+Message-ID: <Pine.LNX.4.62.0506160002020.3842@dragon.hyggekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 15, 2005 at 10:20:04AM -0700, Hareesh Nagarajan wrote:
-> Hi,
-> 
-> What stumbling blocks do you think I would encounter if I wanted to port 
-> kref to a 2.4.xx kernel? Is kref tightly coupled with the kernel object 
-> infrastructure found in the 2.6.xx kernel?
+Here's a trivial patch to fix two tiny gcc -W warnings:
+arch/i386/boot/compressed/misc.c:213: warning: comparison between signed and unsigned
+arch/i386/boot/compressed/misc.c:223: warning: comparison between signed and unsigned
+In both cases the automatic variable 'i' of type int is compared to a 
+function argument of type 'size_t' and then used as array index. Since the 
+array index can never sanely be negative an unsigned type makes sense, and 
+it further makes sense to then use the same type for the local automatic 
+variable as the type it's compared to.  This patch fixes the warning by 
+changing the type of 'i' to size_t, and it also makes a small whitespace 
+cleanup by breaking two statements on same line (in the same functions) 
+into two sepperate lines to improve readability.
 
-Have you looked at the kref code to see if there is any such coupling?
-Can you describe any problems you are having doing the uncoupling?
 
-What do you want this in the 2.4 kernel for?  You know that no new
-features are being accepted for that tree, right?
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+---
 
-thanks,
+ arch/i386/boot/compressed/misc.c |   10 ++++++----
+ 1 files changed, 6 insertions(+), 4 deletions(-)
 
-greg k-h
+--- linux-2.6.12-rc6-mm1-orig/arch/i386/boot/compressed/misc.c	2005-06-12 15:58:34.000000000 +0200
++++ linux-2.6.12-rc6-mm1/arch/i386/boot/compressed/misc.c	2005-06-16 00:00:56.000000000 +0200
+@@ -207,20 +207,22 @@ static void putstr(const char *s)
+ 
+ static void* memset(void* s, int c, size_t n)
+ {
+-	int i;
++	size_t i;
+ 	char *ss = (char*)s;
+ 
+-	for (i=0;i<n;i++) ss[i] = c;
++	for (i = 0; i < n; i++)
++		ss[i] = c;
+ 	return s;
+ }
+ 
+ static void* memcpy(void* __dest, __const void* __src,
+ 			    size_t __n)
+ {
+-	int i;
++	size_t i;
+ 	char *d = (char *)__dest, *s = (char *)__src;
+ 
+-	for (i=0;i<__n;i++) d[i] = s[i];
++	for (i = 0; i < __n; i++)
++		d[i] = s[i];
+ 	return __dest;
+ }
+ 
+
+

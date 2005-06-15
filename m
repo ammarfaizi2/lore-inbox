@@ -1,113 +1,336 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261221AbVFOQyQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261223AbVFORBd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261221AbVFOQyQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 12:54:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261226AbVFOQyP
+	id S261223AbVFORBd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 13:01:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261220AbVFORBc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 12:54:15 -0400
-Received: from loopy.telegraphics.com.au ([202.45.126.152]:58327 "EHLO
-	loopy.telegraphics.com.au") by vger.kernel.org with ESMTP
-	id S261220AbVFOQx1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 12:53:27 -0400
-Date: Thu, 16 Jun 2005 02:53:22 +1000 (EST)
-From: Finn Thain <fthain@telegraphics.com.au>
-To: Ralf Baechle <ralf@linux-mips.org>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux/m68k <linux-m68k@vger.kernel.org>,
-       Linux/m68k on Mac <linux-mac68k@mac.linux-m68k.org>,
-       Linux MIPS <linux-mips@vger.kernel.org>,
-       Linux kernel <linux-kernel@vger.kernel.org>,
-       Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Subject: Re: [PATCH] Jazzsonic driver updates
-In-Reply-To: <20050615142717.GD9411@linux-mips.org>
-Message-ID: <Pine.LNX.4.61.0506160218310.24328@loopy.telegraphics.com.au>
-References: <200503070210.j272ARii023023@hera.kernel.org>
- <Pine.LNX.4.62.0503221807160.20753@numbat.sonytel.be> <20050323100139.GB8813@linux-mips.org>
- <Pine.LNX.4.61.0506121454410.1470@loopy.telegraphics.com.au>
- <20050615114158.GA9411@linux-mips.org> <Pine.LNX.4.61.0506152220460.22046@loopy.telegraphics.com.au>
- <20050615142717.GD9411@linux-mips.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 15 Jun 2005 13:01:32 -0400
+Received: from mxsf32.cluster1.charter.net ([209.225.28.156]:43744 "EHLO
+	mxsf32.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S261226AbVFOQ7n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 12:59:43 -0400
+X-IronPort-AV: i="3.93,201,1115006400"; 
+   d="scan'208"; a="1009142438:sNHT27113264"
+Subject: via-rhine broken in 2.6.12-rc6 and 2.6.11 stable
+From: Avery Fay <avery@ravencode.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Wed, 15 Jun 2005 12:59:38 -0400
+Message-Id: <1118854779.3107.7.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
+I just upgraded to the latest Debian release of 2.6.11. via-rhine
+breaks. I also tried 2.6.12-rc6 and it's broken too. A few notes:
 
-On Wed, 15 Jun 2005, Ralf Baechle wrote:
+1.) this is an Averatec 3225hs laptop
+2.) I'm using vmware too w/vmnet module
+3.) Worked on previous 2.6.11 debian releases
+4.) when i bring this interface up, i'm also enabling nat
 
-> On Thu, Jun 16, 2005 at 12:02:33AM +1000, Finn Thain wrote:
-> 
-> > > The Jazz DMA hardware is an MMU that translates virtual DMA to 
-> > > physical addresses.  It's virtual DMA address space is 16MB in size, 
-> > > it's page size is 4kB.  That's a set of capabilities that nicely 
-> > > translates into the DMA API.
-> > 
-> > I gather that someone has already put this hardware under the control 
-> > of the generic DMA API?
-> 
-> That's being worked on.
+Let me know if any other info would help.
 
-OK, I guess I should code for it then. It is difficult to avoid converting 
-the sonic core to the DMA API if I'm going to adopt it for macsonic. It 
-just means that my changes to jazzsonic can't be tested yet, and so my 
-work will remain out-of-tree.
+I get the following when trying to bring the interface (eth0) up:
 
-> > > > Would I be right to say that vdma_{alloc,free}() can be changed to 
-> > > > dma_{,un}map_single? The other Jazz specific routine that sonic 
-> > > > uses is vdma_log2phys, and I don't know if that has a better 
-> > > > alternative.
-> > > 
-> > > The use of that call should simply be eleminated entirely.  DMA API 
-> > > functions such as dma_alloc_coherent or dma_map_single will return a 
-> > > dma_handle which along with the virtual address returned is 
-> > > everything ever needed to program a DMA engine.
-> > 
-> > The sonic chip stores packets inside a "receive resource area" at a 
-> > physical address that depends on the packets it previously stored 
-> > there.
-> > 
-> > So the chip determines that address and the driver has to convert it 
-> > from a physical to a virtual address with KSEG1ADDR(vdma_log2phys(x)), 
-> > in order to memcpy the received packet.
-> 
-> Wrong.  The Sonic only does DMA to DMA addresses which will be 
-> translated to physical addresses by the IOMMU.  That is it never ever 
-> deals with physical addresses directly.
+Jun 15 12:10:10 mouse kernel: ip_tables: (C) 2000-2002 Netfilter core
+team
+Jun 15 12:10:10 mouse kernel: ip_conntrack version 2.1 (3839 buckets,
+30712 max) - 212 bytes per conntrack
+Jun 15 12:10:10 mouse kernel: eth0: link up, 100Mbps, full-duplex, lpa
+0xCDE1
+Jun 15 12:10:10 mouse kernel: bridge-eth0: enabling the bridge
+Jun 15 12:10:10 mouse kernel: Unable to handle kernel NULL pointer
+dereference at virtual address 00000069
+Jun 15 12:10:10 mouse kernel:  printing eip:
+Jun 15 12:10:10 mouse kernel: c029f7af
+Jun 15 12:10:10 mouse kernel: *pde = 00000000
+Jun 15 12:10:10 mouse kernel: Oops: 0000 [#1]
+Jun 15 12:10:10 mouse kernel: PREEMPT 
+Jun 15 12:10:10 mouse kernel: Modules linked in: ipt_MASQUERADE
+iptable_nat ip_conntrack ip_tables via drm vmnet vmmon bc_cast bc_rijn
+bc_idea bc_3des bc_bf128 bc_bf448 bc_twofish bc_gost bc_des bc_blowfish
+bc snd_via82xx_modem snd_via82xx snd_ac97_codec snd_pcm_oss
+snd_mixer_oss snd_pcm snd_timer snd_page_alloc snd_mpu401_uart
+snd_rawmidi snd ndiswrapper
+Jun 15 12:10:10 mouse kernel: CPU:    0
+Jun 15 12:10:10 mouse kernel: EIP:    0060:[sk_alloc+15/224]    Tainted:
+PF     VLI
+Jun 15 12:10:10 mouse kernel: EFLAGS: 00210286   (2.6.12-rc6-acf1) 
+Jun 15 12:10:10 mouse kernel: EIP is at sk_alloc+0xf/0xe0
+Jun 15 12:10:10 mouse kernel: eax: 0000000e   ebx: d181a000   ecx:
+0000000b   edx: 00000020
+Jun 15 12:10:10 mouse kernel: esi: 00000001   edi: dd3bd60c   ebp:
+00000000   esp: d181be00
+Jun 15 12:10:10 mouse kernel: ds: 007b   es: 007b   ss: 0068
+Jun 15 12:10:10 mouse kernel: Process ifconfig (pid: 3011,
+threadinfo=d181a000 task=d2f35aa0)
+Jun 15 12:10:10 mouse kernel: Stack: 00002000 ddeb2800 d181a000 dd3bd600
+dd3bd60c 00000000 df06fc04 00000010 
+Jun 15 12:10:10 mouse kernel:        00000020 00000001 00000000 dd3bd600
+ddeb2805 dd3bd611 dd3bd60c df06fdf2 
+Jun 15 12:10:10 mouse kernel:        dd3bd600 dd3bd60c ddeb2800 00000001
+dd3bd600 ddeb2800 00000001 00000000 
+Jun 15 12:10:10 mouse kernel: Call Trace:
+Jun 15 12:10:10 mouse kernel:  [pg0+516279300/1069462528] VNetBridgeUp
++0xe4/0x1e0 [vmnet]
+Jun 15 12:10:10 mouse kernel:  [pg0+516279794/1069462528]
+VNetBridgeNotify+0x82/0x170 [vmnet]
+Jun 15 12:10:10 mouse kernel:  [notifier_call_chain+45/80]
+notifier_call_chain+0x2d/0x50
+Jun 15 12:10:10 mouse kernel:  [dev_open+111/144] dev_open+0x6f/0x90
+Jun 15 12:10:10 mouse kernel:  [dev_change_flags+81/288]
+dev_change_flags+0x51/0x120
+Jun 15 12:10:10 mouse kernel:  [dev_load+37/112] dev_load+0x25/0x70
+Jun 15 12:10:10 mouse kernel:  [devinet_ioctl+566/1408] devinet_ioctl
++0x236/0x580
+Jun 15 12:10:10 mouse kernel:  [inet_ioctl+94/160] inet_ioctl+0x5e/0xa0
+Jun 15 12:10:10 mouse kernel:  [sock_ioctl+217/560] sock_ioctl
++0xd9/0x230
+Jun 15 12:10:10 mouse kernel:  [do_ioctl+134/160] do_ioctl+0x86/0xa0
+Jun 15 12:10:10 mouse kernel:  [sys_socket+61/96] sys_socket+0x3d/0x60
+Jun 15 12:10:10 mouse kernel:  [vfs_ioctl+101/464] vfs_ioctl+0x65/0x1d0
+Jun 15 12:10:10 mouse kernel:  [sys_ioctl+69/128] sys_ioctl+0x45/0x80
+Jun 15 12:10:10 mouse kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
+Jun 15 12:10:10 mouse kernel: Code: e8 0b e9 74 fd ff ff 0f b6 41 02 3c
+0a 0f 94 c0 e9 00 fe ff ff 8d b4 26 00 00 00 00 55 57 56 53 83 ec 08 8b
+74 24 24 8b 54 24 20 <8b> 46 68 85 c0 0f 84 a3 00 00 00 89 54 24 04 89
+04 24 e8 ca 0c 
+Jun 15 12:10:10 mouse kernel:  <6>note: ifconfig[3011] exited with
+preempt_count 1
+Jun 15 12:10:10 mouse kernel: scheduling while atomic:
+ifconfig/0x10000001/3011
+Jun 15 12:10:10 mouse kernel:  [schedule+1495/1504] schedule+0x5d7/0x5e0
+Jun 15 12:10:10 mouse kernel:  [call_console_drivers+101/288]
+call_console_drivers+0x65/0x120
+Jun 15 12:10:10 mouse kernel:  [unmap_page_range+138/176]
+unmap_page_range+0x8a/0xb0
+Jun 15 12:10:10 mouse kernel:  [cond_resched+41/64] cond_resched
++0x29/0x40
+Jun 15 12:10:10 mouse kernel:  [unmap_vmas+411/496] unmap_vmas
++0x19b/0x1f0
+Jun 15 12:10:10 mouse kernel:  [exit_mmap+132/352] exit_mmap+0x84/0x160
+Jun 15 12:10:10 mouse kernel:  [do_page_fault+0/1433] do_page_fault
++0x0/0x599
+Jun 15 12:10:10 mouse kernel:  [mmput+55/160] mmput+0x37/0xa0
+Jun 15 12:10:10 mouse kernel:  [do_exit+192/944] do_exit+0xc0/0x3b0
+Jun 15 12:10:10 mouse kernel:  [do_page_fault+0/1433] do_page_fault
++0x0/0x599
+Jun 15 12:10:10 mouse kernel:  [die+381/384] die+0x17d/0x180
+Jun 15 12:10:10 mouse kernel:  [do_page_fault+0/1433] do_page_fault
++0x0/0x599
+Jun 15 12:10:10 mouse kernel:  [printk+23/32] printk+0x17/0x20
+Jun 15 12:10:10 mouse kernel:  [do_page_fault+701/1433] do_page_fault
++0x2bd/0x599
+Jun 15 12:10:10 mouse kernel:  [recalc_task_prio+136/320]
+recalc_task_prio+0x88/0x140
+Jun 15 12:10:10 mouse kernel:  [preempt_schedule+74/112]
+preempt_schedule+0x4a/0x70
+Jun 15 12:10:10 mouse kernel:  [release_console_sem+210/224]
+release_console_sem+0xd2/0xe0
+Jun 15 12:10:10 mouse kernel:  [do_page_fault+0/1433] do_page_fault
++0x0/0x599
+Jun 15 12:10:10 mouse kernel:  [error_code+79/84] error_code+0x4f/0x54
+Jun 15 12:10:10 mouse kernel:  [sk_alloc+15/224] sk_alloc+0xf/0xe0
+Jun 15 12:10:10 mouse kernel:  [pg0+516279300/1069462528] VNetBridgeUp
++0xe4/0x1e0 [vmnet]
+Jun 15 12:10:10 mouse kernel:  [pg0+516279794/1069462528]
+VNetBridgeNotify+0x82/0x170 [vmnet]
+Jun 15 12:10:10 mouse kernel:  [notifier_call_chain+45/80]
+notifier_call_chain+0x2d/0x50
+Jun 15 12:10:10 mouse kernel:  [dev_open+111/144] dev_open+0x6f/0x90
+Jun 15 12:10:10 mouse kernel:  [dev_change_flags+81/288]
+dev_change_flags+0x51/0x120
+Jun 15 12:10:10 mouse kernel:  [dev_load+37/112] dev_load+0x25/0x70
+Jun 15 12:10:10 mouse kernel:  [devinet_ioctl+566/1408] devinet_ioctl
++0x236/0x580
+Jun 15 12:10:10 mouse kernel:  [inet_ioctl+94/160] inet_ioctl+0x5e/0xa0
+Jun 15 12:10:10 mouse kernel:  [sock_ioctl+217/560] sock_ioctl
++0xd9/0x230
+Jun 15 12:10:10 mouse kernel:  [do_ioctl+134/160] do_ioctl+0x86/0xa0
+Jun 15 12:10:10 mouse kernel:  [sys_socket+61/96] sys_socket+0x3d/0x60
+Jun 15 12:10:10 mouse kernel:  [vfs_ioctl+101/464] vfs_ioctl+0x65/0x1d0
+Jun 15 12:10:10 mouse kernel:  [sys_ioctl+69/128] sys_ioctl+0x45/0x80
+Jun 15 12:10:10 mouse kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
 
-OK.
+lspci -vvv:
 
-> When transmitting or receiving a buffer it has to be mapped into the DMA 
-> controller's address space first, for example through dma_map_single.
-> 
-> As the result you will obtain a DMA address which you will feed to the 
-> Sonic or put into a rx or tx ring, whatever.  And you need to remember 
-> it in the driver private data, just like the virtual address of the 
-> buffer or the struct sk_buff pointer.  So all you need is to look at 
-> your private data to find that virtual address you need for memcpy.
+0000:00:00.0 Host bridge: VIA Technologies, Inc. VT8378 [KM400] Chipset
+Host Bridge
+	Subsystem: VIA Technologies, Inc.: Unknown device 0000
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+	Status: Cap+ 66MHz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort+ >SERR- <PERR-
+	Latency: 8
+	Region 0: Memory at e0000000 (32-bit, prefetchable) [size=64M]
+	Capabilities: <available only to root>
 
-Not quite. The virtual address you are talking about is the beginning of 
-the receive resource area, which is mapped as you describe. But, the chip 
-then decides where in that area the recieved packet gets buffered, and the 
-chip reports the address of that packet as a pointer. And this is why 
-vdma_log2phys is used to convert the location of the packet (in IOMMU 
-virtual address space) into CPU virtual address where the packet can be 
-found by memcpy. And that is why I was asking for an alternative to 
-vdma_log2phys. But I think calculating the offset of the packet with some 
-IOMMU virtual pointer arithmetic will suffice in this case, since the 
-initial mapping is probably going to be linear.
+0000:00:01.0 PCI bridge: VIA Technologies, Inc. VT8237 PCI Bridge
+(prog-if 00 [Normal decode])
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR+ FastB2B-
+	Status: Cap+ 66MHz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0
+	Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
+	I/O behind bridge: 0000f000-00000fff
+	Memory behind bridge: dde00000-dfefffff
+	Prefetchable memory behind bridge: d5d00000-ddcfffff
+	BridgeCtl: Parity- SERR- NoISA+ VGA+ MAbort- >Reset- FastB2B-
+	Capabilities: <available only to root>
 
--f
+0000:00:09.0 Network controller: Broadcom Corporation BCM4306 802.11b/g
+Wireless LAN Controller (rev 03)
+	Subsystem: Broadcom Corporation: Unknown device 0418
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+	Status: Cap- 66MHz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort-
+<MAbort- >SERR- <PERR-
+	Latency: 32
+	Interrupt: pin A routed to IRQ 11
+	Region 0: Memory at dfffe000 (32-bit, non-prefetchable) [size=8K]
 
-> tg3 is a reasonable example of a driver - albeit not a simple one.
-> 
-> > >From what code I've looked at, and from what you've told me, I'm guessing 
-> > that bus_to_virt() won't cut it here (?)
-> 
-> bus_to_virt and virt_to_bus are shooting offences these days, no less.
-> 
->   Ralf
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-mips" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+0000:00:0a.0 CardBus bridge: O2 Micro, Inc. OZ6912 Cardbus Controller
+(rev 20)
+	Subsystem: TWINHEAD INTERNATIONAL Corp: Unknown device c602
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping+ SERR- FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=slow >TAbort- <TAbort-
+<MAbort- >SERR- <PERR-
+	Latency: 168
+	Interrupt: pin A routed to IRQ 10
+	Region 0: Memory at 1e000000 (32-bit, non-prefetchable) [size=4K]
+	Bus: primary=00, secondary=02, subordinate=05, sec-latency=176
+	Memory window 0: 1e400000-1e7ff000 (prefetchable)
+	Memory window 1: 1e800000-1ebff000
+	I/O window 0: 00004000-000040ff
+	I/O window 1: 00004400-000044ff
+	BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset- 16bInt+ PostWrite+
+	16-bit legacy interface ports at 0001
+
+0000:00:10.0 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB
+1.1 Controller (rev 80) (prog-if 00 [UHCI])
+	Subsystem: TWINHEAD INTERNATIONAL Corp: Unknown device c905
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+	Latency: 32, Cache Line Size: 0x08 (32 bytes)
+	Interrupt: pin A routed to IRQ 7
+	Region 4: I/O ports at e400 [size=32]
+	Capabilities: <available only to root>
+
+0000:00:10.1 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB
+1.1 Controller (rev 80) (prog-if 00 [UHCI])
+	Subsystem: TWINHEAD INTERNATIONAL Corp: Unknown device c905
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+	Latency: 32, Cache Line Size: 0x08 (32 bytes)
+	Interrupt: pin B routed to IRQ 7
+	Region 4: I/O ports at e800 [size=32]
+	Capabilities: <available only to root>
+
+0000:00:10.2 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB
+1.1 Controller (rev 80) (prog-if 00 [UHCI])
+	Subsystem: TWINHEAD INTERNATIONAL Corp: Unknown device c905
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+	Latency: 32, Cache Line Size: 0x08 (32 bytes)
+	Interrupt: pin C routed to IRQ 7
+	Region 4: I/O ports at ec00 [size=32]
+	Capabilities: <available only to root>
+
+0000:00:10.3 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 82)
+(prog-if 20 [EHCI])
+	Subsystem: TWINHEAD INTERNATIONAL Corp: Unknown device c905
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+	Latency: 32, Cache Line Size: 0x10 (64 bytes)
+	Interrupt: pin D routed to IRQ 7
+	Region 0: Memory at dfffdf00 (32-bit, non-prefetchable) [size=256]
+	Capabilities: <available only to root>
+
+0000:00:11.0 ISA bridge: VIA Technologies, Inc. VT8235 ISA Bridge
+	Subsystem: VIA Technologies, Inc.: Unknown device 0000
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping+ SERR- FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0
+	Capabilities: <available only to root>
+
+0000:00:11.1 IDE interface: VIA Technologies, Inc.
+VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
+(prog-if 8a [Master SecP PriP])
+	Subsystem: TWINHEAD INTERNATIONAL Corp: Unknown device 1205
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+	Latency: 32
+	Interrupt: pin A routed to IRQ 255
+	Region 4: I/O ports at fc00 [size=16]
+	Capabilities: <available only to root>
+
+0000:00:11.5 Multimedia audio controller: VIA Technologies, Inc.
+VT8233/A/8235/8237 AC97 Audio Controller (rev 50)
+	Subsystem: TWINHEAD INTERNATIONAL Corp: Unknown device 0408
+	Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+	Interrupt: pin C routed to IRQ 10
+	Region 0: I/O ports at dc00 [size=256]
+	Capabilities: <available only to root>
+
+0000:00:11.6 Communication controller: VIA Technologies, Inc. Intel 537
+[AC97 Modem] (rev 80)
+	Subsystem: TWINHEAD INTERNATIONAL Corp: Unknown device 1005
+	Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+	Interrupt: pin C routed to IRQ 10
+	Region 0: I/O ports at e000 [size=256]
+	Capabilities: <available only to root>
+
+0000:00:12.0 Ethernet controller: VIA Technologies, Inc. VT6102
+[Rhine-II] (rev 74)
+	Subsystem: TWINHEAD INTERNATIONAL Corp: Unknown device 0207
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+	Latency: 32 (750ns min, 2000ns max), Cache Line Size: 0x08 (32 bytes)
+	Interrupt: pin A routed to IRQ 11
+	Region 0: I/O ports at d800 [size=256]
+	Region 1: Memory at dfffde00 (32-bit, non-prefetchable) [size=256]
+	Capabilities: <available only to root>
+
+0000:01:00.0 VGA compatible controller: VIA Technologies, Inc. VT8378
+[S3 UniChrome] Integrated Video (rev 01) (prog-if 00 [VGA])
+	Subsystem: TWINHEAD INTERNATIONAL Corp: Unknown device 030d
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+	Status: Cap+ 66MHz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+	Latency: 32 (500ns min)
+	Interrupt: pin A routed to IRQ 11
+	Region 0: Memory at d8000000 (32-bit, prefetchable) [size=64M]
+	Region 1: Memory at de000000 (32-bit, non-prefetchable) [size=16M]
+	Expansion ROM at dfef0000 [disabled] [size=64K]
+	Capabilities: <available only to root>
+
+-- 
+Avery Fay <avery@ravencode.com>

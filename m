@@ -1,234 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261165AbVFOPW1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261169AbVFOP0u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261165AbVFOPW1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 11:22:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261169AbVFOPW1
+	id S261169AbVFOP0u (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 11:26:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261170AbVFOP0u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 11:22:27 -0400
-Received: from smtp5.wanadoo.fr ([193.252.22.26]:63103 "EHLO smtp5.wanadoo.fr")
-	by vger.kernel.org with ESMTP id S261165AbVFOPWE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 11:22:04 -0400
-X-ME-UUID: 20050615152200802.C3C411C0022C@mwinf0502.wanadoo.fr
-Message-ID: <14131924.1118848920765.JavaMail.www@wwinf0503>
-From: Pascal CHAPPERON <pascal.chapperon@wanadoo.fr>
-Reply-To: pascal.chapperon@wanadoo.fr
-To: Francois Romieu <romieu@fr.zoreil.com>
-Subject: Re: sis190
-Cc: Andrew Hutchings <info@a-wing.co.uk>, linux-kernel@vger.kernel.org,
-       vinay kumar <b4uvin@yahoo.co.in>, jgarzik@pobox.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [80.14.41.118]
-X-WUM-FROM: |~|
-X-WUM-TO: |~|
-X-WUM-CC: |~||~||~||~|
-X-WUM-REPLYTO: |~|
-Date: Wed, 15 Jun 2005 17:22:00 +0200 (CEST)
+	Wed, 15 Jun 2005 11:26:50 -0400
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:18436 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261169AbVFOP0o
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 11:26:44 -0400
+Date: Wed, 15 Jun 2005 16:26:13 +0100 (BST)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: Russ Anderson <rja@sgi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RCF] Linux memory error handling
+In-Reply-To: <200506151430.j5FEUD7J1393603@clink.americas.sgi.com>
+Message-ID: <Pine.LNX.4.61L.0506151545410.13835@blysk.ds.pg.gda.pl>
+References: <200506151430.j5FEUD7J1393603@clink.americas.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Message du 14/06/05 22:06
-> De : "Francois Romieu" <romieu@fr.zoreil.com>
+On Wed, 15 Jun 2005, Russ Anderson wrote:
 
-> The patch of the day uses a 4 bytes aligned Rx buffer address (at least for
-> the usual MTU) and copies the Rx data. Can you reproduce the usual testing
-> and tell if it makes a difference ?
+> Handling memory errors:
 > 
-> Patch available at:
-> http://www.fr.zoreil.com/people/francois/misc/20050614-2.6.12-rc-sis190-test.patch
+> 	Some memory error handling functionality is common to
+> 	most architectures.
 > 
-> --
-> Ueimor
+> 	Corrected error handling:
 > 
+> 	    Logging:  When ECC hardware corrects a Single Bit Error (SBE),
+> 		an interrupt is generated to inform linux that there is 
+> 		a corrected error record available for logging.
+> 
+> 	    Polling Threshold:  A solid single bit error can cause a burst
+> 		of correctable errors that can cause a significant logging
+> 		overhead.  SBE thresholding counts the number of SBEs for
+> 		a given page and if too many SBEs are detected in a given
+> 		period of time, the interrupt is disabled and instead 
+> 		linux periodically polls for corrected errors.
 
-# cat /var/log/messages
-[...]
-Jun 15 15:24:37 local kernel: sis190 Gigabit Ethernet driver 1.2 loaded
-Jun 15 15:24:37 local kernel: ACPI: PCI Interrupt 0000:00:04.0[A] -> Link [LNKD] -> GSI 11 (level, low) -> IRQ 11
-Jun 15 15:24:37 local kernel: 0000:00:04.0: sis190 at ffffc20000004c00 (IRQ: 11), 00:11:2f:e9:42:70
-Jun 15 15:24:37 local kernel: eth0: Enabling Auto-negotiation.
-Jun 15 15:24:37 local kernel: eth0: status = 63000000
-Jun 15 15:24:37 local kernel: eth0: status = 20000000
-Jun 15 15:24:38 local last message repeated 109 times
-Jun 15 15:24:38 local kernel: eth0: status = 22000000
-Jun 15 15:24:39 local kernel: eth0: status = 20000000
-Jun 15 15:24:39 local last message repeated 48 times
-Jun 15 15:24:39 local network: Bringing up interface eth0:  succeeded
-Jun 15 15:24:39 local kernel: eth0: status = 20000000
-Jun 15 15:24:47 local last message repeated 606 times
-Jun 15 15:24:47 local kernel: eth0: mii 0x1f = 0000.
-Jun 15 15:24:47 local kernel: eth0: mii lpa = 45e1.
-Jun 15 15:24:47 local kernel: eth0: Link on 1000 Mbps Full Duplex mode.
-Jun 15 15:24:47 local kernel: eth0: status = 20000000
-Jun 15 15:25:18 local last message repeated 2361 times
-[...]
-Jun 15 15:26:56 local kernel: eth0: Rx status = 400c0040
-Jun 15 15:26:56 local kernel: eth0: Rx PSize = 01010040
-Jun 15 15:26:56 local kernel: sk_buff[0]->tail = ffff81001f2bd814
-Jun 15 15:26:56 local kernel: eth0: Rx status = c0000000
-[...]
-Jun 15 15:26:57 local kernel: eth0: Rx status = 400c0040
-Jun 15 15:26:57 local kernel: eth0: Rx PSize = 01010040
-Jun 15 15:26:57 local kernel: sk_buff[0]->tail = ffff81001ef4c014
-Jun 15 15:26:57 local kernel: eth0: Rx status = c0000000
-[...]
+ This is highly undesirable if the same interrupt is used for MBEs.  A 
+page that causes an excessive number of SBEs should rather be removed from 
+the available pool instead.  Logging should probably take recent events 
+into account anyway and take care of not overloading the system, e.g. by 
+keeping only statistical data instead of detailed information about each 
+event under load.
 
-# ifconfig
-eth0      Link encap:Ethernet  HWaddr 00:11:2F:E9:42:70
-          inet addr:10.169.21.20  Bcast:10.169.23.255  Mask:255.255.252.0
-          inet6 addr: fe80::211:2fff:fee9:4270/64 Scope:Link
-          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:1000
-          RX bytes:0 (0.0 b)  TX bytes:0 (0.0 b)
-          Interrupt:11 Base address:0xdead
+> 	    Data Migration:  If a page of memory has too many single bit
+> 		errors, it may be prudent to move the data off that
+> 		physical page before the correctable SBE turns into an
+> 		uncorrectable MBE. 
+> 
+> 	    Memory handling parameters:
+> 
+> 		Since memory failure modes are due to specific DIMM
+> 		failure characteristics, there is will be no way to 
+> 		reach agreement on one set of thresholds that will
+> 		be appropriate for all configurations.  Therefore there
+> 		needs to be a way to modify the thresholds.  One alternative
+> 		is a /proc/sys/kernel/ interface to control settings, such
+> 		as polling thresholds.  That provides an easy standard
+> 		way of modifying thresholds to match the characteristics
+> 		of the specific DIMM type.
 
-# ping -c 1 10.169.21.1
-PING 10.169.21.1 (10.169.21.1) 56(84) bytes of data.
->From 10.169.21.20 icmp_seq=0 Destination Host Unreachable
+ Note that scrubbing may also be required depending on hardware 
+capabilities as data could have been corrected on the fly for the purpose 
+of providing a correct value for the bus transaction, but memory may still 
+hold corrupted data.
 
---- 10.169.21.1 ping statistics ---
-1 packets transmitted, 0 received, +1 errors, 100% packet loss, time 0ms
+ And of course not all memory is DIMM!
 
-#tcpdump -enx [local]
-15:30:56.690828 00:11:2f:e9:42:70 > Broadcast, ethertype ARP (0x0806), length 42: arp who-has 10.169.21.1 tell 10.169.21.20
-        0x0000:  0001 0800 0604 0001 0011 2fe9 4270 0aa9  ........../.Bp..
-        0x0010:  1514 0000 0000 0000 0aa9 1501            ............
-15:30:56.691065 48:6e:08:06:00:01 > 42:70:00:30:4f:06, ethertype IPv4 (0x0800), length 60: IP0 bad-len 2
-        0x0000:  0604 0002 0030 4f06 486e 0aa9 1501 0011  .....0O.Hn......
-        0x0010:  2fe9 4270 0aa9 1514 0000 0000 0000 0000  /.Bp............
-        0x0020:  0000 0000 0000 0000 0000 0c15 4f3d       ............O=
-15:30:57.690671 00:11:2f:e9:42:70 > Broadcast, ethertype ARP (0x0806), length 42: arp who-has 10.169.21.1 tell 10.169.21.20
-        0x0000:  0001 0800 0604 0001 0011 2fe9 4270 0aa9  ........../.Bp..
-        0x0010:  1514 0000 0000 0000 0aa9 1501            ............
-15:30:57.690840 48:6e:08:06:00:01 > 42:70:00:30:4f:06, ethertype IPv4 (0x0800), length 60: IP0 bad-len 2
-        0x0000:  0604 0002 0030 4f06 486e 0aa9 1501 0011  .....0O.Hn......
-        0x0010:  2fe9 4270 0aa9 1514 0000 0000 0000 0000  /.Bp............
-        0x0020:  0000 0000 0000 0000 0000 0c15 4f3d       ............O=
-15:30:58.690519 00:11:2f:e9:42:70 > Broadcast, ethertype ARP (0x0806), length 42: arp who-has 10.169.21.1 tell 10.169.21.20
-        0x0000:  0001 0800 0604 0001 0011 2fe9 4270 0aa9  ........../.Bp..
-        0x0010:  1514 0000 0000 0000 0aa9 1501            ............
-15:30:58.690691 48:6e:08:06:00:01 > 42:70:00:30:4f:06, ethertype IPv4 (0x0800), length 60: IP0 bad-len 2
-        0x0000:  0604 0002 0030 4f06 486e 0aa9 1501 0011  .....0O.Hn......
-        0x0010:  2fe9 4270 0aa9 1514 0000 0000 0000 0000  /.Bp............
-        0x0020:  0000 0000 0000 0000 0000 0c15 4f3d       ............O=
+> 	Uncorrected error handling:
+> 
+> 	    Kill the application:  One recovery technique to avoid a kernel
+> 		panic when an application process hits an uncorrectable 
+> 		memory error is to SIGKILL the application.  The page is 
+> 		marked PG_reserved to avoid re-use.  A (new) PG_hard_error
+> 		flag would be useful to indicate that the physical page has
+> 		a hard memory error.
 
-# ping -c 1 -s 250 10.169.21.1
-PING 10.169.21.1 (10.169.21.1) 250(278) bytes of data.
->From 10.169.21.20 icmp_seq=0 Destination Host Unreachable
+ Note we have some infrastructure for that in the MIPS port -- we kill the 
+triggering process, but we don't mark the problematic memory page as 
+unusable (which is an area for improvement).  This is of course the case 
+for faults occurring synchronously in the user mode -- when in the kernel 
+mode or when happening asynchronously (e.g. because of being triggered by 
+a DMA transaction rather than one involving a CPU) you often cannot 
+determine whether killing a process is good enough for system safety even 
+if you are able to narrow the fault down to a potential victim.
 
+> 	    Disable memory for next reboot:  When a hard error is detected,
+> 		notify SAL/BIOS of the bad physical memory.  SAL/BIOS can
+> 		save the bad addresses and, when building the EFI map after
+> 		reset/reboot, mark the bad pages as EFI_UNUSABLE_MEMORY,
+> 		and type = 0, so Linux will ignore granules contains these 
+> 		pages.
+> 
+> 	    Dumping:  Dump programs should not try to dump pages with bad
+> 		memory.  A PG_hard_error flag would indicate to dump
+> 		programs which pages have bad memory.
+> 
+> 	Memory DIMM information & settings:
+> 
+> 	    Use a /proc/dimm_info interface to pass DIMM information to Linux.
+> 	    Hardware vendors could add their hardware specific settings.
 
---- 10.169.21.1 ping statistics ---
-1 packets transmitted, 0 received, +1 errors, 100% packet loss, time 0ms
+ I'd recommend a more generic name rather than "dimm_info" if that is to 
+be reused universally.
 
-#tcpdump -enx [local]
-15:32:44.705404 00:11:2f:e9:42:70 > Broadcast, ethertype ARP (0x0806), length 42: arp who-has 10.169.21.1 tell 10.169.21.20
-        0x0000:  0001 0800 0604 0001 0011 2fe9 4270 0aa9  ........../.Bp..
-        0x0010:  1514 0000 0000 0000 0aa9 1501            ............
-15:32:44.705641 48:6e:08:06:00:01 > 42:70:00:30:4f:06, ethertype IPv4 (0x0800), length 60: IP0 bad-len 2
-        0x0000:  0604 0002 0030 4f06 486e 0aa9 1501 0011  .....0O.Hn......
-        0x0010:  2fe9 4270 0aa9 1514 0000 0000 0000 0000  /.Bp............
-        0x0020:  0000 0000 0000 0000 0000 0c15 4f3d       ............O=
-15:32:45.705250 00:11:2f:e9:42:70 > Broadcast, ethertype ARP (0x0806), length 42: arp who-has 10.169.21.1 tell 10.169.21.20
-        0x0000:  0001 0800 0604 0001 0011 2fe9 4270 0aa9  ........../.Bp..
-        0x0010:  1514 0000 0000 0000 0aa9 1501            ............
-15:32:45.705442 48:6e:08:06:00:01 > 42:70:00:30:4f:06, ethertype IPv4 (0x0800), length 60: IP0 bad-len 2
-        0x0000:  0604 0002 0030 4f06 486e 0aa9 1501 0011  .....0O.Hn......
-        0x0010:  2fe9 4270 0aa9 1514 0000 0000 0000 0000  /.Bp............
-        0x0020:  0000 0000 0000 0000 0000 0c15 4f3d       ............O=
-15:32:46.705098 00:11:2f:e9:42:70 > Broadcast, ethertype ARP (0x0806), length 42: arp who-has 10.169.21.1 tell 10.169.21.20
-        0x0000:  0001 0800 0604 0001 0011 2fe9 4270 0aa9  ........../.Bp..
-        0x0010:  1514 0000 0000 0000 0aa9 1501            ............
-15:32:46.705325 48:6e:08:06:00:01 > 42:70:00:30:4f:06, ethertype IPv4 (0x0800), length 60: IP0 bad-len 2
-        0x0000:  0604 0002 0030 4f06 486e 0aa9 1501 0011  .....0O.Hn......
-        0x0010:  2fe9 4270 0aa9 1514 0000 0000 0000 0000  /.Bp............
-        0x0020:  0000 0000 0000 0000 0000 0c15 4f3d       ............O=
-
-
-# i tried to remove NET_IP_ALIGN :
-# diff -puN sis190-20050614.c sis190.c
---- sis190-20050614.c   2005-06-15 16:39:08.000000000 +0200
-+++ sis190.c    2005-06-15 16:41:28.000000000 +0200
-@@ -405,11 +405,10 @@ static int sis190_alloc_rx_skb(struct pc
-         * To be verified: the asic only DMA to a four bytes aligned address
-         * -> the usual NET_IP_ALIGN margin must be increased by a 2x factor.
-         */
--       skb = dev_alloc_skb(rx_buf_sz + 2*NET_IP_ALIGN);
-+       skb = dev_alloc_skb(rx_buf_sz);
-        if (!skb)
-                goto err_out;
-
--       skb_reserve(skb, 2*NET_IP_ALIGN);
-        *sk_buff = skb;
-
-        mapping = pci_map_single(pdev, skb->tail, rx_buf_sz,
-@@ -456,10 +455,8 @@ static inline int sis190_try_rx_copy(str
-
-        if (pkt_size < rx_copybreak) {
-                struct sk_buff *skb;
--
--               skb = dev_alloc_skb(pkt_size + NET_IP_ALIGN);
-+               skb = dev_alloc_skb(pkt_size);
-                if (skb) {
--                       skb_reserve(skb, NET_IP_ALIGN);
-                        printk(KERN_INFO "sk_buff[0]->tail = %p\n",
-                               sk_buff[0]->tail);
-                        eth_copy_and_sum(skb, sk_buff[0]->tail, pkt_size, 0);
-@@ -468,9 +465,6 @@ static inline int sis190_try_rx_copy(str
-                        ret = 0;
-                }
-        }
--       /* Fix the IP align issue by hand. */
--       if (ret < 0)
--               sis190_align(sk_buff[0], pkt_size);
-        return ret;
- }
-
- 
-It seemed to work :  ping, ping -s 1400, ping -s 10000.
-I  could even connect (a short time) on the server via ssh and work on it.
-But :
-# ifconfig
-eth0      Link encap:Ethernet  HWaddr 00:11:2F:E9:42:70
-          inet addr:10.169.21.20  Bcast:10.169.23.255  Mask:255.255.252.0
-          inet6 addr: fe80::211:2fff:fee9:4270/64 Scope:Link
-          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-          RX packets:128 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:82 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:1000
-          RX bytes:158305 (154.5 KiB)  TX bytes:7834 (7.6 KiB)
-          Interrupt:11 Base address:0xdead
-
-Everything failed after 128 packets were received.
-
-I tried to increase NUM_RX_DESC from 64 to 256 :
-# ifconfig
-eth0      Link encap:Ethernet  HWaddr 00:11:2F:E9:42:70
-          inet addr:10.169.21.20  Bcast:10.169.23.255  Mask:255.255.252.0
-          inet6 addr: fe80::211:2fff:fee9:4270/64 Scope:Link
-          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-          RX packets:512 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:271 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:1000
-          RX bytes:709097 (692.4 KiB)  TX bytes:20284 (19.8 KiB)
-          Interrupt:11 Base address:0xdead
-
-Only 512 packets were received...
-
-Nothing special in syslog after the failure, and tcpdump reported only Tx packets :
-16:18:30.891922 00:11:2f:e9:42:70 > Broadcast, ethertype ARP (0x0806), length 42: arp who-has 10.169.21.1 tell 10.169.21.20
-        0x0000:  0001 0800 0604 0001 0011 2fe9 4270 0aa9  ........../.Bp..
-        0x0010:  1514 0000 0000 0000 0aa9 1501            ............
-
-
-I got a serious headache as i tried to understand how the RX ring works.
-But it is quite too difficult for me now.
-
-Regards
-Pascal
-
-
-
+  Maciej

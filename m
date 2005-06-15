@@ -1,48 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261429AbVFOABK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261431AbVFOAGn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261429AbVFOABK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Jun 2005 20:01:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261430AbVFOABK
+	id S261431AbVFOAGn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Jun 2005 20:06:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261433AbVFOAGn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Jun 2005 20:01:10 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:52372 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261429AbVFOABF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Jun 2005 20:01:05 -0400
-Date: Tue, 14 Jun 2005 17:01:37 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-Cc: mchehab@brturbo.com.br, video4linux-list@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH3/5] Synchronize patch for SAA7134 cards
-Message-Id: <20050614170137.690e0328.akpm@osdl.org>
-In-Reply-To: <42ABC3C4.4050406@brturbo.com.br>
-References: <42ABBE6F.8080406@brturbo.com.br>
-	<42ABC3C4.4050406@brturbo.com.br>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 14 Jun 2005 20:06:43 -0400
+Received: from serv01.siteground.net ([70.85.91.68]:13447 "EHLO
+	serv01.siteground.net") by vger.kernel.org with ESMTP
+	id S261431AbVFOAGm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Jun 2005 20:06:42 -0400
+Date: Tue, 14 Jun 2005 17:05:36 -0700 (PDT)
+From: christoph <christoph@scalex86.org>
+X-X-Sender: christoph@ScMPusgw
+To: Andrew Morton <akpm@osdl.org>
+cc: ak@suse.de, linux-kernel@vger.kernel.org, shai@scalex86.org
+Subject: Re: [PATCH] Move some variables into the "most_readonly" section??
+In-Reply-To: <20050614165818.6f83fa6c.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.62.0506141704150.4225@ScMPusgw>
+References: <Pine.LNX.4.62.0506071253020.2850@ScMPusgw> <20050608131839.GP23831@wotan.suse.de>
+ <Pine.LNX.4.62.0506141551350.3676@ScMPusgw> <20050614162354.6aabe57e.akpm@osdl.org>
+ <Pine.LNX.4.62.0506141644160.4099@ScMPusgw> <20050614165818.6f83fa6c.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - serv01.siteground.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mauro Carvalho Chehab <mchehab@brturbo.com.br> wrote:
->
-> --- linux-2.6.12/drivers/media/video/saa7134/saa7134-video.c	2005-06-07 15:39:55.000000000 -0300
-> +++ linux/drivers/media/video/saa7134/saa7134-video.c	2005-06-12 01:22:34.000000000 -0300
-> @@ -1,5 +1,5 @@
->  /*
-> ...
->  		.h_start       = 0,
->  		.h_stop        = 719,
-> - 		.video_v_start = 23,
-> - 		.video_v_stop  = 262,
-> - 		.vbi_v_start_0 = 10,
-> - 		.vbi_v_stop_0  = 21,
-> - 		.vbi_v_start_1 = 273,
-> - 		.src_timing    = 7,
-> -
-> +		.video_v_start = 22,
-> +  		.video_v_start = 23,
+On Tue, 14 Jun 2005, Andrew Morton wrote:
 
-That doesn't compile.  I'll assume it's supposed to be 22.
+> > Yup that makes the whole thing much more sane. Can we specify multiple 
+> > attributes to a variable?
+> Seems OK?
+
+Looks fine. Want a patch against the existing fixes in mm1? So that we 
+have a whatever-fix-fix-fix-fix-fix-fix-fix?
+

@@ -1,48 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261707AbVFPCgo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261608AbVFPC6H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261707AbVFPCgo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 22:36:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261708AbVFPCgn
+	id S261608AbVFPC6H (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 22:58:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261709AbVFPC6G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 22:36:43 -0400
-Received: from thunk.org ([69.25.196.29]:8864 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S261707AbVFPCgh (ORCPT
+	Wed, 15 Jun 2005 22:58:06 -0400
+Received: from [66.249.19.240] ([66.249.19.240]:15539 "EHLO spry.lycoris.com")
+	by vger.kernel.org with ESMTP id S261608AbVFPC6D (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 22:36:37 -0400
-Date: Wed, 15 Jun 2005 22:36:30 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Patrick McFarland <pmcfarland@downeast.net>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Alexey Zaytsev <alexey.zaytsev@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: A Great Idea (tm) about reimplementing NLS.
-Message-ID: <20050616023630.GC9773@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Patrick McFarland <pmcfarland@downeast.net>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Alexey Zaytsev <alexey.zaytsev@gmail.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <f192987705061303383f77c10c@mail.gmail.com> <f192987705061310202e2d9309@mail.gmail.com> <1118690448.13770.12.camel@localhost.localdomain> <200506152149.06367.pmcfarland@downeast.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200506152149.06367.pmcfarland@downeast.net>
-User-Agent: Mutt/1.5.9i
+	Wed, 15 Jun 2005 22:58:03 -0400
+Date: Wed, 15 Jun 2005 09:49:15 -0700 (PDT)
+From: Joseph Cheek <joseph@lycoris.com>
+To: announce@lycoris.com
+Subject: [announce] Press Release: Mandriva acquires Lycoris assets
+Message-ID: <Pine.LNX.4.62.0506150946010.10818@spry.lycoris.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (spry.lycoris.com [0.0.0.0]); Wed, 15 Jun 2005 09:49:16 -0700 (PDT)
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (spry.lycoris.com [0.0.0.0]); Wed, 15 Jun 2005 09:49:16 -0700 (PDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 15, 2005 at 09:49:05PM -0400, Patrick McFarland wrote:
-> On Monday 13 June 2005 03:20 pm, Alan Cox wrote:
-> > An ext3fs is always utf-8. People might have chosen to put other
-> > encodings on it but thats "not our fault" ;)
-> 
-> What happens if you 'field upgrade' ext2 to ext3 by adding a journal? That 
-> doesn't magically convert !utf-8 to utf-8.
+Lycoris and Mandriva are pleased to announce that Mandriva has acquired 
+the assets of Lycoris, and that Lycoris Desktop/LX and Mandriva Linux are 
+going to be merged into a new whole with a renewed focus on Desktop Linux. 
+We want you to be among the first to know.  Please read about it here:
 
-Ext2/3's encoding has always been utf-8.  Period.
+http://www.lycoris.com/press/mandriva.php
 
-There have been some people who have chosen to do something else
-locally, but that was about as valid as the people who violated SMTP
-standards by Just Sending 8-bits instead of using MIME.
+or
 
-							- Ted
+http://www.mandriva.com/company/press/pr?n=/pr/corporate/2556
+
+Thanks!
+
+Joe
+
+-- 
+Joseph Cheek, CEO, Lycoris
+joseph@lycoris.com
+Lycoris helps you migrate to Linux.
+-
+--
+announce list.  To leave, send "unsubscribe" without quotes in body of
+message to announce-request@lycoris.com.

@@ -1,57 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261591AbVFOV23@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261593AbVFOVaW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261591AbVFOV23 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 17:28:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261586AbVFOV22
+	id S261593AbVFOVaW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 17:30:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261588AbVFOV3q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 17:28:28 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:45256 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261590AbVFOV2G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 17:28:06 -0400
-From: Russ Anderson <rja@sgi.com>
-Message-Id: <200506152127.j5FLRvvl1466135@clink.americas.sgi.com>
-Subject: Re: [RFC] Linux memory error handling
-To: haveblue@us.ibm.com (Dave Hansen)
-Date: Wed, 15 Jun 2005 16:27:57 -0500 (CDT)
-Cc: rja@sgi.com (Russ Anderson), rmk+lkml@arm.linux.org.uk (Russell King),
-       linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <1118868302.6620.34.camel@localhost> from "Dave Hansen" at Jun 15, 2005 01:45:02 PM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+	Wed, 15 Jun 2005 17:29:46 -0400
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:7572 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S261593AbVFOV23 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 17:28:29 -0400
+Date: Wed, 15 Jun 2005 17:28:25 -0400
+To: Lukasz Stelmach <stlman@poczta.fm>
+Cc: mru@inprovide.com, Patrick McFarland <pmcfarland@downeast.net>,
+       "Alexander E. Patrakov" <patrakov@ums.usu.ru>,
+       linux-kernel@vger.kernel.org
+Subject: Re: A Great Idea (tm) about reimplementing NLS.
+Message-ID: <20050615212825.GS23621@csclub.uwaterloo.ca>
+References: <f192987705061303383f77c10c@mail.gmail.com> <yw1xslzl8g1q.fsf@ford.inprovide.com> <42AFE624.4020403@poczta.fm> <200506150454.11532.pmcfarland@downeast.net> <42AFF184.2030209@poczta.fm> <yw1xd5qo2bzd.fsf@ford.inprovide.com> <42B04090.7050703@poczta.fm>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <42B04090.7050703@poczta.fm>
+User-Agent: Mutt/1.3.28i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen wrote:
-> On Wed, 2005-06-15 at 15:28 -0500, Russ Anderson wrote:
-> > Russell King wrote:
-> > > On Wed, Jun 15, 2005 at 04:26:13PM +0100, Maciej W. Rozycki wrote:
-> > > > On Wed, 15 Jun 2005, Russ Anderson wrote:
-> > > > > 	Memory DIMM information & settings:
-> > > > > 
-> > > > > 	    Use a /proc/dimm_info interface to pass DIMM information to Linux.
-> > > > > 	    Hardware vendors could add their hardware specific settings.
-> > > > 
-> > > >  I'd recommend a more generic name rather than "dimm_info" if that is to 
-> > > > be reused universally.
-> > > 
-> > I really don't care what it's called, as long as it's descriptive.
-> > /proc/meminfo is taken.  :-)
-> > 
-> > One idea would follow the concept of /proc/bus/ and have /proc/memory/
-> > with different memory types.  /proc/memory/dimm0 /proc/memory/dimm1
-> > /proc/memory/flash0 .  
-> 
-> Please don't do this in /proc.  If it's a piece of hardware, and it
-> needs to have some information about it exported, then you need to use
-> kobjects and sysfs.  
+On Wed, Jun 15, 2005 at 04:52:00PM +0200, Lukasz Stelmach wrote:
+> There are far more programmes than only iconv. First of all readline
+> library is kind of broken because it counts (or at least it did a year
+> ago) bytes instead of characters. I won't use UTF-8 nor force anybody
+> else to do so until readline will handle it properly.
 
-How about /sys/devices/system/memory/dimmX with links in
-/sys/devices/system/node/nodeX/ ?  Does that sound better?
+Well utf8 would sure be nice if everything used it, and getting nice
+fonts for it was simple.
 
+> And it is good in a way, however, i think kernel level translation
+> should be also possible. Either done by a code in each filsystem or by
+> some layer above it.
 
--- 
-Russ Anderson, OS RAS/Partitioning Project Lead  
-SGI - Silicon Graphics Inc          rja@sgi.com
+What do you do if the underlying filesystem can not store some unicode
+characters that are allowed on others?
+
+> It depend's on what it is used for. It is very good fs for removable
+> media. None of linux native filesystems is good for this because of
+> different uids on different machines. Since VFAT uses unicode it is
+> possible to see the filenames properly on systems using different
+> codepages for the same language (1:1 is possible).
+
+VFAT uses unicode?  I thought it used the same codepage silyness as FAT
+did, since after all ti was just supposed to be a long filename
+extension to FAT.  Do they use unicode in the long filenames only?
+
+I think UDF is a better filesystem for many types of media since it is
+able to me more gently to the sectors storing the meta data than VFAT
+ever will be.
+
+Len Sorensen

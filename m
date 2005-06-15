@@ -1,49 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261484AbVFOOPR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261477AbVFOOR3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261484AbVFOOPR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 10:15:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261477AbVFOOPR
+	id S261477AbVFOOR3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 10:17:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261463AbVFOOR2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 10:15:17 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:63910 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261445AbVFOOPL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 10:15:11 -0400
-Subject: Re: What breaks aic7xxx in post 2.6.12-rc2 ?
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Frank van Maarseveen <frankvm@frankvm.com>
-Cc: Gr?goire Favre <gregoire.favre@gmail.com>, dino@in.ibm.com,
-       Andrew Morton <akpm@osdl.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050615120237.GB19645@janus>
-References: <1118081857.5045.49.camel@mulgrave>
-	 <20050607085710.GB9230@gmail.com> <1118590709.4967.6.camel@mulgrave>
-	 <20050613145000.GA12057@gmail.com> <1118674783.5079.9.camel@mulgrave>
-	 <20050613183719.GA8653@gmail.com> <1118695847.5079.41.camel@mulgrave>
-	 <20050613214208.GA7471@janus> <1118703593.5079.56.camel@mulgrave>
-	 <20050614214226.GA15560@janus>  <20050615120237.GB19645@janus>
+	Wed, 15 Jun 2005 10:17:28 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:59898 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261477AbVFOOQw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 10:16:52 -0400
+Subject: [PATCH] 1 of 5 IMA: necessary tpm changes
+From: Kylene Jo Hall <kjhall@us.ibm.com>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, Reiner Sailer <sailer@us.ibm.com>
 Content-Type: text/plain
-Date: Wed, 15 Jun 2005 09:14:48 -0500
-Message-Id: <1118844888.5045.18.camel@mulgrave>
+Date: Wed, 15 Jun 2005 09:16:47 -0500
+Message-Id: <1118845007.7037.24.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-06-15 at 14:02 +0200, Frank van Maarseveen wrote:
-> The -rc6 aic7 driver needs just over 7 minutes to recover from this tape
-> unit. In -rc3 this was 80 seconds. -rc2 had no problem.
-> 
-> I don't really need this old tape unit and I don't [re-]boot that often
-> so it is not a problem for me. Anyway, if something needs to be tested
-> then mail me a patch (for stock rc6) and I'll try it.
+This patch applies against linux-2.6.12-rc6-mm1 and provides the
+internal kernel interface for use by IMA or anything else in the kernel
+which would like to use TPM commands.  It also moves the TPM driver up
+in the initialization process to accomodate the early initialization
+requirements of IMA.
 
-Well, the patches to try are the scsi-misc ones:
+Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
+---
+--- linux-2.6.12-rc4/drivers/char/tpm/tpm.c.orig	2005-05-17 14:15:53.000000000 -0500
++++ linux-2.6.12-rc4/drivers/char/tpm/tpm.c	2005-05-17 14:18:56.000000000 -0500
+@@ -50,15 +50,35 @@ static void user_reader_timeout(unsigned
+ }
+ 
+ /*
++ * This function should be used by other kernel subsystems attempting to use the tpm through the tpm_transmit interface.
++ * A call to this function will return the chip structure corresponding to the TPM you are looking for that can then be sent with your command to tpm_transmit.
++ * Passing 0 as the argument corresponds to /dev/tpm0 and thus the first and probably primary TPM on the system.  Passing 1 corresponds to /dev/tpm1 and the next TPM discovered.  If a TPM with the given chip_num does not exist NULL will be returned.  
++ */
++struct tpm_chip* tpm_chip_lookup(int chip_num)
++{
++
++	struct tpm_chip *pos;
++	list_for_each_entry(pos, &tpm_chip_list, list)
++		if (pos->dev_num == chip_num)
++			return pos;
++
++	return NULL;
++
++}
++
++/*
+  * Internal kernel interface to transmit TPM commands
+  */
+-static ssize_t tpm_transmit(struct tpm_chip *chip, const char *buf,
++ssize_t tpm_transmit(struct tpm_chip *chip, const char *buf,
+ 			    size_t bufsiz)
+ {
+ 	ssize_t rc;
+ 	u32 count;
+ 	unsigned long stop;
+ 
++	if ( !chip )
++		return -ENODEV;
++
+ 	count = be32_to_cpu(*((__be32 *) (buf + 2)));
+ 
+ 	if (count == 0)
+@@ -110,6 +130,7 @@ out:
+ 	up(&chip->tpm_mutex);
+ 	return rc;
+ }
++EXPORT_SYMBOL_GPL(tpm_transmit);
+ 
+ #define TPM_DIGEST_SIZE 20
+ #define CAP_PCR_RESULT_SIZE 18
+--- linux-2.6.12-rc3-ima/drivers/char/tpm/tpm.h	2005-04-20 19:03:13.000000000 -0500
++++ linux-2.6.12-rc3-ima/drivers/char/tpm/tpm.h	2005-05-02 14:08:44.000000000 -0500
+@@ -91,3 +91,8 @@ extern ssize_t tpm_read(struct file *, c
+ extern void __devexit tpm_remove(struct pci_dev *);
+ extern int tpm_pm_suspend(struct pci_dev *, pm_message_t);
+ extern int tpm_pm_resume(struct pci_dev *);
++
++/* internal kernel interface */
++extern ssize_t tpm_transmit(struct tpm_chip *chip, const char *buf,
++			    size_t bufsiz);
++extern struct tpm_chip *tpm_chip_lookup(int chip_num);
+--- linux-2.6.12-rc3-ima/drivers/char/tpm/tpm_atmel.c	2005-04-20 19:03:13.000000000 -0500
++++ linux-2.6.12-rc3-ima/drivers/char/tpm/tpm_atmel.c	2005-05-02 14:06:35.000000000 -0500
+@@ -207,7 +207,11 @@ static void __exit cleanup_atmel(void)
+ 	pci_unregister_driver(&atmel_pci_driver);
+ }
+ 
++#ifdef MODULE
+ module_init(init_atmel);
++#else
++fs_initcall(init_atmel);
++#endif
+ module_exit(cleanup_atmel);
+ 
+ MODULE_AUTHOR("Leendert van Doorn (leendert@watson.ibm.com)");
+--- linux-2.6.12-rc3-ima/drivers/char/tpm/tpm_nsc.c	2005-04-20 19:03:13.000000000 -0500
++++ linux-2.6.12-rc3-ima/drivers/char/tpm/tpm_nsc.c	2005-05-02 14:09:34.000000000 -0500
+@@ -364,7 +364,11 @@ static void __exit cleanup_nsc(void)
+ 	pci_unregister_driver(&nsc_pci_driver);
+ }
+ 
++#ifdef MODULE
+ module_init(init_nsc);
++#else
++fs_initcall(init_nsc);
++#endif
+ module_exit(cleanup_nsc);
+ 
+ MODULE_AUTHOR("Leendert van Doorn (leendert@watson.ibm.com)");
 
-http://parisc-linux.org/~jejb/scsi_diffs/scsi-misc-2.6.diff
-
-James
 
 

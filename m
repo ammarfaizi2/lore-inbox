@@ -1,53 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261489AbVFOEvC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261490AbVFOFEv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261489AbVFOEvC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 00:51:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261490AbVFOEvC
+	id S261490AbVFOFEv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 01:04:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261491AbVFOFEv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 00:51:02 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:63431 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261489AbVFOEu4 (ORCPT
+	Wed, 15 Jun 2005 01:04:51 -0400
+Received: from [210.76.114.20] ([210.76.114.20]:6028 "EHLO ccoss.com.cn")
+	by vger.kernel.org with ESMTP id S261490AbVFOFEt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 00:50:56 -0400
-Date: Tue, 14 Jun 2005 21:50:32 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Nico Schottelius <nico-kernel@schottelius.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Why is one sync() not enough?
-Message-Id: <20050614215032.35d44e93.akpm@osdl.org>
-In-Reply-To: <20050614094141.GE1467@schottelius.org>
-References: <20050614094141.GE1467@schottelius.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 15 Jun 2005 01:04:49 -0400
+Subject: one question about LRU mechanism
+From: "liyu@WAN" <liyu@ccoss.com.cn>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Wed, 15 Jun 2005 13:12:56 +0800
+Message-Id: <1118812376.32766.4.camel@liyu.ccoss.com.cn>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.4 (2.0.4-CoCreate.36) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nico Schottelius <nico-kernel@schottelius.org> wrote:
->
-> Hello again!
-> 
-> When my system shuts down and init calls sync() and after that
-> umount and then reboot, the filesystem is left in an unclean state.
-> 
-> If I do sync() two times (one before umount, one after umount) it
-> seems to work.
-> 
+Hello everybody:
 
-That's a bug.
+	I am a linux kernel newbie. 
 
-The standards say that sync() is supposed to "start" I/O, or something
-similarly vague and waffly.  The Linux implementation of sync() has always
-started all I/O and then waited upon all of it before returning from
-sync().
+	I am reading memory managment code of kernel 2.6.11.11.
+I found LRU is implement as linked-stack in linux, include two important
+data structure linked-list :
+zone->active_list and zone->inactive_list. when kernel need reclaim some
+pages, it will call function refiil_inactive_list() ultimately to move
+some page from active_list to inactive_list.
 
-And umount() itself will sync everything to disk, so the additional sync()
-calls should be unnecessary.
+	It's OK, but I have one question in my mind:
+I found all function that append page to active_list, it just append
+page to head of active_list (use inline function list_add() ), but
+refill_inactive_list() also start scanning from head of active_list, I
+think the better way scan active_list is start from rear of active_list
+and scan though prev member of list_head at reclaim pages. Scanning
+start from head of active_list may make thrashing more possibly, I
+think. and, in my view, "head of active_list" is zone->active_list,
+"rear of active_list" is zone->active_list.prev .
 
-That being said, if umount was leaving dirty filesystems then about 1000000
-people would be complaining.  So there's something unusual about your
-setup.
+	May be, I am failed understand mm? or what's wrong?
 
-What filesystem?  What kernel version?  Any unusual bind mounts, loopback
-mounts, etc?  There must be something there...
+	Thanks in advanced.
+
+	Alas, my english so bad.
+
+						liyu
+

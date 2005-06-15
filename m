@@ -1,59 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261593AbVFOVaW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261586AbVFOVaY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261593AbVFOVaW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 17:30:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261588AbVFOV3q
+	id S261586AbVFOVaY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 17:30:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261590AbVFOV26
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 17:29:46 -0400
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:7572 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S261593AbVFOV23 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 17:28:29 -0400
-Date: Wed, 15 Jun 2005 17:28:25 -0400
-To: Lukasz Stelmach <stlman@poczta.fm>
-Cc: mru@inprovide.com, Patrick McFarland <pmcfarland@downeast.net>,
-       "Alexander E. Patrakov" <patrakov@ums.usu.ru>,
-       linux-kernel@vger.kernel.org
-Subject: Re: A Great Idea (tm) about reimplementing NLS.
-Message-ID: <20050615212825.GS23621@csclub.uwaterloo.ca>
-References: <f192987705061303383f77c10c@mail.gmail.com> <yw1xslzl8g1q.fsf@ford.inprovide.com> <42AFE624.4020403@poczta.fm> <200506150454.11532.pmcfarland@downeast.net> <42AFF184.2030209@poczta.fm> <yw1xd5qo2bzd.fsf@ford.inprovide.com> <42B04090.7050703@poczta.fm>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42B04090.7050703@poczta.fm>
-User-Agent: Mutt/1.3.28i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+	Wed, 15 Jun 2005 17:28:58 -0400
+Received: from www.tuxrocks.com ([64.62.190.123]:43023 "EHLO tuxrocks.com")
+	by vger.kernel.org with ESMTP id S261588AbVFOV1z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 17:27:55 -0400
+Message-ID: <42B09D49.4090505@tuxrocks.com>
+Date: Wed, 15 Jun 2005 15:27:37 -0600
+From: Frank Sorenson <frank@tuxrocks.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christian Leber <christian@leber.de>
+CC: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH 2/2] lzma support: lzma compressed kernel image
+References: <20050607214128.GB2645@core.home> <20050612223150.GA26370@core.home> <42AE3C91.4090904@tuxrocks.com> <20050614103135.GA4319@core.home>
+In-Reply-To: <20050614103135.GA4319@core.home>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 15, 2005 at 04:52:00PM +0200, Lukasz Stelmach wrote:
-> There are far more programmes than only iconv. First of all readline
-> library is kind of broken because it counts (or at least it did a year
-> ago) bytes instead of characters. I won't use UTF-8 nor force anybody
-> else to do so until readline will handle it properly.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Well utf8 would sure be nice if everything used it, and getting nice
-fonts for it was simple.
+Christian Leber wrote:
+> On Mon, Jun 13, 2005 at 08:10:25PM -0600, Frank Sorenson wrote:
+>>patches appear to work as advertised.
+> 
+> I don't like the moving of the initrd, but i don't know another way to
+> get it working otherwise.
+> 
+>>lzma reduced my kernel by
+>>approximately 25%, so I'd say it looks promising.
+> 
+> 25%? i would have expected a smaller saving
 
-> And it is good in a way, however, i think kernel level translation
-> should be also possible. Either done by a code in each filsystem or by
-> some layer above it.
+- -rw-r--r--   1 root root  2959194 Jun 12 14:28 vmlinuz-2.6.12-rc6-fs1
+- -rw-r--r--   1 root root  2192674 Jun 13 21:47 vmlinuz-2.6.12-rc6-fs2
 
-What do you do if the underlying filesystem can not store some unicode
-characters that are allowed on others?
+> How to obtain should be enough, i'll add it.
 
-> It depend's on what it is used for. It is very good fs for removable
-> media. None of linux native filesystems is good for this because of
-> different uids on different machines. Since VFAT uses unicode it is
-> possible to see the filenames properly on systems using different
-> codepages for the same language (1:1 is possible).
+Great, thanks.
 
-VFAT uses unicode?  I thought it used the same codepage silyness as FAT
-did, since after all ti was just supposed to be a long filename
-extension to FAT.  Do they use unicode in the long filenames only?
+>>- - Detect that the lzma application isn't present, and fall back to gzip
+>>(with a warning) if lzma fails.
+> 
+> No.
+> If you select lzma you have to have it, you also don't download a
+> compiler when somebody tries to compile the kernel without a compiler.
 
-I think UDF is a better filesystem for many types of media since it is
-able to me more gently to the sectors storing the meta data than VFAT
-ever will be.
+Uhm, no, I wasn't saying that.  Just suggesting a simple failsafe.  It's not important.
 
-Len Sorensen
+>>- - If we can embed the decompressor into the boot-time kernel, can't we
+>>put a compressor into the kernel source, and avoid the need for the
+>>external program?
+> 
+> How do think will people react to a hundreds of kb sized C++ patch that
+> is not - i repeat - NOT in proper coding style?
+
+I wasn't suggesting that we include the entire source code as-is.  Just that if we can include the decompressor in < 45K of code, surely the compression could be included easily.  Again, it's not very important.  Giving enough information to build and run is most important.
+
+Frank
+- -- 
+Frank Sorenson - KD7TZK
+Systems Manager, Computer Science Department
+Brigham Young University
+frank@tuxrocks.com
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFCsJ1JaI0dwg4A47wRAlu8AJ4svae4WhrMnZf8HRNJl0PBCsTaXACeIhIa
+8rmljN+/ZG1Vtg5OPa5KSAc=
+=rOJl
+-----END PGP SIGNATURE-----

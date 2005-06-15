@@ -1,92 +1,147 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261319AbVFOIzg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261343AbVFOJIr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261319AbVFOIzg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 04:55:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261343AbVFOIzf
+	id S261343AbVFOJIr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 05:08:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261357AbVFOJIr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 04:55:35 -0400
-Received: from downeast.net ([12.149.251.230]:23767 "EHLO downeast.net")
-	by vger.kernel.org with ESMTP id S261319AbVFOIzW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 04:55:22 -0400
-From: Patrick McFarland <pmcfarland@downeast.net>
-To: Lukasz Stelmach <stlman@poczta.fm>
-Subject: Re: A Great Idea (tm) about reimplementing NLS.
-Date: Wed, 15 Jun 2005 04:54:02 -0400
-User-Agent: KMail/1.8
-Cc: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>,
-       "Alexander E. Patrakov" <patrakov@ums.usu.ru>,
-       linux-kernel@vger.kernel.org
-References: <f192987705061303383f77c10c@mail.gmail.com> <yw1xslzl8g1q.fsf@ford.inprovide.com> <42AFE624.4020403@poczta.fm>
-In-Reply-To: <42AFE624.4020403@poczta.fm>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart7999414.x7bqqeETVd";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200506150454.11532.pmcfarland@downeast.net>
+	Wed, 15 Jun 2005 05:08:47 -0400
+Received: from ercist.iscas.ac.cn ([159.226.5.94]:60942 "EHLO
+	ercist.iscas.ac.cn") by vger.kernel.org with ESMTP id S261343AbVFOJI1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 05:08:27 -0400
+Subject: [PATCH] ReiserFS _get_block_create_0 wrong behavior when I/O fails
+From: fs <fs@ercist.iscas.ac.cn>
+To: reiserfs-list@namesys.com
+Cc: linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, reiser@namesys.com
+Content-Type: multipart/mixed; boundary="=-JOi07tU77Vnfki0dnX9d"
+Organization: iscas
+Message-Id: <1118865954.4231.4.camel@CoolQ>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 15 Jun 2005 16:09:13 -0400
+X-ArGoMail-Authenticated: fs@ercist.iscas.ac.cn
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart7999414.x7bqqeETVd
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+
+--=-JOi07tU77Vnfki0dnX9d
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+
+
+--=-JOi07tU77Vnfki0dnX9d
 Content-Disposition: inline
+Content-Description: Forwarded message - [iscas-linaccident 50] [PATCH]
+	ReiserFS _get_block_create_0 wrong behavior when I/O fails
+Content-Type: message/rfc822
 
-On Wednesday 15 June 2005 04:26 am, Lukasz Stelmach wrote:
-> M=C3=A5ns Rullg=C3=A5rd napisa=C5=82(a):
-> > I use utf-8 exclusively for my filenames (the few that are not 7-bit
-> > ascii).  Forcing others who use the system to do the same would cause
-> > them a lot of trouble, as they must transfer files to and from Windows
-> > machines that use anything but utf-8.
->
-> But VFAT (and NTFS???) use unicode, i.e. UTF-16 (???). AFAIK
+Received: from  [61.115.5.249] by ercist.iscas.ac.cn (ArGoSoft Mail Server
+	Pro for WinNT/2000/XP, Version 1.8 (1.8.6.7)); Wed, 15 Jun 2005 17:09:41 
+Received: from mail.intellilink.co.jp ([127.0.0.1]) by ns.intellilink.co.jp
+	(NAVGW 2.5.1.16) with SMTP id M2005061517095925409 ; Wed, 15 Jun 2005
+	17:09:59 +0900
+Received: from spool.intellilink.co.jp (spool.intellilink.co.jp
+	[172.30.16.208]) by mail.intellilink.co.jp (Postfix) with ESMTP id
+	A203128956; Wed, 15 Jun 2005 17:09:19 +0900 (JST)
+Received: by spool.intellilink.co.jp (Postfix) id 86EF5330DE7; Wed, 15 Jun
+	2005 17:09:03 +0900 (JST)
+Delivered-To: iscas-linaccident-list@intellilink.co.jp
+Received: by spool.intellilink.co.jp (Postfix, from userid 502) id
+	465F1330DFC; Wed, 15 Jun 2005 17:09:03 +0900 (JST)
+Delivered-To: iscas-linaccident@intellilink.co.jp
+Date: Wed, 15 Jun 2005 15:10:05 -0400
+From: fs <fs@ercist.iscas.ac.cn>
+To: reiserfs-list@namesys.com
+Cc: reiser@namesys.com, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,  iscas-linaccident@intellilink.co.jp
+Subject: [iscas-linaccident 50] [PATCH] ReiserFS _get_block_create_0 wrong
+	behavior when I/O fails
+Message-ID: <20050615191005.GA3188@CoolQ.6f.iscas.ac.cn>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+X-ArGoMail-Authenticated: fs@ercist.iscas.ac.cn
+Sender: owner-iscas-linaccident@intellilink.co.jp
+Precedence: bulk
+Reply-To: iscas-linaccident@intellilink.co.jp
+Return-Path: <owner-iscas-linaccident@intellilink.co.jp>
+Content-Transfer-Encoding: 7bit
 
-No, VFAT and NTFS use an 8-bit encoding, and I think its only NTFS5 that is=
-=20
-forced to only use UTF-8 as the encoding (vfat can use any 8-bit encoding,=
-=20
-and NTFS4 afaik can as well, and I don't think NTFS5 uses UTF-16 internally=
-),
+Related FS:
+    ReiserFS
 
-=46orcing people to use unicode isn't a bad thing btw, especially since it =
-is a=20
-culture agnostic encoding that can represent wide characters (eg. from Asia=
-n=20
-languages) in a uniform manner*, and allowing to use multiple languages (eg=
-=2E=20
-Chinese and Japanese) at once without needing to switch encodings.
+Related Files:
+    fs/reiserfs/inode.c
 
-This also means it fixes the 'bug' where you have multiple encodings for th=
-e=20
-same language (ie. JIS, SJIS, and EUC_JP; similarly, simplified Chinese has=
- 5=20
-popular encoding methods, and traditional Chinese as three), which allows=20
-easier sharing of data between users without needing to muck with encoding.
+Bug description:
+    Make a ReiserFS partition in USB storage HDD, create a test file with
+enough size.
+    Write a program, do: open(O_RDONLY) - read - close. After each
+operation, pause for a while, such as 3s. Between open and read, unlug the
+USB wire. open returns zero-filled buffer, no error returns.
 
-* Unicode can do so in UTF-8 as well as UTF-16 to describe the entire 20-bi=
-t=20
-space.
+Bug analysis:
+    do_mpage_readpage will call FS-specific get_block to get buffer mapped
+from disk. reiserfs_get_block doesn't return non-zero when I/O failure occurs.
+    reiserfs_get_block -> _get_block_create_0 -> search_by_position_by_key
+search_by_position_by_key returns IO_ERROR, but the original code just simply
+returns 0
 
-=2D-=20
-Patrick "Diablo-D3" McFarland || pmcfarland@downeast.net
-"Computer games don't affect kids; I mean if Pac-Man affected us as kids, w=
-e'd=20
-all be running around in darkened rooms, munching magic pills and listening=
- to
-repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989
+research:
+    if (search_for_position_by_key (inode->i_sb, &key, &path) != POSITION_FOUND) {
+	pathrelse (&path);
+        if (p)
+            kunmap(bh_result->b_page) ;
+	// We do not return -ENOENT if there is a hole but page is uptodate, because it means
+	// That there is some MMAPED data associated with it that is yet to be written to disk.
+	if ((args & GET_BLOCK_NO_HOLE) && !PageUptodate(bh_result->b_page) ) {
+	    return -ENOENT ;
+	}
+        return 0 ; <- 0 retuns for IO_ERROR
+    }
 
---nextPart7999414.x7bqqeETVd
-Content-Type: application/pgp-signature
+Way around:
+    test result of search_for_position_by_key
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+Signed-off-by: Qu Fuping<fs@ercist.iscas.ac.cn>
 
-iD8DBQBCr+yz8Gvouk7G1cURAucUAJ4sn29KTigKGC2b0f5x9lbwN9waOwCdEJXH
-BPtOiB5TG+KVgN/7eapKNX0=
-=qRJD
------END PGP SIGNATURE-----
+Patch:
+diff -uNp /tmp/linux-2.6.12-rc6/fs/reiserfs/inode.c /tmp/linux-2.6.12-rc6.new/fs/reiserfs/inode.c
+--- /tmp/linux-2.6.12-rc6/fs/reiserfs/inode.c	2005-06-06 11:22:29.000000000 -0400
++++ /tmp/linux-2.6.12-rc6.new/fs/reiserfs/inode.c	2005-06-15 13:56:45.552564512 -0400
+@@ -254,6 +254,7 @@ static int _get_block_create_0 (struct i
+     char * p = NULL;
+     int chars;
+     int ret ;
++    int result ;
+     int done = 0 ;
+     unsigned long offset ;
+ 
+@@ -262,7 +263,8 @@ static int _get_block_create_0 (struct i
+ 		  (loff_t)block * inode->i_sb->s_blocksize + 1, TYPE_ANY, 3);
+ 
+ research:
+-    if (search_for_position_by_key (inode->i_sb, &key, &path) != POSITION_FOUND) {
++    result = search_for_position_by_key (inode->i_sb, &key, &path) ;
++    if (result != POSITION_FOUND) {
+ 	pathrelse (&path);
+         if (p)
+             kunmap(bh_result->b_page) ;
+@@ -270,7 +272,8 @@ research:
+ 	// That there is some MMAPED data associated with it that is yet to be written to disk.
+ 	if ((args & GET_BLOCK_NO_HOLE) && !PageUptodate(bh_result->b_page) ) {
+ 	    return -ENOENT ;
+-	}
++	}else if (result == IO_ERROR)
++		return -EIO ;
+         return 0 ;
+     }
+     
 
---nextPart7999414.x7bqqeETVd--
+
+
+--=-JOi07tU77Vnfki0dnX9d--
+
+

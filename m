@@ -1,86 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261660AbVFOXfB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261663AbVFOXif@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261660AbVFOXfB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 19:35:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261664AbVFOXe7
+	id S261663AbVFOXif (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 19:38:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261664AbVFOXif
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 19:34:59 -0400
-Received: from one.firstfloor.org ([213.235.205.2]:32745 "EHLO
-	one.firstfloor.org") by vger.kernel.org with ESMTP id S261660AbVFOXet
+	Wed, 15 Jun 2005 19:38:35 -0400
+Received: from mollusk.mweb.co.za ([196.2.24.27]:62590 "EHLO
+	mollusk.mweb.co.za") by vger.kernel.org with ESMTP id S261663AbVFOXiW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 19:34:49 -0400
-To: Chase Douglas <cndougla@purdue.edu>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: TCP prequeue performance
-References: <BED5FA3B.2A0%cndougla@purdue.edu>
-From: Andi Kleen <ak@muc.de>
-Date: Thu, 16 Jun 2005 01:34:48 +0200
-In-Reply-To: <BED5FA3B.2A0%cndougla@purdue.edu> (Chase Douglas's message of
- "Wed, 15 Jun 2005 15:31:07 -0500")
-Message-ID: <m1br679otj.fsf@muc.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+	Wed, 15 Jun 2005 19:38:22 -0400
+From: Bongani Hlope <bonganilinux@mweb.co.za>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Tracking a bug in x86-64
+Date: Thu, 16 Jun 2005 01:39:04 +0200
+User-Agent: KMail/1.8.50
+Cc: Andrew Morton <akpm@osdl.org>, ak@muc.de,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>
+References: <200506132259.22151.bonganilinux@mweb.co.za> <200506160020.21688.bonganilinux@mweb.co.za> <Pine.LNX.4.58.0506151536000.8487@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0506151536000.8487@ppc970.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200506160139.04389.bonganilinux@mweb.co.za>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chase Douglas <cndougla@purdue.edu> writes:
->
-> I then disabled the prequeue mechanism by changing net/ipv4/tcp.c:1347 of
-> 2.6.11:
->
-> if (tp->ucopy.task == user_recv) {
->     to
-> if (0 && tp->ucopy.task == user_recv) {
+On Thursday 16 June 2005 12:39 am, Linus Torvalds wrote:
+> 
+> On Thu, 16 Jun 2005, Bongani Hlope wrote:
+> >
+> > push 410, pop 205, pop 103, push 103, pop 51, pop 26, push 13, pop 6, push 4 and push 1
+> > This points to: randomisation-top-of-stack-randomization.patch
+> 
+> Goodie.
+> 
+> Can you verify (just to make doubly sure that there are no subtle
+> interactions anywhere) that the current top-of-tree with that _one_ patch
+> reverted ends up working for you?
+> 
+> Anyway, thanks a heap for spending the time narrowing this down!
+> 
+> 		Linus
 
-You actually didn't disable it completely - it would still be filled. 
-To really disable it set net.ipv4.tcp_lowlatency, that disables
-even the early queueing and will process all incoming TCP in softirq context
-only.
+Hi Linus
 
->
-> The same benchmark then yielded:
->
-> time ./client 10000 10000 100000 1 500000000 recv
->
-> real    1m21.928s
-> user    0m1.579s
-> sys     0m8.330ss
->
-> Note the decreases in the system and real times. These numbers are fairly
-> stable through 10 consecutive benchmarks of each. If I change message sizes
-> and number of connections, the difference can narrow or widen, but usually
-> the non-prequeue beats the prequeue with respect to system and real time.
->
-> It might be that I've just found an instance where the prequeue is slower
-> than the "slow" path. I'm not quite sure why this would be. Does anyone have
-> any thoughts on this?
+I just tested, 2.6.12-rc6 minus randomisation-top-of-stack-randomization.patch Works For Me (tm)
 
-prequeue adds latency. Its original purpose was to be able to 
-do combined checksum copy to user space, but that is not very useful
-anymore with modern NICs which all do hardware checksumming. 
-The only purpose it has left is to batch the TCP processing
-better and in particular to account it to the scheduler.
-
-When the receiver does not process the data in time 
-the delayed ack timer takes over and processes the data.
-
-Now the way you disabled it is interesting. The data would
-be still queued, but in user process would be never emptied.
-
-This means data is always processed later in the delack
-timer in your hacked kernel. 
-
-This will lead to batching of the processing (because
-after upto 200ms there will be many more packet in the queues), 
-and seems to save CPU time in your case.
-
-Basically you added something similar to the the anticipatory scheduler
-which adds artifical delays into disk scheduling to your TCP receiver
-to get better batching. It seems to work for you. 
-
-I think it is unlikely adding artificial processing delays like this
-will help in many cases though, normally early delivery of received
-data to user space should be better.
-
--Andi

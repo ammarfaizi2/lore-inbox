@@ -1,47 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261247AbVFORqD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261248AbVFORyV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261247AbVFORqD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 13:46:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261248AbVFORqD
+	id S261248AbVFORyV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 13:54:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261249AbVFORyV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 13:46:03 -0400
-Received: from loopy.telegraphics.com.au ([202.45.126.152]:34519 "EHLO
-	loopy.telegraphics.com.au") by vger.kernel.org with ESMTP
-	id S261233AbVFORp4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 13:45:56 -0400
-Date: Thu, 16 Jun 2005 03:45:54 +1000 (EST)
-From: Finn Thain <fthain@telegraphics.com.au>
-To: Ralf Baechle <ralf@linux-mips.org>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux/m68k <linux-m68k@vger.kernel.org>,
-       Linux/m68k on Mac <linux-mac68k@mac.linux-m68k.org>,
-       Linux MIPS <linux-mips@vger.kernel.org>,
-       Linux kernel <linux-kernel@vger.kernel.org>,
-       Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Subject: Re: [PATCH] Jazzsonic driver updates
-In-Reply-To: <Pine.LNX.4.61.0506160218310.24328@loopy.telegraphics.com.au>
-Message-ID: <Pine.LNX.4.61.0506160336410.24908@loopy.telegraphics.com.au>
-References: <200503070210.j272ARii023023@hera.kernel.org>
- <Pine.LNX.4.62.0503221807160.20753@numbat.sonytel.be> <20050323100139.GB8813@linux-mips.org>
- <Pine.LNX.4.61.0506121454410.1470@loopy.telegraphics.com.au>
- <20050615114158.GA9411@linux-mips.org> <Pine.LNX.4.61.0506152220460.22046@loopy.telegraphics.com.au>
- <20050615142717.GD9411@linux-mips.org> <Pine.LNX.4.61.0506160218310.24328@loopy.telegraphics.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 15 Jun 2005 13:54:21 -0400
+Received: from wproxy.gmail.com ([64.233.184.195]:46023 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261248AbVFORyR convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 13:54:17 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=SeYEvgk/2VfY5FgjI3LyT0Q3nJz0JFG2RIKrfKzpxlDdZbI60ULFMiFi5bKkaXFX8VF/28c1DAJ2Qot7Rq5BTZ3ktkklQXUgEfUglLXbhaY6AeLB1vThqm9H4C7P4o3zMFpD7JskiO2u+AhNJRuMoH+ccgXVMzSsLbaQO8ZILT0=
+Message-ID: <9e47339105061510547ea7d2f0@mail.gmail.com>
+Date: Wed, 15 Jun 2005 13:54:16 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+Subject: Re: Fwd: hpet patches
+Cc: Bob Picco <bob.picco@hp.com>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <88056F38E9E48644A0F562A38C64FB6004FB6BED@scsmsx403.amr.corp.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <88056F38E9E48644A0F562A38C64FB6004FB6BED@scsmsx403.amr.corp.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 6/15/05, Pallipadi, Venkatesh <venkatesh.pallipadi@intel.com> wrote:
+> The specification for ICH5 has the details about this address
+> http://www.intel.com/design/chipsets/datashts/25251601.pdf (Chapter 17).
+> We need to look at specific device address to figure out the HPET base
+> address in this case.
 
+The ICH5 fix up needs to look something like this:
+PCI_DEVICE_ID_INTEL_82801EB_0 is the PCI ID for the LPC device.
 
-On Thu, 16 Jun 2005, I wrote:
+ACPI_FIXUP(INTEL, PCI_DEVICE_ID_INTEL_82801EB_0, hpet_ich5_fixup)
+hpet_ich5_fixup()
+{
+     pci_bios_find_device(PCI_ID_INTEL, PCI_DEVICE_ID_INTEL_82801EB_0, ...)
+     pci_bios_read(device, GENERAL_CONTROL_REGISTER, ..)
+     Check bit 17 and see if it is enabled
+     use bit 15:16 to set hpet_address to one of the four addresses
+}
 
-> ... the chip then decides where in that area the recieved packet gets 
-> buffered ... and that is why I was asking for an alternative to 
-> vdma_log2phys...
+It would be more complicated to try and turn it on if it is turned
+off. Mine is turned on at boot even though it has no ACPI entry. A
+routine like this should at least get things started.
 
-But I forgot that it is possible to have the sonic chip store no more than 
-one packet in each buffer before moving to the next one in the ring 
-(though this isn't the case at present). So, as you say, vdma_log2phys 
-isn't really required.
-
--f
+-- 
+Jon Smirl
+jonsmirl@gmail.com

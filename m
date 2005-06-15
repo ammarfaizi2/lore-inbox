@@ -1,108 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261573AbVFOVJV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261575AbVFOVOa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261573AbVFOVJV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 17:09:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbVFOVHt
+	id S261575AbVFOVOa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 17:14:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261569AbVFOVOa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 17:07:49 -0400
-Received: from [24.24.2.57] ([24.24.2.57]:55960 "EHLO ms-smtp-03.nyroc.rr.com")
-	by vger.kernel.org with ESMTP id S261553AbVFOVFV (ORCPT
+	Wed, 15 Jun 2005 17:14:30 -0400
+Received: from opersys.com ([64.40.108.71]:60690 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S261581AbVFOVO1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 17:05:21 -0400
-Subject: Re: [BUG] Race condition with it_real_fn in kernel/itimer.c
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu,
-       Roland McGrath <roland@redhat.com>
-In-Reply-To: <20050615132522.3b6a857c.akpm@osdl.org>
-References: <1118852632.4508.48.camel@localhost.localdomain>
-	 <20050615132522.3b6a857c.akpm@osdl.org>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Wed, 15 Jun 2005 17:01:29 -0400
-Message-Id: <1118869289.5035.14.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+	Wed, 15 Jun 2005 17:14:27 -0400
+Message-ID: <42B09CB3.4030101@opersys.com>
+Date: Wed, 15 Jun 2005 17:25:07 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+CC: Kristian Benoit <kbenoit@opersys.com>
+Subject: Spurious parport interrupts (IRQ 7) / rt benchmarking
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-06-15 at 13:25 -0700, Andrew Morton wrote:
 
-> 
-> And that will fix it.  (Labels start in column zero, and a comment is
-> needed here).
+This is related to our continued benchmarking of the rt stuff.
 
-I blame emacs for that bad label :-)
+Using the same setup we described earlier, we're now getting
+some really odd behavior on rc6. Basically, our target system
+is getting more interrupts than our logger is sending to it.
 
-> 
-> However I wonder if it would be sufficient to remove the del_timer_sync()
-> call altogether and just do mod_timer() in it_real_arm().
-> 
-> If the handler happens to be running on another CPU and if the handler
-> tries to run mod_timer() _after_ the do_setitimer() has run mod_timer(),
-> the handler will use the desired value of it_real_incr anyway.
-> 
+[ recap: our target and logger are rigged via the parallel
+port. The logger toggles an output pin on the parallel pin
+which, in turn, generates an interrupt on the target. Our
+driver on the target catches the interrupt and then toggles
+an output pin on the target's parallel port. This, in turn,
+generates an interrupt on the logger. The difference between
+the time the interrupt was sent by the logger and the time
+the interrupt is received from the target on the logger is
+what we measure as the interrupt response time. ]
 
-So do you prefer a patch like the following?
+Under ping flood conditions with vanilla Linux, and in that
+case only, rc6 gets more interrupts than the logger sends
+to it. We've double checked this by not sending any ints
+from the logger whatsoever, and ping flooding the rc6 on
+the target, and the moment we do that our driver on the
+target starts responding to phantom interrupts.
 
---- linux-2.6.12-rc6/kernel/itimer.c.orig	2005-06-15 16:33:13.000000000 -0400
-+++ linux-2.6.12-rc6/kernel/itimer.c	2005-06-15 16:42:45.000000000 -0400
-@@ -118,6 +118,8 @@
-  */
- static inline void it_real_arm(struct task_struct *p, unsigned long interval)
- {
-+	unsigned long expires;
-+
- 	p->signal->it_real_value = interval; /* XXX unnecessary field?? */
- 	if (interval == 0)
- 		return;
-@@ -127,8 +129,8 @@
- 	 * the interval requested. This could happen if
- 	 * time requested % (usecs per jiffy) is more than the usecs left
- 	 * in the current jiffy */
--	p->signal->real_timer.expires = jiffies + interval + 1;
--	add_timer(&p->signal->real_timer);
-+	expires = jiffies + interval + 1;
-+	mod_timer(&p->signal->real_timer, expires);
- }
- 
- void it_real_fn(unsigned long __data)
-@@ -156,8 +158,6 @@
- 		spin_lock_irq(&tsk->sighand->siglock);
- 		interval = tsk->signal->it_real_incr;
- 		val = it_real_value(tsk->signal);
--		if (val)
--			del_timer_sync(&tsk->signal->real_timer);
- 		tsk->signal->it_real_incr =
- 			timeval_to_jiffies(&value->it_interval);
- 		it_real_arm(tsk, timeval_to_jiffies(&value->it_value));
+It must be noted that when we did these tests on rc4 we didn't
+have such spurious interrupts. Also, we don't get these when
+PREEMPT_RT is applied to rc6 (all of which under ping flood
+conditions.)
 
+We've tried to find a pattern in the spuriousness, but there
+really isn't any.
 
-Now the question is, what happens on the following scenario?
+We've spent quite some time tracking this down, hence the
+delayed publication of new numbers.
 
-ksoftirqd:
+Any insight anyone may have on this issue would be greatly
+appreciated.
 
-  calls it_real_func 
+Thanks,
 
-process:
-
-   calls do_setitimer blocks on siglock;
-
-ksoftirqd: unlocks siglock calls it_real_arm and after it assigns
-expires it takes an interrupt before calling mod_timer.
-
-process:
-
-   calls it_real_arm and does the changes to mod_timer first.
-
-ksoftirqd: comes back from interrupt and then calls mod_timer with the
-wrong value.
-
-This may be a small chance in hell of happening, and the result may not
-be to drastic, but this is still a race condition.  So far I think that
-my unconditional calling of del_timer_sync, although inefficient, it
-doesn't have any races.
-
--- Steve
-
+Karim Yaghmour
+Kristian Benoit
+-- 
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || 1-866-677-4546

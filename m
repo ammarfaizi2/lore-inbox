@@ -1,54 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261618AbVFOWsV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261627AbVFOWtf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261618AbVFOWsV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 18:48:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261619AbVFOWsV
+	id S261627AbVFOWtf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 18:49:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261622AbVFOWtc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 18:48:21 -0400
-Received: from 216-239-45-4.google.com ([216.239.45.4]:39997 "EHLO
-	216-239-45-4.google.com") by vger.kernel.org with ESMTP
-	id S261618AbVFOWsA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 18:48:00 -0400
-Message-ID: <42B0B017.60001@google.com>
-Date: Wed, 15 Jun 2005 15:47:51 -0700
-From: Hareesh Nagarajan <hareesh@google.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050207)
-X-Accept-Language: en-us, en
+	Wed, 15 Jun 2005 18:49:32 -0400
+Received: from igw2.watson.ibm.com ([129.34.20.6]:24511 "EHLO
+	igw2.watson.ibm.com") by vger.kernel.org with ESMTP id S261619AbVFOWtR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 18:49:17 -0400
+Date: Wed, 15 Jun 2005 18:48:56 -0400 (Eastern Daylight Time)
+From: Reiner Sailer <sailer@us.ibm.com>
+To: serue@us.ibm.com
+cc: Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@redhat.com>,
+       Toml@us.ibm.com, Greg KH <greg@kroah.com>,
+       LKML <linux-kernel@vger.kernel.org>,
+       LSM <linux-security-module@wirex.com>, Chris Wright <chrisw@osdl.org>,
+       Reiner Sailer <sailer@watson.ibm.com>, Emilyr@us.ibm.com,
+       Kylene@us.ibm.com
+Subject: Re: [PATCH] 3 of 5 IMA: LSM-based measurement code
+Message-ID: <Pine.WNT.4.63.0506151844370.2452@laptop>
+X-Warning: UNAuthenticated Sender
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Porting kref to a 2.4 kernel (2.4.20 or greater)
-References: <42B06344.4040909@google.com> <20050615220734.GC620@kroah.com>
-In-Reply-To: <20050615220734.GC620@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Correction:
-(Appears with a *)
 
-Greg KH wrote:
-> On Wed, Jun 15, 2005 at 10:20:04AM -0700, Hareesh Nagarajan wrote:
+Serge E. Hallyn (serue@us.ibm.com) wrote:
+>
+> That's true, of course.  Reiner, would any of the integrity measurement
+> hooks be moved to a better place than the current LSM hooks?  Is there a
+> preferred ordering - ie measurement should always happen before the LSM
+> modules, or always after?  Either of these would of course be clear
+> reasons to separate IMA into its own subsystem.
 > 
->>What stumbling blocks do you think I would encounter if I wanted to port 
->>kref to a 2.4.xx kernel? Is kref tightly coupled with the kernel object 
->>infrastructure found in the 2.6.xx kernel?
-> 
-> Have you looked at the kref code to see if there is any such coupling?
+> thanks,
+> -serge
 
-Not really. Kref seems pretty light and loosely coupled with the 2.6
-kernel. There just appears to be a C file (and a .h of course).
+Originally, IMA was not an LSM. However, when moving to a 2.6 kernel, we 
+moved it to LSM and have found very easily the current hooks. I don't think 
+the hook position would change when moving from LSM to non-LSM.
 
-> Can you describe any problems you are having doing the uncoupling?
+Thanks
+Reiner
 
-I'm having problems porting the KObject* and Work Queue infrastructure 
-to the 2.4 kernel. Any ideas if anyone has tried this port?
-
-(Correction: * => I meant KThread)
-
-Sorry about that!
-
-Hareesh
--= Engineering Intern =-
-cs.uic.edu/~hnagaraj

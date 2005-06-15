@@ -1,116 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261183AbVFOPmL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261206AbVFOQHQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261183AbVFOPmL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 11:42:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbVFOPmL
+	id S261206AbVFOQHQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 12:07:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261207AbVFOQHQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 11:42:11 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:53967 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S261183AbVFOPly
+	Wed, 15 Jun 2005 12:07:16 -0400
+Received: from alog0147.analogic.com ([208.224.220.162]:43708 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261206AbVFOQHG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 11:41:54 -0400
-Subject: Re: [PATCH] ReiserFS _get_block_create_0 wrong behavior when I/O
-	fails
-From: Vladimir Saveliev <vs@namesys.com>
-To: fs <fs@ercist.iscas.ac.cn>
-Cc: reiserfs-list@namesys.com, linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Hans Reiser <reiser@namesys.com>
-In-Reply-To: <1118865954.4231.4.camel@CoolQ>
-References: <1118865954.4231.4.camel@CoolQ>
-Content-Type: text/plain
-Message-Id: <1118850101.17622.579.camel@tribesman.namesys.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Wed, 15 Jun 2005 19:41:41 +0400
-Content-Transfer-Encoding: 7bit
+	Wed, 15 Jun 2005 12:07:06 -0400
+Date: Wed, 15 Jun 2005 12:06:28 -0400 (EDT)
+From: "Richard B. Johnson" <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: "Maciej W. Rozycki" <macro@linux-mips.org>
+cc: 7eggert@gmx.de, Gene Heskett <gene.heskett@verizon.net>,
+       cutaway@bellsouth.net, linux-kernel@vger.kernel.org
+Subject: Re: .../asm-i386/bitops.h  performance improvements
+In-Reply-To: <Pine.LNX.4.61L.0506151629270.13835@blysk.ds.pg.gda.pl>
+Message-ID: <Pine.LNX.4.61.0506151200490.24211@chaos.analogic.com>
+References: <4fB8l-73q-9@gated-at.bofh.it> <4fF2j-1Lo-19@gated-at.bofh.it>
+ <E1DiZKe-0000em-58@be1.7eggert.dyndns.org> <Pine.LNX.4.61L.0506151629270.13835@blysk.ds.pg.gda.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+On Wed, 15 Jun 2005, Maciej W. Rozycki wrote:
 
-On Thu, 2005-06-16 at 00:09, fs wrote:
-> From: fs <fs@ercist.iscas.ac.cn>
-> To: reiserfs-list@namesys.com
-> Cc: reiser@namesys.com, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, iscas-linaccident@intellilink.co.jp
-> Subject: [iscas-linaccident 50] [PATCH] ReiserFS _get_block_create_0 wrong behavior when I/O fails
-> Date: Wed, 15 Jun 2005 15:10:05 -0400
-> 
-> Related FS:
->     ReiserFS
-> 
-> Related Files:
->     fs/reiserfs/inode.c
-> 
-> Bug description:
->     Make a ReiserFS partition in USB storage HDD, create a test file with
-> enough size.
->     Write a program, do: open(O_RDONLY) - read - close. After each
-> operation, pause for a while, such as 3s. Between open and read, unlug the
-> USB wire. open returns zero-filled buffer, no error returns.
-> 
-> Bug analysis:
->     do_mpage_readpage will call FS-specific get_block to get buffer mapped
-> from disk. reiserfs_get_block doesn't return non-zero when I/O failure occurs.
->     reiserfs_get_block -> _get_block_create_0 -> search_by_position_by_key
-> search_by_position_by_key returns IO_ERROR, but the original code just simply
-> returns 0
-> 
-> research:
->     if (search_for_position_by_key (inode->i_sb, &key, &path) != POSITION_FOUND) {
-> 	pathrelse (&path);
->         if (p)
->             kunmap(bh_result->b_page) ;
-> 	// We do not return -ENOENT if there is a hole but page is uptodate, because it means
-> 	// That there is some MMAPED data associated with it that is yet to be written to disk.
-> 	if ((args & GET_BLOCK_NO_HOLE) && !PageUptodate(bh_result->b_page) ) {
-> 	    return -ENOENT ;
-> 	}
->         return 0 ; <- 0 retuns for IO_ERROR
->     }
-> 
-> Way around:
->     test result of search_for_position_by_key
-> 
-> Signed-off-by: Qu Fuping<fs@ercist.iscas.ac.cn>
-> 
-> Patch:
-> diff -uNp /tmp/linux-2.6.12-rc6/fs/reiserfs/inode.c /tmp/linux-2.6.12-rc6.new/fs/reiserfs/inode.c
-> --- /tmp/linux-2.6.12-rc6/fs/reiserfs/inode.c	2005-06-06 11:22:29.000000000 -0400
-> +++ /tmp/linux-2.6.12-rc6.new/fs/reiserfs/inode.c	2005-06-15 13:56:45.552564512 -0400
-> @@ -254,6 +254,7 @@ static int _get_block_create_0 (struct i
->      char * p = NULL;
->      int chars;
->      int ret ;
-> +    int result ;
->      int done = 0 ;
->      unsigned long offset ;
->  
-> @@ -262,7 +263,8 @@ static int _get_block_create_0 (struct i
->  		  (loff_t)block * inode->i_sb->s_blocksize + 1, TYPE_ANY, 3);
->  
->  research:
-> -    if (search_for_position_by_key (inode->i_sb, &key, &path) != POSITION_FOUND) {
-> +    result = search_for_position_by_key (inode->i_sb, &key, &path) ;
-> +    if (result != POSITION_FOUND) {
->  	pathrelse (&path);
->          if (p)
->              kunmap(bh_result->b_page) ;
-> @@ -270,7 +272,8 @@ research:
->  	// That there is some MMAPED data associated with it that is yet to be written to disk.
->  	if ((args & GET_BLOCK_NO_HOLE) && !PageUptodate(bh_result->b_page) ) {
->  	    return -ENOENT ;
-> -	}
-> +	}else if (result == IO_ERROR)
-> +		return -EIO ;
->          return 0 ;
->      }
->      
+> On Wed, 15 Jun 2005, Bodo Eggert wrote:
+>
+>> lea is an 8086 instruction. All clones have it in it's basic form. However,
+>> the multiplicator is not documented for i486, therefore it will be a i586
+>> extension.
+>
+> Huh?  The SIB byte has been added in the original i386 with 32-bit
+> addressing.
+>
+>  Maciej
 
-Your patch is incomplete. There is one more search_for_position_by_key
-at the end of this function. You probably want to check its return value
-also.
+Well the __documented__ '486 LEA instruction doesn't
+even allow the double-register indirect. It's just
 
-> 
-> 
+ 	LEA r16,m
+ 	LEA r32,m
 
+... repeated twice
+
+Page 26-190,  Intel486(tm) Microprocessor Programmer's Reference
+Manual. ISBN 1-55512-195-4. The instruction may have been one
+of those "immature features", read broken.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.11.9 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

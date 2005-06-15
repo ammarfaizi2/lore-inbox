@@ -1,147 +1,174 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261550AbVFOUrg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261568AbVFOUwS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261550AbVFOUrg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 16:47:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261563AbVFOUrC
+	id S261568AbVFOUwS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 16:52:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261567AbVFOUvT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 16:47:02 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:59639 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S261550AbVFOUoL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 16:44:11 -0400
-X-Comment: AT&T Maillennium special handling code - c
-Message-ID: <42B091E3.3010908@namesys.com>
-Date: Wed, 15 Jun 2005 13:38:59 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Theodore Ts'o" <tytso@mit.edu>
-CC: Kenichi Okuyama <okuyamak@dd.iij4u.or.jp>,
-       Andreas Dilger <adilger@clusterfs.com>, fs <fs@ercist.iscas.ac.cn>,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, zhiming@admin.iscas.ac.cn,
-       qufuping@ercist.iscas.ac.cn, madsys@ercist.iscas.ac.cn,
-       xuh@nttdata.com.cn, koichi@intellilink.co.jp,
-       kuroiwaj@intellilink.co.jp, okuyama@intellilink.co.jp,
-       matsui_v@valinux.co.jp, kikuchi_v@valinux.co.jp,
-       fernando@intellilink.co.jp, kskmori@intellilink.co.jp,
-       takenakak@intellilink.co.jp, yamaguchi@intellilink.co.jp,
-       ext2-devel@lists.sourceforge.net, shaggy@austin.ibm.com,
-       xfs-masters@oss.sgi.com,
-       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>
-Subject: Re: [Ext2-devel] Re: [RFD] FS behavior (I/O failure) in kernel summit
-References: <1118692436.2512.157.camel@CoolQ> <42ADC99D.5000801@namesys.com> <20050613201315.GC19319@moraine.clusterfs.com> <42AE1D4A.3030504@namesys.com> <42AE450C.5020908@dd.iij4u.or.jp> <20050615140105.GE4228@thunk.org>
-In-Reply-To: <20050615140105.GE4228@thunk.org>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Wed, 15 Jun 2005 16:51:19 -0400
+Received: from frankvm.xs4all.nl ([80.126.170.174]:65190 "EHLO
+	janus.localdomain") by vger.kernel.org with ESMTP id S261562AbVFOUtw convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 16:49:52 -0400
+Date: Wed, 15 Jun 2005 22:49:48 +0200
+From: Frank van Maarseveen <frankvm@frankvm.com>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Frank van Maarseveen <frankvm@frankvm.com>,
+       Gr?goire Favre <gregoire.favre@gmail.com>, dino@in.ibm.com,
+       Andrew Morton <akpm@osdl.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: What breaks aic7xxx in post 2.6.12-rc2 ?
+Message-ID: <20050615204948.GA23616@janus>
+References: <1118674783.5079.9.camel@mulgrave> <20050613183719.GA8653@gmail.com> <1118695847.5079.41.camel@mulgrave> <20050613214208.GA7471@janus> <1118703593.5079.56.camel@mulgrave> <20050614214226.GA15560@janus> <20050615120237.GB19645@janus> <1118844888.5045.18.camel@mulgrave> <20050615200957.GA23096@janus> <1118866546.5045.76.camel@mulgrave>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <1118866546.5045.76.camel@mulgrave>
+User-Agent: Mutt/1.4.1i
+X-Subliminal-Message: Use Linux!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Theodore Ts'o wrote:
+On Wed, Jun 15, 2005 at 03:15:46PM -0500, James Bottomley wrote:
+> On Wed, 2005-06-15 at 22:09 +0200, Frank van Maarseveen wrote:
+> >         User: 80.000MB/s transfers (40.000MHz, offset 127, 16bit)
+> >         Goal: 10.000MB/s transfers (10.000MHz, offset 15)
+> >         Curr: 10.000MB/s transfers (10.000MHz, offset 15)
+> 
+> This would be why ... you need to set you bios to 10MHz narrow (it's
+> currently set to 40MHz wide).
 
->On Tue, Jun 14, 2005 at 11:46:36AM +0900, Kenichi Okuyama wrote:
->  
->
->>I agree that kernel can not directly influence user.
->>But, application may have better chance.
->>
->>Think about case of editor (vi, emacs, almost any text editors are ok ).
->>
->>If you try to save file, and recieve no error, user will believe they 
->>have been written on disk they believe to be existing.
->>Even log yells for error, user will not notice.
->>
->>If editor recieve error, then user can know something is wrong. Though 
->>he is still wondering, if he recieve the message
->>like "Input Output Error: may be HW error?", he definitely will start 
->>from looking at cable.
->>    
->>
->
->Kenichi-San,
->
->Part of the problem is that we are limited by the constraints of the
->POSIX specification for error handling. 
->
-Ted, if I understand you correctly, I agree with you.  ;-)
+No luck doing so. I tried 10MB, 5MB(8 bit), booting UP (I have a dual
+PIII 450), it doesn't really seem to make any difference.
 
-What users need is for a window to pop up saying "the usb drive is
-turned off" or "we are getting checksum errors from XXX, this may
-indicate hardware problems that require your attention".
+I've set the aic BIOS back to über speed (80MB, wide negotiation)
+everywhere and booted 2.6.11-rc5 again:
 
-Now that GUIs exist, and now that more errors are possible because the
-kernel is more complex, perhaps kernel error handling should be
-reconsidered.  I don't have the feeling that anyone has felt themselves
-authorized to take a deep look at how this ought to be designed.  I mean
-sure, there are sometimes console windows that things get printed into,
-but unsophisticated users basically want to be prompted if something is
-wrong that needs their attention and to not have their experience
-cluttered by a console window otherwise.  Also, it has long been
-irritating having to make error codes conform to one of the existing
-error codes when there is often no good connection between the name of
-an existing error code and the new error condition one has just coded,
-and there is no space left for new error codes.
+Jun 15 22:43:00 iapetus kernel: Uniform CD-ROM driver Revision: 3.20
+Jun 15 22:43:00 iapetus kernel: scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.36
+Jun 15 22:43:00 iapetus kernel:         <Adaptec aic7890/91 Ultra2 SCSI adapter>
+Jun 15 22:43:00 iapetus kernel:         aic7890/91: Ultra2 Wide Channel A, SCSI Id=7, 32/253 SCBs
+Jun 15 22:43:00 iapetus kernel: 
+Jun 15 22:43:00 iapetus kernel: (scsi0:A:3): 10.000MB/s transfers (10.000MHz, offset 15)
+Jun 15 22:43:00 iapetus kernel:   Vendor: YAMAHA    Model: CRW6416S          Rev: 1.0b
+Jun 15 22:43:00 iapetus kernel:   Type:   CD-ROM                             ANSI SCSI revision: 02
+Jun 15 22:43:00 iapetus kernel: scsi0:0:4:0: Attempting to queue an ABORT message
+Jun 15 22:43:00 iapetus kernel: CDB: 0x12 0x0 0x0 0x0 0x24 0x0
+Jun 15 22:43:00 iapetus kernel: scsi0: At time of recovery, card was not paused
+Jun 15 22:43:00 iapetus kernel: >>>>>>>>>>>>>>>>>> Dump Card State Begins <<<<<<<<<<<<<<<<<
+Jun 15 22:43:00 iapetus kernel: scsi0: Dumping Card State in Message-out phase, at SEQADDR 0x16e
+Jun 15 22:43:00 iapetus kernel: Card was paused
+Jun 15 22:43:00 iapetus kernel: ACCUM = 0xa0, SINDEX = 0x61, DINDEX = 0xe4, ARG_2 = 0x0
+Jun 15 22:43:00 iapetus kernel: HCNT = 0x0 SCBPTR = 0x0
+Jun 15 22:43:00 iapetus kernel: SCSISIGI[0xa4]:(BSYI|MSGI|CDI) ERROR[0x0] SCSIBUSL[0x7] 
+Jun 15 22:43:00 iapetus kernel: LASTPHASE[0xa0]:(MSGI|CDI) SCSISEQ[0x12]:(ENAUTOATNP|ENRSELI) 
+Jun 15 22:43:01 iapetus kernel: SBLKCTL[0xa]:(SELWIDE|SELBUSB) SCSIRATE[0x0] SEQCTL[0x10]:(FASTMODE) 
+Jun 15 22:43:01 iapetus kernel: SEQ_FLAGS[0x40]:(NO_CDB_SENT) SSTAT0[0x0] SSTAT1[0x2]:(PHASECHG) 
+Jun 15 22:43:01 iapetus kernel: SSTAT2[0x10]:(EXP_ACTIVE) SSTAT3[0x0] SIMODE0[0x8]:(ENSWRAP) 
+Jun 15 22:43:01 iapetus kernel: SIMODE1[0xac]:(ENSCSIPERR|ENBUSFREE|ENSCSIRST|ENSELTIMO) 
+Jun 15 22:43:01 iapetus kernel: SXFRCTL0[0x88]:(SPIOEN|DFON) DFCNTRL[0x0] DFSTATUS[0x89]:(FIFOEMP|HDONE|PRELOAD_AVAIL) 
+Jun 15 22:43:01 iapetus kernel: STACK: 0xe4 0x0 0x166 0x17c
+Jun 15 22:43:01 iapetus kernel: SCB count = 4
+Jun 15 22:43:01 iapetus kernel: Kernel NEXTQSCB = 2
+Jun 15 22:43:01 iapetus kernel: Card NEXTQSCB = 2
+Jun 15 22:43:01 iapetus kernel: QINFIFO entries: 
+Jun 15 22:43:01 iapetus kernel: Waiting Queue entries: 
+Jun 15 22:43:01 iapetus kernel: Disconnected Queue entries: 
+Jun 15 22:43:01 iapetus kernel: QOUTFIFO entries: 
+Jun 15 22:43:01 iapetus kernel: Sequencer Free SCB List: 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 
+Jun 15 22:43:01 iapetus kernel: Sequencer SCB Info: 
+Jun 15 22:43:01 iapetus kernel:   0 SCB_CONTROL[0x40]:(DISCENB) SCB_SCSIID[0x47] SCB_LUN[0x0] 
+Jun 15 22:43:01 iapetus kernel: SCB_TAG[0x3] 
+Jun 15 22:43:01 iapetus kernel:   1 SCB_CONTROL[0x0] SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID) 
+Jun 15 22:43:01 iapetus kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff] 
+Jun 15 22:43:01 iapetus kernel:   2 SCB_CONTROL[0x0] SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID) 
+Jun 15 22:43:01 iapetus kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff] 
+Jun 15 22:43:01 iapetus kernel:   3 SCB_CONTROL[0x0] SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID) 
+Jun 15 22:43:01 iapetus kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff] 
+Jun 15 22:43:01 iapetus kernel:   4 SCB_CONTROL[0x0] SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID) 
+Jun 15 22:43:01 iapetus kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff] 
+Jun 15 22:43:01 iapetus kernel:   5 SCB_CONTROL[0x0] SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID) 
+Jun 15 22:43:01 iapetus kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff] 
+Jun 15 22:43:01 iapetus kernel:   6 SCB_CONTROL[0x0] SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID) 
+Jun 15 22:43:01 iapetus kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff] 
+Jun 15 22:43:01 iapetus kernel:   7 SCB_CONTROL[0x0] SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID) 
+Jun 15 22:43:01 iapetus kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff] 
+Jun 15 22:43:01 iapetus kernel:   8 SCB_CONTROL[0x0] SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID) 
+Jun 15 22:43:01 iapetus kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff] 
+Jun 15 22:43:01 iapetus kernel:   9 SCB_CONTROL[0x0] SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID) 
+Jun 15 22:43:01 iapetus kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff] 
+Jun 15 22:43:01 iapetus kernel:  10 SCB_CONTROL[0x0] SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID) 
+Jun 15 22:43:01 iapetus kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff] 
+Jun 15 22:43:01 iapetus kernel:  11 SCB_CONTROL[0x0] SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID) 
+Jun 15 22:43:01 iapetus kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff] 
+Jun 15 22:43:01 iapetus kernel:  12 SCB_CONTROL[0x0] SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID) 
+Jun 15 22:43:01 iapetus kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff] 
+Jun 15 22:43:01 iapetus kernel:  13 SCB_CONTROL[0x0] SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID) 
+Jun 15 22:43:01 iapetus kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff] 
+Jun 15 22:43:01 iapetus kernel:  14 SCB_CONTROL[0x0] SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID) 
+Jun 15 22:43:01 iapetus kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff] 
+Jun 15 22:43:01 iapetus kernel:  15 SCB_CONTROL[0x0] SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID) 
+Jun 15 22:43:01 iapetus kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff] 
+Jun 15 22:43:01 iapetus kernel:  16 SCB_CONTROL[0x0] SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID) 
+Jun 15 22:43:01 iapetus kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff] 
+Jun 15 22:43:01 iapetus kernel:  17 SCB_CONTROL[0x0] SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID) 
+Jun 15 22:43:01 iapetus kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff] 
+Jun 15 22:43:01 iapetus kernel:  18 SCB_CONTROL[0x0] SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID) 
+Jun 15 22:43:01 iapetus kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff] 
+Jun 15 22:43:01 iapetus kernel:  19 SCB_CONTROL[0x0] SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID) 
+Jun 15 22:43:01 iapetus kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff] 
+Jun 15 22:43:01 iapetus kernel:  20 SCB_CONTROL[0x0] SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID) 
+Jun 15 22:43:01 iapetus kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff] 
+Jun 15 22:43:01 iapetus kernel:  21 SCB_CONTROL[0x0] SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID) 
+Jun 15 22:43:01 iapetus kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff] 
+Jun 15 22:43:01 iapetus kernel:  22 SCB_CONTROL[0x0] SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID) 
+Jun 15 22:43:01 iapetus kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff] 
+Jun 15 22:43:01 iapetus kernel:  23 SCB_CONTROL[0x0] SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID) 
+Jun 15 22:43:01 iapetus kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff] 
+Jun 15 22:43:01 iapetus kernel:  24 SCB_CONTROL[0x0] SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID) 
+Jun 15 22:43:01 iapetus kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff] 
+Jun 15 22:43:01 iapetus kernel:  25 SCB_CONTROL[0x0] SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID) 
+Jun 15 22:43:01 iapetus kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff] 
+Jun 15 22:43:01 iapetus kernel:  26 SCB_CONTROL[0x0] SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID) 
+Jun 15 22:43:01 iapetus kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff] 
+Jun 15 22:43:01 iapetus kernel:  27 SCB_CONTROL[0x0] SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID) 
+Jun 15 22:43:01 iapetus kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff] 
+Jun 15 22:43:01 iapetus kernel:  28 SCB_CONTROL[0x0] SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID) 
+Jun 15 22:43:01 iapetus kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff] 
+Jun 15 22:43:01 iapetus kernel:  29 SCB_CONTROL[0x0] SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID) 
+Jun 15 22:43:01 iapetus kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff] 
+Jun 15 22:43:01 iapetus kernel:  30 SCB_CONTROL[0x0] SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID) 
+Jun 15 22:43:01 iapetus kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff] 
+Jun 15 22:43:01 iapetus kernel:  31 SCB_CONTROL[0x0] SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID) 
+Jun 15 22:43:01 iapetus kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff] 
+Jun 15 22:43:01 iapetus kernel: Pending list: 
+Jun 15 22:43:01 iapetus kernel:   3 SCB_CONTROL[0x40]:(DISCENB) SCB_SCSIID[0x47] SCB_LUN[0x0] 
+Jun 15 22:43:02 iapetus kernel: Kernel Free SCB list: 1 0 
+Jun 15 22:43:02 iapetus kernel: Untagged Q(4): 3 
+Jun 15 22:43:02 iapetus kernel: DevQ(0:3:0): 0 waiting
+Jun 15 22:43:02 iapetus kernel: DevQ(0:4:0): 0 waiting
+Jun 15 22:43:02 iapetus kernel: 
+Jun 15 22:43:02 iapetus kernel: <<<<<<<<<<<<<<<<< Dump Card State Ends >>>>>>>>>>>>>>>>>>
+Jun 15 22:43:02 iapetus kernel: scsi0:0:4:0: Device is active, asserting ATN
+Jun 15 22:43:02 iapetus kernel: Recovery code sleeping
+Jun 15 22:43:02 iapetus kernel: Recovery code awake
+Jun 15 22:43:02 iapetus kernel: Timer Expired
+Jun 15 22:43:02 iapetus kernel: aic7xxx_abort returns 0x2003
+Jun 15 22:43:02 iapetus kernel: scsi0:0:4:0: Attempting to queue a TARGET RESET message
+Jun 15 22:43:02 iapetus kernel: CDB: 0x12 0x0 0x0 0x0 0x24 0x0
+Jun 15 22:43:02 iapetus kernel: aic7xxx_dev_reset returns 0x2003
+Jun 15 22:43:02 iapetus kernel: Recovery SCB completes
+Jun 15 22:43:02 iapetus kernel:   Vendor: WANGTEK   Model: 5525ES SCSI       Rev: 73F 
+Jun 15 22:43:02 iapetus kernel:   Type:   Sequential-Access                  ANSI SCSI revision: 02
+Jun 15 22:43:02 iapetus kernel: st: Version 20041025, fixed bufsize 32768, s/g segs 256
+Jun 15 22:43:02 iapetus kernel: Attached scsi tape st0 at scsi0, channel 0, id 4, lun 0
+Jun 15 22:43:02 iapetus kernel: st0: try direct i/o: yes (alignment 512 B), max page reachable by HBA 1048575
+Jun 15 22:43:02 iapetus kernel: sr0: scsi3-mmc drive: 16x/16x writer cd/rw xa/form2 cdda tray
+Jun 15 22:43:02 iapetus kernel: Attached scsi generic sg0 at scsi0, channel 0, id 3, lun 0,  type 5
+Jun 15 22:43:02 iapetus kernel: Attached scsi generic sg1 at scsi0, channel 0, id 4, lun 0,  type 1
 
-Ted, what do you think?
+so no real problem here.
 
-> For example, we don't have a
->way of telling the application, "the reason why you the filesystem was
->remounted-read-only was in reaction to an I/O error that appears to be
->caused by the multiple CRC checksum errors reported by the SCSI
->controller".  We can only return EIO or EROFS.  And while the write()
->which causes an I/O error that remounts the filesystem read/only can
->(and probably does) return EIO, any subsequent writes will return
->EROFS, and changing this would be hard, hackish, and probably wouldn't
->be accepted.
->
->Also, there is not neccesarily one right answer to how to respond to a
->underlying I/O error in the filesystem.  So for ext2/3 filesystem, it
->is configurable.  In case of an underlying error detected in the
->filesystem metadata, the filesystem can be set to either (a) panic and
->force a reboot, so that hopefully fsck can resolve the issue, (b)
->remount the filesystem read/only, to prevent further damage, or (c)
->continue and do nothing (the don't worry, be happy approach).
->Different users will want different approaches, and so trying to
->standardize what applications will see at the user level doesn't seem
->like the right approach, since we want to allow system administrators
->some flexibility about how they wish to configure their systems.
->  
->
-Perhaps these policy choices should be mount options, what do you think?
-
->(For example, an embedded system or a system where there is higher
->levels of redundancy, the right answer might be to panic and either
->reboot or halt --- continuing and possibly returning wrong answers
->might be completely unacceptable, and it may be that the once the
->system goes down hard, the adjacent backup blade can pick up
->operations.)
->
->So instead of trying to standardize the existing error returns, which
->are they way they are and for which trying to standardize them would
->probably be not worth the effort, since they don't return enough
->context to the application anyway ---- I would suggest the better
->thing to do is to design a new mechanism for returning block device
->errors via either some kind of notifcation mechanism (pick your choice
->of hotplug, dbus, or netlink --- dbus may make the most amount of
->sense, since multiple applications may want to subscribe to such
->notifications) of problems at the filesystem level, so that
->applications can take corrective action as necessary.  
->
->This is a better approach, since it far more flexible and returns much
->more information to the user.  For example, in a desktop environment,
->the desktop can pop up a warning dialog to the user of a failure of a
->block device or filesystem corruption, without having to modify every
->single application.  In the case of an embedded system, the
->notification can trigger an appropriate failover or recovery process.  
->
->Regards,
->
->						- Ted
->
->
->  
->
-
+-- 
+Frank

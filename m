@@ -1,34 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261422AbVFONh3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261428AbVFONoc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261422AbVFONh3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 09:37:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261428AbVFONh3
+	id S261428AbVFONoc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 09:44:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261438AbVFONoc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 09:37:29 -0400
-Received: from ausmtp01.au.ibm.com ([202.81.18.186]:4303 "EHLO
-	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP id S261422AbVFONh0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 09:37:26 -0400
-To: linux-kernel@vger.kernel.org, fastboot@lists.osdl.org
+	Wed, 15 Jun 2005 09:44:32 -0400
+Received: from pop.gmx.net ([213.165.64.20]:17588 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261428AbVFONo3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 09:44:29 -0400
+X-Authenticated: #137701
+From: Alexander Gretencord <arutha@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Swapping in 2.6.10 and 2.6.11.11 on a desktop system
+Date: Wed, 15 Jun 2005 15:44:16 +0200
+User-Agent: KMail/1.8.1
+Cc: Con Kolivas <kernel@kolivas.org>
+References: <200506141653.32093.arutha@gmx.de> <200506150242.02606.kernel@kolivas.org>
+In-Reply-To: <200506150242.02606.kernel@kolivas.org>
 MIME-Version: 1.0
-Subject: Analysis of IO bug with kdump
-X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
-Message-ID: <OF73B8CDF4.A3A85473-ON65257021.004478CB-65257021.0045DE0F@in.ibm.com>
-From: Nagesh Sharyathi <sharyathi@in.ibm.com>
-Date: Wed, 15 Jun 2005 18:08:07 +0530
-X-MIMETrack: Serialize by Router on d23m0069/23/M/IBM(Release 6.51HF653 | October 18, 2004) at
- 15/06/2005 18:08:41,
-	Serialize complete at 15/06/2005 18:08:41
-Content-Type: text/plain; charset="US-ASCII"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200506151544.17191.arutha@gmx.de>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have encountered kernel oops while testing AIO. 
-Since I had set panic_on_oops I  was able to take the memory dump through 
-kdump,
-I have run preliminary analysis over the dump using gdb and have attached 
-the analysis, please look into the bug
+On Tuesday 14 June 2005 18:42, Con Kolivas wrote:
+> Try the mapped watermark patch from -ck on 2.6.11*
 
-http://bugme.osdl.org/show_bug.cgi?id=4721
+Unfortunately this patch does not help either. The patch buys me time but then 
+I get swapping at the 300MB mark. 2.6.8.1 with swappiness=0 swaps later than 
+this...
 
-and let me know if further analysis is needed
+These are 'free -m' statistics a minute after reaching the 300MB mark:
+
+             total       used       free     shared    buffers     cached
+Mem:           503        498          5          0         36        376
+-/+ buffers/cache:         85        418
+Swap:          494        227        266
+
+Why does the kernel think that I need 400MB of disk cache when I start some 
+memory hungry apps? Can't we have a hard limit on disk cache, like: "Don't 
+use more than 100MB of disk cache".
+
+The problem seems to be that instead of using a big disk cache when theres 
+plenty of ram and reducing disk cache when applications need the ram, the 
+disk cache shrinks until a magic watermark and then grows and grows until 
+theres no ram left for the applications. At least thats the behaviour I am 
+seeing.
+
+
+Alex
+
+P.S.: Please cc me as I'm not on the list.

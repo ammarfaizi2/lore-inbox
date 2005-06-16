@@ -1,67 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261616AbVFPLrI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261639AbVFPMPF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261616AbVFPLrI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Jun 2005 07:47:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261625AbVFPLrI
+	id S261639AbVFPMPF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Jun 2005 08:15:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261649AbVFPMPF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Jun 2005 07:47:08 -0400
-Received: from embla.aitel.hist.no ([158.38.50.22]:53650 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S261616AbVFPLqz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Jun 2005 07:46:55 -0400
-Message-ID: <42B1681B.6000703@aitel.hist.no>
-Date: Thu, 16 Jun 2005 13:52:59 +0200
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
+	Thu, 16 Jun 2005 08:15:05 -0400
+Received: from loopy.telegraphics.com.au ([202.45.126.152]:44996 "EHLO
+	loopy.telegraphics.com.au") by vger.kernel.org with ESMTP
+	id S261637AbVFPMO4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Jun 2005 08:14:56 -0400
+Date: Thu, 16 Jun 2005 22:14:52 +1000 (EST)
+From: Finn Thain <fthain@telegraphics.com.au>
+To: Ralf Baechle <ralf@linux-mips.org>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Linux/m68k <linux-m68k@vger.kernel.org>,
+       Linux/m68k on Mac <linux-mac68k@mac.linux-m68k.org>,
+       Linux MIPS <linux-mips@vger.kernel.org>,
+       Linux kernel <linux-kernel@vger.kernel.org>,
+       Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: Re: [PATCH] Jazzsonic driver updates
+In-Reply-To: <20050616092257.GE5202@linux-mips.org>
+Message-ID: <Pine.LNX.4.61.0506162129450.31164@loopy.telegraphics.com.au>
+References: <200503070210.j272ARii023023@hera.kernel.org>
+ <Pine.LNX.4.62.0503221807160.20753@numbat.sonytel.be> <20050323100139.GB8813@linux-mips.org>
+ <Pine.LNX.4.61.0506121454410.1470@loopy.telegraphics.com.au>
+ <20050615114158.GA9411@linux-mips.org> <Pine.LNX.4.61.0506152220460.22046@loopy.telegraphics.com.au>
+ <20050615142717.GD9411@linux-mips.org> <Pine.LNX.4.61.0506160218310.24328@loopy.telegraphics.com.au>
+ <Pine.LNX.4.61.0506160336410.24908@loopy.telegraphics.com.au>
+ <20050616092257.GE5202@linux-mips.org>
 MIME-Version: 1.0
-To: Hans Reiser <reiser@namesys.com>
-CC: "Theodore Ts'o" <tytso@mit.edu>, Kenichi Okuyama <okuyamak@dd.iij4u.or.jp>,
-       Andreas Dilger <adilger@clusterfs.com>, fs <fs@ercist.iscas.ac.cn>,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, zhiming@admin.iscas.ac.cn,
-       qufuping@ercist.iscas.ac.cn, madsys@ercist.iscas.ac.cn,
-       xuh@nttdata.com.cn, koichi@intellilink.co.jp,
-       kuroiwaj@intellilink.co.jp, okuyama@intellilink.co.jp,
-       matsui_v@valinux.co.jp, kikuchi_v@valinux.co.jp,
-       fernando@intellilink.co.jp, kskmori@intellilink.co.jp,
-       takenakak@intellilink.co.jp, yamaguchi@intellilink.co.jp,
-       ext2-devel@lists.sourceforge.net, shaggy@austin.ibm.com,
-       xfs-masters@oss.sgi.com,
-       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>
-Subject: Re: [Ext2-devel] Re: [RFD] FS behavior (I/O failure) in kernel summit
-References: <1118692436.2512.157.camel@CoolQ> <42ADC99D.5000801@namesys.com> <20050613201315.GC19319@moraine.clusterfs.com> <42AE1D4A.3030504@namesys.com> <42AE450C.5020908@dd.iij4u.or.jp> <20050615140105.GE4228@thunk.org> <42B091E3.3010908@namesys.com>
-In-Reply-To: <42B091E3.3010908@namesys.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser wrote:
-
->What users need is for a window to pop up saying "the usb drive is
->turned off" or "we are getting checksum errors from XXX, this may
->indicate hardware problems that require your attention".
->  
->
-Nice.  And the way to do this right is to have the kernel merely
-log the error as usual.  The user can have some daemon listening
-to the log, this program may then pop up error messages with
-nifty detailed explanations, start up diagnostic software
-for various subsystems and so on. 
-
-The kernel can't do GUI stuff - a GUI may or may not be present,
-and the kernel cannot know.  The server may not run X at all
-but I still run graphical SW on it using a workstation or X-terminal.
-Or the pc may have three video cards, each running a different xserver
-with different users for each.  Who to report to?
-
-An error-reporting daemon have an easier job, it can look up the
-correct (possibly remote) display in its config file for all those
-cases when there isn't just _one_ display.
-
-Helge Hafting
 
 
+On Thu, 16 Jun 2005, Ralf Baechle wrote:
 
+> On Thu, Jun 16, 2005 at 03:45:54AM +1000, Finn Thain wrote:
+> 
+> > > ... the chip then decides where in that area the recieved packet gets 
+> > > buffered ... and that is why I was asking for an alternative to 
+> > > vdma_log2phys...
+> > 
+> > But I forgot that it is possible to have the sonic chip store no more than 
+> > one packet in each buffer before moving to the next one in the ring 
+> > (though this isn't the case at present). So, as you say, vdma_log2phys 
+> > isn't really required.
+> 
+> Using that option doesn't really seem a good idea anyway.
 
+Sorry, I mislead you (it has been 4 months since I looked at this). The 
+existing code does only permit one packet per buffer. I did the same in my 
+zero-copy version. So vdma_log2phys really isn't needed, and my patch 
+actually removed it along with the memcpy. 
+
+-f
+
+> 
+>   Ralf
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-mips" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 

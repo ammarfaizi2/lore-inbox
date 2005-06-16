@@ -1,47 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261833AbVFPW0Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261835AbVFPWap@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261833AbVFPW0Q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Jun 2005 18:26:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261834AbVFPW0Q
+	id S261835AbVFPWap (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Jun 2005 18:30:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261836AbVFPWap
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Jun 2005 18:26:16 -0400
-Received: from [81.2.110.250] ([81.2.110.250]:35970 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S261833AbVFPW0N (ORCPT
+	Thu, 16 Jun 2005 18:30:45 -0400
+Received: from mail.dif.dk ([193.138.115.101]:7874 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S261835AbVFPWah (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Jun 2005 18:26:13 -0400
-Subject: Re: [2.6.12rc4] PROBLEM: "drive appears confused" and "irq 18:
-	nobody cared!"
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Alexander Fieroch <fieroch@web.de>, bzolnier@gmail.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, axboe@suse.de,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-In-Reply-To: <20050615143039.24132251.akpm@osdl.org>
-References: <d6gf8j$jnb$1@sea.gmane.org>
-	 <20050527171613.5f949683.akpm@osdl.org> <429A2397.6090609@web.de>
-	 <58cb370e05061401041a67cfa7@mail.gmail.com> <42B091EE.4020802@web.de>
-	 <20050615143039.24132251.akpm@osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1118960606.24646.58.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 16 Jun 2005 23:23:28 +0100
+	Thu, 16 Jun 2005 18:30:37 -0400
+Date: Fri, 17 Jun 2005 00:36:04 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: laforge@netfilter.org, Stephen Frost <sfrost@snowman.net>,
+       Jesper Juhl <juhl-lkml@dif.dk>, Jesper Juhl <jesper.juhl@gmail.com>
+Subject: Shouldn't we be using alloc_skb/kfree_skb in
+ net/ipv4/netfilter/ipt_recent.c::ip_recent_ctrl ?
+Message-ID: <Pine.LNX.4.62.0506170025140.2477@dragon.hyggekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2005-06-15 at 22:30, Andrew Morton wrote:
-> Alexander Fieroch <fieroch@web.de> wrote:
-> hm, I thought Alan did a driver for the ITE RAID controller?
-> 
-> I had a driver from ITE in the -mm tree for a while.  It still seems to
-> apply and I think it fixes the compile warnings which you saw:
+I was just grep'ing through the source looking for places where skb's 
+might be freed by plain kfree() and, amongst other things, I noticed 
+net/ipv4/netfilter/ipt_recent.c::ip_recent_ctrl, where a struct sk_buff* 
+is defined and then storage for it is allocated with kmalloc() and freed 
+with kfree(), and I'm wondering if we shouldn't be using 
+alloc_skb/kfree_skb instead (as pr the patch below)? Or is there some good 
+reason for doing it the way it's currently done?
 
-I did but it depends on other fixes to the IDE layer that never got in.
-The -ac tree, Fedora and various other systems support IT8212, the Linus
-kernel does not. Please direct any queries with regards to that to the
-IDE maintainers as I've given up submitting IDE fixes to the base
-kernel.
 
-Alan
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+---
+
+ net/ipv4/netfilter/ipt_recent.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+--- linux-2.6.12-rc6-mm1-orig/net/ipv4/netfilter/ipt_recent.c	2005-06-12 15:58:58.000000000 +0200
++++ linux-2.6.12-rc6-mm1/net/ipv4/netfilter/ipt_recent.c	2005-06-16 23:41:55.000000000 +0200
+@@ -303,7 +303,7 @@ static int ip_recent_ctrl(struct file *f
+ 	strncpy(info->name,curr_table->name,IPT_RECENT_NAME_LEN);
+ 	info->name[IPT_RECENT_NAME_LEN-1] = '\0';
+ 
+-	skb = kmalloc(sizeof(struct sk_buff),GFP_KERNEL);
++	skb = alloc_skb(sizeof(struct sk_buff),GFP_KERNEL);
+ 	if (!skb) {
+ 		used = -ENOMEM;
+ 		goto out_free_info;
+@@ -322,7 +322,7 @@ static int ip_recent_ctrl(struct file *f
+ 
+ 	kfree(skb->nh.iph);
+ out_free_skb:
+-	kfree(skb);
++	kfree_skb(skb);
+ out_free_info:
+ 	kfree(info);
+ 
+
 

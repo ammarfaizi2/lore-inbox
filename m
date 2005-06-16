@@ -1,88 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261782AbVFPR7h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261783AbVFPSAR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261782AbVFPR7h (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Jun 2005 13:59:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261784AbVFPR7h
+	id S261783AbVFPSAR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Jun 2005 14:00:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261784AbVFPR7q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Jun 2005 13:59:37 -0400
-Received: from relay01.pair.com ([209.68.5.15]:53009 "HELO relay01.pair.com")
-	by vger.kernel.org with SMTP id S261782AbVFPR7X (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Jun 2005 13:59:23 -0400
-X-pair-Authenticated: 209.68.2.107
-Message-ID: <42B1BDF7.1000700@cybsft.com>
-Date: Thu, 16 Jun 2005 12:59:19 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
+	Thu, 16 Jun 2005 13:59:46 -0400
+Received: from one.firstfloor.org ([213.235.205.2]:46826 "EHLO
+	one.firstfloor.org") by vger.kernel.org with ESMTP id S261783AbVFPR7a
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Jun 2005 13:59:30 -0400
+To: Doug Warzecha <Douglas_Warzecha@dell.com>
+Cc: abhay_salunke@dell.com, matt_domsch@dell.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.12-rc6] char: Add Dell Systems Management Base
+ driver
+References: <20050616173024.GA2596@sysman-doug.us.dell.com>
+From: Andi Kleen <ak@muc.de>
+Date: Thu, 16 Jun 2005 19:59:29 +0200
+In-Reply-To: <20050616173024.GA2596@sysman-doug.us.dell.com> (Doug
+ Warzecha's message of "Thu, 16 Jun 2005 12:30:24 -0500")
+Message-ID: <m1fyvinpxa.fsf@muc.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org, "Eugeny S. Mints" <emints@ru.mvista.com>,
-       Daniel Walker <dwalker@mvista.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
-References: <20050608112801.GA31084@elte.hu> <42B0F72D.5040405@cybsft.com> <20050616072935.GB19772@elte.hu> <42B160F5.9060208@cybsft.com> <20050616173247.GA32552@elte.hu>
-In-Reply-To: <20050616173247.GA32552@elte.hu>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * K.R. Foley <kr@cybsft.com> wrote:
-> 
-> 
->>>could you uncomment the IO_APIC_CACHE define in 
->>>arch/i386/kernel/io_apic.c, and could you uncomment line 1109 in 
->>>drivers/ide/ide-io.c - does this fix things? (in apic mode)
-> 
-> 
->>Couple of things: 1) I could not find IO_APIC_CACHE anywhere. I could 
->>find IOAPIC_CACHE but the define was not commented in io_apic.c. Also 
->>the BUG_ON at line 1109 in ide-io.c was not commented out either. So I 
->>made the mental leap that you actually meant to comment these out 
->>instead of uncomment them??? [...]
-> 
-> 
-> yeah, sorry :-|
-> 
+Doug Warzecha <Douglas_Warzecha@dell.com> writes:
 
-OK so there really was no mental leap. It was more like a 
-trip,stumble,roll,grasp :-) I actually discovered the real meaning of 
-the above after commenting out only one of the above and failed boot. 
-Only then did it dawn on me what you were trying for. Hence the last 
-line of my email not being finished.
+> +static void *tvm_alloc_suitable(unsigned long size, unsigned long phys_max)
+> +{
+> +	void *ptr;
+> +	unsigned int flags = GFP_KERNEL;
+> +
+> +	while ((ptr = kmalloc(size, flags)) != NULL) {
+> +		if ((virt_to_phys(ptr) + size - 1) <= phys_max)
+> +			break;
+> +
+> +		kfree(ptr);
+> +		ptr = NULL;
+> +
+> +		if (flags & GFP_DMA)
+> +			break;
+> +		flags |= GFP_DMA;
+> +	}
+> +	return ptr;
 
-> 
->>[...] That works to get the system booted. Although I am getting many 
->>soft lockups now, minutes after the boot. Log attached. [...]
-> 
-> 
-> hm, do you get actual lockups, or only the messages about them? I.e.  
-> does the system work fine if you [the sounds of careful thinking to get 
-> the word right] disable CONFIG_DETECT_SOFTLOCKUP, or does it lock up 
-> silently?
+Umm - what's that? 
 
-There doesn't seem to be any actual lockups, just messages. I will try 
-disabling the above when I get home this evening. Can't get to the 
-system right now.
+Please drop that immediately. 2.6.13 will hopefully have GFP_DMA32
+on x86-64 that will make it fully obsolete.
 
-> 
-> 
->>[...] 2) In my infinite wisdom before :-) I failed to attach my config 
->>as I should have done before. Also, commenting out
-> 
-> 
-> this looks like a sentence worth finishing? :)
-Actually see my comment above about the "trip,stumble,roll,grasp" The 
-line above is the point at which I realized what was going on. :-D
+And even before that you can use pci_alloc_consistent() - that
+will do the right now and later.
 
-> 
-> 	Ingo
-> 
+... haven't read on.
 
+But there seems to be a use of register_ioctl32_conversion. That
+needs to be replaced with ->compat_ioctl, since the former
+will soon go.
 
--- 
-    kr
+-Andi

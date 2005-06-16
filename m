@@ -1,94 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261819AbVFPWSs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261833AbVFPW0Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261819AbVFPWSs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Jun 2005 18:18:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261824AbVFPWSs
+	id S261833AbVFPW0Q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Jun 2005 18:26:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261834AbVFPW0Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Jun 2005 18:18:48 -0400
-Received: from mail.dif.dk ([193.138.115.101]:39617 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S261819AbVFPWSo (ORCPT
+	Thu, 16 Jun 2005 18:26:16 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:35970 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S261833AbVFPW0N (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Jun 2005 18:18:44 -0400
-Date: Fri, 17 Jun 2005 00:24:10 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Jesper Juhl <juhl-lkml@dif.dk>, Andrew Morton <akpm@osdl.org>,
-       davidm@hpl.hp.com, eranian@hpl.hp.com, linux-kernel@vger.kernel.org
-Subject: Re: [resend][PATCH] avoid signed vs unsigned comparison in
- efi_range_is_wc()
-In-Reply-To: <200506162348.38423.arnd@arndb.de>
-Message-ID: <Pine.LNX.4.62.0506170014440.2477@dragon.hyggekrogen.localhost>
-References: <Pine.LNX.4.62.0506162219040.2477@dragon.hyggekrogen.localhost>
- <20050616134126.264d6bd5.akpm@osdl.org> <Pine.LNX.4.62.0506162254480.2477@dragon.hyggekrogen.localhost>
- <200506162348.38423.arnd@arndb.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 16 Jun 2005 18:26:13 -0400
+Subject: Re: [2.6.12rc4] PROBLEM: "drive appears confused" and "irq 18:
+	nobody cared!"
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Alexander Fieroch <fieroch@web.de>, bzolnier@gmail.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, axboe@suse.de,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+In-Reply-To: <20050615143039.24132251.akpm@osdl.org>
+References: <d6gf8j$jnb$1@sea.gmane.org>
+	 <20050527171613.5f949683.akpm@osdl.org> <429A2397.6090609@web.de>
+	 <58cb370e05061401041a67cfa7@mail.gmail.com> <42B091EE.4020802@web.de>
+	 <20050615143039.24132251.akpm@osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1118960606.24646.58.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 16 Jun 2005 23:23:28 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Jun 2005, Arnd Bergmann wrote:
-
-> On Dunnersdag 16 Juni 2005 23:02, Jesper Juhl wrote:
-> > On Thu, 16 Jun 2005, Andrew Morton wrote:
-> > > There are surely many warnings in the tree, hence I'm not really interested
-> > > in patches which only fix `gcc -W' warnings.
-> > > 
-> > 
-> > Ok, in that case I won't bother you directly with such patches any more 
-> > but instead let them trickle into maintainers trees when they will take 
-> > them.
-> > 
-> > And yes, I know it's very trivial stuff and it doesn't make much of a 
-> > difference to the "big picture", but my attitude towards that is that no 
-> > issue is too small to be addressed, and since I'm not able to adress many 
-> > of the larger issues I try to address the smaller ones that I'm able to 
-> > handle, and when I run out of those I start nitpicking with the really 
-> > trivial stuff (like gcc -W warnings) - all with the purpose of helping our 
-> > kernel be the very best it can, even if my contribution might be very 
-> > minor in some cases.
+On Mer, 2005-06-15 at 22:30, Andrew Morton wrote:
+> Alexander Fieroch <fieroch@web.de> wrote:
+> hm, I thought Alan did a driver for the ITE RAID controller?
 > 
-> I have a patch that optionally enables some of the interesting warnings
-> that gcc supports (e.g. -Wmissing-format-attribute -Wmissing-declarations
-> -Wundef -Wwrite-strings).
-> 
-> It has four different levels:
-> 
-> - quiet (current warnings minus -Wdeprecated-declarations)
-> - normal (some interesting ones added that are not too noisy)
-> - more (all interesting ones, including some noisier ones like 
->   -Wmissing-declarations)
-> - overkill (-W and some more that only make sense for statistic
->   analysis)
-> 
-> I have the base patch and some more patches that fix the most annoying 
-> warnings. I find them more useful than the signed vs unsigned comparison
-> fixes you are doing right now, but don't have the time to split my
-> patches up into obvious chunks.
-> 
-> Jesper, are you interested in my stuff
+> I had a driver from ITE in the -mm tree for a while.  It still seems to
+> apply and I think it fixes the compile warnings which you saw:
 
-Certainly.
+I did but it depends on other fixes to the IDE layer that never got in.
+The -ac tree, Fedora and various other systems support IT8212, the Linus
+kernel does not. Please direct any queries with regards to that to the
+IDE maintainers as I've given up submitting IDE fixes to the base
+kernel.
 
-
-> and willing to continue that work?
-
-To the best of my abilities, yes. I'd like to take a look at those 
-patches. 
-If nothing else it sounds like a good way for me to cut my current 
-(extra warning enabled) build logs down to size and focus on the more 
-relevant of the issues. And perhaps, if I can find the time for it, I can 
-split the other patches you have into some sane chunks and start 
-submitting them to the relevant maintainers.
-
-
-> I'd suggest to fix the warnings at 'normal' level first and then
-> integrate the patch for configurable warning levels into -mm.
-> 
-Sounds like a resonable plan to me.  Send your stuff along and I'll put 
-some time into it when and where I can find it :-)
-
-
---
-Jesper 
-
+Alan
 

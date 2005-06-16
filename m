@@ -1,63 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261777AbVFPRfs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261778AbVFPRji@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261777AbVFPRfs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Jun 2005 13:35:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261778AbVFPRfs
+	id S261778AbVFPRji (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Jun 2005 13:39:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261779AbVFPRjc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Jun 2005 13:35:48 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:7902 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261777AbVFPRfj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Jun 2005 13:35:39 -0400
-Date: Thu, 16 Jun 2005 19:32:47 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "K.R. Foley" <kr@cybsft.com>
-Cc: linux-kernel@vger.kernel.org, "Eugeny S. Mints" <emints@ru.mvista.com>,
-       Daniel Walker <dwalker@mvista.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
-Message-ID: <20050616173247.GA32552@elte.hu>
-References: <20050608112801.GA31084@elte.hu> <42B0F72D.5040405@cybsft.com> <20050616072935.GB19772@elte.hu> <42B160F5.9060208@cybsft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42B160F5.9060208@cybsft.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Thu, 16 Jun 2005 13:39:32 -0400
+Received: from mailsrvr2.bull.com ([192.90.162.8]:43402 "EHLO
+	mailsrvr2.bull.com") by vger.kernel.org with ESMTP id S261781AbVFPRjT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Jun 2005 13:39:19 -0400
+In-Reply-To: <42B0FE88.1070404@nortel.com>
+To: Chris Friesen <cfriesen@nortel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC/Patch] robust futexes for 2.6.12-rc6
+MIME-Version: 1.0
+X-Mailer: Lotus Notes Release 6.5.1 January 21, 2004
+Message-ID: <OFCABD057D.E46C755F-ON07257022.005C74AE-07257022.0060EDCF@us-phx1.az05.bull.com>
+From: Todd.Kneisel@Bull.com
+Date: Thu, 16 Jun 2005 10:38:43 -0700
+X-MIMETrack: Serialize by Router on US-PHX1/US/BULL(Release 6.5.1|January 21, 2004) at
+ 06/16/2005 10:38:49 AM,
+	Serialize complete at 06/16/2005 10:38:49 AM
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Chris Friesen <cfriesen@nortel.com> wrote on 06/15/2005 09:22:32 PM:
+> Todd Kneisel wrote:
+> > This patch adds robust futex support to the existing sys_futex system 
+call.
+> > The patch applies to 2.6.12-rc6. I have tested this code on an IA64 
+SMP
+> > system. Any comments or discussion will be welcome.
+> 
+> How does this compare to the robust mutexes portion of the stuff that 
+> Inaky was working on?
+> 
+> Chris
 
-* K.R. Foley <kr@cybsft.com> wrote:
+It's my understanding that Inaky is redesigning the locking
+mechanism that the kernel provides for use by the NPTL thread
+library. I'm adding robustness to the existing locking mechanism.
 
-> > could you uncomment the IO_APIC_CACHE define in 
-> > arch/i386/kernel/io_apic.c, and could you uncomment line 1109 in 
-> > drivers/ide/ide-io.c - does this fix things? (in apic mode)
+Inaky's code adds five system calls, one for each operation,
+where I am adding operations to the existing sys_futex call.
 
-> Couple of things: 1) I could not find IO_APIC_CACHE anywhere. I could 
-> find IOAPIC_CACHE but the define was not commented in io_apic.c. Also 
-> the BUG_ON at line 1109 in ide-io.c was not commented out either. So I 
-> made the mental leap that you actually meant to comment these out 
-> instead of uncomment them??? [...]
+Inaky's code is more complex due to the priority inheritance
+features. I'm not doing priority inheritance. The application
+that Bull is developing does not require priority inheritance.
 
-yeah, sorry :-|
+The user interface in the NPTL thread library should be the
+same. The API is based on the Solaris implementation of robust
+mutexes. It's not based on Solaris code, only on the
+documentation of the API.
 
-> [...] That works to get the system booted. Although I am getting many 
-> soft lockups now, minutes after the boot. Log attached. [...]
+I believe that Inaky's NPTL implementation intends to have two
+NPTL libraries on the system. The standard one that uses sys_futex,
+and an RTNPTL that uses his new system calls. I hope to get my
+changes into the standard NPTL library.
 
-hm, do you get actual lockups, or only the messages about them? I.e.  
-does the system work fine if you [the sounds of careful thinking to get 
-the word right] disable CONFIG_DETECT_SOFTLOCKUP, or does it lock up 
-silently?
-
-> [...] 2) In my infinite wisdom before :-) I failed to attach my config 
-> as I should have done before. Also, commenting out
-
-this looks like a sentence worth finishing? :)
-
-	Ingo
+Todd

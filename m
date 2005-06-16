@@ -1,69 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261624AbVFPBn3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261674AbVFPBrM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261624AbVFPBn3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 21:43:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261674AbVFPBn3
+	id S261674AbVFPBrM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 21:47:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261678AbVFPBrM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 21:43:29 -0400
-Received: from downeast.net ([12.149.251.230]:45283 "EHLO downeast.net")
-	by vger.kernel.org with ESMTP id S261624AbVFPBnW (ORCPT
+	Wed, 15 Jun 2005 21:47:12 -0400
+Received: from downeast.net ([12.149.251.230]:996 "EHLO downeast.net")
+	by vger.kernel.org with ESMTP id S261674AbVFPBrG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 21:43:22 -0400
+	Wed, 15 Jun 2005 21:47:06 -0400
 From: Patrick McFarland <pmcfarland@downeast.net>
-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+To: Lukasz Stelmach <stlman@poczta.fm>
 Subject: Re: A Great Idea (tm) about reimplementing NLS.
-Date: Wed, 15 Jun 2005 21:42:00 -0400
+Date: Wed, 15 Jun 2005 21:44:55 -0400
 User-Agent: KMail/1.8
-Cc: Lukasz Stelmach <stlman@poczta.fm>, mru@inprovide.com,
+Cc: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>, mru@inprovide.com,
        "Alexander E. Patrakov" <patrakov@ums.usu.ru>,
        linux-kernel@vger.kernel.org
-References: <f192987705061303383f77c10c@mail.gmail.com> <42B04090.7050703@poczta.fm> <20050615212825.GS23621@csclub.uwaterloo.ca>
-In-Reply-To: <20050615212825.GS23621@csclub.uwaterloo.ca>
+References: <f192987705061303383f77c10c@mail.gmail.com> <20050615212825.GS23621@csclub.uwaterloo.ca> <42B0BAF5.106@poczta.fm>
+In-Reply-To: <42B0BAF5.106@poczta.fm>
 MIME-Version: 1.0
 Content-Type: multipart/signed;
-  boundary="nextPart10087837.Qcm0npPvv8";
+  boundary="nextPart1327223.c9iJ4j8BY0";
   protocol="application/pgp-signature";
   micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Message-Id: <200506152142.02178.pmcfarland@downeast.net>
+Message-Id: <200506152144.56540.pmcfarland@downeast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart10087837.Qcm0npPvv8
+--nextPart1327223.c9iJ4j8BY0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline
 
-On Wednesday 15 June 2005 05:28 pm, Lennart Sorensen wrote:
-> What do you do if the underlying filesystem can not store some unicode
-> characters that are allowed on others?
+On Wednesday 15 June 2005 07:34 pm, Lukasz Stelmach wrote:
+> That's why UTF-8 is suggested. UTF-8 has been developed to "fool" the
+> software that need not to be aware of unicodeness of the text it manages
+> to handle it without any hickups *and* to store in the text information
+> about multibyte characters.What characters exactly you do mean? NULL?
+> There is no NULL byte in any UTF-8 string except the one which
+> terminates it.
 
-Um, thats impossible, unless you're implying something like the file system=
-=20
-not being 8-bit safe. The only thing UTF-8 does is store data in bytes, it=
-=20
-doesn't need any real support from the file system.
+Bingo. Only the operating system itself and software displaying filenames=20
+needs to understand Unicode; the file system implementation itself just kno=
+ws=20
+its a string of bytes and nothing else.
 
-> > It depend's on what it is used for. It is very good fs for removable
-> > media. None of linux native filesystems is good for this because of
-> > different uids on different machines. Since VFAT uses unicode it is
-> > possible to see the filenames properly on systems using different
-> > codepages for the same language (1:1 is possible).
+> I've tried cd packet writing with UDF and it gives insane overhead of
+> about 20%. What metadata you'd like to store for example on your
+> flashdrive or a floppy disk?
 
-> VFAT uses unicode?  I thought it used the same codepage silyness as FAT
-> did, since after all ti was just supposed to be a long filename
-> extension to FAT.  Do they use unicode in the long filenames only?
-
-I mentioned earlier that VFAT uses 8-bit encodings, none of them (supported=
- by=20
-Windows, at least) are Unicode.
-
-> I think UDF is a better filesystem for many types of media since it is
-> able to me more gently to the sectors storing the meta data than VFAT
-> ever will be.
-
-I agree. UDF is the true successor to the portable media throne.
+Uh, 20%? That sounds awfully high. You sure you didn't do something wrong?
 
 =2D-=20
 Patrick "Diablo-D3" McFarland || pmcfarland@downeast.net
@@ -73,15 +62,15 @@ all be running around in darkened rooms, munching magic pills and listening=
  to
 repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989
 
---nextPart10087837.Qcm0npPvv8
+--nextPart1327223.c9iJ4j8BY0
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.5 (GNU/Linux)
 
-iD8DBQBCsNjq8Gvouk7G1cURAgNBAKCIzsssZcIn//fCVm83YI1OYOKIFQCgwjhJ
-53NQuS5/39Izb1vYOjBXMG0=
-=Tj00
+iD8DBQBCsNmY8Gvouk7G1cURAgEgAJwIHTyOfyzxUiysW/+CETM77eNnlACgrVok
+n/z/n2UPUyy1/dYsjK6bHEY=
+=743b
 -----END PGP SIGNATURE-----
 
---nextPart10087837.Qcm0npPvv8--
+--nextPart1327223.c9iJ4j8BY0--

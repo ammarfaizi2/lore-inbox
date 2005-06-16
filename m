@@ -1,40 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261858AbVFPXcZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261841AbVFPXtg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261858AbVFPXcZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Jun 2005 19:32:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261860AbVFPXcZ
+	id S261841AbVFPXtg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Jun 2005 19:49:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261859AbVFPXtg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Jun 2005 19:32:25 -0400
-Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:55732 "EHLO
-	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S261858AbVFPXcP
+	Thu, 16 Jun 2005 19:49:36 -0400
+Received: from quark.didntduck.org ([69.55.226.66]:64709 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP id S261841AbVFPXt1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Jun 2005 19:32:15 -0400
-X-ORBL: [63.202.173.158]
-Date: Thu, 16 Jun 2005 16:32:07 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: trmcneal@comcast.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: your mail
-Message-ID: <165572.73a4e5686a7ab70d16f3e50cdfb77252.ANY@taniwha.stupidest.org>
-References: <061620052308.15335.42B2066C000DD5E200003BE72205886172040E0A020C039D9B@comcast.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <061620052308.15335.42B2066C000DD5E200003BE72205886172040E0A020C039D9B@comcast.net>
+	Thu, 16 Jun 2005 19:49:27 -0400
+Message-ID: <42B21002.7090502@didntduck.org>
+Date: Thu, 16 Jun 2005 19:49:22 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: Greg KH <gregkh@suse.de>, Rajesh Shah <rajesh.shah@intel.com>,
+       len.brown@intel.com, acpi-devel@lists.sourceforge.net,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 03/04] PCI: use the MCFG table to properly access pci
+ devices (x86-64)
+References: <20050615052916.GA23394@kroah.com> <20050615053031.GB23394@kroah.com> <20050615053120.GC23394@kroah.com> <20050615053214.GD23394@kroah.com> <20050616153404.B5337@unix-os.sc.intel.com> <20050616224223.GA13619@suse.de> <20050616230020.GM7048@bragg.suse.de>
+In-Reply-To: <20050616230020.GM7048@bragg.suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 16, 2005 at 11:08:28PM +0000, trmcneal@comcast.net wrote:
+Andi Kleen wrote:
+> On Thu, Jun 16, 2005 at 03:42:23PM -0700, Greg KH wrote:
+> 
+>>On Thu, Jun 16, 2005 at 03:34:06PM -0700, Rajesh Shah wrote:
+>>
+>>>On Tue, Jun 14, 2005 at 10:32:14PM -0700, Greg KH wrote:
+>>>
+>>>>+	for (i = 0; i < pci_mmcfg_config_num; ++i) {
+>>>>+		pci_mmcfg_virt[i].cfg = &pci_mmcfg_config[i];
+>>>>+		pci_mmcfg_virt[i].virt = ioremap_nocache(pci_mmcfg_config[i].base_address, MMCONFIG_APER_SIZE);
+>>>
+>>>This will map 256MB for each mmcfg aperture, probably better
+>>>to restrict it based on bus number range for this aperture.
+>>
+>>It should be 1MB per bus number, right?
+> 
+> 
+> It shouldn't make much difference anyways - we have plenty of vmalloc
+> space on x86-64
 
-> > I've been working with some tcp network test programs that have
-> > multiple clients opening nonblocking sockets to a single server
-> > port, sending a short message, and then closing the socket,
-> > 100,000 times.  Since the socket is non-blocking, it generally
-> > tries to connect and then does a poll since the socket is busy.
-> > The test fails if the poll times out in 10 seconds.  It fails
-> > consistently on Linux servers but succeeds on Solaris servers; the
-> > client is a non-issue unless its loopback on the Linux server.
+What about excess page table usage?
 
-where is the code for this?  are you sure you're not overflowing the
-listen backlog somewhere?  that would show up in some cases but not
-all depending on latencies and local scheduler behavior
+--
+				Brian Gerst

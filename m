@@ -1,59 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261862AbVFQAFf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261866AbVFQAH0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261862AbVFQAFf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Jun 2005 20:05:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261866AbVFQAFe
+	id S261866AbVFQAH0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Jun 2005 20:07:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261867AbVFQAH0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Jun 2005 20:05:34 -0400
-Received: from nproxy.gmail.com ([64.233.182.203]:28804 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261862AbVFQAF3 convert rfc822-to-8bit
+	Thu, 16 Jun 2005 20:07:26 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:10887 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261866AbVFQAGv
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Jun 2005 20:05:29 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=IWW1RseJkgTaH60APvrVEpAA/Y18jthKK2IP46478d3vstENBTwJr7D39zW4X/cDnk0HgRCSIPq+4rRaTFFkqLTAOlEEIhHCafjlguhi8Ddxzj0QFa6Gb9ouwj7otGL0BnIVBp4ujK8nCfYtOwcOJL3W4SI7+4Vjk7KreAMSX2s=
-Message-ID: <4ad99e0505061617052f427ed6@mail.gmail.com>
-Date: Fri, 17 Jun 2005 02:05:28 +0200
-From: Lars Roland <lroland@gmail.com>
-Reply-To: Lars Roland <lroland@gmail.com>
-To: Christian Kujau <evil@g-house.de>
-Subject: Re: tg3 in 2.6.12-rc6 and Cisco PIX SMTP fixup
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <42B21130.4000608@g-house.de>
+	Thu, 16 Jun 2005 20:06:51 -0400
+Subject: Re: 2.6.12-rc6-mm1 & 2K lun testing
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org
+In-Reply-To: <20050616133730.1924fca3.akpm@osdl.org>
+References: <1118856977.4301.406.camel@dyn9047017072.beaverton.ibm.com>
+	 <20050616002451.01f7e9ed.akpm@osdl.org>
+	 <1118951458.4301.478.camel@dyn9047017072.beaverton.ibm.com>
+	 <20050616133730.1924fca3.akpm@osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1118965381.4301.488.camel@dyn9047017072.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <4ad99e0505061605452e663a1e@mail.gmail.com>
-	 <42B1F5CB.9020308@g-house.de>
-	 <4ad99e0505061615143cc34192@mail.gmail.com>
-	 <42B21130.4000608@g-house.de>
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 16 Jun 2005 16:43:02 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/17/05, Christian Kujau <evil@g-house.de> wrote:
-> Lars Roland schrieb:
-> > It does not seams to be limited to braodcom cards. 3com and Intel e100
-> > cards does the exact same stunt on kernels never than 2.6.8.1. Intel
-> > e1000 and realtek 8139 cards do however work.
+On Thu, 2005-06-16 at 13:37, Andrew Morton wrote:
+> Badari Pulavarty <pbadari@us.ibm.com> wrote:
+> >
+> > > 
+> > > We seem to be always ooming when allocating scsi command structures. 
+> > > Perhaps the block-level request structures are being allocated with
+> > > __GFP_WAIT, but it's a bit odd.  Which I/O scheduler?  If cfq, does
+> > > reducing /sys/block/*/queue/nr_requests help?
+> > 
+> > Yes. I am using CFQ scheduler. I changed nr_requests to 4 for all
+> > my devices. I also changed "min_free_kbytes" to 64M.
 > 
-> hm - tricky, i think. because no kernel oopses, nothing to look at in the
-> syslog (yes?),
+> Yeah, that monster cfq queue depth continues to hurt in corner cases.
+> 
+> > Response time is still bad. Here is the vmstat, meminfo, slabinfo
+> > and profle output. I am not sure why profile output shows 
+> > default_idle(), when vmstat shows 100% CPU sys.
+> 
+> (please inline text rather then using attachments)
+> 
+> > MemTotal:      7209056 kB
+> > ...
+> > Dirty:         5896240 kB
+> 
+> That's not going to help - we're way over 40% there, so the VM is getting
+> into some trouble.
+> 
+> Try reducing the dirty limits in /proc/sys/vm by a lot to confirm that it
+> helps.
+> 
+> There are various bits of slop and hysteresis and deliberate overshoot in
+> page-writeback.c which are there to enhance IO batching and to reduce CPU
+> consumption.  A few megs here and there adds up when you multiply it by
+> 2000...
+> 
+> Try this:
+> 
+> diff -puN mm/page-writeback.c~a mm/page-writeback.c
+> --- 25/mm/page-writeback.c~a	Thu Jun 16 13:36:29 2005
+> +++ 25-akpm/mm/page-writeback.c	Thu Jun 16 13:36:54 2005
+> @@ -501,6 +501,8 @@ void laptop_sync_completion(void)
+>  
+>  static void set_ratelimit(void)
+>  {
+> +	ratelimit_pages = 32;
+> +	return;
+>  	ratelimit_pages = total_pages / (num_online_cpus() * 32);
+>  	if (ratelimit_pages < 16)
+>  		ratelimit_pages = 16;
+> _
+> 
 
-Nothing anywhere, even tcpdump just seams to get cut off - I have not
-been debugging ethernet drivers for years, getting a little rusty at
-that, so nothing there yet.
+Wow !! Reducing the dirty ratios and the above patch did the trick.
+Instead of 100% sys CPU, now I have only 50% in sys.
 
-> various nic drivers affected, others not...in cases like
-> these only Documentation/BUG-HUNTING comes to my mind: if 2.6.8.1 works,
-> and 2.6.12-rc6 does not, we'll need to find out the kernelversion which
-> introduced this behaviour.
+Of course, my IO rate is not so great, but machine responds really
+really well. :) 
 
-That I can give you, kernel 2.6.8.1 works but 2.6.9 does not (at least
-not with tg3 and tulip cards).
+Thanks,
+Badari
+
+procs -----------memory---------- ---swap-- -----io---- --system--
+----cpu----
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy
+id wa
+ 4 3667      8  76068 285016 4777976    0    0    51 22883  419  1900  0
+49  0 51
+20 3667      8  76068 285744 4779312    0    0    50 23108  433  1908  0
+53  0 47
+10 3680      8  76080 286492 4772888    0    0    58 26266  419  1805  0
+56  0 44
+ 6 3661      8  76024 287116 4768136    0    0    50 27894  426  1765  0
+59  0 41
+ 7 3679      8  76156 288052 4764620    0    0   270 24391  442  1852  0
+53  0 47
+ 3 3691      8  77604 288732 4759296    0    0    44 24312  425  1809  0
+57  0 43
+ 3 3697      8  75896 288868 4747808    0    0    82 29504  868  3605  2
+64  0 34
 
 
-Regards.
-
-Lars Roland

@@ -1,84 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261822AbVFPWMN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261692AbVFPWOv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261822AbVFPWMN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Jun 2005 18:12:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261824AbVFPWMM
+	id S261692AbVFPWOv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Jun 2005 18:14:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261819AbVFPWOv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Jun 2005 18:12:12 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:49304 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261822AbVFPWMC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Jun 2005 18:12:02 -0400
-Message-ID: <42B1F92D.3040108@ce.jp.nec.com>
-Date: Thu, 16 Jun 2005 18:11:57 -0400
-From: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.3 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: device-mapper development <dm-devel@redhat.com>,
-       Alasdair Kergon <agk@redhat.com>
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.6.12-rc6: fix __rh_alloc()/rh_update_states() race in dm-raid1.c
-Content-Type: multipart/mixed;
- boundary="------------080402050208040909030801"
+	Thu, 16 Jun 2005 18:14:51 -0400
+Received: from nproxy.gmail.com ([64.233.182.194]:47553 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261692AbVFPWOp convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Jun 2005 18:14:45 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=C/t2LkGQDMx9MrsoO3l34IZNRxrvY6EqobYex+N48dZaQ6VTIebscuj/M5TAsBsWk2fg6gcY4kM6Jd0oenYXcHF/PtfgIR7rUbN0ugQLNkzKDw/fFrYVWBb5z1YdIiGJwqTll0ThA7t2sPyK5ty00tPA57U5UcVyy1OGOEOEU/o=
+Message-ID: <4ad99e0505061615143cc34192@mail.gmail.com>
+Date: Fri, 17 Jun 2005 00:14:44 +0200
+From: Lars Roland <lroland@gmail.com>
+Reply-To: Lars Roland <lroland@gmail.com>
+To: Christian Kujau <evil@g-house.de>
+Subject: Re: tg3 in 2.6.12-rc6 and Cisco PIX SMTP fixup
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <42B1F5CB.9020308@g-house.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <4ad99e0505061605452e663a1e@mail.gmail.com>
+	 <42B1F5CB.9020308@g-house.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080402050208040909030801
-Content-Type: text/plain; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
+On 6/16/05, Christian Kujau <evil@g-house.de> wrote:
+> Lars Roland schrieb:
+> > So are there any differences in the tg3 driver between 2.6.8.1 and
+> > 2.6.12-rc6 that would cause this kind of behaviour ?.
+> 
+> i'd say: "certainly", but best you find out by diff'ing the versions
+> and/or eventually put 2.6.8.1's tg3 driver in a 2.6.12-rc6 tree, compile,
+> hope it builds, then try again to connect.
 
-Hello,
+It does not seams to be limited to braodcom cards. 3com and Intel e100
+cards does the exact same stunt on kernels never than 2.6.8.1. Intel
+e1000 and realtek 8139 cards do however work.
 
-the attached patch fixes the bug in dm-raid1.c that
-the region returned by __rh_alloc() may be freed while
-it's in use.
+> 
+> > I know that SMTP fixup is mostly a poorly implemented Sendmail
+> 
+> i don't know what a "smtp fixup" would be, but does the disconnect happen
+> to other applications too?
 
-__rh_alloc() write-unlocks the hash_lock after inserting the new region.
-Though it read-locks the hash-lock just after that, it's possible
-that the region was reclaimed by rh_update_states() as the region
-was clean at the time.
-
-   CPU0                                  CPU1
-   -----------------------------------------------------------------------
-   __rh_alloc()
-     write_lock(hash_lock)
-     <insert new region to clean list>
-     write_unlock(hash_lock)
-                                         rh_update_states()
-                                           write_lock(hash_lock)
-                                           <move clean regions to freeable list>
-                                           write_unlock(hash_lock)
-                                           <free regions in the freeable list>
-     read_lock(hash_lock)
-     <return the region>
-
-Signed-off-by: Jun'ichi Nomura <j-nomura@ce.jp.nec.com>
+SMTP fixup is a dirty hack where the firewall limits the amount of
+SMTP commands that can be used in the session to only the core rfc 821
+commands. Most people do however use it just to hide the actual
+receiving mail server from the sender - my guess is that the Cisco PIX
+changes the frames/packages and then the connection gets dropped. I
+got the admin to turn it off temporally and then the tg3 works just
+fine.
 
 
---------------080402050208040909030801
-Content-Type: text/x-patch;
- name="dm-raid1-race1.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="dm-raid1-race1.patch"
+Regards.
 
---- kernel/drivers/md/dm-raid1.c.orig	2005-06-16 07:13:50.610325768 -0400
-+++ kernel/drivers/md/dm-raid1.c	2005-06-16 10:34:12.510719112 -0400
-@@ -269,9 +269,12 @@ static inline struct region *__rh_find(s
- {
- 	struct region *reg;
- 
-+retry:
- 	reg = __rh_lookup(rh, region);
--	if (!reg)
-+	if (!reg) {
- 		reg = __rh_alloc(rh, region);
-+		goto retry;
-+	}
- 
- 	return reg;
- }
-
---------------080402050208040909030801--
+Lars Roland

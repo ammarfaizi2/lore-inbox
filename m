@@ -1,53 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261237AbVFPJZK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261523AbVFPJ0a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261237AbVFPJZK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Jun 2005 05:25:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261246AbVFPJZK
+	id S261523AbVFPJ0a (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Jun 2005 05:26:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261251AbVFPJ0a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Jun 2005 05:25:10 -0400
-Received: from lucidpixels.com ([66.45.37.187]:4488 "EHLO lucidpixels.com")
-	by vger.kernel.org with ESMTP id S261237AbVFPJZE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Jun 2005 05:25:04 -0400
-Date: Thu, 16 Jun 2005 05:24:59 -0400 (EDT)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34
-To: Michael Heyse <mhk@designassembly.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Reproducible 2.6.11.9 NFS Kernel Crashing Bug!
-In-Reply-To: <42B14415.5060105@designassembly.de>
-Message-ID: <Pine.LNX.4.63.0506160523190.6459@p34>
-References: <Pine.LNX.4.63.0505140911580.2342@localhost.localdomain>
- <42B14415.5060105@designassembly.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 16 Jun 2005 05:26:30 -0400
+Received: from extgw-uk.mips.com ([62.254.210.129]:2828 "EHLO
+	bacchus.net.dhis.org") by vger.kernel.org with ESMTP
+	id S261246AbVFPJ0W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Jun 2005 05:26:22 -0400
+Date: Thu, 16 Jun 2005 10:22:57 +0100
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Finn Thain <fthain@telegraphics.com.au>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Linux/m68k <linux-m68k@vger.kernel.org>,
+       Linux/m68k on Mac <linux-mac68k@mac.linux-m68k.org>,
+       Linux MIPS <linux-mips@vger.kernel.org>,
+       Linux kernel <linux-kernel@vger.kernel.org>,
+       Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: Re: [PATCH] Jazzsonic driver updates
+Message-ID: <20050616092257.GE5202@linux-mips.org>
+References: <200503070210.j272ARii023023@hera.kernel.org> <Pine.LNX.4.62.0503221807160.20753@numbat.sonytel.be> <20050323100139.GB8813@linux-mips.org> <Pine.LNX.4.61.0506121454410.1470@loopy.telegraphics.com.au> <20050615114158.GA9411@linux-mips.org> <Pine.LNX.4.61.0506152220460.22046@loopy.telegraphics.com.au> <20050615142717.GD9411@linux-mips.org> <Pine.LNX.4.61.0506160218310.24328@loopy.telegraphics.com.au> <Pine.LNX.4.61.0506160336410.24908@loopy.telegraphics.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0506160336410.24908@loopy.telegraphics.com.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan followed up with me but we did not reach any conclusion as to what 
-was causing it to crash.  The main way I got it to crash was dd 
-if=/dev/hde (root drive) of=/nfs/file.img bs=1M, I have not had any issues 
-as far as copying files and such.  For you, is it on a particular box or 
-boxes, have you tried copying the other direction?  I use NFS over UDP btw 
-(v3).
+On Thu, Jun 16, 2005 at 03:45:54AM +1000, Finn Thain wrote:
 
-# mount
-mount:/disk/1 on /remote/1 type nfs 
-(rw,hard,intr,nfsvers=3,addr=192.168.168.253)
+> > ... the chip then decides where in that area the recieved packet gets 
+> > buffered ... and that is why I was asking for an alternative to 
+> > vdma_log2phys...
+> 
+> But I forgot that it is possible to have the sonic chip store no more than 
+> one packet in each buffer before moving to the next one in the ring 
+> (though this isn't the case at present). So, as you say, vdma_log2phys 
+> isn't really required.
 
+Using that option doesn't really seem a good idea anyway.
 
-On Thu, 16 Jun 2005, Michael Heyse wrote:
-
-> Hi Justin and others,
->
-> did you manage to resolve this problem? I'm also experiencing apparantly NFS-related crashes (kernel
-> hangs after a couple of seconds up to minutes, no syslog entries, nothing at all works any more)
-> using 2.6.11.10 and NFS V3 over TCP, standard r/wsizes, ext3 on a RAID5 array. Is this possibly
-> arch- or otherwise hardware-dependent? The NFS server works fine on my P4 on ASUS P4P800 board,
-> while it crashes my EPIA Board (VIA C3) using the same software configuration. Other network
-> applications run fine (as a workaround I'm using samba right now instead of nfs), so I don't think
-> my hardware is broken.
->
-> Thanks,
-> Michael
->
+  Ralf

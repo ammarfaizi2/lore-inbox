@@ -1,78 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261672AbVFPMxc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261673AbVFPNRC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261672AbVFPMxc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Jun 2005 08:53:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261673AbVFPMxc
+	id S261673AbVFPNRC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Jun 2005 09:17:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261675AbVFPNRB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Jun 2005 08:53:32 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:54965 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261672AbVFPMxZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Jun 2005 08:53:25 -0400
-Date: Thu, 16 Jun 2005 18:32:39 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: Benjamin LaHaise <bcrl@kvack.org>
-Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] aio_down() for i386 and x86_64
-Message-ID: <20050616130239.GA4839@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-References: <20050614215022.GC21286@kvack.org> <20050615165349.GA4521@in.ibm.com> <20050615191830.GA28261@kvack.org>
+	Thu, 16 Jun 2005 09:17:01 -0400
+Received: from ext-ch1gw-7.online-age.net ([64.37.194.15]:64646 "EHLO
+	ext-ch1gw-7.online-age.net") by vger.kernel.org with ESMTP
+	id S261673AbVFPNQ4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Jun 2005 09:16:56 -0400
+Date: Thu, 16 Jun 2005 08:15:13 -0500
+From: Rich Coe <Richard.Coe@med.ge.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.11.11 x86_64 gdb passes ERESTARTNOHAND to user process
+Message-ID: <20050616081513.00780068@godzilla>
+Organization: CSE
+X-Mailer: Sylpheed-Claws 0.9.13 (GTK+ 1.2.8; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050615191830.GA28261@kvack.org>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 15, 2005 at 03:18:30PM -0400, Benjamin LaHaise wrote:
-> On Wed, Jun 15, 2005 at 10:23:49PM +0530, Suparna Bhattacharya wrote:
-> > Interesting approach - using ki_wait.private for this.
-> > Could we make aio_down take a wait queue parameter as well instead of
-> > the iocb ?
-> 
-> Hmmm, I guess there might be instances where someone has to wait on 
-> multiple wait queues.  Will add that to the next version of the patch.
-> 
-> > Need to think a little about impact on io cancellation.
-> 
-> It should be possible to cancel semaphore operations fairly easily -- 
-> the aio_down function can set ->ki_cancel to point to a semaphore cancel 
-> routine.  I'll give coding that a try.
-> 
-> > BTW, is the duplication of functions across architectures still needed ? I
-> > thought that one of advantages of implementing a separate aio_down
-> > routine vs modifiying down to become retryable was to get away from
-> > that ... or wasn't it ?
-> 
-> Good point.  The fast path for down() will probably need to remain a 
-> separate function, but we could well unify the code with the 
-> down_interruptible() codepath.
-> 
-> > Meanwhile, I probably need to repost my aio_wait_bit patches - there
-> > may be some impact here.
-> 
-> Sure -- any version of those would be useful to build on.  Cheers!
+I'm chasing a problem on linux 2.6.11.11 x86_64 where when you attach gdb,
+select() returns ERESTARTNOHAND (errno 514) to the user process.
+The same problem occurs whether it is a 32bit or 64bit process being debugged.
 
-http://www.kernel.org/pub/linux/kernel/people/suparna/aio/2610-rc2/ has
-the patchset. 
+I'd be interested in any comments you may have.
 
-I just updated the AIO wait bit ones to 2.6.12-rc6, will post them
-in a separate thread.
+How to reproduce:
+    - attach to a process with gdb, or stop the running process within gdb
+    - call a function, eg 'call sleep(1)'
+    - continue program execution
 
-Regards
-Suparna
+On i386, it seems as if the EIP is backed up 2 insn's to execute the
+'jmp' insn that causes the system call to be restarted. 
 
-> 
-> 		-ben
-> --
-> To unsubscribe, send a message with 'unsubscribe linux-aio' in
-> the body to majordomo@kvack.org.  For more info on Linux AIO,
-> see: http://www.kvack.org/aio/
-> Don't email: <a href=mailto:"aart@kvack.org">aart@kvack.org</a>
+On x86_64, the EIP is not backed up, the system call is not restarted, and
+the internal kernel errno is passed on to the user process.
+
+Thanks.
+
+:::: calling a function on x86_64 ::::
+Program received signal SIGINT, Interrupt.
+0xffffe405 in __kernel_vsyscall ()
+1: x/i $pc  0xffffe405 <__kernel_vsyscall+5>:   mov    $0x2b,%ecx
+(gdb) call doNothing()
+(gdb) x/i $pc
+0xffffe405 <__kernel_vsyscall+5>:       mov    $0x2b,%ecx
+(gdb) x/8i 0xffffe400
+0xffffe400 <__kernel_vsyscall>:         push   %ebp
+0xffffe401 <__kernel_vsyscall+1>:       mov    %ecx,%ebp
+0xffffe403 <__kernel_vsyscall+3>:       syscall
+0xffffe405 <__kernel_vsyscall+5>:       mov    $0x2b,%ecx
+0xffffe40a <__kernel_vsyscall+10>:      movl   %ecx,%ss
+0xffffe40c <__kernel_vsyscall+12>:      mov    %ebp,%ecx
+0xffffe40e <__kernel_vsyscall+14>:      pop    %ebp
+0xffffe40f <__kernel_vsyscall+15>:      ret
+(gdb) stepi
+0xffffe40a in __kernel_vsyscall ()
+1: x/i $pc  0xffffe40a <__kernel_vsyscall+10>:  movl   %ecx,%ss
+(gdb) stepi
+0xffffe40e in __kernel_vsyscall ()
+1: x/i $pc  0xffffe40e <__kernel_vsyscall+14>:  pop    %ebp
+
+:::: calling a function on i386 ::::
+Program received signal SIGINT, Interrupt.
+0xffffe410 in __kernel_vsyscall ()
+1: x/i $pc  0xffffe410 <__kernel_vsyscall+16>:  pop    %ebp
+(gdb) x/8i 0xffffe400
+0xffffe400 <__kernel_vsyscall>:         push   %ecx
+0xffffe401 <__kernel_vsyscall+1>:       push   %edx
+0xffffe402 <__kernel_vsyscall+2>:       push   %ebp
+0xffffe403 <__kernel_vsyscall+3>:       mov    %esp,%ebp
+0xffffe405 <__kernel_vsyscall+5>:       sysenter
+0xffffe407 <__kernel_vsyscall+7>:       nop
+0xffffe408 <__kernel_vsyscall+8>:       nop
+0xffffe409 <__kernel_vsyscall+9>:       nop
+0xffffe40a <__kernel_vsyscall+10>:      nop
+0xffffe40b <__kernel_vsyscall+11>:      nop
+0xffffe40c <__kernel_vsyscall+12>:      nop
+0xffffe40d <__kernel_vsyscall+13>:      nop
+0xffffe40e <__kernel_vsyscall+14>:      jmp    0xffffe403 <__kernel_vsyscall+3>
+0xffffe410 <__kernel_vsyscall+16>:      pop    %ebp
+0xffffe411 <__kernel_vsyscall+17>:      pop    %edx
+0xffffe412 <__kernel_vsyscall+18>:      pop    %ecx
+0xffffe413 <__kernel_vsyscall+19>:      ret
+(gdb) call doNothing()
+(gdb) stepi
+0xffffe403 in __kernel_vsyscall ()
+1: x/i $pc  0xffffe403 <__kernel_vsyscall+3>:   mov    %esp,%ebp
+(gdb) c
+Continuing.
+
+Program received signal SIGINT, Interrupt.
+0xffffe410 in __kernel_vsyscall ()
+1: x/i $pc  0xffffe410 <__kernel_vsyscall+16>:  pop    %ebp
+(gdb) call doNothing()
+(gdb) x/i $pc
+0xffffe410 <__kernel_vsyscall+16>:      pop    %ebp
+(gdb) stepi
+0xffffe403 in __kernel_vsyscall ()
+1: x/i $pc  0xffffe403 <__kernel_vsyscall+3>:   mov    %esp,%ebp
 
 -- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Lab, India
-
+Rich Coe		richard.coe@med.ge.com
+General Electric Healthcare Technologies
+Global Software Platforms, Computer Technology Team

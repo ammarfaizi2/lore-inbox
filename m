@@ -1,66 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261199AbVFPIgT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261207AbVFPIyU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261199AbVFPIgT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Jun 2005 04:36:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261203AbVFPIgT
+	id S261207AbVFPIyU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Jun 2005 04:54:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261212AbVFPIyU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Jun 2005 04:36:19 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:16818 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S261199AbVFPIgO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Jun 2005 04:36:14 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Subject: Re: USB flash "drive" is not working sometimes
-Date: Thu, 16 Jun 2005 11:35:42 +0300
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       gregkh@suse.de, dbrownell@users.sourceforge.net,
-       mdharm-usb@one-eyed-alien.net
-References: <200506160933.01195.vda@ilport.com.ua> <20050616005152.15b34cfd.zaitcev@redhat.com>
-In-Reply-To: <20050616005152.15b34cfd.zaitcev@redhat.com>
+	Thu, 16 Jun 2005 04:54:20 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:28373 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S261207AbVFPIyR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Jun 2005 04:54:17 -0400
+Message-ID: <42B14044.FC2F5432@tv-sign.ru>
+Date: Thu, 16 Jun 2005 13:03:00 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BUG] Race condition with it_real_fn in kernel/itimer.c
+References: <42B067BD.F4526CD@tv-sign.ru> <1118860623.4508.70.camel@localhost.localdomain>
+Content-Type: text/plain; charset=koi8-r
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506161135.42392.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 16 June 2005 10:51, Pete Zaitcev wrote:
-> On Thu, 16 Jun 2005 09:33:01 +0300, Denis Vlasenko <vda@ilport.com.ua> wrote:
+Steven Rostedt wrote:
 > 
-> > 2005-06-16_05:23:09.81176 kern.debug: uhci_hcd 0000:00:1f.4: port 1 portsc 0093,00
-> > 2005-06-16_05:23:09.81179 kern.debug: hub 2-0:1.0: port 1, status 0101, change 0001, 12 Mb/s
-> > 2005-06-16_05:23:09.91495 kern.debug: hub 2-0:1.0: debounce: port 1: total 100ms stable 100ms status 0x101
-> > 2005-06-16_05:23:09.99598 kern.info: usb 2-1: new full speed USB device using uhci_hcd and address 2
-> > 2005-06-16_05:23:09.99944 kern.debug: uhci_hcd 0000:00:1f.4: uhci_result_control: failed with status 440000
-> > 2005-06-16_05:23:09.99963 kern.debug: [ce4a7240] link (0e4a71b2) element (0ddbf040)
-> > 2005-06-16_05:23:09.99966 kern.debug:   0: [cddbf040] link (0ddbf080) e0 Stalled CRC/Timeo Length=7 MaxLen=7 DT0 EndPt=0 Dev=0, PID=2d(SETUP) (buf=0e653b80)
-> > 2005-06-16_05:23:09.99972 kern.debug:   1: [cddbf080] link (0ddbf0c0) e3 SPD Active Length=0 MaxLen=3f DT1 EndPt=0 Dev=0, PID=69(IN) (buf=0e46c9a0)
-> > 2005-06-16_05:23:09.99976 kern.debug:   2: [cddbf0c0] link (00000001) e3 IOC Active Length=0 MaxLen=7ff DT1 EndPt=0 Dev=0, PID=e1(OUT) (buf=00000000)
-> 
-> The 440000 is a timeout in most cases. Unsurprisingly, it ends with:
-> 
-> > 2005-06-16_05:23:10.24285 kern.err: usb 2-1: device descriptor read/64, error -71
-> 
-> At this point the device is toast, the microcontroller is not running.
+> On Wed, 2005-06-15 at 21:39 +0400, Oleg Nesterov wrote:
+> >
+> > I think we don't need del_timer_sync() at all, just del_timer().
+> >
+> [...]
+>
+> it_real_arm unprotected! And you can see here that it_real_arm is also
+> called and they both call add_timer! This would not work, so far the
+> first patch seems to handle this.
 
-Do you mean: "this is a problem with the stick. Sometimes its
-electronics simply do not work at first plug in" ?
+Yes, you are right, thanks.
 
-Can USB controller momentarily cut power to the stick, thus electrically
-simulating a replug? I'd likr to try something like this.
+> PS. Don't strip the CC list.
 
-> > I remove flash and reinsert:
-> 
-> > 2005-06-16_06:11:11.24079 kern.info: usb 2-1: new full speed USB device using uhci_hcd and address 6
-> >[...]
-> > 2005-06-16_06:11:11.35987 kern.debug: usb 2-1: default language 0x0409
-> > 2005-06-16_06:11:11.36661 kern.debug: usb 2-1: new device strings: Mfr=1, Product=2, SerialNumber=3
-> 
-> Well, duh.
---
-vda
+I am sorry. It's because I am not subscribed to lkml, I saw your message
+on http://marc.theaimsgroup.com/. You might know is there an lkml archive
+which does not hide recipients list (or in mbox format) ?
 
+Oleg.

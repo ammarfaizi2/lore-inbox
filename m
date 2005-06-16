@@ -1,42 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261784AbVFPSE5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261790AbVFPSNc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261784AbVFPSE5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Jun 2005 14:04:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261786AbVFPSE5
+	id S261790AbVFPSNc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Jun 2005 14:13:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261792AbVFPSN2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Jun 2005 14:04:57 -0400
-Received: from mailfe07.tele2.fr ([212.247.154.204]:53727 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S261784AbVFPSEz convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Jun 2005 14:04:55 -0400
-X-T2-Posting-ID: fwYE2n3kOu2a2MxNw+Px5b8dNnayL1jBlnNrEWBDqoU=
-Date: Thu, 16 Jun 2005 19:32:51 +0200
-From: Frederik Deweerdt <dev.deweerdt@laposte.net>
-To: Torsten Foertsch <torsten.foertsch@gmx.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to mount a webdav filesystem?
-Message-ID: <20050616173251.GC8878@gilgamesh.home.res>
-Mail-Followup-To: Torsten Foertsch <torsten.foertsch@gmx.net>,
-	linux-kernel@vger.kernel.org
-References: <200506161837.00366.torsten.foertsch@gmx.net>
+	Thu, 16 Jun 2005 14:13:28 -0400
+Received: from rproxy.gmail.com ([64.233.170.200]:32720 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261786AbVFPSNK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Jun 2005 14:13:10 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type;
+        b=dpFvczIHNrHDDhVrxJXncJXblarEffOGolTDpkKhapdSNBMTLMUMTtmTNAcCXzgxrSx8UfRicUgTx8vk34PSxvSXhvM3RBYg5Eg9iLE7iu+ZqoTbIEu+otMChYcppcePvRL5qSzN+LtvZA7Gq83A/Gzfjh/HbDKqcCaEPUpnUVs=
+Message-ID: <a4403ff605061611134318f0fb@mail.gmail.com>
+Date: Thu, 16 Jun 2005 12:13:08 -0600
+From: David Wilk <davidwilk@gmail.com>
+Reply-To: David Wilk <davidwilk@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: BUG: assertion failure in fs/jbd/checkpoint.c persists in 2.6.11.12
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <200506161837.00366.torsten.foertsch@gmx.net>
-User-Agent: Mutt/1.5.6i
-Content-Transfer-Encoding: 8BIT
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_228_13082698.1118945588657"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le 16/06/05 18:36 +0200, Torsten Foertsch écrivit:
-> is it possible to mount a webdav filesystem on modern kernels? I know of 
-> davfs2 and have used it with 2.4 but it doesn't compile anymore.
-There's fusedav: http://0pointer.de/lennart/projects/fusedav/ I didn't
-try it though.
+------=_Part_228_13082698.1118945588657
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Frederik Deweerdt
--- 
-o---------------------------------------------o
-| http://open-news.net : l'info alternative   |
-| Tech - Sciences - Politique - International |
-o---------------------------------------------o
+Howdy all,
+
+We've been plagued buy this ext3 bug since 2.6.10, and it only happens
+on heavily loaded postgres systems.  We run our postgres DB on ext3
+data=3Djournal on a dmcrypt partition.  Our kernel is also patched with
+grsec, but that doesn't appear to play any role.
+
+After upgrading to 2.6.11.12 (specifically for the ext3 checkpoint.c
+fix) we noticed two things.  The assertion failure persists, and now
+we get a condition where a postgres process will spin in state 'D'
+forever and hog 100% of a CPU (in system, not user).
+
+I've attached the trace in plain text so the formatting doesn't get screwed=
+.
+
+Let me know if anyone would like more information.  I'm no programmer,
+but I'd like to help in any way that I can.
+
+------=_Part_228_13082698.1118945588657
+Content-Type: text/plain; name="checkpoint_assertion_failure_050615.txt"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="checkpoint_assertion_failure_050615.txt"
+
+SnVuIDE0IDE3OjIxOjI0IHFhY2x1c3RlcjQga2VybmVsOiBBc3NlcnRpb24gZmFpbHVyZSBpbiBf
+X2pvdXJuYWxfZHJvcF90cmFuc2FjdGlvbigpIGF0IGZzL2piZC9jaGVja3BvaW50LmM6NjI3OiAi
+dHJhbnNhY3Rpb24tPnRfZm9yZ2V0ID09IE5VTEwiCkp1biAxNCAxNzoyMToyNCBxYWNsdXN0ZXI0
+IGtlcm5lbDogLS0tLS0tLS0tLS0tWyBjdXQgaGVyZSBdLS0tLS0tLS0tLS0tCkp1biAxNCAxNzoy
+MToyNiBxYWNsdXN0ZXI0IGtlcm5lbDoga2VybmVsIEJVRyBhdCBmcy9qYmQvY2hlY2twb2ludC5j
+OjYyNyEKSnVuIDE0IDE3OjIxOjI2IHFhY2x1c3RlcjQga2VybmVsOiBpbnZhbGlkIG9wZXJhbmQ6
+IDAwMDAgWyMxXQpKdW4gMTQgMTc6MjE6MjYgcWFjbHVzdGVyNCBrZXJuZWw6IFNNUCAKSnVuIDE0
+IDE3OjIxOjI2IHFhY2x1c3RlcjQga2VybmVsOiBNb2R1bGVzIGxpbmtlZCBpbjogbWVtc3RhdApK
+dW4gMTQgMTc6MjE6MjYgcWFjbHVzdGVyNCBrZXJuZWw6IENQVTogICAgMApKdW4gMTQgMTc6MjE6
+MjYgcWFjbHVzdGVyNCBrZXJuZWw6IEVJUDogICAgMDA2MDpbPGMwMjY2NTIwPl0gICAgVGFpbnRl
+ZDogUCAgICAgIFZMSQpKdW4gMTQgMTc6MjE6MjYgcWFjbHVzdGVyNCBrZXJuZWw6IEVGTEFHUzog
+MDAwMTAyOTIgICAoMi42LjExLjEyLWdyc2VjKSAKSnVuIDE0IDE3OjIxOjI2IHFhY2x1c3RlcjQg
+a2VybmVsOiBFSVAgaXMgYXQgX19qb3VybmFsX2Ryb3BfdHJhbnNhY3Rpb24rMHgyZDAvMHgzODQK
+SnVuIDE0IDE3OjIxOjI2IHFhY2x1c3RlcjQga2VybmVsOiBlYXg6IDAwMDAwMDcxICAgZWJ4OiBm
+N2Y3YjUwMCAgIGVjeDogYzA1Y2RmZjAgICBlZHg6IDAwMDAwMjg2Ckp1biAxNCAxNzoyMToyNiBx
+YWNsdXN0ZXI0IGtlcm5lbDogZXNpOiBmNzEwMTIwMCAgIGVkaTogYzVhYjUzMmMgICBlYnA6IGY3
+NjJhMDAwICAgZXNwOiBmNzYyYWQ2OApKdW4gMTQgMTc6MjE6MjYgcWFjbHVzdGVyNCBrZXJuZWw6
+IGRzOiAwMDdiICAgZXM6IDAwN2IgICBzczogMDA2OApKdW4gMTQgMTc6MjE6MjYgcWFjbHVzdGVy
+NCBrZXJuZWw6IFByb2Nlc3Mga2pvdXJuYWxkIChwaWQ6IDY5NTMsIHRocmVhZGluZm89Zjc2MmEw
+MDAgdGFzaz1mNzYyODAyMCkKSnVuIDE0IDE3OjIxOjI2IHFhY2x1c3RlcjQga2VybmVsOiBTdGFj
+azogYzA1MjlhYzAgYzA1MDE2ZjUgYzA1MWRkZDMgMDAwMDAyNzMgYzA1MWRlMjMgZjdmN2I1MDAg
+ZjcxMDEyMDAgYzAyNjYxMWEgCkp1biAxNCAxNzoyMToyNiBxYWNsdXN0ZXI0IGtlcm5lbDogICAg
+ICAgIGY3MTAxMjAwIGY3ZjdiNTAwIGYyNGI2NjhjIGY3ZjdiNTAwIGMwMjY1ODRhIGM1YWI1MzJj
+IGM1YWI1MzJjIGMwMjY2MGM4IApKdW4gMTQgMTc6MjE6MjYgcWFjbHVzdGVyNCBrZXJuZWw6ICAg
+ICAgICBjNWFiNTMyYyBjNWFiNTMyYyAwMDAwMDAwMSBkYTJjZjc4MCBkYTJjZjc4MCBlNTkxMWQ0
+YyBmNzY0YzQ4MCAwMDAwMDAwMCAKSnVuIDE0IDE3OjIxOjI2IHFhY2x1c3RlcjQga2VybmVsOiBD
+YWxsIFRyYWNlOgpKdW4gMTQgMTc6MjE6MjYgcWFjbHVzdGVyNCBrZXJuZWw6ICBbPGMwMjY2MTFh
+Pl0gX19qb3VybmFsX3JlbW92ZV9jaGVja3BvaW50KzB4NGEvMHhhMApKdW4gMTQgMTc6MjE6MjYg
+cWFjbHVzdGVyNCBrZXJuZWw6ICBbPGMwMjY1ODRhPl0gX190cnlfdG9fZnJlZV9jcF9idWYrMHg1
+YS8weDkwCkp1biAxNCAxNzoyMToyNiBxYWNsdXN0ZXI0IGtlcm5lbDogIFs8YzAyNjYwYzg+XSBf
+X2pvdXJuYWxfY2xlYW5fY2hlY2twb2ludF9saXN0KzB4OTgvMHhhMApKdW4gMTQgMTc6MjE6MjYg
+cWFjbHVzdGVyNCBrZXJuZWw6ICBbPGMwMjYzZWU5Pl0gam91cm5hbF9jb21taXRfdHJhbnNhY3Rp
+b24rMHgxZDkvMHgxMWQwCkp1biAxNCAxNzoyMToyNiBxYWNsdXN0ZXI0IGtlcm5lbDogIFs8YzAx
+YmNjNTA+XSBhdXRvcmVtb3ZlX3dha2VfZnVuY3Rpb24rMHgwLzB4NjAKSnVuIDE0IDE3OjIxOjI2
+IHFhY2x1c3RlcjQga2VybmVsOiAgWzxjMDFiY2M1MD5dIGF1dG9yZW1vdmVfd2FrZV9mdW5jdGlv
+bisweDAvMHg2MApKdW4gMTQgMTc6MjE6MjYgcWFjbHVzdGVyNCBrZXJuZWw6ICBbPGMwMWEzYjkz
+Pl0gc2NoZWR1bGVyX3RpY2srMHg2My8weDMyMApKdW4gMTQgMTc6MjE6MjYgcWFjbHVzdGVyNCBr
+ZXJuZWw6ICBbPGMwMWEzMGM0Pl0gZmluZF9idXNpZXN0X2dyb3VwKzB4ZDQvMHgzMDAKSnVuIDE0
+IDE3OjIxOjI2IHFhY2x1c3RlcjQga2VybmVsOiAgWzxjMDFhMzM3Yz5dIGZpbmRfYnVzaWVzdF9x
+dWV1ZSsweDhjLzB4YjAKSnVuIDE0IDE3OjIxOjI2IHFhY2x1c3RlcjQga2VybmVsOiAgWzxjMDFh
+MzVhYj5dIGxvYWRfYmFsYW5jZV9uZXdpZGxlKzB4OGIvMHhhMApKdW4gMTQgMTc6MjE6MjYgcWFj
+bHVzdGVyNCBrZXJuZWw6ICBbPGMwMWEyNzVjPl0gZmluaXNoX3Rhc2tfc3dpdGNoKzB4M2MvMHg5
+MApKdW4gMTQgMTc6MjE6MjYgcWFjbHVzdGVyNCBrZXJuZWw6ICBbPGMwNGYzMTQyPl0gc2NoZWR1
+bGUrMHgzZTIvMHhjOTAKSnVuIDE0IDE3OjIxOjI2IHFhY2x1c3RlcjQga2VybmVsOiAgWzxjMDFi
+MGIzYz5dIGRlbF90aW1lcl9zeW5jKzB4OWMvMHhlMApKdW4gMTQgMTc6MjE6MjYgcWFjbHVzdGVy
+NCBrZXJuZWw6ICBbPGMwMjY3MmQ1Pl0ga2pvdXJuYWxkKzB4ZTUvMHgyNTAKSnVuIDE0IDE3OjIx
+OjI2IHFhY2x1c3RlcjQga2VybmVsOiAgWzxjMDFiY2M1MD5dIGF1dG9yZW1vdmVfd2FrZV9mdW5j
+dGlvbisweDAvMHg2MApKdW4gMTQgMTc6MjE6MjYgcWFjbHVzdGVyNCBrZXJuZWw6ICBbPGMwMWJj
+YzUwPl0gYXV0b3JlbW92ZV93YWtlX2Z1bmN0aW9uKzB4MC8weDYwCkp1biAxNCAxNzoyMToyNiBx
+YWNsdXN0ZXI0IGtlcm5lbDogIFs8YzAxOGEwNzY+XSByZXRfZnJvbV9mb3JrKzB4Ni8weDIwCkp1
+biAxNCAxNzoyMToyNiBxYWNsdXN0ZXI0IGtlcm5lbDogIFs8YzAyNjcxZDA+XSBjb21taXRfdGlt
+ZW91dCsweDAvMHgxMApKdW4gMTQgMTc6MjE6MjYgcWFjbHVzdGVyNCBrZXJuZWw6ICBbPGMwMjY3
+MWYwPl0ga2pvdXJuYWxkKzB4MC8weDI1MApKdW4gMTQgMTc6MjE6MjYgcWFjbHVzdGVyNCBrZXJu
+ZWw6ICBbPGMwMTg4Mzc1Pl0ga2VybmVsX3RocmVhZF9oZWxwZXIrMHg1LzB4MTAKSnVuIDE0IDE3
+OjIxOjI2IHFhY2x1c3RlcjQga2VybmVsOiBDb2RlOiA1MiBjMCBiOCAyMyBkZSA1MSBjMCA4OSA0
+NCAyNCAxMCBiOCA3MyAwMiAwMCAwMCA4OSA0NCAyNCAwYyBiOCBkMyBkZCA1MSBjMCA4OSA0NCAy
+NCAwOCBiOCBmNSAxNiA1MCBjMCA4OSA0NCAyNCAwNCBlOCA2MCAxOSBmNCBmZiA8MGY+IDBiIDcz
+IDAyIGQzIGRkIDUxIGMwIGU5IGJhIGZkIGZmIGZmIDhkIDc2IDAwIGM3IDA0IDI0IGMwIDlhIApK
+dW4gMTUgMTI6MjE6NDMgcWFjbHVzdGVyNCBzeXNsb2dkIDEuNC4xOiByZXN0YXJ0LgpKdW4gMTUg
+MTI6MjE6NDMgcWFjbHVzdGVyNCBzeXNsb2c6IHN5c2xvZ2Qgc3RhcnR1cCBzdWNjZWVkZWQKSnVu
+IDE1IDEyOjIxOjQzIHFhY2x1c3RlcjQga2VybmVsOiBrbG9nZCAxLjQuMSwgbG9nIHNvdXJjZSA9
+IC9wcm9jL2ttc2cgc3RhcnRlZC4KSnVuIDE1IDEyOjIxOjQzIHFhY2x1c3RlcjQga2VybmVsOiBM
+aW51eCB2ZXJzaW9uIDIuNi4xMS4xMi1ncnNlYyAocm9vdEBub3RoaW5nLm5vd2hlcmUpIChnY2Mg
+dmVyc2lvbiAzLjMuNSAoR2VudG9vIExpbnV4IDMuMy41LXIxLCBzc3AtMy4zLjItMywgcGllLTgu
+Ny43LjEpKSAjMSBTTVAgTW9uIEp1biAxMyAxMToxNzozOSBNRFQgMjAwNQo=
+------=_Part_228_13082698.1118945588657--

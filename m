@@ -1,40 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261731AbVFPQFI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261768AbVFPQHB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261731AbVFPQFI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Jun 2005 12:05:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261750AbVFPQFH
+	id S261768AbVFPQHB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Jun 2005 12:07:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261772AbVFPQHA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Jun 2005 12:05:07 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:54932 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261731AbVFPQFC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Jun 2005 12:05:02 -0400
-Subject: Re: SCHED_RR/SCHED_FIFO and kernel threads?
-From: Lee Revell <rlrevell@joe-job.com>
-To: Patrik =?ISO-8859-1?Q?H=E4gglund?= <patrik.hagglund@bredband.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <42B199FF.5010705@bredband.net>
-References: <42B199FF.5010705@bredband.net>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Thu, 16 Jun 2005 12:01:58 -0400
-Message-Id: <1118937719.2644.21.camel@mindpipe>
+	Thu, 16 Jun 2005 12:07:00 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:17679 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261768AbVFPQG1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Jun 2005 12:06:27 -0400
+Date: Thu, 16 Jun 2005 17:06:22 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: LKML <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: ISA DMA controller hangs
+Message-ID: <20050616170622.A1712@flint.arm.linux.org.uk>
+Mail-Followup-To: Pierre Ossman <drzeus-list@drzeus.cx>,
+	LKML <linux-kernel@vger.kernel.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>
+References: <42987450.9000601@drzeus.cx> <1117288285.2685.10.camel@localhost.localdomain> <42A2B610.1020408@drzeus.cx> <42A3061C.7010604@drzeus.cx> <42B1A08B.8080601@drzeus.cx>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.3.1 
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <42B1A08B.8080601@drzeus.cx>; from drzeus-list@drzeus.cx on Thu, Jun 16, 2005 at 05:53:47PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-06-16 at 17:25 +0200, Patrik Hägglund wrote:
-> For example, in one virtual 
-> terminal I stared a "supervisor" shell with SCHED_FIFO at priority
-> 20, 
-> and then the job tasks I wanted to "run" in other virtual terminals,
-> now 
-> still with SCHED_FIFO, but with lower priorities. 
+On Thu, Jun 16, 2005 at 05:53:47PM +0200, Pierre Ossman wrote:
+> So how do we solve this problem? We should do a master clear and then
+> enable channel 4 after a suspend. The question is where. I see three
+> possible places:
+> 
+> * In the suspend code in kernel/power.
+> * In the driver actually handling the suspend (ACPI/APM/etc.).
+> * Via the device layer by adding a device for the DMA controller.
+> 
+> Which would be the preferred solution?
 
-I believe there's a Sysrq to drop all SCHED_FIFO processes to
-SCHED_OTHER.  But yes, in general, bad things will happen if you are not
-careful with SCHED_FIFO.
+Shouldn't there be a system device for the DMA controller?  I think
+that should have appropriate hooks into the power management system
+to do the necessary magic to restore whatever's needed - just like
+we do for the PIC.
 
-Lee
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

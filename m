@@ -1,109 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261673AbVFPNRC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261630AbVFPNjJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261673AbVFPNRC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Jun 2005 09:17:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261675AbVFPNRB
+	id S261630AbVFPNjJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Jun 2005 09:39:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261684AbVFPNjJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Jun 2005 09:17:01 -0400
-Received: from ext-ch1gw-7.online-age.net ([64.37.194.15]:64646 "EHLO
-	ext-ch1gw-7.online-age.net") by vger.kernel.org with ESMTP
-	id S261673AbVFPNQ4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Jun 2005 09:16:56 -0400
-Date: Thu, 16 Jun 2005 08:15:13 -0500
-From: Rich Coe <Richard.Coe@med.ge.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.11.11 x86_64 gdb passes ERESTARTNOHAND to user process
-Message-ID: <20050616081513.00780068@godzilla>
-Organization: CSE
-X-Mailer: Sylpheed-Claws 0.9.13 (GTK+ 1.2.8; i686-pc-linux-gnu)
+	Thu, 16 Jun 2005 09:39:09 -0400
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:17087 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S261630AbVFPNjF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Jun 2005 09:39:05 -0400
+Date: Thu, 16 Jun 2005 09:39:04 -0400
+To: Lukasz Stelmach <stlman@poczta.fm>
+Cc: mru@inprovide.com, Patrick McFarland <pmcfarland@downeast.net>,
+       "Alexander E. Patrakov" <patrakov@ums.usu.ru>,
+       linux-kernel@vger.kernel.org
+Subject: Re: A Great Idea (tm) about reimplementing NLS.
+Message-ID: <20050616133904.GU23488@csclub.uwaterloo.ca>
+References: <f192987705061303383f77c10c@mail.gmail.com> <yw1xslzl8g1q.fsf@ford.inprovide.com> <42AFE624.4020403@poczta.fm> <200506150454.11532.pmcfarland@downeast.net> <42AFF184.2030209@poczta.fm> <yw1xd5qo2bzd.fsf@ford.inprovide.com> <42B04090.7050703@poczta.fm> <20050615212825.GS23621@csclub.uwaterloo.ca> <42B0BAF5.106@poczta.fm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42B0BAF5.106@poczta.fm>
+User-Agent: Mutt/1.3.28i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm chasing a problem on linux 2.6.11.11 x86_64 where when you attach gdb,
-select() returns ERESTARTNOHAND (errno 514) to the user process.
-The same problem occurs whether it is a 32bit or 64bit process being debugged.
+On Thu, Jun 16, 2005 at 01:34:13AM +0200, Lukasz Stelmach wrote:
+> That's why UTF-8 is suggested. UTF-8 has been developed to "fool" the
+> software that need not to be aware of unicodeness of the text it manages
+> to handle it without any hickups *and* to store in the text information
+> about multibyte characters.What characters exactly you do mean? NULL?
+> There is no NULL byte in any UTF-8 string except the one which
+> terminates it.
 
-I'd be interested in any comments you may have.
+That is true.  UTF-8 wouldn't cause any more problems than ascii already
+does, such as some filesystems not allowing : and * in filenames among
+other characters.
 
-How to reproduce:
-    - attach to a process with gdb, or stop the running process within gdb
-    - call a function, eg 'call sleep(1)'
-    - continue program execution
+> Yes, it uses unicode. And dos codepages in short ones. To prove this
+> take a vfat floppy and mount it. touch(1) a file on it that has some
+> non latin1 characters. Unmount the floppy then do dd if=/dev/fd0
+> of=/tmp/floppy bs=1024 count=512. While it's done take some hex
+> editor/viewer and seek the latin1-complaint part of the filename
+> in the floppy file (search for uppercase string). Righ above the short
+> filename you'll find multibyte long one.
 
-On i386, it seems as if the EIP is backed up 2 insn's to execute the
-'jmp' insn that causes the system call to be restarted. 
+Well at least that seems like they did something right when they
+extended FAT with VFAT.  Doesn't make FAT a good filesystem, but it does
+make the filename extension pretty nice, much as it is an ugly hack too.
 
-On x86_64, the EIP is not backed up, the system call is not restarted, and
-the internal kernel errno is passed on to the user process.
+> I've tried cd packet writing with UDF and it gives insane overhead of
+> about 20%. What metadata you'd like to store for example on your
+> flashdrive or a floppy disk?
 
-Thanks.
+The constant rewriting of the same sectors that store the FAT is really
+bad for some types of flash and other removeably media (like DVD-RAM).
 
-:::: calling a function on x86_64 ::::
-Program received signal SIGINT, Interrupt.
-0xffffe405 in __kernel_vsyscall ()
-1: x/i $pc  0xffffe405 <__kernel_vsyscall+5>:   mov    $0x2b,%ecx
-(gdb) call doNothing()
-(gdb) x/i $pc
-0xffffe405 <__kernel_vsyscall+5>:       mov    $0x2b,%ecx
-(gdb) x/8i 0xffffe400
-0xffffe400 <__kernel_vsyscall>:         push   %ebp
-0xffffe401 <__kernel_vsyscall+1>:       mov    %ecx,%ebp
-0xffffe403 <__kernel_vsyscall+3>:       syscall
-0xffffe405 <__kernel_vsyscall+5>:       mov    $0x2b,%ecx
-0xffffe40a <__kernel_vsyscall+10>:      movl   %ecx,%ss
-0xffffe40c <__kernel_vsyscall+12>:      mov    %ebp,%ecx
-0xffffe40e <__kernel_vsyscall+14>:      pop    %ebp
-0xffffe40f <__kernel_vsyscall+15>:      ret
-(gdb) stepi
-0xffffe40a in __kernel_vsyscall ()
-1: x/i $pc  0xffffe40a <__kernel_vsyscall+10>:  movl   %ecx,%ss
-(gdb) stepi
-0xffffe40e in __kernel_vsyscall ()
-1: x/i $pc  0xffffe40e <__kernel_vsyscall+14>:  pop    %ebp
+I hadn't noticed any big overhead in UDF, although packet writing may
+add some overhead itself (I never used packet writing).
 
-:::: calling a function on i386 ::::
-Program received signal SIGINT, Interrupt.
-0xffffe410 in __kernel_vsyscall ()
-1: x/i $pc  0xffffe410 <__kernel_vsyscall+16>:  pop    %ebp
-(gdb) x/8i 0xffffe400
-0xffffe400 <__kernel_vsyscall>:         push   %ecx
-0xffffe401 <__kernel_vsyscall+1>:       push   %edx
-0xffffe402 <__kernel_vsyscall+2>:       push   %ebp
-0xffffe403 <__kernel_vsyscall+3>:       mov    %esp,%ebp
-0xffffe405 <__kernel_vsyscall+5>:       sysenter
-0xffffe407 <__kernel_vsyscall+7>:       nop
-0xffffe408 <__kernel_vsyscall+8>:       nop
-0xffffe409 <__kernel_vsyscall+9>:       nop
-0xffffe40a <__kernel_vsyscall+10>:      nop
-0xffffe40b <__kernel_vsyscall+11>:      nop
-0xffffe40c <__kernel_vsyscall+12>:      nop
-0xffffe40d <__kernel_vsyscall+13>:      nop
-0xffffe40e <__kernel_vsyscall+14>:      jmp    0xffffe403 <__kernel_vsyscall+3>
-0xffffe410 <__kernel_vsyscall+16>:      pop    %ebp
-0xffffe411 <__kernel_vsyscall+17>:      pop    %edx
-0xffffe412 <__kernel_vsyscall+18>:      pop    %ecx
-0xffffe413 <__kernel_vsyscall+19>:      ret
-(gdb) call doNothing()
-(gdb) stepi
-0xffffe403 in __kernel_vsyscall ()
-1: x/i $pc  0xffffe403 <__kernel_vsyscall+3>:   mov    %esp,%ebp
-(gdb) c
-Continuing.
-
-Program received signal SIGINT, Interrupt.
-0xffffe410 in __kernel_vsyscall ()
-1: x/i $pc  0xffffe410 <__kernel_vsyscall+16>:  pop    %ebp
-(gdb) call doNothing()
-(gdb) x/i $pc
-0xffffe410 <__kernel_vsyscall+16>:      pop    %ebp
-(gdb) stepi
-0xffffe403 in __kernel_vsyscall ()
-1: x/i $pc  0xffffe403 <__kernel_vsyscall+3>:   mov    %esp,%ebp
-
--- 
-Rich Coe		richard.coe@med.ge.com
-General Electric Healthcare Technologies
-Global Software Platforms, Computer Technology Team
+Len Sorensen

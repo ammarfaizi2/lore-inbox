@@ -1,48 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261797AbVFPTSb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261799AbVFPT1P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261797AbVFPTSb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Jun 2005 15:18:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261799AbVFPTSb
+	id S261799AbVFPT1P (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Jun 2005 15:27:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261800AbVFPT1P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Jun 2005 15:18:31 -0400
-Received: from mail.linicks.net ([217.204.244.146]:44294 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S261797AbVFPTS2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Jun 2005 15:18:28 -0400
-From: Nick Warne <nick@linicks.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: mtrr question
-Date: Thu, 16 Jun 2005 20:18:25 +0100
-User-Agent: KMail/1.8.1
-References: <200506081917.09873.nick@linicks.net> <200506082047.13914.nick@linicks.net> <20050608195336.GL876@redhat.com>
-In-Reply-To: <20050608195336.GL876@redhat.com>
+	Thu, 16 Jun 2005 15:27:15 -0400
+Received: from mxsf33.cluster1.charter.net ([209.225.28.158]:46744 "EHLO
+	mxsf33.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S261799AbVFPT1N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Jun 2005 15:27:13 -0400
+Message-Id: <44039q$12aja01@mxip15a.cluster1.charter.net>
+X-IronPort-AV: i="3.93,204,1115006400"; 
+   d="scan'208"; a="1151969281:sNHT14641016"
+X-Mailer: Openwave WebEngine, version 2.8.18 (webedge20-101-1108-20050216)
+From: <mhlong@charter.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.6 PNP issues with software raid system
+Date: Thu, 16 Jun 2005 15:27:12 -0400
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506162018.26039.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 08 June 2005 20:53, Dave Jones wrote:
+If a disk is pulled or fails in such a way that the hotplug manager removes the corresponding /dev/xxx entry, I can not issue a mdadm --remove because the device doesn't exist.
 
->  > I also forgot to say I use the nVidia agp module (works better for me in
->  > Quake2 for some reason)... but searching their docs doesn't even mention
->  > mtrr.
->  >
->  > Could it be that?  If so, I am wasting you guys time.
->
-> Maybe. I don't use non-free drivers, so I have no idea
-> what nvidia are/aren't doing in their driver.
+I looked at the mdadm and md code and it looks like it relies on the device node existing.  I could make the appropriate code changes but wanted to see if there was another more standard way to deal with this.  I know I can create a node using mknod so I can issue the mdadm --remove and then delete the node but this really seems like a hack.
 
-This is confirmed it is a nvidia thing.  Tonight I have just upgraded 
-(updated?) from 2.4.31 to 2.6.11.12 kernel (whooo), and used agpart - I now 
-have /proc/mtrr values as expected from boot.
+I did a bit of looking around and couldn't find an answer to this.  If this is not the right list for this question please point me to the correct place.
 
-Quake2 works great too :-)
+Thanks, -Matt-
 
-Nick
--- 
-"When you're chewing on life's gristle,
-Don't grumble, Give a whistle..."

@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261549AbVFPNzG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261606AbVFPOBD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261549AbVFPNzG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Jun 2005 09:55:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261554AbVFPNzG
+	id S261606AbVFPOBD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Jun 2005 10:01:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261610AbVFPOBD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Jun 2005 09:55:06 -0400
-Received: from smtp209.mail.sc5.yahoo.com ([216.136.130.117]:58198 "HELO
-	smtp209.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261549AbVFPNzB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Jun 2005 09:55:01 -0400
-Message-ID: <42B184AB.7050108@yahoo.com.au>
-Date: Thu, 16 Jun 2005 23:54:51 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: USB mouse problems in (2.6.12-rc6)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 16 Jun 2005 10:01:03 -0400
+Received: from pc1.pod.cz ([213.155.230.51]:46050 "HELO pc11.op.pod.cz")
+	by vger.kernel.org with SMTP id S261606AbVFPOA6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Jun 2005 10:00:58 -0400
+Date: Thu, 16 Jun 2005 16:00:57 +0200
+From: Vitezslav Samel <samel@mail.cz>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       Bob Picco <bob.picco@hp.com>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Fwd: hpet patches
+Message-ID: <20050616140057.GA20965@pc11.op.pod.cz>
+Mail-Followup-To: Jon Smirl <jonsmirl@gmail.com>,
+	"Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+	Bob Picco <bob.picco@hp.com>, Andrew Morton <akpm@osdl.org>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <88056F38E9E48644A0F562A38C64FB6004FB6BED@scsmsx403.amr.corp.intel.com> <9e47339105061510547ea7d2f0@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9e47339105061510547ea7d2f0@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Both 2.6.12-rc6 and rc6-mm1 make the mouse move around very strangely.
-Very noticable lag and infrequent updates of the position.
+On Wed, Jun 15, 2005 at 01:54:16PM -0400, Jon Smirl wrote:
+> On 6/15/05, Pallipadi, Venkatesh <venkatesh.pallipadi@intel.com> wrote:
+> > The specification for ICH5 has the details about this address
+> > http://www.intel.com/design/chipsets/datashts/25251601.pdf (Chapter 17).
+> > We need to look at specific device address to figure out the HPET base
+> > address in this case.
+> 
+> The ICH5 fix up needs to look something like this:
+> PCI_DEVICE_ID_INTEL_82801EB_0 is the PCI ID for the LPC device.
+> 
+> ACPI_FIXUP(INTEL, PCI_DEVICE_ID_INTEL_82801EB_0, hpet_ich5_fixup)
+> hpet_ich5_fixup()
+> {
+>      pci_bios_find_device(PCI_ID_INTEL, PCI_DEVICE_ID_INTEL_82801EB_0, ...)
+>      pci_bios_read(device, GENERAL_CONTROL_REGISTER, ..)
+>      Check bit 17 and see if it is enabled
+>      use bit 15:16 to set hpet_address to one of the four addresses
+> }
+> 
+> It would be more complicated to try and turn it on if it is turned
+> off. Mine is turned on at boot even though it has no ACPI entry.
 
-System is a dual PIII. Some more info below. Anyone got any ideas or
-patches to try? Thanks.
+  On our HP DL380g4 (ICH5 chipset) it is turned off. Could you, please,
+try to turn it on in your patches? I'll be glad to test your patches.
 
-            CPU0       CPU1
-   0:     356256     420442    IO-APIC-edge  timer
-   1:        715       1563    IO-APIC-edge  i8042
-   9:          0          0   IO-APIC-level  acpi
-  14:       4555       2951    IO-APIC-edge  ide0
-  15:         54          6    IO-APIC-edge  ide1
-  17:        996        436   IO-APIC-level  SysKonnect SK-98xx
-  18:        584       1071   IO-APIC-level  uhci_hcd:usb1, uhci_hcd:usb2
-
-0000:00:00.0 Host bridge: VIA Technologies, Inc. VT82C693A/694x [Apollo PRO133x] (rev c4)
-0000:00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598/694x [Apollo MVP3/Pro133x AGP]
-0000:00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (rev 40)
-0000:00:07.1 IDE interface: VIA Technologies, Inc. VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
-0000:00:07.2 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 1a)
-0000:00:07.3 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 1a)
-0000:00:07.4 SMBus: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 40)0000:00:07.5 Multimedia audio controller: VIA Technologies, Inc. VT82C686 AC97 Audio Controller (rev 50)
-0000:00:0a.0 Ethernet controller: National Semiconductor Corporation DP83815 (MacPhyter) Ethernet Controller
-0000:00:0b.0 Ethernet controller: D-Link System Inc Gigabit Ethernet Adapter (rev 11)
-0000:01:00.0 VGA compatible controller: nVidia Corporation NV5M64 [RIVA TNT2 Model 64/Model 64 Pro] (rev 15)
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+	Thanks,
+		Vita

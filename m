@@ -1,81 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261699AbVFPBts@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261691AbVFPBtj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261699AbVFPBts (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 21:49:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261701AbVFPBts
+	id S261691AbVFPBtj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 21:49:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261701AbVFPBtj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 21:49:48 -0400
-Received: from downeast.net ([12.149.251.230]:15332 "EHLO downeast.net")
-	by vger.kernel.org with ESMTP id S261699AbVFPBti (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 21:49:38 -0400
-From: Patrick McFarland <pmcfarland@downeast.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: A Great Idea (tm) about reimplementing NLS.
-Date: Wed, 15 Jun 2005 21:49:05 -0400
-User-Agent: KMail/1.8
-Cc: Alexey Zaytsev <alexey.zaytsev@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <f192987705061303383f77c10c@mail.gmail.com> <f192987705061310202e2d9309@mail.gmail.com> <1118690448.13770.12.camel@localhost.localdomain>
-In-Reply-To: <1118690448.13770.12.camel@localhost.localdomain>
+	Wed, 15 Jun 2005 21:49:39 -0400
+Received: from smtp203.mail.sc5.yahoo.com ([216.136.129.93]:18297 "HELO
+	smtp203.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261691AbVFPBt3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 21:49:29 -0400
+Message-ID: <42B0DA51.6060101@yahoo.com.au>
+Date: Thu, 16 Jun 2005 11:48:01 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart3260359.ZKZrSuiHNa";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: Badari Pulavarty <pbadari@us.ibm.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org
+Subject: Re: 2.6.12-rc6-mm1 & 2K lun testing
+References: <1118856977.4301.406.camel@dyn9047017072.beaverton.ibm.com>	 <42B073C1.3010908@yahoo.com.au>	 <1118860223.4301.449.camel@dyn9047017072.beaverton.ibm.com>	 <42B07B44.9040408@yahoo.com.au> <1118868979.4301.458.camel@dyn9047017072.beaverton.ibm.com>
+In-Reply-To: <1118868979.4301.458.camel@dyn9047017072.beaverton.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200506152149.06367.pmcfarland@downeast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart3260359.ZKZrSuiHNa
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Badari Pulavarty wrote:
+> On Wed, 2005-06-15 at 12:02, Nick Piggin wrote:
+> 
 
-On Monday 13 June 2005 03:20 pm, Alan Cox wrote:
-> An ext3fs is always utf-8. People might have chosen to put other
-> encodings on it but thats "not our fault" ;)
+>>Yeah, take off GFP_HIGH and set GFP_NOWARN (always). I would be
+>>interested to see how that goes.
+>>
+>>Obviously it won't eliminate your failures there (it will probably
+>>produce more of them), however it might help the scsi command
+>>allocation from overwhelming the system.
+> 
+> 
+> Hmm.. seems to help little. IO rate is not great (compared to 90MB/sec
+> with "raw") - but machine is making progress. But again, its pretty
+> unresponsive.
+> 
 
-What happens if you 'field upgrade' ext2 to ext3 by adding a journal? That=
-=20
-doesn't magically convert !utf-8 to utf-8.
+Anything measurable that we can use to maybe get the chage
+picked up and tested in -mm for a while?
 
-> There are some good technical reasons too
->
-> Encodings don't map 1:1 - two names may cease to be unique
+> Thanks,
+> Badari
+> 
+> procs -----------memory---------- ---swap-- -----io---- --system--
+> ----cpu----
+>  r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy
+> id wa
+> 131 254  34896  31328   2540 4982740    0    0    29 101877 1086 11220 
+> 0 100  0  0
+> 149 268  34896  32824   2536 4983712   13    0    42 39505  439  4454  0
+> 100  0  0
+> 135 254  34896  31112   2536 4984768   11    0    20 36233  373  4078  0
+> 100  0  0
+> 130 242  34896  32600   2536 4987364    6    0   161 33626  377  3957  0
+> 100  0  0
+> 153 263  34896  32592   2532 4993560    0    0    14 37124  385  4468  0
+> 100  0  0
+> 144 236  34896  32668   2548 5013148    6    0   154 220366 2360 27530 
+> 0 100  0  0
 
-Hold up. Unless the original encoding is 'wrong' and has two mapped charact=
-ers=20
-that, in reality, are the same character, no such uniqueness should stop.=20
-(This implies the encoding that we switched to 'fixed' said 'bug')
+Though it can be difficult to judge performance based on vmstat
+when you get these large spikes. vmstat is measuring requests
+into the elevator so you see batching and throttling effects. I
+would expect requests completing to be more even... your entire
+vmstat listing looks like it is averaging about 60-70MB/s - does
+this agree with your measurements?
 
-> Encodings vary in length - image a file name that is longer than the
-> allowed maximum on your system with your encoding choice - that could
-> occur with KOI8-R to UTF-8 I believe
+Finally, do you see anything interesting on the profiles?
 
-Thats a fault of the file system design, not of the encoding. File systems=
-=20
-should not have very short filenames.
+-- 
+SUSE Labs, Novell Inc.
 
-=2D-=20
-Patrick "Diablo-D3" McFarland || pmcfarland@downeast.net
-"Computer games don't affect kids; I mean if Pac-Man affected us as kids, w=
-e'd=20
-all be running around in darkened rooms, munching magic pills and listening=
- to
-repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989
-
---nextPart3260359.ZKZrSuiHNa
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBCsNqS8Gvouk7G1cURAkwcAJ9slsQVw7/MdAJy/FuaTyrvhW1m9ACdEhMh
-wWbUbmus3O9DeikuzKm4pPY=
-=nvib
------END PGP SIGNATURE-----
-
---nextPart3260359.ZKZrSuiHNa--
+Send instant messages to your online friends http://au.messenger.yahoo.com 

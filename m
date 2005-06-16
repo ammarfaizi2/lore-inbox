@@ -1,48 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261816AbVFPV5a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261818AbVFPV7s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261816AbVFPV5a (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Jun 2005 17:57:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261819AbVFPV5a
+	id S261818AbVFPV7s (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Jun 2005 17:59:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261819AbVFPV7s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Jun 2005 17:57:30 -0400
-Received: from ns1.g-housing.de ([62.75.136.201]:39876 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S261816AbVFPV50 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Jun 2005 17:57:26 -0400
-Message-ID: <42B1F5CB.9020308@g-house.de>
-Date: Thu, 16 Jun 2005 23:57:31 +0200
-From: Christian Kujau <evil@g-house.de>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050404)
-X-Accept-Language: de-DE, de, en-us, en
-MIME-Version: 1.0
-To: Lars Roland <lroland@gmail.com>
-CC: Linux-Kernel <linux-kernel@vger.kernel.org>
+	Thu, 16 Jun 2005 17:59:48 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:31468
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S261818AbVFPV7r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Jun 2005 17:59:47 -0400
+Date: Thu, 16 Jun 2005 14:59:41 -0700 (PDT)
+Message-Id: <20050616.145941.41632714.davem@davemloft.net>
+To: evil@g-house.de
+Cc: lroland@gmail.com, linux-kernel@vger.kernel.org
 Subject: Re: tg3 in 2.6.12-rc6 and Cisco PIX SMTP fixup
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <42B1F5CB.9020308@g-house.de>
 References: <4ad99e0505061605452e663a1e@mail.gmail.com>
-In-Reply-To: <4ad99e0505061605452e663a1e@mail.gmail.com>
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
+	<42B1F5CB.9020308@g-house.de>
+X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lars Roland schrieb:
-> So are there any differences in the tg3 driver between 2.6.8.1 and
-> 2.6.12-rc6 that would cause this kind of behaviour ?.
+From: Christian Kujau <evil@g-house.de>
+Date: Thu, 16 Jun 2005 23:57:31 +0200
 
-i'd say: "certainly", but best you find out by diff'ing the versions
-and/or eventually put 2.6.8.1's tg3 driver in a 2.6.12-rc6 tree, compile,
-hope it builds, then try again to connect.
+> if it really turns out to be a tg3 problem, maybe netdev@oss.sgi.com
+> should be Cc'ed.
 
-> I know that SMTP fixup is mostly a poorly implemented Sendmail
-
-i don't know what a "smtp fixup" would be, but does the disconnect happen
-to other applications too?
-
-if it really turns out to be a tg3 problem, maybe netdev@oss.sgi.com
-should be Cc'ed.
--- 
-BOFH excuse #67:
-
-descramble code needed from software company
+Make that netdev@vger.kernel.org

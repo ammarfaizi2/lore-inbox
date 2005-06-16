@@ -1,416 +1,177 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261679AbVFPAbX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261680AbVFPAiK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261679AbVFPAbX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 20:31:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261680AbVFPAbX
+	id S261680AbVFPAiK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 20:38:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbVFPAiK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 20:31:23 -0400
-Received: from titan.genwebhost.com ([209.9.226.66]:55474 "EHLO
-	titan.genwebhost.com") by vger.kernel.org with ESMTP
-	id S261679AbVFPAaY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 20:30:24 -0400
-Date: Wed, 15 Jun 2005 17:30:18 -0700
-From: randy_dunlap <rdunlap@xenotime.net>
-To: rusty@rustcorp.com.au
-Cc: lkml <linux-kernel@vger.kernel.org>, helgehaf@aitel.hist.no
-Subject: [patch] modinfo: check for module tainting
-Message-Id: <20050615173018.1812138f.rdunlap@xenotime.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 15 Jun 2005 20:38:10 -0400
+Received: from ausc60ps301.us.dell.com ([143.166.148.206]:34747 "EHLO
+	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
+	id S261680AbVFPAhx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 20:37:53 -0400
+X-IronPort-AV: i="3.93,202,1115010000"; 
+   d="scan'208"; a="254822504:sNHT18661108"
+Date: Wed, 15 Jun 2005 19:34:14 -0500
+From: Abhay Salunke <Abhay_Salunke@dell.com>
+To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Greg KH <greg@kroah.com>
+Cc: abhay_salunke@dell.com, matt_domsch@dell.com
+Subject: [patch 2.6.12-rc3] Adds persistent entryies using request_firmware_nowaitManuel Estrada Sainz <ranty@debian.org>,
+Message-ID: <20050616003414.GA1814@littleblue.us.dell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - titan.genwebhost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - xenotime.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a patch to make the /sys/class/firmware entries persistent. 
+This has been tested with dell_rbu; dell_rbu was modified to not call
+request_firmware_nowait again form the callback function. 
 
-Helge Hafting suggested on lkml on 2004-april-28 that some program
-check for module taintedness (without having to load each module).
+The new mechanism to make the entries persistent is as follows
+1> echo 0 > /sys/class/firmware/timeout
+2> echo 2 > /sys/class/firmware/xxx/loading
 
-Here's version 1 of that (extending 'modinfo'), along with another
-fix to modinfo.
+step 1 prevents timeout to occur , step 2 makes the entry xxx persistent
 
-I've only tested this on x86-32 as that's all that I have access to.
-If someone would test it on some other arch(es)....
+if we want to remove persistence then do this
+ech0 -2 > /sys/class/firmware/xxx/loading
 
+The rest of the functionality is not affected.
 
-Patches for module-init-tools 3.1 and 3.2-pre7 are also available at:
+Also not the persistence is supported only if the driver calls
+request_firmware_nowait. If the driver is just calling request_firmware, 
+step 2 is treated as unknown entry.
 
-http://www.xenotime.net/linux/modinfo/modinfo-taint-31.patch
-http://www.xenotime.net/linux/modinfo/modinfo-taint-32pre7.patch
+Signed-off-by: Abhay Salunke <Abhay_Salunke@dell.com>
 
-Here's the patch to 3.2-pre7.
+Thanks,
+Abhay Salunke
+Software Engineer.
+DELL Inc
 
-Comments?
-
----
-~Randy
-
-
-
-From: Randy Dunlap <rdunlap@xenotime.net>
-
-a.  Fix --field to require an argument so that it works.
-
-b.  Add 'taint' checking to modinfo.
-Note:  symbol version checking is not implemented yet [compare
-kernel/module.c::check_version()].
-
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
-
-diffstat:=
- Makefile.am   |    2 
- Makefile.in   |    2 
- modinfo.8     |   11 +++
- modinfo.c     |  184 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++--
- modversions.h |    8 ++
- 5 files changed, 200 insertions(+), 7 deletions(-)
-
-diff -Naurp module-init-tools-3.2-pre7/modinfo.8~taint module-init-tools-3.2-pre7/modinfo.8
---- module-init-tools-3.2-pre7/modinfo.8~taint	2004-08-26 02:11:07.000000000 -0700
-+++ module-init-tools-3.2-pre7/modinfo.8	2005-06-15 17:06:55.000000000 -0700
-@@ -56,7 +56,7 @@
- modinfo \(em program to show information about a Linux Kernel module 
- .SH "SYNOPSIS" 
- .PP 
--\fBmodinfo\fR [\fB-0\fP]  [\fB-F \fIfield\fR\fP]  [modulename|filename \&...]  
-+\fBmodinfo\fR [\fB-0\fP]  [\fB-F \fIfield\fR\fP]  [\fB-T \fIkernelfile\fR\fP]  [modulename|filename \&...]  
- .PP 
- \fBmodinfo -V\fR 
- .PP 
-@@ -77,6 +77,11 @@ filename is listed the same way (althoug
- attribute). 
-  
- .PP 
-+\fBmodinfo\fR with \fB-T\fR checks for modules that would 'taint'
-+the Linux kernel if the module were loaded.  A kernel image file
-+must be specified to check against.
-+ 
-+.PP 
- This version of \fBmodinfo\fR can understand 
- modules of any Linux Kernel architecture. 
- .SH "OPTIONS" 
-@@ -108,6 +113,10 @@ These are shortcuts for \fBauthor\fP, 
- transition from the old modutils 
- \fBmodinfo\fR. 
-  
-+.IP "\fB-T\fP \fB--taint\fP         " 10 
-+Check the module(s) for characteristics that would taint the
-+Linux kernel.
-+ 
- .SH "BACKWARDS COMPATIBILITY" 
- .PP 
- This version of \fBmodinfo\fR is for kernel 
-diff -Naurp module-init-tools-3.2-pre7/modinfo.c~taint module-init-tools-3.2-pre7/modinfo.c
---- module-init-tools-3.2-pre7/modinfo.c~taint	2005-01-17 19:25:23.000000000 -0800
-+++ module-init-tools-3.2-pre7/modinfo.c	2005-06-15 17:06:55.000000000 -0700
-@@ -14,6 +14,9 @@
- #include <sys/mman.h>
- #include "zlibsupport.h"
- #include "backwards_compat.c"
-+#include "modversions.h"
-+
-+#define DEBUG_TAINT	0
+diff -uprN /usr/src/linux-2.6.11.11.orig/drivers/base/firmware_class.c /usr/src/linux-2.6.11.11.new/drivers/base/firmware_class.c
+--- /usr/src/linux-2.6.11.11.orig/drivers/base/firmware_class.c	2005-06-14 20:53:04.000000000 -0500
++++ /usr/src/linux-2.6.11.11.new/drivers/base/firmware_class.c	2005-06-16 00:21:10.000000000 -0500
+@@ -6,6 +6,11 @@
+  * Please see Documentation/firmware_class/ for more information.
+  *
+  */
++ /*
++ * 2005-06-15: 	Abhay Salunke <abhay_salunke@dell.com>
++ *		Added firmware persistent when request_firmware_nowait.
++ *		is called. 
++ */
  
- #define streq(a,b) (strcmp((a),(b)) == 0)
- #define strstarts(a,start) (strncmp((a),(start), strlen(start)) == 0)
-@@ -24,6 +27,8 @@
- 
- static int elf_endian;
- static int my_endian;
-+static int elf_class_size;	/* 1 = 32-bit, 2 = 64-bit */
-+static int elf_class_div;
- 
- static inline void __endian(const void *src, void *dest, unsigned int size)
- {
-@@ -47,6 +52,7 @@ static void *get_section32(void *file, u
- 	const char *secnames;
- 	unsigned int i;
- 
-+	*size = 0;
- 	secnames = file
- 		+ TO_NATIVE(sechdrs[TO_NATIVE(hdr->e_shstrndx)].sh_offset);
- 	for (i = 1; i < TO_NATIVE(hdr->e_shnum); i++)
-@@ -82,6 +88,14 @@ static int elf_ident(void *mod, unsigned
- 	if (size < EI_CLASS || memcmp(mod, ELFMAG, SELFMAG) != 0)
- 		return ELFCLASSNONE;
- 	elf_endian = ident[EI_DATA];
-+	if (!elf_class_size) {
-+#if DEBUG_TAINT
-+		fprintf(stderr, "*** init. elf_class_size to %d ***\n",
-+			ident[EI_CLASS]);
-+#endif
-+		elf_class_div = ident[EI_CLASS] == 1 ? 4 : 8;
-+	}
-+	elf_class_size = ident[EI_CLASS];
- 	return ident[EI_CLASS];
- }
- 
-@@ -220,7 +234,8 @@ static struct option options[] =
- 	{"version", 0, 0, 'V'},
- 	{"help", 0, 0, 'h'},
- 	{"null", 0, 0, '0'},
--	{"field", 0, 0, 'F'},
-+	{"field", 1, 0, 'F'},
-+	{"taint", 1, 0, 'T'},
- 	{0, 0, 0, 0}
+ #include <linux/device.h>
+ #include <linux/module.h>
+@@ -28,6 +33,8 @@ enum {
+ 	FW_STATUS_DONE,
+ 	FW_STATUS_ABORT,
+ 	FW_STATUS_READY,
++	FW_STATUS_PERSISTENT,
++	FW_STATUS_PERSISTENT_ABORT,
  };
  
-@@ -320,13 +335,113 @@ static void *grab_module(const char *nam
- 	return NULL;
- }
- 
-+static char *get_modinfo(void *info,
-+			 unsigned long infosize,
-+			 const char *tag)
-+{
-+	char *p;
-+	unsigned int taglen = strlen(tag);
-+
-+	for (p = (char *)info; p; p = (char *)next_string(p, &infosize)) {
-+		if (strncmp(p, tag, taglen) == 0 && p[taglen] == '=')
-+			return p + taglen + 1;
-+	}
-+	return NULL;
-+}
-+
-+static inline int license_is_gpl_compatible(const char *license)
-+{
-+	return (strcmp(license, "GPL") == 0
-+		|| strcmp(license, "GPL v2") == 0
-+		|| strcmp(license, "GPL and additional rights") == 0
-+		|| strcmp(license, "Dual BSD/GPL") == 0
-+		|| strcmp(license, "Dual MPL/GPL") == 0);
-+}
-+
-+static void check_license(const char *filename, const char *license)
-+{
-+	int license_gplok;
-+
-+	if (!license)
-+		license = "unspecified";
-+
-+	license_gplok = license_is_gpl_compatible(license);
-+	if (!license_gplok) {
-+		printf("%s: module license '%s' taints kernel.\n",
-+		       filename, license);
-+	}
-+}
-+
-+static int same_magic_modversions(const char *modmag, const char *kernmag)
-+{
-+	modmag += strcspn(modmag, " ");
-+	kernmag += strcspn(kernmag, " ");
-+	return strcmp(modmag, kernmag) == 0;
-+}
-+
-+static void check_magic(const char *kernel, const char *filename, char *modmagic)
-+{
-+	char *buf;
-+	ssize_t actual;
-+	size_t n = 1024;
-+	FILE *fkernel;
-+	char kernel_magic[1024] = {0};
-+
-+	if (!modmagic) {
-+		printf("%s: taint: No version magic\n",
-+			filename);
-+		return;
-+	}
-+
-+	// check modmagic == vermagic (aka kernel_magic);
-+
-+	buf = malloc(1024);
-+	if (!buf) {
-+		fprintf(stderr, "modinfo: cannot malloc kernel image memory\n");
-+		return;
-+	}
-+	fkernel = fopen(kernel, "r");
-+	if (!fkernel) {
-+		fprintf(stderr, "modinfo: could not open %s\n", kernel);
-+		free (buf);
-+		return;
-+	}
-+
-+	for (;;) {
-+		actual = getdelim(&buf, &n, 0, fkernel);
-+		if (actual < 0)
-+			break;
-+		// sample kernel vermagic line to search for:
-+		// "2.6.12-rc6 SMP PENTIUM4 gcc-3.3"
-+		if (strncmp(buf, "2.6.", 4))
-+			continue;
-+		if (strstr(buf, "gcc-") == NULL)
-+			continue;
-+		strcpy(kernel_magic, buf);
+ static int loading_timeout = 10;	/* In seconds */
+@@ -142,13 +149,20 @@ firmware_loading_store(struct class_devi
+ 		set_bit(FW_STATUS_LOADING, &fw_priv->status);
+ 		up(&fw_lock);
+ 		break;
++	case 2:
++                set_bit(FW_STATUS_PERSISTENT, &fw_priv->status);
++		fw_load_abort(fw_priv);
 +		break;
-+	}
-+#if DEBUG_TAINT
-+	printf("*** got kernel_magic = [%s]\n", kernel_magic);
-+#endif
-+
-+	// for CONFIG_MODVERSIONS=n:
-+	if (strcmp(modmagic, kernel_magic))
-+		printf("%s: taint: [for CONFIG_MODVERSIONS=n] version magic '%s' should be '%s'\n",
-+			filename, modmagic, kernel_magic);
-+	// and for CONFIG_MODVERSIONS=y:
-+	if (!same_magic_modversions(modmagic, kernel_magic))
-+		printf("%s: taint: [for CONFIG_MODVERSIONS=y] version magic '%s' should be '%s'\n",
-+			filename, modmagic, kernel_magic);
-+}
-+
- static void usage(const char *name)
+ 	case 0:
+ 		if (test_bit(FW_STATUS_LOADING, &fw_priv->status)) {
+ 			complete(&fw_priv->completion);
+ 			clear_bit(FW_STATUS_LOADING, &fw_priv->status);
+ 			break;
+ 		}
+-		/* fallthrough */
++	case -2:
++		set_bit(FW_STATUS_PERSISTENT_ABORT, &fw_priv->status);
++                fw_load_abort(fw_priv);
++                break;
+ 	default:
+ 		printk(KERN_ERR "%s: unexpected value (%d)\n", __FUNCTION__,
+ 		       loading);
+@@ -389,8 +403,8 @@ out:
+  *	firmware image for this or any other device.
+  **/
+ int
+-request_firmware(const struct firmware **firmware_p, const char *name,
+-		 struct device *device)
++_request_firmware(const struct firmware **firmware_p, const char *name,
++		 struct device *device, unsigned long *fw_status)
  {
--	fprintf(stderr, "Usage: %s [-0][-F field] module...\n"
-+	fprintf(stderr, "Usage: %s [-0][-F field] [-T vmlinux] module...\n"
- 		" Prints out the information about one or more module(s).\n"
- 		" If a fieldname is given, just print out that field (or nothing if not found).\n"
- 		" Otherwise, print all information out in a readable form\n"
--		" If -0 is given, separate with nul, not newline.\n",
-+		" If -0 is given, separate with nul, not newline.\n"
-+		" If -T is given, check the module for tainting the 'vmlinux' kernel.\n",
- 		name);
+ 	struct class_device *class_dev;
+ 	struct firmware_priv *fw_priv;
+@@ -422,6 +436,14 @@ request_firmware(const struct firmware *
+ 
+ 	kobject_hotplug(&class_dev->kobj, KOBJ_ADD);
+ 	wait_for_completion(&fw_priv->completion);
++	
++	if (test_bit(FW_STATUS_PERSISTENT, &fw_priv->status) ||
++		test_bit(FW_STATUS_PERSISTENT_ABORT, &fw_priv->status)) {
++		*fw_status = fw_priv->status;
++                clear_bit(FW_STATUS_PERSISTENT, &fw_priv->status);
++                clear_bit(FW_STATUS_PERSISTENT_ABORT, &fw_priv->status);
++        }
++
+ 	set_bit(FW_STATUS_DONE, &fw_priv->status);
+ 
+ 	del_timer_sync(&fw_priv->timeout);
+@@ -443,6 +465,25 @@ error_kfree_fw:
+ out:
+ 	return retval;
  }
- 
-@@ -337,6 +452,8 @@ int main(int argc, char *argv[])
- 	char sep = '\n';
- 	unsigned long infosize;
- 	int opt, ret = 0;
-+	int check_taint = 0;
-+	char *kernel = NULL;
- 
- 	if (!getenv("NEW_MODINFO"))
- 		try_old_version("modinfo", argv);
-@@ -347,7 +464,7 @@ int main(int argc, char *argv[])
- 	else
- 		abort();
- 
--	while ((opt = getopt_long(argc,argv,"adlpVhn0F:",options,NULL)) >= 0){
-+	while ((opt = getopt_long(argc,argv,"adlpVT:hn0F:",options,NULL)) >= 0){
- 		switch (opt) {
- 		case 'a': field = "author"; break;
- 		case 'd': field = "description"; break;
-@@ -355,6 +472,7 @@ int main(int argc, char *argv[])
- 		case 'p': field = "parm"; break;
- 		case 'n': field = "filename"; break;
- 		case 'V': printf(PACKAGE " version " VERSION "\n"); exit(0);
-+		case 'T': check_taint = 1; kernel = optarg; break;
- 		case 'F': field = optarg; break;
- 		case '0': sep = '\0'; break;
- 		default:
-@@ -368,6 +486,12 @@ int main(int argc, char *argv[])
- 		void *info, *mod;
- 		unsigned long modulesize;
- 		char *filename;
-+		void *exports, *gpls, *crc, *gplcrc,
-+			*setup, *obs_parm, *versions;
-+		unsigned long exports_size, gpls_size, crc_size,
-+			gplcrc_size, setup_size, obs_parm_size, versions_size;
-+		char *modmagic, *license;
-+		int num_export_syms, num_gpl_syms, num_versions;
- 
- 		mod = grab_module(argv[opt], &modulesize, &filename);
- 		if (!mod) {
-@@ -382,6 +506,58 @@ int main(int argc, char *argv[])
- 			print_tag(field, info, infosize, filename, sep);
- 		else
- 			print_all(info, infosize, filename, sep);
-+
-+		if (check_taint) {
-+			exports = get_section(mod, modulesize, &exports_size,
-+					"__ksymtab");
-+			gpls = get_section(mod, modulesize, &gpls_size,
-+					"__ksymtab_gpl");
-+			crc = get_section(mod, modulesize, &crc_size,
-+					"__kcrctab");
-+			gplcrc = get_section(mod, modulesize, &gplcrc_size,
-+					"__kcrctab_gpl");
-+			setup = get_section(mod, modulesize, &setup_size,
-+					"__param");
-+			obs_parm = get_section(mod, modulesize, &obs_parm_size,
-+					"__obsparm");
-+			versions = get_section(mod, modulesize, &versions_size,
-+					"__versions");
-+			modmagic = get_modinfo(info, infosize, "vermagic");
-+			license = get_modinfo(info, infosize, "license");
-+
-+			num_export_syms = exports_size / elf_class_div;
-+			num_gpl_syms = gpls_size / elf_class_div;
-+			num_versions = versions_size /
-+					sizeof(struct modversion_info);
-+
-+#if DEBUG_TAINT
-+			printf("*** export: %p, gpls: %p, crc: %p, gplcrc: %p, setup: %p, obs_parm: %p, versions: %p, modmagic: %p\n",
-+				exports, gpls, crc, gplcrc,
-+				setup, obs_parm, versions, modmagic);
-+			printf("*** modmagic = [%s]\n", modmagic);
-+			printf("*** license = [%s]\n", license);
-+			printf("*** num_export_syms = %d\n", num_export_syms);
-+			printf("*** num_gpl_syms = %d\n", num_gpl_syms);
-+			printf("*** num_versions = %d\n", num_versions);
-+#endif
-+
-+			check_license(filename, license);
-+			check_magic(kernel, filename, modmagic);
-+
-+			if ((num_export_syms && !crc) ||
-+			    (num_gpl_syms && !gplcrc))
-+				printf("*** %s: taint [if CONFIG_MODVERSIONS=y]: "
-+					"No versions for exported symbols.\n",
-+					filename);
-+			if (setup && obs_parm)
-+				printf("*** %s: warning: ignoring new-style "
-+					"parameters in presence of obsolete "
-+					"ones\n", filename);
-+			// TBD: check for symbol versions (crcs) as in
-+			// check_version() [if CONFIG_MODVERSIONS];
-+			fprintf(stderr, "%s: not checking symbol versions\n",
-+				filename);
-+		}
- 		free(filename);
- 	}
- 	return ret;
-diff -Naurp module-init-tools-3.2-pre7/modversions.h~taint module-init-tools-3.2-pre7/modversions.h
---- module-init-tools-3.2-pre7/modversions.h~taint	2005-06-15 17:06:07.000000000 -0700
-+++ module-init-tools-3.2-pre7/modversions.h	2005-06-15 17:06:55.000000000 -0700
-@@ -0,0 +1,8 @@
-+
-+#define MODULE_NAME_LEN (64 - sizeof(unsigned long))
-+
-+struct modversion_info
++/**
++ * request_firmware: - request firmware to hotplug and wait for it
++ * Description:
++ *      @firmware will be used to return a firmware image by the name
++ *      of @name for device @device.
++ *
++ *      Should be called from user context where sleeping is allowed.
++ *
++ *      @name will be use as $FIRMWARE in the hotplug environment and
++ *      should be distinctive enough not to be confused with any other
++ *      firmware image for this or any other device.
++ **/
++int
++request_firmware(const struct firmware **firmware_p, const char *name,
++                 struct device *device)
 +{
-+	unsigned long crc;
-+	char name[MODULE_NAME_LEN];
-+};
-diff -Naurp module-init-tools-3.2-pre7/Makefile.am~taint module-init-tools-3.2-pre7/Makefile.am
---- module-init-tools-3.2-pre7/Makefile.am~taint	2005-05-26 19:32:55.000000000 -0700
-+++ module-init-tools-3.2-pre7/Makefile.am	2005-06-15 17:06:55.000000000 -0700
-@@ -3,7 +3,7 @@ lsmod_SOURCES = lsmod.c testing.h
- modprobe_SOURCES = modprobe.c zlibsupport.c testing.h zlibsupport.h
- rmmod_SOURCES = rmmod.c testing.h
- depmod_SOURCES = depmod.c moduleops.c tables.c zlibsupport.c depmod.h moduleops.h tables.h list.h testing.h  zlibsupport.h
--modinfo_SOURCES = modinfo.c zlibsupport.c testing.h zlibsupport.h
-+modinfo_SOURCES = modinfo.c zlibsupport.c testing.h zlibsupport.h modversions.h
++	unsigned long status;
++	return _request_firmware(firmware_p, name,device,&status);
++}
  
- insmod_static_SOURCES = insmod.c
- insmod_static_LDFLAGS = -static
-diff -Naurp module-init-tools-3.2-pre7/Makefile.in~taint module-init-tools-3.2-pre7/Makefile.in
---- module-init-tools-3.2-pre7/Makefile.in~taint	2005-05-26 19:33:02.000000000 -0700
-+++ module-init-tools-3.2-pre7/Makefile.in	2005-06-15 17:06:55.000000000 -0700
-@@ -88,7 +88,7 @@ lsmod_SOURCES = lsmod.c testing.h
- modprobe_SOURCES = modprobe.c zlibsupport.c testing.h zlibsupport.h
- rmmod_SOURCES = rmmod.c testing.h
- depmod_SOURCES = depmod.c moduleops.c tables.c zlibsupport.c depmod.h moduleops.h tables.h list.h testing.h  zlibsupport.h
--modinfo_SOURCES = modinfo.c zlibsupport.c testing.h zlibsupport.h
-+modinfo_SOURCES = modinfo.c zlibsupport.c testing.h zlibsupport.h modversions.h
+ /**
+  * release_firmware: - release the resource associated with a firmware image
+@@ -481,6 +522,7 @@ struct firmware_work {
+ 	struct device *device;
+ 	void *context;
+ 	void (*cont)(const struct firmware *fw, void *context);
++	unsigned long status;
+ };
  
- insmod_static_SOURCES = insmod.c
- insmod_static_LDFLAGS = -static
+ static int
+@@ -493,9 +535,14 @@ request_firmware_work_func(void *arg)
+ 		return 0;
+ 	}
+ 	daemonize("%s/%s", "firmware", fw_work->name);
+-	request_firmware(&fw, fw_work->name, fw_work->device);
+-	fw_work->cont(fw, fw_work->context);
+-	release_firmware(fw);
++	fw_work->status = FW_STATUS_LOADING;	
++	
++	do {
++		_request_firmware(&fw, fw_work->name, fw_work->device, &fw_work->status);
++		fw_work->cont(fw, fw_work->context);
++		release_firmware(fw);
++	} while (test_bit(FW_STATUS_PERSISTENT, &fw_work->status));
++
+ 	module_put(fw_work->module);
+ 	kfree(fw_work);
+ 	return 0;

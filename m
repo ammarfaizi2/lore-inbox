@@ -1,78 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261658AbVFPBDr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261624AbVFPBn3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261658AbVFPBDr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 21:03:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261699AbVFPBDr
+	id S261624AbVFPBn3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 21:43:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261674AbVFPBn3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 21:03:47 -0400
-Received: from zproxy.gmail.com ([64.233.162.198]:54024 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261658AbVFPBDn convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 21:03:43 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=QdGjQ8YdKUKrfCAufhEKz+tLYpS1Lihy7R44lwUiwBFMAtKU+focuhAlm31eCL0k3qJh/vUSX/CRZHrcFysQ8S79/0eP2lDGXNOri9l6hEXM7JzdENa5e2HAnkZsedKIMG0XUDhkGKI0SX6RXqjrT2JKD9GBAImLN0ZFFiVFI9k=
-Message-ID: <8783be6605061518034b220fce@mail.gmail.com>
-Date: Wed, 15 Jun 2005 18:03:41 -0700
-From: Ross Biro <ross.biro@gmail.com>
-Reply-To: Ross Biro <ross.biro@gmail.com>
-To: "Maciej W. Rozycki" <macro@linux-mips.org>
-Subject: Re: [RCF] Linux memory error handling
-Cc: Russ Anderson <rja@sgi.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61L.0506151545410.13835@blysk.ds.pg.gda.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200506151430.j5FEUD7J1393603@clink.americas.sgi.com>
-	 <Pine.LNX.4.61L.0506151545410.13835@blysk.ds.pg.gda.pl>
+	Wed, 15 Jun 2005 21:43:29 -0400
+Received: from downeast.net ([12.149.251.230]:45283 "EHLO downeast.net")
+	by vger.kernel.org with ESMTP id S261624AbVFPBnW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 21:43:22 -0400
+From: Patrick McFarland <pmcfarland@downeast.net>
+To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+Subject: Re: A Great Idea (tm) about reimplementing NLS.
+Date: Wed, 15 Jun 2005 21:42:00 -0400
+User-Agent: KMail/1.8
+Cc: Lukasz Stelmach <stlman@poczta.fm>, mru@inprovide.com,
+       "Alexander E. Patrakov" <patrakov@ums.usu.ru>,
+       linux-kernel@vger.kernel.org
+References: <f192987705061303383f77c10c@mail.gmail.com> <42B04090.7050703@poczta.fm> <20050615212825.GS23621@csclub.uwaterloo.ca>
+In-Reply-To: <20050615212825.GS23621@csclub.uwaterloo.ca>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart10087837.Qcm0npPvv8";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200506152142.02178.pmcfarland@downeast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/15/05, Maciej W. Rozycki <macro@linux-mips.org> wrote:
-> On Wed, 15 Jun 2005, Russ Anderson wrote:
-> 
-> >
-> >           Polling Threshold:  A solid single bit error can cause a burst
-> >               of correctable errors that can cause a significant logging
-> >               overhead.  SBE thresholding counts the number of SBEs for
-> >               a given page and if too many SBEs are detected in a given
-> >               period of time, the interrupt is disabled and instead
-> >               linux periodically polls for corrected errors.
-> 
->  This is highly undesirable if the same interrupt is used for MBEs.  A
-> page that causes an excessive number of SBEs should rather be removed from
-> the available pool instead.  Logging should probably take recent events
-> into account anyway and take care of not overloading the system, e.g. by
-> keeping only statistical data instead of detailed information about each
-> event under load.
-> 
+--nextPart10087837.Qcm0npPvv8
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-First, SBEs and MBEs are named historically and are currently called
-correctable and uncorrectable errors.  Modern chip sets can often
-handle many incorrect bits in a single word and still correct the
-problem.  So please don't assume you can make any inferences into the
-probability of an MBE because you are seeing SBEs.  Any such
-inferences would need to be chip set specific.
+On Wednesday 15 June 2005 05:28 pm, Lennart Sorensen wrote:
+> What do you do if the underlying filesystem can not store some unicode
+> characters that are allowed on others?
 
-Some common chip sets have bugs in them that can cause an excessive
-number of reported SBEs.  On those chip sets with out any error
-reporting, there is a noticeable performance hit when the SBE counters
-go wild.  If every SBE generated an interrupt the system would grind
-to a halt.  So there needs to be easy ways to disable interrupts
-associated with SBEs.
+Um, thats impossible, unless you're implying something like the file system=
+=20
+not being 8-bit safe. The only thing UTF-8 does is store data in bytes, it=
+=20
+doesn't need any real support from the file system.
 
-Also some memory/chip set combinations generate a significant number
-of SBEs with out any significant danger of an MBE, so many people will
-want to ignore SBEs entirely, or only poll once in a while.
+> > It depend's on what it is used for. It is very good fs for removable
+> > media. None of linux native filesystems is good for this because of
+> > different uids on different machines. Since VFAT uses unicode it is
+> > possible to see the filenames properly on systems using different
+> > codepages for the same language (1:1 is possible).
 
-Finally, many chip sets have memory scrubbing technology that can
-simultaneously generate SBEs in memory not being accessed by the
-kernel and fix those errors. So don't just assume that because the
-kernel isn't allowing access to a page, you won't see SBEs or MBEs
-from that page.
+> VFAT uses unicode?  I thought it used the same codepage silyness as FAT
+> did, since after all ti was just supposed to be a long filename
+> extension to FAT.  Do they use unicode in the long filenames only?
 
-Otherwise, anything done in this direction seems like a good idea to me.
+I mentioned earlier that VFAT uses 8-bit encodings, none of them (supported=
+ by=20
+Windows, at least) are Unicode.
 
-    Ross
+> I think UDF is a better filesystem for many types of media since it is
+> able to me more gently to the sectors storing the meta data than VFAT
+> ever will be.
+
+I agree. UDF is the true successor to the portable media throne.
+
+=2D-=20
+Patrick "Diablo-D3" McFarland || pmcfarland@downeast.net
+"Computer games don't affect kids; I mean if Pac-Man affected us as kids, w=
+e'd=20
+all be running around in darkened rooms, munching magic pills and listening=
+ to
+repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989
+
+--nextPart10087837.Qcm0npPvv8
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBCsNjq8Gvouk7G1cURAgNBAKCIzsssZcIn//fCVm83YI1OYOKIFQCgwjhJ
+53NQuS5/39Izb1vYOjBXMG0=
+=Tj00
+-----END PGP SIGNATURE-----
+
+--nextPart10087837.Qcm0npPvv8--

@@ -1,59 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261725AbVFPD4v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261728AbVFPD7t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261725AbVFPD4v (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 23:56:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261727AbVFPD4v
+	id S261728AbVFPD7t (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 23:59:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261729AbVFPD7t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 23:56:51 -0400
-Received: from wproxy.gmail.com ([64.233.184.197]:14908 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261725AbVFPD43 (ORCPT
+	Wed, 15 Jun 2005 23:59:49 -0400
+Received: from smtpout.mac.com ([17.250.248.85]:54978 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S261728AbVFPD72 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 23:56:29 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=AF4T6XWacV+RFW7BegKJ6j0ef2HOL9reg+LMyxViqBl/4uhccnEt3+gv5dsPL1pMxDc+FaCGagmCNLQNMABI3amMkfOdWeNDSz4EUf+KQwvCEOFXGujIvDtwOiSGGRKKxAimacbDW2GQiuEGiJqjAho3wEKKyKsgc0+fF8tZWOg=
-Date: Thu, 16 Jun 2005 12:56:22 +0900
-From: Tejun Heo <htejun@gmail.com>
-To: axboe@suse.de, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH linux-2.6.12-rc6-mm1] blk: cfq_find_next_crq fix
-Message-ID: <20050616035622.GA29153@htj.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Wed, 15 Jun 2005 23:59:28 -0400
+In-Reply-To: <200506152155.05865.pmcfarland@downeast.net>
+References: <f192987705061303383f77c10c@mail.gmail.com> <200506151213.44742.vda@ilport.com.ua> <200506152155.05865.pmcfarland@downeast.net>
+Mime-Version: 1.0 (Apple Message framework v728)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <C960854D-7EA5-4DD7-8F2B-7021092CE3EB@mac.com>
+Cc: Denis Vlasenko <vda@ilport.com.ua>,
+       Alexey Zaytsev <alexey.zaytsev@gmail.com>, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: [RFC] Filesystem name storage (Was: A Great Idea (tm) about reimplementing NLS.)
+Date: Wed, 15 Jun 2005 23:59:11 -0400
+To: Patrick McFarland <pmcfarland@downeast.net>
+X-Mailer: Apple Mail (2.728)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Hello, Jens.
- Hello, Andrew.
+On Jun 15, 2005, at 21:55:04, Patrick McFarland wrote:
+> On Wednesday 15 June 2005 05:13 am, Denis Vlasenko wrote:
+>> I do not understand how this is going to look from userspace  
+>> perspective.
+>> Can you give examples how this will work?
+>
+> IMHO, he means that the userspace would only see Unicode filenames,  
+> and the
+> userspace could only give Unicode names back to the kernel. The  
+> kernel, using
+> this global NLS layer would translate back and forth, and the userland
+> wouldn't know about it.
+>
+> Its basically the only sane way to approach the problem of getting  
+> the entire
+> Linux community to convert to Unicode.
 
- In cfq_find_next_crq(), cfq tries to find the next request by
-choosing one of two requests before and after the current one.
-Currently, when choosing the next request, if there's no next request,
-the next candidate is NULL, resulting in selection of the previous
-request.  This results in weird scheduling.  Once we reach the end, we
-always seek backward.
+Would the following system for filenames resolve most of the issues  
+people
+are raising:
 
- The correct behavior is using the first request as the next
-candidate.  cfq_choose_req() already has logics for handling wrapped
-requests.
+First load charset tables into the kernel.  These would be stored in  
+files in
+userspace and could be easily updated, renamed, deleted, etc.  Such a  
+table
+would always be a translation from Unicode <=> Charset.  A kernel  
+with this
+system built in would understand natively "raw", "utf8", "utf16", and  
+"utf32",
+anything else would need loaded charset tables.
 
- Signed-off-by: Tejun Heo <htejun@gmail.com>
+The following mount options would available:
+   nls_raw=(0|1)  [default 1]:
+     This would cause Linux to pass all chars through unmolested.   
+This mode
+     works well on multiuser systems where users want to use their  
+own NLS
+     tools, or where the whole system uses UTF-8, including the  
+filesystems.
+     This is backwards compatible with the way Linux currently  
+presents most
+     (all?) filesystems.  If the options "nls_disk" or "nls_user" are  
+used,
+     then this option is forced to be zero.
+   nls_disk=<string-charset>
+     This specifies the underlying charset which should be used on  
+the disk
+     or filesystem itself.  This may be "negotiate" for any filesystems
+     which support NLS *and* can identify which charset is in use.   
+Built in
+     options are "utf8", "utf16", and "utf32".  Defaults to  
+"negotiate" if
+     available otherwise "utf8", but only defaults if "nls_raw" is 0.
+   nls_user=<string-charset>
+     This specifies the charset which should be presented to the  
+user.  This
+     may be used to allow a backwards compatibility (IE: A program wants
+     ISO8859-1, but the admin wants the underlying filesystem to use  
+UTF-8.
+     Built in options are "utf8", "utf16", and "utf32".  Defaults to  
+"utf8"
+     if "nls_raw" is 0.
 
-Index: blk-fixes/drivers/block/cfq-iosched.c
-===================================================================
---- blk-fixes.orig/drivers/block/cfq-iosched.c	2005-06-15 22:44:55.000000000 +0900
-+++ blk-fixes/drivers/block/cfq-iosched.c	2005-06-15 22:45:21.000000000 +0900
-@@ -375,9 +375,10 @@ cfq_find_next_crq(struct cfq_data *cfqd,
- 	struct cfq_rq *crq_next = NULL, *crq_prev = NULL;
- 	struct rb_node *rbnext, *rbprev;
- 
-+	rbnext = NULL;
- 	if (ON_RB(&last->rb_node))
- 		rbnext = rb_next(&last->rb_node);
--	else {
-+	if (!rbnext) {
- 		rbnext = rb_first(&cfqq->sort_list);
- 		if (rbnext == &last->rb_node)
- 			rbnext = NULL;
+The end result is that specifying either nls_disk or nls_user will  
+turn on
+automatic NLS conversion, with the unspecified nls_ option being utf8.
+
+If these options are used on bind mounts, they should override the  
+underlying
+filesystem's mount options (Instead of stacking).  This will allow  
+the admin
+to specify:
+
+# mount -t ext3 -o nls_disk=utf8,nls_user=utf8 /dev/hdb /mnt
+# mount --bind  -o nls_disk=utf8,nls_user=iso8850-1 /mnt/mail /var/ 
+spool/mail
+
+if he/she wants to provide backwards compatibility with a legacy mail
+spooling program.  Note: A part of each translation table would be an
+entry for "Unspecified character", such that any UTF-8 character not  
+mapped
+in the table could be translated to a sane default, such as '?'.  If  
+names
+collide under such translation, the kernel would need a way to keep  
+track of
+the collisions (Appended numbers?) and properly re-resolve them when  
+asked.
+
+Cheers,
+Kyle Moffett
+
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
+L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
+PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$  
+r  !y?(-)
+------END GEEK CODE BLOCK------
+

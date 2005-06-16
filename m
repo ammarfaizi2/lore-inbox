@@ -1,72 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261524AbVFPJkW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261537AbVFPKOm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261524AbVFPJkW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Jun 2005 05:40:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261485AbVFPJkW
+	id S261537AbVFPKOm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Jun 2005 06:14:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261540AbVFPKOm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Jun 2005 05:40:22 -0400
-Received: from 76.80-203-227.nextgentel.com ([80.203.227.76]:63684 "EHLO
-	mail.inprovide.com") by vger.kernel.org with ESMTP id S261524AbVFPJkO convert rfc822-to-8bit
+	Thu, 16 Jun 2005 06:14:42 -0400
+Received: from wproxy.gmail.com ([64.233.184.195]:31652 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261537AbVFPKOl convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Jun 2005 05:40:14 -0400
-To: Lukasz Stelmach <stlman@poczta.fm>
-Cc: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
-       Patrick McFarland <pmcfarland@downeast.net>,
-       "Alexander E. Patrakov" <patrakov@ums.usu.ru>,
-       linux-kernel@vger.kernel.org
+	Thu, 16 Jun 2005 06:14:41 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Twz+G9dgPPqtwak94hvWIJpe5iXld/e7vvhvp+IP/XorkW9MahhLHTlbToaQKLQAG5m1Q+GhY/RI1ITtIxeqsik6G/uOh/TLPyvxUJ0Bh4zLnuuEiJoWkbFrq1a6uMTOX/FTtyxG11l9IXx5b8U3BFTg5IwB/sKeBJ/ZJ9Dpy7Q=
+Message-ID: <f19298770506160314689ef5a5@mail.gmail.com>
+Date: Thu, 16 Jun 2005 14:14:40 +0400
+From: Alexey Zaytsev <alexey.zaytsev@gmail.com>
+Reply-To: Alexey Zaytsev <alexey.zaytsev@gmail.com>
+To: Patrick McFarland <pmcfarland@downeast.net>
 Subject: Re: A Great Idea (tm) about reimplementing NLS.
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200506152152.02840.pmcfarland@downeast.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 References: <f192987705061303383f77c10c@mail.gmail.com>
-	<yw1xslzl8g1q.fsf@ford.inprovide.com> <42AFE624.4020403@poczta.fm>
-	<200506150454.11532.pmcfarland@downeast.net>
-	<42AFF184.2030209@poczta.fm> <yw1xd5qo2bzd.fsf@ford.inprovide.com>
-	<42B04090.7050703@poczta.fm>
-	<20050615212825.GS23621@csclub.uwaterloo.ca> <42B0BAF5.106@poczta.fm>
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-Date: Thu, 16 Jun 2005 11:40:10 +0200
-In-Reply-To: <42B0BAF5.106@poczta.fm> (Lukasz Stelmach's message of "Thu, 16
- Jun 2005 01:34:13 +0200")
-Message-ID: <yw1xll5a1vyd.fsf@ford.inprovide.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.15 (Security Through
- Obscurity, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
+	 <1118690448.13770.12.camel@localhost.localdomain>
+	 <f192987705061513503afb73cb@mail.gmail.com>
+	 <200506152152.02840.pmcfarland@downeast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lukasz Stelmach <stlman@poczta.fm> writes:
+On 16/06/05, Patrick McFarland <pmcfarland@downeast.net> wrote:
+> > Now I quite agree that it isn't a Great Idea to do such conversion in
+> > the kernel, but the problem still remains and there is no other place
+> > we can do it. I belive that it should be done now and removed after
+> > the world finishes to move to utf. Maybe it should not be applyed to
+> > the main kernel tree, but I'm sure that at least Russian linux
+> > distributions will like it.
+> 
+> I partially agree. I think no userland application should have access to the
+> un-'fixed' file names; they should be fed only Unicode to prevent the spread
+> and acceptance of out of date encodings.
+> 
+> Forcing users to do smart things is often the only way to make them do smart
+> things, and the lack of acceptance of Unicode on Linux in the wild seems to
+> be the only way.
 
-> Lennart Sorensen napisał(a):
->
->>>And it is good in a way, however, i think kernel level translation
->>>should be also possible. Either done by a code in each filsystem or by
->>>some layer above it.
->> 
->> What do you do if the underlying filesystem can not store some unicode
->> characters that are allowed on others?
->
-> That's why UTF-8 is suggested. UTF-8 has been developed to "fool" the
-> software that need not to be aware of unicodeness of the text it manages
-> to handle it without any hickups *and* to store in the text information
-> about multibyte characters.What characters exactly you do mean? NULL?
-> There is no NULL byte in any UTF-8 string except the one which
-> terminates it.
-
-That's exactly how ext3, reiserfs, xfs, jfs, etc. all work.  A few
-filesystems are tagged as using some specific encoding.  If your
-filesystem is marked for iso-8859-1, what should a kernel with a
-conversion mechanism do if a user tries to name a file 김?
-
->> I think UDF is a better filesystem for many types of media since it is
->> able to me more gently to the sectors storing the meta data than VFAT
->> ever will be.
->
-> I've tried cd packet writing with UDF and it gives insane overhead of
-> about 20%. What metadata you'd like to store for example on your
-> flashdrive or a floppy disk?
-
-Filename, timestamps, all the usual.
-
--- 
-Måns Rullgård
-mru@inprovide.com
+I'm not going to force anybody to do anything. There is a nubmer of
+reasons to use  unicode, but if somebody finds them not convincing, he
+is free to use any other encoding. If somebody uses koi8-r as his
+primary encoding and wants to mount a cp1251 or unicode-encoded file
+system, he is free to do it, although he should be ready to loose some
+characters.

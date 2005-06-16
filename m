@@ -1,59 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261685AbVFPSnZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261719AbVFPSq5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261685AbVFPSnZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Jun 2005 14:43:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261719AbVFPSnZ
+	id S261719AbVFPSq5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Jun 2005 14:46:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261785AbVFPSq5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Jun 2005 14:43:25 -0400
-Received: from mail.kroah.org ([69.55.234.183]:13538 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261685AbVFPSnV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Jun 2005 14:43:21 -0400
-Date: Thu, 16 Jun 2005 11:43:12 -0700
-From: Greg KH <greg@kroah.com>
-To: Abhay Salunke <Abhay_Salunke@dell.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       matt_domsch@dell.com
-Subject: Re: [patch 2.6.12-rc3] Adds persistent entryies using request_firmware_nowaitManuel Estrada Sainz <ranty@debian.org>,
-Message-ID: <20050616184312.GA11542@kroah.com>
-References: <20050616003414.GA1814@littleblue.us.dell.com>
-Mime-Version: 1.0
+	Thu, 16 Jun 2005 14:46:57 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:30612 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261719AbVFPSq4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Jun 2005 14:46:56 -0400
+Message-ID: <42B1C918.2080100@namesys.com>
+Date: Thu, 16 Jun 2005 11:46:48 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: fs <fs@ercist.iscas.ac.cn>
+CC: Vladimir Saveliev <vs@namesys.com>, reiserfs-list@namesys.com,
+       linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] ReiserFS _get_block_create_0 wrong behavior when I/O
+ fails
+References: <1118865954.4231.4.camel@CoolQ>	 <1118850101.17622.579.camel@tribesman.namesys.com> <1118941347.2886.2.camel@CoolQ>
+In-Reply-To: <1118941347.2886.2.camel@CoolQ>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050616003414.GA1814@littleblue.us.dell.com>
-User-Agent: Mutt/1.5.8i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 15, 2005 at 07:34:14PM -0500, Abhay Salunke wrote:
-> This is a patch to make the /sys/class/firmware entries persistent. 
-> This has been tested with dell_rbu; dell_rbu was modified to not call
-> request_firmware_nowait again form the callback function. 
-> 
-> The new mechanism to make the entries persistent is as follows
-> 1> echo 0 > /sys/class/firmware/timeout
-> 2> echo 2 > /sys/class/firmware/xxx/loading
-> 
-> step 1 prevents timeout to occur , step 2 makes the entry xxx persistent
-> 
-> if we want to remove persistence then do this
-> ech0 -2 > /sys/class/firmware/xxx/loading
-
-Hm, those are some mighty "magic" numbers that will be tough for people
-to realize exactly what they mean.  Try adding a "persistant" file
-instead.
-
-> + /*
-> + * 2005-06-15: 	Abhay Salunke <abhay_salunke@dell.com>
-> + *		Added firmware persistent when request_firmware_nowait.
-> + *		is called. 
-> + */
-
-Don't add changelog comments to .c files.  That belongs in the git tree,
-not in the code itself.
-
-Also, your use of tabs and spaces are wrong in a lot of places...
-
-thanks,
-
-greg k-h
+thanks fs

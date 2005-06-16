@@ -1,76 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261716AbVFPD1i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261711AbVFPDj6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261716AbVFPD1i (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 23:27:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261715AbVFPD1i
+	id S261711AbVFPDj6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 23:39:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261715AbVFPDj6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 23:27:38 -0400
-Received: from chilli.pcug.org.au ([203.10.76.44]:19144 "EHLO smtps.tip.net.au")
-	by vger.kernel.org with ESMTP id S261719AbVFPD1b (ORCPT
+	Wed, 15 Jun 2005 23:39:58 -0400
+Received: from wproxy.gmail.com ([64.233.184.207]:19500 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261711AbVFPDjz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 23:27:31 -0400
-Date: Thu, 16 Jun 2005 13:26:59 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Bodo Eggert <7eggert@gmx.de>
-Cc: macro@linux-mips.org, linux-os@analogic.com, gene.heskett@verizon.net,
-       cutaway@bellsouth.net, linux-kernel@vger.kernel.org
-Subject: Re: .../asm-i386/bitops.h  performance improvements
-Message-Id: <20050616132659.65a72842.sfr@canb.auug.org.au>
-In-Reply-To: <Pine.LNX.4.58.0506152053010.3184@be1.lrz>
-References: <4fB8l-73q-9@gated-at.bofh.it>
-	<4fF2j-1Lo-19@gated-at.bofh.it>
-	<E1DiZKe-0000em-58@be1.7eggert.dyndns.org>
-	<Pine.LNX.4.61L.0506151629270.13835@blysk.ds.pg.gda.pl>
-	<Pine.LNX.4.61.0506151200490.24211@chaos.analogic.com>
-	<Pine.LNX.4.61L.0506151723460.13835@blysk.ds.pg.gda.pl>
-	<Pine.LNX.4.58.0506152053010.3184@be1.lrz>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Wed, 15 Jun 2005 23:39:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=I54JJOOGCkwPhSc3qwWeWyCxyrFWZNM4vU/Du1ikTSrbW/XQo+VQ1onrk5QnW3yvhnRkinOax4885IRYZBWw7T9q1NqVwzDOkd/MnIvws7zeJmnLMqdXtenF8p+mTRmT694nOrfMXtH5linKQwxAPDZxhfFdlJu1kmXXlrlue20=
+Date: Thu, 16 Jun 2005 12:39:50 +0900
+From: Tejun Heo <htejun@gmail.com>
+To: axboe@suse.de, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH linux-2.6.12-rc6-mm1] blk: kill elevator_global_init()
+Message-ID: <20050616033950.GA26870@htj.dyndns.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Thu__16_Jun_2005_13_26_59_+1000_5Zf8VOvDIN4/MKBp"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Thu__16_Jun_2005_13_26_59_+1000_5Zf8VOvDIN4/MKBp
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+ Hello, Jens.
+ Hello, Andrew.
 
-On Wed, 15 Jun 2005 21:10:26 +0200 (CEST) Bodo Eggert <7eggert@gmx.de> wrot=
-e:
->
-> My documentation says:
->=20
-> lea reg16, mem
-> Available on 8086, 80186, 80286, 80386, 80486
-> 32-bit-extension available
-> Opcode: 8D mod reg r/m
->=20
-> reg will be the target register (AX .. DI), and mod and r/m will select
-> something like a direct address, a register or a combination like=20
-> BP+DI+ofs (I won't copy the table). A multiplier is not mentioned there.
+ This patch kills elevator_global_init() in elevator.c which does
+nothing.
 
-In 32 bit mode on the 386 and above, a two byte version of the "mod reg
-r/m" is possible which contains the scaling field ...
+ Signed-off-by: Tejun Heo <htejun@gmail.com>
 
-On the 386, using a second register in the ea calculation costs another
-cycle.
+Index: blk-fixes/drivers/block/elevator.c
+===================================================================
+--- blk-fixes.orig/drivers/block/elevator.c	2005-06-16 12:12:04.000000000 +0900
++++ blk-fixes/drivers/block/elevator.c	2005-06-16 12:16:59.000000000 +0900
+@@ -249,11 +249,6 @@ void elevator_exit(elevator_t *e)
+ 	kfree(e);
+ }
+ 
+-static int elevator_global_init(void)
+-{
+-	return 0;
+-}
+-
+ int elv_merge(request_queue_t *q, struct request **req, struct bio *bio)
+ {
+ 	elevator_t *e = q->elevator;
+@@ -727,8 +722,6 @@ ssize_t elv_iosched_show(request_queue_t
+ 	return len;
+ }
+ 
+-module_init(elevator_global_init);
+-
+ EXPORT_SYMBOL(elv_add_request);
+ EXPORT_SYMBOL(__elv_add_request);
+ EXPORT_SYMBOL(elv_requeue_request);
 
---=20
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
-
---Signature=_Thu__16_Jun_2005_13_26_59_+1000_5Zf8VOvDIN4/MKBp
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFCsPGL4CJfqux9a+8RAgQXAJ9nDzcq2m3fY5oujfgk1Ww/ENWLMQCfUA+g
-3kZU3xoam6BPvqKpyMcwsLw=
-=F+zj
------END PGP SIGNATURE-----
-
---Signature=_Thu__16_Jun_2005_13_26_59_+1000_5Zf8VOvDIN4/MKBp--

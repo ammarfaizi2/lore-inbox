@@ -1,63 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261839AbVFPWwL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261843AbVFPWoA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261839AbVFPWwL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Jun 2005 18:52:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261849AbVFPWvf
+	id S261843AbVFPWoA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Jun 2005 18:44:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261849AbVFPWnz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Jun 2005 18:51:35 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:27317 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261878AbVFPWt3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Jun 2005 18:49:29 -0400
-Subject: Re: 2.6.12-rc6-mm1 & 2K lun testing
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org
-In-Reply-To: <20050616224230.GD3913@holomorphy.com>
-References: <1118856977.4301.406.camel@dyn9047017072.beaverton.ibm.com>
-	 <20050616002451.01f7e9ed.akpm@osdl.org>
-	 <1118951458.4301.478.camel@dyn9047017072.beaverton.ibm.com>
-	 <20050616224230.GD3913@holomorphy.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1118960737.4301.483.camel@dyn9047017072.beaverton.ibm.com>
+	Thu, 16 Jun 2005 18:43:55 -0400
+Received: from lyle.provo.novell.com ([137.65.81.174]:53060 "EHLO
+	lyle.provo.novell.com") by vger.kernel.org with ESMTP
+	id S261872AbVFPWms (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Jun 2005 18:42:48 -0400
+Date: Thu, 16 Jun 2005 15:42:23 -0700
+From: Greg KH <gregkh@suse.de>
+To: Rajesh Shah <rajesh.shah@intel.com>
+Cc: len.brown@intel.com, ak@suse.de, acpi-devel@lists.sourceforge.net,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 03/04] PCI: use the MCFG table to properly access pci devices (x86-64)
+Message-ID: <20050616224223.GA13619@suse.de>
+References: <20050615052916.GA23394@kroah.com> <20050615053031.GB23394@kroah.com> <20050615053120.GC23394@kroah.com> <20050615053214.GD23394@kroah.com> <20050616153404.B5337@unix-os.sc.intel.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 16 Jun 2005 15:25:42 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050616153404.B5337@unix-os.sc.intel.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-06-16 at 15:42, William Lee Irwin III wrote:
-> On Thu, Jun 16, 2005 at 12:50:59PM -0700, Badari Pulavarty wrote:
-> > Yes. I am using CFQ scheduler. I changed nr_requests to 4 for all
-> > my devices. I also changed "min_free_kbytes" to 64M.
-> > Response time is still bad. Here is the vmstat, meminfo, slabinfo
-> > and profle output. I am not sure why profile output shows 
-> > default_idle(), when vmstat shows 100% CPU sys.
+On Thu, Jun 16, 2005 at 03:34:06PM -0700, Rajesh Shah wrote:
+> On Tue, Jun 14, 2005 at 10:32:14PM -0700, Greg KH wrote:
+> > 
+> > +	for (i = 0; i < pci_mmcfg_config_num; ++i) {
+> > +		pci_mmcfg_virt[i].cfg = &pci_mmcfg_config[i];
+> > +		pci_mmcfg_virt[i].virt = ioremap_nocache(pci_mmcfg_config[i].base_address, MMCONFIG_APER_SIZE);
 > 
-> It's because you're sorting on the third field of readprofile(1),
-> which is pure gibberish. Undoing this mistake will immediately
-> enlighten you.
+> This will map 256MB for each mmcfg aperture, probably better
+> to restrict it based on bus number range for this aperture.
 
-Hmm.. I was under the impression that its gives useful info ..
+It should be 1MB per bus number, right?
 
-Here is readprofile man-page says:
+thanks,
 
-       Print the 20 most loaded procedures:
-          readprofile | sort -nr +2 | head -20
-
-
-
-> Also, turn off slab poisoning when doing performance analyses.
-
-Its already off. I am not trying to compare performance here.
-I was trying to analyze VM behaviour with filesystem tests.
-(with "raw" devices, machine is perfectly happy - but with
-filesystem cache it crawls).
-
-Thanks,
-Badari
-
+greg k-h

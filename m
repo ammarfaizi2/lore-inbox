@@ -1,66 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261710AbVFPC7d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261712AbVFPDAJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261710AbVFPC7d (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 22:59:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261709AbVFPC7d
+	id S261712AbVFPDAJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 23:00:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261713AbVFPDAJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 22:59:33 -0400
-Received: from fmr20.intel.com ([134.134.136.19]:38605 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261710AbVFPC7J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 22:59:09 -0400
-Date: Thu, 16 Jun 2005 10:54:14 +0800
-From: "Wang, Zhenyu" <zhenyu.z.wang@intel.com>
-To: Russ Anderson <rja@sgi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RCF] Linux memory error handling
-Message-ID: <20050616025414.GA14764@zhen-devel.sh.intel.com>
-Mail-Followup-To: Russ Anderson <rja@sgi.com>, linux-kernel@vger.kernel.org
-References: <200506151430.j5FEUD7J1393603@clink.americas.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200506151430.j5FEUD7J1393603@clink.americas.sgi.com>
-User-Agent: Mutt/1.4.1i
+	Wed, 15 Jun 2005 23:00:09 -0400
+Received: from downeast.net ([12.149.251.230]:3308 "EHLO downeast.net")
+	by vger.kernel.org with ESMTP id S261712AbVFPC7q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 22:59:46 -0400
+From: Patrick McFarland <pmcfarland@downeast.net>
+To: "Theodore Ts'o" <tytso@mit.edu>
+Subject: Re: A Great Idea (tm) about reimplementing NLS.
+Date: Wed, 15 Jun 2005 22:59:20 -0400
+User-Agent: KMail/1.8
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Alexey Zaytsev <alexey.zaytsev@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <f192987705061303383f77c10c@mail.gmail.com> <200506152149.06367.pmcfarland@downeast.net> <20050616023630.GC9773@thunk.org>
+In-Reply-To: <20050616023630.GC9773@thunk.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1481946.mYfa3de3nt";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200506152259.29490.pmcfarland@downeast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2005.06.15 09:30:13 +0000, Russ Anderson wrote:
-> 		[RCF] Linux memory error handling.
-> 
-> Summary: One of the most common hardware failures in a computer 
-> 	is a memory failure.   There has been efforts in various
-> 	architectures to support recover from memory errors.  This
-> 	is an attempt to define a common support infrastructure
-> 	in Linux to support memory error handling.
-> 
-> Background:  There has been considerable work on recovering from
-> 	Machine Check Aborts (MCAs) in arch/ia64.  One result is
-> 	that many memory errors encountered by user applications
-> 	not longer cause a kernel panic.  The application is 
-> 	terminated, but linux and other applications keep running.
-> 	Additional improvements are becoming dependent on mainline
-> 	linux support.  That requires involvement of lkml, not
-> 	just linux-ia64.
+--nextPart1481946.mYfa3de3nt
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Good RFC! Actually on x86 arch, 'bluesmoke' - http://bluesmoke.sf.net - is out 
-there for some simple mem ECC error handling already. It's inspired by the old linux-ecc 
-project. Current capability is limited to detect, report, configuable for polling and UE
-panic. 
+On Wednesday 15 June 2005 10:36 pm, Theodore Ts'o wrote:
+> Ext2/3's encoding has always been utf-8.  Period.
+>
+> There have been some people who have chosen to do something else
+> locally, but that was about as valid as the people who violated SMTP
+> standards by Just Sending 8-bits instead of using MIME.
 
-Bluesmoke contains a driver core which is used to host infos for each mem 
-controller, like dimm info, and currently only polling method is taken for registered 
-controller. Others are all the specific chipset drivers, which is mostly platform depend, 
-e.g e7520, 82875P, etc. Those platforms have also been tested, bluesmoke's webpage
-contains some test method if you really want to try. 
+Ahh. Whoever made that choice way back at the beginning of Ext2 development=
+=20
+rocks. Whoever you are, Thanks.
 
-nmi handling is still under work, Dave and Corey's patch is on sourceforge page, and
+=2D-=20
+Patrick "Diablo-D3" McFarland || pmcfarland@downeast.net
+"Computer games don't affect kids; I mean if Pac-Man affected us as kids, w=
+e'd=20
+all be running around in darkened rooms, munching magic pills and listening=
+ to
+repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989
 
-    http://lkml.org/lkml/2004/8/19/140
-    http://lkml.org/lkml/2005/3/21/11
+--nextPart1481946.mYfa3de3nt
+Content-Type: application/pgp-signature
 
-Those nmi callbacks have not been added to chipset driver yet, but some initial 
-testing failed, still don't know why...
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
 
-thanks
--zhen
+iD8DBQBCsOsR8Gvouk7G1cURAq+ZAKCTXmAgPtLaeZesx2julyfx6p5bawCgkKQ8
+2XRMzrMtIcqColxxvUhAQ2k=
+=m8y9
+-----END PGP SIGNATURE-----
+
+--nextPart1481946.mYfa3de3nt--

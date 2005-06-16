@@ -1,48 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261394AbVFPAIA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261681AbVFPAYF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261394AbVFPAIA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 20:08:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261670AbVFPAIA
+	id S261681AbVFPAYF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 20:24:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261680AbVFPAYF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 20:08:00 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:27299 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261394AbVFPAHx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 20:07:53 -0400
-From: Jeff Moyer <jmoyer@redhat.com>
+	Wed, 15 Jun 2005 20:24:05 -0400
+Received: from one.firstfloor.org ([213.235.205.2]:34793 "EHLO
+	one.firstfloor.org") by vger.kernel.org with ESMTP id S261677AbVFPAYA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 20:24:00 -0400
+To: "David S. Miller" <davem@davemloft.net>
+Cc: cndougla@purdue.edu, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: TCP prequeue performance
+References: <BED5FA3B.2A0%cndougla@purdue.edu> <m1br679otj.fsf@muc.de>
+	<20050615.164115.74747690.davem@davemloft.net>
+From: Andi Kleen <ak@muc.de>
+Date: Thu, 16 Jun 2005 02:23:59 +0200
+In-Reply-To: <20050615.164115.74747690.davem@davemloft.net> (David S.
+ Miller's message of "Wed, 15 Jun 2005 16:41:15 -0700 (PDT)")
+Message-ID: <m17jgv9mjk.fsf@muc.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17072.49843.360761.694530@segfault.boston.redhat.com>
-Date: Wed, 15 Jun 2005 20:07:15 -0400
-To: raven@themaw.net
-Cc: Andrew Morton <akpm@osdl.org>, Michael Blandford <michael@kmaclub.com>,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-       "Steinar H. Gunderson" <sgunderson@bigfoot.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] autofs4 - post expire race fix
-In-Reply-To: <Pine.LNX.4.62.0506041528070.8502@donald.themaw.net>
-References: <Pine.LNX.4.62.0506041528070.8502@donald.themaw.net>
-X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
-Reply-To: jmoyer@redhat.com
-X-PGP-KeyID: 1F78E1B4
-X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
-X-PCLoadLetter: What the f**k does that mean?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-==> Regarding [PATCH] autofs4 - post expire race fix; raven@themaw.net adds:
+"David S. Miller" <davem@davemloft.net> writes:
+>
+> Not true, if this check does not pass, tp->ucopy.task is
+> never set, therefore prequeue processing is never performed.
 
-raven> At the tail end of an expire it's possible for a process to enter
-raven> autofs4_wait, with a waitq type of NFY_NONE but find that the expire
-raven> is finished. In this cause autofs4_wait will try to create a new
-raven> wait but not notify the daemon leading to a hang. As the wait type
-raven> is meant to delay mount requests from revalidate or lookup during an
-raven> expire and the expire is done all we need to do is check if the
-raven> dentry is a mountpoint. If it's not then we're done.
+Oh well, here goes my nice theory :)
+>
+> This test must pass the first time, when both tp->ucopy.task
+> and user_recv are both NULL, in order for prequeue processing
+> to occur at all.
+>
+> So his change did totally disable prequeue.
 
-FWIW, this looks good to me.  (sorry for the late reply)
+Then probably his test was latency bound somehow, but normally
+that should not affect system time, just wall time.
 
-Thanks,
+I would perhaps compare context switch numbers and netstat -s
+output between the different runs and see if anything pops out.
 
-Jeff
+-Andi

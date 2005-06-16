@@ -1,49 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261768AbVFPQHB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261748AbVFPQhL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261768AbVFPQHB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Jun 2005 12:07:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261772AbVFPQHA
+	id S261748AbVFPQhL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Jun 2005 12:37:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261750AbVFPQhL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Jun 2005 12:07:00 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:17679 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261768AbVFPQG1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Jun 2005 12:06:27 -0400
-Date: Thu, 16 Jun 2005 17:06:22 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: LKML <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: ISA DMA controller hangs
-Message-ID: <20050616170622.A1712@flint.arm.linux.org.uk>
-Mail-Followup-To: Pierre Ossman <drzeus-list@drzeus.cx>,
-	LKML <linux-kernel@vger.kernel.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>
-References: <42987450.9000601@drzeus.cx> <1117288285.2685.10.camel@localhost.localdomain> <42A2B610.1020408@drzeus.cx> <42A3061C.7010604@drzeus.cx> <42B1A08B.8080601@drzeus.cx>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <42B1A08B.8080601@drzeus.cx>; from drzeus-list@drzeus.cx on Thu, Jun 16, 2005 at 05:53:47PM +0200
+	Thu, 16 Jun 2005 12:37:11 -0400
+Received: from pop.gmx.net ([213.165.64.20]:51877 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261748AbVFPQhF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Jun 2005 12:37:05 -0400
+X-Authenticated: #1700068
+From: Torsten Foertsch <torsten.foertsch@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: How to mount a webdav filesystem?
+Date: Thu, 16 Jun 2005 18:36:54 +0200
+User-Agent: KMail/1.7.1
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart2080165.EFlHk9v6q1";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200506161837.00366.torsten.foertsch@gmx.net>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 16, 2005 at 05:53:47PM +0200, Pierre Ossman wrote:
-> So how do we solve this problem? We should do a master clear and then
-> enable channel 4 after a suspend. The question is where. I see three
-> possible places:
-> 
-> * In the suspend code in kernel/power.
-> * In the driver actually handling the suspend (ACPI/APM/etc.).
-> * Via the device layer by adding a device for the DMA controller.
-> 
-> Which would be the preferred solution?
+--nextPart2080165.EFlHk9v6q1
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Shouldn't there be a system device for the DMA controller?  I think
-that should have appropriate hooks into the power management system
-to do the necessary magic to restore whatever's needed - just like
-we do for the PIC.
+Hi,
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+is it possible to mount a webdav filesystem on modern kernels? I know of=20
+davfs2 and have used it with 2.4 but it doesn't compile anymore.
+
+Torsten
+
+--nextPart2080165.EFlHk9v6q1
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBCsaqswicyCTir8T4RAhZSAKC1e1iNf0IdePrl9P4lFGTBPTOM6ACfYh/a
+jD94fYnbPRbPxG2pCeH/ca0=
+=Qm2t
+-----END PGP SIGNATURE-----
+
+--nextPart2080165.EFlHk9v6q1--

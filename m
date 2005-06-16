@@ -1,47 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261811AbVFPU42@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261814AbVFPU5N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261811AbVFPU42 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Jun 2005 16:56:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261814AbVFPU42
+	id S261814AbVFPU5N (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Jun 2005 16:57:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261815AbVFPU5N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Jun 2005 16:56:28 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:10937 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261811AbVFPU4W (ORCPT
+	Thu, 16 Jun 2005 16:57:13 -0400
+Received: from mail.dif.dk ([193.138.115.101]:16829 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S261814AbVFPU5A (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Jun 2005 16:56:22 -0400
-Date: Thu, 16 Jun 2005 13:57:08 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Chris Friesen <cfriesen@nortel.com>
-Cc: linux-kernel@vger.kernel.org, Hugh Blemings <hab@au1.ibm.com>
-Subject: Re: why does fsync() on a tmpfs directory give EINVAL?
-Message-Id: <20050616135708.4876c379.akpm@osdl.org>
-In-Reply-To: <42B1DBF1.4020904@nortel.com>
-References: <42B1DBF1.4020904@nortel.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 16 Jun 2005 16:57:00 -0400
+Date: Thu, 16 Jun 2005 23:02:25 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jesper Juhl <juhl-lkml@dif.dk>, davidm@hpl.hp.com, eranian@hpl.hp.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [resend][PATCH] avoid signed vs unsigned comparison in
+ efi_range_is_wc()
+In-Reply-To: <20050616134126.264d6bd5.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.62.0506162254480.2477@dragon.hyggekrogen.localhost>
+References: <Pine.LNX.4.62.0506162219040.2477@dragon.hyggekrogen.localhost>
+ <20050616134126.264d6bd5.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Friesen <cfriesen@nortel.com> wrote:
->
+On Thu, 16 Jun 2005, Andrew Morton wrote:
+
+> Jesper Juhl <juhl-lkml@dif.dk> wrote:
+> >
+> > I send in the patch below a while back but never recieved any response.
+> > Now I'm resending it in the hope that it might be added to -mm.
 > 
-> The man page for fsync() suggests that it is necessary to call it on the 
-> directory fd.
+> There are surely many warnings in the tree, hence I'm not really interested
+> in patches which only fix `gcc -W' warnings.
+> 
 
-yup.
+Ok, in that case I won't bother you directly with such patches any more 
+but instead let them trickle into maintainers trees when they will take 
+them.
 
-> However, in the case of tmpfs, fsync() on the file completes, but on the 
-> directory it returns -1 with errno==EINVAL.
+And yes, I know it's very trivial stuff and it doesn't make much of a 
+difference to the "big picture", but my attitude towards that is that no 
+issue is too small to be addressed, and since I'm not able to adress many 
+of the larger issues I try to address the smaller ones that I'm able to 
+handle, and when I run out of those I start nitpicking with the really 
+trivial stuff (like gcc -W warnings) - all with the purpose of helping our 
+kernel be the very best it can, even if my contribution might be very 
+minor in some cases.
 
-bad.
 
-> Is there any particular reason for this?
+> How many are there?
+> 
 
-nope.
+With the .config I use here a regular build gives me 10 warnings. A build 
+with gcc -W of the same config gives me 100177 warnings.
 
->  Would a patch that makes it 
-> just return successfully without doing anything be accepted?
 
-yup.
+> > It looks to me like a significantly large 'len' passed in could cause the 
+> > loop to never end. Isn't it safer to make 'i' an unsigned long as well? 
+> 
+> Nope.  All operations which mix signed and unsigned types promote the
+> signed type to unsigned.
+> 
+Hmm, right, then the only bennefit of the patch as-is is to silence the 
+gcc -W warning. But since it can be done 100% safe and the change to use 
+an unsigned value for the counter is (at least to me) the logical and 
+obviously correct thing to do, I still think the patch has merrit as a 
+purely "for pedantic correctness" fix.
+
+
+-- 
+Jesper
+
+

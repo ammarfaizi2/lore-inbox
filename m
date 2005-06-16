@@ -1,79 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261664AbVFPMpm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261672AbVFPMxc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261664AbVFPMpm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Jun 2005 08:45:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261672AbVFPMpm
+	id S261672AbVFPMxc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Jun 2005 08:53:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261673AbVFPMxc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Jun 2005 08:45:42 -0400
-Received: from nproxy.gmail.com ([64.233.182.203]:61022 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261664AbVFPMpc convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Jun 2005 08:45:32 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=ue6OhMp+oDAefgv7Ny1cs9NC3j83kY4kBQcO5l94fANgK0YfVSioaA+3TSFbWJ6XvQlEoQfr5+S97lu7lGilk/Kk0/khDKkef9jJIYhQmFhm1Hpl51U0tsdlC0XiU1hisruXMduw87YLBqhZRfwGKT0Iqi0HKA4L9fgr9wIA3+0=
-Message-ID: <4ad99e0505061605452e663a1e@mail.gmail.com>
-Date: Thu, 16 Jun 2005 14:45:30 +0200
-From: Lars Roland <lroland@gmail.com>
-Reply-To: Lars Roland <lroland@gmail.com>
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: tg3 in 2.6.12-rc6 and Cisco PIX SMTP fixup
+	Thu, 16 Jun 2005 08:53:32 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:54965 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261672AbVFPMxZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Jun 2005 08:53:25 -0400
+Date: Thu, 16 Jun 2005 18:32:39 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: Benjamin LaHaise <bcrl@kvack.org>
+Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] aio_down() for i386 and x86_64
+Message-ID: <20050616130239.GA4839@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <20050614215022.GC21286@kvack.org> <20050615165349.GA4521@in.ibm.com> <20050615191830.GA28261@kvack.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20050615191830.GA28261@kvack.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Wed, Jun 15, 2005 at 03:18:30PM -0400, Benjamin LaHaise wrote:
+> On Wed, Jun 15, 2005 at 10:23:49PM +0530, Suparna Bhattacharya wrote:
+> > Interesting approach - using ki_wait.private for this.
+> > Could we make aio_down take a wait queue parameter as well instead of
+> > the iocb ?
+> 
+> Hmmm, I guess there might be instances where someone has to wait on 
+> multiple wait queues.  Will add that to the next version of the patch.
+> 
+> > Need to think a little about impact on io cancellation.
+> 
+> It should be possible to cancel semaphore operations fairly easily -- 
+> the aio_down function can set ->ki_cancel to point to a semaphore cancel 
+> routine.  I'll give coding that a try.
+> 
+> > BTW, is the duplication of functions across architectures still needed ? I
+> > thought that one of advantages of implementing a separate aio_down
+> > routine vs modifiying down to become retryable was to get away from
+> > that ... or wasn't it ?
+> 
+> Good point.  The fast path for down() will probably need to remain a 
+> separate function, but we could well unify the code with the 
+> down_interruptible() codepath.
+> 
+> > Meanwhile, I probably need to repost my aio_wait_bit patches - there
+> > may be some impact here.
+> 
+> Sure -- any version of those would be useful to build on.  Cheers!
 
-I am testing kernel 2.6.12-rc6 on a 6 IBM 335 servers. The NICs are
-gigabit broadcom. If I use the tg3 driver then each of the servers are
-unable to communicate with a Cisco PIX  using SMTP fixup, the
-connection simply get cut:
+http://www.kernel.org/pub/linux/kernel/people/suparna/aio/2610-rc2/ has
+the patchset. 
 
--------------
-telnet xx.x.xx.xx 25
-Trying xx.x.xxx.xx...
-Connected to xx.x.xxx.xx.
-Escape character is '^]'.
-mail to: <test@test.com>
-Connection closed by foreign host.
--------------
+I just updated the AIO wait bit ones to 2.6.12-rc6, will post them
+in a separate thread.
 
-Using tcpdump does not give me any clue as to what goes wrong, the
-connection is simply lost so I am suspecting some kind of TX/RX mess
-up. If I instead use the tg3 driver in kernel 2.6.8.1 (or the official
-broadcom bcm5700 driver (version 8.1.55) with kernel 2.6.12-rc6) then
-I get:
+Regards
+Suparna
 
--------------
-telnet xx.x.xxx.xx 25
-Trying xx.x.xxx.xx...
-Connected to xx.x.xxx.xx.
-Escape character is '^]'.
-220 ***************
-mail to: <test@test.com>
-250 ok
-quit
-221 test.com
-Connection closed by foreign host.
--------------
+> 
+> 		-ben
+> --
+> To unsubscribe, send a message with 'unsubscribe linux-aio' in
+> the body to majordomo@kvack.org.  For more info on Linux AIO,
+> see: http://www.kvack.org/aio/
+> Don't email: <a href=mailto:"aart@kvack.org">aart@kvack.org</a>
 
-So are there any differences in the tg3 driver between 2.6.8.1 and
-2.6.12-rc6 that would cause this kind of behaviour ?.
+-- 
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Lab, India
 
-I know that SMTP fixup is mostly a poorly implemented Sendmail
-security fix left over from the pre ESMTP era that cripples SMTP
-connectivity without offering any real
-security advantages. So the best thing would be to turn it off, but
-given that I do not control the firewall and the admin refuses to
-change it because he believes it to be a security risk then I am
-looking for another solution (still hoping that it is not shifting
-NICs in all my servers).
-
-
-Regards.
-
-Lars Roland

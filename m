@@ -1,52 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261271AbVFPRfA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261777AbVFPRfs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261271AbVFPRfA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Jun 2005 13:35:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261778AbVFPRe7
+	id S261777AbVFPRfs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Jun 2005 13:35:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261778AbVFPRfs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Jun 2005 13:34:59 -0400
-Received: from fmr21.intel.com ([143.183.121.13]:47283 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S261271AbVFPRe5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Jun 2005 13:34:57 -0400
-Date: Thu, 16 Jun 2005 10:33:41 -0700
-From: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-To: Simon Richard Grint <rgrint@compsoc.man.ac.uk>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Rajesh Shah <rajesh.shah@intel.com>
-Subject: Re: arch/i386/boot/video.S hang
-Message-ID: <20050616103340.A4951@unix-os.sc.intel.com>
-References: <20050615220554.GA1911@srg.demon.co.uk>
+	Thu, 16 Jun 2005 13:35:48 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:7902 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261777AbVFPRfj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Jun 2005 13:35:39 -0400
+Date: Thu, 16 Jun 2005 19:32:47 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "K.R. Foley" <kr@cybsft.com>
+Cc: linux-kernel@vger.kernel.org, "Eugeny S. Mints" <emints@ru.mvista.com>,
+       Daniel Walker <dwalker@mvista.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
+Message-ID: <20050616173247.GA32552@elte.hu>
+References: <20050608112801.GA31084@elte.hu> <42B0F72D.5040405@cybsft.com> <20050616072935.GB19772@elte.hu> <42B160F5.9060208@cybsft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050615220554.GA1911@srg.demon.co.uk>; from rgrint@compsoc.man.ac.uk on Wed, Jun 15, 2005 at 11:05:54PM +0100
+In-Reply-To: <42B160F5.9060208@cybsft.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 15, 2005 at 11:05:54PM +0100, Simon Richard Grint wrote:
-> 
-> I'm trying to upgrade an old AMD K6-2 machine (aladdin bios/gigabyte GA-5AX
-> motherboard, latest version of the bios) to 2.6.11. Unfortunately kernels later 
-> than 2.6.9 hang very early in the boot process just after the vga= mode selection, 
-> but before the kernel announces "uncompressing linux".
-> 
-> I have narrowed the problem down to the store_edid function in
-> arch/i386/boot/video.S where the edid block is obtained and stored before
-> entering protected mode.  The exact patch which seems to cause me problems
-> is http://www.ussg.iu.edu/hypermail/linux/kernel/0409.3/1786.html
-> 
-> Storing the edid block at 0x140 causes this machine to hang, whereas backing
-> this patch out and instead using 0x440 (or even 0x160) seems to work fine.
-> 
-> Is this problem just because of an old and buggy bios or is there another
-> reason?
-> 
 
-What boot loader are you using. grub/lilo?
+* K.R. Foley <kr@cybsft.com> wrote:
 
-Does it work with CONFIG_VIDEO_SELECT disabled in your kernel CONFIG?
+> > could you uncomment the IO_APIC_CACHE define in 
+> > arch/i386/kernel/io_apic.c, and could you uncomment line 1109 in 
+> > drivers/ide/ide-io.c - does this fix things? (in apic mode)
 
-Thanks,
-Venki
+> Couple of things: 1) I could not find IO_APIC_CACHE anywhere. I could 
+> find IOAPIC_CACHE but the define was not commented in io_apic.c. Also 
+> the BUG_ON at line 1109 in ide-io.c was not commented out either. So I 
+> made the mental leap that you actually meant to comment these out 
+> instead of uncomment them??? [...]
+
+yeah, sorry :-|
+
+> [...] That works to get the system booted. Although I am getting many 
+> soft lockups now, minutes after the boot. Log attached. [...]
+
+hm, do you get actual lockups, or only the messages about them? I.e.  
+does the system work fine if you [the sounds of careful thinking to get 
+the word right] disable CONFIG_DETECT_SOFTLOCKUP, or does it lock up 
+silently?
+
+> [...] 2) In my infinite wisdom before :-) I failed to attach my config 
+> as I should have done before. Also, commenting out
+
+this looks like a sentence worth finishing? :)
+
+	Ingo

@@ -1,385 +1,417 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261760AbVFPGuO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261737AbVFPGyj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261760AbVFPGuO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Jun 2005 02:50:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261762AbVFPGuN
+	id S261737AbVFPGyj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Jun 2005 02:54:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261162AbVFPGyj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Jun 2005 02:50:13 -0400
-Received: from mollusk.mweb.co.za ([196.2.24.27]:31632 "EHLO
-	mollusk.mweb.co.za") by vger.kernel.org with ESMTP id S261760AbVFPGtN
+	Thu, 16 Jun 2005 02:54:39 -0400
+Received: from smtp11.wanadoo.fr ([193.252.22.31]:34376 "EHLO
+	smtp11.wanadoo.fr") by vger.kernel.org with ESMTP id S261739AbVFPGx2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Jun 2005 02:49:13 -0400
-From: Bongani Hlope <bonganilinux@mweb.co.za>
-To: Andi Kleen <ak@muc.de>
-Subject: Re: Tracking a bug in x86-64
-Date: Thu, 16 Jun 2005 08:49:58 +0200
-User-Agent: KMail/1.8.50
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>
-References: <200506132259.22151.bonganilinux@mweb.co.za> <Pine.LNX.4.58.0506151740110.8487@ppc970.osdl.org> <20050616020247.GA27608@muc.de>
-In-Reply-To: <20050616020247.GA27608@muc.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 16 Jun 2005 02:53:28 -0400
+X-ME-UUID: 20050616065322325.4F5E21C0009C@mwinf1108.wanadoo.fr
+Subject: 2.6.11: nforce3 250gb lockups
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Thu, 16 Jun 2005 08:54:09 +0200
+Message-Id: <1118904850.5709.15.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506160849.58397.bonganilinux@mweb.co.za>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 16 June 2005 04:02 am, Andi Kleen wrote:
-> > (It would be even better to see that for one of the processes that tends 
-> > to core-dump, like "cc1", but that would require you to catch it, probably 
-> > by doign ^Z at just the right time)
-> 
-> iirc gdb can extract that information from a core dump.
-> if not readelf -a probably can. 
-> 
-> -Andi
-> 
+Hi,
 
-[bongani@bongani64 patches]$ cat /proc/self/maps
-00400000-00405000 r-xp 00000000 03:06 5668926                            /bin/cat
-00505000-00506000 rw-p 00005000 03:06 5668926                            /bin/cat
-00506000-00527000 rw-p 00506000 00:00 0                                  [heap]
-2aaaaaaab000-2aaaaaabf000 r-xp 00000000 03:06 11911179                   /lib64/ld-2.3.4.so
-2aaaaaabf000-2aaaaaac0000 rw-p 2aaaaaabf000 00:00 0
-2aaaaaac0000-2aaaaaac1000 r--p 00000000 03:06 7389703                    /usr/share/locale/en_ZA/LC_IDENTIFICATION
-2aaaaaac1000-2aaaaaac2000 r--p 00000000 03:06 7389947                    /usr/share/locale/en_ZA/LC_MEASUREMENT
-2aaaaaac2000-2aaaaaac3000 r--p 00000000 03:06 7389700                    /usr/share/locale/en_ZA/LC_TELEPHONE
-2aaaaaac3000-2aaaaaac4000 r--p 00000000 03:06 7389704                    /usr/share/locale/en_ZA/LC_ADDRESS
-2aaaaaac4000-2aaaaaac5000 r--p 00000000 03:06 7389701                    /usr/share/locale/en_ZA/LC_NAME
-2aaaaaac5000-2aaaaaac6000 r--p 00000000 03:06 7389909                    /usr/share/locale/en_ZA/LC_PAPER
-2aaaaaac6000-2aaaaaac7000 r--p 00000000 03:06 7389933                    /usr/share/locale/en_US/LC_MESSAGES/SYS_LC_MESSAGES
-2aaaaaac7000-2aaaaaac8000 r--p 00000000 03:06 7389702                    /usr/share/locale/en_ZA/LC_MONETARY
-2aaaaaac8000-2aaaaaace000 r--p 00000000 03:06 7389316                    /usr/share/locale/ISO-8859-1/LC_COLLATE
-2aaaaaace000-2aaaaaacf000 r--p 00000000 03:06 7389922                    /usr/share/locale/en_US/LC_TIME
-2aaaaaacf000-2aaaaaad0000 r--p 00000000 03:06 7389930                    /usr/share/locale/en_ZA/LC_NUMERIC
-2aaaaaad0000-2aaaaaafc000 r--p 00000000 03:06 7389456                    /usr/share/locale/ISO-8859-1/LC_CTYPE
-2aaaaabbf000-2aaaaabc0000 r--p 00014000 03:06 11911179                   /lib64/ld-2.3.4.so
-2aaaaabc0000-2aaaaabc1000 rw-p 00015000 03:06 11911179                   /lib64/ld-2.3.4.so
-2aaaaabc1000-2aaaaace9000 r-xp 00000000 03:06 11911311                   /lib64/tls/libc-2.3.4.so
-2aaaaace9000-2aaaaade8000 ---p 00128000 03:06 11911311                   /lib64/tls/libc-2.3.4.so
-2aaaaade8000-2aaaaadeb000 r--p 00127000 03:06 11911311                   /lib64/tls/libc-2.3.4.so
-2aaaaadeb000-2aaaaadee000 rw-p 0012a000 03:06 11911311                   /lib64/tls/libc-2.3.4.so
-2aaaaadee000-2aaaaadf4000 rw-p 2aaaaadee000 00:00 0
-7fffff92d000-7fffff942000 rw-p 7fffff92d000 00:00 0                      [stack]
-ffffffffff600000-ffffffffffe00000 ---p 00000000 00:00 0                  [vdso]
+I have a brand new computer, with an MSI K8N Neo (nforce3-based) which
+lockups quite easily. It seems it happens when I play audio for a while,
+or when accessing hd under load. With "nolapic", the boot stops when
+accessing hda, with something like "hda interrupt timeout" repeating on
+the screen. With "noapic nolapic", it boots normally but doesn't lockup
+less. The Ubuntu install CD lockups at boot even with "noapic nolapic".
 
-[bongani@bongani64 linux-2.6.8]$ readelf -a core.21904
-ELF Header:
-  Magic:   7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00
-  Class:                             ELF64
-  Data:                              2's complement, little endian
-  Version:                           1 (current)
-  OS/ABI:                            UNIX - System V
-  ABI Version:                       0
-  Type:                              CORE (Core file)
-  Machine:                           Advanced Micro Devices X86-64
-  Version:                           0x1
-  Entry point address:               0x0
-  Start of program headers:          64 (bytes into file)
-  Start of section headers:          0 (bytes into file)
-  Flags:                             0x0
-  Size of this header:               64 (bytes)
-  Size of program headers:           56 (bytes)
-  Number of program headers:         7
-  Size of section headers:           0 (bytes)
-  Number of section headers:         0
-  Section header string table index: 0
+The kernel is the stock debian/sid 2.6.11-9-amd64-k8, the userspace is
+i386 (32bits). lspci and dmesg at the bottom of this mail. The only
+advices I found by googling were to try nolapic (which I did without
+success) or the binary drivers (which I won't try).
+Is there anything I can do, short of trying to return it to my
+reseller ?
 
-There are no sections in this file.
+Thanks,
+	Xav
 
-There are no section groups in this file.
-
-Program Headers:
-  Type           Offset             VirtAddr           PhysAddr
-                 FileSiz            MemSiz              Flags  Align
-  NOTE           0x00000000000001c8 0x0000000000000000 0x0000000000000000
-                 0x0000000000000a48 0x0000000000000000         0
-  LOAD           0x0000000000001000 0x0000000000400000 0x0000000000000000
-                 0x0000000000000000 0x00000000003e6000  R E    1000
-  LOAD           0x0000000000001000 0x00000000008e6000 0x0000000000000000
-                 0x0000000000002000 0x0000000000002000  RW     1000
-  LOAD           0x0000000000003000 0x00000000008e8000 0x0000000000000000
-                 0x0000000000000000 0x0000000000094000  RW     1000
-  LOAD           0x0000000000003000 0x00002aaaaaaab000 0x0000000000000000
-                 0x0000000000000000 0x0000000000014000  R E    1000
-  LOAD           0x0000000000003000 0x00002aaaaabbf000 0x0000000000000000
-                 0x0000000000002000 0x0000000000002000  RW     1000
-  LOAD           0x0000000000005000 0x00007ffffffac000 0x0000000000000000
-                 0x0000000000016000 0x0000000000016000  RW     1000
-
-There is no dynamic section in this file.
-
-There are no relocations in this file.
-
-There are no unwind sections in this file.
-
-No version information found in this file.
-
-Notes at offset 0x000001c8 with length 0x00000a48:
-  Owner         Data size       Description
-  CORE          0x00000150      NT_PRSTATUS (prstatus structure)
-  CORE          0x00000088      NT_PRPSINFO (prpsinfo structure)
-  CORE          0x00000720      NT_TASKSTRUCT (task structure)
-  CORE          0x00000100      NT_AUXV (auxiliary vector)
+0000:00:00.0 Host bridge: nVidia Corporation nForce3 250Gb Host Bridge (rev a1)
+0000:00:01.0 ISA bridge: nVidia Corporation nForce3 250Gb LPC Bridge (rev a2)
+0000:00:01.1 SMBus: nVidia Corporation nForce 250Gb PCI System Management (rev a1)
+0000:00:02.0 USB Controller: nVidia Corporation CK8S USB Controller (rev a1)
+0000:00:02.1 USB Controller: nVidia Corporation CK8S USB Controller (rev a1)
+0000:00:02.2 USB Controller: nVidia Corporation nForce3 EHCI USB 2.0 Controller (rev a2)
+0000:00:05.0 Bridge: nVidia Corporation CK8S Ethernet Controller (rev a2)
+0000:00:06.0 Multimedia audio controller: nVidia Corporation nForce3 250Gb AC'97 Audio Controller (rev a1)
+0000:00:08.0 IDE interface: nVidia Corporation CK8S Parallel ATA Controller (v2.5) (rev a2)
+0000:00:0a.0 IDE interface: nVidia Corporation CK8S Serial ATA Controller (v2.5) (rev a2)
+0000:00:0b.0 PCI bridge: nVidia Corporation nForce3 250Gb AGP Host to PCI Bridge (rev a2)
+0000:00:0e.0 PCI bridge: nVidia Corporation nForce3 250Gb PCI-to-PCI Bridge (rev a2)
+0000:00:18.0 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] HyperTransport Technology Configuration
+0000:00:18.1 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Address Map
+0000:00:18.2 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] DRAM Controller
+0000:00:18.3 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Miscellaneous Control
+0000:01:00.0 VGA compatible controller: ATI Technologies Inc Rage 128 PF/PRO AGP 4x TMDS
+0000:02:09.0 FireWire (IEEE 1394): Texas Instruments TSB12LV26 IEEE-1394 Controller (Link)
 
 
-gdb bt of cc1[21904]: segfault at 00002aaaaabc1008 rip 00002aaaaaaac1c8 rsp 00007ffffffbfd50 error 4
+Bootdata ok (command line is root=/dev/hda5 ro )
+Linux version 2.6.11-9-amd64-k8 (root@lobo) (gcc version 3.4.4 20050314 (prerelease) (Debian 3.4.3-13)) #1 Fri May 27 17:14:56 UTC 2005
+BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 000000000009f800 (usable)
+ BIOS-e820: 000000000009f800 - 00000000000a0000 (reserved)
+ BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
+ BIOS-e820: 0000000000100000 - 000000003fff0000 (usable)
+ BIOS-e820: 000000003fff0000 - 000000003fff3000 (ACPI NVS)
+ BIOS-e820: 000000003fff3000 - 0000000040000000 (ACPI data)
+ BIOS-e820: 00000000fec00000 - 00000000fec01000 (reserved)
+ BIOS-e820: 00000000fee00000 - 00000000fef00000 (reserved)
+ BIOS-e820: 00000000fefffc00 - 00000000ff000000 (reserved)
+ BIOS-e820: 00000000ffff0000 - 0000000100000000 (reserved)
+ACPI: RSDP (v000 Nvidia                                ) @ 0x00000000000f71e0
+ACPI: RSDT (v001 Nvidia AWRDACPI 0x42302e31 AWRD 0x00000000) @ 0x000000003fff3000
+ACPI: FADT (v001 Nvidia AWRDACPI 0x42302e31 AWRD 0x00000000) @ 0x000000003fff3040
+ACPI: MADT (v001 Nvidia AWRDACPI 0x42302e31 AWRD 0x00000000) @ 0x000000003fff7a00
+ACPI: DSDT (v001 NVIDIA AWRDACPI 0x00001000 MSFT 0x0100000e) @ 0x0000000000000000
+On node 0 totalpages: 262128
+  DMA zone: 4096 pages, LIFO batch:1
+  Normal zone: 258032 pages, LIFO batch:16
+  HighMem zone: 0 pages, LIFO batch:1
+Nvidia board detected. Ignoring ACPI timer override.
+ACPI: Local APIC address 0xfee00000
+ACPI: LAPIC (acpi_id[0x00] lapic_id[0x00] enabled)
+Processor #0 15:12 APIC version 16
+ACPI: LAPIC_NMI (acpi_id[0x00] high edge lint[0x1])
+ACPI: IOAPIC (id[0x02] address[0xfec00000] gsi_base[0])
+IOAPIC[0]: apic_id 2, version 17, address 0xfec00000, GSI 0-23
+ACPI: INT_SRC_OVR (bus 0 bus_irq 0 global_irq 2 dfl dfl)
+ACPI: BIOS IRQ0 pin2 override ignored.
+ACPI: INT_SRC_OVR (bus 0 bus_irq 9 global_irq 9 high level)
+ACPI: INT_SRC_OVR (bus 0 bus_irq 14 global_irq 14 high edge)
+ACPI: INT_SRC_OVR (bus 0 bus_irq 15 global_irq 15 high edge)
+ACPI: IRQ9 used by override.
+ACPI: IRQ14 used by override.
+ACPI: IRQ15 used by override.
+Setting APIC routing to flat
+Using ACPI (MADT) for SMP configuration information
+Checking aperture...
+CPU 0: aperture @ d0000000 size 128 MB
+Built 1 zonelists
+Kernel command line: root=/dev/hda5 ro  console=tty0
+Initializing CPU#0
+PID hash table entries: 4096 (order: 12, 131072 bytes)
+time.c: Using 1.193182 MHz PIT timer.
+time.c: Detected 2009.807 MHz processor.
+Console: colour VGA+ 80x25
+Dentry cache hash table entries: 262144 (order: 9, 2097152 bytes)
+Inode-cache hash table entries: 131072 (order: 8, 1048576 bytes)
+Memory: 1022784k/1048512k available (1745k kernel code, 24984k reserved, 949k data, 140k init)
+Calibrating delay loop... 3981.31 BogoMIPS (lpj=1990656)
+Security Framework v1.0.0 initialized
+SELinux:  Disabled at boot.
+Capability LSM initialized
+Mount-cache hash table entries: 256 (order: 0, 4096 bytes)
+CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
+CPU: L2 Cache: 512K (64 bytes/line)
+CPU: AMD Athlon(tm) 64 Processor 3000+ stepping 00
+Using local APIC NMI watchdog using perfctr0
+Using local APIC timer interrupts.
+Detected 12.561 MHz APIC timer.
+checking if image is initramfs...it isn't (bad gzip magic numbers); looks like an initrd
+NET: Registered protocol family 16
+PCI: Using configuration type 1
+mtrr: v2.0 (20020519)
+ACPI: Subsystem revision 20050211
+ACPI: Interpreter enabled
+ACPI: Using IOAPIC for interrupt routing
+ACPI: PCI Root Bridge [PCI0] (00:00)
+PCI: Probing PCI hardware (bus 00)
+ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
+ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.HUB0._PRT]
+ACPI: Power Resource [ISAV] (on)
+ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.AGPB._PRT]
+ACPI: PCI Interrupt Link [LNK1] (IRQs 3 4 *5 6 7 10 11 12 14 15)
+ACPI: PCI Interrupt Link [LNK2] (IRQs 3 4 5 6 7 10 11 12 14 15) *0, disabled.
+ACPI: PCI Interrupt Link [LNK3] (IRQs 3 4 5 6 7 10 11 12 14 15) *0, disabled.
+ACPI: PCI Interrupt Link [LNK4] (IRQs 3 4 5 6 7 10 *11 12 14 15)
+ACPI: PCI Interrupt Link [LNK5] (IRQs 3 4 5 6 7 10 11 12 14 15) *0, disabled.
+ACPI: PCI Interrupt Link [LUBA] (IRQs 3 4 5 6 7 *10 11 12 14 15)
+ACPI: PCI Interrupt Link [LUBB] (IRQs 3 4 5 6 7 *10 11 12 14 15)
+ACPI: PCI Interrupt Link [LMAC] (IRQs 3 4 5 6 7 *10 11 12 14 15)
+ACPI: PCI Interrupt Link [LAPU] (IRQs 3 4 5 6 7 10 11 12 14 15) *0, disabled.
+ACPI: PCI Interrupt Link [LACI] (IRQs *3 4 5 6 7 10 11 12 14 15)
+ACPI: PCI Interrupt Link [LMCI] (IRQs 3 4 5 6 7 10 11 12 14 15) *0, disabled.
+ACPI: PCI Interrupt Link [LSMB] (IRQs 3 4 5 6 7 *10 11 12 14 15)
+ACPI: PCI Interrupt Link [LUB2] (IRQs 3 4 5 6 7 *10 11 12 14 15)
+ACPI: PCI Interrupt Link [LFIR] (IRQs 3 4 5 6 7 10 11 12 14 15) *0, disabled.
+ACPI: PCI Interrupt Link [L3CM] (IRQs 3 4 5 6 7 10 11 12 14 15) *0, disabled.
+ACPI: PCI Interrupt Link [LIDE] (IRQs 3 4 5 6 7 10 11 12 14 15) *0, disabled.
+ACPI: PCI Interrupt Link [LSID] (IRQs 3 4 5 6 7 10 11 12 14 15) *0, disabled.
+ACPI: PCI Interrupt Link [LFID] (IRQs 3 4 5 6 7 10 *11 12 14 15)
+ACPI: PCI Interrupt Link [APC1] (IRQs *16), disabled.
+ACPI: PCI Interrupt Link [APC2] (IRQs *17), disabled.
+ACPI: PCI Interrupt Link [APC3] (IRQs *18), disabled.
+ACPI: PCI Interrupt Link [APC4] (IRQs *19), disabled.
+ACPI: PCI Interrupt Link [APC5] (IRQs *16), disabled.
+ACPI: PCI Interrupt Link [APCF] (IRQs 20 21 22 23) *0, disabled.
+ACPI: PCI Interrupt Link [APCG] (IRQs 20 21 22 23) *0, disabled.
+ACPI: PCI Interrupt Link [APCH] (IRQs 20 21 22 23) *0, disabled.
+ACPI: PCI Interrupt Link [APCI] (IRQs 20 21 22 23) *0, disabled.
+ACPI: PCI Interrupt Link [APCJ] (IRQs 20 21 22 23) *0, disabled.
+ACPI: PCI Interrupt Link [APCK] (IRQs 20 21 22 23) *0, disabled.
+ACPI: PCI Interrupt Link [APCS] (IRQs 20 21 22 23) *0, disabled.
+ACPI: PCI Interrupt Link [APCL] (IRQs 20 21 22 23) *0, disabled.
+ACPI: PCI Interrupt Link [APCM] (IRQs 20 21 22 23) *0, disabled.
+ACPI: PCI Interrupt Link [AP3C] (IRQs 20 21 22 23) *0, disabled.
+ACPI: PCI Interrupt Link [APCZ] (IRQs 20 21 22 23) *0, disabled.
+ACPI: PCI Interrupt Link [APSI] (IRQs 20 21 22 23) *0, disabled.
+ACPI: PCI Interrupt Link [APSJ] (IRQs 20 21 22 23) *0, disabled.
+usbcore: registered new driver usbfs
+usbcore: registered new driver hub
+PCI: Using ACPI for IRQ routing
+** PCI interrupts are no longer routed automatically.  If this
+** causes a device to stop working, it is probably because the
+** driver failed to call pci_enable_device().  As a temporary
+** workaround, the "pci=routeirq" argument restores the old
+** behavior.  If this argument makes the device work again,
+** please email the output of "lspci" to bjorn.helgaas@hp.com
+** so I can fix the driver.
+TC classifier action (bugs to netdev@oss.sgi.com cc hadi@cyberus.ca)
+agpgart: Detected AGP bridge 0
+agpgart: Setting up Nforce3 AGP.
+agpgart: Maximum main memory to use for agp memory: 941M
+agpgart: AGP aperture is 128M @ 0xd0000000
+PCI-DMA: Disabling IOMMU.
+IA32 emulation $Id: sys_ia32.c,v 1.32 2002/03/24 13:02:28 ak Exp $
+audit: initializing netlink socket (disabled)
+audit(1118903828.179:0): initialized
+VFS: Disk quotas dquot_6.5.1
+Dquot-cache hash table entries: 512 (order 0, 4096 bytes)
+devfs: 2004-01-31 Richard Gooch (rgooch@atnf.csiro.au)
+devfs: boot_options: 0x0
+Initializing Cryptographic API
+Linux agpgart interface v0.100 (c) Dave Jones
+serio: i8042 AUX port at 0x60,0x64 irq 12
+serio: i8042 KBD port at 0x60,0x64 irq 1
+Serial: 8250/16550 driver $Revision: 1.90 $ 48 ports, IRQ sharing enabled
+ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+io scheduler noop registered
+io scheduler anticipatory registered
+io scheduler deadline registered
+io scheduler cfq registered
+RAMDISK driver initialized: 16 RAM disks of 65536K size 1024 blocksize
+mice: PS/2 mouse device common for all mice
+input: AT Translated Set 2 keyboard on isa0060/serio0
+NET: Registered protocol family 2
+IP: routing cache hash table of 8192 buckets, 64Kbytes
+TCP established hash table entries: 262144 (order: 9, 2097152 bytes)
+TCP bind hash table entries: 65536 (order: 7, 524288 bytes)
+TCP: Hash tables configured (established 262144 bind 65536)
+NET: Registered protocol family 8
+NET: Registered protocol family 20
+ACPI wakeup devices:
+HUB0 HUB1 USB0 USB1 USB2 F139 MMAC MMCI UAR1
+ACPI: (supports S0 S1 S4 S5)
+RAMDISK: cramfs filesystem found at block 0
+RAMDISK: Loading 4180KiB [1 disk] into ram disk... done.
+VFS: Mounted root (cramfs filesystem) readonly.
+Freeing unused kernel memory: 140k freed
+NET: Registered protocol family 1
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+NFORCE3-250: IDE controller at PCI slot 0000:00:08.0
+NFORCE3-250: chipset revision 162
+NFORCE3-250: not 100% native mode: will probe irqs later
+NFORCE3-250: BIOS didn't set cable bits correctly. Enabling workaround.
+NFORCE3-250: BIOS didn't set cable bits correctly. Enabling workaround.
+NFORCE3-250: 0000:00:08.0 (rev a2) UDMA133 controller
+    ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:DMA, hdb:DMA
+    ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:DMA, hdd:DMA
+Probing IDE interface ide0...
+hda: WDC WD400BB-32BSA0, ATA DISK drive
+hdb: HITACHI DVD-ROM GD-7500, ATAPI CD/DVD-ROM drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+Probing IDE interface ide1...
+hdc: ST340824A, ATA DISK drive
+hdd: DVDRW IDE 16X, ATAPI CD/DVD-ROM drive
+ide1 at 0x170-0x177,0x376 on irq 15
+Probing IDE interface ide2...
+Probing IDE interface ide3...
+Probing IDE interface ide4...
+Probing IDE interface ide5...
+hda: max request size: 128KiB
+hda: 78165360 sectors (40020 MB) w/2048KiB Cache, CHS=65535/16/63, UDMA(100)
+hda: cache flushes not supported
+ /dev/ide/host0/bus0/target0/lun0: p1 < p5 p6 p7 >
+hdc: max request size: 128KiB
+hdc: 78165360 sectors (40020 MB) w/2048KiB Cache, CHS=65535/16/63, UDMA(100)
+hdc: cache flushes not supported
+ /dev/ide/host0/bus1/target0/lun0: p1 p2
+EXT3-fs: INFO: recovery required on readonly filesystem.
+EXT3-fs: write access will be enabled during recovery.
+kjournald starting.  Commit interval 5 seconds
+EXT3-fs: recovery complete.
+EXT3-fs: mounted filesystem with ordered data mode.
+Adding 1048784k swap on /dev/hdc1.  Priority:-1 extents:1
+Adding 1043240k swap on /dev/hda6.  Priority:-2 extents:1
+EXT3 FS on hda5, internal journal
+8139too Fast Ethernet driver 0.9.27
+w83627hf 0-0290: Reading VID from GPIO5
+Losing some ticks... checking if CPU frequency changed.
+input: ImPS/2 Generic Wheel Mouse on isa0060/serio1
+hdb: ATAPI 40X DVD-ROM drive, 512kB Cache, UDMA(33)
+Uniform CD-ROM driver Revision: 3.20
+hdd: ATAPI 32X DVD-ROM DVD-R CD-R/RW drive, 2048kB Cache
+ts: Compaq touchscreen protocol output
+ReiserFS: hdc2: found reiserfs format "3.6" with standard journal
+ReiserFS: hdc2: using ordered data mode
+ReiserFS: hdc2: journal params: device hdc2, size 8192, journal first block 18, max trans len 1024, max batch 900, max commit age 30, max trans age 30
+ReiserFS: hdc2: checking transaction log (hdc2)
+ReiserFS: hdc2: Using r5 hash to sort names
+EXT2-fs warning (device hda7): ext2_fill_super: mounting ext3 filesystem as ext2
+ieee1394: Initialized config rom entry `ip1394'
+ohci1394: $Rev: 1223 $ Ben Collins <bcollins@debian.org>
+ACPI: PCI Interrupt Link [APC4] enabled at IRQ 19
+ACPI: PCI interrupt 0000:02:09.0[A] -> GSI 19 (level, low) -> IRQ 19
+ohci1394: fw-host0: OHCI-1394 1.0 (PCI): IRQ=[19]  MMIO=[de004000-de0047ff]  Max Packet=[2048]
+forcedeth.c: Reverse Engineered nForce ethernet driver. Version 0.31.
+ACPI: PCI Interrupt Link [APCH] enabled at IRQ 23
+ACPI: PCI interrupt 0000:00:05.0[A] -> GSI 23 (level, high) -> IRQ 23
+PCI: Setting latency timer of device 0000:00:05.0 to 64
+eth0: forcedeth.c: subsystem: 01462:0300 bound to 0000:00:05.0
+SCSI subsystem initialized
+libata version 1.10 loaded.
+sata_nv version 0.6
+ACPI: PCI Interrupt Link [APSJ] enabled at IRQ 22
+ACPI: PCI interrupt 0000:00:0a.0[A] -> GSI 22 (level, high) -> IRQ 22
+PCI: Setting latency timer of device 0000:00:0a.0 to 64
+ata1: SATA max UDMA/133 cmd 0x9F0 ctl 0xBF2 bmdma 0xDC00 irq 22
+ata2: SATA max UDMA/133 cmd 0x970 ctl 0xB72 bmdma 0xDC08 irq 22
+ieee1394: Host added: ID:BUS[0-00:1023]  GUID[230050c500001713]
+eth1394: $Rev: 1224 $ Ben Collins <bcollins@debian.org>
+eth1394: eth1: IEEE-1394 IPv4 over 1394 Ethernet (fw-host0)
+ata1: dev 0 cfg 49:2f00 82:346b 83:7d01 84:4003 85:3469 86:3c01 87:4003 88:407f
+ata1: dev 0 ATA, max UDMA/133, 312581808 sectors: lba48
+nv_sata: Primary device added
+nv_sata: Primary device removed
+nv_sata: Secondary device removed
+ata1: dev 0 configured for UDMA/133
+scsi0 : sata_nv
+ata2: no device found (phy stat 00000000)
+scsi1 : sata_nv
+  Vendor: ATA       Model: ST3160827AS       Rev: 3.42
+  Type:   Direct-Access                      ANSI SCSI revision: 05
+ACPI: PCI Interrupt Link [APCL] enabled at IRQ 21
+ACPI: PCI interrupt 0000:00:02.2[C] -> GSI 21 (level, high) -> IRQ 21
+ehci_hcd 0000:00:02.2: PCI device 10de:00e8 (nVidia Corporation)
+PCI: Setting latency timer of device 0000:00:02.2 to 64
+ehci_hcd 0000:00:02.2: irq 21, pci mem 0xdf005000
+ehci_hcd 0000:00:02.2: new USB bus registered, assigned bus number 1
+PCI: cache line size of 64 is not supported by device 0000:00:02.2
+ehci_hcd 0000:00:02.2: USB 2.0 initialized, EHCI 1.00, driver 10 Dec 2004
+hub 1-0:1.0: USB hub found
+hub 1-0:1.0: 8 ports detected
+SCSI device sda: 312581808 512-byte hdwr sectors (160042 MB)
+SCSI device sda: drive cache: write back
+SCSI device sda: 312581808 512-byte hdwr sectors (160042 MB)
+SCSI device sda: drive cache: write back
+ /dev/scsi/host0/bus0/target0/lun0: unknown partition table
+Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
+i2c_adapter i2c-1: nForce2 SMBus adapter at 0x4c00
+i2c_adapter i2c-2: nForce2 SMBus adapter at 0x4c40
+ohci_hcd: 2004 Nov 08 USB 1.1 'Open' Host Controller (OHCI) Driver (PCI)
+ACPI: PCI Interrupt Link [APCF] enabled at IRQ 20
+ACPI: PCI interrupt 0000:00:02.0[A] -> GSI 20 (level, high) -> IRQ 20
+ohci_hcd 0000:00:02.0: PCI device 10de:00e7 (nVidia Corporation)
+PCI: Setting latency timer of device 0000:00:02.0 to 64
+ohci_hcd 0000:00:02.0: irq 20, pci mem 0xdf003000
+ohci_hcd 0000:00:02.0: new USB bus registered, assigned bus number 2
+hub 2-0:1.0: USB hub found
+hub 2-0:1.0: 4 ports detected
+ACPI: PCI Interrupt Link [APCG] enabled at IRQ 23
+ACPI: PCI interrupt 0000:00:02.1[B] -> GSI 23 (level, high) -> IRQ 23
+ohci_hcd 0000:00:02.1: PCI device 10de:00e7 (nVidia Corporation)
+PCI: Setting latency timer of device 0000:00:02.1 to 64
+ohci_hcd 0000:00:02.1: irq 23, pci mem 0xdf004000
+ohci_hcd 0000:00:02.1: new USB bus registered, assigned bus number 3
+hub 3-0:1.0: USB hub found
+hub 3-0:1.0: 4 ports detected
+ACPI: PCI Interrupt Link [APCJ] enabled at IRQ 22
+ACPI: PCI interrupt 0000:00:06.0[A] -> GSI 22 (level, high) -> IRQ 22
+PCI: Setting latency timer of device 0000:00:06.0 to 64
+intel8x0_measure_ac97_clock: measured 49871 usecs
+intel8x0: clocking to 46784
+ioctl32(alsactl:4914): Unknown cmd fd(3) cmd(80045500){00} arg(ffffd7ac) on /dev/snd/controlC0
+ioctl32(amixer:4955): Unknown cmd fd(3) cmd(80045500){00} arg(ffffd89c) on /dev/snd/controlC0
+ioctl32(amixer:4988): Unknown cmd fd(3) cmd(80045500){00} arg(ffffd89c) on /dev/snd/controlC0
+ioctl32(amixer:4991): Unknown cmd fd(3) cmd(80045500){00} arg(ffffd89c) on /dev/snd/controlC0
+ioctl32(amixer:4994): Unknown cmd fd(3) cmd(80045500){00} arg(ffffd89c) on /dev/snd/controlC0
+ioctl32(amixer:4997): Unknown cmd fd(3) cmd(80045500){00} arg(ffffd8ac) on /dev/snd/controlC0
+ioctl32(amixer:5000): Unknown cmd fd(3) cmd(80045500){00} arg(ffffd89c) on /dev/snd/controlC0
+ioctl32(amixer:5003): Unknown cmd fd(3) cmd(80045500){00} arg(ffffd89c) on /dev/snd/controlC0
+ioctl32(amixer:5006): Unknown cmd fd(3) cmd(80045500){00} arg(ffffd89c) on /dev/snd/controlC0
+ioctl32(amixer:5009): Unknown cmd fd(3) cmd(80045500){00} arg(ffffd89c) on /dev/snd/controlC0
+ioctl32(amixer:5012): Unknown cmd fd(3) cmd(80045500){00} arg(ffffd89c) on /dev/snd/controlC0
+ioctl32(amixer:5015): Unknown cmd fd(3) cmd(80045500){00} arg(ffffd89c) on /dev/snd/controlC0
+ioctl32(amixer:5018): Unknown cmd fd(3) cmd(80045500){00} arg(ffffd89c) on /dev/snd/controlC0
+ioctl32(amixer:5021): Unknown cmd fd(3) cmd(80045500){00} arg(ffffd89c) on /dev/snd/controlC0
+ioctl32(amixer:5024): Unknown cmd fd(3) cmd(80045500){00} arg(ffffd89c) on /dev/snd/controlC0
+ioctl32(amixer:5027): Unknown cmd fd(3) cmd(80045500){00} arg(ffffd89c) on /dev/snd/controlC0
+ioctl32(amixer:5030): Unknown cmd fd(3) cmd(80045500){00} arg(ffffd88c) on /dev/snd/controlC0
+pci_hotplug: PCI Hot Plug PCI Core version: 0.5
+shpchp: shpc_init : shpc_cap_offset == 0
+shpchp: shpc_init : shpc_cap_offset == 0
+shpchp: Standard Hot Plug PCI Controller Driver version: 0.4
+NET: Registered protocol family 17
+nfs warning: mount version older than kernel
+IA-32 Microcode Update Driver: v1.14 <tigran@veritas.com>
+microcode: CPU0 not a capable Intel processor
+microcode: No new microcode data for CPU0
+IA-32 Microcode Update Driver v1.14 unregistered
+ACPI: Power Button (FF) [PWRF]
+ioctl32(alsactl:5699): Unknown cmd fd(3) cmd(80045500){00} arg(ffffd83c) on /dev/snd/controlC0
+ioctl32(amixer:5703): Unknown cmd fd(3) cmd(80045500){00} arg(ffffd92c) on /dev/snd/controlC0
+ioctl32(amixer:5706): Unknown cmd fd(3) cmd(80045500){00} arg(ffffd92c) on /dev/snd/controlC0
+ioctl32(amixer:5709): Unknown cmd fd(3) cmd(80045500){00} arg(ffffd92c) on /dev/snd/controlC0
+ioctl32(amixer:5712): Unknown cmd fd(3) cmd(80045500){00} arg(ffffd92c) on /dev/snd/controlC0
+ioctl32(amixer:5715): Unknown cmd fd(3) cmd(80045500){00} arg(ffffd92c) on /dev/snd/controlC0
+ioctl32(amixer:5718): Unknown cmd fd(3) cmd(80045500){00} arg(ffffd92c) on /dev/snd/controlC0
+ioctl32(amixer:5721): Unknown cmd fd(3) cmd(80045500){00} arg(ffffd92c) on /dev/snd/controlC0
+ioctl32(amixer:5724): Unknown cmd fd(3) cmd(80045500){00} arg(ffffd92c) on /dev/snd/controlC0
+ioctl32(amixer:5727): Unknown cmd fd(3) cmd(80045500){00} arg(ffffd92c) on /dev/snd/controlC0
+ioctl32(amixer:5730): Unknown cmd fd(3) cmd(80045500){00} arg(ffffd91c) on /dev/snd/controlC0
+ioctl32(amixer:5733): Unknown cmd fd(3) cmd(80045500){00} arg(ffffd92c) on /dev/snd/controlC0
+ioctl32(amixer:5736): Unknown cmd fd(3) cmd(80045500){00} arg(ffffd92c) on /dev/snd/controlC0
+ioctl32(amixer:5739): Unknown cmd fd(3) cmd(80045500){00} arg(ffffd92c) on /dev/snd/controlC0
+ioctl32(amixer:5742): Unknown cmd fd(3) cmd(80045500){00} arg(ffffd91c) on /dev/snd/controlC0
+ioctl32(amixer:5745): Unknown cmd fd(3) cmd(80045500){00} arg(ffffd91c) on /dev/snd/controlC0
+ioctl32(amixer:5748): Unknown cmd fd(3) cmd(80045500){00} arg(ffffd91c) on /dev/snd/controlC0
+ioctl32(alsactl:5753): Unknown cmd fd(3) cmd(80045500){00} arg(ffffd83c) on /dev/snd/controlC0
+parport0: PC-style at 0x378 [PCSPP,TRISTATE]
+lp0: using parport0 (polling).
+program smartd is using a deprecated SCSI ioctl, please convert it to SG_IO
+program smartd is using a deprecated SCSI ioctl, please convert it to SG_IO
+NET: Registered protocol family 10
+Disabled Privacy Extensions on device ffffffff8036fd60(lo)
+IPv6 over IPv4 tunneling driver
+eth0: no IPv6 routers present
+Xorg: vm86 mode not supported on 64 bit kernel
+[drm] Initialized drm 1.0.0 20040925
+ACPI: PCI Interrupt Link [APC1] enabled at IRQ 16
+ACPI: PCI interrupt 0000:01:00.0[A] -> GSI 16 (level, low) -> IRQ 16
+[drm] Initialized r128 2.5.0 20030725 on minor 0: ATI Technologies Inc Rage 128 PF/PRO AGP 4x TMDS
+ioctl32(Xorg:6085): Unknown cmd fd(7) cmd(c0106407){00} arg(ffffda80) on /dev/dri/card0
+ioctl32(Xorg:6085): Unknown cmd fd(7) cmd(c0086401){00} arg(ffffda88) on /dev/dri/card0
+ioctl32(Xorg:6085): Unknown cmd fd(7) cmd(c0246400){00} arg(0873d678) on /dev/dri/card0
+ioctl32(Xorg:6085): Unknown cmd fd(7) cmd(c0246400){00} arg(0873d678) on /dev/dri/card0
+ioctl32(Xorg:6085): Unknown cmd fd(7) cmd(c0106407){00} arg(ffffdae0) on /dev/dri/card0
+ioctl32(Xorg:6085): Unknown cmd fd(7) cmd(40086410){00} arg(ffffdaf0) on /dev/dri/card0
 
-Core was generated by `                                       '.
-Program terminated with signal 11, Segmentation fault.
-#0  0x00002aaaaaaac1c8 in ?? ()
-(gdb) bt 
-#0  0x00002aaaaaaac1c8 in ?? ()
-#1  0x0000000000000000 in ?? ()
-#2  0x0000000000000000 in ?? ()
-#3  0x0000000000000000 in ?? ()
-#4  0x0000000000000000 in ?? ()
-#5  0x0000000000000000 in ?? ()
-#6  0x0000000000000000 in ?? ()
-#7  0x0000000000000000 in ?? ()
-#8  0x0000000000000000 in ?? ()
-#9  0x0000000000000000 in ?? ()
-#10 0x0000000000000000 in ?? ()
-#11 0x0000000000000000 in ?? ()
-#12 0x0000000000000000 in ?? ()
-#13 0x0000000000000000 in ?? ()
-#14 0x0000000000000000 in ?? ()
-#15 0x0000000000000000 in ?? ()
-#16 0x00002aaaaaaaba88 in ?? ()
-#17 0x0000000000000028 in ?? ()
-#18 0x00007ffffffc0a3d in ?? ()
-#19 0x00007ffffffc0a3e in ?? ()
-#20 0x00007ffffffc0a3f in ?? ()
-#21 0x00007ffffffc0a40 in ?? ()
-#22 0x00007ffffffc0a41 in ?? ()
-#23 0x00007ffffffc0a42 in ?? ()
-#24 0x00007ffffffc0a43 in ?? ()
-#25 0x00007ffffffc0a44 in ?? ()
-#26 0x00007ffffffc0a45 in ?? ()
-#27 0x00007ffffffc0a46 in ?? ()
-#28 0x00007ffffffc0a47 in ?? ()
-#29 0x00007ffffffc0a48 in ?? ()
-#30 0x00007ffffffc0a49 in ?? ()
-#31 0x00007ffffffc0a4a in ?? ()
-#32 0x00007ffffffc0a4b in ?? ()
-#33 0x00007ffffffc0a4c in ?? ()
-#34 0x00007ffffffc0a4d in ?? ()
-#35 0x00007ffffffc0a4e in ?? ()
-#36 0x00007ffffffc0a4f in ?? ()
-#37 0x00007ffffffc0a50 in ?? ()
-#38 0x00007ffffffc0a51 in ?? ()
-#39 0x00007ffffffc0a52 in ?? ()
-#40 0x00007ffffffc0a53 in ?? ()
-#41 0x00007ffffffc0a54 in ?? ()
-#42 0x00007ffffffc0a55 in ?? ()
-#43 0x00007ffffffc0a56 in ?? ()
-#44 0x00007ffffffc0a57 in ?? ()
-#45 0x00007ffffffc0a58 in ?? ()
-#46 0x00007ffffffc0a59 in ?? ()
-#47 0x00007ffffffc0a5a in ?? ()
-#48 0x00007ffffffc0a5b in ?? ()
-#49 0x00007ffffffc0a5c in ?? ()
-#50 0x00007ffffffc0a5d in ?? ()
-#51 0x00007ffffffc0a5e in ?? ()
-#52 0x00007ffffffc0a5f in ?? ()
-#53 0x00007ffffffc0a60 in ?? ()
-#54 0x00007ffffffc0a61 in ?? ()
-#55 0x00007ffffffc0a62 in ?? ()
-#56 0x00007ffffffc0a63 in ?? ()
-#57 0x00007ffffffc0a64 in ?? ()
-#58 0x0000000000000000 in ?? ()
-#59 0x00007ffffffc0a65 in ?? ()
-#60 0x00007ffffffc0a66 in ?? ()
-#61 0x00007ffffffc0a67 in ?? ()
-#62 0x00007ffffffc0a68 in ?? ()
-#63 0x00007ffffffc0a69 in ?? ()
-#64 0x00007ffffffc0a6a in ?? ()
-#65 0x00007ffffffc0a6b in ?? ()
-#66 0x00007ffffffc0a6c in ?? ()
-#67 0x00007ffffffc0a6d in ?? ()
-#68 0x00007ffffffc0a6e in ?? ()
-#69 0x00007ffffffc0a6f in ?? ()
-#70 0x00007ffffffc0a70 in ?? ()
-#71 0x00007ffffffc0a71 in ?? ()
-#72 0x00007ffffffc0a72 in ?? ()
-#73 0x00007ffffffc0a73 in ?? ()
-#74 0x00007ffffffc0a74 in ?? ()
-#75 0x00007ffffffc0a75 in ?? ()
-#76 0x00007ffffffc0a76 in ?? ()
-#77 0x00007ffffffc0a77 in ?? ()
-#78 0x00007ffffffc0a78 in ?? ()
-#79 0x00007ffffffc0a79 in ?? ()
-#80 0x00007ffffffc0a7a in ?? ()
-#81 0x00007ffffffc0a7b in ?? ()
-#82 0x00007ffffffc0a7c in ?? ()
-#83 0x00007ffffffc0a7d in ?? ()
-#84 0x00007ffffffc0a7e in ?? ()
-#85 0x00007ffffffc0a7f in ?? ()
-#86 0x00007ffffffc0a80 in ?? ()
-#87 0x00007ffffffc0a81 in ?? ()
-#88 0x00007ffffffc0a82 in ?? ()
-#89 0x00007ffffffc0a83 in ?? ()
-#90 0x00007ffffffc0a84 in ?? ()
-#91 0x00007ffffffc0a85 in ?? ()
-#92 0x00007ffffffc0a86 in ?? ()
-#93 0x00007ffffffc0a87 in ?? ()
-#94 0x00007ffffffc0a88 in ?? ()
-#95 0x00007ffffffc0a89 in ?? ()
-#96 0x00007ffffffc0a8a in ?? ()
-#97 0x00007ffffffc0a8b in ?? ()
-#98 0x00007ffffffc0a8c in ?? ()
-#99 0x00007ffffffc0a8d in ?? ()
-#100 0x00007ffffffc0a8e in ?? ()
-#101 0x00007ffffffc0a8f in ?? ()
-#102 0x00007ffffffc0a90 in ?? ()
-#103 0x00007ffffffc0a91 in ?? ()
-#104 0x00007ffffffc0a92 in ?? ()
-#105 0x00007ffffffc0a93 in ?? ()
-#106 0x00007ffffffc0a94 in ?? ()
-#107 0x00007ffffffc0a95 in ?? ()
-#108 0x00007ffffffc0a96 in ?? ()
-#109 0x00007ffffffc0a97 in ?? ()
-#110 0x00007ffffffc0a98 in ?? ()
-#111 0x00007ffffffc0a99 in ?? ()
-#112 0x00007ffffffc0a9a in ?? ()
-#113 0x00007ffffffc0a9b in ?? ()
-#114 0x00007ffffffc0a9c in ?? ()
-#115 0x00007ffffffc0a9d in ?? ()
-#116 0x00007ffffffc0a9e in ?? ()
-#117 0x00007ffffffc0a9f in ?? ()
-#118 0x00007ffffffc0aa0 in ?? ()
-#119 0x00007ffffffc0aa1 in ?? ()
-#120 0x00007ffffffc0aa2 in ?? ()
-#121 0x00007ffffffc0aa3 in ?? ()
-#122 0x00007ffffffc0aa4 in ?? ()
-#123 0x00007ffffffc0aa5 in ?? ()
-#124 0x00007ffffffc0aa6 in ?? ()
-#125 0x00007ffffffc0aa7 in ?? ()
-#126 0x00007ffffffc0aa8 in ?? ()
-#127 0x00007ffffffc0aa9 in ?? ()
-#128 0x00007ffffffc0aaa in ?? ()
-#129 0x00007ffffffc0aab in ?? ()
-#130 0x00007ffffffc0aac in ?? ()
-#131 0x00007ffffffc0aad in ?? ()
-#132 0x00007ffffffc0aae in ?? ()
-#133 0x00007ffffffc0aaf in ?? ()
-#134 0x00007ffffffc0ab0 in ?? ()
-#135 0x00007ffffffc0ab1 in ?? ()
-#136 0x00007ffffffc0ab2 in ?? ()
-#137 0x00007ffffffc0ab3 in ?? ()
-#138 0x00007ffffffc0ab4 in ?? ()
-#139 0x00007ffffffc0ab5 in ?? ()
-#140 0x00007ffffffc0ab6 in ?? ()
-#141 0x00007ffffffc0ab7 in ?? ()
-#142 0x00007ffffffc0ab8 in ?? ()
-#143 0x00007ffffffc0ab9 in ?? ()
-#144 0x00007ffffffc0aba in ?? ()
-#145 0x00007ffffffc0abb in ?? ()
-#146 0x00007ffffffc0abc in ?? ()
-#147 0x00007ffffffc0abd in ?? ()
-#148 0x00007ffffffc0abe in ?? ()
-#149 0x00007ffffffc0abf in ?? ()
-#150 0x00007ffffffc0ac0 in ?? ()
-#151 0x00007ffffffc0ac1 in ?? ()
-#152 0x00007ffffffc0ac2 in ?? ()
-#153 0x00007ffffffc0ac3 in ?? ()
-#154 0x00007ffffffc0ac4 in ?? ()
-#155 0x00007ffffffc0ac5 in ?? ()
-#156 0x00007ffffffc0ac6 in ?? ()
-#157 0x00007ffffffc0ac7 in ?? ()
-#158 0x00007ffffffc0ac8 in ?? ()
-#159 0x00007ffffffc0ac9 in ?? ()
-#160 0x00007ffffffc0aca in ?? ()
-#161 0x00007ffffffc0acb in ?? ()
-#162 0x00007ffffffc0acc in ?? ()
-#163 0x00007ffffffc0acd in ?? ()
-#164 0x00007ffffffc0ace in ?? ()
-#165 0x00007ffffffc0acf in ?? ()
-#166 0x00007ffffffc0ad0 in ?? ()
-#167 0x00007ffffffc0ad1 in ?? ()
-#168 0x00007ffffffc0ad2 in ?? ()
-#169 0x00007ffffffc0ad3 in ?? ()
-#170 0x00007ffffffc0ad4 in ?? ()
-#171 0x00007ffffffc0ad5 in ?? ()
-#172 0x00007ffffffc0ad6 in ?? ()
-#173 0x00007ffffffc0ad7 in ?? ()
-#174 0x00007ffffffc0ad8 in ?? ()
-#175 0x00007ffffffc0ad9 in ?? ()
-#176 0x00007ffffffc0ada in ?? ()
-#177 0x00007ffffffc0adb in ?? ()
-#178 0x00007ffffffc0adc in ?? ()
-#179 0x00007ffffffc0add in ?? ()
-#180 0x00007ffffffc0ade in ?? ()
-#181 0x00007ffffffc0adf in ?? ()
-#182 0x00007ffffffc0ae0 in ?? ()
-#183 0x00007ffffffc0ae1 in ?? ()
-#184 0x00007ffffffc0ae2 in ?? ()
-#185 0x00007ffffffc0ae3 in ?? ()
-#186 0x00007ffffffc0ae4 in ?? ()
-#187 0x00007ffffffc0ae5 in ?? ()
-#188 0x00007ffffffc0ae6 in ?? ()
-#189 0x00007ffffffc0ae7 in ?? ()
-#190 0x00007ffffffc0ae8 in ?? ()
-#191 0x00007ffffffc0ae9 in ?? ()
-#192 0x00007ffffffc0aea in ?? ()
-#193 0x00007ffffffc0aeb in ?? ()
-#194 0x00007ffffffc0aec in ?? ()
-#195 0x00007ffffffc0aed in ?? ()
-#196 0x00007ffffffc0aee in ?? ()
-#197 0x00007ffffffc0aef in ?? ()
-#198 0x0000000000000000 in ?? ()
-#199 0x0000000000000010 in ?? ()
-#200 0x00000000078bfbff in ?? ()
-#201 0x0000000000000006 in ?? ()
-#202 0x0000000000001000 in ?? ()
-#203 0x0000000000000011 in ?? ()
-#204 0x00002aaaaaaac130 in ?? ()
-#205 0x0000000000000003 in ?? ()
-#206 0x0000000000400040 in ?? ()
-#207 0x0000000000000004 in ?? ()
-#208 0x0000000000000038 in ?? ()
-#209 0x0000000000000005 in ?? ()
-#210 0x0000000000000008 in ?? ()
-#211 0x0000000000000007 in ?? ()
-#212 0x00002aaaaaaab000 in ?? ()
-#213 0x0000000000000008 in ?? ()
-#214 0x0000000000000000 in ?? ()
-#215 0x0000000000000009 in ?? ()
-#216 0x0000000000402400 in ?? ()
-#217 0x000000000000000b in ?? ()
-#218 0x0000000000000000 in ?? ()
-#219 0x000000000000000c in ?? ()
-#220 0x0000000000000000 in ?? ()
-#221 0x000000000000000d in ?? ()
-#222 0x0000000000000000 in ?? ()
-#223 0x000000000000000e in ?? ()
-#224 0x0000000000000000 in ?? ()
-#225 0x0000000000000017 in ?? ()
-#226 0x0000000000000000 in ?? ()
-#227 0x000000000000000f in ?? ()
-#228 0x00007ffffffc0489 in ?? ()
-#229 0x0000000000000000 in ?? ()
-#230 0x0000000000000000 in ?? ()
-#231 0x0000000000000000 in ?? ()
-#232 0x0034365f36387800 in ?? ()
-#233 0x0000000000000000 in ?? ()
-#234 0x0000000000000000 in ?? ()
-#235 0x0000000000000000 in ?? ()
-#236 0x0000000000000000 in ?? ()
-#237 0x0000000000000000 in ?? ()
-#238 0x0000000000000000 in ?? ()
-#239 0x0000000000000000 in ?? ()
-#240 0x0000000000000000 in ?? ()
 
-./sysconfig/i18n:LC_ADDRESS=en_ZA
-./sysconfig/i18n:LC_NAME=en_ZA
-./sysconfig/i18n:LC_NUMERIC=en_ZA
-./sysconfig/i18n:LC_MEASUREMENT=en_ZA
-./sysconfig/i18n:LC_IDENTIFICATION=en_ZA
-./sysconfig/i18n:LC_TELEPHONE=en_ZA
-./sysconfig/i18n:LC_MONETARY=en_ZA
-./sysconfig/i18n:LC_PAPER=en_ZA
+

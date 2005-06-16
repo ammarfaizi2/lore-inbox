@@ -1,54 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261810AbVFPUte@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261805AbVFPUv2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261810AbVFPUte (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Jun 2005 16:49:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261808AbVFPUte
+	id S261805AbVFPUv2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Jun 2005 16:51:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261808AbVFPUv2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Jun 2005 16:49:34 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:9857 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261811AbVFPUtb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Jun 2005 16:49:31 -0400
-Date: Thu, 16 Jun 2005 22:43:58 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "K.R. Foley" <kr@cybsft.com>
-Cc: linux-kernel@vger.kernel.org, "Eugeny S. Mints" <emints@ru.mvista.com>,
-       Daniel Walker <dwalker@mvista.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
-Message-ID: <20050616204358.GA4656@elte.hu>
-References: <20050608112801.GA31084@elte.hu> <42B0F72D.5040405@cybsft.com> <20050616072935.GB19772@elte.hu> <42B160F5.9060208@cybsft.com> <20050616173247.GA32552@elte.hu> <42B1BDF7.1000700@cybsft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42B1BDF7.1000700@cybsft.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Thu, 16 Jun 2005 16:51:28 -0400
+Received: from alog0475.analogic.com ([208.224.222.251]:46025 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261805AbVFPUuq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Jun 2005 16:50:46 -0400
+Date: Thu, 16 Jun 2005 16:45:42 -0400 (EDT)
+From: "Richard B. Johnson" <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Jesper Juhl <juhl-lkml@dif.dk>
+cc: Andrew Morton <akpm@osdl.org>, Walt Drummond <drummond@valinux.com>,
+       David Mosberger-Tang <davidm@hpl.hp.com>,
+       Stephane Eranian <eranian@hpl.hp.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [resend][PATCH] avoid signed vs unsigned comparison in
+ efi_range_is_wc()
+In-Reply-To: <Pine.LNX.4.62.0506162219040.2477@dragon.hyggekrogen.localhost>
+Message-ID: <Pine.LNX.4.61.0506161629220.3712@chaos.analogic.com>
+References: <Pine.LNX.4.62.0506162219040.2477@dragon.hyggekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* K.R. Foley <kr@cybsft.com> wrote:
+Well long and int are the same size on ix86. What you really need
+is 'size_t' for counters. That's the largest unsigned integer that
+will fit in a register on the target platform. It is platform-
+specific, therefore defined in stddef.h. No index or return-value
+is supposed to be larger than what can be represented in size_t,
+therefore it is a good type to use.
 
-> >>[...] That works to get the system booted. Although I am getting many 
-> >>soft lockups now, minutes after the boot. Log attached. [...]
-> >
-> >
-> >hm, do you get actual lockups, or only the messages about them? I.e.  
-> >does the system work fine if you [the sounds of careful thinking to get 
-> >the word right] disable CONFIG_DETECT_SOFTLOCKUP, or does it lock up 
-> >silently?
-> 
-> There doesn't seem to be any actual lockups, just messages. I will try 
-> disabling the above when I get home this evening. Can't get to the 
-> system right now.
+Note that on 64-bit platforms, size_t will be larger than an unsigned
+int. This is good.
 
-i tweaked the softlockup detector in the last patch a bit (to fix false 
-positives under very high loads), might have broken it on SMP.
+On Thu, 16 Jun 2005, Jesper Juhl wrote:
 
-	Ingo
+> I send in the patch below a while back but never recieved any response.
+> Now I'm resending it in the hope that it might be added to -mm.
+> The patch still applies cleanly to 2.6.12-rc6-mm1
+>
+> -- 
+> Jesper Juhl
+>
+>
+> ---------- Forwarded message ----------
+> Date: Fri, 18 Mar 2005 00:43:33 +0100 (CET)
+> From: Jesper Juhl <juhl-lkml@dif.dk>
+> To: linux-kernel <linux-kernel@vger.kernel.org>
+> Cc: Walt Drummond <drummond@valinux.com>,
+>    David Mosberger-Tang <davidm@hpl.hp.com>,
+>    Stephane Eranian <eranian@hpl.hp.com>
+> Subject: [PATCH] avoid signed vs unsigned comparison in efi_range_is_wc()
+>
+>
+> This little function in include/linux/efi.h :
+>
+> static inline int efi_range_is_wc(unsigned long start, unsigned long len)
+> {
+>        int i;
+>
+>        for (i = 0; i < len; i += (1UL << EFI_PAGE_SHIFT)) {
+>                unsigned long paddr = __pa(start + i);
+>                if (!(efi_mem_attributes(paddr) & EFI_MEMORY_WC))
+>                        return 0;
+>        }
+>        /* The range checked out */
+>        return 1;
+> }
+>
+> generates this warning when building with gcc -W :
+>
+> include/linux/efi.h: In function `efi_range_is_wc':
+> include/linux/efi.h:320: warning: comparison between signed and unsigned
+>
+> It looks to me like a significantly large 'len' passed in could cause the
+> loop to never end. Isn't it safer to make 'i' an unsigned long as well?
+> Like this little patch below (which of course also kills the warning) :
+>
+>
+> Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+>
+> diff -up linux-2.6.11-mm4-orig/include/linux/efi.h linux-2.6.11-mm4/include/linux/efi.h
+> --- linux-2.6.11-mm4-orig/include/linux/efi.h	2005-03-16 15:45:35.000000000 +0100
+> +++ linux-2.6.11-mm4/include/linux/efi.h	2005-03-18 00:34:36.000000000 +0100
+> @@ -315,7 +315,7 @@ extern struct efi_memory_map memmap;
+>  */
+> static inline int efi_range_is_wc(unsigned long start, unsigned long len)
+> {
+> -	int i;
+> +	unsigned long i;
+>
+> 	for (i = 0; i < len; i += (1UL << EFI_PAGE_SHIFT)) {
+> 		unsigned long paddr = __pa(start + i);
+>
+>
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.11.9 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

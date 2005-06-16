@@ -1,87 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261798AbVFPT5s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261807AbVFPT6M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261798AbVFPT5s (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Jun 2005 15:57:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261802AbVFPT5r
+	id S261807AbVFPT6M (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Jun 2005 15:58:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261803AbVFPT57
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Jun 2005 15:57:47 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:5801 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S261798AbVFPT5m (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Jun 2005 15:57:42 -0400
-Message-ID: <42B1D9AE.5000002@adaptec.com>
-Date: Thu, 16 Jun 2005 15:57:34 -0400
-From: Luben Tuikov <luben_tuikov@adaptec.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+	Thu, 16 Jun 2005 15:57:59 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:29104 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S261801AbVFPT5p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Jun 2005 15:57:45 -0400
+X-Comment: AT&T Maillennium special handling code - c
+Message-ID: <42B1D880.9050305@namesys.com>
+Date: Thu, 16 Jun 2005 12:52:32 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Oops calling sysfs_create_link() from pci_probe()
-Content-Type: text/plain; charset=ISO-8859-1
+To: Helge Hafting <helge.hafting@aitel.hist.no>
+CC: "Theodore Ts'o" <tytso@mit.edu>, Kenichi Okuyama <okuyamak@dd.iij4u.or.jp>,
+       Andreas Dilger <adilger@clusterfs.com>, fs <fs@ercist.iscas.ac.cn>,
+       linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, zhiming@admin.iscas.ac.cn,
+       qufuping@ercist.iscas.ac.cn, madsys@ercist.iscas.ac.cn,
+       xuh@nttdata.com.cn, koichi@intellilink.co.jp,
+       kuroiwaj@intellilink.co.jp, okuyama@intellilink.co.jp,
+       matsui_v@valinux.co.jp, kikuchi_v@valinux.co.jp,
+       fernando@intellilink.co.jp, kskmori@intellilink.co.jp,
+       takenakak@intellilink.co.jp, yamaguchi@intellilink.co.jp,
+       ext2-devel@lists.sourceforge.net, shaggy@austin.ibm.com,
+       xfs-masters@oss.sgi.com,
+       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>
+Subject: Re: [Ext2-devel] Re: [RFD] FS behavior (I/O failure) in kernel summit
+References: <1118692436.2512.157.camel@CoolQ> <42ADC99D.5000801@namesys.com> <20050613201315.GC19319@moraine.clusterfs.com> <42AE1D4A.3030504@namesys.com> <42AE450C.5020908@dd.iij4u.or.jp> <20050615140105.GE4228@thunk.org> <42B091E3.3010908@namesys.com> <42B1681B.6000703@aitel.hist.no>
+In-Reply-To: <42B1681B.6000703@aitel.hist.no>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 16 Jun 2005 19:57:02.0775 (UTC) FILETIME=[906ABC70:01C572AD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Helge, the kernel needs to send a proper message to some proper demon
+that does the right thing.  Neither proper message nor proper demon
+currently exists.  If you think that what we have works, try unplugging
+a USB drive while an unsophisticated user is using it.
 
-I'm calling
+The conversion to and then from these -EIO style codes with their
+limited number of allowed values (what is it, 128 values? ) loses
+information, such as what the user should do, and whether to tell the
+user about it or just tell the app. 
 
-sysfs_create_link(&class->kobj,
-		  &pcidev->driver->driver.kobj, "driver");
+The current system was not exactly designed by a usability expert.....
 
-To create a link from a syfs directory of an object which I've
-created with class_device_regsiter(), to point to the
-driver directory of the pci driver.
-This is effectively called at the bottom of the pci_driver->probe
-function.
+Some error messages need to be fs specific (e.g. hash collisions), and
+some are not at all fs specific and should be standardized across all
+filesystems (e.g. USB drive unplugged).
 
-But I get this oops:
- printing eip:
-c0229e7b
-*pde = 00000000
-Oops: 0000 [#1]
-PREEMPT SMP 
-Modules linked in: aic94xx sas_class
-CPU:    0
-EIP:    0060:[<c0229e7b>]    Not tainted VLI
-EFLAGS: 00010296   (2.6.12-rc6) 
-EIP is at kref_get+0xb/0x50
-eax: 00000060   ebx: 00000060   ecx: 00000000   edx: 0000002c
-esi: e09342cb   edi: df02a997   ebp: fffffff4   esp: d5a81e0c
-ds: 007b   es: 007b   ss: 0068
-Process insmod (pid: 3166, threadinfo=d5a80000 task=df6bc540)
-Stack: c014653b dfff5080 000000d0 df02a98c 00000048 c02293aa 00000060 d35257ac 
-       c0195d77 00000048 000000d0 c022948e decdc040 c0229460 d335d4b0 c2a0b530 
-       00000000 decdc020 decdc014 c0195e0f c2a0b530 e09342c4 00000048 e0935180 
-Call Trace:
- [<c014653b>] __kmalloc+0x9b/0xd0
- [<c02293aa>] kobject_get+0x1a/0x30
- [<c0195d77>] sysfs_add_link+0x77/0xd0
- [<c022948e>] kobject_put+0x1e/0x30
- [<c0229460>] kobject_release+0x0/0x10
- [<c0195e0f>] sysfs_create_link+0x3f/0x70
- [<e093419e>] sas_register_ha+0x10e/0x160 [sas_class]
- [<e0a6cf67>] asd_pci_probe+0x6b7/0x760 [aic94xx]
- [<c0235a62>] pci_device_probe_static+0x52/0x70
- [<c0235abc>] __pci_device_probe+0x3c/0x50
- [<c0235afc>] pci_device_probe+0x2c/0x50
- [<c026d40f>] driver_probe_device+0x2f/0x80
- [<c026d55c>] driver_attach+0x5c/0x90
- [<c026da8e>] bus_add_driver+0x9e/0xd0
- [<c0235dbd>] pci_register_driver+0x7d/0xa0
- [<e0814044>] aic94xx_init+0x44/0x58 [aic94xx]
- [<c01389a3>] sys_init_module+0x223/0x250
- [<c0102fb5>] syscall_call+0x7/0xb
-Code: 92 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 8b 44 24 04 c7 00 01 00 00 00 c3 90 8d 74 26 00 83 ec 14 89 5c 24 10 8b 5c 24 18 <8b> 03 85 c0 74 0b f0 ff 03 8b 5c 24 10 83 c4 14 c3 c7 04 24 fa 
- 
+The essential point is that what we have now is incoherent and broken in
+its usability.  Fixing it requires deep work, not surface work.  Deeper
+work than I think Kennichi-san realized.  Lets not get mired in details
+though of what API should be created until someone volunteers to do the
+substantial labor required to unbreak the usability.  If someone were to
+appear and offer to fix the usability, I would be happy to have
+reiserfs/reiser4 cooperate with that.  Ted, what about ext2/3, would you
+guys support such an effort?  Maybe if we are encouraging as a group,
+someone will volunteer....
 
-Which suggests that I cannot call this from inside pci_probe(),
-but will have to "wait" to call it after pci_regsiter_driver()
-returns, effectively after pci_populate_driver_dir() returns.
+Hans
 
-Is this correct assumption? Or can I call the syslink call
-above in other ways?
+Helge Hafting wrote:
 
-Thanks,
-	Luben
+> Hans Reiser wrote:
+>
+>> What users need is for a window to pop up saying "the usb drive is
+>> turned off" or "we are getting checksum errors from XXX, this may
+>> indicate hardware problems that require your attention".
+>>  
+>>
+> Nice.  And the way to do this right is to have the kernel merely
+> log the error as usual.  The user can have some daemon listening
+> to the log, this program may then pop up error messages with
+> nifty detailed explanations, start up diagnostic software
+> for various subsystems and so on.
+> The kernel can't do GUI stuff - a GUI may or may not be present,
+> and the kernel cannot know.  The server may not run X at all
+> but I still run graphical SW on it using a workstation or X-terminal.
+> Or the pc may have three video cards, each running a different xserver
+> with different users for each.  Who to report to?
+>
+> An error-reporting daemon have an easier job, it can look up the
+> correct (possibly remote) display in its config file for all those
+> cases when there isn't just _one_ display.
+>
+> Helge Hafting
+>
+>
+>
+>
+>
+>
+

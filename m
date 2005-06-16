@@ -1,47 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261174AbVFPHca@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261180AbVFPHfq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261174AbVFPHca (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Jun 2005 03:32:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261180AbVFPHc3
+	id S261180AbVFPHfq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Jun 2005 03:35:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbVFPHfq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Jun 2005 03:32:29 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:22930 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261174AbVFPHc1 (ORCPT
+	Thu, 16 Jun 2005 03:35:46 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:51915 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S261180AbVFPHfj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Jun 2005 03:32:27 -0400
-Date: Thu, 16 Jun 2005 09:29:35 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "K.R. Foley" <kr@cybsft.com>
-Cc: linux-kernel@vger.kernel.org, "Eugeny S. Mints" <emints@ru.mvista.com>,
-       Daniel Walker <dwalker@mvista.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
-Message-ID: <20050616072935.GB19772@elte.hu>
-References: <20050608112801.GA31084@elte.hu> <42B0F72D.5040405@cybsft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42B0F72D.5040405@cybsft.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Thu, 16 Jun 2005 03:35:39 -0400
+Message-ID: <42B12DD6.7028CBAE@tv-sign.ru>
+Date: Thu, 16 Jun 2005 11:44:22 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: [BUG] Race condition with it_real_fn in kernel/itimer.c
+References: <42B067BD.F4526CD@tv-sign.ru>
+		 <1118860623.4508.70.camel@localhost.localdomain> <1118864043.4508.81.camel@localhost.localdomain>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Steven Rostedt wrote:
+>
+> So, timer_pending tests if timer->base is NULL, but here we see that
+> timer->base IS NULL before the function is called, and as I have said
+> earlier, the it_real_arm can be called on two CPUS simultaneously. So
+> here's another patch that should fix this race condition too.
+>
+> [...]
+>
+> +		/*
+> +		 * Call del_timer_sync unconditionally, since we don't
+> +		 * know if it is running or not. We also need to unlock
+> +		 * the siglock so that the it_real_fn called by ksoftirqd
+> +		 * doesn't wait for us.
+> +		 */
+> +		spin_unlock(&tsk->sighand->siglock);
+> +		del_timer_sync(&tsk->signal->real_timer);
+> +		spin_lock(&tsk->sighand->siglock);
 
-* K.R. Foley <kr@cybsft.com> wrote:
+I don't think this is 100% correct. After del_timer_sync() returns another
+thread can come and call do_setitimer() and re-arm the timer (because with
+your patch we are dropping tsk->sighand->siglock here). So this patch does
+not garantees that the timer is not queued/running after del_timer_sync(),
+and the it_real_arm can be called on two CPUS simultaneously again.
 
-> Having problems with -RT-2.6.12-rc6-V0.7.48-33 booting on my older SMP 
-> system (dual 933). Looking at the log apic.log it indicates a problem 
-> with APIC. noapic.log is a log when I add "noapic" to the boot 
-> parameters.
+There is a try_to_del_timer_sync() in the -mm tree which is suitable here:
 
-could you uncomment the IO_APIC_CACHE define in 
-arch/i386/kernel/io_apic.c, and could you uncomment line 1109 in 
-drivers/ide/ide-io.c - does this fix things? (in apic mode)
+	again:
+		spin_lock_irq(&tsk->sighand->siglock);
+		if (try_to_del_timer_sync(&tsk->signal->real_timer) < 0) {
+			spin_unlock_irq(&tsk->sighand->siglock);
+			goto again;
+		}
 
-	Ingo
+Oleg.

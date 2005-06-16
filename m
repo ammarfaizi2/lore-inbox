@@ -1,222 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261847AbVFPWij@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261844AbVFPWmw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261847AbVFPWij (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Jun 2005 18:38:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261858AbVFPWib
+	id S261844AbVFPWmw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Jun 2005 18:42:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261852AbVFPWlq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Jun 2005 18:38:31 -0400
-Received: from fmr19.intel.com ([134.134.136.18]:7346 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261847AbVFPWdg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Jun 2005 18:33:36 -0400
-Message-Id: <20050616223254.746591000@linux.jf.intel.com>
-References: <20050616223139.444305000@linux.jf.intel.com>
-Date: Thu, 16 Jun 2005 15:31:40 -0700
-From: rusty.lynch@intel.com
-To: akpm@osdl.org
-Cc: systemtap@sources.redhat.com, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Hien Nguyen <hien@us.ibm.com>,
-       Prasanna S Panchamukhi <prasanna@in.ibm.com>, Andi Kleen <ak@suse.de>,
-       Ananth N Mavinakayanahalli <amavin@redhat.com>,
-       linuxppc64-dev@ozlabs.org
-Subject: [patch 1/5] [kprobes] Tweak to the function return probe design - take 2
-Content-Disposition: inline; filename=kprobes-return-probes-redux-base.patch
+	Thu, 16 Jun 2005 18:41:46 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:42126 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S261844AbVFPWgn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Jun 2005 18:36:43 -0400
+Date: Fri, 17 Jun 2005 00:34:08 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Pascal CHAPPERON <pascal.chapperon@wanadoo.fr>
+Cc: Andrew Hutchings <info@a-wing.co.uk>, linux-kernel@vger.kernel.org,
+       vinay kumar <b4uvin@yahoo.co.in>, jgarzik@pobox.com
+Subject: Re: sis190
+Message-ID: <20050616223407.GA30978@electric-eye.fr.zoreil.com>
+References: <14131924.1118848920765.JavaMail.www@wwinf0503>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <14131924.1118848920765.JavaMail.www@wwinf0503>
+User-Agent: Mutt/1.4.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch provides the architecture independant changes for the tweaks 
-to the function return probe design.
+Pascal CHAPPERON <pascal.chapperon@wanadoo.fr> :
+[...]
+> # i tried to remove NET_IP_ALIGN :
 
-    --rusty
+It works but the headers are not aligned any more. It could be interesting
+to know what the smallest required alignment is (i.e
+dev_alloc_skb(rx_buf_sz + 2^n); skb_reserve(skb, 2^n); increase n and when
+the driver starts receiving again, you found it).
 
-signed-off-by: Rusty Lynch <Rusty.lynch@intel.com>
+> But :
+[...]
+> Everything failed after 128 packets were received.
 
- include/linux/kprobes.h |   28 ++-----------------
- kernel/kprobes.c        |   69 +++++++++++++-----------------------------------
- 2 files changed, 22 insertions(+), 75 deletions(-)
+Can you give a try at:
+http://www.fr.zoreil.com/people/francois/misc/20050616-2.6.12-rc-sis190-test.patch
 
-Index: linux-2.6.12-rc6/include/linux/kprobes.h
-===================================================================
---- linux-2.6.12-rc6.orig/include/linux/kprobes.h
-+++ linux-2.6.12-rc6/include/linux/kprobes.h
-@@ -104,33 +104,12 @@ struct jprobe {
- };
- 
- #ifdef ARCH_SUPPORTS_KRETPROBES
--extern int trampoline_probe_handler(struct kprobe *p, struct pt_regs *regs);
--extern void trampoline_post_handler(struct kprobe *p, struct pt_regs *regs,
--							unsigned long flags);
--extern struct task_struct *arch_get_kprobe_task(void *ptr);
- extern void arch_prepare_kretprobe(struct kretprobe *rp, struct pt_regs *regs);
--extern void arch_kprobe_flush_task(struct task_struct *tk);
- #else /* ARCH_SUPPORTS_KRETPROBES */
--static inline void kretprobe_trampoline(void)
--{
--}
--static inline int trampoline_probe_handler(struct kprobe *p,
--						struct pt_regs *regs)
--{
--	return 0;
--}
--static inline void trampoline_post_handler(struct kprobe *p,
--				struct pt_regs *regs, unsigned long flags)
--{
--}
- static inline void arch_prepare_kretprobe(struct kretprobe *rp,
- 					struct pt_regs *regs)
- {
- }
--static inline void arch_kprobe_flush_task(struct task_struct *tk)
--{
--}
--#define arch_get_kprobe_task(ptr) ((struct task_struct *)NULL)
- #endif /* ARCH_SUPPORTS_KRETPROBES */
- /*
-  * Function-return probe -
-@@ -155,8 +134,8 @@ struct kretprobe_instance {
- 	struct hlist_node uflist; /* either on free list or used list */
- 	struct hlist_node hlist;
- 	struct kretprobe *rp;
--	void *ret_addr;
--	void *stack_addr;
-+	kprobe_opcode_t *ret_addr;
-+	struct task_struct *task;
- };
- 
- #ifdef CONFIG_KPROBES
-@@ -176,6 +155,7 @@ extern void arch_copy_kprobe(struct kpro
- extern void arch_arm_kprobe(struct kprobe *p);
- extern void arch_disarm_kprobe(struct kprobe *p);
- extern void arch_remove_kprobe(struct kprobe *p);
-+extern int arch_init(void);
- extern void show_registers(struct pt_regs *regs);
- 
- /* Get the kprobe at this addr (if any).  Must have called lock_kprobes */
-@@ -194,8 +174,6 @@ int register_kretprobe(struct kretprobe 
- void unregister_kretprobe(struct kretprobe *rp);
- 
- struct kretprobe_instance *get_free_rp_inst(struct kretprobe *rp);
--struct kretprobe_instance *get_rp_inst(void *sara);
--struct kretprobe_instance *get_rp_inst_tsk(struct task_struct *tk);
- void add_rp_inst(struct kretprobe_instance *ri);
- void kprobe_flush_task(struct task_struct *tk);
- void recycle_rp_inst(struct kretprobe_instance *ri);
-Index: linux-2.6.12-rc6/kernel/kprobes.c
-===================================================================
---- linux-2.6.12-rc6.orig/kernel/kprobes.c
-+++ linux-2.6.12-rc6/kernel/kprobes.c
-@@ -138,12 +138,6 @@ static int aggr_break_handler(struct kpr
- 	return 0;
- }
- 
--struct kprobe trampoline_p = {
--		.addr = (kprobe_opcode_t *) &kretprobe_trampoline,
--		.pre_handler = trampoline_probe_handler,
--		.post_handler = trampoline_post_handler
--};
--
- struct kretprobe_instance *get_free_rp_inst(struct kretprobe *rp)
- {
- 	struct hlist_node *node;
-@@ -162,35 +156,18 @@ struct kretprobe_instance *get_used_rp_i
- 	return NULL;
- }
- 
--struct kretprobe_instance *get_rp_inst(void *sara)
--{
--	struct hlist_head *head;
--	struct hlist_node *node;
--	struct task_struct *tsk;
--	struct kretprobe_instance *ri;
--
--	tsk = arch_get_kprobe_task(sara);
--	head = &kretprobe_inst_table[hash_ptr(tsk, KPROBE_HASH_BITS)];
--	hlist_for_each_entry(ri, node, head, hlist) {
--		if (ri->stack_addr == sara)
--			return ri;
--	}
--	return NULL;
--}
--
- void add_rp_inst(struct kretprobe_instance *ri)
- {
--	struct task_struct *tsk;
- 	/*
- 	 * Remove rp inst off the free list -
- 	 * Add it back when probed function returns
- 	 */
- 	hlist_del(&ri->uflist);
--	tsk = arch_get_kprobe_task(ri->stack_addr);
-+
- 	/* Add rp inst onto table */
- 	INIT_HLIST_NODE(&ri->hlist);
- 	hlist_add_head(&ri->hlist,
--			&kretprobe_inst_table[hash_ptr(tsk, KPROBE_HASH_BITS)]);
-+			&kretprobe_inst_table[hash_ptr(ri->task, KPROBE_HASH_BITS)]);
- 
- 	/* Also add this rp inst to the used list. */
- 	INIT_HLIST_NODE(&ri->uflist);
-@@ -217,34 +194,25 @@ struct hlist_head * kretprobe_inst_table
- 	return &kretprobe_inst_table[hash_ptr(tsk, KPROBE_HASH_BITS)];
- }
- 
--struct kretprobe_instance *get_rp_inst_tsk(struct task_struct *tk)
--{
--	struct task_struct *tsk;
--	struct hlist_head *head;
--	struct hlist_node *node;
--	struct kretprobe_instance *ri;
--
--	head = &kretprobe_inst_table[hash_ptr(tk, KPROBE_HASH_BITS)];
--
--	hlist_for_each_entry(ri, node, head, hlist) {
--		tsk = arch_get_kprobe_task(ri->stack_addr);
--		if (tsk == tk)
--			return ri;
--	}
--	return NULL;
--}
--
- /*
-- * This function is called from do_exit or do_execv when task tk's stack is
-- * about to be recycled. Recycle any function-return probe instances
-- * associated with this task. These represent probed functions that have
-- * been called but may never return.
-+ * This function is called from exit_thread or flush_thread when task tk's
-+ * stack is being recycled so that we can recycle any function-return probe
-+ * instances associated with this task. These left over instances represent
-+ * probed functions that have been called but will never return.
-  */
- void kprobe_flush_task(struct task_struct *tk)
- {
-+        struct kretprobe_instance *ri;
-+        struct hlist_head *head;
-+	struct hlist_node *node, *tmp;
- 	unsigned long flags = 0;
-+
- 	spin_lock_irqsave(&kprobe_lock, flags);
--	arch_kprobe_flush_task(tk);
-+        head = kretprobe_inst_table_head(current);
-+        hlist_for_each_entry_safe(ri, node, tmp, head, hlist) {
-+                if (ri->task == tk)
-+                        recycle_rp_inst(ri);
-+        }
- 	spin_unlock_irqrestore(&kprobe_lock, flags);
- }
- 
-@@ -504,9 +472,10 @@ static int __init init_kprobes(void)
- 		INIT_HLIST_HEAD(&kretprobe_inst_table[i]);
- 	}
- 
--	err = register_die_notifier(&kprobe_exceptions_nb);
--	/* Register the trampoline probe for return probe */
--	register_kprobe(&trampoline_p);
-+	err = arch_init();
-+	if (!err)
-+		err = register_die_notifier(&kprobe_exceptions_nb);
-+
- 	return err;
- }
- 
+Please issue a few packets, say 4 to 8, and check your log after an
+ethtool -i eth0. Then wait for the Rx process to get stuck and issue
+the same ethtool command. You can probably lower NUM_RX_DESC to 16 or
+32 to minimize the output.
+
+[...]
+> I got a serious headache as i tried to understand how the RX ring works.
+> But it is quite too difficult for me now.
+
+The last descriptor of the Rx ring is supposed to be marked with an end
+of ring indication (see RingEnd). When it is reached, the asic returns to
+the start of the ring. The dirty_rx index locates the first entry in the
+ring which is a candidate for refilling (assuming its Rx_skbuff entry is
+equal to NULL: when a packet passes rx_copybreak, it does not generate a
+hole in the ring). cur_rx locates the currently Rx DMAed buffer.
+Both dirty_rx and cur_rx are meaningful % the actual number of entries in
+the Rx ring, namely NUM_RX_DESC. Since NUM_RX_DESC usually is a power of
+two, it is not uncommon to encounter % NUM_RX_DESC or & (NUM_RX_DESC - 1).
 
 --
+Ueimor

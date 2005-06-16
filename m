@@ -1,68 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261712AbVFPDAJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261716AbVFPD1i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261712AbVFPDAJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 23:00:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261713AbVFPDAJ
+	id S261716AbVFPD1i (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 23:27:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261715AbVFPD1i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 23:00:09 -0400
-Received: from downeast.net ([12.149.251.230]:3308 "EHLO downeast.net")
-	by vger.kernel.org with ESMTP id S261712AbVFPC7q (ORCPT
+	Wed, 15 Jun 2005 23:27:38 -0400
+Received: from chilli.pcug.org.au ([203.10.76.44]:19144 "EHLO smtps.tip.net.au")
+	by vger.kernel.org with ESMTP id S261719AbVFPD1b (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 22:59:46 -0400
-From: Patrick McFarland <pmcfarland@downeast.net>
-To: "Theodore Ts'o" <tytso@mit.edu>
-Subject: Re: A Great Idea (tm) about reimplementing NLS.
-Date: Wed, 15 Jun 2005 22:59:20 -0400
-User-Agent: KMail/1.8
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Alexey Zaytsev <alexey.zaytsev@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <f192987705061303383f77c10c@mail.gmail.com> <200506152149.06367.pmcfarland@downeast.net> <20050616023630.GC9773@thunk.org>
-In-Reply-To: <20050616023630.GC9773@thunk.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1481946.mYfa3de3nt";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200506152259.29490.pmcfarland@downeast.net>
+	Wed, 15 Jun 2005 23:27:31 -0400
+Date: Thu, 16 Jun 2005 13:26:59 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Bodo Eggert <7eggert@gmx.de>
+Cc: macro@linux-mips.org, linux-os@analogic.com, gene.heskett@verizon.net,
+       cutaway@bellsouth.net, linux-kernel@vger.kernel.org
+Subject: Re: .../asm-i386/bitops.h  performance improvements
+Message-Id: <20050616132659.65a72842.sfr@canb.auug.org.au>
+In-Reply-To: <Pine.LNX.4.58.0506152053010.3184@be1.lrz>
+References: <4fB8l-73q-9@gated-at.bofh.it>
+	<4fF2j-1Lo-19@gated-at.bofh.it>
+	<E1DiZKe-0000em-58@be1.7eggert.dyndns.org>
+	<Pine.LNX.4.61L.0506151629270.13835@blysk.ds.pg.gda.pl>
+	<Pine.LNX.4.61.0506151200490.24211@chaos.analogic.com>
+	<Pine.LNX.4.61L.0506151723460.13835@blysk.ds.pg.gda.pl>
+	<Pine.LNX.4.58.0506152053010.3184@be1.lrz>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Thu__16_Jun_2005_13_26_59_+1000_5Zf8VOvDIN4/MKBp"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1481946.mYfa3de3nt
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+--Signature=_Thu__16_Jun_2005_13_26_59_+1000_5Zf8VOvDIN4/MKBp
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Wednesday 15 June 2005 10:36 pm, Theodore Ts'o wrote:
-> Ext2/3's encoding has always been utf-8.  Period.
+On Wed, 15 Jun 2005 21:10:26 +0200 (CEST) Bodo Eggert <7eggert@gmx.de> wrot=
+e:
 >
-> There have been some people who have chosen to do something else
-> locally, but that was about as valid as the people who violated SMTP
-> standards by Just Sending 8-bits instead of using MIME.
+> My documentation says:
+>=20
+> lea reg16, mem
+> Available on 8086, 80186, 80286, 80386, 80486
+> 32-bit-extension available
+> Opcode: 8D mod reg r/m
+>=20
+> reg will be the target register (AX .. DI), and mod and r/m will select
+> something like a direct address, a register or a combination like=20
+> BP+DI+ofs (I won't copy the table). A multiplier is not mentioned there.
 
-Ahh. Whoever made that choice way back at the beginning of Ext2 development=
-=20
-rocks. Whoever you are, Thanks.
+In 32 bit mode on the 386 and above, a two byte version of the "mod reg
+r/m" is possible which contains the scaling field ...
 
-=2D-=20
-Patrick "Diablo-D3" McFarland || pmcfarland@downeast.net
-"Computer games don't affect kids; I mean if Pac-Man affected us as kids, w=
-e'd=20
-all be running around in darkened rooms, munching magic pills and listening=
- to
-repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989
+On the 386, using a second register in the ea calculation costs another
+cycle.
 
---nextPart1481946.mYfa3de3nt
+--=20
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
+
+--Signature=_Thu__16_Jun_2005_13_26_59_+1000_5Zf8VOvDIN4/MKBp
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-iD8DBQBCsOsR8Gvouk7G1cURAq+ZAKCTXmAgPtLaeZesx2julyfx6p5bawCgkKQ8
-2XRMzrMtIcqColxxvUhAQ2k=
-=m8y9
+iD8DBQFCsPGL4CJfqux9a+8RAgQXAJ9nDzcq2m3fY5oujfgk1Ww/ENWLMQCfUA+g
+3kZU3xoam6BPvqKpyMcwsLw=
+=F+zj
 -----END PGP SIGNATURE-----
 
---nextPart1481946.mYfa3de3nt--
+--Signature=_Thu__16_Jun_2005_13_26_59_+1000_5Zf8VOvDIN4/MKBp--

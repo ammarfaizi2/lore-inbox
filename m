@@ -1,60 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261880AbVFPW7t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261852AbVFPWmw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261880AbVFPW7t (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Jun 2005 18:59:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261849AbVFPW4l
+	id S261852AbVFPWmw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Jun 2005 18:42:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261849AbVFPWlb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Jun 2005 18:56:41 -0400
-Received: from zproxy.gmail.com ([64.233.162.194]:35335 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261876AbVFPWxX convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Jun 2005 18:53:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=eSdASbjHJkOXT24UeDk3dgA4WUvRPrj81X4eRh6BsRccUEwFsvf5eqjU4DIahYjjRxVtWMkgCDd0FQRVcFCsHj6mghgI8IqaSiReXrY2laagjSL8R1DqYj1YXRLKqVlWX/kICvsqPcawDNo6D2LV4PNDz8hpepLzWpwU0xUEb4k=
-Message-ID: <9a8748490506161553409d2851@mail.gmail.com>
-Date: Fri, 17 Jun 2005 00:53:23 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
-To: "David S. Miller" <davem@davemloft.net>
-Subject: Re: Shouldn't we be using alloc_skb/kfree_skb in net/ipv4/netfilter/ipt_recent.c::ip_recent_ctrl ?
-Cc: juhl-lkml@dif.dk, linux-kernel@vger.kernel.org, laforge@netfilter.org,
-       sfrost@snowman.net
-In-Reply-To: <20050616.154838.41634341.davem@davemloft.net>
+	Thu, 16 Jun 2005 18:41:31 -0400
+Received: from fmr22.intel.com ([143.183.121.14]:11680 "EHLO
+	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261852AbVFPWeT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Jun 2005 18:34:19 -0400
+Date: Thu, 16 Jun 2005 15:34:06 -0700
+From: Rajesh Shah <rajesh.shah@intel.com>
+To: Greg KH <gregkh@suse.de>
+Cc: len.brown@intel.com, ak@suse.de, acpi-devel@lists.sourceforge.net,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 03/04] PCI: use the MCFG table to properly access pci devices (x86-64)
+Message-ID: <20050616153404.B5337@unix-os.sc.intel.com>
+Reply-To: Rajesh Shah <rajesh.shah@intel.com>
+References: <20050615052916.GA23394@kroah.com> <20050615053031.GB23394@kroah.com> <20050615053120.GC23394@kroah.com> <20050615053214.GD23394@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <Pine.LNX.4.62.0506170025140.2477@dragon.hyggekrogen.localhost>
-	 <20050616.154838.41634341.davem@davemloft.net>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050615053214.GD23394@kroah.com>; from gregkh@suse.de on Tue, Jun 14, 2005 at 10:32:14PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/17/05, David S. Miller <davem@davemloft.net> wrote:
-> From: Jesper Juhl <juhl-lkml@dif.dk>
-> Date: Fri, 17 Jun 2005 00:36:04 +0200 (CEST)
+On Tue, Jun 14, 2005 at 10:32:14PM -0700, Greg KH wrote:
 > 
-> > I was just grep'ing through the source looking for places where skb's
-> > might be freed by plain kfree() and, amongst other things, I noticed
-> > net/ipv4/netfilter/ipt_recent.c::ip_recent_ctrl, where a struct sk_buff*
-> > is defined and then storage for it is allocated with kmalloc() and freed
-> > with kfree(), and I'm wondering if we shouldn't be using
-> > alloc_skb/kfree_skb instead (as pr the patch below)? Or is there some good
-> > reason for doing it the way it's currently done?
-> 
-> It's using it to send a dummy packet to the patch function.
-> It is gross, but it does work because it allocated it's own
-> private data area to skb->nh.iph.
-> 
-> Just leave it alone for now, ipt_recent is gross and full of many
-> errors and bug, and thus stands to have a rewrite. Patrick McHardy
-> said he will try to do that.
-> 
-Ok. I was just about to send the patch off to Andrew based on
-Stephen's reply, but I'll hold off on that then.
+> +	for (i = 0; i < pci_mmcfg_config_num; ++i) {
+> +		pci_mmcfg_virt[i].cfg = &pci_mmcfg_config[i];
+> +		pci_mmcfg_virt[i].virt = ioremap_nocache(pci_mmcfg_config[i].base_address, MMCONFIG_APER_SIZE);
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+This will map 256MB for each mmcfg aperture, probably better
+to restrict it based on bus number range for this aperture.
+
+Since you are reworking the patches, I will wait for the
+next version and try that out on a couple of Intel x86_64
+boxes here.
+
+Rajesh
+

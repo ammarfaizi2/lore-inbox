@@ -1,65 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261397AbVFPOho@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261554AbVFPOqS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261397AbVFPOho (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Jun 2005 10:37:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261554AbVFPOho
+	id S261554AbVFPOqS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Jun 2005 10:46:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261665AbVFPOqS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Jun 2005 10:37:44 -0400
-Received: from thunk.org ([69.25.196.29]:23205 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S261397AbVFPOhh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Jun 2005 10:37:37 -0400
-Date: Thu, 16 Jun 2005 10:37:27 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Jeremy Maitin-Shepard <jbms@cmu.edu>
-Cc: Patrick McFarland <pmcfarland@downeast.net>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Alexey Zaytsev <alexey.zaytsev@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Thu, 16 Jun 2005 10:46:18 -0400
+Received: from alog0328.analogic.com ([208.224.222.104]:37563 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261554AbVFPOqM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Jun 2005 10:46:12 -0400
+Date: Thu, 16 Jun 2005 10:44:52 -0400 (EDT)
+From: "Richard B. Johnson" <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+cc: Lukasz Stelmach <stlman@poczta.fm>, mru@inprovide.com,
+       Patrick McFarland <pmcfarland@downeast.net>,
+       "Alexander E. Patrakov" <patrakov@ums.usu.ru>,
+       linux-kernel@vger.kernel.org
 Subject: Re: A Great Idea (tm) about reimplementing NLS.
-Message-ID: <20050616143727.GC10969@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Jeremy Maitin-Shepard <jbms@cmu.edu>,
-	Patrick McFarland <pmcfarland@downeast.net>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Alexey Zaytsev <alexey.zaytsev@gmail.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <f192987705061303383f77c10c@mail.gmail.com> <f192987705061310202e2d9309@mail.gmail.com> <1118690448.13770.12.camel@localhost.localdomain> <200506152149.06367.pmcfarland@downeast.net> <20050616023630.GC9773@thunk.org> <87y89a7wfn.fsf@jbms.ath.cx>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87y89a7wfn.fsf@jbms.ath.cx>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20050616133904.GU23488@csclub.uwaterloo.ca>
+Message-ID: <Pine.LNX.4.61.0506161036370.30607@chaos.analogic.com>
+References: <f192987705061303383f77c10c@mail.gmail.com> <yw1xslzl8g1q.fsf@ford.inprovide.com>
+ <42AFE624.4020403@poczta.fm> <200506150454.11532.pmcfarland@downeast.net>
+ <42AFF184.2030209@poczta.fm> <yw1xd5qo2bzd.fsf@ford.inprovide.com>
+ <42B04090.7050703@poczta.fm> <20050615212825.GS23621@csclub.uwaterloo.ca>
+ <42B0BAF5.106@poczta.fm> <20050616133904.GU23488@csclub.uwaterloo.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 16, 2005 at 12:33:16AM -0400, Jeremy Maitin-Shepard wrote:
-> > Ext2/3's encoding has always been utf-8.  Period.
-> 
-> In what way does Ext2/3 know or care about file name encoding?  Doesn't
-> it just store an arbitrary 8-byte string?  Couldn't someone claim that
-> from the start it was designed to use iso8859-1 just as easily as you
-> can claim it was designed to use utf-8?
+On Thu, 16 Jun 2005, Lennart Sorensen wrote:
 
-Because we've had this discussion^H^H^H^H^H^H^H^H^H^H^H flame war
-years ago, and despite people from Russia whining that that it took 3
-bytes to encode each Cyrillic character in UTF-8, it's where we came out.  
+> On Thu, Jun 16, 2005 at 01:34:13AM +0200, Lukasz Stelmach wrote:
+>> That's why UTF-8 is suggested. UTF-8 has been developed to "fool" the
+>> software that need not to be aware of unicodeness of the text it manages
+>> to handle it without any hickups *and* to store in the text information
+>> about multibyte characters.What characters exactly you do mean? NULL?
+>> There is no NULL byte in any UTF-8 string except the one which
+>> terminates it.
+>
+> That is true.  UTF-8 wouldn't cause any more problems than ascii already
+> does, such as some filesystems not allowing : and * in filenames among
+> other characters.
+>
+>> Yes, it uses unicode. And dos codepages in short ones. To prove this
+>> take a vfat floppy and mount it. touch(1) a file on it that has some
+>> non latin1 characters. Unmount the floppy then do dd if=/dev/fd0
+>> of=/tmp/floppy bs=1024 count=512. While it's done take some hex
+>> editor/viewer and seek the latin1-complaint part of the filename
+>> in the floppy file (search for uppercase string). Righ above the short
+>> filename you'll find multibyte long one.
+>
+[SNIPPED...]
 
-The bottom-line though is that if someone files a bug report with ext3
-because one user on the system was is creating filenames in Japanese,
-and another user on the same time-sharing system is creating filenames
-in Germany, and they fail to interoperate, and they were doing so in
-their local language, we would laugh at them --- just as people
-writing mail programs would laugh at people who complained that they
-were running into problems Just Sending 8-bits instead of using MIME,
-and could you please fix this business-critical bug?  
+>
+> Len Sorensen
 
-Or as more and more desktop programs start interpreting the filenames
-as UTF-8, and people with local variations get screwed, that is their
-problem, and Not Ours.
+You know this problem was "solved" over 20 years ago when it was
+discovered that file-names could never be long enough. The solution
+was a container-file which contained as much stuff as necessary to
+identity the contents of the file that it was associated with. Using
+this technique, the "real" file didn't need any ASCII identifiers. The
+real file didn't show up in some directory program, just the contents
+of the container-file. This same technique could be used for any
+arbitrary file-identification including characters that haven't been
+invented yet.
 
-So no, we can't prevent anyone from shooting them in the foot.
-However, if they *do* take the gun, aim it straight downwards, and
-pull the trigger, we aren't obligated to help.
-
-						- Ted
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.11.9 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

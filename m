@@ -1,35 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261746AbVFPFZ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261742AbVFPFce@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261746AbVFPFZ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Jun 2005 01:25:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261750AbVFPFZz
+	id S261742AbVFPFce (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Jun 2005 01:32:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261751AbVFPFce
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Jun 2005 01:25:55 -0400
-Received: from wproxy.gmail.com ([64.233.184.200]:61403 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261746AbVFPFZx convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Jun 2005 01:25:53 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=U6/YEpi0eSxxnStlegDcB0DYT7oSAkElrJSEzvmZ1YsG1MFF2nV9EJsiSTB5otLFq85Azax6dDxfPa5t1L7qvsDhHhxyjjUP8HWPCiSimMjT8H12R7gnOCOrTqEwnackIOQ4DGUoHoh+KpxRr/RTnMDPm5rpyFYg3S/NUn4N+0M=
-Message-ID: <d73ab4d005061522254f2e5933@mail.gmail.com>
-Date: Thu, 16 Jun 2005 13:25:52 +0800
-From: guorke <gourke@gmail.com>
-Reply-To: guorke <gourke@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: mabye simple,but i confused
+	Thu, 16 Jun 2005 01:32:34 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:34503 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261742AbVFPFc3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Jun 2005 01:32:29 -0400
+Subject: Re: [PATCH] local_irq_disable removal
+From: Lee Revell <rlrevell@joe-job.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Daniel Walker <dwalker@mvista.com>,
+       linux-kernel@vger.kernel.org, sdietrich@mvista.com
+In-Reply-To: <20050612092856.GB1206@infradead.org>
+References: <1118214519.4759.17.camel@dhcp153.mvista.com>
+	 <20050611165115.GA1012@infradead.org> <20050612062350.GB4554@elte.hu>
+	 <20050612092856.GB1206@infradead.org>
+Content-Type: text/plain
+Date: Thu, 16 Jun 2005 01:35:11 -0400
+Message-Id: <1118900111.630.10.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+X-Mailer: Evolution 2.3.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-in understangding the linux kernel, the authors says 
-"..Moves itself from address 0x00007c00 to address 0x00090000.."
+On Sun, 2005-06-12 at 10:28 +0100, Christoph Hellwig wrote:
+> On Sun, Jun 12, 2005 at 08:23:50AM +0200, Ingo Molnar wrote:
+> > 
+> > * Christoph Hellwig <hch@infradead.org> wrote:
+> > 
+> > > folks, can you please take this RT stuff of lkml?  And with that I
+> > > don't mean the highlevel discussions what makes sense, but specific
+> > > patches that aren't related to anything near mainline. [...]
+> > 
+> > this is a misconception - there's been a few dozen patches steadily 
+> > trickling into mainline that were all started in the PREEMPT_RT 
+> > patchset, so this "RT stuff", both the generic arguments and the details 
+> > are very much relevant. I wouldnt be doing it if it wasnt relevant to 
+> > the mainline kernel. The discussions are well concentrated into 2-3 
+> > subjects so you can plonk those threads if you are not interested.
+> 
+> Then send patches when you think they're ready.  Everything directly
+> related to PREEPT_RT except the highlevel discussion is defintly offotpic.
+> Just create your preempt-rt mailinglist and get interested parties there,
+> lkml is for _general_ kernel discussion - even most subsystems that are
+> in mainline have their own lists.
 
-What i confused is why the Boot Loader do this, i asked google,but
-still no answe.
-who can make me understand it ?
-Thanks.
+I agree, this has to be annoying for people who have no interest in
+PREEMPT_RT, and future PREEMPT_RT development is going to have zero
+effect on people who don't enable it.
+
+Any volunteers to set a list up?
+
+Lee
+
+
+

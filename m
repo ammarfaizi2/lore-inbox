@@ -1,63 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261729AbVFPECO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261732AbVFPEQP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261729AbVFPECO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Jun 2005 00:02:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261730AbVFPECO
+	id S261732AbVFPEQP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Jun 2005 00:16:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261733AbVFPEQP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Jun 2005 00:02:14 -0400
-Received: from smtp829.mail.sc5.yahoo.com ([66.163.171.16]:3256 "HELO
-	smtp829.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261729AbVFPECA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Jun 2005 00:02:00 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [patch 2.6.12-rc3] Adds persistent entryies using request_firmware_nowaitManuel Estrada Sainz <ranty@debian.org>,
-Date: Wed, 15 Jun 2005 23:01:48 -0500
+	Thu, 16 Jun 2005 00:16:15 -0400
+Received: from mail04.syd.optusnet.com.au ([211.29.132.185]:45009 "EHLO
+	mail04.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261732AbVFPEQK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Jun 2005 00:16:10 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Alexander Gretencord <arutha@gmx.de>
+Subject: Re: Swapping in 2.6.10 and 2.6.11.11 on a desktop system
+Date: Thu, 16 Jun 2005 14:16:01 +1000
 User-Agent: KMail/1.8.1
-Cc: Abhay Salunke <Abhay_Salunke@dell.com>, Andrew Morton <akpm@osdl.org>,
-       Greg KH <greg@kroah.com>, matt_domsch@dell.com
-References: <20050616003414.GA1814@littleblue.us.dell.com>
-In-Reply-To: <20050616003414.GA1814@littleblue.us.dell.com>
+Cc: linux-kernel@vger.kernel.org
+References: <200506141653.32093.arutha@gmx.de> <200506150242.02606.kernel@kolivas.org> <200506151544.17191.arutha@gmx.de>
+In-Reply-To: <200506151544.17191.arutha@gmx.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: multipart/signed;
+  boundary="nextPart10282255.ZbLVO7rZ41";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506152301.48963.dtor_core@ameritech.net>
+Message-Id: <200506161416.03569.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 15 June 2005 19:34, Abhay Salunke wrote:
-> This is a patch to make the /sys/class/firmware entries persistent. 
-> This has been tested with dell_rbu; dell_rbu was modified to not call
-> request_firmware_nowait again form the callback function. 
-> 
-> The new mechanism to make the entries persistent is as follows
-> 1> echo 0 > /sys/class/firmware/timeout
-> 2> echo 2 > /sys/class/firmware/xxx/loading
-> 
-> step 1 prevents timeout to occur , step 2 makes the entry xxx persistent
-> 
-> if we want to remove persistence then do this
-> ech0 -2 > /sys/class/firmware/xxx/loading
-> 
+--nextPart10282255.ZbLVO7rZ41
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Hi,
+On Wed, 15 Jun 2005 23:44, Alexander Gretencord wrote:
+> On Tuesday 14 June 2005 18:42, Con Kolivas wrote:
+> > Try the mapped watermark patch from -ck on 2.6.11*
+>
+> Unfortunately this patch does not help either. The patch buys me time but
+> then I get swapping at the 300MB mark. 2.6.8.1 with swappiness=3D0 swaps
+> later than this...
 
-I have the following issues with the patch:
+Try tweaking it with this:
+echo 100 > /proc/sys/vm/mapped
 
-- since "persistency" (or rather repeat loading) is controlled from
-  userspace, drivers don't have control over it. This way every user
-  of request_firmware_nowait has to be ready to process more than one
-  firmware load.
+If this tries so hard to avoid swap that you get an out-of-memory condition=
+=20
+you may also have to disable the hard maplimit with this:
+echo 0 > /proc/sys/vm/hardmaplimit
 
-- There is no way to "cancel" firmware request from the driver. You
-  will not be able to safely unload users of request_firmware_nowait().
-  Since loader is rearming you can't use firmware handler function to
-  signal when request has been processed.
+Cheers,
+Con
 
-I think that such re-arming reqests are much better implemented in
-individual drivers.
+--nextPart10282255.ZbLVO7rZ41
+Content-Type: application/pgp-signature
 
--- 
-Dmitry
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBCsP0DZUg7+tp6mRURAiQFAJ9p419Dm8+WgBojZM9JWE62DnO7NwCfTPpe
+4z1kYYhsC+sQ4MBxlAoNCb0=
+=uPOR
+-----END PGP SIGNATURE-----
+
+--nextPart10282255.ZbLVO7rZ41--

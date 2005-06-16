@@ -1,197 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261698AbVFPBBK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261658AbVFPBDr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261698AbVFPBBK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Jun 2005 21:01:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261699AbVFPBBK
+	id S261658AbVFPBDr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Jun 2005 21:03:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261699AbVFPBDr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 21:01:10 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:8349 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261698AbVFPBA5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 21:00:57 -0400
-Date: Wed, 15 Jun 2005 18:00:31 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Abhay Salunke <Abhay_Salunke@dell.com>
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com, abhay_salunke@dell.com,
-       matt_domsch@dell.com
-Subject: Re: [patch 2.6.12-rc3] Adds persistent entryies using
- request_firmware_nowaitManuel Estrada Sainz <ranty@debian.org>,
-Message-Id: <20050615180031.43802173.akpm@osdl.org>
-In-Reply-To: <20050616003414.GA1814@littleblue.us.dell.com>
-References: <20050616003414.GA1814@littleblue.us.dell.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 15 Jun 2005 21:03:47 -0400
+Received: from zproxy.gmail.com ([64.233.162.198]:54024 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261658AbVFPBDn convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Jun 2005 21:03:43 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=QdGjQ8YdKUKrfCAufhEKz+tLYpS1Lihy7R44lwUiwBFMAtKU+focuhAlm31eCL0k3qJh/vUSX/CRZHrcFysQ8S79/0eP2lDGXNOri9l6hEXM7JzdENa5e2HAnkZsedKIMG0XUDhkGKI0SX6RXqjrT2JKD9GBAImLN0ZFFiVFI9k=
+Message-ID: <8783be6605061518034b220fce@mail.gmail.com>
+Date: Wed, 15 Jun 2005 18:03:41 -0700
+From: Ross Biro <ross.biro@gmail.com>
+Reply-To: Ross Biro <ross.biro@gmail.com>
+To: "Maciej W. Rozycki" <macro@linux-mips.org>
+Subject: Re: [RCF] Linux memory error handling
+Cc: Russ Anderson <rja@sgi.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61L.0506151545410.13835@blysk.ds.pg.gda.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200506151430.j5FEUD7J1393603@clink.americas.sgi.com>
+	 <Pine.LNX.4.61L.0506151545410.13835@blysk.ds.pg.gda.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Abhay Salunke <Abhay_Salunke@dell.com> wrote:
->
-> --- /usr/src/linux-2.6.11.11.orig/drivers/base/firmware_class.c	2005-06-14 20:53:04.000000000 -0500
->  +++ /usr/src/linux-2.6.11.11.new/drivers/base/firmware_class.c	2005-06-16 00:21:10.000000000 -0500
+On 6/15/05, Maciej W. Rozycki <macro@linux-mips.org> wrote:
+> On Wed, 15 Jun 2005, Russ Anderson wrote:
+> 
+> >
+> >           Polling Threshold:  A solid single bit error can cause a burst
+> >               of correctable errors that can cause a significant logging
+> >               overhead.  SBE thresholding counts the number of SBEs for
+> >               a given page and if too many SBEs are detected in a given
+> >               period of time, the interrupt is disabled and instead
+> >               linux periodically polls for corrected errors.
+> 
+>  This is highly undesirable if the same interrupt is used for MBEs.  A
+> page that causes an excessive number of SBEs should rather be removed from
+> the available pool instead.  Logging should probably take recent events
+> into account anyway and take care of not overloading the system, e.g. by
+> keeping only statistical data instead of detailed information about each
+> event under load.
+> 
 
-- Please prepare patches in `patch -p1' form, as per
-  http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt
+First, SBEs and MBEs are named historically and are currently called
+correctable and uncorrectable errors.  Modern chip sets can often
+handle many incorrect bits in a single word and still correct the
+problem.  So please don't assume you can make any inferences into the
+probability of an MBE because you are seeing SBEs.  Any such
+inferences would need to be chip set specific.
 
-- Please use hard tabs, not a mixture of spaces and hard tabs
+Some common chip sets have bugs in them that can cause an excessive
+number of reported SBEs.  On those chip sets with out any error
+reporting, there is a noticeable performance hit when the SBE counters
+go wild.  If every SBE generated an interrupt the system would grind
+to a halt.  So there needs to be easy ways to disable interrupts
+associated with SBEs.
 
-- Try to avoid adding new trailing whitespace.
+Also some memory/chip set combinations generate a significant number
+of SBEs with out any significant danger of an MBE, so many people will
+want to ignore SBEs entirely, or only poll once in a while.
 
-Here's a cleaned-up patch:
+Finally, many chip sets have memory scrubbing technology that can
+simultaneously generate SBEs in memory not being accessed by the
+kernel and fix those errors. So don't just assume that because the
+kernel isn't allowing access to a page, you won't see SBEs or MBEs
+from that page.
 
+Otherwise, anything done in this direction seems like a good idea to me.
 
-From: Abhay Salunke <Abhay_Salunke@dell.com>
-
-This is a patch to make the /sys/class/firmware entries persistent.  This
-has been tested with dell_rbu; dell_rbu was modified to not call
-request_firmware_nowait again form the callback function.  
-
-The new mechanism to make the entries persistent is as follows
-1> echo 0 > /sys/class/firmware/timeout
-2> echo 2 > /sys/class/firmware/xxx/loading
-
-step 1 prevents timeout to occur , step 2 makes the entry xxx persistent
-
-if we want to remove persistence then do this
-ech0 -2 > /sys/class/firmware/xxx/loading
-
-The rest of the functionality is not affected.
-
-Also not the persistence is supported only if the driver calls
-request_firmware_nowait.  If the driver is just calling request_firmware,
-step 2 is treated as unknown entry.
-
-Signed-off-by: Abhay Salunke <Abhay_Salunke@dell.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
- drivers/base/firmware_class.c |   59 +++++++++++++++++++++++++++++++++++++-----
- 1 files changed, 53 insertions(+), 6 deletions(-)
-
-diff -puN drivers/base/firmware_class.c~firmware-add-persistent-entries-using-request_firmware_nowait drivers/base/firmware_class.c
---- 25/drivers/base/firmware_class.c~firmware-add-persistent-entries-using-request_firmware_nowait	2005-06-15 17:58:46.000000000 -0700
-+++ 25-akpm/drivers/base/firmware_class.c	2005-06-15 17:58:46.000000000 -0700
-@@ -6,6 +6,11 @@
-  * Please see Documentation/firmware_class/ for more information.
-  *
-  */
-+ /*
-+ * 2005-06-15: 	Abhay Salunke <abhay_salunke@dell.com>
-+ *		Added firmware persistent when request_firmware_nowait.
-+ *		is called.
-+ */
- 
- #include <linux/device.h>
- #include <linux/module.h>
-@@ -28,6 +33,8 @@ enum {
- 	FW_STATUS_DONE,
- 	FW_STATUS_ABORT,
- 	FW_STATUS_READY,
-+	FW_STATUS_PERSISTENT,
-+	FW_STATUS_PERSISTENT_ABORT,
- };
- 
- static int loading_timeout = 10;	/* In seconds */
-@@ -145,13 +152,20 @@ firmware_loading_store(struct class_devi
- 		set_bit(FW_STATUS_LOADING, &fw_priv->status);
- 		up(&fw_lock);
- 		break;
-+	case 2:
-+		set_bit(FW_STATUS_PERSISTENT, &fw_priv->status);
-+		fw_load_abort(fw_priv);
-+		break;
- 	case 0:
- 		if (test_bit(FW_STATUS_LOADING, &fw_priv->status)) {
- 			complete(&fw_priv->completion);
- 			clear_bit(FW_STATUS_LOADING, &fw_priv->status);
- 			break;
- 		}
--		/* fallthrough */
-+	case -2:
-+		set_bit(FW_STATUS_PERSISTENT_ABORT, &fw_priv->status);
-+		fw_load_abort(fw_priv);
-+		break;
- 	default:
- 		printk(KERN_ERR "%s: unexpected value (%d)\n", __FUNCTION__,
- 		       loading);
-@@ -392,8 +406,8 @@ out:
-  *	firmware image for this or any other device.
-  **/
- int
--request_firmware(const struct firmware **firmware_p, const char *name,
--		 struct device *device)
-+_request_firmware(const struct firmware **firmware_p, const char *name,
-+			struct device *device, unsigned long *fw_status)
- {
- 	struct class_device *class_dev;
- 	struct firmware_priv *fw_priv;
-@@ -425,6 +439,14 @@ request_firmware(const struct firmware *
- 
- 	kobject_hotplug(&class_dev->kobj, KOBJ_ADD);
- 	wait_for_completion(&fw_priv->completion);
-+
-+	if (test_bit(FW_STATUS_PERSISTENT, &fw_priv->status) ||
-+	    test_bit(FW_STATUS_PERSISTENT_ABORT, &fw_priv->status)) {
-+		*fw_status = fw_priv->status;
-+		clear_bit(FW_STATUS_PERSISTENT, &fw_priv->status);
-+		clear_bit(FW_STATUS_PERSISTENT_ABORT, &fw_priv->status);
-+        }
-+
- 	set_bit(FW_STATUS_DONE, &fw_priv->status);
- 
- 	del_timer_sync(&fw_priv->timeout);
-@@ -446,6 +468,25 @@ error_kfree_fw:
- out:
- 	return retval;
- }
-+/**
-+ * request_firmware: - request firmware to hotplug and wait for it
-+ * Description:
-+ *      @firmware will be used to return a firmware image by the name
-+ *      of @name for device @device.
-+ *
-+ *      Should be called from user context where sleeping is allowed.
-+ *
-+ *      @name will be use as $FIRMWARE in the hotplug environment and
-+ *      should be distinctive enough not to be confused with any other
-+ *      firmware image for this or any other device.
-+ **/
-+int
-+request_firmware(const struct firmware **firmware_p, const char *name,
-+                 struct device *device)
-+{
-+	unsigned long status;
-+	return _request_firmware(firmware_p, name,device,&status);
-+}
- 
- /**
-  * release_firmware: - release the resource associated with a firmware image
-@@ -484,6 +525,7 @@ struct firmware_work {
- 	struct device *device;
- 	void *context;
- 	void (*cont)(const struct firmware *fw, void *context);
-+	unsigned long status;
- };
- 
- static int
-@@ -496,9 +538,14 @@ request_firmware_work_func(void *arg)
- 		return 0;
- 	}
- 	daemonize("%s/%s", "firmware", fw_work->name);
--	request_firmware(&fw, fw_work->name, fw_work->device);
--	fw_work->cont(fw, fw_work->context);
--	release_firmware(fw);
-+	fw_work->status = FW_STATUS_LOADING;
-+
-+	do {
-+		_request_firmware(&fw, fw_work->name, fw_work->device, &fw_work->status);
-+		fw_work->cont(fw, fw_work->context);
-+		release_firmware(fw);
-+	} while (test_bit(FW_STATUS_PERSISTENT, &fw_work->status));
-+
- 	module_put(fw_work->module);
- 	kfree(fw_work);
- 	return 0;
-_
-
+    Ross

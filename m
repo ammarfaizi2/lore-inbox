@@ -1,44 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261808AbVFPUxg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261811AbVFPU42@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261808AbVFPUxg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Jun 2005 16:53:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261814AbVFPUxf
+	id S261811AbVFPU42 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Jun 2005 16:56:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261814AbVFPU42
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Jun 2005 16:53:35 -0400
-Received: from iron.pdx.net ([207.149.241.18]:38588 "EHLO iron.pdx.net")
-	by vger.kernel.org with ESMTP id S261808AbVFPUx1 (ORCPT
+	Thu, 16 Jun 2005 16:56:28 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:10937 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261811AbVFPU4W (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Jun 2005 16:53:27 -0400
-Subject: Re: PROBLEM: Devices behind PCI Express-to-PCI bridge not mapped
-From: Sean Bruno <sean.bruno@dsl-only.net>
-To: Peter Buckingham <peter@pantasys.com>
-Cc: Andreas Koch <koch@esa.informatik.tu-darmstadt.de>,
-       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       gregkh@suse.de
-In-Reply-To: <42B1B4D3.3060600@pantasys.com>
-References: <20050605204645.A28422@jurassic.park.msu.ru>
-	 <Pine.LNX.4.58.0506091617130.2286@ppc970.osdl.org>
-	 <20050610184815.A13999@jurassic.park.msu.ru>
-	 <200506102247.30842.koch@esa.informatik.tu-darmstadt.de>
-	 <1118762382.9161.3.camel@home-lap>
-	 <20050616142039.GF21542@erebor.esa.informatik.tu-darmstadt.de>
-	 <42B1B4D3.3060600@pantasys.com>
-Content-Type: text/plain
-Date: Thu, 16 Jun 2005 13:53:21 -0700
-Message-Id: <1118955201.10529.10.camel@home-lap>
+	Thu, 16 Jun 2005 16:56:22 -0400
+Date: Thu, 16 Jun 2005 13:57:08 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Chris Friesen <cfriesen@nortel.com>
+Cc: linux-kernel@vger.kernel.org, Hugh Blemings <hab@au1.ibm.com>
+Subject: Re: why does fsync() on a tmpfs directory give EINVAL?
+Message-Id: <20050616135708.4876c379.akpm@osdl.org>
+In-Reply-To: <42B1DBF1.4020904@nortel.com>
+References: <42B1DBF1.4020904@nortel.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-8) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just for the record Peter, what motherboard r u using?  
+Chris Friesen <cfriesen@nortel.com> wrote:
+>
+> 
+> The man page for fsync() suggests that it is necessary to call it on the 
+> directory fd.
 
-On my ASUS K8N-DL, the USB Controller, Sound and Broadcom Ethernet
-adapter seem to be inaccessible or unavailable for some reason.
+yup.
 
-Sean
+> However, in the case of tmpfs, fsync() on the file completes, but on the 
+> directory it returns -1 with errno==EINVAL.
 
+bad.
+
+> Is there any particular reason for this?
+
+nope.
+
+>  Would a patch that makes it 
+> just return successfully without doing anything be accepted?
+
+yup.

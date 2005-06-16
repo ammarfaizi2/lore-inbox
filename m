@@ -1,58 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261287AbVFPXPY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261854AbVFPXWf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261287AbVFPXPY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Jun 2005 19:15:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261859AbVFPXM6
+	id S261854AbVFPXWf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Jun 2005 19:22:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbVFPXWf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Jun 2005 19:12:58 -0400
-Received: from anchor-post-35.mail.demon.net ([194.217.242.85]:27402 "EHLO
-	anchor-post-35.mail.demon.net") by vger.kernel.org with ESMTP
-	id S261861AbVFPWhj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Jun 2005 18:37:39 -0400
-Message-ID: <42B1FF2A.2080608@superbug.demon.co.uk>
-Date: Thu, 16 Jun 2005 23:37:30 +0100
-From: James Courtier-Dutton <James@superbug.demon.co.uk>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050416)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Bug in pcmcia-core
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Thu, 16 Jun 2005 19:22:35 -0400
+Received: from hell.sks3.muni.cz ([147.251.210.30]:20484 "EHLO
+	anubis.fi.muni.cz") by vger.kernel.org with ESMTP id S261854AbVFPXWd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Jun 2005 19:22:33 -0400
+Date: Fri, 17 Jun 2005 01:22:42 +0200
+From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+To: Scott Bardone <sbardone@chelsio.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.6.12-rc6-mm1 & Chelsio driver
+Message-ID: <20050616232242.GR2821@mail.muni.cz>
+References: <8A71B368A89016469F72CD08050AD3340255F0@maui.asicdesigners.com> <20050608184933.GC2369@mail.muni.cz> <42A742FF.2020706@chelsio.com> <20050608193215.GF2369@mail.muni.cz> <42A74F88.10502@chelsio.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <42A74F88.10502@chelsio.com>
+X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Jun 08, 2005 at 01:05:28PM -0700, Scott Bardone wrote:
+> There is one thing you could do though. If want, you could hack the TOE 
+> driver to work with the latest kernel in NIC mode. You would need to 
+> disable all the offload functions. Copy the source into the kernel tree, 
+> then when you build it you will see the unresolved symbols. Disable those 
+> sections of code, then you should end up with a NIC driver which will run 
+> on the latest kernel.
 
-I have tried conacting the mailing list for the PCMCIA subsystem in
-Linux, but no-one seems to respond.
+I have ported your driver for kernel 2.6.6 to kernel 2.6.8 and 2.6.11.12, it
+seems that it works (including TOE).
 
-PCMCIA SUBSYSTEM
-L:      http://lists.infradead.org/mailman/listinfo/linux-pcmcia
-S:      Unmaintained
+test3:~ # cat /proc/net/toe/devices 
+Device           Offload Module       Interfaces
+toe0             Chelsio T1           eth0
+test3:~ # uname -a
+Linux test3 2.6.11.12 #3 SMP Fri Jun 17 01:15:03 CEST 2005 x86_64 x86_64 x86_64
+GNU/Linux
+test3:~ # 
 
-I am trying to write a Linux ALSA driver for the Creative Audigy 2 NX
-Notebook PCMCIA card.
-This is a cardbus card, that uses ioports.
-When it is inserted into the laptop, the entry appears in "lspci -vv "
-showing ioports used by the card.
-As soon as my driver uses "outb()" to anything in the address range
-shown in "lspci -vv" , the PC hangs.
+I can provide patch to mailing list if it is allowed.
 
-I can only conclude from this that ioport resources are not being
-allocated correctly to the PCMCIA card.
-
-Can anybody help me track this down. If someone could tell me which
-PCMCIA and PCI registers should be set for it to work, I could then find
-out which pcmcia registers have not been set correctly, and fix the bug.
-
-It seems that the PCMCIA specification is not open and free, so I cannot
-refer to it in order to fix this myself.
-
-Can anybody help me?
-
-James
-
-
+-- 
+Luká¹ Hejtmánek

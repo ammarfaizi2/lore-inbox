@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261854AbVFPXWf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261637AbVFPXaE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261854AbVFPXWf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Jun 2005 19:22:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbVFPXWf
+	id S261637AbVFPXaE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Jun 2005 19:30:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbVFPXaE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Jun 2005 19:22:35 -0400
-Received: from hell.sks3.muni.cz ([147.251.210.30]:20484 "EHLO
-	anubis.fi.muni.cz") by vger.kernel.org with ESMTP id S261854AbVFPXWd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Jun 2005 19:22:33 -0400
-Date: Fri, 17 Jun 2005 01:22:42 +0200
-From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-To: Scott Bardone <sbardone@chelsio.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.6.12-rc6-mm1 & Chelsio driver
-Message-ID: <20050616232242.GR2821@mail.muni.cz>
-References: <8A71B368A89016469F72CD08050AD3340255F0@maui.asicdesigners.com> <20050608184933.GC2369@mail.muni.cz> <42A742FF.2020706@chelsio.com> <20050608193215.GF2369@mail.muni.cz> <42A74F88.10502@chelsio.com>
+	Thu, 16 Jun 2005 19:30:04 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:5848 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261637AbVFPX37 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Jun 2005 19:29:59 -0400
+Date: Thu, 16 Jun 2005 16:29:33 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Chris Friesen <cfriesen@nortel.com>
+Cc: linux-kernel@vger.kernel.org, Hugh Dickins <hugh@veritas.com>
+Subject: Re: why does fsync() on a tmpfs directory give EINVAL?
+Message-Id: <20050616162933.25dee57b.akpm@osdl.org>
+In-Reply-To: <42B20317.6000204@nortel.com>
+References: <42B1DBF1.4020904@nortel.com>
+	<20050616135708.4876c379.akpm@osdl.org>
+	<42B20317.6000204@nortel.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <42A74F88.10502@chelsio.com>
-X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 08, 2005 at 01:05:28PM -0700, Scott Bardone wrote:
-> There is one thing you could do though. If want, you could hack the TOE 
-> driver to work with the latest kernel in NIC mode. You would need to 
-> disable all the offload functions. Copy the source into the kernel tree, 
-> then when you build it you will see the unresolved symbols. Disable those 
-> sections of code, then you should end up with a NIC driver which will run 
-> on the latest kernel.
+Chris Friesen <cfriesen@nortel.com> wrote:
+>
+> Andrew Morton wrote:
+> > Chris Friesen <cfriesen@nortel.com> wrote:
+> 
+> >> Would a patch that makes it 
+> >>just return successfully without doing anything be accepted?
+> > 
+> > 
+> > yup.
+> 
+> Currently tmpfs reuses the simple_dir_operations from libfs.c.
+> 
+> Would it make sense to add the empty fsync() function there, and have 
+> all other users pick it up as well?  Is this likely to break stuff?
 
-I have ported your driver for kernel 2.6.6 to kernel 2.6.8 and 2.6.11.12, it
-seems that it works (including TOE).
+Isn't simple_sync_file() suitable?
 
-test3:~ # cat /proc/net/toe/devices 
-Device           Offload Module       Interfaces
-toe0             Chelsio T1           eth0
-test3:~ # uname -a
-Linux test3 2.6.11.12 #3 SMP Fri Jun 17 01:15:03 CEST 2005 x86_64 x86_64 x86_64
-GNU/Linux
-test3:~ # 
-
-I can provide patch to mailing list if it is allowed.
-
--- 
-Luká¹ Hejtmánek

@@ -1,34 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261977AbVFQOA1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261980AbVFQODn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261977AbVFQOA1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Jun 2005 10:00:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261978AbVFQOA1
+	id S261980AbVFQODn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Jun 2005 10:03:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261979AbVFQODn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Jun 2005 10:00:27 -0400
-Received: from ozlabs.org ([203.10.76.45]:13993 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261977AbVFQOAZ (ORCPT
+	Fri, 17 Jun 2005 10:03:43 -0400
+Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:5277
+	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
+	with ESMTP id S261980AbVFQODk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Jun 2005 10:00:25 -0400
-Date: Fri, 17 Jun 2005 23:55:36 +1000
-From: Anton Blanchard <anton@samba.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, christoph <christoph@scalex86.org>,
-       linux-kernel@vger.kernel.org, shai@scalex86.org
-Subject: Re: [PATCH] Move some variables into the "most_readonly" section??
-Message-ID: <20050617135536.GB6434@krispykreme>
-References: <Pine.LNX.4.62.0506071253020.2850@ScMPusgw> <20050608131839.GP23831@wotan.suse.de> <Pine.LNX.4.62.0506141551350.3676@ScMPusgw> <20050614162354.6aabe57e.akpm@osdl.org> <Pine.LNX.4.62.0506141644160.4099@ScMPusgw> <20050614165818.6f83fa6c.akpm@osdl.org> <Pine.LNX.4.62.0506141704150.4225@ScMPusgw> <20050614171602.12bfa245.akpm@osdl.org> <20050615004153.GX11898@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050615004153.GX11898@wotan.suse.de>
-User-Agent: Mutt/1.5.9i
+	Fri, 17 Jun 2005 10:03:40 -0400
+Reply-To: <abonilla@linuxwireless.org>
+From: "Alejandro Bonilla" <abonilla@linuxwireless.org>
+To: "'Lars Roland'" <lroland@gmail.com>, <abonilla@linuxwireless.org>
+Cc: <Valdis.Kletnieks@vt.edu>, "'Christian Kujau'" <evil@g-house.de>,
+       "'Linux-Kernel'" <linux-kernel@vger.kernel.org>
+Subject: RE: tg3 in 2.6.12-rc6 and Cisco PIX SMTP fixup
+Date: Fri, 17 Jun 2005 08:03:34 -0600
+Message-ID: <002601c57345$5a26d840$600cc60a@amer.sykes.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <4ad99e05050617064058e952b6@mail.gmail.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1478
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> I think it would be better to first still see numbers for
-> this questionable optimizations.
+> On 6/17/05, Alejandro Bonilla <abonilla@linuxwireless.org> wrote:
+> >         So what do we really have here? Problem with Cisco
+> or a problem in the
+> > driver? Both?
+>
+> My bet is that this is a Cisco bug. The only fix for this that I have
+> found on cisco is turning smtp fixup off, even upgrading to the latest
+> cisco does not fix it completely.
+>
+>
+>
+> Regards.
+>
+> Lars Roland
+>
 
-Agreed, it would be nice to see some benchmark numbers.
+Lars,
 
-Anton
+	Issue is supoused to be fixed with 6.3.4.115 or later.
+
+Please let me know if that is not the case with you, or if you would like to
+get the Image.
+
+.Alejandro
+

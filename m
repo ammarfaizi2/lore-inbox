@@ -1,81 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262030AbVFQRqU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262031AbVFQRsD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262030AbVFQRqU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Jun 2005 13:46:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262031AbVFQRqU
+	id S262031AbVFQRsD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Jun 2005 13:48:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262033AbVFQRsD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Jun 2005 13:46:20 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:12555 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S262030AbVFQRqO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Jun 2005 13:46:14 -0400
-Message-ID: <42B30CE9.4050707@tmr.com>
-Date: Fri, 17 Jun 2005 13:48:25 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050319
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Johannes Stezenbach <js@linuxtv.org>
-CC: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.6.12-rc6
-References: <Pine.LNX.4.58.0506061104190.1876@ppc970.osdl.org> <20050607091144.GA5701@linuxtv.org> <20050608111503.GA5777@linuxtv.org> <42A6D521.606@ens-lyon.org> <20050608113718.GA5949@linuxtv.org>
-In-Reply-To: <20050608113718.GA5949@linuxtv.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Fri, 17 Jun 2005 13:48:03 -0400
+Received: from CPE000f6690d4e4-CM00003965a061.cpe.net.cable.rogers.com ([69.193.74.134]:26894
+	"EHLO tentacle.dhs.org") by vger.kernel.org with ESMTP
+	id S262031AbVFQRrt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Jun 2005 13:47:49 -0400
+Date: Fri, 17 Jun 2005 13:54:57 -0400
+To: Zach Brown <zab@zabbo.net>
+Cc: Robert Love <rml@novell.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] inotify, improved.
+Message-ID: <20050617175455.GA1981@tentacle.dhs.org>
+References: <1118855899.3949.21.camel@betsy> <42B1BC4B.3010804@zabbo.net> <1118946334.3949.63.camel@betsy> <42B227B5.3090509@yahoo.com.au> <1118972109.7280.13.camel@phantasy> <1119021336.3949.104.camel@betsy> <42B30654.4030307@zabbo.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42B30654.4030307@zabbo.net>
+User-Agent: Mutt/1.5.9i
+From: John McCutchan <ttb@tentacle.dhs.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Johannes Stezenbach wrote:
-> Brice Goglin wrote:
+On Fri, Jun 17, 2005 at 10:20:20AM -0700, Zach Brown wrote:
 > 
->>Johannes Stezenbach a écrit :
->>
->>>Johannes Stezenbach wrote:
->>>
->>>
->>>>Hype-threading stopped working for me (probably due to
->>>>me not enabling ACPI). dmesg output and .config attached.
->>>>-rc5 worked fine. The board is an Asus P4P800-Deluxe.
->>>>
->>>>dmesg: WARNING: 1 siblings found for CPU0, should be 2
->>>
->>>
->>>Indeed SMT works fine if I enable ACPI.
->>>Is SMT without ACPI not supported?
->>
->>You can pass acpi=ht into the kernel command line to disable
->>ACPI except the minimum required to get HT support.
+> > +		schedule();
 > 
+> Here's a stab at getting rid of that raw schedule() in inotify_read().
+> It maintains the behaviour where it returns when an event doesn't fit
+> and returns after events have been copied instead of sleeping.  It
+> changes behaviour in that it returns partial reads that suceeded instead
+> of the error that stopped processing.  It also lets threads who race out
+> of a wakeup to find an empty list go back to sleep instead of returning
+> 0.  Dunno if that's behaviour you'd prefer but it seemed reasonable.  I
+> hope that lockless list_empty() is OK, I didn't think very hard about it.
 > 
-> That's nice, but I was thinking along the lines of:
-> 
-> diff -ur linux-2.6.12-rc6.orig/arch/i386/Kconfig linux-2.6.12-rc6/arch/i386/Kconfig
-> --- linux-2.6.12-rc6.orig/arch/i386/Kconfig	2005-06-06 23:16:27.000000000 +0200
-> +++ linux-2.6.12-rc6/arch/i386/Kconfig	2005-06-08 13:35:08.000000000 +0200
-> @@ -503,7 +503,7 @@
->  
->  config SCHED_SMT
->  	bool "SMT (Hyperthreading) scheduler support"
-> -	depends on SMP
-> +	depends on SMP && ACPI
->  	default off
->  	help
->  	  SMT scheduler support improves the CPU scheduler's decision making
-> 
-> Comments? Is this intended?
 
-I would think that you can't do HT without ACPI, so there's no point in 
-building in HT scheduling unless you can have HT.
+I really don't like sending partial events. I don't think it's worth the
+extra effort in tracking how much of an event we sent out last time. I
+also don't see any added benefit to user space when providing partial
+events. It's going to complicate the user space event parsing code to.
 
-Is that what you were asking? I was hoping someone else would comment.
+> Compiles but totally untested.  Check my work :)
 
-Scheduling is getting harder and harder to get right... I have this 
-thought of a Beowolf cluster of NUMA machines, with each node being HT 
-multicore SMP. By "right" I meant "optimal," I'm sure that setup would 
-do something reasonable with current scheduling.
+At first glance, I don't see any code to restart the partially sent
+event. Am I missing the obvious or what? Without that, the user would
+get the first half of an event, then get both halfs on the next read.
+That simply won't work. 
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+John

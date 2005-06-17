@@ -1,61 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261520AbVFQWx4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261518AbVFQW7h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261520AbVFQWx4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Jun 2005 18:53:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261667AbVFQWvZ
+	id S261518AbVFQW7h (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Jun 2005 18:59:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbVFQW7h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Jun 2005 18:51:25 -0400
-Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:51210 "EHLO
-	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
-	id S262028AbVFQWun (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Jun 2005 18:50:43 -0400
-Message-ID: <42B353B7.4070503@cisco.com>
-Date: Sat, 18 Jun 2005 08:50:31 +1000
-From: Lincoln Dale <ltd@cisco.com>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
+	Fri, 17 Jun 2005 18:59:37 -0400
+Received: from zproxy.gmail.com ([64.233.162.192]:24939 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261518AbVFQW7f (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Jun 2005 18:59:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=TV/dL99K2mzD+QE7aI9HGhIhnIiWNeNF6G7F6UHEN6Gp3IiVr7qHrV+blHWP7uDxPAFfyGBsHui/CDOSLsvSL362tyfKLpxuknPklMWe2Vae8cAMoy+tCC7zkb+ULrI6Fztb6FrTFeMSLM59+EtkoeKzn0ZlRolDaY50mYMxPKI=
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Sam Ravnborg <sam@ravnborg.org>
+Subject: [PATCH] Makefile: s/gcc-option/cc-option/
+Date: Sat, 18 Jun 2005 03:05:09 +0400
+User-Agent: KMail/1.7.2
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu
-CC: abonilla@linuxwireless.org, "'Lars Roland'" <lroland@gmail.com>,
-       "'Christian Kujau'" <evil@g-house.de>,
-       "'Linux-Kernel'" <linux-kernel@vger.kernel.org>
-Subject: Re: tg3 in 2.6.12-rc6 and Cisco PIX SMTP fixup
-References: <001f01c57341$1802c3b0$600cc60a@amer.sykes.com> <200506171352.j5HDqpE8006543@turing-police.cc.vt.edu>
-In-Reply-To: <200506171352.j5HDqpE8006543@turing-police.cc.vt.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200506180305.09395.adobriyan@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu wrote:
+Fixes http://bugme.osdl.org/show_bug.cgi?id=4726
 
->On Fri, 17 Jun 2005 07:33:05 MDT, Alejandro Bonilla said:
->
->  
->
->>	So what do we really have here? Problem with Cisco or a problem in the
->>driver? Both?
->>    
->>
->
->The Cisco PIX is gratuitously clearing the TCP window scaling bits.  So if you
->have tcp_adv_win_scale set to (for example) 6, you'll send a window advertisement
->of (say) 4096, represented as 64 and a "shift left 6 bits".  The PIX whacks the
->"6 bits" part, and the other end thinks the window is 64 bytes and wedges when
->a response is over 64 bytes long.
->
->  
->
-there _was_ a bug in the Cisco PIX whereby it cleared TCP window-scaling 
-bits.
-this can be tracked through cisco bug-id CSCdy29514.
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
 
-this was fixed back in August 2002 with the fix incorporated into PIX 
-software releases 6.1.5 and 6.2.3 and later.
-any 'recent' (i.e. last 2.5 years) releases don't have this problem. 
-(or, at least, we don't think so..).
-
-
-cheers,
-
-lincoln.
+--- linux-vanilla/Makefile	2005-06-14 08:17:42.000000000 +0400
++++ linux-gcc-option/Makefile	2005-06-18 02:57:48.000000000 +0400
+@@ -281,7 +281,7 @@ export quiet Q KBUILD_VERBOSE
+ # See documentation in Documentation/kbuild/makefiles.txt
+ 
+ # cc-option
+-# Usage: cflags-y += $(call gcc-option, -march=winchip-c6, -march=i586)
++# Usage: cflags-y += $(call cc-option, -march=winchip-c6, -march=i586)
+ 
+ cc-option = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
+              > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi ;)

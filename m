@@ -1,46 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262044AbVFQSIC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262041AbVFQSP2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262044AbVFQSIC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Jun 2005 14:08:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262043AbVFQSIC
+	id S262041AbVFQSP2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Jun 2005 14:15:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262042AbVFQSP2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Jun 2005 14:08:02 -0400
-Received: from CPE000f6690d4e4-CM00003965a061.cpe.net.cable.rogers.com ([69.193.74.134]:26628
-	"EHLO tentacle.dhs.org") by vger.kernel.org with ESMTP
-	id S262042AbVFQSHq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Jun 2005 14:07:46 -0400
-Date: Fri, 17 Jun 2005 14:15:01 -0400
-To: Zach Brown <zab@zabbo.net>
-Cc: Robert Love <rml@novell.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+	Fri, 17 Jun 2005 14:15:28 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:45771 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262041AbVFQSPW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Jun 2005 14:15:22 -0400
+Date: Fri, 17 Jun 2005 20:16:36 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: spaminos-ker@yahoo.com, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org
-Subject: Re: [patch] inotify, improved.
-Message-ID: <20050617181501.GB2220@tentacle.dhs.org>
-References: <1118855899.3949.21.camel@betsy> <42B1BC4B.3010804@zabbo.net> <1118946334.3949.63.camel@betsy> <42B227B5.3090509@yahoo.com.au> <1118972109.7280.13.camel@phantasy> <1119021336.3949.104.camel@betsy> <42B30654.4030307@zabbo.net> <20050617175455.GA1981@tentacle.dhs.org> <42B30EC1.60608@zabbo.net>
+Subject: Re: cfq misbehaving on 2.6.11-1.14_FC3
+Message-ID: <20050617181635.GU6957@suse.de>
+References: <20050614000352.7289d8f1.akpm@osdl.org> <20050614232154.17077.qmail@web30701.mail.mud.yahoo.com> <20050617141039.GL6957@suse.de> <20050617155108.GX9664@g5.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42B30EC1.60608@zabbo.net>
-User-Agent: Mutt/1.5.9i
-From: John McCutchan <ttb@tentacle.dhs.org>
+In-Reply-To: <20050617155108.GX9664@g5.random>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 17, 2005 at 10:56:17AM -0700, Zach Brown wrote:
-> John McCutchan wrote:
+On Fri, Jun 17 2005, Andrea Arcangeli wrote:
+> On Fri, Jun 17, 2005 at 04:10:40PM +0200, Jens Axboe wrote:
+> > Perhaps rmap could be used to lookup who has a specific page mapped...
 > 
-> > I really don't like sending partial events. 
-> 
-> Partial reads, not partial events.  Just like the previous code, it
-> returns to userspace after copying the events it found in the list
-> before it went empty.  It doesn't go back to sleep to fill the rest of
-> the buffer like a more classical blocking read() method would.
-> 
-> Where it differs is in what happens if you get errors copying events
-> after having successfully copied some.  The previous code would return
-> the error, that patch would return the bytes used by the good events.
+> I doubt, the computing and locking cost for every single page write
+> would be probably too high. Doing it during swapping isn't a big deal
+> since cpu is mostly idle during swapouts, but doing it all the time
+> sounds a bit overkill.
 
-My bad. Shouldn't we return the error code to user space though? We
-shouldn't be hiding errors in the app. How does read() handle an error
-part way through a read?
+We could cut the lookup down to per-request, it's not very likely that
+seperate threads would be competing for the exact same disk location.
+But it's still not too nice...
 
-John
+> A mechanism to pass down a pid would be much better. However I'm unsure
+> where you could put the info while dirtying the page. If it was an uid
+> it might be reasonable to have it in the address_space, but if you want
+> a pid as index, then it'd need to go in the page_t, which would waste
+> tons of space. Having a pid in the address space, may not work well with
+> a database or some other app with multiple processes.
+
+The previous patch just added a pid_t to struct page, but I knew all
+along that this was just for testing, I never intended to merge that
+part.
+
+-- 
+Jens Axboe
+

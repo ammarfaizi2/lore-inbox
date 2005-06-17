@@ -1,97 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261926AbVFQJRs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261928AbVFQJ2G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261926AbVFQJRs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Jun 2005 05:17:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261927AbVFQJRs
+	id S261928AbVFQJ2G (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Jun 2005 05:28:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261925AbVFQJ2G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Jun 2005 05:17:48 -0400
-Received: from 76.80-203-227.nextgentel.com ([80.203.227.76]:11997 "EHLO
-	mail.inprovide.com") by vger.kernel.org with ESMTP id S261926AbVFQJRl convert rfc822-to-8bit
+	Fri, 17 Jun 2005 05:28:06 -0400
+Received: from ercist.iscas.ac.cn ([159.226.5.94]:65295 "EHLO
+	ercist.iscas.ac.cn") by vger.kernel.org with ESMTP id S261928AbVFQJXy
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Jun 2005 05:17:41 -0400
-To: Patrick McFarland <pmcfarland@downeast.net>
-Cc: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
-       "Richard B. Johnson" <linux-os@analogic.com>,
-       Lukasz Stelmach <stlman@poczta.fm>,
-       "Alexander E. Patrakov" <patrakov@ums.usu.ru>,
-       linux-kernel@vger.kernel.org
-Subject: Re: A Great Idea (tm) about reimplementing NLS.
-References: <yw1xslzl8g1q.fsf@ford.inprovide.com>
-	<200506162118.18470.pmcfarland@downeast.net>
-	<yw1xekb1xuk9.fsf@ford.inprovide.com>
-	<200506170450.12943.pmcfarland@downeast.net>
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-Date: Fri, 17 Jun 2005 11:17:39 +0200
-In-Reply-To: <200506170450.12943.pmcfarland@downeast.net> (Patrick
- McFarland's message of "Fri, 17 Jun 2005 04:49:33 -0400")
-Message-ID: <yw1xy899wde4.fsf@ford.inprovide.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.15 (Security Through
- Obscurity, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Fri, 17 Jun 2005 05:23:54 -0400
+Subject: [Fwd: Re: [PATCH] ReiserFS _get_block_create_0 wrong behavior when
+	I/O fails]
+From: fs <fs@ercist.iscas.ac.cn>
+To: Vladimir Saveliev <vs@namesys.com>
+Cc: linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       reiserfs-list <reiserfs-list@namesys.com>,
+       Hans Reiser <reiser@namesys.com>
+Content-Type: multipart/mixed; boundary="=-MFJckxKB2UinblcnlUzs"
+Organization: iscas
+Message-Id: <1119039879.4151.4.camel@CoolQ>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 17 Jun 2005 16:24:39 -0400
+X-ArGoMail-Authenticated: fs@ercist.iscas.ac.cn
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick McFarland <pmcfarland@downeast.net> writes:
 
-> On Friday 17 June 2005 04:21 am, Måns Rullgård wrote:
->> Patrick McFarland <pmcfarland@downeast.net> writes:
->> > On Thursday 16 June 2005 11:04 am, Lennart Sorensen wrote:
->> >>  Most people seem happy with 50 or so being a good limit even though
->> >> many systems support much longer.
->> >
->> > 50 characters or 50 bytes? Because in the case of UTF-8, if you do a lot
->> > of three byte characters (which require four bites to encode), 50 bytes
->> > is very short.
->>
->> What do you mean by three-byte characters requiring four bytes to
->> encode?  Is a three-byte character not a character encoded using three
->> bytes?
->
-> (implication of utf8 and not utf16 goes here)
->
-> Very few Unicode characters require three bytes, instead of the
-> usual one or two.
+--=-MFJckxKB2UinblcnlUzs
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-I wouldn't the Chinese, Japanese, and Korean characters "very few",
-and those all require (at least) three bytes.
 
-> For one byte you just have the byte. 
 
-Correct.
+--=-MFJckxKB2UinblcnlUzs
+Content-Disposition: inline
+Content-Description: Forwarded message - Re: [PATCH] ReiserFS
+	_get_block_create_0 wrong behavior when I/O fails
+Content-Type: message/rfc822
 
-> For two bytes, you really have three: a control code stating "the
-> following two bytes are a two byte character", and then the two
-> bytes.
->
-> For three bytes, you really have four bytes: a control code stating
-> "the following three bytes are a three byte character" and then the
-> three bytes.
+Received: from  [159.226.5.243] by ercist.iscas.ac.cn (ArGoSoft Mail Server
+	Pro for WinNT/2000/XP, Version 1.8 (1.8.6.7)); Fri, 17 Jun 2005 18:12:55 
+Date: Fri, 17 Jun 2005 16:15:03 -0400
+From: fs <fs@ercist.iscas.ac.cn>
+To: Vladimir Saveliev <vs@namesys.com>
+Cc: fs <fs@ercist.iscas.ac.cn>, reiserfs-list@namesys.com, linux-fsdevel <linux-fsdevel@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, Hans Reiser <reiser@namesys.com>
+Subject: Re: [PATCH] ReiserFS _get_block_create_0 wrong behavior when I/O
+	fails
+Message-ID: <20050617201502.GA5155@CoolQ.6f.iscas.ac.cn>
+References: <1118865954.4231.4.camel@CoolQ>
+	 <1118850101.17622.579.camel@tribesman.namesys.com>
+	 <1118941347.2886.2.camel@CoolQ>
+	 <1118918486.3851.77.camel@tribesman.namesys.com>
+	 <1118918818.9357.83.camel@tribesman.namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1118918818.9357.83.camel@tribesman.namesys.com>
+User-Agent: Mutt/1.4.1i
+X-ArGoMail-Authenticated: fs@ercist.iscas.ac.cn
+Content-Transfer-Encoding: 7bit
 
-Wrong.  The first byte indicates the total size of the character, but
-it also contains data, like this:
+On Thu, Jun 16, 2005 at 02:46:59PM +0400, Vladimir Saveliev wrote:
+> 
+> Yes. reiserfs may store file page in different blocks. In this do {}
+> while loop it looks for different parts of page in the tree. If
+> search_for_position_by_key fails - one part of page is not found and
+> -EIO is to be returned.
+> 
+> > > 	    break;
+you mean the patch should be like this?
 
-  0xxxxxxx
-  110xxxxx 10xxxxxx
-  1110xxxx 10xxxxxx 10xxxxxx
-  11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+Signed-off-by: Qu Fuping<fs@ercist.iscas.ac.cn>
+diff -uNp linux-2.6.12-rc6.old/fs/reiserfs/inode.c linux-2.6.12-rc6.new/fs/reiserfs/inode.c > reiserfs_read.diff
 
-Refer to the Unicode standard, section 3.9 for the full details.
+--- linux-2.6.12-rc6.old/fs/reiserfs/inode.c	2005-06-06 11:22:29.000000000 -0400
++++ linux-2.6.12-rc6.new/fs/reiserfs/inode.c	2005-06-17 16:12:18.000000000 -0400
+@@ -254,6 +254,7 @@ static int _get_block_create_0 (struct i
+     char * p = NULL;
+     int chars;
+     int ret ;
++    int	result ;
+     int done = 0 ;
+     unsigned long offset ;
+ 
+@@ -262,7 +263,8 @@ static int _get_block_create_0 (struct i
+ 		  (loff_t)block * inode->i_sb->s_blocksize + 1, TYPE_ANY, 3);
+ 
+ research:
+-    if (search_for_position_by_key (inode->i_sb, &key, &path) != POSITION_FOUND) {
++    result = search_for_position_by_key (inode->i_sb, &key, &path) ;
++    if (result != POSITION_FOUND) {
+ 	pathrelse (&path);
+         if (p)
+             kunmap(bh_result->b_page) ;
+@@ -270,7 +272,8 @@ research:
+ 	// That there is some MMAPED data associated with it that is yet to be written to disk.
+ 	if ((args & GET_BLOCK_NO_HOLE) && !PageUptodate(bh_result->b_page) ) {
+ 	    return -ENOENT ;
+-	}
++	}else if(result == IO_ERROR)
++		return -EIO;
+         return 0 ;
+     }
+     
+@@ -382,7 +385,8 @@ research:
+ 
+ 	// update key to look for the next piece
+ 	set_cpu_key_k_offset (&key, cpu_key_k_offset (&key) + chars);
+-	if (search_for_position_by_key (inode->i_sb, &key, &path) != POSITION_FOUND)
++	result = search_for_position_by_key (inode->i_sb, &key, &path);
++	if (result != POSITION_FOUND)
+ 	    // we read something from tail, even if now we got IO_ERROR
+ 	    break;
+ 	bh = get_last_bh (&path);
+@@ -394,6 +398,10 @@ research:
+ 
+ finished:
+     pathrelse (&path);
++
++    if(result == IO_ERROR)
++	    return -EIO;
++    
+     /* this buffer has valid data, but isn't valid for io.  mapping it to
+      * block #0 tells the rest of reiserfs it just has a tail in it
+      */
 
->> As for 50 bytes being too short, many of the multibyte characters are
->> equivalent to several English characters, so fewer of them are
->> required.  You have a point, though.
->
-> Any English characters (ie, the first 127 ascii characters) map
-> directly to the first 127 Unicode characters (if thats what you
-> meant).
 
-Let me clarify with an example.  The common Korean name Kim consists
-of three ascii characters.  The Hangul spelling, ~, is encoded in
-utf-8 using three bytes.  Even though a three-byte character was used,
-the number of bytes is the same.
+--=-MFJckxKB2UinblcnlUzs--
 
--- 
-Måns Rullgård
-mru@inprovide.com
+

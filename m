@@ -1,54 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262069AbVFQTt7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262074AbVFQTuR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262069AbVFQTt7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Jun 2005 15:49:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262082AbVFQTt7
+	id S262074AbVFQTuR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Jun 2005 15:50:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262080AbVFQTuR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Jun 2005 15:49:59 -0400
-Received: from ccerelbas02.cce.hp.com ([161.114.21.105]:23229 "EHLO
-	ccerelbas02.cce.hp.com") by vger.kernel.org with ESMTP
-	id S262069AbVFQTtx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Jun 2005 15:49:53 -0400
-Date: Fri, 17 Jun 2005 13:50:25 -0500
-From: mike.miller@hp.com
-To: akpm@osdl.org, axboe@suse.de
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: [PATCH] cciss 2.6: pci domain info pass 2
-Message-ID: <20050617185025.GA10336@beardog.cca.cpqcorp.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	Fri, 17 Jun 2005 15:50:17 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:14526 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262074AbVFQTuA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Jun 2005 15:50:00 -0400
+Date: Fri, 17 Jun 2005 15:49:52 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Gerald Schaefer <geraldsc@de.ibm.com>
+cc: akpm@osdl.org, <linux-kernel@vger.kernel.org>, <schwidefsky@de.ibm.com>
+Subject: Re: [PATCH 0/1] VFS: memory leak in do_kern_mount()
+In-Reply-To: <1119023242.7006.70.camel@thinkpad>
+Message-ID: <Xine.LNX.4.44.0506171549300.3910-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is pass 2 of my patch to add pci domain info to an existing ioctl. This time I insert the domain between dev_fn and board_id as Willy suggested and change the var to unsigned short to ease Christoph's concerns. Although I thought unsigned int was the correct var type for this. I also thought it didn't matter where I inserted it in the structure.
+On Fri, 17 Jun 2005, Gerald Schaefer wrote:
 
-Signed-off-by: Mike Miller <mike.miller@hp.com>
+> Sorry, there was a whitespace accident and the above patch would not apply.
+> Here is the fixed version:
+> 
+> diff -pruN linux-2.6-git/fs/super.c linux-2.6-git_xxx/fs/super.c
+> --- linux-2.6-git/fs/super.c	2005-06-16 20:00:26.000000000 +0200
+> +++ linux-2.6-git_xxx/fs/super.c	2005-06-17 14:18:06.000000000 +0200
+> @@ -835,6 +835,7 @@ do_kern_mount(const char *fstype, int fl
+>  	mnt->mnt_parent = mnt;
+>  	mnt->mnt_namespace = current->namespace;
+>  	up_write(&sb->s_umount);
+> +	free_secdata(secdata);
+>  	put_filesystem(type);
+>  	return mnt;
+>  out_sb:
 
- drivers/block/cciss.c       |    1 +
- include/linux/cciss_ioctl.h |    1 +
- 2 files changed, 2 insertions(+)
--------------------------------------------------------------------------------
-diff -burNp lx2612-rc6.orig/drivers/block/cciss.c lx2612-rc6/drivers/block/cciss.c
---- lx2612-rc6.orig/drivers/block/cciss.c	2005-06-14 12:04:34.000000000 -0500
-+++ lx2612-rc6/drivers/block/cciss.c	2005-06-17 13:04:52.384575144 -0500
-@@ -636,6 +636,7 @@ static int cciss_ioctl(struct inode *ino
- 		cciss_pci_info_struct pciinfo;
- 
- 		if (!arg) return -EINVAL;
-+		pciinfo.domain = pci_domain_nr(host->pdev->bus);
- 		pciinfo.bus = host->pdev->bus->number;
- 		pciinfo.dev_fn = host->pdev->devfn;
- 		pciinfo.board_id = host->board_id;
-diff -burNp lx2612-rc6.orig/include/linux/cciss_ioctl.h lx2612-rc6/include/linux/cciss_ioctl.h
---- lx2612-rc6.orig/include/linux/cciss_ioctl.h	2005-03-02 01:38:07.000000000 -0600
-+++ lx2612-rc6/include/linux/cciss_ioctl.h	2005-06-17 13:06:42.082898464 -0500
-@@ -9,6 +9,7 @@
- 
- typedef struct _cciss_pci_info_struct
- {
- 	unsigned char 	bus;
- 	unsigned char 	dev_fn;
-+	unsigned short	domain;
- 	__u32 		board_id;
+Acked-by: James Morris <jmorris@redhat.com>
+
+
+
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
+
+

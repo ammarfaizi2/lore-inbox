@@ -1,53 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262033AbVFQRs5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262034AbVFQRus@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262033AbVFQRs5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Jun 2005 13:48:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262032AbVFQRs4
+	id S262034AbVFQRus (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Jun 2005 13:50:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262032AbVFQRus
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Jun 2005 13:48:56 -0400
-Received: from CPE000f6690d4e4-CM00003965a061.cpe.net.cable.rogers.com ([69.193.74.134]:59663
+	Fri, 17 Jun 2005 13:50:48 -0400
+Received: from CPE000f6690d4e4-CM00003965a061.cpe.net.cable.rogers.com ([69.193.74.134]:62223
 	"EHLO tentacle.dhs.org") by vger.kernel.org with ESMTP
-	id S262033AbVFQRsv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Jun 2005 13:48:51 -0400
-Date: Fri, 17 Jun 2005 13:56:05 -0400
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Robert Love <rml@novell.com>, Zach Brown <zab@zabbo.net>,
-       linux-kernel@vger.kernel.org,
+	id S262035AbVFQRu1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Jun 2005 13:50:27 -0400
+Date: Fri, 17 Jun 2005 13:57:36 -0400
+To: Chris Friesen <cfriesen@nortel.com>
+Cc: Robert Love <rml@novell.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Zach Brown <zab@zabbo.net>, linux-kernel@vger.kernel.org,
        Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
        Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch] inotify.
-Message-ID: <20050617175605.GB1981@tentacle.dhs.org>
-References: <1118855899.3949.21.camel@betsy> <42B1BC4B.3010804@zabbo.net> <1118946334.3949.63.camel@betsy> <200506171907.39940.arnd@arndb.de>
+Subject: Re: [patch] inotify, improved.
+Message-ID: <20050617175735.GA2075@tentacle.dhs.org>
+References: <1118855899.3949.21.camel@betsy> <42B1BC4B.3010804@zabbo.net> <1118946334.3949.63.camel@betsy> <42B227B5.3090509@yahoo.com.au> <1118972109.7280.13.camel@phantasy> <1119021336.3949.104.camel@betsy> <42B2EE31.9060709@nortel.com> <1119023078.3949.115.camel@betsy> <42B2FD00.9060102@nortel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200506171907.39940.arnd@arndb.de>
+In-Reply-To: <42B2FD00.9060102@nortel.com>
 User-Agent: Mutt/1.5.9i
 From: John McCutchan <ttb@tentacle.dhs.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 17, 2005 at 07:07:38PM +0200, Arnd Bergmann wrote:
-> On Dunnersdag 16 Juni 2005 20:25, Robert Love wrote:
-> > +Q: Why a device node?
-> > +
-> > +A: The second biggest problem with dnotify is that the user
-> > +interface sucks ass. ?Signals are a terrible, terrible interface
-> > +for file notification. ?Or for anything, for that matter. ?The
-> > +idea solution, from all perspectives, is a file descriptor based
-> > +one that allows basic file I/O and poll/select. ?Obtaining the
-> > +fd and managing the watches could of been done either via a
-> > +device file or a family of new system calls. ?We decided to
-> > +implement a device file because adding three or four new system
-> > +calls that mirrored open, close, and ioctl seemed silly. ?A
-> > +character device makes sense from user-space and was easy to
-> > +implement inside of the kernel.
+On Fri, Jun 17, 2005 at 10:40:32AM -0600, Chris Friesen wrote:
+> Robert Love wrote:
+> >On Fri, 2005-06-17 at 09:37 -0600, Chris Friesen wrote:
 > 
-> Sorry to bring up a topic that should have been settled a long time ago.
+> >>On a newsgroup someone was using inotify, but was asking if there was 
+> >>any way to also determine which process/user had caused the notification.
 > 
+> >I have been hesitant, though.  I do not want feature creep to be a
+> >deterrent to acceptance into the Linux kernel.
+> 
+> Absolutely.
+> 
+> >I also think that there could be arguments about security.
+> >...can we
+> >say that read rights are enough for a unprivileged user to know that
+> >root at pid 820 is writing the file?  I don't know.
+> 
+> I'm sure some reasonable rules could be determined.  Maybe you'd need to 
+> be the owner of the file to get the extra info, with root able to 
+> monitor everything.
+> 
+> Maybe there should be a way to load plugins into inotify (something like 
+> netfilter) so that people load modules to send themselves whatever 
+> information they want...
 
-This was settled a long time ago. Robert, Andrew, and I had an off-list
-discussion months ago, and we all agreed that this was the right
-interface for inotify.
+This is probably a good idea for the _audit_ system. Inotify was
+designed to do 1 task well, and it should stay that way.
 
 John

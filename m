@@ -1,68 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261877AbVFQBSi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261881AbVFQBU0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261877AbVFQBSi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Jun 2005 21:18:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbVFQBSi
+	id S261881AbVFQBU0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Jun 2005 21:20:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261884AbVFQBU0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Jun 2005 21:18:38 -0400
-Received: from downeast.net ([12.149.251.230]:29397 "EHLO downeast.net")
-	by vger.kernel.org with ESMTP id S261877AbVFQBSf (ORCPT
+	Thu, 16 Jun 2005 21:20:26 -0400
+Received: from mail.ccur.com ([208.248.32.212]:62574 "EHLO flmx.iccur.com")
+	by vger.kernel.org with ESMTP id S261879AbVFQBTx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Jun 2005 21:18:35 -0400
-From: Patrick McFarland <pmcfarland@downeast.net>
-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-Subject: Re: A Great Idea (tm) about reimplementing NLS.
-Date: Thu, 16 Jun 2005 21:18:06 -0400
-User-Agent: KMail/1.8
-Cc: "Richard B. Johnson" <linux-os@analogic.com>,
-       Lukasz Stelmach <stlman@poczta.fm>, mru@inprovide.com,
-       "Alexander E. Patrakov" <patrakov@ums.usu.ru>,
-       linux-kernel@vger.kernel.org
-References: <yw1xslzl8g1q.fsf@ford.inprovide.com> <Pine.LNX.4.61.0506161036370.30607@chaos.analogic.com> <20050616150419.GY23488@csclub.uwaterloo.ca>
-In-Reply-To: <20050616150419.GY23488@csclub.uwaterloo.ca>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart36103587.OzXh0cRd2r";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Thu, 16 Jun 2005 21:19:53 -0400
+Subject: NFS: NFS3 - page null fill in a short read situation
+From: Linda Dunaphant <linda.dunaphant@ccur.com>
+Reply-To: linda.dunaphant@ccur.com
+To: trond.myklebust@fys.uio.no
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: CCUR
+Message-Id: <1118971191.2202.14.camel@lindad>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
+Date: Thu, 16 Jun 2005 21:19:51 -0400
 Content-Transfer-Encoding: 7bit
-Message-Id: <200506162118.18470.pmcfarland@downeast.net>
+X-OriginalArrivalTime: 17 Jun 2005 01:19:52.0054 (UTC) FILETIME=[A9682960:01C572DA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart36103587.OzXh0cRd2r
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Hi Trond,
 
-On Thursday 16 June 2005 11:04 am, Lennart Sorensen wrote:
->  Most people seem happy with 50 or so being a good limit even though many
->  systems support much longer.=20
+One of our applications running on a Linux client experiences partial
+file data corruption (nulls) if the NFS filesystem on a non-Linux server
+is mounted as NFS3. It works properly if mounted NFS2. The Linux NFS client
+creates a file on the server and issues the following sequence of lseeks,
+writes, and read calls:
+                                                                                
+  init write buffer to non-null values
 
-50 characters or 50 bytes? Because in the case of UTF-8, if you do a lot of=
-=20
-three byte characters (which require four bites to encode), 50 bytes is ver=
-y=20
-short.
+  lseek: SEEK_SET to 52
+  write: 224 bytes
 
-=2D-=20
-Patrick "Diablo-D3" McFarland || pmcfarland@downeast.net
-"Computer games don't affect kids; I mean if Pac-Man affected us as kids, w=
-e'd=20
-all be running around in darkened rooms, munching magic pills and listening=
- to
-repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989
+  lseek: SEEK_SET to 4096
+  write: 224 bytes
+                                                                                 
+  lseek: SEEK_SET to 0
+  read: 276 bytes
 
---nextPart36103587.OzXh0cRd2r
-Content-Type: application/pgp-signature
+Using ethereal, I found that the data read back over the wire from the
+server for bytes 0 to 276 was correct (bytes 52-275 were not null). However,
+the data returned to the application for bytes 52 to 275 was null.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+We have several non-Linux NFS servers that do not return the EOF status
+flag on a read when data is being returned. A second read at the updated
+offset returns the EOF flag. This causes the nfs_readpage_result() short
+read logic to be used in this case. If some progress is made on the read
+(count != 0), nfs_readpage_result() adjusts the starting position in
+pgbase and offset, and decrements the count by the amount that was
+completed. It then restarts the read call. Once the original count is
+satified or an EOF occurs, nfs_readpage_result_full() is called to null
+fill the end of any page(s) that were not satisfied by the read(s).
 
-iD8DBQBCsiTa8Gvouk7G1cURAo+/AJ0SkLQHEZKVDy12Ug2MuZeK+6MW1QCgrUan
-Oc/Z/eA65+cAOtV8v/RzhPc=
-=dVjM
------END PGP SIGNATURE-----
+I found nfs_readpage_result_full() is not taking into account a short
+read situation may have occurred. In my example, data->res.count was 0
+after the second read (for bytes 276 to 4095) due to the EOF. Because
+req->wb_pgbase was 0 and req->wb_bytes was 4096, memclear_highpage_flush()
+cleared all 4096 bytes of the page even though 276 bytes had been read by
+the first short read. This caused bytes 52 to 275 to be clobbered by nulls.
 
---nextPart36103587.OzXh0cRd2r--
+I changed count in nfs_readpage_result_full() to be a total of all the
+reads by adding data->args.pgbase to data->res.count (count of the last
+read). I found that data->args.pgbase contained the sum of any previous
+short reads that may have occurred, and 0 otherwise. In my example, bytes
+276 to 4095 are now cleared by memclear_highpage_flush() instead of bytes
+0 to 4095 which fixes the problem for this application.
+
+Cheers!
+Linda
+
+The following patch is for 2.6.12-rc6:
+
+diff -ura base/fs/nfs/read.c new/fs/nfs/read.c
+--- base/fs/nfs/read.c	2005-06-07 16:21:43.000000000 -0400
++++ new/fs/nfs/read.c	2005-06-16 16:59:45.000000000 -0400
+@@ -425,7 +425,7 @@
+  */
+ static void nfs_readpage_result_full(struct nfs_read_data *data, int status)
+ {
+-	unsigned int count = data->res.count;
++	unsigned int count = data->res.count + data->args.pgbase;
+ 
+ 	while (!list_empty(&data->pages)) {
+ 		struct nfs_page *req = nfs_list_entry(data->pages.next);
+
+

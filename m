@@ -1,74 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261968AbVFQNb5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261967AbVFQNd4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261968AbVFQNb5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Jun 2005 09:31:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261970AbVFQNb5
+	id S261967AbVFQNd4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Jun 2005 09:33:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261970AbVFQNdz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Jun 2005 09:31:57 -0400
-Received: from gold.veritas.com ([143.127.12.110]:9057 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S261968AbVFQNbm (ORCPT
+	Fri, 17 Jun 2005 09:33:55 -0400
+Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:12181
+	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
+	with ESMTP id S261967AbVFQNdQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Jun 2005 09:31:42 -0400
-Date: Fri, 17 Jun 2005 14:32:52 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Andrew Morton <akpm@osdl.org>
-cc: Chris Friesen <cfriesen@nortel.com>, linux-kernel@vger.kernel.org
-Subject: Re: why does fsync() on a tmpfs directory give EINVAL?
-In-Reply-To: <20050616185754.3646511e.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.61.0506171419570.10248@goblin.wat.veritas.com>
-References: <42B1DBF1.4020904@nortel.com> <20050616135708.4876c379.akpm@osdl.org>
- <42B20317.6000204@nortel.com> <20050616162933.25dee57b.akpm@osdl.org>
- <42B22CD3.9080600@nortel.com> <20050616185754.3646511e.akpm@osdl.org>
+	Fri, 17 Jun 2005 09:33:16 -0400
+Reply-To: <abonilla@linuxwireless.org>
+From: "Alejandro Bonilla" <abonilla@linuxwireless.org>
+To: "'Lars Roland'" <lroland@gmail.com>, <Valdis.Kletnieks@vt.edu>
+Cc: "'Alejandro Bonilla'" <abonilla@linuxwireless.org>,
+       "'Christian Kujau'" <evil@g-house.de>,
+       "'Linux-Kernel'" <linux-kernel@vger.kernel.org>
+Subject: RE: tg3 in 2.6.12-rc6 and Cisco PIX SMTP fixup
+Date: Fri, 17 Jun 2005 07:33:05 -0600
+Message-ID: <001f01c57341$1802c3b0$600cc60a@amer.sykes.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 17 Jun 2005 13:31:41.0771 (UTC) FILETIME=[E5A341B0:01C57340]
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <4ad99e05050617061864f286a2@mail.gmail.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1478
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Jun 2005, Andrew Morton wrote:
-> Chris Friesen <cfriesen@nortel.com> wrote:
-> > Andrew Morton wrote:
-> > > Chris Friesen <cfriesen@nortel.com> wrote:
-> > >>Currently tmpfs reuses the simple_dir_operations from libfs.c.
-> > >>
-> > >>Would it make sense to add the empty fsync() function there, and have 
-> > >>all other users pick it up as well?  Is this likely to break stuff?
-> > >  
-> > > Isn't simple_sync_file() suitable?
 
-Yes.
+> > >
+> > > On 6/17/05, Alejandro Bonilla <abonilla@linuxwireless.org> wrote:
+> > > > one question,
+> > > >
+> > > >     Can I know what is the problem?
+> > > >:I have 2 tg3 adapters, lots e100's and some Cisco PIX
+> and devices.
+> > > >
+> > > > I can try to reproduce it and see if anyone has
+> something to say about it.
+> > >
+> > > Yes please. As I see it. Enable smtp fixup protocol on
+> your cisco pix
+> > > (you will need to have a smtp server to point it to), then on some
+> > > linux system running with a kernel greater than 2.6.8.1
+> do a telnet to
+> > > the smtp server that is firewalled and try to issue a
+> smtp command.
+> > >
+> > > Note that cisco has a bug report on smtp fixup banner
+> hiding issues in
+> > > cisco os 6.3.4 but it should not result in the connection getting
+> > > dropped, it also does not explain why this problem does
+> not seam to
+> > > exists on kernels prior to 2.6.9.
+> >
+> > 2.6.9? This rings a bell.. ;)
+> >
+> > Does disabling TCP window scaling fix it?
+> >
+> > echo 0 > /proc/sys/net/ipv4/tcp_window_scaling
+>
+> Yes it does solve it.
+>
+> Thanks so much - this will be much easier than getting the largest ISP
+> in Denmark to update there Cisco to a new version.
+>
+>
+> Regards.
+>
+> Lars Roland
 
-> > Alternately, if it makes sense for all the users of 
-> > simple_dir_operations we could modify it directly and all of the other 
-> > users of simple_dir_operations would get the change for free.  I don't 
-> > know enough about the other filesystems to know if this makes sense or not.
+Lars, Valdis,
 
-That makes the best sense, yes.
+	So what do we really have here? Problem with Cisco or a problem in the
+driver? Both?
 
-> hm, what a lot of filesystems.
-> ..... 
-> I can't think of any reason why any of these would want fsync(dir_fd) to
-> return -EINVAL.
+.Alejandro
 
-No need to check the list: any filesystem using simple_dir_operations
-is using dcache_readdir, which implies there's no storage to be synced.
-And we all agree that success is a more helpful retval than -EINVAL
-when there's nothing for fsync to do.  Here's a patch if you haven't
-done it already....
-
-tmpfs, and all other users of simple_dir_operations, should return 0
-to say directory fsync was successful, instead of the worrying -EINVAL.
-
-Signed-off-by: Hugh Dickins <hugh@veritas.com>
-
---- 2.6.12-rc6-git8/fs/libfs.c	2005-03-02 07:38:44.000000000 +0000
-+++ linux/fs/libfs.c	2005-06-17 14:16:29.000000000 +0100
-@@ -183,6 +183,7 @@ struct file_operations simple_dir_operat
- 	.llseek		= dcache_dir_lseek,
- 	.read		= generic_read_dir,
- 	.readdir	= dcache_readdir,
-+	.fsync		= simple_sync_file,
- };
- 
- struct inode_operations simple_dir_inode_operations = {

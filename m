@@ -1,59 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261645AbVFQImU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261921AbVFQIsF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261645AbVFQImU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Jun 2005 04:42:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261745AbVFQImT
+	id S261921AbVFQIsF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Jun 2005 04:48:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261923AbVFQIsE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Jun 2005 04:42:19 -0400
-Received: from smtp4.wanadoo.fr ([193.252.22.27]:52378 "EHLO smtp4.wanadoo.fr")
-	by vger.kernel.org with ESMTP id S261645AbVFQImP convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Jun 2005 04:42:15 -0400
-X-ME-UUID: 20050617084211587.8F78D1C00185@mwinf0408.wanadoo.fr
-Subject: Re: 2.6.11: nforce3 250gb lockups
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <1118904850.5709.15.camel@localhost.localdomain>
-References: <1118904850.5709.15.camel@localhost.localdomain>
-Content-Type: text/plain; charset=utf-8
-Date: Fri, 17 Jun 2005 10:41:33 +0200
-Message-Id: <1118997693.30207.119.camel@gonzales>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 8BIT
+	Fri, 17 Jun 2005 04:48:04 -0400
+Received: from mail-in-02.arcor-online.net ([151.189.21.42]:43459 "EHLO
+	mail-in-02.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261921AbVFQIsC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Jun 2005 04:48:02 -0400
+From: Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>
+Subject: Re: =?ISO-8859-1?Q?J=F6rg?= Schilling again... [Please reply CC: wdraxinger@darkstargames.de]
+To: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>,
+       linux-kernel@vger.kernel.org
+Reply-To: 7eggert@gmx.de
+Date: Fri, 17 Jun 2005 10:47:18 +0200
+References: <4fsop-zf-13@gated-at.bofh.it> <4fsop-zf-11@gated-at.bofh.it> <4fBBk-7l0-3@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1DjCVZ-0001hI-E0@be1.7eggert.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry for replying to myself, but this may interest someone.
+Måns Rullgård <mru@inprovide.com> wrote:
+> Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org> writes:
 
-Le jeudi 16 juin 2005 Ã  08:54 +0200, Xavier Bestel a Ã©crit :
-> Hi,
+>> The new alpha version of cdrtools has the workaround.
 > 
-> I have a brand new computer, with an MSI K8N Neo (nforce3-based) which
-> lockups quite easily. It seems it happens when I play audio for a while,
-> or when accessing hd under load. With "nolapic", the boot stops when
-> accessing hda, with something like "hda interrupt timeout" repeating on
-> the screen. With "noapic nolapic", it boots normally but doesn't lockup
-> less. The Ubuntu install CD lockups at boot even with "noapic nolapic".
-> 
-> The kernel is the stock debian/sid 2.6.11-9-amd64-k8, the userspace is
-> i386 (32bits). lspci and dmesg at the bottom of this mail. The only
-> advices I found by googling were to try nolapic (which I did without
-> success) or the binary drivers (which I won't try).
-> Is there anything I can do, short of trying to return it to my
-> reseller ?
+> Workaround for what?
 
-As suggested by Denis Vlasenko <vda@ilport.com.ua> I disabled DMA for
-harddisks (because I have ATA hds) in the BIOS, and now it works
-flawlessly. No need for "no(l)apic". For the record, the drives are:
-
-hda: WDC WD400BB-32BSA0, ATA DISK drive
-hdb: HITACHI DVD-ROM GD-7500, ATAPI CD/DVD-ROM drive
-hdc: ST340824A, ATA DISK drive
-hdd: DVDRW IDE 16X, ATAPI CD/DVD-ROM drive
-
-and an unused barracuda 160G on sda.
-
-	Xav
-
-
+Non-MMC-drives which need commands that aren't (and maybe can't be) marked
+as safe.
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

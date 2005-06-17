@@ -1,53 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262041AbVFQSP2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262046AbVFQSR1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262041AbVFQSP2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Jun 2005 14:15:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262042AbVFQSP2
+	id S262046AbVFQSR1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Jun 2005 14:17:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262045AbVFQSR0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Jun 2005 14:15:28 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:45771 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262041AbVFQSPW (ORCPT
+	Fri, 17 Jun 2005 14:17:26 -0400
+Received: from tetsuo.zabbo.net ([207.173.201.20]:14298 "EHLO tetsuo.zabbo.net")
+	by vger.kernel.org with ESMTP id S262028AbVFQSRR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Jun 2005 14:15:22 -0400
-Date: Fri, 17 Jun 2005 20:16:36 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: spaminos-ker@yahoo.com, Andrew Morton <akpm@osdl.org>,
+	Fri, 17 Jun 2005 14:17:17 -0400
+Message-ID: <42B313A6.7030004@zabbo.net>
+Date: Fri, 17 Jun 2005 11:17:10 -0700
+From: Zach Brown <zab@zabbo.net>
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.3 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: John McCutchan <ttb@tentacle.dhs.org>
+Cc: Robert Love <rml@novell.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
        linux-kernel@vger.kernel.org
-Subject: Re: cfq misbehaving on 2.6.11-1.14_FC3
-Message-ID: <20050617181635.GU6957@suse.de>
-References: <20050614000352.7289d8f1.akpm@osdl.org> <20050614232154.17077.qmail@web30701.mail.mud.yahoo.com> <20050617141039.GL6957@suse.de> <20050617155108.GX9664@g5.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050617155108.GX9664@g5.random>
+Subject: Re: [patch] inotify, improved.
+References: <1118855899.3949.21.camel@betsy> <42B1BC4B.3010804@zabbo.net> <1118946334.3949.63.camel@betsy> <42B227B5.3090509@yahoo.com.au> <1118972109.7280.13.camel@phantasy> <1119021336.3949.104.camel@betsy> <42B30654.4030307@zabbo.net> <20050617175455.GA1981@tentacle.dhs.org> <42B30EC1.60608@zabbo.net> <20050617181501.GB2220@tentacle.dhs.org>
+In-Reply-To: <20050617181501.GB2220@tentacle.dhs.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 17 2005, Andrea Arcangeli wrote:
-> On Fri, Jun 17, 2005 at 04:10:40PM +0200, Jens Axboe wrote:
-> > Perhaps rmap could be used to lookup who has a specific page mapped...
-> 
-> I doubt, the computing and locking cost for every single page write
-> would be probably too high. Doing it during swapping isn't a big deal
-> since cpu is mostly idle during swapouts, but doing it all the time
-> sounds a bit overkill.
 
-We could cut the lookup down to per-request, it's not very likely that
-seperate threads would be competing for the exact same disk location.
-But it's still not too nice...
+> My bad. Shouldn't we return the error code to user space though? We
+> shouldn't be hiding errors in the app. How does read() handle an error
+> part way through a read?
 
-> A mechanism to pass down a pid would be much better. However I'm unsure
-> where you could put the info while dirtying the page. If it was an uid
-> it might be reasonable to have it in the address_space, but if you want
-> a pid as index, then it'd need to go in the page_t, which would waste
-> tons of space. Having a pid in the address space, may not work well with
-> a database or some other app with multiple processes.
+My preference is to give userspace a chance to work with what it can,
+though I'm not sure what the N read paths do right now.
 
-The previous patch just added a pid_t to struct page, but I knew all
-along that this was just for testing, I never intended to merge that
-part.
-
--- 
-Jens Axboe
-
+- z

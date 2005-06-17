@@ -1,68 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261901AbVFQCWm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261898AbVFQCcc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261901AbVFQCWm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Jun 2005 22:22:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261902AbVFQCWm
+	id S261898AbVFQCcc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Jun 2005 22:32:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261899AbVFQCcc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Jun 2005 22:22:42 -0400
-Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:20944
-	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
-	with ESMTP id S261901AbVFQCWe (ORCPT
+	Thu, 16 Jun 2005 22:32:32 -0400
+Received: from relay.snowman.net ([66.92.160.56]:8714 "EHLO relay.snowman.net")
+	by vger.kernel.org with ESMTP id S261898AbVFQCc1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Jun 2005 22:22:34 -0400
-Message-ID: <42B225E0.1080502@linuxwireless.org>
-Date: Thu, 16 Jun 2005 20:22:40 -0500
-From: Alejandro Bonilla <abonilla@linuxwireless.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Lars Roland <lroland@gmail.com>
-CC: Christian Kujau <evil@g-house.de>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>,
-       Alejandro Bonilla <albonill@cisco.com>
-Subject: Re: tg3 in 2.6.12-rc6 and Cisco PIX SMTP fixup
-References: <4ad99e0505061605452e663a1e@mail.gmail.com>	 <42B1F5CB.9020308@g-house.de>	 <4ad99e0505061615143cc34192@mail.gmail.com>	 <42B21130.4000608@g-house.de>	 <4ad99e0505061617052f427ed6@mail.gmail.com>	 <42B218C5.9020406@linuxwireless.org> <4ad99e0505061618475716f13c@mail.gmail.com>
-In-Reply-To: <4ad99e0505061618475716f13c@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 16 Jun 2005 22:32:27 -0400
+Date: Thu, 16 Jun 2005 22:31:50 -0400
+From: Stephen Frost <sfrost@snowman.net>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: jesper.juhl@gmail.com, juhl-lkml@dif.dk, linux-kernel@vger.kernel.org,
+       laforge@netfilter.org
+Subject: Re: Shouldn't we be using alloc_skb/kfree_skb in net/ipv4/netfilter/ipt_recent.c::ip_recent_ctrl ?
+Message-ID: <20050617023150.GS30011@ns.snowman.net>
+Mail-Followup-To: "David S. Miller" <davem@davemloft.net>,
+	jesper.juhl@gmail.com, juhl-lkml@dif.dk,
+	linux-kernel@vger.kernel.org, laforge@netfilter.org
+References: <Pine.LNX.4.62.0506170025140.2477@dragon.hyggekrogen.localhost> <20050616.154838.41634341.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="jbeY2n/zRUOD7gar"
+Content-Disposition: inline
+In-Reply-To: <20050616.154838.41634341.davem@davemloft.net>
+X-Editor: Vim http://www.vim.org/
+X-Info: http://www.snowman.net
+X-Operating-System: Linux/2.4.24ns.3.0 (i686)
+X-Uptime: 22:23:07 up 5 days, 18:43,  5 users,  load average: 0.07, 0.10, 0.04
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lars Roland wrote:
 
->On 6/17/05, Alejandro Bonilla <abonilla@linuxwireless.org> wrote:
->  
->
->>one question,
->>
->>    Can I know what is the problem? 
->>:I have 2 tg3 adapters, lots e100's and some Cisco PIX and devices.
->>
->>I can try to reproduce it and see if anyone has something to say about it.
->>    
->>
->
->Yes please. As I see it. Enable smtp fixup protocol on your cisco pix
->(you will need to have a smtp server to point it to), then on some
->linux system running with a kernel greater than 2.6.8.1 do a telnet to
->the smtp server that is firewalled and try to issue a smtp command.
->
->Note that cisco has a bug report on smtp fixup banner hiding issues in
->cisco os 6.3.4 but it should not result in the connection getting
->dropped, it also does not explain why this problem does not seam to
->exists on kernels prior to 2.6.9.
->
->
->Regards.
->
->Lars Roland
->  
->
+--jbeY2n/zRUOD7gar
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Lars,
+* David S. Miller (davem@davemloft.net) wrote:
+> It's using it to send a dummy packet to the patch function.
+> It is gross, but it does work because it allocated it's own
+> private data area to skb->nh.iph.
 
-    I might be able to try this tomorrow. Just need to setup the PIX.
+Seriously doubt ipt_recent is alone in that given I based the module off
+an existing netfilter module and I'm pretty confident I didn't change
+anything with regard to that aspect.
 
-If you have that bug ID, let me know. ;-)
+> Just leave it alone for now, ipt_recent is gross and full of many
+> errors and bug, and thus stands to have a rewrite. Patrick McHardy
+> said he will try to do that.
 
-.Alejandro
+Ideally it should probably be rolled into the new ippool/ipset
+framework, if it's capable of supporting what ipt_recent currently does.
+I had heard vaugue claims that the new framework was supposted to be
+able to support something like ipt_recent but I havn't looked into it
+personally.
+
+I'm mildly curious what the issues you have with it are but I've got
+nothing against someone rewriting it as long as the functionality
+remains the same.  It'd be nice to have a simpler module (perhaps the
+new ippool stuff does this already, not sure) which just has a
+hash-based table of IPs to match against since I know alot of people use
+ipt_recent for that.  It'd also be nice to be able to do ranges and jump
+to specific chains based on a hash-lookup to an IP/range.
+
+	Stephen
+
+--jbeY2n/zRUOD7gar
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFCsjYUrzgMPqB3kigRAtRiAJ9YsmymvFVCTVTMKqev+A2eAz1H3wCeIYqi
+l+IwUeIIq1qL3RX/xoLYyUs=
+=aX8c
+-----END PGP SIGNATURE-----
+
+--jbeY2n/zRUOD7gar--

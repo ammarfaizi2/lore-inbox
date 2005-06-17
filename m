@@ -1,67 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262084AbVFQVMo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262083AbVFQVWf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262084AbVFQVMo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Jun 2005 17:12:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262089AbVFQVMn
+	id S262083AbVFQVWf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Jun 2005 17:22:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262089AbVFQVWf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Jun 2005 17:12:43 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:31653 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262084AbVFQVMk (ORCPT
+	Fri, 17 Jun 2005 17:22:35 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:2732 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262083AbVFQVW2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Jun 2005 17:12:40 -0400
-Date: Fri, 17 Jun 2005 14:13:31 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.6.12-rc6-mm1 & 2K lun testing
-Message-Id: <20050617141331.078e5f8f.akpm@osdl.org>
-In-Reply-To: <42B2E7D2.9080705@us.ibm.com>
-References: <1118856977.4301.406.camel@dyn9047017072.beaverton.ibm.com>
-	<20050616002451.01f7e9ed.akpm@osdl.org>
-	<1118951458.4301.478.camel@dyn9047017072.beaverton.ibm.com>
-	<20050616133730.1924fca3.akpm@osdl.org>
-	<1118965381.4301.488.camel@dyn9047017072.beaverton.ibm.com>
-	<20050616175130.22572451.akpm@osdl.org>
-	<42B2E7D2.9080705@us.ibm.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Fri, 17 Jun 2005 17:22:28 -0400
+Date: Fri, 17 Jun 2005 23:23:39 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: James.Bottomley@SteelEye.com, linux-kernel@vger.kernel.org
+Subject: Re: kernel bugzilla
+Message-ID: <20050617212338.GA16852@suse.de>
+References: <20050617001330.294950ac.akpm@osdl.org> <1119016223.5049.3.camel@mulgrave> <20050617142225.GO6957@suse.de> <20050617141003.2abdd8e5.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050617141003.2abdd8e5.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Badari Pulavarty <pbadari@us.ibm.com> wrote:
->
-> > It shouldn't be necessary to do both.  Either the patch or the tuning
-> > should fix it.  Please confirm.
-> > 
-> > Also please determine whether the deep CFQ queue depth is a problem when
-> > the VFS tuning/patching is in place.
-> > 
-> > IOW: let's work out which of these three areas needs to be addressed.
-> > 
+On Fri, Jun 17 2005, Andrew Morton wrote:
 > 
-> Andrew,
+> (Seeing as I did all this typing I added linux-kernel and changed the
+> subject.  I trust that's OK).
 > 
-> Sorry for not getting back earlier. I am running into weird problems.
-> When running "dd" write tests to 2048 ext3 filesystems, just with your
-> patch (no dirty ratio or CFS queue depth tuning), I see "buff" 
-> increasing instead of "cache" and I see "bi" instead of "bo".
-> Whats going on here ?
-
-Beats me.  Are you sure you're not running a broken vmstat?
-
-`buff' would increase if you were accidentally writing to /dev/sda1 rather
-than /dev/sda1/some-filename, but I don't know why vmstat would be getting
-confused over the direction of the I/O.
-
+> Jens Axboe <axboe@suse.de> wrote:
+> >
+> > > If bugzilla can now collect email, just have it forward the bug reports
+> > > to linux-scsi as through it were from the reporter with itself on the cc
+> > > list.
 > 
-> procs -----------memory---------- ---swap-- -----io---- --system-- 
-> ----cpu----
->   r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us 
-> sy id wa
-> ..
->   2  0      4 6339920  42712  24884    0    0     0    19  413  1237 46 
->   6 48  0
+> It can be set up to report scsi bugs to a mailing list.  So we can replace
+> andmike with linux-scsi@vger.kernel.org as the person who gets notification
+> emails for scsi-related bug reports.
 
-You're wordwrapping...
+That would help.
+
+> And, apparently, bugzilla will now accept emails and will file them away in
+> the right place.  I've asked Martin to help set bugzilla up so that people
+> who don't have a bugzilla account will be accepted into the database as well.
+
+See, that is very useful. The SUSE bugzilla used to be able to do that
+as well (it probably still does but requires password etc, already too
+much hassle) and I loved it. The thing about this kind of bug tracking
+is that it must be just as easy and convenient to use as email. And
+jumping to a browser and waving the mouse around scrolling to the right
+place to input text is already cumbersome imho compared to just
+answering an email (which can be done clickity-less).
+
+> > imho, the kernel.org bugzilla should be abandoned.
+> 
+> That's what I used to think.  Until I started trying to keep track of open
+> bugs against late -rc kernels.  Now, the ability which bugzilla has to keep
+> track of open bugs and to keep track of all the correspondence associated
+> with a bug is looking really attractive.
+
+I never disputed that it isn't useful. It is/was just a bother to use.
+
+> That's why I want it to integrate seamlessly with our normal email-based
+> processes.  So we can get the best of both worlds.
+
+Indeed, that is the key to making it useful.
+
+> > is anyone
+> > (developers) using it successfully?
+> 
+> The ACPI team use bugzilla a lot.
+> 
+> For those bugs which are handled in bugzilla rather than via random emails,
+> yeah, I'm finding bugzilla preferable.
+> 
+> 
+> I haven't tested this yet, but hopefully I will now be able to:
+> 
+> - get an email from bugme
+> 
+> - reply to it and cc linux-kernel and a maintainer
+> 
+> - Other people will comment in the normal manner with reply-to-all
+> 
+> - bugzilla will capture everything.
+> 
+> Suddenly, my ability to track open bugs gets a heap better, and nobody is
+> impacted at all - just an additional Cc.
+
+That is the way it should work.
+
+> One thing I haven't worked out is how to get a bug which is initially
+> reported via email *into* the bugzilla system for tracking purposes.  One
+> could just ask the originator to raise a bugzilla entry, as lots of other
+> projects do.  But I don't think we want to do that - it's in our interest
+> to make bug reporting as easy as possible for the reporter, rather than
+> putting up barriers.
+
+Depends... Sometimes it's quite ok to put the onus on the reported to
+file it in bugzilla, since it should be considered in his best interest
+to do so - he obviously filed the bug, because the issue bothers him in
+some way. As long as it is 'easy enough' to do so, I think we are
+alright. The question is if this can't be automated fairly easily. A
+good bugzilla interface helps a _lot_.
+
+> Another problem is: what happens if a bug has been discussed via email
+> which is cc'ed to linux-kernel and bugzilla, and then someone comes along
+> and updates the bug record via the bugzilla web interface?  I suspect those
+> people who had been following the discussion via email wouldn't see the
+> update.  So bugzilla needs to a) automatically add all incoming Cc's to the
+> records's cc list and b) automatically add all known cc's to outgoing
+> notifications.
+
+At the risk of making bugzilla just a little too annoying, if you find
+yourself having to manually remove the cc in selected bug entries just
+because you participated in the thread at some point.
+
+-- 
+Jens Axboe
+

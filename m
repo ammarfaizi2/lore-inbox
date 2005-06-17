@@ -1,79 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262045AbVFQSXN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262049AbVFQS2c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262045AbVFQSXN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Jun 2005 14:23:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262049AbVFQSXN
+	id S262049AbVFQS2c (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Jun 2005 14:28:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262050AbVFQS2c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Jun 2005 14:23:13 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:43451 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S262045AbVFQSXG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Jun 2005 14:23:06 -0400
-Date: Fri, 17 Jun 2005 20:22:12 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Pascal CHAPPERON <pascal.chapperon@wanadoo.fr>
-Cc: Juha Laiho <Juha.Laiho@iki.fi>, Andrew Hutchings <info@a-wing.co.uk>,
-       linux-kernel@vger.kernel.org, vinay kumar <b4uvin@yahoo.co.in>,
-       jgarzik@pobox.com
-Subject: Re: sis190
-Message-ID: <20050617182211.GA14778@electric-eye.fr.zoreil.com>
-References: <28331967.1119006849927.JavaMail.www@wwinf1101>
+	Fri, 17 Jun 2005 14:28:32 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:35494 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262049AbVFQS22 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Jun 2005 14:28:28 -0400
+Date: Fri, 17 Jun 2005 19:28:26 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Robert Love <rml@novell.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, Zach Brown <zab@zabbo.net>,
+       linux-kernel@vger.kernel.org,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       John McCutchan <ttb@tentacle.dhs.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch] inotify.
+Message-ID: <20050617182826.GA20250@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Robert Love <rml@novell.com>, Arnd Bergmann <arnd@arndb.de>,
+	Zach Brown <zab@zabbo.net>, linux-kernel@vger.kernel.org,
+	Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+	John McCutchan <ttb@tentacle.dhs.org>,
+	Andrew Morton <akpm@osdl.org>
+References: <1118855899.3949.21.camel@betsy> <42B1BC4B.3010804@zabbo.net> <1118946334.3949.63.camel@betsy> <200506171907.39940.arnd@arndb.de> <20050617175404.GA19463@infradead.org> <1119032213.3949.124.camel@betsy>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <28331967.1119006849927.JavaMail.www@wwinf1101>
+In-Reply-To: <1119032213.3949.124.camel@betsy>
 User-Agent: Mutt/1.4.1i
-X-Organisation: Land of Sunshine Inc.
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pascal CHAPPERON <pascal.chapperon@wanadoo.fr> :
-[...]
-> I noticed that you remove NET_IP_ALIGN in sis190_alloc_rx_skb(), 
-> but not in sis190_try_rx_copy(); though the driver "worked" like
-> yesterday...
+On Fri, Jun 17, 2005 at 02:16:53PM -0400, Robert Love wrote:
+> We considered your feedback, Christoph.  Ultimately, John, Andrew, and I
+> settled on the current approach.  In life, not everyone agrees on every
+> little detail and there usually exists a large difference between "not
+> exactly the same" and "horrible".  And never does the histrionics result
+> in anything productive.
 
-NET_IP_ALIGN should be fine in sis190_alloc_rx_skb() as it only
-applies to the skb where the driver memcopies (i.e. it is not
-limited by the alignement requirement of the asic).
+This shows exactly on how you're refusing feedback on the basis totally
+unfounded claims again.
 
-[...]
->    PSize    status   addr     size     PSize    status   addr     size
-> 00:00000000 c0000000 13381010 00000600 00000000 c0000000 13847010 00000600
-> 01:00000000 c0000000 1edcb810 00000600 00000000 c0000000 1b694810 00000600
-> 02:00000000 c0000000 1b697010 00000600 00000000 c0000000 077c4810 00000600
-> 03:00000000 c0000000 07e15010 00000600 00000000 c0000000 06e3e810 00000600
-> 04:00000000 c0000000 1719e810 00000600 00000000 c0000000 1b69b810 00000600
-> 05:00000000 c0000000 1b694010 00000600 00000000 c0000000 07741010 00000600
-> 06:00000000 c0000000 065d8010 00000600 00000000 c0000000 07a84010 00000600
-> 07:010100a6 76040040 13381810 00000600 00000000 c0000000 1f7c1010 00000600
-                                                                    ^ -> bug
-[...]
-> So i removed the test "if (pkt_size < rx_copybreak) {" in sis190_try_rx_copy.
-> 
-> The driver now works "correctly" (ping, ssh, scp) as long as i want,
-> but probably not in the way you want...
+You are using ioctl as an really bad syscall multiplexer.  You're
+not using the file descriptor it's called on at all, so it does not qualify
+as a valid ioctl() usage even under the most lax rules.
 
-It should be fixed now. Please try the patch of the day:
-http://www.fr.zoreil.com/people/francois/misc/20050617-2.6.12-rc-sis190-test.patch
+Also you claimed the resource shortage for the proposed architecture
+with just a single syscall, aka one watch per fd without showing any
+reasons why that would be true, in fact by any means there's no reason
+to believe file descriptors are a rare ressource in a modern Linux system.
 
-> I don't understand how the Rx packets are managed when  pkt_size is
-> greater than rx_copybreak...
-
-They are directly given to the upper layer. The driver tags a hole in the
-Rx ring.
-
-[...]
-> I also tried to force 10H, 10F, 100H, 100F autoneg off on the other card.
-> All modes were working, but obviously something was wrong :
-> - 10H  0,4Mo/s both directions
-> - 10F  1,2Mo/s  "     "
-> - 100H   5Mo/s  "     "
-> - 100F 1,2Mo/s and 0,3Mo/s 
-> 
-> For 100F, sis190 reported "100 Mbps Half Duplex" and the other card 100 Full.
-
-Did the sis190 driver report a link change event ?
-
---
-Ueimor
+I don't care whether you adopt my interface proposal or a different passable
+one, but the current one is not acceptable at all.

@@ -1,56 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261996AbVFQP3l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261999AbVFQPbp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261996AbVFQP3l (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Jun 2005 11:29:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261997AbVFQP3l
+	id S261999AbVFQPbp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Jun 2005 11:31:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262000AbVFQPbp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Jun 2005 11:29:41 -0400
-Received: from mail.kroah.org ([69.55.234.183]:22733 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261996AbVFQP3j (ORCPT
+	Fri, 17 Jun 2005 11:31:45 -0400
+Received: from wproxy.gmail.com ([64.233.184.204]:40331 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261997AbVFQPbc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Jun 2005 11:29:39 -0400
-Date: Fri, 17 Jun 2005 08:29:10 -0700
-From: Greg KH <greg@kroah.com>
-To: Abhay_Salunke@Dell.com
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, dmitry.torokhov@gmail.com,
-       Matt_Domsch@Dell.com
-Subject: Re: [patch 2.6.12-rc3] dell_rbu: Resubmitting patch for new Dell BIOS update driver
-Message-ID: <20050617152910.GA20283@kroah.com>
-References: <B37DF8F3777DDC4285FA831D366EB9E2073081@ausx3mps302.aus.amer.dell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 17 Jun 2005 11:31:32 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=HaLKR9Ruud7lOdeVV3OHKUFs/XE0HD+Os1AUBHkOtofu8ki6ysRDPoyRwOc4QFB6mjoO67ziNkbVKAfRND/oaxqPKXCIMZiN9HwyWyc+4uqWCg5b7dV5sRco48IVk3ligbEtPQIyEPbpJSYJ/kp6YwQHccb4U4Dh3UO5LSu52yM=
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: "Tetsuji \"Maverick\" Rai" <tetsuji.rai@gmail.com>
+Subject: Re: Need to hack kernel module of VTune (remap_page_range)
+Date: Fri, 17 Jun 2005 19:37:06 +0400
+User-Agent: KMail/1.7.2
+Cc: linux-kernel@vger.kernel.org
+References: <377362e105061706426683ee01@mail.gmail.com>
+In-Reply-To: <377362e105061706426683ee01@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <B37DF8F3777DDC4285FA831D366EB9E2073081@ausx3mps302.aus.amer.dell.com>
-User-Agent: Mutt/1.5.8i
+Message-Id: <200506171937.06943.adobriyan@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 17, 2005 at 09:55:31AM -0500, Abhay_Salunke@Dell.com wrote:
-> > On Wed, Jun 15, 2005 at 12:59:46PM -0500, Abhay Salunke wrote:
-> > > +static struct device rbu_device_mono;
-> > > +static struct device rbu_device_packet;
-> > > +static struct device rbu_device_cancel;
-> > 
-> > You should never create a struct device on the stack.  Lots of bad
-> > things can happen (including not having a release function for them.)
-> > 
-> they are not declared inside any function; can they be on stack?
+On Friday 17 June 2005 17:42, Tetsuji "Maverick" Rai wrote:
+> I'm trying to install VTune by Intel (see
+> http://www.intel.com/software/products/vtune/vlin/index.htm for
+> details) but this creates a kernel module for "older" kernels; it can
+> be built on my Gentoo w/kernel 2.6.11.12, but it looks for symbol
+> "remap_page_range" which was used until 2.6.8 or 2.6.9.  So I would
+> like to know how to hack this kernel module (fortunately sources are
+> with the package).   What's the key?
 
-Sorry, I didn't mean "on the stack" I ment, they are static and not
-dynamically allocated.
+You may look into this:
 
-> > Why not just point to the cpu device, or some other platform or system
-> > device?
-> > 
-> Not sure what these devices are for and didn't want to mess with them.
+"remap_pfn_range()"
+	http://lwn.net/Articles/104333/
 
-Ok, then I suggest you look into them then :)
+Conversion to remap_pfn_range() in sound/
+	http://linux.bkbits.net:8080/linux-2.6/cset@41768440y2w0JI791mgE2LQjagt5dA
 
-Again, creating a struct device that is not dynamically allocated is not
-allowed.  And creating a struct device that is not tied into the driver
-tree, is also a bad thing.  Use the ones that are already present, or
-register yours with the core so they show up properly.
-
-thanks,
-
-greg k-h
+It seems that s/remap_page_range/remap_pfn_range/g and shifting 3-rd argument
+when needed is enough.

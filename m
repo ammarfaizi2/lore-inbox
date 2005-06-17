@@ -1,136 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261176AbVFQUsR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262085AbVFQVJe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261176AbVFQUsR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Jun 2005 16:48:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262073AbVFQUsR
+	id S262085AbVFQVJe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Jun 2005 17:09:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262084AbVFQVJY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Jun 2005 16:48:17 -0400
-Received: from dbl.q-ag.de ([213.172.117.3]:41940 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S261176AbVFQUsF (ORCPT
+	Fri, 17 Jun 2005 17:09:24 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:18596 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262085AbVFQVJP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Jun 2005 16:48:05 -0400
-Message-ID: <42B336FC.9000400@colorfullife.com>
-Date: Fri, 17 Jun 2005 22:47:56 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.8) Gecko/20050513 Fedora/1.7.8-1.3.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christian Kujau <evil@g-house.de>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: forcedeth as a module only?
-References: <200506171804.j5HI4qoh027680@dbl.q-ag.de> <42B31749.90208@g-house.de>
-In-Reply-To: <42B31749.90208@g-house.de>
-Content-Type: multipart/mixed;
- boundary="------------040908030208050306020906"
+	Fri, 17 Jun 2005 17:09:15 -0400
+Date: Fri, 17 Jun 2005 14:10:03 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jens Axboe <axboe@suse.de>
+Cc: James.Bottomley@SteelEye.com, linux-kernel@vger.kernel.org
+Subject: kernel bugzilla
+Message-Id: <20050617141003.2abdd8e5.akpm@osdl.org>
+In-Reply-To: <20050617142225.GO6957@suse.de>
+References: <20050617001330.294950ac.akpm@osdl.org>
+	<1119016223.5049.3.camel@mulgrave>
+	<20050617142225.GO6957@suse.de>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040908030208050306020906
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Christian Kujau wrote:
+(Seeing as I did all this typing I added linux-kernel and changed the
+subject.  I trust that's OK).
 
->are there any known issues with the forcedeth driver when statically
->compiled in? 
+Jens Axboe <axboe@suse.de> wrote:
 >
-No.
-But there are known issues with link detection: Some users report bad 
-performance, and misconfigured links are one possible explanation.
+> > If bugzilla can now collect email, just have it forward the bug reports
+> > to linux-scsi as through it were from the reporter with itself on the cc
+> > list.
 
->eth0: forcedeth.c: subsystem: 01462:0250 bound to 0000:00:05.0
->eth0: no link during initialization
->
->  
->
-Very interesting.  The message itself is not fatal: It merely means that 
-there was no link during ifup. This typically happens when the hardware 
-initialization was not yet finished during ifup. Theoretically, an 
-interrupt should happen when the hardware initialization is completed 
-and that interrupt then sets up the link.
-Somehow it doesn't work for you.
+It can be set up to report scsi bugs to a mailing list.  So we can replace
+andmike with linux-scsi@vger.kernel.org as the person who gets notification
+emails for scsi-related bug reports.
 
-Could you try the attached patch? It polls for link changes instead of 
-relying on the irq. Additionally, I have enabled some debug output.
+And, apparently, bugzilla will now accept emails and will file them away in
+the right place.  I've asked Martin to help set bugzilla up so that people
+who don't have a bugzilla account will be accepted into the database as well.
 
---
-    Manfred
+> imho, the kernel.org bugzilla should be abandoned.
+
+That's what I used to think.  Until I started trying to keep track of open
+bugs against late -rc kernels.  Now, the ability which bugzilla has to keep
+track of open bugs and to keep track of all the correspondence associated
+with a bug is looking really attractive.
+
+That's why I want it to integrate seamlessly with our normal email-based
+processes.  So we can get the best of both worlds.
+
+> is anyone
+> (developers) using it successfully?
+
+The ACPI team use bugzilla a lot.
+
+For those bugs which are handled in bugzilla rather than via random emails,
+yeah, I'm finding bugzilla preferable.
 
 
+I haven't tested this yet, but hopefully I will now be able to:
 
---------------040908030208050306020906
-Content-Type: text/plain;
- name="patch-test"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="patch-test"
+- get an email from bugme
 
-LS0tIDIuNi9kcml2ZXJzL25ldC9mb3JjZWRldGguYwkyMDA1LTA2LTA1IDE3OjI5OjEyLjAw
-MDAwMDAwMCArMDIwMAorKysgYnVpbGQtMi42L2RyaXZlcnMvbmV0L2ZvcmNlZGV0aC5jCTIw
-MDUtMDYtMTcgMjI6NDQ6MTguMDAwMDAwMDAwICswMjAwCkBAIC0xMjk4LDcgKzEyOTksNyBA
-QAogCW1paV9zdGF0dXMgPSBtaWlfcncoZGV2LCBucC0+cGh5YWRkciwgTUlJX0JNU1IsIE1J
-SV9SRUFEKTsKIAogCWlmICghKG1paV9zdGF0dXMgJiBCTVNSX0xTVEFUVVMpKSB7Ci0JCWRw
-cmludGsoS0VSTl9ERUJVRyAiJXM6IG5vIGxpbmsgZGV0ZWN0ZWQgYnkgcGh5IC0gZmFsbGlu
-ZyBiYWNrIHRvIDEwSEQuXG4iLAorCQlwcmludGsoS0VSTl9ERUJVRyAiJXM6IG5vIGxpbmsg
-ZGV0ZWN0ZWQgYnkgcGh5IC0gZmFsbGluZyBiYWNrIHRvIDEwSEQuXG4iLAogCQkJCWRldi0+
-bmFtZSk7CiAJCW5ld2xzID0gTlZSRUdfTElOS1NQRUVEX0ZPUkNFfE5WUkVHX0xJTktTUEVF
-RF8xMDsKIAkJbmV3ZHVwID0gMDsKQEAgLTEzMDcsNyArMTMwOCw3IEBACiAJfQogCiAJaWYg
-KG5wLT5hdXRvbmVnID09IDApIHsKLQkJZHByaW50ayhLRVJOX0RFQlVHICIlczogbnZfdXBk
-YXRlX2xpbmtzcGVlZDogYXV0b25lZyBvZmYsIFBIWSBzZXQgdG8gMHglMDR4LlxuIiwKKwkJ
-cHJpbnRrKEtFUk5fREVCVUcgIiVzOiBudl91cGRhdGVfbGlua3NwZWVkOiBhdXRvbmVnIG9m
-ZiwgUEhZIHNldCB0byAweCUwNHguXG4iLAogCQkJCWRldi0+bmFtZSwgbnAtPmZpeGVkX21v
-ZGUpOwogCQlpZiAobnAtPmZpeGVkX21vZGUgJiBMUEFfMTAwRlVMTCkgewogCQkJbmV3bHMg
-PSBOVlJFR19MSU5LU1BFRURfRk9SQ0V8TlZSRUdfTElOS1NQRUVEXzEwMDsKQEAgLTEzMzEs
-NyArMTMzMiw3IEBACiAJCW5ld2xzID0gTlZSRUdfTElOS1NQRUVEX0ZPUkNFfE5WUkVHX0xJ
-TktTUEVFRF8xMDsKIAkJbmV3ZHVwID0gMDsKIAkJcmV0dmFsID0gMDsKLQkJZHByaW50ayhL
-RVJOX0RFQlVHICIlczogYXV0b25lZyBub3QgY29tcGxldGVkIC0gZmFsbGluZyBiYWNrIHRv
-IDEwSEQuXG4iLCBkZXYtPm5hbWUpOworCQlwcmludGsoS0VSTl9ERUJVRyAiJXM6IGF1dG9u
-ZWcgbm90IGNvbXBsZXRlZCAtIGZhbGxpbmcgYmFjayB0byAxMEhELlxuIiwgZGV2LT5uYW1l
-KTsKIAkJZ290byBzZXRfc3BlZWQ7CiAJfQogCkBAIC0xMzQyLDcgKzEzNDMsNyBAQAogCiAJ
-CWlmICgoY29udHJvbF8xMDAwICYgQURWRVJUSVNFXzEwMDBGVUxMKSAmJgogCQkJKHN0YXR1
-c18xMDAwICYgTFBBXzEwMDBGVUxMKSkgewotCQkJZHByaW50ayhLRVJOX0RFQlVHICIlczog
-bnZfdXBkYXRlX2xpbmtzcGVlZDogR0JpdCBldGhlcm5ldCBkZXRlY3RlZC5cbiIsCisJCQlw
-cmludGsoS0VSTl9ERUJVRyAiJXM6IG52X3VwZGF0ZV9saW5rc3BlZWQ6IEdCaXQgZXRoZXJu
-ZXQgZGV0ZWN0ZWQuXG4iLAogCQkJCWRldi0+bmFtZSk7CiAJCQluZXdscyA9IE5WUkVHX0xJ
-TktTUEVFRF9GT1JDRXxOVlJFR19MSU5LU1BFRURfMTAwMDsKIAkJCW5ld2R1cCA9IDE7CkBA
-IC0xMzUyLDcgKzEzNTMsNyBAQAogCiAJYWR2ID0gbWlpX3J3KGRldiwgbnAtPnBoeWFkZHIs
-IE1JSV9BRFZFUlRJU0UsIE1JSV9SRUFEKTsKIAlscGEgPSBtaWlfcncoZGV2LCBucC0+cGh5
-YWRkciwgTUlJX0xQQSwgTUlJX1JFQUQpOwotCWRwcmludGsoS0VSTl9ERUJVRyAiJXM6IG52
-X3VwZGF0ZV9saW5rc3BlZWQ6IFBIWSBhZHZlcnRpc2VzIDB4JTA0eCwgbHBhIDB4JTA0eC5c
-biIsCisJcHJpbnRrKEtFUk5fREVCVUcgIiVzOiBudl91cGRhdGVfbGlua3NwZWVkOiBQSFkg
-YWR2ZXJ0aXNlcyAweCUwNHgsIGxwYSAweCUwNHguXG4iLAogCQkJCWRldi0+bmFtZSwgYWR2
-LCBscGEpOwogCiAJLyogRklYTUU6IGhhbmRsZSBwYXJhbGxlbCBkZXRlY3Rpb24gcHJvcGVy
-bHkgKi8KQEAgLTEzNzAsNyArMTM3MSw3IEBACiAJCW5ld2xzID0gTlZSRUdfTElOS1NQRUVE
-X0ZPUkNFfE5WUkVHX0xJTktTUEVFRF8xMDsKIAkJbmV3ZHVwID0gMDsKIAl9IGVsc2Ugewot
-CQlkcHJpbnRrKEtFUk5fREVCVUcgIiVzOiBiYWQgYWJpbGl0eSAlMDR4IC0gZmFsbGluZyBi
-YWNrIHRvIDEwSEQuXG4iLCBkZXYtPm5hbWUsIGxwYSk7CisJCXByaW50ayhLRVJOX0RFQlVH
-ICIlczogYmFkIGFiaWxpdHkgJTA0eCAtIGZhbGxpbmcgYmFjayB0byAxMEhELlxuIiwgZGV2
-LT5uYW1lLCBscGEpOwogCQluZXdscyA9IE5WUkVHX0xJTktTUEVFRF9GT1JDRXxOVlJFR19M
-SU5LU1BFRURfMTA7CiAJCW5ld2R1cCA9IDA7CiAJfQpAQCAtMTM3OSw3ICsxMzgwLDcgQEAK
-IAlpZiAobnAtPmR1cGxleCA9PSBuZXdkdXAgJiYgbnAtPmxpbmtzcGVlZCA9PSBuZXdscykK
-IAkJcmV0dXJuIHJldHZhbDsKIAotCWRwcmludGsoS0VSTl9JTkZPICIlczogY2hhbmdpbmcg
-bGluayBzZXR0aW5nIGZyb20gJWQvJWQgdG8gJWQvJWQuXG4iLAorCXByaW50ayhLRVJOX0lO
-Rk8gIiVzOiBjaGFuZ2luZyBsaW5rIHNldHRpbmcgZnJvbSAlZC8lZCB0byAlZC8lZC5cbiIs
-CiAJCQlkZXYtPm5hbWUsIG5wLT5saW5rc3BlZWQsIG5wLT5kdXBsZXgsIG5ld2xzLCBuZXdk
-dXApOwogCiAJbnAtPmR1cGxleCA9IG5ld2R1cDsKQEAgLTE0NDIsMTEgKzE0NDMsMTEgQEAK
-IAogCW1paXN0YXQgPSByZWFkbChiYXNlICsgTnZSZWdNSUlTdGF0dXMpOwogCXdyaXRlbChO
-VlJFR19NSUlTVEFUX01BU0ssIGJhc2UgKyBOdlJlZ01JSVN0YXR1cyk7Ci0JZHByaW50ayhL
-RVJOX0lORk8gIiVzOiBsaW5rIGNoYW5nZSBpcnEsIHN0YXR1cyAweCV4LlxuIiwgZGV2LT5u
-YW1lLCBtaWlzdGF0KTsKKwlwcmludGsoS0VSTl9JTkZPICIlczogbGluayBjaGFuZ2UgaXJx
-LCBzdGF0dXMgMHgleC5cbiIsIGRldi0+bmFtZSwgbWlpc3RhdCk7CiAKIAlpZiAobWlpc3Rh
-dCAmIChOVlJFR19NSUlTVEFUX0xJTktDSEFOR0UpKQogCQludl9saW5rY2hhbmdlKGRldik7
-Ci0JZHByaW50ayhLRVJOX0RFQlVHICIlczogbGluayBjaGFuZ2Ugbm90aWZpY2F0aW9uIGRv
-bmUuXG4iLCBkZXYtPm5hbWUpOworCXByaW50ayhLRVJOX0RFQlVHICIlczogbGluayBjaGFu
-Z2Ugbm90aWZpY2F0aW9uIGRvbmUuXG4iLCBkZXYtPm5hbWUpOwogfQogCiBzdGF0aWMgaXJx
-cmV0dXJuX3QgbnZfbmljX2lycShpbnQgZm9vLCB2b2lkICpkYXRhLCBzdHJ1Y3QgcHRfcmVn
-cyAqcmVncykKQEAgLTIwODgsOCArMjA5MSw4IEBACiAJCW5wLT5pcnFtYXNrID0gTlZSRUdf
-SVJRTUFTS19XQU5URURfMjsKIAlpZiAoaWQtPmRyaXZlcl9kYXRhICYgREVWX05FRURfVElN
-RVJJUlEpCiAJCW5wLT5pcnFtYXNrIHw9IE5WUkVHX0lSUV9USU1FUjsKLQlpZiAoaWQtPmRy
-aXZlcl9kYXRhICYgREVWX05FRURfTElOS1RJTUVSKSB7Ci0JCWRwcmludGsoS0VSTl9JTkZP
-ICIlczogbGluayB0aW1lciBvbi5cbiIsIHBjaV9uYW1lKHBjaV9kZXYpKTsKKwlpZiAoaWQt
-PmRyaXZlcl9kYXRhICYgREVWX05FRURfTElOS1RJTUVSIHx8IDEpIHsKKwkJcHJpbnRrKEtF
-Uk5fSU5GTyAiJXM6IGxpbmsgdGltZXIgb24uXG4iLCBwY2lfbmFtZShwY2lfZGV2KSk7CiAJ
-CW5wLT5uZWVkX2xpbmt0aW1lciA9IDE7CiAJCW5wLT5saW5rX3RpbWVvdXQgPSBqaWZmaWVz
-ICsgTElOS19USU1FT1VUOwogCX0gZWxzZSB7Cg==
---------------040908030208050306020906--
+- reply to it and cc linux-kernel and a maintainer
+
+- Other people will comment in the normal manner with reply-to-all
+
+- bugzilla will capture everything.
+
+Suddenly, my ability to track open bugs gets a heap better, and nobody is
+impacted at all - just an additional Cc.
+
+One thing I haven't worked out is how to get a bug which is initially
+reported via email *into* the bugzilla system for tracking purposes.  One
+could just ask the originator to raise a bugzilla entry, as lots of other
+projects do.  But I don't think we want to do that - it's in our interest
+to make bug reporting as easy as possible for the reporter, rather than
+putting up barriers.
+
+Another problem is: what happens if a bug has been discussed via email
+which is cc'ed to linux-kernel and bugzilla, and then someone comes along
+and updates the bug record via the bugzilla web interface?  I suspect those
+people who had been following the discussion via email wouldn't see the
+update.  So bugzilla needs to a) automatically add all incoming Cc's to the
+records's cc list and b) automatically add all known cc's to outgoing
+notifications.

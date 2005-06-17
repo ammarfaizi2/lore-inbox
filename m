@@ -1,46 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261442AbVFQMnZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261946AbVFQMpO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261442AbVFQMnZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Jun 2005 08:43:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261656AbVFQMnZ
+	id S261946AbVFQMpO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Jun 2005 08:45:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261951AbVFQMpO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Jun 2005 08:43:25 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:30340 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261442AbVFQMnX
+	Fri, 17 Jun 2005 08:45:14 -0400
+Received: from nproxy.gmail.com ([64.233.182.206]:41680 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261946AbVFQMpI convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Jun 2005 08:43:23 -0400
-Subject: Re: Odd IDE performance drop 2.4 vs 2.6?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Ondrej Zary <linux@rainbow-software.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       Grant Coady <grant_lkml@dodo.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <42B07E5D.9070004@rainbow-software.org>
-References: <ac0qa19omlt7bsh8mcfsfr2uhshk338f0c@4ax.com>
-	 <42AD6362.1000109@rainbow-software.org>
-	 <1118669975.13260.23.camel@localhost.localdomain>
-	 <42AD92F2.7080108@yahoo.com.au>
-	 <1118675343.13773.1.camel@localhost.localdomain>
-	 <42B07E5D.9070004@rainbow-software.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1119012053.27908.87.camel@localhost.localdomain>
+	Fri, 17 Jun 2005 08:45:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Id0fJlnxltnF9dj2b6Wh952/trKIIU/59pl6VsU2UW80Gjv3/WQXAHZxtFgoM7o3+f7vHsEk81cYB76sBBHRmh9F6W4h9g5wDyMjA6NJ9lqm3tbAy3iXftzImWe9oPWjpuvI4v4RF0o8N+eMJLyLUDb3hL1a994DrsuKJrbBiwQ=
+Message-ID: <4ad99e0505061705453392e0d3@mail.gmail.com>
+Date: Fri, 17 Jun 2005 14:45:07 +0200
+From: Lars Roland <lroland@gmail.com>
+Reply-To: Lars Roland <lroland@gmail.com>
+To: Willy Tarreau <willy@w.ods.org>
+Subject: Re: tg3 in 2.6.12-rc6 and Cisco PIX SMTP fixup
+Cc: Christian Kujau <evil@g-house.de>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050617044620.GG8907@alpha.home.local>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 17 Jun 2005 13:40:56 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <4ad99e0505061605452e663a1e@mail.gmail.com>
+	 <42B1F5CB.9020308@g-house.de>
+	 <4ad99e0505061615143cc34192@mail.gmail.com>
+	 <42B21130.4000608@g-house.de>
+	 <4ad99e0505061617052f427ed6@mail.gmail.com>
+	 <20050617044620.GG8907@alpha.home.local>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2005-06-15 at 20:15, Ondrej Zary wrote:
-> Now I've tested it with preempt disabled and nothing has changed. When 
-> fiddling around with hdparm, I got about 16MB/s max. with 2.6.12-rc5. 
-> With 2.4.31, I got about 21MB/s when just the DMA was enabled 
-> (read-ahead and multcount set to 0 - changing them does not make almost 
-> any difference).
+On 6/17/05, Willy Tarreau <willy@w.ods.org> wrote:
+> Maybe some checksumming code has changed, and some of the packets which
+> are checksummed by the hardware get wrong on the wire ?
 
-multcount is only used for PIO so that would be expected. Similarly the
-block readahead should matter but not anything drive level.
+Yes my exact thought, it is fine by me if it is a cisco problem that
+needs to be fixed in the firewall but it would be nice knowing what
+exactly changed from 2.6.8.1 -> 2.6.9 so it stopped working.
 
-If you compare the hdparm data are both 2.4 and 2.6 selecting the same
-IDE modes ?
 
+Regards.
+
+Lars Roland

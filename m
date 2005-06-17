@@ -1,60 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261979AbVFQOLP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261982AbVFQOMf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261979AbVFQOLP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Jun 2005 10:11:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261984AbVFQOLO
+	id S261982AbVFQOMf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Jun 2005 10:12:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261983AbVFQOMf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Jun 2005 10:11:14 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:29651 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261979AbVFQOKx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Jun 2005 10:10:53 -0400
-Date: Fri, 17 Jun 2005 16:12:05 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Kiyoshi Ueda <k-ueda@ct.jp.nec.com>
-Cc: linux-kernel@vger.kernel.org, j-nomura@ce.jp.nec.com
-Subject: Re: [PATCH] __cfq_get_queue() fix for 2.6.12-rc5
-Message-ID: <20050617141204.GM6957@suse.de>
-References: <20050608.131941.41628326.k-ueda@ct.jp.nec.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050608.131941.41628326.k-ueda@ct.jp.nec.com>
+	Fri, 17 Jun 2005 10:12:35 -0400
+Received: from mxsf41.cluster1.charter.net ([209.225.28.173]:36492 "EHLO
+	mxsf41.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S261982AbVFQOM2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Jun 2005 10:12:28 -0400
+X-IronPort-AV: i="3.93,208,1115006400"; 
+   d="scan'208"; a="1186939860:sNHT16101000"
+Message-ID: <42B2DA49.30806@cybsft.com>
+Date: Fri, 17 Jun 2005 09:12:25 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org, "Eugeny S. Mints" <emints@ru.mvista.com>,
+       Daniel Walker <dwalker@mvista.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
+References: <20050608112801.GA31084@elte.hu> <42B0F72D.5040405@cybsft.com> <20050616072935.GB19772@elte.hu> <42B160F5.9060208@cybsft.com> <20050616173247.GA32552@elte.hu> <42B1BDF7.1000700@cybsft.com> <20050616204358.GA4656@elte.hu> <20050617111822.GA28236@elte.hu>
+In-Reply-To: <20050617111822.GA28236@elte.hu>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 08 2005, Kiyoshi Ueda wrote:
-> Hello,
-> 
-> I resend this e-mail, as it may not be sent properly.
-> Please excuse me, if you receive same one.
+Ingo Molnar wrote:
+> * Ingo Molnar <mingo@elte.hu> wrote:
 > 
 > 
-> I found a possible bug by which the first get_request() for a process
-> fails in cfq I/O scheduler.
-> If it's a bug, please consider to apply the patch for 2.6.12-rc5 below.
+>>>There doesn't seem to be any actual lockups, just messages. I will try 
+>>>disabling the above when I get home this evening. Can't get to the 
+>>>system right now.
+>>
+>>i tweaked the softlockup detector in the last patch a bit (to fix 
+>>false positives under very high loads), might have broken it on SMP.
 > 
 > 
-> When cfq I/O scheduler is selected, get_request() in __make_request()
-> calls __cfq_get_queue().
-> __cfq_get_queue() finds an existing queue (struct cfq_queue) of the
-> current process for the device and returns it.  If it's not found,
-> __cfq_get_queue() creates and returns a new one if __cfq_get_queue()
-> is called with __GFP_WAIT flag, or __cfq_get_queue() returns NULL
-> (this means that get_request() fails) if no __GFP_WAIT flag.
+> yeah - found a bug that could explain the symptoms on your system.  
+> Called softlockup_tick() from the global timer interrupt, instead of the 
+> per-CPU timer interrupt. So on SMP the other CPUs would not see any 
+> softlockup ticks at all, and would incorrectly report soft lockups.  
+> This bug is fixed in the -48-36 patch i just uploaded.
 > 
-> On the other hand, in __make_request(), get_request() is called
-> without __GFP_WAIT flag at the first time.
-> Thus, the get_request() fails when there is no existing queue,
-> typically when it's called for the first I/O request of the process
-> to the device.
+> 	Ingo
 > 
-> Though it will be followed by get_request_wait() for general case,
-> __make_request() will just end the I/O with an error (EWOULDBLOCK)
-> when the request was for read-ahead.
+Yes I noticed the softlockup_tick() in some stack traces that I
+generated with -48-35 last night. Just downloaded and starting to
+compile -48-36. Will report back the results. Also will turn of the
+CONFIG_DEBUG_RT_LOCKING_MODE mentioned in your previous mail.
 
-Good analysis, the patch looks correct. I've applied it, thanks.
+thanks.
 
 -- 
-Jens Axboe
-
+   kr

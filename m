@@ -1,79 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261981AbVFQOJb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261979AbVFQOLP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261981AbVFQOJb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Jun 2005 10:09:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261979AbVFQOJb
+	id S261979AbVFQOLP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Jun 2005 10:11:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261984AbVFQOLO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Jun 2005 10:09:31 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:55762 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261981AbVFQOJY (ORCPT
+	Fri, 17 Jun 2005 10:11:14 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:29651 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261979AbVFQOKx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Jun 2005 10:09:24 -0400
-Date: Fri, 17 Jun 2005 16:10:40 +0200
+	Fri, 17 Jun 2005 10:10:53 -0400
+Date: Fri, 17 Jun 2005 16:12:05 +0200
 From: Jens Axboe <axboe@suse.de>
-To: spaminos-ker@yahoo.com
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: cfq misbehaving on 2.6.11-1.14_FC3
-Message-ID: <20050617141039.GL6957@suse.de>
-References: <20050614000352.7289d8f1.akpm@osdl.org> <20050614232154.17077.qmail@web30701.mail.mud.yahoo.com>
+To: Kiyoshi Ueda <k-ueda@ct.jp.nec.com>
+Cc: linux-kernel@vger.kernel.org, j-nomura@ce.jp.nec.com
+Subject: Re: [PATCH] __cfq_get_queue() fix for 2.6.12-rc5
+Message-ID: <20050617141204.GM6957@suse.de>
+References: <20050608.131941.41628326.k-ueda@ct.jp.nec.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050614232154.17077.qmail@web30701.mail.mud.yahoo.com>
+In-Reply-To: <20050608.131941.41628326.k-ueda@ct.jp.nec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 14 2005, spaminos-ker@yahoo.com wrote:
-> --- Andrew Morton <akpm@osdl.org> wrote:
-> > > For some reason, doing a "cp" or appending to files is very fast. I suspect
-> > > that vi's mmap calls are the reason for the latency problem.
-> > 
-> > Don't know.  Try to work out (from vmstat or diskstats) how much reading is
-> > going on.
-> > 
-> > Try stracing the check, see if your version of vi is doing a sync() or
-> > something odd like that.
+On Wed, Jun 08 2005, Kiyoshi Ueda wrote:
+> Hello,
 > 
-> The read/write patterns of the background process is about 35% reads.
+> I resend this e-mail, as it may not be sent properly.
+> Please excuse me, if you receive same one.
 > 
-> vi is indeed doing a sync on the open file, and that's where the time
-> was spend.  So I just changed my test to simply opening a file,
-> writing some data in it and calling flush on the fd.
 > 
-> I also reduced the sleep to 1s instead of 1m, and here are the
-> results:
+> I found a possible bug by which the first get_request() for a process
+> fails in cfq I/O scheduler.
+> If it's a bug, please consider to apply the patch for 2.6.12-rc5 below.
 > 
-> cfq: 20,20,21,21,20,22,20,20,18,21 - avg 20.3 noop:
-> 12,12,12,13,5,10,10,12,12,13 - avg 11.1 deadline:
-> 16,9,16,14,10,6,8,8,15,9 - avg 11.1 as: 6,11,14,11,9,15,16,9,8,9 - avg
-> 10.8
 > 
-> As you can see, cfq stands out (and it should stand out the other
-> way).
-
-This doesn't look good (or expected) at all. In the initial posting you
-mention this being an ide driver - I want to make sure if it's hda or
-sata driven (eg sda or similar)?
-
-> > OK, well if the latency is mainly due to reads then one would hope that the
-> > anticipatory scheduler would do better than that.
+> When cfq I/O scheduler is selected, get_request() in __make_request()
+> calls __cfq_get_queue().
+> __cfq_get_queue() finds an existing queue (struct cfq_queue) of the
+> current process for the device and returns it.  If it's not found,
+> __cfq_get_queue() creates and returns a new one if __cfq_get_queue()
+> is called with __GFP_WAIT flag, or __cfq_get_queue() returns NULL
+> (this means that get_request() fails) if no __GFP_WAIT flag.
 > 
-> I suspect the latency is due to writes: it seems (and correct me if I
-> am wrong) that write requests are enqueued in one giant queue, thus
-> the cfq algorithm can not be applied to the requests.
+> On the other hand, in __make_request(), get_request() is called
+> without __GFP_WAIT flag at the first time.
+> Thus, the get_request() fails when there is no existing queue,
+> typically when it's called for the first I/O request of the process
+> to the device.
+> 
+> Though it will be followed by get_request_wait() for general case,
+> __make_request() will just end the I/O with an error (EWOULDBLOCK)
+> when the request was for read-ahead.
 
-That is correct. Each process has a sync queue associated with it, async
-requests like writes go to a per-device async queue. The cost of
-tracking who dirtied a given page was too large and not worth it.
-Perhaps rmap could be used to lookup who has a specific page mapped...
-
-> But then, why would other i/o schedulers perform better in that case?
-
-Yeah, the global write queue doesn't explain anything, the other
-schedulers either share read/write queue or have a seperate single write
-queue as well.
-
-I'll try and reproduce (and fix) your problem.
+Good analysis, the patch looks correct. I've applied it, thanks.
 
 -- 
 Jens Axboe

@@ -1,49 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262092AbVFQUBl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261176AbVFQUsR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262092AbVFQUBl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Jun 2005 16:01:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262090AbVFQUBk
+	id S261176AbVFQUsR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Jun 2005 16:48:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262073AbVFQUsR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Jun 2005 16:01:40 -0400
-Received: from atlrel8.hp.com ([156.153.255.206]:15532 "EHLO atlrel8.hp.com")
-	by vger.kernel.org with ESMTP id S262089AbVFQUBh (ORCPT
+	Fri, 17 Jun 2005 16:48:17 -0400
+Received: from dbl.q-ag.de ([213.172.117.3]:41940 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S261176AbVFQUsF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Jun 2005 16:01:37 -0400
-Date: Fri, 17 Jun 2005 14:02:08 -0500
-From: mike.miller@hp.com
-To: akpm@osdl.org, axboe@suse.de, hch@infradead.org
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: [PATCH] cciss 2.6: remove partition info from CCISS_GETLUNINFO
-Message-ID: <20050617190208.GA10465@beardog.cca.cpqcorp.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	Fri, 17 Jun 2005 16:48:05 -0400
+Message-ID: <42B336FC.9000400@colorfullife.com>
+Date: Fri, 17 Jun 2005 22:47:56 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.8) Gecko/20050513 Fedora/1.7.8-1.3.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christian Kujau <evil@g-house.de>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: forcedeth as a module only?
+References: <200506171804.j5HI4qoh027680@dbl.q-ag.de> <42B31749.90208@g-house.de>
+In-Reply-To: <42B31749.90208@g-house.de>
+Content-Type: multipart/mixed;
+ boundary="------------040908030208050306020906"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fulfills a promise I made to Christoph sometime back. I am removing the partition info from the CCISS_GETLUNINFO ioctl as I was informed my "driver had no damn business reading that structure." ;)
-The application folks are to use /proc or /sys for partition info from now on. I am only aware of a few apps that use this ioctl and I'm not sure they ever used the partition info.
+This is a multi-part message in MIME format.
+--------------040908030208050306020906
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Signed-off-by: Mike Miller <mike.miller@hp.com>
+Christian Kujau wrote:
 
- cciss.c |    7 -------
- 1 files changed, 7 deletions(-)
---------------------------------------------------------------------------------
-diff -burNp lx2612-rc6-p002/drivers/block/cciss.c lx2612-rc6/drivers/block/cciss.c
---- lx2612-rc6-p002/drivers/block/cciss.c	2005-06-17 13:17:23.262424000 -0500
-+++ lx2612-rc6/drivers/block/cciss.c	2005-06-17 13:51:47.347635712 -0500
-@@ -792,13 +792,6 @@ static int cciss_ioctl(struct inode *ino
-  		luninfo.LunID = drv->LunID;
-  		luninfo.num_opens = drv->usage_count;
-  		luninfo.num_parts = 0;
-- 		/* count partitions 1 to 15 with sizes > 0 */
-- 		for (i = 0; i < MAX_PART - 1; i++) {
--			if (!disk->part[i])
--				continue;
--			if (disk->part[i]->nr_sects != 0)
--				luninfo.num_parts++;
--		}
-  		if (copy_to_user(argp, &luninfo,
-  				sizeof(LogvolInfo_struct)))
-  			return -EFAULT;
+>are there any known issues with the forcedeth driver when statically
+>compiled in? 
+>
+No.
+But there are known issues with link detection: Some users report bad 
+performance, and misconfigured links are one possible explanation.
+
+>eth0: forcedeth.c: subsystem: 01462:0250 bound to 0000:00:05.0
+>eth0: no link during initialization
+>
+>  
+>
+Very interesting.  The message itself is not fatal: It merely means that 
+there was no link during ifup. This typically happens when the hardware 
+initialization was not yet finished during ifup. Theoretically, an 
+interrupt should happen when the hardware initialization is completed 
+and that interrupt then sets up the link.
+Somehow it doesn't work for you.
+
+Could you try the attached patch? It polls for link changes instead of 
+relying on the irq. Additionally, I have enabled some debug output.
+
+--
+    Manfred
+
+
+
+--------------040908030208050306020906
+Content-Type: text/plain;
+ name="patch-test"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="patch-test"
+
+LS0tIDIuNi9kcml2ZXJzL25ldC9mb3JjZWRldGguYwkyMDA1LTA2LTA1IDE3OjI5OjEyLjAw
+MDAwMDAwMCArMDIwMAorKysgYnVpbGQtMi42L2RyaXZlcnMvbmV0L2ZvcmNlZGV0aC5jCTIw
+MDUtMDYtMTcgMjI6NDQ6MTguMDAwMDAwMDAwICswMjAwCkBAIC0xMjk4LDcgKzEyOTksNyBA
+QAogCW1paV9zdGF0dXMgPSBtaWlfcncoZGV2LCBucC0+cGh5YWRkciwgTUlJX0JNU1IsIE1J
+SV9SRUFEKTsKIAogCWlmICghKG1paV9zdGF0dXMgJiBCTVNSX0xTVEFUVVMpKSB7Ci0JCWRw
+cmludGsoS0VSTl9ERUJVRyAiJXM6IG5vIGxpbmsgZGV0ZWN0ZWQgYnkgcGh5IC0gZmFsbGlu
+ZyBiYWNrIHRvIDEwSEQuXG4iLAorCQlwcmludGsoS0VSTl9ERUJVRyAiJXM6IG5vIGxpbmsg
+ZGV0ZWN0ZWQgYnkgcGh5IC0gZmFsbGluZyBiYWNrIHRvIDEwSEQuXG4iLAogCQkJCWRldi0+
+bmFtZSk7CiAJCW5ld2xzID0gTlZSRUdfTElOS1NQRUVEX0ZPUkNFfE5WUkVHX0xJTktTUEVF
+RF8xMDsKIAkJbmV3ZHVwID0gMDsKQEAgLTEzMDcsNyArMTMwOCw3IEBACiAJfQogCiAJaWYg
+KG5wLT5hdXRvbmVnID09IDApIHsKLQkJZHByaW50ayhLRVJOX0RFQlVHICIlczogbnZfdXBk
+YXRlX2xpbmtzcGVlZDogYXV0b25lZyBvZmYsIFBIWSBzZXQgdG8gMHglMDR4LlxuIiwKKwkJ
+cHJpbnRrKEtFUk5fREVCVUcgIiVzOiBudl91cGRhdGVfbGlua3NwZWVkOiBhdXRvbmVnIG9m
+ZiwgUEhZIHNldCB0byAweCUwNHguXG4iLAogCQkJCWRldi0+bmFtZSwgbnAtPmZpeGVkX21v
+ZGUpOwogCQlpZiAobnAtPmZpeGVkX21vZGUgJiBMUEFfMTAwRlVMTCkgewogCQkJbmV3bHMg
+PSBOVlJFR19MSU5LU1BFRURfRk9SQ0V8TlZSRUdfTElOS1NQRUVEXzEwMDsKQEAgLTEzMzEs
+NyArMTMzMiw3IEBACiAJCW5ld2xzID0gTlZSRUdfTElOS1NQRUVEX0ZPUkNFfE5WUkVHX0xJ
+TktTUEVFRF8xMDsKIAkJbmV3ZHVwID0gMDsKIAkJcmV0dmFsID0gMDsKLQkJZHByaW50ayhL
+RVJOX0RFQlVHICIlczogYXV0b25lZyBub3QgY29tcGxldGVkIC0gZmFsbGluZyBiYWNrIHRv
+IDEwSEQuXG4iLCBkZXYtPm5hbWUpOworCQlwcmludGsoS0VSTl9ERUJVRyAiJXM6IGF1dG9u
+ZWcgbm90IGNvbXBsZXRlZCAtIGZhbGxpbmcgYmFjayB0byAxMEhELlxuIiwgZGV2LT5uYW1l
+KTsKIAkJZ290byBzZXRfc3BlZWQ7CiAJfQogCkBAIC0xMzQyLDcgKzEzNDMsNyBAQAogCiAJ
+CWlmICgoY29udHJvbF8xMDAwICYgQURWRVJUSVNFXzEwMDBGVUxMKSAmJgogCQkJKHN0YXR1
+c18xMDAwICYgTFBBXzEwMDBGVUxMKSkgewotCQkJZHByaW50ayhLRVJOX0RFQlVHICIlczog
+bnZfdXBkYXRlX2xpbmtzcGVlZDogR0JpdCBldGhlcm5ldCBkZXRlY3RlZC5cbiIsCisJCQlw
+cmludGsoS0VSTl9ERUJVRyAiJXM6IG52X3VwZGF0ZV9saW5rc3BlZWQ6IEdCaXQgZXRoZXJu
+ZXQgZGV0ZWN0ZWQuXG4iLAogCQkJCWRldi0+bmFtZSk7CiAJCQluZXdscyA9IE5WUkVHX0xJ
+TktTUEVFRF9GT1JDRXxOVlJFR19MSU5LU1BFRURfMTAwMDsKIAkJCW5ld2R1cCA9IDE7CkBA
+IC0xMzUyLDcgKzEzNTMsNyBAQAogCiAJYWR2ID0gbWlpX3J3KGRldiwgbnAtPnBoeWFkZHIs
+IE1JSV9BRFZFUlRJU0UsIE1JSV9SRUFEKTsKIAlscGEgPSBtaWlfcncoZGV2LCBucC0+cGh5
+YWRkciwgTUlJX0xQQSwgTUlJX1JFQUQpOwotCWRwcmludGsoS0VSTl9ERUJVRyAiJXM6IG52
+X3VwZGF0ZV9saW5rc3BlZWQ6IFBIWSBhZHZlcnRpc2VzIDB4JTA0eCwgbHBhIDB4JTA0eC5c
+biIsCisJcHJpbnRrKEtFUk5fREVCVUcgIiVzOiBudl91cGRhdGVfbGlua3NwZWVkOiBQSFkg
+YWR2ZXJ0aXNlcyAweCUwNHgsIGxwYSAweCUwNHguXG4iLAogCQkJCWRldi0+bmFtZSwgYWR2
+LCBscGEpOwogCiAJLyogRklYTUU6IGhhbmRsZSBwYXJhbGxlbCBkZXRlY3Rpb24gcHJvcGVy
+bHkgKi8KQEAgLTEzNzAsNyArMTM3MSw3IEBACiAJCW5ld2xzID0gTlZSRUdfTElOS1NQRUVE
+X0ZPUkNFfE5WUkVHX0xJTktTUEVFRF8xMDsKIAkJbmV3ZHVwID0gMDsKIAl9IGVsc2Ugewot
+CQlkcHJpbnRrKEtFUk5fREVCVUcgIiVzOiBiYWQgYWJpbGl0eSAlMDR4IC0gZmFsbGluZyBi
+YWNrIHRvIDEwSEQuXG4iLCBkZXYtPm5hbWUsIGxwYSk7CisJCXByaW50ayhLRVJOX0RFQlVH
+ICIlczogYmFkIGFiaWxpdHkgJTA0eCAtIGZhbGxpbmcgYmFjayB0byAxMEhELlxuIiwgZGV2
+LT5uYW1lLCBscGEpOwogCQluZXdscyA9IE5WUkVHX0xJTktTUEVFRF9GT1JDRXxOVlJFR19M
+SU5LU1BFRURfMTA7CiAJCW5ld2R1cCA9IDA7CiAJfQpAQCAtMTM3OSw3ICsxMzgwLDcgQEAK
+IAlpZiAobnAtPmR1cGxleCA9PSBuZXdkdXAgJiYgbnAtPmxpbmtzcGVlZCA9PSBuZXdscykK
+IAkJcmV0dXJuIHJldHZhbDsKIAotCWRwcmludGsoS0VSTl9JTkZPICIlczogY2hhbmdpbmcg
+bGluayBzZXR0aW5nIGZyb20gJWQvJWQgdG8gJWQvJWQuXG4iLAorCXByaW50ayhLRVJOX0lO
+Rk8gIiVzOiBjaGFuZ2luZyBsaW5rIHNldHRpbmcgZnJvbSAlZC8lZCB0byAlZC8lZC5cbiIs
+CiAJCQlkZXYtPm5hbWUsIG5wLT5saW5rc3BlZWQsIG5wLT5kdXBsZXgsIG5ld2xzLCBuZXdk
+dXApOwogCiAJbnAtPmR1cGxleCA9IG5ld2R1cDsKQEAgLTE0NDIsMTEgKzE0NDMsMTEgQEAK
+IAogCW1paXN0YXQgPSByZWFkbChiYXNlICsgTnZSZWdNSUlTdGF0dXMpOwogCXdyaXRlbChO
+VlJFR19NSUlTVEFUX01BU0ssIGJhc2UgKyBOdlJlZ01JSVN0YXR1cyk7Ci0JZHByaW50ayhL
+RVJOX0lORk8gIiVzOiBsaW5rIGNoYW5nZSBpcnEsIHN0YXR1cyAweCV4LlxuIiwgZGV2LT5u
+YW1lLCBtaWlzdGF0KTsKKwlwcmludGsoS0VSTl9JTkZPICIlczogbGluayBjaGFuZ2UgaXJx
+LCBzdGF0dXMgMHgleC5cbiIsIGRldi0+bmFtZSwgbWlpc3RhdCk7CiAKIAlpZiAobWlpc3Rh
+dCAmIChOVlJFR19NSUlTVEFUX0xJTktDSEFOR0UpKQogCQludl9saW5rY2hhbmdlKGRldik7
+Ci0JZHByaW50ayhLRVJOX0RFQlVHICIlczogbGluayBjaGFuZ2Ugbm90aWZpY2F0aW9uIGRv
+bmUuXG4iLCBkZXYtPm5hbWUpOworCXByaW50ayhLRVJOX0RFQlVHICIlczogbGluayBjaGFu
+Z2Ugbm90aWZpY2F0aW9uIGRvbmUuXG4iLCBkZXYtPm5hbWUpOwogfQogCiBzdGF0aWMgaXJx
+cmV0dXJuX3QgbnZfbmljX2lycShpbnQgZm9vLCB2b2lkICpkYXRhLCBzdHJ1Y3QgcHRfcmVn
+cyAqcmVncykKQEAgLTIwODgsOCArMjA5MSw4IEBACiAJCW5wLT5pcnFtYXNrID0gTlZSRUdf
+SVJRTUFTS19XQU5URURfMjsKIAlpZiAoaWQtPmRyaXZlcl9kYXRhICYgREVWX05FRURfVElN
+RVJJUlEpCiAJCW5wLT5pcnFtYXNrIHw9IE5WUkVHX0lSUV9USU1FUjsKLQlpZiAoaWQtPmRy
+aXZlcl9kYXRhICYgREVWX05FRURfTElOS1RJTUVSKSB7Ci0JCWRwcmludGsoS0VSTl9JTkZP
+ICIlczogbGluayB0aW1lciBvbi5cbiIsIHBjaV9uYW1lKHBjaV9kZXYpKTsKKwlpZiAoaWQt
+PmRyaXZlcl9kYXRhICYgREVWX05FRURfTElOS1RJTUVSIHx8IDEpIHsKKwkJcHJpbnRrKEtF
+Uk5fSU5GTyAiJXM6IGxpbmsgdGltZXIgb24uXG4iLCBwY2lfbmFtZShwY2lfZGV2KSk7CiAJ
+CW5wLT5uZWVkX2xpbmt0aW1lciA9IDE7CiAJCW5wLT5saW5rX3RpbWVvdXQgPSBqaWZmaWVz
+ICsgTElOS19USU1FT1VUOwogCX0gZWxzZSB7Cg==
+--------------040908030208050306020906--

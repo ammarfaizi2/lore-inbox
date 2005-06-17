@@ -1,24 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262085AbVFQVJe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262084AbVFQVMo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262085AbVFQVJe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Jun 2005 17:09:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262084AbVFQVJY
+	id S262084AbVFQVMo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Jun 2005 17:12:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262089AbVFQVMn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Jun 2005 17:09:24 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:18596 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262085AbVFQVJP (ORCPT
+	Fri, 17 Jun 2005 17:12:43 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:31653 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262084AbVFQVMk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Jun 2005 17:09:15 -0400
-Date: Fri, 17 Jun 2005 14:10:03 -0700
+	Fri, 17 Jun 2005 17:12:40 -0400
+Date: Fri, 17 Jun 2005 14:13:31 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Jens Axboe <axboe@suse.de>
-Cc: James.Bottomley@SteelEye.com, linux-kernel@vger.kernel.org
-Subject: kernel bugzilla
-Message-Id: <20050617141003.2abdd8e5.akpm@osdl.org>
-In-Reply-To: <20050617142225.GO6957@suse.de>
-References: <20050617001330.294950ac.akpm@osdl.org>
-	<1119016223.5049.3.camel@mulgrave>
-	<20050617142225.GO6957@suse.de>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.6.12-rc6-mm1 & 2K lun testing
+Message-Id: <20050617141331.078e5f8f.akpm@osdl.org>
+In-Reply-To: <42B2E7D2.9080705@us.ibm.com>
+References: <1118856977.4301.406.camel@dyn9047017072.beaverton.ibm.com>
+	<20050616002451.01f7e9ed.akpm@osdl.org>
+	<1118951458.4301.478.camel@dyn9047017072.beaverton.ibm.com>
+	<20050616133730.1924fca3.akpm@osdl.org>
+	<1118965381.4301.488.camel@dyn9047017072.beaverton.ibm.com>
+	<20050616175130.22572451.akpm@osdl.org>
+	<42B2E7D2.9080705@us.ibm.com>
 X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -26,67 +30,38 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-(Seeing as I did all this typing I added linux-kernel and changed the
-subject.  I trust that's OK).
-
-Jens Axboe <axboe@suse.de> wrote:
+Badari Pulavarty <pbadari@us.ibm.com> wrote:
 >
-> > If bugzilla can now collect email, just have it forward the bug reports
-> > to linux-scsi as through it were from the reporter with itself on the cc
-> > list.
+> > It shouldn't be necessary to do both.  Either the patch or the tuning
+> > should fix it.  Please confirm.
+> > 
+> > Also please determine whether the deep CFQ queue depth is a problem when
+> > the VFS tuning/patching is in place.
+> > 
+> > IOW: let's work out which of these three areas needs to be addressed.
+> > 
+> 
+> Andrew,
+> 
+> Sorry for not getting back earlier. I am running into weird problems.
+> When running "dd" write tests to 2048 ext3 filesystems, just with your
+> patch (no dirty ratio or CFS queue depth tuning), I see "buff" 
+> increasing instead of "cache" and I see "bi" instead of "bo".
+> Whats going on here ?
 
-It can be set up to report scsi bugs to a mailing list.  So we can replace
-andmike with linux-scsi@vger.kernel.org as the person who gets notification
-emails for scsi-related bug reports.
+Beats me.  Are you sure you're not running a broken vmstat?
 
-And, apparently, bugzilla will now accept emails and will file them away in
-the right place.  I've asked Martin to help set bugzilla up so that people
-who don't have a bugzilla account will be accepted into the database as well.
+`buff' would increase if you were accidentally writing to /dev/sda1 rather
+than /dev/sda1/some-filename, but I don't know why vmstat would be getting
+confused over the direction of the I/O.
 
-> imho, the kernel.org bugzilla should be abandoned.
+> 
+> procs -----------memory---------- ---swap-- -----io---- --system-- 
+> ----cpu----
+>   r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us 
+> sy id wa
+> ..
+>   2  0      4 6339920  42712  24884    0    0     0    19  413  1237 46 
+>   6 48  0
 
-That's what I used to think.  Until I started trying to keep track of open
-bugs against late -rc kernels.  Now, the ability which bugzilla has to keep
-track of open bugs and to keep track of all the correspondence associated
-with a bug is looking really attractive.
-
-That's why I want it to integrate seamlessly with our normal email-based
-processes.  So we can get the best of both worlds.
-
-> is anyone
-> (developers) using it successfully?
-
-The ACPI team use bugzilla a lot.
-
-For those bugs which are handled in bugzilla rather than via random emails,
-yeah, I'm finding bugzilla preferable.
-
-
-I haven't tested this yet, but hopefully I will now be able to:
-
-- get an email from bugme
-
-- reply to it and cc linux-kernel and a maintainer
-
-- Other people will comment in the normal manner with reply-to-all
-
-- bugzilla will capture everything.
-
-Suddenly, my ability to track open bugs gets a heap better, and nobody is
-impacted at all - just an additional Cc.
-
-One thing I haven't worked out is how to get a bug which is initially
-reported via email *into* the bugzilla system for tracking purposes.  One
-could just ask the originator to raise a bugzilla entry, as lots of other
-projects do.  But I don't think we want to do that - it's in our interest
-to make bug reporting as easy as possible for the reporter, rather than
-putting up barriers.
-
-Another problem is: what happens if a bug has been discussed via email
-which is cc'ed to linux-kernel and bugzilla, and then someone comes along
-and updates the bug record via the bugzilla web interface?  I suspect those
-people who had been following the discussion via email wouldn't see the
-update.  So bugzilla needs to a) automatically add all incoming Cc's to the
-records's cc list and b) automatically add all known cc's to outgoing
-notifications.
+You're wordwrapping...

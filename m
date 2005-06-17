@@ -1,49 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261946AbVFQMpO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261656AbVFQMrp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261946AbVFQMpO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Jun 2005 08:45:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261951AbVFQMpO
+	id S261656AbVFQMrp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Jun 2005 08:47:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261952AbVFQMro
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Jun 2005 08:45:14 -0400
-Received: from nproxy.gmail.com ([64.233.182.206]:41680 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261946AbVFQMpI convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Jun 2005 08:45:08 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Id0fJlnxltnF9dj2b6Wh952/trKIIU/59pl6VsU2UW80Gjv3/WQXAHZxtFgoM7o3+f7vHsEk81cYB76sBBHRmh9F6W4h9g5wDyMjA6NJ9lqm3tbAy3iXftzImWe9oPWjpuvI4v4RF0o8N+eMJLyLUDb3hL1a994DrsuKJrbBiwQ=
-Message-ID: <4ad99e0505061705453392e0d3@mail.gmail.com>
-Date: Fri, 17 Jun 2005 14:45:07 +0200
-From: Lars Roland <lroland@gmail.com>
-Reply-To: Lars Roland <lroland@gmail.com>
-To: Willy Tarreau <willy@w.ods.org>
-Subject: Re: tg3 in 2.6.12-rc6 and Cisco PIX SMTP fixup
-Cc: Christian Kujau <evil@g-house.de>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050617044620.GG8907@alpha.home.local>
+	Fri, 17 Jun 2005 08:47:44 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:23004 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261656AbVFQMrT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Jun 2005 08:47:19 -0400
+Date: Fri, 17 Jun 2005 14:47:01 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Reiner Sailer <sailer@watson.ibm.com>
+Cc: LKLM <linux-kernel@vger.kernel.org>,
+       LSM <linux-security-module@mail.wirex.com>,
+       Kylene Hall <kylene@us.ibm.com>, Emily Rattlif <emilyr@us.ibm.com>,
+       Tom Lendacky <toml@us.ibm.com>, Greg KH <greg@kroah.com>,
+       Chris Wright <chrisw@osdl.org>, Reiner Sailer <sailer@us.ibm.com>
+Subject: Re: [PATCH] 2 of 5 IMA: documentation patch
+Message-ID: <20050617124701.GA12863@elf.ucw.cz>
+References: <1118845859.2269.17.camel@secureip.watson.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <4ad99e0505061605452e663a1e@mail.gmail.com>
-	 <42B1F5CB.9020308@g-house.de>
-	 <4ad99e0505061615143cc34192@mail.gmail.com>
-	 <42B21130.4000608@g-house.de>
-	 <4ad99e0505061617052f427ed6@mail.gmail.com>
-	 <20050617044620.GG8907@alpha.home.local>
+In-Reply-To: <1118845859.2269.17.camel@secureip.watson.ibm.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/17/05, Willy Tarreau <willy@w.ods.org> wrote:
-> Maybe some checksumming code has changed, and some of the packets which
-> are checksummed by the hardware get wrong on the wire ?
+Hi!
 
-Yes my exact thought, it is fine by me if it is a cisco problem that
-needs to be fixed in the firewall but it would be nice knowing what
-exactly changed from 2.6.8.1 -> 2.6.9 so it stopped working.
+> --- linux-2.6.12-rc6-mm1_orig/Documentation/ima/integrity_measurements.txt	1969-12-31 19:00:00.000000000 -0500
+> +++ linux-2.6.12-rc6-mm1-ima/Documentation/ima/integrity_measurements.txt	2005-06-14 16:25:05.000000000 -0400
+> @@ -0,0 +1,87 @@
+> +The IBM Integrity Measurement Architecture (IMA) offers means to
+> +securely identify the software that was loaded into a system run-time
+> +since the last reboot. The IMA builds the information necessary to
+> +identify the loaded software and provides the basis for services to
+> +build on top of such information. However, it does not include any
+> +means that would enable remote parties to extract the information
+> +itself.
+> +
+> +Guarantees: IMA offers "software load-guarantees" in that
+> +identification of all loaded software is guaranteed to be reflected in
+> +measurement data and protected in a hardware TPM security chip (if
+> +available). IMA is non-intrusive and neither disturbs the system, nor
+> +prevents the system from any actions. However, if running in real
+> +mode, when the TPM chip is not accessible IMA might require the system
+> +not to start (for security guarantee reasons).
+> +
+> +Limitations: IMA does not detect corruption of software once it is
+> +loaded into main memory. Instead, it indicates known vulnerabilities
+> +in such software (e.g., buffer overflow) by securely identifying the
+> +software at load-time. Only executable files (binaries, libraries,
+> +kernel modules) are measured by default. However, IMA offers a
+> +ima file system that enables applications to instruct the kernel to
+> +measure files that they have opened (/ima/measurereq).
+> +
+> +Assumed usage: Verify system installed software configurations and
+> +system run-time integrity from a secure management location.
 
+You say that you must panic system if TPM is not acessible during
+bootup. That smells just plain wrong. If I want to trick secure
+managment point, what prevents me from booting kernel in "test" mode,
+and then lie about it? 
 
-Regards.
+> +Some of our work shows that IMA is very useful to detect Rootkit
+> +exploits that totally take over the software of a Linux system but
+> +cannot hide themselves from contributing to the TPM aggregate and this
+> +will be detectable from a non-corrupted platform. While the corrupted
+> +system might not show the Rootkit, a remote party can securely
+> +identify known bad or unknown software having been loaded into the
+> +system.
 
-Lars Roland
+No; with your current system, it only means I may not place my rootkit
+into executable file. I can still place my evil rootkit into shell
+script and/or config file.
+
+								Pavel
+-- 
+teflon -- maybe it is a trademark, but it should not be.

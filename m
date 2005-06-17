@@ -1,54 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261882AbVFQBfR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261884AbVFQBhv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261882AbVFQBfR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Jun 2005 21:35:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261884AbVFQBfR
+	id S261884AbVFQBhv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Jun 2005 21:37:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261886AbVFQBhv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Jun 2005 21:35:17 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:34200 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S261882AbVFQBfK
+	Thu, 16 Jun 2005 21:37:51 -0400
+Received: from zproxy.gmail.com ([64.233.162.192]:36003 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261884AbVFQBhj convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Jun 2005 21:35:10 -0400
-Subject: Re: [patch] inotify.
-From: Robert Love <rml@novell.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Zach Brown <zab@zabbo.net>, linux-kernel@vger.kernel.org,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       John McCutchan <ttb@tentacle.dhs.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <42B227B5.3090509@yahoo.com.au>
-References: <1118855899.3949.21.camel@betsy>  <42B1BC4B.3010804@zabbo.net>
-	 <1118946334.3949.63.camel@betsy>  <42B227B5.3090509@yahoo.com.au>
-Content-Type: text/plain
-Date: Thu, 16 Jun 2005 21:35:09 -0400
-Message-Id: <1118972109.7280.13.camel@phantasy>
+	Thu, 16 Jun 2005 21:37:39 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=M4IcV2KS2S9AgFWNmq2F7za7FCjyfvE/XRCdb2sJXNgZ/0sUiYibDJNxfXqwUVCTaPnc+h3pOrZqdbnctKO3L5TdzbVjM7vGyMebaiNxHDvQKSNxisKpmZpnM48nZ8FCkfSoOLCnEK/mpRhgKQv8EltYS07gfCnIeW9ol9S00GY=
+Message-ID: <ca992f1105061618376e64788c@mail.gmail.com>
+Date: Fri, 17 Jun 2005 10:37:37 +0900
+From: junjie cai <junjiec@gmail.com>
+Reply-To: junjie cai <junjiec@gmail.com>
+To: paulmck@us.ibm.com
+Subject: Re: is synchronize_net in inet_register_protosw necessary?
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, shemminger@osdl.org
+In-Reply-To: <20050616220726.GA1862@us.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <ca992f11050614071857cd069b@mail.gmail.com>
+	 <20050616171502.GA1321@us.ibm.com> <20050616220726.GA1862@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-06-17 at 11:30 +1000, Nick Piggin wrote:
+Hello,Paul,
 
-> What we could do is just check list_empty(&inode->inotify_watchers)
-> and remove the atomic count completely.
+Thank you very much for your reply.
+So may I think that it would be ok to remove the synchronize_net 
+from  inet_register_protosw on a UP platform?
+I am doing embeded development so I don't have SMP to do the test.
+I think it is ok for me to do just local modify to fit our needs.
+Thanks again.
+                                 junjie
+
+On 6/17/05, Paul E. McKenney <paulmck@us.ibm.com> wrote:
+> On Thu, Jun 16, 2005 at 10:15:02AM -0700, Paul E. McKenney wrote:
+> > On Tue, Jun 14, 2005 at 11:18:08PM +0900, junjie cai wrote:
+> > > hi all.
+> > > i am a newbie to linux kernel.
+> > > in a arm926 board i found that it took about 30ms to finish
+> > > the (net/ipv4/af_inet.c:898) inet_register_protosw
+> > > because of the synchronize_net call during profiling.
+> > > synchronize_net finally calls synchronize_rcu, so i think
+> > > this is to make the change visiable after a list_add_rcu.
+> > > but according to the Document/listRCU.txt it seems that
+> > > a list insertation does not necessarily do call_rcu etc.
+> > > may i have any mistakes, please kindly tell me.
+> >
+> > From a strict RCU viewpoint, you are quite correct.  But sometimes
+> > the overall locking protocol (which almost always includes other things
+> > besides just RCU) places additional constraints on the code.  My guess is
+> > that the networking folks needed to ensure that the new protocol is seen
+> > by all packets that are received after inet_register_protosw() returns.
+> >
+> > But I need to defer to networking guys on this one.
 > 
-> We don't actually care about getting an exact count at all, just
-> whether or not it is empty, and in that case using list_empty is
-> no more racy than checking an atomic count, both are done outside
-> any locks.
+> Hello, Junjie,
 > 
-> It is basically just a lock avoidance heuristic. But I think count
-> is superfluous - off with its head!
-
-Yah.  This is what I originally did.  Because of the current
-implementation of list_empty(), the race is never dangerous (e.g., no
-segfault), we just get false positives/negatives, but that is no
-different than the atomic check, really, since we can race in the
-interim and then we go on and check the list anyhow.
-
-So, let's do it.  I'll cook up a patch and updated inotify tomorrow, if
-no one beats me to the punch.
-
-	Robert Love
-
-
+> Ran into one of the networking guys off-list.  Apparently, the
+> synchronize_net() is there out of paranoia.  It might be necessary,
+> but he could not think of a reason for its being there.  If you want
+> to shave 30ms off of your boot time by removing it, here is his
+> suggested test procedure:
+> 
+> o       Write a small dummy protocol as a module.
+> 
+> o       On an SMP machine, have one process repeated modprobe/rmmod
+>         while another process repeatedly does socket() calls for
+>         the dummy protocol.
+> 
+>                                                         Thanx, Paul
+>

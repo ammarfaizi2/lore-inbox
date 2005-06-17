@@ -1,71 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261915AbVFQJAv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261924AbVFQJNI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261915AbVFQJAv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Jun 2005 05:00:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261745AbVFQJAv
+	id S261924AbVFQJNI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Jun 2005 05:13:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261925AbVFQJNI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Jun 2005 05:00:51 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:13255 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S261924AbVFQI7V convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Jun 2005 04:59:21 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Xavier Bestel <xavier.bestel@free.fr>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11: nforce3 250gb lockups
-Date: Fri, 17 Jun 2005 11:59:02 +0300
-User-Agent: KMail/1.5.4
-References: <1118904850.5709.15.camel@localhost.localdomain> <1118997693.30207.119.camel@gonzales>
-In-Reply-To: <1118997693.30207.119.camel@gonzales>
+	Fri, 17 Jun 2005 05:13:08 -0400
+Received: from mail-in-09.arcor-online.net ([151.189.21.49]:40414 "EHLO
+	mail-in-09.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261924AbVFQJNE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Jun 2005 05:13:04 -0400
+From: Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>
+Subject: Re: A Great Idea (tm) about reimplementing NLS.
+To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
+       Lukasz Stelmach <stlman@poczta.fm>, mru@inprovide.com,
+       Patrick McFarland <pmcfarland@downeast.net>,
+       "Alexander E. Patrakov" <patrakov@ums.usu.ru>,
+       linux-kernel@vger.kernel.org
+Reply-To: 7eggert@gmx.de
+Date: Fri, 17 Jun 2005 11:12:43 +0200
+References: <4eUwr-7i7-33@gated-at.bofh.it> <4ffAV-72e-11@gated-at.bofh.it> <4fBrR-7eO-31@gated-at.bofh.it> <4fBUW-7wi-19@gated-at.bofh.it> <4fCe4-7Rm-11@gated-at.bofh.it> <4fCHg-89R-29@gated-at.bofh.it> <4fHxo-3Lo-63@gated-at.bofh.it> <4fNMd-l6-25@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200506171159.02128.vda@ilport.com.ua>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1DjCu5-0001jc-Nl@be1.7eggert.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 17 June 2005 11:41, Xavier Bestel wrote:
-> Sorry for replying to myself, but this may interest someone.
-> 
-> Le jeudi 16 juin 2005 Ã  08:54 +0200, Xavier Bestel a Ã©crit :
-> > Hi,
-> > 
-> > I have a brand new computer, with an MSI K8N Neo (nforce3-based) which
-> > lockups quite easily. It seems it happens when I play audio for a while,
-> > or when accessing hd under load. With "nolapic", the boot stops when
-> > accessing hda, with something like "hda interrupt timeout" repeating on
-> > the screen. With "noapic nolapic", it boots normally but doesn't lockup
-> > less. The Ubuntu install CD lockups at boot even with "noapic nolapic".
-> > 
-> > The kernel is the stock debian/sid 2.6.11-9-amd64-k8, the userspace is
-> > i386 (32bits). lspci and dmesg at the bottom of this mail. The only
-> > advices I found by googling were to try nolapic (which I did without
-> > success) or the binary drivers (which I won't try).
-> > Is there anything I can do, short of trying to return it to my
-> > reseller ?
-> 
-> As suggested by Denis Vlasenko <vda@ilport.com.ua> I disabled DMA for
-> harddisks (because I have ATA hds) in the BIOS, and now it works
-> flawlessly. No need for "no(l)apic". For the record, the drives are:
-> 
-> hda: WDC WD400BB-32BSA0, ATA DISK drive
-> hdb: HITACHI DVD-ROM GD-7500, ATAPI CD/DVD-ROM drive
-> hdc: ST340824A, ATA DISK drive
-> hdd: DVDRW IDE 16X, ATAPI CD/DVD-ROM drive
-> 
-> and an unused barracuda 160G on sda.
+Lennart Sorensen <lsorense@csclub.uwaterloo.ca> wrote:
 
-Did you disabled DMA completely? That would make your disks very slow
-and CPU hungry :(
+> What do you do if the underlying filesystem can not store some unicode
+> characters that are allowed on others?
 
-I was thinking more of using hdparm to downgrade DMA to lower speeds,
-not disabling it altogether.
+On vfat:
+open("/e/a:b", O_WRONLY|O_CREAT|O_TRUNC|O_LARGEFILE, 0666) = -1 EINVAL
 
-If you will find that lower DMA mode works for a particular hdd
-(or particular mobo chipset), a quirk fix may be added to kernel
-so that it works for other folks, too.
---
-vda
+> VFAT uses unicode?  I thought it used the same codepage silyness as FAT
+> did, since after all ti was just supposed to be a long filename
+> extension to FAT.  Do they use unicode in the long filenames only?
 
+It uses two codepages, one for short names and one for long names.
+The long name charset defaults to iso-8859-1, and the short one to cp437
+
+$ dd if=/dev/zero of=img bs=512 count=90
+$ mkfs.msdos img
+$ mount -oloop img /x
+$ touch /x/testäöüßtest
+$ umount /x
+$ hex<img
+...
+0600  41 74 00 65 00 73 00 74  00 e4 00 0f 00 db f6 00  At.e.s.t ........
+0610  fc 00 df 00 74 00 65 00  73 00 00 00 74 00 00 00  ....t.e. s...t...
+0620  54 45 53 54 8e 99 7e 31  20 20 20 20 00 00 d0 58  TEST..~1     ...X
+0630  d1 32 d1 32 00 00 d0 58  d1 32 00 00 00 00 00 00  .2.2...X .2......
+
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

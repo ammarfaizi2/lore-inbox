@@ -1,77 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261969AbVFQNUL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261964AbVFQNXh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261969AbVFQNUL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Jun 2005 09:20:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261964AbVFQNSc
+	id S261964AbVFQNXh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Jun 2005 09:23:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261959AbVFQNXh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Jun 2005 09:18:32 -0400
-Received: from nproxy.gmail.com ([64.233.182.205]:22197 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261962AbVFQNSG convert rfc822-to-8bit
+	Fri, 17 Jun 2005 09:23:37 -0400
+Received: from 76.80-203-227.nextgentel.com ([80.203.227.76]:2534 "EHLO
+	mail.inprovide.com") by vger.kernel.org with ESMTP id S261966AbVFQNX0 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Jun 2005 09:18:06 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=oM7reqF/7oVCxzo+/NdJZv7s+5j7y5o0KwkWW8AW05fuxzarrupCbJHMzwrI37+NcL6OyakikZdc5Hn3qE0z6gt/B7Amhv+41pBN0uDRImuxni/55q1fPYBFO+/dhm9ojOuROQt4FTLc1I+xgXJqSOrtxvP6+ySFTjhbMNORop8=
-Message-ID: <4ad99e05050617061864f286a2@mail.gmail.com>
-Date: Fri, 17 Jun 2005 15:18:03 +0200
-From: Lars Roland <lroland@gmail.com>
-Reply-To: Lars Roland <lroland@gmail.com>
-To: "Valdis.Kletnieks@vt.edu" <Valdis.Kletnieks@vt.edu>
-Subject: Re: tg3 in 2.6.12-rc6 and Cisco PIX SMTP fixup
-Cc: Alejandro Bonilla <abonilla@linuxwireless.org>,
-       Christian Kujau <evil@g-house.de>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200506171306.j5HD6E01001899@turing-police.cc.vt.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <4ad99e0505061605452e663a1e@mail.gmail.com>
-	 <42B1F5CB.9020308@g-house.de>
-	 <4ad99e0505061615143cc34192@mail.gmail.com>
-	 <42B21130.4000608@g-house.de>
-	 <4ad99e0505061617052f427ed6@mail.gmail.com>
-	 <42B218C5.9020406@linuxwireless.org>
-	 <4ad99e0505061618475716f13c@mail.gmail.com>
-	 <200506171306.j5HD6E01001899@turing-police.cc.vt.edu>
+	Fri, 17 Jun 2005 09:23:26 -0400
+To: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+Cc: Patrick McFarland <pmcfarland@downeast.net>,
+       "Richard B. Johnson" <linux-os@analogic.com>,
+       Lukasz Stelmach <stlman@poczta.fm>,
+       "Alexander E. Patrakov" <patrakov@ums.usu.ru>,
+       linux-kernel@vger.kernel.org
+Subject: Re: A Great Idea (tm) about reimplementing NLS.
+References: <yw1xslzl8g1q.fsf@ford.inprovide.com>
+	<200506162118.18470.pmcfarland@downeast.net>
+	<yw1xekb1xuk9.fsf@ford.inprovide.com>
+	<200506170450.12943.pmcfarland@downeast.net>
+	<20050617130914.GB23488@csclub.uwaterloo.ca>
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+Date: Fri, 17 Jun 2005 15:23:17 +0200
+In-Reply-To: <20050617130914.GB23488@csclub.uwaterloo.ca> (Lennart
+ Sorensen's message of "Fri, 17 Jun 2005 09:09:14 -0400")
+Message-ID: <yw1xy899unga.fsf@ford.inprovide.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.15 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/17/05, Valdis.Kletnieks@vt.edu <Valdis.Kletnieks@vt.edu> wrote:
-> On Fri, 17 Jun 2005 03:47:00 +0200, Lars Roland said:
-> > 
-> >
-> > On 6/17/05, Alejandro Bonilla <abonilla@linuxwireless.org> wrote:
-> > > one question,
-> > >
-> > >     Can I know what is the problem?
-> > >:I have 2 tg3 adapters, lots e100's and some Cisco PIX and devices.
-> > >
-> > > I can try to reproduce it and see if anyone has something to say about it.
-> >
-> > Yes please. As I see it. Enable smtp fixup protocol on your cisco pix
-> > (you will need to have a smtp server to point it to), then on some
-> > linux system running with a kernel greater than 2.6.8.1 do a telnet to
-> > the smtp server that is firewalled and try to issue a smtp command.
-> >
-> > Note that cisco has a bug report on smtp fixup banner hiding issues in
-> > cisco os 6.3.4 but it should not result in the connection getting
-> > dropped, it also does not explain why this problem does not seam to
-> > exists on kernels prior to 2.6.9.
-> 
-> 2.6.9? This rings a bell.. ;)
-> 
-> Does disabling TCP window scaling fix it?
-> 
-> echo 0 > /proc/sys/net/ipv4/tcp_window_scaling
+lsorense@csclub.uwaterloo.ca (Lennart Sorensen) writes:
+> You have probably slightly misunderstood UTF8 at least.  UTF8 tries very
+> hard to make sure you can't mistake the characters for ascii, so it
+> makes the first byte contains some 1's follwed by one zero.  The number
+> of 1's indicates how many bytes the character contains, after the 0 the
+> remaining bits is used to store bits for the character.  The remaining
+> bytes are all 10xxxxxx which stores another 6 bites of the character code.
+> One is required to use the shortest form of utf8 that can store the
+> character you are encoding.
 
-Yes it does solve it. 
+Some characters can be encoded in several equally shortest ways.  For
+instance, characters with multiple diacritics can have these applied
+in different orders.  One of these is designated the canonical
+encoding, and should be used in favor of the others.  Those things,
+among others, are what makes unicode difficult to deal with.
 
-Thanks so much - this will be much easier than getting the largest ISP
-in Denmark to update there Cisco to a new version.
-
-
-Regards.
-
-Lars Roland
+-- 
+Måns Rullgård
+mru@inprovide.com

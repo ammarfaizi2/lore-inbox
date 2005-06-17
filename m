@@ -1,56 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261920AbVFQIVk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261645AbVFQImU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261920AbVFQIVk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Jun 2005 04:21:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261921AbVFQIVk
+	id S261645AbVFQImU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Jun 2005 04:42:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261745AbVFQImT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Jun 2005 04:21:40 -0400
-Received: from 76.80-203-227.nextgentel.com ([80.203.227.76]:52955 "EHLO
-	mail.inprovide.com") by vger.kernel.org with ESMTP id S261920AbVFQIVa convert rfc822-to-8bit
+	Fri, 17 Jun 2005 04:42:19 -0400
+Received: from smtp4.wanadoo.fr ([193.252.22.27]:52378 "EHLO smtp4.wanadoo.fr")
+	by vger.kernel.org with ESMTP id S261645AbVFQImP convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Jun 2005 04:21:30 -0400
-To: Patrick McFarland <pmcfarland@downeast.net>
-Cc: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
-       "Richard B. Johnson" <linux-os@analogic.com>,
-       Lukasz Stelmach <stlman@poczta.fm>,
-       "Alexander E. Patrakov" <patrakov@ums.usu.ru>,
-       linux-kernel@vger.kernel.org
-Subject: Re: A Great Idea (tm) about reimplementing NLS.
-References: <yw1xslzl8g1q.fsf@ford.inprovide.com>
-	<Pine.LNX.4.61.0506161036370.30607@chaos.analogic.com>
-	<20050616150419.GY23488@csclub.uwaterloo.ca>
-	<200506162118.18470.pmcfarland@downeast.net>
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-Date: Fri, 17 Jun 2005 10:21:26 +0200
-In-Reply-To: <200506162118.18470.pmcfarland@downeast.net> (Patrick
- McFarland's message of "Thu, 16 Jun 2005 21:18:06 -0400")
-Message-ID: <yw1xekb1xuk9.fsf@ford.inprovide.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.15 (Security Through
- Obscurity, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Fri, 17 Jun 2005 04:42:15 -0400
+X-ME-UUID: 20050617084211587.8F78D1C00185@mwinf0408.wanadoo.fr
+Subject: Re: 2.6.11: nforce3 250gb lockups
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <1118904850.5709.15.camel@localhost.localdomain>
+References: <1118904850.5709.15.camel@localhost.localdomain>
+Content-Type: text/plain; charset=utf-8
+Date: Fri, 17 Jun 2005 10:41:33 +0200
+Message-Id: <1118997693.30207.119.camel@gonzales>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick McFarland <pmcfarland@downeast.net> writes:
+Sorry for replying to myself, but this may interest someone.
 
-> On Thursday 16 June 2005 11:04 am, Lennart Sorensen wrote:
->>  Most people seem happy with 50 or so being a good limit even though many
->>  systems support much longer. 
->
-> 50 characters or 50 bytes? Because in the case of UTF-8, if you do a lot of 
-> three byte characters (which require four bites to encode), 50 bytes is very 
-> short.
+Le jeudi 16 juin 2005 Ã  08:54 +0200, Xavier Bestel a Ã©crit :
+> Hi,
+> 
+> I have a brand new computer, with an MSI K8N Neo (nforce3-based) which
+> lockups quite easily. It seems it happens when I play audio for a while,
+> or when accessing hd under load. With "nolapic", the boot stops when
+> accessing hda, with something like "hda interrupt timeout" repeating on
+> the screen. With "noapic nolapic", it boots normally but doesn't lockup
+> less. The Ubuntu install CD lockups at boot even with "noapic nolapic".
+> 
+> The kernel is the stock debian/sid 2.6.11-9-amd64-k8, the userspace is
+> i386 (32bits). lspci and dmesg at the bottom of this mail. The only
+> advices I found by googling were to try nolapic (which I did without
+> success) or the binary drivers (which I won't try).
+> Is there anything I can do, short of trying to return it to my
+> reseller ?
 
-What do you mean by three-byte characters requiring four bytes to
-encode?  Is a three-byte character not a character encoded using three
-bytes?
+As suggested by Denis Vlasenko <vda@ilport.com.ua> I disabled DMA for
+harddisks (because I have ATA hds) in the BIOS, and now it works
+flawlessly. No need for "no(l)apic". For the record, the drives are:
 
-As for 50 bytes being too short, many of the multibyte characters are
-equivalent to several English characters, so fewer of them are
-required.  You have a point, though.
+hda: WDC WD400BB-32BSA0, ATA DISK drive
+hdb: HITACHI DVD-ROM GD-7500, ATAPI CD/DVD-ROM drive
+hdc: ST340824A, ATA DISK drive
+hdd: DVDRW IDE 16X, ATAPI CD/DVD-ROM drive
 
--- 
-Måns Rullgård
-mru@inprovide.com
+and an unused barracuda 160G on sda.
+
+	Xav
+
+

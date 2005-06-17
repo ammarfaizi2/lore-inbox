@@ -1,59 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261924AbVFQJNI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261926AbVFQJRs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261924AbVFQJNI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Jun 2005 05:13:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261925AbVFQJNI
+	id S261926AbVFQJRs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Jun 2005 05:17:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261927AbVFQJRs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Jun 2005 05:13:08 -0400
-Received: from mail-in-09.arcor-online.net ([151.189.21.49]:40414 "EHLO
-	mail-in-09.arcor-online.net") by vger.kernel.org with ESMTP
-	id S261924AbVFQJNE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Jun 2005 05:13:04 -0400
-From: Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>
-Subject: Re: A Great Idea (tm) about reimplementing NLS.
-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
-       Lukasz Stelmach <stlman@poczta.fm>, mru@inprovide.com,
-       Patrick McFarland <pmcfarland@downeast.net>,
+	Fri, 17 Jun 2005 05:17:48 -0400
+Received: from 76.80-203-227.nextgentel.com ([80.203.227.76]:11997 "EHLO
+	mail.inprovide.com") by vger.kernel.org with ESMTP id S261926AbVFQJRl convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Jun 2005 05:17:41 -0400
+To: Patrick McFarland <pmcfarland@downeast.net>
+Cc: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
+       "Richard B. Johnson" <linux-os@analogic.com>,
+       Lukasz Stelmach <stlman@poczta.fm>,
        "Alexander E. Patrakov" <patrakov@ums.usu.ru>,
        linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Fri, 17 Jun 2005 11:12:43 +0200
-References: <4eUwr-7i7-33@gated-at.bofh.it> <4ffAV-72e-11@gated-at.bofh.it> <4fBrR-7eO-31@gated-at.bofh.it> <4fBUW-7wi-19@gated-at.bofh.it> <4fCe4-7Rm-11@gated-at.bofh.it> <4fCHg-89R-29@gated-at.bofh.it> <4fHxo-3Lo-63@gated-at.bofh.it> <4fNMd-l6-25@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
+Subject: Re: A Great Idea (tm) about reimplementing NLS.
+References: <yw1xslzl8g1q.fsf@ford.inprovide.com>
+	<200506162118.18470.pmcfarland@downeast.net>
+	<yw1xekb1xuk9.fsf@ford.inprovide.com>
+	<200506170450.12943.pmcfarland@downeast.net>
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+Date: Fri, 17 Jun 2005 11:17:39 +0200
+In-Reply-To: <200506170450.12943.pmcfarland@downeast.net> (Patrick
+ McFarland's message of "Fri, 17 Jun 2005 04:49:33 -0400")
+Message-ID: <yw1xy899wde4.fsf@ford.inprovide.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.15 (Security Through
+ Obscurity, linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1DjCu5-0001jc-Nl@be1.7eggert.dyndns.org>
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lennart Sorensen <lsorense@csclub.uwaterloo.ca> wrote:
+Patrick McFarland <pmcfarland@downeast.net> writes:
 
-> What do you do if the underlying filesystem can not store some unicode
-> characters that are allowed on others?
+> On Friday 17 June 2005 04:21 am, Måns Rullgård wrote:
+>> Patrick McFarland <pmcfarland@downeast.net> writes:
+>> > On Thursday 16 June 2005 11:04 am, Lennart Sorensen wrote:
+>> >>  Most people seem happy with 50 or so being a good limit even though
+>> >> many systems support much longer.
+>> >
+>> > 50 characters or 50 bytes? Because in the case of UTF-8, if you do a lot
+>> > of three byte characters (which require four bites to encode), 50 bytes
+>> > is very short.
+>>
+>> What do you mean by three-byte characters requiring four bytes to
+>> encode?  Is a three-byte character not a character encoded using three
+>> bytes?
+>
+> (implication of utf8 and not utf16 goes here)
+>
+> Very few Unicode characters require three bytes, instead of the
+> usual one or two.
 
-On vfat:
-open("/e/a:b", O_WRONLY|O_CREAT|O_TRUNC|O_LARGEFILE, 0666) = -1 EINVAL
+I wouldn't the Chinese, Japanese, and Korean characters "very few",
+and those all require (at least) three bytes.
 
-> VFAT uses unicode?  I thought it used the same codepage silyness as FAT
-> did, since after all ti was just supposed to be a long filename
-> extension to FAT.  Do they use unicode in the long filenames only?
+> For one byte you just have the byte. 
 
-It uses two codepages, one for short names and one for long names.
-The long name charset defaults to iso-8859-1, and the short one to cp437
+Correct.
 
-$ dd if=/dev/zero of=img bs=512 count=90
-$ mkfs.msdos img
-$ mount -oloop img /x
-$ touch /x/testäöüßtest
-$ umount /x
-$ hex<img
-...
-0600  41 74 00 65 00 73 00 74  00 e4 00 0f 00 db f6 00  At.e.s.t ........
-0610  fc 00 df 00 74 00 65 00  73 00 00 00 74 00 00 00  ....t.e. s...t...
-0620  54 45 53 54 8e 99 7e 31  20 20 20 20 00 00 d0 58  TEST..~1     ...X
-0630  d1 32 d1 32 00 00 d0 58  d1 32 00 00 00 00 00 00  .2.2...X .2......
+> For two bytes, you really have three: a control code stating "the
+> following two bytes are a two byte character", and then the two
+> bytes.
+>
+> For three bytes, you really have four bytes: a control code stating
+> "the following three bytes are a three byte character" and then the
+> three bytes.
+
+Wrong.  The first byte indicates the total size of the character, but
+it also contains data, like this:
+
+  0xxxxxxx
+  110xxxxx 10xxxxxx
+  1110xxxx 10xxxxxx 10xxxxxx
+  11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+
+Refer to the Unicode standard, section 3.9 for the full details.
+
+>> As for 50 bytes being too short, many of the multibyte characters are
+>> equivalent to several English characters, so fewer of them are
+>> required.  You have a point, though.
+>
+> Any English characters (ie, the first 127 ascii characters) map
+> directly to the first 127 Unicode characters (if thats what you
+> meant).
+
+Let me clarify with an example.  The common Korean name Kim consists
+of three ascii characters.  The Hangul spelling, ~, is encoded in
+utf-8 using three bytes.  Even though a three-byte character was used,
+the number of bytes is the same.
 
 -- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+Måns Rullgård
+mru@inprovide.com

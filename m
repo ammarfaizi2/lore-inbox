@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261891AbVFQBs7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261892AbVFQBxU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261891AbVFQBs7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Jun 2005 21:48:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261894AbVFQBs6
+	id S261892AbVFQBxU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Jun 2005 21:53:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261894AbVFQBxT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Jun 2005 21:48:58 -0400
-Received: from [140.247.233.35] ([140.247.233.35]:27379 "HELO
-	netrider.rowland.org") by vger.kernel.org with SMTP id S261891AbVFQBsn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Jun 2005 21:48:43 -0400
-Date: Thu, 16 Jun 2005 21:48:36 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@netrider.rowland.org
-To: Denis Vlasenko <vda@ilport.com.ua>
-cc: Pete Zaitcev <zaitcev@redhat.com>, <linux-kernel@vger.kernel.org>,
-       <linux-usb-devel@lists.sourceforge.net>, <gregkh@suse.de>,
-       <dbrownell@users.sourceforge.net>, <mdharm-usb@one-eyed-alien.net>
-Subject: Re: [linux-usb-devel] Re: USB flash "drive" is not working sometimes
-In-Reply-To: <200506161135.42392.vda@ilport.com.ua>
-Message-ID: <Pine.LNX.4.44L0.0506162145340.31849-100000@netrider.rowland.org>
+	Thu, 16 Jun 2005 21:53:19 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:51090 "EHLO
+	zcars04e.ca.nortel.com") by vger.kernel.org with ESMTP
+	id S261892AbVFQBwx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Jun 2005 21:52:53 -0400
+Message-ID: <42B22CD3.9080600@nortel.com>
+Date: Thu, 16 Jun 2005 19:52:19 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, Hugh Dickins <hugh@veritas.com>
+Subject: Re: why does fsync() on a tmpfs directory give EINVAL?
+References: <42B1DBF1.4020904@nortel.com>	<20050616135708.4876c379.akpm@osdl.org>	<42B20317.6000204@nortel.com> <20050616162933.25dee57b.akpm@osdl.org>
+In-Reply-To: <20050616162933.25dee57b.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Jun 2005, Denis Vlasenko wrote:
+Andrew Morton wrote:
+> Chris Friesen <cfriesen@nortel.com> wrote:
 
-> On Thursday 16 June 2005 10:51, Pete Zaitcev wrote:
+>>Currently tmpfs reuses the simple_dir_operations from libfs.c.
+>>
+>>Would it make sense to add the empty fsync() function there, and have 
+>>all other users pick it up as well?  Is this likely to break stuff?
+>  
+> Isn't simple_sync_file() suitable?
 
-> > At this point the device is toast, the microcontroller is not running.
-> 
-> Do you mean: "this is a problem with the stick. Sometimes its
-> electronics simply do not work at first plug in" ?
+I think it would be fine.  The issue is that currently for directories 
+tmpfs doesn't have it's own set of operations--it reuses the 
+simple_dir_operations set of file ops from libfs.
 
-I agree with the comments posted previously.  The stick doesn't always 
-work right at first plug-in.
+We could make a tmpfs-specific set of operations that is identical to 
+simple_dir_operations but with the addition of setting the fsync 
+function to simple_sync_file().
 
-> Can USB controller momentarily cut power to the stick, thus electrically
-> simulating a replug? I'd likr to try something like this.
+Alternately, if it makes sense for all the users of 
+simple_dir_operations we could modify it directly and all of the other 
+users of simple_dir_operations would get the change for free.  I don't 
+know enough about the other filesystems to know if this makes sense or not.
 
-In general, no.  Most external hubs have that capability, but most host 
-controllers do not.  In any case, Linux does not currently have an API for 
-powering down USB ports.
-
-Alan Stern
-
+Chris

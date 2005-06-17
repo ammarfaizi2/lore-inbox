@@ -1,59 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262077AbVFQTe2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262076AbVFQTfX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262077AbVFQTe2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Jun 2005 15:34:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262076AbVFQTe2
+	id S262076AbVFQTfX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Jun 2005 15:35:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262081AbVFQTfW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Jun 2005 15:34:28 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15275 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262073AbVFQTeF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Jun 2005 15:34:05 -0400
-Date: Fri, 17 Jun 2005 20:35:17 +0100
-From: Matthew Wilcox <matthew@wil.cx>
-To: mike.miller@hp.com
-Cc: akpm@osdl.org, axboe@suse.de, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: [PATCH] cciss 2.6: pci domain info
-Message-ID: <20050617193517.GN11655@parcelfarce.linux.theplanet.co.uk>
-References: <20050617183124.GA9913@beardog.cca.cpqcorp.net>
+	Fri, 17 Jun 2005 15:35:22 -0400
+Received: from lyle.provo.novell.com ([137.65.81.174]:37049 "EHLO
+	lyle.provo.novell.com") by vger.kernel.org with ESMTP
+	id S262080AbVFQTek (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Jun 2005 15:34:40 -0400
+Date: Fri, 17 Jun 2005 12:34:25 -0700
+From: Greg KH <gregkh@suse.de>
+To: Christoph Hellwig <hch@lst.de>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] pci: don't override drv->shutdown unconditionally
+Message-ID: <20050617193425.GA22570@suse.de>
+References: <20050617183057.GA20966@lst.de> <20050617184914.GA22107@suse.de> <20050617185104.GA21256@lst.de> <20050617185311.GC22107@suse.de> <20050617190133.GA22280@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050617183124.GA9913@beardog.cca.cpqcorp.net>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20050617190133.GA22280@suse.de>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 17, 2005 at 01:31:24PM -0500, mike.miller@hp.com wrote:
-> This patch adds pci domain info to our CCISS_GETPCIINFO ioctl. This
-> is to support the next generation of Itanium platforms. We had a couple
-> of spare bytes in the structure. Impact to existing apps should be
-> minimal. Please consider this patch for inclusion.
+On Fri, Jun 17, 2005 at 12:01:33PM -0700, Greg KH wrote:
+> On Fri, Jun 17, 2005 at 11:53:11AM -0700, Greg KH wrote:
+> > On Fri, Jun 17, 2005 at 08:51:04PM +0200, Christoph Hellwig wrote:
+> > > They _do_ want it called.  They set the driver-model level one because
+> > > there hasn't been a pci-level one until a few years ago.
+> > 
+> > So they are setting two callbacks?  Have a pointer to any driver that
+> > does this?
+> 
+> Ok, I see the drivers that do this now, they should be fixed.  I'll make
+> up a patch now to do that.
 
->  typedef struct _cciss_pci_info_struct
->  {
-> +	unsigned int	domain;
->  	unsigned char 	bus;
->  	unsigned char 	dev_fn;
->  	__u32 		board_id;
+Hm, that's too big of a patch for 2.6.12 this late in the game, I've
+forwarded your patch on to Linus with an added comment.  I'll fix up the
+drivers for 2.6.13 and then change the pci core back.
 
-Um, what?  There's no way this doesn't break the ABI.  You do have spare
-bytes in the struct, but to use them, you have to add an 'unsigned short'
-between dev_fn and board_id:
+Sorry for the confusion, you were right.
 
-typedef struct _cciss_pci_info_struct
-{
-	unsigned char   bus;
-	unsigned char   dev_fn;
-+	unsigned int    domain;
-	__u32           board_id;
-}
+thanks,
 
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+greg k-h

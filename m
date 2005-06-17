@@ -1,60 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261873AbVFQBQD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261877AbVFQBSi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261873AbVFQBQD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Jun 2005 21:16:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbVFQBQD
+	id S261877AbVFQBSi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Jun 2005 21:18:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbVFQBSi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Jun 2005 21:16:03 -0400
-Received: from fmr22.intel.com ([143.183.121.14]:6083 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S261873AbVFQBP5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Jun 2005 21:15:57 -0400
-Date: Thu, 16 Jun 2005 18:15:39 -0700
-From: Rajesh Shah <rajesh.shah@intel.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Greg KH <gregkh@suse.de>, Rajesh Shah <rajesh.shah@intel.com>,
-       len.brown@intel.com, acpi-devel@lists.sourceforge.net,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 03/04] PCI: use the MCFG table to properly access pci devices (x86-64)
-Message-ID: <20050616181535.A10031@unix-os.sc.intel.com>
-Reply-To: Rajesh Shah <rajesh.shah@intel.com>
-References: <20050615052916.GA23394@kroah.com> <20050615053031.GB23394@kroah.com> <20050615053120.GC23394@kroah.com> <20050615053214.GD23394@kroah.com> <20050616153404.B5337@unix-os.sc.intel.com> <20050616224223.GA13619@suse.de> <20050616230020.GM7048@bragg.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050616230020.GM7048@bragg.suse.de>; from ak@suse.de on Fri, Jun 17, 2005 at 01:00:20AM +0200
+	Thu, 16 Jun 2005 21:18:38 -0400
+Received: from downeast.net ([12.149.251.230]:29397 "EHLO downeast.net")
+	by vger.kernel.org with ESMTP id S261877AbVFQBSf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Jun 2005 21:18:35 -0400
+From: Patrick McFarland <pmcfarland@downeast.net>
+To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+Subject: Re: A Great Idea (tm) about reimplementing NLS.
+Date: Thu, 16 Jun 2005 21:18:06 -0400
+User-Agent: KMail/1.8
+Cc: "Richard B. Johnson" <linux-os@analogic.com>,
+       Lukasz Stelmach <stlman@poczta.fm>, mru@inprovide.com,
+       "Alexander E. Patrakov" <patrakov@ums.usu.ru>,
+       linux-kernel@vger.kernel.org
+References: <yw1xslzl8g1q.fsf@ford.inprovide.com> <Pine.LNX.4.61.0506161036370.30607@chaos.analogic.com> <20050616150419.GY23488@csclub.uwaterloo.ca>
+In-Reply-To: <20050616150419.GY23488@csclub.uwaterloo.ca>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart36103587.OzXh0cRd2r";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200506162118.18470.pmcfarland@downeast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 17, 2005 at 01:00:20AM +0200, Andi Kleen wrote:
-> On Thu, Jun 16, 2005 at 03:42:23PM -0700, Greg KH wrote:
-> > On Thu, Jun 16, 2005 at 03:34:06PM -0700, Rajesh Shah wrote:
-> > > On Tue, Jun 14, 2005 at 10:32:14PM -0700, Greg KH wrote:
-> > > > 
-> > > > +	for (i = 0; i < pci_mmcfg_config_num; ++i) {
-> > > > +		pci_mmcfg_virt[i].cfg = &pci_mmcfg_config[i];
-> > > > +		pci_mmcfg_virt[i].virt = ioremap_nocache(pci_mmcfg_config[i].base_address, MMCONFIG_APER_SIZE);
-> > > 
-> > > This will map 256MB for each mmcfg aperture, probably better
-> > > to restrict it based on bus number range for this aperture.
-> > 
-> > It should be 1MB per bus number, right?
+--nextPart36103587.OzXh0cRd2r
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Yes.
+On Thursday 16 June 2005 11:04 am, Lennart Sorensen wrote:
+>  Most people seem happy with 50 or so being a good limit even though many
+>  systems support much longer.=20
 
-> 
-> It shouldn't make much difference anyways - we have plenty of vmalloc
-> space on x86-64
-> 
-Depends on how much you trust firmware :-). In the worst case, it
-could create one such entry for each bus.
+50 characters or 50 bytes? Because in the case of UTF-8, if you do a lot of=
+=20
+three byte characters (which require four bites to encode), 50 bytes is ver=
+y=20
+short.
 
-I noticed this because I worked on picking up resources for root
-bridges from firmware recently, and noticed more than one system
-in which firmware created ~10 entries for resources that were
-adjacent to each other and could be coalesced into a single
-resource range. Not illegal, just not optimal.
+=2D-=20
+Patrick "Diablo-D3" McFarland || pmcfarland@downeast.net
+"Computer games don't affect kids; I mean if Pac-Man affected us as kids, w=
+e'd=20
+all be running around in darkened rooms, munching magic pills and listening=
+ to
+repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989
 
-Rajesh
+--nextPart36103587.OzXh0cRd2r
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBCsiTa8Gvouk7G1cURAo+/AJ0SkLQHEZKVDy12Ug2MuZeK+6MW1QCgrUan
+Oc/Z/eA65+cAOtV8v/RzhPc=
+=dVjM
+-----END PGP SIGNATURE-----
+
+--nextPart36103587.OzXh0cRd2r--

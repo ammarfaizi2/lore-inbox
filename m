@@ -1,61 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261953AbVFQNKT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261956AbVFQNQ0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261953AbVFQNKT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Jun 2005 09:10:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261956AbVFQNKS
+	id S261956AbVFQNQ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Jun 2005 09:16:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261958AbVFQNQ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Jun 2005 09:10:18 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:9188 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S261953AbVFQNKJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Jun 2005 09:10:09 -0400
-Subject: Re: SCHED_RR/SCHED_FIFO and kernel threads?
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Patrik =?ISO-8859-1?Q?H=E4gglund?= <patrik.hagglund@bredband.net>
-Cc: linux-kernel@vger.kernel.org, Chris Friesen <cfriesen@nortel.com>
-In-Reply-To: <42B26FF8.6090505@bredband.net>
-References: <42B199FF.5010705@bredband.net> <42B19F65.6000102@nortel.com>
-	 <42B26FF8.6090505@bredband.net>
-Content-Type: text/plain; charset=ISO-8859-1
-Organization: Kihon Technologies
-Date: Fri, 17 Jun 2005 08:37:52 -0400
-Message-Id: <1119011872.4846.12.camel@localhost.localdomain>
+	Fri, 17 Jun 2005 09:16:26 -0400
+Received: from ppsw-1.csi.cam.ac.uk ([131.111.8.131]:59047 "EHLO
+	ppsw-1.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S261956AbVFQNQW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Jun 2005 09:16:22 -0400
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Subject: Re: S3 test tool (was : Re: Bizarre oops after suspend to RAM
+	(was: Re: [ACPI] Resume from Suspend to RAM))
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: dagit@codersbase.com
+Cc: Shaohua Li <shaohua.li@intel.com>, stefandoesinger@gmx.at,
+       acpi-dev <acpi-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>
+In-Reply-To: <877jgw9a9c.fsf@www.codersbase.com>
+References: <200506061531.41132.stefandoesinger@gmx.at>
+	 <1118125410.3828.12.camel@linux-hp.sh.intel.com>
+	 <87ll5diemh.fsf@www.codersbase.com> <1118738841.6648.514.camel@tyrosine>
+	 <877jgw9a9c.fsf@www.codersbase.com>
+Content-Type: text/plain
+Date: Fri, 17 Jun 2005 14:16:03 +0100
+Message-Id: <1119014163.12492.178.camel@elrond.flymine.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 8bit
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-06-17 at 08:38 +0200, Patrik Hägglund wrote:
-> Don't you get the problem with priority inversion? I.e., if you have two 
-> processes, P1 and P2, scheduled with SCHED_FIFO, where P1 has higer 
-> priority than P2. Now, if P1 gets blocked and needs some kernel thread 
-> to execute to get unblocked, then P2 is scheduled before the kernel 
-> thread, and can execute without any time limit.
+On Tue, 2005-06-14 at 09:24 -0700, dagit@codersbase.com wrote:
+> Sure thing, (a) is called lspci-coldboot.txt and the other is
+> lspci-warmboot.txt.  I've attached them so that you can see the whole
+> thing, it doesn't look very helpful to me and the diff was even more
+> cryptic, so good luck ;)
 
-Yep, that could happen.
+Ok, this is probably a long shot, but try:
 
-> That is, you should be much better off if the kernel threads has a 
-> _high_ priority. Then the execution progress can only be blocked by 
-> kernel threads, not by user space threads and processes. Or have I 
-> missed something?
+setpci -s 00:00.0 67.b=11
+setpci -s 00:00.0 68.b=4f
+setpci -s 00:00.0 6d.b=47
+setpci -s 00:00.0 9a.b=0a
+setpci -s 00:00.0 9b.b=1d
 
-Still have that problem with priority inversion. Kernel threads share
-date structures with user processes (when they are in kernel mode) and
-that kernel thread that is needed may get blocked on a process that is
-lower in priority than the two mentioned above.
+after a cold boot, and then see if that changes the behaviour. My
+suspicion is that Windows enables some northbridge features that affect
+the behaviour of the system in suspend. Working out /what/ would be much
+easier with datasheets, but ATI and VIA don't seem willing to provide
+them (if anyone could provide me with northbridge PCI configuration
+register specs for any non-Intel chipsets, that would be astonishingly
+helpful)
 
-> 
-> (Besides that, as I see it, SCHED_RR/SCHED_FIFO are scheduling 
-> abstractions on their own, not necessarily  connected to  "low latency " 
-> or "realtime".)
-
-Only in the vanilla kernel. See Ingo's RT work. It handles priority
-inversion and SCHED_RR/SCHED_FIFO are actually connected to "low
-latency" and "realtime".
-
-http://people.redhat.com/mingo/realtime-preempt/
-
--- Steve
-
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org
 

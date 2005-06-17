@@ -1,70 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261868AbVFQBam@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261879AbVFQBb7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261868AbVFQBam (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Jun 2005 21:30:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261879AbVFQBam
+	id S261879AbVFQBb7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Jun 2005 21:31:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261884AbVFQBb6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Jun 2005 21:30:42 -0400
-Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:62136 "HELO
-	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261868AbVFQBae (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Jun 2005 21:30:34 -0400
-Message-ID: <42B227B5.3090509@yahoo.com.au>
-Date: Fri, 17 Jun 2005 11:30:29 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Robert Love <rml@novell.com>
-CC: Zach Brown <zab@zabbo.net>, linux-kernel@vger.kernel.org,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       John McCutchan <ttb@tentacle.dhs.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch] inotify.
-References: <1118855899.3949.21.camel@betsy>  <42B1BC4B.3010804@zabbo.net> <1118946334.3949.63.camel@betsy>
-In-Reply-To: <1118946334.3949.63.camel@betsy>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 16 Jun 2005 21:31:58 -0400
+Received: from animx.eu.org ([216.98.75.249]:11151 "EHLO animx.eu.org")
+	by vger.kernel.org with ESMTP id S261879AbVFQBbo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Jun 2005 21:31:44 -0400
+Date: Thu, 16 Jun 2005 21:48:20 -0400
+From: Wakko Warner <wakko@animx.eu.org>
+To: James Courtier-Dutton <James@superbug.demon.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Bug in pcmcia-core
+Message-ID: <20050617014820.GA15045@animx.eu.org>
+Mail-Followup-To: James Courtier-Dutton <James@superbug.demon.co.uk>,
+	linux-kernel@vger.kernel.org
+References: <42B1FF2A.2080608@superbug.demon.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42B1FF2A.2080608@superbug.demon.co.uk>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love wrote:
-> On Thu, 2005-06-16 at 10:52 -0700, Zach Brown wrote:
+James Courtier-Dutton wrote:
+> I am trying to write a Linux ALSA driver for the Creative Audigy 2 NX
+> Notebook PCMCIA card.
+> This is a cardbus card, that uses ioports.
+> When it is inserted into the laptop, the entry appears in "lspci -vv "
+> showing ioports used by the card.
+> As soon as my driver uses "outb()" to anything in the address range
+> shown in "lspci -vv" , the PC hangs.
+> 
+> I can only conclude from this that ioport resources are not being
+> allocated correctly to the PCMCIA card.
+> 
+> Can anybody help me track this down. If someone could tell me which
+> PCMCIA and PCI registers should be set for it to work, I could then find
+> out which pcmcia registers have not been set correctly, and fix the bug.
+> 
+> It seems that the PCMCIA specification is not open and free, so I cannot
+> refer to it in order to fix this myself.
 
->>>+       if (likely(!atomic_read(&inode->inotify_watch_count)))
->>>+               return;
->>
->>Are there still platforms that implement atomic_read() with locks?  I
->>wonder if there isn't a cheaper way for inodes to find out that they're
->>not involved in inotify.. maybe an inode function pointer that is only
->>set to queue_event when watchers are around?
-> 
-> 
-> I don't know what esoteric architectures are doing, but the solution
-> needs to be atomic (or we need to say "we don't care about races"--but
-> its hard not to care about a pointer race).  On x86, at least, an
-> atomic_read() is trivial.
-> 
-> I actually would not mind being racey (in a safe way) or finding a
-> cheaper solution, especially if we could remove
-> inode->inotify_watch_count altogether (and not replace it with
-> anything).
-> 
-> But the overhead here is not biting us (we just went through some
-> off-list benchmarking that led to the inclusion of this check, in fact).
-> 
+I thought drivers for the cardbus cards were the same as standard PCI cards. 
+I know that as far as networking goes, the same driver runs a cardbus 3com
+3c575 and the pci 3c905.  Same with netgear's cardbus FA510 and PCI FA310.
 
-What we could do is just check list_empty(&inode->inotify_watchers)
-and remove the atomic count completely.
-
-We don't actually care about getting an exact count at all, just
-whether or not it is empty, and in that case using list_empty is
-no more racy than checking an atomic count, both are done outside
-any locks.
-
-It is basically just a lock avoidance heuristic. But I think count
-is superfluous - off with its head!
+I'm not a kernel developer, but this is what I've understood.
 
 -- 
-SUSE Labs, Novell Inc.
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+ Lab tests show that use of micro$oft causes cancer in lab animals

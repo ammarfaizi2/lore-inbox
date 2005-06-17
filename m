@@ -1,59 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261888AbVFQBrI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261890AbVFQBtV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261888AbVFQBrI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Jun 2005 21:47:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261890AbVFQBrI
+	id S261890AbVFQBtV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Jun 2005 21:49:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261894AbVFQBtV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Jun 2005 21:47:08 -0400
-Received: from nproxy.gmail.com ([64.233.182.201]:23375 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261888AbVFQBrC convert rfc822-to-8bit
+	Thu, 16 Jun 2005 21:49:21 -0400
+Received: from nproxy.gmail.com ([64.233.182.207]:39258 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261890AbVFQBst convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Jun 2005 21:47:02 -0400
+	Thu, 16 Jun 2005 21:48:49 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=LmSd0g7tz4Zvfx1ECTrlSgftzs1vbjbvaP/1WNXxf/vERjTdrfmUTO7b8OlLjp91HBhf2ujc19GxdPSGYhrMXjhXKVwhZpsMQ8IAbIu/yhAu0zCuV6E42hqHTf09uuFkTVJEkcNtpfdke61AbUvYPMKXH5qVQ8F1D26Z/WPdYBI=
-Message-ID: <4ad99e0505061618475716f13c@mail.gmail.com>
-Date: Fri, 17 Jun 2005 03:47:00 +0200
-From: Lars Roland <lroland@gmail.com>
-Reply-To: Lars Roland <lroland@gmail.com>
-To: Alejandro Bonilla <abonilla@linuxwireless.org>
-Subject: Re: tg3 in 2.6.12-rc6 and Cisco PIX SMTP fixup
-Cc: Christian Kujau <evil@g-house.de>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <42B218C5.9020406@linuxwireless.org>
+        b=auR2wKiOG/exEnO8ar98fR2nqNXUx1XeHxZzdo99ilKSLg7BhhkYLgVXizUTwKL7wR6+XKLVpo0oGetP30brcmrwNPMixoDUiu+xOZ9mOlfTn8jjQ9kNRITjFCcYwaRCGmh3sMcDYa++DDlJeD7be2rl7Am/krI9PnPySHc5XhA=
+Message-ID: <2cd57c9005061618484e341cec@mail.gmail.com>
+Date: Fri, 17 Jun 2005 09:48:45 +0800
+From: Coywolf Qi Hunt <coywolf@gmail.com>
+Reply-To: coywolf@lovecn.org
+To: Peter Williams <pwil3058@bigpond.net.au>
+Subject: Re: Design Level Documentation for the Linux kernel (V2.6)
+Cc: Parag Warudkar <kernel-stuff@comcast.net>,
+       Nick Newcomb <nranewcomb@hotmail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <42AF8584.4010306@bigpond.net.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <4ad99e0505061605452e663a1e@mail.gmail.com>
-	 <42B1F5CB.9020308@g-house.de>
-	 <4ad99e0505061615143cc34192@mail.gmail.com>
-	 <42B21130.4000608@g-house.de>
-	 <4ad99e0505061617052f427ed6@mail.gmail.com>
-	 <42B218C5.9020406@linuxwireless.org>
+References: <BAY108-F279928792F980CAFB2AEDCDF20@phx.gbl>
+	 <200506142113.07902.kernel-stuff@comcast.net>
+	 <42AF8584.4010306@bigpond.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/17/05, Alejandro Bonilla <abonilla@linuxwireless.org> wrote:
-> one question,
+On 6/15/05, Peter Williams <pwil3058@bigpond.net.au> wrote:
+> Parag Warudkar wrote:
+> > On Tuesday 14 June 2005 20:34, Nick Newcomb wrote:
+> >
+> >>http://www.softwarerevolution.com/jeneral/open-source-docs.html
+> >>
+> >>Any questions or comments anyone might have are more than welcome. Thanks
+> >>for your time and we hope you'll find our services useful.
+> >>
+> >>~ Nick w/ TSRI
+> >
+> >>From the site : Documentation is best viewed with the most recent versions of
+> > Microsoft Internet Explorer or Mozilla Firefox (w/ plugin).
+> >
+> > Well, both options require the use of Windows
 > 
->     Can I know what is the problem? 
->:I have 2 tg3 adapters, lots e100's and some Cisco PIX and devices.
+> There's an Adobe SVG plugin that works on Linux (at least on FC3).
 > 
-> I can try to reproduce it and see if anyone has something to say about it.
+> <http://download.adobe.com/pub/adobe/magic/svgviewer/linux/3.x/3.01x88/en/adobesvg-3.01x88-linux-i386.tar.gz>
+> 
+> This works fine with a test SVG link at Adobe but after installing it
+> Firefox only displays the above link as source :-(
+> 
+> Before I installed the plug in Firefox displayed the above link OK but
+> couldn't display the SVG stuff. :-(
+ 
 
-Yes please. As I see it. Enable smtp fixup protocol on your cisco pix
-(you will need to have a smtp server to point it to), then on some
-linux system running with a kernel greater than 2.6.8.1 do a telnet to
-the smtp server that is firewalled and try to issue a smtp command.
-
-Note that cisco has a bug report on smtp fixup banner hiding issues in
-cisco os 6.3.4 but it should not result in the connection getting
-dropped, it also does not explain why this problem does not seam to
-exists on kernels prior to 2.6.9.
-
-
-Regards.
-
-Lars Roland
+Try mozilla, and librsvg2-bin if you are in debian.
+-- 
+Coywolf Qi Hunt
+http://ahbl.org/~coywolf/

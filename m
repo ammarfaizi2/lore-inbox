@@ -1,146 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262024AbVFQRUi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262025AbVFQRcd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262024AbVFQRUi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Jun 2005 13:20:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262025AbVFQRUi
+	id S262025AbVFQRcd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Jun 2005 13:32:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262026AbVFQRcd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Jun 2005 13:20:38 -0400
-Received: from tetsuo.zabbo.net ([207.173.201.20]:63704 "EHLO tetsuo.zabbo.net")
-	by vger.kernel.org with ESMTP id S262024AbVFQRUS (ORCPT
+	Fri, 17 Jun 2005 13:32:33 -0400
+Received: from usbb-lacimss3.unisys.com ([192.63.108.53]:12042 "EHLO
+	usbb-lacimss3.unisys.com") by vger.kernel.org with ESMTP
+	id S262025AbVFQRca convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Jun 2005 13:20:18 -0400
-Message-ID: <42B30654.4030307@zabbo.net>
-Date: Fri, 17 Jun 2005 10:20:20 -0700
-From: Zach Brown <zab@zabbo.net>
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.3 (X11/20050513)
-X-Accept-Language: en-us, en
+	Fri, 17 Jun 2005 13:32:30 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Robert Love <rml@novell.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org,
-       John McCutchan <ttb@tentacle.dhs.org>
-Subject: Re: [patch] inotify, improved.
-References: <1118855899.3949.21.camel@betsy>  <42B1BC4B.3010804@zabbo.net>	 <1118946334.3949.63.camel@betsy>  <42B227B5.3090509@yahoo.com.au>	 <1118972109.7280.13.camel@phantasy> <1119021336.3949.104.camel@betsy>
-In-Reply-To: <1119021336.3949.104.camel@betsy>
-Content-Type: multipart/mixed;
- boundary="------------080207020500010101030507"
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [2.6.12rc4] PROBLEM: "drive appears confused" and "irq 18:     nobody cared!"
+Date: Fri, 17 Jun 2005 12:32:20 -0500
+Message-ID: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04BFF@USRV-EXCH4.na.uis.unisys.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [2.6.12rc4] PROBLEM: "drive appears confused" and "irq 18:     nobody cared!"
+Thread-Index: AcVzX4vtHGIePiWpS9Org+SEovh3kQAAG85Q
+From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
+To: "Alexander Fieroch" <fieroch@web.de>,
+       "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: <bzolnier@gmail.com>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       <axboe@suse.de>,
+       "Bartlomiej Zolnierkiewicz" <B.Zolnierkiewicz@elka.pw.edu.pl>
+X-OriginalArrivalTime: 17 Jun 2005 17:32:20.0502 (UTC) FILETIME=[83CAC360:01C57362]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080207020500010101030507
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+> Alan Cox wrote:
+> >>Jun 17 12:07:49 orclex kernel: hdb: cdrom_pc_intr: The 
+> drive appears 
+> >>confused (ireason = 0x01) Jun 17 12:07:49 orclex kernel: 
+> irq 18: nobody cared (try booting with the "irqpoll" option.
+> > 
+> > Something failed to clear IRQ 18, that typically means 
+> there are IRQ 
+> > routing problems rather than IDE ones and would explain your traces.
+> > 
+> > Try booting with acpi=off and see what trace you get then.
+> 
+> acpi=off makes linux hang and not continuing booting. Hm, 
+> syslog does not contain the trace until that crash but the 
+> last lines before the hanging are:
+> 
+> ehci_hcd 0000:00:1d.7: USB 2.0 initialized, EHCI 1.00, driver 
+> 10 Dec 2004 hub 1-0:1.0: USB hub found
+> 
+> 
+> I've tried booting the kernel with parameter irqpoll as you 
+> have suggested but it leads to a kernel panic.
+> The last line was:
+> 
+> kernel panic - not syncing: Aiee, killing interrupt handler!
+> 
+> It's not saved in syslog too, so is there any way to get the 
+> trace to a file?
 
-
-> +		schedule();
-
-Here's a stab at getting rid of that raw schedule() in inotify_read().
-It maintains the behaviour where it returns when an event doesn't fit
-and returns after events have been copied instead of sleeping.  It
-changes behaviour in that it returns partial reads that suceeded instead
-of the error that stopped processing.  It also lets threads who race out
-of a wakeup to find an empty list go back to sleep instead of returning
-0.  Dunno if that's behaviour you'd prefer but it seemed reasonable.  I
-hope that lockless list_empty() is OK, I didn't think very hard about it.
-
-Compiles but totally untested.  Check my work :)
-
-- z
-
---------------080207020500010101030507
-Content-Type: text/x-patch;
- name="inotify-use-w-e-i-0.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="inotify-use-w-e-i-0.patch"
-
-Index: 2.6-mm-inotify-throwaway/fs/inotify.c
-===================================================================
---- 2.6-mm-inotify-throwaway.orig/fs/inotify.c	2005-06-17 09:32:52.000000000 -0700
-+++ 2.6-mm-inotify-throwaway/fs/inotify.c	2005-06-17 10:16:11.000000000 -0700
-@@ -639,52 +639,32 @@
- static ssize_t inotify_read(struct file *file, char __user *buf,
- 			    size_t count, loff_t *pos)
- {
--	size_t event_size = sizeof (struct inotify_event);
--	struct inotify_device *dev;
--	char __user *start;
--	int ret;
--	DEFINE_WAIT(wait);
--
--	start = buf;
--	dev = file->private_data;
--
--	while (1) {
--		int events;
--
--		prepare_to_wait(&dev->wq, &wait, TASK_INTERRUPTIBLE);
--
--		down(&dev->sem);
--		events = !list_empty(&dev->events);
--		up(&dev->sem);
--		if (events) {
--			ret = 0;
--			break;
--		}
--
--		if (file->f_flags & O_NONBLOCK) {
--			ret = -EAGAIN;
--			break;
--		}
--
--		if (signal_pending(current)) {
--			ret = -EINTR;
--			break;
--		}
--
--		schedule();
--	}
--
--	finish_wait(&dev->wq, &wait);
--	if (ret)
--		return ret;
-+	struct inotify_device *dev = file->private_data;
-+	char __user *start = buf;
-+	int ret = 0;
+You can set up a serial console and capture the output.
  
- 	down(&dev->sem);
- 	while (1) {
- 		struct inotify_kernel_event *kevent;
-+		static size_t event_size = sizeof (struct inotify_event);
- 
--		ret = buf - start;
--		if (list_empty(&dev->events))
--			break;
-+		if (list_empty(&dev->events)) {
-+			/* return partial instead of sleeping */
-+			if (buf > start)
-+				break;
-+			if (file->f_flags & O_NONBLOCK) {
-+				ret = -EAGAIN;
-+				break;
-+			}
-+			up(&dev->sem);
-+			ret = wait_event_interruptible(dev->wq,
-+						!list_empty(&dev->events));
-+			down(&dev->sem);
-+			if (ret)
-+				break;
-+			continue;
-+
-+		}
- 
- 		kevent = inotify_dev_get_event(dev);
- 		if (event_size + kevent->event.len > count)
-@@ -710,6 +690,9 @@
- 	}
- 	up(&dev->sem);
- 
-+	if (buf > start)
-+		ret = buf - start;
-+
- 	return ret;
- }
- 
-
---------------080207020500010101030507--
+I would also recommend booting with pci=routeirq, this will show the
+pre-disposition of each GSI->IRQ pair, although sometimes it changes IRQ
+distribution, and you may get different error. Also try using apic=debug
+or acpi=verbose to see the IO-APIC lines setup. For debug failed IRQs, I
+sometimes insert print_io_APIC() after each PCI device IRQ registration,
+to see it got edge or level triggered and other details. 
+The other one that I saw causing problems especially for ISA devices is
+ACPI PnP (and still does, I'm researching a similar problem on ES7000),
+and in this case I get my system booted with pnpacpi=off.
+Thanks,
+--Natalie

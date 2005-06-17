@@ -1,65 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261890AbVFQBtV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261891AbVFQBs7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261890AbVFQBtV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Jun 2005 21:49:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261894AbVFQBtV
+	id S261891AbVFQBs7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Jun 2005 21:48:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261894AbVFQBs6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Jun 2005 21:49:21 -0400
-Received: from nproxy.gmail.com ([64.233.182.207]:39258 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261890AbVFQBst convert rfc822-to-8bit
+	Thu, 16 Jun 2005 21:48:58 -0400
+Received: from [140.247.233.35] ([140.247.233.35]:27379 "HELO
+	netrider.rowland.org") by vger.kernel.org with SMTP id S261891AbVFQBsn
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Jun 2005 21:48:49 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=auR2wKiOG/exEnO8ar98fR2nqNXUx1XeHxZzdo99ilKSLg7BhhkYLgVXizUTwKL7wR6+XKLVpo0oGetP30brcmrwNPMixoDUiu+xOZ9mOlfTn8jjQ9kNRITjFCcYwaRCGmh3sMcDYa++DDlJeD7be2rl7Am/krI9PnPySHc5XhA=
-Message-ID: <2cd57c9005061618484e341cec@mail.gmail.com>
-Date: Fri, 17 Jun 2005 09:48:45 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-Reply-To: coywolf@lovecn.org
-To: Peter Williams <pwil3058@bigpond.net.au>
-Subject: Re: Design Level Documentation for the Linux kernel (V2.6)
-Cc: Parag Warudkar <kernel-stuff@comcast.net>,
-       Nick Newcomb <nranewcomb@hotmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <42AF8584.4010306@bigpond.net.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <BAY108-F279928792F980CAFB2AEDCDF20@phx.gbl>
-	 <200506142113.07902.kernel-stuff@comcast.net>
-	 <42AF8584.4010306@bigpond.net.au>
+	Thu, 16 Jun 2005 21:48:43 -0400
+Date: Thu, 16 Jun 2005 21:48:36 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@netrider.rowland.org
+To: Denis Vlasenko <vda@ilport.com.ua>
+cc: Pete Zaitcev <zaitcev@redhat.com>, <linux-kernel@vger.kernel.org>,
+       <linux-usb-devel@lists.sourceforge.net>, <gregkh@suse.de>,
+       <dbrownell@users.sourceforge.net>, <mdharm-usb@one-eyed-alien.net>
+Subject: Re: [linux-usb-devel] Re: USB flash "drive" is not working sometimes
+In-Reply-To: <200506161135.42392.vda@ilport.com.ua>
+Message-ID: <Pine.LNX.4.44L0.0506162145340.31849-100000@netrider.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/15/05, Peter Williams <pwil3058@bigpond.net.au> wrote:
-> Parag Warudkar wrote:
-> > On Tuesday 14 June 2005 20:34, Nick Newcomb wrote:
-> >
-> >>http://www.softwarerevolution.com/jeneral/open-source-docs.html
-> >>
-> >>Any questions or comments anyone might have are more than welcome. Thanks
-> >>for your time and we hope you'll find our services useful.
-> >>
-> >>~ Nick w/ TSRI
-> >
-> >>From the site : Documentation is best viewed with the most recent versions of
-> > Microsoft Internet Explorer or Mozilla Firefox (w/ plugin).
-> >
-> > Well, both options require the use of Windows
-> 
-> There's an Adobe SVG plugin that works on Linux (at least on FC3).
-> 
-> <http://download.adobe.com/pub/adobe/magic/svgviewer/linux/3.x/3.01x88/en/adobesvg-3.01x88-linux-i386.tar.gz>
-> 
-> This works fine with a test SVG link at Adobe but after installing it
-> Firefox only displays the above link as source :-(
-> 
-> Before I installed the plug in Firefox displayed the above link OK but
-> couldn't display the SVG stuff. :-(
- 
+On Thu, 16 Jun 2005, Denis Vlasenko wrote:
 
-Try mozilla, and librsvg2-bin if you are in debian.
--- 
-Coywolf Qi Hunt
-http://ahbl.org/~coywolf/
+> On Thursday 16 June 2005 10:51, Pete Zaitcev wrote:
+
+> > At this point the device is toast, the microcontroller is not running.
+> 
+> Do you mean: "this is a problem with the stick. Sometimes its
+> electronics simply do not work at first plug in" ?
+
+I agree with the comments posted previously.  The stick doesn't always 
+work right at first plug-in.
+
+> Can USB controller momentarily cut power to the stick, thus electrically
+> simulating a replug? I'd likr to try something like this.
+
+In general, no.  Most external hubs have that capability, but most host 
+controllers do not.  In any case, Linux does not currently have an API for 
+powering down USB ports.
+
+Alan Stern
+

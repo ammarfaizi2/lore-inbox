@@ -1,65 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261895AbVFQCG3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261901AbVFQCWm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261895AbVFQCG3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Jun 2005 22:06:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261898AbVFQCG3
+	id S261901AbVFQCWm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Jun 2005 22:22:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261902AbVFQCWm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Jun 2005 22:06:29 -0400
-Received: from vms042pub.verizon.net ([206.46.252.42]:37557 "EHLO
-	vms042pub.verizon.net") by vger.kernel.org with ESMTP
-	id S261895AbVFQCG1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Jun 2005 22:06:27 -0400
-Date: Thu, 16 Jun 2005 22:06:23 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
-In-reply-to: <20050616204358.GA4656@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: Ingo Molnar <mingo@elte.hu>, "K.R. Foley" <kr@cybsft.com>,
-       "Eugeny S. Mints" <emints@ru.mvista.com>,
-       Daniel Walker <dwalker@mvista.com>
-Message-id: <200506162206.23637.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <20050608112801.GA31084@elte.hu> <42B1BDF7.1000700@cybsft.com>
- <20050616204358.GA4656@elte.hu>
-User-Agent: KMail/1.7
+	Thu, 16 Jun 2005 22:22:42 -0400
+Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:20944
+	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
+	with ESMTP id S261901AbVFQCWe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Jun 2005 22:22:34 -0400
+Message-ID: <42B225E0.1080502@linuxwireless.org>
+Date: Thu, 16 Jun 2005 20:22:40 -0500
+From: Alejandro Bonilla <abonilla@linuxwireless.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Lars Roland <lroland@gmail.com>
+CC: Christian Kujau <evil@g-house.de>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>,
+       Alejandro Bonilla <albonill@cisco.com>
+Subject: Re: tg3 in 2.6.12-rc6 and Cisco PIX SMTP fixup
+References: <4ad99e0505061605452e663a1e@mail.gmail.com>	 <42B1F5CB.9020308@g-house.de>	 <4ad99e0505061615143cc34192@mail.gmail.com>	 <42B21130.4000608@g-house.de>	 <4ad99e0505061617052f427ed6@mail.gmail.com>	 <42B218C5.9020406@linuxwireless.org> <4ad99e0505061618475716f13c@mail.gmail.com>
+In-Reply-To: <4ad99e0505061618475716f13c@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 16 June 2005 16:43, Ingo Molnar wrote:
->* K.R. Foley <kr@cybsft.com> wrote:
->> >>[...] That works to get the system booted. Although I am getting
->> >> many soft lockups now, minutes after the boot. Log attached.
->> >> [...]
->> >
->> >hm, do you get actual lockups, or only the messages about them?
->> > I.e. does the system work fine if you [the sounds of careful
->> > thinking to get the word right] disable
->> > CONFIG_DETECT_SOFTLOCKUP, or does it lock up silently?
+Lars Roland wrote:
+
+>On 6/17/05, Alejandro Bonilla <abonilla@linuxwireless.org> wrote:
+>  
+>
+>>one question,
 >>
->> There doesn't seem to be any actual lockups, just messages. I will
->> try disabling the above when I get home this evening. Can't get to
->> the system right now.
+>>    Can I know what is the problem? 
+>>:I have 2 tg3 adapters, lots e100's and some Cisco PIX and devices.
+>>
+>>I can try to reproduce it and see if anyone has something to say about it.
+>>    
+>>
 >
->i tweaked the softlockup detector in the last patch a bit (to fix
-> false positives under very high loads), might have broken it on
-> SMP.
+>Yes please. As I see it. Enable smtp fixup protocol on your cisco pix
+>(you will need to have a smtp server to point it to), then on some
+>linux system running with a kernel greater than 2.6.8.1 do a telnet to
+>the smtp server that is firewalled and try to issue a smtp command.
 >
-> Ingo
+>Note that cisco has a bug report on smtp fixup banner hiding issues in
+>cisco os 6.3.4 but it should not result in the connection getting
+>dropped, it also does not explain why this problem does not seam to
+>exists on kernels prior to 2.6.9.
+>
+>
+>Regards.
+>
+>Lars Roland
+>  
+>
 
-I noticed that -33 seems to have a measurable lifetime, so I did the 
-edits mentioned in this thread and built it.  Running now.  Gotcha's 
-if any, reported later.  Preempt Mode=3
+Lars,
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.35% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+    I might be able to try this tomorrow. Just need to setup the PIX.
+
+If you have that bug ID, let me know. ;-)
+
+.Alejandro

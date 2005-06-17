@@ -1,59 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262026AbVFQRem@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262027AbVFQRjB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262026AbVFQRem (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Jun 2005 13:34:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262027AbVFQRem
+	id S262027AbVFQRjB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Jun 2005 13:39:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262028AbVFQRjB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Jun 2005 13:34:42 -0400
-Received: from mummy.ncsc.mil ([144.51.88.129]:19144 "EHLO jazzhorn.ncsc.mil")
-	by vger.kernel.org with ESMTP id S262026AbVFQRei (ORCPT
+	Fri, 17 Jun 2005 13:39:01 -0400
+Received: from usbb-lacimss2.unisys.com ([192.63.108.52]:48139 "EHLO
+	usbb-lacimss2.unisys.com") by vger.kernel.org with ESMTP
+	id S262027AbVFQRjA convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Jun 2005 13:34:38 -0400
-Subject: Re: [PATCH 1/1] SELinux: memory leak in selinux_sb_copy_data()
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: geraldsc@de.ibm.com
-Cc: akpm@osdl.org, jmorris@redhat.com, schwidefsky@de.ibm.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1119025096.7006.83.camel@thinkpad>
-References: <1119014283.7006.58.camel@thinkpad>
-	 <1119023249.7006.71.camel@thinkpad>
-	 <1119023825.15306.30.camel@moss-spartans.epoch.ncsc.mil>
-	 <1119025096.7006.83.camel@thinkpad>
-Content-Type: text/plain
-Organization: National Security Agency
-Date: Fri, 17 Jun 2005 13:33:36 -0400
-Message-Id: <1119029616.15306.47.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
+	Fri, 17 Jun 2005 13:39:00 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [2.6.12rc4] PROBLEM: "drive appears confused" and "irq 18:     nobody cared!"
+Date: Fri, 17 Jun 2005 12:38:55 -0500
+Message-ID: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04C00@USRV-EXCH4.na.uis.unisys.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [2.6.12rc4] PROBLEM: "drive appears confused" and "irq 18:     nobody cared!"
+Thread-Index: AcVzX4vtHGIePiWpS9Org+SEovh3kQAAG85QAADTLlA=
+From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
+To: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
+       "Alexander Fieroch" <fieroch@web.de>,
+       "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: <bzolnier@gmail.com>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       <axboe@suse.de>,
+       "Bartlomiej Zolnierkiewicz" <B.Zolnierkiewicz@elka.pw.edu.pl>
+X-OriginalArrivalTime: 17 Jun 2005 17:38:56.0034 (UTC) FILETIME=[6F8C2820:01C57363]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-06-17 at 18:18 +0200, Gerald Schaefer wrote:
-> On Fri, 2005-06-17 at 11:57 -0400, Stephen Smalley wrote:
-> > 
-> > Shouldn't that be nosec_save?  nosec is advanced by take_option().
-> > 
-> That's right, I muddled that up. Hope I got this one-line patch right
-> this time...
+> different error. Also try using apic=debug or acpi=verbose to 
+Oops, that was suppose to be apic=verbose.
 > 
-> diff -pruN linux-2.6-git/security/selinux/hooks.c linux-2.6-git_xxx/security/selinux/hooks.c
-> --- linux-2.6-git/security/selinux/hooks.c	2005-06-16 20:01:03.000000000 +0200
-> +++ linux-2.6-git_xxx/security/selinux/hooks.c	2005-06-17 14:38:08.000000000 +0200
-> @@ -1945,6 +1945,7 @@ static int selinux_sb_copy_data(struct f
->  	} while (*in_end++);
->  
->  	copy_page(in_save, nosec_save);
-> +	free_page((unsigned long)nosec_save);
->  out:
->  	return rc;
->  }
-
-Thanks, looks fine.
-
-Acked-by:  Stephen Smalley <sds@epoch.ncsc.mil>
-
--- 
-Stephen Smalley
-National Security Agency
-

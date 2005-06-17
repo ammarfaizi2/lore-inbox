@@ -1,38 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262057AbVFQSzg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262059AbVFQSzg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262057AbVFQSzg (ORCPT <rfc822;willy@w.ods.org>);
+	id S262059AbVFQSzg (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 17 Jun 2005 14:55:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262065AbVFQSys
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262064AbVFQSyk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Jun 2005 14:54:48 -0400
-Received: from postfix3-2.free.fr ([213.228.0.169]:29386 "EHLO
-	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S262059AbVFQSwG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Jun 2005 14:52:06 -0400
-Message-ID: <42B31CC2.6040004@imag.fr>
-Date: Fri, 17 Jun 2005 20:56:02 +0200
-From: Raphael Jacquot <raphael.jacquot@imag.fr>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050509)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Charles Leggett <CGLeggett@lbl.gov>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: system hangs with no warning or errors
-References: <1119033617.4663.90.camel@annwm.lbl.gov>
-In-Reply-To: <1119033617.4663.90.camel@annwm.lbl.gov>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Fri, 17 Jun 2005 14:54:40 -0400
+Received: from lyle.provo.novell.com ([137.65.81.174]:39607 "EHLO
+	lyle.provo.novell.com") by vger.kernel.org with ESMTP
+	id S262060AbVFQSx0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Jun 2005 14:53:26 -0400
+Date: Fri, 17 Jun 2005 11:53:11 -0700
+From: Greg KH <gregkh@suse.de>
+To: Christoph Hellwig <hch@lst.de>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] pci: don't override drv->shutdown unconditionally
+Message-ID: <20050617185311.GC22107@suse.de>
+References: <20050617183057.GA20966@lst.de> <20050617184914.GA22107@suse.de> <20050617185104.GA21256@lst.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=unknown-8bit
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050617185104.GA21256@lst.de>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Charles Leggett wrote:
-> I know that this is a very anemic bug report, I'm sorry I can't offer
-> any more information. Any suggestions for things to look for, what
-> to instrument to get more detailed information, or things to try are
-> welcome.
+On Fri, Jun 17, 2005 at 08:51:04PM +0200, Christoph Hellwig wrote:
+> On Fri, Jun 17, 2005 at 11:49:14AM -0700, Greg KH wrote:
+> > On Fri, Jun 17, 2005 at 08:30:57PM +0200, Christoph Hellwig wrote:
+> > > There are many drivers that have been setting the generic driver
+> > > model­level shutdown callback, and pci thus must not override it.
+> > > 
+> > > Without this patch we can have really bad data loss on various
+> > > raid controllers.
+> > 
+> > Without the kexec patch?
+> 
+> On shutdown.  I don't know why you're talking about kexec here.
 
-I am running on an epia MII 12000 and have seen this kind of behavior.
-After switching my logger to flush everytime instead of caching, I have
-a couple of PREEMPT labeled oopses.
-removing preempt got rid of the crashes.
-(my issue seems to crash way more often than this)
+Because of the previous kexec comments on the linux-scsi list.
+
+> > So, why are these drivers setting the shutdown function in the first
+> > place if they don't want it to be called? 
+> 
+> They _do_ want it called.  They set the driver-model level one because
+> there hasn't been a pci-level one until a few years ago.
+
+So they are setting two callbacks?  Have a pointer to any driver that
+does this?
+
+thanks,
+
+greg k-h

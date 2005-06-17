@@ -1,49 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261925AbVFQJiV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261927AbVFQJlV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261925AbVFQJiV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Jun 2005 05:38:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261927AbVFQJiV
+	id S261927AbVFQJlV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Jun 2005 05:41:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261933AbVFQJlU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Jun 2005 05:38:21 -0400
-Received: from main.gmane.org ([80.91.229.2]:27049 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S261925AbVFQJiS (ORCPT
+	Fri, 17 Jun 2005 05:41:20 -0400
+Received: from quechua.inka.de ([193.197.184.2]:34252 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S261927AbVFQJlQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Jun 2005 05:38:18 -0400
-X-Injected-Via-Gmane: http://gmane.org/
+	Fri, 17 Jun 2005 05:41:16 -0400
+From: Bernd Eckenfels <ecki@lina.inka.de>
 To: linux-kernel@vger.kernel.org
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
 Subject: Re: A Great Idea (tm) about reimplementing NLS.
-Date: Fri, 17 Jun 2005 11:37:35 +0200
-Message-ID: <yw1xoea5wcgw.fsf@ford.inprovide.com>
-References: <yw1xslzl8g1q.fsf@ford.inprovide.com> <200506162118.18470.pmcfarland@downeast.net>
- <yw1xekb1xuk9.fsf@ford.inprovide.com>
- <200506170450.12943.pmcfarland@downeast.net>
- <yw1xy899wde4.fsf@ford.inprovide.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 76.80-203-227.nextgentel.com
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.15 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:MbVXFhROkq7DwKUe92Vsrcynuoc=
+Organization: Private Site running Debian GNU/Linux
+In-Reply-To: <200506170450.12943.pmcfarland@downeast.net>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.7.8-20050315 ("Scalpay") (UNIX) (Linux/2.6.8.1 (i686))
+Message-Id: <E1DjDLd-0007rU-00@calista.eckenfels.6bone.ka-ip.net>
+Date: Fri, 17 Jun 2005 11:41:13 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <200506170450.12943.pmcfarland@downeast.net> you wrote:
+> (implication of utf8 and not utf16 goes here)
+> 
+> Very few Unicode characters require three bytes, instead of the usual one or 
+> two.
 
-Looks like something ate the Hangul.  I'll try again, without any
-other non-ascii characters.
+UTF-8 2 bytes end with U+07ff which covers only Latin, Cyrillic, Hebrew and
+Arabic.
 
->>> As for 50 bytes being too short, many of the multibyte characters are
->>> equivalent to several English characters, so fewer of them are
->>> required.  You have a point, though.
->>
->> Any English characters (ie, the first 127 ascii characters) map
->> directly to the first 127 Unicode characters (if thats what you
->> meant).
->
-> Let me clarify with an example.  The common Korean name Kim consists
-> of three ascii characters.  The Hangul spelling, 김, is encoded in
-> utf-8 using three bytes.  Even though a three-byte character was used,
-> the number of bytes is the same.
+All JCK Unified Ideographs  (U+4E00-) and Extensions (U+3400-) have 3 byte
+encodings with UTF-8. Some of the B Extensions even use 4 bytes (U+20000-)
 
+> For one byte you just have the byte. 
+
+For ASCII you have one byte.
+
+> For two bytes, you really have three: a control code stating "the following 
+> two bytes are a two byte character", and then the two bytes. 
+
+Umm, thats a bit missleading. UTF-8 works with bit not byte prefixes.
+Unicode code points are integers and depending on the encoding represented
+as multiple code points, which can be represented as bytes.
+
+> Unless I've completely misunderstood the Unicode specification, this is what 
+> is going on.
+
+You might want to look up Joel's Tutorial or just browse the Unihan Database:
+http://www.joelonsoftware.com/articles/Unicode.html
+http://www.unicode.org/cgi-bin/GetUnihanData.pl?codepoint=3400
+http://www.unicode.org/cgi-bin/UnihanGrid.pl?codepoint=U+07F1&useutf8=false
+
+Greetings
+Bernd

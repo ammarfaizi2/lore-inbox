@@ -1,82 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261983AbVFQOha@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261984AbVFQOmQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261983AbVFQOha (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Jun 2005 10:37:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261984AbVFQOha
+	id S261984AbVFQOmQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Jun 2005 10:42:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261988AbVFQOmQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Jun 2005 10:37:30 -0400
-Received: from [213.69.232.60] ([213.69.232.60]:1543 "HELO ei.schottelius.org")
-	by vger.kernel.org with SMTP id S261983AbVFQOhU (ORCPT
+	Fri, 17 Jun 2005 10:42:16 -0400
+Received: from lug-owl.de ([195.71.106.12]:63679 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S261984AbVFQOmK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Jun 2005 10:37:20 -0400
-Date: Fri, 17 Jun 2005 16:36:42 +0200
-From: Nico Schottelius <nico-kernel@schottelius.org>
+	Fri, 17 Jun 2005 10:42:10 -0400
+Date: Fri, 17 Jun 2005 16:42:09 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
 To: linux-kernel@vger.kernel.org
-Subject: Kernel eats argument=
-Message-ID: <20050617143642.GB17910@schottelius.org>
-Mail-Followup-To: Nico Schottelius <nico-kernel@schottelius.org>,
-	linux-kernel@vger.kernel.org
+Subject: Re: Kernel eats argument=
+Message-ID: <20050617144209.GI31780@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20050617143642.GB17910@schottelius.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="LyciRD1jyfeSSjG0"
+	protocol="application/pgp-signature"; boundary="CNK/L7dwKXQ4Ub8J"
 Content-Disposition: inline
-User-Agent: echo $message | gpg -e $sender  -s | netcat mailhost 25
-X-Linux-Info: http://linux.schottelius.org/
-X-Operating-System: Linux 2.6.11.11
+In-Reply-To: <20050617143642.GB17910@schottelius.org>
+X-Operating-System: Linux mail 2.6.11.10lug-owl 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---LyciRD1jyfeSSjG0
-Content-Type: text/plain; charset=us-ascii
+--CNK/L7dwKXQ4Ub8J
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hello!
+On Fri, 2005-06-17 16:36:42 +0200, Nico Schottelius <nico-kernel@schotteliu=
+s.org> wrote:
+> I wanted to have 'cprofile=3Da_profile" specified to my init
+> system. Now after some hours of debugging I see that
+> everything that is in the form of
+>   =20
+>       bla=3Dblub
+>=20
+> is eaten by the kernel and _not_ given to init.
+> Is that how it should be or is that a bug?
 
-I wanted to have 'cprofile=3Da_profile" specified to my init
-system. Now after some hours of debugging I see that
-everything that is in the form of
-  =20
-      bla=3Dblub
+Well, everything the kernel doesn't understand as a parameter (eg. for
+modules) actually *is* passed to init, but not as command-line
+arguments, but as environment variables. You'll probably find that :-)
 
-is eaten by the kernel and _not_ given to init.
-Is that how it should be or is that a bug?
-
-If it's how it should be, I'll switch to "cprofile:a_profile"
-or will Linux eat that, too?
-
-The most mysterious thing (for me) is that /proc/cmdline
-contains that stuff again.
-
-
-Nico, somehow confused
+MfG, JBG
+PS: Not including sender's email address in Cc because I'm too lame to
+ACK my email for his email system...
 
 --=20
-Keep it simple & stupid, use what's available.
-Please use pgp encryption: 8D0E 27A4 is my id.
-http://nico.schotteli.us | http://linux.schottelius.org
+Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
+_ O _
+"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
+_ _ O
+ fuer einen Freien Staat voll Freier B=C3=BCrger" | im Internet! |   im Ira=
+k!   O O O
+ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
+);
 
---LyciRD1jyfeSSjG0
-Content-Type: application/pgp-signature
+--CNK/L7dwKXQ4Ub8J
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (GNU/Linux)
 
-iQIVAwUBQrLf+bOTBMvCUbrlAQJKYw/9Hths48PaVzn61MeGWVNl5/WRjm/TQsai
-XdwT5ArTYk1fFIsgn/4cQHILggmLHAUhQz7DMLAQJQB8r9MNCL1SixIr2x4EC0eY
-ps7v5tEWmSzCmGNLOCTwQQ6wMCtHetdAtNxSsDK2qZzvBfGxbo87O6QlPJx83P7c
-WFIp1LBMS1EDNqNkO4im48KAqZgHuOTnXot5BSJjj3CIbEsLyxZUijkISo/+fPas
-jqNDmUHIDFffrKV8jMRIG8eULCcBQB4NJs1IPDmQOh21IjG41JwpAbempONPALne
-Ag4dM7HyNuAzbotYUJf8ceacNGPqdBgcnU/z+/gRnJNiGJ3LtJRW+3YefGEGL1xp
-xFkYmxFTirY7ml07IK5F2M1z2D5ck0owAApR+Aft2izZ9AcEsMCUPaGfWputL+KD
-sDNb+oFCAzE8HAUbUpiq5CQ+GNBy5yVxcxvwEYhv3HWZByYQNG/86JCM8Jh2soYY
-yEvFbl0+1gw8QuDMxzukj7TXPaVK750Ts8bWTQCriyHIYnxKZmQ34NNB5Ya3Yh9w
-Uxe9LyQQ5SlkkLSW5/4U0HftdNtCQtzqidLDH8sn5Uz5MME1XA+NDOMlgKJOmvYs
-lj1Y/QEDeDMJkyw76IbODKktnRQ4eB2NmLYlrgC/VIaBOnlbn9hHzHMXBwZlOAyz
-g1kl1SSeGsc=
-=3j5e
+iD8DBQFCsuFBHb1edYOZ4bsRAqwrAJ0dhIqXwy61vCZM62I1MM3QBLTPAACggK7b
+SqvmSddPLvV4ybYWXiSPnLg=
+=guCO
 -----END PGP SIGNATURE-----
 
---LyciRD1jyfeSSjG0--
+--CNK/L7dwKXQ4Ub8J--

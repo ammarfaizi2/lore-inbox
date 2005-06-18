@@ -1,80 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262180AbVFRSYF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262187AbVFRS2j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262180AbVFRSYF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Jun 2005 14:24:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262171AbVFRSXZ
+	id S262187AbVFRS2j (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Jun 2005 14:28:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262162AbVFRSYj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Jun 2005 14:23:25 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:36505 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262162AbVFRSW1 (ORCPT
+	Sat, 18 Jun 2005 14:24:39 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:53657 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262181AbVFRSYK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Jun 2005 14:22:27 -0400
-Date: Sat, 18 Jun 2005 11:24:28 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Andrew Morton <akpm@osdl.org>, Netdev List <netdev@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [git patches] 2.6.x net driver updates
-In-Reply-To: <Pine.LNX.4.58.0506181105110.2268@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.58.0506181112590.2268@ppc970.osdl.org>
-References: <42B456E2.8000500@pobox.com> <Pine.LNX.4.58.0506181047190.2268@ppc970.osdl.org>
- <Pine.LNX.4.58.0506181105110.2268@ppc970.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 18 Jun 2005 14:24:10 -0400
+Date: Sat, 18 Jun 2005 11:23:42 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: axboe@suse.de, James.Bottomley@steeleye.com, linux-kernel@vger.kernel.org
+Subject: Re: kernel bugzilla
+Message-Id: <20050618112342.6a4d088f.akpm@osdl.org>
+In-Reply-To: <200506181850.35381.adobriyan@gmail.com>
+References: <20050617001330.294950ac.akpm@osdl.org>
+	<20050617212338.GA16852@suse.de>
+	<20050617143946.00f387d0.akpm@osdl.org>
+	<200506181850.35381.adobriyan@gmail.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sat, 18 Jun 2005, Linus Torvalds wrote:
+Alexey Dobriyan <adobriyan@gmail.com> wrote:
+>
+> On Saturday 18 June 2005 01:39, Andrew Morton wrote:
+> > We should encourage people to use bugzilla as the initial
+> > entry-point.  But if someone instead uses email as the first contact I'm
+> > just a little bit reluctant to say "thanks, now go and try again".
+> > 
+> > Perhaps we could find some nice volunteer (hint) who could take the task of
+> > transferring such reports into bugzilla.
 > 
-> Your parent information was crap, meaning that when I pulled, I had to
-> re-merge. In fact, I'm going to undo this pull entirely, because of this -
-> it's simply _wrong_. You claim to have done a merge and indeed your "data"
-> is merged, but your history is totally buggered because you didn't do the 
-> proper parents.
+> Andrew, I'm going to file
+> 
+> 	Subject: 2.6.12: connection tracking broken?
+> 	Subject: 2.6.12 cpu-freq conservative governor problem
+> 	Subject: PROBLEM: libata + sata_sil on sil3112 dosen't work proper
+> 	Subject: [2.6.12] x86-64 IO-APIC + timer doesn't work
+> 
+> around monday evening if there would be no activity.
 
-Btw, this is serious. If you don't do proper parenting, you may have the
-right _data_ in the tree, but because you lost sight of where that data
-came from, all the commits leading up to that data (from the branch that
-wasn't properly marked as a parent) are worthless and no longer reachable. 
+Sounds good, thanks - let us know how it goes.
 
-In other words, it means that all the history leading up to the merge was
-just lost, and you end up with just a magic "all these changes suddenly
-appeared" patch that claims to be a merge, but is really just a big patch.
+It'll need to be coordinated with the reporter in some way.  It may end up
+too confusing.
 
-It also means that "git prune" will just delete the unreachable commits, 
-since they are clearly not connected to anything any more. Also, any 
-intermediate file contents (that were only reachable through those 
-commits) are also unreachable and thus pruned. You literally end up with a 
-situation where the "merge" is 100% equivalent to just taking the final 
-patch, and applying it on top of the other head.
+> Do I understand correctly that the procedure is
+> 
+> 	1. Search for duplicates
+> 	2. Choose category
+> 	3. Add "From: Joe Reporter <>" at the beginning, copy-paste email.
+> 	4. Add Joe and relevant lists to CC.
+> 	5. Profi^WCommit
+> 
+> and bugzilla won't shoot unsuspecting guys afterwards?
 
-This may be the reason why you've had problems with "git prune". Your 
-tree histories may be buggered, and you've lost the merges with me.
-
-Quite frankly, I'd never have noticed, except:
-
- - because the history was buggered, the automated merge didn't find the 
-   proper nearest parent, and thus it ended up finding a parent much 
-   further back in history, which in turn meant that a trivial merge
-   wasn't trivial any more, and I got a merge conflict on the
-   drivers/net/r8169.c file.
-
- - actually looking at the history (with gitk, or by looking at how many 
-   parents the commits have with "git log --pretty=raw") made it obvious 
-   that your "merge" had only one parent.
-
-This, btw, is one reason why I suggest against multiple branches, and run
-git-fsck-cache --unreachable religiously. A bad merge with lost parents
-normally causes unreachable commits, and that's a sure sign of trouble.
-
-However, in your usage schenario, those commits are reachable in the
-branch they originated in, and you mix it all up, so you'll never see the
-warning signs.
-
-I'm hoping my earlier pulls on your trees haven't resulted in these kinds 
-of history losses before, and that this was the first time you did a merge 
-and didn't specify the parents properly. Pls confirm..
-
-		Linus
+I think so.  I've never entered a bug ;)

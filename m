@@ -1,48 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262190AbVFRSci@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262182AbVFRShA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262190AbVFRSci (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Jun 2005 14:32:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262188AbVFRS3E
+	id S262182AbVFRShA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Jun 2005 14:37:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262184AbVFRSg7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Jun 2005 14:29:04 -0400
-Received: from zproxy.gmail.com ([64.233.162.202]:17135 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262183AbVFRSZD convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Jun 2005 14:25:03 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=OqYaV7V5YI2hWrFgwzRa1jVeDA6t3gS/AM57AG5aYuOY08AyHKH0grYgJlAER2u0YWVWz9iEb8ilnqTKupgY2QxSkcN0snvD+lHyj2lB07TnwGlPmxD479AF5d7WFH+aGIqFJ9UdUSEtI/ptrWHSflvZbygoQer9GY58ioIngZg=
-Message-ID: <3b0ffc1f05061811251c12718f@mail.gmail.com>
-Date: Sat, 18 Jun 2005 14:25:01 -0400
-From: Kevin Radloff <radsaq@gmail.com>
-Reply-To: Kevin Radloff <radsaq@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Logic bug in 2.6.12 conservative cpufreq governor?
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Sat, 18 Jun 2005 14:36:59 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:21651 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S262163AbVFRSgp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Jun 2005 14:36:45 -0400
+Message-ID: <42B469B6.2060502@pobox.com>
+Date: Sat, 18 Jun 2005 14:36:38 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Andrew Morton <akpm@osdl.org>, Netdev List <netdev@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [git patches] 2.6.x net driver updates
+References: <42B456E2.8000500@pobox.com> <Pine.LNX.4.58.0506181047190.2268@ppc970.osdl.org> <Pine.LNX.4.58.0506181105110.2268@ppc970.osdl.org> <Pine.LNX.4.58.0506181112590.2268@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0506181112590.2268@ppc970.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The conservative cpufreq governor's "ignore_nice" sysfs parameter is
-reversed from what I would expect:
+Linus Torvalds wrote:
+> I'm hoping my earlier pulls on your trees haven't resulted in these kinds 
+> of history losses before, and that this was the first time you did a merge 
+> and didn't specify the parents properly. Pls confirm..
 
-% cat /sys/devices/system/cpu/cpu0/cpufreq/conservative/ignore_nice
-1
+You're being overly paranoid :)
 
-.. While it's not ignoring nice'd processes. Changing it to 0 causes
-it to ignore them. That would seem to make sense only if it's supposed
-to mean "ignore niceness of processes" vs "ignore nice'd processes"...
-Is that so?
+This netdev-2.6.git episode was the first time I ever tried to use the 
+conflict merging.  I didn't know git had improved to the point where 
+"git commit" without any arguments would actually get things right.
 
-If it is, then wouldn't the name make more sense as "ignore_niceness"
-or something equally less ambiguous? :)
+All the other merges used the vanilla git-pull-script with no 
+modifications.  Presumably it does the right thing :)
 
-Please CC me as I'm not on the list.
+	Jeff
 
--- 
-Kevin 'radsaq' Radloff
-radsaq@gmail.com
-http://saqataq.us/
+
+

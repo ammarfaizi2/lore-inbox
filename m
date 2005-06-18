@@ -1,58 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262172AbVFRSKc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262168AbVFRSKi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262172AbVFRSKc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Jun 2005 14:10:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262163AbVFRSIR
+	id S262168AbVFRSKi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Jun 2005 14:10:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262165AbVFRSKb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Jun 2005 14:08:17 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:43669 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262164AbVFRRt7 (ORCPT
+	Sat, 18 Jun 2005 14:10:31 -0400
+Received: from smtp2gate.fmi.fi ([193.166.223.32]:64222 "EHLO smtp2gate.fmi.fi")
+	by vger.kernel.org with ESMTP id S262170AbVFRSHa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Jun 2005 13:49:59 -0400
-Date: Sat, 18 Jun 2005 10:51:59 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Andrew Morton <akpm@osdl.org>, Netdev List <netdev@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [git patches] 2.6.x net driver updates
-In-Reply-To: <42B456E2.8000500@pobox.com>
-Message-ID: <Pine.LNX.4.58.0506181047190.2268@ppc970.osdl.org>
-References: <42B456E2.8000500@pobox.com>
+	Sat, 18 Jun 2005 14:07:30 -0400
+Message-Id: <200506181806.j5II6otS019215@leija.fmi.fi>
+Subject: Re: A Great Idea (tm) about reimplementing NLS.
+In-Reply-To: <200506181804.21366.robin.rosenberg.lists@dewire.com>
+To: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
+Date: Sat, 18 Jun 2005 21:06:50 +0300 (EEST)
+From: Kari Hurtta <hurtta+linux-kernel@leija.mh.fmi.fi>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>,
+       Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
+       Patrick McFarland <pmcfarland@downeast.net>,
+       "Richard B. Johnson" <linux-os@analogic.com>,
+       Lukasz Stelmach <stlman@poczta.fm>,
+       "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+X-Mailer: ELM [version 2.4ME+ PL121+test20050529 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=ISO-8859-1
+X-Filter: smtp2gate: ID 27277/01, 1 parts scanned for known viruses
+X-Filter: torkku: ID 0193/01, 1 parts scanned for known viruses
+X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sat, 18 Jun 2005, Jeff Garzik wrote:
+> fredagen den 17 juni 2005 15.23 skrev Måns Rullgård:
+> > Some characters can be encoded in several equally shortest ways.  
 > 
-> GIT NOTE 1:  The top-of-tree cset is the result of my use of the new git 
-> conflict merging code.  It seemed to work quite nicely.  I did:
+> No they cannot. How to encode characters i explicitly and well defined. If you 
+> don't follow the rules you are simply not producing UTF-8, but something 
+> else.
 > 
-> 	git-pull-script $vanilla_linus_repo	# conflicts appeared
-> 	vi drivers/net/r8169.c			# fix conflict
-> 	git-update-cache drivers/net/r8169.c
-> 	git-commit-tree ...
+> Every unicode character has exactly one  UTF-8 representation. 
+> 
+> -- robin
 
-The last step can be just "git commit", and it will do the right thing
-these days (and with a nice big warnign that it looks like you're
-committing a merge).
+You are confused between unicode characters and unicode codepoints.
 
-In fact, it's much preferable that you use "git commit", because it will
-also then remove the old MERGE_HEAD if the commit was successful, leaving
-the state proper (so that subsequent "git commit" things don't think it's
-a merge). It also makes it less likely that you forget your parents.
-Maybe.
+Every unicode codepoint has exactly one  UTF-8 representation.
 
-> GIT NOTE 2: After doing a lot of simple+automatic merging, over time, I 
-> have a lot of .merge_* files.  Would be nice is git-resolve-script, or 
-> whomever, would clean up after itself.
+Unicode characters may use one ore more unicode codepoints.
 
-Yeah, something as simple as
+Some characters have also representation with one codepoint, but not all.
 
-	rm -f .merge_file_*
+For example
 
-in git-resolve-script should fix it..
+	LATIN CAPITAL LETTER A WITH ACUTE
 
-		Linus
+have presentation	0041 0301
+
+That is two unicode codepoints.  That character
+have also other (compatibility) representation
+
+that is			00C1
+
+
+But consider (somewhat imaginary) character
+
+	LATIN CAPITAL LETTER A WITH GRAVE AND CIRCUMFLEX
+
+that have presentation	0041 0300 0302
+
+but it have also presentation	0041 0302 0300
+
+
+Both presentations are equal short.
+
+
+
+/ Kari Hurtta	
+
+

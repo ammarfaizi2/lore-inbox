@@ -1,52 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261636AbVFRA1L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261662AbVFRAuT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261636AbVFRA1L (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Jun 2005 20:27:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261662AbVFRA1L
+	id S261662AbVFRAuT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Jun 2005 20:50:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261727AbVFRAuT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Jun 2005 20:27:11 -0400
-Received: from fmr22.intel.com ([143.183.121.14]:1439 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S261636AbVFRA1F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Jun 2005 20:27:05 -0400
-Date: Fri, 17 Jun 2005 17:25:57 -0700
-From: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-To: Simon Richard Grint <rgrint@tall.compsoc.man.ac.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: arch/i386/boot/video.S hang
-Message-ID: <20050617172557.A25812@unix-os.sc.intel.com>
-References: <20050615220554.GA1911@srg.demon.co.uk> <20050616103340.A4951@unix-os.sc.intel.com> <20050616175851.GA22103@mrtall.compsoc.man.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050616175851.GA22103@mrtall.compsoc.man.ac.uk>; from rgrint@tall.compsoc.man.ac.uk on Thu, Jun 16, 2005 at 06:58:51PM +0100
+	Fri, 17 Jun 2005 20:50:19 -0400
+Received: from [62.101.100.8] ([62.101.100.8]:50915 "EHLO smtpout1.reply.it")
+	by vger.kernel.org with ESMTP id S261662AbVFRAuK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Jun 2005 20:50:10 -0400
+From: "Daniele Gaffuri" <d.gaffuri@reply.it>
+To: "'Greg KH'" <gregkh@suse.de>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] Hidden SMBus bridge on Toshiba Tecra M2
+Date: Sat, 18 Jun 2005 02:50:05 +0200
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_0006_01C573B0.6EA76670"
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+In-Reply-To: <20050617224953.GA23742@suse.de>
+Thread-Index: AcVzjue2+h0HmgCtRZGpOdyj1XPDhwAEIkXQ
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
+Message-ID: <TO1FRES03jlGiFdfg3o00004555@to1fres03.replynet.prv>
+X-OriginalArrivalTime: 18 Jun 2005 00:50:08.0891 (UTC) FILETIME=[ACF8D4B0:01C5739F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 16, 2005 at 06:58:51PM +0100, Simon Richard Grint wrote:
-> On Thu, Jun 16, 2005 at 10:33:41AM -0700, Venkatesh Pallipadi wrote:
-> > What boot loader are you using. grub/lilo?
+This is a multi-part message in MIME format.
+
+------=_NextPart_000_0006_01C573B0.6EA76670
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+
+Greg KH wrote:
+> On Sat, Jun 18, 2005 at 12:36:18AM +0200, Daniele Gaffuri wrote:
+>> Here's a trivial patch, against 2.6.12-rc6, to unhide SMBus on
+>> Toshiba Centrino laptops using Intel 82855PM chipset.
 > 
-> The same thing happens with either grub or lilo, but I'm using grub at 
-> present
->  
-> > Does it work with CONFIG_VIDEO_SELECT disabled in your kernel CONFIG?
+> Your patch is linewrapped, and missing a Signed-off-by: line.  Care to
+> redo it?
 > 
-> It works fine if CONFIG_VIDEO_SELECT is disabled.  Even with 
-> CONFIG_VIDEO_SELECT enabled, the problem only arises if I pass a vga= 
-> parameter to the kernel
+> thanks,
 > 
-> Thanks for your help
-> 
+> greg k-h
 
-This one continues to be mysterious.
+Sorry. Didn't realize. Trying to attach to avoid it.
 
-One reason I could think of: VBE call 4f15:0s is storing more than 128 bytes on this platform. With the base address at 0x440, it can write much longer, without affecting anything else in zero page. But, at 0x140 it overwrites some other fields.
+Trivial patch, against 2.6.12-rc6, to unhide SMBus on Toshiba Centrino
+laptops using Intel 82855PM chipset
 
-But, that doesn't explain why it only fails when vga=<num> is passed. For the above theory it should fail whenever VIDEO_SELECT is enabled.
+Signed-off-by: Daniele Gaffuri <d.gaffuri@reply.it>
 
-Can you try some other address higher than 0x440 and less than 0x600 for and see whether it works? Or you can also try and print complete boot_params[] at some place in arch/i386/kernel/setup.c:setup_arch() in the case where it runs fine (with 0x440) and send me the log.
+Daniele
 
-Thanks,
-Venki
+------=_NextPart_000_0006_01C573B0.6EA76670
+Content-Type: text/plain;
+	name="patch.txt"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="patch.txt"
+
+--- linux-2.6.12-rc6/drivers/pci/quirks.c	2005-06-17 23:49:32.000000000 =
++0200=0A=
++++ linux/drivers/pci/quirks.c	2005-06-18 00:06:45.000000000 +0200=0A=
+@@ -822,6 +822,11 @@=0A=
+ 			case 0x0001: /* Toshiba Satellite A40 */=0A=
+ 				asus_hides_smbus =3D 1;=0A=
+ 			}=0A=
++		if (dev->device =3D=3D  PCI_DEVICE_ID_INTEL_82855PM_HB)=0A=
++			switch(dev->subsystem_device) {=0A=
++			case 0x0001: /* Toshiba Tecra M2 */=0A=
++				asus_hides_smbus =3D 1;=0A=
++			}=0A=
+        } else if (unlikely(dev->subsystem_vendor =3D=3D =
+PCI_VENDOR_ID_SAMSUNG)) {=0A=
+                if (dev->device =3D=3D  PCI_DEVICE_ID_INTEL_82855PM_HB)=0A=
+                        switch(dev->subsystem_device) {=0A=
+
+------=_NextPart_000_0006_01C573B0.6EA76670--
+

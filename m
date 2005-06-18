@@ -1,49 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262160AbVFRSH5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262165AbVFRSKi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262160AbVFRSH5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Jun 2005 14:07:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262162AbVFRSH4
+	id S262165AbVFRSKi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Jun 2005 14:10:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262162AbVFRSIG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Jun 2005 14:07:56 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:1941 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262160AbVFRRlN (ORCPT
+	Sat, 18 Jun 2005 14:08:06 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:32917 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262163AbVFRRqI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Jun 2005 13:41:13 -0400
-Date: Sat, 18 Jun 2005 10:42:50 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-cc: Willy Tarreau <willy@w.ods.org>, Keith Owens <kaos@ocs.com.au>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.12
-In-Reply-To: <Pine.LNX.4.62.0506181231410.2653@dragon.hyggekrogen.localhost>
-Message-ID: <Pine.LNX.4.58.0506181041460.2268@ppc970.osdl.org>
-References: <21446.1119073126@ocs3.ocs.com.au> <Pine.LNX.4.58.0506172255280.2268@ppc970.osdl.org>
- <20050618065911.GH8907@alpha.home.local> <Pine.LNX.4.62.0506181231410.2653@dragon.hyggekrogen.localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 18 Jun 2005 13:46:08 -0400
+Date: Sat, 18 Jun 2005 10:45:58 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Christoph Hellwig <hch@infradead.org>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [GIT PATCH] SCSI updates for 2.6.12
+Message-ID: <20050618174558.GX9153@shell0.pdx.osdl.net>
+References: <1119103586.4984.5.camel@mulgrave> <20050618141636.GA4112@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050618141636.GA4112@infradead.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sat, 18 Jun 2005, Jesper Juhl wrote:
-> On Sat, 18 Jun 2005, Willy Tarreau wrote:
+* Christoph Hellwig (hch@infradead.org) wrote:
+> > Andrew Vasquez:
+> >   o qla2xxx: Pull-down scsi-host-addition to follow board initialization
 > 
-> > On Fri, Jun 17, 2005 at 11:05:28PM -0700, Linus Torvalds wrote:
-> >  
-> > > Because it's extracted as a regular file (instead of tar knowing that it's 
-> > > a comment header), you will now have a file called "pax_global_header" 
-> > > that has the contents
-> > 
-> > I guess it will end up in dontdiff quickly :-)
-> > 
-> If Linus accepts the patch below, then yes :-)
+> Can we please put this one in 2.6.12.1?  qla2xxx breaks horribly in 2.6.12
+> because this one is missing.
 
-Actually, I won't.
+Sure, if it's seriously broken w/out send it to stable@kernel.org,
+and we'll queue it up.
 
-As far as I know, the "pax_global_header" file doesn't get added to inside
-the Linux directory, it gets added to the "top" directory, ie one 
-directory up from the Linux directory. As such, this should all be 
-unnecessary.
-
-		Linus
+thanks,
+-chris

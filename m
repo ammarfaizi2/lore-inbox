@@ -1,51 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262105AbVFRMoH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262107AbVFRMxt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262105AbVFRMoH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Jun 2005 08:44:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262107AbVFRMoG
+	id S262107AbVFRMxt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Jun 2005 08:53:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262110AbVFRMxt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Jun 2005 08:44:06 -0400
-Received: from web52901.mail.yahoo.com ([206.190.39.178]:27273 "HELO
-	web52901.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262105AbVFRMoD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Jun 2005 08:44:03 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=5TpbLgYou4elfho4otatv6ve/e56DTG8fpbELqJmE1alp4/EWn6w/eZx2ZNoBnsZ3J86uYfI41aIesJnTKkEP9Q1bbq23HPXH4KvTTyPnWJ6mLD9hXWp5YdqVEZni3d+JcienOBqppWfOvdz2+0RR+TCIhRTD1DFsbhOi1wDHC8=  ;
-Message-ID: <20050618124359.39052.qmail@web52901.mail.yahoo.com>
-Date: Sat, 18 Jun 2005 13:43:59 +0100 (BST)
-From: Chris Rankin <rankincj@yahoo.com>
-Subject: 2.6.12: connection tracking broken?
-To: netfilter-devel@lists.netfilter.org
-Cc: linux-kernel@vger.kernel.org
+	Sat, 18 Jun 2005 08:53:49 -0400
+Received: from dbl.q-ag.de ([213.172.117.3]:22743 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S262107AbVFRMxq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Jun 2005 08:53:46 -0400
+Message-ID: <42B41956.9020104@colorfullife.com>
+Date: Sat, 18 Jun 2005 14:53:42 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.8) Gecko/20050513 Fedora/1.7.8-1.3.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: marvin24@gmx.de
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: forcedeth as a module only?
+References: <200506171804.j5HI4qoh027680@dbl.q-ag.de> <42B31749.90208@g-house.de> <42B336FC.9000400@colorfullife.com> <200506181245.00670.marvin24@gmx.de>
+In-Reply-To: <200506181245.00670.marvin24@gmx.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+marvin24@gmx.de wrote:
 
-I have just tried upgrading my firewall to 2.6.12, but neither of the following rules in my
-FORWARD table was allowing return traffic:
+>Hello Manfred,
+>
+>I have an Asus K8N-E Deluxe (nForce3) and had problems with loosing network 
+>connection from time to time (every 30 minutes or so). The nic is NVENET_7 
+>(see lspci). Adding the DEV_NEED_LINKTIMER workaround solved the problem for 
+>me.
+>What is this workaround doing?
+>
+The network hardware consists out of two parts:
+- the PHY, which performs the physical encoding: basically a very smart 
+digital/analog converter. It's a seperate chip on your board.
+- the MAC (Media Access controller) does the rest: decide which packet 
+to send/receive, verify the CRC, do the memory transfer to/from main 
+memory, etc. This part is integrated into the nForce chipset.
 
- 1109  814K ACCEPT     all  --  ppp0   br0     anywhere             anywhere         ctstate
-RELATED,ESTABLISHED
-  11M   13G ACCEPT     all  --  ppp0   br0     anywhere             anywhere         state
-RELATED,ESTABLISHED
+The PHY detects the link partner and sets itself to the proper network 
+speed. If the link partner changes, then the PHY reconfigures itself. 
+The change can be a spurious change - bad cabling, too much 
+electromagnetic noise, whatever. The driver must notice if the PHY did a 
+reconfiguration and reconfigure the MAC. The driver can either wait for 
+an interrupt, or poll the PHY once per second and ask if the link speed 
+setting must be updated.
+For me, interrupts work. But for some users, no interrupts are 
+generated. I thought that nForce 3 generates interrupts and thus polling 
+is only used for nForce 1/2.
 
-I have currently returned to using 2.6.11.11, where the identical configuration works fine. br0 is
-a bridge device containing two e100 devices, and ppp0 is my PPPoE DSL link. I am using iptables
-1.3.1.
+> Since I also heard of several people having 
+>such problems, why isn't this fix applied to all forcedeth devices?
+>
+>  
+>
+I'll send a patch to Jeff.
 
-Cheers,
-Chris
+>Btw. Windows XP x86-64 has the same problem - but didn't found the source yet 
+>to patch ;-)
+>
+>  
+>
+Interesting.
 
-
-
-	
-	
-		
-___________________________________________________________ 
-Yahoo! Messenger - NEW crystal clear PC to PC calling worldwide with voicemail http://uk.messenger.yahoo.com
+--
+    Manfred

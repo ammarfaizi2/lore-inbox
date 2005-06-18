@@ -1,64 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262187AbVFRS2j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262174AbVFRS1v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262187AbVFRS2j (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Jun 2005 14:28:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262162AbVFRSYj
+	id S262174AbVFRS1v (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Jun 2005 14:27:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262189AbVFRS1t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Jun 2005 14:24:39 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:53657 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262181AbVFRSYK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Jun 2005 14:24:10 -0400
-Date: Sat, 18 Jun 2005 11:23:42 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: axboe@suse.de, James.Bottomley@steeleye.com, linux-kernel@vger.kernel.org
-Subject: Re: kernel bugzilla
-Message-Id: <20050618112342.6a4d088f.akpm@osdl.org>
-In-Reply-To: <200506181850.35381.adobriyan@gmail.com>
-References: <20050617001330.294950ac.akpm@osdl.org>
-	<20050617212338.GA16852@suse.de>
-	<20050617143946.00f387d0.akpm@osdl.org>
-	<200506181850.35381.adobriyan@gmail.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sat, 18 Jun 2005 14:27:49 -0400
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:54661 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S262174AbVFRS01 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Jun 2005 14:26:27 -0400
+Subject: Re: Linux 2.6.12
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0506172156220.7916@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0506172156220.7916@ppc970.osdl.org>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Sat, 18 Jun 2005 14:26:15 -0400
+Message-Id: <1119119175.6786.4.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexey Dobriyan <adobriyan@gmail.com> wrote:
->
-> On Saturday 18 June 2005 01:39, Andrew Morton wrote:
-> > We should encourage people to use bugzilla as the initial
-> > entry-point.  But if someone instead uses email as the first contact I'm
-> > just a little bit reluctant to say "thanks, now go and try again".
-> > 
-> > Perhaps we could find some nice volunteer (hint) who could take the task of
-> > transferring such reports into bugzilla.
-> 
-> Andrew, I'm going to file
-> 
-> 	Subject: 2.6.12: connection tracking broken?
-> 	Subject: 2.6.12 cpu-freq conservative governor problem
-> 	Subject: PROBLEM: libata + sata_sil on sil3112 dosen't work proper
-> 	Subject: [2.6.12] x86-64 IO-APIC + timer doesn't work
-> 
-> around monday evening if there would be no activity.
+On Fri, 2005-06-17 at 22:13 -0700, Linus Torvalds wrote:
+> As some people may have noticed already, 2.6.12 is out there now.
 
-Sounds good, thanks - let us know how it goes.
+I just downloaded it, copied my 2.6.11.2 config over and did a make
+oldconfig.  On USB Mon I got the following in the help.
 
-It'll need to be coordinated with the reporter in some way.  It may end up
-too confusing.
+-------------
+If you say Y here, a component which captures the USB traffic
+between peripheral-specific drivers and HC drivers will be built.
+The USB_MON is similar in spirit and may be compatible with Dave
+Harding's USBMon.
 
-> Do I understand correctly that the procedure is
-> 
-> 	1. Search for duplicates
-> 	2. Choose category
-> 	3. Add "From: Joe Reporter <>" at the beginning, copy-paste email.
-> 	4. Add Joe and relevant lists to CC.
-> 	5. Profi^WCommit
-> 
-> and bugzilla won't shoot unsuspecting guys afterwards?
+This is somewhat experimental at this time, but it should be safe,
+as long as you aren't building this as a module and then removing it.
 
-I think so.  I've never entered a bug ;)
+If unsure, say Y. Do not say M.
+
+  USB Monitor (USB_MON) [M/n/?] (NEW)
+--------------
+
+I really like my options. :-)
+
+OK, I have CONFIG_USB as a module, but I really thought that this was
+pretty amusing.
+
+-- Steve
+
+
+

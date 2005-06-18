@@ -1,40 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261503AbVFRHpq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261413AbVFRIOh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261503AbVFRHpq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Jun 2005 03:45:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbVFRHpq
+	id S261413AbVFRIOh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Jun 2005 04:14:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261414AbVFRIOh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Jun 2005 03:45:46 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:16550 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id S261503AbVFRHpn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Jun 2005 03:45:43 -0400
-Date: Sat, 18 Jun 2005 11:45:31 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Peter Buckingham <peter@pantasys.com>
-Cc: sean.bruno@dsl-only.net, koch@esa.informatik.tu-darmstadt.de,
-       torvalds@osdl.org, benh@kernel.crashing.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       gregkh@suse.de
-Subject: Re: PROBLEM: Devices behind PCI Express-to-PCI bridge not mapped
-Message-ID: <20050618114531.A2523@jurassic.park.msu.ru>
-References: <Pine.LNX.4.58.0506091617130.2286@ppc970.osdl.org> <20050610184815.A13999@jurassic.park.msu.ru> <200506102247.30842.koch@esa.informatik.tu-darmstadt.de> <1118762382.9161.3.camel@home-lap> <20050616142039.GF21542@erebor.esa.informatik.tu-darmstadt.de> <42B1B4D3.3060600@pantasys.com> <1118955201.10529.10.camel@home-lap> <42B1E9B2.30504@pantasys.com> <20050617135400.A32290@jurassic.park.msu.ru> <20050617093410.24a58d56.peter@pantasys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20050617093410.24a58d56.peter@pantasys.com>; from peter@pantasys.com on Fri, Jun 17, 2005 at 09:34:10AM -0700
+	Sat, 18 Jun 2005 04:14:37 -0400
+Received: from mxfep02.bredband.com ([195.54.107.73]:43441 "EHLO
+	mxfep02.bredband.com") by vger.kernel.org with ESMTP
+	id S261413AbVFRIOX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Jun 2005 04:14:23 -0400
+Message-ID: <42B3D7E2.2070600@bredband.net>
+Date: Sat, 18 Jun 2005 10:14:26 +0200
+From: =?ISO-8859-1?Q?Patrik_H=E4gglund?= <patrik.hagglund@bredband.net>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Steven Rostedt <rostedt@goodmis.org>
+CC: linux-kernel@vger.kernel.org, Chris Friesen <cfriesen@nortel.com>
+Subject: Re: SCHED_RR/SCHED_FIFO and kernel threads?
+References: <42B199FF.5010705@bredband.net> <42B19F65.6000102@nortel.com>	 <42B26FF8.6090505@bredband.net> <1119011872.4846.12.camel@localhost.localdomain>
+In-Reply-To: <1119011872.4846.12.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 17, 2005 at 09:34:10AM -0700, Peter Buckingham wrote:
-> PCI: Cannot allocate resource region 2 of device 0000:41:00.0
-> PCI: Failed to allocate mem resource #0:1000000@280000000 for 0000:41:00.0
-> PCI: Failed to allocate mem resource #1:10000000@280000000 for 0000:41:00.0
-> PCI: Failed to allocate mem resource #2:1000000@280000000 for 0000:41:00.0
-						  ^^^^^^^^^
+Steven Rostedt wrote:
 
-Ouch. We managed to get value > 4G from 32-bit BARs.
-Must be a bug somewhere in PCI probing code...
+>On Fri, 2005-06-17 at 08:38 +0200, Patrik Hägglund wrote:
+>  
+>
+>>Don't you get the problem with priority inversion? I.e., if you have two 
+>>processes, P1 and P2, scheduled with SCHED_FIFO, where P1 has higer 
+>>priority than P2. Now, if P1 gets blocked and needs some kernel thread 
+>>to execute to get unblocked, then P2 is scheduled before the kernel 
+>>thread, and can execute without any time limit.
+>>    
+>>
+>
+>Yep, that could happen.
+>
+>  
+>
+>>That is, you should be much better off if the kernel threads has a 
+>>_high_ priority. Then the execution progress can only be blocked by 
+>>kernel threads, not by user space threads and processes. Or have I 
+>>missed something?
+>>    
+>>
+>
+>Still have that problem with priority inversion. Kernel threads share
+>date structures with user processes (when they are in kernel mode) and
+>that kernel thread that is needed may get blocked on a process that is
+>lower in priority than the two mentioned above.
+>
+>  
+>
+>>(Besides that, as I see it, SCHED_RR/SCHED_FIFO are scheduling 
+>>abstractions on their own, not necessarily  connected to  "low latency " 
+>>or "realtime".)
+>>    
+>>
+>
+>Only in the vanilla kernel. See Ingo's RT work. It handles priority
+>inversion and SCHED_RR/SCHED_FIFO are actually connected to "low
+>latency" and "realtime".
+>
+>http://people.redhat.com/mingo/realtime-preempt/
+>
+>-- Steve
+>
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
+Thanks for the pointer to Ingo's work. I will have a look.
 
-Ivan.
+Regarding my last comment: What I was trying to say was that I thought 
+there are _basic_ aspects to consider (i.e. my original problem with 
+kernel starvation) when implementing SCHED_RR/SCHED_FIFO _before_ you 
+consider how to implement them in a "low latency" or "realtime" context.
+
+/Patrik Hägglund

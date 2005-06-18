@@ -1,56 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262174AbVFRS1v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262190AbVFRSci@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262174AbVFRS1v (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Jun 2005 14:27:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262189AbVFRS1t
+	id S262190AbVFRSci (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Jun 2005 14:32:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262188AbVFRS3E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Jun 2005 14:27:49 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:54661 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S262174AbVFRS01 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Jun 2005 14:26:27 -0400
-Subject: Re: Linux 2.6.12
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0506172156220.7916@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0506172156220.7916@ppc970.osdl.org>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Sat, 18 Jun 2005 14:26:15 -0400
-Message-Id: <1119119175.6786.4.camel@localhost.localdomain>
+	Sat, 18 Jun 2005 14:29:04 -0400
+Received: from zproxy.gmail.com ([64.233.162.202]:17135 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262183AbVFRSZD convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Jun 2005 14:25:03 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=OqYaV7V5YI2hWrFgwzRa1jVeDA6t3gS/AM57AG5aYuOY08AyHKH0grYgJlAER2u0YWVWz9iEb8ilnqTKupgY2QxSkcN0snvD+lHyj2lB07TnwGlPmxD479AF5d7WFH+aGIqFJ9UdUSEtI/ptrWHSflvZbygoQer9GY58ioIngZg=
+Message-ID: <3b0ffc1f05061811251c12718f@mail.gmail.com>
+Date: Sat, 18 Jun 2005 14:25:01 -0400
+From: Kevin Radloff <radsaq@gmail.com>
+Reply-To: Kevin Radloff <radsaq@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Logic bug in 2.6.12 conservative cpufreq governor?
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-06-17 at 22:13 -0700, Linus Torvalds wrote:
-> As some people may have noticed already, 2.6.12 is out there now.
+The conservative cpufreq governor's "ignore_nice" sysfs parameter is
+reversed from what I would expect:
 
-I just downloaded it, copied my 2.6.11.2 config over and did a make
-oldconfig.  On USB Mon I got the following in the help.
+% cat /sys/devices/system/cpu/cpu0/cpufreq/conservative/ignore_nice
+1
 
--------------
-If you say Y here, a component which captures the USB traffic
-between peripheral-specific drivers and HC drivers will be built.
-The USB_MON is similar in spirit and may be compatible with Dave
-Harding's USBMon.
+.. While it's not ignoring nice'd processes. Changing it to 0 causes
+it to ignore them. That would seem to make sense only if it's supposed
+to mean "ignore niceness of processes" vs "ignore nice'd processes"...
+Is that so?
 
-This is somewhat experimental at this time, but it should be safe,
-as long as you aren't building this as a module and then removing it.
+If it is, then wouldn't the name make more sense as "ignore_niceness"
+or something equally less ambiguous? :)
 
-If unsure, say Y. Do not say M.
+Please CC me as I'm not on the list.
 
-  USB Monitor (USB_MON) [M/n/?] (NEW)
---------------
-
-I really like my options. :-)
-
-OK, I have CONFIG_USB as a module, but I really thought that this was
-pretty amusing.
-
--- Steve
-
-
-
+-- 
+Kevin 'radsaq' Radloff
+radsaq@gmail.com
+http://saqataq.us/

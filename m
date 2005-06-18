@@ -1,406 +1,509 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262164AbVFRSKh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262170AbVFRSXP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262164AbVFRSKh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Jun 2005 14:10:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262168AbVFRSJ5
+	id S262170AbVFRSXP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Jun 2005 14:23:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262171AbVFRSW6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Jun 2005 14:09:57 -0400
-Received: from iron.pdx.net ([207.149.241.18]:54692 "EHLO iron.pdx.net")
-	by vger.kernel.org with ESMTP id S262169AbVFRRzo (ORCPT
+	Sat, 18 Jun 2005 14:22:58 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:17811 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S262198AbVFRSRP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Jun 2005 13:55:44 -0400
-Subject: Re: PROBLEM: Devices behind PCI Express-to-PCI bridge not mapped
-From: Sean Bruno <sean.bruno@dsl-only.net>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Peter Buckingham <peter@pantasys.com>, koch@esa.informatik.tu-darmstadt.de,
-       torvalds@osdl.org, benh@kernel.crashing.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       gregkh@suse.de
-In-Reply-To: <20050618114531.A2523@jurassic.park.msu.ru>
-References: <Pine.LNX.4.58.0506091617130.2286@ppc970.osdl.org>
-	 <20050610184815.A13999@jurassic.park.msu.ru>
-	 <200506102247.30842.koch@esa.informatik.tu-darmstadt.de>
-	 <1118762382.9161.3.camel@home-lap>
-	 <20050616142039.GF21542@erebor.esa.informatik.tu-darmstadt.de>
-	 <42B1B4D3.3060600@pantasys.com> <1118955201.10529.10.camel@home-lap>
-	 <42B1E9B2.30504@pantasys.com> <20050617135400.A32290@jurassic.park.msu.ru>
-	 <20050617093410.24a58d56.peter@pantasys.com>
-	 <20050618114531.A2523@jurassic.park.msu.ru>
-Content-Type: multipart/mixed; boundary="=-S0am+cDgN8IPrwT0YoKS"
-Date: Sat, 18 Jun 2005 10:55:39 -0700
-Message-Id: <1119117339.4315.2.camel@home-lap>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-8) 
+	Sat, 18 Jun 2005 14:17:15 -0400
+Message-ID: <42B46523.2050702@pobox.com>
+Date: Sat, 18 Jun 2005 14:17:07 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+CC: Linux IDE <linux-ide@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [git patches] 2.6.x libata update
+Content-Type: multipart/mixed;
+ boundary="------------040406050802060407070602"
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-S0am+cDgN8IPrwT0YoKS
-Content-Type: text/plain
+This is a multi-part message in MIME format.
+--------------040406050802060407070602
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-Here is a little more verbose lspci output for your review.
+Please pull from the 'upstream-2.6.13' branch of
+rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
 
---=-S0am+cDgN8IPrwT0YoKS
-Content-Disposition: attachment; filename=lspci.out
-Content-Type: text/plain; name=lspci.out; charset=utf-8
+to receive the changes described in the attachment.
+
+No manual merges in this one, so it should be fine.  I'll fix up 
+netdev-2.6.git next.
+
+
+--------------040406050802060407070602
+Content-Type: text/plain;
+ name="libata-dev.txt"
 Content-Transfer-Encoding: 7bit
-
-00:00.0 Memory controller: nVidia Corporation CK804 Memory Controller (rev a3)
-	Subsystem: ASUSTeK Computer Inc.: Unknown device 8162
-	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 0
-	Capabilities: [44] HyperTransport: Slave or Primary Interface
-		Command: BaseUnitID=0 UnitCnt=15 MastHost- DefDir- DUL-
-		Link Control 0: CFlE+ CST- CFE- <LkFail- Init+ EOC- TXO- <CRCErr=0 IsocEn- LSEn- ExtCTL- 64b-
-		Link Config 0: MLWI=16bit DwFcIn- MLWO=16bit DwFcOut- LWI=16bit DwFcInEn- LWO=16bit DwFcOutEn-
-		Link Control 1: CFlE- CST- CFE- <LkFail+ Init- EOC+ TXO+ <CRCErr=0 IsocEn- LSEn- ExtCTL- 64b-
-		Link Config 1: MLWI=8bit DwFcIn- MLWO=8bit DwFcOut- LWI=8bit DwFcInEn- LWO=8bit DwFcOutEn-
-		Revision ID: 1.03
-		Link Frequency 0: 1.0GHz
-		Link Error 0: <Prot- <Ovfl- <EOC- CTLTm-
-		Link Frequency Capability 0: 200MHz+ 300MHz+ 400MHz+ 500MHz+ 600MHz+ 800MHz+ 1.0GHz+ 1.2GHz- 1.4GHz- 1.6GHz- Vend-
-		Feature Capability: IsocFC+ LDTSTOP+ CRCTM- ECTLT- 64bA- UIDRD-
-		Link Frequency 1: 200MHz
-		Link Error 1: <Prot- <Ovfl- <EOC- CTLTm-
-		Link Frequency Capability 1: 200MHz- 300MHz- 400MHz- 500MHz- 600MHz- 800MHz- 1.0GHz- 1.2GHz- 1.4GHz- 1.6GHz- Vend-
-		Error Handling: PFlE+ OFlE+ PFE- OFE- EOCFE- RFE- CRCFE- SERRFE- CF- RE- PNFE- ONFE- EOCNFE- RNFE- CRCNFE- SERRNFE-
-		Prefetchable memory behind bridge Upper: 00-00
-		Bus Number: 00
-	Capabilities: [e0] HyperTransport: MSI Mapping
-
-00:01.0 ISA bridge: nVidia Corporation CK804 ISA Bridge (rev a3)
-	Subsystem: ASUSTeK Computer Inc.: Unknown device 8162
-	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 0
-
-00:01.1 SMBus: nVidia Corporation CK804 SMBus (rev a2)
-	Subsystem: ASUSTeK Computer Inc.: Unknown device 8162
-	Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Interrupt: pin A routed to IRQ 11
-	Region 0: I/O ports at ff00 [size=32]
-	Region 4: I/O ports at 4c00 [size=64]
-	Region 5: I/O ports at 4c40 [size=64]
-	Capabilities: [44] Power Management version 2
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot+,D3cold+)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:02.0 USB Controller: nVidia Corporation CK804 USB Controller (rev a2) (prog-if 10 [OHCI])
-	Subsystem: ASUSTeK Computer Inc.: Unknown device 8162
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 0 (750ns min, 250ns max)
-	Interrupt: pin A routed to IRQ 3
-	Region 0: Memory at feaff000 (32-bit, non-prefetchable) [size=4K]
-	Capabilities: [44] Power Management version 2
-		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:02.1 USB Controller: nVidia Corporation CK804 USB Controller (rev a3) (prog-if 20 [EHCI])
-	Subsystem: ASUSTeK Computer Inc.: Unknown device 8162
-	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 0 (750ns min, 250ns max)
-	Interrupt: pin B routed to IRQ 5
-	Region 0: Memory at feb00000 (32-bit, non-prefetchable) [size=256]
-	Capabilities: [44] Debug port
-	Capabilities: [80] Power Management version 2
-		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:04.0 Multimedia audio controller: nVidia Corporation CK804 AC'97 Audio Controller (rev a2)
-	Subsystem: ASUSTeK Computer Inc.: Unknown device 8174
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 0 (500ns min, 1250ns max)
-	Interrupt: pin A routed to IRQ 11
-	Region 0: I/O ports at fc00 [size=256]
-	Region 1: I/O ports at fb00 [size=256]
-	Region 2: Memory at feafd000 (32-bit, non-prefetchable) [size=4K]
-	Capabilities: [44] Power Management version 2
-		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:06.0 IDE interface: nVidia Corporation CK804 IDE (rev a2) (prog-if 8a [Master SecP PriP])
-	Subsystem: ASUSTeK Computer Inc.: Unknown device 8162
-	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 0 (750ns min, 250ns max)
-	Region 4: I/O ports at fa00 [size=16]
-	Capabilities: [44] Power Management version 2
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:09.0 PCI bridge: nVidia Corporation CK804 PCI Bridge (rev a2) (prog-if 01 [Subtractive decode])
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 0
-	Bus: primary=00, secondary=01, subordinate=01, sec-latency=128
-	I/O behind bridge: 0000e000-0000efff
-	Memory behind bridge: fe600000-fe8fffff
-	Prefetchable memory behind bridge: fe900000-fe9fffff
-	Secondary status: 66Mhz- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ <SERR- <PERR+
-	BridgeCtl: Parity- SERR- NoISA- VGA- MAbort- >Reset- FastB2B-
-
-00:0c.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev a3) (prog-if 00 [Normal decode])
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 0, Cache Line Size 08
-	Bus: primary=00, secondary=02, subordinate=02, sec-latency=0
-	I/O behind bridge: 0000d000-0000dfff
-	Memory behind bridge: fe500000-fe5fffff
-	Prefetchable memory behind bridge: 00000000fe400000-00000000fe400000
-	Secondary status: 66Mhz- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort+ <SERR- <PERR-
-	BridgeCtl: Parity- SERR- NoISA- VGA- MAbort- >Reset- FastB2B-
-	Capabilities: [40] Power Management version 2
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-	Capabilities: [48] Message Signalled Interrupts: 64bit+ Queue=0/1 Enable+
-		Address: 00000000fee01004  Data: 40b1
-	Capabilities: [58] HyperTransport: MSI Mapping
-	Capabilities: [80] Express Root Port (Slot+) IRQ 0
-		Device: Supported: MaxPayload 128 bytes, PhantFunc 0, ExtTag-
-		Device: Latency L0s <512ns, L1 <4us
-		Device: Errors: Correctable- Non-Fatal- Fatal- Unsupported-
-		Device: RlxdOrd+ ExtTag- PhantFunc- AuxPwr- NoSnoop+
-		Device: MaxPayload 128 bytes, MaxReadReq 512 bytes
-		Link: Supported Speed 2.5Gb/s, Width x1, ASPM L0s, Port 2
-		Link: Latency L0s <512ns, L1 <4us
-		Link: ASPM Disabled RCB 64 bytes CommClk- ExtSynch-
-		Link: Speed 2.5Gb/s, Width x1
-		Slot: AtnBtn- PwrCtrl- MRL- AtnInd- PwrInd- HotPlug- Surpise-
-		Slot: Number 4, PowerLimit 10.000000
-		Slot: Enabled AtnBtn- PwrFlt- MRL- PresDet- CmdCplt- HPIrq-
-		Slot: AttnInd Off, PwrInd On, Power-
-		Root: Correctable- Non-Fatal- Fatal- PME-
-
-00:0d.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev a3) (prog-if 00 [Normal decode])
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 0, Cache Line Size 08
-	Bus: primary=00, secondary=03, subordinate=03, sec-latency=0
-	I/O behind bridge: 0000c000-0000cfff
-	Memory behind bridge: fe300000-fe3fffff
-	Prefetchable memory behind bridge: 00000000fe200000-00000000fe200000
-	Secondary status: 66Mhz- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- <SERR- <PERR-
-	BridgeCtl: Parity- SERR- NoISA- VGA- MAbort- >Reset- FastB2B-
-	Capabilities: [40] Power Management version 2
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-	Capabilities: [48] Message Signalled Interrupts: 64bit+ Queue=0/1 Enable+
-		Address: 00000000fee01004  Data: 40b9
-	Capabilities: [58] HyperTransport: MSI Mapping
-	Capabilities: [80] Express Root Port (Slot+) IRQ 0
-		Device: Supported: MaxPayload 128 bytes, PhantFunc 0, ExtTag-
-		Device: Latency L0s <512ns, L1 <4us
-		Device: Errors: Correctable- Non-Fatal- Fatal- Unsupported-
-		Device: RlxdOrd+ ExtTag- PhantFunc- AuxPwr- NoSnoop+
-		Device: MaxPayload 128 bytes, MaxReadReq 512 bytes
-		Link: Supported Speed 2.5Gb/s, Width x1, ASPM L0s, Port 1
-		Link: Latency L0s <512ns, L1 <4us
-		Link: ASPM Disabled RCB 64 bytes CommClk- ExtSynch-
-		Link: Speed 2.5Gb/s, Width x1
-		Slot: AtnBtn- PwrCtrl- MRL- AtnInd- PwrInd- HotPlug- Surpise-
-		Slot: Number 2, PowerLimit 10.000000
-		Slot: Enabled AtnBtn- PwrFlt- MRL- PresDet- CmdCplt- HPIrq-
-		Slot: AttnInd Off, PwrInd On, Power-
-		Root: Correctable- Non-Fatal- Fatal- PME-
-
-00:0e.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev a3) (prog-if 00 [Normal decode])
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 0, Cache Line Size 08
-	Bus: primary=00, secondary=04, subordinate=04, sec-latency=0
-	I/O behind bridge: 0000b000-0000bfff
-	Memory behind bridge: fd000000-fe0fffff
-	Prefetchable memory behind bridge: 00000000c0000000-00000000d0f00000
-	Secondary status: 66Mhz- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort+ <SERR- <PERR-
-	BridgeCtl: Parity- SERR- NoISA- VGA+ MAbort- >Reset- FastB2B-
-	Capabilities: [40] Power Management version 2
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-	Capabilities: [48] Message Signalled Interrupts: 64bit+ Queue=0/1 Enable+
-		Address: 00000000fee01004  Data: 40c1
-	Capabilities: [58] HyperTransport: MSI Mapping
-	Capabilities: [80] Express Root Port (Slot+) IRQ 0
-		Device: Supported: MaxPayload 128 bytes, PhantFunc 0, ExtTag-
-		Device: Latency L0s <512ns, L1 <4us
-		Device: Errors: Correctable- Non-Fatal- Fatal- Unsupported-
-		Device: RlxdOrd+ ExtTag- PhantFunc- AuxPwr- NoSnoop+
-		Device: MaxPayload 128 bytes, MaxReadReq 512 bytes
-		Link: Supported Speed 2.5Gb/s, Width x16, ASPM L0s, Port 0
-		Link: Latency L0s <512ns, L1 <4us
-		Link: ASPM Disabled RCB 64 bytes CommClk- ExtSynch-
-		Link: Speed 2.5Gb/s, Width x16
-		Slot: AtnBtn- PwrCtrl- MRL- AtnInd- PwrInd- HotPlug- Surpise-
-		Slot: Number 1, PowerLimit 75.000000
-		Slot: Enabled AtnBtn- PwrFlt- MRL- PresDet- CmdCplt- HPIrq-
-		Slot: AttnInd Off, PwrInd On, Power-
-		Root: Correctable- Non-Fatal- Fatal- PME-
-
-00:18.0 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] HyperTransport Technology Configuration
-	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Capabilities: [80] HyperTransport: Host or Secondary Interface
-	!!! Possibly incomplete decoding
-		Command: WarmRst+ DblEnd-
-		Link Control: CFlE- CST- CFE- <LkFail+ Init- EOC+ TXO+ <CRCErr=0
-		Link Config: MLWI=16bit MLWO=16bit LWI=N/C LWO=N/C
-		Revision ID: 1.02
-	Capabilities: [a0] HyperTransport: Host or Secondary Interface
-	!!! Possibly incomplete decoding
-		Command: WarmRst+ DblEnd-
-		Link Control: CFlE- CST- CFE- <LkFail- Init+ EOC- TXO- <CRCErr=0
-		Link Config: MLWI=16bit MLWO=16bit LWI=16bit LWO=16bit
-		Revision ID: 1.02
-	Capabilities: [c0] HyperTransport: Host or Secondary Interface
-	!!! Possibly incomplete decoding
-		Command: WarmRst+ DblEnd-
-		Link Control: CFlE- CST- CFE- <LkFail- Init+ EOC- TXO- <CRCErr=0
-		Link Config: MLWI=16bit MLWO=16bit LWI=16bit LWO=16bit
-		Revision ID: 1.02
-
-00:18.1 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Address Map
-	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-
-00:18.2 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] DRAM Controller
-	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-
-00:18.3 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Miscellaneous Control
-	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-
-00:19.0 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] HyperTransport Technology Configuration
-	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Capabilities: [80] HyperTransport: Host or Secondary Interface
-	!!! Possibly incomplete decoding
-		Command: WarmRst+ DblEnd-
-		Link Control: CFlE- CST- CFE- <LkFail+ Init- EOC+ TXO+ <CRCErr=0
-		Link Config: MLWI=16bit MLWO=16bit LWI=N/C LWO=N/C
-		Revision ID: 1.02
-	Capabilities: [a0] HyperTransport: Host or Secondary Interface
-	!!! Possibly incomplete decoding
-		Command: WarmRst+ DblEnd-
-		Link Control: CFlE- CST- CFE- <LkFail- Init+ EOC- TXO- <CRCErr=0
-		Link Config: MLWI=16bit MLWO=16bit LWI=16bit LWO=16bit
-		Revision ID: 1.02
-	Capabilities: [c0] HyperTransport: Host or Secondary Interface
-	!!! Possibly incomplete decoding
-		Command: WarmRst+ DblEnd-
-		Link Control: CFlE- CST- CFE- <LkFail+ Init- EOC+ TXO+ <CRCErr=0
-		Link Config: MLWI=16bit MLWO=16bit LWI=N/C LWO=N/C
-		Revision ID: 1.02
-
-00:19.1 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Address Map
-	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-
-00:19.2 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] DRAM Controller
-	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-
-00:19.3 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Miscellaneous Control
-	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-
-01:06.0 Ethernet controller: Intel Corporation 82557/8/9 [Ethernet Pro 100] (rev 08)
-	Subsystem: Intel Corporation EtherExpress PRO/100+ Server Adapter (PILA8470B)
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 32 (2000ns min, 14000ns max), Cache Line Size 08
-	Interrupt: pin A routed to IRQ 209
-	Region 0: Memory at fe8ff000 (32-bit, non-prefetchable) [size=4K]
-	Region 1: I/O ports at ef00 [size=64]
-	Region 2: Memory at fe700000 (32-bit, non-prefetchable) [size=1M]
-	Capabilities: [dc] Power Management version 2
-		Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
-		Status: D0 PME-Enable- DSel=0 DScale=2 PME-
-
-01:08.0 FireWire (IEEE 1394): Texas Instruments TSB43AB22/A IEEE-1394a-2000 Controller (PHY/Link) (prog-if 10 [OHCI])
-	Subsystem: ASUSTeK Computer Inc.: Unknown device 815b
-	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 32 (500ns min, 1000ns max), Cache Line Size 08
-	Interrupt: pin A routed to IRQ 217
-	Region 0: Memory at fe8fe000 (32-bit, non-prefetchable) [size=2K]
-	Region 1: Memory at fe8f8000 (32-bit, non-prefetchable) [size=16K]
-	Capabilities: [44] Power Management version 2
-		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME+
-
-01:09.0 RAID bus controller: Silicon Image, Inc. SiI 3114 [SATALink/SATARaid] Serial ATA Controller (rev 02)
-	Subsystem: ASUSTeK Computer Inc.: Unknown device 8136
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 32, Cache Line Size 08
-	Interrupt: pin A routed to IRQ 201
-	Region 0: I/O ports at ee00 [size=8]
-	Region 1: I/O ports at ed00 [size=4]
-	Region 2: I/O ports at ec00 [size=8]
-	Region 3: I/O ports at eb00 [size=4]
-	Region 4: I/O ports at ea00 [size=16]
-	Region 5: Memory at fe8fd000 (32-bit, non-prefetchable) [size=1K]
-	Capabilities: [60] Power Management version 2
-		Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=2 PME-
-
-02:00.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5751 Gigabit Ethernet PCI Express (rev 11)
-	Subsystem: ASUSTeK Computer Inc.: Unknown device 814b
-	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 0, Cache Line Size 08
-	Interrupt: pin A routed to IRQ 3
-	Region 0: Memory at fe500000 (64-bit, non-prefetchable) [size=64K]
-	Capabilities: [48] Power Management version 2
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot+,D3cold+)
-		Status: D0 PME-Enable- DSel=0 DScale=1 PME-
-	Capabilities: [50] Vital Product Data
-	Capabilities: [58] Message Signalled Interrupts: 64bit+ Queue=0/3 Enable-
-		Address: 201eb2d510a45330  Data: 0e21
-	Capabilities: [d0] Express Endpoint IRQ 0
-		Device: Supported: MaxPayload 128 bytes, PhantFunc 0, ExtTag+
-		Device: Latency L0s <4us, L1 unlimited
-		Device: AtnBtn- AtnInd- PwrInd-
-		Device: Errors: Correctable- Non-Fatal- Fatal- Unsupported-
-		Device: RlxdOrd- ExtTag- PhantFunc- AuxPwr- NoSnoop-
-		Device: MaxPayload 128 bytes, MaxReadReq 512 bytes
-		Link: Supported Speed 2.5Gb/s, Width x1, ASPM L0s, Port 0
-		Link: Latency L0s <4us, L1 <64us
-		Link: ASPM Disabled RCB 64 bytes CommClk- ExtSynch-
-		Link: Speed 2.5Gb/s, Width x1
-
-04:00.0 VGA compatible controller: nVidia Corporation NV44 [GeForce 6200 TurboCache] (rev a1) (prog-if 00 [VGA])
-	Subsystem: ASUSTeK Computer Inc.: Unknown device 81ae
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 0, Cache Line Size 08
-	Interrupt: pin A routed to IRQ 5
-	Region 0: Memory at fd000000 (32-bit, non-prefetchable) [size=16M]
-	Region 1: Memory at c0000000 (64-bit, prefetchable) [size=256M]
-	Region 3: Memory at fe000000 (64-bit, non-prefetchable) [size=1M]
-	Capabilities: [60] Power Management version 2
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-	Capabilities: [68] Message Signalled Interrupts: 64bit+ Queue=0/0 Enable-
-		Address: 0000000000000000  Data: 0000
-	Capabilities: [78] Express Endpoint IRQ 0
-		Device: Supported: MaxPayload 128 bytes, PhantFunc 0, ExtTag-
-		Device: Latency L0s <512ns, L1 <4us
-		Device: AtnBtn- AtnInd- PwrInd-
-		Device: Errors: Correctable- Non-Fatal- Fatal- Unsupported-
-		Device: RlxdOrd+ ExtTag- PhantFunc- AuxPwr- NoSnoop+
-		Device: MaxPayload 128 bytes, MaxReadReq 512 bytes
-		Link: Supported Speed 2.5Gb/s, Width x16, ASPM L0s L1, Port 0
-		Link: Latency L0s <1us, L1 <4us
-		Link: ASPM Disabled RCB 128 bytes CommClk- ExtSynch-
-		Link: Speed 2.5Gb/s, Width x16
+Content-Disposition: inline;
+ filename="libata-dev.txt"
 
 
---=-S0am+cDgN8IPrwT0YoKS--
+ drivers/scsi/ahci.c         |  100 +++++++++++++++++++++++++++++++++-----------
+ drivers/scsi/libata-core.c  |   35 ++++++++++++++-
+ drivers/scsi/sata_promise.c |   26 +++++++++++
+ drivers/scsi/sata_svw.c     |   27 +++++++----
+ include/linux/ata.h         |    1 
+ include/linux/libata.h      |    1 
+ 6 files changed, 152 insertions(+), 38 deletions(-)
 
+
+
+Brad Campbell:
+  libata basic detection and errata for PATA->SATA bridges
+
+Jeff Garzik:
+  Merge /spare/repo/linux-2.6/
+  [libata] ahci: finish ATAPI support (hopefully)
+  Merge of /spare/repo/libata-dev branch bridge-detect
+  Automatic merge of /spare/repo/libata-dev branch svw
+  Merge of /spare/repo/libata-dev branch pdc20619
+  Automatic merge of /spare/repo/libata-dev branch ahci-msi
+  [libata] ahci: minor PCI MSI cleanup
+  Automatic merge of /spare/repo/linux-2.6/.git branch HEAD
+  Automatic merge of /spare/repo/linux-2.6/.git branch HEAD
+  [libata] ahci: Update for recent ->host_stop() API change
+  Automatic merge of rsync://rsync.kernel.org/.../torvalds/linux-2.6.git branch HEAD
+  Automatic merge of rsync://rsync.kernel.org/.../torvalds/linux-2.6.git branch HEAD
+  [libata ahci] support PCI MSI interrupt vector
+
+Narendra Sankar:
+  sata_svw: bump version number
+  sata_svw: Add support for new device IDs
+
+Tobias Lorenz:
+  [libata sata_promise] pdc20619 (PATA) support
+
+
+
+diff --git a/drivers/scsi/ahci.c b/drivers/scsi/ahci.c
+--- a/drivers/scsi/ahci.c
++++ b/drivers/scsi/ahci.c
+@@ -39,7 +39,7 @@
+ #include <asm/io.h>
+ 
+ #define DRV_NAME	"ahci"
+-#define DRV_VERSION	"1.00"
++#define DRV_VERSION	"1.01"
+ 
+ 
+ enum {
+@@ -50,6 +50,7 @@ enum {
+ 	AHCI_CMD_SLOT_SZ	= 32 * 32,
+ 	AHCI_RX_FIS_SZ		= 256,
+ 	AHCI_CMD_TBL_HDR	= 0x80,
++	AHCI_CMD_TBL_CDB	= 0x40,
+ 	AHCI_CMD_TBL_SZ		= AHCI_CMD_TBL_HDR + (AHCI_MAX_SG * 16),
+ 	AHCI_PORT_PRIV_DMA_SZ	= AHCI_CMD_SLOT_SZ + AHCI_CMD_TBL_SZ +
+ 				  AHCI_RX_FIS_SZ,
+@@ -134,6 +135,9 @@ enum {
+ 	PORT_CMD_ICC_ACTIVE	= (0x1 << 28), /* Put i/f in active state */
+ 	PORT_CMD_ICC_PARTIAL	= (0x2 << 28), /* Put i/f in partial state */
+ 	PORT_CMD_ICC_SLUMBER	= (0x6 << 28), /* Put i/f in slumber state */
++
++	/* hpriv->flags bits */
++	AHCI_FLAG_MSI		= (1 << 0),
+ };
+ 
+ struct ahci_cmd_hdr {
+@@ -183,6 +187,7 @@ static void ahci_qc_prep(struct ata_queu
+ static u8 ahci_check_status(struct ata_port *ap);
+ static u8 ahci_check_err(struct ata_port *ap);
+ static inline int ahci_host_intr(struct ata_port *ap, struct ata_queued_cmd *qc);
++static void ahci_remove_one (struct pci_dev *pdev);
+ 
+ static Scsi_Host_Template ahci_sht = {
+ 	.module			= THIS_MODULE,
+@@ -272,7 +277,7 @@ static struct pci_driver ahci_pci_driver
+ 	.name			= DRV_NAME,
+ 	.id_table		= ahci_pci_tbl,
+ 	.probe			= ahci_init_one,
+-	.remove			= ata_pci_remove_one,
++	.remove			= ahci_remove_one,
+ };
+ 
+ 
+@@ -506,7 +511,8 @@ static void ahci_fill_sg(struct ata_queu
+ 
+ static void ahci_qc_prep(struct ata_queued_cmd *qc)
+ {
+-	struct ahci_port_priv *pp = qc->ap->private_data;
++	struct ata_port *ap = qc->ap;
++	struct ahci_port_priv *pp = ap->private_data;
+ 	u32 opts;
+ 	const u32 cmd_fis_len = 5; /* five dwords */
+ 
+@@ -518,18 +524,8 @@ static void ahci_qc_prep(struct ata_queu
+ 	opts = (qc->n_elem << 16) | cmd_fis_len;
+ 	if (qc->tf.flags & ATA_TFLAG_WRITE)
+ 		opts |= AHCI_CMD_WRITE;
+-
+-	switch (qc->tf.protocol) {
+-	case ATA_PROT_ATAPI:
+-	case ATA_PROT_ATAPI_NODATA:
+-	case ATA_PROT_ATAPI_DMA:
++	if (is_atapi_taskfile(&qc->tf))
+ 		opts |= AHCI_CMD_ATAPI;
+-		break;
+-
+-	default:
+-		/* do nothing */
+-		break;
+-	}
+ 
+ 	pp->cmd_slot[0].opts = cpu_to_le32(opts);
+ 	pp->cmd_slot[0].status = 0;
+@@ -541,6 +537,10 @@ static void ahci_qc_prep(struct ata_queu
+ 	 * a SATA Register - Host to Device command FIS.
+ 	 */
+ 	ata_tf_to_fis(&qc->tf, pp->cmd_tbl, 0);
++	if (opts & AHCI_CMD_ATAPI) {
++		memset(pp->cmd_tbl + AHCI_CMD_TBL_CDB, 0, 32);
++		memcpy(pp->cmd_tbl + AHCI_CMD_TBL_CDB, qc->cdb, ap->cdb_len);
++	}
+ 
+ 	if (!(qc->flags & ATA_QCFLAG_DMAMAP))
+ 		return;
+@@ -795,8 +795,6 @@ static int ahci_host_init(struct ata_pro
+ 				return rc;
+ 			}
+ 		}
+-
+-		hpriv->flags |= HOST_CAP_64;
+ 	} else {
+ 		rc = pci_set_dma_mask(pdev, DMA_32BIT_MASK);
+ 		if (rc) {
+@@ -879,15 +877,19 @@ static int ahci_host_init(struct ata_pro
+ }
+ 
+ /* move to PCI layer, integrate w/ MSI stuff */
+-static void pci_enable_intx(struct pci_dev *pdev)
++static void pci_intx(struct pci_dev *pdev, int enable)
+ {
+-	u16 pci_command;
++	u16 pci_command, new;
+ 
+ 	pci_read_config_word(pdev, PCI_COMMAND, &pci_command);
+-	if (pci_command & PCI_COMMAND_INTX_DISABLE) {
+-		pci_command &= ~PCI_COMMAND_INTX_DISABLE;
++
++	if (enable)
++		new = pci_command & ~PCI_COMMAND_INTX_DISABLE;
++	else
++		new = pci_command | PCI_COMMAND_INTX_DISABLE;
++
++	if (new != pci_command)
+ 		pci_write_config_word(pdev, PCI_COMMAND, pci_command);
+-	}
+ }
+ 
+ static void ahci_print_info(struct ata_probe_ent *probe_ent)
+@@ -969,7 +971,7 @@ static int ahci_init_one (struct pci_dev
+ 	unsigned long base;
+ 	void *mmio_base;
+ 	unsigned int board_idx = (unsigned int) ent->driver_data;
+-	int pci_dev_busy = 0;
++	int have_msi, pci_dev_busy = 0;
+ 	int rc;
+ 
+ 	VPRINTK("ENTER\n");
+@@ -987,12 +989,17 @@ static int ahci_init_one (struct pci_dev
+ 		goto err_out;
+ 	}
+ 
+-	pci_enable_intx(pdev);
++	if (pci_enable_msi(pdev) == 0)
++		have_msi = 1;
++	else {
++		pci_intx(pdev, 1);
++		have_msi = 0;
++	}
+ 
+ 	probe_ent = kmalloc(sizeof(*probe_ent), GFP_KERNEL);
+ 	if (probe_ent == NULL) {
+ 		rc = -ENOMEM;
+-		goto err_out_regions;
++		goto err_out_msi;
+ 	}
+ 
+ 	memset(probe_ent, 0, sizeof(*probe_ent));
+@@ -1025,6 +1032,9 @@ static int ahci_init_one (struct pci_dev
+ 	probe_ent->mmio_base = mmio_base;
+ 	probe_ent->private_data = hpriv;
+ 
++	if (have_msi)
++		hpriv->flags |= AHCI_FLAG_MSI;
++
+ 	/* initialize adapter */
+ 	rc = ahci_host_init(probe_ent);
+ 	if (rc)
+@@ -1044,7 +1054,11 @@ err_out_iounmap:
+ 	iounmap(mmio_base);
+ err_out_free_ent:
+ 	kfree(probe_ent);
+-err_out_regions:
++err_out_msi:
++	if (have_msi)
++		pci_disable_msi(pdev);
++	else
++		pci_intx(pdev, 0);
+ 	pci_release_regions(pdev);
+ err_out:
+ 	if (!pci_dev_busy)
+@@ -1052,6 +1066,42 @@ err_out:
+ 	return rc;
+ }
+ 
++static void ahci_remove_one (struct pci_dev *pdev)
++{
++	struct device *dev = pci_dev_to_dev(pdev);
++	struct ata_host_set *host_set = dev_get_drvdata(dev);
++	struct ahci_host_priv *hpriv = host_set->private_data;
++	struct ata_port *ap;
++	unsigned int i;
++	int have_msi;
++
++	for (i = 0; i < host_set->n_ports; i++) {
++		ap = host_set->ports[i];
++
++		scsi_remove_host(ap->host);
++	}
++
++	have_msi = hpriv->flags & AHCI_FLAG_MSI;
++	free_irq(host_set->irq, host_set);
++
++	for (i = 0; i < host_set->n_ports; i++) {
++		ap = host_set->ports[i];
++
++		ata_scsi_release(ap->host);
++		scsi_host_put(ap->host);
++	}
++
++	host_set->ops->host_stop(host_set);
++	kfree(host_set);
++
++	if (have_msi)
++		pci_disable_msi(pdev);
++	else
++		pci_intx(pdev, 0);
++	pci_release_regions(pdev);
++	pci_disable_device(pdev);
++	dev_set_drvdata(dev, NULL);
++}
+ 
+ static int __init ahci_init(void)
+ {
+diff --git a/drivers/scsi/libata-core.c b/drivers/scsi/libata-core.c
+--- a/drivers/scsi/libata-core.c
++++ b/drivers/scsi/libata-core.c
+@@ -1295,6 +1295,37 @@ err_out:
+ 	DPRINTK("EXIT, err\n");
+ }
+ 
++
++static inline u8 ata_dev_knobble(struct ata_port *ap)
++{
++	return ((ap->cbl == ATA_CBL_SATA) && (!ata_id_is_sata(ap->device->id)));
++}
++
++/**
++ * 	ata_dev_config - Run device specific handlers and check for
++ * 			 SATA->PATA bridges
++ * 	@ap: Bus 
++ * 	@i:  Device
++ *
++ * 	LOCKING:
++ */
++ 
++void ata_dev_config(struct ata_port *ap, unsigned int i)
++{
++	/* limit bridge transfers to udma5, 200 sectors */
++	if (ata_dev_knobble(ap)) {
++		printk(KERN_INFO "ata%u(%u): applying bridge limits\n",
++			ap->id, ap->device->devno);
++		ap->udma_mask &= ATA_UDMA5;
++		ap->host->max_sectors = ATA_MAX_SECTORS;
++		ap->host->hostt->max_sectors = ATA_MAX_SECTORS;
++		ap->device->flags |= ATA_DFLAG_LOCK_SECTORS;
++	}
++
++	if (ap->ops->dev_config)
++		ap->ops->dev_config(ap, &ap->device[i]);
++}
++
+ /**
+  *	ata_bus_probe - Reset and probe ATA bus
+  *	@ap: Bus to probe
+@@ -1322,8 +1353,7 @@ static int ata_bus_probe(struct ata_port
+ 		ata_dev_identify(ap, i);
+ 		if (ata_dev_present(&ap->device[i])) {
+ 			found = 1;
+-			if (ap->ops->dev_config)
+-				ap->ops->dev_config(ap, &ap->device[i]);
++			ata_dev_config(ap,i);
+ 		}
+ 	}
+ 
+@@ -4406,6 +4436,7 @@ EXPORT_SYMBOL_GPL(ata_scsi_release);
+ EXPORT_SYMBOL_GPL(ata_host_intr);
+ EXPORT_SYMBOL_GPL(ata_dev_classify);
+ EXPORT_SYMBOL_GPL(ata_dev_id_string);
++EXPORT_SYMBOL_GPL(ata_dev_config);
+ EXPORT_SYMBOL_GPL(ata_scsi_simulate);
+ 
+ #ifdef CONFIG_PCI
+diff --git a/drivers/scsi/sata_promise.c b/drivers/scsi/sata_promise.c
+--- a/drivers/scsi/sata_promise.c
++++ b/drivers/scsi/sata_promise.c
+@@ -59,6 +59,7 @@ enum {
+ 
+ 	board_2037x		= 0,	/* FastTrak S150 TX2plus */
+ 	board_20319		= 1,	/* FastTrak S150 TX4 */
++	board_20619		= 2,	/* FastTrak TX4000 */
+ 
+ 	PDC_HAS_PATA		= (1 << 1), /* PDC20375 has PATA */
+ 
+@@ -147,6 +148,17 @@ static struct ata_port_info pdc_port_inf
+ 		.udma_mask	= 0x7f, /* udma0-6 ; FIXME */
+ 		.port_ops	= &pdc_ata_ops,
+ 	},
++
++	/* board_20619 */
++	{
++		.sht		= &pdc_ata_sht,
++		.host_flags	= ATA_FLAG_NO_LEGACY | ATA_FLAG_SRST |
++				  ATA_FLAG_MMIO | ATA_FLAG_SLAVE_POSS,
++		.pio_mask	= 0x1f, /* pio0-4 */
++		.mwdma_mask	= 0x07, /* mwdma0-2 */
++		.udma_mask	= 0x7f, /* udma0-6 ; FIXME */
++		.port_ops	= &pdc_ata_ops,
++	},
+ };
+ 
+ static struct pci_device_id pdc_ata_pci_tbl[] = {
+@@ -172,6 +184,9 @@ static struct pci_device_id pdc_ata_pci_
+ 	{ PCI_VENDOR_ID_PROMISE, 0x3d18, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+ 	  board_20319 },
+ 
++	{ PCI_VENDOR_ID_PROMISE, 0x6629, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++	  board_20619 },
++
+ 	{ }	/* terminate list */
+ };
+ 
+@@ -636,6 +651,15 @@ static int pdc_ata_init_one (struct pci_
+ 	case board_2037x:
+        		probe_ent->n_ports = 2;
+ 		break;
++	case board_20619:
++		probe_ent->n_ports = 4;
++
++		pdc_ata_setup_port(&probe_ent->port[2], base + 0x300);
++		pdc_ata_setup_port(&probe_ent->port[3], base + 0x380);
++
++		probe_ent->port[2].scr_addr = base + 0x600;
++		probe_ent->port[3].scr_addr = base + 0x700;
++                break;
+ 	default:
+ 		BUG();
+ 		break;
+@@ -676,7 +700,7 @@ static void __exit pdc_ata_exit(void)
+ 
+ 
+ MODULE_AUTHOR("Jeff Garzik");
+-MODULE_DESCRIPTION("Promise SATA TX2/TX4 low-level driver");
++MODULE_DESCRIPTION("Promise ATA TX2/TX4/TX4000 low-level driver");
+ MODULE_LICENSE("GPL");
+ MODULE_DEVICE_TABLE(pci, pdc_ata_pci_tbl);
+ MODULE_VERSION(DRV_VERSION);
+diff --git a/drivers/scsi/sata_svw.c b/drivers/scsi/sata_svw.c
+--- a/drivers/scsi/sata_svw.c
++++ b/drivers/scsi/sata_svw.c
+@@ -49,7 +49,7 @@
+ #endif /* CONFIG_PPC_OF */
+ 
+ #define DRV_NAME	"sata_svw"
+-#define DRV_VERSION	"1.05"
++#define DRV_VERSION	"1.06"
+ 
+ /* Taskfile registers offsets */
+ #define K2_SATA_TF_CMD_OFFSET		0x00
+@@ -344,6 +344,7 @@ static int k2_sata_init_one (struct pci_
+ 	void *mmio_base;
+ 	int pci_dev_busy = 0;
+ 	int rc;
++	int i;
+ 
+ 	if (!printed_version++)
+ 		printk(KERN_DEBUG DRV_NAME " version " DRV_VERSION "\n");
+@@ -421,11 +422,11 @@ static int k2_sata_init_one (struct pci_
+ 	probe_ent->mwdma_mask = 0x7;
+ 	probe_ent->udma_mask = 0x7f;
+ 
+-	/* We have 4 ports per PCI function */
+-	k2_sata_setup_port(&probe_ent->port[0], base + 0 * K2_SATA_PORT_OFFSET);
+-	k2_sata_setup_port(&probe_ent->port[1], base + 1 * K2_SATA_PORT_OFFSET);
+-	k2_sata_setup_port(&probe_ent->port[2], base + 2 * K2_SATA_PORT_OFFSET);
+-	k2_sata_setup_port(&probe_ent->port[3], base + 3 * K2_SATA_PORT_OFFSET);
++	/* different controllers have different number of ports - currently 4 or 8 */
++	/* All ports are on the same function. Multi-function device is no
++	 * longer available. This should not be seen in any system. */
++	for (i = 0; i < ent->driver_data; i++)
++		k2_sata_setup_port(&probe_ent->port[i], base + i * K2_SATA_PORT_OFFSET);
+ 
+ 	pci_set_master(pdev);
+ 
+@@ -445,11 +446,17 @@ err_out:
+ 	return rc;
+ }
+ 
+-
++/* 0x240 is device ID for Apple K2 device
++ * 0x241 is device ID for Serverworks Frodo4
++ * 0x242 is device ID for Serverworks Frodo8
++ * 0x24a is device ID for BCM5785 (aka HT1000) HT southbridge integrated SATA
++ * controller
++ * */
+ static struct pci_device_id k2_sata_pci_tbl[] = {
+-	{ 0x1166, 0x0240, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
+-	{ 0x1166, 0x0241, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
+-	{ 0x1166, 0x0242, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
++	{ 0x1166, 0x0240, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 4 },
++	{ 0x1166, 0x0241, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 4 },
++	{ 0x1166, 0x0242, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 8 },
++	{ 0x1166, 0x024a, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 4 },
+ 	{ }
+ };
+ 
+diff --git a/include/linux/ata.h b/include/linux/ata.h
+--- a/include/linux/ata.h
++++ b/include/linux/ata.h
+@@ -224,6 +224,7 @@ struct ata_taskfile {
+ };
+ 
+ #define ata_id_is_ata(id)	(((id)[0] & (1 << 15)) == 0)
++#define ata_id_is_sata(id)	((id)[93] == 0)
+ #define ata_id_rahead_enabled(id) ((id)[85] & (1 << 6))
+ #define ata_id_wcache_enabled(id) ((id)[85] & (1 << 5))
+ #define ata_id_has_flush(id) ((id)[83] & (1 << 12))
+diff --git a/include/linux/libata.h b/include/linux/libata.h
+--- a/include/linux/libata.h
++++ b/include/linux/libata.h
+@@ -421,6 +421,7 @@ extern void ata_sg_init(struct ata_queue
+ extern unsigned int ata_dev_classify(struct ata_taskfile *tf);
+ extern void ata_dev_id_string(u16 *id, unsigned char *s,
+ 			      unsigned int ofs, unsigned int len);
++extern void ata_dev_config(struct ata_port *ap, unsigned int i);
+ extern void ata_bmdma_setup (struct ata_queued_cmd *qc);
+ extern void ata_bmdma_start (struct ata_queued_cmd *qc);
+ extern void ata_bmdma_stop(struct ata_port *ap);
+
+--------------040406050802060407070602--

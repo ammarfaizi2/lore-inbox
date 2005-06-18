@@ -1,56 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262110AbVFRND0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262111AbVFRNMd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262110AbVFRND0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Jun 2005 09:03:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262111AbVFRND0
+	id S262111AbVFRNMd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Jun 2005 09:12:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262112AbVFRNMd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Jun 2005 09:03:26 -0400
-Received: from mail.metronet.co.uk ([213.162.97.75]:21137 "EHLO
-	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S262110AbVFRNDW
+	Sat, 18 Jun 2005 09:12:33 -0400
+Received: from wproxy.gmail.com ([64.233.184.196]:59935 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262111AbVFRNMc convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Jun 2005 09:03:22 -0400
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Nick Warne <nick@linicks.net>
-Subject: Re: 2.6.12 udev hangs at boot
-Date: Sat, 18 Jun 2005 14:03:41 +0100
-User-Agent: KMail/1.8.1
-References: <200506181332.25287.nick@linicks.net>
-In-Reply-To: <200506181332.25287.nick@linicks.net>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Sat, 18 Jun 2005 09:12:32 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=fNSDehiu8O0Y02bvym04t5pFYFlOupATZNz6cUICZY6j3o2DfcfMYNUfYXylOjmMOAwybGfbogAruK73BTH9LhQ5BTR4AuxFAhCFmKjAnehv/vUk4veX3UT1A83ihpgO28U0ArkOFi9RBuAD3UBPxX17L1XKIJTgpF7d6KF2ABs=
+Message-ID: <cc27d5b10506180612177415c6@mail.gmail.com>
+Date: Sat, 18 Jun 2005 15:12:29 +0200
+From: Paolo Marchetti <natryum@gmail.com>
+Reply-To: Paolo Marchetti <natryum@gmail.com>
+To: kernel <linux-kernel@vger.kernel.org>
+Subject: 2.6.12 cpu-freq conservative governor problem
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200506181403.41212.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 18 Jun 2005 13:32, you wrote:
-> Hi All,
->
-> 2.6.12, GCC 3.4.4 on Slackware 10 base
->
-> New 2.6.12 build hangs at initialising udev dynamic device directory on
-> boot. I used make oldconfig from 2.6.11.12, and all the new changes I
-> selected N, all bar nvidia FB support (I built several times, as I have a
-> GeForce4 card, so suspected the nvidia FB support at first and turned off).
->
-> 2.6.11.12 works perfect.
->
-> I have just spent an hour or so investigating, but I am none the wiser.
->
-> Ideas what could be causing this?
+Hello world,
+I'm trying the brand new conservative governor on my p4 2.66 laptop
+("Intel Pentium 4 clock modulation" only), it doesn't work at all (my
+cpu does not scale).
 
-I had this problem because I was running an ancient version of udev (0.34, 
-versus 0.58, at the time..). Try upgrading udev if it's out of date.
+cat cpufreq/conservative/sampling_rate_max 
+2755359744
 
--- 
-Cheers,
-Alistair.
+cat cpufreq/scaling_max_freq 
+2666600
 
-personal:   alistair()devzero!co!uk
-university: s0348365()sms!ed!ac!uk
-student:    CS/CSim Undergraduate
-contact:    1F2 55 South Clerk Street,
-            Edinburgh. EH8 9PP.
+I don't get this...
+ondemand governor works fine as usual.

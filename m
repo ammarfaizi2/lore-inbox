@@ -1,78 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262116AbVFRN4R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262117AbVFRN5n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262116AbVFRN4R (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Jun 2005 09:56:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262117AbVFRN4R
+	id S262117AbVFRN5n (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Jun 2005 09:57:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262118AbVFRN5n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Jun 2005 09:56:17 -0400
-Received: from ipx10786.ipxserver.de ([80.190.251.108]:55769 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S262116AbVFRN4O
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Jun 2005 09:56:14 -0400
-Date: Sat, 18 Jun 2005 15:57:52 +0200
-From: Johannes Stezenbach <js@linuxtv.org>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-ID: <20050618135752.GB19838@linuxtv.org>
-Mail-Followup-To: Johannes Stezenbach <js@linuxtv.org>,
-	Bill Davidsen <davidsen@tmr.com>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0506061104190.1876@ppc970.osdl.org> <20050607091144.GA5701@linuxtv.org> <20050608111503.GA5777@linuxtv.org> <42A6D521.606@ens-lyon.org> <20050608113718.GA5949@linuxtv.org> <42B30CE9.4050707@tmr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <42B30CE9.4050707@tmr.com>
-User-Agent: Mutt/1.5.9i
-X-SA-Exim-Connect-IP: 84.189.217.46
-Subject: Re: Linux v2.6.12-rc6
-X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
-X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
+	Sat, 18 Jun 2005 09:57:43 -0400
+Received: from zproxy.gmail.com ([64.233.162.192]:47803 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262117AbVFRN5Z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Jun 2005 09:57:25 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:subject:content-type:content-transfer-encoding;
+        b=IauCdZtsT5VgP9htuQUf1Nf8FTKQpEGLLYuYm7BtlhZPpg3ooablPqyPPF+AeonAr5daD0A7uMmYPmSimlx/PisfRJI8Bk+unUb6o0Rwcnw5rSp2kLNctqO/LbGDFpLa4COhnHqupkYmfAuvPnOXN/1+pdy1SvzobJbJ3SqiKWU=
+Message-ID: <42B42907.8060404@gmail.com>
+Date: Sat, 18 Jun 2005 22:00:39 +0800
+From: Roy Lee <roylee17@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: zh-tw, en-us, en, zh
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Could someone tell me more about the asmlinkage
+Content-Type: text/plain; charset=Big5
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
-> Johannes Stezenbach wrote:
-> >Brice Goglin wrote:
-> >>Johannes Stezenbach a écrit :
-> >>>Indeed SMT works fine if I enable ACPI.
-> >>>Is SMT without ACPI not supported?
-> >>
-> >>You can pass acpi=ht into the kernel command line to disable
-> >>ACPI except the minimum required to get HT support.
-> >
-> >
-> >That's nice, but I was thinking along the lines of:
-> >
-> >diff -ur linux-2.6.12-rc6.orig/arch/i386/Kconfig 
-> >linux-2.6.12-rc6/arch/i386/Kconfig
-> >--- linux-2.6.12-rc6.orig/arch/i386/Kconfig	2005-06-06 
-> >23:16:27.000000000 +0200
-> >+++ linux-2.6.12-rc6/arch/i386/Kconfig	2005-06-08 
-> >13:35:08.000000000 +0200
-> >@@ -503,7 +503,7 @@
-> > 
-> > config SCHED_SMT
-> > 	bool "SMT (Hyperthreading) scheduler support"
-> >-	depends on SMP
-> >+	depends on SMP && ACPI
-> > 	default off
-> > 	help
-> > 	  SMT scheduler support improves the CPU scheduler's decision making
-> >
-> >Comments? Is this intended?
-> 
-> I would think that you can't do HT without ACPI, so there's no point in 
-> building in HT scheduling unless you can have HT.
-> 
-> Is that what you were asking? I was hoping someone else would comment.
+"Why is there a asmlinkage before a syscall?"
 
-In 2.6.12-rc5 SMT worked without CONFIG_ACPI. (IIRC the kernel used some
-minimal ACPI stuff anyway for CPU initialisation).
+I know this is a FAQ already, but I couldn't find an answer that clear enough 
+for me to understand after "gooling" for some time. I've also read the FAQ of 
+kernelnewbies.
 
-I don't use power management or other features of ACPI so I
-had it disabled, and my build broke with 2.6.12-rc6.
+The following is quoted from the FAQ of kernelnewbies.
+-------
+The asmlinkage tag is one other thing that we should observe about this simple 
+function. This is a #define for some gcc magic that tells the compiler that the 
+function should not expect to find any of its arguments in registers (a common 
+optimization), but only on the CPU's stack. Recall our earlier assertion that 
+system_call consumes its first argument, the system call number, and allows up 
+to four more arguments that are passed along to the real system call. system_call 
+achieves this feat simply by leaving its other arguments (which were passed to it 
+in registers) on the stack. All system calls are marked with the asmlinkage tag, 
+so they all look to the stack for arguments. Of course, in sys_ni_syscall's case, 
+this doesn't make any difference, because sys_ni_syscall doesn't take any arguments, 
+but it's an issue for most other system calls. And, because you'll be seeing asmlinkage 
+in front of many other functions, I thought you should know what it was about.
+--------
 
-Johannes
+It says that "To tell a compiler not to use the argument in the registers". but the 
+syscall's argument does pass the arguments though registers, doesn't it?
+
+While tracing the code, I found the asmlinkage was a #define of a extern "C", and 
+the only usage of extern "C" that I know is to avoid the name mangling while calling 
+a C function in C++. Does the asmlinkage here have connection with that?
+
+Roy
+
+
+

@@ -1,45 +1,158 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261258AbVFRCxP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261433AbVFRDAi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261258AbVFRCxP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Jun 2005 22:53:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261288AbVFRCxP
+	id S261433AbVFRDAi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Jun 2005 23:00:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261503AbVFRDAi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Jun 2005 22:53:15 -0400
-Received: from web61215.mail.yahoo.com ([209.73.179.64]:1466 "HELO
-	web61215.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261258AbVFRCxM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Jun 2005 22:53:12 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=xOR3BuFtVkqY7LQJ+OusRmtZdIX96L1I1sMnWk6MUrmZjBZI3OyKcHn9QRPgJMfviR60ZLPjYkbyeMfbq1I/WLMI8JxeId0GheNTOHukapRVuLfALICilyNA7tgwIxXAaud1dxvCwE5H3NhVyj/VgtmEjerGv3re+y7rLZCd8Dw=  ;
-Message-ID: <20050618025312.22719.qmail@web61215.mail.yahoo.com>
-Date: Fri, 17 Jun 2005 19:53:12 -0700 (PDT)
-From: movq movq <movq_64@yahoo.com>
-Subject: missing kfree in fs/ext3/balloc.c
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 17 Jun 2005 23:00:38 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:2961 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261433AbVFRC6K (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Jun 2005 22:58:10 -0400
+Subject: [PATCH 2/6] new timeofday i386 arch specific changes, part 1 for
+	-mm (v.B3)
+From: john stultz <johnstul@us.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Cc: Tim Schmielau <tim@physik3.uni-rostock.de>,
+       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Christoph Lameter <clameter@sgi.com>,
+       Dominik Brodowski <linux@dominikbrodowski.de>,
+       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
+       paulus@samba.org, schwidefsky@de.ibm.com,
+       keith maanthey <kmannth@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
+       Max Asbock <masbock@us.ibm.com>, mahuja@us.ibm.com,
+       Nishanth Aravamudan <nacc@us.ibm.com>, Darren Hart <darren@dvhart.com>,
+       "Darrick J. Wong" <djwong@us.ibm.com>,
+       Anton Blanchard <anton@samba.org>, donf@us.ibm.com, mpm@selenic.com,
+       benh@kernel.crashing.org, kernel-stuff@comcast.net, frank@tuxrocks.com
+In-Reply-To: <1119063400.9663.2.camel@cog.beaverton.ibm.com>
+References: <1119063400.9663.2.camel@cog.beaverton.ibm.com>
+Content-Type: text/plain
+Date: Fri, 17 Jun 2005 19:58:04 -0700
+Message-Id: <1119063484.9663.4.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is my first post, so be kind. Perhaps I am wrong
-here, but I was looking through fs/ext3/balloc.c and
-noticed this line:
+Andrew, All,
+	To hopefully improve the review-ability of my changes, I've split up my
+arch-i386 patch into four chunks. This patch is just a simple cleanup
+for the i386 arch in preparation of moving the the new timeofday
+infrastructure. It simply moves some code from timer_pit.c to i8259.c.
+	
+It applies on top of my timeofday-core_B3 patch. This patch is part the
+timeofday-arch-i386 patchset, so without the following parts it is not
+expected to compile (although just this one should).
+	
+Andrew, please consider for inclusion for testing into your tree.
 
-line 268
-...
-block_i = kmalloc(sizeof(*block_i), GFP_NOFS);
-...
+thanks
+-john
 
-But I do not see this chunk of memory ever kfree()'d.
-Is there a reason for this or is this kfree() just
-missing?
+Signed-off-by: John Stultz <johnstul@us.ibm.com>
 
-- Thanks
+linux-2.6.12-rc6-mm1_timeofday-arch-i386-part1_B3.patch
+=======================================================
+diff -ruN linux-2.6.12-rc6-mm1/arch/i386/kernel/i8259.c linux-2.6.12-rc6-mm1-tod/arch/i386/kernel/i8259.c
+--- linux-2.6.12-rc6-mm1/arch/i386/kernel/i8259.c	2005-06-17 15:56:27.000000000 -0700
++++ linux-2.6.12-rc6-mm1-tod/arch/i386/kernel/i8259.c	2005-06-17 18:28:05.576479704 -0700
+@@ -400,6 +400,46 @@
+ 	}
+ }
+ 
++void setup_pit_timer(void)
++{
++	extern spinlock_t i8253_lock;
++	unsigned long flags;
++
++	spin_lock_irqsave(&i8253_lock, flags);
++	outb_p(0x34,PIT_MODE);		/* binary, mode 2, LSB/MSB, ch 0 */
++	udelay(10);
++	outb_p(LATCH & 0xff , PIT_CH0);	/* LSB */
++	udelay(10);
++	outb(LATCH >> 8 , PIT_CH0);	/* MSB */
++	spin_unlock_irqrestore(&i8253_lock, flags);
++}
++
++static int timer_resume(struct sys_device *dev)
++{
++	setup_pit_timer();
++	return 0;
++}
++
++static struct sysdev_class timer_sysclass = {
++	set_kset_name("timer_pit"),
++	.resume	= timer_resume,
++};
++
++static struct sys_device device_timer = {
++	.id	= 0,
++	.cls	= &timer_sysclass,
++};
++
++static int __init init_timer_sysfs(void)
++{
++	int error = sysdev_class_register(&timer_sysclass);
++	if (!error)
++		error = sysdev_register(&device_timer);
++	return error;
++}
++
++device_initcall(init_timer_sysfs);
++
+ void __init init_IRQ(void)
+ {
+ 	int i;
+diff -ruN linux-2.6.12-rc6-mm1/arch/i386/kernel/timers/timer_pit.c linux-2.6.12-rc6-mm1-tod/arch/i386/kernel/timers/timer_pit.c
+--- linux-2.6.12-rc6-mm1/arch/i386/kernel/timers/timer_pit.c	2005-06-17 15:56:27.000000000 -0700
++++ linux-2.6.12-rc6-mm1-tod/arch/i386/kernel/timers/timer_pit.c	2005-06-17 18:28:05.586478462 -0700
+@@ -163,44 +163,3 @@
+ 	.init = init_pit, 
+ 	.opts = &timer_pit,
+ };
+-
+-void setup_pit_timer(void)
+-{
+-	extern spinlock_t i8253_lock;
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&i8253_lock, flags);
+-	outb_p(0x34,PIT_MODE);		/* binary, mode 2, LSB/MSB, ch 0 */
+-	udelay(10);
+-	outb_p(LATCH & 0xff , PIT_CH0);	/* LSB */
+-	udelay(10);
+-	outb(LATCH >> 8 , PIT_CH0);	/* MSB */
+-	spin_unlock_irqrestore(&i8253_lock, flags);
+-}
+-
+-static int timer_resume(struct sys_device *dev)
+-{
+-	setup_pit_timer();
+-	return 0;
+-}
+-
+-static struct sysdev_class timer_sysclass = {
+-	set_kset_name("timer_pit"),
+-	.resume	= timer_resume,
+-};
+-
+-static struct sys_device device_timer = {
+-	.id	= 0,
+-	.cls	= &timer_sysclass,
+-};
+-
+-static int __init init_timer_sysfs(void)
+-{
+-	int error = sysdev_class_register(&timer_sysclass);
+-	if (!error)
+-		error = sysdev_register(&device_timer);
+-	return error;
+-}
+-
+-device_initcall(init_timer_sysfs);
+-
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+

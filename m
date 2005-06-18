@@ -1,62 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262179AbVFRWdR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262177AbVFRWjr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262179AbVFRWdR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Jun 2005 18:33:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262181AbVFRWdR
+	id S262177AbVFRWjr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Jun 2005 18:39:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262188AbVFRWjq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Jun 2005 18:33:17 -0400
-Received: from bay104-f33.bay104.hotmail.com ([65.54.175.43]:25701 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S262179AbVFRWdM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Jun 2005 18:33:12 -0400
-Message-ID: <BAY104-F33EC080F521153F56952B884F70@phx.gbl>
-X-Originating-IP: [65.54.175.204]
-X-Originating-Email: [idht4n@hotmail.com]
-In-Reply-To: <1119133125.4560.43.camel@mindpipe>
-From: "David L" <idht4n@hotmail.com>
-To: rlrevell@joe-job.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: bad: scheduling while atomic!: how bad?
-Date: Sat, 18 Jun 2005 15:33:11 -0700
+	Sat, 18 Jun 2005 18:39:46 -0400
+Received: from tim.rpsys.net ([194.106.48.114]:47018 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S262177AbVFRWja (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Jun 2005 18:39:30 -0400
+Subject: Re: 2.6.12-rc6-mm1
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Russell King <linux@arm.linux.org.uk>
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20050607042931.23f8f8e0.akpm@osdl.org>
+References: <20050607042931.23f8f8e0.akpm@osdl.org>
+Content-Type: text/plain
+Date: Sat, 18 Jun 2005 23:39:18 +0100
+Message-Id: <1119134359.7675.38.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 18 Jun 2005 22:33:11.0617 (UTC) FILETIME=[B5821310:01C57455]
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[snip]
->On Sat, 2005-06-18 at 14:59 -0700, David L wrote:
-> > I'm seeing the message:
-> >
-> > bad: scheduling while atomic!
->
->It indicates a kernel bug, which could range from harmless to very bad.
->
->Usually that message is accompanied by a stack trace, can you provide a
->real log excerpt?
-Is this what you need?
+On Tue, 2005-06-07 at 04:29 -0700, Andrew Morton wrote:
+> +git-arm-smp.patch
+> 
+>  ARM git trees
 
-bad: scheduling while atomic!
-[<c02a930f>]
-[<c01f8c47>]
-[<c01e6aea>]
-[<c0120211>]
-[<c01e6b30>]
-[<c010f9a0>]
-[<c02a8ff9>]
-[<c010f9a0>]
-[<c0120040>]
-[<c0123983>]
-[<c0123900>]
-[<c0103b25>]
+The arm pxa255 based Zaurus won't resume from a suspend with the patches
+from the above tree applied. The suspend looks normal and gets at least
+as far as pxa_pm_enter(). After that, the device appears to be dead and
+needs a battery removal to reset. I'm unsure if it actually suspends and
+is failing to resume or is crashing in the latter suspend stages.
 
-(or do you need config.gz and/or something else to make sense of it?)
+Is there some documentation on what the above patch is aiming to do
+anywhere?
 
-Cheers...
+Richard
 
-           David
 
-_________________________________________________________________
-FREE pop-up blocking with the new MSN Toolbar – get it now! 
-http://toolbar.msn.click-url.com/go/onm00200415ave/direct/01/
 

@@ -1,51 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262171AbVFRWMa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262155AbVFRWMX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262171AbVFRWMa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Jun 2005 18:12:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262173AbVFRWMa
+	id S262155AbVFRWMX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Jun 2005 18:12:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262173AbVFRWMX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Jun 2005 18:12:30 -0400
-Received: from [195.55.102.196] ([195.55.102.196]:59047 "EHLO
-	mx.aytolacoruna.es") by vger.kernel.org with ESMTP id S262171AbVFRWMU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Jun 2005 18:12:20 -0400
-Date: Sun, 19 Jun 2005 00:12:16 +0200
-From: Santiago Garcia Mantinan <netfilter-devel@manty.net>
-To: Chris Rankin <rankincj@yahoo.com>, netfilter-devel@lists.netfilter.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12: connection tracking broken?
-Message-ID: <20050618221216.GB3182@pul.manty.net>
-References: <20050618124359.39052.qmail@web52901.mail.yahoo.com> <20050618192541.GA27439@pul.manty.net>
+	Sat, 18 Jun 2005 18:12:23 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:34495 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262155AbVFRWMP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Jun 2005 18:12:15 -0400
+Subject: Re: bad: scheduling while atomic!: how bad?
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: David L <idht4n@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <BAY104-F697F218C7E4E45B78BCDA84F70@phx.gbl>
+References: <BAY104-F697F218C7E4E45B78BCDA84F70@phx.gbl>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-0ry73zqHI9LIe75aUgYx"
+Organization: Red Hat, Inc.
+Date: Sat, 18 Jun 2005 18:10:01 -0400
+Message-Id: <1119132601.5871.22.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050618192541.GA27439@pul.manty.net>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have sent this right now to the bridge list, I'm copying it here so that
-> more info is available about this bug.
 
-I have selected patches from 2.6.12 that I thought could be related to this
-issue, and I have finaly identified this patch...
+--=-0ry73zqHI9LIe75aUgYx
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=b31e5b1bb53b99dfd5e890aa07e943aff114ae1c
+On Sat, 2005-06-18 at 14:59 -0700, David L wrote:
+> I'm seeing the message:
+>=20
+> bad: scheduling while atomic!
+>=20
+> I see this dozens of times when I'm writing to a nand flash device using =
+a=20
+> vendor-provided driver from Compulab in 2.6.8.1.  Does this mean the driv=
+er=20
+> has a bug or is incompatible with the preemptive configuration option?  H=
+ow=20
+> bad is "bad"?  Should I turn of the preemption option, ignore the message=
+,=20
+> or what?
 
-as the patch causing the problem, I have reversed it on my kernel tree and
-now the firewall is working again.
+can you post the sourcecode of the driver? it needs fixing...
 
-I have not really looked at what the patch does and how it does that, I have
-just identified it as the one causing the break of this connection tracking
-relating to the bridges.
 
-It seems this is affecting more stuff than the connection tracking on
-bridges, I have a friend also suffering problems relating to the firewall in
-2.6.12 and nothing to do with the bridge, but he is not around now so I
-cannot confirm it is due to this patch also. His problem may be something
-related to loopback. I'll try to contact him tomorrow and tell him to test
-with this patch reversed.
+--=-0ry73zqHI9LIe75aUgYx
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-Regards...
--- 
-Manty/BestiaTester -> http://manty.net
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBCtJu4pv2rCoFn+CIRAqViAKCTue9M84lqDu4yp3wv2GCODRBeKgCggHAU
+v7e7HsYNN3ElE3vwkFWz2xI=
+=ZUT2
+-----END PGP SIGNATURE-----
+
+--=-0ry73zqHI9LIe75aUgYx--
+

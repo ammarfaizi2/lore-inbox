@@ -1,43 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261730AbVFRBwN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261258AbVFRCxP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261730AbVFRBwN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Jun 2005 21:52:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbVFRBwN
+	id S261258AbVFRCxP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Jun 2005 22:53:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261288AbVFRCxP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Jun 2005 21:52:13 -0400
-Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:5763 "EHLO
-	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S261730AbVFRBwK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Jun 2005 21:52:10 -0400
-X-ORBL: [63.202.173.158]
-Date: Fri, 17 Jun 2005 18:51:52 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Robert Love <rml@novell.com>, Zach Brown <zab@zabbo.net>,
-       linux-kernel@vger.kernel.org,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       John McCutchan <ttb@tentacle.dhs.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch] inotify.
-Message-ID: <191951.1275e84aabedf37c16209d36573e55ca.ANY@taniwha.stupidest.org>
-References: <1118855899.3949.21.camel@betsy> <42B1BC4B.3010804@zabbo.net> <1118946334.3949.63.camel@betsy> <200506171907.39940.arnd@arndb.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200506171907.39940.arnd@arndb.de>
+	Fri, 17 Jun 2005 22:53:15 -0400
+Received: from web61215.mail.yahoo.com ([209.73.179.64]:1466 "HELO
+	web61215.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261258AbVFRCxM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Jun 2005 22:53:12 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=xOR3BuFtVkqY7LQJ+OusRmtZdIX96L1I1sMnWk6MUrmZjBZI3OyKcHn9QRPgJMfviR60ZLPjYkbyeMfbq1I/WLMI8JxeId0GheNTOHukapRVuLfALICilyNA7tgwIxXAaud1dxvCwE5H3NhVyj/VgtmEjerGv3re+y7rLZCd8Dw=  ;
+Message-ID: <20050618025312.22719.qmail@web61215.mail.yahoo.com>
+Date: Fri, 17 Jun 2005 19:53:12 -0700 (PDT)
+From: movq movq <movq_64@yahoo.com>
+Subject: missing kfree in fs/ext3/balloc.c
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 17, 2005 at 07:07:38PM +0200, Arnd Bergmann wrote:
+This is my first post, so be kind. Perhaps I am wrong
+here, but I was looking through fs/ext3/balloc.c and
+noticed this line:
 
-> in inotify is _very_ similar to how epoll is represented to user
-> space. Is there a good reason that epoll is a set of syscalls while
-> inotify is a character device, or is one of them simply wrong?
+line 268
+...
+block_i = kmalloc(sizeof(*block_i), GFP_NOFS);
+...
 
-Tangentially inotify does some of what the DMAPI interface(s) want to
-do (albeit somewhat simpler).  It would seem since DMAPI in it's
-current incarnation won't "go away and die[1]" it might be worth
-considering how much overlap there is.
+But I do not see this chunk of memory ever kfree()'d.
+Is there a reason for this or is this kfree() just
+missing?
 
+- Thanks
 
-[1] More than one fs has this out-of-tree and people are using it in
-    various forms.
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

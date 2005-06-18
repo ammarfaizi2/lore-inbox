@@ -1,35 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262159AbVFRSIA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262160AbVFRSH5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262159AbVFRSIA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Jun 2005 14:08:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262162AbVFRSH7
+	id S262160AbVFRSH5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Jun 2005 14:07:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262162AbVFRSH4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Jun 2005 14:07:59 -0400
-Received: from zeus2.kernel.org ([204.152.191.36]:60591 "EHLO zeus2.kernel.org")
-	by vger.kernel.org with ESMTP id S262159AbVFRRpN (ORCPT
+	Sat, 18 Jun 2005 14:07:56 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:1941 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262160AbVFRRlN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Jun 2005 13:45:13 -0400
-Message-Id: <200506181745.j5IHj46C014318@zeus2.kernel.org>
-From: "Ashley" <ridgelytl57@sexmagnet.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: pay attention to the information - more pleasure
-Date: Sat, 18 Jun 2005 12:48:41 +0000
+	Sat, 18 Jun 2005 13:41:13 -0400
+Date: Sat, 18 Jun 2005 10:42:50 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+cc: Willy Tarreau <willy@w.ods.org>, Keith Owens <kaos@ocs.com.au>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.12
+In-Reply-To: <Pine.LNX.4.62.0506181231410.2653@dragon.hyggekrogen.localhost>
+Message-ID: <Pine.LNX.4.58.0506181041460.2268@ppc970.osdl.org>
+References: <21446.1119073126@ocs3.ocs.com.au> <Pine.LNX.4.58.0506172255280.2268@ppc970.osdl.org>
+ <20050618065911.GH8907@alpha.home.local> <Pine.LNX.4.62.0506181231410.2653@dragon.hyggekrogen.localhost>
 MIME-Version: 1.0
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Thread-Index: w0uzvzSqkqnfhgLglG2iSYbK3amVwXPWVcmO
-Content-Type: text/plain;
-        charset="Windows-1252"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You always dreamt to rock hard erections…  It’s the best thing you had ever seen!  But some of us think it’s impossible!!! 
-Take it before go to bed and you will be able to show the paradise for you sweetie! And the results will impress your girl!
-http://directorial.us.clearheads.net/gb/spur/   
 
 
-Delete:
-http://conceptual.bz.clearheads.net/gb/rm.php 
- The pen is mightier than the sword.
+On Sat, 18 Jun 2005, Jesper Juhl wrote:
+> On Sat, 18 Jun 2005, Willy Tarreau wrote:
+> 
+> > On Fri, Jun 17, 2005 at 11:05:28PM -0700, Linus Torvalds wrote:
+> >  
+> > > Because it's extracted as a regular file (instead of tar knowing that it's 
+> > > a comment header), you will now have a file called "pax_global_header" 
+> > > that has the contents
+> > 
+> > I guess it will end up in dontdiff quickly :-)
+> > 
+> If Linus accepts the patch below, then yes :-)
 
+Actually, I won't.
+
+As far as I know, the "pax_global_header" file doesn't get added to inside
+the Linux directory, it gets added to the "top" directory, ie one 
+directory up from the Linux directory. As such, this should all be 
+unnecessary.
+
+		Linus

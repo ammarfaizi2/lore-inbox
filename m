@@ -1,58 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262135AbVFRPdK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262137AbVFRPpw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262135AbVFRPdK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Jun 2005 11:33:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262138AbVFRPdJ
+	id S262137AbVFRPpw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Jun 2005 11:45:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262138AbVFRPpw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Jun 2005 11:33:09 -0400
-Received: from mail.linicks.net ([217.204.244.146]:19730 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S262135AbVFRPcw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Jun 2005 11:32:52 -0400
-From: Nick Warne <nick@linicks.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12 udev hangs at boot
-Date: Sat, 18 Jun 2005 16:32:44 +0100
-User-Agent: KMail/1.8.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Sat, 18 Jun 2005 11:45:52 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:59918 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262137AbVFRPpm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Jun 2005 11:45:42 -0400
+Date: Sat, 18 Jun 2005 17:45:32 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jens Axboe <axboe@suse.de>, James.Bottomley@SteelEye.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: kernel bugzilla
+Message-ID: <20050618154532.GR21393@stusta.de>
+References: <20050617001330.294950ac.akpm@osdl.org> <1119016223.5049.3.camel@mulgrave> <20050617142225.GO6957@suse.de> <20050617141003.2abdd8e5.akpm@osdl.org> <20050617212338.GA16852@suse.de> <20050617143946.00f387d0.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200506181632.44467.nick@linicks.net>
+In-Reply-To: <20050617143946.00f387d0.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Walrond wrote:
-
-> On Saturday 18 June 2005 14:44, Nick Warne wrote:
->> >
->> > I had this problem because I was running an ancient version of udev
->> > (0.34, versus 0.58, at the time..). Try upgrading udev if it's out of
->> > date.
->>
->> Thanks, that worked :-)
->>
+On Fri, Jun 17, 2005 at 02:39:46PM -0700, Andrew Morton wrote:
+> Jens Axboe <axboe@suse.de> wrote:
+> >
+> > > One thing I haven't worked out is how to get a bug which is initially
+> > > reported via email *into* the bugzilla system for tracking purposes.  One
+> > > could just ask the originator to raise a bugzilla entry, as lots of other
+> > > projects do.  But I don't think we want to do that - it's in our interest
+> > > to make bug reporting as easy as possible for the reporter, rather than
+> > > putting up barriers.
+> > 
+> > Depends... Sometimes it's quite ok to put the onus on the reported to
+> > file it in bugzilla, since it should be considered in his best interest
+> > to do so - he obviously filed the bug, because the issue bothers him in
+> > some way. As long as it is 'easy enough' to do so, I think we are
+> > alright. The question is if this can't be automated fairly easily. A
+> > good bugzilla interface helps a _lot_.
 > 
-> FWIW In the udev 058 announcement, Greg said:
+> Agree.  We should encourage people to use bugzilla as the initial
+> entry-point.  But if someone instead uses email as the first contact I'm
+> just a little bit reluctant to say "thanks, now go and try again".
 > 
-> "Note, if you are running a kernel newer than 2.6.12-rc4 (including the
-> -mm releases) and you have any custom udev rules, you MUST upgrade to
-> the latest version to allow udev to work properly.  This change happened
-> because of a previously-unrealized reliance in libsysfs on the presence
-> of a useless sysfs file that has recently been removed.  Hopefully the
-> libsysfs people will be releasing a new version shortly with this change
-> in it for those packages who rely on it."
-> 
-> Just a reminder because I bet many people will get caught out by this!
+> Perhaps we could find some nice volunteer (hint) who could take the task of
+> transferring such reports into bugzilla.  There wouldn't be very many, really.
+>...
 
-Yes - and also the download link on the main udev page is broke :-/
+Why does this has to be done manually?
 
-Here is where to get the latest udev build:
+Reporting a bug in a Bugzilla only requires creating an account (if you 
+don't have one) and entering the bug. It's not a "do it again", since 
+the user already has the whole contents of the bug report. If you've 
+written an email with a good bug report pasting it into a Bugzilla 
+shouldn't be a problem.
 
-http://www.kernel.org/pub/linux/utils/kernel/hotplug/
+The big problem for users of many bug tracking systems (including the 
+kernel Bugzilla) is not that bug reporting was too hard. The problem is 
+that bugs aren't handled in time.
 
-Nick
+cu
+Adrian
+
 -- 
-"When you're chewing on life's gristle,
-Don't grumble, Give a whistle..."
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

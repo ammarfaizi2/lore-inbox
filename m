@@ -1,46 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262192AbVFRWpA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262188AbVFRWto@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262192AbVFRWpA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Jun 2005 18:45:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262194AbVFRWpA
+	id S262188AbVFRWto (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Jun 2005 18:49:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262194AbVFRWto
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Jun 2005 18:45:00 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:51389 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262192AbVFRWo6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Jun 2005 18:44:58 -0400
-Date: Sat, 18 Jun 2005 15:44:30 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Richard Purdie <rpurdie@rpsys.net>
-Cc: linux@arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc6-mm1
-Message-Id: <20050618154430.6c06d1cc.akpm@osdl.org>
-In-Reply-To: <1119134359.7675.38.camel@localhost.localdomain>
-References: <20050607042931.23f8f8e0.akpm@osdl.org>
-	<1119134359.7675.38.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sat, 18 Jun 2005 18:49:44 -0400
+Received: from bay104-f22.bay104.hotmail.com ([65.54.175.32]:16663 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S262188AbVFRWte
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Jun 2005 18:49:34 -0400
+Message-ID: <BAY104-F22EC810AC3D3079BA9BB2D84F70@phx.gbl>
+X-Originating-IP: [65.54.175.204]
+X-Originating-Email: [idht4n@hotmail.com]
+In-Reply-To: <1119132601.5871.22.camel@localhost.localdomain>
+From: "David L" <idht4n@hotmail.com>
+To: arjanv@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: bad: scheduling while atomic!: how bad?
+Date: Sat, 18 Jun 2005 15:49:33 -0700
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 18 Jun 2005 22:49:33.0654 (UTC) FILETIME=[FED90760:01C57457]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Purdie <rpurdie@rpsys.net> wrote:
+[snip]
+>On Sat, 2005-06-18 at 14:59 -0700, David L wrote:
+> > I'm seeing the message:
+> >
+> > bad: scheduling while atomic!
+> >
+> > I see this dozens of times when I'm writing to a nand flash device using 
+>a
+> > vendor-provided driver from Compulab in 2.6.8.1.  Does this mean the 
+>driver
+> > has a bug or is incompatible with the preemptive configuration option?  
+>How
+> > bad is "bad"?  Should I turn of the preemption option, ignore the 
+>message,
+> > or what?
 >
-> On Tue, 2005-06-07 at 04:29 -0700, Andrew Morton wrote:
-> > +git-arm-smp.patch
-> > 
-> >  ARM git trees
-> 
-> The arm pxa255 based Zaurus won't resume from a suspend with the patches
-> from the above tree applied. The suspend looks normal and gets at least
-> as far as pxa_pm_enter(). After that, the device appears to be dead and
-> needs a battery removal to reset. I'm unsure if it actually suspends and
-> is failing to resume or is crashing in the latter suspend stages.
-> 
-> Is there some documentation on what the above patch is aiming to do
-> anywhere?
+>can you post the sourcecode of the driver? it needs fixing...
+It's on-line at:
 
-Did you apply just that patch, or are you talking about the whole -mm lineup?
+http://www.compulab.co.il/686-developer.htm
 
-If the latter, please test with only git-arm-smp.patch.
+under "Linux - kernel, drivers and patches".
+
+After unzipping, it's in:
+
+Drivers & Patches 2.6/Flash Disk/cl_fdrv.tgz
+
+Cheers...
+
+                 David
+
+_________________________________________________________________
+Don’t just search. Find. Check out the new MSN Search! 
+http://search.msn.click-url.com/go/onm00200636ave/direct/01/
+

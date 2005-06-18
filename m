@@ -1,81 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262168AbVFRSKi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262167AbVFRSKi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262168AbVFRSKi (ORCPT <rfc822;willy@w.ods.org>);
+	id S262167AbVFRSKi (ORCPT <rfc822;willy@w.ods.org>);
 	Sat, 18 Jun 2005 14:10:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262165AbVFRSKb
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262169AbVFRSKH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Jun 2005 14:10:31 -0400
-Received: from smtp2gate.fmi.fi ([193.166.223.32]:64222 "EHLO smtp2gate.fmi.fi")
-	by vger.kernel.org with ESMTP id S262170AbVFRSHa (ORCPT
+	Sat, 18 Jun 2005 14:10:07 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:13975 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262167AbVFRSE4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Jun 2005 14:07:30 -0400
-Message-Id: <200506181806.j5II6otS019215@leija.fmi.fi>
-Subject: Re: A Great Idea (tm) about reimplementing NLS.
-In-Reply-To: <200506181804.21366.robin.rosenberg.lists@dewire.com>
-To: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
-Date: Sat, 18 Jun 2005 21:06:50 +0300 (EEST)
-From: Kari Hurtta <hurtta+linux-kernel@leija.mh.fmi.fi>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>,
-       Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
-       Patrick McFarland <pmcfarland@downeast.net>,
-       "Richard B. Johnson" <linux-os@analogic.com>,
-       Lukasz Stelmach <stlman@poczta.fm>,
-       "Alexander E. Patrakov" <patrakov@ums.usu.ru>
-X-Mailer: ELM [version 2.4ME+ PL121+test20050529 (25)]
+	Sat, 18 Jun 2005 14:04:56 -0400
+Date: Sat, 18 Jun 2005 11:06:58 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Andrew Morton <akpm@osdl.org>, Netdev List <netdev@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [git patches] 2.6.x net driver updates
+In-Reply-To: <Pine.LNX.4.58.0506181047190.2268@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.58.0506181105110.2268@ppc970.osdl.org>
+References: <42B456E2.8000500@pobox.com> <Pine.LNX.4.58.0506181047190.2268@ppc970.osdl.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain; charset=ISO-8859-1
-X-Filter: smtp2gate: ID 27277/01, 1 parts scanned for known viruses
-X-Filter: torkku: ID 0193/01, 1 parts scanned for known viruses
-X-Spam-Flag: NO
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> fredagen den 17 juni 2005 15.23 skrev Måns Rullgård:
-> > Some characters can be encoded in several equally shortest ways.  
+
+
+On Sat, 18 Jun 2005, Linus Torvalds wrote:
+> On Sat, 18 Jun 2005, Jeff Garzik wrote:
+> > 
+> > GIT NOTE 1:  The top-of-tree cset is the result of my use of the new git 
+> > conflict merging code.  It seemed to work quite nicely.  I did:
+> > 
+> > 	git-pull-script $vanilla_linus_repo	# conflicts appeared
+> > 	vi drivers/net/r8169.c			# fix conflict
+> > 	git-update-cache drivers/net/r8169.c
+> > 	git-commit-tree ...
 > 
-> No they cannot. How to encode characters i explicitly and well defined. If you 
-> don't follow the rules you are simply not producing UTF-8, but something 
-> else.
-> 
-> Every unicode character has exactly one  UTF-8 representation. 
-> 
-> -- robin
+> The last step can be just "git commit", and it will do the right thing
+> these days (and with a nice big warnign that it looks like you're
+> committing a merge).
 
-You are confused between unicode characters and unicode codepoints.
+In fact, your last commit was broken, exactly because you had _not_ done 
+this part right.
 
-Every unicode codepoint has exactly one  UTF-8 representation.
+Your parent information was crap, meaning that when I pulled, I had to
+re-merge. In fact, I'm going to undo this pull entirely, because of this -
+it's simply _wrong_. You claim to have done a merge and indeed your "data"
+is merged, but your history is totally buggered because you didn't do the 
+proper parents.
 
-Unicode characters may use one ore more unicode codepoints.
-
-Some characters have also representation with one codepoint, but not all.
-
-For example
-
-	LATIN CAPITAL LETTER A WITH ACUTE
-
-have presentation	0041 0301
-
-That is two unicode codepoints.  That character
-have also other (compatibility) representation
-
-that is			00C1
-
-
-But consider (somewhat imaginary) character
-
-	LATIN CAPITAL LETTER A WITH GRAVE AND CIRCUMFLEX
-
-that have presentation	0041 0300 0302
-
-but it have also presentation	0041 0302 0300
-
-
-Both presentations are equal short.
-
-
-
-/ Kari Hurtta	
-
-
+		Linus

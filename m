@@ -1,46 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261511AbVFTUKt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261456AbVFTUMW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261511AbVFTUKt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 16:10:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261449AbVFTUGu
+	id S261456AbVFTUMW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 16:12:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261275AbVFTULT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 16:06:50 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:36593 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261553AbVFTTwB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 15:52:01 -0400
-Message-ID: <42B71E41.7080400@austin.ibm.com>
-Date: Mon, 20 Jun 2005 14:51:29 -0500
-From: Joel Schopp <jschopp@austin.ibm.com>
-Reply-To: jschopp@austin.ibm.com
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christoph Lameter <christoph@lameter.com>
-CC: Jeff Garzik <jgarzik@pobox.com>, Telemaque Ndizihiwe <telendiz@eircom.net>,
-       torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Replaces two GOTO statements with one IF_ELSE statement
- in /fs/open.c
-References: <Pine.LNX.4.62.0506201834460.5008@localhost.localdomain> <42B70E62.5070704@pobox.com> <Pine.LNX.4.62.0506201154300.2245@graphe.net>
-In-Reply-To: <Pine.LNX.4.62.0506201154300.2245@graphe.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 20 Jun 2005 16:11:19 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:48083 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261507AbVFTUKZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 16:10:25 -0400
+Date: Sat, 18 Jun 2005 19:01:40 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Philippe Gerum <rpm@xenomai.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] I-pipe: Core implementation
+Message-ID: <20050618170139.GA477@openzaurus.ucw.cz>
+References: <42B35B07.7080703@xenomai.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42B35B07.7080703@xenomai.org>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
+Hi!
 
-> On Mon, 20 Jun 2005, Jeff Garzik wrote:
-> 
-> 
->>If you don't like goto, don't read kernel code!
-> 
-> 
-> But his patch also cleans up a code quit a bit.
+>  linux-2.6.12-rc6-ipipe-0.5/ipipe/Kconfig         |   12
+>  linux-2.6.12-rc6-ipipe-0.5/ipipe/Makefile        |    9
+>  linux-2.6.12-rc6-ipipe-0.5/ipipe/generic.c       |  265 ++++++++++++
 
-As a wider question, what is the practice for accepting patches without 
-functional changes that simply clean up code and make it look better?
-
-BTW, I also agree that the gotos in this case keep the normal code flow 
-cleaner, while making the exceptions isolated well.
+Top-level directory for 3 files seems a bit excessive to me...
+				Pavel
+-- 
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 

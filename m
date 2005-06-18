@@ -1,55 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262194AbVFRWwm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262195AbVFRW5t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262194AbVFRWwm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Jun 2005 18:52:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262195AbVFRWwm
+	id S262195AbVFRW5t (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Jun 2005 18:57:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262196AbVFRW5t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Jun 2005 18:52:42 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:58825 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262194AbVFRWwk (ORCPT
+	Sat, 18 Jun 2005 18:57:49 -0400
+Received: from tim.rpsys.net ([194.106.48.114]:31659 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S262195AbVFRW5r (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Jun 2005 18:52:40 -0400
-Date: Sun, 19 Jun 2005 00:52:38 +0200
-From: Arjan van de Ven <arjanv@redhat.com>
-To: David L <idht4n@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: bad: scheduling while atomic!: how bad?
-Message-ID: <20050618225238.GB23688@devserv.devel.redhat.com>
-References: <1119132601.5871.22.camel@localhost.localdomain> <BAY104-F22EC810AC3D3079BA9BB2D84F70@phx.gbl>
+	Sat, 18 Jun 2005 18:57:47 -0400
+Subject: Re: 2.6.12-rc6-mm1
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux@arm.linux.org.uk, linux-kernel@vger.kernel.org
+In-Reply-To: <20050618154430.6c06d1cc.akpm@osdl.org>
+References: <20050607042931.23f8f8e0.akpm@osdl.org>
+	 <1119134359.7675.38.camel@localhost.localdomain>
+	 <20050618154430.6c06d1cc.akpm@osdl.org>
+Content-Type: text/plain
+Date: Sat, 18 Jun 2005 23:57:41 +0100
+Message-Id: <1119135461.7675.43.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <BAY104-F22EC810AC3D3079BA9BB2D84F70@phx.gbl>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 18, 2005 at 03:49:33PM -0700, David L wrote:
-> [snip]
-> >On Sat, 2005-06-18 at 14:59 -0700, David L wrote:
-> >> I'm seeing the message:
-> >>
-> >> bad: scheduling while atomic!
-> >>
-> >> I see this dozens of times when I'm writing to a nand flash device using 
-> >a
-> >> vendor-provided driver from Compulab in 2.6.8.1.  Does this mean the 
-> >driver
-> >> has a bug or is incompatible with the preemptive configuration option?  
-> >How
-> >> bad is "bad"?  Should I turn of the preemption option, ignore the 
-> >message,
-> >> or what?
+On Sat, 2005-06-18 at 15:44 -0700, Andrew Morton wrote:
+> Richard Purdie <rpurdie@rpsys.net> wrote:
 > >
-> >can you post the sourcecode of the driver? it needs fixing...
-> It's on-line at:
+> > On Tue, 2005-06-07 at 04:29 -0700, Andrew Morton wrote:
+> > > +git-arm-smp.patch
+> > > 
+> > >  ARM git trees
+> > 
+> > The arm pxa255 based Zaurus won't resume from a suspend with the patches
+> > from the above tree applied. The suspend looks normal and gets at least
+> > as far as pxa_pm_enter(). After that, the device appears to be dead and
+> > needs a battery removal to reset. I'm unsure if it actually suspends and
+> > is failing to resume or is crashing in the latter suspend stages.
+> > 
+> > Is there some documentation on what the above patch is aiming to do
+> > anywhere?
 > 
-> http://www.compulab.co.il/686-developer.htm
+> Did you apply just that patch, or are you talking about the whole -mm lineup?
 > 
-> under "Linux - kernel, drivers and patches".
-> 
-> After unzipping, it's in:
-> 
-> Drivers & Patches 2.6/Flash Disk/cl_fdrv.tgz
+> If the latter, please test with only git-arm-smp.patch.
 
-that's only part of the source though... can you point at the full one ?
+Sorry, I wasn't clear. I had problems with the -mm lineup and tracked it
+down to the above patch. With the above patch removed, -mm works fine. 
+
+(I know there's a number of changes to the arm pxa suspend/resume code
+in git-arm.patch but they're definitely not causing the problem.)
+
+Richard
+

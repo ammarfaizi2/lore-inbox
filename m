@@ -1,55 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262157AbVFRRGx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262161AbVFRRIt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262157AbVFRRGx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Jun 2005 13:06:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262158AbVFRRGx
+	id S262161AbVFRRIt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Jun 2005 13:08:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262159AbVFRRIs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Jun 2005 13:06:53 -0400
-Received: from mail.linicks.net ([217.204.244.146]:21766 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S262157AbVFRRGv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Jun 2005 13:06:51 -0400
-From: Nick Warne <nick@linicks.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12 udev hangs at boot
-Date: Sat, 18 Jun 2005 18:06:49 +0100
-User-Agent: KMail/1.8.1
-References: <200506181332.25287.nick@linicks.net> <42B45173.6060209@pobox.com>
-In-Reply-To: <42B45173.6060209@pobox.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Sat, 18 Jun 2005 13:08:48 -0400
+Received: from ipx10786.ipxserver.de ([80.190.251.108]:58585 "EHLO
+	allen.werkleitz.de") by vger.kernel.org with ESMTP id S262162AbVFRRIi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Jun 2005 13:08:38 -0400
+Date: Sat, 18 Jun 2005 19:10:15 +0200
+From: Johannes Stezenbach <js@linuxtv.org>
+To: Bill Davidsen <davidsen@tmr.com>, Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-ID: <20050618171015.GA20845@linuxtv.org>
+Mail-Followup-To: Johannes Stezenbach <js@linuxtv.org>,
+	Bill Davidsen <davidsen@tmr.com>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0506061104190.1876@ppc970.osdl.org> <20050607091144.GA5701@linuxtv.org> <20050608111503.GA5777@linuxtv.org> <42A6D521.606@ens-lyon.org> <20050608113718.GA5949@linuxtv.org> <42B30CE9.4050707@tmr.com> <20050618135752.GB19838@linuxtv.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200506181806.49627.nick@linicks.net>
+In-Reply-To: <20050618135752.GB19838@linuxtv.org>
+User-Agent: Mutt/1.5.9i
+X-SA-Exim-Connect-IP: 84.189.217.46
+Subject: Re: Linux v2.6.12-rc6
+X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
+X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 18 June 2005 17:53, Jeff Garzik wrote:
-> Nick Warne wrote:
-> > New 2.6.12 build hangs at initialising udev dynamic device directory on
-> > boot.
->
-> Did you try simply waiting a while?
->
-> udev took a long time to initialize (30-40 seconds) for me, then
-> everything worked and the machine booted just fine.
->
-> I've seen this on both new and old udev.  Some patience will fix things :)
+Johannes Stezenbach wrote:
+> In 2.6.12-rc5 SMT worked without CONFIG_ACPI. (IIRC the kernel used some
+> minimal ACPI stuff anyway for CPU initialisation).
+> 
+> I don't use power management or other features of ACPI so I
+> had it disabled, and my build broke with 2.6.12-rc6.
 
-Yes, I waited a while first time.  No drive activity, no nothing.  Keyboard 
-was still awake though, so it wasn't a 'crash' as such. The boot just stopped 
-there twiddling it's thumbs...
+Correction: It built fine, but didn't recognize the second "CPU".
 
-Installing the latest udev though makes the machine boot so fast I can't see 
-the 'initialising udev devices' message unless I scroll back to see in 
-console.  I thought at first I broke it, and udev wasn't working at all now 
-and was being ignored, but it is working just fine :-)
-
-But remember, what got me was it boots fine on 2.6.11.12, insomuch I never 
-really saw the udev message away and never had to investigate it before.
-
-Nick
--- 
-"When you're chewing on life's gristle,
-Don't grumble, Give a whistle..."
+Johannes

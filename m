@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262245AbVFRU0k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262232AbVFRUk2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262245AbVFRU0k (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Jun 2005 16:26:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262247AbVFRU0k
+	id S262232AbVFRUk2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Jun 2005 16:40:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262200AbVFRUk2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Jun 2005 16:26:40 -0400
-Received: from serv4.servweb.de ([82.96.83.76]:33956 "EHLO serv4.servweb.de")
-	by vger.kernel.org with ESMTP id S262245AbVFRU0c (ORCPT
+	Sat, 18 Jun 2005 16:40:28 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:44179 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S261299AbVFRUkW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Jun 2005 16:26:32 -0400
-Date: Sat, 18 Jun 2005 22:26:24 +0200
-From: Patrick Plattes <patrick@erdbeere.net>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] optimization for sys_semtimedop() (was: Opening Day for OpenSolaris)
-Message-ID: <20050618202624.GA11512@erdbeere.net>
-References: <42AF12A8.4060007@colorfullife.com> <42AFB94D.5010603@colorfullife.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42AFB94D.5010603@colorfullife.com>
-User-Agent: Mutt/1.5.9i
+	Sat, 18 Jun 2005 16:40:22 -0400
+Message-ID: <42B486B2.6050608@pobox.com>
+Date: Sat, 18 Jun 2005 16:40:18 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: sean darcy <seandarcy2@gmail.com>
+CC: Linux IDE <linux-ide@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: does AHCI work on intel 915 ICH6 controllers? Is it supposed
+ to?
+References: <d87q4j$d37$1@sea.gmane.org> <42A7A191.7040700@pobox.com>	 <d89hcm$7ej$1@sea.gmane.org> <42AD0305.5060705@tw.ibm.com> <c195ebf705061813191a48a69f@mail.gmail.com>
+In-Reply-To: <c195ebf705061813191a48a69f@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 15, 2005 at 07:14:53AM +0200, Manfred Spraul wrote:
- 
-> Jim: From my understanding of the CDDL, only a file that "contains any 
-> part of the Original Software" must be licensed under the CDDL, there 
-> are no restrictions (except possibly patents, but I assume that even the 
-> USPTO won't grant a patent on such a trivial idea) on using methods or 
-> ideas from OpenSolaris in software that uses other licenses.
-> Is that correct?
+sean darcy wrote:
+> Mine is also 0x2651.
+> 
+> But I must be blind, but I don't see any statement that  only  -R and
+> -M have AHCI support.
 
-Hello,
 
-Patch: The patch looks fine and compiles clean.
+Here's my statement :)
 
-CDDL: What is the definition of 'part'? IMHO we need a debate how to
-work with OpenSolaris ideas and the debate must me done by lawyers, 
-not by kernel hacker.
+PCI ID 0x2651 does not have AHCI support in the chip.
 
-Other: sem.c is hard to read - for me. Long functions and a lot of
-gotos confusing me. is this only my problem or is it really hard to
-understand?
+No amount of BIOS poking can fix that.
 
-cu
-pp
+	Jeff
+
+

@@ -1,54 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262163AbVFRTFi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262199AbVFRTKE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262163AbVFRTFi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Jun 2005 15:05:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262199AbVFRTFi
+	id S262199AbVFRTKE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Jun 2005 15:10:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262200AbVFRTKE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Jun 2005 15:05:38 -0400
-Received: from mail.linicks.net ([217.204.244.146]:6675 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S262163AbVFRTFa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Jun 2005 15:05:30 -0400
-From: Nick Warne <nick@linicks.net>
+	Sat, 18 Jun 2005 15:10:04 -0400
+Received: from quechua.inka.de ([193.197.184.2]:19361 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S262199AbVFRTJ7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Jun 2005 15:09:59 -0400
+From: Bernd Eckenfels <ecki@lina.inka.de>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.12
-Date: Sat, 18 Jun 2005 20:05:28 +0100
-User-Agent: KMail/1.8.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506182005.28254.nick@linicks.net>
+Subject: Re: A Great Idea (tm) about reimplementing NLS.
+Organization: Private Site running Debian GNU/Linux
+In-Reply-To: <200506181804.21366.robin.rosenberg.lists@dewire.com>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.7.8-20050315 ("Scalpay") (UNIX) (Linux/2.6.8.1 (i686))
+Message-Id: <E1DjihY-0007JB-00@calista.eckenfels.6bone.ka-ip.net>
+Date: Sat, 18 Jun 2005 21:09:56 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Rostedt <rostedt () goodmis ! org> wrote:
+In article <200506181804.21366.robin.rosenberg.lists@dewire.com> you wrote:
+> Every unicode character has exactly one  UTF-8 representation. 
 
-> This is somewhat experimental at this time, but it should be safe,
-> as long as you aren't building this as a module and then removing it.
+Every unicode code point has exactly one UTF-8 representation, however there
+are for a few glyphs multiple code points. And this is not only a problem
+beause of homoglphys which look like/similiar, but also because of combining
+characters vs. legacy characters. However thats more an issue of the user
+interface (think IDN exploits).
 
-> If unsure, say Y. Do not say M.
+Personally I think the on-disk  filesystem format should be required to be
+UTF-8, and its an open discussion if the syscalls accept UTF-8 or locale
+byte encodings. Currently its a mess. We can learn from Windows here:)
 
->  USB Monitor (USB_MON) [M/n/?] (NEW)
-> --------------
-
-> I really like my options. :-)
-
-> OK, I have CONFIG_USB as a module, but I really thought that this was
-> pretty amusing.
-
-Heh.  When I was sussing 2.6.12 stuff today, I really thought it was me 
-buggering up something.  So after reading a lot, I wondered (neurotically)  
-if I was doing anything wrong (after all this time, it's likely).
-
-> make help reveals:
-
- randconfig      - New config with random answer to all options
-
-So 'make randconfig' is the one to use!  What one earth is that for?
-
-Nick
--- 
-"When you're chewing on life's gristle,
-Don't grumble, Give a whistle..."
+Greetings
+Bernd

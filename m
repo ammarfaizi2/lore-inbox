@@ -1,57 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261851AbVFSQ6h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262209AbVFSRMv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261851AbVFSQ6h (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Jun 2005 12:58:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262209AbVFSQ6h
+	id S262209AbVFSRMv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Jun 2005 13:12:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262263AbVFSRMv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Jun 2005 12:58:37 -0400
-Received: from smtpout.mac.com ([17.250.248.88]:2544 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S261851AbVFSQ6e (ORCPT
+	Sun, 19 Jun 2005 13:12:51 -0400
+Received: from tim.rpsys.net ([194.106.48.114]:24501 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S262209AbVFSRMt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Jun 2005 12:58:34 -0400
-In-Reply-To: <20050619082251.GA6483@redhat.com>
-References: <20050617001330.294950ac.akpm@osdl.org> <1119016223.5049.3.camel@mulgrave> <20050617142225.GO6957@suse.de> <20050617141003.2abdd8e5.akpm@osdl.org> <20050617212338.GA16852@suse.de> <491950000.1119044739@flay> <20050618191341.GA30620@redhat.com> <265EC713-9745-484D-8FF0-1C8D5FFE94F1@mac.com> <20050619082251.GA6483@redhat.com>
-Mime-Version: 1.0 (Apple Message framework v728)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <A6CC915C-418A-4992-B55C-73EF7A73085A@mac.com>
-Cc: "Martin J. Bligh" <mbligh@mbligh.org>, Jens Axboe <axboe@suse.de>,
-       Andrew Morton <akpm@osdl.org>, James.Bottomley@SteelEye.com,
-       linux-kernel@vger.kernel.org
+	Sun, 19 Jun 2005 13:12:49 -0400
+Subject: Re: 2.6.12-rc6-mm1
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20050619101120.B6499@flint.arm.linux.org.uk>
+References: <20050607042931.23f8f8e0.akpm@osdl.org>
+	 <1119134359.7675.38.camel@localhost.localdomain>
+	 <20050619001841.A7252@flint.arm.linux.org.uk>
+	 <1119144048.7675.101.camel@localhost.localdomain>
+	 <20050619100226.A6499@flint.arm.linux.org.uk>
+	 <20050619101120.B6499@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Date: Sun, 19 Jun 2005 18:12:38 +0100
+Message-Id: <1119201158.7554.2.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: kernel bugzilla
-Date: Sun, 19 Jun 2005 12:58:21 -0400
-To: Dave Jones <davej@redhat.com>
-X-Mailer: Apple Mail (2.728)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 2005-06-19 at 10:11 +0100, Russell King wrote:
+> On Sun, Jun 19, 2005 at 10:02:26AM +0100, Russell King wrote:
+> > On Sun, Jun 19, 2005 at 02:20:48AM +0100, Richard Purdie wrote:
+> > > On Sun, 2005-06-19 at 00:18 +0100, Russell King wrote: 
+> > > > Thinking about what's probably happening, I suspect all the ARM suspend
+> > > > and resume code needs to be reworked to save more state.  I'll try to
+> > > > cook up a patch tomorrow to fix it, but I'll need you to provide
+> > > > feedback.
+> > > 
+> > > Ok, thanks. I'm happy to test any fixes/patches.
+> > 
+> > This should resolve the problem - we now rely on the stack pointer for
+> > each CPU mode to remain constant throughout the running time of the
+> > kernel, which includes across suspend/resume cycles.
+> 
+> Actually, this patch is probably an all-round better solution.
 
-On Jun 19, 2005, at 04:22:51, Dave Jones wrote:
+This patch (the simpler of the two using cpu_init()) allows the pxa to
+suspend/resume happily with the git-arm-smp.patch applied.
 
-> On Sat, Jun 18, 2005 at 10:54:33PM -0400, Kyle Moffett wrote:
->> Another wishlist feature I've seen is to have a mailing list archiver
->> attached to bugzilla that receives and stores the last month worth of
->> emails on the list.  At any time someone can login and:
->>
->
-> The volume of mail bugzilla-mail generates is obscene.
-> I've been on vacation for a week, and I have over a 1000
-> mails waiting for me from rh-bugzilla when I get back
-> to give you an indication.[*]
-
-I was thinking something more like an LKML archiver tied to bugzilla,
-because I've seen a number of times where bugs get reported to the list
-and then lost, causing the reported oops and other critical data to
-fall by the wayside.
-
-Cheers,
-Kyle Moffett
-
---
-There are two ways of constructing a software design. One way is to  
-make it so simple that there are obviously no deficiencies. And the  
-other way is to make it so complicated that there are no obvious  
-deficiencies.
-  -- C.A.R. Hoare
+Richard
 

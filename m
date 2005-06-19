@@ -1,48 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261279AbVFSS0N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261280AbVFSSss@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261279AbVFSS0N (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Jun 2005 14:26:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261280AbVFSS0M
+	id S261280AbVFSSss (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Jun 2005 14:48:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261282AbVFSSss
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Jun 2005 14:26:12 -0400
-Received: from tim.rpsys.net ([194.106.48.114]:35250 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S261279AbVFSS0J (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Jun 2005 14:26:09 -0400
-Subject: Re: 2.6.12-rc6-mm1
-From: Richard Purdie <rpurdie@rpsys.net>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20050619183928.B13005@flint.arm.linux.org.uk>
-References: <20050607042931.23f8f8e0.akpm@osdl.org>
-	 <1119134359.7675.38.camel@localhost.localdomain>
-	 <20050619001841.A7252@flint.arm.linux.org.uk>
-	 <1119144048.7675.101.camel@localhost.localdomain>
-	 <20050619100226.A6499@flint.arm.linux.org.uk>
-	 <20050619101120.B6499@flint.arm.linux.org.uk>
-	 <1119201158.7554.2.camel@localhost.localdomain>
-	 <20050619183928.B13005@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Date: Sun, 19 Jun 2005 19:25:59 +0100
-Message-Id: <1119205560.7554.10.camel@localhost.localdomain>
+	Sun, 19 Jun 2005 14:48:48 -0400
+Received: from alephnull.demon.nl ([212.238.201.82]:61865 "EHLO
+	xi.wantstofly.org") by vger.kernel.org with ESMTP id S261280AbVFSSsq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Jun 2005 14:48:46 -0400
+Date: Sun, 19 Jun 2005 20:48:39 +0200
+From: Lennert Buytenhek <buytenh+lkml@wantstofly.org>
+To: linux-kernel@vger.kernel.org
+Cc: dsaxena@plexity.net
+Subject: [PATCH] ixp4xx/ixp2000 watchdog driver typo
+Message-ID: <20050619184838.GA26072@xi.wantstofly.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-06-19 at 18:39 +0100, Russell King wrote:
-> Good.  Fix committed.
+Fix the same typo in the ixp4xx and ixp2000 watchdog drivers.
 
-Thanks.
+Signed-off-by: Lennert Buytenhek <buytenh+lkml@wantstofly.org>
 
-> Next batched smp patch can be found at www.home.arm.../~rmk/nightly
-> which I'm currently planning to go to Linus tonight.
-
-I applied smp-20050619.patch to 2.6.12-rc6-mm1 + the last fix and the
-Zaurus seems perfectly happy with it. Let me know as and when you have
-further releases that need testing (a message to linux-arm-kernel might
-be the best way to announce them?).
-
-Richard
-
+diff -urN linux-2.6.12.orig/drivers/char/watchdog/ixp4xx_wdt.c linux-2.6.12/drivers/char/watchdog/ixp4xx_wdt.c
+--- linux-2.6.12.orig/drivers/char/watchdog/ixp4xx_wdt.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.12/drivers/char/watchdog/ixp4xx_wdt.c	2005-06-19 20:40:15.796402087 +0200
+@@ -156,7 +156,7 @@
+ 	if (test_bit(WDT_OK_TO_CLOSE, &wdt_status)) {
+ 		wdt_disable();
+ 	} else {
+-		printk(KERN_CRIT "WATCHDOG: Device closed unexpectdly - "
++		printk(KERN_CRIT "WATCHDOG: Device closed unexpectedly - "
+ 					"timer will not stop\n");
+ 	}
+ 
+diff -urN linux-2.6.12.orig/drivers/char/watchdog/ixp2000_wdt.c linux-2.6.12/drivers/char/watchdog/ixp2000_wdt.c
+--- linux-2.6.12.orig/drivers/char/watchdog/ixp2000_wdt.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.12/drivers/char/watchdog/ixp2000_wdt.c	2005-06-19 20:40:22.176765156 +0200
+@@ -162,7 +162,7 @@
+ 	if (test_bit(WDT_OK_TO_CLOSE, &wdt_status)) {
+ 		wdt_disable();
+ 	} else {
+-		printk(KERN_CRIT "WATCHDOG: Device closed unexpectdly - "
++		printk(KERN_CRIT "WATCHDOG: Device closed unexpectedly - "
+ 					"timer will not stop\n");
+ 	}
+ 

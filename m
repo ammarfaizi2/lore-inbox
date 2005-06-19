@@ -1,36 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262268AbVFSSOv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262269AbVFSSQj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262268AbVFSSOv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Jun 2005 14:14:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262269AbVFSSOv
+	id S262269AbVFSSQj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Jun 2005 14:16:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262271AbVFSSQj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Jun 2005 14:14:51 -0400
-Received: from waste.org ([216.27.176.166]:18593 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262268AbVFSSOu (ORCPT
+	Sun, 19 Jun 2005 14:16:39 -0400
+Received: from mail.dif.dk ([193.138.115.101]:27059 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S262269AbVFSSQR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Jun 2005 14:14:50 -0400
-Date: Sun, 19 Jun 2005 11:14:36 -0700
-From: Matt Mackall <mpm@selenic.com>
-To: Jeff Moyer <jmoyer@redhat.com>
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: netpoll and the bonding driver
-Message-ID: <20050619181436.GX27572@waste.org>
-References: <17075.10995.498758.773092@segfault.boston.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <17075.10995.498758.773092@segfault.boston.redhat.com>
-User-Agent: Mutt/1.5.9i
+	Sun, 19 Jun 2005 14:16:17 -0400
+Date: Sun, 19 Jun 2005 20:21:43 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: linux-kernel@vger.kernel.org
+Cc: Jeff Dike <jdike@karaya.com>, user-mode-linux-devel@lists.sourceforge.net,
+       Lennert Buytenhek <buytenh@gnu.org>, James Leu <jleu@mindspring.net>
+Subject: [PATCH] um: kfree() cleanup of daemon_user.c
+Message-ID: <Pine.LNX.4.62.0506192015220.2832@dragon.hyggekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 17, 2005 at 03:56:35PM -0400, Jeff Moyer wrote:
-> Hi,
-> 
-> I'm trying to implement a netpoll hook for the bonding driver.
+Here's a small patch to remove a few unnessesary NULL pointer checks 
+before kfree() in arch/um/drivers/daemon_user.c
 
-My first question would be: does this really make sense to do? Why not
-just bind netpoll to one of the underlying devices?
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+---
 
--- 
-Mathematics is the supreme nostalgia of our time.
+ arch/um/drivers/daemon_user.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
+
+--- linux-2.6.12-orig/arch/um/drivers/daemon_user.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.12/arch/um/drivers/daemon_user.c	2005-06-19 20:13:34.000000000 +0200
+@@ -157,9 +157,9 @@ static void daemon_remove(void *data)
+ 
+ 	os_close_file(pri->fd);
+ 	os_close_file(pri->control);
+-	if(pri->data_addr != NULL) kfree(pri->data_addr);
+-	if(pri->ctl_addr != NULL) kfree(pri->ctl_addr);
+-	if(pri->local_addr != NULL) kfree(pri->local_addr);
++	kfree(pri->data_addr);
++	kfree(pri->ctl_addr);
++	kfree(pri->local_addr);
+ }
+ 
+ int daemon_user_write(int fd, void *buf, int len, struct daemon_data *pri)
+
+

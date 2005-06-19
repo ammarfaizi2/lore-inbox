@@ -1,85 +1,155 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262272AbVFSUrW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261325AbVFSVJy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262272AbVFSUrW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Jun 2005 16:47:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262273AbVFSUrW
+	id S261325AbVFSVJy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Jun 2005 17:09:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261327AbVFSVJm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Jun 2005 16:47:22 -0400
-Received: from mail.dif.dk ([193.138.115.101]:62909 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S262272AbVFSUrO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Jun 2005 16:47:14 -0400
-Date: Sun, 19 Jun 2005 22:52:41 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Jesper Juhl <juhl-lkml@dif.dk>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Joe Perches <joe@perches.com>
-Subject: Re: [PATCH] modules, small codingstyle cleanup, one statement/expression
- pr line
-In-Reply-To: <Pine.LNX.4.62.0506192138110.2832@dragon.hyggekrogen.localhost>
-Message-ID: <Pine.LNX.4.62.0506192249180.2832@dragon.hyggekrogen.localhost>
-References: <Pine.LNX.4.62.0506192138110.2832@dragon.hyggekrogen.localhost>
+	Sun, 19 Jun 2005 17:09:42 -0400
+Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:61459 "EHLO
+	mta07-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S261325AbVFSVJ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Jun 2005 17:09:27 -0400
+Message-ID: <42B5DF04.6040505@ntlworld.com>
+Date: Sun, 19 Jun 2005 22:09:24 +0100
+From: Matt Keenan <matthew.keenan@ntlworld.com>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Chris Wright <chrisw@osdl.org>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Bug #3054 madvise(MADV_WILLNEED,...) fix for exceeding
+ rlimit rss
+References: <42B5A21B.5030300@ntlworld.com> <20050619202333.GZ9153@shell0.pdx.osdl.net>
+In-Reply-To: <20050619202333.GZ9153@shell0.pdx.osdl.net>
+Content-Type: multipart/mixed;
+ boundary="------------060801030706020409030507"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 19 Jun 2005, Jesper Juhl wrote:
+This is a multi-part message in MIME format.
+--------------060801030706020409030507
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> Small patch to make kernel/module.c a little more readable and a little 
-> more CodingStyle conforming.
-> 
-> Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
-> ---
-> 
->  kernel/module.c |    6 ++++--
->  1 files changed, 4 insertions(+), 2 deletions(-)
-> 
-> --- linux-2.6.12-orig/kernel/module.c	2005-06-17 21:48:29.000000000 +0200
-> +++ linux-2.6.12/kernel/module.c	2005-06-19 21:24:26.000000000 +0200
-> @@ -1731,8 +1731,10 @@ static struct module *load_module(void _
->  	kfree(args);
->   free_hdr:
->  	vfree(hdr);
-> -	if (err < 0) return ERR_PTR(err);
-> -	else return ptr;
-> +	if (err < 0)
-> +		return ERR_PTR(err);
-> +	else
-> +		return ptr;
+Chris Wright wrote:
+
+>* Matt Keenan (matthew.keenan@ntlworld.com) wrote:
 >  
->   truncated:
->  	printk(KERN_ERR "Module len %lu truncated\n", len);
-> 
-> 
-Joe Perches suggested we use 
+>
+>>--- linux-2.6.11.7/mm/madvise.c 2005-04-12 15:58:30.000000000 +0100
+>>+++ linux/mm/madvise.c  2005-06-19 17:20:56.000000000 +0100
+>>@@ -61,6 +61,7 @@ static long madvise_willneed(struct vm_a
+>>                            unsigned long start, unsigned long end)
+>>{
+>>       struct file *file = vma->vm_file;
+>>+       struct task_struct *tsk = current;
+>>    
+>>
+>
+>Looks like you've got some tab/whitespace damage going on here.
+>
+>  
+>
+Damn mailer! I might have to go back to mutt.
 
-	if (err < 0)
-		return ERR_PTR(err);
-	return ptr;
+>>       if (!file)
+>>               return -EBADF;
+>>@@ -70,6 +71,28 @@ static long madvise_willneed(struct vm_a
+>>               end = vma->vm_end;
+>>       end = ((end - vma->vm_start) >> PAGE_SHIFT) + vma->vm_pgoff;
+>>
+>>+       /*
+>>+        * This code below checks to see if mapping the requested
+>>+        * readahead would make the task's rss exceed the task's
+>>+        * rlimit rss.
+>>+        *
+>>+        * This doesn't account for pages that may already be mapped
+>>+        * due to readahead, but since this is merely a hint to the
+>>+        * kernel no harm should be done, it won't unmap anything
+>>+        * already mapped if it fails. N.B. This won't affect the
+>>+        * kernel's internal automatic readahead which doesn't check
+>>+        * (or honour) rlimit rss.
+>>+        */
+>>+
+>>+       spin_lock(&tsk->mm->page_table_lock);
+>>+       if (((max_sane_readahead(end-start) << PAGE_SHIFT) +
+>>+           tsk->mm->_rss) > tsk->signal->rlim[RLIMIT_RSS].rlim_cur)
+>>    
+>>
+>
+>I doubt this one would overflow, but we recenly made changes in similar
+>tests to use page count rather than byte count.  I belive this should
+>use get_mm_counter().  Isn't _rss counting pages rather than bytes,
+>so I think the math is off here.  Something like:
+>
+>	if ((max_sane_readahead(end - start) + get_mm_counter(tsk->mm, rss)) >
+>	    tsk->signal->rlim[RLIMIT_RSS].rlim_cur >> PAGE_SHIFT)
+>
+>  
+>
+Ok, here is the patch again with the suggested fixes. I have attached 
+the patch (yes yes i know!), that will probably screw up people's mail 
+-> patch generators, but the whitespace issue should be fixed. Hopefully 
+this is ok, I'm going to bang on it for an hour or so here to make sure.
 
-instead.  The behaviour of the code is the same, but it is of course a bit 
-shorter, so here's an alternative patch - pick the one you prefer.
-
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
----
-
---- linux-2.6.12-orig/kernel/module.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.12/kernel/module.c	2005-06-19 22:48:41.000000000 +0200
-@@ -1731,9 +1731,9 @@ static struct module *load_module(void _
- 	kfree(args);
-  free_hdr:
- 	vfree(hdr);
--	if (err < 0) return ERR_PTR(err);
--	else return ptr;
--
-+	if (err < 0)
-+		return ERR_PTR(err);
-+	return ptr;
-  truncated:
- 	printk(KERN_ERR "Module len %lu truncated\n", len);
- 	err = -ENOEXEC;
+Signed-off-by: Matthew Keenan <matthew.keenan@ntlworld.com>
 
 
 
+--------------060801030706020409030507
+Content-Type: text/x-patch;
+ name="patch-2.6.12-madvise-willneed-fix.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-2.6.12-madvise-willneed-fix.diff"
+
+--- linux-2.6.11.7/mm/madvise.c	2005-04-12 15:58:30.000000000 +0100
++++ linux/mm/madvise.c	2005-06-19 21:39:57.000000000 +0100
+@@ -61,6 +61,7 @@ static long madvise_willneed(struct vm_a
+ 			     unsigned long start, unsigned long end)
+ {
+ 	struct file *file = vma->vm_file;
++	struct task_struct *tsk = current;
+ 
+ 	if (!file)
+ 		return -EBADF;
+@@ -70,6 +71,28 @@ static long madvise_willneed(struct vm_a
+ 		end = vma->vm_end;
+ 	end = ((end - vma->vm_start) >> PAGE_SHIFT) + vma->vm_pgoff;
+ 
++	/*
++	 * This code below checks to see if mapping the requested
++	 * readahead would make the task's rss exceed the task's
++	 * rlimit rss.
++	 *
++	 * This doesn't account for pages that may already be mapped
++	 * due to readahead, but since this is merely a hint to the
++	 * kernel no harm should be done, it won't unmap anything
++	 * already mapped if it fails. N.B. This won't affect the
++	 * kernel's internal automatic readahead which doesn't check
++	 * (or honour) rlimit rss.
++	 */
++
++	spin_lock(&tsk->mm->page_table_lock);
++	if ((max_sane_readahead(end - start) + get_mm_counter(tsk->mm, rss)) >
++	    (tsk->signal->rlim[RLIMIT_RSS].rlim_cur >> PAGE_SHIFT))
++	{
++		spin_unlock(&tsk->mm->page_table_lock);
++		return -EIO;
++	}
++	spin_unlock(&tsk->mm->page_table_lock);
++
+ 	force_page_cache_readahead(file->f_mapping,
+ 			file, start, max_sane_readahead(end - start));
+ 	return 0;
+@@ -170,6 +193,8 @@ static long madvise_vma(struct vm_area_s
+  *  -ENOMEM - addresses in the specified range are not currently
+  *		mapped, or are outside the AS of the process.
+  *  -EIO    - an I/O error occurred while paging in data.
++ *          - MADV_WILLNEED would map in pages that would make the task's
++ *              rss exceed rlimit rss.
+  *  -EBADF  - map exists, but area maps something that isn't a file.
+  *  -EAGAIN - a kernel resource was temporarily unavailable.
+  */
+
+--------------060801030706020409030507--

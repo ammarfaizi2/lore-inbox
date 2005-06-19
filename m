@@ -1,78 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262259AbVFSQEU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262262AbVFSQtu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262259AbVFSQEU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Jun 2005 12:04:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262260AbVFSQEU
+	id S262262AbVFSQtu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Jun 2005 12:49:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262267AbVFSQtu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Jun 2005 12:04:20 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:443 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S262259AbVFSQEN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Jun 2005 12:04:13 -0400
-Message-ID: <42B59992.3EFD4C73@tv-sign.ru>
-Date: Sun, 19 Jun 2005 20:13:06 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
+	Sun, 19 Jun 2005 12:49:50 -0400
+Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:31286 "EHLO
+	mta07-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S262262AbVFSQtg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Jun 2005 12:49:36 -0400
+Message-ID: <42B5A21B.5030300@ntlworld.com>
+Date: Sun, 19 Jun 2005 17:49:31 +0100
+From: Matt Keenan <matthew.keenan@ntlworld.com>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Roland McGrath <roland@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] de_thread: eliminate unneccessary sighand locking
-Content-Type: text/plain; charset=us-ascii
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] Bug #3054 madvise(MADV_WILLNEED,...) fix for exceeding rlimit
+ rss
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-while switching current->sighand de_thread does:
+Here is an updated patch for 2.6.12, can it be included in -mm for 
+testing? I have been banging on the code for an hour or so now; no probs.
 
-	write_lock_irq(&tasklist_lock);
-	spin_lock(&oldsighand->siglock);
-	spin_lock(&newsighand->siglock);
+Matt
 
-	current->sighand = newsighand;
-	recalc_sigpending();
+--- linux-2.6.11.7/mm/madvise.c 2005-04-12 15:58:30.000000000 +0100
++++ linux/mm/madvise.c  2005-06-19 17:20:56.000000000 +0100
+@@ -61,6 +61,7 @@ static long madvise_willneed(struct vm_a
+                             unsigned long start, unsigned long end)
+ {
+        struct file *file = vma->vm_file;
++       struct task_struct *tsk = current;
 
-Is these 2 sighand locks are really needed?
+        if (!file)
+                return -EBADF;
+@@ -70,6 +71,28 @@ static long madvise_willneed(struct vm_a
+                end = vma->vm_end;
+        end = ((end - vma->vm_start) >> PAGE_SHIFT) + vma->vm_pgoff;
 
-At this moment we already zapped other threads, so nobody
-can access newsighand via current->. And we are holding
-tasklist_lock, so other processes can't send signals to us
-or use our ->sighand in any way.
++       /*
++        * This code below checks to see if mapping the requested
++        * readahead would make the task's rss exceed the task's
++        * rlimit rss.
++        *
++        * This doesn't account for pages that may already be mapped
++        * due to readahead, but since this is merely a hint to the
++        * kernel no harm should be done, it won't unmap anything
++        * already mapped if it fails. N.B. This won't affect the
++        * kernel's internal automatic readahead which doesn't check
++        * (or honour) rlimit rss.
++        */
++
++       spin_lock(&tsk->mm->page_table_lock);
++       if (((max_sane_readahead(end-start) << PAGE_SHIFT) +
++           tsk->mm->_rss) > tsk->signal->rlim[RLIMIT_RSS].rlim_cur)
++       {
++               spin_unlock(&tsk->mm->page_table_lock);
++               return -EIO;
++       }
++       spin_unlock(&tsk->mm->page_table_lock);
++
+        force_page_cache_readahead(file->f_mapping,
+                        file, start, max_sane_readahead(end - start));
+        return 0;
+@@ -170,6 +193,8 @@ static long madvise_vma(struct vm_area_s
+  *  -ENOMEM - addresses in the specified range are not currently
+  *             mapped, or are outside the AS of the process.
+  *  -EIO    - an I/O error occurred while paging in data.
++ *          - MADV_WILLNEED would map in pages that would make the task's
++ *              rss exceed rlimit rss.
+  *  -EBADF  - map exists, but area maps something that isn't a file.
+  *  -EAGAIN - a kernel resource was temporarily unavailable.
+  */
 
-oldsighand can be seen from CLONE_SIGHAND processes, but
-we are not using oldsighand in any way, so this lock seems
-to be unneeded too.
-
-The only possibility that I can imagine is that some process
-does:
-	read_lock(tasklist_lock);
-	task = find_task();
-	spin_lock(task->sighand->siglock);
-	read_unlock(tasklist_lock);
-	play with task->signal
-
-Is this possible/allowed?
-
-And why do we need recalc_sigpending() ? We are not changing
-->pending or ->blocked, just ->sighand.
-
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
-
---- 2.6.12/fs/exec.c~	2005-05-09 16:37:16.000000000 +0400
-+++ 2.6.12/fs/exec.c	2005-06-20 00:03:24.000000000 +0400
-@@ -758,14 +758,7 @@ no_thread_group:
- 		       sizeof(newsighand->action));
- 
- 		write_lock_irq(&tasklist_lock);
--		spin_lock(&oldsighand->siglock);
--		spin_lock(&newsighand->siglock);
--
- 		current->sighand = newsighand;
--		recalc_sigpending();
--
--		spin_unlock(&newsighand->siglock);
--		spin_unlock(&oldsighand->siglock);
- 		write_unlock_irq(&tasklist_lock);
- 
- 		if (atomic_dec_and_test(&oldsighand->count))

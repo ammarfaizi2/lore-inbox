@@ -1,68 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261272AbVFSHvC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261957AbVFSH6K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261272AbVFSHvC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Jun 2005 03:51:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261957AbVFSHvC
+	id S261957AbVFSH6K (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Jun 2005 03:58:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262070AbVFSH6K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Jun 2005 03:51:02 -0400
-Received: from njord.oit.pdx.edu ([131.252.122.32]:24520 "EHLO
-	njord.oit.pdx.edu") by vger.kernel.org with ESMTP id S261272AbVFSHux
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Jun 2005 03:50:53 -0400
-To: Kai Germaschewski <kai@germaschewski.name>,
-       Sam Ravnborg <sam@ravnborg.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: PATCH Makefile, Make 'cscope -q' play well with cscope.el
-From: Karl Hegbloom <hegbloom@pdx.edu>
-Date: Sun, 19 Jun 2005 00:50:47 -0700
-Message-ID: <87br62hjjc.fsf@journeyhawk.karlheg.net>
+	Sun, 19 Jun 2005 03:58:10 -0400
+Received: from smtp1.sloane.cz ([62.240.161.228]:13786 "EHLO smtp1.sloane.cz")
+	by vger.kernel.org with ESMTP id S261957AbVFSH6I (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Jun 2005 03:58:08 -0400
+From: Michal Semler <cijoml@volny.cz>
+Reply-To: cijoml@volny.cz
+To: linux-kernel@vger.kernel.org
+Subject: 2 errors in 2.6.12
+Date: Sun, 19 Jun 2005 09:57:58 +0200
+User-Agent: KMail/1.7.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200506190958.00267.cijoml@volny.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-LinuxVersion: 2.6-git 2005/06/19
+Hi,
 
-I tried the Linux Makefile 'make cscope' target, and found that the
-generated database is not compatible with 'cscope.el' under XEmacs.
-The thing is that 'cscope.el' does not allow setting the command line
-options to the 'cscope' commands it runs, and it errors with a message
-about the options not matching the ones used to generate the index.
+I compiled 2.6.12 and my PV951 TV card doesn't work (tvtime says no signal) 
+and my SBLive! plays only on 2 repros Front left and right.
 
-It turns out the cscope designers already thought of this.  The
-options can be written into the "cscope.files".  The included patch
-moves the "-q" and "-k" options from the 'cmd_cscope' to the
-'cmd_cscope-file', echoing them into the top of the files listing.
+When I booted back to 2.6.11, everything worked like a charm
 
-Now the index is generated with the "-q" option, and when 'cscope.el'
-performs it's search, it uses that argument as well.  Lookups are fast
-and everyone is happy.
+PLS fix it
 
-
-diff --git a/Makefile b/Makefile
---- a/Makefile
-+++ b/Makefile
-@@ -1173,10 +1173,10 @@ define all-sources
- endef
- 
- quiet_cmd_cscope-file = FILELST cscope.files
--      cmd_cscope-file = $(all-sources) > cscope.files
-+      cmd_cscope-file = (echo \-k; echo \-q; $(all-sources)) > cscope.files
- 
- quiet_cmd_cscope = MAKE    cscope.out
--      cmd_cscope = cscope -k -b -q
-+      cmd_cscope = cscope -b
- 
- cscope: FORCE
- 	$(call cmd,cscope-file)
-
-
-I sent a previous patch for this, but it is wrong, since I had placed
-the 'echo' statements directly inside of 'all-sources'.  If
-'all-sources' is used anyplace else in the Makefile, that would lead
-to file not found errors.  This patch corrects that mistake.
-
-
-[ I am not currently a subscriber to LKML. ]
--- 
-Karl Hegbloom <hegbloom@pdx.edu>
+Michal

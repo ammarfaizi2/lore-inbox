@@ -1,74 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261320AbVFSUcW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262272AbVFSUrW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261320AbVFSUcW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Jun 2005 16:32:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261323AbVFSUcW
+	id S262272AbVFSUrW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Jun 2005 16:47:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262273AbVFSUrW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Jun 2005 16:32:22 -0400
-Received: from rproxy.gmail.com ([64.233.170.198]:19205 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261320AbVFSUcQ (ORCPT
+	Sun, 19 Jun 2005 16:47:22 -0400
+Received: from mail.dif.dk ([193.138.115.101]:62909 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S262272AbVFSUrO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Jun 2005 16:32:16 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:mime-version:content-type;
-        b=dmFNZWXs01TIgHGoDAv793lAKXi4L2zNIid5p5UryT+0j07lDhQVdR9jbj8j2pptYxDpMNHzk+REGHF9qRDh32T8WTtdLrZbilV6pIdFDzvFVX1jt+C5x60ydkWFbF8Xo234uOZMz125R4xjYQ4FqnRBZ/0JmC70j9D36Wx18yQ=
-Message-ID: <4d8e3fd30506191332264eb4ae@mail.gmail.com>
-Date: Sun, 19 Jun 2005 22:32:16 +0200
-From: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-Reply-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-To: linux <linux-kernel@vger.kernel.org>
-Subject: Script to help users to report a BUG
-Cc: Andrew Morton <akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_2869_32497240.1119213136473"
+	Sun, 19 Jun 2005 16:47:14 -0400
+Date: Sun, 19 Jun 2005 22:52:41 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Jesper Juhl <juhl-lkml@dif.dk>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Joe Perches <joe@perches.com>
+Subject: Re: [PATCH] modules, small codingstyle cleanup, one statement/expression
+ pr line
+In-Reply-To: <Pine.LNX.4.62.0506192138110.2832@dragon.hyggekrogen.localhost>
+Message-ID: <Pine.LNX.4.62.0506192249180.2832@dragon.hyggekrogen.localhost>
+References: <Pine.LNX.4.62.0506192138110.2832@dragon.hyggekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_2869_32497240.1119213136473
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Sun, 19 Jun 2005, Jesper Juhl wrote:
 
-Hi all,
-what do you think about this simple idea of a script that could help
-users to fill better BUG reports ?
+> Small patch to make kernel/module.c a little more readable and a little 
+> more CodingStyle conforming.
+> 
+> Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+> ---
+> 
+>  kernel/module.c |    6 ++++--
+>  1 files changed, 4 insertions(+), 2 deletions(-)
+> 
+> --- linux-2.6.12-orig/kernel/module.c	2005-06-17 21:48:29.000000000 +0200
+> +++ linux-2.6.12/kernel/module.c	2005-06-19 21:24:26.000000000 +0200
+> @@ -1731,8 +1731,10 @@ static struct module *load_module(void _
+>  	kfree(args);
+>   free_hdr:
+>  	vfree(hdr);
+> -	if (err < 0) return ERR_PTR(err);
+> -	else return ptr;
+> +	if (err < 0)
+> +		return ERR_PTR(err);
+> +	else
+> +		return ptr;
+>  
+>   truncated:
+>  	printk(KERN_ERR "Module len %lu truncated\n", len);
+> 
+> 
+Joe Perches suggested we use 
 
-The usage is quite simple, put the attached file in
-/usr/src/linux/scripts and then:
+	if (err < 0)
+		return ERR_PTR(err);
+	return ptr;
 
-[root@frodo scripts]# ./report-bug.sh /tmp/BUGREPORT/
-cat: /proc/scsi/scsi: No such file or directory
+instead.  The behaviour of the code is the same, but it is of course a bit 
+shorter, so here's an alternative patch - pick the one you prefer.
 
-[root@frodo scripts]# ls /tmp/BUGREPORT/
-cpuinfo.bug  ioports.bug  modules.bug  software.bug
-iomem.bug    lspci.bug    scsi.bug     version.bug
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+---
 
-Now you can simply attach all the .bug files to the bugzilla report or
-inline them in a email.
+--- linux-2.6.12-orig/kernel/module.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.12/kernel/module.c	2005-06-19 22:48:41.000000000 +0200
+@@ -1731,9 +1731,9 @@ static struct module *load_module(void _
+ 	kfree(args);
+  free_hdr:
+ 	vfree(hdr);
+-	if (err < 0) return ERR_PTR(err);
+-	else return ptr;
+-
++	if (err < 0)
++		return ERR_PTR(err);
++	return ptr;
+  truncated:
+ 	printk(KERN_ERR "Module len %lu truncated\n", len);
+ 	err = -ENOEXEC;
 
-The script is rude but it is enough to give you an idea of what I have in m=
-ind.
-
-Any comment ?
 
 
---=20
-Paolo
-
-------=_Part_2869_32497240.1119213136473
-Content-Type: application/x-sh; name="report-bug.sh"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="report-bug.sh"
-
-IyEgL2Jpbi9zaAojIFNjcmlwdCB0byBoZWxwIHRoZSB1c2VyIHRvIHN1cHBseSBhIHdlbGwgZG9u
-ZSBCVUcgcmVwb3J0CiMKIyBQYW9sbyBDaWFycm9jY2hpIDxwYW9sby5jaWFycm9jY2hpQGdtYWls
-LmNvbT4sIDE5dGggSnVuZSAyMDA1LgojIFNldCBkaXJlY3RvcmllcyBmcm9tIGFyZ3VtZW50cywg
-b3IgdXNlIGRlZmF1bHRzCm91dGRpcj0kezEtL3RtcH0KY2F0IC9wcm9jL3ZlcnNpb24gPiAkb3V0
-ZGlyL3ZlcnNpb24uYnVnCi4vdmVyX2xpbnV4ID4gJG91dGRpci9zb2Z0d2FyZS5idWcKY2F0IC9w
-cm9jL2NwdWluZm8gPiAkb3V0ZGlyL2NwdWluZm8uYnVnCmNhdCAvcHJvYy9tb2R1bGVzID4gJG91
-dGRpci9tb2R1bGVzLmJ1ZwpjYXQgL3Byb2MvaW9wb3J0cyA+ICRvdXRkaXIvaW9wb3J0cy5idWcK
-Y2F0IC9wcm9jL2lvbWVtID4gJG91dGRpci9pb21lbS5idWcKbHNwY2kgLXZ2diA+ICRvdXRkaXIv
-bHNwY2kuYnVnCmNhdCAvcHJvYy9zY3NpL3Njc2kgPiAkb3V0ZGlyL3Njc2kuYnVnCgoKCgoK
-------=_Part_2869_32497240.1119213136473--

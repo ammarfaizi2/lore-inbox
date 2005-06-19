@@ -1,44 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261836AbVFSM54@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261194AbVFSNCI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261836AbVFSM54 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Jun 2005 08:57:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261851AbVFSM54
+	id S261194AbVFSNCI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Jun 2005 09:02:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261954AbVFSNCI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Jun 2005 08:57:56 -0400
-Received: from mail.gmx.net ([213.165.64.20]:65183 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261836AbVFSM5y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Jun 2005 08:57:54 -0400
-X-Authenticated: #15573369
-Date: Sun, 19 Jun 2005 14:55:37 +0200
-From: Michael Gollnick <Mollnick@gmx.net>
+	Sun, 19 Jun 2005 09:02:08 -0400
+Received: from stress.telefonica.net ([213.4.129.135]:10539 "EHLO
+	telesmtp4.mail.isp") by vger.kernel.org with ESMTP id S261194AbVFSNCF convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Jun 2005 09:02:05 -0400
+From: Rafael =?iso-8859-1?q?Rodr=EDguez?= <apt-drink@gulic.org>
 To: linux-kernel@vger.kernel.org
-Subject: How to map the Linux exception vectors to any address
-Message-ID: <20050619145537.66b889fa@veritaz.laptop>
-Organization: home
-X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-portbld-freebsd4.10)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Subject: 2.6.12: codec_semaphore: semaphore is not ready
+Date: Sun, 19 Jun 2005 14:02:02 +0100
+User-Agent: KMail/1.8.1
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200506191402.02287.apt-drink@gulic.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all
+Hi. Since I upgraded to 2.6.12, i get messages like
 
-I am pretty new to the list and I've already searched the FAQ but I
-didn't find a hint how to do it.
+codec_semaphore: semaphore is not ready [0x1][0x
+301300]
+codec_write 1: semaphoreis not ready for register 0x54
 
-I want to map the Linux ARM exception vectors to any specific address
-and I want to know whether it is enough to modify vectors_base() in
-include/asm_arm.h to achieve this or if there are more contraints I
-don't know.
-I know that this is not the ARM mailing list but it is more a general
-question.
+_randomly_ (meaning that in some boots it shows up, but in others doesn't) in 
+some init scripts (for example, alsa).
 
-Would be nice if anybody could tell me which files I have to modify
-to do this.
+It's an HP pavilion zv5000 (amd64 laptop). Please tell me which more info may 
+I supply to trace this. But I repeat, it's not _always_ reproducible.
 
-Thanks in advance!
+Regards,
 
-Michael Gollnick
+Rafael Rodríguez

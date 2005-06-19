@@ -1,34 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261182AbVFSTSB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261186AbVFSTZJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261182AbVFSTSB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Jun 2005 15:18:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261186AbVFSTSB
+	id S261186AbVFSTZJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Jun 2005 15:25:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261284AbVFSTZJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Jun 2005 15:18:01 -0400
-Received: from femail.waymark.net ([206.176.148.84]:9130 "EHLO
-	femail.waymark.net") by vger.kernel.org with ESMTP id S261182AbVFSTR7 convert rfc822-to-8bit
+	Sun, 19 Jun 2005 15:25:09 -0400
+Received: from mail.metronet.co.uk ([213.162.97.75]:52098 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S261186AbVFSTZE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Jun 2005 15:17:59 -0400
-Date: 19 Jun 2005 19:02:02 GMT
-From: Kenneth Parrish <Kenneth.Parrish@family-bbs.org>
-Subject: Re: kernel bugzilla
-To: linux-kernel@vger.kernel.org
-Message-ID: <a03f72.d37041@family-bbs.org>
-Organization: FamilyNet HQ
-X-Mailer: BBBS/NT v4.01 Flag-5
+	Sun, 19 Jun 2005 15:25:04 -0400
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+Subject: Re: [2.6.12] x86-64 IO-APIC + timer doesn't work
+Date: Sun, 19 Jun 2005 20:25:23 +0100
+User-Agent: KMail/1.8.1
+Cc: "Andi Kleen" <ak@muc.de>, linux-kernel@vger.kernel.org, ACurrid@nvidia.com
+References: <88056F38E9E48644A0F562A38C64FB6004FF1606@scsmsx403.amr.corp.intel.com>
+In-Reply-To: <88056F38E9E48644A0F562A38C64FB6004FF1606@scsmsx403.amr.corp.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200506192025.23470.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
--=> Dave Jones wrote to Kyle Moffett <=-
+On Sunday 19 Jun 2005 05:57, Pallipadi, Venkatesh wrote:
+[snip]
+> >
+> >Venkatesh, can you push your calibrate_delay patch please? ?
+> >
+> >
+> >-Andi
+>
+> That patch is in mm tree.
+>
 
- > [*] Ok, rh-bugzilla gets a 'little' more than osdl-bugme does, [..]
+Patch cures it on the 1.6 BIOS. Thanks guys (hopefully Andrew will push it 
+into 2.6.13).
 
- OSDL
-      Open Source Development Lab (org.)
+-- 
+Cheers,
+Alistair.
 
-  -- V.E.R.A., a list dealing with computational acronyms.
-
---- MultiMail/Linux v0.46
+personal:   alistair()devzero!co!uk
+university: s0348365()sms!ed!ac!uk
+student:    CS/CSim Undergraduate
+contact:    1F2 55 South Clerk Street,
+            Edinburgh. EH8 9PP.

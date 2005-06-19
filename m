@@ -1,67 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261282AbVFSSxT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261178AbVFSS4R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261282AbVFSSxT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Jun 2005 14:53:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261284AbVFSSxT
+	id S261178AbVFSS4R (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Jun 2005 14:56:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261184AbVFSS4Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Jun 2005 14:53:19 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:20360 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261282AbVFSSxO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Jun 2005 14:53:14 -0400
-Date: Sun, 19 Jun 2005 19:55:04 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: "Theodore Ts'o" <tytso@mit.edu>, Jeremy Maitin-Shepard <jbms@cmu.edu>,
-       Patrick McFarland <pmcfarland@downeast.net>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Alexey Zaytsev <alexey.zaytsev@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: A Great Idea (tm) about reimplementing NLS.
-Message-ID: <20050619175503.GA3193@elf.ucw.cz>
-References: <f192987705061303383f77c10c@mail.gmail.com> <f192987705061310202e2d9309@mail.gmail.com> <1118690448.13770.12.camel@localhost.localdomain> <200506152149.06367.pmcfarland@downeast.net> <20050616023630.GC9773@thunk.org> <87y89a7wfn.fsf@jbms.ath.cx> <20050616143727.GC10969@thunk.org>
+	Sun, 19 Jun 2005 14:56:16 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:51210 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261178AbVFSS4M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Jun 2005 14:56:12 -0400
+Date: Sun, 19 Jun 2005 19:56:07 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Richard Purdie <rpurdie@rpsys.net>
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.12-rc6-mm1
+Message-ID: <20050619195607.C13005@flint.arm.linux.org.uk>
+Mail-Followup-To: Richard Purdie <rpurdie@rpsys.net>,
+	LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+References: <20050607042931.23f8f8e0.akpm@osdl.org> <1119134359.7675.38.camel@localhost.localdomain> <20050619001841.A7252@flint.arm.linux.org.uk> <1119144048.7675.101.camel@localhost.localdomain> <20050619100226.A6499@flint.arm.linux.org.uk> <20050619101120.B6499@flint.arm.linux.org.uk> <1119201158.7554.2.camel@localhost.localdomain> <20050619183928.B13005@flint.arm.linux.org.uk> <1119205560.7554.10.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050616143727.GC10969@thunk.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1119205560.7554.10.camel@localhost.localdomain>; from rpurdie@rpsys.net on Sun, Jun 19, 2005 at 07:25:59PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > Ext2/3's encoding has always been utf-8.  Period.
-> > 
-> > In what way does Ext2/3 know or care about file name encoding?  Doesn't
-> > it just store an arbitrary 8-byte string?  Couldn't someone claim that
-> > from the start it was designed to use iso8859-1 just as easily as you
-> > can claim it was designed to use utf-8?
+On Sun, Jun 19, 2005 at 07:25:59PM +0100, Richard Purdie wrote:
+> On Sun, 2005-06-19 at 18:39 +0100, Russell King wrote:
+> > Next batched smp patch can be found at www.home.arm.../~rmk/nightly
+> > which I'm currently planning to go to Linus tonight.
 > 
-> Because we've had this discussion^H^H^H^H^H^H^H^H^H^H^H flame war
-> years ago, and despite people from Russia whining that that it took 3
-> bytes to encode each Cyrillic character in UTF-8, it's where we came out.  
-> 
-> The bottom-line though is that if someone files a bug report with ext3
-> because one user on the system was is creating filenames in Japanese,
-> and another user on the same time-sharing system is creating filenames
-> in Germany, and they fail to interoperate, and they were doing so in
-> their local language, we would laugh at them --- just as people
-> writing mail programs would laugh at people who complained that they
-> were running into problems Just Sending 8-bits instead of using MIME,
-> and could you please fix this business-critical bug?  
-> 
-> Or as more and more desktop programs start interpreting the filenames
-> as UTF-8, and people with local variations get screwed, that is their
-> problem, and Not Ours.
+> I applied smp-20050619.patch to 2.6.12-rc6-mm1 + the last fix and the
+> Zaurus seems perfectly happy with it. Let me know as and when you have
+> further releases that need testing (a message to linux-arm-kernel might
+> be the best way to announce them?).
 
-Actually the day we have rm utf-8-ed, we have a problem. Someone will
-create two files that have same utf name, encoded differently, and
-will be in trouble. Remember old > \* "hack"? utf-8 makes variation
-possible...
+Thanks for testing.  Most of the other patches are platform specific
+so this may not be required.  However, if there are other changes to
+non-platform specific, I'll try to point them out a couple of days
+before they get merged.
 
-If we are serious about utf-8 support in ext3, we should return
--EINVAL if someone passes non-canonical utf-8 string.
-
-								Pavel
 -- 
-teflon -- maybe it is a trademark, but it should not be.
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

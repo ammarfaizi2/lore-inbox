@@ -1,55 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262149AbVFSNFr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261682AbVFSNQt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262149AbVFSNFr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Jun 2005 09:05:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262228AbVFSNFr
+	id S261682AbVFSNQt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Jun 2005 09:16:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261824AbVFSNQt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Jun 2005 09:05:47 -0400
-Received: from [62.206.217.67] ([62.206.217.67]:53647 "EHLO kaber.coreworks.de")
-	by vger.kernel.org with ESMTP id S262149AbVFSNFh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Jun 2005 09:05:37 -0400
-Message-ID: <42B56D9B.9070401@trash.net>
-Date: Sun, 19 Jun 2005 15:05:31 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.8) Gecko/20050514 Debian/1.7.8-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Santiago Garcia Mantinan <netfilter-devel@manty.net>
-CC: Chris Rankin <rankincj@yahoo.com>, netfilter-devel@lists.netfilter.org,
-       linux-kernel@vger.kernel.org, ebtables-devel@lists.sourceforge.net
-Subject: Re: 2.6.12: connection tracking broken?
-References: <20050618124359.39052.qmail@web52901.mail.yahoo.com>	<20050618192541.GA27439@pul.manty.net> <20050618221216.GB3182@pul.manty.net>
-In-Reply-To: <20050618221216.GB3182@pul.manty.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Sun, 19 Jun 2005 09:16:49 -0400
+Received: from nproxy.gmail.com ([64.233.182.195]:12339 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261682AbVFSNQp convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Jun 2005 09:16:45 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=LrBHIRF9YixOBf4XELrJaH90mRvUTq59qyXnYVYEWCKXARddgd5QU+FMW+5c2LQAwTkORwWL5R2KOGVK4yEP4VYS+NF6TPhFrgKanCRdsfbFdbeTHQOy5P11QIPUNOIVoOm65NcwdDByvL0JkdOziKml2+e7DuREhwkWZGmRM98=
+Message-ID: <4ad99e0505061906163d3cbe3e@mail.gmail.com>
+Date: Sun, 19 Jun 2005 15:16:42 +0200
+From: Lars Roland <lroland@gmail.com>
+Reply-To: Lars Roland <lroland@gmail.com>
+To: Alejandro Bonilla <abonilla@linuxwireless.org>
+Subject: Re: tg3 in 2.6.12-rc6 and Cisco PIX SMTP fixup
+Cc: Lincoln Dale <ltd@cisco.com>, Valdis.Kletnieks@vt.edu,
+       Christian Kujau <evil@g-house.de>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <42B4ACB1.7030807@linuxwireless.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <001f01c57341$1802c3b0$600cc60a@amer.sykes.com>
+	 <200506171352.j5HDqpE8006543@turing-police.cc.vt.edu>
+	 <42B353B7.4070503@cisco.com>
+	 <4ad99e05050617222966671e4f@mail.gmail.com>
+	 <42B4ACB1.7030807@linuxwireless.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Santiago Garcia Mantinan wrote:
->>I have sent this right now to the bridge list, I'm copying it here so that
->>more info is available about this bug.
+On 6/19/05, Alejandro Bonilla <abonilla@linuxwireless.org> wrote:
+> If you have a Cisco contract, you need to make sure that your account
+> manager will allow the upgrades.
 > 
-> 
-> I have selected patches from 2.6.12 that I thought could be related to this
-> issue, and I have finaly identified this patch...
-> 
-> http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=b31e5b1bb53b99dfd5e890aa07e943aff114ae1c
-> 
-> as the patch causing the problem, I have reversed it on my kernel tree and
-> now the firewall is working again.
-> 
-> I have not really looked at what the patch does and how it does that, I have
-> just identified it as the one causing the break of this connection tracking
-> relating to the bridges.
+> But as I said before, this was fixed long time ago.
 
-The patch drops the conntrack reference when a packet leaves IP to avoid
-problems with module unload because of indefinitely queued packets.
-The bridge-netfilter code defers calling of some NF_IP_* hooks to the
-bridge layer, when the conntrack reference is already gone, so the entry
-is neither confirmed (enters the hashtable) nor available for use by
-matches or targets. Reverting the patch is not a good option, I'll look
-into other possiblities.
-
-Regards
-Patrick
+It was not fixed completly in PIX 6.1.5, at this point I now have 3
+pixes that all have this problem and all of them are running 6.3.4 I
+have asked them to upgrade to 6.3.4.115 and will report back as soon I
+have any results.

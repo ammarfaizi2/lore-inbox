@@ -1,45 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261954AbVFSPpc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262259AbVFSQEU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261954AbVFSPpc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Jun 2005 11:45:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262256AbVFSPpc
+	id S262259AbVFSQEU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Jun 2005 12:04:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262260AbVFSQEU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Jun 2005 11:45:32 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:40970 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261954AbVFSPp2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Jun 2005 11:45:28 -0400
-Date: Sun, 19 Jun 2005 16:45:21 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: LKML <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: ISA DMA controller hangs
-Message-ID: <20050619164521.A13005@flint.arm.linux.org.uk>
-Mail-Followup-To: Pierre Ossman <drzeus-list@drzeus.cx>,
-	LKML <linux-kernel@vger.kernel.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>
-References: <42987450.9000601@drzeus.cx> <1117288285.2685.10.camel@localhost.localdomain> <42A2B610.1020408@drzeus.cx> <42A3061C.7010604@drzeus.cx> <42B1A08B.8080601@drzeus.cx> <20050616170622.A1712@flint.arm.linux.org.uk> <42B3D830.9060100@drzeus.cx>
-Mime-Version: 1.0
+	Sun, 19 Jun 2005 12:04:20 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:443 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S262259AbVFSQEN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Jun 2005 12:04:13 -0400
+Message-ID: <42B59992.3EFD4C73@tv-sign.ru>
+Date: Sun, 19 Jun 2005 20:13:06 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Roland McGrath <roland@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] de_thread: eliminate unneccessary sighand locking
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <42B3D830.9060100@drzeus.cx>; from drzeus-list@drzeus.cx on Sat, Jun 18, 2005 at 10:15:44AM +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 18, 2005 at 10:15:44AM +0200, Pierre Ossman wrote:
-> Russell King wrote:
-> >Shouldn't there be a system device for the DMA controller?  I think
-> >that should have appropriate hooks into the power management system
-> >to do the necessary magic to restore whatever's needed - just like
-> >we do for the PIC.
-> 
-> I'll have a look at how the PIC is handled then. Any corner cases I
-> should be aware of?
+while switching current->sighand de_thread does:
 
-No idea on that score I'm afraid.  Alan may know better.
+	write_lock_irq(&tasklist_lock);
+	spin_lock(&oldsighand->siglock);
+	spin_lock(&newsighand->siglock);
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+	current->sighand = newsighand;
+	recalc_sigpending();
+
+Is these 2 sighand locks are really needed?
+
+At this moment we already zapped other threads, so nobody
+can access newsighand via current->. And we are holding
+tasklist_lock, so other processes can't send signals to us
+or use our ->sighand in any way.
+
+oldsighand can be seen from CLONE_SIGHAND processes, but
+we are not using oldsighand in any way, so this lock seems
+to be unneeded too.
+
+The only possibility that I can imagine is that some process
+does:
+	read_lock(tasklist_lock);
+	task = find_task();
+	spin_lock(task->sighand->siglock);
+	read_unlock(tasklist_lock);
+	play with task->signal
+
+Is this possible/allowed?
+
+And why do we need recalc_sigpending() ? We are not changing
+->pending or ->blocked, just ->sighand.
+
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+
+--- 2.6.12/fs/exec.c~	2005-05-09 16:37:16.000000000 +0400
++++ 2.6.12/fs/exec.c	2005-06-20 00:03:24.000000000 +0400
+@@ -758,14 +758,7 @@ no_thread_group:
+ 		       sizeof(newsighand->action));
+ 
+ 		write_lock_irq(&tasklist_lock);
+-		spin_lock(&oldsighand->siglock);
+-		spin_lock(&newsighand->siglock);
+-
+ 		current->sighand = newsighand;
+-		recalc_sigpending();
+-
+-		spin_unlock(&newsighand->siglock);
+-		spin_unlock(&oldsighand->siglock);
+ 		write_unlock_irq(&tasklist_lock);
+ 
+ 		if (atomic_dec_and_test(&oldsighand->count))

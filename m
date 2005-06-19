@@ -1,39 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262266AbVFSRuy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261270AbVFSSEx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262266AbVFSRuy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Jun 2005 13:50:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262267AbVFSRuy
+	id S261270AbVFSSEx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Jun 2005 14:04:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262268AbVFSSEx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Jun 2005 13:50:54 -0400
-Received: from fsmlabs.com ([168.103.115.128]:65488 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S262266AbVFSRtv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Jun 2005 13:49:51 -0400
-Date: Sun, 19 Jun 2005 11:53:24 -0600 (MDT)
-From: Zwane Mwaikambo <zwane@fsmlabs.com>
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-cc: linux-kernel@vger.kernel.org, dhowells@redhat.com, dipankar@in.ibm.com,
-       ak@suse.de, akpm@osdl.org, maneesh@in.ibm.com
-Subject: Re: [RFC,PATCH] RCU: clean up a few remaining synchronize_kernel()
- calls
-In-Reply-To: <20050618002021.GA2892@us.ibm.com>
-Message-ID: <Pine.LNX.4.61.0506191150300.26045@montezuma.fsmlabs.com>
-References: <20050618002021.GA2892@us.ibm.com>
+	Sun, 19 Jun 2005 14:04:53 -0400
+Received: from poros.telenet-ops.be ([195.130.132.44]:17584 "EHLO
+	poros.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S261270AbVFSSEv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Jun 2005 14:04:51 -0400
+From: Jan De Luyck <lkml@kcore.org>
+To: linux-xfs@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: [2.6.12] XFS: Undeletable directory
+Date: Sun, 19 Jun 2005 19:04:49 +0200
+User-Agent: KMail/1.8.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200506191904.49639.lkml@kcore.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Jun 2005, Paul E. McKenney wrote:
+Hello lists,
 
-> Please let me know if there are any problems with any of these changes.
+I've had some XFS troubles today, and after cleaning up with xfs_repair and so 
+I'm stuck with one undeletable directory in /lost+found:
 
-Hi Paul,
-	Do you have any pending patches to update Documentation/RCU/* too? 
-The best i can find explaining usage is from;
+precious:/lost+found# ls -l
+total 8
+drwxrwxrwx  2 root root 8192 Jun 19  2005 4207214
+precious:/lost+found# rm -r 4207214
+rm: cannot remove directory `4207214': Directory not empty
+precious:/lost+found# ls -l 4207214/
+total 0
+precious:/lost+found# 
 
-http://lwn.net/Articles/130341/
+So there's one dir 4207214 there, and i can rename it and whatever, just not 
+remove it.
+
+xfs_repair didn't solve the problem.
+
+Any ideas?
 
 Thanks,
-	Zwane
 
+Jan
+-- 
+    ***
+  *******
+ *********
+ ****** Confucious say: "Is stuffy inside fortune cookie."
+  *******
+    ***

@@ -1,41 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262231AbVFSLNi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261192AbVFSL0D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262231AbVFSLNi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Jun 2005 07:13:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262233AbVFSLNi
+	id S261192AbVFSL0D (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Jun 2005 07:26:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262243AbVFSL0D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Jun 2005 07:13:38 -0400
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:33004
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S262231AbVFSLNg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Jun 2005 07:13:36 -0400
-Subject: Re: [patch 2.6.12] getmonotonictime system call and patch for
-	evdev to use such time
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Michal =?iso-8859-2?Q?Maru=B9ka?= <mmc@maruska.dyndns.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <m2ekayaban.fsf@linux11.maruska.tin.it>
-References: <m2ekayaban.fsf@linux11.maruska.tin.it>
-Content-Type: text/plain; charset=iso-8859-2
-Organization: linutronix
-Date: Sun, 19 Jun 2005 13:15:10 +0200
-Message-Id: <1119179710.30192.140.camel@tglx.tec.linutronix.de>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 8bit
+	Sun, 19 Jun 2005 07:26:03 -0400
+Received: from mail.linicks.net ([217.204.244.146]:54801 "EHLO
+	linux233.linicks.net") by vger.kernel.org with ESMTP
+	id S261192AbVFSLZy convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Jun 2005 07:25:54 -0400
+From: Nick Warne <nick@linicks.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2 errors in 2.6.12
+Date: Sun, 19 Jun 2005 12:25:50 +0100
+User-Agent: KMail/1.8.1
+References: <200506191104.28900.nick@linicks.net>
+In-Reply-To: <200506191104.28900.nick@linicks.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200506191225.50522.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-06-19 at 12:30 +0200, Michal Maru¹ka wrote:
+On Sunday 19 June 2005 11:04, you wrote:
+> >and my SBLive! plays only on 2 repros Front left and right.
+>
+> Yes - I noticed something with my SB Live.  I thought it was me, but going
+> through everythnig this morning, I don't think it is.
+>
+> From 2.6.11.12 dmesg:
+>
+> Jun 17 18:39:45 linuxamd kernel: Advanced Linux Sound Architecture Driver
+> Version 1.0.8 (Thu Jan 13 09:39:32 2005 UTC).
+> Jun 17 18:39:45 linuxamd kernel: ACPI: PCI interrupt 0000:00:0f.0[A] -> GSI
+> 5 (level, low) -> IRQ 5
+> Jun 17 18:39:45 linuxamd kernel: ALSA device list:
+> Jun 17 18:39:45 linuxamd kernel:   #0: Sound Blaster Live! (rev.7,
+> serial:0x80611102) at 0xe000, irq 5
+>
+> And here from new 2.6.12 dmesg:
+>
+> Jun 18 15:27:41 linuxamd kernel: Advanced Linux Sound Architecture Driver
+> Version 1.0.9rc2  (Thu Mar 24 10:33:39 2005 UTC).
+> Jun 18 15:27:41 linuxamd kernel: PCI: Found IRQ 5 for device 0000:00:0f.0
+> Jun 18 15:27:41 linuxamd kernel: ALSA device list:
+> Jun 18 15:27:41 linuxamd kernel:   #0: SB Live [Unknown] (rev.7,
+> serial:0x80611102) at 0xe000, irq 5
 
-> I found  do_posix_clock_monotonic_gettime  and made simple wrapper around it.
-> I do NOT claim i know how to add a new system call! And it's  i386 only.
+OK, I have found out why - an alsa-devel patch changed to be more specific on 
+the chipset/model - more here:
 
-There is a system call already.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=111209948526203&w=2
 
-man clock_gettime
+It turns out my card isn't in the ID list, so it gets given an 'unknown'.  As 
+this changed from 2.6.11.12, alsamixer then reset (effectively a new card!) 
+so I had to reset all my mixer settings again - I would look at your mixer 
+settings for the surround sound settings (mute etc.).
 
-tglx
+Here is a page with the ID and chipsets of the cards:
 
+http://www.digit-life.com/articles/livetolive51/
 
+I am going to attempt to add my card into emu10k1_main.c to get it set right:
+
+0 [Unknown        ]: EMU10K1 - SB Live [Unknown]
+                     SB Live [Unknown] (rev.7, serial:0x80611102) at 0xe000, 
+irq 5
+
+>From that 'livetolive51' page I am told I have:
+SB0060 - SBlive! Value (PCI\VEN_1102&DEV_0002&SUBSYS_80611102)
+
+Nick
+-- 
+"When you're chewing on life's gristle,
+Don't grumble, Give a whistle..."

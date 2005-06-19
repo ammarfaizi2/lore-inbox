@@ -1,56 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262250AbVFSPAN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262238AbVFSPEu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262250AbVFSPAN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Jun 2005 11:00:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262254AbVFSPAN
+	id S262238AbVFSPEu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Jun 2005 11:04:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262254AbVFSPEu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Jun 2005 11:00:13 -0400
-Received: from rproxy.gmail.com ([64.233.170.193]:6986 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262250AbVFSPAH convert rfc822-to-8bit
+	Sun, 19 Jun 2005 11:04:50 -0400
+Received: from rproxy.gmail.com ([64.233.170.204]:6816 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262238AbVFSPEs convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Jun 2005 11:00:07 -0400
+	Sun, 19 Jun 2005 11:04:48 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=iaD/DM0VgMamR99SlCdhrrTIXb//em7NOy2XV4mZkf9P2/FRSR3DfgWSGDyR3ffY0dgfkOBd4tOmmo4Kp+plz77+dhoZT+w9hpwTvswSXN1p8jhd969rqRhA3xQYLOujTZb5u5fWZ9bXtWqdybvDoBdrDFH1VKlcGaZi+raMWxg=
-Message-ID: <9cde8bff0506190800170a3685@mail.gmail.com>
-Date: Sun, 19 Jun 2005 10:00:05 -0500
-From: aq <aquynh@gmail.com>
-Reply-To: aq <aquynh@gmail.com>
-To: randy_dunlap <rdunlap@xenotime.net>
-Subject: Re: Linux 2.6.12
-Cc: David Lang <david.lang@digitalinsight.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050618193636.70ab8b05.rdunlap@xenotime.net>
+        b=TGOiorf9ECsQF3lAZspzY1gm4/WCmD18jKizeYcw2gksyGM86tRb6jlQwQKWTxWWA/MgrjT6+3sy10zRLBKBankMJdUzMJUWsxsw+iW/OIh/I87JLuEWLvLIOX9C3T1QnbhRAmsqEAuB4vDaKtvgzzH7/3Z8qv4YTM6gaLxPLzM=
+Message-ID: <105c793f0506190804d98d8ac@mail.gmail.com>
+Date: Sun, 19 Jun 2005 11:04:48 -0400
+From: Andrew Haninger <ahaning@gmail.com>
+Reply-To: Andrew Haninger <ahaning@gmail.com>
+To: Nick Warne <nick@linicks.net>
+Subject: Re: 2.6.12 udev hangs at boot
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200506181806.49627.nick@linicks.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <200506182005.28254.nick@linicks.net>
-	 <9a8748490506181233675f2fd5@mail.gmail.com>
-	 <9cde8bff0506181839d41aab3@mail.gmail.com>
-	 <Pine.LNX.4.62.0506181847550.11617@qynat.qvtvafvgr.pbz>
-	 <20050618193636.70ab8b05.rdunlap@xenotime.net>
+References: <200506181332.25287.nick@linicks.net> <42B45173.6060209@pobox.com>
+	 <200506181806.49627.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/18/05, randy_dunlap <rdunlap@xenotime.net> wrote:
-> On Sat, 18 Jun 2005 18:48:59 -0700 (PDT) David Lang wrote:
-> 
-> | On Sat, 18 Jun 2005, aq wrote:
-> |
-> | > the version number is a little bit confused here: if I want to upgrade
-> | > from for example 2.6.11.5 to 2.6.12, which patch should I get?
-> |
-> | you reverse the 2.6.11 -> 2.6.11.5 patch to get back to a vinilla 2.6.11
-> | then you apply the 2.6.11->2.6.12 patch.
-> 
-> Hrm, I expected ketchup to be able to handle that already.
-> Does it not?
+Thanks for pointing this out.
 
-ah yes. because 2.6.12 can be get by patching from 2.6.11, so ketchup
-works well, as always.
+I also have a Slackware 10 machine here on which I was trying to get
+2.6.12 working. I was noticing odd things changing when I switched
+between the default (2.4.26) kernel and 2.6.12. 'less' wouldn't work,
+my /dev/sd* devices weren't there so I couldn't mount my external hard
+disk or cdrom drive, and there was that hang at boot time.
 
-but ketchup doesnt work with 2.6.x.y yet.
+I've since downloaded a new udev and installed it and all above
+problems are resolved. I did have to do a 'pkgremove udev", though, to
+get the /dev/ devices back. (Except that I did it through pkgtool so
+'udev' might not be the right name to give to pkgremove.)
 
-regards,
-aq
+I had even checked the Documentation/Changes file to see if Slackware
+10 came with some outdated package, and udev wasn't mentioned. I'm not
+sure where else I should have looked for information like that,
+though.
+
+Anyway, just a heads-up to anyone else experiencing a breaking of
+'less' and missing /dev files.
+
+-Andy

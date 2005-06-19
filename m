@@ -1,71 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261387AbVFSCgo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbVFSCzC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261387AbVFSCgo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Jun 2005 22:36:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261443AbVFSCgo
+	id S261443AbVFSCzC (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Jun 2005 22:55:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbVFSCzC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Jun 2005 22:36:44 -0400
-Received: from titan.genwebhost.com ([209.9.226.66]:53180 "EHLO
-	titan.genwebhost.com") by vger.kernel.org with ESMTP
-	id S261387AbVFSCgm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Jun 2005 22:36:42 -0400
-Date: Sat, 18 Jun 2005 19:36:36 -0700
-From: randy_dunlap <rdunlap@xenotime.net>
-To: David Lang <david.lang@digitalinsight.com>
-Cc: aquynh@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.12
-Message-Id: <20050618193636.70ab8b05.rdunlap@xenotime.net>
-In-Reply-To: <Pine.LNX.4.62.0506181847550.11617@qynat.qvtvafvgr.pbz>
-References: <200506182005.28254.nick@linicks.net>
-	<9a8748490506181233675f2fd5@mail.gmail.com>
-	<9cde8bff0506181839d41aab3@mail.gmail.com>
-	<Pine.LNX.4.62.0506181847550.11617@qynat.qvtvafvgr.pbz>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 18 Jun 2005 22:55:02 -0400
+Received: from smtpout.mac.com ([17.250.248.88]:51658 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S261443AbVFSCy5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Jun 2005 22:54:57 -0400
+In-Reply-To: <20050618191341.GA30620@redhat.com>
+References: <20050617001330.294950ac.akpm@osdl.org> <1119016223.5049.3.camel@mulgrave> <20050617142225.GO6957@suse.de> <20050617141003.2abdd8e5.akpm@osdl.org> <20050617212338.GA16852@suse.de> <491950000.1119044739@flay> <20050618191341.GA30620@redhat.com>
+Mime-Version: 1.0 (Apple Message framework v728)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <265EC713-9745-484D-8FF0-1C8D5FFE94F1@mac.com>
+Cc: "Martin J. Bligh" <mbligh@mbligh.org>, Jens Axboe <axboe@suse.de>,
+       Andrew Morton <akpm@osdl.org>, James.Bottomley@SteelEye.com,
+       linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - titan.genwebhost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - xenotime.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: kernel bugzilla
+Date: Sat, 18 Jun 2005 22:54:33 -0400
+To: Dave Jones <davej@redhat.com>
+X-Mailer: Apple Mail (2.728)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 18 Jun 2005 18:48:59 -0700 (PDT) David Lang wrote:
+On Jun 18, 2005, at 15:13:41, Dave Jones wrote:
+> On Fri, Jun 17, 2005 at 02:45:39PM -0700, Martin J. Bligh wrote:
+>> The external one is infintely simpler than the internal IBM one, and
+>> the distro ones. I *really, really* prefer to keep it that way.  
+>> Having
+>> said that, it does have a few fields (eg version, and
+>> category/subcategory) that should be filled out properly, and that's
+>> not easy to do via email.
+>> For now, my intent is to allow bug filing via web only, and followup
+>> comments by email. If lots of people scream and curse at me, I'll
+>> reconsider I suppose.
+>
+> Something that I'd *really* love to see is usage of other bugzillas
+> xml-rpc interfaces, so that for eg, if someone files a Fedora bug
+> where some driver blows up, and I think it doesn't look like
+> it's caused by any patch in our tree, I'd love to click a button
+> in rh-bugzilla and have the bug automatically be also filed
+> in bugme.osdl, with the various comments mirrored back to the
+> originating bugzilla.
 
-| On Sat, 18 Jun 2005, aq wrote:
-| 
-| > the version number is a little bit confused here: if I want to upgrade
-| > from for example 2.6.11.5 to 2.6.12, which patch should I get?
-| 
-| you reverse the 2.6.11 -> 2.6.11.5 patch to get back to a vinilla 2.6.11
-| then you apply the 2.6.11->2.6.12 patch.
+Another wishlist feature I've seen is to have a mailing list archiver
+attached to bugzilla that receives and stores the last month worth of
+emails on the list.  At any time someone can login and:
+     o  Bind an archived email to a bugzilla bug-report
+     o  Create a new bugzilla bug-report from an archived email (with
+        extra fields specified by the user).
+     o  Add an archived followup email in a thread to the bug-report.
 
-Hrm, I expected ketchup to be able to handle that already.
-Does it not?
+Once an email is bound, it is marked for permanent storage in bugzilla
+(as opposed to the temporary one month storage for all emails).
 
-So you can do the above by hand or you can use scripts/patch-kernel
-in the kernel tree (but not in the 2.6.11 tree, just in the
-2.6.12 tree or get it from here:
-http://www.xenotime.net/linux/scripts/patch-kernel )
-to do the reverse-patch and apply-patch.
-However, patch-kernel won't download the 2.6.11.12 patch for you.
+The first time the "create" or "bind" options are selected for a given
+thread, a post would be sent to the list indicating the bind, from the
+bugzilla address for that bug.  Any followup posts that CC that address
+will automatically be included in the bug database.  It seems that would
+allow users to quickly and easily tie the bug database to the email
+archive, although I could very easily be missing something here.
 
+Cheers,
+Kyle Moffett
 
-| David Lang
-| 
-| > anybody knows if Matt will upgrade his ketchup for the new versioning
-| > system soon? otherwise, I might spend some time to hack it up.
-| >
-| > regards,
-| > aq
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
+L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
+PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$  
+r  !y?(-)
+------END GEEK CODE BLOCK------
 
-
-
----
-~Randy

@@ -1,81 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262233AbVFSOrU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262240AbVFSOxg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262233AbVFSOrU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Jun 2005 10:47:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262238AbVFSOrU
+	id S262240AbVFSOxg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Jun 2005 10:53:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262250AbVFSOxg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Jun 2005 10:47:20 -0400
-Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:20613 "EHLO
-	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S262233AbVFSOrO
+	Sun, 19 Jun 2005 10:53:36 -0400
+Received: from bay106-f13.bay106.hotmail.com ([65.54.161.23]:13429 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S262240AbVFSOxe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Jun 2005 10:47:14 -0400
-X-ORBL: [69.107.32.110]
-From: David Brownell <david-b@pacbell.net>
-To: linux-hotplug-devel@lists.sourceforge.net
-Subject: Re: Input sysbsystema and hotplug
-Date: Sun, 19 Jun 2005 07:46:49 -0700
-User-Agent: KMail/1.7.1
-Cc: Hannes Reinecke <hare@suse.de>, Dmitry Torokhov <dtor_core@ameritech.net>,
-       Kay Sievers <kay.sievers@vrfy.org>, Greg KH <gregkh@suse.de>,
-       Vojtech Pavlik <vojtech@suse.cz>, LKML <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-References: <200506131607.51736.dtor_core@ameritech.net> <200506140242.08982.dtor_core@ameritech.net> <42AE8BA4.5020702@suse.de>
-In-Reply-To: <42AE8BA4.5020702@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506190746.49865.david-b@pacbell.net>
+	Sun, 19 Jun 2005 10:53:34 -0400
+Message-ID: <BAY106-F13B31695A742EE813EFE26C8F60@phx.gbl>
+X-Originating-IP: [65.54.161.200]
+X-Originating-Email: [nchiellini@hotmail.com]
+In-Reply-To: <42B45105.1060306@pobox.com>
+From: "Nicolo Chiellini" <nchiellini@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: jgarzik@pobox.com
+Subject: Re: PROBLEM: libata + sata_sil on sil3112 dosen't work proper
+Date: Sun, 19 Jun 2005 16:53:33 +0200
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+X-OriginalArrivalTime: 19 Jun 2005 14:53:33.0445 (UTC) FILETIME=[AA0CBB50:01C574DE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 14 June 2005 12:47 am, Hannes Reinecke wrote:
-> 
-> Because there are _two_ events with the name 'input'.
-> Both run under the same name but carry different information.
-> One is required to load the module and the other is required to create
-> the device node.
-> 
-> That's what I call an abomination.
+Thank you for the fast reply,
 
-Or at least messy, though it's been true forever that all the
-event classes have included multiple events.   USB hotplug has
-aided both "interface" and "device" driver match policies since
-before 2.4.0, for example.  I guess "input" has seemed simpler,
-partially because it started later and slimmer.
+>>I have a problem whit a raid controller using SATA SIL 3112 chipset, [..]
 
+>This is not a RAID controller.
+>http://linux.yyz.us/sata/faq-sata-raid.html#sii
+>Jeff
 
-Maybe starting with the next kernel or so, distros should be
-starting to avoid these issues by converting to slim versions
-of the /sbin/hotplug script, handling the two steps separately.
+You have reason about that but the problem is not on RAID Sw, is not even 
+setted up atm and i need use it like SATA controller.
+When i try to load sata_sil the system give problems describted on the first 
+mail and, the worst think, if the modules is builded static on kernel the 
+machine hang on boot time when it try to recognize the controller.
+The same module work fine whit SIL 3114 and sata disks.
 
-First the driver loading ... for USB, PCI/Cardbus, and PCMCIA
-this usually suffices:
+Thanks, Nicolo'
 
-    if [ "$ACTION" = "add" -a -n "$MODALIAS" -a ! -L $DEVPATH/driver ]
-    then
-        modprobe -q $MODALIAS
-    fi
-
-Then (otherwise?) the device node creation
-
-    if [ -n "$DEVPATH" ]
-    then
-        /sbin/udevsend $1
-    fi
-
-And don't have any /etc/hotplug or /etc/hotplug.d scripts.
-(There'd still need to be an /etc/init.d/coldplug to make
-up for hotplug events that preceded viable userspace.)
-
-One problem with that is that not all subsystems yet support
-the new $MODALIAS (and /sys/devices/.../modalias) stuff, and
-of course "input" is one subsystem that doesn't.
-
-That support shifts the "what module to load" logic from
-hotplug scripts (slow and no-longer-appropriate) over to
-module-init-tools (3.2 and newer for the PCMCIA support).
-
-- Dave
 

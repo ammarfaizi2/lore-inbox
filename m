@@ -1,41 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261965AbVFSF7n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261272AbVFSHvC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261965AbVFSF7n (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Jun 2005 01:59:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262042AbVFSF7n
+	id S261272AbVFSHvC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Jun 2005 03:51:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261957AbVFSHvC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Jun 2005 01:59:43 -0400
-Received: from mail.kroah.org ([69.55.234.183]:7339 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261965AbVFSF7c (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Jun 2005 01:59:32 -0400
-Date: Sat, 18 Jun 2005 22:59:24 -0700
-From: Greg KH <greg@kroah.com>
-To: Jamey Hicks <jamey.hicks@hp.com>
+	Sun, 19 Jun 2005 03:51:02 -0400
+Received: from njord.oit.pdx.edu ([131.252.122.32]:24520 "EHLO
+	njord.oit.pdx.edu") by vger.kernel.org with ESMTP id S261272AbVFSHux
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Jun 2005 03:50:53 -0400
+To: Kai Germaschewski <kai@germaschewski.name>,
+       Sam Ravnborg <sam@ravnborg.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: recursive call to platform_device_register deadlocks
-Message-ID: <20050619055924.GA14674@kroah.com>
-References: <42B43226.20703@hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42B43226.20703@hp.com>
-User-Agent: Mutt/1.5.8i
+Subject: PATCH Makefile, Make 'cscope -q' play well with cscope.el
+From: Karl Hegbloom <hegbloom@pdx.edu>
+Date: Sun, 19 Jun 2005 00:50:47 -0700
+Message-ID: <87br62hjjc.fsf@journeyhawk.karlheg.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 18, 2005 at 10:39:34AM -0400, Jamey Hicks wrote:
-> 
-> We could restructure the toplevel driver so that it does not call 
-> platform_device inside its probe function.  An alternative would be to 
-> add a pointer to a vector of subdevices to platform_device and have it 
-> register the subdevices after it has probed the toplevel device.  Do you 
-> have any recommendations?
+LinuxVersion: 2.6-git 2005/06/19
 
-Use the -mm kernel, this should be allowed in that release, due to a
-rework of the driver core logic in this area.  Can you test this out and
-verify this?
+I tried the Linux Makefile 'make cscope' target, and found that the
+generated database is not compatible with 'cscope.el' under XEmacs.
+The thing is that 'cscope.el' does not allow setting the command line
+options to the 'cscope' commands it runs, and it errors with a message
+about the options not matching the ones used to generate the index.
 
-thanks,
+It turns out the cscope designers already thought of this.  The
+options can be written into the "cscope.files".  The included patch
+moves the "-q" and "-k" options from the 'cmd_cscope' to the
+'cmd_cscope-file', echoing them into the top of the files listing.
 
-greg k-h
+Now the index is generated with the "-q" option, and when 'cscope.el'
+performs it's search, it uses that argument as well.  Lookups are fast
+and everyone is happy.
+
+
+diff --git a/Makefile b/Makefile
+--- a/Makefile
++++ b/Makefile
+@@ -1173,10 +1173,10 @@ define all-sources
+ endef
+ 
+ quiet_cmd_cscope-file = FILELST cscope.files
+-      cmd_cscope-file = $(all-sources) > cscope.files
++      cmd_cscope-file = (echo \-k; echo \-q; $(all-sources)) > cscope.files
+ 
+ quiet_cmd_cscope = MAKE    cscope.out
+-      cmd_cscope = cscope -k -b -q
++      cmd_cscope = cscope -b
+ 
+ cscope: FORCE
+ 	$(call cmd,cscope-file)
+
+
+I sent a previous patch for this, but it is wrong, since I had placed
+the 'echo' statements directly inside of 'all-sources'.  If
+'all-sources' is used anyplace else in the Makefile, that would lead
+to file not found errors.  This patch corrects that mistake.
+
+
+[ I am not currently a subscriber to LKML. ]
+-- 
+Karl Hegbloom <hegbloom@pdx.edu>

@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261289AbVFSTe1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261205AbVFSThh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261289AbVFSTe1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Jun 2005 15:34:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261285AbVFSTe1
+	id S261205AbVFSThh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Jun 2005 15:37:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261285AbVFSThh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Jun 2005 15:34:27 -0400
-Received: from poros.telenet-ops.be ([195.130.132.44]:46260 "EHLO
-	poros.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S261290AbVFSTeT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Jun 2005 15:34:19 -0400
-From: Jan De Luyck <lkml@kcore.org>
-To: Edwin Eefting <psy@datux.nl>
-Subject: Re: [2.6.12] XFS: Undeletable directory
-Date: Sun, 19 Jun 2005 20:34:18 +0200
-User-Agent: KMail/1.8.1
-Cc: linux-xfs@oss.sgi.com, linux-kernel@vger.kernel.org
-References: <200506191904.49639.lkml@kcore.org> <Pine.LNX.4.63.0506191924430.7686@hobbybop>
-In-Reply-To: <Pine.LNX.4.63.0506191924430.7686@hobbybop>
+	Sun, 19 Jun 2005 15:37:37 -0400
+Received: from mail.dif.dk ([193.138.115.101]:64696 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S261205AbVFSThc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Jun 2005 15:37:32 -0400
+Date: Sun, 19 Jun 2005 21:42:56 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] modules, small codingstyle cleanup, one statement/expression
+ pr line
+Message-ID: <Pine.LNX.4.62.0506192138110.2832@dragon.hyggekrogen.localhost>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506192034.18690.lkml@kcore.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 19 June 2005 21:25, Edwin Eefting wrote:
-> ls -la 4207214/ also shows nothing?
-> perhaps there's something weirds thats hidden.
->
+Small patch to make kernel/module.c a little more readable and a little 
+more CodingStyle conforming.
 
-Nothing out of the ordinary:
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+---
 
-devilkin@precious:/lost+found$ ls -la 4207214/
-total 8
-drwxrwxrwx  2 root root 8192 Jun 19  2005 .
-drwxr-xr-x  3 root root   20 Jun 19  2005 ..
-devilkin@precious:/lost+found$ 
+ kernel/module.c |    6 ++++--
+ 1 files changed, 4 insertions(+), 2 deletions(-)
 
-Jan
+--- linux-2.6.12-orig/kernel/module.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.12/kernel/module.c	2005-06-19 21:24:26.000000000 +0200
+@@ -1731,8 +1731,10 @@ static struct module *load_module(void _
+ 	kfree(args);
+  free_hdr:
+ 	vfree(hdr);
+-	if (err < 0) return ERR_PTR(err);
+-	else return ptr;
++	if (err < 0)
++		return ERR_PTR(err);
++	else
++		return ptr;
+ 
+  truncated:
+ 	printk(KERN_ERR "Module len %lu truncated\n", len);
 
--- 
-  We are not anticipating any emergencies.
+
+

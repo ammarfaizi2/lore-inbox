@@ -1,44 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261831AbVFSNou@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261172AbVFSOHo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261831AbVFSNou (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Jun 2005 09:44:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262209AbVFSNot
+	id S261172AbVFSOHo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Jun 2005 10:07:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261824AbVFSOHn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Jun 2005 09:44:49 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:64390 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261831AbVFSNos (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Jun 2005 09:44:48 -0400
-Date: Sun, 19 Jun 2005 15:44:00 +0200
-From: Ingo Molnar <mingo@elte.hu>
+	Sun, 19 Jun 2005 10:07:43 -0400
+Received: from mail.linicks.net ([217.204.244.146]:49675 "EHLO
+	linux233.linicks.net") by vger.kernel.org with ESMTP
+	id S261172AbVFSOHi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Jun 2005 10:07:38 -0400
+From: Nick Warne <nick@linicks.net>
 To: linux-kernel@vger.kernel.org
-Subject: [patch] Real-Time Preemption, -RT-2.6.12-V0.7.49-00
-Message-ID: <20050619134400.GA19795@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: 2 errors in 2.6.12
+Date: Sun, 19 Jun 2005 15:07:35 +0100
+User-Agent: KMail/1.8.1
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Message-Id: <200506191507.35831.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Replying to myself...
 
-i have released the -V0.7.49-00 Real-Time Preemption patch, which can be 
-downloaded from the usual place:
+> Here is a page with the ID and chipsets of the cards:
+> 
+> http://www.digit-life.com/articles/livetolive51/
+> 
+> I am going to attempt to add my card into emu10k1_main.c to get it set
+> right:
+> 
+> 0 [Unknown        ]: EMU10K1 - SB Live [Unknown]
+>                      SB Live [Unknown] (rev.7, serial:0x80611102) at
+>                      0xe000,
+> irq 5
+> 
+> From that 'livetolive51' page I am told I have:
+> SB0060 - SBlive! Value (PCI\VEN_1102&DEV_0002&SUBSYS_80611102)
 
-    http://redhat.com/~mingo/realtime-preempt/
+This worked fine, but fishing around, I see 'new' cards ID's are added all the 
+time:
 
-this is mostly a merge to 2.6.12-final.
+http://cvs.sourceforge.net/viewcvs.py/alsa/alsa-kernel/pci/emu10k1/emu10k1_main.c?rev=1.58&view=log
 
-to build a -V0.7.49-00 tree, the following patches should to be applied:
+so eventually the [UKNOWN] bit will disappear and alsamixer settings will 
+remain between different version kernels (2.6.1x[.x]) then.
 
-   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.12.tar.bz2
-   http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.12-final-V0.7.49-00
-
-	Ingo
+Nick
+-- 
+"When you're chewing on life's gristle,
+Don't grumble, Give a whistle..."

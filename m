@@ -1,80 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262262AbVFSQtu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261851AbVFSQ6h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262262AbVFSQtu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Jun 2005 12:49:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262267AbVFSQtu
+	id S261851AbVFSQ6h (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Jun 2005 12:58:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262209AbVFSQ6h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Jun 2005 12:49:50 -0400
-Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:31286 "EHLO
-	mta07-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S262262AbVFSQtg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Jun 2005 12:49:36 -0400
-Message-ID: <42B5A21B.5030300@ntlworld.com>
-Date: Sun, 19 Jun 2005 17:49:31 +0100
-From: Matt Keenan <matthew.keenan@ntlworld.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH] Bug #3054 madvise(MADV_WILLNEED,...) fix for exceeding rlimit
- rss
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Sun, 19 Jun 2005 12:58:37 -0400
+Received: from smtpout.mac.com ([17.250.248.88]:2544 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S261851AbVFSQ6e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Jun 2005 12:58:34 -0400
+In-Reply-To: <20050619082251.GA6483@redhat.com>
+References: <20050617001330.294950ac.akpm@osdl.org> <1119016223.5049.3.camel@mulgrave> <20050617142225.GO6957@suse.de> <20050617141003.2abdd8e5.akpm@osdl.org> <20050617212338.GA16852@suse.de> <491950000.1119044739@flay> <20050618191341.GA30620@redhat.com> <265EC713-9745-484D-8FF0-1C8D5FFE94F1@mac.com> <20050619082251.GA6483@redhat.com>
+Mime-Version: 1.0 (Apple Message framework v728)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <A6CC915C-418A-4992-B55C-73EF7A73085A@mac.com>
+Cc: "Martin J. Bligh" <mbligh@mbligh.org>, Jens Axboe <axboe@suse.de>,
+       Andrew Morton <akpm@osdl.org>, James.Bottomley@SteelEye.com,
+       linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: kernel bugzilla
+Date: Sun, 19 Jun 2005 12:58:21 -0400
+To: Dave Jones <davej@redhat.com>
+X-Mailer: Apple Mail (2.728)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is an updated patch for 2.6.12, can it be included in -mm for 
-testing? I have been banging on the code for an hour or so now; no probs.
 
-Matt
+On Jun 19, 2005, at 04:22:51, Dave Jones wrote:
 
---- linux-2.6.11.7/mm/madvise.c 2005-04-12 15:58:30.000000000 +0100
-+++ linux/mm/madvise.c  2005-06-19 17:20:56.000000000 +0100
-@@ -61,6 +61,7 @@ static long madvise_willneed(struct vm_a
-                             unsigned long start, unsigned long end)
- {
-        struct file *file = vma->vm_file;
-+       struct task_struct *tsk = current;
+> On Sat, Jun 18, 2005 at 10:54:33PM -0400, Kyle Moffett wrote:
+>> Another wishlist feature I've seen is to have a mailing list archiver
+>> attached to bugzilla that receives and stores the last month worth of
+>> emails on the list.  At any time someone can login and:
+>>
+>
+> The volume of mail bugzilla-mail generates is obscene.
+> I've been on vacation for a week, and I have over a 1000
+> mails waiting for me from rh-bugzilla when I get back
+> to give you an indication.[*]
 
-        if (!file)
-                return -EBADF;
-@@ -70,6 +71,28 @@ static long madvise_willneed(struct vm_a
-                end = vma->vm_end;
-        end = ((end - vma->vm_start) >> PAGE_SHIFT) + vma->vm_pgoff;
+I was thinking something more like an LKML archiver tied to bugzilla,
+because I've seen a number of times where bugs get reported to the list
+and then lost, causing the reported oops and other critical data to
+fall by the wayside.
 
-+       /*
-+        * This code below checks to see if mapping the requested
-+        * readahead would make the task's rss exceed the task's
-+        * rlimit rss.
-+        *
-+        * This doesn't account for pages that may already be mapped
-+        * due to readahead, but since this is merely a hint to the
-+        * kernel no harm should be done, it won't unmap anything
-+        * already mapped if it fails. N.B. This won't affect the
-+        * kernel's internal automatic readahead which doesn't check
-+        * (or honour) rlimit rss.
-+        */
-+
-+       spin_lock(&tsk->mm->page_table_lock);
-+       if (((max_sane_readahead(end-start) << PAGE_SHIFT) +
-+           tsk->mm->_rss) > tsk->signal->rlim[RLIMIT_RSS].rlim_cur)
-+       {
-+               spin_unlock(&tsk->mm->page_table_lock);
-+               return -EIO;
-+       }
-+       spin_unlock(&tsk->mm->page_table_lock);
-+
-        force_page_cache_readahead(file->f_mapping,
-                        file, start, max_sane_readahead(end - start));
-        return 0;
-@@ -170,6 +193,8 @@ static long madvise_vma(struct vm_area_s
-  *  -ENOMEM - addresses in the specified range are not currently
-  *             mapped, or are outside the AS of the process.
-  *  -EIO    - an I/O error occurred while paging in data.
-+ *          - MADV_WILLNEED would map in pages that would make the task's
-+ *              rss exceed rlimit rss.
-  *  -EBADF  - map exists, but area maps something that isn't a file.
-  *  -EAGAIN - a kernel resource was temporarily unavailable.
-  */
+Cheers,
+Kyle Moffett
+
+--
+There are two ways of constructing a software design. One way is to  
+make it so simple that there are obviously no deficiencies. And the  
+other way is to make it so complicated that there are no obvious  
+deficiencies.
+  -- C.A.R. Hoare
 

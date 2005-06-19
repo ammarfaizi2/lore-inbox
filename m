@@ -1,56 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261473AbVFSA5N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262212AbVFSBDc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261473AbVFSA5N (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Jun 2005 20:57:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262212AbVFSA5N
+	id S262212AbVFSBDc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Jun 2005 21:03:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262213AbVFSBDb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Jun 2005 20:57:13 -0400
-Received: from mail.metronet.co.uk ([213.162.97.75]:30916 "EHLO
-	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S261473AbVFSA5I
+	Sat, 18 Jun 2005 21:03:31 -0400
+Received: from mail.metronet.co.uk ([213.162.97.75]:47050 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S262212AbVFSBD3
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Jun 2005 20:57:08 -0400
+	Sat, 18 Jun 2005 21:03:29 -0400
 From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
 To: Andi Kleen <ak@muc.de>
 Subject: Re: [2.6.12] x86-64 IO-APIC + timer doesn't work
-Date: Sun, 19 Jun 2005 01:57:28 +0100
+Date: Sun, 19 Jun 2005 02:03:50 +0100
 User-Agent: KMail/1.8.1
 Cc: linux-kernel@vger.kernel.org, ACurrid@nvidia.com
-References: <200506181452.52921.s0348365@sms.ed.ac.uk> <20050618190921.GA59126@muc.de> <200506190121.13253.s0348365@sms.ed.ac.uk>
-In-Reply-To: <200506190121.13253.s0348365@sms.ed.ac.uk>
+References: <200506181452.52921.s0348365@sms.ed.ac.uk> <20050618190921.GA59126@muc.de>
+In-Reply-To: <20050618190921.GA59126@muc.de>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200506190157.28997.s0348365@sms.ed.ac.uk>
+Message-Id: <200506190203.50281.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 19 Jun 2005 01:21, Alistair John Strachan wrote:
-[snip]
+On Saturday 18 Jun 2005 20:09, Andi Kleen wrote:
+> On Sat, Jun 18, 2005 at 02:52:52PM +0100, Alistair John Strachan wrote:
+> > Hi,
+> >
+> > I upgraded my nForce3 x86-64 desktop from 2.6.12-rc5 to 2.6.12 today and
+> > something strange started happening. Waay back in 2.6.x I had problems
+> > with the "noapic" default for nForce boards on x86-64, and so used the
+> > "apic" kernel boot parameter to force the apic on; this worked
+> > successfully for a long time with no timer problems.
 >
-> Here's a copy of my dmesg from a boot with apic=verbose. I see warnings
-> about a buggy NMI and a broken timer pin, but I think I've always had those
-> problems. (BTW, I've switched mailer recently and I haven't figured out how
-> to do inline attachments, I apologise for the encoded one.)
+> apic hasn't been needed for several kernel releases now, since the
+> timer override problem on the Nforce has been workarounded.
 
-Despite the fact that this wasn't documented in the BIOS update, an update for 
-my board (MS-7030 Neo Platinum by MSI) supposedly fixing "Fan Function" 
-actually corrects the IO-APIC and NMI bugs. I now get the following in dmesg 
-instead:
+I figured it out. This workaround has only just been enabled on my board since 
+I updated my BIOS from the 1.6 to 1.7 revision. Clearly the workaround's 
+"detection" isn't sufficiently vigorous. I can demonstrate 2.6.12 
+mis-detecting my nForce3 board with the 1.6 BIOS, and correctly enabling the 
+workaround with the 1.7 BIOS.
 
-Calibrating delay loop... 3973.12 BogoMIPS (lpj=1986560)
-Mount-cache hash table entries: 256
-CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-CPU: L2 Cache: 512K (64 bytes/line)
-CPU: AMD Athlon(tm) 64 Processor 3000+ stepping 00
-Using local APIC timer interrupts.
-Detected 12.561 MHz APIC timer.
-testing NMI watchdog ... OK.
-
-So I'm a happy man. Whether this is at all related to the problems I was 
-having before, I don't really know. If the problem doesn't reoccur, I could 
-very well have wasted your time.
+It's probably not worth fixing, but it might be a useful datapoint in future 
+(make sure people with MSI MS-7030 boards update their BIOS).
 
 -- 
 Cheers,

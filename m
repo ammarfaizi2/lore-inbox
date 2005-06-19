@@ -1,70 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262270AbVFSUX5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261320AbVFSUcW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262270AbVFSUX5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Jun 2005 16:23:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261323AbVFSUX4
+	id S261320AbVFSUcW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Jun 2005 16:32:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261323AbVFSUcW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Jun 2005 16:23:56 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:19098 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262271AbVFSUXj (ORCPT
+	Sun, 19 Jun 2005 16:32:22 -0400
+Received: from rproxy.gmail.com ([64.233.170.198]:19205 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261320AbVFSUcQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Jun 2005 16:23:39 -0400
-Date: Sun, 19 Jun 2005 13:23:33 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Matt Keenan <matthew.keenan@ntlworld.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Bug #3054 madvise(MADV_WILLNEED,...) fix for exceeding rlimit rss
-Message-ID: <20050619202333.GZ9153@shell0.pdx.osdl.net>
-References: <42B5A21B.5030300@ntlworld.com>
+	Sun, 19 Jun 2005 16:32:16 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:mime-version:content-type;
+        b=dmFNZWXs01TIgHGoDAv793lAKXi4L2zNIid5p5UryT+0j07lDhQVdR9jbj8j2pptYxDpMNHzk+REGHF9qRDh32T8WTtdLrZbilV6pIdFDzvFVX1jt+C5x60ydkWFbF8Xo234uOZMz125R4xjYQ4FqnRBZ/0JmC70j9D36Wx18yQ=
+Message-ID: <4d8e3fd30506191332264eb4ae@mail.gmail.com>
+Date: Sun, 19 Jun 2005 22:32:16 +0200
+From: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
+Reply-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
+To: linux <linux-kernel@vger.kernel.org>
+Subject: Script to help users to report a BUG
+Cc: Andrew Morton <akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42B5A21B.5030300@ntlworld.com>
-User-Agent: Mutt/1.5.6i
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_2869_32497240.1119213136473"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Matt Keenan (matthew.keenan@ntlworld.com) wrote:
-> --- linux-2.6.11.7/mm/madvise.c 2005-04-12 15:58:30.000000000 +0100
-> +++ linux/mm/madvise.c  2005-06-19 17:20:56.000000000 +0100
-> @@ -61,6 +61,7 @@ static long madvise_willneed(struct vm_a
->                             unsigned long start, unsigned long end)
-> {
->        struct file *file = vma->vm_file;
-> +       struct task_struct *tsk = current;
+------=_Part_2869_32497240.1119213136473
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Looks like you've got some tab/whitespace damage going on here.
+Hi all,
+what do you think about this simple idea of a script that could help
+users to fill better BUG reports ?
 
->        if (!file)
->                return -EBADF;
-> @@ -70,6 +71,28 @@ static long madvise_willneed(struct vm_a
->                end = vma->vm_end;
->        end = ((end - vma->vm_start) >> PAGE_SHIFT) + vma->vm_pgoff;
-> 
-> +       /*
-> +        * This code below checks to see if mapping the requested
-> +        * readahead would make the task's rss exceed the task's
-> +        * rlimit rss.
-> +        *
-> +        * This doesn't account for pages that may already be mapped
-> +        * due to readahead, but since this is merely a hint to the
-> +        * kernel no harm should be done, it won't unmap anything
-> +        * already mapped if it fails. N.B. This won't affect the
-> +        * kernel's internal automatic readahead which doesn't check
-> +        * (or honour) rlimit rss.
-> +        */
-> +
-> +       spin_lock(&tsk->mm->page_table_lock);
-> +       if (((max_sane_readahead(end-start) << PAGE_SHIFT) +
-> +           tsk->mm->_rss) > tsk->signal->rlim[RLIMIT_RSS].rlim_cur)
+The usage is quite simple, put the attached file in
+/usr/src/linux/scripts and then:
 
-I doubt this one would overflow, but we recenly made changes in similar
-tests to use page count rather than byte count.  I belive this should
-use get_mm_counter().  Isn't _rss counting pages rather than bytes,
-so I think the math is off here.  Something like:
+[root@frodo scripts]# ./report-bug.sh /tmp/BUGREPORT/
+cat: /proc/scsi/scsi: No such file or directory
 
-	if ((max_sane_readahead(end - start) + get_mm_counter(tsk->mm, rss)) >
-	    tsk->signal->rlim[RLIMIT_RSS].rlim_cur >> PAGE_SHIFT)
+[root@frodo scripts]# ls /tmp/BUGREPORT/
+cpuinfo.bug  ioports.bug  modules.bug  software.bug
+iomem.bug    lspci.bug    scsi.bug     version.bug
 
-thanks,
--chris
+Now you can simply attach all the .bug files to the bugzilla report or
+inline them in a email.
+
+The script is rude but it is enough to give you an idea of what I have in m=
+ind.
+
+Any comment ?
+
+
+--=20
+Paolo
+
+------=_Part_2869_32497240.1119213136473
+Content-Type: application/x-sh; name="report-bug.sh"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="report-bug.sh"
+
+IyEgL2Jpbi9zaAojIFNjcmlwdCB0byBoZWxwIHRoZSB1c2VyIHRvIHN1cHBseSBhIHdlbGwgZG9u
+ZSBCVUcgcmVwb3J0CiMKIyBQYW9sbyBDaWFycm9jY2hpIDxwYW9sby5jaWFycm9jY2hpQGdtYWls
+LmNvbT4sIDE5dGggSnVuZSAyMDA1LgojIFNldCBkaXJlY3RvcmllcyBmcm9tIGFyZ3VtZW50cywg
+b3IgdXNlIGRlZmF1bHRzCm91dGRpcj0kezEtL3RtcH0KY2F0IC9wcm9jL3ZlcnNpb24gPiAkb3V0
+ZGlyL3ZlcnNpb24uYnVnCi4vdmVyX2xpbnV4ID4gJG91dGRpci9zb2Z0d2FyZS5idWcKY2F0IC9w
+cm9jL2NwdWluZm8gPiAkb3V0ZGlyL2NwdWluZm8uYnVnCmNhdCAvcHJvYy9tb2R1bGVzID4gJG91
+dGRpci9tb2R1bGVzLmJ1ZwpjYXQgL3Byb2MvaW9wb3J0cyA+ICRvdXRkaXIvaW9wb3J0cy5idWcK
+Y2F0IC9wcm9jL2lvbWVtID4gJG91dGRpci9pb21lbS5idWcKbHNwY2kgLXZ2diA+ICRvdXRkaXIv
+bHNwY2kuYnVnCmNhdCAvcHJvYy9zY3NpL3Njc2kgPiAkb3V0ZGlyL3Njc2kuYnVnCgoKCgoK
+------=_Part_2869_32497240.1119213136473--

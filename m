@@ -1,82 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262216AbVFSBVE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262215AbVFSBdu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262216AbVFSBVE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Jun 2005 21:21:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262218AbVFSBVE
+	id S262215AbVFSBdu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Jun 2005 21:33:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262218AbVFSBdu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Jun 2005 21:21:04 -0400
-Received: from tim.rpsys.net ([194.106.48.114]:60857 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S262216AbVFSBUz (ORCPT
+	Sat, 18 Jun 2005 21:33:50 -0400
+Received: from colin.muc.de ([193.149.48.1]:18193 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S262215AbVFSBds (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Jun 2005 21:20:55 -0400
-Subject: Re: 2.6.12-rc6-mm1
-From: Richard Purdie <rpurdie@rpsys.net>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20050619001841.A7252@flint.arm.linux.org.uk>
-References: <20050607042931.23f8f8e0.akpm@osdl.org>
-	 <1119134359.7675.38.camel@localhost.localdomain>
-	 <20050619001841.A7252@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Date: Sun, 19 Jun 2005 02:20:48 +0100
-Message-Id: <1119144048.7675.101.camel@localhost.localdomain>
+	Sat, 18 Jun 2005 21:33:48 -0400
+Date: 19 Jun 2005 03:33:47 +0200
+Date: Sun, 19 Jun 2005 03:33:47 +0200
+From: Andi Kleen <ak@muc.de>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Cc: linux-kernel@vger.kernel.org, ACurrid@nvidia.com,
+       venkatesh.pallipadi@intel.com
+Subject: Re: [2.6.12] x86-64 IO-APIC + timer doesn't work
+Message-ID: <20050619013347.GA69034@muc.de>
+References: <200506181452.52921.s0348365@sms.ed.ac.uk> <20050618190921.GA59126@muc.de> <200506190121.13253.s0348365@sms.ed.ac.uk> <200506190157.28997.s0348365@sms.ed.ac.uk>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200506190157.28997.s0348365@sms.ed.ac.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-06-19 at 00:18 +0100, Russell King wrote: 
-> On Sat, Jun 18, 2005 at 11:39:18PM +0100, Richard Purdie wrote:
-> > On Tue, 2005-06-07 at 04:29 -0700, Andrew Morton wrote:
-> > > +git-arm-smp.patch
-> > > 
-> > >  ARM git trees
-> > 
-> > The arm pxa255 based Zaurus won't resume from a suspend with the patches
-> > from the above tree applied. The suspend looks normal and gets at least
-> > as far as pxa_pm_enter(). After that, the device appears to be dead and
-> > needs a battery removal to reset. I'm unsure if it actually suspends and
-> > is failing to resume or is crashing in the latter suspend stages.
+> Despite the fact that this wasn't documented in the BIOS update, an update for 
+> my board (MS-7030 Neo Platinum by MSI) supposedly fixing "Fan Function" 
+> actually corrects the IO-APIC and NMI bugs. I now get the following in dmesg 
+> instead:
 > 
-> <grumble>Well, its a bit late for this since (a) stuff has rapidly
-> moved on at rmk towers since 2.6.12 was released this morning, and
-> (b) I've just asked Linus to pull this.</grumble>
+> Calibrating delay loop... 3973.12 BogoMIPS (lpj=1986560)
+> Mount-cache hash table entries: 256
+> CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
+> CPU: L2 Cache: 512K (64 bytes/line)
+> CPU: AMD Athlon(tm) 64 Processor 3000+ stepping 00
+> Using local APIC timer interrupts.
+> Detected 12.561 MHz APIC timer.
+> testing NMI watchdog ... OK.
+> 
+> So I'm a happy man. Whether this is at all related to the problems I was 
+> having before, I don't really know. If the problem doesn't reoccur, I could 
+> very well have wasted your time.
 
-Please don't underestimate the time it takes to wade through all the
-patches in the -mm tree, find the one causing the breakage, investigate
-the patch and report it to the person concerned. I'm doing the Zaurus
-work in my spare time and don't get paid for it. Just reflashing and
-booting a new kernel probably takes ~15mins on the Zaurus.  The
-copy/clearpage problem took a complete weekend to track down (as it was
-showing up randomly) and then needed further evenings to debug your
-patch which is a large chunk of my free time. The Checked-By: line
-didn't quite give the full picture.
+Hmm - I suspect I know what's happening. The older BIOS probably had some long
+running SMM code that breaks the BogoMips computation occasionally
+and that breaks the timer check later which relies on usable BogoMips.
 
-I realise its taken me a while to find enough time to test/debug this
-kernel but as least you now know there's a problem...
+There was a patch for that from Venkatesh (because it showed on some
+other machines too), but it didn't seem to have made it into 2.6.12 
 
-> Thinking about what's probably happening, I suspect all the ARM suspend
-> and resume code needs to be reworked to save more state.  I'll try to
-> cook up a patch tomorrow to fix it, but I'll need you to provide
-> feedback.
+Venkatesh, can you push your calibrate_delay patch please? ? 
 
-Ok, thanks. I'm happy to test any fixes/patches.
 
-> Please note that you may see other ARM breakage over the next month
-> or so - I'm going to be concentrating on merging ARM SMP support,
-> and whatever bashing other people like yourself can give the kernel
-> will help ensure that problems are picked up quickly.
-
-In order to assist with that, can you publish these patches somewhere?
-That way, I can apply them against a known good Zaurus kernel tree and
-know straight away if they break anything (diff/patch format would be
-preferable as my Zaurus trees are all patch based).
-
-On a positive note, something in the later 2.6.12-rc kernels has made a
-massive difference to the speed on the Zaurus - I suspect the removal of
-the preempt locks on copy/clearpage. It boots up ~1.5x faster and the
-speed gain will make a lot of people very happy :)
-
-Richard
-
+-Andi

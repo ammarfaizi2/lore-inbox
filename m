@@ -1,56 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261284AbVFSTcj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261289AbVFSTe1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261284AbVFSTcj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Jun 2005 15:32:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261285AbVFSTch
+	id S261289AbVFSTe1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Jun 2005 15:34:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261285AbVFSTe1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Jun 2005 15:32:37 -0400
-Received: from mail.dif.dk ([193.138.115.101]:34488 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S261284AbVFSTce (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Jun 2005 15:32:34 -0400
-Date: Sun, 19 Jun 2005 21:38:03 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: linux-kernel@vger.kernel.org
-Cc: "Rickard E. (Rik) Faith" <faith@redhat.com>, Rik Faith <faith@cs.unc.edu>
-Subject: [PATCH] Small kfree cleanup, save a local variable.
-Message-ID: <Pine.LNX.4.62.0506192129300.2832@dragon.hyggekrogen.localhost>
+	Sun, 19 Jun 2005 15:34:27 -0400
+Received: from poros.telenet-ops.be ([195.130.132.44]:46260 "EHLO
+	poros.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S261290AbVFSTeT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Jun 2005 15:34:19 -0400
+From: Jan De Luyck <lkml@kcore.org>
+To: Edwin Eefting <psy@datux.nl>
+Subject: Re: [2.6.12] XFS: Undeletable directory
+Date: Sun, 19 Jun 2005 20:34:18 +0200
+User-Agent: KMail/1.8.1
+Cc: linux-xfs@oss.sgi.com, linux-kernel@vger.kernel.org
+References: <200506191904.49639.lkml@kcore.org> <Pine.LNX.4.63.0506191924430.7686@hobbybop>
+In-Reply-To: <Pine.LNX.4.63.0506191924430.7686@hobbybop>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200506192034.18690.lkml@kcore.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's a patch with a small improvement to kernel/auditsc.c .
-There's no need for the local variable  struct audit_entry *e  , 
-we can just call kfree directly on container_of() .
-Patch also removes an extra space a little further down in the file.
+On Sunday 19 June 2005 21:25, Edwin Eefting wrote:
+> ls -la 4207214/ also shows nothing?
+> perhaps there's something weirds thats hidden.
+>
 
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
----
+Nothing out of the ordinary:
 
- kernel/auditsc.c |    5 ++---
- 1 files changed, 2 insertions(+), 3 deletions(-)
+devilkin@precious:/lost+found$ ls -la 4207214/
+total 8
+drwxrwxrwx  2 root root 8192 Jun 19  2005 .
+drwxr-xr-x  3 root root   20 Jun 19  2005 ..
+devilkin@precious:/lost+found$ 
 
---- linux-2.6.12-orig/kernel/auditsc.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.12/kernel/auditsc.c	2005-06-19 21:21:37.000000000 +0200
-@@ -202,8 +202,7 @@ static inline int audit_add_rule(struct 
- 
- static void audit_free_rule(struct rcu_head *head)
- {
--	struct audit_entry *e = container_of(head, struct audit_entry, rcu);
--	kfree(e);
-+	kfree(container_of(head, struct audit_entry, rcu));
- }
- 
- /* Note that audit_add_rule and audit_del_rule are called via
-@@ -612,7 +611,7 @@ static inline void audit_free_context(st
- 		audit_free_names(context);
- 		audit_free_aux(context);
- 		kfree(context);
--		context  = previous;
-+		context = previous;
- 	} while (context);
- 	if (count >= 10)
- 		printk(KERN_ERR "audit: freed %d contexts\n", count);
+Jan
 
-
+-- 
+  We are not anticipating any emergencies.

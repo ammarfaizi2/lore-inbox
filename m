@@ -1,51 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261233AbVFSBtL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261246AbVFSBul@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261233AbVFSBtL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Jun 2005 21:49:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261246AbVFSBtL
+	id S261246AbVFSBul (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Jun 2005 21:50:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbVFSBuk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Jun 2005 21:49:11 -0400
-Received: from warden2-p.diginsite.com ([209.195.52.120]:30443 "HELO
-	warden2.diginsite.com") by vger.kernel.org with SMTP
-	id S261233AbVFSBtH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Jun 2005 21:49:07 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: aq <aquynh@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Date: Sat, 18 Jun 2005 18:48:59 -0700 (PDT)
-X-X-Sender: dlang@dlang.diginsite.com
-Subject: Re: Linux 2.6.12
-In-Reply-To: <9cde8bff0506181839d41aab3@mail.gmail.com>
-Message-ID: <Pine.LNX.4.62.0506181847550.11617@qynat.qvtvafvgr.pbz>
-References: <200506182005.28254.nick@linicks.net><9a8748490506181233675f2fd5@mail.gmail.com>
- <9cde8bff0506181839d41aab3@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Sat, 18 Jun 2005 21:50:40 -0400
+Received: from mail.ocs.com.au ([202.147.117.210]:33734 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S261246AbVFSBu0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Jun 2005 21:50:26 -0400
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Cc: sam@ravnborg.org
+Subject: [patch 2.6.12] Add -Wno-pointer-sign to HOSTCFLAGS
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 19 Jun 2005 11:50:03 +1000
+Message-ID: <20663.1119145803@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 18 Jun 2005, aq wrote:
+Compiling 2.6.12 with gcc 4.0.0 (FC4) gets lots of warnings for the
+programs in the scripts directory.  Add -Wno-pointer-sign to HOSTCFLAGS
+to suppress them.
 
-> the version number is a little bit confused here: if I want to upgrade
-> from for example 2.6.11.5 to 2.6.12, which patch should I get?
+Signed-off-by: Keith Owens <kaos@ocs.com.au>
 
-you reverse the 2.6.11 -> 2.6.11.5 patch to get back to a vinilla 2.6.11
-then you apply the 2.6.11->2.6.12 patch.
+Index: 2.6.12/Makefile
+===================================================================
+--- 2.6.12.orig/Makefile	2005-06-18 15:21:18.000000000 +1000
++++ 2.6.12/Makefile	2005-06-19 11:43:15.876218980 +1000
+@@ -204,6 +204,8 @@ CONFIG_SHELL := $(shell if [ -x "$$BASH"
+ HOSTCC  	= gcc
+ HOSTCXX  	= g++
+ HOSTCFLAGS	= -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer
++# disable pointer signedness warnings in gcc 4.0
++HOSTCFLAGS += $(call cc-option,-Wno-pointer-sign,)
+ HOSTCXXFLAGS	= -O2
+ 
+ # 	Decide whether to build built-in, modular, or both.
 
-David Lang
-
-> anybody knows if Matt will upgrade his ketchup for the new versioning
-> system soon? otherwise, I might spend some time to hack it up.
->
-> regards,
-> aq
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
--- 
-There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
-  -- C.A.R. Hoare

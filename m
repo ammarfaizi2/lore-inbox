@@ -1,74 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261185AbVFTWzj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261816AbVFTXAe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261185AbVFTWzj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 18:55:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261571AbVFTWsW
+	id S261816AbVFTXAe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 19:00:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261815AbVFTXAc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 18:48:22 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:64128 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262307AbVFTWKx (ORCPT
+	Mon, 20 Jun 2005 19:00:32 -0400
+Received: from coderock.org ([193.77.147.115]:23961 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S261747AbVFTVzs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 18:10:53 -0400
-Date: Tue, 21 Jun 2005 00:10:41 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: domen@coderock.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch 2/2] kernel/power/disk.c string fix and if-less iterator
-Message-ID: <20050620221041.GI2222@elf.ucw.cz>
-References: <20050620215712.840835000@nd47.coderock.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050620215712.840835000@nd47.coderock.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Mon, 20 Jun 2005 17:55:48 -0400
+Message-Id: <20050620215156.762797000@nd47.coderock.org>
+Date: Mon, 20 Jun 2005 23:51:57 +0200
+From: domen@coderock.org
+To: davej@codemonkey.org.uk
+Cc: linux-kernel@vger.kernel.org, domen@coderock.org
+Subject: [patch 1/1] backend.c - vfree() checking cleanups
+Content-Disposition: inline; filename=vfree-drivers_char_agp_backend.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+From: jlamanna@gmail.com
 
-> The attached patch:
-> 
-> o  Fixes kernel/power/disk.c string declared as 'char *p = "...";' to be
->    declared as 'char p[] = "...";', as pointed by Jeff Garzik.
 
-? Why was char *p ... wrong? Because you could not do sizeof() later?
 
-> o  Replaces:
-> 	i++:
-> 	if (i > 3) i = 0;
-> 
->    By:
-> 	i = (i + 1) % (sizeof(p) - 1);
-> 
->    Which is if-less, and the adjust value is evaluated by the compiler in
->    compile-time in case the string related to this loop is modified.
+backend.c vfree() checking cleanups.
 
-Well, why not...
-								Pavel
+Signed-off by: James Lamanna <jlamanna@gmail.com>
+Signed-off-by: Domen Puncer <domen@coderock.org>
+---
+ backend.c |    7 +++----
+ 1 files changed, 3 insertions(+), 4 deletions(-)
 
-> Index: quilt/kernel/power/disk.c
-> ===================================================================
-> --- quilt.orig/kernel/power/disk.c
-> +++ quilt/kernel/power/disk.c
-> @@ -91,15 +91,13 @@ static void free_some_memory(void)
->  	unsigned int i = 0;
->  	unsigned int tmp;
->  	unsigned long pages = 0;
-> -	char *p = "-\\|/";
-> +	char p[] = "-\\|/";
->  
->  	printk("Freeing memory...  ");
->  	while ((tmp = shrink_all_memory(10000))) {
->  		pages += tmp;
->  		printk("\b%c", p[i]);
-> -		i++;
-> -		if (i > 3)
-> -			i = 0;
-> +		i = (i + 1) % (sizeof(p) - 1);
->  	}
->  	printk("\bdone (%li pages freed)\n", pages);
->  }
+Index: quilt/drivers/char/agp/backend.c
+===================================================================
+--- quilt.orig/drivers/char/agp/backend.c
++++ quilt/drivers/char/agp/backend.c
+@@ -206,10 +206,9 @@ static void agp_backend_cleanup(struct a
+ 		bridge->driver->cleanup();
+ 	if (bridge->driver->free_gatt_table)
+ 		bridge->driver->free_gatt_table(bridge);
+-	if (bridge->key_list) {
+-		vfree(bridge->key_list);
+-		bridge->key_list = NULL;
+-	}
++
++	vfree(bridge->key_list);
++	bridge->key_list = NULL;
+ 
+ 	if (bridge->driver->agp_destroy_page &&
+ 	    bridge->driver->needs_scratch_page)
 
--- 
-teflon -- maybe it is a trademark, but it should not be.
+--

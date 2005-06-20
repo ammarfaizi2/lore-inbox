@@ -1,56 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261509AbVFTTIh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261519AbVFTTq6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261509AbVFTTIh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 15:08:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261477AbVFTTHc
+	id S261519AbVFTTq6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 15:46:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261551AbVFTTnv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 15:07:32 -0400
-Received: from lakshmi.addtoit.com ([198.99.130.6]:25866 "EHLO
-	lakshmi.solana.com") by vger.kernel.org with ESMTP id S261481AbVFTS4t
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 14:56:49 -0400
-Message-Id: <200506201851.j5KIpHig008488@ccure.user-mode-linux.org>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
-To: akpm@osdl.org, torvalds@osdl.org
-cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-Subject: [PATCH 4/8] UML - Fix timer initialization
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 20 Jun 2005 14:51:17 -0400
-From: Jeff Dike <jdike@addtoit.com>
+	Mon, 20 Jun 2005 15:43:51 -0400
+Received: from warden2-p.diginsite.com ([209.195.52.120]:6900 "HELO
+	warden2.diginsite.com") by vger.kernel.org with SMTP
+	id S261527AbVFTTnA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 15:43:00 -0400
+From: David Lang <david.lang@digitalinsight.com>
+To: Nick Warne <nick@linicks.net>
+Cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org
+Date: Mon, 20 Jun 2005 12:42:39 -0700 (PDT)
+X-X-Sender: dlang@dlang.diginsite.com
+Subject: Re: 2.6.12 udev hangs at boot
+In-Reply-To: <200506202032.30771.nick@linicks.net>
+Message-ID: <Pine.LNX.4.62.0506201242100.13723@qynat.qvtvafvgr.pbz>
+References: <200506181332.25287.nick@linicks.net> <200506202000.08114.nick@linicks.net>
+ <20050620192118.GA13586@suse.de> <200506202032.30771.nick@linicks.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In skas mode, the call to uml_idle_timer permanently shut off the
-virtual timer, resulting in no timer ticks to anything but the idle
-thread.  This is likely the cause of the soft lockups that are seen 
-sporadically in recent UMLs.
+I ran into the same issue last week on fedora core 3 so it's not _just_ a 
+slackware problem.
 
-Signed-off-by: Jeff Dike <jdike@addtoit.com>
+David Lang
 
-Index: linux-2.6.12/arch/um/kernel/process_kern.c
-===================================================================
---- linux-2.6.12.orig/arch/um/kernel/process_kern.c	2005-06-20 12:02:19.000000000 -0400
-+++ linux-2.6.12/arch/um/kernel/process_kern.c	2005-06-20 12:06:08.000000000 -0400
-@@ -169,7 +169,7 @@ int current_pid(void)
- 
- void default_idle(void)
- {
--	uml_idle_timer();
-+	CHOOSE_MODE(uml_idle_timer(), (void) 0);
- 
- 	atomic_inc(&init_mm.mm_count);
- 	current->mm = &init_mm;
-Index: linux-2.6.12/arch/um/kernel/skas/process_kern.c
-===================================================================
---- linux-2.6.12.orig/arch/um/kernel/skas/process_kern.c	2005-06-20 12:02:32.000000000 -0400
-+++ linux-2.6.12/arch/um/kernel/skas/process_kern.c	2005-06-20 12:06:08.000000000 -0400
-@@ -180,7 +180,6 @@ int start_uml_skas(void)
- 	start_userspace(0);
- 
- 	init_new_thread_signals(1);
--	uml_idle_timer();
- 
- 	init_task.thread.request.u.thread.proc = start_kernel_proc;
- 	init_task.thread.request.u.thread.arg = NULL;
+On Mon, 20 Jun 2005, Nick Warne wrote:
 
+> Date: Mon, 20 Jun 2005 20:32:30 +0100
+> From: Nick Warne <nick@linicks.net>
+> To: Greg KH <gregkh@suse.de>
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: 2.6.12 udev hangs at boot
+> 
+> On Monday 20 June 2005 20:21, Greg KH wrote:
+>
+>>> It appears the issue people are seeing is with Slack 10, which shipped
+>>> with udev 0.26 - and I presume there was 'custom' rules Patrick had built
+>>> in.
+>>
+>> Ick.  Hm, there's not been any updates for slack since then? (note,
+>> there was no 0.26 release, there are no '.' in udev releases.)
+>>
+>> Any Slackware users want to pester them for updates?
+>
+> Remember this is Slackware 10 here I am talking about - Slackware 10.1 has
+> been released since, that uses as stock udev 50.  Slackware current uses udev
+> 54.  Trouble is here also, GLIBC has been updated in latest Slackware[s], so
+> there is no real upgrade path for Slack 10 users other than the whole
+> caboodle - which breaks a lot if you have all the latest 'other stuff' built
+> from source anyway.
+>
+> I guess many users don't upgrade all the system like I do to find these
+> problems.  This appears to be just a gotcha for old Slackware 10 users like
+> me.  Sometimes you read stuff about doing an upgrade, and unless it pokes yer
+> eye out with a big stick you miss it... so it is isn't a big deal as long as
+> people know about it - it's an easy fix.
+>
+> Nick
+> -- 
+> "When you're chewing on life's gristle,
+> Don't grumble, Give a whistle..."
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+-- 
+There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
+  -- C.A.R. Hoare

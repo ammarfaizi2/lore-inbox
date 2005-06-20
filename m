@@ -1,69 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261636AbVFUFlG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261503AbVFUFn1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261636AbVFUFlG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 01:41:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261503AbVFTWm1
+	id S261503AbVFUFn1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 01:43:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261443AbVFTWl5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 18:42:27 -0400
-Received: from coderock.org ([193.77.147.115]:27547 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S262287AbVFTWFX (ORCPT
+	Mon, 20 Jun 2005 18:41:57 -0400
+Received: from coderock.org ([193.77.147.115]:26779 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S262285AbVFTWFX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 20 Jun 2005 18:05:23 -0400
-Message-Id: <20050620215712.840835000@nd47.coderock.org>
-Date: Mon, 20 Jun 2005 23:57:13 +0200
+Message-Id: <20050620215711.827061000@nd47.coderock.org>
+Date: Mon, 20 Jun 2005 23:57:12 +0200
 From: domen@coderock.org
 To: pavel@suse.cz
-Cc: linux-kernel@vger.kernel.org, domen@coderock.org
-Subject: [patch 2/2] kernel/power/disk.c string fix and if-less iterator
-Content-Disposition: inline; filename=string-kernel_power_disk
+Cc: linux-kernel@vger.kernel.org, Nishanth Aravamudan <nacc@us.ibm.com>,
+       Pavel Machek <pavel@ucw.cz>, domen@coderock.org
+Subject: [patch 1/2] kernel/smp: replace schedule_timeout() with ssleep()
+Content-Disposition: inline; filename=ssleep-kernel_power_smp.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Ricardo Nabinger Sanchez <rnsanchez@terra.com.br>
+From: Nishanth Aravamudan <nacc@us.ibm.com>
 
 
 
-The attached patch:
+Use ssleep() instead of schedule_timeout(). The original code uses
+TASK_INTERRUPTIBLE, but does not check for signals, so I believe the change to
+ssleep() is appropriate.
 
-o  Fixes kernel/power/disk.c string declared as 'char *p = "...";' to be
-   declared as 'char p[] = "...";', as pointed by Jeff Garzik.
-
-o  Replaces:
-	i++:
-	if (i > 3) i = 0;
-
-   By:
-	i = (i + 1) % (sizeof(p) - 1);
-
-   Which is if-less, and the adjust value is evaluated by the compiler in
-   compile-time in case the string related to this loop is modified.
-
-
+Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
+Acked-by: Pavel Machek <pavel@ucw.cz>
+Signed-off-by: Domen Puncer <domen@coderock.org>
 ---
- disk.c |    6 ++----
- 1 files changed, 2 insertions(+), 4 deletions(-)
+ smp.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-Index: quilt/kernel/power/disk.c
+Index: quilt/kernel/power/smp.c
 ===================================================================
---- quilt.orig/kernel/power/disk.c
-+++ quilt/kernel/power/disk.c
-@@ -91,15 +91,13 @@ static void free_some_memory(void)
- 	unsigned int i = 0;
- 	unsigned int tmp;
- 	unsigned long pages = 0;
--	char *p = "-\\|/";
-+	char p[] = "-\\|/";
+--- quilt.orig/kernel/power/smp.c
++++ quilt/kernel/power/smp.c
+@@ -13,6 +13,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/suspend.h>
+ #include <linux/module.h>
++#include <linux/delay.h>
+ #include <asm/atomic.h>
+ #include <asm/tlbflush.h>
  
- 	printk("Freeing memory...  ");
- 	while ((tmp = shrink_all_memory(10000))) {
- 		pages += tmp;
- 		printk("\b%c", p[i]);
--		i++;
--		if (i > 3)
--			i = 0;
-+		i = (i + 1) % (sizeof(p) - 1);
- 	}
- 	printk("\bdone (%li pages freed)\n", pages);
- }
+@@ -49,8 +50,7 @@ void disable_nonboot_cpus(void)
+ 	oldmask = current->cpus_allowed;
+ 	set_cpus_allowed(current, cpumask_of_cpu(0));
+ 	printk("Freezing CPUs (at %d)", _smp_processor_id());
+-	current->state = TASK_INTERRUPTIBLE;
+-	schedule_timeout(HZ);
++	ssleep(1);
+ 	printk("...");
+ 	BUG_ON(_smp_processor_id() != 0);
+ 
 
 --

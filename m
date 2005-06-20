@@ -1,48 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261617AbVFTVtK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261715AbVFTVx1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261617AbVFTVtK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 17:49:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261632AbVFTVsV
+	id S261715AbVFTVx1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 17:53:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261710AbVFTVwR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 17:48:21 -0400
-Received: from kanga.kvack.org ([66.96.29.28]:41158 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S261642AbVFTVoh (ORCPT
+	Mon, 20 Jun 2005 17:52:17 -0400
+Received: from coderock.org ([193.77.147.115]:50327 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S261671AbVFTVtY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 17:44:37 -0400
-Date: Mon, 20 Jun 2005 17:46:14 -0400
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: linux-aio@kvack.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: aio_down() patch series -- cancellation support added
-Message-ID: <20050620214614.GC6628@kvack.org>
-References: <20050620213835.GA6628@kvack.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050620213835.GA6628@kvack.org>
-User-Agent: Mutt/1.4.1i
+	Mon, 20 Jun 2005 17:49:24 -0400
+Message-Id: <20050620214915.305974000@nd47.coderock.org>
+Date: Mon, 20 Jun 2005 23:49:15 +0200
+From: domen@coderock.org
+To: spyro@f2s.com
+Cc: linux-kernel@vger.kernel.org, domen@coderock.org
+Subject: [patch 1/3] delete arch/arm26/boot/compressed/hw-bse.c
+Content-Disposition: inline; filename=remove_file-arch_arm26_boot_compressed_hw_bse.c.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add linux-kernel to the Cc list...
 
-On Mon, Jun 20, 2005 at 05:38:35PM -0400, Benjamin LaHaise wrote:
-> Hello all,
-> 
-> The patch series at http://www.kvack.org/~bcrl/patches/aio-2.6.12-A1/ 
-> now adds support for cancellation of an aio_down() operation.  The 
-> races should be correctly handled by introducing per-kiocb locking 
-> that serialises ->ki_cancel() and ->ki_retry().  The interesting patch 
-> additions are 40_lock_kiocb 50_aio_down_cancel.diff.  Comments?
-> 
-> 		-ben
-> -- 
-> "Time is what keeps everything from happening all at once." -- John Wheeler
-> --
-> To unsubscribe, send a message with 'unsubscribe linux-aio' in
-> the body to majordomo@kvack.org.  For more info on Linux AIO,
-> see: http://www.kvack.org/aio/
-> Don't email: <a href=mailto:"aart@kvack.org">aart@kvack.org</a>
 
--- 
-"Time is what keeps everything from happening all at once." -- John Wheeler
+Remove nowhere referenced file. (egrep "filename\." didn't find anything)
+
+Signed-off-by: Domen Puncer <domen@coderock.org>
+---
+ hw-bse.c |   74 ---------------------------------------------------------------
+ 1 files changed, 74 deletions(-)
+
+Index: quilt/arch/arm26/boot/compressed/hw-bse.c
+===================================================================
+--- quilt.orig/arch/arm26/boot/compressed/hw-bse.c
++++ /dev/null
+@@ -1,74 +0,0 @@
+-/*
+- * Bright Star Engineering Inc.
+- *
+- * code for readng parameters from the
+- * parameter blocks of the boot block
+- * flash memory
+- *
+- */
+-
+-static int strcmp(const char *s1, const char *s2)
+-{
+-  while (*s1 != '\0' && *s1 == *s2)
+-    {
+-      s1++;
+-      s2++;
+-    }
+-
+-  return (*(unsigned char *) s1) - (*(unsigned char *) s2);
+-}
+-
+-struct pblk_t {
+-  char type;
+-  unsigned short size;
+-};
+-
+-static char *bse_getflashparam(char *name) {
+-  unsigned int esize;
+-  char *q,*r;
+-  unsigned char *p,*e;
+-  struct pblk_t *thepb = (struct pblk_t *) 0x00004000;
+-  struct pblk_t *altpb = (struct pblk_t *) 0x00006000;  
+-  if (thepb->type&1) {
+-    if (altpb->type&1) {
+-      /* no valid param block */ 
+-      return (char*)0;
+-    } else {
+-      /* altpb is valid */
+-      struct pblk_t *tmp;
+-      tmp = thepb;
+-      thepb = altpb;
+-      altpb = tmp;
+-    }
+-  }
+-  p = (char*)thepb + sizeof(struct pblk_t);
+-  e = p + thepb->size; 
+-  while (p < e) {
+-    q = p;
+-    esize = *p;
+-    if (esize == 0xFF) break;
+-    if (esize == 0) break;
+-    if (esize > 127) {
+-      esize = (esize&0x7F)<<8 | p[1];
+-      q++;
+-    }
+-    q++;
+-    r=q;
+-    if (*r && ((name == 0) || (!strcmp(name,r)))) {
+-      while (*q++) ;
+-      return q;
+-    }
+-    p+=esize;
+-  }
+-  return (char*)0;
+-}
+-
+-void bse_setup(void) {
+-  /* extract the linux cmdline from flash */
+-  char *name=bse_getflashparam("linuxboot");
+-  char *x = (char *)0xc0000100;
+-  if (name) { 
+-    while (*name) *x++=*name++;
+-  }
+-  *x=0;
+-}
+
+--

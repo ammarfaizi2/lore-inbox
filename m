@@ -1,47 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261356AbVFTPnz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261361AbVFTPqc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261356AbVFTPnz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 11:43:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261357AbVFTPnz
+	id S261361AbVFTPqc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 11:46:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261374AbVFTPqb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 11:43:55 -0400
-Received: from styx.suse.cz ([82.119.242.94]:41403 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S261356AbVFTPns (ORCPT
+	Mon, 20 Jun 2005 11:46:31 -0400
+Received: from animx.eu.org ([216.98.75.249]:4550 "EHLO animx.eu.org")
+	by vger.kernel.org with ESMTP id S261361AbVFTPoc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 11:43:48 -0400
-Date: Mon, 20 Jun 2005 17:43:47 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Vincent Vanackere <vincent.vanackere@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Greg KH <gregkh@suse.de>, thoffman@arnor.net,
-       "Viktor A. Danilov" <__die@mail.ru>
-Subject: Re: PROBLEM: atiremote input doesn`t register `device` & `driver` section in sysfs (/sys/class/input/event#)
-Message-ID: <20050620154347.GC22152@ucw.cz>
-References: <200504101921.28777.__die@mail.ru> <20050412074121.GE1371@kroah.com> <65258a580506050321f1eeab0@mail.gmail.com>
+	Mon, 20 Jun 2005 11:44:32 -0400
+Date: Mon, 20 Jun 2005 12:01:52 -0400
+From: Wakko Warner <wakko@animx.eu.org>
+To: linux-kernel@vger.kernel.org
+Subject: umount of initramfs hangs 2.6.12
+Message-ID: <20050620160152.GA6045@animx.eu.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <65258a580506050321f1eeab0@mail.gmail.com>
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 05, 2005 at 12:21:43PM +0200, Vincent Vanackere wrote:
-> > On Sun, Apr 10, 2005 at 07:21:28PM +0600, Viktor A. Danilov wrote:
-> > >
-> > > PROBLEM: aiptek input doesn`t register `device` & `driver` section in sysfs (/sys/class/input/event#)
-> > > REASON: `dev` - field not filled...
-> > > SOLUTION: in linux/drivers/usb/input/aiptek.c write
-> > >       aiptek->inputdev.dev = &intf->dev;
-> > > before calling
-> > >       input_register_device(&aiptek->inputdev);
-> 
-> Hi,
-> 
->  The following (tested) patch fixes the exact same issue with the ATI
-> Remote input driver.
+Subject says it all actually.  No error messages, nothing.  sysrq is
+the only thing that responds to me.
 
-Thanks; applied.
+sysrq+p shows process umount.  EIP is at umount_tree+0x40/0x110
+I assume the stuff below the registers is the stack.
+do_munmap+0x11b/0x150
+sys_munmap+0x44/0x70
+do_umount+0x139/0x1e0
+__user_walk+0x46/0x60
+sys_umount+0x8d/0xa0
+do_munmap+0x11b/0x150
+sys_munmap+0x44/0x70
+sys_oldumount+0x15/0x20
+syscall_call+0x7/0xb
+
+NOTE: The above was typed by hand.
 
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+ Lab tests show that use of micro$oft causes cancer in lab animals

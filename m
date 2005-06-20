@@ -1,55 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261263AbVFTOhf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261264AbVFTOki@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261263AbVFTOhf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 10:37:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261245AbVFTOhf
+	id S261264AbVFTOki (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 10:40:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261267AbVFTOkg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 10:37:35 -0400
-Received: from wproxy.gmail.com ([64.233.184.196]:54123 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261263AbVFTOh0 convert rfc822-to-8bit
+	Mon, 20 Jun 2005 10:40:36 -0400
+Received: from silver.veritas.com ([143.127.12.111]:53622 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S261264AbVFTOk3
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 10:37:26 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=Xn+PQH39Gmbso+rIcBZHvGAMT7d+Z1romDBbWt397rP3vT5xT8kPZkj84qGj4oKoPMY15YhVr8F4tIGtgeWzVDsqtV8+0bDvxfJIOTe8nSn0uEjNWKx9YNgflNej0ARpjcKGzdZ5t7hhM3+K8L98unoyWaTwwffAE0+zAYyE3us=
-Message-ID: <405bb5a1050620073741a589f9@mail.gmail.com>
-Date: Mon, 20 Jun 2005 16:37:23 +0200
-From: Przemyslaw Sowa <sowa.przemyslaw@gmail.com>
-Reply-To: Przemyslaw Sowa <sowa.przemyslaw@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Intercepting VFS calls
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
+	Mon, 20 Jun 2005 10:40:29 -0400
+Date: Mon, 20 Jun 2005 15:41:46 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: "Richard B. Johnson" <linux-os@analogic.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.6.12
+In-Reply-To: <Pine.LNX.4.61.0506201018460.5458@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.61.0506201530450.3324@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0506200857450.5213@chaos.analogic.com>
+ <Pine.LNX.4.61.0506201443400.2903@goblin.wat.veritas.com>
+ <Pine.LNX.4.61.0506201018460.5458@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 20 Jun 2005 14:40:29.0164 (UTC) FILETIME=[00FEB2C0:01C575A6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Frederik Deweerdt wrote:
+On Mon, 20 Jun 2005, Richard B. Johnson wrote:
+> On Mon, 20 Jun 2005, Hugh Dickins wrote:
+> > 
+> > It's the BUG_ON(!pte_none(*pte)) in remap_pte_range.  Maybe your page
+> > table is corrupt, maybe your driver is trying to remap_pfn_range on
+> > top of something already mapped.
+> 
+> But of course it is. There is some memory that is mapped into the
+> driver's address space, used for DMA. It was obtained using
+> ioremap_nocache(). This memory is then mapped into user-space
+> when the user executes mmap(). This is how we DMA directly to
+> user-space. Is this no longer allowed?
 
-> Le 20/06/05 12:37 +0200, Przemyslaw Sowa écrivit:
->  
->
->> Hello,
->>
->> I'd like to intercept VFS calls like read() and write() in 2.6
-kernels but I'm new in kernel development and I don't know how to do
-it.
->>
->> Could you help me, please?
->>
->>   
->
-> You could have a look at kprobes.
-> Regards,
-> Frederik Deweerdt
->
->  
->
-Thank you for the answer, but I need some way to execute my own
-function (from a module) instead of read(), wrte()... and I don't want
-to use any kernel patch. Is it possible?
+Of course that is allowed.  But mapping it into userspace on top of
+an existing populated mapping in userspace is not and has never been
+allowed (well, in 2.4.0 it just generated a printk, from 2.4.10
+onwards it's been a BUG).
 
-Best regards,
-Przemyslaw Sowa
+Hugh

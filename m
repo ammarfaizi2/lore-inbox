@@ -1,83 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261578AbVFTWtr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261230AbVFTWtq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261578AbVFTWtr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 18:49:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261222AbVFTWso
+	id S261230AbVFTWtq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 18:49:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261583AbVFTWsy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 18:48:44 -0400
-Received: from cog1.w2cog.org ([206.251.188.12]:50076 "EHLO mail1.w2cog.org")
-	by vger.kernel.org with ESMTP id S262318AbVFTWTo (ORCPT
+	Mon, 20 Jun 2005 18:48:54 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:5507 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262306AbVFTWTo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 20 Jun 2005 18:19:44 -0400
-Date: Mon, 20 Jun 2005 17:19:19 -0500 (CDT)
-From: Roy Keene <rkeene@psislidell.com>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-cc: Erik Slagter <erik@slagter.name>, Pavel Machek <pavel@ucw.cz>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Problem with 2.6 kernel and lots of I/O
-In-Reply-To: <AF6BB031-9221-4BA3-AFC9-7D167EBE866C@mac.com>
-Message-ID: <Pine.LNX.4.62.0506201711090.3592@hammer.psislidell.com>
-References: <Pine.LNX.4.62.0505311042470.7546@hammer.psislidell.com>
- <20050601195922.GA589@openzaurus.ucw.cz> <1117966262.5027.9.camel@localhost.localdomain>
- <AF6BB031-9221-4BA3-AFC9-7D167EBE866C@mac.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Date: Tue, 21 Jun 2005 00:19:26 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "Theodore Ts'o" <tytso@mit.edu>, Jeremy Maitin-Shepard <jbms@cmu.edu>,
+       Patrick McFarland <pmcfarland@downeast.net>,
+       Alexey Zaytsev <alexey.zaytsev@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: A Great Idea (tm) about reimplementing NLS.
+Message-ID: <20050620221926.GJ2222@elf.ucw.cz>
+References: <f192987705061303383f77c10c@mail.gmail.com> <f192987705061310202e2d9309@mail.gmail.com> <1118690448.13770.12.camel@localhost.localdomain> <200506152149.06367.pmcfarland@downeast.net> <20050616023630.GC9773@thunk.org> <87y89a7wfn.fsf@jbms.ath.cx> <20050616143727.GC10969@thunk.org> <20050619175503.GA3193@elf.ucw.cz> <1119292723.3279.0.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1119292723.3279.0.camel@localhost.localdomain>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All,
+Hi!
 
- 	Actually, the problem I have isn't specific to the using it over 
-the local device.  Quite often I have the problem where the secondary node 
-goes down and comes back up after some time and needs to be resyncd.  This 
-is done on the master (raid1_resync) by hot-removing /dev/nbd1 and then 
-hot-adding it back.
+> > Actually the day we have rm utf-8-ed, we have a problem. Someone will
+> > create two files that have same utf name, encoded differently, and
+> > will be in trouble. Remember old > \* "hack"? utf-8 makes variation
+> > possible...
+> 
+> They are different to POSIX as they are different byte sequences
 
-The result ?  The slave node becomes completely unusable despite the fact 
-that only nbd-server processes (two, the listener and the accepted socket) 
-are running on there and nothing in the kernel context (well, at least 
-w.r.t. to nbd, obviously some kernel code is involved ! :-P, but the nbd 
-module doesn't even have to be loaded). And by unusable I mean I can no 
-longer open files for writing, attempting to do so results in a hang until 
-the resync is complete.
+Does POSIX really say that all weird characters must be accepted in
+path name?
 
-This is not-so-bad when the slave is being resync'd as the primary is 
-still fully usable, but it really sucks when the primary goes down and 
-needs to be resync'd from the secondary upon coming back up.
+> > If we are serious about utf-8 support in ext3, we should return
+> > -EINVAL if someone passes non-canonical utf-8 string.
+> 
+> That would ironically not be standards compliant
 
-I'm thinking my system disks' RAID controller may be really horrible, or 
-horribly supported.  I have a RAID5 (hardware, uses the megaraid_mbox 
-driver) of 3 x 73gb 10K RPM SCSI-320 disks and my write performance is .. 
-horrible.
+I don't see how we can claim ext3 is utf-8 then. If application
+vendors believed us and accepted that ext3 filenames are in utf-8,
+they'd do wrong thing because kernel is perfectly willing to feed them
+non-utf-8 things.
 
-I've looked at "drbd" and it looks very promising, but I haven't had a 
-chance to implement it yet, but it promises to resolve my resync time 
-issues at least.
-
-
- 	Roy Keene
- 	Planning Systems Inc.
-
-On Mon, 6 Jun 2005, Kyle Moffett wrote:
-
-> On Jun 5, 2005, at 06:11:02, Erik Slagter wrote:
->> On Wed, 2005-06-01 at 21:59 +0200, Pavel Machek wrote:
->> 
->>>>     Start RAID in degraded mode with remote device (nbd1)
->>>>     Hot-add local device (nbd0)
->>> 
->>> Stop right here. You may not use nbd over loopback.
->> 
->> Any specific reason (just curious)?
->
-> IIRC, because of the way the loopback delivers packets from the
-> same context as they are sent, it is possible (and quite easy)
-> to either deadlock or peg the CPU and make everything hang and
-> be unuseable.  DRBD likewise used to have problems with testing
-> over the loopback until they added a special configuration
-> option to be extra careful and yield CPU.
->
-> Cheers,
-> Kyle Moffet
->
->
+								Pavel
+-- 
+teflon -- maybe it is a trademark, but it should not be.

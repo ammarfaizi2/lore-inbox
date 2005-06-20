@@ -1,48 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261296AbVFTJPp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261193AbVFTJg1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261296AbVFTJPp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 05:15:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbVFTJPp
+	id S261193AbVFTJg1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 05:36:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbVFTJg1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 05:15:45 -0400
-Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:4514 "EHLO
-	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S261296AbVFTJPk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 05:15:40 -0400
-From: Grant Coady <grant_lkml@dodo.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.12-mm1 breaks Toshiba laptop yenta cardbus
-Date: Mon, 20 Jun 2005 19:15:34 +1000
-Organization: <http://scatter.mine.nu/>
-Message-ID: <s32db1toatpgar8nun4m5rtqq97hkbk2ab@4ax.com>
-X-Mailer: Forte Agent 2.0/32.652
-MIME-Version: 1.0
+	Mon, 20 Jun 2005 05:36:27 -0400
+Received: from darwin.snarc.org ([81.56.210.228]:59037 "EHLO darwin.snarc.org")
+	by vger.kernel.org with ESMTP id S261193AbVFTJgZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 05:36:25 -0400
+Date: Mon, 20 Jun 2005 11:36:23 +0200
+To: aq <aquynh@gmail.com>
+Cc: randy_dunlap <rdunlap@xenotime.net>,
+       David Lang <david.lang@digitalinsight.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.12
+Message-ID: <20050620093623.GA3269@snarc.org>
+References: <200506182005.28254.nick@linicks.net> <9a8748490506181233675f2fd5@mail.gmail.com> <9cde8bff0506181839d41aab3@mail.gmail.com> <Pine.LNX.4.62.0506181847550.11617@qynat.qvtvafvgr.pbz> <20050618193636.70ab8b05.rdunlap@xenotime.net> <9cde8bff0506190800170a3685@mail.gmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <9cde8bff0506190800170a3685@mail.gmail.com>
+X-Warning: Email may contain unsmilyfied humor and/or satire.
+User-Agent: Mutt/1.5.9i
+From: tab@snarc.org (Vincent Hanquez)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+On Sun, Jun 19, 2005 at 10:00:05AM -0500, aq wrote:
+> ah yes. because 2.6.12 can be get by patching from 2.6.11, so ketchup
+> works well, as always.
+> 
+> but ketchup doesnt work with 2.6.x.y yet.
 
-Yenta: CardBus bridge found at 0000:00:0b.0 [1179:0001]
-yenta 0000:00:0b.0: Preassigned resource 0 busy, reconfiguring...
-yenta 0000:00:0b.0: Preassigned resource 1 busy, reconfiguring...
-yenta 0000:00:0b.0: Preassigned resource 1 busy, reconfiguring...
-yenta 0000:00:0b.0: no resource of type 200 available, trying to continue...
-yenta 0000:00:0b.0: Preassigned resource 2 busy, reconfiguring...
-yenta 0000:00:0b.0: Preassigned resource 2 busy, reconfiguring...
-yenta 0000:00:0b.0: no resource of type 100 available, trying to continue...
-yenta 0000:00:0b.0: Preassigned resource 3 busy, reconfiguring...
-yenta 0000:00:0b.0: Preassigned resource 3 busy, reconfiguring...
-yenta 0000:00:0b.0: no resource of type 100 available, trying to continue...
-Yenta: ISA IRQ mask 0x04b8, PCI irq 11
-Socket status: 30000020
+it's working since the 0.9 release (from almost 1 year ago)
 
-2.6.12 okay
-
-See:
-  http://scatter.mine.nu/test/linux-2.6/tosh/
-for config, dmesg, cpu, mem, ioports, etc
-
---Grant.
-
+-- 
+Vincent Hanquez

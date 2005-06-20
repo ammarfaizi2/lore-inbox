@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261436AbVFTE53@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261431AbVFTEzo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261436AbVFTE53 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 00:57:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261450AbVFTE53
+	id S261431AbVFTEzo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 00:55:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261444AbVFTEzn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 00:57:29 -0400
-Received: from omega.webmasters.gr.jp ([218.44.239.78]:13214 "EHLO
-	webmasters.gr.jp") by vger.kernel.org with ESMTP id S261436AbVFTEx6
+	Mon, 20 Jun 2005 00:55:43 -0400
+Received: from omega.webmasters.gr.jp ([218.44.239.78]:12190 "EHLO
+	webmasters.gr.jp") by vger.kernel.org with ESMTP id S261431AbVFTExv
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 00:53:58 -0400
-Date: Mon, 20 Jun 2005 13:53:57 +0900
-Message-ID: <81is097hne.wl@omega.webmasters.gr.jp>
+	Mon, 20 Jun 2005 00:53:51 -0400
+Date: Mon, 20 Jun 2005 13:53:50 +0900
+Message-ID: <81k6kp7hnl.wl@omega.webmasters.gr.jp>
 From: GOTO Masanori <gotom@debian.or.jp>
 To: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
 Cc: gotom@debian.or.jp
-Subject: [PATCH] headers 4/4: Clean up byteorder/{little,big}_endian.h to use __inline__
+Subject: [PATCH] headers 3/4: Include linux/types.h for usb_ch9.h
 User-Agent: Wanderlust/2.9.9 (Unchained Melody) SEMI/1.14.3 (Ushinoya)
  FLIM/1.14.3 (=?ISO-8859-4?Q?Unebigory=F2mae?=) APEL/10.3 Emacs/21.2
  (i386-debian-linux-gnu) MULE/5.0 (SAKAKI)
@@ -23,10 +23,9 @@ Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch cleans up 2.6.12 byteorder/{little,big}_endian.h to use
-__inline__ instead of inline because they're included by
-asm/byteorder.h which also uses __inline__.  In addition, it uses
-__BYTEORDER_HAS_U64__ that is similar to include/linux/byteorder/swab.h.
+This patch for 2.6.12 usb_ch9.h includes linux/types.h instead of
+asm/types.h so that __le16 and so on is explicitly defined.  It also
+cleans up non standard // comment.
 
 Signed-off-by: GOTO Masanori <gotom@debian.or.jp>
 
@@ -34,149 +33,28 @@ Regards,
 -- gotom
 
 
- big_endian.h    |   28 ++++++++++++++++------------
- little_endian.h |   28 ++++++++++++++++------------
- 2 files changed, 32 insertions(+), 24 deletions(-)
+ usb_ch9.h |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
-diff -Nuarp linux-2.6.12/include/linux/byteorder/big_endian.h linux-2.6.12.gotom/include/linux/byteorder/big_endian.h
---- linux-2.6.12/include/linux/byteorder/big_endian.h	2005-06-18 04:48:29.000000000 +0900
-+++ linux-2.6.12.gotom/include/linux/byteorder/big_endian.h	2005-06-20 13:11:59.068541152 +0900
-@@ -40,51 +40,55 @@
- #define __cpu_to_be16(x) ((__force __be16)(__u16)(x))
- #define __be16_to_cpu(x) ((__force __u16)(__be16)(x))
+--- linux-2.6.12/include/linux/usb_ch9.h	2005-06-18 04:48:29.000000000 +0900
++++ linux-2.6.12.gotom/include/linux/usb_ch9.h	2005-06-20 13:12:26.872815138 +0900
+@@ -16,7 +16,7 @@
+ #ifndef __LINUX_USB_CH9_H
+ #define __LINUX_USB_CH9_H
  
--static inline __le64 __cpu_to_le64p(const __u64 *p)
-+#ifdef __BYTEORDER_HAS_U64__
-+static __inline__ __le64 __cpu_to_le64p(const __u64 *p)
- {
- 	return (__force __le64)__swab64p(p);
- }
--static inline __u64 __le64_to_cpup(const __le64 *p)
-+static __inline__ __u64 __le64_to_cpup(const __le64 *p)
- {
- 	return __swab64p((__u64 *)p);
- }
--static inline __le32 __cpu_to_le32p(const __u32 *p)
-+#endif
-+static __inline__ __le32 __cpu_to_le32p(const __u32 *p)
- {
- 	return (__force __le32)__swab32p(p);
- }
--static inline __u32 __le32_to_cpup(const __le32 *p)
-+static __inline__ __u32 __le32_to_cpup(const __le32 *p)
- {
- 	return __swab32p((__u32 *)p);
- }
--static inline __le16 __cpu_to_le16p(const __u16 *p)
-+static __inline__ __le16 __cpu_to_le16p(const __u16 *p)
- {
- 	return (__force __le16)__swab16p(p);
- }
--static inline __u16 __le16_to_cpup(const __le16 *p)
-+static __inline__ __u16 __le16_to_cpup(const __le16 *p)
- {
- 	return __swab16p((__u16 *)p);
- }
--static inline __be64 __cpu_to_be64p(const __u64 *p)
-+#ifdef __BYTEORDER_HAS_U64__
-+static __inline__ __be64 __cpu_to_be64p(const __u64 *p)
- {
- 	return (__force __be64)*p;
- }
--static inline __u64 __be64_to_cpup(const __be64 *p)
-+static __inline__ __u64 __be64_to_cpup(const __be64 *p)
- {
- 	return (__force __u64)*p;
- }
--static inline __be32 __cpu_to_be32p(const __u32 *p)
-+#endif
-+static __inline__ __be32 __cpu_to_be32p(const __u32 *p)
- {
- 	return (__force __be32)*p;
- }
--static inline __u32 __be32_to_cpup(const __be32 *p)
-+static __inline__ __u32 __be32_to_cpup(const __be32 *p)
- {
- 	return (__force __u32)*p;
- }
--static inline __be16 __cpu_to_be16p(const __u16 *p)
-+static __inline__ __be16 __cpu_to_be16p(const __u16 *p)
- {
- 	return (__force __be16)*p;
- }
--static inline __u16 __be16_to_cpup(const __be16 *p)
-+static __inline__ __u16 __be16_to_cpup(const __be16 *p)
- {
- 	return (__force __u16)*p;
- }
-diff -Nuarp linux-2.6.12/include/linux/byteorder/little_endian.h linux-2.6.12.gotom/include/linux/byteorder/little_endian.h
---- linux-2.6.12/include/linux/byteorder/little_endian.h	2005-06-18 04:48:29.000000000 +0900
-+++ linux-2.6.12.gotom/include/linux/byteorder/little_endian.h	2005-06-20 13:11:59.066541420 +0900
-@@ -40,51 +40,55 @@
- #define __cpu_to_be16(x) ((__force __be16)__swab16((x)))
- #define __be16_to_cpu(x) __swab16((__force __u16)(__be16)(x))
+-#include <asm/types.h>		/* __u8 etc */
++#include <linux/types.h>	/* __u8 etc */
  
--static inline __le64 __cpu_to_le64p(const __u64 *p)
-+#ifdef __BYTEORDER_HAS_U64__
-+static __inline__ __le64 __cpu_to_le64p(const __u64 *p)
- {
- 	return (__force __le64)*p;
- }
--static inline __u64 __le64_to_cpup(const __le64 *p)
-+static __inline__ __u64 __le64_to_cpup(const __le64 *p)
- {
- 	return (__force __u64)*p;
- }
--static inline __le32 __cpu_to_le32p(const __u32 *p)
-+#endif
-+static __inline__ __le32 __cpu_to_le32p(const __u32 *p)
- {
- 	return (__force __le32)*p;
- }
--static inline __u32 __le32_to_cpup(const __le32 *p)
-+static __inline__ __u32 __le32_to_cpup(const __le32 *p)
- {
- 	return (__force __u32)*p;
- }
--static inline __le16 __cpu_to_le16p(const __u16 *p)
-+static __inline__ __le16 __cpu_to_le16p(const __u16 *p)
- {
- 	return (__force __le16)*p;
- }
--static inline __u16 __le16_to_cpup(const __le16 *p)
-+static __inline__ __u16 __le16_to_cpup(const __le16 *p)
- {
- 	return (__force __u16)*p;
- }
--static inline __be64 __cpu_to_be64p(const __u64 *p)
-+#ifdef __BYTEORDER_HAS_U64__
-+static __inline__ __be64 __cpu_to_be64p(const __u64 *p)
- {
- 	return (__force __be64)__swab64p(p);
- }
--static inline __u64 __be64_to_cpup(const __be64 *p)
-+static __inline__ __u64 __be64_to_cpup(const __be64 *p)
- {
- 	return __swab64p((__u64 *)p);
- }
--static inline __be32 __cpu_to_be32p(const __u32 *p)
-+#endif
-+static __inline__ __be32 __cpu_to_be32p(const __u32 *p)
- {
- 	return (__force __be32)__swab32p(p);
- }
--static inline __u32 __be32_to_cpup(const __be32 *p)
-+static __inline__ __u32 __be32_to_cpup(const __be32 *p)
- {
- 	return __swab32p((__u32 *)p);
- }
--static inline __be16 __cpu_to_be16p(const __u16 *p)
-+static __inline__ __be16 __cpu_to_be16p(const __u16 *p)
- {
- 	return (__force __be16)__swab16p(p);
- }
--static inline __u16 __be16_to_cpup(const __be16 *p)
-+static __inline__ __u16 __be16_to_cpup(const __be16 *p)
- {
- 	return __swab16p((__u16 *)p);
- }
+ /*-------------------------------------------------------------------------*/
+ 
+@@ -268,8 +268,8 @@ struct usb_endpoint_descriptor {
+ 	__le16 wMaxPacketSize;
+ 	__u8  bInterval;
+ 
+-	// NOTE:  these two are _only_ in audio endpoints.
+-	// use USB_DT_ENDPOINT*_SIZE in bLength, not sizeof.
++	/* NOTE:  these two are _only_ in audio endpoints. */
++	/* use USB_DT_ENDPOINT*_SIZE in bLength, not sizeof. */
+ 	__u8  bRefresh;
+ 	__u8  bSynchAddress;
+ } __attribute__ ((packed));

@@ -1,102 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261355AbVFTPkt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261353AbVFTPnv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261355AbVFTPkt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 11:40:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261356AbVFTPkt
+	id S261353AbVFTPnv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 11:43:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261357AbVFTPnv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 11:40:49 -0400
-Received: from alog0018.analogic.com ([208.224.220.33]:17113 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261355AbVFTPkb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 11:40:31 -0400
-Date: Mon, 20 Jun 2005 11:40:24 -0400 (EDT)
-From: "Richard B. Johnson" <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: "Srinivas G." <srinivasg@esntechnologies.co.in>
-cc: linux-kernel-Mailing-list <linux-kernel@vger.kernel.org>
-Subject: Re: how to insert an asm instruction in C code and how to compile
- it
-In-Reply-To: <4EE0CBA31942E547B99B3D4BFAB348115AB385@mail.esn.co.in>
-Message-ID: <Pine.LNX.4.61.0506201134480.7242@chaos.analogic.com>
-References: <4EE0CBA31942E547B99B3D4BFAB348115AB385@mail.esn.co.in>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 20 Jun 2005 11:43:51 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:48029 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261353AbVFTPns (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 11:43:48 -0400
+Date: Mon, 20 Jun 2005 17:33:22 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.12-mm1 compile failure on PPC64
+Message-ID: <20050620153322.GA4874@elte.hu>
+References: <191640000.1119281438@[10.10.2.4]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <191640000.1119281438@[10.10.2.4]>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Jun 2005, Srinivas G. wrote:
 
-> Dear All,
->
-> I am very sorry for asking such a silly question here.
->
-> I have small doubt about ASM code in a C program. Actually I want to
-> insert some asm instructions in a C program and after that I want to
-> compile the C program.
->
-> I want to include the following code in a simple C program and compile
-> it.
->
+* Martin J. Bligh <mbligh@mbligh.org> wrote:
 
-Well, even if you could make the correct assembly, you would
-not be able to run the BIOS-based program that you show. As
-soon as you execute the interrupt 0x10, your program will seg-fault
-because it is an invalid instruction in user-mode code and
-would even cause an invalid oprand fault in kernel mode.
+> kernel/built-in.o(.init.text+0x440): In function `.sched_cacheflush':
+> : undefined reference to `.cacheflush'
+> make: *** [.tmp_vmlinux1] Error 1
+> 06/20/05-01:28:25 Build the kernel. Failed rc = 2
+> 06/20/05-01:28:25 build: kernel build Failed rc = 1
+> 06/20/05-01:28:25 command complete: (2) rc=126
+> Failed and terminated the run
+>  Fatal error, aborting autorun
+> 
+> Works with some configs, but not this one:
+> 
+> http://ftp.kernel.org/pub/linux/kernel/people/mbligh/config/abat/p570
+> 
+> I'm guessing :
+> 
+> scheduler-cache-hot-autodetect.patch
 
-The second problem with your code is that __all__ of the assembly
-for the entire procedure must be written in one block, not
-with seperate "asm" instructions. This is because 'C' isn't
-going to preserve the values in the registers between "asm"
-blocks.
+the patch below (from akpm) should fix this:
 
+From: Andrew Morton <akpm@osdl.org>
 
-> #define printf DbgPrint
->
-> int main()
-> {
-> 	printf("Hello world program!\n");
-> 	return 0;
-> }
-> void DbgPrint(char* str,...)
-> {
-> 	volatile USHORT i = 0;
->    	volatile UCHAR sch;
-> 	while(str[i])
-> 	{
-> 		sch = str[i];
-> 		i ++;
-> 		asm mov ah,0x0E;
-> 		asm mov al,sch;
->
-> 		asm cmp	al,0ah
-> 		asm jne	test
-> 		asm mov	al,0dh     //; new line
-> 		asm mov	bx,07h
-> 		asm int	10h
-> 		asm mov	al,0ah
-> test:
-> 		asm mov bx,0x07
-> 		asm int 0x10
-> 	}
-> }
->
-> Please let me know how to do it?
->
-> Any links or Howtos are welcome.
-> Thanks in advance.
->
-> Regards,
-> Srinivas G
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Cc: Ingo Molnar <mingo@elte.hu>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.12 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+ kernel/sched.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+diff -puN kernel/sched.c~scheduler-cache-hot-autodetect-cacheflush-fix kernel/sched.c
+--- 25/kernel/sched.c~scheduler-cache-hot-autodetect-cacheflush-fix	2005-06-18 08:38:26.000000000 -0600
++++ 25-akpm/kernel/sched.c	2005-06-18 08:38:43.000000000 -0600
+@@ -5288,7 +5288,7 @@ __init static void sched_cacheflush(void
+ 	asm ("wbinvd");
+ #elif defined(CONFIG_IA64)
+ 	ia64_sal_cache_flush(1); // what argument does d/cache flush?
+-#elif defined(CONFIG_PPC64) || defined(CONFIG_PPC)
++#elif (defined(CONFIG_PPC64) || defined(CONFIG_PPC)) && defined(CONFIG_XMON)
+ 	cacheflush();
+ #else
+ # warning implement sched_cacheflush()! Calibration results may be unreliable.
+_

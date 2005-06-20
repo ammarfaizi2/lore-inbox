@@ -1,104 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261553AbVFTVFQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261559AbVFTVFP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261553AbVFTVFQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 17:05:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261552AbVFTU6N
+	id S261559AbVFTVFP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 17:05:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261544AbVFTU5m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 16:58:13 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:65157 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261756AbVFTUoT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 16:44:19 -0400
-Date: Mon, 20 Jun 2005 13:41:46 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: mchehab@brturbo.com.br, linux-kernel@vger.kernel.org, greg@kroah.com
-Subject: Re: 2.6.12-mm1
-Message-Id: <20050620134146.0e5de567.akpm@osdl.org>
-In-Reply-To: <20050620202947.040be273.khali@linux-fr.org>
-References: <20050619233029.45dd66b8.akpm@osdl.org>
-	<20050620202947.040be273.khali@linux-fr.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 20 Jun 2005 16:57:42 -0400
+Received: from CPE00095b3131a0-CM0011ae8cd564.cpe.net.cable.rogers.com ([70.28.191.58]:58240
+	"EHLO kenichi") by vger.kernel.org with ESMTP id S261820AbVFTUoW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 16:44:22 -0400
+From: Andrew James Wade 
+	<ajwade@cpe00095b3131a0-cm0011ae8cd564.cpe.net.cable.rogers.com>
+To: Hans Reiser <reiser@namesys.com>
+Subject: Re: [PATCH] Fix Reiser4 Dependencies
+Date: Mon, 20 Jun 2005 16:44:10 -0400
+User-Agent: KMail/1.7.2
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       reiserfs-dev@namesys.com, Edward Shishkin <edward@namesys.com>
+References: <20050619233029.45dd66b8.akpm@osdl.org> <200506200832.22260.ajwade@cpe00095b3131a0-cm0011ae8cd564.cpe.net.cable.rogers.com> <42B70A6D.7030308@namesys.com>
+In-Reply-To: <42B70A6D.7030308@namesys.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200506201644.10429.ajwade@cpe00095b3131a0-cm0011ae8cd564.cpe.net.cable.rogers.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jean Delvare <khali@linux-fr.org> wrote:
->
-> Hi Andrew, Mauro, all,
+> Andrew James Wade wrote:
 > 
-> Two things I am worried about.
-> 
-> First point:
-> 
-> > -i2c-chips-need-hwmon.patch
-> > -gregkh-i2c-hwmon-02-sparc64-fix.patch
-> > (...)
-> >  Merged
-> 
-> Hopefully not, as they were fixes for:
-> 
-> > -gregkh-i2c-hwmon-01.patch
-> > -gregkh-i2c-hwmon-02.patch
-> > -gregkh-i2c-hwmon-03.patch
-> 
-> which were dropped (and quite rightly so).
+> >*    ZLIB_INFLATE is not visible in menuconfig. Reiser4 should probably
+> >     just select it like the other filesystems do.
+The issue I had here was that Reiser4 wasn't appearing in menuconfig for
+me as I did not have ZLIB_INFLATE set, and the ZLIB_INFLATE option wasn't
+appearing either (I think it's because it doesn't have a prompt). I just
+followed the pattern for all other filesystems referencing ZLIB_INFLATE,
+and the comment in lib/Kbuild suggests this is the proper approach:
 
-OK, I lose track of why patches became irrelevant.
+| #
+| # compression support is select'ed if needed
+| #
 
-> > +gregkh-i2c-i2c-max6875.patch
-> > +gregkh-i2c-i2c-rename-i2c-sysfs.patch
-> > +gregkh-i2c-i2c-pca9539.patch
-> > +gregkh-i2c-i2c-ds1374-01.patch
-> > +gregkh-i2c-i2c-ds1374-02.patch
-> > +gregkh-i2c-i2c-ds1374-03.patch
-> > +gregkh-i2c-i2c-w83781d-remove-non-i2c-chips.patch
-> > +gregkh-i2c-w1-01.patch
-> > +gregkh-i2c-w1-02.patch
-> > +gregkh-i2c-w1-03.patch
-> > +gregkh-i2c-w1-04.patch
-> > +gregkh-i2c-w1-05.patch
-> > +gregkh-i2c-w1-06.patch
-> > +gregkh-i2c-w1-07.patch
-> > 
-> >  Updates to the driver core tree
-> 
-> All these are obviously i2c updates, not driver core updates.
-> 
-> Andrew, something's wrong in your log generator (if such a thing
-> exists)?
+> >
+> >*    Reiser4 also depends on ZLIB_DEFLATE.
+I was getting linker errors:
 
-It was after my bedtime.
+| fs/built-in.o(.text+0x8f465): In function `gzip1_alloc':
+| fs/reiser4/plugin/compress/compress.c:59: undefined reference to `zlib_deflate_workspacesize'
+| fs/built-in.o(.text+0x8f475): In function `gzip1_alloc':
+| include/asm/string.h:361: undefined reference to `zlib_deflate_workspacesize'
+| fs/built-in.o(.text+0x8f64e): In function `gzip1_compress':
+| fs/reiser4/plugin/compress/compress.c:167: undefined reference to `zlib_deflateInit2_'
+| fs/built-in.o(.text+0x8f661):fs/reiser4/plugin/compress/compress.c:174: undefined reference to `zlib_deflateReset'
+| fs/built-in.o(.text+0x8f697):fs/reiser4/plugin/compress/compress.c:184: undefined reference to `zlib_deflate'
 
-> Second point:
-> 
-> > +gregkh-i2c-i2c-address_range_removal-v4l-fix.patch
-> > +gregkh-i2c-i2c-address_range_removal-v4l-fix-fix.patch
-> > 
-> >  Fix v4l updates for changes in Greg's i2c tree
-> 
-> All these changes were already present and correct in
-> i2c-address_range_removal.patch, which is in Greg's i2c tree for 2.5
-> months. Then Mauro Carvalho Chehab reverted them with
-> v4l-update-for-tuner-cards-and-some-chips.patch, breaking several v4l
-> drivers. And then he provides a "fix" with
-> gregkh-i2c-i2c-address_range_removal-v4l-fix.patch, which ironically
-> reads:
-> 
-> > From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-> > 
-> > This patch is necessary to correct I2C detect after normal_i2c_range
-> > removal in gregkh-i2c-i2c-address_range_removal.patch.
-> 
-> No, Mauro. This patch is necessary to fix something YOU just broke with
-> your previous patch. So please learn how to make correct patches that
-> don't randomly revert previous changes. This will make everyone's life
-> easier, including Andrew's, Greg's and mine.
+select'ing ZLIB_DEFLATE fixed them.
 
-Yup.  This sort of thing often happens when teams run parallel CVS trees.
+Reiser4 is working for me after the two changes.
 
-I don't think anything needs to be done by Mauro in this case.  Once Greg's
-patches are merged up I'll fold the two fixes into the v4l patches then
-send them off to Linus and everything will come out squeaky clean.
+HTH,
+Andrew
+
+
+> >
+> >signed-off-by: Andrew Wade <ajwade@alumni.uwaterloo.ca>
+> >
+> >--- 2.6.12-mm1/fs/reiser4/Kconfig	2005-06-20 07:38:22.087653000 -0400
+> >+++ linux/fs/reiser4/Kconfig	2005-06-20 08:01:28.914324250 -0400
+> >@@ -1,6 +1,8 @@
+> > config REISER4_FS
+> > 	tristate "Reiser4 (EXPERIMENTAL)"
+> >-	depends on EXPERIMENTAL && !4KSTACKS && ZLIB_INFLATE
+> >+	depends on EXPERIMENTAL && !4KSTACKS
+> >+	select ZLIB_INFLATE
+> >+	select ZLIB_DEFLATE
+> > 	help
+> > 	  Reiser4 is a filesystem that performs all filesystem operations
+> > 	  as atomic transactions, which means that it either performs a

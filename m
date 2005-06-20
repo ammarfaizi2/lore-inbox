@@ -1,66 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261625AbVFUEo4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261290AbVFUEoz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261625AbVFUEo4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 00:44:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261574AbVFTW5X
+	id S261290AbVFUEoz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 00:44:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261635AbVFUCIe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 18:57:23 -0400
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:53000 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S262295AbVFTWVE
+	Mon, 20 Jun 2005 22:08:34 -0400
+Received: from mail.kroah.org ([69.55.234.183]:40932 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261756AbVFTW7w convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 18:21:04 -0400
-Date: Tue, 21 Jun 2005 00:26:18 +0200
-From: Tomasz Torcz <zdzichu@irc.pl>
-To: linux-kernel@vger.kernel.org
-Cc: trivial@rustcorp.com.au
-Subject: Re: 2.6.12 udev hangs at boot
-Message-ID: <20050620222618.GA20058@irc.pl>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	trivial@rustcorp.com.au
-References: <20050620164800.GA14798@suse.de> <Pine.LNX.4.21.0506201723090.30848-100000@iabervon.org>
+	Mon, 20 Jun 2005 18:59:52 -0400
+Cc: gregkh@suse.de
+Subject: [PATCH] class: convert the remaining class_simple users in the kernel to usee the new class api
+In-Reply-To: <11193083633233@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Mon, 20 Jun 2005 15:59:23 -0700
+Message-Id: <11193083633382@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0506201723090.30848-100000@iabervon.org>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Greg K-H <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 20, 2005 at 05:26:46PM -0400, Daniel Barkalow wrote:
-> On Mon, 20 Jun 2005, Greg KH wrote:
-> 
-> > On Mon, Jun 20, 2005 at 01:04:10PM +0300, Denis Vlasenko wrote:
-> > > 
-> > > Greg, any plans to distribute udev and hotplug within kernel tarballs
-> > > so that people do not need to track such changes continuously?
-> > 
-> > Nope.  But if you use udev, you should read the announcements for new
-> > releases, as I did say this was required for 2.6.12, and gave everyone a
-> > number of weeks notice :)
-> 
-> Shouldn't this be listed in Changes? It looks like Changes only mentions
-> the existance of udev, but doesn't specify a required version, despite
-> there being a version requirement.
+[PATCH] class: convert the remaining class_simple users in the kernel to usee the new class api
 
- Probably.
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
- Add udev version requirement to Changes files.
+---
+commit 1db560afe629b682c45a7f4ba7edf98b4ee28518
+tree d48ed2d5458b86bf65c78f8e738c6510fdec3917
+parent 5cebfb759cc75208c04590ad7f4485cdd822cf46
+author gregkh@suse.de <gregkh@suse.de> Wed, 23 Mar 2005 10:02:26 -0800
+committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 20 Jun 2005 15:15:11 -0700
 
-Signed-off-by: Tomasz Torcz <zdzichu@irc.pl>
+ fs/coda/psdev.c |   18 +++++++++---------
+ 1 files changed, 9 insertions(+), 9 deletions(-)
 
---- linux-2.6.12/Documentation/Changes  2005-05-07 10:56:52.000000000 +0200
-+++ linux-fixed/Documentation/Changes   2005-06-21 00:19:58.000000000 +0200
-@@ -64,6 +64,7 @@ o  isdn4k-utils           3.1pre1       
- o  nfs-utils              1.0.5                   # showmount --version
- o  procps                 3.2.0                   # ps --version
- o  oprofile               0.5.3                   # oprofiled --version
-+o  udev                   058                     # udevinfo -V
+diff --git a/fs/coda/psdev.c b/fs/coda/psdev.c
+--- a/fs/coda/psdev.c
++++ b/fs/coda/psdev.c
+@@ -61,7 +61,7 @@ unsigned long coda_timeout = 30; /* .. s
  
- Kernel compilation
- ==================
-
-
--- 
-Tomasz Torcz                 Morality must always be based on practicality.
-zdzichu@irc.-nie.spam-.pl                -- Baron Vladimir Harkonnen
+ 
+ struct venus_comm coda_comms[MAX_CODADEVS];
+-static struct class_simple *coda_psdev_class;
++static struct class *coda_psdev_class;
+ 
+ /*
+  * Device operations
+@@ -363,14 +363,14 @@ static int init_coda_psdev(void)
+ 		     CODA_PSDEV_MAJOR);
+               return -EIO;
+ 	}
+-	coda_psdev_class = class_simple_create(THIS_MODULE, "coda");
++	coda_psdev_class = class_create(THIS_MODULE, "coda");
+ 	if (IS_ERR(coda_psdev_class)) {
+ 		err = PTR_ERR(coda_psdev_class);
+ 		goto out_chrdev;
+ 	}		
+ 	devfs_mk_dir ("coda");
+ 	for (i = 0; i < MAX_CODADEVS; i++) {
+-		class_simple_device_add(coda_psdev_class, MKDEV(CODA_PSDEV_MAJOR,i), 
++		class_device_create(coda_psdev_class, MKDEV(CODA_PSDEV_MAJOR,i),
+ 				NULL, "cfs%d", i);
+ 		err = devfs_mk_cdev(MKDEV(CODA_PSDEV_MAJOR, i),
+ 				S_IFCHR|S_IRUSR|S_IWUSR, "coda/%d", i);
+@@ -382,8 +382,8 @@ static int init_coda_psdev(void)
+ 
+ out_class:
+ 	for (i = 0; i < MAX_CODADEVS; i++) 
+-		class_simple_device_remove(MKDEV(CODA_PSDEV_MAJOR, i));
+-	class_simple_destroy(coda_psdev_class);
++		class_device_destroy(coda_psdev_class, MKDEV(CODA_PSDEV_MAJOR, i));
++	class_destroy(coda_psdev_class);
+ out_chrdev:
+ 	unregister_chrdev(CODA_PSDEV_MAJOR, "coda");
+ out:
+@@ -425,10 +425,10 @@ static int __init init_coda(void)
+ 	return 0;
+ out:
+ 	for (i = 0; i < MAX_CODADEVS; i++) {
+-		class_simple_device_remove(MKDEV(CODA_PSDEV_MAJOR, i));
++		class_device_destroy(coda_psdev_class, MKDEV(CODA_PSDEV_MAJOR, i));
+ 		devfs_remove("coda/%d", i);
+ 	}
+-	class_simple_destroy(coda_psdev_class);
++	class_destroy(coda_psdev_class);
+ 	devfs_remove("coda");
+ 	unregister_chrdev(CODA_PSDEV_MAJOR, "coda");
+ 	coda_sysctl_clean();
+@@ -447,10 +447,10 @@ static void __exit exit_coda(void)
+                 printk("coda: failed to unregister filesystem\n");
+         }
+ 	for (i = 0; i < MAX_CODADEVS; i++) {
+-		class_simple_device_remove(MKDEV(CODA_PSDEV_MAJOR, i));
++		class_device_destroy(coda_psdev_class, MKDEV(CODA_PSDEV_MAJOR, i));
+ 		devfs_remove("coda/%d", i);
+ 	}
+-	class_simple_destroy(coda_psdev_class);
++	class_destroy(coda_psdev_class);
+ 	devfs_remove("coda");
+ 	unregister_chrdev(CODA_PSDEV_MAJOR, "coda");
+ 	coda_sysctl_clean();
 

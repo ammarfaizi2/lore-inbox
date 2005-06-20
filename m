@@ -1,97 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261487AbVFTTK7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261498AbVFTTNY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261487AbVFTTK7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 15:10:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261510AbVFTTJF
+	id S261498AbVFTTNY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 15:13:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261510AbVFTTLo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 15:09:05 -0400
-Received: from wproxy.gmail.com ([64.233.184.206]:29013 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261499AbVFTTAN convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 15:00:13 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Obgiyyqsvn1kbdnEBBmxG2xPFm0ZDAy9XJSZSsMENJ32xH3LRFUkArrBgCn9HXe0bcShWIMsOy2GARwZrcqWt5vXRcHqwtMRWAB/yzPulpCkz8SQ87vLvahyf48JcTBOZNZMRs+rrTUyiS4AgJpQkwT+MGuprJ6KlpQZsQ4h9KU=
-Message-ID: <f2176eb805062012003b068199@mail.gmail.com>
-Date: Tue, 21 Jun 2005 03:00:12 +0800
-From: Paradise <paradyse@gmail.com>
-Reply-To: Paradise <paradyse@gmail.com>
-To: "Valdis.Kletnieks@vt.edu" <Valdis.Kletnieks@vt.edu>
-Subject: Re: 2.6.12-mm1 cannot build nvidia driver?
-Cc: linux-kernel@vger.kernel.org,
-       Debian Users List <debian-user@lists.debian.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <200506201639.j5KGdoNO016276@turing-police.cc.vt.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 20 Jun 2005 15:11:44 -0400
+Received: from imap.gmx.net ([213.165.64.20]:58559 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261512AbVFTTKR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 15:10:17 -0400
+X-Authenticated: #137701
+From: Alexander Gretencord <arutha@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Swapping in 2.6.10 and 2.6.11.11 on a desktop system
+Date: Mon, 20 Jun 2005 21:09:50 +0200
+User-Agent: KMail/1.8.1
+References: <200506141653.32093.arutha@gmx.de> <200506151544.17191.arutha@gmx.de> <200506161416.03569.kernel@kolivas.org>
+In-Reply-To: <200506161416.03569.kernel@kolivas.org>
+Cc: Con Kolivas <kernel@kolivas.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <f2176eb805062004557fc7b9ac@mail.gmail.com>
-	 <f2176eb805062005201c96510a@mail.gmail.com>
-	 <200506201639.j5KGdoNO016276@turing-police.cc.vt.edu>
+Message-Id: <200506202109.51059.arutha@gmx.de>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-this is the version of !defined(HAVE_COMPAT_IOCTL) from debian
-.....there is no "!defined(HAVE_COMPAT_IOCTL)" that you said..
+On Thursday 16 June 2005 06:16, you wrote:
+> echo 100 > /proc/sys/vm/mapped
 
-void NV_API_CALL os_register_ioctl32_conversion(U032 cmd, U032 size)
-{
-#if defined(NVCPU_X86_64) && defined(CONFIG_IA32_EMULATION)
-    unsigned int request = _IOWR(NV_IOCTL_MAGIC, cmd, char[size]);
-    register_ioctl32_conversion(request, (void *)sys_ioctl);
-#endif /* NVCPU_X86_64 */
-}
+Doesn't work either.
 
-void NV_API_CALL os_unregister_ioctl32_conversion(U032 cmd, U032 size)
-{
-#if defined(NVCPU_X86_64) && defined(CONFIG_IA32_EMULATION)
-    unsigned int request = _IOWR(NV_IOCTL_MAGIC, cmd, char[size]);
-    unregister_ioctl32_conversion(request);
-#endif /* NVCPU_X86_64 */
-}
+What I do to test this is the following:
 
+Start X with KDE, start a Konqueror instance, a firefox, eclipse and vmware. 
+This increases memory load to about 250MB. Then I start os inside the vmware 
+virtual machine. This increases memory allocation because the guest operating 
+system has to exist somewhere and generates IOs while the virtual disk is 
+accessed. With mapped=100 it takes longer until the system begins to swap but 
+once it has begun swapping I get this:
 
-On 6/21/05, Valdis.Kletnieks@vt.edu <Valdis.Kletnieks@vt.edu> wrote:
-> On Mon, 20 Jun 2005 20:20:06 +0800, Paradise said:
-> > seems un/register_ioctl32_conversion is removed from 2.6.12-mm1..
-> > any patch for nvidia kernel driver?
-> 
-> No patch, but some hints - I suspect the problem is a local build config error...
-> 
-> 1) The exact patch causing your problem in -mm1 is:
-> remove-register_ioctl32_conversion-and-unregister_ioctl32_conversion.patch
-> 
-> Building with this one patch -R'ed out should help, but it's the wrong thing
-> to do, as it only papers over the real problem, which is:
-> 
-> 2) Your failing code is in os-interface.c:
-> 
-> void NV_API_CALL os_unregister_ioctl32_conversion(U032 cmd, U032 size)
-> {
-> #if defined(NVCPU_X86_64) && defined(CONFIG_IA32_EMULATION) && !defined(HAVE_COMPAT_IOCTL)
->     unsigned int request = _IOWR(NV_IOCTL_MAGIC, cmd, char[size]);
->     unregister_ioctl32_conversion(request);
-> #endif
-> }
-> 
-> Might want to figure out why HAVE_COMPAT_IOCTL isn't defined - there's at least
-> 3 other places where it matters (in nv.c).  It's #defined in the include/linux/fs.h
-> header in 2.6.12-rc6-mm1, so you probably want to figure out why your build isn't
-> picking up on it.  Are your #include directories screwed up?
-> 
-> Sorry I can't provide more help, this looks like an X86-64 only issue.  If this
-> isnt enough, take it up on the NVidia forums:
-> 
-> http://www.nvnews.net/vbulletin/forumdisplay.php?s=&forumid=14
-> 
-> 
-> 
-> 
-> 
+             total       used       free     shared    buffers     cached
+Mem:           503        498          5          0         10        412
+-/+ buffers/cache:         75        428
+Swap:          494        230        264
+
+It does not matter which patch I am using, once the magical "begin 
+swapping"-mark is reached, real ram usage drops to a bare minimum and cache 
+usage goes up. The IO cache is probably not even used as there are virtually 
+no reusable parts. 
+
+The problem is the kernel thinking in the wrong direction (freeing ram for 
+disk cache). Maybe that's ok for a streaming server which uses 10MB of RAM 
+for code and internal data and is constantly accessing the same 400MB of 
+streaming video data. Or a webserver serving a big amount of static pages 
+etc. but it is not ok for my desktop workload where I have about 400MB of 
+data belonging to applications and IOs are not repeating very often (disk 
+cache efficiency is probably very low).
+
+Any idea why the kernel behaves like this and how I can get expected 
+behaviour? Expected behaviour for a desktop would be:
+
+Use as much disk cache as there is free RAM. Once applications start using all 
+the ram, only keep a certain percentage/bare minimum of disk cache. What is 
+absolutely undesirable is a growing and growing disk cache when there is not 
+enough ram to keep applications and/or their data in ram.
+
+> If this tries so hard to avoid swap that you get an out-of-memory condition
+> you may also have to disable the hard maplimit with this:
+> echo 0 > /proc/sys/vm/hardmaplimit
+
+Yes I get oom conditions with mapped=100 but they are not my real problem, the 
+problem is the disk cache usage pattern. I it would help, I still have some 
+dmesg output from the oom killer.
+
+Any ideas? Am I just doing something wrong? I don't use any 
+special /proc-settings other than the swappiness/mapped test values.
 
 
--- 
-Regards,
-Paradise
+Alex

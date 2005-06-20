@@ -1,45 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261622AbVFTVfR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261632AbVFTVtK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261622AbVFTVfR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 17:35:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261548AbVFTVdW
+	id S261632AbVFTVtK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 17:49:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261627AbVFTVsN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 17:33:22 -0400
-Received: from iabervon.org ([66.92.72.58]:47364 "EHLO iabervon.org")
-	by vger.kernel.org with ESMTP id S261612AbVFTV24 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 17:28:56 -0400
-Date: Mon, 20 Jun 2005 17:26:46 -0400 (EDT)
-From: Daniel Barkalow <barkalow@iabervon.org>
-To: Greg KH <gregkh@suse.de>
-cc: Denis Vlasenko <vda@ilport.com.ua>, Nick Warne <nick@linicks.net>,
-       linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: 2.6.12 udev hangs at boot
-In-Reply-To: <20050620164800.GA14798@suse.de>
-Message-ID: <Pine.LNX.4.21.0506201723090.30848-100000@iabervon.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 20 Jun 2005 17:48:13 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:5064 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261632AbVFTVce (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 17:32:34 -0400
+Subject: RE: [ltp] Re: IBM HDAPS Someone interested?
+From: Lee Revell <rlrevell@joe-job.com>
+To: abonilla@linuxwireless.org
+Cc: "'Yani Ioannou'" <yani.ioannou@gmail.com>,
+       linux-thinkpad@linux-thinkpad.org, linux-kernel@vger.kernel.org
+In-Reply-To: <007301c575d9$77decb90$600cc60a@amer.sykes.com>
+References: <007301c575d9$77decb90$600cc60a@amer.sykes.com>
+Content-Type: text/plain
+Date: Mon, 20 Jun 2005 17:35:58 -0400
+Message-Id: <1119303358.17380.0.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.3.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Jun 2005, Greg KH wrote:
+On Mon, 2005-06-20 at 14:48 -0600, Alejandro Bonilla wrote:
+> It would take them like 20 minutes to
+> make some sort of interface for this thing. BUT NO! 
 
-> On Mon, Jun 20, 2005 at 01:04:10PM +0300, Denis Vlasenko wrote:
-> > 
-> > Greg, any plans to distribute udev and hotplug within kernel tarballs
-> > so that people do not need to track such changes continuously?
-> 
-> Nope.  But if you use udev, you should read the announcements for new
-> releases, as I did say this was required for 2.6.12, and gave everyone a
-> number of weeks notice :)
+Sounds like it would also take 20 minutes to RE, has anyone even tried?
 
-Shouldn't this be listed in Changes? It looks like Changes only mentions
-the existance of udev, but doesn't specify a required version, despite
-there being a version requirement. (Not that I really think too many
-people would think to look, but it would at least have a chance of
-reaching people who look carefully at kernels but don't read the mailing
-list)
-
-	-Daniel
-*This .sig left intentionally blank*
+Lee
 

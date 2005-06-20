@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261744AbVFUCQq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261752AbVFUCMH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261744AbVFUCQq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 22:16:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261870AbVFUCQ3
+	id S261752AbVFUCMH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 22:12:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbVFUCLR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 22:16:29 -0400
-Received: from mail.kroah.org ([69.55.234.183]:34276 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261744AbVFTW7t convert rfc822-to-8bit
+	Mon, 20 Jun 2005 22:11:17 -0400
+Received: from mail.kroah.org ([69.55.234.183]:38116 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261752AbVFTW7v convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 18:59:49 -0400
+	Mon, 20 Jun 2005 18:59:51 -0400
 Cc: mochel@digitalimplant.org
-Subject: [PATCH] Fix up bogus comment.
-In-Reply-To: <11193083662698@kroah.com>
+Subject: [PATCH] Use driver_for_each_device() instead of manually walking list.
+In-Reply-To: <1119308364330@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Mon, 20 Jun 2005 15:59:26 -0700
-Message-Id: <1119308366271@kroah.com>
+Date: Mon, 20 Jun 2005 15:59:24 -0700
+Message-Id: <11193083644157@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,34 +24,82 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] Fix up bogus comment.
+[PATCH] Use driver_for_each_device() instead of manually walking list.
 
 Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
-diff -Nru a/drivers/base/driver.c b/drivers/base/driver.c
+Index: gregkh-2.6/drivers/usb/core/usb.c
+===================================================================
 
 ---
-commit 4d12d2d953ca5e299de6a653f1d0478f670d7bc6
-tree ba89978abb57da6a24cc141b869a14b6d6c76884
-parent 36239577cfb6b9a7c111209536b54200b0252ebf
-author mochel@digitalimplant.org <mochel@digitalimplant.org> Thu, 24 Mar 2005 20:08:04 -0800
-committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 20 Jun 2005 15:15:23 -0700
+commit 6034a080f98b0bbc0a058e2ac65a538f75cffeee
+tree 3e3bb5b4afcce4aafd4cf287377c5298bd7211b2
+parent 8d618afdd61ccaacbab4976a556c0ddcf36e2d8a
+author mochel@digitalimplant.org <mochel@digitalimplant.org> Mon, 21 Mar 2005 11:09:40 -0800
+committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 20 Jun 2005 15:15:13 -0700
 
- drivers/base/driver.c |    3 +--
- 1 files changed, 1 insertions(+), 2 deletions(-)
+ drivers/usb/core/usb.c |   41 +++++++++++++++++++++++------------------
+ 1 files changed, 23 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/base/driver.c b/drivers/base/driver.c
---- a/drivers/base/driver.c
-+++ b/drivers/base/driver.c
-@@ -31,8 +31,7 @@ static struct device * next_device(struc
-  *	@data:	Data to pass to the callback.
-  *	@fn:	Function to call for each device.
-  *
-- *	Take the bus's rwsem and iterate over the @drv's list of devices,
-- *	calling @fn for each one.
-+ *	Iterate over the @drv's list of devices calling @fn for each one.
-  */
+diff --git a/drivers/usb/core/usb.c b/drivers/usb/core/usb.c
+--- a/drivers/usb/core/usb.c
++++ b/drivers/usb/core/usb.c
+@@ -462,6 +462,25 @@ usb_match_id(struct usb_interface *inter
+ 	return NULL;
+ }
  
- int driver_for_each_device(struct device_driver * drv, struct device * start, 
++
++static int __find_interface(struct device * dev, void * data)
++{
++	struct usb_interface ** ret = (struct usb_interface **)data;
++	struct usb_interface * intf = *ret;
++	int *minor = (int *)data;
++
++	/* can't look at usb devices, only interfaces */
++	if (dev->driver == &usb_generic_driver)
++		return 0;
++
++	intf = to_usb_interface(dev);
++	if (intf->minor != -1 && intf->minor == *minor) {
++		*ret = intf;
++		return 1;
++	}
++	return 0;
++}
++
+ /**
+  * usb_find_interface - find usb_interface pointer for driver and device
+  * @drv: the driver whose current configuration is considered
+@@ -473,26 +492,12 @@ usb_match_id(struct usb_interface *inter
+  */
+ struct usb_interface *usb_find_interface(struct usb_driver *drv, int minor)
+ {
+-	struct list_head *entry;
+-	struct device *dev;
+-	struct usb_interface *intf;
+-
+-	list_for_each(entry, &drv->driver.devices) {
+-		dev = container_of(entry, struct device, driver_list);
++	struct usb_interface *intf = (struct usb_interface *)minor;
++	int ret;
+ 
+-		/* can't look at usb devices, only interfaces */
+-		if (dev->driver == &usb_generic_driver)
+-			continue;
+-
+-		intf = to_usb_interface(dev);
+-		if (intf->minor == -1)
+-			continue;
+-		if (intf->minor == minor)
+-			return intf;
+-	}
++	ret = driver_for_each_device(&drv->driver, NULL, &intf, __find_interface);
+ 
+-	/* no device found that matches */
+-	return NULL;	
++	return ret ? intf : NULL;
+ }
+ 
+ static int usb_device_match (struct device *dev, struct device_driver *drv)
 

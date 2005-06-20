@@ -1,102 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261615AbVFTW5A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261185AbVFTWzj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261615AbVFTW5A (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 18:57:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261580AbVFTW4w
+	id S261185AbVFTWzj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 18:55:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261571AbVFTWsW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 18:56:52 -0400
-Received: from kirby.webscope.com ([204.141.84.57]:26082 "EHLO
-	kirby.webscope.com") by vger.kernel.org with ESMTP id S262296AbVFTWVR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 18:21:17 -0400
-Message-ID: <42B740E9.40708@m1k.net>
-Date: Mon, 20 Jun 2005 18:19:21 -0400
-From: Michael Krufky <mkrufky@m1k.net>
-Reply-To: mkrufky@m1k.net
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux and Kernel Video <video4linux-list@redhat.com>
-CC: Andrew Morton <akpm@osdl.org>,
-       Mauro Carvalho Chehab <mchehab@brturbo.com.br>, kraxel@bytesex.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] 2.6.12-mm1: saa7134-core.c compile error
-References: <20050619233029.45dd66b8.akpm@osdl.org> <20050620094855.GA3666@stusta.de>
-In-Reply-To: <20050620094855.GA3666@stusta.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 20 Jun 2005 18:48:22 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:64128 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262307AbVFTWKx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 18:10:53 -0400
+Date: Tue, 21 Jun 2005 00:10:41 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: domen@coderock.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch 2/2] kernel/power/disk.c string fix and if-less iterator
+Message-ID: <20050620221041.GI2222@elf.ucw.cz>
+References: <20050620215712.840835000@nd47.coderock.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050620215712.840835000@nd47.coderock.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
+Hi!
 
->On Sun, Jun 19, 2005 at 11:30:29PM -0700, Andrew Morton wrote:
->  
->
->>...
->>Changes since 2.6.12-rc6-mm1:
->>...
->>+v4l-update-for-saa7134-cards.patch
->>...
->> v4l updates
->>...
->>    
->>
->
->The bogus saa7134-core.c part of this patch has to be dropped since it 
->causes the following compile error with CONFIG_MODULES=n:
->
-><--  snip  -->
->
->...
->  CC      drivers/media/video/saa7134/saa7134-core.o
->drivers/media/video/saa7134/saa7134-core.c: In function `saa7134_fini':
->drivers/media/video/saa7134/saa7134-core.c:1215: error: `pending_registered' undeclared (first use in this function)
->drivers/media/video/saa7134/saa7134-core.c:1215: error: (Each undeclared identifier is reported only once
->drivers/media/video/saa7134/saa7134-core.c:1215: error: for each function it appears in.)
->drivers/media/video/saa7134/saa7134-core.c:1216: error: `pending_notifier' undeclared (first use in this function)
->make[4]: *** [drivers/media/video/saa7134/saa7134-core.o] Error 1
->
-><--  snip  -->
->
->
->This patch reverts this bogus patch.
->
->
->Signed-off-by: Adrian Bunk <bunk@stusta.de>
->
->--- linux-2.6.12-mm1-modular/drivers/media/video/saa7134/saa7134-core.c	2005-06-20 10:59:33.000000000 +0200
->+++ linux-2.6.12-mm1-full/drivers/media/video/saa7134/saa7134-core.c	2005-06-20 11:46:20.000000000 +0200
->@@ -1212,8 +1212,10 @@
+> The attached patch:
 > 
-> static void saa7134_fini(void)
-> {
->+#ifdef CONFIG_MODULES
-> 	if (pending_registered)
-> 		unregister_module_notifier(&pending_notifier);
->+#endif
-> 	pci_unregister_driver(&saa7134_pci_driver);
-> }
+> o  Fixes kernel/power/disk.c string declared as 'char *p = "...";' to be
+>    declared as 'char p[] = "...";', as pointed by Jeff Garzik.
+
+? Why was char *p ... wrong? Because you could not do sizeof() later?
+
+> o  Replaces:
+> 	i++:
+> 	if (i > 3) i = 0;
 > 
->
->--
->video4linux-list mailing list
->Unsubscribe mailto:video4linux-list-request@redhat.com?subject=unsubscribe
->https://www.redhat.com/mailman/listinfo/video4linux-list
+>    By:
+> 	i = (i + 1) % (sizeof(p) - 1);
+> 
+>    Which is if-less, and the adjust value is evaluated by the compiler in
+>    compile-time in case the string related to this loop is modified.
+
+Well, why not...
+								Pavel
+
+> Index: quilt/kernel/power/disk.c
+> ===================================================================
+> --- quilt.orig/kernel/power/disk.c
+> +++ quilt/kernel/power/disk.c
+> @@ -91,15 +91,13 @@ static void free_some_memory(void)
+>  	unsigned int i = 0;
+>  	unsigned int tmp;
+>  	unsigned long pages = 0;
+> -	char *p = "-\\|/";
+> +	char p[] = "-\\|/";
 >  
->
-committed to video4linux CVS:
-
-/Mon Jun 20 22:06:52 2005 UTC/ (6 minutes, 55 seconds ago) by /mkrufky/
-
-        * saa7134-core.c:
-        - Fix kernel compile error with CONFIG_MODULES=n
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de <mailto:bunk@stusta.de>>
-
-Thank you!
+>  	printk("Freeing memory...  ");
+>  	while ((tmp = shrink_all_memory(10000))) {
+>  		pages += tmp;
+>  		printk("\b%c", p[i]);
+> -		i++;
+> -		if (i > 3)
+> -			i = 0;
+> +		i = (i + 1) % (sizeof(p) - 1);
+>  	}
+>  	printk("\bdone (%li pages freed)\n", pages);
+>  }
 
 -- 
-Michael Krufky
-
-
+teflon -- maybe it is a trademark, but it should not be.

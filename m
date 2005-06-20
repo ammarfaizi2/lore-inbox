@@ -1,40 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261513AbVFTTW3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261512AbVFTTYz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261513AbVFTTW3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 15:22:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261524AbVFTTVo
+	id S261512AbVFTTYz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 15:24:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261519AbVFTTWv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 15:21:44 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:16030 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261513AbVFTTRf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 15:17:35 -0400
-Subject: Re: it8212 raid support
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: admin@sumy.in.ua
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200506201914.16550.admin@sumy.in.ua>
-References: <200506201914.16550.admin@sumy.in.ua>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1119294889.3325.18.camel@localhost.localdomain>
+	Mon, 20 Jun 2005 15:22:51 -0400
+Received: from lyle.provo.novell.com ([137.65.81.174]:18052 "EHLO
+	lyle.provo.novell.com") by vger.kernel.org with ESMTP
+	id S261523AbVFTTVb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 15:21:31 -0400
+Date: Mon, 20 Jun 2005 12:21:18 -0700
+From: Greg KH <gregkh@suse.de>
+To: Nick Warne <nick@linicks.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12 udev hangs at boot
+Message-ID: <20050620192118.GA13586@suse.de>
+References: <200506181332.25287.nick@linicks.net> <42B6FBC7.5000900@pobox.com> <20050620173411.GB15212@suse.de> <200506202000.08114.nick@linicks.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 20 Jun 2005 20:14:52 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200506202000.08114.nick@linicks.net>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2005-06-20 at 17:14, Vladislav Bondarenko wrote:
-> Where can i find support for it8212 raid pci card?
-> It was in -ac patches, but after 2.6.11-ac7 it wasn`t support by Alan.
+On Mon, Jun 20, 2005 at 08:00:08PM +0100, Nick Warne wrote:
+> On Monday 20 June 2005 18:34, you wrote:
 > 
-> I make patch for this raid from -ac7 for 2.6.12, but when inclusion of a 
-> it8212 raid support in the subsequent versions is expected? if this is 
-> possible :)
+> > As for working with people's boxes, only the very oldest versions of
+> > udev (like the reported 030 version which is a year old and I do not
+> > think shipped by any distro) would have the "lockup" issue.  On all of
+> > the other ones, only custom rules written by users would have issues
+> > (meaning, not work).  I do not know of any shipping, supported distro
+> > that currently has a boot lockup issue (if so, please let me know.)
+> 
+> It appears the issue people are seeing is with Slack 10, which shipped with 
+> udev 0.26 - and I presume there was 'custom' rules Patrick had built in.
 
-There is a patch for 2.6.12-rc3 (should work on -rc5) in the current
-Fedora kernel. Moving it all to 2.6.12 is a bit trickier because there
-are big changes between -rc5 and -rc6 in the base IDE layer. (very
-positive changes so although its a PITA for the -ac patches its good to
-see)
+Ick.  Hm, there's not been any updates for slack since then? (note,
+there was no 0.26 release, there are no '.' in udev releases.)
 
+Any Slackware users want to pester them for updates?
+
+thanks,
+
+greg k-h

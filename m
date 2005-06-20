@@ -1,21 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261848AbVFUAKu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261847AbVFUAP3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261848AbVFUAKu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 20:10:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261798AbVFUAJi
+	id S261847AbVFUAP3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 20:15:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261859AbVFUANq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 20:09:38 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:46350 "HELO
+	Mon, 20 Jun 2005 20:13:46 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:45582 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261848AbVFTXne (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 19:43:34 -0400
-Date: Tue, 21 Jun 2005 01:43:31 +0200
+	id S261847AbVFTXn1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 19:43:27 -0400
+Date: Tue, 21 Jun 2005 01:43:26 +0200
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/scsi/aic7xxx/: possible cleanups
-Message-ID: <20050620234331.GH3666@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] lib/zlib*: possible cleanups
+Message-ID: <20050620234326.GG3666@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -24,13 +23,19 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This patch contains the following possible cleanups:
-- make needlessly global code static
-- #if 0 the following unused global functions:
-  - aic79xx_core.c: ahd_print_scb
-  - aic79xx_core.c: ahd_suspend
-  - aic79xx_core.c: ahd_resume
-  - aic79xx_core.c: ahd_dump_all_cards_state
-  - aic79xx_core.c: ahd_dump_scbs
+- #if 0 the following unused functions:
+  - zlib_deflate/deflate.c: zlib_deflateSetDictionary
+  - zlib_deflate/deflate.c: zlib_deflateParams
+  - zlib_deflate/deflate.c: zlib_deflateCopy
+  - zlib_inflate/infblock.c: zlib_inflate_set_dictionary
+  - zlib_inflate/infblock.c: zlib_inflate_blocks_sync_point
+  - zlib_inflate/inflate_sync.c: zlib_inflateSync
+  - zlib_inflate/inflate_sync.c: zlib_inflateSyncPoint
+- remove the following unneeded EXPORT_SYMBOL's:
+  - zlib_deflate/deflate_syms.c: zlib_deflateCopy
+  - zlib_deflate/deflate_syms.c: zlib_deflateParams
+  - zlib_inflate/inflate_syms.c: zlib_inflateSync
+  - zlib_inflate/inflate_syms.c: zlib_inflateSyncPoint
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
@@ -39,766 +44,223 @@ Signed-off-by: Adrian Bunk <bunk@stusta.de>
 This patch was already sent on:
 - 30 May 2005
 - 17 May 2005
-- 24 Apr 2005
+- 6 May 2005
 
- drivers/scsi/aic7xxx/aic79xx.h         |   49 ------
- drivers/scsi/aic7xxx/aic79xx_core.c    |  180 +++++++++++++++++--------
- drivers/scsi/aic7xxx/aic79xx_inline.h  |   30 ----
- drivers/scsi/aic7xxx/aic79xx_osm.c     |    2 
- drivers/scsi/aic7xxx/aic79xx_osm.h     |    2 
- drivers/scsi/aic7xxx/aic79xx_osm_pci.c |    2 
- drivers/scsi/aic7xxx/aic79xx_pci.c     |    7 
- drivers/scsi/aic7xxx/aic7xxx.h         |    2 
- drivers/scsi/aic7xxx/aic7xxx_osm.c     |    2 
- drivers/scsi/aic7xxx/aic7xxx_osm.h     |    2 
- drivers/scsi/aic7xxx/aic7xxx_osm_pci.c |    2 
- drivers/scsi/aic7xxx/aic7xxx_pci.c     |    4 
- 12 files changed, 136 insertions(+), 148 deletions(-)
+ include/linux/zlib.h            |   11 +++++++++++
+ lib/zlib_deflate/deflate.c      |    6 ++++++
+ lib/zlib_deflate/deflate_syms.c |    2 --
+ lib/zlib_inflate/infblock.c     |    4 ++++
+ lib/zlib_inflate/infblock.h     |    4 ++++
+ lib/zlib_inflate/inflate_syms.c |    2 --
+ lib/zlib_inflate/inflate_sync.c |    4 ++++
+ 7 files changed, 29 insertions(+), 4 deletions(-)
 
---- linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic79xx.h.old	2005-04-23 23:10:12.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic79xx.h	2005-04-23 23:59:29.000000000 +0200
-@@ -974,8 +974,6 @@
- 
- int		ahd_write_seeprom(struct ahd_softc *ahd, uint16_t *buf,
- 				  u_int start_addr, u_int count);
--int		ahd_wait_seeprom(struct ahd_softc *ahd);
--int		ahd_verify_vpd_cksum(struct vpd_config *vpd);
- int		ahd_verify_cksum(struct seeprom_config *sc);
- int		ahd_acquire_seeprom(struct ahd_softc *ahd);
- void		ahd_release_seeprom(struct ahd_softc *ahd);
-@@ -1311,8 +1309,6 @@
- 	char			*name;
- 	ahd_device_setup_t	*setup;
- };
--extern struct ahd_pci_identity ahd_pci_ident_table [];
--extern const u_int ahd_num_pci_devs;
- 
- /***************************** VL/EISA Declarations ***************************/
- struct aic7770_identity {
-@@ -1330,15 +1326,6 @@
- /*************************** Function Declarations ****************************/
- /******************************************************************************/
- void			ahd_reset_cmds_pending(struct ahd_softc *ahd);
--u_int			ahd_find_busy_tcl(struct ahd_softc *ahd, u_int tcl);
--void			ahd_busy_tcl(struct ahd_softc *ahd,
--				     u_int tcl, u_int busyid);
--static __inline void	ahd_unbusy_tcl(struct ahd_softc *ahd, u_int tcl);
--static __inline void
--ahd_unbusy_tcl(struct ahd_softc *ahd, u_int tcl)
--{
--	ahd_busy_tcl(ahd, tcl, SCB_LIST_NULL);
--}
- 
- /***************************** PCI Front End *********************************/
- struct	ahd_pci_identity *ahd_find_pci_device(ahd_dev_softc_t);
-@@ -1347,12 +1334,8 @@
- int	ahd_pci_test_register_access(struct ahd_softc *);
- 
- /************************** SCB and SCB queue management **********************/
--int		ahd_probe_scbs(struct ahd_softc *);
- void		ahd_qinfifo_requeue_tail(struct ahd_softc *ahd,
- 					 struct scb *scb);
--int		ahd_match_scb(struct ahd_softc *ahd, struct scb *scb,
--			      int target, char channel, int lun,
--			      u_int tag, role_t role);
- 
- /****************************** Initialization ********************************/
- struct ahd_softc	*ahd_alloc(void *platform_arg, char *name);
-@@ -1365,35 +1348,22 @@
- int			 ahd_parse_cfgdata(struct ahd_softc *ahd,
- 					   struct seeprom_config *sc);
- void			 ahd_intr_enable(struct ahd_softc *ahd, int enable);
--void			 ahd_update_coalescing_values(struct ahd_softc *ahd,
--						      u_int timer,
--						      u_int maxcmds,
--						      u_int mincmds);
--void			 ahd_enable_coalescing(struct ahd_softc *ahd,
--					       int enable);
- void			 ahd_pause_and_flushwork(struct ahd_softc *ahd);
- int			 ahd_suspend(struct ahd_softc *ahd); 
--int			 ahd_resume(struct ahd_softc *ahd);
- void			 ahd_softc_insert(struct ahd_softc *);
- struct ahd_softc	*ahd_find_softc(struct ahd_softc *ahd);
- void			 ahd_set_unit(struct ahd_softc *, int);
- void			 ahd_set_name(struct ahd_softc *, char *);
- struct scb		*ahd_get_scb(struct ahd_softc *ahd, u_int col_idx);
- void			 ahd_free_scb(struct ahd_softc *ahd, struct scb *scb);
--void			 ahd_alloc_scbs(struct ahd_softc *ahd);
- void			 ahd_free(struct ahd_softc *ahd);
- int			 ahd_reset(struct ahd_softc *ahd, int reinit);
--void			 ahd_shutdown(void *arg);
- int			 ahd_write_flexport(struct ahd_softc *ahd,
- 					    u_int addr, u_int value);
- int			 ahd_read_flexport(struct ahd_softc *ahd, u_int addr,
- 					   uint8_t *value);
--int			 ahd_wait_flexport(struct ahd_softc *ahd);
- 
- /*************************** Interrupt Services *******************************/
--void			ahd_pci_intr(struct ahd_softc *ahd);
--void			ahd_clear_intstat(struct ahd_softc *ahd);
--void			ahd_flush_qoutfifo(struct ahd_softc *ahd);
- void			ahd_run_qoutfifo(struct ahd_softc *ahd);
- #ifdef AHD_TARGET_MODE
- void			ahd_run_tqinfifo(struct ahd_softc *ahd, int paused);
-@@ -1402,7 +1372,6 @@
- void			ahd_handle_seqint(struct ahd_softc *ahd, u_int intstat);
- void			ahd_handle_scsiint(struct ahd_softc *ahd,
- 					   u_int intstat);
--void			ahd_clear_critical_section(struct ahd_softc *ahd);
- 
- /***************************** Error Recovery *********************************/
- typedef enum {
-@@ -1419,23 +1388,9 @@
- 					     char channel, int lun, u_int tag,
- 					     int stop_on_first, int remove,
- 					     int save_state);
--void			ahd_freeze_devq(struct ahd_softc *ahd, struct scb *scb);
- int			ahd_reset_channel(struct ahd_softc *ahd, char channel,
- 					  int initiate_reset);
--int			ahd_abort_scbs(struct ahd_softc *ahd, int target,
--				       char channel, int lun, u_int tag,
--				       role_t role, uint32_t status);
--void			ahd_restart(struct ahd_softc *ahd);
--void			ahd_clear_fifo(struct ahd_softc *ahd, u_int fifo);
--void			ahd_handle_scb_status(struct ahd_softc *ahd,
--					      struct scb *scb);
--void			ahd_handle_scsi_status(struct ahd_softc *ahd,
--					       struct scb *scb);
--void			ahd_calc_residual(struct ahd_softc *ahd,
--					  struct scb *scb);
- /*************************** Utility Functions ********************************/
--struct ahd_phase_table_entry*
--			ahd_lookup_phase_entry(int phase);
- void			ahd_compile_devinfo(struct ahd_devinfo *devinfo,
- 					    u_int our_id, u_int target,
- 					    u_int lun, char channel,
-@@ -1520,11 +1475,8 @@
- #define AHD_SHOW_INT_COALESCING	0x10000
- #define AHD_DEBUG_SEQUENCER	0x20000
- #endif
--void			ahd_print_scb(struct scb *scb);
- void			ahd_print_devinfo(struct ahd_softc *ahd,
- 					  struct ahd_devinfo *devinfo);
--void			ahd_dump_sglist(struct scb *scb);
--void			ahd_dump_all_cards_state(void);
- void			ahd_dump_card_state(struct ahd_softc *ahd);
- int			ahd_print_register(ahd_reg_parse_entry_t *table,
- 					   u_int num_entries,
-@@ -1533,5 +1485,4 @@
- 					   u_int value,
- 					   u_int *cur_column,
- 					   u_int wrap_point);
--void			ahd_dump_scbs(struct ahd_softc *ahd);
- #endif /* _AIC79XX_H_ */
---- linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic79xx_inline.h.old	2005-04-23 23:24:26.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic79xx_inline.h	2005-04-23 23:36:45.000000000 +0200
-@@ -418,10 +418,6 @@
- }
- 
- /*********************** Miscelaneous Support Functions ***********************/
--static __inline void	ahd_complete_scb(struct ahd_softc *ahd,
--					 struct scb *scb);
--static __inline void	ahd_update_residual(struct ahd_softc *ahd,
--					    struct scb *scb);
- static __inline struct ahd_initiator_tinfo *
- 			ahd_fetch_transinfo(struct ahd_softc *ahd,
- 					    char channel, u_int our_id,
-@@ -467,32 +463,6 @@
- 			ahd_get_sense_bufaddr(struct ahd_softc *ahd,
- 					      struct scb *scb);
- 
--static __inline void
--ahd_complete_scb(struct ahd_softc *ahd, struct scb *scb)
--{
--	uint32_t sgptr;
--
--	sgptr = ahd_le32toh(scb->hscb->sgptr);
--	if ((sgptr & SG_STATUS_VALID) != 0)
--		ahd_handle_scb_status(ahd, scb);
--	else
--		ahd_done(ahd, scb);
--}
--
--/*
-- * Determine whether the sequencer reported a residual
-- * for this SCB/transaction.
-- */
--static __inline void
--ahd_update_residual(struct ahd_softc *ahd, struct scb *scb)
--{
--	uint32_t sgptr;
--
--	sgptr = ahd_le32toh(scb->hscb->sgptr);
--	if ((sgptr & SG_STATUS_VALID) != 0)
--		ahd_calc_residual(ahd, scb);
--}
--
+--- linux-2.6.12-rc3-mm2-full/include/linux/zlib.h.old	2005-05-03 09:10:20.000000000 +0200
++++ linux-2.6.12-rc3-mm2-full/include/linux/zlib.h	2005-05-03 09:13:57.000000000 +0200
+@@ -442,9 +442,11 @@
+    not perform any compression: this will be done by deflate().
+ */
+                             
++#if 0
+ extern int zlib_deflateSetDictionary (z_streamp strm,
+ 						     const Byte *dictionary,
+ 						     uInt  dictLength);
++#endif
  /*
-  * Return pointers to the transfer negotiation information
-  * for the specified our_id/remote_id pair.
---- linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic79xx_core.c.old	2005-04-23 23:10:26.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic79xx_core.c	2005-04-23 23:46:10.000000000 +0200
-@@ -56,7 +56,7 @@
- struct ahd_softc_tailq ahd_tailq = TAILQ_HEAD_INITIALIZER(ahd_tailq);
+      Initializes the compression dictionary from the given byte sequence
+    without producing any compressed output. This function must be called
+@@ -478,7 +480,10 @@
+    perform any compression: this will be done by deflate().
+ */
  
- /***************************** Lookup Tables **********************************/
--char *ahd_chip_names[] =
-+static char *ahd_chip_names[] =
- {
- 	"NONE",
- 	"aic7901",
-@@ -159,7 +159,7 @@
- 	AHDMSG_1B,
- 	AHDMSG_2B,
- 	AHDMSG_EXT
--} ahd_msgtype;
-+	} ahd_msgtype;
- static int		ahd_sent_msg(struct ahd_softc *ahd, ahd_msgtype type,
- 				     u_int msgval, int full);
- static int		ahd_parse_msg(struct ahd_softc *ahd,
-@@ -241,10 +241,37 @@
- 					      struct target_cmd *cmd);
++#if 0
+ extern int zlib_deflateCopy (z_streamp dest, z_streamp source);
++#endif
++
+ /*
+      Sets the destination stream as a complete copy of the source stream.
+ 
+@@ -506,7 +511,9 @@
+    stream state was inconsistent (such as zalloc or state being NULL).
+ */
+ 
++#if 0
+ extern int zlib_deflateParams (z_streamp strm, int level, int strategy);
++#endif
+ /*
+      Dynamically update the compression level and compression strategy.  The
+    interpretation of level and strategy is as in deflateInit2.  This can be
+@@ -566,7 +573,9 @@
+    inflate().
+ */
+ 
++#if 0
+ extern int zlib_inflateSync (z_streamp strm);
++#endif
+ /* 
+     Skips invalid compressed data until a full flush point (see above the
+   description of deflate with Z_FULL_FLUSH) can be found, or until all
+@@ -631,7 +640,9 @@
  #endif
  
-+static int		ahd_abort_scbs(struct ahd_softc *ahd, int target,
-+				       char channel, int lun, u_int tag,
-+				       role_t role, uint32_t status);
-+static void		ahd_alloc_scbs(struct ahd_softc *ahd);
-+static void		ahd_busy_tcl(struct ahd_softc *ahd, u_int tcl,
-+				     u_int scbid);
-+static void		ahd_calc_residual(struct ahd_softc *ahd,
-+					  struct scb *scb);
-+static void		ahd_clear_critical_section(struct ahd_softc *ahd);
-+static void		ahd_clear_intstat(struct ahd_softc *ahd);
-+static void		ahd_dump_sglist(struct scb *scb);
-+static void		ahd_enable_coalescing(struct ahd_softc *ahd,
-+					      int enable);
-+static u_int		ahd_find_busy_tcl(struct ahd_softc *ahd, u_int tcl);
-+static void		ahd_freeze_devq(struct ahd_softc *ahd,
-+					struct scb *scb);
-+static void		ahd_handle_scb_status(struct ahd_softc *ahd,
-+					      struct scb *scb);
-+static struct ahd_phase_table_entry* ahd_lookup_phase_entry(int phase);
-+static int		ahd_match_scb(struct ahd_softc *ahd, struct scb *scb,
-+				      int target, char channel, int lun,
-+				      u_int tag, role_t role);
-+static void		ahd_shutdown(void *arg);
-+static void		ahd_update_coalescing_values(struct ahd_softc *ahd,
-+						     u_int timer,
-+						     u_int maxcmds,
-+						     u_int mincmds);
-+static int		ahd_verify_vpd_cksum(struct vpd_config *vpd);
-+static int		ahd_wait_seeprom(struct ahd_softc *ahd);
-+
- /******************************** Private Inlines *****************************/
--static __inline void	ahd_assert_atn(struct ahd_softc *ahd);
--static __inline int	ahd_currently_packetized(struct ahd_softc *ahd);
--static __inline int	ahd_set_active_fifo(struct ahd_softc *ahd);
+ extern const char  * zlib_zError           (int err);
++#if 0
+ extern int           zlib_inflateSyncPoint (z_streamp z);
++#endif
+ extern const uLong * zlib_get_crc_table    (void);
  
- static __inline void
- ahd_assert_atn(struct ahd_softc *ahd)
-@@ -298,11 +325,44 @@
- 	}
+ #endif /* _ZLIB_H */
+--- linux-2.6.12-rc3-mm2-full/lib/zlib_deflate/deflate.c.old	2005-05-03 09:10:46.000000000 +0200
++++ linux-2.6.12-rc3-mm2-full/lib/zlib_deflate/deflate.c	2005-05-03 09:12:39.000000000 +0200
+@@ -255,6 +255,7 @@
  }
  
-+static __inline void
-+ahd_unbusy_tcl(struct ahd_softc *ahd, u_int tcl)
-+{
-+	ahd_busy_tcl(ahd, tcl, SCB_LIST_NULL);
-+}
-+
-+/*
-+ * Determine whether the sequencer reported a residual
-+ * for this SCB/transaction.
-+ */
-+static __inline void
-+ahd_update_residual(struct ahd_softc *ahd, struct scb *scb)
-+{
-+	uint32_t sgptr;
-+
-+	sgptr = ahd_le32toh(scb->hscb->sgptr);
-+	if ((sgptr & SG_STATUS_VALID) != 0)
-+		ahd_calc_residual(ahd, scb);
-+}
-+
-+static __inline void
-+ahd_complete_scb(struct ahd_softc *ahd, struct scb *scb)
-+{
-+	uint32_t sgptr;
-+
-+	sgptr = ahd_le32toh(scb->hscb->sgptr);
-+	if ((sgptr & SG_STATUS_VALID) != 0)
-+		ahd_handle_scb_status(ahd, scb);
-+	else
-+		ahd_done(ahd, scb);
-+}
-+
-+
- /************************* Sequencer Execution Control ************************/
- /*
-  * Restart the sequencer program from address zero
-  */
--void
-+static void
- ahd_restart(struct ahd_softc *ahd)
- {
+ /* ========================================================================= */
++#if 0
+ int zlib_deflateSetDictionary(
+ 	z_streamp strm,
+ 	const Byte *dictionary,
+@@ -297,6 +298,7 @@
+     if (hash_head) hash_head = 0;  /* to make compiler happy */
+     return Z_OK;
+ }
++#endif  /*  0  */
  
-@@ -338,7 +398,7 @@
- 	ahd_unpause(ahd);
+ /* ========================================================================= */
+ int zlib_deflateReset(
+@@ -330,6 +332,7 @@
  }
  
--void
-+static void
- ahd_clear_fifo(struct ahd_softc *ahd, u_int fifo)
- {
- 	ahd_mode_state	 saved_modes;
-@@ -362,7 +422,7 @@
-  * Flush and completed commands that are sitting in the command
-  * complete queues down on the chip but have yet to be dma'ed back up.
-  */
--void
-+static void
- ahd_flush_qoutfifo(struct ahd_softc *ahd)
- {
- 	struct		scb *scb;
-@@ -2441,7 +2501,7 @@
+ /* ========================================================================= */
++#if 0
+ int zlib_deflateParams(
+ 	z_streamp strm,
+ 	int level,
+@@ -365,6 +368,7 @@
+     s->strategy = strategy;
+     return err;
  }
++#endif  /*  0  */
  
- #define AHD_MAX_STEPS 2000
--void
-+static void
- ahd_clear_critical_section(struct ahd_softc *ahd)
- {
- 	ahd_mode_state	saved_modes;
-@@ -2565,7 +2625,7 @@
- /*
-  * Clear any pending interrupt status.
+ /* =========================================================================
+  * Put a short in the pending buffer. The 16-bit value is put in MSB order.
+@@ -572,6 +576,7 @@
+ /* =========================================================================
+  * Copy the source state to the destination state.
   */
--void
-+static void
- ahd_clear_intstat(struct ahd_softc *ahd)
- {
- 	AHD_ASSERT_MODES(ahd, ~(AHD_MODE_UNKNOWN_MSK|AHD_MODE_CFG_MSK),
-@@ -2596,6 +2656,8 @@
- #ifdef AHD_DEBUG
- uint32_t ahd_debug = AHD_DEBUG_OPTS;
++#if 0
+ int zlib_deflateCopy (
+ 	z_streamp dest,
+ 	z_streamp source
+@@ -624,6 +629,7 @@
+     return Z_OK;
  #endif
-+
-+#if 0	
- void
- ahd_print_scb(struct scb *scb)
- {
-@@ -2620,8 +2682,9 @@
- 	       SCB_GET_TAG(scb));
- 	ahd_dump_sglist(scb);
  }
 +#endif  /*  0  */
  
--void
-+static void
- ahd_dump_sglist(struct scb *scb)
- {
- 	int i;
-@@ -3365,7 +3428,7 @@
- 	       devinfo->target, devinfo->lun);
- }
- 
--struct ahd_phase_table_entry*
-+static struct ahd_phase_table_entry*
- ahd_lookup_phase_entry(int phase)
- {
- 	struct ahd_phase_table_entry *entry;
-@@ -5336,7 +5399,7 @@
- 	return;
- }
- 
--void
-+static void
- ahd_shutdown(void *arg)
- {
- 	struct	ahd_softc *ahd;
-@@ -5465,7 +5528,7 @@
- /*
-  * Determine the number of SCBs available on the controller
-  */
--int
-+static int
- ahd_probe_scbs(struct ahd_softc *ahd) {
- 	int i;
- 
-@@ -5914,7 +5977,7 @@
- 	ahd_platform_scb_free(ahd, scb);
- }
- 
--void
-+static void
- ahd_alloc_scbs(struct ahd_softc *ahd)
- {
- 	struct scb_data *scb_data;
-@@ -6954,7 +7017,7 @@
- 	ahd_outb(ahd, HCNTRL, hcntrl);
- }
- 
--void
-+static void
- ahd_update_coalescing_values(struct ahd_softc *ahd, u_int timer, u_int maxcmds,
- 			     u_int mincmds)
- {
-@@ -6972,7 +7035,7 @@
- 	ahd_outb(ahd, INT_COALESCING_MINCMDS, -mincmds);
- }
- 
--void
-+static void
- ahd_enable_coalescing(struct ahd_softc *ahd, int enable)
- {
- 
-@@ -7061,6 +7124,7 @@
- 	ahd->flags &= ~AHD_ALL_INTERRUPTS;
- }
+ /* ===========================================================================
+  * Read a new buffer from the current input stream, update the adler32
+--- linux-2.6.12-rc3-mm2-full/lib/zlib_deflate/deflate_syms.c.old	2005-05-03 09:11:13.000000000 +0200
++++ linux-2.6.12-rc3-mm2-full/lib/zlib_deflate/deflate_syms.c	2005-05-03 09:12:02.000000000 +0200
+@@ -16,6 +16,4 @@
+ EXPORT_SYMBOL(zlib_deflateInit2_);
+ EXPORT_SYMBOL(zlib_deflateEnd);
+ EXPORT_SYMBOL(zlib_deflateReset);
+-EXPORT_SYMBOL(zlib_deflateCopy);
+-EXPORT_SYMBOL(zlib_deflateParams);
+ MODULE_LICENSE("GPL");
+--- linux-2.6.12-rc3-mm2-full/lib/zlib_inflate/infblock.h.old	2005-05-03 09:12:49.000000000 +0200
++++ linux-2.6.12-rc3-mm2-full/lib/zlib_inflate/infblock.h	2005-05-03 09:34:30.000000000 +0200
+@@ -33,12 +33,16 @@
+     inflate_blocks_statef *,
+     z_streamp);
  
 +#if 0
- int
- ahd_suspend(struct ahd_softc *ahd)
- {
-@@ -7074,7 +7138,9 @@
- 	ahd_shutdown(ahd);
- 	return (0);
- }
+ extern void zlib_inflate_set_dictionary (
+     inflate_blocks_statef *s,
+     const Byte *d,  /* dictionary */
+     uInt  n);       /* dictionary length */
 +#endif  /*  0  */
  
 +#if 0
- int
- ahd_resume(struct ahd_softc *ahd)
- {
-@@ -7084,6 +7150,7 @@
- 	ahd_restart(ahd);
- 	return (0);
- }
+ extern int zlib_inflate_blocks_sync_point (
+     inflate_blocks_statef *s);
 +#endif  /*  0  */
  
- /************************** Busy Target Table *********************************/
- /*
-@@ -7116,7 +7183,7 @@
- /*
-  * Return the untagged transaction id for a given target/channel lun.
-  */
--u_int
-+static u_int
- ahd_find_busy_tcl(struct ahd_softc *ahd, u_int tcl)
- {
- 	u_int scbid;
-@@ -7129,7 +7196,7 @@
- 	return (scbid);
+ #endif /* _INFBLOCK_H */
+--- linux-2.6.12-rc3-mm2-full/lib/zlib_inflate/infblock.c.old	2005-05-03 09:13:13.000000000 +0200
++++ linux-2.6.12-rc3-mm2-full/lib/zlib_inflate/infblock.c	2005-05-03 09:34:46.000000000 +0200
+@@ -338,6 +338,7 @@
  }
  
--void
-+static void
- ahd_busy_tcl(struct ahd_softc *ahd, u_int tcl, u_int scbid)
- {
- 	u_int scb_offset;
-@@ -7141,7 +7208,7 @@
- }
- 
- /************************** SCB and SCB queue management **********************/
--int
-+static int
- ahd_match_scb(struct ahd_softc *ahd, struct scb *scb, int target,
- 	      char channel, int lun, u_int tag, role_t role)
- {
-@@ -7177,7 +7244,7 @@
- 	return match;
- }
- 
--void
-+static void
- ahd_freeze_devq(struct ahd_softc *ahd, struct scb *scb)
- {
- 	int	target;
-@@ -7618,7 +7685,7 @@
-  * been modified from CAM_REQ_INPROG.  This routine assumes that the sequencer
-  * is paused before it is called.
-  */
--int
-+static int
- ahd_abort_scbs(struct ahd_softc *ahd, int target, char channel,
- 	       int lun, u_int tag, role_t role, uint32_t status)
- {
-@@ -7985,18 +8052,8 @@
- }
- 
- /****************************** Status Processing *****************************/
--void
--ahd_handle_scb_status(struct ahd_softc *ahd, struct scb *scb)
--{
--	if (scb->hscb->shared_data.istatus.scsi_status != 0) {
--		ahd_handle_scsi_status(ahd, scb);
--	} else {
--		ahd_calc_residual(ahd, scb);
--		ahd_done(ahd, scb);
--	}
--}
- 
--void
-+static void
- ahd_handle_scsi_status(struct ahd_softc *ahd, struct scb *scb)
- {
- 	struct hardware_scb *hscb;
-@@ -8204,10 +8261,21 @@
- 	}
- }
- 
-+static void
-+ahd_handle_scb_status(struct ahd_softc *ahd, struct scb *scb)
-+{
-+	if (scb->hscb->shared_data.istatus.scsi_status != 0) {
-+		ahd_handle_scsi_status(ahd, scb);
-+	} else {
-+		ahd_calc_residual(ahd, scb);
-+		ahd_done(ahd, scb);
-+	}
-+}
-+
- /*
-  * Calculate the residual for a just completed SCB.
-  */
--void
-+static void
- ahd_calc_residual(struct ahd_softc *ahd, struct scb *scb)
- {
- 	struct hardware_scb *hscb;
-@@ -8745,6 +8813,7 @@
- 	return (last_probe);
- }
  
 +#if 0
- void
- ahd_dump_all_cards_state(void)
- {
-@@ -8754,6 +8823,7 @@
- 		ahd_dump_card_state(list_ahd);
- 	}
+ void zlib_inflate_set_dictionary(
+ 	inflate_blocks_statef *s,
+ 	const Byte *d,
+@@ -347,15 +348,18 @@
+   memcpy(s->window, d, n);
+   s->read = s->write = s->window + n;
  }
 +#endif  /*  0  */
  
- int
- ahd_print_register(ahd_reg_parse_entry_t *table, u_int num_entries,
-@@ -9045,6 +9115,7 @@
- 		ahd_unpause(ahd);
+ 
+ /* Returns true if inflate is currently at the end of a block generated
+  * by Z_SYNC_FLUSH or Z_FULL_FLUSH. 
+  * IN assertion: s != NULL
+  */
++#if 0
+ int zlib_inflate_blocks_sync_point(
+ 	inflate_blocks_statef *s
+ )
+ {
+   return s->mode == LENS;
  }
++#endif  /*  0  */
+--- linux-2.6.12-rc3-mm2-full/lib/zlib_inflate/inflate_sync.c.old	2005-05-03 09:14:12.000000000 +0200
++++ linux-2.6.12-rc3-mm2-full/lib/zlib_inflate/inflate_sync.c	2005-05-03 09:14:52.000000000 +0200
+@@ -7,6 +7,7 @@
+ #include "infblock.h"
+ #include "infutil.h"
  
 +#if 0
- void
- ahd_dump_scbs(struct ahd_softc *ahd)
- {
-@@ -9070,6 +9141,7 @@
- 	ahd_set_scbptr(ahd, saved_scb_index);
- 	ahd_restore_modes(ahd, saved_modes);
+ int zlib_inflateSync(
+ 	z_streamp z
+ )
+@@ -57,6 +58,7 @@
+   z->state->mode = BLOCKS;
+   return Z_OK;
  }
 +#endif  /*  0  */
  
- /**************************** Flexport Logic **********************************/
- /*
-@@ -9172,7 +9244,7 @@
- /*
-  * Wait ~100us for the serial eeprom to satisfy our request.
+ 
+ /* Returns true if inflate is currently at the end of a block generated
+@@ -66,6 +68,7 @@
+  * decompressing, PPP checks that at the end of input packet, inflate is
+  * waiting for these length bytes.
   */
--int
-+static int
- ahd_wait_seeprom(struct ahd_softc *ahd)
- {
- 	int cnt;
-@@ -9190,7 +9262,7 @@
-  * Validate the two checksums in the per_channel
-  * vital product data struct.
-  */
--int
-+static int
- ahd_verify_vpd_cksum(struct vpd_config *vpd)
- {
- 	int i;
-@@ -9269,6 +9341,24 @@
- 	/* Currently a no-op */
++#if 0
+ int zlib_inflateSyncPoint(
+ 	z_streamp z
+ )
+@@ -74,6 +77,7 @@
+     return Z_STREAM_ERROR;
+   return zlib_inflate_blocks_sync_point(z->state->blocks);
  }
- 
-+/*
-+ * Wait at most 2 seconds for flexport arbitration to succeed.
-+ */
-+static int
-+ahd_wait_flexport(struct ahd_softc *ahd)
-+{
-+	int cnt;
-+
-+	AHD_ASSERT_MODES(ahd, AHD_MODE_SCSI_MSK, AHD_MODE_SCSI_MSK);
-+	cnt = 1000000 * 2 / 5;
-+	while ((ahd_inb(ahd, BRDCTL) & FLXARBACK) == 0 && --cnt)
-+		ahd_delay(5);
-+
-+	if (cnt == 0)
-+		return (ETIMEDOUT);
-+	return (0);
-+}
-+
- int
- ahd_write_flexport(struct ahd_softc *ahd, u_int addr, u_int value)
- {
-@@ -9310,24 +9400,6 @@
- 	return (0);
- }
- 
--/*
-- * Wait at most 2 seconds for flexport arbitration to succeed.
-- */
--int
--ahd_wait_flexport(struct ahd_softc *ahd)
--{
--	int cnt;
--
--	AHD_ASSERT_MODES(ahd, AHD_MODE_SCSI_MSK, AHD_MODE_SCSI_MSK);
--	cnt = 1000000 * 2 / 5;
--	while ((ahd_inb(ahd, BRDCTL) & FLXARBACK) == 0 && --cnt)
--		ahd_delay(5);
--
--	if (cnt == 0)
--		return (ETIMEDOUT);
--	return (0);
--}
--
- /************************* Target Mode ****************************************/
- #ifdef AHD_TARGET_MODE
- cam_status
---- linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic79xx_osm.h.old	2005-04-23 23:49:47.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic79xx_osm.h	2005-04-23 23:49:53.000000000 +0200
-@@ -837,8 +837,6 @@
- #define PCIXM_STATUS_MAXCRDS	0x1C00	/* Maximum Cumulative Read Size */
- #define PCIXM_STATUS_RCVDSCEM	0x2000	/* Received a Split Comp w/Error msg */
- 
--extern struct pci_driver aic79xx_pci_driver;
--
- typedef enum
- {
- 	AHD_POWER_STATE_D0,
---- linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic79xx_osm_pci.c.old	2005-04-23 23:50:00.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic79xx_osm_pci.c	2005-04-23 23:50:07.000000000 +0200
-@@ -82,7 +82,7 @@
- 
- MODULE_DEVICE_TABLE(pci, ahd_linux_pci_id_table);
- 
--struct pci_driver aic79xx_pci_driver = {
-+static struct pci_driver aic79xx_pci_driver = {
- 	.name		= "aic79xx",
- 	.probe		= ahd_linux_pci_dev_probe,
- 	.remove		= ahd_linux_pci_dev_remove,
---- linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic79xx_pci.c.old	2005-04-23 23:50:48.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic79xx_pci.c	2005-04-23 23:51:52.000000000 +0200
-@@ -99,7 +99,7 @@
- static ahd_device_setup_t ahd_aic7902_setup;
- static ahd_device_setup_t ahd_aic790X_setup;
- 
--struct ahd_pci_identity ahd_pci_ident_table [] =
-+static struct ahd_pci_identity ahd_pci_ident_table [] =
- {
- 	/* aic7901 based controllers */
- 	{
-@@ -196,7 +196,7 @@
- 	}
- };
- 
--const u_int ahd_num_pci_devs = NUM_ELEMENTS(ahd_pci_ident_table);
-+static const u_int ahd_num_pci_devs = NUM_ELEMENTS(ahd_pci_ident_table);
- 		
- #define	DEVCONFIG		0x40
- #define		PCIXINITPAT	0x0000E000ul
-@@ -240,6 +240,7 @@
- static void	ahd_configure_termination(struct ahd_softc *ahd,
- 					  u_int adapter_control);
- static void	ahd_pci_split_intr(struct ahd_softc *ahd, u_int intstat);
-+static void	ahd_pci_intr(struct ahd_softc *ahd);
- 
- struct ahd_pci_identity *
- ahd_find_pci_device(ahd_dev_softc_t pci)
-@@ -759,7 +760,7 @@
- 	"%s: Address or Write Phase Parity Error Detected in %s.\n"
- };
- 
--void
-+static void
- ahd_pci_intr(struct ahd_softc *ahd)
- {
- 	uint8_t		pci_status[8];
---- linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic79xx_osm.c.old	2005-04-24 00:04:27.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic79xx_osm.c	2005-04-24 00:04:34.000000000 +0200
-@@ -401,7 +401,7 @@
-  * force all outstanding transactions to be serviced prior to a new
-  * transaction.
-  */
--uint32_t aic79xx_periodic_otag;
-+static uint32_t aic79xx_periodic_otag;
++#endif  /*  0  */
  
  /*
-  * Module information and settable options.
---- linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic7xxx_osm.c.old	2005-04-23 23:54:42.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic7xxx_osm.c	2005-04-23 23:54:52.000000000 +0200
-@@ -421,7 +421,7 @@
-  * force all outstanding transactions to be serviced prior to a new
-  * transaction.
-  */
--uint32_t aic7xxx_periodic_otag;
-+static uint32_t aic7xxx_periodic_otag;
- 
- /*
-  * Module information and settable options.
---- linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic7xxx_osm.h.old	2005-04-23 23:55:09.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic7xxx_osm.h	2005-04-23 23:55:14.000000000 +0200
-@@ -797,8 +797,6 @@
- #define PCIR_SUBVEND_0	0x2c
- #define PCIR_SUBDEV_0	0x2e
- 
--extern struct pci_driver aic7xxx_pci_driver;
--
- typedef enum
- {
- 	AHC_POWER_STATE_D0,
---- linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c.old	2005-04-23 23:55:21.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c	2005-04-23 23:55:27.000000000 +0200
-@@ -130,7 +130,7 @@
- 
- MODULE_DEVICE_TABLE(pci, ahc_linux_pci_id_table);
- 
--struct pci_driver aic7xxx_pci_driver = {
-+static struct pci_driver aic7xxx_pci_driver = {
- 	.name		= "aic7xxx",
- 	.probe		= ahc_linux_pci_dev_probe,
- 	.remove		= ahc_linux_pci_dev_remove,
---- linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic7xxx.h.old	2005-04-23 23:55:43.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic7xxx.h	2005-04-23 23:56:30.000000000 +0200
-@@ -1143,8 +1143,6 @@
- 	char			*name;
- 	ahc_device_setup_t	*setup;
- };
--extern struct ahc_pci_identity ahc_pci_ident_table[];
--extern const u_int ahc_num_pci_devs;
- 
- /***************************** VL/EISA Declarations ***************************/
- struct aic7770_identity {
---- linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic7xxx_pci.c.old	2005-04-23 23:56:00.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic7xxx_pci.c	2005-04-23 23:56:35.000000000 +0200
-@@ -164,7 +164,7 @@
- static ahc_device_setup_t ahc_aha494XX_setup;
- static ahc_device_setup_t ahc_aha398XX_setup;
- 
--struct ahc_pci_identity ahc_pci_ident_table [] =
-+static struct ahc_pci_identity ahc_pci_ident_table [] =
- {
- 	/* aic7850 based controllers */
- 	{
-@@ -549,7 +549,7 @@
- 	}
- };
- 
--const u_int ahc_num_pci_devs = NUM_ELEMENTS(ahc_pci_ident_table);
-+static const u_int ahc_num_pci_devs = NUM_ELEMENTS(ahc_pci_ident_table);
- 		
- #define AHC_394X_SLOT_CHANNEL_A	4
- #define AHC_394X_SLOT_CHANNEL_B	5
+  * This subroutine adds the data at next_in/avail_in to the output history
+--- linux-2.6.12-rc3-mm2-full/lib/zlib_inflate/inflate_syms.c.old	2005-05-03 09:15:06.000000000 +0200
++++ linux-2.6.12-rc3-mm2-full/lib/zlib_inflate/inflate_syms.c	2005-05-03 09:15:13.000000000 +0200
+@@ -15,8 +15,6 @@
+ EXPORT_SYMBOL(zlib_inflateInit_);
+ EXPORT_SYMBOL(zlib_inflateInit2_);
+ EXPORT_SYMBOL(zlib_inflateEnd);
+-EXPORT_SYMBOL(zlib_inflateSync);
+ EXPORT_SYMBOL(zlib_inflateReset);
+-EXPORT_SYMBOL(zlib_inflateSyncPoint);
+ EXPORT_SYMBOL(zlib_inflateIncomp); 
+ MODULE_LICENSE("GPL");
+
 

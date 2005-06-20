@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261439AbVFTExk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261436AbVFTE53@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261439AbVFTExk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 00:53:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261437AbVFTExk
+	id S261436AbVFTE53 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 00:57:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261450AbVFTE53
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 00:53:40 -0400
-Received: from omega.webmasters.gr.jp ([218.44.239.78]:9886 "EHLO
-	webmasters.gr.jp") by vger.kernel.org with ESMTP id S261431AbVFTExh
+	Mon, 20 Jun 2005 00:57:29 -0400
+Received: from omega.webmasters.gr.jp ([218.44.239.78]:13214 "EHLO
+	webmasters.gr.jp") by vger.kernel.org with ESMTP id S261436AbVFTEx6
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 00:53:37 -0400
-Date: Mon, 20 Jun 2005 13:53:35 +0900
-Message-ID: <81mzpl7ho0.wl@omega.webmasters.gr.jp>
+	Mon, 20 Jun 2005 00:53:58 -0400
+Date: Mon, 20 Jun 2005 13:53:57 +0900
+Message-ID: <81is097hne.wl@omega.webmasters.gr.jp>
 From: GOTO Masanori <gotom@debian.or.jp>
 To: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
 Cc: gotom@debian.or.jp
-Subject: [PATCH] headers 1/4: Enable ppc64 ___arch__swab16 and ___arch__swab32
+Subject: [PATCH] headers 4/4: Clean up byteorder/{little,big}_endian.h to use __inline__
 User-Agent: Wanderlust/2.9.9 (Unchained Melody) SEMI/1.14.3 (Ushinoya)
  FLIM/1.14.3 (=?ISO-8859-4?Q?Unebigory=F2mae?=) APEL/10.3 Emacs/21.2
  (i386-debian-linux-gnu) MULE/5.0 (SAKAKI)
@@ -23,11 +23,10 @@ Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch cleans up asm-ppc64/byteorder.h to enable ___arch__swab16
-and ___arch__swab32 which are marked TODO currently.  It removes
-___arch__swab64 because ppc64 does not have short instruction
-combinations for swab64, the recent gcc generates enough smart code
-that is equivalent to hand assembled code under my tests.
+This patch cleans up 2.6.12 byteorder/{little,big}_endian.h to use
+__inline__ instead of inline because they're included by
+asm/byteorder.h which also uses __inline__.  In addition, it uses
+__BYTEORDER_HAS_U64__ that is similar to include/linux/byteorder/swab.h.
 
 Signed-off-by: GOTO Masanori <gotom@debian.or.jp>
 
@@ -35,34 +34,149 @@ Regards,
 -- gotom
 
 
- byteorder.h |   10 ----------
- 1 files changed, 10 deletions(-)
+ big_endian.h    |   28 ++++++++++++++++------------
+ little_endian.h |   28 ++++++++++++++++------------
+ 2 files changed, 32 insertions(+), 24 deletions(-)
 
---- linux-2.6.12/include/asm-ppc64/byteorder.h	2005-06-18 04:48:29.000000000 +0900
-+++ linux-2.6.12.gotom/include/asm-ppc64/byteorder.h	2005-06-20 13:11:43.049687818 +0900
-@@ -40,7 +40,6 @@ static __inline__ void st_le32(volatile 
- 	__asm__ __volatile__ ("stwbrx %1,0,%2" : "=m" (*addr) : "r" (val), "r" (addr));
- }
+diff -Nuarp linux-2.6.12/include/linux/byteorder/big_endian.h linux-2.6.12.gotom/include/linux/byteorder/big_endian.h
+--- linux-2.6.12/include/linux/byteorder/big_endian.h	2005-06-18 04:48:29.000000000 +0900
++++ linux-2.6.12.gotom/include/linux/byteorder/big_endian.h	2005-06-20 13:11:59.068541152 +0900
+@@ -40,51 +40,55 @@
+ #define __cpu_to_be16(x) ((__force __be16)(__u16)(x))
+ #define __be16_to_cpu(x) ((__force __u16)(__be16)(x))
  
--#if 0
- static __inline__ __attribute_const__ __u16 ___arch__swab16(__u16 value)
+-static inline __le64 __cpu_to_le64p(const __u64 *p)
++#ifdef __BYTEORDER_HAS_U64__
++static __inline__ __le64 __cpu_to_le64p(const __u64 *p)
  {
- 	__u16 result;
-@@ -63,17 +62,8 @@ static __inline__ __attribute_const__ __
- 	return result;
+ 	return (__force __le64)__swab64p(p);
  }
+-static inline __u64 __le64_to_cpup(const __le64 *p)
++static __inline__ __u64 __le64_to_cpup(const __le64 *p)
+ {
+ 	return __swab64p((__u64 *)p);
+ }
+-static inline __le32 __cpu_to_le32p(const __u32 *p)
++#endif
++static __inline__ __le32 __cpu_to_le32p(const __u32 *p)
+ {
+ 	return (__force __le32)__swab32p(p);
+ }
+-static inline __u32 __le32_to_cpup(const __le32 *p)
++static __inline__ __u32 __le32_to_cpup(const __le32 *p)
+ {
+ 	return __swab32p((__u32 *)p);
+ }
+-static inline __le16 __cpu_to_le16p(const __u16 *p)
++static __inline__ __le16 __cpu_to_le16p(const __u16 *p)
+ {
+ 	return (__force __le16)__swab16p(p);
+ }
+-static inline __u16 __le16_to_cpup(const __le16 *p)
++static __inline__ __u16 __le16_to_cpup(const __le16 *p)
+ {
+ 	return __swab16p((__u16 *)p);
+ }
+-static inline __be64 __cpu_to_be64p(const __u64 *p)
++#ifdef __BYTEORDER_HAS_U64__
++static __inline__ __be64 __cpu_to_be64p(const __u64 *p)
+ {
+ 	return (__force __be64)*p;
+ }
+-static inline __u64 __be64_to_cpup(const __be64 *p)
++static __inline__ __u64 __be64_to_cpup(const __be64 *p)
+ {
+ 	return (__force __u64)*p;
+ }
+-static inline __be32 __cpu_to_be32p(const __u32 *p)
++#endif
++static __inline__ __be32 __cpu_to_be32p(const __u32 *p)
+ {
+ 	return (__force __be32)*p;
+ }
+-static inline __u32 __be32_to_cpup(const __be32 *p)
++static __inline__ __u32 __be32_to_cpup(const __be32 *p)
+ {
+ 	return (__force __u32)*p;
+ }
+-static inline __be16 __cpu_to_be16p(const __u16 *p)
++static __inline__ __be16 __cpu_to_be16p(const __u16 *p)
+ {
+ 	return (__force __be16)*p;
+ }
+-static inline __u16 __be16_to_cpup(const __be16 *p)
++static __inline__ __u16 __be16_to_cpup(const __be16 *p)
+ {
+ 	return (__force __u16)*p;
+ }
+diff -Nuarp linux-2.6.12/include/linux/byteorder/little_endian.h linux-2.6.12.gotom/include/linux/byteorder/little_endian.h
+--- linux-2.6.12/include/linux/byteorder/little_endian.h	2005-06-18 04:48:29.000000000 +0900
++++ linux-2.6.12.gotom/include/linux/byteorder/little_endian.h	2005-06-20 13:11:59.066541420 +0900
+@@ -40,51 +40,55 @@
+ #define __cpu_to_be16(x) ((__force __be16)__swab16((x)))
+ #define __be16_to_cpu(x) __swab16((__force __u16)(__be16)(x))
  
--static __inline__ __attribute_const__ __u64 ___arch__swab64(__u64 value)
--{
--	__u64 result;
--#error implement me
--}
--
- #define __arch__swab16(x) ___arch__swab16(x)
- #define __arch__swab32(x) ___arch__swab32(x)
--#define __arch__swab64(x) ___arch__swab64(x)
--
--#endif
- 
- /* The same, but returns converted value from the location pointer by addr. */
- #define __arch__swab16p(addr) ld_le16(addr)
+-static inline __le64 __cpu_to_le64p(const __u64 *p)
++#ifdef __BYTEORDER_HAS_U64__
++static __inline__ __le64 __cpu_to_le64p(const __u64 *p)
+ {
+ 	return (__force __le64)*p;
+ }
+-static inline __u64 __le64_to_cpup(const __le64 *p)
++static __inline__ __u64 __le64_to_cpup(const __le64 *p)
+ {
+ 	return (__force __u64)*p;
+ }
+-static inline __le32 __cpu_to_le32p(const __u32 *p)
++#endif
++static __inline__ __le32 __cpu_to_le32p(const __u32 *p)
+ {
+ 	return (__force __le32)*p;
+ }
+-static inline __u32 __le32_to_cpup(const __le32 *p)
++static __inline__ __u32 __le32_to_cpup(const __le32 *p)
+ {
+ 	return (__force __u32)*p;
+ }
+-static inline __le16 __cpu_to_le16p(const __u16 *p)
++static __inline__ __le16 __cpu_to_le16p(const __u16 *p)
+ {
+ 	return (__force __le16)*p;
+ }
+-static inline __u16 __le16_to_cpup(const __le16 *p)
++static __inline__ __u16 __le16_to_cpup(const __le16 *p)
+ {
+ 	return (__force __u16)*p;
+ }
+-static inline __be64 __cpu_to_be64p(const __u64 *p)
++#ifdef __BYTEORDER_HAS_U64__
++static __inline__ __be64 __cpu_to_be64p(const __u64 *p)
+ {
+ 	return (__force __be64)__swab64p(p);
+ }
+-static inline __u64 __be64_to_cpup(const __be64 *p)
++static __inline__ __u64 __be64_to_cpup(const __be64 *p)
+ {
+ 	return __swab64p((__u64 *)p);
+ }
+-static inline __be32 __cpu_to_be32p(const __u32 *p)
++#endif
++static __inline__ __be32 __cpu_to_be32p(const __u32 *p)
+ {
+ 	return (__force __be32)__swab32p(p);
+ }
+-static inline __u32 __be32_to_cpup(const __be32 *p)
++static __inline__ __u32 __be32_to_cpup(const __be32 *p)
+ {
+ 	return __swab32p((__u32 *)p);
+ }
+-static inline __be16 __cpu_to_be16p(const __u16 *p)
++static __inline__ __be16 __cpu_to_be16p(const __u16 *p)
+ {
+ 	return (__force __be16)__swab16p(p);
+ }
+-static inline __u16 __be16_to_cpup(const __be16 *p)
++static __inline__ __u16 __be16_to_cpup(const __be16 *p)
+ {
+ 	return __swab16p((__u16 *)p);
+ }

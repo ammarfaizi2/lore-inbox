@@ -1,204 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261527AbVFTUXr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261565AbVFTU2B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261527AbVFTUXr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 16:23:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261517AbVFTUVs
+	id S261565AbVFTU2B (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 16:28:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261556AbVFTU0R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 16:21:48 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:25502 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261475AbVFTUSi
+	Mon, 20 Jun 2005 16:26:17 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:13479 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261562AbVFTUYh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 16:18:38 -0400
-Subject: PATCH: ide-generic, allow for capture of other unsupported devices
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1119298578.3325.36.camel@localhost.localdomain>
+	Mon, 20 Jun 2005 16:24:37 -0400
+Date: Tue, 21 Jun 2005 01:51:45 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: jan malstrom <xanon@snacksy.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>, rjw@sisk.pl
+Subject: Re: 2.6.12-mm1 (kernel BUG at fs/open.c:935!)
+Message-ID: <20050620202145.GC4622@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <42B6BEC2.405@snacksy.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 20 Jun 2005 21:16:18 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42B6BEC2.405@snacksy.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The ide-generic driver gives you DMA at bios tuned speed so can actually
-run a lot of unsupported devices quite well. It has a pci table so that
-it doesn't grab disks owned by other drivers but no way to override
-this. The patch adds an option ide-generic-all which makes the driver
-grab everything going that is IDE class.
+On Mon, Jun 20, 2005 at 03:04:02PM +0200, jan malstrom wrote:
+> right at booting:
+> 
+> 
+> Jun 20 14:38:07 hades kernel: kernel BUG at fs/open.c:935!
+> Jun 20 14:38:07 hades kernel: invalid operand: 0000 [#1]
+> Jun 20 14:38:07 hades kernel: PREEMPT
+> Jun 20 14:38:07 hades kernel: Modules linked in: ipw2100 i2c_i801
+> Jun 20 14:38:07 hades kernel: CPU:    0
+> Jun 20 14:38:07 hades kernel: EIP:    0060:[fd_install+309/400]    Not 
+> tainted VLI
 
-The diff is messy because I put the special case as case 0 to make the
-if conditional and long term maintenance easier. 
+Can you try the following patch and let me know if it fixes any
+of your problems ? I have only touch tested this patch on a P4 box.
+Applies on top of 2.6.12-mm1.
 
-This has been in Fedora for some time.
+Thanks
+Dipankar
 
-Signed-off-by: Alan Cox <alan@redhat.com>
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.12/drivers/ide/pci/generic.c linux-2.6.12/drivers/ide/pci/generic.c
---- linux.vanilla-2.6.12/drivers/ide/pci/generic.c	2005-06-19 11:21:23.000000000 +0100
-+++ linux-2.6.12/drivers/ide/pci/generic.c	2005-06-20 20:57:19.000000000 +0100
-@@ -39,6 +39,17 @@
- 
- #include <asm/io.h>
- 
-+static int ide_generic_all;		/* Set to claim all devices */
-+
-+static int __init ide_generic_all_on(char *unused)
-+{
-+	ide_generic_all = 1;
-+	printk(KERN_INFO "IDE generic will claim all unknown PCI IDE storage controllers.\n");
-+	return 1;
-+}
-+
-+__setup("all-generic-ide", ide_generic_all_on);
-+
- static void __devinit init_hwif_generic (ide_hwif_t *hwif)
+
+If expand_fdtable() sees that someone else expanded the fdtable
+while it dropped the lock, it can return 0 which in turn
+can be returned by expand_files() even though there has
+been an expansion of the fdtable since expand_files()
+was originally called. This could lead to locate_fd()
+not repeating the fd search and returning a bogus fd.
+This patch fixes this problem.
+
+Signed-off-by: Dipankar Sarma <dipankar@in.ibm.com>
+---
+
+
+ fs/file.c |   15 +++++++--------
+ 1 files changed, 7 insertions(+), 8 deletions(-)
+
+diff -puN fs/file.c~fix-expand-files fs/file.c
+--- linux-2.6.12-mm1-test/fs/file.c~fix-expand-files	2005-06-22 10:35:31.000000000 +0530
++++ linux-2.6.12-mm1-test-dipankar/fs/file.c	2005-06-22 10:44:56.000000000 +0530
+@@ -304,13 +304,14 @@ out:
+ /*
+  * Expands the file descriptor table - it will allocate a new fdtable and
+  * both fd array and fdset. It is expected to be called with the
+- * files_lock held.
++ * files_lock held. It returns 1 if fdtable expanded or -errno if
++ * expansion failed.
+  */
+ static int expand_fdtable(struct files_struct *files, int nr)
+ 	__releases(files->file_lock)
+ 	__acquires(files->file_lock)
  {
- 	switch(hwif->pci_dev->device) {
-@@ -78,79 +89,85 @@
+-	int error = 0;
++	int error = 1;
+ 	struct fdtable *fdt;
+ 	struct fdtable *nfdt = NULL;
  
- static ide_pci_device_t generic_chipsets[] __devinitdata = {
- 	{	/* 0 */
-+		.name		= "Unknown",
-+		.init_hwif	= init_hwif_generic,
-+		.channels	= 2,
-+		.autodma	= AUTODMA,
-+		.bootable	= ON_BOARD,
-+	},{	/* 1 */
- 		.name		= "NS87410",
- 		.init_hwif	= init_hwif_generic,
- 		.channels	= 2,
- 		.autodma	= AUTODMA,
- 		.enablebits	= {{0x43,0x08,0x08}, {0x47,0x08,0x08}},
- 		.bootable	= ON_BOARD,
--        },{	/* 1 */
-+        },{	/* 2 */
- 		.name		= "SAMURAI",
- 		.init_hwif	= init_hwif_generic,
- 		.channels	= 2,
- 		.autodma	= AUTODMA,
- 		.bootable	= ON_BOARD,
--	},{	/* 2 */
-+	},{	/* 3 */
- 		.name		= "HT6565",
- 		.init_hwif	= init_hwif_generic,
- 		.channels	= 2,
- 		.autodma	= AUTODMA,
- 		.bootable	= ON_BOARD,
--	},{	/* 3 */
-+	},{	/* 4 */
- 		.name		= "UM8673F",
- 		.init_hwif	= init_hwif_generic,
- 		.channels	= 2,
- 		.autodma	= NODMA,
- 		.bootable	= ON_BOARD,
--	},{	/* 4 */
-+	},{	/* 5 */
- 		.name		= "UM8886A",
- 		.init_hwif	= init_hwif_generic,
- 		.channels	= 2,
- 		.autodma	= NODMA,
- 		.bootable	= ON_BOARD,
--	},{	/* 5 */
-+	},{	/* 6 */
- 		.name		= "UM8886BF",
- 		.init_hwif	= init_hwif_generic,
- 		.channels	= 2,
- 		.autodma	= NODMA,
- 		.bootable	= ON_BOARD,
--	},{	/* 6 */
-+	},{	/* 7 */
- 		.name		= "HINT_IDE",
- 		.init_hwif	= init_hwif_generic,
- 		.channels	= 2,
- 		.autodma	= AUTODMA,
- 		.bootable	= ON_BOARD,
--	},{	/* 7 */
-+	},{	/* 8 */
- 		.name		= "VIA_IDE",
- 		.init_hwif	= init_hwif_generic,
- 		.channels	= 2,
- 		.autodma	= NOAUTODMA,
- 		.bootable	= ON_BOARD,
--	},{	/* 8 */
-+	},{	/* 9 */
- 		.name		= "OPTI621V",
- 		.init_hwif	= init_hwif_generic,
- 		.channels	= 2,
- 		.autodma	= NOAUTODMA,
- 		.bootable	= ON_BOARD,
--	},{	/* 9 */
-+	},{	/* 10 */
- 		.name		= "VIA8237SATA",
- 		.init_hwif	= init_hwif_generic,
- 		.channels	= 2,
- 		.autodma	= AUTODMA,
- 		.bootable	= OFF_BOARD,
--	},{	/* 10 */
-+	},{	/* 11 */
- 		.name 		= "Piccolo0102",
- 		.init_hwif	= init_hwif_generic,
- 		.channels	= 2,
- 		.autodma	= NOAUTODMA,
- 		.bootable	= ON_BOARD,
--	},{	/* 11 */
-+	},{	/* 12 */
- 		.name 		= "Piccolo0103",
- 		.init_hwif	= init_hwif_generic,
- 		.channels	= 2,
- 		.autodma	= NOAUTODMA,
- 		.bootable	= ON_BOARD,
--	},{	/* 12 */
-+	},{	/* 13 */
- 		.name 		= "Piccolo0105",
- 		.init_hwif	= init_hwif_generic,
- 		.channels	= 2,
-@@ -174,6 +191,10 @@
- 	u16 command;
- 	int ret = -ENODEV;
+@@ -350,7 +351,7 @@ out:
+  */
+ int expand_files(struct files_struct *files, int nr)
+ {
+-	int err, expand = 0;
++	int err;
+ 	struct fdtable *fdt;
  
-+	/* Don't use the generic entry unless instructed to do so */
-+	if (id->driver_data == 0 && ide_generic_all == 0)
-+			goto out;
-+
- 	if (dev->vendor == PCI_VENDOR_ID_UMC &&
- 	    dev->device == PCI_DEVICE_ID_UMC_UM8886A &&
- 	    (!(PCI_FUNC(dev->devfn) & 1)))
-@@ -195,21 +216,23 @@
+ 	fdt = files_fdtable(files);
+@@ -360,11 +361,9 @@ int expand_files(struct files_struct *fi
+ 			err = -EMFILE;
+ 			goto out;
+ 		}
+-		expand = 1;
+-		if ((err = expand_fdtable(files, nr)))
+-			goto out;
+-	}
+-	err = expand;
++		err = expand_fdtable(files, nr);
++	} else 
++		err = 0;
+ out:
+ 	return err;
  }
- 
- static struct pci_device_id generic_pci_tbl[] = {
--	{ PCI_VENDOR_ID_NS,     PCI_DEVICE_ID_NS_87410,            PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
--	{ PCI_VENDOR_ID_PCTECH, PCI_DEVICE_ID_PCTECH_SAMURAI_IDE,  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 1},
--	{ PCI_VENDOR_ID_HOLTEK, PCI_DEVICE_ID_HOLTEK_6565,         PCI_ANY_ID, PCI_ANY_ID, 0, 0, 2},
--	{ PCI_VENDOR_ID_UMC,    PCI_DEVICE_ID_UMC_UM8673F,         PCI_ANY_ID, PCI_ANY_ID, 0, 0, 3},
--	{ PCI_VENDOR_ID_UMC,    PCI_DEVICE_ID_UMC_UM8886A,         PCI_ANY_ID, PCI_ANY_ID, 0, 0, 4},
--	{ PCI_VENDOR_ID_UMC,    PCI_DEVICE_ID_UMC_UM8886BF,        PCI_ANY_ID, PCI_ANY_ID, 0, 0, 5},
--	{ PCI_VENDOR_ID_HINT,   PCI_DEVICE_ID_HINT_VXPROII_IDE,    PCI_ANY_ID, PCI_ANY_ID, 0, 0, 6},
--	{ PCI_VENDOR_ID_VIA,    PCI_DEVICE_ID_VIA_82C561,          PCI_ANY_ID, PCI_ANY_ID, 0, 0, 7},
--	{ PCI_VENDOR_ID_OPTI,   PCI_DEVICE_ID_OPTI_82C558,         PCI_ANY_ID, PCI_ANY_ID, 0, 0, 8},
-+	{ PCI_VENDOR_ID_NS,     PCI_DEVICE_ID_NS_87410,            PCI_ANY_ID, PCI_ANY_ID, 0, 0, 1},
-+	{ PCI_VENDOR_ID_PCTECH, PCI_DEVICE_ID_PCTECH_SAMURAI_IDE,  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 2},
-+	{ PCI_VENDOR_ID_HOLTEK, PCI_DEVICE_ID_HOLTEK_6565,         PCI_ANY_ID, PCI_ANY_ID, 0, 0, 3},
-+	{ PCI_VENDOR_ID_UMC,    PCI_DEVICE_ID_UMC_UM8673F,         PCI_ANY_ID, PCI_ANY_ID, 0, 0, 4},
-+	{ PCI_VENDOR_ID_UMC,    PCI_DEVICE_ID_UMC_UM8886A,         PCI_ANY_ID, PCI_ANY_ID, 0, 0, 5},
-+	{ PCI_VENDOR_ID_UMC,    PCI_DEVICE_ID_UMC_UM8886BF,        PCI_ANY_ID, PCI_ANY_ID, 0, 0, 6},
-+	{ PCI_VENDOR_ID_HINT,   PCI_DEVICE_ID_HINT_VXPROII_IDE,    PCI_ANY_ID, PCI_ANY_ID, 0, 0, 7},
-+	{ PCI_VENDOR_ID_VIA,    PCI_DEVICE_ID_VIA_82C561,          PCI_ANY_ID, PCI_ANY_ID, 0, 0, 8},
-+	{ PCI_VENDOR_ID_OPTI,   PCI_DEVICE_ID_OPTI_82C558,         PCI_ANY_ID, PCI_ANY_ID, 0, 0, 9},
- #ifdef CONFIG_BLK_DEV_IDE_SATA
--	{ PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_8237_SATA,	   PCI_ANY_ID, PCI_ANY_ID, 0, 0, 9},
-+	{ PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_8237_SATA,	   PCI_ANY_ID, PCI_ANY_ID, 0, 0, 10},
- #endif
--	{ PCI_VENDOR_ID_TOSHIBA,PCI_DEVICE_ID_TOSHIBA_PICCOLO,     PCI_ANY_ID, PCI_ANY_ID, 0, 0, 10},
--	{ PCI_VENDOR_ID_TOSHIBA,PCI_DEVICE_ID_TOSHIBA_PICCOLO_1,   PCI_ANY_ID, PCI_ANY_ID, 0, 0, 11},
--	{ PCI_VENDOR_ID_TOSHIBA,PCI_DEVICE_ID_TOSHIBA_PICCOLO_2,   PCI_ANY_ID, PCI_ANY_ID, 0, 0, 12},
-+	{ PCI_VENDOR_ID_TOSHIBA,PCI_DEVICE_ID_TOSHIBA_PICCOLO,     PCI_ANY_ID, PCI_ANY_ID, 0, 0, 11},
-+	{ PCI_VENDOR_ID_TOSHIBA,PCI_DEVICE_ID_TOSHIBA_PICCOLO_1,   PCI_ANY_ID, PCI_ANY_ID, 0, 0, 12},
-+	{ PCI_VENDOR_ID_TOSHIBA,PCI_DEVICE_ID_TOSHIBA_PICCOLO_2,   PCI_ANY_ID, PCI_ANY_ID, 0, 0, 13},
-+	/* Must come last. If you add entries adjust this table appropriately and the init_one code */
-+	{ PCI_ANY_ID,		PCI_ANY_ID,			   PCI_ANY_ID, PCI_ANY_ID, PCI_CLASS_STORAGE_IDE << 8, 0xFFFFFF00UL, 0},
- 	{ 0, },
- };
- MODULE_DEVICE_TABLE(pci, generic_pci_tbl);
 
+_

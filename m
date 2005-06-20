@@ -1,34 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261466AbVFTS4o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261491AbVFTS7J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261466AbVFTS4o (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 14:56:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261463AbVFTSzI
+	id S261491AbVFTS7J (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 14:59:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261493AbVFTS7I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 14:55:08 -0400
-Received: from graphe.net ([209.204.138.32]:53214 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S261467AbVFTSy5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 14:54:57 -0400
-Date: Mon, 20 Jun 2005 11:54:52 -0700 (PDT)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@graphe.net
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Telemaque Ndizihiwe <telendiz@eircom.net>, torvalds@osdl.org,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Replaces two GOTO statements with one IF_ELSE statement
- in /fs/open.c
-In-Reply-To: <42B70E62.5070704@pobox.com>
-Message-ID: <Pine.LNX.4.62.0506201154300.2245@graphe.net>
-References: <Pine.LNX.4.62.0506201834460.5008@localhost.localdomain>
- <42B70E62.5070704@pobox.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.7
+	Mon, 20 Jun 2005 14:59:08 -0400
+Received: from lakshmi.addtoit.com ([198.99.130.6]:31498 "EHLO
+	lakshmi.solana.com") by vger.kernel.org with ESMTP id S261491AbVFTS5v
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 14:57:51 -0400
+Message-Id: <200506201851.j5KIpBBc008473@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
+To: akpm@osdl.org, torvalds@osdl.org
+cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net,
+       domen@coderock.org
+Subject: [PATCH 1/8] UML - Fix sizeof usage
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 20 Jun 2005 14:51:11 -0400
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Jun 2005, Jeff Garzik wrote:
+From: Domen Puncer <domen@coderock.org>
+Subject: [KJ] [patch] um: copy_from_user size fix in signal.c
 
-> If you don't like goto, don't read kernel code!
+Size of pointer doesn't seem right, but maybe my solution isn't
+either (sig_size maybe?).
 
-But his patch also cleans up a code quit a bit.
+Signed-off-by: Domen Puncer <domen@coderock.org>
+Signed-off-by: Jeff Dike <jdike@addtoit.com>
+
+Index: linux-2.6.12/arch/um/sys-i386/signal.c
+===================================================================
+--- linux-2.6.12.orig/arch/um/sys-i386/signal.c	2005-06-20 11:54:53.000000000 -0400
++++ linux-2.6.12/arch/um/sys-i386/signal.c	2005-06-20 11:55:47.000000000 -0400
+@@ -312,7 +312,7 @@ long sys_sigreturn(struct pt_regs regs)
+ 	unsigned long __user *extramask = frame->extramask;
+ 	int sig_size = (_NSIG_WORDS - 1) * sizeof(unsigned long);
+ 
+-	if(copy_from_user(&set.sig[0], oldmask, sizeof(&set.sig[0])) ||
++	if(copy_from_user(&set.sig[0], oldmask, sizeof(set.sig[0])) ||
+ 	   copy_from_user(&set.sig[1], extramask, sig_size))
+ 		goto segfault;
+ 
+

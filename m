@@ -1,43 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261435AbVFTSnz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261438AbVFTSpy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261435AbVFTSnz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 14:43:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261438AbVFTSnz
+	id S261438AbVFTSpy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 14:45:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261440AbVFTSpx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 14:43:55 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:32929 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S261435AbVFTSnx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 14:43:53 -0400
-Message-ID: <42B70E62.5070704@pobox.com>
-Date: Mon, 20 Jun 2005 14:43:46 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Telemaque Ndizihiwe <telendiz@eircom.net>
-CC: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Replaces two GOTO statements with one IF_ELSE statement
- in /fs/open.c
-References: <Pine.LNX.4.62.0506201834460.5008@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.62.0506201834460.5008@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Mon, 20 Jun 2005 14:45:53 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:14347 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261438AbVFTSpn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 14:45:43 -0400
+Date: Mon, 20 Jun 2005 20:45:39 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Petter =?iso-8859-1?Q?Sundl=F6f?= <petter.sundlof@findus.dhs.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Observation: very low USB performance in 2.6.12 (-2 from agnula)
+Message-ID: <20050620184539.GC3666@stusta.de>
+References: <42B7075C.1090606@findus.dhs.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <42B7075C.1090606@findus.dhs.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Telemaque Ndizihiwe wrote:
-> This Patch replaces two GOTO statements and their corresponding LABELs
-> with one IF_ELSE statement in /fs/open.c, 2.6.12 kernel.
-> The patch keeps the same implementation of sys_open system call, it only 
-> makes the code smaller and easy to read.
-> 
-> Signed-off-by: Telemaque Ndizihiwe <telendiz@eircom.net>
+On Mon, Jun 20, 2005 at 08:13:48PM +0200, Petter Sundlöf wrote:
 
+> I've observed that USB performance (mass storage) is severaly degraded 
+> in 2.6.12. Going back to 2.6.10 restores performances to expected levels.
 
-If you don't like goto, don't read kernel code!
+Is CONFIG_BLK_DEV_UB enabled in your kernel?
+If yes, does disabling it fix the problem?
 
-	Jeff
+cu
+Adrian
 
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

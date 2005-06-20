@@ -1,96 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261427AbVFTSaC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261428AbVFTSdi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261427AbVFTSaC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 14:30:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261424AbVFTS3k
+	id S261428AbVFTSdi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 14:33:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261430AbVFTSdi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 14:29:40 -0400
-Received: from smtp-101-monday.noc.nerim.net ([62.4.17.101]:36366 "EHLO
-	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
-	id S261427AbVFTS3Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 14:29:24 -0400
-Date: Mon, 20 Jun 2005 20:29:47 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Andrew Morton <akpm@osdl.org>,
-       Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-Cc: LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>
-Subject: Re: 2.6.12-mm1
-Message-Id: <20050620202947.040be273.khali@linux-fr.org>
-In-Reply-To: <20050619233029.45dd66b8.akpm@osdl.org>
-References: <20050619233029.45dd66b8.akpm@osdl.org>
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 20 Jun 2005 14:33:38 -0400
+Received: from apate.telenet-ops.be ([195.130.132.57]:40643 "EHLO
+	apate.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S261428AbVFTSde (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 14:33:34 -0400
+Subject: Re: 2.6.12: connection tracking broken?
+From: Bart De Schuymer <bdschuym@pandora.be>
+To: Patrick McHardy <kaber@trash.net>
+Cc: Bart De Schuymer <bdschuym@telenet.be>,
+       Herbert Xu <herbert@gondor.apana.org.au>, netfilter-devel@manty.net,
+       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
+       ebtables-devel@lists.sourceforge.net, rankincj@yahoo.com
+In-Reply-To: <42B6B373.20507@trash.net>
+References: <E1Dk9nK-0001ww-00@gondolin.me.apana.org.au>
+	 <Pine.LNX.4.62.0506200432100.31737@kaber.coreworks.de>
+	 <1119249575.3387.3.camel@localhost.localdomain>  <42B6B373.20507@trash.net>
+Content-Type: text/plain
+Date: Mon, 20 Jun 2005 18:46:33 +0000
+Message-Id: <1119293193.3381.9.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew, Mauro, all,
-
-Two things I am worried about.
-
-First point:
-
-> -i2c-chips-need-hwmon.patch
-> -gregkh-i2c-hwmon-02-sparc64-fix.patch
-> (...)
->  Merged
-
-Hopefully not, as they were fixes for:
-
-> -gregkh-i2c-hwmon-01.patch
-> -gregkh-i2c-hwmon-02.patch
-> -gregkh-i2c-hwmon-03.patch
-
-which were dropped (and quite rightly so).
-
-> +gregkh-i2c-i2c-max6875.patch
-> +gregkh-i2c-i2c-rename-i2c-sysfs.patch
-> +gregkh-i2c-i2c-pca9539.patch
-> +gregkh-i2c-i2c-ds1374-01.patch
-> +gregkh-i2c-i2c-ds1374-02.patch
-> +gregkh-i2c-i2c-ds1374-03.patch
-> +gregkh-i2c-i2c-w83781d-remove-non-i2c-chips.patch
-> +gregkh-i2c-w1-01.patch
-> +gregkh-i2c-w1-02.patch
-> +gregkh-i2c-w1-03.patch
-> +gregkh-i2c-w1-04.patch
-> +gregkh-i2c-w1-05.patch
-> +gregkh-i2c-w1-06.patch
-> +gregkh-i2c-w1-07.patch
+Op ma, 20-06-2005 te 14:15 +0200, schreef Patrick McHardy:
+> Bart De Schuymer wrote:
+> > Op ma, 20-06-2005 te 04:45 +0200, schreef Patrick McHardy:
+> > 
+> >> Bart, can you explain why the hooks are defered please?
+> > 
+> > This is done so that iptables knows which bridge port the output device
+> > is, using the iptables physdev match.
 > 
->  Updates to the driver core tree
+> In which cases is this necessary? AFAICT the output device is determined
+> in br_handle_frame_finish() for a normally bridged packet.
 
-All these are obviously i2c updates, not driver core updates.
+When the _routing_ decision sends the packet to br0 (a bridge device),
+it is unknown which bridge port(s) the packet will be sent out. This is
+only known after the packet enters the bridge code. Therefore, for
+iptables to know the bridge port out device, the hooks must be postponed
+until in the bridge code.
 
-Andrew, something's wrong in your log generator (if such a thing
-exists)?
-
-Second point:
-
-> +gregkh-i2c-i2c-address_range_removal-v4l-fix.patch
-> +gregkh-i2c-i2c-address_range_removal-v4l-fix-fix.patch
+> > Can't you release the conntrack reference with a function registered on
+> > the POSTROUTING hook with a prio higher than nat POSTROUTING (or
+> > something like that)?
 > 
->  Fix v4l updates for changes in Greg's i2c tree
+> We would have to hold the reference while the packet is queued at the
+> device for the bridge case, which we want to avoid.
 
-All these changes were already present and correct in
-i2c-address_range_removal.patch, which is in Greg's i2c tree for 2.5
-months. Then Mauro Carvalho Chehab reverted them with
-v4l-update-for-tuner-cards-and-some-chips.patch, breaking several v4l
-drivers. And then he provides a "fix" with
-gregkh-i2c-i2c-address_range_removal-v4l-fix.patch, which ironically
-reads:
+Trust me, people will complain if they can no longer use the physdev
+match for routed packets.
+People using a bridging firewall will just have to live with the fact
+that the reference is held until in the bridge code.
 
-> From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-> 
-> This patch is necessary to correct I2C detect after normal_i2c_range
-> removal in gregkh-i2c-i2c-address_range_removal.patch.
+cheers,
+Bart
 
-No, Mauro. This patch is necessary to fix something YOU just broke with
-your previous patch. So please learn how to make correct patches that
-don't randomly revert previous changes. This will make everyone's life
-easier, including Andrew's, Greg's and mine.
 
-Thanks,
--- 
-Jean Delvare

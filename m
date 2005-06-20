@@ -1,92 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261430AbVFTSdt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261423AbVFTSly@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261430AbVFTSdt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 14:33:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261434AbVFTSdt
+	id S261423AbVFTSly (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 14:41:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261435AbVFTSly
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 14:33:49 -0400
-Received: from rproxy.gmail.com ([64.233.170.196]:28943 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261430AbVFTSdk (ORCPT
+	Mon, 20 Jun 2005 14:41:54 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:414 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S261423AbVFTSlw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 14:33:40 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=JHDAHb0UOkecIdltUFDWH61kLBqO0YJoJVLgJt3LYWpAxaKOrEERSiC84mOzglYcLL4tcrVs782ZdF4fl3GkKObux0q4NXYA2S85eaZ7bT5unX5vYApI8vTmVjgmYwcc8eRaSMIvAQqiby+p30v6cmHUIE1vA/EVJoAwl9hRanQ=
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Olav Kongas <ok@artecdesign.ee>
-Subject: gregkh-usb-usb-isp116x-hcd-add.patch (was 2.6.12-mm1)
-Date: Mon, 20 Jun 2005 22:39:24 +0400
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Greg KH <greg@kroah.com>, David Brownell <david-b@pacbell.net>,
-       linux-usb-devel@lists.sourceforge.net
-References: <20050619233029.45dd66b8.akpm@osdl.org>
-In-Reply-To: <20050619233029.45dd66b8.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 20 Jun 2005 14:41:52 -0400
+Subject: Re: A Great Idea (tm) about reimplementing NLS.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: "Theodore Ts'o" <tytso@mit.edu>, Jeremy Maitin-Shepard <jbms@cmu.edu>,
+       Patrick McFarland <pmcfarland@downeast.net>,
+       Alexey Zaytsev <alexey.zaytsev@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050619175503.GA3193@elf.ucw.cz>
+References: <f192987705061303383f77c10c@mail.gmail.com>
+	 <f192987705061310202e2d9309@mail.gmail.com>
+	 <1118690448.13770.12.camel@localhost.localdomain>
+	 <200506152149.06367.pmcfarland@downeast.net>
+	 <20050616023630.GC9773@thunk.org> <87y89a7wfn.fsf@jbms.ath.cx>
+	 <20050616143727.GC10969@thunk.org>  <20050619175503.GA3193@elf.ucw.cz>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506202239.24248.adobriyan@gmail.com>
+Message-Id: <1119292723.3279.0.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 20 Jun 2005 19:38:43 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This patch provides an "isp116x-hcd" driver for Philips'
-> ISP1160/ISP1161 USB host controllers.
+On Sul, 2005-06-19 at 18:55, Pavel Machek wrote:
+> Actually the day we have rm utf-8-ed, we have a problem. Someone will
+> create two files that have same utf name, encoded differently, and
+> will be in trouble. Remember old > \* "hack"? utf-8 makes variation
+> possible...
 
---- /dev/null
-+++ gregkh-2.6/drivers/usb/host/isp116x-hcd.c
+They are different to POSIX as they are different byte sequences
+> 
+> If we are serious about utf-8 support in ext3, we should return
+> -EINVAL if someone passes non-canonical utf-8 string.
 
-> + *The driver passes all usbtests 1-14.
+That would ironically not be standards compliant
 
-Missing space.
-
-> +static void preproc_atl_queue(struct isp116x *isp116x)
-> +{
-
-> +			/* To please gcc */
-> +			toggle = dir = 0;
-
-Oh, just ignore bogus warnings. It's easy. ;-)
-
-> +			ERR("%s %d: ep->nextpid %d\n", __func__, __LINE__,
-> +			    ep->nextpid);
-> +			BUG_ON(1);
-
-Simply BUG().
-
-> +static int isp116x_urb_enqueue(struct usb_hcd *hcd,
-> +			       struct usb_host_endpoint *hep, struct urb *urb,
-> +			       int mem_flags)
-> +{
-
-> +	if (!hep->hcpriv) {
-> +		ep = kcalloc(1, sizeof *ep, (__force unsigned)mem_flags);
-
-Please, drop this cast. The right thing is to change ->urb_enqueue method to
-accept unsigned int mem_flags.
-
-> +		if (!ep)
-> +			return -ENOMEM;
-> +	}
-
-> +static int isp116x_hub_control(struct usb_hcd *hcd,
-> +			       u16 typeReq,
-> +			       u16 wValue, u16 wIndex, char *buf, u16 wLength)
-> +{
-
-> +	case GetHubStatus:
-> +		DBG("GetHubStatus\n");
-> +		*(__le32 *) buf = cpu_to_le32(0);
-				  ^^^^^^^^^^^
-Not needed. Zero is zero.
-
-> +static int isp116x_suspend(struct device *dev, pm_message_t state, u32 phase)
-> +{
-
-> +		INFO("%s suspended\n", (char *)hcd_name);
-> +	} else
-> +		ERR("%s suspend failed\n", (char *)hcd_name);
-
-Useless casts.

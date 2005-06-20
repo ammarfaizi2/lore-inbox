@@ -1,45 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261350AbVFTAT5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261369AbVFTAV5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261350AbVFTAT5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Jun 2005 20:19:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbVFTAT1
+	id S261369AbVFTAV5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Jun 2005 20:21:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261366AbVFTAV5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Jun 2005 20:19:27 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:52884
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S261350AbVFTATS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Jun 2005 20:19:18 -0400
-Date: Sun, 19 Jun 2005 17:18:13 -0700 (PDT)
-Message-Id: <20050619.171813.104659699.davem@davemloft.net>
-To: herbert@gondor.apana.org.au
-Cc: kaber@trash.net, linux-kernel@vger.kernel.org,
-       netfilter-devel@lists.netfilter.org, netfilter-devel@manty.net,
-       ebtables-devel@lists.sourceforge.net, rankincj@yahoo.com
-Subject: Re: 2.6.12: connection tracking broken?
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <E1Dk9nK-0001ww-00@gondolin.me.apana.org.au>
-References: <42B56D9B.9070401@trash.net>
-	<E1Dk9nK-0001ww-00@gondolin.me.apana.org.au>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Sun, 19 Jun 2005 20:21:57 -0400
+Received: from apollo.tuxdriver.com ([24.172.12.2]:62728 "EHLO
+	apollo.tuxdriver.com") by vger.kernel.org with ESMTP
+	id S261369AbVFTAVl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Jun 2005 20:21:41 -0400
+Date: Sun, 19 Jun 2005 20:21:20 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+To: Matt Mackall <mpm@selenic.com>
+Cc: Jeff Moyer <jmoyer@redhat.com>, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: netpoll and the bonding driver
+Message-ID: <20050620002118.GA16859@tuxdriver.com>
+Mail-Followup-To: Matt Mackall <mpm@selenic.com>,
+	Jeff Moyer <jmoyer@redhat.com>, netdev@oss.sgi.com,
+	linux-kernel@vger.kernel.org
+References: <17075.10995.498758.773092@segfault.boston.redhat.com> <20050619181436.GX27572@waste.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050619181436.GX27572@waste.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Date: Mon, 20 Jun 2005 10:05:42 +1000
+On Sun, Jun 19, 2005 at 11:14:36AM -0700, Matt Mackall wrote:
+> On Fri, Jun 17, 2005 at 03:56:35PM -0400, Jeff Moyer wrote:
 
-> Patrick McHardy <kaber@trash.net> wrote:
-> >
-> > The bridge-netfilter code defers calling of some NF_IP_* hooks to the
-> > bridge layer, when the conntrack reference is already gone, so the entry
+> > I'm trying to implement a netpoll hook for the bonding driver.
 > 
-> Why does it defer them at all? Shouldn't the fact that the device is
-> bridged be transparent to the IP layer?
+> My first question would be: does this really make sense to do? Why not
+> just bind netpoll to one of the underlying devices?
 
-The bridge netfilter layer uses netif_rx(skb) at the deepest level in
-order to avoid too deep stack usage.
+Depending on the bonding mode, this would be very unlikely to work.
+The other side of the link will still be expecting to talk to the
+bond rather than to an individual link.
 
-This is also why the NF_HOOK*() macros were semantically changed
-a little bit several months ago.
+John
+-- 
+John W. Linville
+linville@tuxdriver.com

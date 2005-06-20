@@ -1,125 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbVFTQT1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261385AbVFTQVX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261375AbVFTQT1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 12:19:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261382AbVFTQT0
+	id S261385AbVFTQVX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 12:21:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261384AbVFTQTx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 12:19:26 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:59360 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261375AbVFTQSz
+	Mon, 20 Jun 2005 12:19:53 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:22510 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261377AbVFTQS4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 12:18:55 -0400
-To: torvalds@osdl.org
-Subject: [git pull] jfs update
-Cc: linux-kernel@vger.kernel.org
-Message-Id: <20050620161851.D1F78838CB@kleikamp.dyn.webahead.ibm.com>
-Date: Mon, 20 Jun 2005 11:18:51 -0500 (CDT)
-From: shaggy@austin.ibm.com (Dave Kleikamp)
+	Mon, 20 Jun 2005 12:18:56 -0400
+Date: Mon, 20 Jun 2005 21:58:11 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: linux-aio@kvack.org
+Cc: linux-kernel@vger.kernel.org, bcrl@kvack.org, wli@holomorphy.com,
+       zab@zabbo.net, mason@suse.com
+Subject: Re: [PATCH 3/6] Interfaces to initialize and to test a wait_bit key
+Message-ID: <20050620162811.GC5380@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <20050620120154.GA4810@in.ibm.com> <20050620160126.GA5271@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050620160126.GA5271@in.ibm.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please pull from
+On Mon, Jun 20, 2005 at 09:31:26PM +0530, Suparna Bhattacharya wrote:
+> patches to update AIO for filtered wakeups:
+> 
+>> Updated to apply to 2.6.12-rc6
 
-rsync://rsync.kernel.org/pub/scm/linux/kernel/git/shaggy/jfs-2.6.git/HEAD-for-linus
 
-This will update the following files:
+init_wait_bit_key() initializes the key field in an already 
+allocated wait bit structure, useful for async wait bit support.
+Also separate out the wait bit test to a common routine which
+can be used by different kinds of wakeup callbacks.
 
- fs/jfs/acl.c            |    6 +----
- fs/jfs/file.c           |    9 ++------
- fs/jfs/inode.c          |   11 +---------
- fs/jfs/jfs_debug.c      |   10 ---------
- fs/jfs/jfs_debug.h      |   15 ++++++++++----
- fs/jfs/jfs_dmap.c       |    9 --------
- fs/jfs/jfs_dtree.c      |    3 ++
- fs/jfs/jfs_extent.c     |    7 ------
- fs/jfs/jfs_imap.c       |    6 -----
- fs/jfs/jfs_inode.c      |    1 
- fs/jfs/jfs_inode.h      |   19 +++++++++++++++++-
- fs/jfs/jfs_logmgr.c     |   14 +++----------
- fs/jfs/jfs_logmgr.h     |    2 +
- fs/jfs/jfs_metapage.c   |    6 ++---
- fs/jfs/jfs_metapage.h   |    6 +++--
- fs/jfs/jfs_superblock.h |   11 ++++++++++
- fs/jfs/jfs_txnmgr.c     |   40 --------------------------------------
- fs/jfs/jfs_txnmgr.h     |   50 ++++++++++++++++++++----------------------------
- fs/jfs/namei.c          |   28 +++++---------------------
- fs/jfs/super.c          |   37 -----------------------------------
- fs/jfs/symlink.c        |    3 +-
- fs/jfs/xattr.c          |    6 +----
- 22 files changed, 99 insertions(+), 200 deletions(-)
+Signed-off-by: Suparna Bhattacharya <suparna@in.ibm.com>
 
-through these ChangeSets:
+ linux-2.6.9-rc1-mm4-suparna/include/linux/wait.h |   17 +++++++++++++++++
+ linux-2.6.9-rc1-mm4-suparna/kernel/wait.c        |   11 ++---------
+ 2 files changed, 19 insertions(+), 9 deletions(-)
 
-commit 72e3148a6e987974e3e949c5668e5ca812d7c818
-tree abdf33dbbe33029ab81e7a209f11f29d2bc6b801
-parent c2731509cfb538b9b38feaf657fab2334ea45253
-author Dave Kleikamp <shaggy@austin.ibm.com> Fri, 03 Jun 2005 14:09:54 -0500
-committer Dave Kleikamp <shaggy@austin.ibm.com> Fri, 03 Jun 2005 14:09:54 -0500
+diff -puN include/linux/wait.h~init-wait-bit-key include/linux/wait.h
+--- linux-2.6.9-rc1-mm4/include/linux/wait.h~init-wait-bit-key	2004-09-14 16:00:46.000000000 +0530
++++ linux-2.6.9-rc1-mm4-suparna/include/linux/wait.h	2004-09-15 15:33:51.000000000 +0530
+@@ -103,6 +103,17 @@ static inline int waitqueue_active(wait_
+ 	return !list_empty(&q->task_list);
+ }
+ 
++static inline int test_wait_bit_key(wait_queue_t *wait,
++				struct wait_bit_key *key)
++{
++	struct wait_bit_queue *wait_bit
++		= container_of(wait, struct wait_bit_queue, wait);
++
++	return (wait_bit->key.flags == key->flags &&
++			wait_bit->key.bit_nr == key->bit_nr &&
++			!test_bit(key->bit_nr, key->flags));
++}
++
+ /*
+  * Used to distinguish between sync and async io wait context:
+  * sync i/o typically specifies a NULL wait queue entry or a wait
+@@ -344,6 +359,19 @@ int wake_bit_function(wait_queue_t *wait
+ 		(wait)->task = current;					\
+ 		(wait)->func = autoremove_wake_function;		\
+ 		INIT_LIST_HEAD(&(wait)->task_list);			\
++	} while (0)
++
++#define init_wait_bit_key(waitbit, word, bit)				\
++	do {								\
++		(waitbit)->key.flags = word;				\
++		(waitbit)->key.bit_nr = bit;				\
++	} while (0)
++
++#define init_wait_bit_task(waitbit, tsk)				\
++	do {								\
++		(waitbit)->wait.task = tsk;				\
++		(waitbit)->wait.func = wake_bit_function;		\
++		INIT_LIST_HEAD(&(waitbit)->wait.task_list);		\
+ 	} while (0)
+ 
+ /**
+diff -puN kernel/wait.c~init-wait-bit-key kernel/wait.c
+--- linux-2.6.9-rc1-mm4/kernel/wait.c~init-wait-bit-key	2004-09-15 12:14:03.000000000 +0530
++++ linux-2.6.9-rc1-mm4-suparna/kernel/wait.c	2004-09-15 15:33:05.000000000 +0530
+@@ -132,16 +132,9 @@ EXPORT_SYMBOL(autoremove_wake_function);
+ 
+ int wake_bit_function(wait_queue_t *wait, unsigned mode, int sync, void *arg)
+ {
+-	struct wait_bit_key *key = arg;
+-	struct wait_bit_queue *wait_bit
+-		= container_of(wait, struct wait_bit_queue, wait);
+-
+-	if (wait_bit->key.flags != key->flags ||
+-			wait_bit->key.bit_nr != key->bit_nr ||
+-			test_bit(key->bit_nr, key->flags))
++	if (!test_wait_bit_key(wait, arg))
+ 		return 0;
+-	else
+-		return autoremove_wake_function(wait, mode, sync, key);
++	return autoremove_wake_function(wait, mode, sync, arg);
+ }
+ EXPORT_SYMBOL(wake_bit_function);
+ 
 
-    JFS: Fix compiler warning in jfs_logmgr.c
-    
-    fs/jfs/jfs_logmgr.c: In function `jfs_flush_journal':
-    fs/jfs/jfs_logmgr.c:1632: warning: unused variable `mp'
-    
-    Some debug code in jfs_flush_journal does nothing when CONFIG_JFS_DEBUG
-    is not defined.  Place the whole code segment within an ifdef to avoid
-    unnecessary code to be compiled and the warning to be issued.
-    
-    Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
-
-commit c2731509cfb538b9b38feaf657fab2334ea45253
-tree cb7ad2847067b5ba436b78077c4abc61ce736444
-parent 7078253c085c037c070ca4e8bc9e9e7f18aa1e84
-author Dave Kleikamp <shaggy@austin.ibm.com> Thu, 02 Jun 2005 12:18:20 -0500
-committer Dave Kleikamp <shaggy@austin.ibm.com> Thu, 02 Jun 2005 12:18:20 -0500
-
-    JFS: kernel BUG at fs/jfs/jfs_txnmgr.c:859
-    
-    add_missing_indices() must set tlck->type to tlckBTROOT when modifying
-    a root btree root to avoid a trap in txRelease()
-    
-    Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
-
-commit 259692bd5a2b2c2d351dd90748ba4126bc2a21b9
-tree fa35d57768a76bbd88fa54b33daf922e9415f9da
-parent 6f817abc643ec84cf07c99f964d04976212e1fd3
-author Jesper Juhl <juhl-lkml@dif.dk> Mon, 09 May 2005 10:47:14 -0500
-committer Dave Kleikamp <shaggy@austin.ibm.com> Mon, 09 May 2005 10:47:14 -0500
-
-    JFS: Remove redundant kfree() NULL pointer checks
-    
-    kfree() can handle a NULL pointer, don't worry about passing it one.
-    
-    Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
-    Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
-
-commit 7a694ca74958b97ae2d437c8a730bddd9e9792c3
-tree 1d25feb1d02cdff8affee0cbbcfc70b3af2c7385
-parent dcc9871270aa3b1bbe2e61cc9c1d80e9b2e8099d
-author Dave Kleikamp <shaggy@austin.ibm.com> Wed, 04 May 2005 15:31:14 -0500
-committer Dave Kleikamp <shaggy@austin.ibm.com> Wed, 04 May 2005 15:31:14 -0500
-
-    JFS: Fix sparse warning
-    
-    Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
-
-commit dcc9871270aa3b1bbe2e61cc9c1d80e9b2e8099d
-tree a6f64721b55739fcac62ba251563e6809b985a7d
-parent 1868f4aa5a4a72bbe0b7db6c1d4ee666824c3895
-author Dave Kleikamp <shaggy@austin.ibm.com> Wed, 04 May 2005 15:30:51 -0500
-committer Dave Kleikamp <shaggy@austin.ibm.com> Wed, 04 May 2005 15:30:51 -0500
-
-    JFS: cleanup - remove unneeded sanity check
-    
-    Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
-
-commit 1868f4aa5a4a72bbe0b7db6c1d4ee666824c3895
-tree c3bfa2751dcc1d7adf16a6a96e5ad8cab76b6f76
-parent 6b6bf51081a27e80334e7ebe2993ae1d046a3222
-author Dave Kleikamp <shaggy@austin.ibm.com> Wed, 04 May 2005 15:29:35 -0500
-committer Dave Kleikamp <shaggy@austin.ibm.com> Wed, 04 May 2005 15:29:35 -0500
-
-    JFS: fix sparse warnings by moving extern declarations to headers
-    
-    Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
+_
+-- 
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Lab, India
 

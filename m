@@ -1,72 +1,230 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261516AbVFTTyf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261514AbVFTTuS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261516AbVFTTyf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 15:54:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261552AbVFTTvC
+	id S261514AbVFTTuS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 15:50:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261504AbVFTTG7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 15:51:02 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:16800 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261511AbVFTTtc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 15:49:32 -0400
-Subject: Re: 2.6.12 udev hangs at boot
-From: Josh Boyer <jdub@us.ibm.com>
-To: Greg KH <gregkh@suse.de>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Denis Vlasenko <vda@ilport.com.ua>,
-       Nick Warne <nick@linicks.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050620173411.GB15212@suse.de>
-References: <200506181332.25287.nick@linicks.net>
-	 <42B45173.6060209@pobox.com> <200506181806.49627.nick@linicks.net>
-	 <200506201304.10741.vda@ilport.com.ua> <20050620164800.GA14798@suse.de>
-	 <42B6FBC7.5000900@pobox.com>  <20050620173411.GB15212@suse.de>
-Content-Type: text/plain
-Date: Mon, 20 Jun 2005 14:49:28 -0500
-Message-Id: <1119296968.16063.1.camel@weaponx.rchland.ibm.com>
+	Mon, 20 Jun 2005 15:06:59 -0400
+Received: from lakshmi.addtoit.com ([198.99.130.6]:26122 "EHLO
+	lakshmi.solana.com") by vger.kernel.org with ESMTP id S261484AbVFTS4t
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 14:56:49 -0400
+Message-Id: <200506201851.j5KIpFiY008483@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
+To: akpm@osdl.org, torvalds@osdl.org
+cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net,
+       blaisorblade@yahoo.it
+Subject: [PATCH 3/8] UML - fork cleanup
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 20 Jun 2005 14:51:15 -0400
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-06-20 at 10:34 -0700, Greg KH wrote:
-> On Mon, Jun 20, 2005 at 01:24:23PM -0400, Jeff Garzik wrote:
-> > Greg KH wrote:
-> > >On Mon, Jun 20, 2005 at 01:04:10PM +0300, Denis Vlasenko wrote:
-> > >
-> > >>Greg, any plans to distribute udev and hotplug within kernel tarballs
-> > >>so that people do not need to track such changes continuously?
-> > >
-> > >
-> > >Nope.  But if you use udev, you should read the announcements for new
-> > >releases, as I did say this was required for 2.6.12, and gave everyone a
-> > >number of weeks notice :)
-> > 
-> > Since udev is required for booting, it sounds like you're putting people 
-> > in an upgrade-or-no-boot situation.
-> 
-> Well, they don't _have_ to upgrade their kernel :)
-> 
-> > That's lame.  The kernel should support udev's out in the field, on 
-> > people's boxes (RHEL, SLES?, Fedora, ...).
-> 
-> This was caused by an unfortunate assumption in older versions of udev
-> about what was contained in the sysfs tree.  udev is now fixed to not
-> make that assumption.  So this was not a kernel bug, but a udev/libsysfs
-> one (and I wasn't going to keep the old kernel behavior for this minor
-> issue.)
-> 
-> As for working with people's boxes, only the very oldest versions of
-> udev (like the reported 030 version which is a year old and I do not
-> think shipped by any distro) would have the "lockup" issue.  On all of
-> the other ones, only custom rules written by users would have issues
-> (meaning, not work).  I do not know of any shipping, supported distro
-> that currently has a boot lockup issue (if so, please let me know.)
+Fix the do_fork calling convention: normal arch pass the regs and the new sp
+value to do_fork instead of NULL.
 
-SLES 9 shipped with udev-021.
+Currently the arch-independent code ignores these values, while the UML code
+(actually it's copy_thread) gets the right values by itself.
 
-http://www.novell.com/products/linuxpackages/enterpriseserver/i386/udev.html
+With this patch, things are fixed up.
 
-Is that effected by this?
+Low-priority.
 
-josh
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+Signed-off-by: Jeff Dike <jdike@addtoit.com>
+
+Index: linux-2.6.12/arch/um/kernel/process_kern.c
+===================================================================
+--- linux-2.6.12.orig/arch/um/kernel/process_kern.c	2005-06-20 11:54:49.000000000 -0400
++++ linux-2.6.12/arch/um/kernel/process_kern.c	2005-06-20 12:02:19.000000000 -0400
+@@ -96,8 +96,8 @@ int kernel_thread(int (*fn)(void *), voi
+ 
+ 	current->thread.request.u.thread.proc = fn;
+ 	current->thread.request.u.thread.arg = arg;
+-	pid = do_fork(CLONE_VM | CLONE_UNTRACED | flags, 0, NULL, 0, NULL,
+-		      NULL);
++	pid = do_fork(CLONE_VM | CLONE_UNTRACED | flags, 0, 
++		      &current->thread.regs, 0, NULL, NULL);
+ 	if(pid < 0)
+ 		panic("do_fork failed in kernel_thread, errno = %d", pid);
+ 	return(pid);
+Index: linux-2.6.12/arch/um/kernel/skas/process_kern.c
+===================================================================
+--- linux-2.6.12.orig/arch/um/kernel/skas/process_kern.c	2005-06-20 11:54:56.000000000 -0400
++++ linux-2.6.12/arch/um/kernel/skas/process_kern.c	2005-06-20 12:02:32.000000000 -0400
+@@ -111,8 +111,7 @@ int copy_thread_skas(int nr, unsigned lo
+   	void (*handler)(int);
+ 
+ 	if(current->thread.forking){
+-	  	memcpy(&p->thread.regs.regs.skas, 
+-		       &current->thread.regs.regs.skas, 
++	  	memcpy(&p->thread.regs.regs.skas, &regs->regs.skas,
+ 		       sizeof(p->thread.regs.regs.skas));
+ 		REGS_SET_SYSCALL_RETURN(p->thread.regs.regs.skas.regs, 0);
+ 		if(sp != 0) REGS_SP(p->thread.regs.regs.skas.regs) = sp;
+@@ -201,14 +200,3 @@ int thread_pid_skas(struct task_struct *
+ #warning Need to look up userspace_pid by cpu
+ 	return(userspace_pid[0]);
+ }
+-
+-/*
+- * Overrides for Emacs so that we follow Linus's tabbing style.
+- * Emacs will notice this stuff at the end of the file and automatically
+- * adjust the settings for this buffer only.  This must remain at the end
+- * of the file.
+- * ---------------------------------------------------------------------------
+- * Local variables:
+- * c-file-style: "linux"
+- * End:
+- */
+Index: linux-2.6.12/arch/um/kernel/syscall_kern.c
+===================================================================
+--- linux-2.6.12.orig/arch/um/kernel/syscall_kern.c	2005-06-20 11:54:44.000000000 -0400
++++ linux-2.6.12/arch/um/kernel/syscall_kern.c	2005-06-20 12:03:19.000000000 -0400
+@@ -31,7 +31,8 @@ long sys_fork(void)
+ 	long ret;
+ 
+ 	current->thread.forking = 1;
+-        ret = do_fork(SIGCHLD, 0, NULL, 0, NULL, NULL);
++	ret = do_fork(SIGCHLD, UPT_SP(&current->thread.regs.regs),
++		      &current->thread.regs, 0, NULL, NULL);
+ 	current->thread.forking = 0;
+ 	return(ret);
+ }
+@@ -41,8 +42,9 @@ long sys_vfork(void)
+ 	long ret;
+ 
+ 	current->thread.forking = 1;
+-	ret = do_fork(CLONE_VFORK | CLONE_VM | SIGCHLD, 0, NULL, 0, NULL,
+-		      NULL);
++	ret = do_fork(CLONE_VFORK | CLONE_VM | SIGCHLD,
++		      UPT_SP(&current->thread.regs.regs), 
++		      &current->thread.regs, 0, NULL, NULL);
+ 	current->thread.forking = 0;
+ 	return(ret);
+ }
+@@ -162,14 +164,3 @@ int next_syscall_index(int limit)
+ 	spin_unlock(&syscall_lock);
+ 	return(ret);
+ }
+-
+-/*
+- * Overrides for Emacs so that we follow Linus's tabbing style.
+- * Emacs will notice this stuff at the end of the file and automatically
+- * adjust the settings for this buffer only.  This must remain at the end
+- * of the file.
+- * ---------------------------------------------------------------------------
+- * Local variables:
+- * c-file-style: "linux"
+- * End:
+- */
+Index: linux-2.6.12/arch/um/kernel/tt/process_kern.c
+===================================================================
+--- linux-2.6.12.orig/arch/um/kernel/tt/process_kern.c	2005-06-20 11:54:54.000000000 -0400
++++ linux-2.6.12/arch/um/kernel/tt/process_kern.c	2005-06-20 12:03:45.000000000 -0400
+@@ -266,10 +266,10 @@ int copy_thread_tt(int nr, unsigned long
+ 	}
+ 
+ 	if(current->thread.forking){
+-		sc_to_sc(UPT_SC(&p->thread.regs.regs), 
+-			 UPT_SC(&current->thread.regs.regs));
++		sc_to_sc(UPT_SC(&p->thread.regs.regs), UPT_SC(&regs->regs));
+ 		SC_SET_SYSCALL_RETURN(UPT_SC(&p->thread.regs.regs), 0);
+-		if(sp != 0) SC_SP(UPT_SC(&p->thread.regs.regs)) = sp;
++		if(sp != 0) 
++			SC_SP(UPT_SC(&p->thread.regs.regs)) = sp;
+ 	}
+ 	p->thread.mode.tt.extern_pid = new_pid;
+ 
+@@ -459,14 +459,3 @@ int is_valid_pid(int pid)
+ 	read_unlock(&tasklist_lock);
+ 	return(0);
+ }
+-
+-/*
+- * Overrides for Emacs so that we follow Linus's tabbing style.
+- * Emacs will notice this stuff at the end of the file and automatically
+- * adjust the settings for this buffer only.  This must remain at the end
+- * of the file.
+- * ---------------------------------------------------------------------------
+- * Local variables:
+- * c-file-style: "linux"
+- * End:
+- */
+Index: linux-2.6.12/arch/um/sys-i386/syscalls.c
+===================================================================
+--- linux-2.6.12.orig/arch/um/sys-i386/syscalls.c	2005-06-20 11:54:44.000000000 -0400
++++ linux-2.6.12/arch/um/sys-i386/syscalls.c	2005-06-20 12:04:32.000000000 -0400
+@@ -69,15 +69,11 @@ long sys_clone(unsigned long clone_flags
+ {
+ 	long ret;
+ 
+-	/* XXX: normal arch do here this pass, and also pass the regs to
+-	 * do_fork, instead of NULL. Currently the arch-independent code
+-	 * ignores these values, while the UML code (actually it's
+-	 * copy_thread) does the right thing. But this should change,
+-	 probably. */
+-	/*if (!newsp)
+-		newsp = UPT_SP(current->thread.regs);*/
++	if (!newsp)
++		newsp = UPT_SP(&current->thread.regs.regs);
+ 	current->thread.forking = 1;
+-	ret = do_fork(clone_flags, newsp, NULL, 0, parent_tid, child_tid);
++	ret = do_fork(clone_flags, newsp, &current->thread.regs, 0, parent_tid,
++		      child_tid);
+ 	current->thread.forking = 0;
+ 	return(ret);
+ }
+@@ -197,14 +193,3 @@ long sys_sigaction(int sig, const struct
+ 
+ 	return ret;
+ }
+-
+-/*
+- * Overrides for Emacs so that we follow Linus's tabbing style.
+- * Emacs will notice this stuff at the end of the file and automatically
+- * adjust the settings for this buffer only.  This must remain at the end
+- * of the file.
+- * ---------------------------------------------------------------------------
+- * Local variables:
+- * c-file-style: "linux"
+- * End:
+- */
+Index: linux-2.6.12/arch/um/sys-x86_64/syscalls.c
+===================================================================
+--- linux-2.6.12.orig/arch/um/sys-x86_64/syscalls.c	2005-06-20 11:54:52.000000000 -0400
++++ linux-2.6.12/arch/um/sys-x86_64/syscalls.c	2005-06-20 12:04:14.000000000 -0400
+@@ -174,26 +174,11 @@ long sys_clone(unsigned long clone_flags
+ {
+ 	long ret;
+ 
+-	/* XXX: normal arch do here this pass, and also pass the regs to
+-	 * do_fork, instead of NULL. Currently the arch-independent code
+-	 * ignores these values, while the UML code (actually it's
+-	 * copy_thread) does the right thing. But this should change,
+-	 probably. */
+-	/*if (!newsp)
+-		newsp = UPT_SP(current->thread.regs);*/
++	if (!newsp)
++		newsp = UPT_SP(&current->thread.regs.regs);
+ 	current->thread.forking = 1;
+-	ret = do_fork(clone_flags, newsp, NULL, 0, parent_tid, child_tid);
++	ret = do_fork(clone_flags, newsp, &current->thread.regs, 0, parent_tid,
++		      child_tid);
+ 	current->thread.forking = 0;
+ 	return(ret);
+ }
+-
+-/*
+- * Overrides for Emacs so that we follow Linus's tabbing style.
+- * Emacs will notice this stuff at the end of the file and automatically
+- * adjust the settings for this buffer only.  This must remain at the end
+- * of the file.
+- * ---------------------------------------------------------------------------
+- * Local variables:
+- * c-file-style: "linux"
+- * End:
+- */
 

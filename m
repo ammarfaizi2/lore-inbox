@@ -1,64 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261210AbVFTLwx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261213AbVFTLyl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261210AbVFTLwx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 07:52:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261211AbVFTLwx
+	id S261213AbVFTLyl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 07:54:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261212AbVFTLye
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 07:52:53 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:24996 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261210AbVFTLwr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 07:52:47 -0400
-Date: Mon, 20 Jun 2005 17:31:54 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: linux-aio@kvack.org
-Cc: linux-kernel@vger.kernel.org, bcrl@kvack.org, wli@holomorphy.com,
-       zab@zabbo.net, mason@suse.com, ysaito@hpl.hp.com
-Subject: Pending AIO work/patches
-Message-ID: <20050620120154.GA4810@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	Mon, 20 Jun 2005 07:54:34 -0400
+Received: from ngate.noida.hcltech.com ([202.54.110.230]:42713 "EHLO
+	ngate.noida.hcltech.com") by vger.kernel.org with ESMTP
+	id S261211AbVFTLyY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 07:54:24 -0400
+Message-ID: <8A6EB6A72A5C774C8814DDC1501FC90E97C07B@exch-01.noida.hcltech.com>
+From: "Parveen  Verma, Noida" <Parveenv@noida.hcltech.com>
+To: linux-kernel@vger.kernel.org
+Cc: "Parveen  Verma, Noida" <Parveenv@noida.hcltech.com>,
+       "Shilpi Jaiswal, Noida" <shilpij@noida.hcltech.com>,
+       linux.guy@rediffmail.com
+Subject: __alloc_pages ()
+Date: Mon, 20 Jun 2005 17:23:53 +0530
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Since AIO development is gaining momentum once again, ocfs2 and
-samba both appear to be using AIO, NFS needs async semaphores etc,
-there appears to be an increase in interest in straightening out some
-of the pending work in this area. So this seems like a good
-time to re-post some of those patches for discussion and decision.
+I have found that while allocating (mostly it is done) the pages in
+__alloc_pages(), after successfully allocating the page the
+zone_statistics() function is called.
 
-Just to help sync up, here is an initial list based on the pieces
-that have been in progress with patches in existence (please feel free
-to add/update ones I missed or reflected inaccurately here):
+static void zone_statistics(struct zonelist *zonelist, struct zone *z)
+{
+#ifdef CONFIG_NUMA
+.....
+#endif
+}
+The whole body of this function is enclosed b/w #ifdef ... #endif.
+This function is called each time and does nothing if we don't have a NUMA
+machine.
+Can we put the call for this b/w #ifdef ... #endif?
+Although the gcc -O3 option does not generate a function call if the
+function body is nil.
 
-(1) Updating AIO to use wait-bit based filtered wakeups (me/wli)
-	Status: Updated to 2.6.12-rc6, needs review
-(2) Buffered filesystem AIO read/write (me/Ben)
-	Status: aio write: Updated to 2.6.12-rc6, needs review
-	Status: aio read : Needs rework against readahead changes in mainline
-(3) POSIX AIO support (Bull: Laurent/Sebastian or Oracle: Joel)
-	Status: Needs review and discussion ?
-(4) AIO for pipes (Chris Mason)
-	Status: Needs update to latest kernels
-(5) Asynchronous semaphore implementation (Ben/Trond?)
-	Status: Posted - under development & discussion
-(6) epoll - AIO integration (Zach Brown/Feng Zhou/wli)
-	Status: Needs resurrection ?
-(7) Vector AIO (aio readv/writev) (Yasushi Saito)
-	Status: Needs resurrection ?
+The patch for the same is given below:
 
-On my part, I'll start by re-posting (1) for discussion, and then
-move to (2).
+diff -Nru linux-2.6.11.11.orig/mm/page_alloc.c
+linux-2.6.11.11/mm/page_alloc.c
+--- linux-2.6.11.11.orig/mm/page_alloc.c        2005-05-27
+01:06:46.000000000 -0400
++++ linux-2.6.11.11/mm/page_alloc.c     2005-06-20 17:07:41.000000000 -0400
+@@ -851,7 +851,9 @@
+        }
+        return NULL;
+ got_pg:
++#ifdef CONFIG_NUMA
+        zone_statistics(zonelist, z);
++#endif
+        return page;
+ }
 
-Regards
-Suparna
+
+Further, I have not removed the #ifdef ... #endif from zone_statistics() as
+in future some other function might call this function, but in present
+kernel no one calls this.
+
+Comments are invited..
 
 -- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Lab, India
-
+Praveen Verma
+(Hare Rama Hare Krishna)

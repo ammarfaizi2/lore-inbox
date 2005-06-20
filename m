@@ -1,37 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261534AbVFTTZY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261523AbVFTTZX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261534AbVFTTZY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 15:25:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261521AbVFTTZD
+	id S261523AbVFTTZX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 15:25:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261534AbVFTTZT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 15:25:03 -0400
-Received: from mx2.suse.de ([195.135.220.15]:20933 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261534AbVFTTYc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 15:24:32 -0400
-Date: Mon, 20 Jun 2005 21:24:30 +0200
-From: Olaf Hering <olh@suse.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Greg KH <gregkh@suse.de>, Denis Vlasenko <vda@ilport.com.ua>,
-       Nick Warne <nick@linicks.net>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12 udev hangs at boot
-Message-ID: <20050620192430.GA2838@suse.de>
-References: <200506181332.25287.nick@linicks.net> <42B45173.6060209@pobox.com> <200506181806.49627.nick@linicks.net> <200506201304.10741.vda@ilport.com.ua> <20050620164800.GA14798@suse.de> <42B6FBC7.5000900@pobox.com>
+	Mon, 20 Jun 2005 15:25:19 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:17566 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261523AbVFTTYX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 15:24:23 -0400
+Subject: Re: ITE IT8212 ATA RAID Controller
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Paradise <paradyse@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <b6fcc0a050620032413f7d3e3@mail.gmail.com>
+References: <f2176eb805062003041cc3606b@mail.gmail.com>
+	 <b6fcc0a050620032413f7d3e3@mail.gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1119295317.3325.20.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <42B6FBC7.5000900@pobox.com>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 20 Jun 2005 20:22:00 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Mon, Jun 20, Jeff Garzik wrote:
+On Llu, 2005-06-20 at 11:24, Alexey Dobriyan wrote:
+> On 6/20/05, Paradise <paradyse@gmail.com> wrote:
+> >   Please tell me the offcial kernel and the mm kernel if they are
+> > support IT8212 driver or not?
+> 
+> Included in 2.6.12-mm1.
 
-> That's lame.  The kernel should support udev's out in the field, on 
-> people's boxes (RHEL, SLES?, Fedora, ...).
+iteraid is but that requires massive surgery while the -ac one just
+works. Its unfortunate that maintainer politics has ruining the Linux
+experience of so many users for months.
 
-The udev package as shipped with SLES9 works just fine with every kernel
-version. Modulo the scsi targetN changes in sysfs layout, but that
-doesnt prevent booting.
+Alan
+

@@ -1,78 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261520AbVFTWqW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261636AbVFUFlG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261520AbVFTWqW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 18:46:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261518AbVFTWnW
+	id S261636AbVFUFlG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 01:41:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261503AbVFTWm1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 18:43:22 -0400
-Received: from coderock.org ([193.77.147.115]:28827 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S262290AbVFTWFh (ORCPT
+	Mon, 20 Jun 2005 18:42:27 -0400
+Received: from coderock.org ([193.77.147.115]:27547 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S262287AbVFTWFX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 18:05:37 -0400
-Message-Id: <20050620215719.436045000@nd47.coderock.org>
-Date: Mon, 20 Jun 2005 23:57:19 +0200
+	Mon, 20 Jun 2005 18:05:23 -0400
+Message-Id: <20050620215712.840835000@nd47.coderock.org>
+Date: Mon, 20 Jun 2005 23:57:13 +0200
 From: domen@coderock.org
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, Nishanth Aravamudan <nacc@us.ibm.com>,
-       domen@coderock.org
-Subject: [patch 1/4] serial/68360serial: replace schedule_timeout() with msleep_interruptible()
-Content-Disposition: inline; filename=msleep-drivers_serial_68360serial.patch
+To: pavel@suse.cz
+Cc: linux-kernel@vger.kernel.org, domen@coderock.org
+Subject: [patch 2/2] kernel/power/disk.c string fix and if-less iterator
+Content-Disposition: inline; filename=string-kernel_power_disk
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Nishanth Aravamudan <nacc@us.ibm.com>
+From: Ricardo Nabinger Sanchez <rnsanchez@terra.com.br>
 
 
 
-Use msleep_interruptible() instead of schedule_timeout() in
-send_break() to guarantee the task delays as expected. Change
-@duration's units to milliseconds, and modify arguments in callers
-appropriately.
+The attached patch:
 
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
-Signed-off-by: Domen Puncer <domen@coderock.org>
+o  Fixes kernel/power/disk.c string declared as 'char *p = "...";' to be
+   declared as 'char p[] = "...";', as pointed by Jeff Garzik.
+
+o  Replaces:
+	i++:
+	if (i > 3) i = 0;
+
+   By:
+	i = (i + 1) % (sizeof(p) - 1);
+
+   Which is if-less, and the adjust value is evaluated by the compiler in
+   compile-time in case the string related to this loop is modified.
+
+
 ---
- 68360serial.c |    9 ++++-----
- 1 files changed, 4 insertions(+), 5 deletions(-)
+ disk.c |    6 ++----
+ 1 files changed, 2 insertions(+), 4 deletions(-)
 
-Index: quilt/drivers/serial/68360serial.c
+Index: quilt/kernel/power/disk.c
 ===================================================================
---- quilt.orig/drivers/serial/68360serial.c
-+++ quilt/drivers/serial/68360serial.c
-@@ -1394,14 +1394,13 @@ static void end_break(ser_info_t *info)
- /*
-  * This routine sends a break character out the serial port.
-  */
--static void send_break(ser_info_t *info, int duration)
-+static void send_break(ser_info_t *info, unsigned int duration)
- {
--	set_current_state(TASK_INTERRUPTIBLE);
- #ifdef SERIAL_DEBUG_SEND_BREAK
- 	printk("rs_send_break(%d) jiff=%lu...", duration, jiffies);
- #endif
- 	begin_break(info);
--	schedule_timeout(duration);
-+	msleep_interruptible(duration);
- 	end_break(info);
- #ifdef SERIAL_DEBUG_SEND_BREAK
- 	printk("done jiffies=%lu\n", jiffies);
-@@ -1436,7 +1435,7 @@ static int rs_360_ioctl(struct tty_struc
- 			if (signal_pending(current))
- 				return -EINTR;
- 			if (!arg) {
--				send_break(info, HZ/4);	/* 1/4 second */
-+				send_break(info, 250);	/* 1/4 second */
- 				if (signal_pending(current))
- 					return -EINTR;
- 			}
-@@ -1448,7 +1447,7 @@ static int rs_360_ioctl(struct tty_struc
- 			tty_wait_until_sent(tty, 0);
- 			if (signal_pending(current))
- 				return -EINTR;
--			send_break(info, arg ? arg*(HZ/10) : HZ/4);
-+			send_break(info, arg ? arg*100 : 250);
- 			if (signal_pending(current))
- 				return -EINTR;
- 			return 0;
+--- quilt.orig/kernel/power/disk.c
++++ quilt/kernel/power/disk.c
+@@ -91,15 +91,13 @@ static void free_some_memory(void)
+ 	unsigned int i = 0;
+ 	unsigned int tmp;
+ 	unsigned long pages = 0;
+-	char *p = "-\\|/";
++	char p[] = "-\\|/";
+ 
+ 	printk("Freeing memory...  ");
+ 	while ((tmp = shrink_all_memory(10000))) {
+ 		pages += tmp;
+ 		printk("\b%c", p[i]);
+-		i++;
+-		if (i > 3)
+-			i = 0;
++		i = (i + 1) % (sizeof(p) - 1);
+ 	}
+ 	printk("\bdone (%li pages freed)\n", pages);
+ }
 
 --

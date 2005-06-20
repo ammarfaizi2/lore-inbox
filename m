@@ -1,117 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261179AbVFTItg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbVFTI4g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261179AbVFTItg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 04:49:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbVFTItg
+	id S261184AbVFTI4g (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 04:56:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbVFTI4f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 04:49:36 -0400
-Received: from pilet.ens-lyon.fr ([140.77.167.16]:15070 "EHLO
-	relaissmtp.ens-lyon.fr") by vger.kernel.org with ESMTP
-	id S261179AbVFTIta (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 04:49:30 -0400
-Message-ID: <42B6831B.3040506@ens-lyon.org>
-Date: Mon, 20 Jun 2005 10:49:31 +0200
-From: Brice Goglin <Brice.Goglin@ens-lyon.org>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: Dominik Brodowski <linux@dominikbrodowski.net>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+	Mon, 20 Jun 2005 04:56:35 -0400
+Received: from mercury.acsalaska.net ([209.112.173.226]:25336 "EHLO
+	mercury.acsalaska.net") by vger.kernel.org with ESMTP
+	id S261184AbVFTI4X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 04:56:23 -0400
+Date: Mon, 20 Jun 2005 00:54:40 -0800
+From: Ethan Benson <erbenson@alaska.net>
+To: yaboot-devel@lists.penguinppc.org, linux-kernel@vger.kernel.org
 Subject: Re: 2.6.12-mm1
-References: <20050619233029.45dd66b8.akpm@osdl.org> <42B6746B.4020305@ens-lyon.org> <20050620081443.GA31831@isilmar.linta.de>
-In-Reply-To: <20050620081443.GA31831@isilmar.linta.de>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: multipart/mixed;
- boundary="------------090806050300030307050207"
+Message-ID: <20050620085440.GT25980@plato.local.lan>
+Mail-Followup-To: yaboot-devel@lists.penguinppc.org,
+	linux-kernel@vger.kernel.org
+References: <20050619233029.45dd66b8.akpm@osdl.org> <1119250672.18247.94.camel@gaston>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="AXAqmCxJPvkQLT2P"
+Content-Disposition: inline
+In-Reply-To: <1119250672.18247.94.camel@gaston>
+User-Agent: Mutt/1.3.28i
+X-OS: Debian GNU
+X-gpg-fingerprint: E3E4 D0BC 31BC F7BB C1DD  C3D6 24AC 7B1A 2C44 7AFC
+X-gpg-key: http://www.alaska.net/~erbenson/gpg/key.asc
+Mail-Copies-To: erbenson@alaska.net
+X-ACS-Spam-Status: no
+X-ACS-Scanned-By: MD 2.51; SA 3.0.3; spamdefang 1.112
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090806050300030307050207
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
 
-Le 20.06.2005 10:14, Dominik Brodowski a écrit :
-> Hi,
-> 
-> On Mon, Jun 20, 2005 at 09:46:51AM +0200, Brice Goglin wrote:
-> 
->>pcmcia: parent PCI bridge I/O window: 0x2000 - 0x2fff
->>cs: IO port probe 0x2000-0x2fff: <- stopped here
-> 
-> 
-> Could you send me the /proc/ioports from 2.6.12, please? Did some other -mm
-> kernel work during the past weeks?
+--AXAqmCxJPvkQLT2P
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-/proc/ioports is attached.
-Yes all other -mm kernel worked during the past weeks.
+On Mon, Jun 20, 2005 at 04:57:51PM +1000, Benjamin Herrenschmidt wrote:
+>=20
+> On Sun, 2005-06-19 at 23:30 -0700, Andrew Morton wrote:
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12/2.=
+6.12-mm1/
+> >=20
+> >=20
+> > - Someone broke /proc/device-tree on ppc64.  It's being looked into.
+>=20
+> I did, the breakage is in 2.6.12, and no, it's not broken :)
+>=20
+> The problem is that the "ofpath" script that is part of the yaboot
+> package has a stupid bug where for some reason, when booting from SCSI
+> (or libata in this case), it decides to check wether there are any
+> symlinks in /proc/device-tree, and if not, decides it's broken and
+> aborts. It doesn't actually make any use of the symlinks that were there
+> though (and they were useless and partially broken anyway, which is why
+> I removed them).
 
-Thanks,
-Brice
+this check was done because of BootX, which caused a broken and
+unusable device-tree.
 
---------------090806050300030307050207
-Content-Type: text/plain;
- name="ioports-2.6.12"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ioports-2.6.12"
+> So it's a bug in "ofpath", a bit annoying, but at the same time, you
+> don't need to run it when changing kernels, so it's not too harmful.
+>=20
+> The fix is :
 
-0000-001f : dma1
-0020-0021 : pic1
-0040-0043 : timer0
-0050-0053 : timer1
-0060-006f : keyboard
-0070-0077 : rtc
-0080-008f : dma page reg
-00a0-00a1 : pic2
-00c0-00df : dma2
-00f0-00ff : fpu
-0100-0107 : smsc-ircc2
-0140-014f : pnp 00:0b
-0170-0177 : ide1
-01f0-01f7 : ide0
-0376-0376 : ide1
-0378-037a : parport0
-03c0-03df : vga+
-03e8-03ef : smsc-ircc2
-03f6-03f6 : ide0
-03f8-03ff : serial
-04d0-04d1 : pnp 00:0c
-0cf8-0cff : PCI conf1
-1000-107f : 0000:00:1f.0
-  1000-1003 : PM1a_EVT_BLK
-  1004-1005 : PM1a_CNT_BLK
-  1008-100b : PM_TMR
-  1020-1020 : PM2_CNT_BLK
-  1028-102b : GPE0_BLK
-  102c-102f : GPE1_BLK
-1080-1085 : ACPI CPU throttle
-1100-113f : 0000:00:1f.0
-  1100-113f : motherboard
-    1100-113f : pnp 00:0c
-1200-121f : motherboard
-  1200-121f : pnp 00:0c
-2000-20ff : 0000:02:04.0
-2400-24ff : 0000:02:09.0
-  2400-24ff : Allegro
-2800-283f : 0000:02:08.0
-  2800-283f : e100
-2840-2847 : 0000:02:04.0
-3000-3fff : PCI Bus #01
-  3000-30ff : 0000:01:00.0
-    3000-30ff : radeonfb
-4000-401f : 0000:00:1d.0
-  4000-401f : uhci_hcd
-4020-403f : 0000:00:1d.1
-  4020-403f : uhci_hcd
-4040-405f : 0000:00:1d.2
-  4040-405f : uhci_hcd
-4060-406f : 0000:00:1f.1
-  4060-4067 : ide0
-  4068-406f : ide1
-4400-44ff : PCI CardBus #03
-4800-48ff : PCI CardBus #03
-4c00-4cff : PCI CardBus #07
-5000-50ff : PCI CardBus #07
+so long as BootX is no longer in use, yes.
 
---------------090806050300030307050207--
+> --- ofpath	2005-06-20 16:56:12.000000000 +1000
+> +++ ofpath.patched	2005-06-20 16:57:00.000000000 +1000
+> @@ -425,14 +425,6 @@
+>  {
+>      case "$DEVNODE" in
+>  	sd*)
+> -	    if ls -l /proc/device-tree | grep -q ^lr ; then
+> -		true
+> -	    else
+> -		echo 1>&2 "$PRG: /proc/device-tree is broken.  Do not use BootX to boo=
+t, use yaboot."
+> -		echo 1>&2 "$PRG: The yaboot HOWTO can be found here: http://www.alaska=
+.net/~erbenson/doc"
+> -		return 1
+> -	    fi
+> -
+>  	    ## use common scsiinfo function to get info we need.
+>  	    scsiinfo || return 1
+> =20
+>=20
+> --=20
+> To UNSUBSCRIBE, email to minimalist@lists.penguinppc.org
+> with a subject of "unsubscribe yaboot-devel". Trouble? Contact listmaster=
+@lists.penguinppc.org
+
+--=20
+Ethan Benson
+http://www.alaska.net/~erbenson/
+
+--AXAqmCxJPvkQLT2P
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iEYEARECAAYFAkK2hFAACgkQJKx7GixEevwMcwCeL3fFm/VARW4kn9U/JHhI0gJd
+iyYAn17CJu8FOVdI/9J4ag4J27827i+1
+=lDfU
+-----END PGP SIGNATURE-----
+
+--AXAqmCxJPvkQLT2P--

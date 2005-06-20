@@ -1,52 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261567AbVFTUdI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261537AbVFTUPr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261567AbVFTUdI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 16:33:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261581AbVFTUcw
+	id S261537AbVFTUPr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 16:15:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261488AbVFTUPp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 16:32:52 -0400
-Received: from soufre.accelance.net ([213.162.48.15]:63959 "EHLO
-	soufre.accelance.net") by vger.kernel.org with ESMTP
-	id S261567AbVFTU3i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 16:29:38 -0400
-Message-ID: <42B7272F.2040503@xenomai.org>
-Date: Mon, 20 Jun 2005 22:29:35 +0200
-From: Philippe Gerum <rpm@xenomai.org>
-Organization: Xenomai
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] I-pipe: Core implementation
-References: <42B35B07.7080703@xenomai.org> <20050618170139.GA477@openzaurus.ucw.cz>
-In-Reply-To: <20050618170139.GA477@openzaurus.ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 20 Jun 2005 16:15:45 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:23966 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261537AbVFTUOY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 16:14:24 -0400
+Subject: PATCH: Samsung SN-124 works perfectly well with DMA
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1119298324.3304.29.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 20 Jun 2005 21:12:05 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Been in Red Hat products for ages
 
-Hello,
+Signed-off-by: Alan Cox <alan@redhat.com>
 
-Pavel Machek wrote:
-> Hi!
-> 
-> 
->> linux-2.6.12-rc6-ipipe-0.5/ipipe/Kconfig         |   12
->> linux-2.6.12-rc6-ipipe-0.5/ipipe/Makefile        |    9
->> linux-2.6.12-rc6-ipipe-0.5/ipipe/generic.c       |  265 ++++++++++++
-> 
-> 
-> Top-level directory for 3 files seems a bit excessive to me...
-> 				Pavel
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.12/drivers/ide/ide-dma.c linux-2.6.12/drivers/ide/ide-dma.c
+--- linux.vanilla-2.6.12/drivers/ide/ide-dma.c	2005-06-19 11:30:47.000000000 +0100
++++ linux-2.6.12/drivers/ide/ide-dma.c	2005-06-20 20:43:16.000000000 +0100
+@@ -132,7 +132,6 @@
+ 	{ "SAMSUNG CD-ROM SC-148C",	"ALL"		},
+ 	{ "SAMSUNG CD-ROM SC",	"ALL"		},
+ 	{ "SanDisk SDP3B-64"	,	"ALL"		},
+-	{ "SAMSUNG CD-ROM SN-124",	"ALL"		},
+ 	{ "ATAPI CD-ROM DRIVE 40X MAXIMUM",	"ALL"		},
+ 	{ "_NEC DV5800A",               "ALL"           },  
+ 	{ NULL			,	NULL		}
 
-There's a fourth one (ipipe/x86.c) added by the arch-dependent patch, 
-but yes, I agree that this could sound rather overkill to have this 
-support in its own dir, especially a top-level one. The files under 
-ipipe/ can be built as a loadable module, hence the current layout.
-Would you see this belonging to, e.g., the driver tree instead?
-
--- 
-
-Philippe.

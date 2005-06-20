@@ -1,51 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261611AbVFTV1a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261634AbVFTVfS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261611AbVFTV1a (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 17:27:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261609AbVFTVYO
+	id S261634AbVFTVfS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 17:35:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbVFTVTb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 17:24:14 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:30164 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261541AbVFTVVP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 17:21:15 -0400
-Date: Tue, 21 Jun 2005 02:48:26 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andi Kleen <ak@muc.de>
-Subject: Re: 2.6.12-git1 broken on x86_64 (works on 2.6.12)
-Message-ID: <20050620211826.GD4622@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <563690000.1119299756@flay>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 20 Jun 2005 17:19:31 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:7372 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261617AbVFTVSx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 17:18:53 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: dipankar@in.ibm.com
+Subject: Re: 2.6.12-mm1 (kernel BUG at fs/open.c:935!)
+Date: Mon, 20 Jun 2005 23:18:37 +0200
+User-Agent: KMail/1.8.1
+Cc: jan malstrom <xanon@snacksy.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+References: <42B6BEC2.405@snacksy.com> <20050620202145.GC4622@in.ibm.com>
+In-Reply-To: <20050620202145.GC4622@in.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <563690000.1119299756@flay>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200506202318.37930.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 20, 2005 at 01:35:56PM -0700, Martin J. Bligh wrote:
-> Fails to reboot, see:
-> 
-> http://ftp.kernel.org/pub/linux/kernel/people/mbligh/abat/6035/debug/console.log
-> 
-> basically:
-> 
-> VFS: Cannot open root device "sda1" or unknown-block(0,0)
-> Please append a correct "root=" boot option
-> Kernel panic - not syncing: VFS: Unable to mount root fs on unknown-block(0,0)
-> 
-> Looks like it didn't find the SCSI card at all ... MPT fusion, IIRC.
-> I'll poke at it a bit tommorow, but if you've got any good guesses as
-> to what broke it, let me know (hopefully something trivial like config
-> options).
+Hi,
 
-If ABAT copies an older .config with CONFIG_FUSION=y, the new config
-disables it since it now has two different options CONFIG_FUSION_SPI
-and CONFIG_FUSION_FC. Try manually setting those two new fusion options.
+On Monday, 20 of June 2005 22:21, Dipankar Sarma wrote:
+> On Mon, Jun 20, 2005 at 03:04:02PM +0200, jan malstrom wrote:
+> > right at booting:
+> > 
+> > 
+> > Jun 20 14:38:07 hades kernel: kernel BUG at fs/open.c:935!
+> > Jun 20 14:38:07 hades kernel: invalid operand: 0000 [#1]
+> > Jun 20 14:38:07 hades kernel: PREEMPT
+> > Jun 20 14:38:07 hades kernel: Modules linked in: ipw2100 i2c_i801
+> > Jun 20 14:38:07 hades kernel: CPU:    0
+> > Jun 20 14:38:07 hades kernel: EIP:    0060:[fd_install+309/400]    Not 
+> > tainted VLI
+> 
+> Can you try the following patch and let me know if it fixes any
+> of your problems ?
 
-I had to do this in 2.6.12-mm1.
+No, it doesn't.
 
-Thanks
-Dipankar
+Greets,
+Rafael
+
+
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

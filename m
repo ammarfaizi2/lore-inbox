@@ -1,96 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261156AbVFTKcO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261154AbVFTKgO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261156AbVFTKcO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 06:32:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261153AbVFTKcO
+	id S261154AbVFTKgO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 06:36:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261161AbVFTKf0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 06:32:14 -0400
-Received: from Nazgul.esiway.net ([193.194.16.154]:45289 "EHLO
-	Nazgul.esiway.net") by vger.kernel.org with ESMTP id S261159AbVFTKb2
+	Mon, 20 Jun 2005 06:35:26 -0400
+Received: from rudy.mif.pg.gda.pl ([153.19.42.16]:6167 "EHLO
+	rudy.mif.pg.gda.pl") by vger.kernel.org with ESMTP id S261153AbVFTKdf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 06:31:28 -0400
-Subject: Tracking down a memory leak
-From: Marco Colombo <marco@esi.it>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: ESI srl
-Date: Mon, 20 Jun 2005 12:33:12 +0200
-Message-Id: <1119263592.31049.19.camel@Frodo.esi>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+	Mon, 20 Jun 2005 06:33:35 -0400
+Date: Mon, 20 Jun 2005 12:33:49 +0200 (CEST)
+From: =?ISO-8859-2?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+cc: Chris Wright <chrisw@osdl.org>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Q: qla23xxx and lpfc (Was: Re: [GIT PATCH] SCSI updates for 2.6.12)
+In-Reply-To: <1119260140.6099.0.camel@mulgrave>
+Message-ID: <Pine.BSO.4.62.0506201217410.19853@rudy.mif.pg.gda.pl>
+References: <1119103586.4984.5.camel@mulgrave>  <20050618141636.GA4112@infradead.org>
+  <20050618174558.GX9153@shell0.pdx.osdl.net> <1119260140.6099.0.camel@mulgrave>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="0-1189960872-1119263629=:19853"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-today I've found a server in a OOM condition, the funny thing is that
-after some investigation I've found no process that has mem allocated
-to. I even switched to single user, here's what I've found: 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-sh-2.05b# ps axu; free
-USER       PID %CPU %MEM   VSZ  RSS TTY      STAT START   TIME COMMAND
-root         1  0.0  0.0  2708  432 ?        S    May16   0:10 init [S]
-root         2  0.0  0.0     0    0 ?        SWN  May16   0:03 [ksoftirqd/0]
-root         3  0.0  0.0     0    0 ?        SW<  May16   1:49 [events/0]
-root         4  0.0  0.0     0    0 ?        SW<  May16   0:00 [khelper]
-root        16  0.0  0.0     0    0 ?        SW<  May16   0:00 [kacpid]
-root        87  0.0  0.0     0    0 ?        SW<  May16   0:33 [kblockd/0]
-root        95  0.0  0.0     0    0 ?        SW   May16   0:00 [khubd]
-root       152  0.0  0.0     0    0 ?        SW<  May16   0:00 [aio/0]
-root       151  0.0  0.0     0    0 ?        SW   May16  45:44 [kswapd0]
-root       245  0.0  0.0     0    0 ?        SW   May16   0:00 [kseriod]
-root       473  0.0  0.0     0    0 ?        SW   May16   0:00 [md7_raid1]
-root       475  0.0  0.0     0    0 ?        SW   May16   0:11 [md6_raid1]
-root       477  0.0  0.0     0    0 ?        SW   May16   0:00 [md5_raid1]
-root       479  0.0  0.0     0    0 ?        SW   May16   0:00 [md4_raid1]
-root       481  0.0  0.0     0    0 ?        SW   May16   0:00 [md3_raid1]
-root       483  0.0  0.0     0    0 ?        SW   May16   0:08 [md2_raid1]
-root       485  0.0  0.0     0    0 ?        SW   May16   0:00 [md1_raid1]
-root       486  0.0  0.0     0    0 ?        SW   May16   0:02 [md0_raid1]
-root       487  0.0  0.0     0    0 ?        SW   May16   0:38 [kjournald]
-root       690  0.0  0.0     0    0 ?        SW   May16   0:03 [kjournald]
-root       691  0.0  0.0     0    0 ?        SW   May16   4:05 [kjournald]
-root       692  0.0  0.0     0    0 ?        SW   May16   0:03 [kjournald]
-root       693  0.0  0.0     0    0 ?        SW   May16   0:03 [kjournald]
-root       694  0.0  0.0     0    0 ?        SW   May16   0:03 [kjournald]
-root       695  0.0  0.0     0    0 ?        SW   May16   6:14 [kjournald]
-root       696  0.0  0.0     0    0 ?        SW   May16   0:00 [kjournald]
-root     16545  0.0  0.0     0    0 ?        SW   11:47   0:00 [pdflush]
-root     16551  0.0  0.0     0    0 ?        SW   11:47   0:00 [pdflush]
-root     16889  0.0  0.0  3072  744 ?        S    11:59   0:00 minilogd
-root     17235  0.0  0.0  2708  444 ttyS0    S    12:00   0:00 init [S]
-root     17236  0.0  0.1  3176 1180 ttyS0    S    12:00   0:00 /bin/sh
-root     17248  0.0  0.0  2732  748 ttyS0    R    12:07   0:00 ps axu
-             total       used       free     shared    buffers     cached
-Mem:       1035812     898524     137288          0       3588      16732
--/+ buffers/cache:     878204     157608
-Swap:      1049248        788    1048460
-sh-2.05b# uptime
- 12:13:28 up 35 days,  1:48,  0 users,  load average: 0.00, 0.59, 16.13
-sh-2.05b# uname -a
-Linux xxxx.example.org 2.6.10-1.12_FC2.marco #1 Mon Feb 7 14:53:42 CET 2005
-i686 athlon i386 GNU/Linux
+--0-1189960872-1119263629=:19853
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8BIT
 
-I know this is an old Fedora Core 2 kernel, eventually I'll bring the
-issue on thier lists. An upgrade has already been scheduled for this
-host, so I'm not really pressed in tracking this specific bug (unless it
-occurs on the new system, of course).
+On Mon, 20 Jun 2005, James Bottomley wrote:
 
-Anyway, I just wonder if generally there's a way to find out where those
-850+ MBs are allocated. Since there are no big user processes, I'm
-assuming it's a memory leak in kernel space. I'm curious, this is the
-first time I see something like this. Any suggestion what to look at
-besides 'ps' and 'free'?
+> On Sat, 2005-06-18 at 10:45 -0700, Chris Wright wrote:
+>> Sure, if it's seriously broken w/out send it to stable@kernel.org,
+>> and we'll queue it up.
+>
+> It should be here:
+>
+> rsync://www.parisc-linux.org/~jejb/git/scsi-rc-fixes-2.6.git
+>
+> That's the same patch that's merged now.
 
-The server has been mainly running PostgreSQL at a fairly high load for
-the last 35 days, BTW.
+Included in vanilla 2.6.12 qla23xxx 8.00.02b5 is for me unuseable (fails 
+on scaning luns and oopses on array controler reset) on x86_64 with
+qla2300 and for me works only version 8.01.00b2.
+Is it will be possible include this version in official tree ?
 
-TIA,
-.TM.
+Also is it will be possible include Emulex lpfc driver to official tree ?
+
+kloczek
 -- 
-      ____/  ____/   /
-     /      /       /                   Marco Colombo
-    ___/  ___  /   /                  Technical Manager
-   /          /   /                      ESI s.r.l.
- _____/ _____/  _/                      Colombo@ESI.it
-
+-----------------------------------------------------------
+*Ludzie nie maj± problemów, tylko sobie sami je stwarzaj±*
+-----------------------------------------------------------
+Tomasz K³oczko, sys adm @zie.pg.gda.pl|*e-mail: kloczek@rudy.mif.pg.gda.pl*
+--0-1189960872-1119263629=:19853--

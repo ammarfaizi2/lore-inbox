@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261692AbVFUCkW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261684AbVFUCp3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261692AbVFUCkW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 22:40:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261896AbVFUCi1
+	id S261684AbVFUCp3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 22:45:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261911AbVFUCpG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 22:38:27 -0400
-Received: from mail.kroah.org ([69.55.234.183]:26596 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261692AbVFTW7p convert rfc822-to-8bit
+	Mon, 20 Jun 2005 22:45:06 -0400
+Received: from mail.kroah.org ([69.55.234.183]:23524 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261684AbVFTW7n convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 18:59:45 -0400
+	Mon, 20 Jun 2005 18:59:43 -0400
 Cc: mochel@digitalimplant.org
-Subject: [PATCH] Add initial implementation of klist helpers.
-In-Reply-To: <1119308364515@kroah.com>
+Subject: [PATCH] Driver Core: fix bk-driver-core kills ppc64
+In-Reply-To: <1119308366638@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Mon, 20 Jun 2005 15:59:25 -0700
-Message-Id: <1119308365601@kroah.com>
+Date: Mon, 20 Jun 2005 15:59:27 -0700
+Message-Id: <11193083672817@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,407 +24,291 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] Add initial implementation of klist helpers.
+[PATCH] Driver Core: fix bk-driver-core kills ppc64
 
-This klist interface provides a couple of structures that wrap around
-struct list_head to provide explicit list "head" (struct klist) and
-list "node" (struct klist_node) objects. For struct klist, a spinlock
-is included that protects access to the actual list itself. struct
-klist_node provides a pointer to the klist that owns it and a kref
-reference count that indicates the number of current users of that node
-in the list.
+There's no check to see if the device is already bound to a driver, which
+could do bad things.  The first thing to go wrong is that it will try to match
+a driver with a device already bound to one.  In some cases (it appears with
+USB with drivers/usb/core/usb.c::usb_match_id()), some drivers will match a
+device based on the class type, so it would be common (especially for HID
+devices) to match a device that is already bound.
 
-The entire point is to provide an interface for iterating over a list
-that is safe and allows for modification of the list during the
-iteration (e.g. insertion and removal), including modification of the
-current node on the list.
+The fun comes when ->probe() is called, it fails, then
+driver_probe_device() does this:
 
-It works using a 3rd object type - struct klist_iter - that is declared
-and initialized before an iteration. klist_next() is used to acquire the
-next element in the list. It returns NULL if there are no more items.
-This klist interface provides a couple of structures that wrap around
-struct list_head to provide explicit list "head" (struct klist) and
-list "node" (struct klist_node) objects. For struct klist, a spinlock
-is included that protects access to the actual list itself. struct
-klist_node provides a pointer to the klist that owns it and a kref
-reference count that indicates the number of current users of that node
-in the list.
+	dev->driver = NULL;
 
-The entire point is to provide an interface for iterating over a list
-that is safe and allows for modification of the list during the
-iteration (e.g. insertion and removal), including modification of the
-current node on the list.
+Later on, that pointer could be be dereferenced without checking and cause
+hell to break loose.
 
-It works using a 3rd object type - struct klist_iter - that is declared
-and initialized before an iteration. klist_next() is used to acquire the
-next element in the list. It returns NULL if there are no more items.
-Internally, that routine takes the klist's lock, decrements the reference
-count of the previous klist_node and increments the count of the next
-klist_node. It then drops the lock and returns.
+This problem could be nasty. It's very hardware dependent, since some
+devices could have a different set of matching qualifiers than others.
 
-There are primitives for adding and removing nodes to/from a klist.
-When deleting, klist_del() will simply decrement the reference count.
-Only when the count goes to 0 is the node removed from the list.
-klist_remove() will try to delete the node from the list and block
-until it is actually removed. This is useful for objects (like devices)
-that have been removed from the system and must be freed (but must wait
-until all accessors have finished).
+Now, I don't quite see exactly where/how you were getting that crash.
+You're dereferencing bad memory, but I'm not sure which pointer was bad
+and where it came from, but it could have come from a couple of different
+places.
 
-Internally, that routine takes the klist's lock, decrements the reference
-count of the previous klist_node and increments the count of the next
-klist_node. It then drops the lock and returns.
+The patch below will hopefully fix it all up for you. It's against
+2.6.12-rc2-mm1, and does the following:
 
-There are primitives for adding and removing nodes to/from a klist.
-When deleting, klist_del() will simply decrement the reference count.
-Only when the count goes to 0 is the node removed from the list.
-klist_remove() will try to delete the node from the list and block
-until it is actually removed. This is useful for objects (like devices)
-that have been removed from the system and must be freed (but must wait
-until all accessors have finished).
+- Move logic to driver_probe_device() and comments uncommon returns:
+  1 - If device is bound
+  0 - If device not bound, and no error
+  error - If there was an error.
 
-Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+- Move locking to caller of that function, since we want to lock a
+  device for the entire time we're trying to bind it to a driver (to
+  prevent against a driver being loaded at the same time).
 
-diff -Nru a/include/linux/klist.h b/include/linux/klist.h
+- Update __device_attach() and __driver_attach() to do that locking.
+
+- Check if device is already bound in __driver_attach()
+
+- Update the converse device_release_driver() so it locks the device
+  around all of the operations.
+
+- Mark driver_probe_device() as static and remove export. It's an
+  internal function, it should stay that way, and there are no other
+  callers. If there is ever a need to export it, we can audit it as
+  necessary.
+
+Signed-off-by: Andrew Morton <akpm@osdl.org>
 
 ---
-commit 9a19fea43616066561e221359596ce532e631395
-tree f776bee1bcb1051bf75323b65fa887347412409e
-parent 6034a080f98b0bbc0a058e2ac65a538f75cffeee
-author mochel@digitalimplant.org <mochel@digitalimplant.org> Mon, 21 Mar 2005 11:45:16 -0800
-committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 20 Jun 2005 15:15:14 -0700
+commit 0d3e5a2e39b6ba2974e9e7c2a429018c45de8e76
+tree 30e584b73c356adce49dcc9df75332abaef95470
+parent b86c1df1f98d16c999423a3907eb40a9423f481e
+author Patrick Mochel <mochel@digitalimplant.org> Tue, 05 Apr 2005 23:46:33 -0700
+committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 20 Jun 2005 15:15:27 -0700
 
- include/linux/klist.h |   53 ++++++++++
- lib/Makefile          |    7 +
- lib/klist.c           |  248 +++++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 305 insertions(+), 3 deletions(-)
+ drivers/base/dd.c      |  140 +++++++++++++++++++++++++-----------------------
+ include/linux/device.h |    1 
+ 2 files changed, 73 insertions(+), 68 deletions(-)
 
-diff --git a/include/linux/klist.h b/include/linux/klist.h
-new file mode 100644
---- /dev/null
-+++ b/include/linux/klist.h
-@@ -0,0 +1,53 @@
-+/*
-+ *	klist.h - Some generic list helpers, extending struct list_head a bit.
+diff --git a/drivers/base/dd.c b/drivers/base/dd.c
+--- a/drivers/base/dd.c
++++ b/drivers/base/dd.c
+@@ -35,6 +35,8 @@
+  *	nor take the bus's rwsem. Please verify those are accounted
+  *	for before calling this. (It is ok to call with no other effort
+  *	from a driver's probe() method.)
 + *
-+ *	Implementations are found in lib/klist.c
++ *	This function must be called with @dev->sem held.
+  */
+ void device_bind_driver(struct device * dev)
+ {
+@@ -57,54 +59,56 @@ void device_bind_driver(struct device * 
+  *	because we don't know the format of the ID structures, nor what
+  *	is to be considered a match and what is not.
+  *
+- *	If we find a match, we call @drv->probe(@dev) if it exists, and
+- *	call device_bind_driver() above.
 + *
++ *	This function returns 1 if a match is found, an error if one
++ *	occurs (that is not -ENODEV or -ENXIO), and 0 otherwise.
 + *
-+ *	Copyright (C) 2005 Patrick Mochel
-+ *
-+ *	This file is rleased under the GPL v2.
-+ */
-+
-+#include <linux/spinlock.h>
-+#include <linux/completion.h>
-+#include <linux/kref.h>
-+#include <linux/list.h>
-+
-+
-+struct klist {
-+	spinlock_t		k_lock;
-+	struct list_head	k_list;
-+};
-+
-+
-+extern void klist_init(struct klist * k);
-+
-+
-+struct klist_node {
-+	struct klist		* n_klist;
-+	struct list_head	n_node;
-+	struct kref		n_ref;
-+	struct completion	n_removed;
-+};
-+
-+extern void klist_add_tail(struct klist * k, struct klist_node * n);
-+extern void klist_add_head(struct klist * k, struct klist_node * n);
-+
-+extern void klist_del(struct klist_node * n);
-+extern void klist_remove(struct klist_node * n);
-+
-+
-+struct klist_iter {
-+	struct klist		* i_klist;
-+	struct list_head	* i_head;
-+	struct klist_node	* i_cur;
-+};
-+
-+
-+extern void klist_iter_init(struct klist * k, struct klist_iter * i);
-+extern void klist_iter_init_node(struct klist * k, struct klist_iter * i, 
-+				 struct klist_node * n);
-+extern void klist_iter_exit(struct klist_iter * i);
-+extern struct klist_node * klist_next(struct klist_iter * i);
-+
-diff --git a/lib/Makefile b/lib/Makefile
---- a/lib/Makefile
-+++ b/lib/Makefile
-@@ -4,9 +4,10 @@
++ *	This function must be called with @dev->sem held.
+  */
+-int driver_probe_device(struct device_driver * drv, struct device * dev)
++static int driver_probe_device(struct device_driver * drv, struct device * dev)
+ {
+-	int error = 0;
++	int ret = 0;
  
- lib-y := errno.o ctype.o string.o vsprintf.o cmdline.o \
- 	 bust_spinlocks.o rbtree.o radix-tree.o dump_stack.o \
--	 kobject.o kref.o idr.o div64.o int_sqrt.o \
--	 bitmap.o extable.o kobject_uevent.o prio_tree.o sha1.o \
--	 halfmd4.o
-+	 idr.o div64.o int_sqrt.o bitmap.o extable.o prio_tree.o \
-+	 sha1.o halfmd4.o
-+
-+lib-y	+= kobject.o kref.o kobject_uevent.o klist.o
+ 	if (drv->bus->match && !drv->bus->match(dev, drv))
+-		return -ENODEV;
++		goto Done;
  
- obj-y += sort.o parser.o
- 
-diff --git a/lib/klist.c b/lib/klist.c
-new file mode 100644
---- /dev/null
-+++ b/lib/klist.c
-@@ -0,0 +1,248 @@
-+/*
-+ *	klist.c - Routines for manipulating klists.
-+ *
-+ *
-+ *	This klist interface provides a couple of structures that wrap around 
-+ *	struct list_head to provide explicit list "head" (struct klist) and 
-+ *	list "node" (struct klist_node) objects. For struct klist, a spinlock
-+ *	is included that protects access to the actual list itself. struct 
-+ *	klist_node provides a pointer to the klist that owns it and a kref
-+ *	reference count that indicates the number of current users of that node
-+ *	in the list.
-+ *
-+ *	The entire point is to provide an interface for iterating over a list
-+ *	that is safe and allows for modification of the list during the
-+ *	iteration (e.g. insertion and removal), including modification of the
-+ *	current node on the list.
-+ *
-+ *	It works using a 3rd object type - struct klist_iter - that is declared
-+ *	and initialized before an iteration. klist_next() is used to acquire the
-+ *	next element in the list. It returns NULL if there are no more items.
-+ *	Internally, that routine takes the klist's lock, decrements the reference
-+ *	count of the previous klist_node and increments the count of the next
-+ *	klist_node. It then drops the lock and returns.
-+ *
-+ *	There are primitives for adding and removing nodes to/from a klist. 
-+ *	When deleting, klist_del() will simply decrement the reference count. 
-+ *	Only when the count goes to 0 is the node removed from the list. 
-+ *	klist_remove() will try to delete the node from the list and block
-+ *	until it is actually removed. This is useful for objects (like devices)
-+ *	that have been removed from the system and must be freed (but must wait
-+ *	until all accessors have finished).
-+ *
-+ *	Copyright (C) 2005 Patrick Mochel
-+ *
-+ *	This file is released under the GPL v2.
-+ */
+-	down(&dev->sem);
++	pr_debug("%s: Matched Device %s with Driver %s\n",
++		 drv->bus->name, dev->bus_id, drv->name);
+ 	dev->driver = drv;
+ 	if (drv->probe) {
+-		error = drv->probe(dev);
+-		if (error) {
++		ret = drv->probe(dev);
++		if (ret) {
+ 			dev->driver = NULL;
+-			up(&dev->sem);
+-			return error;
++			goto ProbeFailed;
+ 		}
+ 	}
+-	up(&dev->sem);
+ 	device_bind_driver(dev);
+-	return 0;
++	ret = 1;
++	pr_debug("%s: Bound Device %s to Driver %s\n",
++		 drv->bus->name, dev->bus_id, drv->name);
++	goto Done;
 +
-+#include <linux/klist.h>
-+#include <linux/module.h>
-+
-+
-+/**
-+ *	klist_init - Initialize a klist structure. 
-+ *	@k:	The klist we're initializing.
-+ */
-+
-+void klist_init(struct klist * k)
-+{
-+	INIT_LIST_HEAD(&k->k_list);
-+	spin_lock_init(&k->k_lock);
-+}
-+
-+EXPORT_SYMBOL_GPL(klist_init);
-+
-+
-+static void add_head(struct klist * k, struct klist_node * n)
-+{
-+	spin_lock(&k->k_lock);
-+	list_add(&n->n_node, &k->k_list);
-+	spin_unlock(&k->k_lock);
-+}
-+
-+static void add_tail(struct klist * k, struct klist_node * n)
-+{
-+	spin_lock(&k->k_lock);
-+	list_add_tail(&n->n_node, &k->k_list);
-+	spin_unlock(&k->k_lock);
-+}
-+
-+
-+static void klist_node_init(struct klist * k, struct klist_node * n)
-+{
-+	INIT_LIST_HEAD(&n->n_node);
-+	init_completion(&n->n_removed);
-+	kref_init(&n->n_ref);
-+	n->n_klist = k;
-+}
-+
-+
-+/**
-+ *	klist_add_head - Initialize a klist_node and add it to front.
-+ *	@k:	klist it's going on.
-+ *	@n:	node we're adding.
-+ */
-+
-+void klist_add_head(struct klist * k, struct klist_node * n)
-+{
-+	klist_node_init(k, n);
-+	add_head(k, n);
-+}
-+
-+EXPORT_SYMBOL_GPL(klist_add_head);
-+
-+
-+/**
-+ *	klist_add_tail - Initialize a klist_node and add it to back.
-+ *	@k:	klist it's going on.
-+ *	@n:	node we're adding.
-+ */
-+
-+void klist_add_tail(struct klist * k, struct klist_node * n)
-+{
-+	klist_node_init(k, n);
-+	add_tail(k, n);
-+}
-+
-+EXPORT_SYMBOL_GPL(klist_add_tail);
-+
-+
-+static void klist_release(struct kref * kref)
-+{
-+	struct klist_node * n = container_of(kref, struct klist_node, n_ref);
-+	list_del(&n->n_node);
-+	complete(&n->n_removed);
-+}
-+
-+static int klist_dec_and_del(struct klist_node * n)
-+{
-+	return kref_put(&n->n_ref, klist_release);
-+}
-+
-+
-+/**
-+ *	klist_del - Decrement the reference count of node and try to remove.
-+ *	@n:	node we're deleting.
-+ */
-+
-+void klist_del(struct klist_node * n)
-+{
-+	struct klist * k = n->n_klist;
-+
-+	spin_lock(&k->k_lock);
-+	klist_dec_and_del(n);
-+	spin_unlock(&k->k_lock);
-+}
-+
-+EXPORT_SYMBOL_GPL(klist_del);
-+
-+
-+/**
-+ *	klist_remove - Decrement the refcount of node and wait for it to go away.
-+ *	@n:	node we're removing.
-+ */
-+
-+void klist_remove(struct klist_node * n)
-+{
-+	spin_lock(&n->n_klist->k_lock);
-+	klist_dec_and_del(n);
-+	spin_unlock(&n->n_klist->k_lock);
-+	wait_for_completion(&n->n_removed);
-+}
-+
-+EXPORT_SYMBOL_GPL(klist_remove);
-+
-+
-+/**
-+ *	klist_iter_init_node - Initialize a klist_iter structure.
-+ *	@k:	klist we're iterating.
-+ *	@i:	klist_iter we're filling.
-+ *	@n:	node to start with.
-+ *
-+ *	Similar to klist_iter_init(), but starts the action off with @n, 
-+ *	instead of with the list head.
-+ */
-+
-+void klist_iter_init_node(struct klist * k, struct klist_iter * i, struct klist_node * n)
-+{
-+	i->i_klist = k;
-+	i->i_head = &k->k_list;
-+	i->i_cur = n;
-+}
-+
-+EXPORT_SYMBOL_GPL(klist_iter_init_node);
-+
-+
-+/**
-+ *	klist_iter_init - Iniitalize a klist_iter structure.
-+ *	@k:	klist we're iterating.
-+ *	@i:	klist_iter structure we're filling.
-+ *
-+ *	Similar to klist_iter_init_node(), but start with the list head.
-+ */
-+
-+void klist_iter_init(struct klist * k, struct klist_iter * i)
-+{
-+	klist_iter_init_node(k, i, NULL);
-+}
-+
-+EXPORT_SYMBOL_GPL(klist_iter_init);
-+
-+
-+/**
-+ *	klist_iter_exit - Finish a list iteration.
-+ *	@i:	Iterator structure.
-+ *
-+ *	Must be called when done iterating over list, as it decrements the 
-+ *	refcount of the current node. Necessary in case iteration exited before
-+ *	the end of the list was reached, and always good form.
-+ */
-+
-+void klist_iter_exit(struct klist_iter * i)
-+{
-+	if (i->i_cur) {
-+		klist_del(i->i_cur);
-+		i->i_cur = NULL;
++ ProbeFailed:
++	if (ret == -ENODEV || ret == -ENXIO) {
++		/* Driver matched, but didn't support device
++		 * or device not found.
++		 * Not an error; keep going.
++		 */
++		ret = 0;
++	} else {
++		/* driver matched but the probe failed */
++		printk(KERN_WARNING
++		       "%s: probe of %s failed with error %d\n",
++		       drv->name, dev->bus_id, ret);
 +	}
-+}
-+
-+EXPORT_SYMBOL_GPL(klist_iter_exit);
-+
-+
-+static struct klist_node * to_klist_node(struct list_head * n)
-+{
-+	return container_of(n, struct klist_node, n_node);
-+}
-+
-+
-+/**
-+ *	klist_next - Ante up next node in list.
-+ *	@i:	Iterator structure.
++ Done:
++	return ret;
+ }
+ 
+ static int __device_attach(struct device_driver * drv, void * data)
+ {
+ 	struct device * dev = data;
+-	int error;
+-
+-	error = driver_probe_device(drv, dev);
+-	if (error) {
+-		if ((error == -ENODEV) || (error == -ENXIO)) {
+-			/* Driver matched, but didn't support device
+-			 * or device not found.
+-			 * Not an error; keep going.
+-			 */
+-			error = 0;
+-		} else {
+-			/* driver matched but the probe failed */
+-			printk(KERN_WARNING
+-			       "%s: probe of %s failed with error %d\n",
+-			       drv->name, dev->bus_id, error);
+-		}
+-		return error;
+-	}
+-	/* stop looking, this device is attached */
+-	return 1;
++	return driver_probe_device(drv, dev);
+ }
+ 
+ /**
+@@ -114,37 +118,43 @@ static int __device_attach(struct device
+  *	Walk the list of drivers that the bus has and call
+  *	driver_probe_device() for each pair. If a compatible
+  *	pair is found, break out and return.
 + *
-+ *	First grab list lock. Decrement the reference count of the previous
-+ *	node, if there was one. Grab the next node, increment its reference 
-+ *	count, drop the lock, and return that next node.
-+ */
++ *	Returns 1 if the device was bound to a driver; 0 otherwise.
+  */
+ int device_attach(struct device * dev)
+ {
++	int ret = 0;
 +
-+struct klist_node * klist_next(struct klist_iter * i)
-+{
-+	struct list_head * next;
-+	struct klist_node * knode = NULL;
-+
-+	spin_lock(&i->i_klist->k_lock);
-+	if (i->i_cur) {
-+		next = i->i_cur->n_node.next;
-+		klist_dec_and_del(i->i_cur);
++	down(&dev->sem);
+ 	if (dev->driver) {
+ 		device_bind_driver(dev);
+-		return 1;
+-	}
+-
+-	return bus_for_each_drv(dev->bus, NULL, dev, __device_attach);
++		ret = 1;
 +	} else
-+		next = i->i_head->next;
++		ret = bus_for_each_drv(dev->bus, NULL, dev, __device_attach);
++	up(&dev->sem);
++	return ret;
+ }
+ 
+ static int __driver_attach(struct device * dev, void * data)
+ {
+ 	struct device_driver * drv = data;
+-	int error = 0;
+ 
+-	if (!dev->driver) {
+-		error = driver_probe_device(drv, dev);
+-		if (error) {
+-			if (error != -ENODEV) {
+-				/* driver matched but the probe failed */
+-				printk(KERN_WARNING
+-				       "%s: probe of %s failed with error %d\n",
+-				       drv->name, dev->bus_id, error);
+-			} else
+-				error = 0;
+-			return error;
+-		}
+-		/* stop looking, this driver is attached */
+-		return 1;
+-	}
++	/*
++	 * Lock device and try to bind to it. We drop the error
++	 * here and always return 0, because we need to keep trying
++	 * to bind to devices and some drivers will return an error
++	 * simply if it didn't support the device.
++	 *
++	 * driver_probe_device() will spit a warning if there
++	 * is an error.
++	 */
 +
-+	if (next != i->i_head) {
-+		knode = to_klist_node(next);
-+		kref_get(&knode->n_ref);
++	down(&dev->sem);
++	if (!dev->driver)
++		driver_probe_device(drv, dev);
++	up(&dev->sem);
++
++
+ 	return 0;
+ }
+ 
+@@ -156,9 +166,6 @@ static int __driver_attach(struct device
+  *	match the driver with each one.  If driver_probe_device()
+  *	returns 0 and the @dev->driver is set, we've found a
+  *	compatible pair.
+- *
+- *	Note that we ignore the -ENODEV error from driver_probe_device(),
+- *	since it's perfectly valid for a driver not to bind to any devices.
+  */
+ void driver_attach(struct device_driver * drv)
+ {
+@@ -176,19 +183,19 @@ void driver_attach(struct device_driver 
+  */
+ void device_release_driver(struct device * dev)
+ {
+-	struct device_driver * drv = dev->driver;
+-
+-	if (!drv)
+-		return;
+-
+-	sysfs_remove_link(&drv->kobj, kobject_name(&dev->kobj));
+-	sysfs_remove_link(&dev->kobj, "driver");
+-	klist_del(&dev->knode_driver);
++	struct device_driver * drv;
+ 
+ 	down(&dev->sem);
+-	if (drv->remove)
+-		drv->remove(dev);
+-	dev->driver = NULL;
++	if (dev->driver) {
++		drv = dev->driver;
++		sysfs_remove_link(&drv->kobj, kobject_name(&dev->kobj));
++		sysfs_remove_link(&dev->kobj, "driver");
++		klist_del(&dev->knode_driver);
++
++		if (drv->remove)
++			drv->remove(dev);
++		dev->driver = NULL;
 +	}
-+	i->i_cur = knode;
-+	spin_unlock(&i->i_klist->k_lock);
-+	return knode;
-+}
-+
-+EXPORT_SYMBOL_GPL(klist_next);
+ 	up(&dev->sem);
+ }
+ 
+@@ -208,7 +215,6 @@ void driver_detach(struct device_driver 
+ }
+ 
+ 
+-EXPORT_SYMBOL_GPL(driver_probe_device);
+ EXPORT_SYMBOL_GPL(device_bind_driver);
+ EXPORT_SYMBOL_GPL(device_release_driver);
+ EXPORT_SYMBOL_GPL(device_attach);
+diff --git a/include/linux/device.h b/include/linux/device.h
+--- a/include/linux/device.h
++++ b/include/linux/device.h
+@@ -325,7 +325,6 @@ extern int device_for_each_child(struct 
+  * Manual binding of a device to driver. See drivers/base/bus.c
+  * for information on use.
+  */
+-extern int  driver_probe_device(struct device_driver * drv, struct device * dev);
+ extern void device_bind_driver(struct device * dev);
+ extern void device_release_driver(struct device * dev);
+ extern int  device_attach(struct device * dev);
 

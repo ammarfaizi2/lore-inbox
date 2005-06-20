@@ -1,54 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261343AbVFTKX2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261312AbVFTK1Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261343AbVFTKX2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 06:23:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261306AbVFTKX1
+	id S261312AbVFTK1Y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 06:27:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261306AbVFTK1X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 06:23:27 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:3491 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S261329AbVFTKWz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 06:22:55 -0400
-Date: Mon, 20 Jun 2005 12:22:50 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>
-cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       George Anzinger <george@mvista.com>
-Subject: Re: [PATCH 1/6] new timeofday core subsystem for -mm (v.B3)
-In-Reply-To: <42B685E8.9359.14B98F19@rkdvmks1.ngate.uni-regensburg.de>
-Message-ID: <Pine.LNX.4.61.0506201159060.3728@scrub.home>
-References: <1119063400.9663.2.camel@cog.beaverton.ibm.com>
- <42B685E8.9359.14B98F19@rkdvmks1.ngate.uni-regensburg.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 20 Jun 2005 06:27:23 -0400
+Received: from wproxy.gmail.com ([64.233.184.200]:18729 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261312AbVFTKY2 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 06:24:28 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=b7lnRjcViGknb41QVh1bWAznLAaZAwRH70hw9h+9IXbGzAuJ/l7odPtzboYUT1t+sJutWvSbMmsizR07e229Hk7YcfpjZVDY24OOSeoq7qreSo9O/TOQFWa2M7ASUrLBcH76bcVouXK0Qohhjqz2hZTtbMHdNeQ/zLtUVGPUmx8=
+Message-ID: <b6fcc0a050620032413f7d3e3@mail.gmail.com>
+Date: Mon, 20 Jun 2005 03:24:28 -0700
+From: Alexey Dobriyan <adobriyan@gmail.com>
+Reply-To: Alexey Dobriyan <adobriyan@gmail.com>
+To: Paradise <paradyse@gmail.com>
+Subject: Re: ITE IT8212 ATA RAID Controller
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <f2176eb805062003041cc3606b@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <f2176eb805062003041cc3606b@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 6/20/05, Paradise <paradyse@gmail.com> wrote:
+>   Please tell me the offcial kernel and the mm kernel if they are
+> support IT8212 driver or not?
 
-On Mon, 20 Jun 2005, Ulrich Windl wrote:
-
-> Basically, either the new clock system has to be optional (a maintenance nightmare 
-> most likely), or you'll have to require a specific amount of performance for the 
-> latest software. If you cannot fulfill the requirements, you'll have to stick with 
-> an older release of the software.
-> 
-> Maybe let's try to make it as good (correct and efficient (and understandable) as 
-> good as we can.
-
-If nobody can explain to me the perfomance impact of patch, maybe the 
-patch isn't so understandable in first place?
-I could also have asked how that code scales up, e.g. how much more work 
-has to be done for a thousand Linux images. (AFAICR this question also 
-came up in the context of tickless systems).
-
-This patch is really damned hard to read as it changes too many things at 
-once. Maybe it does some necessary cleanups, but they are hard see, as 
-they pretty much get lost in all the functional changes.
-I'm pretty close to suggest to reject this patch until it clearly 
-separates new functionality from cleanups. If the current system is broken 
-fix it first, if the current system is a mess clean it up first, but 
-don't mix these two steps, unless you want to introduce more broken mess.
-
-bye, Roman
+Included in 2.6.12-mm1.

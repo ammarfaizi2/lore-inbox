@@ -1,266 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261847AbVFUAP3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261794AbVFUAQo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261847AbVFUAP3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 20:15:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261859AbVFUANq
+	id S261794AbVFUAQo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 20:16:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261870AbVFUAQG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 20:13:46 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:45582 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261847AbVFTXn1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 19:43:27 -0400
-Date: Tue, 21 Jun 2005 01:43:26 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] lib/zlib*: possible cleanups
-Message-ID: <20050620234326.GG3666@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Mon, 20 Jun 2005 20:16:06 -0400
+Received: from ns.suse.de ([195.135.220.2]:3264 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261794AbVFTXmX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 19:42:23 -0400
+From: Andreas Schwab <schwab@suse.de>
+To: domen@coderock.org
+Cc: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: [patch 2/2] kernel/power/disk.c string fix and if-less iterator
+References: <20050620215712.840835000@nd47.coderock.org>
+	<20050620221041.GI2222@elf.ucw.cz>
+X-Yow: I have seen these EGG EXTENDERS in my Supermarket..
+ ..  I have read the INSTRUCTIONS...
+Date: Tue, 21 Jun 2005 01:42:18 +0200
+In-Reply-To: <20050620221041.GI2222@elf.ucw.cz> (Pavel Machek's message of
+	"Tue, 21 Jun 2005 00:10:41 +0200")
+Message-ID: <jepsugwq79.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/22.0.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following possible cleanups:
-- #if 0 the following unused functions:
-  - zlib_deflate/deflate.c: zlib_deflateSetDictionary
-  - zlib_deflate/deflate.c: zlib_deflateParams
-  - zlib_deflate/deflate.c: zlib_deflateCopy
-  - zlib_inflate/infblock.c: zlib_inflate_set_dictionary
-  - zlib_inflate/infblock.c: zlib_inflate_blocks_sync_point
-  - zlib_inflate/inflate_sync.c: zlib_inflateSync
-  - zlib_inflate/inflate_sync.c: zlib_inflateSyncPoint
-- remove the following unneeded EXPORT_SYMBOL's:
-  - zlib_deflate/deflate_syms.c: zlib_deflateCopy
-  - zlib_deflate/deflate_syms.c: zlib_deflateParams
-  - zlib_inflate/inflate_syms.c: zlib_inflateSync
-  - zlib_inflate/inflate_syms.c: zlib_inflateSyncPoint
+Pavel Machek <pavel@suse.cz> writes:
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> Hi!
+>
+>> The attached patch:
+>> 
+>> o  Fixes kernel/power/disk.c string declared as 'char *p = "...";' to be
+>>    declared as 'char p[] = "...";', as pointed by Jeff Garzik.
 
----
+'static const char p[] = "...";' would be even better.
 
-This patch was already sent on:
-- 30 May 2005
-- 17 May 2005
-- 6 May 2005
+Andreas.
 
- include/linux/zlib.h            |   11 +++++++++++
- lib/zlib_deflate/deflate.c      |    6 ++++++
- lib/zlib_deflate/deflate_syms.c |    2 --
- lib/zlib_inflate/infblock.c     |    4 ++++
- lib/zlib_inflate/infblock.h     |    4 ++++
- lib/zlib_inflate/inflate_syms.c |    2 --
- lib/zlib_inflate/inflate_sync.c |    4 ++++
- 7 files changed, 29 insertions(+), 4 deletions(-)
-
---- linux-2.6.12-rc3-mm2-full/include/linux/zlib.h.old	2005-05-03 09:10:20.000000000 +0200
-+++ linux-2.6.12-rc3-mm2-full/include/linux/zlib.h	2005-05-03 09:13:57.000000000 +0200
-@@ -442,9 +442,11 @@
-    not perform any compression: this will be done by deflate().
- */
-                             
-+#if 0
- extern int zlib_deflateSetDictionary (z_streamp strm,
- 						     const Byte *dictionary,
- 						     uInt  dictLength);
-+#endif
- /*
-      Initializes the compression dictionary from the given byte sequence
-    without producing any compressed output. This function must be called
-@@ -478,7 +480,10 @@
-    perform any compression: this will be done by deflate().
- */
- 
-+#if 0
- extern int zlib_deflateCopy (z_streamp dest, z_streamp source);
-+#endif
-+
- /*
-      Sets the destination stream as a complete copy of the source stream.
- 
-@@ -506,7 +511,9 @@
-    stream state was inconsistent (such as zalloc or state being NULL).
- */
- 
-+#if 0
- extern int zlib_deflateParams (z_streamp strm, int level, int strategy);
-+#endif
- /*
-      Dynamically update the compression level and compression strategy.  The
-    interpretation of level and strategy is as in deflateInit2.  This can be
-@@ -566,7 +573,9 @@
-    inflate().
- */
- 
-+#if 0
- extern int zlib_inflateSync (z_streamp strm);
-+#endif
- /* 
-     Skips invalid compressed data until a full flush point (see above the
-   description of deflate with Z_FULL_FLUSH) can be found, or until all
-@@ -631,7 +640,9 @@
- #endif
- 
- extern const char  * zlib_zError           (int err);
-+#if 0
- extern int           zlib_inflateSyncPoint (z_streamp z);
-+#endif
- extern const uLong * zlib_get_crc_table    (void);
- 
- #endif /* _ZLIB_H */
---- linux-2.6.12-rc3-mm2-full/lib/zlib_deflate/deflate.c.old	2005-05-03 09:10:46.000000000 +0200
-+++ linux-2.6.12-rc3-mm2-full/lib/zlib_deflate/deflate.c	2005-05-03 09:12:39.000000000 +0200
-@@ -255,6 +255,7 @@
- }
- 
- /* ========================================================================= */
-+#if 0
- int zlib_deflateSetDictionary(
- 	z_streamp strm,
- 	const Byte *dictionary,
-@@ -297,6 +298,7 @@
-     if (hash_head) hash_head = 0;  /* to make compiler happy */
-     return Z_OK;
- }
-+#endif  /*  0  */
- 
- /* ========================================================================= */
- int zlib_deflateReset(
-@@ -330,6 +332,7 @@
- }
- 
- /* ========================================================================= */
-+#if 0
- int zlib_deflateParams(
- 	z_streamp strm,
- 	int level,
-@@ -365,6 +368,7 @@
-     s->strategy = strategy;
-     return err;
- }
-+#endif  /*  0  */
- 
- /* =========================================================================
-  * Put a short in the pending buffer. The 16-bit value is put in MSB order.
-@@ -572,6 +576,7 @@
- /* =========================================================================
-  * Copy the source state to the destination state.
-  */
-+#if 0
- int zlib_deflateCopy (
- 	z_streamp dest,
- 	z_streamp source
-@@ -624,6 +629,7 @@
-     return Z_OK;
- #endif
- }
-+#endif  /*  0  */
- 
- /* ===========================================================================
-  * Read a new buffer from the current input stream, update the adler32
---- linux-2.6.12-rc3-mm2-full/lib/zlib_deflate/deflate_syms.c.old	2005-05-03 09:11:13.000000000 +0200
-+++ linux-2.6.12-rc3-mm2-full/lib/zlib_deflate/deflate_syms.c	2005-05-03 09:12:02.000000000 +0200
-@@ -16,6 +16,4 @@
- EXPORT_SYMBOL(zlib_deflateInit2_);
- EXPORT_SYMBOL(zlib_deflateEnd);
- EXPORT_SYMBOL(zlib_deflateReset);
--EXPORT_SYMBOL(zlib_deflateCopy);
--EXPORT_SYMBOL(zlib_deflateParams);
- MODULE_LICENSE("GPL");
---- linux-2.6.12-rc3-mm2-full/lib/zlib_inflate/infblock.h.old	2005-05-03 09:12:49.000000000 +0200
-+++ linux-2.6.12-rc3-mm2-full/lib/zlib_inflate/infblock.h	2005-05-03 09:34:30.000000000 +0200
-@@ -33,12 +33,16 @@
-     inflate_blocks_statef *,
-     z_streamp);
- 
-+#if 0
- extern void zlib_inflate_set_dictionary (
-     inflate_blocks_statef *s,
-     const Byte *d,  /* dictionary */
-     uInt  n);       /* dictionary length */
-+#endif  /*  0  */
- 
-+#if 0
- extern int zlib_inflate_blocks_sync_point (
-     inflate_blocks_statef *s);
-+#endif  /*  0  */
- 
- #endif /* _INFBLOCK_H */
---- linux-2.6.12-rc3-mm2-full/lib/zlib_inflate/infblock.c.old	2005-05-03 09:13:13.000000000 +0200
-+++ linux-2.6.12-rc3-mm2-full/lib/zlib_inflate/infblock.c	2005-05-03 09:34:46.000000000 +0200
-@@ -338,6 +338,7 @@
- }
- 
- 
-+#if 0
- void zlib_inflate_set_dictionary(
- 	inflate_blocks_statef *s,
- 	const Byte *d,
-@@ -347,15 +348,18 @@
-   memcpy(s->window, d, n);
-   s->read = s->write = s->window + n;
- }
-+#endif  /*  0  */
- 
- 
- /* Returns true if inflate is currently at the end of a block generated
-  * by Z_SYNC_FLUSH or Z_FULL_FLUSH. 
-  * IN assertion: s != NULL
-  */
-+#if 0
- int zlib_inflate_blocks_sync_point(
- 	inflate_blocks_statef *s
- )
- {
-   return s->mode == LENS;
- }
-+#endif  /*  0  */
---- linux-2.6.12-rc3-mm2-full/lib/zlib_inflate/inflate_sync.c.old	2005-05-03 09:14:12.000000000 +0200
-+++ linux-2.6.12-rc3-mm2-full/lib/zlib_inflate/inflate_sync.c	2005-05-03 09:14:52.000000000 +0200
-@@ -7,6 +7,7 @@
- #include "infblock.h"
- #include "infutil.h"
- 
-+#if 0
- int zlib_inflateSync(
- 	z_streamp z
- )
-@@ -57,6 +58,7 @@
-   z->state->mode = BLOCKS;
-   return Z_OK;
- }
-+#endif  /*  0  */
- 
- 
- /* Returns true if inflate is currently at the end of a block generated
-@@ -66,6 +68,7 @@
-  * decompressing, PPP checks that at the end of input packet, inflate is
-  * waiting for these length bytes.
-  */
-+#if 0
- int zlib_inflateSyncPoint(
- 	z_streamp z
- )
-@@ -74,6 +77,7 @@
-     return Z_STREAM_ERROR;
-   return zlib_inflate_blocks_sync_point(z->state->blocks);
- }
-+#endif  /*  0  */
- 
- /*
-  * This subroutine adds the data at next_in/avail_in to the output history
---- linux-2.6.12-rc3-mm2-full/lib/zlib_inflate/inflate_syms.c.old	2005-05-03 09:15:06.000000000 +0200
-+++ linux-2.6.12-rc3-mm2-full/lib/zlib_inflate/inflate_syms.c	2005-05-03 09:15:13.000000000 +0200
-@@ -15,8 +15,6 @@
- EXPORT_SYMBOL(zlib_inflateInit_);
- EXPORT_SYMBOL(zlib_inflateInit2_);
- EXPORT_SYMBOL(zlib_inflateEnd);
--EXPORT_SYMBOL(zlib_inflateSync);
- EXPORT_SYMBOL(zlib_inflateReset);
--EXPORT_SYMBOL(zlib_inflateSyncPoint);
- EXPORT_SYMBOL(zlib_inflateIncomp); 
- MODULE_LICENSE("GPL");
-
-
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

@@ -1,53 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261336AbVFTKXJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261343AbVFTKX2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261336AbVFTKXJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 06:23:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261343AbVFTKXJ
+	id S261343AbVFTKX2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 06:23:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261306AbVFTKX1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 06:23:09 -0400
-Received: from outmx007.isp.belgacom.be ([195.238.3.234]:58055 "EHLO
-	outmx007.isp.belgacom.be") by vger.kernel.org with ESMTP
-	id S261306AbVFTKUd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 06:20:33 -0400
-From: Jan De Luyck <lkml@kcore.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.12] XFS: Undeletable directory
-Date: Mon, 20 Jun 2005 12:20:20 +0200
-User-Agent: KMail/1.8.1
-Cc: Valdis.Kletnieks@vt.edu, Edwin Eefting <psy@datux.nl>,
-       linux-xfs@oss.sgi.com
-References: <200506191904.49639.lkml@kcore.org> <200506192034.18690.lkml@kcore.org> <200506192302.j5JN2M5P009849@turing-police.cc.vt.edu>
-In-Reply-To: <200506192302.j5JN2M5P009849@turing-police.cc.vt.edu>
+	Mon, 20 Jun 2005 06:23:27 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:3491 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S261329AbVFTKWz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 06:22:55 -0400
+Date: Mon, 20 Jun 2005 12:22:50 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>
+cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       George Anzinger <george@mvista.com>
+Subject: Re: [PATCH 1/6] new timeofday core subsystem for -mm (v.B3)
+In-Reply-To: <42B685E8.9359.14B98F19@rkdvmks1.ngate.uni-regensburg.de>
+Message-ID: <Pine.LNX.4.61.0506201159060.3728@scrub.home>
+References: <1119063400.9663.2.camel@cog.beaverton.ibm.com>
+ <42B685E8.9359.14B98F19@rkdvmks1.ngate.uni-regensburg.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-6"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506201220.20703.lkml@kcore.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 20 June 2005 01:02, Valdis.Kletnieks@vt.edu wrote:
-> On Sun, 19 Jun 2005 20:34:18 +0200, Jan De Luyck said:
-> > On Sunday 19 June 2005 21:25, Edwin Eefting wrote:
-> > > ls -la 4207214/ also shows nothing?
-> >
-> > Nothing out of the ordinary:
-> >
-> > devilkin@precious:/lost+found$ ls -la 4207214/
-> > total 8
-> > drwxrwxrwx  2 root root 8192 Jun 19  2005 .
-> > drwxr-xr-x  3 root root   20 Jun 19  2005 ..
->
-> Might want to do 'ls -lai' to get the inode numbers for . and .. and
-> then go sanity check them ('.' should have the same inode number as
-> lost+found/4207214, and '..' should have the same inode number as
-> lost+found)
+Hi,
 
-The inode numbers are correct.
+On Mon, 20 Jun 2005, Ulrich Windl wrote:
 
-Jan
+> Basically, either the new clock system has to be optional (a maintenance nightmare 
+> most likely), or you'll have to require a specific amount of performance for the 
+> latest software. If you cannot fulfill the requirements, you'll have to stick with 
+> an older release of the software.
+> 
+> Maybe let's try to make it as good (correct and efficient (and understandable) as 
+> good as we can.
 
--- 
-If the very old will remember, the very young will listen.
-		-- Chief Dan George
+If nobody can explain to me the perfomance impact of patch, maybe the 
+patch isn't so understandable in first place?
+I could also have asked how that code scales up, e.g. how much more work 
+has to be done for a thousand Linux images. (AFAICR this question also 
+came up in the context of tickless systems).
+
+This patch is really damned hard to read as it changes too many things at 
+once. Maybe it does some necessary cleanups, but they are hard see, as 
+they pretty much get lost in all the functional changes.
+I'm pretty close to suggest to reject this patch until it clearly 
+separates new functionality from cleanups. If the current system is broken 
+fix it first, if the current system is a mess clean it up first, but 
+don't mix these two steps, unless you want to introduce more broken mess.
+
+bye, Roman

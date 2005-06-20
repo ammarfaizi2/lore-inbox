@@ -1,39 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261193AbVFTJg1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261298AbVFTJgr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261193AbVFTJg1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 05:36:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbVFTJg1
+	id S261298AbVFTJgr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 05:36:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbVFTJgr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 05:36:27 -0400
-Received: from darwin.snarc.org ([81.56.210.228]:59037 "EHLO darwin.snarc.org")
-	by vger.kernel.org with ESMTP id S261193AbVFTJgZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 05:36:25 -0400
-Date: Mon, 20 Jun 2005 11:36:23 +0200
-To: aq <aquynh@gmail.com>
-Cc: randy_dunlap <rdunlap@xenotime.net>,
-       David Lang <david.lang@digitalinsight.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.12
-Message-ID: <20050620093623.GA3269@snarc.org>
-References: <200506182005.28254.nick@linicks.net> <9a8748490506181233675f2fd5@mail.gmail.com> <9cde8bff0506181839d41aab3@mail.gmail.com> <Pine.LNX.4.62.0506181847550.11617@qynat.qvtvafvgr.pbz> <20050618193636.70ab8b05.rdunlap@xenotime.net> <9cde8bff0506190800170a3685@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9cde8bff0506190800170a3685@mail.gmail.com>
-X-Warning: Email may contain unsmilyfied humor and/or satire.
-User-Agent: Mutt/1.5.9i
-From: tab@snarc.org (Vincent Hanquez)
+	Mon, 20 Jun 2005 05:36:47 -0400
+Received: from smtpout1.BAYAREA.NET ([209.128.95.10]:49034 "EHLO
+	smtpout1.bayarea.net") by vger.kernel.org with ESMTP
+	id S261298AbVFTJgm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 05:36:42 -0400
+Message-ID: <42B68DFB.8090608@bayarea.net>
+Date: Mon, 20 Jun 2005 10:35:55 +0100
+From: Robert Gadsdon <rgadsdon@bayarea.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050415
+X-Accept-Language: en-gb, en, en-us
+MIME-Version: 1.0
+To: linux kernel <linux-kernel@vger.kernel.org>
+Subject: 2.6.12 kernel panic after loading promise_sata module
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 19, 2005 at 10:00:05AM -0500, aq wrote:
-> ah yes. because 2.6.12 can be get by patching from 2.6.11, so ketchup
-> works well, as always.
-> 
-> but ketchup doesnt work with 2.6.x.y yet.
+Tried 2.6.12 (vanilla) kernel, and had the following at boot:
+(typed from screen)
+.............
+Starting balanced_irq
+Freeing unused kernel memory: 220k freed
+Red Hat nash version 4.1.18 starting
+Mounted /proc filesystem
+Mounting sysfs
+input: AT Translated set 2 keyboard on isa0060/serio0
+Creating /dev
+Starting udev
+Loading libata.ko module
+Loading sata_promise.ko module
+Creating root device
+Mounting root filesystem
+mount: error 6 mounting ext3
+mount: error 2 mounting none
+Switching to new root
+switchroot: mount failed: 22
+umount /initrd/dev failed: 2
+kernel panic - not syncing: Attempted to kill init!
 
-it's working since the 0.9 release (from almost 1 year ago)
+   -
 
--- 
-Vincent Hanquez
+Reverted to 2.6.11.11 and everything worked OK.
+
+UDEV version is 058
+
+SATA controller card (from lspci):
+00:12.0 Unknown mass storage controller: Promise Technology, Inc. 
+PDC20318 (SATA150 TX4) (rev 02)
+
+gcc version is 3.4.4
+
+
+Robert Gadsdon

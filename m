@@ -1,81 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261453AbVFTFdT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbVFTFdi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261453AbVFTFdT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 01:33:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261454AbVFTFdT
+	id S261451AbVFTFdi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 01:33:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261450AbVFTFdi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 01:33:19 -0400
-Received: from rproxy.gmail.com ([64.233.170.200]:27974 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261453AbVFTFdI convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 01:33:08 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=B4aTZGJEc1RnQgh1WvBw++G4EmeGTosw2WcRQ5izmAM0dCnljlb4zudCfjcTV7ztudamjXRSgMv/0Pg/BPlGIuaP3GERltLJLsgLjgWM7Rqzt22ihXL0llXaFZX/K4fd3ZePQztKhjMk7zS02WQPj/ciJMcTlQoa0fDGef/owaI=
-Message-ID: <cb57165a05061922331cce2a12@mail.gmail.com>
-Date: Sun, 19 Jun 2005 22:33:07 -0700
-From: Lee Nicks <allinux@gmail.com>
-Reply-To: Lee Nicks <allinux@gmail.com>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.12] compilation errors in drivers/serial/mpsc.c
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Mon, 20 Jun 2005 01:33:38 -0400
+Received: from omta02ps.mx.bigpond.com ([144.140.83.154]:1447 "EHLO
+	omta02ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S261451AbVFTFd2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 01:33:28 -0400
+Message-ID: <42B65525.1060308@bigpond.net.au>
+Date: Mon, 20 Jun 2005 15:33:25 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Chris Han <xiphux@gmail.com>, Con Kolivas <kernel@kolivas.org>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: [ANNOUNCE][RFC] PlugSched-5.2.1 for 2.6.11 and 2.6.12
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta02ps.mx.bigpond.com from [147.10.138.175] using ID pwil3058@bigpond.net.au at Mon, 20 Jun 2005 05:33:26 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patch fix gcc 4 compilation errors in drivers/serial/mpsc.c
+PlugSched-5.2.1 is available for 2.6.11 and 2.6.12 kernels.  This 
+version applies Con Kolivas's latest modifications to his "nice" aware 
+SMP load balancing patches.
 
-Signed-off-by: Lee Nicks <allinux@gmail.com>
+A patch to bring PlugSched-5.2 for 2.6.11 to PlugSched-5.2.1 is 
+available at:
 
-Index: linux-2.6.12/drivers/serial/mpsc.c
-===================================================================
---- linux-2.6.12-orig/drivers/serial/mpsc.c     2005-06-17
-12:48:29.000000000 -0700
-+++ linux-2.6.12/drivers/serial/mpsc.c  2005-06-19 22:08:04.000000000 -0700
-@@ -67,7 +67,11 @@
+<http://prdownloads.sourceforge.net/cpuse/plugsched-5.2-to-5.2.1-for-2.6.11.patch?download>
 
- static struct mpsc_port_info mpsc_ports[MPSC_NUM_CTLRS];
- static struct mpsc_shared_regs mpsc_shared_regs;
-+static struct uart_driver mpsc_reg;
+A patch for 2.6.12 is available at:
 
-+static void mpsc_start_rx(struct mpsc_port_info *pi);
-+static void mpsc_free_ring_mem(struct mpsc_port_info *pi);
-+static void mpsc_release_port(struct uart_port *port);
- /*
-  ******************************************************************************
-  *
-@@ -546,7 +550,6 @@
- mpsc_alloc_ring_mem(struct mpsc_port_info *pi)
- {
-        int rc = 0;
--       static void mpsc_free_ring_mem(struct mpsc_port_info *pi);
+<http://prdownloads.sourceforge.net/cpuse/plugsched-5.2.1-for-2.6.12.patch?download>
 
-        pr_debug("mpsc_alloc_ring_mem[%d]: Allocating ring mem\n",
-                pi->port.line);
-@@ -745,7 +748,6 @@
-        int     rc = 0;
-        u8      *bp;
-        char    flag = TTY_NORMAL;
--       static void mpsc_start_rx(struct mpsc_port_info *pi);
+Very Brief Documentation:
 
-        pr_debug("mpsc_rx_intr[%d]: Handling Rx intr\n", pi->port.line);
+You can select a default scheduler at kernel build time.  If you wish to
+boot with a scheduler other than the default it can be selected at boot
+time by adding:
 
-@@ -1178,7 +1180,6 @@
- mpsc_shutdown(struct uart_port *port)
- {
-        struct mpsc_port_info *pi = (struct mpsc_port_info *)port;
--       static void mpsc_release_port(struct uart_port *port);
+cpusched=<scheduler>
 
-        pr_debug("mpsc_shutdown[%d]: Shutting down MPSC\n", port->line);
+to the boot command line where <scheduler> is one of: ingosched,
+nicksched, staircase, spa_no_frills or zaphod.  If you don't change the
+default when you build the kernel the default scheduler will be
+ingosched (which is the normal scheduler).
 
-@@ -1448,7 +1449,6 @@
-        return uart_set_options(&pi->port, co, baud, parity, bits, flow);
- }
+The scheduler in force on a running system can be determined by the
+contents of:
 
--extern struct uart_driver mpsc_reg;
- static struct console mpsc_console = {
-        .name   = MPSC_DEV_NAME,
-        .write  = mpsc_console_write,
+/proc/scheduler
+
+Control parameters for the scheduler can be read/set via files in:
+
+/sys/cpusched/<scheduler>/
+
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

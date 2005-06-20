@@ -1,64 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261286AbVFTPSS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261273AbVFTPUC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261286AbVFTPSS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 11:18:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261322AbVFTPSS
+	id S261273AbVFTPUC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 11:20:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261314AbVFTPUB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 11:18:18 -0400
-Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:8337
-	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
-	with ESMTP id S261286AbVFTPSN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 11:18:13 -0400
-Reply-To: <abonilla@linuxwireless.org>
-From: "Alejandro Bonilla" <abonilla@linuxwireless.org>
-To: <linux-kernel@vger.kernel.org>
-Cc: <linux-thinkpad@linux-thinkpad.org>
-Subject: IBM HDAPS Someone interested?
-Date: Mon, 20 Jun 2005 09:18:08 -0600
-Message-ID: <004e01c575ab$43945860$600cc60a@amer.sykes.com>
+	Mon, 20 Jun 2005 11:20:01 -0400
+Received: from smtpout1.BAYAREA.NET ([209.128.95.10]:33454 "EHLO
+	smtpout1.bayarea.net") by vger.kernel.org with ESMTP
+	id S261273AbVFTPTp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 11:19:45 -0400
+Message-ID: <42B6DE67.4050603@bayarea.net>
+Date: Mon, 20 Jun 2005 16:19:03 +0100
+From: Robert Gadsdon <rgadsdon@bayarea.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050415
+X-Accept-Language: en-gb, en, en-us
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Robert Gadsdon <rgadsdon@bayarea.net>
+CC: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.12 kernel panic after loading promise_sata module
+References: <42B68DFB.8090608@bayarea.net>
+In-Reply-To: <42B68DFB.8090608@bayarea.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.6604 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1478
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+My apologies. I had failed to notice that mkinitrd needed to be updated 
+as well as udev..   Updated to version 4.2.16, and 2.6.12 boots OK.
 
-	As I have asked before, I will do it again. Sorry if this is not the right
-place.
+Robert Gadsdon
 
-I'm looking for someone, a hope, anything from anyone that have an IBM T40,
-T41, T42 or whoever has the Embedded "Airbag" solution in their Linux
-Laptops.
+Robert Gadsdon wrote:
+> Tried 2.6.12 (vanilla) kernel, and had the following at boot:
+> (typed from screen)
+snip
+> Starting udev
+> Loading libata.ko module
+> Loading sata_promise.ko module
+> Creating root device
+> Mounting root filesystem
+> mount: error 6 mounting ext3
 
-The Hard Drive Active Protection System, which is in the IBM laptops (and
-maybe some others) uses an Analog ADXL320 (or ADXL202) with the
-accelerometer for XY to monitor the movement in the laptops.
-
-We have the Datasheet, Application notes and free "Tech support" from Analog
-Devices. Now, we need some developers interested in getting this to work. We
-just need someone to start something or to take a couple of minutes to see
-if this is doable, and if a linux driver came be made to make it work.
-
-(There is also a Fingerprint reader that I would like to get working, but
-that is somehow screwed up by security layers) :)
-
-PLEASE, if you have a couple of minutes, or if you are interested in getting
-this working, Please let me/us know.
-
-http://www.analog.com/en/prod/0,2877,ADXL320,00.html
-
-http://www.analog.com/en/prodRes/0,2889,ADXL202%255F871,00.html
-
-
-Thanks for the time.
-
-.Alejandro
+> 
 

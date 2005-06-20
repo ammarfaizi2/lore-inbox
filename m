@@ -1,82 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261201AbVFTLtr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261207AbVFTLwQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261201AbVFTLtr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 07:49:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261207AbVFTLtr
+	id S261207AbVFTLwQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 07:52:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261210AbVFTLwQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 07:49:47 -0400
-Received: from ms-smtp-03-smtplb.tampabay.rr.com ([65.32.5.133]:2975 "EHLO
-	ms-smtp-03.tampabay.rr.com") by vger.kernel.org with ESMTP
-	id S261201AbVFTLto (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 07:49:44 -0400
-Subject: Re: [linux-usb-devel] usbnet ethernet duplex issue?
-From: David Hollis <dhollis@davehollis.com>
-To: Matt Mackall <mpm@selenic.com>
-Cc: linux-usb-devel@lists.sourceforge.net,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       David Brownell <dbrownell@users.sourceforge.net>
-In-Reply-To: <20050617192715.GK27572@waste.org>
-References: <20050617192715.GK27572@waste.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-CUUSbnz5WkV3Hr987zjb"
-Date: Mon, 20 Jun 2005 07:47:56 -0400
-Message-Id: <1119268076.19570.7.camel@dhollis-lnx.sunera.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+	Mon, 20 Jun 2005 07:52:16 -0400
+Received: from office.icomedias.com ([62.99.232.80]:44198 "EHLO
+	relay.icomedias.com") by vger.kernel.org with ESMTP id S261207AbVFTLwK convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 07:52:10 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: AW: sata_promise KERNEL_BUG on 2.6.12
+Date: Mon, 20 Jun 2005 13:52:03 +0200
+Message-ID: <FA095C015271B64E99B197937712FD02510D59@freedom.grz.icomedias.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: sata_promise KERNEL_BUG on 2.6.12
+Thread-Index: AcV1QeJIv/01ZJZQRTqytMK4mrPAXwARsqsA
+From: "Martin Bene" <martin.bene@icomedias.com>
+To: "Jeff Garzik" <jgarzik@pobox.com>, "Marcel Naziri" <silent@zwobbl.de>
+Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jeff Garzik wrote:
+> Marcel Naziri wrote:
+> > Could the driver "remap" it? It's confusing that the boot 
+> loader sees the 
+> > drives in another way than the kernel do.
+> 
+> 
+> Unfortunately it largely depends on how the board maker 
+> decided to wire up the ports. If the Promise 
+> driver gets it right, I probably need to 
+> poke into BIOS somewhere...
 
---=-CUUSbnz5WkV3Hr987zjb
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Yes, I also saw that "reverse port numbering" effect on SATAII 150 TX4.
 
-On Fri, 2005-06-17 at 12:27 -0700, Matt Mackall wrote:=20
-> I'm experimenting with a Netgear FA-120 USB 2.0 to Ethernet device and
-> seeing some strange behavior.
->=20
-> If I run a 100MB transfer (TCP, via nc and dd) over out LAN, with the
-> Netgear on the sending end, I get about 10MB/s, as expected.
-> Receiving, I get ~5MB/s. If I do simultaneous send and receive, the
-> throughput is a few K per second at best.
->=20
-> If I do the same transfers between a pair of isolated laptops, with
-> the Netgear on one end and Intel e100 or e1000 on the other, I see about
-> 500-900K per second in either direction.
->=20
-> There are no errors detected by the usbnet driver and ethtool reports
-> that the device is autonegotiating, full duplex. Setting autoneg off
-> and duplex to half lets the isolated transfers go at wirespeed.
->=20
-> So the question is, what's up with duplex? Everything I can find about
-> the hardware (including the ASIX datasheet) claims it's full-duplex
-> capable but aside from the error counters, it's really behaving like a
-> half-duplex device.
->=20
+Bios + current Promise driver (for 2.4) agree on the port numbering,
+matches the port# printed on the board.
 
-First off, I hope you are testing with 2.6.12 or so.  There are some
-patches to handle the auto-negotiation that went in 2.6.11 or 2.6.12 and
-they SHOULD be handling those cases better though it is certainly
-possible that they don't work as well as they should.  In some of my
-testing, I was finding that I only really got the LPA from
-autonegotiation on the first connect.  Subsequent ones always returned
-the same values, even if I connected into a 10mb hub or the like.  I
-haven't been able to determine if that is a shortcoming in the device or
-not.=20
+Linux libsata driver uses reversed port numbering, otherwise works OK.
 
---=20
-David Hollis <dhollis@davehollis.com>
-
---=-CUUSbnz5WkV3Hr987zjb
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBCtqzsxasLqOyGHncRAnkKAJ4+KYYrf8kjdCYTz8WPd4LgwHT43wCeLb9u
-z+JIh3cptL4F5RT/P3GRalI=
-=q7zU
------END PGP SIGNATURE-----
-
---=-CUUSbnz5WkV3Hr987zjb--
-
+Bye, Martin

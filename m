@@ -1,52 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261861AbVFUABR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261500AbVFUAFj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261861AbVFUABR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 20:01:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261805AbVFUAAz
+	id S261500AbVFUAFj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 20:05:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261864AbVFUADd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 20:00:55 -0400
-Received: from [62.206.217.67] ([62.206.217.67]:35473 "EHLO kaber.coreworks.de")
-	by vger.kernel.org with ESMTP id S261822AbVFTXWz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 19:22:55 -0400
-Message-ID: <42B74FC5.3070404@trash.net>
-Date: Tue, 21 Jun 2005 01:22:45 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.8) Gecko/20050514 Debian/1.7.8-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Bart De Schuymer <bdschuym@pandora.be>
-CC: Bart De Schuymer <bdschuym@telenet.be>,
-       Herbert Xu <herbert@gondor.apana.org.au>, netfilter-devel@manty.net,
-       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
-       ebtables-devel@lists.sourceforge.net, rankincj@yahoo.com
-Subject: Re: 2.6.12: connection tracking broken?
-References: <E1Dk9nK-0001ww-00@gondolin.me.apana.org.au>	 <Pine.LNX.4.62.0506200432100.31737@kaber.coreworks.de>	 <1119249575.3387.3.camel@localhost.localdomain>  <42B6B373.20507@trash.net> <1119293193.3381.9.camel@localhost.localdomain>
-In-Reply-To: <1119293193.3381.9.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii
+	Mon, 20 Jun 2005 20:03:33 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:48834 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261500AbVFTXhO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 19:37:14 -0400
+Subject: Re: [PATCH 1/6] new timeofday core subsystem for -mm (v.B3)
+From: Lee Revell <rlrevell@joe-job.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, George Anzinger <george@mvista.com>,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>
+In-Reply-To: <Pine.LNX.4.61.0506202231070.3728@scrub.home>
+References: <1119063400.9663.2.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0506181344000.3743@scrub.home>
+	 <1119287354.9947.22.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0506202231070.3728@scrub.home>
+Content-Type: text/plain
+Date: Mon, 20 Jun 2005 19:40:46 -0400
+Message-Id: <1119310847.17602.5.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.3.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bart De Schuymer wrote:
-> When the _routing_ decision sends the packet to br0 (a bridge device),
-> it is unknown which bridge port(s) the packet will be sent out. This is
-> only known after the packet enters the bridge code. Therefore, for
-> iptables to know the bridge port out device, the hooks must be postponed
-> until in the bridge code.
+On Tue, 2005-06-21 at 00:05 +0200, Roman Zippel wrote:
+> With -mm you can now choose the HZ value, so that's not really the 
+> problem anymore. A lot of archs even never changed to a higher HZ
+> value. 
 
-This seems to be a really bad idea, for a single match that violates
-layering we need to deal with this inconsistency. It's not just the
-conntrack reference, with IPsec the packet passed to the defered hooks
-is totally different from when it was still inside IP, which for example
-breaks the policy match.
+That does not solve anything, going back to HZ=100 is a big user-visible
+regression because the resolution of sleep() (and poll, etc) is now 10ms
+rather than 1ms.  Many apps have RT constraints between 1ms and 10ms.
 
-> Trust me, people will complain if they can no longer use the physdev
-> match for routed packets.
+Lee
 
-I'm sure they will, now that they got used to it. Why can't people
-match on the bridge port inside ebtables and only match on the device
-within iptables? Is there a case that can't be handled this way?
 
-Regards
-Patrick

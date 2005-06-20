@@ -1,77 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261696AbVFUDbp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261649AbVFUDW1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261696AbVFUDbp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 23:31:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262027AbVFUDZB
+	id S261649AbVFUDW1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 23:22:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261664AbVFUDRh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 23:25:01 -0400
-Received: from ylpvm01-ext.prodigy.net ([207.115.57.32]:46040 "EHLO
-	ylpvm01.prodigy.net") by vger.kernel.org with ESMTP id S261877AbVFUCVh
+	Mon, 20 Jun 2005 23:17:37 -0400
+Received: from mail.kroah.org ([69.55.234.183]:5092 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261649AbVFTW7d convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 22:21:37 -0400
-Date: Mon, 20 Jun 2005 19:21:11 -0700
-From: Tony Lindgren <tony@atomide.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Tony Lindgren <tony@atomide.com>, hugang@soulinfo.com,
-       linux-kernel@vger.kernel.org,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       Jonathan Corbet <corbet@lwn.net>, Pavel Machek <pavel@ucw.cz>,
-       Bernard Blackham <b-lkml@blackham.com.au>,
-       Christian Hesse <mail@earthworm.de>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Subject: Re: [PATCH] Dynamic tick for x86 version 050610-1
-Message-ID: <20050621022111.GA32021@muru.com>
-References: <20050602174219.GC21363@atomide.com> <20050603223758.GA2227@elf.ucw.cz> <20050610041706.GC18103@atomide.com> <20050610091515.GH4173@elf.ucw.cz> <20050610151707.GB7858@atomide.com> <20050610221501.GB7575@atomide.com> <20050618033419.GA6476@hugang.soulinfo.com> <1119076233.18247.27.camel@gaston> <20050621012825.GA30990@muru.com> <1119318560.18247.134.camel@gaston>
+	Mon, 20 Jun 2005 18:59:33 -0400
+Cc: yani.ioannou@gmail.com
+Subject: [PATCH] I2C: add i2c sensor_device_attribute and macros
+In-Reply-To: <11193083693406@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Mon, 20 Jun 2005 15:59:29 -0700
+Message-Id: <111930836944@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1119318560.18247.134.camel@gaston>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Greg K-H <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 21, 2005 at 11:49:20AM +1000, Benjamin Herrenschmidt wrote:
-> On Mon, 2005-06-20 at 18:28 -0700, Tony Lindgren wrote:
-> > On Sat, Jun 18, 2005 at 04:30:32PM +1000, Benjamin Herrenschmidt wrote:
-> > > 
-> > > > I'm try to port it powerpc, Here is a patch.
-> > > > 
-> > > >  Port Dynamic Tick Timer to new platform is easy. :)
-> > > >   1) Find the reprogram timer interface.
-> > > >   2) do a hook in the idle function.
-> > > > 
-> > > > That worked on my PowerBookG4 12'.
-> > 
-> > Cool :)
-> > 
-> > > Did you get a measurable gain on power consumption ?
-> > > 
-> > > Last time I toyed with this, I didn't.
-> > 
-> > Just dyntick alone probably does not do much for power savings. The
-> > trick is to figure out what all can be turned off for the longer idle
-> > periods. And try to make the idle periods longer by cutting down on
-> > polling.
-> 
-> I would have expected it to actually do increase savings due to avoiding
-> the cost of bringing the CPU back from deep NAP mode too often. It's
-> possible that my previous experiments were bogus in fact. It would be
-> very useful to have some statistics on how long we _actually_ sleep, I
-> supspect things like the network stack with all it's slow timer all
-> kicking at slightly different times for example are screwing us up a
-> little bit.
+[PATCH] I2C: add i2c sensor_device_attribute and macros
 
-Yeah, and I've also noticed that my laptop does not stay in C2 mode, but
-actually just spins around... Halt works though. Then the x86 keyboard
-driver does polling if no keyboard is attached. And I believe netfilter
-caused some polling too (unverified).  And then of course any kind of
-CPU meter apps keep polling...
+This patch creates a new header with a potential standard i2c sensor
+attribute type (which simply includes an int representing the sensor
+number/index) and the associated macros, SENSOR_DEVICE_ATTR to define
+a static attribute and to_sensor_dev_attr to get a
+sensor_device_attribute reference from an embedded device_attribute
+reference.
 
-One way to test the idle savings is to temporarily disable the timer
-interrupt so the system stays in idle while measuring. That does not
-help with the other devices though.
+Signed-off-by: Yani Ioannou <yani.ioannou@gmail.com>
 
-I've been thinking about implementing something that would show up the
-worst pollers. Maybe then have a program called polltop? :)
+---
+commit 0a3e7eeabc9f76b7496488aad2d11626ff6a2a4f
+tree 0cab827910fe12199d666b84919d88fb881fb82d
+parent f2d03e1b3f00f1c5971463ab0101bef0c521ad3b
+author Yani Ioannou <yani.ioannou@gmail.com> Tue, 17 May 2005 22:59:05 -0400
+committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 20 Jun 2005 15:15:36 -0700
 
-Tony
+ include/linux/i2c-sysfs.h |   36 ++++++++++++++++++++++++++++++++++++
+ 1 files changed, 36 insertions(+), 0 deletions(-)
+
+diff --git a/include/linux/i2c-sysfs.h b/include/linux/i2c-sysfs.h
+new file mode 100644
+--- /dev/null
++++ b/include/linux/i2c-sysfs.h
+@@ -0,0 +1,36 @@
++/*
++ *  i2c-sysfs.h - i2c chip driver sysfs defines
++ *
++ *  Copyright (C) 2005 Yani Ioannou <yani.ioannou@gmail.com>
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation; either version 2 of the License, or
++ *  (at your option) any later version.
++ *
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with this program; if not, write to the Free Software
++ *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ */
++#ifndef _LINUX_I2C_SYSFS_H
++#define _LINUX_I2C_SYSFS_H
++
++struct sensor_device_attribute{
++	struct device_attribute dev_attr;
++	int index;
++};
++#define to_sensor_dev_attr(_dev_attr) \
++	container_of(_dev_attr, struct sensor_device_attribute, dev_attr)
++
++#define SENSOR_DEVICE_ATTR(_name,_mode,_show,_store,_index)	\
++struct sensor_device_attribute sensor_dev_attr_##_name = {	\
++	.dev_attr =	__ATTR(_name,_mode,_show,_store),	\
++	.index =	_index,					\
++}
++
++#endif /* _LINUX_I2C_SYSFS_H */
+

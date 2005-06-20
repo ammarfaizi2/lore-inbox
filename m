@@ -1,44 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261405AbVFTR4I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261253AbVFTSHH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261405AbVFTR4I (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 13:56:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261410AbVFTR4I
+	id S261253AbVFTSHH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 14:07:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261410AbVFTSHH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 13:56:08 -0400
-Received: from urchin.mweb.co.za ([196.2.24.26]:7757 "EHLO urchin.mweb.co.za")
-	by vger.kernel.org with ESMTP id S261405AbVFTR4D (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 13:56:03 -0400
-From: Bongani Hlope <bonganilinux@mweb.co.za>
-To: niraj17@iitbombay.org
-Subject: Re: Hi,make question
-Date: Mon, 20 Jun 2005 19:56:07 +0200
-User-Agent: KMail/1.8.50
-Cc: guorke <gourke@gmail.com>, linux-kernel@vger.kernel.org
-References: <d73ab4d005061918441ae4a81f@mail.gmail.com> <d73ab4d005061922314a2cadb5@mail.gmail.com> <b82a891705062000144a0c3f81@mail.gmail.com>
-In-Reply-To: <b82a891705062000144a0c3f81@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 20 Jun 2005 14:07:07 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:5052 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261253AbVFTSHC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 14:07:02 -0400
+Subject: Re: [PATCH 1/6] new timeofday core subsystem for -mm (v.B3)
+From: Lee Revell <rlrevell@joe-job.com>
+To: john stultz <johnstul@us.ibm.com>
+Cc: Roman Zippel <zippel@linux-m68k.org>, lkml <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, George Anzinger <george@mvista.com>,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>
+In-Reply-To: <1119287354.9947.22.camel@cog.beaverton.ibm.com>
+References: <1119063400.9663.2.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0506181344000.3743@scrub.home>
+	 <1119287354.9947.22.camel@cog.beaverton.ibm.com>
+Content-Type: text/plain
+Date: Mon, 20 Jun 2005 14:10:33 -0400
+Message-Id: <1119291034.16180.9.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.3.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506201956.07959.bonganilinux@mweb.co.za>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 20 June 2005 09:14 am, Niraj kumar wrote:
-> On 6/20/05, guorke <gourke@gmail.com> wrote:
-> > > 1. What kernel are you currently runnig
-> <snip>
-> > I meet lot of  Segmentation fault.
-> > So I must make again and agian.
-> 
-> Continuous segfault is usually sign of a hardware/memory issue .
-> 
-> You may like to try memtest86 .
-> 
-> Niraj
-> 
->
+On Mon, 2005-06-20 at 10:09 -0700, john stultz wrote:
+> As for gettimefoday() syscall performance, I one had some numbers, but
+> I
+> would need to re-create them. I'll see if I can grab a slower box and
+> give you some hard numbers. 
 
-If you haven't tried to update your system's glibc (or maybe partial upgrade), then try running memtest86
+I ran some tests lately that showed gettimeofday() to be 50x slower than
+rdtsc() on my 600Mhz machine.  Many userspace apps that need a cheap
+high res timer have to use rdtsc now due to the excessive overhead of
+gettimeofday().  It would be more correct if these apps could use
+gettimeofday() for various reasons (cpufreq and SMP issues).
+
+So this patch is addressing a real problem.  I'd be interested to see if
+the performance is good enough to replace rdtsc in these cases.
+
+Lee
+

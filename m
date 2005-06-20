@@ -1,74 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261362AbVFTRJ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261368AbVFTRRq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261362AbVFTRJ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 13:09:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261379AbVFTRJ2
+	id S261368AbVFTRRq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 13:17:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261384AbVFTRRq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 13:09:28 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:33996 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261362AbVFTRJS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 13:09:18 -0400
-Subject: Re: [PATCH 1/6] new timeofday core subsystem for -mm (v.B3)
-From: john stultz <johnstul@us.ibm.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       George Anzinger <george@mvista.com>,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>
-In-Reply-To: <Pine.LNX.4.61.0506181344000.3743@scrub.home>
-References: <1119063400.9663.2.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.61.0506181344000.3743@scrub.home>
-Content-Type: text/plain
-Date: Mon, 20 Jun 2005 10:09:14 -0700
-Message-Id: <1119287354.9947.22.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+	Mon, 20 Jun 2005 13:17:46 -0400
+Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:17097
+	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
+	with ESMTP id S261368AbVFTRRn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 13:17:43 -0400
+Reply-To: <abonilla@linuxwireless.org>
+From: "Alejandro Bonilla" <abonilla@linuxwireless.org>
+To: "'Lenz Grimmer'" <lenz@grimmer.com>, <linux-thinkpad@linux-thinkpad.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: [ltp] Re: IBM HDAPS Someone interested?
+Date: Mon, 20 Jun 2005 11:17:37 -0600
+Message-ID: <005a01c575bb$f51efcb0$600cc60a@amer.sykes.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <42B6F723.50808@grimmer.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1478
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-06-18 at 14:02 +0200, Roman Zippel wrote:
-> On Fri, 17 Jun 2005, john stultz wrote:
-> 
-> > o Uses nanoseconds as the kernel's base time unit
-> 
-> Maybe I missed it, but was there ever a conclusive discussion about the 
-> perfomance impact this has?
-> I see lots of new u64 variables. I'm especially interested how this code 
-> scales down to small and slow machines, where such a precision is absolute 
-> overkill. How do these patches change current and possibly common time 
-> operations?
 
+> I tried monitoring the output of the embedded controller register dump
+> that the "ibm-acpi" kernel module provides, using the
+> following command
+> and then moving the Laptop (Thinkpad T42) to trigger changes:
+>
+>   watch -n1 cat /proc/acpi/ibm/ecdump
+>
+> Alas, there wasn't really a pattern that convinced me that the chip
+> actually is monitored via this controller. But of course it
+> may not harm
+> if somebody else double checks this.
+>
+> > Well, some piece of software needs to park the HDD when the notebook
+> > is falling, and that piece of software should better be
+> running since
+> > the notebook is powered on. Hence my suspicion it's in the BIOS. It
+> > doesn't have to be visible to the user, at all.
+>
+> On Windows, you need to run a separate tray application that
+> enables the
+> protection. So it seems like it's implemented in "userspace".
+> It may be
+> worth debugging what this Window applet actually does...
+>
+> Bye,
+> 	LenZ
 
-Hey Roman, 
-	That's a good issue to bring up. With regards to the timeofday
-infrastructure, there are two performance concerns (though let me know
-if I'm forgetting something):
-	1. timer interrupt processing overhead
-	2. gettimeofday() syscall performance
+Lenz,
 
-On smaller systems, timer interrupt processing is a concern, with the
-shift to HZ=1000, we got a number of complaints from folks w/ old 486s
-where time would drift due lost ticks. This would happen when something
-(usually IDE in PIO mode) would disable interrupts and they would miss a
-ton of timer interrupts. Also the impact of running the timekeeping code
-10x more frequently was seen in a number of cases.
+	I will try this at home in about 4 hours and then let you know of the
+output. This is really the first command that I can see that might give us
+any/non information.
 
-With the new infrastructure, timekeeping is all done via a soft-timer
-outside of interrupt context. In fact, the timekeeping soft-timer is
-setup to run every 50ms instead of every ms. This should help overall
-performance on slower systems using high HZ values.
-
-As for gettimefoday() syscall performance, I one had some numbers, but I
-would need to re-create them. I'll see if I can grab a slower box and
-give you some hard numbers. The gettimeofday() path is fairly
-streamlined and should be pretty straight forward in the patch (see
-kernel/timeofday.c), so let me know if you have specific concerns. 
-
-There will probably be a bit of a drop, but I have some ideas for
-cacheing a precomputed timeval in the timekeeping soft-timer if its a
-serious issue.
-
-thanks
--john
+.Alejandro
 

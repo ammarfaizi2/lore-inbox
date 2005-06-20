@@ -1,50 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261207AbVFTLwQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261210AbVFTLwx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261207AbVFTLwQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 07:52:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261210AbVFTLwQ
+	id S261210AbVFTLwx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 07:52:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261211AbVFTLwx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 07:52:16 -0400
-Received: from office.icomedias.com ([62.99.232.80]:44198 "EHLO
-	relay.icomedias.com") by vger.kernel.org with ESMTP id S261207AbVFTLwK convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 07:52:10 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: AW: sata_promise KERNEL_BUG on 2.6.12
-Date: Mon, 20 Jun 2005 13:52:03 +0200
-Message-ID: <FA095C015271B64E99B197937712FD02510D59@freedom.grz.icomedias.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: sata_promise KERNEL_BUG on 2.6.12
-Thread-Index: AcV1QeJIv/01ZJZQRTqytMK4mrPAXwARsqsA
-From: "Martin Bene" <martin.bene@icomedias.com>
-To: "Jeff Garzik" <jgarzik@pobox.com>, "Marcel Naziri" <silent@zwobbl.de>
-Cc: <linux-kernel@vger.kernel.org>
+	Mon, 20 Jun 2005 07:52:53 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:24996 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261210AbVFTLwr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 07:52:47 -0400
+Date: Mon, 20 Jun 2005 17:31:54 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: linux-aio@kvack.org
+Cc: linux-kernel@vger.kernel.org, bcrl@kvack.org, wli@holomorphy.com,
+       zab@zabbo.net, mason@suse.com, ysaito@hpl.hp.com
+Subject: Pending AIO work/patches
+Message-ID: <20050620120154.GA4810@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Marcel Naziri wrote:
-> > Could the driver "remap" it? It's confusing that the boot 
-> loader sees the 
-> > drives in another way than the kernel do.
-> 
-> 
-> Unfortunately it largely depends on how the board maker 
-> decided to wire up the ports. If the Promise 
-> driver gets it right, I probably need to 
-> poke into BIOS somewhere...
 
-Yes, I also saw that "reverse port numbering" effect on SATAII 150 TX4.
+Since AIO development is gaining momentum once again, ocfs2 and
+samba both appear to be using AIO, NFS needs async semaphores etc,
+there appears to be an increase in interest in straightening out some
+of the pending work in this area. So this seems like a good
+time to re-post some of those patches for discussion and decision.
 
-Bios + current Promise driver (for 2.4) agree on the port numbering,
-matches the port# printed on the board.
+Just to help sync up, here is an initial list based on the pieces
+that have been in progress with patches in existence (please feel free
+to add/update ones I missed or reflected inaccurately here):
 
-Linux libsata driver uses reversed port numbering, otherwise works OK.
+(1) Updating AIO to use wait-bit based filtered wakeups (me/wli)
+	Status: Updated to 2.6.12-rc6, needs review
+(2) Buffered filesystem AIO read/write (me/Ben)
+	Status: aio write: Updated to 2.6.12-rc6, needs review
+	Status: aio read : Needs rework against readahead changes in mainline
+(3) POSIX AIO support (Bull: Laurent/Sebastian or Oracle: Joel)
+	Status: Needs review and discussion ?
+(4) AIO for pipes (Chris Mason)
+	Status: Needs update to latest kernels
+(5) Asynchronous semaphore implementation (Ben/Trond?)
+	Status: Posted - under development & discussion
+(6) epoll - AIO integration (Zach Brown/Feng Zhou/wli)
+	Status: Needs resurrection ?
+(7) Vector AIO (aio readv/writev) (Yasushi Saito)
+	Status: Needs resurrection ?
 
-Bye, Martin
+On my part, I'll start by re-posting (1) for discussion, and then
+move to (2).
+
+Regards
+Suparna
+
+-- 
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Lab, India
+

@@ -1,20 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261261AbVFTOAb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261254AbVFTOKT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261261AbVFTOAb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 10:00:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261260AbVFTOAb
+	id S261254AbVFTOKT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 10:10:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261245AbVFTOKT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 10:00:31 -0400
-Received: from dvhart.com ([64.146.134.43]:13233 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S261254AbVFTOAN (ORCPT
+	Mon, 20 Jun 2005 10:10:19 -0400
+Received: from dvhart.com ([64.146.134.43]:13745 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S261256AbVFTOI0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 10:00:13 -0400
-Date: Mon, 20 Jun 2005 07:00:07 -0700
+	Mon, 20 Jun 2005 10:08:26 -0400
+Date: Mon, 20 Jun 2005 07:08:27 -0700
 From: "Martin J. Bligh" <mbligh@mbligh.org>
 Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 4764] New: On Running LTP test suite testcase nptl	comes out with failures
-Message-ID: <175930000.1119276007@[10.10.2.4]>
+To: Takashi Iwai <tiwai@suse.de>, Dave Jones <davej@redhat.com>
+Cc: Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@osdl.org>,
+       James.Bottomley@SteelEye.com, linux-kernel@vger.kernel.org
+Subject: Re: kernel bugzilla
+Message-ID: <181620000.1119276507@[10.10.2.4]>
+In-Reply-To: <s5hwtopp7e5.wl%tiwai@suse.de>
+References: <20050617001330.294950ac.akpm@osdl.org><1119016223.5049.3.camel@mulgrave><20050617142225.GO6957@suse.de><20050617141003.2abdd8e5.akpm@osdl.org><20050617212338.GA16852@suse.de><491950000.1119044739@flay><20050618191341.GA30620@redhat.com> <s5hwtopp7e5.wl%tiwai@suse.de>
 X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -23,39 +27,17 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugzilla.kernel.org/show_bug.cgi?id=4764
+> It'd be nice if these (exported) bugzilla systems can notify to the
+> corresponding devel ML, e.g. alsa-devel in the case of ALSA, so that
+> the reports surely reach to developers.
 
-           Summary: On Running LTP test suite testcase nptl comes out with
-                    failures
-    Kernel Version: 2.6.12-rc6-mm1
-            Status: NEW
-          Severity: normal
-             Owner: other_other@kernel-bugs.osdl.org
-         Submitter: sharyathi@in.ibm.com
-                CC: bnpoorni@in.ibm.com,sglass@us.ibm.com
+That's easily fixable. However, it's likely to irritate SOME people on
+each list. What I suggest is subscribing to bugme-new@lists.osdl.org,
+(which will get you one email for each new bug) and have someone in that 
+group take responsiblity for forwarding new bugs in the relevant 
+categories to the list (there are headers to filter on). A simple 
+procmail filter should suffice ... but I'm not willing to take
+responsibility for automated emailt to lists I'm not even subscribed to ;-)
 
-
-Distribution:
-   SLES 9 SP1
------------------------------
-Hardware Environment:
-1 way, Pentium IV 2.8GHz, 2G RAM
-Network Interface(e1000)
-Disk I/O
-SCSI storage controller: Adaptec Ultra320
------------------------------   
-Software Environment:
-Linux x206h 2.6.12-rc6-mm1-I #3 SMP Sat Jun 25 13:27:57 IST 2005 i686 i686 i386
-GNU/Linux
------------------------------
-Problem Description:
-    While running the test suite, test case nptl01 fails. nptl01 is a testcase
-to test the bug in system call pthread_cond_timedwait() of the native posix
-library. 
-   The test was supposed to verify a condition where the sequence counters were
-getting updated without holding the internal condvar lock.
-    A FAIL is indicated by test hangin and not completing execution. 
-On running the test individually test hung for more than 300 secs.
------------------------------
-
+M.
 

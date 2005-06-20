@@ -1,54 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261670AbVFUCCo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261525AbVFUCDT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261670AbVFUCCo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 22:02:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261859AbVFUB71
+	id S261525AbVFUCDT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 22:03:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261786AbVFTX6W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 21:59:27 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:7050 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261853AbVFUBz0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 21:55:26 -0400
-Date: Mon, 20 Jun 2005 18:55:42 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Kristian Benoit <kbenoit@opersys.com>
-Cc: linux-kernel@vger.kernel.org, bhuey@lnxw.com, andrea@suse.de,
-       tglx@linutronix.de, karim@opersys.com, mingo@elte.hu,
-       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
-       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, rpm@xenomai.org
-Subject: Re: PREEMPT_RT vs I-PIPE: the numbers, part 2
-Message-ID: <20050621015542.GB1298@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <1119287612.6863.1.camel@localhost>
+	Mon, 20 Jun 2005 19:58:22 -0400
+Received: from mail.kroah.org ([69.55.234.183]:56036 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261746AbVFTXAB convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 19:00:01 -0400
+Cc: yani.ioannou@gmail.com
+Subject: [PATCH] Driver core: change device_attribute callbacks
+In-Reply-To: <1119308367186@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Mon, 20 Jun 2005 15:59:28 -0700
+Message-Id: <11193083681028@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1119287612.6863.1.camel@localhost>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Greg K-H <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 20, 2005 at 01:13:32PM -0400, Kristian Benoit wrote:
-> We've finally been able to complete a second round of our tests.
-> Unfortunately, this has taken much longer than we ever anticipated.
-> Without going into too much detail, suffice it to say that we ran into
-> problems with each of our intended test configurations. Fortunately,
-> the results are that much more interesting and, we hope, more
-> accurately illustrate the performance of the approaches being
-> compared.
+[PATCH] Driver core: change device_attribute callbacks
 
-Again, good stuff!
+This patch adds the device_attribute paramerter to the
+device_attribute store and show sysfs callback functions, and passes a
+reference to the attribute when the callbacks are called.
 
-It looks to me that I-PIPE is an example of a "nested OS", with
-Linux nested within the I-PIPE functionality.  One could take
-the RTAI-Fusion approach, but this measurement is of I-PIPE
-rather than RTAI-Fusion, right?  (And use of RTAI-Fusion might
-or might not change these results significantly, just trying to
-make sure I understand what these specific tests apply to.)
+Signed-off-by: Yani Ioannou <yani.ioannou@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
-Also, if I understand correctly, the interrupt latency measured
-is to the Linux kernel running within I-PIPE, rather than to I-PIPE
-itself.  Is this the case, or am I confused?
+---
+commit 54b6f35c99974e99e64c05c2895718355123c55f
+tree 321d08c397bc26b49c706ca5b86de7003c2329c0
+parent ca2b94ba12f3c36fd3d6ed9d38b3798d4dad0d8b
+author Yani Ioannou <yani.ioannou@gmail.com> Tue, 17 May 2005 06:39:34 -0400
+committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 20 Jun 2005 15:15:31 -0700
 
-						Thanx, Paul
+ drivers/base/core.c    |    4 ++--
+ include/linux/device.h |    6 ++++--
+ 2 files changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/base/core.c b/drivers/base/core.c
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -39,7 +39,7 @@ dev_attr_show(struct kobject * kobj, str
+ 	ssize_t ret = -EIO;
+ 
+ 	if (dev_attr->show)
+-		ret = dev_attr->show(dev, buf);
++		ret = dev_attr->show(dev, dev_attr, buf);
+ 	return ret;
+ }
+ 
+@@ -52,7 +52,7 @@ dev_attr_store(struct kobject * kobj, st
+ 	ssize_t ret = -EIO;
+ 
+ 	if (dev_attr->store)
+-		ret = dev_attr->store(dev, buf, count);
++		ret = dev_attr->store(dev, dev_attr, buf, count);
+ 	return ret;
+ }
+ 
+diff --git a/include/linux/device.h b/include/linux/device.h
+--- a/include/linux/device.h
++++ b/include/linux/device.h
+@@ -335,8 +335,10 @@ extern void driver_attach(struct device_
+ 
+ struct device_attribute {
+ 	struct attribute	attr;
+-	ssize_t (*show)(struct device * dev, char * buf);
+-	ssize_t (*store)(struct device * dev, const char * buf, size_t count);
++	ssize_t (*show)(struct device *dev, struct device_attribute *attr,
++			char *buf);
++	ssize_t (*store)(struct device *dev, struct device_attribute *attr,
++			 const char *buf, size_t count);
+ };
+ 
+ #define DEVICE_ATTR(_name,_mode,_show,_store) \
+

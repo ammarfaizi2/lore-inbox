@@ -1,54 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261165AbVFTKp4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261199AbVFTKyz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261165AbVFTKp4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 06:45:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbVFTKpz
+	id S261199AbVFTKyz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 06:54:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261180AbVFTKyy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 06:45:55 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:2777 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261165AbVFTKpt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 06:45:49 -0400
-Date: Mon, 20 Jun 2005 11:45:44 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Tomasz K?oczko <kloczek@rudy.mif.pg.gda.pl>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       Chris Wright <chrisw@osdl.org>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Q: qla23xxx and lpfc (Was: Re: [GIT PATCH] SCSI updates for 2.6.12)
-Message-ID: <20050620104544.GA28488@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Tomasz K?oczko <kloczek@rudy.mif.pg.gda.pl>,
-	James Bottomley <James.Bottomley@SteelEye.com>,
-	Chris Wright <chrisw@osdl.org>, Andrew Morton <akpm@osdl.org>,
-	Linus Torvalds <torvalds@osdl.org>,
-	SCSI Mailing List <linux-scsi@vger.kernel.org>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <1119103586.4984.5.camel@mulgrave> <20050618141636.GA4112@infradead.org> <20050618174558.GX9153@shell0.pdx.osdl.net> <1119260140.6099.0.camel@mulgrave> <Pine.BSO.4.62.0506201217410.19853@rudy.mif.pg.gda.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 20 Jun 2005 06:54:54 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:62157 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S261199AbVFTKyg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 06:54:36 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: linux-crypto@vger.kernel.org
+Subject: [PATCH 0/5] random crypto cleanups
+Date: Mon, 20 Jun 2005 13:54:22 +0300
+User-Agent: KMail/1.5.4
+Cc: herbert@gondor.apana.org.au, davem@davemloft.net,
+       linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.BSO.4.62.0506201217410.19853@rudy.mif.pg.gda.pl>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Message-Id: <200506201354.22187.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 20, 2005 at 12:33:49PM +0200, Tomasz K?oczko wrote:
-> Included in vanilla 2.6.12 qla23xxx 8.00.02b5 is for me unuseable (fails 
-> on scaning luns and oopses on array controler reset) on x86_64 with
-> qla2300 and for me works only version 8.01.00b2.
-> Is it will be possible include this version in official tree ?
+1.be_le.patch:
+Introduce {load/store}_{be/le}{32/64}() macros
+and use them instead of open-coded conversions.
+Introduce BYTEn() macros for extraction of n'th
+byte from wider integers and use it.
 
-As said above a bad patch from Qlogic went in and Linus didn't pull the
-release critical fixes tree before release.  It'll be fixed in 2.6.12.1.
-8.01.00b2 is full of crap and despite the higher version number actually
-a regression vs the kernel driver in various aspects.
+2.wp.patch:
+Fix gcc3.4.3 -O2 whirlpool stack overflow.
 
-> Also is it will be possible include Emulex lpfc driver to official tree ?
+3.tf.patch:
+Dramatically reduce size of twofish key setup code
+with modest increase of key setup time.
 
-See drivers/scsi/lpfc/
+4.rot64.patch:
+Introduce 64bit rotations (generic + i386 asm),
+convert few existing places to use it.
+Per previous comments, replace inline -> __inline__
+in headers.
+
+z.patch:
+use BYTEn() in more places, simplify some tgr192.c bits
+
+Cumulative patch was tested with tcrypt.
+
+Please apply patches 1-4, comment on z.patch.
+
+Patches will be mailed as replies.
+--
+vda
 

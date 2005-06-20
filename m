@@ -1,66 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261474AbVFTHAj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261471AbVFTHD2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261474AbVFTHAj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 03:00:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261471AbVFTHAh
+	id S261471AbVFTHD2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 03:03:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261478AbVFTHD2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 03:00:37 -0400
-Received: from gate.crashing.org ([63.228.1.57]:4000 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261474AbVFTHA3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 03:00:29 -0400
-Subject: Re: 2.6.12-mm1
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: yaboot-devel@lists.penguinppc.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20050619233029.45dd66b8.akpm@osdl.org>
-References: <20050619233029.45dd66b8.akpm@osdl.org>
-Content-Type: text/plain
-Date: Mon, 20 Jun 2005 16:57:51 +1000
-Message-Id: <1119250672.18247.94.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+	Mon, 20 Jun 2005 03:03:28 -0400
+Received: from rrzmta2.rz.uni-regensburg.de ([132.199.1.17]:45237 "EHLO
+	rrzmta2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
+	id S261471AbVFTHDC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 03:03:02 -0400
+From: "Ulrich Windl" <ulrich.windl@rz.uni-regensburg.de>
+Organization: Universitaet Regensburg, Klinikum
+To: Roman Zippel <zippel@linux-m68k.org>
+Date: Mon, 20 Jun 2005 09:01:27 +0200
+MIME-Version: 1.0
+Subject: Re: [PATCH 1/6] new timeofday core subsystem for -mm (v.B3)
+Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       George Anzinger <george@mvista.com>,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>
+Message-ID: <42B685E8.9359.14B98F19@rkdvmks1.ngate.uni-regensburg.de>
+In-reply-to: <Pine.LNX.4.61.0506181344000.3743@scrub.home>
+References: <1119063400.9663.2.camel@cog.beaverton.ibm.com>
+X-mailer: Pegasus Mail for Windows (4.21c)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
+X-Content-Conformance: HerringScan-0.25/Sophos-P=3.92.0+V=3.92+U=2.07.092+R=04 April 2005+T=103979@20050620.065557Z
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-06-19 at 23:30 -0700, Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12/2.6.12-mm1/
+On 18 Jun 2005 at 14:02, Roman Zippel wrote:
+
+> Hi,
 > 
+> On Fri, 17 Jun 2005, john stultz wrote:
 > 
-> - Someone broke /proc/device-tree on ppc64.  It's being looked into.
+> > o Uses nanoseconds as the kernel's base time unit
+> 
+> Maybe I missed it, but was there ever a conclusive discussion about the 
+> perfomance impact this has?
+> I see lots of new u64 variables. I'm especially interested how this code 
+> scales down to small and slow machines, where such a precision is absolute 
+> overkill. How do these patches change current and possibly common time 
+> operations?
 
-I did, the breakage is in 2.6.12, and no, it's not broken :)
+Hi all!
 
-The problem is that the "ofpath" script that is part of the yaboot
-package has a stupid bug where for some reason, when booting from SCSI
-(or libata in this case), it decides to check wether there are any
-symlinks in /proc/device-tree, and if not, decides it's broken and
-aborts. It doesn't actually make any use of the symlinks that were there
-though (and they were useless and partially broken anyway, which is why
-I removed them).
+I had the impression that for slow and small machines every recent Linux 
+distribution is overkill. Whenever I complained every relied "Harddisks are cheap, 
+memory is cheap, get a new CPU". I do understand your doubts however. For my 
+personal experience with my PPSkit patches, I found out that my ols 386/SX @16MHz 
+failed to receive all serial characters when I timestamped each of them using my 
+new clock routines. However a 486@33MHz would do (it had better serial UART chips, 
+too). I would not thing my code was terribly efficient, because I tried to make it 
+"right" first.
 
-So it's a bug in "ofpath", a bit annoying, but at the same time, you
-don't need to run it when changing kernels, so it's not too harmful.
+And even the 386 had limited support for 64 bit operations. Since the 486 a 32bit 
+add is specified as using 1 CPU cycle (most likely in the optimal case). So doing 
+one more would not harm that much.
 
-The fix is :
+Basically, either the new clock system has to be optional (a maintenance nightmare 
+most likely), or you'll have to require a specific amount of performance for the 
+latest software. If you cannot fulfill the requirements, you'll have to stick with 
+an older release of the software.
 
---- ofpath	2005-06-20 16:56:12.000000000 +1000
-+++ ofpath.patched	2005-06-20 16:57:00.000000000 +1000
-@@ -425,14 +425,6 @@
- {
-     case "$DEVNODE" in
- 	sd*)
--	    if ls -l /proc/device-tree | grep -q ^lr ; then
--		true
--	    else
--		echo 1>&2 "$PRG: /proc/device-tree is broken.  Do not use BootX to boot, use yaboot."
--		echo 1>&2 "$PRG: The yaboot HOWTO can be found here: http://www.alaska.net/~erbenson/doc"
--		return 1
--	    fi
--
- 	    ## use common scsiinfo function to get info we need.
- 	    scsiinfo || return 1
- 
+Maybe let's try to make it as good (correct and efficient (and understandable) as 
+good as we can.
 
+Regards,
+Ulrich
 

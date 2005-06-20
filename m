@@ -1,43 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261698AbVFTUhL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261577AbVFTUg4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261698AbVFTUhL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 16:37:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261585AbVFTUhK
+	id S261577AbVFTUg4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 16:36:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261585AbVFTUdY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 16:37:10 -0400
-Received: from dvhart.com ([64.146.134.43]:19121 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S261541AbVFTUgA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 16:36:00 -0400
-Date: Mon, 20 Jun 2005 13:35:56 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Andi Kleen <ak@muc.de>
-Subject: 2.6.12-git1 broken on x86_64 (works on 2.6.12)
-Message-ID: <563690000.1119299756@flay>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 20 Jun 2005 16:33:24 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:12810 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261577AbVFTUcU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 16:32:20 -0400
+Message-Id: <200506202032.j5KKW6r7022159@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Philippe Gerum <rpm@xenomai.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] I-pipe: Core implementation 
+In-Reply-To: Your message of "Sat, 18 Jun 2005 19:01:40 +0200."
+             <20050618170139.GA477@openzaurus.ucw.cz> 
+From: Valdis.Kletnieks@vt.edu
+References: <42B35B07.7080703@xenomai.org>
+            <20050618170139.GA477@openzaurus.ucw.cz>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1119299524_19943P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Date: Mon, 20 Jun 2005 16:32:05 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fails to reboot, see:
+--==_Exmh_1119299524_19943P
+Content-Type: text/plain; charset=us-ascii
 
-http://ftp.kernel.org/pub/linux/kernel/people/mbligh/abat/6035/debug/console.log
+On Sat, 18 Jun 2005 19:01:40 +0200, Pavel Machek said:
+> Hi!
+> 
+> >  linux-2.6.12-rc6-ipipe-0.5/ipipe/Kconfig         |   12
+> >  linux-2.6.12-rc6-ipipe-0.5/ipipe/Makefile        |    9
+> >  linux-2.6.12-rc6-ipipe-0.5/ipipe/generic.c       |  265 ++++++++++++
+> 
+> Top-level directory for 3 files seems a bit excessive to me...
 
-basically:
+I'm thinking it might make more sense to make this 2 patches against
+kernel/Kconfig and kernel/Makefile, and rename the .c to kernel/ipipe.c,
+and stick the arch-dependent chunk down in arch/<whatever>/kernel/
 
-VFS: Cannot open root device "sda1" or unknown-block(0,0)
-Please append a correct "root=" boot option
-Kernel panic - not syncing: VFS: Unable to mount root fs on unknown-block(0,0)
+Unless somebody has a better idea?
 
-Looks like it didn't find the SCSI card at all ... MPT fusion, IIRC.
-I'll poke at it a bit tommorow, but if you've got any good guesses as
-to what broke it, let me know (hopefully something trivial like config
-options).
+--==_Exmh_1119299524_19943P
+Content-Type: application/pgp-signature
 
-M.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
+iD8DBQFCtyfEcC3lWbTT17ARAjHFAJ0T8UQitP66EsCZmKGV10QFm/mGFQCbB44A
+TYtnDwudY1YItrTl6fQmPnI=
+=EIJn
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1119299524_19943P--

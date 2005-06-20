@@ -1,43 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261361AbVFTPqc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261360AbVFTPwc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261361AbVFTPqc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 11:46:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261374AbVFTPqb
+	id S261360AbVFTPwc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 11:52:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbVFTPwb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 11:46:31 -0400
-Received: from animx.eu.org ([216.98.75.249]:4550 "EHLO animx.eu.org")
-	by vger.kernel.org with ESMTP id S261361AbVFTPoc (ORCPT
+	Mon, 20 Jun 2005 11:52:31 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:62439 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261360AbVFTPwZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 11:44:32 -0400
-Date: Mon, 20 Jun 2005 12:01:52 -0400
-From: Wakko Warner <wakko@animx.eu.org>
-To: linux-kernel@vger.kernel.org
-Subject: umount of initramfs hangs 2.6.12
-Message-ID: <20050620160152.GA6045@animx.eu.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	Mon, 20 Jun 2005 11:52:25 -0400
+Date: Mon, 20 Jun 2005 21:31:26 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: linux-aio@kvack.org
+Cc: linux-kernel@vger.kernel.org, bcrl@kvack.org, wli@holomorphy.com,
+       zab@zabbo.net, mason@suse.com
+Subject: [PATCH 0/6] Integrate AIO with wait-bit based filtered wakeups
+Message-ID: <20050620160126.GA5271@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <20050620120154.GA4810@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20050620120154.GA4810@in.ibm.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Subject says it all actually.  No error messages, nothing.  sysrq is
-the only thing that responds to me.
+On Mon, Jun 20, 2005 at 05:31:54PM +0530, Suparna Bhattacharya wrote:
+> Since AIO development is gaining momentum once again, ocfs2 and
+> samba both appear to be using AIO, NFS needs async semaphores etc,
+> there appears to be an increase in interest in straightening out some
+> of the pending work in this area. So this seems like a good
+> time to re-post some of those patches for discussion and decision.
+> 
+> Just to help sync up, here is an initial list based on the pieces
+> that have been in progress with patches in existence (please feel free
+> to add/update ones I missed or reflected inaccurately here):
+> 
+> (1) Updating AIO to use wait-bit based filtered wakeups (me/wli)
+> 	Status: Updated to 2.6.12-rc6, needs review
 
-sysrq+p shows process umount.  EIP is at umount_tree+0x40/0x110
-I assume the stuff below the registers is the stack.
-do_munmap+0x11b/0x150
-sys_munmap+0x44/0x70
-do_umount+0x139/0x1e0
-__user_walk+0x46/0x60
-sys_umount+0x8d/0xa0
-do_munmap+0x11b/0x150
-sys_munmap+0x44/0x70
-sys_oldumount+0x15/0x20
-syscall_call+0x7/0xb
+Here is a little bit of background on the motivation behind this set of
+patches to update AIO for filtered wakeups:
 
-NOTE: The above was typed by hand.
+(a) Since the introduction of filtered wakeups support and 
+    the wait_bit_queue infrastructure in mainline, it is no longer
+    sufficient to just embed a wait queue entry in the kiocb
+    for AIO operations involving filtered wakeups.
+(b) Given that filesystem reads/writes use filtered wakeups underlying
+    wait_on_page_bit, fixing this becomes a pre-req for buffered
+    filesystem AIO.
+(c) The wait_bit_queue infrastructure actually enables a cleaner
+    implementation of filesystem AIO because it already provides
+    for an action routine intended to allow both blocking and
+    non-blocking or asynchronous behaviour.
+
+As I was rewriting the patches to address this, there is one other
+change I made to resolve one remaining ugliness in my earlier
+patchsets - special casing of the form 
+	if (wait == NULL) wait = &local_wait
+to switch to a stack based wait queue entry if not passed a wait
+queue entry associated with an iocb.
+
+To avoid this, I have tried biting the bullet by including a default
+wait bit queue entry in the task structure, to be used instead of
+on-demand allocation of a wait bit queue entry on stack.
+
+All in all, these changes have (hopefully) simplified the code,
+as well as made it more up-to-date. Comments (including
+better names etc as requested by Zach) are welcome !
+
+Regards
+Suparna
 
 -- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Lab, India
+

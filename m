@@ -1,49 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261446AbVFTSvZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261452AbVFTSx4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261446AbVFTSvZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 14:51:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261452AbVFTSvZ
+	id S261452AbVFTSx4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 14:53:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261457AbVFTSxz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 14:51:25 -0400
-Received: from mail.harcroschem.com ([208.188.194.242]:16914 "EHLO
-	kcdc1.harcros.com") by vger.kernel.org with ESMTP id S261446AbVFTSvV convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 14:51:21 -0400
-Message-ID: <D9A1161581BD7541BC59D143B4A06294021FAA60@KCDC1>
-From: "Hodle, Brian" <BHodle@harcroschem.com>
-To: =?UTF-8?B?J1BldHRlciBTdW5kbMO2Zic=?= 
-	<petter.sundlof@findus.dhs.org>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: Observation: very low USB performance in 2.6.12 (-2 from agnu
-	la)
-Date: Mon, 20 Jun 2005 13:46:43 -0500
+	Mon, 20 Jun 2005 14:53:55 -0400
+Received: from mail.linicks.net ([217.204.244.146]:33034 "EHLO
+	linux233.linicks.net") by vger.kernel.org with ESMTP
+	id S261456AbVFTSxh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 14:53:37 -0400
+From: Nick Warne <nick@linicks.net>
+To: linux-kernel@vger.kernel.org, guorke <gourke@gmail.com>
+Subject: Re: mabye simple,but i confused
+Date: Mon, 20 Jun 2005 19:53:19 +0100
+User-Agent: KMail/1.8.1
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain;
-	charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200506201953.19827.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-One of the things I have recently fought with on 2.6.12 is a soft-lockup
-exception with enabling "Legacy USB Support" in the BIOS. Apparently this
-problem will cause the 2005.0 installation CD for x86_64 to HANG on USB Mass
-Storgae detect unless the "nousb" option is set at boot. The Legacy USB
-feature also causes Oops on bootup unless Disabled. I am running dual
-Opteron 240 1G ram with ASUS K8N-DL MB (Nforce 4).
+guorke wrote:
 
------Original Message-----
-From: Petter Sundlöf [mailto:petter.sundlof@findus.dhs.org]
-Sent: Monday, June 20, 2005 1:14 PM
-To: Linux Kernel Mailing List
-Subject: Observation: very low USB performance in 2.6.12 (-2 from
-agnula)
+> Thanks,I must read it carefully
+> 
+> On 6/16/05, Richard B. Johnson <linux-os@analogic.com> wrote:
+>> On Thu, 16 Jun 2005, guorke wrote:
+>> 
+>> > in understangding the linux kernel, the authors says
+>> > "..Moves itself from address 0x00007c00 to address 0x00090000.."
+>> >
+>> > What i confused is why the Boot Loader do this, i asked google,but
+>> > still no answe.
+>> > who can make me understand it ?
+>> > Thanks.
+>> 
+>> The IBM 'IPL' (initial program load) address was specified to be
+>> at 7c00. There was room here for only one "sector", which in the
+>> early days was 512 bytes....
 
+There is more in Documentation/i386/boot.txt on this subject.
 
-I've observed that USB performance (mass storage) is severaly degraded 
-in 2.6.12. Going back to 2.6.10 restores performances to expected levels.
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+Nick
+-- 
+"When you're chewing on life's gristle,
+Don't grumble, Give a whistle..."

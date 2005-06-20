@@ -1,61 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261965AbVFUF5H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261942AbVFUFom@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261965AbVFUF5H (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 01:57:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261967AbVFUFy1
+	id S261942AbVFUFom (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 01:44:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261291AbVFTWkX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 01:54:27 -0400
-Received: from imf23aec.mail.bellsouth.net ([205.152.59.71]:50911 "EHLO
-	imf23aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
-	id S261948AbVFUFte (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 01:49:34 -0400
-Message-ID: <000d01c5762c$5e399dc0$2800000a@pc365dualp2>
-From: <cutaway@bellsouth.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: [RFC] do_execve() perf improvement opportunity?
-Date: Tue, 21 Jun 2005 02:42:01 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1478
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1478
+	Mon, 20 Jun 2005 18:40:23 -0400
+Received: from coderock.org ([193.77.147.115]:16539 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S262257AbVFTWEl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 18:04:41 -0400
+Message-Id: <20050620215654.202069000@nd47.coderock.org>
+Date: Mon, 20 Jun 2005 23:56:54 +0200
+From: domen@coderock.org
+To: jack@suse.cz
+Cc: linux-kernel@vger.kernel.org, Maximilian Attems <janitor@sternwelten.at>,
+       domen@coderock.org
+Subject: [patch 1/1] list_for_each_entry: fs-dquot.c
+Content-Disposition: inline; filename=list-for-each-entry-safe-fs_dquot.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-do_execve() on EVERY entry/exit allocates and frees a structure pointed to
-by the 'bprm' variable.
-
-I'm thinking it may be possible to very cheaply cache a pointer to the last
-allocation here rather than freeing it and just recycle it for the next exec
-saving a trip through the slab machanism.
-
-On x86 I'm pretty sure this could be done very racy and lockless (other than
-XCHG's implied locks).  Other architectures that don't have an implied
-locking instruction might need a hard lock of some sort.
-
-Something along the lines of (pseudocode):
-
-static volatile struct blahblah *p = NULL;
-
-/* ...before the exec... */
-bprm = NULL
-xchg(bprm, p)
-if (bprm == NULL) kmalloc like it is now
-
-/*
-  blah, blah, blah...exec triage blob as it exists today
-*/
-
-/* ...after the exec...*/
-xchg(bprm, p) /* cache what we just used */
-if (bprm)     /* Maybe free someone else's if it was still available */
-    kfree(bprm);
-
-For things that proceed mostly sequentially like a lot of shell scripts,
-Linux builds, etc this simple minded high-speed low-drag, single structure
-racy implementation might provide a nice gain for minimal cost.
+From: Domen Puncer <domen@coderock.org>
 
 
+
+Make code more readable with list_for_each_entry_safe.
+
+Signed-off-by: Domen Puncer <domen@coderock.org>
+Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
+Signed-off-by: Domen Puncer <domen@coderock.org>
+---
+ dquot.c |    7 ++-----
+ 1 files changed, 2 insertions(+), 5 deletions(-)
+
+Index: quilt/fs/dquot.c
+===================================================================
+--- quilt.orig/fs/dquot.c
++++ quilt/fs/dquot.c
+@@ -409,13 +409,10 @@ out_dqlock:
+  * for this sb+type at all. */
+ static void invalidate_dquots(struct super_block *sb, int type)
+ {
+-	struct dquot *dquot;
+-	struct list_head *head;
++	struct dquot *dquot, *tmp;
+ 
+ 	spin_lock(&dq_list_lock);
+-	for (head = inuse_list.next; head != &inuse_list;) {
+-		dquot = list_entry(head, struct dquot, dq_inuse);
+-		head = head->next;
++	list_for_each_entry_safe(dquot, tmp, &inuse_list, dq_inuse) {
+ 		if (dquot->dq_sb != sb)
+ 			continue;
+ 		if (dquot->dq_type != type)
+
+--

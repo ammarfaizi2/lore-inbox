@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261759AbVFUByU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261778AbVFUByV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261759AbVFUByU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 21:54:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261853AbVFUAAG
+	id S261778AbVFUByV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 21:54:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261850AbVFTX7r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 20:00:06 -0400
-Received: from mail.kroah.org ([69.55.234.183]:52708 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261781AbVFTXAA convert rfc822-to-8bit
+	Mon, 20 Jun 2005 19:59:47 -0400
+Received: from mail.kroah.org ([69.55.234.183]:53988 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261783AbVFTXAA convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 20 Jun 2005 19:00:00 -0400
-Cc: mochel@digitalimplant.org
-Subject: [PATCH] usb: klist_node_attached() fix
-In-Reply-To: <11193083671399@kroah.com>
+Cc: dtor_core@ameritech.net
+Subject: [PATCH] make driver's name be const char *
+In-Reply-To: <1119308361783@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Mon, 20 Jun 2005 15:59:27 -0700
-Message-Id: <1119308367755@kroah.com>
+Date: Mon, 20 Jun 2005 15:59:21 -0700
+Message-Id: <11193083613036@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,54 +24,90 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] usb: klist_node_attached() fix
+[PATCH] make driver's name be const char *
 
-The original code looks like this:
+Driver core:
+  change driver's, bus's, class's and platform device's names
+  to be const char * so one can use
+            const char *drv_name = "asdfg";
+  when initializing structures.
+  Also kill couple of whitespaces.
 
-        /* if interface was already added, bind now; else let
-         * the future device_add() bind it, bypassing probe()
-         */
-        if (!list_empty (&dev->bus_list))
-                device_bind_driver(dev);
-
-IOW, it's checking to see if the device is attached to the bus or not
-and binding the driver if it is. It's checking the device's bus list,
-which will only appear empty when the device has been initialized, but
-not added. It depends way too much on the driver model internals, but it
-seems to be the only way to do the weird crap they want to do with
-interfaces.
-
-When I converted it to use klists, I accidentally inverted the logic,
-which led to bad things happening. This patch returns the check to its
-orginal value.
-
-From: Patrick Mochel <mochel@digitalimplant.org>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
-Index: gregkh-2.6/drivers/usb/core/usb.c
-===================================================================
-
 ---
-commit 273971bade8a6d37c1b162146de1a53965cdc245
-tree ef78c4a7c1b8ab39c9b6f47fef82278d5145e74d
-parent 12eac738e5889a10da5b391c02eeb61229c796dc
-author Patrick Mochel <mochel@digitalimplant.org> Mon, 20 Jun 2005 15:15:28 -0700
-committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 20 Jun 2005 15:15:28 -0700
+commit 8d790d74085833ba2a3e84b5bcd683be4981c29a
+tree fe3be944882cb1ec272e4fb6782c6caa404a6187
+parent 419cab3fc69588ebe35b845cc3a584ae172463de
+author Dmitry Torokhov <dtor_core@ameritech.net> Tue, 26 Apr 2005 02:34:05 -0500
+committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 20 Jun 2005 15:15:01 -0700
 
- drivers/usb/core/usb.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ drivers/usb/core/devices.c |    2 +-
+ include/linux/device.h     |   12 ++++++------
+ 2 files changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/usb/core/usb.c b/drivers/usb/core/usb.c
---- a/drivers/usb/core/usb.c
-+++ b/drivers/usb/core/usb.c
-@@ -293,7 +293,7 @@ int usb_driver_claim_interface(struct us
- 	/* if interface was already added, bind now; else let
- 	 * the future device_add() bind it, bypassing probe()
- 	 */
--	if (!klist_node_attached (&dev->knode_bus))
-+	if (klist_node_attached(&dev->knode_bus))
- 		device_bind_driver(dev);
+diff --git a/drivers/usb/core/devices.c b/drivers/usb/core/devices.c
+--- a/drivers/usb/core/devices.c
++++ b/drivers/usb/core/devices.c
+@@ -239,7 +239,7 @@ static char *usb_dump_interface_descript
+ 	int setno)
+ {
+ 	const struct usb_interface_descriptor *desc = &intfc->altsetting[setno].desc;
+-	char *driver_name = "";
++	const char *driver_name = "";
  
- 	return 0;
+ 	if (start > end)
+ 		return start;
+diff --git a/include/linux/device.h b/include/linux/device.h
+--- a/include/linux/device.h
++++ b/include/linux/device.h
+@@ -47,7 +47,7 @@ struct class_device;
+ struct class_simple;
+ 
+ struct bus_type {
+-	char			* name;
++	const char		* name;
+ 
+ 	struct subsystem	subsys;
+ 	struct kset		drivers;
+@@ -98,17 +98,17 @@ extern int bus_create_file(struct bus_ty
+ extern void bus_remove_file(struct bus_type *, struct bus_attribute *);
+ 
+ struct device_driver {
+-	char			* name;
++	const char		* name;
+ 	struct bus_type		* bus;
+ 
+ 	struct completion	unloaded;
+ 	struct kobject		kobj;
+ 	struct list_head	devices;
+ 
+-	struct module 		* owner;
++	struct module		* owner;
+ 
+ 	int	(*probe)	(struct device * dev);
+-	int 	(*remove)	(struct device * dev);
++	int	(*remove)	(struct device * dev);
+ 	void	(*shutdown)	(struct device * dev);
+ 	int	(*suspend)	(struct device * dev, pm_message_t state, u32 level);
+ 	int	(*resume)	(struct device * dev, u32 level);
+@@ -142,7 +142,7 @@ extern void driver_remove_file(struct de
+  * device classes
+  */
+ struct class {
+-	char			* name;
++	const char		* name;
+ 
+ 	struct subsystem	subsys;
+ 	struct list_head	children;
+@@ -366,7 +366,7 @@ extern struct device *device_find(const 
+ /* drivers/base/platform.c */
+ 
+ struct platform_device {
+-	char		* name;
++	const char	* name;
+ 	u32		id;
+ 	struct device	dev;
+ 	u32		num_resources;
 

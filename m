@@ -1,63 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261618AbVFTVTG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261596AbVFTVKh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261618AbVFTVTG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 17:19:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbVFTVQl
+	id S261596AbVFTVKh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 17:10:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261373AbVFTVH3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 17:16:41 -0400
-Received: from mail.dif.dk ([193.138.115.101]:28298 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S261597AbVFTVLr (ORCPT
+	Mon, 20 Jun 2005 17:07:29 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:54946 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S261541AbVFTVCX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 17:11:47 -0400
-Date: Mon, 20 Jun 2005 23:17:12 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
-To: Luc Saillard <luc@saillard.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH][3/3] pwc-uncompress cleanup - remove redundant casts.
-Message-ID: <Pine.LNX.4.62.0506202315130.2369@dragon.hyggekrogen.localhost>
+	Mon, 20 Jun 2005 17:02:23 -0400
+Message-ID: <42B72EDC.6040707@pobox.com>
+Date: Mon, 20 Jun 2005 17:02:20 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: PATCH: Samsung SN-124 works perfectly well with DMA
+References: <1119298324.3304.29.camel@localhost.localdomain>
+In-Reply-To: <1119298324.3304.29.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch removes a few redundant casts from 
-drivers/usb/media/pwc/pwc-uncompress.c
+Alan Cox wrote:
+> Been in Red Hat products for ages
+> 
+> Signed-off-by: Alan Cox <alan@redhat.com>
 
-The patch is incremental on top of the previous [PATCH][2/3]
+Can you provide a similar patch for ata_dma_blacklist[] in libata-core.c?
 
-
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
----
-
- drivers/usb/media/pwc/pwc-uncompress.c |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
-
---- linux-2.6.12/drivers/usb/media/pwc/pwc-uncompress.c.with_patch_2	2005-06-20 22:58:38.000000000 +0200
-+++ linux-2.6.12/drivers/usb/media/pwc/pwc-uncompress.c	2005-06-20 22:57:42.000000000 +0200
-@@ -73,17 +73,17 @@ int pwc_decompress(struct pwc_device *pd
- 		 * We do some byte shuffling here to go from the
- 		 * native format to YUV420P.
- 		 */
--		src = (u16 *)yuv;
-+		src = yuv;
- 		n = pdev->view.x * pdev->view.y;
- 
- 		/* offset in Y plane */
- 		stride = pdev->view.x * pdev->offset.y + pdev->offset.x;
--		dsty = (u16 *)(image + stride);
-+		dsty = image + stride;
- 
- 		/* offsets in U/V planes */
- 		stride = pdev->view.x * pdev->offset.y / 4 + pdev->offset.x / 2;
--		dstu = (u16 *)(image + n +         stride);
--		dstv = (u16 *)(image + n + n / 4 + stride);
-+		dstu = image + n + stride;
-+		dstv = image + n + n / 4 + stride;
- 
- 		/* increment after each line */
- 		stride = (pdev->view.x - pdev->image.x) / 2; /* u16 = 2 bytes */
-
-
+	Jeff
 
 

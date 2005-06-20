@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261677AbVFUCvs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261920AbVFUC4V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261677AbVFUCvs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 22:51:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261911AbVFUCtO
+	id S261920AbVFUC4V (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 22:56:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261919AbVFUCz6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 22:49:14 -0400
-Received: from mail.kroah.org ([69.55.234.183]:17892 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261676AbVFTW7k convert rfc822-to-8bit
+	Mon, 20 Jun 2005 22:55:58 -0400
+Received: from mail.kroah.org ([69.55.234.183]:12260 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261667AbVFTW7i convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 18:59:40 -0400
-Cc: dtor_core@ameritech.net
-Subject: [PATCH] kobject_hotplug() should use kobject_name()
-In-Reply-To: <11193083602227@kroah.com>
+	Mon, 20 Jun 2005 18:59:38 -0400
+Cc: hare@suse.de
+Subject: [PATCH] driver core: fix error handling in bus_add_device
+In-Reply-To: <11193083681028@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Mon, 20 Jun 2005 15:59:20 -0700
-Message-Id: <11193083603818@kroah.com>
+Date: Mon, 20 Jun 2005 15:59:28 -0700
+Message-Id: <11193083682616@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,35 +24,68 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] kobject_hotplug() should use kobject_name()
+[PATCH] driver core: fix error handling in bus_add_device
 
-kobject: kobject_hotplug should use kobject_name() instead of
-         accessing kobj->name directly since for objects with
-         long names it can contain garbage.
+The error handling in bus_add_device() and device_attach() is simply
+non-existing. This patch propagates any error from device_attach to
+the upper layers to allow for a proper recovery.
 
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+From: Hannes Reinecke <hare@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit eb11d8ffceead1eb3d84366f1687daf2217e883e
-tree aedf84638f2bb8cc2d6f90120199191b917efa35
-parent 8b22c249e7de453961e4d253b19fc2a0bdd65d53
-author Dmitry Torokhov <dtor_core@ameritech.net> Tue, 26 Apr 2005 02:29:58 -0500
-committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 20 Jun 2005 15:15:00 -0700
+commit ca2b94ba12f3c36fd3d6ed9d38b3798d4dad0d8b
+tree d9b85e0f423d1cd0a9ad1c72cec7464bcf50c126
+parent acaefc25d21f850e47ecc5098d1e0bc442c526be
+author Hannes Reinecke <hare@suse.de> Wed, 18 May 2005 10:42:23 +0200
+committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 20 Jun 2005 15:15:31 -0700
 
- lib/kobject_uevent.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ drivers/base/bus.c |   13 ++++++++-----
+ drivers/base/dd.c  |    3 ++-
+ 2 files changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/lib/kobject_uevent.c b/lib/kobject_uevent.c
---- a/lib/kobject_uevent.c
-+++ b/lib/kobject_uevent.c
-@@ -246,7 +246,7 @@ void kobject_hotplug(struct kobject *kob
- 	if (hotplug_ops->name)
- 		name = hotplug_ops->name(kset, kobj);
- 	if (name == NULL)
--		name = kset->kobj.name;
-+		name = kobject_name(&kset->kobj);
+diff --git a/drivers/base/bus.c b/drivers/base/bus.c
+--- a/drivers/base/bus.c
++++ b/drivers/base/bus.c
+@@ -270,11 +270,14 @@ int bus_add_device(struct device * dev)
  
- 	argv [0] = hotplug_path;
- 	argv [1] = name;
+ 	if (bus) {
+ 		pr_debug("bus %s: add device %s\n", bus->name, dev->bus_id);
+-		device_attach(dev);
++		error = device_attach(dev);
+ 		klist_add_tail(&bus->klist_devices, &dev->knode_bus);
+-		device_add_attrs(bus, dev);
+-		sysfs_create_link(&bus->devices.kobj, &dev->kobj, dev->bus_id);
+-		sysfs_create_link(&dev->kobj, &dev->bus->subsys.kset.kobj, "bus");
++		if (error >= 0)
++			error = device_add_attrs(bus, dev);
++		if (!error) {
++			sysfs_create_link(&bus->devices.kobj, &dev->kobj, dev->bus_id);
++			sysfs_create_link(&dev->kobj, &dev->bus->subsys.kset.kobj, "bus");
++		}
+ 	}
+ 	return error;
+ }
+@@ -394,7 +397,7 @@ static int bus_rescan_devices_helper(str
+ {
+ 	int *count = data;
+ 
+-	if (!dev->driver && device_attach(dev))
++	if (!dev->driver && (device_attach(dev) > 0))
+ 		(*count)++;
+ 
+ 	return 0;
+diff --git a/drivers/base/dd.c b/drivers/base/dd.c
+--- a/drivers/base/dd.c
++++ b/drivers/base/dd.c
+@@ -119,7 +119,8 @@ static int __device_attach(struct device
+  *	driver_probe_device() for each pair. If a compatible
+  *	pair is found, break out and return.
+  *
+- *	Returns 1 if the device was bound to a driver; 0 otherwise.
++ *	Returns 1 if the device was bound to a driver;
++ *	0 if no matching device was found; error code otherwise.
+  */
+ int device_attach(struct device * dev)
+ {
 

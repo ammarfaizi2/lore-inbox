@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261641AbVFUDmI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261639AbVFUDmI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261641AbVFUDmI (ORCPT <rfc822;willy@w.ods.org>);
+	id S261639AbVFUDmI (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 20 Jun 2005 23:42:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261642AbVFUDXS
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261641AbVFUDYE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 23:23:18 -0400
-Received: from mail.kroah.org ([69.55.234.183]:3044 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261641AbVFTW7c convert rfc822-to-8bit
+	Mon, 20 Jun 2005 23:24:04 -0400
+Received: from mail.kroah.org ([69.55.234.183]:2276 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261637AbVFTW7b convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 18:59:32 -0400
-Cc: maneesh@in.ibm.com
-Subject: [PATCH] sysfs-iattr: attach sysfs_dirent before new inode
-In-Reply-To: <111930836944@kroah.com>
+	Mon, 20 Jun 2005 18:59:31 -0400
+Cc: jonsmirl@gmail.com
+Subject: [PATCH] SYSFS: fix PAGE_SIZE check
+In-Reply-To: <11193083692565@kroah.com>
 X-Mailer: gregkh_patchbomb
 Date: Mon, 20 Jun 2005 15:59:29 -0700
-Message-Id: <1119308369583@kroah.com>
+Message-Id: <11193083693615@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,93 +24,35 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] sysfs-iattr: attach sysfs_dirent before new inode
+[PATCH] SYSFS: fix PAGE_SIZE check
 
-o The following patch makes sure to attach sysfs_dirent to the dentry before
-  allocation a new inode through sysfs_create(). This change is done as
-  preparatory work for implementing ->i_op->setattr() functionality for
-  sysfs objects.
+Without this change I can't set an attribute exactly PAGE_SIZE in
+length. There is no need for zero termination because the interface
+uses lengths.
 
-Signed-off-by: Maneesh Soni <maneesh@in.ibm.com>
+From: Jon Smirl <jonsmirl@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit 6fa5c828c7fb6beef7035864bd2b18e7386fbdd5
-tree 88c7c0a03fe13ad802721dcd54b9b93733e964fe
-parent 050480f12aeab62d39a1a07546606a47217ebefa
-author Maneesh Soni <maneesh@in.ibm.com> Tue, 31 May 2005 10:38:12 +0530
-committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 20 Jun 2005 15:15:36 -0700
+commit 9d9d27fb651a7c95a46f276bacb4329db47470a6
+tree cf25134082cb61e860f65af73adc91674ec74258
+parent 42b16c051c3f462095fb8c9bad1bc05b34518cb9
+author Jon Smirl <jonsmirl@gmail.com> Tue, 14 Jun 2005 09:54:54 -0400
+committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 20 Jun 2005 15:15:38 -0700
 
- fs/sysfs/dir.c |   25 +++++++++++++++----------
- 1 files changed, 15 insertions(+), 10 deletions(-)
+ fs/sysfs/file.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/fs/sysfs/dir.c b/fs/sysfs/dir.c
---- a/fs/sysfs/dir.c
-+++ b/fs/sysfs/dir.c
-@@ -101,18 +101,19 @@ static int create_dir(struct kobject * k
- 	down(&p->d_inode->i_sem);
- 	*d = sysfs_get_dentry(p,n);
- 	if (!IS_ERR(*d)) {
--		error = sysfs_create(*d, mode, init_dir);
-+		error = sysfs_make_dirent(p->d_fsdata, *d, k, mode, SYSFS_DIR);
- 		if (!error) {
--			error = sysfs_make_dirent(p->d_fsdata, *d, k, mode,
--						SYSFS_DIR);
-+			error = sysfs_create(*d, mode, init_dir);
- 			if (!error) {
- 				p->d_inode->i_nlink++;
- 				(*d)->d_op = &sysfs_dentry_ops;
- 				d_rehash(*d);
- 			}
- 		}
--		if (error && (error != -EEXIST))
-+		if (error && (error != -EEXIST)) {
-+			sysfs_put((*d)->d_fsdata);
- 			d_drop(*d);
-+		}
- 		dput(*d);
- 	} else
- 		error = PTR_ERR(*d);
-@@ -171,17 +172,19 @@ static int sysfs_attach_attr(struct sysf
-                 init = init_file;
-         }
+diff --git a/fs/sysfs/file.c b/fs/sysfs/file.c
+--- a/fs/sysfs/file.c
++++ b/fs/sysfs/file.c
+@@ -182,7 +182,7 @@ fill_write_buffer(struct sysfs_buffer * 
+ 		return -ENOMEM;
  
-+	dentry->d_fsdata = sysfs_get(sd);
-+	sd->s_dentry = dentry;
- 	error = sysfs_create(dentry, (attr->mode & S_IALLUGO) | S_IFREG, init);
--	if (error)
-+	if (error) {
-+		sysfs_put(sd);
- 		return error;
-+	}
- 
-         if (bin_attr) {
- 		dentry->d_inode->i_size = bin_attr->size;
- 		dentry->d_inode->i_fop = &bin_fops;
- 	}
- 	dentry->d_op = &sysfs_dentry_ops;
--	dentry->d_fsdata = sysfs_get(sd);
--	sd->s_dentry = dentry;
- 	d_rehash(dentry);
- 
- 	return 0;
-@@ -191,13 +194,15 @@ static int sysfs_attach_link(struct sysf
- {
- 	int err = 0;
- 
-+	dentry->d_fsdata = sysfs_get(sd);
-+	sd->s_dentry = dentry;
- 	err = sysfs_create(dentry, S_IFLNK|S_IRWXUGO, init_symlink);
- 	if (!err) {
- 		dentry->d_op = &sysfs_dentry_ops;
--		dentry->d_fsdata = sysfs_get(sd);
--		sd->s_dentry = dentry;
- 		d_rehash(dentry);
--	}
-+	} else
-+		sysfs_put(sd);
-+
- 	return err;
- }
- 
+ 	if (count >= PAGE_SIZE)
+-		count = PAGE_SIZE - 1;
++		count = PAGE_SIZE;
+ 	error = copy_from_user(buffer->page,buf,count);
+ 	buffer->needs_read_fill = 1;
+ 	return error ? -EFAULT : count;
 

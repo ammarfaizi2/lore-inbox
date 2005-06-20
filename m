@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261789AbVFTXvN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261810AbVFTXvM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261789AbVFTXvN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 19:51:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261850AbVFTXr1
+	id S261810AbVFTXvM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 19:51:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261789AbVFTXtd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 19:47:27 -0400
-Received: from mail.kroah.org ([69.55.234.183]:61412 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261789AbVFTXAF convert rfc822-to-8bit
+	Mon, 20 Jun 2005 19:49:33 -0400
+Received: from mail.kroah.org ([69.55.234.183]:60132 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261788AbVFTXAE convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 19:00:05 -0400
-Cc: mochel@digitalimplant.org
-Subject: [PATCH] Add a klist to struct bus_type for its devices.
-In-Reply-To: <11193083642073@kroah.com>
+	Mon, 20 Jun 2005 19:00:04 -0400
+Cc: yani.ioannou@gmail.com
+Subject: [PATCH] Driver Core: arch: update device attribute callbacks
+In-Reply-To: <11193083682108@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Mon, 20 Jun 2005 15:59:24 -0700
-Message-Id: <1119308364515@kroah.com>
+Date: Mon, 20 Jun 2005 15:59:28 -0700
+Message-Id: <11193083681775@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,157 +24,244 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] Add a klist to struct bus_type for its devices.
+[PATCH] Driver Core: arch: update device attribute callbacks
 
-- Use it for bus_for_each_dev().
-- Use the klist spinlock instead of the bus rwsem.
-
-Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
+Signed-off-by: Yani Ioannou <yani.ioannou@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit 465c7a3a3a5aabcedd2e43612cac5a12f23da19a
-tree 392dabbfe84d1de3e84b1eb238bfd09d0ade6c4c
-parent 9a19fea43616066561e221359596ce532e631395
-author mochel@digitalimplant.org <mochel@digitalimplant.org> Mon, 21 Mar 2005 11:49:14 -0800
-committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 20 Jun 2005 15:15:14 -0700
+commit ff381d2223a30ee70752791fd9c3588d8f1cab77
+tree 124dab1e725ad0d16f1122696a67f1657ea97a8f
+parent 3eb8c7836eb074b61d63597be3e4f085814ac4c0
+author Yani Ioannou <yani.ioannou@gmail.com> Tue, 17 May 2005 06:40:51 -0400
+committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 20 Jun 2005 15:15:32 -0700
 
- drivers/base/bus.c     |   54 +++++++++++++++++++++---------------------------
- include/linux/device.h |    3 +++
- 2 files changed, 27 insertions(+), 30 deletions(-)
+ arch/arm/common/amba.c        |    2 +-
+ arch/arm/kernel/ecard.c       |   12 ++++++------
+ arch/arm26/kernel/ecard.c     |   10 +++++-----
+ arch/ia64/sn/kernel/tiocx.c   |    4 ++--
+ arch/parisc/kernel/drivers.c  |    2 +-
+ arch/ppc/kernel/pci.c         |    2 +-
+ arch/ppc/syslib/ocp.c         |    2 +-
+ arch/ppc/syslib/of_device.c   |    2 +-
+ arch/ppc64/kernel/of_device.c |    2 +-
+ arch/ppc64/kernel/pci.c       |    2 +-
+ arch/ppc64/kernel/vio.c       |    4 ++--
+ 11 files changed, 22 insertions(+), 22 deletions(-)
 
-diff --git a/drivers/base/bus.c b/drivers/base/bus.c
---- a/drivers/base/bus.c
-+++ b/drivers/base/bus.c
-@@ -134,28 +134,6 @@ static struct kobj_type ktype_bus = {
- 
- decl_subsys(bus, &ktype_bus, NULL);
- 
--static int __bus_for_each_dev(struct bus_type *bus, struct device *start,
--			      void *data, int (*fn)(struct device *, void *))
--{
--	struct list_head *head;
--	struct device *dev;
--	int error = 0;
--
--	if (!(bus = get_bus(bus)))
--		return -EINVAL;
--
--	head = &bus->devices.list;
--	dev = list_prepare_entry(start, head, bus_list);
--	list_for_each_entry_continue(dev, head, bus_list) {
--		get_device(dev);
--		error = fn(dev, data);
--		put_device(dev);
--		if (error)
--			break;
--	}
--	put_bus(bus);
--	return error;
--}
- 
- static int __bus_for_each_drv(struct bus_type *bus, struct device_driver *start,
- 			      void * data, int (*fn)(struct device_driver *, void *))
-@@ -180,6 +158,13 @@ static int __bus_for_each_drv(struct bus
- 	return error;
+diff --git a/arch/arm/common/amba.c b/arch/arm/common/amba.c
+--- a/arch/arm/common/amba.c
++++ b/arch/arm/common/amba.c
+@@ -169,7 +169,7 @@ static void amba_device_release(struct d
  }
  
-+
-+static struct device * next_device(struct klist_iter * i)
-+{
-+	struct klist_node * n = klist_next(i);
-+	return n ? container_of(n, struct device, knode_bus) : NULL;
-+}
-+
- /**
-  *	bus_for_each_dev - device iterator.
-  *	@bus:	bus type.
-@@ -203,12 +188,19 @@ static int __bus_for_each_drv(struct bus
- int bus_for_each_dev(struct bus_type * bus, struct device * start,
- 		     void * data, int (*fn)(struct device *, void *))
+ #define amba_attr(name,fmt,arg...)				\
+-static ssize_t show_##name(struct device *_dev, char *buf)	\
++static ssize_t show_##name(struct device *_dev, struct device_attribute *attr, char *buf)	\
+ {								\
+ 	struct amba_device *dev = to_amba_device(_dev);		\
+ 	return sprintf(buf, fmt, arg);				\
+diff --git a/arch/arm/kernel/ecard.c b/arch/arm/kernel/ecard.c
+--- a/arch/arm/kernel/ecard.c
++++ b/arch/arm/kernel/ecard.c
+@@ -866,19 +866,19 @@ static struct expansion_card *__init eca
+ 	return ec;
+ }
+ 
+-static ssize_t ecard_show_irq(struct device *dev, char *buf)
++static ssize_t ecard_show_irq(struct device *dev, struct device_attribute *attr, char *buf)
  {
--	int ret;
-+	struct klist_iter i;
-+	struct device * dev;
-+	int error = 0;
- 
--	down_read(&bus->subsys.rwsem);
--	ret = __bus_for_each_dev(bus, start, data, fn);
--	up_read(&bus->subsys.rwsem);
--	return ret;
-+	if (!bus)
-+		return -EINVAL;
-+
-+	klist_iter_init_node(&bus->klist_devices, &i,
-+			     (start ? &start->knode_bus : NULL));
-+	while ((dev = next_device(&i)) && !error)
-+		error = fn(dev, data);
-+	klist_iter_exit(&i);
-+	return error;
+ 	struct expansion_card *ec = ECARD_DEV(dev);
+ 	return sprintf(buf, "%u\n", ec->irq);
  }
  
- /**
-@@ -293,6 +285,7 @@ int bus_add_device(struct device * dev)
- 		list_add_tail(&dev->bus_list, &dev->bus->devices.list);
- 		device_attach(dev);
- 		up_write(&dev->bus->subsys.rwsem);
-+		klist_add_tail(&bus->klist_devices, &dev->knode_bus);
- 		device_add_attrs(bus, dev);
- 		sysfs_create_link(&bus->devices.kobj, &dev->kobj, dev->bus_id);
- 		sysfs_create_link(&dev->kobj, &dev->bus->subsys.kset.kobj, "bus");
-@@ -315,6 +308,7 @@ void bus_remove_device(struct device * d
- 		sysfs_remove_link(&dev->kobj, "bus");
- 		sysfs_remove_link(&dev->bus->devices.kobj, dev->bus_id);
- 		device_remove_attrs(dev->bus, dev);
-+		klist_remove(&dev->knode_bus);
- 		down_write(&dev->bus->subsys.rwsem);
- 		pr_debug("bus %s: remove device %s\n", dev->bus->name, dev->bus_id);
- 		device_release_driver(dev);
-@@ -439,9 +433,7 @@ int bus_rescan_devices(struct bus_type *
+-static ssize_t ecard_show_dma(struct device *dev, char *buf)
++static ssize_t ecard_show_dma(struct device *dev, struct device_attribute *attr, char *buf)
  {
- 	int count = 0;
- 
--	down_write(&bus->subsys.rwsem);
--	__bus_for_each_dev(bus, NULL, &count, bus_rescan_devices_helper);
--	up_write(&bus->subsys.rwsem);
-+	bus_for_each_dev(bus, NULL, &count, bus_rescan_devices_helper);
- 
- 	return count;
+ 	struct expansion_card *ec = ECARD_DEV(dev);
+ 	return sprintf(buf, "%u\n", ec->dma);
  }
-@@ -542,6 +534,8 @@ int bus_register(struct bus_type * bus)
- 	retval = kset_register(&bus->drivers);
- 	if (retval)
- 		goto bus_drivers_fail;
-+
-+	klist_init(&bus->klist_devices);
- 	bus_add_attrs(bus);
  
- 	pr_debug("bus type '%s' registered\n", bus->name);
-diff --git a/include/linux/device.h b/include/linux/device.h
---- a/include/linux/device.h
-+++ b/include/linux/device.h
-@@ -14,6 +14,7 @@
- #include <linux/config.h>
- #include <linux/ioport.h>
- #include <linux/kobject.h>
-+#include <linux/klist.h>
- #include <linux/list.h>
- #include <linux/types.h>
- #include <linux/module.h>
-@@ -51,6 +52,7 @@ struct bus_type {
- 	struct subsystem	subsys;
- 	struct kset		drivers;
- 	struct kset		devices;
-+	struct klist		klist_devices;
+-static ssize_t ecard_show_resources(struct device *dev, char *buf)
++static ssize_t ecard_show_resources(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+ 	struct expansion_card *ec = ECARD_DEV(dev);
+ 	char *str = buf;
+@@ -893,19 +893,19 @@ static ssize_t ecard_show_resources(stru
+ 	return str - buf;
+ }
  
- 	struct bus_attribute	* bus_attrs;
- 	struct device_attribute	* dev_attrs;
-@@ -262,6 +264,7 @@ struct device {
- 	struct list_head bus_list;	/* node in bus's list */
- 	struct list_head driver_list;
- 	struct list_head children;
-+	struct klist_node	knode_bus;
- 	struct device 	* parent;
+-static ssize_t ecard_show_vendor(struct device *dev, char *buf)
++static ssize_t ecard_show_vendor(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+ 	struct expansion_card *ec = ECARD_DEV(dev);
+ 	return sprintf(buf, "%u\n", ec->cid.manufacturer);
+ }
  
- 	struct kobject kobj;
+-static ssize_t ecard_show_device(struct device *dev, char *buf)
++static ssize_t ecard_show_device(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+ 	struct expansion_card *ec = ECARD_DEV(dev);
+ 	return sprintf(buf, "%u\n", ec->cid.product);
+ }
+ 
+-static ssize_t ecard_show_type(struct device *dev, char *buf)
++static ssize_t ecard_show_type(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+ 	struct expansion_card *ec = ECARD_DEV(dev);
+ 	return sprintf(buf, "%s\n", ec->type == ECARD_EASI ? "EASI" : "IOC");
+diff --git a/arch/arm26/kernel/ecard.c b/arch/arm26/kernel/ecard.c
+--- a/arch/arm26/kernel/ecard.c
++++ b/arch/arm26/kernel/ecard.c
+@@ -562,31 +562,31 @@ static void __init ecard_init_resources(
+ 	}
+ }
+ 
+-static ssize_t ecard_show_irq(struct device *dev, char *buf)
++static ssize_t ecard_show_irq(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+ 	struct expansion_card *ec = ECARD_DEV(dev);
+ 	return sprintf(buf, "%u\n", ec->irq);
+ }
+ 
+-static ssize_t ecard_show_vendor(struct device *dev, char *buf)
++static ssize_t ecard_show_vendor(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+ 	struct expansion_card *ec = ECARD_DEV(dev);
+ 	return sprintf(buf, "%u\n", ec->cid.manufacturer);
+ }
+ 
+-static ssize_t ecard_show_device(struct device *dev, char *buf)
++static ssize_t ecard_show_device(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+ 	struct expansion_card *ec = ECARD_DEV(dev);
+ 	return sprintf(buf, "%u\n", ec->cid.product);
+ }
+ 
+-static ssize_t ecard_show_dma(struct device *dev, char *buf)
++static ssize_t ecard_show_dma(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+ 	struct expansion_card *ec = ECARD_DEV(dev);
+ 	return sprintf(buf, "%u\n", ec->dma);
+ }
+ 
+-static ssize_t ecard_show_resources(struct device *dev, char *buf)
++static ssize_t ecard_show_resources(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+ 	struct expansion_card *ec = ECARD_DEV(dev);
+ 	char *str = buf;
+diff --git a/arch/ia64/sn/kernel/tiocx.c b/arch/ia64/sn/kernel/tiocx.c
+--- a/arch/ia64/sn/kernel/tiocx.c
++++ b/arch/ia64/sn/kernel/tiocx.c
+@@ -432,7 +432,7 @@ static int tiocx_reload(struct cx_dev *c
+ 	return cx_device_reload(cx_dev);
+ }
+ 
+-static ssize_t show_cxdev_control(struct device *dev, char *buf)
++static ssize_t show_cxdev_control(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+ 	struct cx_dev *cx_dev = to_cx_dev(dev);
+ 
+@@ -442,7 +442,7 @@ static ssize_t show_cxdev_control(struct
+ 		       tiocx_btchar_get(cx_dev->cx_id.nasid));
+ }
+ 
+-static ssize_t store_cxdev_control(struct device *dev, const char *buf,
++static ssize_t store_cxdev_control(struct device *dev, struct device_attribute *attr, const char *buf,
+ 				   size_t count)
+ {
+ 	int n;
+diff --git a/arch/parisc/kernel/drivers.c b/arch/parisc/kernel/drivers.c
+--- a/arch/parisc/kernel/drivers.c
++++ b/arch/parisc/kernel/drivers.c
+@@ -466,7 +466,7 @@ static int parisc_generic_match(struct d
+ }
+ 
+ #define pa_dev_attr(name, field, format_string)				\
+-static ssize_t name##_show(struct device *dev, char *buf)		\
++static ssize_t name##_show(struct device *dev, struct device_attribute *attr, char *buf)		\
+ {									\
+ 	struct parisc_device *padev = to_parisc_device(dev);		\
+ 	return sprintf(buf, format_string, padev->field);		\
+diff --git a/arch/ppc/kernel/pci.c b/arch/ppc/kernel/pci.c
+--- a/arch/ppc/kernel/pci.c
++++ b/arch/ppc/kernel/pci.c
+@@ -1003,7 +1003,7 @@ pci_create_OF_bus_map(void)
+ 	}
+ }
+ 
+-static ssize_t pci_show_devspec(struct device *dev, char *buf)
++static ssize_t pci_show_devspec(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+ 	struct pci_dev *pdev;
+ 	struct device_node *np;
+diff --git a/arch/ppc/syslib/ocp.c b/arch/ppc/syslib/ocp.c
+--- a/arch/ppc/syslib/ocp.c
++++ b/arch/ppc/syslib/ocp.c
+@@ -68,7 +68,7 @@ static int ocp_inited;
+ /* Sysfs support */
+ #define OCP_DEF_ATTR(field, format_string)				\
+ static ssize_t								\
+-show_##field(struct device *dev, char *buf)				\
++show_##field(struct device *dev, struct device_attribute *attr, char *buf)				\
+ {									\
+ 	struct ocp_device *odev = to_ocp_dev(dev);			\
+ 									\
+diff --git a/arch/ppc/syslib/of_device.c b/arch/ppc/syslib/of_device.c
+--- a/arch/ppc/syslib/of_device.c
++++ b/arch/ppc/syslib/of_device.c
+@@ -161,7 +161,7 @@ void of_unregister_driver(struct of_plat
+ }
+ 
+ 
+-static ssize_t dev_show_devspec(struct device *dev, char *buf)
++static ssize_t dev_show_devspec(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+ 	struct of_device *ofdev;
+ 
+diff --git a/arch/ppc64/kernel/of_device.c b/arch/ppc64/kernel/of_device.c
+--- a/arch/ppc64/kernel/of_device.c
++++ b/arch/ppc64/kernel/of_device.c
+@@ -161,7 +161,7 @@ void of_unregister_driver(struct of_plat
+ }
+ 
+ 
+-static ssize_t dev_show_devspec(struct device *dev, char *buf)
++static ssize_t dev_show_devspec(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+ 	struct of_device *ofdev;
+ 
+diff --git a/arch/ppc64/kernel/pci.c b/arch/ppc64/kernel/pci.c
+--- a/arch/ppc64/kernel/pci.c
++++ b/arch/ppc64/kernel/pci.c
+@@ -507,7 +507,7 @@ int pci_mmap_page_range(struct pci_dev *
+ }
+ 
+ #ifdef CONFIG_PPC_MULTIPLATFORM
+-static ssize_t pci_show_devspec(struct device *dev, char *buf)
++static ssize_t pci_show_devspec(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+ 	struct pci_dev *pdev;
+ 	struct device_node *np;
+diff --git a/arch/ppc64/kernel/vio.c b/arch/ppc64/kernel/vio.c
+--- a/arch/ppc64/kernel/vio.c
++++ b/arch/ppc64/kernel/vio.c
+@@ -300,7 +300,7 @@ static void __devinit vio_dev_release(st
+ }
+ 
+ #ifdef CONFIG_PPC_PSERIES
+-static ssize_t viodev_show_devspec(struct device *dev, char *buf)
++static ssize_t viodev_show_devspec(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+ 	struct device_node *of_node = dev->platform_data;
+ 
+@@ -309,7 +309,7 @@ static ssize_t viodev_show_devspec(struc
+ DEVICE_ATTR(devspec, S_IRUSR | S_IRGRP | S_IROTH, viodev_show_devspec, NULL);
+ #endif
+ 
+-static ssize_t viodev_show_name(struct device *dev, char *buf)
++static ssize_t viodev_show_name(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+ 	return sprintf(buf, "%s\n", to_vio_dev(dev)->name);
+ }
 

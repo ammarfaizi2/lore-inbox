@@ -1,48 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261794AbVFUAQo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261868AbVFUAQp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261794AbVFUAQo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 20:16:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261870AbVFUAQG
+	id S261868AbVFUAQp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 20:16:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261867AbVFUAPs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 20:16:06 -0400
-Received: from ns.suse.de ([195.135.220.2]:3264 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S261794AbVFTXmX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 19:42:23 -0400
-From: Andreas Schwab <schwab@suse.de>
-To: domen@coderock.org
-Cc: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: [patch 2/2] kernel/power/disk.c string fix and if-less iterator
-References: <20050620215712.840835000@nd47.coderock.org>
-	<20050620221041.GI2222@elf.ucw.cz>
-X-Yow: I have seen these EGG EXTENDERS in my Supermarket..
- ..  I have read the INSTRUCTIONS...
-Date: Tue, 21 Jun 2005 01:42:18 +0200
-In-Reply-To: <20050620221041.GI2222@elf.ucw.cz> (Pavel Machek's message of
-	"Tue, 21 Jun 2005 00:10:41 +0200")
-Message-ID: <jepsugwq79.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/22.0.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Mon, 20 Jun 2005 20:15:48 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:42254 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261782AbVFTXnB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 19:43:01 -0400
+Date: Tue, 21 Jun 2005 01:42:57 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, R.E.Wolff@BitWizard.nl
+Subject: [2.6 patch] drivers/char/rio/: kill rio_udelay
+Message-ID: <20050620234257.GE3666@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@suse.cz> writes:
+There's no need for a function that only calls udelay.
 
-> Hi!
->
->> The attached patch:
->> 
->> o  Fixes kernel/power/disk.c string declared as 'char *p = "...";' to be
->>    declared as 'char p[] = "...";', as pointed by Jeff Garzik.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-'static const char p[] = "...";' would be even better.
+---
 
-Andreas.
+This patch was already sent on:
+- 14 Jun 2005
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+ drivers/char/rio/func.h      |    1 -
+ drivers/char/rio/rio_linux.c |    5 -----
+ drivers/char/rio/rioinit.c   |    7 ++++---
+ 3 files changed, 4 insertions(+), 9 deletions(-)
+
+--- linux-2.6.12-rc6-mm1-full/drivers/char/rio/func.h.old	2005-06-14 02:45:06.000000000 +0200
++++ linux-2.6.12-rc6-mm1-full/drivers/char/rio/func.h	2005-06-14 02:45:12.000000000 +0200
+@@ -147,7 +147,6 @@
+ extern int    rio_pcicopy(char *src, char *dst, int n);
+ extern int rio_minor (struct tty_struct *tty);
+ extern int rio_ismodem (struct tty_struct *tty);
+-extern void rio_udelay (int usecs);
+ 
+ extern void rio_start_card_running (struct Host * HostP);
+ 
+--- linux-2.6.12-rc6-mm1-full/drivers/char/rio/rio_linux.c.old	2005-06-14 02:45:19.000000000 +0200
++++ linux-2.6.12-rc6-mm1-full/drivers/char/rio/rio_linux.c	2005-06-14 02:45:27.000000000 +0200
+@@ -354,11 +354,6 @@
+ }
+ 
+ 
+-void rio_udelay (int usecs)
+-{
+-  udelay (usecs);
+-}
+-
+ static int rio_set_real_termios (void *ptr)
+ {
+   int rv, modem;
+--- linux-2.6.12-rc6-mm1-full/drivers/char/rio/rioinit.c.old	2005-06-14 02:45:35.000000000 +0200
++++ linux-2.6.12-rc6-mm1-full/drivers/char/rio/rioinit.c	2005-06-14 02:55:17.000000000 +0200
+@@ -37,6 +37,7 @@
+ #include <linux/module.h>
+ #include <linux/slab.h>
+ #include <linux/errno.h>
++#include <linux/delay.h>
+ #include <asm/io.h>
+ #include <asm/system.h>
+ #include <asm/string.h>
+@@ -1560,14 +1561,14 @@
+ 					  INTERRUPT_DISABLE | BYTE_OPERATION |
+ 					  SLOW_LINKS | SLOW_AT_BUS);
+ 			WBYTE(DpRamP->DpResetTpu, 0xFF);
+-			rio_udelay (3);
++			udelay(3);
+ 
+ 			rio_dprintk (RIO_DEBUG_INIT,  "RIOHostReset: Don't know if it worked. Try reset again\n");
+ 			WBYTE(DpRamP->DpControl,  BOOT_FROM_RAM | EXTERNAL_BUS_OFF |
+ 					  INTERRUPT_DISABLE | BYTE_OPERATION |
+ 					  SLOW_LINKS | SLOW_AT_BUS);
+ 			WBYTE(DpRamP->DpResetTpu, 0xFF);
+-			rio_udelay (3);
++			udelay(3);
+ 			break;
+ #ifdef FUTURE_RELEASE
+ 	case RIO_EISA:
+@@ -1599,7 +1600,7 @@
+ 		DpRamP->DpControl  = RIO_PCI_BOOT_FROM_RAM;
+ 		DpRamP->DpResetInt = 0xFF;
+ 		DpRamP->DpResetTpu = 0xFF;
+-		rio_udelay (100);
++		udelay(100);
+ 		/* for (i=0; i<6000; i++);  */
+ 		/* suspend( 3 ); */
+ 		break;
+

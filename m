@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261437AbVFTExq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261439AbVFTExk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261437AbVFTExq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 00:53:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261436AbVFTExq
+	id S261439AbVFTExk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 00:53:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261437AbVFTExk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 00:53:46 -0400
-Received: from omega.webmasters.gr.jp ([218.44.239.78]:11166 "EHLO
-	webmasters.gr.jp") by vger.kernel.org with ESMTP id S261448AbVFTExm
+	Mon, 20 Jun 2005 00:53:40 -0400
+Received: from omega.webmasters.gr.jp ([218.44.239.78]:9886 "EHLO
+	webmasters.gr.jp") by vger.kernel.org with ESMTP id S261431AbVFTExh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 00:53:42 -0400
-Date: Mon, 20 Jun 2005 13:53:41 +0900
-Message-ID: <81ll557hnu.wl@omega.webmasters.gr.jp>
+	Mon, 20 Jun 2005 00:53:37 -0400
+Date: Mon, 20 Jun 2005 13:53:35 +0900
+Message-ID: <81mzpl7ho0.wl@omega.webmasters.gr.jp>
 From: GOTO Masanori <gotom@debian.or.jp>
 To: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
 Cc: gotom@debian.or.jp
-Subject: [PATCH] headers 2/4: Include linux/compiler.h for __user
+Subject: [PATCH] headers 1/4: Enable ppc64 ___arch__swab16 and ___arch__swab32
 User-Agent: Wanderlust/2.9.9 (Unchained Melody) SEMI/1.14.3 (Ushinoya)
  FLIM/1.14.3 (=?ISO-8859-4?Q?Unebigory=F2mae?=) APEL/10.3 Emacs/21.2
  (i386-debian-linux-gnu) MULE/5.0 (SAKAKI)
@@ -23,8 +23,11 @@ Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch lets 2.6.12 i2c-dev.h include linux/compiler.h so that
-__user is defined.
+This patch cleans up asm-ppc64/byteorder.h to enable ___arch__swab16
+and ___arch__swab32 which are marked TODO currently.  It removes
+___arch__swab64 because ppc64 does not have short instruction
+combinations for swab64, the recent gcc generates enough smart code
+that is equivalent to hand assembled code under my tests.
 
 Signed-off-by: GOTO Masanori <gotom@debian.or.jp>
 
@@ -32,16 +35,34 @@ Regards,
 -- gotom
 
 
- i2c-dev.h |    1 +
- 1 files changed, 1 insertion(+)
+ byteorder.h |   10 ----------
+ 1 files changed, 10 deletions(-)
 
---- linux-2.6.12/include/linux/i2c-dev.h	2005-06-18 04:48:29.000000000 +0900
-+++ linux-2.6.12.gotom/include/linux/i2c-dev.h	2005-06-20 13:12:20.028732305 +0900
-@@ -25,6 +25,7 @@
- #define _LINUX_I2C_DEV_H
+--- linux-2.6.12/include/asm-ppc64/byteorder.h	2005-06-18 04:48:29.000000000 +0900
++++ linux-2.6.12.gotom/include/asm-ppc64/byteorder.h	2005-06-20 13:11:43.049687818 +0900
+@@ -40,7 +40,6 @@ static __inline__ void st_le32(volatile 
+ 	__asm__ __volatile__ ("stwbrx %1,0,%2" : "=m" (*addr) : "r" (val), "r" (addr));
+ }
  
- #include <linux/types.h>
-+#include <linux/compiler.h>
+-#if 0
+ static __inline__ __attribute_const__ __u16 ___arch__swab16(__u16 value)
+ {
+ 	__u16 result;
+@@ -63,17 +62,8 @@ static __inline__ __attribute_const__ __
+ 	return result;
+ }
  
- /* Some IOCTL commands are defined in <linux/i2c.h> */
- /* Note: 10-bit addresses are NOT supported! */
+-static __inline__ __attribute_const__ __u64 ___arch__swab64(__u64 value)
+-{
+-	__u64 result;
+-#error implement me
+-}
+-
+ #define __arch__swab16(x) ___arch__swab16(x)
+ #define __arch__swab32(x) ___arch__swab32(x)
+-#define __arch__swab64(x) ___arch__swab64(x)
+-
+-#endif
+ 
+ /* The same, but returns converted value from the location pointer by addr. */
+ #define __arch__swab16p(addr) ld_le16(addr)

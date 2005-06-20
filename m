@@ -1,39 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261537AbVFTUPr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261564AbVFTUZR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261537AbVFTUPr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 16:15:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261488AbVFTUPp
+	id S261564AbVFTUZR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 16:25:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261517AbVFTUY1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 16:15:45 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:23966 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261537AbVFTUOY
+	Mon, 20 Jun 2005 16:24:27 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:27038 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261556AbVFTUXq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 16:14:24 -0400
-Subject: PATCH: Samsung SN-124 works perfectly well with DMA
+	Mon, 20 Jun 2005 16:23:46 -0400
+Subject: PATCH: Fix crashes with hotplug serverworks
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: linux-kernel@vger.kernel.org
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1119298324.3304.29.camel@localhost.localdomain>
+Message-Id: <1119298859.3325.43.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 20 Jun 2005 21:12:05 +0100
+Date: Mon, 20 Jun 2005 21:21:13 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Been in Red Hat products for ages
+You can't install the base kernel on a Stratus box because of the
+overuse of __init. Affects both IDE layers identically. It isn't the
+only misuser of __init so more review of other drivers (or fixing
+ide_register code to know about hotplug v non-hotplug chipsets) would be
+good.
 
 Signed-off-by: Alan Cox <alan@redhat.com>
+Original issue found by Stratus and their patch was the inspiration for
+this trivial one.
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.12/drivers/ide/ide-dma.c linux-2.6.12/drivers/ide/ide-dma.c
---- linux.vanilla-2.6.12/drivers/ide/ide-dma.c	2005-06-19 11:30:47.000000000 +0100
-+++ linux-2.6.12/drivers/ide/ide-dma.c	2005-06-20 20:43:16.000000000 +0100
-@@ -132,7 +132,6 @@
- 	{ "SAMSUNG CD-ROM SC-148C",	"ALL"		},
- 	{ "SAMSUNG CD-ROM SC",	"ALL"		},
- 	{ "SanDisk SDP3B-64"	,	"ALL"		},
--	{ "SAMSUNG CD-ROM SN-124",	"ALL"		},
- 	{ "ATAPI CD-ROM DRIVE 40X MAXIMUM",	"ALL"		},
- 	{ "_NEC DV5800A",               "ALL"           },  
- 	{ NULL			,	NULL		}
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.12/drivers/ide/pci/serverworks.c linux-2.6.12/drivers/ide/pci/serverworks.c
+--- linux.vanilla-2.6.12/drivers/ide/pci/serverworks.c	2005-06-19 11:30:47.000000000 +0100
++++ linux-2.6.12/drivers/ide/pci/serverworks.c	2005-06-20 20:45:50.000000000 +0100
+@@ -442,7 +442,7 @@
+ 	return (dev->irq) ? dev->irq : 0;
+ }
+ 
+-static unsigned int __init ata66_svwks_svwks (ide_hwif_t *hwif)
++static unsigned int __devinit ata66_svwks_svwks (ide_hwif_t *hwif)
+ {
+ 	return 1;
+ }
+@@ -454,7 +454,7 @@
+  * Bit 14 clear = primary IDE channel does not have 80-pin cable.
+  * Bit 14 set   = primary IDE channel has 80-pin cable.
+  */
+-static unsigned int __init ata66_svwks_dell (ide_hwif_t *hwif)
++static unsigned int __devinit ata66_svwks_dell (ide_hwif_t *hwif)
+ {
+ 	struct pci_dev *dev = hwif->pci_dev;
+ 	if (dev->subsystem_vendor == PCI_VENDOR_ID_DELL &&
+@@ -472,7 +472,7 @@
+  *
+  * WARNING: this only works on Alpine hardware!
+  */
+-static unsigned int __init ata66_svwks_cobalt (ide_hwif_t *hwif)
++static unsigned int __devinit ata66_svwks_cobalt (ide_hwif_t *hwif)
+ {
+ 	struct pci_dev *dev = hwif->pci_dev;
+ 	if (dev->subsystem_vendor == PCI_VENDOR_ID_SUN &&
+@@ -483,7 +483,7 @@
+ 	return 0;
+ }
+ 
+-static unsigned int __init ata66_svwks (ide_hwif_t *hwif)
++static unsigned int __devinit ata66_svwks (ide_hwif_t *hwif)
+ {
+ 	struct pci_dev *dev = hwif->pci_dev;
+ 
+@@ -573,7 +573,7 @@
+ 	return ide_setup_pci_device(dev, d);
+ }
+ 
+-static int __init init_setup_csb6 (struct pci_dev *dev, ide_pci_device_t *d)
++static int __devinit init_setup_csb6 (struct pci_dev *dev, ide_pci_device_t *d)
+ {
+ 	if (!(PCI_FUNC(dev->devfn) & 1)) {
+ 		d->bootable = NEVER_BOARD;
 

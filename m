@@ -1,54 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261376AbVFTBwF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261167AbVFTBzh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261376AbVFTBwF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Jun 2005 21:52:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261380AbVFTBwF
+	id S261167AbVFTBzh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Jun 2005 21:55:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261380AbVFTBzh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Jun 2005 21:52:05 -0400
-Received: from smtpout.mac.com ([17.250.248.47]:24276 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S261376AbVFTBwB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Jun 2005 21:52:01 -0400
-In-Reply-To: <d73ab4d005061918441ae4a81f@mail.gmail.com>
-References: <d73ab4d005061918441ae4a81f@mail.gmail.com>
-Mime-Version: 1.0 (Apple Message framework v728)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <C2515872-AB06-4710-9F90-E8E4AEC1C6F0@mac.com>
+	Sun, 19 Jun 2005 21:55:37 -0400
+Received: from wproxy.gmail.com ([64.233.184.199]:22426 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261167AbVFTBz3 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Jun 2005 21:55:29 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=iGrA6AjdTDK64ETBMIeQrerAXd7I4JZxfkpPrkO2jRVdqeQV98BgH8Tpv0/Q4FmRo6VX3g+XmBDjES94bHUAnXbiv+ESbEQzGwB73Ln4XalNAPq+wKTs3U8IlX0d40mwmi7U6o6WPxc2n64mO312nsM7e5C66U7KyGvgTduGMts=
+Message-ID: <d73ab4d0050619185556d25234@mail.gmail.com>
+Date: Mon, 20 Jun 2005 09:55:29 +0800
+From: guorke <gourke@gmail.com>
+Reply-To: guorke <gourke@gmail.com>
+To: linux-os@analogic.com
+Subject: Re: mabye simple,but i confused
 Cc: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: Hi,make question
-Date: Sun, 19 Jun 2005 21:51:55 -0400
-To: guorke <gourke@gmail.com>
-X-Mailer: Apple Mail (2.728)
+In-Reply-To: <Pine.LNX.4.61.0506160819350.29979@chaos.analogic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <d73ab4d005061522254f2e5933@mail.gmail.com>
+	 <Pine.LNX.4.61.0506160819350.29979@chaos.analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jun 19, 2005, at 21:44:30, guorke wrote:
-> hi,when complie 2.6.12,i meet the followning message,how to fix it?
+Thanks,I must read it carefully
 
-RTFM (Read the f***ing message):
-   When you get an error message, it's usually best to do as it says.
-
-> ipc/shm.c: In function `shm_inc':
-> ipc/shm.c:99: internal error: Segmentation fault
-> Please submit a full bug report,
-> with preprocessed source if appropriate.
-> See <URL:http://bugzilla.redhat.com/bugzilla/> for instructions.
-> make[1]: *** [ipc/shm.o] Error 1
-> make: *** [ipc] Error 2
-
-Please note where it says: "See <URL> for instructions".  That usually
-means that you should visit the URL and read the instructions contained
-therein.
-
-Cheers,
-Kyle Moffett
-
---
-There are two ways of constructing a software design. One way is to  
-make it so simple that there are obviously no deficiencies. And the  
-other way is to make it so complicated that there are no obvious  
-deficiencies.
-  -- C.A.R. Hoare
-
+On 6/16/05, Richard B. Johnson <linux-os@analogic.com> wrote:
+> On Thu, 16 Jun 2005, guorke wrote:
+> 
+> > in understangding the linux kernel, the authors says
+> > "..Moves itself from address 0x00007c00 to address 0x00090000.."
+> >
+> > What i confused is why the Boot Loader do this, i asked google,but
+> > still no answe.
+> > who can make me understand it ?
+> > Thanks.
+> 
+> The IBM 'IPL' (initial program load) address was specified to be
+> at 7c00. There was room here for only one "sector", which in the
+> early days was 512 bytes. The very first sector, the boot sector,
+> was loaded into this address and then execution was started at
+> a specified offset so that this boot code could load the rest
+> of the operating system. To load the rest of the operating system,
+> one needs to move the boot-code to somewhere it won't get
+> overwritten by subsequent reads from the disk.
+> 
+> To load Linux, the boot developers wanted to load code 64k at
+> a time. The only address in real-mode, that was guaranteed to
+> not be in use, where the boot code could load a whole 64k was
+> at 90000 hex. This provides a buffer from which the boot-loader
+> can copy 64k at a time into the protected-mode address space
+> starting at 0x00100000. The boot-loader uses real-mode BIOS
+> services to copy the code to the 1 megabyte address which can't
+> be reached in real mode.
+> 
+> Cheers,
+> Dick Johnson
+> Penguin : Linux version 2.6.11.9 on an i686 machine (5537.79 BogoMips).
+>  Notice : All mail here is now cached for review by Dictator Bush.
+>                  98.36% of all statistics are fiction.
+>

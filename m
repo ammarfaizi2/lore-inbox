@@ -1,92 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261624AbVFTVUU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261605AbVFTVbT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261624AbVFTVUU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 17:20:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261488AbVFTVLb
+	id S261605AbVFTVbT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 17:31:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261626AbVFTV2M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 17:11:31 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:47859 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261541AbVFTVHu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 17:07:50 -0400
-Subject: Re: [RFC] Linux memory error handling
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Russ Anderson <rja@sgi.com>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200506202042.j5KKgXKl4801437@clink.americas.sgi.com>
-References: <200506202042.j5KKgXKl4801437@clink.americas.sgi.com>
-Content-Type: text/plain
-Date: Mon, 20 Jun 2005 14:07:35 -0700
-Message-Id: <1119301655.27442.14.camel@localhost>
+	Mon, 20 Jun 2005 17:28:12 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:5339 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261617AbVFTV0I (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 17:26:08 -0400
+Date: Mon, 20 Jun 2005 23:25:53 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Alejandro Bonilla <abonilla@linuxwireless.org>,
+       linux-kernel@vger.kernel.org, linux-thinkpad@linux-thinkpad.org
+Subject: Re: IBM HDAPS Someone interested?
+Message-ID: <20050620212553.GA2222@elf.ucw.cz>
+References: <20050620155720.GA22535@ucw.cz> <005401c575b3_5f5bba90_600cc60a@amer.sykes.com> <20050620163456.GA24111@ucw.cz> <20050620165703.GB477@openzaurus.ucw.cz> <20050620204533.GA9520@ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050620204533.GA9520@ucw.cz>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-06-20 at 15:42 -0500, Russ Anderson wrote:
-> Is there a standard for how to name hardware entries in 
-> /sys/devices/system (or sysfs in general)?
+Hi!
 
-For system devices, no, I don't think so.
-
-> Seems like his same general issue would apply to other hardware
-> components, cpus, nodes, etc.  
-
-I don't think it's true for anything other than memory.  Linux doesn't
-manage CPUs or nodes any differently than it manages its internal
-representations of them.
-
-But, for memory at a level any less granular than pages, Linux and the
-hardware seldom have the same view. 
-
-> > One other minor thing.  You might want to think about referring to the
-> > pieces of memory as things other than DIMMs.  On ppc64, for instance,
-> > the hypervisor hands off memory in sections called LMBs (logical memory
-> > blocks), and they're not directly related to any hardware DIMM.  The
-> > same things will show up in other virtualized environments.
+> > > > I don't think they have anything in the BIOS related to the HDAPS, else they
+> > > > would have put something in it. (You can't even disable the chip in the
+> > > > BIOS) I just think is the accelerometer, there, by itself with an extra card
+> > > > they added.
+> > >  
+> > > Well, some piece of software needs to park the HDD when the notebook is
+> > > falling, and that piece of software should better be running since the
+> > > notebook is powered on. Hence my suspicion it's in the BIOS. It doesn't
+> > > have to be visible to the user, at all.
+> > 
+> > Actually yes, it needs to be visible to the user and no, it probably
+> > should not run during boot.  If user is in plane/train,
+> > accellerometers will basically detect problems all the time; still you
+> > want to use the computer.
 > 
-> If we're talking about specific hardware entries, it seems like they
-> should be called what they are.  If we're talking about abstractions,
-> a more abstract name seems in order.  One of my concerns is mapping 
-> failures back to hardware components, hence my bias for component names.
+> It likely won't. What it does is that it detects a situation with no
+> gravity - free fall.
 
-Even with generic names mapping back to components should be easy
+IIRC it is more complicated than that. Free fall is too late, laptop
+usually fall from 1meter. Thats not enough time to park the
+heads. Fortunately, laptop usually tilts before it falls off the table
+-- and they are measuring the tilt before the fall. That buys them
+enough time to actually do anything with it.
 
-Somethinng like memory/type could even contain the hardware type of each
-ram entry.
+Story says, that they once had version that worked from 2meters+. It
+was kind of useless, because no laptop ever fell from that height and
+those that did were destroyed anyway.
 
-> Would having /sys/.../memory/LMB on ppc64 to correspond to 
-> /sys/.../memory/DIMM be a problem?
+[ s = a t ^ 2.
+  s = ~1m.
+  a = 9.8m*s^-2.
 
-No, it wouldn't really be too much of a problem.  But, it's not a very
-accurate description.  There is certainly hardware that has RAM which
-does not have a single DIMM. :)
+  t = sqrt( s/a )
+  t = 
+ucalc> (1 m / (9.8 * (m * sec ^ (-2)))) ^ 0.5
+OK:  0.319438  sec
 
-> RAM would be an alternative,
-> but that could be confused with /sys/block/ram.  :-)
+...ouch, it should be way faster, 0.3sec is definitely enough to park
+heads.]
 
-RAM would probably be fine.  There should be very few properties
-that /sys/devices/system devices share with /sys/block, so it shouldn't
-be too bad.
-
-> In general, I'm more concerned with getting the necessary functionality
-> in than what the specific entries are called, so I'll go along with
-> the consensus.
-
-I don't think there's much of a consensus.  I just want to make sure we
-do something that works on all platforms consistently.  For instance,
-I'd hate to have every userspace utilities that are trying to examine
-memory look like this:
-
-if [ `uname -a` == ppc64 ]; then
-	UNIT=LMB
-elif [ `uname -a` == ia64 ]; then
-	UNIT=DIMM
-etc...
-
-FILE=/sys/devices/system/memory/$UNIT$NUMBER
-
--- Dave
-
+								Pavel
+-- 
+teflon -- maybe it is a trademark, but it should not be.

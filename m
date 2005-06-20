@@ -1,53 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261244AbVFTCme@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261330AbVFTCph@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261244AbVFTCme (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Jun 2005 22:42:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261330AbVFTCme
+	id S261330AbVFTCph (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Jun 2005 22:45:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261388AbVFTCph
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Jun 2005 22:42:34 -0400
-Received: from jynx.3ti.be ([217.22.63.77]:60106 "EHLO horsea.3ti.be")
-	by vger.kernel.org with ESMTP id S261244AbVFTCm2 (ORCPT
+	Sun, 19 Jun 2005 22:45:37 -0400
+Received: from [62.206.217.67] ([62.206.217.67]:51854 "EHLO kaber.coreworks.de")
+	by vger.kernel.org with ESMTP id S261330AbVFTCpY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Jun 2005 22:42:28 -0400
-Date: Mon, 20 Jun 2005 04:42:25 +0200 (CEST)
-From: Dag Wieers <dag@wieers.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Block device layer freezing block device access ? (follow-up)
-In-Reply-To: <Pine.LNX.4.63.0506200209000.3085@horsea.3ti.be>
-Message-ID: <Pine.LNX.4.63.0506200437290.3085@horsea.3ti.be>
-References: <Pine.LNX.4.63.0506200209000.3085@horsea.3ti.be>
-User-Agent: Mutt/1.2.5.1i
-X-Mailer: Ximian Evolution 1.0.5
-Organization: 3TI Web Hosting Services
-X-Extra: We know Linux is the best. It can do infinite loops in five seconds. - Linus Torvalds
+	Sun, 19 Jun 2005 22:45:24 -0400
+Date: Mon, 20 Jun 2005 04:45:15 +0200 (CEST)
+From: Patrick McHardy <kaber@trash.net>
+X-X-Sender: kaber@kaber.coreworks.de
+To: Herbert Xu <herbert@gondor.apana.org.au>
+cc: netfilter-devel@manty.net, rankincj@yahoo.com,
+       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
+       ebtables-devel@lists.sourceforge.net, bdschuym@pandora.be
+Subject: Re: 2.6.12: connection tracking broken?
+In-Reply-To: <E1Dk9nK-0001ww-00@gondolin.me.apana.org.au>
+Message-ID: <Pine.LNX.4.62.0506200432100.31737@kaber.coreworks.de>
+References: <E1Dk9nK-0001ww-00@gondolin.me.apana.org.au>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Jun 2005, Dag Wieers wrote:
+On Mon, 20 Jun 2005, Herbert Xu wrote:
+> Patrick McHardy <kaber@trash.net> wrote:
+>>
+>> The bridge-netfilter code defers calling of some NF_IP_* hooks to the
+>> bridge layer, when the conntrack reference is already gone, so the entry
+>
+> Why does it defer them at all? Shouldn't the fact that the device is
+> bridged be transparent to the IP layer?
 
-> 
-> I've got an (apparently) broken disk. But I see the following behaviour.
-> The kernel reads the partition table without problems and then has some 
-> unrecoverable errors.
-> 
-> After the system has booted, the disk has become inaccessible, but it 
-> appears that the driver/block device layer has decided to make the disk 
-> inaccessible, as I can't even access the partition table anymore (which 
-> was previously accessible during boot).
-> 
-> So I was wondering if there is a mechanism (probably in the block device 
-> layer, as I see it with 2 different sata chipsets) that decides to declare 
-> the disk 'dead' ?
+I couldn't figure out the reason, it seems to have something to do
+with setting up device pointers for iptables and ebtables. It looks
+like the only way to fix this problem without keeping the conntrack
+reference while packets are queued at the device is to avoid defering
+the NF_IP_* hooks. Bart, can you explain why the hooks are defered
+please?
 
-Using Knoppix instead of a Fedora rescue image, I was able to do a reverse 
-dd_rescue and already recovered 25GB from the 160GB disk, it now is having 
-some (155 now) bad blocks, but I hope it recovers from that (as it already 
-managed to do that after the first 55 bad blocks).
-
-Still I'm wondering why on boot it is able to read the partition table, 
-but not when booted. Knoppix has the same issue.
-
---   dag wieers,  dag@wieers.com,  http://dag.wieers.com/   --
-[all I want is a warm bed and a kind word and unlimited power]
+Regards
+Patrick

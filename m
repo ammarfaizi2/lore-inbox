@@ -1,83 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261398AbVFTR2c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261400AbVFTRe2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261398AbVFTR2c (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 13:28:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261399AbVFTR2c
+	id S261400AbVFTRe2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 13:34:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261401AbVFTRe2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 13:28:32 -0400
-Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:33484
-	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
-	with ESMTP id S261398AbVFTR2Z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 13:28:25 -0400
-Reply-To: <abonilla@linuxwireless.org>
-From: "Alejandro Bonilla" <abonilla@linuxwireless.org>
-To: <linux-thinkpad@linux-thinkpad.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: [ltp] Re: IBM HDAPS Someone interested?
-Date: Mon, 20 Jun 2005 11:28:16 -0600
-Message-ID: <005b01c575bd$724fac60$600cc60a@amer.sykes.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <42B6F6F6.2040704@zipman.it>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1478
-Importance: Normal
+	Mon, 20 Jun 2005 13:34:28 -0400
+Received: from lyle.provo.novell.com ([137.65.81.174]:51839 "EHLO
+	lyle.provo.novell.com") by vger.kernel.org with ESMTP
+	id S261400AbVFTReX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 13:34:23 -0400
+Date: Mon, 20 Jun 2005 10:34:11 -0700
+From: Greg KH <gregkh@suse.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Denis Vlasenko <vda@ilport.com.ua>, Nick Warne <nick@linicks.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12 udev hangs at boot
+Message-ID: <20050620173411.GB15212@suse.de>
+References: <200506181332.25287.nick@linicks.net> <42B45173.6060209@pobox.com> <200506181806.49627.nick@linicks.net> <200506201304.10741.vda@ilport.com.ua> <20050620164800.GA14798@suse.de> <42B6FBC7.5000900@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42B6FBC7.5000900@pobox.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> > Well, some piece of software needs to park the HDD when the
-> notebook is
-> > falling, and that piece of software should better be
-> running since the
-> > notebook is powered on. Hence my suspicion it's in the
-> BIOS. It doesn't
-> > have to be visible to the user, at all.
->
-> No, the software, under Windows, is an application; you can control
-> the behaviour of the disk based on the response of the chip.
->
-> Anyway I don't think it's a simple task to create a driver for the
-> accelerometer; one thing is to read the data from the chip (I suppose
-> it's not too hard), but the most part of the job is to know what to do
-> with the data you read.
->
-> IBM developed a mathematical model that describes the typical usage of
-> the ThinkPad, and they based the action on this math model. Developing
-> a free math model is quite hard and also we cannot destroy 5 or 6 TP
-> only to see how the signals are produced by the chip in all the
-> possible situations (IBM instead can destroy as much TP as
-> they want :(
->
-> I think the only practical solution is to ask IBM to release a free
-> driver for linux; maybe joining our forces we can achive some result.
->
-> - --
-> Flavio Visentin
+On Mon, Jun 20, 2005 at 01:24:23PM -0400, Jeff Garzik wrote:
+> Greg KH wrote:
+> >On Mon, Jun 20, 2005 at 01:04:10PM +0300, Denis Vlasenko wrote:
+> >
+> >>Greg, any plans to distribute udev and hotplug within kernel tarballs
+> >>so that people do not need to track such changes continuously?
+> >
+> >
+> >Nope.  But if you use udev, you should read the announcements for new
+> >releases, as I did say this was required for 2.6.12, and gave everyone a
+> >number of weeks notice :)
+> 
+> Since udev is required for booting, it sounds like you're putting people 
+> in an upgrade-or-no-boot situation.
 
-What is normally done here in Linux? A mass of people starts sending emails
-to IBM to ask for ANY support, or do we have contacts? I have already
-contacted the Linux developers that created the Linux driver for the
-security chip for the IBM's and they had no clue of what they can do?
+Well, they don't _have_ to upgrade their kernel :)
 
-If this is the case, and there is no normal way for IBM to release the spec
-or driver, then we will need to send emails to IBM, asking for the Linux
-support. After all, they claim that they are all into Linux (not all, but
-they kind of like it)
+> That's lame.  The kernel should support udev's out in the field, on 
+> people's boxes (RHEL, SLES?, Fedora, ...).
 
-What should we do? askibm@info.ibm.com ? Should we go into the Query page
-and ask them there? https://www.ibm.com/contact/us/en/query
+This was caused by an unfortunate assumption in older versions of udev
+about what was contained in the sysfs tree.  udev is now fixed to not
+make that assumption.  So this was not a kernel bug, but a udev/libsysfs
+one (and I wasn't going to keep the old kernel behavior for this minor
+issue.)
 
-Lenovo has the PC stuff of IBM, but still, they are fully into it and
-therefore will be able to know what they can do here. The support is given
-by IBM, not lenovo, they just sell the computers.
+As for working with people's boxes, only the very oldest versions of
+udev (like the reported 030 version which is a year old and I do not
+think shipped by any distro) would have the "lockup" issue.  On all of
+the other ones, only custom rules written by users would have issues
+(meaning, not work).  I do not know of any shipping, supported distro
+that currently has a boot lockup issue (if so, please let me know.)
 
-????
+thanks,
 
-.Alejandro
-
+greg k-h

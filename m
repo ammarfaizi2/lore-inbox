@@ -1,56 +1,209 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261910AbVFUEP6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261687AbVFUCl5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261910AbVFUEP6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 00:15:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261896AbVFUELh
+	id S261687AbVFUCl5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 22:41:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261895AbVFUCka
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 00:11:37 -0400
-Received: from smtpout.mac.com ([17.250.248.86]:32232 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S261917AbVFUCrd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 22:47:33 -0400
-In-Reply-To: <Pine.LNX.4.62.0506201848500.2736@hammer.psislidell.com>
-References: <Pine.LNX.4.62.0505311042470.7546@hammer.psislidell.com> <20050601195922.GA589@openzaurus.ucw.cz> <1117966262.5027.9.camel@localhost.localdomain> <AF6BB031-9221-4BA3-AFC9-7D167EBE866C@mac.com> <Pine.LNX.4.62.0506201711090.3592@hammer.psislidell.com> <6DCC9CC1-2B5C-430F-96AC-F36477AC8290@mac.com> <Pine.LNX.4.62.0506201848500.2736@hammer.psislidell.com>
-Mime-Version: 1.0 (Apple Message framework v728)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <AA15FE63-6286-4A0E-BE3B-21311C68289E@mac.com>
-Cc: Erik Slagter <erik@slagter.name>, Pavel Machek <pavel@ucw.cz>,
-       linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: Problem with 2.6 kernel and lots of I/O
-Date: Mon, 20 Jun 2005 22:47:13 -0400
-To: Roy Keene <rkeene@psislidell.com>
-X-Mailer: Apple Mail (2.728)
+	Mon, 20 Jun 2005 22:40:30 -0400
+Received: from mail.kroah.org ([69.55.234.183]:24292 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261687AbVFTW7n convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 18:59:43 -0400
+Cc: gregkh@suse.de
+Subject: [PATCH] class: convert drivers/block/* to use the new class api instead of class_simple
+In-Reply-To: <11193083623136@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Mon, 20 Jun 2005 15:59:22 -0700
+Message-Id: <11193083621030@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Greg K-H <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jun 20, 2005, at 19:54:23, Roy Keene wrote:
-> But the problem doesn't occur with the "local" end, it's with the  
-> "recieving" end (which may be the same thing, but mostly it's not,  
-> since I tend to reboot the secondary node more).
->
-> The problem occurs on the node running `nbd-server' in userspace  
-> and not nessicarily having "nbd" support.
->
-> "nbd1" is a remote nbd device to the secondary server, which then  
-> becomes highly unusable.  I'm not sure what you're attempting to  
-> convey to me, as the server that is running raid1_resync (reading  
-> from nbd0, which cooresponds with a local nbd-client binding) is  
-> perfectly usable in the example I gave, but the remote node is not...
+[PATCH] class: convert drivers/block/* to use the new class api instead of class_simple
 
-Oh!  Sorry, I got your systems confused.  In that case, you are  
-definitely
-having a SCSI RAID controller or driver issue.  Please forgive the  
-confusion.
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
-Cheers,
-Kyle Moffett
+---
+commit deb3697037a7d362d13468a73643e09cbc1615a8
+tree 1123942229b7edc193045300d1badb2018dc2bf0
+parent 619e666b7e9d2b0545ab60a9c824ae5f77c20c3b
+author gregkh@suse.de <gregkh@suse.de> Wed, 23 Mar 2005 09:52:10 -0800
+committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 20 Jun 2005 15:15:07 -0700
 
---
-There are two ways of constructing a software design. One way is to  
-make it so simple that there are obviously no deficiencies. And the  
-other way is to make it so complicated that there are no obvious  
-deficiencies.
-  -- C.A.R. Hoare
+ drivers/block/aoe/aoechr.c |   10 +++++-----
+ drivers/block/paride/pg.c  |   14 +++++++-------
+ drivers/block/paride/pt.c  |   20 ++++++++++----------
+ 3 files changed, 22 insertions(+), 22 deletions(-)
+
+diff --git a/drivers/block/aoe/aoechr.c b/drivers/block/aoe/aoechr.c
+--- a/drivers/block/aoe/aoechr.c
++++ b/drivers/block/aoe/aoechr.c
+@@ -36,7 +36,7 @@ static int emsgs_head_idx, emsgs_tail_id
+ static struct semaphore emsgs_sema;
+ static spinlock_t emsgs_lock;
+ static int nblocked_emsgs_readers;
+-static struct class_simple *aoe_class;
++static struct class *aoe_class;
+ static struct aoe_chardev chardevs[] = {
+ 	{ MINOR_ERR, "err" },
+ 	{ MINOR_DISCOVER, "discover" },
+@@ -218,13 +218,13 @@ aoechr_init(void)
+ 	}
+ 	sema_init(&emsgs_sema, 0);
+ 	spin_lock_init(&emsgs_lock);
+-	aoe_class = class_simple_create(THIS_MODULE, "aoe");
++	aoe_class = class_create(THIS_MODULE, "aoe");
+ 	if (IS_ERR(aoe_class)) {
+ 		unregister_chrdev(AOE_MAJOR, "aoechr");
+ 		return PTR_ERR(aoe_class);
+ 	}
+ 	for (i = 0; i < ARRAY_SIZE(chardevs); ++i)
+-		class_simple_device_add(aoe_class,
++		class_device_create(aoe_class,
+ 					MKDEV(AOE_MAJOR, chardevs[i].minor),
+ 					NULL, chardevs[i].name);
+ 
+@@ -237,8 +237,8 @@ aoechr_exit(void)
+ 	int i;
+ 
+ 	for (i = 0; i < ARRAY_SIZE(chardevs); ++i)
+-		class_simple_device_remove(MKDEV(AOE_MAJOR, chardevs[i].minor));
+-	class_simple_destroy(aoe_class);
++		class_device_destroy(aoe_class, MKDEV(AOE_MAJOR, chardevs[i].minor));
++	class_destroy(aoe_class);
+ 	unregister_chrdev(AOE_MAJOR, "aoechr");
+ }
+ 
+diff --git a/drivers/block/paride/pg.c b/drivers/block/paride/pg.c
+--- a/drivers/block/paride/pg.c
++++ b/drivers/block/paride/pg.c
+@@ -222,7 +222,7 @@ static int pg_identify(struct pg *dev, i
+ 
+ static char pg_scratch[512];	/* scratch block buffer */
+ 
+-static struct class_simple *pg_class;
++static struct class *pg_class;
+ 
+ /* kernel glue structures */
+ 
+@@ -666,7 +666,7 @@ static int __init pg_init(void)
+ 		err = -1;
+ 		goto out;
+ 	}
+-	pg_class = class_simple_create(THIS_MODULE, "pg");
++	pg_class = class_create(THIS_MODULE, "pg");
+ 	if (IS_ERR(pg_class)) {
+ 		err = PTR_ERR(pg_class);
+ 		goto out_chrdev;
+@@ -675,7 +675,7 @@ static int __init pg_init(void)
+ 	for (unit = 0; unit < PG_UNITS; unit++) {
+ 		struct pg *dev = &devices[unit];
+ 		if (dev->present) {
+-			class_simple_device_add(pg_class, MKDEV(major, unit), 
++			class_device_create(pg_class, MKDEV(major, unit),
+ 					NULL, "pg%u", unit);
+ 			err = devfs_mk_cdev(MKDEV(major, unit),
+ 				      S_IFCHR | S_IRUSR | S_IWUSR, "pg/%u",
+@@ -688,8 +688,8 @@ static int __init pg_init(void)
+ 	goto out;
+ 
+ out_class:
+-	class_simple_device_remove(MKDEV(major, unit));
+-	class_simple_destroy(pg_class);
++	class_device_destroy(pg_class, MKDEV(major, unit));
++	class_destroy(pg_class);
+ out_chrdev:
+ 	unregister_chrdev(major, "pg");
+ out:
+@@ -703,11 +703,11 @@ static void __exit pg_exit(void)
+ 	for (unit = 0; unit < PG_UNITS; unit++) {
+ 		struct pg *dev = &devices[unit];
+ 		if (dev->present) {
+-			class_simple_device_remove(MKDEV(major, unit));
++			class_device_destroy(pg_class, MKDEV(major, unit));
+ 			devfs_remove("pg/%u", unit);
+ 		}
+ 	}
+-	class_simple_destroy(pg_class);
++	class_destroy(pg_class);
+ 	devfs_remove("pg");
+ 	unregister_chrdev(major, name);
+ 
+diff --git a/drivers/block/paride/pt.c b/drivers/block/paride/pt.c
+--- a/drivers/block/paride/pt.c
++++ b/drivers/block/paride/pt.c
+@@ -242,7 +242,7 @@ static struct file_operations pt_fops = 
+ };
+ 
+ /* sysfs class support */
+-static struct class_simple *pt_class;
++static struct class *pt_class;
+ 
+ static inline int status_reg(struct pi_adapter *pi)
+ {
+@@ -963,7 +963,7 @@ static int __init pt_init(void)
+ 		err = -1;
+ 		goto out;
+ 	}
+-	pt_class = class_simple_create(THIS_MODULE, "pt");
++	pt_class = class_create(THIS_MODULE, "pt");
+ 	if (IS_ERR(pt_class)) {
+ 		err = PTR_ERR(pt_class);
+ 		goto out_chrdev;
+@@ -972,29 +972,29 @@ static int __init pt_init(void)
+ 	devfs_mk_dir("pt");
+ 	for (unit = 0; unit < PT_UNITS; unit++)
+ 		if (pt[unit].present) {
+-			class_simple_device_add(pt_class, MKDEV(major, unit), 
++			class_device_create(pt_class, MKDEV(major, unit),
+ 					NULL, "pt%d", unit);
+ 			err = devfs_mk_cdev(MKDEV(major, unit),
+ 				      S_IFCHR | S_IRUSR | S_IWUSR,
+ 				      "pt/%d", unit);
+ 			if (err) {
+-				class_simple_device_remove(MKDEV(major, unit));
++				class_device_destroy(pt_class, MKDEV(major, unit));
+ 				goto out_class;
+ 			}
+-			class_simple_device_add(pt_class, MKDEV(major, unit + 128),
++			class_device_create(pt_class, MKDEV(major, unit + 128),
+ 					NULL, "pt%dn", unit);
+ 			err = devfs_mk_cdev(MKDEV(major, unit + 128),
+ 				      S_IFCHR | S_IRUSR | S_IWUSR,
+ 				      "pt/%dn", unit);
+ 			if (err) {
+-				class_simple_device_remove(MKDEV(major, unit + 128));
++				class_device_destroy(pt_class, MKDEV(major, unit + 128));
+ 				goto out_class;
+ 			}
+ 		}
+ 	goto out;
+ 
+ out_class:
+-	class_simple_destroy(pt_class);
++	class_destroy(pt_class);
+ out_chrdev:
+ 	unregister_chrdev(major, "pt");
+ out:
+@@ -1006,12 +1006,12 @@ static void __exit pt_exit(void)
+ 	int unit;
+ 	for (unit = 0; unit < PT_UNITS; unit++)
+ 		if (pt[unit].present) {
+-			class_simple_device_remove(MKDEV(major, unit));
++			class_device_destroy(pt_class, MKDEV(major, unit));
+ 			devfs_remove("pt/%d", unit);
+-			class_simple_device_remove(MKDEV(major, unit + 128));
++			class_device_destroy(pt_class, MKDEV(major, unit + 128));
+ 			devfs_remove("pt/%dn", unit);
+ 		}
+-	class_simple_destroy(pt_class);
++	class_destroy(pt_class);
+ 	devfs_remove("pt");
+ 	unregister_chrdev(major, name);
+ 	for (unit = 0; unit < PT_UNITS; unit++)
 

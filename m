@@ -1,57 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261942AbVFUFom@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261548AbVFTVzc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261942AbVFUFom (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 01:44:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261291AbVFTWkX
+	id S261548AbVFTVzc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 17:55:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261710AbVFTVxv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 18:40:23 -0400
-Received: from coderock.org ([193.77.147.115]:16539 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S262257AbVFTWEl (ORCPT
+	Mon, 20 Jun 2005 17:53:51 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:53909 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261671AbVFTVw5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 18:04:41 -0400
-Message-Id: <20050620215654.202069000@nd47.coderock.org>
-Date: Mon, 20 Jun 2005 23:56:54 +0200
-From: domen@coderock.org
-To: jack@suse.cz
-Cc: linux-kernel@vger.kernel.org, Maximilian Attems <janitor@sternwelten.at>,
-       domen@coderock.org
-Subject: [patch 1/1] list_for_each_entry: fs-dquot.c
-Content-Disposition: inline; filename=list-for-each-entry-safe-fs_dquot.patch
+	Mon, 20 Jun 2005 17:52:57 -0400
+Date: Mon, 20 Jun 2005 14:53:29 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: mchehab@brturbo.com.br, linux-kernel@vger.kernel.org, greg@kroah.com
+Subject: Re: 2.6.12-mm1
+Message-Id: <20050620145329.2edbfde4.akpm@osdl.org>
+In-Reply-To: <20050620234202.3c605b89.khali@linux-fr.org>
+References: <20050619233029.45dd66b8.akpm@osdl.org>
+	<20050620202947.040be273.khali@linux-fr.org>
+	<20050620134146.0e5de567.akpm@osdl.org>
+	<20050620231147.7232d889.khali@linux-fr.org>
+	<20050620142323.2ed2180b.akpm@osdl.org>
+	<20050620234202.3c605b89.khali@linux-fr.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Domen Puncer <domen@coderock.org>
+Jean Delvare <khali@linux-fr.org> wrote:
+>
+> Hi Andrew,
+> 
+> > One could go on at length as to why this mistake is so easy to make
+> > when you're using CVS, but what it boils down to is that these
+> > projects are using the wrong paradigm.  They're maintaining files,
+> > whereas they should be maintaining *changes* to files.
+> 
+> My point exactly. You seem to excuse them for providing broken patches
+> because they use the wrong tools to do the job in the first place,
 
+No, I'm just saying...
 
+> If CVS doesn't work, let's not use it.
 
-Make code more readable with list_for_each_entry_safe.
+Agree.
 
-Signed-off-by: Domen Puncer <domen@coderock.org>
-Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
-Signed-off-by: Domen Puncer <domen@coderock.org>
----
- dquot.c |    7 ++-----
- 1 files changed, 2 insertions(+), 5 deletions(-)
+> There are other tools out there which will do the job just fine (one of
+> them being quilt [1], which makes my own job so much easier since I'm
+> using it, thanks to its various authors and contributors).
+> 
+> [1] http://savannah.nongnu.org/projects/quilt/
 
-Index: quilt/fs/dquot.c
-===================================================================
---- quilt.orig/fs/dquot.c
-+++ quilt/fs/dquot.c
-@@ -409,13 +409,10 @@ out_dqlock:
-  * for this sb+type at all. */
- static void invalidate_dquots(struct super_block *sb, int type)
- {
--	struct dquot *dquot;
--	struct list_head *head;
-+	struct dquot *dquot, *tmp;
- 
- 	spin_lock(&dq_list_lock);
--	for (head = inuse_list.next; head != &inuse_list;) {
--		dquot = list_entry(head, struct dquot, dq_inuse);
--		head = head->next;
-+	list_for_each_entry_safe(dquot, tmp, &inuse_list, dq_inuse) {
- 		if (dquot->dq_sb != sb)
- 			continue;
- 		if (dquot->dq_type != type)
-
---
+That works.  So does git.

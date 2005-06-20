@@ -1,56 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261390AbVFTQwf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261297AbVFTQyO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261390AbVFTQwf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 12:52:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbVFTQwO
+	id S261297AbVFTQyO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 12:54:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbVFTQyO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 12:52:14 -0400
-Received: from 64-60-250-34.cust.telepacific.net ([64.60.250.34]:56469 "EHLO
-	panta-1.pantasys.com") by vger.kernel.org with ESMTP
-	id S261400AbVFTQvj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 12:51:39 -0400
-Message-ID: <42B6F41A.1030605@pantasys.com>
-Date: Mon, 20 Jun 2005 09:51:38 -0700
-From: Peter Buckingham <peter@pantasys.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
+	Mon, 20 Jun 2005 12:54:14 -0400
+Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:64449
+	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
+	with ESMTP id S261297AbVFTQxr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 12:53:47 -0400
+Reply-To: <abonilla@linuxwireless.org>
+From: "Alejandro Bonilla" <abonilla@linuxwireless.org>
+To: "'Vojtech Pavlik'" <vojtech@suse.cz>
+Cc: <linux-kernel@vger.kernel.org>, <linux-thinkpad@linux-thinkpad.org>
+Subject: RE: IBM HDAPS Someone interested?
+Date: Mon, 20 Jun 2005 10:53:35 -0600
+Message-ID: <005701c575b8$99c2f450$600cc60a@amer.sykes.com>
 MIME-Version: 1.0
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-CC: sean.bruno@dsl-only.net, koch@esa.informatik.tu-darmstadt.de,
-       torvalds@osdl.org, benh@kernel.crashing.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       gregkh@suse.de
-Subject: Re: PROBLEM: Devices behind PCI Express-to-PCI bridge not mapped
-References: <Pine.LNX.4.58.0506091617130.2286@ppc970.osdl.org> <20050610184815.A13999@jurassic.park.msu.ru> <200506102247.30842.koch@esa.informatik.tu-darmstadt.de> <1118762382.9161.3.camel@home-lap> <20050616142039.GF21542@erebor.esa.informatik.tu-darmstadt.de> <42B1B4D3.3060600@pantasys.com> <1118955201.10529.10.camel@home-lap> <42B1E9B2.30504@pantasys.com> <20050617135400.A32290@jurassic.park.msu.ru> <20050617093410.24a58d56.peter@pantasys.com> <20050618114531.A2523@jurassic.park.msu.ru>
-In-Reply-To: <20050618114531.A2523@jurassic.park.msu.ru>
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 20 Jun 2005 16:48:59.0156 (UTC) FILETIME=[F4821D40:01C575B7]
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <20050620163456.GA24111@ucw.cz>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1478
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ivan,
 
-Ivan Kokshaysky wrote:
-> On Fri, Jun 17, 2005 at 09:34:10AM -0700, Peter Buckingham wrote:
-> 
->>PCI: Cannot allocate resource region 2 of device 0000:41:00.0
->>PCI: Failed to allocate mem resource #0:1000000@280000000 for 0000:41:00.0
->>PCI: Failed to allocate mem resource #1:10000000@280000000 for 0000:41:00.0
->>PCI: Failed to allocate mem resource #2:1000000@280000000 for 0000:41:00.0
-> 
-> 						  ^^^^^^^^^
-> 
-> Ouch. We managed to get value > 4G from 32-bit BARs.
-> Must be a bug somewhere in PCI probing code...
+> On Mon, Jun 20, 2005 at 10:16:09AM -0600, Alejandro Bonilla wrote:
+>
+> > I was told, that the only thing that was needed was an ADD
+> card. ( Analog to
+> > Digital?)
+>
+> Indeed, but there is a zillion of different approaches to an A/D.
+> I'm quite sure IBM have rolled their own directly on the mainboard.
+>
+> The main question is on which bus and which address it lives
+> and what is
+> the programming interface. It's not something Analog Devices
+> would know.
+>
+> It can be on some monitoring chip living on the SMBus (most likely) or
+> coupled directly to the ACPI bridge on PCI, or anywhere else in the
+> system.
+>
+> > If you are interested, I can call you and then conference
+> Analog Devices,
+> > and they will tell you what is needed, I bet IBM did
+> whatever Analog Devices
+> > told them to do. And they might even tell us what to do if
+> they talk with
+> > someone that knows (I was bumbling, while he was talking
+> about all the IO
+> > and G rates)
+>
+> Well, I will not be interested until I'm convinced they'll be able to
+> tell me something I don't know already.
 
-sorry, for the delayed reply..
+I bet they will. They don't document it all, and I'm pretty sure that if you
+ask the right question, then they will tell you what you are looking for.
+After all, they should be our first step before trying anything.
 
-can you give some suggestions (ie .c files or functions) that would be 
-useful to start looking at to track this down?
+I it obvious to me that they have at least tried once, to play with the IBM
+mechanism.
 
-thanks!
+They could have an aswer for us right now and tell us things that could make
+things really easy.
 
-peter
+After all, you won't pay for the phone call. ;-)
+
+.Alejandro
+
+>
+> > I don't think they have anything in the BIOS related to the
+> HDAPS, else they
+> > would have put something in it. (You can't even disable the
+> chip in the
+> > BIOS) I just think is the accelerometer, there, by itself
+> with an extra card
+> > they added.
+>
+> Well, some piece of software needs to park the HDD when the
+> notebook is
+> falling, and that piece of software should better be running since the
+> notebook is powered on. Hence my suspicion it's in the BIOS.
+> It doesn't
+> have to be visible to the user, at all.
+>
+> --
+> Vojtech Pavlik
+> SuSE Labs, SuSE CR
+

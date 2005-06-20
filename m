@@ -1,47 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261191AbVFUAFi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261801AbVFUAFh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261191AbVFUAFi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 20:05:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbVFUADl
+	id S261801AbVFUAFh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 20:05:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261191AbVFUADs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 20:03:41 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:36803 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261191AbVFTXl3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 19:41:29 -0400
-Subject: Re: [PATCH 1/6] new timeofday core subsystem for -mm (v.B3)
-From: Lee Revell <rlrevell@joe-job.com>
-To: john stultz <johnstul@us.ibm.com>
-Cc: Roman Zippel <zippel@linux-m68k.org>, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, George Anzinger <george@mvista.com>,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>
-In-Reply-To: <1119304422.9947.90.camel@cog.beaverton.ibm.com>
-References: <1119063400.9663.2.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.61.0506181344000.3743@scrub.home>
-	 <1119287354.9947.22.camel@cog.beaverton.ibm.com>
-	 <1119291034.16180.9.camel@mindpipe>
-	 <1119304422.9947.90.camel@cog.beaverton.ibm.com>
-Content-Type: text/plain
-Date: Mon, 20 Jun 2005 19:44:56 -0400
-Message-Id: <1119311096.17701.3.camel@mindpipe>
+	Mon, 20 Jun 2005 20:03:48 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:47374 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261852AbVFTXni (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 19:43:38 -0400
+Date: Tue, 21 Jun 2005 01:43:37 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] mm/slab: unexport kmem_cache_alloc_node
+Message-ID: <20050620234337.GI3666@stusta.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.3.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-06-20 at 14:53 -0700, john stultz wrote:
-> Yea, honestly I doubt gettimefoday performance will ever be as good as
-> rdtsc. I mean, that's a single instruction vs syscall overhead +
-> hardware clock reading + frequency conversion + ntp adjustment. Its
-> just not a fair comparison.  
+I didn't find any modular usage of kmem_cache_alloc_node.
 
-Of course not, the patch would have to be magic for that to happen.  
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-But some user space apps are now *required* to use rdtsc for timing due
-to the massive performance difference.  If we only took a 5x or 10x
-performance hit vs rdtsc, rather than the current 50x, it might be
-enough that user space apps won't have to do this.
+---
 
-Lee
+This patch was already sent on:
+- 30 May 2005
+- 15 May 2005
+
+--- linux-2.6.11-mm1-full/mm/slab.c.old	2005-03-06 15:40:38.000000000 +0100
++++ linux-2.6.11-mm1-full/mm/slab.c	2005-03-06 15:41:06.000000000 +0100
+@@ -2431,7 +2440,6 @@
+ 					__builtin_return_address(0));
+ 	return objp;
+ }
+-EXPORT_SYMBOL(kmem_cache_alloc_node);
+ 
+ #endif
+ 
 

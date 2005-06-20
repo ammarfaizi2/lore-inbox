@@ -1,44 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261477AbVFTTIh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261487AbVFTTK7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261477AbVFTTIh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 15:08:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261484AbVFTTHN
+	id S261487AbVFTTK7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 15:10:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261510AbVFTTJF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 15:07:13 -0400
-Received: from lakshmi.addtoit.com ([198.99.130.6]:25610 "EHLO
-	lakshmi.solana.com") by vger.kernel.org with ESMTP id S261477AbVFTS4t
+	Mon, 20 Jun 2005 15:09:05 -0400
+Received: from wproxy.gmail.com ([64.233.184.206]:29013 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261499AbVFTTAN convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 14:56:49 -0400
-Message-Id: <200506201851.j5KIpKPr008499@ccure.user-mode-linux.org>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
-To: akpm@osdl.org, torvalds@osdl.org
-cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-Subject: [PATCH 6/8] UML - Kill some useless vmalloc tlb flushing
+	Mon, 20 Jun 2005 15:00:13 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Obgiyyqsvn1kbdnEBBmxG2xPFm0ZDAy9XJSZSsMENJ32xH3LRFUkArrBgCn9HXe0bcShWIMsOy2GARwZrcqWt5vXRcHqwtMRWAB/yzPulpCkz8SQ87vLvahyf48JcTBOZNZMRs+rrTUyiS4AgJpQkwT+MGuprJ6KlpQZsQ4h9KU=
+Message-ID: <f2176eb805062012003b068199@mail.gmail.com>
+Date: Tue, 21 Jun 2005 03:00:12 +0800
+From: Paradise <paradyse@gmail.com>
+Reply-To: Paradise <paradyse@gmail.com>
+To: "Valdis.Kletnieks@vt.edu" <Valdis.Kletnieks@vt.edu>
+Subject: Re: 2.6.12-mm1 cannot build nvidia driver?
+Cc: linux-kernel@vger.kernel.org,
+       Debian Users List <debian-user@lists.debian.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <200506201639.j5KGdoNO016276@turing-police.cc.vt.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 20 Jun 2005 14:51:20 -0400
-From: Jeff Dike <jdike@addtoit.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <f2176eb805062004557fc7b9ac@mail.gmail.com>
+	 <f2176eb805062005201c96510a@mail.gmail.com>
+	 <200506201639.j5KGdoNO016276@turing-police.cc.vt.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There is absolutely no reason to flush the kernel's VM area during a
-tlb_flush_mm.
+this is the version of !defined(HAVE_COMPAT_IOCTL) from debian
+.....there is no "!defined(HAVE_COMPAT_IOCTL)" that you said..
 
-This results in a noticable performance increase in the kernel build 
-benchmark.
+void NV_API_CALL os_register_ioctl32_conversion(U032 cmd, U032 size)
+{
+#if defined(NVCPU_X86_64) && defined(CONFIG_IA32_EMULATION)
+    unsigned int request = _IOWR(NV_IOCTL_MAGIC, cmd, char[size]);
+    register_ioctl32_conversion(request, (void *)sys_ioctl);
+#endif /* NVCPU_X86_64 */
+}
 
-Signed-off-by: Jeff Dike <jdike@addtoit.com>
+void NV_API_CALL os_unregister_ioctl32_conversion(U032 cmd, U032 size)
+{
+#if defined(NVCPU_X86_64) && defined(CONFIG_IA32_EMULATION)
+    unsigned int request = _IOWR(NV_IOCTL_MAGIC, cmd, char[size]);
+    unregister_ioctl32_conversion(request);
+#endif /* NVCPU_X86_64 */
+}
 
-Index: linux-2.6.12/arch/um/kernel/skas/tlb.c
-===================================================================
---- linux-2.6.12.orig/arch/um/kernel/skas/tlb.c	2005-06-20 11:54:56.000000000 -0400
-+++ linux-2.6.12/arch/um/kernel/skas/tlb.c	2005-06-20 12:11:00.000000000 -0400
-@@ -76,7 +76,6 @@ void flush_tlb_mm_skas(struct mm_struct 
-                 return;
- 
-         fix_range(mm, 0, host_task_size, 0);
--        flush_tlb_kernel_range_common(start_vm, end_vm);
- }
- 
- void force_flush_all_skas(void)
 
+On 6/21/05, Valdis.Kletnieks@vt.edu <Valdis.Kletnieks@vt.edu> wrote:
+> On Mon, 20 Jun 2005 20:20:06 +0800, Paradise said:
+> > seems un/register_ioctl32_conversion is removed from 2.6.12-mm1..
+> > any patch for nvidia kernel driver?
+> 
+> No patch, but some hints - I suspect the problem is a local build config error...
+> 
+> 1) The exact patch causing your problem in -mm1 is:
+> remove-register_ioctl32_conversion-and-unregister_ioctl32_conversion.patch
+> 
+> Building with this one patch -R'ed out should help, but it's the wrong thing
+> to do, as it only papers over the real problem, which is:
+> 
+> 2) Your failing code is in os-interface.c:
+> 
+> void NV_API_CALL os_unregister_ioctl32_conversion(U032 cmd, U032 size)
+> {
+> #if defined(NVCPU_X86_64) && defined(CONFIG_IA32_EMULATION) && !defined(HAVE_COMPAT_IOCTL)
+>     unsigned int request = _IOWR(NV_IOCTL_MAGIC, cmd, char[size]);
+>     unregister_ioctl32_conversion(request);
+> #endif
+> }
+> 
+> Might want to figure out why HAVE_COMPAT_IOCTL isn't defined - there's at least
+> 3 other places where it matters (in nv.c).  It's #defined in the include/linux/fs.h
+> header in 2.6.12-rc6-mm1, so you probably want to figure out why your build isn't
+> picking up on it.  Are your #include directories screwed up?
+> 
+> Sorry I can't provide more help, this looks like an X86-64 only issue.  If this
+> isnt enough, take it up on the NVidia forums:
+> 
+> http://www.nvnews.net/vbulletin/forumdisplay.php?s=&forumid=14
+> 
+> 
+> 
+> 
+> 
+
+
+-- 
+Regards,
+Paradise

@@ -1,53 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261816AbVFTXAe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261674AbVFTXBy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261816AbVFTXAe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 19:00:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261815AbVFTXAc
+	id S261674AbVFTXBy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 19:01:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261555AbVFTXBs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 19:00:32 -0400
-Received: from coderock.org ([193.77.147.115]:23961 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S261747AbVFTVzs (ORCPT
+	Mon, 20 Jun 2005 19:01:48 -0400
+Received: from coderock.org ([193.77.147.115]:21401 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S261674AbVFTVzh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 17:55:48 -0400
-Message-Id: <20050620215156.762797000@nd47.coderock.org>
-Date: Mon, 20 Jun 2005 23:51:57 +0200
+	Mon, 20 Jun 2005 17:55:37 -0400
+Message-Id: <20050620215148.561754000@nd47.coderock.org>
+Date: Mon, 20 Jun 2005 23:51:48 +0200
 From: domen@coderock.org
-To: davej@codemonkey.org.uk
-Cc: linux-kernel@vger.kernel.org, domen@coderock.org
-Subject: [patch 1/1] backend.c - vfree() checking cleanups
-Content-Disposition: inline; filename=vfree-drivers_char_agp_backend.patch
+To: emoenke@gwdg.de
+Cc: linux-kernel@vger.kernel.org, Nishanth Aravamudan <nacc@us.ibm.com>,
+       domen@coderock.org
+Subject: [patch 2/4] cdrom/aztcd: remove sleep_on() usage
+Content-Disposition: inline; filename=sleep_on-drivers_cdrom_aztcd.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: jlamanna@gmail.com
+From: Nishanth Aravamudan <nacc@us.ibm.com>
 
 
 
-backend.c vfree() checking cleanups.
+Directly use wait-queues instead of the deprecated sleep_on().
+This required adding a local waitqueue. Patch is compile-tested.
 
-Signed-off by: James Lamanna <jlamanna@gmail.com>
+Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
 Signed-off-by: Domen Puncer <domen@coderock.org>
 ---
- backend.c |    7 +++----
- 1 files changed, 3 insertions(+), 4 deletions(-)
+ aztcd.c |    6 +++++-
+ 1 files changed, 5 insertions(+), 1 deletion(-)
 
-Index: quilt/drivers/char/agp/backend.c
+Index: quilt/drivers/cdrom/aztcd.c
 ===================================================================
---- quilt.orig/drivers/char/agp/backend.c
-+++ quilt/drivers/char/agp/backend.c
-@@ -206,10 +206,9 @@ static void agp_backend_cleanup(struct a
- 		bridge->driver->cleanup();
- 	if (bridge->driver->free_gatt_table)
- 		bridge->driver->free_gatt_table(bridge);
--	if (bridge->key_list) {
--		vfree(bridge->key_list);
--		bridge->key_list = NULL;
--	}
-+
-+	vfree(bridge->key_list);
-+	bridge->key_list = NULL;
+--- quilt.orig/drivers/cdrom/aztcd.c
++++ quilt/drivers/cdrom/aztcd.c
+@@ -179,6 +179,7 @@
+ #include <linux/ioport.h>
+ #include <linux/string.h>
+ #include <linux/major.h>
++#include <linux/wait.h>
  
- 	if (bridge->driver->agp_destroy_page &&
- 	    bridge->driver->needs_scratch_page)
+ #include <linux/init.h>
+ 
+@@ -429,9 +430,12 @@ static void dten_low(void)
+ #define STEN_LOW_WAIT   statusAzt()
+ static void statusAzt(void)
+ {
++	DEFINE_WAIT(wait);
+ 	AztTimeout = AZT_STATUS_DELAY;
+ 	SET_TIMER(aztStatTimer, HZ / 100);
+-	sleep_on(&azt_waitq);
++	prepare_to_wait(&azt_waitq, &wait, TASK_UNINTERRUPTIBLE);
++	schedule();
++	finish_wait(&azt_waitq, &wait);
+ 	if (AztTimeout <= 0)
+ 		printk("aztcd: Error Wait STEN_LOW_WAIT command:%x\n",
+ 		       aztCmd);
 
 --

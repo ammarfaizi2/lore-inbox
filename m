@@ -1,60 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261577AbVFTUg4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262292AbVFTUne@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261577AbVFTUg4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 16:36:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261585AbVFTUdY
+	id S262292AbVFTUne (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 16:43:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262295AbVFTUiB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 16:33:24 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:12810 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261577AbVFTUcU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 16:32:20 -0400
-Message-Id: <200506202032.j5KKW6r7022159@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Philippe Gerum <rpm@xenomai.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] I-pipe: Core implementation 
-In-Reply-To: Your message of "Sat, 18 Jun 2005 19:01:40 +0200."
-             <20050618170139.GA477@openzaurus.ucw.cz> 
-From: Valdis.Kletnieks@vt.edu
-References: <42B35B07.7080703@xenomai.org>
-            <20050618170139.GA477@openzaurus.ucw.cz>
+	Mon, 20 Jun 2005 16:38:01 -0400
+Received: from rproxy.gmail.com ([64.233.170.205]:49881 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261508AbVFTUef convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 16:34:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=c+AAEG0DzbOpWoNwhVLZPmN6j7FQviGfZ5P8vyfra9HNXrD8pec7VOhmpa5Adb52jXf/+lt3nOsCK2KKcUVhVKUOK3SDad7leST8hgX7xuEjZ0KqKOiVwP0K7Hn2jvQEcs73t7vAoaaoGqsCVHO3jYZxhZV+NMYySTsBIgCg5+s=
+Message-ID: <2538186705062013345a002c5b@mail.gmail.com>
+Date: Mon, 20 Jun 2005 16:34:34 -0400
+From: Yani Ioannou <yani.ioannou@gmail.com>
+Reply-To: Yani Ioannou <yani.ioannou@gmail.com>
+To: abonilla@linuxwireless.org
+Subject: Re: [ltp] Re: IBM HDAPS Someone interested?
+Cc: linux-thinkpad@linux-thinkpad.org, linux-kernel@vger.kernel.org
+In-Reply-To: <006f01c575d6$41b9e480$600cc60a@amer.sykes.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1119299524_19943P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 20 Jun 2005 16:32:05 -0400
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <2538186705062013113dce139@mail.gmail.com>
+	 <006f01c575d6$41b9e480$600cc60a@amer.sykes.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1119299524_19943P
-Content-Type: text/plain; charset=us-ascii
-
-On Sat, 18 Jun 2005 19:01:40 +0200, Pavel Machek said:
-> Hi!
+On 6/20/05, Alejandro Bonilla <abonilla@linuxwireless.org> wrote:
+> Yani,
 > 
-> >  linux-2.6.12-rc6-ipipe-0.5/ipipe/Kconfig         |   12
-> >  linux-2.6.12-rc6-ipipe-0.5/ipipe/Makefile        |    9
-> >  linux-2.6.12-rc6-ipipe-0.5/ipipe/generic.c       |  265 ++++++++++++
-> 
-> Top-level directory for 3 files seems a bit excessive to me...
+>         What company has ever released a Linux driver, just for the heck of it, or
+> simply because they wanted it out? Hell no.
 
-I'm thinking it might make more sense to make this 2 patches against
-kernel/Kconfig and kernel/Makefile, and rename the .c to kernel/ipipe.c,
-and stick the arch-dependent chunk down in arch/<whatever>/kernel/
+Actually..a quick search through LKML and lm_sensors reveals quite a
+few, but there could always be more.
 
-Unless somebody has a better idea?
+> We have to be persistent and ask them to release something, we paid a lot of
+> money, and I have been missinformed to the fact that IBM loved Linux and
+> wanted to "support it". Looks like a big lie to me. They don't even need to
+> release a driver, just information. It is not even something that they only
+> have. Now we all know that Analog Devices makes the hardware. Not them.
 
---==_Exmh_1119299524_19943P
-Content-Type: application/pgp-signature
+Well, aside from this having nothing to do with IBM anymore, I agree
+that I personally don't see the great harm in Lenevo releasing the
+information. Many other notebook manufactuers have a similair system
+now (Apple powerbooks, and some others) so the competitive advantage
+is waning.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+> If people would send emails to IBM like I have, instead of complaining and
+> doing pilitical arguments, we probably would have an answer already.
 
-iD8DBQFCtyfEcC3lWbTT17ARAjHFAJ0T8UQitP66EsCZmKGV10QFm/mGFQCbB44A
-TYtnDwudY1YItrTl6fQmPnI=
-=EIJn
------END PGP SIGNATURE-----
+I don't see how I did either of those :-|. I simply thought you hadn't
+seen the statement, obviously you had. I also wanted to provide what I
+thought was important feedback on what I had determined myself about
+the system.
 
---==_Exmh_1119299524_19943P--
+Yani

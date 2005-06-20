@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261745AbVFTX0F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261807AbVFTXa7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261745AbVFTX0F (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 19:26:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261811AbVFTXXz
+	id S261807AbVFTXa7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 19:30:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbVFTXXA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 19:23:55 -0400
-Received: from mail.kroah.org ([69.55.234.183]:741 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261804AbVFTXAR convert rfc822-to-8bit
+	Mon, 20 Jun 2005 19:23:00 -0400
+Received: from mail.kroah.org ([69.55.234.183]:997 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261805AbVFTXAR convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 20 Jun 2005 19:00:17 -0400
 Cc: maneesh@in.ibm.com
-Subject: [PATCH] sysfs-iattr: add sysfs_setattr
-In-Reply-To: <1119308369371@kroah.com>
+Subject: [PATCH] sysfs-iattr: set inode attributes
+In-Reply-To: <1119308369529@kroah.com>
 X-Mailer: gregkh_patchbomb
 Date: Mon, 20 Jun 2005 15:59:29 -0700
-Message-Id: <11193083692565@kroah.com>
+Message-Id: <1119308369371@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,144 +24,119 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] sysfs-iattr: add sysfs_setattr
+[PATCH] sysfs-iattr: set inode attributes
 
-o This adds ->i_op->setattr VFS method for sysfs inodes. The changed
-  attribues are saved in the persistent sysfs_dirent structure as a pointer
-  to struct iattr. The struct iattr is allocated only for those sysfs_dirent's
-  for which default attributes are getting changed. Thanks to Jon Smirl for
-  this suggestion.
+o Following patch sets the attributes for newly allocated inodes for sysfs
+  objects. If the object has non-default attributes, inode attributes are
+  set as saved in sysfs_dirent->s_iattr, pointer to struct iattr.
 
 Signed-off-by: Maneesh Soni <maneesh@in.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit 988d186de5b6966a71a8cc52e6cb4895fd2f7799
-tree 428cb6c29cbe2563eb91f9f2a03512b7eafa9449
-parent 6fa5c828c7fb6beef7035864bd2b18e7386fbdd5
-author Maneesh Soni <maneesh@in.ibm.com> Tue, 31 May 2005 10:39:14 +0530
+commit 8215534ce7d073423bfa9c17405c43ab7636ca03
+tree b53aed1111cf10a7d42ef0695308c4a70b820747
+parent 988d186de5b6966a71a8cc52e6cb4895fd2f7799
+author Maneesh Soni <maneesh@in.ibm.com> Tue, 31 May 2005 10:39:52 +0530
 committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 20 Jun 2005 15:15:37 -0700
 
- fs/sysfs/dir.c        |    1 +
- fs/sysfs/inode.c      |   65 +++++++++++++++++++++++++++++++++++++++++++++++++
- fs/sysfs/sysfs.h      |    2 ++
- include/linux/sysfs.h |    1 +
- 4 files changed, 69 insertions(+), 0 deletions(-)
+ fs/sysfs/inode.c |   37 +++++++++++++++++++++++++++++++------
+ fs/sysfs/mount.c |    4 +++-
+ fs/sysfs/sysfs.h |    2 +-
+ 3 files changed, 35 insertions(+), 8 deletions(-)
 
-diff --git a/fs/sysfs/dir.c b/fs/sysfs/dir.c
---- a/fs/sysfs/dir.c
-+++ b/fs/sysfs/dir.c
-@@ -233,6 +233,7 @@ static struct dentry * sysfs_lookup(stru
- 
- struct inode_operations sysfs_dir_inode_operations = {
- 	.lookup		= sysfs_lookup,
-+	.setattr	= sysfs_setattr,
- };
- 
- static void remove_dir(struct dentry * d)
 diff --git a/fs/sysfs/inode.c b/fs/sysfs/inode.c
 --- a/fs/sysfs/inode.c
 +++ b/fs/sysfs/inode.c
-@@ -26,6 +26,71 @@ static struct backing_dev_info sysfs_bac
- 	.capabilities	= BDI_CAP_NO_ACCT_DIRTY | BDI_CAP_NO_WRITEBACK,
- };
+@@ -91,18 +91,42 @@ int sysfs_setattr(struct dentry * dentry
+ 	return error;
+ }
  
-+static struct inode_operations sysfs_inode_operations ={
-+	.setattr	= sysfs_setattr,
-+};
-+
-+int sysfs_setattr(struct dentry * dentry, struct iattr * iattr)
+-struct inode * sysfs_new_inode(mode_t mode)
++static inline void set_default_inode_attr(struct inode * inode, mode_t mode)
 +{
-+	struct inode * inode = dentry->d_inode;
-+	struct sysfs_dirent * sd = dentry->d_fsdata;
-+	struct iattr * sd_iattr;
-+	unsigned int ia_valid = iattr->ia_valid;
-+	int error;
-+
-+	if (!sd)
-+		return -EINVAL;
-+
-+	sd_iattr = sd->s_iattr;
-+
-+	error = inode_change_ok(inode, iattr);
-+	if (error)
-+		return error;
-+
-+	error = inode_setattr(inode, iattr);
-+	if (error)
-+		return error;
-+
-+	if (!sd_iattr) {
-+		/* setting attributes for the first time, allocate now */
-+		sd_iattr = kmalloc(sizeof(struct iattr), GFP_KERNEL);
-+		if (!sd_iattr)
-+			return -ENOMEM;
-+		/* assign default attributes */
-+		memset(sd_iattr, 0, sizeof(struct iattr));
-+		sd_iattr->ia_mode = sd->s_mode;
-+		sd_iattr->ia_uid = 0;
-+		sd_iattr->ia_gid = 0;
-+		sd_iattr->ia_atime = sd_iattr->ia_mtime = sd_iattr->ia_ctime = CURRENT_TIME;
-+		sd->s_iattr = sd_iattr;
-+	}
-+
-+	/* attributes were changed atleast once in past */
-+
-+	if (ia_valid & ATTR_UID)
-+		sd_iattr->ia_uid = iattr->ia_uid;
-+	if (ia_valid & ATTR_GID)
-+		sd_iattr->ia_gid = iattr->ia_gid;
-+	if (ia_valid & ATTR_ATIME)
-+		sd_iattr->ia_atime = timespec_trunc(iattr->ia_atime,
-+						inode->i_sb->s_time_gran);
-+	if (ia_valid & ATTR_MTIME)
-+		sd_iattr->ia_mtime = timespec_trunc(iattr->ia_mtime,
-+						inode->i_sb->s_time_gran);
-+	if (ia_valid & ATTR_CTIME)
-+		sd_iattr->ia_ctime = timespec_trunc(iattr->ia_ctime,
-+						inode->i_sb->s_time_gran);
-+	if (ia_valid & ATTR_MODE) {
-+		umode_t mode = iattr->ia_mode;
-+
-+		if (!in_group_p(inode->i_gid) && !capable(CAP_FSETID))
-+			mode &= ~S_ISGID;
-+		sd_iattr->ia_mode = mode;
-+	}
-+
-+	return error;
++	inode->i_mode = mode;
++	inode->i_uid = 0;
++	inode->i_gid = 0;
++	inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
 +}
 +
- struct inode * sysfs_new_inode(mode_t mode)
++static inline void set_inode_attr(struct inode * inode, struct iattr * iattr)
++{
++	inode->i_mode = iattr->ia_mode;
++	inode->i_uid = iattr->ia_uid;
++	inode->i_gid = iattr->ia_gid;
++	inode->i_atime = iattr->ia_atime;
++	inode->i_mtime = iattr->ia_mtime;
++	inode->i_ctime = iattr->ia_ctime;
++}
++
++struct inode * sysfs_new_inode(mode_t mode, struct sysfs_dirent * sd)
  {
  	struct inode * inode = new_inode(sysfs_sb);
+ 	if (inode) {
+-		inode->i_mode = mode;
+-		inode->i_uid = 0;
+-		inode->i_gid = 0;
+ 		inode->i_blksize = PAGE_CACHE_SIZE;
+ 		inode->i_blocks = 0;
+-		inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
+ 		inode->i_mapping->a_ops = &sysfs_aops;
+ 		inode->i_mapping->backing_dev_info = &sysfs_backing_dev_info;
++		inode->i_op = &sysfs_inode_operations;
++
++		if (sd->s_iattr) {
++			/* sysfs_dirent has non-default attributes
++			 * get them for the new inode from persistent copy
++			 * in sysfs_dirent
++			 */
++			set_inode_attr(inode, sd->s_iattr);
++		} else
++			set_default_inode_attr(inode, mode);
+ 	}
+ 	return inode;
+ }
+@@ -113,7 +137,8 @@ int sysfs_create(struct dentry * dentry,
+ 	struct inode * inode = NULL;
+ 	if (dentry) {
+ 		if (!dentry->d_inode) {
+-			if ((inode = sysfs_new_inode(mode))) {
++			struct sysfs_dirent * sd = dentry->d_fsdata;
++			if ((inode = sysfs_new_inode(mode, sd))) {
+ 				if (dentry->d_parent && dentry->d_parent->d_inode) {
+ 					struct inode *p_inode = dentry->d_parent->d_inode;
+ 					p_inode->i_mtime = p_inode->i_ctime = CURRENT_TIME;
+diff --git a/fs/sysfs/mount.c b/fs/sysfs/mount.c
+--- a/fs/sysfs/mount.c
++++ b/fs/sysfs/mount.c
+@@ -28,6 +28,7 @@ static struct sysfs_dirent sysfs_root = 
+ 	.s_children	= LIST_HEAD_INIT(sysfs_root.s_children),
+ 	.s_element	= NULL,
+ 	.s_type		= SYSFS_ROOT,
++	.s_iattr	= NULL,
+ };
+ 
+ static int sysfs_fill_super(struct super_block *sb, void *data, int silent)
+@@ -42,7 +43,8 @@ static int sysfs_fill_super(struct super
+ 	sb->s_time_gran = 1;
+ 	sysfs_sb = sb;
+ 
+-	inode = sysfs_new_inode(S_IFDIR | S_IRWXU | S_IRUGO | S_IXUGO);
++	inode = sysfs_new_inode(S_IFDIR | S_IRWXU | S_IRUGO | S_IXUGO,
++				 &sysfs_root);
+ 	if (inode) {
+ 		inode->i_op = &sysfs_dir_inode_operations;
+ 		inode->i_fop = &sysfs_dir_operations;
 diff --git a/fs/sysfs/sysfs.h b/fs/sysfs/sysfs.h
 --- a/fs/sysfs/sysfs.h
 +++ b/fs/sysfs/sysfs.h
-@@ -17,6 +17,7 @@ extern void sysfs_remove_subdir(struct d
+@@ -2,7 +2,7 @@
+ extern struct vfsmount * sysfs_mount;
+ extern kmem_cache_t *sysfs_dir_cachep;
  
- extern const unsigned char * sysfs_get_name(struct sysfs_dirent *sd);
- extern void sysfs_drop_dentry(struct sysfs_dirent *sd, struct dentry *parent);
-+extern int sysfs_setattr(struct dentry *dentry, struct iattr *iattr);
+-extern struct inode * sysfs_new_inode(mode_t mode);
++extern struct inode * sysfs_new_inode(mode_t mode, struct sysfs_dirent *);
+ extern int sysfs_create(struct dentry *, int mode, int (*init)(struct inode *));
  
- extern struct rw_semaphore sysfs_rename_sem;
- extern struct super_block * sysfs_sb;
-@@ -75,6 +76,7 @@ static inline void release_sysfs_dirent(
- 		kobject_put(sl->target_kobj);
- 		kfree(sl);
- 	}
-+	kfree(sd->s_iattr);
- 	kmem_cache_free(sysfs_dir_cachep, sd);
- }
- 
-diff --git a/include/linux/sysfs.h b/include/linux/sysfs.h
---- a/include/linux/sysfs.h
-+++ b/include/linux/sysfs.h
-@@ -73,6 +73,7 @@ struct sysfs_dirent {
- 	int			s_type;
- 	umode_t			s_mode;
- 	struct dentry		* s_dentry;
-+	struct iattr		* s_iattr;
- };
- 
- #define SYSFS_ROOT		0x0001
+ extern int sysfs_make_dirent(struct sysfs_dirent *, struct dentry *, void *,
 

@@ -1,66 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261160AbVFTHL3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261166AbVFTHOX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261160AbVFTHL3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 03:11:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261166AbVFTHL3
+	id S261166AbVFTHOX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 03:14:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261266AbVFTHOW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 03:11:29 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:19685 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261160AbVFTHL0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 03:11:26 -0400
-Date: Mon, 20 Jun 2005 17:04:59 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Jan De Luyck <lkml@kcore.org>
-Cc: linux-xfs@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [2.6.12] XFS: Undeletable directory
-Message-ID: <20050620070459.GB1549@frodo>
-References: <200506191904.49639.lkml@kcore.org>
+	Mon, 20 Jun 2005 03:14:22 -0400
+Received: from zproxy.gmail.com ([64.233.162.202]:38002 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261166AbVFTHOU convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 03:14:20 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=BX2cgFtTR57w7ui9PgE2xxV8UL2dIttHLDmUWl22m/Kzp2841FaBVon/HRk2cxCIXrr6qhGVGMFqjwytaFpkBYI6iuXGN89vy1MbQS9MQV6A/ZYZLOCUKoZjUeOIre2rLcMn6RtWQmvN62ig7T1k8ff+H6uwXFjiZdZ+jWQ1d7E=
+Message-ID: <b82a891705062000144a0c3f81@mail.gmail.com>
+Date: Mon, 20 Jun 2005 12:44:20 +0530
+From: Niraj kumar <niraj17@gmail.com>
+Reply-To: niraj17@iitbombay.org
+To: guorke <gourke@gmail.com>
+Subject: Re: Hi,make question
+Cc: Bongani Hlope <bonganilinux@mweb.co.za>, linux-kernel@vger.kernel.org
+In-Reply-To: <d73ab4d005061922314a2cadb5@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <200506191904.49639.lkml@kcore.org>
-User-Agent: Mutt/1.5.3i
+References: <d73ab4d005061918441ae4a81f@mail.gmail.com>
+	 <200506200618.44344.bonganilinux@mweb.co.za>
+	 <d73ab4d005061922314a2cadb5@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 19, 2005 at 07:04:49PM +0200, Jan De Luyck wrote:
-> Hello lists,
-> 
-> I've had some XFS troubles today, and after cleaning up with xfs_repair and so 
-> I'm stuck with one undeletable directory in /lost+found:
-> 
-> precious:/lost+found# ls -l
-> total 8
-> drwxrwxrwx  2 root root 8192 Jun 19  2005 4207214
-> precious:/lost+found# rm -r 4207214
-> rm: cannot remove directory `4207214': Directory not empty
-> precious:/lost+found# ls -l 4207214/
-> total 0
-> precious:/lost+found# 
-> 
-> So there's one dir 4207214 there, and i can rename it and whatever, just not 
-> remove it.
-> 
-> xfs_repair didn't solve the problem.
-> 
-> Any ideas?
+On 6/20/05, guorke <gourke@gmail.com> wrote:
+> > 1. What kernel are you currently runnig
+<snip>
+> I meet lot of  Segmentation fault.
+> So I must make again and agian.
 
-What does:  xfs_db -r -c 'inode 4207214' -c print /dev/XXX
-report?
+Continuous segfault is usually sign of a hardware/memory issue .
 
-I have seen a similar thing once before, awhile back, where the
-directory inode was "empty" (only . and ..) and hence should've
-been in shortform, but other fields indicated the inode was in
-extent form still.  Never got to the bottom of it... I'd guess
-there's somehow a case where the kernel XFS code can miss this
-transformation - not sure where/how though.
+You may like to try memtest86 .
 
-If it comes to it, you can always zero out individual inode fields
-for that inode in xfs_db (with -x option to enable write mode) and
-then xfs_repair should be able to get past it.
-
-cheers.
-
--- 
-Nathan
+Niraj

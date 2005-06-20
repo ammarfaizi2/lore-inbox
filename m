@@ -1,47 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261264AbVFTOki@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261260AbVFTOuT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261264AbVFTOki (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 10:40:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261267AbVFTOkg
+	id S261260AbVFTOuT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 10:50:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261269AbVFTOuT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 10:40:36 -0400
-Received: from silver.veritas.com ([143.127.12.111]:53622 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S261264AbVFTOk3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 10:40:29 -0400
-Date: Mon, 20 Jun 2005 15:41:46 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: "Richard B. Johnson" <linux-os@analogic.com>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.6.12
-In-Reply-To: <Pine.LNX.4.61.0506201018460.5458@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.61.0506201530450.3324@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0506200857450.5213@chaos.analogic.com>
- <Pine.LNX.4.61.0506201443400.2903@goblin.wat.veritas.com>
- <Pine.LNX.4.61.0506201018460.5458@chaos.analogic.com>
+	Mon, 20 Jun 2005 10:50:19 -0400
+Received: from [202.125.86.130] ([202.125.86.130]:16105 "EHLO
+	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
+	id S261260AbVFTOuJ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 10:50:09 -0400
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 20 Jun 2005 14:40:29.0164 (UTC) FILETIME=[00FEB2C0:01C575A6]
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: how to insert an asm instruction in C code and how to compile it
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+Date: Mon, 20 Jun 2005 20:28:26 +0530
+Message-ID: <4EE0CBA31942E547B99B3D4BFAB348115AB385@mail.esn.co.in>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: how to insert an asm instruction in C code and how to compile it
+Thread-Index: AcV1pHyGUPRcEsqnTImMy0FsgGrfwQAAENZw
+From: "Srinivas G." <srinivasg@esntechnologies.co.in>
+To: "linux-kernel-Mailing-list" <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Jun 2005, Richard B. Johnson wrote:
-> On Mon, 20 Jun 2005, Hugh Dickins wrote:
-> > 
-> > It's the BUG_ON(!pte_none(*pte)) in remap_pte_range.  Maybe your page
-> > table is corrupt, maybe your driver is trying to remap_pfn_range on
-> > top of something already mapped.
-> 
-> But of course it is. There is some memory that is mapped into the
-> driver's address space, used for DMA. It was obtained using
-> ioremap_nocache(). This memory is then mapped into user-space
-> when the user executes mmap(). This is how we DMA directly to
-> user-space. Is this no longer allowed?
+Dear All,
 
-Of course that is allowed.  But mapping it into userspace on top of
-an existing populated mapping in userspace is not and has never been
-allowed (well, in 2.4.0 it just generated a printk, from 2.4.10
-onwards it's been a BUG).
+I am very sorry for asking such a silly question here.
 
-Hugh
+I have small doubt about ASM code in a C program. Actually I want to
+insert some asm instructions in a C program and after that I want to
+compile the C program. 
+
+I want to include the following code in a simple C program and compile
+it.
+
+#define printf DbgPrint
+
+int main()
+{
+	printf("Hello world program!\n");
+	return 0;
+}
+void DbgPrint(char* str,...)
+{
+	volatile USHORT i = 0;
+    	volatile UCHAR sch;
+	while(str[i])
+	{
+		sch = str[i];
+		i ++;
+		asm mov ah,0x0E;
+		asm mov al,sch;
+		
+		asm cmp	al,0ah 
+		asm jne	test
+		asm mov	al,0dh     //; new line
+		asm mov	bx,07h
+		asm int	10h
+		asm mov	al,0ah
+test:
+		asm mov bx,0x07
+		asm int 0x10
+	}
+}
+
+Please let me know how to do it?
+
+Any links or Howtos are welcome.
+Thanks in advance.
+
+Regards,
+Srinivas G

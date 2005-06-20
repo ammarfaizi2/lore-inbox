@@ -1,48 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261598AbVFTVtJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261737AbVFUGTE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261598AbVFTVtJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 17:49:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261635AbVFTVs2
+	id S261737AbVFUGTE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 02:19:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261489AbVFUGM3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 17:48:28 -0400
-Received: from smtp-101-monday.noc.nerim.net ([62.4.17.101]:1042 "EHLO
-	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
-	id S261617AbVFTVlm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 17:41:42 -0400
-Date: Mon, 20 Jun 2005 23:42:02 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: mchehab@brturbo.com.br, linux-kernel@vger.kernel.org, greg@kroah.com
-Subject: Re: 2.6.12-mm1
-Message-Id: <20050620234202.3c605b89.khali@linux-fr.org>
-In-Reply-To: <20050620142323.2ed2180b.akpm@osdl.org>
-References: <20050619233029.45dd66b8.akpm@osdl.org>
-	<20050620202947.040be273.khali@linux-fr.org>
-	<20050620134146.0e5de567.akpm@osdl.org>
-	<20050620231147.7232d889.khali@linux-fr.org>
-	<20050620142323.2ed2180b.akpm@osdl.org>
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 21 Jun 2005 02:12:29 -0400
+Received: from coderock.org ([193.77.147.115]:16281 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S261740AbVFTVzO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 17:55:14 -0400
+Message-Id: <20050620215139.825371000@nd47.coderock.org>
+Date: Mon, 20 Jun 2005 23:51:41 +0200
+From: domen@coderock.org
+To: axboe@suse.de
+Cc: linux-kernel@vger.kernel.org, Tobias Klauser <tklauser@nuerscht.ch>,
+       domen@coderock.org
+Subject: [patch 11/12] drivers/block/umem.c: Use the DMA_{64, 32}BIT_MASK constants
+Content-Disposition: inline; filename=dma_mask-drivers_block_umem.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+From: Tobias Klauser <tklauser@nuerscht.ch>
 
-> One could go on at length as to why this mistake is so easy to make
-> when you're using CVS, but what it boils down to is that these
-> projects are using the wrong paradigm.  They're maintaining files,
-> whereas they should be maintaining *changes* to files.
 
-My point exactly. You seem to excuse them for providing broken patches
-because they use the wrong tools to do the job in the first place, I
-don't (and I'm not even you). If CVS doesn't work, let's not use it.
-There are other tools out there which will do the job just fine (one of
-them being quilt [1], which makes my own job so much easier since I'm
-using it, thanks to its various authors and contributors).
 
-[1] http://savannah.nongnu.org/projects/quilt/
+Use the DMA_{64,32}BIT_MASK constants from dma-mapping.h when calling
+pci_set_dma_mask() or pci_set_consistent_dma_mask()
+These patches include dma-mapping.h explicitly because it caused errors
+on some architectures otherwise.
+See http://marc.theaimsgroup.com/?t=108001993000001&r=1&w=2 for details
 
--- 
-Jean Delvare
+Signed-off-by: Tobias Klauser <tklauser@nuerscht.ch>
+Signed-off-by: Domen Puncer <domen@coderock.org>
+---
+ umem.c |    5 +++--
+ 1 files changed, 3 insertions(+), 2 deletions(-)
+
+Index: quilt/drivers/block/umem.c
+===================================================================
+--- quilt.orig/drivers/block/umem.c
++++ quilt/drivers/block/umem.c
+@@ -50,6 +50,7 @@
+ #include <linux/timer.h>
+ #include <linux/pci.h>
+ #include <linux/slab.h>
++#include <linux/dma-mapping.h>
+ 
+ #include <linux/fcntl.h>        /* O_ACCMODE */
+ #include <linux/hdreg.h>  /* HDIO_GETGEO */
+@@ -892,8 +893,8 @@ static int __devinit mm_pci_probe(struct
+ 	printk(KERN_INFO "Micro Memory(tm) controller #%d found at %02x:%02x (PCI Mem Module (Battery Backup))\n",
+ 	       card->card_number, dev->bus->number, dev->devfn);
+ 
+-	if (pci_set_dma_mask(dev, 0xffffffffffffffffLL) &&
+-	    !pci_set_dma_mask(dev, 0xffffffffLL)) {
++	if (pci_set_dma_mask(dev, DMA_64BIT_MASK) &&
++	    !pci_set_dma_mask(dev, DMA_32BIT_MASK)) {
+ 		printk(KERN_WARNING "MM%d: NO suitable DMA found\n",num_cards);
+ 		return  -ENOMEM;
+ 	}
+
+--

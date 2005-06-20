@@ -1,61 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261422AbVFTS1H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261427AbVFTSaC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261422AbVFTS1H (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 14:27:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261423AbVFTS1G
+	id S261427AbVFTSaC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 14:30:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261424AbVFTS3k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 14:27:06 -0400
-Received: from rwcrmhc14.comcast.net ([216.148.227.89]:28129 "EHLO
-	rwcrmhc14.comcast.net") by vger.kernel.org with ESMTP
-	id S261422AbVFTS0x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 14:26:53 -0400
-Message-ID: <42B70A6D.7030308@namesys.com>
-Date: Mon, 20 Jun 2005 11:26:53 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew James Wade 
-	<ajwade@cpe00095b3131a0-cm0011ae8cd564.cpe.net.cable.rogers.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       reiserfs-dev@namesys.com, Edward Shishkin <edward@namesys.com>
-Subject: Re: [PATCH] Fix Reiser4 Dependencies
-References: <20050619233029.45dd66b8.akpm@osdl.org> <200506200832.22260.ajwade@cpe00095b3131a0-cm0011ae8cd564.cpe.net.cable.rogers.com>
-In-Reply-To: <200506200832.22260.ajwade@cpe00095b3131a0-cm0011ae8cd564.cpe.net.cable.rogers.com>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+	Mon, 20 Jun 2005 14:29:40 -0400
+Received: from smtp-101-monday.noc.nerim.net ([62.4.17.101]:36366 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S261427AbVFTS3Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 14:29:24 -0400
+Date: Mon, 20 Jun 2005 20:29:47 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Andrew Morton <akpm@osdl.org>,
+       Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+Cc: LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>
+Subject: Re: 2.6.12-mm1
+Message-Id: <20050620202947.040be273.khali@linux-fr.org>
+In-Reply-To: <20050619233029.45dd66b8.akpm@osdl.org>
+References: <20050619233029.45dd66b8.akpm@osdl.org>
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please discuss with Edward Shishkin.
+Hi Andrew, Mauro, all,
 
-Hans
+Two things I am worried about.
 
-Andrew James Wade wrote:
+First point:
 
->*    ZLIB_INFLATE is not visible in menuconfig. Reiser4 should probably
->     just select it like the other filesystems do.
->
->*    Reiser4 also depends on ZLIB_DEFLATE.
->
->signed-off-by: Andrew Wade <ajwade@alumni.uwaterloo.ca>
->
->--- 2.6.12-mm1/fs/reiser4/Kconfig	2005-06-20 07:38:22.087653000 -0400
->+++ linux/fs/reiser4/Kconfig	2005-06-20 08:01:28.914324250 -0400
->@@ -1,6 +1,8 @@
-> config REISER4_FS
-> 	tristate "Reiser4 (EXPERIMENTAL)"
->-	depends on EXPERIMENTAL && !4KSTACKS && ZLIB_INFLATE
->+	depends on EXPERIMENTAL && !4KSTACKS
->+	select ZLIB_INFLATE
->+	select ZLIB_DEFLATE
-> 	help
-> 	  Reiser4 is a filesystem that performs all filesystem operations
-> 	  as atomic transactions, which means that it either performs a
->
->
->  
->
+> -i2c-chips-need-hwmon.patch
+> -gregkh-i2c-hwmon-02-sparc64-fix.patch
+> (...)
+>  Merged
 
+Hopefully not, as they were fixes for:
+
+> -gregkh-i2c-hwmon-01.patch
+> -gregkh-i2c-hwmon-02.patch
+> -gregkh-i2c-hwmon-03.patch
+
+which were dropped (and quite rightly so).
+
+> +gregkh-i2c-i2c-max6875.patch
+> +gregkh-i2c-i2c-rename-i2c-sysfs.patch
+> +gregkh-i2c-i2c-pca9539.patch
+> +gregkh-i2c-i2c-ds1374-01.patch
+> +gregkh-i2c-i2c-ds1374-02.patch
+> +gregkh-i2c-i2c-ds1374-03.patch
+> +gregkh-i2c-i2c-w83781d-remove-non-i2c-chips.patch
+> +gregkh-i2c-w1-01.patch
+> +gregkh-i2c-w1-02.patch
+> +gregkh-i2c-w1-03.patch
+> +gregkh-i2c-w1-04.patch
+> +gregkh-i2c-w1-05.patch
+> +gregkh-i2c-w1-06.patch
+> +gregkh-i2c-w1-07.patch
+> 
+>  Updates to the driver core tree
+
+All these are obviously i2c updates, not driver core updates.
+
+Andrew, something's wrong in your log generator (if such a thing
+exists)?
+
+Second point:
+
+> +gregkh-i2c-i2c-address_range_removal-v4l-fix.patch
+> +gregkh-i2c-i2c-address_range_removal-v4l-fix-fix.patch
+> 
+>  Fix v4l updates for changes in Greg's i2c tree
+
+All these changes were already present and correct in
+i2c-address_range_removal.patch, which is in Greg's i2c tree for 2.5
+months. Then Mauro Carvalho Chehab reverted them with
+v4l-update-for-tuner-cards-and-some-chips.patch, breaking several v4l
+drivers. And then he provides a "fix" with
+gregkh-i2c-i2c-address_range_removal-v4l-fix.patch, which ironically
+reads:
+
+> From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+> 
+> This patch is necessary to correct I2C detect after normal_i2c_range
+> removal in gregkh-i2c-i2c-address_range_removal.patch.
+
+No, Mauro. This patch is necessary to fix something YOU just broke with
+your previous patch. So please learn how to make correct patches that
+don't randomly revert previous changes. This will make everyone's life
+easier, including Andrew's, Greg's and mine.
+
+Thanks,
+-- 
+Jean Delvare

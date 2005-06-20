@@ -1,49 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261235AbVFTMcd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261248AbVFTMne@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261235AbVFTMcd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 08:32:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261236AbVFTMcd
+	id S261248AbVFTMne (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 08:43:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261247AbVFTMna
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 08:32:33 -0400
-Received: from CPE00095b3131a0-CM0011ae8cd564.cpe.net.cable.rogers.com ([70.28.191.58]:51329
-	"EHLO kenichi") by vger.kernel.org with ESMTP id S261235AbVFTMc3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 08:32:29 -0400
-From: Andrew James Wade 
-	<ajwade@cpe00095b3131a0-cm0011ae8cd564.cpe.net.cable.rogers.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] Fix Reiser4 Dependencies
-Date: Mon, 20 Jun 2005 08:32:21 -0400
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
-References: <20050619233029.45dd66b8.akpm@osdl.org>
-In-Reply-To: <20050619233029.45dd66b8.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 20 Jun 2005 08:43:30 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:40122 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261243AbVFTMnZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 08:43:25 -0400
+Date: Mon, 20 Jun 2005 14:44:26 +0200
+From: Jens Axboe <axboe@suse.de>
+To: mike.miller@hp.com
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] cciss 2.6: pci domain info pass 2
+Message-ID: <20050620124425.GJ15021@suse.de>
+References: <20050617185025.GA10336@beardog.cca.cpqcorp.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200506200832.22260.ajwade@cpe00095b3131a0-cm0011ae8cd564.cpe.net.cable.rogers.com>
+In-Reply-To: <20050617185025.GA10336@beardog.cca.cpqcorp.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Mike,
 
-*    ZLIB_INFLATE is not visible in menuconfig. Reiser4 should probably
-     just select it like the other filesystems do.
+All three patches committed to the for-linus branch of the block git
+tree.
 
-*    Reiser4 also depends on ZLIB_DEFLATE.
+In the future, could you please thread your patch postings and number
+them as well? Thanks!
 
-signed-off-by: Andrew Wade <ajwade@alumni.uwaterloo.ca>
+-- 
+Jens Axboe
 
---- 2.6.12-mm1/fs/reiser4/Kconfig	2005-06-20 07:38:22.087653000 -0400
-+++ linux/fs/reiser4/Kconfig	2005-06-20 08:01:28.914324250 -0400
-@@ -1,6 +1,8 @@
- config REISER4_FS
- 	tristate "Reiser4 (EXPERIMENTAL)"
--	depends on EXPERIMENTAL && !4KSTACKS && ZLIB_INFLATE
-+	depends on EXPERIMENTAL && !4KSTACKS
-+	select ZLIB_INFLATE
-+	select ZLIB_DEFLATE
- 	help
- 	  Reiser4 is a filesystem that performs all filesystem operations
- 	  as atomic transactions, which means that it either performs a

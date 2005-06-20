@@ -1,63 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261834AbVFTXUV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261827AbVFTXUi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261834AbVFTXUV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 19:20:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261833AbVFTXBC
+	id S261827AbVFTXUi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 19:20:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261785AbVFTXAB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 19:01:02 -0400
-Received: from coderock.org ([193.77.147.115]:22169 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S261710AbVFTVzi (ORCPT
+	Mon, 20 Jun 2005 19:00:01 -0400
+Received: from waste.org ([216.27.176.166]:4827 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261746AbVFTVzt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 17:55:38 -0400
-Message-Id: <20050620215149.610416000@nd47.coderock.org>
-Date: Mon, 20 Jun 2005 23:51:49 +0200
-From: domen@coderock.org
-To: emoenke@gwdg.de
-Cc: linux-kernel@vger.kernel.org, Nishanth Aravamudan <nacc@us.ibm.com>,
-       domen@coderock.org
-Subject: [patch 3/4] cdrom/sjcd: remove sleep_on() usage
-Content-Disposition: inline; filename=sleep_on-drivers_cdrom_sjcd.patch
+	Mon, 20 Jun 2005 17:55:49 -0400
+Date: Mon, 20 Jun 2005 14:55:40 -0700
+From: Matt Mackall <mpm@selenic.com>
+To: aq <aquynh@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.12
+Message-ID: <20050620215540.GA14426@waste.org>
+References: <200506182005.28254.nick@linicks.net> <9a8748490506181233675f2fd5@mail.gmail.com> <9cde8bff0506181839d41aab3@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9cde8bff0506181839d41aab3@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Nishanth Aravamudan <nacc@us.ibm.com>
+On Sat, Jun 18, 2005 at 06:39:59PM -0700, aq wrote:
+> the version number is a little bit confused here: if I want to upgrade
+> from for example 2.6.11.5 to 2.6.12, which patch should I get?
+> 
+> anybody knows if Matt will upgrade his ketchup for the new versioning
+> system soon? otherwise, I might spend some time to hack it up.
 
+Ketchup should already do 2.6.11.5 to 2.6.12 just fine.
 
+What's currently not handled are -git snapshots.
 
-Directly use wait-queues instead of the deprecated sleep_on().
-This required adding a local waitqueue. Patch is compile-tested.
-
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
-Signed-off-by: Domen Puncer <domen@coderock.org>
----
- sjcd.c |    6 +++++-
- 1 files changed, 5 insertions(+), 1 deletion(-)
-
-Index: quilt/drivers/cdrom/sjcd.c
-===================================================================
---- quilt.orig/drivers/cdrom/sjcd.c
-+++ quilt/drivers/cdrom/sjcd.c
-@@ -70,6 +70,7 @@
- #include <linux/string.h>
- #include <linux/major.h>
- #include <linux/init.h>
-+#include <linux/wait.h>
- 
- #include <asm/system.h>
- #include <asm/io.h>
-@@ -407,9 +408,12 @@ static void sjcd_status_timer(void)
-  */
- static int sjcd_wait_for_status(void)
- {
-+	DEFINE_WAIT(wait);
- 	sjcd_status_timeout = SJCD_WAIT_FOR_STATUS_TIMEOUT;
- 	SJCD_SET_TIMER(sjcd_status_timer, 1);
--	sleep_on(&sjcd_waitq);
-+	prepare_to_wait(&sjcd_waitq, &wait, TASK_UNINTERRUPTIBLE);
-+	schedule();
-+	finish_wait(&sjcd_waitq, &wait);
- #if defined( SJCD_DIAGNOSTIC ) || defined ( SJCD_TRACE )
- 	if (sjcd_status_timeout <= 0)
- 		printk("SJCD: Error Wait For Status.\n");
-
---
+-- 
+Mathematics is the supreme nostalgia of our time.

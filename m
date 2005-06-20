@@ -1,83 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261359AbVFTK1L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261152AbVFTKdY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261359AbVFTK1L (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 06:27:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261356AbVFTK1J
+	id S261152AbVFTKdY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 06:33:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261153AbVFTKdY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 06:27:09 -0400
-Received: from outmx012.isp.belgacom.be ([195.238.3.70]:18612 "EHLO
-	outmx012.isp.belgacom.be") by vger.kernel.org with ESMTP
-	id S261329AbVFTKZY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 06:25:24 -0400
-From: Jan De Luyck <lkml@kcore.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.12] XFS: Undeletable directory
-Date: Mon, 20 Jun 2005 12:25:10 +0200
-User-Agent: KMail/1.8.1
-Cc: Nathan Scott <nathans@sgi.com>, linux-xfs@oss.sgi.com
-References: <200506191904.49639.lkml@kcore.org> <20050620070459.GB1549@frodo>
-In-Reply-To: <20050620070459.GB1549@frodo>
+	Mon, 20 Jun 2005 06:33:24 -0400
+Received: from rrzmta2.rz.uni-regensburg.de ([132.199.1.17]:174 "EHLO
+	rrzmta2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
+	id S261152AbVFTKdO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 06:33:14 -0400
+From: "Ulrich Windl" <ulrich.windl@rz.uni-regensburg.de>
+Organization: Universitaet Regensburg, Klinikum
+To: Roman Zippel <zippel@linux-m68k.org>
+Date: Mon, 20 Jun 2005 12:31:48 +0200
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506201225.11129.lkml@kcore.org>
+Subject: Re: [PATCH 1/6] new timeofday core subsystem for -mm (v.B3)
+Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       George Anzinger <george@mvista.com>
+Message-ID: <42B6B733.24349.B0B7F9@rkdvmks1.ngate.uni-regensburg.de>
+In-reply-to: <Pine.LNX.4.61.0506201159060.3728@scrub.home>
+References: <42B685E8.9359.14B98F19@rkdvmks1.ngate.uni-regensburg.de>
+X-mailer: Pegasus Mail for Windows (4.21c)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
+X-Content-Conformance: HerringScan-0.25/Sophos-P=3.92.0+V=3.92+U=2.07.092+R=04 April 2005+T=103988@20050620.103138Z
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 20 June 2005 09:04, Nathan Scott wrote:
-> What does:  xfs_db -r -c 'inode 4207214' -c print /dev/XXX
-> report?
+On 20 Jun 2005 at 12:22, Roman Zippel wrote:
 
-precious:/lost+found/4207214# xfs_db -r -c 'inode 4207214' -c print /dev/hda6
-core.magic = 0x494e
-core.mode = 040777
-core.version = 1
-core.format = 2 (extents)
-core.nlinkv1 = 2
-core.uid = 0
-core.gid = 0
-core.flushiter = 275
-core.atime.sec = Sun Jun 19 20:38:29 2005
-core.atime.nsec = 790399992
-core.mtime.sec = Sun Jun 19 20:37:45 2005
-core.mtime.nsec = 608116720
-core.ctime.sec = Sun Jun 19 20:38:16 2005
-core.ctime.nsec = 795375536
-core.size = 8192
-core.nblocks = 2
-core.extsize = 0
-core.nextents = 2
-core.naextents = 0
-core.forkoff = 0
-core.aformat = 2 (extents)
-core.dmevmask = 0
-core.dmstate = 0
-core.newrtbm = 0
-core.prealloc = 0
-core.realtime = 0
-core.immutable = 0
-core.append = 0
-core.sync = 0
-core.noatime = 0
-core.nodump = 0
-core.rtinherit = 0
-core.projinherit = 0
-core.nosymlinks = 0
-core.gen = 0
-next_unlinked = null
-u.bmx[0-1] = [startoff,startblock,blockcount,extentflag] 0:[1,286547,1,0] 1:[8388608,286559,1,0]
-precious:/lost+found/4207214# 
+[...]
+> This patch is really damned hard to read as it changes too many things at 
+> once. Maybe it does some necessary cleanups, but they are hard see, as 
+> they pretty much get lost in all the functional changes.
+> I'm pretty close to suggest to reject this patch until it clearly 
+> separates new functionality from cleanups. If the current system is broken 
 
-> If it comes to it, you can always zero out individual inode fields
-> for that inode in xfs_db (with -x option to enable write mode) and
-> then xfs_repair should be able to get past it.
+Roman,
 
-Any idea how this should be set?
+it seems you don't like the patch for some personal reasons, and now your are 
+trying to find arguments against it. The best method to get the perfomance 
+implications is trying it (the patched kernel).
 
-Thanks.
--- 
-Hacker's Law:
-	The belief that enhanced understanding will necessarily stir
-	a nation to action is one of mankind's oldest illusions.
+> fix it first, if the current system is a mess clean it up first, but 
+> don't mix these two steps, unless you want to introduce more broken mess.
+
+If you introduce something new (higher resolution clock), you should start with 
+something clean. Just hacking it in the first attempt, anf then making it 
+beautiful in a second attempt is a waste of time IMHO.
+
+Regards,
+Ulrich
+

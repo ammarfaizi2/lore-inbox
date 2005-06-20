@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261720AbVFUGXi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261751AbVFUG2x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261720AbVFUGXi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 02:23:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261406AbVFUGW5
+	id S261751AbVFUG2x (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 02:28:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261743AbVFUGWE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 02:22:57 -0400
-Received: from coderock.org ([193.77.147.115]:2457 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S261720AbVFTVyf (ORCPT
+	Tue, 21 Jun 2005 02:22:04 -0400
+Received: from coderock.org ([193.77.147.115]:10393 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S261733AbVFTVy4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 17:54:35 -0400
-Message-Id: <20050620215131.856245000@nd47.coderock.org>
-Date: Mon, 20 Jun 2005 23:51:32 +0200
+	Mon, 20 Jun 2005 17:54:56 -0400
+Message-Id: <20050620215134.433393000@nd47.coderock.org>
+Date: Mon, 20 Jun 2005 23:51:35 +0200
 From: domen@coderock.org
 To: axboe@suse.de
 Cc: linux-kernel@vger.kernel.org, Nishanth Aravamudan <nacc@us.ibm.com>,
-       Maximilian Attems <janitor@sternwelten.at>, domen@coderock.org
-Subject: [patch 02/12] block/xd: replace schedule_timeout() with msleep()/msleep_interruptible()
-Content-Disposition: inline; filename=msleep-drivers_block_xd.patch
+       domen@coderock.org
+Subject: [patch 05/12] block/swim3: replace schedule_timeout() with msleep_interruptible()
+Content-Disposition: inline; filename=msleep_interruptible-drivers_block_swim3.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -24,69 +24,106 @@ From: Nishanth Aravamudan <nacc@us.ibm.com>
 
 
 
-Any comments would be appreciated. 
-
-Use msleep() or msleep_interruptible() [as appropriate]
-instead of schedule_timeout() to gurantee the task delays as
-expected. As a result changed the units of the timeout variable from
-jiffies to msecs.
+Change the delay logic to use time_before() and
+msleep_interruptible(). Rather than depend on the number of
+iterations of the loop for timing accuracy, I rely on the current value of
+jiffies relative to a static timeout (end_jiffies).
 
 Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
-Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
 Signed-off-by: Domen Puncer <domen@coderock.org>
 ---
- xd.c |   14 +++++---------
- 1 files changed, 5 insertions(+), 9 deletions(-)
+ swim3.c |   30 +++++++++++++++++-------------
+ 1 files changed, 17 insertions(+), 13 deletions(-)
 
-Index: quilt/drivers/block/xd.c
+Index: quilt/drivers/block/swim3.c
 ===================================================================
---- quilt.orig/drivers/block/xd.c
-+++ quilt/drivers/block/xd.c
-@@ -62,7 +62,7 @@ static int xd[5] = { -1,-1,-1,-1, };
+--- quilt.orig/drivers/block/swim3.c
++++ quilt/drivers/block/swim3.c
+@@ -820,20 +820,21 @@ static void release_drive(struct floppy_
  
- #define XD_DONT_USE_DMA		0  /* Initial value. may be overriden using
- 				      "nodma" module option */
--#define XD_INIT_DISK_DELAY	(30*HZ/1000)  /* 30 ms delay during disk initialization */
-+#define XD_INIT_DISK_DELAY	(30)  /* 30 ms delay during disk initialization */
+ static int fd_eject(struct floppy_state *fs)
+ {
+-	int err, n;
++	int err;
++	unsigned long end_jiffies;
  
- /* Above may need to be increased if a problem with the 2nd drive detection
-    (ST11M controller) or resetting a controller (WD) appears */
-@@ -633,14 +633,12 @@ static u_char __init xd_initdrives (void
- 	for (i = 0; i < XD_MAXDRIVES; i++) {
- 		xd_build(cmdblk,CMD_TESTREADY,i,0,0,0,0,0);
- 		if (!xd_command(cmdblk,PIO_MODE,NULL,NULL,NULL,XD_TIMEOUT*8)) {
--			set_current_state(TASK_INTERRUPTIBLE);
--			schedule_timeout(XD_INIT_DISK_DELAY);
-+			msleep_interruptible(XD_INIT_DISK_DELAY);
- 
- 			init_drive(count);
- 			count++;
- 
--			set_current_state(TASK_INTERRUPTIBLE);
--			schedule_timeout(XD_INIT_DISK_DELAY);
-+			msleep_interruptible(XD_INIT_DISK_DELAY);
+ 	err = grab_drive(fs, ejecting, 1);
+ 	if (err)
+ 		return err;
+ 	swim3_action(fs, EJECT);
+-	for (n = 20; n > 0; --n) {
++	end_jiffies = jiffies + 20;
++	while (time_before(jiffies, end_jiffies)) {
+ 		if (signal_pending(current)) {
+ 			err = -EINTR;
+ 			break;
  		}
+ 		swim3_select(fs, RELAX);
+-		current->state = TASK_INTERRUPTIBLE;
+-		schedule_timeout(1);
++		msleep_interruptible(10);
+ 		if (swim3_readbit(fs, DISK_IN) == 0)
+ 			break;
  	}
- 	return (count);
-@@ -761,8 +759,7 @@ static void __init xd_wd_init_controller
+@@ -878,7 +879,8 @@ static int floppy_open(struct inode *ino
+ {
+ 	struct floppy_state *fs = inode->i_bdev->bd_disk->private_data;
+ 	struct swim3 __iomem *sw = fs->swim3;
+-	int n, err = 0;
++	int err = 0;
++	unsigned long end_jiffies, check_jiffies;
  
- 	outb(0,XD_RESET);		/* reset the controller */
+ 	if (fs->ref_count == 0) {
+ 		if (fs->media_bay && check_media_bay(fs->media_bay, MB_FD))
+@@ -892,16 +894,17 @@ static int floppy_open(struct inode *ino
+ 		swim3_action(fs, MOTOR_ON);
+ 		fs->write_prot = -1;
+ 		fs->cur_cyl = -1;
+-		for (n = 0; n < 2 * HZ; ++n) {
+-			if (n >= HZ/30 && swim3_readbit(fs, SEEK_COMPLETE))
++		end_jiffies = jiffies + 2 * HZ;
++		check_jiffies = jiffies + HZ/30;
++		while (time_before(jiffies,end_jiffies)) {
++			if (time_after(jiffies,check_jiffies) && swim3_readbit(fs, SEEK_COMPLETE))
+ 				break;
+ 			if (signal_pending(current)) {
+ 				err = -EINTR;
+ 				break;
+ 			}
+ 			swim3_select(fs, RELAX);
+-			current->state = TASK_INTERRUPTIBLE;
+-			schedule_timeout(1);
++			msleep_interruptible(10);
+ 		}
+ 		if (err == 0 && (swim3_readbit(fs, SEEK_COMPLETE) == 0
+ 				 || swim3_readbit(fs, DISK_IN) == 0))
+@@ -965,7 +968,8 @@ static int floppy_revalidate(struct gend
+ {
+ 	struct floppy_state *fs = disk->private_data;
+ 	struct swim3 __iomem *sw;
+-	int ret, n;
++	int ret;
++	unsigned long end_jiffies;
  
--	set_current_state(TASK_UNINTERRUPTIBLE);
--	schedule_timeout(XD_INIT_DISK_DELAY);
-+	msleep(XD_INIT_DISK_DELAY);
- }
- 
- static void __init xd_wd_init_drive (u_char drive)
-@@ -936,8 +933,7 @@ If you need non-standard settings use th
- 	xd_maxsectors = 0x01;
- 	outb(0,XD_RESET);		/* reset the controller */
- 
--	set_current_state(TASK_UNINTERRUPTIBLE);
--	schedule_timeout(XD_INIT_DISK_DELAY);
-+	msleep(XD_INIT_DISK_DELAY);
- }
- 
- static void __init xd_xebec_init_drive (u_char drive)
+ 	if (fs->media_bay && check_media_bay(fs->media_bay, MB_FD))
+ 		return -ENXIO;
+@@ -978,14 +982,14 @@ static int floppy_revalidate(struct gend
+ 	fs->write_prot = -1;
+ 	fs->cur_cyl = -1;
+ 	mdelay(1);
+-	for (n = HZ; n > 0; --n) {
++	end_jiffies = jiffies + HZ;
++	while (time_before(jiffies,end_jiffies)) {
+ 		if (swim3_readbit(fs, SEEK_COMPLETE))
+ 			break;
+ 		if (signal_pending(current))
+ 			break;
+ 		swim3_select(fs, RELAX);
+-		current->state = TASK_INTERRUPTIBLE;
+-		schedule_timeout(1);
++		msleep_interruptible(10);
+ 	}
+ 	ret = swim3_readbit(fs, SEEK_COMPLETE) == 0
+ 		|| swim3_readbit(fs, DISK_IN) == 0;
 
 --

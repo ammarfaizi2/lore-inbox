@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261728AbVFUGmN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262049AbVFUGmN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261728AbVFUGmN (ORCPT <rfc822;willy@w.ods.org>);
+	id S262049AbVFUGmN (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 21 Jun 2005 02:42:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261725AbVFUGUd
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261728AbVFUGVJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 02:20:33 -0400
-Received: from coderock.org ([193.77.147.115]:6809 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S261728AbVFTVys (ORCPT
+	Tue, 21 Jun 2005 02:21:09 -0400
+Received: from coderock.org ([193.77.147.115]:8345 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S261729AbVFTVyv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 17:54:48 -0400
-Message-Id: <20050620215135.262572000@nd47.coderock.org>
-Date: Mon, 20 Jun 2005 23:51:36 +0200
+	Mon, 20 Jun 2005 17:54:51 -0400
+Message-Id: <20050620215136.112146000@nd47.coderock.org>
+Date: Mon, 20 Jun 2005 23:51:37 +0200
 From: domen@coderock.org
 To: axboe@suse.de
 Cc: linux-kernel@vger.kernel.org, Nishanth Aravamudan <nacc@us.ibm.com>,
        domen@coderock.org
-Subject: [patch 06/12] block/ps2esdi: replace sleep_on() with wait_event()
-Content-Disposition: inline; filename=wait_event-drivers_block_ps2esdi.patch
+Subject: [patch 07/12] block/xd: remove sleep_on() usage
+Content-Disposition: inline; filename=sleep_on-drivers_block_xd.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -24,49 +24,37 @@ From: Nishanth Aravamudan <nacc@us.ibm.com>
 
 
 
-Use wait_event() instead of the deprecated sleep_on(). In all
-replacements, wait_event() expects the condition to *stop* on, so the existing
-conditional is negated and passed as the parameter. I am not sure if these
-changes are appropriate, as the condition to pass to wait_event() to guarantee
-the same behavior; I think this is the best choice, though.
+Directly use wait-queues instead of the deprecated sleep_on().
+This required adding a local waitqueue. Patch is compile-tested.
 
 Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
 Signed-off-by: Domen Puncer <domen@coderock.org>
 ---
- ps2esdi.c |    7 +++----
- 1 files changed, 3 insertions(+), 4 deletions(-)
+ xd.c |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletion(-)
 
-Index: quilt/drivers/block/ps2esdi.c
+Index: quilt/drivers/block/xd.c
 ===================================================================
---- quilt.orig/drivers/block/ps2esdi.c
-+++ quilt/drivers/block/ps2esdi.c
-@@ -43,6 +43,7 @@
- #include <linux/init.h>
- #include <linux/ioport.h>
- #include <linux/module.h>
-+#include <linux/delay.h>
+--- quilt.orig/drivers/block/xd.c
++++ quilt/drivers/block/xd.c
+@@ -538,6 +538,7 @@ static inline u_char xd_waitport (u_shor
  
- #include <asm/system.h>
- #include <asm/io.h>
-@@ -461,8 +462,7 @@ static void __init ps2esdi_get_device_cf
- 	cmd_blk[1] = 0;
- 	no_int_yet = TRUE;
- 	ps2esdi_out_cmd_blk(cmd_blk);
--	if (no_int_yet)
--		sleep_on(&ps2esdi_int);
-+	wait_event(ps2esdi_int, !no_int_yet);
- 
- 	if (ps2esdi_drives > 1) {
- 		printk("%s: Drive 1\n", DEVICE_NAME);	/*BA */
-@@ -470,8 +470,7 @@ static void __init ps2esdi_get_device_cf
- 		cmd_blk[1] = 0;
- 		no_int_yet = TRUE;
- 		ps2esdi_out_cmd_blk(cmd_blk);
--		if (no_int_yet)
--			sleep_on(&ps2esdi_int);
-+		wait_event(ps2esdi_int, !no_int_yet);
- 	}			/* if second physical drive is present */
- 	return;
- }
+ static inline u_int xd_wait_for_IRQ (void)
+ {
++	DEFINE_WAIT(wait);
+ 	unsigned long flags;
+ 	xd_watchdog_int.expires = jiffies + 8 * HZ;
+ 	add_timer(&xd_watchdog_int);
+@@ -546,7 +547,9 @@ static inline u_int xd_wait_for_IRQ (voi
+ 	enable_dma(xd_dma);
+ 	release_dma_lock(flags);
+ 	
+-	sleep_on(&xd_wait_int);
++	prepare_to_wait(&xd_wait_int, &wait, TASK_UNINTERRUPTIBLE);
++	schedule();
++	finish_wait(&xd_wait_int, &wait);
+ 	del_timer(&xd_watchdog_int);
+ 	xdc_busy = 0;
+ 	
 
 --

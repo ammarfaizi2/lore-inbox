@@ -1,59 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261485AbVFTVAK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261550AbVFTVAJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261485AbVFTVAK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 17:00:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbVFTU67
+	id S261550AbVFTVAJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 17:00:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261485AbVFTU7P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 16:58:59 -0400
-Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:57774
-	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
-	with ESMTP id S261541AbVFTUsy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 16:48:54 -0400
-Reply-To: <abonilla@linuxwireless.org>
-From: "Alejandro Bonilla" <abonilla@linuxwireless.org>
-To: "'Yani Ioannou'" <yani.ioannou@gmail.com>
-Cc: <linux-thinkpad@linux-thinkpad.org>, <linux-kernel@vger.kernel.org>
-Subject: RE: [ltp] Re: IBM HDAPS Someone interested?
-Date: Mon, 20 Jun 2005 14:48:51 -0600
-Message-ID: <007301c575d9$77decb90$600cc60a@amer.sykes.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Mon, 20 Jun 2005 16:59:15 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:24734 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261550AbVFTUQO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 16:16:14 -0400
+Subject: PATCH: IDE timing violation on reset
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <2538186705062013345a002c5b@mail.gmail.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1478
-Importance: Normal
+Message-Id: <1119298417.3279.32.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 20 Jun 2005 21:13:38 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Pretty much theoretical for non MMIO thankfully. We _must_ use OUTBSYNC
+for commands or they may be posted and thus ruin the 400nS required
+delay.
 
->
-> I don't see how I did either of those :-|. I simply thought you hadn't
-> seen the statement, obviously you had. I also wanted to provide what I
-> thought was important feedback on what I had determined myself about
-> the system.
->
-> Yani
->
+Signed-off-by: Alan Cox <alan@redhat.com>
 
-Yani,
-
-	I apologize. I meant not to say this. I'm just frustrated that there are
-all this hax0rs and shit, and still no one (even me ((no haxor)) don't know
-anything about it.
-
-	Again, I would appreciate any input about getting in touch to the hardware.
-And if you can't do that, then we shall organize to ask IBM again, that us,
-the Linux users, Want support for this feature, whatever it takes.
-
-	I'm sometimes amazed by the fact that this OEM's simply send us to fuck
-off, instead of providing more help or support. In IBM there are a lot of
-Linux developers, even here in LKML. It would take them like 20 minutes to
-make some sort of interface for this thing. BUT NO!
-
-.Alejandro
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.12/drivers/ide/ide-iops.c linux-2.6.12/drivers/ide/ide-iops.c
+--- linux.vanilla-2.6.12/drivers/ide/ide-iops.c	2005-06-19 11:30:47.000000000 +0100
++++ linux-2.6.12/drivers/ide/ide-iops.c	2005-06-20 20:44:22.000000000 +0100
+@@ -1181,7 +1181,8 @@
+ 		pre_reset(drive);
+ 		SELECT_DRIVE(drive);
+ 		udelay (20);
+-		hwif->OUTB(WIN_SRST, IDE_COMMAND_REG);
++		hwif->OUTBSYNC(drive, WIN_SRST, IDE_COMMAND_REG);
++		ndelay(400);
+ 		hwgroup->poll_timeout = jiffies + WAIT_WORSTCASE;
+ 		hwgroup->polling = 1;
+ 		__ide_set_handler(drive, &atapi_reset_pollfunc, HZ/20, NULL);
 

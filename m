@@ -1,59 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261454AbVFTFle@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261450AbVFTFps@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261454AbVFTFle (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 01:41:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261459AbVFTFle
+	id S261450AbVFTFps (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 01:45:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261455AbVFTFps
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 01:41:34 -0400
-Received: from mail25.syd.optusnet.com.au ([211.29.133.166]:6818 "EHLO
-	mail25.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261454AbVFTFlc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 01:41:32 -0400
-From: Con Kolivas <kernel@kolivas.org>
+	Mon, 20 Jun 2005 01:45:48 -0400
+Received: from wproxy.gmail.com ([64.233.184.206]:61616 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261450AbVFTFpk convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 01:45:40 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=M3rnFW0itYFGZl4cAeD/AtlXCRr/mZhf7SslrfQ1Gz9NUbAGgB7qmk2jbBvfJreDV613X/yQGYeFLxqwWQHDoij8quf5wexvPzAQYgnqYZ9rpSELJ4z3TM3GzCgnK0amyEa9fxtZkLtC+Q9NFNrC30Y0sRGC0JG+8XJy9hjgmbs=
+Message-ID: <3f250c7105061922454dfe31ed@mail.gmail.com>
+Date: Mon, 20 Jun 2005 01:45:04 -0400
+From: Mauricio Lin <mauriciolin@gmail.com>
+Reply-To: Mauricio Lin <mauriciolin@gmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE][RFC] PlugSched-5.2.1 for 2.6.11 and 2.6.12
-Date: Mon, 20 Jun 2005 15:41:27 +1000
-User-Agent: KMail/1.8.1
-References: <42B65525.1060308@bigpond.net.au>
-In-Reply-To: <42B65525.1060308@bigpond.net.au>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1439327.dcnEfBzCur";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200506201541.29668.kernel@kolivas.org>
+Subject: How to identify cow (copy-on-write) pages during kernel execution?
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1439327.dcnEfBzCur
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Hi all,
 
-On Mon, 20 Jun 2005 15:33, Peter Williams wrote:
-> PlugSched-5.2.1 is available for 2.6.11 and 2.6.12 kernels.  This
-> version applies Con Kolivas's latest modifications to his "nice" aware
-> SMP load balancing patches.
+I would like to know if there is a way to identify
+struct page that is cow (copy-on-write).
 
-Thanks Peter.=20
+The way I figured out to identify cow pages is when
+copy-on-write happens. I mean I identify cow pages
+inside the do_wp_page(), the function that handles
+copy-on-write. I have checked do_no_page() as well.
 
-Any word from your own testing/testers on how well smp nice balancing is=20
-working for them now?=20
+I have included a field (is_cow) in the struct page to
+identify cow page.
 
-Cheers,
-Con
+struct page {
+     ...
+     atomic_t is_cow;
+}
 
---nextPart1439327.dcnEfBzCur
-Content-Type: application/pgp-signature
+But I wonder if it is possible to identify cow pages
+before copy-on-write happens. So identify cow pages in
+advance before any process tries to write to a cow
+page.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+I have checked the do_fork(), copy_process() and
+copy_mm() function to try to identify cow pages during
+the process creation, but no success. In copy_mm(),
+just the mm (of current process) is provided to the
+child process, but there are no references to struct
+pages related to mm and its VMAs.
 
-iD8DBQBCtlcJZUg7+tp6mRURAq6WAKCCN53aWkNHdtWI6UML325R3EyeZwCeMmrW
-yn2T4CQTFuiYM/J10JGd/ug=
-=lZoE
------END PGP SIGNATURE-----
+So when a page struct is considered a cow in the
+kernel and its count variable is updated? Certainly
+the counter page (page->_count) is updated when a page
+is shared because of copy-on-write feature. 
+How can I identify cow pages when it becomes cow? Is
+there any feasible way to perform that?
 
---nextPart1439327.dcnEfBzCur--
+BR,
+
+Mauricio Lin.

@@ -1,70 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261739AbVFUGPI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261598AbVFTVtJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261739AbVFUGPI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 02:15:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261740AbVFUGNK
+	id S261598AbVFTVtJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 17:49:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261635AbVFTVs2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 02:13:10 -0400
-Received: from coderock.org ([193.77.147.115]:15513 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S261739AbVFTVzN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 17:55:13 -0400
-Message-Id: <20050620215138.918628000@nd47.coderock.org>
-Date: Mon, 20 Jun 2005 23:51:40 +0200
-From: domen@coderock.org
-To: axboe@suse.de
-Cc: linux-kernel@vger.kernel.org, Nishanth Aravamudan <nacc@us.ibm.com>,
-       domen@coderock.org
-Subject: [patch 10/12] block/swim_iop: replace schedule_timeout() with msleep_interruptible()
-Content-Disposition: inline; filename=msleep-drivers_block_swim_iop.patch
+	Mon, 20 Jun 2005 17:48:28 -0400
+Received: from smtp-101-monday.noc.nerim.net ([62.4.17.101]:1042 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S261617AbVFTVlm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 17:41:42 -0400
+Date: Mon, 20 Jun 2005 23:42:02 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: mchehab@brturbo.com.br, linux-kernel@vger.kernel.org, greg@kroah.com
+Subject: Re: 2.6.12-mm1
+Message-Id: <20050620234202.3c605b89.khali@linux-fr.org>
+In-Reply-To: <20050620142323.2ed2180b.akpm@osdl.org>
+References: <20050619233029.45dd66b8.akpm@osdl.org>
+	<20050620202947.040be273.khali@linux-fr.org>
+	<20050620134146.0e5de567.akpm@osdl.org>
+	<20050620231147.7232d889.khali@linux-fr.org>
+	<20050620142323.2ed2180b.akpm@osdl.org>
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Nishanth Aravamudan <nacc@us.ibm.com>
+Hi Andrew,
 
+> One could go on at length as to why this mistake is so easy to make
+> when you're using CVS, but what it boils down to is that these
+> projects are using the wrong paradigm.  They're maintaining files,
+> whereas they should be maintaining *changes* to files.
 
-Change the delay logic of swimiop_eject() to use
-msleep_interruptible() and time_before(). Rather than depend on the
-number of iterations of the loop for timing accuracy, I rely on the
-current value of jiffies relative to a static timeout (end_jiffies).
+My point exactly. You seem to excuse them for providing broken patches
+because they use the wrong tools to do the job in the first place, I
+don't (and I'm not even you). If CVS doesn't work, let's not use it.
+There are other tools out there which will do the job just fine (one of
+them being quilt [1], which makes my own job so much easier since I'm
+using it, thanks to its various authors and contributors).
 
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
-Signed-off-by: Domen Puncer <domen@coderock.org>
----
- swim_iop.c |   10 +++++-----
- 1 files changed, 5 insertions(+), 5 deletions(-)
+[1] http://savannah.nongnu.org/projects/quilt/
 
-Index: quilt/drivers/block/swim_iop.c
-===================================================================
---- quilt.orig/drivers/block/swim_iop.c
-+++ quilt/drivers/block/swim_iop.c
-@@ -317,7 +317,8 @@ static void swimiop_status_update(int dr
- 
- static int swimiop_eject(struct floppy_state *fs)
- {
--	int err, n;
-+	int err;
-+	unsigned long end_jiffies;
- 	struct swim_iop_req req;
- 	struct swimcmd_eject *cmd = (struct swimcmd_eject *) &req.command[0];
- 
-@@ -332,14 +333,13 @@ static int swimiop_eject(struct floppy_s
- 		release_drive(fs);
- 		return err;
- 	}
--	for (n = 2*HZ; n > 0; --n) {
--		if (req.complete) break;
-+	end_jiffies = jiffies + 2 * HZ;
-+	while (!req.complete && time_before(jiffies, end_jiffies)) {
-+		msleep_interruptible(10);
- 		if (signal_pending(current)) {
- 			err = -EINTR;
- 			break;
- 		}
--		current->state = TASK_INTERRUPTIBLE;
--		schedule_timeout(1);
- 	}
- 	release_drive(fs);
- 	return cmd->error;
-
---
+-- 
+Jean Delvare

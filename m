@@ -1,68 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbVFTFdi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261454AbVFTFle@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261451AbVFTFdi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 01:33:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261450AbVFTFdi
+	id S261454AbVFTFle (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 01:41:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261459AbVFTFle
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 01:33:38 -0400
-Received: from omta02ps.mx.bigpond.com ([144.140.83.154]:1447 "EHLO
-	omta02ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S261451AbVFTFd2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 01:33:28 -0400
-Message-ID: <42B65525.1060308@bigpond.net.au>
-Date: Mon, 20 Jun 2005 15:33:25 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
+	Mon, 20 Jun 2005 01:41:34 -0400
+Received: from mail25.syd.optusnet.com.au ([211.29.133.166]:6818 "EHLO
+	mail25.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261454AbVFTFlc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 01:41:32 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE][RFC] PlugSched-5.2.1 for 2.6.11 and 2.6.12
+Date: Mon, 20 Jun 2005 15:41:27 +1000
+User-Agent: KMail/1.8.1
+References: <42B65525.1060308@bigpond.net.au>
+In-Reply-To: <42B65525.1060308@bigpond.net.au>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Chris Han <xiphux@gmail.com>, Con Kolivas <kernel@kolivas.org>,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: [ANNOUNCE][RFC] PlugSched-5.2.1 for 2.6.11 and 2.6.12
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: multipart/signed;
+  boundary="nextPart1439327.dcnEfBzCur";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta02ps.mx.bigpond.com from [147.10.138.175] using ID pwil3058@bigpond.net.au at Mon, 20 Jun 2005 05:33:26 +0000
+Message-Id: <200506201541.29668.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-PlugSched-5.2.1 is available for 2.6.11 and 2.6.12 kernels.  This 
-version applies Con Kolivas's latest modifications to his "nice" aware 
-SMP load balancing patches.
+--nextPart1439327.dcnEfBzCur
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-A patch to bring PlugSched-5.2 for 2.6.11 to PlugSched-5.2.1 is 
-available at:
+On Mon, 20 Jun 2005 15:33, Peter Williams wrote:
+> PlugSched-5.2.1 is available for 2.6.11 and 2.6.12 kernels.  This
+> version applies Con Kolivas's latest modifications to his "nice" aware
+> SMP load balancing patches.
 
-<http://prdownloads.sourceforge.net/cpuse/plugsched-5.2-to-5.2.1-for-2.6.11.patch?download>
+Thanks Peter.=20
 
-A patch for 2.6.12 is available at:
+Any word from your own testing/testers on how well smp nice balancing is=20
+working for them now?=20
 
-<http://prdownloads.sourceforge.net/cpuse/plugsched-5.2.1-for-2.6.12.patch?download>
+Cheers,
+Con
 
-Very Brief Documentation:
+--nextPart1439327.dcnEfBzCur
+Content-Type: application/pgp-signature
 
-You can select a default scheduler at kernel build time.  If you wish to
-boot with a scheduler other than the default it can be selected at boot
-time by adding:
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-cpusched=<scheduler>
+iD8DBQBCtlcJZUg7+tp6mRURAq6WAKCCN53aWkNHdtWI6UML325R3EyeZwCeMmrW
+yn2T4CQTFuiYM/J10JGd/ug=
+=lZoE
+-----END PGP SIGNATURE-----
 
-to the boot command line where <scheduler> is one of: ingosched,
-nicksched, staircase, spa_no_frills or zaphod.  If you don't change the
-default when you build the kernel the default scheduler will be
-ingosched (which is the normal scheduler).
-
-The scheduler in force on a running system can be determined by the
-contents of:
-
-/proc/scheduler
-
-Control parameters for the scheduler can be read/set via files in:
-
-/sys/cpusched/<scheduler>/
-
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+--nextPart1439327.dcnEfBzCur--

@@ -1,41 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261545AbVFTTaE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261532AbVFTTeB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261545AbVFTTaE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 15:30:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261519AbVFTT1R
+	id S261532AbVFTTeB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 15:34:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261535AbVFTTd4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 15:27:17 -0400
-Received: from mxout1.netvision.net.il ([194.90.9.20]:2894 "EHLO
-	mxout1.netvision.net.il") by vger.kernel.org with ESMTP
-	id S261537AbVFTT0a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 15:26:30 -0400
-Date: Mon, 20 Jun 2005 23:29:04 +0300
-From: Sasha Khapyorsky <sashak@smlink.com>
-Subject: Re: 2.6.12: codec_semaphore: semaphore is not ready
-In-reply-to: <200506201809.15739.s0348365@sms.ed.ac.uk>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Cc: Rafael Rodr?guez <apt-drink@gulic.org>, linux-kernel@vger.kernel.org
-Mail-followup-to: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
- Rafael Rodr?guez <apt-drink@gulic.org>, linux-kernel@vger.kernel.org
-Message-id: <20050620202904.GA11614@sashak.softier.local>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-References: <200506191402.02287.apt-drink@gulic.org>
- <s5hy895p8gg.wl%tiwai@suse.de> <200506201446.20541.apt-drink@gulic.org>
- <200506201809.15739.s0348365@sms.ed.ac.uk>
-User-Agent: Mutt/1.5.8i
+	Mon, 20 Jun 2005 15:33:56 -0400
+Received: from mail.linicks.net ([217.204.244.146]:25861 "EHLO
+	linux233.linicks.net") by vger.kernel.org with ESMTP
+	id S261532AbVFTTcd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 15:32:33 -0400
+From: Nick Warne <nick@linicks.net>
+To: Greg KH <gregkh@suse.de>
+Subject: Re: 2.6.12 udev hangs at boot
+Date: Mon, 20 Jun 2005 20:32:30 +0100
+User-Agent: KMail/1.8.1
+Cc: linux-kernel@vger.kernel.org
+References: <200506181332.25287.nick@linicks.net> <200506202000.08114.nick@linicks.net> <20050620192118.GA13586@suse.de>
+In-Reply-To: <20050620192118.GA13586@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200506202032.30771.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 18:09 Mon 20 Jun     , Alistair John Strachan wrote:
-> 
-> I've found that my snd-intel8x0m modem works fine despite the codec_semaphore 
-> warnings, so I think it can be ignored by the majority. This also isn't a 
-> 2.6.12 problem, it's been happening for ages.
+On Monday 20 June 2005 20:21, Greg KH wrote:
 
-Yes, and hopefully this warning is fixed already in ALSA CVS.
+> > It appears the issue people are seeing is with Slack 10, which shipped
+> > with udev 0.26 - and I presume there was 'custom' rules Patrick had built
+> > in.
+>
+> Ick.  Hm, there's not been any updates for slack since then? (note,
+> there was no 0.26 release, there are no '.' in udev releases.)
+>
+> Any Slackware users want to pester them for updates?
 
-Sasha.
+Remember this is Slackware 10 here I am talking about - Slackware 10.1 has 
+been released since, that uses as stock udev 50.  Slackware current uses udev 
+54.  Trouble is here also, GLIBC has been updated in latest Slackware[s], so 
+there is no real upgrade path for Slack 10 users other than the whole 
+caboodle - which breaks a lot if you have all the latest 'other stuff' built 
+from source anyway.
 
+I guess many users don't upgrade all the system like I do to find these 
+problems.  This appears to be just a gotcha for old Slackware 10 users like 
+me.  Sometimes you read stuff about doing an upgrade, and unless it pokes yer 
+eye out with a big stick you miss it... so it is isn't a big deal as long as 
+people know about it - it's an easy fix.
+
+Nick
+-- 
+"When you're chewing on life's gristle,
+Don't grumble, Give a whistle..."

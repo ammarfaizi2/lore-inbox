@@ -1,76 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261302AbVFTJuM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261294AbVFTKEv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261302AbVFTJuM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 05:50:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbVFTJuM
+	id S261294AbVFTKEv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 06:04:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261303AbVFTKEc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 05:50:12 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:40721 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261303AbVFTJs4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 05:48:56 -0400
-Date: Mon, 20 Jun 2005 11:48:55 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>,
-       Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-Cc: linux-kernel@vger.kernel.org,
-       Fabrice Aeschbacher <fabrice.aeschbacher@laposte.net>,
-       Hermann Pitton <hermann.pitton@onlinehome.de>,
-       Nickolay V Shmyrev <nshmyrev@yandex.ru>, kraxel@bytesex.org,
-       video4linux-list@redhat.com
-Subject: [patch] 2.6.12-mm1: saa7134-core.c compile error
-Message-ID: <20050620094855.GA3666@stusta.de>
-References: <20050619233029.45dd66b8.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 20 Jun 2005 06:04:32 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:39068 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S261294AbVFTKE0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 06:04:26 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Nick Warne <nick@linicks.net>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12 udev hangs at boot
+Date: Mon, 20 Jun 2005 13:04:10 +0300
+User-Agent: KMail/1.5.4
+References: <200506181332.25287.nick@linicks.net> <42B45173.6060209@pobox.com> <200506181806.49627.nick@linicks.net>
+In-Reply-To: <200506181806.49627.nick@linicks.net>
+Cc: gregkh@suse.de, Jeff Garzik <jgarzik@pobox.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050619233029.45dd66b8.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200506201304.10741.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 19, 2005 at 11:30:29PM -0700, Andrew Morton wrote:
->...
-> Changes since 2.6.12-rc6-mm1:
->...
-> +v4l-update-for-saa7134-cards.patch
->...
->  v4l updates
->...
+On Saturday 18 June 2005 20:06, Nick Warne wrote:
+> On Saturday 18 June 2005 17:53, Jeff Garzik wrote:
+> > Nick Warne wrote:
+> > > New 2.6.12 build hangs at initialising udev dynamic device directory on
+> > > boot.
+> >
+> > Did you try simply waiting a while?
+> >
+> > udev took a long time to initialize (30-40 seconds) for me, then
+> > everything worked and the machine booted just fine.
+> >
+> > I've seen this on both new and old udev.  Some patience will fix things :)
+> 
+> Yes, I waited a while first time.  No drive activity, no nothing.  Keyboard 
+> was still awake though, so it wasn't a 'crash' as such. The boot just stopped 
+> there twiddling it's thumbs...
+> 
+> Installing the latest udev though makes the machine boot so fast I can't see 
+> the 'initialising udev devices' message unless I scroll back to see in 
+> console.  I thought at first I broke it, and udev wasn't working at all now 
+> and was being ignored, but it is working just fine :-)
+> 
+> But remember, what got me was it boots fine on 2.6.11.12, insomuch I never 
+> really saw the udev message away and never had to investigate it before.
 
-The bogus saa7134-core.c part of this patch has to be dropped since it 
-causes the following compile error with CONFIG_MODULES=n:
+udev-030 is looking for detached_state somewhere inside /sys tree,
+but somewhere between 2.6.12-rc3 and -rc5 detached_state is gone.
 
-<--  snip  -->
+I installed udev-058 and it fixed things.
 
-...
-  CC      drivers/media/video/saa7134/saa7134-core.o
-drivers/media/video/saa7134/saa7134-core.c: In function `saa7134_fini':
-drivers/media/video/saa7134/saa7134-core.c:1215: error: `pending_registered' undeclared (first use in this function)
-drivers/media/video/saa7134/saa7134-core.c:1215: error: (Each undeclared identifier is reported only once
-drivers/media/video/saa7134/saa7134-core.c:1215: error: for each function it appears in.)
-drivers/media/video/saa7134/saa7134-core.c:1216: error: `pending_notifier' undeclared (first use in this function)
-make[4]: *** [drivers/media/video/saa7134/saa7134-core.o] Error 1
+It took me more than hour to figure out, from 02:00 to after 03:00.
 
-<--  snip  -->
+Greg, any plans to distribute udev and hotplug within kernel tarballs
+so that people do not need to track such changes continuously?
 
-
-This patch reverts this bogus patch.
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.12-mm1-modular/drivers/media/video/saa7134/saa7134-core.c	2005-06-20 10:59:33.000000000 +0200
-+++ linux-2.6.12-mm1-full/drivers/media/video/saa7134/saa7134-core.c	2005-06-20 11:46:20.000000000 +0200
-@@ -1212,8 +1212,10 @@
- 
- static void saa7134_fini(void)
- {
-+#ifdef CONFIG_MODULES
- 	if (pending_registered)
- 		unregister_module_notifier(&pending_notifier);
-+#endif
- 	pci_unregister_driver(&saa7134_pci_driver);
- }
- 
+After all, udev is tied to /sys layout which changes with kernel
+and also udev is vital for properly functioning boot process
+(I mean: if udev breaks, you cannot easily debug it: your box
+is unusable since lots of things gone avry like gettys not having ttys
+to let you log in...).
+--
+vda
 

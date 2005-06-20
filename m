@@ -1,44 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261231AbVFTN25@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261238AbVFTNhg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261231AbVFTN25 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 09:28:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261238AbVFTN25
+	id S261238AbVFTNhg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 09:37:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261240AbVFTNhg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 09:28:57 -0400
-Received: from pop.gmx.de ([213.165.64.20]:25045 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261231AbVFTN2y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 09:28:54 -0400
-X-Authenticated: #4401329
-Message-ID: <42B6C3C0.9010209@gmx.net>
-Date: Mon, 20 Jun 2005 15:25:20 +0200
-From: Simon Sudler <Simon.Sudler@gmx.net>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Marcel Naziri <silent@zwobbl.de>
-CC: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: sata_promise KERNEL_BUG on 2.6.12
-References: <200506200402.55229.silent@zwobbl.de> <42B62901.3000500@pobox.com> <200506201432.30628.silent@zwobbl.de>
-In-Reply-To: <200506201432.30628.silent@zwobbl.de>
-Content-Type: text/plain; charset=iso-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Mon, 20 Jun 2005 09:37:36 -0400
+Received: from ganesha.gnumonks.org ([213.95.27.120]:59525 "EHLO
+	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
+	id S261238AbVFTNha (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 09:37:30 -0400
+Date: Mon, 20 Jun 2005 09:19:17 +0200
+From: Harald Welte <laforge@netfilter.org>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Chris Rankin <rankincj@yahoo.com>, netfilter-devel@lists.netfilter.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12: connection tracking broken?
+Message-ID: <20050620071917.GM9491@obroa-skai.de.gnumonks.org>
+Mail-Followup-To: Harald Welte <laforge@netfilter.org>,
+	Jan Engelhardt <jengelh@linux01.gwdg.de>,
+	Chris Rankin <rankincj@yahoo.com>,
+	netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org
+References: <20050618124359.39052.qmail@web52901.mail.yahoo.com> <Pine.LNX.4.61.0506181656250.20828@yvahk01.tjqt.qr>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="7vLGWvOrvbSM0Ba8"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0506181656250.20828@yvahk01.tjqt.qr>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I can confirm the the problem on my Promise SATAII-150 TX4
-with the 2.6.12. However after a immediate downgrade to
-2.6.11 the problem persist.
-updating the controller bios to 1.00.0.34 didn't helped either.
 
-The kernel freezes the interrupt from the satalib after a short
-time. strangly it occurs only after even numbers (like
-200000 or 300000). Bevor the freez, all devices are working fine
-except for some
+--7vLGWvOrvbSM0Ba8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-[kernel] irq 18: nobody cared!
+On Sat, Jun 18, 2005 at 04:57:49PM +0200, Jan Engelhardt wrote:
+> You forget about INPUT and OUTPUT. If you drop everything in INPUT, there=
+'s=20
+> nothing to FORWARD.
 
-messages.
+he was talking about iptables, not ipchains.
 
-Simon
+--=20
+- Harald Welte <laforge@netfilter.org>                 http://netfilter.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+  "Fragmentation is like classful addressing -- an interesting early
+   architectural error that shows how much experimentation was going
+   on while IP was being designed."                    -- Paul Vixie
+
+--7vLGWvOrvbSM0Ba8
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFCtm31XaXGVTD0i/8RArpiAKCQ+IEzLA/WSzMyhFcscLqQN6RgQACgjBxA
+i9qo/sja6oLo951810LnlCM=
+=Aa3m
+-----END PGP SIGNATURE-----
+
+--7vLGWvOrvbSM0Ba8--

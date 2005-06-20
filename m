@@ -1,44 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261463AbVFTTIf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261477AbVFTTIh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261463AbVFTTIf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 15:08:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261509AbVFTTIU
+	id S261477AbVFTTIh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 15:08:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261484AbVFTTHN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 15:08:20 -0400
-Received: from mail.linicks.net ([217.204.244.146]:55818 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S261501AbVFTTAO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 15:00:14 -0400
-From: Nick Warne <nick@linicks.net>
-To: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12 udev hangs at boot
-Date: Mon, 20 Jun 2005 20:00:08 +0100
-User-Agent: KMail/1.8.1
-References: <200506181332.25287.nick@linicks.net> <42B6FBC7.5000900@pobox.com> <20050620173411.GB15212@suse.de>
-In-Reply-To: <20050620173411.GB15212@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506202000.08114.nick@linicks.net>
+	Mon, 20 Jun 2005 15:07:13 -0400
+Received: from lakshmi.addtoit.com ([198.99.130.6]:25610 "EHLO
+	lakshmi.solana.com") by vger.kernel.org with ESMTP id S261477AbVFTS4t
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 14:56:49 -0400
+Message-Id: <200506201851.j5KIpKPr008499@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
+To: akpm@osdl.org, torvalds@osdl.org
+cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
+Subject: [PATCH 6/8] UML - Kill some useless vmalloc tlb flushing
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 20 Jun 2005 14:51:20 -0400
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 20 June 2005 18:34, you wrote:
+There is absolutely no reason to flush the kernel's VM area during a
+tlb_flush_mm.
 
-> As for working with people's boxes, only the very oldest versions of
-> udev (like the reported 030 version which is a year old and I do not
-> think shipped by any distro) would have the "lockup" issue.  On all of
-> the other ones, only custom rules written by users would have issues
-> (meaning, not work).  I do not know of any shipping, supported distro
-> that currently has a boot lockup issue (if so, please let me know.)
+This results in a noticable performance increase in the kernel build 
+benchmark.
 
-It appears the issue people are seeing is with Slack 10, which shipped with 
-udev 0.26 - and I presume there was 'custom' rules Patrick had built in.
+Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-Nick
+Index: linux-2.6.12/arch/um/kernel/skas/tlb.c
+===================================================================
+--- linux-2.6.12.orig/arch/um/kernel/skas/tlb.c	2005-06-20 11:54:56.000000000 -0400
++++ linux-2.6.12/arch/um/kernel/skas/tlb.c	2005-06-20 12:11:00.000000000 -0400
+@@ -76,7 +76,6 @@ void flush_tlb_mm_skas(struct mm_struct 
+                 return;
+ 
+         fix_range(mm, 0, host_task_size, 0);
+-        flush_tlb_kernel_range_common(start_vm, end_vm);
+ }
+ 
+ void force_flush_all_skas(void)
 
--- 
-"When you're chewing on life's gristle,
-Don't grumble, Give a whistle..."

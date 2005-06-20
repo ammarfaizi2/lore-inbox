@@ -1,60 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261298AbVFTJgr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261304AbVFTJiI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261298AbVFTJgr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 05:36:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbVFTJgr
+	id S261304AbVFTJiI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 05:38:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261302AbVFTJiH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 05:36:47 -0400
-Received: from smtpout1.BAYAREA.NET ([209.128.95.10]:49034 "EHLO
-	smtpout1.bayarea.net") by vger.kernel.org with ESMTP
-	id S261298AbVFTJgm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 05:36:42 -0400
-Message-ID: <42B68DFB.8090608@bayarea.net>
-Date: Mon, 20 Jun 2005 10:35:55 +0100
-From: Robert Gadsdon <rgadsdon@bayarea.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050415
-X-Accept-Language: en-gb, en, en-us
-MIME-Version: 1.0
-To: linux kernel <linux-kernel@vger.kernel.org>
-Subject: 2.6.12 kernel panic after loading promise_sata module
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 20 Jun 2005 05:38:07 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:13447 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S261294AbVFTJhq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 05:37:46 -0400
+Subject: Re: [GIT PATCH] SCSI updates for 2.6.12
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050618174558.GX9153@shell0.pdx.osdl.net>
+References: <1119103586.4984.5.camel@mulgrave>
+	 <20050618141636.GA4112@infradead.org>
+	 <20050618174558.GX9153@shell0.pdx.osdl.net>
+Content-Type: text/plain
+Date: Mon, 20 Jun 2005 11:35:40 +0200
+Message-Id: <1119260140.6099.0.camel@mulgrave>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tried 2.6.12 (vanilla) kernel, and had the following at boot:
-(typed from screen)
-.............
-Starting balanced_irq
-Freeing unused kernel memory: 220k freed
-Red Hat nash version 4.1.18 starting
-Mounted /proc filesystem
-Mounting sysfs
-input: AT Translated set 2 keyboard on isa0060/serio0
-Creating /dev
-Starting udev
-Loading libata.ko module
-Loading sata_promise.ko module
-Creating root device
-Mounting root filesystem
-mount: error 6 mounting ext3
-mount: error 2 mounting none
-Switching to new root
-switchroot: mount failed: 22
-umount /initrd/dev failed: 2
-kernel panic - not syncing: Attempted to kill init!
+On Sat, 2005-06-18 at 10:45 -0700, Chris Wright wrote:
+> Sure, if it's seriously broken w/out send it to stable@kernel.org,
+> and we'll queue it up.
 
-   -
+It should be here:
 
-Reverted to 2.6.11.11 and everything worked OK.
+rsync://www.parisc-linux.org/~jejb/git/scsi-rc-fixes-2.6.git
 
-UDEV version is 058
+That's the same patch that's merged now.
 
-SATA controller card (from lspci):
-00:12.0 Unknown mass storage controller: Promise Technology, Inc. 
-PDC20318 (SATA150 TX4) (rev 02)
-
-gcc version is 3.4.4
+James
 
 
-Robert Gadsdon

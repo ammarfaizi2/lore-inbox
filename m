@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261469AbVFTGSw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261472AbVFTG0k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261469AbVFTGSw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 02:18:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261468AbVFTGSw
+	id S261472AbVFTG0k (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 02:26:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261474AbVFTG0k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 02:18:52 -0400
-Received: from omta04sl.mx.bigpond.com ([144.140.93.156]:59362 "EHLO
-	omta04sl.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S261476AbVFTGSi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 02:18:38 -0400
-Message-ID: <42B65FAC.4090400@bigpond.net.au>
-Date: Mon, 20 Jun 2005 16:18:20 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE][RFC] PlugSched-5.2.1 for 2.6.11 and 2.6.12
-References: <42B65525.1060308@bigpond.net.au> <200506201541.29668.kernel@kolivas.org>
-In-Reply-To: <200506201541.29668.kernel@kolivas.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 20 Jun 2005 02:26:40 -0400
+Received: from apate.telenet-ops.be ([195.130.132.57]:28303 "EHLO
+	apate.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S261472AbVFTG0i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 02:26:38 -0400
+Subject: Re: 2.6.12: connection tracking broken?
+From: Bart De Schuymer <bdschuym@telenet.be>
+To: Patrick McHardy <kaber@trash.net>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, bdschuym@pandora.be,
+       netfilter-devel@manty.net, netfilter-devel@lists.netfilter.org,
+       linux-kernel@vger.kernel.org, ebtables-devel@lists.sourceforge.net,
+       rankincj@yahoo.com
+In-Reply-To: <Pine.LNX.4.62.0506200432100.31737@kaber.coreworks.de>
+References: <E1Dk9nK-0001ww-00@gondolin.me.apana.org.au>
+	 <Pine.LNX.4.62.0506200432100.31737@kaber.coreworks.de>
+Content-Type: text/plain
+Date: Mon, 20 Jun 2005 06:39:35 +0000
+Message-Id: <1119249575.3387.3.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta04sl.mx.bigpond.com from [147.10.140.183] using ID pwil3058@bigpond.net.au at Mon, 20 Jun 2005 06:18:35 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote:
-> On Mon, 20 Jun 2005 15:33, Peter Williams wrote:
+Op ma, 20-06-2005 te 04:45 +0200, schreef Patrick McHardy:
+> On Mon, 20 Jun 2005, Herbert Xu wrote:
+> > Patrick McHardy <kaber@trash.net> wrote:
+> >>
+> >> The bridge-netfilter code defers calling of some NF_IP_* hooks to the
+> >> bridge layer, when the conntrack reference is already gone, so the entry
+> >
+> > Why does it defer them at all? Shouldn't the fact that the device is
+> > bridged be transparent to the IP layer?
 > 
->>PlugSched-5.2.1 is available for 2.6.11 and 2.6.12 kernels.  This
->>version applies Con Kolivas's latest modifications to his "nice" aware
->>SMP load balancing patches.
-> 
-> 
-> Thanks Peter. 
-> 
-> Any word from your own testing/testers on how well smp nice balancing is 
-> working for them now? 
+> I couldn't figure out the reason, it seems to have something to do
+> with setting up device pointers for iptables and ebtables. It looks
+> like the only way to fix this problem without keeping the conntrack
+> reference while packets are queued at the device is to avoid defering
+> the NF_IP_* hooks. Bart, can you explain why the hooks are defered
+> please?
 
-No, they got side tracked onto something else but should start working 
-on it again soon.  I'll give them a prod :-)
+This is done so that iptables knows which bridge port the output device
+is, using the iptables physdev match.
 
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
+Can't you release the conntrack reference with a function registered on
+the POSTROUTING hook with a prio higher than nat POSTROUTING (or
+something like that)?
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+cheers,
+Bart
+
+

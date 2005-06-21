@@ -1,58 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262318AbVFUUh3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262328AbVFUUfL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262318AbVFUUh3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 16:37:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262330AbVFUUf0
+	id S262328AbVFUUfL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 16:35:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262321AbVFUUeE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 16:35:26 -0400
-Received: from adicia.telenet-ops.be ([195.130.132.56]:30853 "EHLO
-	adicia.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S262318AbVFUUdS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 16:33:18 -0400
-Subject: Re: 2.6.12: connection tracking broken?
-From: Bart De Schuymer <bdschuym@pandora.be>
-To: Patrick McHardy <kaber@trash.net>
-Cc: Bart De Schuymer <bdschuym@telenet.be>,
-       Herbert Xu <herbert@gondor.apana.org.au>,
-       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
-       rankincj@yahoo.com, ebtables-devel@lists.sourceforge.net,
-       netfilter-devel@manty.net
-In-Reply-To: <42B82F35.3040909@trash.net>
-References: <E1Dk9nK-0001ww-00@gondolin.me.apana.org.au>
-	 <Pine.LNX.4.62.0506200432100.31737@kaber.coreworks.de>
-	 <1119249575.3387.3.camel@localhost.localdomain> <42B6B373.20507@trash.net>
-	 <1119293193.3381.9.camel@localhost.localdomain>
-	 <42B74FC5.3070404@trash.net>
-	 <1119338382.3390.24.camel@localhost.localdomain>
-	 <42B82F35.3040909@trash.net>
-Content-Type: text/plain
-Date: Tue, 21 Jun 2005 20:46:12 +0000
-Message-Id: <1119386772.3379.4.camel@localhost.localdomain>
+	Tue, 21 Jun 2005 16:34:04 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:47514 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262247AbVFUUdK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 16:33:10 -0400
+Date: Tue, 21 Jun 2005 13:32:36 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: -mm -> 2.6.13 merge status
+Message-Id: <20050621133236.7c98d5d8.akpm@osdl.org>
+In-Reply-To: <1119369028.19357.28.camel@mindpipe>
+References: <20050620235458.5b437274.akpm@osdl.org>
+	<1119369028.19357.28.camel@mindpipe>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Op di, 21-06-2005 te 17:16 +0200, schreef Patrick McHardy:
-> I unfortunately don't see a way to remove it, but we should keep
-> thinking about it. Can you please check if the attached patch is
-> correct? It should exclude all packets handled by bridge-netfilter
-> from having their conntrack reference dropped. I didn't add nf_reset()'s
-> to the bridging code because with tc actions the packets can end up
-> anywhere else anyway, and this will hopefully get fixed right sometime.
-
-Looks good.
-Perhaps a compile time option to disable postponing the hooks would be
-nice...
-
-> BTW. this line from ip_sabotage_out() looks wrong, it will clear all
-> flags instead of setting the BRNF_DONT_TAKE_PARENT flag (second
-> patch):
+Lee Revell <rlrevell@joe-job.com> wrote:
+>
+> On Mon, 2005-06-20 at 23:54 -0700, Andrew Morton wrote:
+> > CONFIG_HZ for x86 and ia64: changes default HZ to 250, make HZ
+> > Kconfigurable.
+> > 
+> >     Will merge (will switch default to 1000 Hz later if that seems
+> > necessary) 
 > 
->                         nf_bridge->mask &= BRNF_DONT_TAKE_PARENT;
+> Are you serious?  You're changing the *default* HZ in a stable kernel
+> series?!?
+> 
+> This is a big regression, it degrades the resolution of system calls.
+> 
 
-Thanks,
-Bart
-
-
+Well we'll see what happens.  As I said, if it's determined to be a real
+problem we'll put the default back to 1000Hz prior to 2.6.13 release.

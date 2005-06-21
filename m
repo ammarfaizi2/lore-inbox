@@ -1,40 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261285AbVFULeu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261227AbVFUL3z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261285AbVFULeu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 07:34:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261284AbVFULe1
+	id S261227AbVFUL3z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 07:29:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbVFUL30
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 07:34:27 -0400
-Received: from mx2.suse.de ([195.135.220.15]:56230 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261244AbVFULb3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 07:31:29 -0400
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-mm1 boot failure on NUMA box.
-References: <208690000.1119330454@[10.10.2.4].suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 21 Jun 2005 13:31:26 +0200
-In-Reply-To: <208690000.1119330454@[10.10.2.4].suse.lists.linux.kernel>
-Message-ID: <p733brcc5f5.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 21 Jun 2005 07:29:26 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:42147 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261227AbVFULTi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 07:19:38 -0400
+Subject: Re: PATCH: Fix crashes with hotplug serverworks
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org
+In-Reply-To: <58cb370e0506210259669c912d@mail.gmail.com>
+References: <1119298859.3325.43.camel@localhost.localdomain>
+	 <20050621065221.GA31420@infradead.org>
+	 <1119346417.3325.82.camel@localhost.localdomain>
+	 <58cb370e0506210259669c912d@mail.gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1119352605.3707.105.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 21 Jun 2005 12:16:48 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@mbligh.org> writes:
+On Maw, 2005-06-21 at 10:59, Bartlomiej Zolnierkiewicz wrote:
+> Get a life.
 
-> OK, after fixing the build failure with Andy's patch here:
-> 
-> http://mbligh.org/abat/apw_pci_assign_unassigned_resources
-> 
-> I get a boot failure on the NUMA-Q box. Full log is here:
-
-FWIW i tried 2.6.12-rc6 (not final yet) on a 16 way x86-64 box
-and it also always deadlocked early when trying to boot the
-other CPUs (in fact when waiting for the migration thread
-to process a request). 2.6.11 worked.
-
--Andi
+I think that illustrates the problem with IDE management nicely...
 

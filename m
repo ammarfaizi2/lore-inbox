@@ -1,49 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262082AbVFUPG1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262111AbVFUPHr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262082AbVFUPG1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 11:06:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262101AbVFUPG0
+	id S262111AbVFUPHr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 11:07:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262101AbVFUPGa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 11:06:26 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27558 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262082AbVFUPGW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 11:06:22 -0400
-Date: Tue, 21 Jun 2005 06:44:57 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Nigel Cunningham <ncunningham@cyclades.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Tim Bird <tim.bird@am.sony.com>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: -mm -> 2.6.13 merge status (Suspend-to-disk)
-Message-ID: <20050621094457.GB20197@logos.cnet>
-References: <20050620235458.5b437274.akpm@osdl.org> <1119359295.10186.1150.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1119359295.10186.1150.camel@localhost>
-User-Agent: Mutt/1.5.5.1i
+	Tue, 21 Jun 2005 11:06:30 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:64152 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S262090AbVFUPGX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 11:06:23 -0400
+Message-Id: <200506211505.j5LF5taV025815@laptop11.inf.utfsm.cl>
+To: Vinay Venkataraghavan <raghavanvinay@yahoo.com>
+cc: linux-crypto@nl.linux.org, linux-kernel@vger.kernel.org
+Subject: Re: Announce loop-AES-v3.0d file/swap crypto package 
+In-Reply-To: Message from Vinay Venkataraghavan <raghavanvinay@yahoo.com> 
+   of "Mon, 20 Jun 2005 14:49:51 MST." <20050620214951.35798.qmail@web32106.mail.mud.yahoo.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
+Date: Tue, 21 Jun 2005 11:05:55 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.19.1]); Tue, 21 Jun 2005 11:05:54 -0400 (CLT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Vinay Venkataraghavan <raghavanvinay@yahoo.com> wrote:
+> I am trying to write a client server application
+> wherein all the messages between the client and server
+> are encrypted. 
 
-> > execute-in-place
-> > 
-> >     Will merge.  Have the embedded guys commented on the usefulness of
-> >     this for execute-out-of-ROM?
-> 
-> Switch roles for a mo and put my Cyclades hat on. Probably not useful to
-> us at the moment, at least in the case of the products I work on.
-> Marcelo?
-
-Well yes, its definately very useful for embedded folks where RAM is a 
-precious resource (not our case at the moment).
-
-I'm not aware of any users of this XIP implementation, maybe Tim Bird or 
-Russell have reviewed/tested it? 
-
-It went through filesystem folks reviewing (and I'm pretty sure akpm knows
-about that already)...
-
-Hope to be helpful.
+TLS, and get over with it.
+--
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

@@ -1,52 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262486AbVFUVUY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262394AbVFUVTt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262486AbVFUVUY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 17:20:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262495AbVFUVRp
+	id S262394AbVFUVTt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 17:19:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262497AbVFUVSB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 17:17:45 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:45983 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S262394AbVFUVMx (ORCPT
+	Tue, 21 Jun 2005 17:18:01 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:9892 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262336AbVFUVDj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 17:12:53 -0400
-Message-Id: <200506212112.j5LLCG7V031031@laptop11.inf.utfsm.cl>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Jeff Garzik <jgarzik@pobox.com>, Domen Puncer <domen@coderock.org>
-Subject: Re: [RFC] cleanup patches for strings 
-In-Reply-To: Message from Jesper Juhl <juhl-lkml@dif.dk> 
-   of "Tue, 21 Jun 2005 00:46:26 +0200." <Pine.LNX.4.62.0506200052320.2415@dragon.hyggekrogen.localhost> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Tue, 21 Jun 2005 17:12:16 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.19.1]); Tue, 21 Jun 2005 17:12:17 -0400 (CLT)
+	Tue, 21 Jun 2005 17:03:39 -0400
+Date: Tue, 21 Jun 2005 14:03:10 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: arjanv@redhat.com
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, greg@kroah.com
+Subject: Re: [GIT PATCH] Remove devfs from 2.6.12-git
+Message-Id: <20050621140310.4f9a0edf.akpm@osdl.org>
+In-Reply-To: <1119387122.6465.14.camel@localhost.localdomain>
+References: <20050621062926.GB15062@kroah.com>
+	<20050620235403.45bf9613.akpm@osdl.org>
+	<20050621151019.GA19666@kroah.com>
+	<20050621131132.105ea76f.akpm@osdl.org>
+	<1119387122.6465.14.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl <juhl-lkml@dif.dk> wrote:
-> I have a bunch (few hundred) of oneliners like the ones below lying around 
-> on my HD and I'm wondering what the best way to submit them is.
+Arjan van de Ven <arjanv@redhat.com> wrote:
+>
+> On Tue, 2005-06-21 at 13:11 -0700, Andrew Morton wrote:
+> > Greg KH <greg@kroah.com> wrote:
+> > >
+> > >  Or I can wait until you go next.  I didn't want these patches in the -mm
+> > >  tree as they would have caused you too much work to keep up to date and
+> > >  not conflict with anything else due to the size of them.
+> > 
+> > What happens if we merge it and then the storm of complaints over the
+> > ensuing four weeks makes us say "whoops, shouldna done that [yet]"?
 > 
-> The patches all make the same change, there's just a lot of files the 
-> change needs to be made in.  The change they make is to change strings 
-> from the form
-> 	[const] char *foo = "blah";
-> to
-> 	[const] char foo[] = "blah";
-> 
-> The reason to do this was well explained by Jeff Garzik in the past (and 
-> now found in the Kernel Janitors TODO) :
+> so... disable the config option now. then wait 3 weeks. then do the
+> rest ;)
 
-Which is dead wrong. A short test program here (Fedora rawhide, i686,
-gcc-4.0.0) shows that if you use an array, it is allocated on the stack and
-the contents of the (constant, readonly) string is copied there before use,
-just as you'd have to expect given C's semantics. I.e., the function gets
-larger, slower, and uses more stack. If the array is declared const makes
-no difference (AFAIR, it can't, as the const doesn't guarantee it won't be
-changed).
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+That works for me?
 

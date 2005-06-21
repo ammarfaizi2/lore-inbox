@@ -1,63 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261436AbVFUMRV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261369AbVFUMSH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261436AbVFUMRV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 08:17:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261411AbVFUMRR
+	id S261369AbVFUMSH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 08:18:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261409AbVFUMSG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 08:17:17 -0400
-Received: from gaz.sfgoth.com ([69.36.241.230]:45536 "EHLO gaz.sfgoth.com")
-	by vger.kernel.org with ESMTP id S261436AbVFUMQf (ORCPT
+	Tue, 21 Jun 2005 08:18:06 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:23772 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261369AbVFUMPI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 08:16:35 -0400
-Date: Tue, 21 Jun 2005 05:18:33 -0700
-From: Mitchell Blank Jr <mitch@sfgoth.com>
-To: J?rn Engel <joern@wohnheim.fh-wedel.de>
-Cc: domen@coderock.org, pavel@suse.cz, linux-kernel@vger.kernel.org
-Subject: Re: [patch 2/2] kernel/power/disk.c string fix and if-less iterator
-Message-ID: <20050621121833.GD84485@gaz.sfgoth.com>
-References: <20050620215712.840835000@nd47.coderock.org> <20050621073307.GE27887@wohnheim.fh-wedel.de>
+	Tue, 21 Jun 2005 08:15:08 -0400
+Date: Tue, 21 Jun 2005 08:15:07 -0400
+From: Dave Jones <davej@redhat.com>
+To: "Richard B. Johnson" <linux-os@analogic.com>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.6.12
+Message-ID: <20050621121507.GE592@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	"Richard B. Johnson" <linux-os@analogic.com>,
+	Linux kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.61.0506200857450.5213@chaos.analogic.com> <20050621003203.GB28908@redhat.com> <Pine.LNX.4.61.0506210629110.8815@chaos.analogic.com> <20050621111301.GA592@redhat.com> <Pine.LNX.4.61.0506210714400.9115@chaos.analogic.com> <20050621113040.GB592@redhat.com> <Pine.LNX.4.61.0506210733430.9577@chaos.analogic.com> <20050621115516.GC592@redhat.com> <Pine.LNX.4.61.0506210756230.9871@chaos.analogic.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050621073307.GE27887@wohnheim.fh-wedel.de>
-User-Agent: Mutt/1.4.2.1i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.2.2 (gaz.sfgoth.com [127.0.0.1]); Tue, 21 Jun 2005 05:18:34 -0700 (PDT)
+In-Reply-To: <Pine.LNX.4.61.0506210756230.9871@chaos.analogic.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-J?rn Engel wrote:
-> > -	char *p = "-\\|/";
-> > +	char p[] = "-\\|/";
-> >  
-> >  	printk("Freeing memory...  ");
-> >  	while ((tmp = shrink_all_memory(10000))) {
-> >  		pages += tmp;
-> >  		printk("\b%c", p[i]);
-> > -		i++;
-> > -		if (i > 3)
-> > -			i = 0;
-> > +		i = (i + 1) % (sizeof(p) - 1);
-> >  	}
-> >  	printk("\bdone (%li pages freed)\n", pages);
-> >  }
-> 
-> Isn't "-\\|/" NUL-terminated and hence 5 characters long?  In that
-> case, you patch may do funny things.
+On Tue, Jun 21, 2005 at 08:01:16AM -0400, Richard B. Johnson wrote:
 
-Yeah, you probably really want to do something like:
+ > This is USER MODE TEST code! I case you can't read, check for main().
 
-	static const char p[] = { '-', '\\', '|', '/' };
+I chose not to read, I read the license.
 
-	printk("Freeing memory...  ");
-	while ((tmp = shrink_all_memory(10000))) {
-		pages += tmp;
-		printk("\b%c", p[i++ % sizeof(p)]);
-	}
+ > In the real world, we write test code to verify that the driver(s)
+ > work. The test code has the company standard header as required by
+ > the company management. That's what real engineers have to do,
+ > satisfy the customers, and the management. We do not, however,
+ > have to satisfy you.
 
-By using {} instead of "" to declare the char array you avoid placing the
-unneeded '\0' terminator on the string.  Plus it definately should be
-declared "static".  I don't see any advantage here of keeping "i" explicitly
-in range instead of just doing the "i & 3" on each array lookup; it's one
-and per loop either way.
+Here's the thing. When you say "This is GPL code", you kind of have
+to ship GPLd code. I realise this is difficult for the hard of thinking,
+but getting creative with MODULE_LICENSE strings isn't good enough.
 
--Mitch
+ > >Just fills me with confidence about the GPL'd nature of this driver.
+ > >
+ > >Due to the "C O N F I D E N T I A L" nature of this driver, I've stopped
+ > >reading. Pity, datalink.c was quite amusing.
+ > 
+ > You are really sad.
+
+No Richard, I'm just respectful of the licenses of code that comes my way.
+If you were a "real engineer", perhaps you would do the same.
+
+Anyway, I've given up trying to educate pork, so don't feel compelled
+to reply, I don't expect you to achieve enlightenment any time soon.
+
+		Dave
+

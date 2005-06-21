@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261973AbVFUHxb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261956AbVFUH6P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261973AbVFUHxb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 03:53:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261923AbVFUHwg
+	id S261956AbVFUH6P (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 03:58:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261981AbVFUH5G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 03:52:36 -0400
-Received: from mail.kroah.org ([69.55.234.183]:44003 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261973AbVFUGaq convert rfc822-to-8bit
+	Tue, 21 Jun 2005 03:57:06 -0400
+Received: from mail.kroah.org ([69.55.234.183]:42723 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261956AbVFUGap convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 02:30:46 -0400
+	Tue, 21 Jun 2005 02:30:45 -0400
 Cc: gregkh@suse.de
-Subject: [PATCH] devfs: Remove devfs from the partition code
-In-Reply-To: <20050621062926.GB15062@kroah.com>
+Subject: [PATCH] devfs: Rename TTY_DRIVER_NO_DEVFS to TTY_DRIVER_DYNAMIC_DEV
+In-Reply-To: <1119335444505@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Mon, 20 Jun 2005 23:30:42 -0700
-Message-Id: <11193354421198@kroah.com>
+Date: Mon, 20 Jun 2005 23:30:45 -0700
+Message-Id: <11193354452744@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,243 +24,287 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] devfs: Remove devfs from the partition code
+[PATCH] devfs: Rename TTY_DRIVER_NO_DEVFS to TTY_DRIVER_DYNAMIC_DEV
 
-This patch removes the devfs code from the fs/partitions/ directory.
+I've always found this flag confusing.  Now that devfs is no longer around, it
+has been renamed, and the documentation for when this flag should be used has
+been updated.
+
+Also fixes all drivers that use this flag.
 
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit 7780cade30d7fb5b9bebb67ccd5bb76f9a28fb23
-tree 1484299b0a29203df4c9654eaff9197589247f5b
-parent 7b9a41ff4e1a04c605f117cf1ee4e89c96be5c12
+commit 7a8f493a5d2a57b5ab6302044c44d185755cf46d
+tree ddab423454c4dbe896b1ca2544a535999f33424a
+parent 0ab499b19f39b05982ade3656e2e7c170f641d30
 author Greg Kroah-Hartman <gregkh@suse.de> Mon, 20 Jun 2005 21:15:16 -0700
-committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 20 Jun 2005 23:13:30 -0700
+committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 20 Jun 2005 23:13:42 -0700
 
- fs/partitions/Makefile |    1 
- fs/partitions/check.c  |   26 ++--------
- fs/partitions/devfs.c  |  130 ------------------------------------------------
- fs/partitions/devfs.h  |   10 ----
- 4 files changed, 5 insertions(+), 162 deletions(-)
+ arch/ppc/4xx_io/serial_sicc.c   |    2 +-
+ drivers/char/ip2main.c          |    2 +-
+ drivers/char/pty.c              |    4 ++--
+ drivers/char/rocket.c           |    4 ++--
+ drivers/char/tty_io.c           |    8 ++++----
+ drivers/isdn/i4l/isdn_tty.c     |    2 +-
+ drivers/s390/char/tty3270.c     |    2 +-
+ drivers/serial/crisv10.c        |    2 +-
+ drivers/serial/serial_core.c    |    2 +-
+ drivers/tc/zs.c                 |    2 +-
+ drivers/usb/class/bluetty.c     |    2 +-
+ drivers/usb/class/cdc-acm.c     |    2 +-
+ drivers/usb/gadget/serial.c     |    2 +-
+ drivers/usb/serial/usb-serial.c |    2 +-
+ include/linux/tty_driver.h      |   13 ++++++++++---
+ net/bluetooth/rfcomm/tty.c      |    2 +-
+ 16 files changed, 30 insertions(+), 23 deletions(-)
 
-diff --git a/fs/partitions/Makefile b/fs/partitions/Makefile
---- a/fs/partitions/Makefile
-+++ b/fs/partitions/Makefile
-@@ -4,7 +4,6 @@
+diff --git a/arch/ppc/4xx_io/serial_sicc.c b/arch/ppc/4xx_io/serial_sicc.c
+--- a/arch/ppc/4xx_io/serial_sicc.c
++++ b/arch/ppc/4xx_io/serial_sicc.c
+@@ -1764,7 +1764,7 @@ int __init siccuart_init(void)
+     siccnormal_driver->subtype = SERIAL_TYPE_NORMAL;
+     siccnormal_driver->init_termios = tty_std_termios;
+     siccnormal_driver->init_termios.c_cflag = B9600 | CS8 | CREAD | HUPCL | CLOCAL;
+-    siccnormal_driver->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_NO_DEVFS;
++    siccnormal_driver->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_DYNAMIC_DEV;
+     tty_set_operations(siccnormal_driver, &sicc_ops);
  
- obj-y := check.o
+     if (tty_register_driver(siccnormal_driver))
+diff --git a/drivers/char/ip2main.c b/drivers/char/ip2main.c
+--- a/drivers/char/ip2main.c
++++ b/drivers/char/ip2main.c
+@@ -679,7 +679,7 @@ ip2_loadmain(int *iop, int *irqp, unsign
+ 	ip2_tty_driver->subtype              = SERIAL_TYPE_NORMAL;
+ 	ip2_tty_driver->init_termios         = tty_std_termios;
+ 	ip2_tty_driver->init_termios.c_cflag = B9600|CS8|CREAD|HUPCL|CLOCAL;
+-	ip2_tty_driver->flags                = TTY_DRIVER_REAL_RAW | TTY_DRIVER_NO_DEVFS;
++	ip2_tty_driver->flags                = TTY_DRIVER_REAL_RAW | TTY_DRIVER_DYNAMIC_DEV;
+ 	tty_set_operations(ip2_tty_driver, &ip2_ops);
  
--obj-$(CONFIG_DEVFS_FS) += devfs.o
- obj-$(CONFIG_ACORN_PARTITION) += acorn.o
- obj-$(CONFIG_AMIGA_PARTITION) += amiga.o
- obj-$(CONFIG_ATARI_PARTITION) += atari.o
-diff --git a/fs/partitions/check.c b/fs/partitions/check.c
---- a/fs/partitions/check.c
-+++ b/fs/partitions/check.c
-@@ -21,7 +21,6 @@
- #include <linux/devfs_fs_kernel.h>
+ 	ip2trace (ITRC_NO_PORT, ITRC_INIT, 3, 0 );
+diff --git a/drivers/char/pty.c b/drivers/char/pty.c
+--- a/drivers/char/pty.c
++++ b/drivers/char/pty.c
+@@ -369,7 +369,7 @@ static void __init unix98_pty_init(void)
+ 	ptm_driver->init_termios.c_cflag = B38400 | CS8 | CREAD;
+ 	ptm_driver->init_termios.c_lflag = 0;
+ 	ptm_driver->flags = TTY_DRIVER_RESET_TERMIOS | TTY_DRIVER_REAL_RAW |
+-		TTY_DRIVER_NO_DEVFS | TTY_DRIVER_DEVPTS_MEM;
++		TTY_DRIVER_DYNAMIC_DEV | TTY_DRIVER_DEVPTS_MEM;
+ 	ptm_driver->other = pts_driver;
+ 	tty_set_operations(ptm_driver, &pty_ops);
+ 	ptm_driver->ioctl = pty_unix98_ioctl;
+@@ -384,7 +384,7 @@ static void __init unix98_pty_init(void)
+ 	pts_driver->init_termios = tty_std_termios;
+ 	pts_driver->init_termios.c_cflag = B38400 | CS8 | CREAD;
+ 	pts_driver->flags = TTY_DRIVER_RESET_TERMIOS | TTY_DRIVER_REAL_RAW |
+-		TTY_DRIVER_NO_DEVFS | TTY_DRIVER_DEVPTS_MEM;
++		TTY_DRIVER_DYNAMIC_DEV | TTY_DRIVER_DEVPTS_MEM;
+ 	pts_driver->other = ptm_driver;
+ 	tty_set_operations(pts_driver, &pty_ops);
+ 	
+diff --git a/drivers/char/rocket.c b/drivers/char/rocket.c
+--- a/drivers/char/rocket.c
++++ b/drivers/char/rocket.c
+@@ -2366,7 +2366,7 @@ int __init rp_init(void)
+ 	 */
  
- #include "check.h"
--#include "devfs.h"
+ 	rocket_driver->owner = THIS_MODULE;
+-	rocket_driver->flags = TTY_DRIVER_NO_DEVFS;
++	rocket_driver->flags = TTY_DRIVER_DYNAMIC_DEV;
+ 	rocket_driver->name = "ttyR";
+ 	rocket_driver->driver_name = "Comtrol RocketPort";
+ 	rocket_driver->major = TTY_ROCKET_MAJOR;
+@@ -2377,7 +2377,7 @@ int __init rp_init(void)
+ 	rocket_driver->init_termios.c_cflag =
+ 	    B9600 | CS8 | CREAD | HUPCL | CLOCAL;
+ #ifdef ROCKET_SOFT_FLOW
+-	rocket_driver->flags |= TTY_DRIVER_REAL_RAW | TTY_DRIVER_NO_DEVFS;
++	rocket_driver->flags |= TTY_DRIVER_REAL_RAW | TTY_DRIVER_DYNAMIC_DEV;
+ #endif
+ 	tty_set_operations(rocket_driver, &rocket_ops);
  
- #include "acorn.h"
- #include "amiga.h"
-@@ -160,18 +159,11 @@ check_partition(struct gendisk *hd, stru
- 	if (!state)
- 		return NULL;
+diff --git a/drivers/char/tty_io.c b/drivers/char/tty_io.c
+--- a/drivers/char/tty_io.c
++++ b/drivers/char/tty_io.c
+@@ -2664,8 +2664,8 @@ static struct class *tty_class;
+  *	tty device it can be set to NULL safely.
+  *
+  * This call is required to be made to register an individual tty device if
+- * the tty driver's flags have the TTY_DRIVER_NO_DEVFS bit set.  If that
+- * bit is not set, this function should not be called.
++ * the tty driver's flags have the TTY_DRIVER_DYNAMIC_DEV bit set.  If that
++ * bit is not set, this function should not be called by a tty driver.
+  */
+ void tty_register_device(struct tty_driver *driver, unsigned index,
+ 			 struct device *device)
+@@ -2817,7 +2817,7 @@ int tty_register_driver(struct tty_drive
+ 	
+ 	list_add(&driver->tty_drivers, &tty_drivers);
+ 	
+-	if ( !(driver->flags & TTY_DRIVER_NO_DEVFS) ) {
++	if ( !(driver->flags & TTY_DRIVER_DYNAMIC_DEV) ) {
+ 		for(i = 0; i < driver->num; i++)
+ 		    tty_register_device(driver, i, NULL);
+ 	}
+@@ -2860,7 +2860,7 @@ int tty_unregister_driver(struct tty_dri
+ 			driver->termios_locked[i] = NULL;
+ 			kfree(tp);
+ 		}
+-		if (!(driver->flags & TTY_DRIVER_NO_DEVFS))
++		if (!(driver->flags & TTY_DRIVER_DYNAMIC_DEV))
+ 			tty_unregister_device(driver, i);
+ 	}
+ 	p = driver->ttys;
+diff --git a/drivers/isdn/i4l/isdn_tty.c b/drivers/isdn/i4l/isdn_tty.c
+--- a/drivers/isdn/i4l/isdn_tty.c
++++ b/drivers/isdn/i4l/isdn_tty.c
+@@ -1907,7 +1907,7 @@ isdn_tty_modem_init(void)
+ 	m->tty_modem->subtype = SERIAL_TYPE_NORMAL;
+ 	m->tty_modem->init_termios = tty_std_termios;
+ 	m->tty_modem->init_termios.c_cflag = B9600 | CS8 | CREAD | HUPCL | CLOCAL;
+-	m->tty_modem->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_NO_DEVFS;
++	m->tty_modem->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_DYNAMIC_DEV;
+ 	m->tty_modem->driver_name = "isdn_tty";
+ 	tty_set_operations(m->tty_modem, &modem_ops);
+ 	retval = tty_register_driver(m->tty_modem);
+diff --git a/drivers/s390/char/tty3270.c b/drivers/s390/char/tty3270.c
+--- a/drivers/s390/char/tty3270.c
++++ b/drivers/s390/char/tty3270.c
+@@ -1796,7 +1796,7 @@ tty3270_init(void)
+ 	driver->type = TTY_DRIVER_TYPE_SYSTEM;
+ 	driver->subtype = SYSTEM_TYPE_TTY;
+ 	driver->init_termios = tty_std_termios;
+-	driver->flags = TTY_DRIVER_RESET_TERMIOS | TTY_DRIVER_NO_DEVFS;
++	driver->flags = TTY_DRIVER_RESET_TERMIOS | TTY_DRIVER_DYNAMIC_DEV;
+ 	tty_set_operations(driver, &tty3270_ops);
+ 	ret = tty_register_driver(driver);
+ 	if (ret) {
+diff --git a/drivers/serial/crisv10.c b/drivers/serial/crisv10.c
+--- a/drivers/serial/crisv10.c
++++ b/drivers/serial/crisv10.c
+@@ -4917,7 +4917,7 @@ rs_init(void)
+ 	driver->init_termios = tty_std_termios;
+ 	driver->init_termios.c_cflag =
+ 		B115200 | CS8 | CREAD | HUPCL | CLOCAL; /* is normally B9600 default... */
+-	driver->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_NO_DEVFS;
++	driver->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_DYNAMIC_DEV;
+ 	driver->termios = serial_termios;
+ 	driver->termios_locked = serial_termios_locked;
  
--#ifdef CONFIG_DEVFS_FS
--	if (hd->devfs_name[0] != '\0') {
--		printk(KERN_INFO " /dev/%s:", hd->devfs_name);
-+	disk_name(hd, 0, state->name);
-+	printk(KERN_INFO " %s:", state->name);
-+	if (isdigit(state->name[strlen(state->name)-1]))
- 		sprintf(state->name, "p");
--	}
--#endif
--	else {
--		disk_name(hd, 0, state->name);
--		printk(KERN_INFO " %s:", state->name);
--		if (isdigit(state->name[strlen(state->name)-1]))
--			sprintf(state->name, "p");
--	}
-+
- 	state->limit = hd->minors;
- 	i = res = 0;
- 	while (!res && check_part[i]) {
-@@ -340,14 +332,8 @@ void register_disk(struct gendisk *disk)
- 	kobject_hotplug(&disk->kobj, KOBJ_ADD);
+diff --git a/drivers/serial/serial_core.c b/drivers/serial/serial_core.c
+--- a/drivers/serial/serial_core.c
++++ b/drivers/serial/serial_core.c
+@@ -2089,7 +2089,7 @@ int uart_register_driver(struct uart_dri
+ 	normal->subtype		= SERIAL_TYPE_NORMAL;
+ 	normal->init_termios	= tty_std_termios;
+ 	normal->init_termios.c_cflag = B9600 | CS8 | CREAD | HUPCL | CLOCAL;
+-	normal->flags		= TTY_DRIVER_REAL_RAW | TTY_DRIVER_NO_DEVFS;
++	normal->flags		= TTY_DRIVER_REAL_RAW | TTY_DRIVER_DYNAMIC_DEV;
+ 	normal->driver_state    = drv;
+ 	tty_set_operations(normal, &uart_ops);
  
- 	/* No minors to use for partitions */
--	if (disk->minors == 1) {
--		if (disk->devfs_name[0] != '\0')
--			devfs_add_disk(disk);
-+	if (disk->minors == 1)
- 		return;
--	}
--
--	/* always add handle for the whole disk */
--	devfs_add_partitioned(disk);
+diff --git a/drivers/tc/zs.c b/drivers/tc/zs.c
+--- a/drivers/tc/zs.c
++++ b/drivers/tc/zs.c
+@@ -1793,7 +1793,7 @@ int __init zs_init(void)
+ 	serial_driver->init_termios = tty_std_termios;
+ 	serial_driver->init_termios.c_cflag =
+ 		B9600 | CS8 | CREAD | HUPCL | CLOCAL;
+-	serial_driver->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_NO_DEVFS;
++	serial_driver->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_DYNAMIC_DEV;
+ 	tty_set_operations(serial_driver, &serial_ops);
  
- 	/* No such device (e.g., media were just removed) */
- 	if (!get_capacity(disk))
-@@ -435,8 +421,6 @@ void del_gendisk(struct gendisk *disk)
- 	disk_stat_set_all(disk, 0);
- 	disk->stamp = disk->stamp_idle = 0;
+ 	if (tty_register_driver(serial_driver))
+diff --git a/drivers/usb/class/bluetty.c b/drivers/usb/class/bluetty.c
+--- a/drivers/usb/class/bluetty.c
++++ b/drivers/usb/class/bluetty.c
+@@ -1235,7 +1235,7 @@ static int usb_bluetooth_init(void)
+ 	bluetooth_tty_driver->minor_start = 0;
+ 	bluetooth_tty_driver->type = TTY_DRIVER_TYPE_SERIAL;
+ 	bluetooth_tty_driver->subtype = SERIAL_TYPE_NORMAL;
+-	bluetooth_tty_driver->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_NO_DEVFS;
++	bluetooth_tty_driver->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_DYNAMIC_DEV;
+ 	bluetooth_tty_driver->init_termios = tty_std_termios;
+ 	bluetooth_tty_driver->init_termios.c_cflag = B9600 | CS8 | CREAD | HUPCL | CLOCAL;
+ 	tty_set_operations(bluetooth_tty_driver, &bluetooth_ops);
+diff --git a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -902,7 +902,7 @@ static int __init acm_init(void)
+ 	acm_tty_driver->minor_start = 0,
+ 	acm_tty_driver->type = TTY_DRIVER_TYPE_SERIAL,
+ 	acm_tty_driver->subtype = SERIAL_TYPE_NORMAL,
+-	acm_tty_driver->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_NO_DEVFS,
++	acm_tty_driver->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_DYNAMIC_DEV;
+ 	acm_tty_driver->init_termios = tty_std_termios;
+ 	acm_tty_driver->init_termios.c_cflag = B9600 | CS8 | CREAD | HUPCL | CLOCAL;
+ 	tty_set_operations(acm_tty_driver, &acm_ops);
+diff --git a/drivers/usb/gadget/serial.c b/drivers/usb/gadget/serial.c
+--- a/drivers/usb/gadget/serial.c
++++ b/drivers/usb/gadget/serial.c
+@@ -667,7 +667,7 @@ static int __init gs_module_init(void)
+ 	gs_tty_driver->minor_start = GS_MINOR_START;
+ 	gs_tty_driver->type = TTY_DRIVER_TYPE_SERIAL;
+ 	gs_tty_driver->subtype = SERIAL_TYPE_NORMAL;
+-	gs_tty_driver->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_NO_DEVFS;
++	gs_tty_driver->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_DYNAMIC_DEV;
+ 	gs_tty_driver->init_termios = tty_std_termios;
+ 	gs_tty_driver->init_termios.c_cflag = B9600 | CS8 | CREAD | HUPCL | CLOCAL;
+ 	tty_set_operations(gs_tty_driver, &gs_tty_ops);
+diff --git a/drivers/usb/serial/usb-serial.c b/drivers/usb/serial/usb-serial.c
+--- a/drivers/usb/serial/usb-serial.c
++++ b/drivers/usb/serial/usb-serial.c
+@@ -1304,7 +1304,7 @@ static int __init usb_serial_init(void)
+ 	usb_serial_tty_driver->minor_start = 0;
+ 	usb_serial_tty_driver->type = TTY_DRIVER_TYPE_SERIAL;
+ 	usb_serial_tty_driver->subtype = SERIAL_TYPE_NORMAL;
+-	usb_serial_tty_driver->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_NO_DEVFS;
++	usb_serial_tty_driver->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_DYNAMIC_DEV;
+ 	usb_serial_tty_driver->init_termios = tty_std_termios;
+ 	usb_serial_tty_driver->init_termios.c_cflag = B9600 | CS8 | CREAD | HUPCL | CLOCAL;
+ 	tty_set_operations(usb_serial_tty_driver, &serial_ops);
+diff --git a/include/linux/tty_driver.h b/include/linux/tty_driver.h
+--- a/include/linux/tty_driver.h
++++ b/include/linux/tty_driver.h
+@@ -241,8 +241,15 @@ void tty_set_operations(struct tty_drive
+  * 	is also a promise, if the above case is true, not to signal
+  * 	overruns, either.)
+  *
+- * TTY_DRIVER_NO_DEVFS --- if set, do not create devfs entries. This
+- *	is only used by tty_register_driver().
++ * TTY_DRIVER_DYNAMIC_DEV --- if set, the individual tty devices need
++ *	to be registered with a call to tty_register_driver() when the
++ *	device is found in the system and unregistered with a call to
++ *	tty_unregister_device() so the devices will be show up
++ *	properly in sysfs.  If not set, driver->num entries will be
++ *	created by the tty core in sysfs when tty_register_driver() is
++ *	called.  This is to be used by drivers that have tty devices
++ *	that can appear and disappear while the main tty driver is
++ *	registered with the tty core.
+  *
+  * TTY_DRIVER_DEVPTS_MEM -- don't use the standard arrays, instead
+  *	use dynamic memory keyed through the devpts filesystem.  This
+@@ -251,7 +258,7 @@ void tty_set_operations(struct tty_drive
+ #define TTY_DRIVER_INSTALLED		0x0001
+ #define TTY_DRIVER_RESET_TERMIOS	0x0002
+ #define TTY_DRIVER_REAL_RAW		0x0004
+-#define TTY_DRIVER_NO_DEVFS		0x0008
++#define TTY_DRIVER_DYNAMIC_DEV		0x0008
+ #define TTY_DRIVER_DEVPTS_MEM		0x0010
  
--	devfs_remove_disk(disk);
--
- 	if (disk->driverfs_dev) {
- 		sysfs_remove_link(&disk->kobj, "device");
- 		sysfs_remove_link(&disk->driverfs_dev->kobj, "block");
-diff --git a/fs/partitions/devfs.c b/fs/partitions/devfs.c
-deleted file mode 100644
---- a/fs/partitions/devfs.c
-+++ /dev/null
-@@ -1,130 +0,0 @@
--/*
-- * This tries to keep block devices away from devfs as much as possible.
-- */
--#include <linux/fs.h>
--#include <linux/devfs_fs_kernel.h>
--#include <linux/vmalloc.h>
--#include <linux/genhd.h>
--#include <linux/bitops.h>
--#include <asm/semaphore.h>
--
--
--struct unique_numspace {
--	u32		  num_free;          /*  Num free in bits       */
--	u32		  length;            /*  Array length in bytes  */
--	unsigned long	  *bits;
--	struct semaphore  mutex;
--};
--
--static DECLARE_MUTEX(numspace_mutex);
--
--static int expand_numspace(struct unique_numspace *s)
--{
--	u32 length;
--	void *bits;
--
--	if (s->length < 16)
--		length = 16;
--	else
--		length = s->length << 1;
--
--	bits = vmalloc(length);
--	if (!bits)
--		return -ENOMEM;
--	if (s->bits) {
--		memcpy(bits, s->bits, s->length);
--		vfree(s->bits);
--	}
--		
--	s->num_free = (length - s->length) << 3;
--	s->bits = bits;
--	memset(bits + s->length, 0, length - s->length);
--	s->length = length;
--
--	return 0;
--}
--
--static int alloc_unique_number(struct unique_numspace *s)
--{
--	int rval = 0;
--
--	down(&numspace_mutex);
--	if (s->num_free < 1)
--		rval = expand_numspace(s);
--	if (!rval) {
--		rval = find_first_zero_bit(s->bits, s->length << 3);
--		--s->num_free;
--		__set_bit(rval, s->bits);
--	}
--	up(&numspace_mutex);
--
--	return rval;
--}
--
--static void dealloc_unique_number(struct unique_numspace *s, int number)
--{
--	int old_val;
--
--	if (number >= 0) {
--		down(&numspace_mutex);
--		old_val = __test_and_clear_bit(number, s->bits);
--		if (old_val)
--			++s->num_free;
--		up(&numspace_mutex);
--	}
--}
--
--static struct unique_numspace disc_numspace;
--static struct unique_numspace cdrom_numspace;
--
--void devfs_add_partitioned(struct gendisk *disk)
--{
--	char dirname[64], symlink[16];
--
--	devfs_mk_dir(disk->devfs_name);
--	devfs_mk_bdev(MKDEV(disk->major, disk->first_minor),
--			S_IFBLK|S_IRUSR|S_IWUSR,
--			"%s/disc", disk->devfs_name);
--
--	disk->number = alloc_unique_number(&disc_numspace);
--
--	sprintf(symlink, "discs/disc%d", disk->number);
--	sprintf(dirname, "../%s", disk->devfs_name);
--	devfs_mk_symlink(symlink, dirname);
--
--}
--
--void devfs_add_disk(struct gendisk *disk)
--{
--	devfs_mk_bdev(MKDEV(disk->major, disk->first_minor),
--			(disk->flags & GENHD_FL_CD) ?
--				S_IFBLK|S_IRUGO|S_IWUGO :
--				S_IFBLK|S_IRUSR|S_IWUSR,
--			"%s", disk->devfs_name);
--
--	if (disk->flags & GENHD_FL_CD) {
--		char dirname[64], symlink[16];
--
--		disk->number = alloc_unique_number(&cdrom_numspace);
--
--		sprintf(symlink, "cdroms/cdrom%d", disk->number);
--		sprintf(dirname, "../%s", disk->devfs_name);
--		devfs_mk_symlink(symlink, dirname);
--	}
--}
--
--void devfs_remove_disk(struct gendisk *disk)
--{
--	if (disk->minors != 1) {
--		devfs_remove("discs/disc%d", disk->number);
--		dealloc_unique_number(&disc_numspace, disk->number);
--		devfs_remove("%s/disc", disk->devfs_name);
--	}
--	if (disk->flags & GENHD_FL_CD) {
--		devfs_remove("cdroms/cdrom%d", disk->number);
--		dealloc_unique_number(&cdrom_numspace, disk->number);
--	}
--	devfs_remove(disk->devfs_name);
--}
--
--
-diff --git a/fs/partitions/devfs.h b/fs/partitions/devfs.h
-deleted file mode 100644
---- a/fs/partitions/devfs.h
-+++ /dev/null
-@@ -1,10 +0,0 @@
--
--#ifdef CONFIG_DEVFS_FS
--void devfs_add_disk(struct gendisk *dev);
--void devfs_add_partitioned(struct gendisk *dev);
--void devfs_remove_disk(struct gendisk *dev);
--#else
--# define devfs_add_disk(disk)			do { } while (0)
--# define devfs_add_partitioned(disk)		do { } while (0)
--# define devfs_remove_disk(disk)		do { } while (0)
--#endif
+ /* tty driver types */
+diff --git a/net/bluetooth/rfcomm/tty.c b/net/bluetooth/rfcomm/tty.c
+--- a/net/bluetooth/rfcomm/tty.c
++++ b/net/bluetooth/rfcomm/tty.c
+@@ -906,7 +906,7 @@ int rfcomm_init_ttys(void)
+ 	rfcomm_tty_driver->minor_start	= RFCOMM_TTY_MINOR;
+ 	rfcomm_tty_driver->type		= TTY_DRIVER_TYPE_SERIAL;
+ 	rfcomm_tty_driver->subtype	= SERIAL_TYPE_NORMAL;
+-	rfcomm_tty_driver->flags	= TTY_DRIVER_REAL_RAW | TTY_DRIVER_NO_DEVFS;
++	rfcomm_tty_driver->flags	= TTY_DRIVER_REAL_RAW | TTY_DRIVER_DYNAMIC_DEV;
+ 	rfcomm_tty_driver->init_termios	= tty_std_termios;
+ 	rfcomm_tty_driver->init_termios.c_cflag	= B9600 | CS8 | CREAD | HUPCL | CLOCAL;
+ 	tty_set_operations(rfcomm_tty_driver, &rfcomm_ops);
 

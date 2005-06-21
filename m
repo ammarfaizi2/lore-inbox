@@ -1,79 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262341AbVFUUrz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262351AbVFUUzn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262341AbVFUUrz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 16:47:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262340AbVFUUrH
+	id S262351AbVFUUzn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 16:55:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbVFUUz1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 16:47:07 -0400
-Received: from smtp1.brturbo.com.br ([200.199.201.163]:4234 "EHLO
-	smtp1.brturbo.com.br") by vger.kernel.org with ESMTP
-	id S262332AbVFUUqX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 16:46:23 -0400
-Message-ID: <42B876C1.6030704@brturbo.com.br>
-Date: Tue, 21 Jun 2005 17:21:21 -0300
-From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-User-Agent: Mozilla Thunderbird 1.0.2-3mdk (X11/20050322)
-X-Accept-Language: pt-br, pt, es, en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Linux and Kernel Video <video4linux-list@redhat.com>,
-       LKML <linux-kernel@vger.kernel.org>, Gerd Knorr <kraxel@bytesex.org>
-Subject: V4L maintainer patch
-X-Enigmail-Version: 0.91.0.0
-Content-Type: multipart/mixed;
- boundary="------------090101040709040102040202"
+	Tue, 21 Jun 2005 16:55:27 -0400
+Received: from fmr17.intel.com ([134.134.136.16]:13210 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S262349AbVFUUyX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 16:54:23 -0400
+Message-Id: <20050621205343.548977000@linux.jf.intel.com>
+Date: Tue, 21 Jun 2005 13:53:43 -0700
+From: Rusty Lynch <rusty.lynch@intel.com>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org,
+       linux-ia64@vger.kernel.org
+Subject: [patch 0/5] Return probe redesign: overall description
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090101040709040102040202
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+ From my experiences with adding return probes to x86_64 and ia64, and the
+feedback on LKML to those patches, I think we can simplify the design
+for return probes.
 
-This patch updates maintainer info for BTTV and V4L. Should be applied
-on mainstream and -mm series.
+The following patchset for 2.6.12-mm1 tweaks the original design such that:
 
-Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+* Instead of storing the stack address in the return probe instance, the
+  task pointer is stored.  This gives us all we need in order to:
+    - find the correct return probe instance when we enter the trampoline
+      (even if we are recursing)
+    - find all left-over return probe instances when the task is going away
 
---------------090101040709040102040202
-Content-Type: text/x-patch;
- name="v4l_maintainter.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="v4l_maintainter.patch"
+  This has the side effect of simplifying the implementation since more
+  work can be done in kernel/kprobes.c since architecture specific knowledge
+  of the stack layout is no longer required.  Specifically, we no longer have:
+	- arch_get_kprobe_task()
+	- arch_kprobe_flush_task()
+	- get_rp_inst_tsk()
+	- get_rp_inst()
+	- trampoline_post_handler() <see next bullet>
 
---- linux-2.6.12-mm1/MAINTAINERS.old	2005-06-21 17:03:48.000000000 -0300
-+++ linux-2.6.12-mm1/MAINTAINERS	2005-06-21 17:04:50.000000000 -0300
-@@ -505,11 +505,11 @@
- S:   Supported
- 
- BTTV VIDEO4LINUX DRIVER
--P:	Gerd Knorr
--M:	kraxel@bytesex.org
-+P:	Mauro Carvalho Chehab
-+M:	mchehab@brturbo.com.br
- L:	video4linux-list@redhat.com
--W:	http://bytesex.org/bttv/
--S:	Orphan
-+W:	http://linuxtv.org
-+S:	Maintained
- 
- BUSLOGIC SCSI DRIVER
- P:	Leonard N. Zubkoff
-@@ -2661,10 +2661,11 @@
- S:      Maintained
- 
- VIDEO FOR LINUX
--P:	Gerd Knorr
--M:	kraxel@bytesex.org
-+P:	Mauro Carvalho Chehab
-+M:	mchehab@brturbo.com.br
- L:	video4linux-list@redhat.com
--S:	Orphan
-+W:	http://linuxtv.org
-+S:	Maintained
- 
- W1 DALLAS'S 1-WIRE BUS
- P:	Evgeniy Polyakov
+* Instead of splitting the return probe handling and cleanup logic across
+  the pre and post trampoline handlers, all the work is pushed into the 
+  pre function (trampoline_probe_handler), and then we skip single stepping
+  the original function.  In this case the original instruction to be single
+  stepped was just a NOP, and we can do without the extra interruption.
 
---------------090101040709040102040202--
+The new flow of events to having a return probe handler execute when a target
+function exits is:
+
+* At system initialization time, a kprobe is inserted at the beginning of
+  kretprobe_trampoline.  kernel/kprobes.c use to handle this on it's own,
+  but ia64 needed to do this a little differently (i.e. a function pointer
+  is really a pointer to a structure containing the instruction pointer and
+  a global pointer), so I added the notion of arch_init(), so that
+  kernel/kprobes.c:init_kprobes() now allows architecture specific
+  initialization by calling arch_init() before exiting.  Each architecture
+  now registers a kprobe on it's own trampoline function.
+
+* register_kretprobe() will insert a kprobe at the beginning of the targeted
+  function with the kprobe pre_handler set to arch_prepare_kretprobe
+  (still no change)
+
+* When the target function is entered, the kprobe is fired, calling
+  arch_prepare_kretprobe (still no change)
+
+* In arch_prepare_kretprobe() we try to get a free instance and if one is
+  available then we fill out the instance with a pointer to the return probe,
+  the original return address, and a pointer to the task structure (instead
+  of the stack address.)  Just like before we change the return address
+  to the trampoline function and mark the instance as used.
+
+  If multiple return probes are registered for a given target function,
+  then arch_prepare_kretprobe() will get called multiple times for the same 
+  task (since our kprobe implementation is able to handle multiple kprobes 
+  at the same address.)  Past the first call to arch_prepare_kretprobe, 
+  we end up with the original address stored in the return probe instance
+  pointing to our trampoline function. (This is a significant difference
+  from the original arch_prepare_kretprobe design.) 
+
+* Target function executes like normal and then returns to kretprobe_trampoline.
+
+* kprobe inserted on the first instruction of kretprobe_trampoline is fired
+  and calls trampoline_probe_handler() (no change here)
+
+* trampoline_probe_handler() consumes each of the instances associated with
+  the current task by calling the registered handler function and marking 
+  the instance as unused until an instance is found that has a return address
+  different then the trampoline function.
+
+  (change similar to my previous ia64 RFC)
+       
+* If the task is killed with some left-over return probe instances (meaning
+  that a target function was entered, but never returned), then we just
+  free any instances associated with the task.  (Not much different other
+  then we can handle this without calling architecture specific functions.)
+
+  There is a known problem that this patch does not yet solve where
+  registering a return probe flush_old_exec or flush_thread will put us
+  in a bad state.  Most likely the best way to handle this is to not allow
+  registering return probes on these two functions.
+
+  (Significant change)
+
+This patch series applies to the 2.6.12-rc6-mm1 kernel, and provides:
+  * kernel/kprobes.c changes
+  * i386 patch of existing return probes implementation
+  * x86_64 patch of existing return probe implementation
+  * ia64 implementation 
+  * ppc64 implementation
+
+    --rusty

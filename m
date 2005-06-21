@@ -1,46 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262425AbVFVAAC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262434AbVFVAAB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262425AbVFVAAC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 20:00:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262406AbVFUX5d
+	id S262434AbVFVAAB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 20:00:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbVFUX4I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 19:57:33 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:35306 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S262307AbVFUXzr (ORCPT
+	Tue, 21 Jun 2005 19:56:08 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:57276 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262412AbVFUWfU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 19:55:47 -0400
-Date: Wed, 22 Jun 2005 01:55:40 +0200
-From: Andi Kleen <ak@suse.de>
-To: YhLu <YhLu@tyan.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12 with dual way dual core ck804 MB
-Message-ID: <20050621235540.GK14251@wotan.suse.de>
-References: <3174569B9743D511922F00A0C94314230A4046AA@TYANWEB>
+	Tue, 21 Jun 2005 18:35:20 -0400
+Date: Tue, 21 Jun 2005 15:34:40 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: chrisw@osdl.org, bdschuym@pandora.be, kaber@trash.net, bdschuym@telenet.be,
+       herbert@gondor.apana.org.au, netfilter-devel@lists.netfilter.org,
+       linux-kernel@vger.kernel.org, rankincj@yahoo.com,
+       ebtables-devel@lists.sourceforge.net, netfilter-devel@manty.net
+Subject: Re: 2.6.12: connection tracking broken?
+Message-ID: <20050621223440.GI9046@shell0.pdx.osdl.net>
+References: <42B82F35.3040909@trash.net> <1119386772.3379.4.camel@localhost.localdomain> <20050621212317.GB9153@shell0.pdx.osdl.net> <20050621.153215.74747942.davem@davemloft.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3174569B9743D511922F00A0C94314230A4046AA@TYANWEB>
+In-Reply-To: <20050621.153215.74747942.davem@davemloft.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 21, 2005 at 03:50:48PM -0700, YhLu wrote:
-> I would like to help. Can you say more detail ? I don't know how to souce
-> code tracing statement....
-
+* David S. Miller (davem@davemloft.net) wrote:
+> We will push it to stable@kernel.org if we deem it should.
 > 
-> Do you mean setup one global buffer, and in the setup.c compare the node id
-> or node id to decide to write sth to the buffer, and print out when the cpu0
-> get the control again?
+> I do review the stream going into 2.6.x, and decide if it
+> should be bound for -stable as well, so you never need to
+> inquire about this specifically.
 
-Yes. You can just use a global variable because the smp bootup is essentially
-single threaded. printk would destroy the timing though.
+Great, much appreciated.
 
-Start with the code that prints ExtInt enabled. 
-
-Writ current_text_address() into a buffer and dump it then on CPU #0
-after some timeout (hopefully it is still alive) 
-
-If you have problems mail me and I will write you a tracing patch
-tomorrow.
-
--Andi
+thanks,
+-chris

@@ -1,56 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262287AbVFUT5F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262289AbVFUT7G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262287AbVFUT5F (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 15:57:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262285AbVFUT4Y
+	id S262289AbVFUT7G (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 15:59:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262285AbVFUT5R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 15:56:24 -0400
-Received: from rrcs-24-227-247-8.sw.biz.rr.com ([24.227.247.8]:56449 "EHLO
-	emachine.austin.ammasso.com") by vger.kernel.org with ESMTP
-	id S262281AbVFUT4E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 15:56:04 -0400
-Message-ID: <42B870CF.1010205@ammasso.com>
-Date: Tue, 21 Jun 2005 14:55:59 -0500
-From: Timur Tabi <timur.tabi@ammasso.com>
-Organization: Ammasso
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.8) Gecko/20050511 Mnenhy/0.7.2.0
-X-Accept-Language: en-us, en, en-gb
-MIME-Version: 1.0
-To: Brice Goglin <Brice.Goglin@ens-lyon.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: get_user_pages() and shared memory question
-References: <42B82DF2.2050708@ammasso.com> <42B86DF1.7000102@ens-lyon.org>
-In-Reply-To: <42B86DF1.7000102@ens-lyon.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 21 Jun 2005 15:57:17 -0400
+Received: from mail.suse.de ([195.135.220.2]:42173 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S262281AbVFUT4o (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 15:56:44 -0400
+Date: Tue, 21 Jun 2005 21:56:43 +0200
+From: Andi Kleen <ak@suse.de>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Andi Kleen <ak@suse.de>, Alexander Zarochentcev <zam@namesys.com>,
+       vs <vs@thebsh.namesys.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: -mm -> 2.6.13 merge status
+Message-ID: <20050621195642.GD14251@wotan.suse.de>
+References: <20050620235458.5b437274.akpm@osdl.org.suse.lists.linux.kernel> <p73d5qgc67h.fsf@verdi.suse.de> <42B86027.3090001@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42B86027.3090001@namesys.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brice Goglin wrote:
+On Tue, Jun 21, 2005 at 11:44:55AM -0700, Hans Reiser wrote:
+> vs and zam, please comment on what we get from our profiler and spinlock
+> debugger that the standard tools don't supply.  I am sure you have a
+> reason, but now is the time to articulate it.
+> 
+> We would like to keep the disabled code in there until we have a chance
+> to prove (or fail to prove) that cycle detection can be resolved
+> effectively, and then with a solution in hand argue its merits.
 
-> Preventing the driver from doing this would probably be the
-> right solution here... If the driver called get_user_pages,
-> it is its responsibility to release the pages.
+How about the review of your code base? Has reiser4 ever been
+fully reviewed by people outside your group? 
 
-The driver does release the pages, but only when asked to do so.  If the process dies, 
-then the driver automatically cleans up, but otherwise how is the driver to know that the 
-memory is no longer needed?
+Normally full review is a requirement for merging.
 
-Perhaps you mean that the driver should release the pages before it exits.  Unfortunately, 
-that defeats the purpose of calling get_user_pages() in the first place.  The driver needs 
-to pin the application's buffers so that the subsequent DMA operations work.  This driver 
-supports an RDMA adapter that transfer network data directly to the application's buffers.
-
-You're probably now thinking, "Well, why doesn't the driver just allocate the buffers on 
-behalf of the app?"  There are two reasons why we can't do that.  One, the app may need 
-have gigabytes of memory for the RDMA operations.  Two, the APIs we need to support allow 
-the app to allocate memory any way it sees fit.
-
--- 
-Timur Tabi
-Staff Software Engineer
-timur.tabi@ammasso.com
-
-One thing a Southern boy will never say is,
-"I don't think duct tape will fix it."
-      -- Ed Smylie, NASA engineer for Apollo 13
+-Andi

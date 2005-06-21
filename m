@@ -1,36 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261961AbVFUGb5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262040AbVFUGdI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261961AbVFUGb5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 02:31:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261944AbVFUG3d
+	id S262040AbVFUGdI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 02:33:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262045AbVFUGcf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 02:29:33 -0400
-Received: from mail.kroah.org ([69.55.234.183]:62434 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261704AbVFUG2x (ORCPT
+	Tue, 21 Jun 2005 02:32:35 -0400
+Received: from lon-del-02.spheriq.net ([195.46.50.98]:59791 "EHLO
+	lon-del-02.spheriq.net") by vger.kernel.org with ESMTP
+	id S261733AbVFUGbk convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 02:28:53 -0400
-Date: Mon, 20 Jun 2005 23:28:43 -0700
-From: Greg KH <gregkh@suse.de>
-To: David Lang <david.lang@digitalinsight.com>
-Cc: Nick Warne <nick@linicks.net>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12 udev hangs at boot
-Message-ID: <20050621062843.GA15062@kroah.com>
-References: <200506181332.25287.nick@linicks.net> <200506202000.08114.nick@linicks.net> <20050620192118.GA13586@suse.de> <200506202032.30771.nick@linicks.net> <Pine.LNX.4.62.0506201242100.13723@qynat.qvtvafvgr.pbz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0506201242100.13723@qynat.qvtvafvgr.pbz>
-User-Agent: Mutt/1.5.8i
+	Tue, 21 Jun 2005 02:31:40 -0400
+From: N Chandra Shekhar REDDY <ncs.reddy@st.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Cpu utilization per thread
+Date: Tue, 21 Jun 2005 12:01:23 +0530
+Message-ID: <06b801c5762a$d89dee60$99bcc68a@blr.st.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.5709
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+Importance: Normal
+X-O-General-Status: No
+X-O-Spam1-Status: Not Scanned
+X-O-Spam2-Status: Not Scanned
+X-O-URL-Status: Not Scanned
+X-O-Virus1-Status: No
+X-O-Virus2-Status: Not Scanned
+X-O-Virus3-Status: No
+X-O-Virus4-Status: No
+X-O-Virus5-Status: Not Scanned
+X-O-Image-Status: Not Scanned
+X-O-Attach-Status: Not Scanned
+X-SpheriQ-Ver: 2.2.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 20, 2005 at 12:42:39PM -0700, David Lang wrote:
-> I ran into the same issue last week on fedora core 3 so it's not _just_ a 
-> slackware problem.
+Can anybody tell me
+How to find the cpu utilization per thread excluding thread blocking/waiting times?
 
-FC 3, with default udev install will not boot with 2.6.12?  What version
-of udev is the latest for FC3?
+Thanks 
+ncs
 
-thanks,
 
-greg k-h

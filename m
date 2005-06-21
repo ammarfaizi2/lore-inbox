@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261471AbVFUOIy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261439AbVFUN7j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261471AbVFUOIy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 10:08:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261969AbVFUOIX
+	id S261439AbVFUN7j (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 09:59:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbVFUN5N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 10:08:23 -0400
-Received: from [85.8.12.41] ([85.8.12.41]:16056 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S261471AbVFUOGq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 10:06:46 -0400
-Message-ID: <42B81ED6.7040706@drzeus.cx>
-Date: Tue, 21 Jun 2005 16:06:14 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+	Tue, 21 Jun 2005 09:57:13 -0400
+Received: from crl-mail-dmz.crl.hpl.hp.com ([192.58.210.9]:50359 "EHLO
+	crl-mailb.crl.dec.com") by vger.kernel.org with ESMTP
+	id S261333AbVFUNzy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 09:55:54 -0400
+Message-ID: <42B81C5B.4030304@hp.com>
+Date: Tue, 21 Jun 2005 09:55:39 -0400
+From: Jamey Hicks <jamey.hicks@hp.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Roman Zippel <zippel@linux-m68k.org>
-CC: kbuild-devel@lists.sourceforge.net, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Pointer cast warnings in scripts/
-References: <42B7F740.6000807@drzeus.cx> <Pine.LNX.4.61.0506211413570.3728@scrub.home> <42B80AF9.2060708@drzeus.cx> <Pine.LNX.4.61.0506211451040.3728@scrub.home> <42B80F40.8000609@drzeus.cx> <Pine.LNX.4.61.0506211515210.3728@scrub.home>
-In-Reply-To: <Pine.LNX.4.61.0506211515210.3728@scrub.home>
-X-Enigmail-Version: 0.90.1.0
+To: Greg KH <greg@kroah.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: recursive call to platform_device_register deadlocks
+References: <42B43226.20703@hp.com> <20050619055924.GA14674@kroah.com>
+In-Reply-To: <20050619055924.GA14674@kroah.com>
+X-Enigmail-Version: 0.90.0.0
 X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-HPLC-MailScanner-Information: Please contact the ISP for more information
+X-HPLC-MailScanner: Found to be clean
+X-HPLC-MailScanner-SpamCheck: not spam (whitelisted),
+	SpamAssassin (score=-4.9, required 5, BAYES_00 -4.90)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel wrote:
+Greg KH wrote:
 
+>On Sat, Jun 18, 2005 at 10:39:34AM -0400, Jamey Hicks wrote:
+>  
 >
->No, go through the warnings, analyze each one and choose an appropriate 
->solution. You might want to keep notes, which you can post with the 
->changelogs, so one can reproduce, why a certain change was done.
+>>We could restructure the toplevel driver so that it does not call 
+>>platform_device inside its probe function.  An alternative would be to 
+>>add a pointer to a vector of subdevices to platform_device and have it 
+>>register the subdevices after it has probed the toplevel device.  Do you 
+>>have any recommendations?
+>>    
+>>
+>
+>Use the -mm kernel, this should be allowed in that release, due to a
+>rework of the driver core logic in this area.  Can you test this out and
+>verify this?
 >
 >  
 >
+I tested 2.6.12-mm1 yesterday and verified that it allows recursive 
+calls to platform_device.
 
-The problem is that they're mostly calls to library functions (strlen,
-strcmp, fgets, etc.) so it's either the solaris way or the glibc way.
-
-A (somewhat unclean) solution is to make the type change based on the
-platform. Are there any defines present to test if we're in a Solaris
-environment? I don't have access to any Solaris machines myself so I
-can't really test.
-
-Rgds
-Pierre
+Jamey
 

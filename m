@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262137AbVFUPlb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262132AbVFUPld@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262137AbVFUPlb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 11:41:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbVFUPkn
+	id S262132AbVFUPld (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 11:41:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262133AbVFUPkP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 11:40:43 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:17831 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S262128AbVFUPj0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 11:39:26 -0400
-Subject: Re: -mm -> 2.6.13 merge status
-From: Robert Love <rml@novell.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <42B831B4.9020603@pobox.com>
-References: <20050620235458.5b437274.akpm@osdl.org>
-	 <42B831B4.9020603@pobox.com>
-Content-Type: text/plain
-Date: Tue, 21 Jun 2005 11:39:24 -0400
-Message-Id: <1119368364.3949.236.camel@betsy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 21 Jun 2005 11:40:15 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:26789 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262132AbVFUPht (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 11:37:49 -0400
+Date: Tue, 21 Jun 2005 08:39:48 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Dave Airlie <airlied@linux.ie>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: git-pull-script on my linus tree fails..
+In-Reply-To: <Pine.LNX.4.58.0506211304320.2915@skynet>
+Message-ID: <Pine.LNX.4.58.0506210837020.2268@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0506211304320.2915@skynet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-06-21 at 11:26 -0400, Jeff Garzik wrote:
 
-> > inotify
-> > 
-> >     There are still concerns about the userspace API and internal
-> >     implementation details.  More slogging needed.
+
+On Tue, 21 Jun 2005, Dave Airlie wrote:
+>
+> fatal: Entry 'Documentation/DocBook/scsidrivers.tmpl' would be overwritten
+> by merge. Cannot merge.
 > 
-> We should ask hpa what he needs for kernel.org.  Ideally kernel.org 
-> probably wants <something> that facilitates listening to <something> for 
-> a list of files being changed.  That would greatly speed up the robots, 
-> and possibly rsync-like activities too.
+> but I haven't touched that tree so I shouldn't get merge issues..
+> 
+> whatsup?
 
-I've talked to some people who've hooked inotify into rsync
-successfully.  Cool hack.
+The most common issue is that your index is not in sync. For many 
+operations, that's just goign to slow things down a lot (ie a diff migth 
+take a long time instead of being instantaneous), but for a merge it's 
+considered an error.
 
-	Robert Love
+Does "git-diff-files -p" show any output? That's a dead give-away.
 
+Do "git-update-cache --refresh" to make sure your index file matches your 
+working directory.
 
+I guess I can make the "git pull" script do that automatically (some other
+scripts do, like "git commit", which also depends on having an up-to-date
+index).
+
+		Linus

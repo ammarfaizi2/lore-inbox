@@ -1,56 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261741AbVFUUZG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262290AbVFUUKI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261741AbVFUUZG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 16:25:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262318AbVFUUWe
+	id S262290AbVFUUKI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 16:10:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262285AbVFUUI3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 16:22:34 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:44457 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262315AbVFUUVy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 16:21:54 -0400
-Date: Tue, 21 Jun 2005 21:21:36 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Hans Reiser <reiser@namesys.com>, Alexander Zarochentcev <zam@namesys.com>,
-       vs <vs@thebsh.namesys.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
+	Tue, 21 Jun 2005 16:08:29 -0400
+Received: from zlynx.org ([199.45.143.209]:27662 "EHLO 199.45.143.209")
+	by vger.kernel.org with ESMTP id S262295AbVFUUGI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 16:06:08 -0400
 Subject: Re: -mm -> 2.6.13 merge status
-Message-ID: <20050621202136.GA30182@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andi Kleen <ak@suse.de>, Hans Reiser <reiser@namesys.com>,
-	Alexander Zarochentcev <zam@namesys.com>,
-	vs <vs@thebsh.namesys.com>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20050620235458.5b437274.akpm@osdl.org.suse.lists.linux.kernel> <p73d5qgc67h.fsf@verdi.suse.de> <42B86027.3090001@namesys.com> <20050621195642.GD14251@wotan.suse.de>
+From: Zan Lynx <zlynx@acm.org>
+To: Robert Love <rml@novell.com>
+Cc: Christoph Lameter <christoph@lameter.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <1119382685.3949.263.camel@betsy>
+References: <20050620235458.5b437274.akpm@osdl.org>
+	 <42B831B4.9020603@pobox.com> <1119368364.3949.236.camel@betsy>
+	 <Pine.LNX.4.62.0506211222040.21678@graphe.net>
+	 <1119382685.3949.263.camel@betsy>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-v1Wc/KRHSnEfWk997pEu"
+Date: Tue, 21 Jun 2005 14:02:09 -0600
+Message-Id: <1119384131.15478.25.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050621195642.GD14251@wotan.suse.de>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Evolution 2.2.1.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 21, 2005 at 09:56:43PM +0200, Andi Kleen wrote:
-> On Tue, Jun 21, 2005 at 11:44:55AM -0700, Hans Reiser wrote:
-> > vs and zam, please comment on what we get from our profiler and spinlock
-> > debugger that the standard tools don't supply.  I am sure you have a
-> > reason, but now is the time to articulate it.
-> > 
-> > We would like to keep the disabled code in there until we have a chance
-> > to prove (or fail to prove) that cycle detection can be resolved
-> > effectively, and then with a solution in hand argue its merits.
-> 
-> How about the review of your code base? Has reiser4 ever been
-> fully reviewed by people outside your group? 
 
-I don't think so.  Everyone used the previous criteria of the broken
-core changes, broken filesystem semantics and it's own useless abtraction
-layer (*) as an excuse not to look deeply at this huge mess yet.
+--=-v1Wc/KRHSnEfWk997pEu
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-(*) which isn't gone yet.  and I need to look again if the core changes
-are okay yet.  And the broken sematics should go completely aswell, if
-you want to reintroduce them it needs to happen at the VFS level anyway.
+On Tue, 2005-06-21 at 15:38 -0400, Robert Love wrote:
+> On Tue, 2005-06-21 at 12:22 -0700, Christoph Lameter wrote:
+>=20
+> > I noticed that select() is not working on real files. Could inotify=20
+> > be used to fix select()?
+>=20
+> Select the system call?  It should work fine.   ;-)
+>=20
+> Who is confused?
+>=20
+> 	Robert Love
+
+Sounds interesting.  tail -f could use it.  Instead of sleep 1, seek to
+current position, read to eof; just select() for read on the file and
+sleep in select() until someone else writes to that file. =20
+
+I've never tried doing that.  It might work, for all I know.
+--=20
+Zan Lynx <zlynx@acm.org>
+
+--=-v1Wc/KRHSnEfWk997pEu
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBCuHJBG8fHaOLTWwgRApnSAJ9/uFgsoAhQpkJU68hhU44ox6/BFgCff7vD
+3SmXnk4GNXGPItp+lzMfZnE=
+=iITm
+-----END PGP SIGNATURE-----
+
+--=-v1Wc/KRHSnEfWk997pEu--
 

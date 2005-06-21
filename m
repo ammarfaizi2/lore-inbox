@@ -1,51 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262147AbVFUREB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262187AbVFUREp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262147AbVFUREB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 13:04:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262188AbVFUREB
+	id S262187AbVFUREp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 13:04:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262189AbVFUREc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 13:04:01 -0400
-Received: from pilet.ens-lyon.fr ([140.77.167.16]:14030 "EHLO
-	relaissmtp.ens-lyon.fr") by vger.kernel.org with ESMTP
-	id S262147AbVFURCb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 13:02:31 -0400
-Message-ID: <42B84820.9010105@ens-lyon.org>
-Date: Tue, 21 Jun 2005 19:02:24 +0200
-From: Brice Goglin <Brice.Goglin@ens-lyon.org>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.12-mm1
-References: <20050619233029.45dd66b8.akpm@osdl.org>	<42B6777F.2050008@ens-lyon.org>	<42B80AB5.7090506@ens-lyon.org> <s5hll53oet1.wl%tiwai@suse.de>
-In-Reply-To: <s5hll53oet1.wl%tiwai@suse.de>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	Tue, 21 Jun 2005 13:04:32 -0400
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:37052 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S262190AbVFUQ3s
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 12:29:48 -0400
+Date: Tue, 21 Jun 2005 18:29:50 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: akpm@osdl.org, heiko.carstens@de.ibm.com, linux-kernel@vger.kernel.org
+Subject: [patch 15/16] s390: pending interrupt after ipl from reader.
+Message-ID: <20050621162950.GO6053@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le 21.06.2005 18:27, Takashi Iwai a écrit :
-> Well, this disables the h/w volume controls completely, so it's not a
-> generic solution.
+[patch 15/16] s390: pending interrupt after ipl from reader.
 
-Well, I though this wouldn't break anything since HW_INT_ENABLE is not
-set there is 2.6.12. Is this a new feature ?
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-How is this supposed to work ? Does HW_INT_ENABLE in this outw require
-some other parts of the git-alsa.patch ?
+Wait for interrupt and clear status pending after resetting the reader.
 
-> Does the patch below have any improvement?
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-No, same error.
+diffstat:
+ arch/s390/kernel/head.S   |   19 +++++++++++++++++--
+ arch/s390/kernel/head64.S |   19 +++++++++++++++++--
+ 2 files changed, 34 insertions(+), 4 deletions(-)
 
-Your second patch gives same error too, but it also made my beeper
-generate a very sharp sound during the whole boot.
-
-Actually, I can't test after boot since -mm1 crashes a little bit
-later on my laptop. That's why I didn't notice any eventual h/w
-volume control breakage with my patch :)
-If necessary, I can try with git-alsa.patch applied on top of 2.6.12.
-
-Brice
+diff -urpN linux-2.6/arch/s390/kernel/head64.S linux-2.6-patched/arch/s390/kernel/head64.S
+--- linux-2.6/arch/s390/kernel/head64.S	2005-06-21 17:36:55.000000000 +0200
++++ linux-2.6-patched/arch/s390/kernel/head64.S	2005-06-21 17:36:55.000000000 +0200
+@@ -344,10 +344,25 @@ iplstart:
+ 	bno   .Lnoreset
+         la    %r2,.Lreset              
+         lhi   %r3,26
+-        .long 0x83230008
++	diag  %r2,%r3,8
++	mvc   0x78(8),.Lrdrnewpsw	       # set up IO interrupt psw
++.Lwaitrdrirq:
++	lpsw  .Lrdrwaitpsw
++.Lrdrint:
++	c     %r1,0xb8			       # compare subchannel number
++	bne   .Lwaitrdrirq
++	la    %r5,.Lirb
++	tsch  0(%r5)
+ .Lnoreset:
++	b     .Lnoload
++
++	.align 8
++.Lrdrnewpsw:
++	.long  0x00080000,0x80000000+.Lrdrint
++.Lrdrwaitpsw:
++	.long  0x020a0000,0x80000000+.Lrdrint
+ #endif
+-	
++
+ #
+ # everything loaded, go for it
+ #
+diff -urpN linux-2.6/arch/s390/kernel/head.S linux-2.6-patched/arch/s390/kernel/head.S
+--- linux-2.6/arch/s390/kernel/head.S	2005-06-21 17:36:55.000000000 +0200
++++ linux-2.6-patched/arch/s390/kernel/head.S	2005-06-21 17:36:55.000000000 +0200
+@@ -345,10 +345,25 @@ iplstart:
+ 	bno   .Lnoreset
+         la    %r2,.Lreset              
+         lhi   %r3,26
+-        .long 0x83230008
++	diag  %r2,%r3,8
++	mvc   0x78(8),.Lrdrnewpsw              # set up IO interrupt psw
++.Lwaitrdrirq:
++	lpsw  .Lrdrwaitpsw
++.Lrdrint:
++	c     %r1,0xb8                         # compare subchannel number
++	bne   .Lwaitrdrirq
++	la    %r5,.Lirb
++	tsch  0(%r5)
+ .Lnoreset:
++        b     .Lnoload
++
++	.align 8
++.Lrdrnewpsw:
++	.long  0x00080000,0x80000000+.Lrdrint
++.Lrdrwaitpsw:
++	.long  0x020a0000,0x80000000+.Lrdrint
+ #endif
+-	
++
+ #
+ # everything loaded, go for it
+ #

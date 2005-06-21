@@ -1,56 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262344AbVFUVTu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262497AbVFUVTu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262344AbVFUVTu (ORCPT <rfc822;willy@w.ods.org>);
+	id S262497AbVFUVTu (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 21 Jun 2005 17:19:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262503AbVFUVS1
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262500AbVFUVSO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 17:18:27 -0400
-Received: from zproxy.gmail.com ([64.233.162.198]:43459 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262307AbVFUVDH convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 17:03:07 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=t3bdR4QbH4GHASutQ9iU7eArWzIH7RYA4psEi067Qr2iRe3ZOfHBnmrDIJA6jCD2bCt/9XziFuagwpe+IcxVI5prB15Xmn2CnR+4sVzVR7cokAhe6MzevcSh/DnXIYc5RoPwAwjAANlExWbeo681MhLBof7CuboXYV0Y0H1JVnY=
-Message-ID: <9a874849050621140371b6b5d@mail.gmail.com>
-Date: Tue, 21 Jun 2005 23:03:06 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
-To: Christian Kujau <evil@g-house.de>
-Subject: Re: [patch] correct an email address
-Cc: trivial@rustcorp.com.au, linux-kernel <linux-kernel@vger.kernel.org>,
-       Manfred Spraul <manfred@colorfullife.com>
-In-Reply-To: <42B87CD6.2060102@g-house.de>
+	Tue, 21 Jun 2005 17:18:14 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:57614 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262339AbVFUVEP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 17:04:15 -0400
+Date: Tue, 21 Jun 2005 23:04:10 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: rostedt@goodmis.org, gregkh@suse.de, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: [RFC: 2.6 patch] better USB_MON dependencies
+Message-ID: <20050621210410.GA3705@stusta.de>
+References: <Pine.LNX.4.58.0506172156220.7916@ppc970.osdl.org> <1119119175.6786.4.camel@localhost.localdomain> <20050621143227.GO3666@stusta.de> <20050621123507.6b83ddf0.zaitcev@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <42B87CD6.2060102@g-house.de>
+In-Reply-To: <20050621123507.6b83ddf0.zaitcev@redhat.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/21/05, Christian Kujau <evil@g-house.de> wrote:
-> hello,
+On Tue, Jun 21, 2005 at 12:35:07PM -0700, Pete Zaitcev wrote:
+> On Tue, 21 Jun 2005 16:32:27 +0200, Adrian Bunk <bunk@stusta.de> wrote:
+>...
+> One question though, do we want this:
 > 
-> i tried to send the forcedeth maintainer an email, but it came back with:
+> > -obj-$(CONFIG_USB_MON)		+= mon/
+> > +ifdef CONFIG_USB_MON
+> > +  obj-$(CONFIG_USB)		+= mon/
+> > +endif
 > 
-> "The mail address manfreds@colorfullife.com is not read anymore.
-> Please resent your mail to manfred@ instead of manfreds@."
-> 
-> this attached patch tries to fix it.
-> 
-As far as I know (at least that's what akpm told me last I submitted a
-similar patch) it's prefered that email addresses are listed in
-CREDITS and MAINTAINERS only and when addresses change and need to be
-updated that's a perfect time to get them out of the source and into
-the proper location.
-And seeing that Manfred's address in CREDITS is already correct, I
-believe a patch that simply replaces "Manfred Spraul
-<manfred@colorfullife.com>" with "Manfred Spraul" in the source files
-would be better.
+> Seems superfluous to me, because we kept CONFIG_USB_MON. This place should
+> probably be left alone.
+
+I thought it was required, but reading Documentation/kbuild/makefiles.txt
+convinces me you are correct.
+
+> -- Pete
+
+cu
+Adrian
 
 -- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,65 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261770AbVFUAtx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261798AbVFUAty@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261770AbVFUAtx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 20:49:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261798AbVFUAse
+	id S261798AbVFUAty (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 20:49:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261856AbVFUAsr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 20:48:34 -0400
-Received: from nijmegen.renzel.net ([195.243.213.130]:55521 "EHLO
-	mx1.renzel.net") by vger.kernel.org with ESMTP id S261856AbVFUAMf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 20:12:35 -0400
-From: Mws <mws@twisted-brains.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: PATCH: it8212 backport for Bartlomiej IDE (Correct diff)
-Date: Tue, 21 Jun 2005 02:12:44 +0200
-User-Agent: KMail/1.8.1
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org
-References: <1119299939.3279.63.camel@localhost.localdomain> <1119304486.3304.67.camel@localhost.localdomain>
-In-Reply-To: <1119304486.3304.67.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart4349155.Rh97WVc7B3";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200506210212.51673.mws@twisted-brains.org>
+	Mon, 20 Jun 2005 20:48:47 -0400
+Received: from astro.systems.pipex.net ([62.241.163.6]:14210 "EHLO
+	astro.systems.pipex.net") by vger.kernel.org with ESMTP
+	id S261782AbVFUAPx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 20:15:53 -0400
+Date: Tue, 21 Jun 2005 01:15:47 +0100
+From: Paul Walker <paul@black-sun.demon.co.uk>
+To: linux-crypto@nl.linux.org, linux-kernel@vger.kernel.org
+Subject: Re: Announce loop-AES-v3.0d file/swap crypto package
+Message-ID: <20050621001547.GT23091@black-sun.demon.co.uk>
+References: <42B42E3B.DDEFE309@users.sourceforge.net> <20050620214951.35798.qmail@web32106.mail.mud.yahoo.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="rz+pwK2yUstbofK6"
+Content-Disposition: inline
+In-Reply-To: <20050620214951.35798.qmail@web32106.mail.mud.yahoo.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart4349155.Rh97WVc7B3
-Content-Type: text/plain;
-  charset="iso-8859-1"
+
+--rz+pwK2yUstbofK6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
+
+On Mon, Jun 20, 2005 at 02:49:51PM -0700, Vinay Venkataraghavan wrote:
+
+> what is the best crypto API that I can use. I think just for this purpose
+> Openssl is overkill don't you think. What kind of crypto API's can I
+
+No, this is the kind of thing that openssl is designed for. Someone's
+already done the hard wofk for you, just use it. :-)
+
+If you really want alternatives, you could investigate Peter Gutmann's
+cryptlib. If you're distributing this, though, bear in mind that almost
+every machine will already have openssl, while not many will have cryptlib
+installed.
+
+--=20
+Paul
+
+--rz+pwK2yUstbofK6
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 Content-Disposition: inline
 
-On Monday 20 June 2005 23:54, Alan Cox wrote:
-> On Llu, 2005-06-20 at 21:39, Alan Cox wrote:
-> > This lets you throw out the iteraid stuff that has ended up back in due
-> > to stupid goings on in the IDE world. Its the same heavily tested code
-> > shipped in Fedora/Red Hat products but without the other dependancies on
-> > the Bartlomiej IDE layer.
-> >=20
-> > Pre-requisite: the ide-disk patch I sent to handle pure LBA devices.
-hi alan,
-
-applied fine and is working as nice as integrated within your latest ac-set=
-s.
-
-thanks for spending the time to seperate this patch.
-
-regards
-marcel
-
---nextPart4349155.Rh97WVc7B3
-Content-Type: application/pgp-signature
-
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+Version: GnuPG v1.2.5 (GNU/Linux)
 
-iD8DBQBCt1uDPpA+SyJsko8RAhDsAJ4jJTMPY+YoS+cBNTis8PLfh73JLgCdGQA4
-bfcKNGVHqtcvk0TxtMrlpEs=
-=Nm9F
+iD8DBQFCt1wzP9fOqdxRstoRApY7AJ41Zhm3zpbZn9vR8JyWL9cHt0lgigCdE+Nf
+x9ygMxnPk78ieGpMeOGAZPU=
+=8kP+
 -----END PGP SIGNATURE-----
 
---nextPart4349155.Rh97WVc7B3--
+--rz+pwK2yUstbofK6--

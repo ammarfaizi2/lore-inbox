@@ -1,35 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261323AbVFUMpx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261320AbVFUMqL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261323AbVFUMpx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 08:45:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbVFUMoC
+	id S261320AbVFUMqL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 08:46:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbVFUMqJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 08:44:02 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:5028 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261299AbVFUMie
+	Tue, 21 Jun 2005 08:46:09 -0400
+Received: from wproxy.gmail.com ([64.233.184.204]:23637 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261320AbVFUMnx convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 08:38:34 -0400
-Subject: Re: -mm -> 2.6.13 merge status
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	Tue, 21 Jun 2005 08:43:53 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=khzaByh/UTgtgjkRkPSW9lYPmAfCx0R49j21wzLkWX1bUSuOvYB3+WX8RejS8IsBNsOOTWcfe6N4AtEzh0i70YmArbixxqpR2jGPHcHiLqGjluwJhb9ocabN8lpcp1GpFW3Z4Mwm2eNbeMUUFG+QFKOvXnsrgm/kiv9e3WWbZQ4=
+Message-ID: <5c77e707050621054320fa9f37@mail.gmail.com>
+Date: Tue, 21 Jun 2005 14:43:49 +0200
+From: Carsten Otte <cotte.de@gmail.com>
+Reply-To: Carsten Otte <cotte.de@gmail.com>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: -mm -> 2.6.13 merge status
+Cc: linux-kernel@vger.kernel.org
 In-Reply-To: <20050620235458.5b437274.akpm@osdl.org>
-References: <20050620235458.5b437274.akpm@osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1119357351.3325.124.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 21 Jun 2005 13:35:53 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050620235458.5b437274.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2005-06-21 at 07:54, Andrew Morton wrote:
-> CONFIG_HZ for x86 and ia64: changes default HZ to 250, make HZ Kconfigurable.
->     Will merge (will switch default to 1000 Hz later if that seems necessary)
-
-This has been in Fedora for a while. DaveJ can probably give you more
-info. From own testing 100Hz is how far down you want to go to avoid
-random clock slew on laptops and to see power improvements.
-
-
+On 6/21/05, Andrew Morton <akpm@osdl.org> wrote:
+> execute-in-place
+> 
+>     Will merge.  Have the embedded guys commented on the usefulness of
+>     this for execute-out-of-ROM?
+Allright. Going to push our test-team to run their tests on the xip
+code that is in -mm.

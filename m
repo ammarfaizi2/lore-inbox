@@ -1,87 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262217AbVFUXNm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262452AbVFUXMW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262217AbVFUXNm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 19:13:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262204AbVFUXNE
+	id S262452AbVFUXMW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 19:12:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262439AbVFUXFR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 19:13:04 -0400
-Received: from lirs02.phys.au.dk ([130.225.28.43]:153 "EHLO lirs02.phys.au.dk")
-	by vger.kernel.org with ESMTP id S262442AbVFUXMV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 19:12:21 -0400
-Date: Wed, 22 Jun 2005 01:12:14 +0200 (METDST)
-From: Esben Nielsen <simlo@phys.au.dk>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-V0.7.49-00
-In-Reply-To: <20050621084426.GA13094@elte.hu>
-Message-Id: <Pine.OSF.4.05.10506220109490.17063-100000@da410.phys.au.dk>
+	Tue, 21 Jun 2005 19:05:17 -0400
+Received: from lyle.provo.novell.com ([137.65.81.174]:11297 "EHLO
+	lyle.provo.novell.com") by vger.kernel.org with ESMTP
+	id S262398AbVFUW4H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 18:56:07 -0400
+Date: Tue, 21 Jun 2005 15:55:51 -0700
+From: Greg KH <gregkh@suse.de>
+To: Andy Whitcroft <apw@shadowen.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-mm1
+Message-ID: <20050621225551.GB24289@suse.de>
+References: <20050619233029.45dd66b8.akpm@osdl.org> <20050620131451.GA9739@shadowen.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050620131451.GA9739@shadowen.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Esben Nielsen
-Work:
- Cotas Computer Technology A/S
- Paludan Mullersvej 82
- 8200 Aarhus N 
-Private
- Moellegade 7A, 3., 4
- 8000 Aarhus C
-Phone: 
- +45 86 12 73 79
-Mobile:
- +45 27 13 10 05
-
-
-On Tue, 21 Jun 2005, Ingo Molnar wrote:
-
+On Mon, Jun 20, 2005 at 02:14:51PM +0100, Andy Whitcroft wrote:
+> Having trouble getting 2.6.12-mm1 to compile on my x86 test
+> boxes other than a basic PC.  I suspect this patch is to 'blame'.
 > 
-> * Esben Nielsen <simlo@phys.au.dk> wrote:
+> > +gregkh-pci-pci-assign-unassigned-resources.patch
 > 
-> > I am seeing very high latencies on 2.6.12-RT-V0.7.50-04 with a 
-> > modified realfeel2: maximum is 246 us. Shouldn't it be in the order of 
-> > 50 us?
+> We seem to need to include setup-bus.o for most x86 architectures
+> regardless of HOTPLUG.  Not sure if this is the right fix, but it
+> seems to work on the systems I have tested.
 > 
-> i never got reliable results from realfeel - it should do the kind of 
-> careful things rtc_wakeup does to avoid false positives.
+> -apw
 > 
-I tried with rtc_wakeup while I was at work (which is on my disk at home) 
-- but it crashed my machine (one have to be _very_ carefull about what you
-do when you run in a task with RT priority!). I have fixed it now (see
-below patch) and it is running for the night. Let us see if I get similar
-results. 
+> === 8< ===
+> It seems that X86 architectures in general need the setup-bus.o
+> not just those with HOTPLUG.  This avoids the following error on
+> X86_NUMAQ and x86_64:
+> 
+>     arch/i386/pci/built-in.o(.init.text+0x15a6): In function `pcibios_init':
+>     : undefined reference to `pci_assign_unassigned_resources'
+> 
+> Signed-off-by: Andy Whitcroft <apw@shadowen.org>
 
-Esben
+Sounds like a NUMA issue, right?  If you don't have HOTPLUG enabled, X86
+should not need setup_bus.  Care to find the real problem here?
 
-diff -Naur wakeup.cc~ wakeup.cc
---- wakeup.cc~  2004-12-10 13:41:59.000000000 +0100
-+++ wakeup.cc   2005-06-21 22:28:53.000000000 +0200
-@@ -359,8 +359,7 @@
-   cycles_t last_cycles_count;
-   double max_jitter = 0;
- 
--  struct timespec pause;
--  pause.tv_nsec = 10000;
-+  struct timespec pause = { 0, 10000};
-   
-   std::cout.flags(std::ios::fixed);
-   std::cout << std::setprecision(1);
-@@ -428,7 +427,11 @@
-       if (max_number_of_irqs > 0 && total_num_of_irqs >= max_number_of_irqs)
-        stopit = true;
-     }
--    nanosleep(&pause,0);
-+    if(nanosleep(&pause,0))
-+      {
-+       perror("nanosleep:");
-+       exit(1);
-+      }
-   }
-   std::cout << "done." << std::endl;
-   std::cout << "total # of irqs:      " << total_num_of_irqs << std::endl;
+thanks,
 
-
+greg k-h

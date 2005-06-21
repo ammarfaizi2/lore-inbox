@@ -1,68 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261326AbVFUOH5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261471AbVFUOIy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261326AbVFUOH5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 10:07:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261425AbVFUOEX
+	id S261471AbVFUOIy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 10:08:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261969AbVFUOIX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 10:04:23 -0400
-Received: from mail.harcroschem.com ([208.188.194.242]:51208 "EHLO
-	kcdc1.harcros.com") by vger.kernel.org with ESMTP id S261326AbVFUOCw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 10:02:52 -0400
-Message-ID: <D9A1161581BD7541BC59D143B4A06294021FAA68@KCDC1>
-From: "Hodle, Brian" <BHodle@harcroschem.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: FW: PROBLEM: Devices behind PCI Express-to-PCI bridge not mapped
-Date: Tue, 21 Jun 2005 08:58:10 -0500
+	Tue, 21 Jun 2005 10:08:23 -0400
+Received: from [85.8.12.41] ([85.8.12.41]:16056 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S261471AbVFUOGq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 10:06:46 -0400
+Message-ID: <42B81ED6.7040706@drzeus.cx>
+Date: Tue, 21 Jun 2005 16:06:14 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Roman Zippel <zippel@linux-m68k.org>
+CC: kbuild-devel@lists.sourceforge.net, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Pointer cast warnings in scripts/
+References: <42B7F740.6000807@drzeus.cx> <Pine.LNX.4.61.0506211413570.3728@scrub.home> <42B80AF9.2060708@drzeus.cx> <Pine.LNX.4.61.0506211451040.3728@scrub.home> <42B80F40.8000609@drzeus.cx> <Pine.LNX.4.61.0506211515210.3728@scrub.home>
+In-Reply-To: <Pine.LNX.4.61.0506211515210.3728@scrub.home>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Roman Zippel wrote:
 
+>
+>No, go through the warnings, analyze each one and choose an appropriate 
+>solution. You might want to keep notes, which you can post with the 
+>changelogs, so one can reproduce, why a certain change was done.
+>
+>  
+>
 
------Original Message-----
-From: Hodle, Brian 
-Sent: Tuesday, June 21, 2005 8:53 AM
-To: 'Peter Buckingham'
-Subject: RE: PROBLEM: Devices behind PCI Express-to-PCI bridge not
-mapped
+The problem is that they're mostly calls to library functions (strlen,
+strcmp, fgets, etc.) so it's either the solaris way or the glibc way.
 
+A (somewhat unclean) solution is to make the type change based on the
+platform. Are there any defines present to test if we're in a Solaris
+environment? I don't have access to any Solaris machines myself so I
+can't really test.
 
-Peter,
-	I am experiencing exactly the same problem. I am using an ASUS
-K8N-DL MB with the x86_64 kernel. My PCIX devices are not allocated
-correctly. I tried using the  'pci=routeirq' option to no avail. Disabling
-ACPI in the BIOS does not help the situation either. X will not use my PCIX
-for GLX since none of the  extra txture memory has been allocated! Anyone
-have any ideas?
+Rgds
+Pierre
 
-regards,
-
-Brian
-
------Original Message-----
-From: Peter Buckingham [mailto:peter@pantasys.com]
-Sent: Monday, June 20, 2005 4:31 PM
-To: Ivan Kokshaysky
-Cc: sean.bruno@dsl-only.net; koch@esa.informatik.tu-darmstadt.de;
-torvalds@osdl.org; benh@kernel.crashing.org;
-linux-pci@atrey.karlin.mff.cuni.cz; linux-kernel@vger.kernel.org;
-gregkh@suse.de
-Subject: Re: PROBLEM: Devices behind PCI Express-to-PCI bridge not
-mapped
-
-
-Hi Ivan,
-
-I've just tried a recent pull from Linus post 2.6.12. It seems that the 
-bar sizes are now (mostly) correct. However, there are still issues with 
-the resources failing to be allocated and the bars being disabled. I've 
-attached the latest dmesg and lspci -vvx to see whether there's any 
-enlightenment out there...
-
-thanks,
-
-peter

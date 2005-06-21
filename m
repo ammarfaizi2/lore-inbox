@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262259AbVFUT0a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262254AbVFUTgy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262259AbVFUT0a (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 15:26:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262255AbVFUT0a
+	id S262254AbVFUTgy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 15:36:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262255AbVFUTgy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 15:26:30 -0400
-Received: from CPE00095b3131a0-CM0011ae8cd564.cpe.net.cable.rogers.com ([70.28.191.58]:4225
-	"EHLO kenichi") by vger.kernel.org with ESMTP id S262254AbVFUT0M
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 15:26:12 -0400
-From: Andrew James Wade 
-	<ajwade@cpe00095b3131a0-cm0011ae8cd564.cpe.net.cable.rogers.com>
-To: Edward Shishkin <edward@namesys.com>
-Subject: Re: [PATCH] Fix Reiser4 Dependencies
-Date: Tue, 21 Jun 2005 15:26:03 -0400
-User-Agent: KMail/1.7.2
-Cc: Hans Reiser <reiser@namesys.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
-References: <20050619233029.45dd66b8.akpm@osdl.org> <42B7F98B.5050405@namesys.com> <42B860D9.60109@namesys.com>
-In-Reply-To: <42B860D9.60109@namesys.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 21 Jun 2005 15:36:54 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:42443 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262254AbVFUTgw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 15:36:52 -0400
+Date: Tue, 21 Jun 2005 12:35:07 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: rostedt@goodmis.org, gregkh@suse.de, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       zaitcev@redhat.com
+Subject: Re: [RFC: 2.6 patch] better USB_MON dependencies
+Message-Id: <20050621123507.6b83ddf0.zaitcev@redhat.com>
+In-Reply-To: <20050621143227.GO3666@stusta.de>
+References: <Pine.LNX.4.58.0506172156220.7916@ppc970.osdl.org>
+	<1119119175.6786.4.camel@localhost.localdomain>
+	<20050621143227.GO3666@stusta.de>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 1.9.9 (GTK+ 2.6.7; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506211526.03750.ajwade@cpe00095b3131a0-cm0011ae8cd564.cpe.net.cable.rogers.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Edward, Hans.
+On Tue, 21 Jun 2005 16:32:27 +0200, Adrian Bunk <bunk@stusta.de> wrote:
 
-> Edward Shishkin wrote:
-> > ZLIB_INFLATE/DEFLATE  will be selected by special reiser4 related
-> > configuration
-> > option "Enable reiser4 compression plugins of gzip family" ...
-Sounds promising.
+> The patch below tries to solve this in a better way.
 
-> > Anyway thanks,
-You're welcome.
+>  config USB_MON
+> -	tristate "USB Monitor"
+> -	depends on USB
+> +	bool "USB Monitor"
+> +	depends on USB!=n
+>  	default y
 
-On June 21, 2005 02:47 pm, Hans Reiser wrote:
-> I am sorry, are you telling him that it works for you because you have
-> code that is different?
-As I understand it, when his upcoming changes are merged, base Reiser4
-would no longer depend on ZLIB_INFLATE/DEFLATE and my patch would then be
-incorrect. I am not in a position to know whether a code-dump or a minimal
-fix or something in-between is most appropriate for the next -mm release,
-for the moment just tweaking the Kconfig is working for me (I'm using
-Reiser4 under 2.6.12-mm1 with no further problems).
+This is a good idea and I wanted to do it for a while, only I was unable
+to figure how to write the "depends on USB!=n" part. I'm all for it.
+Let me give it a test here just to be sure, but I think we're good.
 
-HTH,
-Andrew
+One question though, do we want this:
+
+> -obj-$(CONFIG_USB_MON)		+= mon/
+> +ifdef CONFIG_USB_MON
+> +  obj-$(CONFIG_USB)		+= mon/
+> +endif
+
+Seems superfluous to me, because we kept CONFIG_USB_MON. This place should
+probably be left alone.
+
+-- Pete

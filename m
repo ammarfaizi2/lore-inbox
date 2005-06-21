@@ -1,64 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262164AbVFUSRX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261469AbVFUSVt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262164AbVFUSRX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 14:17:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262165AbVFUSRX
+	id S261469AbVFUSVt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 14:21:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262154AbVFUSVt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 14:17:23 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:36769 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S262164AbVFUSRQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 14:17:16 -0400
-Message-Id: <200506211816.j5LIGj3E020507@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Adam Goode <adam@evdebs.org>, Vojtech Pavlik <vojtech@suse.cz>,
-       Pavel Machek <pavel@suse.cz>,
-       Alejandro Bonilla <abonilla@linuxwireless.org>,
-       linux-kernel@vger.kernel.org, linux-thinkpad@linux-thinkpad.org
-Subject: Re: IBM HDAPS Someone interested? 
-In-Reply-To: Your message of "Tue, 21 Jun 2005 11:37:38 EDT."
-             <1119368259.19357.18.camel@mindpipe> 
-From: Valdis.Kletnieks@vt.edu
-References: <20050620155720.GA22535@ucw.cz> <005401c575b3_5f5bba90_600cc60a@amer.sykes.com> <20050620163456.GA24111@ucw.cz> <20050620165703.GB477@openzaurus.ucw.cz> <20050620204533.GA9520@ucw.cz> <1119303016.5194.24.camel@lynx.auton.cs.cmu.edu>
-            <1119368259.19357.18.camel@mindpipe>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1119377804_10696P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Tue, 21 Jun 2005 14:21:49 -0400
+Received: from rrcs-24-227-247-8.sw.biz.rr.com ([24.227.247.8]:54401 "EHLO
+	emachine.austin.ammasso.com") by vger.kernel.org with ESMTP
+	id S261469AbVFUSVn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 14:21:43 -0400
+Message-ID: <42B85AB4.7030401@ammasso.com>
+Date: Tue, 21 Jun 2005 13:21:40 -0500
+From: Timur Tabi <timur.tabi@ammasso.com>
+Organization: Ammasso
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.8) Gecko/20050511 Mnenhy/0.7.2.0
+X-Accept-Language: en-us, en, en-gb
+MIME-Version: 1.0
+To: Hugh Dickins <hugh@veritas.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: get_user_pages() and shared memory question
+References: <42B82DF2.2050708@ammasso.com> <Pine.LNX.4.61.0506211840210.5784@goblin.wat.veritas.com>
+In-Reply-To: <Pine.LNX.4.61.0506211840210.5784@goblin.wat.veritas.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Tue, 21 Jun 2005 14:16:45 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1119377804_10696P
-Content-Type: text/plain; charset=us-ascii
+Hugh Dickins wrote:
 
-On Tue, 21 Jun 2005 11:37:38 EDT, Lee Revell said:
-> On Mon, 2005-06-20 at 17:30 -0400, Adam Goode wrote:
-> > Freefall detection: 300 ms
-> > Head park time: 300-500 ms
+> It depends on what you mean by allocate and deallocate.  If the second
+> process is attaching the same shared memory segment as the first process
+> had attached, then yes, its buffer will contain those very pages which
+> the driver erroneously failed to release.
 
-> Ugh, if userspace can't meet a 300ms RT constraint, that's a pretty
-> shitty OS you have there.
+No, I'm talking about when the first process completely destroys the shared memory segment 
+so that it no longer exists.  No processes are attached to it, and any attempt to attach 
+to it results in an error, because it doesn't exist.
 
-Actually, it's a lot tighter than that.  You need to *issue* the "park head"
-command 300-500ms before it hits the ground, and you have 300ms of free fall.
+In this case, when a process creates a new memory segment, I just want to know whether the 
+pages with a non-zero refcount (because of the get_user_pages() call) can ever be used in 
+a new shared memory segment.
 
-So you may have needed to detect the free fall and issue the command 200ms
-before the free fall commences.
+I'm assuming the answer is no, because that would defeat the purpose of refcount (right?). 
+  I've been looking at the code and reading books on the VM, but I get lost easily.  It 
+appears that the function which allocates a page is shmem_alloc_page(), which calls 
+alloc_page() to do the actual work.  If that's correct, is it possible for alloc_page() to 
+return a page that has been previously "claimed" by get_user_pages()?  I'm looking at 
+__alloc_pages(), and I don't see any calls to page_count(), so I guess there's some other 
+mechanism (either in get_user_pages() or in the way the VM works) that prevents this 
+possibility.  However, I'm getting dangerously close to my limit of understanding the 
+Linux VM.
 
-That's a *real* hard RT constraint to keep. ;)
+Thanks for replying to my message.  I really appreciate the help in understanding the 
+Linux VM.
 
---==_Exmh_1119377804_10696P
-Content-Type: application/pgp-signature
+-- 
+Timur Tabi
+Staff Software Engineer
+timur.tabi@ammasso.com
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFCuFmMcC3lWbTT17ARAk7BAKDruLOrxVmcEgT+fAKp3VUvPdNv9gCfbsG1
-uVOULLITkTHQGhQIPg7ZhiY=
-=9uBu
------END PGP SIGNATURE-----
-
---==_Exmh_1119377804_10696P--
+One thing a Southern boy will never say is,
+"I don't think duct tape will fix it."
+      -- Ed Smylie, NASA engineer for Apollo 13

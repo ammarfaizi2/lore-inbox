@@ -1,69 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262342AbVFUVg1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262486AbVFUVUY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262342AbVFUVg1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 17:36:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262528AbVFUVdN
+	id S262486AbVFUVUY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 17:20:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262495AbVFUVRp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 17:33:13 -0400
-Received: from smtp06.auna.com ([62.81.186.16]:6319 "EHLO smtp06.retemail.es")
-	by vger.kernel.org with ESMTP id S262469AbVFUVbR convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 17:31:17 -0400
-Date: Tue, 21 Jun 2005 21:31:16 +0000
-From: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: [PATCH] Pointer cast warnings in scripts/
-To: linux-kernel@vger.kernel.org
-References: <42B7F740.6000807@drzeus.cx>
-	<Pine.LNX.4.61.0506211413570.3728@scrub.home> <42B80AF9.2060708@drzeus.cx>
-	<Pine.LNX.4.61.0506211451040.3728@scrub.home> <42B80F40.8000609@drzeus.cx>
-	<Pine.LNX.4.61.0506211515210.3728@scrub.home> <42B81ED6.7040706@drzeus.cx>
-	<Pine.LNX.4.61.0506211612250.3728@scrub.home>
-In-Reply-To: <Pine.LNX.4.61.0506211612250.3728@scrub.home> (from
-	zippel@linux-m68k.org on Tue Jun 21 16:14:52 2005)
-X-Mailer: Balsa 2.3.3
-Message-Id: <1119389476l.25237l.1l@werewolf.able.es>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-X-Auth-Info: Auth:LOGIN IP:[83.138.212.68] Login:jamagallon@able.es Fecha:Tue, 21 Jun 2005 23:31:16 +0200
+	Tue, 21 Jun 2005 17:17:45 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:45983 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S262394AbVFUVMx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 17:12:53 -0400
+Message-Id: <200506212112.j5LLCG7V031031@laptop11.inf.utfsm.cl>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Jeff Garzik <jgarzik@pobox.com>, Domen Puncer <domen@coderock.org>
+Subject: Re: [RFC] cleanup patches for strings 
+In-Reply-To: Message from Jesper Juhl <juhl-lkml@dif.dk> 
+   of "Tue, 21 Jun 2005 00:46:26 +0200." <Pine.LNX.4.62.0506200052320.2415@dragon.hyggekrogen.localhost> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
+Date: Tue, 21 Jun 2005 17:12:16 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.19.1]); Tue, 21 Jun 2005 17:12:17 -0400 (CLT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 06.21, Roman Zippel wrote:
-> Hi,
+Jesper Juhl <juhl-lkml@dif.dk> wrote:
+> I have a bunch (few hundred) of oneliners like the ones below lying around 
+> on my HD and I'm wondering what the best way to submit them is.
 > 
-> On Tue, 21 Jun 2005, Pierre Ossman wrote:
+> The patches all make the same change, there's just a lot of files the 
+> change needs to be made in.  The change they make is to change strings 
+> from the form
+> 	[const] char *foo = "blah";
+> to
+> 	[const] char foo[] = "blah";
 > 
-> > A (somewhat unclean) solution is to make the type change based on the
-> > platform. Are there any defines present to test if we're in a Solaris
-> > environment? I don't have access to any Solaris machines myself so I
-> > can't really test.
-> 
-> Just ignore it. If someone really cares, he has to redo the Solaris 
-> specific changes properly (or live with warnings).
-> 
+> The reason to do this was well explained by Jeff Garzik in the past (and 
+> now found in the Kernel Janitors TODO) :
 
-pilgor:~> uname -a
-SunOS pilgor 5.9 Generic_117171-07 sun4u sparc SUNW,Sun-Fire-V440 Solaris
-pilgor:~> man strcpy
-...
-     int strcmp(const char *s1, const char *s2);
-
-     int strncmp(const char *s1, const char *s2, size_t n);
-
-     char *strcpy(char *s1, const char *s2);
-
-     char *strncpy(char *s1, const char *s2, size_t n);
-
-They look normal...
-What is the problem with solaris ?
-
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
-werewolf!able!es                         \         It's better when it's free
-Mandriva Linux release 2006.0 (Cooker) for i586
-Linux 2.6.12-jam1 (gcc 4.0.1 (4.0.1-0.2mdk for Mandriva Linux release 2006.0))
-
+Which is dead wrong. A short test program here (Fedora rawhide, i686,
+gcc-4.0.0) shows that if you use an array, it is allocated on the stack and
+the contents of the (constant, readonly) string is copied there before use,
+just as you'd have to expect given C's semantics. I.e., the function gets
+larger, slower, and uses more stack. If the array is declared const makes
+no difference (AFAIR, it can't, as the const doesn't guarantee it won't be
+changed).
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
 

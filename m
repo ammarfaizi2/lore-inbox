@@ -1,113 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261778AbVFUByV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261844AbVFUB6m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261778AbVFUByV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 21:54:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261850AbVFTX7r
+	id S261844AbVFUB6m (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 21:58:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261746AbVFUByj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 19:59:47 -0400
-Received: from mail.kroah.org ([69.55.234.183]:53988 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261783AbVFTXAA convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 19:00:00 -0400
-Cc: dtor_core@ameritech.net
-Subject: [PATCH] make driver's name be const char *
-In-Reply-To: <1119308361783@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Mon, 20 Jun 2005 15:59:21 -0700
-Message-Id: <11193083613036@kroah.com>
+	Mon, 20 Jun 2005 21:54:39 -0400
+Received: from gate.crashing.org ([63.228.1.57]:25769 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261670AbVFUBx2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 21:53:28 -0400
+Subject: Re: [PATCH] Dynamic tick for x86 version 050610-1
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Tony Lindgren <tony@atomide.com>
+Cc: hugang@soulinfo.com, linux-kernel@vger.kernel.org,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       Jonathan Corbet <corbet@lwn.net>, Pavel Machek <pavel@ucw.cz>,
+       Bernard Blackham <b-lkml@blackham.com.au>,
+       Christian Hesse <mail@earthworm.de>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>
+In-Reply-To: <20050621012825.GA30990@muru.com>
+References: <20050602013641.GL21597@atomide.com>
+	 <200506021030.50585.mail@earthworm.de> <20050602174219.GC21363@atomide.com>
+	 <20050603223758.GA2227@elf.ucw.cz> <20050610041706.GC18103@atomide.com>
+	 <20050610091515.GH4173@elf.ucw.cz> <20050610151707.GB7858@atomide.com>
+	 <20050610221501.GB7575@atomide.com>
+	 <20050618033419.GA6476@hugang.soulinfo.com>
+	 <1119076233.18247.27.camel@gaston>  <20050621012825.GA30990@muru.com>
+Content-Type: text/plain
+Date: Tue, 21 Jun 2005 11:49:20 +1000
+Message-Id: <1119318560.18247.134.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Greg K-H <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <gregkh@suse.de>
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] make driver's name be const char *
+On Mon, 2005-06-20 at 18:28 -0700, Tony Lindgren wrote:
+> On Sat, Jun 18, 2005 at 04:30:32PM +1000, Benjamin Herrenschmidt wrote:
+> > 
+> > > I'm try to port it powerpc, Here is a patch.
+> > > 
+> > >  Port Dynamic Tick Timer to new platform is easy. :)
+> > >   1) Find the reprogram timer interface.
+> > >   2) do a hook in the idle function.
+> > > 
+> > > That worked on my PowerBookG4 12'.
+> 
+> Cool :)
+> 
+> > Did you get a measurable gain on power consumption ?
+> > 
+> > Last time I toyed with this, I didn't.
+> 
+> Just dyntick alone probably does not do much for power savings. The
+> trick is to figure out what all can be turned off for the longer idle
+> periods. And try to make the idle periods longer by cutting down on
+> polling.
 
-Driver core:
-  change driver's, bus's, class's and platform device's names
-  to be const char * so one can use
-            const char *drv_name = "asdfg";
-  when initializing structures.
-  Also kill couple of whitespaces.
+I would have expected it to actually do increase savings due to avoiding
+the cost of bringing the CPU back from deep NAP mode too often. It's
+possible that my previous experiments were bogus in fact. It would be
+very useful to have some statistics on how long we _actually_ sleep, I
+supspect things like the network stack with all it's slow timer all
+kicking at slightly different times for example are screwing us up a
+little bit.
 
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+Ben.
 
----
-commit 8d790d74085833ba2a3e84b5bcd683be4981c29a
-tree fe3be944882cb1ec272e4fb6782c6caa404a6187
-parent 419cab3fc69588ebe35b845cc3a584ae172463de
-author Dmitry Torokhov <dtor_core@ameritech.net> Tue, 26 Apr 2005 02:34:05 -0500
-committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 20 Jun 2005 15:15:01 -0700
-
- drivers/usb/core/devices.c |    2 +-
- include/linux/device.h     |   12 ++++++------
- 2 files changed, 7 insertions(+), 7 deletions(-)
-
-diff --git a/drivers/usb/core/devices.c b/drivers/usb/core/devices.c
---- a/drivers/usb/core/devices.c
-+++ b/drivers/usb/core/devices.c
-@@ -239,7 +239,7 @@ static char *usb_dump_interface_descript
- 	int setno)
- {
- 	const struct usb_interface_descriptor *desc = &intfc->altsetting[setno].desc;
--	char *driver_name = "";
-+	const char *driver_name = "";
- 
- 	if (start > end)
- 		return start;
-diff --git a/include/linux/device.h b/include/linux/device.h
---- a/include/linux/device.h
-+++ b/include/linux/device.h
-@@ -47,7 +47,7 @@ struct class_device;
- struct class_simple;
- 
- struct bus_type {
--	char			* name;
-+	const char		* name;
- 
- 	struct subsystem	subsys;
- 	struct kset		drivers;
-@@ -98,17 +98,17 @@ extern int bus_create_file(struct bus_ty
- extern void bus_remove_file(struct bus_type *, struct bus_attribute *);
- 
- struct device_driver {
--	char			* name;
-+	const char		* name;
- 	struct bus_type		* bus;
- 
- 	struct completion	unloaded;
- 	struct kobject		kobj;
- 	struct list_head	devices;
- 
--	struct module 		* owner;
-+	struct module		* owner;
- 
- 	int	(*probe)	(struct device * dev);
--	int 	(*remove)	(struct device * dev);
-+	int	(*remove)	(struct device * dev);
- 	void	(*shutdown)	(struct device * dev);
- 	int	(*suspend)	(struct device * dev, pm_message_t state, u32 level);
- 	int	(*resume)	(struct device * dev, u32 level);
-@@ -142,7 +142,7 @@ extern void driver_remove_file(struct de
-  * device classes
-  */
- struct class {
--	char			* name;
-+	const char		* name;
- 
- 	struct subsystem	subsys;
- 	struct list_head	children;
-@@ -366,7 +366,7 @@ extern struct device *device_find(const 
- /* drivers/base/platform.c */
- 
- struct platform_device {
--	char		* name;
-+	const char	* name;
- 	u32		id;
- 	struct device	dev;
- 	u32		num_resources;
 

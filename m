@@ -1,37 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262306AbVFUUh2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262318AbVFUUh3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262306AbVFUUh2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 16:37:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262318AbVFUUfe
+	id S262318AbVFUUh3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 16:37:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262330AbVFUUf0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 16:35:34 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:52137 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262311AbVFUUYz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 16:24:55 -0400
-Date: Tue, 21 Jun 2005 21:24:48 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: -mm -> 2.6.13 merge status
-Message-ID: <20050621202448.GB30182@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Hans Reiser <reiser@namesys.com>, Jeff Garzik <jgarzik@pobox.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20050620235458.5b437274.akpm@osdl.org> <42B831B4.9020603@pobox.com> <42B87318.80607@namesys.com>
+	Tue, 21 Jun 2005 16:35:26 -0400
+Received: from adicia.telenet-ops.be ([195.130.132.56]:30853 "EHLO
+	adicia.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S262318AbVFUUdS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 16:33:18 -0400
+Subject: Re: 2.6.12: connection tracking broken?
+From: Bart De Schuymer <bdschuym@pandora.be>
+To: Patrick McHardy <kaber@trash.net>
+Cc: Bart De Schuymer <bdschuym@telenet.be>,
+       Herbert Xu <herbert@gondor.apana.org.au>,
+       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
+       rankincj@yahoo.com, ebtables-devel@lists.sourceforge.net,
+       netfilter-devel@manty.net
+In-Reply-To: <42B82F35.3040909@trash.net>
+References: <E1Dk9nK-0001ww-00@gondolin.me.apana.org.au>
+	 <Pine.LNX.4.62.0506200432100.31737@kaber.coreworks.de>
+	 <1119249575.3387.3.camel@localhost.localdomain> <42B6B373.20507@trash.net>
+	 <1119293193.3381.9.camel@localhost.localdomain>
+	 <42B74FC5.3070404@trash.net>
+	 <1119338382.3390.24.camel@localhost.localdomain>
+	 <42B82F35.3040909@trash.net>
+Content-Type: text/plain
+Date: Tue, 21 Jun 2005 20:46:12 +0000
+Message-Id: <1119386772.3379.4.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42B87318.80607@namesys.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans, we had this discussion before.  And the consensus was pretty simple:
-the disk structure plugins are your business and fine to keep.  The
-higher-level pluging that just add another useless abstraction below
-file_operation/inode_operation/etc.  are not.  keep the former and kill
-the latter and you're one step further.
+Op di, 21-06-2005 te 17:16 +0200, schreef Patrick McHardy:
+> I unfortunately don't see a way to remove it, but we should keep
+> thinking about it. Can you please check if the attached patch is
+> correct? It should exclude all packets handled by bridge-netfilter
+> from having their conntrack reference dropped. I didn't add nf_reset()'s
+> to the bridging code because with tc actions the packets can end up
+> anywhere else anyway, and this will hopefully get fixed right sometime.
+
+Looks good.
+Perhaps a compile time option to disable postponing the hooks would be
+nice...
+
+> BTW. this line from ip_sabotage_out() looks wrong, it will clear all
+> flags instead of setting the BRNF_DONT_TAKE_PARENT flag (second
+> patch):
+> 
+>                         nf_bridge->mask &= BRNF_DONT_TAKE_PARENT;
+
+Thanks,
+Bart
+
+

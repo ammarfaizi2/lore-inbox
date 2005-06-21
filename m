@@ -1,54 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262270AbVFUTzY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262275AbVFUT4P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262270AbVFUTzY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 15:55:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262275AbVFUTzY
+	id S262275AbVFUT4P (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 15:56:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262285AbVFUT4P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 15:55:24 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:52361 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262270AbVFUTzS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 15:55:18 -0400
-Date: Tue, 21 Jun 2005 12:54:57 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Martin Hicks <mort@wildopensource.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: -mm -> 2.6.13 merge status
-Message-Id: <20050621125457.2e4355c6.akpm@osdl.org>
-In-Reply-To: <20050621140831.GQ29510@localhost>
-References: <20050620235458.5b437274.akpm@osdl.org>
-	<20050621140831.GQ29510@localhost>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 21 Jun 2005 15:56:15 -0400
+Received: from silver.veritas.com ([143.127.12.111]:20145 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S262275AbVFUT4D
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 15:56:03 -0400
+Date: Tue, 21 Jun 2005 20:57:03 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: "Richard B. Johnson" <linux-os@analogic.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.6.12 memory mapping broken
+In-Reply-To: <Pine.LNX.4.61.0506201548150.5317@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.61.0506212041000.7385@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0506201548150.5317@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 21 Jun 2005 19:56:03.0000 (UTC) FILETIME=[40DA8B80:01C5769B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Hicks <mort@wildopensource.com> wrote:
->
-> On Mon, Jun 20, 2005 at 11:54:58PM -0700, Andrew Morton wrote:
->  > 
->  > vm-early-zone-reclaim
->  > 
->  >     Needs some convincing benchmark numbers to back it up.  Otherwise OK.
+On Mon, 20 Jun 2005, Richard B. Johnson wrote:
 > 
->  The only benchmarks I have for this were included in my last mail to
->  linux-mm:
+> To the memory expert that made the massive changes to mm/memory.c:
 > 
->  http://marc.theaimsgroup.com/?l=linux-mm&m=111763597218177&w=2
+> Code in linux-2.6.12 fails with the following (remap_pfn_range
+> gets the exact same values):
 > 
->  Are they convincing?  Well, the patch doesn't seem to make the memory
->  thrashing case much worse ("make -j" kernbench run) which is a good
->  thing since the VM is trying to reclaim much earlier.
+> UNIQUE.dma.len = 04001fe0
+> vma->vm_end-vma->vm_start=04002000
+> About to execute remap_pfn_range
+> vma->vm_start = 20000000
+> base address = 30003000
+>            length = 04001fe0 >> PAGE_SHIFT
+> vma->vm_page_prot = 0000003f
+> ------------[ cut here ]------------
+> kernel BUG at mm/memory.c:1112!
 > 
->  In the same e-mail I mention that there is a fairly good performance
->  gain in the optimal case, where processes are tied to a single node and
->  the node's memory is filled with page cache.  With zone reclaim turned
->  on the "make -j8" kernel build runs in 700 seconds;  735 seconds with
->  no reclaim.
+> I can test any patches.
 
-Ah, OK, I failed to capture that info.  (I always have to move the info in
-the [patch 0/n] email into the first real patch, and this time I didn't)
+You are right, and it's my fault.  May I wriggle a little and point
+out that your length is unusual, and even you seem confused whether
+you want to map 0x4001 or 0x4002 pages?  But the blame lies with me.
 
-Thanks.
+Please try this patch, which I'll send to Andrew and -stable if you
+can confirm that it fixes your problem.  remap_pfn_range is, I believe
+(and shall recheck), the only exported interface vulnerable to this
+loop-termination issue.
+
+Thanks,
+Hugh
+
+--- 2.6.12/mm/memory.c	2005-06-17 20:48:29.000000000 +0100
++++ linux/mm/memory.c	2005-06-21 20:31:42.000000000 +0100
+@@ -1164,7 +1164,7 @@ int remap_pfn_range(struct vm_area_struc
+ {
+ 	pgd_t *pgd;
+ 	unsigned long next;
+-	unsigned long end = addr + size;
++	unsigned long end = addr + PAGE_ALIGN(size);
+ 	struct mm_struct *mm = vma->vm_mm;
+ 	int err;
+ 

@@ -1,47 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262394AbVFUVTt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262468AbVFUVqS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262394AbVFUVTt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 17:19:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262497AbVFUVSB
+	id S262468AbVFUVqS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 17:46:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262426AbVFUVUW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 17:18:01 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:9892 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262336AbVFUVDj (ORCPT
+	Tue, 21 Jun 2005 17:20:22 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:11910 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262371AbVFUVRw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 17:03:39 -0400
-Date: Tue, 21 Jun 2005 14:03:10 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: arjanv@redhat.com
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, greg@kroah.com
-Subject: Re: [GIT PATCH] Remove devfs from 2.6.12-git
-Message-Id: <20050621140310.4f9a0edf.akpm@osdl.org>
-In-Reply-To: <1119387122.6465.14.camel@localhost.localdomain>
-References: <20050621062926.GB15062@kroah.com>
-	<20050620235403.45bf9613.akpm@osdl.org>
-	<20050621151019.GA19666@kroah.com>
-	<20050621131132.105ea76f.akpm@osdl.org>
-	<1119387122.6465.14.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 21 Jun 2005 17:17:52 -0400
+Subject: Re: [RFC] [PATCH] OCFS2
+From: Steve French <smfltc@us.ibm.com>
+To: Mark Fasheh <mark.fasheh@oracle.com>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Content-Type: text/plain
+Organization: IBM - Linux Technology Center
+Message-Id: <1119388469.5701.145.camel@stevef95.austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 21 Jun 2005 16:14:29 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven <arjanv@redhat.com> wrote:
->
-> On Tue, 2005-06-21 at 13:11 -0700, Andrew Morton wrote:
-> > Greg KH <greg@kroah.com> wrote:
-> > >
-> > >  Or I can wait until you go next.  I didn't want these patches in the -mm
-> > >  tree as they would have caused you too much work to keep up to date and
-> > >  not conflict with anything else due to the size of them.
-> > 
-> > What happens if we merge it and then the storm of complaints over the
-> > ensuing four weeks makes us say "whoops, shouldna done that [yet]"?
-> 
-> so... disable the config option now. then wait 3 weeks. then do the
-> rest ;)
+You list features which OCFS2 does not support yet in fs/Kconfig as:
+               - extended attributes
+               - readonly mount
+               - shared writeable mmap
+               - loopback is supported, but data written will not
+                 be cluster coherent.
+               - quotas
+               - cluster aware flock
 
-That works for me?
+It also does not appear to support various fcntls, in particular
+	F_NOTIFY (directory change notification, needed by Samba. Also
+		for various file manager GUIs used by Linux desktops)
+	GETLEASE/SETLEASE (also needed for file caching for Samba and	
+		IIRC for NFSv4 as well)
+and the source tree does not seem to support "POSIX ACLs" (support for
+NTFS/CIFS ACLs or the somewhat similar NFSv4 ACLs could also be mapped
+by Samba as an alternative, as we do with AFS ACLs today, if you do not
+wish to support POSIX ACLs)
+
+The above three (notify/lease/acl) are particularly important for
+Samba.  Are those planned for an upcoming release?
+
+You also do not seem to handle fs ioctls - in particular any of the
+	chflags/lsattr "ext attributes" (which ext2/ext3/reiser etc.do)
+although they are less important.
+
+
+What is the timestamp granularity in your inode on-disk format?  For
+Samba4 supporting at least a 100nanosecond time stamp (used for DCE and
+CIFS) is helpful due to the time rounding issues that can come up with
+the primitive 1 second timestamp.
 

@@ -1,53 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262090AbVFUPOJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262120AbVFUPSc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262090AbVFUPOJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 11:14:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbVFUPM5
+	id S262120AbVFUPSc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 11:18:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262112AbVFUPRd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 11:12:57 -0400
-Received: from rrcs-24-227-247-8.sw.biz.rr.com ([24.227.247.8]:51585 "EHLO
-	emachine.austin.ammasso.com") by vger.kernel.org with ESMTP
-	id S262112AbVFUPKm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 11:10:42 -0400
-Message-ID: <42B82DF2.2050708@ammasso.com>
-Date: Tue, 21 Jun 2005 10:10:42 -0500
-From: Timur Tabi <timur.tabi@ammasso.com>
-Organization: Ammasso
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.8) Gecko/20050511 Mnenhy/0.7.2.0
-X-Accept-Language: en-us, en, en-gb
+	Tue, 21 Jun 2005 11:17:33 -0400
+Received: from [62.206.217.67] ([62.206.217.67]:59074 "EHLO kaber.coreworks.de")
+	by vger.kernel.org with ESMTP id S262119AbVFUPQU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 11:16:20 -0400
+Message-ID: <42B82F35.3040909@trash.net>
+Date: Tue, 21 Jun 2005 17:16:05 +0200
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.8) Gecko/20050514 Debian/1.7.8-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: get_user_pages() and shared memory question
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Bart De Schuymer <bdschuym@pandora.be>
+CC: Bart De Schuymer <bdschuym@telenet.be>,
+       Herbert Xu <herbert@gondor.apana.org.au>, netfilter-devel@manty.net,
+       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
+       ebtables-devel@lists.sourceforge.net, rankincj@yahoo.com
+Subject: Re: 2.6.12: connection tracking broken?
+References: <E1Dk9nK-0001ww-00@gondolin.me.apana.org.au>	 <Pine.LNX.4.62.0506200432100.31737@kaber.coreworks.de>	 <1119249575.3387.3.camel@localhost.localdomain> <42B6B373.20507@trash.net>	 <1119293193.3381.9.camel@localhost.localdomain>	 <42B74FC5.3070404@trash.net> <1119338382.3390.24.camel@localhost.localdomain>
+In-Reply-To: <1119338382.3390.24.camel@localhost.localdomain>
+Content-Type: multipart/mixed;
+ boundary="------------000506000503090704000107"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This is a multi-part message in MIME format.
+--------------000506000503090704000107
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Is it possible for a page of memory that's been "grabbed" with get_user_pages() to ever be 
-allocated to another process?  I'm assuming the answer is no, but I have a specific case I 
-want to ask about.
+Bart De Schuymer wrote:
+> Deferring the hooks makes the bridge-nf code alot more complicated, so I
+> would be glad to get rid of it if it is the right thing to do. But
+> backwards compatibility can't be maintained and I'd be surprised if
+> every ruleset that now works will still be possible using an
+> iptables/ebtables scheme.
 
-Let's say an application allocates some shared memory, and then calls into a driver which 
-calls get_user_pages().  The driver exits without releasing the pages, so they now have a 
-reference count on them.  Then the application deallocates the shared memory.  At this 
-point, the virtual addresses disappear, and no process owns them, but the pages still have 
-a reference count.
+I unfortunately don't see a way to remove it, but we should keep
+thinking about it. Can you please check if the attached patch is
+correct? It should exclude all packets handled by bridge-netfilter
+from having their conntrack reference dropped. I didn't add nf_reset()'s
+to the bridging code because with tc actions the packets can end up
+anywhere else anyway, and this will hopefully get fixed right sometime.
 
-Another process now tries to allocate a shared memory buffer.  Is there any way that this 
-new buffer can contain those pages that were grabbed with get_user_pages() (i.e. that 
-already have a reference count)?
+BTW. this line from ip_sabotage_out() looks wrong, it will clear all
+flags instead of setting the BRNF_DONT_TAKE_PARENT flag (second
+patch):
 
-Until 2.6.7, there was a bug in the VM where a page that was grabbed with get_user_pages() 
-could be swapped out.  Those of you familar with the OpenIB work know what I'm talking 
-about.  Would that bug affect anything I'm talking about?
+                        nf_bridge->mask &= BRNF_DONT_TAKE_PARENT;
 
--- 
-Timur Tabi
-Staff Software Engineer
-timur.tabi@ammasso.com
+Signed-off-by: Patrick McHardy <kaber@trash.net>
 
-One thing a Southern boy will never say is,
-"I don't think duct tape will fix it."
-      -- Ed Smylie, NASA engineer for Apollo 13
+--------------000506000503090704000107
+Content-Type: text/plain;
+ name="x"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="x"
+
+diff --git a/net/ipv4/ip_output.c b/net/ipv4/ip_output.c
+--- a/net/ipv4/ip_output.c
++++ b/net/ipv4/ip_output.c
+@@ -188,7 +188,12 @@ static inline int ip_finish_output2(stru
+ 		skb = skb2;
+ 	}
+ 
+-	nf_reset(skb);
++#ifdef CONFIG_BRIDGE_NETFILTER
++	/* bridge-netfilter defers calling some IP hooks to the bridge layer and
++	 * still needs the conntrack reference */
++	if (skb->nf_bridge == NULL)
++#endif
++		nf_reset(skb);
+ 
+ 	if (hh) {
+ 		int hh_alen;
+
+--------------000506000503090704000107
+Content-Type: text/x-patch;
+ name="10.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="10.diff"
+
+diff --git a/net/bridge/br_netfilter.c b/net/bridge/br_netfilter.c
+--- a/net/bridge/br_netfilter.c
++++ b/net/bridge/br_netfilter.c
+@@ -882,7 +882,7 @@ static unsigned int ip_sabotage_out(unsi
+ 		 * doesn't use the bridge parent of the indev by using
+ 		 * the BRNF_DONT_TAKE_PARENT mask. */
+ 		if (hook == NF_IP_FORWARD && nf_bridge->physindev == NULL) {
+-			nf_bridge->mask &= BRNF_DONT_TAKE_PARENT;
++			nf_bridge->mask |= BRNF_DONT_TAKE_PARENT;
+ 			nf_bridge->physindev = (struct net_device *)in;
+ 		}
+ #if defined(CONFIG_VLAN_8021Q) || defined(CONFIG_VLAN_8021Q_MODULE)
+
+--------------000506000503090704000107--

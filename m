@@ -1,86 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261371AbVFUMtv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261328AbVFUNKk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261371AbVFUMtv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 08:49:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261325AbVFUMmu
+	id S261328AbVFUNKk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 09:10:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261315AbVFUNKj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 08:42:50 -0400
-Received: from pilet.ens-lyon.fr ([140.77.167.16]:19592 "EHLO
-	relaissmtp.ens-lyon.fr") by vger.kernel.org with ESMTP
-	id S261444AbVFUMkY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 08:40:24 -0400
-Message-ID: <42B80AB5.7090506@ens-lyon.org>
-Date: Tue, 21 Jun 2005 14:40:21 +0200
-From: Brice Goglin <Brice.Goglin@ens-lyon.org>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
+	Tue, 21 Jun 2005 09:10:39 -0400
+Received: from [203.171.93.254] ([203.171.93.254]:9641 "EHLO
+	cunningham.myip.net.au") by vger.kernel.org with ESMTP
+	id S261383AbVFUNHg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 09:07:36 -0400
+Subject: Re: -mm -> 2.6.13 merge status (Suspend-to-disk)
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-mm1
-References: <20050619233029.45dd66b8.akpm@osdl.org> <42B6777F.2050008@ens-lyon.org>
-In-Reply-To: <42B6777F.2050008@ens-lyon.org>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: multipart/mixed;
- boundary="------------020200000701000706060203"
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+In-Reply-To: <20050620235458.5b437274.akpm@osdl.org>
+References: <20050620235458.5b437274.akpm@osdl.org>
+Content-Type: text/plain
+Organization: Cycades
+Message-Id: <1119359295.10186.1150.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Tue, 21 Jun 2005 23:08:15 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020200000701000706060203
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+Hi.
 
-Brice Goglin a écrit :
-> Hi Andrew,
+(Marcelo: Copied for issue at the bottom).
+
+On Tue, 2005-06-21 at 16:54, Andrew Morton wrote:
+> CPU hotplug for x86 and x86_64
 > 
-> I got this oops during boot.
-> I copied it by hand since my machine crashed soon after (because of yenta).
-> It doesn't occur when snd_maestro3 is skipped by discover.
+>     Not really useful on current hardware, but these provide
+>     infrastructure which some power management patches need, and it seems
+>     sensible to make the reference architecture support hotplug.  Will merge.
+
+Yay. I'm not going to use it yet, but know Pavel wants it for the next
+one.
+
+> swsusp-on-SMP
 > 
-> divide error: 0000 [#1]
-> PREEMPT
-> ...
-> CPU: 0
-> EIP: 0060:[<e8957f9f>] Not tainted VLI
-> EFLAGS: 00000282 (2.6.12-mm1=LoulousMobiles)
-> EIP is at and_m3_enable_ints+0x1f/0x40 [snd_maestro3]
-> eax: 00000050 ebx: 00002400 ecx: 00000050 edx: 00002418
-> esi: 00002418 edi: 00000000 ebp: 000000f0 esp: e6f5ce54
-> ds: 007b es: 007b ss: 0068
-> Process modprobe (pid: 2405, threadinfo=e6f5c000, task=e7a31570)
-> ...
-> Call trace:
->  snd_m3_create+0x303/0x405 [snd_maestro3]
+>     Will merge.
+> 
+> kexec and kdump
+> 
+>     I guess we should merge these.
+> 
+>     I'm still concerned that the various device shutdown problems will
+>     mean that the success rate for crashing kernels is not high enough for
+>     kdump to be considered a success.  In which case in six months time we'll
+>     hear rumours about vendors shipping wholly different crashdump
+>     implementations, which would be quite bad.
+> 
+>     But I think this has gone as far as it can go in -mm, so it's a bit of
+>     a punt.
 
-The problem comes from git-alsa.patch.
-Adding HV_INT_ENABLE to outw in snd_m3_enable_ints (in
-sound/pci/maestro3.c) makes it generate a divide error
-on my laptop.
+No potential clashes with suspend code, I assume?
 
-The attached patch reverts this and fixes my problem.
+> execute-in-place
+> 
+>     Will merge.  Have the embedded guys commented on the usefulness of
+>     this for execute-out-of-ROM?
 
-Signed-off-by: Brice Goglin <Brice.Goglin@ens-lyon.org>
+Switch roles for a mo and put my Cyclades hat on. Probably not useful to
+us at the moment, at least in the case of the products I work on.
+Marcelo?
 
-Brice
+Regards,
 
---------------020200000701000706060203
-Content-Type: text/x-patch;
- name="fix-maestro3-outw.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="fix-maestro3-outw.patch"
+Nigel
 
---- linux-mm/sound/pci/maestro3.c.old	2005-06-21 14:36:19.000000000 +0200
-+++ linux-mm/sound/pci/maestro3.c	2005-06-21 14:36:31.000000000 +0200
-@@ -2527,7 +2527,7 @@ snd_m3_enable_ints(m3_t *chip)
- 	unsigned long io = chip->iobase;
- 
- 	/* TODO: MPU401 not supported yet */
--	outw(ASSP_INT_ENABLE | HV_INT_ENABLE /*| MPU401_INT_ENABLE*/, io + HOST_INT_CTRL);
-+	outw(ASSP_INT_ENABLE /*| MPU401_INT_ENABLE*/, io + HOST_INT_CTRL);
- 	outb(inb(io + ASSP_CONTROL_C) | ASSP_HOST_INT_ENABLE,
- 	     io + ASSP_CONTROL_C);
- }
-
---------------020200000701000706060203--

@@ -1,48 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262304AbVFUUPG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262297AbVFUUOF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262304AbVFUUPG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 16:15:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261453AbVFUUOT
+	id S262297AbVFUUOF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 16:14:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262298AbVFUUM4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 16:14:19 -0400
-Received: from zproxy.gmail.com ([64.233.162.195]:44711 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261803AbVFUUNX (ORCPT
+	Tue, 21 Jun 2005 16:12:56 -0400
+Received: from graphe.net ([209.204.138.32]:20644 "EHLO graphe.net")
+	by vger.kernel.org with ESMTP id S261803AbVFUUKf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 16:13:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=ZGwU+nT6o409+o0AYBJFnfT3W9KcG7Yf9xxSH+KDLImoyIAi9y5HJVuDiDUvSjE8nHZb6W6TIffBhdPrdLfMRZJwf46Yw9YLmxPa9iUjFUdXVSPFDNkgjbdgb0DdwpG40ODcGNMGtoWMorfElguHbMQyHzNAm259phD+sv8Ufu4=
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Paolo Marchetti <natryum@gmail.com>
-Subject: Re: 2.6.12 cpu-freq conservative governor problem
-Date: Wed, 22 Jun 2005 00:19:09 +0400
-User-Agent: KMail/1.7.2
-Cc: kernel <linux-kernel@vger.kernel.org>
-References: <cc27d5b10506180612177415c6@mail.gmail.com>
-In-Reply-To: <cc27d5b10506180612177415c6@mail.gmail.com>
+	Tue, 21 Jun 2005 16:10:35 -0400
+Date: Tue, 21 Jun 2005 13:10:26 -0700 (PDT)
+From: Christoph Lameter <christoph@lameter.com>
+X-X-Sender: christoph@graphe.net
+To: Robert Love <rml@novell.com>
+cc: Zan Lynx <zlynx@acm.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: -mm -> 2.6.13 merge status
+In-Reply-To: <1119384473.3949.279.camel@betsy>
+Message-ID: <Pine.LNX.4.62.0506211309300.22490@graphe.net>
+References: <20050620235458.5b437274.akpm@osdl.org>  <42B831B4.9020603@pobox.com>
+ <1119368364.3949.236.camel@betsy>  <Pine.LNX.4.62.0506211222040.21678@graphe.net>
+  <1119382685.3949.263.camel@betsy> <1119384131.15478.25.camel@localhost> 
+ <Pine.LNX.4.62.0506211306060.22372@graphe.net> <1119384473.3949.279.camel@betsy>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506220019.09229.adobriyan@gmail.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -5.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 18 June 2005 17:12, Paolo Marchetti wrote:
-> I'm trying the brand new conservative governor on my p4 2.66 laptop
-> ("Intel Pentium 4 clock modulation" only), it doesn't work at all (my
-> cpu does not scale).
-> 
-> cat cpufreq/conservative/sampling_rate_max 
-> 2755359744
-> 
-> cat cpufreq/scaling_max_freq 
-> 2666600
-> 
-> I don't get this...
-> ondemand governor works fine as usual.
+On Tue, 21 Jun 2005, Robert Love wrote:
 
-I've filed a bug at kernel bugzilla, so your report won't be lost.
-See http://bugme.osdl.org/show_bug.cgi?id=4772
+> > I was told that Linux cannot do this. It always returns the filehandles as 
+> > ready for disk files.
+> 
+> Inotify would definitely work.
+
+Well we could use it in kernel to make select() work correctly. For disk 
+files set up a notification for write and then only return from select if 
+new data is available.
+

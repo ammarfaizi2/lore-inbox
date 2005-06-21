@@ -1,60 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261420AbVFUNw3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261448AbVFUNvz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261420AbVFUNw3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 09:52:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261389AbVFUNwT
+	id S261448AbVFUNvz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 09:51:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261333AbVFUNt3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 09:52:19 -0400
-Received: from wproxy.gmail.com ([64.233.184.204]:51860 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261439AbVFUNv1 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 09:51:27 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Np/V8+/biH+Zdjj+0Qq/k7CGsSUcwRm5jfqkGV7Drmdb20eWr5ZKMn7DryJQOMFH/1SWPy9TUaMzSHnSQXwTS1zHqcKz8Si4dVU3ZkSvvAYH1TIfmW5D4japvhqKEXrmTKPTWphG9392RFWDXqtSpTrXxhTR2I9pMcNXTb4Pe+4=
-Message-ID: <a4e6962a05062106515757849d@mail.gmail.com>
-Date: Tue, 21 Jun 2005 08:51:27 -0500
-From: Eric Van Hensbergen <ericvh@gmail.com>
-Reply-To: Eric Van Hensbergen <ericvh@gmail.com>
+	Tue, 21 Jun 2005 09:49:29 -0400
+Received: from mail.gmx.net ([213.165.64.20]:56805 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261326AbVFUNTl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 09:19:41 -0400
+X-Authenticated: #8834078
+From: Dominik Karall <dominik.karall@gmx.net>
 To: Andrew Morton <akpm@osdl.org>
-Subject: Re: v9fs (-mm -> 2.6.13 merge status)
+Subject: Re: 2.6.12-rc6-mm1
+Date: Tue, 21 Jun 2005 15:20:41 +0200
+User-Agent: KMail/1.8.1
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050620235458.5b437274.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050620235458.5b437274.akpm@osdl.org>
+References: <20050607042931.23f8f8e0.akpm@osdl.org>
+In-Reply-To: <20050607042931.23f8f8e0.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1742071.Wk27oaBrvb";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200506211520.44645.dominik.karall@gmx.net>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/21/05, Andrew Morton <akpm@osdl.org> wrote:
-> 
-> v9fs
-> 
->     I'm not sure that this has a sufficiently high
->     usefulness-to-maintenance-cost ratio.
-> 
- 
-I think v9fs/9P has some unique aspects which differentiate it from
-the other distributed system protocols integrated into Linux:
-a) it presents a unified distributed resource sharing protocol.  It
-will be able to distribute devices, file systems, system services, and
-application interfaces.
-b) it provides non-caching RPC-style access to synthetic file systems
-which could be used with in-kernel file systems such as sysfs or with
-user-space synthetics such as those provided by FUSE
-c) its implementation supports transport independence enabling easy
-support for different interconnects (shared memory, Xen device
-channels, RDMA, Infiniband, etc.)
+--nextPart1742071.Wk27oaBrvb
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-v9fs-2.0 has a somewhat limited audience at the moment - but now that
-the initial implementation is more or less complete we are working to
-build applications on top of it (and provide a better server).  It's
-being integrated into cluster projects at LANL and being looked at wrt
-virtualization I/O at IBM.  Its our hope that these improvements and
-cluster applications will motivate more wide-spread use of the v9fs
-module.
+On Tuesday 07 June 2005 13:29, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc6/=
+2.
+>6.12-rc6-mm1/
 
-     -eric
+After looking in my dmesg output today, I saw following error with=20
+2.6.12-rc6-mm1, maybe it's usefull to you. I don't know when it exactly=20
+happens, cause I never used mono last time, I just did an emerge mono on my=
+=20
+gentoo system, maybe this forced the failure.
+
+note: mono[26736] exited with preempt_count 1
+scheduling while atomic: mono/0x10000001/26736
+
+Call Trace:<ffffffff803e13ea>{schedule+122} <ffffffff8013197b>{vprintk+635}
+       <ffffffff803e2738>{cond_resched+56} <ffffffff80164de3>{unmap_vmas+15=
+87}
+       <ffffffff8016a560>{exit_mmap+128} <ffffffff8012e7bf>{mmput+31}
+       <ffffffff80133466>{do_exit+438}=20
+<ffffffff8013bf25>{__dequeue_signal+501}
+       <ffffffff801340c8>{do_group_exit+280}=20
+<ffffffff8013e147>{get_signal_to_deliver+1575}
+       <ffffffff8010de92>{do_signal+162}=20
+<ffffffff8012d1e0>{default_wake_function+0}
+       <ffffffff8010e8e1>{sys_rt_sigreturn+577}=20
+<ffffffff8010eb3f>{sysret_signal+28}
+       <ffffffff8010ee27>{ptregscall_common+103}
+
+cheers,
+dominik
+
+--nextPart1742071.Wk27oaBrvb
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1-ecc0.1.6 (GNU/Linux)
+
+iQCVAwUAQrgULAvcoSHvsHMnAQIH+gQAm//dGYW7rdUWj5CWZPcnoXl5vWQSCAqX
+owbOHP9KIW50BAJMqvxLlc14LXLPjNQJQyXLH4O0HmvS+R8DQR1onVCNqGaEcKAj
+GDHQDWvq045RTMz7j/2e3oRKrli5WHPANSZ/A2KrCwlFJYAC1WyPdsfvnCucbbk0
+hKB97TuJ9IU=
+=JNo8
+-----END PGP SIGNATURE-----
+
+--nextPart1742071.Wk27oaBrvb--

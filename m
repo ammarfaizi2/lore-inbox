@@ -1,58 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261859AbVFUEyu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261571AbVFUE7T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261859AbVFUEyu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 00:54:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261867AbVFUEu0
+	id S261571AbVFUE7T (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 00:59:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261554AbVFUE7N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 00:50:26 -0400
-Received: from smtp-out4.blueyonder.co.uk ([195.188.213.7]:49257 "EHLO
-	smtp-out4.blueyonder.co.uk") by vger.kernel.org with ESMTP
-	id S261746AbVFUErA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 00:47:00 -0400
-Message-ID: <42B79BC6.3010201@blueyonder.co.uk>
-Date: Tue, 21 Jun 2005 05:47:02 +0100
-From: Sid Boyce <sboyce@blueyonder.co.uk>
-Reply-To: sboyce@blueyonder.co.uk
-Organization: blueyonder.co.uk
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
+	Tue, 21 Jun 2005 00:59:13 -0400
+Received: from dvhart.com ([64.146.134.43]:25265 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S261571AbVFUE6O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 00:58:14 -0400
+Date: Mon, 20 Jun 2005 21:58:17 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: dipankar@in.ibm.com
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andi Kleen <ak@muc.de>
+Subject: Re: 2.6.12-git1 broken on x86_64 (works on 2.6.12)
+Message-ID: <207600000.1119329897@[10.10.2.4]>
+In-Reply-To: <20050620211826.GD4622@in.ibm.com>
+References: <563690000.1119299756@flay> <20050620211826.GD4622@in.ibm.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] new driver for yealink usb-p1k phone
-References: <42B7990D.8000500@blueyonder.co.uk>
-In-Reply-To: <42B7990D.8000500@blueyonder.co.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 21 Jun 2005 04:47:40.0777 (UTC) FILETIME=[5AFF4D90:01C5761C]
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sid Boyce wrote:
-> I had to apply drivers/usb/Makefile and drivers/usb/input/Kconfig by 
-> hand to 2.6.12, the rest applied ok.
-> scripts/kconfig/conf -o arch/i386/Kconfig
-> drivers/usb/input/Kconfig:213: syntax error, unexpected T_WORD
-> drivers/usb/input/Kconfig:215: invalid menu option
-> drivers/usb/input/Kconfig:216: syntax error, unexpected T_WORD
-> drivers/usb/input/Kconfig:219: invalid menu option
-> drivers/usb/input/Kconfig:219: syntax error, unexpected T_WORD
-> drivers/usb/input/Kconfig:222: invalid menu option
-> make[1]: *** [oldconfig] Error 1
-> make: *** [oldconfig] Error 2
-> 
-> My phone is the SkypePhone SK-04 (without the LCD) and this patch seems 
-> to address the problems I'm having such keypad not working, no ring or 
-> hands free/headset audio, the mic works in all configurations. Currently 
-> it only works through the handset. tech@phoneskype not responding to any 
-> of my emails.
-> It could be finger trouble, I shall look again when I've had some sleep.
-> Regards
-> Sid.
 
-Oops, tabs were missing, it's building.
-Regards
-Sid.
--- 
-Sid Boyce ... Hamradio License G3VBV, Keen licensed Private Pilot
-Retired IBM Mainframes and Sun Servers Tech Support Specialist
-Microsoft Windows Free Zone - Linux used for all Computing Tasks
+
+--Dipankar Sarma <dipankar@in.ibm.com> wrote (on Tuesday, June 21, 2005 02:48:26 +0530):
+
+> On Mon, Jun 20, 2005 at 01:35:56PM -0700, Martin J. Bligh wrote:
+>> Fails to reboot, see:
+>> 
+>> http://ftp.kernel.org/pub/linux/kernel/people/mbligh/abat/6035/debug/console.log
+>> 
+>> basically:
+>> 
+>> VFS: Cannot open root device "sda1" or unknown-block(0,0)
+>> Please append a correct "root=" boot option
+>> Kernel panic - not syncing: VFS: Unable to mount root fs on unknown-block(0,0)
+>> 
+>> Looks like it didn't find the SCSI card at all ... MPT fusion, IIRC.
+>> I'll poke at it a bit tommorow, but if you've got any good guesses as
+>> to what broke it, let me know (hopefully something trivial like config
+>> options).
+> 
+> If ABAT copies an older .config with CONFIG_FUSION=y, the new config
+> disables it since it now has two different options CONFIG_FUSION_SPI
+> and CONFIG_FUSION_FC. Try manually setting those two new fusion options.
+> 
+> I had to do this in 2.6.12-mm1.
+
+Yay, that fixed it. Awesome - thanks ;-)
+
+M.
+

@@ -1,66 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262100AbVFUPQl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262127AbVFUPeK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262100AbVFUPQl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 11:16:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262118AbVFUPOx
+	id S262127AbVFUPeK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 11:34:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262125AbVFUP3c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 11:14:53 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:10412 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S262100AbVFUPNc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 11:13:32 -0400
-Date: Tue, 21 Jun 2005 17:13:38 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>
-cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       George Anzinger <george@mvista.com>
-Subject: Re: [PATCH 1/6] new timeofday core subsystem for -mm (v.B3)
-In-Reply-To: <42B7D304.25920.5055F4E@rkdvmks1.ngate.uni-regensburg.de>
-Message-ID: <Pine.LNX.4.61.0506211708530.3728@scrub.home>
-References: <1119287354.9947.22.camel@cog.beaverton.ibm.com>
- <42B7D304.25920.5055F4E@rkdvmks1.ngate.uni-regensburg.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 21 Jun 2005 11:29:32 -0400
+Received: from zproxy.gmail.com ([64.233.162.204]:14748 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262126AbVFUP1C convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 11:27:02 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=LcGj6IUfW5JnzgYtg+dfED2ZJYV1KiKGaXEa4aOYcacv0STk/udgXPvv1HNgoxLmEzGVyRWwSzxmk054HMvEs3+qB+8oz9UxiM/5cUSXgU4zC2ejClJsgtYfKs/8ayJrrPJafnb5IBgDuYty62GUdd5Xf9byHpJ9+ZpnU5Kgrz4=
+Message-ID: <3aa654a405062108266a1d2df8@mail.gmail.com>
+Date: Tue, 21 Jun 2005 08:26:57 -0700
+From: Avuton Olrich <avuton@gmail.com>
+Reply-To: Avuton Olrich <avuton@gmail.com>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Subject: Re: -mm -> 2.6.13 merge status (fuse)
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <E1Dkfu2-0005Ju-00@dorka.pomaz.szeredi.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050620235458.5b437274.akpm@osdl.org>
+	 <E1Dkfu2-0005Ju-00@dorka.pomaz.szeredi.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Tue, 21 Jun 2005, Ulrich Windl wrote:
-
-> > You don't really answer the core question, why do you change everything to 
-> > nanoseconds and 64bit values?
+On 6/21/05, Miklos Szeredi <miklos@szeredi.hu> wrote:
+> I won't shed many tears if you drop fuse-nfs-export.patch.  It would
+> at least give the userspace solution some boost.
 > 
-> Because just multiplying the microseconds by one thousand doesn't really provide a 
-> nanosecond clock, maybe?
+> However the patch is pretty small, and despite it's flaws, I know it's
+> used by a number of people.
 
-What are you trying to tell me?
+Why not leave it up to the user as an option, for the time being at
+least. Does this somehow break things?
 
-> > With -mm you can now choose the HZ value, so that's not really the 
-> > problem anymore. A lot of archs even never changed to a higher HZ value. 
-> 
-> Did you ever do an analysis how this affected clock quality? See 
-> comp.protocols.time.ntp for all the complains about broken kernels (I think Redhat 
-> had it first, then the others followed).
+thanks,
+avuton
 
-So how exactly does this patch fix this?
-
-> > So now I still like to know how does the complexity change compared to the 
-> > old code?
-> 
-> You can have a look at the code. That's the point where you can decide about 
-> complexity. I haven't looked closely, but I guess it was O(1) before, and now also 
-> is O(1).
-
-You guess or you know?
-
-> > As m68k maintainer I see no reason to ever switch to your new code, which 
-> > might leave you with the dilemma having to maintain two versions of the 
-> > timer code. What reason could I have to switch to the new timer code?
-> 
-> I never knew the 68k has such a poor performance.
-
-Usually it's code that either is efficient or performs badly.
-
-bye, Roman
+-- 
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

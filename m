@@ -1,57 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261439AbVFUN7j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261333AbVFUOMT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261439AbVFUN7j (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 09:59:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbVFUN5N
+	id S261333AbVFUOMT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 10:12:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262041AbVFUOJW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 09:57:13 -0400
-Received: from crl-mail-dmz.crl.hpl.hp.com ([192.58.210.9]:50359 "EHLO
-	crl-mailb.crl.dec.com") by vger.kernel.org with ESMTP
-	id S261333AbVFUNzy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 09:55:54 -0400
-Message-ID: <42B81C5B.4030304@hp.com>
-Date: Tue, 21 Jun 2005 09:55:39 -0400
-From: Jamey Hicks <jamey.hicks@hp.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: recursive call to platform_device_register deadlocks
-References: <42B43226.20703@hp.com> <20050619055924.GA14674@kroah.com>
-In-Reply-To: <20050619055924.GA14674@kroah.com>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-HPLC-MailScanner-Information: Please contact the ISP for more information
-X-HPLC-MailScanner: Found to be clean
-X-HPLC-MailScanner-SpamCheck: not spam (whitelisted),
-	SpamAssassin (score=-4.9, required 5, BAYES_00 -4.90)
+	Tue, 21 Jun 2005 10:09:22 -0400
+Received: from galileo.bork.org ([134.117.69.57]:22983 "HELO galileo.bork.org")
+	by vger.kernel.org with SMTP id S261836AbVFUOIe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 10:08:34 -0400
+Date: Tue, 21 Jun 2005 10:08:31 -0400
+From: Martin Hicks <mort@wildopensource.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: -mm -> 2.6.13 merge status
+Message-ID: <20050621140831.GQ29510@localhost>
+References: <20050620235458.5b437274.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050620235458.5b437274.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
 
->On Sat, Jun 18, 2005 at 10:39:34AM -0400, Jamey Hicks wrote:
->  
->
->>We could restructure the toplevel driver so that it does not call 
->>platform_device inside its probe function.  An alternative would be to 
->>add a pointer to a vector of subdevices to platform_device and have it 
->>register the subdevices after it has probed the toplevel device.  Do you 
->>have any recommendations?
->>    
->>
->
->Use the -mm kernel, this should be allowed in that release, due to a
->rework of the driver core logic in this area.  Can you test this out and
->verify this?
->
->  
->
-I tested 2.6.12-mm1 yesterday and verified that it allows recursive 
-calls to platform_device.
 
-Jamey
+On Mon, Jun 20, 2005 at 11:54:58PM -0700, Andrew Morton wrote:
+> 
+> vm-early-zone-reclaim
+> 
+>     Needs some convincing benchmark numbers to back it up.  Otherwise OK.
 
+The only benchmarks I have for this were included in my last mail to
+linux-mm:
+
+http://marc.theaimsgroup.com/?l=linux-mm&m=111763597218177&w=2
+
+Are they convincing?  Well, the patch doesn't seem to make the memory
+thrashing case much worse ("make -j" kernbench run) which is a good
+thing since the VM is trying to reclaim much earlier.
+
+In the same e-mail I mention that there is a fairly good performance
+gain in the optimal case, where processes are tied to a single node and
+the node's memory is filled with page cache.  With zone reclaim turned
+on the "make -j8" kernel build runs in 700 seconds;  735 seconds with
+no reclaim.
+
+mh
+
+-- 
+Martin Hicks                Wild Open Source Inc.
+mort@wildopensource.com     613-266-2296

@@ -1,53 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262231AbVFUSsE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262235AbVFUSvW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262231AbVFUSsE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 14:48:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262232AbVFUSsE
+	id S262235AbVFUSvW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 14:51:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262232AbVFUSvV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 14:48:04 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:27283 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S262231AbVFUSr6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 14:47:58 -0400
-Message-ID: <42B860D9.60109@namesys.com>
-Date: Tue, 21 Jun 2005 11:47:53 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Edward Shishkin <edward@namesys.com>
-CC: Andrew James Wade 
-	<ajwade@cpe00095b3131a0-cm0011ae8cd564.cpe.net.cable.rogers.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       reiserfs-dev@namesys.com
-Subject: Re: [PATCH] Fix Reiser4 Dependencies
-References: <20050619233029.45dd66b8.akpm@osdl.org> <200506200832.22260.ajwade@cpe00095b3131a0-cm0011ae8cd564.cpe.net.cable.rogers.com> <42B70A6D.7030308@namesys.com> <200506201644.10429.ajwade@cpe00095b3131a0-cm0011ae8cd564.cpe.net.cable.rogers.com> <42B7F98B.5050405@namesys.com>
-In-Reply-To: <42B7F98B.5050405@namesys.com>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 21 Jun 2005 14:51:21 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:51364 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261311AbVFUSvK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 14:51:10 -0400
+Subject: Re: PATCH: IDE - sensible probing for PCI systems
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Maciej W. Rozycki" <macro@linux-mips.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61L.0506211535100.17779@blysk.ds.pg.gda.pl>
+References: <1119356601.3279.118.camel@localhost.localdomain>
+	 <Pine.LNX.4.61L.0506211422190.9446@blysk.ds.pg.gda.pl>
+	 <1119363150.3325.151.camel@localhost.localdomain>
+	 <Pine.LNX.4.61L.0506211535100.17779@blysk.ds.pg.gda.pl>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1119379587.3325.182.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 21 Jun 2005 19:46:29 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Edward Shishkin wrote:
+>  How is the range defined -- is there a way for us to find it?  I'd assume 
+> in the absence of a PCI-ISA or PCI-EISA bridge all I/O port addresses 
+> belong to PCI.  Otherwise the usual rule of "(addr & 0x300) == 0" applies.  
+> Perhaps with the addition of "(addr & ~0xff) != 0" for safety as junk I/O 
+> is often not recorded properly in BARs, sigh...
 
->
-> Hello,
-> ZLIB_INFLATE/DEFLATE  will be selected by special reiser4 related
-> configuration
-> option "Enable reiser4 compression plugins of gzip family"
-> (REISER4_ZLIB), but
-> since this kind of support was discussed, it is in our working
-> repository for a while..
->
-> Anyway thanks,
-> Edward.
+No the low addresses belong to the chipset and motherboard. There is
+also magic then for video and IDE legacy port ranges. I suspect your
+mips boxen might be a lot cleaner than the PC world.
 
-I am sorry, are you telling him that it works for you because you have
-code that is different?  Did I misunderstand you?  How is what is in
-your working repository relevant to anybody but you?  Please supply a
-full update patch.
-
-Hans
+Alan
 

@@ -1,44 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261389AbVFUN7h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261460AbVFUN7e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261389AbVFUN7h (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 09:59:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261472AbVFUN4u
+	id S261460AbVFUN7e (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 09:59:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261439AbVFUN4U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 09:56:50 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:5550 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261389AbVFUN4I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 09:56:08 -0400
-Date: Tue, 21 Jun 2005 09:56:01 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: cutaway@bellsouth.net
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] do_execve() perf improvement opportunity?
-In-Reply-To: <000d01c5762c$5e399dc0$2800000a@pc365dualp2>
-Message-ID: <Pine.LNX.4.61.0506210954090.14739@chimarrao.boston.redhat.com>
-References: <000d01c5762c$5e399dc0$2800000a@pc365dualp2>
+	Tue, 21 Jun 2005 09:56:20 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:19903 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S261425AbVFUNxB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 09:53:01 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: <cutaway@bellsouth.net>, "Jesper Juhl" <juhl-lkml@dif.dk>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] cleanup patches for strings
+Date: Tue, 21 Jun 2005 16:52:05 +0300
+User-Agent: KMail/1.5.4
+Cc: "Andrew Morton" <akpm@osdl.org>, "Jeff Garzik" <jgarzik@pobox.com>,
+       "Domen Puncer" <domen@coderock.org>
+References: <Pine.LNX.4.62.0506200052320.2415@dragon.hyggekrogen.localhost> <200506211606.59233.vda@ilport.com.ua> <01ff01c5766e$de750be0$2800000a@pc365dualp2>
+In-Reply-To: <01ff01c5766e$de750be0$2800000a@pc365dualp2>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200506211652.05817.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Jun 2005 cutaway@bellsouth.net wrote:
+On Tuesday 21 June 2005 17:38, cutaway@bellsouth.net wrote:
+> Congratulations, you proved that a register push is faster than a 3 byte
+> memory push.  I believe this is exactly what I said would happen if the
+> autovar pointer wound up being enregistered.
+> 
+> However, it is NOT what GCC will generate for pushing params to static
+> strings.
+> 
+> For that you're going to get a 5 byte PUSH imm32.
 
-> I'm thinking it may be possible to very cheaply cache a pointer to the 
-> last allocation here rather than freeing it and just recycle it for the 
-> next exec saving a trip through the slab machanism.
+My fault, I already mailed the corrected program.
+Please see it. Now please admit you were wrong.
+--
+vda
 
-Note that the slab mechanism can do allocations locally
-on each CPU in an SMP system, while your pointer would
-need some cross-CPU synchronisation.  Also, you could
-end up using the bprm from a CPU on a remote NUMA node,
-instead of a local piece of memory.
-
-Still, it would be interesting/educational to know if your
-optimisation makes a difference on single CPU systems.
-
--- 
-The Theory of Escalating Commitment: "The cost of continuing mistakes is
-borne by others, while the cost of admitting mistakes is borne by yourself."
-  -- Joseph Stiglitz, Nobel Laureate in Economics

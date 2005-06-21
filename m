@@ -1,114 +1,276 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261280AbVFUMHq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261279AbVFUMHr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261280AbVFUMHq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 08:07:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261296AbVFUMGG
+	id S261279AbVFUMHr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 08:07:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261159AbVFUMFL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 08:06:06 -0400
-Received: from alog0132.analogic.com ([208.224.220.147]:153 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261280AbVFUMB1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 08:01:27 -0400
-Date: Tue, 21 Jun 2005 08:01:16 -0400 (EDT)
-From: "Richard B. Johnson" <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Dave Jones <davej@redhat.com>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.6.12
-In-Reply-To: <20050621115516.GC592@redhat.com>
-Message-ID: <Pine.LNX.4.61.0506210756230.9871@chaos.analogic.com>
-References: <Pine.LNX.4.61.0506200857450.5213@chaos.analogic.com>
- <20050621003203.GB28908@redhat.com> <Pine.LNX.4.61.0506210629110.8815@chaos.analogic.com>
- <20050621111301.GA592@redhat.com> <Pine.LNX.4.61.0506210714400.9115@chaos.analogic.com>
- <20050621113040.GB592@redhat.com> <Pine.LNX.4.61.0506210733430.9577@chaos.analogic.com>
- <20050621115516.GC592@redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 21 Jun 2005 08:05:11 -0400
+Received: from relay.rost.ru ([80.254.111.11]:9383 "EHLO relay.rost.ru")
+	by vger.kernel.org with ESMTP id S261302AbVFUMBb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 08:01:31 -0400
+Date: Tue, 21 Jun 2005 16:01:27 +0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: -mm -> 2.6.13 merge status
+Message-ID: <20050621120127.GA4695@pazke>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20050620235458.5b437274.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="uAKRQypu60I7Lcqm"
+Content-Disposition: inline
+In-Reply-To: <20050620235458.5b437274.akpm@osdl.org>
+X-Uname: Linux 2.6.11-pazke i686
+User-Agent: Mutt/1.5.9i
+From: Andrey Panin <pazke@donpac.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Jun 2005, Dave Jones wrote:
 
-> On Tue, Jun 21, 2005 at 07:36:21AM -0400, Richard B. Johnson wrote:
-> > On Tue, 21 Jun 2005, Dave Jones wrote:
-> >
-> > >On Tue, Jun 21, 2005 at 07:17:55AM -0400, Richard B. Johnson wrote:
-> > >
-> > >> >> Bullshit. The source is available to anybody who wants it.
-> > >> >Great. Then please explain why you pull off this kind of crap..
-> > >> >(DataLink/license.c)
-> > >> Because it's true.
-> > >
-> > >kernel/module.c:1259 disagrees with you.
-> > >
-> > >static inline int license_is_gpl_compatible(const char *license)
-> > >{
-> > >   return (strcmp(license, "GPL") == 0
-> > >       || strcmp(license, "GPL v2") == 0
-> > >       || strcmp(license, "GPL and additional rights") == 0
-> > >       || strcmp(license, "Dual BSD/GPL") == 0
-> > >       || strcmp(license, "Dual MPL/GPL") == 0);
-> > >}
-> > >
-> > >> >MODULE_LICENSE("GPL\0 They won't allow GPL/BSD anymore!");
-> > >
-> > >AFAICS, this is just plain deception. I suggest reading
-> > >http://marc.theaimsgroup.com/?l=linux-kernel&m=108304056922350&w=2
-> > >especially the part about talking to lawyers.
-> > >
-> > >		Dave
-> > >
-> >
-> > At the time the work-around was inserted it was FACT.
->
-> According to the RCS file in the tarball you sent, license.c
-> was written on 2004.11.09.16.54.17;
-> It most certainly was around back then.
->
-> > I don't
-> > spend my time rewriting license strings to accommodate the
-> > whims of the latest GPL fanatic, thank you.
->
-> So I see. So instead you subvert the checks instead.
->
-> btw, text like this..
->
-> *     #                   C O N F I D E N T I A L                      #
-> *     #  The information contained  in or upon  this document  is the  #
-> *     #  property  of  Analogic Corporation and  is considered to  be  #
-> *     #  proprietary  and  may  not  be used by any recipient without  #
-> *     #  the specific written permission of Analogic Corporation.      #
->
+--uAKRQypu60I7Lcqm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This is USER MODE TEST code! I case you can't read, check for main().
-In the real world, we write test code to verify that the driver(s)
-work. The test code has the company standard header as required by
-the company management. That's what real engineers have to do,
-satisfy the customers, and the management. We do not, however,
-have to satisfy you.
+On 171, 06 20, 2005 at 11:54:58 -0700, Andrew Morton wrote:
+>=20
+> This summarises my current thinking on various patches which are presently
+> in -mm.  I cover large things and small-but-controversial things.  Anythi=
+ng
+> which isn't covered here (and that's a lot of material) is probably a "wi=
+ll
+> merge", unless it obviously isn't.
+>=20
+> (If you reply to this email it would be a good idea to alter the Subject:
+> to reflect which feature you are discussing)
+>=20
+>=20
+>=20
+> git-ocfs
+>=20
+>     The OCFS2 filesystem.  OK by me, although I'm not sure it's had enough
+>     review.
+>=20
+> sparsemem
+>=20
+>     OK by me for a merge.  Need to poke arch maintainers first, check that
+>     they've looked at it sufficiently closely.
+>=20
+> vm-early-zone-reclaim
+>=20
+>     Needs some convincing benchmark numbers to back it up.  Otherwise OK.
+>=20
+> avoiding-mmap-fragmentation
+>=20
+>     Tricky.  Addresses vm area fragmentation issues due to recent
+>     optimisations to the free-area lookup code.  Will merge.
+>=20
+> periodically-drain-non-local-pagesets
+>=20
+>     Will merge
+>=20
+> pcibus_to_node and users
+>=20
+>     Will merge
+>=20
+> CONFIG_HZ for x86 and ia64: changes default HZ to 250, make HZ Kconfigura=
+ble.
+>=20
+>     Will merge (will switch default to 1000 Hz later if that seems necess=
+ary)
+>=20
+> dmi-*.patch
+>=20
+>     Will merge.  I have a comment "The below break x440".  Maybe it got
+>     fixed.  We'll doubtless hear if not.
 
-> Just fills me with confidence about the GPL'd nature of this driver.
->
-> Due to the "C O N F I D E N T I A L" nature of this driver, I've stopped
-> reading. Pity, datalink.c was quite amusing.
->
+Fixed, patch merged in -mm as dmi-move-acpi-sleep-quirk-fix.patch
 
-You are really sad.
+http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D111829134708641&w=3D2
+http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D111832375203467&w=3D2
 
+> xen-*.patch
+>=20
+>     These are little cleanups and abstractions which make a Xen merge
+>     easier.  May as well merge them.
+>=20
+> CPU hotplug for x86 and x86_64
+>=20
+>     Not really useful on current hardware, but these provide
+>     infrastructure which some power management patches need, and it seems
+>     sensible to make the reference architecture support hotplug.  Will me=
+rge.
+>=20
+> swsusp-on-SMP
+>=20
+>     Will merge.
+>=20
+> cfq version 3
+>=20
+>     Not sure.  Jens seems to be setting up a few git trees.  On hold.
+>=20
+> RCUification of the key management code
+>=20
+>     Don't know - dhowells seemed diffident last time we discussed this.
+>=20
+> timers-fixes-improvements.patch
+>=20
+>     SMP speedups for the core timer code.  It was bumpy, but this seems
+>     stable now.  Will merge.
+>=20
+> kprobes-*
+>=20
+>     Will merge
+>=20
+> rapidio-*
+>=20
+>     Will merge.
+>=20
+> namespace*.patch
+>=20
+>     Awaiting viro ack.
+>=20
+> xtensa architecture
+>=20
+>     Is xtensa now, or will it be in the future a sufficiently popular
+>     architecture to justify the cost of having this code in the tree?
+>=20
+>     Heaven knows.  Will merge.
+>=20
+> dlm-*.patch: Red Hat distributed lock manager
+>=20
+>     Hard.  Right now it seems that no in-kernel projects will use this and
+>     only one out-of-kernel project will use it.  Shelve the problem until
+>     after Kernel Summit, where some light may be shed.
+>=20
+>     Opinions are sought...
+>=20
+> connector.patch
+>=20
+>     Nice idea IMO, but there are still questions around the
+>     implementation.  More dialogue needed ;)
+>=20
+> connector-add-a-fork-connector.patch
+>=20
+>     OK, but needs connector.
+>=20
+> inotify
+>=20
+>     There are still concerns about the userspace API and internal
+>     implementation details.  More slogging needed.
+>=20
+> pcmcia-*.patch
+>=20
+>     Makes the pcmcia layer generate hotplug events and deprecates cardmgr.
+>     Will merge.
+>=20
+> NUMA-aware slab allocator
+>=20
+>     Seems stable now, but it needs some ifdef reduction work before
+>     merging, please.
+>=20
+> CPU scheduler
+>=20
+>     Will merge some of these patches.  We're still discussing which ones.
+>=20
+> perfctr
+>=20
+>     Not yet, but getting closer.  The PPC64 guys still need to sort out a
+>     few interface issues with Mikael.  We might be able to fit this into
+>     2.6.13 if people get a move on.
+>=20
+> cachefs
+>=20
+>     This is a ton of code which knows rather a lot about pagecache
+>     internals.  It allows the AFS client to cache file contents on a local
+>     blockdev.
+>=20
+>     I don't think it's a justified addition for only AFS and I'd prefer to
+>     see it proven for NFS as well.
+>=20
+>     Issues around add-page-becoming-writable-notification.patch need to
+>     be resolved.
+>=20
+> cachefs-for-nfs
+>=20
+>     A recent addition.  Needs review from NFS developers and considerably
+>     more testing.
+>=20
+>     These things aren't looking likely for 2.6.13.
+>=20
+> kexec and kdump
+>=20
+>     I guess we should merge these.
+>=20
+>     I'm still concerned that the various device shutdown problems will
+>     mean that the success rate for crashing kernels is not high enough for
+>     kdump to be considered a success.  In which case in six months time w=
+e'll
+>     hear rumours about vendors shipping wholly different crashdump
+>     implementations, which would be quite bad.
+>=20
+>     But I think this has gone as far as it can go in -mm, so it's a bit of
+>     a punt.
+>=20
+> reiser4
+>=20
+>     Merge it, I guess.
+>=20
+>     The patches still contain all the reiser4-specific namespace
+>     enhancements, only it is disabled, so it is effectively dead code.  M=
+aybe
+>     we should ask that it actually be removed?
+>=20
+> v9fs
+>=20
+>     I'm not sure that this has a sufficiently high
+>     usefulness-to-maintenance-cost ratio.
+>=20
+> fuse
+>=20
+>     This is useful, but there are, AFAIK, two issues:
+>=20
+>     - We're still deadlocked over some permission-checking hacks in there
+>=20
+>     - It has an NFS server implementation which only works if the
+>       to-be-served file happens to be in dcache.
+>=20
+>       It has been said that a userspace NFS server can be used to get
+>       full NFS server functionality with FUSE.  I think the half-assed ke=
+rnel
+>       implementation should be done away with.
+>=20
+> execute-in-place
+>=20
+>     Will merge.  Have the embedded guys commented on the usefulness of
+>     this for execute-out-of-ROM?
+>=20
+>=20
+>=20
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>=20
 
-> *  Changed a lot of code to accommodate the stupid and sometimes
-> *  downright wrong changes to the Linux kernel that occurred in
-> *  Version 2.6.n.
-> *
-> *  Yes. It's broken. I had to hard-code a bunch of stuff using
-> *  "#define" where previously the kernel provided a logical
-> *  value.
->
-> 		Dave
->
+--=20
+Andrey Panin		| Linux and UNIX system administrator
+pazke@donpac.ru		| PGP key: wwwkeys.pgp.net
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.12 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+--uAKRQypu60I7Lcqm
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFCuAGXR2OTnxNuAyMRAsLHAJ9LgvSv1PubHTQRtBdq5BpMbHhT5QCgsyIW
+aXiXA3orr7YV6GY819jEWm0=
+=Iib4
+-----END PGP SIGNATURE-----
+
+--uAKRQypu60I7Lcqm--

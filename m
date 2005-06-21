@@ -1,299 +1,298 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262099AbVFUJyt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262062AbVFUJyx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262099AbVFUJyt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 05:54:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbVFUHzO
+	id S262062AbVFUJyx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 05:54:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261969AbVFUH7l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 03:55:14 -0400
-Received: from mail.kroah.org ([69.55.234.183]:43491 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261972AbVFUGap convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 02:30:45 -0400
-Cc: gregkh@suse.de
-Subject: [PATCH] devfs: Remove the mode field from usb_class_driver as it's no longer needed
-In-Reply-To: <11193354441545@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Mon, 20 Jun 2005 23:30:44 -0700
-Message-Id: <1119335444505@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Greg K-H <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
+	Tue, 21 Jun 2005 03:59:41 -0400
+Received: from mail.kroah.org ([69.55.234.183]:16099 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261928AbVFUG33 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 02:29:29 -0400
+Date: Mon, 20 Jun 2005 23:29:26 -0700
 From: Greg KH <gregkh@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [GIT PATCH] Remove devfs from 2.6.12-git
+Message-ID: <20050621062926.GB15062@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] devfs: Remove the mode field from usb_class_driver as it's no longer needed
+Just in time for a July release, here's a patch series that removes
+devfs from the kernel tree as promised.  This one incorporates all of
+the suggestions from the previous posting of this set, and handles some
+recent additions of new drivers to your git tree from the main 2.6.12
+release.
 
-Also fixes all drivers that set this field, and removes some other devfs
-specfic USB logic.
+Please pull from:
+	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/devfs-2.6.git/
 
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+Or if that hasn't synced yet from:
+	/pub/scm/linux/kernel/git/gregkh/devfs-2.6.git/
+on master.kernel.org
 
----
-commit 0ab499b19f39b05982ade3656e2e7c170f641d30
-tree 97061c501ba74b2fdc8668b9849bb83c1baa38f5
-parent 6016070ebcf5d293914273424f8de465f66a7802
-author Greg Kroah-Hartman <gregkh@suse.de> Mon, 20 Jun 2005 21:15:16 -0700
-committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 20 Jun 2005 23:13:41 -0700
+The full patch series will sent to the linux-kernel mailing list, if
+anyone wants to see them.
 
- drivers/usb/class/usblp.c           |    3 +--
- drivers/usb/core/file.c             |   12 ++++--------
- drivers/usb/image/mdc800.c          |    3 +--
- drivers/usb/input/aiptek.c          |    2 +-
- drivers/usb/input/hiddev.c          |    3 +--
- drivers/usb/media/dabusb.c          |    3 +--
- drivers/usb/misc/auerswald.c        |    3 +--
- drivers/usb/misc/idmouse.c          |    5 ++---
- drivers/usb/misc/legousbtower.c     |    5 ++---
- drivers/usb/misc/rio500.c           |    3 +--
- drivers/usb/misc/sisusbvga/sisusb.c |    3 +--
- drivers/usb/misc/usblcd.c           |    9 ++++-----
- drivers/usb/usb-skeleton.c          |    3 +--
- include/linux/usb.h                 |    7 ++-----
- 14 files changed, 23 insertions(+), 41 deletions(-)
+thanks,
 
-diff --git a/drivers/usb/class/usblp.c b/drivers/usb/class/usblp.c
---- a/drivers/usb/class/usblp.c
-+++ b/drivers/usb/class/usblp.c
-@@ -838,9 +838,8 @@ static struct file_operations usblp_fops
- };
- 
- static struct usb_class_driver usblp_class = {
--	.name =		"usb/lp%d",
-+	.name =		"lp%d",
- 	.fops =		&usblp_fops,
--	.mode =		S_IFCHR | S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP,
- 	.minor_base =	USBLP_MINOR_BASE,
- };
- 
-diff --git a/drivers/usb/core/file.c b/drivers/usb/core/file.c
---- a/drivers/usb/core/file.c
-+++ b/drivers/usb/core/file.c
-@@ -108,8 +108,7 @@ void usb_major_cleanup(void)
-  * enabled, the minor number will be based on the next available free minor,
-  * starting at the class_driver->minor_base.
-  *
-- * This function also creates the devfs file for the usb device, if devfs
-- * is enabled, and creates a usb class device in the sysfs tree.
-+ * This function also creates a usb class device in the sysfs tree.
-  *
-  * usb_deregister_dev() must be called when the driver is done with
-  * the minor numbers given out by this function.
-@@ -158,10 +157,8 @@ int usb_register_dev(struct usb_interfac
- 
- 	intf->minor = minor;
- 
--	/* handle the devfs registration */
--	snprintf(name, BUS_ID_SIZE, class_driver->name, minor - minor_base);
--
- 	/* create a usb class device for this usb interface */
-+	snprintf(name, BUS_ID_SIZE, class_driver->name, minor - minor_base);
- 	temp = strrchr(name, '/');
- 	if (temp && (temp[1] != 0x00))
- 		++temp;
-@@ -189,9 +186,8 @@ EXPORT_SYMBOL(usb_register_dev);
-  * call to usb_register_dev() (usually when the device is disconnected
-  * from the system.)
-  *
-- * This function also cleans up the devfs file for the usb device, if devfs
-- * is enabled, and removes the usb class device from the sysfs tree.
-- * 
-+ * This function also removes the usb class device from the sysfs tree.
-+ *
-  * This should be called by all drivers that use the USB major number.
-  */
- void usb_deregister_dev(struct usb_interface *intf,
-diff --git a/drivers/usb/image/mdc800.c b/drivers/usb/image/mdc800.c
---- a/drivers/usb/image/mdc800.c
-+++ b/drivers/usb/image/mdc800.c
-@@ -425,9 +425,8 @@ static void mdc800_usb_download_notify (
- static struct usb_driver mdc800_usb_driver;
- static struct file_operations mdc800_device_ops;
- static struct usb_class_driver mdc800_class = {
--	.name =		"usb/mdc800%d",
-+	.name =		"mdc800%d",
- 	.fops =		&mdc800_device_ops,
--	.mode =		S_IFCHR | S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP,
- 	.minor_base =	MDC800_DEVICE_MINOR_BASE,
- };
- 
-diff --git a/drivers/usb/input/aiptek.c b/drivers/usb/input/aiptek.c
---- a/drivers/usb/input/aiptek.c
-+++ b/drivers/usb/input/aiptek.c
-@@ -2170,7 +2170,7 @@ aiptek_probe(struct usb_interface *intf,
- 	 * input_handles associated with this input device.
- 	 * What identifies an evdev input_handler is that it begins
- 	 * with 'event', continues with a digit, and that in turn
--	 * is mapped to /{devfs}/input/eventN.
-+	 * is mapped to input/eventN.
- 	 */
- 	inputdev = &aiptek->inputdev;
- 	list_for_each_safe(node, next, &inputdev->h_list) {
-diff --git a/drivers/usb/input/hiddev.c b/drivers/usb/input/hiddev.c
---- a/drivers/usb/input/hiddev.c
-+++ b/drivers/usb/input/hiddev.c
-@@ -730,9 +730,8 @@ static struct file_operations hiddev_fop
- };
- 
- static struct usb_class_driver hiddev_class = {
--	.name =		"usb/hid/hiddev%d",
-+	.name =		"hiddev%d",
- 	.fops =		&hiddev_fops,
--	.mode =		S_IFCHR | S_IRUGO | S_IWUSR,
-        	.minor_base =	HIDDEV_MINOR_BASE,
- };
- 
-diff --git a/drivers/usb/media/dabusb.c b/drivers/usb/media/dabusb.c
---- a/drivers/usb/media/dabusb.c
-+++ b/drivers/usb/media/dabusb.c
-@@ -707,9 +707,8 @@ static struct file_operations dabusb_fop
- };
- 
- static struct usb_class_driver dabusb_class = {
--	.name =		"usb/dabusb%d",
-+	.name =		"dabusb%d",
- 	.fops =		&dabusb_fops,
--	.mode =		S_IFCHR | S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP,
- 	.minor_base =	DABUSB_MINOR,
- };
- 
-diff --git a/drivers/usb/misc/auerswald.c b/drivers/usb/misc/auerswald.c
---- a/drivers/usb/misc/auerswald.c
-+++ b/drivers/usb/misc/auerswald.c
-@@ -1874,9 +1874,8 @@ static struct file_operations auerswald_
- };
- 
- static struct usb_class_driver auerswald_class = {
--	.name =		"usb/auer%d",
-+	.name =		"auer%d",
- 	.fops =		&auerswald_fops,
--	.mode =		S_IFCHR | S_IRUGO | S_IWUGO,
- 	.minor_base =	AUER_MINOR_BASE,
- };
- 
-diff --git a/drivers/usb/misc/idmouse.c b/drivers/usb/misc/idmouse.c
---- a/drivers/usb/misc/idmouse.c
-+++ b/drivers/usb/misc/idmouse.c
-@@ -86,11 +86,10 @@ static struct file_operations idmouse_fo
- 	.release = idmouse_release,
- };
- 
--/* class driver information for devfs */
-+/* class driver information */
- static struct usb_class_driver idmouse_class = {
--	.name = "usb/idmouse%d",
-+	.name = "idmouse%d",
- 	.fops = &idmouse_fops,
--	.mode = S_IFCHR | S_IRUSR | S_IRGRP | S_IROTH, /* filemode (char, 444) */
- 	.minor_base = USB_IDMOUSE_MINOR_BASE,
- };
- 
-diff --git a/drivers/usb/misc/legousbtower.c b/drivers/usb/misc/legousbtower.c
---- a/drivers/usb/misc/legousbtower.c
-+++ b/drivers/usb/misc/legousbtower.c
-@@ -271,12 +271,11 @@ static struct file_operations tower_fops
- 
- /*
-  * usb class driver info in order to get a minor number from the usb core,
-- * and to have the device registered with devfs and the driver core
-+ * and to have the device registered with the driver core
-  */
- static struct usb_class_driver tower_class = {
--	.name =		"usb/legousbtower%d",
-+	.name =		"legousbtower%d",
- 	.fops =		&tower_fops,
--	.mode =		S_IFCHR | S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH,
- 	.minor_base =	LEGO_USB_TOWER_MINOR_BASE,
- };
- 
-diff --git a/drivers/usb/misc/rio500.c b/drivers/usb/misc/rio500.c
---- a/drivers/usb/misc/rio500.c
-+++ b/drivers/usb/misc/rio500.c
-@@ -443,9 +443,8 @@ file_operations usb_rio_fops = {
- };
- 
- static struct usb_class_driver usb_rio_class = {
--	.name =		"usb/rio500%d",
-+	.name =		"rio500%d",
- 	.fops =		&usb_rio_fops,
--	.mode =		S_IFCHR | S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP,
- 	.minor_base =	RIO_MINOR,
- };
- 
-diff --git a/drivers/usb/misc/sisusbvga/sisusb.c b/drivers/usb/misc/sisusbvga/sisusb.c
---- a/drivers/usb/misc/sisusbvga/sisusb.c
-+++ b/drivers/usb/misc/sisusbvga/sisusb.c
-@@ -2895,9 +2895,8 @@ static struct file_operations usb_sisusb
- };
- 
- static struct usb_class_driver usb_sisusb_class = {
--	.name =		"usb/sisusbvga%d",
-+	.name =		"sisusbvga%d",
- 	.fops =		&usb_sisusb_fops,
--	.mode =		S_IFCHR | S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP,
- 	.minor_base =	SISUSB_MINOR
- };
- 
-diff --git a/drivers/usb/misc/usblcd.c b/drivers/usb/misc/usblcd.c
---- a/drivers/usb/misc/usblcd.c
-+++ b/drivers/usb/misc/usblcd.c
-@@ -251,13 +251,12 @@ static struct file_operations lcd_fops =
- };
- 
- /*
-- *  * usb class driver info in order to get a minor number from the usb core,
-- *   * and to have the device registered with devfs and the driver core
-- *    */
-+ * usb class driver info in order to get a minor number from the usb core,
-+ * and to have the device registered with the driver core
-+ */
- static struct usb_class_driver lcd_class = {
--        .name =         "usb/lcd%d",
-+        .name =         "lcd%d",
-         .fops =         &lcd_fops,
--        .mode =         S_IFCHR | S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH,
-         .minor_base =   USBLCD_MINOR,
- };
- 
-diff --git a/drivers/usb/usb-skeleton.c b/drivers/usb/usb-skeleton.c
---- a/drivers/usb/usb-skeleton.c
-+++ b/drivers/usb/usb-skeleton.c
-@@ -223,9 +223,8 @@ static struct file_operations skel_fops 
-  * and to have the device registered with devfs and the driver core
-  */
- static struct usb_class_driver skel_class = {
--	.name =		"usb/skel%d",
-+	.name =		"skel%d",
- 	.fops =		&skel_fops,
--	.mode =		S_IFCHR | S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH,
- 	.minor_base =	USB_SKEL_MINOR_BASE,
- };
- 
-diff --git a/include/linux/usb.h b/include/linux/usb.h
---- a/include/linux/usb.h
-+++ b/include/linux/usb.h
-@@ -570,10 +570,8 @@ extern struct bus_type usb_bus_type;
- 
- /**
-  * struct usb_class_driver - identifies a USB driver that wants to use the USB major number
-- * @name: devfs name for this driver.  Will also be used by the driver
-- *	class code to create a usb class device.
-+ * @name: the usb class device name for this driver.  Will show up in sysfs.
-  * @fops: pointer to the struct file_operations of this driver.
-- * @mode: the mode for the devfs file to be created for this driver.
-  * @minor_base: the start of the minor range for this driver.
-  *
-  * This structure is used for the usb_register_dev() and
-@@ -583,8 +581,7 @@ extern struct bus_type usb_bus_type;
- struct usb_class_driver {
- 	char *name;
- 	struct file_operations *fops;
--	mode_t mode;
--	int minor_base;	
-+	int minor_base;
- };
- 
- /*
+greg k-h
 
+
+ Documentation/filesystems/devfs/ChangeLog         | 1977 ---------------
+ Documentation/filesystems/devfs/README            | 1964 ---------------
+ Documentation/filesystems/devfs/ToDo              |   40 
+ Documentation/filesystems/devfs/boot-options      |   65 
+ arch/i386/kernel/microcode.c                      |    1 
+ arch/ppc/4xx_io/serial_sicc.c                     |    2 
+ arch/sh/kernel/cpu/sh4/sq.c                       |    1 
+ arch/sparc64/solaris/socksys.c                    |    4 
+ arch/um/drivers/line.c                            |    2 
+ arch/um/drivers/mmapper_kern.c                    |    1 
+ arch/um/drivers/ssl.c                             |    1 
+ arch/um/drivers/stdio_console.c                   |    1 
+ arch/um/drivers/ubd_kern.c                        |   18 
+ arch/um/include/line.h                            |    1 
+ drivers/block/DAC960.c                            |    1 
+ drivers/block/acsi.c                              |    5 
+ drivers/block/acsi_slm.c                          |   10 
+ drivers/block/cciss.c                             |    1 
+ drivers/block/cpqarray.c                          |    5 
+ drivers/block/floppy.c                            |   55 
+ drivers/block/loop.c                              |    6 
+ drivers/block/nbd.c                               |    5 
+ drivers/block/paride/pg.c                         |   18 
+ drivers/block/paride/pt.c                         |   21 
+ drivers/block/pktcdvd.c                           |    1 
+ drivers/block/ps2esdi.c                           |    1 
+ drivers/block/rd.c                                |    5 
+ drivers/block/swim3.c                             |    4 
+ drivers/block/sx8.c                               |    5 
+ drivers/block/ub.c                                |    6 
+ drivers/block/umem.c                              |    1 
+ drivers/block/viodasd.c                           |    3 
+ drivers/block/xd.c                                |    1 
+ drivers/block/z2ram.c                             |    1 
+ drivers/cdrom/aztcd.c                             |    1 
+ drivers/cdrom/cdu31a.c                            |    1 
+ drivers/cdrom/cm206.c                             |    1 
+ drivers/cdrom/gscd.c                              |    1 
+ drivers/cdrom/mcdx.c                              |    1 
+ drivers/cdrom/optcd.c                             |    1 
+ drivers/cdrom/sbpcd.c                             |    6 
+ drivers/cdrom/sjcd.c                              |    1 
+ drivers/cdrom/sonycd535.c                         |    1 
+ drivers/cdrom/viocd.c                             |    3 
+ drivers/char/cyclades.c                           |    1 
+ drivers/char/dsp56k.c                             |   10 
+ drivers/char/dtlk.c                               |    5 
+ drivers/char/epca.c                               |    1 
+ drivers/char/esp.c                                |    1 
+ drivers/char/ftape/zftape/zftape-init.c           |   25 
+ drivers/char/hvc_console.c                        |    1 
+ drivers/char/hvcs.c                               |    1 
+ drivers/char/hvsi.c                               |    1 
+ drivers/char/ip2main.c                            |   24 
+ drivers/char/ipmi/ipmi_devintf.c                  |    8 
+ drivers/char/isicom.c                             |    1 
+ drivers/char/istallion.c                          |   13 
+ drivers/char/lp.c                                 |    7 
+ drivers/char/mem.c                                |    8 
+ drivers/char/misc.c                               |   15 
+ drivers/char/mmtimer.c                            |    2 
+ drivers/char/moxa.c                               |    1 
+ drivers/char/ppdev.c                              |   15 
+ drivers/char/pty.c                                |    8 
+ drivers/char/raw.c                                |   15 
+ drivers/char/riscom8.c                            |    1 
+ drivers/char/rocket.c                             |    5 
+ drivers/char/serial167.c                          |    1 
+ drivers/char/stallion.c                           |   14 
+ drivers/char/tipar.c                              |   16 
+ drivers/char/tty_io.c                             |   17 
+ drivers/char/vc_screen.c                          |   11 
+ drivers/char/viocons.c                            |    1 
+ drivers/char/viotape.c                            |   10 
+ drivers/char/vme_scc.c                            |    1 
+ drivers/char/vt.c                                 |    2 
+ drivers/i2c/i2c-dev.c                             |    7 
+ drivers/ide/ide-cd.c                              |    2 
+ drivers/ide/ide-disk.c                            |    2 
+ drivers/ide/ide-floppy.c                          |    1 
+ drivers/ide/ide-probe.c                           |   13 
+ drivers/ide/ide-tape.c                            |   14 
+ drivers/ide/ide.c                                 |   12 
+ drivers/ieee1394/amdtp.c                          |   12 
+ drivers/ieee1394/dv1394.c                         |   23 
+ drivers/ieee1394/ieee1394_core.c                  |   16 
+ drivers/ieee1394/ieee1394_core.h                  |    1 
+ drivers/ieee1394/raw1394.c                        |    7 
+ drivers/ieee1394/video1394.c                      |   14 
+ drivers/input/evdev.c                             |    4 
+ drivers/input/input.c                             |   11 
+ drivers/input/joydev.c                            |    4 
+ drivers/input/mousedev.c                          |    7 
+ drivers/input/serio/serio_raw.c                   |    1 
+ drivers/input/tsdev.c                             |    7 
+ drivers/isdn/capi/capi.c                          |    5 
+ drivers/isdn/hardware/eicon/divamnt.c             |    3 
+ drivers/isdn/hardware/eicon/divasi.c              |    3 
+ drivers/isdn/hardware/eicon/divasmain.c           |    3 
+ drivers/isdn/i4l/isdn_tty.c                       |    3 
+ drivers/macintosh/adb.c                           |    3 
+ drivers/macintosh/macserial.c                     |    1 
+ drivers/md/dm-ioctl.c                             |   30 
+ drivers/md/dm.c                                   |    2 
+ drivers/md/md.c                                   |   30 
+ drivers/media/dvb/dvb-core/dvbdev.c               |   13 
+ drivers/media/dvb/dvb-core/dvbdev.h               |    1 
+ drivers/media/dvb/ttpci/av7110.h                  |    4 
+ drivers/media/dvb/ttusb-budget/dvb-ttusb-budget.c |   11 
+ drivers/media/radio/miropcm20-rds.c               |    1 
+ drivers/media/video/arv.c                         |    1 
+ drivers/media/video/videodev.c                    |   11 
+ drivers/message/i2o/i2o_block.c                   |    1 
+ drivers/mmc/mmc_block.c                           |    4 
+ drivers/mtd/mtd_blkdevs.c                         |    6 
+ drivers/mtd/mtdchar.c                             |   45 
+ drivers/net/ppp_generic.c                         |    9 
+ drivers/net/tun.c                                 |    1 
+ drivers/net/wan/cosa.c                            |   14 
+ drivers/s390/block/dasd.c                         |    4 
+ drivers/s390/block/dasd_genhd.c                   |    2 
+ drivers/s390/block/dasd_int.h                     |    1 
+ drivers/s390/block/xpram.c                        |    6 
+ drivers/s390/char/monreader.c                     |    1 
+ drivers/s390/char/tty3270.c                       |    3 
+ drivers/s390/crypto/z90main.c                     |    1 
+ drivers/s390/net/ctctty.c                         |    2 
+ drivers/sbus/char/bpp.c                           |    9 
+ drivers/sbus/char/vfc.h                           |    2 
+ drivers/sbus/char/vfc_dev.c                       |    7 
+ drivers/scsi/ch.c                                 |    4 
+ drivers/scsi/osst.c                               |   26 
+ drivers/scsi/scsi.c                               |    3 
+ drivers/scsi/scsi_scan.c                          |    6 
+ drivers/scsi/sd.c                                 |    2 
+ drivers/scsi/sg.c                                 |    9 
+ drivers/scsi/sr.c                                 |    2 
+ drivers/scsi/st.c                                 |   21 
+ drivers/serial/21285.c                            |    1 
+ drivers/serial/8250.c                             |    1 
+ drivers/serial/au1x00_uart.c                      |    1 
+ drivers/serial/crisv10.c                          |    2 
+ drivers/serial/dz.c                               |    4 
+ drivers/serial/imx.c                              |    1 
+ drivers/serial/ip22zilog.c                        |    1 
+ drivers/serial/m32r_sio.c                         |    1 
+ drivers/serial/mcfserial.c                        |    1 
+ drivers/serial/mpc52xx_uart.c                     |    1 
+ drivers/serial/mpsc.c                             |    2 
+ drivers/serial/pmac_zilog.c                       |    1 
+ drivers/serial/pxa.c                              |    1 
+ drivers/serial/s3c2410.c                          |    2 
+ drivers/serial/sa1100.c                           |    1 
+ drivers/serial/serial_core.c                      |    5 
+ drivers/serial/serial_txx9.c                      |    3 
+ drivers/serial/sh-sci.c                           |    3 
+ drivers/serial/sunsab.c                           |    1 
+ drivers/serial/sunsu.c                            |    1 
+ drivers/serial/sunzilog.c                         |    1 
+ drivers/serial/v850e_uart.c                       |    1 
+ drivers/serial/vr41xx_siu.c                       |    1 
+ drivers/tc/zs.c                                   |    3 
+ drivers/telephony/phonedev.c                      |    4 
+ drivers/usb/class/bluetty.c                       |    7 
+ drivers/usb/class/cdc-acm.c                       |    3 
+ drivers/usb/class/usblp.c                         |    3 
+ drivers/usb/core/file.c                           |   19 
+ drivers/usb/gadget/serial.c                       |    3 
+ drivers/usb/image/mdc800.c                        |    3 
+ drivers/usb/input/aiptek.c                        |    2 
+ drivers/usb/input/hiddev.c                        |    6 
+ drivers/usb/media/dabusb.c                        |    3 
+ drivers/usb/misc/auerswald.c                      |    3 
+ drivers/usb/misc/idmouse.c                        |    5 
+ drivers/usb/misc/legousbtower.c                   |    5 
+ drivers/usb/misc/rio500.c                         |    3 
+ drivers/usb/misc/sisusbvga/sisusb.c               |    3 
+ drivers/usb/misc/usblcd.c                         |    9 
+ drivers/usb/serial/usb-serial.c                   |    3 
+ drivers/usb/usb-skeleton.c                        |    7 
+ drivers/video/fbmem.c                             |    5 
+ fs/Kconfig                                        |   50 
+ fs/Makefile                                       |    1 
+ fs/block_dev.c                                    |    1 
+ fs/char_dev.c                                     |    1 
+ fs/coda/psdev.c                                   |   23 
+ fs/compat_ioctl.c                                 |    1 
+ fs/devfs/Makefile                                 |    8 
+ fs/devfs/base.c                                   | 2838 ----------------------
+ fs/devfs/util.c                                   |   97 
+ fs/partitions/Makefile                            |    1 
+ fs/partitions/check.c                             |   32 
+ fs/partitions/devfs.c                             |  130 -
+ fs/partitions/devfs.h                             |   10 
+ include/asm-ppc/ocp.h                             |    1 
+ include/linux/compat_ioctl.h                      |    5 
+ include/linux/devfs_fs.h                          |   41 
+ include/linux/devfs_fs_kernel.h                   |   58 
+ include/linux/fb.h                                |    1 
+ include/linux/genhd.h                             |    2 
+ include/linux/ide.h                               |    1 
+ include/linux/miscdevice.h                        |    1 
+ include/linux/serial_core.h                       |    1 
+ include/linux/tty_driver.h                        |   14 
+ include/linux/usb.h                               |    7 
+ include/linux/videodev.h                          |    1 
+ include/scsi/scsi_device.h                        |    1 
+ init/Makefile                                     |    1 
+ init/do_mounts.c                                  |    8 
+ init/do_mounts.h                                  |   16 
+ init/do_mounts_devfs.c                            |  137 -
+ init/do_mounts_initrd.c                           |    6 
+ init/do_mounts_md.c                               |    7 
+ init/do_mounts_rd.c                               |    4 
+ init/main.c                                       |    1 
+ mm/shmem.c                                        |    5 
+ mm/tiny-shmem.c                                   |    4 
+ net/bluetooth/rfcomm/tty.c                        |    3 
+ net/irda/ircomm/ircomm_tty.c                      |    1 
+ net/irda/irnet/irnet.h                            |    1 
+ sound/core/info.c                                 |    1 
+ sound/core/sound.c                                |   22 
+ sound/oss/soundcard.c                             |   16 
+ sound/sound_core.c                                |    6 
+ 224 files changed, 116 insertions(+), 8552 deletions(-)
+
+-----------------------
+
+Greg Kroah-Hartman:
+  devfs: Last little devfs cleanups throughout the kernel tree.
+  devfs: Rename TTY_DRIVER_NO_DEVFS to TTY_DRIVER_DYNAMIC_DEV
+  devfs: Remove the mode field from usb_class_driver as it's no longer needed
+  devfs: Remove the tty_driver devfs_name field as it's no longer needed
+  devfs: Remove the scsi_disk devfs_name field as it's no longer needed
+  devfs: Remove the ide drive devfs_name field as it's no longer needed
+  devfs: Remove the line_driver devfs_name field as it's no longer needed
+  devfs: Remove the videodevice devfs_name field as it's no longer needed
+  devfs: Remove the gendisk devfs_name field as it's no longer needed
+  devfs: Remove the uart_driver devfs_name field as it's no longer needed
+  devfs: Remove the devfs_fs_kernel.h file from the tree
+  devfs: Remove the miscdevice devfs_name field as it's no longer needed
+  devfs: Remove devfs_remove() function from the kernel tree
+  devfs: Remove devfs_mk_cdev() function from the kernel tree
+  devfs: Remove devfs_mk_bdev() function from the kernel tree
+  devfs: Remove devfs_mk_dir() function from the kernel tree
+  devfs: Remove devfs_mk_symlink() function from the kernel tree
+  devfs: Remove devfs_*_tape() functions from the kernel tree
+  devfs: Remove devfs from the init code
+  devfs: Remove devfs from the kernel tree
+  devfs: Remove devfs documentation from the kernel tree
+  devfs: Remove devfs from the partition code
+
+ 

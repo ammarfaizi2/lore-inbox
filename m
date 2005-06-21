@@ -1,58 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262298AbVFUUZG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262295AbVFUU26@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262298AbVFUUZG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 16:25:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262315AbVFUUXD
+	id S262295AbVFUU26 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 16:28:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262318AbVFUU07
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 16:23:03 -0400
-Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:8138 "EHLO
-	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S262311AbVFUUUz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 16:20:55 -0400
-Date: Tue, 21 Jun 2005 13:20:37 -0700
-From: Tony Lindgren <tony@atomide.com>
-To: Joerg Sommrey <jo@sommrey.de>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Juergen Brunk <Juergen.Brunk@eurolog.com>, johan.heikkila@netikka.fi,
-       Tarmo Jarvalt <tarmo.jarvalt@mail.ee>,
-       Johnathan Hicks <thetech@folkwolf.net>
-Subject: Re: [PATCH 2.6.12] amd76x_pm: C2 powersaving for AMD K7
-Message-ID: <20050621202035.GE31391@atomide.com>
-References: <20050620205334.GA28230@sommrey.de>
+	Tue, 21 Jun 2005 16:26:59 -0400
+Received: from mail.fh-wedel.de ([213.39.232.198]:51915 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S262315AbVFUUZa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 16:25:30 -0400
+Date: Tue, 21 Jun 2005 22:25:29 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: nanakos@wired-net.gr
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6 sendfile
+Message-ID: <20050621202529.GC19562@wohnheim.fh-wedel.de>
+References: <50773.62.38.141.127.1119357138.squirrel@webmail.wired-net.gr> <20050621125243.GA7139@wohnheim.fh-wedel.de> <39281.62.38.143.212.1119384443.squirrel@webmail.wired-net.gr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20050620205334.GA28230@sommrey.de>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <39281.62.38.143.212.1119384443.squirrel@webmail.wired-net.gr>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Joerg Sommrey <jo@sommrey.de> [050620 13:54]:
-> This is a processor idle module for AMD SMP 760MP(X) based systems.
-> The patch was originally written by Tony Lindgren and has been around
-> since 2002.  It enables C2 mode on AMD SMP systems and thus saves
-> about 70 - 90 W of energy in the idle mode compared to the default idle
-> mode.  The idle function has been rewritten and now should be free of
-> locking issues and is independent from the number of CPUs.  The impact
-> from this module on the system clock has been reduced. 
+On Tue, 21 June 2005 23:07:23 +0300, nanakos@wired-net.gr wrote:
 > 
-> This patch can also be found at
-> http://www.sommrey.de/amd76x_pm/amd_76x_pm-2.6.12-jo1.patch
+> Very interesting patches,but what i need to is a pacth or some points so i
+> can change the existing source code according to my needs.Can someone help
+> me on that?
+> The existing sendfile system call copies data from a file descriptor to a
+> socket descriptor.I have already a program that i have to port that uses
+> the sendfile syscall from 2.4.x series kernels.In 2.6.x doesnt work.What
+> are the minimal changes that have to be done so i can use again the
+> syscall in 2.6.x kernel's???
 
-Cool. Just once comment:
+The first two patches (generic_sendpage.patch and sendfile.patch)
+should be all you need.  But they were rather quick hack and I haven't
+seriously looked at them for quite a while.
 
-> +// #define AMD76X_NTH 1
-> +// #define AMD76X_POS 1
-> +// #define AMD76X_C3 1
+Maybe I should change that.  Several people appear to be generally
+interested in the subject.
 
-How about separating all this ifdef code into a separate debug patch on top
-of the amd_76x_pm patch? Or just leave it out as I don't think anybody is
-using it. It would shrink down the patch quite a bit and make it more
-readable.
+Jörn
 
-I won't be able to access my dual athlon box until September, so I'm not
-much of help with this module :)
-
-Regards,
-
-Tony
+-- 
+Data dominates. If you've chosen the right data structures and organized
+things well, the algorithms will almost always be self-evident. Data
+structures, not algorithms, are central to programming.
+-- Rob Pike

@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262358AbVFUWkl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262294AbVFUWkk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262358AbVFUWkl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 18:40:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262427AbVFUWju
+	id S262294AbVFUWkk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 18:40:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262421AbVFUWji
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 18:39:50 -0400
-Received: from mxfep02.bredband.com ([195.54.107.73]:51914 "EHLO
+	Tue, 21 Jun 2005 18:39:38 -0400
+Received: from mxfep02.bredband.com ([195.54.107.73]:60610 "EHLO
 	mxfep02.bredband.com") by vger.kernel.org with ESMTP
-	id S261809AbVFUWRw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 18:17:52 -0400
-Message-ID: <42B89227.6050501@bredband.net>
-Date: Wed, 22 Jun 2005 00:18:15 +0200
+	id S262294AbVFUWPl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 18:15:41 -0400
+Message-ID: <42B8919A.1080109@bredband.net>
+Date: Wed, 22 Jun 2005 00:15:54 +0200
 From: =?ISO-8859-1?Q?Patrik_H=E4gglund?= <patrik.hagglund@bredband.net>
 User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
 X-Accept-Language: en-us, en
@@ -40,10 +40,10 @@ SHED_OTHER processes. Therefore, using high priorities for kernel
 threads was not an option. However, this comes at the price of breaking 
 SCHED_FIFO/SCHED_RR.
 
-The only clean solution is probably to have priorities that are 
-exclusively reserved for use by the kernel. I saw that kernel threads in 
-LynxOS may use a priority of 1/2 above of the user-space tasks it 
-serves. This seems like a good solution to the problem.
+The only clean solution is probably to have priorities that are reserved 
+for kernel threads. I saw that kernel threads in LynxOS may use a 
+priority of 1/2 above of the user-space tasks it serves. This seems like 
+a good solution to the problem.
 
 Any other patches out there, ready for a test?
 

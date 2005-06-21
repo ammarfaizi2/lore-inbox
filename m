@@ -1,41 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262488AbVFUV2n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262371AbVFUVZF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262488AbVFUV2n (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 17:28:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262522AbVFUV2j
+	id S262371AbVFUVZF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 17:25:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262537AbVFUVYd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 17:28:39 -0400
-Received: from wproxy.gmail.com ([64.233.184.201]:15885 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262488AbVFUV2T convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 17:28:19 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=EpTLhdZU2gl0/h5EDndQ/zZN6Lf3Ao7awXmj1GiGDMoY0kpzJr+jmU1MJwXX8S3DkQ/5u33jU6dQTlE1HDJZsq99y5U9KaFlCRu8OxAgi7Xc1ESaLo34iKvmDJOugzRpqS0T1cb/jQBo2oKUHsQZpKBz1rt83pXiledbjUEyMwU=
-Message-ID: <5c77e707050621142841ad3225@mail.gmail.com>
-Date: Tue, 21 Jun 2005 23:28:11 +0200
-From: Carsten Otte <cotte.de@gmail.com>
-Reply-To: Carsten Otte <cotte.de@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: -mm -> 2.6.13 merge status
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050621132204.1b57b6ba.akpm@osdl.org>
+	Tue, 21 Jun 2005 17:24:33 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:4780 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262531AbVFUVYB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 17:24:01 -0400
+Date: Tue, 21 Jun 2005 14:23:17 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Bart De Schuymer <bdschuym@pandora.be>
+Cc: Patrick McHardy <kaber@trash.net>, Bart De Schuymer <bdschuym@telenet.be>,
+       Herbert Xu <herbert@gondor.apana.org.au>,
+       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
+       rankincj@yahoo.com, ebtables-devel@lists.sourceforge.net,
+       netfilter-devel@manty.net
+Subject: Re: 2.6.12: connection tracking broken?
+Message-ID: <20050621212317.GB9153@shell0.pdx.osdl.net>
+References: <E1Dk9nK-0001ww-00@gondolin.me.apana.org.au> <Pine.LNX.4.62.0506200432100.31737@kaber.coreworks.de> <1119249575.3387.3.camel@localhost.localdomain> <42B6B373.20507@trash.net> <1119293193.3381.9.camel@localhost.localdomain> <42B74FC5.3070404@trash.net> <1119338382.3390.24.camel@localhost.localdomain> <42B82F35.3040909@trash.net> <1119386772.3379.4.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20050620235458.5b437274.akpm@osdl.org>
-	 <42B831B4.9020603@pobox.com> <20050621132204.1b57b6ba.akpm@osdl.org>
+In-Reply-To: <1119386772.3379.4.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/21/05, Andrew Morton <akpm@osdl.org> wrote:
-> > and indeed vendors ARE shipping
-> > other crashdump methods.
+* Bart De Schuymer (bdschuym@pandora.be) wrote:
+> Op di, 21-06-2005 te 17:16 +0200, schreef Patrick McHardy:
+> > I unfortunately don't see a way to remove it, but we should keep
+> > thinking about it. Can you please check if the attached patch is
+> > correct? It should exclude all packets handled by bridge-netfilter
+> > from having their conntrack reference dropped. I didn't add nf_reset()'s
+> > to the bridging code because with tc actions the packets can end up
+> > anywhere else anyway, and this will hopefully get fixed right sometime.
 > 
-> Which ones?
-For 390, we ship standalone bootable crashdump tools with both sles
-and rhel. As for kexec, I'd like to see a kexec based 390 bootloader
-in the future which would be more flexible then our current one. So
-I'd like to vote for merging kexec/kdump.
+> Looks good.
+
+Is this one good for -stable?
+
+thanks,
+-chris

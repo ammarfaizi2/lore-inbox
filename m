@@ -1,63 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261888AbVFUNft@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261376AbVFUNTs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261888AbVFUNft (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 09:35:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261465AbVFUNXD
+	id S261376AbVFUNTs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 09:19:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261431AbVFUNSr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 09:23:03 -0400
-Received: from coderock.org ([193.77.147.115]:31617 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S261453AbVFUNVI (ORCPT
+	Tue, 21 Jun 2005 09:18:47 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:1452 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261315AbVFUNPR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 09:21:08 -0400
-Date: Tue, 21 Jun 2005 15:21:00 +0200
-From: Domen Puncer <domen@coderock.org>
-To: "Maciej W. Rozycki" <macro@linux-mips.org>
-Cc: axboe@suse.de, linux-kernel@vger.kernel.org,
-       Nishanth Aravamudan <nacc@us.ibm.com>
-Subject: Re: [patch 04/12] block/xd: replace schedule_timeout() with msleep()
-Message-ID: <20050621132100.GL3906@nd47.coderock.org>
-References: <20050620215133.675387000@nd47.coderock.org> <Pine.LNX.4.61L.0506211233490.9446@blysk.ds.pg.gda.pl>
+	Tue, 21 Jun 2005 09:15:17 -0400
+Date: Tue, 21 Jun 2005 15:12:49 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: William Weston <weston@sysex.net>
+Cc: "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
+       "Eugeny S. Mints" <emints@ru.mvista.com>,
+       Daniel Walker <dwalker@mvista.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
+Message-ID: <20050621131249.GB22691@elte.hu>
+References: <20050608112801.GA31084@elte.hu> <42B0F72D.5040405@cybsft.com> <20050616072935.GB19772@elte.hu> <42B160F5.9060208@cybsft.com> <20050616173247.GA32552@elte.hu> <Pine.LNX.4.58.0506171139570.32721@echo.lysdexia.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61L.0506211233490.9446@blysk.ds.pg.gda.pl>
+In-Reply-To: <Pine.LNX.4.58.0506171139570.32721@echo.lysdexia.org>
 User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 21/06/05 12:39 +0100, Maciej W. Rozycki wrote:
-> On Mon, 20 Jun 2005 domen@coderock.org wrote:
-> 
-> > From: Nishanth Aravamudan <nacc@us.ibm.com>
-> > 
-> > 
-> > 
-> > Use msleep() instead of schedule_timeout() to guarantee the task
-> > delays as expected. The current code wishes to sleep for 1 jiffy, but I am not
-> > sure if this is actually intended, as with the change to HZ=1000, the time
-> > equivalent of 1 jiffy changed from 10ms to 1ms. I have assumed the former in
-> > this case; however the patch can be easily changed to assume the latter.
-> [...]
-> > @@ -529,10 +530,8 @@ static inline u_char xd_waitport (u_shor
-> >  	int success;
-> >  
-> >  	xdc_busy = 1;
-> > -	while ((success = ((inb(port) & mask) != flags)) && time_before(jiffies, expiry)) {
-> > -		set_current_state(TASK_UNINTERRUPTIBLE);
-> > -		schedule_timeout(1);
-> > -	}
-> > +	while ((success = ((inb(port) & mask) != flags)) && time_before(jiffies, expiry))
-> > +		msleep(10);
-> >  	xdc_busy = 0;
-> >  	return (success);
-> >  }
-> 
->  I think it's obvious what this code intends and this makes the function 
-> to busy-loop instead of giving up the CPU friendly.  The change makes no 
-> sense -- the code is correct as is.
 
-mdelay - busy loop
-msleep - schedule
+* William Weston <weston@sysex.net> wrote:
 
-> 
->  Maciej
+> I also regularly see high (>200us) wakeup latencies on the Xeon/HT, 
+> which I don't see on the Athlon or non-HT Xeon systems.  Disabling IRQ 
+> balancing doesn't seem to help.  It's been a while since the Xeon/HT 
+> box has seen a non-debug kernel, but in the past, that hasn't helped 
+> latencies by more than a few usec.
+
+>   <idle>-0     0Dnh2    4us : find_next_bit (__schedule)
+>   <idle>-0     0Dnh2    4us : _raw_spin_lock (__schedule)
+>   <idle>-0     0Dnh3    4us!: find_next_bit (__schedule)
+>   <idle>-0     0Dnh3  244us : find_next_bit (__schedule)
+>   <idle>-0     0Dnh3  245us : _raw_spin_unlock (__schedule)
+
+this does seem to be similar to other reports where the cause of such 
+latencies was some sort of hardware-level latency. (DMA related delays 
+or other, bus-arbitration related delays)
+
+another possibility is that something interesting happened on another 
+CPU while this latency occured - to debug this please enable all-CPUs 
+tracing:
+
+	echo 1 > /proc/sys/kernel/trace_all_cpus
+
+and send me a new trace.
+
+	Ingo

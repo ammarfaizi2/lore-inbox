@@ -1,44 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262206AbVFURgT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262207AbVFURgf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262206AbVFURgT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 13:36:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262207AbVFURgT
+	id S262207AbVFURgf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 13:36:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbVFURgf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 13:36:19 -0400
-Received: from wproxy.gmail.com ([64.233.184.200]:26313 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262206AbVFURgH convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 13:36:07 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=AF131VYYyEs8uZdetO7TBRk4h9pV6s0qIMCpxDsO3epr8Q+oeYbqXYThiQMpzfOsw8IviglyIYJ6OCpMqWJ/kq7lBGWfh9v1gKpqS490mfB8AEIbzfo4m/SCUgC5M/7ziqLhZD0PvrAyZcWV8h5g46Ohdv6L5/6fizK1ER91RS4=
-Message-ID: <5c77e70705062110353f180d70@mail.gmail.com>
-Date: Tue, 21 Jun 2005 19:35:21 +0200
-From: Carsten Otte <cotte.de@gmail.com>
-Reply-To: Carsten Otte <cotte.de@gmail.com>
-To: Greg KH <gregkh@suse.de>
-Subject: Re: [GIT PATCH] Remove devfs from 2.6.12-git
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com
-In-Reply-To: <20050621062926.GB15062@kroah.com>
+	Tue, 21 Jun 2005 13:36:35 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:60836 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262208AbVFURgK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 13:36:10 -0400
+Subject: Re: IBM HDAPS Someone interested?
+From: Lee Revell <rlrevell@joe-job.com>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Adam Goode <adam@evdebs.org>, Pavel Machek <pavel@suse.cz>,
+       Alejandro Bonilla <abonilla@linuxwireless.org>,
+       linux-kernel@vger.kernel.org, linux-thinkpad@linux-thinkpad.org
+In-Reply-To: <20050621164519.GA11601@ucw.cz>
+References: <20050620155720.GA22535@ucw.cz>
+	 <005401c575b3_5f5bba90_600cc60a@amer.sykes.com>
+	 <20050620163456.GA24111@ucw.cz> <20050620165703.GB477@openzaurus.ucw.cz>
+	 <20050620204533.GA9520@ucw.cz>
+	 <1119303016.5194.24.camel@lynx.auton.cs.cmu.edu>
+	 <1119368259.19357.18.camel@mindpipe>  <20050621164519.GA11601@ucw.cz>
+Content-Type: text/plain
+Date: Tue, 21 Jun 2005 13:36:03 -0400
+Message-Id: <1119375363.4569.2.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050621062926.GB15062@kroah.com>
+X-Mailer: Evolution 2.3.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/21/05, Greg KH <gregkh@suse.de> wrote:
->  drivers/s390/block/dasd.c                         |    4
->  drivers/s390/block/dasd_genhd.c                   |    2
->  drivers/s390/block/dasd_int.h                     |    1
->  drivers/s390/block/xpram.c                        |    6
->  drivers/s390/char/monreader.c                     |    1
->  drivers/s390/char/tty3270.c                       |    3
->  drivers/s390/crypto/z90main.c                     |    1
->  drivers/s390/net/ctctty.c                         |    2
-As for our drivers, I don't see any breakage on reading the patches.
-If it gets merged,
-we should make sure to try it once before next release.
+On Tue, 2005-06-21 at 18:45 +0200, Vojtech Pavlik wrote:
+> On Tue, Jun 21, 2005 at 11:37:38AM -0400, Lee Revell wrote:
+> > Ugh, if userspace can't meet a 300ms RT constraint, that's a pretty
+> > shitty OS you have there.
+> 
+> It's not that you do one measurement in the 300ms. You need to do at least
+> 100, and some computations, too.
+> 
+> > This should certainly be done in userspace on Linux.
+> 
+> So it's a 3ms RT constraint, which is not as easy.
+> 
+
+Heh, we do it all the time with JACK.
+
+But, I think I was wrong anyway, you'll have to do it in the kernel
+because you would need PREEMPT to meet that with any degree of
+certainty.
+
+Lee
+

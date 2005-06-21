@@ -1,270 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262359AbVFUVAf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262356AbVFUVAe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262359AbVFUVAf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 17:00:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbVFUU6K
+	id S262356AbVFUVAe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 17:00:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262362AbVFUU7D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 16:58:10 -0400
-Received: from fmr20.intel.com ([134.134.136.19]:17068 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S262350AbVFUUyU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 16:54:20 -0400
-Message-Id: <20050621205406.996100000@linux.jf.intel.com>
-References: <20050621205343.548977000@linux.jf.intel.com>
-Date: Tue, 21 Jun 2005 13:53:47 -0700
-From: Rusty Lynch <rusty.lynch@intel.com>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org,
-       linux-ia64@vger.kernel.org, Tony Luck <tony.luck@intel.com>,
-       Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
-       Rusty Lynch <rusty.lynch@intel.com>
-Subject: [patch 4/5] Return probe redesign: ia64 specific implementation
-Content-Disposition: inline; filename=kprobes-return-probes-redux-ia64.patch
+	Tue, 21 Jun 2005 16:59:03 -0400
+Received: from mailwasher.lanl.gov ([192.65.95.54]:64166 "EHLO
+	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
+	id S262344AbVFUUwn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 16:52:43 -0400
+Date: Tue, 21 Jun 2005 14:52:38 -0600 (MDT)
+From: "Ronald G. Minnich" <rminnich@lanl.gov>
+To: linux-kernel@vger.kernel.org
+cc: Eric Van Hensbergen <ericvh@gmail.com>
+Subject: Re: Fwd: v9fs (-mm -> 2.6.13 merge status)
+In-Reply-To: <a4e6962a05062112206e823c0a@mail.gmail.com>
+Message-ID: <Pine.LNX.4.58.0506211352060.21978@enigma.lanl.gov>
+References: <20050620235458.5b437274.akpm@osdl.org>  <a4e6962a05062106515757849d@mail.gmail.com>
+ <a4e6962a05062112206e823c0a@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-PMX-Version: 4.7.0.111621
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patch implements function return probes for ia64 using
-the revised design.  With this new design we no longer need to do some
-of the odd hacks previous required on the last ia64 return probe port
-that I sent out for comments.
 
-Note that this new implementation still does not resolve the problem noted
-by Keith Owens where backtrace data is lost after a return probe is hit.
 
-Changes include:
- * Addition of kretprobe_trampoline to act as a dummy function for instrumented
-   functions to return to, and for the return probe infrastructure to place
-   a kprobe on on, gaining control so that the return probe handler
-   can be called, and so that the instruction pointer can be moved back 
-   to the original return address.
- * Addition of arch_init(), allowing a kprobe to be registered on 
-   kretprobe_trampoline
- * Addition of trampoline_probe_handler() which is used as the pre_handler
-   for the kprobe inserted on kretprobe_implementation.  This is the function
-   that handles the details for calling the return probe handler function
-   and returning control back at the original return address
- * Addition of arch_prepare_kretprobe() which is setup as the pre_handler
-   for a kprobe registered at the beginning of the target function by 
-   kernel/kprobes.c so that a return probe instance can be setup when
-   a caller enters the target function.  (A return probe instance contains
-   all the needed information for trampoline_probe_handler to do it's job.)
- * Hooks added to the exit path of a task so that we can cleanup any left-over
-   return probe instances (i.e. if a task dies while inside a targeted function
-   then the return probe instance was reserved at the beginning of the function
-   but the function never returns so we need to mark the instance as unused.)
+On Tue, 21 Jun 2005, Eric Van Hensbergen wrote:
 
-    --rusty
+> On 6/21/05, Andrew Morton <akpm@osdl.org> wrote:
+> >
+> > v9fs
+> >
+> >     I'm not sure that this has a sufficiently high
+> >     usefulness-to-maintenance-cost ratio.
+> >
 
-signed-off-by: Rusty Lynch <rusty.lynch@intel.com>
+I got pointed at this discussion. Here are my $.02 on why we at LANL are
+interested in v9fs.
 
- arch/ia64/kernel/kprobes.c |  103 ++++++++++++++++++++++++++++++++++++++++++++-
- arch/ia64/kernel/process.c |   16 ++++++
- include/asm-ia64/kprobes.h |   13 +++--
- 3 files changed, 125 insertions(+), 7 deletions(-)
+We build clusters on the order of 2000 machines at present, with larger 
+systems coming along. The system which we use to run these clusters is 
+bproc. While bproc has proven to be very powerful to date, it does have 
+its limits:
+- requires homogenous system
+- the network protocols it uses, while simple, are somewhat ad-hoc 
+  (as is common in this type of system)
+- if you are on a bproc system as user x, using 25% of the system, 
+  you still see 100% of the processes. This is a bit of a security issue. 
 
-Index: linux-2.6.12-mm1/arch/ia64/kernel/kprobes.c
-===================================================================
---- linux-2.6.12-mm1.orig/arch/ia64/kernel/kprobes.c
-+++ linux-2.6.12-mm1/arch/ia64/kernel/kprobes.c
-@@ -290,6 +290,94 @@ static inline void set_current_kprobe(st
- 	current_kprobe = p;
- }
- 
-+static void kretprobe_trampoline(void)
-+{
-+}
-+
-+/*
-+ * At this point the target function has been tricked into
-+ * returning into our trampoline.  Lookup the associated instance
-+ * and then:
-+ *    - call the handler function
-+ *    - cleanup by marking the instance as unused
-+ *    - long jump back to the original return address
-+ */
-+int trampoline_probe_handler(struct kprobe *p, struct pt_regs *regs)
-+{
-+	struct kretprobe_instance *ri = NULL;
-+	struct hlist_head *head;
-+	struct hlist_node *node, *tmp;
-+	unsigned long orig_ret_address = 0;
-+	unsigned long trampoline_address =
-+		((struct fnptr *)kretprobe_trampoline)->ip;
-+
-+        head = kretprobe_inst_table_head(current);
-+
-+	/*
-+	 * It is possible to have multiple instances associated with a given
-+	 * task either because an multiple functions in the call path
-+	 * have a return probe installed on them, and/or more then one return
-+	 * return probe was registered for a target function.
-+	 *
-+	 * We can handle this because:
-+	 *     - instances are always inserted at the head of the list
-+	 *     - when multiple return probes are registered for the same
-+	 *       function, the first instance's ret_addr will point to the
-+	 *       real return address, and all the rest will point to
-+	 *       kretprobe_trampoline
-+	 */
-+	hlist_for_each_entry_safe(ri, node, tmp, head, hlist) {
-+                if (ri->task != current)
-+			/* another task is sharing our hash bucket */
-+                        continue;
-+
-+		if (ri->rp && ri->rp->handler)
-+			ri->rp->handler(ri, regs);
-+
-+		orig_ret_address = (unsigned long)ri->ret_addr;
-+		recycle_rp_inst(ri);
-+
-+		if (orig_ret_address != trampoline_address)
-+			/*
-+			 * This is the real return address. Any other
-+			 * instances associated with this task are for
-+			 * other calls deeper on the call stack
-+			 */
-+			break;
-+	}
-+
-+	BUG_ON(!orig_ret_address || (orig_ret_address == trampoline_address));
-+	regs->cr_iip = orig_ret_address;
-+
-+	unlock_kprobes();
-+	preempt_enable_no_resched();
-+
-+        /*
-+         * By returning a non-zero value, we are telling
-+         * kprobe_handler() that we have handled unlocking
-+         * and re-enabling preemption.
-+         */
-+        return 1;
-+}
-+
-+void arch_prepare_kretprobe(struct kretprobe *rp, struct pt_regs *regs)
-+{
-+	struct kretprobe_instance *ri;
-+
-+	if ((ri = get_free_rp_inst(rp)) != NULL) {
-+		ri->rp = rp;
-+		ri->task = current;
-+		ri->ret_addr = (kprobe_opcode_t *)regs->b0;
-+
-+		/* Replace the return addr with trampoline addr */
-+		regs->b0 = ((struct fnptr *)kretprobe_trampoline)->ip;
-+
-+		add_rp_inst(ri);
-+	} else {
-+		rp->nmissed++;
-+	}
-+}
-+
- int arch_prepare_kprobe(struct kprobe *p)
- {
- 	unsigned long addr = (unsigned long) p->addr;
-@@ -492,8 +580,8 @@ static int pre_kprobes_handler(struct di
- 	if (p->pre_handler && p->pre_handler(p, regs))
- 		/*
- 		 * Our pre-handler is specifically requesting that we just
--		 * do a return.  This is handling the case where the
--		 * pre-handler is really our special jprobe pre-handler.
-+		 * do a return.  This is used for both the jprobe pre-handler
-+		 * and the kretprobe trampoline
- 		 */
- 		return 1;
- 
-@@ -599,3 +687,14 @@ int longjmp_break_handler(struct kprobe 
- 	*regs = jprobe_saved_regs;
- 	return 1;
- }
-+
-+static struct kprobe trampoline_p = {
-+	.pre_handler = trampoline_probe_handler
-+};
-+
-+int __init arch_init(void)
-+{
-+	trampoline_p.addr =
-+		(kprobe_opcode_t *)((struct fnptr *)kretprobe_trampoline)->ip;
-+	return register_kprobe(&trampoline_p);
-+}
-Index: linux-2.6.12-mm1/include/asm-ia64/kprobes.h
-===================================================================
---- linux-2.6.12-mm1.orig/include/asm-ia64/kprobes.h
-+++ linux-2.6.12-mm1/include/asm-ia64/kprobes.h
-@@ -63,6 +63,8 @@ typedef struct _bundle {
- 
- #define JPROBE_ENTRY(pentry)	(kprobe_opcode_t *)pentry
- 
-+#define ARCH_SUPPORTS_KRETPROBES
-+
- #define SLOT0_OPCODE_SHIFT	(37)
- #define SLOT1_p1_OPCODE_SHIFT	(37 - (64-46))
- #define SLOT2_OPCODE_SHIFT 	(37)
-@@ -94,11 +96,6 @@ struct arch_specific_insn {
- };
- 
- /* ia64 does not need this */
--static inline void jprobe_return(void)
--{
--}
--
--/* ia64 does not need this */
- static inline void arch_copy_kprobe(struct kprobe *p)
- {
- }
-@@ -106,6 +103,12 @@ static inline void arch_copy_kprobe(stru
- #ifdef CONFIG_KPROBES
- extern int kprobe_exceptions_notify(struct notifier_block *self,
- 				    unsigned long val, void *data);
-+
-+/* ia64 does not need this */
-+static inline void jprobe_return(void)
-+{
-+}
-+
- #else				/* !CONFIG_KPROBES */
- static inline int kprobe_exceptions_notify(struct notifier_block *self,
- 					   unsigned long val, void *data)
-Index: linux-2.6.12-mm1/arch/ia64/kernel/process.c
-===================================================================
---- linux-2.6.12-mm1.orig/arch/ia64/kernel/process.c
-+++ linux-2.6.12-mm1/arch/ia64/kernel/process.c
-@@ -27,6 +27,7 @@
- #include <linux/efi.h>
- #include <linux/interrupt.h>
- #include <linux/delay.h>
-+#include <linux/kprobes.h>
- 
- #include <asm/cpu.h>
- #include <asm/delay.h>
-@@ -707,6 +708,13 @@ kernel_thread_helper (int (*fn)(void *),
- void
- flush_thread (void)
- {
-+	/*
-+	 * Remove function-return probe instances associated with this task
-+	 * and put them back on the free list. Do not insert an exit probe for
-+	 * this function, it will be disabled by kprobe_flush_task if you do.
-+	 */
-+	kprobe_flush_task(current);
-+
- 	/* drop floating-point and debug-register state if it exists: */
- 	current->thread.flags &= ~(IA64_THREAD_FPH_VALID | IA64_THREAD_DBG_VALID);
- 	ia64_drop_fpu(current);
-@@ -721,6 +729,14 @@ flush_thread (void)
- void
- exit_thread (void)
- {
-+
-+	/*
-+	 * Remove function-return probe instances associated with this task
-+	 * and put them back on the free list. Do not insert an exit probe for
-+	 * this function, it will be disabled by kprobe_flush_task if you do.
-+	 */
-+	kprobe_flush_task(current);
-+
- 	ia64_drop_fpu(current);
- #ifdef CONFIG_PERFMON
-        /* if needed, stop monitoring and flush state to perfmon context */
+We have a desire to build single-system-image looking clusters along the 
+bproc model, but at the same time compose those clusters of, e.g., 
+Opterons and G5s. This mixing is highly desirable for compoutations that 
+have phases, some of which belong on one type of a machine, and some on 
+another. 
 
---
+We are going to use v9fs as the glue for our next-generation cluster 
+software, called 'xcpu'. Xcpu has been implemented on Plan 9 and works 
+there. I have ported xcpu to Linux, using v9fs as the client side and Russ 
+Cox's plan9ports server to write servers. 
+
+xcpu presents a remote execution service as a 9p server. xcpu has been
+tested across architectures and it works very well. By summer 2006, we
+hope to have cut over our bproc systems to xcpu.
+
+That's one use for v9fs. We also plan to use v9fs to provide us with 
+servers for global /proc, monitoring, and control systems for our 
+clusters. 
+
+The global /proc is interesting. bproc provides a global /proc, but it is 
+incomplete; entries for, e.g., exe and maps are not filled in. bproc also 
+caches part of the /proc, but the rules about what is cached and what the 
+timeouts are, are set in the kernel module and not easily changed. We are 
+going to have an "aggregating" user level 9p server based on 
+Mirtchovskis's aggrfs, which will both aggregate all the cluster nodes, 
+and have caching rules that make sense in clusters of 1000s of node (for 
+example, it is ok to cache /proc/x/status; there is no need to cache 
+/proc/x/maps, and you probably don't want to anyway). 
+
+A neat capability is that if we give a user, e.g., 25% of the cluster, we
+can tailor that user's name space so that they only see their procs and
+the 25% of the cluster they own. This is good for security, but also good
+for convenience: most users don't really care that some other user is on
+75% of the cluster. Global pid spaces are neat in theory, messy in
+practice at large scale. I want my global pid space to be global to *me*,
+meaning I see the global space of the nodes I care about.  The sysadmin,
+of course, wants to see everything. All this is possible. V9fs, along with
+Linux private name spaces, will allow us to provide this model: users can 
+see some or all of the global pid space, depending on need; users can be 
+constrained to only see part of the global pid space, depending on other 
+issues. 
+
+9p will also replace the Supermon protocol, allowing people to easily view 
+status information in a file system. 
+
+In addition to the cluster usage, there is also grid usage. The 9grid, 
+composed of plan 9 systems, is connected by 9p servers. Linux systems can 
+join the 9grid with no problem, once Linux has v9fs. 
+
+Were v9fs just a file system, I would not really be interested in it one 
+way or another; we have NFS, after all. But v9fs is really the key piece 
+of a new model of cluster services we are building at LANL. 9p will be the 
+glue, and v9fs will be the needed client side for hooking 9p servers into 
+the file system name space. 
+
+I'm hoping we can see v9fs in the kernel someday.
+
+thanks
+
+ron

@@ -1,73 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262052AbVFUIrL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261332AbVFUIrk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262052AbVFUIrL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 04:47:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262102AbVFUIo3
+	id S261332AbVFUIrk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 04:47:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262091AbVFUIra
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 04:44:29 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:41874 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262078AbVFUIeg (ORCPT
+	Tue, 21 Jun 2005 04:47:30 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:443 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261332AbVFUIpL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 04:34:36 -0400
-Date: Tue, 21 Jun 2005 10:34:24 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@zip.com.au>
-Subject: 2.6.12-mm1: BUG() in fd_install, RCU related?
-Message-ID: <20050621083424.GA2076@elf.ucw.cz>
+	Tue, 21 Jun 2005 04:45:11 -0400
+Date: Tue, 21 Jun 2005 10:44:26 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Esben Nielsen <simlo@phys.au.dk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-V0.7.49-00
+Message-ID: <20050621084426.GA13094@elte.hu>
+References: <20050619134400.GA19795@elte.hu> <Pine.OSF.4.05.10506210959540.28104-400000@da410.phys.au.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <Pine.OSF.4.05.10506210959540.28104-400000@da410.phys.au.dk>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-I got 
+* Esben Nielsen <simlo@phys.au.dk> wrote:
 
-Jun 21 10:30:20 amd kernel: ------------[ cut here ]------------
-Jun 21 10:30:20 amd kernel: kernel BUG at fs/open.c:935!
-Jun 21 10:30:20 amd kernel: invalid operand: 0000 [#1]
-Jun 21 10:30:20 amd kernel: Modules linked in: ipw2100
-Jun 21 10:30:20 amd kernel: CPU:    0
-Jun 21 10:30:20 amd kernel: EIP:    0060:[page_referenced+39/160]    Not tainted VLI
-Jun 21 10:30:20 amd kernel: EFLAGS: 00010286   (2.6.12-mm1)
-Jun 21 10:30:20 amd kernel: EIP is at fd_install+0x27/0x40
-Jun 21 10:30:20 amd kernel: eax: f7268e00   ebx: 00000080   ecx: f61a9800   edx: f6106400
-Jun 21 10:30:20 amd kernel: esi: f6106400   edi: f61a9800   ebp: 0000000c   esp: f66d9f7c
-Jun 21 10:30:20 amd kernel: ds: 007b   es: 007b   ss: 0068
-Jun 21 10:30:20 amd kernel: Process kded (pid: 2056, threadinfo=f66d8000 task=f672ca80)
-Jun 21 10:30:20 amd kernel: Stack: 00000080 c0165fd6 00000080 ffffffea 0000000c c0166300 00000000 f6106400
-Jun 21 10:30:20 amd kernel:        fffffff7 c01664b0 f6106400 0000000c 00000080 b6e84b7c f66d8000 c0102ea9
-Jun 21 10:30:20 amd kernel:        0000000c 00000000 00000080 00000080 b6e84b7c bf9361f8 000000dd 0000007b
-Jun 21 10:30:20 amd kernel: Call Trace:
-Jun 21 10:30:20 amd kernel:  [blkdev_get+38/160] dupfd+0x46/0x60
-Jun 21 10:30:20 amd kernel:  [lookup_bdev+48/144] do_fcntl+0x80/0x150
-Jun 21 10:30:20 amd kernel:  [.text.lock.block_dev+153/185] sys_fcntl64+0x80/0x90
-Jun 21 10:30:20 amd kernel:  [do_signal+57/288] syscall_call+0x7/0xb
-Jun 21 10:30:20 amd kernel: Code: 00 00 00 00 53 89 c3 b8 00 e0 ff ff 21 e0 8b 00 8b 80 54 04 00 00 8b 48 04 8b 41 0c 8b 04 98 85 c0 75 08 8b 41 0c 89 14 98 5b c3 <0f> 0b a7 03 3c be 52 c0 eb ee eb 0d 90 90 90 90 90 90 90 90 90
-Jun 21 10:31:54 amd pam_limits[1559]: wrong limit value 'unlimited'
+> I am seeing very high latencies on 2.6.12-RT-V0.7.50-04 with a 
+> modified realfeel2: maximum is 246 us. Shouldn't it be in the order of 
+> 50 us?
 
-..while doing nothing particulary interesting. Its:
+i never got reliable results from realfeel - it should do the kind of 
+careful things rtc_wakeup does to avoid false positives.
 
-void fastcall fd_install(unsigned int fd, struct file * file)
-{
-        struct files_struct *files = current->files;
-        struct fdtable *fdt;
-        spin_lock(&files->file_lock);
-        fdt = files_fdtable(files);
-        if (unlikely(fdt->fd[fd] != NULL))
-                BUG();
-~~~~~~~~~~~~~~~~~~~~~~
-        rcu_assign_pointer(fdt->fd[fd], file);
-        spin_unlock(&files->file_lock);
-}
-
-This bug. (Is there any particular reason why the code does not use
-BUG_ON())?
-
-								Pavel
--- 
-teflon -- maybe it is a trademark, but it should not be.
+	Ingo

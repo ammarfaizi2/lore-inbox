@@ -1,52 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262319AbVFUUfL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262324AbVFUUfC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262319AbVFUUfL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 16:35:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261424AbVFUUdr
+	id S262324AbVFUUfC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 16:35:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262319AbVFUUd0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 16:33:47 -0400
-Received: from zproxy.gmail.com ([64.233.162.206]:58153 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262315AbVFUUcT (ORCPT
+	Tue, 21 Jun 2005 16:33:26 -0400
+Received: from zamok.crans.org ([138.231.136.6]:54410 "EHLO zamok.crans.org")
+	by vger.kernel.org with ESMTP id S261424AbVFUUac (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 16:32:19 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=UmMHZwFjpkrCTAB4IlqBrwspSpsB5m8hZLLrhOi9Y3GlqJIWyTpfiRIgF5s4zeJej+4ROGS4XZjl+jsPsy3XZ1FIlOIvfS7sii33MTEe8RHTWGEgkWJd2QS1aQ+KkfX7+OLqHki8TplNr0A4PQ15KZEeaVo1ihXNOXfgkE7XvuQ=
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: David Lang <david.lang@digitalinsight.com>
-Subject: Re: e1000 driver works on UP, bt not SMP x86_64 (2.6.7 -2.6.12)
-Date: Wed, 22 Jun 2005 00:38:05 +0400
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.62.0506191642440.12697@qynat.qvtvafvgr.pbz>
-In-Reply-To: <Pine.LNX.4.62.0506191642440.12697@qynat.qvtvafvgr.pbz>
+	Tue, 21 Jun 2005 16:30:32 -0400
+Message-ID: <42B878DD.9000504@crans.org>
+Date: Tue, 21 Jun 2005 22:30:21 +0200
+From: =?ISO-8859-15?Q?Mathieu_B=E9rard?= <Mathieu.Berard@crans.org>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050404)
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506220038.05869.adobriyan@gmail.com>
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-mm1  irq 21: nobody cared with snd_via82xx
+References: <42B73C04.1010301@crans.org> <200506211003.44419.bjorn.helgaas@hp.com>
+In-Reply-To: <200506211003.44419.bjorn.helgaas@hp.com>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 20 June 2005 03:55, David Lang wrote:
-> I have some systems with three Intel quad gig-E cards in them that 
-> function with the attached UP config, but port 4 of each card doesn't work 
-> properly with a SMP kernel (otherwise the same config).
-> 
-> on a SMP kernel when I do an ifconfig of the fourth port I get the 
-> following error
-> SIOCSIFFLAGS: Function not implemented
-> 
-> doing an ifconfig of the interface then looks proper, but no network route 
-> is added.
-> 
-> I first ran into this problem with a 2.6.7 kernel and tried several 
-> kernels from there to 2.6.12, all of which showed the same problem on SMP 
-> kernels. the problem happens with the driver built-in and as a module.
-> 
-> the systems are dual Opteron 246, 2G ram MPT fusion SCSI drives.
+Bjorn Helgaas a écrit :
 
-I've filed a bug at kernel bugzilla, so your report won't be lost.
-See http://bugzilla.kernel.org/show_bug.cgi?id=4774
+>On Monday 20 June 2005 3:58 pm, Mathieu Bérard wrote:
+>  
+>
+>>I get this while booting linux 2.6.12-mm1 (+ bridge conntrack fix BTW) 
+>>with a VIA integrated audio ship.
+>>
+>>It worked well at least under 2.6.11-mm1.
+>>    
+>>
+>
+>Sigh.  Can you reverse the attached patch (apply it with -R)
+>and see whether it helps?  VIA IRQs are a never-ending headache.
+>
+>  
+>
+Well, it does !
+All IRQ related error messages are gone with that path reversed.
+
+Thanks.
+
+-- 
+Mathieu Berard
+

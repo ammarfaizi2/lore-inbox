@@ -1,54 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261780AbVFUBdf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261772AbVFUBdf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261780AbVFUBdf (ORCPT <rfc822;willy@w.ods.org>);
+	id S261772AbVFUBdf (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 20 Jun 2005 21:33:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261772AbVFUBbp
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261759AbVFUBbf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 21:31:45 -0400
-Received: from ylpvm01-ext.prodigy.net ([207.115.57.32]:27284 "EHLO
-	ylpvm01.prodigy.net") by vger.kernel.org with ESMTP id S261866AbVFUB27
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 21:28:59 -0400
-Date: Mon, 20 Jun 2005 18:28:25 -0700
-From: Tony Lindgren <tony@atomide.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: hugang@soulinfo.com, Tony Lindgren <tony@atomide.com>,
-       linux-kernel@vger.kernel.org,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       Jonathan Corbet <corbet@lwn.net>, Pavel Machek <pavel@ucw.cz>,
-       Bernard Blackham <b-lkml@blackham.com.au>,
-       Christian Hesse <mail@earthworm.de>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Subject: Re: [PATCH] Dynamic tick for x86 version 050610-1
-Message-ID: <20050621012825.GA30990@muru.com>
-References: <20050602013641.GL21597@atomide.com> <200506021030.50585.mail@earthworm.de> <20050602174219.GC21363@atomide.com> <20050603223758.GA2227@elf.ucw.cz> <20050610041706.GC18103@atomide.com> <20050610091515.GH4173@elf.ucw.cz> <20050610151707.GB7858@atomide.com> <20050610221501.GB7575@atomide.com> <20050618033419.GA6476@hugang.soulinfo.com> <1119076233.18247.27.camel@gaston>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1119076233.18247.27.camel@gaston>
-User-Agent: Mutt/1.5.9i
+	Mon, 20 Jun 2005 21:31:35 -0400
+Received: from unused.mind.net ([69.9.134.98]:28072 "EHLO echo.lysdexia.org")
+	by vger.kernel.org with ESMTP id S261772AbVFUBU6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 21:20:58 -0400
+Date: Mon, 20 Jun 2005 18:18:37 -0700 (PDT)
+From: William Weston <weston@sysex.net>
+X-X-Sender: weston@echo.lysdexia.org
+To: Ingo Molnar <mingo@elte.hu>
+cc: "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
+       "Eugeny S. Mints" <emints@ru.mvista.com>,
+       Daniel Walker <dwalker@mvista.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
+In-Reply-To: <20050618122805.GA32041@elte.hu>
+Message-ID: <Pine.LNX.4.58.0506201815430.10011@echo.lysdexia.org>
+References: <20050608112801.GA31084@elte.hu> <42B0F72D.5040405@cybsft.com>
+ <20050616072935.GB19772@elte.hu> <42B160F5.9060208@cybsft.com>
+ <20050616173247.GA32552@elte.hu> <Pine.LNX.4.58.0506171139570.32721@echo.lysdexia.org>
+ <Pine.LNX.4.58.0506171419050.786@echo.lysdexia.org> <20050618122805.GA32041@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 18, 2005 at 04:30:32PM +1000, Benjamin Herrenschmidt wrote:
+On Sat, 18 Jun 2005, Ingo Molnar wrote:
+
+> * William Weston <weston@lysdexia.org> wrote:
 > 
-> > I'm try to port it powerpc, Here is a patch.
-> > 
-> >  Port Dynamic Tick Timer to new platform is easy. :)
-> >   1) Find the reprogram timer interface.
-> >   2) do a hook in the idle function.
-> > 
-> > That worked on my PowerBookG4 12'.
-
-Cool :)
-
-> Did you get a measurable gain on power consumption ?
+> > Running -48-36 on the Xeon/HT box, I lost keyboard and network after a 
+> > couple hours.  Same .config as was used for -48-33 (attached... forgot 
+> > to send in previous email).  Xscreensaver was still running with no 
+> > way to unlock the console.  Back to -48-33 for the time being.
 > 
-> Last time I toyed with this, I didn't.
+> does -48-37 work any better?
 
-Just dyntick alone probably does not do much for power savings. The
-trick is to figure out what all can be turned off for the longer idle
-periods. And try to make the idle periods longer by cutting down on
-polling.
+Up almost three hours with -48-37, and no issues so far.  Thanks, Ingo. 
+I'll let this run for a couple of days and then try out the -50-xx series.
 
-Tony
+
+--ww <weston@sysex.net>

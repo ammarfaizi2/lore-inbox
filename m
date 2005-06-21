@@ -1,55 +1,177 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262083AbVFUOZN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbVFUO03@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262083AbVFUOZN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 10:25:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262093AbVFUOZI
+	id S261451AbVFUO03 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 10:26:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261462AbVFUON7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 10:25:08 -0400
-Received: from cog1.w2cog.org ([206.251.188.12]:35998 "EHLO mail1.w2cog.org")
-	by vger.kernel.org with ESMTP id S262083AbVFUOXv (ORCPT
+	Tue, 21 Jun 2005 10:13:59 -0400
+Received: from 067097.user.veloxzone.com.br ([201.29.67.97]:57066 "EHLO
+	gmail.com") by vger.kernel.org with ESMTP id S261972AbVFUOMO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 10:23:51 -0400
-Date: Tue, 21 Jun 2005 09:23:40 -0500 (CDT)
-From: Roy Keene <rkeene@psislidell.com>
-To: Pavel Machek <pavel@ucw.cz>
-cc: Kyle Moffett <mrmacman_g4@mac.com>, Erik Slagter <erik@slagter.name>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Problem with 2.6 kernel and lots of I/O
-In-Reply-To: <20050621074114.GA1953@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.62.0506210922590.3932@hammer.psislidell.com>
-References: <Pine.LNX.4.62.0505311042470.7546@hammer.psislidell.com>
- <20050601195922.GA589@openzaurus.ucw.cz> <1117966262.5027.9.camel@localhost.localdomain>
- <AF6BB031-9221-4BA3-AFC9-7D167EBE866C@mac.com>
- <Pine.LNX.4.62.0506201711090.3592@hammer.psislidell.com>
- <6DCC9CC1-2B5C-430F-96AC-F36477AC8290@mac.com>
- <Pine.LNX.4.62.0506201848500.2736@hammer.psislidell.com> <20050621074114.GA1953@elf.ucw.cz>
+	Tue, 21 Jun 2005 10:12:14 -0400
+Message-ID: <20050621111159.7D887E5EAE2D6AC4@gmail.com>
+From: socorristainternacional@gmail.com
+To: linux-kernel@vger.kernel.org
+Subject: CURSOS DE SOCORRISTA INTERNACIONAL - 40 horas
+Date: 21 Jun 2005 11:12:01 -0300
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Expiry-Date: 02 Aug 2005 20:48:14 -0300
+Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Exactly my point.  The problem isn't the NBD, it's the lots of I/O.
 
- 	Roy Keene
- 	Planning Systems Inc.
+A RESGATE TREINAMENTOS é a agência de treinamento autorizada no estado do 
+Espirito Santo pela Rescue Training International, para ministrar os cursos 
+do National Safety Council. - instituição sem fins lucrativos criada por um 
+ato do Congresso dos Estados Unidos da América, Lei número 259, Octagésimo 
+Terceiro Congresso Primeira Sessão, 36 US Code 461, 67 Stat.569, que 
+formata protocolos internacionais para atendimentos em situações de 
+emergências médicas, desenvolvidos por instituições americanas de 
+pesquisas, tais como a American Academy of Orthopaedic Surgeons, American 
+Heart Association e, Wilderness American Association.
 
-On Tue, 21 Jun 2005, Pavel Machek wrote:
+Os materiais didáticos e de suporte pedagógico (transparências, slides, 
+vídeos e flip-chartes) são de autoria da J& B Pub - Jones and Bartlett 
+Publishers, NSC - National Safety Council, AAOS - American Academy of 
+Orthopaedics Surgeons, e NYSAFS - New York State Academy of Fire Sciences, 
+traduzidos para o português, com exclusividade, pela Editora Randal Fonseca 
+Ltda.
 
-> Hi!
->
->> But the problem doesn't occur with the "local" end, it's with the
->> "recieving" end (which may be the same thing, but mostly it's not, since I
->> tend to reboot the secondary node more).
->>
->> The problem occurs on the node running `nbd-server' in userspace and not
->> nessicarily having "nbd" support.
->
-> nbd-server is nice and simple userland application, doing no magic. If
-> that makes machine unusable... well, fix the machine ;-). It may me mm
-> problem or something... It is basically not nbd related. [Remember,
-> nbd-server is just another userland process, "nothing to do with nbd",
-> nothing special].
-> 									Pavel
-> -- 
-> teflon -- maybe it is a trademark, but it should not be.
->
+Os instrutores da NSC são formados sob rigorosos critérios de avaliação e 
+credenciados oficialmente nos EUA, pelas agências americanas 
+supramencionadas, para ministrar os programas no Brasil.
+
+O programa de treinamento do National Safety Council excede os padrões 
+exigidos pelo DOT - Department of Transportation e OSHA - Occupational 
+Safety and Health Administration, do governo dos Estados Unidos.
+
+Dentre as 45.000 instituições que utilizam os programas da NSC / FAI 
+podemos citar alguns a exemplo:
+
+American Academy Ophthalmology 
+American Burn Association 
+Amercican Diabetes Association 
+American dental Association 
+American Medical Association 
+American Trauma Association 
+Basic Life Trauma Support 
+Center Disease Control 
+Epilepsy Foundation of America 
+Emergency Response Institute 
+International Society of Fire Service Instructors 
+Medical Alert Association 
+National Association of EMS Physicians 
+National Rescue Consultants 
+National Society to Prevent Blindness 
+US Public Health 
+
+CURSO DE SOCORRISTA INTERNACIONAL - 40 HORAS ( RCP + DESFIBRILAÇÃO EXTERNA  
+AUTOMÁTICA + PRIMEIRO SOCORROS)
+
+Saber o que fazer e o que não fazer em uma situação de emergência é 
+possivelmente um dos aspectos mais importantes que todas as pessoas 
+deveriam aprender. 
+
+O curso de Socorrista internacional (RCP+AED+PS) do National Safety 
+Council, oferece aos alunos as técnicas mais atualizadas, repassando-as de 
+forma simples compreensível e acima de tudo muito eficiente. 
+
+O programa foi revisado e aprovado por mais de 75 instituições 
+governamentais americanas e internacionais. 
+
+Mais de 250.000 pessoas são treinadas anualmente pelos 10.000 instrutores 
+nos 4.000 centros de treinamento do NSC distribuídos no mundo. 
+
+No Brasil oferecemos esses cursos formatados para atender os mais diversas 
+tipos de interesses. 
+
+
+Conteúdo Programático - SOCORRISTA INTERNACIONAL - 40 HORAS
+
+· Sistema de Emergências Médicas - (EMS) 
+· Aspectos legais e éticos nos atendimentos de emergência 
+· Fatores complicantes nos atendimentos de emergência 
+· Triagem e priorização no atendimento de emergências envolvendo múltiplas 
+vítimas 
+· Crises de conduta 
+· Protocolo para atendimento de emergências em diversos locais
+· Avaliação Básica: Vias Aéreas Respiração, Circulação, Comprometimentos 
+Raquimedulares 
+· Precauções universais com doenças transmissíveis 
+· Administração e controle do estresse nos atendimentos de emergência 
+- Atendimento a PCR em adulto, criançase bebês.
+- Utilização dos Desfibriladores Externos Automáticos 
+· Estado de Choque: Ferimentos: 
+· Precauções com Tétano; 
+· Envenenamentos e intoxicações por substâncias exógenas 
+· Ferimentos em áreas específicas: olhos, nariz, abdômen, genitália, etc. 
+· Queimaduras químicas, elétricas, térmicas e radioativas 
+· Problemas relacionados à temperatura ambiente: Intermação, Desidratação, 
+hipotermia, Cãibras; 
+· Lesões musculares, ósseas e articulares; 
+· Emergências clínicas: Parada Cardíaca; Epilepsia; Asma; Derrame Cerebral; 
+Diabetes; 
+· Técnicas específicas e Técnicas de improvisação para Imobilizações e 
+Bandagens; 
+· Movimentação, transporte e remoção de vítimas: não emergencial e 
+emergencial; 
+· Sugestão para organizar Estojo de Primeiro Socorros; 
+· Controle de Estresse em situações de emergências. 
+
+
+Objetivos: Proporcionar aos participantes, conhecimento, proficiência e 
+técnicas de suporte avançado em primeiros socorros, ressuscitação cárdio-
+pulmonar (RCP) com e sem a utilização de desfibriladores externos 
+automáticos, através de ensinamentos teóricos e de treinamentos práticos 
+realizados com materiais e equipamentos especializados. 
+
+Credenciamento: Serão emitidos Certificados e Credenciais da RTI-NSC, com 
+reconhecimento internacional aos alunos que obtiverem 80% de aproveitamento 
+nos  03 Exames Finais escritos e demonstrarem proficiência na avaliação 
+prática. 
+
+Recursos Didáticos – Aulas Teóricas
+
+· Entregue aos alunos: Teste de Sondagem, Livro do Aluno em cores 
+(RCP/AED/PS), Teste de avaliação Intermediária para cada tópico abordado, 
+Exame Final, Folha de Respostas, Questionário de Avaliação do Curso, Temas 
+para simulações de situações de emergências. 
+
+· Do instrutor: Apresentação de todo o material em projetor multimidia; 
+vídeo sobre técnicas da RCP e vídeo sobre procedimentos de Primeiros 
+Socorros para atendimento às emergências clínicas e do trauma produzidos 
+pelo NSC, narrados em Português. 
+
+Recursos Didáticos – Aulas Práticas: 
+· Manequins para proficiência em RCP 
+· Talas e materiais para imobilização de membros 
+· Modelos anatômicos das vias aéreas superiores 
+· Máscaras, luvas e óculos de proteção contra doenças contagiosas ou 
+transmissíveis 
+· Polímeros de impermeabilização térmica 
+· Colar para imobilização cervical 
+· Sugador oral, Cânulas oro-faríngea
+- Desfibriladores Externos Automáticos de treinamentos
+
+VEJA NOSSA PROGRAMAÇÃO:
+
+21 a 24 de julho de 2005 – Vila Velha – ES (27) 3289-1973 Luannda Rangel
+25,26 de junho e 09,10 de julho de 2005 – Tx. de Freitas – BA – Elizabete 
+(073) 9996-2075
+27 a 30 de junho de 2005 – Eunápolis – BA – Rozilda (073) 3261-4092 ou 
+Sarg. Santana (073) 9991-4753
+03 a 06 de julho de 2005 – Vitória da Conquista – BA – Antonio (077) 8806-
+1032
+
+Valor do Investimento por pessoa R$400.00 ( Quatrocentos Reais )
+Forma de Pagamento: 4x ( Entrada + 30/60/90)
+
+VAGAS LIMITADAS POR TURMA!
+
+Atendemos tambem a turmas fechadas  em todo o Brasil.
+
+Veja os diversos outros cursos que podemos oferecer em nosso site 
+www.resgate.com.br
+Msn / E-Mail: atendimento@resgate.com.br

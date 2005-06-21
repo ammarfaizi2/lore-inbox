@@ -1,60 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261315AbVFUNsn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261294AbVFUNsP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261315AbVFUNsn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 09:48:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261448AbVFUNsm
+	id S261294AbVFUNsP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 09:48:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261389AbVFUNob
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 09:48:42 -0400
-Received: from imf16aec.mail.bellsouth.net ([205.152.59.64]:29929 "EHLO
-	imf16aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
-	id S261420AbVFUNpi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 09:45:38 -0400
-Message-ID: <01ff01c5766e$de750be0$2800000a@pc365dualp2>
-From: <cutaway@bellsouth.net>
-To: "Denis Vlasenko" <vda@ilport.com.ua>, "Jesper Juhl" <juhl-lkml@dif.dk>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>
-Cc: "Andrew Morton" <akpm@osdl.org>, "Jeff Garzik" <jgarzik@pobox.com>,
-       "Domen Puncer" <domen@coderock.org>
-References: <Pine.LNX.4.62.0506200052320.2415@dragon.hyggekrogen.localhost> <200506211402.48554.vda@ilport.com.ua> <004c01c57662$5eacc260$2800000a@pc365dualp2> <200506211606.59233.vda@ilport.com.ua>
-Subject: Re: [RFC] cleanup patches for strings
-Date: Tue, 21 Jun 2005 10:38:12 -0400
+	Tue, 21 Jun 2005 09:44:31 -0400
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:15632 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261448AbVFUNnw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 09:43:52 -0400
+Date: Tue, 21 Jun 2005 14:42:39 +0100 (BST)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org
+Subject: Re: PATCH: IDE - sensible probing for PCI systems
+In-Reply-To: <1119356601.3279.118.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.61L.0506211422190.9446@blysk.ds.pg.gda.pl>
+References: <1119356601.3279.118.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1478
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1478
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Congratulations, you proved that a register push is faster than a 3 byte
-memory push.  I believe this is exactly what I said would happen if the
-autovar pointer wound up being enregistered.
+On Tue, 21 Jun 2005, Alan Cox wrote:
 
-However, it is NOT what GCC will generate for pushing params to static
-strings.
+> Old ISA/VESA systems sometimes put tertiary IDE controllers at addresses
+> 0x1e8, 0x168, 0x1e0 or 0x160. Linux thus probes these addresses on x86
+> systems. Unfortunately some PCI systems now use these addresses for
+> other purposes which leads to users seeing minute plus hangs during boot
+> or even crashes.
 
-For that you're going to get a 5 byte PUSH imm32.
+ Are these addresses visible in BARs?
 
+> The following patch (again has been in Fedora for a while) only probes
+> the obscure legacy ISA ports on machinea that are pre-PCI. This seems to
+> keep everyone happy and if there is someone with that utterly weird
+> corner case the ide= command line still provides a get out of jail card.
+> Unsurprisingly we've not found anyone so affected.
 
------ Original Message ----- 
-From: "Denis Vlasenko" <vda@ilport.com.ua>
-To: <cutaway@bellsouth.net>; "Jesper Juhl" <juhl-lkml@dif.dk>;
-"linux-kernel" <linux-kernel@vger.kernel.org>
-Cc: "Andrew Morton" <akpm@osdl.org>; "Jeff Garzik" <jgarzik@pobox.com>;
-"Domen Puncer" <domen@coderock.org>
-Sent: Tuesday, June 21, 2005 09:06
-Subject: Re: [RFC] cleanup patches for strings
+ FYI, for MIPS for machines with a PCI bus we only probe for ISA IDE ports 
+on if there's a PCI-ISA or PCI-EISA bridge somewhere there.  This might be 
+a good idea for the i386 and probably any platform using PCI as well.
 
-Took 9574 CPU cycles Took 8068 CPU cycles
-
-
->   40:   ff 75 f8                pushl  0xfffffff8(%ebp)
->   43:   58                      pop    %eax
-
-
->   80:   53                      push   %ebx
->   81:   58                      pop    %eax
-
+  Maciej

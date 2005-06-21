@@ -1,38 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262051AbVFUJck@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262107AbVFUJck@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262051AbVFUJck (ORCPT <rfc822;willy@w.ods.org>);
+	id S262107AbVFUJck (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 21 Jun 2005 05:32:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261732AbVFUIJc
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262051AbVFUIJy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 04:09:32 -0400
-Received: from mail.kroah.org ([69.55.234.183]:8426 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262051AbVFUGrh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 02:47:37 -0400
-Date: Mon, 20 Jun 2005 23:47:28 -0700
-From: Greg KH <greg@kroah.com>
-To: David Lang <dlang@digitalinsight.com>
-Cc: Greg KH <gregkh@suse.de>, Nick Warne <nick@linicks.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12 udev hangs at boot
-Message-ID: <20050621064728.GD15239@kroah.com>
-References: <200506181332.25287.nick@linicks.net> <200506202000.08114.nick@linicks.net> <20050620192118.GA13586@suse.de> <200506202032.30771.nick@linicks.net> <Pine.LNX.4.62.0506201242100.13723@qynat.qvtvafvgr.pbz> <20050621062843.GA15062@kroah.com> <Pine.LNX.4.62.0506202330020.14659@qynat.qvtvafvgr.pbz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0506202330020.14659@qynat.qvtvafvgr.pbz>
-User-Agent: Mutt/1.5.8i
+	Tue, 21 Jun 2005 04:09:54 -0400
+Received: from butters.phys.uwm.edu ([129.89.61.125]:8605 "EHLO
+	butters.phys.uwm.edu") by vger.kernel.org with ESMTP
+	id S261968AbVFUGvb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 02:51:31 -0400
+Date: Tue, 21 Jun 2005 01:51:25 -0500 (CDT)
+From: David Hammer <hammerd@gravity.phys.uwm.edu>
+X-X-Sender: hammerd@butters.phys.uwm.edu
+To: linux-kernel@vger.kernel.org
+cc: Bruce Allen <ballen@gravity.phys.uwm.edu>
+Subject: ksoftirqd 99% cpu
+Message-ID: <Pine.LNX.4.44.0506210138190.21987-100000@butters.phys.uwm.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 20, 2005 at 11:31:15PM -0700, David Lang wrote:
-> I'll check tomorrow, I was useing what was on the FC3 iso images, it would 
-> eventually boot, but it would hang on udev with a 2.6.11.x or 2.6.12-pre6 
-> kernel for 2-3 min before continueing through the boot.
+Hi,
 
-Ok, if you saw this on 2.6.11.x, then it's not the same udev issue that
-was caused in the 2.6.12-preX tree.  That must be something different.
+I had a server crash while it was running rsync to an nfs mounted 
+directory.  At the time of the crash ksoftirqd was using 99% of the cpu.  
+The last message in the syslog was:
 
-thanks,
+kernel: 3w9xxx: scsi0: WARNING: Character ioctl timed out, resetting card.
 
-greg k-h
+I suspect that this was not what cause the crash but only a symptom.
+
+I tried to "magic sysrq" (I do have it enabled) but was not able to get 
+any information.
+
+I have seen that many people have had problems with ksoftirqd taking up 
+all the cpu and crashing the system but I could not find what was causing 
+the problem or the proper fix.
+
+My system:
+
+- 2.6.10-1.760_FC3smp (stock Fedora Core 3 upgrade) 
+- e1000 network cards
+- acpi is enabled
+
+Thanks,
+David Hammer
+

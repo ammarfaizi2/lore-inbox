@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262127AbVFUPeK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262125AbVFUPga@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262127AbVFUPeK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 11:34:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262125AbVFUP3c
+	id S262125AbVFUPga (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 11:36:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbVFUPg3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 11:29:32 -0400
-Received: from zproxy.gmail.com ([64.233.162.204]:14748 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262126AbVFUP1C convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 11:27:02 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=LcGj6IUfW5JnzgYtg+dfED2ZJYV1KiKGaXEa4aOYcacv0STk/udgXPvv1HNgoxLmEzGVyRWwSzxmk054HMvEs3+qB+8oz9UxiM/5cUSXgU4zC2ejClJsgtYfKs/8ayJrrPJafnb5IBgDuYty62GUdd5Xf9byHpJ9+ZpnU5Kgrz4=
-Message-ID: <3aa654a405062108266a1d2df8@mail.gmail.com>
-Date: Tue, 21 Jun 2005 08:26:57 -0700
-From: Avuton Olrich <avuton@gmail.com>
-Reply-To: Avuton Olrich <avuton@gmail.com>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Subject: Re: -mm -> 2.6.13 merge status (fuse)
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <E1Dkfu2-0005Ju-00@dorka.pomaz.szeredi.hu>
+	Tue, 21 Jun 2005 11:36:29 -0400
+Received: from [212.100.255.31] ([212.100.255.31]:5863 "EHLO
+	blue.eye.binarydream.org") by vger.kernel.org with ESMTP
+	id S262125AbVFUPgB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 11:36:01 -0400
+Date: Tue, 21 Jun 2005 16:35:52 +0100
+From: Uriel <uriell@binarydream.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: v9fs (-mm -> 2.6.13 merge status)
+Message-ID: <20050621153552.GJ22656@server4.lensbuddy.com>
+References: <20050620235458.5b437274.akpm@osdl.org> <a4e6962a05062106515757849d@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20050620235458.5b437274.akpm@osdl.org>
-	 <E1Dkfu2-0005Ju-00@dorka.pomaz.szeredi.hu>
+In-Reply-To: <a4e6962a05062106515757849d@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/21/05, Miklos Szeredi <miklos@szeredi.hu> wrote:
-> I won't shed many tears if you drop fuse-nfs-export.patch.  It would
-> at least give the userspace solution some boost.
-> 
-> However the patch is pretty small, and despite it's flaws, I know it's
-> used by a number of people.
+On Tue, Jun 21, 2005 at 08:51:27AM -0500, Eric Van Hensbergen wrote:
+> On 6/21/05, Andrew Morton <akpm@osdl.org> wrote:
+> > 
+> > v9fs
+> > 
+> >     I'm not sure that this has a sufficiently high
+> >     usefulness-to-maintenance-cost ratio.
 
-Why not leave it up to the user as an option, for the time being at
-least. Does this somehow break things?
+The 9P protocol implemented by v9fs is the result of over a decade of 
+research in distributed systems at Bell Labs by the original Unix team,
+and it has various implementations for other operating systems that have
+been used in production systems for many years.
 
-thanks,
-avuton
+9P is designed to be portable across systems and transport protocols,
+it's network transparent, and it gives us interoperativity with
+Inferno(which can run hosted under Linux already), Plan 9, and p9p, and
+implementations for *BSD and other systems are in the works.
 
--- 
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+9P has the potential to become the standard protocol for distributed
+resources and I don't think any of the alternatives come anywhere near
+being as well designed, well proven and encompassing.
+
+uriel

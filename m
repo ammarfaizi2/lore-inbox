@@ -1,36 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261610AbVFUOvU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261831AbVFUOzs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261610AbVFUOvU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 10:51:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbVFUOvU
+	id S261831AbVFUOzs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 10:55:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261980AbVFUOzs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 10:51:20 -0400
-Received: from mxsf37.cluster1.charter.net ([209.225.28.162]:11411 "EHLO
-	mxsf37.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S261610AbVFUOvN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 10:51:13 -0400
-X-IronPort-AV: i="3.93,218,1115006400"; 
-   d="scan'208"; a="1022075282:sNHT34826162"
+	Tue, 21 Jun 2005 10:55:48 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:40657 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S261831AbVFUOzn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 10:55:43 -0400
+Message-ID: <42B82A4F.5090804@nortel.com>
+Date: Tue, 21 Jun 2005 08:55:11 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Lee Revell <rlrevell@joe-job.com>
+CC: john stultz <johnstul@us.ibm.com>, Roman Zippel <zippel@linux-m68k.org>,
+       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       George Anzinger <george@mvista.com>,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>
+Subject: Re: [PATCH 1/6] new timeofday core subsystem for -mm (v.B3)
+References: <1119063400.9663.2.camel@cog.beaverton.ibm.com>	 <Pine.LNX.4.61.0506181344000.3743@scrub.home>	 <1119287354.9947.22.camel@cog.beaverton.ibm.com>	 <1119291034.16180.9.camel@mindpipe>	 <1119304422.9947.90.camel@cog.beaverton.ibm.com> <1119311096.17701.3.camel@mindpipe>
+In-Reply-To: <1119311096.17701.3.camel@mindpipe>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <17080.10589.619933.883739@smtp.charter.net>
-Date: Tue, 21 Jun 2005 10:51:09 -0400
-From: "John Stoffel" <john@stoffel.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Miklos Szeredi <miklos@szeredi.hu>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: -mm -> 2.6.13 merge status (fuse)
-In-Reply-To: <20050621142820.GC2015@openzaurus.ucw.cz>
-References: <20050620235458.5b437274.akpm@osdl.org>
-	<E1Dkfu2-0005Ju-00@dorka.pomaz.szeredi.hu>
-	<20050621142820.GC2015@openzaurus.ucw.cz>
-X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Lee Revell wrote:
 
-I'd like to see FUSE merged too, even without user mounts, if only to
-get more motivated to actually play with this and see how it works.
+> But some user space apps are now *required* to use rdtsc for timing due
+> to the massive performance difference.  If we only took a 5x or 10x
+> performance hit vs rdtsc, rather than the current 50x, it might be
+> enough that user space apps won't have to do this.
 
-John
+For my userspace apps I've actually switched to 
+clock_gettime(CLOCK_MONOTONIC, &ts);
+
+This at least guarantees that it will never go backwards.
+
+For the experts: Is there a clock exported to userspace that is both 
+monotonic and uniform?  Does CLOCK_MONOTONIC give this on linux?
+
+
+Chris

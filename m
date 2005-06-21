@@ -1,39 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262347AbVFUUuJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262311AbVFUUuK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262347AbVFUUuJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 16:50:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262330AbVFUUtJ
+	id S262311AbVFUUuK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 16:50:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262321AbVFUUtC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 16:49:09 -0400
-Received: from kanga.kvack.org ([66.96.29.28]:39383 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S262332AbVFUUrI (ORCPT
+	Tue, 21 Jun 2005 16:49:02 -0400
+Received: from ns1.g-housing.de ([62.75.136.201]:3804 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S262330AbVFUUra (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 16:47:08 -0400
-Date: Tue, 21 Jun 2005 16:48:39 -0400
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: William Weston <weston@sysex.net>
-Cc: Ingo Molnar <mingo@elte.hu>, "K.R. Foley" <kr@cybsft.com>,
-       linux-kernel@vger.kernel.org, "Eugeny S. Mints" <emints@ru.mvista.com>,
-       Daniel Walker <dwalker@mvista.com>, linux-ns83820@kvack.org,
-       nhorman@redhat.com, Jeff Garzik <jgarzik@redhat.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
-Message-ID: <20050621204839.GC17133@kvack.org>
-References: <20050608112801.GA31084@elte.hu> <42B0F72D.5040405@cybsft.com> <20050616072935.GB19772@elte.hu> <42B160F5.9060208@cybsft.com> <20050616173247.GA32552@elte.hu> <Pine.LNX.4.58.0506171139570.32721@echo.lysdexia.org> <20050621131009.GA22691@elte.hu> <20050621201742.GA16400@kvack.org> <Pine.LNX.4.58.0506211332080.17025@echo.lysdexia.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0506211332080.17025@echo.lysdexia.org>
-User-Agent: Mutt/1.4.1i
+	Tue, 21 Jun 2005 16:47:30 -0400
+Message-ID: <42B87CD6.2060102@g-house.de>
+Date: Tue, 21 Jun 2005 22:47:18 +0200
+From: Christian Kujau <evil@g-house.de>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050404)
+X-Accept-Language: de-DE, de, en-us, en
+MIME-Version: 1.0
+To: trivial@rustcorp.com.au
+CC: linux-kernel <linux-kernel@vger.kernel.org>,
+       Manfred Spraul <manfred@colorfullife.com>
+Subject: [patch] correct an email address
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------090501010504090304060502"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 21, 2005 at 01:37:35PM -0700, William Weston wrote:
-> No bug warnings on the ns83820, but I did get these messages (last thing 
-> that made it syslog):
+This is a multi-part message in MIME format.
+--------------090501010504090304060502
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Normal use should never be triggering a tx timeout, but it was tested back 
-when it was written and shouldn't be causing a hang.  What sort of setup 
-is this?  You'll probably need a serial console to catch the dieing gasp 
-of the kernel, as it will likely be enlightening.
+hello,
 
-		-ben
+i tried to send the forcedeth maintainer an email, but it came back with:
+
+"The mail address manfreds@colorfullife.com is not read anymore.
+Please resent your mail to manfred@ instead of manfreds@."
+
+this attached patch tries to fix it.
+
+thanks,
+Christian.
+-- 
+BOFH excuse #453:
+
+Spider infestation in warm case parts
+
+--------------090501010504090304060502
+Content-Type: text/plain;
+ name="manfreds_email.diff"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="manfreds_email.diff"
+
+LS0tIGxpbnV4LTIuNi1tbS9mcy9zeXN2L0NoYW5nZUxvZy5vcmlnCTIwMDUtMDYtMTcgMjA6
+MjM6MTguMDAwMDAwMDAwICswMjAwCisrKyBsaW51eC0yLjYtbW0vZnMvc3lzdi9DaGFuZ2VM
+b2cJMjAwNS0wNi0xNyAyMDoyNDo1NS4wMDAwMDAwMDAgKzAyMDAKQEAgLTU0LDcgKzU0LDcg
+QEAKIAkgIChzeXN2X3JlYWRfc3VwZXIpOiBMaWtld2lzZS4KIAkgICh2N19yZWFkX3N1cGVy
+KTogTGlrZXdpc2UuCiAKLVN1biBEZWMgMzAgMjAwMSAgTWFuZnJlZCBTcHJhdWwgIDxtYW5m
+cmVkc0Bjb2xvcmZ1bGxpZmUuY29tPgorU3VuIERlYyAzMCAyMDAxICBNYW5mcmVkIFNwcmF1
+bCAgPG1hbmZyZWRAY29sb3JmdWxsaWZlLmNvbT4KIAogCSogZGlyLmMgKGRpcl9jb21taXRf
+Y2h1bmspOiBEbyBub3Qgc2V0IGRpci0+aV92ZXJzaW9uLgogCShzeXN2X3JlYWRkaXIpOiBM
+aWtld2lzZS4KLS0tIGxpbnV4LTIuNi1tbS9pcGMvdXRpbC5jLm9yaWcJMjAwNS0wNi0xNyAy
+MDoyMzo0NS4wMDAwMDAwMDAgKzAyMDAKKysrIGxpbnV4LTIuNi1tbS9pcGMvdXRpbC5jCTIw
+MDUtMDYtMTcgMjA6MjQ6MzkuMDAwMDAwMDAwICswMjAwCkBAIC03LDcgKzcsNyBAQAogICog
+ICAgICAgICAgICBPY2N1cnMgaW4gc2V2ZXJhbCBwbGFjZXMgaW4gdGhlIElQQyBjb2RlLgog
+ICogICAgICAgICAgICBDaHJpcyBFdmFucywgPGNocmlzQGZlcnJldC5sbWgub3guYWMudWs+
+CiAgKiBOb3YgMTk5OSAtIGlwYyBoZWxwZXIgZnVuY3Rpb25zLCB1bmlmaWVkIFNNUCBsb2Nr
+aW5nCi0gKgkgICAgICBNYW5mcmVkIFNwcmF1bCA8bWFuZnJlZHNAY29sb3JmdWxsaWZlLmNv
+bT4KKyAqCSAgICAgIE1hbmZyZWQgU3ByYXVsIDxtYW5mcmVkQGNvbG9yZnVsbGlmZS5jb20+
+CiAgKiBPY3QgMjAwMiAtIE9uZSBsb2NrIHBlciBJUEMgaWQuIFJDVSBpcGNfZnJlZSBmb3Ig
+bG9jay1mcmVlIGdyb3dfYXJ5KCkuCiAgKiAgICAgICAgICAgIE1pbmdtaW5nIENhbyA8Y21t
+QHVzLmlibS5jb20+CiAgKi8KLS0tIGxpbnV4LTIuNi1tbS9pcGMvdXRpbC5oLm9yaWcJMjAw
+NS0wNi0xNyAyMDoyMzo1MS4wMDAwMDAwMDAgKzAyMDAKKysrIGxpbnV4LTIuNi1tbS9pcGMv
+dXRpbC5oCTIwMDUtMDYtMTcgMjA6MjU6MzQuMDAwMDAwMDAwICswMjAwCkBAIC0yLDcgKzIs
+NyBAQAogICogbGludXgvaXBjL3V0aWwuaAogICogQ29weXJpZ2h0IChDKSAxOTk5IENocmlz
+dG9waCBSb2hsYW5kCiAgKgotICogaXBjIGhlbHBlciBmdW5jdGlvbnMgKGMpIDE5OTkgTWFu
+ZnJlZCBTcHJhdWwgPG1hbmZyZWRzQGNvbG9yZnVsbGlmZS5jb20+CisgKiBpcGMgaGVscGVy
+IGZ1bmN0aW9ucyAoYykgMTk5OSBNYW5mcmVkIFNwcmF1bCA8bWFuZnJlZEBjb2xvcmZ1bGxp
+ZmUuY29tPgogICovCiAKICNpZm5kZWYgX0lQQ19VVElMX0gKLS0tIGxpbnV4LTIuNi1tbS9p
+cGMvbXNnLmMub3JpZwkyMDA1LTA2LTE3IDIwOjIzOjI1LjAwMDAwMDAwMCArMDIwMAorKysg
+bGludXgtMi42LW1tL2lwYy9tc2cuYwkyMDA1LTA2LTE3IDIwOjI2OjE3LjAwMDAwMDAwMCAr
+MDIwMApAQCAtMTIsNyArMTIsNyBAQAogICoKICAqIG1vc3RseSByZXdyaXR0ZW4sIHRocmVh
+ZGVkIGFuZCB3YWtlLW9uZSBzZW1hbnRpY3MgYWRkZWQKICAqIE1TR01BWCBsaW1pdCByZW1v
+dmVkLCBzeXNjdGwncyBhZGRlZAotICogKGMpIDE5OTkgTWFuZnJlZCBTcHJhdWwgPG1hbmZy
+ZWRzQGNvbG9yZnVsbGlmZS5jb20+CisgKiAoYykgMTk5OSBNYW5mcmVkIFNwcmF1bCA8bWFu
+ZnJlZEBjb2xvcmZ1bGxpZmUuY29tPgogICovCiAKICNpbmNsdWRlIDxsaW51eC9jb25maWcu
+aD4KLS0tIGxpbnV4LTIuNi1tbS9pcGMvc2VtLmMub3JpZwkyMDA1LTA2LTE3IDIwOjIzOjM5
+LjAwMDAwMDAwMCArMDIwMAorKysgbGludXgtMi42LW1tL2lwYy9zZW0uYwkyMDA1LTA2LTE3
+IDIwOjI1OjEwLjAwMDAwMDAwMCArMDIwMApAQCAtNTYsNyArNTYsNyBAQAogICogL3Byb2Mv
+c3lzdmlwYy9zZW0gc3VwcG9ydCAoYykgMTk5OSBEcmFnb3MgQWNvc3RhY2hpb2FpZSA8ZHJh
+Z29zQGluYW1lLmNvbT4KICAqCiAgKiBTTVAtdGhyZWFkZWQsIHN5c2N0bCdzIGFkZGVkCi0g
+KiAoYykgMTk5OSBNYW5mcmVkIFNwcmF1bCA8bWFuZnJlZHNAY29sb3JmdWxsaWZlLmNvbT4K
+KyAqIChjKSAxOTk5IE1hbmZyZWQgU3ByYXVsIDxtYW5mcmVkQGNvbG9yZnVsbGlmZS5jb20+
+CiAgKiBFbmZvcmNlZCByYW5nZSBsaW1pdCBvbiBTRU1fVU5ETwogICogKGMpIDIwMDEgUmVk
+IEhhdCBJbmMgPGFsYW5AcmVkaGF0LmNvbT4KICAqIExvY2tsZXNzIHdha2V1cAotLS0gbGlu
+dXgtMi42LW1tL2FyY2gvaTM4Ni9rZXJuZWwvY3B1L210cnIvY2hhbmdlbG9nLm9yaWcJMjAw
+NS0wNi0xNyAyMDoyMzo1OC4wMDAwMDAwMDAgKzAyMDAKKysrIGxpbnV4LTIuNi1tbS9hcmNo
+L2kzODYva2VybmVsL2NwdS9tdHJyL2NoYW5nZWxvZwkyMDA1LTA2LTE3IDIwOjI1OjQ1LjAw
+MDAwMDAwMCArMDIwMApAQCAtMTk2LDcgKzE5Niw3IEBACiAgICAgMTk5OTA4MTkgICBBbGFu
+IENveCA8YWxhbkByZWRoYXQuY29tPgogICAgICAgICAgICAgICAgVGVzdGVkIFpvbHRhbidz
+IGNoYW5nZXMgb24gYSBwcmUgcHJvZHVjdGlvbiBBdGhsb24gLSAxMDAlCiAgICAgICAgICAg
+ICAgICBzdWNjZXNzLgotICAgIDE5OTkxMDA4ICAgTWFuZnJlZCBTcHJhdWwgPG1hbmZyZWRz
+QGNvbG9yZnVsbGlmZS5jb20+CisgICAgMTk5OTEwMDggICBNYW5mcmVkIFNwcmF1bCA8bWFu
+ZnJlZEBjb2xvcmZ1bGxpZmUuY29tPgogICAgIAkgICAgICAgcmVwbGFjZWQgc3Bpbl9sb2Nr
+X3Jlc2NoZWR1bGUoKSB3aXRoIGEgbm9ybWFsIHNlbWFwaG9yZS4KICAgdjEuMzYKICAgICAy
+MDAwMDIyMSAgIFJpY2hhcmQgR29vY2ggPHJnb29jaEBhdG5mLmNzaXJvLmF1PgotLS0gbGlu
+dXgtMi42LW1tL2FyY2gvaTM4Ni9rZXJuZWwvdm04Ni5jLm9yaWcJMjAwNS0wNi0xNyAyMDoy
+NDowNi4wMDAwMDAwMDAgKzAyMDAKKysrIGxpbnV4LTIuNi1tbS9hcmNoL2kzODYva2VybmVs
+L3ZtODYuYwkyMDA1LTA2LTE3IDIwOjI1OjU2LjAwMDAwMDAwMCArMDIwMApAQCAtNCw3ICs0
+LDcgQEAKICAqICBDb3B5cmlnaHQgKEMpIDE5OTQgIExpbnVzIFRvcnZhbGRzCiAgKgogICog
+IDI5IGRlYyAyMDAxIC0gRml4ZWQgb29wc2VzIGNhdXNlZCBieSB1bmNoZWNrZWQgYWNjZXNz
+IHRvIHRoZSB2bTg2Ci0gKiAgICAgICAgICAgICAgICBzdGFjayAtIE1hbmZyZWQgU3ByYXVs
+IDxtYW5mcmVkc0Bjb2xvcmZ1bGxpZmUuY29tPgorICogICAgICAgICAgICAgICAgc3RhY2sg
+LSBNYW5mcmVkIFNwcmF1bCA8bWFuZnJlZEBjb2xvcmZ1bGxpZmUuY29tPgogICoKICAqICAy
+MiBtYXIgMjAwMiAtIE1hbmZyZWQgZGV0ZWN0ZWQgdGhlIHN0YWNrZmF1bHRzLCBidXQgZGlk
+bid0IGhhbmRsZQogICogICAgICAgICAgICAgICAgdGhlbSBjb3JyZWN0bHkuIE5vdyB0aGUg
+ZW11bGF0aW9uIHdpbGwgYmUgaW4gYQotLS0gbGludXgtMi42LW1tL2tlcm5lbC9wcmludGsu
+Yy5vcmlnCTIwMDUtMDYtMTcgMjA6MjQ6MTMuMDAwMDAwMDAwICswMjAwCisrKyBsaW51eC0y
+LjYtbW0va2VybmVsL3ByaW50ay5jCTIwMDUtMDYtMTcgMjA6MjY6MzIuMDAwMDAwMDAwICsw
+MjAwCkBAIC0xMSw3ICsxMSw3IEBACiAgKiBUZWQgVHMnbywgMi8xMS85My4KICAqIE1vZGlm
+aWVkIGZvciBzeXNjdGwgc3VwcG9ydCwgMS84Lzk3LCBDaHJpcyBIb3JuLgogICogRml4ZWQg
+U01QIHN5bmNocm9uaXphdGlvbiwgMDgvMDgvOTksIE1hbmZyZWQgU3ByYXVsIAotICogICAg
+IG1hbmZyZWRzQGNvbG9yZnVsbGlmZS5jb20KKyAqICAgICBtYW5mcmVkQGNvbG9yZnVsbGlm
+ZS5jb20KICAqIFJld3JvdGUgYml0cyB0byBnZXQgcmlkIG9mIGNvbnNvbGVfbG9jawogICoJ
+MDFNYXIwMSBBbmRyZXcgTW9ydG9uIDxhbmRyZXdtQHVvdy5lZHUuYXU+CiAgKi8K
+--------------090501010504090304060502--

@@ -1,69 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261312AbVFUODy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261326AbVFUOH5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261312AbVFUODy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 10:03:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261836AbVFUOAW
+	id S261326AbVFUOH5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 10:07:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261425AbVFUOEX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 10:00:22 -0400
-Received: from soufre.accelance.net ([213.162.48.15]:19424 "EHLO
-	soufre.accelance.net") by vger.kernel.org with ESMTP
-	id S261471AbVFUN4f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 09:56:35 -0400
-Message-ID: <42B81C8D.3050608@xenomai.org>
-Date: Tue, 21 Jun 2005 15:56:29 +0200
-From: Philippe Gerum <rpm@xenomai.org>
-Organization: Xenomai
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
+	Tue, 21 Jun 2005 10:04:23 -0400
+Received: from mail.harcroschem.com ([208.188.194.242]:51208 "EHLO
+	kcdc1.harcros.com") by vger.kernel.org with ESMTP id S261326AbVFUOCw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 10:02:52 -0400
+Message-ID: <D9A1161581BD7541BC59D143B4A06294021FAA68@KCDC1>
+From: "Hodle, Brian" <BHodle@harcroschem.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: FW: PROBLEM: Devices behind PCI Express-to-PCI bridge not mapped
+Date: Tue, 21 Jun 2005 08:58:10 -0500
 MIME-Version: 1.0
-To: karim@opersys.com
-CC: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org,
-       Kristian Benoit <kbenoit@opersys.com>
-Subject: Re: [PATCH 1/2] I-pipe: Core implementation
-References: <42B35B07.7080703@xenomai.org> <20050618170139.GA477@openzaurus.ucw.cz> <42B7272F.2040503@xenomai.org> <42B74781.8000109@opersys.com> <42B7BE86.6060502@xenomai.org> <42B817AF.5040700@opersys.com>
-In-Reply-To: <42B817AF.5040700@opersys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Karim Yaghmour wrote:
-> Philippe Gerum wrote:
-> 
->>Any objection to make the pipeline a static-only feature?
-> 
-> 
-> FWIW, we conducted our tests with the I-pipe loaded as a module.
-> Though we didn't publish that particular result as part of our
-> earlier posting, we found that the price for having it loaded,
-> but unused, versus not having it loaded at all made virtually
-> no difference on overall system overhead. Such results would
-> seem to indicate that having it as a loadable module has no
-> specific advantage. Note, though, that we didn't do the test on
-> all configs, just the "plain" one.
-> 
-> Of course the issue would be much easier to decide if you
-> could provide a brief explanation as to what the difference is, in
-> terms of execution path, between having it compilled as a module
-> and not loaded, versus having it built-in and unused.
 
-Having it built statically but unused by any other domain but Linux is 
-basically like having local_irq_disable() and friends as out-of-line 
-code, still with real hw masking, but with all interrupts going through 
-the I-pipe's interrupt handler before being dispatched to the regular 
-Linux handler.
 
-OTOH, having the I-pipe as an unloaded module leaves the original 
-interrupt path untouched (at least on x86), but requires a boolean check 
-into each stall/unstall/test operations, and a few more (~4) in the 
-interrupt path just to make sure that we are operating in real or 
-virtual (i.e. pipelined) mode, IOW to check if the pipelining engine is 
-engaged or not, and further decide if we should use the CPU or I-pipe 
-masking ops. The other solution would have been to play the function 
-pointer game in order to reach the pipelined/non-pipelined operations 
-depending on the box being i-piped or not, but I was unsure of the 
-impact on performances.
+-----Original Message-----
+From: Hodle, Brian 
+Sent: Tuesday, June 21, 2005 8:53 AM
+To: 'Peter Buckingham'
+Subject: RE: PROBLEM: Devices behind PCI Express-to-PCI bridge not
+mapped
 
--- 
 
-Philippe.
+Peter,
+	I am experiencing exactly the same problem. I am using an ASUS
+K8N-DL MB with the x86_64 kernel. My PCIX devices are not allocated
+correctly. I tried using the  'pci=routeirq' option to no avail. Disabling
+ACPI in the BIOS does not help the situation either. X will not use my PCIX
+for GLX since none of the  extra txture memory has been allocated! Anyone
+have any ideas?
+
+regards,
+
+Brian
+
+-----Original Message-----
+From: Peter Buckingham [mailto:peter@pantasys.com]
+Sent: Monday, June 20, 2005 4:31 PM
+To: Ivan Kokshaysky
+Cc: sean.bruno@dsl-only.net; koch@esa.informatik.tu-darmstadt.de;
+torvalds@osdl.org; benh@kernel.crashing.org;
+linux-pci@atrey.karlin.mff.cuni.cz; linux-kernel@vger.kernel.org;
+gregkh@suse.de
+Subject: Re: PROBLEM: Devices behind PCI Express-to-PCI bridge not
+mapped
+
+
+Hi Ivan,
+
+I've just tried a recent pull from Linus post 2.6.12. It seems that the 
+bar sizes are now (mostly) correct. However, there are still issues with 
+the resources failing to be allocated and the bars being disabled. I've 
+attached the latest dmesg and lspci -vvx to see whether there's any 
+enlightenment out there...
+
+thanks,
+
+peter

@@ -1,41 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261480AbVFUOmZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261478AbVFUOtr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261480AbVFUOmZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 10:42:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262064AbVFUOlp
+	id S261478AbVFUOtr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 10:49:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261610AbVFUOtr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 10:41:45 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:61448 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262082AbVFUOkn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 10:40:43 -0400
-Date: Tue, 21 Jun 2005 16:40:41 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: perex@suse.cz
+	Tue, 21 Jun 2005 10:49:47 -0400
+Received: from gate.perex.cz ([82.113.61.162]:58303 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id S261478AbVFUOtp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 10:49:45 -0400
+Date: Tue, 21 Jun 2005 16:49:43 +0200 (CEST)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: perex@pnote.perex-int.cz
+To: Adrian Bunk <bunk@stusta.de>
 Cc: alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org
-Subject: ALSA: Is CONFIG_SND_DEBUG_MEMORY really required?
-Message-ID: <20050621144041.GP3666@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+Subject: Re: ALSA: Is CONFIG_SND_DEBUG_MEMORY really required?
+In-Reply-To: <20050621144041.GP3666@stusta.de>
+Message-ID: <Pine.LNX.4.58.0506211643080.18102@pnote.perex-int.cz>
+References: <20050621144041.GP3666@stusta.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 21 Jun 2005, Adrian Bunk wrote:
 
-I was a bit surprised to discover that ALSA has it's own memory 
-debugging infrastructure.
+> Hi,
+> 
+> I was a bit surprised to discover that ALSA has it's own memory 
+> debugging infrastructure.
+> 
+> Is there a reason why CONFIG_DEBUG_SLAB isn't good enough for ALSA?
 
-Is there a reason why CONFIG_DEBUG_SLAB isn't good enough for ALSA?
+We're ready to move to something other, but standard allocation 
+routines should be extended to handle "allocation pools".
 
-cu
-Adrian
+We're able to detect quickly memory leaks in our code.
 
--- 
+						Jaroslav
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project, SUSE Labs

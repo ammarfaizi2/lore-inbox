@@ -1,48 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262370AbVFUXzp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262409AbVFUWfS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262370AbVFUXzp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 19:55:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262435AbVFUXz3
+	id S262409AbVFUWfS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 18:35:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262411AbVFUWeA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 19:55:29 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:2474 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S262370AbVFUXjP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 19:39:15 -0400
-Message-ID: <42B8A51A.8020208@pobox.com>
-Date: Tue, 21 Jun 2005 19:39:06 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christoph Lameter <christoph@lameter.com>
-CC: Robert Love <rml@novell.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: -mm -> 2.6.13 merge status
-References: <20050620235458.5b437274.akpm@osdl.org>  <42B831B4.9020603@pobox.com> <1119368364.3949.236.camel@betsy> <Pine.LNX.4.62.0506211222040.21678@graphe.net> <42B8987F.9000607@pobox.com> <Pine.LNX.4.62.0506211628550.25251@graphe.net>
-In-Reply-To: <Pine.LNX.4.62.0506211628550.25251@graphe.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 21 Jun 2005 18:34:00 -0400
+Received: from smtp-102-tuesday.noc.nerim.net ([62.4.17.102]:26383 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S262336AbVFUVtN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 17:49:13 -0400
+Date: Tue, 21 Jun 2005 23:49:43 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: cutaway@bellsouth.net
+Cc: "Denis Vlasenko" <vda@ilport.com.ua>,
+       "LKML" <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] cleanup patches for strings
+Message-Id: <20050621234943.713ecc40.khali@linux-fr.org>
+In-Reply-To: <008401c576b1$4f2ec000$2800000a@pc365dualp2>
+References: <Pine.LNX.4.62.0506200052320.2415@dragon.hyggekrogen.localhost>
+	<200506211359.25632.vda@ilport.com.ua>
+	<20050621232409.06a3400e.khali@linux-fr.org>
+	<008401c576b1$4f2ec000$2800000a@pc365dualp2>
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
-> On Tue, 21 Jun 2005, Jeff Garzik wrote:
-> 
-> 
->>Non-blocking file I/O is an open issue.
->>
->>AIO is probably a better path.
-> 
-> 
-> AIO is requiring you to poll and check if I/O is complete. select() does 
+Hi,... hm, don't you have a name?
 
-Incorrect.  The entire point of AIO is that its an async callback 
-system, when the I/O is complete...  just like the kernel's internal I/O 
-request queue system.
+> Jean, the default string alignments GCC seems to insist on using are
+> going to screw you far more than the extra byte here or there ;->
 
-	Jeff
+That's possible, however I can't do anything against GCC personally,
+while I can help cleanup the code and possibly actually space a few
+bytes here and there. So let's just do it.
 
+Oh, and GCC might end up being smart, who knows.
 
-
+-- 
+Jean Delvare

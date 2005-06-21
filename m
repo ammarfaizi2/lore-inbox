@@ -1,35 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262437AbVFVAKg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262315AbVFUX74@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262437AbVFVAKg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 20:10:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262384AbVFVAJ1
+	id S262315AbVFUX74 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 19:59:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262444AbVFUX41
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 20:09:27 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:1981 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262376AbVFVAF6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 20:05:58 -0400
-Subject: Re: [PATCH] more signed char cleanups in scripts
-From: Lee Revell <rlrevell@joe-job.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "J.A. Magallon" <jamagallon@able.es>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050621151806.07ef0f78.akpm@osdl.org>
-References: <20050619233029.45dd66b8.akpm@osdl.org>
-	 <1119391748l.25237l.3l@werewolf.able.es>
-	 <20050621151806.07ef0f78.akpm@osdl.org>
-Content-Type: text/plain
-Date: Tue, 21 Jun 2005 20:05:54 -0400
-Message-Id: <1119398755.9814.2.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.3.1 
+	Tue, 21 Jun 2005 19:56:27 -0400
+Received: from smtpauth05.mail.atl.earthlink.net ([209.86.89.65]:46007 "EHLO
+	smtpauth05.mail.atl.earthlink.net") by vger.kernel.org with ESMTP
+	id S262433AbVFUXvg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 19:51:36 -0400
+In-Reply-To: <200506212324.19713.arnd@arndb.de>
+References: <200506212310.54156.arnd@arndb.de> <200506212320.05799.arnd@arndb.de> <200506212322.36453.arnd@arndb.de> <200506212324.19713.arnd@arndb.de>
+Mime-Version: 1.0 (Apple Message framework v622)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <eaabcca10740f5e2cd8a1ca86245ba5d@penguinppc.org>
 Content-Transfer-Encoding: 7bit
+Cc: ppc64-dev List <linuxppc64-dev@ozlabs.org>,
+       Paul Mackerras <paulus@samba.org>,
+       LKML list <linux-kernel@vger.kernel.org>
+From: Hollis Blanchard <hollis@penguinppc.org>
+Subject: Re: [PATCH 7/11] ppc64: add BPA platform type
+Date: Tue, 21 Jun 2005 18:51:25 -0500
+To: Arnd Bergmann <arnd@arndb.de>, ppc64-dev List <linuxppc64-dev@ozlabs.org>
+X-Mailer: Apple Mail (2.622)
+X-ELNK-Trace: 77a46389d001b1f223bcf3e39c2f8b5f1aa676d7e74259b7b3291a7d08dfec7924edcc7f8bd081fc8ed95f5c0bee22e1350badd9bab72f9c350badd9bab72f9c
+X-Originating-IP: 63.246.184.80
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-06-21 at 15:18 -0700, Andrew Morton wrote:
-> Remind me: what's the point in these changes?
+On Jun 21, 2005, at 4:24 PM, Arnd Bergmann wrote:
 
-They silence gcc 4.0 warnings.
+> +static void __init bpa_setup_arch(void)
+> +{
+> ...
+> +	// bpa_nvram_init();
+> +}
 
-Lee
+I didn't look closely, but I didn't see this called elsewhere... so 
+probably shouldn't be commented out here?
+
+-Hollis
 

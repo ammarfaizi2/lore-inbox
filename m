@@ -1,48 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262125AbVFUPga@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262136AbVFUPj4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262125AbVFUPga (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 11:36:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbVFUPg3
+	id S262136AbVFUPj4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 11:39:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262133AbVFUPjr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 11:36:29 -0400
-Received: from [212.100.255.31] ([212.100.255.31]:5863 "EHLO
-	blue.eye.binarydream.org") by vger.kernel.org with ESMTP
-	id S262125AbVFUPgB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 11:36:01 -0400
-Date: Tue, 21 Jun 2005 16:35:52 +0100
-From: Uriel <uriell@binarydream.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: v9fs (-mm -> 2.6.13 merge status)
-Message-ID: <20050621153552.GJ22656@server4.lensbuddy.com>
-References: <20050620235458.5b437274.akpm@osdl.org> <a4e6962a05062106515757849d@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <a4e6962a05062106515757849d@mail.gmail.com>
-User-Agent: Mutt/1.5.9i
+	Tue, 21 Jun 2005 11:39:47 -0400
+Received: from alog0634.analogic.com ([208.224.223.171]:22173 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262130AbVFUPig
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 11:38:36 -0400
+Date: Tue, 21 Jun 2005 11:38:31 -0400 (EDT)
+From: "Richard B. Johnson" <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: KV Pavuram <kvpavuram@yahoo.co.in>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 0xffffe002 in ??
+In-Reply-To: <20050621152133.77162.qmail@web8409.mail.in.yahoo.com>
+Message-ID: <Pine.LNX.4.61.0506211132140.17269@chaos.analogic.com>
+References: <20050621152133.77162.qmail@web8409.mail.in.yahoo.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 21, 2005 at 08:51:27AM -0500, Eric Van Hensbergen wrote:
-> On 6/21/05, Andrew Morton <akpm@osdl.org> wrote:
-> > 
-> > v9fs
-> > 
-> >     I'm not sure that this has a sufficiently high
-> >     usefulness-to-maintenance-cost ratio.
+On Tue, 21 Jun 2005, KV Pavuram wrote:
 
-The 9P protocol implemented by v9fs is the result of over a decade of 
-research in distributed systems at Bell Labs by the original Unix team,
-and it has various implementations for other operating systems that have
-been used in production systems for many years.
+> I am running a multithreaded application on Linux 2.4
+> kernel (RedHat Linux 9).
+>
+> At some point the program receives a seg. fault and if
+> i check info threads, using gdb for debug, almost all
+> the threads are at "0xffffe002 in ??"
+>
 
-9P is designed to be portable across systems and transport protocols,
-it's network transparent, and it gives us interoperativity with
-Inferno(which can run hosted under Linux already), Plan 9, and p9p, and
-implementations for *BSD and other systems are in the works.
+If a number of threads arrive at the same bad address you
+should look for some common code that calls through
+a function pointer. If you don't have any calls through
+pointers, then you may have something corrupting the stack
+so that the return address of a called function gets
+corrupted. For instance, if the value 0x02e0 was written
+beyond array limits in local (stack) data, then when that
+function returned it could actually end up 'returning'
+to the bad address you discovered.
 
-9P has the potential to become the standard protocol for distributed
-resources and I don't think any of the alternatives come anywhere near
-being as well designed, well proven and encompassing.
+Although the kernel provided the seg-fault mechanism, this
+is not a kernel problem. This is a user-code problem.
 
-uriel
+> When I switch to each of these tasks, and try x/i for
+> 0xffffe002, cannot access address.
+>
+> What could be the problem?
+>
+> Please help.
+>
+> Regards,
+> Pav.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.12 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

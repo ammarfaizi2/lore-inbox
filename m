@@ -1,85 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262060AbVFUJ7o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261974AbVFUKCN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262060AbVFUJ7o (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 05:59:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261981AbVFUJ7C
+	id S261974AbVFUKCN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 06:02:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262083AbVFUKAA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 05:59:02 -0400
-Received: from ipx10786.ipxserver.de ([80.190.251.108]:1500 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S262060AbVFUJ4l
+	Tue, 21 Jun 2005 06:00:00 -0400
+Received: from nproxy.gmail.com ([64.233.182.199]:46810 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262063AbVFUJ71 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 05:56:41 -0400
-Date: Tue, 21 Jun 2005 11:58:22 +0200
-From: Johannes Stezenbach <js@linuxtv.org>
-To: domen@coderock.org
-Cc: emoenke@gwdg.de, linux-kernel@vger.kernel.org,
-       Nishanth Aravamudan <nacc@us.ibm.com>
-Message-ID: <20050621095822.GA3942@linuxtv.org>
-Mail-Followup-To: Johannes Stezenbach <js@linuxtv.org>, domen@coderock.org,
-	emoenke@gwdg.de, linux-kernel@vger.kernel.org,
-	Nishanth Aravamudan <nacc@us.ibm.com>
-References: <20050620215148.561754000@nd47.coderock.org>
+	Tue, 21 Jun 2005 05:59:27 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=R7nNYnfu+HWonTOnyLuKa30sQt7A/uzb8DVFFNZez+cEZIn6zI1pFPegTvLR/HzC0UAur36MpAE0AtXXyntlJ+YYzKMPo0flqyVlBRa7Rn5BTfqd3uAvfT+2bvEcPd2jfkkC9bd/YyA47tekiIhNx0dShFqFUtkcHWVca+qvPGA=
+Message-ID: <58cb370e0506210259669c912d@mail.gmail.com>
+Date: Tue, 21 Jun 2005 11:59:22 +0200
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: PATCH: Fix crashes with hotplug serverworks
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org
+In-Reply-To: <1119346417.3325.82.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20050620215148.561754000@nd47.coderock.org>
-User-Agent: Mutt/1.5.9i
-X-SA-Exim-Connect-IP: 84.189.239.177
-Subject: Re: [patch 2/4] cdrom/aztcd: remove sleep_on() usage
-X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
-X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
+References: <1119298859.3325.43.camel@localhost.localdomain>
+	 <20050621065221.GA31420@infradead.org>
+	 <1119346417.3325.82.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-domen@coderock.org wrote:
-> From: Nishanth Aravamudan <nacc@us.ibm.com>
+On 6/21/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> On Maw, 2005-06-21 at 07:52, Christoph Hellwig wrote:
+> > Well, because of fake-hotplug we really need to mark every ->probe routine
+> > and what's called from it __devinit.  Debian has patch to do that forever
+> > but Bart refused to take it.
 > 
-> 
-> 
-> Directly use wait-queues instead of the deprecated sleep_on().
-> This required adding a local waitqueue. Patch is compile-tested.
+> I'm not surprised from our experience either.
 
-IMHO this patch doesn't improve anything, it just makes the
-code harder to read. sleep_on() is deprecated because there's
-an inherent race between sleep_on() and wake_up(). To address
-this you need to add a condition variable (e.g. AztStenLow) and
-convert the code to use wait_event().
-The timer trick used here makes it pretty hard to hit the
-race, but with a preemptible kernel one could be preempted
-between the SET_TIMER() and the sleep_on().
+Get a life.
 
-Johannes
+> Actually marking all the devices __devinit may be overkill. One approach
+> that does also seem to work is passing "hotplug yes/no" information when
+> registering the driver. This is then used to run the ide scan at boot
+> and avoid registering that driver with the PCI core for hotplug.
 
-> Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
-> Signed-off-by: Domen Puncer <domen@coderock.org>
-> ---
->  aztcd.c |    6 +++++-
->  1 files changed, 5 insertions(+), 1 deletion(-)
-> 
-> Index: quilt/drivers/cdrom/aztcd.c
-> ===================================================================
-> --- quilt.orig/drivers/cdrom/aztcd.c
-> +++ quilt/drivers/cdrom/aztcd.c
-> @@ -179,6 +179,7 @@
->  #include <linux/ioport.h>
->  #include <linux/string.h>
->  #include <linux/major.h>
-> +#include <linux/wait.h>
->  
->  #include <linux/init.h>
->  
-> @@ -429,9 +430,12 @@ static void dten_low(void)
->  #define STEN_LOW_WAIT   statusAzt()
->  static void statusAzt(void)
->  {
-> +	DEFINE_WAIT(wait);
->  	AztTimeout = AZT_STATUS_DELAY;
->  	SET_TIMER(aztStatTimer, HZ / 100);
-> -	sleep_on(&azt_waitq);
-> +	prepare_to_wait(&azt_waitq, &wait, TASK_UNINTERRUPTIBLE);
-> +	schedule();
-> +	finish_wait(&azt_waitq, &wait);
->  	if (AztTimeout <= 0)
->  		printk("aztcd: Error Wait STEN_LOW_WAIT command:%x\n",
->  		       aztCmd);
-> 
+* with fake-hotplug driver you always need "hotplug yes"
+* these drivers have to be registered with PCI core
+
+> A move to __devinit is certainly simpler.
+
+This is a correct fix.
+
+Bartlomiej

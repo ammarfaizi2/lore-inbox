@@ -1,43 +1,168 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262092AbVFUI0r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261996AbVFUIWb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262092AbVFUI0r (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 04:26:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262084AbVFUITk
+	id S261996AbVFUIWb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 04:22:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261716AbVFUIUn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 04:19:40 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:26382 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261996AbVFUHnH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 03:43:07 -0400
-Date: Tue, 21 Jun 2005 08:43:01 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Jamey Hicks <jamey.hicks@hp.com>
-Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
-Subject: Re: recursive call to platform_device_register deadlocks
-Message-ID: <20050621084301.B30570@flint.arm.linux.org.uk>
-Mail-Followup-To: Jamey Hicks <jamey.hicks@hp.com>,
-	linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
-References: <42B43226.20703@hp.com>
+	Tue, 21 Jun 2005 04:20:43 -0400
+Received: from [85.8.12.41] ([85.8.12.41]:1720 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S261765AbVFUHqe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 03:46:34 -0400
+Message-ID: <42B7C5BA.8000108@drzeus.cx>
+Date: Tue, 21 Jun 2005 09:46:02 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <42B43226.20703@hp.com>; from jamey.hicks@hp.com on Sat, Jun 18, 2005 at 10:39:34AM -0400
+Content-Type: multipart/mixed; boundary="=_hermes.drzeus.cx-17218-1119339993-0001-2"
+To: Russell King <rmk+lkml@arm.linux.org.uk>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] wbsd delayed insertion
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 18, 2005 at 10:39:34AM -0400, Jamey Hicks wrote:
-> We've started working on replacing uses of soc_device in handhelds 
-> drivers by platform_device.   One of the things we ran into is that the 
-> platform_device driver for an ASIC was calling soc_device_register 
-> inside its probe function.  If this is converted to 
-> platform_device_register, then the process deadlocks because 
-> bus_add_device locks platform_bus_type.
+This is a MIME-formatted message.  If you see this text it means that your
+E-mail software does not support MIME-formatted messages.
 
-This should now be resolved as a result of Greg's recent patch driver
-model patch set, as appeared on lkml last night.
+--=_hermes.drzeus.cx-17218-1119339993-0001-2
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Wait 0.5 seconds before scanning for cards after an insertion interrupt.
+The electrical connection needs this time to stabilise for some cards.
+
+Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
+
+
+--=_hermes.drzeus.cx-17218-1119339993-0001-2
+Content-Type: text/x-patch; name="wbsd-delay.patch"; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="wbsd-delay.patch"
+
+Index: linux-wbsd/drivers/mmc/wbsd.c
+===================================================================
+--- linux-wbsd/drivers/mmc/wbsd.c	(revision 147)
++++ linux-wbsd/drivers/mmc/wbsd.c	(working copy)
+@@ -1099,6 +1099,20 @@
+ \*****************************************************************************/
+ 
+ /*
++ * Helper function for card detection
++ */
++static void wbsd_detect_card(unsigned long data)
++{
++	struct wbsd_host *host = (struct wbsd_host*)data;
++	
++	BUG_ON(host == NULL);
++	
++	DBG("Executing card detection\n");
++	
++	mmc_detect_change(host->mmc);	
++}
++
++/*
+  * Tasklets
+  */
+ 
+@@ -1123,7 +1137,6 @@
+ {
+ 	struct wbsd_host* host = (struct wbsd_host*)param;
+ 	u8 csr;
+-	int change = 0;
+ 	
+ 	spin_lock(&host->lock);
+ 	
+@@ -1142,14 +1155,20 @@
+ 		{
+ 			DBG("Card inserted\n");
+ 			host->flags |= WBSD_FCARD_PRESENT;
+-			change = 1;
++			
++			/*
++			 * Delay card detection to allow electrical connections
++			 * to stabilise.
++			 */
++			mod_timer(&host->timer, jiffies + HZ/2);
+ 		}
++		
++		spin_unlock(&host->lock);
+ 	}
+ 	else if (host->flags & WBSD_FCARD_PRESENT)
+ 	{
+ 		DBG("Card removed\n");
+ 		host->flags &= ~WBSD_FCARD_PRESENT;
+-		change = 1;
+ 		
+ 		if (host->mrq)
+ 		{
+@@ -1160,15 +1179,14 @@
+ 			host->mrq->cmd->error = MMC_ERR_FAILED;
+ 			tasklet_schedule(&host->finish_tasklet);
+ 		}
+-	}
+-	
+-	/*
+-	 * Unlock first since we might get a call back.
+-	 */
+-	spin_unlock(&host->lock);
++		
++		/*
++		 * Unlock first since we might get a call back.
++		 */
++		spin_unlock(&host->lock);
+ 
+-	if (change)
+ 		mmc_detect_change(host->mmc);
++	}
+ }
+ 
+ static void wbsd_tasklet_fifo(unsigned long param)
+@@ -1374,6 +1392,13 @@
+ 	spin_lock_init(&host->lock);
+ 	
+ 	/*
++	 * Set up detection timer
++	 */
++	init_timer(&host->timer);
++	host->timer.data = (unsigned long)host;
++	host->timer.function = wbsd_detect_card;
++	
++	/*
+ 	 * Maximum number of segments. Worst case is one sector per segment
+ 	 * so this will be 64kB/512.
+ 	 */
+@@ -1400,11 +1425,17 @@
+ static void __devexit wbsd_free_mmc(struct device* dev)
+ {
+ 	struct mmc_host* mmc;
++	struct wbsd_host* host;
+ 	
+ 	mmc = dev_get_drvdata(dev);
+ 	if (!mmc)
+ 		return;
+ 	
++	host = mmc_priv(mmc);
++	BUG_ON(host == NULL);
++	
++	del_timer_sync(&host->timer);
++	
+ 	mmc_free_host(mmc);
+ 	
+ 	dev_set_drvdata(dev, NULL);
+Index: linux-wbsd/drivers/mmc/wbsd.h
+===================================================================
+--- linux-wbsd/drivers/mmc/wbsd.h	(revision 147)
++++ linux-wbsd/drivers/mmc/wbsd.h	(working copy)
+@@ -190,4 +190,6 @@
+ 	struct tasklet_struct	timeout_tasklet;
+ 	struct tasklet_struct	finish_tasklet;
+ 	struct tasklet_struct	block_tasklet;
++	
++	struct timer_list	timer;		/* Card detection timer */
+ };
+
+--=_hermes.drzeus.cx-17218-1119339993-0001-2--

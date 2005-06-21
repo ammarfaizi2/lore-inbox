@@ -1,51 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261348AbVFUNCX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261371AbVFUMtv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261348AbVFUNCX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 09:02:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261383AbVFUNBo
+	id S261371AbVFUMtv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 08:49:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261325AbVFUMmu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 09:01:44 -0400
-Received: from [85.8.12.41] ([85.8.12.41]:11192 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S261380AbVFUNA3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 09:00:29 -0400
-Message-ID: <42B80F40.8000609@drzeus.cx>
-Date: Tue, 21 Jun 2005 14:59:44 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
+	Tue, 21 Jun 2005 08:42:50 -0400
+Received: from pilet.ens-lyon.fr ([140.77.167.16]:19592 "EHLO
+	relaissmtp.ens-lyon.fr") by vger.kernel.org with ESMTP
+	id S261444AbVFUMkY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 08:40:24 -0400
+Message-ID: <42B80AB5.7090506@ens-lyon.org>
+Date: Tue, 21 Jun 2005 14:40:21 +0200
+From: Brice Goglin <Brice.Goglin@ens-lyon.org>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-To: Roman Zippel <zippel@linux-m68k.org>
-CC: kbuild-devel@lists.sourceforge.net, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Pointer cast warnings in scripts/
-References: <42B7F740.6000807@drzeus.cx> <Pine.LNX.4.61.0506211413570.3728@scrub.home> <42B80AF9.2060708@drzeus.cx> <Pine.LNX.4.61.0506211451040.3728@scrub.home>
-In-Reply-To: <Pine.LNX.4.61.0506211451040.3728@scrub.home>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-mm1
+References: <20050619233029.45dd66b8.akpm@osdl.org> <42B6777F.2050008@ens-lyon.org>
+In-Reply-To: <42B6777F.2050008@ens-lyon.org>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: multipart/mixed;
+ boundary="------------020200000701000706060203"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel wrote:
+This is a multi-part message in MIME format.
+--------------020200000701000706060203
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 
->
->http://linux.bkbits.net/ still works.
->
->  
->
+Brice Goglin a écrit :
+> Hi Andrew,
+> 
+> I got this oops during boot.
+> I copied it by hand since my machine crashed soon after (because of yenta).
+> It doesn't occur when snd_maestro3 is skipped by discover.
+> 
+> divide error: 0000 [#1]
+> PREEMPT
+> ...
+> CPU: 0
+> EIP: 0060:[<e8957f9f>] Not tainted VLI
+> EFLAGS: 00000282 (2.6.12-mm1=LoulousMobiles)
+> EIP is at and_m3_enable_ints+0x1f/0x40 [snd_maestro3]
+> eax: 00000050 ebx: 00002400 ecx: 00000050 edx: 00002418
+> esi: 00002418 edi: 00000000 ebp: 000000f0 esp: e6f5ce54
+> ds: 007b es: 007b ss: 0068
+> Process modprobe (pid: 2405, threadinfo=e6f5c000, task=e7a31570)
+> ...
+> Call trace:
+>  snd_m3_create+0x303/0x405 [snd_maestro3]
 
-Thanks.
+The problem comes from git-alsa.patch.
+Adding HV_INT_ENABLE to outw in snd_m3_enable_ints (in
+sound/pci/maestro3.c) makes it generate a divide error
+on my laptop.
 
-It should only be a matter of reversing the patches for Solaris then.
-But that will of course bring back the warnings on that platform. I'd
-say we should stick with what the standard says. Unfortunatly I don't
-have access to the standard so I wouldn't know which is the correct
-version. If I'd have to guess I'd say the odds are in favor of glibc
-getting it more right than solaris.
+The attached patch reverts this and fixes my problem.
 
-Should I extract the changes for bkbits and make a reversed patch?
+Signed-off-by: Brice Goglin <Brice.Goglin@ens-lyon.org>
 
-Rgds
-Pierre
+Brice
 
+--------------020200000701000706060203
+Content-Type: text/x-patch;
+ name="fix-maestro3-outw.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="fix-maestro3-outw.patch"
+
+--- linux-mm/sound/pci/maestro3.c.old	2005-06-21 14:36:19.000000000 +0200
++++ linux-mm/sound/pci/maestro3.c	2005-06-21 14:36:31.000000000 +0200
+@@ -2527,7 +2527,7 @@ snd_m3_enable_ints(m3_t *chip)
+ 	unsigned long io = chip->iobase;
+ 
+ 	/* TODO: MPU401 not supported yet */
+-	outw(ASSP_INT_ENABLE | HV_INT_ENABLE /*| MPU401_INT_ENABLE*/, io + HOST_INT_CTRL);
++	outw(ASSP_INT_ENABLE /*| MPU401_INT_ENABLE*/, io + HOST_INT_CTRL);
+ 	outb(inb(io + ASSP_CONTROL_C) | ASSP_HOST_INT_ENABLE,
+ 	     io + ASSP_CONTROL_C);
+ }
+
+--------------020200000701000706060203--

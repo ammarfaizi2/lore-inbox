@@ -1,27 +1,33 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S261298AbVFOITC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S262262AbVFUTKS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261298AbVFOITC (ORCPT <rfc822;akpm@zip.com.au>);
-	Wed, 15 Jun 2005 04:19:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261311AbVFOITC
+	id S262262AbVFUTKS (ORCPT <rfc822;akpm@zip.com.au>);
+	Tue, 21 Jun 2005 15:10:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262249AbVFUTKK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Jun 2005 04:19:02 -0400
-Received: from rproxy.gmail.com ([64.233.170.206]:58704 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261298AbVFOITB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Jun 2005 04:19:01 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:user-agent:x-accept-language:mime-version:to:content-type:content-transfer-encoding:from;
-        b=LuGY6Tzri0RM/eYsaydWO4WFK9YMH9nkpvdQeVF6AwUN+E0dONZ5honA2KG43izhn6bXSHmC/tfVhXujb5l1MYgvSiMTIMlAsEfNoKErG01R/An/hoWPiSDPV5H0m7cd7OsLVxmBhJVTDJvsNQHPKobDqE9OMQgOhr6G/G37cxE=
-Message-ID: <42AFE468.6030104@gmail.com>
-Date: Wed, 15 Jun 2005 11:18:48 +0300
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset=ISO-8859-9; format=flowed
+	Tue, 21 Jun 2005 15:10:10 -0400
+Received: from 200-204-183-105.dsl.telesp.net.br ([200.204.183.105]:29686 "HELO
+	200-204-183-105.dsl.telesp.net.br") by vger.kernel.org with SMTP
+	id S262265AbVFUTJk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 15:09:40 -0400
+Mime-Version: 1.0 (Apple Message framework v728)
 Content-Transfer-Encoding: 7bit
-From: "M.Tugrul" <tugrulyilmazer@gmail.com>
+Message-Id: <6922057318.8869015354@200-204-183-105.dsl.telesp.net.br>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+To: linux-kernel@vger.kernel.org
+From: Laurence <plod@caesarsemail.com>
+Subject: Purchase generic drugs from our #1 ranked generic drugs provider.
+Date: Tue, 21 Jun 2005 17:08:21 -0300
+X-Mailer: Apple Mail (2.728)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+Extra power. Don't think. Just act.
+http://sidxs.1y4unk1ugtj9521.artemiadc.com
+
+
+
+Never judge a book by its movie.      
+I was born because my mother needed a fourth for meals.  
+Nothing is impossible. Some things are just less likely than others.  
+
 

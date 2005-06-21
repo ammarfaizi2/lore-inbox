@@ -1,114 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262212AbVFUTMD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261850AbVFUTV7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262212AbVFUTMD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 15:12:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262215AbVFUTMD
+	id S261850AbVFUTV7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 15:21:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262215AbVFUTV7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 15:12:03 -0400
-Received: from unused.mind.net ([69.9.134.98]:33973 "EHLO echo.lysdexia.org")
-	by vger.kernel.org with ESMTP id S262212AbVFUTLl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 15:11:41 -0400
-Date: Tue, 21 Jun 2005 12:08:48 -0700 (PDT)
-From: William Weston <weston@sysex.net>
-X-X-Sender: weston@echo.lysdexia.org
-To: Ingo Molnar <mingo@elte.hu>
-cc: "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       "Eugeny S. Mints" <emints@ru.mvista.com>,
-       Daniel Walker <dwalker@mvista.com>, linux-ns83820@kvack.org,
-       nhorman@redhat.com, Jeff Garzik <jgarzik@redhat.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
-In-Reply-To: <20050621131009.GA22691@elte.hu>
-Message-ID: <Pine.LNX.4.58.0506211200130.16701@echo.lysdexia.org>
-References: <20050608112801.GA31084@elte.hu> <42B0F72D.5040405@cybsft.com>
- <20050616072935.GB19772@elte.hu> <42B160F5.9060208@cybsft.com>
- <20050616173247.GA32552@elte.hu> <Pine.LNX.4.58.0506171139570.32721@echo.lysdexia.org>
- <20050621131009.GA22691@elte.hu>
+	Tue, 21 Jun 2005 15:21:59 -0400
+Received: from host191.ipowerweb.com ([66.235.202.101]:11274 "HELO
+	host191.ipowerweb.com") by vger.kernel.org with SMTP
+	id S261156AbVFUTVu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 15:21:50 -0400
+Message-ID: <42B868CC.1010008@hivemynd.net>
+Date: Tue, 21 Jun 2005 14:21:48 -0500
+From: Stephen Jones <hivemynd@hivemynd.net>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Patrick McHardy <kaber@trash.net>
+CC: "J.A. Magallon" <jamagallon@able.es>, Andrew Morton <akpm@osdl.org>,
+       netdev@vger.kernel.org,
+       Netfilter Development Mailinglist 
+	<netfilter-devel@lists.netfilter.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: iptables bug
+References: <20050619233029.45dd66b8.akpm@osdl.org>	<1119305756l.1344l.0l@werewolf.able.es>	<20050620153445.5daaed4e.akpm@osdl.org> <42B753A8.5050808@trash.net>
+In-Reply-To: <42B753A8.5050808@trash.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Jun 2005, Ingo Molnar wrote:
-
-> i'm not sure it's related to the lockup - but there is a generic bug in 
-> the driver, which in ns83820_tx_timeout() does:
+Patrick McHardy wrote:
+> Andrew Morton wrote:
 > 
-> 	local_irq_save(flags);
-> 	...
-> 	CALL do_tx_done()
+>>"J.A. Magallon" <jamagallon@able.es> wrote:
+>>
+>>
+>>>Are there any known problems with iptables ?
 > 
-> 		spin_lock_irq(&dev->tx_lock);
-> 		...
-> 		spin_unlock_irq(&dev->tx_lock); // [1]
-> 	...
-> 	local_irq_restore(flags); // [2]
 > 
-> this leads to interrupts being enabled at [1], while the intention was 
-> to enable them at [2]. To solve this bug we can do the tx-locking in 
-> ns83820_tx_timeout(). (local_irq_disable() use in ns83820_tx_timeout() 
-> was probably SMP-unsafe too, but needs a rare race.)
+> No known problems.
 > 
-> find the patch below - it's also included in the -50-05 -RT tree i just 
-> uploaded. Can you confirm that you dont get the warnings in the -50-05 
-> (and later) -RT kernels?
 > 
-> 	Ingo
+>>>I see strange things.
+>>>When I use bittorrent (azureus or bittorrent-gui), at the same time as
+>>>iptables (for nat and internet access for my ibook), when I stop a download
+>>>or exit from one of this apps my external network goes down. 
+>>>I have tried the same without iptables loaded and it works fine.
 
--48-37 still gave the warnings on ns83820_tx_timeout(), but otherwise ran
-for a day without any lockups or loss of network or keyboard.  No warnings 
-so far with -50-06.  I'll keep you posted.
+I have observed this behavior on multiple machines, but I don't think it 
+is specifically an iptables "bug" or kernel "bug".  Most of my 
+experience is with 2.4.x kernels, so I can't remark about the 2.6.x series.
 
+The original poster didn't give enough info for me to correlate anything 
+with conviction, but, consulting the tea leaves :D I would venture to 
+guess that the machine that has the network "go down" has less than 128 
+MB of RAM and is probably running lower end NICs (i.e. 8139too).
 
---ww <weston@sysex.net>
+There appears to be two or three issues interacting with one another in 
+these scenarios:
 
+a.) The various Bit Torrent clients and their ilk can generate a 
+staggering number of conncurrent connections.  This can quickly fill the 
+conntracks on machines with little RAM and cause problems.
 
-> Index: drivers/net/ns83820.c
-> ===================================================================
-> --- drivers/net/ns83820.c.orig
-> +++ drivers/net/ns83820.c
-> @@ -1013,8 +1013,6 @@ static void do_tx_done(struct net_device
->  	struct ns83820 *dev = PRIV(ndev);
->  	u32 cmdsts, tx_done_idx, *desc;
->  
-> -	spin_lock_irq(&dev->tx_lock);
-> -
->  	dprintk("do_tx_done(%p)\n", ndev);
->  	tx_done_idx = dev->tx_done_idx;
->  	desc = dev->tx_descs + (tx_done_idx * DESC_SIZE);
-> @@ -1070,7 +1068,6 @@ static void do_tx_done(struct net_device
->  		netif_start_queue(ndev);
->  		netif_wake_queue(ndev);
->  	}
-> -	spin_unlock_irq(&dev->tx_lock);
->  }
->  
->  static void ns83820_cleanup_tx(struct ns83820 *dev)
-> @@ -1371,7 +1368,9 @@ static void ns83820_do_isr(struct net_de
->  	 * work has accumulated
->  	 */
->  	if ((ISR_TXDESC | ISR_TXIDLE | ISR_TXOK | ISR_TXERR) & isr) {
-> +		spin_lock_irq(&dev->tx_lock);
->  		do_tx_done(ndev);
-> +		spin_unlock_irq(&dev->tx_lock);
->  
->  		/* Disable TxOk if there are no outstanding tx packets.
->  		 */
-> @@ -1456,7 +1455,7 @@ static void ns83820_tx_timeout(struct ne
->          u32 tx_done_idx, *desc;
->  	unsigned long flags;
->  
-> -	local_irq_save(flags);
-> +	spin_lock_irqsave(&dev->tx_lock, flags);
->  
->  	tx_done_idx = dev->tx_done_idx;
->  	desc = dev->tx_descs + (tx_done_idx * DESC_SIZE);
-> @@ -1483,7 +1482,7 @@ static void ns83820_tx_timeout(struct ne
->  		ndev->name,
->  		tx_done_idx, dev->tx_free_idx, le32_to_cpu(desc[DESC_CMDSTS]));
->  
-> -	local_irq_restore(flags);
-> +	spin_unlock_irqrestore(&dev->tx_lock, flags);
->  }
->  
+b.) The lower end nics (either the hardware itself, or the drivers, I 
+don't know enough about how to isolate the two) do not appear to be able 
+to handle the massive number of interrupts that are generated in this 
+scenario.
+
+c.) The problem is more likely to manifest on  "fat pipe" connections (6 
+MB +)
+
+I would also wager the problem goes away if the torrent clients are shut 
+down.
+
+I would look there, if I hade the skills requried to tease out anything 
+useful :D
+
+Various linux based firewall forums have posts describing the same 
+behavior as the OP of this thread.
+
+Here is one relatively recent example:
+
+http://community.smoothwall.org/forum/viewtopic.php?p=43812#43812
+
+I hope that helps in some way!
+
 > 
+> 
+> What exactly do you mean with "network goes down"? Can you find out
+> where the packets disappear? Do they silently disappear, or do you get
+> an error code from sendmsg? What about received packets?
+> 
+> Regards
+> Patrick
+> 
+> 
+> 
+

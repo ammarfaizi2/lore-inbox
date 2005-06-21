@@ -1,37 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261453AbVFUUS2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262305AbVFUUSa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261453AbVFUUS2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 16:18:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262305AbVFUURT
+	id S262305AbVFUUSa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 16:18:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262306AbVFUURK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 16:17:19 -0400
-Received: from kanga.kvack.org ([66.96.29.28]:4055 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S261453AbVFUUQA (ORCPT
+	Tue, 21 Jun 2005 16:17:10 -0400
+Received: from zlynx.org ([199.45.143.209]:28942 "EHLO 199.45.143.209")
+	by vger.kernel.org with ESMTP id S262305AbVFUUQL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 16:16:00 -0400
-Date: Tue, 21 Jun 2005 16:17:42 -0400
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: William Weston <weston@sysex.net>, "K.R. Foley" <kr@cybsft.com>,
-       linux-kernel@vger.kernel.org, "Eugeny S. Mints" <emints@ru.mvista.com>,
-       Daniel Walker <dwalker@mvista.com>, linux-ns83820@kvack.org,
-       nhorman@redhat.com, Jeff Garzik <jgarzik@redhat.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
-Message-ID: <20050621201742.GA16400@kvack.org>
-References: <20050608112801.GA31084@elte.hu> <42B0F72D.5040405@cybsft.com> <20050616072935.GB19772@elte.hu> <42B160F5.9060208@cybsft.com> <20050616173247.GA32552@elte.hu> <Pine.LNX.4.58.0506171139570.32721@echo.lysdexia.org> <20050621131009.GA22691@elte.hu>
+	Tue, 21 Jun 2005 16:16:11 -0400
+Subject: Re: -mm -> 2.6.13 merge status
+From: Zan Lynx <zlynx@acm.org>
+To: Christoph Lameter <christoph@lameter.com>
+Cc: Robert Love <rml@novell.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.62.0506211309300.22490@graphe.net>
+References: <20050620235458.5b437274.akpm@osdl.org>
+	 <42B831B4.9020603@pobox.com> <1119368364.3949.236.camel@betsy>
+	 <Pine.LNX.4.62.0506211222040.21678@graphe.net>
+	 <1119382685.3949.263.camel@betsy> <1119384131.15478.25.camel@localhost>
+	 <Pine.LNX.4.62.0506211306060.22372@graphe.net>
+	 <1119384473.3949.279.camel@betsy>
+	 <Pine.LNX.4.62.0506211309300.22490@graphe.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-YGU1oGPc3fZTqLnqQru+"
+Date: Tue, 21 Jun 2005 14:15:27 -0600
+Message-Id: <1119384927.15478.28.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050621131009.GA22691@elte.hu>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.1.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 21, 2005 at 03:10:09PM +0200, Ingo Molnar wrote:
-> find the patch below - it's also included in the -50-05 -RT tree i just 
-> uploaded. Can you confirm that you dont get the warnings in the -50-05 
-> (and later) -RT kernels?
 
-Looks good.  Acked-by: Benjamin LaHaise <bcrl@kvack.org>
+--=-YGU1oGPc3fZTqLnqQru+
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-		-ben
+On Tue, 2005-06-21 at 13:10 -0700, Christoph Lameter wrote:
+> On Tue, 21 Jun 2005, Robert Love wrote:
+>=20
+> > > I was told that Linux cannot do this. It always returns the filehandl=
+es as=20
+> > > ready for disk files.
+> >=20
+> > Inotify would definitely work.
+>=20
+> Well we could use it in kernel to make select() work correctly. For disk=20
+> files set up a notification for write and then only return from select if=
+=20
+> new data is available.
+
+You could do it inside glibc.
+--=20
+Zan Lynx <zlynx@acm.org>
+
+--=-YGU1oGPc3fZTqLnqQru+
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBCuHVfG8fHaOLTWwgRAnOuAJ0R0gViYJPx73azTd21irRUdZQlyQCfdF2e
+A+Y+ZnZi29+ajzwEXAZSQco=
+=mvDU
+-----END PGP SIGNATURE-----
+
+--=-YGU1oGPc3fZTqLnqQru+--
+

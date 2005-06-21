@@ -1,65 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261968AbVFUINH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262075AbVFUIuu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261968AbVFUINH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 04:13:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261666AbVFUIK3
+	id S262075AbVFUIuu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 04:50:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262086AbVFUIsU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 04:10:29 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:18067 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261648AbVFTVpp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 17:45:45 -0400
-Date: Mon, 20 Jun 2005 23:45:21 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Alejandro Bonilla <abonilla@linuxwireless.org>,
-       linux-kernel@vger.kernel.org, linux-thinkpad@linux-thinkpad.org
-Subject: Re: IBM HDAPS Someone interested?
-Message-ID: <20050620214521.GB2222@elf.ucw.cz>
-References: <20050620155720.GA22535@ucw.cz> <005401c575b3_5f5bba90_600cc60a@amer.sykes.com> <20050620163456.GA24111@ucw.cz> <20050620165703.GB477@openzaurus.ucw.cz> <20050620204533.GA9520@ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050620204533.GA9520@ucw.cz>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Tue, 21 Jun 2005 04:48:20 -0400
+Received: from cpc4-cmbg4-4-0-cust124.cmbg.cable.ntl.com ([81.108.205.124]:40202
+	"EHLO thekelleys.org.uk") by vger.kernel.org with ESMTP
+	id S262090AbVFUIrV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 04:47:21 -0400
+Message-ID: <42B7D3D2.8010606@thekelleys.org.uk>
+Date: Tue, 21 Jun 2005 09:46:10 +0100
+From: Simon Kelley <simon@thekelleys.org.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050509 Debian/1.7.6-1ubuntu2.1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Feyd <feyd@nmskb.cz>
+CC: Jirka Bohac <jbohac@suse.cz>, Denis Vlasenko <vda@ilport.com.ua>,
+       Pavel Machek <pavel@ucw.cz>, Jeff Garzik <jgarzik@pobox.com>,
+       Netdev list <netdev@oss.sgi.com>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: ipw2100: firmware problem
+References: <20050608142310.GA2339@elf.ucw.cz>	<200506081744.20687.vda@ilport.com.ua>	<20050608145653.GA8844@dwarf.suse.cz>	<42B7C4D0.9070809@thekelleys.org.uk> <20050621102921.5a8c953a@alfa.nmskb.cz>
+In-Reply-To: <20050621102921.5a8c953a@alfa.nmskb.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Feyd wrote:
+> On Tue, 21 Jun 2005 08:42:08 +0100
+> Simon Kelley <simon@thekelleys.org.uk> wrote:
+> 
+> 
+>>The atmel driver includes a small firmware stub which does nothing but 
+>>determine the MAC address, to solve this problem. This is compiled into 
+> 
+> 
+> Does it power-down the card after reading the MAC?
+> 
 
-Apple connects their accelerometer over i2c, see:
+Yes, it loads the special firmware, runs it to get the MAC, and then 
+returns the card to quiesent state, ready for the real firmware load 
+which happens at device open time.
 
-http://www.kernelthread.com/software/ams/
+Cheers,
 
-For some reverse engineering attempts, see:
-
-http://www.paul.sladen.org/thinkpad-r31/accelerometer.html
-
-According to IBM, it is *not* enabled during system bootup:
-
-http://www-307.ibm.com/pc/support/site.wss/document.do?lndocid=MIGR-53167
-
-According to another text, BIOS know how to test accelerometer in some
-kind of self test. Aha, here's the most interesting text:
-
-http://www-307.ibm.com/pc/support/site.wss/document.do?lndocid=MIGR-53432
-
-According to this text:
-
-typical free-fall takes 300msec, but head unloading takes
-300-500msec. [So I had my computation right ;-)] ... "therefore, it is
-too late to start head unloading after detecting free fall"...
-
-They really try to detect conditions just before free fall... and it
-does not sound that difficult.
-
-Another clever trick is that if user is still using the mouse, machine
-is probably not in free fall ;-). In pdf, they also mention few
-.sys files. They should probably be disassembled to learn how the
-interface works (hint hint), actually exported symbol names should be
-quite helpfull in determining what function is the interesting one. 
-
-								Pavel
--- 
-teflon -- maybe it is a trademark, but it should not be.
+Simon.

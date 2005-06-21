@@ -1,64 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261469AbVFUSVt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262170AbVFUSWR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261469AbVFUSVt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 14:21:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262154AbVFUSVt
+	id S262170AbVFUSWR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 14:22:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261824AbVFUSWR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 14:21:49 -0400
-Received: from rrcs-24-227-247-8.sw.biz.rr.com ([24.227.247.8]:54401 "EHLO
-	emachine.austin.ammasso.com") by vger.kernel.org with ESMTP
-	id S261469AbVFUSVn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 14:21:43 -0400
-Message-ID: <42B85AB4.7030401@ammasso.com>
-Date: Tue, 21 Jun 2005 13:21:40 -0500
-From: Timur Tabi <timur.tabi@ammasso.com>
-Organization: Ammasso
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.8) Gecko/20050511 Mnenhy/0.7.2.0
-X-Accept-Language: en-us, en, en-gb
+	Tue, 21 Jun 2005 14:22:17 -0400
+Received: from osten.wh.uni-dortmund.de ([129.217.129.130]:6291 "EHLO
+	osten.wh.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S262209AbVFUSWD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 14:22:03 -0400
+Message-ID: <42B85AC9.4060708@web.de>
+Date: Tue, 21 Jun 2005 20:22:01 +0200
+From: Alexander Fieroch <fieroch@web.de>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050402)
+X-Accept-Language: de-de, en-us, en
 MIME-Version: 1.0
-To: Hugh Dickins <hugh@veritas.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: get_user_pages() and shared memory question
-References: <42B82DF2.2050708@ammasso.com> <Pine.LNX.4.61.0506211840210.5784@goblin.wat.veritas.com>
-In-Reply-To: <Pine.LNX.4.61.0506211840210.5784@goblin.wat.veritas.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Newsgroups: gmane.linux.kernel
+To: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
+Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       bzolnier@gmail.com, axboe@suse.de,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: Re: [2.6.12rc4] PROBLEM: "drive appears confused" and "irq 18:  
+   nobody cared!"
+References: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04C08@USRV-EXCH4.na.uis.unisys.com>
+In-Reply-To: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04C08@USRV-EXCH4.na.uis.unisys.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins wrote:
+Protasevich, Natalie wrote:
+> I would try forcing legacy mode some way, say by tweaking the
+> line in do_ide_setup_pci_device():
+>    if ((dev->class >> 8) == PCI_CLASS_STORAGE_IDE && (dev->class & 5) !=
+> 5) {
+> 
+> To something like
+> 
+>    if ((dev->class >> 8) == PCI_CLASS_STORAGE_IDE) {
 
-> It depends on what you mean by allocate and deallocate.  If the second
-> process is attaching the same shared memory segment as the first process
-> had attached, then yes, its buffer will contain those very pages which
-> the driver erroneously failed to release.
+I did this with kernel 2.6.12-git2. There are more much error messages
+like...
+"hda: lost interrupt"
+...where linux hangs with a timeout. Finally linux falls in a loop of
+errors and is repeating the following tree lines continually:
 
-No, I'm talking about when the first process completely destroys the shared memory segment 
-so that it no longer exists.  No processes are attached to it, and any attempt to attach 
-to it results in an error, because it doesn't exist.
+hda: lost interrupt
+hda: dma_timer_expiry: dmastatus == 0x64
+hda: DMA interrupt recovery
 
-In this case, when a process creates a new memory segment, I just want to know whether the 
-pages with a non-zero refcount (because of the get_user_pages() call) can ever be used in 
-a new shared memory segment.
 
-I'm assuming the answer is no, because that would defeat the purpose of refcount (right?). 
-  I've been looking at the code and reading books on the VM, but I get lost easily.  It 
-appears that the function which allocates a page is shmem_alloc_page(), which calls 
-alloc_page() to do the actual work.  If that's correct, is it possible for alloc_page() to 
-return a page that has been previously "claimed" by get_user_pages()?  I'm looking at 
-__alloc_pages(), and I don't see any calls to page_count(), so I guess there's some other 
-mechanism (either in get_user_pages() or in the way the VM works) that prevents this 
-possibility.  However, I'm getting dangerously close to my limit of understanding the 
-Linux VM.
+> Another thought is to dump PCI configuration space for ICH6 IDE, and
+> verify the values, especially INT_LN, INTR_PIN, and PCICMD which has
+> such info as whether IDE interrupt is enabled on the chip (bit 10), see
+> Intel's ICH6 spec, chapter 11 (
+> ftp://download.intel.com/design/chipsets/datashts/30147302.pdf ).
 
-Thanks for replying to my message.  I really appreciate the help in understanding the 
-Linux VM.
+Ok, is there anything that I can do?
 
--- 
-Timur Tabi
-Staff Software Engineer
-timur.tabi@ammasso.com
+> I posted reply to you last email but surprisingly didn't see it going
+> trough to the mailing list. Maybe, our mailer blocked it for some
+> reason.
 
-One thing a Southern boy will never say is,
-"I don't think duct tape will fix it."
-      -- Ed Smylie, NASA engineer for Apollo 13
+Curious. I also have recognized that some replys did not go through the
+mailing list, but I've cc'd all of you. Perhaps someone should check the
+filter?
+
+Regards,
+Alexander
+
+

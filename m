@@ -1,144 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261877AbVFUDbn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261723AbVFUDbp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261877AbVFUDbn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 23:31:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261768AbVFUDZw
+	id S261723AbVFUDbp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 23:31:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261639AbVFUDYk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 23:25:52 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.59]:13546 "EHLO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S261884AbVFUCaQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 22:30:16 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: John McCutchan <ttb@tentacle.dhs.org>
-Date: Tue, 21 Jun 2005 12:29:48 +1000
+	Mon, 20 Jun 2005 23:24:40 -0400
+Received: from opersys.com ([64.40.108.71]:16146 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S261723AbVFUCS7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 22:18:59 -0400
+Message-ID: <42B77B8C.6050109@opersys.com>
+Date: Mon, 20 Jun 2005 22:29:32 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
 MIME-Version: 1.0
+To: paulmck@us.ibm.com
+CC: Kristian Benoit <kbenoit@opersys.com>, linux-kernel@vger.kernel.org,
+       bhuey@lnxw.com, andrea@suse.de, tglx@linutronix.de, mingo@elte.hu,
+       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
+       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org, rpm@xenomai.org
+Subject: Re: PREEMPT_RT vs I-PIPE: the numbers, part 2
+References: <1119287612.6863.1.camel@localhost> <20050621015542.GB1298@us.ibm.com>
+In-Reply-To: <20050621015542.GB1298@us.ibm.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <17079.31644.985407.988980@cse.unsw.edu.au>
-Cc: Robert Love <rml@novell.com>, Andrew Morton <akpm@osdl.org>,
-       Christoph Hellwig <hch@lst.de>, arnd@arndb.de, zab@zabbo.net,
-       linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: [patch] inotify.
-In-Reply-To: message from John McCutchan on Monday June 20
-References: <1118855899.3949.21.camel@betsy>
-	<42B1BC4B.3010804@zabbo.net>
-	<1118946334.3949.63.camel@betsy>
-	<200506171907.39940.arnd@arndb.de>
-	<20050617175605.GB1981@tentacle.dhs.org>
-	<20050617143334.41a31707.akpm@osdl.org>
-	<1119044430.7280.22.camel@phantasy>
-	<1119052357.7280.24.camel@phantasy>
-	<17079.25741.91251.232880@cse.unsw.edu.au>
-	<1119320137.17767.10.camel@vertex>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday June 20, ttb@tentacle.dhs.org wrote:
-> On Tue, 2005-06-21 at 10:51 +1000, Neil Brown wrote:
-> > I haven't yet decided if I like it or not, but maybe I have some
-> > useful comments to make...
-> > 
-> > > +
-> > > +Q: What is the design decision behind using an-fd-per-device as
-> > > +opposed to an fd-per-watch?
-> > > +
-> > > +A: An fd-per-watch quickly consumes more file descriptors than
-> > > +are allowed, more fd's than are feasible to manage, and more
-> > > +fd's than are ideally select()-able.  Yes, root can bump the
-> > > +per-process fd limit and yes, users can use epoll, but requiring
-> > > +both is silly and an extraneous requirement.  A watch consumes
-> > > +less memory than an open file, separating the number spaces is
-> > > +thus sensible.  The current design is what user-space developers
-> > > +want: Users open the device, once, and add n watches, requiring
-> > > +but one fd and no twiddling with fd limits.
-> > > +Opening /dev/inotify two thousand times is silly.  If we can
-> > > +implement user-space's preferences cleanly--and we can, the idr
-> > > +layer makes stuff like this trivial--then we should.
-> > > +
-> > 
-> > 
-> > To address the particular points:
-> >  - "An fd-per-watch quickly consumes more file descriptors than
-> >     are allowed"
-> > 
-> >   I note that the current limit if 'wd's is 8192 per user, compared
-> >   with the default 'fd' limit of 1024 per process.  So if a user has
-> >   more than 8 processes making very heavy use of inotify, they would
-> >   be better off with the file-descriptor limit...
-> >   So I don't find this argument convincing.
-> > 
-> >   I would suggest that it be removed, and you put in a separate
-> >   section discussion resource usage and limits.  You could explain why
-> >   you don't use rlimit (probably not a hard case to win) and why the
-> >   sysadmin cannot give different limits to different users (as a
-> >   sys-admin, I would fight that), and why no one user would ever want
-> >   more than about 8 processes using inotify :-)
-> > 
-> 
-> Looking at beagle, it is a single process that can easily watch more
-> than 1024 directories. Beagle would have to work around the 1024 limit
-> by managing processes, each of which watch a fraction of the total
-> watches. PITA. Also, 8192 was an arbitrary choice that seemed big enough
-> for most users needs and all of these limits can be set in sysfs.
-> Checkout /sys/misc/inotify.
 
+Paul E. McKenney wrote:
+> It looks to me that I-PIPE is an example of a "nested OS", with
+> Linux nested within the I-PIPE functionality. 
 
-I think you missed my point...
-The FAQ entry which I found unconvincing said
+Sorry, the I-pipe is likely in the "none-of-the-above" category. It's
+actually not much of a category itself. For one thing, it's clearly
+not an RTOS in any sense of the word.
 
-"Yes, root can bump the per-process fd limit ... but requiring [this]
- is silly and an extraneous requirement." 
+The I-pipe is just a layer that allows multiple pieces of code to
+share an interrupt stream in a prioritized fashion. It doesn't
+schedule anything or provide any sort of abstraction whatsoever.
+Your piece of code just gets a spot in the pipeline and receives
+interrupts accordingly. Not much nesting there. It's just a new
+feature in Linux.
 
-So when you say "... all of these limits can be set in sysfs", you are
-effectively contradicting the FAQ entry.
-Yes, 1024 is an arbitrary limit.  But so is 8192.
-The argument "We cannot use fd's because the arbitrary limit is lower
-than the arbitrary limit that I want to use" simply doesn't hold
-water.
-There may well be other good arguments against 'fd's, but I'm trying
-to point out that this isn't one of them, and so shouldn't appear in
-this part of the FAQ.
+Have a look at the patches and description posted by Philippe last
+Friday for more detail.
 
+> One could take
+> the RTAI-Fusion approach, but this measurement is of I-PIPE
+> rather than RTAI-Fusion, right?  (And use of RTAI-Fusion might
+> or might not change these results significantly, just trying to
+> make sure I understand what these specific tests apply to.)
 
-> 
-> >  -  "more fd's than are feasible to manage,"
-> > 
-> >    It's not clear what this means.  The program will still need to
-> >    manage lots of 'wd's.  How is this different from handling 'fd's?
-> >    The only 'manage'ment issue I could come up with is the hassle of
-> >    shepherding all these 'wd's through a 'fork', only to close them
-> >    before an 'exec'.  Is that what you mean?  If so it would help to
-> >    make it more explicit.
-> > 
-> 
-> The program doesn't really have to manage the wd's. A program simply
-> needs a map from wd to it's own structure.
+That's inconsequential. Whether Fusion is loaded or not doesn't
+preclude a loaded driver to have a higher priority than
+Fusion itself and therefore continue receiving interrupt even if
+Fusion itself has disabled interrupts ...
 
-So I think you are agreeing with me that the text "more fd's than are
-feasible to manage," should be removed from the FAQ?  Thanks.
+The loading of Fusion would change nothing to these measurements.
 
-> 
-> Assume for a moment that we had chosen a fd-as-watch approach. Now take
-> beagle, which has tons of watches. Every time beagle goes through it's
-> loop, it has to add each of those watch-fd's to the select table, then
-> check for each one afterwards. It's pretty easy to see how this is
-> unmanageable and a waste of CPU time. 
+> Also, if I understand correctly, the interrupt latency measured
+> is to the Linux kernel running within I-PIPE, rather than to I-PIPE
+> itself.  Is this the case, or am I confused?
 
-I don't think there can be any question that having to tell select
-about each 'watch' is unreasonable.
+What's being measured here is a loadable module that allocates an
+spot in the ipipe that has higher priority than Linux and puts
+itself there. Therefore, regardless of what other piece of code
+in the kernel disables interrupts, that specific driver still
+has its registered ipipe handler called deterministically ...
 
-> 
-> Why bother though? The idr layer lets us have a integer that maps to a 
-> data structure in kernel space, pretty much for free. 
-> 
-Because some people think that creating a whole new abstraction when
-we have one (fds) that seem to fit the bill, is the wrong thing to do.
-I don't currently have an opinion on that, but I am trying to explore
-options with a bit of lateral thinking.
+Don't know, but from the looks of it we're not transmitting on
+the same frequency ...
 
-NeilBrown
+Karim
+-- 
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546

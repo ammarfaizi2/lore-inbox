@@ -1,76 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262199AbVFUSac@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262209AbVFUSlM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262199AbVFUSac (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 14:30:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261824AbVFUSab
+	id S262209AbVFUSlM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 14:41:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262225AbVFUSlM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 14:30:31 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:16076 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262226AbVFUSaA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 14:30:00 -0400
-Date: Tue, 21 Jun 2005 11:29:51 -0700
-From: Nishanth Aravamudan <nacc@us.ibm.com>
-To: "Maciej W. Rozycki" <macro@linux-mips.org>
-Cc: Domen Puncer <domen@coderock.org>, axboe@suse.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 04/12] block/xd: replace schedule_timeout() with msleep()
-Message-ID: <20050621182951.GB2664@us.ibm.com>
-References: <20050620215133.675387000@nd47.coderock.org> <Pine.LNX.4.61L.0506211233490.9446@blysk.ds.pg.gda.pl> <20050621132100.GL3906@nd47.coderock.org> <Pine.LNX.4.61L.0506211451180.9446@blysk.ds.pg.gda.pl> <20050621161452.GA4175@us.ibm.com> <Pine.LNX.4.61L.0506211729160.17779@blysk.ds.pg.gda.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61L.0506211729160.17779@blysk.ds.pg.gda.pl>
-X-Operating-System: Linux 2.6.12-rc5 (i686)
-User-Agent: Mutt/1.5.9i
+	Tue, 21 Jun 2005 14:41:12 -0400
+Received: from 64-60-250-34.cust.telepacific.net ([64.60.250.34]:27861 "EHLO
+	panta-1.pantasys.com") by vger.kernel.org with ESMTP
+	id S262209AbVFUSlI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 14:41:08 -0400
+Message-ID: <42B85F41.3030009@pantasys.com>
+Date: Tue, 21 Jun 2005 11:41:05 -0700
+From: Peter Buckingham <peter@pantasys.com>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Hodle, Brian" <BHodle@harcroschem.com>
+CC: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: FW: PROBLEM: Devices behind PCI Express-to-PCI bridge not mapped
+References: <D9A1161581BD7541BC59D143B4A06294021FAA68@KCDC1>
+In-Reply-To: <D9A1161581BD7541BC59D143B4A06294021FAA68@KCDC1>
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 21 Jun 2005 18:38:23.0750 (UTC) FILETIME=[67B96A60:01C57690]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 21.06.2005 [17:43:53 +0100], Maciej W. Rozycki wrote:
-> On Tue, 21 Jun 2005, Nishanth Aravamudan wrote:
-> 
-> > schedule_timeout(1) is ambiguous in older/unchanged code since 2.4, as
-> > it indicated a 10 millisecond sleep then. Now, in 2.6, it indicates a 1
-> > millisecond sleep (HZ==1000). I am trying to prevent issues like this
-> > coming up in the future (CONFIG_HZ has hit -mm, e.g.) and msleep() is a
-> > good way to do so.
-> 
->  Well, HZ has never been consistent across platforms, e.g. 1024 for 
-> the Alpha or even within certain platforms, e.g. 128 vs 100 for MIPS for 
-> different configurations, so relying on jiffies to provide any absolute 
-> time measurement has always been a misconception.  But assuming all code
-> authors have failed to observe it is probably going a little bit too far, 
-> so I'd always assume a given piece of code is correct unless I had reasons 
-> to decide it does something silly.
+Hi Brian,
 
-Right, I agree HZ is inconsistent. That is why I am trying to get users
-to use human-time interfaces, that way when HZ becomes dynamic (think
-tickless!) or variable at compile-time (already in -mm with efforts to
-get it merged to mainline via CONFIG_HZ). I know code authors have
-failed to observe the brokenness of ticks as time and am trying my
-hardest to fix up as many callers as possible. If nothing else, use
+Hodle, Brian wrote:
+> 	I am experiencing exactly the same problem. I am using an ASUS
+> K8N-DL MB with the x86_64 kernel. My PCIX devices are not allocated
+> correctly. I tried using the  'pci=routeirq' option to no avail. Disabling
+> ACPI in the BIOS does not help the situation either. X will not use my PCIX
+> for GLX since none of the  extra txture memory has been allocated! Anyone
+> have any ideas?
 
-schedule_timeout({msecs,usecs,nsecs}_to_jiffies(some_time_value));
+well my system is using PCIe instead so it's a little different. It 
+seems that the PCIe fixups are enough to get the BAR regions assigned 
+correctly. prior to loading the nvidia driver the BARs are listed as 
+disabled in lspci -vvx, but after loading the BARs are not disabled and 
+I am able run X on both GPUs fine. I haven't tried running any OpenGL 
+type tests yet on the system.
 
-I'm not saying your code is incorrect, by the way, I am just trying to
-make it maintainable and work on a kerneljanitor TODO.
+pci=routeirq is a red herring, this is about the interrupts and 
+shouldn't affect the bar allocation.
 
-> > If you are trying to sleep for the shortest amount of time possible (a
-> > tick), though, then the code is fine, I guess. A comment may be useful,
-> > though.
-> 
->  This is obviously the case -- the code waits for a condition of an I/O 
-> device to change and does not want to hog the CPU for the duration as the 
-> device is slooow.  I don't think any comment is needed -- it speaks for 
-> itself: "I'm giving up now, but let me proceed at the next opportunity."
+it might be useful for you to post a dmesg with PCI_DEBUG enabled and 
+specify which kernel version you are using. My system only worked with 
+the most recent 2.6.12 (but i think that's due to some of the pci 
+express changes and some of the bridge handling since our system is a 
+little unique...)
 
-Ok, there isn't much point in arguing this further then. My point was
-simply this: there is *a lot* of code that has not been updated since
-2.4 wrt. to sleep times. Thus, I cannot tell by reading the code,
-necessarily, whether a schedule_timeout(1) is referring to 1 millisecond
-or 1 tick. But that just may be me being confused.
-
-I appreciate all your feedback, Maciej.
-
-Thanks,
-Nish
+peter

@@ -1,778 +1,318 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262323AbVFUWSQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262339AbVFUWUY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262323AbVFUWSQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 18:18:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262322AbVFUWSP
+	id S262339AbVFUWUY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 18:20:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262331AbVFUWUY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 18:18:15 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:51419 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262553AbVFUVj2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 18:20:24 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:9470 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262552AbVFUVj2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 21 Jun 2005 17:39:28 -0400
 From: Arnd Bergmann <arnd@arndb.de>
 To: Paul Mackerras <paulus@samba.org>
-Subject: [PATCH 6/11] ppc64: add a watchdog driver for rtas
-Date: Tue, 21 Jun 2005 23:22:35 +0200
+Subject: [PATCH 4/11] ppc64: pSeries_progress -> rtas_progress
+Date: Tue, 21 Jun 2005 23:18:15 +0200
 User-Agent: KMail/1.7.2
 Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
-References: <200506212310.54156.arnd@arndb.de> <200506212318.16573.arnd@arndb.de> <200506212320.05799.arnd@arndb.de>
-In-Reply-To: <200506212320.05799.arnd@arndb.de>
+References: <200506212310.54156.arnd@arndb.de> <200506212313.12090.arnd@arndb.de> <200506212317.13467.arnd@arndb.de>
+In-Reply-To: <200506212317.13467.arnd@arndb.de>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200506212322.36453.arnd@arndb.de>
+Message-Id: <200506212318.16573.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add a watchdog using the RTAS OS surveillance service. This is
-provided as a simpler alternative to rtasd. The added value
-is that it works with standard watchdog client programs and
-can therefore also do user space monitoring.
+The pSeries_progress function is called from some places in the rtas code,
+which may also be used by non-pSeries platforms.
+Though pSeries is currently the only platform type that implements
+display-character, the code is actually generic enough to be part of
+the rtas subsystem.
 
-On BPA, rtasd is not really useful because the hardware does
-not have much to report with event-scan.
+I hit a bug here because the generic rtas code tried calling ppc_md.progress,
+which points to an __init function on most platforms.
 
-The driver should also work on other platforms that support
-the OS surveillance rtas calls.
+We could also clear the ppc_md.progress pointer when freeing the init memory
+to make it more explicit that ppc_md.progress must not be called after
+bootup.
 
-From: Utz Bacher <utz.bacher@de.ibm.com>
 Signed-off-by: Arnd Bergmann <arndb@de.ibm.com>
 
---
+---
 
- Kconfig  |   10
- Makefile |    1
- wdrtas.c |  696 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 707 insertions(+)
+ arch/ppc64/kernel/pSeries_setup.c |  103 ------------------------------------
+ arch/ppc64/kernel/rtas.c          |  106 +++++++++++++++++++++++++++++++++++++-
+ include/asm-ppc64/rtas.h          |    1 
+ 3 files changed, 106 insertions(+), 104 deletions(-)
 
---- linux-cg.orig/drivers/char/watchdog/Kconfig	2005-06-21 02:51:30.460932768 -0400
-+++ linux-cg/drivers/char/watchdog/Kconfig	2005-06-21 02:52:33.870015048 -0400
-@@ -414,6 +414,16 @@ config WATCHDOG_RIO
- 	  machines.  The watchdog timeout period is normally one minute but
- 	  can be changed with a boot-time parameter.
+--- linux-cg.orig/arch/ppc64/kernel/pSeries_setup.c	2005-06-21 03:22:26.797955872 -0400
++++ linux-cg/arch/ppc64/kernel/pSeries_setup.c	2005-06-21 03:25:16.110912400 -0400
+@@ -375,107 +375,6 @@ static void __init pSeries_init_early(vo
+ }
  
-+# ppc64 RTAS watchdog
-+config WATCHDOG_RTAS
-+	tristate "RTAS watchdog"
-+	depends on WATCHDOG && PPC_RTAS
-+	help
-+	  This driver adds watchdog support for the RTAS watchdog.
-+
-+          To compile this driver as a module, choose M here. The module
-+	  will be called wdrtas.
-+
- #
- # ISA-based Watchdog Cards
- #
---- linux-cg.orig/drivers/char/watchdog/Makefile	2005-06-21 02:51:30.463932312 -0400
-+++ linux-cg/drivers/char/watchdog/Makefile	2005-06-21 02:52:33.870015048 -0400
-@@ -33,6 +33,7 @@ obj-$(CONFIG_USBPCWATCHDOG) += pcwd_usb.
- obj-$(CONFIG_IXP4XX_WATCHDOG) += ixp4xx_wdt.o
- obj-$(CONFIG_IXP2000_WATCHDOG) += ixp2000_wdt.o
- obj-$(CONFIG_8xx_WDT) += mpc8xx_wdt.o
-+obj-$(CONFIG_WATCHDOG_RTAS) += wdrtas.o
  
- # Only one watchdog can succeed. We probe the hardware watchdog
- # drivers first, then the softdog driver.  This means if your hardware
---- linux-cg.orig/drivers/char/watchdog/wdrtas.c	1969-12-31 19:00:00.000000000 -0500
-+++ linux-cg/drivers/char/watchdog/wdrtas.c	2005-06-21 02:59:04.333885560 -0400
-@@ -0,0 +1,696 @@
-+/*
-+ * FIXME: add wdrtas_get_status and wdrtas_get_boot_status as soon as
-+ * RTAS calls are available
-+ */
-+
-+/*
-+ * RTAS watchdog driver
-+ *
-+ * (C) Copyright IBM Corp. 2005
-+ * device driver to exploit watchdog RTAS functions
-+ *
-+ * Authors : Utz Bacher <utz.bacher@de.ibm.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2, or (at your option)
-+ * any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/fs.h>
-+#include <linux/init.h>
-+#include <linux/kernel.h>
-+#include <linux/miscdevice.h>
-+#include <linux/module.h>
-+#include <linux/notifier.h>
-+#include <linux/reboot.h>
-+#include <linux/types.h>
-+#include <linux/watchdog.h>
-+
-+#include <asm/rtas.h>
-+#include <asm/uaccess.h>
-+
-+#define WDRTAS_MAGIC_CHAR		42
-+#define WDRTAS_SUPPORTED_MASK		(WDIOF_SETTIMEOUT | \
-+					 WDIOF_MAGICCLOSE)
-+
-+MODULE_AUTHOR("Utz Bacher <utz.bacher@de.ibm.com>");
-+MODULE_DESCRIPTION("RTAS watchdog driver");
-+MODULE_LICENSE("GPL");
-+MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
-+MODULE_ALIAS_MISCDEV(TEMP_MINOR);
-+
-+#ifdef CONFIG_WATCHDOG_NOWAYOUT
-+static int wdrtas_nowayout = 1;
-+#else
-+static int wdrtas_nowayout = 0;
-+#endif
-+
-+static atomic_t wdrtas_miscdev_open = ATOMIC_INIT(0);
-+static char wdrtas_expect_close = 0;
-+
-+static int wdrtas_interval;
-+
-+#define WDRTAS_THERMAL_SENSOR		3
-+static int wdrtas_token_get_sensor_state;
-+#define WDRTAS_SURVEILLANCE_IND		9000
-+static int wdrtas_token_set_indicator;
-+#define WDRTAS_SP_SPI			28
-+static int wdrtas_token_get_sp;
-+static int wdrtas_token_event_scan;
-+
-+#define WDRTAS_DEFAULT_INTERVAL		300
-+
-+#define WDRTAS_LOGBUFFER_LEN		128
-+static char wdrtas_logbuffer[WDRTAS_LOGBUFFER_LEN];
-+
-+
-+/*** watchdog access functions */
-+
-+/**
-+ * wdrtas_set_interval - sets the watchdog interval
-+ * @interval: new interval
-+ *
-+ * returns 0 on success, <0 on failures
-+ *
-+ * wdrtas_set_interval sets the watchdog keepalive interval by calling the
-+ * RTAS function set-indicator (surveillance). The unit of interval is
-+ * seconds.
-+ */
-+static int
-+wdrtas_set_interval(int interval)
+-static void pSeries_progress(char *s, unsigned short hex)
+-{
+-	struct device_node *root;
+-	int width, *p;
+-	char *os;
+-	static int display_character, set_indicator;
+-	static int max_width;
+-	static DEFINE_SPINLOCK(progress_lock);
+-	static int pending_newline = 0;  /* did last write end with unprinted newline? */
+-
+-	if (!rtas.base)
+-		return;
+-
+-	if (max_width == 0) {
+-		if ((root = find_path_device("/rtas")) &&
+-		     (p = (unsigned int *)get_property(root,
+-						       "ibm,display-line-length",
+-						       NULL)))
+-			max_width = *p;
+-		else
+-			max_width = 0x10;
+-		display_character = rtas_token("display-character");
+-		set_indicator = rtas_token("set-indicator");
+-	}
+-
+-	if (display_character == RTAS_UNKNOWN_SERVICE) {
+-		/* use hex display if available */
+-		if (set_indicator != RTAS_UNKNOWN_SERVICE)
+-			rtas_call(set_indicator, 3, 1, NULL, 6, 0, hex);
+-		return;
+-	}
+-
+-	spin_lock(&progress_lock);
+-
+-	/*
+-	 * Last write ended with newline, but we didn't print it since
+-	 * it would just clear the bottom line of output. Print it now
+-	 * instead.
+-	 *
+-	 * If no newline is pending, print a CR to start output at the
+-	 * beginning of the line.
+-	 */
+-	if (pending_newline) {
+-		rtas_call(display_character, 1, 1, NULL, '\r');
+-		rtas_call(display_character, 1, 1, NULL, '\n');
+-		pending_newline = 0;
+-	} else {
+-		rtas_call(display_character, 1, 1, NULL, '\r');
+-	}
+- 
+-	width = max_width;
+-	os = s;
+-	while (*os) {
+-		if (*os == '\n' || *os == '\r') {
+-			/* Blank to end of line. */
+-			while (width-- > 0)
+-				rtas_call(display_character, 1, 1, NULL, ' ');
+- 
+-			/* If newline is the last character, save it
+-			 * until next call to avoid bumping up the
+-			 * display output.
+-			 */
+-			if (*os == '\n' && !os[1]) {
+-				pending_newline = 1;
+-				spin_unlock(&progress_lock);
+-				return;
+-			}
+- 
+-			/* RTAS wants CR-LF, not just LF */
+- 
+-			if (*os == '\n') {
+-				rtas_call(display_character, 1, 1, NULL, '\r');
+-				rtas_call(display_character, 1, 1, NULL, '\n');
+-			} else {
+-				/* CR might be used to re-draw a line, so we'll
+-				 * leave it alone and not add LF.
+-				 */
+-				rtas_call(display_character, 1, 1, NULL, *os);
+-			}
+- 
+-			width = max_width;
+-		} else {
+-			width--;
+-			rtas_call(display_character, 1, 1, NULL, *os);
+-		}
+- 
+-		os++;
+- 
+-		/* if we overwrite the screen length */
+-		if (width <= 0)
+-			while ((*os != 0) && (*os != '\n') && (*os != '\r'))
+-				os++;
+-	}
+- 
+-	/* Blank to end of line. */
+-	while (width-- > 0)
+-		rtas_call(display_character, 1, 1, NULL, ' ');
+-
+-	spin_unlock(&progress_lock);
+-}
+-
+ static int pSeries_check_legacy_ioport(unsigned int baseport)
+ {
+ 	struct device_node *np;
+@@ -535,7 +434,7 @@ struct machdep_calls __initdata pSeries_
+ 	.get_rtc_time		= rtas_get_rtc_time,
+ 	.set_rtc_time		= rtas_set_rtc_time,
+ 	.calibrate_decr		= generic_calibrate_decr,
+-	.progress		= pSeries_progress,
++	.progress		= rtas_progress,
+ 	.check_legacy_ioport	= pSeries_check_legacy_ioport,
+ 	.system_reset_exception = pSeries_system_reset_exception,
+ 	.machine_check_exception = pSeries_machine_check_exception,
+--- linux-cg.orig/arch/ppc64/kernel/rtas-proc.c	2005-06-21 20:21:27.735960616 -0400
++++ linux-cg/arch/ppc64/kernel/rtas-proc.c	2005-06-21 20:22:10.272883704 -0400
+@@ -371,11 +371,11 @@ static ssize_t ppc_rtas_progress_write(s
+ 	/* Lets see if the user passed hexdigits */
+ 	hex = simple_strtoul(progress_led, NULL, 10);
+ 
+-	ppc_md.progress ((char *)progress_led, hex);
++	rtas_progress ((char *)progress_led, hex);
+ 	return count;
+ 
+ 	/* clear the line */
+-	/* ppc_md.progress("                   ", 0xffff);*/
++	/* rtas_progress("                   ", 0xffff);*/
+ }
+ /* ****************************************************************** */
+ static int ppc_rtas_progress_show(struct seq_file *m, void *v)
+--- linux-cg.orig/arch/ppc64/kernel/rtas.c	2005-06-21 20:20:19.484954016 -0400
++++ linux-cg/arch/ppc64/kernel/rtas.c	2005-06-21 20:21:52.832873152 -0400
+@@ -91,6 +91,108 @@ call_rtas_display_status_delay(unsigned 
+ 	}
+ }
+ 
++void
++rtas_progress(char *s, unsigned short hex)
 +{
-+	long result;
-+	static int print_msg = 10;
++	struct device_node *root;
++	int width, *p;
++	char *os;
++	static int display_character, set_indicator;
++	static int max_width;
++	static DEFINE_SPINLOCK(progress_lock);
++	static int pending_newline = 0;  /* did last write end with unprinted newline? */
 +
-+	/* rtas uses minutes */
-+	interval = (interval + 59) / 60;
++	if (!rtas.base)
++		return;
 +
-+	result = rtas_call(wdrtas_token_set_indicator, 3, 1, NULL,
-+			   WDRTAS_SURVEILLANCE_IND, 0, interval);
-+	if ( (result < 0) && (print_msg) ) {
-+		printk(KERN_ERR "wdrtas: setting the watchdog to %i "
-+		       "timeout failed: %li\n", interval, result);
-+		print_msg--;
-+	}
-+
-+	return result;
-+}
-+
-+/**
-+ * wdrtas_get_interval - returns the current watchdog interval
-+ * @fallback_value: value (in seconds) to use, if the RTAS call fails
-+ *
-+ * returns the interval
-+ *
-+ * wdrtas_get_interval returns the current watchdog keepalive interval
-+ * as reported by the RTAS function ibm,get-system-parameter. The unit
-+ * of the return value is seconds.
-+ */
-+static int
-+wdrtas_get_interval(int fallback_value)
-+{
-+	long result;
-+	char value[4];
-+
-+	result = rtas_call(wdrtas_token_get_sp, 3, 1, NULL,
-+			   WDRTAS_SP_SPI, (void *)__pa(&value), 4);
-+	if ( (value[0] != 0) || (value[1] != 2) || (value[3] != 0) ||
-+	     (result < 0) ) {
-+		printk(KERN_WARNING "wdrtas: could not get sp_spi watchdog "
-+		       "timeout (%li). Continuing\n", result);
-+		return fallback_value;
-+	}
-+
-+	/* rtas uses minutes */
-+	return ((int)value[2]) * 60;
-+}
-+
-+/**
-+ * wdrtas_timer_start - starts watchdog
-+ *
-+ * wdrtas_timer_start starts the watchdog by calling the RTAS function
-+ * set-interval (surveillance)
-+ */
-+static void
-+wdrtas_timer_start(void)
-+{
-+	wdrtas_set_interval(wdrtas_interval);
-+}
-+
-+/**
-+ * wdrtas_timer_stop - stops watchdog
-+ *
-+ * wdrtas_timer_stop stops the watchdog timer by calling the RTAS function
-+ * set-interval (surveillance)
-+ */
-+static void
-+wdrtas_timer_stop(void)
-+{
-+	wdrtas_set_interval(0);
-+}
-+
-+/**
-+ * wdrtas_log_scanned_event - logs an event we received during keepalive
-+ *
-+ * wdrtas_log_scanned_event prints a message to the log buffer dumping
-+ * the results of the last event-scan call
-+ */
-+static void
-+wdrtas_log_scanned_event(void)
-+{
-+	int i;
-+
-+	for (i = 0; i < WDRTAS_LOGBUFFER_LEN; i += 16)
-+		printk(KERN_INFO "wdrtas: dumping event (line %i/%i), data = "
-+		       "%02x %02x %02x %02x  %02x %02x %02x %02x   "
-+		       "%02x %02x %02x %02x  %02x %02x %02x %02x\n",
-+		       (i / 16) + 1, (WDRTAS_LOGBUFFER_LEN / 16),
-+		       wdrtas_logbuffer[i + 0], wdrtas_logbuffer[i + 1], 
-+		       wdrtas_logbuffer[i + 2], wdrtas_logbuffer[i + 3], 
-+		       wdrtas_logbuffer[i + 4], wdrtas_logbuffer[i + 5], 
-+		       wdrtas_logbuffer[i + 6], wdrtas_logbuffer[i + 7], 
-+		       wdrtas_logbuffer[i + 8], wdrtas_logbuffer[i + 9], 
-+		       wdrtas_logbuffer[i + 10], wdrtas_logbuffer[i + 11], 
-+		       wdrtas_logbuffer[i + 12], wdrtas_logbuffer[i + 13], 
-+		       wdrtas_logbuffer[i + 14], wdrtas_logbuffer[i + 15]);
-+}
-+
-+/**
-+ * wdrtas_timer_keepalive - resets watchdog timer to keep system alive
-+ *
-+ * wdrtas_timer_keepalive restarts the watchdog timer by calling the
-+ * RTAS function event-scan and repeats these calls as long as there are
-+ * events available. All events will be dumped.
-+ */
-+static void
-+wdrtas_timer_keepalive(void)
-+{
-+	long result;
-+
-+	do {
-+		result = rtas_call(wdrtas_token_event_scan, 4, 1, NULL,
-+				   RTAS_EVENT_SCAN_ALL_EVENTS, 0,
-+				   (void *)__pa(wdrtas_logbuffer),
-+				   WDRTAS_LOGBUFFER_LEN);
-+		if (result < 0)
-+			printk(KERN_ERR "wdrtas: event-scan failed: %li\n",
-+			       result);
-+		if (result == 0)
-+			wdrtas_log_scanned_event();
-+	} while (result == 0);
-+}
-+
-+/**
-+ * wdrtas_get_temperature - returns current temperature
-+ *
-+ * returns temperature or <0 on failures
-+ *
-+ * wdrtas_get_temperature returns the current temperature in Fahrenheit. It
-+ * uses the RTAS call get-sensor-state, token 3 to do so
-+ */
-+static int
-+wdrtas_get_temperature(void)
-+{
-+	long result;
-+	int temperature = 0;
-+
-+	result = rtas_call(wdrtas_token_get_sensor_state, 2, 2,
-+			   (void *)__pa(&temperature),
-+			   WDRTAS_THERMAL_SENSOR, 0);
-+
-+	if (result < 0)
-+		printk(KERN_WARNING "wdrtas: reading the thermal sensor "
-+		       "faild: %li\n", result);
-+	else
-+		temperature = ((temperature * 9) / 5) + 32; /* fahrenheit */
-+
-+	return temperature;
-+}
-+
-+/**
-+ * wdrtas_get_status - returns the status of the watchdog
-+ *
-+ * returns a bitmask of defines WDIOF_... as defined in
-+ * include/linux/watchdog.h
-+ */
-+static int
-+wdrtas_get_status(void)
-+{
-+	return 0; /* TODO */
-+}
-+
-+/**
-+ * wdrtas_get_boot_status - returns the reason for the last boot
-+ *
-+ * returns a bitmask of defines WDIOF_... as defined in
-+ * include/linux/watchdog.h, indicating why the watchdog rebooted the system
-+ */
-+static int
-+wdrtas_get_boot_status(void)
-+{
-+	return 0; /* TODO */
-+}
-+
-+/*** watchdog API and operations stuff */
-+
-+/* wdrtas_write - called when watchdog device is written to
-+ * @file: file structure
-+ * @buf: user buffer with data
-+ * @len: amount to data written
-+ * @ppos: position in file
-+ *
-+ * returns the number of successfully processed characters, which is always
-+ * the number of bytes passed to this function
-+ *
-+ * wdrtas_write processes all the data given to it and looks for the magic
-+ * character 'V'. This character allows the watchdog device to be closed
-+ * properly.
-+ */
-+static ssize_t
-+wdrtas_write(struct file *file, const char __user *buf,
-+	     size_t len, loff_t *ppos)
-+{
-+	int i;
-+	char c;
-+
-+	if (!len)
-+		goto out;
-+
-+	if (!wdrtas_nowayout) {
-+		wdrtas_expect_close = 0;
-+		/* look for 'V' */
-+		for (i = 0; i < len; i++) {
-+			if (get_user(c, buf + i))
-+				return -EFAULT;
-+			/* allow to close device */
-+			if (c == 'V')
-+				wdrtas_expect_close = WDRTAS_MAGIC_CHAR;
-+		}
-+	}
-+
-+	wdrtas_timer_keepalive();
-+
-+out:
-+	return len;
-+}
-+
-+/**
-+ * wdrtas_ioctl - ioctl function for the watchdog device
-+ * @inode: inode structure
-+ * @file: file structure
-+ * @cmd: command for ioctl
-+ * @arg: argument pointer
-+ *
-+ * returns 0 on success, <0 on failure
-+ *
-+ * wdrtas_ioctl implements the watchdog API ioctls
-+ */
-+static int
-+wdrtas_ioctl(struct inode *inode, struct file *file,
-+	     unsigned int cmd, unsigned long arg)
-+{
-+	int __user *argp = (void *)arg;
-+	int i;
-+	static struct watchdog_info wdinfo = {
-+		.options = WDRTAS_SUPPORTED_MASK,
-+		.firmware_version = 0,
-+		.identity = "wdrtas"
-+	};
-+
-+	switch (cmd) {
-+	case WDIOC_GETSUPPORT:
-+		if (copy_to_user(argp, &wdinfo, sizeof(wdinfo)))
-+			return -EFAULT;
-+		return 0;
-+
-+	case WDIOC_GETSTATUS:
-+		i = wdrtas_get_status();
-+		return put_user(i, argp);
-+
-+	case WDIOC_GETBOOTSTATUS:
-+		i = wdrtas_get_boot_status();
-+		return put_user(i, argp);
-+
-+	case WDIOC_GETTEMP:
-+		if (wdrtas_token_get_sensor_state == RTAS_UNKNOWN_SERVICE)
-+			return -EOPNOTSUPP;
-+
-+		i = wdrtas_get_temperature();
-+		return put_user(i, argp);
-+
-+	case WDIOC_SETOPTIONS:
-+		if (get_user(i, argp))
-+			return -EFAULT;
-+		if (i & WDIOS_DISABLECARD)
-+			wdrtas_timer_stop();
-+		if (i & WDIOS_ENABLECARD) {
-+			wdrtas_timer_keepalive();
-+			wdrtas_timer_start();
-+		}
-+		if (i & WDIOS_TEMPPANIC) {
-+			/* not implemented. Done by H8 */
-+		}
-+		return 0;
-+
-+	case WDIOC_KEEPALIVE:
-+		wdrtas_timer_keepalive();
-+		return 0;
-+
-+	case WDIOC_SETTIMEOUT:
-+		if (get_user(i, argp))
-+			return -EFAULT;
-+
-+		if (wdrtas_set_interval(i))
-+			return -EINVAL;
-+
-+		wdrtas_timer_keepalive();
-+
-+		if (wdrtas_token_get_sp == RTAS_UNKNOWN_SERVICE)
-+			wdrtas_interval = i;
++	if (max_width == 0) {
++		if ((root = find_path_device("/rtas")) &&
++		     (p = (unsigned int *)get_property(root,
++						       "ibm,display-line-length",
++						       NULL)))
++			max_width = *p;
 +		else
-+			wdrtas_interval = wdrtas_get_interval(i);
-+		/* fallthrough */
-+
-+	case WDIOC_GETTIMEOUT:
-+		return put_user(wdrtas_interval, argp);
-+
-+	default:
-+		return -ENOIOCTLCMD;
-+	}
-+}
-+
-+/**
-+ * wdrtas_open - open function of watchdog device
-+ * @inode: inode structure
-+ * @file: file structure
-+ *
-+ * returns 0 on success, -EBUSY if the file has been opened already, <0 on
-+ * other failures
-+ *
-+ * function called when watchdog device is opened
-+ */
-+static int
-+wdrtas_open(struct inode *inode, struct file *file)
-+{
-+	/* only open once */
-+	if (atomic_inc_return(&wdrtas_miscdev_open) > 1) {
-+		atomic_dec(&wdrtas_miscdev_open);
-+		return -EBUSY;
++			max_width = 0x10;
++		display_character = rtas_token("display-character");
++		set_indicator = rtas_token("set-indicator");
 +	}
 +
-+	wdrtas_timer_start();
-+	wdrtas_timer_keepalive();
-+
-+	return nonseekable_open(inode, file);
-+}
-+
-+/**
-+ * wdrtas_close - close function of watchdog device
-+ * @inode: inode structure
-+ * @file: file structure
-+ *
-+ * returns 0 on success
-+ *
-+ * close function. Always succeeds
-+ */
-+static int
-+wdrtas_close(struct inode *inode, struct file *file)
-+{
-+	/* only stop watchdog, if this was announced using 'V' before */
-+	if (wdrtas_expect_close == WDRTAS_MAGIC_CHAR)
-+		wdrtas_timer_stop();
-+	else {
-+		printk(KERN_WARNING "wdrtas: got unexpected close. Watchdog "
-+		       "not stopped.\n");
-+		wdrtas_timer_keepalive();
++	if (display_character == RTAS_UNKNOWN_SERVICE) {
++		/* use hex display if available */
++		if (set_indicator != RTAS_UNKNOWN_SERVICE)
++			rtas_call(set_indicator, 3, 1, NULL, 6, 0, hex);
++		return;
 +	}
 +
-+	wdrtas_expect_close = 0;
-+	atomic_dec(&wdrtas_miscdev_open);
-+	return 0;
-+}
++	spin_lock(&progress_lock);
 +
-+/**
-+ * wdrtas_temp_read - gives back the temperature in fahrenheit
-+ * @file: file structure
-+ * @buf: user buffer
-+ * @count: number of bytes to be read
-+ * @ppos: position in file
-+ *
-+ * returns always 1 or -EFAULT in case of user space copy failures, <0 on
-+ * other failures
-+ *
-+ * wdrtas_temp_read gives the temperature to the users by copying this
-+ * value as one byte into the user space buffer. The unit is Fahrenheit...
-+ */
-+static ssize_t
-+wdrtas_temp_read(struct file *file, char __user *buf,
-+		 size_t count, loff_t *ppos)
-+{
-+	int temperature = 0;
-+
-+	temperature = wdrtas_get_temperature();
-+	if (temperature < 0)
-+		return temperature;
-+
-+	if (copy_to_user(buf, &temperature, 1))
-+		return -EFAULT;
-+
-+	return 1;
-+}
-+
-+/**
-+ * wdrtas_temp_open - open function of temperature device
-+ * @inode: inode structure
-+ * @file: file structure
-+ *
-+ * returns 0 on success, <0 on failure
-+ *
-+ * function called when temperature device is opened
-+ */
-+static int
-+wdrtas_temp_open(struct inode *inode, struct file *file)
-+{
-+	return nonseekable_open(inode, file);
-+}
-+
-+/**
-+ * wdrtas_temp_close - close function of temperature device
-+ * @inode: inode structure
-+ * @file: file structure
-+ *
-+ * returns 0 on success
-+ *
-+ * close function. Always succeeds
-+ */
-+static int
-+wdrtas_temp_close(struct inode *inode, struct file *file)
-+{
-+	return 0;
-+}
-+
-+/**
-+ * wdrtas_reboot - reboot notifier function
-+ * @nb: notifier block structure
-+ * @code: reboot code
-+ * @ptr: unused
-+ *
-+ * returns NOTIFY_DONE
-+ *
-+ * wdrtas_reboot stops the watchdog in case of a reboot
-+ */
-+static int
-+wdrtas_reboot(struct notifier_block *this, unsigned long code, void *ptr)
-+{
-+	if ( (code==SYS_DOWN) || (code==SYS_HALT) )
-+		wdrtas_timer_stop();
-+
-+	return NOTIFY_DONE;
-+}
-+
-+/*** initialization stuff */
-+
-+static struct file_operations wdrtas_fops = {
-+	.owner		= THIS_MODULE,
-+	.llseek		= no_llseek,
-+	.write		= wdrtas_write,
-+	.ioctl		= wdrtas_ioctl,
-+	.open		= wdrtas_open,
-+	.release	= wdrtas_close,
-+};
-+
-+static struct miscdevice wdrtas_miscdev = {
-+	.minor =	WATCHDOG_MINOR,
-+	.name =		"watchdog",
-+	.fops =		&wdrtas_fops,
-+};
-+
-+static struct file_operations wdrtas_temp_fops = {
-+	.owner		= THIS_MODULE,
-+	.llseek		= no_llseek,
-+	.read		= wdrtas_temp_read,
-+	.open		= wdrtas_temp_open,
-+	.release	= wdrtas_temp_close,
-+};
-+
-+static struct miscdevice wdrtas_tempdev = {
-+	.minor =	TEMP_MINOR,
-+	.name =		"temperature",
-+	.fops =		&wdrtas_temp_fops,
-+};
-+
-+static struct notifier_block wdrtas_notifier = {
-+	.notifier_call =	wdrtas_reboot,
-+};
-+
-+/**
-+ * wdrtas_get_tokens - reads in RTAS tokens
-+ *
-+ * returns 0 on succes, <0 on failure
-+ *
-+ * wdrtas_get_tokens reads in the tokens for the RTAS calls used in
-+ * this watchdog driver. It tolerates, if "get-sensor-state" and
-+ * "ibm,get-system-parameter" are not available.
-+ */
-+static int
-+wdrtas_get_tokens(void)
-+{
-+	wdrtas_token_get_sensor_state = rtas_token("get-sensor-state");
-+	if (wdrtas_token_get_sensor_state == RTAS_UNKNOWN_SERVICE) {
-+		printk(KERN_WARNING "wdrtas: couldn't get token for "
-+		       "get-sensor-state. Trying to continue without "
-+		       "temperature support.\n");
++	/*
++	 * Last write ended with newline, but we didn't print it since
++	 * it would just clear the bottom line of output. Print it now
++	 * instead.
++	 *
++	 * If no newline is pending, print a CR to start output at the
++	 * beginning of the line.
++	 */
++	if (pending_newline) {
++		rtas_call(display_character, 1, 1, NULL, '\r');
++		rtas_call(display_character, 1, 1, NULL, '\n');
++		pending_newline = 0;
++	} else {
++		rtas_call(display_character, 1, 1, NULL, '\r');
 +	}
-+
-+	wdrtas_token_get_sp = rtas_token("ibm,get-system-parameter");
-+	if (wdrtas_token_get_sp == RTAS_UNKNOWN_SERVICE) {
-+		printk(KERN_WARNING "wdrtas: couldn't get token for "
-+		       "ibm,get-system-parameter. Trying to continue with "
-+		       "a default timeout value of %i seconds.\n",
-+		       WDRTAS_DEFAULT_INTERVAL);
-+	}
-+
-+	wdrtas_token_set_indicator = rtas_token("set-indicator");
-+	if (wdrtas_token_set_indicator == RTAS_UNKNOWN_SERVICE) {
-+		printk(KERN_ERR "wdrtas: couldn't get token for "
-+		       "set-indicator. Terminating watchdog code.\n");
-+		return -EIO;
-+	}
-+
-+	wdrtas_token_event_scan = rtas_token("event-scan");
-+	if (wdrtas_token_event_scan == RTAS_UNKNOWN_SERVICE) {
-+		printk(KERN_ERR "wdrtas: couldn't get token for event-scan. "
-+		       "Terminating watchdog code.\n");
-+		return -EIO;
-+	}
-+
-+	return 0;
-+}
-+
-+/**
-+ * wdrtas_unregister_devs - unregisters the misc dev handlers
-+ *
-+ * wdrtas_register_devs unregisters the watchdog and temperature watchdog
-+ * misc devs
-+ */
-+static void
-+wdrtas_unregister_devs(void)
-+{
-+	misc_deregister(&wdrtas_miscdev);
-+	if (wdrtas_token_get_sensor_state != RTAS_UNKNOWN_SERVICE)
-+		misc_deregister(&wdrtas_tempdev);
-+}
-+
-+/**
-+ * wdrtas_register_devs - registers the misc dev handlers
-+ *
-+ * returns 0 on succes, <0 on failure
-+ *
-+ * wdrtas_register_devs registers the watchdog and temperature watchdog
-+ * misc devs
-+ */
-+static int
-+wdrtas_register_devs(void)
-+{
-+	int result;
-+
-+	result = misc_register(&wdrtas_miscdev);
-+	if (result) {
-+		printk(KERN_ERR "wdrtas: couldn't register watchdog misc "
-+		       "device. Terminating watchdog code.\n");
-+		return result;
-+	}
-+
-+	if (wdrtas_token_get_sensor_state != RTAS_UNKNOWN_SERVICE) {
-+		result = misc_register(&wdrtas_tempdev);
-+		if (result) {
-+			printk(KERN_WARNING "wdrtas: couldn't register "
-+			       "watchdog temperature misc device. Continuing "
-+			       "without temperature support.\n");
-+			wdrtas_token_get_sensor_state = RTAS_UNKNOWN_SERVICE;
++ 
++	width = max_width;
++	os = s;
++	while (*os) {
++		if (*os == '\n' || *os == '\r') {
++			/* Blank to end of line. */
++			while (width-- > 0)
++				rtas_call(display_character, 1, 1, NULL, ' ');
++ 
++			/* If newline is the last character, save it
++			 * until next call to avoid bumping up the
++			 * display output.
++			 */
++			if (*os == '\n' && !os[1]) {
++				pending_newline = 1;
++				spin_unlock(&progress_lock);
++				return;
++			}
++ 
++			/* RTAS wants CR-LF, not just LF */
++ 
++			if (*os == '\n') {
++				rtas_call(display_character, 1, 1, NULL, '\r');
++				rtas_call(display_character, 1, 1, NULL, '\n');
++			} else {
++				/* CR might be used to re-draw a line, so we'll
++				 * leave it alone and not add LF.
++				 */
++				rtas_call(display_character, 1, 1, NULL, *os);
++			}
++ 
++			width = max_width;
++		} else {
++			width--;
++			rtas_call(display_character, 1, 1, NULL, *os);
 +		}
++ 
++		os++;
++ 
++		/* if we overwrite the screen length */
++		if (width <= 0)
++			while ((*os != 0) && (*os != '\n') && (*os != '\r'))
++				os++;
 +	}
++ 
++	/* Blank to end of line. */
++	while (width-- > 0)
++		rtas_call(display_character, 1, 1, NULL, ' ');
 +
-+	return 0;
++	spin_unlock(&progress_lock);
 +}
 +
-+/**
-+ * wdrtas_init - init function of the watchdog driver
-+ *
-+ * returns 0 on succes, <0 on failure
-+ *
-+ * registers the file handlers and the reboot notifier
-+ */
-+static int __init
-+wdrtas_init(void)
-+{
-+	if (wdrtas_get_tokens())
-+		return -ENODEV;
-+
-+	if (wdrtas_register_devs())
-+		return -ENODEV;
-+
-+	if (register_reboot_notifier(&wdrtas_notifier)) {
-+		printk(KERN_ERR "wdrtas: could not register reboot notifier. "
-+		       "Terminating watchdog code.\n");
-+		wdrtas_unregister_devs();
-+		return -ENODEV;
-+	}
-+
-+	if (wdrtas_token_get_sp == RTAS_UNKNOWN_SERVICE)
-+		wdrtas_interval = WDRTAS_DEFAULT_INTERVAL;
-+	else
-+		wdrtas_interval = wdrtas_get_interval(WDRTAS_DEFAULT_INTERVAL);
-+
-+	return 0;
-+}
-+
-+/**
-+ * wdrtas_exit - exit function of the watchdog driver
-+ *
-+ * unregisters the file handlers and the reboot notifier
-+ */
-+static void __exit
-+wdrtas_exit(void)
-+{
-+	if (!wdrtas_nowayout)
-+		wdrtas_timer_stop();
-+
-+	wdrtas_unregister_devs();
-+
-+	unregister_reboot_notifier(&wdrtas_notifier);
-+}
-+
-+module_init(wdrtas_init);
-+module_exit(wdrtas_exit);
+ int
+ rtas_token(const char *service)
+ {
+@@ -425,8 +527,8 @@ rtas_flash_firmware(void)
+ 
+ 	printk(KERN_ALERT "FLASH: flash image is %ld bytes\n", image_size);
+ 	printk(KERN_ALERT "FLASH: performing flash and reboot\n");
+-	ppc_md.progress("Flashing        \n", 0x0);
+-	ppc_md.progress("Please Wait...  ", 0x0);
++	rtas_progress("Flashing        \n", 0x0);
++	rtas_progress("Please Wait...  ", 0x0);
+ 	printk(KERN_ALERT "FLASH: this will take several minutes.  Do not power off!\n");
+ 	status = rtas_call(update_token, 1, 1, NULL, rtas_block_list);
+ 	switch (status) {	/* should only get "bad" status */
+--- linux-cg.orig/include/asm-ppc64/rtas.h	2005-06-21 20:21:43.670935016 -0400
++++ linux-cg/include/asm-ppc64/rtas.h	2005-06-21 20:21:52.832873152 -0400
+@@ -186,6 +186,7 @@ extern int rtas_get_sensor(int sensor, i
+ extern int rtas_get_power_level(int powerdomain, int *level);
+ extern int rtas_set_power_level(int powerdomain, int level, int *setlevel);
+ extern int rtas_set_indicator(int indicator, int index, int new_value);
++extern void rtas_progress(char *s, unsigned short hex);
+ extern void rtas_initialize(void);
+ 
+ struct rtc_time;
 

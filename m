@@ -1,57 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262221AbVFUSB3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262222AbVFUSDN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262221AbVFUSB3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 14:01:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262222AbVFUSB2
+	id S262222AbVFUSDN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 14:03:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262223AbVFUSDN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 14:01:28 -0400
-Received: from gold.veritas.com ([143.127.12.110]:51784 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S262221AbVFUSB0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 14:01:26 -0400
-Date: Tue, 21 Jun 2005 19:02:26 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Timur Tabi <timur.tabi@ammasso.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: get_user_pages() and shared memory question
-In-Reply-To: <42B82DF2.2050708@ammasso.com>
-Message-ID: <Pine.LNX.4.61.0506211840210.5784@goblin.wat.veritas.com>
-References: <42B82DF2.2050708@ammasso.com>
+	Tue, 21 Jun 2005 14:03:13 -0400
+Received: from anchor-post-35.mail.demon.net ([194.217.242.85]:60430 "EHLO
+	anchor-post-35.mail.demon.net") by vger.kernel.org with ESMTP
+	id S262222AbVFUSDI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 14:03:08 -0400
+Message-ID: <42B8565A.5070809@superbug.demon.co.uk>
+Date: Tue, 21 Jun 2005 19:03:06 +0100
+From: James Courtier-Dutton <James@superbug.demon.co.uk>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050416)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 21 Jun 2005 18:01:25.0655 (UTC) FILETIME=[3DA2FA70:01C5768B]
+To: Lee Revell <rlrevell@joe-job.com>
+CC: Dominik Brodowski <linux@dominikbrodowski.net>,
+       Wakko Warner <wakko@animx.eu.org>, linux-kernel@vger.kernel.org
+Subject: Re: Bug in pcmcia-core
+References: <42B1FF2A.2080608@superbug.demon.co.uk>	 <20050617014820.GA15045@animx.eu.org>	 <42B27D51.4040407@superbug.demon.co.uk>	 <1119368594.19357.22.camel@mindpipe>	 <20050621165303.GA14487@isilmar.linta.de> <1119375864.4569.10.camel@mindpipe>
+In-Reply-To: <1119375864.4569.10.camel@mindpipe>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Jun 2005, Timur Tabi wrote:
+Lee Revell wrote:
+> On Tue, 2005-06-21 at 18:53 +0200, Dominik Brodowski wrote:
 > 
-> Is it possible for a page of memory that's been "grabbed" with
-> get_user_pages() to ever be allocated to another process?  I'm assuming the
-> answer is no, but I have a specific case I want to ask about.
+>>Check the linux-pcmcia list, check -mm and you'll see that the PCMCIA layer
+>>is in the process of being updated.
+>>
 > 
-> Let's say an application allocates some shared memory, and then calls into a
-> driver which calls get_user_pages().  The driver exits without releasing the
-> pages, so they now have a reference count on them.  Then the application
-> deallocates the shared memory.  At this point, the virtual addresses
-> disappear, and no process owns them, but the pages still have a reference
-> count.
 > 
-> Another process now tries to allocate a shared memory buffer.  Is there any
-> way that this new buffer can contain those pages that were grabbed with
-> get_user_pages() (i.e. that already have a reference count)?
+> OK thanks for the info, sounds like we should try -mm.  It's certainly
+> possible that the hardware is buggy.
+> 
+> Lee
+> 
 
-It depends on what you mean by allocate and deallocate.  If the second
-process is attaching the same shared memory segment as the first process
-had attached, then yes, its buffer will contain those very pages which
-the driver erroneously failed to release.
+I would try -mm if I could, but I can't.
 
-> Until 2.6.7, there was a bug in the VM where a page that was grabbed with
-> get_user_pages() could be swapped out.  Those of you familar with the OpenIB
-> work know what I'm talking about.  Would that bug affect anything I'm talking
-> about?
+linux-2.6.12-rc6-mm1 fails to even boot on my system. See previous email
+for details.
 
-No.  That was a bug peculiar to anonymous memory,
-whereas shared memory is treated like file cache.
+I have the same problem with 2 different laptops, and those laptops had
+different pcmcia chips, so that is why I suspect the pcmcia-core.
 
-Hugh
+James

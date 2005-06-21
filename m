@@ -1,72 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262045AbVFUJqo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262068AbVFUICj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262045AbVFUJqo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 05:46:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262070AbVFUIIt
+	id S262068AbVFUICj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 04:02:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261726AbVFUIAp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 04:08:49 -0400
-Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:37811 "HELO
-	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262045AbVFUGt2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 02:49:28 -0400
-Message-ID: <42B7B86F.7090407@yahoo.com.au>
-Date: Tue, 21 Jun 2005 16:49:19 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-usb-devel@lists.sourceforge.net, vojtech@suse.cz
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: USB mouse problems in (2.6.12-rc6)
-References: <42B184AB.7050108@yahoo.com.au>
-In-Reply-To: <42B184AB.7050108@yahoo.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 21 Jun 2005 04:00:45 -0400
+Received: from mail.kroah.org ([69.55.234.183]:28649 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262043AbVFUGqN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 02:46:13 -0400
+Date: Mon, 20 Jun 2005 23:45:54 -0700
+From: Greg KH <greg@kroah.com>
+To: Nick Warne <nick@linicks.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12 udev hangs at boot
+Message-ID: <20050621064554.GC15239@kroah.com>
+References: <200506191639.27970.nick@linicks.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200506191639.27970.nick@linicks.net>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've had no response to this on lkml, so I'll cc a few
-random people and places.
+On Sun, Jun 19, 2005 at 04:39:27PM +0100, Nick Warne wrote:
+> Andrew Haninger wrote:
+> 
+> > Anyway, just a heads-up to anyone else experiencing a breaking of
+> > 'less' and missing /dev files.
+> 
+> Yep... I had 'less' break too (you will find 'man' is broke also, rolling on 
+> from that).
+> 
+> It turns out to be a problem (typo?) in  /etc/udev/rules.d/udev.rules
+> 
+> Try changing:
+> 
+> # pty devices
+> KERNEL="pty[p-za-e][0-9a-f]*", NAME="pty/m%n", SYMLINK="%k"
+> KERNEL="tty[p-za-e][0-9a-f]*", NAME="tty/s%n", SYMLINK="%k"
+> 
+> to:
+> 
+> # pty devices
+> KERNEL="pty[p-za-e][0-9a-f]*", NAME="pty/m%n", SYMLINK="%k"
+> KERNEL="tty[p-za-e][0-9a-f]*", NAME="pty/s%n", SYMLINK="%k"
+> 
+> (change is in second line tty -> pty)
 
-The problem remains in 2.6.12-mm1.
+Hm, that's what already ships with the udev tarball in the gentoo rule
+set (which is usually the most up-to-date rule set in the tarball.)
 
-Nick Piggin wrote:
-> Both 2.6.12-rc6 and rc6-mm1 make the mouse move around very strangely.
-> Very noticable lag and infrequent updates of the position.
-> 
-> System is a dual PIII. Some more info below. Anyone got any ideas or
-> patches to try? Thanks.
-> 
->            CPU0       CPU1
->   0:     356256     420442    IO-APIC-edge  timer
->   1:        715       1563    IO-APIC-edge  i8042
->   9:          0          0   IO-APIC-level  acpi
->  14:       4555       2951    IO-APIC-edge  ide0
->  15:         54          6    IO-APIC-edge  ide1
->  17:        996        436   IO-APIC-level  SysKonnect SK-98xx
->  18:        584       1071   IO-APIC-level  uhci_hcd:usb1, uhci_hcd:usb2
-> 
-> 0000:00:00.0 Host bridge: VIA Technologies, Inc. VT82C693A/694x [Apollo 
-> PRO133x] (rev c4)
-> 0000:00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598/694x [Apollo 
-> MVP3/Pro133x AGP]
-> 0000:00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super 
-> South] (rev 40)
-> 0000:00:07.1 IDE interface: VIA Technologies, Inc. 
-> VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
-> 0000:00:07.2 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 
-> 1.1 Controller (rev 1a)
-> 0000:00:07.3 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 
-> 1.1 Controller (rev 1a)
-> 0000:00:07.4 SMBus: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] 
-> (rev 40)0000:00:07.5 Multimedia audio controller: VIA Technologies, Inc. 
-> VT82C686 AC97 Audio Controller (rev 50)
-> 0000:00:0a.0 Ethernet controller: National Semiconductor Corporation 
-> DP83815 (MacPhyter) Ethernet Controller
-> 0000:00:0b.0 Ethernet controller: D-Link System Inc Gigabit Ethernet 
-> Adapter (rev 11)
-> 0000:01:00.0 VGA compatible controller: nVidia Corporation NV5M64 [RIVA 
-> TNT2 Model 64/Model 64 Pro] (rev 15)
-> 
-> 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Which one are you looking at?
+
+> As to the missing /dev/ entries - remember you are using udev now - they 
+> appear 'on the fly' as and when you plug something in - ensure you have set 
+> 'hotplug' to start.
+
+Not necessarily, people are getting udev working and full hotplug
+support by setting /sbin/hotplug to NULL.  Ah, the magic of netlink...
+
+thanks,
+
+greg k-h

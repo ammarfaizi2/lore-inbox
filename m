@@ -1,45 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261380AbVFUNTo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261315AbVFUNsn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261380AbVFUNTo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 09:19:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261376AbVFUNSX
+	id S261315AbVFUNsn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 09:48:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261448AbVFUNsm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 09:18:23 -0400
-Received: from ns.firmix.at ([62.141.48.66]:39296 "EHLO ns.firmix.at")
-	by vger.kernel.org with ESMTP id S261439AbVFUNPx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 09:15:53 -0400
-Subject: Re: [PATCH] Pointer cast warnings in scripts/
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: Roman Zippel <zippel@linux-m68k.org>, kbuild-devel@lists.sourceforge.net,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <42B80F40.8000609@drzeus.cx>
-References: <42B7F740.6000807@drzeus.cx>
-	 <Pine.LNX.4.61.0506211413570.3728@scrub.home> <42B80AF9.2060708@drzeus.cx>
-	 <Pine.LNX.4.61.0506211451040.3728@scrub.home>  <42B80F40.8000609@drzeus.cx>
-Content-Type: text/plain
-Organization: Firmix Software GmbH
-Date: Tue, 21 Jun 2005 15:14:13 +0200
-Message-Id: <1119359653.18845.55.camel@tara.firmix.at>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+	Tue, 21 Jun 2005 09:48:42 -0400
+Received: from imf16aec.mail.bellsouth.net ([205.152.59.64]:29929 "EHLO
+	imf16aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
+	id S261420AbVFUNpi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 09:45:38 -0400
+Message-ID: <01ff01c5766e$de750be0$2800000a@pc365dualp2>
+From: <cutaway@bellsouth.net>
+To: "Denis Vlasenko" <vda@ilport.com.ua>, "Jesper Juhl" <juhl-lkml@dif.dk>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>
+Cc: "Andrew Morton" <akpm@osdl.org>, "Jeff Garzik" <jgarzik@pobox.com>,
+       "Domen Puncer" <domen@coderock.org>
+References: <Pine.LNX.4.62.0506200052320.2415@dragon.hyggekrogen.localhost> <200506211402.48554.vda@ilport.com.ua> <004c01c57662$5eacc260$2800000a@pc365dualp2> <200506211606.59233.vda@ilport.com.ua>
+Subject: Re: [RFC] cleanup patches for strings
+Date: Tue, 21 Jun 2005 10:38:12 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1478
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1478
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-06-21 at 14:59 +0200, Pierre Ossman wrote:
-[...]
-> It should only be a matter of reversing the patches for Solaris then.
-> But that will of course bring back the warnings on that platform. I'd
-> say we should stick with what the standard says. Unfortunatly I don't
+Congratulations, you proved that a register push is faster than a 3 byte
+memory push.  I believe this is exactly what I said would happen if the
+autovar pointer wound up being enregistered.
 
-The C-standard about "char", "signed char" and "unsigned char"?
-These are 3 different types.
+However, it is NOT what GCC will generate for pushing params to static
+strings.
 
-	Bernd
--- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
+For that you're going to get a 5 byte PUSH imm32.
+
+
+----- Original Message ----- 
+From: "Denis Vlasenko" <vda@ilport.com.ua>
+To: <cutaway@bellsouth.net>; "Jesper Juhl" <juhl-lkml@dif.dk>;
+"linux-kernel" <linux-kernel@vger.kernel.org>
+Cc: "Andrew Morton" <akpm@osdl.org>; "Jeff Garzik" <jgarzik@pobox.com>;
+"Domen Puncer" <domen@coderock.org>
+Sent: Tuesday, June 21, 2005 09:06
+Subject: Re: [RFC] cleanup patches for strings
+
+Took 9574 CPU cycles Took 8068 CPU cycles
+
+
+>   40:   ff 75 f8                pushl  0xfffffff8(%ebp)
+>   43:   58                      pop    %eax
+
+
+>   80:   53                      push   %ebx
+>   81:   58                      pop    %eax
 

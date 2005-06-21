@@ -1,86 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261663AbVFUISF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261989AbVFUIbG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261663AbVFUISF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 04:18:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261629AbVFUIQ2
+	id S261989AbVFUIbG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 04:31:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262052AbVFUIS2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 04:16:28 -0400
-Received: from postfix3-2.free.fr ([213.228.0.169]:64912 "EHLO
-	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S261989AbVFUHZt
+	Tue, 21 Jun 2005 04:18:28 -0400
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:21218 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S261992AbVFUHh6 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 03:25:49 -0400
-Message-ID: <42B7C0FA.8070409@unice.fr>
-Date: Tue, 21 Jun 2005 09:25:46 +0200
-From: XIAO Gang <xiao@unice.fr>
-Organization: =?ISO-8859-1?Q?Universit=E9_de_Nice_-_Sophia_Anti?=
- =?ISO-8859-1?Q?polis?=
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en, fr, zh-CN, zh-TW
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: UML mode panick under 2.6.12
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 21 Jun 2005 03:37:58 -0400
+Subject: Re: Pending AIO work/patches
+From: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
+To: Benjamin LaHaise <bcrl@kvack.org>
+Cc: Suparna Bhattacharya <suparna@in.ibm.com>,
+       "linux-aio kvack.org" <linux-aio@kvack.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       wli@holomorphy.com, zab@zabbo.net, mason@suse.com, ysaito@hpl.hp.com
+In-Reply-To: <20050620181007.GA4031@kvack.org>
+References: <20050620120154.GA4810@in.ibm.com>
+	 <20050620181007.GA4031@kvack.org>
+Date: Tue, 21 Jun 2005 09:36:52 +0200
+Message-Id: <1119339413.1400.31.camel@frecb000686>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 21/06/2005 09:49:16,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 21/06/2005 09:49:17,
+	Serialize complete at 21/06/2005 09:49:17
+Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2005-06-20 at 14:10 -0400, Benjamin LaHaise wrote:
 
-I am unable to run UML mode (i386) under 2.6.12: the execution gives the 
-following messages.
+> > (3) POSIX AIO support (Bull: Laurent/Sebastian or Oracle: Joel)
+> > 	Status: Needs review and discussion ?
+> 
+> The latest version incorporates changes from the last round of feedback 
+> (great work Sebastien!) and updates the library license, so people should 
+> definately take a closer look.  This includes the necessary changes for 
+> in-kernel signal support, as well as minimal conversion done on iocbs (the 
+> layout matches the in-kernel iocb).
+> 
+> A quick reading shows that most of it looks quite good.  I have to stare 
+> at the cancellation code a bit more closely, though.
+> 
 
----------------------------------------------------------------------------------------------
-Checking for /proc/mm...not found
-Checking PROT_EXEC mmap in /tmp...OK
-tracing thread pid = 26236
-<5>Linux version 2.6.12 (xiao@cim06-1-82-234-179-206.fbx.proxad.net) 
-(gcc version 3.2.2 20030222 (Red Hat Linux 3.2.2-5)) #22 Tue Jun 21 
-09:21:30 CEST 2005
-<7>On node 0 totalpages: 8192
-<7>  DMA zone: 8192 pages, LIFO batch:3
-<7>  Normal zone: 0 pages, LIFO batch:1
-<7>  HighMem zone: 0 pages, LIFO batch:1
-Built 1 zonelists
-<5>Kernel command line: root=98:0
-PID hash table entries: 256 (order: 8, 4096 bytes)
-Dentry cache hash table entries: 8192 (order: 3, 32768 bytes)
-Inode-cache hash table entries: 4096 (order: 2, 16384 bytes)
-<6>Memory: 29500k available
-<7>Calibrating delay loop... 1802.24 BogoMIPS (lpj=9011200)
-Mount-cache hash table entries: 512
-Checking for host processor cmov support...Yes
-Checking for host processor xmm support...No
-Checking that ptrace can change system call numbers...<0>Kernel panic - 
-not syncing: Segfault with no mm
+  As I understand it, cancellation needs support from the 
+underlying filesystem in order to dequeue requests no yet
+commited to disk.
 
-EIP: 0023:[<00000000>] CPU: 0 Not tainted ESP: 002b:a01a7f58 EFLAGS: 
-00010207
-    Not tainted
-EAX: 00000000 EBX: a01a7f60 ECX: 00000000 EDX: a01d4a00
-ESI: 00000000 EDI: 00000000 EBP: 00000002 DS: 002b ES: 002b
-a01a7a38:  [<a002db01>] show_regs+0x1dd/0x1e8
-a01a7a68:  [<a0018e37>] panic_exit+0x27/0x48
-a01a7a88:  [<a004215e>] notifier_call_chain+0x22/0x40
-a01a7ab8:  [<a0031a66>] panic+0x56/0x104
-a01a7ad8:  [<a00182ee>] segv+0x1be/0x254
-a01a7bb8:  [<a00186a8>] segv_handler+0x11c/0x180
-a01a7bf8:  [<a001b7fd>] sig_handler_common_tt+0xa9/0x124
-a01a7c58:  [<a002965f>] sig_handler+0x1f/0x34
-a01a7c78:  [<a012b4e8>] __restore+0x0/0x8
+  So far there is no support from the kernel aside from the USB gadget 
+driver which registers its own 'iocb->ki_cancel' method for dequeuing
+requests.
 
----------------------------------------------------------------------------------------------
-
-By the way, the output beyond the first three lines has to be printed 
-out after a hack of printk(), as the latter usually failed to print out 
-anything.
-
-The kernel is compiled with a ported config from 2.6.10-um, and is run 
-under exactly the same condition as the 2.6.10 counterpart which works 
-fine. The host is under Linux-2.4.31.
+  Sébastien.
 
 -- 
+------------------------------------------------------
 
-XIAO Gang (~{P$8U~})                          xiao@unice.fr
-          home page: pcmath126.unice.fr/xiao.html 
+  Sébastien Dugué                BULL/FREC:B1-247
+  phone: (+33) 476 29 77 70      Bullcom: 229-7770
 
+  mailto:sebastien.dugue@bull.net
 
+  Linux POSIX AIO: http://www.bullopensource.org/posix
+  
+------------------------------------------------------
 

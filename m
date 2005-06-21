@@ -1,177 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbVFUO03@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262077AbVFUO3E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261451AbVFUO03 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 10:26:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261462AbVFUON7
+	id S262077AbVFUO3E (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 10:29:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262114AbVFUO0D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 10:13:59 -0400
-Received: from 067097.user.veloxzone.com.br ([201.29.67.97]:57066 "EHLO
-	gmail.com") by vger.kernel.org with ESMTP id S261972AbVFUOMO (ORCPT
+	Tue, 21 Jun 2005 10:26:03 -0400
+Received: from dvhart.com ([64.146.134.43]:30385 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S262069AbVFUOWP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 10:12:14 -0400
-Message-ID: <20050621111159.7D887E5EAE2D6AC4@gmail.com>
-From: socorristainternacional@gmail.com
-To: linux-kernel@vger.kernel.org
-Subject: CURSOS DE SOCORRISTA INTERNACIONAL - 40 horas
-Date: 21 Jun 2005 11:12:01 -0300
+	Tue, 21 Jun 2005 10:22:15 -0400
+Date: Tue, 21 Jun 2005 07:22:14 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
+Subject: Re: 2.6.12-mm1 boot failure on NUMA box.
+Message-ID: <235990000.1119363734@[10.10.2.4]>
+In-Reply-To: <20050620232925.41bded87.akpm@osdl.org>
+References: <208690000.1119330454@[10.10.2.4]> <20050620232925.41bded87.akpm@osdl.org>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Expiry-Date: 02 Aug 2005 20:48:14 -0300
-Content-Type: text/plain
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>> OK, after fixing the build failure with Andy's patch here:
+>> 
+>> http://mbligh.org/abat/apw_pci_assign_unassigned_resources
+> 
+> yup, I have that now.
 
-A RESGATE TREINAMENTOS é a agência de treinamento autorizada no estado do 
-Espirito Santo pela Rescue Training International, para ministrar os cursos 
-do National Safety Council. - instituição sem fins lucrativos criada por um 
-ato do Congresso dos Estados Unidos da América, Lei número 259, Octagésimo 
-Terceiro Congresso Primeira Sessão, 36 US Code 461, 67 Stat.569, que 
-formata protocolos internacionais para atendimentos em situações de 
-emergências médicas, desenvolvidos por instituições americanas de 
-pesquisas, tais como a American Academy of Orthopaedic Surgeons, American 
-Heart Association e, Wilderness American Association.
+Sweet, thanks.
+ 
+>> I get a boot failure on the NUMA-Q box. Full log is here:
+>> 
+>> http://ftp.kernel.org/pub/linux/kernel/people/mbligh/abat/6184/debug/console.log
+>> 
+>> But at the end it prints out lots of wierd scheduler stuff, then one more
+>> message, then dies:
+>> 
+>> | migration cost matrix (max_cache_size: 2097152, cpu: 700 MHz):
+>> ---------------------
+> 
+> That's Ingo debug stuff.
+> 
+>> --------------------------------
+>> NET: Registered protocol family 16
+> 
+> Well it got up to core_initcall(netlink_proto_init);
+> 
+>> I guess I'll try backing out the scheduler patches unless someone else 
+>> has a brighter idea?
+> 
+> It doesn't look like a scheduler thing.  Tried enabling initcall_debug?
 
-Os materiais didáticos e de suporte pedagógico (transparências, slides, 
-vídeos e flip-chartes) são de autoria da J& B Pub - Jones and Bartlett 
-Publishers, NSC - National Safety Council, AAOS - American Academy of 
-Orthopaedics Surgeons, e NYSAFS - New York State Academy of Fire Sciences, 
-traduzidos para o português, com exclusividade, pela Editora Randal Fonseca 
-Ltda.
+Humpf. I agree it seemed to get a bit further than that, but I kicked off
+a new test before I went to bed, and it does seem to work w/o the sched
+patches:
 
-Os instrutores da NSC são formados sob rigorosos critérios de avaliação e 
-credenciados oficialmente nos EUA, pelas agências americanas 
-supramencionadas, para ministrar os programas no Brasil.
+http://ftp.kernel.org/pub/linux/kernel/people/mbligh/abat/regression_matrix.html
 
-O programa de treinamento do National Safety Council excede os padrões 
-exigidos pelo DOT - Department of Transportation e OSHA - Occupational 
-Safety and Health Administration, do governo dos Estados Unidos.
+see the "moe" column, comparing:
 
-Dentre as 45.000 instituições que utilizam os programas da NSC / FAI 
-podemos citar alguns a exemplo:
+2.6.12-mm1
++apw_pci_assign_unass
++nosched_2.6.12-mm1
 
-American Academy Ophthalmology 
-American Burn Association 
-Amercican Diabetes Association 
-American dental Association 
-American Medical Association 
-American Trauma Association 
-Basic Life Trauma Support 
-Center Disease Control 
-Epilepsy Foundation of America 
-Emergency Response Institute 
-International Society of Fire Service Instructors 
-Medical Alert Association 
-National Association of EMS Physicians 
-National Rescue Consultants 
-National Society to Prevent Blindness 
-US Public Health 
+vs
 
-CURSO DE SOCORRISTA INTERNACIONAL - 40 HORAS ( RCP + DESFIBRILAÇÃO EXTERNA  
-AUTOMÁTICA + PRIMEIRO SOCORROS)
+2.6.12-mm1
++apw_pci_assign_unass
 
-Saber o que fazer e o que não fazer em uma situação de emergência é 
-possivelmente um dos aspectos mais importantes que todas as pessoas 
-deveriam aprender. 
+rows ?
 
-O curso de Socorrista internacional (RCP+AED+PS) do National Safety 
-Council, oferece aos alunos as técnicas mais atualizadas, repassando-as de 
-forma simples compreensível e acima de tudo muito eficiente. 
+I can still do initcall debug if you want. Or I guess it's binary chop
+search amongst sched patches (or at least the ones that are new in 
+this -mm ?)
 
-O programa foi revisado e aprovado por mais de 75 instituições 
-governamentais americanas e internacionais. 
-
-Mais de 250.000 pessoas são treinadas anualmente pelos 10.000 instrutores 
-nos 4.000 centros de treinamento do NSC distribuídos no mundo. 
-
-No Brasil oferecemos esses cursos formatados para atender os mais diversas 
-tipos de interesses. 
-
-
-Conteúdo Programático - SOCORRISTA INTERNACIONAL - 40 HORAS
-
-· Sistema de Emergências Médicas - (EMS) 
-· Aspectos legais e éticos nos atendimentos de emergência 
-· Fatores complicantes nos atendimentos de emergência 
-· Triagem e priorização no atendimento de emergências envolvendo múltiplas 
-vítimas 
-· Crises de conduta 
-· Protocolo para atendimento de emergências em diversos locais
-· Avaliação Básica: Vias Aéreas Respiração, Circulação, Comprometimentos 
-Raquimedulares 
-· Precauções universais com doenças transmissíveis 
-· Administração e controle do estresse nos atendimentos de emergência 
-- Atendimento a PCR em adulto, criançase bebês.
-- Utilização dos Desfibriladores Externos Automáticos 
-· Estado de Choque: Ferimentos: 
-· Precauções com Tétano; 
-· Envenenamentos e intoxicações por substâncias exógenas 
-· Ferimentos em áreas específicas: olhos, nariz, abdômen, genitália, etc. 
-· Queimaduras químicas, elétricas, térmicas e radioativas 
-· Problemas relacionados à temperatura ambiente: Intermação, Desidratação, 
-hipotermia, Cãibras; 
-· Lesões musculares, ósseas e articulares; 
-· Emergências clínicas: Parada Cardíaca; Epilepsia; Asma; Derrame Cerebral; 
-Diabetes; 
-· Técnicas específicas e Técnicas de improvisação para Imobilizações e 
-Bandagens; 
-· Movimentação, transporte e remoção de vítimas: não emergencial e 
-emergencial; 
-· Sugestão para organizar Estojo de Primeiro Socorros; 
-· Controle de Estresse em situações de emergências. 
-
-
-Objetivos: Proporcionar aos participantes, conhecimento, proficiência e 
-técnicas de suporte avançado em primeiros socorros, ressuscitação cárdio-
-pulmonar (RCP) com e sem a utilização de desfibriladores externos 
-automáticos, através de ensinamentos teóricos e de treinamentos práticos 
-realizados com materiais e equipamentos especializados. 
-
-Credenciamento: Serão emitidos Certificados e Credenciais da RTI-NSC, com 
-reconhecimento internacional aos alunos que obtiverem 80% de aproveitamento 
-nos  03 Exames Finais escritos e demonstrarem proficiência na avaliação 
-prática. 
-
-Recursos Didáticos – Aulas Teóricas
-
-· Entregue aos alunos: Teste de Sondagem, Livro do Aluno em cores 
-(RCP/AED/PS), Teste de avaliação Intermediária para cada tópico abordado, 
-Exame Final, Folha de Respostas, Questionário de Avaliação do Curso, Temas 
-para simulações de situações de emergências. 
-
-· Do instrutor: Apresentação de todo o material em projetor multimidia; 
-vídeo sobre técnicas da RCP e vídeo sobre procedimentos de Primeiros 
-Socorros para atendimento às emergências clínicas e do trauma produzidos 
-pelo NSC, narrados em Português. 
-
-Recursos Didáticos – Aulas Práticas: 
-· Manequins para proficiência em RCP 
-· Talas e materiais para imobilização de membros 
-· Modelos anatômicos das vias aéreas superiores 
-· Máscaras, luvas e óculos de proteção contra doenças contagiosas ou 
-transmissíveis 
-· Polímeros de impermeabilização térmica 
-· Colar para imobilização cervical 
-· Sugador oral, Cânulas oro-faríngea
-- Desfibriladores Externos Automáticos de treinamentos
-
-VEJA NOSSA PROGRAMAÇÃO:
-
-21 a 24 de julho de 2005 – Vila Velha – ES (27) 3289-1973 Luannda Rangel
-25,26 de junho e 09,10 de julho de 2005 – Tx. de Freitas – BA – Elizabete 
-(073) 9996-2075
-27 a 30 de junho de 2005 – Eunápolis – BA – Rozilda (073) 3261-4092 ou 
-Sarg. Santana (073) 9991-4753
-03 a 06 de julho de 2005 – Vitória da Conquista – BA – Antonio (077) 8806-
-1032
-
-Valor do Investimento por pessoa R$400.00 ( Quatrocentos Reais )
-Forma de Pagamento: 4x ( Entrada + 30/60/90)
-
-VAGAS LIMITADAS POR TURMA!
-
-Atendemos tambem a turmas fechadas  em todo o Brasil.
-
-Veja os diversos outros cursos que podemos oferecer em nosso site 
-www.resgate.com.br
-Msn / E-Mail: atendimento@resgate.com.br
+M.

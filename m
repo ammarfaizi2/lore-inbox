@@ -1,34 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261186AbVFUMhr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbVFUMpv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261186AbVFUMhr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 08:37:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261178AbVFUMf5
+	id S261347AbVFUMpv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 08:45:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261323AbVFUMoL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 08:35:57 -0400
-Received: from agf.customers.acn.gr ([213.5.17.156]:54173 "EHLO
-	enigma.wired-net.gr") by vger.kernel.org with ESMTP id S261186AbVFUM2A
+	Tue, 21 Jun 2005 08:44:11 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:6564 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261315AbVFUMmX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 08:28:00 -0400
-Message-ID: <50773.62.38.141.127.1119357138.squirrel@webmail.wired-net.gr>
-Date: Tue, 21 Jun 2005 15:32:18 +0300 (EEST)
-Subject: 2.6 sendfile
-From: nanakos@wired-net.gr
-To: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.4-rc1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+	Tue, 21 Jun 2005 08:42:23 -0400
+Subject: Re: -mm -> 2.6.13 merge status (fuse)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: akpm@osdl.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <E1Dkfu2-0005Ju-00@dorka.pomaz.szeredi.hu>
+References: <20050620235458.5b437274.akpm@osdl.org>
+	 <E1Dkfu2-0005Ju-00@dorka.pomaz.szeredi.hu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1119357566.3325.127.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 21 Jun 2005 13:39:28 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-can you tell me please how i can enable ( with a patch? ) the file-file
-sendfile system call feature???
+On Maw, 2005-06-21 at 11:22, Miklos Szeredi wrote:
+> So I welcome constructive discussion.  However bear in mind, that I
+> definitely don't want to disable unprivileged mounts.  For me that is
+> _the_ most important feature of FUSE.
 
+If the choice was "merge FUSE without unpriv mounts for now" or "discard
+fuse completely" which is preferable.
 
-Thanks in advance.
-
-P.S: Please Cc me cause i am not in the list.
+It seems to me (just IMHO) that it would be better to merge FUSE without
+that feature and then spend the time getting that feature right _in
+parallel_ with people using, breaking and reviewing FUSE a lot more.
 

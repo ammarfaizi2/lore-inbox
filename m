@@ -1,46 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262456AbVFUXCl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262459AbVFUXD6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262456AbVFUXCl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 19:02:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262442AbVFUW6b
+	id S262459AbVFUXD6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 19:03:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262424AbVFUXDD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 18:58:31 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:11686 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S262424AbVFUW5R
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 18:57:17 -0400
-Subject: Re: -mm -> 2.6.13 merge status
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Christoph Lameter <christoph@lameter.com>
-Cc: Zan Lynx <zlynx@acm.org>, Robert Love <rml@novell.com>,
-       Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.62.0506211306060.22372@graphe.net>
-References: <20050620235458.5b437274.akpm@osdl.org>
-	 <42B831B4.9020603@pobox.com> <1119368364.3949.236.camel@betsy>
-	 <Pine.LNX.4.62.0506211222040.21678@graphe.net>
-	 <1119382685.3949.263.camel@betsy> <1119384131.15478.25.camel@localhost>
-	 <Pine.LNX.4.62.0506211306060.22372@graphe.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1119394459.3279.196.camel@localhost.localdomain>
+	Tue, 21 Jun 2005 19:03:03 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:39049
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S262459AbVFUW7y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 18:59:54 -0400
+Date: Tue, 21 Jun 2005 15:59:19 -0700 (PDT)
+Message-Id: <20050621.155919.85409752.davem@davemloft.net>
+To: gregkh@suse.de
+Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] devfs: remove devfs from Kconfig preventing it from
+ being built
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20050621222419.GA23896@kroah.com>
+References: <20050621222419.GA23896@kroah.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 21 Jun 2005 23:54:24 +0100
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2005-06-21 at 21:06, Christoph Lameter wrote:
-> On Tue, 21 Jun 2005, Zan Lynx wrote:
-> 
-> > I've never tried doing that.  It might work, for all I know.
-> 
-> I was told that Linux cannot do this. It always returns the filehandles as 
-> ready for disk files.
+From: Greg KH <gregkh@suse.de>
+Date: Tue, 21 Jun 2005 15:24:19 -0700
 
-That is because disk files are always ready - select/poll are for waits
-for data (or space) to become available not for events in the sense of
-inotify.
-That said there *is* scope in the poll() API [but not select()] to add a
-new kind of poll notification type.
+> Here's a much smaller patch to simply disable devfs from the build.  If
+> this goes well, and there are no complaints for a few weeks, I'll resend
+> my big "devfs-die-die-die" series of patches that rip the whole thing
+> out of the kernel tree.
+> 
+> Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
+I know the rational behind this.
+
+However, this does mean I do need to reinstall a couple
+debian boxes here to something newer before I can continue
+doing kernel work in 2.6.x on them.

@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262393AbVFVADp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262425AbVFVAAC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262393AbVFVADp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 20:03:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262406AbVFVAAU
+	id S262425AbVFVAAC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 20:00:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262406AbVFUX5d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 20:00:20 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:4010 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S262462AbVFUXwX (ORCPT
+	Tue, 21 Jun 2005 19:57:33 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:35306 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S262307AbVFUXzr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 19:52:23 -0400
-Message-ID: <42B8A82E.4020207@pobox.com>
-Date: Tue, 21 Jun 2005 19:52:14 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: git-pull-script on my linus tree fails..
-References: <Pine.LNX.4.58.0506211304320.2915@skynet> <Pine.LNX.4.58.0506210837020.2268@ppc970.osdl.org> <42B838BC.8090601@pobox.com> <Pine.LNX.4.58.0506210905560.2268@ppc970.osdl.org> <42B84E20.7010100@pobox.com> <Pine.LNX.4.58.0506211039350.2268@ppc970.osdl.org> <42B8542A.9020700@pobox.com> <Pine.LNX.4.58.0506211103370.2268@ppc970.osdl.org> <42B859B4.5060209@pobox.com> <Pine.LNX.4.58.0506211124310.2268@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0506211124310.2268@ppc970.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Tue, 21 Jun 2005 19:55:47 -0400
+Date: Wed, 22 Jun 2005 01:55:40 +0200
+From: Andi Kleen <ak@suse.de>
+To: YhLu <YhLu@tyan.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12 with dual way dual core ck804 MB
+Message-ID: <20050621235540.GK14251@wotan.suse.de>
+References: <3174569B9743D511922F00A0C94314230A4046AA@TYANWEB>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3174569B9743D511922F00A0C94314230A4046AA@TYANWEB>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+On Tue, Jun 21, 2005 at 03:50:48PM -0700, YhLu wrote:
+> I would like to help. Can you say more detail ? I don't know how to souce
+> code tracing statement....
+
 > 
-> On Tue, 21 Jun 2005, Jeff Garzik wrote:
-> 
->>If git-checkout-script switches the .git/HEAD symlink properly, rather 
->>than updating the symlink target's contents, then my git-switch-tree 
->>script can just go away :)
-> 
-> 
-> Well, you should test it. I sure didn't ;)
+> Do you mean setup one global buffer, and in the setup.c compare the node id
+> or node id to decide to write sth to the buffer, and print out when the cpu0
+> get the control again?
 
-hmmm, I tried
+Yes. You can just use a global variable because the smp bootup is essentially
+single threaded. printk would destroy the timing though.
 
-	git checkout -f ncq
+Start with the code that prints ExtInt enabled. 
 
-on libata-dev.git and it didn't seem to switch the symlink.
+Writ current_text_address() into a buffer and dump it then on CPU #0
+after some timeout (hopefully it is still alive) 
 
-	Jeff
+If you have problems mail me and I will write you a tracing patch
+tomorrow.
 
-
-
+-Andi

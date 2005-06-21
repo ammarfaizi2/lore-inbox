@@ -1,53 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262366AbVFUWfW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262405AbVFUWfU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262366AbVFUWfW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 18:35:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262370AbVFUW2k
+	id S262405AbVFUWfU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 18:35:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262366AbVFUW2b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 18:28:40 -0400
-Received: from mail.tyan.com ([66.122.195.4]:57610 "EHLO tyanweb.tyan")
-	by vger.kernel.org with ESMTP id S262537AbVFUVjK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 17:39:10 -0400
-Message-ID: <3174569B9743D511922F00A0C94314230A40468C@TYANWEB>
-From: YhLu <YhLu@tyan.com>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.6.12 with dual way dual core ck804 MB
-Date: Tue, 21 Jun 2005 14:41:52 -0700
+	Tue, 21 Jun 2005 18:28:31 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:61841 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262547AbVFUVjZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 17:39:25 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Paul Mackerras <paulus@samba.org>
+Subject: [PATCH 0/11] ppc64: Introduce Cell/BPA platform, v3
+Date: Tue, 21 Jun 2005 23:10:53 +0200
+User-Agent: KMail/1.7.2
+Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+Content-Disposition: inline
+Message-Id: <200506212310.54156.arnd@arndb.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-andi,
+This series of patches add support for a fifth platform type in the
+ppc64 architecture tree. The Broadband Processor Architecture (BPA)
+is what machines using the Cell processor should be following
+and currently only prototype hardware exists for it.
 
-for the dual way dual core Opteron ck804 MB, the 2.6.12 still has the timing
-problem, I  still need to add one printk in amd_detec_cmp after the
-phys_proc_id is setup.
+Most of the functionality is the same as in the previous version.
+The main updates are:
 
-Regards
+- Fixes for the comments I got
+- Added more patches for moving rtas related stuff around from pSeries,
+  so we can use it from BPA as well
+- Smaller bug fixes
+- Lots of changes on the SPU file system (see the patch comments)
 
-YH
+One thing that has happened is that the Cell Processor Based Blade
+has now been shown on E3 and the Power.org press summit and will 
+also be on Linuxtag, so you can now see what kind of hardware this
+runs on.
 
-static void __init amd_detect_cmp(struct cpuinfo_x86 *c)
-{
-#ifdef CONFIG_SMP
-        int cpu = smp_processor_id();
-        int node = 0;
-        unsigned bits;
-        if (c->x86_num_cores == 1)
-                return;
+This series does not include the libspu files, as we are doing some changes
+to the library right now. I'm also not including the driver for our network
+driver yet. It's working well, but I'm waiting for a cleanup patch and
+plan to submit it after Linuxtag.
 
-        bits = 0;
-        while ((1 << bits) < c->x86_num_cores)
-                bits++;
+Please forward these patches for inclusion in 2.6.13 if you are happy
+with them. The spufs code is still not ready for inclusion, but it could
+start a life in -mm to get a broader review at this point.
 
-        /* Low order bits define the core id (index of core in socket) */
-        cpu_core_id[cpu] = phys_proc_id[cpu] & ((1 << bits)-1);
-        /* Convert the APIC ID into the socket ID */
-        phys_proc_id[cpu] >>= bits;
-+        printk(KERN_INFO "  CPU %d(%d)  phys_proc_id %d  Core %d\n",
-+                        cpu, c->x86_num_cores, phys_proc_id[cpu],
-cpu_core_id[cpu]);
+	Arnd <><
+

@@ -1,310 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261956AbVFUH6P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262061AbVFUH6M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261956AbVFUH6P (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 03:58:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261981AbVFUH5G
+	id S262061AbVFUH6M (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 03:58:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261956AbVFUH5R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 03:57:06 -0400
-Received: from mail.kroah.org ([69.55.234.183]:42723 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261956AbVFUGap convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 02:30:45 -0400
-Cc: gregkh@suse.de
-Subject: [PATCH] devfs: Rename TTY_DRIVER_NO_DEVFS to TTY_DRIVER_DYNAMIC_DEV
-In-Reply-To: <1119335444505@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Mon, 20 Jun 2005 23:30:45 -0700
-Message-Id: <11193354452744@kroah.com>
+	Tue, 21 Jun 2005 03:57:17 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:6034 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261969AbVFUG3t (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 02:29:49 -0400
+Date: Mon, 20 Jun 2005 23:29:25 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
+Subject: Re: 2.6.12-mm1 boot failure on NUMA box.
+Message-Id: <20050620232925.41bded87.akpm@osdl.org>
+In-Reply-To: <208690000.1119330454@[10.10.2.4]>
+References: <208690000.1119330454@[10.10.2.4]>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Reply-To: Greg K-H <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <gregkh@suse.de>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] devfs: Rename TTY_DRIVER_NO_DEVFS to TTY_DRIVER_DYNAMIC_DEV
+"Martin J. Bligh" <mbligh@mbligh.org> wrote:
+>
+> OK, after fixing the build failure with Andy's patch here:
+> 
+> http://mbligh.org/abat/apw_pci_assign_unassigned_resources
 
-I've always found this flag confusing.  Now that devfs is no longer around, it
-has been renamed, and the documentation for when this flag should be used has
-been updated.
+yup, I have that now.
 
-Also fixes all drivers that use this flag.
+> I get a boot failure on the NUMA-Q box. Full log is here:
+> 
+> http://ftp.kernel.org/pub/linux/kernel/people/mbligh/abat/6184/debug/console.log
+> 
+> But at the end it prints out lots of wierd scheduler stuff, then one more
+> message, then dies:
+> 
+> | migration cost matrix (max_cache_size: 2097152, cpu: 700 MHz):
+> ---------------------
 
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+That's Ingo debug stuff.
 
----
-commit 7a8f493a5d2a57b5ab6302044c44d185755cf46d
-tree ddab423454c4dbe896b1ca2544a535999f33424a
-parent 0ab499b19f39b05982ade3656e2e7c170f641d30
-author Greg Kroah-Hartman <gregkh@suse.de> Mon, 20 Jun 2005 21:15:16 -0700
-committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 20 Jun 2005 23:13:42 -0700
+> --------------------------------
+> NET: Registered protocol family 16
+> 
 
- arch/ppc/4xx_io/serial_sicc.c   |    2 +-
- drivers/char/ip2main.c          |    2 +-
- drivers/char/pty.c              |    4 ++--
- drivers/char/rocket.c           |    4 ++--
- drivers/char/tty_io.c           |    8 ++++----
- drivers/isdn/i4l/isdn_tty.c     |    2 +-
- drivers/s390/char/tty3270.c     |    2 +-
- drivers/serial/crisv10.c        |    2 +-
- drivers/serial/serial_core.c    |    2 +-
- drivers/tc/zs.c                 |    2 +-
- drivers/usb/class/bluetty.c     |    2 +-
- drivers/usb/class/cdc-acm.c     |    2 +-
- drivers/usb/gadget/serial.c     |    2 +-
- drivers/usb/serial/usb-serial.c |    2 +-
- include/linux/tty_driver.h      |   13 ++++++++++---
- net/bluetooth/rfcomm/tty.c      |    2 +-
- 16 files changed, 30 insertions(+), 23 deletions(-)
+Well it got up to core_initcall(netlink_proto_init);
 
-diff --git a/arch/ppc/4xx_io/serial_sicc.c b/arch/ppc/4xx_io/serial_sicc.c
---- a/arch/ppc/4xx_io/serial_sicc.c
-+++ b/arch/ppc/4xx_io/serial_sicc.c
-@@ -1764,7 +1764,7 @@ int __init siccuart_init(void)
-     siccnormal_driver->subtype = SERIAL_TYPE_NORMAL;
-     siccnormal_driver->init_termios = tty_std_termios;
-     siccnormal_driver->init_termios.c_cflag = B9600 | CS8 | CREAD | HUPCL | CLOCAL;
--    siccnormal_driver->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_NO_DEVFS;
-+    siccnormal_driver->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_DYNAMIC_DEV;
-     tty_set_operations(siccnormal_driver, &sicc_ops);
- 
-     if (tty_register_driver(siccnormal_driver))
-diff --git a/drivers/char/ip2main.c b/drivers/char/ip2main.c
---- a/drivers/char/ip2main.c
-+++ b/drivers/char/ip2main.c
-@@ -679,7 +679,7 @@ ip2_loadmain(int *iop, int *irqp, unsign
- 	ip2_tty_driver->subtype              = SERIAL_TYPE_NORMAL;
- 	ip2_tty_driver->init_termios         = tty_std_termios;
- 	ip2_tty_driver->init_termios.c_cflag = B9600|CS8|CREAD|HUPCL|CLOCAL;
--	ip2_tty_driver->flags                = TTY_DRIVER_REAL_RAW | TTY_DRIVER_NO_DEVFS;
-+	ip2_tty_driver->flags                = TTY_DRIVER_REAL_RAW | TTY_DRIVER_DYNAMIC_DEV;
- 	tty_set_operations(ip2_tty_driver, &ip2_ops);
- 
- 	ip2trace (ITRC_NO_PORT, ITRC_INIT, 3, 0 );
-diff --git a/drivers/char/pty.c b/drivers/char/pty.c
---- a/drivers/char/pty.c
-+++ b/drivers/char/pty.c
-@@ -369,7 +369,7 @@ static void __init unix98_pty_init(void)
- 	ptm_driver->init_termios.c_cflag = B38400 | CS8 | CREAD;
- 	ptm_driver->init_termios.c_lflag = 0;
- 	ptm_driver->flags = TTY_DRIVER_RESET_TERMIOS | TTY_DRIVER_REAL_RAW |
--		TTY_DRIVER_NO_DEVFS | TTY_DRIVER_DEVPTS_MEM;
-+		TTY_DRIVER_DYNAMIC_DEV | TTY_DRIVER_DEVPTS_MEM;
- 	ptm_driver->other = pts_driver;
- 	tty_set_operations(ptm_driver, &pty_ops);
- 	ptm_driver->ioctl = pty_unix98_ioctl;
-@@ -384,7 +384,7 @@ static void __init unix98_pty_init(void)
- 	pts_driver->init_termios = tty_std_termios;
- 	pts_driver->init_termios.c_cflag = B38400 | CS8 | CREAD;
- 	pts_driver->flags = TTY_DRIVER_RESET_TERMIOS | TTY_DRIVER_REAL_RAW |
--		TTY_DRIVER_NO_DEVFS | TTY_DRIVER_DEVPTS_MEM;
-+		TTY_DRIVER_DYNAMIC_DEV | TTY_DRIVER_DEVPTS_MEM;
- 	pts_driver->other = ptm_driver;
- 	tty_set_operations(pts_driver, &pty_ops);
- 	
-diff --git a/drivers/char/rocket.c b/drivers/char/rocket.c
---- a/drivers/char/rocket.c
-+++ b/drivers/char/rocket.c
-@@ -2366,7 +2366,7 @@ int __init rp_init(void)
- 	 */
- 
- 	rocket_driver->owner = THIS_MODULE;
--	rocket_driver->flags = TTY_DRIVER_NO_DEVFS;
-+	rocket_driver->flags = TTY_DRIVER_DYNAMIC_DEV;
- 	rocket_driver->name = "ttyR";
- 	rocket_driver->driver_name = "Comtrol RocketPort";
- 	rocket_driver->major = TTY_ROCKET_MAJOR;
-@@ -2377,7 +2377,7 @@ int __init rp_init(void)
- 	rocket_driver->init_termios.c_cflag =
- 	    B9600 | CS8 | CREAD | HUPCL | CLOCAL;
- #ifdef ROCKET_SOFT_FLOW
--	rocket_driver->flags |= TTY_DRIVER_REAL_RAW | TTY_DRIVER_NO_DEVFS;
-+	rocket_driver->flags |= TTY_DRIVER_REAL_RAW | TTY_DRIVER_DYNAMIC_DEV;
- #endif
- 	tty_set_operations(rocket_driver, &rocket_ops);
- 
-diff --git a/drivers/char/tty_io.c b/drivers/char/tty_io.c
---- a/drivers/char/tty_io.c
-+++ b/drivers/char/tty_io.c
-@@ -2664,8 +2664,8 @@ static struct class *tty_class;
-  *	tty device it can be set to NULL safely.
-  *
-  * This call is required to be made to register an individual tty device if
-- * the tty driver's flags have the TTY_DRIVER_NO_DEVFS bit set.  If that
-- * bit is not set, this function should not be called.
-+ * the tty driver's flags have the TTY_DRIVER_DYNAMIC_DEV bit set.  If that
-+ * bit is not set, this function should not be called by a tty driver.
-  */
- void tty_register_device(struct tty_driver *driver, unsigned index,
- 			 struct device *device)
-@@ -2817,7 +2817,7 @@ int tty_register_driver(struct tty_drive
- 	
- 	list_add(&driver->tty_drivers, &tty_drivers);
- 	
--	if ( !(driver->flags & TTY_DRIVER_NO_DEVFS) ) {
-+	if ( !(driver->flags & TTY_DRIVER_DYNAMIC_DEV) ) {
- 		for(i = 0; i < driver->num; i++)
- 		    tty_register_device(driver, i, NULL);
- 	}
-@@ -2860,7 +2860,7 @@ int tty_unregister_driver(struct tty_dri
- 			driver->termios_locked[i] = NULL;
- 			kfree(tp);
- 		}
--		if (!(driver->flags & TTY_DRIVER_NO_DEVFS))
-+		if (!(driver->flags & TTY_DRIVER_DYNAMIC_DEV))
- 			tty_unregister_device(driver, i);
- 	}
- 	p = driver->ttys;
-diff --git a/drivers/isdn/i4l/isdn_tty.c b/drivers/isdn/i4l/isdn_tty.c
---- a/drivers/isdn/i4l/isdn_tty.c
-+++ b/drivers/isdn/i4l/isdn_tty.c
-@@ -1907,7 +1907,7 @@ isdn_tty_modem_init(void)
- 	m->tty_modem->subtype = SERIAL_TYPE_NORMAL;
- 	m->tty_modem->init_termios = tty_std_termios;
- 	m->tty_modem->init_termios.c_cflag = B9600 | CS8 | CREAD | HUPCL | CLOCAL;
--	m->tty_modem->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_NO_DEVFS;
-+	m->tty_modem->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_DYNAMIC_DEV;
- 	m->tty_modem->driver_name = "isdn_tty";
- 	tty_set_operations(m->tty_modem, &modem_ops);
- 	retval = tty_register_driver(m->tty_modem);
-diff --git a/drivers/s390/char/tty3270.c b/drivers/s390/char/tty3270.c
---- a/drivers/s390/char/tty3270.c
-+++ b/drivers/s390/char/tty3270.c
-@@ -1796,7 +1796,7 @@ tty3270_init(void)
- 	driver->type = TTY_DRIVER_TYPE_SYSTEM;
- 	driver->subtype = SYSTEM_TYPE_TTY;
- 	driver->init_termios = tty_std_termios;
--	driver->flags = TTY_DRIVER_RESET_TERMIOS | TTY_DRIVER_NO_DEVFS;
-+	driver->flags = TTY_DRIVER_RESET_TERMIOS | TTY_DRIVER_DYNAMIC_DEV;
- 	tty_set_operations(driver, &tty3270_ops);
- 	ret = tty_register_driver(driver);
- 	if (ret) {
-diff --git a/drivers/serial/crisv10.c b/drivers/serial/crisv10.c
---- a/drivers/serial/crisv10.c
-+++ b/drivers/serial/crisv10.c
-@@ -4917,7 +4917,7 @@ rs_init(void)
- 	driver->init_termios = tty_std_termios;
- 	driver->init_termios.c_cflag =
- 		B115200 | CS8 | CREAD | HUPCL | CLOCAL; /* is normally B9600 default... */
--	driver->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_NO_DEVFS;
-+	driver->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_DYNAMIC_DEV;
- 	driver->termios = serial_termios;
- 	driver->termios_locked = serial_termios_locked;
- 
-diff --git a/drivers/serial/serial_core.c b/drivers/serial/serial_core.c
---- a/drivers/serial/serial_core.c
-+++ b/drivers/serial/serial_core.c
-@@ -2089,7 +2089,7 @@ int uart_register_driver(struct uart_dri
- 	normal->subtype		= SERIAL_TYPE_NORMAL;
- 	normal->init_termios	= tty_std_termios;
- 	normal->init_termios.c_cflag = B9600 | CS8 | CREAD | HUPCL | CLOCAL;
--	normal->flags		= TTY_DRIVER_REAL_RAW | TTY_DRIVER_NO_DEVFS;
-+	normal->flags		= TTY_DRIVER_REAL_RAW | TTY_DRIVER_DYNAMIC_DEV;
- 	normal->driver_state    = drv;
- 	tty_set_operations(normal, &uart_ops);
- 
-diff --git a/drivers/tc/zs.c b/drivers/tc/zs.c
---- a/drivers/tc/zs.c
-+++ b/drivers/tc/zs.c
-@@ -1793,7 +1793,7 @@ int __init zs_init(void)
- 	serial_driver->init_termios = tty_std_termios;
- 	serial_driver->init_termios.c_cflag =
- 		B9600 | CS8 | CREAD | HUPCL | CLOCAL;
--	serial_driver->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_NO_DEVFS;
-+	serial_driver->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_DYNAMIC_DEV;
- 	tty_set_operations(serial_driver, &serial_ops);
- 
- 	if (tty_register_driver(serial_driver))
-diff --git a/drivers/usb/class/bluetty.c b/drivers/usb/class/bluetty.c
---- a/drivers/usb/class/bluetty.c
-+++ b/drivers/usb/class/bluetty.c
-@@ -1235,7 +1235,7 @@ static int usb_bluetooth_init(void)
- 	bluetooth_tty_driver->minor_start = 0;
- 	bluetooth_tty_driver->type = TTY_DRIVER_TYPE_SERIAL;
- 	bluetooth_tty_driver->subtype = SERIAL_TYPE_NORMAL;
--	bluetooth_tty_driver->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_NO_DEVFS;
-+	bluetooth_tty_driver->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_DYNAMIC_DEV;
- 	bluetooth_tty_driver->init_termios = tty_std_termios;
- 	bluetooth_tty_driver->init_termios.c_cflag = B9600 | CS8 | CREAD | HUPCL | CLOCAL;
- 	tty_set_operations(bluetooth_tty_driver, &bluetooth_ops);
-diff --git a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -902,7 +902,7 @@ static int __init acm_init(void)
- 	acm_tty_driver->minor_start = 0,
- 	acm_tty_driver->type = TTY_DRIVER_TYPE_SERIAL,
- 	acm_tty_driver->subtype = SERIAL_TYPE_NORMAL,
--	acm_tty_driver->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_NO_DEVFS,
-+	acm_tty_driver->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_DYNAMIC_DEV;
- 	acm_tty_driver->init_termios = tty_std_termios;
- 	acm_tty_driver->init_termios.c_cflag = B9600 | CS8 | CREAD | HUPCL | CLOCAL;
- 	tty_set_operations(acm_tty_driver, &acm_ops);
-diff --git a/drivers/usb/gadget/serial.c b/drivers/usb/gadget/serial.c
---- a/drivers/usb/gadget/serial.c
-+++ b/drivers/usb/gadget/serial.c
-@@ -667,7 +667,7 @@ static int __init gs_module_init(void)
- 	gs_tty_driver->minor_start = GS_MINOR_START;
- 	gs_tty_driver->type = TTY_DRIVER_TYPE_SERIAL;
- 	gs_tty_driver->subtype = SERIAL_TYPE_NORMAL;
--	gs_tty_driver->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_NO_DEVFS;
-+	gs_tty_driver->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_DYNAMIC_DEV;
- 	gs_tty_driver->init_termios = tty_std_termios;
- 	gs_tty_driver->init_termios.c_cflag = B9600 | CS8 | CREAD | HUPCL | CLOCAL;
- 	tty_set_operations(gs_tty_driver, &gs_tty_ops);
-diff --git a/drivers/usb/serial/usb-serial.c b/drivers/usb/serial/usb-serial.c
---- a/drivers/usb/serial/usb-serial.c
-+++ b/drivers/usb/serial/usb-serial.c
-@@ -1304,7 +1304,7 @@ static int __init usb_serial_init(void)
- 	usb_serial_tty_driver->minor_start = 0;
- 	usb_serial_tty_driver->type = TTY_DRIVER_TYPE_SERIAL;
- 	usb_serial_tty_driver->subtype = SERIAL_TYPE_NORMAL;
--	usb_serial_tty_driver->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_NO_DEVFS;
-+	usb_serial_tty_driver->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_DYNAMIC_DEV;
- 	usb_serial_tty_driver->init_termios = tty_std_termios;
- 	usb_serial_tty_driver->init_termios.c_cflag = B9600 | CS8 | CREAD | HUPCL | CLOCAL;
- 	tty_set_operations(usb_serial_tty_driver, &serial_ops);
-diff --git a/include/linux/tty_driver.h b/include/linux/tty_driver.h
---- a/include/linux/tty_driver.h
-+++ b/include/linux/tty_driver.h
-@@ -241,8 +241,15 @@ void tty_set_operations(struct tty_drive
-  * 	is also a promise, if the above case is true, not to signal
-  * 	overruns, either.)
-  *
-- * TTY_DRIVER_NO_DEVFS --- if set, do not create devfs entries. This
-- *	is only used by tty_register_driver().
-+ * TTY_DRIVER_DYNAMIC_DEV --- if set, the individual tty devices need
-+ *	to be registered with a call to tty_register_driver() when the
-+ *	device is found in the system and unregistered with a call to
-+ *	tty_unregister_device() so the devices will be show up
-+ *	properly in sysfs.  If not set, driver->num entries will be
-+ *	created by the tty core in sysfs when tty_register_driver() is
-+ *	called.  This is to be used by drivers that have tty devices
-+ *	that can appear and disappear while the main tty driver is
-+ *	registered with the tty core.
-  *
-  * TTY_DRIVER_DEVPTS_MEM -- don't use the standard arrays, instead
-  *	use dynamic memory keyed through the devpts filesystem.  This
-@@ -251,7 +258,7 @@ void tty_set_operations(struct tty_drive
- #define TTY_DRIVER_INSTALLED		0x0001
- #define TTY_DRIVER_RESET_TERMIOS	0x0002
- #define TTY_DRIVER_REAL_RAW		0x0004
--#define TTY_DRIVER_NO_DEVFS		0x0008
-+#define TTY_DRIVER_DYNAMIC_DEV		0x0008
- #define TTY_DRIVER_DEVPTS_MEM		0x0010
- 
- /* tty driver types */
-diff --git a/net/bluetooth/rfcomm/tty.c b/net/bluetooth/rfcomm/tty.c
---- a/net/bluetooth/rfcomm/tty.c
-+++ b/net/bluetooth/rfcomm/tty.c
-@@ -906,7 +906,7 @@ int rfcomm_init_ttys(void)
- 	rfcomm_tty_driver->minor_start	= RFCOMM_TTY_MINOR;
- 	rfcomm_tty_driver->type		= TTY_DRIVER_TYPE_SERIAL;
- 	rfcomm_tty_driver->subtype	= SERIAL_TYPE_NORMAL;
--	rfcomm_tty_driver->flags	= TTY_DRIVER_REAL_RAW | TTY_DRIVER_NO_DEVFS;
-+	rfcomm_tty_driver->flags	= TTY_DRIVER_REAL_RAW | TTY_DRIVER_DYNAMIC_DEV;
- 	rfcomm_tty_driver->init_termios	= tty_std_termios;
- 	rfcomm_tty_driver->init_termios.c_cflag	= B9600 | CS8 | CREAD | HUPCL | CLOCAL;
- 	tty_set_operations(rfcomm_tty_driver, &rfcomm_ops);
+> 
+> I guess I'll try backing out the scheduler patches unless someone else 
+> has a brighter idea?
 
+It doesn't look like a scheduler thing.  Tried enabling initcall_debug?

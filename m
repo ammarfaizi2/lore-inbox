@@ -1,43 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262135AbVFUQM2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262162AbVFUQOs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262135AbVFUQM2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 12:12:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262150AbVFUQM2
+	id S262162AbVFUQOs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 12:14:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262150AbVFUQOj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 12:12:28 -0400
-Received: from waste.org ([216.27.176.166]:40107 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262135AbVFUQMU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 12:12:20 -0400
-Date: Tue, 21 Jun 2005 09:12:15 -0700
-From: Matt Mackall <mpm@selenic.com>
-To: Michael Ellerman <michael@ellerman.id.au>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Mercurial 0.5b vs git
-Message-ID: <20050621161215.GN27572@waste.org>
-References: <20050531213103.GR7685@waste.org> <200506211803.58339.michael@ellerman.id.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200506211803.58339.michael@ellerman.id.au>
-User-Agent: Mutt/1.5.9i
+	Tue, 21 Jun 2005 12:14:39 -0400
+Received: from imf18aec.mail.bellsouth.net ([205.152.59.66]:33725 "EHLO
+	imf18aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
+	id S262145AbVFUQOS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 12:14:18 -0400
+Message-ID: <027401c57683$a261a9f0$2800000a@pc365dualp2>
+From: <cutaway@bellsouth.net>
+To: "Rik van Riel" <riel@redhat.com>
+Cc: <linux-kernel@vger.kernel.org>
+References: <000d01c5762c$5e399dc0$2800000a@pc365dualp2> <Pine.LNX.4.61.0506210954090.14739@chimarrao.boston.redhat.com>
+Subject: Re: [RFC] do_execve() perf improvement opportunity?
+Date: Tue, 21 Jun 2005 13:06:53 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1478
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1478
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 21, 2005 at 06:03:51PM +1000, Michael Ellerman wrote:
-> Hey Matt,
-> 
-> It doesn't look like your mercurial repo of the kernel is updating, is that 
-> right? The last tag I see is v2_6_12-rc2.
+Rik, it would certainly fail miserably on any architecture where different
+CPU's have any CPU local memory under kernel managment.
 
-a) It doesn't currently pull the git tags.
-b) It stopped working this weekend when someone committed one of those
-octopus merges, which I had deferred dealing with because they're so
-stupid.
+Anything resembling the old homogeneous Hydra scheme should be fine though I
+would think.
 
-Both should be fixed shortly.
+NUMA is odd enough that the kernel is littered with conditionals for it, one
+more wouldn't be a big deal ;->
 
-Btw, it's also moved from userweb.kernel.org to www.kernel.org/hg/.
+I'll try to code this up and benchmark it and see if there's anything
+measurable.  If there is, this sort of simple minded "cache the last one"
+scheme might be applicable elsewhere too - pipes, maybe net packets, etc.
+It looks like Slab already sort of "caches the last one" on the different
+granularities, but it takes a bit more code to get to the point where it
+finally figures out it can give you back a cached one.
 
--- 
-Mathematics is the supreme nostalgia of our time.
+Maybe there's something to be gained by having an internal special case
+allocator for limited numbers of small things (like 32, 64, 128, 256 maybe
+where a bit scan instruction or two can trivially find you an empty slot)?
+Where the allocator degenerates to just setting a flag byte on the smaller
+slices and generating the pointer from a bit index.
+
+
+----- Original Message ----- 
+From: "Rik van Riel" <riel@redhat.com>
+To: <cutaway@bellsouth.net>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Tuesday, June 21, 2005 09:56
+Subject: Re: [RFC] do_execve() perf improvement opportunity?
+
+
+> On Tue, 21 Jun 2005 cutaway@bellsouth.net wrote:
+>
+> > I'm thinking it may be possible to very cheaply cache a pointer to the
+> > last allocation here rather than freeing it and just recycle it for the
+> > next exec saving a trip through the slab machanism.
+>
+> Note that the slab mechanism can do allocations locally
+> on each CPU in an SMP system, while your pointer would
+> need some cross-CPU synchronisation.  Also, you could
+> end up using the bprm from a CPU on a remote NUMA node,
+> instead of a local piece of memory.
+>
+> Still, it would be interesting/educational to know if your
+> optimisation makes a difference on single CPU systems.
+

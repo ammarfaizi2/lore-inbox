@@ -1,53 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261664AbVFUDXj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261886AbVFUD1B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261664AbVFUDXj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 23:23:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262008AbVFUDXi
+	id S261886AbVFUD1B (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 23:27:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261714AbVFUD00
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 23:23:38 -0400
-Received: from mail.kroah.org ([69.55.234.183]:2532 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261639AbVFTW7b convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 18:59:31 -0400
-Cc: gregkh@suse.de
-Subject: [PATCH] USB: fix show_modalias() function due to attribute change
-In-Reply-To: <11193083693615@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Mon, 20 Jun 2005 15:59:29 -0700
-Message-Id: <11193083692279@kroah.com>
+	Mon, 20 Jun 2005 23:26:26 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:33237 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261886AbVFUCft (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Jun 2005 22:35:49 -0400
+Date: Mon, 20 Jun 2005 19:35:20 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: James Morris <jmorris@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: -mm patch glut
+Message-Id: <20050620193520.03535d9b.akpm@osdl.org>
+In-Reply-To: <Xine.LNX.4.44.0506202226040.18916-100000@thoron.boston.redhat.com>
+References: <20050620173549.6d064fe7.akpm@osdl.org>
+	<Xine.LNX.4.44.0506202226040.18916-100000@thoron.boston.redhat.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Reply-To: Greg K-H <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <gregkh@suse.de>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] USB: fix show_modalias() function due to attribute change
+James Morris <jmorris@redhat.com> wrote:
+>
+> On Mon, 20 Jun 2005, Andrew Morton wrote:
+> 
+> > I'll be looking for things to drop, too - it's getting a bit crazy.
+> 
+> Any reason to keep the Netlink connector code?
+> 
 
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+Well it does fill a gap: something which presents a higher-level interface
+to netlink capabilities.  There are several places in the kernel which do
+open-coded hand-rolled netlink communications, so regularisation and
+consolidation is a good thing there, if it's possible.
 
----
-commit 4893e9d1cfeb614b5155c43eefbb338b4f02cb34
-tree 4f6637cf3496fa9d6d645d38680d542c21e8b263
-parent 9d9d27fb651a7c95a46f276bacb4329db47470a6
-author Greg Kroah-Hartman <gregkh@suse.de> Sun, 19 Jun 2005 12:21:43 +0200
-committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 20 Jun 2005 15:27:35 -0700
-
- drivers/usb/core/sysfs.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/usb/core/sysfs.c b/drivers/usb/core/sysfs.c
---- a/drivers/usb/core/sysfs.c
-+++ b/drivers/usb/core/sysfs.c
-@@ -286,7 +286,7 @@ static ssize_t show_interface_string(str
- }
- static DEVICE_ATTR(interface, S_IRUGO, show_interface_string, NULL);
- 
--static ssize_t show_modalias(struct device *dev, char *buf)
-+static ssize_t show_modalias(struct device *dev, struct device_attribute *attr, char *buf)
- {
- 	struct usb_interface *intf;
- 	struct usb_device *udev;
+But the current connector implementation does that in an unpopular manner,
+so we're a bit stuck.
 

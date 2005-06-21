@@ -1,58 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262184AbVFUQoO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262175AbVFUQsJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262184AbVFUQoO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 12:44:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262178AbVFUQbg
+	id S262175AbVFUQsJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 12:48:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262203AbVFUQrw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 12:31:36 -0400
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:14832 "EHLO
-	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S262184AbVFUQ3D
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 12:29:03 -0400
-Date: Tue, 21 Jun 2005 18:28:59 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: akpm@osdl.org, horst.hummel@de.ibm.com, linux-kernel@vger.kernel.org
-Subject: [patch 12/16] s390: free dasd slab cache.
-Message-ID: <20050621162859.GL6053@localhost.localdomain>
+	Tue, 21 Jun 2005 12:47:52 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:48106 "EHLO suse.cz")
+	by vger.kernel.org with ESMTP id S262171AbVFUQpL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 12:45:11 -0400
+Date: Tue, 21 Jun 2005 18:45:19 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Adam Goode <adam@evdebs.org>, Pavel Machek <pavel@suse.cz>,
+       Alejandro Bonilla <abonilla@linuxwireless.org>,
+       linux-kernel@vger.kernel.org, linux-thinkpad@linux-thinkpad.org
+Subject: Re: IBM HDAPS Someone interested?
+Message-ID: <20050621164519.GA11601@ucw.cz>
+References: <20050620155720.GA22535@ucw.cz> <005401c575b3_5f5bba90_600cc60a@amer.sykes.com> <20050620163456.GA24111@ucw.cz> <20050620165703.GB477@openzaurus.ucw.cz> <20050620204533.GA9520@ucw.cz> <1119303016.5194.24.camel@lynx.auton.cs.cmu.edu> <1119368259.19357.18.camel@mindpipe>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <1119368259.19357.18.camel@mindpipe>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[patch 12/16] s390: free dasd slab cache.
+On Tue, Jun 21, 2005 at 11:37:38AM -0400, Lee Revell wrote:
 
-From: Horst Hummel <horst.hummel@de.ibm.com>
+> On Mon, 2005-06-20 at 17:30 -0400, Adam Goode wrote:
+> > Freefall detection: 300 ms
+> > Head park time: 300-500 ms
+> >   (from page 2 of document)
+> > 
+> > Still doesn't seem too bad to figure out how to code though, at least
+> > once we can figure out how to get the data stream!
+> > 
+> > P.S. The main control system runs as a Windows kernel driver. Not as
+> > safe as full hardware, but probably better than userspace. :)
+> > 
+> 
+> Ugh, if userspace can't meet a 300ms RT constraint, that's a pretty
+> shitty OS you have there.
 
-Free dasd slab cache on module unload.
+It's not that you do one measurement in the 300ms. You need to do at least
+100, and some computations, too.
 
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> This should certainly be done in userspace on Linux.
 
-diffstat:
- drivers/s390/block/dasd.c |    6 +++++-
- 1 files changed, 5 insertions(+), 1 deletion(-)
+So it's a 3ms RT constraint, which is not as easy.
 
-diff -urpN linux-2.6/drivers/s390/block/dasd.c linux-2.6-patched/drivers/s390/block/dasd.c
---- linux-2.6/drivers/s390/block/dasd.c	2005-06-21 17:36:47.000000000 +0200
-+++ linux-2.6-patched/drivers/s390/block/dasd.c	2005-06-21 17:36:53.000000000 +0200
-@@ -7,7 +7,7 @@
-  * Bugreports.to..: <Linux390@de.ibm.com>
-  * (C) IBM Corporation, IBM Deutschland Entwicklung GmbH, 1999-2001
-  *
-- * $Revision: 1.164 $
-+ * $Revision: 1.165 $
-  */
- 
- #include <linux/config.h>
-@@ -1740,6 +1740,10 @@ dasd_exit(void)
- 	dasd_proc_exit();
- #endif
- 	dasd_ioctl_exit();
-+        if (dasd_page_cache != NULL) {
-+		kmem_cache_destroy(dasd_page_cache);
-+		dasd_page_cache = NULL;
-+	}
- 	dasd_gendisk_exit();
- 	dasd_devmap_exit();
- 	devfs_remove("dasd");
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

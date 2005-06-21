@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262107AbVFUJck@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262096AbVFUJmg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262107AbVFUJck (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 05:32:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262051AbVFUIJy
+	id S262096AbVFUJmg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 05:42:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261507AbVFUJmK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 04:09:54 -0400
-Received: from butters.phys.uwm.edu ([129.89.61.125]:8605 "EHLO
-	butters.phys.uwm.edu") by vger.kernel.org with ESMTP
-	id S261968AbVFUGvb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 02:51:31 -0400
-Date: Tue, 21 Jun 2005 01:51:25 -0500 (CDT)
-From: David Hammer <hammerd@gravity.phys.uwm.edu>
-X-X-Sender: hammerd@butters.phys.uwm.edu
-To: linux-kernel@vger.kernel.org
-cc: Bruce Allen <ballen@gravity.phys.uwm.edu>
-Subject: ksoftirqd 99% cpu
-Message-ID: <Pine.LNX.4.44.0506210138190.21987-100000@butters.phys.uwm.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 21 Jun 2005 05:42:10 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:2979 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S262096AbVFUJlS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 05:41:18 -0400
+Subject: Re: PATCH: Samsung SN-124 works perfectly well with DMA
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org
+In-Reply-To: <42B72EDC.6040707@pobox.com>
+References: <1119298324.3304.29.camel@localhost.localdomain>
+	 <42B72EDC.6040707@pobox.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1119346591.3707.84.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 21 Jun 2005 10:36:44 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Llu, 2005-06-20 at 22:02, Jeff Garzik wrote:
+> Alan Cox wrote:
+> > Been in Red Hat products for ages
+> > 
+> > Signed-off-by: Alan Cox <alan@redhat.com>
+> 
+> Can you provide a similar patch for ata_dma_blacklist[] in libata-core.c?
 
-I had a server crash while it was running rsync to an nfs mounted 
-directory.  At the time of the crash ksoftirqd was using 99% of the cpu.  
-The last message in the syslog was:
+Good point. 
 
-kernel: 3w9xxx: scsi0: WARNING: Character ioctl timed out, resetting card.
+--- drivers/scsi/libata-core.c~	2005-06-21 10:34:00.503444736 +0100
++++ drivers/scsi/libata-core.c	2005-06-21 10:34:00.504444584 +0100
+@@ -1897,7 +1897,6 @@
+ 	"SAMSUNG CD-ROM SC-148C",
+ 	"SAMSUNG CD-ROM SC",
+ 	"SanDisk SDP3B-64",
+-	"SAMSUNG CD-ROM SN-124",
+ 	"ATAPI CD-ROM DRIVE 40X MAXIMUM",
+ 	"_NEC DV5800A",
+ };
 
-I suspect that this was not what cause the crash but only a symptom.
 
-I tried to "magic sysrq" (I do have it enabled) but was not able to get 
-any information.
-
-I have seen that many people have had problems with ksoftirqd taking up 
-all the cpu and crashing the system but I could not find what was causing 
-the problem or the proper fix.
-
-My system:
-
-- 2.6.10-1.760_FC3smp (stock Fedora Core 3 upgrade) 
-- e1000 network cards
-- acpi is enabled
-
-Thanks,
-David Hammer
+Signed-off-by: Alan Cox <alan@redhat.com>
 

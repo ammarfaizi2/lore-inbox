@@ -1,41 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262037AbVFUORW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262108AbVFUOYj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262037AbVFUORW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 10:17:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262039AbVFUORO
+	id S262108AbVFUOYj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 10:24:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261478AbVFUOOQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 10:17:14 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:57259 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S262037AbVFUOOu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 10:14:50 -0400
-Date: Tue, 21 Jun 2005 16:14:52 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-cc: kbuild-devel@lists.sourceforge.net, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Pointer cast warnings in scripts/
-In-Reply-To: <42B81ED6.7040706@drzeus.cx>
-Message-ID: <Pine.LNX.4.61.0506211612250.3728@scrub.home>
-References: <42B7F740.6000807@drzeus.cx> <Pine.LNX.4.61.0506211413570.3728@scrub.home>
- <42B80AF9.2060708@drzeus.cx> <Pine.LNX.4.61.0506211451040.3728@scrub.home>
- <42B80F40.8000609@drzeus.cx> <Pine.LNX.4.61.0506211515210.3728@scrub.home>
- <42B81ED6.7040706@drzeus.cx>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 21 Jun 2005 10:14:16 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:20132 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261682AbVFUOLO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 10:11:14 -0400
+Subject: Re: PATCH: Fix crashes with hotplug serverworks
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org
+In-Reply-To: <58cb370e050621051163fbf34c@mail.gmail.com>
+References: <1119298859.3325.43.camel@localhost.localdomain>
+	 <20050621065221.GA31420@infradead.org>
+	 <1119346417.3325.82.camel@localhost.localdomain>
+	 <58cb370e0506210259669c912d@mail.gmail.com>
+	 <1119352605.3707.105.camel@localhost.localdomain>
+	 <58cb370e050621051163fbf34c@mail.gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1119362914.3707.146.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 21 Jun 2005 15:08:35 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Maw, 2005-06-21 at 13:11, Bartlomiej Zolnierkiewicz wrote:
+> I try to stay focused on TECHNICAL ISSUES while you keep on
+> your cruciate.  You've became really "difficult" to deal with.
 
-On Tue, 21 Jun 2005, Pierre Ossman wrote:
+I find the same true in the other direction.
 
-> A (somewhat unclean) solution is to make the type change based on the
-> platform. Are there any defines present to test if we're in a Solaris
-> environment? I don't have access to any Solaris machines myself so I
-> can't really test.
+> BTW I'm going to apply most (all?) of your patches.
 
-Just ignore it. If someone really cares, he has to redo the Solaris 
-specific changes properly (or live with warnings).
+Glad to hear it. If you make any small changes/fixes in the process
+please let me know so I can propogate them back into my tree and also
+our vendor release tree.
 
-bye, Roman
+Thanks
+
+Alan
+

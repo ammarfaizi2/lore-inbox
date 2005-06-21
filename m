@@ -1,125 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261167AbVFULXV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261165AbVFULW7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261167AbVFULXV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 07:23:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261164AbVFULXV
+	id S261165AbVFULW7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 07:22:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbVFULW7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 07:23:21 -0400
-Received: from lyle.provo.novell.com ([137.65.81.174]:23558 "EHLO
-	lyle.provo.novell.com") by vger.kernel.org with ESMTP
-	id S261172AbVFUKtx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 06:49:53 -0400
-Message-Id: <42B802F2020000780001CEAB@lyle.provo.novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0 
-Date: Tue, 21 Jun 2005 04:07:14 -0600
-From: "Jan Beulich" <JBeulich@novell.com>
-To: "Gerd Knorr" <kraxel@suse.de>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] allow vesafb to build when no CONFIG_MTRR
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=__PartB99A41C2.38__="
+	Tue, 21 Jun 2005 07:22:59 -0400
+Received: from mail2.turbolinux.co.jp ([203.174.69.140]:15808 "EHLO
+	mail2.turbolinux.com") by vger.kernel.org with ESMTP
+	id S261165AbVFUKlL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 06:41:11 -0400
+Message-ID: <42B7EE85.9050102@turbolinux.com>
+Date: Tue, 21 Jun 2005 18:40:05 +0800
+From: bobl <bobl@turbolinux.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050308
+X-Accept-Language: en-us, en, zh-cn
+MIME-Version: 1.0
+To: Michael Buesch <mbuesch@freenet.de>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: a trival bug of megaraid in patch 2.6.12-mm1
+References: <42B7E5F2.2060409@turbolinux.com> <200506211220.42136.mbuesch@freenet.de>
+In-Reply-To: <200506211220.42136.mbuesch@freenet.de>
+Content-Type: multipart/mixed;
+ boundary="------------070803080307000207060709"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=__PartB99A41C2.38__=
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+This is a multi-part message in MIME format.
+--------------070803080307000207060709
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-(Note: Patch also attached because the inline version is certain to get
-line wrapped.)
+Michael Buesch wrote:
 
-vesafb didn't build when CONFIG_MTRR wasn't set.
+>Quoting bobl <bobl@turbolinux.com>:
+>  
+>
+>>    The attachment is the patch, please confirm it.
+>>    
+>>
+>
+>  
+>
+>>diff -purN linux-2.6.12/drivers/scsi/megaraid.c linux-2.6.12.new/drivers/scsi/megaraid.c
+>>--- linux-2.6.12/drivers/scsi/megaraid.c        2005-06-21 18:49:50.118732304 +0900
+>>+++ linux-2.6.12.new/drivers/scsi/megaraid.c    2005-06-21 18:57:55.266978560 +0900
+>>@@ -1975,6 +1975,7 @@ __megaraid_reset(Scsi_Cmnd *cmd)
+>> static int
+>> megaraid_reset(Scsi_Cmnd *cmd)
+>> {
+>>+       adapter_t       *adapter;
+>>        adapter = (adapter_t *)cmd->device->host->hostdata;
+>>        int rc;
+>>    
+>>
+>
+>That's mixed code and declarations (aka Not Good (tm)).
+>Please do something like this instead:
+>
+>-       adapter = (adapter_t *)cmd->device->host->hostdata;
+>+       adapter_t *adapter = (adapter_t *)cmd->device->host->hostdata;
+>        int rc;
+>
+>
+>  
+>
 
-Signed-off-by: Jan Beulich <jbeulich@novell.com>
+Thanks!
 
---- /home/jbeulich/tmp/linux-2.6.12/drivers/video/vesafb.c	2005-06-17 =
-21:48:29.000000000 +0200
-+++ 2.6.12/drivers/video/vesafb.c	2005-06-21 09:56:14.572032960 =
-+0200
-@@ -45,7 +45,9 @@ static struct fb_fix_screeninfo vesafb_f
- };
-=20
- static int             inverse   =3D 0;
-+#ifdef CONFIG_MTRR
- static int             mtrr      =3D 1;
-+#endif
- static int	       vram_remap __initdata =3D 0; /* Set amount of =
-memory to be used */
- static int	       vram_total __initdata =3D 0; /* Set total amount of =
-memory */
- static int             pmi_setpal =3D 0;	/* pmi for palette changes =
-??? */
-@@ -204,10 +206,12 @@ static int __init vesafb_setup(char *opt
- 			pmi_setpal=3D0;
- 		else if (! strcmp(this_opt, "pmipal"))
- 			pmi_setpal=3D1;
-+#ifdef CONFIG_MTRR
- 		else if (! strcmp(this_opt, "mtrr"))
- 			mtrr=3D1;
- 		else if (! strcmp(this_opt, "nomtrr"))
- 			mtrr=3D0;
-+#endif
- 		else if (! strncmp(this_opt, "vtotal:", 7))
- 			vram_total =3D simple_strtoul(this_opt+7, NULL, =
-0);
- 		else if (! strncmp(this_opt, "vremap:", 7))
-@@ -385,8 +389,9 @@ static int __init vesafb_probe(struct de
- 	 * region already (FIXME) */
- 	request_region(0x3c0, 32, "vesafb");
-=20
-+#ifdef CONFIG_MTRR
- 	if (mtrr) {
--		int temp_size =3D size_total;
-+		unsigned int temp_size =3D size_total;
- 		/* Find the largest power-of-two */
- 		while (temp_size & (temp_size - 1))
-                 	temp_size &=3D (temp_size - 1);
-@@ -396,6 +401,7 @@ static int __init vesafb_probe(struct de
- 			temp_size >>=3D 1;
- 		}
- 	}
-+#endif
- =09
- 	info->fbops =3D &vesafb_ops;
- 	info->var =3D vesafb_defined;
+The attachment is the new one!
 
+--------------070803080307000207060709
+Content-Type: text/x-patch;
+ name="linux-2.6.12-mm1-megaraid.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="linux-2.6.12-mm1-megaraid.patch"
 
+diff -purN linux-2.6.12.orig/drivers/scsi/megaraid.c linux-2.6.12.new/drivers/scsi/megaraid.c
+--- linux-2.6.12.orig/drivers/scsi/megaraid.c	2005-06-21 19:37:38.846619376 +0900
++++ linux-2.6.12.new/drivers/scsi/megaraid.c	2005-06-21 19:38:03.241910728 +0900
+@@ -1975,7 +1975,7 @@ __megaraid_reset(Scsi_Cmnd *cmd)
+ static int
+ megaraid_reset(Scsi_Cmnd *cmd)
+ {
+-	adapter = (adapter_t *)cmd->device->host->hostdata;
++	adapter_t *adapter = (adapter_t *)cmd->device->host->hostdata;
+ 	int rc;
+ 
+ 	spin_lock_irq(&adapter->lock);
 
---=__PartB99A41C2.38__=
-Content-Type: application/octet-stream; name="linux-2.6.12-vesafb-no-mtrr.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="linux-2.6.12-vesafb-no-mtrr.patch"
-
-KE5vdGU6IFBhdGNoIGFsc28gYXR0YWNoZWQgYmVjYXVzZSB0aGUgaW5saW5lIHZlcnNpb24gaXMg
-Y2VydGFpbiB0byBnZXQKbGluZSB3cmFwcGVkLikKCnZlc2FmYiBkaWRuJ3QgYnVpbGQgd2hlbiBD
-T05GSUdfTVRSUiB3YXNuJ3Qgc2V0LgoKU2lnbmVkLW9mZi1ieTogSmFuIEJldWxpY2ggPGpiZXVs
-aWNoQG5vdmVsbC5jb20+CgotLS0gL2hvbWUvamJldWxpY2gvdG1wL2xpbnV4LTIuNi4xMi9kcml2
-ZXJzL3ZpZGVvL3Zlc2FmYi5jCTIwMDUtMDYtMTcgMjE6NDg6MjkuMDAwMDAwMDAwICswMjAwCisr
-KyAyLjYuMTIvZHJpdmVycy92aWRlby92ZXNhZmIuYwkyMDA1LTA2LTIxIDA5OjU2OjE0LjU3MjAz
-Mjk2MCArMDIwMApAQCAtNDUsNyArNDUsOSBAQCBzdGF0aWMgc3RydWN0IGZiX2ZpeF9zY3JlZW5p
-bmZvIHZlc2FmYl9mCiB9OwogCiBzdGF0aWMgaW50ICAgICAgICAgICAgIGludmVyc2UgICA9IDA7
-CisjaWZkZWYgQ09ORklHX01UUlIKIHN0YXRpYyBpbnQgICAgICAgICAgICAgbXRyciAgICAgID0g
-MTsKKyNlbmRpZgogc3RhdGljIGludAkgICAgICAgdnJhbV9yZW1hcCBfX2luaXRkYXRhID0gMDsg
-LyogU2V0IGFtb3VudCBvZiBtZW1vcnkgdG8gYmUgdXNlZCAqLwogc3RhdGljIGludAkgICAgICAg
-dnJhbV90b3RhbCBfX2luaXRkYXRhID0gMDsgLyogU2V0IHRvdGFsIGFtb3VudCBvZiBtZW1vcnkg
-Ki8KIHN0YXRpYyBpbnQgICAgICAgICAgICAgcG1pX3NldHBhbCA9IDA7CS8qIHBtaSBmb3IgcGFs
-ZXR0ZSBjaGFuZ2VzID8/PyAqLwpAQCAtMjA0LDEwICsyMDYsMTIgQEAgc3RhdGljIGludCBfX2lu
-aXQgdmVzYWZiX3NldHVwKGNoYXIgKm9wdAogCQkJcG1pX3NldHBhbD0wOwogCQllbHNlIGlmICgh
-IHN0cmNtcCh0aGlzX29wdCwgInBtaXBhbCIpKQogCQkJcG1pX3NldHBhbD0xOworI2lmZGVmIENP
-TkZJR19NVFJSCiAJCWVsc2UgaWYgKCEgc3RyY21wKHRoaXNfb3B0LCAibXRyciIpKQogCQkJbXRy
-cj0xOwogCQllbHNlIGlmICghIHN0cmNtcCh0aGlzX29wdCwgIm5vbXRyciIpKQogCQkJbXRycj0w
-OworI2VuZGlmCiAJCWVsc2UgaWYgKCEgc3RybmNtcCh0aGlzX29wdCwgInZ0b3RhbDoiLCA3KSkK
-IAkJCXZyYW1fdG90YWwgPSBzaW1wbGVfc3RydG91bCh0aGlzX29wdCs3LCBOVUxMLCAwKTsKIAkJ
-ZWxzZSBpZiAoISBzdHJuY21wKHRoaXNfb3B0LCAidnJlbWFwOiIsIDcpKQpAQCAtMzg1LDggKzM4
-OSw5IEBAIHN0YXRpYyBpbnQgX19pbml0IHZlc2FmYl9wcm9iZShzdHJ1Y3QgZGUKIAkgKiByZWdp
-b24gYWxyZWFkeSAoRklYTUUpICovCiAJcmVxdWVzdF9yZWdpb24oMHgzYzAsIDMyLCAidmVzYWZi
-Iik7CiAKKyNpZmRlZiBDT05GSUdfTVRSUgogCWlmIChtdHJyKSB7Ci0JCWludCB0ZW1wX3NpemUg
-PSBzaXplX3RvdGFsOworCQl1bnNpZ25lZCBpbnQgdGVtcF9zaXplID0gc2l6ZV90b3RhbDsKIAkJ
-LyogRmluZCB0aGUgbGFyZ2VzdCBwb3dlci1vZi10d28gKi8KIAkJd2hpbGUgKHRlbXBfc2l6ZSAm
-ICh0ZW1wX3NpemUgLSAxKSkKICAgICAgICAgICAgICAgICAJdGVtcF9zaXplICY9ICh0ZW1wX3Np
-emUgLSAxKTsKQEAgLTM5Niw2ICs0MDEsNyBAQCBzdGF0aWMgaW50IF9faW5pdCB2ZXNhZmJfcHJv
-YmUoc3RydWN0IGRlCiAJCQl0ZW1wX3NpemUgPj49IDE7CiAJCX0KIAl9CisjZW5kaWYKIAkKIAlp
-bmZvLT5mYm9wcyA9ICZ2ZXNhZmJfb3BzOwogCWluZm8tPnZhciA9IHZlc2FmYl9kZWZpbmVkOwo=
-
---=__PartB99A41C2.38__=--
+--------------070803080307000207060709--

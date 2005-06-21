@@ -1,469 +1,778 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262378AbVFUWOO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262323AbVFUWSQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262378AbVFUWOO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 18:14:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262380AbVFUWMr
+	id S262323AbVFUWSQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 18:18:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262322AbVFUWSP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 18:12:47 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:11006 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262554AbVFUVj3
+	Tue, 21 Jun 2005 18:18:15 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:51419 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262553AbVFUVj2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 17:39:29 -0400
+	Tue, 21 Jun 2005 17:39:28 -0400
 From: Arnd Bergmann <arnd@arndb.de>
 To: Paul Mackerras <paulus@samba.org>
-Subject: [PATCH 7/11] ppc64: add BPA platform type
-Date: Tue, 21 Jun 2005 23:24:19 +0200
+Subject: [PATCH 6/11] ppc64: add a watchdog driver for rtas
+Date: Tue, 21 Jun 2005 23:22:35 +0200
 User-Agent: KMail/1.7.2
 Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
-References: <200506212310.54156.arnd@arndb.de> <200506212320.05799.arnd@arndb.de> <200506212322.36453.arnd@arndb.de>
-In-Reply-To: <200506212322.36453.arnd@arndb.de>
+References: <200506212310.54156.arnd@arndb.de> <200506212318.16573.arnd@arndb.de> <200506212320.05799.arnd@arndb.de>
+In-Reply-To: <200506212320.05799.arnd@arndb.de>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200506212324.19713.arnd@arndb.de>
+Message-Id: <200506212322.36453.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This adds the basic support for running on BPA machines.
-So far, this is only the IBM workstation, and it will
-not run on others without a little more generalization.
+Add a watchdog using the RTAS OS surveillance service. This is
+provided as a simpler alternative to rtasd. The added value
+is that it works with standard watchdog client programs and
+can therefore also do user space monitoring.
 
-It should be possible to configure a kernel for any
-combination of CONFIG_PPC_BPA with any of the other
-multiplatform targets.
+On BPA, rtasd is not really useful because the hardware does
+not have much to report with event-scan.
 
+The driver should also work on other platforms that support
+the OS surveillance rtas calls.
+
+From: Utz Bacher <utz.bacher@de.ibm.com>
 Signed-off-by: Arnd Bergmann <arndb@de.ibm.com>
 
 --
 
- MAINTAINERS                          |    7 +
- arch/ppc64/Kconfig                   |    6 +
- arch/ppc64/Makefile                  |    2
- arch/ppc64/kernel/Makefile           |    3
- arch/ppc64/kernel/bpa_setup.c        |  135 +++++++++++++++++++++++++++++++++++
- arch/ppc64/kernel/cpu_setup_power4.S |   16 +++-
- arch/ppc64/kernel/cputable.c         |   11 ++
- arch/ppc64/kernel/irq.c              |    3
- arch/ppc64/kernel/proc_ppc64.c       |    2
- arch/ppc64/kernel/prom_init.c        |    4 -
- arch/ppc64/kernel/setup.c            |    4 +
- arch/ppc64/kernel/traps.c            |    4 +
- include/asm-ppc64/mmu.h              |    5 -
- include/asm-ppc64/processor.h        |   15 +++
- include/asm-ppc64/smp.h              |    8 ++
- 15 files changed, 216 insertions(+), 9 deletions(-)
+ Kconfig  |   10
+ Makefile |    1
+ wdrtas.c |  696 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 707 insertions(+)
 
---- linux-cg.orig/MAINTAINERS	2005-06-21 02:58:35.570002888 -0400
-+++ linux-cg/MAINTAINERS	2005-06-21 03:01:35.220979888 -0400
-@@ -499,6 +499,13 @@ L:   bonding-devel@lists.sourceforge.net
- W:   http://sourceforge.net/projects/bonding/
- S:   Supported
+--- linux-cg.orig/drivers/char/watchdog/Kconfig	2005-06-21 02:51:30.460932768 -0400
++++ linux-cg/drivers/char/watchdog/Kconfig	2005-06-21 02:52:33.870015048 -0400
+@@ -414,6 +414,16 @@ config WATCHDOG_RIO
+ 	  machines.  The watchdog timeout period is normally one minute but
+ 	  can be changed with a boot-time parameter.
  
-+BROADBAND PROCESSOR ARCHITECTURE
-+P:	Arnd Bergmann
-+M:	arnd@arndb.de
-+L:	linuxppc64-dev@ozlabs.org
-+W:	http://linuxppc64.org
-+S:	Supported
++# ppc64 RTAS watchdog
++config WATCHDOG_RTAS
++	tristate "RTAS watchdog"
++	depends on WATCHDOG && PPC_RTAS
++	help
++	  This driver adds watchdog support for the RTAS watchdog.
 +
- BTTV VIDEO4LINUX DRIVER
- P:	Gerd Knorr
- M:	kraxel@bytesex.org
---- linux-cg.orig/arch/ppc64/Kconfig	2005-06-21 02:58:35.572002584 -0400
-+++ linux-cg/arch/ppc64/Kconfig	2005-06-21 03:01:35.221979736 -0400
-@@ -77,6 +77,10 @@ config PPC_PSERIES
- 	bool "  IBM pSeries & new iSeries"
- 	default y
- 
-+config PPC_BPA
-+	bool "  Broadband Processor Architecture"
-+	depends on PPC_MULTIPLATFORM
++          To compile this driver as a module, choose M here. The module
++	  will be called wdrtas.
 +
- config PPC_PMAC
- 	depends on PPC_MULTIPLATFORM
- 	bool "  Apple G5 based machines"
-@@ -256,7 +260,7 @@ config MSCHUNKS
+ #
+ # ISA-based Watchdog Cards
+ #
+--- linux-cg.orig/drivers/char/watchdog/Makefile	2005-06-21 02:51:30.463932312 -0400
++++ linux-cg/drivers/char/watchdog/Makefile	2005-06-21 02:52:33.870015048 -0400
+@@ -33,6 +33,7 @@ obj-$(CONFIG_USBPCWATCHDOG) += pcwd_usb.
+ obj-$(CONFIG_IXP4XX_WATCHDOG) += ixp4xx_wdt.o
+ obj-$(CONFIG_IXP2000_WATCHDOG) += ixp2000_wdt.o
+ obj-$(CONFIG_8xx_WDT) += mpc8xx_wdt.o
++obj-$(CONFIG_WATCHDOG_RTAS) += wdrtas.o
  
- config PPC_RTAS
- 	bool
--	depends on PPC_PSERIES
-+	depends on PPC_PSERIES || PPC_BPA
- 	default y
- 
- config RTAS_PROC
---- linux-cg.orig/arch/ppc64/Makefile	2005-06-21 02:58:35.574002280 -0400
-+++ linux-cg/arch/ppc64/Makefile	2005-06-21 03:01:35.222979584 -0400
-@@ -90,12 +90,14 @@ boot := arch/ppc64/boot
- boottarget-$(CONFIG_PPC_PSERIES) := zImage zImage.initrd
- boottarget-$(CONFIG_PPC_MAPLE) := zImage zImage.initrd
- boottarget-$(CONFIG_PPC_ISERIES) := vmlinux.sminitrd vmlinux.initrd vmlinux.sm
-+boottarget-$(CONFIG_PPC_BPA) := zImage zImage.initrd
- $(boottarget-y): vmlinux
- 	$(Q)$(MAKE) $(build)=$(boot) $(boot)/$@
- 
- bootimage-$(CONFIG_PPC_PSERIES) := $(boot)/zImage
- bootimage-$(CONFIG_PPC_PMAC) := vmlinux
- bootimage-$(CONFIG_PPC_MAPLE) := $(boot)/zImage
-+bootimage-$(CONFIG_PPC_BPA) := zImage
- bootimage-$(CONFIG_PPC_ISERIES) := vmlinux
- BOOTIMAGE := $(bootimage-y)
- install: vmlinux
---- linux-cg.orig/arch/ppc64/kernel/Makefile	2005-06-21 02:58:35.577001824 -0400
-+++ linux-cg/arch/ppc64/kernel/Makefile	2005-06-21 03:01:35.222979584 -0400
-@@ -34,6 +34,8 @@ obj-$(CONFIG_PPC_PSERIES) += pSeries_pci
- 			     pSeries_nvram.o rtasd.o ras.o pSeries_reconfig.o \
- 			     xics.o pSeries_setup.o pSeries_iommu.o
- 
-+obj-$(CONFIG_PPC_BPA) += bpa_setup.o bpa_nvram.o
-+
- obj-$(CONFIG_EEH)		+= eeh.o
- obj-$(CONFIG_PROC_FS)		+= proc_ppc64.o
- obj-$(CONFIG_RTAS_FLASH)	+= rtas_flash.o
-@@ -60,6 +62,7 @@ ifdef CONFIG_SMP
- obj-$(CONFIG_PPC_PMAC)		+= pmac_smp.o smp-tbsync.o
- obj-$(CONFIG_PPC_ISERIES)	+= iSeries_smp.o
- obj-$(CONFIG_PPC_PSERIES)	+= pSeries_smp.o
-+obj-$(CONFIG_PPC_BPA)		+= pSeries_smp.o
- obj-$(CONFIG_PPC_MAPLE)		+= smp-tbsync.o
- endif
- 
---- linux-cg.orig/arch/ppc64/kernel/bpa_setup.c	1969-12-31 19:00:00.000000000 -0500
-+++ linux-cg/arch/ppc64/kernel/bpa_setup.c	2005-06-21 03:01:52.874957760 -0400
-@@ -0,0 +1,135 @@
+ # Only one watchdog can succeed. We probe the hardware watchdog
+ # drivers first, then the softdog driver.  This means if your hardware
+--- linux-cg.orig/drivers/char/watchdog/wdrtas.c	1969-12-31 19:00:00.000000000 -0500
++++ linux-cg/drivers/char/watchdog/wdrtas.c	2005-06-21 02:59:04.333885560 -0400
+@@ -0,0 +1,696 @@
 +/*
-+ *  linux/arch/ppc/kernel/bpa_setup.c
-+ *
-+ *  Copyright (C) 1995  Linus Torvalds
-+ *  Adapted from 'alpha' version by Gary Thomas
-+ *  Modified by Cort Dougan (cort@cs.nmt.edu)
-+ *  Modified by PPC64 Team, IBM Corp
-+ *  Modified by BPA Team, IBM Deutschland Entwicklung GmbH
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation; either version
-+ * 2 of the License, or (at your option) any later version.
++ * FIXME: add wdrtas_get_status and wdrtas_get_boot_status as soon as
++ * RTAS calls are available
 + */
-+#undef DEBUG
++
++/*
++ * RTAS watchdog driver
++ *
++ * (C) Copyright IBM Corp. 2005
++ * device driver to exploit watchdog RTAS functions
++ *
++ * Authors : Utz Bacher <utz.bacher@de.ibm.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2, or (at your option)
++ * any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ */
 +
 +#include <linux/config.h>
-+#include <linux/sched.h>
-+#include <linux/kernel.h>
-+#include <linux/mm.h>
-+#include <linux/stddef.h>
-+#include <linux/unistd.h>
-+#include <linux/slab.h>
-+#include <linux/user.h>
-+#include <linux/reboot.h>
++#include <linux/fs.h>
 +#include <linux/init.h>
-+#include <linux/delay.h>
-+#include <linux/irq.h>
-+#include <linux/seq_file.h>
-+#include <linux/root_dev.h>
-+#include <linux/console.h>
++#include <linux/kernel.h>
++#include <linux/miscdevice.h>
++#include <linux/module.h>
++#include <linux/notifier.h>
++#include <linux/reboot.h>
++#include <linux/types.h>
++#include <linux/watchdog.h>
 +
-+#include <asm/mmu.h>
-+#include <asm/processor.h>
-+#include <asm/io.h>
-+#include <asm/pgtable.h>
-+#include <asm/prom.h>
 +#include <asm/rtas.h>
-+#include <asm/pci-bridge.h>
-+#include <asm/iommu.h>
-+#include <asm/dma.h>
-+#include <asm/machdep.h>
-+#include <asm/time.h>
-+#include <asm/nvram.h>
-+#include <asm/cputable.h>
++#include <asm/uaccess.h>
 +
-+#include "pci.h"
++#define WDRTAS_MAGIC_CHAR		42
++#define WDRTAS_SUPPORTED_MASK		(WDIOF_SETTIMEOUT | \
++					 WDIOF_MAGICCLOSE)
 +
-+#ifdef DEBUG
-+#define DBG(fmt...) udbg_printf(fmt)
++MODULE_AUTHOR("Utz Bacher <utz.bacher@de.ibm.com>");
++MODULE_DESCRIPTION("RTAS watchdog driver");
++MODULE_LICENSE("GPL");
++MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
++MODULE_ALIAS_MISCDEV(TEMP_MINOR);
++
++#ifdef CONFIG_WATCHDOG_NOWAYOUT
++static int wdrtas_nowayout = 1;
 +#else
-+#define DBG(fmt...)
++static int wdrtas_nowayout = 0;
 +#endif
 +
-+void bpa_get_cpuinfo(struct seq_file *m)
++static atomic_t wdrtas_miscdev_open = ATOMIC_INIT(0);
++static char wdrtas_expect_close = 0;
++
++static int wdrtas_interval;
++
++#define WDRTAS_THERMAL_SENSOR		3
++static int wdrtas_token_get_sensor_state;
++#define WDRTAS_SURVEILLANCE_IND		9000
++static int wdrtas_token_set_indicator;
++#define WDRTAS_SP_SPI			28
++static int wdrtas_token_get_sp;
++static int wdrtas_token_event_scan;
++
++#define WDRTAS_DEFAULT_INTERVAL		300
++
++#define WDRTAS_LOGBUFFER_LEN		128
++static char wdrtas_logbuffer[WDRTAS_LOGBUFFER_LEN];
++
++
++/*** watchdog access functions */
++
++/**
++ * wdrtas_set_interval - sets the watchdog interval
++ * @interval: new interval
++ *
++ * returns 0 on success, <0 on failures
++ *
++ * wdrtas_set_interval sets the watchdog keepalive interval by calling the
++ * RTAS function set-indicator (surveillance). The unit of interval is
++ * seconds.
++ */
++static int
++wdrtas_set_interval(int interval)
 +{
-+	struct device_node *root;
-+	const char *model = "";
++	long result;
++	static int print_msg = 10;
 +
-+	root = of_find_node_by_path("/");
-+	if (root)
-+		model = get_property(root, "model", NULL);
-+	seq_printf(m, "machine\t\t: BPA %s\n", model);
-+	of_node_put(root);
-+}
++	/* rtas uses minutes */
++	interval = (interval + 59) / 60;
 +
-+static void bpa_progress(char *s, unsigned short hex)
-+{
-+	printk("*** %04x : %s\n", hex, s ? s : "");
-+}
-+
-+static void __init bpa_setup_arch(void)
-+{
-+#ifdef CONFIG_SMP
-+	smp_init_pSeries();
-+#endif
-+
-+	/* init to some ~sane value until calibrate_delay() runs */
-+	loops_per_jiffy = 50000000;
-+
-+	if (ROOT_DEV == 0) {
-+		printk("No ramdisk, default root is /dev/hda2\n");
-+		ROOT_DEV = Root_HDA2;
++	result = rtas_call(wdrtas_token_set_indicator, 3, 1, NULL,
++			   WDRTAS_SURVEILLANCE_IND, 0, interval);
++	if ( (result < 0) && (print_msg) ) {
++		printk(KERN_ERR "wdrtas: setting the watchdog to %i "
++		       "timeout failed: %li\n", interval, result);
++		print_msg--;
 +	}
 +
-+	/* Find and initialize PCI host bridges */
-+	init_pci_config_tokens();
-+	find_and_init_phbs();
-+
-+#ifdef CONFIG_DUMMY_CONSOLE
-+	conswitchp = &dummy_con;
-+#endif
-+
-+	// bpa_nvram_init();
++	return result;
 +}
 +
-+/*
-+ * Early initialization.  Relocation is on but do not reference unbolted pages
++/**
++ * wdrtas_get_interval - returns the current watchdog interval
++ * @fallback_value: value (in seconds) to use, if the RTAS call fails
++ *
++ * returns the interval
++ *
++ * wdrtas_get_interval returns the current watchdog keepalive interval
++ * as reported by the RTAS function ibm,get-system-parameter. The unit
++ * of the return value is seconds.
 + */
-+static void __init bpa_init_early(void)
++static int
++wdrtas_get_interval(int fallback_value)
 +{
-+	DBG(" -> bpa_init_early()\n");
++	long result;
++	char value[4];
 +
-+	hpte_init_native();
++	result = rtas_call(wdrtas_token_get_sp, 3, 1, NULL,
++			   WDRTAS_SP_SPI, (void *)__pa(&value), 4);
++	if ( (value[0] != 0) || (value[1] != 2) || (value[3] != 0) ||
++	     (result < 0) ) {
++		printk(KERN_WARNING "wdrtas: could not get sp_spi watchdog "
++		       "timeout (%li). Continuing\n", result);
++		return fallback_value;
++	}
 +
-+	pci_direct_iommu_init();
-+
-+	ppc64_interrupt_controller = IC_BPA_IIC;
-+
-+	DBG(" <- bpa_init_early()\n");
++	/* rtas uses minutes */
++	return ((int)value[2]) * 60;
 +}
 +
-+
-+static int __init bpa_probe(int platform)
++/**
++ * wdrtas_timer_start - starts watchdog
++ *
++ * wdrtas_timer_start starts the watchdog by calling the RTAS function
++ * set-interval (surveillance)
++ */
++static void
++wdrtas_timer_start(void)
 +{
-+	if (platform != PLATFORM_BPA)
++	wdrtas_set_interval(wdrtas_interval);
++}
++
++/**
++ * wdrtas_timer_stop - stops watchdog
++ *
++ * wdrtas_timer_stop stops the watchdog timer by calling the RTAS function
++ * set-interval (surveillance)
++ */
++static void
++wdrtas_timer_stop(void)
++{
++	wdrtas_set_interval(0);
++}
++
++/**
++ * wdrtas_log_scanned_event - logs an event we received during keepalive
++ *
++ * wdrtas_log_scanned_event prints a message to the log buffer dumping
++ * the results of the last event-scan call
++ */
++static void
++wdrtas_log_scanned_event(void)
++{
++	int i;
++
++	for (i = 0; i < WDRTAS_LOGBUFFER_LEN; i += 16)
++		printk(KERN_INFO "wdrtas: dumping event (line %i/%i), data = "
++		       "%02x %02x %02x %02x  %02x %02x %02x %02x   "
++		       "%02x %02x %02x %02x  %02x %02x %02x %02x\n",
++		       (i / 16) + 1, (WDRTAS_LOGBUFFER_LEN / 16),
++		       wdrtas_logbuffer[i + 0], wdrtas_logbuffer[i + 1], 
++		       wdrtas_logbuffer[i + 2], wdrtas_logbuffer[i + 3], 
++		       wdrtas_logbuffer[i + 4], wdrtas_logbuffer[i + 5], 
++		       wdrtas_logbuffer[i + 6], wdrtas_logbuffer[i + 7], 
++		       wdrtas_logbuffer[i + 8], wdrtas_logbuffer[i + 9], 
++		       wdrtas_logbuffer[i + 10], wdrtas_logbuffer[i + 11], 
++		       wdrtas_logbuffer[i + 12], wdrtas_logbuffer[i + 13], 
++		       wdrtas_logbuffer[i + 14], wdrtas_logbuffer[i + 15]);
++}
++
++/**
++ * wdrtas_timer_keepalive - resets watchdog timer to keep system alive
++ *
++ * wdrtas_timer_keepalive restarts the watchdog timer by calling the
++ * RTAS function event-scan and repeats these calls as long as there are
++ * events available. All events will be dumped.
++ */
++static void
++wdrtas_timer_keepalive(void)
++{
++	long result;
++
++	do {
++		result = rtas_call(wdrtas_token_event_scan, 4, 1, NULL,
++				   RTAS_EVENT_SCAN_ALL_EVENTS, 0,
++				   (void *)__pa(wdrtas_logbuffer),
++				   WDRTAS_LOGBUFFER_LEN);
++		if (result < 0)
++			printk(KERN_ERR "wdrtas: event-scan failed: %li\n",
++			       result);
++		if (result == 0)
++			wdrtas_log_scanned_event();
++	} while (result == 0);
++}
++
++/**
++ * wdrtas_get_temperature - returns current temperature
++ *
++ * returns temperature or <0 on failures
++ *
++ * wdrtas_get_temperature returns the current temperature in Fahrenheit. It
++ * uses the RTAS call get-sensor-state, token 3 to do so
++ */
++static int
++wdrtas_get_temperature(void)
++{
++	long result;
++	int temperature = 0;
++
++	result = rtas_call(wdrtas_token_get_sensor_state, 2, 2,
++			   (void *)__pa(&temperature),
++			   WDRTAS_THERMAL_SENSOR, 0);
++
++	if (result < 0)
++		printk(KERN_WARNING "wdrtas: reading the thermal sensor "
++		       "faild: %li\n", result);
++	else
++		temperature = ((temperature * 9) / 5) + 32; /* fahrenheit */
++
++	return temperature;
++}
++
++/**
++ * wdrtas_get_status - returns the status of the watchdog
++ *
++ * returns a bitmask of defines WDIOF_... as defined in
++ * include/linux/watchdog.h
++ */
++static int
++wdrtas_get_status(void)
++{
++	return 0; /* TODO */
++}
++
++/**
++ * wdrtas_get_boot_status - returns the reason for the last boot
++ *
++ * returns a bitmask of defines WDIOF_... as defined in
++ * include/linux/watchdog.h, indicating why the watchdog rebooted the system
++ */
++static int
++wdrtas_get_boot_status(void)
++{
++	return 0; /* TODO */
++}
++
++/*** watchdog API and operations stuff */
++
++/* wdrtas_write - called when watchdog device is written to
++ * @file: file structure
++ * @buf: user buffer with data
++ * @len: amount to data written
++ * @ppos: position in file
++ *
++ * returns the number of successfully processed characters, which is always
++ * the number of bytes passed to this function
++ *
++ * wdrtas_write processes all the data given to it and looks for the magic
++ * character 'V'. This character allows the watchdog device to be closed
++ * properly.
++ */
++static ssize_t
++wdrtas_write(struct file *file, const char __user *buf,
++	     size_t len, loff_t *ppos)
++{
++	int i;
++	char c;
++
++	if (!len)
++		goto out;
++
++	if (!wdrtas_nowayout) {
++		wdrtas_expect_close = 0;
++		/* look for 'V' */
++		for (i = 0; i < len; i++) {
++			if (get_user(c, buf + i))
++				return -EFAULT;
++			/* allow to close device */
++			if (c == 'V')
++				wdrtas_expect_close = WDRTAS_MAGIC_CHAR;
++		}
++	}
++
++	wdrtas_timer_keepalive();
++
++out:
++	return len;
++}
++
++/**
++ * wdrtas_ioctl - ioctl function for the watchdog device
++ * @inode: inode structure
++ * @file: file structure
++ * @cmd: command for ioctl
++ * @arg: argument pointer
++ *
++ * returns 0 on success, <0 on failure
++ *
++ * wdrtas_ioctl implements the watchdog API ioctls
++ */
++static int
++wdrtas_ioctl(struct inode *inode, struct file *file,
++	     unsigned int cmd, unsigned long arg)
++{
++	int __user *argp = (void *)arg;
++	int i;
++	static struct watchdog_info wdinfo = {
++		.options = WDRTAS_SUPPORTED_MASK,
++		.firmware_version = 0,
++		.identity = "wdrtas"
++	};
++
++	switch (cmd) {
++	case WDIOC_GETSUPPORT:
++		if (copy_to_user(argp, &wdinfo, sizeof(wdinfo)))
++			return -EFAULT;
 +		return 0;
++
++	case WDIOC_GETSTATUS:
++		i = wdrtas_get_status();
++		return put_user(i, argp);
++
++	case WDIOC_GETBOOTSTATUS:
++		i = wdrtas_get_boot_status();
++		return put_user(i, argp);
++
++	case WDIOC_GETTEMP:
++		if (wdrtas_token_get_sensor_state == RTAS_UNKNOWN_SERVICE)
++			return -EOPNOTSUPP;
++
++		i = wdrtas_get_temperature();
++		return put_user(i, argp);
++
++	case WDIOC_SETOPTIONS:
++		if (get_user(i, argp))
++			return -EFAULT;
++		if (i & WDIOS_DISABLECARD)
++			wdrtas_timer_stop();
++		if (i & WDIOS_ENABLECARD) {
++			wdrtas_timer_keepalive();
++			wdrtas_timer_start();
++		}
++		if (i & WDIOS_TEMPPANIC) {
++			/* not implemented. Done by H8 */
++		}
++		return 0;
++
++	case WDIOC_KEEPALIVE:
++		wdrtas_timer_keepalive();
++		return 0;
++
++	case WDIOC_SETTIMEOUT:
++		if (get_user(i, argp))
++			return -EFAULT;
++
++		if (wdrtas_set_interval(i))
++			return -EINVAL;
++
++		wdrtas_timer_keepalive();
++
++		if (wdrtas_token_get_sp == RTAS_UNKNOWN_SERVICE)
++			wdrtas_interval = i;
++		else
++			wdrtas_interval = wdrtas_get_interval(i);
++		/* fallthrough */
++
++	case WDIOC_GETTIMEOUT:
++		return put_user(wdrtas_interval, argp);
++
++	default:
++		return -ENOIOCTLCMD;
++	}
++}
++
++/**
++ * wdrtas_open - open function of watchdog device
++ * @inode: inode structure
++ * @file: file structure
++ *
++ * returns 0 on success, -EBUSY if the file has been opened already, <0 on
++ * other failures
++ *
++ * function called when watchdog device is opened
++ */
++static int
++wdrtas_open(struct inode *inode, struct file *file)
++{
++	/* only open once */
++	if (atomic_inc_return(&wdrtas_miscdev_open) > 1) {
++		atomic_dec(&wdrtas_miscdev_open);
++		return -EBUSY;
++	}
++
++	wdrtas_timer_start();
++	wdrtas_timer_keepalive();
++
++	return nonseekable_open(inode, file);
++}
++
++/**
++ * wdrtas_close - close function of watchdog device
++ * @inode: inode structure
++ * @file: file structure
++ *
++ * returns 0 on success
++ *
++ * close function. Always succeeds
++ */
++static int
++wdrtas_close(struct inode *inode, struct file *file)
++{
++	/* only stop watchdog, if this was announced using 'V' before */
++	if (wdrtas_expect_close == WDRTAS_MAGIC_CHAR)
++		wdrtas_timer_stop();
++	else {
++		printk(KERN_WARNING "wdrtas: got unexpected close. Watchdog "
++		       "not stopped.\n");
++		wdrtas_timer_keepalive();
++	}
++
++	wdrtas_expect_close = 0;
++	atomic_dec(&wdrtas_miscdev_open);
++	return 0;
++}
++
++/**
++ * wdrtas_temp_read - gives back the temperature in fahrenheit
++ * @file: file structure
++ * @buf: user buffer
++ * @count: number of bytes to be read
++ * @ppos: position in file
++ *
++ * returns always 1 or -EFAULT in case of user space copy failures, <0 on
++ * other failures
++ *
++ * wdrtas_temp_read gives the temperature to the users by copying this
++ * value as one byte into the user space buffer. The unit is Fahrenheit...
++ */
++static ssize_t
++wdrtas_temp_read(struct file *file, char __user *buf,
++		 size_t count, loff_t *ppos)
++{
++	int temperature = 0;
++
++	temperature = wdrtas_get_temperature();
++	if (temperature < 0)
++		return temperature;
++
++	if (copy_to_user(buf, &temperature, 1))
++		return -EFAULT;
 +
 +	return 1;
 +}
 +
-+struct machdep_calls __initdata bpa_md = {
-+	.probe			= bpa_probe,
-+	.setup_arch		= bpa_setup_arch,
-+	.init_early		= bpa_init_early,
-+	.get_cpuinfo		= bpa_get_cpuinfo,
-+	.restart		= rtas_restart,
-+	.power_off		= rtas_power_off,
-+	.halt			= rtas_halt,
-+	.get_boot_time		= rtas_get_boot_time,
-+	.get_rtc_time		= rtas_get_rtc_time,
-+	.set_rtc_time		= rtas_set_rtc_time,
-+	.calibrate_decr		= generic_calibrate_decr,
-+	.progress		= bpa_progress,
-+};
---- linux-cg.orig/arch/ppc64/kernel/cpu_setup_power4.S	2005-06-21 02:58:35.581001216 -0400
-+++ linux-cg/arch/ppc64/kernel/cpu_setup_power4.S	2005-06-21 03:01:35.224979280 -0400
-@@ -73,7 +73,21 @@ _GLOBAL(__970_cpu_preinit)
- 
- _GLOBAL(__setup_cpu_power4)
- 	blr
--	
-+
-+_GLOBAL(__setup_cpu_be)
-+        /* Set large page sizes LP=0: 16MB, LP=1: 64KB */
-+        addi    r3, 0,  0
-+        ori     r3, r3, HID6_LB
-+        sldi    r3, r3, 32
-+        nor     r3, r3, r3
-+        mfspr   r4, SPRN_HID6
-+        and     r4, r4, r3
-+        addi    r3, 0, 0x02000
-+        sldi    r3, r3, 32
-+        or      r4, r4, r3
-+        mtspr   SPRN_HID6, r4
-+	blr
-+
- _GLOBAL(__setup_cpu_ppc970)
- 	mfspr	r0,SPRN_HID0
- 	li	r11,5			/* clear DOZE and SLEEP */
---- linux-cg.orig/arch/ppc64/kernel/cputable.c	2005-06-21 02:58:35.584000760 -0400
-+++ linux-cg/arch/ppc64/kernel/cputable.c	2005-06-21 03:01:35.224979280 -0400
-@@ -34,6 +34,7 @@ EXPORT_SYMBOL(cur_cpu_spec);
- extern void __setup_cpu_power3(unsigned long offset, struct cpu_spec* spec);
- extern void __setup_cpu_power4(unsigned long offset, struct cpu_spec* spec);
- extern void __setup_cpu_ppc970(unsigned long offset, struct cpu_spec* spec);
-+extern void __setup_cpu_be(unsigned long offset, struct cpu_spec* spec);
- 
- 
- /* We only set the altivec features if the kernel was compiled with altivec
-@@ -162,6 +163,16 @@ struct cpu_spec	cpu_specs[] = {
- 	    __setup_cpu_power4,
- 	    COMMON_PPC64_FW
-     },
-+    {	/* BE DD1.x  */
-+	    0xffff0000, 0x00700000, "Broadband Engine",
-+	    CPU_FTR_SPLIT_ID_CACHE | CPU_FTR_USE_TB | CPU_FTR_HPTE_TABLE |
-+		    CPU_FTR_PPCAS_ARCH_V2 | CPU_FTR_ALTIVEC_COMP |
-+		    CPU_FTR_SMT,
-+	    COMMON_USER_PPC64 | PPC_FEATURE_HAS_ALTIVEC_COMP,
-+	    128, 128,
-+	    __setup_cpu_be,
-+	    COMMON_PPC64_FW
-+    },
-     {	/* default match */
- 	    0x00000000, 0x00000000, "POWER4 (compatible)",
-   	    CPU_FTR_SPLIT_ID_CACHE | CPU_FTR_USE_TB | CPU_FTR_HPTE_TABLE |
---- linux-cg.orig/arch/ppc64/kernel/irq.c	2005-06-21 02:58:35.586000456 -0400
-+++ linux-cg/arch/ppc64/kernel/irq.c	2005-06-21 03:01:35.225979128 -0400
-@@ -395,6 +395,9 @@ int virt_irq_create_mapping(unsigned int
- 	if (ppc64_interrupt_controller == IC_OPEN_PIC)
- 		return real_irq;	/* no mapping for openpic (for now) */
- 
-+	if (ppc64_interrupt_controller == IC_BPA_IIC)
-+		return real_irq;	/* no mapping for iic either */
-+
- 	/* don't map interrupts < MIN_VIRT_IRQ */
- 	if (real_irq < MIN_VIRT_IRQ) {
- 		virt_irq_to_real_map[real_irq] = real_irq;
---- linux-cg.orig/arch/ppc64/kernel/proc_ppc64.c	2005-06-21 02:58:35.588000152 -0400
-+++ linux-cg/arch/ppc64/kernel/proc_ppc64.c	2005-06-21 03:01:35.226978976 -0400
-@@ -53,7 +53,7 @@ static int __init proc_ppc64_create(void
- 	if (!root)
- 		return 1;
- 
--	if (!(systemcfg->platform & PLATFORM_PSERIES))
-+	if (!(systemcfg->platform & (PLATFORM_PSERIES | PLATFORM_BPA)))
- 		return 0;
- 
- 	if (!proc_mkdir("rtas", root))
---- linux-cg.orig/arch/ppc64/kernel/prom_init.c	2005-06-21 02:58:35.589999848 -0400
-+++ linux-cg/arch/ppc64/kernel/prom_init.c	2005-06-21 03:01:35.228978672 -0400
-@@ -1915,9 +1915,9 @@ unsigned long __init prom_init(unsigned 
- 		prom_send_capabilities();
- 
- 	/*
--	 * On pSeries, copy the CPU hold code
-+	 * On pSeries and BPA, copy the CPU hold code
- 	 */
--       	if (RELOC(of_platform) & PLATFORM_PSERIES)
-+       	if (RELOC(of_platform) & (PLATFORM_PSERIES | PLATFORM_BPA))
-        		copy_and_flush(0, KERNELBASE - offset, 0x100, 0);
- 
- 	/*
---- linux-cg.orig/arch/ppc64/kernel/setup.c	2005-06-21 02:58:35.592999392 -0400
-+++ linux-cg/arch/ppc64/kernel/setup.c	2005-06-21 03:01:35.229978520 -0400
-@@ -343,6 +343,7 @@ static void __init setup_cpu_maps(void)
- extern struct machdep_calls pSeries_md;
- extern struct machdep_calls pmac_md;
- extern struct machdep_calls maple_md;
-+extern struct machdep_calls bpa_md;
- 
- /* Ultimately, stuff them in an elf section like initcalls... */
- static struct machdep_calls __initdata *machines[] = {
-@@ -355,6 +356,9 @@ static struct machdep_calls __initdata *
- #ifdef CONFIG_PPC_MAPLE
- 	&maple_md,
- #endif /* CONFIG_PPC_MAPLE */
-+#ifdef CONFIG_PPC_BPA
-+	&bpa_md,
-+#endif
- 	NULL
- };
- 
---- linux-cg.orig/arch/ppc64/kernel/traps.c	2005-06-21 02:58:35.594999088 -0400
-+++ linux-cg/arch/ppc64/kernel/traps.c	2005-06-21 03:01:35.230978368 -0400
-@@ -126,6 +126,10 @@ int die(const char *str, struct pt_regs 
- 			printk("POWERMAC ");
- 			nl = 1;
- 			break;
-+		case PLATFORM_BPA:
-+			printk("BPA ");
-+			nl = 1;
-+			break;
- 	}
- 	if (nl)
- 		printk("\n");
---- linux-cg.orig/include/asm-ppc64/mmu.h	2005-06-21 02:58:35.596998784 -0400
-+++ linux-cg/include/asm-ppc64/mmu.h	2005-06-21 03:01:35.231978216 -0400
-@@ -47,9 +47,10 @@
- #define SLB_VSID_KS		ASM_CONST(0x0000000000000800)
- #define SLB_VSID_KP		ASM_CONST(0x0000000000000400)
- #define SLB_VSID_N		ASM_CONST(0x0000000000000200) /* no-execute */
--#define SLB_VSID_L		ASM_CONST(0x0000000000000100) /* largepage 16M */
-+#define SLB_VSID_L		ASM_CONST(0x0000000000000100) /* largepage */
- #define SLB_VSID_C		ASM_CONST(0x0000000000000080) /* class */
--
-+#define SLB_VSID_LS		ASM_CONST(0x0000000000000070) /* size of largepage */
-+ 
- #define SLB_VSID_KERNEL		(SLB_VSID_KP|SLB_VSID_C)
- #define SLB_VSID_USER		(SLB_VSID_KP|SLB_VSID_KS)
- 
---- linux-cg.orig/include/asm-ppc64/processor.h	2005-06-21 02:58:35.598998480 -0400
-+++ linux-cg/include/asm-ppc64/processor.h	2005-06-21 03:01:35.232978064 -0400
-@@ -138,8 +138,16 @@
- #define	SPRN_NIADORM	0x3F3	/* Hardware Implementation Register 2 */
- #define SPRN_HID4	0x3F4	/* 970 HID4 */
- #define SPRN_HID5	0x3F6	/* 970 HID5 */
--#define	SPRN_TSC 	0x3FD	/* Thread switch control */
--#define	SPRN_TST 	0x3FC	/* Thread switch timeout */
-+#define	SPRN_HID6	0x3F9	/* BE HID 6 */
-+#define	  HID6_LB	(0x0F<<12) /* Concurrent Large Page Modes */
-+#define	  HID6_DLP	(1<<20)	/* Disable all large page modes (4K only) */
-+#define	SPRN_TSCR	0x399   /* Thread switch control on BE */
-+#define	SPRN_TTR	0x39A   /* Thread switch timeout on BE */
-+#define	  TSCR_DEC_ENABLE	0x200000 /* Decrementer Interrupt */
-+#define	  TSCR_EE_ENABLE	0x100000 /* External Interrupt */
-+#define	  TSCR_EE_BOOST		0x080000 /* External Interrupt Boost */
-+#define	SPRN_TSC 	0x3FD	/* Thread switch control on others */
-+#define	SPRN_TST 	0x3FC	/* Thread switch timeout on others */
- #define	SPRN_L2CR	0x3F9	/* Level 2 Cache Control Regsiter */
- #define	SPRN_LR		0x008	/* Link Register */
- #define	SPRN_PIR	0x3FF	/* Processor Identification Register */
-@@ -259,6 +267,7 @@
- #define PV_970FX	0x003C
- #define	PV_630        	0x0040
- #define	PV_630p	        0x0041
-+#define	PV_BE		0x0070
- 
- /* Platforms supported by PPC64 */
- #define PLATFORM_PSERIES      0x0100
-@@ -267,6 +276,7 @@
- #define PLATFORM_LPAR         0x0001
- #define PLATFORM_POWERMAC     0x0400
- #define PLATFORM_MAPLE        0x0500
-+#define PLATFORM_BPA          0x1000
- 
- /* Compatibility with drivers coming from PPC32 world */
- #define _machine	(systemcfg->platform)
-@@ -278,6 +288,7 @@
- #define IC_INVALID    0
- #define IC_OPEN_PIC   1
- #define IC_PPC_XIC    2
-+#define IC_BPA_IIC    3
- 
- #define XGLUE(a,b) a##b
- #define GLUE(a,b) XGLUE(a,b)
---- linux-cg.orig/include/asm-ppc64/smp.h	2005-06-21 02:58:35.601998024 -0400
-+++ linux-cg/include/asm-ppc64/smp.h	2005-06-21 03:01:35.232978064 -0400
-@@ -85,6 +85,14 @@ extern void smp_generic_take_timebase(vo
- 
- extern struct smp_ops_t *smp_ops;
- 
-+#ifdef CONFIG_PPC_PSERIES
-+void vpa_init(int cpu);
-+#else
-+static inline void vpa_init(int cpu)
++/**
++ * wdrtas_temp_open - open function of temperature device
++ * @inode: inode structure
++ * @file: file structure
++ *
++ * returns 0 on success, <0 on failure
++ *
++ * function called when temperature device is opened
++ */
++static int
++wdrtas_temp_open(struct inode *inode, struct file *file)
 +{
++	return nonseekable_open(inode, file);
 +}
-+#endif /* CONFIG_PPC_PSERIES */
 +
- #endif /* __ASSEMBLY__ */
- 
- #endif /* !(_PPC64_SMP_H) */
++/**
++ * wdrtas_temp_close - close function of temperature device
++ * @inode: inode structure
++ * @file: file structure
++ *
++ * returns 0 on success
++ *
++ * close function. Always succeeds
++ */
++static int
++wdrtas_temp_close(struct inode *inode, struct file *file)
++{
++	return 0;
++}
++
++/**
++ * wdrtas_reboot - reboot notifier function
++ * @nb: notifier block structure
++ * @code: reboot code
++ * @ptr: unused
++ *
++ * returns NOTIFY_DONE
++ *
++ * wdrtas_reboot stops the watchdog in case of a reboot
++ */
++static int
++wdrtas_reboot(struct notifier_block *this, unsigned long code, void *ptr)
++{
++	if ( (code==SYS_DOWN) || (code==SYS_HALT) )
++		wdrtas_timer_stop();
++
++	return NOTIFY_DONE;
++}
++
++/*** initialization stuff */
++
++static struct file_operations wdrtas_fops = {
++	.owner		= THIS_MODULE,
++	.llseek		= no_llseek,
++	.write		= wdrtas_write,
++	.ioctl		= wdrtas_ioctl,
++	.open		= wdrtas_open,
++	.release	= wdrtas_close,
++};
++
++static struct miscdevice wdrtas_miscdev = {
++	.minor =	WATCHDOG_MINOR,
++	.name =		"watchdog",
++	.fops =		&wdrtas_fops,
++};
++
++static struct file_operations wdrtas_temp_fops = {
++	.owner		= THIS_MODULE,
++	.llseek		= no_llseek,
++	.read		= wdrtas_temp_read,
++	.open		= wdrtas_temp_open,
++	.release	= wdrtas_temp_close,
++};
++
++static struct miscdevice wdrtas_tempdev = {
++	.minor =	TEMP_MINOR,
++	.name =		"temperature",
++	.fops =		&wdrtas_temp_fops,
++};
++
++static struct notifier_block wdrtas_notifier = {
++	.notifier_call =	wdrtas_reboot,
++};
++
++/**
++ * wdrtas_get_tokens - reads in RTAS tokens
++ *
++ * returns 0 on succes, <0 on failure
++ *
++ * wdrtas_get_tokens reads in the tokens for the RTAS calls used in
++ * this watchdog driver. It tolerates, if "get-sensor-state" and
++ * "ibm,get-system-parameter" are not available.
++ */
++static int
++wdrtas_get_tokens(void)
++{
++	wdrtas_token_get_sensor_state = rtas_token("get-sensor-state");
++	if (wdrtas_token_get_sensor_state == RTAS_UNKNOWN_SERVICE) {
++		printk(KERN_WARNING "wdrtas: couldn't get token for "
++		       "get-sensor-state. Trying to continue without "
++		       "temperature support.\n");
++	}
++
++	wdrtas_token_get_sp = rtas_token("ibm,get-system-parameter");
++	if (wdrtas_token_get_sp == RTAS_UNKNOWN_SERVICE) {
++		printk(KERN_WARNING "wdrtas: couldn't get token for "
++		       "ibm,get-system-parameter. Trying to continue with "
++		       "a default timeout value of %i seconds.\n",
++		       WDRTAS_DEFAULT_INTERVAL);
++	}
++
++	wdrtas_token_set_indicator = rtas_token("set-indicator");
++	if (wdrtas_token_set_indicator == RTAS_UNKNOWN_SERVICE) {
++		printk(KERN_ERR "wdrtas: couldn't get token for "
++		       "set-indicator. Terminating watchdog code.\n");
++		return -EIO;
++	}
++
++	wdrtas_token_event_scan = rtas_token("event-scan");
++	if (wdrtas_token_event_scan == RTAS_UNKNOWN_SERVICE) {
++		printk(KERN_ERR "wdrtas: couldn't get token for event-scan. "
++		       "Terminating watchdog code.\n");
++		return -EIO;
++	}
++
++	return 0;
++}
++
++/**
++ * wdrtas_unregister_devs - unregisters the misc dev handlers
++ *
++ * wdrtas_register_devs unregisters the watchdog and temperature watchdog
++ * misc devs
++ */
++static void
++wdrtas_unregister_devs(void)
++{
++	misc_deregister(&wdrtas_miscdev);
++	if (wdrtas_token_get_sensor_state != RTAS_UNKNOWN_SERVICE)
++		misc_deregister(&wdrtas_tempdev);
++}
++
++/**
++ * wdrtas_register_devs - registers the misc dev handlers
++ *
++ * returns 0 on succes, <0 on failure
++ *
++ * wdrtas_register_devs registers the watchdog and temperature watchdog
++ * misc devs
++ */
++static int
++wdrtas_register_devs(void)
++{
++	int result;
++
++	result = misc_register(&wdrtas_miscdev);
++	if (result) {
++		printk(KERN_ERR "wdrtas: couldn't register watchdog misc "
++		       "device. Terminating watchdog code.\n");
++		return result;
++	}
++
++	if (wdrtas_token_get_sensor_state != RTAS_UNKNOWN_SERVICE) {
++		result = misc_register(&wdrtas_tempdev);
++		if (result) {
++			printk(KERN_WARNING "wdrtas: couldn't register "
++			       "watchdog temperature misc device. Continuing "
++			       "without temperature support.\n");
++			wdrtas_token_get_sensor_state = RTAS_UNKNOWN_SERVICE;
++		}
++	}
++
++	return 0;
++}
++
++/**
++ * wdrtas_init - init function of the watchdog driver
++ *
++ * returns 0 on succes, <0 on failure
++ *
++ * registers the file handlers and the reboot notifier
++ */
++static int __init
++wdrtas_init(void)
++{
++	if (wdrtas_get_tokens())
++		return -ENODEV;
++
++	if (wdrtas_register_devs())
++		return -ENODEV;
++
++	if (register_reboot_notifier(&wdrtas_notifier)) {
++		printk(KERN_ERR "wdrtas: could not register reboot notifier. "
++		       "Terminating watchdog code.\n");
++		wdrtas_unregister_devs();
++		return -ENODEV;
++	}
++
++	if (wdrtas_token_get_sp == RTAS_UNKNOWN_SERVICE)
++		wdrtas_interval = WDRTAS_DEFAULT_INTERVAL;
++	else
++		wdrtas_interval = wdrtas_get_interval(WDRTAS_DEFAULT_INTERVAL);
++
++	return 0;
++}
++
++/**
++ * wdrtas_exit - exit function of the watchdog driver
++ *
++ * unregisters the file handlers and the reboot notifier
++ */
++static void __exit
++wdrtas_exit(void)
++{
++	if (!wdrtas_nowayout)
++		wdrtas_timer_stop();
++
++	wdrtas_unregister_devs();
++
++	unregister_reboot_notifier(&wdrtas_notifier);
++}
++
++module_init(wdrtas_init);
++module_exit(wdrtas_exit);
 

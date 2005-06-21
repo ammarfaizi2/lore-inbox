@@ -1,98 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261479AbVFUNkG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261455AbVFUNoN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261479AbVFUNkG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 09:40:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261460AbVFUNgp
+	id S261455AbVFUNoN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 09:44:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261315AbVFUNlV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 09:36:45 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:20635 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S261389AbVFUNWb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 09:22:31 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: <cutaway@bellsouth.net>, "Jesper Juhl" <juhl-lkml@dif.dk>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] cleanup patches for strings
-Date: Tue, 21 Jun 2005 16:20:31 +0300
-User-Agent: KMail/1.5.4
-Cc: "Andrew Morton" <akpm@osdl.org>, "Jeff Garzik" <jgarzik@pobox.com>,
-       "Domen Puncer" <domen@coderock.org>
-References: <Pine.LNX.4.62.0506200052320.2415@dragon.hyggekrogen.localhost> <200506211402.48554.vda@ilport.com.ua> <004c01c57662$5eacc260$2800000a@pc365dualp2>
-In-Reply-To: <004c01c57662$5eacc260$2800000a@pc365dualp2>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 21 Jun 2005 09:41:21 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:520 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261462AbVFUNhk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 09:37:40 -0400
+Date: Tue, 21 Jun 2005 15:37:38 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] lib/zlib*: possible cleanups
+Message-ID: <20050621133738.GM3666@stusta.de>
+References: <20050620234326.GG3666@stusta.de> <20050620172920.541f4112.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200506211620.31655.vda@ilport.com.ua>
+In-Reply-To: <20050620172920.541f4112.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Um, prev one was using push %reg. My fault.
-push $imm gives the same result:
+On Mon, Jun 20, 2005 at 05:29:20PM -0700, Andrew Morton wrote:
+> Adrian Bunk <bunk@stusta.de> wrote:
+> >
+> > - #if 0 the following unused functions:
+> >   - zlib_deflate/deflate.c: zlib_deflateSetDictionary
+> >   - zlib_deflate/deflate.c: zlib_deflateParams
+> >   - zlib_deflate/deflate.c: zlib_deflateCopy
+> >   - zlib_inflate/infblock.c: zlib_inflate_set_dictionary
+> >   - zlib_inflate/infblock.c: zlib_inflate_blocks_sync_point
+> >   - zlib_inflate/inflate_sync.c: zlib_inflateSync
+> >   - zlib_inflate/inflate_sync.c: zlib_inflateSyncPoint
+> 
+> OK...
+> 
+> > - remove the following unneeded EXPORT_SYMBOL's:
+> >   - zlib_deflate/deflate_syms.c: zlib_deflateCopy
+> >   - zlib_deflate/deflate_syms.c: zlib_deflateParams
+> >   - zlib_inflate/inflate_syms.c: zlib_inflateSync
+> >   - zlib_inflate/inflate_syms.c: zlib_inflateSyncPoint
+> 
+> Adrian, I've dropped just about every "remove the following unneeded
+> EXPORT_SYMBOL's" I've seen in the past several months.  We've been round this
+> numerous times.
+> 
+> The question is, who are we screwing if we remove these?
+> 
+> It's difficult to answer, but we need to answer it.
 
-# gcc -O2 -falign-loops=64 t.c
-# ./a.out
-Took 9291 CPU cycles Took 8068 CPU cycles
-Took 9080 CPU cycles Took 8058 CPU cycles
-Took 9134 CPU cycles Took 8061 CPU cycles
-Took 9084 CPU cycles Took 8043 CPU cycles
-Took 9084 CPU cycles Took 8043 CPU cycles
-Took 9084 CPU cycles Took 8043 CPU cycles
 
-The source:
+I'm sorry, but I'm not getting your point:
 
-#define rdtscl(low) asm volatile("rdtsc" : "=a" (low) : : "edx")
+First, you ACK the part of my patch to #if 0 unused functions.
 
-#define NL "\n"
+Then you complain that I've documented which EXPORT_SYMBOL's I have to 
+remove because I have #if 0'ed the functions they are exporting.
 
-#include <stdio.h>
 
-int main() {
-    int i,k,start,end;
-    int v = 1234;
+Will the patch be OK for you if I'll simply remove the part of the patch 
+description stating which of the #if 0'ed functions had been exported?
 
-for(k=0; k<6; k++) {
-    rdtscl(start);
-    for(i=0; i<1000; i++) {
-        asm(NL
-        "       push    %0" NL
-        "       pop     %%eax" NL
-        "       push    %0" NL
-        "       pop     %%eax" NL
-        "       push    %0" NL
-        "       pop     %%eax" NL
-        "       push    %0" NL
-        "       pop     %%eax" NL
-        : /* outputs */
-        : "m" (v) /* inputs */
-        : "ax" /* clobbers */
-        );
-    }
-    rdtscl(end);
-    printf("Took %u CPU cycles ", end-start);
 
-    rdtscl(start);
-    for(i=0; i<1000; i++) {
-        asm(NL
-        "       push    $1234" NL
-        "       pop     %%eax" NL
-        "       push    $1234" NL
-        "       pop     %%eax" NL
-        "       push    $1234" NL
-        "       pop     %%eax" NL
-        "       push    $1234" NL
-        "       pop     %%eax" NL
-        : /* outputs */
-        : /* inputs */
-        : "ax" /* clobbers */
-        );
-    }
-    rdtscl(end);
-    printf("Took %u CPU cycles\n", end-start);
-}
-    return 0;
-}
---
-vda
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

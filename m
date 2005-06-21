@@ -1,77 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261725AbVFUIWb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262092AbVFUI0r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261725AbVFUIWb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 04:22:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261765AbVFUIU7
+	id S262092AbVFUI0r (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 04:26:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262084AbVFUITk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 04:20:59 -0400
-Received: from cpc4-cmbg4-4-0-cust124.cmbg.cable.ntl.com ([81.108.205.124]:15371
-	"EHLO thekelleys.org.uk") by vger.kernel.org with ESMTP
-	id S261983AbVFUHrY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 03:47:24 -0400
-Message-ID: <42B7C4D0.9070809@thekelleys.org.uk>
-Date: Tue, 21 Jun 2005 08:42:08 +0100
-From: Simon Kelley <simon@thekelleys.org.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jirka Bohac <jbohac@suse.cz>
-CC: Denis Vlasenko <vda@ilport.com.ua>, Pavel Machek <pavel@ucw.cz>,
-       Jeff Garzik <jgarzik@pobox.com>, Netdev list <netdev@oss.sgi.com>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: ipw2100: firmware problem
-References: <20050608142310.GA2339@elf.ucw.cz> <200506081744.20687.vda@ilport.com.ua> <20050608145653.GA8844@dwarf.suse.cz>
-In-Reply-To: <20050608145653.GA8844@dwarf.suse.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 21 Jun 2005 04:19:40 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:26382 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261996AbVFUHnH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 03:43:07 -0400
+Date: Tue, 21 Jun 2005 08:43:01 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Jamey Hicks <jamey.hicks@hp.com>
+Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
+Subject: Re: recursive call to platform_device_register deadlocks
+Message-ID: <20050621084301.B30570@flint.arm.linux.org.uk>
+Mail-Followup-To: Jamey Hicks <jamey.hicks@hp.com>,
+	linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
+References: <42B43226.20703@hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <42B43226.20703@hp.com>; from jamey.hicks@hp.com on Sat, Jun 18, 2005 at 10:39:34AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jirka Bohac wrote:
-> On Wed, Jun 08, 2005 at 05:44:20PM +0300, Denis Vlasenko wrote:
-> 
->>On Wednesday 08 June 2005 17:23, Pavel Machek wrote:
->>
->>>What's the prefered way to solve this one? Only load firmware when
->>>user does ifconfig eth1 up? [It is wifi, it looks like it would be
->>>better to start firmware sooner so that it can associate to the
->>>AP...].
->>
->>Do you want to associate to an AP when your kernel boots,
->>_before_ any iwconfig had a chance to configure anything?
->>That's strange.
->>
->>My position is that wifi drivers must start up in an "OFF" mode.
->>Do not send anything. Do not join APs or start IBSS.
-> 
-> 
-> Agreed.
-> 
-> 
->>Thus, no need to load fw in early boot.
-> 
-> 
-> I don't think this is true. Loading the firmware on the first
-> "ifconfig up" is problematic. Often, people want to rename the
-> device from ethX/wlanX/... to something stable. This is usually
-> based on the adapter's MAC address, which is not visible until
-> the firmware is loaded.
-> 
-> Prism54 does it this way and it really sucks. You need to bring
-> the adapter up to load the firmware, then bring it back down,
-> rename it, and bring it up again.
-> 
+On Sat, Jun 18, 2005 at 10:39:34AM -0400, Jamey Hicks wrote:
+> We've started working on replacing uses of soc_device in handhelds 
+> drivers by platform_device.   One of the things we ran into is that the 
+> platform_device driver for an ASIC was calling soc_device_register 
+> inside its probe function.  If this is converted to 
+> platform_device_register, then the process deadlocks because 
+> bus_add_device locks platform_bus_type.
 
-The atmel driver includes a small firmware stub which does nothing but 
-determine the MAC address, to solve this problem. This is compiled into 
-the driver and so doesn't depend on request_firmware(). The stub was 
-created by reverse engineering the card and is GPL, so there's no 
-problem including it in the kernel.
+This should now be resolved as a result of Greg's recent patch driver
+model patch set, as appeared on lkml last night.
 
-This is not a general solution, since it depends on the ability to 
-create such MAC reader firmware, but it might be a possibility in this case.
-
-
-Cheers,
-
-Simon.
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,47 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262119AbVFUPWm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262118AbVFUPQm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262119AbVFUPWm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 11:22:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262126AbVFUPWj
+	id S262118AbVFUPQm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 11:16:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbVFUPOY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 11:22:39 -0400
-Received: from web8409.mail.in.yahoo.com ([202.43.219.157]:20321 "HELO
-	web8409.mail.in.yahoo.com") by vger.kernel.org with SMTP
-	id S262119AbVFUPVl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 11:21:41 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.co.in;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=q7CQZDCkADE0+rWOhyo3Amqw496xyWVH6f8GTFR2Ga1y+q9zCQfVnrTC2/3PQ2aHFDjIUyAk7WaX3EFx7qgQN/GQ7wTLIs0/pdGjq8rXgu1aSRznB3b08BY6Grc0OAE+i17qXQBvP4uLVv+FJD7WimBQahnmwsmHy+Xcuf3obKM=  ;
-Message-ID: <20050621152133.77162.qmail@web8409.mail.in.yahoo.com>
-Date: Tue, 21 Jun 2005 16:21:33 +0100 (BST)
-From: KV Pavuram <kvpavuram@yahoo.co.in>
-Subject: 0xffffe002 in ??
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 21 Jun 2005 11:14:24 -0400
+Received: from 238-071.adsl.pool.ew.hu ([193.226.238.71]:58638 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S262112AbVFUPN7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 11:13:59 -0400
+To: pavel@ucw.cz
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org
+In-reply-to: <20050621142820.GC2015@openzaurus.ucw.cz> (message from Pavel
+	Machek on Tue, 21 Jun 2005 16:28:21 +0200)
+Subject: Re: -mm -> 2.6.13 merge status (fuse)
+References: <20050620235458.5b437274.akpm@osdl.org> <E1Dkfu2-0005Ju-00@dorka.pomaz.szeredi.hu> <20050621142820.GC2015@openzaurus.ucw.cz>
+Message-Id: <E1DkkRE-0005mt-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Tue, 21 Jun 2005 17:13:20 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am running a multithreaded application on Linux 2.4
-kernel (RedHat Linux 9).
+> > >     This is useful, but there are, AFAIK, two issues:
+> > > 
+> > >     - We're still deadlocked over some permission-checking hacks in there
+> > 
+> > Oh, god.  Let me try to explain this again:
+> > 
+> >   - This is a security issue with unprivileged mounts
+> 
+> Pretty please, just merge it without unpriviledged mounts. I see
+> they are usefull, but they are too strange for now.
 
-At some point the program receives a seg. fault and if
-i check info threads, using gdb for debug, almost all
-the threads are at "0xffffe002 in ??" 
+An emotional argument again.  What's "strange" about it?
 
-When I switch to each of these tasks, and try x/i for
-0xffffe002, cannot access address.
+You have a choice of:
 
-What could be the problem?
+ 1) believe me that the current solution is fine
 
-Please help.
+ 2) get down and try to understand the damn thing, and then come up
+    with technical arguments for/against it
 
-Regards,
-Pav.
+I know that 2) takes time and energy, and not a lot of people are
+interested enough to go through it, but why on earth do you think it
+will _ever_ be easier than now.
 
+Thanks,
+Miklos
 
-		
-__________________________________________________________
-How much free photo storage do you get? Store your friends 'n family snaps for FREE with Yahoo! Photos http://in.photos.yahoo.com

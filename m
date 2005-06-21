@@ -1,48 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262211AbVFURx4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262221AbVFUSB3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262211AbVFURx4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 13:53:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262212AbVFURx4
+	id S262221AbVFUSB3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 14:01:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262222AbVFUSB2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 13:53:56 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:26792 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S262211AbVFURxw (ORCPT
+	Tue, 21 Jun 2005 14:01:28 -0400
+Received: from gold.veritas.com ([143.127.12.110]:51784 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S262221AbVFUSB0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 13:53:52 -0400
-Message-ID: <42B8542A.9020700@pobox.com>
-Date: Tue, 21 Jun 2005 13:53:46 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
+	Tue, 21 Jun 2005 14:01:26 -0400
+Date: Tue, 21 Jun 2005 19:02:26 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Timur Tabi <timur.tabi@ammasso.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: get_user_pages() and shared memory question
+In-Reply-To: <42B82DF2.2050708@ammasso.com>
+Message-ID: <Pine.LNX.4.61.0506211840210.5784@goblin.wat.veritas.com>
+References: <42B82DF2.2050708@ammasso.com>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Dave Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org
-Subject: Re: git-pull-script on my linus tree fails..
-References: <Pine.LNX.4.58.0506211304320.2915@skynet> <Pine.LNX.4.58.0506210837020.2268@ppc970.osdl.org> <42B838BC.8090601@pobox.com> <Pine.LNX.4.58.0506210905560.2268@ppc970.osdl.org> <42B84E20.7010100@pobox.com> <Pine.LNX.4.58.0506211039350.2268@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0506211039350.2268@ppc970.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 21 Jun 2005 18:01:25.0655 (UTC) FILETIME=[3DA2FA70:01C5768B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> Actually, I'd suggest doing the git-checkout-script _first_. That way you 
-> _can_ use the careful version, which refuses to switch if it would cause 
-> information to be lost. Ie something like
+On Tue, 21 Jun 2005, Timur Tabi wrote:
 > 
-> 	git-checkout-script $1 && switch HEAD to refs/heads/$1
+> Is it possible for a page of memory that's been "grabbed" with
+> get_user_pages() to ever be allocated to another process?  I'm assuming the
+> answer is no, but I have a specific case I want to ask about.
 > 
-> should do it.
+> Let's say an application allocates some shared memory, and then calls into a
+> driver which calls get_user_pages().  The driver exits without releasing the
+> pages, so they now have a reference count on them.  Then the application
+> deallocates the shared memory.  At this point, the virtual addresses
+> disappear, and no process owns them, but the pages still have a reference
+> count.
+> 
+> Another process now tries to allocate a shared memory buffer.  Is there any
+> way that this new buffer can contain those pages that were grabbed with
+> get_user_pages() (i.e. that already have a reference count)?
 
+It depends on what you mean by allocate and deallocate.  If the second
+process is attaching the same shared memory segment as the first process
+had attached, then yes, its buffer will contain those very pages which
+the driver erroneously failed to release.
 
-If I want my working dir updated to reflect the desired branch -- the 
-whole purpose of git-switch-tree -- I would have to do
+> Until 2.6.7, there was a bug in the VM where a page that was grabbed with
+> get_user_pages() could be swapped out.  Those of you familar with the OpenIB
+> work know what I'm talking about.  Would that bug affect anything I'm talking
+> about?
 
-	git-checkout-script && switch HEAD && git-checkout-script
+No.  That was a bug peculiar to anonymous memory,
+whereas shared memory is treated like file cache.
 
-which is a bit silly.
-
-	Jeff
-
-
+Hugh

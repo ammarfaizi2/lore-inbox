@@ -1,55 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262403AbVFUWfT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262432AbVFUXv2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262403AbVFUWfT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 18:35:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262412AbVFUWeq
+	id S262432AbVFUXv2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 19:51:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262431AbVFUWkZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 18:34:46 -0400
-Received: from rproxy.gmail.com ([64.233.170.199]:36916 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262474AbVFUVzZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 17:55:25 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=WnIb6Bmt4j00bqUnKe9WInDlJZkCmzWNHNPhCYqtFen4UWn9h45cob4sAbieKDGYb7plquDTn5BXRm5rG/uBUNuRUfBK170Gh/D0G7yTRShYelL1xLeY6l7QFvra4HMlBpjBCCazU00oxoN1dY3DVGeU/16CMcP9IAcmIIkUNn8=
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Grant Coady <grant_lkml@dodo.com.au>
-Subject: Re: 2.6.12-mm1 breaks Toshiba laptop yenta cardbus
-Date: Wed, 22 Jun 2005 02:01:07 +0400
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org
-References: <s32db1toatpgar8nun4m5rtqq97hkbk2ab@4ax.com>
-In-Reply-To: <s32db1toatpgar8nun4m5rtqq97hkbk2ab@4ax.com>
+	Tue, 21 Jun 2005 18:40:25 -0400
+Received: from imf19aec.mail.bellsouth.net ([205.152.59.67]:33787 "EHLO
+	imf19aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
+	id S262322AbVFUWS6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 18:18:58 -0400
+Message-ID: <00d501c576b6$943da300$2800000a@pc365dualp2>
+From: <cutaway@bellsouth.net>
+To: "Jean Delvare" <khali@linux-fr.org>
+Cc: "Denis Vlasenko" <vda@ilport.com.ua>,
+       "LKML" <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.62.0506200052320.2415@dragon.hyggekrogen.localhost><200506211359.25632.vda@ilport.com.ua><20050621232409.06a3400e.khali@linux-fr.org><008401c576b1$4f2ec000$2800000a@pc365dualp2> <20050621234943.713ecc40.khali@linux-fr.org>
+Subject: Re: [RFC] cleanup patches for strings
+Date: Tue, 21 Jun 2005 19:11:28 -0400
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506220201.08134.adobriyan@gmail.com>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1478
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1478
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 20 June 2005 13:15, Grant Coady wrote:
-> Yenta: CardBus bridge found at 0000:00:0b.0 [1179:0001]
-> yenta 0000:00:0b.0: Preassigned resource 0 busy, reconfiguring...
-> yenta 0000:00:0b.0: Preassigned resource 1 busy, reconfiguring...
-> yenta 0000:00:0b.0: Preassigned resource 1 busy, reconfiguring...
-> yenta 0000:00:0b.0: no resource of type 200 available, trying to continue...
-> yenta 0000:00:0b.0: Preassigned resource 2 busy, reconfiguring...
-> yenta 0000:00:0b.0: Preassigned resource 2 busy, reconfiguring...
-> yenta 0000:00:0b.0: no resource of type 100 available, trying to continue...
-> yenta 0000:00:0b.0: Preassigned resource 3 busy, reconfiguring...
-> yenta 0000:00:0b.0: Preassigned resource 3 busy, reconfiguring...
-> yenta 0000:00:0b.0: no resource of type 100 available, trying to continue...
-> Yenta: ISA IRQ mask 0x04b8, PCI irq 11
-> Socket status: 30000020
-> 
-> 2.6.12 okay
-> 
-> See:
->   http://scatter.mine.nu/test/linux-2.6/tosh/
-> for config, dmesg, cpu, mem, ioports, etc
+There is a way to defeat the GCC string alignments by putting the strings in
+a dynamically sized structure if anyone cares.  A bonus side effect of this
+scheme is that kernel/driver NLS translations would become almost trivial
+because all the string texts are collected in one place.
 
-I've filed a bug at kernel bugzilla, so your report won't be lost.
-See http://bugme.osdl.org/show_bug.cgi?id=4775
+The basic idea looks like this:
+
+#define MSG1 "Message text blah"
+#define MSG2 "Message text blah, blah"
+#define MSG3 "Message text blah, blah, blah"
+
+#ifndef __GCC_FORMAT_STRING_CHECKS__
+static const struct
+    {
+    char m1[sizeof(MSG1)+1];
+    char m2[sizeof(MSG2)+1];
+    char m3[sizeof(MSG3)+1];
+    } msg = {
+    {MSG1},
+    {MSG2},
+    {MSG3}
+    };
+#undef MSG1
+#undef MSG2
+#undef MSG3
+#define MSG1 msg.m1
+#define MSG2 msg.m2
+#define MSG3 msg.m3
+#endif
+
+The #ifdef allows for a "trial build" so GCC can type match parms to format
+strings by just plugging the texts in verbatim like it is today.
+
+The next logical step up from this would be to extract the #define "...."
+stuff into a header, and voila, you've got trivial kernel/driver translation
+(at least for pan-euro/western languages) essentially for free that doesn't
+require anyone to fork off a special translation tree - they can keep using
+mainline code base and just do a language specific header translation.
+
+This scheme has saved several hundreds of bytes in couple of drivers I've
+been diddling around with prototyping some changes on.
+
+ (Name == Tony Ingenoso)
+
+
+----- Original Message ----- 
+From: "Jean Delvare" <khali@linux-fr.org>
+To: <cutaway@bellsouth.net>
+Cc: "Denis Vlasenko" <vda@ilport.com.ua>; "LKML"
+<linux-kernel@vger.kernel.org>
+Sent: Tuesday, June 21, 2005 17:49
+Subject: Re: [RFC] cleanup patches for strings
+
+
+> Hi,... hm, don't you have a name?
+>
+> > Jean, the default string alignments GCC seems to insist on using are
+> > going to screw you far more than the extra byte here or there ;->
+>
+> That's possible, however I can't do anything against GCC personally,
+> while I can help cleanup the code and possibly actually space a few
+> bytes here and there. So let's just do it.
+>
+> Oh, and GCC might end up being smart, who knows.
+>
+> -- 
+> Jean Delvare
+>
+

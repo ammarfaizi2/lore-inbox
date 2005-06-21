@@ -1,172 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262331AbVFUWWZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262360AbVFUW2S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262331AbVFUWWZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 18:22:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262307AbVFUWVM
+	id S262360AbVFUW2S (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 18:28:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262307AbVFUW2R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 18:21:12 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:37567 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262551AbVFUVj1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 17:39:27 -0400
+	Tue, 21 Jun 2005 18:28:17 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:7166 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262549AbVFUVj0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 17:39:26 -0400
 From: Arnd Bergmann <arnd@arndb.de>
 To: Paul Mackerras <paulus@samba.org>
-Subject: [PATCH 5/11] ppc64: add a minimal nvram driver
-Date: Tue, 21 Jun 2005 23:20:05 +0200
+Subject: [PATCH 2/11] ppc64: rename pSeries rtc functions into rtas_*
+Date: Tue, 21 Jun 2005 23:13:11 +0200
 User-Agent: KMail/1.7.2
 Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
-References: <200506212310.54156.arnd@arndb.de> <200506212317.13467.arnd@arndb.de> <200506212318.16573.arnd@arndb.de>
-In-Reply-To: <200506212318.16573.arnd@arndb.de>
+References: <200506212310.54156.arnd@arndb.de> <200506212311.36010.arnd@arndb.de>
+In-Reply-To: <200506212311.36010.arnd@arndb.de>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200506212320.05799.arnd@arndb.de>
+Message-Id: <200506212313.12090.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The firmware provides the location and size of the nvram
-in the device tree, so it does not really contain any
-hardware specific bits and could be used on other
-machines as well.
- 
-From: Utz Bacher <utz.bacher@de.ibm.com>
+The rtc rtas functions are not pSeries specific but can
+also be used by BPA and other SLOF based platforms
+
 Signed-off-by: Arnd Bergmann <arndb@de.ibm.com>
 
-Index: linus-2.5/arch/ppc64/kernel/bpa_nvram.c
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linus-2.5/arch/ppc64/kernel/bpa_nvram.c	2005-04-20 01:55:36.000000000 +0200
-@@ -0,0 +1,118 @@
-+/*
-+ * NVRAM for CPBW
-+ *
-+ * (C) Copyright IBM Corp. 2005
-+ *
-+ * Authors : Utz Bacher <utz.bacher@de.ibm.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2, or (at your option)
-+ * any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ */
-+
-+#include <linux/fs.h>
-+#include <linux/init.h>
-+#include <linux/kernel.h>
-+#include <linux/spinlock.h>
-+#include <linux/types.h>
-+
-+#include <asm/machdep.h>
-+#include <asm/nvram.h>
-+#include <asm/prom.h>
-+
-+static void __iomem *bpa_nvram_start;
-+static long bpa_nvram_len;
-+static spinlock_t bpa_nvram_lock = SPIN_LOCK_UNLOCKED;
-+
-+static ssize_t bpa_nvram_read(char *buf, size_t count, loff_t *index)
-+{
-+	unsigned long flags;
-+
-+	if (*index >= bpa_nvram_len)
-+		return 0;
-+	if (*index + count > bpa_nvram_len)
-+		count = bpa_nvram_len - *index;
-+
-+	spin_lock_irqsave(&bpa_nvram_lock, flags);
-+
-+	memcpy_fromio(buf, bpa_nvram_start + *index, count);
-+
-+	spin_unlock_irqrestore(&bpa_nvram_lock, flags);
-+	
-+	*index += count;
-+	return count;
-+}
-+
-+static ssize_t bpa_nvram_write(char *buf, size_t count, loff_t *index)
-+{
-+	unsigned long flags;
-+
-+	if (*index >= bpa_nvram_len)
-+		return 0;
-+	if (*index + count > bpa_nvram_len)
-+		count = bpa_nvram_len - *index;
-+
-+	spin_lock_irqsave(&bpa_nvram_lock, flags);
-+
-+	memcpy_toio(bpa_nvram_start + *index, buf, count);
-+
-+	spin_unlock_irqrestore(&bpa_nvram_lock, flags);
-+	
-+	*index += count;
-+	return count;
-+}
-+
-+static ssize_t bpa_nvram_get_size(void)
-+{
-+	return bpa_nvram_len;
-+}
-+
-+int __init bpa_nvram_init(void)
-+{
-+	struct device_node *nvram_node;
-+	unsigned long *buffer;
-+	int proplen;
-+	unsigned long nvram_addr;
-+	int ret;
-+
-+	ret = -ENODEV;
-+	nvram_node = of_find_node_by_type(NULL, "nvram");
-+	if (!nvram_node)
-+		goto out;
-+
-+	ret = -EIO;
-+	buffer = (unsigned long *)get_property(nvram_node, "reg", &proplen);
-+	if (proplen != 2*sizeof(unsigned long))
-+		goto out;
-+
-+	ret = -ENODEV;
-+	nvram_addr = buffer[0];
-+	bpa_nvram_len = buffer[1];
-+	if ( (!bpa_nvram_len) || (!nvram_addr) )
-+		goto out;
-+
-+	bpa_nvram_start = ioremap(nvram_addr, bpa_nvram_len);
-+	if (!bpa_nvram_start)
-+		goto out;
-+
-+	printk(KERN_INFO "BPA NVRAM, %luk mapped to %p\n",
-+	       bpa_nvram_len >> 10, bpa_nvram_start);
-+
-+	ppc_md.nvram_read	= bpa_nvram_read;
-+	ppc_md.nvram_write	= bpa_nvram_write;
-+	ppc_md.nvram_size	= bpa_nvram_get_size;
-+
-+out:
-+	of_node_put(nvram_node);
-+	return ret;
-+}
-Index: linus-2.5/include/asm-ppc64/nvram.h
-===================================================================
---- linus-2.5.orig/include/asm-ppc64/nvram.h	2005-04-20 01:54:03.000000000 +0200
-+++ linus-2.5/include/asm-ppc64/nvram.h	2005-04-20 01:55:36.000000000 +0200
-@@ -70,6 +70,7 @@
+--
+ arch/ppc64/kernel/pSeries_setup.c |    9 +++------
+ arch/ppc64/kernel/rtc.c           |    6 +++---
+ include/asm-ppc64/rtas.h          |    5 +++++
+ 3 files changed, 11 insertions(+), 9 deletions(-)
+
+--- linux-cg.orig/arch/ppc64/kernel/pSeries_setup.c	2005-06-21 03:15:26.961012552 -0400
++++ linux-cg/arch/ppc64/kernel/pSeries_setup.c	2005-06-21 03:15:27.004006016 -0400
+@@ -73,9 +73,6 @@
  
- extern int pSeries_nvram_init(void);
- extern int pmac_nvram_init(void);
-+extern int bpa_nvram_init(void);
+ extern void pSeries_final_fixup(void);
  
- /* PowerMac specific nvram stuffs */
+-extern void pSeries_get_boot_time(struct rtc_time *rtc_time);
+-extern void pSeries_get_rtc_time(struct rtc_time *rtc_time);
+-extern int  pSeries_set_rtc_time(struct rtc_time *rtc_time);
+ extern void find_udbg_vterm(void);
+ extern void system_reset_fwnmi(void);	/* from head.S */
+ extern void machine_check_fwnmi(void);	/* from head.S */
+@@ -534,9 +531,9 @@ struct machdep_calls __initdata pSeries_
+ 	.halt			= rtas_halt,
+ 	.panic			= rtas_os_term,
+ 	.cpu_die		= pSeries_mach_cpu_die,
+-	.get_boot_time		= pSeries_get_boot_time,
+-	.get_rtc_time		= pSeries_get_rtc_time,
+-	.set_rtc_time		= pSeries_set_rtc_time,
++	.get_boot_time		= rtas_get_boot_time,
++	.get_rtc_time		= rtas_get_rtc_time,
++	.set_rtc_time		= rtas_set_rtc_time,
+ 	.calibrate_decr		= generic_calibrate_decr,
+ 	.progress		= pSeries_progress,
+ 	.check_legacy_ioport	= pSeries_check_legacy_ioport,
+--- linux-cg.orig/arch/ppc64/kernel/rtc.c	2005-06-21 03:15:21.762997888 -0400
++++ linux-cg/arch/ppc64/kernel/rtc.c	2005-06-21 03:15:27.005005864 -0400
+@@ -303,7 +303,7 @@ void iSeries_get_boot_time(struct rtc_ti
+ #ifdef CONFIG_PPC_RTAS
+ #define MAX_RTC_WAIT 5000	/* 5 sec */
+ #define RTAS_CLOCK_BUSY (-2)
+-void pSeries_get_boot_time(struct rtc_time *rtc_tm)
++void rtas_get_boot_time(struct rtc_time *rtc_tm)
+ {
+ 	int ret[8];
+ 	int error, wait_time;
+@@ -338,7 +338,7 @@ void pSeries_get_boot_time(struct rtc_ti
+  * and if a delay is needed to read the clock.  In this case we just
+  * silently return without updating rtc_tm.
+  */
+-void pSeries_get_rtc_time(struct rtc_time *rtc_tm)
++void rtas_get_rtc_time(struct rtc_time *rtc_tm)
+ {
+         int ret[8];
+ 	int error, wait_time;
+@@ -373,7 +373,7 @@ void pSeries_get_rtc_time(struct rtc_tim
+ 	rtc_tm->tm_year = ret[0] - 1900;
+ }
  
+-int pSeries_set_rtc_time(struct rtc_time *tm)
++int rtas_set_rtc_time(struct rtc_time *tm)
+ {
+ 	int error, wait_time;
+ 	unsigned long max_wait_tb;
+--- linux-cg.orig/include/asm-ppc64/rtas.h	2005-06-21 03:15:24.090910336 -0400
++++ linux-cg/include/asm-ppc64/rtas.h	2005-06-21 03:15:44.352891944 -0400
+@@ -188,6 +188,11 @@ extern int rtas_set_power_level(int powe
+ extern int rtas_set_indicator(int indicator, int index, int new_value);
+ extern void rtas_initialize(void);
+ 
++struct rtc_time;
++extern void rtas_get_boot_time(struct rtc_time *rtc_time);
++extern void rtas_get_rtc_time(struct rtc_time *rtc_time);
++extern int rtas_set_rtc_time(struct rtc_time *rtc_time);
++
+ /* Given an RTAS status code of 9900..9905 compute the hinted delay */
+ unsigned int rtas_extended_busy_delay_time(int status);
+ static inline int rtas_is_extended_busy(int status)
 

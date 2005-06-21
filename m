@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262294AbVFUWkk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262439AbVFUXmg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262294AbVFUWkk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 18:40:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262421AbVFUWji
+	id S262439AbVFUXmg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 19:42:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262474AbVFUXiB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 18:39:38 -0400
-Received: from mxfep02.bredband.com ([195.54.107.73]:60610 "EHLO
-	mxfep02.bredband.com") by vger.kernel.org with ESMTP
-	id S262294AbVFUWPl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 18:15:41 -0400
-Message-ID: <42B8919A.1080109@bredband.net>
-Date: Wed, 22 Jun 2005 00:15:54 +0200
-From: =?ISO-8859-1?Q?Patrik_H=E4gglund?= <patrik.hagglund@bredband.net>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Steven Rostedt <rostedt@goodmis.org>, Chris Friesen <cfriesen@nortel.com>
-Subject: Re: SCHED_RR/SCHED_FIFO and kernel threads?
-References: <42B199FF.5010705@bredband.net> <42B19F65.6000102@nortel.com>	 <42B26FF8.6090505@bredband.net> <1119011872.4846.12.camel@localhost.localdomain> <42B3D7E2.2070600@bredband.net>
-In-Reply-To: <42B3D7E2.2070600@bredband.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Tue, 21 Jun 2005 19:38:01 -0400
+Received: from mail.kroah.org ([69.55.234.183]:7134 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262423AbVFUXfq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 19:35:46 -0400
+Date: Tue, 21 Jun 2005 16:13:41 -0700
+From: Greg KH <greg@kroah.com>
+To: Rik van Riel <riel@redhat.com>
+Cc: linux-kernel@vger.kernel.org, mochel@digitalimplant.org
+Subject: Re: [PATCH] Add initial implementation of klist helpers.
+Message-ID: <20050621231340.GA24612@kroah.com>
+References: <1119308365601@kroah.com> <Pine.LNX.4.61.0506210740220.10499@chimarrao.boston.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0506210740220.10499@chimarrao.boston.redhat.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, Ingo's patch didn't made any difference for my problem with kernel 
-starvation.
+On Tue, Jun 21, 2005 at 07:42:26AM -0400, Rik van Riel wrote:
+> On Mon, 20 Jun 2005, Greg KH wrote:
+> 
+> > Internally, that routine takes the klist's lock, decrements the reference
+> > count of the previous klist_node and increments the count of the next
+> > klist_node. It then drops the lock and returns.
+> 
+> Sacrificing performance for scalability has never been
+> the right thing in the past.  Why would it be right now?
 
-As expected, the workaround of raising the priority of the 'events' 
-kernel thread made it possible to switch VT or switch windows in X (as 
-described in my first mail), when running a simple infinite loop. When 
-running arbitrary programs, I expect that all kernel threads needs 
-higher priority.
+This is not a performance critical piece of code at all.  It's used to
+walk devices and drivers and busses at device insertion and removal
+time, and at module load and unload.  All of which are not bottlenecks
+in benchmarks :)
 
-I guess that the point with kernel threads is to push heavy kernel 
-requests "backwards in the queue", thereby lowering the mean latency for 
-SHED_OTHER processes. Therefore, using high priorities for kernel 
-threads was not an option. However, this comes at the price of breaking 
-SCHED_FIFO/SCHED_RR.
+Now if people want to use this for performance critical stuff, that
+would be a different story.  But the odds that they would be doing this
+with kobjects would be very slim...
 
-The only clean solution is probably to have priorities that are reserved 
-for kernel threads. I saw that kernel threads in LynxOS may use a 
-priority of 1/2 above of the user-space tasks it serves. This seems like 
-a good solution to the problem.
+thanks,
 
-Any other patches out there, ready for a test?
-
-/Patrik Hägglund
+greg k-h

@@ -1,53 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262494AbVFUV22@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262387AbVFUVg0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262494AbVFUV22 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 17:28:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262547AbVFUVZf
+	id S262387AbVFUVg0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 17:36:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262342AbVFUVd5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 17:25:35 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:22246 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262530AbVFUVXo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 17:23:44 -0400
-To: Andrew Morton <akpm@osdl.org>
-cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org
-Reply-To: Gerrit Huizenga <gh@us.ibm.com>
-From: Gerrit Huizenga <gh@us.ibm.com>
-Subject: Re: -mm -> 2.6.13 merge status 
-In-reply-to: Your message of Tue, 21 Jun 2005 14:04:41 PDT.
-             <20050621140441.53513a7a.akpm@osdl.org> 
-Date: Tue, 21 Jun 2005 14:23:11 -0700
-Message-Id: <E1DkqD9-00079l-00@w-gerrit.beaverton.ibm.com>
+	Tue, 21 Jun 2005 17:33:57 -0400
+Received: from god.demon.nl ([83.160.164.11]:17793 "EHLO god.dyndns.org")
+	by vger.kernel.org with ESMTP id S262554AbVFUVaR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 17:30:17 -0400
+Date: Tue, 21 Jun 2005 23:30:09 +0200
+From: Henk <Henk.Vergonet@gmail.com>
+To: randy_dunlap <rdunlap@xenotime.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] new 7-segments char translation API
+Message-ID: <20050621213009.GA2122@god.dyndns.org>
+References: <20050531220738.GA21775@god.dyndns.org> <429DAB07.1050900@anagramm.de> <20050604204403.GA10417@god.dyndns.org> <20050605005329.70d9461a.froese@gmx.de> <20050606092608.GA16471@god.dyndns.org> <20050606091942.2c31bb98.rdunlap@xenotime.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=unknown-8bit
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050606091942.2c31bb98.rdunlap@xenotime.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Tue, 21 Jun 2005 14:04:41 PDT, Andrew Morton wrote:
-> Gerrit Huizenga <gh@us.ibm.com> wrote:
-> >
-> > Kexec/kdump has a chance of working reliably.
+On Mon, Jun 06, 2005 at 09:19:42AM -0700, randy_dunlap wrote:
+> On Mon, 6 Jun 2005 11:26:08 +0200 Henk wrote:
 > 
-> IOW: Kexec/kdump has a chance of not working reliably.
+> | On Sun, Jun 05, 2005 at 12:53:29AM +0200, Edgar Toernig wrote:
+> | > By your reasoning /usr/dict/words had to be in the kernel,
+> | > too.
+> | 
+> | Well by my reasoning you should, if possible, define some usefull
+> | standards that will allow te reuse of these dictionaries within other
+> | applications.
+> | 
+> | And while we're on the subject of whats IN or OUT, (and I'll bet if you
+> | ask 10 kernel developers you'll get 10 answers but I try anyway ;)
+> | 
+> | In my philosophy the OS (kernel + device drivers) is an abstraction of
+> | the machine, it should present the 'machine' in such a way that allows
+> | for other abstractions such as a word processor to operate without having
+> | to know the specifics of hardware devices.
 > 
-> Worried.
+> The abstraction also includes libraries, and if lib7segment
+> could do this from userspace, that's where it should reside.
+> I'm not saying that it can, but if it can, then that's the
+> desired place for it.
+> 
+Sorry for the late response,
 
-No worries.  Machine locks up hard, hardware failures, etc., there
-is a possibility that nothing but a hard reset can unlock a machine.
-But that is rare and outside the scope of the simple locking problems
-that today prevent crash dumps.  There are still some rough edges in
-PCI shutdown code, reinitialization, etc. that will need to be shaken
-out over time with more experience, but those at least can be addressed
-in the fundamental architecture of kexec/kdump.
+The patch that was at the beginning of this thread is just a standard,
+and just enough so a userspace program would never have to know anything
+about 7 segments. And its just enough a device driver that needs to know
+about this can implement it in a way that is portable and standardised.
 
-About the only possible solution that *might* be fail proof (and even
-that case I doubt) would be an external dump program under control
-of the firmware (assuming the firmware can still run) which does a
-copy of memory off to some device without any assistance from the
-kernel.
+I would, with all the love of the world create an userspace lib7segment for
+you guys, but all I can think of is just this linux include file.
 
-Kexec/kdump needs much wider exposure at this point and there will
-a few bumps along the way.  They should be isolated to cases where
-the machine is already crashing and the only thing that doesn't work
-is the crash dump/restart.  And those we will fix like any other bugs.
 
-gerrit
+Well I think that the real issue here is that many of the kernel
+developers feel that there´s to much fluff & features in the kernel
+already.
+
+>From an operational perspective I imagine its becomming harder and harder
+to manage kernel code so I can understand people when they are
+saying f**k off with 7-segments Ive got bigger fish to fry.
+
+No offense taken, I just hope I didnt offend anyone either.
+
+Ill be back,)
+
+Henk Vergonet
+

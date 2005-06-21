@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262172AbVFUQoM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262147AbVFUREB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262172AbVFUQoM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 12:44:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262183AbVFUQcN
+	id S262147AbVFUREB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 13:04:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262188AbVFUREB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 12:32:13 -0400
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:58095 "EHLO
-	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S262182AbVFUQ2Q
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 12:28:16 -0400
-Date: Tue, 21 Jun 2005 18:28:18 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: akpm@osdl.org, heiko.carstens@de.ibm.com, linux-kernel@vger.kernel.org
-Subject: [patch 10/16] s390: kernel stack overflow panic.
-Message-ID: <20050621162818.GJ6053@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Tue, 21 Jun 2005 13:04:01 -0400
+Received: from pilet.ens-lyon.fr ([140.77.167.16]:14030 "EHLO
+	relaissmtp.ens-lyon.fr") by vger.kernel.org with ESMTP
+	id S262147AbVFURCb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 13:02:31 -0400
+Message-ID: <42B84820.9010105@ens-lyon.org>
+Date: Tue, 21 Jun 2005 19:02:24 +0200
+From: Brice Goglin <Brice.Goglin@ens-lyon.org>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.12-mm1
+References: <20050619233029.45dd66b8.akpm@osdl.org>	<42B6777F.2050008@ens-lyon.org>	<42B80AB5.7090506@ens-lyon.org> <s5hll53oet1.wl%tiwai@suse.de>
+In-Reply-To: <s5hll53oet1.wl%tiwai@suse.de>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[patch 10/16] s390: kernel stack overflow panic.
+Le 21.06.2005 18:27, Takashi Iwai a écrit :
+> Well, this disables the h/w volume controls completely, so it's not a
+> generic solution.
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Well, I though this wouldn't break anything since HW_INT_ENABLE is not
+set there is 2.6.12. Is this a new feature ?
 
-die() doesn't return, therefore print registers and then panic instead.
+How is this supposed to work ? Does HW_INT_ENABLE in this outw require
+some other parts of the git-alsa.patch ?
 
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> Does the patch below have any improvement?
 
-diffstat:
- arch/s390/kernel/traps.c |    5 ++++-
- 1 files changed, 4 insertions(+), 1 deletion(-)
+No, same error.
 
-diff -urpN linux-2.6/arch/s390/kernel/traps.c linux-2.6-patched/arch/s390/kernel/traps.c
---- linux-2.6/arch/s390/kernel/traps.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6-patched/arch/s390/kernel/traps.c	2005-06-21 17:36:52.000000000 +0200
-@@ -668,7 +668,10 @@ asmlinkage void space_switch_exception(s
- 
- asmlinkage void kernel_stack_overflow(struct pt_regs * regs)
- {
--	die("Kernel stack overflow", regs, 0);
-+	bust_spinlocks(1);
-+	printk("Kernel stack overflow.\n");
-+	show_regs(regs);
-+	bust_spinlocks(0);
- 	panic("Corrupt kernel stack, can't continue.");
- }
- 
+Your second patch gives same error too, but it also made my beeper
+generate a very sharp sound during the whole boot.
+
+Actually, I can't test after boot since -mm1 crashes a little bit
+later on my laptop. That's why I didn't notice any eventual h/w
+volume control breakage with my patch :)
+If necessary, I can try with git-alsa.patch applied on top of 2.6.12.
+
+Brice

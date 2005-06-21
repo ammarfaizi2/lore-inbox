@@ -1,56 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262165AbVFUSRl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262164AbVFUSRX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262165AbVFUSRl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 14:17:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262170AbVFUSRl
+	id S262164AbVFUSRX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 14:17:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262165AbVFUSRX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 14:17:41 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:31144 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S262165AbVFUSR0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 14:17:26 -0400
-Message-ID: <42B859B4.5060209@pobox.com>
-Date: Tue, 21 Jun 2005 14:17:24 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: git-pull-script on my linus tree fails..
-References: <Pine.LNX.4.58.0506211304320.2915@skynet> <Pine.LNX.4.58.0506210837020.2268@ppc970.osdl.org> <42B838BC.8090601@pobox.com> <Pine.LNX.4.58.0506210905560.2268@ppc970.osdl.org> <42B84E20.7010100@pobox.com> <Pine.LNX.4.58.0506211039350.2268@ppc970.osdl.org> <42B8542A.9020700@pobox.com> <Pine.LNX.4.58.0506211103370.2268@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0506211103370.2268@ppc970.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 21 Jun 2005 14:17:23 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:36769 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S262164AbVFUSRQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 14:17:16 -0400
+Message-Id: <200506211816.j5LIGj3E020507@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Adam Goode <adam@evdebs.org>, Vojtech Pavlik <vojtech@suse.cz>,
+       Pavel Machek <pavel@suse.cz>,
+       Alejandro Bonilla <abonilla@linuxwireless.org>,
+       linux-kernel@vger.kernel.org, linux-thinkpad@linux-thinkpad.org
+Subject: Re: IBM HDAPS Someone interested? 
+In-Reply-To: Your message of "Tue, 21 Jun 2005 11:37:38 EDT."
+             <1119368259.19357.18.camel@mindpipe> 
+From: Valdis.Kletnieks@vt.edu
+References: <20050620155720.GA22535@ucw.cz> <005401c575b3_5f5bba90_600cc60a@amer.sykes.com> <20050620163456.GA24111@ucw.cz> <20050620165703.GB477@openzaurus.ucw.cz> <20050620204533.GA9520@ucw.cz> <1119303016.5194.24.camel@lynx.auton.cs.cmu.edu>
+            <1119368259.19357.18.camel@mindpipe>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1119377804_10696P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Date: Tue, 21 Jun 2005 14:16:45 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> No, you don't understand. The git-checkout-script already takes a 
-> parameter to indicate _what_ to check out. It just defaults to head.
-> 
-> So you'd do
-> 
-> 	git-checkout-script branch && switch branch
-> 
-> and you'd be done.
+--==_Exmh_1119377804_10696P
+Content-Type: text/plain; charset=us-ascii
 
-ah, ok.
+On Tue, 21 Jun 2005 11:37:38 EDT, Lee Revell said:
+> On Mon, 2005-06-20 at 17:30 -0400, Adam Goode wrote:
+> > Freefall detection: 300 ms
+> > Head park time: 300-500 ms
 
+> Ugh, if userspace can't meet a 300ms RT constraint, that's a pretty
+> shitty OS you have there.
 
-> Anyway, I liked the branch semantics for "git checkout" so much that I 
-> just made it do that by default. In other words, if you do
-[...]
-> These seem like sane and useful semantics, and your "switch" script should 
-> really fall out as "git checkout -f".
+Actually, it's a lot tighter than that.  You need to *issue* the "park head"
+command 300-500ms before it hits the ground, and you have 300ms of free fall.
 
-If git-checkout-script switches the .git/HEAD symlink properly, rather 
-than updating the symlink target's contents, then my git-switch-tree 
-script can just go away :)
+So you may have needed to detect the free fall and issue the command 200ms
+before the free fall commences.
 
-Thanks,
+That's a *real* hard RT constraint to keep. ;)
 
-	Jeff
+--==_Exmh_1119377804_10696P
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
+iD8DBQFCuFmMcC3lWbTT17ARAk7BAKDruLOrxVmcEgT+fAKp3VUvPdNv9gCfbsG1
+uVOULLITkTHQGhQIPg7ZhiY=
+=9uBu
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1119377804_10696P--

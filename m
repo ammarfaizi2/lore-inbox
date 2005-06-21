@@ -1,94 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261562AbVFURvJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262211AbVFURx4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261562AbVFURvJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 13:51:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262217AbVFURvJ
+	id S262211AbVFURx4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 13:53:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262212AbVFURx4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 13:51:09 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:64267 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262211AbVFURul (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 13:50:41 -0400
-Date: Tue, 21 Jun 2005 19:50:36 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Alex Woods <linux-dvb@giblets.org>
-Cc: linux-dvb-maintainer@linuxtv.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/media/dvb/ttusb-dec/ttusbdecfe.c: remove dead code
-Message-ID: <20050621175036.GU3666@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Tue, 21 Jun 2005 13:53:56 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:26792 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S262211AbVFURxw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 13:53:52 -0400
+Message-ID: <42B8542A.9020700@pobox.com>
+Date: Tue, 21 Jun 2005 13:53:46 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Dave Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org
+Subject: Re: git-pull-script on my linus tree fails..
+References: <Pine.LNX.4.58.0506211304320.2915@skynet> <Pine.LNX.4.58.0506210837020.2268@ppc970.osdl.org> <42B838BC.8090601@pobox.com> <Pine.LNX.4.58.0506210905560.2268@ppc970.osdl.org> <42B84E20.7010100@pobox.com> <Pine.LNX.4.58.0506211039350.2268@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0506211039350.2268@ppc970.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Coverity checker discovered that these two kfree's can never be
-executed.
+Linus Torvalds wrote:
+> Actually, I'd suggest doing the git-checkout-script _first_. That way you 
+> _can_ use the careful version, which refuses to switch if it would cause 
+> information to be lost. Ie something like
+> 
+> 	git-checkout-script $1 && switch HEAD to refs/heads/$1
+> 
+> should do it.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
----
+If I want my working dir updated to reflect the desired branch -- the 
+whole purpose of git-switch-tree -- I would have to do
 
- drivers/media/dvb/ttusb-dec/ttusbdecfe.c |   14 ++++----------
- 1 files changed, 4 insertions(+), 10 deletions(-)
+	git-checkout-script && switch HEAD && git-checkout-script
 
---- linux-2.6.12-mm1-full/drivers/media/dvb/ttusb-dec/ttusbdecfe.c.old	2005-06-21 16:51:29.000000000 +0200
-+++ linux-2.6.12-mm1-full/drivers/media/dvb/ttusb-dec/ttusbdecfe.c	2005-06-21 16:52:13.000000000 +0200
-@@ -154,52 +154,46 @@
- struct dvb_frontend* ttusbdecfe_dvbt_attach(const struct ttusbdecfe_config* config)
- {
- 	struct ttusbdecfe_state* state = NULL;
- 
- 	/* allocate memory for the internal state */
- 	state = (struct ttusbdecfe_state*) kmalloc(sizeof(struct ttusbdecfe_state), GFP_KERNEL);
--	if (state == NULL) goto error;
-+	if (state == NULL)
-+		return NULL;
- 
- 	/* setup the state */
- 	state->config = config;
- 	memcpy(&state->ops, &ttusbdecfe_dvbt_ops, sizeof(struct dvb_frontend_ops));
- 
- 	/* create dvb_frontend */
- 	state->frontend.ops = &state->ops;
- 	state->frontend.demodulator_priv = state;
- 	return &state->frontend;
--
--error:
--	kfree(state);
--	return NULL;
- }
- 
- static struct dvb_frontend_ops ttusbdecfe_dvbs_ops;
- 
- struct dvb_frontend* ttusbdecfe_dvbs_attach(const struct ttusbdecfe_config* config)
- {
- 	struct ttusbdecfe_state* state = NULL;
- 
- 	/* allocate memory for the internal state */
- 	state = (struct ttusbdecfe_state*) kmalloc(sizeof(struct ttusbdecfe_state), GFP_KERNEL);
--	if (state == NULL) goto error;
-+	if (state == NULL)
-+		return NULL;
- 
- 	/* setup the state */
- 	state->config = config;
- 	state->voltage = 0;
- 	state->hi_band = 0;
- 	memcpy(&state->ops, &ttusbdecfe_dvbs_ops, sizeof(struct dvb_frontend_ops));
- 
- 	/* create dvb_frontend */
- 	state->frontend.ops = &state->ops;
- 	state->frontend.demodulator_priv = state;
- 	return &state->frontend;
--
--error:
--	kfree(state);
--	return NULL;
- }
- 
- static struct dvb_frontend_ops ttusbdecfe_dvbt_ops = {
- 
- 	.info = {
- 		.name			= "TechnoTrend/Hauppauge DEC2000-t Frontend",
+which is a bit silly.
+
+	Jeff
+
 

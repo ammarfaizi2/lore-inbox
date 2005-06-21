@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262189AbVFUReI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262206AbVFURgT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262189AbVFUReI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 13:34:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbVFUReH
+	id S262206AbVFURgT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 13:36:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262207AbVFURgT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 13:34:07 -0400
-Received: from webmail.topspin.com ([12.162.17.3]:59944 "EHLO
-	exch-1.topspincom.com") by vger.kernel.org with ESMTP
-	id S262189AbVFUReE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 13:34:04 -0400
-To: Timur Tabi <timur.tabi@ammasso.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: get_user_pages() and shared memory question
-X-Message-Flag: Warning: May contain useful information
-References: <42B82DF2.2050708@ammasso.com>
-From: Roland Dreier <roland@topspin.com>
-Date: Tue, 21 Jun 2005 10:33:59 -0700
-In-Reply-To: <42B82DF2.2050708@ammasso.com> (Timur Tabi's message of "Tue,
- 21 Jun 2005 10:10:42 -0500")
-Message-ID: <523brbwr5k.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 21 Jun 2005 17:34:00.0041 (UTC) FILETIME=[68C63590:01C57687]
+	Tue, 21 Jun 2005 13:36:19 -0400
+Received: from wproxy.gmail.com ([64.233.184.200]:26313 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262206AbVFURgH convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 13:36:07 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=AF131VYYyEs8uZdetO7TBRk4h9pV6s0qIMCpxDsO3epr8Q+oeYbqXYThiQMpzfOsw8IviglyIYJ6OCpMqWJ/kq7lBGWfh9v1gKpqS490mfB8AEIbzfo4m/SCUgC5M/7ziqLhZD0PvrAyZcWV8h5g46Ohdv6L5/6fizK1ER91RS4=
+Message-ID: <5c77e70705062110353f180d70@mail.gmail.com>
+Date: Tue, 21 Jun 2005 19:35:21 +0200
+From: Carsten Otte <cotte.de@gmail.com>
+Reply-To: Carsten Otte <cotte.de@gmail.com>
+To: Greg KH <gregkh@suse.de>
+Subject: Re: [GIT PATCH] Remove devfs from 2.6.12-git
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com
+In-Reply-To: <20050621062926.GB15062@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050621062926.GB15062@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Timur> Hi, Is it possible for a page of memory that's been
-    Timur> "grabbed" with get_user_pages() to ever be allocated to
-    Timur> another process?  I'm assuming the answer is no, but I have
-    Timur> a specific case I want to ask about.
-
-Not to the best of my knowledge, although you should probably read the
-code to convince yourself.
-
-    Timur> Until 2.6.7, there was a bug in the VM where a page that
-    Timur> was grabbed with get_user_pages() could be swapped out.
-    Timur> Those of you familar with the OpenIB work know what I'm
-    Timur> talking about.  Would that bug affect anything I'm talking
-    Timur> about?
-
-This isn't what the bug caused.  What could happen was that the
-swapper could unmap a page from a process's virtual memory map before
-it noticed that the page had an elevated reference count.  The page
-wouldn't get swapped out, but when the process caused a page fault to
-bring the virtual address back, it would get a different piece of
-physical memory.
-
- - R.
+On 6/21/05, Greg KH <gregkh@suse.de> wrote:
+>  drivers/s390/block/dasd.c                         |    4
+>  drivers/s390/block/dasd_genhd.c                   |    2
+>  drivers/s390/block/dasd_int.h                     |    1
+>  drivers/s390/block/xpram.c                        |    6
+>  drivers/s390/char/monreader.c                     |    1
+>  drivers/s390/char/tty3270.c                       |    3
+>  drivers/s390/crypto/z90main.c                     |    1
+>  drivers/s390/net/ctctty.c                         |    2
+As for our drivers, I don't see any breakage on reading the patches.
+If it gets merged,
+we should make sure to try it once before next release.

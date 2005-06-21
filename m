@@ -1,51 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262096AbVFUJmg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262076AbVFUJlt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262096AbVFUJmg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 05:42:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261507AbVFUJmK
+	id S262076AbVFUJlt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 05:41:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262090AbVFUJiP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 05:42:10 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:2979 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S262096AbVFUJlS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 05:41:18 -0400
-Subject: Re: PATCH: Samsung SN-124 works perfectly well with DMA
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org
-In-Reply-To: <42B72EDC.6040707@pobox.com>
-References: <1119298324.3304.29.camel@localhost.localdomain>
-	 <42B72EDC.6040707@pobox.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1119346591.3707.84.camel@localhost.localdomain>
+	Tue, 21 Jun 2005 05:38:15 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:24765 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261657AbVFUJhp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 05:37:45 -0400
+Date: Tue, 21 Jun 2005 02:37:01 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: vgoyal@in.ibm.com
+Cc: ebiederm@xmission.com, linux-kernel@vger.kernel.org,
+       fastboot@lists.osdl.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] kdump documentation update to introduce use of irqpoll
+Message-Id: <20050621023701.219705a4.akpm@osdl.org>
+In-Reply-To: <20050621092613.GF3746@in.ibm.com>
+References: <20050621092613.GF3746@in.ibm.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 21 Jun 2005 10:36:44 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2005-06-20 at 22:02, Jeff Garzik wrote:
-> Alan Cox wrote:
-> > Been in Red Hat products for ages
-> > 
-> > Signed-off-by: Alan Cox <alan@redhat.com>
-> 
-> Can you provide a similar patch for ata_dma_blacklist[] in libata-core.c?
+Vivek Goyal <vgoyal@in.ibm.com> wrote:
+>
+> o Specify "irqpoll" command line option which loading second kernel. This
+>    helps in reducing driver initialization failures in second kernel due
+>    to shared interrupts.
 
-Good point. 
+Well that rather assumes we've merged the irqpoll patch.
 
---- drivers/scsi/libata-core.c~	2005-06-21 10:34:00.503444736 +0100
-+++ drivers/scsi/libata-core.c	2005-06-21 10:34:00.504444584 +0100
-@@ -1897,7 +1897,6 @@
- 	"SAMSUNG CD-ROM SC-148C",
- 	"SAMSUNG CD-ROM SC",
- 	"SanDisk SDP3B-64",
--	"SAMSUNG CD-ROM SN-124",
- 	"ATAPI CD-ROM DRIVE 40X MAXIMUM",
- 	"_NEC DV5800A",
- };
-
-
-Signed-off-by: Alan Cox <alan@redhat.com>
-
+Is Alan OK with that?

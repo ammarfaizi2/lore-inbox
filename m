@@ -1,79 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262202AbVFUREv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262176AbVFUROZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262202AbVFUREv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 13:04:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262231AbVFUREn
+	id S262176AbVFUROZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 13:14:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262204AbVFURNV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 13:04:43 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:2040 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S262187AbVFUQ3d
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 12:29:33 -0400
-Date: Tue, 21 Jun 2005 18:29:35 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: akpm@osdl.org, heiko.carstens@de.ibm.com, linux-kernel@vger.kernel.org
-Subject: [patch 14/16] s390: memory detection > 32GB.
-Message-ID: <20050621162935.GN6053@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 21 Jun 2005 13:13:21 -0400
+Received: from mail.linicks.net ([217.204.244.146]:8200 "EHLO
+	linux233.linicks.net") by vger.kernel.org with ESMTP
+	id S262176AbVFURGK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 13:06:10 -0400
+From: Nick Warne <nick@linicks.net>
+To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12 udev hangs at boot
+Date: Tue, 21 Jun 2005 18:06:07 +0100
+User-Agent: KMail/1.8.1
+References: <200506191639.27970.nick@linicks.net> <20050621064554.GC15239@kroah.com>
+In-Reply-To: <20050621064554.GC15239@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+Message-Id: <200506211806.07411.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[patch 14/16] s390: memory detection > 32GB.
+On Tuesday 21 June 2005 07:45, you wrote:
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+> > It turns out to be a problem (typo?) in  /etc/udev/rules.d/udev.rules
+> >
+> > Try changing:
+> >
+> > # pty devices
+> > KERNEL="pty[p-za-e][0-9a-f]*", NAME="pty/m%n", SYMLINK="%k"
+> > KERNEL="tty[p-za-e][0-9a-f]*", NAME="tty/s%n", SYMLINK="%k"
+> >
+> > to:
+> >
+> > # pty devices
+> > KERNEL="pty[p-za-e][0-9a-f]*", NAME="pty/m%n", SYMLINK="%k"
+> > KERNEL="tty[p-za-e][0-9a-f]*", NAME="pty/s%n", SYMLINK="%k"
+> >
+> > (change is in second line tty -> pty)
+>
+> Hm, that's what already ships with the udev tarball in the gentoo rule
+> set (which is usually the most up-to-date rule set in the tarball.)
+>
+> Which one are you looking at?
 
-The kernel takes a very long time to boot if the memory size is bigger
-then 32767 MB. The memory size is contained in a structure created by
-an sclp call. The kernel accesses the field with a LH instrution which
-performs a sign extension of a 16 bit word. In the case of a memory size
-with bit 2^15 set this results in a very large value and the memory
-detection just loops for a long time. In addition if more then 64 GB
-are used on a 64 bit system the memory size is read from an incorrect
-storage location.
-Use zero-extention to read the 16 bit memory size and the correct offset
-to read the 4 byte memory size on 64 bit.
+This wasn't my 'solution' - I googled:
 
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+http://kerneltrap.org/node/4474
 
-diffstat:
- arch/s390/kernel/head.S   |    8 ++++----
- arch/s390/kernel/head64.S |    6 +++---
- 2 files changed, 7 insertions(+), 7 deletions(-)
+I don't understand why 'less' broke at all...
 
-diff -urpN linux-2.6/arch/s390/kernel/head64.S linux-2.6-patched/arch/s390/kernel/head64.S
---- linux-2.6/arch/s390/kernel/head64.S	2005-06-21 17:36:55.000000000 +0200
-+++ linux-2.6-patched/arch/s390/kernel/head64.S	2005-06-21 17:36:55.000000000 +0200
-@@ -518,9 +518,9 @@ startup:basr  %r13,0                    
- 	l     %r2,.Lrcp2-.LPG1(%r13)	# try with Read SCP
- 	b     .Lservicecall-.LPG1(%r13)
- .Lprocsccb:
--	lh    %r1,.Lscpincr1-PARMAREA(%r4) # use this one if != 0
--	chi   %r1,0x00
--	jne   .Lscnd
-+	lghi  %r1,0
-+	icm   %r1,3,.Lscpincr1-PARMAREA(%r4) # use this one if != 0
-+	jnz   .Lscnd
- 	lg    %r1,.Lscpincr2-PARMAREA(%r4) # otherwise use this one
- .Lscnd:
- 	xr    %r3,%r3			# same logic
-diff -urpN linux-2.6/arch/s390/kernel/head.S linux-2.6-patched/arch/s390/kernel/head.S
---- linux-2.6/arch/s390/kernel/head.S	2005-06-21 17:36:55.000000000 +0200
-+++ linux-2.6-patched/arch/s390/kernel/head.S	2005-06-21 17:36:55.000000000 +0200
-@@ -517,10 +517,10 @@ startup:basr  %r13,0                    
- 	l     %r2, .Lrcp2-.LPG1(%r13)	# try with Read SCP
- 	b     .Lservicecall-.LPG1(%r13)
- .Lprocsccb:
--	lh    %r1,.Lscpincr1-PARMAREA(%r4) # use this one if != 0
--	chi   %r1,0x00
--	jne   .Lscnd
--	l     %r1,.Lscpincr2-PARMAREA(%r4) # otherwise use this one
-+	lhi   %r1,0
-+	icm   %r1,3,.Lscpincr1-PARMAREA(%r4) # use this one if != 0
-+	jnz   .Lscnd
-+	l     %r1,.Lscpincr2-PARMAREA+4(%r4) # otherwise use this one
- .Lscnd:
- 	xr    %r3,%r3			# same logic
- 	ic    %r3,.Lscpa1-PARMAREA(%r4)
+Nick
+-- 
+"When you're chewing on life's gristle,
+Don't grumble, Give a whistle..."

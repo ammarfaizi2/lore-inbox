@@ -1,72 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261299AbVFUMxd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261358AbVFUM5h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261299AbVFUMxd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 08:53:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261345AbVFUMvQ
+	id S261358AbVFUM5h (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 08:57:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261348AbVFUMyY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 08:51:16 -0400
-Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:4246
-	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
-	with ESMTP id S261310AbVFUMrg (ORCPT
+	Tue, 21 Jun 2005 08:54:24 -0400
+Received: from fra-del-01.spheriq.net ([195.46.51.97]:36807 "EHLO
+	fra-del-01.spheriq.net") by vger.kernel.org with ESMTP
+	id S261350AbVFUMuk convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 08:47:36 -0400
-Reply-To: <abonilla@linuxwireless.org>
-From: "Alejandro Bonilla" <abonilla@linuxwireless.org>
-To: <linux-thinkpad@linux-thinkpad.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Re[2]: [ltp] Re: IBM HDAPS Someone interested?
-Date: Tue, 21 Jun 2005 06:47:28 -0600
-Message-ID: <002801c5765f$62bf1db0$600cc60a@amer.sykes.com>
+	Tue, 21 Jun 2005 08:50:40 -0400
+From: N Chandra Shekhar REDDY <ncs.reddy@st.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Cpu utilization per thread
+Date: Tue, 21 Jun 2005 18:20:27 +0530
+Message-ID: <07f701c5765f$cd437cd0$99bcc68a@blr.st.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
+	charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
 X-Priority: 3 (Normal)
 X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <1858171727.20050621101524@ols.co.il>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1478
+X-Mailer: Microsoft Outlook, Build 10.0.5709
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
 Importance: Normal
+X-O-General-Status: No
+X-O-Spam1-Status: Not Scanned
+X-O-Spam2-Status: Not Scanned
+X-O-URL-Status: Not Scanned
+X-O-Virus1-Status: No
+X-O-Virus2-Status: Not Scanned
+X-O-Virus3-Status: No
+X-O-Virus4-Status: No
+X-O-Virus5-Status: Not Scanned
+X-O-Image-Status: Not Scanned
+X-O-Attach-Status: Not Scanned
+X-SpheriQ-Ver: 2.2.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Hi, all interested people. If you guys are really interested in getting this
-to work and make this happen, we might make a mailing list, so we don't
-bother LKML and Linux-Thinkpad.
-
-Feel free to contact IBM to ask them to please release the driver or spec
-for this. Look at the links below.
-
-It won't take you 3 minutes. :-)
-
-
-> Hello Alejandro,
->
-> Monday, June 20, 2005, 10:25:52 PM, you wrote:
->
->
-> AB> If people would send emails to IBM like I have, instead
-> of complaining and
-> AB> doing pilitical arguments, we probably would have an
-> answer already.
->
-> I sent some emails to IBM via Feedback form
->
-> https://www-1.ibm.com/support/us/fbmast.html
->
-> and "Submit a request" form in "Linux on personal systems" section
->
->
-http://www-307.ibm.com/pc/support/site.wss/product.do?template=%2Fonlineassi
-stant%2FsubmitAQuestion.vm&sitestyle=ibm
-
-
-http://www.lenovo.com/scripts/contact/contact3/us/en
-
-the support for IBM thinkpads is still provided via IBM website.
-
-
-AB>  .Alejandro
-
+Hi all,
+Can any body tell me 
+How to find cpu utilization per thread excluding wait times and sleep times?
+Regards
+ncs
 

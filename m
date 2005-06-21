@@ -1,81 +1,224 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261585AbVFUIyr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261541AbVFUING@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261585AbVFUIyr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 04:54:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbVFUINh
+	id S261541AbVFUING (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 04:13:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbVFUILi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 04:13:37 -0400
-Received: from styx.suse.cz ([82.119.242.94]:50130 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S261629AbVFUHDW (ORCPT
+	Tue, 21 Jun 2005 04:11:38 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:27287 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261657AbVFUGzV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 03:03:22 -0400
-Date: Tue, 21 Jun 2005 09:03:16 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: linux-usb-devel@lists.sourceforge.net,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: USB mouse problems in (2.6.12-rc6)
-Message-ID: <20050621070316.GA6487@ucw.cz>
-References: <42B184AB.7050108@yahoo.com.au> <42B7B86F.7090407@yahoo.com.au>
+	Tue, 21 Jun 2005 02:55:21 -0400
+Date: Mon, 20 Jun 2005 23:54:58 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: linux-kernel@vger.kernel.org
+Subject: -mm -> 2.6.13 merge status
+Message-Id: <20050620235458.5b437274.akpm@osdl.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42B7B86F.7090407@yahoo.com.au>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 21, 2005 at 04:49:19PM +1000, Nick Piggin wrote:
 
-> I've had no response to this on lkml, so I'll cc a few
-> random people and places.
+This summarises my current thinking on various patches which are presently
+in -mm.  I cover large things and small-but-controversial things.  Anything
+which isn't covered here (and that's a lot of material) is probably a "will
+merge", unless it obviously isn't.
 
-I've seen this before, and it seems like an interrupt routing problem.
+(If you reply to this email it would be a good idea to alter the Subject:
+to reflect which feature you are discussing)
 
-> The problem remains in 2.6.12-mm1.
-> 
-> Nick Piggin wrote:
-> >Both 2.6.12-rc6 and rc6-mm1 make the mouse move around very strangely.
-> >Very noticable lag and infrequent updates of the position.
-> >
-> >System is a dual PIII. Some more info below. Anyone got any ideas or
-> >patches to try? Thanks.
-> >
-> >           CPU0       CPU1
-> >  0:     356256     420442    IO-APIC-edge  timer
-> >  1:        715       1563    IO-APIC-edge  i8042
-> >  9:          0          0   IO-APIC-level  acpi
-> > 14:       4555       2951    IO-APIC-edge  ide0
-> > 15:         54          6    IO-APIC-edge  ide1
-> > 17:        996        436   IO-APIC-level  SysKonnect SK-98xx
-> > 18:        584       1071   IO-APIC-level  uhci_hcd:usb1, uhci_hcd:usb2
-> >
-> >0000:00:00.0 Host bridge: VIA Technologies, Inc. VT82C693A/694x [Apollo 
-> >PRO133x] (rev c4)
-> >0000:00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598/694x [Apollo 
-> >MVP3/Pro133x AGP]
-> >0000:00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super 
-> >South] (rev 40)
-> >0000:00:07.1 IDE interface: VIA Technologies, Inc. 
-> >VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
-> >0000:00:07.2 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 
-> >1.1 Controller (rev 1a)
-> >0000:00:07.3 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 
-> >1.1 Controller (rev 1a)
-> >0000:00:07.4 SMBus: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] 
-> >(rev 40)0000:00:07.5 Multimedia audio controller: VIA Technologies, Inc. 
-> >VT82C686 AC97 Audio Controller (rev 50)
-> >0000:00:0a.0 Ethernet controller: National Semiconductor Corporation 
-> >DP83815 (MacPhyter) Ethernet Controller
-> >0000:00:0b.0 Ethernet controller: D-Link System Inc Gigabit Ethernet 
-> >Adapter (rev 11)
-> >0000:01:00.0 VGA compatible controller: nVidia Corporation NV5M64 [RIVA 
-> >TNT2 Model 64/Model 64 Pro] (rev 15)
-> >
-> >
-> Send instant messages to your online friends http://au.messenger.yahoo.com 
-> 
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+
+git-ocfs
+
+    The OCFS2 filesystem.  OK by me, although I'm not sure it's had enough
+    review.
+
+sparsemem
+
+    OK by me for a merge.  Need to poke arch maintainers first, check that
+    they've looked at it sufficiently closely.
+
+vm-early-zone-reclaim
+
+    Needs some convincing benchmark numbers to back it up.  Otherwise OK.
+
+avoiding-mmap-fragmentation
+
+    Tricky.  Addresses vm area fragmentation issues due to recent
+    optimisations to the free-area lookup code.  Will merge.
+
+periodically-drain-non-local-pagesets
+
+    Will merge
+
+pcibus_to_node and users
+
+    Will merge
+
+CONFIG_HZ for x86 and ia64: changes default HZ to 250, make HZ Kconfigurable.
+
+    Will merge (will switch default to 1000 Hz later if that seems necessary)
+
+dmi-*.patch
+
+    Will merge.  I have a comment "The below break x440".  Maybe it got
+    fixed.  We'll doubtless hear if not.
+
+xen-*.patch
+
+    These are little cleanups and abstractions which make a Xen merge
+    easier.  May as well merge them.
+
+CPU hotplug for x86 and x86_64
+
+    Not really useful on current hardware, but these provide
+    infrastructure which some power management patches need, and it seems
+    sensible to make the reference architecture support hotplug.  Will merge.
+
+swsusp-on-SMP
+
+    Will merge.
+
+cfq version 3
+
+    Not sure.  Jens seems to be setting up a few git trees.  On hold.
+
+RCUification of the key management code
+
+    Don't know - dhowells seemed diffident last time we discussed this.
+
+timers-fixes-improvements.patch
+
+    SMP speedups for the core timer code.  It was bumpy, but this seems
+    stable now.  Will merge.
+
+kprobes-*
+
+    Will merge
+
+rapidio-*
+
+    Will merge.
+
+namespace*.patch
+
+    Awaiting viro ack.
+
+xtensa architecture
+
+    Is xtensa now, or will it be in the future a sufficiently popular
+    architecture to justify the cost of having this code in the tree?
+
+    Heaven knows.  Will merge.
+
+dlm-*.patch: Red Hat distributed lock manager
+
+    Hard.  Right now it seems that no in-kernel projects will use this and
+    only one out-of-kernel project will use it.  Shelve the problem until
+    after Kernel Summit, where some light may be shed.
+
+    Opinions are sought...
+
+connector.patch
+
+    Nice idea IMO, but there are still questions around the
+    implementation.  More dialogue needed ;)
+
+connector-add-a-fork-connector.patch
+
+    OK, but needs connector.
+
+inotify
+
+    There are still concerns about the userspace API and internal
+    implementation details.  More slogging needed.
+
+pcmcia-*.patch
+
+    Makes the pcmcia layer generate hotplug events and deprecates cardmgr.
+    Will merge.
+
+NUMA-aware slab allocator
+
+    Seems stable now, but it needs some ifdef reduction work before
+    merging, please.
+
+CPU scheduler
+
+    Will merge some of these patches.  We're still discussing which ones.
+
+perfctr
+
+    Not yet, but getting closer.  The PPC64 guys still need to sort out a
+    few interface issues with Mikael.  We might be able to fit this into
+    2.6.13 if people get a move on.
+
+cachefs
+
+    This is a ton of code which knows rather a lot about pagecache
+    internals.  It allows the AFS client to cache file contents on a local
+    blockdev.
+
+    I don't think it's a justified addition for only AFS and I'd prefer to
+    see it proven for NFS as well.
+
+    Issues around add-page-becoming-writable-notification.patch need to
+    be resolved.
+
+cachefs-for-nfs
+
+    A recent addition.  Needs review from NFS developers and considerably
+    more testing.
+
+    These things aren't looking likely for 2.6.13.
+
+kexec and kdump
+
+    I guess we should merge these.
+
+    I'm still concerned that the various device shutdown problems will
+    mean that the success rate for crashing kernels is not high enough for
+    kdump to be considered a success.  In which case in six months time we'll
+    hear rumours about vendors shipping wholly different crashdump
+    implementations, which would be quite bad.
+
+    But I think this has gone as far as it can go in -mm, so it's a bit of
+    a punt.
+
+reiser4
+
+    Merge it, I guess.
+
+    The patches still contain all the reiser4-specific namespace
+    enhancements, only it is disabled, so it is effectively dead code.  Maybe
+    we should ask that it actually be removed?
+
+v9fs
+
+    I'm not sure that this has a sufficiently high
+    usefulness-to-maintenance-cost ratio.
+
+fuse
+
+    This is useful, but there are, AFAIK, two issues:
+
+    - We're still deadlocked over some permission-checking hacks in there
+
+    - It has an NFS server implementation which only works if the
+      to-be-served file happens to be in dcache.
+
+      It has been said that a userspace NFS server can be used to get
+      full NFS server functionality with FUSE.  I think the half-assed kernel
+      implementation should be done away with.
+
+execute-in-place
+
+    Will merge.  Have the embedded guys commented on the usefulness of
+    this for execute-out-of-ROM?
+
+
+

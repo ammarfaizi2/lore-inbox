@@ -1,43 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262451AbVFUXHb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262410AbVFUXHb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262451AbVFUXHb (ORCPT <rfc822;willy@w.ods.org>);
+	id S262410AbVFUXHb (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 21 Jun 2005 19:07:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262410AbVFUXGM
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262450AbVFUXGD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 19:06:12 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:14303 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S262487AbVFUXDZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 19:03:25 -0400
-Date: Wed, 22 Jun 2005 01:02:36 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Pascal CHAPPERON <pascal.chapperon@wanadoo.fr>
-Cc: Juha Laiho <Juha.Laiho@iki.fi>, Andrew Hutchings <info@a-wing.co.uk>,
-       linux-kernel@vger.kernel.org, vinay kumar <b4uvin@yahoo.co.in>,
-       jgarzik@pobox.com
-Subject: Re: sis190
-Message-ID: <20050621230236.GA16972@electric-eye.fr.zoreil.com>
-References: <29985680.1119176265153.JavaMail.www@wwinf0301>
+	Tue, 21 Jun 2005 19:06:03 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:36546 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262410AbVFUXDf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 19:03:35 -0400
+Date: Tue, 21 Jun 2005 19:03:23 -0400
+From: Dave Jones <davej@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: Fix vesafb/mtrr scaling problem.
+Message-ID: <20050621230322.GA19949@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <29985680.1119176265153.JavaMail.www@wwinf0301>
-User-Agent: Mutt/1.4.2.1i
-X-Organisation: Land of Sunshine Inc.
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pascal CHAPPERON <pascal.chapperon@wanadoo.fr> :
-[...]
-> I disabled PREEMPT in the kernel : the driver worked correctly.
 
-I'll be hidden behind a 14k modem for holydays until the 30/05/2005 so
-expect a low responsiveness during the upcoming week.
+vesafb will do really silly things like..
 
-Of course a disk crashed just before I had to go :o/
+mtrr: type mismatch for e0000000,8000000 old: write-back new: write-combining
+mtrr: type mismatch for e0000000,4000000 old: write-back new: write-combining
+mtrr: type mismatch for e0000000,2000000 old: write-back new: write-combining
+mtrr: type mismatch for e0000000,1000000 old: write-back new: write-combining
+mtrr: type mismatch for e0000000,800000 old: write-back new: write-combining
+mtrr: type mismatch for e0000000,400000 old: write-back new: write-combining
+mtrr: type mismatch for e0000000,200000 old: write-back new: write-combining
+mtrr: type mismatch for e0000000,100000 old: write-back new: write-combining
+mtrr: type mismatch for e0000000,80000 old: write-back new: write-combining
+mtrr: type mismatch for e0000000,40000 old: write-back new: write-combining
+mtrr: type mismatch for e0000000,20000 old: write-back new: write-combining
+mtrr: type mismatch for e0000000,10000 old: write-back new: write-combining
+mtrr: type mismatch for e0000000,8000 old: write-back new: write-combining
+mtrr: type mismatch for e0000000,4000 old: write-back new: write-combining
+mtrr: type mismatch for e0000000,2000 old: write-back new: write-combining
+mtrr: type mismatch for e0000000,1000 old: write-back new: write-combining
+mtrr: size and base must be multiples of 4 kiB
+mtrr: size: 0x800  base: 0xe0000000
+mtrr: size and base must be multiples of 4 kiB
+mtrr: size: 0x400  base: 0xe0000000
+mtrr: size and base must be multiples of 4 kiB
+mtrr: size: 0x200  base: 0xe0000000
+mtrr: size and base must be multiples of 4 kiB
+mtrr: size: 0x100  base: 0xe0000000
+mtrr: size and base must be multiples of 4 kiB
+mtrr: size: 0x80  base: 0xe0000000
+mtrr: size and base must be multiples of 4 kiB
+mtrr: size: 0x40  base: 0xe0000000
+mtrr: size and base must be multiples of 4 kiB
+mtrr: size: 0x20  base: 0xe0000000
+mtrr: size and base must be multiples of 4 kiB
+mtrr: size: 0x10  base: 0xe0000000
+mtrr: size and base must be multiples of 4 kiB
+mtrr: size: 0x8  base: 0xe0000000
+mtrr: size and base must be multiples of 4 kiB
+mtrr: size: 0x4  base: 0xe0000000
+mtrr: size and base must be multiples of 4 kiB
+mtrr: size: 0x2  base: 0xe0000000
+mtrr: size and base must be multiples of 4 kiB
+mtrr: size: 0x1  base: 0xe0000000
 
-I have copied the sis190 patches at http://www.zoreil.com/~romieu/sis190
-if someone wants to hack them in the meantime.
+Stop scaling down at PAGE_SIZE.
+Also fix up some broken indentation.
 
---
-Ueimor
+Signed-off-by: Dave Jones <davej@redhat.com>
+
+--- linux-2.6.12/drivers/video/vesafb.c~	2005-06-21 18:55:59.000000000 -0400
++++ linux-2.6.12/drivers/video/vesafb.c	2005-06-21 18:57:26.000000000 -0400
+@@ -389,10 +389,11 @@ static int __init vesafb_probe(struct de
+ 		int temp_size = size_total;
+ 		/* Find the largest power-of-two */
+ 		while (temp_size & (temp_size - 1))
+-                	temp_size &= (temp_size - 1);
+-                        
+-                /* Try and find a power of two to add */
+-		while (temp_size && mtrr_add(vesafb_fix.smem_start, temp_size, MTRR_TYPE_WRCOMB, 1)==-EINVAL) {
++			temp_size &= (temp_size - 1);
++
++		/* Try and find a power of two to add */
++		while (temp_size > PAGE_SIZE &&
++			mtrr_add(vesafb_fix.smem_start, temp_size, MTRR_TYPE_WRCOMB, 1)==-EINVAL) {
+ 			temp_size >>= 1;
+ 		}
+ 	}

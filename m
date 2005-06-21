@@ -1,107 +1,144 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261290AbVFUEoz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261924AbVFUFKK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261290AbVFUEoz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 00:44:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261635AbVFUCIe
+	id S261924AbVFUFKK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 01:10:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261908AbVFUFJY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 22:08:34 -0400
-Received: from mail.kroah.org ([69.55.234.183]:40932 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261756AbVFTW7w convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 18:59:52 -0400
-Cc: gregkh@suse.de
-Subject: [PATCH] class: convert the remaining class_simple users in the kernel to usee the new class api
-In-Reply-To: <11193083633233@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Mon, 20 Jun 2005 15:59:23 -0700
-Message-Id: <11193083633382@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Greg K-H <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <gregkh@suse.de>
+	Tue, 21 Jun 2005 01:09:24 -0400
+Received: from mail12.syd.optusnet.com.au ([211.29.132.193]:41895 "EHLO
+	mail12.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261258AbVFUFBr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 01:01:47 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       ck list <ck@vds.kolivas.org>
+Subject: 2.6.12-ck1
+Date: Tue, 21 Jun 2005 15:01:41 +1000
+User-Agent: KMail/1.8.1
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart2766777.2A0Rjy7Xnj";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200506211501.43473.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] class: convert the remaining class_simple users in the kernel to usee the new class api
+--nextPart2766777.2A0Rjy7Xnj
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+These are patches designed to improve system responsiveness and interactivi=
+ty.=20
+It is configurable to any workload but the default ck* patch is aimed at th=
+e=20
+desktop and ck*-server is available with more emphasis on serverspace.
 
----
-commit 1db560afe629b682c45a7f4ba7edf98b4ee28518
-tree d48ed2d5458b86bf65c78f8e738c6510fdec3917
-parent 5cebfb759cc75208c04590ad7f4485cdd822cf46
-author gregkh@suse.de <gregkh@suse.de> Wed, 23 Mar 2005 10:02:26 -0800
-committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 20 Jun 2005 15:15:11 -0700
+Apply to 2.6.12:
+http://ck.kolivas.org/patches/2.6/2.6.12/2.6.12-ck1/patch-2.6.12-ck1.bz2
+or for server version:
+http://ck.kolivas.org/patches/2.6/2.6.12/2.6.12-ck1/patch-2.6.12-ck1-server=
+=2Ebz2
 
- fs/coda/psdev.c |   18 +++++++++---------
- 1 files changed, 9 insertions(+), 9 deletions(-)
+web:
+http://kernel.kolivas.org
+all patches:
+http://ck.kolivas.org/patches/
+Split patches available.
 
-diff --git a/fs/coda/psdev.c b/fs/coda/psdev.c
---- a/fs/coda/psdev.c
-+++ b/fs/coda/psdev.c
-@@ -61,7 +61,7 @@ unsigned long coda_timeout = 30; /* .. s
- 
- 
- struct venus_comm coda_comms[MAX_CODADEVS];
--static struct class_simple *coda_psdev_class;
-+static struct class *coda_psdev_class;
- 
- /*
-  * Device operations
-@@ -363,14 +363,14 @@ static int init_coda_psdev(void)
- 		     CODA_PSDEV_MAJOR);
-               return -EIO;
- 	}
--	coda_psdev_class = class_simple_create(THIS_MODULE, "coda");
-+	coda_psdev_class = class_create(THIS_MODULE, "coda");
- 	if (IS_ERR(coda_psdev_class)) {
- 		err = PTR_ERR(coda_psdev_class);
- 		goto out_chrdev;
- 	}		
- 	devfs_mk_dir ("coda");
- 	for (i = 0; i < MAX_CODADEVS; i++) {
--		class_simple_device_add(coda_psdev_class, MKDEV(CODA_PSDEV_MAJOR,i), 
-+		class_device_create(coda_psdev_class, MKDEV(CODA_PSDEV_MAJOR,i),
- 				NULL, "cfs%d", i);
- 		err = devfs_mk_cdev(MKDEV(CODA_PSDEV_MAJOR, i),
- 				S_IFCHR|S_IRUSR|S_IWUSR, "coda/%d", i);
-@@ -382,8 +382,8 @@ static int init_coda_psdev(void)
- 
- out_class:
- 	for (i = 0; i < MAX_CODADEVS; i++) 
--		class_simple_device_remove(MKDEV(CODA_PSDEV_MAJOR, i));
--	class_simple_destroy(coda_psdev_class);
-+		class_device_destroy(coda_psdev_class, MKDEV(CODA_PSDEV_MAJOR, i));
-+	class_destroy(coda_psdev_class);
- out_chrdev:
- 	unregister_chrdev(CODA_PSDEV_MAJOR, "coda");
- out:
-@@ -425,10 +425,10 @@ static int __init init_coda(void)
- 	return 0;
- out:
- 	for (i = 0; i < MAX_CODADEVS; i++) {
--		class_simple_device_remove(MKDEV(CODA_PSDEV_MAJOR, i));
-+		class_device_destroy(coda_psdev_class, MKDEV(CODA_PSDEV_MAJOR, i));
- 		devfs_remove("coda/%d", i);
- 	}
--	class_simple_destroy(coda_psdev_class);
-+	class_destroy(coda_psdev_class);
- 	devfs_remove("coda");
- 	unregister_chrdev(CODA_PSDEV_MAJOR, "coda");
- 	coda_sysctl_clean();
-@@ -447,10 +447,10 @@ static void __exit exit_coda(void)
-                 printk("coda: failed to unregister filesystem\n");
-         }
- 	for (i = 0; i < MAX_CODADEVS; i++) {
--		class_simple_device_remove(MKDEV(CODA_PSDEV_MAJOR, i));
-+		class_device_destroy(coda_psdev_class, MKDEV(CODA_PSDEV_MAJOR, i));
- 		devfs_remove("coda/%d", i);
- 	}
--	class_simple_destroy(coda_psdev_class);
-+	class_destroy(coda_psdev_class);
- 	devfs_remove("coda");
- 	unregister_chrdev(CODA_PSDEV_MAJOR, "coda");
- 	coda_sysctl_clean();
 
+Changes since 2.6.11-ck10:
+Added/rolled up/updated:
++sched-run_normal_with_rt_on_sibling.diff
+A fix for the SMT (hyperthread) nice handling with real time tasks
+
++2.6.12_to_staircase11.3.diff
+Rolled up latest staircase cpu scheduler
+
++schedbatch2.8.diff
+Updated batch scheduling
+
++smp-nice-support6.diff
+Latest version of nice support on SMP configurations
+
++cfq-2.6.12-mm1.patch
+Latest version of the cfq-timeslice I/O scheduler from 2.6.12-mm1
+
++2612ck1-version.diff
+Version
+
+
+Dropped, rolled up or updated:
+=2D2.6.11_to_staircase10.5.diff
+=2Ds10.5_s10.6.diff
+=2Ds10.6_s10.7.diff
+=2D2.6.11-ck4_to_staircase11.diff
+=2Ds11_s11.1.diff
+=2Ds11.1_s11.2.diff
+=2Ds11.2_s11.3.diff
+Rolled up into latest staircase
+
+=2Dschedbatch2.7.diff
+Updated
+
+=2Dcddvd-cmdfilter-drop.patch
+No longer required with userspace tools updated to latest cd/dvd burning=20
+software
+
+=2Dcfq-ts-21.diff
+=2Dcfq-ts21-fix.diff
+=2Dcfq-ts21-fix1.diff
+=2Dcfq-ts21-fix2.diff
+Updated
+
+=2D2.6.11-ck-scsifix.diff
+Merged
+
+=2D2611ck9-smpnice.diff
+=2D2611ck9-smpnice-fix1.diff
+Updated
+
+=2Dpatch-2.6.11.12
+Merged
+
+=2D2611ck10-version.diff
+Updated
+
+
+=46ull patchlist:
+sched-run_normal_with_rt_on_sibling.diff
+2.6.12_to_staircase11.3.diff
+schedrange.diff
+schedbatch2.8.diff
+schediso2.12.diff
+smp-nice-support6.diff
+mapped_watermark3.diff
+1g_lowmem1_i386.diff
+cfq-2.6.12-mm1.patch
+defaultcfq.diff
+isobatch_ionice2.diff
+rt_ionice.diff
+2612ck1-version.diff
+
+
+This release is called "Baby Cigar" as this picture should explain:
+http://ck.kolivas.org/patches/2.6/2.6.12/baby_cigar.JPG
+
+Cheers,
+Con
+
+--nextPart2766777.2A0Rjy7Xnj
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBCt583ZUg7+tp6mRURAtd8AJ90PWUOKFMqu4RFvUnxiJPrDX0fVACfSLEZ
+9SMMcqEjP96sFQuWpdjaaZE=
+=e48s
+-----END PGP SIGNATURE-----
+
+--nextPart2766777.2A0Rjy7Xnj--

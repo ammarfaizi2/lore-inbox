@@ -1,129 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262311AbVFUUuK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262341AbVFUUrz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262311AbVFUUuK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 16:50:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262321AbVFUUtC
+	id S262341AbVFUUrz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 16:47:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262340AbVFUUrH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 16:49:02 -0400
-Received: from ns1.g-housing.de ([62.75.136.201]:3804 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S262330AbVFUUra (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 16:47:30 -0400
-Message-ID: <42B87CD6.2060102@g-house.de>
-Date: Tue, 21 Jun 2005 22:47:18 +0200
-From: Christian Kujau <evil@g-house.de>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050404)
-X-Accept-Language: de-DE, de, en-us, en
+	Tue, 21 Jun 2005 16:47:07 -0400
+Received: from smtp1.brturbo.com.br ([200.199.201.163]:4234 "EHLO
+	smtp1.brturbo.com.br") by vger.kernel.org with ESMTP
+	id S262332AbVFUUqX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 16:46:23 -0400
+Message-ID: <42B876C1.6030704@brturbo.com.br>
+Date: Tue, 21 Jun 2005 17:21:21 -0300
+From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+User-Agent: Mozilla Thunderbird 1.0.2-3mdk (X11/20050322)
+X-Accept-Language: pt-br, pt, es, en-us, en
 MIME-Version: 1.0
-To: trivial@rustcorp.com.au
-CC: linux-kernel <linux-kernel@vger.kernel.org>,
-       Manfred Spraul <manfred@colorfullife.com>
-Subject: [patch] correct an email address
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+To: Andrew Morton <akpm@osdl.org>
+CC: Linux and Kernel Video <video4linux-list@redhat.com>,
+       LKML <linux-kernel@vger.kernel.org>, Gerd Knorr <kraxel@bytesex.org>
+Subject: V4L maintainer patch
+X-Enigmail-Version: 0.91.0.0
 Content-Type: multipart/mixed;
- boundary="------------090501010504090304060502"
+ boundary="------------090101040709040102040202"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------090501010504090304060502
-Content-Type: text/plain; charset=UTF-8
+--------------090101040709040102040202
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
-hello,
+This patch updates maintainer info for BTTV and V4L. Should be applied
+on mainstream and -mm series.
 
-i tried to send the forcedeth maintainer an email, but it came back with:
+Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
 
-"The mail address manfreds@colorfullife.com is not read anymore.
-Please resent your mail to manfred@ instead of manfreds@."
-
-this attached patch tries to fix it.
-
-thanks,
-Christian.
--- 
-BOFH excuse #453:
-
-Spider infestation in warm case parts
-
---------------090501010504090304060502
-Content-Type: text/plain;
- name="manfreds_email.diff"
-Content-Transfer-Encoding: base64
+--------------090101040709040102040202
+Content-Type: text/x-patch;
+ name="v4l_maintainter.patch"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="manfreds_email.diff"
+ filename="v4l_maintainter.patch"
 
-LS0tIGxpbnV4LTIuNi1tbS9mcy9zeXN2L0NoYW5nZUxvZy5vcmlnCTIwMDUtMDYtMTcgMjA6
-MjM6MTguMDAwMDAwMDAwICswMjAwCisrKyBsaW51eC0yLjYtbW0vZnMvc3lzdi9DaGFuZ2VM
-b2cJMjAwNS0wNi0xNyAyMDoyNDo1NS4wMDAwMDAwMDAgKzAyMDAKQEAgLTU0LDcgKzU0LDcg
-QEAKIAkgIChzeXN2X3JlYWRfc3VwZXIpOiBMaWtld2lzZS4KIAkgICh2N19yZWFkX3N1cGVy
-KTogTGlrZXdpc2UuCiAKLVN1biBEZWMgMzAgMjAwMSAgTWFuZnJlZCBTcHJhdWwgIDxtYW5m
-cmVkc0Bjb2xvcmZ1bGxpZmUuY29tPgorU3VuIERlYyAzMCAyMDAxICBNYW5mcmVkIFNwcmF1
-bCAgPG1hbmZyZWRAY29sb3JmdWxsaWZlLmNvbT4KIAogCSogZGlyLmMgKGRpcl9jb21taXRf
-Y2h1bmspOiBEbyBub3Qgc2V0IGRpci0+aV92ZXJzaW9uLgogCShzeXN2X3JlYWRkaXIpOiBM
-aWtld2lzZS4KLS0tIGxpbnV4LTIuNi1tbS9pcGMvdXRpbC5jLm9yaWcJMjAwNS0wNi0xNyAy
-MDoyMzo0NS4wMDAwMDAwMDAgKzAyMDAKKysrIGxpbnV4LTIuNi1tbS9pcGMvdXRpbC5jCTIw
-MDUtMDYtMTcgMjA6MjQ6MzkuMDAwMDAwMDAwICswMjAwCkBAIC03LDcgKzcsNyBAQAogICog
-ICAgICAgICAgICBPY2N1cnMgaW4gc2V2ZXJhbCBwbGFjZXMgaW4gdGhlIElQQyBjb2RlLgog
-ICogICAgICAgICAgICBDaHJpcyBFdmFucywgPGNocmlzQGZlcnJldC5sbWgub3guYWMudWs+
-CiAgKiBOb3YgMTk5OSAtIGlwYyBoZWxwZXIgZnVuY3Rpb25zLCB1bmlmaWVkIFNNUCBsb2Nr
-aW5nCi0gKgkgICAgICBNYW5mcmVkIFNwcmF1bCA8bWFuZnJlZHNAY29sb3JmdWxsaWZlLmNv
-bT4KKyAqCSAgICAgIE1hbmZyZWQgU3ByYXVsIDxtYW5mcmVkQGNvbG9yZnVsbGlmZS5jb20+
-CiAgKiBPY3QgMjAwMiAtIE9uZSBsb2NrIHBlciBJUEMgaWQuIFJDVSBpcGNfZnJlZSBmb3Ig
-bG9jay1mcmVlIGdyb3dfYXJ5KCkuCiAgKiAgICAgICAgICAgIE1pbmdtaW5nIENhbyA8Y21t
-QHVzLmlibS5jb20+CiAgKi8KLS0tIGxpbnV4LTIuNi1tbS9pcGMvdXRpbC5oLm9yaWcJMjAw
-NS0wNi0xNyAyMDoyMzo1MS4wMDAwMDAwMDAgKzAyMDAKKysrIGxpbnV4LTIuNi1tbS9pcGMv
-dXRpbC5oCTIwMDUtMDYtMTcgMjA6MjU6MzQuMDAwMDAwMDAwICswMjAwCkBAIC0yLDcgKzIs
-NyBAQAogICogbGludXgvaXBjL3V0aWwuaAogICogQ29weXJpZ2h0IChDKSAxOTk5IENocmlz
-dG9waCBSb2hsYW5kCiAgKgotICogaXBjIGhlbHBlciBmdW5jdGlvbnMgKGMpIDE5OTkgTWFu
-ZnJlZCBTcHJhdWwgPG1hbmZyZWRzQGNvbG9yZnVsbGlmZS5jb20+CisgKiBpcGMgaGVscGVy
-IGZ1bmN0aW9ucyAoYykgMTk5OSBNYW5mcmVkIFNwcmF1bCA8bWFuZnJlZEBjb2xvcmZ1bGxp
-ZmUuY29tPgogICovCiAKICNpZm5kZWYgX0lQQ19VVElMX0gKLS0tIGxpbnV4LTIuNi1tbS9p
-cGMvbXNnLmMub3JpZwkyMDA1LTA2LTE3IDIwOjIzOjI1LjAwMDAwMDAwMCArMDIwMAorKysg
-bGludXgtMi42LW1tL2lwYy9tc2cuYwkyMDA1LTA2LTE3IDIwOjI2OjE3LjAwMDAwMDAwMCAr
-MDIwMApAQCAtMTIsNyArMTIsNyBAQAogICoKICAqIG1vc3RseSByZXdyaXR0ZW4sIHRocmVh
-ZGVkIGFuZCB3YWtlLW9uZSBzZW1hbnRpY3MgYWRkZWQKICAqIE1TR01BWCBsaW1pdCByZW1v
-dmVkLCBzeXNjdGwncyBhZGRlZAotICogKGMpIDE5OTkgTWFuZnJlZCBTcHJhdWwgPG1hbmZy
-ZWRzQGNvbG9yZnVsbGlmZS5jb20+CisgKiAoYykgMTk5OSBNYW5mcmVkIFNwcmF1bCA8bWFu
-ZnJlZEBjb2xvcmZ1bGxpZmUuY29tPgogICovCiAKICNpbmNsdWRlIDxsaW51eC9jb25maWcu
-aD4KLS0tIGxpbnV4LTIuNi1tbS9pcGMvc2VtLmMub3JpZwkyMDA1LTA2LTE3IDIwOjIzOjM5
-LjAwMDAwMDAwMCArMDIwMAorKysgbGludXgtMi42LW1tL2lwYy9zZW0uYwkyMDA1LTA2LTE3
-IDIwOjI1OjEwLjAwMDAwMDAwMCArMDIwMApAQCAtNTYsNyArNTYsNyBAQAogICogL3Byb2Mv
-c3lzdmlwYy9zZW0gc3VwcG9ydCAoYykgMTk5OSBEcmFnb3MgQWNvc3RhY2hpb2FpZSA8ZHJh
-Z29zQGluYW1lLmNvbT4KICAqCiAgKiBTTVAtdGhyZWFkZWQsIHN5c2N0bCdzIGFkZGVkCi0g
-KiAoYykgMTk5OSBNYW5mcmVkIFNwcmF1bCA8bWFuZnJlZHNAY29sb3JmdWxsaWZlLmNvbT4K
-KyAqIChjKSAxOTk5IE1hbmZyZWQgU3ByYXVsIDxtYW5mcmVkQGNvbG9yZnVsbGlmZS5jb20+
-CiAgKiBFbmZvcmNlZCByYW5nZSBsaW1pdCBvbiBTRU1fVU5ETwogICogKGMpIDIwMDEgUmVk
-IEhhdCBJbmMgPGFsYW5AcmVkaGF0LmNvbT4KICAqIExvY2tsZXNzIHdha2V1cAotLS0gbGlu
-dXgtMi42LW1tL2FyY2gvaTM4Ni9rZXJuZWwvY3B1L210cnIvY2hhbmdlbG9nLm9yaWcJMjAw
-NS0wNi0xNyAyMDoyMzo1OC4wMDAwMDAwMDAgKzAyMDAKKysrIGxpbnV4LTIuNi1tbS9hcmNo
-L2kzODYva2VybmVsL2NwdS9tdHJyL2NoYW5nZWxvZwkyMDA1LTA2LTE3IDIwOjI1OjQ1LjAw
-MDAwMDAwMCArMDIwMApAQCAtMTk2LDcgKzE5Niw3IEBACiAgICAgMTk5OTA4MTkgICBBbGFu
-IENveCA8YWxhbkByZWRoYXQuY29tPgogICAgICAgICAgICAgICAgVGVzdGVkIFpvbHRhbidz
-IGNoYW5nZXMgb24gYSBwcmUgcHJvZHVjdGlvbiBBdGhsb24gLSAxMDAlCiAgICAgICAgICAg
-ICAgICBzdWNjZXNzLgotICAgIDE5OTkxMDA4ICAgTWFuZnJlZCBTcHJhdWwgPG1hbmZyZWRz
-QGNvbG9yZnVsbGlmZS5jb20+CisgICAgMTk5OTEwMDggICBNYW5mcmVkIFNwcmF1bCA8bWFu
-ZnJlZEBjb2xvcmZ1bGxpZmUuY29tPgogICAgIAkgICAgICAgcmVwbGFjZWQgc3Bpbl9sb2Nr
-X3Jlc2NoZWR1bGUoKSB3aXRoIGEgbm9ybWFsIHNlbWFwaG9yZS4KICAgdjEuMzYKICAgICAy
-MDAwMDIyMSAgIFJpY2hhcmQgR29vY2ggPHJnb29jaEBhdG5mLmNzaXJvLmF1PgotLS0gbGlu
-dXgtMi42LW1tL2FyY2gvaTM4Ni9rZXJuZWwvdm04Ni5jLm9yaWcJMjAwNS0wNi0xNyAyMDoy
-NDowNi4wMDAwMDAwMDAgKzAyMDAKKysrIGxpbnV4LTIuNi1tbS9hcmNoL2kzODYva2VybmVs
-L3ZtODYuYwkyMDA1LTA2LTE3IDIwOjI1OjU2LjAwMDAwMDAwMCArMDIwMApAQCAtNCw3ICs0
-LDcgQEAKICAqICBDb3B5cmlnaHQgKEMpIDE5OTQgIExpbnVzIFRvcnZhbGRzCiAgKgogICog
-IDI5IGRlYyAyMDAxIC0gRml4ZWQgb29wc2VzIGNhdXNlZCBieSB1bmNoZWNrZWQgYWNjZXNz
-IHRvIHRoZSB2bTg2Ci0gKiAgICAgICAgICAgICAgICBzdGFjayAtIE1hbmZyZWQgU3ByYXVs
-IDxtYW5mcmVkc0Bjb2xvcmZ1bGxpZmUuY29tPgorICogICAgICAgICAgICAgICAgc3RhY2sg
-LSBNYW5mcmVkIFNwcmF1bCA8bWFuZnJlZEBjb2xvcmZ1bGxpZmUuY29tPgogICoKICAqICAy
-MiBtYXIgMjAwMiAtIE1hbmZyZWQgZGV0ZWN0ZWQgdGhlIHN0YWNrZmF1bHRzLCBidXQgZGlk
-bid0IGhhbmRsZQogICogICAgICAgICAgICAgICAgdGhlbSBjb3JyZWN0bHkuIE5vdyB0aGUg
-ZW11bGF0aW9uIHdpbGwgYmUgaW4gYQotLS0gbGludXgtMi42LW1tL2tlcm5lbC9wcmludGsu
-Yy5vcmlnCTIwMDUtMDYtMTcgMjA6MjQ6MTMuMDAwMDAwMDAwICswMjAwCisrKyBsaW51eC0y
-LjYtbW0va2VybmVsL3ByaW50ay5jCTIwMDUtMDYtMTcgMjA6MjY6MzIuMDAwMDAwMDAwICsw
-MjAwCkBAIC0xMSw3ICsxMSw3IEBACiAgKiBUZWQgVHMnbywgMi8xMS85My4KICAqIE1vZGlm
-aWVkIGZvciBzeXNjdGwgc3VwcG9ydCwgMS84Lzk3LCBDaHJpcyBIb3JuLgogICogRml4ZWQg
-U01QIHN5bmNocm9uaXphdGlvbiwgMDgvMDgvOTksIE1hbmZyZWQgU3ByYXVsIAotICogICAg
-IG1hbmZyZWRzQGNvbG9yZnVsbGlmZS5jb20KKyAqICAgICBtYW5mcmVkQGNvbG9yZnVsbGlm
-ZS5jb20KICAqIFJld3JvdGUgYml0cyB0byBnZXQgcmlkIG9mIGNvbnNvbGVfbG9jawogICoJ
-MDFNYXIwMSBBbmRyZXcgTW9ydG9uIDxhbmRyZXdtQHVvdy5lZHUuYXU+CiAgKi8K
---------------090501010504090304060502--
+--- linux-2.6.12-mm1/MAINTAINERS.old	2005-06-21 17:03:48.000000000 -0300
++++ linux-2.6.12-mm1/MAINTAINERS	2005-06-21 17:04:50.000000000 -0300
+@@ -505,11 +505,11 @@
+ S:   Supported
+ 
+ BTTV VIDEO4LINUX DRIVER
+-P:	Gerd Knorr
+-M:	kraxel@bytesex.org
++P:	Mauro Carvalho Chehab
++M:	mchehab@brturbo.com.br
+ L:	video4linux-list@redhat.com
+-W:	http://bytesex.org/bttv/
+-S:	Orphan
++W:	http://linuxtv.org
++S:	Maintained
+ 
+ BUSLOGIC SCSI DRIVER
+ P:	Leonard N. Zubkoff
+@@ -2661,10 +2661,11 @@
+ S:      Maintained
+ 
+ VIDEO FOR LINUX
+-P:	Gerd Knorr
+-M:	kraxel@bytesex.org
++P:	Mauro Carvalho Chehab
++M:	mchehab@brturbo.com.br
+ L:	video4linux-list@redhat.com
+-S:	Orphan
++W:	http://linuxtv.org
++S:	Maintained
+ 
+ W1 DALLAS'S 1-WIRE BUS
+ P:	Evgeniy Polyakov
+
+--------------090101040709040102040202--

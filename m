@@ -1,45 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261478AbVFUOtr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261610AbVFUOvU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261478AbVFUOtr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 10:49:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261610AbVFUOtr
+	id S261610AbVFUOvU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 10:51:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbVFUOvU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 10:49:47 -0400
-Received: from gate.perex.cz ([82.113.61.162]:58303 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id S261478AbVFUOtp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 10:49:45 -0400
-Date: Tue, 21 Jun 2005 16:49:43 +0200 (CEST)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: perex@pnote.perex-int.cz
-To: Adrian Bunk <bunk@stusta.de>
-Cc: alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org
-Subject: Re: ALSA: Is CONFIG_SND_DEBUG_MEMORY really required?
-In-Reply-To: <20050621144041.GP3666@stusta.de>
-Message-ID: <Pine.LNX.4.58.0506211643080.18102@pnote.perex-int.cz>
-References: <20050621144041.GP3666@stusta.de>
+	Tue, 21 Jun 2005 10:51:20 -0400
+Received: from mxsf37.cluster1.charter.net ([209.225.28.162]:11411 "EHLO
+	mxsf37.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S261610AbVFUOvN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 10:51:13 -0400
+X-IronPort-AV: i="3.93,218,1115006400"; 
+   d="scan'208"; a="1022075282:sNHT34826162"
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17080.10589.619933.883739@smtp.charter.net>
+Date: Tue, 21 Jun 2005 10:51:09 -0400
+From: "John Stoffel" <john@stoffel.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Miklos Szeredi <miklos@szeredi.hu>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: -mm -> 2.6.13 merge status (fuse)
+In-Reply-To: <20050621142820.GC2015@openzaurus.ucw.cz>
+References: <20050620235458.5b437274.akpm@osdl.org>
+	<E1Dkfu2-0005Ju-00@dorka.pomaz.szeredi.hu>
+	<20050621142820.GC2015@openzaurus.ucw.cz>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Jun 2005, Adrian Bunk wrote:
 
-> Hi,
-> 
-> I was a bit surprised to discover that ALSA has it's own memory 
-> debugging infrastructure.
-> 
-> Is there a reason why CONFIG_DEBUG_SLAB isn't good enough for ALSA?
+I'd like to see FUSE merged too, even without user mounts, if only to
+get more motivated to actually play with this and see how it works.
 
-We're ready to move to something other, but standard allocation 
-routines should be extended to handle "allocation pools".
-
-We're able to detect quickly memory leaks in our code.
-
-						Jaroslav
-
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project, SUSE Labs
+John

@@ -1,48 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262059AbVFUIaz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261716AbVFUIbE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262059AbVFUIaz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 04:30:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262086AbVFUI1C
+	id S261716AbVFUIbE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 04:31:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261989AbVFUISu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 04:27:02 -0400
-Received: from nproxy.gmail.com ([64.233.182.197]:29143 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262090AbVFUIZJ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 04:25:09 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=tfredsk0TwJoEczu3gSyKXAqtz/ShgGOcjpew5QNLrs/4rxkeRQYkCj7Lc+tBXNvPYb2Fmttl1VTnkV3pMz4t/TPsZmUsm2KKmX6Ctj4EIDqqhk/tv0g5S4CIigrMcbMnqOWHXtRnm4CeZaoDnE8q38I8oebqv2XHS6s/RRFkpU=
-Message-ID: <58cb370e050621012538018e0@mail.gmail.com>
-Date: Tue, 21 Jun 2005 10:25:08 +0200
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Christoph Hellwig <hch@infradead.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org
-Subject: Re: PATCH: Fix crashes with hotplug serverworks
-In-Reply-To: <20050621065221.GA31420@infradead.org>
+	Tue, 21 Jun 2005 04:18:50 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:30364 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261332AbVFUHla (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 03:41:30 -0400
+Date: Tue, 21 Jun 2005 09:41:14 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Roy Keene <rkeene@psislidell.com>
+Cc: Kyle Moffett <mrmacman_g4@mac.com>, Erik Slagter <erik@slagter.name>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Problem with 2.6 kernel and lots of I/O
+Message-ID: <20050621074114.GA1953@elf.ucw.cz>
+References: <Pine.LNX.4.62.0505311042470.7546@hammer.psislidell.com> <20050601195922.GA589@openzaurus.ucw.cz> <1117966262.5027.9.camel@localhost.localdomain> <AF6BB031-9221-4BA3-AFC9-7D167EBE866C@mac.com> <Pine.LNX.4.62.0506201711090.3592@hammer.psislidell.com> <6DCC9CC1-2B5C-430F-96AC-F36477AC8290@mac.com> <Pine.LNX.4.62.0506201848500.2736@hammer.psislidell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <1119298859.3325.43.camel@localhost.localdomain>
-	 <20050621065221.GA31420@infradead.org>
+In-Reply-To: <Pine.LNX.4.62.0506201848500.2736@hammer.psislidell.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/21/05, Christoph Hellwig <hch@infradead.org> wrote:
-> On Mon, Jun 20, 2005 at 09:21:13PM +0100, Alan Cox wrote:
-> > You can't install the base kernel on a Stratus box because of the
-> > overuse of __init. Affects both IDE layers identically. It isn't the
-> > only misuser of __init so more review of other drivers (or fixing
-> > ide_register code to know about hotplug v non-hotplug chipsets) would be
-> > good.
+Hi!
+
+> But the problem doesn't occur with the "local" end, it's with the 
+> "recieving" end (which may be the same thing, but mostly it's not, since I 
+> tend to reboot the secondary node more).
 > 
-> Well, because of fake-hotplug we really need to mark every ->probe routine
-> and what's called from it __devinit.  Debian has patch to do that forever
-> but Bart refused to take it.
+> The problem occurs on the node running `nbd-server' in userspace and not 
+> nessicarily having "nbd" support.
 
-If you care to respin your big patch it I'll gladly take it.
-It is indeed needed for PCI hotplug.
-
-Bartlomiej
+nbd-server is nice and simple userland application, doing no magic. If
+that makes machine unusable... well, fix the machine ;-). It may me mm
+problem or something... It is basically not nbd related. [Remember,
+nbd-server is just another userland process, "nothing to do with nbd",
+nothing special].
+									Pavel
+-- 
+teflon -- maybe it is a trademark, but it should not be.

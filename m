@@ -1,47 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261358AbVFUM5h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261352AbVFUMyQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261358AbVFUM5h (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 08:57:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261348AbVFUMyY
+	id S261352AbVFUMyQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 08:54:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261348AbVFUMxr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 08:54:24 -0400
-Received: from fra-del-01.spheriq.net ([195.46.51.97]:36807 "EHLO
-	fra-del-01.spheriq.net") by vger.kernel.org with ESMTP
-	id S261350AbVFUMuk convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 08:50:40 -0400
-From: N Chandra Shekhar REDDY <ncs.reddy@st.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Cpu utilization per thread
-Date: Tue, 21 Jun 2005 18:20:27 +0530
-Message-ID: <07f701c5765f$cd437cd0$99bcc68a@blr.st.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.5709
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-Importance: Normal
-X-O-General-Status: No
-X-O-Spam1-Status: Not Scanned
-X-O-Spam2-Status: Not Scanned
-X-O-URL-Status: Not Scanned
-X-O-Virus1-Status: No
-X-O-Virus2-Status: Not Scanned
-X-O-Virus3-Status: No
-X-O-Virus4-Status: No
-X-O-Virus5-Status: Not Scanned
-X-O-Image-Status: Not Scanned
-X-O-Attach-Status: Not Scanned
-X-SpheriQ-Ver: 2.2.1
+	Tue, 21 Jun 2005 08:53:47 -0400
+Received: from mail.fh-wedel.de ([213.39.232.198]:43951 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S261310AbVFUMwl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 08:52:41 -0400
+Date: Tue, 21 Jun 2005 14:52:43 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: nanakos@wired-net.gr
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6 sendfile
+Message-ID: <20050621125243.GA7139@wohnheim.fh-wedel.de>
+References: <50773.62.38.141.127.1119357138.squirrel@webmail.wired-net.gr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <50773.62.38.141.127.1119357138.squirrel@webmail.wired-net.gr>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-Can any body tell me 
-How to find cpu utilization per thread excluding wait times and sleep times?
-Regards
-ncs
+On Tue, 21 June 2005 15:32:18 +0300, nanakos@wired-net.gr wrote:
+> 
+> can you tell me please how i can enable ( with a patch? ) the file-file
+> sendfile system call feature???
 
+1. Don't do this.
+2. Don't do this, unless you really know what you're doing.
+3. If you want to do it anyway, take a look at my cowlink patches:
+http://wohnheim.fh-wedel.de/~joern/cowlink/
+
+Jörn
+
+-- 
+Courage is not the absence of fear, but rather the judgement that
+something else is more important than fear.
+-- Ambrose Redmoon

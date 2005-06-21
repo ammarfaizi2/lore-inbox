@@ -1,42 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262459AbVFUXD6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262451AbVFUXHb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262459AbVFUXD6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 19:03:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262424AbVFUXDD
+	id S262451AbVFUXHb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 19:07:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262410AbVFUXGM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 19:03:03 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:39049
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S262459AbVFUW7y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 18:59:54 -0400
-Date: Tue, 21 Jun 2005 15:59:19 -0700 (PDT)
-Message-Id: <20050621.155919.85409752.davem@davemloft.net>
-To: gregkh@suse.de
-Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] devfs: remove devfs from Kconfig preventing it from
- being built
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20050621222419.GA23896@kroah.com>
-References: <20050621222419.GA23896@kroah.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Tue, 21 Jun 2005 19:06:12 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:14303 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S262487AbVFUXDZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 19:03:25 -0400
+Date: Wed, 22 Jun 2005 01:02:36 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Pascal CHAPPERON <pascal.chapperon@wanadoo.fr>
+Cc: Juha Laiho <Juha.Laiho@iki.fi>, Andrew Hutchings <info@a-wing.co.uk>,
+       linux-kernel@vger.kernel.org, vinay kumar <b4uvin@yahoo.co.in>,
+       jgarzik@pobox.com
+Subject: Re: sis190
+Message-ID: <20050621230236.GA16972@electric-eye.fr.zoreil.com>
+References: <29985680.1119176265153.JavaMail.www@wwinf0301>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <29985680.1119176265153.JavaMail.www@wwinf0301>
+User-Agent: Mutt/1.4.2.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Greg KH <gregkh@suse.de>
-Date: Tue, 21 Jun 2005 15:24:19 -0700
+Pascal CHAPPERON <pascal.chapperon@wanadoo.fr> :
+[...]
+> I disabled PREEMPT in the kernel : the driver worked correctly.
 
-> Here's a much smaller patch to simply disable devfs from the build.  If
-> this goes well, and there are no complaints for a few weeks, I'll resend
-> my big "devfs-die-die-die" series of patches that rip the whole thing
-> out of the kernel tree.
-> 
-> Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+I'll be hidden behind a 14k modem for holydays until the 30/05/2005 so
+expect a low responsiveness during the upcoming week.
 
-I know the rational behind this.
+Of course a disk crashed just before I had to go :o/
 
-However, this does mean I do need to reinstall a couple
-debian boxes here to something newer before I can continue
-doing kernel work in 2.6.x on them.
+I have copied the sis190 patches at http://www.zoreil.com/~romieu/sis190
+if someone wants to hack them in the meantime.
+
+--
+Ueimor

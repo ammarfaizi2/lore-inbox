@@ -1,52 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262295AbVFUU26@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261803AbVFUU26@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262295AbVFUU26 (ORCPT <rfc822;willy@w.ods.org>);
+	id S261803AbVFUU26 (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 21 Jun 2005 16:28:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262318AbVFUU07
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262316AbVFUU0e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 16:26:59 -0400
-Received: from mail.fh-wedel.de ([213.39.232.198]:51915 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S262315AbVFUUZa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 16:25:30 -0400
-Date: Tue, 21 Jun 2005 22:25:29 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: nanakos@wired-net.gr
+	Tue, 21 Jun 2005 16:26:34 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:52116 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261803AbVFUUWa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 16:22:30 -0400
+Date: Tue, 21 Jun 2005 13:22:04 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6 sendfile
-Message-ID: <20050621202529.GC19562@wohnheim.fh-wedel.de>
-References: <50773.62.38.141.127.1119357138.squirrel@webmail.wired-net.gr> <20050621125243.GA7139@wohnheim.fh-wedel.de> <39281.62.38.143.212.1119384443.squirrel@webmail.wired-net.gr>
+Subject: Re: -mm -> 2.6.13 merge status
+Message-Id: <20050621132204.1b57b6ba.akpm@osdl.org>
+In-Reply-To: <42B831B4.9020603@pobox.com>
+References: <20050620235458.5b437274.akpm@osdl.org>
+	<42B831B4.9020603@pobox.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <39281.62.38.143.212.1119384443.squirrel@webmail.wired-net.gr>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 June 2005 23:07:23 +0300, nanakos@wired-net.gr wrote:
+Jeff Garzik <jgarzik@pobox.com> wrote:
+>
+> > sparsemem
+> > 
+> >     OK by me for a merge.  Need to poke arch maintainers first, check that
+> >     they've looked at it sufficiently closely.
 > 
-> Very interesting patches,but what i need to is a pacth or some points so i
-> can change the existing source code according to my needs.Can someone help
-> me on that?
-> The existing sendfile system call copies data from a file descriptor to a
-> socket descriptor.I have already a program that i have to port that uses
-> the sendfile syscall from 2.4.x series kernels.In 2.6.x doesnt work.What
-> are the minimal changes that have to be done so i can use again the
-> syscall in 2.6.x kernel's???
+> seems sane, though there are some whitespace niggles that should be 
+> cleaned up
+> 
 
-The first two patches (generic_sendpage.patch and sendfile.patch)
-should be all you need.  But they were rather quick hack and I haven't
-seriously looked at them for quite a while.
+There are?  I thought I fixed most of them.
 
-Maybe I should change that.  Several people appear to be generally
-interested in the subject.
+*general sigh*.  I wish people would absorb CodingStyle.  It's not hard,
+and fixing the style post-facto creates a real mess.  I now have a great
+string of kexec patches followed by a "kexec-code-cleanup.patch" which
+totally buggers up the patch sequencing and really needs to be split into
+18 parts and sprinkled back over the entire series.
 
-Jörn
+> > rapidio-*
+> > 
+> >     Will merge.
+> 
+> send through netdev, as is proper
+> 
 
--- 
-Data dominates. If you've chosen the right data structures and organized
-things well, the algorithms will almost always be self-evident. Data
-structures, not algorithms, are central to programming.
--- Rob Pike
+OK.  But then the master version vanishes into the jgarzik git forest and I
+won't know how to get it ;)
+
+> > connector.patch
+> > 
+> >     Nice idea IMO, but there are still questions around the
+> >     implementation.  More dialogue needed ;)
+> > 
+> > connector-add-a-fork-connector.patch
+> > 
+> >     OK, but needs connector.
+> 
+> I don't like connector
+> 
+
+How come?
+
+> 
+> > pcmcia-*.patch
+> > 
+> >     Makes the pcmcia layer generate hotplug events and deprecates cardmgr.
+> >     Will merge.
+> 
+> Testing?  The goal behind the patch is certainly good, but I worry about 
+> exposure.
+> 
+
+Yes, there will be a few problems I guess.  But people are testing it - we
+know, because we've had lots of bug reports which were actually due to
+greg-pci breakage...
+
+> 
+> > cachefs
+> > 
+> >     This is a ton of code which knows rather a lot about pagecache
+> >     internals.  It allows the AFS client to cache file contents on a local
+> >     blockdev.
+> > 
+> >     I don't think it's a justified addition for only AFS and I'd prefer to
+> >     see it proven for NFS as well.
+> > 
+> >     Issues around add-page-becoming-writable-notification.patch need to
+> >     be resolved.
+> > 
+> > cachefs-for-nfs
+> > 
+> >     A recent addition.  Needs review from NFS developers and considerably
+> >     more testing.
+> > 
+> >     These things aren't looking likely for 2.6.13.
+> 
+> If I could vote more than once, I would!  I really like cachefs, and 
+> have been pushing for its inclusion for a while.
+> 
+
+You've been using it?
+
+> > kexec and kdump
+> > 
+> >     I guess we should merge these.
+> > 
+> >     I'm still concerned that the various device shutdown problems will
+> >     mean that the success rate for crashing kernels is not high enough for
+> >     kdump to be considered a success.  In which case in six months time we'll
+> >     hear rumours about vendors shipping wholly different crashdump
+> >     implementations, which would be quite bad.
+> > 
+> >     But I think this has gone as far as it can go in -mm, so it's a bit of
+> >     a punt.
+> 
+> I'm not particularly pleased with these,
+
+How come?
+
+> and indeed vendors ARE shipping 
+> other crashdump methods.
+
+Which ones?
+
+> 
+> > reiser4
+> > 
+> >     Merge it, I guess.
+> > 
+> >     The patches still contain all the reiser4-specific namespace
+> >     enhancements, only it is disabled, so it is effectively dead code.  Maybe
+> >     we should ask that it actually be removed?
+> 
+> The plugin stuff is crap.  This is not a filesystem but a filesystem + 
+> new layer.  IMO considered in that light, it duplicates functionality 
+> elsewhere.
+> 
+
+hm.
+

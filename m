@@ -1,63 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261376AbVFUNTs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261479AbVFUNkG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261376AbVFUNTs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 09:19:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261431AbVFUNSr
+	id S261479AbVFUNkG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 09:40:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261460AbVFUNgp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 09:18:47 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:1452 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261315AbVFUNPR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 09:15:17 -0400
-Date: Tue, 21 Jun 2005 15:12:49 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: William Weston <weston@sysex.net>
-Cc: "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       "Eugeny S. Mints" <emints@ru.mvista.com>,
-       Daniel Walker <dwalker@mvista.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
-Message-ID: <20050621131249.GB22691@elte.hu>
-References: <20050608112801.GA31084@elte.hu> <42B0F72D.5040405@cybsft.com> <20050616072935.GB19772@elte.hu> <42B160F5.9060208@cybsft.com> <20050616173247.GA32552@elte.hu> <Pine.LNX.4.58.0506171139570.32721@echo.lysdexia.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 21 Jun 2005 09:36:45 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:20635 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S261389AbVFUNWb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 09:22:31 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: <cutaway@bellsouth.net>, "Jesper Juhl" <juhl-lkml@dif.dk>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] cleanup patches for strings
+Date: Tue, 21 Jun 2005 16:20:31 +0300
+User-Agent: KMail/1.5.4
+Cc: "Andrew Morton" <akpm@osdl.org>, "Jeff Garzik" <jgarzik@pobox.com>,
+       "Domen Puncer" <domen@coderock.org>
+References: <Pine.LNX.4.62.0506200052320.2415@dragon.hyggekrogen.localhost> <200506211402.48554.vda@ilport.com.ua> <004c01c57662$5eacc260$2800000a@pc365dualp2>
+In-Reply-To: <004c01c57662$5eacc260$2800000a@pc365dualp2>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0506171139570.32721@echo.lysdexia.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Message-Id: <200506211620.31655.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Um, prev one was using push %reg. My fault.
+push $imm gives the same result:
 
-* William Weston <weston@sysex.net> wrote:
+# gcc -O2 -falign-loops=64 t.c
+# ./a.out
+Took 9291 CPU cycles Took 8068 CPU cycles
+Took 9080 CPU cycles Took 8058 CPU cycles
+Took 9134 CPU cycles Took 8061 CPU cycles
+Took 9084 CPU cycles Took 8043 CPU cycles
+Took 9084 CPU cycles Took 8043 CPU cycles
+Took 9084 CPU cycles Took 8043 CPU cycles
 
-> I also regularly see high (>200us) wakeup latencies on the Xeon/HT, 
-> which I don't see on the Athlon or non-HT Xeon systems.  Disabling IRQ 
-> balancing doesn't seem to help.  It's been a while since the Xeon/HT 
-> box has seen a non-debug kernel, but in the past, that hasn't helped 
-> latencies by more than a few usec.
+The source:
 
->   <idle>-0     0Dnh2    4us : find_next_bit (__schedule)
->   <idle>-0     0Dnh2    4us : _raw_spin_lock (__schedule)
->   <idle>-0     0Dnh3    4us!: find_next_bit (__schedule)
->   <idle>-0     0Dnh3  244us : find_next_bit (__schedule)
->   <idle>-0     0Dnh3  245us : _raw_spin_unlock (__schedule)
+#define rdtscl(low) asm volatile("rdtsc" : "=a" (low) : : "edx")
 
-this does seem to be similar to other reports where the cause of such 
-latencies was some sort of hardware-level latency. (DMA related delays 
-or other, bus-arbitration related delays)
+#define NL "\n"
 
-another possibility is that something interesting happened on another 
-CPU while this latency occured - to debug this please enable all-CPUs 
-tracing:
+#include <stdio.h>
 
-	echo 1 > /proc/sys/kernel/trace_all_cpus
+int main() {
+    int i,k,start,end;
+    int v = 1234;
 
-and send me a new trace.
+for(k=0; k<6; k++) {
+    rdtscl(start);
+    for(i=0; i<1000; i++) {
+        asm(NL
+        "       push    %0" NL
+        "       pop     %%eax" NL
+        "       push    %0" NL
+        "       pop     %%eax" NL
+        "       push    %0" NL
+        "       pop     %%eax" NL
+        "       push    %0" NL
+        "       pop     %%eax" NL
+        : /* outputs */
+        : "m" (v) /* inputs */
+        : "ax" /* clobbers */
+        );
+    }
+    rdtscl(end);
+    printf("Took %u CPU cycles ", end-start);
 
-	Ingo
+    rdtscl(start);
+    for(i=0; i<1000; i++) {
+        asm(NL
+        "       push    $1234" NL
+        "       pop     %%eax" NL
+        "       push    $1234" NL
+        "       pop     %%eax" NL
+        "       push    $1234" NL
+        "       pop     %%eax" NL
+        "       push    $1234" NL
+        "       pop     %%eax" NL
+        : /* outputs */
+        : /* inputs */
+        : "ax" /* clobbers */
+        );
+    }
+    rdtscl(end);
+    printf("Took %u CPU cycles\n", end-start);
+}
+    return 0;
+}
+--
+vda
+

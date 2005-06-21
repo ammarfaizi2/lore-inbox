@@ -1,62 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262267AbVFUTmK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262260AbVFUTnN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262267AbVFUTmK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 15:42:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262281AbVFUTmC
+	id S262260AbVFUTnN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 15:43:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262269AbVFUTme
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 15:42:02 -0400
-Received: from pilet.ens-lyon.fr ([140.77.167.16]:33517 "EHLO
-	relaissmtp.ens-lyon.fr") by vger.kernel.org with ESMTP
-	id S262267AbVFUTjb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 15:39:31 -0400
-Message-ID: <42B86CF0.1020601@ens-lyon.org>
-Date: Tue, 21 Jun 2005 21:39:28 +0200
-From: Brice Goglin <Brice.Goglin@ens-lyon.org>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.12-mm1
-References: <20050619233029.45dd66b8.akpm@osdl.org>	<42B6777F.2050008@ens-lyon.org>	<42B80AB5.7090506@ens-lyon.org>	<s5hll53oet1.wl%tiwai@suse.de>	<42B84820.9010105@ens-lyon.org> <s5hekavocjj.wl%tiwai@suse.de>
-In-Reply-To: <s5hekavocjj.wl%tiwai@suse.de>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	Tue, 21 Jun 2005 15:42:34 -0400
+Received: from titan.genwebhost.com ([209.9.226.66]:22992 "EHLO
+	titan.genwebhost.com") by vger.kernel.org with ESMTP
+	id S262265AbVFUTmB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 15:42:01 -0400
+Date: Tue, 21 Jun 2005 12:41:49 -0700
+From: randy_dunlap <rdunlap@xenotime.net>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: -mm -> 2.6.13 merge status
+Message-Id: <20050621124149.5f861518.rdunlap@xenotime.net>
+In-Reply-To: <42B831B4.9020603@pobox.com>
+References: <20050620235458.5b437274.akpm@osdl.org>
+	<42B831B4.9020603@pobox.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - titan.genwebhost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - xenotime.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le 21.06.2005 19:16, Takashi Iwai a écrit :
-> Yes.  It enables hardware volume contorl - volume up/down and
-> mute/unmute via keys on your laptop.
+On Tue, 21 Jun 2005 11:26:44 -0400 Jeff Garzik wrote:
 
-Great, that's the last missing feature on my laptop !
+| Andrew Morton wrote:
+| 
+| > connector.patch
+| > 
+| >     Nice idea IMO, but there are still questions around the
+| >     implementation.  More dialogue needed ;)
+| > 
+| > connector-add-a-fork-connector.patch
+| > 
+| >     OK, but needs connector.
+| 
+| I don't like connector
 
-> Could you give the output of lspci -nv?  If it's listed in
-> m3_hw_quirk_list, the h/w volume control is enabled in the code
-> indeed.  Try to comment out the entry (together with my second
-> patch).
+can you be more specific, like you did with reiser4?
 
-0000:02:09.0 0401: 125d:1988 (rev 12)
-        Subsystem: 0e11:0094
-        Flags: bus master, medium devsel, latency 64, IRQ 11
-        I/O ports at 2400 [size=256]
-        Capabilities: [c0] Power Management version 2
 
-Yes it's listed in m3_hv_quirk_list,
-and yes, commenting out the entry fixes the problem.
+| > kexec and kdump
+| > 
+| >     I guess we should merge these.
+| > 
+| >     I'm still concerned that the various device shutdown problems will
+| >     mean that the success rate for crashing kernels is not high enough for
+| >     kdump to be considered a success.  In which case in six months time we'll
+| >     hear rumours about vendors shipping wholly different crashdump
+| >     implementations, which would be quite bad.
+| > 
+| >     But I think this has gone as far as it can go in -mm, so it's a bit of
+| >     a punt.
+| 
+| I'm not particularly pleased with these, and indeed vendors ARE shipping 
+| other crashdump methods.
 
-> This might include some changes applied to mm, but at least, you can
-> apply only the patch to maestro3.c.
+any specifics on the "not particularly pleased" part?
 
-Guess what, git-alsa.patch (and actually also only the patch
-to maestro3.c) do work on top on 2.6.12. Hardware volume control
-works. That's great !
+| > reiser4
+| > 
+| >     Merge it, I guess.
+| > 
+| >     The patches still contain all the reiser4-specific namespace
+| >     enhancements, only it is disabled, so it is effectively dead code.  Maybe
+| >     we should ask that it actually be removed?
+| 
+| The plugin stuff is crap.  This is not a filesystem but a filesystem + 
+| new layer.  IMO considered in that light, it duplicates functionality 
+| elsewhere.
 
-Actually, I'm experiencing another problem with -mm1 which might
-be related to PCI and IO ports. This might be the cause of outw
-generating the divide error I was seeing -mm1 if IO ports are
-not mapped at the right place ?
+I don't think that r4 is just a filesystem either, but you know more
+about that than I do.
 
-Thanks,
-Brice
+
+thanks,
+---
+~Randy

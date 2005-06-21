@@ -1,65 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262364AbVFUVA2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262473AbVFUVP2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262364AbVFUVA2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 17:00:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262350AbVFUU61
+	id S262473AbVFUVP2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 17:15:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262372AbVFUVHX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 16:58:27 -0400
-Received: from hera.kernel.org ([209.128.68.125]:54247 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S262330AbVFUUwZ (ORCPT
+	Tue, 21 Jun 2005 17:07:23 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:39103 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262360AbVFUU6d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 16:52:25 -0400
-To: linux-kernel@vger.kernel.org
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: -mm -> 2.6.13 merge status
-Date: Tue, 21 Jun 2005 13:52:13 -0700
-Organization: Open Source Development Lab
-Message-ID: <20050621135213.6af4b543@dxpl.pdx.osdl.net>
-References: <20050620235458.5b437274.akpm@osdl.org>
-	<42B831B4.9020603@pobox.com>
-	<1119368364.3949.236.camel@betsy>
-	<Pine.LNX.4.62.0506211222040.21678@graphe.net>
-	<1119382685.3949.263.camel@betsy>
-	<1119384131.15478.25.camel@localhost>
+	Tue, 21 Jun 2005 16:58:33 -0400
+Subject: Re: [GIT PATCH] Remove devfs from 2.6.12-git
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, Greg KH <greg@kroah.com>
+In-Reply-To: <20050621131132.105ea76f.akpm@osdl.org>
+References: <20050621062926.GB15062@kroah.com>
+	 <20050620235403.45bf9613.akpm@osdl.org> <20050621151019.GA19666@kroah.com>
+	 <20050621131132.105ea76f.akpm@osdl.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-NGp76us0yemCIzAI0YK6"
+Organization: Red Hat, Inc.
+Date: Tue, 21 Jun 2005 16:52:02 -0400
+Message-Id: <1119387122.6465.14.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Trace: build.pdx.osdl.net 1119387133 6642 10.8.0.74 (21 Jun 2005 20:52:13 GMT)
-X-Complaints-To: abuse@osdl.org
-NNTP-Posting-Date: Tue, 21 Jun 2005 20:52:13 +0000 (UTC)
-X-Newsreader: Sylpheed-Claws 1.0.4 (GTK+ 1.2.10; x86_64-unknown-linux-gnu)
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Jun 2005 14:02:09 -0600
-Zan Lynx <zlynx@acm.org> wrote:
 
-> On Tue, 2005-06-21 at 15:38 -0400, Robert Love wrote:
-> > On Tue, 2005-06-21 at 12:22 -0700, Christoph Lameter wrote:
-> > 
-> > > I noticed that select() is not working on real files. Could inotify 
-> > > be used to fix select()?
-> > 
-> > Select the system call?  It should work fine.   ;-)
-> > 
-> > Who is confused?
-> > 
-> > 	Robert Love
-> 
-> Sounds interesting.  tail -f could use it.  Instead of sleep 1, seek to
-> current position, read to eof; just select() for read on the file and
-> sleep in select() until someone else writes to that file.  
-> 
-> I've never tried doing that.  It might work, for all I know.
-> -- 
-> Zan Lynx <zlynx@acm.org>
+--=-NGp76us0yemCIzAI0YK6
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+On Tue, 2005-06-21 at 13:11 -0700, Andrew Morton wrote:
+> Greg KH <greg@kroah.com> wrote:
+> >
+> >  Or I can wait until you go next.  I didn't want these patches in the -=
+mm
+> >  tree as they would have caused you too much work to keep up to date an=
+d
+> >  not conflict with anything else due to the size of them.
+>=20
+> What happens if we merge it and then the storm of complaints over the
+> ensuing four weeks makes us say "whoops, shouldna done that [yet]"?
+
+so... disable the config option now. then wait 3 weeks. then do the
+rest ;)
+
+undoing the config change is easy compared to undoing the rest...
 
 
-Posix requires select() of regular files always return true:
-	http://www.opengroup.org/onlinepubs/009695399/functions/select.html
+--=-NGp76us0yemCIzAI0YK6
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-	File descriptors associated with regular files shall always select true for ready to read, 
-	ready to write, and error conditions.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
--- 
-Stephen Hemminger	<shemminger@osdl.org>
+iD8DBQBCuH3ypv2rCoFn+CIRAh/2AJ9dhgBQVwF+oag53gGZU3kn4PJ9hACfUT6T
+ZTIjV/0BjL/xd09Qj8c/8eI=
+=sHAv
+-----END PGP SIGNATURE-----
+
+--=-NGp76us0yemCIzAI0YK6--
+

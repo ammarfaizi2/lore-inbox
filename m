@@ -1,76 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262044AbVFUIyv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261655AbVFUIyu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262044AbVFUIyv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 04:54:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbVFUIPH
+	id S261655AbVFUIyu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 04:54:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262044AbVFUIOk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 04:15:07 -0400
-Received: from soufre.accelance.net ([213.162.48.15]:61392 "EHLO
-	soufre.accelance.net") by vger.kernel.org with ESMTP
-	id S261626AbVFUHPY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 03:15:24 -0400
-Message-ID: <42B7BE86.6060502@xenomai.org>
-Date: Tue, 21 Jun 2005 09:15:18 +0200
-From: Philippe Gerum <rpm@xenomai.org>
-Organization: Xenomai
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: karim@opersys.com
-CC: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] I-pipe: Core implementation
-References: <42B35B07.7080703@xenomai.org> <20050618170139.GA477@openzaurus.ucw.cz> <42B7272F.2040503@xenomai.org> <42B74781.8000109@opersys.com>
-In-Reply-To: <42B74781.8000109@opersys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 21 Jun 2005 04:14:40 -0400
+Received: from zproxy.gmail.com ([64.233.162.204]:38366 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261602AbVFUHPZ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 03:15:25 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=N42Zw9PGMeB6bYOHj9Ue7PmmelhdkMWeyp25ZR5D4PxX0uo8uOxcKGc5wLLfvY9oAnlInH56Kpg11QLEKa+C6ZmA3GGYg9KeMN54dJisclSVDfHOTLoXYEI9Ywq5jqhApjUsGyvYX8jJ9t+9GbmP74eJLCmLZkUzGPvMq29wRNQ=
+Message-ID: <699a19ea05062100157c17c09c@mail.gmail.com>
+Date: Tue, 21 Jun 2005 12:45:20 +0530
+From: k8 s <uint32@gmail.com>
+Reply-To: k8 s <uint32@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: struct iphdr in include/linux/ip.h (probably bug in headerfile)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Karim Yaghmour wrote:
-> Philippe Gerum wrote:
-> 
->>There's a fourth one (ipipe/x86.c) added by the arch-dependent patch, 
->>but yes, I agree that this could sound rather overkill to have this 
->>support in its own dir, especially a top-level one. The files under 
->>ipipe/ can be built as a loadable module, hence the current layout.
->>Would you see this belonging to, e.g., the driver tree instead?
-> 
-> 
-> How about this instead:
-> 
-> Arch-indepedent parts:
-> ----------------------
-> include/linux/ipipe.h
-> 
-> kernel/ipipe/Kconfig      (formerly ipipe/Kconfig)
-> kernel/ipipe/Makefile     (formerly ipipe/Makefile)
-> kernel/ipipe/core.c       (formerly kernel/ipipe.c)
-> kernel/ipipe/generic.c    (formerly ipipe/generi.c)
-> 
-> Arch-dependent parts:
-> ---------------------
-> include/asm-i386/ipipe.h
-> 
-> arch/i386/kernel/ipipe-core.c  (formerly arch/i386/kernel/ipipe.c)
-> arch/i386/kernel/ipipe-root.c  (formerly ipipe/x86.c)
-> 
-> Seems to me that the above makes more sense. Albeit you would have
-> parts of the module in kernel/ipipe/* and the rest in
-> arch/*/kernel/ipipe*.
+Hello,
 
-I'm pondering now if having the i-pipe buildable as a module is still 
-relevant, like it was during the early Adeos times. This was mainly used 
-to reduce the compile-debug-reboot cycle, so that we could just unload 
-the module for testing some non-critical Adeos features which were not 
-related to the interrupt pipeline. This becomes clearly irrelevant in 
-the i-pipe case (any bug in the i-pipe would very likely make the box go 
-south anyway).
-Additionally, dealing with a dynamically loadable i-pipe adds a small 
-but permanent overhead for testing if the pipeline is enabled during 
-internal operations.
+The following definition in linux/include/ip.h is creating problems.
 
-Any objection to make the pipeline a static-only feature?
+How does Endianness affect BIT ORDER 
+IT affetc only  BYTE ORDER
+------------------------------------------------------------------------
+struct iphdr {
+#if defined(__LITTLE_ENDIAN_BITFIELD)
+        __u8    ihl:4,
+                version:4;
+#elif defined (__BIG_ENDIAN_BITFIELD)
+        __u8    version:4,
+                ihl:4;
+--------------------------------------------------------------------------
+Here I have a network device which works on both little endian and big
+endian machines.
+I found out that the driver of the device was saying unrecognizable
+packet when i assign
+strcut iphdr *ip;
+ip->version=4
+ip->ihl=5
+on bigendian machines.
+It is because the two fields are swapped and start of the iphdr is 5
+instead of 4.
+The device is seeing 5 at the version and saying neither ipv4 nor ipv6
+packet found.
+I had to do the following to remove the error
 
--- 
+*((unsigned char*)ip) = 0x45;
 
-Philippe.
+Had anyone noticed IT
+
+S Kartikeyan

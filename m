@@ -1,148 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261803AbVFUU26@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261741AbVFUUZG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261803AbVFUU26 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 16:28:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262316AbVFUU0e
+	id S261741AbVFUUZG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 16:25:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262318AbVFUUWe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 16:26:34 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:52116 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261803AbVFUUWa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 16:22:30 -0400
-Date: Tue, 21 Jun 2005 13:22:04 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org
+	Tue, 21 Jun 2005 16:22:34 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:44457 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262315AbVFUUVy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 16:21:54 -0400
+Date: Tue, 21 Jun 2005 21:21:36 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Hans Reiser <reiser@namesys.com>, Alexander Zarochentcev <zam@namesys.com>,
+       vs <vs@thebsh.namesys.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
 Subject: Re: -mm -> 2.6.13 merge status
-Message-Id: <20050621132204.1b57b6ba.akpm@osdl.org>
-In-Reply-To: <42B831B4.9020603@pobox.com>
-References: <20050620235458.5b437274.akpm@osdl.org>
-	<42B831B4.9020603@pobox.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Message-ID: <20050621202136.GA30182@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andi Kleen <ak@suse.de>, Hans Reiser <reiser@namesys.com>,
+	Alexander Zarochentcev <zam@namesys.com>,
+	vs <vs@thebsh.namesys.com>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20050620235458.5b437274.akpm@osdl.org.suse.lists.linux.kernel> <p73d5qgc67h.fsf@verdi.suse.de> <42B86027.3090001@namesys.com> <20050621195642.GD14251@wotan.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050621195642.GD14251@wotan.suse.de>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@pobox.com> wrote:
->
-> > sparsemem
+On Tue, Jun 21, 2005 at 09:56:43PM +0200, Andi Kleen wrote:
+> On Tue, Jun 21, 2005 at 11:44:55AM -0700, Hans Reiser wrote:
+> > vs and zam, please comment on what we get from our profiler and spinlock
+> > debugger that the standard tools don't supply.  I am sure you have a
+> > reason, but now is the time to articulate it.
 > > 
-> >     OK by me for a merge.  Need to poke arch maintainers first, check that
-> >     they've looked at it sufficiently closely.
+> > We would like to keep the disabled code in there until we have a chance
+> > to prove (or fail to prove) that cycle detection can be resolved
+> > effectively, and then with a solution in hand argue its merits.
 > 
-> seems sane, though there are some whitespace niggles that should be 
-> cleaned up
-> 
+> How about the review of your code base? Has reiser4 ever been
+> fully reviewed by people outside your group? 
 
-There are?  I thought I fixed most of them.
+I don't think so.  Everyone used the previous criteria of the broken
+core changes, broken filesystem semantics and it's own useless abtraction
+layer (*) as an excuse not to look deeply at this huge mess yet.
 
-*general sigh*.  I wish people would absorb CodingStyle.  It's not hard,
-and fixing the style post-facto creates a real mess.  I now have a great
-string of kexec patches followed by a "kexec-code-cleanup.patch" which
-totally buggers up the patch sequencing and really needs to be split into
-18 parts and sprinkled back over the entire series.
-
-> > rapidio-*
-> > 
-> >     Will merge.
-> 
-> send through netdev, as is proper
-> 
-
-OK.  But then the master version vanishes into the jgarzik git forest and I
-won't know how to get it ;)
-
-> > connector.patch
-> > 
-> >     Nice idea IMO, but there are still questions around the
-> >     implementation.  More dialogue needed ;)
-> > 
-> > connector-add-a-fork-connector.patch
-> > 
-> >     OK, but needs connector.
-> 
-> I don't like connector
-> 
-
-How come?
-
-> 
-> > pcmcia-*.patch
-> > 
-> >     Makes the pcmcia layer generate hotplug events and deprecates cardmgr.
-> >     Will merge.
-> 
-> Testing?  The goal behind the patch is certainly good, but I worry about 
-> exposure.
-> 
-
-Yes, there will be a few problems I guess.  But people are testing it - we
-know, because we've had lots of bug reports which were actually due to
-greg-pci breakage...
-
-> 
-> > cachefs
-> > 
-> >     This is a ton of code which knows rather a lot about pagecache
-> >     internals.  It allows the AFS client to cache file contents on a local
-> >     blockdev.
-> > 
-> >     I don't think it's a justified addition for only AFS and I'd prefer to
-> >     see it proven for NFS as well.
-> > 
-> >     Issues around add-page-becoming-writable-notification.patch need to
-> >     be resolved.
-> > 
-> > cachefs-for-nfs
-> > 
-> >     A recent addition.  Needs review from NFS developers and considerably
-> >     more testing.
-> > 
-> >     These things aren't looking likely for 2.6.13.
-> 
-> If I could vote more than once, I would!  I really like cachefs, and 
-> have been pushing for its inclusion for a while.
-> 
-
-You've been using it?
-
-> > kexec and kdump
-> > 
-> >     I guess we should merge these.
-> > 
-> >     I'm still concerned that the various device shutdown problems will
-> >     mean that the success rate for crashing kernels is not high enough for
-> >     kdump to be considered a success.  In which case in six months time we'll
-> >     hear rumours about vendors shipping wholly different crashdump
-> >     implementations, which would be quite bad.
-> > 
-> >     But I think this has gone as far as it can go in -mm, so it's a bit of
-> >     a punt.
-> 
-> I'm not particularly pleased with these,
-
-How come?
-
-> and indeed vendors ARE shipping 
-> other crashdump methods.
-
-Which ones?
-
-> 
-> > reiser4
-> > 
-> >     Merge it, I guess.
-> > 
-> >     The patches still contain all the reiser4-specific namespace
-> >     enhancements, only it is disabled, so it is effectively dead code.  Maybe
-> >     we should ask that it actually be removed?
-> 
-> The plugin stuff is crap.  This is not a filesystem but a filesystem + 
-> new layer.  IMO considered in that light, it duplicates functionality 
-> elsewhere.
-> 
-
-hm.
+(*) which isn't gone yet.  and I need to look again if the core changes
+are okay yet.  And the broken sematics should go completely aswell, if
+you want to reintroduce them it needs to happen at the VFS level anyway.
 

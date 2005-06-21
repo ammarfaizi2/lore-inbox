@@ -1,20 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262181AbVFUQYl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262174AbVFUQ00@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262181AbVFUQYl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 12:24:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262173AbVFUQXj
+	id S262174AbVFUQ00 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 12:26:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262183AbVFUQZr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 12:23:39 -0400
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:51611 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S262171AbVFUQWr
+	Tue, 21 Jun 2005 12:25:47 -0400
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:39609 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S262174AbVFUQYL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 12:22:47 -0400
-Date: Tue, 21 Jun 2005 18:22:49 +0200
+	Tue, 21 Jun 2005 12:24:11 -0400
+Date: Tue, 21 Jun 2005 18:24:13 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: akpm@osdl.org, mochel@digitalimplant.org, gregkh@suse.de,
-       cohuck@de.ibm.com, linux-kernel@vger.kernel.org
-Subject: [patch 3/16] s390: use klist in dasd driver.
-Message-ID: <20050621162249.GC6053@localhost.localdomain>
+To: akpm@osdl.org, cohuck@de.ibm.com, linux-kernel@vger.kernel.org
+Subject: [patch 6/16] s390: cio documentation.
+Message-ID: <20050621162413.GF6053@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,57 +21,57 @@ User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[patch 3/16] s390: use klist in dasd driver.
+[patch 6/16] s390: cio documentation.
 
 From: Cornelia Huck <cohuck@de.ibm.com>
 
-Convert the dasd driver to use the new klist interface.
+Some clarifications in the cio documentation.
 
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
 diffstat:
- drivers/s390/block/dasd.c |   26 ++++++++++++--------------
- 1 files changed, 12 insertions(+), 14 deletions(-)
+ Documentation/s390/CommonIO |   16 +++++++++-------
+ 1 files changed, 9 insertions(+), 7 deletions(-)
 
-diff -urpN linux-2.6/drivers/s390/block/dasd.c linux-2.6-patched/drivers/s390/block/dasd.c
---- linux-2.6/drivers/s390/block/dasd.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6-patched/drivers/s390/block/dasd.c	2005-06-21 17:36:46.000000000 +0200
-@@ -1952,26 +1952,24 @@ dasd_generic_notify(struct ccw_device *c
-  * Automatically online either all dasd devices (dasd_autodetect) or
-  * all devices specified with dasd= parameters.
-  */
-+static int
-+__dasd_auto_online(struct device *dev, void *data)
-+{
-+	struct ccw_device *cdev;
-+
-+	cdev = to_ccwdev(dev);
-+	if (dasd_autodetect || dasd_busid_known(cdev->dev.bus_id) == 0)
-+		ccw_device_set_online(cdev);
-+	return 0;
-+}
-+
- void
- dasd_generic_auto_online (struct ccw_driver *dasd_discipline_driver)
- {
- 	struct device_driver *drv;
--	struct device *d, *dev;
--	struct ccw_device *cdev;
+diff -urpN linux-2.6/Documentation/s390/CommonIO linux-2.6-patched/Documentation/s390/CommonIO
+--- linux-2.6/Documentation/s390/CommonIO	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6-patched/Documentation/s390/CommonIO	2005-06-21 17:36:49.000000000 +0200
+@@ -30,7 +30,7 @@ Command line parameters
+   device numbers (0xabcd or abcd, for 2.4 backward compatibility).
+   You can use the 'all' keyword to ignore all devices.
+   The '!' operator will cause the I/O-layer to _not_ ignore a device.
+-  The order on the command line is not important.
++  The command line is parsed from left to right.
  
- 	drv = get_driver(&dasd_discipline_driver->driver);
--	down_read(&drv->bus->subsys.rwsem);
--	dev = NULL;
--	list_for_each_entry(d, &drv->devices, driver_list) {
--		dev = get_device(d);
--		if (!dev)
--			continue;
--		cdev = to_ccwdev(dev);
--		if (dasd_autodetect || dasd_busid_known(cdev->dev.bus_id) == 0)
--			ccw_device_set_online(cdev);
--		put_device(dev);
--	}
--	up_read(&drv->bus->subsys.rwsem);
-+	driver_for_each_device(drv, NULL, NULL, __dasd_auto_online);
- 	put_driver(drv);
- }
+   For example, 
+ 	cio_ignore=0.0.0023-0.0.0042,0.0.4711
+@@ -72,13 +72,14 @@ Command line parameters
+   /proc/cio_ignore; "add <device range>, <device range>, ..." will ignore the
+   specified devices.
  
+-  Note: Already known devices cannot be ignored.
++  Note: While already known devices can be added to the list of devices to be
++        ignored, there will be no effect on then. However, if such a device
++        disappears and then reappeares, it will then be ignored.
+ 
+-  For example, if device 0.0.abcd is already known and all other devices
+-  0.0.a000-0.0.afff are not known,
++  For example,
+ 	"echo add 0.0.a000-0.0.accc, 0.0.af00-0.0.afff > /proc/cio_ignore"
+-  will add 0.0.a000-0.0.abcc, 0.0.abce-0.0.accc and 0.0.af00-0.0.afff to the
+-  list of ignored devices and skip 0.0.abcd.
++  will add 0.0.a000-0.0.accc and 0.0.af00-0.0.afff to the list of ignored
++  devices.
+ 
+   The devices can be specified either by bus id (0.0.abcd) or, for 2.4 backward
+   compatibilty, by the device number in hexadecimal (0xabcd or abcd).
+@@ -98,7 +99,8 @@ Command line parameters
+ 
+   - /proc/s390dbf/cio_trace/hex_ascii
+     Logs the calling of functions in the common I/O-layer and, if applicable, 
+-    which subchannel they were called for.
++    which subchannel they were called for, as well as dumps of some data
++    structures (like irb in an error case).
+ 
+   The level of logging can be changed to be more or less verbose by piping to 
+   /proc/s390dbf/cio_*/level a number between 0 and 6; see the documentation on

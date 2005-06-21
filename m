@@ -1,49 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262198AbVFURTH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262201AbVFURWf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262198AbVFURTH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 13:19:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262196AbVFURTH
+	id S262201AbVFURWf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 13:22:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262205AbVFURWe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 13:19:07 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:29905 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262212AbVFURPM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 13:15:12 -0400
-Date: Tue, 21 Jun 2005 13:15:09 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: cutaway@bellsouth.net
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] do_execve() perf improvement opportunity?
-In-Reply-To: <027401c57683$a261a9f0$2800000a@pc365dualp2>
-Message-ID: <Pine.LNX.4.61.0506211314010.14739@chimarrao.boston.redhat.com>
-References: <000d01c5762c$5e399dc0$2800000a@pc365dualp2>
- <Pine.LNX.4.61.0506210954090.14739@chimarrao.boston.redhat.com>
- <027401c57683$a261a9f0$2800000a@pc365dualp2>
+	Tue, 21 Jun 2005 13:22:34 -0400
+Received: from hq.tensilica.com ([65.205.227.29]:57038 "EHLO
+	mailapp.tensilica.com") by vger.kernel.org with ESMTP
+	id S262201AbVFURVC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 13:21:02 -0400
+Message-ID: <42B84C6F.4090005@tensilica.com>
+Date: Tue, 21 Jun 2005 10:20:47 -0700
+From: Chris Zankel <zankel@tensilica.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: xtensa architecture (-mm -> 2.6.13 merge status)
+References: <20050620235458.5b437274.akpm@osdl.org>
+In-Reply-To: <20050620235458.5b437274.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Jun 2005 cutaway@bellsouth.net wrote:
+Andrew Morton wrote:
+> xtensa architecture
+> 
+>     Is xtensa now, or will it be in the future a sufficiently popular
+>     architecture to justify the cost of having this code in the tree?
+> 
+>     Heaven knows.  Will merge.
 
-> I'll try to code this up and benchmark it and see if there's anything 
-> measurable.  If there is, this sort of simple minded "cache the last 
-> one" scheme might be applicable elsewhere too - pipes, maybe net 
-> packets, etc. It looks like Slab already sort of "caches the last one" 
-> on the different granularities, but it takes a bit more code to get to 
-> the point where it finally figures out it can give you back a cached 
-> one.
+Andrew,
 
-The thing is, that code may well be in cache already, while
-a cache miss on a piece of data from another CPU is really
-really expensive on SMP systems.
+I understand your concern and am glad that you give Xtensa and the other 
+smaller non-mainstream architectures a chance.
 
-I suspect you may be able to get more performance gains
-from inserting prefetches in strategic places than from
-cutting out a bit of code.
+The Xtensa architecture is highly configurable and usually buried inside 
+an SOC device. So, if you buy a new printer, digital camera, or cell 
+phone, there is a chance that there is an Xtensa inside even though you 
+don't know it (sometimes as a small audio-engine or as a control CPU). 
+Linux hasn't been adopted widely with Xtensa yet, but with Linux growing 
+in the embedded space, I am sure it will become much more important -- 
+at least this is where I bet my time (and spare time) on.
+ 
+          To minimize the impact on other developers, I do understand 
+that changes that affect all architectures will only be applied to the 
+mainstream architectures and that the maintainers of the non-mainstream 
+architectures then have to pick it up. Luckily, the architecture 
+dependent files have their own confined space in the arch and asm 
+directories.
 
--- 
-The Theory of Escalating Commitment: "The cost of continuing mistakes is
-borne by others, while the cost of admitting mistakes is borne by yourself."
-  -- Joseph Stiglitz, Nobel Laureate in Economics
+In my opinion, as long as an architecture, driver, etc. is maintained 
+and not obviously obsolete, it should be allowed to remain in the 
+kernel.
+
+I do have a few small patches in the queue but am struggling with some 
+changes I want to make to the syscalls that might break some older code. 
+
+ 
+                     Thanks, 
+                              ~Chris 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+ 
+

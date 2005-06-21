@@ -1,45 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261163AbVFUIR7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261990AbVFUISB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261163AbVFUIR7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 04:17:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262052AbVFUIRi
+	id S261990AbVFUISB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 04:18:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261586AbVFUIRI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 04:17:38 -0400
-Received: from mail.fh-wedel.de ([213.39.232.198]:30857 "EHLO
+	Tue, 21 Jun 2005 04:17:08 -0400
+Received: from mail.fh-wedel.de ([213.39.232.198]:8841 "EHLO
 	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S261163AbVFUHgN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 03:36:13 -0400
-Date: Tue, 21 Jun 2005 09:36:15 +0200
+	id S261990AbVFUHdF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 03:33:05 -0400
+Date: Tue, 21 Jun 2005 09:33:07 +0200
 From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Pavel Machek <pavel@suse.cz>
-Cc: domen@coderock.org, linux-kernel@vger.kernel.org
+To: domen@coderock.org
+Cc: pavel@suse.cz, linux-kernel@vger.kernel.org
 Subject: Re: [patch 2/2] kernel/power/disk.c string fix and if-less iterator
-Message-ID: <20050621073615.GF27887@wohnheim.fh-wedel.de>
-References: <20050620215712.840835000@nd47.coderock.org> <20050620221041.GI2222@elf.ucw.cz>
+Message-ID: <20050621073307.GE27887@wohnheim.fh-wedel.de>
+References: <20050620215712.840835000@nd47.coderock.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050620221041.GI2222@elf.ucw.cz>
+In-Reply-To: <20050620215712.840835000@nd47.coderock.org>
 User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 June 2005 00:10:41 +0200, Pavel Machek wrote:
+On Mon, 20 June 2005 23:57:13 +0200, domen@coderock.org wrote:
 > 
-> > The attached patch:
-> > 
-> > o  Fixes kernel/power/disk.c string declared as 'char *p = "...";' to be
-> >    declared as 'char p[] = "...";', as pointed by Jeff Garzik.
-> 
-> ? Why was char *p ... wrong? Because you could not do sizeof() later?
+> Index: quilt/kernel/power/disk.c
+> ===================================================================
+> --- quilt.orig/kernel/power/disk.c
+> +++ quilt/kernel/power/disk.c
+> @@ -91,15 +91,13 @@ static void free_some_memory(void)
+>  	unsigned int i = 0;
+>  	unsigned int tmp;
+>  	unsigned long pages = 0;
+> -	char *p = "-\\|/";
+> +	char p[] = "-\\|/";
+>  
+>  	printk("Freeing memory...  ");
+>  	while ((tmp = shrink_all_memory(10000))) {
+>  		pages += tmp;
+>  		printk("\b%c", p[i]);
+> -		i++;
+> -		if (i > 3)
+> -			i = 0;
+> +		i = (i + 1) % (sizeof(p) - 1);
+>  	}
+>  	printk("\bdone (%li pages freed)\n", pages);
+>  }
 
-Not necessarily wrong, but iirc, "*p" can waste 4 bytes (or 8, for
-64-bit platforms).  Since this variable isn't static, that's a
-non-issue, but I've seen it on some kernel-janitor list anyway.
+Isn't "-\\|/" NUL-terminated and hence 5 characters long?  In that
+case, you patch may do funny things.
 
 Jörn
 
 -- 
-Those who come seeking peace without a treaty are plotting.
--- Sun Tzu
+I've never met a human being who would want to read 17,000 pages of
+documentation, and if there was, I'd kill him to get him out of the
+gene pool.
+-- Joseph Costello

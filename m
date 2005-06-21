@@ -1,96 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261776AbVFUACH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261780AbVFUBdf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261776AbVFUACH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Jun 2005 20:02:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261804AbVFUABj
+	id S261780AbVFUBdf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Jun 2005 21:33:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261772AbVFUBbp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Jun 2005 20:01:39 -0400
-Received: from zproxy.gmail.com ([64.233.162.202]:30129 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261776AbVFTXeL convert rfc822-to-8bit
+	Mon, 20 Jun 2005 21:31:45 -0400
+Received: from ylpvm01-ext.prodigy.net ([207.115.57.32]:27284 "EHLO
+	ylpvm01.prodigy.net") by vger.kernel.org with ESMTP id S261866AbVFUB27
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 19:34:11 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=eCI5pdrKHdCWeF+kXPx/3SdLn7cYGQW3H+geAmwVqVNcXC+zsJTf41lop28gkZivdcFYQBggqVcvyQRE6AhFV4FJx5UmN5G45H685Ru0hkTV5JlMaaRRQPVQuIyLcYrDvl5baYP8tVbx4oTVvCUZbZAI6Y4navU/vYf941056r0=
-Message-ID: <9a87484905062016347da01201@mail.gmail.com>
-Date: Tue, 21 Jun 2005 01:34:10 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
-To: Nishanth Aravamudan <nacc@us.ibm.com>
-Subject: Re: [patch 2/4] cdrom/aztcd: remove sleep_on() usage
-Cc: "domen@coderock.org" <domen@coderock.org>, emoenke@gwdg.de,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050620232403.GC2623@us.ibm.com>
+	Mon, 20 Jun 2005 21:28:59 -0400
+Date: Mon, 20 Jun 2005 18:28:25 -0700
+From: Tony Lindgren <tony@atomide.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: hugang@soulinfo.com, Tony Lindgren <tony@atomide.com>,
+       linux-kernel@vger.kernel.org,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       Jonathan Corbet <corbet@lwn.net>, Pavel Machek <pavel@ucw.cz>,
+       Bernard Blackham <b-lkml@blackham.com.au>,
+       Christian Hesse <mail@earthworm.de>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Subject: Re: [PATCH] Dynamic tick for x86 version 050610-1
+Message-ID: <20050621012825.GA30990@muru.com>
+References: <20050602013641.GL21597@atomide.com> <200506021030.50585.mail@earthworm.de> <20050602174219.GC21363@atomide.com> <20050603223758.GA2227@elf.ucw.cz> <20050610041706.GC18103@atomide.com> <20050610091515.GH4173@elf.ucw.cz> <20050610151707.GB7858@atomide.com> <20050610221501.GB7575@atomide.com> <20050618033419.GA6476@hugang.soulinfo.com> <1119076233.18247.27.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20050620215148.561754000@nd47.coderock.org>
-	 <9a87484905062016141082daff@mail.gmail.com>
-	 <20050620232403.GC2623@us.ibm.com>
+In-Reply-To: <1119076233.18247.27.camel@gaston>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/21/05, Nishanth Aravamudan <nacc@us.ibm.com> wrote:
-> On 21.06.2005 [01:14:11 +0200], Jesper Juhl wrote:
-> > On 6/20/05, domen@coderock.org <domen@coderock.org> wrote:
-> > > From: Nishanth Aravamudan <nacc@us.ibm.com>
-> > >
-> > >
-> > >
-> > > Directly use wait-queues instead of the deprecated sleep_on().
-> > > This required adding a local waitqueue. Patch is compile-tested.
-> > >
-> > > Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
-> > > Signed-off-by: Domen Puncer <domen@coderock.org>
-> > > ---
-> > >  aztcd.c |    6 +++++-
-> > >  1 files changed, 5 insertions(+), 1 deletion(-)
-> > >
-> > > Index: quilt/drivers/cdrom/aztcd.c
-> > > ===================================================================
-> > > --- quilt.orig/drivers/cdrom/aztcd.c
-> > > +++ quilt/drivers/cdrom/aztcd.c
-> > > @@ -179,6 +179,7 @@
-> > >  #include <linux/ioport.h>
-> > >  #include <linux/string.h>
-> > >  #include <linux/major.h>
-> > > +#include <linux/wait.h>
-> > >
-> > >  #include <linux/init.h>
-> > >
-> > > @@ -429,9 +430,12 @@ static void dten_low(void)
-> > >  #define STEN_LOW_WAIT   statusAzt()
-> > >  static void statusAzt(void)
-> > >  {
-> > > +       DEFINE_WAIT(wait);
-> > >         AztTimeout = AZT_STATUS_DELAY;
-> > >         SET_TIMER(aztStatTimer, HZ / 100);
-> > > -       sleep_on(&azt_waitq);
-> > > +       prepare_to_wait(&azt_waitq, &wait, TASK_UNINTERRUPTIBLE);
-> > > +       schedule();
-> > > +       finish_wait(&azt_waitq, &wait);
-> > >         if (AztTimeout <= 0)
-> > >                 printk("aztcd: Error Wait STEN_LOW_WAIT command:%x\n",
-> > >                        aztCmd);
-> > >
-> >
-> > Hmm, now that noone's sleeping on azt_waitq the two
-> > wake_up(&azt_waitq); calls in aztStatTimer() don't seem to make much
-> > sense any more... Can they just go away or?  If they can go away then
-> > axt_waitq itself would seem to be a goner as well...   It might just
-> > be me missing something, but this patch looks incomplete and not
-> > completely thought through to me.
+On Sat, Jun 18, 2005 at 04:30:32PM +1000, Benjamin Herrenschmidt wrote:
 > 
-> Huh? prepare_to_wait() means the 'wait' here is sleeping on azt_waitq...
-> 
-Ahh damn, sorry. Somehow I misread the first argument of
-prepare_to_wait() and completely missed the fact that it was sleeping
-on azt_waitq. It must be past my bedtime...
-My bad - it looks good.
+> > I'm try to port it powerpc, Here is a patch.
+> > 
+> >  Port Dynamic Tick Timer to new platform is easy. :)
+> >   1) Find the reprogram timer interface.
+> >   2) do a hook in the idle function.
+> > 
+> > That worked on my PowerBookG4 12'.
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Cool :)
+
+> Did you get a measurable gain on power consumption ?
+> 
+> Last time I toyed with this, I didn't.
+
+Just dyntick alone probably does not do much for power savings. The
+trick is to figure out what all can be turned off for the longer idle
+periods. And try to make the idle periods longer by cutting down on
+polling.
+
+Tony

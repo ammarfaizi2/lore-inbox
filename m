@@ -1,72 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262148AbVFUQCH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262129AbVFUQE5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262148AbVFUQCH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 12:02:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262161AbVFUP6v
+	id S262129AbVFUQE5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 12:04:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261849AbVFUQE4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 11:58:51 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:22183 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S262148AbVFUPz0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 11:55:26 -0400
-Subject: Re: [patch] inotify.
-From: Robert Love <rml@novell.com>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: John McCutchan <ttb@tentacle.dhs.org>, Andrew Morton <akpm@osdl.org>,
-       Christoph Hellwig <hch@lst.de>, arnd@arndb.de, zab@zabbo.net,
-       linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
-In-Reply-To: <17079.31644.985407.988980@cse.unsw.edu.au>
-References: <1118855899.3949.21.camel@betsy> <42B1BC4B.3010804@zabbo.net>
-	 <1118946334.3949.63.camel@betsy> <200506171907.39940.arnd@arndb.de>
-	 <20050617175605.GB1981@tentacle.dhs.org>
-	 <20050617143334.41a31707.akpm@osdl.org> <1119044430.7280.22.camel@phantasy>
-	 <1119052357.7280.24.camel@phantasy>
-	 <17079.25741.91251.232880@cse.unsw.edu.au>
-	 <1119320137.17767.10.camel@vertex>
-	 <17079.31644.985407.988980@cse.unsw.edu.au>
-Content-Type: text/plain
-Date: Tue, 21 Jun 2005 11:55:27 -0400
-Message-Id: <1119369327.3949.251.camel@betsy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 21 Jun 2005 12:04:56 -0400
+Received: from atlrel9.hp.com ([156.153.255.214]:46736 "EHLO atlrel9.hp.com")
+	by vger.kernel.org with ESMTP id S261682AbVFUQE2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 12:04:28 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Mathieu =?iso-8859-15?q?B=E9rard?= <Mathieu.Berard@crans.org>
+Subject: Re: 2.6.12-mm1  irq 21: nobody cared with snd_via82xx
+Date: Tue, 21 Jun 2005 10:03:44 -0600
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org
+References: <42B73C04.1010301@crans.org>
+In-Reply-To: <42B73C04.1010301@crans.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200506211003.44419.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-06-21 at 12:29 +1000, Neil Brown wrote:
+On Monday 20 June 2005 3:58 pm, Mathieu Bérard wrote:
+> I get this while booting linux 2.6.12-mm1 (+ bridge conntrack fix BTW) 
+> with a VIA integrated audio ship.
+> 
+> It worked well at least under 2.6.11-mm1.
 
-> There may well be other good arguments against 'fd's, but I'm trying
-> to point out that this isn't one of them, and so shouldn't appear in
-> this part of the FAQ.
+Sigh.  Can you reverse the attached patch (apply it with -R)
+and see whether it helps?  VIA IRQs are a never-ending headache.
 
-You raise a good point, although one could argue that raising the fd
-limit is not necessarily feasible.
 
-There are other good arguments.  With a single fd, there is a single
-item to block on, which is mapped to a single queue of events.  The
-single fd returns all watch events and also any potential out-of-band
-data.  If every fd was a separate watch,
+Author: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Date: Tue, 7 Jun 2005 20:22:18 +0000 (-0700)
+Source: http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=93cffffa19960464a52f9c78d9a6150270d23785
 
-	- There would be no way to get event ordering.  Events on file
-	  foo and file bar would pop poll() on both fd's, but there
-	  would be no way to tell which happened first.  A single queue
-	  trivially gives you ordering.
-	- We'd have to maintain n fd's and n internal queues with state,
-	  versus just one.  It is a lot messier in the kernel.
-	- User-space developers prefer the current API.  The Beagle
-	  guys, for example, love it.  Trust me, I asked.  It is not
-	  a surprise: Who'd want to manage and block on 1000 fd's?
-	- You'd have to manage the fd's, as an example: call close()
-	  when you received a delete event.
-	- No way to get out of band data.
-	- 1024 is still too low.  ;-)
+  [PATCH] PCI: do VIA IRQ fixup always, not just in PIC mode
+  
+  At least some VIA chipsets require the fixup even in IO-APIC mode.
+  
+  This was found and debugged with the patient assistance of Stian
+  Jordet <liste@jordet.nu> on an Asus CUV266-DLS motherboard.
+  
+  Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
+  Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+  Signed-off-by: Andrew Morton <akpm@osdl.org>
+  Signed-off-by: Linus Torvalds <torvalds@osdl.org>
 
-When you talk about designing a file change notification system that
-scales to 1000s of directories, juggling 1000s of fd's just does not
-seem the right interface.  It is too heavy.
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -460,17 +460,6 @@ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_AM
+ 
+ 
+ /*
+- * Via 686A/B:  The PCI_INTERRUPT_LINE register for the on-chip
+- * devices, USB0/1, AC97, MC97, and ACPI, has an unusual feature:
+- * when written, it makes an internal connection to the PIC.
+- * For these devices, this register is defined to be 4 bits wide.
+- * Normally this is fine.  However for IO-APIC motherboards, or
+- * non-x86 architectures (yes Via exists on PPC among other places),
+- * we must mask the PCI_INTERRUPT_LINE value versus 0xf to get
+- * interrupts delivered properly.
+- */
+-
+-/*
+  * FIXME: it is questionable that quirk_via_acpi
+  * is needed.  It shows up as an ISA bridge, and does not
+  * support the PCI_INTERRUPT_LINE register at all.  Therefore
+@@ -492,28 +481,30 @@ static void __devinit quirk_via_acpi(str
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C586_3,	quirk_via_acpi );
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C686_4,	quirk_via_acpi );
+ 
+-static void quirk_via_irqpic(struct pci_dev *dev)
++/*
++ * Via 686A/B:  The PCI_INTERRUPT_LINE register for the on-chip
++ * devices, USB0/1, AC97, MC97, and ACPI, has an unusual feature:
++ * when written, it makes an internal connection to the PIC.
++ * For these devices, this register is defined to be 4 bits wide.
++ * Normally this is fine.  However for IO-APIC motherboards, or
++ * non-x86 architectures (yes Via exists on PPC among other places),
++ * we must mask the PCI_INTERRUPT_LINE value versus 0xf to get
++ * interrupts delivered properly.
++ */
++static void quirk_via_irq(struct pci_dev *dev)
+ {
+ 	u8 irq, new_irq;
+ 
+-#ifdef CONFIG_X86_IO_APIC
+-	if (nr_ioapics && !skip_ioapic_setup)
+-		return;
+-#endif
+-#ifdef CONFIG_ACPI
+-	if (acpi_irq_model != ACPI_IRQ_MODEL_PIC)
+-		return;
+-#endif
+ 	new_irq = dev->irq & 0xf;
+ 	pci_read_config_byte(dev, PCI_INTERRUPT_LINE, &irq);
+ 	if (new_irq != irq) {
+-		printk(KERN_INFO "PCI: Via PIC IRQ fixup for %s, from %d to %d\n",
++		printk(KERN_INFO "PCI: Via IRQ fixup for %s, from %d to %d\n",
+ 			pci_name(dev), irq, new_irq);
+ 		udelay(15);	/* unknown if delay really needed */
+ 		pci_write_config_byte(dev, PCI_INTERRUPT_LINE, new_irq);
+ 	}
+ }
+-DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_ANY_ID, quirk_via_irqpic);
++DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_ANY_ID, quirk_via_irq);
+ 
+ /*
+  * PIIX3 USB: We have to disable USB interrupts that are
 
-I should add this to the FAQ, yes.  ;-)
 
-	Robert Love
 
 

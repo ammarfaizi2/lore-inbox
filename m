@@ -1,43 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261350AbVFUNCW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261348AbVFUNCX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261350AbVFUNCW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 09:02:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261348AbVFUNCD
+	id S261348AbVFUNCX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 09:02:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261383AbVFUNBo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 09:02:03 -0400
-Received: from mail.fh-wedel.de ([213.39.232.198]:8112 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S261350AbVFUM6s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 08:58:48 -0400
-Date: Tue, 21 Jun 2005 14:58:48 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: -mm -> 2.6.13 merge status
-Message-ID: <20050621125848.GB7139@wohnheim.fh-wedel.de>
-References: <20050620235458.5b437274.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050620235458.5b437274.akpm@osdl.org>
-User-Agent: Mutt/1.3.28i
+	Tue, 21 Jun 2005 09:01:44 -0400
+Received: from [85.8.12.41] ([85.8.12.41]:11192 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S261380AbVFUNA3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 09:00:29 -0400
+Message-ID: <42B80F40.8000609@drzeus.cx>
+Date: Tue, 21 Jun 2005 14:59:44 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Roman Zippel <zippel@linux-m68k.org>
+CC: kbuild-devel@lists.sourceforge.net, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Pointer cast warnings in scripts/
+References: <42B7F740.6000807@drzeus.cx> <Pine.LNX.4.61.0506211413570.3728@scrub.home> <42B80AF9.2060708@drzeus.cx> <Pine.LNX.4.61.0506211451040.3728@scrub.home>
+In-Reply-To: <Pine.LNX.4.61.0506211451040.3728@scrub.home>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 June 2005 23:54:58 -0700, Andrew Morton wrote:
-> 
-> execute-in-place
-> 
->     Will merge.  Have the embedded guys commented on the usefulness of
->     this for execute-out-of-ROM?
+Roman Zippel wrote:
 
-It looks fairly useful, but XIP for NOR flashes still needs additional
-work.  No objections from my side.
+>
+>http://linux.bkbits.net/ still works.
+>
+>  
+>
 
-Jörn
+Thanks.
 
--- 
-Optimizations always bust things, because all optimizations are, in
-the long haul, a form of cheating, and cheaters eventually get caught.
--- Larry Wall 
+It should only be a matter of reversing the patches for Solaris then.
+But that will of course bring back the warnings on that platform. I'd
+say we should stick with what the standard says. Unfortunatly I don't
+have access to the standard so I wouldn't know which is the correct
+version. If I'd have to guess I'd say the odds are in favor of glibc
+getting it more right than solaris.
+
+Should I extract the changes for bkbits and make a reversed patch?
+
+Rgds
+Pierre
+

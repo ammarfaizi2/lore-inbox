@@ -1,41 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262440AbVFUXzu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262370AbVFUXzp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262440AbVFUXzu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 19:55:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262398AbVFUXzt
+	id S262370AbVFUXzp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 19:55:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262435AbVFUXz3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 19:55:49 -0400
-Received: from dsl017-059-136.wdc2.dsl.speakeasy.net ([69.17.59.136]:46829
-	"EHLO luther.kurtwerks.com") by vger.kernel.org with ESMTP
-	id S262423AbVFUXrU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 19:47:20 -0400
-From: Kurt Wall <kwall@kurtwerks.com>
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.6.12
-Date: Tue, 21 Jun 2005 19:47:15 -0400
-User-Agent: KMail/1.8
-References: <Pine.LNX.4.61.0506200857450.5213@chaos.analogic.com> <20050621121507.GE592@redhat.com> <Pine.LNX.4.61.0506210827210.10780@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0506210827210.10780@chaos.analogic.com>
+	Tue, 21 Jun 2005 19:55:29 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:2474 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S262370AbVFUXjP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 19:39:15 -0400
+Message-ID: <42B8A51A.8020208@pobox.com>
+Date: Tue, 21 Jun 2005 19:39:06 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Christoph Lameter <christoph@lameter.com>
+CC: Robert Love <rml@novell.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: -mm -> 2.6.13 merge status
+References: <20050620235458.5b437274.akpm@osdl.org>  <42B831B4.9020603@pobox.com> <1119368364.3949.236.camel@betsy> <Pine.LNX.4.62.0506211222040.21678@graphe.net> <42B8987F.9000607@pobox.com> <Pine.LNX.4.62.0506211628550.25251@graphe.net>
+In-Reply-To: <Pine.LNX.4.62.0506211628550.25251@graphe.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506211947.15988.kwall@kurtwerks.com>
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 21 June 2005 08:30, Richard B. Johnson enlightened us thusly:
-> On Tue, 21 Jun 2005, Dave Jones wrote:
+Christoph Lameter wrote:
+> On Tue, 21 Jun 2005, Jeff Garzik wrote:
+> 
+> 
+>>Non-blocking file I/O is an open issue.
+>>
+>>AIO is probably a better path.
+> 
+> 
+> AIO is requiring you to poll and check if I/O is complete. select() does 
 
-[deletia]
+Incorrect.  The entire point of AIO is that its an async callback 
+system, when the I/O is complete...  just like the kernel's internal I/O 
+request queue system.
 
-> > Anyway, I've given up trying to educate pork, so don't feel compelled
-> > to reply, I don't expect you to achieve enlightenment any time soon.
-> >
-> > 		Dave
->
-> Who do you think you are that you can call me a pig?
+	Jeff
 
-It's a metaphor: "Teaching <x> to do <y> is like teaching a
-pig to sing; it annoys the pig and you won't like the results."
+
+

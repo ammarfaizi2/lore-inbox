@@ -1,82 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261448AbVFUNvz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261459AbVFUNzm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261448AbVFUNvz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 09:51:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261333AbVFUNt3
+	id S261459AbVFUNzm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 09:55:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261389AbVFUNxN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 09:49:29 -0400
-Received: from mail.gmx.net ([213.165.64.20]:56805 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261326AbVFUNTl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 09:19:41 -0400
-X-Authenticated: #8834078
-From: Dominik Karall <dominik.karall@gmx.net>
+	Tue, 21 Jun 2005 09:53:13 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:16648 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261326AbVFUNuH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 09:50:07 -0400
+Date: Tue, 21 Jun 2005 15:50:05 +0200
+From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.12-rc6-mm1
-Date: Tue, 21 Jun 2005 15:20:41 +0200
-User-Agent: KMail/1.8.1
-Cc: linux-kernel@vger.kernel.org
-References: <20050607042931.23f8f8e0.akpm@osdl.org>
-In-Reply-To: <20050607042931.23f8f8e0.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1742071.Wk27oaBrvb";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200506211520.44645.dominik.karall@gmx.net>
-X-Y-GMX-Trusted: 0
+Cc: Greg KH <gregkh@suse.de>, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [GIT PATCH] Remove devfs from 2.6.12-git
+Message-ID: <20050621135005.GN3666@stusta.de>
+References: <20050621062926.GB15062@kroah.com> <20050620235403.45bf9613.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050620235403.45bf9613.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1742071.Wk27oaBrvb
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Mon, Jun 20, 2005 at 11:54:03PM -0700, Andrew Morton wrote:
+> Greg KH <gregkh@suse.de> wrote:
+> >
+> >  Just in time for a July release, here's a patch series that removes
+> >  devfs from the kernel tree as promised.
+> 
+> Whimper.
+> 
+> Maybe we should cook this in -mm for a bit, get a feeling for how many
+> users hate us, and how much?
+> 
+> This is going to hurt:
+> 
+> bix:/usr/src/25> grep -l devfs patches/*.patch
+> patches/areca-raid-linux-scsi-driver-fix.patch
+> patches/areca-raid-linux-scsi-driver.patch
+> patches/bk-ide-dev.patch
+> patches/git-input.patch
+> patches/git-mtd.patch
+> patches/git-ocfs.patch
+> patches/git-scsi-misc-drivers-scsi-chc-remove-devfs-stuff.patch
+> patches/gregkh-driver-class-02-tty.patch
+> patches/gregkh-driver-class-03-input.patch
+> patches/gregkh-driver-class-05-sound.patch
+> patches/gregkh-driver-class-06-block.patch
+> patches/gregkh-driver-class-07-char.patch
+> patches/gregkh-driver-class-08-ieee1394.patch
+> patches/gregkh-driver-class-09-scsi.patch
+> patches/gregkh-driver-class-11-drivers.patch
+> patches/gregkh-driver-class-12-the_rest.patch
+> patches/gregkh-driver-ipmi-class_simple-fixes.patch
+> patches/gregkh-i2c-i2c-config_cleanup-01.patch
+> patches/kdump-accessing-dump-file-in-linear-raw-format.patch
+> patches/linus.patch
+> patches/md-add-interface-for-userspace-monitoring-of-events.patch
+> patches/md-optimised-resync-using-bitmap-based-intent-logging.patch
+> patches/post-halloween-doc.patch
+> patches/st-warning-fix.patch
 
-On Tuesday 07 June 2005 13:29, Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc6/=
-2.
->6.12-rc6-mm1/
+I don't see any place where this is not either:
+- in documentation or
+- already removed again in a second patch in -mm or
+- only in patch context
 
-After looking in my dmesg output today, I saw following error with=20
-2.6.12-rc6-mm1, maybe it's usefull to you. I don't know when it exactly=20
-happens, cause I never used mono last time, I just did an emerge mono on my=
-=20
-gentoo system, maybe this forced the failure.
+Since the patch context issues are all in patches by Greg that went into 
+Linus' tree after 2.6.12-mm1 I doubt there will be many problems after 
+merging them.
 
-note: mono[26736] exited with preempt_count 1
-scheduling while atomic: mono/0x10000001/26736
+cu
+Adrian
 
-Call Trace:<ffffffff803e13ea>{schedule+122} <ffffffff8013197b>{vprintk+635}
-       <ffffffff803e2738>{cond_resched+56} <ffffffff80164de3>{unmap_vmas+15=
-87}
-       <ffffffff8016a560>{exit_mmap+128} <ffffffff8012e7bf>{mmput+31}
-       <ffffffff80133466>{do_exit+438}=20
-<ffffffff8013bf25>{__dequeue_signal+501}
-       <ffffffff801340c8>{do_group_exit+280}=20
-<ffffffff8013e147>{get_signal_to_deliver+1575}
-       <ffffffff8010de92>{do_signal+162}=20
-<ffffffff8012d1e0>{default_wake_function+0}
-       <ffffffff8010e8e1>{sys_rt_sigreturn+577}=20
-<ffffffff8010eb3f>{sysret_signal+28}
-       <ffffffff8010ee27>{ptregscall_common+103}
+-- 
 
-cheers,
-dominik
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
---nextPart1742071.Wk27oaBrvb
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1-ecc0.1.6 (GNU/Linux)
-
-iQCVAwUAQrgULAvcoSHvsHMnAQIH+gQAm//dGYW7rdUWj5CWZPcnoXl5vWQSCAqX
-owbOHP9KIW50BAJMqvxLlc14LXLPjNQJQyXLH4O0HmvS+R8DQR1onVCNqGaEcKAj
-GDHQDWvq045RTMz7j/2e3oRKrli5WHPANSZ/A2KrCwlFJYAC1WyPdsfvnCucbbk0
-hKB97TuJ9IU=
-=JNo8
------END PGP SIGNATURE-----
-
---nextPart1742071.Wk27oaBrvb--

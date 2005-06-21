@@ -1,57 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262039AbVFUORX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261954AbVFUOQf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262039AbVFUORX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 10:17:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262066AbVFUOQ4
+	id S261954AbVFUOQf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 10:16:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261831AbVFUOOb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 10:16:56 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:21412 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S262039AbVFUOPI
+	Tue, 21 Jun 2005 10:14:31 -0400
+Received: from postfix4-2.free.fr ([213.228.0.176]:48105 "EHLO
+	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S261980AbVFUOJQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 10:15:08 -0400
-Subject: Re: PATCH: IDE - sensible probing for PCI systems
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Maciej W. Rozycki" <macro@linux-mips.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org
-In-Reply-To: <Pine.LNX.4.61L.0506211422190.9446@blysk.ds.pg.gda.pl>
-References: <1119356601.3279.118.camel@localhost.localdomain>
-	 <Pine.LNX.4.61L.0506211422190.9446@blysk.ds.pg.gda.pl>
-Content-Type: text/plain
+	Tue, 21 Jun 2005 10:09:16 -0400
+Message-ID: <42B81F82.2020509@unice.fr>
+Date: Tue, 21 Jun 2005 16:09:06 +0200
+From: XIAO Gang <xiao@unice.fr>
+Organization: =?ISO-8859-1?Q?Universit=E9_de_Nice_-_Sophia_Anti?=
+ =?ISO-8859-1?Q?polis?=
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en, fr, zh-CN, zh-TW
+MIME-Version: 1.0
+To: Jeff Dike <jdike@addtoit.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: UML mode panick under 2.6.12
+References: <42B7C0FA.8070409@unice.fr> <20050621130319.GA4510@ccure.user-mode-linux.org>
+In-Reply-To: <20050621130319.GA4510@ccure.user-mode-linux.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1119363150.3325.151.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 21 Jun 2005 15:12:32 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2005-06-21 at 14:42, Maciej W. Rozycki wrote:
-> On Tue, 21 Jun 2005, Alan Cox wrote:
-> 
-> > Old ISA/VESA systems sometimes put tertiary IDE controllers at addresses
-> > 0x1e8, 0x168, 0x1e0 or 0x160. Linux thus probes these addresses on x86
-> > systems. Unfortunately some PCI systems now use these addresses for
-> > other purposes which leads to users seeing minute plus hangs during boot
-> > or even crashes.
-> 
->  Are these addresses visible in BARs?
+Jeff Dike wrote:
 
-Sometimes but often not. They tend to be below the PCI range used by the
-systems but belonging to onboard "magic"
+>On Tue, Jun 21, 2005 at 09:25:46AM +0200, XIAO Gang wrote:
+>  
+>
+>>I am unable to run UML mode (i386) under 2.6.12: the execution gives the 
+>>following messages.
+>>
+>>---------------------------------------------------------------------------------------------
+>>    
+>>
+>
+>  
+>
+>>Checking that ptrace can change system call numbers...<0>Kernel panic - 
+>>not syncing: Segfault with no mm
+>>    
+>>
+>
+>Can you try backing out the use-fork-instead-of-clone patch?  Ben LaHaise
+>reported that caused problems for him.
+>  
+>
+Not wanting to bother trimming things out, I have just copied 
+arch/um/kernel/process.c from that in 2.6.10 then recompile. And 
+everything works fine. So the problem is there, but I don't know how 
+exactly.
 
->  FYI, for MIPS for machines with a PCI bus we only probe for ISA IDE ports 
-> on if there's a PCI-ISA or PCI-EISA bridge somewhere there.  This might be 
-> a good idea for the i386 and probably any platform using PCI as well.
+-- 
 
-The primary/secondary ISA ports show up in PC systems because of the PCI
-IDE class devices being in compatibility mode not native mode (so you
-can still run old OS's). There are also a couple of older weird cases.
+XIAO Gang (~{P$8U~})                          xiao@unice.fr
+          home page: pcmath126.unice.fr/xiao.html 
 
-The PCI layer code is smart enough to figure out when a PCI and an ISA
-probe find the same device and to put the entire thing together properly
-so that aspect of it is ok.
 
-For the 3rd and higher ports probing them isn't safe on a PCI box
-regardless of the presence of ISA bridges so I don't think we need the
-extra complexity - or am I missing something ?
 

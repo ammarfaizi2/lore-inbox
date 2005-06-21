@@ -1,71 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261742AbVFUGLr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261414AbVFUGK7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261742AbVFUGLr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 02:11:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbVFUGLq
+	id S261414AbVFUGK7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 02:10:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbVFUGIB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 02:11:46 -0400
-Received: from coderock.org ([193.77.147.115]:18585 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S261742AbVFTVzZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Jun 2005 17:55:25 -0400
-Message-Id: <20050620215140.909269000@nd47.coderock.org>
-Date: Mon, 20 Jun 2005 23:51:42 +0200
-From: domen@coderock.org
-To: axboe@suse.de
-Cc: linux-kernel@vger.kernel.org, Tobias Klauser <tklauser@nuerscht.ch>,
-       domen@coderock.org
-Subject: [patch 12/12] block/cpqarray: Use the DMA_32BIT_MASK constant
-Content-Disposition: inline; filename=dma_mask-drivers_block_cpqarray.patch
+	Tue, 21 Jun 2005 02:08:01 -0400
+Received: from imf18aec.mail.bellsouth.net ([205.152.59.66]:46217 "EHLO
+	imf18aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
+	id S261414AbVFUGHS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 02:07:18 -0400
+Message-ID: <004001c5762e$d67ff390$2800000a@pc365dualp2>
+From: <cutaway@bellsouth.net>
+To: "Jesper Juhl" <juhl-lkml@dif.dk>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>
+Cc: "Andrew Morton" <akpm@osdl.org>, "Jeff Garzik" <jgarzik@pobox.com>,
+       "Domen Puncer" <domen@coderock.org>
+References: <Pine.LNX.4.62.0506200052320.2415@dragon.hyggekrogen.localhost>
+Subject: Re: [RFC] cleanup patches for strings
+Date: Tue, 21 Jun 2005 02:58:13 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1478
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1478
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Tobias Klauser <tklauser@nuerscht.ch>
+Examine each case individually...
 
+Any code that did a "sizeof(foo)" is [very] likely to give different
+results.
 
+Also, if there are several instances of "foo" being passed around as
+parameter, you may find the generated code gets somewhat worse if "foo" used
+to be a stack based autovar.  On x86, the const[] implementation will always
+cause a 5 byte PUSH for a parameter, whereas the autovar pointer
+implementation often will be a shorter 3 byte EBP relative push.  With many
+instances of 'foo' usage (or used in a loop), you may be better off paying
+the price of an autovar init during prolog to get the cheaper parm pushes
+later.
 
-Use the DMA_32BIT_MASK constant from dma-mapping.h when calling
-pci_set_dma_mask() or pci_set_consistent_dma_mask() instead of custom
-macros.
-This patch includes dma-mapping.h explicitly because it caused errors
-on some architectures otherwise.
-See http://marc.theaimsgroup.com/?t=108001993000001&r=1&w=2 for details
+----- Original Message ----- 
+From: "Jesper Juhl" <juhl-lkml@dif.dk>
+To: "linux-kernel" <linux-kernel@vger.kernel.org>
+Cc: "Andrew Morton" <akpm@osdl.org>; "Jeff Garzik" <jgarzik@pobox.com>;
+"Domen Puncer" <domen@coderock.org>
+Sent: Monday, June 20, 2005 18:46
+Subject: [RFC] cleanup patches for strings
+> from the form
+> [const] char *foo = "blah";
+> to
+> [const] char foo[] = "blah";
 
-Signed-off-by: Tobias Klauser <tklauser@nuerscht.ch>
-Signed-off-by: Domen Puncer <domen@coderock.org>
----
- cpqarray.c |    5 ++---
- 1 files changed, 2 insertions(+), 3 deletions(-)
-
-Index: quilt/drivers/block/cpqarray.c
-===================================================================
---- quilt.orig/drivers/block/cpqarray.c
-+++ quilt/drivers/block/cpqarray.c
-@@ -39,6 +39,7 @@
- #include <linux/spinlock.h>
- #include <linux/blkdev.h>
- #include <linux/genhd.h>
-+#include <linux/dma-mapping.h>
- #include <asm/uaccess.h>
- #include <asm/io.h>
- 
-@@ -65,8 +66,6 @@ MODULE_LICENSE("GPL");
- #define MAX_CTLR	8
- #define CTLR_SHIFT	8
- 
--#define CPQARRAY_DMA_MASK	0xFFFFFFFF	/* 32 bit DMA */
--
- static int nr_ctlr;
- static ctlr_info_t *hba[MAX_CTLR];
- 
-@@ -626,7 +625,7 @@ static int cpqarray_pci_init(ctlr_info_t
- 	for(i=0; i<6; i++)
- 		addr[i] = pci_resource_start(pdev, i);
- 
--	if (pci_set_dma_mask(pdev, CPQARRAY_DMA_MASK) != 0)
-+	if (pci_set_dma_mask(pdev, DMA_32BIT_MASK) != 0)
- 	{
- 		printk(KERN_ERR "cpqarray: Unable to set DMA mask\n");
- 		return -1;
-
---

@@ -1,64 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262104AbVFUJUH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261648AbVFUIys@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262104AbVFUJUH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 05:20:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262084AbVFUJRn
+	id S261648AbVFUIys (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 04:54:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262076AbVFUIOP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 05:17:43 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:10895 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261507AbVFUJQn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 05:16:43 -0400
-Date: Tue, 21 Jun 2005 11:15:57 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Dipankar Sarma <dipankar@in.ibm.com>
-Cc: kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@zip.com.au>
-Subject: Re: 2.6.12-mm1: BUG() in fd_install, RCU related?
-Message-ID: <20050621091557.GD1953@elf.ucw.cz>
-References: <20050621083424.GA2076@elf.ucw.cz> <20050621090721.GA7976@in.ibm.com>
+	Tue, 21 Jun 2005 04:14:15 -0400
+Received: from apate.telenet-ops.be ([195.130.132.57]:21478 "EHLO
+	apate.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S261997AbVFUHG4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 03:06:56 -0400
+Subject: Re: 2.6.12: connection tracking broken?
+From: Bart De Schuymer <bdschuym@pandora.be>
+To: Patrick McHardy <kaber@trash.net>
+Cc: Bart De Schuymer <bdschuym@telenet.be>,
+       Herbert Xu <herbert@gondor.apana.org.au>, netfilter-devel@manty.net,
+       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
+       ebtables-devel@lists.sourceforge.net, rankincj@yahoo.com
+In-Reply-To: <42B74FC5.3070404@trash.net>
+References: <E1Dk9nK-0001ww-00@gondolin.me.apana.org.au>
+	 <Pine.LNX.4.62.0506200432100.31737@kaber.coreworks.de>
+	 <1119249575.3387.3.camel@localhost.localdomain> <42B6B373.20507@trash.net>
+	 <1119293193.3381.9.camel@localhost.localdomain>
+	 <42B74FC5.3070404@trash.net>
+Content-Type: text/plain
+Date: Tue, 21 Jun 2005 07:19:42 +0000
+Message-Id: <1119338382.3390.24.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050621090721.GA7976@in.ibm.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Op di, 21-06-2005 te 01:22 +0200, schreef Patrick McHardy:
+> This seems to be a really bad idea, for a single match that violates
+> layering we need to deal with this inconsistency. It's not just the
+> conntrack reference, with IPsec the packet passed to the defered hooks
+> is totally different from when it was still inside IP, which for example
+> breaks the policy match.
 
-> > I got 
-> > 
-> > Jun 21 10:30:20 amd kernel: ------------[ cut here ]------------
-> > Jun 21 10:30:20 amd kernel: kernel BUG at fs/open.c:935!
-> > Jun 21 10:30:20 amd kernel: invalid operand: 0000 [#1]
-> > Jun 21 10:30:20 amd kernel: Modules linked in: ipw2100
-> > Jun 21 10:30:20 amd kernel: CPU:    0
-> > Jun 21 10:30:20 amd kernel: EIP:    0060:[page_referenced+39/160]    Not tainted VLI
-> > Jun 21 10:30:20 amd kernel: EFLAGS: 00010286   (2.6.12-mm1)
-> > Jun 21 10:30:20 amd kernel: EIP is at fd_install+0x27/0x40
-> > Jun 21 10:30:20 amd kernel: eax: f7268e00   ebx: 00000080   ecx: f61a9800   edx: f6106400
+I agree it is annoying.
+
+> > Trust me, people will complain if they can no longer use the physdev
+> > match for routed packets.
 > 
-> This has been reported by several other people.
-> I am looking at it except that I can't reproduce it with the config
-> files in one of those bug reports. Probably whatever userland triggers
-> this bug isn't in my lab machine. Besides I am running really old
-> userland anyway. I am going to find a box with  newer userland
-> and try.
-> 
-> Some things are common - always with fcntl() or fcntl64() and with
-> a daemon. Does your box come up at all ? If so, can you get me an
-> strace on the process that triggers this ? If I can narrow it
-> down to a small testcase, it would be a lot easier. Also, does
-> switching off CONFIG_PREEMPT fix this problem ?
+> I'm sure they will, now that they got used to it. Why can't people
+> match on the bridge port inside ebtables and only match on the device
+> within iptables? Is there a case that can't be handled this way?
 
-It is not reproducible for me. My machine came up, I worked for hour
-or so, then seen this one. It is still usable (I did not reboot yet).
+ebtables doesn't have all the targets/matches that iptables has.
+Perhaps a rule structure using marking can always be used so that the
+ACCEPT/DROP can be deferred until inside ebtables, I don't know if that
+will always be possible though.
 
-I do not see report which process is causing it :-(, original oops does
-not contain it AFAICS.
+Deferring the hooks makes the bridge-nf code alot more complicated, so I
+would be glad to get rid of it if it is the right thing to do. But
+backwards compatibility can't be maintained and I'd be surprised if
+every ruleset that now works will still be possible using an
+iptables/ebtables scheme.
+It has worked fine in the past and I see no reason why to stop making it
+work now because of some recently found and unrelated referencing
+problem.
+Of course, if the netfilter people decide it should be removed, then so
+be it.
 
-								Pavel
--- 
-teflon -- maybe it is a trademark, but it should not be.
+cheers,
+Bart
+
+

@@ -1,62 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261612AbVFVT1T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261657AbVFVT1k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261612AbVFVT1T (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 15:27:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbVFVT1S
+	id S261657AbVFVT1k (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 15:27:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbVFVT1j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 15:27:18 -0400
-Received: from smtp.lnxw.com ([207.21.185.24]:13066 "EHLO smtp.lnxw.com")
-	by vger.kernel.org with ESMTP id S261612AbVFVTYc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 15:24:32 -0400
-Date: Wed, 22 Jun 2005 12:29:27 -0700
-To: Karim Yaghmour <karim@opersys.com>
-Cc: "Bill Huey (hui)" <bhuey@lnxw.com>, Kristian Benoit <kbenoit@opersys.com>,
-       linux-kernel@vger.kernel.org, paulmck@us.ibm.com, andrea@suse.de,
-       tglx@linutronix.de, mingo@elte.hu, pmarques@grupopie.com,
-       bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au, ak@muc.de,
-       sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, rpm@xenomai.org
-Subject: Re: PREEMPT_RT vs I-PIPE: the numbers, part 2
-Message-ID: <20050622192927.GA13817@nietzsche.lynx.com>
-References: <1119287612.6863.1.camel@localhost> <20050620183115.GA27028@nietzsche.lynx.com> <42B98B20.7020304@opersys.com>
+	Wed, 22 Jun 2005 15:27:39 -0400
+Received: from zproxy.gmail.com ([64.233.162.192]:42456 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261657AbVFVT0l convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 15:26:41 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=MXXivs+wvpexnF+Ff+7mgy+yXrFIhYhkPUJwFQ9k3K3g2qTYq/Ipa3ft2p84BjEO2oobuAaSOTD/YGEisD1OgNaNKpfuOisnROT7roPaL/qleA+vljLcvX7z6UwSLVM3sN6hJYjqKcpLL8sSkKRhniCQV/tTzGFobwEQvlbhSss=
+Message-ID: <9a87484905062212264e82d770@mail.gmail.com>
+Date: Wed, 22 Jun 2005 21:26:37 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: Problem compiling 2.6.12
+Cc: George Kasica <georgek@netwrx1.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050622164436.GI3705@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <42B98B20.7020304@opersys.com>
-User-Agent: Mutt/1.5.9i
-From: Bill Huey (hui) <bhuey@lnxw.com>
+References: <Pine.LNX.4.62.0506221026130.4837@eagle.netwrx1.com>
+	 <9a874849050622085975b67c06@mail.gmail.com>
+	 <20050622164436.GI3705@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 22, 2005 at 12:00:32PM -0400, Karim Yaghmour wrote:
-> To tell you the truth, we've spent a considerable amount of time as
-> it is on this and we need to move on to other things. So while we
+On 6/22/05, Adrian Bunk <bunk@stusta.de> wrote:
+> On Wed, Jun 22, 2005 at 05:59:45PM +0200, Jesper Juhl wrote:
+> >
+> > Don't use a 2.4.x config as the basis for a 2.6.x kernel .
+> > Build your first 2.6.x kernel config using "make menuconfig", "make
+> > config", make xconfig" or similar, /then/ you can use that config in
+> > the future as a base for other 2.6.x kernels with "make oldconfig".
+> 
+> First of all, this shouldn't result in problems like the one he
+> reported (see my other mail).
+> 
+> And I'm surprised you are saying this. I'd have expected that running
+> "make oldconfig" with a 2.4 kernel should give him a working
+> configuration.
+> 
+> Can you explain where you'd expect problems so that we can fix them?
+> 
+It's been ages since I personally moved to 2.6, but around the time
+when I made the switch I fed several 2.4 configs to oldconfig and the
+resulting 2.6 kernels either didn't build properly or they build but
+were broken in strange ways. Redoing the 2.6 configs from scratch
+always fixed the problems back then. I also encountered similar
+reports from people on IRC. Things may have improved since then, but
+then again maybe they have not.. I'll see if I can dig out a few of my
+old 2.4 configs and retest if there are still issues.
 
-Understood.
-
-> I don't know what part of PREEMPT_RT causes this, but looking at
-> some of the numbers from this output one is tempted to conclude that
-> PREEMPT_RT causes a very significant impact on system load. And I
-> don't say this lightly. Have a look for example at the local
-> communication latencies between vanilla and PREEMPT_RT when the
-> target is subject to the HD test. For a pipe, this goes from 9.4us
-> to 21.6. For UDP this goes from 22us to 1070us !!! Even on a
-> system without any load, the numbers are similar. Ouch.
-
-I'm involved in other things now, but I wouldn't be surprised if it
-was some kind of scheduler bug + softirq wacked interaction. softirqs,
-from the last time I looked, was pretty raw in RT. Another thing to do
-is to subtract the number of irq-thread context switches from the total
-system context switch to see if there's any kind of oddities with the
-spinlock conversion. I doubt there's going to be a ton of 'overscheduling',
-nevertheless it would be a valuable number. This is such a new patch
-that weird things like this are likely, but it's going to take an
-investigation to see what the real cause is.
-
-FreeBSD went through some slow down when they moved to SMPng, but not
-the kind of numbers you show for things surrounding the network stack.
-Something clearly bad happened.
-
-bill
-
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

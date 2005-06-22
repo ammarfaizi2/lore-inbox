@@ -1,81 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262276AbVFVVDq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262279AbVFVVDF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262276AbVFVVDq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 17:03:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262526AbVFVVDp
+	id S262279AbVFVVDF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 17:03:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262301AbVFVVC6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 17:03:45 -0400
-Received: from saturn.billgatliff.com ([209.251.101.200]:41148 "EHLO
-	saturn.billgatliff.com") by vger.kernel.org with ESMTP
-	id S262276AbVFVU70 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 16:59:26 -0400
-Message-ID: <42B9D120.6030108@billgatliff.com>
-Date: Wed, 22 Jun 2005 15:59:12 -0500
-From: Bill Gatliff <bgat@billgatliff.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Patch of a new driver for kernel 2.4.x that need review
-References: <5009AD9521A8D41198EE00805F85F18F067F6A36@sembo111.teknor.com> <84144f020506221243163d06a2@mail.gmail.com> <20050622203211.GI8907@alpha.home.local>
-In-Reply-To: <20050622203211.GI8907@alpha.home.local>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 22 Jun 2005 17:02:58 -0400
+Received: from 41.150.104.212.access.eclipse.net.uk ([212.104.150.41]:59017
+	"EHLO pinky.shadowen.org") by vger.kernel.org with ESMTP
+	id S262279AbVFVVAG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 17:00:06 -0400
+Date: Wed, 22 Jun 2005 21:59:34 +0100
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: ahc_target_state check starget valid
+Message-ID: <20050622205934.GA29435@shadowen.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
+From: Andy Whitcroft <apw@shadowen.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Willy:
+[Justin I believe that you are the maintainer for the aic7xxx 
+driver, could you look this over and if you concur with this
+change push it up.]
 
-Willy Tarreau wrote:
+Since 2.6.12-git1 we have been seeing the Oops below when accessing
+/proc files for the aix7xxx driver.  This seems to be as a result of
+a new abstraction for scsi targets.  Looking at other uses of the
+aic7xxx 'starget[]' seems to indicate that it is possible for this 
+to be NULL.  The patch below adds a check to ahc_dump_target_state
+before we attempt to map it to a scsi target.
 
->Hi,
->
->On Wed, Jun 22, 2005 at 10:43:40PM +0300, Pekka Enberg wrote:
->  
->
->>On 6/22/05, Bouchard, Sebastien <Sebastien.Bouchard@ca.kontron.com> wrote:
->>    
->>
->>>+#define TLCLK_REG7 TLCLK_BASE+7
->>>      
->>>
->>Please use enums instead.
->>    
->>
->
->I dont agree with you here : enums are good to simply specify an ordering.
->But they must not be used to specify static mapping. Eg: if REG4 *must* be
->equal to BASE+4, you should not use enums, otherwise it will render the
->code unreadable. I personnaly don't want to count the position of REG7 in
->the enum to discover that it's at BASE+7.
->  
->
+Unable to handle kernel NULL pointer dereference at virtual address 00000124
+ printing eip:
+c02482dc
+*pde = 1b971001
+*pte = 00000000
+Oops: 0000 [#1]
+SMP
+CPU:    2
+EIP:    0060:[<c02482dc>]    Not tainted VLI
+EFLAGS: 00010296   (2.6.12-git4-autokern1)
+EIP is at scsi_is_host_device+0x4/0x18
+eax: 00000014   ebx: 00000014   ecx: 00000000   edx: e017fb80
+esi: 00000000   edi: ddc0b100   ebp: dffe3ef4   esp: dffe3dac
+ds: 007b   es: 007b   ss: 0068
+Process cp (pid: 6942, threadinfo=dffe2000 task=dcc27a60)
+Stack: c026825b 00000014 00000000 dffe3ef4 dfc55600 0000000f 41268703 c02687c9
+       dfc55600 dffe3ef4 00000007 00000041 00000000 00000000 dffe3f68 00000c00
+       db6aa000 dffe3f64 37636961 3a393938 746c5520 36316172 69572030 43206564
+Call Trace:
+ [<c026825b>] ahc_dump_target_state+0xa3/0x10c
+ [<c02687c9>] ahc_linux_proc_info+0x199/0x1ca
+ [<c0141af6>] do_anonymous_page+0x1ee/0x21c
+ [<c0141b0e>] do_anonymous_page+0x206/0x21c
+ [<c0141b79>] do_no_page+0x55/0x3d8
+ [<c0135f15>] prep_new_page+0x49/0x50
+ [<c01365a3>] buffered_rmqueue+0x153/0x1b4
+ [<c0136a4b>] __alloc_pages+0x3bb/0x3c8
+ [<c024ff3b>] proc_scsi_read+0x2b/0x44
+ [<c017d5d8>] proc_file_read+0xec/0x200
+ [<c01506b5>] vfs_read+0x8d/0xec
+ [<c0150924>] sys_read+0x40/0x6c
+ [<c0102df9>] syscall_call+0x7/0xb
+Code: fd ff 83 c4 04 c3 90 68 20 ce 3a c0 e8 ca 31 fd ff 83 c4 04 c3 89 f6 68 20 ce 3a c0 e8 46 32 fd ff 83 c4 04 c3 89 f6 8b 44 24 04 <81> b8 10 01 00 00 80 7d 24 c0 0f 94 c0 0f b6 c0 c3 8d 76 00 8b
+ <1>Unable to handle kernel NULL pointer dereference at virtual address 00000124 printing eip:
+c02482dc
+*pde = 1ff59001
+*pte = 00000000
 
-What Sebastien is after is something like this:
-
-	enum tclk_regid {TCLK_BASE=0xa80, TCLK_REG0=TCLK_BASE, TCLK_REG1=TCLK_BASE+1...};
-	enum tclk_regid tclk;
-
-And then later on, if you ask gdb with the value of tclk is, it can tell you "TCLK_REG1", instead of just 0xa801.  You can also assign values to tclk from within gdb using the enumerations, rather than magic numbers.
-
-If you insist on using #defines, then you need to do them like this at the very least:
-
-	#define TCLK_REG7 (TCLK_BASE+7)
-
-... so as to prevent operator precedence problems later on.  I.e. what happens here:
-
-	tclk = TCLK_REG7 / 2;
-
-Not implying that the above is a realistic example, I'm just pointing out a potential gotcha that is easily avoided...
-
-
-
-b.g.
-
--- 
-Bill Gatliff
-"A DTI spokesman said Wicks would use his debut announcement to
-'reaffirm the government's commitment to developing wind' to tackle
-the threat of climate change." -- The Observer, May 22, 2005
-bgat@billgatliff.com
-
+Signed-off-by: Andy Whitcroft <apw@shadowen.org>
+---
+ aic7xxx_proc.c |    2 ++
+ 1 files changed, 2 insertions(+)
+diff -upN reference/drivers/scsi/aic7xxx/aic7xxx_proc.c current/drivers/scsi/aic7xxx/aic7xxx_proc.c
+--- reference/drivers/scsi/aic7xxx/aic7xxx_proc.c
++++ current/drivers/scsi/aic7xxx/aic7xxx_proc.c
+@@ -155,6 +155,8 @@ ahc_dump_target_state(struct ahc_softc *
+ 	copy_info(info, "\tUser: ");
+ 	ahc_format_transinfo(info, &tinfo->user);
+ 	starget = ahc->platform_data->starget[target_offset];
++	if (starget == NULL)
++		return;
+ 	targ = scsi_transport_target_data(starget);
+ 	if (targ == NULL)
+ 		return;

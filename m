@@ -1,46 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262758AbVFVJ0S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262843AbVFVJbd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262758AbVFVJ0S (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 05:26:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262944AbVFVJWS
+	id S262843AbVFVJbd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 05:31:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262828AbVFVJ1Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 05:22:18 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:35491 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262945AbVFVJRi (ORCPT
+	Wed, 22 Jun 2005 05:27:24 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:46317 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262925AbVFVJXx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 05:17:38 -0400
-Date: Wed, 22 Jun 2005 11:17:18 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: -mm -> 2.6.13 merge status (fuse)
-Message-ID: <20050622091718.GC1863@elf.ucw.cz>
-References: <20050620235458.5b437274.akpm@osdl.org> <E1Dkfu2-0005Ju-00@dorka.pomaz.szeredi.hu> <20050621142820.GC2015@openzaurus.ucw.cz> <E1DkkRE-0005mt-00@dorka.pomaz.szeredi.hu> <20050621220619.GC2815@elf.ucw.cz> <E1Dkyas-0006wu-00@dorka.pomaz.szeredi.hu> <20050621233914.69a5c85e.akpm@osdl.org> <E1DkzTO-00072F-00@dorka.pomaz.szeredi.hu> <20050622004902.796fa977.akpm@osdl.org> <E1Dl1Ce-0007BO-00@dorka.pomaz.szeredi.hu>
+	Wed, 22 Jun 2005 05:23:53 -0400
+Subject: Re: cfq misbehaving on 2.6.11-1.14_FC3
+From: Jens Axboe <axboe@suse.de>
+To: spaminos-ker@yahoo.com
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050617230130.59874.qmail@web30702.mail.mud.yahoo.com>
+References: <20050617230130.59874.qmail@web30702.mail.mud.yahoo.com>
+Content-Type: text/plain
+Date: Wed, 22 Jun 2005 11:24:44 +0200
+Message-Id: <1119432285.3257.5.camel@linux>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1Dl1Ce-0007BO-00@dorka.pomaz.szeredi.hu>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, 2005-06-17 at 16:01 -0700, spaminos-ker@yahoo.com wrote:
+> I don't know how all this works, but would there be a way to slow down the
+> offending writer by not allowing too many pending write requests per process?
+> Is there a tunable for the size of the write queue for a given device?
+> Reducing it will reduce the throughput, but the latency as well.
 
-> > Can we enhance private namespaces so they can squash setuid/setgid?  If so,
-> > is that adequate?
+The 2.4 SUSE kernel actually has something in place to limit in-flight
+write requests against a single device. cfq will already limit the
+number of write requests you can have in-flight against a single queue,
+but it's request based and not size based.
+
+> Of course, there has to be a way to get this to work right.
 > 
-> We could.  But that would again be overly restrictive.  The goal is to
-> make the use of FUSE filesystems for users as simple as possible.  If
-> the user has to manage multiple namespaces, each with it's own
-> restrictions, it's becoming a very un-user-friendly environment.
+> To go back to high latencies, maybe a different problem (but at least closely
+> related):
+> 
+> If I start in the background the command
+> dd if=/dev/zero of=/tmp/somefile2 bs=1024
+> 
+> and then run my test program in a loop, with
+> while true ; do time ./io 1; sleep 1s ; done
+> 
+> I get:
+> 
+> cfq: 47,33,27,48,32,29,26,49,25,47 -> 36.3 avg
+> deadline: 32,28,52,33,35,29,49,39,40,33 -> 37 avg
+> noop: 62,47,57,39,59,44,56,49,57,47 -> 51.7 avg
+> 
+> Now, cfq doesn't behave worst than the others, like expected (now, why it
+> behaved worst with the real daemons, I don't know).
+> Still > 30 seconds has to be improved for cfq.
 
-Actually I think this solution is way less ugly. We have precent: if
-task is ptraced, suid bits on anything it execs are ignored.
+THe problem here is that cfq  (and the other io schedulers) still
+consider the io async even if fsync() ends up waiting for it to
+complete. So there's no real QOS being applied to these pending writes,
+and I don't immediately see how we can improve that situation right now.
 
-I don't think user interface issues belong to the kernel (and I do not
-think different namespaces are that bad for the user; various chroots
-and ld_preload hacks already work that way)
-								Pavel
+What file system are you using? I ran your test on ext2, and it didn't
+give me more than ~2 seconds latency for the fsync. Tried reiserfs now,
+and it's in the 23-24 range.
+
 -- 
-teflon -- maybe it is a trademark, but it should not be.
+Jens Axboe <axboe@suse.de>
+

@@ -1,58 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262556AbVFVWEo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262575AbVFVWSp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262556AbVFVWEo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 18:04:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262373AbVFVWEP
+	id S262575AbVFVWSp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 18:18:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262447AbVFVWOX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 18:04:15 -0400
-Received: from mail.linicks.net ([217.204.244.146]:27657 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S262538AbVFVVyw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 17:54:52 -0400
-From: Nick Warne <nick@linicks.net>
-To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: Problem compiling 2.6.12
-Date: Wed, 22 Jun 2005 22:53:47 +0100
-User-Agent: KMail/1.8.1
-Cc: linux-kernel@vger.kernel.org, George Kasica <georgek@netwrx1.com>
-References: <200506222037.17738.nick@linicks.net> <20050622213038.GA3749@stusta.de>
-In-Reply-To: <20050622213038.GA3749@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 22 Jun 2005 18:14:23 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:36825 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262557AbVFVWHY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 18:07:24 -0400
+Date: Wed, 22 Jun 2005 15:07:13 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org,
+       stable@kernel.org
+Subject: Linux 2.6.12.1
+Message-ID: <20050622220713.GV9046@shell0.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200506222253.47777.nick@linicks.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 22 June 2005 22:30, Adrian Bunk wrote:
-> On Wed, Jun 22, 2005 at 08:37:17PM +0100, Nick Warne wrote:
-> > George Kasica wrote:
-> > > Tried that here and got not much farther...here's the error:
-> > >
-> > > [root@eagle linux]# make bzImage
-> > >    CHK     include/linux/version.h
-> > >    SPLIT   include/linux/autoconf.h -> include/config/*
-> > >    HOSTCC  scripts/mod/sumversion.o
-> > > In file included from /usr/include/linux/errno.h:4,
-> >
-> > That last line looks wrong...  I think you may have symlinks linking to
-> > other older kernel header stuff.
-> >...
->
-> No, it looks correct.
->
-> That's the copy of linux/errno.h shipped with glibc and that's correct
-> when using HOSTCC.
+We (the -stable team) are announcing the release of the 2.6.12.1 kernel
+which has two security fixes.
 
-Is it?  I thought kernel didn't care what Glibc or what kernel headers you had 
-(that is system requirement) - it is automous.  Isn't HOSTCC explicitly just 
-what compiler you have?
+The diffstat and short summary of the fixes are below.
 
-I build regular in other places... my latest builds are on /mnt/hdb/
+I'll also be replying to this message with a copy of the patch between
+2.6.12 and 2.6.12.1, as it is small enough to do so.
 
-Nick
--- 
-"When you're chewing on life's gristle,
-Don't grumble, Give a whistle..."
+The updated 2.6.12.y git tree can be found at:
+	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/linux-2.6.12.y.git
+and can be browsed at the normal kernel.org git web browser:
+	www.kernel.org/git/
+
+thanks,
+-chris
+
+----------
+
+ Makefile                  |    2 +-
+ arch/ia64/kernel/ptrace.c |   15 ++++++++++-----
+ arch/ia64/kernel/signal.c |    5 +++--
+ fs/exec.c                 |    1 +
+ 4 files changed, 15 insertions(+), 8 deletions(-)
+
+Summary of changes from v2.6.12 to v2.6.12.1
+==============================================
+
+Chris Wright:
+  Linux 2.6.12.1
+
+Linus Torvalds:
+  Clean up subthread exec (CAN-2005-1913)
+
+Matthew Chapman:
+  ia64 ptrace + sigrestore_context (CAN-2005-1761)
+

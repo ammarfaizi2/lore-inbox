@@ -1,73 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261529AbVFVP7h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261569AbVFVP7c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261529AbVFVP7h (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 11:59:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261557AbVFVP5M
+	id S261569AbVFVP7c (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 11:59:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261529AbVFVP5r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 11:57:12 -0400
-Received: from nysv.org ([213.157.66.145]:10403 "EHLO nysv.org")
-	by vger.kernel.org with ESMTP id S261561AbVFVPzH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 11:55:07 -0400
-Date: Wed, 22 Jun 2005 18:55:05 +0300
-To: "Artem B. Bityuckiy" <dedekind@yandex.ru>
-Cc: Christophe Saout <christophe@saout.de>, Andrew Morton <akpm@osdl.org>,
-       Hans Reiser <reiser@namesys.com>, hch@infradead.org, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: reiser4 plugins
-Message-ID: <20050622155505.GZ11013@nysv.org>
-References: <20050620235458.5b437274.akpm@osdl.org> <42B831B4.9020603@pobox.com> <42B87318.80607@namesys.com> <20050621202448.GB30182@infradead.org> <42B8B9EE.7020002@namesys.com> <20050621181802.11a792cc.akpm@osdl.org> <1119452212.15527.33.camel@server.cs.pocnet.net> <42B97F82.6040404@yandex.ru>
+	Wed, 22 Jun 2005 11:57:47 -0400
+Received: from gw.alcove.fr ([81.80.245.157]:44479 "EHLO smtp.fr.alcove.com")
+	by vger.kernel.org with ESMTP id S261569AbVFVPza convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 11:55:30 -0400
+Subject: Re: [linux-usb-devel] Re: usb sysfs intf files no longer created
+	when probe fails
+From: Stelian Pop <stelian@popies.net>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Greg KH <greg@kroah.com>, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44L0.0506221133230.6938-100000@iolanthe.rowland.org>
+References: <Pine.LNX.4.44L0.0506221133230.6938-100000@iolanthe.rowland.org>
+Content-Type: text/plain; charset=utf-8
+Date: Wed, 22 Jun 2005 17:53:28 +0200
+Message-Id: <1119455608.4651.5.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="wwU9tsYnHnYeRAKj"
-Content-Disposition: inline
-In-Reply-To: <42B97F82.6040404@yandex.ru>
-User-Agent: Mutt/1.5.9i
-From: mjt@nysv.org (Markus  =?ISO-8859-1?Q?=20T=F6rnqvist?=)
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Le mercredi 22 juin 2005 à 11:41 -0400, Alan Stern a écrit :
 
---wwU9tsYnHnYeRAKj
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> This is a curious aspect of the driver model core.  Should failure of a 
+> driver to bind be considered serious enough to cause device_add to fail?
+> The current answer is Yes unless the driver's probe routine returns 
+> -ENODEV or -ENXIO, in which case the failure is not considered serious.
 
-On Wed, Jun 22, 2005 at 07:10:58PM +0400, Artem B. Bityuckiy wrote:
->
->More filesystems in future may want to use these semantics. There are=20
->cases when one can't use Reiser4 to implement them, but instead, need to=
-=20
->implement another file system with the same semantics.
+Indeed. I've also tracked my problem down to the hid core which returns
+-EIO when it fails to drive an unknown HID device, instead of a more
+logical -ENODEV (this is not a failure to init a known device, but
+rather the impossibility to init an unknown device).
 
-So merge it as it is and move the stuff to the VFS as needed or
-deemed necessary. And enable the pseudo interface, or at least
-set it in menuconfig and enable by default, it needs testing too.
+The patch below solves the problem for me:
 
-Then someone says "we can't implement this in the fs" and someone
-else says "we can't implement this in the vfs" and someone else
-says "this is a good thing which we want but you won't let us"
-and we stagnate again...
+Index: linux-2.6-trunk.git/drivers/usb/input/hid-core.c
+===================================================================
+--- linux-2.6-trunk.git.orig/drivers/usb/input/hid-core.c	2005-06-22
+10:33:23.000000000 +0200
++++ linux-2.6-trunk.git/drivers/usb/input/hid-core.c	2005-06-22
+17:43:10.000000000 +0200
+@@ -1784,7 +1784,7 @@
+ 	if (!hid->claimed) {
+ 		printk ("HID device not claimed by input or hiddev\n");
+ 		hid_disconnect(intf);
+-		return -EIO;
++		return -ENODEV;
+ 	}
+ 
+ 	printk(KERN_INFO);
 
-Isn't this bickering getting a bit old?
-After all, it seems the code is merged in -mm, the big issues are fixed
-and all should be ready for more real-life testing and such?
 
---=20
-mjt
+> IMO this is a perverse way of doing things.  The existence of a device has 
+> nothing to do with what driver is bound to it.  Either the device exists 
+> or it doesn't -- and if it exists, failure to bind a driver shouldn't 
+> prevent adding the device into sysfs.  Right now, however, it does.
 
+I agree, presence in /sys/devices shouldn't be related to the existence
+or success/failure of a driver. The link between /sys/class
+towards /sys/devices is already saying this.
 
---wwU9tsYnHnYeRAKj
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+Stelian.
+-- 
+Stelian Pop <stelian@popies.net>
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFCuYnZIqNMpVm8OhwRAlNhAKCzjcojE8bVWZjWJt+vbWg1XMX2CgCgzRMq
-fYY23GL0oeKp4ICxqZxTJpk=
-=4wWu
------END PGP SIGNATURE-----
-
---wwU9tsYnHnYeRAKj--

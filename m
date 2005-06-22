@@ -1,65 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262386AbVFVV1u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262517AbVFVViv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262386AbVFVV1u (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 17:27:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262540AbVFVV0v
+	id S262517AbVFVViv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 17:38:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262400AbVFVViu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 17:26:51 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:31428 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262301AbVFVVTs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 17:19:48 -0400
-Date: Wed, 22 Jun 2005 14:20:14 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Kristian Benoit <kbenoit@opersys.com>, Karim Yaghmour <karim@opersys.com>,
-       linux-kernel@vger.kernel.org, bhuey@lnxw.com, andrea@suse.de,
-       tglx@linutronix.de, pmarques@grupopie.com, bruce@andrew.cmu.edu,
-       nickpiggin@yahoo.com.au, ak@muc.de, sdietrich@mvista.com,
-       dwalker@mvista.com, hch@infradead.org, akpm@osdl.org,
-       Philippe Gerum <rpm@xenomai.org>
-Subject: Re: PREEMPT_RT vs I-PIPE: the numbers, part 2
-Message-ID: <20050622212014.GH1296@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <1119287612.6863.1.camel@localhost> <20050621015542.GB1298@us.ibm.com> <42B77B8C.6050109@opersys.com> <20050622011931.GF1324@us.ibm.com> <42B9845B.8030404@opersys.com> <20050622162718.GD1296@us.ibm.com> <1119460803.5825.13.camel@localhost> <20050622185019.GG1296@us.ibm.com> <20050622190422.GA6572@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 22 Jun 2005 17:38:50 -0400
+Received: from atlrel8.hp.com ([156.153.255.206]:15845 "EHLO atlrel8.hp.com")
+	by vger.kernel.org with ESMTP id S262541AbVFVVeL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 17:34:11 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Subject: Re: 2.6.12 breaks 8139cp
+Date: Wed, 22 Jun 2005 15:34:03 -0600
+User-Agent: KMail/1.8
+Cc: LKML <linux-kernel@vger.kernel.org>, jgarzik@pobox.com
+References: <42B9D21F.7040908@drzeus.cx>
+In-Reply-To: <42B9D21F.7040908@drzeus.cx>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050622190422.GA6572@elte.hu>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200506221534.03716.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 22, 2005 at 09:04:22PM +0200, Ingo Molnar wrote:
-> 
-> * Paul E. McKenney <paulmck@us.ibm.com> wrote:
-> 
-> > Any way of getting the logger's latency separately?  Or the target's?
-> 
-> with lpptest (PREEMPT_RT's built-in parallel-port latency driver) that's 
-> possible, as it polls the target with interrupts disabled, eliminating 
-> much of the logger-side latencies. The main effect is that it's now only 
-> a single worst-case latency that is measured, instead of having to have 
-> two worst-cases meet.
-> 
-> Here's a rough calculation to show what the stakes are: if there's a 
-> 1:100000 chance to trigger a worst-case irq handling latency, and you 
-> have 600000 samples, then with lpptest you'll see an average of 6 events 
-> during the measurement. With lrtfb (the one Karim used) the chance to 
-> see both of these worst-case latencies on both sides of the measurement 
-> is 1:10000000000, and you'd see 0.00006 of them during the measurement.  
-> I.e. the chances of seeing the true max latency are pretty slim.
+On Wednesday 22 June 2005 3:03 pm, Pierre Ossman wrote:
+> Upgrading from 2.6.11 to 2.6.12 caused my 8139cp network card to stop
+> working. No error messages are emitted and everything seems to work
+> (from the local computers point of view). But nothing can be recieved
+> from the network.
 
-My concern exactly!
-
-> So if you want to reliably measure worst-case latencies in your expected 
-> lifetime, you truly never want to serially couple the probabilities of 
-> worst-case latencies on the target and the logger side.
-
-Sounds more practical than the analytical approach!  (Take the Laplace
-transform of the density function, square root, and then take the inverse
-Laplace transform, if I remember correctly...  Which would end up
-showing a small probability of the maximum latency being the full
-amount, which ends up really not telling you anything.)
-
-							Thanx, Paul
+You might post a little more information (i.e., the 2.6.12 dmesg and
+possibly a diff vs. 2.6.11).  My guess is something's busted with its
+IRQ.

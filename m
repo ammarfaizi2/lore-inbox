@@ -1,49 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262582AbVFVW4E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262467AbVFVW4L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262582AbVFVW4E (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 18:56:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261175AbVFVWxR
+	id S262467AbVFVW4L (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 18:56:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262570AbVFVWxK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 18:53:17 -0400
-Received: from opersys.com ([64.40.108.71]:7953 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S262467AbVFVWvg (ORCPT
+	Wed, 22 Jun 2005 18:53:10 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:60592 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S261175AbVFVWrI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 18:51:36 -0400
-Message-ID: <42B9EE0B.80802@opersys.com>
-Date: Wed, 22 Jun 2005 19:02:35 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+	Wed, 22 Jun 2005 18:47:08 -0400
+Message-ID: <42B9EA67.1040407@pobox.com>
+Date: Wed, 22 Jun 2005 18:47:03 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Kristian Benoit <kbenoit@opersys.com>, linux-kernel@vger.kernel.org,
-       bhuey@lnxw.com, andrea@suse.de, tglx@linutronix.de,
-       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
-       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, Philippe Gerum <rpm@xenomai.org>
-Subject: Re: PREEMPT_RT vs I-PIPE: the numbers, part 2
-References: <42B77B8C.6050109@opersys.com> <20050622011931.GF1324@us.ibm.com> <42B9845B.8030404@opersys.com> <20050622162718.GD1296@us.ibm.com> <1119460803.5825.13.camel@localhost> <20050622185019.GG1296@us.ibm.com> <20050622190422.GA6572@elte.hu> <42B9C777.8040202@opersys.com> <20050622202242.GA17301@elte.hu> <42B9D208.4080305@opersys.com> <20050622224123.GA7658@elte.hu>
-In-Reply-To: <20050622224123.GA7658@elte.hu>
-Content-Type: text/plain; charset=us-ascii
+To: Dave Jones <davej@redhat.com>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Git Mailing List <git@vger.kernel.org>
+Subject: Re: Updated git HOWTO for kernel hackers
+References: <42B9E536.60704@pobox.com> <20050622224003.GA21298@redhat.com>
+In-Reply-To: <20050622224003.GA21298@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dave Jones wrote:
+> On Wed, Jun 22, 2005 at 06:24:54PM -0400, Jeff Garzik wrote:
+>  > 
+>  > Things in git-land are moving at lightning speed, and usability has 
+>  > improved a lot since my post a month ago:  http://lkml.org/lkml/2005/5/26/11
+>  > 
+>  > 
+>  > 
+>  > 1) installing git
+>  > 
+>  > git requires bootstrapping, since you must have git installed in order 
+>  > to check out git.git (git repo), and linux-2.6.git (kernel repo).  I 
+>  > have put together a bootstrap tarball of today's git repository.
+>  > 
+>  > Download tarball from:
+>  > http://www.kernel.org/pub/linux/kernel/people/jgarzik/git-20050622.tar.bz2
+> 
+> <blatant self-promotion>
+> daily snapshots (refreshed once an hour) are available at:
+> http://www.codemonkey.org.uk/projects/git-snapshots/git/
+> </blatant self-promotion>
+> 
+>  > tarball build-deps:  zlib, libcurl, libcrypto (openssl)
+>  > 
+>  > install tarball:  unpack && make && sudo make prefix=/usr/local install
+> 
+> the sudo thing isn't necessary. make install by itself installs it
+> in ~/bin/ just fine.
 
-Ingo Molnar wrote:
-> otherwise par_test_irq_handler will run with interrupts enabled, opening 
-> the window for other interrupts to be injected and increasing the 
-> worst-case latency! Take a look at drivers/char/lpptest.c how to do this 
-> properly. Also, double-check that there is no IRQ 7 thread running on 
-> the PREEMPT_RT kernel, to make sure you are measuring irq latencies.
+Clearly this does not work if installing in /usr/local, as I and others 
+do (and as the example shows).
 
-We'll check on this also. Thanks for pointing it out.
 
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+>  > After reading the rest of this document, come back and update your copy 
+>  > of git to the latest:
+>  > rsync://rsync.kernel.org/pub/scm/linux/kernel/git/torvalds/git.git
+> 
+> See above, which allows you to skip this step ;)
+
+huh?  Nothing allows you to skip that step.  Regardless of when you suck 
+the tarball, even from your snapshots, the users should not skip this step.
+
+	Jeff
+
+

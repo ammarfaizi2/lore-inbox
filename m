@@ -1,62 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261470AbVFVPfC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261590AbVFVPlb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261470AbVFVPfC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 11:35:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261533AbVFVPdQ
+	id S261590AbVFVPlb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 11:41:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261555AbVFVPfm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 11:33:16 -0400
-Received: from smtp1.brturbo.com.br ([200.199.201.163]:30883 "EHLO
-	smtp1.brturbo.com.br") by vger.kernel.org with ESMTP
-	id S261470AbVFVPaM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 11:30:12 -0400
-Message-ID: <42B983FF.4050804@brturbo.com.br>
-Date: Wed, 22 Jun 2005 12:30:07 -0300
-From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-User-Agent: Mozilla Thunderbird 1.0.2-3mdk (X11/20050322)
-X-Accept-Language: pt-br, pt, es, en-us, en
+	Wed, 22 Jun 2005 11:35:42 -0400
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:39948 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S261526AbVFVPen
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 11:34:43 -0400
+To: Christoph Hellwig <hch@infradead.org>
+Cc: "David S. Miller" <davem@davemloft.net>, gregkh@suse.de, torvalds@osdl.org,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] devfs: remove devfs from Kconfig preventing it from
+ being built
+References: <20050621222419.GA23896@kroah.com>
+	<20050621.155919.85409752.davem@davemloft.net>
+	<20050622082253.GA4594@infradead.org>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: resistance is futile; you will be assimilated and byte-compiled.
+Date: Wed, 22 Jun 2005 16:34:06 +0100
+In-Reply-To: <20050622082253.GA4594@infradead.org> (Christoph Hellwig's
+ message of "22 Jun 2005 09:42:20 +0100")
+Message-ID: <87zmtiwglt.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Linux and Kernel Video <video4linux-list@redhat.com>
-Subject: [PATCH] V4L API new webcam formats included
-X-Enigmail-Version: 0.91.0.0
-Content-Type: multipart/mixed;
- boundary="------------050900040701010603030502"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050900040701010603030502
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+On 22 Jun 2005, Christoph Hellwig wrote:
+> On Tue, Jun 21, 2005 at 03:59:19PM -0700, David S. Miller wrote:
+>> I know the rational behind this.
+>> 
+>> However, this does mean I do need to reinstall a couple
+>> debian boxes here to something newer before I can continue
+>> doing kernel work in 2.6.x on them.
+> 
+> I have half a dozend debian sarge,etch and sid boxes on various architectures
+> and they work just fine without devfs.
 
-Add Philips Webcam format.
+Everything works until you put your root filesystem on LVM (or RAID,
+perhaps, but I've never used that so can't be sure).
 
-Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-Signed-off-by: Luc Saillard <luc@saillard.org>.
-Signed-off-by: Nickolay V Shmyrev <nshmyrev@yandex.ru>
+The Debian initrd-tools rely on devfs to populate block devices
+corresponding to physical disks. If you explictlly name your root
+filesystem, you're safe even without devfs, because the initrd's
+/sbin/init script also explicitly mknods your root device --- but if
+your root filesystem is on LVM, well, vgscan needs to search your
+physical disks, which means that they have to exist *before* vgscan
+runs, for which it uses devfs and only devfs.
 
- linux/include/linux/videodev2.h |    2 ++
- 1 files changed, 2 insertions(+)
+Debian users in this situation can always build their own initrds --- I
+did --- but it's, er, not something I'd expect users to be able to do.
 
 
---------------050900040701010603030502
-Content-Type: text/x-patch;
- name="v4l_patch03_v4l2_api.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="v4l_patch03_v4l2_api.patch"
+Of course, killing off devfs now might prod the Debian maintainers into
+populating physical devices using udev instead ;)
 
-diff -u linux-2.6.12-mm1/include/linux/videodev2.h linux/include/linux/videodev2.h
---- linux-2.6.12-mm1/include/linux/videodev2.h	2005-06-17 16:48:29.000000000 -0300
-+++ linux/include/linux/videodev2.h	2005-06-22 01:29:48.000000000 -0300
-@@ -221,6 +221,8 @@
- /*  Vendor-specific formats   */
- #define V4L2_PIX_FMT_WNVA     v4l2_fourcc('W','N','V','A') /* Winnov hw compress */
- #define V4L2_PIX_FMT_SN9C10X  v4l2_fourcc('S','9','1','0') /* SN9C10x compression */
-+#define V4L2_PIX_FMT_PWC1     v4l2_fourcc('P','W','C','1') /* pwc older webcam */
-+#define V4L2_PIX_FMT_PWC2     v4l2_fourcc('P','W','C','2') /* pwc newer webcam */
- 
- /*
-  *	F O R M A T   E N U M E R A T I O N
+(There is a Debian bug for this, #312871. It's marked as wishlist, which
+strikes me as much too low.)
 
---------------050900040701010603030502--
+-- 
+`It's as bizarre an intrusion as, I don't know, the hobbits coming home
+ to find that the Shire has been taken over by gangsta rappers.'

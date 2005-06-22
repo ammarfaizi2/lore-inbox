@@ -1,60 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262575AbVFVWSp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262541AbVFVW3P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262575AbVFVWSp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 18:18:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262447AbVFVWOX
+	id S262541AbVFVW3P (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 18:29:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261175AbVFVW3L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 18:14:23 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:36825 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262557AbVFVWHY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 18:07:24 -0400
-Date: Wed, 22 Jun 2005 15:07:13 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org,
-       stable@kernel.org
-Subject: Linux 2.6.12.1
-Message-ID: <20050622220713.GV9046@shell0.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	Wed, 22 Jun 2005 18:29:11 -0400
+Received: from 67.Red-80-25-56.pooles.rima-tde.net ([80.25.56.67]:33084 "EHLO
+	estila.tuxedo-es.org") by vger.kernel.org with ESMTP
+	id S262546AbVFVWPp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 18:15:45 -0400
+Subject: [patch 1/1] selinux: minor cleanup in the hooks.c:file_map_prot_check() code
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, sds@tycho.nsa.gov, jmorris@redhat.com,
+       lorenzo@gnu.org
+From: lorenzo@gnu.org
+Date: Thu, 23 Jun 2005 00:15:40 +0200
+Message-Id: <20050622221541.CE72F56C741@estila.tuxedo-es.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We (the -stable team) are announcing the release of the 2.6.12.1 kernel
-which has two security fixes.
 
-The diffstat and short summary of the fixes are below.
+Minor cleanup of the SELinux hooks code (hooks.c) around
+some definitions of return values.
 
-I'll also be replying to this message with a copy of the patch between
-2.6.12 and 2.6.12.1, as it is small enough to do so.
+Signed-off-by: Lorenzo Hernandez Garcia-Hierro <lorenzo@gnu.org>
+---
 
-The updated 2.6.12.y git tree can be found at:
-	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/linux-2.6.12.y.git
-and can be browsed at the normal kernel.org git web browser:
-	www.kernel.org/git/
+ security/selinux/hooks.c |    6 ++++--
+ 1 files changed, 4 insertions(+), 2 deletions(-)
 
-thanks,
--chris
-
-----------
-
- Makefile                  |    2 +-
- arch/ia64/kernel/ptrace.c |   15 ++++++++++-----
- arch/ia64/kernel/signal.c |    5 +++--
- fs/exec.c                 |    1 +
- 4 files changed, 15 insertions(+), 8 deletions(-)
-
-Summary of changes from v2.6.12 to v2.6.12.1
-==============================================
-
-Chris Wright:
-  Linux 2.6.12.1
-
-Linus Torvalds:
-  Clean up subthread exec (CAN-2005-1913)
-
-Matthew Chapman:
-  ia64 ptrace + sigrestore_context (CAN-2005-1761)
-
+diff -puN security/selinux/hooks.c~selinux-kernel-cleanup-1 security/selinux/hooks.c
+--- linux-2.6.11/security/selinux/hooks.c~selinux-kernel-cleanup-1	2005-06-21 13:26:23.000000000 +0200
++++ linux-2.6.11-lorenzo/security/selinux/hooks.c	2005-06-23 00:11:23.129839992 +0200
+@@ -2419,6 +2419,8 @@ static int selinux_file_ioctl(struct fil
+ 
+ static int file_map_prot_check(struct file *file, unsigned long prot, int shared)
+ {
++	int rc;
++
+ #ifndef CONFIG_PPC32
+ 	if ((prot & PROT_EXEC) && (!file || (!shared && (prot & PROT_WRITE)))) {
+ 		/*
+@@ -2426,7 +2428,7 @@ static int file_map_prot_check(struct fi
+ 		 * private file mapping that will also be writable.
+ 		 * This has an additional check.
+ 		 */
+-		int rc = task_has_perm(current, current, PROCESS__EXECMEM);
++		rc = task_has_perm(current, current, PROCESS__EXECMEM);
+ 		if (rc)
+ 			return rc;
+ 	}
+@@ -2485,7 +2487,7 @@ static int selinux_file_mprotect(struct 
+ 		 * check ability to execute the possibly modified content.
+ 		 * This typically should only occur for text relocations.
+ 		 */
+-		int rc = file_has_perm(current, vma->vm_file, FILE__EXECMOD);
++		rc = file_has_perm(current, vma->vm_file, FILE__EXECMOD);
+ 		if (rc)
+ 			return rc;
+ 	}
+_

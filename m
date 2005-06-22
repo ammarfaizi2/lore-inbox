@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262794AbVFVGhF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262793AbVFVGrI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262794AbVFVGhF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 02:37:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262796AbVFVGeP
+	id S262793AbVFVGrI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 02:47:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262847AbVFVGpl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 02:34:15 -0400
-Received: from mail.kroah.org ([69.55.234.183]:24476 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262795AbVFVFWE convert rfc822-to-8bit
+	Wed, 22 Jun 2005 02:45:41 -0400
+Received: from mail.kroah.org ([69.55.234.183]:21660 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262792AbVFVFWB convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 01:22:04 -0400
+	Wed, 22 Jun 2005 01:22:01 -0400
 Cc: ladis@linux-mips.org
-Subject: [PATCH] I2C: ds1337 3/4
-In-Reply-To: <1119417462982@kroah.com>
+Subject: [PATCH] I2C: ds1337: i2c_transfer() checking
+In-Reply-To: <1119417462508@kroah.com>
 X-Mailer: gregkh_patchbomb
 Date: Tue, 21 Jun 2005 22:17:42 -0700
-Message-Id: <11194174621986@kroah.com>
+Message-Id: <11194174624039@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,114 +24,72 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] I2C: ds1337 3/4
+[PATCH] I2C: ds1337: i2c_transfer() checking
 
-dev_{dbg,err} functions should print client's device name. data->id can
-be dropped from message, because device is determined by bus it hangs on
-(it has fixed address).
+i2c_transfer returns number of sucessfully transfered messages. Change
+error checking to accordingly. (ds1337_set_datetime never returned
+sucess)
 
 Signed-off-by: Ladislav Michl <ladis@linux-mips.org>
+Signed-off-by: James Chapman <jchapman@katalix.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit d01b79d0613ebb6810bb48baf6e53e9319701fea
-tree 49f92093fae3b372011b1f2855cf581d9a1ad1e4
-parent 6069ffde15472da9d041a58df490d388bb175d51
-author Ladislav Michl <ladis@linux-mips.org> Fri, 08 Apr 2005 15:06:39 +0200
+commit 00588243053bb40d0406c7843833f8fae81294ab
+tree abf967a76d51f002a878ce6e6544c0b1c6cde62e
+parent 0b46e334d77b2d3b8b3aa665c81c4afbe9f1f458
+author Ladislav Michl <ladis@linux-mips.org> Wed, 04 May 2005 08:13:54 +0200
 committer Greg Kroah-Hartman <gregkh@suse.de> Tue, 21 Jun 2005 21:51:51 -0700
 
- drivers/i2c/chips/ds1337.c |   25 ++++++++-----------------
- 1 files changed, 8 insertions(+), 17 deletions(-)
+ drivers/i2c/chips/ds1337.c |   21 +++++++++------------
+ 1 files changed, 9 insertions(+), 12 deletions(-)
 
 diff --git a/drivers/i2c/chips/ds1337.c b/drivers/i2c/chips/ds1337.c
 --- a/drivers/i2c/chips/ds1337.c
 +++ b/drivers/i2c/chips/ds1337.c
-@@ -95,7 +95,6 @@ static inline int ds1337_read(struct i2c
-  */
- static int ds1337_get_datetime(struct i2c_client *client, struct rtc_time *dt)
- {
--	struct ds1337_data *data = i2c_get_clientdata(client);
- 	int result;
- 	u8 buf[7];
- 	u8 val;
-@@ -103,9 +102,7 @@ static int ds1337_get_datetime(struct i2
- 	u8 offs = 0;
- 
- 	if (!dt) {
--		dev_dbg(&client->adapter->dev, "%s: EINVAL: dt=NULL\n",
--			__FUNCTION__);
--
-+		dev_dbg(&client->dev, "%s: EINVAL: dt=NULL\n", __FUNCTION__);
- 		return -EINVAL;
- 	}
- 
-@@ -121,8 +118,7 @@ static int ds1337_get_datetime(struct i2
- 
- 	result = i2c_transfer(client->adapter, msg, 2);
- 
--	dev_dbg(&client->adapter->dev,
--		"%s: [%d] %02x %02x %02x %02x %02x %02x %02x\n",
-+	dev_dbg(&client->dev, "%s: [%d] %02x %02x %02x %02x %02x %02x %02x\n",
+@@ -122,7 +122,7 @@ static int ds1337_get_datetime(struct i2
  		__FUNCTION__, result, buf[0], buf[1], buf[2], buf[3],
  		buf[4], buf[5], buf[6]);
  
-@@ -139,14 +135,13 @@ static int ds1337_get_datetime(struct i2
- 		if (buf[5] & 0x80)
- 			dt->tm_year += 100;
- 
--		dev_dbg(&client->adapter->dev, "%s: secs=%d, mins=%d, "
-+		dev_dbg(&client->dev, "%s: secs=%d, mins=%d, "
- 			"hours=%d, mday=%d, mon=%d, year=%d, wday=%d\n",
+-	if (result >= 0) {
++	if (result == 2) {
+ 		dt->tm_sec = BCD2BIN(buf[0]);
+ 		dt->tm_min = BCD2BIN(buf[1]);
+ 		val = buf[2] & 0x3f;
+@@ -140,12 +140,12 @@ static int ds1337_get_datetime(struct i2
  			__FUNCTION__, dt->tm_sec, dt->tm_min,
  			dt->tm_hour, dt->tm_mday,
  			dt->tm_mon, dt->tm_year, dt->tm_wday);
- 	} else {
--		dev_err(&client->adapter->dev, "ds1337[%d]: error reading "
--			"data! %d\n", data->id, result);
-+		dev_err(&client->dev, "error reading data! %d\n", result);
- 		result = -EIO;
+-	} else {
+-		dev_err(&client->dev, "error reading data! %d\n", result);
+-		result = -EIO;
++
++		return 0;
  	}
  
-@@ -155,20 +150,17 @@ static int ds1337_get_datetime(struct i2
+-	return result;
++	dev_err(&client->dev, "error reading data! %d\n", result);
++	return -EIO;
+ }
  
  static int ds1337_set_datetime(struct i2c_client *client, struct rtc_time *dt)
- {
--	struct ds1337_data *data = i2c_get_clientdata(client);
- 	int result;
- 	u8 buf[8];
- 	u8 val;
- 	struct i2c_msg msg[1];
- 
- 	if (!dt) {
--		dev_dbg(&client->adapter->dev, "%s: EINVAL: dt=NULL\n",
--			__FUNCTION__);
--
-+		dev_dbg(&client->dev, "%s: EINVAL: dt=NULL\n", __FUNCTION__);
- 		return -EINVAL;
- 	}
- 
--	dev_dbg(&client->adapter->dev, "%s: secs=%d, mins=%d, hours=%d, "
-+	dev_dbg(&client->dev, "%s: secs=%d, mins=%d, hours=%d, "
- 		"mday=%d, mon=%d, year=%d, wday=%d\n", __FUNCTION__,
- 		dt->tm_sec, dt->tm_min, dt->tm_hour,
- 		dt->tm_mday, dt->tm_mon, dt->tm_year, dt->tm_wday);
-@@ -195,8 +187,7 @@ static int ds1337_set_datetime(struct i2
+@@ -185,14 +185,11 @@ static int ds1337_set_datetime(struct i2
+ 	msg[0].buf = &buf[0];
  
  	result = i2c_transfer(client->adapter, msg, 1);
- 	if (result < 0) {
--		dev_err(&client->adapter->dev, "ds1337[%d]: error "
--			"writing data! %d\n", data->id, result);
-+		dev_err(&client->dev, "error writing data! %d\n", result);
- 		result = -EIO;
- 	} else {
- 		result = 0;
-@@ -208,7 +199,7 @@ static int ds1337_set_datetime(struct i2
- static int ds1337_command(struct i2c_client *client, unsigned int cmd,
- 			  void *arg)
- {
--	dev_dbg(&client->adapter->dev, "%s: cmd=%d\n", __FUNCTION__, cmd);
-+	dev_dbg(&client->dev, "%s: cmd=%d\n", __FUNCTION__, cmd);
+-	if (result < 0) {
+-		dev_err(&client->dev, "error writing data! %d\n", result);
+-		result = -EIO;
+-	} else {
+-		result = 0;
+-	}
++	if (result == 1)
++		return 0;
  
- 	switch (cmd) {
- 	case DS1337_GET_DATE:
+-	return result;
++	dev_err(&client->dev, "error writing data! %d\n", result);
++	return -EIO;
+ }
+ 
+ static int ds1337_command(struct i2c_client *client, unsigned int cmd,
 

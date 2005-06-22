@@ -1,42 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262713AbVFVHqg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262844AbVFVHqi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262713AbVFVHqg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 03:46:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262869AbVFVHpx
+	id S262844AbVFVHqi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 03:46:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262845AbVFVHpe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 03:45:53 -0400
-Received: from graphe.net ([209.204.138.32]:18624 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S262713AbVFVGTN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 02:19:13 -0400
-Date: Tue, 21 Jun 2005 23:19:02 -0700 (PDT)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@graphe.net
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Robert Love <rml@novell.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: -mm -> 2.6.13 merge status
-In-Reply-To: <42B8A51A.8020208@pobox.com>
-Message-ID: <Pine.LNX.4.62.0506212314270.6988@graphe.net>
-References: <20050620235458.5b437274.akpm@osdl.org>  <42B831B4.9020603@pobox.com>
- <1119368364.3949.236.camel@betsy> <Pine.LNX.4.62.0506211222040.21678@graphe.net>
- <42B8987F.9000607@pobox.com> <Pine.LNX.4.62.0506211628550.25251@graphe.net>
- <42B8A51A.8020208@pobox.com>
+	Wed, 22 Jun 2005 03:45:34 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:12429 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S262844AbVFVFzI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 01:55:08 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: linux-os@analogic.com, KV Pavuram <kvpavuram@yahoo.co.in>
+Subject: Re: 0xffffe002 in ??
+Date: Wed, 22 Jun 2005 08:54:44 +0300
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org
+References: <20050621152133.77162.qmail@web8409.mail.in.yahoo.com> <Pine.LNX.4.61.0506211132140.17269@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0506211132140.17269@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.9
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200506220854.44182.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Jun 2005, Jeff Garzik wrote:
-
-> > AIO is requiring you to poll and check if I/O is complete. select() does 
+On Tuesday 21 June 2005 18:38, Richard B. Johnson wrote:
+> On Tue, 21 Jun 2005, KV Pavuram wrote:
 > 
-> Incorrect.  The entire point of AIO is that its an async callback system, when
-> the I/O is complete...  just like the kernel's internal I/O request queue
-> system.
+> > I am running a multithreaded application on Linux 2.4
+> > kernel (RedHat Linux 9).
+> >
+> > At some point the program receives a seg. fault and if
+> > i check info threads, using gdb for debug, almost all
+> > the threads are at "0xffffe002 in ??"
 
-Hmmm.. Okay it may work like dnotify. You get some signal and 
-then its up to you to figure out what was going on. Traditionally select() 
-does that all for you and tells you which stream got input.
+It most likely is something in VDSO:
+
+# pmap 1
+1: init
+Start         Size Perm Mapping
+08048000      704K r-xp /app/bash-3.0-uc/bin/bash
+080f8000       28K rwxp /app/bash-3.0-uc/bin/bash
+080ff000       40K rwxp [heap]
+b7f20000      272K r-xp /app/uclibc-0.9.26/lib/libuClibc-0.9.26.so
+b7f64000        8K rwxp /app/uclibc-0.9.26/lib/libuClibc-0.9.26.so
+b7f66000       16K rwxp [ anon ]
+b7f6a000        8K r-xp /app/uclibc-0.9.26/lib/libdl-0.9.26.so
+b7f6c000        4K rwxp /app/uclibc-0.9.26/lib/libdl-0.9.26.so
+b7f6e000        4K rwxp [ anon ]
+b7f6f000       16K r-xp /app/uclibc-0.9.26/lib/ld-uClibc-0.9.26.so
+b7f73000        4K rwxp /app/uclibc-0.9.26/lib/ld-uClibc-0.9.26.so
+bff5d000       88K rwxp [ stack ]
+ffffe000        4K ---p [vdso]       <====================================
+mapped: 1196K    writeable/private: 192K    shared: 0K
+
+> If a number of threads arrive at the same bad address you
+> should look for some common code that calls through
+> a function pointer. If you don't have any calls through
+> pointers, then you may have something corrupting the stack
+> so that the return address of a called function gets
+> corrupted. For instance, if the value 0x02e0 was written
+> beyond array limits in local (stack) data, then when that
+> function returned it could actually end up 'returning'
+> to the bad address you discovered.
+
+> Although the kernel provided the seg-fault mechanism, this
+> is not a kernel problem. This is a user-code problem.
+
+I'm not so sure.
+--
+vda
 

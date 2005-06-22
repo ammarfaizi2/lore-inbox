@@ -1,46 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261690AbVFVSMZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261781AbVFVSNv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261690AbVFVSMZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 14:12:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261604AbVFVSMY
+	id S261781AbVFVSNv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 14:13:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261604AbVFVSMq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 14:12:24 -0400
-Received: from mail.linicks.net ([217.204.244.146]:15379 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S261690AbVFVSKP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 14:10:15 -0400
-From: Nick Warne <nick@linicks.net>
-To: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Two agpgart probes at boot.
-Date: Wed, 22 Jun 2005 19:10:09 +0100
-User-Agent: KMail/1.8.1
-References: <200506171943.40592.nick@linicks.net> <20050620224039.GA3990@redhat.com>
-In-Reply-To: <20050620224039.GA3990@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 22 Jun 2005 14:12:46 -0400
+Received: from ns9.hostinglmi.net ([213.194.149.146]:52896 "EHLO
+	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S261587AbVFVSJq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 14:09:46 -0400
+Date: Wed, 22 Jun 2005 20:12:07 +0200
+From: DervishD <lkml@dervishd.net>
+To: coywolf@lovecn.org
+Cc: lkml <linux-kernel@vger.kernel.org>, sam@ravnborg.org
+Subject: Re: [question] pass CONFIG_FOO to CC problem
+Message-ID: <20050622181207.GC57@DervishD>
+Mail-Followup-To: coywolf@lovecn.org, lkml <linux-kernel@vger.kernel.org>,
+	sam@ravnborg.org
+References: <2cd57c90050622013937d2c209@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200506221910.09505.nick@linicks.net>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <2cd57c90050622013937d2c209@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
+Organization: DervishD
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - dervishd.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 20 June 2005 23:40, Dave Jones wrote:
+    Hi Coywolf :)
 
-> These messages aren't probing messages per se. They happen when something
-> (typically X) opens /dev/agpgart and sets up dri. It'll get logged
-> every time that X gets restarted.  That there are two of them with the
-> same datestamp is odd though. For some reason your X did this twice.
+ * Coywolf Qi Hunt <coywolf@gmail.com> dixit:
+> I was expecting kbuild passes CONFIG_FOO from .config to CC
+> -DCONFIG_FOO, but it doesn't.  So I have to add
+> 
+> ifdef CONFIG_FOO
+> EXTRA_CFLAGS += -DCONFIG_FOO
+> endif
 
-Ok, thanks for the info on what is going on.  I have just spent a few minutes 
-looking at all the logs and configs, but can see nothing untoward.
+    NO! You don't do it that way in the kernel. Think: if you have to
+pass a '-D' option for each config item you set, you will end up with
+TONS of '-D' options, in fact you probably exceed the command line
+size limit.
 
-I don't load the DRI module in xorg.conf, btw.
+    You have to include <linux/config.h> if I recall correctly ;)
 
-It doesn't harm anything, so I will stumble on the reason why one day when 
-doing something else, I expect.  It maybe a nVidia thing...
+    Good luck!
 
-Nick
+    Raúl Núñez de Arenas Coronado
+
 -- 
-"When you're chewing on life's gristle,
-Don't grumble, Give a whistle..."
+Linux Registered User 88736 | http://www.dervishd.net
+http://www.pleyades.net & http://www.gotesdelluna.net
+It's my PC and I'll cry if I want to...

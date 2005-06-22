@@ -1,57 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261554AbVFVQ3l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261644AbVFVQhY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261554AbVFVQ3l (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 12:29:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261653AbVFVQ1J
+	id S261644AbVFVQhY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 12:37:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261642AbVFVQhX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 12:27:09 -0400
-Received: from mail.kroah.org ([69.55.234.183]:36549 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261554AbVFVQW1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 12:22:27 -0400
-Date: Wed, 22 Jun 2005 09:22:21 -0700
-From: Greg KH <greg@kroah.com>
-To: Stelian Pop <stelian@popies.net>
-Cc: Alan Stern <stern@rowland.harvard.edu>,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] Re: usb sysfs intf files no longer created when probe fails
-Message-ID: <20050622162221.GB2274@kroah.com>
-References: <Pine.LNX.4.44L0.0506221133230.6938-100000@iolanthe.rowland.org> <1119455608.4651.5.camel@localhost.localdomain>
+	Wed, 22 Jun 2005 12:37:23 -0400
+Received: from wproxy.gmail.com ([64.233.184.193]:40336 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261589AbVFVQeX convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 12:34:23 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=bozrbtJOkaGbZsWXdaZzct1awon7e7n0vBQnSYCSKv8A02btxJ5hlAjHqDS42Nq1nLC6CRBGpPZ0WsU80mkXhMZ+sIp8Rqbxd7cuyo2jnaLMmQnT3e2cq004JS9Rc1zuciwPQ75r5CCtmPbMet4xWctp8hibZpjVzderE8eH0XQ=
+Message-ID: <a4e6962a05062209343a040c1f@mail.gmail.com>
+Date: Wed, 22 Jun 2005 11:34:18 -0500
+From: Eric Van Hensbergen <ericvh@gmail.com>
+Reply-To: Eric Van Hensbergen <ericvh@gmail.com>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: -mm -> 2.6.13 merge status (fuse)
+Cc: Miklos Szeredi <miklos@szeredi.hu>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <a4e6962a050622085021cdfb9d@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <1119455608.4651.5.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.8i
+References: <20050620235458.5b437274.akpm@osdl.org>
+	 <E1Dkfu2-0005Ju-00@dorka.pomaz.szeredi.hu>
+	 <20050621142820.GC2015@openzaurus.ucw.cz>
+	 <E1DkkRE-0005mt-00@dorka.pomaz.szeredi.hu>
+	 <20050621220619.GC2815@elf.ucw.cz>
+	 <a4e6962a05062207435dd16240@mail.gmail.com>
+	 <20050622150839.GB1881@elf.ucw.cz>
+	 <a4e6962a050622085021cdfb9d@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 22, 2005 at 05:53:28PM +0200, Stelian Pop wrote:
-> Le mercredi 22 juin 2005 ?? 11:41 -0400, Alan Stern a ??crit :
+On 6/22/05, Eric Van Hensbergen <ericvh@gmail.com> wrote:
+    ...
 > 
-> > This is a curious aspect of the driver model core.  Should failure of a 
-> > driver to bind be considered serious enough to cause device_add to fail?
-> > The current answer is Yes unless the driver's probe routine returns 
-> > -ENODEV or -ENXIO, in which case the failure is not considered serious.
+> If you combine these two restrictions with only allowing unprivileged
+> mounts in private name space I think you get 90% there.  The only
+> thing left to resolve is the best way to allow sharing private name
+> spaces between threads/users -- and I still view this as more of
+> extended functionality than a hard-requirement.
 > 
-> Indeed. I've also tracked my problem down to the hid core which returns
-> -EIO when it fails to drive an unknown HID device, instead of a more
-> logical -ENODEV (this is not a failure to init a known device, but
-> rather the impossibility to init an unknown device).
-> 
-> The patch below solves the problem for me:
 
-Damm, beat me by a few minutes :)
+Reviewing my notes, there were a few subtle restrictions I forgot
+(most of which originally suggested by Miklos):
 
-Yes, this is the proper fix for this.
+(a) User's can't mount file system types not deemed "safe" (via  flag
+in the file system type) -- this should help mitigate user's
+exploiting bugs in existing file systems to interfere with the system.
+ Judging when a file system type is "safe" is a nasty kettle of fish
+though...
+(b) Enforce NODEV along with NOSUID so that user-based synthetics
+can't have device inodes with compromised permissions, etc.
 
-But to answer Alan's main question, I think you are correct, we should
-not fail device_add if binding a device fails.  I can see this causing a
-lot of very difficult problems in the future (including the fact that
-I've been hitting this bug with a new driver I'm writing and didn't even
-realize it...)
-
-So, I'll apply this one, and revert the main part of Hannes's patch too.
-
-Thanks for tracking this down.
-
-greg k-h
+       -eric

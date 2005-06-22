@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262885AbVFVHhG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262857AbVFVKRT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262885AbVFVHhG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 03:37:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262489AbVFVHeM
+	id S262857AbVFVKRT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 06:17:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262766AbVFVHhK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 03:34:12 -0400
-Received: from mail.kroah.org ([69.55.234.183]:56731 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262768AbVFVFVu convert rfc822-to-8bit
+	Wed, 22 Jun 2005 03:37:10 -0400
+Received: from mail.kroah.org ([69.55.234.183]:54939 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262758AbVFVFVs convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 01:21:50 -0400
-Cc: khali@linux-fr.org
-Subject: [PATCH] I2C: drivers/i2c/chips/it87.c: use dynamic sysfs callbacks
-In-Reply-To: <11194174673955@kroah.com>
+	Wed, 22 Jun 2005 01:21:48 -0400
+Cc: rvinson@mvista.com
+Subject: [PATCH] I2C: Add support for Maxim/Dallas DS1374 Real-Time Clock Chip (1/2)
+In-Reply-To: <1119417468250@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Tue, 21 Jun 2005 22:17:47 -0700
-Message-Id: <11194174672283@kroah.com>
+Date: Tue, 21 Jun 2005 22:17:48 -0700
+Message-Id: <11194174683773@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,592 +24,342 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] I2C: drivers/i2c/chips/it87.c: use dynamic sysfs callbacks
+[PATCH] I2C: Add support for Maxim/Dallas DS1374 Real-Time Clock Chip (1/2)
 
-This patch modifies the it87 hardware monitoring driver to take benefit
-of the new sysfs callback features introduced by Yani Ioannou, making
-the code much clearer and the resulting driver significantly smaller.
+Add support for Maxim/Dallas DS1374 Real-Time Clock Chip
 
-From: Yani Ioannou <yani.ioannou@gmail.com>
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
+This change adds support for the Maxim/Dallas DS1374 RTC chip. This chip
+is an I2C-based RTC that maintains a simple 32-bit binary seconds count
+with battery backup support.
+
+Signed-off-by: Randy Vinson <rvinson@mvista.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit 20ad93d4e5cf5f0616198b5919ee9f304119dd4b
-tree a2260af225b373435ceb4e9475dfbbe67f019832
-parent bc51ae1159c0c9a34d2400a8449e1fca3ee965b4
-author Jean Delvare <khali@linux-fr.org> Sun, 05 Jun 2005 11:53:25 +0200
-committer Greg Kroah-Hartman <gregkh@suse.de> Tue, 21 Jun 2005 21:52:04 -0700
+commit c124a78d8c7475ecc43f385f34112b638c4228d9
+tree 46de795c5e2da258a54501658f74e9619c271527
+parent 69dd204b6b45987dbf9ce7058cd238d355865281
+author Randy Vinson <rvinson@mvista.com> Fri, 03 Jun 2005 14:36:06 -0700
+committer Greg Kroah-Hartman <gregkh@suse.de> Tue, 21 Jun 2005 21:52:06 -0700
 
- drivers/i2c/chips/it87.c |  387 ++++++++++++++++++++++------------------------
- 1 files changed, 183 insertions(+), 204 deletions(-)
+ drivers/i2c/chips/Kconfig  |   11 ++
+ drivers/i2c/chips/Makefile |    1 
+ drivers/i2c/chips/ds1374.c |  266 ++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/i2c-id.h     |    1 
+ 4 files changed, 279 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/i2c/chips/it87.c b/drivers/i2c/chips/it87.c
---- a/drivers/i2c/chips/it87.c
-+++ b/drivers/i2c/chips/it87.c
-@@ -37,6 +37,7 @@
- #include <linux/jiffies.h>
- #include <linux/i2c.h>
- #include <linux/i2c-sensor.h>
-+#include <linux/i2c-sysfs.h>
- #include <linux/i2c-vid.h>
- #include <asm/io.h>
+diff --git a/drivers/i2c/chips/Kconfig b/drivers/i2c/chips/Kconfig
+--- a/drivers/i2c/chips/Kconfig
++++ b/drivers/i2c/chips/Kconfig
+@@ -417,6 +417,17 @@ config SENSORS_DS1337
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called ds1337.
  
-@@ -238,27 +239,42 @@ static struct i2c_driver it87_driver = {
- 	.detach_client	= it87_detach_client,
- };
++config SENSORS_DS1374
++	tristate "Maxim/Dallas Semiconductor DS1374 Real Time Clock"
++	depends on I2C && EXPERIMENTAL
++	select I2C_SENSOR
++	help
++	  If you say yes here you get support for Dallas Semiconductor
++	  DS1374 real-time clock chips.
++
++	  This driver can also be built as a module.  If so, the module
++	  will be called ds1374.
++
+ config SENSORS_EEPROM
+ 	tristate "EEPROM reader"
+ 	depends on I2C && EXPERIMENTAL
+diff --git a/drivers/i2c/chips/Makefile b/drivers/i2c/chips/Makefile
+--- a/drivers/i2c/chips/Makefile
++++ b/drivers/i2c/chips/Makefile
+@@ -14,6 +14,7 @@ obj-$(CONFIG_SENSORS_ADM1031)	+= adm1031
+ obj-$(CONFIG_SENSORS_ADM9240)	+= adm9240.o
+ obj-$(CONFIG_SENSORS_ATXP1)	+= atxp1.o
+ obj-$(CONFIG_SENSORS_DS1337)	+= ds1337.o
++obj-$(CONFIG_SENSORS_DS1374)	+= ds1374.o
+ obj-$(CONFIG_SENSORS_DS1621)	+= ds1621.o
+ obj-$(CONFIG_SENSORS_EEPROM)	+= eeprom.o
+ obj-$(CONFIG_SENSORS_FSCHER)	+= fscher.o
+diff --git a/drivers/i2c/chips/ds1374.c b/drivers/i2c/chips/ds1374.c
+new file mode 100644
+--- /dev/null
++++ b/drivers/i2c/chips/ds1374.c
+@@ -0,0 +1,266 @@
++/*
++ * drivers/i2c/chips/ds1374.c
++ *
++ * I2C client/driver for the Maxim/Dallas DS1374 Real-Time Clock
++ *
++ * Author: Randy Vinson <rvinson@mvista.com>
++ *
++ * Based on the m41t00.c by Mark Greer <mgreer@mvista.com>
++ *
++ * 2005 (c) MontaVista Software, Inc. This file is licensed under
++ * the terms of the GNU General Public License version 2. This program
++ * is licensed "as is" without any warranty of any kind, whether express
++ * or implied.
++ */
++/*
++ * This i2c client/driver wedges between the drivers/char/genrtc.c RTC
++ * interface and the SMBus interface of the i2c subsystem.
++ * It would be more efficient to use i2c msgs/i2c_transfer directly but, as
++ * recommened in .../Documentation/i2c/writing-clients section
++ * "Sending and receiving", using SMBus level communication is preferred.
++ */
++
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/interrupt.h>
++#include <linux/i2c.h>
++#include <linux/rtc.h>
++#include <linux/bcd.h>
++
++#include <asm/time.h>
++#include <asm/rtc.h>
++
++#define DS1374_REG_TOD0		0x00
++#define DS1374_REG_TOD1		0x01
++#define DS1374_REG_TOD2		0x02
++#define DS1374_REG_TOD3		0x03
++#define DS1374_REG_WDALM0	0x04
++#define DS1374_REG_WDALM1	0x05
++#define DS1374_REG_WDALM2	0x06
++#define DS1374_REG_CR		0x07
++#define DS1374_REG_SR		0x08
++#define DS1374_REG_SR_OSF	0x80
++#define DS1374_REG_TCR		0x09
++
++#define	DS1374_DRV_NAME		"ds1374"
++
++static DECLARE_MUTEX(ds1374_mutex);
++
++static struct i2c_driver ds1374_driver;
++static struct i2c_client *save_client;
++
++static unsigned short ignore[] = { I2C_CLIENT_END };
++static unsigned short normal_addr[] = { 0x68, I2C_CLIENT_END };
++
++static struct i2c_client_address_data addr_data = {
++	.normal_i2c = normal_addr,
++	.normal_i2c_range = ignore,
++	.probe = ignore,
++	.probe_range = ignore,
++	.ignore = ignore,
++	.ignore_range = ignore,
++	.force = ignore,
++};
++
++static ulong ds1374_read_rtc(void)
++{
++	ulong time = 0;
++	int reg = DS1374_REG_WDALM0;
++
++	while (reg--) {
++		s32 tmp;
++		if ((tmp = i2c_smbus_read_byte_data(save_client, reg)) < 0) {
++			dev_warn(&save_client->dev,
++				 "can't read from rtc chip\n");
++			return 0;
++		}
++		time = (time << 8) | (tmp & 0xff);
++	}
++	return time;
++}
++
++static void ds1374_write_rtc(ulong time)
++{
++	int reg;
++
++	for (reg = DS1374_REG_TOD0; reg < DS1374_REG_WDALM0; reg++) {
++		if (i2c_smbus_write_byte_data(save_client, reg, time & 0xff)
++		    < 0) {
++			dev_warn(&save_client->dev,
++				 "can't write to rtc chip\n");
++			break;
++		}
++		time = time >> 8;
++	}
++}
++
++static void ds1374_check_rtc_status(void)
++{
++	s32 tmp;
++
++	tmp = i2c_smbus_read_byte_data(save_client, DS1374_REG_SR);
++	if (tmp < 0) {
++		dev_warn(&save_client->dev,
++			 "can't read status from rtc chip\n");
++		return;
++	}
++	if (tmp & DS1374_REG_SR_OSF) {
++		dev_warn(&save_client->dev,
++			 "oscillator discontinuity flagged, time unreliable\n");
++		tmp &= ~DS1374_REG_SR_OSF;
++		tmp = i2c_smbus_write_byte_data(save_client, DS1374_REG_SR,
++						tmp & 0xff);
++		if (tmp < 0)
++			dev_warn(&save_client->dev,
++				 "can't clear discontinuity notification\n");
++	}
++}
++
++ulong ds1374_get_rtc_time(void)
++{
++	ulong t1, t2;
++	int limit = 10;		/* arbitrary retry limit */
++
++	down(&ds1374_mutex);
++
++	/*
++	 * Since the reads are being performed one byte at a time using
++	 * the SMBus vs a 4-byte i2c transfer, there is a chance that a
++	 * carry will occur during the read. To detect this, 2 reads are
++	 * performed and compared.
++	 */
++	do {
++		t1 = ds1374_read_rtc();
++		t2 = ds1374_read_rtc();
++	} while (t1 != t2 && limit--);
++
++	up(&ds1374_mutex);
++
++	if (t1 != t2) {
++		dev_warn(&save_client->dev,
++			 "can't get consistent time from rtc chip\n");
++		t1 = 0;
++	}
++
++	return t1;
++}
++
++static void ds1374_set_tlet(ulong arg)
++{
++	ulong t1, t2;
++	int limit = 10;		/* arbitrary retry limit */
++
++	t1 = *(ulong *) arg;
++
++	down(&ds1374_mutex);
++
++	/*
++	 * Since the writes are being performed one byte at a time using
++	 * the SMBus vs a 4-byte i2c transfer, there is a chance that a
++	 * carry will occur during the write. To detect this, the write
++	 * value is read back and compared.
++	 */
++	do {
++		ds1374_write_rtc(t1);
++		t2 = ds1374_read_rtc();
++	} while (t1 != t2 && limit--);
++
++	up(&ds1374_mutex);
++
++	if (t1 != t2)
++		dev_warn(&save_client->dev,
++			 "can't confirm time set from rtc chip\n");
++}
++
++ulong new_time;
++
++DECLARE_TASKLET_DISABLED(ds1374_tasklet, ds1374_set_tlet, (ulong) & new_time);
++
++int ds1374_set_rtc_time(ulong nowtime)
++{
++	new_time = nowtime;
++
++	if (in_interrupt())
++		tasklet_schedule(&ds1374_tasklet);
++	else
++		ds1374_set_tlet((ulong) & new_time);
++
++	return 0;
++}
++
++/*
++ *****************************************************************************
++ *
++ *	Driver Interface
++ *
++ *****************************************************************************
++ */
++static int ds1374_probe(struct i2c_adapter *adap, int addr, int kind)
++{
++	struct i2c_client *client;
++	int rc;
++
++	client = kmalloc(sizeof(struct i2c_client), GFP_KERNEL);
++	if (!client)
++		return -ENOMEM;
++
++	memset(client, 0, sizeof(struct i2c_client));
++	strncpy(client->name, DS1374_DRV_NAME, I2C_NAME_SIZE);
++	client->flags = I2C_DF_NOTIFY;
++	client->addr = addr;
++	client->adapter = adap;
++	client->driver = &ds1374_driver;
++
++	if ((rc = i2c_attach_client(client)) != 0) {
++		kfree(client);
++		return rc;
++	}
++
++	save_client = client;
++
++	ds1374_check_rtc_status();
++
++	return 0;
++}
++
++static int ds1374_attach(struct i2c_adapter *adap)
++{
++	return i2c_probe(adap, &addr_data, ds1374_probe);
++}
++
++static int ds1374_detach(struct i2c_client *client)
++{
++	int rc;
++
++	if ((rc = i2c_detach_client(client)) == 0) {
++		kfree(i2c_get_clientdata(client));
++		tasklet_kill(&ds1374_tasklet);
++	}
++	return rc;
++}
++
++static struct i2c_driver ds1374_driver = {
++	.owner = THIS_MODULE,
++	.name = DS1374_DRV_NAME,
++	.id = I2C_DRIVERID_DS1374,
++	.flags = I2C_DF_NOTIFY,
++	.attach_adapter = ds1374_attach,
++	.detach_client = ds1374_detach,
++};
++
++static int __init ds1374_init(void)
++{
++	return i2c_add_driver(&ds1374_driver);
++}
++
++static void __exit ds1374_exit(void)
++{
++	i2c_del_driver(&ds1374_driver);
++}
++
++module_init(ds1374_init);
++module_exit(ds1374_exit);
++
++MODULE_AUTHOR("Randy Vinson <rvinson@mvista.com>");
++MODULE_DESCRIPTION("Maxim/Dallas DS1374 RTC I2C Client Driver");
++MODULE_LICENSE("GPL");
+diff --git a/include/linux/i2c-id.h b/include/linux/i2c-id.h
+--- a/include/linux/i2c-id.h
++++ b/include/linux/i2c-id.h
+@@ -108,6 +108,7 @@
+ #define I2C_DRIVERID_TDA7313	62	/* TDA7313 audio processor	*/
+ #define I2C_DRIVERID_MAX6900	63	/* MAX6900 real-time clock	*/
+ #define I2C_DRIVERID_SAA7114H	64	/* video decoder		*/
++#define I2C_DRIVERID_DS1374	65	/* DS1374 real time clock	*/
  
--static ssize_t show_in(struct device *dev, char *buf, int nr)
-+static ssize_t show_in(struct device *dev, struct device_attribute *attr,
-+		char *buf)
- {
-+	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
-+	int nr = sensor_attr->index;
-+
- 	struct it87_data *data = it87_update_device(dev);
- 	return sprintf(buf, "%d\n", IN_FROM_REG(data->in[nr]));
- }
  
--static ssize_t show_in_min(struct device *dev, char *buf, int nr)
-+static ssize_t show_in_min(struct device *dev, struct device_attribute *attr,
-+		char *buf)
- {
-+	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
-+	int nr = sensor_attr->index;
-+
- 	struct it87_data *data = it87_update_device(dev);
- 	return sprintf(buf, "%d\n", IN_FROM_REG(data->in_min[nr]));
- }
- 
--static ssize_t show_in_max(struct device *dev, char *buf, int nr)
-+static ssize_t show_in_max(struct device *dev, struct device_attribute *attr,
-+		char *buf)
- {
-+	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
-+	int nr = sensor_attr->index;
-+
- 	struct it87_data *data = it87_update_device(dev);
- 	return sprintf(buf, "%d\n", IN_FROM_REG(data->in_max[nr]));
- }
- 
--static ssize_t set_in_min(struct device *dev, const char *buf, 
--		size_t count, int nr)
-+static ssize_t set_in_min(struct device *dev, struct device_attribute *attr,
-+		const char *buf, size_t count)
- {
-+	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
-+	int nr = sensor_attr->index;
-+
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct it87_data *data = i2c_get_clientdata(client);
- 	unsigned long val = simple_strtoul(buf, NULL, 10);
-@@ -270,9 +286,12 @@ static ssize_t set_in_min(struct device 
- 	up(&data->update_lock);
- 	return count;
- }
--static ssize_t set_in_max(struct device *dev, const char *buf, 
--		size_t count, int nr)
-+static ssize_t set_in_max(struct device *dev, struct device_attribute *attr,
-+		const char *buf, size_t count)
- {
-+	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
-+	int nr = sensor_attr->index;
-+
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct it87_data *data = i2c_get_clientdata(client);
- 	unsigned long val = simple_strtoul(buf, NULL, 10);
-@@ -286,38 +305,14 @@ static ssize_t set_in_max(struct device 
- }
- 
- #define show_in_offset(offset)					\
--static ssize_t							\
--	show_in##offset (struct device *dev, struct device_attribute *attr, char *buf)		\
--{								\
--	return show_in(dev, buf, offset);			\
--}								\
--static DEVICE_ATTR(in##offset##_input, S_IRUGO, show_in##offset, NULL);
-+static SENSOR_DEVICE_ATTR(in##offset##_input, S_IRUGO,		\
-+		show_in, NULL, offset);
- 
- #define limit_in_offset(offset)					\
--static ssize_t							\
--	show_in##offset##_min (struct device *dev, struct device_attribute *attr, char *buf)	\
--{								\
--	return show_in_min(dev, buf, offset);			\
--}								\
--static ssize_t							\
--	show_in##offset##_max (struct device *dev, struct device_attribute *attr, char *buf)	\
--{								\
--	return show_in_max(dev, buf, offset);			\
--}								\
--static ssize_t set_in##offset##_min (struct device *dev, struct device_attribute *attr, 	\
--		const char *buf, size_t count) 			\
--{								\
--	return set_in_min(dev, buf, count, offset);		\
--}								\
--static ssize_t set_in##offset##_max (struct device *dev, struct device_attribute *attr,	\
--			const char *buf, size_t count)		\
--{								\
--	return set_in_max(dev, buf, count, offset);		\
--}								\
--static DEVICE_ATTR(in##offset##_min, S_IRUGO | S_IWUSR, 	\
--		show_in##offset##_min, set_in##offset##_min);	\
--static DEVICE_ATTR(in##offset##_max, S_IRUGO | S_IWUSR, 	\
--		show_in##offset##_max, set_in##offset##_max);
-+static SENSOR_DEVICE_ATTR(in##offset##_min, S_IRUGO | S_IWUSR,	\
-+		show_in_min, set_in_min, offset);		\
-+static SENSOR_DEVICE_ATTR(in##offset##_max, S_IRUGO | S_IWUSR,	\
-+		show_in_max, set_in_max, offset);
- 
- show_in_offset(0);
- limit_in_offset(0);
-@@ -338,24 +333,39 @@ limit_in_offset(7);
- show_in_offset(8);
- 
- /* 3 temperatures */
--static ssize_t show_temp(struct device *dev, char *buf, int nr)
-+static ssize_t show_temp(struct device *dev, struct device_attribute *attr,
-+		char *buf)
- {
-+	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
-+	int nr = sensor_attr->index;
-+
- 	struct it87_data *data = it87_update_device(dev);
- 	return sprintf(buf, "%d\n", TEMP_FROM_REG(data->temp[nr]));
- }
--static ssize_t show_temp_max(struct device *dev, char *buf, int nr)
-+static ssize_t show_temp_max(struct device *dev, struct device_attribute *attr,
-+		char *buf)
- {
-+	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
-+	int nr = sensor_attr->index;
-+
- 	struct it87_data *data = it87_update_device(dev);
- 	return sprintf(buf, "%d\n", TEMP_FROM_REG(data->temp_high[nr]));
- }
--static ssize_t show_temp_min(struct device *dev, char *buf, int nr)
-+static ssize_t show_temp_min(struct device *dev, struct device_attribute *attr,
-+		char *buf)
- {
-+	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
-+	int nr = sensor_attr->index;
-+
- 	struct it87_data *data = it87_update_device(dev);
- 	return sprintf(buf, "%d\n", TEMP_FROM_REG(data->temp_low[nr]));
- }
--static ssize_t set_temp_max(struct device *dev, const char *buf, 
--		size_t count, int nr)
-+static ssize_t set_temp_max(struct device *dev, struct device_attribute *attr,
-+		const char *buf, size_t count)
- {
-+	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
-+	int nr = sensor_attr->index;
-+
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct it87_data *data = i2c_get_clientdata(client);
- 	int val = simple_strtol(buf, NULL, 10);
-@@ -366,9 +376,12 @@ static ssize_t set_temp_max(struct devic
- 	up(&data->update_lock);
- 	return count;
- }
--static ssize_t set_temp_min(struct device *dev, const char *buf, 
--		size_t count, int nr)
-+static ssize_t set_temp_min(struct device *dev, struct device_attribute *attr,
-+		const char *buf, size_t count)
- {
-+	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
-+	int nr = sensor_attr->index;
-+
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct it87_data *data = i2c_get_clientdata(client);
- 	int val = simple_strtol(buf, NULL, 10);
-@@ -380,42 +393,23 @@ static ssize_t set_temp_min(struct devic
- 	return count;
- }
- #define show_temp_offset(offset)					\
--static ssize_t show_temp_##offset (struct device *dev, struct device_attribute *attr, char *buf)	\
--{									\
--	return show_temp(dev, buf, offset - 1);				\
--}									\
--static ssize_t								\
--show_temp_##offset##_max (struct device *dev, struct device_attribute *attr, char *buf)		\
--{									\
--	return show_temp_max(dev, buf, offset - 1);			\
--}									\
--static ssize_t								\
--show_temp_##offset##_min (struct device *dev, struct device_attribute *attr, char *buf)		\
--{									\
--	return show_temp_min(dev, buf, offset - 1);			\
--}									\
--static ssize_t set_temp_##offset##_max (struct device *dev, struct device_attribute *attr, 		\
--		const char *buf, size_t count) 				\
--{									\
--	return set_temp_max(dev, buf, count, offset - 1);		\
--}									\
--static ssize_t set_temp_##offset##_min (struct device *dev, struct device_attribute *attr, 		\
--		const char *buf, size_t count) 				\
--{									\
--	return set_temp_min(dev, buf, count, offset - 1);		\
--}									\
--static DEVICE_ATTR(temp##offset##_input, S_IRUGO, show_temp_##offset, NULL); \
--static DEVICE_ATTR(temp##offset##_max, S_IRUGO | S_IWUSR, 		\
--		show_temp_##offset##_max, set_temp_##offset##_max); 	\
--static DEVICE_ATTR(temp##offset##_min, S_IRUGO | S_IWUSR, 		\
--		show_temp_##offset##_min, set_temp_##offset##_min);	
-+static SENSOR_DEVICE_ATTR(temp##offset##_input, S_IRUGO,		\
-+		show_temp, NULL, offset - 1);				\
-+static SENSOR_DEVICE_ATTR(temp##offset##_max, S_IRUGO | S_IWUSR,	\
-+		show_temp_max, set_temp_max, offset - 1);		\
-+static SENSOR_DEVICE_ATTR(temp##offset##_min, S_IRUGO | S_IWUSR,	\
-+		show_temp_min, set_temp_min, offset - 1);
- 
- show_temp_offset(1);
- show_temp_offset(2);
- show_temp_offset(3);
- 
--static ssize_t show_sensor(struct device *dev, char *buf, int nr)
-+static ssize_t show_sensor(struct device *dev, struct device_attribute *attr,
-+		char *buf)
- {
-+	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
-+	int nr = sensor_attr->index;
-+
- 	struct it87_data *data = it87_update_device(dev);
- 	u8 reg = data->sensor; /* In case the value is updated while we use it */
- 	
-@@ -425,9 +419,12 @@ static ssize_t show_sensor(struct device
- 		return sprintf(buf, "2\n");  /* thermistor */
- 	return sprintf(buf, "0\n");      /* disabled */
- }
--static ssize_t set_sensor(struct device *dev, const char *buf, 
--		size_t count, int nr)
-+static ssize_t set_sensor(struct device *dev, struct device_attribute *attr,
-+		const char *buf, size_t count)
- {
-+	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
-+	int nr = sensor_attr->index;
-+
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct it87_data *data = i2c_get_clientdata(client);
- 	int val = simple_strtol(buf, NULL, 10);
-@@ -450,53 +447,67 @@ static ssize_t set_sensor(struct device 
- 	return count;
- }
- #define show_sensor_offset(offset)					\
--static ssize_t show_sensor_##offset (struct device *dev, struct device_attribute *attr, char *buf)	\
--{									\
--	return show_sensor(dev, buf, offset - 1);			\
--}									\
--static ssize_t set_sensor_##offset (struct device *dev, struct device_attribute *attr, 		\
--		const char *buf, size_t count) 				\
--{									\
--	return set_sensor(dev, buf, count, offset - 1);			\
--}									\
--static DEVICE_ATTR(temp##offset##_type, S_IRUGO | S_IWUSR, 		\
--		show_sensor_##offset, set_sensor_##offset);
-+static SENSOR_DEVICE_ATTR(temp##offset##_type, S_IRUGO | S_IWUSR,	\
-+		show_sensor, set_sensor, offset - 1);
- 
- show_sensor_offset(1);
- show_sensor_offset(2);
- show_sensor_offset(3);
- 
- /* 3 Fans */
--static ssize_t show_fan(struct device *dev, char *buf, int nr)
-+static ssize_t show_fan(struct device *dev, struct device_attribute *attr,
-+		char *buf)
- {
-+	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
-+	int nr = sensor_attr->index;
-+
- 	struct it87_data *data = it87_update_device(dev);
- 	return sprintf(buf,"%d\n", FAN_FROM_REG(data->fan[nr], 
- 				DIV_FROM_REG(data->fan_div[nr])));
- }
--static ssize_t show_fan_min(struct device *dev, char *buf, int nr)
-+static ssize_t show_fan_min(struct device *dev, struct device_attribute *attr,
-+		char *buf)
- {
-+	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
-+	int nr = sensor_attr->index;
-+
- 	struct it87_data *data = it87_update_device(dev);
- 	return sprintf(buf,"%d\n",
- 		FAN_FROM_REG(data->fan_min[nr], DIV_FROM_REG(data->fan_div[nr])));
- }
--static ssize_t show_fan_div(struct device *dev, char *buf, int nr)
-+static ssize_t show_fan_div(struct device *dev, struct device_attribute *attr,
-+		char *buf)
- {
-+	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
-+	int nr = sensor_attr->index;
-+
- 	struct it87_data *data = it87_update_device(dev);
- 	return sprintf(buf, "%d\n", DIV_FROM_REG(data->fan_div[nr]));
- }
--static ssize_t show_pwm_enable(struct device *dev, char *buf, int nr)
-+static ssize_t show_pwm_enable(struct device *dev, struct device_attribute *attr,
-+		char *buf)
- {
-+	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
-+	int nr = sensor_attr->index;
-+
- 	struct it87_data *data = it87_update_device(dev);
- 	return sprintf(buf,"%d\n", (data->fan_main_ctrl & (1 << nr)) ? 1 : 0);
- }
--static ssize_t show_pwm(struct device *dev, char *buf, int nr)
-+static ssize_t show_pwm(struct device *dev, struct device_attribute *attr,
-+		char *buf)
- {
-+	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
-+	int nr = sensor_attr->index;
-+
- 	struct it87_data *data = it87_update_device(dev);
- 	return sprintf(buf,"%d\n", data->manual_pwm_ctl[nr]);
- }
--static ssize_t set_fan_min(struct device *dev, const char *buf, 
--		size_t count, int nr)
-+static ssize_t set_fan_min(struct device *dev, struct device_attribute *attr,
-+		const char *buf, size_t count)
- {
-+	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
-+	int nr = sensor_attr->index;
-+
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct it87_data *data = i2c_get_clientdata(client);
- 	int val = simple_strtol(buf, NULL, 10);
-@@ -507,9 +518,12 @@ static ssize_t set_fan_min(struct device
- 	up(&data->update_lock);
- 	return count;
- }
--static ssize_t set_fan_div(struct device *dev, const char *buf, 
--		size_t count, int nr)
-+static ssize_t set_fan_div(struct device *dev, struct device_attribute *attr,
-+		const char *buf, size_t count)
- {
-+	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
-+	int nr = sensor_attr->index;
-+
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct it87_data *data = i2c_get_clientdata(client);
- 	int val = simple_strtol(buf, NULL, 10);
-@@ -547,9 +561,12 @@ static ssize_t set_fan_div(struct device
- 	up(&data->update_lock);
- 	return count;
- }
--static ssize_t set_pwm_enable(struct device *dev, const char *buf,
--		size_t count, int nr)
-+static ssize_t set_pwm_enable(struct device *dev,
-+		struct device_attribute *attr, const char *buf, size_t count)
- {
-+	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
-+	int nr = sensor_attr->index;
-+
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct it87_data *data = i2c_get_clientdata(client);
- 	int val = simple_strtol(buf, NULL, 10);
-@@ -578,9 +595,12 @@ static ssize_t set_pwm_enable(struct dev
- 	up(&data->update_lock);
- 	return count;
- }
--static ssize_t set_pwm(struct device *dev, const char *buf,
--		size_t count, int nr)
-+static ssize_t set_pwm(struct device *dev, struct device_attribute *attr,
-+		const char *buf, size_t count)
- {
-+	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
-+	int nr = sensor_attr->index;
-+
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct it87_data *data = i2c_get_clientdata(client);
- 	int val = simple_strtol(buf, NULL, 10);
-@@ -596,64 +616,23 @@ static ssize_t set_pwm(struct device *de
- 	return count;
- }
- 
--#define show_fan_offset(offset)						\
--static ssize_t show_fan_##offset (struct device *dev, struct device_attribute *attr, char *buf)	\
--{									\
--	return show_fan(dev, buf, offset - 1);				\
--}									\
--static ssize_t show_fan_##offset##_min (struct device *dev, struct device_attribute *attr, char *buf)	\
--{									\
--	return show_fan_min(dev, buf, offset - 1);			\
--}									\
--static ssize_t show_fan_##offset##_div (struct device *dev, struct device_attribute *attr, char *buf)	\
--{									\
--	return show_fan_div(dev, buf, offset - 1);			\
--}									\
--static ssize_t set_fan_##offset##_min (struct device *dev, struct device_attribute *attr, 		\
--	const char *buf, size_t count) 					\
--{									\
--	return set_fan_min(dev, buf, count, offset - 1);		\
--}									\
--static ssize_t set_fan_##offset##_div (struct device *dev, struct device_attribute *attr, 		\
--		const char *buf, size_t count) 				\
--{									\
--	return set_fan_div(dev, buf, count, offset - 1);		\
--}									\
--static DEVICE_ATTR(fan##offset##_input, S_IRUGO, show_fan_##offset, NULL); \
--static DEVICE_ATTR(fan##offset##_min, S_IRUGO | S_IWUSR, 		\
--		show_fan_##offset##_min, set_fan_##offset##_min); 	\
--static DEVICE_ATTR(fan##offset##_div, S_IRUGO | S_IWUSR, 		\
--		show_fan_##offset##_div, set_fan_##offset##_div);
-+#define show_fan_offset(offset)					\
-+static SENSOR_DEVICE_ATTR(fan##offset##_input, S_IRUGO,		\
-+		show_fan, NULL, offset - 1);			\
-+static SENSOR_DEVICE_ATTR(fan##offset##_min, S_IRUGO | S_IWUSR, \
-+		show_fan_min, set_fan_min, offset - 1);		\
-+static SENSOR_DEVICE_ATTR(fan##offset##_div, S_IRUGO | S_IWUSR, \
-+		show_fan_div, set_fan_div, offset - 1);
- 
- show_fan_offset(1);
- show_fan_offset(2);
- show_fan_offset(3);
- 
- #define show_pwm_offset(offset)						\
--static ssize_t show_pwm##offset##_enable (struct device *dev, struct device_attribute *attr,		\
--	char *buf)							\
--{									\
--	return show_pwm_enable(dev, buf, offset - 1);			\
--}									\
--static ssize_t show_pwm##offset (struct device *dev, struct device_attribute *attr, char *buf)		\
--{									\
--	return show_pwm(dev, buf, offset - 1);				\
--}									\
--static ssize_t set_pwm##offset##_enable (struct device *dev, struct device_attribute *attr,		\
--		const char *buf, size_t count)				\
--{									\
--	return set_pwm_enable(dev, buf, count, offset - 1);		\
--}									\
--static ssize_t set_pwm##offset (struct device *dev, struct device_attribute *attr,			\
--		const char *buf, size_t count)				\
--{									\
--	return set_pwm(dev, buf, count, offset - 1);			\
--}									\
--static DEVICE_ATTR(pwm##offset##_enable, S_IRUGO | S_IWUSR,		\
--		show_pwm##offset##_enable,				\
--		set_pwm##offset##_enable);				\
--static DEVICE_ATTR(pwm##offset, S_IRUGO | S_IWUSR,			\
--		show_pwm##offset , set_pwm##offset );
-+static SENSOR_DEVICE_ATTR(pwm##offset##_enable, S_IRUGO | S_IWUSR,	\
-+		show_pwm_enable, set_pwm_enable, offset - 1);		\
-+static SENSOR_DEVICE_ATTR(pwm##offset, S_IRUGO | S_IWUSR,		\
-+		show_pwm, set_pwm, offset - 1);
- 
- show_pwm_offset(1);
- show_pwm_offset(2);
-@@ -861,60 +840,60 @@ int it87_detect(struct i2c_adapter *adap
- 	it87_init_client(new_client, data);
- 
- 	/* Register sysfs hooks */
--	device_create_file(&new_client->dev, &dev_attr_in0_input);
--	device_create_file(&new_client->dev, &dev_attr_in1_input);
--	device_create_file(&new_client->dev, &dev_attr_in2_input);
--	device_create_file(&new_client->dev, &dev_attr_in3_input);
--	device_create_file(&new_client->dev, &dev_attr_in4_input);
--	device_create_file(&new_client->dev, &dev_attr_in5_input);
--	device_create_file(&new_client->dev, &dev_attr_in6_input);
--	device_create_file(&new_client->dev, &dev_attr_in7_input);
--	device_create_file(&new_client->dev, &dev_attr_in8_input);
--	device_create_file(&new_client->dev, &dev_attr_in0_min);
--	device_create_file(&new_client->dev, &dev_attr_in1_min);
--	device_create_file(&new_client->dev, &dev_attr_in2_min);
--	device_create_file(&new_client->dev, &dev_attr_in3_min);
--	device_create_file(&new_client->dev, &dev_attr_in4_min);
--	device_create_file(&new_client->dev, &dev_attr_in5_min);
--	device_create_file(&new_client->dev, &dev_attr_in6_min);
--	device_create_file(&new_client->dev, &dev_attr_in7_min);
--	device_create_file(&new_client->dev, &dev_attr_in0_max);
--	device_create_file(&new_client->dev, &dev_attr_in1_max);
--	device_create_file(&new_client->dev, &dev_attr_in2_max);
--	device_create_file(&new_client->dev, &dev_attr_in3_max);
--	device_create_file(&new_client->dev, &dev_attr_in4_max);
--	device_create_file(&new_client->dev, &dev_attr_in5_max);
--	device_create_file(&new_client->dev, &dev_attr_in6_max);
--	device_create_file(&new_client->dev, &dev_attr_in7_max);
--	device_create_file(&new_client->dev, &dev_attr_temp1_input);
--	device_create_file(&new_client->dev, &dev_attr_temp2_input);
--	device_create_file(&new_client->dev, &dev_attr_temp3_input);
--	device_create_file(&new_client->dev, &dev_attr_temp1_max);
--	device_create_file(&new_client->dev, &dev_attr_temp2_max);
--	device_create_file(&new_client->dev, &dev_attr_temp3_max);
--	device_create_file(&new_client->dev, &dev_attr_temp1_min);
--	device_create_file(&new_client->dev, &dev_attr_temp2_min);
--	device_create_file(&new_client->dev, &dev_attr_temp3_min);
--	device_create_file(&new_client->dev, &dev_attr_temp1_type);
--	device_create_file(&new_client->dev, &dev_attr_temp2_type);
--	device_create_file(&new_client->dev, &dev_attr_temp3_type);
--	device_create_file(&new_client->dev, &dev_attr_fan1_input);
--	device_create_file(&new_client->dev, &dev_attr_fan2_input);
--	device_create_file(&new_client->dev, &dev_attr_fan3_input);
--	device_create_file(&new_client->dev, &dev_attr_fan1_min);
--	device_create_file(&new_client->dev, &dev_attr_fan2_min);
--	device_create_file(&new_client->dev, &dev_attr_fan3_min);
--	device_create_file(&new_client->dev, &dev_attr_fan1_div);
--	device_create_file(&new_client->dev, &dev_attr_fan2_div);
--	device_create_file(&new_client->dev, &dev_attr_fan3_div);
-+	device_create_file(&new_client->dev, &sensor_dev_attr_in0_input.dev_attr);
-+	device_create_file(&new_client->dev, &sensor_dev_attr_in1_input.dev_attr);
-+	device_create_file(&new_client->dev, &sensor_dev_attr_in2_input.dev_attr);
-+	device_create_file(&new_client->dev, &sensor_dev_attr_in3_input.dev_attr);
-+	device_create_file(&new_client->dev, &sensor_dev_attr_in4_input.dev_attr);
-+	device_create_file(&new_client->dev, &sensor_dev_attr_in5_input.dev_attr);
-+	device_create_file(&new_client->dev, &sensor_dev_attr_in6_input.dev_attr);
-+	device_create_file(&new_client->dev, &sensor_dev_attr_in7_input.dev_attr);
-+	device_create_file(&new_client->dev, &sensor_dev_attr_in8_input.dev_attr);
-+	device_create_file(&new_client->dev, &sensor_dev_attr_in0_min.dev_attr);
-+	device_create_file(&new_client->dev, &sensor_dev_attr_in1_min.dev_attr);
-+	device_create_file(&new_client->dev, &sensor_dev_attr_in2_min.dev_attr);
-+	device_create_file(&new_client->dev, &sensor_dev_attr_in3_min.dev_attr);
-+	device_create_file(&new_client->dev, &sensor_dev_attr_in4_min.dev_attr);
-+	device_create_file(&new_client->dev, &sensor_dev_attr_in5_min.dev_attr);
-+	device_create_file(&new_client->dev, &sensor_dev_attr_in6_min.dev_attr);
-+	device_create_file(&new_client->dev, &sensor_dev_attr_in7_min.dev_attr);
-+	device_create_file(&new_client->dev, &sensor_dev_attr_in0_max.dev_attr);
-+	device_create_file(&new_client->dev, &sensor_dev_attr_in1_max.dev_attr);
-+	device_create_file(&new_client->dev, &sensor_dev_attr_in2_max.dev_attr);
-+	device_create_file(&new_client->dev, &sensor_dev_attr_in3_max.dev_attr);
-+	device_create_file(&new_client->dev, &sensor_dev_attr_in4_max.dev_attr);
-+	device_create_file(&new_client->dev, &sensor_dev_attr_in5_max.dev_attr);
-+	device_create_file(&new_client->dev, &sensor_dev_attr_in6_max.dev_attr);
-+	device_create_file(&new_client->dev, &sensor_dev_attr_in7_max.dev_attr);
-+	device_create_file(&new_client->dev, &sensor_dev_attr_temp1_input.dev_attr);
-+	device_create_file(&new_client->dev, &sensor_dev_attr_temp2_input.dev_attr);
-+	device_create_file(&new_client->dev, &sensor_dev_attr_temp3_input.dev_attr);
-+	device_create_file(&new_client->dev, &sensor_dev_attr_temp1_max.dev_attr);
-+	device_create_file(&new_client->dev, &sensor_dev_attr_temp2_max.dev_attr);
-+	device_create_file(&new_client->dev, &sensor_dev_attr_temp3_max.dev_attr);
-+	device_create_file(&new_client->dev, &sensor_dev_attr_temp1_min.dev_attr);
-+	device_create_file(&new_client->dev, &sensor_dev_attr_temp2_min.dev_attr);
-+	device_create_file(&new_client->dev, &sensor_dev_attr_temp3_min.dev_attr);
-+	device_create_file(&new_client->dev, &sensor_dev_attr_temp1_type.dev_attr);
-+	device_create_file(&new_client->dev, &sensor_dev_attr_temp2_type.dev_attr);
-+	device_create_file(&new_client->dev, &sensor_dev_attr_temp3_type.dev_attr);
-+	device_create_file(&new_client->dev, &sensor_dev_attr_fan1_input.dev_attr);
-+	device_create_file(&new_client->dev, &sensor_dev_attr_fan2_input.dev_attr);
-+	device_create_file(&new_client->dev, &sensor_dev_attr_fan3_input.dev_attr);
-+	device_create_file(&new_client->dev, &sensor_dev_attr_fan1_min.dev_attr);
-+	device_create_file(&new_client->dev, &sensor_dev_attr_fan2_min.dev_attr);
-+	device_create_file(&new_client->dev, &sensor_dev_attr_fan3_min.dev_attr);
-+	device_create_file(&new_client->dev, &sensor_dev_attr_fan1_div.dev_attr);
-+	device_create_file(&new_client->dev, &sensor_dev_attr_fan2_div.dev_attr);
-+	device_create_file(&new_client->dev, &sensor_dev_attr_fan3_div.dev_attr);
- 	device_create_file(&new_client->dev, &dev_attr_alarms);
- 	if (enable_pwm_interface) {
--		device_create_file(&new_client->dev, &dev_attr_pwm1_enable);
--		device_create_file(&new_client->dev, &dev_attr_pwm2_enable);
--		device_create_file(&new_client->dev, &dev_attr_pwm3_enable);
--		device_create_file(&new_client->dev, &dev_attr_pwm1);
--		device_create_file(&new_client->dev, &dev_attr_pwm2);
--		device_create_file(&new_client->dev, &dev_attr_pwm3);
-+		device_create_file(&new_client->dev, &sensor_dev_attr_pwm1_enable.dev_attr);
-+		device_create_file(&new_client->dev, &sensor_dev_attr_pwm2_enable.dev_attr);
-+		device_create_file(&new_client->dev, &sensor_dev_attr_pwm3_enable.dev_attr);
-+		device_create_file(&new_client->dev, &sensor_dev_attr_pwm1.dev_attr);
-+		device_create_file(&new_client->dev, &sensor_dev_attr_pwm2.dev_attr);
-+		device_create_file(&new_client->dev, &sensor_dev_attr_pwm3.dev_attr);
- 	}
- 
- 	if (data->type == it8712) {
+ #define I2C_DRIVERID_EXP0	0xF0	/* experimental use id's	*/
 

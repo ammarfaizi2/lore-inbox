@@ -1,58 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261407AbVFVPEO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261392AbVFVPEN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261407AbVFVPEO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 11:04:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261408AbVFVPCp
+	id S261392AbVFVPEN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 11:04:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261407AbVFVPC6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 11:02:45 -0400
-Received: from gw.alcove.fr ([81.80.245.157]:22716 "EHLO smtp.fr.alcove.com")
-	by vger.kernel.org with ESMTP id S261407AbVFVO60 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 10:58:26 -0400
-Subject: Re: [linux-usb-devel] usb sysfs intf files no longer created when
-	probe fails
-From: Stelian Pop <stelian@popies.net>
-To: linux-usb-devel@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1119449231.4594.14.camel@localhost.localdomain>
-References: <1119448257.4587.2.camel@localhost.localdomain>
-	 <1119449231.4594.14.camel@localhost.localdomain>
-Content-Type: text/plain; charset=utf-8
-Date: Wed, 22 Jun 2005 16:56:30 +0200
-Message-Id: <1119452190.4794.6.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 8BIT
+	Wed, 22 Jun 2005 11:02:58 -0400
+Received: from az33egw02.freescale.net ([192.88.158.103]:55283 "EHLO
+	az33egw02.freescale.net") by vger.kernel.org with ESMTP
+	id S261392AbVFVO6N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 10:58:13 -0400
+Date: Wed, 22 Jun 2005 09:58:03 -0500 (CDT)
+From: Kumar Gala <galak@freescale.com>
+X-X-Sender: galak@nylon.am.freescale.net
+To: Linus Torvalds <torvalds@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix extra double quote in IPV4 Kconfig
+Message-ID: <Pine.LNX.4.61.0506220957080.2654@nylon.am.freescale.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le mercredi 22 juin 2005 à 16:07 +0200, Stelian Pop a écrit :
-> Le mercredi 22 juin 2005 à 15:50 +0200, Stelian Pop a écrit :
-> 
-> > I use the 'atp' input driver from http://popies.net/atp/ to drive this
-> > touchpad. When removing the driver I also get an oops, possibly related
-> > to the previous failure to create the sysfs file:
+Kconfig option had an extra double quote at the end of the line
+which was causing in warning when building.
 
-Ok, there are two separate problems here:
+Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
 
-1. The sysfs intf entry is not created, and this causes the oops later
-when trying to remove the entry, etc.
+---
+commit 374e90e7fd4dffa513765adf6e28db4740119082
+tree 8c2271bdea1c1c8de95c687f581048e485a16f73
+parent 7a90b498a2d6f7884390f46d4611099007f2f778
+author Kumar K. Gala <kumar.gala@freescale.com> Wed, 22 Jun 2005 11:36:22 -0500
+committer Kumar K. Gala <kumar.gala@freescale.com> Wed, 22 Jun 2005 11:36:22 -0500
 
-   I've tracked this problem back to this patch: 
-	[PATCH] driver core: fix error handling in bus_add_device
-http://www.kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=ca2b94ba12f3c36fd3d6ed9d38b3798d4dad0d8b
+ net/ipv4/Kconfig |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-   Once the patch above is reverted, I have no more oops, my driver can
-be loaded/unloaded just fine, and the /sys/devices/.../ is present.
-
-   However, I'm not really sure if the problem comes from the above
-patch or from my driver which should manually call
-usb_create_sysfs_intf_files() or something equivalent.
-
-2. There is still a problem with the early loading of the driver. If
-loaded at boot, it won't work. If I rmmod/insmod it later it does.
-
-Stelian.
--- 
-Stelian Pop <stelian@popies.net>
-
+diff --git a/net/ipv4/Kconfig b/net/ipv4/Kconfig
+--- a/net/ipv4/Kconfig
++++ b/net/ipv4/Kconfig
+@@ -2,7 +2,7 @@
+ # IP configuration
+ #
+ choice 
+-	prompt "Choose IP: FIB lookup""
++	prompt "Choose IP: FIB lookup"
+ 	depends on INET
+ 	default IP_FIB_HASH
+ 

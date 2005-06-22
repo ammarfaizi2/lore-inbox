@@ -1,44 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262412AbVFVAqI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262296AbVFVAqB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262412AbVFVAqI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 20:46:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262417AbVFVAqI
+	id S262296AbVFVAqB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 20:46:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262412AbVFVAqB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 20:46:08 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:10410 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S262412AbVFVAqF (ORCPT
+	Tue, 21 Jun 2005 20:46:01 -0400
+Received: from [62.206.217.67] ([62.206.217.67]:7583 "EHLO kaber.coreworks.de")
+	by vger.kernel.org with ESMTP id S262296AbVFVAp4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 20:46:05 -0400
-Message-ID: <42B8B4C8.70704@pobox.com>
-Date: Tue, 21 Jun 2005 20:46:00 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
+	Tue, 21 Jun 2005 20:45:56 -0400
+Message-ID: <42B8B4BD.107@trash.net>
+Date: Wed, 22 Jun 2005 02:45:49 +0200
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.8) Gecko/20050514 Debian/1.7.8-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: git-pull-script on my linus tree fails..
-References: <Pine.LNX.4.58.0506211304320.2915@skynet> <Pine.LNX.4.58.0506210837020.2268@ppc970.osdl.org> <42B838BC.8090601@pobox.com> <Pine.LNX.4.58.0506210905560.2268@ppc970.osdl.org> <42B84E20.7010100@pobox.com> <Pine.LNX.4.58.0506211039350.2268@ppc970.osdl.org> <42B8542A.9020700@pobox.com> <Pine.LNX.4.58.0506211103370.2268@ppc970.osdl.org> <42B859B4.5060209@pobox.com> <Pine.LNX.4.58.0506211124310.2268@ppc970.osdl.org> <42B8A82E.4020207@pobox.com> <42B8A8CA.9040804@pobox.com> <Pine.LNX.4.58.0506211709220.2353@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0506211709220.2353@ppc970.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Bart De Schuymer <bdschuym@pandora.be>
+CC: Bart De Schuymer <bdschuym@telenet.be>,
+       Herbert Xu <herbert@gondor.apana.org.au>,
+       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
+       rankincj@yahoo.com, ebtables-devel@lists.sourceforge.net,
+       netfilter-devel@manty.net
+Subject: Re: 2.6.12: connection tracking broken?
+References: <E1Dk9nK-0001ww-00@gondolin.me.apana.org.au>	 <Pine.LNX.4.62.0506200432100.31737@kaber.coreworks.de>	 <1119249575.3387.3.camel@localhost.localdomain> <42B6B373.20507@trash.net>	 <1119293193.3381.9.camel@localhost.localdomain>	 <42B74FC5.3070404@trash.net>	 <1119338382.3390.24.camel@localhost.localdomain>	 <42B82F35.3040909@trash.net> <1119386772.3379.4.camel@localhost.localdomain>
+In-Reply-To: <1119386772.3379.4.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> Oops. Typo of mine. "revs" is incorrect, it should be "refs".
+Bart De Schuymer wrote:
+> Op di, 21-06-2005 te 17:16 +0200, schreef Patrick McHardy:
 > 
-> So because it's testing the wrong directory for the branch name, it
-> obviously won't find the branch, and decides that you used just a regular 
-> commit name.
+>>I unfortunately don't see a way to remove it, but we should keep
+>>thinking about it. Can you please check if the attached patch is
+>>correct? It should exclude all packets handled by bridge-netfilter
+>>from having their conntrack reference dropped. I didn't add nf_reset()'s
+>>to the bridging code because with tc actions the packets can end up
+>>anywhere else anyway, and this will hopefully get fixed right sometime.
+> 
+> Looks good.
 
+Thanks.
 
-git-checkout-script is now switching branches correctly :)
+> Perhaps a compile time option to disable postponing the hooks would be
+> nice...
 
-Now stay tuned for my next email, where I demonstrate how to reproduce 
-git-prune-script eating data :)
+I think we want to reduce the number of possible paths to ideally one,
+not make them a compile-time option.
 
-	Jeff
-
-
+Regards
+Patrick

@@ -1,263 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261458AbVFVUpT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262161AbVFVUvo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261458AbVFVUpT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 16:45:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261839AbVFVUpS
+	id S262161AbVFVUvo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 16:51:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262155AbVFVUto
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 16:45:18 -0400
-Received: from az33egw01.freescale.net ([192.88.158.102]:64500 "EHLO
-	az33egw01.freescale.net") by vger.kernel.org with ESMTP
-	id S261458AbVFVUjx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 16:39:53 -0400
-Date: Wed, 22 Jun 2005 15:39:45 -0500 (CDT)
-From: Kumar Gala <galak@freescale.com>
-X-X-Sender: galak@nylon.am.freescale.net
-To: Andrew Morton <akpm@osdl.org>
-cc: linuxppc-embedded <linuxppc-embedded@ozlabs.org>,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] ppc32: Check return of ppc_sys_get_pdata before accessing
- pointer
-Message-ID: <Pine.LNX.4.61.0506221539150.3206@nylon.am.freescale.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 22 Jun 2005 16:49:44 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:3564 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262185AbVFVUlx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 16:41:53 -0400
+Date: Wed, 22 Jun 2005 22:43:13 +0200
+From: Jens Axboe <axboe@suse.de>
+To: spaminos-ker@yahoo.com
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: cfq misbehaving on 2.6.11-1.14_FC3
+Message-ID: <20050622204308.GC26925@suse.de>
+References: <1119432285.3257.5.camel@linux> <20050622175457.18548.qmail@web30712.mail.mud.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050622175457.18548.qmail@web30712.mail.mud.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ensure that the returned pointer from ppc_sys_get_pdata is not
-NULL before we start using it.  This handles any cases where we
-have variants of processors on the same board with different
-functionality.
+On Wed, Jun 22 2005, spaminos-ker@yahoo.com wrote:
+> --- Jens Axboe <axboe@suse.de> wrote:
+> > THe problem here is that cfq  (and the other io schedulers) still
+> > consider the io async even if fsync() ends up waiting for it to
+> > complete. So there's no real QOS being applied to these pending writes,
+> > and I don't immediately see how we can improve that situation right now.
+> <I might sound stupid>
+> I still don't understand why async requests are in a different queue than the
+> sync ones?
+> Wouldn't it be simpler to consider all the IO the same, and like you pointed
+> out, consider synced IO to be equivalent to async + some sync (as in wait for
+> completion) call (fsync goes a little too far).
+> </I might sound stupid>
 
-Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
+First, lets cover a little terminology. All io is really async in Linux,
+the block io model is inherently async in nature. So sync io is really
+just async io that is being waited on immediately. When I talk about
+sync and async io in the context of the io scheduler, the sync io refers
+to io that is wanted right away. That would be reads or direct writes.
+The async io is something that we can complete at will, where latency
+typically doesn't matter. That would be normal dirtying of data that
+needs to be flushed to disk.
 
----
-commit b4b0dd5099cb8f08d57bcbf33fd06997ba993618
-tree c176601bbe5bf0692fc6a948787319cb2fa74faa
-parent 7d09ea22d5823fde9a508f5e04bd8e93712d6f44
-author Kumar K. Gala <kumar.gala@freescale.com> Wed, 22 Jun 2005 10:55:33 -0500
-committer Kumar K. Gala <kumar.gala@freescale.com> Wed, 22 Jun 2005 10:55:33 -0500
+Another property of sync io in the io scheduler is that it usually
+implies that another sync io request will follow immediately (well,
+almost) after one has completed. So there's a depedency relation between
+sync requests, that async requests don't share.
 
- arch/ppc/platforms/83xx/mpc834x_sys.c |   28 ++++++++++++---------
- arch/ppc/platforms/85xx/mpc8540_ads.c |   44 +++++++++++++++++++--------------
- arch/ppc/platforms/85xx/mpc8560_ads.c |   28 ++++++++++++---------
- arch/ppc/platforms/85xx/sbc8560.c     |   28 ++++++++++++---------
- arch/ppc/platforms/85xx/stx_gp3.c     |   26 +++++++++++---------
- 5 files changed, 88 insertions(+), 66 deletions(-)
+So there are different requirements for sync and async io. The io
+scheduler tries to minimize latencies for async requests somewhat,
+mainly just by making sure that it isn't starved for too long. However,
+when you do an fsync, you want to complete lots of writes, but the io
+scheduler doesn't get this info passed down. If you keep flooding the
+queue with new writes, this could take quite a while to finish. We could
+improve this situation by only flushing out the needed data, or just a
+simple hack to onlu flush out already queued io (provided the fsync()
+already made sure that the correct data is already queued).
 
-diff --git a/arch/ppc/platforms/83xx/mpc834x_sys.c b/arch/ppc/platforms/83xx/mpc834x_sys.c
---- a/arch/ppc/platforms/83xx/mpc834x_sys.c
-+++ b/arch/ppc/platforms/83xx/mpc834x_sys.c
-@@ -94,20 +94,24 @@ mpc834x_sys_setup_arch(void)
- 
- 	/* setup the board related information for the enet controllers */
- 	pdata = (struct gianfar_platform_data *) ppc_sys_get_pdata(MPC83xx_TSEC1);
--	pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR;
--	pdata->interruptPHY = MPC83xx_IRQ_EXT1;
--	pdata->phyid = 0;
--	/* fixup phy address */
--	pdata->phy_reg_addr += binfo->bi_immr_base;
--	memcpy(pdata->mac_addr, binfo->bi_enetaddr, 6);
-+	if (pdata) {
-+		pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR;
-+		pdata->interruptPHY = MPC83xx_IRQ_EXT1;
-+		pdata->phyid = 0;
-+		/* fixup phy address */
-+		pdata->phy_reg_addr += binfo->bi_immr_base;
-+		memcpy(pdata->mac_addr, binfo->bi_enetaddr, 6);
-+	}
- 
- 	pdata = (struct gianfar_platform_data *) ppc_sys_get_pdata(MPC83xx_TSEC2);
--	pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR;
--	pdata->interruptPHY = MPC83xx_IRQ_EXT2;
--	pdata->phyid = 1;
--	/* fixup phy address */
--	pdata->phy_reg_addr += binfo->bi_immr_base;
--	memcpy(pdata->mac_addr, binfo->bi_enet1addr, 6);
-+	if (pdata) {
-+		pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR;
-+		pdata->interruptPHY = MPC83xx_IRQ_EXT2;
-+		pdata->phyid = 1;
-+		/* fixup phy address */
-+		pdata->phy_reg_addr += binfo->bi_immr_base;
-+		memcpy(pdata->mac_addr, binfo->bi_enet1addr, 6);
-+	}
- 
- #ifdef CONFIG_BLK_DEV_INITRD
- 	if (initrd_start)
-diff --git a/arch/ppc/platforms/85xx/mpc8540_ads.c b/arch/ppc/platforms/85xx/mpc8540_ads.c
---- a/arch/ppc/platforms/85xx/mpc8540_ads.c
-+++ b/arch/ppc/platforms/85xx/mpc8540_ads.c
-@@ -92,28 +92,34 @@ mpc8540ads_setup_arch(void)
- 
- 	/* setup the board related information for the enet controllers */
- 	pdata = (struct gianfar_platform_data *) ppc_sys_get_pdata(MPC85xx_TSEC1);
--	pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR;
--	pdata->interruptPHY = MPC85xx_IRQ_EXT5;
--	pdata->phyid = 0;
--	/* fixup phy address */
--	pdata->phy_reg_addr += binfo->bi_immr_base;
--	memcpy(pdata->mac_addr, binfo->bi_enetaddr, 6);
-+	if (pdata) {
-+		pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR;
-+		pdata->interruptPHY = MPC85xx_IRQ_EXT5;
-+		pdata->phyid = 0;
-+		/* fixup phy address */
-+		pdata->phy_reg_addr += binfo->bi_immr_base;
-+		memcpy(pdata->mac_addr, binfo->bi_enetaddr, 6);
-+	}
- 
- 	pdata = (struct gianfar_platform_data *) ppc_sys_get_pdata(MPC85xx_TSEC2);
--	pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR;
--	pdata->interruptPHY = MPC85xx_IRQ_EXT5;
--	pdata->phyid = 1;
--	/* fixup phy address */
--	pdata->phy_reg_addr += binfo->bi_immr_base;
--	memcpy(pdata->mac_addr, binfo->bi_enet1addr, 6);
-+	if (pdata) {
-+		pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR;
-+		pdata->interruptPHY = MPC85xx_IRQ_EXT5;
-+		pdata->phyid = 1;
-+		/* fixup phy address */
-+		pdata->phy_reg_addr += binfo->bi_immr_base;
-+		memcpy(pdata->mac_addr, binfo->bi_enet1addr, 6);
-+	}
- 
--	pdata = (struct gianfar_platform_data *) ppc_sys_get_pdata(MPC85xx_FEC);
--	pdata->board_flags = 0;
--	pdata->interruptPHY = MPC85xx_IRQ_EXT5;
--	pdata->phyid = 3;
--	/* fixup phy address */
--	pdata->phy_reg_addr += binfo->bi_immr_base;
--	memcpy(pdata->mac_addr, binfo->bi_enet2addr, 6);
-+	if (pdata) {
-+		pdata = (struct gianfar_platform_data *) ppc_sys_get_pdata(MPC85xx_FEC);
-+		pdata->board_flags = 0;
-+		pdata->interruptPHY = MPC85xx_IRQ_EXT5;
-+		pdata->phyid = 3;
-+		/* fixup phy address */
-+		pdata->phy_reg_addr += binfo->bi_immr_base;
-+		memcpy(pdata->mac_addr, binfo->bi_enet2addr, 6);
-+	}
- 
- #ifdef CONFIG_BLK_DEV_INITRD
- 	if (initrd_start)
-diff --git a/arch/ppc/platforms/85xx/mpc8560_ads.c b/arch/ppc/platforms/85xx/mpc8560_ads.c
---- a/arch/ppc/platforms/85xx/mpc8560_ads.c
-+++ b/arch/ppc/platforms/85xx/mpc8560_ads.c
-@@ -90,20 +90,24 @@ mpc8560ads_setup_arch(void)
- 
- 	/* setup the board related information for the enet controllers */
- 	pdata = (struct gianfar_platform_data *) ppc_sys_get_pdata(MPC85xx_TSEC1);
--	pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR;
--	pdata->interruptPHY = MPC85xx_IRQ_EXT5;
--	pdata->phyid = 0;
--	/* fixup phy address */
--	pdata->phy_reg_addr += binfo->bi_immr_base;
--	memcpy(pdata->mac_addr, binfo->bi_enetaddr, 6);
-+	if (pdata) {
-+		pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR;
-+		pdata->interruptPHY = MPC85xx_IRQ_EXT5;
-+		pdata->phyid = 0;
-+		/* fixup phy address */
-+		pdata->phy_reg_addr += binfo->bi_immr_base;
-+		memcpy(pdata->mac_addr, binfo->bi_enetaddr, 6);
-+	}
- 
- 	pdata = (struct gianfar_platform_data *) ppc_sys_get_pdata(MPC85xx_TSEC2);
--	pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR;
--	pdata->interruptPHY = MPC85xx_IRQ_EXT5;
--	pdata->phyid = 1;
--	/* fixup phy address */
--	pdata->phy_reg_addr += binfo->bi_immr_base;
--	memcpy(pdata->mac_addr, binfo->bi_enet1addr, 6);
-+	if (pdata) {
-+		pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR;
-+		pdata->interruptPHY = MPC85xx_IRQ_EXT5;
-+		pdata->phyid = 1;
-+		/* fixup phy address */
-+		pdata->phy_reg_addr += binfo->bi_immr_base;
-+		memcpy(pdata->mac_addr, binfo->bi_enet1addr, 6);
-+	}
- 
- #ifdef CONFIG_BLK_DEV_INITRD
- 	if (initrd_start)
-diff --git a/arch/ppc/platforms/85xx/sbc8560.c b/arch/ppc/platforms/85xx/sbc8560.c
---- a/arch/ppc/platforms/85xx/sbc8560.c
-+++ b/arch/ppc/platforms/85xx/sbc8560.c
-@@ -129,20 +129,24 @@ sbc8560_setup_arch(void)
- 
- 	/* setup the board related information for the enet controllers */
- 	pdata = (struct gianfar_platform_data *) ppc_sys_get_pdata(MPC85xx_TSEC1);
--	pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR;
--	pdata->interruptPHY = MPC85xx_IRQ_EXT6;
--	pdata->phyid = 25;
--	/* fixup phy address */
--	pdata->phy_reg_addr += binfo->bi_immr_base;
--	memcpy(pdata->mac_addr, binfo->bi_enetaddr, 6);
-+	if (pdata) {
-+		pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR;
-+		pdata->interruptPHY = MPC85xx_IRQ_EXT6;
-+		pdata->phyid = 25;
-+		/* fixup phy address */
-+		pdata->phy_reg_addr += binfo->bi_immr_base;
-+		memcpy(pdata->mac_addr, binfo->bi_enetaddr, 6);
-+	}
- 
- 	pdata = (struct gianfar_platform_data *) ppc_sys_get_pdata(MPC85xx_TSEC2);
--	pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR;
--	pdata->interruptPHY = MPC85xx_IRQ_EXT7;
--	pdata->phyid = 26;
--	/* fixup phy address */
--	pdata->phy_reg_addr += binfo->bi_immr_base;
--	memcpy(pdata->mac_addr, binfo->bi_enet1addr, 6);
-+	if (pdata) {
-+		pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR;
-+		pdata->interruptPHY = MPC85xx_IRQ_EXT7;
-+		pdata->phyid = 26;
-+		/* fixup phy address */
-+		pdata->phy_reg_addr += binfo->bi_immr_base;
-+		memcpy(pdata->mac_addr, binfo->bi_enet1addr, 6);
-+	}
- 
- #ifdef CONFIG_BLK_DEV_INITRD
- 	if (initrd_start)
-diff --git a/arch/ppc/platforms/85xx/stx_gp3.c b/arch/ppc/platforms/85xx/stx_gp3.c
---- a/arch/ppc/platforms/85xx/stx_gp3.c
-+++ b/arch/ppc/platforms/85xx/stx_gp3.c
-@@ -122,19 +122,23 @@ gp3_setup_arch(void)
- 
- 	/* setup the board related information for the enet controllers */
- 	pdata = (struct gianfar_platform_data *) ppc_sys_get_pdata(MPC85xx_TSEC1);
--/*	pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR; */
--	pdata->interruptPHY = MPC85xx_IRQ_EXT5;
--	pdata->phyid = 2;
--	pdata->phy_reg_addr += binfo->bi_immr_base;
--	memcpy(pdata->mac_addr, binfo->bi_enetaddr, 6);
-+	if (pdata) {
-+	/*	pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR; */
-+		pdata->interruptPHY = MPC85xx_IRQ_EXT5;
-+		pdata->phyid = 2;
-+		pdata->phy_reg_addr += binfo->bi_immr_base;
-+		memcpy(pdata->mac_addr, binfo->bi_enetaddr, 6);
-+	}
- 
- 	pdata = (struct gianfar_platform_data *) ppc_sys_get_pdata(MPC85xx_TSEC2);
--/*	pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR; */
--	pdata->interruptPHY = MPC85xx_IRQ_EXT5;
--	pdata->phyid = 4;
--	/* fixup phy address */
--	pdata->phy_reg_addr += binfo->bi_immr_base;
--	memcpy(pdata->mac_addr, binfo->bi_enet1addr, 6);
-+	if (pdata) {
-+	/*	pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR; */
-+		pdata->interruptPHY = MPC85xx_IRQ_EXT5;
-+		pdata->phyid = 4;
-+		/* fixup phy address */
-+		pdata->phy_reg_addr += binfo->bi_immr_base;
-+		memcpy(pdata->mac_addr, binfo->bi_enet1addr, 6);
-+	}
- 
- #ifdef CONFIG_BLK_DEV_INITRD
- 	if (initrd_start)
+I will try and play a little with this, it's definitely something that
+would be interesting and worthwhile to improve.
 
+> > What file system are you using? I ran your test on ext2, and it didn't
+> > give me more than ~2 seconds latency for the fsync. Tried reiserfs now,
+> > and it's in the 23-24 range.
+> > 
+> I am using ext3 on Fedora Core 3.
+
+Journalled file systems will behave worse for this, because it has to
+tend to the journal as well. Can you try mounting that partition as ext2
+and see what numbers that gives you?
+
+-- 
+Jens Axboe
 

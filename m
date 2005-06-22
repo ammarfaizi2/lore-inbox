@@ -1,67 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262462AbVFVBQ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262454AbVFVBTV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262462AbVFVBQ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 21:16:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262454AbVFVBQ2
+	id S262454AbVFVBTV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 21:19:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262463AbVFVBTU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 21:16:28 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:64745 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262465AbVFVBQL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 21:16:11 -0400
-Date: Tue, 21 Jun 2005 18:18:12 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: git-pull-script on my linus tree fails..
-In-Reply-To: <42B8B4C8.70704@pobox.com>
-Message-ID: <Pine.LNX.4.58.0506211810170.2353@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0506211304320.2915@skynet>
- <Pine.LNX.4.58.0506210837020.2268@ppc970.osdl.org> <42B838BC.8090601@pobox.com>
- <Pine.LNX.4.58.0506210905560.2268@ppc970.osdl.org> <42B84E20.7010100@pobox.com>
- <Pine.LNX.4.58.0506211039350.2268@ppc970.osdl.org> <42B8542A.9020700@pobox.com>
- <Pine.LNX.4.58.0506211103370.2268@ppc970.osdl.org> <42B859B4.5060209@pobox.com>
- <Pine.LNX.4.58.0506211124310.2268@ppc970.osdl.org> <42B8A82E.4020207@pobox.com>
- <42B8A8CA.9040804@pobox.com> <Pine.LNX.4.58.0506211709220.2353@ppc970.osdl.org>
- <42B8B4C8.70704@pobox.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 21 Jun 2005 21:19:20 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:58088 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262454AbVFVBTQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 21:19:16 -0400
+Date: Tue, 21 Jun 2005 18:19:31 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Karim Yaghmour <karim@opersys.com>
+Cc: Kristian Benoit <kbenoit@opersys.com>, linux-kernel@vger.kernel.org,
+       bhuey@lnxw.com, andrea@suse.de, tglx@linutronix.de, mingo@elte.hu,
+       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
+       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org, rpm@xenomai.org
+Subject: Re: PREEMPT_RT vs I-PIPE: the numbers, part 2
+Message-ID: <20050622011931.GF1324@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <1119287612.6863.1.camel@localhost> <20050621015542.GB1298@us.ibm.com> <42B77B8C.6050109@opersys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42B77B8C.6050109@opersys.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 21 Jun 2005, Jeff Garzik wrote:
+On Mon, Jun 20, 2005 at 10:29:32PM -0400, Karim Yaghmour wrote:
 > 
-> git-checkout-script is now switching branches correctly :)
+> Paul E. McKenney wrote:
+> > It looks to me that I-PIPE is an example of a "nested OS", with
+> > Linux nested within the I-PIPE functionality. 
+> 
+> Sorry, the I-pipe is likely in the "none-of-the-above" category. It's
+> actually not much of a category itself. For one thing, it's clearly
+> not an RTOS in any sense of the word.
+> 
+> The I-pipe is just a layer that allows multiple pieces of code to
+> share an interrupt stream in a prioritized fashion. It doesn't
+> schedule anything or provide any sort of abstraction whatsoever.
+> Your piece of code just gets a spot in the pipeline and receives
+> interrupts accordingly. Not much nesting there. It's just a new
+> feature in Linux.
+> 
+> Have a look at the patches and description posted by Philippe last
+> Friday for more detail.
 
-Goodie.
+It is a bit of an edge case for any of the categories.
 
-> Now stay tuned for my next email, where I demonstrate how to reproduce 
-> git-prune-script eating data :)
+> > One could take
+> > the RTAI-Fusion approach, but this measurement is of I-PIPE
+> > rather than RTAI-Fusion, right?  (And use of RTAI-Fusion might
+> > or might not change these results significantly, just trying to
+> > make sure I understand what these specific tests apply to.)
+> 
+> That's inconsequential. Whether Fusion is loaded or not doesn't
+> preclude a loaded driver to have a higher priority than
+> Fusion itself and therefore continue receiving interrupt even if
+> Fusion itself has disabled interrupts ...
+> 
+> The loading of Fusion would change nothing to these measurements.
 
-Before you demonstrate that, let me give you a quick warning on a very 
-useful but also very peculiar and perhaps baffling feature of my version 
-of "git checkout" as opposed to your "git switch".
+OK...
 
-In particular, think about what happens when you have changes in your
-working directory, and you use "git checkout <newbranch>" (that is,
-without the "-f" flag).
+> > Also, if I understand correctly, the interrupt latency measured
+> > is to the Linux kernel running within I-PIPE, rather than to I-PIPE
+> > itself.  Is this the case, or am I confused?
+> 
+> What's being measured here is a loadable module that allocates an
+> spot in the ipipe that has higher priority than Linux and puts
+> itself there. Therefore, regardless of what other piece of code
+> in the kernel disables interrupts, that specific driver still
+> has its registered ipipe handler called deterministically ...
+> 
+> Don't know, but from the looks of it we're not transmitting on
+> the same frequency ...
 
-Now, if those changes actually _clash_ with the difference in the branch
-you're switching to, you'll get an error (something like "Entry 'filename'
-not uptodate. Cannot merge."). But if you have only edited files that are
-the _same_ in both branches, then when you switch branches, those edits
-will literally _follow_ you into the new branch.
+Probably just my not fully understanding I-PIPE (to say nothing of
+not fully understanding your test setup!), but I would have expected
+I-PIPE to be able to get somewhere in the handfuls of microseconds of
+interrupt latency.  Looks like it prevents Linux from ever disabling
+real interrupts -- my first guess after reading your email was that
+Linux was disabling real interrupts and keeping I-PIPE from getting
+there in time.
 
-Before, with your "git switch" script, any pending dirty state just got
-thrown away.
-
-Now, I'm convinced this is actually exactly the behaviour you want, but I 
-thought I'd mention it before you notice it on your own and get confused.
-
-And hey, if you don't like the feature, you can always just use the "-f"  
-flag, which will act the way your old script did, and always just throw
-any pending changes away when you check out a new branch.
-
-			Linus
+						Thanx, Paul

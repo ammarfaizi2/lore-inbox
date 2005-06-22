@@ -1,57 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261557AbVFVQRu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbVFVQRR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261557AbVFVQRu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 12:17:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261612AbVFVQRi
+	id S261551AbVFVQRR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 12:17:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261554AbVFVQRK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 12:17:38 -0400
-Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:49924 "EHLO
-	mail.rtr.ca") by vger.kernel.org with ESMTP id S261582AbVFVQQB
+	Wed, 22 Jun 2005 12:17:10 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:19387 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S261551AbVFVQNx
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 12:16:01 -0400
-Message-ID: <42B98EBF.7020500@rtr.ca>
-Date: Wed, 22 Jun 2005 12:15:59 -0400
-From: Mark Lord <liml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050420 Debian/1.7.7-2
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Greg Stark <gsstark@mit.edu>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>,
-       James Bottomley <James.Bottomley@steeleye.com>
-Subject: Re: [SATA] libata-dev queue updated
-References: <42A14541.6020209@pobox.com> <87vf4ujgmj.fsf@stark.xeocode.com>	<42A1E96C.6080806@pobox.com> <20050604185028.GZ4992@stusta.de>	<42A1FB91.5060702@pobox.com> <87psv2j5mb.fsf@stark.xeocode.com>	<20050604191958.GA13111@havoc.gtf.org> <87k6l9k0aa.fsf@stark.xeocode.com> <42A263BB.9070606@pobox.com>
-In-Reply-To: <42A263BB.9070606@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 22 Jun 2005 12:13:53 -0400
+Subject: Re: reiser4 plugins
+From: Vladimir Saveliev <vs@namesys.com>
+To: Nikita Danilov <nikita@clusterfs.com>
+Cc: David Masover <ninja@slaphack.com>, Hans Reiser <reiser@namesys.com>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+In-Reply-To: <17081.30107.751071.983835@gargle.gargle.HOWL>
+References: <20050620235458.5b437274.akpm@osdl.org>
+	 <42B831B4.9020603@pobox.com> <42B87318.80607@namesys.com>
+	 <20050621202448.GB30182@infradead.org> <42B8B9EE.7020002@namesys.com>
+	 <42B8BB5E.8090008@pobox.com> <42B8E834.5030809@slaphack.com>
+	 <42B8F4BC.5060100@pobox.com> <42B92AA1.3010107@slaphack.com>
+	 <17081.30107.751071.983835@gargle.gargle.HOWL>
+Content-Type: text/plain
+Message-Id: <1119456807.4191.82.camel@tribesman.namesys.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Wed, 22 Jun 2005 20:13:28 +0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Greg Stark wrote:
+Hello
+
+On Wed, 2005-06-22 at 18:28, Nikita Danilov wrote:
+> David Masover writes:
 > 
->> So, uh, where do I get git? Where is your "git repository" and Linus' 
->> "git repository" and how do I set that up?
+> [...]
 > 
-> http://lkml.org/lkml/2005/5/26/11
+>  > 
+>  > Maintainability is like optimization.  The maintainability of a
+>  > non-working program is irrelevant.  You'd be right if we already had
+>  > plugins-in-the-VFS.  We don't.  The most maintainable solution for
+>  > plugins-in-the-FS that actually exists is Reiser4, exactly as it is now
+>  > - -- because it is the _only_ one that actually exists right now.
 > 
->     Jeff
+> But it is not so. There _are_ plugins-in-the-VFS. VFS operates on opaque
+> objects (inodes, dentries, file system types) through interfaces:
+> {inode,address_space,dentry,sb,etc.}_operations. Every file system
+> back-end if free to implement whatever number of these interfaces. And
+> the do this already: check the sources; even ext2 does this: e.g.,
+> ext2_fast_symlink_inode_operations and ext2_symlink_inode_operations.
+> 
 
-Okay, so now I have two separate git repositories,
-one for Linus's tree (currently at 2.6.12), and another
-that is Jeff's libata-dev bundle of goodies.
+imho, this is something different. Ext2 decides itself how to manage a
+symlink depending on length of string the symlink is to store.
+Reiser4 plugins are to allow a user to define himself which operations
+file is to be managed with.
 
-But I have no idea whatsoever what to do next.
+> This is exactly what upper level reiser4 plugins are for.
 
-What I *want*, is the patchset for "passthru",
-so that I can apply those patches to 2.6.12 and
-then test that kernel.
+> I guess that one of Christoph Hellwig's complaints is that reiser4
+> introduces another layer of abstraction to implement something that
+> already exists.
+> 
 
-But it is nowhere even remotely close to possibly perhaps
-someday eventually maybe suggestively obvious how to do that.
+I do not think that it exists already.
+You can have standart type of files and that is all.
 
-Anyone care to volunteer the info?  Jeff?
+Linux filesystem is not supposed to provide anything but plain
+regular/directory/symlinks/sockets/block device/char device/fifo files.
 
-Thanks
+Existing file API does not allow create anything but that.
+Merging reiser4 with object plugins would make it necessary to modify
+VFS layer so that files of arbitrary types could be created.
+
+
+

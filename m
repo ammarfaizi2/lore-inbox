@@ -1,61 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261351AbVFVOq7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261403AbVFVOsF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261351AbVFVOq7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 10:46:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261387AbVFVOpC
+	id S261403AbVFVOsF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 10:48:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261407AbVFVOrY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 10:45:02 -0400
-Received: from wproxy.gmail.com ([64.233.184.200]:16740 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261330AbVFVOnQ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 10:43:16 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ftleHJ2TNjfaLBLCsQr9l22Nvdn8ldFpHO5/5x1S3yF4KzI3NJoWOD76o7a4/fD+lsIuhwUMjxf5to1H/HAWy2EZrky7+/PxAndTZvDZu/gEEYVkJc6YKpIbk9xAQupHW/Vlv5AseixeTsZ9VG5yKRs7eVQzFPU/sHthnrBgwv8=
-Message-ID: <a4e6962a05062207435dd16240@mail.gmail.com>
-Date: Wed, 22 Jun 2005 09:43:07 -0500
-From: Eric Van Hensbergen <ericvh@gmail.com>
-Reply-To: Eric Van Hensbergen <ericvh@gmail.com>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: -mm -> 2.6.13 merge status (fuse)
-Cc: Miklos Szeredi <miklos@szeredi.hu>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050621220619.GC2815@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050620235458.5b437274.akpm@osdl.org>
-	 <E1Dkfu2-0005Ju-00@dorka.pomaz.szeredi.hu>
-	 <20050621142820.GC2015@openzaurus.ucw.cz>
-	 <E1DkkRE-0005mt-00@dorka.pomaz.szeredi.hu>
-	 <20050621220619.GC2815@elf.ucw.cz>
+	Wed, 22 Jun 2005 10:47:24 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:13491 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S261346AbVFVOop (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 10:44:45 -0400
+Date: Wed, 22 Jun 2005 16:44:48 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+cc: kbuild-devel@lists.sourceforge.net, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2/2] Fix signed char problem in scripts/kconfig
+In-Reply-To: <42B92946.3010207@drzeus.cx>
+Message-ID: <Pine.LNX.4.61.0506221642240.3728@scrub.home>
+References: <42B92946.3010207@drzeus.cx>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/21/05, Pavel Machek <pavel@ucw.cz> wrote:
-> >
-> > An emotional argument again.  What's "strange" about it?
+Hi,
+
+On Wed, 22 Jun 2005, Pierre Ossman wrote:
+
+> The signed characters in scripts are causing warnings with GCC 4 on
+> systems with proper string functions (with char*, not signed char* as
+> parameters). Some could be kept signed but most had to be reverted to
+> normal chars.
 > 
-> Not so emotional argument...
+> Detailed changelog:
 > 
-> System where users can mount their own filesystems should not be
-> called "Unix" any more. It introduces new mechanism, similar to
-> ptrace.
+> mconf.c:
+> 	- buf/bufptr was used in vsprintf() so it couldn't be signed.
+> confdata.c:
+> 	- conf_expand_value() used strchr() and strncat() forcing
+> 	  "normal" strings.
+> conf.c:
+> 	- line was used with several string functions so it couldn't be
+> 	  signed.
+> 	- strip() uses strlen() so same thing there.
+> 
+> Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
 
-I think that's a rather severe statement.   I don't see allowing user
-mounts damaging standard UNIX system semantics as long as certain
-rules are followed.   After all, user-mounts and private name spaces
-are what the original authors of UNIX went on to develop.
+Acked-by: Roman Zippel <zippel@linux-m68k.org>
 
-> It restricts root in ways not seen before. How is
-> updatedb/locate supposed to work on system with this? How is it going
-> to interact with backup tools?
->
+Looks good, thanks.
 
-I think requiring user-mounts to be in private name spaces solves many
-of these issues -- you don't have to worry about system daemons and/or
-other users wandering into synthetic file systems.
-
-         -eric
+bye, Roman

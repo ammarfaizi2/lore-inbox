@@ -1,47 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261373AbVFVOal@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261397AbVFVOeh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261373AbVFVOal (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 10:30:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261335AbVFVO1p
+	id S261397AbVFVOeh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 10:34:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261392AbVFVObk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 10:27:45 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:54158 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261316AbVFVO1R
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 10:27:17 -0400
-From: Tom Zanussi <zanussi@us.ibm.com>
+	Wed, 22 Jun 2005 10:31:40 -0400
+Received: from [80.71.243.242] ([80.71.243.242]:48843 "EHLO tau.rusteko.ru")
+	by vger.kernel.org with ESMTP id S261330AbVFVO2q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 10:28:46 -0400
+From: Nikita Danilov <nikita@clusterfs.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <17081.30020.691009.994275@tut.ibm.com>
-Date: Wed, 22 Jun 2005 09:27:16 -0500
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.12-mm1] relayfs: function docfix
-X-Mailer: VM 7.19 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
+Message-ID: <17081.30107.751071.983835@gargle.gargle.HOWL>
+Date: Wed, 22 Jun 2005 18:28:43 +0400
+To: David Masover <ninja@slaphack.com>
+Cc: Hans Reiser <reiser@namesys.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: reiser4 plugins
+Newsgroups: gmane.comp.file-systems.reiserfs.general,gmane.linux.kernel
+In-Reply-To: <42B92AA1.3010107@slaphack.com>
+References: <20050620235458.5b437274.akpm@osdl.org>
+	<42B831B4.9020603@pobox.com>
+	<42B87318.80607@namesys.com>
+	<20050621202448.GB30182@infradead.org>
+	<42B8B9EE.7020002@namesys.com>
+	<42B8BB5E.8090008@pobox.com>
+	<42B8E834.5030809@slaphack.com>
+	<42B8F4BC.5060100@pobox.com>
+	<42B92AA1.3010107@slaphack.com>
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David Masover writes:
 
-This patch adds missing documentation to the subbuf_start() callback.
-Thanks to Mathieu Desnoyers for pointing it out.
+[...]
 
-Tom
+ > 
+ > Maintainability is like optimization.  The maintainability of a
+ > non-working program is irrelevant.  You'd be right if we already had
+ > plugins-in-the-VFS.  We don't.  The most maintainable solution for
+ > plugins-in-the-FS that actually exists is Reiser4, exactly as it is now
+ > - -- because it is the _only_ one that actually exists right now.
 
-Signed-off-by: Tom Zanussi <zanussi@us.ibm.com>
+But it is not so. There _are_ plugins-in-the-VFS. VFS operates on opaque
+objects (inodes, dentries, file system types) through interfaces:
+{inode,address_space,dentry,sb,etc.}_operations. Every file system
+back-end if free to implement whatever number of these interfaces. And
+the do this already: check the sources; even ext2 does this: e.g.,
+ext2_fast_symlink_inode_operations and ext2_symlink_inode_operations.
 
-diff -urpN -X dontdiff linux-2.6.12-mm1/include/linux/relayfs_fs.h linux-2.6.12-mm1-cur/include/linux/relayfs_fs.h
---- linux-2.6.12-mm1/include/linux/relayfs_fs.h	2005-06-22 11:16:23.000000000 -0500
-+++ linux-2.6.12-mm1-cur/include/linux/relayfs_fs.h	2005-06-22 11:44:46.000000000 -0500
-@@ -88,6 +88,9 @@ struct rchan_callbacks
- 	 * @prev_subbuf_idx: the previous sub-buffer's index
- 	 * @prev_subbuf: the start of the previous sub-buffer
- 	 *
-+	 * The client should return the number of bytes it reserves at
-+	 * the beginning of the sub-buffer, 0 if none.
-+	 *
- 	 * NOTE: subbuf_start will also be invoked when the buffer is
- 	 *       created, so that the first sub-buffer can be initialized
- 	 *       if necessary.  In this case, prev_subbuf will be NULL.
+This is exactly what upper level reiser4 plugins are for.
 
+I guess that one of Christoph Hellwig's complaints is that reiser4
+introduces another layer of abstraction to implement something that
+already exists.
 
+Nikita.

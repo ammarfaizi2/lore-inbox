@@ -1,58 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262469AbVFVKOJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261903AbVFVKGd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262469AbVFVKOJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 06:14:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262858AbVFVKMk
+	id S261903AbVFVKGd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 06:06:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262967AbVFVKC6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 06:12:40 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:11434 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262768AbVFVKIW (ORCPT
+	Wed, 22 Jun 2005 06:02:58 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:35296 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S262828AbVFVJ63 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 06:08:22 -0400
-Date: Wed, 22 Jun 2005 12:08:02 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: William Weston <weston@sysex.net>
-Cc: "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       "Eugeny S. Mints" <emints@ru.mvista.com>,
-       Daniel Walker <dwalker@mvista.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
-Message-ID: <20050622100802.GA9207@elte.hu>
-References: <20050608112801.GA31084@elte.hu> <42B0F72D.5040405@cybsft.com> <20050616072935.GB19772@elte.hu> <42B160F5.9060208@cybsft.com> <20050616173247.GA32552@elte.hu> <Pine.LNX.4.58.0506171139570.32721@echo.lysdexia.org> <20050621131249.GB22691@elte.hu> <Pine.LNX.4.58.0506211228210.16701@echo.lysdexia.org> <20050622082450.GA19957@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050622082450.GA19957@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Wed, 22 Jun 2005 05:58:29 -0400
+Date: Wed, 22 Jun 2005 11:57:58 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Jurriaan <thunder7@xs4all.nl>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: [PATCH] New framebuffer fonts + updated 12x22 font available
+In-Reply-To: <200506220308.j5M380Ru002576@hera.kernel.org>
+Message-ID: <Pine.LNX.4.62.0506221156540.16901@numbat.sonytel.be>
+References: <200506220308.j5M380Ru002576@hera.kernel.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Ingo Molnar <mingo@elte.hu> wrote:
-
-> * William Weston <weston@sysex.net> wrote:
+On Tue, 21 Jun 2005, Linux Kernel Mailing List wrote:
+> [PATCH] New framebuffer fonts + updated 12x22 font available
 > 
-> > Attached are two typical traces and the .config from my Xeon/HT box, 
-> > currently running -50-06 with a normal desktop workload (X, wmaker, 
-> > ten dockapps, several xterms, and firefox).
+> Improve the fonts for use with the framebuffer.
 > 
-> the second trace seems to be a cross-CPU wakeup bug. It's not 
-> completely clear from the trace what happened - but we measured the 
-> latency of a task (wmcube-3191), where the wakeup happened on CPU#0 
-> and wmcube-3191 was queued to CPU#1 which was idle at that time. The 
-> bug is that it wasnt until timestamp 306us that this actually happened 
-> - and CPU#1 was just idling around in default_idle() for no good 
-> reason. CPU#1 should have run wmcube-3191 at around timestamp 13us.
+> I've added all the characters marked 'FIXME' in the sun12x22 font and
+> created a 10x18 font (based on the sun12x22 font) and a 7x14 font (based
+> on the vga8x16 font).
+> 
+> This patch is non-intrusive, no options are enabled by default so most
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> users won't notice a thing.
 
-ok, managed to reproduce it on a HT box, and it turned out to be a bug 
-in the SMT scheduler: the dependent sleeper logic incorrectly delayed 
-high-prio tasks, causing these latencies. I fixed it in the -50-10 
-kernel - could you redo your tests with that kernel (or later versions)?
+But ...
 
-	Ingo
+> --- a/drivers/video/console/Kconfig
+> +++ b/drivers/video/console/Kconfig
+> @@ -153,6 +153,15 @@ config FONT_6x11
+>  	  Small console font with Macintosh-style high-half glyphs.  Some Mac
+>  	  framebuffer drivers don't support this one at all.
+>  
+> +config FONT_7x14
+> +	bool "console 7x14 font (not supported by all drivers)" if FONTS
+> +	depends on FRAMEBUFFER_CONSOLE
+> +	default y if !SPARC32 && !SPARC64 && !FONTS
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Sorry I didn't nocice during the original review...
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

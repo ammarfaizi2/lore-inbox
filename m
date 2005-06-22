@@ -1,70 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261531AbVFVOmJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261336AbVFVOnw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261531AbVFVOmJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 10:42:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261458AbVFVOjh
+	id S261336AbVFVOnw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 10:43:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261335AbVFVOnu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 10:39:37 -0400
-Received: from ookhoi.xs4all.nl ([213.84.114.66]:5032 "EHLO
-	favonius.humilis.net") by vger.kernel.org with ESMTP
-	id S261335AbVFVOha (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 10:37:30 -0400
-Date: Wed, 22 Jun 2005 16:37:29 +0200
-From: Sander <sander@humilis.net>
-To: Valdis.Kletnieks@vt.edu
-Cc: Lee Revell <rlrevell@joe-job.com>, Adam Goode <adam@evdebs.org>,
-       Vojtech Pavlik <vojtech@suse.cz>, Pavel Machek <pavel@suse.cz>,
-       Alejandro Bonilla <abonilla@linuxwireless.org>,
-       linux-kernel@vger.kernel.org, linux-thinkpad@linux-thinkpad.org
-Subject: Re: IBM HDAPS Someone interested?
-Message-ID: <20050622143729.GA17527@favonius>
-Reply-To: sander@humilis.net
-References: <20050620155720.GA22535@ucw.cz> <005401c575b3_5f5bba90_600cc60a@amer.sykes.com> <20050620163456.GA24111@ucw.cz> <20050620165703.GB477@openzaurus.ucw.cz> <20050620204533.GA9520@ucw.cz> <1119303016.5194.24.camel@lynx.auton.cs.cmu.edu> <1119368259.19357.18.camel@mindpipe> <200506211816.j5LIGj3E020507@turing-police.cc.vt.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200506211816.j5LIGj3E020507@turing-police.cc.vt.edu>
-X-Uptime: 16:08:28 up 4 days, 40 min, 15 users,  load average: 0.00, 0.00, 0.00
-User-Agent: Mutt/1.5.9i
+	Wed, 22 Jun 2005 10:43:50 -0400
+Received: from mail06.syd.optusnet.com.au ([211.29.132.187]:16011 "EHLO
+	mail06.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261497AbVFVOlP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 10:41:15 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch] fix SMT scheduler latency bug
+Date: Thu, 23 Jun 2005 00:40:55 +1000
+User-Agent: KMail/1.8.1
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       William Weston <weston@sysex.net>
+References: <20050622102541.GA10043@elte.hu>
+In-Reply-To: <20050622102541.GA10043@elte.hu>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1664757.Vt8IERZCmk";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200506230040.58846.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu wrote (ao):
-> On Tue, 21 Jun 2005 11:37:38 EDT, Lee Revell said:
-> > On Mon, 2005-06-20 at 17:30 -0400, Adam Goode wrote:
-> > > Freefall detection: 300 ms
-> > > Head park time: 300-500 ms
-> 
-> > Ugh, if userspace can't meet a 300ms RT constraint, that's a pretty
-> > shitty OS you have there.
-> 
-> Actually, it's a lot tighter than that. You need to *issue* the "park
-> head" command 300-500ms before it hits the ground, and you have 300ms
-> of free fall.
-> 
-> So you may have needed to detect the free fall and issue the command
-> 200ms before the free fall commences.
-> 
-> That's a *real* hard RT constraint to keep. ;)
+--nextPart1664757.Vt8IERZCmk
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-FWIW. I have a X40 and am still running windows. The harddisk protection
-software has an icon in the windows bar near the clock which shows if
-the disk is 'not parked', 'parked due to movement of the notebook', or
-'not parked, but a steady stream of possible harmless shocks is
-noticed'.
+Hi
 
-The software reacts very quick and is very sensitive. The slightest
-movement of the notebook makes the disk park its heads instantly (very,
-very quick) for a moment with a fairly loud click. Even if you just
-slide the notebook a centimeter over the table or tilt it a little. The
-software also has a realtime '3D' image of the notebook which show the
-tilting of the notebook. Pretty neat.
+On Wed, 22 Jun 2005 20:25, Ingo Molnar wrote:
+> William Weston reported unusually high scheduling latencies on his x86
+> HT box, on the -RT kernel. I managed to reproduce it on my HT box and
+> the latency tracer shows the incident in action:
 
-I once tripped over the network cable and had the notebook fly through
-the air and eventually hit the floor. The harddisk was still fine (as
-was the rest of the notebook which impressed me because the lid was in a
-180 degree angle with the keyboard after it hit the floor).
+Thanks for picking this up. I've had a long hard look at the code and your=
+=20
+patch.
 
-Please let me know if I can be of any help running windows or linux.
+> the reason for this anomaly is the following code in dependent_sleeper():
+>
+>                 /*
+>                  * If a user task with lower static priority than the
+>                  * running task on the SMT sibling is trying to schedule,
+>                  * delay it till there is proportionately less timeslice
+>                  * left of the sibling task to prevent a lower priority
+>                  * task from using an unfair proportion of the
+>                  * physical cpu's resources. -ck
+>                  */
+> [...]
+>                         if (((smt_curr->time_slice * (100 -
+> sd->per_cpu_gain) / 100) > task_timeslice(p)))
+>                                         ret =3D 1;
+>
+> note that in contrast to the comment above, we dont actually do the
+> check based on static priority, we do the check based on timeslices. But
+> timeslices go up and down, and even highprio tasks can randomly have
+> very low timeslices (just before their next refill) and can thus be
+> judged as 'lowprio' by the above piece of code.=20
 
-        With kind regards, Sander
+I don't see it like that. task_timeslice(p) will always return the same val=
+ue=20
+based purely on static priority and smt_curr->time_slice cannot ever be=20
+larger than task_timeslice(p) unless there is a significant enough 'nice'=20
+difference. It is not smt_curr that is rescheduled as a result of this test=
+,=20
+it is p that is not scheduled and we look at p's task_timeslice which does=
+=20
+not alter. The task that is delayed in either case is dependant on its stat=
+ic=20
+priority which will determine its task_timeslice() vs the current value of=
+=20
+=2D>time_slice on the sibling which is emptied as that task runs, and it is=
+=20
+expected to fluctuate.
+
+> This condition is=20
+> clearly buggy. The correct test is to check for static_prio _and_ to
+> check for the preemption priority. Even on different static priority
+> levels, a higher-prio interactive task should not be delayed due to a
+> higher-static-prio CPU hog.
+
+> -			if (((smt_curr->time_slice * (100 - sd->per_cpu_gain) /
+> -				100) > task_timeslice(p)))
+> +			if (smt_curr->static_prio < p->static_prio &&
+> +				!TASK_PREEMPTS_CURR(p, smt_rq) &&
+> +				smt_slice(smt_curr, sd) > task_timeslice(p))
+
+Checking for smt_curr->static_prio < p->static_prio appears redundant to me=
+=20
+because the condition can only be met if there is a significant difference =
+in=20
+the different timeslice case as I mentioned above.
+
+> +			if (TASK_PREEMPTS_CURR(p, smt_rq) &&
+
+Is this check necessary? The proportion is supposed to be distributed=20
+according to static priority only.
+
+If this code is causing large latencies then I believe it can only occur wi=
+th=20
+different nice levels running on siblings and high priority tasks starting=
+=20
+new timeslices repeatedly and never getting to the last per_cpu_gain% of=20
+their timeslice. Ingo do you think this might be what is being seen? If thi=
+s=20
+truly can happen then this code will have to move to a jiffy based proporti=
+on=20
+as the real time code is to prevent this problem.=20
+
+Cheers,
+Con
+
+--nextPart1664757.Vt8IERZCmk
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBCuXh6ZUg7+tp6mRURAg4+AJ4ytXCcw23RnSk9p99YPsOO5WqQqACfZjhh
+31iwOikh8pjt45hUoNsJo3M=
+=8mxl
+-----END PGP SIGNATURE-----
+
+--nextPart1664757.Vt8IERZCmk--

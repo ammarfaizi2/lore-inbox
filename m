@@ -1,52 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261995AbVFVUN3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262043AbVFVUNm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261995AbVFVUN3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 16:13:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262043AbVFVUNU
+	id S262043AbVFVUNm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 16:13:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262035AbVFVUNg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 16:13:20 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:13257 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262011AbVFVUJD (ORCPT
+	Wed, 22 Jun 2005 16:13:36 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:44207 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S262034AbVFVUMU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 16:09:03 -0400
-Date: Wed, 22 Jun 2005 22:05:54 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Bill Huey <bhuey@lnxw.com>
-Cc: Karim Yaghmour <karim@opersys.com>, Kristian Benoit <kbenoit@opersys.com>,
-       linux-kernel@vger.kernel.org, paulmck@us.ibm.com, andrea@suse.de,
-       tglx@linutronix.de, pmarques@grupopie.com, bruce@andrew.cmu.edu,
-       nickpiggin@yahoo.com.au, ak@muc.de, sdietrich@mvista.com,
-       dwalker@mvista.com, hch@infradead.org, akpm@osdl.org, rpm@xenomai.org
-Subject: Re: PREEMPT_RT vs I-PIPE: the numbers, part 2
-Message-ID: <20050622200554.GA16119@elte.hu>
-References: <1119287612.6863.1.camel@localhost> <20050620183115.GA27028@nietzsche.lynx.com> <42B98B20.7020304@opersys.com> <20050622192927.GA13817@nietzsche.lynx.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050622192927.GA13817@nietzsche.lynx.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Wed, 22 Jun 2005 16:12:20 -0400
+Message-ID: <42B9C616.9030101@pobox.com>
+Date: Wed, 22 Jun 2005 16:12:06 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: libata-dev queue, ATA passthru updated
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.5 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  I have updated the 'chs-support' and 'passthru'
+	branches of
+	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
+	to be current for the latest kernel. Additionally, I have uploaded the
+	contents of the 'passthru' branch as a patch, at
+	http://www.kernel.org/pub/linux/kernel/people/jgarzik/libata/2.6.12-git4-passthru1.patch.bz2
+	[...] 
+	Content analysis details:   (0.5 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.5 TO_ADDRESS_EQ_REAL     To: repeats address as real name
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Bill Huey <bhuey@lnxw.com> wrote:
+I have updated the 'chs-support' and 'passthru' branches of
+rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
 
-> > target is subject to the HD test. For a pipe, this goes from 9.4us
-> > to 21.6. For UDP this goes from 22us to 1070us !!! Even on a
-> > system without any load, the numbers are similar. Ouch.
-> 
-> I'm involved in other things now, but I wouldn't be surprised if it 
-> was some kind of scheduler bug + softirq wacked interaction. [...]
+to be current for the latest kernel.
 
-the UDP-over-localhost latency was a softirq processing bug that is 
-fixed in current PREEMPT_RT patches. (real over-the-network latency was 
-never impacted, that's why it wasnt noticed before.)
+Additionally, I have uploaded the contents of the 'passthru' branch as a 
+patch, at
+http://www.kernel.org/pub/linux/kernel/people/jgarzik/libata/2.6.12-git4-passthru1.patch.bz2
 
-	Ingo
+

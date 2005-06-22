@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262862AbVFVHWt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262859AbVFVHWs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262862AbVFVHWt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 03:22:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262889AbVFVHUw
+	id S262859AbVFVHWs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 03:22:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262894AbVFVHVb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 03:20:52 -0400
-Received: from mail.kroah.org ([69.55.234.183]:60827 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262772AbVFVFVw convert rfc822-to-8bit
+	Wed, 22 Jun 2005 03:21:31 -0400
+Received: from mail.kroah.org ([69.55.234.183]:61595 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262773AbVFVFVv convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 01:21:52 -0400
+	Wed, 22 Jun 2005 01:21:51 -0400
 Cc: khali@linux-fr.org
-Subject: [PATCH] I2C: lm63 uses new sysfs callbacks
-In-Reply-To: <11194174672283@kroah.com>
+Subject: [PATCH] I2C: Sensors mailing list has moved
+In-Reply-To: <11194174662120@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Tue, 21 Jun 2005 22:17:47 -0700
-Message-Id: <11194174671555@kroah.com>
+Date: Tue, 21 Jun 2005 22:17:46 -0700
+Message-Id: <11194174662573@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,416 +24,122 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] I2C: lm63 uses new sysfs callbacks
+[PATCH] I2C: Sensors mailing list has moved
 
-I updated the lm63 hardware monitoring driver to take benefit of Yani
-Ioannou's new sysfs callback capabilities.
+The following patch updates all references to the sensors mailing list,
+so as to reflect the fact that the list recently moved to a new home and
+changed addresses. I'll work out a similar patch for Linux 2.4 soon.
 
 Signed-off-by: Jean Delvare <khali@linux-fr.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit bc51ae1159c0c9a34d2400a8449e1fca3ee965b4
-tree a7bef5ee693b9b35a34ccf8361caab7578254c30
-parent 1a86c05121a3f56b4b928ed43f9f8ffc1376d802
-author Jean Delvare <khali@linux-fr.org> Sun, 05 Jun 2005 20:32:27 +0200
-committer Greg Kroah-Hartman <gregkh@suse.de> Tue, 21 Jun 2005 21:52:04 -0700
+commit cc0b07ed479fd92806aef7d6dbc58b6dc6da3796
+tree d704525bd37b168e9cf61b7464fe4423b6c46b48
+parent 7f02d56e54f2a8afaa01974df650ace9dc15d0cd
+author Jean Delvare <khali@linux-fr.org> Sun, 22 May 2005 09:39:11 +0200
+committer Greg Kroah-Hartman <gregkh@suse.de> Tue, 21 Jun 2005 21:52:01 -0700
 
- drivers/i2c/chips/lm63.c |  267 ++++++++++++++++++++++++----------------------
- 1 files changed, 142 insertions(+), 125 deletions(-)
+ Documentation/i2c/busses/i2c-sis69x |    2 +-
+ Documentation/i2c/porting-clients   |    2 +-
+ MAINTAINERS                         |   16 ++++++++--------
+ 3 files changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/i2c/chips/lm63.c b/drivers/i2c/chips/lm63.c
---- a/drivers/i2c/chips/lm63.c
-+++ b/drivers/i2c/chips/lm63.c
-@@ -1,7 +1,7 @@
- /*
-  * lm63.c - driver for the National Semiconductor LM63 temperature sensor
-  *          with integrated fan control
-- * Copyright (C) 2004  Jean Delvare <khali@linux-fr.org>
-+ * Copyright (C) 2004-2005  Jean Delvare <khali@linux-fr.org>
-  * Based on the lm90 driver.
-  *
-  * The LM63 is a sensor chip made by National Semiconductor. It measures
-@@ -43,6 +43,7 @@
- #include <linux/jiffies.h>
- #include <linux/i2c.h>
- #include <linux/i2c-sensor.h>
-+#include <linux/i2c-sysfs.h>
+diff --git a/Documentation/i2c/busses/i2c-sis69x b/Documentation/i2c/busses/i2c-sis69x
+--- a/Documentation/i2c/busses/i2c-sis69x
++++ b/Documentation/i2c/busses/i2c-sis69x
+@@ -42,7 +42,7 @@ I suspect that this driver could be made
+ chipsets as well: 635, and 635T. If anyone owns a board with those chips
+ AND is willing to risk crashing & burning an otherwise well-behaved kernel
+ in the name of progress... please contact me at <mhoffman@lightlink.com> or
+-via the project's mailing list: <sensors@stimpy.netroedge.com>.  Please
++via the project's mailing list: <lm-sensors@lm-sensors.org>.  Please
+ send bug reports and/or success stories as well.
  
- /*
-  * Addresses to scan
-@@ -157,16 +158,16 @@ struct lm63_data {
  
- 	/* registers values */
- 	u8 config, config_fan;
--	u16 fan1_input;
--	u16 fan1_low;
-+	u16 fan[2];	/* 0: input
-+			   1: low limit */
- 	u8 pwm1_freq;
- 	u8 pwm1_value;
--	s8 temp1_input;
--	s8 temp1_high;
--	s16 temp2_input;
--	s16 temp2_high;
--	s16 temp2_low;
--	s8 temp2_crit;
-+	s8 temp8[3];	/* 0: local input
-+			   1: local high limit
-+			   2: remote critical limit */
-+	s16 temp11[3];	/* 0: remote input
-+			   1: remote low limit
-+			   2: remote high limit */
- 	u8 temp2_crit_hyst;
- 	u8 alarms;
- };
-@@ -175,33 +176,33 @@ struct lm63_data {
-  * Sysfs callback functions and files
-  */
+diff --git a/Documentation/i2c/porting-clients b/Documentation/i2c/porting-clients
+--- a/Documentation/i2c/porting-clients
++++ b/Documentation/i2c/porting-clients
+@@ -57,7 +57,7 @@ Technical changes:
+   Documentation/i2c/sysfs-interface for the individual files. Also
+   convert the units these files read and write to the specified ones.
+   If you need to add a new type of file, please discuss it on the
+-  sensors mailing list <sensors@stimpy.netroedge.com> by providing a
++  sensors mailing list <lm-sensors@lm-sensors.org> by providing a
+   patch to the Documentation/i2c/sysfs-interface file.
  
--#define show_fan(value) \
--static ssize_t show_##value(struct device *dev, struct device_attribute *attr, char *buf) \
--{ \
--	struct lm63_data *data = lm63_update_device(dev); \
--	return sprintf(buf, "%d\n", FAN_FROM_REG(data->value)); \
-+static ssize_t show_fan(struct device *dev, struct device_attribute *devattr,
-+			char *buf)
-+{
-+	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
-+	struct lm63_data *data = lm63_update_device(dev);
-+	return sprintf(buf, "%d\n", FAN_FROM_REG(data->fan[attr->index]));
- }
--show_fan(fan1_input);
--show_fan(fan1_low);
+ * [Attach] For I2C drivers, the attach function should make sure
+diff --git a/MAINTAINERS b/MAINTAINERS
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -194,7 +194,7 @@ S:	Maintained
+ ADM1025 HARDWARE MONITOR DRIVER
+ P:	Jean Delvare
+ M:	khali@linux-fr.org
+-L:	sensors@stimpy.netroedge.com
++L:	lm-sensors@lm-sensors.org
+ S:	Maintained
  
--static ssize_t set_fan1_low(struct device *dev, struct device_attribute *attr, const char *buf,
--	size_t count)
-+static ssize_t set_fan(struct device *dev, struct device_attribute *dummy,
-+		       const char *buf, size_t count)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct lm63_data *data = i2c_get_clientdata(client);
- 	unsigned long val = simple_strtoul(buf, NULL, 10);
+ ADT746X FAN DRIVER
+@@ -242,7 +242,7 @@ S:	Maintained
+ ALI1563 I2C DRIVER
+ P:	Rudolf Marek
+ M:	r.marek@sh.cvut.cz
+-L:	sensors@stimpy.netroedge.com
++L:	lm-sensors@lm-sensors.org
+ S:	Maintained
  
- 	down(&data->update_lock);
--	data->fan1_low = FAN_TO_REG(val);
-+	data->fan[1] = FAN_TO_REG(val);
- 	i2c_smbus_write_byte_data(client, LM63_REG_TACH_LIMIT_LSB,
--				  data->fan1_low & 0xFF);
-+				  data->fan[1] & 0xFF);
- 	i2c_smbus_write_byte_data(client, LM63_REG_TACH_LIMIT_MSB,
--				  data->fan1_low >> 8);
-+				  data->fan[1] >> 8);
- 	up(&data->update_lock);
- 	return count;
- }
+ ALPHA PORT
+@@ -1002,7 +1002,7 @@ P:	Greg Kroah-Hartman
+ M:	greg@kroah.com
+ P:	Jean Delvare
+ M:	khali@linux-fr.org
+-L:	sensors@stimpy.netroedge.com
++L:	lm-sensors@lm-sensors.org
+ W:	http://www.lm-sensors.nu/
+ S:	Maintained
  
--static ssize_t show_pwm1(struct device *dev, struct device_attribute *attr, char *buf)
-+static ssize_t show_pwm1(struct device *dev, struct device_attribute *dummy,
-+			 char *buf)
- {
- 	struct lm63_data *data = lm63_update_device(dev);
- 	return sprintf(buf, "%d\n", data->pwm1_value >= 2 * data->pwm1_freq ?
-@@ -209,7 +210,8 @@ static ssize_t show_pwm1(struct device *
- 		       (2 * data->pwm1_freq));
- }
+@@ -1430,13 +1430,13 @@ S:	Supported
+ LM83 HARDWARE MONITOR DRIVER
+ P:	Jean Delvare
+ M:	khali@linux-fr.org
+-L:	sensors@stimpy.netroedge.com
++L:	lm-sensors@lm-sensors.org
+ S:	Maintained
  
--static ssize_t set_pwm1(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
-+static ssize_t set_pwm1(struct device *dev, struct device_attribute *dummy,
-+			const char *buf, size_t count)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct lm63_data *data = i2c_get_clientdata(client);
-@@ -228,77 +230,83 @@ static ssize_t set_pwm1(struct device *d
- 	return count;
- }
+ LM90 HARDWARE MONITOR DRIVER
+ P:	Jean Delvare
+ M:	khali@linux-fr.org
+-L:	sensors@stimpy.netroedge.com
++L:	lm-sensors@lm-sensors.org
+ S:	Maintained
  
--static ssize_t show_pwm1_enable(struct device *dev, struct device_attribute *attr, char *buf)
-+static ssize_t show_pwm1_enable(struct device *dev, struct device_attribute *dummy,
-+				char *buf)
- {
- 	struct lm63_data *data = lm63_update_device(dev);
- 	return sprintf(buf, "%d\n", data->config_fan & 0x20 ? 1 : 2);
- }
+ LOGICAL DISK MANAGER SUPPORT (LDM, Windows 2000/XP Dynamic Disks)
+@@ -2075,7 +2075,7 @@ S:	Maintained
+ SMSC47M1 HARDWARE MONITOR DRIVER
+ P:	Jean Delvare
+ M:	khali@linux-fr.org
+-L:	sensors@stimpy.netroedge.com
++L:	lm-sensors@lm-sensors.org
+ S:	Odd Fixes
  
--#define show_temp8(value) \
--static ssize_t show_##value(struct device *dev, struct device_attribute *attr, char *buf) \
--{ \
--	struct lm63_data *data = lm63_update_device(dev); \
--	return sprintf(buf, "%d\n", TEMP8_FROM_REG(data->value)); \
--}
--#define show_temp11(value) \
--static ssize_t show_##value(struct device *dev, struct device_attribute *attr, char *buf) \
--{ \
--	struct lm63_data *data = lm63_update_device(dev); \
--	return sprintf(buf, "%d\n", TEMP11_FROM_REG(data->value)); \
--}
--show_temp8(temp1_input);
--show_temp8(temp1_high);
--show_temp11(temp2_input);
--show_temp11(temp2_high);
--show_temp11(temp2_low);
--show_temp8(temp2_crit);
--
--#define set_temp8(value, reg) \
--static ssize_t set_##value(struct device *dev, struct device_attribute *attr, const char *buf, \
--	size_t count) \
--{ \
--	struct i2c_client *client = to_i2c_client(dev); \
--	struct lm63_data *data = i2c_get_clientdata(client); \
--	long val = simple_strtol(buf, NULL, 10); \
-- \
--	down(&data->update_lock); \
--	data->value = TEMP8_TO_REG(val); \
--	i2c_smbus_write_byte_data(client, reg, data->value); \
--	up(&data->update_lock); \
--	return count; \
--}
--#define set_temp11(value, reg_msb, reg_lsb) \
--static ssize_t set_##value(struct device *dev, struct device_attribute *attr, const char *buf, \
--	size_t count) \
--{ \
--	struct i2c_client *client = to_i2c_client(dev); \
--	struct lm63_data *data = i2c_get_clientdata(client); \
--	long val = simple_strtol(buf, NULL, 10); \
-- \
--	down(&data->update_lock); \
--	data->value = TEMP11_TO_REG(val); \
--	i2c_smbus_write_byte_data(client, reg_msb, data->value >> 8); \
--	i2c_smbus_write_byte_data(client, reg_lsb, data->value & 0xff); \
--	up(&data->update_lock); \
--	return count; \
--}
--set_temp8(temp1_high, LM63_REG_LOCAL_HIGH);
--set_temp11(temp2_high, LM63_REG_REMOTE_HIGH_MSB, LM63_REG_REMOTE_HIGH_LSB);
--set_temp11(temp2_low, LM63_REG_REMOTE_LOW_MSB, LM63_REG_REMOTE_LOW_LSB);
-+static ssize_t show_temp8(struct device *dev, struct device_attribute *devattr,
-+			  char *buf)
-+{
-+	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
-+	struct lm63_data *data = lm63_update_device(dev);
-+	return sprintf(buf, "%d\n", TEMP8_FROM_REG(data->temp8[attr->index]));
-+}
-+
-+static ssize_t set_temp8(struct device *dev, struct device_attribute *dummy,
-+			 const char *buf, size_t count)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct lm63_data *data = i2c_get_clientdata(client);
-+	long val = simple_strtol(buf, NULL, 10);
-+
-+	down(&data->update_lock);
-+	data->temp8[1] = TEMP8_TO_REG(val);
-+	i2c_smbus_write_byte_data(client, LM63_REG_LOCAL_HIGH, data->temp8[1]);
-+	up(&data->update_lock);
-+	return count;
-+}
-+
-+static ssize_t show_temp11(struct device *dev, struct device_attribute *devattr,
-+			   char *buf)
-+{
-+	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
-+	struct lm63_data *data = lm63_update_device(dev);
-+	return sprintf(buf, "%d\n", TEMP11_FROM_REG(data->temp11[attr->index]));
-+}
-+
-+static ssize_t set_temp11(struct device *dev, struct device_attribute *devattr,
-+			  const char *buf, size_t count)
-+{
-+	static const u8 reg[4] = {
-+		LM63_REG_REMOTE_LOW_MSB,
-+		LM63_REG_REMOTE_LOW_LSB,
-+		LM63_REG_REMOTE_HIGH_MSB,
-+		LM63_REG_REMOTE_HIGH_LSB,
-+	};
-+
-+	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct lm63_data *data = i2c_get_clientdata(client);
-+	long val = simple_strtol(buf, NULL, 10);
-+	int nr = attr->index;
-+
-+	down(&data->update_lock);
-+	data->temp11[nr] = TEMP11_TO_REG(val);
-+	i2c_smbus_write_byte_data(client, reg[(nr - 1) * 2],
-+				  data->temp11[nr] >> 8);
-+	i2c_smbus_write_byte_data(client, reg[(nr - 1) * 2 + 1],
-+				  data->temp11[nr] & 0xff);
-+	up(&data->update_lock);
-+	return count;
-+}
+ SMB FILESYSTEM
+@@ -2614,7 +2614,7 @@ S:	Orphan
+ W1 DALLAS'S 1-WIRE BUS
+ P:	Evgeniy Polyakov
+ M:	johnpol@2ka.mipt.ru
+-L:	sensors@stimpy.netroedge.com
++L:	lm-sensors@lm-sensors.org
+ S:	Maintained
  
- /* Hysteresis register holds a relative value, while we want to present
-    an absolute to user-space */
--static ssize_t show_temp2_crit_hyst(struct device *dev, struct device_attribute *attr, char *buf)
-+static ssize_t show_temp2_crit_hyst(struct device *dev, struct device_attribute *dummy,
-+				    char *buf)
- {
- 	struct lm63_data *data = lm63_update_device(dev);
--	return sprintf(buf, "%d\n", TEMP8_FROM_REG(data->temp2_crit)
-+	return sprintf(buf, "%d\n", TEMP8_FROM_REG(data->temp8[2])
- 		       - TEMP8_FROM_REG(data->temp2_crit_hyst));
- }
+ W83L51xD SD/MMC CARD INTERFACE DRIVER
+@@ -2627,7 +2627,7 @@ S:	Maintained
+ W83L785TS HARDWARE MONITOR DRIVER
+ P:	Jean Delvare
+ M:	khali@linux-fr.org
+-L:	sensors@stimpy.netroedge.com
++L:	lm-sensors@lm-sensors.org
+ S:	Odd Fixes
  
- /* And now the other way around, user-space provides an absolute
-    hysteresis value and we have to store a relative one */
--static ssize_t set_temp2_crit_hyst(struct device *dev, struct device_attribute *attr, const char *buf,
--	size_t count)
-+static ssize_t set_temp2_crit_hyst(struct device *dev, struct device_attribute *dummy,
-+				   const char *buf, size_t count)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct lm63_data *data = i2c_get_clientdata(client);
-@@ -306,36 +314,37 @@ static ssize_t set_temp2_crit_hyst(struc
- 	long hyst;
- 
- 	down(&data->update_lock);
--	hyst = TEMP8_FROM_REG(data->temp2_crit) - val;
-+	hyst = TEMP8_FROM_REG(data->temp8[2]) - val;
- 	i2c_smbus_write_byte_data(client, LM63_REG_REMOTE_TCRIT_HYST,
- 				  HYST_TO_REG(hyst));
- 	up(&data->update_lock);
- 	return count;
- }
- 
--static ssize_t show_alarms(struct device *dev, struct device_attribute *attr, char *buf)
-+static ssize_t show_alarms(struct device *dev, struct device_attribute *dummy,
-+			   char *buf)
- {
- 	struct lm63_data *data = lm63_update_device(dev);
- 	return sprintf(buf, "%u\n", data->alarms);
- }
- 
--static DEVICE_ATTR(fan1_input, S_IRUGO, show_fan1_input, NULL);
--static DEVICE_ATTR(fan1_min, S_IWUSR | S_IRUGO, show_fan1_low,
--	set_fan1_low);
-+static SENSOR_DEVICE_ATTR(fan1_input, S_IRUGO, show_fan, NULL, 0);
-+static SENSOR_DEVICE_ATTR(fan1_min, S_IWUSR | S_IRUGO, show_fan,
-+	set_fan, 1);
- 
- static DEVICE_ATTR(pwm1, S_IWUSR | S_IRUGO, show_pwm1, set_pwm1);
- static DEVICE_ATTR(pwm1_enable, S_IRUGO, show_pwm1_enable, NULL);
- 
--static DEVICE_ATTR(temp1_input, S_IRUGO, show_temp1_input, NULL);
--static DEVICE_ATTR(temp1_max, S_IWUSR | S_IRUGO, show_temp1_high,
--	set_temp1_high);
--
--static DEVICE_ATTR(temp2_input, S_IRUGO, show_temp2_input, NULL);
--static DEVICE_ATTR(temp2_min, S_IWUSR | S_IRUGO, show_temp2_low,
--	set_temp2_low);
--static DEVICE_ATTR(temp2_max, S_IWUSR | S_IRUGO, show_temp2_high,
--	set_temp2_high);
--static DEVICE_ATTR(temp2_crit, S_IRUGO, show_temp2_crit, NULL);
-+static SENSOR_DEVICE_ATTR(temp1_input, S_IRUGO, show_temp8, NULL, 0);
-+static SENSOR_DEVICE_ATTR(temp1_max, S_IWUSR | S_IRUGO, show_temp8,
-+	set_temp8, 1);
-+
-+static SENSOR_DEVICE_ATTR(temp2_input, S_IRUGO, show_temp11, NULL, 0);
-+static SENSOR_DEVICE_ATTR(temp2_min, S_IWUSR | S_IRUGO, show_temp11,
-+	set_temp11, 1);
-+static SENSOR_DEVICE_ATTR(temp2_max, S_IWUSR | S_IRUGO, show_temp11,
-+	set_temp11, 2);
-+static SENSOR_DEVICE_ATTR(temp2_crit, S_IRUGO, show_temp8, NULL, 2);
- static DEVICE_ATTR(temp2_crit_hyst, S_IWUSR | S_IRUGO, show_temp2_crit_hyst,
- 	set_temp2_crit_hyst);
- 
-@@ -429,17 +438,25 @@ static int lm63_detect(struct i2c_adapte
- 
- 	/* Register sysfs hooks */
- 	if (data->config & 0x04) { /* tachometer enabled */
--		device_create_file(&new_client->dev, &dev_attr_fan1_input);
--		device_create_file(&new_client->dev, &dev_attr_fan1_min);
-+		device_create_file(&new_client->dev,
-+				   &sensor_dev_attr_fan1_input.dev_attr);
-+		device_create_file(&new_client->dev,
-+				   &sensor_dev_attr_fan1_min.dev_attr);
- 	}
- 	device_create_file(&new_client->dev, &dev_attr_pwm1);
- 	device_create_file(&new_client->dev, &dev_attr_pwm1_enable);
--	device_create_file(&new_client->dev, &dev_attr_temp1_input);
--	device_create_file(&new_client->dev, &dev_attr_temp2_input);
--	device_create_file(&new_client->dev, &dev_attr_temp2_min);
--	device_create_file(&new_client->dev, &dev_attr_temp1_max);
--	device_create_file(&new_client->dev, &dev_attr_temp2_max);
--	device_create_file(&new_client->dev, &dev_attr_temp2_crit);
-+	device_create_file(&new_client->dev,
-+			   &sensor_dev_attr_temp1_input.dev_attr);
-+	device_create_file(&new_client->dev,
-+			   &sensor_dev_attr_temp2_input.dev_attr);
-+	device_create_file(&new_client->dev,
-+			   &sensor_dev_attr_temp2_min.dev_attr);
-+	device_create_file(&new_client->dev,
-+			   &sensor_dev_attr_temp1_max.dev_attr);
-+	device_create_file(&new_client->dev,
-+			   &sensor_dev_attr_temp2_max.dev_attr);
-+	device_create_file(&new_client->dev,
-+			   &sensor_dev_attr_temp2_crit.dev_attr);
- 	device_create_file(&new_client->dev, &dev_attr_temp2_crit_hyst);
- 	device_create_file(&new_client->dev, &dev_attr_alarms);
- 
-@@ -510,14 +527,14 @@ static struct lm63_data *lm63_update_dev
- 	if (time_after(jiffies, data->last_updated + HZ) || !data->valid) {
- 		if (data->config & 0x04) { /* tachometer enabled  */
- 			/* order matters for fan1_input */
--			data->fan1_input = i2c_smbus_read_byte_data(client,
--					   LM63_REG_TACH_COUNT_LSB) & 0xFC;
--			data->fan1_input |= i2c_smbus_read_byte_data(client,
--					    LM63_REG_TACH_COUNT_MSB) << 8;
--			data->fan1_low = (i2c_smbus_read_byte_data(client,
--					  LM63_REG_TACH_LIMIT_LSB) & 0xFC)
--				       | (i2c_smbus_read_byte_data(client,
--					  LM63_REG_TACH_LIMIT_MSB) << 8);
-+			data->fan[0] = i2c_smbus_read_byte_data(client,
-+				       LM63_REG_TACH_COUNT_LSB) & 0xFC;
-+			data->fan[0] |= i2c_smbus_read_byte_data(client,
-+					LM63_REG_TACH_COUNT_MSB) << 8;
-+			data->fan[1] = (i2c_smbus_read_byte_data(client,
-+					LM63_REG_TACH_LIMIT_LSB) & 0xFC)
-+				     | (i2c_smbus_read_byte_data(client,
-+					LM63_REG_TACH_LIMIT_MSB) << 8);
- 		}
- 
- 		data->pwm1_freq = i2c_smbus_read_byte_data(client,
-@@ -527,26 +544,26 @@ static struct lm63_data *lm63_update_dev
- 		data->pwm1_value = i2c_smbus_read_byte_data(client,
- 				   LM63_REG_PWM_VALUE);
- 
--		data->temp1_input = i2c_smbus_read_byte_data(client,
--				    LM63_REG_LOCAL_TEMP);
--		data->temp1_high = i2c_smbus_read_byte_data(client,
--				   LM63_REG_LOCAL_HIGH);
-+		data->temp8[0] = i2c_smbus_read_byte_data(client,
-+				 LM63_REG_LOCAL_TEMP);
-+		data->temp8[1] = i2c_smbus_read_byte_data(client,
-+				 LM63_REG_LOCAL_HIGH);
- 
- 		/* order matters for temp2_input */
--		data->temp2_input = i2c_smbus_read_byte_data(client,
--				    LM63_REG_REMOTE_TEMP_MSB) << 8;
--		data->temp2_input |= i2c_smbus_read_byte_data(client,
--				     LM63_REG_REMOTE_TEMP_LSB);
--		data->temp2_high = (i2c_smbus_read_byte_data(client,
--				   LM63_REG_REMOTE_HIGH_MSB) << 8)
--				 | i2c_smbus_read_byte_data(client,
--				   LM63_REG_REMOTE_HIGH_LSB);
--		data->temp2_low = (i2c_smbus_read_byte_data(client,
-+		data->temp11[0] = i2c_smbus_read_byte_data(client,
-+				  LM63_REG_REMOTE_TEMP_MSB) << 8;
-+		data->temp11[0] |= i2c_smbus_read_byte_data(client,
-+				   LM63_REG_REMOTE_TEMP_LSB);
-+		data->temp11[1] = (i2c_smbus_read_byte_data(client,
- 				  LM63_REG_REMOTE_LOW_MSB) << 8)
- 				| i2c_smbus_read_byte_data(client,
- 				  LM63_REG_REMOTE_LOW_LSB);
--		data->temp2_crit = i2c_smbus_read_byte_data(client,
--				   LM63_REG_REMOTE_TCRIT);
-+		data->temp11[2] = (i2c_smbus_read_byte_data(client,
-+				  LM63_REG_REMOTE_HIGH_MSB) << 8)
-+				| i2c_smbus_read_byte_data(client,
-+				  LM63_REG_REMOTE_HIGH_LSB);
-+		data->temp8[2] = i2c_smbus_read_byte_data(client,
-+				 LM63_REG_REMOTE_TCRIT);
- 		data->temp2_crit_hyst = i2c_smbus_read_byte_data(client,
- 					LM63_REG_REMOTE_TCRIT_HYST);
- 
+ WAN ROUTER & SANGOMA WANPIPE DRIVERS & API (X.25, FRAME RELAY, PPP, CISCO HDLC)
 

@@ -1,37 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262746AbVFVKGd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262963AbVFVKBk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262746AbVFVKGd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 06:06:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261903AbVFVKFf
+	id S262963AbVFVKBk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 06:01:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262972AbVFVJ5X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 06:05:35 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:63413 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id S262746AbVFVKFH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 06:05:07 -0400
-Date: Wed, 22 Jun 2005 14:04:48 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Andy Whitcroft <apw@shadowen.org>
-Cc: Greg KH <gregkh@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-mm1
-Message-ID: <20050622140448.A32312@jurassic.park.msu.ru>
-References: <20050619233029.45dd66b8.akpm@osdl.org> <20050620131451.GA9739@shadowen.org> <20050621225551.GB24289@suse.de> <42B92DFA.7060705@shadowen.org>
+	Wed, 22 Jun 2005 05:57:23 -0400
+Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:11018 "EHLO
+	mta07-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S262928AbVFVJyf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 05:54:35 -0400
+Subject: Re: [question] pass CONFIG_FOO to CC problem
+From: Ian Campbell <ijc@hellion.org.uk>
+To: coywolf@lovecn.org
+Cc: lkml <linux-kernel@vger.kernel.org>, sam@ravnborg.org
+In-Reply-To: <2cd57c90050622013937d2c209@mail.gmail.com>
+References: <2cd57c90050622013937d2c209@mail.gmail.com>
+Content-Type: text/plain
+Date: Wed, 22 Jun 2005 10:54:30 +0100
+Message-Id: <1119434071.16554.4.camel@icampbell-debian>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <42B92DFA.7060705@shadowen.org>; from apw@shadowen.org on Wed, Jun 22, 2005 at 10:23:06AM +0100
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 22, 2005 at 10:23:06AM +0100, Andy Whitcroft wrote:
-> Ivan, can you shead any light on whether the hunk of your patch above is
-> one of the three fixes, whether its a fourth fix, and indeed whether its
-> needed?
+On Wed, 2005-06-22 at 16:39 +0800, Coywolf Qi Hunt wrote:
+> Hello,
+> 
+> I was expecting kbuild passes CONFIG_FOO from .config to CC
+> -DCONFIG_FOO, but it doesn't.  So I have to add
+> 
+> ifdef CONFIG_FOO
+> EXTRA_CFLAGS += -DCONFIG_FOO
+> endif
+> 
+> Is that the right way? thanks in advance.
 
-This is the core part of those four changes (and actually it should have
-been attributed to Linus).
-So your patch is absolutely correct, thanks.
+I think you need to #include <linux/config.h>
 
-Ivan.
+Ian.
+-- 
+Ian Campbell
+
+BOFH excuse #186:
+
+permission denied
+

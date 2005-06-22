@@ -1,62 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262541AbVFVW3P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262441AbVFVW26@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262541AbVFVW3P (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 18:29:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261175AbVFVW3L
+	id S262441AbVFVW26 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 18:28:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261175AbVFVW26
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 18:29:11 -0400
-Received: from 67.Red-80-25-56.pooles.rima-tde.net ([80.25.56.67]:33084 "EHLO
-	estila.tuxedo-es.org") by vger.kernel.org with ESMTP
-	id S262546AbVFVWPp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 18:15:45 -0400
-Subject: [patch 1/1] selinux: minor cleanup in the hooks.c:file_map_prot_check() code
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, sds@tycho.nsa.gov, jmorris@redhat.com,
-       lorenzo@gnu.org
-From: lorenzo@gnu.org
-Date: Thu, 23 Jun 2005 00:15:40 +0200
-Message-Id: <20050622221541.CE72F56C741@estila.tuxedo-es.org>
+	Wed, 22 Jun 2005 18:28:58 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:37329 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262441AbVFVWFK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 18:05:10 -0400
+Date: Thu, 23 Jun 2005 00:04:28 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Karim Yaghmour <karim@opersys.com>
+Cc: Bill Huey <bhuey@lnxw.com>, Kristian Benoit <kbenoit@opersys.com>,
+       linux-kernel@vger.kernel.org, paulmck@us.ibm.com, andrea@suse.de,
+       tglx@linutronix.de, pmarques@grupopie.com, bruce@andrew.cmu.edu,
+       nickpiggin@yahoo.com.au, ak@muc.de, sdietrich@mvista.com,
+       dwalker@mvista.com, hch@infradead.org, akpm@osdl.org, rpm@xenomai.org
+Subject: Re: PREEMPT_RT vs I-PIPE: the numbers, part 2
+Message-ID: <20050622220428.GA28906@elte.hu>
+References: <1119287612.6863.1.camel@localhost> <20050620183115.GA27028@nietzsche.lynx.com> <42B98B20.7020304@opersys.com> <20050622192927.GA13817@nietzsche.lynx.com> <20050622200554.GA16119@elte.hu> <42B9CC98.1040402@opersys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42B9CC98.1040402@opersys.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Minor cleanup of the SELinux hooks code (hooks.c) around
-some definitions of return values.
+* Karim Yaghmour <karim@opersys.com> wrote:
 
-Signed-off-by: Lorenzo Hernandez Garcia-Hierro <lorenzo@gnu.org>
----
+> Ingo Molnar wrote:
+> > the UDP-over-localhost latency was a softirq processing bug that is 
+> > fixed in current PREEMPT_RT patches. (real over-the-network latency was 
+> > never impacted, that's why it wasnt noticed before.)
+> 
+> That's good to hear, but here are some random stats from the idle run:
 
- security/selinux/hooks.c |    6 ++++--
- 1 files changed, 4 insertions(+), 2 deletions(-)
+please retest using recent (i.e. today's) -RT kernels. There were a
+whole bunch of fixes that could affect these numbers. (But i'm sure you
+know very well that you cannot expect a fully-preemptible kernel to have
+zero runtime cost. In that sense, if you want to be fair, you should
+compare it to the SMP kernel, as total preemptability is a similar
+technological feat and has very similar parallelism constraints.)
 
-diff -puN security/selinux/hooks.c~selinux-kernel-cleanup-1 security/selinux/hooks.c
---- linux-2.6.11/security/selinux/hooks.c~selinux-kernel-cleanup-1	2005-06-21 13:26:23.000000000 +0200
-+++ linux-2.6.11-lorenzo/security/selinux/hooks.c	2005-06-23 00:11:23.129839992 +0200
-@@ -2419,6 +2419,8 @@ static int selinux_file_ioctl(struct fil
- 
- static int file_map_prot_check(struct file *file, unsigned long prot, int shared)
- {
-+	int rc;
-+
- #ifndef CONFIG_PPC32
- 	if ((prot & PROT_EXEC) && (!file || (!shared && (prot & PROT_WRITE)))) {
- 		/*
-@@ -2426,7 +2428,7 @@ static int file_map_prot_check(struct fi
- 		 * private file mapping that will also be writable.
- 		 * This has an additional check.
- 		 */
--		int rc = task_has_perm(current, current, PROCESS__EXECMEM);
-+		rc = task_has_perm(current, current, PROCESS__EXECMEM);
- 		if (rc)
- 			return rc;
- 	}
-@@ -2485,7 +2487,7 @@ static int selinux_file_mprotect(struct 
- 		 * check ability to execute the possibly modified content.
- 		 * This typically should only occur for text relocations.
- 		 */
--		int rc = file_has_perm(current, vma->vm_file, FILE__EXECMOD);
-+		rc = file_has_perm(current, vma->vm_file, FILE__EXECMOD);
- 		if (rc)
- 			return rc;
- 	}
-_
+	Ingo

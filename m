@@ -1,46 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261592AbVFVPlk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261595AbVFVPpr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261592AbVFVPlk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 11:41:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261475AbVFVPbi
+	id S261595AbVFVPpr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 11:45:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261504AbVFVPmR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 11:31:38 -0400
-Received: from adsl-68-248-203-41.dsl.milwwi.ameritech.net ([68.248.203.41]:42171
-	"EHLO eagle.netwrx1.com") by vger.kernel.org with ESMTP
-	id S261526AbVFVP20 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 11:28:26 -0400
-Date: Wed, 22 Jun 2005 10:28:25 -0500 (CDT)
-From: George Kasica <georgek@netwrx1.com>
-To: linux-kernel@vger.kernel.org
-Subject: Problem compiling 2.6.12
-Message-ID: <Pine.LNX.4.62.0506221026130.4837@eagle.netwrx1.com>
+	Wed, 22 Jun 2005 11:42:17 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:39649 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP id S261582AbVFVPl3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 11:41:29 -0400
+Date: Wed, 22 Jun 2005 11:41:27 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Stelian Pop <stelian@popies.net>
+cc: Greg KH <greg@kroah.com>, <linux-usb-devel@lists.sourceforge.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-usb-devel] Re: usb sysfs intf files no longer created
+ when probe fails
+In-Reply-To: <1119452963.4787.12.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44L0.0506221133230.6938-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello:
+On Wed, 22 Jun 2005, Stelian Pop wrote:
 
-Trying to compile 2.6.12 here and am getting the following error. I am 
-currently running 2.4.31 and have upgraded the needed bits per the Change 
-document before trying the build:
+> Le mercredi 22 juin 2005 à 07:59 -0700, Greg KH a écrit :
+> > On Wed, Jun 22, 2005 at 03:50:56PM +0200, Stelian Pop wrote:
+> > > I use the 'atp' input driver from http://popies.net/atp/ to drive this
+> > > touchpad. When removing the driver I also get an oops, possibly related
+> > > to the previous failure to create the sysfs file:
+> > 
+> > Sounds like a bug in that driver, care to ask the authors of it about
+> > this?
+> 
+> I am the author :)
+> 
+> That driver worked until yesterday, and I was not able to find out about
+> any API change which would disrupt it now, that's why I reported this to
+> the list... 
 
-[root@eagle src]# cd linux
-[root@eagle linux]# make mrproper
-   CLEAN   .config
-[root@eagle linux]# cp ../config-2.4.31 .config
-[root@eagle linux]# make oldconfig
-   HOSTCC  scripts/basic/fixdep
-In file included from /usr/local/include/netinet/in.h:212,
-                  from /usr/local/include/arpa/inet.h:23,
-                  from scripts/basic/fixdep.c:115:
-/usr/local/include/bits/socket.h:304: asm/socket.h: No such file or 
-directory
-make[1]: *** [scripts/basic/fixdep] Error 1
-make: *** [scripts_basic] Error 2
+This is a curious aspect of the driver model core.  Should failure of a 
+driver to bind be considered serious enough to cause device_add to fail?
+The current answer is Yes unless the driver's probe routine returns 
+-ENODEV or -ENXIO, in which case the failure is not considered serious.
 
-Any help is appreciated, 2.4.31 will compile just fine and I am trying 
-make oldconfig with 2.6.12
+IMO this is a perverse way of doing things.  The existence of a device has 
+nothing to do with what driver is bound to it.  Either the device exists 
+or it doesn't -- and if it exists, failure to bind a driver shouldn't 
+prevent adding the device into sysfs.  Right now, however, it does.
 
-George
-georgek@netwrx1.com
+Alan Stern
+

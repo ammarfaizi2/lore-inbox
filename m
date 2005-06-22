@@ -1,64 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262238AbVFVS1x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261862AbVFVSdh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262238AbVFVS1x (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 14:27:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262237AbVFVS1s
+	id S261862AbVFVSdh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 14:33:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261870AbVFVSdh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 14:27:48 -0400
-Received: from sd291.sivit.org ([194.146.225.122]:60938 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S262233AbVFVS1i (ORCPT
+	Wed, 22 Jun 2005 14:33:37 -0400
+Received: from sd291.sivit.org ([194.146.225.122]:3593 "EHLO sd291.sivit.org")
+	by vger.kernel.org with ESMTP id S261862AbVFVSd1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 14:27:38 -0400
-Subject: Re: [linux-usb-devel] Re: usb sysfs intf files no longer created
-	when probe fails
+	Wed, 22 Jun 2005 14:33:27 -0400
+Subject: Re: [linux-usb-devel] usb sysfs intf files no longer created when
+	probe fails
 From: Stelian Pop <stelian@popies.net>
-To: Greg KH <greg@kroah.com>
-Cc: Alan Stern <stern@rowland.harvard.edu>,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <20050622162221.GB2274@kroah.com>
-References: <Pine.LNX.4.44L0.0506221133230.6938-100000@iolanthe.rowland.org>
-	 <1119455608.4651.5.camel@localhost.localdomain>
-	 <20050622162221.GB2274@kroah.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44L0.0506221144360.6938-100000@iolanthe.rowland.org>
+References: <Pine.LNX.4.44L0.0506221144360.6938-100000@iolanthe.rowland.org>
 Content-Type: text/plain; charset=ISO-8859-15
-Date: Wed, 22 Jun 2005 20:27:36 +0200
-Message-Id: <1119464856.5080.4.camel@deep-space-9.dsnet>
+Date: Wed, 22 Jun 2005 20:33:25 +0200
+Message-Id: <1119465205.5080.10.camel@deep-space-9.dsnet>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le mercredi 22 juin 2005 à 09:22 -0700, Greg KH a écrit :
-> On Wed, Jun 22, 2005 at 05:53:28PM +0200, Stelian Pop wrote:
-> > Le mercredi 22 juin 2005 ?? 11:41 -0400, Alan Stern a ??crit :
-> > 
-> > > This is a curious aspect of the driver model core.  Should failure of a 
-> > > driver to bind be considered serious enough to cause device_add to fail?
-> > > The current answer is Yes unless the driver's probe routine returns 
-> > > -ENODEV or -ENXIO, in which case the failure is not considered serious.
-> > 
-> > Indeed. I've also tracked my problem down to the hid core which returns
-> > -EIO when it fails to drive an unknown HID device, instead of a more
-> > logical -ENODEV (this is not a failure to init a known device, but
-> > rather the impossibility to init an unknown device).
-> > 
-> > The patch below solves the problem for me:
+Le mercredi 22 juin 2005 à 12:03 -0400, Alan Stern a écrit :
+> On Wed, 22 Jun 2005, Stelian Pop wrote:
 > 
-> Damm, beat me by a few minutes :)
+> > Notice the '1-2:1.1' is missing. Upon booting I get:
+> > 
+> > Jun 22 13:34:04 localhost kernel: HID device not claimed by input or hiddev
+> > Jun 22 13:34:04 localhost kernel: usbhid: probe of 1-2:1.1 failed with error -5
+> > Jun 22 13:34:04 localhost kernel: usb 1-2: device_add(1-2:1.1) --> -5
 
-:)
+> You shouldn't call usb_create_sysfs_intf_files in any case.
 
-> Yes, this is the proper fix for this.
-> 
-> But to answer Alan's main question, I think you are correct, we should
-> not fail device_add if binding a device fails.  I can see this causing a
-> lot of very difficult problems in the future (including the fact that
-> I've been hitting this bug with a new driver I'm writing and didn't even
-> realize it...)
-> 
-> So, I'll apply this one, and revert the main part of Hannes's patch too.
+Ok.
 
-Thanks.
+> Your driver is returning -EIO from its probe routine according to the log,
+> so it's not getting bound to the device. 
+
+Actually that's usbhid which returns -EIO.
+
+>  Hence there shouldn't be any
+> attempt to unbind the device when your driver is removed.  This is a bug
+> in usbcore; it tries to delete all the interfaces without checking whether 
+> they were successfully added.
+
+Since this is fixed by reverting the device_add patch, I'm wondering if
+this isn't a driver model core bug, where it tries to device_remove all
+the "devices" even if they weren't correctly added before...
+
+But I haven't looked closely at the code, this is just a thought.
 
 Stelian.
 -- 

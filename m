@@ -1,43 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262315AbVFUX74@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262446AbVFVASv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262315AbVFUX74 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 19:59:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262444AbVFUX41
+	id S262446AbVFVASv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 20:18:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262443AbVFVASu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 19:56:27 -0400
-Received: from smtpauth05.mail.atl.earthlink.net ([209.86.89.65]:46007 "EHLO
-	smtpauth05.mail.atl.earthlink.net") by vger.kernel.org with ESMTP
-	id S262433AbVFUXvg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 19:51:36 -0400
-In-Reply-To: <200506212324.19713.arnd@arndb.de>
-References: <200506212310.54156.arnd@arndb.de> <200506212320.05799.arnd@arndb.de> <200506212322.36453.arnd@arndb.de> <200506212324.19713.arnd@arndb.de>
-Mime-Version: 1.0 (Apple Message framework v622)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <eaabcca10740f5e2cd8a1ca86245ba5d@penguinppc.org>
+	Tue, 21 Jun 2005 20:18:50 -0400
+Received: from quark.didntduck.org ([69.55.226.66]:30431 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP id S262462AbVFVAQJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 20:16:09 -0400
+Message-ID: <42B8ADDA.6060000@didntduck.org>
+Date: Tue, 21 Jun 2005 20:16:26 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: cutaway@bellsouth.net
+CC: Jean Delvare <khali@linux-fr.org>, Denis Vlasenko <vda@ilport.com.ua>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] cleanup patches for strings
+References: <Pine.LNX.4.62.0506200052320.2415@dragon.hyggekrogen.localhost><200506211359.25632.vda@ilport.com.ua><20050621232409.06a3400e.khali@linux-fr.org><008401c576b1$4f2ec000$2800000a@pc365dualp2> <20050621234943.713ecc40.khali@linux-fr.org> <00d501c576b6$943da300$2800000a@pc365dualp2>
+In-Reply-To: <00d501c576b6$943da300$2800000a@pc365dualp2>
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Cc: ppc64-dev List <linuxppc64-dev@ozlabs.org>,
-       Paul Mackerras <paulus@samba.org>,
-       LKML list <linux-kernel@vger.kernel.org>
-From: Hollis Blanchard <hollis@penguinppc.org>
-Subject: Re: [PATCH 7/11] ppc64: add BPA platform type
-Date: Tue, 21 Jun 2005 18:51:25 -0500
-To: Arnd Bergmann <arnd@arndb.de>, ppc64-dev List <linuxppc64-dev@ozlabs.org>
-X-Mailer: Apple Mail (2.622)
-X-ELNK-Trace: 77a46389d001b1f223bcf3e39c2f8b5f1aa676d7e74259b7b3291a7d08dfec7924edcc7f8bd081fc8ed95f5c0bee22e1350badd9bab72f9c350badd9bab72f9c
-X-Originating-IP: 63.246.184.80
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jun 21, 2005, at 4:24 PM, Arnd Bergmann wrote:
+cutaway@bellsouth.net wrote:
+> There is a way to defeat the GCC string alignments by putting the strings in
+> a dynamically sized structure if anyone cares.  A bonus side effect of this
+> scheme is that kernel/driver NLS translations would become almost trivial
+> because all the string texts are collected in one place.
+> 
+> The basic idea looks like this:
+> 
+> #define MSG1 "Message text blah"
+> #define MSG2 "Message text blah, blah"
+> #define MSG3 "Message text blah, blah, blah"
+> 
+> #ifndef __GCC_FORMAT_STRING_CHECKS__
+> static const struct
+>     {
+>     char m1[sizeof(MSG1)+1];
+>     char m2[sizeof(MSG2)+1];
+>     char m3[sizeof(MSG3)+1];
+>     } msg = {
+>     {MSG1},
+>     {MSG2},
+>     {MSG3}
+>     };
+> #undef MSG1
+> #undef MSG2
+> #undef MSG3
+> #define MSG1 msg.m1
+> #define MSG2 msg.m2
+> #define MSG3 msg.m3
+> #endif
+> 
 
-> +static void __init bpa_setup_arch(void)
-> +{
-> ...
-> +	// bpa_nvram_init();
-> +}
+Sometimes the cure is worse than the disease.
 
-I didn't look closely, but I didn't see this called elsewhere... so 
-probably shouldn't be commented out here?
-
--Hollis
-
+--
+				Brian Gerst

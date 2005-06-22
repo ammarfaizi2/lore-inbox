@@ -1,42 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262567AbVFVWcz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262565AbVFVWc4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262567AbVFVWcz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 18:32:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262565AbVFVWae
+	id S262565AbVFVWc4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 18:32:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262568AbVFVWaw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 18:30:34 -0400
-Received: from 64-60-250-34.cust.telepacific.net ([64.60.250.34]:11290 "EHLO
-	panta-1.pantasys.com") by vger.kernel.org with ESMTP
-	id S262519AbVFVW0N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 18:26:13 -0400
-Message-ID: <42B9E582.80408@pantasys.com>
-Date: Wed, 22 Jun 2005 15:26:10 -0700
-From: Peter Buckingham <peter@pantasys.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
+	Wed, 22 Jun 2005 18:30:52 -0400
+Received: from webmail.topspin.com ([12.162.17.3]:54448 "EHLO
+	exch-1.topspincom.com") by vger.kernel.org with ESMTP
+	id S262460AbVFVW1d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 18:27:33 -0400
+To: David Masover <ninja@slaphack.com>
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
+       "Artem B. Bityuckiy" <dedekind@yandex.ru>,
+       =?UTF-8?B?TWFya3VzIFTQlnJu?==?UTF-8?B?cXZpc3Q=?= <mjt@nysv.org>,
+       Christophe Saout <christophe@saout.de>, Andrew Morton <akpm@osdl.org>,
+       Hans Reiser <reiser@namesys.com>, hch@infradead.org, jgarzik@pobox.com,
+       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: Re: reiser4 plugins
+X-Message-Flag: Warning: May contain useful information
+References: <200506221733.j5MHXEoH007541@laptop11.inf.utfsm.cl>
+	<42B9DD48.6060601@slaphack.com>
+From: Roland Dreier <roland@topspin.com>
+Date: Wed, 22 Jun 2005 15:27:26 -0700
+In-Reply-To: <42B9DD48.6060601@slaphack.com> (David Masover's message of
+ "Wed, 22 Jun 2005 16:51:04 -0500")
+Message-ID: <52psueowmp.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: YhLu <YhLu@tyan.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12 with dual way dual core ck804 MB
-References: <3174569B9743D511922F00A0C94314230A40468C@TYANWEB> <20050621221218.GE14251@wotan.suse.de>
-In-Reply-To: <20050621221218.GE14251@wotan.suse.de>
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 22 Jun 2005 22:23:26.0031 (UTC) FILETIME=[021FBDF0:01C57779]
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 22 Jun 2005 22:27:26.0639 (UTC) FILETIME=[91899BF0:01C57779]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> On Tue, Jun 21, 2005 at 02:41:52PM -0700, YhLu wrote:
-> It works for me on several dual core systems, except on a very big
-> one that seems to run into a scheduler problem.
+    David> Spotlight on the Mac.  Users love it.  We can do it.  But
+    David> not without changing something in the filesystem.
 
-I'm having similar problems with a 16P x86_64. If I boot it with 
-maxcpus=8 I have no problems. Is there some info that might be useful to 
-help debug this problem?
+    David> Actually, I think we came up with several ways to do this,
+    David> all of which required Reiser4 interfaces.
 
-thanks,
+It seems the existing Beagle project is a counterexample to this.  In
+fact, to make things even more perfect, Beagle doesn't work on top of
+Reiser4.
 
-peter
+ - R.

@@ -1,70 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262843AbVFVJbd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262924AbVFVJbe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262843AbVFVJbd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 05:31:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262828AbVFVJ1Y
+	id S262924AbVFVJbe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 05:31:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262904AbVFVJ17
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 05:27:24 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:46317 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262925AbVFVJXx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 05:23:53 -0400
-Subject: Re: cfq misbehaving on 2.6.11-1.14_FC3
-From: Jens Axboe <axboe@suse.de>
-To: spaminos-ker@yahoo.com
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050617230130.59874.qmail@web30702.mail.mud.yahoo.com>
-References: <20050617230130.59874.qmail@web30702.mail.mud.yahoo.com>
-Content-Type: text/plain
-Date: Wed, 22 Jun 2005 11:24:44 +0200
-Message-Id: <1119432285.3257.5.camel@linux>
+	Wed, 22 Jun 2005 05:27:59 -0400
+Received: from nproxy.gmail.com ([64.233.182.201]:40692 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262924AbVFVJYC convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 05:24:02 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=mykAJ5VcWsA6j+Py/KJNYcYmHMbPsadQjFPbJdYrQYEhGLgoAnI/smccSOmzAf8UNrvR7fzuHBXGG/2qrfXGW6RnIsjDBueTYj5VH130/fNQWyzz2Gg/KTLBHXbhTs/HoeAX5mCU1PCJuroH7YvIJbvRvSM3srHK2hEATU1D6V8=
+Message-ID: <2cd57c9005062202237cd4ece9@mail.gmail.com>
+Date: Wed, 22 Jun 2005 17:23:58 +0800
+From: Coywolf Qi Hunt <coywolf@gmail.com>
+Reply-To: coywolf@lovecn.org
+To: "J.A. Magallon" <jamagallon@able.es>
+Subject: Re: [PATCH] devfs: remove devfs from Kconfig preventing it from being built
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1119429466l.8047l.1l@werewolf.able.es>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050621222419.GA23896@kroah.com>
+	 <20050621.155919.85409752.davem@davemloft.net>
+	 <20050622041330.GB27716@suse.de>
+	 <20050621.214527.71091057.davem@davemloft.net>
+	 <2cd57c900506212323ca68045@mail.gmail.com>
+	 <1119429466l.8047l.1l@werewolf.able.es>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-06-17 at 16:01 -0700, spaminos-ker@yahoo.com wrote:
-> I don't know how all this works, but would there be a way to slow down the
-> offending writer by not allowing too many pending write requests per process?
-> Is there a tunable for the size of the write queue for a given device?
-> Reducing it will reduce the throughput, but the latency as well.
+On 6/22/05, J.A. Magallon <jamagallon@able.es> wrote:
+> 
+> On 06.22, Coywolf Qi Hunt wrote:
+> > On 6/22/05, David S. Miller <davem@davemloft.net> wrote:
+> > > From: Greg KH <gregkh@suse.de>
+> > > Date: Tue, 21 Jun 2005 21:13:30 -0700
+> > >
+> > > > On Tue, Jun 21, 2005 at 03:59:19PM -0700, David S. Miller wrote:
+> > > > > From: Greg KH <gregkh@suse.de>
+> > > > > Date: Tue, 21 Jun 2005 15:24:19 -0700
+> > > > >
+> > > > > However, this does mean I do need to reinstall a couple
+> > > > > debian boxes here to something newer before I can continue
+> > > > > doing kernel work in 2.6.x on them.
+> > > >
+> > > > Those boxes rely on devfs?
+> > >
+> > > Yeah, when I forget to turn on DEVFS_FS and DEVFS_MOUNT in the
+> > > kernel config the machine won't boot. :-)
+> > >
+> > > > Can't you just grab the "static dev" debian package and continue on?
+> > > > I'm sure there is one in there somewhere (don't really know for sure,
+> > > > not running debian anywhere here, sorry.)
+> > > >
+> > > > Or how about a tarball of a /dev tree?  Would that help you out?
+> >
+> > There's /sbin/MAKEDEV on debian.
+> >
+> > >
+> > > I don't know if Debian has such a package.
+> > >
+> > > Don't worry, I'll take care of this by simply reinstalling
+> > > and thus moving to udev.
+> >
+> > Moving to udev is right. Still you need a "static dev" in case your
+> > udev not working.
+> >
+> > Use /sbin/MAKEDEV from makedev package.
+> >
+> 
+> A nice addition to udev package would be an standard minimal /dev tree
+> to allow booting till init and running udev as the first thing...
+> A tar.gz you could just unpack on a new box or on an initrd.
+> 
+> ;)
 
-The 2.4 SUSE kernel actually has something in place to limit in-flight
-write requests against a single device. cfq will already limit the
-number of write requests you can have in-flight against a single queue,
-but it's request based and not size based.
 
-> Of course, there has to be a way to get this to work right.
-> 
-> To go back to high latencies, maybe a different problem (but at least closely
-> related):
-> 
-> If I start in the background the command
-> dd if=/dev/zero of=/tmp/somefile2 bs=1024
-> 
-> and then run my test program in a loop, with
-> while true ; do time ./io 1; sleep 1s ; done
-> 
-> I get:
-> 
-> cfq: 47,33,27,48,32,29,26,49,25,47 -> 36.3 avg
-> deadline: 32,28,52,33,35,29,49,39,40,33 -> 37 avg
-> noop: 62,47,57,39,59,44,56,49,57,47 -> 51.7 avg
-> 
-> Now, cfq doesn't behave worst than the others, like expected (now, why it
-> behaved worst with the real daemons, I don't know).
-> Still > 30 seconds has to be improved for cfq.
-
-THe problem here is that cfq  (and the other io schedulers) still
-consider the io async even if fsync() ends up waiting for it to
-complete. So there's no real QOS being applied to these pending writes,
-and I don't immediately see how we can improve that situation right now.
-
-What file system are you using? I ran your test on ext2, and it didn't
-give me more than ~2 seconds latency for the fsync. Tried reiserfs now,
-and it's in the 23-24 range.
+I guess we've already got one in initramfs.
+The "static" /dev is still necessary. I once killed my udevd, and the
+static /dev revealed.
 
 -- 
-Jens Axboe <axboe@suse.de>
-
+Coywolf Qi Hunt
+http://ahbl.org/~coywolf/

@@ -1,114 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261760AbVFVRWL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261766AbVFVRpU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261760AbVFVRWL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 13:22:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261781AbVFVROB
+	id S261766AbVFVRpU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 13:45:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261749AbVFVRnY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 13:14:01 -0400
-Received: from waste.org ([216.27.176.166]:54483 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261749AbVFVRBq (ORCPT
+	Wed, 22 Jun 2005 13:43:24 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:3003 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261813AbVFVRki (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 13:01:46 -0400
-Date: Wed, 22 Jun 2005 10:01:28 -0700
-From: Matt Mackall <mpm@selenic.com>
-To: Jeff Moyer <jmoyer@redhat.com>
-Cc: netdev@oss.sgi.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch,rfc] allow registration of multiple netpolls per interface
-Message-ID: <20050622170128.GV27572@waste.org>
-References: <17080.35214.507402.998984@segfault.boston.redhat.com> <20050621225252.GY27572@waste.org> <17081.20441.714191.528270@segfault.boston.redhat.com>
+	Wed, 22 Jun 2005 13:40:38 -0400
+Date: Wed, 22 Jun 2005 19:40:09 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Kristian Benoit <kbenoit@opersys.com>
+Cc: paulmck@us.ibm.com, Karim Yaghmour <karim@opersys.com>,
+       linux-kernel@vger.kernel.org, bhuey@lnxw.com, andrea@suse.de,
+       tglx@linutronix.de, pmarques@grupopie.com, bruce@andrew.cmu.edu,
+       nickpiggin@yahoo.com.au, ak@muc.de, sdietrich@mvista.com,
+       dwalker@mvista.com, hch@infradead.org, akpm@osdl.org,
+       Philippe Gerum <rpm@xenomai.org>
+Subject: Re: PREEMPT_RT vs I-PIPE: the numbers, part 2
+Message-ID: <20050622174009.GA26059@elte.hu>
+References: <1119287612.6863.1.camel@localhost> <20050621015542.GB1298@us.ibm.com> <42B77B8C.6050109@opersys.com> <20050622011931.GF1324@us.ibm.com> <42B9845B.8030404@opersys.com> <20050622162718.GD1296@us.ibm.com> <1119460803.5825.13.camel@localhost> <20050622173449.GA22474@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <17081.20441.714191.528270@segfault.boston.redhat.com>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20050622173449.GA22474@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 22, 2005 at 07:47:37AM -0400, Jeff Moyer wrote:
-> mpm> Hmm. It's conceivable we'll want netdump and kgdb on the same
-> mpm> interface so we'll have to address this eventually..
-> 
-> Well, do you want to address it eventually, or now?  As I said, it's never
-> bitten anyone before.
 
-Later's fine. I just don't want to design it out by accident again.
- 
-> >> struct netpoll_info {
-> >> spinlock_t poll_lock;
-> >> int poll_owner;
-> >> int rx_flags;
-> >> spinlock_t rx_lock;
-> >> struct netpoll *rx_np; /* netpoll that registered an rx_hook */
-> >> };
-> >> 
-> >> This is the structure which gets pointed to by the net_device.  All of the
-> >> flags and locks which are specific to the INTERFACE go here.  Any variables
-> >> which must be kept per struct netpoll were left in the struct netpoll.  So
-> >> now, we have a cleaner separation of data and its scope.
-> >> 
-> >> Since we never really supported having more than one struct netpoll
-> >> register an rx_hook, I got rid of the rx_list.  This is replaced by a
-> >> single pointer in the netpoll_info structure (np_rx).  We still need to
-> >> protect addition or removal of the rx_np pointer, and so keep the lock
-> >> (rx_lock).  There is one lock per struct net_device, and I am certain that
-> >> it will be 0 contention, as rx_np will only be changed during an insmod or
-> >> rmmod.  If people think this would be a good rcu candidate, let me know and
-> >> I'll change it to use that locking scheme.
-> 
-> mpm> It might be simpler to have a single lock here..?
-> 
-> Maybe.  You can't really have netpoll code running on multiple cpus at the
-> same time, right?  This is the rx path, remember, so the other cpu should
-> be spinning on the poll_lock.
-> 
-> Keeping separate locks would allow you to unregister a struct netpoll
-> associated with another net device without causing lock contention.  This
-> is a very minor win, obviously.
-> 
-> I still feel like this npinfo struct is the right place for this, though.
-> If you're strongly opposed to that, I'll change it.
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-No, certainly having it in npinfo makes sense. I just was wondering if
-we really need two locks in there.
-
-> >> +	spin_lock_irqsave(&npinfo->rx_lock, flags);
-> >> +	if (npinfo->rx_np->dev == skb->dev)
-> >> +		np = npinfo->rx_np;
-> >> +	spin_unlock_irqrestore(&npinfo->rx_lock, flags);
 > 
-> mpm> And I think that means we don't need the lock here either.  
+> * Kristian Benoit <kbenoit@opersys.com> wrote:
 > 
-> Sure we do.  We need to protect against rmmod's.
-
-How can we have an rmmmod when we're trapped?
-
-> >> static inline int netpoll_rx(struct sk_buff *skb)
-> >> {
-> >> -	return skb->dev->np && skb->dev->np->rx_flags && __netpoll_rx(skb);
-> >> +	struct netpoll_info *npinfo = skb->dev->npinfo;
-> >> +	unsigned long flags;
-> >> +	int ret = 0;
-> >> +
-> >> +	if (!npinfo || (!npinfo->rx_np && !npinfo->rx_flags))
-> >> +		return 0;
-> >> +
-> >> +	spin_lock_irqsave(&npinfo->rx_lock, flags);
-> >> +	/* check rx_flags again with the lock held */
-> >> +	if (npinfo->rx_flags && __netpoll_rx(skb))
-> >> +		ret = 1;
-> >> +	spin_unlock_irqrestore(&npinfo->rx_lock, flags);
-> >> +
-> >> +	return ret;
-> >> }
+> > Your analysis is correct, but with 600,000 samples, it is possible 
+> > that we got 2 peeks (perhaps not maximum), one on the logger and one 
+> > on the target. So in my point of view, the maximum value is probably 
+> > somewhere between 55us / 2 and 55us - 7us. And probably closer to 55us 
+> > / 2.
 > 
-> mpm> This is perhaps a problem due to cache line bouncing. Perhaps we can
-> mpm> use an atomic op and a memory barrier instead?
-> 
-> It really should be a 0 contention lock.  Let's not optimize something that
-> doesn't need it.  If we find that it causes problems, I'll be more than
-> happy to fix it.
+> you could try the LPPTEST kernel driver and testlpp utility i 
+> integrated into the -RT patchset. It avoids target-side latencies 
+> almost completely. Especially since you had problems with parallel 
+> interrupts you should give it a go and compare the results.
 
-Ok, fair enough.
+correction: logger-side latencies are avoided.
 
--- 
-Mathematics is the supreme nostalgia of our time.
+	Ingo

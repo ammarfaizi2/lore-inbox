@@ -1,72 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261552AbVFVPlj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261592AbVFVPlk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261552AbVFVPlj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 11:41:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261526AbVFVPg3
+	id S261592AbVFVPlk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 11:41:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261475AbVFVPbi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 11:36:29 -0400
-Received: from opersys.com ([64.40.108.71]:60172 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261458AbVFVPcr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 11:32:47 -0400
-Subject: Re: PREEMPT_RT vs I-PIPE: the numbers, part 2
-From: Kristian Benoit <kbenoit@opersys.com>
-To: Karim Yaghmour <karim@opersys.com>
-Cc: paulmck@us.ibm.com, linux-kernel@vger.kernel.org, bhuey@lnxw.com,
-       andrea@suse.de, tglx@linutronix.de, mingo@elte.hu,
-       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
-       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, Philippe Gerum <rpm@xenomai.org>
-In-Reply-To: <42B9845B.8030404@opersys.com>
-References: <1119287612.6863.1.camel@localhost>
-	 <20050621015542.GB1298@us.ibm.com> <42B77B8C.6050109@opersys.com>
-	 <20050622011931.GF1324@us.ibm.com>  <42B9845B.8030404@opersys.com>
-Content-Type: text/plain
-Date: Wed, 22 Jun 2005 11:27:58 -0400
-Message-Id: <1119454078.5825.4.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+	Wed, 22 Jun 2005 11:31:38 -0400
+Received: from adsl-68-248-203-41.dsl.milwwi.ameritech.net ([68.248.203.41]:42171
+	"EHLO eagle.netwrx1.com") by vger.kernel.org with ESMTP
+	id S261526AbVFVP20 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 11:28:26 -0400
+Date: Wed, 22 Jun 2005 10:28:25 -0500 (CDT)
+From: George Kasica <georgek@netwrx1.com>
+To: linux-kernel@vger.kernel.org
+Subject: Problem compiling 2.6.12
+Message-ID: <Pine.LNX.4.62.0506221026130.4837@eagle.netwrx1.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-06-22 at 11:31 -0400, Karim Yaghmour wrote:
->                      +----------+
->                      |   HOST   |
->                      +----------+
->                           |
->                           |
->                           | Ethernet LAN
->                           |
->                          / \
->                         /   \
->                        /     \
->                       /       \
->                      /         \
->                     /           \
->                    /             \
->             +--------+  SERIAL  +--------+
->             | LOGGER |----------| TARGET |
->             +--------+          +--------+
+Hello:
 
-Karim mean:
-                     +----------+
-                     |   HOST   |
-                     +----------+
-                          |
-                          |
-                          | Ethernet LAN
-                          |
-                         / \
-                        /   \
-                       /     \
-                      /       \
-                     /         \
-                    /           \
-                   /             \
-            +--------+ PARALLEL +--------+
-            | LOGGER |----------| TARGET |
-            +--------+          +--------+
+Trying to compile 2.6.12 here and am getting the following error. I am 
+currently running 2.4.31 and have upgraded the needed bits per the Change 
+document before trying the build:
 
-Kristian
+[root@eagle src]# cd linux
+[root@eagle linux]# make mrproper
+   CLEAN   .config
+[root@eagle linux]# cp ../config-2.4.31 .config
+[root@eagle linux]# make oldconfig
+   HOSTCC  scripts/basic/fixdep
+In file included from /usr/local/include/netinet/in.h:212,
+                  from /usr/local/include/arpa/inet.h:23,
+                  from scripts/basic/fixdep.c:115:
+/usr/local/include/bits/socket.h:304: asm/socket.h: No such file or 
+directory
+make[1]: *** [scripts/basic/fixdep] Error 1
+make: *** [scripts_basic] Error 2
 
+Any help is appreciated, 2.4.31 will compile just fine and I am trying 
+make oldconfig with 2.6.12
+
+George
+georgek@netwrx1.com

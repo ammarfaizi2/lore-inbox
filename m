@@ -1,63 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262373AbVFVWEs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262562AbVFVWNY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262373AbVFVWEs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 18:04:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262538AbVFVWEf
+	id S262562AbVFVWNY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 18:13:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262087AbVFVWKF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 18:04:35 -0400
-Received: from gate.ebshome.net ([64.81.67.12]:55492 "EHLO gate.ebshome.net")
-	by vger.kernel.org with ESMTP id S262539AbVFVV60 (ORCPT
+	Wed, 22 Jun 2005 18:10:05 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:8154 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262537AbVFVWJA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 17:58:26 -0400
-Date: Wed, 22 Jun 2005 14:58:18 -0700
-From: Eugene Surovegin <ebs@ebshome.net>
-To: Kumar Gala <galak@freescale.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linuxppc-embedded <linuxppc-embedded@ozlabs.org>
-Subject: Re: [PATCH] ppc32: Add support for Freescale e200 (Book-E) core
-Message-ID: <20050622215818.GA15176@gate.ebshome.net>
-Mail-Followup-To: Kumar Gala <galak@freescale.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	linuxppc-embedded <linuxppc-embedded@ozlabs.org>
-References: <Pine.LNX.4.61.0506221539470.3206@nylon.am.freescale.net>
+	Wed, 22 Jun 2005 18:09:00 -0400
+Date: Wed, 22 Jun 2005 15:08:38 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org,
+       stable@kernel.org
+Subject: Re: Linux 2.6.12.1
+Message-ID: <20050622220838.GW9046@shell0.pdx.osdl.net>
+References: <20050622220713.GV9046@shell0.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0506221539470.3206@nylon.am.freescale.net>
-X-ICQ-UIN: 1193073
-X-Operating-System: Linux i686
-X-PGP-Key: http://www.ebshome.net/pubkey.asc
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <20050622220713.GV9046@shell0.pdx.osdl.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 22, 2005 at 03:41:09PM -0500, Kumar Gala wrote:
-
-[snip]
-
-> +#ifdef CONFIG_E200
-> +#define DEBUG_EXCEPTION							      \
-> +	START_EXCEPTION(Debug);						      \
-> +	DEBUG_EXCEPTION_PROLOG;						      \
-> +									      \
-> +	/*								      \
-> +	 * If there is a single step or branch-taken exception in an	      \
-> +	 * exception entry sequence, it was probably meant to apply to	      \
-> +	 * the code where the exception occurred (since exception entry	      \
-> +	 * doesn't turn off DE automatically).  We simulate the effect	      \
-> +	 * of turning off DE on entry to an exception handler by turning      \
-> +	 * off DE in the CSRR1 value and clearing the debug status.	      \
-> +	 */								      \
-> +	mfspr	r10,SPRN_DBSR;		/* check single-step/branch taken */  \
-> +	andis.	r10,r10,DBSR_IC@h;					      \
-> +	beq+	2f;							      \
-> +									      \
-> +	lis	r10,KERNELBASE@h;	/* check if exception in vectors */   \
-> +	ori	r10,r10,KERNELBASE@l;					      \
-
-I think we can get rid of one instruction here :)
-
--- 
-Eugene
-
-
+diff --git a/Makefile b/Makefile
+--- a/Makefile
++++ b/Makefile
+@@ -1,7 +1,7 @@
+ VERSION = 2
+ PATCHLEVEL = 6
+ SUBLEVEL = 12
+-EXTRAVERSION =
++EXTRAVERSION = .1
+ NAME=Woozy Numbat
+ 
+ # *DOCUMENTATION*
+diff --git a/arch/ia64/kernel/ptrace.c b/arch/ia64/kernel/ptrace.c
+--- a/arch/ia64/kernel/ptrace.c
++++ b/arch/ia64/kernel/ptrace.c
+@@ -945,6 +945,13 @@ access_uarea (struct task_struct *child,
+ 				*data = (pt->cr_ipsr & IPSR_MASK);
+ 			return 0;
+ 
++		      case PT_AR_RSC:
++			if (write_access)
++				pt->ar_rsc = *data | (3 << 2); /* force PL3 */
++			else
++				*data = pt->ar_rsc;
++			return 0;
++
+ 		      case PT_AR_RNAT:
+ 			urbs_end = ia64_get_user_rbs_end(child, pt, NULL);
+ 			rnat_addr = (long) ia64_rse_rnat_addr((long *)
+@@ -996,9 +1003,6 @@ access_uarea (struct task_struct *child,
+ 		      case PT_AR_BSPSTORE:
+ 			ptr = pt_reg_addr(pt, ar_bspstore);
+ 			break;
+-		      case PT_AR_RSC:
+-			ptr = pt_reg_addr(pt, ar_rsc);
+-			break;
+ 		      case PT_AR_UNAT:
+ 			ptr = pt_reg_addr(pt, ar_unat);
+ 			break;
+@@ -1234,7 +1238,7 @@ ptrace_getregs (struct task_struct *chil
+ static long
+ ptrace_setregs (struct task_struct *child, struct pt_all_user_regs __user *ppr)
+ {
+-	unsigned long psr, ec, lc, rnat, bsp, cfm, nat_bits, val = 0;
++	unsigned long psr, rsc, ec, lc, rnat, bsp, cfm, nat_bits, val = 0;
+ 	struct unw_frame_info info;
+ 	struct switch_stack *sw;
+ 	struct ia64_fpreg fpval;
+@@ -1267,7 +1271,7 @@ ptrace_setregs (struct task_struct *chil
+ 	/* app regs */
+ 
+ 	retval |= __get_user(pt->ar_pfs, &ppr->ar[PT_AUR_PFS]);
+-	retval |= __get_user(pt->ar_rsc, &ppr->ar[PT_AUR_RSC]);
++	retval |= __get_user(rsc, &ppr->ar[PT_AUR_RSC]);
+ 	retval |= __get_user(pt->ar_bspstore, &ppr->ar[PT_AUR_BSPSTORE]);
+ 	retval |= __get_user(pt->ar_unat, &ppr->ar[PT_AUR_UNAT]);
+ 	retval |= __get_user(pt->ar_ccv, &ppr->ar[PT_AUR_CCV]);
+@@ -1365,6 +1369,7 @@ ptrace_setregs (struct task_struct *chil
+ 	retval |= __get_user(nat_bits, &ppr->nat);
+ 
+ 	retval |= access_uarea(child, PT_CR_IPSR, &psr, 1);
++	retval |= access_uarea(child, PT_AR_RSC, &rsc, 1);
+ 	retval |= access_uarea(child, PT_AR_EC, &ec, 1);
+ 	retval |= access_uarea(child, PT_AR_LC, &lc, 1);
+ 	retval |= access_uarea(child, PT_AR_RNAT, &rnat, 1);
+diff --git a/arch/ia64/kernel/signal.c b/arch/ia64/kernel/signal.c
+--- a/arch/ia64/kernel/signal.c
++++ b/arch/ia64/kernel/signal.c
+@@ -94,7 +94,7 @@ sys_sigaltstack (const stack_t __user *u
+ static long
+ restore_sigcontext (struct sigcontext __user *sc, struct sigscratch *scr)
+ {
+-	unsigned long ip, flags, nat, um, cfm;
++	unsigned long ip, flags, nat, um, cfm, rsc;
+ 	long err;
+ 
+ 	/* Always make any pending restarted system calls return -EINTR */
+@@ -106,7 +106,7 @@ restore_sigcontext (struct sigcontext __
+ 	err |= __get_user(ip, &sc->sc_ip);			/* instruction pointer */
+ 	err |= __get_user(cfm, &sc->sc_cfm);
+ 	err |= __get_user(um, &sc->sc_um);			/* user mask */
+-	err |= __get_user(scr->pt.ar_rsc, &sc->sc_ar_rsc);
++	err |= __get_user(rsc, &sc->sc_ar_rsc);
+ 	err |= __get_user(scr->pt.ar_unat, &sc->sc_ar_unat);
+ 	err |= __get_user(scr->pt.ar_fpsr, &sc->sc_ar_fpsr);
+ 	err |= __get_user(scr->pt.ar_pfs, &sc->sc_ar_pfs);
+@@ -119,6 +119,7 @@ restore_sigcontext (struct sigcontext __
+ 	err |= __copy_from_user(&scr->pt.r15, &sc->sc_gr[15], 8);	/* r15 */
+ 
+ 	scr->pt.cr_ifs = cfm | (1UL << 63);
++	scr->pt.ar_rsc = rsc | (3 << 2); /* force PL3 */
+ 
+ 	/* establish new instruction pointer: */
+ 	scr->pt.cr_iip = ip & ~0x3UL;
+diff --git a/fs/exec.c b/fs/exec.c
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -649,6 +649,7 @@ static inline int de_thread(struct task_
+ 	}
+ 	sig->group_exit_task = NULL;
+ 	sig->notify_count = 0;
++	sig->real_timer.data = (unsigned long)current;
+ 	spin_unlock_irq(lock);
+ 
+ 	/*

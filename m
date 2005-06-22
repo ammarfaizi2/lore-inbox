@@ -1,36 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261800AbVFVXuS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261220AbVFVX4G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261800AbVFVXuS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 19:50:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261689AbVFVXqn
+	id S261220AbVFVX4G (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 19:56:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261689AbVFVX4G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 19:46:43 -0400
-Received: from mx2.suse.de ([195.135.220.15]:19892 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S262596AbVFVXhQ (ORCPT
+	Wed, 22 Jun 2005 19:56:06 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:22495 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261220AbVFVXya (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 19:37:16 -0400
-Date: Thu, 23 Jun 2005 01:37:09 +0200
-From: Andi Kleen <ak@suse.de>
-To: YhLu <YhLu@tyan.com>
-Cc: Peter Buckingham <peter@pantasys.com>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12 with dual way dual core ck804 MB
-Message-ID: <20050622233709.GE14251@wotan.suse.de>
-References: <3174569B9743D511922F00A0C94314230AF96F9B@TYANWEB>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3174569B9743D511922F00A0C94314230AF96F9B@TYANWEB>
+	Wed, 22 Jun 2005 19:54:30 -0400
+Date: Wed, 22 Jun 2005 19:54:26 -0400 (EDT)
+From: Rik Van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Stuart_Hayes@Dell.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: page allocation/attributes question (i386/x86_64 specific)
+In-Reply-To: <7A8F92187EF7A249BF847F1BF4903C040240AE3C@ausx2kmpc103.aus.amer.dell.com>
+Message-ID: <Pine.LNX.4.61.0506221954080.17731@chimarrao.boston.redhat.com>
+References: <7A8F92187EF7A249BF847F1BF4903C040240AE3C@ausx2kmpc103.aus.amer.dell.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 22, 2005 at 04:37:37PM -0700, YhLu wrote:
-> andi,
-> 
-> do you mean the apic id lifting for opteron?
+On Wed, 22 Jun 2005 Stuart_Hayes@Dell.com wrote:
 
-Yes, with local APIC numbers > 8 physical mode needs
-to be used because logical mode only supports 8.
+> My question is this:  when split_large_page() is called, should it make
+> the other 511 PTEs inherit the page attributes from the large page (with
+> the exception of PAGE_PSE, obviously)?
 
--Andi
+I suspect it should.
 
+-- 
+The Theory of Escalating Commitment: "The cost of continuing mistakes is
+borne by others, while the cost of admitting mistakes is borne by yourself."
+  -- Joseph Stiglitz, Nobel Laureate in Economics

@@ -1,48 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262868AbVFVJWB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262777AbVFVJbd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262868AbVFVJWB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 05:22:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262944AbVFVJRD
+	id S262777AbVFVJbd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 05:31:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262843AbVFVJ21
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 05:17:03 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:60126 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262930AbVFVJNT (ORCPT
+	Wed, 22 Jun 2005 05:28:27 -0400
+Received: from [85.8.12.41] ([85.8.12.41]:32440 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S262777AbVFVJWC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 05:13:19 -0400
-Date: Wed, 22 Jun 2005 02:12:51 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: pavel@ucw.cz, linux-kernel@vger.kernel.org
-Subject: Re: -mm -> 2.6.13 merge status (fuse)
-Message-Id: <20050622021251.5137179f.akpm@osdl.org>
-In-Reply-To: <E1Dl1Ce-0007BO-00@dorka.pomaz.szeredi.hu>
-References: <20050620235458.5b437274.akpm@osdl.org>
-	<E1Dkfu2-0005Ju-00@dorka.pomaz.szeredi.hu>
-	<20050621142820.GC2015@openzaurus.ucw.cz>
-	<E1DkkRE-0005mt-00@dorka.pomaz.szeredi.hu>
-	<20050621220619.GC2815@elf.ucw.cz>
-	<E1Dkyas-0006wu-00@dorka.pomaz.szeredi.hu>
-	<20050621233914.69a5c85e.akpm@osdl.org>
-	<E1DkzTO-00072F-00@dorka.pomaz.szeredi.hu>
-	<20050622004902.796fa977.akpm@osdl.org>
-	<E1Dl1Ce-0007BO-00@dorka.pomaz.szeredi.hu>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 22 Jun 2005 05:22:02 -0400
+Message-ID: <42B92D92.7070304@drzeus.cx>
+Date: Wed, 22 Jun 2005 11:21:22 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bernd Petrovitsch <bernd@firmix.at>
+CC: Roman Zippel <zippel@linux-m68k.org>, kbuild-devel@lists.sourceforge.net,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Pointer cast warnings in scripts/
+References: <42B7F740.6000807@drzeus.cx>	 <Pine.LNX.4.61.0506211413570.3728@scrub.home> <42B80AF9.2060708@drzeus.cx>	 <Pine.LNX.4.61.0506211451040.3728@scrub.home>  <42B80F40.8000609@drzeus.cx> <1119359653.18845.55.camel@tara.firmix.at>
+In-Reply-To: <1119359653.18845.55.camel@tara.firmix.at>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miklos Szeredi <miklos@szeredi.hu> wrote:
->
-> > Can we enhance private namespaces so they can squash setuid/setgid?  If so,
->  > is that adequate?
-> 
->  We could.  But that would again be overly restrictive.  The goal is to
->  make the use of FUSE filesystems for users as simple as possible.  If
->  the user has to manage multiple namespaces, each with it's own
->  restrictions, it's becoming a very un-user-friendly environment.
+Bernd Petrovitsch wrote:
 
-I'd have thought that it would be possible to offer the same user interface
-as you currently have with private namespaces.  Hide any complexity in the
-userspace tools?  Where's the problem?
+>
+>The C-standard about "char", "signed char" and "unsigned char"?
+>These are 3 different types.
+>
+>  
+>
+
+I was referring to which of the three types is correct for str*().
+
+Rgds
+Pierre
+

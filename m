@@ -1,41 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262604AbVFVEIQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262605AbVFVEIK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262604AbVFVEIQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 00:08:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262709AbVFVEIQ
+	id S262605AbVFVEIK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 00:08:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262712AbVFVEIJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 00:08:16 -0400
-Received: from wproxy.gmail.com ([64.233.184.204]:63566 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262604AbVFVEIE convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 00:08:04 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=b0lNCDZ3OC8udJygLoRyHR1SA2/5SkiTbLhhhq5n4KkEbI0+dQ0AX8sAElPi3b7aRhS73mMlr39cnJrtYr79CCNeG12yrgKqQ6IUaaaT3/A2H1qbm8oFP0bFDNuuDFHTauOZVh2nFYraq5ajscRO8m1eKjzKaPDs6JO/YWD1IL8=
-Message-ID: <c1e1128f0506212108243e2c3b@mail.gmail.com>
-Date: Wed, 22 Jun 2005 12:08:04 +0800
-From: David Teigland <dteigland@gmail.com>
-Reply-To: teigland@redhat.com
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: -mm -> 2.6.13 merge status (configfs)
+	Wed, 22 Jun 2005 00:08:09 -0400
+Received: from titan.genwebhost.com ([209.9.226.66]:34719 "EHLO
+	titan.genwebhost.com") by vger.kernel.org with ESMTP
+	id S262598AbVFVEIA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 00:08:00 -0400
+Date: Tue, 21 Jun 2005 21:07:55 -0700
+From: randy_dunlap <rdunlap@xenotime.net>
+To: Anil kumar <anils_r@yahoo.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050620235458.5b437274.akpm@osdl.org>
+Subject: Re: "no version for struct_module: found" error
+Message-Id: <20050621210755.4d074318.rdunlap@xenotime.net>
+In-Reply-To: <20050622010432.49221.qmail@web32409.mail.mud.yahoo.com>
+References: <20050622010432.49221.qmail@web32409.mail.mud.yahoo.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050620235458.5b437274.akpm@osdl.org>
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - titan.genwebhost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - xenotime.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/21/05, Andrew Morton <akpm@osdl.org> wrote:
-> git-ocfs
-> 
->     The OCFS2 filesystem.  OK by me, although I'm not sure it's had enough
->     review.
+On Tue, 21 Jun 2005 18:04:32 -0700 (PDT) Anil kumar wrote:
 
-Does this include configfs?  I'd especially like to see that sooner
-rather than later.
+| Hi,
+| 
+| I am loading an non-gpl module. I am getting error:
+| "no version for struct_module found":tainted kernel.
+| 
+| Its for > 2.6.8 kernels.
+| 
+| I know that I get tainted kernel error when its not
+| GPL, but what does the error "no version for
+| struct_module found" mean?
 
-Dave
+That the kernel was built with CONFIG_MODVERSIONS=y but the
+module was built with CONFIG_MODVERSIONS=n (i.e., without
+symbol versioning information).
+
+| How to get rid of this?
+
+Build the kernel and module with the same config options.
+
+| I checked the module.c under kernel dir, I guess I am
+| getting this error for 
+| if(!(tainted & TAINTED_FORCED_MODULE)...
+
+Yes.
+
+---
+~Randy

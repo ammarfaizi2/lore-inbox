@@ -1,166 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262531AbVFVVhT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262386AbVFVV1u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262531AbVFVVhT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 17:37:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262549AbVFVVfL
+	id S262386AbVFVV1u (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 17:27:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262540AbVFVV0v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 17:35:11 -0400
-Received: from de01egw01.freescale.net ([192.88.165.102]:5347 "EHLO
-	de01egw01.freescale.net") by vger.kernel.org with ESMTP
-	id S262517AbVFVV2R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 17:28:17 -0400
-Date: Wed, 22 Jun 2005 16:27:53 -0500 (CDT)
-From: Kumar Gala <galak@freescale.com>
-X-X-Sender: galak@nylon.am.freescale.net
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org,
-       linuxppc-embedded <linuxppc-embedded@ozlabs.org>, jdl@freescale.com
-Subject: [PATCH] ppc32: remove some unnecessary includes of bootmem.h
-Message-ID: <Pine.LNX.4.61.0506221626280.3350@nylon.am.freescale.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 22 Jun 2005 17:26:51 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:31428 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262301AbVFVVTs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 17:19:48 -0400
+Date: Wed, 22 Jun 2005 14:20:14 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Kristian Benoit <kbenoit@opersys.com>, Karim Yaghmour <karim@opersys.com>,
+       linux-kernel@vger.kernel.org, bhuey@lnxw.com, andrea@suse.de,
+       tglx@linutronix.de, pmarques@grupopie.com, bruce@andrew.cmu.edu,
+       nickpiggin@yahoo.com.au, ak@muc.de, sdietrich@mvista.com,
+       dwalker@mvista.com, hch@infradead.org, akpm@osdl.org,
+       Philippe Gerum <rpm@xenomai.org>
+Subject: Re: PREEMPT_RT vs I-PIPE: the numbers, part 2
+Message-ID: <20050622212014.GH1296@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <1119287612.6863.1.camel@localhost> <20050621015542.GB1298@us.ibm.com> <42B77B8C.6050109@opersys.com> <20050622011931.GF1324@us.ibm.com> <42B9845B.8030404@opersys.com> <20050622162718.GD1296@us.ibm.com> <1119460803.5825.13.camel@localhost> <20050622185019.GG1296@us.ibm.com> <20050622190422.GA6572@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050622190422.GA6572@elte.hu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Continue the Good Fight:  Limit bootmem.h include creep.
+On Wed, Jun 22, 2005 at 09:04:22PM +0200, Ingo Molnar wrote:
+> 
+> * Paul E. McKenney <paulmck@us.ibm.com> wrote:
+> 
+> > Any way of getting the logger's latency separately?  Or the target's?
+> 
+> with lpptest (PREEMPT_RT's built-in parallel-port latency driver) that's 
+> possible, as it polls the target with interrupts disabled, eliminating 
+> much of the logger-side latencies. The main effect is that it's now only 
+> a single worst-case latency that is measured, instead of having to have 
+> two worst-cases meet.
+> 
+> Here's a rough calculation to show what the stakes are: if there's a 
+> 1:100000 chance to trigger a worst-case irq handling latency, and you 
+> have 600000 samples, then with lpptest you'll see an average of 6 events 
+> during the measurement. With lrtfb (the one Karim used) the chance to 
+> see both of these worst-case latencies on both sides of the measurement 
+> is 1:10000000000, and you'd see 0.00006 of them during the measurement.  
+> I.e. the chances of seeing the true max latency are pretty slim.
 
-Signed-off-by: Jon Loeliger <jdl@freescale.com>
-Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
+My concern exactly!
 
----
-commit abb3b231caa4b32fbd41dc5d59e09754854b786f
-tree ec2bfdad42d1227f3aabee400a6a6c6e277a756f
-parent 0db0912993b08ae4870aa370db5e5e6f83f2c5a3
-author Kumar K. Gala <kumar.gala@freescale.com> Wed, 22 Jun 2005 18:05:00 -0500
-committer Kumar K. Gala <kumar.gala@freescale.com> Wed, 22 Jun 2005 18:05:00 -0500
+> So if you want to reliably measure worst-case latencies in your expected 
+> lifetime, you truly never want to serially couple the probabilities of 
+> worst-case latencies on the target and the logger side.
 
- arch/ppc/mm/44x_mmu.c          |    1 -
- arch/ppc/mm/4xx_mmu.c          |    1 -
- arch/ppc/mm/fsl_booke_mmu.c    |    1 -
- arch/ppc/platforms/chrp_pci.c  |    1 -
- arch/ppc/platforms/katana.c    |    2 +-
- arch/ppc/platforms/pmac_pci.c  |    1 -
- arch/ppc/syslib/cpm2_common.c  |    2 +-
- arch/ppc/syslib/indirect_pci.c |    1 -
- arch/ppc/syslib/mv64x60.c      |    1 -
- arch/ppc/syslib/mv64x60_win.c  |    1 -
- 10 files changed, 2 insertions(+), 10 deletions(-)
+Sounds more practical than the analytical approach!  (Take the Laplace
+transform of the density function, square root, and then take the inverse
+Laplace transform, if I remember correctly...  Which would end up
+showing a small probability of the maximum latency being the full
+amount, which ends up really not telling you anything.)
 
-diff --git a/arch/ppc/mm/44x_mmu.c b/arch/ppc/mm/44x_mmu.c
---- a/arch/ppc/mm/44x_mmu.c
-+++ b/arch/ppc/mm/44x_mmu.c
-@@ -39,7 +39,6 @@
- #include <linux/vmalloc.h>
- #include <linux/init.h>
- #include <linux/delay.h>
--#include <linux/bootmem.h>
- #include <linux/highmem.h>
- 
- #include <asm/pgalloc.h>
-diff --git a/arch/ppc/mm/4xx_mmu.c b/arch/ppc/mm/4xx_mmu.c
---- a/arch/ppc/mm/4xx_mmu.c
-+++ b/arch/ppc/mm/4xx_mmu.c
-@@ -36,7 +36,6 @@
- #include <linux/vmalloc.h>
- #include <linux/init.h>
- #include <linux/delay.h>
--#include <linux/bootmem.h>
- #include <linux/highmem.h>
- 
- #include <asm/pgalloc.h>
-diff --git a/arch/ppc/mm/fsl_booke_mmu.c b/arch/ppc/mm/fsl_booke_mmu.c
---- a/arch/ppc/mm/fsl_booke_mmu.c
-+++ b/arch/ppc/mm/fsl_booke_mmu.c
-@@ -41,7 +41,6 @@
- #include <linux/vmalloc.h>
- #include <linux/init.h>
- #include <linux/delay.h>
--#include <linux/bootmem.h>
- #include <linux/highmem.h>
- 
- #include <asm/pgalloc.h>
-diff --git a/arch/ppc/platforms/chrp_pci.c b/arch/ppc/platforms/chrp_pci.c
---- a/arch/ppc/platforms/chrp_pci.c
-+++ b/arch/ppc/platforms/chrp_pci.c
-@@ -9,7 +9,6 @@
- #include <linux/string.h>
- #include <linux/init.h>
- #include <linux/ide.h>
--#include <linux/bootmem.h>
- 
- #include <asm/io.h>
- #include <asm/pgtable.h>
-diff --git a/arch/ppc/platforms/katana.c b/arch/ppc/platforms/katana.c
---- a/arch/ppc/platforms/katana.c
-+++ b/arch/ppc/platforms/katana.c
-@@ -27,12 +27,12 @@
- #include <linux/root_dev.h>
- #include <linux/delay.h>
- #include <linux/seq_file.h>
--#include <linux/bootmem.h>
- #include <linux/mtd/physmap.h>
- #include <linux/mv643xx.h>
- #ifdef CONFIG_BOOTIMG
- #include <linux/bootimg.h>
- #endif
-+#include <asm/io.h>
- #include <asm/page.h>
- #include <asm/time.h>
- #include <asm/smp.h>
-diff --git a/arch/ppc/platforms/pmac_pci.c b/arch/ppc/platforms/pmac_pci.c
---- a/arch/ppc/platforms/pmac_pci.c
-+++ b/arch/ppc/platforms/pmac_pci.c
-@@ -17,7 +17,6 @@
- #include <linux/delay.h>
- #include <linux/string.h>
- #include <linux/init.h>
--#include <linux/bootmem.h>
- 
- #include <asm/sections.h>
- #include <asm/io.h>
-diff --git a/arch/ppc/syslib/cpm2_common.c b/arch/ppc/syslib/cpm2_common.c
---- a/arch/ppc/syslib/cpm2_common.c
-+++ b/arch/ppc/syslib/cpm2_common.c
-@@ -21,8 +21,8 @@
- #include <linux/string.h>
- #include <linux/mm.h>
- #include <linux/interrupt.h>
--#include <linux/bootmem.h>
- #include <linux/module.h>
-+#include <asm/io.h>
- #include <asm/irq.h>
- #include <asm/mpc8260.h>
- #include <asm/page.h>
-diff --git a/arch/ppc/syslib/indirect_pci.c b/arch/ppc/syslib/indirect_pci.c
---- a/arch/ppc/syslib/indirect_pci.c
-+++ b/arch/ppc/syslib/indirect_pci.c
-@@ -14,7 +14,6 @@
- #include <linux/delay.h>
- #include <linux/string.h>
- #include <linux/init.h>
--#include <linux/bootmem.h>
- 
- #include <asm/io.h>
- #include <asm/prom.h>
-diff --git a/arch/ppc/syslib/mv64x60.c b/arch/ppc/syslib/mv64x60.c
---- a/arch/ppc/syslib/mv64x60.c
-+++ b/arch/ppc/syslib/mv64x60.c
-@@ -17,7 +17,6 @@
- #include <linux/slab.h>
- #include <linux/module.h>
- #include <linux/string.h>
--#include <linux/bootmem.h>
- #include <linux/spinlock.h>
- #include <linux/mv643xx.h>
- 
-diff --git a/arch/ppc/syslib/mv64x60_win.c b/arch/ppc/syslib/mv64x60_win.c
---- a/arch/ppc/syslib/mv64x60_win.c
-+++ b/arch/ppc/syslib/mv64x60_win.c
-@@ -17,7 +17,6 @@
- #include <linux/slab.h>
- #include <linux/module.h>
- #include <linux/string.h>
--#include <linux/bootmem.h>
- #include <linux/mv643xx.h>
- 
- #include <asm/byteorder.h>
+							Thanx, Paul

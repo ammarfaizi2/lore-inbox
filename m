@@ -1,111 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261386AbVFVPbQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261470AbVFVPfC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261386AbVFVPbQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 11:31:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261475AbVFVP2K
+	id S261470AbVFVPfC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 11:35:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261533AbVFVPdQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 11:28:10 -0400
-Received: from opersys.com ([64.40.108.71]:48908 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261542AbVFVPUm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 11:20:42 -0400
-Message-ID: <42B9845B.8030404@opersys.com>
-Date: Wed, 22 Jun 2005 11:31:39 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+	Wed, 22 Jun 2005 11:33:16 -0400
+Received: from smtp1.brturbo.com.br ([200.199.201.163]:30883 "EHLO
+	smtp1.brturbo.com.br") by vger.kernel.org with ESMTP
+	id S261470AbVFVPaM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 11:30:12 -0400
+Message-ID: <42B983FF.4050804@brturbo.com.br>
+Date: Wed, 22 Jun 2005 12:30:07 -0300
+From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+User-Agent: Mozilla Thunderbird 1.0.2-3mdk (X11/20050322)
+X-Accept-Language: pt-br, pt, es, en-us, en
 MIME-Version: 1.0
-To: paulmck@us.ibm.com
-CC: Kristian Benoit <kbenoit@opersys.com>, linux-kernel@vger.kernel.org,
-       bhuey@lnxw.com, andrea@suse.de, tglx@linutronix.de, mingo@elte.hu,
-       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
-       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, rpm@xenomai.org
-Subject: Re: PREEMPT_RT vs I-PIPE: the numbers, part 2
-References: <1119287612.6863.1.camel@localhost> <20050621015542.GB1298@us.ibm.com> <42B77B8C.6050109@opersys.com> <20050622011931.GF1324@us.ibm.com>
-In-Reply-To: <20050622011931.GF1324@us.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Linux and Kernel Video <video4linux-list@redhat.com>
+Subject: [PATCH] V4L API new webcam formats included
+X-Enigmail-Version: 0.91.0.0
+Content-Type: multipart/mixed;
+ boundary="------------050900040701010603030502"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------050900040701010603030502
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-Paul E. McKenney wrote:
-> Probably just my not fully understanding I-PIPE (to say nothing of
-> not fully understanding your test setup!), but I would have expected
-> I-PIPE to be able to get somewhere in the handfuls of microseconds of
-> interrupt latency.  Looks like it prevents Linux from ever disabling
-> real interrupts -- my first guess after reading your email was that
-> Linux was disabling real interrupts and keeping I-PIPE from getting
-> there in time.
+Add Philips Webcam format.
 
-Have a look at the announcement just made by Kristian about the LRTBF.
-There's a tarball with all the code for the drivers, scripts and
-configs we used.
+Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+Signed-off-by: Luc Saillard <luc@saillard.org>.
+Signed-off-by: Nickolay V Shmyrev <nshmyrev@yandex.ru>
 
-Nevertheless, maybe it's worth that I clarify the setup further.
-Here's what we had:
+ linux/include/linux/videodev2.h |    2 ++
+ 1 files changed, 2 insertions(+)
 
-                     +----------+
-                     |   HOST   |
-                     +----------+
-                          |
-                          |
-                          | Ethernet LAN
-                          |
-                         / \
-                        /   \
-                       /     \
-                      /       \
-                     /         \
-                    /           \
-                   /             \
-            +--------+  SERIAL  +--------+
-            | LOGGER |----------| TARGET |
-            +--------+          +--------+
 
-The logger sends an interrupt to the target every 1ms. Here's the
-path travelled by this interrupt (L for logger, T for target):
+--------------050900040701010603030502
+Content-Type: text/x-patch;
+ name="v4l_patch03_v4l2_api.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="v4l_patch03_v4l2_api.patch"
 
-1- L:adeos-registered handler is called at timer interrupt
-2- L:record TSC for transmission
-3- L:write out to parallel port
-4- T:ipipe-registered handler called to receive interrupt
-5- T:write out to parallel port
-6- L:adeos-registered handler called to receive interrupt
-7- L:record TSC for receipt
+diff -u linux-2.6.12-mm1/include/linux/videodev2.h linux/include/linux/videodev2.h
+--- linux-2.6.12-mm1/include/linux/videodev2.h	2005-06-17 16:48:29.000000000 -0300
++++ linux/include/linux/videodev2.h	2005-06-22 01:29:48.000000000 -0300
+@@ -221,6 +221,8 @@
+ /*  Vendor-specific formats   */
+ #define V4L2_PIX_FMT_WNVA     v4l2_fourcc('W','N','V','A') /* Winnov hw compress */
+ #define V4L2_PIX_FMT_SN9C10X  v4l2_fourcc('S','9','1','0') /* SN9C10x compression */
++#define V4L2_PIX_FMT_PWC1     v4l2_fourcc('P','W','C','1') /* pwc older webcam */
++#define V4L2_PIX_FMT_PWC2     v4l2_fourcc('P','W','C','2') /* pwc newer webcam */
+ 
+ /*
+  *	F O R M A T   E N U M E R A T I O N
 
-The response times obtained include all that goes on from 2 to
-7, including all hardware-related delays. The target's true
-response time is from 3.5 to 5.5 (the .5 being the actual
-time it takes for the signal to reache the pins on the actual
-physical parallel port outside the computer.)
-
-The time from 2 to 3.5 includes the execution time for a few
-instructions (record TSC value to RAM and outb()) and the delay
-for the hardware to put the value out on the parallel port.
-
-The time from 5.5 to 7 includes an additional copy of adeos'
-interrupt response time. IOW, in all cases, we're at least
-recording adeos' interrupt response time at least once. Like
-we explained in our first posting (and as backed up by the
-data found in both postings) the adeos-to-adeos setup shows
-that this delay is bound. In fact, we can safely assume that
-2*max_ipipe_delay ~= 55us and that 2*average_ipipe_delay
-~= 14us. And therefore:
-
-max_ipipe_delay = 27.5us
-average_ipipe_delay = 7us
-max_preempt_delay = 55us - max_ipipe_delay = 27.5us
-average_preempt_delay = 14 us - average_ipipe_delay = 7us
-
-Presumably the 7us above should fit the "handful" you refer
-to. At least I hope.
-
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+--------------050900040701010603030502--

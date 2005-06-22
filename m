@@ -1,32 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261473AbVFVXq0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261800AbVFVXuS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261473AbVFVXq0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 19:46:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261599AbVFVXqZ
+	id S261800AbVFVXuS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 19:50:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261689AbVFVXqn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 19:46:25 -0400
-Received: from ns2.suse.de ([195.135.220.15]:50868 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261473AbVFVXne (ORCPT
+	Wed, 22 Jun 2005 19:46:43 -0400
+Received: from mx2.suse.de ([195.135.220.15]:19892 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S262596AbVFVXhQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 19:43:34 -0400
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Update: Industry db benchmark result
-References: <200506222115.j5MLFtg10364@unix-os.sc.intel.com.suse.lists.linux.kernel>
+	Wed, 22 Jun 2005 19:37:16 -0400
+Date: Thu, 23 Jun 2005 01:37:09 +0200
 From: Andi Kleen <ak@suse.de>
-Date: 23 Jun 2005 01:43:32 +0200
-In-Reply-To: <200506222115.j5MLFtg10364@unix-os.sc.intel.com.suse.lists.linux.kernel>
-Message-ID: <p738y12arff.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+To: YhLu <YhLu@tyan.com>
+Cc: Peter Buckingham <peter@pantasys.com>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12 with dual way dual core ck804 MB
+Message-ID: <20050622233709.GE14251@wotan.suse.de>
+References: <3174569B9743D511922F00A0C94314230AF96F9B@TYANWEB>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3174569B9743D511922F00A0C94314230AF96F9B@TYANWEB>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Chen, Kenneth W" <kenneth.w.chen@intel.com> writes:
+On Wed, Jun 22, 2005 at 04:37:37PM -0700, YhLu wrote:
+> andi,
 > 
-> It's been hovering around -13%.  
+> do you mean the apic id lifting for opteron?
 
-Do you have an educated guess where the 13% loss is comming from? 
+Yes, with local APIC numbers > 8 physical mode needs
+to be used because logical mode only supports 8.
 
 -Andi
+

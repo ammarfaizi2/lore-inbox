@@ -1,127 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262368AbVFVVQb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262389AbVFVV1v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262368AbVFVVQb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 17:16:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262346AbVFVVN7
+	id S262389AbVFVV1v (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 17:27:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262546AbVFVV1N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 17:13:59 -0400
-Received: from az33egw01.freescale.net ([192.88.158.102]:36094 "EHLO
-	az33egw01.freescale.net") by vger.kernel.org with ESMTP
-	id S262534AbVFVVHe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 17:07:34 -0400
-Date: Wed, 22 Jun 2005 16:07:28 -0500 (CDT)
-From: Kumar Gala <galak@freescale.com>
-X-X-Sender: galak@nylon.am.freescale.net
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org,
-       linuxppc-embedded <linuxppc-embedded@ozlabs.org>
-Subject: [PATCH] ppc32: Remove FSL OCP support
-Message-ID: <Pine.LNX.4.61.0506221606590.3291@nylon.am.freescale.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 22 Jun 2005 17:27:13 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:7099 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262363AbVFVVX1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 17:23:27 -0400
+Date: Wed, 22 Jun 2005 14:23:54 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Karim Yaghmour <karim@opersys.com>
+Cc: Kristian Benoit <kbenoit@opersys.com>, linux-kernel@vger.kernel.org,
+       bhuey@lnxw.com, andrea@suse.de, tglx@linutronix.de, mingo@elte.hu,
+       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
+       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org, rpm@xenomai.org
+Subject: Re: PREEMPT_RT vs I-PIPE: the numbers, part 2
+Message-ID: <20050622212354.GI1296@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <1119287612.6863.1.camel@localhost> <20050621015542.GB1298@us.ibm.com> <42B77B8C.6050109@opersys.com> <20050622011931.GF1324@us.ibm.com> <42B9845B.8030404@opersys.com> <20050622162718.GD1296@us.ibm.com> <42B9A6D6.4060109@opersys.com> <20050622184748.GF1296@us.ibm.com> <42B9B917.9010606@opersys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42B9B917.9010606@opersys.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Support for the OCP device model on Freescale (FSL) PPC's is no
-longer used.  All FSL PPC's that were using OCP have be converted
-to using the platform device model.
+On Wed, Jun 22, 2005 at 03:16:39PM -0400, Karim Yaghmour wrote:
+> 
+> Paul E. McKenney wrote:
+> > (And, yes, there are other CDFs lacking a 30us bulge that would be
+> > consistent with a 55us "blue-moon" bulge -- so I guess I am asking
+> > if you have the CDF or the raw latency measurements -- though the
+> > data set might be a bit large...  And I would have to think about
+> > how one goes about deriving individual-latency CDF(s) given a single
+> > dual-latency CDF, assuming that this is even possible...)
+> 
+> This is a bandwidth issue. The compressed archive containing the
+> interrupt latencies of all our test runs is 100MB. I could provide
+> a URL _privately_ to a handful of individuals, but beyond that
+> someone's going to have to host it.
+> 
+> Let me know if you want this.
 
-Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
+The approach of measuring the target's and the logger's latencies 
+separately is a -much- better approach than using strange mathematical
+techniques with strange mathematical assumptions.  So please don't
+waste any further time on my misguided request for the full data set!
 
----
-commit 0db0912993b08ae4870aa370db5e5e6f83f2c5a3
-tree 43ce59fdb048f1cfdc13972d4524d8378e2d73b3
-parent 8589d0b1ac6dc3ab9aaee30eb943c2d231e28685
-author Kumar K. Gala <kumar.gala@freescale.com> Wed, 22 Jun 2005 17:45:05 -0500
-committer Kumar K. Gala <kumar.gala@freescale.com> Wed, 22 Jun 2005 17:45:05 -0500
+> Of course, now that LRTBF is out there, others can generate their
+> own data sets.
 
- arch/ppc/Kconfig.debug    |    2 +-
- include/asm-ppc/fsl_ocp.h |   54 ---------------------------------------------
- include/asm-ppc/ocp.h     |    4 ---
- 3 files changed, 1 insertions(+), 59 deletions(-)
+True enough!
 
-diff --git a/arch/ppc/Kconfig.debug b/arch/ppc/Kconfig.debug
---- a/arch/ppc/Kconfig.debug
-+++ b/arch/ppc/Kconfig.debug
-@@ -66,7 +66,7 @@ config SERIAL_TEXT_DEBUG
- 
- config PPC_OCP
- 	bool
--	depends on IBM_OCP || FSL_OCP || XILINX_OCP
-+	depends on IBM_OCP || XILINX_OCP
- 	default y
- 
- endmenu
-diff --git a/include/asm-ppc/fsl_ocp.h b/include/asm-ppc/fsl_ocp.h
-deleted file mode 100644
---- a/include/asm-ppc/fsl_ocp.h
-+++ /dev/null
-@@ -1,54 +0,0 @@
--/*
-- * include/asm-ppc/fsl_ocp.h
-- *
-- * Definitions for the on-chip peripherals on Freescale PPC processors
-- *
-- * Maintainer: Kumar Gala (kumar.gala@freescale.com)
-- *
-- * Copyright 2004 Freescale Semiconductor, Inc
-- *
-- * This program is free software; you can redistribute  it and/or modify it
-- * under  the terms of  the GNU General  Public License as published by the
-- * Free Software Foundation;  either version 2 of the  License, or (at your
-- * option) any later version.
-- */
--
--#ifdef __KERNEL__
--#ifndef __ASM_FS_OCP_H__
--#define __ASM_FS_OCP_H__
--
--/* A table of information for supporting the Gianfar Ethernet Controller
-- * This helps identify which enet controller we are dealing with,
-- * and what type of enet controller it is
-- */
--struct ocp_gfar_data {
--	uint interruptTransmit;
--	uint interruptError;
--	uint interruptReceive;
--	uint interruptPHY;
--	uint flags;
--	uint phyid;
--	uint phyregidx;
--	unsigned char mac_addr[6];
--};
--
--/* Flags in the flags field */
--#define GFAR_HAS_COALESCE		0x20
--#define GFAR_HAS_RMON			0x10
--#define GFAR_HAS_MULTI_INTR		0x08
--#define GFAR_FIRM_SET_MACADDR		0x04
--#define GFAR_HAS_PHY_INTR		0x02	/* if not set use a timer */
--#define GFAR_HAS_GIGABIT		0x01
--
--/* Data structure for I2C support.  Just contains a couple flags
-- * to distinguish various I2C implementations*/
--struct ocp_fs_i2c_data {
--	uint flags;
--};
--
--/* Flags for I2C */
--#define FS_I2C_SEPARATE_DFSRR	0x02
--#define FS_I2C_CLOCK_5200	0x01
--
--#endif	/* __ASM_FS_OCP_H__ */
--#endif	/* __KERNEL__ */
-diff --git a/include/asm-ppc/ocp.h b/include/asm-ppc/ocp.h
---- a/include/asm-ppc/ocp.h
-+++ b/include/asm-ppc/ocp.h
-@@ -202,10 +202,6 @@ static DEVICE_ATTR(name##_##field, S_IRU
- #include <asm/ibm_ocp.h>
- #endif
- 
--#ifdef CONFIG_FSL_OCP
--#include <asm/fsl_ocp.h>
--#endif
--
- #endif				/* CONFIG_PPC_OCP */
- #endif				/* __OCP_H__ */
- #endif				/* __KERNEL__ */
+						Thanx, Paul

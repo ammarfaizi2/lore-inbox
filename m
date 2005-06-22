@@ -1,55 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262802AbVFVHv7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262872AbVFVIRb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262802AbVFVHv7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 03:51:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262823AbVFVHsu
+	id S262872AbVFVIRb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 04:17:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262931AbVFVINW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 03:48:50 -0400
-Received: from dvhart.com ([64.146.134.43]:43185 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S262843AbVFVGkB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 02:40:01 -0400
-Date: Tue, 21 Jun 2005 23:40:06 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: "David S. Miller" <davem@davemloft.net>, gregkh@suse.de
-Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] devfs: remove devfs from Kconfig preventing it from being built
-Message-ID: <258190000.1119422406@[10.10.2.4]>
-In-Reply-To: <20050621.214527.71091057.davem@davemloft.net>
-References: <20050621222419.GA23896@kroah.com><20050621.155919.85409752.davem@davemloft.net><20050622041330.GB27716@suse.de> <20050621.214527.71091057.davem@davemloft.net>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Wed, 22 Jun 2005 04:13:22 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:48079 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262816AbVFVILI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 04:11:08 -0400
+Date: Wed, 22 Jun 2005 09:11:02 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: akpm@osdl.org, mochel@digitalimplant.org, gregkh@suse.de,
+       cohuck@de.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch 1/16] s390: klist bus_find_device & driver_find_device callback.
+Message-ID: <20050622081102.GA3976@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Martin Schwidefsky <schwidefsky@de.ibm.com>, akpm@osdl.org,
+	mochel@digitalimplant.org, gregkh@suse.de, cohuck@de.ibm.com,
+	linux-kernel@vger.kernel.org
+References: <20050621162213.GA6053@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20050621162213.GA6053@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > However, this does mean I do need to reinstall a couple
->> > debian boxes here to something newer before I can continue
->> > doing kernel work in 2.6.x on them.
->> 
->> Those boxes rely on devfs?
-> 
-> Yeah, when I forget to turn on DEVFS_FS and DEVFS_MOUNT in the
-> kernel config the machine won't boot. :-)
-> 
->> Can't you just grab the "static dev" debian package and continue on?
->> I'm sure there is one in there somewhere (don't really know for sure,
->> not running debian anywhere here, sorry.)
->> 
->> Or how about a tarball of a /dev tree?  Would that help you out?
-> 
-> I don't know if Debian has such a package.
-> 
-> Don't worry, I'll take care of this by simply reinstalling
-> and thus moving to udev.
+> +struct device * bus_find_device(struct bus_type * bus, struct device * start,
+> +				void * data, int (*match)(struct device *, void *))
+> +{
+> +	struct klist_iter i;
+> +	struct device * dev;
+> +
+> +	if (!bus)
+> +		return NULL;
+> +
+> +	klist_iter_init_node(&bus->klist_devices, &i,
+> +			     (start ? &start->knode_bus : NULL));
+> +	while ((dev = next_device(&i)))
+> +		if (match(dev, data))
+> +			break;
+> +	klist_iter_exit(&i);
+> +	return dev;
 
-??? I use debian sarge all the time with kernel.org kernels that don't
-have devfs compiled in, and I don't use udev either. Works across ia32,
-x86_64, and PPC64 (32 bit userspace) at least, with no trouble at all,
-out of the box. I did the same with Woody as well before that ...
-
-M.
+does the klist magic somehow grab a reference for you?
 

@@ -1,55 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261343AbVFVEpo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261152AbVFVExp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261343AbVFVEpo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 00:45:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262640AbVFVEpo
+	id S261152AbVFVExp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 00:53:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262640AbVFVExp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 00:45:44 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:64695
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S261343AbVFVEpi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 00:45:38 -0400
-Date: Tue, 21 Jun 2005 21:45:27 -0700 (PDT)
-Message-Id: <20050621.214527.71091057.davem@davemloft.net>
-To: gregkh@suse.de
-Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] devfs: remove devfs from Kconfig preventing it from
- being built
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20050622041330.GB27716@suse.de>
-References: <20050621222419.GA23896@kroah.com>
-	<20050621.155919.85409752.davem@davemloft.net>
-	<20050622041330.GB27716@suse.de>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 22 Jun 2005 00:53:45 -0400
+Received: from fmr16.intel.com ([192.55.52.70]:12421 "EHLO
+	fmsfmr006.fm.intel.com") by vger.kernel.org with ESMTP
+	id S261152AbVFVExl convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 00:53:41 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: Variation in measure_migration_cost() with scheduler-cache-hot-autodetect.patch in -mm
+Date: Tue, 21 Jun 2005 21:53:35 -0700
+Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F03BF8F41@scsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Variation in measure_migration_cost() with scheduler-cache-hot-autodetect.patch in -mm
+Thread-Index: AcV22TLEFdKtCI6xSZCyAOFjzvSYuQADPGUg
+From: "Luck, Tony" <tony.luck@intel.com>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       "Ingo Molnar" <mingo@elte.hu>, <linux-kernel@vger.kernel.org>,
+       <linux-ia64@vger.kernel.org>
+X-OriginalArrivalTime: 22 Jun 2005 04:53:36.0752 (UTC) FILETIME=[59968700:01C576E6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Greg KH <gregkh@suse.de>
-Date: Tue, 21 Jun 2005 21:13:30 -0700
+Nitpick: 
 
-> On Tue, Jun 21, 2005 at 03:59:19PM -0700, David S. Miller wrote:
-> > From: Greg KH <gregkh@suse.de>
-> > Date: Tue, 21 Jun 2005 15:24:19 -0700
-> > 
-> > However, this does mean I do need to reinstall a couple
-> > debian boxes here to something newer before I can continue
-> > doing kernel work in 2.6.x on them.
-> 
-> Those boxes rely on devfs?
+> 		printk("could not vmalloc %d bytes for cache!\n", 2*max_size);
 
-Yeah, when I forget to turn on DEVFS_FS and DEVFS_MOUNT in the
-kernel config the machine won't boot. :-)
+You should change this printk() message to not say "vmalloc".
 
-> Can't you just grab the "static dev" debian package and continue on?
-> I'm sure there is one in there somewhere (don't really know for sure,
-> not running debian anywhere here, sorry.)
-> 
-> Or how about a tarball of a /dev tree?  Would that help you out?
-
-I don't know if Debian has such a package.
-
-Don't worry, I'll take care of this by simply reinstalling
-and thus moving to udev.
+-Tony

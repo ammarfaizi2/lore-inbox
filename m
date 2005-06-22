@@ -1,42 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262580AbVFVXcO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262599AbVFVXg0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262580AbVFVXcO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 19:32:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262584AbVFVXcO
+	id S262599AbVFVXg0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 19:36:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262598AbVFVXgY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 19:32:14 -0400
-Received: from 64-60-250-34.cust.telepacific.net ([64.60.250.34]:47132 "EHLO
-	panta-1.pantasys.com") by vger.kernel.org with ESMTP
-	id S262580AbVFVXbc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 19:31:32 -0400
-Message-ID: <42B9F4D3.9070208@pantasys.com>
-Date: Wed, 22 Jun 2005 16:31:31 -0700
-From: Peter Buckingham <peter@pantasys.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: YhLu <YhLu@tyan.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12 with dual way dual core ck804 MB
-References: <3174569B9743D511922F00A0C94314230A40468C@TYANWEB> <20050621221218.GE14251@wotan.suse.de> <42B9E582.80408@pantasys.com> <20050622231053.GB14251@wotan.suse.de>
-In-Reply-To: <20050622231053.GB14251@wotan.suse.de>
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 22 Jun 2005 23:28:46.0296 (UTC) FILETIME=[22C8B580:01C57782]
+	Wed, 22 Jun 2005 19:36:24 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:26753 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262599AbVFVXdM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 19:33:12 -0400
+Date: Wed, 22 Jun 2005 16:32:56 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Carsten Otte <cotte.de@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: -mm -> 2.6.13 merge status
+Message-ID: <20050622233256.GC9153@shell0.pdx.osdl.net>
+References: <20050620235458.5b437274.akpm@osdl.org> <42B831B4.9020603@pobox.com> <20050621132204.1b57b6ba.akpm@osdl.org> <5c77e707050621142841ad3225@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5c77e707050621142841ad3225@mail.gmail.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> There are two problems on AMD >8P. First the APIC addressing doesn't
-> work and needs to be done differently (I have a patch for that
-> in the final stages of testing). And then there is a mysterious
-> scheduler deadlock problem in 2.6.12 that I haven't tracked down yet. 
-> 2.6.11+patch works though.
+* Carsten Otte (cotte.de@gmail.com) wrote:
+> On 6/21/05, Andrew Morton <akpm@osdl.org> wrote:
+> > > and indeed vendors ARE shipping
+> > > other crashdump methods.
+> > 
+> > Which ones?
+> For 390, we ship standalone bootable crashdump tools with both sles
+> and rhel. As for kexec, I'd like to see a kexec based 390 bootloader
+> in the future which would be more flexible then our current one. So
+> I'd like to vote for merging kexec/kdump.
 
-okay, feel free to toss me the patch when your comfortable with it.
+Xen is making similar noises w.r.t. using kexec for flexible bootloader.
 
 thanks,
-
-peter
+-chris

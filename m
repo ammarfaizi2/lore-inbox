@@ -1,70 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261656AbVFVQmD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261620AbVFVQmv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261656AbVFVQmD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 12:42:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261619AbVFVQiW
+	id S261620AbVFVQmv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 12:42:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261619AbVFVQmu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 12:38:22 -0400
-Received: from mbox1.netikka.net ([213.250.81.202]:11227 "EHLO
-	mbox1.netikka.net") by vger.kernel.org with ESMTP id S261633AbVFVQdk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 12:33:40 -0400
-Date: Wed, 22 Jun 2005 19:33:32 +0300 (EEST)
-From: johan.heikkila@netikka.fi
-X-X-Sender: jukk@localhost.localdomain
-Reply-To: johan.heikkila@netikka.fi
-To: Joerg Sommrey <jo@sommrey.de>
-cc: Tony Lindgren <tony@atomide.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Juergen Brunk <Juergen.Brunk@eurolog.com>, johan.heikkila@netikka.fi,
-       Tarmo Jarvalt <tarmo.jarvalt@mail.ee>,
-       Johnathan Hicks <thetech@folkwolf.net>
-Subject: Re: [PATCH 2.6.12] amd76x_pm: C2 powersaving for AMD K7
-In-Reply-To: <20050621202035.GE31391@atomide.com>
-Message-ID: <Pine.LNX.4.58.0506221917260.11779@localhost.localdomain>
-References: <20050620205334.GA28230@sommrey.de> <20050621202035.GE31391@atomide.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 22 Jun 2005 12:42:50 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:62732 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261589AbVFVQmO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 12:42:14 -0400
+Date: Wed, 22 Jun 2005 18:42:04 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: George Kasica <georgek@netwrx1.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problem compiling 2.6.12
+Message-ID: <20050622164204.GH3705@stusta.de>
+References: <Pine.LNX.4.62.0506221026130.4837@eagle.netwrx1.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.62.0506221026130.4837@eagle.netwrx1.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Jun 2005, Tony Lindgren wrote:
+On Wed, Jun 22, 2005 at 10:28:25AM -0500, George Kasica wrote:
+> Hello:
+> 
+> Trying to compile 2.6.12 here and am getting the following error. I am 
+> currently running 2.4.31 and have upgraded the needed bits per the Change 
+> document before trying the build:
+> 
+> [root@eagle src]# cd linux
+> [root@eagle linux]# make mrproper
+>   CLEAN   .config
+> [root@eagle linux]# cp ../config-2.4.31 .config
+> [root@eagle linux]# make oldconfig
+>   HOSTCC  scripts/basic/fixdep
+> In file included from /usr/local/include/netinet/in.h:212,
+>...
 
-> * Joerg Sommrey <jo@sommrey.de> [050620 13:54]:
-> > This is a processor idle module for AMD SMP 760MP(X) based systems.
-> > The patch was originally written by Tony Lindgren and has been around
-> > since 2002.  It enables C2 mode on AMD SMP systems and thus saves
-> > about 70 - 90 W of energy in the idle mode compared to the default idle
-> > mode.  The idle function has been rewritten and now should be free of
-> > locking issues and is independent from the number of CPUs.  The impact
-> > from this module on the system clock has been reduced. 
-> > 
-> > This patch can also be found at
-> > http://www.sommrey.de/amd76x_pm/amd_76x_pm-2.6.12-jo1.patch
-> 
-> Cool. Just once comment:
-> 
-> > +// #define AMD76X_NTH 1
-> > +// #define AMD76X_POS 1
-> > +// #define AMD76X_C3 1
-> 
-> How about separating all this ifdef code into a separate debug patch on top
-> of the amd_76x_pm patch? Or just leave it out as I don't think anybody is
-> using it. It would shrink down the patch quite a bit and make it more
-> readable.
-> 
-> I won't be able to access my dual athlon box until September, so I'm not
-> much of help with this module :)
-> 
-> Regards,
-> 
-> Tony
-> 
+What are these kernel headers under /usr/local ?
+I don't see any reason why they should be there.
 
-I have been running with the 2.6.11-jo3 patch since Joerg made it 
-available. It works fine on my ASUS A7M266-D with two Athlon MP1800+ that 
-is running 24h. I just patched 2.6.12 vanilla kernel and it looks 
-good. I will report if there are any issues.
+> George
 
-regards,
-Johan
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

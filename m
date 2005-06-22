@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262815AbVFVGcY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262729AbVFVG1H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262815AbVFVGcY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 02:32:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262830AbVFVG3l
+	id S262729AbVFVG1H (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 02:27:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262830AbVFVGZt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 02:29:41 -0400
-Received: from mail.kroah.org ([69.55.234.183]:28828 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262799AbVFVFWF convert rfc822-to-8bit
+	Wed, 22 Jun 2005 02:25:49 -0400
+Received: from mail.kroah.org ([69.55.234.183]:32156 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262801AbVFVFWG convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 01:22:05 -0400
-Cc: khali@linux-fr.org
-Subject: [PATCH] I2C: Remove redundancy from i2c-core.c
-In-Reply-To: <11194174641612@kroah.com>
+	Wed, 22 Jun 2005 01:22:06 -0400
+Cc: gregkh@suse.de
+Subject: [PATCH] I2C: mark all functions static in atxp1 driver
+In-Reply-To: <11194174622441@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Tue, 21 Jun 2005 22:17:44 -0700
-Message-Id: <11194174641478@kroah.com>
+Date: Tue, 21 Jun 2005 22:17:42 -0700
+Message-Id: <11194174621742@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,111 +24,75 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] I2C: Remove redundancy from i2c-core.c
+[PATCH] I2C: mark all functions static in atxp1 driver
 
-Call i2c_transfer() from i2c_master_send() and i2c_master_recv() to
-avoid the redundant code that was in all three functions.  It also
-removes unnecessary debug statements as suggested by Jean Delvare.
-
-This is important for the non-blocking interfaces because they will
-have to handle a non-blocking interface in this area.  Having it in
-one place greatly simplifies the changes.
-
-Signed-off-by: Corey Minyard <minyard@acm.org>
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit 815f55f280fb2781ba1c2a350516b73e55119c60
-tree 48c06bd1650d44aa274989ce2696eb5091d3805c
-parent 30aedcb33970367e50b5edf373e9cd1a5cebcbe1
-author Jean Delvare <khali@linux-fr.org> Sat, 07 May 2005 22:58:46 +0200
-committer Greg Kroah-Hartman <gregkh@suse.de> Tue, 21 Jun 2005 21:51:55 -0700
+commit 69113efac29e5f1b7a03dd4fdca5ede6901f4eb8
+tree 5decc38a1b2f5ede2f8d987c1f749f28a5432556
+parent 9cb7d18433ea6db04b3999e8d0b8f52fba551c2d
+author Greg K-H <gregkh@suse.de> Tue, 05 Apr 2005 18:00:47 +0200
+committer Greg Kroah-Hartman <gregkh@suse.de> Tue, 21 Jun 2005 21:51:50 -0700
 
- drivers/i2c/i2c-core.c |   64 +++++++++++++++---------------------------------
- 1 files changed, 20 insertions(+), 44 deletions(-)
+ drivers/i2c/chips/atxp1.c |   12 ++++++------
+ 1 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -611,27 +611,16 @@ int i2c_master_send(struct i2c_client *c
- 	struct i2c_adapter *adap=client->adapter;
- 	struct i2c_msg msg;
- 
--	if (client->adapter->algo->master_xfer) {
--		msg.addr   = client->addr;
--		msg.flags = client->flags & I2C_M_TEN;
--		msg.len = count;
--		msg.buf = (char *)buf;
-+	msg.addr = client->addr;
-+	msg.flags = client->flags & I2C_M_TEN;
-+	msg.len = count;
-+	msg.buf = (char *)buf;
- 	
--		dev_dbg(&client->adapter->dev, "master_send: writing %d bytes.\n",
--			count);
--	
--		down(&adap->bus_lock);
--		ret = adap->algo->master_xfer(adap,&msg,1);
--		up(&adap->bus_lock);
--
--		/* if everything went ok (i.e. 1 msg transmitted), return #bytes
--		 * transmitted, else error code.
--		 */
--		return (ret == 1 )? count : ret;
--	} else {
--		dev_err(&client->adapter->dev, "I2C level transfers not supported\n");
--		return -ENOSYS;
--	}
-+	ret = i2c_transfer(adap, &msg, 1);
-+
-+	/* If everything went ok (i.e. 1 msg transmitted), return #bytes
-+	   transmitted, else error code. */
-+	return (ret == 1) ? count : ret;
+diff --git a/drivers/i2c/chips/atxp1.c b/drivers/i2c/chips/atxp1.c
+--- a/drivers/i2c/chips/atxp1.c
++++ b/drivers/i2c/chips/atxp1.c
+@@ -99,7 +99,7 @@ static struct atxp1_data * atxp1_update_
  }
  
- int i2c_master_recv(struct i2c_client *client, char *buf ,int count)
-@@ -639,31 +628,18 @@ int i2c_master_recv(struct i2c_client *c
- 	struct i2c_adapter *adap=client->adapter;
- 	struct i2c_msg msg;
- 	int ret;
--	if (client->adapter->algo->master_xfer) {
--		msg.addr   = client->addr;
--		msg.flags = client->flags & I2C_M_TEN;
--		msg.flags |= I2C_M_RD;
--		msg.len = count;
--		msg.buf = buf;
- 
--		dev_dbg(&client->adapter->dev, "master_recv: reading %d bytes.\n",
--			count);
--	
--		down(&adap->bus_lock);
--		ret = adap->algo->master_xfer(adap,&msg,1);
--		up(&adap->bus_lock);
--	
--		dev_dbg(&client->adapter->dev, "master_recv: return:%d (count:%d, addr:0x%02x)\n",
--			ret, count, client->addr);
--	
--		/* if everything went ok (i.e. 1 msg transmitted), return #bytes
--	 	* transmitted, else error code.
--	 	*/
--		return (ret == 1 )? count : ret;
--	} else {
--		dev_err(&client->adapter->dev, "I2C level transfers not supported\n");
--		return -ENOSYS;
--	}
-+	msg.addr = client->addr;
-+	msg.flags = client->flags & I2C_M_TEN;
-+	msg.flags |= I2C_M_RD;
-+	msg.len = count;
-+	msg.buf = buf;
-+
-+	ret = i2c_transfer(adap, &msg, 1);
-+
-+	/* If everything went ok (i.e. 1 msg transmitted), return #bytes
-+	   transmitted, else error code. */
-+	return (ret == 1) ? count : ret;
+ /* sys file functions for cpu0_vid */
+-ssize_t atxp1_showvcore(struct device *dev, char *buf)
++static ssize_t atxp1_showvcore(struct device *dev, char *buf)
+ {
+ 	int size;
+ 	struct atxp1_data *data;
+@@ -111,7 +111,7 @@ ssize_t atxp1_showvcore(struct device *d
+ 	return size;
  }
  
+-ssize_t atxp1_storevcore(struct device *dev, const char* buf, size_t count)
++static ssize_t atxp1_storevcore(struct device *dev, const char* buf, size_t count)
+ {
+ 	struct atxp1_data *data;
+ 	struct i2c_client *client;
+@@ -169,7 +169,7 @@ ssize_t atxp1_storevcore(struct device *
+ static DEVICE_ATTR(cpu0_vid, S_IRUGO | S_IWUSR, atxp1_showvcore, atxp1_storevcore);
  
+ /* sys file functions for GPIO1 */
+-ssize_t atxp1_showgpio1(struct device *dev, char *buf)
++static ssize_t atxp1_showgpio1(struct device *dev, char *buf)
+ {
+ 	int size;
+ 	struct atxp1_data *data;
+@@ -181,7 +181,7 @@ ssize_t atxp1_showgpio1(struct device *d
+ 	return size;
+ }
+ 
+-ssize_t atxp1_storegpio1(struct device *dev, const char* buf, size_t count)
++static ssize_t atxp1_storegpio1(struct device *dev, const char* buf, size_t count)
+ {
+ 	struct atxp1_data *data;
+ 	struct i2c_client *client;
+@@ -211,7 +211,7 @@ ssize_t atxp1_storegpio1(struct device *
+ static DEVICE_ATTR(gpio1, S_IRUGO | S_IWUSR, atxp1_showgpio1, atxp1_storegpio1);
+ 
+ /* sys file functions for GPIO2 */
+-ssize_t atxp1_showgpio2(struct device *dev, char *buf)
++static ssize_t atxp1_showgpio2(struct device *dev, char *buf)
+ {
+ 	int size;
+ 	struct atxp1_data *data;
+@@ -223,7 +223,7 @@ ssize_t atxp1_showgpio2(struct device *d
+ 	return size;
+ }
+ 
+-ssize_t atxp1_storegpio2(struct device *dev, const char* buf, size_t count)
++static ssize_t atxp1_storegpio2(struct device *dev, const char* buf, size_t count)
+ {
+ 	struct atxp1_data *data;
+ 	struct i2c_client *client;
 

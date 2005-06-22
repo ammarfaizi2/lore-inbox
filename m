@@ -1,51 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262557AbVFVXiE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261777AbVFVXlP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262557AbVFVXiE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 19:38:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262584AbVFVXhs
+	id S261777AbVFVXlP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 19:41:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261839AbVFVXiO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 19:37:48 -0400
-Received: from mail.tyan.com ([66.122.195.4]:52484 "EHLO tyanweb.tyan")
-	by vger.kernel.org with ESMTP id S262557AbVFVXeF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 19:34:05 -0400
-Message-ID: <3174569B9743D511922F00A0C94314230AF96F9B@TYANWEB>
-From: YhLu <YhLu@tyan.com>
-To: Peter Buckingham <peter@pantasys.com>, Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: 2.6.12 with dual way dual core ck804 MB
-Date: Wed, 22 Jun 2005 16:37:37 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	Wed, 22 Jun 2005 19:38:14 -0400
+Received: from fmr22.intel.com ([143.183.121.14]:16302 "EHLO
+	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
+	id S262594AbVFVXem (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 19:34:42 -0400
+Date: Wed, 22 Jun 2005 16:34:28 -0700
+From: Rajesh Shah <rajesh.shah@intel.com>
+To: Brice Goglin <Brice.Goglin@ens-lyon.org>
+Cc: Dominik Brodowski <linux@dominikbrodowski.net>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.12-mm1
+Message-ID: <20050622163427.A10079@unix-os.sc.intel.com>
+Reply-To: Rajesh Shah <rajesh.shah@intel.com>
+References: <20050619233029.45dd66b8.akpm@osdl.org> <42B6746B.4020305@ens-lyon.org> <20050620081443.GA31831@isilmar.linta.de> <42B6831B.3040506@ens-lyon.org> <20050620085449.GA32330@isilmar.linta.de> <42B6C06F.4000704@ens-lyon.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <42B6C06F.4000704@ens-lyon.org>; from Brice.Goglin@ens-lyon.org on Mon, Jun 20, 2005 at 03:11:11PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-andi,
+On Mon, Jun 20, 2005 at 03:11:11PM +0200, Brice Goglin wrote:
+> Dominik Brodowski a écrit :
+> > Did you modify the .config in between?
+> 
+> I just checked carrefully which versions do work.
+> It seems that this breakage appeared in rc6-mm1 with the same
+> config than a working rc5-mm2.
 
-do you mean the apic id lifting for opteron?
+Can you revert gregkh-pci-pci-collect-host-bridge-resources-02.patch
+from the broken-out patches for 2.6.12-mm1 and see if the problem
+goes away? If yes, it could be that the ACPI firmware on this
+system is not reporting proper host bridge resources, and all
+downstream device resources get messed up..
 
-YH 
+Rajesh
 
-> -----Original Message-----
-> From: Peter Buckingham [mailto:peter@pantasys.com] 
-> Sent: Wednesday, June 22, 2005 4:32 PM
-> To: Andi Kleen
-> Cc: YhLu; linux-kernel@vger.kernel.org
-> Subject: Re: 2.6.12 with dual way dual core ck804 MB
-> 
-> Andi Kleen wrote:
-> > There are two problems on AMD >8P. First the APIC 
-> addressing doesn't 
-> > work and needs to be done differently (I have a patch for 
-> that in the 
-> > final stages of testing). And then there is a mysterious scheduler 
-> > deadlock problem in 2.6.12 that I haven't tracked down yet.
-> > 2.6.11+patch works though.
-> 
-> okay, feel free to toss me the patch when your comfortable with it.
-> 
-> thanks,
-> 
-> peter
-> 
+
+
+

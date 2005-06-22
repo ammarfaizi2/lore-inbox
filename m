@@ -1,75 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262845AbVFVIrE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262907AbVFVJHe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262845AbVFVIrE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 04:47:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262902AbVFVIod
+	id S262907AbVFVJHe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 05:07:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262781AbVFVJEs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 04:44:33 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:14826 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S262936AbVFVIjx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 04:39:53 -0400
-Message-ID: <42B923D0.8050700@namesys.com>
-Date: Wed, 22 Jun 2005 12:39:44 +0400
-From: Edward Shishkin <edward@namesys.com>
-Organization: Namesys
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; cs-CZ; rv:1.7.2) Gecko/20040906
-X-Accept-Language: en-us, en, ru
-MIME-Version: 1.0
-To: Hans Reiser <reiser@namesys.com>
-CC: Andrew James Wade 
-	<ajwade@cpe00095b3131a0-cm0011ae8cd564.cpe.net.cable.rogers.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       reiserfs-dev@namesys.com, Reiserfs List <reiserfs-list@namesys.com>
-Subject: Re: [PATCH] Fix Reiser4 Dependencies
-References: <20050619233029.45dd66b8.akpm@osdl.org> <200506200832.22260.ajwade@cpe00095b3131a0-cm0011ae8cd564.cpe.net.cable.rogers.com> <42B70A6D.7030308@namesys.com> <200506201644.10429.ajwade@cpe00095b3131a0-cm0011ae8cd564.cpe.net.cable.rogers.com> <42B7F98B.5050405@namesys.com> <42B860D9.60109@namesys.com>
-In-Reply-To: <42B860D9.60109@namesys.com>
-X-Enigmail-Version: 0.86.0.0
+	Wed, 22 Jun 2005 05:04:48 -0400
+Received: from [85.8.12.41] ([85.8.12.41]:28600 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S262871AbVFVJDe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 05:03:34 -0400
+Message-ID: <42B92946.3010207@drzeus.cx>
+Date: Wed, 22 Jun 2005 11:03:02 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="=_hermes.drzeus.cx-23611-1119431013-0001-2"
+To: Roman Zippel <zippel@linux-m68k.org>, kbuild-devel@lists.sourceforge.net,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2/2] Fix signed char problem in scripts/kconfig
+X-Enigmail-Version: 0.90.1.0
 X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser wrote:
+This is a MIME-formatted message.  If you see this text it means that your
+E-mail software does not support MIME-formatted messages.
 
->Edward Shishkin wrote:
->
->  
->
->>Hello,
->>ZLIB_INFLATE/DEFLATE  will be selected by special reiser4 related
->>configuration
->>option "Enable reiser4 compression plugins of gzip family"
->>(REISER4_ZLIB), but
->>since this kind of support was discussed, it is in our working
->>repository for a while..
->>
->>Anyway thanks,
->>Edward.
->>    
->>
->
->I am sorry, are you telling him that it works for you because you have
->code that is different?  Did I misunderstand you?  How is what is in
->your working repository relevant to anybody but you?  Please supply a
->full update patch.
->
->Hans
->
->  
->
+--=_hermes.drzeus.cx-23611-1119431013-0001-2
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 
-1. The patchset reiser4-replacement-broken-out.1 for 2.6.12-rc5-mm2 is 
-buggy and leads to compilation errors
-2. To fix this one should use the fixed patchset:
-   
-ftp://ftp.namesys.com/pub/reiser4-for-2.6/2.6.12-rc5-mm2/reiser4-replacement-broken-out.2.tar.gz
+The signed characters in scripts are causing warnings with GCC 4 on
+systems with proper string functions (with char*, not signed char* as
+parameters). Some could be kept signed but most had to be reverted to
+normal chars.
 
-Thanks,
-Edward.
+Detailed changelog:
 
->
->  
->
+mconf.c:
+	- buf/bufptr was used in vsprintf() so it couldn't be signed.
+confdata.c:
+	- conf_expand_value() used strchr() and strncat() forcing
+	  "normal" strings.
+conf.c:
+	- line was used with several string functions so it couldn't be
+	  signed.
+	- strip() uses strlen() so same thing there.
 
+Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
+
+--=_hermes.drzeus.cx-23611-1119431013-0001-2
+Content-Type: text/x-patch; name="signed-char-kconfig.patch"; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="signed-char-kconfig.patch"
+
+Index: linux-wbsd/scripts/kconfig/mconf.c
+===================================================================
+--- linux-wbsd/scripts/kconfig/mconf.c	(revision 153)
++++ linux-wbsd/scripts/kconfig/mconf.c	(working copy)
+@@ -254,8 +254,8 @@
+ 	"          USB$ => find all CONFIG_ symbols ending with USB\n"
+ 	"\n");
+ 
+-static signed char buf[4096], *bufptr = buf;
+-static signed char input_buf[4096];
++static char buf[4096], *bufptr = buf;
++static char input_buf[4096];
+ static char filename[PATH_MAX+1] = ".config";
+ static char *args[1024], **argptr = args;
+ static int indent;
+Index: linux-wbsd/scripts/kconfig/confdata.c
+===================================================================
+--- linux-wbsd/scripts/kconfig/confdata.c	(revision 153)
++++ linux-wbsd/scripts/kconfig/confdata.c	(working copy)
+@@ -27,10 +27,10 @@
+ 	NULL,
+ };
+ 
+-static char *conf_expand_value(const signed char *in)
++static char *conf_expand_value(const char *in)
+ {
+ 	struct symbol *sym;
+-	const signed char *src;
++	const char *src;
+ 	static char res_value[SYMBOL_MAXLENGTH];
+ 	char *dst, name[SYMBOL_MAXLENGTH];
+ 
+Index: linux-wbsd/scripts/kconfig/conf.c
+===================================================================
+--- linux-wbsd/scripts/kconfig/conf.c	(revision 153)
++++ linux-wbsd/scripts/kconfig/conf.c	(working copy)
+@@ -31,14 +31,14 @@
+ static int indent = 1;
+ static int valid_stdin = 1;
+ static int conf_cnt;
+-static signed char line[128];
++static char line[128];
+ static struct menu *rootEntry;
+ 
+ static char nohelp_text[] = N_("Sorry, no help available for this option yet.\n");
+ 
+-static void strip(signed char *str)
++static void strip(char *str)
+ {
+-	signed char *p = str;
++	char *p = str;
+ 	int l;
+ 
+ 	while ((isspace(*p)))
+
+--=_hermes.drzeus.cx-23611-1119431013-0001-2--

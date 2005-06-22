@@ -1,77 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261538AbVFVPvh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261412AbVFVPuk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261538AbVFVPvh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 11:51:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261554AbVFVPvV
+	id S261412AbVFVPuk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 11:50:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261504AbVFVPqd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 11:51:21 -0400
-Received: from opersys.com ([64.40.108.71]:7949 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261569AbVFVPte (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 11:49:34 -0400
-Message-ID: <42B98B20.7020304@opersys.com>
-Date: Wed, 22 Jun 2005 12:00:32 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+	Wed, 22 Jun 2005 11:46:33 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:28049 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S261538AbVFVPoI convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 11:44:08 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: "Bill Huey (hui)" <bhuey@lnxw.com>
-CC: Kristian Benoit <kbenoit@opersys.com>, linux-kernel@vger.kernel.org,
-       paulmck@us.ibm.com, andrea@suse.de, tglx@linutronix.de, mingo@elte.hu,
-       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
-       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, rpm@xenomai.org
-Subject: Re: PREEMPT_RT vs I-PIPE: the numbers, part 2
-References: <1119287612.6863.1.camel@localhost> <20050620183115.GA27028@nietzsche.lynx.com>
-In-Reply-To: <20050620183115.GA27028@nietzsche.lynx.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: 2.4 and aacraid dmesg
+Date: Wed, 22 Jun 2005 11:43:18 -0400
+Message-ID: <60807403EABEB443939A5A7AA8A7458B0152148D@otce2k01.adaptec.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.4 and aacraid dmesg
+Thread-Index: AcV3PoB5dSMzAwUsTZe3P5Z5Ft0Y/AAALeQg
+From: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
+To: "Gabor Z. Papp" <gzp@papp.hu>
+Cc: "Mark Haverkamp" <markh@osdl.org>, <linux-kernel@vger.kernel.org>,
+       <linux-scsi@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Gabor Z. Papp [mailto:gzp@papp.hu] writes:
 
-Bill Huey (hui) wrote:
-> You might what to try the overall times numbers with the voluntary
-> preemption instead. That option doesn't convert spinlocks and still
-> uses interrupt threads. I'd be surprised that the spinlocks would
-> contribute to that much overhead. Nevertheless, I'll be curious
-> about those results.
+>| on PCI address 03:0d.0 and 03:09.0 are sharing IRQ 4. The 'info'
+message
+>| is printed every time the pcibios_enable_device() call is made. The
+>| interrupt sharing is assigned by the Motherboard BIOS and if you have
+>| subsequent problems with the operation of the card(s) or the system,
+you
+>| should investigate updating the Motherboard BIOS or go into the
+>| motherboard BIOS setup and see if you can reassign the PCI (IRQ)
+>| resources.
+>Okay. The other device at 03:09.0 is a:
+>
+>Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 08)
 
-To tell you the truth, we've spent a considerable amount of time as
-it is on this and we need to move on to other things. So while we
-may do a repeat, we think the latest results are good enough to
-feed the discussion for some time. Also, we've finally release the
-LRTBF, so we hope you'll try it out yourself and share what you find.
-We'll continue making LRTBF releases with the contributions we get.
+Do you really need the audio card? :-) I'd toss (or disable) the audio
+system in a heart beat just to remove the annoyance of the messages.
 
-In regards to the performance, of PREEMPT_RT, we've also made
-available the comparative output of LMbench for the various runs
-as part of the LRTBF release. Have a look at the bottom of this
-section:
-http://www.opersys.com/lrtbf/#latest-results
+> Anyway, I love this 2120S, boots quite slooowly, but works fine and
+stable.
 
-I don't know what part of PREEMPT_RT causes this, but looking at
-some of the numbers from this output one is tempted to conclude that
-PREEMPT_RT causes a very significant impact on system load. And I
-don't say this lightly. Have a look for example at the local
-communication latencies between vanilla and PREEMPT_RT when the
-target is subject to the HD test. For a pipe, this goes from 9.4us
-to 21.6. For UDP this goes from 22us to 1070us !!! Even on a
-system without any load, the numbers are similar. Ouch.
+Do keep the F/W up-to-date if you should run into problems. The driver
+is thin for this card, most stability issues center around targets,
+target compatibility & Hardware (some issues can even trace to Power
+Supply problems).
 
-I have no envy of starting a flamefest, but to be fair I must
-mention that the output for the same runs for I-pipe is much more
-reasonable. In fact it's much closer to vanilla performance. Again,
-please no flames ... just read the numbers.
+The 2200S is more than four times as fast (when stressed to the
+maximum), the 2120S was meant for 'budget' scenarios with feature
+completeness in mind.
 
-Notice that that part of the test (LMbench) does not require a
-repeat of our complete setup. A simple LMbench comparison even
-on an isolated machine should yield similar results.
+> Ah, the chip is *very* *very* *very* hot on the card, is that normal?
 
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+I can put my hand on the CPU and keep it there with only a smidgen of
+concern and nary a sizzling sound. I would worry if you could cook eggs
+on it. Do you have a means to measure the actual temperature to add some
+objectivism? If so, I'd compare it to the chip's (clearly marked, can be
+substituted) specification maximums if you want to get more comfortable
+with it.
+
+-- Mark Salyzyn

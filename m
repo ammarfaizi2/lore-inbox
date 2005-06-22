@@ -1,159 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261917AbVFVToG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261906AbVFVTpp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261917AbVFVToG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 15:44:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261906AbVFVToG
+	id S261906AbVFVTpp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 15:45:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261940AbVFVTpp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 15:44:06 -0400
-Received: from nproxy.gmail.com ([64.233.182.198]:37177 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261917AbVFVTno convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 15:43:44 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=tBx0ZlCOlZigyORyvi2cx6HttcGaMDbl/0mxqVqFDu2o7jdtiC93shBRYDIOUuwwjBa/RHeuLr0b1Z6pTUyhpIj/JAxOH8sGCCb6bUrggxznmpMFYE6EBQIY//tsZ69HTt+h/brFrHxP0wYpvtw1xikl4TeNiOLfOxgRKmd7H/k=
-Message-ID: <84144f020506221243163d06a2@mail.gmail.com>
-Date: Wed, 22 Jun 2005 22:43:40 +0300
-From: Pekka Enberg <penberg@gmail.com>
-Reply-To: Pekka Enberg <penberg@gmail.com>
-To: "Bouchard, Sebastien" <Sebastien.Bouchard@ca.kontron.com>
-Subject: Re: Patch of a new driver for kernel 2.4.x that need review
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       "Lorenzini, Mario" <mario.lorenzini@ca.kontron.com>,
-       Pekka Enberg <penberg@cs.helsinki.fi>
-In-Reply-To: <5009AD9521A8D41198EE00805F85F18F067F6A36@sembo111.teknor.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <5009AD9521A8D41198EE00805F85F18F067F6A36@sembo111.teknor.com>
+	Wed, 22 Jun 2005 15:45:45 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:5556 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S261906AbVFVTpR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 15:45:17 -0400
+Date: Wed, 22 Jun 2005 21:45:12 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: john stultz <johnstul@us.ibm.com>
+cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       George Anzinger <george@mvista.com>,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>
+Subject: Re: [PATCH 1/6] new timeofday core subsystem for -mm (v.B3)
+In-Reply-To: <1119401841.9947.255.camel@cog.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.61.0506221739510.3728@scrub.home>
+References: <1119063400.9663.2.camel@cog.beaverton.ibm.com> 
+ <Pine.LNX.4.61.0506181344000.3743@scrub.home>  <1119287354.9947.22.camel@cog.beaverton.ibm.com>
+  <Pine.LNX.4.61.0506202231070.3728@scrub.home>  <1119311734.9947.143.camel@cog.beaverton.ibm.com>
+  <Pine.LNX.4.61.0506211542580.3728@scrub.home> <1119401841.9947.255.camel@cog.beaverton.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-Some comments below. Please note that I am more familiar with 2.6 so
-some of these might not apply.
+On Tue, 21 Jun 2005, john stultz wrote:
 
-                       Pekka
+> Briefly the big issues are: 
 
-On 6/22/05, Bouchard, Sebastien <Sebastien.Bouchard@ca.kontron.com> wrote:
-> --- 2.4.31-ori/drivers/char/tlclk.c     Wed Dec 31 19:00:00 1969
-> +++ 2.4.31-mod/drivers/char/tlclk.c     Wed Jun 22 09:43:10 2005
-> +/* Telecom clock I/O register definition */
-> +#define TLCLK_BASE 0xa08
-> +#define TLCLK_REG0 TLCLK_BASE
-> +#define TLCLK_REG1 TLCLK_BASE+1
-> +#define TLCLK_REG2 TLCLK_BASE+2
-> +#define TLCLK_REG3 TLCLK_BASE+3
-> +#define TLCLK_REG4 TLCLK_BASE+4
-> +#define TLCLK_REG5 TLCLK_BASE+5
-> +#define TLCLK_REG6 TLCLK_BASE+6
-> +#define TLCLK_REG7 TLCLK_BASE+7
+That's interesting, but it mainly describes your design goals, but I'm 
+more interested why you did certain design decisions.
+The main problem is that you try to fix all these issues with a single 
+patch and I'd like to know why you don't pick a single issue and fix it 
+first.
 
-Please use enums instead.
+> o Delayed, or lost ticks caused by interrupt starvation, drivers
+> disabling interrupts for too long, BIOS SMIs
 
-> +/*
-> +*  Function : Module I/O functions
-> +*  Description : Almost all the control stuff is done here, check I/O dn
-> for help.
-> +*/
+These are actually different error sources. Ticks lost due to disabled 
+interrupt can't be detected unless you have a second timer source and the 
+generic code doesn't really know about this. If an arch has a second time 
+source this is fixable, but I would consider this optional, that means 
+adjustments are only done, iff this source is available.
+The current concept of lost ticks simply means delayed soft interrupt 
+handling. IMO this could be a good starting point to fix the timer code, 
+by making it possible to call update_wall_time() with a reduced frequency.
+If you move in a _later_ step from ticks to 32bit nanoseconds, that would 
+give you still a 4 second window, which should be more than enough, so 
+e.g. I don't see any reason to use any 64bit math here.
 
-Please use kerneldoc format.
+> The biggest improvement with my rework is for correctness. Timekeeping
+> is no longer tick based, so there is no interpolation (or interpolation
+> error) in the core algorithm.
 
-> +static struct file_operations tlclk_fops = {
-> +       read:tlclk_read,
-> +       write:tlclk_write,
-> +       ioctl:tlclk_ioctl,
-> +       open:tlclk_open,
-> +       release:tlclk_release,
+AFAICS the interpolation is needed because some arch use different time 
+sources for the scheduler and timeofday, but I don't see why fixing the 
+timer code immediately requires a generic timer source infrastructure.
+You have to be more explicit why it's not possible to fix the generic 
+timer code first.
 
-Please use C99 struct initializers.
+> > For machines where it actually matters, I can only see that calculations 
+> > have gotten more complex and thus slower. You need to provide a little 
+> > more detailed information, why this necessary.
+> 
+> Indeed, the periodic timekeeping function is likely more computationally
+> costly (although I don't have hard numbers on that yet, I will soon),
+> however we run it less frequently (50x actually) and we do it outside of
+> the interrupt context. I do not believe the periodic timekeeping path is
+> going to be a performance concern.
 
-> +
-> +};
-> +/*
-> +* Function : Module Initialisation
-> +* Description : Called at module loading,
-> +* all the OS registering stuff is her
-> +*/
-> +static int __init
-> +tlclk_init(void)
-> +{
-> +       alarm_events = kmalloc(sizeof (struct tlclk_alarms), GFP_KERNEL);
-> +
-> +       if(!alarm_events)
-> +                  return -EBUSY;
-> +
-> +   memset(alarm_events, 0, sizeof (struct tlclk_alarms));
-> +
-> +/* Read telecom clock IRQ number (Set by BIOS) */
-> +
-> +       telclk_interrupt = (inb(TLCLK_REG7) & 0x0f);
-> +
-> +       printk(KERN_WARNING "telclock: Reserving I/O region...\n");
-> +
-> +       if (check_region(TLCLK_BASE, 8)) {
-> +               printk(KERN_ERR
-> +                      "telclock: I/O region already used by another
-> driver!\n");
-> +               return -EBUSY;
+Please give me _some_ concrete information, why this code has to be more 
+complex than the current code.
 
-You're leaking alarm_events here.
+> > I don't need any practical numbers, I can already see from the code, that 
+> > it's much worse and unless you eliminate the 64bit calculations from the 
+> > fast path, I don't know what you are trying to optimize.
+> 
+> That's exactly what I'm trying to optimize. By precalculating some of
+> the 64 bit manipulations, we can remove them from the fast path.
 
-> +       } else {
-> +               request_region(TLCLK_BASE, 8, "telclock");
+I want to remove all that, why do you need 64bit calculations in there? 
+What's wrong with a base xtime + 32bit nanosecond offset?
 
-Please put nominal case first (i.e. make this the first block). 
+> Ok, from my initial tests on my i686 laptop (@600Mhz), using the
+> cheapest timesource available (the TSC), the unoptimized B3 version of
+> the code I sent out shows a 17% performance hit in gettimeofday(). That
+> ratio will be even smaller if you use a more expensive timesource. So
+> starting there, let me see how much I can shave off.
 
-> +       }
-> +
-> +/* DEVFS or NOT? */
-> +
-> +#ifdef CONFIG_DEVFS_FS
-> +       devfs_handle = devfs_register(NULL, "telclock",
-> +                                     DEVFS_FL_AUTO_DEVNUM, TLCLK_MAJOR,
-> +                                     0,
-> +                                     S_IFCHR | S_IRUGO | S_IWUGO,
-> +                                     &tlclk_fops, NULL);
-> +       if (!devfs_handle)
-> +               return -EBUSY;
+That's hardly a fair comparison, you cannot use an expensive timesource to 
+make your time code look cheap.
 
-You're leaking alarm_events and reserved region here. (Use gotos for
-error handling, btw.)
+> It is my feeling that the current interpolated based timekeeping is not
+> easily fixable. In order to move to a non-interpolated method of
+> timekeeping, first each architecture has to provide some timesource like
+> interface that will give us a free running counter.
 
-> +#else
-> +       tlclk_major = register_chrdev(tlclk_major, "telclock", &tlclk_fops);
-> +
-> +       if (tlclk_major < 0) {
-> +               printk(KERN_ERR "telclock: can't get major! %d\n",
-> tlclk_major);
-> +               return tlclk_major;
+Why is not possible to fix the generic time code first, so you can later 
+drop the interpolation and use time sources instead?
+For all archs where timeofday and tick has the same source you can easily 
+upgrade to the new code, only the rest needs to do a bit more to update 
+xtime from a different source. This way you break much less code and give 
+arch maintainers much less headache.
+If you think this is not possible, please give me some more concrete 
+information.
 
-Same as before plus leaking devfs handle.
-
-> +       }
-> +#endif
-> +
-> +       init_timer(&switchover_timer);
-> +       switchover_timer.function = switchover_timeout;
-> +       switchover_timer.data = 0;
-> +
-> +       return 0;
-> +}
-
-> diff -ruN 2.4.31-ori/drivers/char/tlclk.h 2.4.31-mod/drivers/char/tlclk.h
-> --- 2.4.31-ori/drivers/char/tlclk.h     Wed Dec 31 19:00:00 1969
-> +++ 2.4.31-mod/drivers/char/tlclk.h     Wed Jun 22 09:43:10 2005
-> +/* Ioctl definitions  */
-> +
-> +/* Use 0xA1 as magic number */
-> +#define TLCLK_IOC_MAGIC 0xA1
-> +
-> +/*Hardware Reset of the PLL */
-> +
-> +#define RESET_ON 0x00
-> +#define RESET_OFF 0x01
-
-Please use enums instead (applies to other parts of this file too).
+bye, Roman

@@ -1,61 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261195AbVFVMts@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261258AbVFVMvm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261195AbVFVMts (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 08:49:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261203AbVFVMtr
+	id S261258AbVFVMvm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 08:51:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261257AbVFVMvl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 08:49:47 -0400
-Received: from tama5.ecl.ntt.co.jp ([129.60.39.102]:13247 "EHLO
-	tama5.ecl.ntt.co.jp") by vger.kernel.org with ESMTP id S261171AbVFVMtm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 08:49:42 -0400
-Message-Id: <6.0.0.20.2.20050622211238.03e6ba30@mailsv2.y.ecl.ntt.co.jp>
-X-Mailer: QUALCOMM Windows Eudora Version 6J-Jr3
-Date: Wed, 22 Jun 2005 21:49:29 +0900
-To: akpm@osdl.org, sct@redhat.com, adilger@clusterfs.com
-From: Hifumi Hisashi <hifumi.hisashi@lab.ntt.co.jp>
-Subject: [PATCH] Fix the error handling in direct I/O 
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	Wed, 22 Jun 2005 08:51:41 -0400
+Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:28053
+	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
+	with ESMTP id S261255AbVFVMvV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 08:51:21 -0400
+Reply-To: <abonilla@linuxwireless.org>
+From: "Alejandro Bonilla" <abonilla@linuxwireless.org>
+To: "'Pavel Machek'" <pavel@ucw.cz>, "'Lee Revell'" <rlrevell@joe-job.com>
+Cc: "'Yani Ioannou'" <yani.ioannou@gmail.com>,
+       <linux-thinkpad@linux-thinkpad.org>, <linux-kernel@vger.kernel.org>
+Subject: RE: [ltp] Re: IBM HDAPS Someone interested?
+Date: Wed, 22 Jun 2005 06:50:59 -0600
+Message-ID: <001201c57729$0a645840$600cc60a@amer.sykes.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <20050622104927.GB2561@openzaurus.ucw.cz>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1478
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hello.
 
-	I fixed a bug on error handling in the direct I/O function.
-Currenlty, if a file is opened with the O_DIRECT|O_SYNC flag,
-  write() syscall cannot receive the EIO error just after
-I/O error(SCSI cable is disconnected etc.) occur.
+> Hi!
+>
+> > > I'm trying to do watch -n1 cat /proc/acpi/ibm/ecdump, But
+> I don't have
+> > > ecdump. I'm with ibm-acpi 0.8
+> > >
+> >
+> > I was thinking more along the lines of figure out the io port it's
+> > using, then boot windows, set an IO breakpoint in softice, then drop
+> > your laptop on the bed or something.
+>
+> It should be enough to tilt your laptop so that it parks
+> heads... safer than
+> dropping it.
+>
+> And perhaps easier solution is to locate the sensor on the
+> mainboard, and
+> trace where it is connected with magnifying glass (as vojtech
+> already suggested).
+>
+> 				Pavel
+>
+> --
+> 64 bytes from 195.113.31.123: icmp_seq=28 ttl=51
+> time=448769.1 ms
+>
 
-	Return values of other points that call generic_osync_inode()
-are treated appropriately.
+/proc/acpi/ibm/ecdump is really not providing any information about this
+sensor. yesterday, I almost broke the laptop to see if it would generate
+anything, but it really only outputs ACPI events...
 
-	With the following patch, this problem was fixed.
-	Please apply this patch.
+I shaked it, moved it 90deg and still no result, threw the lappy from like
+40cm to the bed and nothing was really generated. Unless it is too fast like
+to generate it in the watch or to be seen by human eye. I dunno.
 
-	Thanks,
+It looks like /ecdump won't do it.
 
-
-Signed-off-by: Hisashi Hifumi  <hifumi.hisashi@lab.ntt.co.jp>
-
-diff -Nru linux-2.6.12/mm/filemap.c linux-2.6.12_fix/mm/filemap.c
---- linux-2.6.12/mm/filemap.c	2005-06-22 17:21:21.000000000 +0900
-+++ linux-2.6.12_fix/mm/filemap.c	2005-06-22 20:26:34.000000000 +0900
-@@ -1927,8 +1927,12 @@
-  	 * i_sem is held, which protects generic_osync_inode() from
-  	 * livelocking.
-  	 */
--	if (written >= 0 && file->f_flags & O_SYNC)
--		generic_osync_inode(inode, mapping, OSYNC_METADATA);
-+	if (written >= 0 && ((file->f_flags & O_SYNC) || IS_SYNC(inode))) {
-+		int err;
-+		err = generic_osync_inode(inode, mapping, OSYNC_METADATA);
-+		if (err < 0)
-+			written = err;
-+	}
-  	if (written == count && !is_sync_kiocb(iocb))
-  		written = -EIOCBQUEUED;
-  	return written; 
+.Alejandro
 

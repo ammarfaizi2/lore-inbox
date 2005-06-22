@@ -1,59 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261202AbVFVMXW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261166AbVFVMdM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261202AbVFVMXW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 08:23:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261203AbVFVMXW
+	id S261166AbVFVMdM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 08:33:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261171AbVFVMdM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 08:23:22 -0400
-Received: from wproxy.gmail.com ([64.233.184.197]:15233 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261202AbVFVMXJ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 08:23:09 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=BY3Nb65hEtJhzgHNfvGFz5DyakfDsRgCdzWXp1/yKqwYNNRfFXYeg9qX1MBzJu/9WVXm/lpy8oBg7/UpfCoHtez14GPMFSSAlFaxyGhKErB1Vr/sZ1ea19gM3wR+cm/yAD/tYfehe/Gv6rfUU0yBVKJP5w92k+5i+eKrPLqDJ0U=
-Message-ID: <a4e6962a0506220523791a31da@mail.gmail.com>
-Date: Wed, 22 Jun 2005 07:23:06 -0500
-From: Eric Van Hensbergen <ericvh@gmail.com>
-Reply-To: Eric Van Hensbergen <ericvh@gmail.com>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Subject: Re: -mm -> 2.6.13 merge status (fuse)
-Cc: akpm@osdl.org, pavel@ucw.cz, linux-kernel@vger.kernel.org
-In-Reply-To: <E1Dl20U-0007Ic-00@dorka.pomaz.szeredi.hu>
+	Wed, 22 Jun 2005 08:33:12 -0400
+Received: from imap.gmx.net ([213.165.64.20]:13986 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261166AbVFVMdI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 08:33:08 -0400
+X-Authenticated: #4399952
+Date: Wed, 22 Jun 2005 14:32:47 +0200
+From: Florian Schmidt <mista.tapas@gmx.net>
+To: Esben Nielsen <simlo@phys.au.dk>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-V0.7.49-00
+Message-ID: <20050622143247.07b78748@mango.fruits.de>
+In-Reply-To: <Pine.OSF.4.05.10506220109490.17063-100000@da410.phys.au.dk>
+References: <20050621084426.GA13094@elte.hu>
+	<Pine.OSF.4.05.10506220109490.17063-100000@da410.phys.au.dk>
+X-Mailer: Sylpheed-Claws 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050620235458.5b437274.akpm@osdl.org>
-	 <E1Dkyas-0006wu-00@dorka.pomaz.szeredi.hu>
-	 <20050621233914.69a5c85e.akpm@osdl.org>
-	 <E1DkzTO-00072F-00@dorka.pomaz.szeredi.hu>
-	 <20050622004902.796fa977.akpm@osdl.org>
-	 <E1Dl1Ce-0007BO-00@dorka.pomaz.szeredi.hu>
-	 <20050622021251.5137179f.akpm@osdl.org>
-	 <E1Dl1Oz-0007Dq-00@dorka.pomaz.szeredi.hu>
-	 <20050622024423.66d773f3.akpm@osdl.org>
-	 <E1Dl20U-0007Ic-00@dorka.pomaz.szeredi.hu>
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >
-> > I'm asking you to expand on what the problems would be if we were to
-> > enhance the namespace code as suggested.
+On Wed, 22 Jun 2005 01:12:14 +0200 (METDST)
+Esben Nielsen <simlo@phys.au.dk> wrote:
+
+> On Tue, 21 Jun 2005, Ingo Molnar wrote:
 > 
-> OK, what I was thinking, is that the user could create a new
-> namespace, that has all the filesystems remounted 'nosuid'.  This
-> wouldn't need any new kernel infrastructure, just a suid-root program
-> (e.g. newns_nosuid), that would do a clone(CLONE_NEWNS), then
-> recursively remount everything 'nosuid' in the new namespace.  Then
-> restore the user's privileges, and exec a shell.
->
+> > 
+> > * Esben Nielsen <simlo@phys.au.dk> wrote:
+> > 
+> > > I am seeing very high latencies on 2.6.12-RT-V0.7.50-04 with a 
+> > > modified realfeel2: maximum is 246 us. Shouldn't it be in the order of 
+> > > 50 us?
+> > 
+> > i never got reliable results from realfeel - it should do the kind of 
+> > careful things rtc_wakeup does to avoid false positives.
+> > 
+> I tried with rtc_wakeup while I was at work (which is on my disk at home) 
+> - but it crashed my machine (one have to be _very_ carefull about what you
+> do when you run in a task with RT priority!). I have fixed it now (see
+> below patch) and it is running for the night. Let us see if I get similar
+> results. 
 
-I'm confused why everything has to be remounted nosuid.  I understand
-enforcing synthetics to be mounted nosuid, but not the rest of the
-file systems.  I thought all the problems revolving around the private
-namespace solution where the FUSE team's desire to have per-user
-namespace and/or per-session namespace versus per-process namespace.
+Thanks for the patch. New version here:
 
-         -eric
+http://affenbande.org/~tapas/rtc_wakeup/rtc_wakeup-0.0.2.tgz
+
+Flo
+
+-- 
+Palimm Palimm!
+http://affenbande.org/~tapas/

@@ -1,42 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262708AbVFVDlD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262604AbVFVEIQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262708AbVFVDlD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 23:41:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262566AbVFVDh2
+	id S262604AbVFVEIQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 00:08:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262709AbVFVEIQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 23:37:28 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:7062 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262563AbVFVDgq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 23:36:46 -0400
-Date: Tue, 21 Jun 2005 20:36:24 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Stas Sergeev <stsp@aknet.ru>
+	Wed, 22 Jun 2005 00:08:16 -0400
+Received: from wproxy.gmail.com ([64.233.184.204]:63566 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262604AbVFVEIE convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 00:08:04 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=b0lNCDZ3OC8udJygLoRyHR1SA2/5SkiTbLhhhq5n4KkEbI0+dQ0AX8sAElPi3b7aRhS73mMlr39cnJrtYr79CCNeG12yrgKqQ6IUaaaT3/A2H1qbm8oFP0bFDNuuDFHTauOZVh2nFYraq5ajscRO8m1eKjzKaPDs6JO/YWD1IL8=
+Message-ID: <c1e1128f0506212108243e2c3b@mail.gmail.com>
+Date: Wed, 22 Jun 2005 12:08:04 +0800
+From: David Teigland <dteigland@gmail.com>
+Reply-To: teigland@redhat.com
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: -mm -> 2.6.13 merge status (configfs)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] spinlock cleanup
-Message-Id: <20050621203624.0e2f48f9.akpm@osdl.org>
-In-Reply-To: <42B8D9FF.1070000@aknet.ru>
-References: <42B8D9FF.1070000@aknet.ru>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+In-Reply-To: <20050620235458.5b437274.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050620235458.5b437274.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stas Sergeev <stsp@aknet.ru> wrote:
->
-> Here is another attempt to
->  remove the "extern i8253_lock"
->  from the C files.
->  It now uses the same #ifdefs for
->  including the header and using
->  the lock, so it hopefully no
->  longer breaks the compilation.
->  Does it look good this time?
+On 6/21/05, Andrew Morton <akpm@osdl.org> wrote:
+> git-ocfs
+> 
+>     The OCFS2 filesystem.  OK by me, although I'm not sure it's had enough
+>     review.
 
-Adding ifdefs around #includes is a bit unsightly - it also increases the
-possibility that the build will break when .configs are changed.
+Does this include configfs?  I'd especially like to see that sooner
+rather than later.
 
-Is it not possible to find an appropriate arch-specific header file for the
-declaration?
+Dave

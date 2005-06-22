@@ -1,62 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262566AbVFVWNF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262373AbVFVWEs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262566AbVFVWNF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 18:13:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262562AbVFVWFI
+	id S262373AbVFVWEs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 18:04:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262538AbVFVWEf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 18:05:08 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:63756 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S262441AbVFVV7E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 17:59:04 -0400
-Date: Wed, 22 Jun 2005 23:58:54 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Bill Gatliff <bgat@billgatliff.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Patch of a new driver for kernel 2.4.x that need review
-Message-ID: <20050622215854.GJ8907@alpha.home.local>
-References: <5009AD9521A8D41198EE00805F85F18F067F6A36@sembo111.teknor.com> <84144f020506221243163d06a2@mail.gmail.com> <20050622203211.GI8907@alpha.home.local> <42B9D120.6030108@billgatliff.com>
+	Wed, 22 Jun 2005 18:04:35 -0400
+Received: from gate.ebshome.net ([64.81.67.12]:55492 "EHLO gate.ebshome.net")
+	by vger.kernel.org with ESMTP id S262539AbVFVV60 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 17:58:26 -0400
+Date: Wed, 22 Jun 2005 14:58:18 -0700
+From: Eugene Surovegin <ebs@ebshome.net>
+To: Kumar Gala <galak@freescale.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linuxppc-embedded <linuxppc-embedded@ozlabs.org>
+Subject: Re: [PATCH] ppc32: Add support for Freescale e200 (Book-E) core
+Message-ID: <20050622215818.GA15176@gate.ebshome.net>
+Mail-Followup-To: Kumar Gala <galak@freescale.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	linuxppc-embedded <linuxppc-embedded@ozlabs.org>
+References: <Pine.LNX.4.61.0506221539470.3206@nylon.am.freescale.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42B9D120.6030108@billgatliff.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <Pine.LNX.4.61.0506221539470.3206@nylon.am.freescale.net>
+X-ICQ-UIN: 1193073
+X-Operating-System: Linux i686
+X-PGP-Key: http://www.ebshome.net/pubkey.asc
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 22, 2005 at 03:59:12PM -0500, Bill Gatliff wrote:
- 
-> What Sebastien is after is something like this:
-> 
-> 	enum tclk_regid {TCLK_BASE=0xa80, TCLK_REG0=TCLK_BASE, 
-> 	TCLK_REG1=TCLK_BASE+1...};
-> 	enum tclk_regid tclk;
-> 
-> And then later on, if you ask gdb with the value of tclk is, it can tell 
-> you "TCLK_REG1", instead of just 0xa801.  You can also assign values to 
-> tclk from within gdb using the enumerations, rather than magic numbers.
+On Wed, Jun 22, 2005 at 03:41:09PM -0500, Kumar Gala wrote:
 
-Bill, this is a good reason, I agree with you. What I did not want to see
-was something like :
+[snip]
 
-  enum { TCLK_BASE=0xa80, TCLK_REG0, TCLK_REG1, ... }
+> +#ifdef CONFIG_E200
+> +#define DEBUG_EXCEPTION							      \
+> +	START_EXCEPTION(Debug);						      \
+> +	DEBUG_EXCEPTION_PROLOG;						      \
+> +									      \
+> +	/*								      \
+> +	 * If there is a single step or branch-taken exception in an	      \
+> +	 * exception entry sequence, it was probably meant to apply to	      \
+> +	 * the code where the exception occurred (since exception entry	      \
+> +	 * doesn't turn off DE automatically).  We simulate the effect	      \
+> +	 * of turning off DE on entry to an exception handler by turning      \
+> +	 * off DE in the CSRR1 value and clearing the debug status.	      \
+> +	 */								      \
+> +	mfspr	r10,SPRN_DBSR;		/* check single-step/branch taken */  \
+> +	andis.	r10,r10,DBSR_IC@h;					      \
+> +	beq+	2f;							      \
+> +									      \
+> +	lis	r10,KERNELBASE@h;	/* check if exception in vectors */   \
+> +	ori	r10,r10,KERNELBASE@l;					      \
 
-> If you insist on using #defines, then you need to do them like this at 
-> the very least:
-> 
-> 	#define TCLK_REG7 (TCLK_BASE+7)
-> 
-> ... so as to prevent operator precedence problems later on.  I.e. what 
-> happens here:
-> 
-> 	tclk = TCLK_REG7 / 2;
-> 
-> Not implying that the above is a realistic example, I'm just pointing out 
-> a potential gotcha that is easily avoided...
+I think we can get rid of one instruction here :)
 
-indeed, nearly all defines need to get lots of parenthesis for the exact
-same reason.
+-- 
+Eugene
 
-Thanks for pointing out the gdb trick.
-Willy
 

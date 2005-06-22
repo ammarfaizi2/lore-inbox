@@ -1,100 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261718AbVFVRgm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261821AbVFVRcW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261718AbVFVRgm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 13:36:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261785AbVFVRgR
+	id S261821AbVFVRcW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 13:32:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261690AbVFVR3g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 13:36:17 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:51429 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S261749AbVFVRfA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 13:35:00 -0400
-Message-Id: <200506221733.j5MHXEoH007541@laptop11.inf.utfsm.cl>
-To: "Artem B. Bityuckiy" <dedekind@yandex.ru>
-cc: =?KOI8-R?Q?Markus_T=F6rnqvist?= <mjt@nysv.org>,
-       Christophe Saout <christophe@saout.de>, Andrew Morton <akpm@osdl.org>,
-       Hans Reiser <reiser@namesys.com>, hch@infradead.org, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: reiser4 plugins 
-In-Reply-To: Message from "Artem B. Bityuckiy" <dedekind@yandex.ru> 
-   of "Wed, 22 Jun 2005 20:20:37 +0400." <42B98FD5.6050201@yandex.ru> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Wed, 22 Jun 2005 13:33:14 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.19.1]); Wed, 22 Jun 2005 13:33:15 -0400 (CLT)
+	Wed, 22 Jun 2005 13:29:36 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:44561 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261800AbVFVRXC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 13:23:02 -0400
+Date: Wed, 22 Jun 2005 18:22:50 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Daniel Walker <dwalker@mvista.com>
+Cc: "Eugeny S. Mints" <emints@ru.mvista.com>,
+       Andrew Lewis <andrew-lewis@netspace.net.au>,
+       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+Subject: Re: ARM Linux Suitability for Real-time Application
+Message-ID: <20050622182250.A13976@flint.arm.linux.org.uk>
+Mail-Followup-To: Daniel Walker <dwalker@mvista.com>,
+	"Eugeny S. Mints" <emints@ru.mvista.com>,
+	Andrew Lewis <andrew-lewis@netspace.net.au>,
+	linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+References: <20050622100231.A28181@flint.arm.linux.org.uk> <Pine.LNX.4.10.10506220951190.455-100000@godzilla.mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.10.10506220951190.455-100000@godzilla.mvista.com>; from dwalker@mvista.com on Wed, Jun 22, 2005 at 09:52:40AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Artem B. Bityuckiy <dedekind@yandex.ru> wrote:
-> Markus TЖrnqvist wrote:
-> > So merge it as it is 
+On Wed, Jun 22, 2005 at 09:52:40AM -0700, Daniel Walker wrote:
+> On Wed, 22 Jun 2005, Russell King wrote:
+> > If you're just after some background process to run off interrupts with
+> > minimal interrupt latency, the good news is that you don't have to modify
+> > the kernel on ARM, and you certainly don't need any RT patches.
+> > 
+> > If you use the FIQ, then your FIQ latency will be the time it takes the
+> > CPU to enter your FIQ function.  Since the kernel _never_ disables FIQs
+> > in any way, FIQs have ultimate priority over everything else in the
+> > system.
+> > 
+> 
+> Aren't FIQ's only on some ARM's ? 
 
-Fix it first. The "merge as it stands" just gives rise to stuff that is
-/never/ fixed properly.
+Yes, but please read the original mail.  I think you'll find my reply
+is completely relevant to the question being posed, which was based
+upon the AT91RM9200 SoC.
 
-> >                      and move the stuff to the VFS as needed or
-> > deemed necessary. And enable the pseudo interface, or at least
-> > set it in menuconfig and enable by default, it needs testing too.
-
-Then test it out of the standard tree...
-
-> Reiser4 has a number of great (IMO) things like file as directory,
-
-Urgh.
-
-> atomic operations,
-
-What is atomic that isn't in the standard filesystems? How do you guarantee
-it doesn't stop the system dead in its tracks waiting for some very long
-transaction to finish?
-
->                    different kinds of stat data,
-
-Usefulness? Sounds like kernel bloat leading to userspace bloat and
-applications/users wondering what the heck goes on when they don't grok the
-particular stat format.
-
->                                                  fibretions, etc,
-
-???
-
-> etc. Some thing is not yet ready - doesn't matter. Some of this is of
-> general interest, some is Reiser4-dedicated.
-
-I don't see anything that would interest me at least, so you can safely
-scratch the "general interest" part.
-
-> New interfaces are needed to allow users to utilize that all.
-
-That is a quite strong argument /against/ it all in my book. It means bloat
-in /every/ filesystem, and they have shown to be able to do without for
-some 30 years now. I'd need /very/ strong reasons for adding something.
-
->                                                               My point
-> is that the things that are of general interest must not be
-> Reiser4-only.
-
-Reiser4-only stuff is of very limited use, if it isn't just internal
-stuff. And that doesn't need any changes.
-
->               For example, I should have a possibility to implement
-> files-like-dir in _another_ FS using the same interfaces that Reiser4
-> uses. That's all I wanted to say.
-
-It has been argued over and over that that particular feature /can't/ be
-implemented sanely anyway, so it has to stay out. Besides not making any
-sense. "You've got files and directories" is a bit asymetrical and so not
-quite nice; "all you have is directories" is symmetrical, estetic, and
-completely useless; "some files are directories, some aren't; files in
-file-directories are different than regular files in directory-directories"
-is just a mindless jumble.
-
-> The other question that it may be difficult to foresee everything and
-> it may make sense to move some things upper in future.
-
-Another good reason to keep it out ;-)
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

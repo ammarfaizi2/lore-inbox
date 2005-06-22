@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262759AbVFVGJ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262748AbVFVFhl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262759AbVFVGJ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 02:09:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262830AbVFVFhW
+	id S262748AbVFVFhl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 01:37:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262754AbVFVFeK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 01:37:22 -0400
-Received: from mail.kroah.org ([69.55.234.183]:57244 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262821AbVFVFWU convert rfc822-to-8bit
+	Wed, 22 Jun 2005 01:34:10 -0400
+Received: from mail.kroah.org ([69.55.234.183]:40599 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262755AbVFVFMS convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 01:22:20 -0400
-Cc: rvinson@mvista.com
-Subject: [PATCH] I2C: Add support for Maxim/Dallas DS1374 Real-Time Clock Chip (2/2)
-In-Reply-To: <1119417468520@kroah.com>
+	Wed, 22 Jun 2005 01:12:18 -0400
+Cc: johnpol@2ka.mipt.ru
+Subject: [PATCH] w1: fix compiler warnings
+In-Reply-To: <11194171282338@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Tue, 21 Jun 2005 22:17:48 -0700
-Message-Id: <1119417468250@kroah.com>
+Date: Tue, 21 Jun 2005 22:12:08 -0700
+Message-Id: <11194171283762@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,53 +24,29 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] I2C: Add support for Maxim/Dallas DS1374 Real-Time Clock Chip (2/2)
+[PATCH] w1: fix compiler warnings
 
-This change provides support for the DS1374 Real-Time Clock chip present
-on the MPC8349ADS board. It depends on a previous patch which adds I2C
-support for the DS1374.
-
-Signed-off-by: Randy Vinson <rvinson@mvista.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
 
 ---
-commit bdca3f0aedde85552099aa95ab1449bf81e4f6f5
-tree 1016146e6b110707163777101436eb5b339d39bc
-parent c124a78d8c7475ecc43f385f34112b638c4228d9
-author Randy Vinson <rvinson@mvista.com> Fri, 03 Jun 2005 14:43:56 -0700
-committer Greg Kroah-Hartman <gregkh@suse.de> Tue, 21 Jun 2005 21:52:06 -0700
+commit e5c515b4532f4aac2b1136612d8c3ecd1891f431
+tree c0a20bf5fd930bdfaf3b40748c266a935e725c6b
+parent 6adf87bd7b7832105b9c6bc08adf6a4d229f1e79
+author Evgeniy Polyakov <johnpol@2ka.mipt.ru> Fri, 10 Jun 2005 14:53:22 +0400
+committer Greg Kroah-Hartman <gregkh@suse.de> Tue, 21 Jun 2005 21:43:12 -0700
 
- arch/ppc/platforms/83xx/mpc834x_sys.c |   20 ++++++++++++++++++++
- 1 files changed, 20 insertions(+), 0 deletions(-)
+ drivers/w1/w1_family.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-diff --git a/arch/ppc/platforms/83xx/mpc834x_sys.c b/arch/ppc/platforms/83xx/mpc834x_sys.c
---- a/arch/ppc/platforms/83xx/mpc834x_sys.c
-+++ b/arch/ppc/platforms/83xx/mpc834x_sys.c
-@@ -185,6 +185,26 @@ mpc834x_sys_init_IRQ(void)
- 	ipic_set_default_priority();
- }
+diff --git a/drivers/w1/w1_family.c b/drivers/w1/w1_family.c
+--- a/drivers/w1/w1_family.c
++++ b/drivers/w1/w1_family.c
+@@ -27,6 +27,7 @@
  
-+#if defined(CONFIG_I2C_MPC) && defined(CONFIG_SENSORS_DS1374)
-+extern ulong	ds1374_get_rtc_time(void);
-+extern int	ds1374_set_rtc_time(ulong);
-+
-+static int __init
-+mpc834x_rtc_hookup(void)
-+{
-+	struct timespec	tv;
-+
-+	ppc_md.get_rtc_time = ds1374_get_rtc_time;
-+	ppc_md.set_rtc_time = ds1374_set_rtc_time;
-+
-+	tv.tv_nsec = 0;
-+	tv.tv_sec = (ppc_md.get_rtc_time)();
-+	do_settimeofday(&tv);
-+
-+	return 0;
-+}
-+late_initcall(mpc834x_rtc_hookup);
-+#endif
- static __inline__ void
- mpc834x_sys_set_bat(void)
+ DEFINE_SPINLOCK(w1_flock);
+ static LIST_HEAD(w1_families);
++extern void w1_reconnect_slaves(struct w1_family *f);
+ 
+ static int w1_check_family(struct w1_family *f)
  {
 

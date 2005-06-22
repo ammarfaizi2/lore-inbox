@@ -1,57 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262874AbVFVJ0y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262868AbVFVJWB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262874AbVFVJ0y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 05:26:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262828AbVFVJ0p
+	id S262868AbVFVJWB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 05:22:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262944AbVFVJRD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 05:26:45 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:5894 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262874AbVFVJYO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 05:24:14 -0400
-Date: Wed, 22 Jun 2005 11:24:09 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] document that 8139TOO supports 8129/8130
-Message-ID: <20050622092408.GB3705@stusta.de>
+	Wed, 22 Jun 2005 05:17:03 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:60126 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262930AbVFVJNT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 05:13:19 -0400
+Date: Wed, 22 Jun 2005 02:12:51 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: pavel@ucw.cz, linux-kernel@vger.kernel.org
+Subject: Re: -mm -> 2.6.13 merge status (fuse)
+Message-Id: <20050622021251.5137179f.akpm@osdl.org>
+In-Reply-To: <E1Dl1Ce-0007BO-00@dorka.pomaz.szeredi.hu>
+References: <20050620235458.5b437274.akpm@osdl.org>
+	<E1Dkfu2-0005Ju-00@dorka.pomaz.szeredi.hu>
+	<20050621142820.GC2015@openzaurus.ucw.cz>
+	<E1DkkRE-0005mt-00@dorka.pomaz.szeredi.hu>
+	<20050621220619.GC2815@elf.ucw.cz>
+	<E1Dkyas-0006wu-00@dorka.pomaz.szeredi.hu>
+	<20050621233914.69a5c85e.akpm@osdl.org>
+	<E1DkzTO-00072F-00@dorka.pomaz.szeredi.hu>
+	<20050622004902.796fa977.akpm@osdl.org>
+	<E1Dl1Ce-0007BO-00@dorka.pomaz.szeredi.hu>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The 8129/8130 support is a sub-option that is not visible if the user 
-hasn't enabled the 8139 support.
+Miklos Szeredi <miklos@szeredi.hu> wrote:
+>
+> > Can we enhance private namespaces so they can squash setuid/setgid?  If so,
+>  > is that adequate?
+> 
+>  We could.  But that would again be overly restrictive.  The goal is to
+>  make the use of FUSE filesystems for users as simple as possible.  If
+>  the user has to manage multiple namespaces, each with it's own
+>  restrictions, it's becoming a very un-user-friendly environment.
 
-Let's make it a bit easier for users to find the driver for their nic.
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
----
-
-This patch was already sent on:
-- 16 May 2005
-
---- linux-2.6.12-rc4-mm1-full/drivers/net/Kconfig.old	2005-05-13 05:54:05.000000000 +0200
-+++ linux-2.6.12-rc4-mm1-full/drivers/net/Kconfig	2005-05-13 06:00:21.000000000 +0200
-@@ -1484,14 +1484,14 @@
- 	  will be called 8139cp.  This is recommended.
- 
- config 8139TOO
--	tristate "RealTek RTL-8139 PCI Fast Ethernet Adapter support"
-+	tristate "RealTek RTL-8129/8130/8139 PCI Fast Ethernet Adapter support"
- 	depends on NET_PCI && PCI
- 	select CRC32
- 	select MII
- 	---help---
- 	  This is a driver for the Fast Ethernet PCI network cards based on
--	  the RTL8139 chips. If you have one of those, say Y and read
--	  the Ethernet-HOWTO <http://www.tldp.org/docs.html#howto>.
-+	  the RTL 8129/8130/8139 chips. If you have one of those, say Y and
-+	  read the Ethernet-HOWTO <http://www.tldp.org/docs.html#howto>.
- 
- 	  To compile this driver as a module, choose M here: the module
- 	  will be called 8139too.  This is recommended.
-
+I'd have thought that it would be possible to offer the same user interface
+as you currently have with private namespaces.  Hide any complexity in the
+userspace tools?  Where's the problem?

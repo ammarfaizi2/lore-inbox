@@ -1,41 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262407AbVFVA1m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262307AbVFVA1X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262407AbVFVA1m (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 20:27:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262386AbVFVA1f
+	id S262307AbVFVA1X (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 20:27:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262386AbVFVAXS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 20:27:35 -0400
-Received: from [62.206.217.67] ([62.206.217.67]:45471 "EHLO kaber.coreworks.de")
-	by vger.kernel.org with ESMTP id S262398AbVFVA0y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 20:26:54 -0400
-Message-ID: <42B8B035.7020303@trash.net>
-Date: Wed, 22 Jun 2005 02:26:29 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.8) Gecko/20050514 Debian/1.7.8-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@davemloft.net>
-CC: chrisw@osdl.org, bdschuym@pandora.be, bdschuym@telenet.be,
-       herbert@gondor.apana.org.au, netfilter-devel@lists.netfilter.org,
-       linux-kernel@vger.kernel.org, rankincj@yahoo.com,
-       ebtables-devel@lists.sourceforge.net, netfilter-devel@manty.net
-Subject: Re: 2.6.12: connection tracking broken?
-References: <42B82F35.3040909@trash.net>	<1119386772.3379.4.camel@localhost.localdomain>	<20050621212317.GB9153@shell0.pdx.osdl.net> <20050621.153215.74747942.davem@davemloft.net>
-In-Reply-To: <20050621.153215.74747942.davem@davemloft.net>
-Content-Type: text/plain; charset=us-ascii
+	Tue, 21 Jun 2005 20:23:18 -0400
+Received: from smtpauth06.mail.atl.earthlink.net ([209.86.89.66]:49129 "EHLO
+	smtpauth06.mail.atl.earthlink.net") by vger.kernel.org with ESMTP
+	id S262307AbVFVAVJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 20:21:09 -0400
+In-Reply-To: <200506212334.44066.arnd@arndb.de>
+References: <200506212310.54156.arnd@arndb.de> <200506212326.18205.arnd@arndb.de> <200506212328.28929.arnd@arndb.de> <200506212334.44066.arnd@arndb.de>
+Mime-Version: 1.0 (Apple Message framework v622)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <dc0a828aec834a05b3b3fd6d4f6e3426@penguinppc.org>
 Content-Transfer-Encoding: 7bit
+Cc: Paul Mackerras <paulus@samba.org>, linuxppc64-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
+From: Hollis Blanchard <hollis@penguinppc.org>
+Subject: Re: [PATCH 10/11] ppc64: SPU file system
+Date: Tue, 21 Jun 2005 19:21:09 -0500
+To: Arnd Bergmann <arnd@arndb.de>
+X-Mailer: Apple Mail (2.622)
+X-ELNK-Trace: 77a46389d001b1f223bcf3e39c2f8b5f1aa676d7e74259b7b3291a7d08dfec7957a29a5ce07feffc8c3ab1d6ac159afc350badd9bab72f9c350badd9bab72f9c
+X-Originating-IP: 63.246.184.80
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
->>Is this one good for -stable?
-> 
-> We will push it to stable@kernel.org if we deem it should.
+On Jun 21, 2005, at 4:34 PM, Arnd Bergmann wrote:
 
-I would like to get confirmation from someone affected by this
-bug, after that I think it should go in -stable. Chris, could
-you give it a try?
+> +union MFC_TagSizeClassCmd {
 
-Thanks
-Patrick
+I think great effort has gone in to removing so-called "StudlyCaps" 
+from the ppc64 iSeries code... :)
+
+Also, I didn't see "MFC" defined anywhere... it's sort of a pet peeve, 
+but could you make sure all your acronyms are defined? Most of them are 
+described in spu.h, but a few slipped through I think (like "SMF").
+
+And while a comment at the top of every file is great, ones like this:
+> +/*
+> + * Low-level SPU handling
+> + *
+might be more helpful if they defined SPU and further mentioned it's 
+the coprocessor in the Broadband Processor Architecture...
+
+-Hollis
+

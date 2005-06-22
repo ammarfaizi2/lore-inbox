@@ -1,75 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262844AbVFVHqi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262869AbVFVHqx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262844AbVFVHqi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 03:46:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262845AbVFVHpe
+	id S262869AbVFVHqx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 03:46:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262845AbVFVHqm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 03:45:34 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:12429 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S262844AbVFVFzI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 01:55:08 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: linux-os@analogic.com, KV Pavuram <kvpavuram@yahoo.co.in>
-Subject: Re: 0xffffe002 in ??
-Date: Wed, 22 Jun 2005 08:54:44 +0300
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-References: <20050621152133.77162.qmail@web8409.mail.in.yahoo.com> <Pine.LNX.4.61.0506211132140.17269@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0506211132140.17269@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506220854.44182.vda@ilport.com.ua>
+	Wed, 22 Jun 2005 03:46:42 -0400
+Received: from 238-071.adsl.pool.ew.hu ([193.226.238.71]:25608 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S262816AbVFVGUk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 02:20:40 -0400
+To: pavel@ucw.cz
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org
+In-reply-to: <20050621220619.GC2815@elf.ucw.cz> (message from Pavel Machek on
+	Wed, 22 Jun 2005 00:06:19 +0200)
+Subject: Re: -mm -> 2.6.13 merge status (fuse)
+References: <20050620235458.5b437274.akpm@osdl.org> <E1Dkfu2-0005Ju-00@dorka.pomaz.szeredi.hu> <20050621142820.GC2015@openzaurus.ucw.cz> <E1DkkRE-0005mt-00@dorka.pomaz.szeredi.hu> <20050621220619.GC2815@elf.ucw.cz>
+Message-Id: <E1Dkyas-0006wu-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Wed, 22 Jun 2005 08:20:14 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 21 June 2005 18:38, Richard B. Johnson wrote:
-> On Tue, 21 Jun 2005, KV Pavuram wrote:
+> Not so emotional argument...
 > 
-> > I am running a multithreaded application on Linux 2.4
-> > kernel (RedHat Linux 9).
-> >
-> > At some point the program receives a seg. fault and if
-> > i check info threads, using gdb for debug, almost all
-> > the threads are at "0xffffe002 in ??"
+> System where users can mount their own filesystems should not be
+> called "Unix" any more.
 
-It most likely is something in VDSO:
+It's not.  It's "Linux".  And anyway, sysadmin may set whatever
+owner/group/permissions on '/dev/fuse' to disallow or selectively
+allow users to be able to mount FUSE filesystems.
 
-# pmap 1
-1: init
-Start         Size Perm Mapping
-08048000      704K r-xp /app/bash-3.0-uc/bin/bash
-080f8000       28K rwxp /app/bash-3.0-uc/bin/bash
-080ff000       40K rwxp [heap]
-b7f20000      272K r-xp /app/uclibc-0.9.26/lib/libuClibc-0.9.26.so
-b7f64000        8K rwxp /app/uclibc-0.9.26/lib/libuClibc-0.9.26.so
-b7f66000       16K rwxp [ anon ]
-b7f6a000        8K r-xp /app/uclibc-0.9.26/lib/libdl-0.9.26.so
-b7f6c000        4K rwxp /app/uclibc-0.9.26/lib/libdl-0.9.26.so
-b7f6e000        4K rwxp [ anon ]
-b7f6f000       16K r-xp /app/uclibc-0.9.26/lib/ld-uClibc-0.9.26.so
-b7f73000        4K rwxp /app/uclibc-0.9.26/lib/ld-uClibc-0.9.26.so
-bff5d000       88K rwxp [ stack ]
-ffffe000        4K ---p [vdso]       <====================================
-mapped: 1196K    writeable/private: 192K    shared: 0K
+> It introduces new mechanism, similar to ptrace. It restricts root in
+> ways not seen before.
 
-> If a number of threads arrive at the same bad address you
-> should look for some common code that calls through
-> a function pointer. If you don't have any calls through
-> pointers, then you may have something corrupting the stack
-> so that the return address of a called function gets
-> corrupted. For instance, if the value 0x02e0 was written
-> beyond array limits in local (stack) data, then when that
-> function returned it could actually end up 'returning'
-> to the bad address you discovered.
+Not true.  Root squash in NFS has similar effect.
 
-> Although the kernel provided the seg-fault mechanism, this
-> is not a kernel problem. This is a user-code problem.
+> How is updatedb/locate supposed to work on system with this? How is
+> it going to interact with backup tools?
 
-I'm not so sure.
---
-vda
+I assure you, that it will cause no problems whatever.  These programs
+are able to gracefully handle errors.
 
+> Add this to your A): "by tricking some interpretter to think script is
+> setuid".
+
+How would you do that?
+
+> > You have a choice of: 1) believe me that the current solution is
+> > fine
+> 
+> >  2) get down and try to understand the damn thing, and then come up
+> >     with technical arguments for/against it
+> 
+> Argument is "it is **** ugly".
+
+Yeah, that's your opinion.  Mine is that it's f****** beautiful ;).
+
+There are plenty of ugly things in Unix/Linux that you've become so
+accustomed to, that they no longer seem ugly.  Think about the sticky
+bit on directories for example.  That one was breaking assumptions
+left and right when it got introduced, but people came to accept it,
+because it's useful.
+
+> Your fuse.txt explains why it is not security hole. It does not
+> explain why your interface is the best possible, and what alternative
+> ways of "not security hole" exist.
+
+That's because I don't see any alternative.  The "preventing user from
+tracing root" and "preventing access to user's filesysem by root" must
+come together.  There's doesn't seem to be any other way.
+
+BTW, thanks for reading through fuse.txt :)
+
+Miklos

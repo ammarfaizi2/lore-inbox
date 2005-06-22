@@ -1,61 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261644AbVFVQhY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261680AbVFVQgo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261644AbVFVQhY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 12:37:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261642AbVFVQhX
+	id S261680AbVFVQgo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 12:36:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261630AbVFVQeI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 12:37:23 -0400
-Received: from wproxy.gmail.com ([64.233.184.193]:40336 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261589AbVFVQeX convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 12:34:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=bozrbtJOkaGbZsWXdaZzct1awon7e7n0vBQnSYCSKv8A02btxJ5hlAjHqDS42Nq1nLC6CRBGpPZ0WsU80mkXhMZ+sIp8Rqbxd7cuyo2jnaLMmQnT3e2cq004JS9Rc1zuciwPQ75r5CCtmPbMet4xWctp8hibZpjVzderE8eH0XQ=
-Message-ID: <a4e6962a05062209343a040c1f@mail.gmail.com>
-Date: Wed, 22 Jun 2005 11:34:18 -0500
-From: Eric Van Hensbergen <ericvh@gmail.com>
-Reply-To: Eric Van Hensbergen <ericvh@gmail.com>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: -mm -> 2.6.13 merge status (fuse)
-Cc: Miklos Szeredi <miklos@szeredi.hu>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <a4e6962a050622085021cdfb9d@mail.gmail.com>
+	Wed, 22 Jun 2005 12:34:08 -0400
+Received: from p-mail1.rd.francetelecom.com ([195.101.245.15]:55301 "EHLO
+	p-mail1.rd.francetelecom.com") by vger.kernel.org with ESMTP
+	id S261589AbVFVQcr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 12:32:47 -0400
+Subject: [PATCH] Adapt drivers/char/vt_ioctl.c to non-x86.
+From: zze-COLBUS Emmanuel RD-MAPS-GRE 
+	<emmanuel.colbus@rd.francetelecom.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Wed, 22 Jun 2005 18:32:41 +0200
+Message-Id: <1119457961.4372.19.camel@g-xw4200-6.rd.francetelecom.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050620235458.5b437274.akpm@osdl.org>
-	 <E1Dkfu2-0005Ju-00@dorka.pomaz.szeredi.hu>
-	 <20050621142820.GC2015@openzaurus.ucw.cz>
-	 <E1DkkRE-0005mt-00@dorka.pomaz.szeredi.hu>
-	 <20050621220619.GC2815@elf.ucw.cz>
-	 <a4e6962a05062207435dd16240@mail.gmail.com>
-	 <20050622150839.GB1881@elf.ucw.cz>
-	 <a4e6962a050622085021cdfb9d@mail.gmail.com>
+X-Mailer: Evolution 2.0.1-1mdk 
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 22 Jun 2005 16:32:42.0284 (UTC) FILETIME=[0312C6C0:01C57748]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/22/05, Eric Van Hensbergen <ericvh@gmail.com> wrote:
-    ...
-> 
-> If you combine these two restrictions with only allowing unprivileged
-> mounts in private name space I think you get 90% there.  The only
-> thing left to resolve is the best way to allow sharing private name
-> spaces between threads/users -- and I still view this as more of
-> extended functionality than a hard-requirement.
-> 
 
-Reviewing my notes, there were a few subtle restrictions I forgot
-(most of which originally suggested by Miklos):
+Hello,
 
-(a) User's can't mount file system types not deemed "safe" (via  flag
-in the file system type) -- this should help mitigate user's
-exploiting bugs in existing file systems to interfere with the system.
- Judging when a file system type is "safe" is a nasty kettle of fish
-though...
-(b) Enforce NODEV along with NOSUID so that user-based synthetics
-can't have device inodes with compromised permissions, etc.
+I think there is a bug in drivers/char/vt_ioctl.c. This code uses the
+x86 (non-AMD-ELAN) value of CLOCK_TICK_RATE instead of CLOCK_TICK_RATE
+itself, which is wrong for other archs.
 
-       -eric
+This patch fixes it.
+
+BTW, who is the maintainer of the text-mode console code? I couldn't
+find it in the MAINTAINER file.
+
+Signed-off-by: Emmanuel Colbus <emmanuel.colbus@ensimag.imag.fr>
+
+
+--- drivers/char/vt_ioctl_old.c 2005-06-22 18:04:21.912145025 +0200
++++ drivers/char/vt_ioctl.c     2005-06-22 17:59:54.867498294 +0200
+@@ -25,6 +25,7 @@
+ #include <linux/fs.h>
+ #include <linux/console.h>
+ #include <linux/signal.h>
++#include <linux/timex.h>
+
+ #include <asm/io.h>
+ #include <asm/uaccess.h>
+@@ -386,7 +387,7 @@
+ 		if (!perm)
+ 			return -EPERM;
+ 		if (arg)
+-			arg = 1193182 / arg;
++			arg = CLOCK_TICK_RATE / arg;
+ 		kd_mksound(arg, 0);
+ 		return 0;
+
+@@ -403,7 +404,7 @@
+ 		ticks = HZ * ((arg >> 16) & 0xffff) / 1000;
+ 		count = ticks ? (arg & 0xffff) : 0;
+ 		if (count)
+-			count = 1193182 / count;
++			count = CLOCK_TICK_RATE / count;
+ 		kd_mksound(count, ticks);
+ 		return 0;
+ 	}
+
+
+

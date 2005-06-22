@@ -1,67 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261176AbVFVMME@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261196AbVFVMV3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261176AbVFVMME (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 08:12:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261202AbVFVMME
+	id S261196AbVFVMV3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 08:21:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261202AbVFVMV3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 08:12:04 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:27318 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id S261176AbVFVML7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 08:11:59 -0400
-Date: Wed, 22 Jun 2005 16:11:42 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Grant Coady <grant_lkml@dodo.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-mm1 breaks Toshiba laptop yenta cardbus
-Message-ID: <20050622161142.A32391@jurassic.park.msu.ru>
-References: <s32db1toatpgar8nun4m5rtqq97hkbk2ab@4ax.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <s32db1toatpgar8nun4m5rtqq97hkbk2ab@4ax.com>; from grant_lkml@dodo.com.au on Mon, Jun 20, 2005 at 07:15:34PM +1000
+	Wed, 22 Jun 2005 08:21:29 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:47556 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S261196AbVFVMVR convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 08:21:17 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [Fwd: 2.4 and aacraid dmesg]
+Date: Wed, 22 Jun 2005 08:20:28 -0400
+Message-ID: <60807403EABEB443939A5A7AA8A7458B0152136F@otce2k01.adaptec.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [Fwd: 2.4 and aacraid dmesg]
+Thread-Index: AcV2jcFQ3F8cZgpFSMu6sb24iiNVnQAlS+AA
+From: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
+To: "Mark Haverkamp" <markh@osdl.org>
+Cc: "Gabor Z. Papp" <gzp@papp.hu>, <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 20, 2005 at 07:15:34PM +1000, Grant Coady wrote:
-> Yenta: CardBus bridge found at 0000:00:0b.0 [1179:0001]
-> yenta 0000:00:0b.0: Preassigned resource 0 busy, reconfiguring...
+The message is coming from the PCI subsystem. Yes it is triggered by the
+pending driver load and requesting card pci resources, but such messages
+are usually a result of issues with the Motherboard BIOS or Hardware.
+They are not generally a result of the driver or the associated
+hardware.
 
-In -mm1 the cardbus resources might be assigned in
-pci_assign_unassigned_resources() pass. From your dmesg:
-PCI: Bus 2, cardbus bridge: 0000:00:0b.0
-  IO window: 00002000-00002fff
-  IO window: 00003000-00003fff
-  PREFETCH window: 12000000-13ffffff
-  MEM window: 14000000-15ffffff
+My take (which can be incorrect) on this message is that someone put
+just a bit too much debugging into the PCI subsystem :-) and the net
+result is that you are firmly knowledgeable about the fact that device
+on PCI address 03:0d.0 and 03:09.0 are sharing IRQ 4. The 'info' message
+is printed every time the pcibios_enable_device() call is made. The
+interrupt sharing is assigned by the Motherboard BIOS and if you have
+subsequent problems with the operation of the card(s) or the system, you
+should investigate updating the Motherboard BIOS or go into the
+motherboard BIOS setup and see if you can reassign the PCI (IRQ)
+resources.
 
-Then yenta_allocate_res() tries to assign these resources again and,
-naturally, fails.
+The spurious 8259A interrupt message *may* be viewed as a problem.
 
-This adds check for already assigned cardbus resources.
+Sincerely -- Mark Salyzyn
 
-Ivan.
+-----Original Message-----
+From: Mark Haverkamp [mailto:markh@osdl.org] 
+Sent: Tuesday, June 21, 2005 2:20 PM
+To: Salyzyn, Mark
+Subject: [Fwd: 2.4 and aacraid dmesg]
 
---- 2.6.12-mm1/drivers/pcmcia/yenta_socket.c	Wed Jun 22 15:56:20 2005
-+++ linux/drivers/pcmcia/yenta_socket.c	Wed Jun 22 16:01:40 2005
-@@ -553,6 +553,11 @@ static int yenta_try_allocate_res(struct
- 	unsigned offset;
- 	unsigned mask;
- 
-+	res = socket->dev->resource + PCI_BRIDGE_RESOURCES + nr;
-+	/* Already allocated? */
-+	if (res->parent)
-+		return 0;
-+
- 	/* The granularity of the memory limit is 4kB, on IO it's 4 bytes */
- 	mask = ~0xfff;
- 	if (type & IORESOURCE_IO)
-@@ -560,7 +565,6 @@ static int yenta_try_allocate_res(struct
- 
- 	offset = 0x1c + 8*nr;
- 	bus = socket->dev->subordinate;
--	res = socket->dev->resource + PCI_BRIDGE_RESOURCES + nr;
- 	res->name = bus->name;
- 	res->flags = type;
- 	res->start = 0;
+I noticed this in the lk list.
+
+-------- Forwarded Message --------
+From: Gabor Z. Papp <gzp@papp.hu>
+To: linux-kernel@vger.kernel.org, linux-aacraid-devel@dell.com
+Subject: 2.4 and aacraid dmesg
+Date: Tue, 21 Jun 2005 19:45:04 +0200
+Is this
+
+PCI: Found IRQ 4 for device 03:0d.0
+PCI: Sharing IRQ 4 with 03:09.0
+
+repeated kernel message okay for so many times?
+
+Linux version 2.4.31 (root@gzp) (gcc version 3.4.3) #1 Tue Jun 7
+18:53:06 CEST 2005
+[...]
+SCSI subsystem driver Revision: 1.00
+Red Hat/Adaptec aacraid driver (1.1-3 Jun  7 2005 18:53:28)
+PCI: Found IRQ 4 for device 03:0d.0
+PCI: Sharing IRQ 4 with 03:09.0
+AAC0: kernel 4.2.4 build 7349
+AAC0: monitor 4.2.4 build 7349
+AAC0: bios 4.2.0 build 7349
+AAC0: serial bad0fafaf001
+AAC0: Non-DASD support enabled
+spurious 8259A interrupt: IRQ7.
+PCI: Found IRQ 4 for device 03:0d.0
+PCI: Sharing IRQ 4 with 03:09.0
+PCI: Found IRQ 4 for device 03:0d.0
+PCI: Sharing IRQ 4 with 03:09.0
+PCI: Found IRQ 4 for device 03:0d.0
+PCI: Sharing IRQ 4 with 03:09.0
+PCI: Found IRQ 4 for device 03:0d.0
+PCI: Sharing IRQ 4 with 03:09.0
+PCI: Found IRQ 4 for device 03:0d.0
+PCI: Sharing IRQ 4 with 03:09.0
+PCI: Found IRQ 4 for device 03:0d.0
+PCI: Sharing IRQ 4 with 03:09.0
+PCI: Found IRQ 4 for device 03:0d.0
+PCI: Sharing IRQ 4 with 03:09.0
+PCI: Found IRQ 4 for device 03:0d.0
+PCI: Sharing IRQ 4 with 03:09.0
+PCI: Found IRQ 4 for device 03:0d.0
+PCI: Sharing IRQ 4 with 03:09.0
+PCI: Found IRQ 4 for device 03:0d.0
+PCI: Sharing IRQ 4 with 03:09.0
+PCI: Found IRQ 4 for device 03:0d.0
+PCI: Sharing IRQ 4 with 03:09.0
+PCI: Found IRQ 4 for device 03:0d.0
+PCI: Sharing IRQ 4 with 03:09.0
+PCI: Found IRQ 4 for device 03:0d.0
+PCI: Sharing IRQ 4 with 03:09.0
+PCI: Found IRQ 4 for device 03:0d.0
+PCI: Sharing IRQ 4 with 03:09.0
+PCI: Found IRQ 4 for device 03:0d.0
+PCI: Sharing IRQ 4 with 03:09.0
+PCI: Found IRQ 4 for device 03:0d.0
+PCI: Sharing IRQ 4 with 03:09.0
+PCI: Found IRQ 4 for device 03:0d.0
+PCI: Sharing IRQ 4 with 03:09.0
+PCI: Found IRQ 4 for device 03:0d.0
+PCI: Sharing IRQ 4 with 03:09.0
+scsi0 : aacraid
+  Vendor: ADAPTEC   Model: Adaptec Mirror    Rev: V1.0
+  Type:   Direct-Access                      ANSI SCSI revision: 02
+
+lspci not very informative about the card:
+
+03:0d.0 RAID bus controller: Adaptec AAC-RAID (rev 01)
+
+Its an Adaptec 2120S pci raid controller.
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+Mark Haverkamp <markh@osdl.org>
+

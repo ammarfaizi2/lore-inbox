@@ -1,51 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261197AbVFVLaj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261155AbVFVLk3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261197AbVFVLaj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 07:30:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261909AbVFVLah
+	id S261155AbVFVLk3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 07:40:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261157AbVFVLk3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 07:30:37 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:43190 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261979AbVFVLaX (ORCPT
+	Wed, 22 Jun 2005 07:40:29 -0400
+Received: from zombie.ncsc.mil ([144.51.88.131]:60842 "EHLO jazzdrum.ncsc.mil")
+	by vger.kernel.org with ESMTP id S261155AbVFVLkX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 07:30:23 -0400
-Date: Wed, 22 Jun 2005 13:30:11 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: RedIpS <ris@elsat.net.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: BUG - realtime-preempt-2.6.12-final-V0.7.50
-Message-ID: <20050622113011.GA10973@elte.hu>
-References: <20050622131820.4aa2554e@redips.elsat.net.pl>
+	Wed, 22 Jun 2005 07:40:23 -0400
+Subject: Re: [patch 1/2] selinux: add executable stack check
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
+	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, jmorris@redhat.com
+In-Reply-To: <20050622015156.AAD7056C876@estila.tuxedo-es.org>
+References: <20050622015156.AAD7056C876@estila.tuxedo-es.org>
+Content-Type: text/plain; charset=utf-8
+Organization: National Security Agency
+Date: Wed, 22 Jun 2005 07:39:03 -0400
+Message-Id: <1119440343.13181.2.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050622131820.4aa2554e@redips.elsat.net.pl>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2005-06-22 at 03:51 +0200, Lorenzo Hernández García-Hierro
+wrote:
+> This patch adds an execstack permission check that controls the
+> ability to make the main process stack executable so that attempts to
+> make the stack executable can still be prevented even if the process is
+> allowed the existing execmem permission in order to e.g. perform runtime
+> code generation.  Note that this does not yet address thread stacks.
+> Note also that unlike the execmem check, the execstack check is only
+> applied on mprotect calls, not mmap calls, as the current
+> security_file_mmap hook is not passed the necessary information
+> presently.
 
-(please Cc: me on -RT bugs)
-
-* RedIpS <ris@elsat.net.pl> wrote:
-
-> DMESG:
+> Signed-off-by: Lorenzo Hernandez Garcia-Hierro <lorenzo@gnu.org>
+> ---
 > 
-> nvidia: module license 'NVIDIA' taints kernel.
+>  security/selinux/hooks.c                     |   10 ++++++++++
+>  security/selinux/include/av_perm_to_string.h |    1 +
+>  security/selinux/include/av_permissions.h    |    1 +
+>  3 files changed, 12 insertions(+)
 
-uh oh. Can you see this without the nvidia module loaded?
+Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
-> PCI: Setting latency timer of device 0000:00:11.5 to 64
-> int3: 0000 [#1]
-> PREEMPT 
+-- 
+Stephen Smalley
+National Security Agency
 
-do you have any other patches applied ontop of -RT, like kgdb?
-
-	Ingo

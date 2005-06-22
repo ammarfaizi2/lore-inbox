@@ -1,67 +1,145 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261688AbVFVR3Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261754AbVFVR10@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261688AbVFVR3Z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 13:29:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261821AbVFVRWz
+	id S261754AbVFVR10 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 13:27:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261718AbVFVR0J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 13:22:55 -0400
-Received: from 238-071.adsl.pool.ew.hu ([193.226.238.71]:58638 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S261800AbVFVRTd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 13:19:33 -0400
-To: ericvh@gmail.com
-CC: akpm@osdl.org, pavel@ucw.cz, linux-kernel@vger.kernel.org
-In-reply-to: <a4e6962a05062209486115ec@mail.gmail.com> (message from Eric Van
-	Hensbergen on Wed, 22 Jun 2005 11:48:00 -0500)
-Subject: Re: -mm -> 2.6.13 merge status (fuse)
-References: <20050620235458.5b437274.akpm@osdl.org>
-	 <E1DkzTO-00072F-00@dorka.pomaz.szeredi.hu>
-	 <20050622004902.796fa977.akpm@osdl.org>
-	 <E1Dl1Ce-0007BO-00@dorka.pomaz.szeredi.hu>
-	 <20050622021251.5137179f.akpm@osdl.org>
-	 <E1Dl1Oz-0007Dq-00@dorka.pomaz.szeredi.hu>
-	 <20050622024423.66d773f3.akpm@osdl.org>
-	 <E1Dl20U-0007Ic-00@dorka.pomaz.szeredi.hu>
-	 <a4e6962a0506220523791a31da@mail.gmail.com>
-	 <E1Dl85I-0007nR-00@dorka.pomaz.szeredi.hu> <a4e6962a05062209486115ec@mail.gmail.com>
-Message-Id: <E1Dl8sZ-0007tG-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Wed, 22 Jun 2005 19:19:11 +0200
+	Wed, 22 Jun 2005 13:26:09 -0400
+Received: from opersys.com ([64.40.108.71]:58637 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S261690AbVFVRYx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 13:24:53 -0400
+Subject: Re: PREEMPT_RT vs I-PIPE: the numbers, part 2
+From: Kristian Benoit <kbenoit@opersys.com>
+To: paulmck@us.ibm.com
+Cc: Karim Yaghmour <karim@opersys.com>, linux-kernel@vger.kernel.org,
+       bhuey@lnxw.com, andrea@suse.de, tglx@linutronix.de, mingo@elte.hu,
+       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
+       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org, Philippe Gerum <rpm@xenomai.org>
+In-Reply-To: <20050622162718.GD1296@us.ibm.com>
+References: <1119287612.6863.1.camel@localhost>
+	 <20050621015542.GB1298@us.ibm.com> <42B77B8C.6050109@opersys.com>
+	 <20050622011931.GF1324@us.ibm.com> <42B9845B.8030404@opersys.com>
+	 <20050622162718.GD1296@us.ibm.com>
+Content-Type: text/plain
+Date: Wed, 22 Jun 2005 13:20:03 -0400
+Message-Id: <1119460803.5825.13.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > It's related to the problem of a suid program accessing synthetic
-> > filesystem, and filesystem doing something bad to suid program (make
-> > it hang, supply bogus data ...).  This can be solved by "squashing"
-> > suid for the whole namespace (basically the Plan 9 solution).
-> > Unfortunately this is not really practical in Linux/Unix.
+On Wed, 2005-06-22 at 09:27 -0700, Paul E. McKenney wrote:
+> On Wed, Jun 22, 2005 at 11:31:39AM -0400, Karim Yaghmour wrote:
 > > 
+> > Paul E. McKenney wrote:
+> > > Probably just my not fully understanding I-PIPE (to say nothing of
+> > > not fully understanding your test setup!), but I would have expected
+> > > I-PIPE to be able to get somewhere in the handfuls of microseconds of
+> > > interrupt latency.  Looks like it prevents Linux from ever disabling
+> > > real interrupts -- my first guess after reading your email was that
+> > > Linux was disabling real interrupts and keeping I-PIPE from getting
+> > > there in time.
+> > 
+> > Have a look at the announcement just made by Kristian about the LRTBF.
+> > There's a tarball with all the code for the drivers, scripts and
+> > configs we used.
 > 
-> Just to make sure I understand you - if I don't squash suid for the
-> entire name space, a user could mount a malicious synthetic (even with
-> NOSUID) and then launch an SUID app from an inherited mount which
-> would then traverse to the malicious synthetic.
+> I see that now, cool!!!  And thank you and Kristian for putting this
+> together!
 
-Yes. 
+You're welcome. Thanks to Karim and Opersys that showed me the
+path !! :)
 
-> That's a nasty case I hadn't considered before -- however, what's the
-> potential damage there?  The user could hold up progress of the SUID
-> app that they launched, but that wouldn't necessarily impede system
-> progress since system-critical suid apps wouldn't be typically
-> launched by a user.  I suppose there is the possibility that if
-> multiple instances of such an SUID app share a global lock you could
-> get into trouble -- do we have any concrete example apps that would
-> exhibit this kind of behavior?
+> > Nevertheless, maybe it's worth that I clarify the setup further.
+> > Here's what we had:
+> > 
+> >                      +----------+
+> >                      |   HOST   |
+> >                      +----------+
+> >                           |
+> >                           |
+> >                           | Ethernet LAN
+> >                           |
+> >                          / \
+> >                         /   \
+> >                        /     \
+> >                       /       \
+> >                      /         \
+> >                     /           \
+> >                    /             \
+> >             +--------+  SERIAL  +--------+
+> >             | LOGGER |----------| TARGET |
+> >             +--------+          +--------+
+> > 
+> > The logger sends an interrupt to the target every 1ms. Here's the
+> > path travelled by this interrupt (L for logger, T for target):
+> > 
+> > 1- L:adeos-registered handler is called at timer interrupt
+> > 2- L:record TSC for transmission
+> > 3- L:write out to parallel port
+> > 4- T:ipipe-registered handler called to receive interrupt
+> > 5- T:write out to parallel port
+> > 6- L:adeos-registered handler called to receive interrupt
+> > 7- L:record TSC for receipt
+> > 
+> > The response times obtained include all that goes on from 2 to
+> > 7, including all hardware-related delays. The target's true
+> > response time is from 3.5 to 5.5 (the .5 being the actual
+> > time it takes for the signal to reache the pins on the actual
+> > physical parallel port outside the computer.)
+> > 
+> > The time from 2 to 3.5 includes the execution time for a few
+> > instructions (record TSC value to RAM and outb()) and the delay
+> > for the hardware to put the value out on the parallel port.
+> > 
+> > The time from 5.5 to 7 includes an additional copy of adeos'
+> > interrupt response time. IOW, in all cases, we're at least
+> > recording adeos' interrupt response time at least once. Like
+> > we explained in our first posting (and as backed up by the
+> > data found in both postings) the adeos-to-adeos setup shows
+> > that this delay is bound. In fact, we can safely assume that
+> > 2*max_ipipe_delay ~= 55us and that 2*average_ipipe_delay
+> > ~= 14us. And therefore:
+> > 
+> > max_ipipe_delay = 27.5us
+> > average_ipipe_delay = 7us
+> > max_preempt_delay = 55us - max_ipipe_delay = 27.5us
+> > average_preempt_delay = 14 us - average_ipipe_delay = 7us
+> > 
+> > Presumably the 7us above should fit the "handful" you refer
+> > to. At least I hope.
+> 
+> I have big hands, so 7us could indeed qualify as a "handful".
+> 
+> Any insights as to what leads to the larger maximum delay?  Some guesses
+> include worst-case cache-miss patterns and interrupt disabling that I
+> missed in my quick scan of the patch.
+> 
+> If I understand your analysis correctly (hah!!!), your breakdown
+> of the maximum delay assumes that the maximum delays for the logger
+> and the target are correlated.  What causes this correlation?
+> My (probably hopelessly naive) assumption would be that there would
+> be no such correlation.  In absence of correlation, one might
+> approximate the maximum ipipe delay by subtracting the -average-
+> ipipe delay from the maximum preemption delay, for 55us - 7us = 48us.
+> Is this the case, or am I missing something here?
 
-I don't know any.  But with 'sudo' the potential set of SUID apps is
-basically infinite, so you'd have a hard time proving that this sort
-of situation won't arise.
+Your analysis is correct, but with 600,000 samples, it is possible that
+we got 2 peeks (perhaps not maximum), one on the logger and one on the
+target. So in my point of view, the maximum value is probably somewhere
+between 55us / 2 and 55us - 7us. And probably closer to 55us / 2.
 
-> Are there other vunerabilities that I'm missing?
+> Of course, in the case of the -average- preemption measurements, dividing
+> by two to get the average ipipe delay makes perfect sense.
+> 
+> Whatever the answer to my maximum-delay question, the same breakdown of
+> the raw latency figures would apply to the CONFIG_PREEMPT_RT case, right?
+> 
+> 						Thanx, Paul
+> 
 
-Another theoretical possibility is that you make the SUID app consume
-some resource by feeding it a large-file/deep-directory/etc that quota
-would otherwise prevent (you can't do quota on a synthetic filesystem,
-without the filesystem's cooperation).
+Kristian
 
-Miklos

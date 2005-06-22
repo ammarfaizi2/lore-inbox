@@ -1,43 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261812AbVFVRWM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261713AbVFVRWM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261812AbVFVRWM (ORCPT <rfc822;willy@w.ods.org>);
+	id S261713AbVFVRWM (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 22 Jun 2005 13:22:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261811AbVFVRTi
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbVFVROl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 13:19:38 -0400
-Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:63634 "EHLO
-	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S261750AbVFVRQs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 13:16:48 -0400
-X-ORBL: [63.202.173.158]
-Date: Wed, 22 Jun 2005 10:16:35 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Valerio Vanni <valerio.vanni@inwind.it>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel: __alloc_pages: 0-order allocation failed
-Message-ID: <337665.592cd517f5a62ef2c0b5181f0c5ea620.ANY@taniwha.stupidest.org>
-References: <djtib1thpa0pm2oi60e7nci8au2rtkm98m@4ax.com>
+	Wed, 22 Jun 2005 13:14:41 -0400
+Received: from thunk.org ([69.25.196.29]:12431 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S261750AbVFVRBu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 13:01:50 -0400
+Date: Wed, 22 Jun 2005 13:01:35 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: akpm@osdl.org, pavel@ucw.cz, linux-kernel@vger.kernel.org
+Subject: Re: -mm -> 2.6.13 merge status (fuse)
+Message-ID: <20050622170135.GB18544@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Miklos Szeredi <miklos@szeredi.hu>, akpm@osdl.org, pavel@ucw.cz,
+	linux-kernel@vger.kernel.org
+References: <20050620235458.5b437274.akpm@osdl.org> <E1Dkfu2-0005Ju-00@dorka.pomaz.szeredi.hu> <20050621142820.GC2015@openzaurus.ucw.cz> <E1DkkRE-0005mt-00@dorka.pomaz.szeredi.hu> <20050621220619.GC2815@elf.ucw.cz> <E1Dkyas-0006wu-00@dorka.pomaz.szeredi.hu> <20050621233914.69a5c85e.akpm@osdl.org> <E1DkzTO-00072F-00@dorka.pomaz.szeredi.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <djtib1thpa0pm2oi60e7nci8au2rtkm98m@4ax.com>
+In-Reply-To: <E1DkzTO-00072F-00@dorka.pomaz.szeredi.hu>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 22, 2005 at 04:32:32PM +0200, Valerio Vanni wrote:
+On Wed, Jun 22, 2005 at 09:16:34AM +0200, Miklos Szeredi wrote:
+> The controversial part is fuse_allow_task() called from
+> fuse_permission() and fuse_revalidate() (fs/fuse/dir.c).
+> 
+> This function (as explained by the header comment) disallows access to
+> the filesystem for any task, which the filesystem owner (the user who
+> did the mount) is not allowed to ptrace.
+> 
+> The rationale is that accessing the filesystem gives the filesystem
+> implementor ptrace like capabilities (detailed in
+> Documentation/filesystems/fuse.txt)
+> 
+> It is controversial, because obviously root owned tasks are not
+> ptrace-able by the user, and so these tasks will be denied access to
+> the user mounted filesystem (-EACCESS is returned on stat() or any
+> other file operation).
 
-> I mean: is it simply a situation of excessive memory requests that is
-> fixed by killing one or more processes (and the kernel is still alive
-> as before) or the kernel is in some way locked up (in particular: is
-> it necessary/better to reboot? Is there some risk of filesystem
-> corruption?).
+I don't think this should be objectionable, since we already have
+times when root-owned tasks can get EACCESS when accessing some
+filesystem.  This can happen with any distributed filesystem that
+enforces real security --- whether it be nfs-root-squash, or the
+Andrew Filesystem, or NFSv4.  Root can get "permission denied" when
+some other userid with appropriate credentials would be allowed to
+access the file/directory.
 
-It's memory allocation failures.  This might not work until memory is
-free but it shouldn't kill the kernel of be a huge problem if it's
-just the result of one ore more processes being memory hungry
-(ie. when those processes go away things should be fine).
+On the other hand, sometimes a root process, or some other user's
+process, might _want_ to give permission to allow a trusted FUSE
+filesystem the potential to monkey with it (return potentially
+untrusted information, or stop it entirely), in exchange for access to
+the filesystem.  So it would be nice if there was some way that a
+process could tell the kernel that it is willing to give permission to
+allow certain FUSE filesystems to potentially affect it.  Say, via a
+fnctl() call, perhaps.
 
-It could also occur if there is a memory leak, in which case there is
-a bug that needs to be fixed and a reboot would be needed (I would
-only suspect that if it did it often and processes were not using much
-memory though).
+					- Ted

@@ -1,62 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261806AbVFVTEs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261570AbVFVTJJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261806AbVFVTEs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 15:04:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261818AbVFVTEr
+	id S261570AbVFVTJJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 15:09:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261689AbVFVTJJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 15:04:47 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:37315 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261806AbVFVTEh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 15:04:37 -0400
-Date: Wed, 22 Jun 2005 21:04:22 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-Cc: Kristian Benoit <kbenoit@opersys.com>, Karim Yaghmour <karim@opersys.com>,
-       linux-kernel@vger.kernel.org, bhuey@lnxw.com, andrea@suse.de,
-       tglx@linutronix.de, pmarques@grupopie.com, bruce@andrew.cmu.edu,
-       nickpiggin@yahoo.com.au, ak@muc.de, sdietrich@mvista.com,
-       dwalker@mvista.com, hch@infradead.org, akpm@osdl.org,
-       Philippe Gerum <rpm@xenomai.org>
-Subject: Re: PREEMPT_RT vs I-PIPE: the numbers, part 2
-Message-ID: <20050622190422.GA6572@elte.hu>
-References: <1119287612.6863.1.camel@localhost> <20050621015542.GB1298@us.ibm.com> <42B77B8C.6050109@opersys.com> <20050622011931.GF1324@us.ibm.com> <42B9845B.8030404@opersys.com> <20050622162718.GD1296@us.ibm.com> <1119460803.5825.13.camel@localhost> <20050622185019.GG1296@us.ibm.com>
+	Wed, 22 Jun 2005 15:09:09 -0400
+Received: from titan.genwebhost.com ([209.9.226.66]:3310 "EHLO
+	titan.genwebhost.com") by vger.kernel.org with ESMTP
+	id S261570AbVFVTIw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 15:08:52 -0400
+Date: Wed, 22 Jun 2005 12:08:48 -0700
+From: randy_dunlap <rdunlap@xenotime.net>
+To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: Script to help users to report a BUG
+Message-Id: <20050622120848.717e2fe2.rdunlap@xenotime.net>
+In-Reply-To: <4d8e3fd30506191332264eb4ae@mail.gmail.com>
+References: <4d8e3fd30506191332264eb4ae@mail.gmail.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050622185019.GG1296@us.ibm.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - titan.genwebhost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - xenotime.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 19 Jun 2005 22:32:16 +0200 Paolo Ciarrocchi wrote:
 
-* Paul E. McKenney <paulmck@us.ibm.com> wrote:
+| Hi all,
+| what do you think about this simple idea of a script that could help
+| users to fill better BUG reports ?
+| 
+| The usage is quite simple, put the attached file in
+| /usr/src/linux/scripts and then:
+| 
+| [root@frodo scripts]# ./report-bug.sh /tmp/BUGREPORT/
+| cat: /proc/scsi/scsi: No such file or directory
+| 
+| [root@frodo scripts]# ls /tmp/BUGREPORT/
+| cpuinfo.bug  ioports.bug  modules.bug  software.bug
+| iomem.bug    lspci.bug    scsi.bug     version.bug
+| 
+| Now you can simply attach all the .bug files to the bugzilla report or
+| inline them in a email.
+| 
+| The script is rude but it is enough to give you an idea of what I have in mind.
+| 
+| Any comment ?
 
-> Any way of getting the logger's latency separately?  Or the target's?
+It can be useful.  We certainly see bug reports with a good bit
+of missing information.
 
-with lpptest (PREEMPT_RT's built-in parallel-port latency driver) that's 
-possible, as it polls the target with interrupts disabled, eliminating 
-much of the logger-side latencies. The main effect is that it's now only 
-a single worst-case latency that is measured, instead of having to have 
-two worst-cases meet.
+I would rather see the script write all /proc etc. contents to just
+one file (with some headings prior to each file).  One file would be
+easier to email inline or to attach...
 
-Here's a rough calculation to show what the stakes are: if there's a 
-1:100000 chance to trigger a worst-case irq handling latency, and you 
-have 600000 samples, then with lpptest you'll see an average of 6 events 
-during the measurement. With lrtfb (the one Karim used) the chance to 
-see both of these worst-case latencies on both sides of the measurement 
-is 1:10000000000, and you'd see 0.00006 of them during the measurement.  
-I.e. the chances of seeing the true max latency are pretty slim.
-
-So if you want to reliably measure worst-case latencies in your expected 
-lifetime, you truly never want to serially couple the probabilities of 
-worst-case latencies on the target and the logger side.
-
-	Ingo
+---
+~Randy

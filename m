@@ -1,86 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261785AbVFVSSr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262097AbVFVS0A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261785AbVFVSSr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 14:18:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbVFVSSq
+	id S262097AbVFVS0A (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 14:26:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262109AbVFVS0A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 14:18:46 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:13502 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261814AbVFVSPT (ORCPT
+	Wed, 22 Jun 2005 14:26:00 -0400
+Received: from sd291.sivit.org ([194.146.225.122]:16388 "EHLO sd291.sivit.org")
+	by vger.kernel.org with ESMTP id S262097AbVFVSZx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 14:15:19 -0400
-Date: Wed, 22 Jun 2005 20:14:49 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Karim Yaghmour <karim@opersys.com>
-Cc: Kristian Benoit <kbenoit@opersys.com>, paulmck@us.ibm.com,
-       linux-kernel@vger.kernel.org, bhuey@lnxw.com, andrea@suse.de,
-       tglx@linutronix.de, pmarques@grupopie.com, bruce@andrew.cmu.edu,
-       nickpiggin@yahoo.com.au, ak@muc.de, sdietrich@mvista.com,
-       dwalker@mvista.com, hch@infradead.org, akpm@osdl.org,
-       Philippe Gerum <rpm@xenomai.org>
-Subject: Re: PREEMPT_RT vs I-PIPE: the numbers, part 2
-Message-ID: <20050622181449.GC28597@elte.hu>
-References: <1119287612.6863.1.camel@localhost> <20050621015542.GB1298@us.ibm.com> <42B77B8C.6050109@opersys.com> <20050622011931.GF1324@us.ibm.com> <42B9845B.8030404@opersys.com> <20050622162718.GD1296@us.ibm.com> <1119460803.5825.13.camel@localhost> <20050622173449.GA22474@elte.hu> <20050622174009.GA26059@elte.hu> <42B9AA00.7050301@opersys.com>
+	Wed, 22 Jun 2005 14:25:53 -0400
+Subject: Re: [linux-usb-devel] Re: usb sysfs intf files no longer created
+	when probe fails
+From: Stelian Pop <stelian@popies.net>
+To: Greg KH <greg@kroah.com>
+Cc: Alan Stern <stern@rowland.harvard.edu>,
+       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <20050622162655.GC2274@kroah.com>
+References: <Pine.LNX.4.44L0.0506221133230.6938-100000@iolanthe.rowland.org>
+	 <1119455608.4651.5.camel@localhost.localdomain>
+	 <20050622162655.GC2274@kroah.com>
+Content-Type: text/plain; charset=ISO-8859-15
+Date: Wed, 22 Jun 2005 20:25:50 +0200
+Message-Id: <1119464750.5080.1.camel@deep-space-9.dsnet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42B9AA00.7050301@opersys.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Le mercredi 22 juin 2005 à 09:26 -0700, Greg KH a écrit :
 
-* Karim Yaghmour <karim@opersys.com> wrote:
-
+> > -		return -EIO;
+> > +		return -ENODEV;
+> >  	}
 > 
-> Ingo Molnar wrote:
-> >>you could try the LPPTEST kernel driver and testlpp utility i 
-> >>integrated into the -RT patchset. It avoids target-side latencies 
-> >>almost completely. Especially since you had problems with parallel 
-> >>interrupts you should give it a go and compare the results.
-> > 
-> > 
-> > correction: logger-side latencies are avoided.
-> 
-> Sorry, I don't see this. I've just looked at lpptest.c and it does
-> practically the same thing  LRTBF is doing, have a look for yourself
-> at the code in LRTBF.
+> Also need to do the same a few lines above in the code.  I've fixed that
+> too now.
 
-you should take another look. The crutial difference is that AFAICS 
-lrtbf is using interrupts on _both_ the logger and the target side.  
-lpptest only uses interrupts on the target side (that is what we are 
-measuring), but uses polling _with all interrupts disabled_ on the 
-logger side. This makes things much more reliable, as it's not some 
-complex mix of two worst-case latencies, but a small constant overhead 
-on the logger side and the worst-case latency on the target side. This 
-also means i can run whatever lpptest version on the logger side, i dont 
-have to worry about its latencies because there are none that are 
-variable.
+Indeed, especially since the only way to use an alternate driver for a
+real hid device is to blacklist it using HID_QUIRK_IGNORE, and in this
+case we go through that path.
 
-> In fact lpptest.c is probably running at a higher cost on the logger 
-> since it executes a copy_to_user() for every single data point 
-> collected. [...]
+Stelian.
+-- 
+Stelian Pop <stelian@popies.net>
 
-logger-side overhead does not matter at all, and the 8 bytes copy is not 
-measured in the overhead. (it is also insignificant.)
-
-> [...] In the case of the LRTBF, we just buffer the results in a 
-> preallocated buffer and then read them all at once after the testrun.
-> 
-> Unless I'm missing something, there is nothing done in lpptest that we 
-> aren't already doing on either side, logger-side latencies included.
->
-> As for the interrupt problems, they were pilot error. They disappeared 
-> once the APIC was enabled. That's therefore a non-issue.
-
-well, LPPTEST works just fine with the i8259A PIC too. (which is much 
-more common in embedded setups than IO-APICs)
-
-	Ingo

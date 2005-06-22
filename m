@@ -1,75 +1,263 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261979AbVFVUbr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261458AbVFVUpT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261979AbVFVUbr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 16:31:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262109AbVFVU3g
+	id S261458AbVFVUpT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 16:45:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261839AbVFVUpS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 16:29:36 -0400
-Received: from opersys.com ([64.40.108.71]:55311 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261979AbVFVU27 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 16:28:59 -0400
-Message-ID: <42B9CC98.1040402@opersys.com>
-Date: Wed, 22 Jun 2005 16:39:52 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+	Wed, 22 Jun 2005 16:45:18 -0400
+Received: from az33egw01.freescale.net ([192.88.158.102]:64500 "EHLO
+	az33egw01.freescale.net") by vger.kernel.org with ESMTP
+	id S261458AbVFVUjx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 16:39:53 -0400
+Date: Wed, 22 Jun 2005 15:39:45 -0500 (CDT)
+From: Kumar Gala <galak@freescale.com>
+X-X-Sender: galak@nylon.am.freescale.net
+To: Andrew Morton <akpm@osdl.org>
+cc: linuxppc-embedded <linuxppc-embedded@ozlabs.org>,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] ppc32: Check return of ppc_sys_get_pdata before accessing
+ pointer
+Message-ID: <Pine.LNX.4.61.0506221539150.3206@nylon.am.freescale.net>
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Bill Huey <bhuey@lnxw.com>, Kristian Benoit <kbenoit@opersys.com>,
-       linux-kernel@vger.kernel.org, paulmck@us.ibm.com, andrea@suse.de,
-       tglx@linutronix.de, pmarques@grupopie.com, bruce@andrew.cmu.edu,
-       nickpiggin@yahoo.com.au, ak@muc.de, sdietrich@mvista.com,
-       dwalker@mvista.com, hch@infradead.org, akpm@osdl.org, rpm@xenomai.org
-Subject: Re: PREEMPT_RT vs I-PIPE: the numbers, part 2
-References: <1119287612.6863.1.camel@localhost> <20050620183115.GA27028@nietzsche.lynx.com> <42B98B20.7020304@opersys.com> <20050622192927.GA13817@nietzsche.lynx.com> <20050622200554.GA16119@elte.hu>
-In-Reply-To: <20050622200554.GA16119@elte.hu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ensure that the returned pointer from ppc_sys_get_pdata is not
+NULL before we start using it.  This handles any cases where we
+have variants of processors on the same board with different
+functionality.
 
-Ingo Molnar wrote:
-> the UDP-over-localhost latency was a softirq processing bug that is 
-> fixed in current PREEMPT_RT patches. (real over-the-network latency was 
-> never impacted, that's why it wasnt noticed before.)
+Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
 
-That's good to hear, but here are some random stats from the
-idle run:
+---
+commit b4b0dd5099cb8f08d57bcbf33fd06997ba993618
+tree c176601bbe5bf0692fc6a948787319cb2fa74faa
+parent 7d09ea22d5823fde9a508f5e04bd8e93712d6f44
+author Kumar K. Gala <kumar.gala@freescale.com> Wed, 22 Jun 2005 10:55:33 -0500
+committer Kumar K. Gala <kumar.gala@freescale.com> Wed, 22 Jun 2005 10:55:33 -0500
 
-Measurements   |   Vanilla   |  preemp_rt     |   ipipe
----------------+-------------+----------------+-------------
-fork           |      95us   |  157us (+65%)  |   97us (+2%)
-open/close     |     1.4us   |  2.1us (+50%)  |  1.4us (~)
-execve         |     355us   |  452us (+27%)  |  365us (+3%)
-select 500fd   |    12.7us   | 27.7us (+118%) | 12.7us (~)
-mmap           |     660us   | 2886us (+337%) |  673us (+2%)
-...            |      ...    |   ...          |   ...
+ arch/ppc/platforms/83xx/mpc834x_sys.c |   28 ++++++++++++---------
+ arch/ppc/platforms/85xx/mpc8540_ads.c |   44 +++++++++++++++++++--------------
+ arch/ppc/platforms/85xx/mpc8560_ads.c |   28 ++++++++++++---------
+ arch/ppc/platforms/85xx/sbc8560.c     |   28 ++++++++++++---------
+ arch/ppc/platforms/85xx/stx_gp3.c     |   26 +++++++++++---------
+ 5 files changed, 88 insertions(+), 66 deletions(-)
 
-Here's a under ping flood conditions:
+diff --git a/arch/ppc/platforms/83xx/mpc834x_sys.c b/arch/ppc/platforms/83xx/mpc834x_sys.c
+--- a/arch/ppc/platforms/83xx/mpc834x_sys.c
++++ b/arch/ppc/platforms/83xx/mpc834x_sys.c
+@@ -94,20 +94,24 @@ mpc834x_sys_setup_arch(void)
+ 
+ 	/* setup the board related information for the enet controllers */
+ 	pdata = (struct gianfar_platform_data *) ppc_sys_get_pdata(MPC83xx_TSEC1);
+-	pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR;
+-	pdata->interruptPHY = MPC83xx_IRQ_EXT1;
+-	pdata->phyid = 0;
+-	/* fixup phy address */
+-	pdata->phy_reg_addr += binfo->bi_immr_base;
+-	memcpy(pdata->mac_addr, binfo->bi_enetaddr, 6);
++	if (pdata) {
++		pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR;
++		pdata->interruptPHY = MPC83xx_IRQ_EXT1;
++		pdata->phyid = 0;
++		/* fixup phy address */
++		pdata->phy_reg_addr += binfo->bi_immr_base;
++		memcpy(pdata->mac_addr, binfo->bi_enetaddr, 6);
++	}
+ 
+ 	pdata = (struct gianfar_platform_data *) ppc_sys_get_pdata(MPC83xx_TSEC2);
+-	pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR;
+-	pdata->interruptPHY = MPC83xx_IRQ_EXT2;
+-	pdata->phyid = 1;
+-	/* fixup phy address */
+-	pdata->phy_reg_addr += binfo->bi_immr_base;
+-	memcpy(pdata->mac_addr, binfo->bi_enet1addr, 6);
++	if (pdata) {
++		pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR;
++		pdata->interruptPHY = MPC83xx_IRQ_EXT2;
++		pdata->phyid = 1;
++		/* fixup phy address */
++		pdata->phy_reg_addr += binfo->bi_immr_base;
++		memcpy(pdata->mac_addr, binfo->bi_enet1addr, 6);
++	}
+ 
+ #ifdef CONFIG_BLK_DEV_INITRD
+ 	if (initrd_start)
+diff --git a/arch/ppc/platforms/85xx/mpc8540_ads.c b/arch/ppc/platforms/85xx/mpc8540_ads.c
+--- a/arch/ppc/platforms/85xx/mpc8540_ads.c
++++ b/arch/ppc/platforms/85xx/mpc8540_ads.c
+@@ -92,28 +92,34 @@ mpc8540ads_setup_arch(void)
+ 
+ 	/* setup the board related information for the enet controllers */
+ 	pdata = (struct gianfar_platform_data *) ppc_sys_get_pdata(MPC85xx_TSEC1);
+-	pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR;
+-	pdata->interruptPHY = MPC85xx_IRQ_EXT5;
+-	pdata->phyid = 0;
+-	/* fixup phy address */
+-	pdata->phy_reg_addr += binfo->bi_immr_base;
+-	memcpy(pdata->mac_addr, binfo->bi_enetaddr, 6);
++	if (pdata) {
++		pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR;
++		pdata->interruptPHY = MPC85xx_IRQ_EXT5;
++		pdata->phyid = 0;
++		/* fixup phy address */
++		pdata->phy_reg_addr += binfo->bi_immr_base;
++		memcpy(pdata->mac_addr, binfo->bi_enetaddr, 6);
++	}
+ 
+ 	pdata = (struct gianfar_platform_data *) ppc_sys_get_pdata(MPC85xx_TSEC2);
+-	pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR;
+-	pdata->interruptPHY = MPC85xx_IRQ_EXT5;
+-	pdata->phyid = 1;
+-	/* fixup phy address */
+-	pdata->phy_reg_addr += binfo->bi_immr_base;
+-	memcpy(pdata->mac_addr, binfo->bi_enet1addr, 6);
++	if (pdata) {
++		pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR;
++		pdata->interruptPHY = MPC85xx_IRQ_EXT5;
++		pdata->phyid = 1;
++		/* fixup phy address */
++		pdata->phy_reg_addr += binfo->bi_immr_base;
++		memcpy(pdata->mac_addr, binfo->bi_enet1addr, 6);
++	}
+ 
+-	pdata = (struct gianfar_platform_data *) ppc_sys_get_pdata(MPC85xx_FEC);
+-	pdata->board_flags = 0;
+-	pdata->interruptPHY = MPC85xx_IRQ_EXT5;
+-	pdata->phyid = 3;
+-	/* fixup phy address */
+-	pdata->phy_reg_addr += binfo->bi_immr_base;
+-	memcpy(pdata->mac_addr, binfo->bi_enet2addr, 6);
++	if (pdata) {
++		pdata = (struct gianfar_platform_data *) ppc_sys_get_pdata(MPC85xx_FEC);
++		pdata->board_flags = 0;
++		pdata->interruptPHY = MPC85xx_IRQ_EXT5;
++		pdata->phyid = 3;
++		/* fixup phy address */
++		pdata->phy_reg_addr += binfo->bi_immr_base;
++		memcpy(pdata->mac_addr, binfo->bi_enet2addr, 6);
++	}
+ 
+ #ifdef CONFIG_BLK_DEV_INITRD
+ 	if (initrd_start)
+diff --git a/arch/ppc/platforms/85xx/mpc8560_ads.c b/arch/ppc/platforms/85xx/mpc8560_ads.c
+--- a/arch/ppc/platforms/85xx/mpc8560_ads.c
++++ b/arch/ppc/platforms/85xx/mpc8560_ads.c
+@@ -90,20 +90,24 @@ mpc8560ads_setup_arch(void)
+ 
+ 	/* setup the board related information for the enet controllers */
+ 	pdata = (struct gianfar_platform_data *) ppc_sys_get_pdata(MPC85xx_TSEC1);
+-	pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR;
+-	pdata->interruptPHY = MPC85xx_IRQ_EXT5;
+-	pdata->phyid = 0;
+-	/* fixup phy address */
+-	pdata->phy_reg_addr += binfo->bi_immr_base;
+-	memcpy(pdata->mac_addr, binfo->bi_enetaddr, 6);
++	if (pdata) {
++		pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR;
++		pdata->interruptPHY = MPC85xx_IRQ_EXT5;
++		pdata->phyid = 0;
++		/* fixup phy address */
++		pdata->phy_reg_addr += binfo->bi_immr_base;
++		memcpy(pdata->mac_addr, binfo->bi_enetaddr, 6);
++	}
+ 
+ 	pdata = (struct gianfar_platform_data *) ppc_sys_get_pdata(MPC85xx_TSEC2);
+-	pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR;
+-	pdata->interruptPHY = MPC85xx_IRQ_EXT5;
+-	pdata->phyid = 1;
+-	/* fixup phy address */
+-	pdata->phy_reg_addr += binfo->bi_immr_base;
+-	memcpy(pdata->mac_addr, binfo->bi_enet1addr, 6);
++	if (pdata) {
++		pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR;
++		pdata->interruptPHY = MPC85xx_IRQ_EXT5;
++		pdata->phyid = 1;
++		/* fixup phy address */
++		pdata->phy_reg_addr += binfo->bi_immr_base;
++		memcpy(pdata->mac_addr, binfo->bi_enet1addr, 6);
++	}
+ 
+ #ifdef CONFIG_BLK_DEV_INITRD
+ 	if (initrd_start)
+diff --git a/arch/ppc/platforms/85xx/sbc8560.c b/arch/ppc/platforms/85xx/sbc8560.c
+--- a/arch/ppc/platforms/85xx/sbc8560.c
++++ b/arch/ppc/platforms/85xx/sbc8560.c
+@@ -129,20 +129,24 @@ sbc8560_setup_arch(void)
+ 
+ 	/* setup the board related information for the enet controllers */
+ 	pdata = (struct gianfar_platform_data *) ppc_sys_get_pdata(MPC85xx_TSEC1);
+-	pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR;
+-	pdata->interruptPHY = MPC85xx_IRQ_EXT6;
+-	pdata->phyid = 25;
+-	/* fixup phy address */
+-	pdata->phy_reg_addr += binfo->bi_immr_base;
+-	memcpy(pdata->mac_addr, binfo->bi_enetaddr, 6);
++	if (pdata) {
++		pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR;
++		pdata->interruptPHY = MPC85xx_IRQ_EXT6;
++		pdata->phyid = 25;
++		/* fixup phy address */
++		pdata->phy_reg_addr += binfo->bi_immr_base;
++		memcpy(pdata->mac_addr, binfo->bi_enetaddr, 6);
++	}
+ 
+ 	pdata = (struct gianfar_platform_data *) ppc_sys_get_pdata(MPC85xx_TSEC2);
+-	pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR;
+-	pdata->interruptPHY = MPC85xx_IRQ_EXT7;
+-	pdata->phyid = 26;
+-	/* fixup phy address */
+-	pdata->phy_reg_addr += binfo->bi_immr_base;
+-	memcpy(pdata->mac_addr, binfo->bi_enet1addr, 6);
++	if (pdata) {
++		pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR;
++		pdata->interruptPHY = MPC85xx_IRQ_EXT7;
++		pdata->phyid = 26;
++		/* fixup phy address */
++		pdata->phy_reg_addr += binfo->bi_immr_base;
++		memcpy(pdata->mac_addr, binfo->bi_enet1addr, 6);
++	}
+ 
+ #ifdef CONFIG_BLK_DEV_INITRD
+ 	if (initrd_start)
+diff --git a/arch/ppc/platforms/85xx/stx_gp3.c b/arch/ppc/platforms/85xx/stx_gp3.c
+--- a/arch/ppc/platforms/85xx/stx_gp3.c
++++ b/arch/ppc/platforms/85xx/stx_gp3.c
+@@ -122,19 +122,23 @@ gp3_setup_arch(void)
+ 
+ 	/* setup the board related information for the enet controllers */
+ 	pdata = (struct gianfar_platform_data *) ppc_sys_get_pdata(MPC85xx_TSEC1);
+-/*	pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR; */
+-	pdata->interruptPHY = MPC85xx_IRQ_EXT5;
+-	pdata->phyid = 2;
+-	pdata->phy_reg_addr += binfo->bi_immr_base;
+-	memcpy(pdata->mac_addr, binfo->bi_enetaddr, 6);
++	if (pdata) {
++	/*	pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR; */
++		pdata->interruptPHY = MPC85xx_IRQ_EXT5;
++		pdata->phyid = 2;
++		pdata->phy_reg_addr += binfo->bi_immr_base;
++		memcpy(pdata->mac_addr, binfo->bi_enetaddr, 6);
++	}
+ 
+ 	pdata = (struct gianfar_platform_data *) ppc_sys_get_pdata(MPC85xx_TSEC2);
+-/*	pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR; */
+-	pdata->interruptPHY = MPC85xx_IRQ_EXT5;
+-	pdata->phyid = 4;
+-	/* fixup phy address */
+-	pdata->phy_reg_addr += binfo->bi_immr_base;
+-	memcpy(pdata->mac_addr, binfo->bi_enet1addr, 6);
++	if (pdata) {
++	/*	pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR; */
++		pdata->interruptPHY = MPC85xx_IRQ_EXT5;
++		pdata->phyid = 4;
++		/* fixup phy address */
++		pdata->phy_reg_addr += binfo->bi_immr_base;
++		memcpy(pdata->mac_addr, binfo->bi_enet1addr, 6);
++	}
+ 
+ #ifdef CONFIG_BLK_DEV_INITRD
+ 	if (initrd_start)
 
-Measurements   |   Vanilla   |  preemp_rt     |   ipipe
----------------+-------------+----------------+-------------
-fork           |     112us   |  223us (+99%)  |  121us (+8%)
-open/close     |     1.7us   |  3.0us (+76%)  |  1.8us (+6%)
-execve         |     421us   |  652us (+55%)  |  467us (+11%)
-select 500fd   |    14.6us   | 38.1us (+161%) | 15.5us (+6%)
-mmap           |     760us   | 3936us (+418%) |  819us (+8%)
-...            |      ...    |   ...          |   ...
 
-etc. it's like this accross the board.
-
-Unless that fix you mention above takes care of these, there's
-something seriously wrong going on here.
-
-Are there existing LMbench results posted of PREEMPT_RT which
-one can go back to for comparison?
-
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546

@@ -1,54 +1,303 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261867AbVFVSv4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261815AbVFVSxk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261867AbVFVSv4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 14:51:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261884AbVFVSv4
+	id S261815AbVFVSxk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 14:53:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261813AbVFVSxj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 14:51:56 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:49102 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261867AbVFVStv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 14:49:51 -0400
-Date: Wed, 22 Jun 2005 11:50:19 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Kristian Benoit <kbenoit@opersys.com>
-Cc: Karim Yaghmour <karim@opersys.com>, linux-kernel@vger.kernel.org,
-       bhuey@lnxw.com, andrea@suse.de, tglx@linutronix.de, mingo@elte.hu,
-       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
-       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, Philippe Gerum <rpm@xenomai.org>
-Subject: Re: PREEMPT_RT vs I-PIPE: the numbers, part 2
-Message-ID: <20050622185019.GG1296@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <1119287612.6863.1.camel@localhost> <20050621015542.GB1298@us.ibm.com> <42B77B8C.6050109@opersys.com> <20050622011931.GF1324@us.ibm.com> <42B9845B.8030404@opersys.com> <20050622162718.GD1296@us.ibm.com> <1119460803.5825.13.camel@localhost>
+	Wed, 22 Jun 2005 14:53:39 -0400
+Received: from titan.genwebhost.com ([209.9.226.66]:16794 "EHLO
+	titan.genwebhost.com") by vger.kernel.org with ESMTP
+	id S261889AbVFVSvI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 14:51:08 -0400
+Date: Wed, 22 Jun 2005 11:50:59 -0700
+From: randy_dunlap <rdunlap@xenotime.net>
+To: Hemant Mohapatra <hemant.mohapatra@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: cdev_init() problems in char device driver (kernel 2.6.4-52)
+ (newbie ques)
+Message-Id: <20050622115059.3b88e091.rdunlap@xenotime.net>
+In-Reply-To: <61bce7105061516313051dc1d@mail.gmail.com>
+References: <61bce7105061511335b66cced@mail.gmail.com>
+	<61bce7105061511544f6635e3@mail.gmail.com>
+	<61bce71050615115860d35f38@mail.gmail.com>
+	<61bce7105061516313051dc1d@mail.gmail.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1119460803.5825.13.camel@localhost>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - titan.genwebhost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - xenotime.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 22, 2005 at 01:20:03PM -0400, Kristian Benoit wrote:
-> On Wed, 2005-06-22 at 09:27 -0700, Paul E. McKenney wrote:
-> > On Wed, Jun 22, 2005 at 11:31:39AM -0400, Karim Yaghmour wrote:
-> > 
-> > If I understand your analysis correctly (hah!!!), your breakdown
-> > of the maximum delay assumes that the maximum delays for the logger
-> > and the target are correlated.  What causes this correlation?
-> > My (probably hopelessly naive) assumption would be that there would
-> > be no such correlation.  In absence of correlation, one might
-> > approximate the maximum ipipe delay by subtracting the -average-
-> > ipipe delay from the maximum preemption delay, for 55us - 7us = 48us.
-> > Is this the case, or am I missing something here?
-> 
-> Your analysis is correct, but with 600,000 samples, it is possible that
-> we got 2 peeks (perhaps not maximum), one on the logger and one on the
-> target. So in my point of view, the maximum value is probably somewhere
-> between 55us / 2 and 55us - 7us. And probably closer to 55us / 2.
+On Wed, 15 Jun 2005 19:31:10 -0400 Hemant Mohapatra wrote:
 
-Possible, but it could also be a large peak and a small one.
+| Hello all,
+| 
+| I am writing a simple char driver on Linux (Suse 9.1, kernel 2.6.4.52,
+| gcc 3.3.3) and having the following problems (code is cut-pasted at
+| the end):
+| 
+| 1) MODULE_LICENSE gives the following on make -
+| 
+| error: parse error before string constant
+| warning: type defaults to `int' in declaration of `MODULE_LICENCE'
+| warning: data definition has no type or storage class
 
-Any way of getting the logger's latency separately?  Or the target's?
+Spell it "MODULE_LICENSE" and it will work.
 
-						Thanx, Paul
+You need to use a 2.6 kbuild Makefile...
+
+Add near top of source file:
+#include <linux/config.h>
+
+Source file #includes <linux/cdev.h> 2 times.
+
+Don't use MOD_INC_USE_COUNT/MOD_DEC_USE_COUNT in 2.6.x.
+
+I didn't try to load the module (yet).
+
+| Btw, it works fine in another program which simply does module_init()
+| and module_exit().
+| 
+| 2) insmod faults (SIGSEGV) with strace ending at the line:
+| 
+| init_module("^?ELF^A^A^A", 0xc529 <unfinished ...>
+| 4299  +++ killed by SIGSEGV +++
+| 
+| dmesg output:
+| 
+| MAJOR(dev)=253
+| Before cdev_init
+| Unable to handle kernel NULL pointer dereference at virtual address 00000018
+| printing eip:
+| c01da533
+| *pde = 00000000
+| Oops: 0002 [#2]
+| CPU:    0
+| EIP:    0060:[<c01da533>]    Tainted: PF
+| EFLAGS: 00010292   (2.6.4-52-default)
+| EIP is at kobject_init+0x3/0x40
+| eax: 00000000   ebx: 00000000   ecx: 00000000   edx: 00000000
+| esi: d9126880   edi: d912684c   ebp: d059de48   esp: d059de28
+| ds: 007b   es: 007b   ss: 0068
+| Process insmod (pid: 3877, threadinfo=d059c000 task=d6494d70)
+| Stack: c0341da8 d91280cc d9126800 000000fd 00000001 d9126232 0fd00000 c0341d98
+|        c0341d98 c0132305 00000000 d9142e54 d9142e54 00000500 00000500 d05dc9a0
+|        d059de8c c0138db0 0000304c 00000282 00000000 d05dc980 00000001 d059deb4
+| Call Trace:
+|  [<d91280cc>] scull_init+0xcc/0x15f [cd]
+|  [<c0132305>] sys_init_module+0x105/0x15b0
+|  [<c0138db0>] file_read_actor+0x0/0xe0
+|  [<c01da3e0>] kobject_put+0x0/0x20
+|  [<d9128000>] scull_init+0x0/0x15f [cd]
+|  [<c01c8d96>] selinux_file_alloc_security+0x26/0x80
+|  [<c01ca1e0>] selinux_file_permission+0x160/0x170
+|  [<c0155b5e>] __fput+0x9e/0xf0
+|  [<c0107dc9>] sysenter_past_esp+0x52/0x79
+| 
+| Code: c7 40 18 01 00 00 00 8d 40 1c 89 43 1c 89 43 20 8b 43 28 31
+| 
+| 
+| Analysis done:
+| 
+| I was getting the same erorr on cdev_init() so to find out where
+| exactly the inmod was crashing, I manually did whatever was being done
+| inside cdev_init and figured out that it was crashing at
+| kobject_init().
+| 
+| I have gone through /proc/ksyms to figure out exactly which
+| instruction causes the fault but have not been successful.
+| 
+| relevant ksymoops info:
+| 
+| Code;  c01da533 <kobject_init+3/40>
+| 00000000 <_EIP>:
+| Code;  c01da533 <kobject_init+3/40>   <=====
+|    0:   c7 40 18 01 00 00 00      movl   $0x1,0x18(%eax)   <=====
+| Code;  c01da53a <kobject_init+a/40>
+|    7:   8d 40 1c                  lea    0x1c(%eax),%eax
+| Code;  c01da53d <kobject_init+d/40>
+|    a:   89 43 1c                  mov    %eax,0x1c(%ebx)
+| Code;  c01da540 <kobject_init+10/40>
+|    d:   89 43 20                  mov    %eax,0x20(%ebx)
+| Code;  c01da543 <kobject_init+13/40>
+|   10:   8b 43 28                  mov    0x28(%ebx),%eax
+| Code;  c01da546 <kobject_init+16/40>
+|   13:   31 00                     xor    %eax,(%eax)
+| 
+| 
+| Any help extended would be highly appreciated.
+| 
+| Thanks,
+| Hemant R Mohapatra
+| 
+| 
+| 
+| ------------------------------------------------------------------------
+| 
+| Code:
+| 
+| #if defined( CONFIG_MODVERSIONS ) && ! defined( MODVERSIONS )
+| #define MODVERSIONS
+| #endif
+| 
+| #include <linux/module.h>
+| #include <linux/init.h>
+| #include <asm/current.h>
+| #include <asm/uaccess.h>
+| #include <linux/sched.h>
+| #include <linux/fs.h>
+| #include <linux/kernel.h>
+| #include <linux/kobject.h>
+| #include <linux/kobj_map.h>
+| #include <linux/cdev.h>
+| #ifdef CONFIG_KMOD
+| #include <linux/kmod.h>
+| #endif
+| #include <linux/cdev.h>
+| 
+| #define DEVICE_NAME "scull"
+| #define SUCCESS 0
+| #define FAIL -1
+| #define SIZE 10
+| #define TYPE(dev) (MINOR(dev) >> 4)     //highers 4 bits refer to type
+| of device (char, in this case)
+| //lower 4 bits refer to NUM for the device
+| #define NUM(dev) (MINOR(dev) & 0xf)
+| 
+| 
+| static int Major, Minor;
+| static int device_opened = 0;
+| 
+| static char MSGBUF[SIZE];
+| static char *msg_ptr;
+| static int device_open (struct inode *in, struct file *filp);
+| static int device_release (struct inode *in, struct file *filp);
+| /* static ssize_t device_read (struct file *, char *, size_t, loff_t *);
+|  static ssize_t device_write (struct file *, char *, size_t, loff_t *);
+|  * */
+| 
+| static int
+| device_open (struct inode *in, struct file *filp)
+| {
+| 
+|   /* int type=TYPE(in->i_rdev); */// Old way of getting the driver's
+|   // major/minor number.
+|   /* int num=NUM(in->i_rdev); */
+|   int counter = 0;
+|   int type = TYPE (iminor (in));
+|   int num = NUM (iminor (in));
+| 
+|   if (device_opened)
+|     {
+|       return -EBUSY;
+|     }
+|   device_opened++;
+|   msg_ptr = MSGBUF;      //this is the pointer used in reading from
+| the device in the device_read func
+| 
+|   sprintf (MSGBUF, "This is call to open() device number: %d\n", ++counter);
+| 
+|   //return some info about the driver
+|   printk ("<1> TYPE of device = %d\n and NUM of device = %d\n", type, num);
+|   MOD_INC_USE_COUNT;
+|   return SUCCESS;
+| }
+| 
+| 
+| static int
+| device_release (struct inode *in, struct file *filp)
+| {
+| 
+|   device_opened--;
+|   MOD_DEC_USE_COUNT;
+|   return SUCCESS;
+| }
+| 
+| static struct file_operations scull_fops = {
+|   .open        =    device_open,
+|   .release     =    device_release,
+|   .owner       =    THIS_MODULE,
+|  // .read = device_read,
+|  // .write = device_write,
+| };
+| 
+| static struct cdev scull_cdev = {
+|      .kobj     =    {.name    =    "scull",  },
+|      .owner    =    THIS_MODULE,
+| };
+| 
+| static int __init scull_init (void)
+| {
+|   /* dev_t dev=MKDEV(63,0); */
+|   dev_t dev;
+|   int retval;
+| 
+|  retval=alloc_chrdev_region(&dev, 0, 1, DEVICE_NAME);
+|  if(!retval)
+|       {
+|            Major=MAJOR(dev);
+|            Minor=MINOR(dev);
+|       }
+|  else {
+|       return FAIL;
+|  }
+|  printk("MAJOR(dev)=%d\n", MAJOR(dev));
+| 
+| printk("<1> Before cdev_init\n");
+| 
+| 
+| memset(&scull_cdev, 0, sizeof(scull_cdev));
+| INIT_LIST_HEAD(&scull_cdev.list);
+| //scull_cdev.kobj.ktype = &ktype_cdev_default; -- not working, why?
+| kobject_init(&scull_cdev.kobj);
+| scull_cdev.ops = &scull_fops;
+| //kobject_set_name(&scull_cdev.kobj,"scull");
+| 
+| //cdev_init(&scull_cdev, &scull_fops); -- was not working, so the above
+| //simplification
+| 
+| printk("<1> after cdev_init:\n");
+| 
+|   retval=cdev_add(&scull_cdev, dev, 1);
+|   if(retval)
+|   {
+|        cdev_del(&scull_cdev);
+|        kobject_put(&scull_cdev.kobj);
+|        unregister_chrdev_region(dev, 1);
+|        printk("<1> Error in cdev_add:");
+|        goto error;
+|   }
+|   printk ("<1> scull_init was a Success and the major device number is
+| %d \n",  Major);
+|   return 0;
+| 
+| error:
+|    printk(KERN_ERR "error register raw device\n");
+|    return FAIL;
+| 
+| }
+| 
+| static void scull_exit (void)
+| {
+|   printk ("<1> Removing scull drivers from /proc/devices\n");
+|   unregister_chrdev_region (MKDEV(Major,0), 1);
+| }
+| 
+| 
+| module_init (scull_init);
+| module_exit (scull_exit);
+| //MODULE_LICENCE("GPL"); - doesn't work.
+| -
+
+
+---
+~Randy

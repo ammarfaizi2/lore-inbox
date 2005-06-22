@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262385AbVFVAWz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262322AbVFVAWx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262385AbVFVAWz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 20:22:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262462AbVFVATP
+	id S262322AbVFVAWx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 20:22:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262504AbVFVAT3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 20:19:15 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:40668 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262384AbVFVAOj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 20:14:39 -0400
-Date: Tue, 21 Jun 2005 17:13:28 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: git-pull-script on my linus tree fails..
-In-Reply-To: <42B8A8CA.9040804@pobox.com>
-Message-ID: <Pine.LNX.4.58.0506211709220.2353@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0506211304320.2915@skynet>
- <Pine.LNX.4.58.0506210837020.2268@ppc970.osdl.org> <42B838BC.8090601@pobox.com>
- <Pine.LNX.4.58.0506210905560.2268@ppc970.osdl.org> <42B84E20.7010100@pobox.com>
- <Pine.LNX.4.58.0506211039350.2268@ppc970.osdl.org> <42B8542A.9020700@pobox.com>
- <Pine.LNX.4.58.0506211103370.2268@ppc970.osdl.org> <42B859B4.5060209@pobox.com>
- <Pine.LNX.4.58.0506211124310.2268@ppc970.osdl.org> <42B8A82E.4020207@pobox.com>
- <42B8A8CA.9040804@pobox.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 21 Jun 2005 20:19:29 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:30397 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262398AbVFVAOE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 20:14:04 -0400
+Subject: Re: SCHED_RR/SCHED_FIFO and kernel threads?
+From: Lee Revell <rlrevell@joe-job.com>
+To: Patrik =?ISO-8859-1?Q?H=E4gglund?= <patrik.hagglund@bredband.net>
+Cc: linux-kernel@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>,
+       Chris Friesen <cfriesen@nortel.com>
+In-Reply-To: <42B89227.6050501@bredband.net>
+References: <42B199FF.5010705@bredband.net> <42B19F65.6000102@nortel.com>
+	 <42B26FF8.6090505@bredband.net>
+	 <1119011872.4846.12.camel@localhost.localdomain>
+	 <42B3D7E2.2070600@bredband.net>  <42B89227.6050501@bredband.net>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Tue, 21 Jun 2005 20:13:57 -0400
+Message-Id: <1119399237.9814.15.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.3.1 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2005-06-22 at 00:18 +0200, Patrik Hägglund wrote:
+> The only clean solution is probably to have priorities that are 
+> exclusively reserved for use by the kernel. I saw that kernel threads
+> in LynxOS may use a priority of 1/2 above of the user-space tasks it 
+> serves. This seems like a good solution to the problem. 
 
+No, it's not, because some SCHED_FIFO/SCHED_RR threads do not need any
+kernel services, and are perfectly happy with stalling the rest of the
+kernel until they're done.
 
-On Tue, 21 Jun 2005, Jeff Garzik wrote:
-> Jeff Garzik wrote:
-> 
-> It does seem to hit the final branch in the script:
-> 
-> > [jgarzik@pretzel libata-dev]$ sh -x /usr/local/bin/git-checkout-script -f ncq
-> > + new=d032ec9048ff82a704b96b93cfd6f2e8e3a06b19
-> > + '[' -f .git/revs/heads/ncq ']'
+Lee
 
-Oops. Typo of mine. "revs" is incorrect, it should be "refs".
-
-So because it's testing the wrong directory for the branch name, it
-obviously won't find the branch, and decides that you used just a regular 
-commit name.
-
-I bet that one-character fix will fix it. Pushed out, 
-
-		Linus

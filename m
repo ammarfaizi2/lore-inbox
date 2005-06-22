@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262799AbVFVGhH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262796AbVFVGhG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262799AbVFVGhH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 02:37:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262818AbVFVGc3
+	id S262796AbVFVGhG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 02:37:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262804AbVFVG15
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 02:32:29 -0400
-Received: from mail.kroah.org ([69.55.234.183]:26268 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262797AbVFVFWE convert rfc822-to-8bit
+	Wed, 22 Jun 2005 02:27:57 -0400
+Received: from mail.kroah.org ([69.55.234.183]:29596 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262800AbVFVFWF convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 01:22:04 -0400
-Cc: galak@freescale.com
-Subject: [PATCH] I2C: Allow for sharing of the interrupt line for i2c-mpc.c
-In-Reply-To: <11194174633743@kroah.com>
+	Wed, 22 Jun 2005 01:22:05 -0400
+Cc: khali@linux-fr.org
+Subject: [PATCH] I2C: #include <linux/config.h> cleanup
+In-Reply-To: <11194174633604@kroah.com>
 X-Mailer: gregkh_patchbomb
 Date: Tue, 21 Jun 2005 22:17:43 -0700
-Message-Id: <11194174631439@kroah.com>
+Message-Id: <11194174631273@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,46 +24,67 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] I2C: Allow for sharing of the interrupt line for i2c-mpc.c
+[PATCH] I2C: #include <linux/config.h> cleanup
 
-I2C-MPC: Allow for sharing of the interrupt line
+Hi Alexey,
 
-On the MPC8548 devices we have multiple I2C-MPC buses however they are on the
-same interrupt line.  Made request_irq pass SA_SHIRQ now so the second bus can
-register for the same IRQ.
+> Files that don't use CONFIG_* stuff shouldn't include config.h
+> Files that use CONFIG_* stuff should include config.h
+>
+> It's that simple. ;-)
 
-Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
+I agree. This won't change anything though, as all drivers include
+either device.h or module.h, which in turn include config.h. But you are
+still correct, so I approve your patch.
+
+For completeness, I would propose the following on top of your own
+patch:
+
+i2c bus drivers do not need to define DEBUG themselves, as the Kconfig
+system takes care of it.
+
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit 30aedcb33970367e50b5edf373e9cd1a5cebcbe1
-tree 8b94e494c2fd0d8c874500bc1b0733eef64d831b
-parent 44bbe87e9017efa050bb1b506c6822f1f3bb94d7
-author Kumar Gala <galak@freescale.com> Tue, 03 May 2005 18:50:38 -0500
-committer Greg Kroah-Hartman <gregkh@suse.de> Tue, 21 Jun 2005 21:51:55 -0700
+commit a551ef79d9413727f76d22dc47b5b15d1d03073b
+tree 4b43e032dc6b6cb5de78ce700b12762ab71483e0
+parent f0bb60e7b1a0a26c25d8cbf81dda7afbc8bd2982
+author Jean Delvare <khali@linux-fr.org> Sat, 16 Apr 2005 18:49:22 +0200
+committer Greg Kroah-Hartman <gregkh@suse.de> Tue, 21 Jun 2005 21:51:53 -0700
 
- drivers/i2c/busses/i2c-mpc.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-ixp2000.c |    5 -----
+ drivers/i2c/busses/i2c-ixp4xx.c  |    5 -----
+ 2 files changed, 0 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
---- a/drivers/i2c/busses/i2c-mpc.c
-+++ b/drivers/i2c/busses/i2c-mpc.c
-@@ -325,7 +325,7 @@ static int __devinit mpc_i2c_probe(struc
- 	if (i2c->irq != OCP_IRQ_NA)
- 	{
- 		if ((result = request_irq(ocp->def->irq, mpc_i2c_isr,
--					  0, "i2c-mpc", i2c)) < 0) {
-+					  SA_SHIRQ, "i2c-mpc", i2c)) < 0) {
- 			printk(KERN_ERR
- 			       "i2c-mpc - failed to attach interrupt\n");
- 			goto fail_irq;
-@@ -424,7 +424,7 @@ static int fsl_i2c_probe(struct device *
+diff --git a/drivers/i2c/busses/i2c-ixp2000.c b/drivers/i2c/busses/i2c-ixp2000.c
+--- a/drivers/i2c/busses/i2c-ixp2000.c
++++ b/drivers/i2c/busses/i2c-ixp2000.c
+@@ -26,11 +26,6 @@
+  * 'enabled' to drive the GPIOs.
+  */
  
- 	if (i2c->irq != 0)
- 		if ((result = request_irq(i2c->irq, mpc_i2c_isr,
--					  0, "fsl-i2c", i2c)) < 0) {
-+					  SA_SHIRQ, "i2c-mpc", i2c)) < 0) {
- 			printk(KERN_ERR
- 			       "i2c-mpc - failed to attach interrupt\n");
- 			goto fail_irq;
+-#include <linux/config.h>
+-#ifdef CONFIG_I2C_DEBUG_BUS
+-#define DEBUG	1
+-#endif
+-
+ #include <linux/kernel.h>
+ #include <linux/init.h>
+ #include <linux/device.h>
+diff --git a/drivers/i2c/busses/i2c-ixp4xx.c b/drivers/i2c/busses/i2c-ixp4xx.c
+--- a/drivers/i2c/busses/i2c-ixp4xx.c
++++ b/drivers/i2c/busses/i2c-ixp4xx.c
+@@ -26,11 +26,6 @@
+  *       that is passed as the platform_data to this driver.
+  */
+ 
+-#include <linux/config.h>
+-#ifdef CONFIG_I2C_DEBUG_BUS
+-#define DEBUG	1
+-#endif
+-
+ #include <linux/kernel.h>
+ #include <linux/init.h>
+ #include <linux/device.h>
 

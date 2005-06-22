@@ -1,84 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261604AbVFVW4L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262573AbVFVXHf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261604AbVFVW4L (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 18:56:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262501AbVFVWxe
+	id S262573AbVFVXHf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 19:07:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262560AbVFVXC4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 18:53:34 -0400
-Received: from trex.wsi.edu.pl ([195.117.114.133]:23500 "EHLO trex.wsi.edu.pl")
-	by vger.kernel.org with ESMTP id S262546AbVFVWw2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 18:52:28 -0400
-Message-ID: <42B9CFA1.6030702@trex.wsi.edu.pl>
-Date: Wed, 22 Jun 2005 22:52:49 +0200
-From: =?UTF-8?B?TWljaGHFgiBQaW90cm93c2tp?= <piotrowskim@trex.wsi.edu.pl>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: pl, en-us, en
+	Wed, 22 Jun 2005 19:02:56 -0400
+Received: from web52903.mail.yahoo.com ([206.190.39.180]:49015 "HELO
+	web52903.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262557AbVFVW6V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 18:58:21 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=TVjCzz7mllvHfiKSBZJgBl7QRBdU/ElA/66GpV9XUcTVB+MGqL62I3a2keRXrtmdHpvskybLFZ/KO9ZL4IjrUxwFHhDvP2rZtRoS8oGYvgWFoH6PCIkLtqW1xFbRi/Kej+maE17SET4d2PzuvSw3XjzWJ2kFMGQ3nQtRJcptRbw=  ;
+Message-ID: <20050622225816.97752.qmail@web52903.mail.yahoo.com>
+Date: Wed, 22 Jun 2005 23:58:16 +0100 (BST)
+From: Chris Rankin <rankincj@yahoo.com>
+Subject: Re: 2.6.12: connection tracking broken?
+To: Patrick McHardy <kaber@trash.net>, "David S. Miller" <davem@davemloft.net>
+Cc: chrisw@osdl.org, bdschuym@pandora.be, bdschuym@telenet.be,
+       herbert@gondor.apana.org.au, netfilter-devel@lists.netfilter.org,
+       linux-kernel@vger.kernel.org, rankincj@yahoo.com,
+       ebtables-devel@lists.sourceforge.net, netfilter-devel@manty.net
+In-Reply-To: <42B8B035.7020303@trash.net>
 MIME-Version: 1.0
-To: randy_dunlap <rdunlap@xenotime.net>
-Cc: "LKML <\"\" \">" <"linux-kernel\""@vger.kernel.org>
-Subject: Re: Script to help users to report a BUG
-References: <4d8e3fd30506191332264eb4ae@mail.gmail.com> <20050622120848.717e2fe2.rdunlap@xenotime.net>
-In-Reply-To: <20050622120848.717e2fe2.rdunlap@xenotime.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+--- Patrick McHardy <kaber@trash.net> wrote:
+> I would like to get confirmation from someone affected by this
+> bug, after that I think it should go in -stable. Chris, could
+> you give it a try?
 
-randy_dunlap napisał(a):
+I trust you're talking about the following patches?
 
->On Sun, 19 Jun 2005 22:32:16 +0200 Paolo Ciarrocchi wrote:
->
->| Hi all,
->| what do you think about this simple idea of a script that could help
->| users to fill better BUG reports ?
->| 
->| The usage is quite simple, put the attached file in
->| /usr/src/linux/scripts and then:
->| 
->| [root@frodo scripts]# ./report-bug.sh /tmp/BUGREPORT/
->| cat: /proc/scsi/scsi: No such file or directory
->| 
->| [root@frodo scripts]# ls /tmp/BUGREPORT/
->| cpuinfo.bug  ioports.bug  modules.bug  software.bug
->| iomem.bug    lspci.bug    scsi.bug     version.bug
->| 
->| Now you can simply attach all the .bug files to the bugzilla report or
->| inline them in a email.
->| 
->| The script is rude but it is enough to give you an idea of what I have in mind.
->| 
->| Any comment ?
->
->It can be useful.  We certainly see bug reports with a good bit
->of missing information.
->
->I would rather see the script write all /proc etc. contents to just
->one file (with some headings prior to each file).  One file would be
->easier to email inline or to attach...
->
->---
->~Randy
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
-We talk about it (me and Paolo) in private correspondence.
+diff --git a/net/ipv4/ip_output.c b/net/ipv4/ip_output.c
+--- a/net/ipv4/ip_output.c
++++ b/net/ipv4/ip_output.c
+@@ -188,7 +188,12 @@ static inline int ip_finish_output2(stru
+                skb = skb2;
+        }
 
-Here is my version:
-http://stud.wsi.edu.pl/~piotrowskim/files/ort/ort-a5.tar.bz2
+-       nf_reset(skb);
++#ifdef CONFIG_BRIDGE_NETFILTER
++       /* bridge-netfilter defers calling some IP hooks to the bridge layer and
++        * still needs the conntrack reference */
++       if (skb->nf_bridge == NULL)
++#endif
++               nf_reset(skb);
 
-Here is my topic on kerneltrap:
-http://kerneltrap.org/node/5325
+        if (hh) {
+                int hh_alen;
 
-If you have any suggestions, coments, please send me email or post on 
-kerneltrap.
+diff --git a/net/bridge/br_netfilter.c b/net/bridge/br_netfilter.c
+--- a/net/bridge/br_netfilter.c
++++ b/net/bridge/br_netfilter.c
+@@ -882,7 +882,7 @@ static unsigned int ip_sabotage_out(unsi
+                 * doesn't use the bridge parent of the indev by using
+                 * the BRNF_DONT_TAKE_PARENT mask. */
+                if (hook == NF_IP_FORWARD && nf_bridge->physindev == NULL) {
+-                       nf_bridge->mask &= BRNF_DONT_TAKE_PARENT;
++                       nf_bridge->mask |= BRNF_DONT_TAKE_PARENT;
+                        nf_bridge->physindev = (struct net_device *)in;
+                }
+ #if defined(CONFIG_VLAN_8021Q) || defined(CONFIG_VLAN_8021Q_MODULE)
 
-Regards,
-Michał Piotrowski
+I have just installed them, and my bridging firewall is working again with 2.6.12.
+
+Thanks,
+Chris
+
+
+
+		
+___________________________________________________________ 
+How much free photo storage do you get? Store your holiday 
+snaps for FREE with Yahoo! Photos http://uk.photos.yahoo.com

@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261931AbVFVLFb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262787AbVFVLMj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261931AbVFVLFb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 07:05:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262787AbVFVLFb
+	id S262787AbVFVLMj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 07:12:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262788AbVFVLMj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 07:05:31 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:7047 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261931AbVFVLF1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 07:05:27 -0400
-Date: Wed, 22 Jun 2005 12:49:27 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Alejandro Bonilla <abonilla@linuxwireless.org>,
-       "'Yani Ioannou'" <yani.ioannou@gmail.com>,
-       linux-thinkpad@linux-thinkpad.org, linux-kernel@vger.kernel.org
-Subject: Re: [ltp] Re: IBM HDAPS Someone interested?
-Message-ID: <20050622104927.GB2561@openzaurus.ucw.cz>
-References: <007301c575d9_77decb90_600cc60a@amer.sykes.com> <1119303358.17380.0.camel@mindpipe> <42B73BB7.4030906@linuxwireless.org> <1119310501.17602.1.camel@mindpipe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1119310501.17602.1.camel@mindpipe>
-User-Agent: Mutt/1.3.27i
+	Wed, 22 Jun 2005 07:12:39 -0400
+Received: from [85.8.12.41] ([85.8.12.41]:34232 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S262787AbVFVLMi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 07:12:38 -0400
+Message-ID: <42B94786.2010403@drzeus.cx>
+Date: Wed, 22 Jun 2005 13:12:06 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bernd Petrovitsch <bernd@firmix.at>
+CC: kbuild-devel@lists.sourceforge.net, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Pointer cast warnings in scripts/
+References: <42B7F740.6000807@drzeus.cx>	 <Pine.LNX.4.61.0506211413570.3728@scrub.home> <42B80AF9.2060708@drzeus.cx>	 <Pine.LNX.4.61.0506211451040.3728@scrub.home> <42B80F40.8000609@drzeus.cx>	 <1119359653.18845.55.camel@tara.firmix.at> <42B92D92.7070304@drzeus.cx> <1119434660.2894.47.camel@tara.firmix.at>
+In-Reply-To: <1119434660.2894.47.camel@tara.firmix.at>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Bernd Petrovitsch wrote:
 
-> > I'm trying to do watch -n1 cat /proc/acpi/ibm/ecdump, But I don't have 
-> > ecdump. I'm with ibm-acpi 0.8
-> > 
-> 
-> I was thinking more along the lines of figure out the io port it's
-> using, then boot windows, set an IO breakpoint in softice, then drop
-> your laptop on the bed or something.
+>On Wed, 2005-06-22 at 11:21 +0200, Pierre Ossman wrote:
+>  
+>
+>>I was referring to which of the three types is correct for str*().
+>>    
+>>
+>
+>"char" as one can read in every man-page.
+>
+>  
+>
 
-It should be enough to tilt your laptop so that it parks heads... safer than
-dropping it.
+That doesn't really make it a standard though (de facto perhaps). :)
+The odds of all those man pages deviating from the standard is probably
+very low. But unless someone has actually read the damn thing we won't
+know for sure.
 
-And perhaps easier solution is to locate the sensor on the mainboard, and
-trace where it is connected with magnifying glass (as vojtech already suggested).
-
-				Pavel
-
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+Rgds
+Pierre
 

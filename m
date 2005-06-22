@@ -1,80 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262573AbVFVXHf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262560AbVFVXNl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262573AbVFVXHf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 19:07:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262560AbVFVXC4
+	id S262560AbVFVXNl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 19:13:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262579AbVFVXMs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 19:02:56 -0400
-Received: from web52903.mail.yahoo.com ([206.190.39.180]:49015 "HELO
-	web52903.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262557AbVFVW6V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 18:58:21 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=TVjCzz7mllvHfiKSBZJgBl7QRBdU/ElA/66GpV9XUcTVB+MGqL62I3a2keRXrtmdHpvskybLFZ/KO9ZL4IjrUxwFHhDvP2rZtRoS8oGYvgWFoH6PCIkLtqW1xFbRi/Kej+maE17SET4d2PzuvSw3XjzWJ2kFMGQ3nQtRJcptRbw=  ;
-Message-ID: <20050622225816.97752.qmail@web52903.mail.yahoo.com>
-Date: Wed, 22 Jun 2005 23:58:16 +0100 (BST)
-From: Chris Rankin <rankincj@yahoo.com>
-Subject: Re: 2.6.12: connection tracking broken?
-To: Patrick McHardy <kaber@trash.net>, "David S. Miller" <davem@davemloft.net>
-Cc: chrisw@osdl.org, bdschuym@pandora.be, bdschuym@telenet.be,
-       herbert@gondor.apana.org.au, netfilter-devel@lists.netfilter.org,
-       linux-kernel@vger.kernel.org, rankincj@yahoo.com,
-       ebtables-devel@lists.sourceforge.net, netfilter-devel@manty.net
-In-Reply-To: <42B8B035.7020303@trash.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 22 Jun 2005 19:12:48 -0400
+Received: from mail.kroah.org ([69.55.234.183]:60300 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262572AbVFVXJS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 19:09:18 -0400
+Date: Wed, 22 Jun 2005 16:09:05 -0700
+From: Greg KH <greg@kroah.com>
+To: Jeff Garzik <jgarzik@pobox.com>, torvalds@osdl.org
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Git Mailing List <git@vger.kernel.org>
+Subject: Re: Updated git HOWTO for kernel hackers
+Message-ID: <20050622230905.GA7873@kroah.com>
+References: <42B9E536.60704@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42B9E536.60704@pobox.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Patrick McHardy <kaber@trash.net> wrote:
-> I would like to get confirmation from someone affected by this
-> bug, after that I think it should go in -stable. Chris, could
-> you give it a try?
+On Wed, Jun 22, 2005 at 06:24:54PM -0400, Jeff Garzik wrote:
+> 10) don't forget to download tags from time to time.
+> 
+> git-pull-script only downloads sha1-indexed object data, and the 
+> requested remote head.  This misses updates to the .git/refs/tags/ and 
+> .git/refs/heads directories.  It is advisable to update your kernel .git 
+> directories periodically with a full rsync command, to make sure you got 
+> everything:
+> 
+> $ cd linux-2.6
+> $ rsync -a --delete --verbose --stats --progress \
+> rsync://rsync.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git/
+> \          <- word-wrapped backslash; sigh
+>     .git/
 
-I trust you're talking about the following patches?
+Ok, this is annoying.  Is there some reason why git doesn't pull the
+tags in properly when doing a merge?  Chris and I just hit this when I
+pulled his 2.6.12.1 tree and and was wondering where the tag went.
 
-diff --git a/net/ipv4/ip_output.c b/net/ipv4/ip_output.c
---- a/net/ipv4/ip_output.c
-+++ b/net/ipv4/ip_output.c
-@@ -188,7 +188,12 @@ static inline int ip_finish_output2(stru
-                skb = skb2;
-        }
+thanks,
 
--       nf_reset(skb);
-+#ifdef CONFIG_BRIDGE_NETFILTER
-+       /* bridge-netfilter defers calling some IP hooks to the bridge layer and
-+        * still needs the conntrack reference */
-+       if (skb->nf_bridge == NULL)
-+#endif
-+               nf_reset(skb);
-
-        if (hh) {
-                int hh_alen;
-
-diff --git a/net/bridge/br_netfilter.c b/net/bridge/br_netfilter.c
---- a/net/bridge/br_netfilter.c
-+++ b/net/bridge/br_netfilter.c
-@@ -882,7 +882,7 @@ static unsigned int ip_sabotage_out(unsi
-                 * doesn't use the bridge parent of the indev by using
-                 * the BRNF_DONT_TAKE_PARENT mask. */
-                if (hook == NF_IP_FORWARD && nf_bridge->physindev == NULL) {
--                       nf_bridge->mask &= BRNF_DONT_TAKE_PARENT;
-+                       nf_bridge->mask |= BRNF_DONT_TAKE_PARENT;
-                        nf_bridge->physindev = (struct net_device *)in;
-                }
- #if defined(CONFIG_VLAN_8021Q) || defined(CONFIG_VLAN_8021Q_MODULE)
-
-I have just installed them, and my bridging firewall is working again with 2.6.12.
-
-Thanks,
-Chris
-
-
-
-		
-___________________________________________________________ 
-How much free photo storage do you get? Store your holiday 
-snaps for FREE with Yahoo! Photos http://uk.photos.yahoo.com
+greg k-h

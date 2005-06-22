@@ -1,84 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261929AbVFVKF1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262469AbVFVKOJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261929AbVFVKF1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 06:05:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261903AbVFVKDp
+	id S262469AbVFVKOJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 06:14:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262858AbVFVKMk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 06:03:45 -0400
-Received: from 238-071.adsl.pool.ew.hu ([193.226.238.71]:39943 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S262867AbVFVJ7W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 05:59:22 -0400
-To: akpm@osdl.org
-CC: pavel@ucw.cz, linux-kernel@vger.kernel.org
-In-reply-to: <20050622024423.66d773f3.akpm@osdl.org> (message from Andrew
-	Morton on Wed, 22 Jun 2005 02:44:23 -0700)
-Subject: Re: -mm -> 2.6.13 merge status (fuse)
-References: <20050620235458.5b437274.akpm@osdl.org>
-	<E1Dkfu2-0005Ju-00@dorka.pomaz.szeredi.hu>
-	<20050621142820.GC2015@openzaurus.ucw.cz>
-	<E1DkkRE-0005mt-00@dorka.pomaz.szeredi.hu>
-	<20050621220619.GC2815@elf.ucw.cz>
-	<E1Dkyas-0006wu-00@dorka.pomaz.szeredi.hu>
-	<20050621233914.69a5c85e.akpm@osdl.org>
-	<E1DkzTO-00072F-00@dorka.pomaz.szeredi.hu>
-	<20050622004902.796fa977.akpm@osdl.org>
-	<E1Dl1Ce-0007BO-00@dorka.pomaz.szeredi.hu>
-	<20050622021251.5137179f.akpm@osdl.org>
-	<E1Dl1Oz-0007Dq-00@dorka.pomaz.szeredi.hu> <20050622024423.66d773f3.akpm@osdl.org>
-Message-Id: <E1Dl20U-0007Ic-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Wed, 22 Jun 2005 11:58:54 +0200
+	Wed, 22 Jun 2005 06:12:40 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:11434 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262768AbVFVKIW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 06:08:22 -0400
+Date: Wed, 22 Jun 2005 12:08:02 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: William Weston <weston@sysex.net>
+Cc: "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
+       "Eugeny S. Mints" <emints@ru.mvista.com>,
+       Daniel Walker <dwalker@mvista.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
+Message-ID: <20050622100802.GA9207@elte.hu>
+References: <20050608112801.GA31084@elte.hu> <42B0F72D.5040405@cybsft.com> <20050616072935.GB19772@elte.hu> <42B160F5.9060208@cybsft.com> <20050616173247.GA32552@elte.hu> <Pine.LNX.4.58.0506171139570.32721@echo.lysdexia.org> <20050621131249.GB22691@elte.hu> <Pine.LNX.4.58.0506211228210.16701@echo.lysdexia.org> <20050622082450.GA19957@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050622082450.GA19957@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > >  We could.  But that would again be overly restrictive.  The goal is to
-> > > >  make the use of FUSE filesystems for users as simple as possible.  If
-> > > >  the user has to manage multiple namespaces, each with it's own
-> > > >  restrictions, it's becoming a very un-user-friendly environment.
-> > > 
-> > > I'd have thought that it would be possible to offer the same user interface
-> > > as you currently have with private namespaces.  Hide any complexity in the
-> > > userspace tools?  Where's the problem?
-> > 
-> > Sorry, I don't get it.
+
+* Ingo Molnar <mingo@elte.hu> wrote:
+
+> * William Weston <weston@sysex.net> wrote:
 > 
-> I'm asking you to expand on what the problems would be if we were to
-> enhance the namespace code as suggested.
+> > Attached are two typical traces and the .config from my Xeon/HT box, 
+> > currently running -50-06 with a normal desktop workload (X, wmaker, 
+> > ten dockapps, several xterms, and firefox).
+> 
+> the second trace seems to be a cross-CPU wakeup bug. It's not 
+> completely clear from the trace what happened - but we measured the 
+> latency of a task (wmcube-3191), where the wakeup happened on CPU#0 
+> and wmcube-3191 was queued to CPU#1 which was idle at that time. The 
+> bug is that it wasnt until timestamp 306us that this actually happened 
+> - and CPU#1 was just idling around in default_idle() for no good 
+> reason. CPU#1 should have run wmcube-3191 at around timestamp 13us.
 
-OK, what I was thinking, is that the user could create a new
-namespace, that has all the filesystems remounted 'nosuid'.  This
-wouldn't need any new kernel infrastructure, just a suid-root program
-(e.g. newns_nosuid), that would do a clone(CLONE_NEWNS), then
-recursively remount everything 'nosuid' in the new namespace.  Then
-restore the user's privileges, and exec a shell.
+ok, managed to reproduce it on a HT box, and it turned out to be a bug 
+in the SMT scheduler: the dependent sleeper logic incorrectly delayed 
+high-prio tasks, causing these latencies. I fixed it in the -50-10 
+kernel - could you redo your tests with that kernel (or later versions)?
 
-In this namespace the user could mount things to his heart's content.
-He could mount over system directories or even the root directory,
-without being able to do any harm.
-
-This is very nice, but a bit inpractical, since now all the other
-programs of the user, his desktop environment, login shells etc. Won't
-be able to see the userspace filesystems mounted in the private
-namespace.
-
-Of course he can enter the private namespace immediately after login,
-but then he won't be able to send mail for example, because 'sendmail'
-could be suid-mail or whatever.
-
-I think the following must be true, for a namespace environment to be
-useful:
-
- 1) All the processes should be able to access the same files
-    (including new mounts)
-
- 2) User should be able to run suid/sgid programs
-
-
-If the suid/sgid programs want to access the contents of a userspace
-filesystem, that's tough.  You can't have that, because it's insecure.
-But experience shows that this isn't a problem.  The exception is the
-'mount' program itself, and that is why I'm slowly working towards
-making sys_mount() and sys_umount() unprivileged.
-
-Miklos
+	Ingo

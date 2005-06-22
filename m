@@ -1,65 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261903AbVFVKGd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262746AbVFVKGd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261903AbVFVKGd (ORCPT <rfc822;willy@w.ods.org>);
+	id S262746AbVFVKGd (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 22 Jun 2005 06:06:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262967AbVFVKC6
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261903AbVFVKFf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 06:02:58 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:35296 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S262828AbVFVJ63 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 05:58:29 -0400
-Date: Wed, 22 Jun 2005 11:57:58 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Jurriaan <thunder7@xs4all.nl>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: [PATCH] New framebuffer fonts + updated 12x22 font available
-In-Reply-To: <200506220308.j5M380Ru002576@hera.kernel.org>
-Message-ID: <Pine.LNX.4.62.0506221156540.16901@numbat.sonytel.be>
-References: <200506220308.j5M380Ru002576@hera.kernel.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 22 Jun 2005 06:05:35 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:63413 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id S262746AbVFVKFH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 06:05:07 -0400
+Date: Wed, 22 Jun 2005 14:04:48 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Andy Whitcroft <apw@shadowen.org>
+Cc: Greg KH <gregkh@suse.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-mm1
+Message-ID: <20050622140448.A32312@jurassic.park.msu.ru>
+References: <20050619233029.45dd66b8.akpm@osdl.org> <20050620131451.GA9739@shadowen.org> <20050621225551.GB24289@suse.de> <42B92DFA.7060705@shadowen.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <42B92DFA.7060705@shadowen.org>; from apw@shadowen.org on Wed, Jun 22, 2005 at 10:23:06AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Jun 2005, Linux Kernel Mailing List wrote:
-> [PATCH] New framebuffer fonts + updated 12x22 font available
-> 
-> Improve the fonts for use with the framebuffer.
-> 
-> I've added all the characters marked 'FIXME' in the sun12x22 font and
-> created a 10x18 font (based on the sun12x22 font) and a 7x14 font (based
-> on the vga8x16 font).
-> 
-> This patch is non-intrusive, no options are enabled by default so most
-                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> users won't notice a thing.
+On Wed, Jun 22, 2005 at 10:23:06AM +0100, Andy Whitcroft wrote:
+> Ivan, can you shead any light on whether the hunk of your patch above is
+> one of the three fixes, whether its a fourth fix, and indeed whether its
+> needed?
 
-But ...
+This is the core part of those four changes (and actually it should have
+been attributed to Linus).
+So your patch is absolutely correct, thanks.
 
-> --- a/drivers/video/console/Kconfig
-> +++ b/drivers/video/console/Kconfig
-> @@ -153,6 +153,15 @@ config FONT_6x11
->  	  Small console font with Macintosh-style high-half glyphs.  Some Mac
->  	  framebuffer drivers don't support this one at all.
->  
-> +config FONT_7x14
-> +	bool "console 7x14 font (not supported by all drivers)" if FONTS
-> +	depends on FRAMEBUFFER_CONSOLE
-> +	default y if !SPARC32 && !SPARC64 && !FONTS
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Sorry I didn't nocice during the original review...
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Ivan.

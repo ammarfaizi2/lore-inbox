@@ -1,116 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261695AbVFVREU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261686AbVFVREY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261695AbVFVREU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 13:04:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261686AbVFVRCo
+	id S261686AbVFVREY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 13:04:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261756AbVFVRBz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 13:02:44 -0400
-Received: from [80.71.243.242] ([80.71.243.242]:27112 "EHLO tau.rusteko.ru")
-	by vger.kernel.org with ESMTP id S261690AbVFVQ72 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 12:59:28 -0400
-From: Nikita Danilov <nikita@clusterfs.com>
+	Wed, 22 Jun 2005 13:01:55 -0400
+Received: from [202.136.32.45] ([202.136.32.45]:24292 "EHLO
+	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S261657AbVFVQ5J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 12:57:09 -0400
+From: Grant Coady <grant_lkml@dodo.com.au>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-mm1 breaks Toshiba laptop yenta cardbus
+Date: Thu, 23 Jun 2005 02:56:49 +1000
+Organization: <http://scatter.mine.nu/>
+Message-ID: <j34jb155ndmakorjm1m7f0g8mr6rrla5l0@4ax.com>
+References: <s32db1toatpgar8nun4m5rtqq97hkbk2ab@4ax.com> <20050622161142.A32391@jurassic.park.msu.ru>
+In-Reply-To: <20050622161142.A32391@jurassic.park.msu.ru>
+X-Mailer: Forte Agent 2.0/32.652
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <17081.39151.25553.436292@gargle.gargle.HOWL>
-Date: Wed, 22 Jun 2005 20:59:27 +0400
-To: Vladimir Saveliev <vs@namesys.com>
-Cc: David Masover <ninja@slaphack.com>, Hans Reiser <reiser@namesys.com>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: reiser4 plugins
-In-Reply-To: <1119456807.4191.82.camel@tribesman.namesys.com>
-References: <20050620235458.5b437274.akpm@osdl.org>
-	<42B831B4.9020603@pobox.com>
-	<42B87318.80607@namesys.com>
-	<20050621202448.GB30182@infradead.org>
-	<42B8B9EE.7020002@namesys.com>
-	<42B8BB5E.8090008@pobox.com>
-	<42B8E834.5030809@slaphack.com>
-	<42B8F4BC.5060100@pobox.com>
-	<42B92AA1.3010107@slaphack.com>
-	<17081.30107.751071.983835@gargle.gargle.HOWL>
-	<1119456807.4191.82.camel@tribesman.namesys.com>
-X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vladimir Saveliev writes:
- > Hello
- > 
- > On Wed, 2005-06-22 at 18:28, Nikita Danilov wrote:
- > > David Masover writes:
- > > 
- > > [...]
- > > 
- > >  > 
- > >  > Maintainability is like optimization.  The maintainability of a
- > >  > non-working program is irrelevant.  You'd be right if we already had
- > >  > plugins-in-the-VFS.  We don't.  The most maintainable solution for
- > >  > plugins-in-the-FS that actually exists is Reiser4, exactly as it is now
- > >  > - -- because it is the _only_ one that actually exists right now.
- > > 
- > > But it is not so. There _are_ plugins-in-the-VFS. VFS operates on opaque
- > > objects (inodes, dentries, file system types) through interfaces:
- > > {inode,address_space,dentry,sb,etc.}_operations. Every file system
- > > back-end if free to implement whatever number of these interfaces. And
- > > the do this already: check the sources; even ext2 does this: e.g.,
- > > ext2_fast_symlink_inode_operations and ext2_symlink_inode_operations.
- > > 
- > 
- > imho, this is something different. Ext2 decides itself how to manage a
- > symlink depending on length of string the symlink is to store.
- > Reiser4 plugins are to allow a user to define himself which operations
- > file is to be managed with.
+On Wed, 22 Jun 2005 16:11:42 +0400, Ivan Kokshaysky <ink@jurassic.park.msu.ru> wrote:
+>
+>Then yenta_allocate_res() tries to assign these resources again and,
+>naturally, fails.
+>
+>This adds check for already assigned cardbus resources.
+>
+>Ivan.
+>
+>--- 2.6.12-mm1/drivers/pcmcia/yenta_socket.c	Wed Jun 22 15:56:20 2005
+>+++ linux/drivers/pcmcia/yenta_socket.c	Wed Jun 22 16:01:40 2005
+>@@ -553,6 +553,11 @@ static int yenta_try_allocate_res(struct
+> 	unsigned offset;
+> 	unsigned mask;
+> 
+>+	res = socket->dev->resource + PCI_BRIDGE_RESOURCES + nr;
+>+	/* Already allocated? */
+>+	if (res->parent)
+>+		return 0;
+>+
+> 	/* The granularity of the memory limit is 4kB, on IO it's 4 bytes */
+> 	mask = ~0xfff;
+> 	if (type & IORESOURCE_IO)
+>@@ -560,7 +565,6 @@ static int yenta_try_allocate_res(struct
+> 
+> 	offset = 0x1c + 8*nr;
+> 	bus = socket->dev->subordinate;
+>-	res = socket->dev->resource + PCI_BRIDGE_RESOURCES + nr;
+> 	res->name = bus->name;
+> 	res->flags = type;
+> 	res->start = 0;
 
-I fail to see this as an important distinction:
+Ivan,
+Thank you, it worked.
 
- - ext2    decides what "plugin" to use based on parameters supplied to
- the file creation system call;
+I have my cardbus + network connection back!  But I still get the 
+swag of error messages in syslog.  From cardmgr?  So I mark rc.pcmcia 
+non-execute (Slackware) and reboot, I still have cardbus NIC.  
 
- - reiser4 decides what "plugin" to use based on parameters supplied to
- the file creation system call.
+Remove user-space cardmgr, that's what this work was about?  I'll try 
+with 16-bit stuff daytime.
 
- > 
- > > This is exactly what upper level reiser4 plugins are for.
- > 
- > > I guess that one of Christoph Hellwig's complaints is that reiser4
- > > introduces another layer of abstraction to implement something that
- > > already exists.
- > > 
- > 
- > I do not think that it exists already.
- > You can have standart type of files and that is all.
- > 
- > Linux filesystem is not supposed to provide anything but plain
- > regular/directory/symlinks/sockets/block device/char device/fifo files.
+syslog:
+Jun 23 02:46:52 tosh kernel: PCI: Probing PCI hardware (bus 00)
+Jun 23 02:46:52 tosh kernel: PCI: Bus 2, cardbus bridge: 0000:00:0b.0
+Jun 23 02:46:52 tosh kernel:   IO window: 00002000-00002fff
+Jun 23 02:46:52 tosh kernel:   IO window: 00003000-00003fff
+Jun 23 02:46:52 tosh kernel:   PREFETCH window: 12000000-13ffffff
+Jun 23 02:46:52 tosh kernel:   MEM window: 14000000-15ffffff
+Jun 23 02:46:52 tosh kernel: PCI: Enabling device 0000:00:0b.0 (0000 -> 0003)
+Jun 23 02:46:52 tosh kernel: ACPI: PCI Interrupt Link [LNKA] enabled at IRQ 11
+Jun 23 02:46:52 tosh kernel: PCI: setting IRQ 11 as level-triggered
+Jun 23 02:46:52 tosh kernel: Console: switching to colour frame buffer device 100x37
+Jun 23 02:46:52 tosh kernel: ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+Jun 23 02:46:52 tosh kernel: hda: SAMSUNG MP0402H, ATA DISK drive
+Jun 23 02:46:52 tosh kernel: ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+Jun 23 02:46:52 tosh kernel: hdc: CD-224E-B, ATAPI CD/DVD-ROM drive
+Jun 23 02:46:52 tosh kernel: ide1 at 0x170-0x177,0x376 on irq 15
+Jun 23 02:46:52 tosh kernel: ACPI: PCI Interrupt Link [LNKD] enabled at IRQ 11
+Jun 23 02:46:52 tosh kernel: ACPI: PCI Interrupt Link [LNKB] enabled at IRQ 11
+Jun 23 02:46:52 tosh kernel: TCP established hash table entries: 8192 (order: 4, 65536 bytes)
+Jun 23 02:46:52 tosh kernel: TCP bind hash table entries: 8192 (order: 3, 32768 bytes)
+Jun 23 02:46:52 tosh kernel: Using IPI Shortcut mode
+Jun 23 02:46:52 tosh kernel: VFS: Mounted root (reiserfs filesystem) readonly.
+Jun 23 02:46:52 tosh kernel: PCI: Enabling device 0000:02:00.0 (0000 -> 0003)
 
-If you are talking about S_IFMT bits they are just a relic to keep user
-level happy (yes, VFS does few S_ISFOO checks here and there, but they
-all can be replaced with checks for appropriate operations being
-non-NULL). Nothing prevents file system from rolling forward whatever
-exotic objects it wants.
+--Grant.
 
- > 
- > Existing file API does not allow create anything but that.
- > Merging reiser4 with object plugins would make it necessary to modify
- > VFS layer so that files of arbitrary types could be created.
- > 
-
-This is important, but it doesn't depend on whether file system has
-additional layer if indirection below VFS operations. If file system
-wants to support extended object types, additional parameters have to be
-somehow communicated from the user level during object creation. But:
-
- - this is necessary even if file system has no "plugins" below VFS
- operations;
-
- - this doesn't necessary means changing VFS. For example, these
- parameters can be set on parent directory (this is how ACLs were
- integrated into POSIX).
-
- >
-
-Nikita.

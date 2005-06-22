@@ -1,99 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262953AbVFVJVz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262970AbVFVJ4p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262953AbVFVJVz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 05:21:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262864AbVFVHoA
+	id S262970AbVFVJ4p (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 05:56:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262925AbVFVJy2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 03:44:00 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:57286 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262755AbVFVFe5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 01:34:57 -0400
-Date: Wed, 22 Jun 2005 06:34:50 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ReiserFS List <reiserfs-list@namesys.com>
+	Wed, 22 Jun 2005 05:54:28 -0400
+Received: from mxfep01.bredband.com ([195.54.107.70]:36561 "EHLO
+	mxfep01.bredband.com") by vger.kernel.org with ESMTP
+	id S262828AbVFVJvk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 05:51:40 -0400
+Message-ID: <42B935D9.7010608@stesmi.com>
+Date: Wed, 22 Jun 2005 11:56:41 +0200
+From: Stefan Smietanowski <stesmi@stesmi.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David Masover <ninja@slaphack.com>
+CC: Jeff Garzik <jgarzik@pobox.com>, Hans Reiser <reiser@namesys.com>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, ReiserFS List <reiserfs-list@namesys.com>
 Subject: Re: reiser4 plugins
-Message-ID: <20050622053450.GA28228@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Hans Reiser <reiser@namesys.com>, Jeff Garzik <jgarzik@pobox.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	ReiserFS List <reiserfs-list@namesys.com>
-References: <20050620235458.5b437274.akpm@osdl.org> <42B831B4.9020603@pobox.com> <42B87318.80607@namesys.com> <20050621202448.GB30182@infradead.org> <42B8B9EE.7020002@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42B8B9EE.7020002@namesys.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+References: <20050620235458.5b437274.akpm@osdl.org> <42B831B4.9020603@pobox.com> <42B87318.80607@namesys.com> <20050621202448.GB30182@infradead.org> <42B8B9EE.7020002@namesys.com> <42B8BB5E.8090008@pobox.com> <42B8E834.5030809@slaphack.com>
+In-Reply-To: <42B8E834.5030809@slaphack.com>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-AntiVirus: checked by Vexira Milter 1.0.7; VAE 6.29.0.5; VDF 6.29.0.100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 21, 2005 at 06:07:58PM -0700, Hans Reiser wrote:
-> Christoph,
-> 
-> Reiser4 users love the plugin concept, and all audiences which have
-> listened to a presentation on plugins have been quite positive about
-> it.  Many users think it is the best thing about reiser4.  Can you
-> articulate why you are opposed to plugins in more detail?  Perhaps you
-> are simply not as familiar with it as the audiences I have presented
-> to.  Perhaps persons on our mailing list can comment.....
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-You're duplicating the VFS infrastructure with your pluging system.
+Hi David
 
-> In particular, what is wrong with having a plugin id associated with
-> every file, storing the pluginid on disk in permanent storage in the
-> stat data, and having that plugin id define the set of methods that
-> implement the vfs operations associated with a particular file, rather
-> than defining VFS methods only at filesystem granularity?
+> And here is the crucial point.  Reiser4 is usable and useful NOW, not
+> after it has undergone massive surgery, and Namesys is bankrupt, and
+> users have given up and moved on to XFS.  But the massive surgery should
+> happen eventually, partly to make all filesystems better (see below),
+> and partly to make the transition easier and more palatable for those
+> who don't work for Namesys.
 
-Hans, this only shows you didn't listen to be the last few times I
-explained it to you.  There's nothing wrong with defining plug in IDs
-associated with every file, and the linux file_operations, inode_operations,
-etc.. are _not_ filesystem granularity but inode granularity (except in
-reiser4 where you throw everything together just to add your own
-de-multiplexer below).  So the only thing your plugin might need to is to
-define it's own file or inode operations (in fact it might need a few
-more things speaking from experience with kinda similar things, but it
-certainly doesn't need to duplicate what's there)
+Sometimes someone comes with "I have this code NOW and if we just merge
+it I'll fix it up properly". It's rejected, stating "come back when
+you've fixed it up".
 
-> What is wrong with having an encryption plugin implemented in this
-> manner?  What is wrong with being able to have some files implemented
-> using a compression plugin, and others in the same filesystem not.
+We don't even have that here. We have "I have this code NOW and when
+it's merged I have no intention of fixing it up properly".
 
-There's nothing wrong with that, although such things might be better
-as a stackable filesystem.  Maybe they're not, and we'll find out once
-people are prototyping these things and playing with them. But you don't
-need your additional layer of abstraction for those anyway
+In my eyes I'd rather take the first one than the second, there at least
+there's the INTENTION of fixing it up.
 
-> What is wrong with having one file in the FS use a write only plugin, in
-> which the encrypion key is changed with every append in a forward but
-> not backward computable manner, and in order to read a file you must
-> either have a key that is stored on another computer or be reading what
-> was written after the moment of cracking root?
+Oh and btw, I'm not pro- or against- reiserfs in any way. I haven't
+tried reiserfs4 but I hear it's good so don't take this is a statement
+of my like or dislike of it, I'm just stating something worth thinking
+about.
 
-Because root can read kernel memory this is completely useless :)
-But if you want it as your private patch no one forbits you to do it,
-just don't expect such security by obscurity to go into mainline.
+// Stefan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (MingW32)
 
-> What we have hurts no one but us.  I have never seen an audience for one
-> of my talks that thought it hurt us..... most audiences think it is
-> great.  
-
-most of your audience doesn't understand the fine points of filesystem
-implementation.  they want your feature but don't care how it's implemented.
-here it's the other way around - we don't care too much about what not so
-important features we have but more about how sanely they're implemented.
-
-> Let us tinker with our FS, and you tinker with yours, and so long as
-> what we do does not affect your FS, let the users choose.
-
-Now we're getting personal again, right?  My filesystems according to
-MAINTAINERS are freevxfs and sysfs, but if you look at commit logs I've
-done work on pretty much any filesystem in the tree, and often doing tree-wide
-changes.  That's why I care about every new filesystem in the tree and not
-a single one.
-
+iD8DBQFCuTXZBrn2kJu9P78RAi0JAJwIp6uyAd3AL4mgSBMAH59h7CrklQCfRW+V
+8ZlZqxHwnpqpHa8OURtUEuw=
+=OD/E
+-----END PGP SIGNATURE-----

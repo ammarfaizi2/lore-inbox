@@ -1,94 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261699AbVFVRQo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261746AbVFVRQo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261699AbVFVRQo (ORCPT <rfc822;willy@w.ods.org>);
+	id S261746AbVFVRQo (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 22 Jun 2005 13:16:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbVFVRQA
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261750AbVFVRP1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 13:16:00 -0400
-Received: from ausc60pc101.us.dell.com ([143.166.85.206]:17032 "EHLO
-	ausc60pc101.us.dell.com") by vger.kernel.org with ESMTP
-	id S261699AbVFVRLo convert rfc822-to-8bit (ORCPT
+	Wed, 22 Jun 2005 13:15:27 -0400
+Received: from rproxy.gmail.com ([64.233.170.203]:42459 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261746AbVFVRIU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 13:11:44 -0400
-X-IronPort-AV: i="3.93,221,1115010000"; 
-   d="scan'208"; a="276763517:sNHT25133320"
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
-content-class: urn:content-classes:message
+	Wed, 22 Jun 2005 13:08:20 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:subject:date:user-agent:to:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=o1SUHKXI0YiHwDBr3pcmXdHyyaSYwPEKrxhTpumXjijQS6paNk6yVbSkfsbUBzl7zKS6iFnHOR9Ycl68es+xm870TP/9WsXcPRYcEtBpBA5H4X6mIg+4puCyhHGklol/487Y3sZVUuNDMygBFNdmFsiAFafJENu9IUQTgexdb7U=
+From: Alexey Dobriyan <adobriyan@gmail.com>
+Subject: Fwd: Fix vesafb/mtrr scaling problem.
+Date: Wed, 22 Jun 2005 21:13:57 +0400
+User-Agent: KMail/1.7.2
+To: Alessandro <alezzandro@gmail.com>
+Cc: Sebastian Kaergel <mailing@wodkahexe.de>, Dave Jones <davej@redhat.com>,
+       linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: page allocation/attributes question (i386/x86_64 specific)
-Date: Wed, 22 Jun 2005 12:11:42 -0500
-Message-ID: <7A8F92187EF7A249BF847F1BF4903C040240AE3C@ausx2kmpc103.aus.amer.dell.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: page allocation/attributes question (i386/x86_64 specific)
-Thread-Index: AcV3Pt/FK5WDWX2bRTWpUIcp7s34vgAAWobQ
-From: <Stuart_Hayes@Dell.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: <Stuart_Hayes@Dell.com>
-X-OriginalArrivalTime: 22 Jun 2005 17:11:43.0870 (UTC) FILETIME=[76C471E0:01C5774D]
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200506222113.57390.adobriyan@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-I have a question regarding page attributes on i386/x86_64 platforms:
+Alessandro, please test this patch and report back if it fixes your problem.
 
-Supopse a function requests a page with __get_free_pages(), and the page
-that's returned is actually part of a large (2MB) page that has a single
-pte (or pmd, I guess) to control it.
+ ----------  Forwarded Message  ----------
 
-Suppose this function then calls change_page_attr() to, say, modify the
-caching policy for that page.  Since the page is part of a large 2MB
-page (PAGE_PSE is set), change_page_attr() calls split_large_page() to
-create 512 new PTEs, since the caching policy is only being changed on
-the single 4K page, and not for the entire 2MB large page.
-
-When split_large_page() creates the 512 new PTEs, it assigns the
-requested attributes to the page in question, but it sets all of the
-other 511 PTEs the PAGE_KERNEL attributes.  It never checks what
-attributes were set for the large page--it just assumes that the other
-511 pages should have PAGE_KERNEL attributes.
-
-My question is this:  when split_large_page() is called, should it make
-the other 511 PTEs inherit the page attributes from the large page (with
-the exception of PAGE_PSE, obviously)?
-
-There appears to be a bug (at least in certain 2.6 kernel versions)
-where __get_free_pages() returns a page that's in a large page that is
-executable (it doesn't have the PAGE_NX bit set)... but, after
-change_page_attr() is called, the other 511 pages, which contain kernel
-code, are no longer executable (because they were set to PAGE_KERNEL,
-which has PAGE_NX set).
-
-I've copied the split_large_page() code below for reference.
-
-Thanks,
-Stuart
+Subject: Fix vesafb/mtrr scaling problem.
+Date: Wednesday 22 June 2005 03:03
+From: Dave Jones <davej@redhat.com>
+To: linux-kernel@vger.kernel.org
 
 
-static struct page *split_large_page(unsigned long address, pgprot_t
-prot)
-{ 
-	int i; 
-	unsigned long addr;
-	struct page *base;
-	pte_t *pbase;
+vesafb will do really silly things like..
 
-	spin_unlock_irq(&cpa_lock);
-	base = alloc_pages(GFP_KERNEL, 0);
-	spin_lock_irq(&cpa_lock);
-	if (!base) 
-		return NULL;
+mtrr: type mismatch for e0000000,8000000 old: write-back new: write-combining
+mtrr: type mismatch for e0000000,4000000 old: write-back new: write-combining
+mtrr: type mismatch for e0000000,2000000 old: write-back new: write-combining
+mtrr: type mismatch for e0000000,1000000 old: write-back new: write-combining
+mtrr: type mismatch for e0000000,800000 old: write-back new: write-combining
+mtrr: type mismatch for e0000000,400000 old: write-back new: write-combining
+mtrr: type mismatch for e0000000,200000 old: write-back new: write-combining
+mtrr: type mismatch for e0000000,100000 old: write-back new: write-combining
+mtrr: type mismatch for e0000000,80000 old: write-back new: write-combining
+mtrr: type mismatch for e0000000,40000 old: write-back new: write-combining
+mtrr: type mismatch for e0000000,20000 old: write-back new: write-combining
+mtrr: type mismatch for e0000000,10000 old: write-back new: write-combining
+mtrr: type mismatch for e0000000,8000 old: write-back new: write-combining
+mtrr: type mismatch for e0000000,4000 old: write-back new: write-combining
+mtrr: type mismatch for e0000000,2000 old: write-back new: write-combining
+mtrr: type mismatch for e0000000,1000 old: write-back new: write-combining
+mtrr: size and base must be multiples of 4 kiB
+mtrr: size: 0x800  base: 0xe0000000
+mtrr: size and base must be multiples of 4 kiB
+mtrr: size: 0x400  base: 0xe0000000
+mtrr: size and base must be multiples of 4 kiB
+mtrr: size: 0x200  base: 0xe0000000
+mtrr: size and base must be multiples of 4 kiB
+mtrr: size: 0x100  base: 0xe0000000
+mtrr: size and base must be multiples of 4 kiB
+mtrr: size: 0x80  base: 0xe0000000
+mtrr: size and base must be multiples of 4 kiB
+mtrr: size: 0x40  base: 0xe0000000
+mtrr: size and base must be multiples of 4 kiB
+mtrr: size: 0x20  base: 0xe0000000
+mtrr: size and base must be multiples of 4 kiB
+mtrr: size: 0x10  base: 0xe0000000
+mtrr: size and base must be multiples of 4 kiB
+mtrr: size: 0x8  base: 0xe0000000
+mtrr: size and base must be multiples of 4 kiB
+mtrr: size: 0x4  base: 0xe0000000
+mtrr: size and base must be multiples of 4 kiB
+mtrr: size: 0x2  base: 0xe0000000
+mtrr: size and base must be multiples of 4 kiB
+mtrr: size: 0x1  base: 0xe0000000
 
-	address = __pa(address);
-	addr = address & LARGE_PAGE_MASK; 
-	pbase = (pte_t *)page_address(base);
-	for (i = 0; i < PTRS_PER_PTE; i++, addr += PAGE_SIZE) {
-		pbase[i] = pfn_pte(addr >> PAGE_SHIFT, 
-				   addr == address ? prot :
-PAGE_KERNEL);
-	}
-	return base;
-} 
+Stop scaling down at PAGE_SIZE.
+Also fix up some broken indentation.
+
+Signed-off-by: Dave Jones <davej@redhat.com>
+
+--- linux-2.6.12/drivers/video/vesafb.c~	2005-06-21 18:55:59.000000000 -0400
++++ linux-2.6.12/drivers/video/vesafb.c	2005-06-21 18:57:26.000000000 -0400
+@@ -389,10 +389,11 @@ static int __init vesafb_probe(struct de
+ 		int temp_size = size_total;
+ 		/* Find the largest power-of-two */
+ 		while (temp_size & (temp_size - 1))
+-                	temp_size &= (temp_size - 1);
+-                        
+-                /* Try and find a power of two to add */
+-		while (temp_size && mtrr_add(vesafb_fix.smem_start, temp_size, MTRR_TYPE_WRCOMB, 1)==-EINVAL) {
++			temp_size &= (temp_size - 1);
++
++		/* Try and find a power of two to add */
++		while (temp_size > PAGE_SIZE &&
++			mtrr_add(vesafb_fix.smem_start, temp_size, MTRR_TYPE_WRCOMB, 1)==-EINVAL) {
+ 			temp_size >>= 1;
+ 		}
+ 	}

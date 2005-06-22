@@ -1,46 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261319AbVFVO11@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261316AbVFVObP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261319AbVFVO11 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 10:27:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbVFVO11
+	id S261316AbVFVObP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 10:31:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261387AbVFVObO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 10:27:27 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:23280 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261319AbVFVO1D
+	Wed, 22 Jun 2005 10:31:14 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:47848 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261316AbVFVO2J
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 10:27:03 -0400
+	Wed, 22 Jun 2005 10:28:09 -0400
 From: Tom Zanussi <zanussi@us.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <17081.30006.760838.986094@tut.ibm.com>
-Date: Wed, 22 Jun 2005 09:27:02 -0500
+Message-ID: <17081.30073.460287.441567@tut.ibm.com>
+Date: Wed, 22 Jun 2005 09:28:09 -0500
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.12-mm1] relayfs: add private data to channel struct
+Subject: [PATCH 2.6.12-mm1] relayfs: add relayfs website to documentation
 X-Mailer: VM 7.19 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds a field for clients to use as they wish, as suggested
-by Mathieu Desnoyers.
+relayfs now has an 'official' website and mailing list at
 
-Thanks,
+	http://relayfs.sourceforge.net
+
+This patch adds a link to the website to relayfs.txt.
+
 
 Tom
 
 Signed-off-by: Tom Zanussi <zanussi@us.ibm.com>
 
-diff -urpN -X dontdiff linux-2.6.12-mm1/include/linux/relayfs_fs.h linux-2.6.12-mm1-cur/include/linux/relayfs_fs.h
---- linux-2.6.12-mm1/include/linux/relayfs_fs.h	2005-06-22 11:16:23.000000000 -0500
-+++ linux-2.6.12-mm1-cur/include/linux/relayfs_fs.h	2005-06-22 11:39:12.000000000 -0500
-@@ -59,6 +59,7 @@ struct rchan
- 	int overwrite;			/* overwrite buffer when full? */
- 	struct rchan_callbacks *cb;	/* client callbacks */
- 	struct kref kref;		/* channel refcount */
-+	void *private_data;		/* for user-defined data */
- 	struct rchan_buf *buf[NR_CPUS]; /* per-cpu channel buffers */
- };
+diff -urpN -X dontdiff linux-2.6.12-mm1/Documentation/filesystems/relayfs.txt linux-2.6.12-mm1-cur/Documentation/filesystems/relayfs.txt
+--- linux-2.6.12-mm1/Documentation/filesystems/relayfs.txt	2005-06-22 11:16:21.000000000 -0500
++++ linux-2.6.12-mm1-cur/Documentation/filesystems/relayfs.txt	2005-06-22 11:53:51.000000000 -0500
+@@ -190,6 +190,14 @@ within the kernel application, such as e
+ the channel.
  
+ 
++Resources
++=========
++
++For news, example code, mailing list, etc. see the relayfs homepage:
++
++    http://relayfs.sourceforge.net
++
++
+ Credits
+ =======
+ 
+
 
 

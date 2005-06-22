@@ -1,63 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262501AbVFVXCG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261604AbVFVW4L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262501AbVFVXCG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 19:02:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262560AbVFVW4u
+	id S261604AbVFVW4L (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 18:56:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262501AbVFVWxe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 18:56:50 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:46024 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262557AbVFVWxB (ORCPT
+	Wed, 22 Jun 2005 18:53:34 -0400
+Received: from trex.wsi.edu.pl ([195.117.114.133]:23500 "EHLO trex.wsi.edu.pl")
+	by vger.kernel.org with ESMTP id S262546AbVFVWw2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 18:53:01 -0400
-Date: Wed, 22 Jun 2005 18:52:55 -0400
-From: Dave Jones <davej@redhat.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Git Mailing List <git@vger.kernel.org>
-Subject: Re: Updated git HOWTO for kernel hackers
-Message-ID: <20050622225255.GB21298@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	Git Mailing List <git@vger.kernel.org>
-References: <42B9E536.60704@pobox.com> <20050622224003.GA21298@redhat.com> <42B9EA67.1040407@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42B9EA67.1040407@pobox.com>
-User-Agent: Mutt/1.4.1i
+	Wed, 22 Jun 2005 18:52:28 -0400
+Message-ID: <42B9CFA1.6030702@trex.wsi.edu.pl>
+Date: Wed, 22 Jun 2005 22:52:49 +0200
+From: =?UTF-8?B?TWljaGHFgiBQaW90cm93c2tp?= <piotrowskim@trex.wsi.edu.pl>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: pl, en-us, en
+MIME-Version: 1.0
+To: randy_dunlap <rdunlap@xenotime.net>
+Cc: "LKML <\"\" \">" <"linux-kernel\""@vger.kernel.org>
+Subject: Re: Script to help users to report a BUG
+References: <4d8e3fd30506191332264eb4ae@mail.gmail.com> <20050622120848.717e2fe2.rdunlap@xenotime.net>
+In-Reply-To: <20050622120848.717e2fe2.rdunlap@xenotime.net>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 22, 2005 at 06:47:03PM -0400, Jeff Garzik wrote:
+Hi,
 
- > > > install tarball:  unpack && make && sudo make prefix=/usr/local install
- > >
- > >the sudo thing isn't necessary. make install by itself installs it
- > >in ~/bin/ just fine.
- > 
- > Clearly this does not work if installing in /usr/local, as I and others 
- > do (and as the example shows).
+randy_dunlap napisał(a):
 
-Sure, it just seemed to imply that it doesn't work with a non-root install,
-which isn't true.
+>On Sun, 19 Jun 2005 22:32:16 +0200 Paolo Ciarrocchi wrote:
+>
+>| Hi all,
+>| what do you think about this simple idea of a script that could help
+>| users to fill better BUG reports ?
+>| 
+>| The usage is quite simple, put the attached file in
+>| /usr/src/linux/scripts and then:
+>| 
+>| [root@frodo scripts]# ./report-bug.sh /tmp/BUGREPORT/
+>| cat: /proc/scsi/scsi: No such file or directory
+>| 
+>| [root@frodo scripts]# ls /tmp/BUGREPORT/
+>| cpuinfo.bug  ioports.bug  modules.bug  software.bug
+>| iomem.bug    lspci.bug    scsi.bug     version.bug
+>| 
+>| Now you can simply attach all the .bug files to the bugzilla report or
+>| inline them in a email.
+>| 
+>| The script is rude but it is enough to give you an idea of what I have in mind.
+>| 
+>| Any comment ?
+>
+>It can be useful.  We certainly see bug reports with a good bit
+>of missing information.
+>
+>I would rather see the script write all /proc etc. contents to just
+>one file (with some headings prior to each file).  One file would be
+>easier to email inline or to attach...
+>
+>---
+>~Randy
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
+We talk about it (me and Paolo) in private correspondence.
 
- > > > After reading the rest of this document, come back and update your copy 
- > > > of git to the latest:
- > > > rsync://rsync.kernel.org/pub/scm/linux/kernel/git/torvalds/git.git
- > >
- > >See above, which allows you to skip this step ;)
- > 
- > huh?  Nothing allows you to skip that step.  Regardless of when you suck 
- > the tarball, even from your snapshots, the users should not skip this step.
+Here is my version:
+http://stud.wsi.edu.pl/~piotrowskim/files/ort/ort-a5.tar.bz2
 
-At worse, users will have tools 59 minutes old.  If a situation arises
-where git from an hour ago isn't new enough to pull from the repository,
-we have bigger problems.
+Here is my topic on kerneltrap:
+http://kerneltrap.org/node/5325
 
-You seem to be proposing that everyone needs the shiniest newest things,
-which clearly isn't true, and suggesting so just complicates things
-further imo.
+If you have any suggestions, coments, please send me email or post on 
+kerneltrap.
 
-		Dave
-
+Regards,
+Michał Piotrowski

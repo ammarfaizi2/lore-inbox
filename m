@@ -1,46 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262957AbVFVIBc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262823AbVFVHwA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262957AbVFVIBc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 04:01:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262903AbVFVHxN
+	id S262823AbVFVHwA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 03:52:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262876AbVFVHrb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 03:53:13 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:56982 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262906AbVFVHuX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 03:50:23 -0400
-Date: Wed, 22 Jun 2005 09:49:37 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Esben Nielsen <simlo@phys.au.dk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-V0.7.49-00
-Message-ID: <20050622074937.GE16508@elte.hu>
-References: <Pine.OSF.4.05.10506220109490.17063-100000@da410.phys.au.dk> <Pine.OSF.4.05.10506220113250.17063-100000@da410.phys.au.dk>
+	Wed, 22 Jun 2005 03:47:31 -0400
+Received: from nproxy.gmail.com ([64.233.182.201]:1117 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262819AbVFVGXn convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 02:23:43 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Tqlg30EMMZcI+ThPANatPPX/PAvFn6CB3SI/xhzEGpXiuoohH9SGSH+izYK5ysH/suDeZ/c8iIcqO4k7iUJAuMHeeicuisdjjJnIdHuj3nAH4LaZMfTmTbgXlA4Bu0c7NU2BgenRPTBMOhBT8bcDC6mUR6WE5OguPBoKNG0Vij0=
+Message-ID: <2cd57c900506212323ca68045@mail.gmail.com>
+Date: Wed, 22 Jun 2005 14:23:36 +0800
+From: Coywolf Qi Hunt <coywolf@gmail.com>
+Reply-To: coywolf@lovecn.org
+To: "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH] devfs: remove devfs from Kconfig preventing it from being built
+Cc: gregkh@suse.de, torvalds@osdl.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050621.214527.71091057.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.OSF.4.05.10506220113250.17063-100000@da410.phys.au.dk>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+References: <20050621222419.GA23896@kroah.com>
+	 <20050621.155919.85409752.davem@davemloft.net>
+	 <20050622041330.GB27716@suse.de>
+	 <20050621.214527.71091057.davem@davemloft.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 6/22/05, David S. Miller <davem@davemloft.net> wrote:
+> From: Greg KH <gregkh@suse.de>
+> Date: Tue, 21 Jun 2005 21:13:30 -0700
+> 
+> > On Tue, Jun 21, 2005 at 03:59:19PM -0700, David S. Miller wrote:
+> > > From: Greg KH <gregkh@suse.de>
+> > > Date: Tue, 21 Jun 2005 15:24:19 -0700
+> > >
+> > > However, this does mean I do need to reinstall a couple
+> > > debian boxes here to something newer before I can continue
+> > > doing kernel work in 2.6.x on them.
+> >
+> > Those boxes rely on devfs?
+> 
+> Yeah, when I forget to turn on DEVFS_FS and DEVFS_MOUNT in the
+> kernel config the machine won't boot. :-)
+> 
+> > Can't you just grab the "static dev" debian package and continue on?
+> > I'm sure there is one in there somewhere (don't really know for sure,
+> > not running debian anywhere here, sorry.)
+> >
+> > Or how about a tarball of a /dev tree?  Would that help you out?
 
-* Esben Nielsen <simlo@phys.au.dk> wrote:
+There's /sbin/MAKEDEV on debian.
 
-> Yep, just as I pressed sent before I saw the following:
+> 
+> I don't know if Debian has such a package.
+> 
+> Don't worry, I'll take care of this by simply reinstalling
+> and thus moving to udev.
 
-ok, i'll have to look at the latency trace of this.
+Moving to udev is right. Still you need a "static dev" in case your
+udev not working.
 
-> threshold violated: 28.0% (273usec)
+Use /sbin/MAKEDEV from makedev package.
 
-btw., are you sure this happened with latency timing/tracing disabled?  
-(the printks will disturb the rtc_wakeup test).
-
-	Ingo
+-- 
+Coywolf Qi Hunt
+http://ahbl.org/~coywolf/

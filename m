@@ -1,59 +1,379 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261188AbVFVLrZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261246AbVFVLvD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261188AbVFVLrZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 07:47:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261176AbVFVLrZ
+	id S261246AbVFVLvD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 07:51:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261274AbVFVLtb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 07:47:25 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:42657 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S261195AbVFVLrE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 07:47:04 -0400
-Message-ID: <42B94FB2.60104@grupopie.com>
-Date: Wed, 22 Jun 2005 12:46:58 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Wed, 22 Jun 2005 07:49:31 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:6114 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261195AbVFVLrq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 07:47:46 -0400
+From: Jeff Moyer <jmoyer@redhat.com>
 MIME-Version: 1.0
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] more signed char cleanups in scripts
-References: <20050619233029.45dd66b8.akpm@osdl.org>	<1119391748l.25237l.3l@werewolf.able.es>	<20050621151806.07ef0f78.akpm@osdl.org> <1119394780l.25237l.4l@werewolf.able.es>
-In-Reply-To: <1119394780l.25237l.4l@werewolf.able.es>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17081.20441.714191.528270@segfault.boston.redhat.com>
+Date: Wed, 22 Jun 2005 07:47:37 -0400
+To: Matt Mackall <mpm@selenic.com>
+Cc: netdev@oss.sgi.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch,rfc] allow registration of multiple netpolls per interface
+In-Reply-To: <20050621225252.GY27572@waste.org>
+References: <17080.35214.507402.998984@segfault.boston.redhat.com>
+	<20050621225252.GY27572@waste.org>
+X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
+Reply-To: jmoyer@redhat.com
+X-PGP-KeyID: 1F78E1B4
+X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
+X-PCLoadLetter: What the f**k does that mean?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-J.A. Magallon wrote:
-> On 06.22, Andrew Morton wrote:
->>[...]
->>I see no particular problem using uchar in the kallsyms code - I often
->>prefer it, because you can just look at the code and not have to worry
->>about nasty sign-extension problems.
-> 
-> Forget the part for kallsyms. After my change, it just coredumps.
-> The original gcc warnings are below. The problem is using str---
-> on data that are not strictly strings, but arrays of bytes...
-> Each symbol struct has a field. 'sym', that stores a 'type'
-> in sym[0] and a name from sym[1] to the end. A strange hacky mix.
+==> Regarding Re: [patch,rfc] allow registration of multiple netpolls per interface; Matt Mackall <mpm@selenic.com> adds:
 
-Tell me about it :)
+mpm> On Tue, Jun 21, 2005 at 05:41:34PM -0400, Jeff Moyer wrote:
+>> Hi,
+>> 
+>> This patch restores functionality that was removed when the recursive
+-> poll bug was fixed.  Namely, it allows multiple netpoll clients to
+>> register against the same network interface.
 
-I'll look at the warnings and try to clean them up myself, if that's ok 
-with you, since I'm in the middle of changing that code anyway.
+mpm> Thanks. I've been neglecting this for a bit while I've been busy with
+mpm> other things.
+ 
+>> In order to put things into perspective, I'm going to provide some
+>> background information.  So, here is how things used to work:
+>> 
+>> Multiple users of the netpoll interface could register themselves to send
+>> packets over the same interface.  Any number of these netpoll clients could
+>> register an rx_hook, as well.  However, only the very first in the list
+>> (hence the last one that registered), that matched the incoming interface,
+>> would be called when a packet arrived.  The reason for this was not design,
+>> it was an oversight in the implementation.  In practice, however, no one
+>> ever stumbled over this.  (There are more subtleties when dealing with
+>> multiple rx_hooks registered to the same interface, but we'll ignore these,
+>> since no one ever ran into such problems.)
 
-The reason for the unsigned nature of those tokens is that after 
-compression they really do hold "binary data" and not "text", so I 
-wanted to keep that clear by using unsigned chars.
+mpm> Hmm. It's conceivable we'll want netdump and kgdb on the same
+mpm> interface so we'll have to address this eventually..
 
-Anyway, thanks for the gcc4.0 output. Since I don't have a gcc4.0 
-installed yet, I can use it to fix these issues and post a patch ASAP.
+Well, do you want to address it eventually, or now?  As I said, it's never
+bitten anyone before.
 
--- 
-Paulo Marques - www.grupopie.com
+>> Note that each netpoll client that registered an rx_hook was put on a
+>> netpoll_rx_list.  This list was protected by a spinlock, and so operations
+>> which touched the rx routines would incur a locking penalty and a list
+>> traversal.  I am mentioning this because the list and associated lock were
+>> removed when the code was refactored, and the patches I propose will
+>> reintroduce the lock, but not the list.
 
-It is a mistake to think you can solve any major problems
-just with potatoes.
-Douglas Adams
+mpm> ..so we'll probably want the list back in some form. Sigh.
+
+>> Moving to what we have today:
+>> 
+>> Multiple netpoll clients can register to send packets over the same
+>> interface.  That's right, you can actually do this.  However, there are
+>> ugly side effects.  Because we now have a pointer from the net_device to a
+>> struct netpoll, the last netpoll client to register will be pointed to by
+>> the net_device->np.  What this means is that if you had two clients, the
+>> first registers an rx_hook and the second does not, then the netpoll code
+>> will not know that any device has actually registered an rx_hook (since the
+>> np pointer in the struct net_device is overwritten)!  As a result, no
+>> incoming packets will be delivered to the registered rx routine.  This is
+>> clearly undesirable behaviour.
+>> 
+>> So what does the patch do?
+>> 
+>> I created a new structure:
+>> 
+>> struct netpoll_info {
+>> spinlock_t poll_lock;
+>> int poll_owner;
+>> int rx_flags;
+>> spinlock_t rx_lock;
+>> struct netpoll *rx_np; /* netpoll that registered an rx_hook */
+>> };
+>> 
+>> This is the structure which gets pointed to by the net_device.  All of the
+>> flags and locks which are specific to the INTERFACE go here.  Any variables
+>> which must be kept per struct netpoll were left in the struct netpoll.  So
+>> now, we have a cleaner separation of data and its scope.
+>> 
+>> Since we never really supported having more than one struct netpoll
+>> register an rx_hook, I got rid of the rx_list.  This is replaced by a
+>> single pointer in the netpoll_info structure (np_rx).  We still need to
+>> protect addition or removal of the rx_np pointer, and so keep the lock
+>> (rx_lock).  There is one lock per struct net_device, and I am certain that
+>> it will be 0 contention, as rx_np will only be changed during an insmod or
+>> rmmod.  If people think this would be a good rcu candidate, let me know and
+>> I'll change it to use that locking scheme.
+
+mpm> It might be simpler to have a single lock here..?
+
+Maybe.  You can't really have netpoll code running on multiple cpus at the
+same time, right?  This is the rx path, remember, so the other cpu should
+be spinning on the poll_lock.
+
+Keeping separate locks would allow you to unregister a struct netpoll
+associated with another net device without causing lock contention.  This
+is a very minor win, obviously.
+
+I still feel like this npinfo struct is the right place for this, though.
+If you're strongly opposed to that, I'll change it.
+
+>> In the process of making these changes, I've fixed a couple other minor
+>> bugs [1].  These fixes are included in this patch, but I will break them
+>> out if people agree with this approach.
+>> 
+>> I have tested this by registering multiple netpoll clients, and verifying
+>> that they both function properly.  I have not yet tried registering an
+>> rx_hook, but I believe the code should be sufficient to handle that case.
+>> 
+>> And so, here is the full patch.  I'd appreciate comments.  Once we've
+>> reached consensus, I will resubmit as a patch series.
+
+mpm> I think the general idea is sound. So let's take a look at the patch itself.
+
+>> Oh, and I've cc'd both netdev@oss.sgi.com and @vger.kernel.org.  Is it safe
+>> to just use the vger list?
+
+mpm> Yes.
+
+>> [1] netpoll_poll_unlock unlocked and then set the poll_owner.  I've
+>> reversed the order of those operations.  The netpoll_cleanup code could
+>> dereference a null pointer, that was fixed by virtue of being very
+>> different in the new case.
+
+mpm> Ok, let's fix the lock ordering bit first.
+
+>> --- linux-2.6.12-rc6/net/core/netpoll.c.orig	2005-06-20 19:51:56.000000000 -0400
+>> +++ linux-2.6.12-rc6/net/core/netpoll.c	2005-06-21 16:03:22.409620400 -0400
+>> @@ -131,18 +131,19 @@ static int checksum_udp(struct sk_buff *
+>> static void poll_napi(struct netpoll *np)
+>> {
+>> int budget = 16;
+>> +	struct netpoll_info *npinfo = np->dev->npinfo;
+
+mpm> As a minor point of style, I like to put the "get my private info"
+mpm> lines first.
+
+Quite the minor nit!  It's the second line in the function!  I'll fix it,
+though.  ;)
+
+>> @@ -245,6 +246,7 @@ repeat:
+>> static void netpoll_send_skb(struct netpoll *np, struct sk_buff *skb)
+>> {
+>> int status;
+>> +	struct netpoll_info *npinfo;
+>> 
+>> repeat:
+>> if(!np || !np->dev || !netif_running(np->dev)) {
+>> @@ -253,7 +255,8 @@ repeat:
+>> }
+>> 
+>> /* avoid recursion */
+>> -	if(np->poll_owner == smp_processor_id() ||
+>> +	npinfo = np->dev->npinfo;
+
+mpm> Again, the npinfo assignment ought to happen as soon as possible.
+
+This is as soon as possible.  Note that above we check to see if np and
+np->dev are valid pointers.  We can't get to the npinfo struct before we
+know that.
+
+>> +	if(npinfo->poll_owner == smp_processor_id() ||
+np-> dev->xmit_lock_owner == smp_processor_id()) {
+>> if (np->drop)
+np-> drop(skb);
+>> @@ -346,7 +349,15 @@ static void arp_reply(struct sk_buff *sk
+>> int size, type = ARPOP_REPLY, ptype = ETH_P_ARP;
+>> u32 sip, tip;
+>> struct sk_buff *send_skb;
+>> -	struct netpoll *np = skb->dev->np;
+>> +	struct netpoll *np;
+>> +	struct netpoll_info *npinfo = skb->dev->npinfo;
+>> +
+>> +	if (!npinfo) return;
+
+mpm> We should only be replying to ARPs if we're trapped, right? How do we
+mpm> get here with npinfo unset?
+
+Good point.
+
+mpm> The return ought to be on a separate line, btw.
+
+Agreed.
+
+>> +	spin_lock_irqsave(&npinfo->rx_lock, flags);
+>> +	if (npinfo->rx_np->dev == skb->dev)
+>> +		np = npinfo->rx_np;
+>> +	spin_unlock_irqrestore(&npinfo->rx_lock, flags);
+
+mpm> And I think that means we don't need the lock here either.  
+
+Sure we do.  We need to protect against rmmod's.
+
+>> if (!np) return;
+
+mpm> And the same question and style criticism of my own code.
+
+;)
+
+>> @@ -429,9 +440,9 @@ int __netpoll_rx(struct sk_buff *skb)
+>> int proto, len, ulen;
+>> struct iphdr *iph;
+>> struct udphdr *uh;
+>> -	struct netpoll *np = skb->dev->np;
+>> +	struct netpoll *np = skb->dev->npinfo->rx_np;
+>> 
+>> -	if (!np->rx_hook)
+>> +	if (!np)
+>> goto out;
+>> if (skb->dev->type != ARPHRD_ETHER)
+>> goto out;
+>> @@ -611,9 +622,8 @@ int netpoll_setup(struct netpoll *np)
+>> {
+>> struct net_device *ndev = NULL;
+>> struct in_device *in_dev;
+>> -
+>> -	np->poll_lock = SPIN_LOCK_UNLOCKED;
+>> -	np->poll_owner = -1;
+>> +	struct netpoll_info *npinfo;
+>> +	unsigned long flags;
+>> 
+>> if (np->dev_name)
+>> ndev = dev_get_by_name(np->dev_name);
+>> @@ -624,7 +634,17 @@ int netpoll_setup(struct netpoll *np)
+>> }
+>> 
+np-> dev = ndev;
+>> -	ndev->np = np;
+>> +	if (!ndev->npinfo) {
+>> +		npinfo = kmalloc(sizeof(*npinfo), GFP_KERNEL);
+>> +		if (!npinfo)
+>> +			goto release;
+>> +
+>> +		npinfo->rx_np = NULL;
+>> +		npinfo->poll_lock = SPIN_LOCK_UNLOCKED;
+>> +		npinfo->poll_owner = -1;
+>> +		npinfo->rx_lock = SPIN_LOCK_UNLOCKED;
+>> +	} else
+>> +		npinfo = ndev->npinfo;
+>> 
+>> if (!ndev->poll_controller) {
+>> printk(KERN_ERR "%s: %s doesn't support polling, aborting.\n",
+>> @@ -692,13 +712,20 @@ int netpoll_setup(struct netpoll *np)
+np-> name, HIPQUAD(np->local_ip));
+>> }
+>> 
+>> -	if(np->rx_hook)
+>> -		np->rx_flags = NETPOLL_RX_ENABLED;
+>> +	if(np->rx_hook) {
+>> +		spin_lock_irqsave(&npinfo->rx_lock, flags);
+>> +		npinfo->rx_flags |= NETPOLL_RX_ENABLED;
+>> +		npinfo->rx_np = np;
+>> +		spin_unlock_irqsave(&npinfo->rx_lock, flags);
+>> +	}
+>> +	/* last thing to do is link it to the net device structure */
+>> +	ndev->npinfo = npinfo;
+>> 
+>> return 0;
+>> 
+>> release:
+>> -	ndev->np = NULL;
+>> +	if (!ndev->npinfo)
+>> +		kfree(npinfo);
+np-> dev = NULL;
+>> dev_put(ndev);
+>> return -1;
+>> @@ -706,9 +733,17 @@ int netpoll_setup(struct netpoll *np)
+>> 
+>> void netpoll_cleanup(struct netpoll *np)
+>> {
+>> -	if (np->dev)
+>> -		np->dev->np = NULL;
+>> -	dev_put(np->dev);
+>> +	struct netpoll_info *npinfo;
+>> +
+>> +	if (np->dev) {
+>> +		npinfo = np->dev->npinfo;
+>> +		if (npinfo && npinfo->rx_np == np) {
+>> +			npinfo->rx_np = NULL;
+>> +			npinfo->rx_flags &= ~NETPOLL_RX_ENABLED;
+>> +		}
+>> +		dev_put(np->dev);
+>> +	}
+>> +
+np-> dev = NULL;
+>> }
+>> 
+>> --- linux-2.6.12-rc6/net/core/dev.c.orig	2005-06-20 19:51:59.000000000 -0400
+>> +++ linux-2.6.12-rc6/net/core/dev.c	2005-06-21 13:53:51.583407710 -0400
+>> @@ -1656,6 +1656,7 @@ int netif_receive_skb(struct sk_buff *sk
+>> unsigned short type;
+>> 
+>> /* if we've gotten here through NAPI, check netpoll */
+>> +	/* how else can we get here?  --phro */
+
+mpm> We can get here in the usual route of non-NAPI delivery, IIRC.
+
+I couldn't find that path.  I'll look again.
+
+>> if (skb->dev->poll && netpoll_rx(skb))
+>> return NET_RX_DROP;
+>> 
+>> --- linux-2.6.12-rc6/include/linux/netpoll.h.orig	2005-06-20 19:51:47.000000000 -0400
+>> +++ linux-2.6.12-rc6/include/linux/netpoll.h	2005-06-21 15:29:48.994422229 -0400
+>> @@ -16,14 +16,19 @@ struct netpoll;
+>> struct netpoll {
+>> struct net_device *dev;
+>> char dev_name[16], *name;
+>> -	int rx_flags;
+>> void (*rx_hook)(struct netpoll *, int, char *, int);
+>> void (*drop)(struct sk_buff *skb);
+>> u32 local_ip, remote_ip;
+>> u16 local_port, remote_port;
+>> unsigned char local_mac[6], remote_mac[6];
+>> +};
+>> +
+>> +struct netpoll_info {
+>> spinlock_t poll_lock;
+>> int poll_owner;
+>> +	int rx_flags;
+>> +	spinlock_t rx_lock;
+>> +	struct netpoll *rx_np; /* netpoll that registered an rx_hook */
+>> };
+>> 
+>> void netpoll_poll(struct netpoll *np);
+>> @@ -39,22 +44,35 @@ void netpoll_queue(struct sk_buff *skb);
+>> #ifdef CONFIG_NETPOLL
+>> static inline int netpoll_rx(struct sk_buff *skb)
+>> {
+>> -	return skb->dev->np && skb->dev->np->rx_flags && __netpoll_rx(skb);
+>> +	struct netpoll_info *npinfo = skb->dev->npinfo;
+>> +	unsigned long flags;
+>> +	int ret = 0;
+>> +
+>> +	if (!npinfo || (!npinfo->rx_np && !npinfo->rx_flags))
+>> +		return 0;
+>> +
+>> +	spin_lock_irqsave(&npinfo->rx_lock, flags);
+>> +	/* check rx_flags again with the lock held */
+>> +	if (npinfo->rx_flags && __netpoll_rx(skb))
+>> +		ret = 1;
+>> +	spin_unlock_irqrestore(&npinfo->rx_lock, flags);
+>> +
+>> +	return ret;
+>> }
+
+mpm> This is perhaps a problem due to cache line bouncing. Perhaps we can
+mpm> use an atomic op and a memory barrier instead?
+
+It really should be a 0 contention lock.  Let's not optimize something that
+doesn't need it.  If we find that it causes problems, I'll be more than
+happy to fix it.
+
+Thanks for the review, Matt.  I'll put together another patch, test it, and
+repost later today.
+
+-Jeff

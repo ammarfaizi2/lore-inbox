@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262783AbVFVG5H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262489AbVFVHhN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262783AbVFVG5H (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 02:57:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262847AbVFVGyk
+	id S262489AbVFVHhN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 03:37:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262864AbVFVHfW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 02:54:40 -0400
-Received: from mail.kroah.org ([69.55.234.183]:14236 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262787AbVFVFV7 convert rfc822-to-8bit
+	Wed, 22 Jun 2005 03:35:22 -0400
+Received: from mail.kroah.org ([69.55.234.183]:55451 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262766AbVFVFVt convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 01:21:59 -0400
-Cc: grant_lkml@dodo.com.au
-Subject: [PATCH] I2C: remove <linux/delay.h> from via686a
-In-Reply-To: <11194174642050@kroah.com>
+	Wed, 22 Jun 2005 01:21:49 -0400
+Cc: gregkh@suse.de
+Subject: [PATCH] I2C: fix up ds1374.c driver so it will build.
+In-Reply-To: <1119417468829@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Tue, 21 Jun 2005 22:17:44 -0700
-Message-Id: <11194174643068@kroah.com>
+Date: Tue, 21 Jun 2005 22:17:48 -0700
+Message-Id: <1119417468520@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,37 +24,41 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] I2C: remove <linux/delay.h> from via686a
+[PATCH] I2C: fix up ds1374.c driver so it will build.
 
-In my cross-reference checking of sysfs names, the via686a needs
-special case treatment as it the only driver expands S_IWUSR to
-00200 with gcc -E.  (00200 is the correct value for S_IWUSR).
-
-This is caused by the driver including <linux/delay.h>, it compiles
-fine without that header but I am unable to test drive the change.
-
-Signed-off-by: Grant Coady <gcoady@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit b9826b3ee8faa468a26782e3bf37716a73d96730
-tree e714c037b2862cf8c592311c09958ffba818259d
-parent 815f55f280fb2781ba1c2a350516b73e55119c60
-author Grant Coady <grant_lkml@dodo.com.au> Fri, 06 May 2005 17:40:51 +1000
-committer Greg Kroah-Hartman <gregkh@suse.de> Tue, 21 Jun 2005 21:51:56 -0700
+commit a45cfe2cd7450e56b4f44802b34faaf2a78a6cdb
+tree ca6f26f57cb96ff6ab4b9f1830f3f29f1185166d
+parent bdca3f0aedde85552099aa95ab1449bf81e4f6f5
+author Greg KH <gregkh@suse.de> Thu, 09 Jun 2005 17:39:09 +0200
+committer Greg Kroah-Hartman <gregkh@suse.de> Tue, 21 Jun 2005 21:52:06 -0700
 
- drivers/i2c/chips/via686a.c |    1 -
- 1 files changed, 0 insertions(+), 1 deletions(-)
+ drivers/i2c/chips/ds1374.c |    4 ----
+ 1 files changed, 0 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/i2c/chips/via686a.c b/drivers/i2c/chips/via686a.c
---- a/drivers/i2c/chips/via686a.c
-+++ b/drivers/i2c/chips/via686a.c
-@@ -33,7 +33,6 @@
- #include <linux/module.h>
- #include <linux/slab.h>
- #include <linux/pci.h>
--#include <linux/delay.h>
- #include <linux/jiffies.h>
- #include <linux/i2c.h>
- #include <linux/i2c-sensor.h>
+diff --git a/drivers/i2c/chips/ds1374.c b/drivers/i2c/chips/ds1374.c
+--- a/drivers/i2c/chips/ds1374.c
++++ b/drivers/i2c/chips/ds1374.c
+@@ -27,7 +27,6 @@
+ #include <linux/rtc.h>
+ #include <linux/bcd.h>
+ 
+-#include <asm/time.h>
+ #include <asm/rtc.h>
+ 
+ #define DS1374_REG_TOD0		0x00
+@@ -54,11 +53,8 @@ static unsigned short normal_addr[] = { 
+ 
+ static struct i2c_client_address_data addr_data = {
+ 	.normal_i2c = normal_addr,
+-	.normal_i2c_range = ignore,
+ 	.probe = ignore,
+-	.probe_range = ignore,
+ 	.ignore = ignore,
+-	.ignore_range = ignore,
+ 	.force = ignore,
+ };
+ 
 

@@ -1,52 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262961AbVFVJ0R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262758AbVFVJ0S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262961AbVFVJ0R (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 05:26:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262758AbVFVJWv
+	id S262758AbVFVJ0S (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 05:26:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262944AbVFVJWS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 05:22:51 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:45780 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262828AbVFVHp2 (ORCPT
+	Wed, 22 Jun 2005 05:22:18 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:35491 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262945AbVFVJRi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 03:45:28 -0400
-Date: Wed, 22 Jun 2005 09:40:55 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: linux-kernel@vger.kernel.org, Benjamin LaHaise <bcrl@kvack.org>,
-       William Weston <weston@sysex.net>, "K.R. Foley" <kr@cybsft.com>,
-       "Eugeny S. Mints" <emints@ru.mvista.com>,
-       Daniel Walker <dwalker@mvista.com>, linux-ns83820@kvack.org,
-       nhorman@redhat.com, Jeff Garzik <jgarzik@redhat.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
-Message-ID: <20050622074054.GC16508@elte.hu>
-References: <20050608112801.GA31084@elte.hu> <20050621131009.GA22691@elte.hu> <20050621201742.GA16400@kvack.org> <200506212242.39113.gene.heskett@verizon.net>
+	Wed, 22 Jun 2005 05:17:38 -0400
+Date: Wed, 22 Jun 2005 11:17:18 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: -mm -> 2.6.13 merge status (fuse)
+Message-ID: <20050622091718.GC1863@elf.ucw.cz>
+References: <20050620235458.5b437274.akpm@osdl.org> <E1Dkfu2-0005Ju-00@dorka.pomaz.szeredi.hu> <20050621142820.GC2015@openzaurus.ucw.cz> <E1DkkRE-0005mt-00@dorka.pomaz.szeredi.hu> <20050621220619.GC2815@elf.ucw.cz> <E1Dkyas-0006wu-00@dorka.pomaz.szeredi.hu> <20050621233914.69a5c85e.akpm@osdl.org> <E1DkzTO-00072F-00@dorka.pomaz.szeredi.hu> <20050622004902.796fa977.akpm@osdl.org> <E1Dl1Ce-0007BO-00@dorka.pomaz.szeredi.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200506212242.39113.gene.heskett@verizon.net>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <E1Dl1Ce-0007BO-00@dorka.pomaz.szeredi.hu>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-* Gene Heskett <gene.heskett@verizon.net> wrote:
-
-> FWIW, 50-06 is running clean here with mode 3 & no hardirq threading.  
-> Uptime is about 9 hours.
+> > Can we enhance private namespaces so they can squash setuid/setgid?  If so,
+> > is that adequate?
 > 
-> Would it do any good to try mode 4 & see if tvtime still runs?  
-> Previously, I got the impression that was a dma problem & posted some 
-> of the logs, but I've not noted any fixes for that go by.
+> We could.  But that would again be overly restrictive.  The goal is to
+> make the use of FUSE filesystems for users as simple as possible.  If
+> the user has to manage multiple namespaces, each with it's own
+> restrictions, it's becoming a very un-user-friendly environment.
 
-sure, any extra testing - even if it finds no problems, is just as 
-useful. Especially if you have a .config where everything works. That 
-way we'll know for sure that any regressions are related to PREEMPT_RT.
+Actually I think this solution is way less ugly. We have precent: if
+task is ptraced, suid bits on anything it execs are ignored.
 
-	Ingo
+I don't think user interface issues belong to the kernel (and I do not
+think different namespaces are that bad for the user; various chroots
+and ld_preload hacks already work that way)
+								Pavel
+-- 
+teflon -- maybe it is a trademark, but it should not be.

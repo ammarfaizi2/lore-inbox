@@ -1,44 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261673AbVFVRAv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261756AbVFVRHG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261673AbVFVRAv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 13:00:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261653AbVFVQ42
+	id S261756AbVFVRHG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 13:07:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261713AbVFVRBD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 12:56:28 -0400
-Received: from bender.bawue.de ([193.7.176.20]:50142 "EHLO bender.bawue.de")
-	by vger.kernel.org with ESMTP id S261630AbVFVQzM (ORCPT
+	Wed, 22 Jun 2005 13:01:03 -0400
+Received: from rproxy.gmail.com ([64.233.170.200]:10205 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261688AbVFVQ6w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 12:55:12 -0400
-Date: Wed, 22 Jun 2005 18:54:56 +0200
-From: Joerg Sommrey <jo@sommrey.de>
-To: johan.heikkila@netikka.fi
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.6.12] amd76x_pm: C2 powersaving for AMD K7
-Message-ID: <20050622165456.GA15362@sommrey.de>
-Mail-Followup-To: Joerg Sommrey <jo@sommrey.de>,
-	johan.heikkila@netikka.fi,
-	Linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20050620205334.GA28230@sommrey.de> <20050621202035.GE31391@atomide.com> <Pine.LNX.4.58.0506221917260.11779@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 22 Jun 2005 12:58:52 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=lGHE2lNOCn+1bQ75s6w5pQ1m1emiyV+RmZ3mnLq0z2qGFNmecVFQkc/ciJWT2oayM4fivBBOdnEPbpiXThHEzkTXuyxFglzPdu3HqwmQ8oy0Nj0AmsUdXKVz5RvkQyYmGrkGSWW86ZnxFXm/aNsonsEMpLxixC7/3GQC5LV8npA=
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Xavier Bestel <xavier.bestel@free.fr>
+Subject: Re: 2.6.11 amd64: raw1394 returns EINVAL
+Date: Wed, 22 Jun 2005 21:04:43 +0400
+User-Agent: KMail/1.7.2
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1119294171.7213.3.camel@bip.parateam.prv>
+In-Reply-To: <1119294171.7213.3.camel@bip.parateam.prv>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0506221917260.11779@localhost.localdomain>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200506222104.43315.adobriyan@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 22, 2005 at 07:33:32PM +0300, johan.heikkila@netikka.fi wrote:
-> 
-> I have been running with the 2.6.11-jo3 patch since Joerg made it 
-> available. It works fine on my ASUS A7M266-D with two Athlon MP1800+ that 
-> is running 24h. I just patched 2.6.12 vanilla kernel and it looks 
-> good. I will report if there are any issues.
+On Monday 20 June 2005 23:02, Xavier Bestel wrote:
+> when using dvgrab (32bits userspace) on an amd64, the 1st write()
+> syscall on /dev/raw1394 fails with -EINVAL on a 64bits kernel, whereas
+> it works on a 32bits kernel.
 
-If you experience any different behaviour between 2.6.11-jo3 and
-2.6.12-jo1 I really would like to hear about that.  There are major
-differences between those two versions.
+I've filed a bug at kernel bugzilla, so your report won't be lost.
+See http://bugme.osdl.org/show_bug.cgi?id=4779
 
--jo
-
--- 
--rw-r--r--  1 jo users 63 2005-06-21 20:36 /home/jo/.signature
+You can register at http://bugme.osdl.org/createaccount.cgi and add yourself
+to CC list.

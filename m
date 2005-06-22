@@ -1,56 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262484AbVFVBeM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262448AbVFVBi0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262484AbVFVBeM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 21:34:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262448AbVFVBcy
+	id S262448AbVFVBi0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 21:38:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262499AbVFVBi0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 21:32:54 -0400
-Received: from ns2.suse.de ([195.135.220.15]:25986 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S262484AbVFVB0e (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 21:26:34 -0400
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: reiser@namesys.com, hch@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: reiser4 plugins
-References: <20050620235458.5b437274.akpm@osdl.org.suse.lists.linux.kernel>
-	<42B831B4.9020603@pobox.com.suse.lists.linux.kernel>
-	<42B87318.80607@namesys.com.suse.lists.linux.kernel>
-	<20050621202448.GB30182@infradead.org.suse.lists.linux.kernel>
-	<42B8B9EE.7020002@namesys.com.suse.lists.linux.kernel>
-	<42B8BB5E.8090008@pobox.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 22 Jun 2005 03:26:26 +0200
-In-Reply-To: <42B8BB5E.8090008@pobox.com.suse.lists.linux.kernel>
-Message-ID: <p73fyvbb2rh.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Tue, 21 Jun 2005 21:38:26 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:61847 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S262448AbVFVBiO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 21:38:14 -0400
+Message-ID: <42B8C0FF.2010800@namesys.com>
+Date: Tue, 21 Jun 2005 18:38:07 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Andi Kleen <ak@suse.de>, Alexander Lyamin aka FLX <flx@namesys.com>
+CC: Alexander Zarochentcev <zam@namesys.com>, vs <vs@thebsh.namesys.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: -mm -> 2.6.13 merge status
+References: <20050620235458.5b437274.akpm@osdl.org.suse.lists.linux.kernel> <p73d5qgc67h.fsf@verdi.suse.de> <42B86027.3090001@namesys.com> <20050621195642.GD14251@wotan.suse.de>
+In-Reply-To: <20050621195642.GD14251@wotan.suse.de>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andi Kleen wrote:
 
-First Hans let me remind you that this discussion is not XFS vs
-reiser4. Christoph does a lot of reviewing and your child definitely
-is in serious need of that to be mergeable. I'm sure Christoph is able
-to review inpartially even when he is involved with other FS.
+>On Tue, Jun 21, 2005 at 11:44:55AM -0700, Hans Reiser wrote:
+>  
+>
+>>vs and zam, please comment on what we get from our profiler and spinlock
+>>debugger that the standard tools don't supply.  I am sure you have a
+>>reason, but now is the time to articulate it.
+>>
+>>We would like to keep the disabled code in there until we have a chance
+>>to prove (or fail to prove) that cycle detection can be resolved
+>>effectively, and then with a solution in hand argue its merits.
+>>    
+>>
+>
+>How about the review of your code base? Has reiser4 ever been
+>fully reviewed by people outside your group? 
+>
+>Normally full review is a requirement for merging.
+>  
+>
+V4 has a mailing list, and a large number of testers who read the code
+and comment on it.   V4 has been reviewed and tested much more than V3
+was before merging.   Given that we sent it in quite some time ago, your
+suggestion that an additional review by unspecified additional others be
+a requirement for merging seems untimely.  Do you see my point of view
+on this?
 
-Jeff Garzik <jgarzik@pobox.com> writes:
-> 
-> You're basically implementing another VFS layer inside of reiser4,
-> which is a big layering violation.
-> 
-> This sort of feature should -not- be done at the low-level filesystem level.
-> 
-> What happens if people decide plugins are a good idea, and they want
-> them in ext3?  We need massive surgery to extract the guts from
-> reiser4.
+I would however enjoy receiving coding suggestions at ANY time.  We
+don't get as much of that as I would like.   I would in particular love
+to have you Andi Kleen do a full review of V4 if you could be that
+generous with your time, as I liked much of the advice you gave us on V3. 
 
-We already kind of have them, there are toolkits to do stackable FS with
-the existing VFS.
+Unspecified others doing a review, well, who knows, I will surely take
+the time to consider what is said by them though..... 
 
-However I suspect Hans is unwilling to redo his file system in this
-point. While it looks quite unnecessary there might be other
-areas which deserve more attention. In general all the code
-needs review, even if it is not as controversal as the reinvented VFS.
+I would prefer to not get reviews from authors of other filesystems who
+prefer their own code, skim through our code without taking the time to
+grok our philosophy and approach in depth, and then complain that our
+code is different from what they chose to write, and think that our
+changing to be like them should be mandated.  I will not name names here....
 
--Andi
+Some of the suggestions on our mailing list are great, some reflect a
+lack of 5 years working with our code, perhaps I should feed our mailing
+list into the linux kernel mailing list so that people on the kernel
+mailing list are more aware that we exist and are active?
+
+>-Andi
+>
+>
+>  
+>
+

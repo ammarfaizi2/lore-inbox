@@ -1,57 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262540AbVFVWJN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262566AbVFVWNF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262540AbVFVWJN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 18:09:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262538AbVFVWFr
+	id S262566AbVFVWNF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 18:13:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262562AbVFVWFI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 18:05:47 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:43916 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262557AbVFVWBA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 18:01:00 -0400
-Date: Thu, 23 Jun 2005 00:00:07 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: William Weston <weston@sysex.net>
-Cc: "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       "Eugeny S. Mints" <emints@ru.mvista.com>,
-       Daniel Walker <dwalker@mvista.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
-Message-ID: <20050622220007.GA28258@elte.hu>
-References: <20050608112801.GA31084@elte.hu> <42B0F72D.5040405@cybsft.com> <20050616072935.GB19772@elte.hu> <42B160F5.9060208@cybsft.com> <20050616173247.GA32552@elte.hu> <Pine.LNX.4.58.0506171139570.32721@echo.lysdexia.org> <20050621131249.GB22691@elte.hu> <Pine.LNX.4.58.0506211228210.16701@echo.lysdexia.org> <20050622082450.GA19957@elte.hu> <Pine.LNX.4.58.0506221434170.22191@echo.lysdexia.org>
+	Wed, 22 Jun 2005 18:05:08 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:63756 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S262441AbVFVV7E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 17:59:04 -0400
+Date: Wed, 22 Jun 2005 23:58:54 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Bill Gatliff <bgat@billgatliff.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Patch of a new driver for kernel 2.4.x that need review
+Message-ID: <20050622215854.GJ8907@alpha.home.local>
+References: <5009AD9521A8D41198EE00805F85F18F067F6A36@sembo111.teknor.com> <84144f020506221243163d06a2@mail.gmail.com> <20050622203211.GI8907@alpha.home.local> <42B9D120.6030108@billgatliff.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0506221434170.22191@echo.lysdexia.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <42B9D120.6030108@billgatliff.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* William Weston <weston@sysex.net> wrote:
-
-> Hi Ingo,
+On Wed, Jun 22, 2005 at 03:59:12PM -0500, Bill Gatliff wrote:
+ 
+> What Sebastien is after is something like this:
 > 
-> Latency traces (attached) are looking a little bit better with -50-11.  
-> The CPU consistently seems to idle for ~200us at a time in the traces.  
-> Maximum wakeup latency since boot (over an hour ago) is 310us.  With 
-> previous RT kernels, maximums would generally go over 800us.
+> 	enum tclk_regid {TCLK_BASE=0xa80, TCLK_REG0=TCLK_BASE, 
+> 	TCLK_REG1=TCLK_BASE+1...};
+> 	enum tclk_regid tclk;
+> 
+> And then later on, if you ask gdb with the value of tclk is, it can tell 
+> you "TCLK_REG1", instead of just 0xa801.  You can also assign values to 
+> tclk from within gdb using the enumerations, rather than magic numbers.
 
-these are all the first type of latencies, which seem to be hardware 
-related. Could you try to boot the UP kernel, do you see these latencies 
-there too? (if yes then please post those too)
+Bill, this is a good reason, I agree with you. What I did not want to see
+was something like :
 
-> Should I apply your SMT scheduler latency fix, or is that patch for 
-> -mm only?
+  enum { TCLK_BASE=0xa80, TCLK_REG0, TCLK_REG1, ... }
 
-the fix is in current -RT kernels already. As can be seen from the 
-latency traces you got, the SMT scheduler is not causing latencies 
-anymore.
+> If you insist on using #defines, then you need to do them like this at 
+> the very least:
+> 
+> 	#define TCLK_REG7 (TCLK_BASE+7)
+> 
+> ... so as to prevent operator precedence problems later on.  I.e. what 
+> happens here:
+> 
+> 	tclk = TCLK_REG7 / 2;
+> 
+> Not implying that the above is a realistic example, I'm just pointing out 
+> a potential gotcha that is easily avoided...
 
-	Ingo
+indeed, nearly all defines need to get lots of parenthesis for the exact
+same reason.
+
+Thanks for pointing out the gdb trick.
+Willy
+

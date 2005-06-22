@@ -1,59 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261166AbVFVMdM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261195AbVFVMts@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261166AbVFVMdM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 08:33:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261171AbVFVMdM
+	id S261195AbVFVMts (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 08:49:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261203AbVFVMtr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 08:33:12 -0400
-Received: from imap.gmx.net ([213.165.64.20]:13986 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261166AbVFVMdI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 08:33:08 -0400
-X-Authenticated: #4399952
-Date: Wed, 22 Jun 2005 14:32:47 +0200
-From: Florian Schmidt <mista.tapas@gmx.net>
-To: Esben Nielsen <simlo@phys.au.dk>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-V0.7.49-00
-Message-ID: <20050622143247.07b78748@mango.fruits.de>
-In-Reply-To: <Pine.OSF.4.05.10506220109490.17063-100000@da410.phys.au.dk>
-References: <20050621084426.GA13094@elte.hu>
-	<Pine.OSF.4.05.10506220109490.17063-100000@da410.phys.au.dk>
-X-Mailer: Sylpheed-Claws 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Wed, 22 Jun 2005 08:49:47 -0400
+Received: from tama5.ecl.ntt.co.jp ([129.60.39.102]:13247 "EHLO
+	tama5.ecl.ntt.co.jp") by vger.kernel.org with ESMTP id S261171AbVFVMtm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 08:49:42 -0400
+Message-Id: <6.0.0.20.2.20050622211238.03e6ba30@mailsv2.y.ecl.ntt.co.jp>
+X-Mailer: QUALCOMM Windows Eudora Version 6J-Jr3
+Date: Wed, 22 Jun 2005 21:49:29 +0900
+To: akpm@osdl.org, sct@redhat.com, adilger@clusterfs.com
+From: Hifumi Hisashi <hifumi.hisashi@lab.ntt.co.jp>
+Subject: [PATCH] Fix the error handling in direct I/O 
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Jun 2005 01:12:14 +0200 (METDST)
-Esben Nielsen <simlo@phys.au.dk> wrote:
+	Hello.
 
-> On Tue, 21 Jun 2005, Ingo Molnar wrote:
-> 
-> > 
-> > * Esben Nielsen <simlo@phys.au.dk> wrote:
-> > 
-> > > I am seeing very high latencies on 2.6.12-RT-V0.7.50-04 with a 
-> > > modified realfeel2: maximum is 246 us. Shouldn't it be in the order of 
-> > > 50 us?
-> > 
-> > i never got reliable results from realfeel - it should do the kind of 
-> > careful things rtc_wakeup does to avoid false positives.
-> > 
-> I tried with rtc_wakeup while I was at work (which is on my disk at home) 
-> - but it crashed my machine (one have to be _very_ carefull about what you
-> do when you run in a task with RT priority!). I have fixed it now (see
-> below patch) and it is running for the night. Let us see if I get similar
-> results. 
+	I fixed a bug on error handling in the direct I/O function.
+Currenlty, if a file is opened with the O_DIRECT|O_SYNC flag,
+  write() syscall cannot receive the EIO error just after
+I/O error(SCSI cable is disconnected etc.) occur.
 
-Thanks for the patch. New version here:
+	Return values of other points that call generic_osync_inode()
+are treated appropriately.
 
-http://affenbande.org/~tapas/rtc_wakeup/rtc_wakeup-0.0.2.tgz
+	With the following patch, this problem was fixed.
+	Please apply this patch.
 
-Flo
+	Thanks,
 
--- 
-Palimm Palimm!
-http://affenbande.org/~tapas/
+
+Signed-off-by: Hisashi Hifumi  <hifumi.hisashi@lab.ntt.co.jp>
+
+diff -Nru linux-2.6.12/mm/filemap.c linux-2.6.12_fix/mm/filemap.c
+--- linux-2.6.12/mm/filemap.c	2005-06-22 17:21:21.000000000 +0900
++++ linux-2.6.12_fix/mm/filemap.c	2005-06-22 20:26:34.000000000 +0900
+@@ -1927,8 +1927,12 @@
+  	 * i_sem is held, which protects generic_osync_inode() from
+  	 * livelocking.
+  	 */
+-	if (written >= 0 && file->f_flags & O_SYNC)
+-		generic_osync_inode(inode, mapping, OSYNC_METADATA);
++	if (written >= 0 && ((file->f_flags & O_SYNC) || IS_SYNC(inode))) {
++		int err;
++		err = generic_osync_inode(inode, mapping, OSYNC_METADATA);
++		if (err < 0)
++			written = err;
++	}
+  	if (written == count && !is_sync_kiocb(iocb))
+  		written = -EIOCBQUEUED;
+  	return written; 
+

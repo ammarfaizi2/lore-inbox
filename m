@@ -1,57 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261813AbVFVTFo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261836AbVFVTOj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261813AbVFVTFo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 15:05:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261818AbVFVTFo
+	id S261836AbVFVTOj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 15:14:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261878AbVFVTOj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 15:05:44 -0400
-Received: from opersys.com ([64.40.108.71]:3855 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261813AbVFVTFh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 15:05:37 -0400
-Message-ID: <42B9B917.9010606@opersys.com>
-Date: Wed, 22 Jun 2005 15:16:39 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+	Wed, 22 Jun 2005 15:14:39 -0400
+Received: from adsl-68-248-203-41.dsl.milwwi.ameritech.net ([68.248.203.41]:43971
+	"EHLO eagle.netwrx1.com") by vger.kernel.org with ESMTP
+	id S261836AbVFVTOX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 15:14:23 -0400
+Date: Wed, 22 Jun 2005 14:14:21 -0500 (CDT)
+From: George Kasica <georgek@netwrx1.com>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Problem compiling 2.6.12
+In-Reply-To: <9a874849050622085975b67c06@mail.gmail.com>
+Message-ID: <Pine.LNX.4.62.0506221413560.25918@eagle.netwrx1.com>
+References: <Pine.LNX.4.62.0506221026130.4837@eagle.netwrx1.com>
+ <9a874849050622085975b67c06@mail.gmail.com>
 MIME-Version: 1.0
-To: paulmck@us.ibm.com
-CC: Kristian Benoit <kbenoit@opersys.com>, linux-kernel@vger.kernel.org,
-       bhuey@lnxw.com, andrea@suse.de, tglx@linutronix.de, mingo@elte.hu,
-       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
-       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, rpm@xenomai.org
-Subject: Re: PREEMPT_RT vs I-PIPE: the numbers, part 2
-References: <1119287612.6863.1.camel@localhost> <20050621015542.GB1298@us.ibm.com> <42B77B8C.6050109@opersys.com> <20050622011931.GF1324@us.ibm.com> <42B9845B.8030404@opersys.com> <20050622162718.GD1296@us.ibm.com> <42B9A6D6.4060109@opersys.com> <20050622184748.GF1296@us.ibm.com>
-In-Reply-To: <20050622184748.GF1296@us.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Tried that here and got not much farther...here's the error:
 
-Paul E. McKenney wrote:
-> (And, yes, there are other CDFs lacking a 30us bulge that would be
-> consistent with a 55us "blue-moon" bulge -- so I guess I am asking
-> if you have the CDF or the raw latency measurements -- though the
-> data set might be a bit large...  And I would have to think about
-> how one goes about deriving individual-latency CDF(s) given a single
-> dual-latency CDF, assuming that this is even possible...)
+[root@eagle linux]# make bzImage
+   CHK     include/linux/version.h
+   SPLIT   include/linux/autoconf.h -> include/config/*
+   HOSTCC  scripts/mod/sumversion.o
+In file included from /usr/include/linux/errno.h:4,
+                  from /usr/local/include/bits/errno.h:25,
+                  from /usr/local/include/errno.h:36,
+                  from scripts/mod/sumversion.c:8:
+/usr/include/asm/errno.h:4: asm-generic/errno.h: No such file or directory
+make[2]: *** [scripts/mod/sumversion.o] Error 1
+make[1]: *** [scripts/mod] Error 2
+make: *** [scripts] Error 2
 
-This is a bandwidth issue. The compressed archive containing the
-interrupt latencies of all our test runs is 100MB. I could provide
-a URL _privately_ to a handful of individuals, but beyond that
-someone's going to have to host it.
 
-Let me know if you want this.
+On Wed, 22 Jun 2005, Jesper Juhl wrote:
 
-Of course, now that LRTBF is out there, others can generate their
-own data sets.
-
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+> On 6/22/05, George Kasica <georgek@netwrx1.com> wrote:
+>> Hello:
+>>
+>> Trying to compile 2.6.12 here and am getting the following error. I am
+>> currently running 2.4.31 and have upgraded the needed bits per the Change
+>> document before trying the build:
+>>
+>> [root@eagle src]# cd linux
+>> [root@eagle linux]# make mrproper
+>>    CLEAN   .config
+>> [root@eagle linux]# cp ../config-2.4.31 .config
+>> [root@eagle linux]# make oldconfig
+>
+> Don't use a 2.4.x config as the basis for a 2.6.x kernel .
+> Build your first 2.6.x kernel config using "make menuconfig", "make
+> config", make xconfig" or similar, /then/ you can use that config in
+> the future as a base for other 2.6.x kernels with "make oldconfig".
+>
+> -- 
+> Jesper Juhl <jesper.juhl@gmail.com>
+> Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+> Plain text mails only, please      http://www.expita.com/nomime.html
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

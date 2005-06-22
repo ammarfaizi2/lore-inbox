@@ -1,57 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262795AbVFVG5G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262828AbVFVKgY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262795AbVFVG5G (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 02:57:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262790AbVFVGyI
+	id S262828AbVFVKgY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 06:36:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262849AbVFVKfN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 02:54:08 -0400
-Received: from mail.kroah.org ([69.55.234.183]:16796 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262789AbVFVFWA convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 01:22:00 -0400
-Cc: khali@linux-fr.org
-Subject: [PATCH] I2C: Fix bugs in the new w83627ehf driver
-In-Reply-To: <11194174633539@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Tue, 21 Jun 2005 22:17:43 -0700
-Message-Id: <11194174633368@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Greg K-H <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <gregkh@suse.de>
+	Wed, 22 Jun 2005 06:35:13 -0400
+Received: from 238-071.adsl.pool.ew.hu ([193.226.238.71]:7686 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S262830AbVFVKcN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 06:32:13 -0400
+To: akpm@osdl.org
+CC: pavel@ucw.cz, linux-kernel@vger.kernel.org
+In-reply-to: <20050622031920.456be89d.akpm@osdl.org> (message from Andrew
+	Morton on Wed, 22 Jun 2005 03:19:20 -0700)
+Subject: Re: -mm -> 2.6.13 merge status (fuse)
+References: <20050620235458.5b437274.akpm@osdl.org>
+	<E1Dkfu2-0005Ju-00@dorka.pomaz.szeredi.hu>
+	<20050621142820.GC2015@openzaurus.ucw.cz>
+	<E1DkkRE-0005mt-00@dorka.pomaz.szeredi.hu>
+	<20050621220619.GC2815@elf.ucw.cz>
+	<E1Dkyas-0006wu-00@dorka.pomaz.szeredi.hu>
+	<20050621233914.69a5c85e.akpm@osdl.org>
+	<E1DkzTO-00072F-00@dorka.pomaz.szeredi.hu>
+	<20050622004902.796fa977.akpm@osdl.org>
+	<E1Dl1Ce-0007BO-00@dorka.pomaz.szeredi.hu>
+	<20050622021251.5137179f.akpm@osdl.org>
+	<E1Dl1Oz-0007Dq-00@dorka.pomaz.szeredi.hu>
+	<20050622024423.66d773f3.akpm@osdl.org>
+	<E1Dl20U-0007Ic-00@dorka.pomaz.szeredi.hu> <20050622031920.456be89d.akpm@osdl.org>
+Message-Id: <E1Dl2WD-0007MS-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Wed, 22 Jun 2005 12:31:41 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] I2C: Fix bugs in the new w83627ehf driver
+> Yup, that's useless.  That makes the whole CLONE_NEWNS idea unworkable,
+> yes?
 
-These are the fixes for the bug you spotted in my new w83627ehf driver:
-	- Explicit division by 0.
+For solving this problem, yes.
 
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+> Have we exhausted the alternatives?
 
----
-commit b9110b1c893f45ec66ae39e359decdfad84525be
-tree 0fcb89b2f770df7995445b4e74251549bea6baf6
-parent 08e7e2789e0da49eadeb17121e24af22efeee84b
-author Jean Delvare <khali@linux-fr.org> Mon, 02 May 2005 23:08:22 +0200
-committer Greg Kroah-Hartman <gregkh@suse.de> Tue, 21 Jun 2005 21:51:54 -0700
+I believe yes.  At least to date no workable alternative has been
+suggested.
 
- drivers/i2c/chips/w83627ehf.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+> (If, as you say, v9fs and samba (did you mean smbfs/cifs?) want
+> unprivileged mounts, shouldn't the code which you have there be
+> moved out of fs/fuse/ and into fs/?)
 
-diff --git a/drivers/i2c/chips/w83627ehf.c b/drivers/i2c/chips/w83627ehf.c
---- a/drivers/i2c/chips/w83627ehf.c
-+++ b/drivers/i2c/chips/w83627ehf.c
-@@ -450,7 +450,7 @@ store_fan_min(struct device *dev, const 
- 		data->fan_min[nr] = 1;
- 		new_div = 0; /* 1 == (1 << 0) */
- 		dev_warn(dev, "fan%u low limit %u above maximum %u, set to "
--			 "maximum\n", nr + 1, val, fan_from_reg(1, 0));
-+			 "maximum\n", nr + 1, val, fan_from_reg(1, 1));
- 	} else {
- 		/* Automatically pick the best divider, i.e. the one such
- 		   that the min limit will correspond to a register value
+Probably.  But since the code is so small, and there's no other user
+yet, I didn't want to take the initiative.
 
+Thanks,
+Miklos

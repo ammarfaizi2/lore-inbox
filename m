@@ -1,285 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262899AbVFVHmM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262950AbVFVJVz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262899AbVFVHmM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 03:42:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262830AbVFVHkQ
+	id S262950AbVFVJVz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 05:21:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262953AbVFVJTj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 03:40:16 -0400
-Received: from mail.kroah.org ([69.55.234.183]:54683 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262746AbVFVFVr convert rfc822-to-8bit
+	Wed, 22 Jun 2005 05:19:39 -0400
+Received: from 69-18-3-179.lisco.net ([69.18.3.179]:18188 "EHLO
+	ninja.slaphack.com") by vger.kernel.org with ESMTP id S262871AbVFVJI5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 01:21:47 -0400
-Cc: khali@linux-fr.org
-Subject: [PATCH] I2C: w83781d: remove non-i2c sensor chips
-In-Reply-To: <11194174683773@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Tue, 21 Jun 2005 22:17:48 -0700
-Message-Id: <11194174683171@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Greg K-H <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <gregkh@suse.de>
+	Wed, 22 Jun 2005 05:08:57 -0400
+Message-ID: <42B92AA1.3010107@slaphack.com>
+Date: Wed, 22 Jun 2005 04:08:49 -0500
+From: David Masover <ninja@slaphack.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050325)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Hans Reiser <reiser@namesys.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: reiser4 plugins
+References: <20050620235458.5b437274.akpm@osdl.org> <42B831B4.9020603@pobox.com> <42B87318.80607@namesys.com> <20050621202448.GB30182@infradead.org> <42B8B9EE.7020002@namesys.com> <42B8BB5E.8090008@pobox.com> <42B8E834.5030809@slaphack.com> <42B8F4BC.5060100@pobox.com>
+In-Reply-To: <42B8F4BC.5060100@pobox.com>
+X-Enigmail-Version: 0.89.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] I2C: w83781d: remove non-i2c sensor chips
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-This patch removes the support for the W83697HF and W83627THF chips from
-the w83781d driver. These chips have no I2C/SMBus interface and are
-better supported by the Super-I/O-based w83627hf driver. Documentation
-was updated to reflect the support drop.
+Jeff Garzik wrote:
+> David Masover wrote:
+> 
+>> There's been sloppy code in the kernel before.  I remember one bit in
+>> particular which was commented "Fuck me gently with a chainsaw."  If I
+>> remember correctly, this had all of the PCI ids and the names and
+>> manufacturers of the corresponding devices -- in a data structure -- in
+>> C source code.  It was something like one massive array definition, or
+>> maybe it was a structure.  I don't remember exactly, but...
+>>
+>> The point is, this was in the kernel for quite awhile, and it was so
+>> ugly that someone would rather be fucked with a chainsaw.  If something
+>> that bad can make it in the kernel and stay for awhile because it
+>> worked, and no one wanted to replace it -- nowdays, that database is
+>> kept in userland as some nice text format -- then I vote for putting
+>> Reiser4 in the kernel now, and ironing the sloppiness ("violation") out
+>> later.  It runs now.
+> 
+> 
+> Existence of ugly code is not an excuse to add more.
 
-Signed-off-by: Grant Coady <gcoady@gmail.com>
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+Maybe not, but I'm making a point.  I'm sure that, at the time, people
+wanted something that ran.  They wanted lspci to work.  It was generally
+assumed that it would be cleaned up later, and it was.  Too much later,
+but it happened, eventually.
 
----
-commit 7c7a530463ced6011789937b24dc2bfba43c706b
-tree 56082dfa7b18e6019c2bba32d013c945cfbf46aa
-parent a45cfe2cd7450e56b4f44802b34faaf2a78a6cdb
-author Jean Delvare <khali@linux-fr.org> Thu, 16 Jun 2005 19:24:14 +0200
-committer Greg Kroah-Hartman <gregkh@suse.de> Tue, 21 Jun 2005 21:52:07 -0700
+I've been reading a bit of history, and the reason Linux got so popular
+in the first place was the tendency to include stuff that worked and
+provided a feature people wanted, even if it was ugly.  The philosophy
+would be:  choose a good implementation over an ugly one, but choose an
+ugly one over nothing at all.
 
- Documentation/i2c/chips/w83781d |   16 ++-------
- drivers/i2c/chips/w83781d.c     |   72 +++++++++++----------------------------
- 2 files changed, 24 insertions(+), 64 deletions(-)
+> We have to maintain said ugly code for decades.  Maintainability is a
+> big deal when you deal with the timeframes we deal with.
 
-diff --git a/Documentation/i2c/chips/w83781d b/Documentation/i2c/chips/w83781d
---- a/Documentation/i2c/chips/w83781d
-+++ b/Documentation/i2c/chips/w83781d
-@@ -18,14 +18,6 @@ Supported chips:
-     Prefix: 'w83627hf'
-     Addresses scanned: I2C 0x20 - 0x2f, ISA 0x290 (8 I/O ports)
-     Datasheet: http://www.winbond.com/PDF/sheet/w83627hf.pdf
--  * Winbond W83627THF
--    Prefix: 'w83627thf'
--    Addresses scanned: ISA address 0x290 (8 I/O ports)
--    Datasheet: http://www.winbond.com/PDF/sheet/w83627thf.pdf
--  * Winbond W83697HF
--    Prefix: 'w83697hf'
--    Addresses scanned: ISA 0x290 (8 I/O ports)
--    Datasheet: http://www.winbond-usa.com/products/winbond_products/pdfs/PCIC/w83697hf.pdf
-   * Asus AS99127F
-     Prefix: 'as99127f'
-     Addresses scanned: I2C 0x28 - 0x2f
-@@ -53,9 +45,9 @@ force_subclients=bus,caddr,saddr,saddr
- Description
- -----------
- 
--This driver implements support for the Winbond W83627HF, W83627THF, W83781D,
--W83782D, W83783S, W83697HF chips, and the Asus AS99127F chips. We will refer
--to them collectively as W8378* chips.
-+This driver implements support for the Winbond W83781D, W83782D, W83783S,
-+W83627HF chips, and the Asus AS99127F chips. We will refer to them
-+collectively as W8378* chips.
- 
- There is quite some difference between these chips, but they are similar
- enough that it was sensible to put them together in one driver.
-@@ -67,10 +59,8 @@ as99127f    7       3       0       3   
- as99127f rev.2 (type_name = as99127f)       0x31    0x5ca3  yes     no
- w83781d     7       3       0       3       0x10-1  0x5ca3  yes     yes
- w83627hf    9       3       2       3       0x21    0x5ca3  yes     yes(LPC)
--w83627thf   9       3       2       3       0x90    0x5ca3  no      yes(LPC)
- w83782d     9       3       2-4     3       0x30    0x5ca3  yes     yes
- w83783s     5-6     3       2       1-2     0x40    0x5ca3  yes     no
--w83697hf    8       2       2       2       0x60    0x5ca3  no      yes(LPC)
- 
- Detection of these chips can sometimes be foiled because they can be in
- an internal state that allows no clean access. If you know the address
-diff --git a/drivers/i2c/chips/w83781d.c b/drivers/i2c/chips/w83781d.c
---- a/drivers/i2c/chips/w83781d.c
-+++ b/drivers/i2c/chips/w83781d.c
-@@ -28,10 +28,8 @@
-     as99127f rev.2 (type_name = as99127f)	0x31	0x5ca3	yes	no
-     w83781d	7	3	0	3	0x10-1	0x5ca3	yes	yes
-     w83627hf	9	3	2	3	0x21	0x5ca3	yes	yes(LPC)
--    w83627thf	9	3	2	3	0x90	0x5ca3	no	yes(LPC)
-     w83782d	9	3	2-4	3	0x30	0x5ca3	yes	yes
-     w83783s	5-6	3	2	1-2	0x40	0x5ca3	yes	no
--    w83697hf	8	2	2	2	0x60	0x5ca3	no	yes(LPC)
- 
- */
- 
-@@ -52,7 +50,7 @@ static unsigned short normal_i2c[] = { 0
- static unsigned int normal_isa[] = { 0x0290, I2C_CLIENT_ISA_END };
- 
- /* Insmod parameters */
--SENSORS_INSMOD_6(w83781d, w83782d, w83783s, w83627hf, as99127f, w83697hf);
-+SENSORS_INSMOD_5(w83781d, w83782d, w83783s, w83627hf, as99127f);
- I2C_CLIENT_MODULE_PARM(force_subclients, "List of subclient addresses: "
- 		    "{bus, clientaddr, subclientaddr1, subclientaddr2}");
- 
-@@ -998,13 +996,6 @@ w83781d_detect(struct i2c_adapter *adapt
- 		err = -EINVAL;
- 		goto ERROR0;
- 	}
--	if (!is_isa && kind == w83697hf) {
--		dev_err(&adapter->dev,
--			"Cannot force ISA-only chip for I2C address 0x%02x.\n",
--			address);
--		err = -EINVAL;
--		goto ERROR0;
--	}
- 	
- 	if (is_isa)
- 		if (!request_region(address, W83781D_EXTENT,
-@@ -1137,12 +1128,10 @@ w83781d_detect(struct i2c_adapter *adapt
- 		else if (val1 == 0x40 && vendid == winbond && !is_isa
- 				&& address == 0x2d)
- 			kind = w83783s;
--		else if ((val1 == 0x21 || val1 == 0x90) && vendid == winbond)
-+		else if (val1 == 0x21 && vendid == winbond)
- 			kind = w83627hf;
- 		else if (val1 == 0x31 && !is_isa && address >= 0x28)
- 			kind = as99127f;
--		else if (val1 == 0x60 && vendid == winbond && is_isa)
--			kind = w83697hf;
- 		else {
- 			if (kind == 0)
- 				dev_warn(&new_client->dev, "Ignoring 'force' "
-@@ -1161,14 +1150,9 @@ w83781d_detect(struct i2c_adapter *adapt
- 	} else if (kind == w83783s) {
- 		client_name = "w83783s";
- 	} else if (kind == w83627hf) {
--		if (val1 == 0x90)
--			client_name = "w83627thf";
--		else
--			client_name = "w83627hf";
-+		client_name = "w83627hf";
- 	} else if (kind == as99127f) {
- 		client_name = "as99127f";
--	} else if (kind == w83697hf) {
--		client_name = "w83697hf";
- 	}
- 
- 	/* Fill in the remaining client fields and put into the global list */
-@@ -1206,7 +1190,7 @@ w83781d_detect(struct i2c_adapter *adapt
- 
- 	/* Register sysfs hooks */
- 	device_create_file_in(new_client, 0);
--	if (kind != w83783s && kind != w83697hf)
-+	if (kind != w83783s)
- 		device_create_file_in(new_client, 1);
- 	device_create_file_in(new_client, 2);
- 	device_create_file_in(new_client, 3);
-@@ -1220,24 +1204,19 @@ w83781d_detect(struct i2c_adapter *adapt
- 
- 	device_create_file_fan(new_client, 1);
- 	device_create_file_fan(new_client, 2);
--	if (kind != w83697hf)
--		device_create_file_fan(new_client, 3);
-+	device_create_file_fan(new_client, 3);
- 
- 	device_create_file_temp(new_client, 1);
- 	device_create_file_temp(new_client, 2);
--	if (kind != w83783s && kind != w83697hf)
-+	if (kind != w83783s)
- 		device_create_file_temp(new_client, 3);
- 
--	if (kind != w83697hf)
--		device_create_file_vid(new_client);
--
--	if (kind != w83697hf)
--		device_create_file_vrm(new_client);
-+	device_create_file_vid(new_client);
-+	device_create_file_vrm(new_client);
- 
- 	device_create_file_fan_div(new_client, 1);
- 	device_create_file_fan_div(new_client, 2);
--	if (kind != w83697hf)
--		device_create_file_fan_div(new_client, 3);
-+	device_create_file_fan_div(new_client, 3);
- 
- 	device_create_file_alarms(new_client);
- 
-@@ -1256,7 +1235,7 @@ w83781d_detect(struct i2c_adapter *adapt
- 	if (kind != as99127f && kind != w83781d) {
- 		device_create_file_sensor(new_client, 1);
- 		device_create_file_sensor(new_client, 2);
--		if (kind != w83783s && kind != w83697hf)
-+		if (kind != w83783s)
- 			device_create_file_sensor(new_client, 3);
- 	}
- 
-@@ -1479,7 +1458,7 @@ w83781d_init_client(struct i2c_client *c
- 				else
- 					data->sens[i - 1] = 2;
- 			}
--			if ((type == w83783s || type == w83697hf) && (i == 2))
-+			if (type == w83783s && i == 2)
- 				break;
- 		}
- 	}
-@@ -1495,7 +1474,7 @@ w83781d_init_client(struct i2c_client *c
- 		}
- 
- 		/* Enable temp3 */
--		if (type != w83783s && type != w83697hf) {
-+		if (type != w83783s) {
- 			tmp = w83781d_read_value(client,
- 				W83781D_REG_TEMP3_CONFIG);
- 			if (tmp & 0x01) {
-@@ -1536,8 +1515,7 @@ static struct w83781d_data *w83781d_upda
- 		dev_dbg(dev, "Starting device update\n");
- 
- 		for (i = 0; i <= 8; i++) {
--			if ((data->type == w83783s || data->type == w83697hf)
--			    && (i == 1))
-+			if (data->type == w83783s && i == 1)
- 				continue;	/* 783S has no in1 */
- 			data->in[i] =
- 			    w83781d_read_value(client, W83781D_REG_IN(i));
-@@ -1545,7 +1523,7 @@ static struct w83781d_data *w83781d_upda
- 			    w83781d_read_value(client, W83781D_REG_IN_MIN(i));
- 			data->in_max[i] =
- 			    w83781d_read_value(client, W83781D_REG_IN_MAX(i));
--			if ((data->type != w83782d) && (data->type != w83697hf)
-+			if ((data->type != w83782d)
- 			    && (data->type != w83627hf) && (i == 6))
- 				break;
- 		}
-@@ -1581,7 +1559,7 @@ static struct w83781d_data *w83781d_upda
- 		    w83781d_read_value(client, W83781D_REG_TEMP_OVER(2));
- 		data->temp_max_hyst_add[0] =
- 		    w83781d_read_value(client, W83781D_REG_TEMP_HYST(2));
--		if (data->type != w83783s && data->type != w83697hf) {
-+		if (data->type != w83783s) {
- 			data->temp_add[1] =
- 			    w83781d_read_value(client, W83781D_REG_TEMP(3));
- 			data->temp_max_add[1] =
-@@ -1592,26 +1570,18 @@ static struct w83781d_data *w83781d_upda
- 					       W83781D_REG_TEMP_HYST(3));
- 		}
- 		i = w83781d_read_value(client, W83781D_REG_VID_FANDIV);
--		if (data->type != w83697hf) {
--			data->vid = i & 0x0f;
--			data->vid |=
--			    (w83781d_read_value(client, W83781D_REG_CHIPID) &
--			     0x01)
--			    << 4;
--		}
-+		data->vid = i & 0x0f;
-+		data->vid |= (w83781d_read_value(client,
-+					W83781D_REG_CHIPID) & 0x01) << 4;
- 		data->fan_div[0] = (i >> 4) & 0x03;
- 		data->fan_div[1] = (i >> 6) & 0x03;
--		if (data->type != w83697hf) {
--			data->fan_div[2] = (w83781d_read_value(client,
--							       W83781D_REG_PIN)
--					    >> 6) & 0x03;
--		}
-+		data->fan_div[2] = (w83781d_read_value(client,
-+					W83781D_REG_PIN) >> 6) & 0x03;
- 		if ((data->type != w83781d) && (data->type != as99127f)) {
- 			i = w83781d_read_value(client, W83781D_REG_VBAT);
- 			data->fan_div[0] |= (i >> 3) & 0x04;
- 			data->fan_div[1] |= (i >> 4) & 0x04;
--			if (data->type != w83697hf)
--				data->fan_div[2] |= (i >> 5) & 0x04;
-+			data->fan_div[2] |= (i >> 5) & 0x04;
- 		}
- 		data->alarms =
- 		    w83781d_read_value(client,
+Maintainability is like optimization.  The maintainability of a
+non-working program is irrelevant.  You'd be right if we already had
+plugins-in-the-VFS.  We don't.  The most maintainable solution for
+plugins-in-the-FS that actually exists is Reiser4, exactly as it is now
+- -- because it is the _only_ one that actually exists right now.
 
+>> So, Reiser4 may eventually take over VFS and be the only Linux
+>> filesystem, but if so, it will have to do it much more slowly.  Take the
+>> good ideas -- things like plugins -- and make them at least look like
+>> incremental updates to the current VFS, and make them available to all
+>> filesystems.
+> 
+> 
+> This is how all Linux development is done.
+> 
+> The code evolves over time.
+> 
+> You have just described the path ReiserFS needs to take, in order to get
+> this stuff into the kernel, in fact.
+
+This is the path it needs to take, long term, for the sanity of
+everyone.  But I don't think it can get there without being included,
+short term.  People will stomp all over any attempts to change the VFS
+as "unproven" and "unneccesary".  Do you think it will be any easier to
+get this stuff into the kernel that way?
+
+Better, I think, to drop it in, as-is, and move stuff incrementally from
+the FS to the VFS.  That way, there's at least something intermediate
+for people to use, test, and hammer/beat down, and for maintainers to
+get more comfortable with the idea and the logistics of this beast in
+their kernel.
+
+>> And here is the crucial point.  Reiser4 is usable and useful NOW, not
+>> after it has undergone massive surgery, and Namesys is bankrupt, and
+>> users have given up and moved on to XFS.  But the massive surgery should
+>> happen eventually, partly to make all filesystems better (see below),
+>> and partly to make the transition easier and more palatable for those
+>> who don't work for Namesys.
+> 
+> 
+> We care about technical merit, not some random company's financial
+> solvancy.  Reiser4 has layering violations, and doesn't work with the
+> current security layer.  Those are two biggies.
+
+Ah, so you mean to say, you care about how well something fits the
+current model.  That has little to do with technical merit.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iQIVAwUBQrkqoHgHNmZLgCUhAQIKixAAnTJTJJpuCLatFp8syccjNnE7WdHlO/zx
+G1bWuSthCnb7uaVb8buDeAlpArzttoguKKum0NE0khz/FjKw4YUXH4AEsVYGlZaO
+nBYpw0MVyypNP+hZhEuo1T826frEOb6Z40Y1WZCpYwAZCs9EQQm7TeYSMjhD17Ew
+PehYwUFUmnv1S7CpYNQvuboKh/1wuUQb6R2thjuCGJVkif8Mn2U20Fhk1/HIgnIr
+OHoCD8ZgwoqBDPKQ6V26dUX+ZHzQVJX1j/IgLnnitJ9E4quIHNs33lq4S99DWta6
+uDS4hkHgFMRemh37sA0FUMeitFsrwNb2b2f0o/X8MpDJmwbdrdg9kxvwfHqqgaz+
+Enj0rBXO8E+5a4STTk4L2LaSR2+knSEFdj53MYYq4ABL07hEbJp2cNFKh5AFXvg0
+wg5WoHt4HhhOeuftIG9Twv5tHIC5qoM57ae9yZzj783G9ZnXy0xBefUmH+pWVQsp
+H1IpKIR4a0l8gV1AkJa6BUyAyzDDObFzmqcZ61W15Y2relD9Ow2qzVqMxroB78uJ
+O+on741BecGtohB5xdfth9rwDY6JPkDug3C6zHzxSAkGGEnWIn6O8CzcGrGqS0Ta
+EmB4LGw/fZqGcEYOOErqMC6GuImv2JbjtBOx8nAxM2OhGXFoDiD9FQaDaxWw9zjj
+ROODOhm0aTA=
+=ivqd
+-----END PGP SIGNATURE-----

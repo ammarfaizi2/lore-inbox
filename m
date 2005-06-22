@@ -1,107 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261291AbVFVNxP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261283AbVFVOA6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261291AbVFVNxP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 09:53:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261296AbVFVNxP
+	id S261283AbVFVOA6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 10:00:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261287AbVFVOA5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 09:53:15 -0400
-Received: from gw.alcove.fr ([81.80.245.157]:57528 "EHLO smtp.fr.alcove.com")
-	by vger.kernel.org with ESMTP id S261291AbVFVNwv (ORCPT
+	Wed, 22 Jun 2005 10:00:57 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:62416 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261283AbVFVOAw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 09:52:51 -0400
-Subject: usb sysfs intf files no longer created when probe fails
-From: Stelian Pop <stelian@popies.net>
-To: linux-usb-devel@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Wed, 22 Jun 2005 15:50:56 +0200
-Message-Id: <1119448257.4587.2.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+	Wed, 22 Jun 2005 10:00:52 -0400
+Date: Wed, 22 Jun 2005 10:00:15 -0400 (EDT)
+From: Rik Van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: David Masover <ninja@slaphack.com>
+cc: Jeff Garzik <jgarzik@pobox.com>, Hans Reiser <reiser@namesys.com>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: reiser4 plugins
+In-Reply-To: <42B8E834.5030809@slaphack.com>
+Message-ID: <Pine.LNX.4.61.0506220959090.28302@chimarrao.boston.redhat.com>
+References: <20050620235458.5b437274.akpm@osdl.org> <42B831B4.9020603@pobox.com>
+ <42B87318.80607@namesys.com> <20050621202448.GB30182@infradead.org>
+ <42B8B9EE.7020002@namesys.com> <42B8BB5E.8090008@pobox.com>
+ <42B8E834.5030809@slaphack.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 21 Jun 2005, David Masover wrote:
 
-With the latest git tree, the USB core no longer creates sysfs entries
-for interfaces which haven't been probed by a driver. It used to work
-until yesterday. I am talking about these:
+> The point is, this was in the kernel for quite awhile, and it was so
+> ugly that someone would rather be fucked with a chainsaw.  If something
+> that bad can make it in the kernel and stay for awhile because it
+> worked, and no one wanted to replace it
 
-defiant:/sys/devices/pci0001:10/0001:10:1a.0/usb1/1-2 125 > ls -al
-total 0
-drwxr-xr-x  5 root root    0 2005-06-22 15:32 .
-drwxr-xr-x  6 root root    0 2005-06-22 15:31 ..
-drwxr-xr-x  3 root root    0 2005-06-22 14:14 1-2:1.0
-drwxr-xr-x  3 root root    0 2005-06-22 14:14 1-2:1.2
--r--r--r--  1 root root 4096 2005-06-22 15:32 bcdDevice
--rw-r--r--  1 root root 4096 2005-06-22 15:32 bConfigurationValue
-[...]
+I would like to think we could learn from the mistakes
+made in the past, instead of repeating them.
 
-Notice the '1-2:1.1' is missing. Upon booting I get:
+Ugly code often is so ugly people don't *want* to fix
+it, so merging ugly code is often a big mistake.
 
-Jun 22 13:34:04 localhost kernel: HID device not claimed by input or
-hiddev
-Jun 22 13:34:04 localhost kernel: usbhid: probe of 1-2:1.1 failed with
-error -5
-Jun 22 13:34:04 localhost kernel: usb 1-2: device_add(1-2:1.1) --> -5
-
-The two first lines are normal (the device claims to be a HID one but it
-is a proprietary one). The third line is new, it is not present when
-booting an older kernel.
-
-In case it matters, this is on an Apple Powerbook Alu (post Feb 2005
-modem), and /proc/bus/usb/devices says:
-T:  Bus=01 Lev=01 Prnt=01 Port=01 Cnt=02 Dev#=  6 Spd=12  MxCh= 0
-D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-P:  Vendor=05ac ProdID=020f Rev= 0.28
-S:  Manufacturer=Apple Computer
-S:  Product=Apple Internal Keyboard/Trackpad
-C:* #Ifs= 3 Cfg#= 1 Atr=a0 MxPwr= 40mA
-I:  If#= 0 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=01 Prot=01 Driver=usbhid
-E:  Ad=83(I) Atr=03(Int.) MxPS=   8 Ivl=10ms
-I:  If#= 1 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=01 Prot=02 Driver=(none)
-E:  Ad=81(I) Atr=03(Int.) MxPS=  32 Ivl=1ms
-I:  If#= 2 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=00 Prot=00 Driver=usbhid
-E:  Ad=84(I) Atr=03(Int.) MxPS=   1 Ivl=10ms
-
-I use the 'atp' input driver from http://popies.net/atp/ to drive this
-touchpad. When removing the driver I also get an oops, possibly related
-to the previous failure to create the sysfs file:
-usbcore: deregistering driver atp
-Oops: kernel access of bad area, sig: 11 [#1]
-NIP: C009F5F8 LR: C00A1728 SP: C3AD9DE0 REGS: c3ad9d30 TRAP: 0300    Not
-tainted
-MSR: 00009032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
-DAR: 0000000C, DSISR: 40000000
-TASK = ccc94150[7148] 'rmmod' THREAD: c3ad8000
-Last syscall: 129
-GPR00: 00000000 C3AD9DE0 CCC94150 C6ED3D48 C02C889C DE6273C7 00000000
-00000000
-GPR08: 00000001 C6ED3CD4 DFFF9410 00000000 64A79ADA 1001A18C 100C0000
-100A0000
-GPR16: 00000000 100FEF88 24222482 100C0000 100F2CE8 100F2BE8 10001430
-00000000
-GPR24: 10000000 00000000 00000000 C02C889C DE76819C DE984678 00000000
-E1074280
-NIP [c009f5f8] sysfs_hash_and_remove+0x3c/0x170
-LR [c00a1728] sysfs_remove_link+0x14/0x24
-Call trace:
-[c00a1728] sysfs_remove_link+0x14/0x24
-[c0132ebc] __device_release_driver+0x48/0x90
-[c0133030] driver_detach+0xb0/0xdc
-[c01327c8] bus_remove_driver+0x50/0x6c
-[c01332a8] driver_unregister+0x18/0x38
-[c01a1760] usb_deregister+0x3c/0x58
-[e1072cac] atp_exit+0x18/0x40c [atp]
-[c00360ac] sys_delete_module+0x19c/0x214
-[c0004660] ret_from_syscall+0x0/0x44
-
-Does anybody have an idea or should I try to debug this further ?
-
-Thanks,
-
-Stelian.
 -- 
-Stelian Pop <stelian@popies.net>
-
+The Theory of Escalating Commitment: "The cost of continuing mistakes is
+borne by others, while the cost of admitting mistakes is borne by yourself."
+  -- Joseph Stiglitz, Nobel Laureate in Economics

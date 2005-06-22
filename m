@@ -1,62 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261397AbVFVOeh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261342AbVFVOjI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261397AbVFVOeh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 10:34:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261392AbVFVObk
+	id S261342AbVFVOjI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 10:39:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbVFVOjH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 10:31:40 -0400
-Received: from [80.71.243.242] ([80.71.243.242]:48843 "EHLO tau.rusteko.ru")
-	by vger.kernel.org with ESMTP id S261330AbVFVO2q (ORCPT
+	Wed, 22 Jun 2005 10:39:07 -0400
+Received: from opersys.com ([64.40.108.71]:27916 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S261386AbVFVOid (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 10:28:46 -0400
-From: Nikita Danilov <nikita@clusterfs.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 22 Jun 2005 10:38:33 -0400
+Subject: [ANNOUNCE] Linux RT Benchmarking Framework
+From: Kristian Benoit <kbenoit@opersys.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Wed, 22 Jun 2005 10:33:46 -0400
+Message-Id: <1119450826.5825.2.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
-Message-ID: <17081.30107.751071.983835@gargle.gargle.HOWL>
-Date: Wed, 22 Jun 2005 18:28:43 +0400
-To: David Masover <ninja@slaphack.com>
-Cc: Hans Reiser <reiser@namesys.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: reiser4 plugins
-Newsgroups: gmane.comp.file-systems.reiserfs.general,gmane.linux.kernel
-In-Reply-To: <42B92AA1.3010107@slaphack.com>
-References: <20050620235458.5b437274.akpm@osdl.org>
-	<42B831B4.9020603@pobox.com>
-	<42B87318.80607@namesys.com>
-	<20050621202448.GB30182@infradead.org>
-	<42B8B9EE.7020002@namesys.com>
-	<42B8BB5E.8090008@pobox.com>
-	<42B8E834.5030809@slaphack.com>
-	<42B8F4BC.5060100@pobox.com>
-	<42B92AA1.3010107@slaphack.com>
-X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Masover writes:
+As promised, we are finally releasing the Linux RealTime Benchmarking
+Framework (LRTBF). We hope others will find it useful and even want
+to add their own testsets. Generally we'll be more than pleased to add
+contributions to future releases.
 
-[...]
+As was explained earlier, the Linux RT Benchmarking Framework (LRTBF)
+is a set of drivers and scripts for evaluating the performance of
+various real-time additions for the Linux kernel. Specifically, the
+LRTBF allows measuring the overall load imposed by the RT enhancement
+and its ability to deterministically respond to incoming interrupts.
+Initially, the LRTBF was used for evaluating Ingo Molnar's PREEMPT_RT
+patches and Philippe Gerum's I-pipe, but by releasing it under the
+GPL we hope its usefullness will extend beyond those initial tests.
 
- > 
- > Maintainability is like optimization.  The maintainability of a
- > non-working program is irrelevant.  You'd be right if we already had
- > plugins-in-the-VFS.  We don't.  The most maintainable solution for
- > plugins-in-the-FS that actually exists is Reiser4, exactly as it is now
- > - -- because it is the _only_ one that actually exists right now.
+The LRTBF and all related information is found here:
+http://www.opersys.com/lrtbf/
 
-But it is not so. There _are_ plugins-in-the-VFS. VFS operates on opaque
-objects (inodes, dentries, file system types) through interfaces:
-{inode,address_space,dentry,sb,etc.}_operations. Every file system
-back-end if free to implement whatever number of these interfaces. And
-the do this already: check the sources; even ext2 does this: e.g.,
-ext2_fast_symlink_inode_operations and ext2_symlink_inode_operations.
+Enjoy !
 
-This is exactly what upper level reiser4 plugins are for.
+Kristian Benoit
+Karim Yaghmour
+-- 
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || 1-866-677-4546
 
-I guess that one of Christoph Hellwig's complaints is that reiser4
-introduces another layer of abstraction to implement something that
-already exists.
-
-Nikita.

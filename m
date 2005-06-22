@@ -1,114 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262907AbVFVJHe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262831AbVFVJMy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262907AbVFVJHe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 05:07:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262781AbVFVJEs
+	id S262831AbVFVJMy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 05:12:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262914AbVFVJLM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 05:04:48 -0400
-Received: from [85.8.12.41] ([85.8.12.41]:28600 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S262871AbVFVJDe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 05:03:34 -0400
-Message-ID: <42B92946.3010207@drzeus.cx>
-Date: Wed, 22 Jun 2005 11:03:02 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=_hermes.drzeus.cx-23611-1119431013-0001-2"
-To: Roman Zippel <zippel@linux-m68k.org>, kbuild-devel@lists.sourceforge.net,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2/2] Fix signed char problem in scripts/kconfig
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+	Wed, 22 Jun 2005 05:11:12 -0400
+Received: from 238-071.adsl.pool.ew.hu ([193.226.238.71]:9226 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S262904AbVFVJH5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 05:07:57 -0400
+To: akpm@osdl.org
+CC: pavel@ucw.cz, linux-kernel@vger.kernel.org
+In-reply-to: <20050622004902.796fa977.akpm@osdl.org> (message from Andrew
+	Morton on Wed, 22 Jun 2005 00:49:02 -0700)
+Subject: Re: -mm -> 2.6.13 merge status (fuse)
+References: <20050620235458.5b437274.akpm@osdl.org>
+	<E1Dkfu2-0005Ju-00@dorka.pomaz.szeredi.hu>
+	<20050621142820.GC2015@openzaurus.ucw.cz>
+	<E1DkkRE-0005mt-00@dorka.pomaz.szeredi.hu>
+	<20050621220619.GC2815@elf.ucw.cz>
+	<E1Dkyas-0006wu-00@dorka.pomaz.szeredi.hu>
+	<20050621233914.69a5c85e.akpm@osdl.org>
+	<E1DkzTO-00072F-00@dorka.pomaz.szeredi.hu> <20050622004902.796fa977.akpm@osdl.org>
+Message-Id: <E1Dl1Ce-0007BO-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Wed, 22 Jun 2005 11:07:24 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME-formatted message.  If you see this text it means that your
-E-mail software does not support MIME-formatted messages.
+> But the problem you're addressing here largely revolves around the fact that
+> the filesystem implementation is a userspace process which is potentially
+> owned by a different user.  So you need to prevent the mount owner from
+> peeking at the fs user's activity.  That problem is unique to FUSE and so a
+> solution within fuse is appropriate.
 
---=_hermes.drzeus.cx-23611-1119431013-0001-2
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+It's in fact not so unique to FUSE.  It would equally well apply to
+v9fs or even samba, since both want to allow unprvileged mounts, and
+synthetic (or at least user-controlled) file serving.
 
-The signed characters in scripts are causing warnings with GCC 4 on
-systems with proper string functions (with char*, not signed char* as
-parameters). Some could be kept signed but most had to be reverted to
-normal chars.
+> This security feature doesn't sounds terribly important to me.  So the fuse
+> server can find out what files I'm looking at.  But I've already
+> deliberately given the fuse server the ability to ptrace my process?
 
-Detailed changelog:
+If it's deliberate, than OK. 
 
-mconf.c:
-	- buf/bufptr was used in vsprintf() so it couldn't be signed.
-confdata.c:
-	- conf_expand_value() used strchr() and strncat() forcing
-	  "normal" strings.
-conf.c:
-	- line was used with several string functions so it couldn't be
-	  signed.
-	- strip() uses strlen() so same thing there.
+However with suid/sgid, this is not a deliberate action of the user
+under whose capabilities the process runs.  Neither in the case, when
+it's a daemon doing some recursive directory traversal.
 
-Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
+And it's not just peeking at the filesystem access patterns.  A much
+more dangerous aspect is controlling _when_ an operation returns
+(e.g. delaying it forever), and _what_ it returns (e.g. huge
+files/directories).
 
---=_hermes.drzeus.cx-23611-1119431013-0001-2
-Content-Type: text/x-patch; name="signed-char-kconfig.patch"; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="signed-char-kconfig.patch"
+Of course, this is only truly relevant for systems with untrusted
+users.  But I do want to make FUSE work securely in those cases too.
 
-Index: linux-wbsd/scripts/kconfig/mconf.c
-===================================================================
---- linux-wbsd/scripts/kconfig/mconf.c	(revision 153)
-+++ linux-wbsd/scripts/kconfig/mconf.c	(working copy)
-@@ -254,8 +254,8 @@
- 	"          USB$ => find all CONFIG_ symbols ending with USB\n"
- 	"\n");
- 
--static signed char buf[4096], *bufptr = buf;
--static signed char input_buf[4096];
-+static char buf[4096], *bufptr = buf;
-+static char input_buf[4096];
- static char filename[PATH_MAX+1] = ".config";
- static char *args[1024], **argptr = args;
- static int indent;
-Index: linux-wbsd/scripts/kconfig/confdata.c
-===================================================================
---- linux-wbsd/scripts/kconfig/confdata.c	(revision 153)
-+++ linux-wbsd/scripts/kconfig/confdata.c	(working copy)
-@@ -27,10 +27,10 @@
- 	NULL,
- };
- 
--static char *conf_expand_value(const signed char *in)
-+static char *conf_expand_value(const char *in)
- {
- 	struct symbol *sym;
--	const signed char *src;
-+	const char *src;
- 	static char res_value[SYMBOL_MAXLENGTH];
- 	char *dst, name[SYMBOL_MAXLENGTH];
- 
-Index: linux-wbsd/scripts/kconfig/conf.c
-===================================================================
---- linux-wbsd/scripts/kconfig/conf.c	(revision 153)
-+++ linux-wbsd/scripts/kconfig/conf.c	(working copy)
-@@ -31,14 +31,14 @@
- static int indent = 1;
- static int valid_stdin = 1;
- static int conf_cnt;
--static signed char line[128];
-+static char line[128];
- static struct menu *rootEntry;
- 
- static char nohelp_text[] = N_("Sorry, no help available for this option yet.\n");
- 
--static void strip(signed char *str)
-+static void strip(char *str)
- {
--	signed char *p = str;
-+	char *p = str;
- 	int l;
- 
- 	while ((isspace(*p)))
+For the single user system, the sysadmin can turn this feature off,
+and be done with it.
 
---=_hermes.drzeus.cx-23611-1119431013-0001-2--
+> Can we enhance private namespaces so they can squash setuid/setgid?  If so,
+> is that adequate?
+
+We could.  But that would again be overly restrictive.  The goal is to
+make the use of FUSE filesystems for users as simple as possible.  If
+the user has to manage multiple namespaces, each with it's own
+restrictions, it's becoming a very un-user-friendly environment.
+
+Thanks,
+Miklos

@@ -1,55 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262441AbVFVW26@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262568AbVFVWc4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262441AbVFVW26 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 18:28:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261175AbVFVW26
+	id S262568AbVFVWc4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 18:32:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262487AbVFVW3b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 18:28:58 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:37329 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262441AbVFVWFK (ORCPT
+	Wed, 22 Jun 2005 18:29:31 -0400
+Received: from [80.71.243.242] ([80.71.243.242]:59284 "EHLO tau.rusteko.ru")
+	by vger.kernel.org with ESMTP id S262467AbVFVWXs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 18:05:10 -0400
-Date: Thu, 23 Jun 2005 00:04:28 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Karim Yaghmour <karim@opersys.com>
-Cc: Bill Huey <bhuey@lnxw.com>, Kristian Benoit <kbenoit@opersys.com>,
-       linux-kernel@vger.kernel.org, paulmck@us.ibm.com, andrea@suse.de,
-       tglx@linutronix.de, pmarques@grupopie.com, bruce@andrew.cmu.edu,
-       nickpiggin@yahoo.com.au, ak@muc.de, sdietrich@mvista.com,
-       dwalker@mvista.com, hch@infradead.org, akpm@osdl.org, rpm@xenomai.org
-Subject: Re: PREEMPT_RT vs I-PIPE: the numbers, part 2
-Message-ID: <20050622220428.GA28906@elte.hu>
-References: <1119287612.6863.1.camel@localhost> <20050620183115.GA27028@nietzsche.lynx.com> <42B98B20.7020304@opersys.com> <20050622192927.GA13817@nietzsche.lynx.com> <20050622200554.GA16119@elte.hu> <42B9CC98.1040402@opersys.com>
-Mime-Version: 1.0
+	Wed, 22 Jun 2005 18:23:48 -0400
+From: Nikita Danilov <nikita@clusterfs.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42B9CC98.1040402@opersys.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Transfer-Encoding: 7bit
+Message-ID: <17081.58619.671650.812286@gargle.gargle.HOWL>
+Date: Thu, 23 Jun 2005 02:23:55 +0400
+To: David Masover <ninja@slaphack.com>
+Cc: "Artem B. Bityuckiy" <dedekind@yandex.ru>,
+       =?UTF-8?B?TWFya3VzIFTQlnJu?= =?UTF-8?B?cXZpc3Q=?= <mjt@nysv.org>,
+       Christophe Saout <christophe@saout.de>, Andrew Morton <akpm@osdl.org>,
+       Hans Reiser <reiser@namesys.com>, hch@infradead.org, jgarzik@pobox.com,
+       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: Re: reiser4 plugins
+Newsgroups: gmane.comp.file-systems.reiserfs.general,gmane.linux.kernel
+In-Reply-To: <42B9DD48.6060601@slaphack.com>
+References: <200506221733.j5MHXEoH007541@laptop11.inf.utfsm.cl>
+	<42B9DD48.6060601@slaphack.com>
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David Masover writes:
 
-* Karim Yaghmour <karim@opersys.com> wrote:
+[...]
 
-> Ingo Molnar wrote:
-> > the UDP-over-localhost latency was a softirq processing bug that is 
-> > fixed in current PREEMPT_RT patches. (real over-the-network latency was 
-> > never impacted, that's why it wasnt noticed before.)
-> 
-> That's good to hear, but here are some random stats from the idle run:
+ > 
+ > What we want is to have programs that can write small changes to one
+ > file or to many files, lump all those changes into a transaction, and
+ > have the transaction either succeed or fail.
 
-please retest using recent (i.e. today's) -RT kernels. There were a
-whole bunch of fixes that could affect these numbers. (But i'm sure you
-know very well that you cannot expect a fully-preemptible kernel to have
-zero runtime cost. In that sense, if you want to be fair, you should
-compare it to the SMP kernel, as total preemptability is a similar
-technological feat and has very similar parallelism constraints.)
+No existing file system guarantees such behavior. Even atomicity of
+single system call is not guaranteed.
 
-	Ingo
+ > 
+ > > it doesn't stop the system dead in its tracks waiting for some very long
+ > > transaction to finish?
+ > 
+ > We've also discussed this.  For one thing, if we can have transactions
+ > in databases which don't stop the database dead in its tracks, why can't
+ > we do it with filesystems?
+
+Because to have such transactions databases pay huge price in both
+resource consumption and available concurrency (isolation, commit-time
+locks, etc.), and yet mechanism they use to deal with stuck transactions
+(which is simply to abort it) is not very suitable for the file system.
+
+ > 
+ > But anyway, if you really want to know, ask someone else or read the
+ > archives.  I wasn't really paying attention except to remember that this
+ > issue was resolved.
+
+That would be real breakthrough.
+
+[...]
+
+ > 
+ > >>                                                 fibretions, etc,
+ > > 
+ > > 
+ > > ???
+ > 
+ > Low-level tweaking.  I think the word is from some sort of calculus.
+
+Fibration. http://marc.theaimsgroup.com/?l=linux-kernel&m=108032604606183&w=2
+
+Nikita.

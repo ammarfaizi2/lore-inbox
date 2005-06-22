@@ -1,48 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261342AbVFVOjI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261413AbVFVOik@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261342AbVFVOjI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 10:39:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbVFVOjH
+	id S261413AbVFVOik (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 10:38:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261412AbVFVOfG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 10:39:07 -0400
-Received: from opersys.com ([64.40.108.71]:27916 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261386AbVFVOid (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 10:38:33 -0400
-Subject: [ANNOUNCE] Linux RT Benchmarking Framework
-From: Kristian Benoit <kbenoit@opersys.com>
+	Wed, 22 Jun 2005 10:35:06 -0400
+Received: from fe-6a.inet.it ([213.92.5.111]:38128 "EHLO fe-6a.inet.it")
+	by vger.kernel.org with ESMTP id S261342AbVFVOci convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 10:32:38 -0400
+From: Valerio Vanni <valerio.vanni@inwind.it>
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Wed, 22 Jun 2005 10:33:46 -0400
-Message-Id: <1119450826.5825.2.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Subject: kernel: __alloc_pages: 0-order allocation failed
+Date: Wed, 22 Jun 2005 16:32:32 +0200
+Message-ID: <djtib1thpa0pm2oi60e7nci8au2rtkm98m@4ax.com>
+X-Mailer: Forte Agent 1.93/32.576 Italiano
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As promised, we are finally releasing the Linux RealTime Benchmarking
-Framework (LRTBF). We hope others will find it useful and even want
-to add their own testsets. Generally we'll be more than pleased to add
-contributions to future releases.
+I found this error on a 2.4.26 kernel:
 
-As was explained earlier, the Linux RT Benchmarking Framework (LRTBF)
-is a set of drivers and scripts for evaluating the performance of
-various real-time additions for the Linux kernel. Specifically, the
-LRTBF allows measuring the overall load imposed by the RT enhancement
-and its ability to deterministically respond to incoming interrupts.
-Initially, the LRTBF was used for evaluating Ingo Molnar's PREEMPT_RT
-patches and Philippe Gerum's I-pipe, but by releasing it under the
-GPL we hope its usefullness will extend beyond those initial tests.
+>Jun 19 23:00:08 server kernel: __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
+>Jun 19 23:00:11 server kernel: __alloc_pages: 2-order allocation failed (gfp=0x1f0/0)
+>Jun 19 23:00:11 server kernel: __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
+>Jun 19 23:00:11 server kernel: __alloc_pages: 0-order allocation failed (gfp=0x1f0/0)
+>Jun 19 23:00:12 server kernel: __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
+>Jun 19 23:00:12 server kernel: __alloc_pages: 2-order allocation failed (gfp=0x1f0/0)
+>Jun 19 23:00:13 server syslogd: /var/log/messages: Cannot allocate memory
+>Jun 19 23:00:13 server kernel: __alloc_pages: 0-order allocation failed  (gfp=0x1f0/0)
+>Jun 19 23:00:13 server kernel: __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
+>Jun 19 23:00:13 server kernel: __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
+>Jun 19 23:00:13 server kernel: VM: killing process fetchnews
+>Jun 19 23:00:15 server kernel: __alloc_pages: 0-order allocation failed (gfp=0x1f0/0)
 
-The LRTBF and all related information is found here:
-http://www.opersys.com/lrtbf/
+between these lines there were other saying
+>fetchnews[958]: reading XOVER info from /var/spool/news/...
 
-Enjoy !
+Then I could shut the machine correctly down. No other process than
+fetchnews had been killed
 
-Kristian Benoit
-Karim Yaghmour
+Aftere many searches on the net I still don't understand a thing about
+this error: how much is it critical?
+
+I mean: is it simply a situation of excessive memory requests that is
+fixed by killing one or more processes (and the kernel is still alive
+as before) or the kernel is in some way locked up (in particular: is
+it necessary/better to reboot? Is there some risk of filesystem
+corruption?).
+
 -- 
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || 1-866-677-4546
-
+Ci sono 10 tipi di persone al mondo: quelle che capiscono il sistema binario
+e quelle che non lo capiscono.

@@ -1,48 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261796AbVFVRzW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261749AbVFVRzE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261796AbVFVRzW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 13:55:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261813AbVFVRvm
+	id S261749AbVFVRzE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 13:55:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261587AbVFVRxY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 13:51:42 -0400
-Received: from 238-071.adsl.pool.ew.hu ([193.226.238.71]:40718 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S261690AbVFVRtW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 13:49:22 -0400
-To: tytso@mit.edu
-CC: akpm@osdl.org, pavel@ucw.cz, linux-kernel@vger.kernel.org
-In-reply-to: <20050622170135.GB18544@thunk.org> (message from Theodore Ts'o on
-	Wed, 22 Jun 2005 13:01:35 -0400)
-Subject: Re: -mm -> 2.6.13 merge status (fuse)
-References: <20050620235458.5b437274.akpm@osdl.org> <E1Dkfu2-0005Ju-00@dorka.pomaz.szeredi.hu> <20050621142820.GC2015@openzaurus.ucw.cz> <E1DkkRE-0005mt-00@dorka.pomaz.szeredi.hu> <20050621220619.GC2815@elf.ucw.cz> <E1Dkyas-0006wu-00@dorka.pomaz.szeredi.hu> <20050621233914.69a5c85e.akpm@osdl.org> <E1DkzTO-00072F-00@dorka.pomaz.szeredi.hu> <20050622170135.GB18544@thunk.org>
-Message-Id: <E1Dl9LG-0007xP-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Wed, 22 Jun 2005 19:48:50 +0200
+	Wed, 22 Jun 2005 13:53:24 -0400
+Received: from opersys.com ([64.40.108.71]:5646 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S261749AbVFVRrt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 13:47:49 -0400
+Message-ID: <42B9A6D6.4060109@opersys.com>
+Date: Wed, 22 Jun 2005 13:58:46 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+MIME-Version: 1.0
+To: paulmck@us.ibm.com
+CC: Kristian Benoit <kbenoit@opersys.com>, linux-kernel@vger.kernel.org,
+       bhuey@lnxw.com, andrea@suse.de, tglx@linutronix.de, mingo@elte.hu,
+       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
+       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org, rpm@xenomai.org
+Subject: Re: PREEMPT_RT vs I-PIPE: the numbers, part 2
+References: <1119287612.6863.1.camel@localhost> <20050621015542.GB1298@us.ibm.com> <42B77B8C.6050109@opersys.com> <20050622011931.GF1324@us.ibm.com> <42B9845B.8030404@opersys.com> <20050622162718.GD1296@us.ibm.com>
+In-Reply-To: <20050622162718.GD1296@us.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I don't think this should be objectionable, since we already have
-> times when root-owned tasks can get EACCESS when accessing some
-> filesystem.  This can happen with any distributed filesystem that
-> enforces real security --- whether it be nfs-root-squash, or the
-> Andrew Filesystem, or NFSv4.  Root can get "permission denied" when
-> some other userid with appropriate credentials would be allowed to
-> access the file/directory.
 
-Right.
+Paul E. McKenney wrote:
+> I have big hands, so 7us could indeed qualify as a "handful".
 
-> On the other hand, sometimes a root process, or some other user's
-> process, might _want_ to give permission to allow a trusted FUSE
-> filesystem the potential to monkey with it (return potentially
-> untrusted information, or stop it entirely), in exchange for access to
-> the filesystem.  So it would be nice if there was some way that a
-> process could tell the kernel that it is willing to give permission to
-> allow certain FUSE filesystems to potentially affect it.  Say, via a
-> fnctl() call, perhaps.
+:)
 
-Hmm.  'su' works for root.  
+> Any insights as to what leads to the larger maximum delay?  Some guesses
+> include worst-case cache-miss patterns and interrupt disabling that I
+> missed in my quick scan of the patch.
 
-How do you think fcntl() could be used?  I think a task flag settable
-via prctl() would be more appropriate.
+Beats me. Given that PREEMPT_RT and the I-pipe get to the same maximum
+by using two entirely different approaches, I'm guessing this has more
+to do with hardware-related contention than anything inside the patches
+themselves.
 
-Miklos
+> If I understand your analysis correctly (hah!!!), your breakdown
+> of the maximum delay assumes that the maximum delays for the logger
+> and the target are correlated.  What causes this correlation?
+
+No it doesn't. I'm just inferring the maximum and average using the
+data obtained in the ipipe-to-ipipe setup. In that specific case,
+I'm assuming that the interrupt latency on both systems for the
+same type of interrupt is identical (after all, these machines are
+physically identical, albeit one has 512MB or RAM and the other
+256.)
+
+There is no correlation. Just the assumption that what's actually
+being measured is twice the latency of the ipipe in that specific
+setup.
+
+Given that the interrupt latency of preempt_rt is measured using one
+machine runing adeos (read ipipe) and the other preempt_rt, I'm
+deducing the latency of preempt_rt based on the numbers obtained
+for the ipipe by looking at the ipipe-to-ipipe setup.
+
+> My (probably hopelessly naive) assumption would be that there would
+> be no such correlation.  In absence of correlation, one might
+> approximate the maximum ipipe delay by subtracting the -average-
+> ipipe delay from the maximum preemption delay, for 55us - 7us = 48us.
+> Is this the case, or am I missing something here?
+
+Not directly. You'd have to start by saying that the true maximum ipipe
+delay is obtained by substracting the average ipipe delay from the
+measured maximum ipipe delay (to play safe you could even substract
+the minimum.)
+
+However such a maximum isn't correlated by the data. If indeed there
+was a difference between the maximums, averages and minimums of the
+ipipe and preempt_rt, the shear quantity of measurements would not
+have shown such latency similarities. IOW, it is expected that at
+least once in a blue moon we'll hit that case where both the target
+and the logger demonstrate their highest possible latency. That's
+what we can safely assume 55us is, again given the number of samples.
+Remember that on the first run, we sometimes observed a maximum
+ipipe-to-ipipe response time of 21us. That's because in those runs
+the blue-moon scenario didn't materialize.
+
+> Of course, in the case of the -average- preemption measurements, dividing
+> by two to get the average ipipe delay makes perfect sense.
+
+There's no correlation, so I don't see this one.
+
+> Whatever the answer to my maximum-delay question, the same breakdown of
+> the raw latency figures would apply to the CONFIG_PREEMPT_RT case, right?
+
+Sure, but again see the above caveats.
+
+Karim
+-- 
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546

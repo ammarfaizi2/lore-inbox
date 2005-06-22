@@ -1,59 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262740AbVFVDaX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262561AbVFVDhU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262740AbVFVDaX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 23:30:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262727AbVFVD3j
+	id S262561AbVFVDhU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 23:37:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262566AbVFVDhQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 23:29:39 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:59050 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S262723AbVFVD0w (ORCPT
+	Tue, 21 Jun 2005 23:37:16 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:27076 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262561AbVFVDfS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 23:26:52 -0400
-Message-ID: <42B8DA6D.9080608@pobox.com>
-Date: Tue, 21 Jun 2005 23:26:37 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Tue, 21 Jun 2005 23:35:18 -0400
+Date: Tue, 21 Jun 2005 23:35:10 -0400 (EDT)
+From: Rik Van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
 To: Andrew Morton <akpm@osdl.org>
-CC: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org, jbenc@suse.cz
-Subject: Re: -mm -> 2.6.13 merge status (wireless)
-References: <20050620235458.5b437274.akpm@osdl.org>	<20050621141930.GB2015@openzaurus.ucw.cz> <20050621130250.78759088.akpm@osdl.org>
-In-Reply-To: <20050621130250.78759088.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+cc: linux-kernel@vger.kernel.org
+Subject: OCFS (was Re: -mm -> 2.6.13 merge status)
+In-Reply-To: <20050620235458.5b437274.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.61.0506212334010.4159@chimarrao.boston.redhat.com>
+References: <20050620235458.5b437274.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Pavel Machek <pavel@ucw.cz> wrote:
+On Mon, 20 Jun 2005, Andrew Morton wrote:
+
+> git-ocfs
 > 
->>Hi!
->>
->>
->>>This summarises my current thinking on various patches which are presently
->>>in -mm.  I cover large things and small-but-controversial things.  Anything
->>>which isn't covered here (and that's a lot of material) is probably a "will
->>>merge", unless it obviously isn't.
->>
->>I'd like to ask about 802.11 stack and ipw2100 in particular... Is it
->>"small enough that it did not need mentioning"?
->>Working wireless in mainline would be great...
-> 
-> 
-> That's up to Jeff.
+>     The OCFS2 filesystem.  OK by me, although I'm not sure it's had enough
+>     review.
 
-802.11 stack is still too ipw-specific.
+The only problem I can see with this is that people will want
+to use OCFS together with CLVM, and both use a different cluster
+infrastructure.
 
-Someone needs to get together another driver using 802.11 stack (such as 
-HostAP, the original location of much of the code).
+IMHO it would be good if they both used the same underlying
+cluster infrastructure...
 
-So, the merge criteria is:  something other than ipw uses it.
-
-Otherwise, it'll never be generic...
-
-	Jeff, who has several SuSE wireless patches to merge still
-
-
-
+-- 
+The Theory of Escalating Commitment: "The cost of continuing mistakes is
+borne by others, while the cost of admitting mistakes is borne by yourself."
+  -- Joseph Stiglitz, Nobel Laureate in Economics

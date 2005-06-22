@@ -1,50 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262431AbVFVBEr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262444AbVFVBII@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262431AbVFVBEr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 21:04:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262444AbVFVBEr
+	id S262444AbVFVBII (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 21:08:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262462AbVFVBII
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 21:04:47 -0400
-Received: from web32409.mail.mud.yahoo.com ([68.142.207.202]:8544 "HELO
-	web32409.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S262431AbVFVBEh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 21:04:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=Cm+wBMoZYMvh5priUnzv1bmpld9709S4/iOyTU0ltSp3DO34tdxHqWZiHww+jKe+InlYmzktiWi34E7Kw8t5FSbLtg/xA/vn40b7ECwtwTO7yFKJCtDuLD7ctUrfk9GAOhBI9cW8Tc2Z/7flJ2WnZHXjCpC7U5gz8ASngbnbXEA=  ;
-Message-ID: <20050622010432.49221.qmail@web32409.mail.mud.yahoo.com>
-Date: Tue, 21 Jun 2005 18:04:32 -0700 (PDT)
-From: Anil kumar <anils_r@yahoo.com>
-Subject: "no version for struct_module: found" error
-To: linux-kernel@vger.kernel.org
+	Tue, 21 Jun 2005 21:08:08 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:30682 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S262444AbVFVBIB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 21:08:01 -0400
+Message-ID: <42B8B9EE.7020002@namesys.com>
+Date: Tue, 21 Jun 2005 18:07:58 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: Christoph Hellwig <hch@infradead.org>
+CC: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, ReiserFS List <reiserfs-list@namesys.com>
+Subject: reiser4 plugins
+References: <20050620235458.5b437274.akpm@osdl.org> <42B831B4.9020603@pobox.com> <42B87318.80607@namesys.com> <20050621202448.GB30182@infradead.org>
+In-Reply-To: <20050621202448.GB30182@infradead.org>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Christoph,
 
-I am loading an non-gpl module. I am getting error:
-"no version for struct_module found":tainted kernel.
+Reiser4 users love the plugin concept, and all audiences which have
+listened to a presentation on plugins have been quite positive about
+it.  Many users think it is the best thing about reiser4.  Can you
+articulate why you are opposed to plugins in more detail?  Perhaps you
+are simply not as familiar with it as the audiences I have presented
+to.  Perhaps persons on our mailing list can comment.....
 
-Its for > 2.6.8 kernels.
+In particular, what is wrong with having a plugin id associated with
+every file, storing the pluginid on disk in permanent storage in the
+stat data, and having that plugin id define the set of methods that
+implement the vfs operations associated with a particular file, rather
+than defining VFS methods only at filesystem granularity?
 
-I know that I get tainted kernel error when its not
-GPL, but what does the error "no version for
-struct_module found" mean?
-How to get rid of this?
-I checked the module.c under kernel dir, I guess I am
-getting this error for 
-if(!(tainted & TAINTED_FORCED_MODULE)...
+What is wrong with having an encryption plugin implemented in this
+manner?  What is wrong with being able to have some files implemented
+using a compression plugin, and others in the same filesystem not.
 
+What is wrong with having one file in the FS use a write only plugin, in
+which the encrypion key is changed with every append in a forward but
+not backward computable manner, and in order to read a file you must
+either have a key that is stored on another computer or be reading what
+was written after the moment of cracking root?
 
-with regards,
-   Anil
+What is wrong with having a set of critical data files use a CRC
+checking file plugin?
 
+What we have hurts no one but us.  I have never seen an audience for one
+of my talks that thought it hurt us..... most audiences think it is
+great.  
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+Let us tinker with our FS, and you tinker with yours, and so long as
+what we do does not affect your FS, let the users choose.
+
+In the end, somebody will write a new fs that steals the good ideas from
+both of us, and obsoletes us both.  They can only do this though if we
+are left to be both free to implement differing filesystem designs.
+
+I do not tell you how to design XFS, why are you making my life unpleasant?
+
+Christoph Hellwig wrote:
+
+>Hans, we had this discussion before.  And the consensus was pretty simple:
+>the disk structure plugins are your business and fine to keep.  The
+>higher-level pluging that just add another useless abstraction below
+>file_operation/inode_operation/etc.  are not.  keep the former and kill
+>the latter and you're one step further.
+>
+>
+>  
+>
+

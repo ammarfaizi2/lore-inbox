@@ -1,90 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262924AbVFVJbe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262874AbVFVJ0y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262924AbVFVJbe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 05:31:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262904AbVFVJ17
+	id S262874AbVFVJ0y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 05:26:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262828AbVFVJ0p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 05:27:59 -0400
-Received: from nproxy.gmail.com ([64.233.182.201]:40692 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262924AbVFVJYC convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 05:24:02 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=mykAJ5VcWsA6j+Py/KJNYcYmHMbPsadQjFPbJdYrQYEhGLgoAnI/smccSOmzAf8UNrvR7fzuHBXGG/2qrfXGW6RnIsjDBueTYj5VH130/fNQWyzz2Gg/KTLBHXbhTs/HoeAX5mCU1PCJuroH7YvIJbvRvSM3srHK2hEATU1D6V8=
-Message-ID: <2cd57c9005062202237cd4ece9@mail.gmail.com>
-Date: Wed, 22 Jun 2005 17:23:58 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-Reply-To: coywolf@lovecn.org
-To: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: [PATCH] devfs: remove devfs from Kconfig preventing it from being built
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1119429466l.8047l.1l@werewolf.able.es>
+	Wed, 22 Jun 2005 05:26:45 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:5894 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262874AbVFVJYO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 05:24:14 -0400
+Date: Wed, 22 Jun 2005 11:24:09 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] document that 8139TOO supports 8129/8130
+Message-ID: <20050622092408.GB3705@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20050621222419.GA23896@kroah.com>
-	 <20050621.155919.85409752.davem@davemloft.net>
-	 <20050622041330.GB27716@suse.de>
-	 <20050621.214527.71091057.davem@davemloft.net>
-	 <2cd57c900506212323ca68045@mail.gmail.com>
-	 <1119429466l.8047l.1l@werewolf.able.es>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/22/05, J.A. Magallon <jamagallon@able.es> wrote:
-> 
-> On 06.22, Coywolf Qi Hunt wrote:
-> > On 6/22/05, David S. Miller <davem@davemloft.net> wrote:
-> > > From: Greg KH <gregkh@suse.de>
-> > > Date: Tue, 21 Jun 2005 21:13:30 -0700
-> > >
-> > > > On Tue, Jun 21, 2005 at 03:59:19PM -0700, David S. Miller wrote:
-> > > > > From: Greg KH <gregkh@suse.de>
-> > > > > Date: Tue, 21 Jun 2005 15:24:19 -0700
-> > > > >
-> > > > > However, this does mean I do need to reinstall a couple
-> > > > > debian boxes here to something newer before I can continue
-> > > > > doing kernel work in 2.6.x on them.
-> > > >
-> > > > Those boxes rely on devfs?
-> > >
-> > > Yeah, when I forget to turn on DEVFS_FS and DEVFS_MOUNT in the
-> > > kernel config the machine won't boot. :-)
-> > >
-> > > > Can't you just grab the "static dev" debian package and continue on?
-> > > > I'm sure there is one in there somewhere (don't really know for sure,
-> > > > not running debian anywhere here, sorry.)
-> > > >
-> > > > Or how about a tarball of a /dev tree?  Would that help you out?
-> >
-> > There's /sbin/MAKEDEV on debian.
-> >
-> > >
-> > > I don't know if Debian has such a package.
-> > >
-> > > Don't worry, I'll take care of this by simply reinstalling
-> > > and thus moving to udev.
-> >
-> > Moving to udev is right. Still you need a "static dev" in case your
-> > udev not working.
-> >
-> > Use /sbin/MAKEDEV from makedev package.
-> >
-> 
-> A nice addition to udev package would be an standard minimal /dev tree
-> to allow booting till init and running udev as the first thing...
-> A tar.gz you could just unpack on a new box or on an initrd.
-> 
-> ;)
+The 8129/8130 support is a sub-option that is not visible if the user 
+hasn't enabled the 8139 support.
 
+Let's make it a bit easier for users to find the driver for their nic.
 
-I guess we've already got one in initramfs.
-The "static" /dev is still necessary. I once killed my udevd, and the
-static /dev revealed.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
--- 
-Coywolf Qi Hunt
-http://ahbl.org/~coywolf/
+---
+
+This patch was already sent on:
+- 16 May 2005
+
+--- linux-2.6.12-rc4-mm1-full/drivers/net/Kconfig.old	2005-05-13 05:54:05.000000000 +0200
++++ linux-2.6.12-rc4-mm1-full/drivers/net/Kconfig	2005-05-13 06:00:21.000000000 +0200
+@@ -1484,14 +1484,14 @@
+ 	  will be called 8139cp.  This is recommended.
+ 
+ config 8139TOO
+-	tristate "RealTek RTL-8139 PCI Fast Ethernet Adapter support"
++	tristate "RealTek RTL-8129/8130/8139 PCI Fast Ethernet Adapter support"
+ 	depends on NET_PCI && PCI
+ 	select CRC32
+ 	select MII
+ 	---help---
+ 	  This is a driver for the Fast Ethernet PCI network cards based on
+-	  the RTL8139 chips. If you have one of those, say Y and read
+-	  the Ethernet-HOWTO <http://www.tldp.org/docs.html#howto>.
++	  the RTL 8129/8130/8139 chips. If you have one of those, say Y and
++	  read the Ethernet-HOWTO <http://www.tldp.org/docs.html#howto>.
+ 
+ 	  To compile this driver as a module, choose M here: the module
+ 	  will be called 8139too.  This is recommended.
+

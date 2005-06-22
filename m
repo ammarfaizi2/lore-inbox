@@ -1,46 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262770AbVFVKGc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261929AbVFVKF1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262770AbVFVKGc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 06:06:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262746AbVFVKFw
+	id S261929AbVFVKF1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 06:05:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261903AbVFVKDp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 06:05:52 -0400
-Received: from ns.firmix.at ([62.141.48.66]:57729 "EHLO ns.firmix.at")
-	by vger.kernel.org with ESMTP id S262469AbVFVKE7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 06:04:59 -0400
-Subject: Re: [PATCH] Pointer cast warnings in scripts/
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: Roman Zippel <zippel@linux-m68k.org>, kbuild-devel@lists.sourceforge.net,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <42B92D92.7070304@drzeus.cx>
-References: <42B7F740.6000807@drzeus.cx>
-	 <Pine.LNX.4.61.0506211413570.3728@scrub.home> <42B80AF9.2060708@drzeus.cx>
-	 <Pine.LNX.4.61.0506211451040.3728@scrub.home> <42B80F40.8000609@drzeus.cx>
-	 <1119359653.18845.55.camel@tara.firmix.at> <42B92D92.7070304@drzeus.cx>
-Content-Type: text/plain
-Organization: Firmix Software GmbH
-Date: Wed, 22 Jun 2005 12:04:20 +0200
-Message-Id: <1119434660.2894.47.camel@tara.firmix.at>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+	Wed, 22 Jun 2005 06:03:45 -0400
+Received: from 238-071.adsl.pool.ew.hu ([193.226.238.71]:39943 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S262867AbVFVJ7W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 05:59:22 -0400
+To: akpm@osdl.org
+CC: pavel@ucw.cz, linux-kernel@vger.kernel.org
+In-reply-to: <20050622024423.66d773f3.akpm@osdl.org> (message from Andrew
+	Morton on Wed, 22 Jun 2005 02:44:23 -0700)
+Subject: Re: -mm -> 2.6.13 merge status (fuse)
+References: <20050620235458.5b437274.akpm@osdl.org>
+	<E1Dkfu2-0005Ju-00@dorka.pomaz.szeredi.hu>
+	<20050621142820.GC2015@openzaurus.ucw.cz>
+	<E1DkkRE-0005mt-00@dorka.pomaz.szeredi.hu>
+	<20050621220619.GC2815@elf.ucw.cz>
+	<E1Dkyas-0006wu-00@dorka.pomaz.szeredi.hu>
+	<20050621233914.69a5c85e.akpm@osdl.org>
+	<E1DkzTO-00072F-00@dorka.pomaz.szeredi.hu>
+	<20050622004902.796fa977.akpm@osdl.org>
+	<E1Dl1Ce-0007BO-00@dorka.pomaz.szeredi.hu>
+	<20050622021251.5137179f.akpm@osdl.org>
+	<E1Dl1Oz-0007Dq-00@dorka.pomaz.szeredi.hu> <20050622024423.66d773f3.akpm@osdl.org>
+Message-Id: <E1Dl20U-0007Ic-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Wed, 22 Jun 2005 11:58:54 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-06-22 at 11:21 +0200, Pierre Ossman wrote:
-> Bernd Petrovitsch wrote:
-> >The C-standard about "char", "signed char" and "unsigned char"?
-> >These are 3 different types.
+> > > >  We could.  But that would again be overly restrictive.  The goal is to
+> > > >  make the use of FUSE filesystems for users as simple as possible.  If
+> > > >  the user has to manage multiple namespaces, each with it's own
+> > > >  restrictions, it's becoming a very un-user-friendly environment.
+> > > 
+> > > I'd have thought that it would be possible to offer the same user interface
+> > > as you currently have with private namespaces.  Hide any complexity in the
+> > > userspace tools?  Where's the problem?
+> > 
+> > Sorry, I don't get it.
 > 
-> I was referring to which of the three types is correct for str*().
+> I'm asking you to expand on what the problems would be if we were to
+> enhance the namespace code as suggested.
 
-"char" as one can read in every man-page.
+OK, what I was thinking, is that the user could create a new
+namespace, that has all the filesystems remounted 'nosuid'.  This
+wouldn't need any new kernel infrastructure, just a suid-root program
+(e.g. newns_nosuid), that would do a clone(CLONE_NEWNS), then
+recursively remount everything 'nosuid' in the new namespace.  Then
+restore the user's privileges, and exec a shell.
 
-	Bernd
--- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
+In this namespace the user could mount things to his heart's content.
+He could mount over system directories or even the root directory,
+without being able to do any harm.
 
+This is very nice, but a bit inpractical, since now all the other
+programs of the user, his desktop environment, login shells etc. Won't
+be able to see the userspace filesystems mounted in the private
+namespace.
+
+Of course he can enter the private namespace immediately after login,
+but then he won't be able to send mail for example, because 'sendmail'
+could be suid-mail or whatever.
+
+I think the following must be true, for a namespace environment to be
+useful:
+
+ 1) All the processes should be able to access the same files
+    (including new mounts)
+
+ 2) User should be able to run suid/sgid programs
+
+
+If the suid/sgid programs want to access the contents of a userspace
+filesystem, that's tough.  You can't have that, because it's insecure.
+But experience shows that this isn't a problem.  The exception is the
+'mount' program itself, and that is why I'm slowly working towards
+making sys_mount() and sys_umount() unprivileged.
+
+Miklos

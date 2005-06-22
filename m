@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262796AbVFVGhG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262841AbVFVGhB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262796AbVFVGhG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 02:37:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262804AbVFVG15
+	id S262841AbVFVGhB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 02:37:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262799AbVFVGd0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 02:27:57 -0400
-Received: from mail.kroah.org ([69.55.234.183]:29596 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262800AbVFVFWF convert rfc822-to-8bit
+	Wed, 22 Jun 2005 02:33:26 -0400
+Received: from mail.kroah.org ([69.55.234.183]:25244 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262796AbVFVFWE convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 01:22:05 -0400
+	Wed, 22 Jun 2005 01:22:04 -0400
 Cc: khali@linux-fr.org
-Subject: [PATCH] I2C: #include <linux/config.h> cleanup
-In-Reply-To: <11194174633604@kroah.com>
+Subject: [PATCH] I2C: chips/Kconfig corrections
+In-Reply-To: <1119417464710@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Tue, 21 Jun 2005 22:17:43 -0700
-Message-Id: <11194174631273@kroah.com>
+Date: Tue, 21 Jun 2005 22:17:45 -0700
+Message-Id: <11194174653972@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,67 +24,69 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] I2C: #include <linux/config.h> cleanup
+[PATCH] I2C: chips/Kconfig corrections
 
-Hi Alexey,
+Here are some corrections for drivers/i2c/chips/Kconfig.
 
-> Files that don't use CONFIG_* stuff shouldn't include config.h
-> Files that use CONFIG_* stuff should include config.h
->
-> It's that simple. ;-)
-
-I agree. This won't change anything though, as all drivers include
-either device.h or module.h, which in turn include config.h. But you are
-still correct, so I approve your patch.
-
-For completeness, I would propose the following on top of your own
-patch:
-
-i2c bus drivers do not need to define DEBUG themselves, as the Kconfig
-system takes care of it.
-
+Signed-off-by: Alexey Fisher <fishor@gmx.net>
 Signed-off-by: Jean Delvare <khali@linux-fr.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit a551ef79d9413727f76d22dc47b5b15d1d03073b
-tree 4b43e032dc6b6cb5de78ce700b12762ab71483e0
-parent f0bb60e7b1a0a26c25d8cbf81dda7afbc8bd2982
-author Jean Delvare <khali@linux-fr.org> Sat, 16 Apr 2005 18:49:22 +0200
-committer Greg Kroah-Hartman <gregkh@suse.de> Tue, 21 Jun 2005 21:51:53 -0700
+commit 057923f0f5ba346fc128ae0a1c3842d8c12bd7f0
+tree 6c9cc5d15b6164988c0cb4a994cd22a8d45983c5
+parent 6afe15595031bb9801af6207feed0bafc25b6e6b
+author Jean Delvare <khali@linux-fr.org> Tue, 17 May 2005 18:09:36 +0200
+committer Greg Kroah-Hartman <gregkh@suse.de> Tue, 21 Jun 2005 21:51:58 -0700
 
- drivers/i2c/busses/i2c-ixp2000.c |    5 -----
- drivers/i2c/busses/i2c-ixp4xx.c  |    5 -----
- 2 files changed, 0 insertions(+), 10 deletions(-)
+ drivers/i2c/chips/Kconfig |    9 ++++++---
+ 1 files changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-ixp2000.c b/drivers/i2c/busses/i2c-ixp2000.c
---- a/drivers/i2c/busses/i2c-ixp2000.c
-+++ b/drivers/i2c/busses/i2c-ixp2000.c
-@@ -26,11 +26,6 @@
-  * 'enabled' to drive the GPIOs.
-  */
+diff --git a/drivers/i2c/chips/Kconfig b/drivers/i2c/chips/Kconfig
+--- a/drivers/i2c/chips/Kconfig
++++ b/drivers/i2c/chips/Kconfig
+@@ -29,6 +29,7 @@ config SENSORS_ADM1025
+ 	help
+ 	  If you say yes here you get support for Analog Devices ADM1025
+ 	  and Philips NE1619 sensor chips.
++
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called adm1025.
  
--#include <linux/config.h>
--#ifdef CONFIG_I2C_DEBUG_BUS
--#define DEBUG	1
--#endif
--
- #include <linux/kernel.h>
- #include <linux/init.h>
- #include <linux/device.h>
-diff --git a/drivers/i2c/busses/i2c-ixp4xx.c b/drivers/i2c/busses/i2c-ixp4xx.c
---- a/drivers/i2c/busses/i2c-ixp4xx.c
-+++ b/drivers/i2c/busses/i2c-ixp4xx.c
-@@ -26,11 +26,6 @@
-  *       that is passed as the platform_data to this driver.
-  */
+@@ -38,6 +39,8 @@ config SENSORS_ADM1026
+ 	select I2C_SENSOR
+ 	help
+ 	  If you say yes here you get support for Analog Devices ADM1026
++	  sensor chip.
++
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called adm1026.
  
--#include <linux/config.h>
--#ifdef CONFIG_I2C_DEBUG_BUS
--#define DEBUG	1
--#endif
--
- #include <linux/kernel.h>
- #include <linux/init.h>
- #include <linux/device.h>
+@@ -48,6 +51,7 @@ config SENSORS_ADM1031
+ 	help
+ 	  If you say yes here you get support for Analog Devices ADM1031 
+ 	  and ADM1030 sensor chips.
++
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called adm1031.
+ 
+@@ -198,8 +202,7 @@ config SENSORS_LM78
+ 	select I2C_SENSOR
+ 	help
+ 	  If you say yes here you get support for National Semiconductor LM78,
+-	  LM78-J and LM79.  This can also be built as a module which can be
+-	  inserted and removed while the kernel is running.
++	  LM78-J and LM79.
+ 
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called lm78.
+@@ -232,7 +235,7 @@ config SENSORS_LM85
+ 	select I2C_SENSOR
+ 	help
+ 	  If you say yes here you get support for National Semiconductor LM85
+-	  sensor chips and clones: ADT7463 and ADM1027.
++	  sensor chips and clones: ADT7463, EMC6D100, EMC6D102 and ADM1027.
+ 
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called lm85.
 

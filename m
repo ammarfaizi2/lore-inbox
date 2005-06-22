@@ -1,52 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261999AbVFVUAX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262008AbVFVUHI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261999AbVFVUAX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 16:00:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261976AbVFVUAX
+	id S262008AbVFVUHI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 16:07:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262017AbVFVUHE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 16:00:23 -0400
-Received: from opersys.com ([64.40.108.71]:31759 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261999AbVFVUAG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 16:00:06 -0400
-Message-ID: <42B9C5D1.3020403@opersys.com>
-Date: Wed, 22 Jun 2005 16:10:57 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
-MIME-Version: 1.0
-To: "Bill Huey (hui)" <bhuey@lnxw.com>
-CC: Kristian Benoit <kbenoit@opersys.com>, linux-kernel@vger.kernel.org,
-       paulmck@us.ibm.com, andrea@suse.de, tglx@linutronix.de, mingo@elte.hu,
-       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
-       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, rpm@xenomai.org
-Subject: Re: PREEMPT_RT vs I-PIPE: the numbers, part 2
-References: <1119287612.6863.1.camel@localhost> <20050620183115.GA27028@nietzsche.lynx.com> <42B98B20.7020304@opersys.com> <20050622192927.GA13817@nietzsche.lynx.com>
-In-Reply-To: <20050622192927.GA13817@nietzsche.lynx.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 22 Jun 2005 16:07:04 -0400
+Received: from nproxy.gmail.com ([64.233.182.203]:8338 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262000AbVFVUEf convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 16:04:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=cr4NDtaoNrN8f03kzWJ9MMr+WhvR/c0LSoOKUdh7oyX4bB3VVsH6HS3Vg7oq74IIpvxzW0gyKYnh4IRZkUgmlV99hNBHyvR3wwsW43zpJYmhSRcdmeAA7spI9X8R2gzWMrubtluTvGImwpG8p1MT95CCGBAko3aEEfZQg3ntf54=
+Message-ID: <84144f02050622130424379bf3@mail.gmail.com>
+Date: Wed, 22 Jun 2005 23:04:33 +0300
+From: Pekka Enberg <penberg@gmail.com>
+Reply-To: Pekka Enberg <penberg@gmail.com>
+To: "Bouchard, Sebastien" <Sebastien.Bouchard@ca.kontron.com>
+Subject: Re: Patch of a new driver for kernel 2.4.x that need review
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       "Lorenzini, Mario" <mario.lorenzini@ca.kontron.com>,
+       Pekka Enberg <penberg@cs.helsinki.fi>
+In-Reply-To: <5009AD9521A8D41198EE00805F85F18F067F6A36@sembo111.teknor.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <5009AD9521A8D41198EE00805F85F18F067F6A36@sembo111.teknor.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 6/22/05, Bouchard, Sebastien <Sebastien.Bouchard@ca.kontron.com> wrote:
+> +static int __init
+> +tlclk_init(void)
+> +{
 
-Bill Huey (hui) wrote:
-> FreeBSD went through some slow down when they moved to SMPng, but not
-> the kind of numbers you show for things surrounding the network stack.
-> Something clearly bad happened.
+[snip]
 
-Note that the numbers are not freak accidents, they are consistent
-accross the various setups. So in total, that's 15 LMbench runs,
-all showing consistent _severe_ cost for preempt_rt. And this despite
-the fact that it comes down neck-to-neck with the ipipe on
-interrupt response time in those same tests. I would highly suggest
-setting up an automated benchmark for automatically running LMbench
-on every preempt_rt release and compare that to the vanilla kernel.
+> +       if (check_region(TLCLK_BASE, 8)) {
+> +               printk(KERN_ERR
+> +                      "telclock: I/O region already used by another
+> driver!\n");
+> +               return -EBUSY;
+> +       } else {
+> +               request_region(TLCLK_BASE, 8, "telclock");
 
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+request_region can fail too so you'd better handle that.
+
+                               Pekka

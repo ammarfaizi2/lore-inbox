@@ -1,264 +1,209 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262327AbVFVV1t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262380AbVFVV1u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262327AbVFVV1t (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 17:27:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262533AbVFVVZa
+	id S262380AbVFVV1u (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 17:27:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262538AbVFVV01
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 17:25:30 -0400
-Received: from az33egw02.freescale.net ([192.88.158.103]:7932 "EHLO
-	az33egw02.freescale.net") by vger.kernel.org with ESMTP
-	id S262327AbVFVVJR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 17:09:17 -0400
-Date: Wed, 22 Jun 2005 16:09:02 -0500 (CDT)
-From: Kumar Gala <galak@freescale.com>
-X-X-Sender: galak@nylon.am.freescale.net
-To: Greg KH <greg@kroah.com>
-cc: linux-kernel@vger.kernel.org,
-       linuxppc-embedded <linuxppc-embedded@ozlabs.org>,
-       sensors@stimpy.netroedge.com
-Subject: [PATCH] I2C-MPC: Remove OCP device model support  
-Message-ID: <Pine.LNX.4.61.0506221607500.3291@nylon.am.freescale.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 22 Jun 2005 17:26:27 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:15120 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262152AbVFVVSp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 17:18:45 -0400
+Date: Wed, 22 Jun 2005 22:18:37 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Pat Gefre <pfg@sgi.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6] Altix - add ioc3 serial driver support
+Message-ID: <20050622221837.B26597@flint.arm.linux.org.uk>
+Mail-Followup-To: Pat Gefre <pfg@sgi.com>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org
+References: <200506222024.j5MKO5nD023262@fsgi900.americas.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200506222024.j5MKO5nD023262@fsgi900.americas.sgi.com>; from pfg@sgi.com on Wed, Jun 22, 2005 at 03:24:05PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All consumers of the driver MPC10x, MPC52xx, MPC824x, MPC83xx,
-and MPC85xx are all using platform devices.  We can get ride of
-the dead code to support using this driver with the old OCP based
-model
+On Wed, Jun 22, 2005 at 03:24:05PM -0500, Pat Gefre wrote:
+> 
+> I have a patch : ftp://oss.sgi.com/projects/sn2/sn2-update/042-ioc3-support
+> 
+> This driver adds support for a 2 port PCI IOC3 serial card on Altix boxes.
+> 
+> Signed-off-by: Patrick Gefre <pfg@sgi.com>
 
-Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
+Here's some initial comments:
 
----
-commit 8589d0b1ac6dc3ab9aaee30eb943c2d231e28685
-tree 1b9b8e9193c4118d652e70138bf389f9d771ff03
-parent 96590616b248746bfc06dad1cb5b956b006f8926
-author Kumar K. Gala <kumar.gala@freescale.com> Wed, 22 Jun 2005 17:35:30 -0500
-committer Kumar K. Gala <kumar.gala@freescale.com> Wed, 22 Jun 2005 17:35:30 -0500
++write_ireg(struct ioc3_mem __iomem *mem, struct ioc3_soft *ioc3_soft,
++				uint32_t val, int which)
+...
++	if (!mem || !ioc3_soft)
++		return;
 
- drivers/i2c/busses/i2c-mpc.c |  204 ------------------------------------------
- 1 files changed, 0 insertions(+), 204 deletions(-)
+Can either of these really be null here?
 
-diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
---- a/drivers/i2c/busses/i2c-mpc.c
-+++ b/drivers/i2c/busses/i2c-mpc.c
-@@ -20,13 +20,7 @@
- #include <linux/init.h>
- #include <linux/pci.h>
- #include <asm/io.h>
--#ifdef CONFIG_FSL_OCP
--#include <asm/ocp.h>
--#define FSL_I2C_DEV_SEPARATE_DFSRR FS_I2C_SEPARATE_DFSRR
--#define FSL_I2C_DEV_CLOCK_5200 FS_I2C_CLOCK_5200
--#else
- #include <linux/fsl_devices.h>
--#endif
- #include <linux/i2c.h>
- #include <linux/interrupt.h>
- #include <linux/delay.h>
-@@ -293,204 +287,6 @@ static struct i2c_adapter mpc_ops = {
- 	.timeout = 1,
- 	.retries = 1
- };
--
--#ifdef CONFIG_FSL_OCP
--static int __devinit mpc_i2c_probe(struct ocp_device *ocp)
--{
--	int result = 0;
--	struct mpc_i2c *i2c;
--
--	if (!(i2c = kmalloc(sizeof(*i2c), GFP_KERNEL))) {
--		return -ENOMEM;
--	}
--	memset(i2c, 0, sizeof(*i2c));
--
--	i2c->irq = ocp->def->irq;
--	i2c->flags = ((struct ocp_fs_i2c_data *)ocp->def->additions)->flags;
--	init_waitqueue_head(&i2c->queue);
--
--	if (!request_mem_region(ocp->def->paddr, MPC_I2C_REGION, "i2c-mpc")) {
--		printk(KERN_ERR "i2c-mpc - resource unavailable\n");
--		return -ENODEV;
--	}
--
--	i2c->base = ioremap(ocp->def->paddr, MPC_I2C_REGION);
--
--	if (!i2c->base) {
--		printk(KERN_ERR "i2c-mpc - failed to map controller\n");
--		result = -ENOMEM;
--		goto fail_map;
--	}
--
--	if (i2c->irq != OCP_IRQ_NA)
--	{
--		if ((result = request_irq(ocp->def->irq, mpc_i2c_isr,
--					  SA_SHIRQ, "i2c-mpc", i2c)) < 0) {
--			printk(KERN_ERR
--			       "i2c-mpc - failed to attach interrupt\n");
--			goto fail_irq;
--		}
--	} else
--		i2c->irq = 0;
--
--	mpc_i2c_setclock(i2c);
--	ocp_set_drvdata(ocp, i2c);
--
--	i2c->adap = mpc_ops;
--	i2c_set_adapdata(&i2c->adap, i2c);
--
--	if ((result = i2c_add_adapter(&i2c->adap)) < 0) {
--		printk(KERN_ERR "i2c-mpc - failed to add adapter\n");
--		goto fail_add;
--	}
--
--	return result;
--
--      fail_add:
--	if (ocp->def->irq != OCP_IRQ_NA)
--		free_irq(ocp->def->irq, 0);
--      fail_irq:
--	iounmap(i2c->base);
--      fail_map:
--	release_mem_region(ocp->def->paddr, MPC_I2C_REGION);
--	kfree(i2c);
--	return result;
--}
--static void __devexit mpc_i2c_remove(struct ocp_device *ocp)
--{
--	struct mpc_i2c *i2c = ocp_get_drvdata(ocp);
--	i2c_del_adapter(&i2c->adap);
--	ocp_set_drvdata(ocp, NULL);
--
--	if (ocp->def->irq != OCP_IRQ_NA)
--		free_irq(i2c->irq, i2c);
--	iounmap(i2c->base);
--	release_mem_region(ocp->def->paddr, MPC_I2C_REGION);
--	kfree(i2c);
--}
--
--static struct ocp_device_id mpc_iic_ids[] __devinitdata = {
--	{.vendor = OCP_VENDOR_FREESCALE,.function = OCP_FUNC_IIC},
--	{.vendor = OCP_VENDOR_INVALID}
--};
--
--MODULE_DEVICE_TABLE(ocp, mpc_iic_ids);
--
--static struct ocp_driver mpc_iic_driver = {
--	.name = "iic",
--	.id_table = mpc_iic_ids,
--	.probe = mpc_i2c_probe,
--	.remove = __devexit_p(mpc_i2c_remove)
--};
--
--static int __init iic_init(void)
--{
--	return ocp_register_driver(&mpc_iic_driver);
--}
--
--static void __exit iic_exit(void)
--{
--	ocp_unregister_driver(&mpc_iic_driver);
--}
--
--module_init(iic_init);
--module_exit(iic_exit);
--#else
--static int fsl_i2c_probe(struct device *device)
--{
--	int result = 0;
--	struct mpc_i2c *i2c;
--	struct platform_device *pdev = to_platform_device(device);
--	struct fsl_i2c_platform_data *pdata;
--	struct resource *r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--
--	pdata = (struct fsl_i2c_platform_data *) pdev->dev.platform_data;
--
--	if (!(i2c = kmalloc(sizeof(*i2c), GFP_KERNEL))) {
--		return -ENOMEM;
--	}
--	memset(i2c, 0, sizeof(*i2c));
--
--	i2c->irq = platform_get_irq(pdev, 0);
--	i2c->flags = pdata->device_flags;
--	init_waitqueue_head(&i2c->queue);
--
--	i2c->base = ioremap((phys_addr_t)r->start, MPC_I2C_REGION);
--
--	if (!i2c->base) {
--		printk(KERN_ERR "i2c-mpc - failed to map controller\n");
--		result = -ENOMEM;
--		goto fail_map;
--	}
--
--	if (i2c->irq != 0)
--		if ((result = request_irq(i2c->irq, mpc_i2c_isr,
--					  SA_SHIRQ, "i2c-mpc", i2c)) < 0) {
--			printk(KERN_ERR
--			       "i2c-mpc - failed to attach interrupt\n");
--			goto fail_irq;
--		}
--
--	mpc_i2c_setclock(i2c);
--	dev_set_drvdata(device, i2c);
--
--	i2c->adap = mpc_ops;
--	i2c_set_adapdata(&i2c->adap, i2c);
--	i2c->adap.dev.parent = &pdev->dev;
--	if ((result = i2c_add_adapter(&i2c->adap)) < 0) {
--		printk(KERN_ERR "i2c-mpc - failed to add adapter\n");
--		goto fail_add;
--	}
--
--	return result;
--
--      fail_add:
--	if (i2c->irq != 0)
--		free_irq(i2c->irq, NULL);
--      fail_irq:
--	iounmap(i2c->base);
--      fail_map:
--	kfree(i2c);
--	return result;
--};
--
--static int fsl_i2c_remove(struct device *device)
--{
--	struct mpc_i2c *i2c = dev_get_drvdata(device);
--
--	i2c_del_adapter(&i2c->adap);
--	dev_set_drvdata(device, NULL);
--
--	if (i2c->irq != 0)
--		free_irq(i2c->irq, i2c);
--
--	iounmap(i2c->base);
--	kfree(i2c);
--	return 0;
--};
--
--/* Structure for a device driver */
--static struct device_driver fsl_i2c_driver = {
--	.name = "fsl-i2c",
--	.bus = &platform_bus_type,
--	.probe = fsl_i2c_probe,
--	.remove = fsl_i2c_remove,
--};
--
--static int __init fsl_i2c_init(void)
--{
--	return driver_register(&fsl_i2c_driver);
--}
--
--static void __exit fsl_i2c_exit(void)
--{
--	driver_unregister(&fsl_i2c_driver);
--}
--
--module_init(fsl_i2c_init);
--module_exit(fsl_i2c_exit);
--
--#endif /* CONFIG_FSL_OCP */
- 
- MODULE_AUTHOR("Adrian Cox <adrian@humboldt.co.uk>");
- MODULE_DESCRIPTION
++static inline int set_mcr(struct uart_port *the_port, int set,
++			  int mask1, int mask2)
+...
++	/* Set new value */
++	if (set) {
++		mcr |= mask1;
++		shadow |= mask2;
++	} else {
++		mcr &= ~mask1;
++		shadow &= ~mask2;
++	}
+...
++static void ic3_set_mctrl(struct uart_port *the_port, unsigned int mctrl)
++	unsigned char mcr = 0;
+...
++	set_mcr(the_port, 1, mcr, IOC3_SHADOW_DTR);
+
+How can RTS/DTR/OUT1/OUT2/LOOP be disabled if "set" is always passed as '1' ?
+
++static void
++ioc3_change_speed(struct uart_port *the_port,
++		  struct termios *new_termios, struct termios *old_termios)
+...
++	struct uart_info *info = the_port->info;	**
+...
++	if (cflag & CRTSCTS) {
++		info->flags |= ASYNC_CTS_FLOW;		**
++		/* enable hardware flow control */
++		port->ip_sscr |= IOC3_SSCR_HFC_EN;
++		writel(port->ip_sscr, &port->ip_serial_regs->sscr);
++	}
++	else {
++		info->flags &= ~ASYNC_CTS_FLOW;		**
++		/* disable hardware flow control */
++		port->ip_sscr &= ~IOC3_SSCR_HFC_EN;
++		writel(port->ip_sscr, &port->ip_serial_regs->sscr);
++	}
+
+The serial core appropriately takes account of this when this structure
+exists.  It may not always exist when your change_speed method is called,
+so you have a potential oops situation there.
+
++	baud = uart_get_baud_rate(the_port, new_termios, old_termios,
++				  MIN_BAUD_SUPPORTED, MAX_BAUD_SUPPORTED);
+...
++	/* default is 9600 */
++	if (!baud)
++		baud = 9600;
+
+baud being zero should never happen - uart_get_baud_rate tries very
+hard to ensure that it returns something sensible, unless 9600 baud
+is not covered by the min...max range you gave it.
+
++static inline int ic3_startup_local(struct uart_port *the_port)
+...
++	info = the_port->info;
++	if (info->flags & UIF_INITIALIZED) {
++		NOT_PROGRESS();
++		return retval;
++	}
+...
++	ioc3_change_speed(the_port, info->tty->termios, (struct termios *)0);
++
++	info->flags |= UIF_INITIALIZED;
+
++static void ic3_shutdown(struct uart_port *the_port)
+...
++	info = the_port->info;
++
++	if (!(info->flags & UIF_INITIALIZED))
++		return;
+...
++	info->flags &= ~UIF_INITIALIZED;
+
+Again, you should not do this.  You're accessing things which you
+should not be accessing here.  Please explain why you're doing this.
+
++static unsigned int ic3_get_mctrl(struct uart_port *the_port)
+...
++	if (shadow & IOC3_SHADOW_RTS)
++		ret |= TIOCM_RTS;
+
+The serial core layer returns RTS as appropriate from the settings
+it was asked to set.  You should not return the actual setting if
+you're using automatic flow control, since that's technically an
+API change.
+
++static int ic3_startup(struct uart_port *the_port)
+...
++	if (port->ip_inuse) {
++		NOT_PROGRESS();
++		return -EBUSY;
++	}
+...
++		port->ip_inuse = 1;
+
+You're guaranteed to be called exactly once to startup a port, and
+exactly once to shut it down before you'll be called to start it
+up again.  You should not need to track "inuse"-ness.
+
++void ioc3_remove_one(struct pci_dev *pdev)
+
+Should be static.
+
++	if (card_ptr->ic_serial) {
++		release_region((unsigned long)card_ptr->ic_serial,
++			sizeof(struct ioc3_serial));
++	}
++	if (card_ptr->ic_mem) {
++		release_region((unsigned long)card_ptr->ic_mem,
++			sizeof(struct ioc3_mem));
++	}
+
+This seems to imply that ic_serial and ic_mem are IO port regions.
+However...
+
++int __devinit
++ioc3_probe_one(struct pci_dev *pdev, const struct pci_device_id *pci_id)
+
+Should also be static.
+
++	tmp_addr = pci_resource_start(pdev, 0);
++	if (!request_region(tmp_addr, sizeof(struct ioc3_mem), "sioc3_mem")) {
+
+tmp_addr seems to be an IO port region, but...
+
++	mem = ioremap(tmp_addr, sizeof(struct ioc3_mem));
+
+you ioremap it, so it must be a MMIO region.  But then...
+
++	card_ptr->ic_mem = mem;
+
+and in ioc3_remove_one, you release_region this, which is completely
+unrelated to that which you claimed.  Plus, I don't see an iounmap in
+the remove_one function, so you're leaking memory.  Same goes for
+ic_serial and associated code.
+
++	/* Init the IOC3 */
++	pci_read_config_dword(pdev, PCI_COMMAND, &tmp);
++	pci_write_config_dword(pdev, PCI_COMMAND,
++                               tmp | PCI_COMMAND_MEMORY |
++                               PCI_COMMAND_PARITY | PCI_COMMAND_SERR |
++                               IOC3_PCI_SCR_DROP_MODE_EN);
+
+I think you need to talk to PCI folk about this.  They aren't keen on
+drivers reading/writing directly the PCI command register.
+
++static int __devinit ioc3_detect(void)
+...
++	if ((ret = uart_register_driver(&ioc3_uart)) < 0) {
+...
++	}
++	return pci_register_driver(&ioc3_s_driver);
+
+If pci_register_driver returns an error, we remove the module without
+first unregistering the uart driver.  That's not good.
+
+And one final question: how does ioc3 differ from ioc4?
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

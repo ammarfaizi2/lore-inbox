@@ -1,718 +1,274 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262879AbVFVHSt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262865AbVFVHSl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262879AbVFVHSt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 03:18:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261903AbVFVHQe
+	id S262865AbVFVHSl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 03:18:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262863AbVFVHRn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 03:16:34 -0400
-Received: from mail.kroah.org ([69.55.234.183]:63899 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262776AbVFVFVx convert rfc822-to-8bit
+	Wed, 22 Jun 2005 03:17:43 -0400
+Received: from mail.kroah.org ([69.55.234.183]:61851 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262774AbVFVFVw convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 01:21:53 -0400
-Cc: adobriyan@mail.ru
-Subject: [PATCH] I2C: drivers/i2c/*: #include <linux/config.h> cleanup
-In-Reply-To: <11194174631273@kroah.com>
+	Wed, 22 Jun 2005 01:21:52 -0400
+Cc: khali@linux-fr.org
+Subject: [PATCH] I2C: lm83 uses new sysfs callbacks
+In-Reply-To: <11194174673876@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Tue, 21 Jun 2005 22:17:43 -0700
-Message-Id: <11194174631518@kroah.com>
+Date: Tue, 21 Jun 2005 22:17:47 -0700
+Message-Id: <11194174673955@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
+Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
 To: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 7BIT
 From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] I2C: drivers/i2c/*: #include <linux/config.h> cleanup
+[PATCH] I2C: lm83 uses new sysfs callbacks
 
-Files that don't use CONFIG_* stuff shouldn't include config.h
-Files that use CONFIG_* stuff should include config.h
+I updated the lm83 hardware monitoring driver to take benefit of Yani
+Ioannou's new sysfs callback capabilities.
 
-It's that simple. ;-)
-
-Signed-off-by: Alexey Dobriyan <adobriyan@mail.ru>
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit f0bb60e7b1a0a26c25d8cbf81dda7afbc8bd2982
-tree 93dc5302d0299e8167c2affc1d65a705219c0d88
-parent da17838c5e7256976c34c5d051dc8fb3c6f364b7
-author Alexey Dobriyan <adobriyan@mail.ru> Sat, 16 Apr 2005 18:10:02 +0000
-committer Greg Kroah-Hartman <gregkh@suse.de> Tue, 21 Jun 2005 21:51:53 -0700
+commit 1a86c05121a3f56b4b928ed43f9f8ffc1376d802
+tree 5ae73589d53ccadec32b90305988828f530efc04
+parent 30d7394b1a3df0e7cc145a543846109babd4d53b
+author Jean Delvare <khali@linux-fr.org> Sun, 05 Jun 2005 21:16:39 +0200
+committer Greg Kroah-Hartman <gregkh@suse.de> Tue, 21 Jun 2005 21:52:04 -0700
 
- drivers/i2c/algos/i2c-algo-sibyte.c    |    1 -
- drivers/i2c/busses/i2c-ali1535.c       |    1 -
- drivers/i2c/busses/i2c-ali15x3.c       |    1 -
- drivers/i2c/busses/i2c-amd756.c        |    1 -
- drivers/i2c/busses/i2c-amd8111.c       |    1 -
- drivers/i2c/busses/i2c-au1550.c        |    1 -
- drivers/i2c/busses/i2c-elektor.c       |    1 -
- drivers/i2c/busses/i2c-frodo.c         |    1 -
- drivers/i2c/busses/i2c-i801.c          |    1 -
- drivers/i2c/busses/i2c-i810.c          |    1 -
- drivers/i2c/busses/i2c-ibm_iic.h       |    1 -
- drivers/i2c/busses/i2c-isa.c           |    1 -
- drivers/i2c/busses/i2c-ite.c           |    1 -
- drivers/i2c/busses/i2c-keywest.c       |    1 -
- drivers/i2c/busses/i2c-nforce2.c       |    1 -
- drivers/i2c/busses/i2c-parport-light.c |    1 -
- drivers/i2c/busses/i2c-parport.c       |    1 -
- drivers/i2c/busses/i2c-pca-isa.c       |    1 -
- drivers/i2c/busses/i2c-piix4.c         |    1 -
- drivers/i2c/busses/i2c-prosavage.c     |    1 -
- drivers/i2c/busses/i2c-rpx.c           |    1 -
- drivers/i2c/busses/i2c-s3c2410.c       |    1 +
- drivers/i2c/busses/i2c-savage4.c       |    1 -
- drivers/i2c/busses/i2c-sibyte.c        |    1 -
- drivers/i2c/busses/i2c-sis5595.c       |    1 -
- drivers/i2c/busses/i2c-sis630.c        |    1 -
- drivers/i2c/busses/i2c-sis96x.c        |    1 -
- drivers/i2c/busses/i2c-stub.c          |    1 -
- drivers/i2c/busses/i2c-via.c           |    1 -
- drivers/i2c/busses/i2c-viapro.c        |    1 -
- drivers/i2c/busses/i2c-voodoo3.c       |    1 -
- drivers/i2c/busses/scx200_acb.c        |    1 -
- drivers/i2c/chips/adm1021.c            |    1 -
- drivers/i2c/chips/adm1025.c            |    1 -
- drivers/i2c/chips/adm1026.c            |    1 -
- drivers/i2c/chips/ds1337.c             |    1 -
- drivers/i2c/chips/eeprom.c             |    1 -
- drivers/i2c/chips/fscher.c             |    1 -
- drivers/i2c/chips/gl518sm.c            |    1 -
- drivers/i2c/chips/it87.c               |    1 -
- drivers/i2c/chips/lm63.c               |    1 -
- drivers/i2c/chips/lm75.c               |    1 -
- drivers/i2c/chips/lm77.c               |    1 -
- drivers/i2c/chips/lm78.c               |    1 -
- drivers/i2c/chips/lm80.c               |    1 -
- drivers/i2c/chips/lm83.c               |    1 -
- drivers/i2c/chips/lm85.c               |    1 -
- drivers/i2c/chips/lm87.c               |    1 -
- drivers/i2c/chips/lm90.c               |    1 -
- drivers/i2c/chips/max1619.c            |    1 -
- drivers/i2c/chips/pc87360.c            |    1 -
- drivers/i2c/chips/via686a.c            |    1 -
- drivers/i2c/chips/w83781d.c            |    1 -
- drivers/i2c/chips/w83l785ts.c          |    1 -
- drivers/i2c/i2c-core.c                 |    1 -
- drivers/i2c/i2c-dev.c                  |    1 -
- 56 files changed, 1 insertions(+), 55 deletions(-)
+ drivers/i2c/chips/lm83.c |  157 +++++++++++++++++++++++-----------------------
+ 1 files changed, 77 insertions(+), 80 deletions(-)
 
-diff --git a/drivers/i2c/algos/i2c-algo-sibyte.c b/drivers/i2c/algos/i2c-algo-sibyte.c
---- a/drivers/i2c/algos/i2c-algo-sibyte.c
-+++ b/drivers/i2c/algos/i2c-algo-sibyte.c
-@@ -24,7 +24,6 @@
- 
- /* Ported for SiByte SOCs by Broadcom Corporation.  */
- 
--#include <linux/config.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/init.h>
-diff --git a/drivers/i2c/busses/i2c-ali1535.c b/drivers/i2c/busses/i2c-ali1535.c
---- a/drivers/i2c/busses/i2c-ali1535.c
-+++ b/drivers/i2c/busses/i2c-ali1535.c
-@@ -53,7 +53,6 @@
- 
- /* Note: we assume there can only be one ALI1535, with one SMBus interface */
- 
--#include <linux/config.h>
- #include <linux/module.h>
- #include <linux/pci.h>
- #include <linux/kernel.h>
-diff --git a/drivers/i2c/busses/i2c-ali15x3.c b/drivers/i2c/busses/i2c-ali15x3.c
---- a/drivers/i2c/busses/i2c-ali15x3.c
-+++ b/drivers/i2c/busses/i2c-ali15x3.c
-@@ -60,7 +60,6 @@
- 
- /* Note: we assume there can only be one ALI15X3, with one SMBus interface */
- 
--#include <linux/config.h>
- #include <linux/module.h>
- #include <linux/pci.h>
- #include <linux/kernel.h>
-diff --git a/drivers/i2c/busses/i2c-amd756.c b/drivers/i2c/busses/i2c-amd756.c
---- a/drivers/i2c/busses/i2c-amd756.c
-+++ b/drivers/i2c/busses/i2c-amd756.c
-@@ -37,7 +37,6 @@
-    Note: we assume there can only be one device, with one SMBus interface.
- */
- 
--#include <linux/config.h>
- #include <linux/module.h>
- #include <linux/pci.h>
- #include <linux/kernel.h>
-diff --git a/drivers/i2c/busses/i2c-amd8111.c b/drivers/i2c/busses/i2c-amd8111.c
---- a/drivers/i2c/busses/i2c-amd8111.c
-+++ b/drivers/i2c/busses/i2c-amd8111.c
-@@ -8,7 +8,6 @@
-  * the Free Software Foundation version 2.
-  */
- 
--#include <linux/config.h>
- #include <linux/module.h>
- #include <linux/pci.h>
- #include <linux/kernel.h>
-diff --git a/drivers/i2c/busses/i2c-au1550.c b/drivers/i2c/busses/i2c-au1550.c
---- a/drivers/i2c/busses/i2c-au1550.c
-+++ b/drivers/i2c/busses/i2c-au1550.c
-@@ -27,7 +27,6 @@
-  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-  */
- 
--#include <linux/config.h>
- #include <linux/delay.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
-diff --git a/drivers/i2c/busses/i2c-elektor.c b/drivers/i2c/busses/i2c-elektor.c
---- a/drivers/i2c/busses/i2c-elektor.c
-+++ b/drivers/i2c/busses/i2c-elektor.c
-@@ -25,7 +25,6 @@
- /* Partialy rewriten by Oleg I. Vdovikin for mmapped support of 
-    for Alpha Processor Inc. UP-2000(+) boards */
- 
--#include <linux/config.h>
- #include <linux/kernel.h>
- #include <linux/ioport.h>
- #include <linux/module.h>
-diff --git a/drivers/i2c/busses/i2c-frodo.c b/drivers/i2c/busses/i2c-frodo.c
---- a/drivers/i2c/busses/i2c-frodo.c
-+++ b/drivers/i2c/busses/i2c-frodo.c
-@@ -12,7 +12,6 @@
-  * version 2 as published by the Free Software Foundation.
-  */
- 
--#include <linux/config.h>
- #include <linux/module.h>
- #include <linux/kernel.h>
- #include <linux/init.h>
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -41,7 +41,6 @@
- 
- /* Note: we assume there can only be one I801, with one SMBus interface */
- 
--#include <linux/config.h>
- #include <linux/module.h>
- #include <linux/pci.h>
- #include <linux/kernel.h>
-diff --git a/drivers/i2c/busses/i2c-i810.c b/drivers/i2c/busses/i2c-i810.c
---- a/drivers/i2c/busses/i2c-i810.c
-+++ b/drivers/i2c/busses/i2c-i810.c
-@@ -34,7 +34,6 @@
-    i815			1132           
- */
- 
--#include <linux/config.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/init.h>
-diff --git a/drivers/i2c/busses/i2c-ibm_iic.h b/drivers/i2c/busses/i2c-ibm_iic.h
---- a/drivers/i2c/busses/i2c-ibm_iic.h
-+++ b/drivers/i2c/busses/i2c-ibm_iic.h
-@@ -22,7 +22,6 @@
- #ifndef __I2C_IBM_IIC_H_
- #define __I2C_IBM_IIC_H_
- 
--#include <linux/config.h>
- #include <linux/i2c.h> 
- 
- struct iic_regs {
-diff --git a/drivers/i2c/busses/i2c-isa.c b/drivers/i2c/busses/i2c-isa.c
---- a/drivers/i2c/busses/i2c-isa.c
-+++ b/drivers/i2c/busses/i2c-isa.c
-@@ -24,7 +24,6 @@
-    the SMBus and the ISA bus very much easier. See lm78.c for an example
-    of this. */
- 
--#include <linux/config.h>
- #include <linux/init.h>
- #include <linux/module.h>
- #include <linux/kernel.h>
-diff --git a/drivers/i2c/busses/i2c-ite.c b/drivers/i2c/busses/i2c-ite.c
---- a/drivers/i2c/busses/i2c-ite.c
-+++ b/drivers/i2c/busses/i2c-ite.c
-@@ -33,7 +33,6 @@
- /* With some changes from Kyösti Mälkki <kmalkki@cc.hut.fi> and even
-    Frodo Looijaard <frodol@dds.nl> */
- 
--#include <linux/config.h>
- #include <linux/kernel.h>
- #include <linux/ioport.h>
- #include <linux/module.h>
-diff --git a/drivers/i2c/busses/i2c-keywest.c b/drivers/i2c/busses/i2c-keywest.c
---- a/drivers/i2c/busses/i2c-keywest.c
-+++ b/drivers/i2c/busses/i2c-keywest.c
-@@ -46,7 +46,6 @@
-     sound driver to be happy
- */
- 
--#include <linux/config.h>
- #include <linux/module.h>
- #include <linux/kernel.h>
- #include <linux/ioport.h>
-diff --git a/drivers/i2c/busses/i2c-nforce2.c b/drivers/i2c/busses/i2c-nforce2.c
---- a/drivers/i2c/busses/i2c-nforce2.c
-+++ b/drivers/i2c/busses/i2c-nforce2.c
-@@ -37,7 +37,6 @@
- 
- /* Note: we assume there can only be one nForce2, with two SMBus interfaces */
- 
--#include <linux/config.h>
- #include <linux/module.h>
- #include <linux/pci.h>
- #include <linux/kernel.h>
-diff --git a/drivers/i2c/busses/i2c-parport-light.c b/drivers/i2c/busses/i2c-parport-light.c
---- a/drivers/i2c/busses/i2c-parport-light.c
-+++ b/drivers/i2c/busses/i2c-parport-light.c
-@@ -24,7 +24,6 @@
-    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  * ------------------------------------------------------------------------ */
- 
--#include <linux/config.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/init.h>
-diff --git a/drivers/i2c/busses/i2c-parport.c b/drivers/i2c/busses/i2c-parport.c
---- a/drivers/i2c/busses/i2c-parport.c
-+++ b/drivers/i2c/busses/i2c-parport.c
-@@ -24,7 +24,6 @@
-    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  * ------------------------------------------------------------------------ */
- 
--#include <linux/config.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/init.h>
-diff --git a/drivers/i2c/busses/i2c-pca-isa.c b/drivers/i2c/busses/i2c-pca-isa.c
---- a/drivers/i2c/busses/i2c-pca-isa.c
-+++ b/drivers/i2c/busses/i2c-pca-isa.c
-@@ -17,7 +17,6 @@
-  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  */
- 
--#include <linux/config.h>
- #include <linux/kernel.h>
- #include <linux/ioport.h>
- #include <linux/module.h>
-diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
---- a/drivers/i2c/busses/i2c-piix4.c
-+++ b/drivers/i2c/busses/i2c-piix4.c
-@@ -28,7 +28,6 @@
-    Note: we assume there can only be one device, with one SMBus interface.
- */
- 
--#include <linux/config.h>
- #include <linux/module.h>
- #include <linux/moduleparam.h>
- #include <linux/pci.h>
-diff --git a/drivers/i2c/busses/i2c-prosavage.c b/drivers/i2c/busses/i2c-prosavage.c
---- a/drivers/i2c/busses/i2c-prosavage.c
-+++ b/drivers/i2c/busses/i2c-prosavage.c
-@@ -54,7 +54,6 @@
-  *    (Additional documentation needed :(
-  */
- 
--#include <linux/config.h>
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/pci.h>
-diff --git a/drivers/i2c/busses/i2c-rpx.c b/drivers/i2c/busses/i2c-rpx.c
---- a/drivers/i2c/busses/i2c-rpx.c
-+++ b/drivers/i2c/busses/i2c-rpx.c
-@@ -11,7 +11,6 @@
-  * changed to eliminate RPXLite references.
-  */
- 
--#include <linux/config.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/init.h>
-diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
---- a/drivers/i2c/busses/i2c-s3c2410.c
-+++ b/drivers/i2c/busses/i2c-s3c2410.c
-@@ -20,6 +20,7 @@
-  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- */
- 
-+#include <linux/config.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
- 
-diff --git a/drivers/i2c/busses/i2c-savage4.c b/drivers/i2c/busses/i2c-savage4.c
---- a/drivers/i2c/busses/i2c-savage4.c
-+++ b/drivers/i2c/busses/i2c-savage4.c
-@@ -29,7 +29,6 @@
-    it easier to add later.
- */
- 
--#include <linux/config.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/init.h>
-diff --git a/drivers/i2c/busses/i2c-sibyte.c b/drivers/i2c/busses/i2c-sibyte.c
---- a/drivers/i2c/busses/i2c-sibyte.c
-+++ b/drivers/i2c/busses/i2c-sibyte.c
-@@ -17,7 +17,6 @@
-  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-  */
- 
--#include <linux/config.h>
- #include <linux/module.h>
- #include <linux/i2c-algo-sibyte.h>
- #include <asm/sibyte/sb1250_regs.h>
-diff --git a/drivers/i2c/busses/i2c-sis5595.c b/drivers/i2c/busses/i2c-sis5595.c
---- a/drivers/i2c/busses/i2c-sis5595.c
-+++ b/drivers/i2c/busses/i2c-sis5595.c
-@@ -55,7 +55,6 @@
-  * Add adapter resets
-  */
- 
--#include <linux/config.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/delay.h>
-diff --git a/drivers/i2c/busses/i2c-sis630.c b/drivers/i2c/busses/i2c-sis630.c
---- a/drivers/i2c/busses/i2c-sis630.c
-+++ b/drivers/i2c/busses/i2c-sis630.c
-@@ -48,7 +48,6 @@
-    Note: we assume there can only be one device, with one SMBus interface.
- */
- 
--#include <linux/config.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/delay.h>
-diff --git a/drivers/i2c/busses/i2c-sis96x.c b/drivers/i2c/busses/i2c-sis96x.c
---- a/drivers/i2c/busses/i2c-sis96x.c
-+++ b/drivers/i2c/busses/i2c-sis96x.c
-@@ -32,7 +32,6 @@
-     We assume there can only be one SiS96x with one SMBus interface.
- */
- 
--#include <linux/config.h>
- #include <linux/module.h>
- #include <linux/pci.h>
- #include <linux/kernel.h>
-diff --git a/drivers/i2c/busses/i2c-stub.c b/drivers/i2c/busses/i2c-stub.c
---- a/drivers/i2c/busses/i2c-stub.c
-+++ b/drivers/i2c/busses/i2c-stub.c
-@@ -21,7 +21,6 @@
- 
- #define DEBUG 1
- 
--#include <linux/config.h>
- #include <linux/init.h>
- #include <linux/module.h>
- #include <linux/kernel.h>
-diff --git a/drivers/i2c/busses/i2c-via.c b/drivers/i2c/busses/i2c-via.c
---- a/drivers/i2c/busses/i2c-via.c
-+++ b/drivers/i2c/busses/i2c-via.c
-@@ -21,7 +21,6 @@
-     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- */
- 
--#include <linux/config.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/pci.h>
-diff --git a/drivers/i2c/busses/i2c-viapro.c b/drivers/i2c/busses/i2c-viapro.c
---- a/drivers/i2c/busses/i2c-viapro.c
-+++ b/drivers/i2c/busses/i2c-viapro.c
-@@ -33,7 +33,6 @@
-    Note: we assume there can only be one device, with one SMBus interface.
- */
- 
--#include <linux/config.h>
- #include <linux/module.h>
- #include <linux/delay.h>
- #include <linux/pci.h>
-diff --git a/drivers/i2c/busses/i2c-voodoo3.c b/drivers/i2c/busses/i2c-voodoo3.c
---- a/drivers/i2c/busses/i2c-voodoo3.c
-+++ b/drivers/i2c/busses/i2c-voodoo3.c
-@@ -27,7 +27,6 @@
- /* This interfaces to the I2C bus of the Voodoo3 to gain access to
-     the BT869 and possibly other I2C devices. */
- 
--#include <linux/config.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/init.h>
-diff --git a/drivers/i2c/busses/scx200_acb.c b/drivers/i2c/busses/scx200_acb.c
---- a/drivers/i2c/busses/scx200_acb.c
-+++ b/drivers/i2c/busses/scx200_acb.c
-@@ -24,7 +24,6 @@
- 
- */
- 
--#include <linux/config.h>
- #include <linux/module.h>
- #include <linux/errno.h>
- #include <linux/kernel.h>
-diff --git a/drivers/i2c/chips/adm1021.c b/drivers/i2c/chips/adm1021.c
---- a/drivers/i2c/chips/adm1021.c
-+++ b/drivers/i2c/chips/adm1021.c
-@@ -19,7 +19,6 @@
-     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- */
- 
--#include <linux/config.h>
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/slab.h>
-diff --git a/drivers/i2c/chips/adm1025.c b/drivers/i2c/chips/adm1025.c
---- a/drivers/i2c/chips/adm1025.c
-+++ b/drivers/i2c/chips/adm1025.c
-@@ -45,7 +45,6 @@
-  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  */
- 
--#include <linux/config.h>
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/slab.h>
-diff --git a/drivers/i2c/chips/adm1026.c b/drivers/i2c/chips/adm1026.c
---- a/drivers/i2c/chips/adm1026.c
-+++ b/drivers/i2c/chips/adm1026.c
-@@ -23,7 +23,6 @@
-     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- */
- 
--#include <linux/config.h>
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/slab.h>
-diff --git a/drivers/i2c/chips/ds1337.c b/drivers/i2c/chips/ds1337.c
---- a/drivers/i2c/chips/ds1337.c
-+++ b/drivers/i2c/chips/ds1337.c
-@@ -13,7 +13,6 @@
-  * Driver for Dallas Semiconductor DS1337 and DS1339 real time clock chip
-  */
- 
--#include <linux/config.h>
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/slab.h>
-diff --git a/drivers/i2c/chips/eeprom.c b/drivers/i2c/chips/eeprom.c
---- a/drivers/i2c/chips/eeprom.c
-+++ b/drivers/i2c/chips/eeprom.c
-@@ -26,7 +26,6 @@
-     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- */
- 
--#include <linux/config.h>
- #include <linux/kernel.h>
- #include <linux/init.h>
- #include <linux/module.h>
-diff --git a/drivers/i2c/chips/fscher.c b/drivers/i2c/chips/fscher.c
---- a/drivers/i2c/chips/fscher.c
-+++ b/drivers/i2c/chips/fscher.c
-@@ -26,7 +26,6 @@
-  *  and Philip Edelbrock <phil@netroedge.com>
-  */
- 
--#include <linux/config.h>
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/slab.h>
-diff --git a/drivers/i2c/chips/gl518sm.c b/drivers/i2c/chips/gl518sm.c
---- a/drivers/i2c/chips/gl518sm.c
-+++ b/drivers/i2c/chips/gl518sm.c
-@@ -36,7 +36,6 @@
-  * 2004-01-31  Code review and approval. (Jean Delvare)
-  */
- 
--#include <linux/config.h>
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/slab.h>
-diff --git a/drivers/i2c/chips/it87.c b/drivers/i2c/chips/it87.c
---- a/drivers/i2c/chips/it87.c
-+++ b/drivers/i2c/chips/it87.c
-@@ -31,7 +31,6 @@
-     type at module load time.
- */
- 
--#include <linux/config.h>
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/slab.h>
-diff --git a/drivers/i2c/chips/lm63.c b/drivers/i2c/chips/lm63.c
---- a/drivers/i2c/chips/lm63.c
-+++ b/drivers/i2c/chips/lm63.c
-@@ -37,7 +37,6 @@
-  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  */
- 
--#include <linux/config.h>
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/slab.h>
-diff --git a/drivers/i2c/chips/lm75.c b/drivers/i2c/chips/lm75.c
---- a/drivers/i2c/chips/lm75.c
-+++ b/drivers/i2c/chips/lm75.c
-@@ -18,7 +18,6 @@
-     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- */
- 
--#include <linux/config.h>
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/slab.h>
-diff --git a/drivers/i2c/chips/lm77.c b/drivers/i2c/chips/lm77.c
---- a/drivers/i2c/chips/lm77.c
-+++ b/drivers/i2c/chips/lm77.c
-@@ -25,7 +25,6 @@
-     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- */
- 
--#include <linux/config.h>
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/slab.h>
-diff --git a/drivers/i2c/chips/lm78.c b/drivers/i2c/chips/lm78.c
---- a/drivers/i2c/chips/lm78.c
-+++ b/drivers/i2c/chips/lm78.c
-@@ -18,7 +18,6 @@
-     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- */
- 
--#include <linux/config.h>
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/slab.h>
-diff --git a/drivers/i2c/chips/lm80.c b/drivers/i2c/chips/lm80.c
---- a/drivers/i2c/chips/lm80.c
-+++ b/drivers/i2c/chips/lm80.c
-@@ -21,7 +21,6 @@
-  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  */
- 
--#include <linux/config.h>
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/slab.h>
 diff --git a/drivers/i2c/chips/lm83.c b/drivers/i2c/chips/lm83.c
 --- a/drivers/i2c/chips/lm83.c
 +++ b/drivers/i2c/chips/lm83.c
-@@ -27,7 +27,6 @@
-  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+@@ -1,7 +1,7 @@
+ /*
+  * lm83.c - Part of lm_sensors, Linux kernel modules for hardware
+  *          monitoring
+- * Copyright (C) 2003  Jean Delvare <khali@linux-fr.org>
++ * Copyright (C) 2003-2005  Jean Delvare <khali@linux-fr.org>
+  *
+  * Heavily inspired from the lm78, lm75 and adm1021 drivers. The LM83 is
+  * a sensor chip made by National Semiconductor. It reports up to four
+@@ -33,6 +33,7 @@
+ #include <linux/jiffies.h>
+ #include <linux/i2c.h>
+ #include <linux/i2c-sensor.h>
++#include <linux/i2c-sysfs.h>
+ 
+ /*
+  * Addresses to scan
+@@ -93,21 +94,20 @@ static const u8 LM83_REG_R_TEMP[] = {
+ 	LM83_REG_R_LOCAL_TEMP,
+ 	LM83_REG_R_REMOTE1_TEMP,
+ 	LM83_REG_R_REMOTE2_TEMP,
+-	LM83_REG_R_REMOTE3_TEMP
+-};
+-
+-static const u8 LM83_REG_R_HIGH[] = {
++	LM83_REG_R_REMOTE3_TEMP,
+ 	LM83_REG_R_LOCAL_HIGH,
+ 	LM83_REG_R_REMOTE1_HIGH,
+ 	LM83_REG_R_REMOTE2_HIGH,
+-	LM83_REG_R_REMOTE3_HIGH
++	LM83_REG_R_REMOTE3_HIGH,
++	LM83_REG_R_TCRIT,
+ };
+ 
+ static const u8 LM83_REG_W_HIGH[] = {
+ 	LM83_REG_W_LOCAL_HIGH,
+ 	LM83_REG_W_REMOTE1_HIGH,
+ 	LM83_REG_W_REMOTE2_HIGH,
+-	LM83_REG_W_REMOTE3_HIGH
++	LM83_REG_W_REMOTE3_HIGH,
++	LM83_REG_W_TCRIT,
+ };
+ 
+ /*
+@@ -143,9 +143,9 @@ struct lm83_data {
+ 	unsigned long last_updated; /* in jiffies */
+ 
+ 	/* registers values */
+-	s8 temp_input[4];
+-	s8 temp_high[4];
+-	s8 temp_crit;
++	s8 temp[9];	/* 0..3: input 1-4,
++			   4..7: high limit 1-4,
++			   8   : critical limit */
+ 	u16 alarms; /* bitvector, combined */
+ };
+ 
+@@ -153,65 +153,55 @@ struct lm83_data {
+  * Sysfs stuff
   */
  
--#include <linux/config.h>
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/slab.h>
-diff --git a/drivers/i2c/chips/lm85.c b/drivers/i2c/chips/lm85.c
---- a/drivers/i2c/chips/lm85.c
-+++ b/drivers/i2c/chips/lm85.c
-@@ -23,7 +23,6 @@
-     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- */
+-#define show_temp(suffix, value) \
+-static ssize_t show_temp_##suffix(struct device *dev, struct device_attribute *attr, char *buf) \
+-{ \
+-	struct lm83_data *data = lm83_update_device(dev); \
+-	return sprintf(buf, "%d\n", TEMP_FROM_REG(data->value)); \
++static ssize_t show_temp(struct device *dev, struct device_attribute *devattr,
++			 char *buf)
++{
++	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
++	struct lm83_data *data = lm83_update_device(dev);
++	return sprintf(buf, "%d\n", TEMP_FROM_REG(data->temp[attr->index]));
+ }
+-show_temp(input1, temp_input[0]);
+-show_temp(input2, temp_input[1]);
+-show_temp(input3, temp_input[2]);
+-show_temp(input4, temp_input[3]);
+-show_temp(high1, temp_high[0]);
+-show_temp(high2, temp_high[1]);
+-show_temp(high3, temp_high[2]);
+-show_temp(high4, temp_high[3]);
+-show_temp(crit, temp_crit);
+-
+-#define set_temp(suffix, value, reg) \
+-static ssize_t set_temp_##suffix(struct device *dev, struct device_attribute *attr, const char *buf, \
+-	size_t count) \
+-{ \
+-	struct i2c_client *client = to_i2c_client(dev); \
+-	struct lm83_data *data = i2c_get_clientdata(client); \
+-	long val = simple_strtol(buf, NULL, 10); \
+- \
+-	down(&data->update_lock); \
+-	data->value = TEMP_TO_REG(val); \
+-	i2c_smbus_write_byte_data(client, reg, data->value); \
+-	up(&data->update_lock); \
+-	return count; \
++
++static ssize_t set_temp(struct device *dev, struct device_attribute *devattr,
++			const char *buf, size_t count)
++{
++	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
++	struct i2c_client *client = to_i2c_client(dev);
++	struct lm83_data *data = i2c_get_clientdata(client);
++	long val = simple_strtol(buf, NULL, 10);
++	int nr = attr->index;
++
++	down(&data->update_lock);
++	data->temp[nr] = TEMP_TO_REG(val);
++	i2c_smbus_write_byte_data(client, LM83_REG_W_HIGH[nr - 4],
++				  data->temp[nr]);
++	up(&data->update_lock);
++	return count;
+ }
+-set_temp(high1, temp_high[0], LM83_REG_W_LOCAL_HIGH);
+-set_temp(high2, temp_high[1], LM83_REG_W_REMOTE1_HIGH);
+-set_temp(high3, temp_high[2], LM83_REG_W_REMOTE2_HIGH);
+-set_temp(high4, temp_high[3], LM83_REG_W_REMOTE3_HIGH);
+-set_temp(crit, temp_crit, LM83_REG_W_TCRIT);
  
--#include <linux/config.h>
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/slab.h>
-diff --git a/drivers/i2c/chips/lm87.c b/drivers/i2c/chips/lm87.c
---- a/drivers/i2c/chips/lm87.c
-+++ b/drivers/i2c/chips/lm87.c
-@@ -52,7 +52,6 @@
-  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  */
+-static ssize_t show_alarms(struct device *dev, struct device_attribute *attr, char *buf)
++static ssize_t show_alarms(struct device *dev, struct device_attribute *dummy,
++			   char *buf)
+ {
+ 	struct lm83_data *data = lm83_update_device(dev);
+ 	return sprintf(buf, "%d\n", data->alarms);
+ }
  
--#include <linux/config.h>
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/slab.h>
-diff --git a/drivers/i2c/chips/lm90.c b/drivers/i2c/chips/lm90.c
---- a/drivers/i2c/chips/lm90.c
-+++ b/drivers/i2c/chips/lm90.c
-@@ -70,7 +70,6 @@
-  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  */
+-static DEVICE_ATTR(temp1_input, S_IRUGO, show_temp_input1, NULL);
+-static DEVICE_ATTR(temp2_input, S_IRUGO, show_temp_input2, NULL);
+-static DEVICE_ATTR(temp3_input, S_IRUGO, show_temp_input3, NULL);
+-static DEVICE_ATTR(temp4_input, S_IRUGO, show_temp_input4, NULL);
+-static DEVICE_ATTR(temp1_max, S_IWUSR | S_IRUGO, show_temp_high1,
+-    set_temp_high1);
+-static DEVICE_ATTR(temp2_max, S_IWUSR | S_IRUGO, show_temp_high2,
+-    set_temp_high2);
+-static DEVICE_ATTR(temp3_max, S_IWUSR | S_IRUGO, show_temp_high3,
+-    set_temp_high3);
+-static DEVICE_ATTR(temp4_max, S_IWUSR | S_IRUGO, show_temp_high4,
+-    set_temp_high4);
+-static DEVICE_ATTR(temp1_crit, S_IRUGO, show_temp_crit, NULL);
+-static DEVICE_ATTR(temp2_crit, S_IRUGO, show_temp_crit, NULL);
+-static DEVICE_ATTR(temp3_crit, S_IWUSR | S_IRUGO, show_temp_crit,
+-    set_temp_crit);
+-static DEVICE_ATTR(temp4_crit, S_IRUGO, show_temp_crit, NULL);
++static SENSOR_DEVICE_ATTR(temp1_input, S_IRUGO, show_temp, NULL, 0);
++static SENSOR_DEVICE_ATTR(temp2_input, S_IRUGO, show_temp, NULL, 1);
++static SENSOR_DEVICE_ATTR(temp3_input, S_IRUGO, show_temp, NULL, 2);
++static SENSOR_DEVICE_ATTR(temp4_input, S_IRUGO, show_temp, NULL, 3);
++static SENSOR_DEVICE_ATTR(temp1_max, S_IWUSR | S_IRUGO, show_temp,
++	set_temp, 4);
++static SENSOR_DEVICE_ATTR(temp2_max, S_IWUSR | S_IRUGO, show_temp,
++	set_temp, 5);
++static SENSOR_DEVICE_ATTR(temp3_max, S_IWUSR | S_IRUGO, show_temp,
++	set_temp, 6);
++static SENSOR_DEVICE_ATTR(temp4_max, S_IWUSR | S_IRUGO, show_temp,
++	set_temp, 7);
++static SENSOR_DEVICE_ATTR(temp1_crit, S_IRUGO, show_temp, NULL, 8);
++static SENSOR_DEVICE_ATTR(temp2_crit, S_IRUGO, show_temp, NULL, 8);
++static SENSOR_DEVICE_ATTR(temp3_crit, S_IWUSR | S_IRUGO, show_temp,
++	set_temp, 8);
++static SENSOR_DEVICE_ATTR(temp4_crit, S_IRUGO, show_temp, NULL, 8);
+ static DEVICE_ATTR(alarms, S_IRUGO, show_alarms, NULL);
  
--#include <linux/config.h>
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/slab.h>
-diff --git a/drivers/i2c/chips/max1619.c b/drivers/i2c/chips/max1619.c
---- a/drivers/i2c/chips/max1619.c
-+++ b/drivers/i2c/chips/max1619.c
-@@ -26,7 +26,6 @@
-  */
+ /*
+@@ -322,18 +312,30 @@ static int lm83_detect(struct i2c_adapte
+ 	 */
  
+ 	/* Register sysfs hooks */
+-	device_create_file(&new_client->dev, &dev_attr_temp1_input);
+-	device_create_file(&new_client->dev, &dev_attr_temp2_input);
+-	device_create_file(&new_client->dev, &dev_attr_temp3_input);
+-	device_create_file(&new_client->dev, &dev_attr_temp4_input);
+-	device_create_file(&new_client->dev, &dev_attr_temp1_max);
+-	device_create_file(&new_client->dev, &dev_attr_temp2_max);
+-	device_create_file(&new_client->dev, &dev_attr_temp3_max);
+-	device_create_file(&new_client->dev, &dev_attr_temp4_max);
+-	device_create_file(&new_client->dev, &dev_attr_temp1_crit);
+-	device_create_file(&new_client->dev, &dev_attr_temp2_crit);
+-	device_create_file(&new_client->dev, &dev_attr_temp3_crit);
+-	device_create_file(&new_client->dev, &dev_attr_temp4_crit);
++	device_create_file(&new_client->dev,
++			   &sensor_dev_attr_temp1_input.dev_attr);
++	device_create_file(&new_client->dev,
++			   &sensor_dev_attr_temp2_input.dev_attr);
++	device_create_file(&new_client->dev,
++			   &sensor_dev_attr_temp3_input.dev_attr);
++	device_create_file(&new_client->dev,
++			   &sensor_dev_attr_temp4_input.dev_attr);
++	device_create_file(&new_client->dev,
++			   &sensor_dev_attr_temp1_max.dev_attr);
++	device_create_file(&new_client->dev,
++			   &sensor_dev_attr_temp2_max.dev_attr);
++	device_create_file(&new_client->dev,
++			   &sensor_dev_attr_temp3_max.dev_attr);
++	device_create_file(&new_client->dev,
++			   &sensor_dev_attr_temp4_max.dev_attr);
++	device_create_file(&new_client->dev,
++			   &sensor_dev_attr_temp1_crit.dev_attr);
++	device_create_file(&new_client->dev,
++			   &sensor_dev_attr_temp2_crit.dev_attr);
++	device_create_file(&new_client->dev,
++			   &sensor_dev_attr_temp3_crit.dev_attr);
++	device_create_file(&new_client->dev,
++			   &sensor_dev_attr_temp4_crit.dev_attr);
+ 	device_create_file(&new_client->dev, &dev_attr_alarms);
  
--#include <linux/config.h>
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/slab.h>
-diff --git a/drivers/i2c/chips/pc87360.c b/drivers/i2c/chips/pc87360.c
---- a/drivers/i2c/chips/pc87360.c
-+++ b/drivers/i2c/chips/pc87360.c
-@@ -33,7 +33,6 @@
-  *  the standard Super-I/O addresses is used (0x2E/0x2F or 0x4E/0x4F).
-  */
+ 	return 0;
+@@ -369,16 +371,11 @@ static struct lm83_data *lm83_update_dev
+ 		int nr;
  
--#include <linux/config.h>
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/slab.h>
-diff --git a/drivers/i2c/chips/via686a.c b/drivers/i2c/chips/via686a.c
---- a/drivers/i2c/chips/via686a.c
-+++ b/drivers/i2c/chips/via686a.c
-@@ -30,7 +30,6 @@
-     Warning - only supports a single device.
- */
- 
--#include <linux/config.h>
- #include <linux/module.h>
- #include <linux/slab.h>
- #include <linux/pci.h>
-diff --git a/drivers/i2c/chips/w83781d.c b/drivers/i2c/chips/w83781d.c
---- a/drivers/i2c/chips/w83781d.c
-+++ b/drivers/i2c/chips/w83781d.c
-@@ -35,7 +35,6 @@
- 
- */
- 
--#include <linux/config.h>
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/slab.h>
-diff --git a/drivers/i2c/chips/w83l785ts.c b/drivers/i2c/chips/w83l785ts.c
---- a/drivers/i2c/chips/w83l785ts.c
-+++ b/drivers/i2c/chips/w83l785ts.c
-@@ -30,7 +30,6 @@
-  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  */
- 
--#include <linux/config.h>
- #include <linux/module.h>
- #include <linux/delay.h>
- #include <linux/init.h>
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -21,7 +21,6 @@
-    All SMBus-related things are written by Frodo Looijaard <frodol@dds.nl>
-    SMBus 2.0 support by Mark Studebaker <mdsxyz123@yahoo.com>                */
- 
--#include <linux/config.h>
- #include <linux/module.h>
- #include <linux/kernel.h>
- #include <linux/errno.h>
-diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
---- a/drivers/i2c/i2c-dev.c
-+++ b/drivers/i2c/i2c-dev.c
-@@ -29,7 +29,6 @@
- /* The devfs code is contributed by Philipp Matthias Hahn 
-    <pmhahn@titan.lahn.de> */
- 
--#include <linux/config.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/fs.h>
+ 		dev_dbg(&client->dev, "Updating lm83 data.\n");
+-		for (nr = 0; nr < 4 ; nr++) {
+-			data->temp_input[nr] =
++		for (nr = 0; nr < 9; nr++) {
++			data->temp[nr] =
+ 			    i2c_smbus_read_byte_data(client,
+ 			    LM83_REG_R_TEMP[nr]);
+-			data->temp_high[nr] =
+-			    i2c_smbus_read_byte_data(client,
+-			    LM83_REG_R_HIGH[nr]);
+ 		}
+-		data->temp_crit =
+-		    i2c_smbus_read_byte_data(client, LM83_REG_R_TCRIT);
+ 		data->alarms =
+ 		    i2c_smbus_read_byte_data(client, LM83_REG_R_STATUS1)
+ 		    + (i2c_smbus_read_byte_data(client, LM83_REG_R_STATUS2)
 

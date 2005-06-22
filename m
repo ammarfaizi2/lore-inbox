@@ -1,178 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262949AbVFVJRl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262860AbVFVHmV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262949AbVFVJRl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 05:17:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262927AbVFVJJj
+	id S262860AbVFVHmV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 03:42:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262866AbVFVHk2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 05:09:39 -0400
-Received: from [85.8.12.41] ([85.8.12.41]:28600 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S262843AbVFVJC7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 05:02:59 -0400
-Message-ID: <42B92923.6080100@drzeus.cx>
-Date: Wed, 22 Jun 2005 11:02:27 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
+	Wed, 22 Jun 2005 03:40:28 -0400
+Received: from rgminet02.oracle.com ([148.87.122.31]:51515 "EHLO
+	rgminet02.oracle.com") by vger.kernel.org with ESMTP
+	id S261872AbVFVFYQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 01:24:16 -0400
+Date: Tue, 21 Jun 2005 22:23:50 -0700
+From: Wim Coekaerts <wim.coekaerts@oracle.com>
+To: Rik Van Riel <riel@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: OCFS (was Re: -mm -> 2.6.13 merge status)
+Message-ID: <20050622052349.GA4923@ca-server1.us.oracle.com>
+References: <20050620235458.5b437274.akpm@osdl.org> <Pine.LNX.4.61.0506212334010.4159@chimarrao.boston.redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=_hermes.drzeus.cx-23594-1119430978-0001-2"
-To: zippel@linux-m68k.org, kbuild-devel@lists.sourceforge.net,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH 1/2] Fix signed char problem in scripts/basic
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0506212334010.4159@chimarrao.boston.redhat.com>
+User-Agent: Mutt/1.5.9i
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME-formatted message.  If you see this text it means that your
-E-mail software does not support MIME-formatted messages.
+On Tue, Jun 21, 2005 at 11:35:10PM -0400, Rik Van Riel wrote:
+> On Mon, 20 Jun 2005, Andrew Morton wrote:
+> 
+> > git-ocfs
+> The only problem I can see with this is that people will want
+> to use OCFS together with CLVM, and both use a different cluster
+> infrastructure.
+> 
+> IMHO it would be good if they both used the same underlying
+> cluster infrastructure...
 
---=_hermes.drzeus.cx-23594-1119430978-0001-2
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+as clvm stuff and infra get submitted and come around we will definitely
+be working with it. but it's a feature more than a requirement. altho we
+have every intend to make our stuff work with clvm and I think some
+pieces of ocfs2 are already being used or looked at to be used for this
+infrastructure so it's looking good.
 
-The signed characters in scripts are causing warnings with GCC 4 on
-systems with proper string functions (with char*, not signed char* as
-parameters). Some could be kept signed but most had to be reverted to
-normal chars.
-
-Detailed changlog:
-
-fixdep.c:
-	- is_defined_config() just used memcmp so it was changed to use
-	  signed strings.
-	- define_config() was called with both signed and "normal"
-	  strings. Since no string functions were used the parameter was
-	  changed to void *.
-	- use_config() only called is_defined_config() and
-	  define_config() so it could use signed strings.
-	- parse_dep_file() used strchr() so it needed to lose the
-	  signed.
-docproc.c:
-	- All signed strings were removed because they were all
-	  directly or indirectly used in string functions.
-split-include.c:
-	- The only signed string here was removed because of usage with
-	  strstr().
-
-Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
-
---=_hermes.drzeus.cx-23594-1119430978-0001-2
-Content-Type: text/x-patch; name="signed-char-basic.patch"; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="signed-char-basic.patch"
-
-Index: linux-wbsd/scripts/basic/fixdep.c
-===================================================================
---- linux-wbsd/scripts/basic/fixdep.c	(revision 134)
-+++ linux-wbsd/scripts/basic/fixdep.c	(working copy)
-@@ -159,7 +159,7 @@
- /*
-  * Lookup a value in the configuration string.
-  */
--int is_defined_config(const char * name, int len)
-+int is_defined_config(const signed char * name, int len)
- {
- 	const char * pconfig;
- 	const char * plast = str_config + len_config - len;
-@@ -175,7 +175,7 @@
- /*
-  * Add a new value to the configuration string.
-  */
--void define_config(const char * name, int len)
-+void define_config(const void * name, int len)
- {
- 	grow_config(len + 1);
- 
-@@ -196,7 +196,7 @@
- /*
-  * Record the use of a CONFIG_* word.
-  */
--void use_config(char *m, int slen)
-+void use_config(signed char *m, int slen)
- {
- 	char s[PATH_MAX];
- 	char *p;
-@@ -291,9 +291,9 @@
- 
- void parse_dep_file(void *map, size_t len)
- {
--	signed char *m = map;
--	signed char *end = m + len;
--	signed char *p;
-+	char *m = map;
-+	char *end = m + len;
-+	char *p;
- 	char s[PATH_MAX];
- 
- 	p = strchr(m, ':');
-Index: linux-wbsd/scripts/basic/docproc.c
-===================================================================
---- linux-wbsd/scripts/basic/docproc.c	(revision 134)
-+++ linux-wbsd/scripts/basic/docproc.c	(working copy)
-@@ -52,7 +52,7 @@
- FILEONLY *externalfunctions;
- FILEONLY *symbolsonly;
- 
--typedef void FILELINE(char * file, signed char * line);
-+typedef void FILELINE(char * file, char * line);
- FILELINE * singlefunctions;
- FILELINE * entity_system;
- 
-@@ -148,9 +148,9 @@
-  * Files are separated by tabs.
-  */
- void adddep(char * file)		   { printf("\t%s", file); }
--void adddep2(char * file, signed char * line)     { line = line; adddep(file); }
-+void adddep2(char * file, char * line)     { line = line; adddep(file); }
- void noaction(char * line)		   { line = line; }
--void noaction2(char * file, signed char * line)   { file = file; line = line; }
-+void noaction2(char * file, char * line)   { file = file; line = line; }
- 
- /* Echo the line without further action */
- void printline(char * line)               { printf("%s", line); }
-@@ -179,8 +179,8 @@
- 			perror(real_filename);
- 		}
- 		while(fgets(line, MAXLINESZ, fp)) {
--			signed char *p;
--			signed char *e;
-+			char *p;
-+			char *e;
- 			if (((p = strstr(line, "EXPORT_SYMBOL_GPL")) != 0) ||
-                             ((p = strstr(line, "EXPORT_SYMBOL")) != 0)) {
- 				/* Skip EXPORT_SYMBOL{_GPL} */
-@@ -253,7 +253,7 @@
-  * Call kernel-doc with the following parameters:
-  * kernel-doc -docbook -function function1 [-function function2]
-  */
--void singfunc(char * filename, signed char * line)
-+void singfunc(char * filename, char * line)
- {
- 	char *vec[200]; /* Enough for specific functions */
-         int i, idx = 0;
-@@ -290,7 +290,7 @@
- void parse_file(FILE *infile)
- {
- 	char line[MAXLINESZ];
--	signed char * s;
-+	char * s;
- 	while(fgets(line, MAXLINESZ, infile)) {
- 		if (line[0] == '!') {
- 			s = line + 2;
-Index: linux-wbsd/scripts/basic/split-include.c
-===================================================================
---- linux-wbsd/scripts/basic/split-include.c	(revision 134)
-+++ linux-wbsd/scripts/basic/split-include.c	(working copy)
-@@ -104,7 +104,7 @@
-     /* Read config lines. */
-     while (fgets(line, buffer_size, fp_config))
-     {
--	const signed char * str_config;
-+	const char * str_config;
- 	int is_same;
- 	int itarget;
- 
-
---=_hermes.drzeus.cx-23594-1119430978-0001-2--
+Wim

@@ -1,52 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261255AbVFVM5e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261257AbVFVNB3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261255AbVFVM5e (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 08:57:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261257AbVFVM5e
+	id S261257AbVFVNB3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 09:01:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261266AbVFVNB3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 08:57:34 -0400
-Received: from main.gmane.org ([80.91.229.2]:25285 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S261255AbVFVM5c (ORCPT
+	Wed, 22 Jun 2005 09:01:29 -0400
+Received: from gold.veritas.com ([143.127.12.110]:1312 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S261257AbVFVNB1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 08:57:32 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Matthias Urlichs <smurf@smurf.noris.de>
-Subject: Re: -mm -> 2.6.13 merge status (fuse)
-Date: Wed, 22 Jun 2005 14:57:08 +0200
-Organization: {M:U} IT Consulting
-Message-ID: <pan.2005.06.22.12.57.02.20384@smurf.noris.de>
-References: <20050620235458.5b437274.akpm@osdl.org> <E1Dkfu2-0005Ju-00@dorka.pomaz.szeredi.hu> <20050621142820.GC2015@openzaurus.ucw.cz> <E1DkkRE-0005mt-00@dorka.pomaz.szeredi.hu> <20050621220619.GC2815@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: run.smurf.noris.de
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
-X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
+	Wed, 22 Jun 2005 09:01:27 -0400
+Date: Wed, 22 Jun 2005 14:02:41 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Andrew Morton <akpm@osdl.org>
+cc: "Richard B. Johnson" <linux-os@analogic.com>, stable@kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] fix remap_pte_range BUG
+Message-ID: <Pine.LNX.4.61.0506221348540.13520@goblin.wat.veritas.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 22 Jun 2005 13:01:26.0291 (UTC) FILETIME=[7F97BE30:01C5772A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Pavel Machek wrote:
+Out-of-tree user of remap_pfn_range hit kernel BUG at mm/memory.c:1112!
+It passes an unrounded size to remap_pfn_range, which was okay before
+2.6.12, but misses remap_pte_range's new end condition.  An audit of
+all the other ptwalks confirms that this is the only one so exposed.
 
-> How is it going
-> to interact with backup tools?
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
 
-I admit to severe dislike for any backup tool which crosses file system
-borders without permission, and therefore am not going to cry if something
-breaks because of this.
-
-Ditto updatedb/locate -- it's a remote file system. Tools should
-treat it as such.
-
-NB: I am assuming that root can stat() the mountpoint and that it's not
-possible to delay this call arbitrarily. If not, the debate IMHO should be
-whether to special-case this situation.
-
--- 
-Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
-Disclaimer: The quote was selected randomly. Really. | http://smurf.noris.de
- - -
-The early worm has a death wish.
-
-
+--- 2.6.12/mm/memory.c	2005-06-17 20:48:29.000000000 +0100
++++ linux/mm/memory.c	2005-06-21 20:31:42.000000000 +0100
+@@ -1164,7 +1164,7 @@ int remap_pfn_range(struct vm_area_struc
+ {
+ 	pgd_t *pgd;
+ 	unsigned long next;
+-	unsigned long end = addr + size;
++	unsigned long end = addr + PAGE_ALIGN(size);
+ 	struct mm_struct *mm = vma->vm_mm;
+ 	int err;
+ 

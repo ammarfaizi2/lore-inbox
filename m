@@ -1,67 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261570AbVFVTJJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261813AbVFVTFo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261570AbVFVTJJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 15:09:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261689AbVFVTJJ
+	id S261813AbVFVTFo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 15:05:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261818AbVFVTFo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 15:09:09 -0400
-Received: from titan.genwebhost.com ([209.9.226.66]:3310 "EHLO
-	titan.genwebhost.com") by vger.kernel.org with ESMTP
-	id S261570AbVFVTIw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 15:08:52 -0400
-Date: Wed, 22 Jun 2005 12:08:48 -0700
-From: randy_dunlap <rdunlap@xenotime.net>
-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: Script to help users to report a BUG
-Message-Id: <20050622120848.717e2fe2.rdunlap@xenotime.net>
-In-Reply-To: <4d8e3fd30506191332264eb4ae@mail.gmail.com>
-References: <4d8e3fd30506191332264eb4ae@mail.gmail.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 22 Jun 2005 15:05:44 -0400
+Received: from opersys.com ([64.40.108.71]:3855 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S261813AbVFVTFh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 15:05:37 -0400
+Message-ID: <42B9B917.9010606@opersys.com>
+Date: Wed, 22 Jun 2005 15:16:39 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+MIME-Version: 1.0
+To: paulmck@us.ibm.com
+CC: Kristian Benoit <kbenoit@opersys.com>, linux-kernel@vger.kernel.org,
+       bhuey@lnxw.com, andrea@suse.de, tglx@linutronix.de, mingo@elte.hu,
+       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
+       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org, rpm@xenomai.org
+Subject: Re: PREEMPT_RT vs I-PIPE: the numbers, part 2
+References: <1119287612.6863.1.camel@localhost> <20050621015542.GB1298@us.ibm.com> <42B77B8C.6050109@opersys.com> <20050622011931.GF1324@us.ibm.com> <42B9845B.8030404@opersys.com> <20050622162718.GD1296@us.ibm.com> <42B9A6D6.4060109@opersys.com> <20050622184748.GF1296@us.ibm.com>
+In-Reply-To: <20050622184748.GF1296@us.ibm.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - titan.genwebhost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - xenotime.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 19 Jun 2005 22:32:16 +0200 Paolo Ciarrocchi wrote:
 
-| Hi all,
-| what do you think about this simple idea of a script that could help
-| users to fill better BUG reports ?
-| 
-| The usage is quite simple, put the attached file in
-| /usr/src/linux/scripts and then:
-| 
-| [root@frodo scripts]# ./report-bug.sh /tmp/BUGREPORT/
-| cat: /proc/scsi/scsi: No such file or directory
-| 
-| [root@frodo scripts]# ls /tmp/BUGREPORT/
-| cpuinfo.bug  ioports.bug  modules.bug  software.bug
-| iomem.bug    lspci.bug    scsi.bug     version.bug
-| 
-| Now you can simply attach all the .bug files to the bugzilla report or
-| inline them in a email.
-| 
-| The script is rude but it is enough to give you an idea of what I have in mind.
-| 
-| Any comment ?
+Paul E. McKenney wrote:
+> (And, yes, there are other CDFs lacking a 30us bulge that would be
+> consistent with a 55us "blue-moon" bulge -- so I guess I am asking
+> if you have the CDF or the raw latency measurements -- though the
+> data set might be a bit large...  And I would have to think about
+> how one goes about deriving individual-latency CDF(s) given a single
+> dual-latency CDF, assuming that this is even possible...)
 
-It can be useful.  We certainly see bug reports with a good bit
-of missing information.
+This is a bandwidth issue. The compressed archive containing the
+interrupt latencies of all our test runs is 100MB. I could provide
+a URL _privately_ to a handful of individuals, but beyond that
+someone's going to have to host it.
 
-I would rather see the script write all /proc etc. contents to just
-one file (with some headings prior to each file).  One file would be
-easier to email inline or to attach...
+Let me know if you want this.
 
----
-~Randy
+Of course, now that LRTBF is out there, others can generate their
+own data sets.
+
+Karim
+-- 
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546

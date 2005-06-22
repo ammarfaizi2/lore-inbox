@@ -1,53 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262503AbVFVBcp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262484AbVFVBeM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262503AbVFVBcp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Jun 2005 21:32:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262448AbVFVBc0
+	id S262484AbVFVBeM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Jun 2005 21:34:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262448AbVFVBcy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Jun 2005 21:32:26 -0400
-Received: from smtp05.auna.com ([62.81.186.15]:41167 "EHLO smtp05.retemail.es")
-	by vger.kernel.org with ESMTP id S262503AbVFVBbV convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Jun 2005 21:31:21 -0400
-Date: Wed, 22 Jun 2005 01:31:15 +0000
-From: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: Cpu utilization per thread
-To: N Chandra Shekhar REDDY <ncs.reddy@st.com>
-Cc: linux-kernel@vger.kernel.org
-References: <07f701c5765f$cd437cd0$99bcc68a@blr.st.com>
-In-Reply-To: <07f701c5765f$cd437cd0$99bcc68a@blr.st.com> (from
-	ncs.reddy@st.com on Tue Jun 21 14:50:27 2005)
-X-Mailer: Balsa 2.3.3
-Message-Id: <1119403875l.7816l.1l@werewolf.able.es>
+	Tue, 21 Jun 2005 21:32:54 -0400
+Received: from ns2.suse.de ([195.135.220.15]:25986 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S262484AbVFVB0e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Jun 2005 21:26:34 -0400
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: reiser@namesys.com, hch@infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: reiser4 plugins
+References: <20050620235458.5b437274.akpm@osdl.org.suse.lists.linux.kernel>
+	<42B831B4.9020603@pobox.com.suse.lists.linux.kernel>
+	<42B87318.80607@namesys.com.suse.lists.linux.kernel>
+	<20050621202448.GB30182@infradead.org.suse.lists.linux.kernel>
+	<42B8B9EE.7020002@namesys.com.suse.lists.linux.kernel>
+	<42B8BB5E.8090008@pobox.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 22 Jun 2005 03:26:26 +0200
+In-Reply-To: <42B8BB5E.8090008@pobox.com.suse.lists.linux.kernel>
+Message-ID: <p73fyvbb2rh.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-X-Auth-Info: Auth:LOGIN IP:[83.138.212.68] Login:jamagallon@able.es Fecha:Wed, 22 Jun 2005 03:31:15 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 06.21, N Chandra Shekhar REDDY wrote:
-> Hi all,
-> Can any body tell me 
-> How to find cpu utilization per thread excluding wait times and sleep times?
-> Regards
-> ncs
+First Hans let me remind you that this discussion is not XFS vs
+reiser4. Christoph does a lot of reviewing and your child definitely
+is in serious need of that to be mergeable. I'm sure Christoph is able
+to review inpartially even when he is involved with other FS.
+
+Jeff Garzik <jgarzik@pobox.com> writes:
 > 
+> You're basically implementing another VFS layer inside of reiser4,
+> which is a big layering violation.
+> 
+> This sort of feature should -not- be done at the low-level filesystem level.
+> 
+> What happens if people decide plugins are a good idea, and they want
+> them in ext3?  We need massive surgery to extract the guts from
+> reiser4.
 
-man getrusage.
+We already kind of have them, there are toolkits to do stackable FS with
+the existing VFS.
 
-Pay special attention to the RUSAGE_SELF or RUSAGE_CHILDREN
-flag, but I think current linux kernel does not perform a correct account
-for threads rusage in the parent. Probably you will have to account each
-thread, return info to the parent and sum or average (sum cpu times,
-average elapsed times...)
+However I suspect Hans is unwilling to redo his file system in this
+point. While it looks quite unnecessary there might be other
+areas which deserve more attention. In general all the code
+needs review, even if it is not as controversal as the reinvented VFS.
 
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
-werewolf!able!es                         \         It's better when it's free
-Mandriva Linux release 2006.0 (Cooker) for i586
-Linux 2.6.12-jam1 (gcc 4.0.1 (4.0.1-0.2mdk for Mandriva Linux release 2006.0))
-
-
+-Andi

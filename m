@@ -1,48 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261650AbVFVQqy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261633AbVFVQr0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261650AbVFVQqy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 12:46:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261665AbVFVQqx
+	id S261633AbVFVQr0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 12:47:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbVFVQrZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 12:46:53 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:1708 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261650AbVFVQqI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 12:46:08 -0400
-Subject: Re: -mm -> 2.6.13 merge status (fuse)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Eric Van Hensbergen <ericvh@gmail.com>
-Cc: Pavel Machek <pavel@ucw.cz>, Miklos Szeredi <miklos@szeredi.hu>,
-       akpm@osdl.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <a4e6962a050622085021cdfb9d@mail.gmail.com>
-References: <20050620235458.5b437274.akpm@osdl.org>
-	 <E1Dkfu2-0005Ju-00@dorka.pomaz.szeredi.hu>
-	 <20050621142820.GC2015@openzaurus.ucw.cz>
-	 <E1DkkRE-0005mt-00@dorka.pomaz.szeredi.hu>
-	 <20050621220619.GC2815@elf.ucw.cz>
-	 <a4e6962a05062207435dd16240@mail.gmail.com>
-	 <20050622150839.GB1881@elf.ucw.cz>
-	 <a4e6962a050622085021cdfb9d@mail.gmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1119458579.11528.93.camel@localhost.localdomain>
+	Wed, 22 Jun 2005 12:47:25 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:65036 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261633AbVFVQoi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 12:44:38 -0400
+Date: Wed, 22 Jun 2005 18:44:36 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: George Kasica <georgek@netwrx1.com>, linux-kernel@vger.kernel.org
+Subject: Re: Problem compiling 2.6.12
+Message-ID: <20050622164436.GI3705@stusta.de>
+References: <Pine.LNX.4.62.0506221026130.4837@eagle.netwrx1.com> <9a874849050622085975b67c06@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 22 Jun 2005 17:43:00 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9a874849050622085975b67c06@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 1) only allow user's to mount/bind on directories/files where they
-> have unconditional write access.
+On Wed, Jun 22, 2005 at 05:59:45PM +0200, Jesper Juhl wrote:
+> 
+> Don't use a 2.4.x config as the basis for a 2.6.x kernel .
+> Build your first 2.6.x kernel config using "make menuconfig", "make
+> config", make xconfig" or similar, /then/ you can use that config in
+> the future as a base for other 2.6.x kernels with "make oldconfig".
 
-Like say /tmp. Build a bizarre behaving /tmp and I can do funky stuff
-with some third party suid apps. Its a good start but you probably want
-a stronger policy and one enforced by the user space side not kernel (eg
-"Below ~")
+First of all, this shouldn't result in problems like the one he 
+reported (see my other mail).
 
-> 2) enforce NOSUID mount options on user-mounts
+And I'm surprised you are saying this. I'd have expected that running 
+"make oldconfig" with a 2.4 kernel should give him a working 
+configuration.
 
-2 is unneccessarily crude. Just enforce suid owner/owner group. 
+Can you explain where you'd expect problems so that we can fix them?
 
-Alan
+> Jesper Juhl <jesper.juhl@gmail.com>
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

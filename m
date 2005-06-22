@@ -1,56 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261413AbVFVOik@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261393AbVFVOeg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261413AbVFVOik (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 10:38:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261412AbVFVOfG
+	id S261393AbVFVOeg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 10:34:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261397AbVFVOb7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 10:35:06 -0400
-Received: from fe-6a.inet.it ([213.92.5.111]:38128 "EHLO fe-6a.inet.it")
-	by vger.kernel.org with ESMTP id S261342AbVFVOci convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 10:32:38 -0400
-From: Valerio Vanni <valerio.vanni@inwind.it>
-To: linux-kernel@vger.kernel.org
-Subject: kernel: __alloc_pages: 0-order allocation failed
-Date: Wed, 22 Jun 2005 16:32:32 +0200
-Message-ID: <djtib1thpa0pm2oi60e7nci8au2rtkm98m@4ax.com>
-X-Mailer: Forte Agent 1.93/32.576 Italiano
-MIME-Version: 1.0
+	Wed, 22 Jun 2005 10:31:59 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:3815 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261351AbVFVO3v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 10:29:51 -0400
+Date: Wed, 22 Jun 2005 15:29:47 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Alexander Zarochentsev <zam@namesys.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, reiserfs-list@namesys.com,
+       Hans Reiser <reiser@namesys.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: reiser4 plugins
+Message-ID: <20050622142947.GA26993@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Alexander Zarochentsev <zam@namesys.com>,
+	Jeff Garzik <jgarzik@pobox.com>, reiserfs-list@namesys.com,
+	Hans Reiser <reiser@namesys.com>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20050620235458.5b437274.akpm@osdl.org> <42B8B9EE.7020002@namesys.com> <42B8BB5E.8090008@pobox.com> <200506221824.32995.zam@namesys.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+In-Reply-To: <200506221824.32995.zam@namesys.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I found this error on a 2.4.26 kernel:
+On Wed, Jun 22, 2005 at 06:24:32PM +0400, Alexander Zarochentsev wrote:
+> Reiser plugins are for the same.  Would you agree with reiser4 plugin design 
+> if the plugins will not dispatch VFS object methods calls by themselves but 
+> set ->foo_ops fileds instead?  I guess you don't like to have the two 
+> dispatching systems at the same level.
 
->Jun 19 23:00:08 server kernel: __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
->Jun 19 23:00:11 server kernel: __alloc_pages: 2-order allocation failed (gfp=0x1f0/0)
->Jun 19 23:00:11 server kernel: __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
->Jun 19 23:00:11 server kernel: __alloc_pages: 0-order allocation failed (gfp=0x1f0/0)
->Jun 19 23:00:12 server kernel: __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
->Jun 19 23:00:12 server kernel: __alloc_pages: 2-order allocation failed (gfp=0x1f0/0)
->Jun 19 23:00:13 server syslogd: /var/log/messages: Cannot allocate memory
->Jun 19 23:00:13 server kernel: __alloc_pages: 0-order allocation failed  (gfp=0x1f0/0)
->Jun 19 23:00:13 server kernel: __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
->Jun 19 23:00:13 server kernel: __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
->Jun 19 23:00:13 server kernel: VM: killing process fetchnews
->Jun 19 23:00:15 server kernel: __alloc_pages: 0-order allocation failed (gfp=0x1f0/0)
-
-between these lines there were other saying
->fetchnews[958]: reading XOVER info from /var/spool/news/...
-
-Then I could shut the machine correctly down. No other process than
-fetchnews had been killed
-
-Aftere many searches on the net I still don't understand a thing about
-this error: how much is it critical?
-
-I mean: is it simply a situation of excessive memory requests that is
-fixed by killing one or more processes (and the kernel is still alive
-as before) or the kernel is in some way locked up (in particular: is
-it necessary/better to reboot? Is there some risk of filesystem
-corruption?).
-
--- 
-Ci sono 10 tipi di persone al mondo: quelle che capiscono il sistema binario
-e quelle che non lo capiscono.
+That is exactly the point I want to make.  I haven't looked at the design
+in detail for a long time, but schemes to allow different object to have
+different operation vectors is a good idea.  We already have that to
+varying degrees in all filesystems, and making that more formal is a good
+thing.  

@@ -1,53 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261734AbVFVRgl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261718AbVFVRgm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261734AbVFVRgl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 13:36:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261718AbVFVRge
+	id S261718AbVFVRgm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 13:36:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261785AbVFVRgR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 13:36:34 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:19898 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261734AbVFVRf1 (ORCPT
+	Wed, 22 Jun 2005 13:36:17 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:51429 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S261749AbVFVRfA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 13:35:27 -0400
-Date: Wed, 22 Jun 2005 19:34:49 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Kristian Benoit <kbenoit@opersys.com>
-Cc: paulmck@us.ibm.com, Karim Yaghmour <karim@opersys.com>,
-       linux-kernel@vger.kernel.org, bhuey@lnxw.com, andrea@suse.de,
-       tglx@linutronix.de, pmarques@grupopie.com, bruce@andrew.cmu.edu,
-       nickpiggin@yahoo.com.au, ak@muc.de, sdietrich@mvista.com,
-       dwalker@mvista.com, hch@infradead.org, akpm@osdl.org,
-       Philippe Gerum <rpm@xenomai.org>
-Subject: Re: PREEMPT_RT vs I-PIPE: the numbers, part 2
-Message-ID: <20050622173449.GA22474@elte.hu>
-References: <1119287612.6863.1.camel@localhost> <20050621015542.GB1298@us.ibm.com> <42B77B8C.6050109@opersys.com> <20050622011931.GF1324@us.ibm.com> <42B9845B.8030404@opersys.com> <20050622162718.GD1296@us.ibm.com> <1119460803.5825.13.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1119460803.5825.13.camel@localhost>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Wed, 22 Jun 2005 13:35:00 -0400
+Message-Id: <200506221733.j5MHXEoH007541@laptop11.inf.utfsm.cl>
+To: "Artem B. Bityuckiy" <dedekind@yandex.ru>
+cc: =?KOI8-R?Q?Markus_T=F6rnqvist?= <mjt@nysv.org>,
+       Christophe Saout <christophe@saout.de>, Andrew Morton <akpm@osdl.org>,
+       Hans Reiser <reiser@namesys.com>, hch@infradead.org, jgarzik@pobox.com,
+       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: Re: reiser4 plugins 
+In-Reply-To: Message from "Artem B. Bityuckiy" <dedekind@yandex.ru> 
+   of "Wed, 22 Jun 2005 20:20:37 +0400." <42B98FD5.6050201@yandex.ru> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
+Date: Wed, 22 Jun 2005 13:33:14 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.19.1]); Wed, 22 Jun 2005 13:33:15 -0400 (CLT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Artem B. Bityuckiy <dedekind@yandex.ru> wrote:
+> Markus TЖrnqvist wrote:
+> > So merge it as it is 
 
-* Kristian Benoit <kbenoit@opersys.com> wrote:
+Fix it first. The "merge as it stands" just gives rise to stuff that is
+/never/ fixed properly.
 
-> Your analysis is correct, but with 600,000 samples, it is possible 
-> that we got 2 peeks (perhaps not maximum), one on the logger and one 
-> on the target. So in my point of view, the maximum value is probably 
-> somewhere between 55us / 2 and 55us - 7us. And probably closer to 55us 
-> / 2.
+> >                      and move the stuff to the VFS as needed or
+> > deemed necessary. And enable the pseudo interface, or at least
+> > set it in menuconfig and enable by default, it needs testing too.
 
-you could try the LPPTEST kernel driver and testlpp utility i integrated 
-into the -RT patchset. It avoids target-side latencies almost 
-completely. Especially since you had problems with parallel interrupts 
-you should give it a go and compare the results.
+Then test it out of the standard tree...
 
-	Ingo
+> Reiser4 has a number of great (IMO) things like file as directory,
+
+Urgh.
+
+> atomic operations,
+
+What is atomic that isn't in the standard filesystems? How do you guarantee
+it doesn't stop the system dead in its tracks waiting for some very long
+transaction to finish?
+
+>                    different kinds of stat data,
+
+Usefulness? Sounds like kernel bloat leading to userspace bloat and
+applications/users wondering what the heck goes on when they don't grok the
+particular stat format.
+
+>                                                  fibretions, etc,
+
+???
+
+> etc. Some thing is not yet ready - doesn't matter. Some of this is of
+> general interest, some is Reiser4-dedicated.
+
+I don't see anything that would interest me at least, so you can safely
+scratch the "general interest" part.
+
+> New interfaces are needed to allow users to utilize that all.
+
+That is a quite strong argument /against/ it all in my book. It means bloat
+in /every/ filesystem, and they have shown to be able to do without for
+some 30 years now. I'd need /very/ strong reasons for adding something.
+
+>                                                               My point
+> is that the things that are of general interest must not be
+> Reiser4-only.
+
+Reiser4-only stuff is of very limited use, if it isn't just internal
+stuff. And that doesn't need any changes.
+
+>               For example, I should have a possibility to implement
+> files-like-dir in _another_ FS using the same interfaces that Reiser4
+> uses. That's all I wanted to say.
+
+It has been argued over and over that that particular feature /can't/ be
+implemented sanely anyway, so it has to stay out. Besides not making any
+sense. "You've got files and directories" is a bit asymetrical and so not
+quite nice; "all you have is directories" is symmetrical, estetic, and
+completely useless; "some files are directories, some aren't; files in
+file-directories are different than regular files in directory-directories"
+is just a mindless jumble.
+
+> The other question that it may be difficult to foresee everything and
+> it may make sense to move some things upper in future.
+
+Another good reason to keep it out ;-)
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

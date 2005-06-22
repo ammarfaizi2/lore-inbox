@@ -1,80 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbVFVQRR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261582AbVFVQWQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261551AbVFVQRR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 12:17:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261554AbVFVQRK
+	id S261582AbVFVQWQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 12:22:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261587AbVFVQWP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 12:17:10 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:19387 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S261551AbVFVQNx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 12:13:53 -0400
-Subject: Re: reiser4 plugins
-From: Vladimir Saveliev <vs@namesys.com>
-To: Nikita Danilov <nikita@clusterfs.com>
-Cc: David Masover <ninja@slaphack.com>, Hans Reiser <reiser@namesys.com>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-In-Reply-To: <17081.30107.751071.983835@gargle.gargle.HOWL>
-References: <20050620235458.5b437274.akpm@osdl.org>
-	 <42B831B4.9020603@pobox.com> <42B87318.80607@namesys.com>
-	 <20050621202448.GB30182@infradead.org> <42B8B9EE.7020002@namesys.com>
-	 <42B8BB5E.8090008@pobox.com> <42B8E834.5030809@slaphack.com>
-	 <42B8F4BC.5060100@pobox.com> <42B92AA1.3010107@slaphack.com>
-	 <17081.30107.751071.983835@gargle.gargle.HOWL>
-Content-Type: text/plain
-Message-Id: <1119456807.4191.82.camel@tribesman.namesys.com>
+	Wed, 22 Jun 2005 12:22:15 -0400
+Received: from mail.kroah.org ([69.55.234.183]:48067 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261612AbVFVQRv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 12:17:51 -0400
+Date: Wed, 22 Jun 2005 09:17:36 -0700
+From: Greg KH <greg@kroah.com>
+To: Stelian Pop <stelian@popies.net>, hare@suse.de
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] usb sysfs intf files no longer created when probe fails
+Message-ID: <20050622161735.GA2274@kroah.com>
+References: <1119448257.4587.2.camel@localhost.localdomain> <1119449231.4594.14.camel@localhost.localdomain> <1119452190.4794.6.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Wed, 22 Jun 2005 20:13:28 +0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1119452190.4794.6.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
-
-On Wed, 2005-06-22 at 18:28, Nikita Danilov wrote:
-> David Masover writes:
+On Wed, Jun 22, 2005 at 04:56:30PM +0200, Stelian Pop wrote:
+> Le mercredi 22 juin 2005 ?? 16:07 +0200, Stelian Pop a ??crit :
+> > Le mercredi 22 juin 2005 ?? 15:50 +0200, Stelian Pop a ??crit :
+> > 
+> > > I use the 'atp' input driver from http://popies.net/atp/ to drive this
+> > > touchpad. When removing the driver I also get an oops, possibly related
+> > > to the previous failure to create the sysfs file:
 > 
-> [...]
+> Ok, there are two separate problems here:
 > 
->  > 
->  > Maintainability is like optimization.  The maintainability of a
->  > non-working program is irrelevant.  You'd be right if we already had
->  > plugins-in-the-VFS.  We don't.  The most maintainable solution for
->  > plugins-in-the-FS that actually exists is Reiser4, exactly as it is now
->  > - -- because it is the _only_ one that actually exists right now.
+> 1. The sysfs intf entry is not created, and this causes the oops later
+> when trying to remove the entry, etc.
 > 
-> But it is not so. There _are_ plugins-in-the-VFS. VFS operates on opaque
-> objects (inodes, dentries, file system types) through interfaces:
-> {inode,address_space,dentry,sb,etc.}_operations. Every file system
-> back-end if free to implement whatever number of these interfaces. And
-> the do this already: check the sources; even ext2 does this: e.g.,
-> ext2_fast_symlink_inode_operations and ext2_symlink_inode_operations.
+>    I've tracked this problem back to this patch: 
+> 	[PATCH] driver core: fix error handling in bus_add_device
+> http://www.kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=ca2b94ba12f3c36fd3d6ed9d38b3798d4dad0d8b
 > 
+>    Once the patch above is reverted, I have no more oops, my driver can
+> be loaded/unloaded just fine, and the /sys/devices/.../ is present.
 
-imho, this is something different. Ext2 decides itself how to manage a
-symlink depending on length of string the symlink is to store.
-Reiser4 plugins are to allow a user to define himself which operations
-file is to be managed with.
+Thanks for tracking this down.
 
-> This is exactly what upper level reiser4 plugins are for.
+Hm, we must be actually checking the return value somewhere, and dying
+because of it.  Let me dig deeper and find out.
 
-> I guess that one of Christoph Hellwig's complaints is that reiser4
-> introduces another layer of abstraction to implement something that
-> already exists.
-> 
+Oh, can you enable debugging for the driver core (it's a config option)
+and the USB core and without that patch reverted, let me know what the
+syslog shows when the probe fails?
 
-I do not think that it exists already.
-You can have standart type of files and that is all.
+>    However, I'm not really sure if the problem comes from the above
+> patch or from my driver which should manually call
+> usb_create_sysfs_intf_files() or something equivalent.
 
-Linux filesystem is not supposed to provide anything but plain
-regular/directory/symlinks/sockets/block device/char device/fifo files.
+No, you should not have to call that from your driver.  In looking at
+your code, I don't see anything obviously wrong.  It works just fine
+with 2.6.12, right?
 
-Existing file API does not allow create anything but that.
-Merging reiser4 with object plugins would make it necessary to modify
-VFS layer so that files of arbitrary types could be created.
+> 2. There is still a problem with the early loading of the driver. If
+> loaded at boot, it won't work. If I rmmod/insmod it later it does.
 
+Does that also work with 2.6.12?
 
+thanks,
 
+greg k-h

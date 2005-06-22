@@ -1,73 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262232AbVFVU5s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262276AbVFVVDq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262232AbVFVU5s (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 16:57:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262155AbVFVU5o
+	id S262276AbVFVVDq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 17:03:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262526AbVFVVDp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 16:57:44 -0400
-Received: from opersys.com ([64.40.108.71]:5904 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S262232AbVFVUwJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 16:52:09 -0400
-Message-ID: <42B9D208.4080305@opersys.com>
-Date: Wed, 22 Jun 2005 17:03:04 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+	Wed, 22 Jun 2005 17:03:45 -0400
+Received: from saturn.billgatliff.com ([209.251.101.200]:41148 "EHLO
+	saturn.billgatliff.com") by vger.kernel.org with ESMTP
+	id S262276AbVFVU70 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 16:59:26 -0400
+Message-ID: <42B9D120.6030108@billgatliff.com>
+Date: Wed, 22 Jun 2005 15:59:12 -0500
+From: Bill Gatliff <bgat@billgatliff.com>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Kristian Benoit <kbenoit@opersys.com>, linux-kernel@vger.kernel.org,
-       bhuey@lnxw.com, andrea@suse.de, tglx@linutronix.de,
-       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
-       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, Philippe Gerum <rpm@xenomai.org>
-Subject: Re: PREEMPT_RT vs I-PIPE: the numbers, part 2
-References: <1119287612.6863.1.camel@localhost> <20050621015542.GB1298@us.ibm.com> <42B77B8C.6050109@opersys.com> <20050622011931.GF1324@us.ibm.com> <42B9845B.8030404@opersys.com> <20050622162718.GD1296@us.ibm.com> <1119460803.5825.13.camel@localhost> <20050622185019.GG1296@us.ibm.com> <20050622190422.GA6572@elte.hu> <42B9C777.8040202@opersys.com> <20050622202242.GA17301@elte.hu>
-In-Reply-To: <20050622202242.GA17301@elte.hu>
-Content-Type: text/plain; charset=us-ascii
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Patch of a new driver for kernel 2.4.x that need review
+References: <5009AD9521A8D41198EE00805F85F18F067F6A36@sembo111.teknor.com> <84144f020506221243163d06a2@mail.gmail.com> <20050622203211.GI8907@alpha.home.local>
+In-Reply-To: <20050622203211.GI8907@alpha.home.local>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Willy:
 
-Ingo Molnar wrote:
->>From all the test i've done, 600,000 samples are not enough to trigger 
-> the worst-case latency - even with the polling method! Also, your tests 
-> dont really load the system, so you have a fundamentally lower chance of 
-> seeing worst-case latencies. My tests do a dd test, a flood ping, an 
-> LTP-40-copies test, an rtc_wakeup 8192 Hz test and an infinite loop of 
-> hackbench test all in parallel, and even in such circumstances and with 
-> a polling approach i need above 1 million samples to hit the worst-case 
-> path! (which i cannot know for sure to be the worst-case path, but which 
-> i'm reasonably confident about, based on the distribution of the 
-> latencies and having done tens of millions of samples in overnight 
-> tests.) Obviously it's a much bigger constraint on the IRQ subsystem if 
-> _all_ interrupt _and_ DMA sources in the system are as active as 
-> possible.
+Willy Tarreau wrote:
 
-Hmm... well, I can't say I'm uninterested. Any chances we can get a
-copy of the scripts you use to do the MOAILT (Mother Of All Irq Latency
-Tests).
+>Hi,
+>
+>On Wed, Jun 22, 2005 at 10:43:40PM +0300, Pekka Enberg wrote:
+>  
+>
+>>On 6/22/05, Bouchard, Sebastien <Sebastien.Bouchard@ca.kontron.com> wrote:
+>>    
+>>
+>>>+#define TLCLK_REG7 TLCLK_BASE+7
+>>>      
+>>>
+>>Please use enums instead.
+>>    
+>>
+>
+>I dont agree with you here : enums are good to simply specify an ordering.
+>But they must not be used to specify static mapping. Eg: if REG4 *must* be
+>equal to BASE+4, you should not use enums, otherwise it will render the
+>code unreadable. I personnaly don't want to count the position of REG7 in
+>the enum to discover that it's at BASE+7.
+>  
+>
 
-> so ... give the -50-12 -RT tree a try and report back the lpptest 
-> results you are getting.
+What Sebastien is after is something like this:
 
-First things first, we want to report back that our setup is validated
-before we go onto this one. So we've modified LRTBF to do the busy-wait
-thing.
+	enum tclk_regid {TCLK_BASE=0xa80, TCLK_REG0=TCLK_BASE, TCLK_REG1=TCLK_BASE+1...};
+	enum tclk_regid tclk;
 
-> [ I know the results i am seeing, but i wont 
-> post them as a counter-point because i'm obviously biased :-) I'll let 
-> people without an axe to grind do the measurements. ]
+And then later on, if you ask gdb with the value of tclk is, it can tell you "TCLK_REG1", instead of just 0xa801.  You can also assign values to tclk from within gdb using the enumerations, rather than magic numbers.
 
-That's an extra reason for giving us a copy (or pointing us to one) of
-the script you use to run your tests :)
+If you insist on using #defines, then you need to do them like this at the very least:
 
-Karim
+	#define TCLK_REG7 (TCLK_BASE+7)
+
+... so as to prevent operator precedence problems later on.  I.e. what happens here:
+
+	tclk = TCLK_REG7 / 2;
+
+Not implying that the above is a realistic example, I'm just pointing out a potential gotcha that is easily avoided...
+
+
+
+b.g.
+
 -- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+Bill Gatliff
+"A DTI spokesman said Wicks would use his debut announcement to
+'reaffirm the government's commitment to developing wind' to tackle
+the threat of climate change." -- The Observer, May 22, 2005
+bgat@billgatliff.com
+

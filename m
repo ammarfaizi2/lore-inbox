@@ -1,88 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261533AbVFVPfD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261386AbVFVPbQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261533AbVFVPfD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 11:35:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261552AbVFVPce
+	id S261386AbVFVPbQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 11:31:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261475AbVFVP2K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 11:32:34 -0400
-Received: from [80.71.243.242] ([80.71.243.242]:43471 "EHLO tau.rusteko.ru")
-	by vger.kernel.org with ESMTP id S261458AbVFVP3k (ORCPT
+	Wed, 22 Jun 2005 11:28:10 -0400
+Received: from opersys.com ([64.40.108.71]:48908 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S261542AbVFVPUm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 11:29:40 -0400
-From: Nikita Danilov <nikita@clusterfs.com>
+	Wed, 22 Jun 2005 11:20:42 -0400
+Message-ID: <42B9845B.8030404@opersys.com>
+Date: Wed, 22 Jun 2005 11:31:39 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
 MIME-Version: 1.0
+To: paulmck@us.ibm.com
+CC: Kristian Benoit <kbenoit@opersys.com>, linux-kernel@vger.kernel.org,
+       bhuey@lnxw.com, andrea@suse.de, tglx@linutronix.de, mingo@elte.hu,
+       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
+       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org, rpm@xenomai.org
+Subject: Re: PREEMPT_RT vs I-PIPE: the numbers, part 2
+References: <1119287612.6863.1.camel@localhost> <20050621015542.GB1298@us.ibm.com> <42B77B8C.6050109@opersys.com> <20050622011931.GF1324@us.ibm.com>
+In-Reply-To: <20050622011931.GF1324@us.ibm.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <17081.33766.343219.30650@gargle.gargle.HOWL>
-Date: Wed, 22 Jun 2005 19:29:42 +0400
-To: Hans Reiser <reiser@namesys.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, hch@infradead.org,
-       linux-kernel@vger.kernel.org, ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: reiser4 plugins
-Newsgroups: gmane.comp.file-systems.reiserfs.general,gmane.linux.kernel
-In-Reply-To: <42B8D131.6060502@namesys.com>
-References: <20050620235458.5b437274.akpm@osdl.org.suse.lists.linux.kernel>
-	<42B831B4.9020603@pobox.com.suse.lists.linux.kernel>
-	<42B87318.80607@namesys.com.suse.lists.linux.kernel>
-	<20050621202448.GB30182@infradead.org.suse.lists.linux.kernel>
-	<42B8B9EE.7020002@namesys.com.suse.lists.linux.kernel>
-	<42B8BB5E.8090008@pobox.com.suse.lists.linux.kernel>
-	<p73fyvbb2rh.fsf@verdi.suse.de>
-	<42B8D131.6060502@namesys.com>
-X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser writes:
- > Andi Kleen wrote:
- > 
- > > Christoph does a lot of reviewing 
- > >
- > and he is notorious for making needed linux contributors go away and not
- > come back, and I won't say which famous person on this mailing list told
- > me that....
- > 
- > >and your child definitely
- > >is in serious need of that to be mergeable. I'm sure Christoph is able
- > >to review inpartially even when he is involved with other FS.
- > >  
- > >
- > As impartial as a puppy on PCP....
- > 
- > Christoph is aggressive about things he does not take the time to
- > understand or ask about first.  I hate that.   I wish he would go away
- > please.  He is not exactly an Ousterhout, Rob Pike, Granger, Mazieres,
- > Frans Kaashoek, etc.,  in his accomplishments, so why is he reviewing
- > other people's filesystems?  Reviews are great, how about finding
- > persons who have created filesystem innovations (and thus are less
- > likely to reject innovations without understanding them) to do them? 
 
-Well, because of his classy hair-style of course.
+Paul E. McKenney wrote:
+> Probably just my not fully understanding I-PIPE (to say nothing of
+> not fully understanding your test setup!), but I would have expected
+> I-PIPE to be able to get somewhere in the handfuls of microseconds of
+> interrupt latency.  Looks like it prevents Linux from ever disabling
+> real interrupts -- my first guess after reading your email was that
+> Linux was disabling real interrupts and keeping I-PIPE from getting
+> there in time.
 
-Seriously, Linux is not managed by a committee. There is nobody to
-appoint Official File System Reviewers of Her Majesty. Everything here
-(including your credentials as a file system designer) is
-self-proclaimed.
+Have a look at the announcement just made by Kristian about the LRTBF.
+There's a tarball with all the code for the drivers, scripts and
+configs we used.
 
- > 
- > How about review by benchmark instead?
+Nevertheless, maybe it's worth that I clarify the setup further.
+Here's what we had:
 
-[...]
+                     +----------+
+                     |   HOST   |
+                     +----------+
+                          |
+                          |
+                          | Ethernet LAN
+                          |
+                         / \
+                        /   \
+                       /     \
+                      /       \
+                     /         \
+                    /           \
+                   /             \
+            +--------+  SERIAL  +--------+
+            | LOGGER |----------| TARGET |
+            +--------+          +--------+
 
- >                                   I frankly think that with my
- > benchmarks, I should be allowed to tinker on my own. 
+The logger sends an interrupt to the target every 1ms. Here's the
+path travelled by this interrupt (L for logger, T for target):
 
-I am afraid it will sound picky, but 10 month ago you said you are
-planning to replace benchmarks on the namesys.com with fairer ones:
+1- L:adeos-registered handler is called at timer interrupt
+2- L:record TSC for transmission
+3- L:write out to parallel port
+4- T:ipipe-registered handler called to receive interrupt
+5- T:write out to parallel port
+6- L:adeos-registered handler called to receive interrupt
+7- L:record TSC for receipt
 
-http://marc.theaimsgroup.com/?l=reiserfs&m=109368686019301&w=2
+The response times obtained include all that goes on from 2 to
+7, including all hardware-related delays. The target's true
+response time is from 3.5 to 5.5 (the .5 being the actual
+time it takes for the signal to reache the pins on the actual
+physical parallel port outside the computer.)
 
-Last time I checked, http://namesys.com/benchmarks.html still features
-only mongo runs with overwrite/modify phases off and with all operations
-done in readdir order (most favorable mode for reiser4).
+The time from 2 to 3.5 includes the execution time for a few
+instructions (record TSC value to RAM and outb()) and the delay
+for the hardware to put the value out on the parallel port.
 
- >
- > Hans The Mad
- > 
+The time from 5.5 to 7 includes an additional copy of adeos'
+interrupt response time. IOW, in all cases, we're at least
+recording adeos' interrupt response time at least once. Like
+we explained in our first posting (and as backed up by the
+data found in both postings) the adeos-to-adeos setup shows
+that this delay is bound. In fact, we can safely assume that
+2*max_ipipe_delay ~= 55us and that 2*average_ipipe_delay
+~= 14us. And therefore:
 
-Nikita.
+max_ipipe_delay = 27.5us
+average_ipipe_delay = 7us
+max_preempt_delay = 55us - max_ipipe_delay = 27.5us
+average_preempt_delay = 14 us - average_ipipe_delay = 7us
+
+Presumably the 7us above should fit the "handful" you refer
+to. At least I hope.
+
+Karim
+-- 
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546

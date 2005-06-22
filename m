@@ -1,71 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261680AbVFVQgo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261656AbVFVQmD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261680AbVFVQgo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 12:36:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261630AbVFVQeI
+	id S261656AbVFVQmD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 12:42:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261619AbVFVQiW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 12:34:08 -0400
-Received: from p-mail1.rd.francetelecom.com ([195.101.245.15]:55301 "EHLO
-	p-mail1.rd.francetelecom.com") by vger.kernel.org with ESMTP
-	id S261589AbVFVQcr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 12:32:47 -0400
-Subject: [PATCH] Adapt drivers/char/vt_ioctl.c to non-x86.
-From: zze-COLBUS Emmanuel RD-MAPS-GRE 
-	<emmanuel.colbus@rd.francetelecom.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Wed, 22 Jun 2005 18:32:41 +0200
-Message-Id: <1119457961.4372.19.camel@g-xw4200-6.rd.francetelecom.fr>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1-1mdk 
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 22 Jun 2005 16:32:42.0284 (UTC) FILETIME=[0312C6C0:01C57748]
+	Wed, 22 Jun 2005 12:38:22 -0400
+Received: from mbox1.netikka.net ([213.250.81.202]:11227 "EHLO
+	mbox1.netikka.net") by vger.kernel.org with ESMTP id S261633AbVFVQdk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 12:33:40 -0400
+Date: Wed, 22 Jun 2005 19:33:32 +0300 (EEST)
+From: johan.heikkila@netikka.fi
+X-X-Sender: jukk@localhost.localdomain
+Reply-To: johan.heikkila@netikka.fi
+To: Joerg Sommrey <jo@sommrey.de>
+cc: Tony Lindgren <tony@atomide.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Juergen Brunk <Juergen.Brunk@eurolog.com>, johan.heikkila@netikka.fi,
+       Tarmo Jarvalt <tarmo.jarvalt@mail.ee>,
+       Johnathan Hicks <thetech@folkwolf.net>
+Subject: Re: [PATCH 2.6.12] amd76x_pm: C2 powersaving for AMD K7
+In-Reply-To: <20050621202035.GE31391@atomide.com>
+Message-ID: <Pine.LNX.4.58.0506221917260.11779@localhost.localdomain>
+References: <20050620205334.GA28230@sommrey.de> <20050621202035.GE31391@atomide.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 21 Jun 2005, Tony Lindgren wrote:
 
-Hello,
+> * Joerg Sommrey <jo@sommrey.de> [050620 13:54]:
+> > This is a processor idle module for AMD SMP 760MP(X) based systems.
+> > The patch was originally written by Tony Lindgren and has been around
+> > since 2002.  It enables C2 mode on AMD SMP systems and thus saves
+> > about 70 - 90 W of energy in the idle mode compared to the default idle
+> > mode.  The idle function has been rewritten and now should be free of
+> > locking issues and is independent from the number of CPUs.  The impact
+> > from this module on the system clock has been reduced. 
+> > 
+> > This patch can also be found at
+> > http://www.sommrey.de/amd76x_pm/amd_76x_pm-2.6.12-jo1.patch
+> 
+> Cool. Just once comment:
+> 
+> > +// #define AMD76X_NTH 1
+> > +// #define AMD76X_POS 1
+> > +// #define AMD76X_C3 1
+> 
+> How about separating all this ifdef code into a separate debug patch on top
+> of the amd_76x_pm patch? Or just leave it out as I don't think anybody is
+> using it. It would shrink down the patch quite a bit and make it more
+> readable.
+> 
+> I won't be able to access my dual athlon box until September, so I'm not
+> much of help with this module :)
+> 
+> Regards,
+> 
+> Tony
+> 
 
-I think there is a bug in drivers/char/vt_ioctl.c. This code uses the
-x86 (non-AMD-ELAN) value of CLOCK_TICK_RATE instead of CLOCK_TICK_RATE
-itself, which is wrong for other archs.
+I have been running with the 2.6.11-jo3 patch since Joerg made it 
+available. It works fine on my ASUS A7M266-D with two Athlon MP1800+ that 
+is running 24h. I just patched 2.6.12 vanilla kernel and it looks 
+good. I will report if there are any issues.
 
-This patch fixes it.
-
-BTW, who is the maintainer of the text-mode console code? I couldn't
-find it in the MAINTAINER file.
-
-Signed-off-by: Emmanuel Colbus <emmanuel.colbus@ensimag.imag.fr>
-
-
---- drivers/char/vt_ioctl_old.c 2005-06-22 18:04:21.912145025 +0200
-+++ drivers/char/vt_ioctl.c     2005-06-22 17:59:54.867498294 +0200
-@@ -25,6 +25,7 @@
- #include <linux/fs.h>
- #include <linux/console.h>
- #include <linux/signal.h>
-+#include <linux/timex.h>
-
- #include <asm/io.h>
- #include <asm/uaccess.h>
-@@ -386,7 +387,7 @@
- 		if (!perm)
- 			return -EPERM;
- 		if (arg)
--			arg = 1193182 / arg;
-+			arg = CLOCK_TICK_RATE / arg;
- 		kd_mksound(arg, 0);
- 		return 0;
-
-@@ -403,7 +404,7 @@
- 		ticks = HZ * ((arg >> 16) & 0xffff) / 1000;
- 		count = ticks ? (arg & 0xffff) : 0;
- 		if (count)
--			count = 1193182 / count;
-+			count = CLOCK_TICK_RATE / count;
- 		kd_mksound(count, ticks);
- 		return 0;
- 	}
-
-
-
+regards,
+Johan

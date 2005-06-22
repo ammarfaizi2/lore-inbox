@@ -1,72 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262908AbVFVIMa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262890AbVFVHv6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262908AbVFVIMa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 04:12:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262875AbVFVIID
+	id S262890AbVFVHv6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 03:51:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262875AbVFVHs1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 04:08:03 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:9431 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262842AbVFVIET (ORCPT
+	Wed, 22 Jun 2005 03:48:27 -0400
+Received: from mail.kroah.org ([69.55.234.183]:51129 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262802AbVFVG1V (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 04:04:19 -0400
-Date: Wed, 22 Jun 2005 10:03:24 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: William Weston <weston@sysex.net>
-Cc: "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       "Eugeny S. Mints" <emints@ru.mvista.com>,
-       Daniel Walker <dwalker@mvista.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
-Message-ID: <20050622080324.GA18083@elte.hu>
-References: <20050608112801.GA31084@elte.hu> <42B0F72D.5040405@cybsft.com> <20050616072935.GB19772@elte.hu> <42B160F5.9060208@cybsft.com> <20050616173247.GA32552@elte.hu> <Pine.LNX.4.58.0506171139570.32721@echo.lysdexia.org> <20050621131249.GB22691@elte.hu> <Pine.LNX.4.58.0506211228210.16701@echo.lysdexia.org>
+	Wed, 22 Jun 2005 02:27:21 -0400
+Date: Tue, 21 Jun 2005 23:26:27 -0700
+From: Greg KH <greg@kroah.com>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: akpm@osdl.org, mochel@digitalimplant.org, gregkh@suse.de,
+       cohuck@de.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch 1/16] s390: klist bus_find_device & driver_find_device callback.
+Message-ID: <20050622062627.GA29759@kroah.com>
+References: <20050621162213.GA6053@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0506211228210.16701@echo.lysdexia.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20050621162213.GA6053@localhost.localdomain>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jun 21, 2005 at 06:22:13PM +0200, Martin Schwidefsky wrote:
+> [patch 1/16] s390: klist bus_find_device & driver_find_device callback.
+> 
+> From: Cornelia Huck <cohuck@de.ibm.com>
+> 
+> Add bus_find_device() and driver_find_device() which allow a callback for each
+> device in the bus's resp. the driver's klist.
+> 
+> Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> 
+> diffstat:
+>  drivers/base/bus.c     |   31 +++++++++++++++++++++++++++++++
+>  drivers/base/driver.c  |   34 ++++++++++++++++++++++++++++++++++
+>  include/linux/device.h |    7 +++++++
+>  3 files changed, 72 insertions(+)
+> 
+> diff -urpN linux-2.6/drivers/base/bus.c linux-2.6-patched/drivers/base/bus.c
+> --- linux-2.6/drivers/base/bus.c	2005-06-21 17:36:38.000000000 +0200
+> +++ linux-2.6-patched/drivers/base/bus.c	2005-06-21 17:36:45.000000000 +0200
+> @@ -177,6 +177,37 @@ int bus_for_each_dev(struct bus_type * b
+>  	return error;
+>  }
+>  
+> +/**
+> + * bus_find_device - device iterator for locating a particular device.
+> + * @bus: bus type
+> + * @start: Device to begin with
+> + * @data: Data to pass to match function
+> + * @match: Callback function to check device
+> + *
+> + * This is similar to the bus_for_each_dev() function above, but it
+> + * returns a pointer to a device that is 'found', as determined
+> + * by the @match callback. The callback should return a bool - 0 if
+> + * the device doesn't match and 1 if it does.
+> + * The function will return if a device is found.
+> + */
+> +
+> +struct device * bus_find_device(struct bus_type * bus, struct device * start,
+> +				void * data, int (*match)(struct device *, void *))
+> +{
+> +	struct klist_iter i;
+> +	struct device * dev;
+> +
+> +	if (!bus)
+> +		return NULL;
+> +
+> +	klist_iter_init_node(&bus->klist_devices, &i,
+> +			     (start ? &start->knode_bus : NULL));
+> +	while ((dev = next_device(&i)))
+> +		if (match(dev, data))
+> +			break;
+> +	klist_iter_exit(&i);
+> +	return dev;
+> +}
 
-* William Weston <weston@sysex.net> wrote:
+What's wrong with just using bus_for_each_dev() instead?  You have to
+supply a "match" type function anyway, so the caller doesn't have an
+easier time using this function instead.
 
->                  _------=> CPU#            
->                 / _-----=> irqs-off        
->                | / _----=> need-resched    
->                || / _---=> hardirq/softirq 
->                ||| / _--=> preempt-depth   
->                |||| /                      
->                |||||     delay             
->    cmd     pid ||||| time  |   caller      
->       \   /    |||||   \   |   /           
-[...]
->   wmResh-3189  1....    1us : up_mutex (sock_def_readable)
->   wmResh-3189  1....    2us : __up_mutex (up_mutex)
->   <idle>-0     0Dnh2    2us : _raw_spin_unlock (__schedule)
->   <idle>-0     0Dnh1    2us!: preempt_schedule (__schedule)
->   wmResh-3189  1Dnh.  204us : _raw_spin_lock (__up_mutex)
->   wmResh-3189  1Dnh1  205us : _raw_spin_unlock (__up_mutex)
->   <idle>-0     0Dnh1  205us : _raw_spin_lock (__schedule)
->   wmResh-3189  1....  205us : _read_unlock (unix_stream_sendmsg)
+You also don't increment the reference properly when you return the
+pointer, so you better document that... :(
 
-look at the CPU# column, we have trace entries from both CPU#0 and CPU#1 
-- and both of them are delayed by 200 usecs! The CPU#0 delay happened in 
-the idle thread, between preempt_schedule() in __schedule() and 
-_raw_spin_lock in __schedule(). It's a codepath where there's no 
-spinning done. The CPU#1 delay happened in the wmResh process, between 
-__up_mutex()'s entry and the first _raw_spin_lock() it did. This too is 
-a codepath where no spinning is done. (and even if there was spinning, 
-the two locks are not the same.)
+In short, I don't think this is needed at all, as it's an almost
+identical copy of bus_for_each_dev().
 
-in other words, since there is no OS-level explanation for the delay, 
-this can only be an effect of the hardware/system. (Or it could be a bug 
-in the measurement, but the likelyhood of seeing a 200 usec bump in the 
-measurement is quite small.)
+> diff -urpN linux-2.6/drivers/base/driver.c linux-2.6-patched/drivers/base/driver.c
+> --- linux-2.6/drivers/base/driver.c	2005-06-21 17:36:38.000000000 +0200
+> +++ linux-2.6-patched/drivers/base/driver.c	2005-06-21 17:36:45.000000000 +0200
+> @@ -56,6 +56,40 @@ EXPORT_SYMBOL_GPL(driver_for_each_device
+>  
+>  
+>  /**
+> + * driver_find_device - device iterator for locating a particular device.
+> + * @driver: The device's driver
+> + * @start: Device to begin with
+> + * @data: Data to pass to match function
+> + * @match: Callback function to check device
+> + *
+> + * This is similar to the driver_for_each_device() function above, but it
+> + * returns a pointer to a device that is 'found', as determined
+> + * by the @match callback. The callback should return a bool - 0 if
+> + * the device doesn't match and 1 if it does.
+> + * The function will return if a device is found.
+> + */
+> +
+> +struct device * driver_find_device(struct device_driver *drv,
+> +				   struct device * start, void * data,
+> +				   int (*match)(struct device *, void *))
+> +{
+> +	struct klist_iter i;
+> +	struct device * dev;
+> +
+> +	if (!drv)
+> +		return NULL;
+> +
+> +	klist_iter_init_node(&drv->klist_devices, &i,
+> +			     (start ? &start->knode_driver : NULL));
+> +	while ((dev = next_device(&i)))
+> +		if (match(dev, data))
+> +			break;
+> +	klist_iter_exit(&i);
+> +	return dev;
+> +}
 
-	Ingo
+Same comment as above, I don't think this function is necessary.
+
+thanks,
+
+greg k-h

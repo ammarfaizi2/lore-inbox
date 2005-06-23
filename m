@@ -1,211 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263038AbVFWI3F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262611AbVFWIsv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263038AbVFWI3F (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 04:29:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263266AbVFWIYE
+	id S262611AbVFWIsv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 04:48:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262613AbVFWIqH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 04:24:04 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:33970 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S262613AbVFWHPH (ORCPT
+	Thu, 23 Jun 2005 04:46:07 -0400
+Received: from styx.suse.cz ([82.119.242.94]:8898 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S263048AbVFWIa0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 03:15:07 -0400
-Message-ID: <42BA6177.8060202@pobox.com>
-Date: Thu, 23 Jun 2005 03:15:03 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Thu, 23 Jun 2005 04:30:26 -0400
+Date: Thu, 23 Jun 2005 10:30:25 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
 To: Linus Torvalds <torvalds@osdl.org>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>,
+Cc: Jeff Garzik <jgarzik@pobox.com>, Greg KH <greg@kroah.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
        Git Mailing List <git@vger.kernel.org>
 Subject: Re: Updated git HOWTO for kernel hackers
-References: <42B9E536.60704@pobox.com> <Pine.LNX.4.58.0506221603120.11175@ppc970.osdl.org> <42BA18AF.2070406@pobox.com> <Pine.LNX.4.58.0506221915280.11175@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0506221915280.11175@ppc970.osdl.org>
-Content-Type: multipart/mixed;
- boundary="------------070008040508040306090201"
-X-Spam-Score: 0.0 (/)
+Message-ID: <20050623083025.GA5066@ucw.cz>
+References: <42B9FCAE.1000607@pobox.com> <Pine.LNX.4.58.0506221724140.11175@ppc970.osdl.org> <42BA14B8.2020609@pobox.com> <Pine.LNX.4.58.0506221853280.11175@ppc970.osdl.org> <42BA1B68.9040505@pobox.com> <Pine.LNX.4.58.0506221929430.11175@ppc970.osdl.org> <42BA271F.6080505@pobox.com> <Pine.LNX.4.58.0506222014000.11175@ppc970.osdl.org> <42BA45B1.7060207@pobox.com> <Pine.LNX.4.58.0506222225010.11175@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0506222225010.11175@ppc970.osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070008040508040306090201
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Content-Transfer-Encoding: 7bit
+On Wed, Jun 22, 2005 at 10:58:13PM -0700, Linus Torvalds wrote:
 
-Linus Torvalds wrote:
-> How about this patch? Then you can say
+> And thinking that "fetching a tree fetches all the tags from that tree"  
+> really _is_ a stupid decision. It's missing the big picture. It's missing
+> the fact that tags _should_ be normal every-day things that you just use
+> as "book-marks", and that the kind of big "synchronization point for many
+> people" tag should actually be the _rare_ case.
 > 
-> 	git-apply --stat --summary --apply --index /tmp/my.patch
-> 
-> and it will not only apply the patch, but also give a diffstat and a
-> summary or renames etc..
+> The fact that global tags make that private "bookmark" usage impossible
+> should be a big red blinking sign saying "don't do global tags".
 
-Quite nice.
+Maybe it'd make sense to differentiate between the two types of tags?
+To have local tags which don't propagate, and global (version) tags
+which do? They could live in different namespaces and thus wouldn't
+interfere.
 
-
-
->>I usually want just two things:
->>
->>1) browse the log
->>
->>2) list changes in local tree that are not in $remote_tree, a la
->>	bk changes -L ../linux-2.6
->>
->>I agree that seeing the merge csets is useful, that is why [being 
->>ignorant of 'git log'] I used git-changes-script.
-> 
-> 
-> For (1) "bk log" is good.
-
-Chuckle.  What does one call a Freudian slip, in computer-land?
-
-
-> For (2) you'll have to use your own script, or
-> just have the remote tree as a branch in the same tree, in which case you
-> can do
-> 
-> 	git log remotebranch..mybranch
-
-Very neat.  That makes some things a bit easier, since I usually carry a 
-'vanilla' branch as .git/refs/heads/master, and do all my modifications 
-on other branches.
-
-FWIW, git-changes-script (attached) facilitates #2 for me right now.  I 
-use it just like BK's '-L' feature:
-
-	cd netdev-2.6
-	git checkout -f ieee80211
-	git-changes-script -L ../linux-2.6 | less
-
-That will produce the same output as the feature you just taught me,
-
-	git log master..ieee80211
-
-WARNING:  You have previously called git-changes-script quite ugly (not 
-surprising), and this 'git log x..y' will probably replace it in my 
-usage, long term.
-
-	Jeff
-
-
-
---------------070008040508040306090201
-Content-Type: text/plain;
- name="git-changes-script"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="git-changes-script"
-
-#!/bin/bash
-#
-# Make a log of changes in a GIT branch.
-#
-# This script was originally written by (c) Ross Vandegrift.
-# Adapted to his scripts set by (c) Petr Baudis, 2005.
-# Major optimizations by (c) Phillip Lougher.
-# Rendered trivial by Linus Torvalds.
-# Added -L|-R option by James Bottomley
-#
-# options:
-# script [-L <dir> | -R <dir> |-r <from_sha1> [ -r <to_sha1] ] [<sha1>]
-#
-# With no options shows all the revisions from HEAD to the root
-# -L shows all the changes in the local tree compared to the tree at <dir>
-# -R shows all the changes in the remote tree at <dir> compared to the local
-# -r shows all the changes in one commit or between two
-
-tmpfile=/tmp/git_changes.$$
-r1=
-r2=
-
-showcommit() {
-	commit="$1"
-	echo commit ${commit%:*};
-	git-cat-file commit $commit | \
-		while read key rest; do
-			case "$key" in
-			"author"|"committer")
-				date=(${rest#*> })
-				sec=${date[0]}; tz=${date[1]}
-				dtz=${tz/+/+ }; dtz=${dtz/-/- }
-				pdate="$(date -Rud "1970-01-01 UTC + $sec sec $dtz" 2>/dev/null)"
-				if [ "$pdate" ]; then
-					echo $key $rest | sed "s/>.*/> ${pdate/+0000/$tz}/"
-				else
-					echo $key $rest
-				fi
-				;;
-			"")
-				echo; cat
-				;;
-			*)
-				echo $key $rest
-				;;
-			esac
-
-		done
-}
-
-while true; do
-	case "$1" in
-		-R)	shift;
-			diffsearch=+
-			remote="$1"
-			shift;;
-		-L)	shift;
-			diffsearch=-
-			remote="$1"
-			shift;;
-		-r)	shift;
-			if [ -z "$r1" ]; then
-				r1="$1"
-			else
-				r2="$1"
-			fi
-			shift;;
-		*)	base="$1"
-			break;;
-	esac
-done
-
-if [ -n "$r1" ]; then
-	if [ -z "$r2" ]; then
-		showcommit $r1
-		exit 0
-	fi
-	diffsearch=+
-	remote=`pwd`;
-	tobase="$r2";
-	base="$r1"
-fi
-	
-if [ -z "$base" ]; then
-	base=$(cat .git/HEAD) || exit 1
-fi
-
-git-rev-tree $base | sort -rn  > ${tmpfile}.base
-if [ -n "$remote" ]; then
-	[ -d $remote/.git ] || exit 1
-	if [ -z "$tobase" ]; then
-		tobase=$(cat $remote/.git/HEAD) || exit 1
-	fi
-	pushd $remote > /dev/null
-	git-rev-tree $tobase | sort -rn > ${tmpfile}.remote
-	diff -u ${tmpfile}.base ${tmpfile}.remote | grep "^${diffsearch}[^${diffsearch}]" | cut -c 1- > ${tmpfile}.diff
-	rm -f ${tmpfile}.base ${tmpfile}.remote
-	mv ${tmpfile}.diff ${tmpfile}.base
-	if [ $diffsearch = "-" ]; then
-		popd > /dev/null
-	fi
-fi
-
-[ -s "${tmpfile}.base" ] || exit 0
-
-cat ${tmpfile}.base | while read time commit parents; do
-	showcommit $commit
-	echo -e "\n--------------------------"
-
-done
-rm -f ${tmpfile}.base
-
---------------070008040508040306090201--
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

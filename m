@@ -1,67 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262585AbVFWJ2x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262684AbVFWJYx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262585AbVFWJ2x (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 05:28:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262613AbVFWJZr
+	id S262684AbVFWJYx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 05:24:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262398AbVFWJXb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 05:25:47 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:33459 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S262585AbVFWJYQ (ORCPT
+	Thu, 23 Jun 2005 05:23:31 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:37260 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262613AbVFWJU0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 05:24:16 -0400
-Message-ID: <42BA7FB5.5020804@pobox.com>
-Date: Thu, 23 Jun 2005 05:24:05 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Netdev List <netdev@vger.kernel.org>
-Subject: [git patch] urgent e1000 fix
-Content-Type: multipart/mixed;
- boundary="------------010705020707050403070901"
-X-Spam-Score: 0.0 (/)
+	Thu, 23 Jun 2005 05:20:26 -0400
+Date: Thu, 23 Jun 2005 02:20:00 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: DEBUG_PAGEALLOC & SMP?
+Message-Id: <20050623022000.094169d4.akpm@osdl.org>
+In-Reply-To: <20050623090936.GA28112@elte.hu>
+References: <20050623090936.GA28112@elte.hu>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010705020707050403070901
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Ingo Molnar <mingo@elte.hu> wrote:
+>
+> is this a known problem?
 
-Please pull from 'misc-fixes' branch of
-rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/netdev-2.6.git
+Nope.
 
-to obtain the spinlock fix described in the attached text.
+>  I'm getting an oom-kill and a stuck boot with 
+>  SMP & PAGEALLOC enabled. The UP kernel boots fine.
 
+Strange, something gobbled all of your ZONE_DMA.  0xd1 is
+GFP_KERNEL|GFP_DMA, so perhaps something has gone mad in the bouncing code.
 
---------------010705020707050403070901
-Content-Type: text/plain;
- name="netdev-2.6.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="netdev-2.6.txt"
+The oom-killer is supposed to do a dump_stack(), but it looks like that
+patch got lost.
 
-
- drivers/net/e1000/e1000_main.c |    1 +
- 1 files changed, 1 insertion(+)
-
-
-Mitch Williams:
-  e1000: fix spinlock bug
-
-
-diff --git a/drivers/net/e1000/e1000_main.c b/drivers/net/e1000/e1000_main.c
---- a/drivers/net/e1000/e1000_main.c
-+++ b/drivers/net/e1000/e1000_main.c
-@@ -2307,6 +2307,7 @@ e1000_xmit_frame(struct sk_buff *skb, st
- 	tso = e1000_tso(adapter, skb);
- 	if (tso < 0) {
- 		dev_kfree_skb_any(skb);
-+		spin_unlock_irqrestore(&adapter->tx_lock, flags);
- 		return NETDEV_TX_OK;
- 	}
- 
-
---------------010705020707050403070901--

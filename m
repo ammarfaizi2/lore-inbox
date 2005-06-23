@@ -1,54 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262026AbVFWEDA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262029AbVFWEJB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262026AbVFWEDA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 00:03:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262029AbVFWEDA
+	id S262029AbVFWEJB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 00:09:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262035AbVFWEJB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 00:03:00 -0400
-Received: from opersys.com ([64.40.108.71]:22788 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S262026AbVFWEC6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 00:02:58 -0400
-Message-ID: <42BA36FC.5010408@opersys.com>
-Date: Thu, 23 Jun 2005 00:13:48 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+	Thu, 23 Jun 2005 00:09:01 -0400
+Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:9942 "EHLO
+	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S262029AbVFWEI6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 00:08:58 -0400
+X-ORBL: [69.107.32.110]
+From: David Brownell <david-b@pacbell.net>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [GIT PATCH] Remove devfs from 2.6.12-git
+Date: Wed, 22 Jun 2005 21:08:50 -0700
+User-Agent: KMail/1.7.1
+Cc: kernel@mikebell.org
 MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: Ingo Molnar <mingo@elte.hu>, Bill Huey <bhuey@lnxw.com>,
-       Kristian Benoit <kbenoit@opersys.com>, linux-kernel@vger.kernel.org,
-       paulmck@us.ibm.com, andrea@suse.de, tglx@linutronix.de,
-       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
-       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, rpm@xenomai.org
-Subject: Re: PREEMPT_RT vs I-PIPE: the numbers, part 2
-References: <1119287612.6863.1.camel@localhost>	 <20050620183115.GA27028@nietzsche.lynx.com> <42B98B20.7020304@opersys.com>	 <20050622192927.GA13817@nietzsche.lynx.com>	 <20050622200554.GA16119@elte.hu> <42B9CC98.1040402@opersys.com>	 <20050622220428.GA28906@elte.hu> <42B9F673.4040100@opersys.com>	 <20050623000607.GB11486@elte.hu> <42BA069D.20208@opersys.com>	 <20050623013451.GA14137@elte.hu>  <42BA1850.4060505@opersys.com> <1119499041.25270.38.camel@mindpipe>
-In-Reply-To: <1119499041.25270.38.camel@mindpipe>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200506222108.50905.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Lee Revell wrote:
-> Are you talking about the first run where you left all those expensive
-> PREEMPT_RT debug options enabled?
+Quoth Mike Bell:
 > 
-> IMHO those numbers should be taken down, they're completely meaningless.
+> > Also, no disto uses devfs only (gentoo is close, but offers users udev
+> > and a static /dev also.)
+> 
+> It breaks a lot of my embedded setups which have read-only storage only
+> and thus need /dev on devfs or tmpfs.
 
-That's just flamebait. Anyone who's ever read an LKML thread knows
-better than to just trust the topmost parent. As for those who
-don't read LKML very often, then the "Latest Results" is the section
-they'll be most interested in and that specific section starts with
-with a big fat warning.
+I'd agree that embedded setups are the ones that have been slowest to
+switch over, for various reasons.  One of them is that many LKML folk
+ignore embedded systems issues; "just PC class or better".  Another
+has been that the basic hotplug scripts never worked well with "ash",
+and who's going to want to ship "bash" and friends?  :)
 
-You can label the results meaningless if you wish, suit yourself.
+Those problems seem resolved with 2.6.12 and current modutils and udev.
+Leaving basically an "upgrade your userspace" requirement.
 
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+
+> and thus need /dev on devfs or tmpfs. With early-userspace-udev-on-tmpfs
+> being - in my experience - still unready.
+
+Hmm, could you explain why you think udev-on-ramfs/tmpfs/... is still
+unready?  And what it's "unready" for?  It can work fine without
+needing to hack early userspace and initramfs, by the way.  :)  
+
+I recently submitted patches to make buildroot support it.  They're
+mostly merged [1] but adding a simple patch fixes up the remaining
+glitches.  OpenEmbedded has supported it for a while too.
+
+In short, I think udev-on-ramfs is simple enough to set up on 2.6.12
+based embedded configs, and with "modprobe -q $MODALIAS" phasing in,
+it seems to me [2] that hotplug-with-udev [3] can do most of what
+folk have used devfs to achieve.  I've quilted buildroot so that it
+works that way by default for me; it's turnkey, with no problems.
+
+Of course, 2.6.13 will be better with cardmgr finally gone.  :)
+
+- Dave
+
+[1] http://bugs.busybox.net/view.php?id=290
+[2] http://marc.theaimsgroup.com/?l=linux-hotplug-devel&m=111903617808816&w=2
+[3] http://marc.theaimsgroup.com/?l=linux-hotplug-devel&m=111903647518255&w=2
+

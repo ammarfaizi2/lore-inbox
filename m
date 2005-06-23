@@ -1,65 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262761AbVFWVmI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262689AbVFWVmH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262761AbVFWVmI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 17:42:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262818AbVFWViG
+	id S262689AbVFWVmH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 17:42:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262774AbVFWVil
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 17:38:06 -0400
-Received: from fmr21.intel.com ([143.183.121.13]:45481 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S262774AbVFWVaU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 17:30:20 -0400
-Date: Thu, 23 Jun 2005 14:30:03 -0700
-From: Ashok Raj <ashok.raj@intel.com>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, nickpiggin@yahoo.com.au
-Subject: recent sched.c broke cpu hotplug
-Message-ID: <20050623143003.A25031@unix-os.sc.intel.com>
+	Thu, 23 Jun 2005 17:38:41 -0400
+Received: from zproxy.gmail.com ([64.233.162.200]:53035 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262715AbVFWV32 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 17:29:28 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=MBsg8ybDGFK3d+j+nfrN7wiOpqpctvz+O2PfHDMiYcthPdxkdL3Qx+2A+okOuw4nvx52ZJYLjSZwbj/WWqIr7dC8Qtxjr++AoV4z6kV0m8a+/rb5cqjAhlbZ0BIMlJ26wrwDV8sqaGfG/cU+pMD4J/J6w1nzOcH2M0dKfQUbRCY=
+Message-ID: <3aa654a405062314296a4ca2ae@mail.gmail.com>
+Date: Thu, 23 Jun 2005 14:29:21 -0700
+From: Avuton Olrich <avuton@gmail.com>
+Reply-To: Avuton Olrich <avuton@gmail.com>
+To: Adrian Ulrich <reiser4@blinkenlights.ch>
+Subject: Re: reiser4 plugins
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>, ninja@slaphack.com,
+       reiser@namesys.com, jgarzik@pobox.com, hch@infradead.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+In-Reply-To: <20050623221222.33074838.reiser4@blinkenlights.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+References: <42BAC304.2060802@slaphack.com>
+	 <200506231924.j5NJOvLA031008@laptop11.inf.utfsm.cl>
+	 <20050623221222.33074838.reiser4@blinkenlights.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew
+On 6/23/05, Adrian Ulrich <reiser4@blinkenlights.ch> wrote:
+> From my POV:
+>  I've been using Reiser4 for almost everything (Rootfs / External
+>  Harddrives) for about ~8 Months without any data loss..
+> 
+>  Powerloss, unpluging the Disk while writing, full filesystem,
+>  heavy use : No problems with reiser4.. It *is* stable.
 
-trivial fix, this is required for getting cpu hotplug to work. These
-functions are called during cpu down, but marked __init instead of __devinit.
+*From users who use it* I have heard nothing but love for reiser4.
+It's amazing how quickly people seem to be dismissive about what
+reiser4 has to offer when they more than likely haven't taken it for a
+spin at all. All I hear about is 'we can't let something ugly go into
+the stable kernel' then in the same day I looked into some of the
+config options...
 
+CONFIG_WDC_ALI15X3:
+*snip*
+This allows for UltraDMA support for WDC drives that ignore CRC
+checking. You are a fool for enabling this option, but there have been
+requests.
+*snip*
+
+How many have requested that reiser4 make it into the kernel? I'd
+imagine many more then requested this IDE feature. And it's an
+*option*. Please work something out on this.
+
+avuton
 
 -- 
-Cheers,
-Ashok Raj
-- Open Source Technology Center
-
-
-Some functions should be devinit for cpu hotplug purpose.
-
-Signed-off-by: Ashok Raj <ashok.raj@intel.com>
------------------------------------------------------
- kernel/sched.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-Index: linux-2.6.12-mm1/kernel/sched.c
-===================================================================
---- linux-2.6.12-mm1.orig/kernel/sched.c
-+++ linux-2.6.12-mm1/kernel/sched.c
-@@ -5207,7 +5207,7 @@ __setup("migration_factor=", setup_migra
-  * Estimated distance of two CPUs, measured via the number of domains
-  * we have to pass for the two CPUs to be in the same span:
-  */
--__init static unsigned long domain_distance(int cpu1, int cpu2)
-+__devinit static unsigned long domain_distance(int cpu1, int cpu2)
- {
- 	unsigned long distance = 0;
- 	struct sched_domain *sd;
-@@ -5417,7 +5417,7 @@ measure_cost(int cpu1, int cpu2, void *c
- 	return cost1 - cost2;
- }
- 
--__init static unsigned long long measure_migration_cost(int cpu1, int cpu2)
-+__devinit static unsigned long long measure_migration_cost(int cpu1, int cpu2)
- {
- 	unsigned long long max_cost = 0, fluct = 0, avg_fluct = 0;
- 	unsigned int max_size, size, size_found = 0;
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

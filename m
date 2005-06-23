@@ -1,77 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262036AbVFWD0E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262038AbVFWD06@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262036AbVFWD0E (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 23:26:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262038AbVFWD0E
+	id S262038AbVFWD06 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 23:26:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262041AbVFWD06
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 23:26:04 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:28073 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262035AbVFWDZc (ORCPT
+	Wed, 22 Jun 2005 23:26:58 -0400
+Received: from [62.206.217.67] ([62.206.217.67]:57835 "EHLO kaber.coreworks.de")
+	by vger.kernel.org with ESMTP id S262038AbVFWD0x (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 23:25:32 -0400
-Date: Wed, 22 Jun 2005 20:24:22 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Greg KH <greg@kroah.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Git Mailing List <git@vger.kernel.org>
-Subject: Re: Updated git HOWTO for kernel hackers
-In-Reply-To: <42BA271F.6080505@pobox.com>
-Message-ID: <Pine.LNX.4.58.0506222014000.11175@ppc970.osdl.org>
-References: <42B9E536.60704@pobox.com> <20050622230905.GA7873@kroah.com>
- <Pine.LNX.4.58.0506221623210.11175@ppc970.osdl.org> <42B9FCAE.1000607@pobox.com>
- <Pine.LNX.4.58.0506221724140.11175@ppc970.osdl.org> <42BA14B8.2020609@pobox.com>
- <Pine.LNX.4.58.0506221853280.11175@ppc970.osdl.org> <42BA1B68.9040505@pobox.com>
- <Pine.LNX.4.58.0506221929430.11175@ppc970.osdl.org> <42BA271F.6080505@pobox.com>
+	Wed, 22 Jun 2005 23:26:53 -0400
+Date: Thu, 23 Jun 2005 05:26:30 +0200 (CEST)
+From: Patrick McHardy <kaber@trash.net>
+X-X-Sender: kaber@kaber.coreworks.de
+To: Herbert Xu <herbert@gondor.apana.org.au>
+cc: Bart De Schuymer <bdschuym@pandora.be>,
+       Bart De Schuymer <bdschuym@telenet.be>, netfilter-devel@manty.net,
+       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
+       ebtables-devel@lists.sourceforge.net, rankincj@yahoo.com
+Subject: Re: 2.6.12: connection tracking broken?
+In-Reply-To: <20050622214920.GA13519@gondor.apana.org.au>
+Message-ID: <Pine.LNX.4.62.0506230502070.12228@kaber.coreworks.de>
+References: <E1Dk9nK-0001ww-00@gondolin.me.apana.org.au>
+ <Pine.LNX.4.62.0506200432100.31737@kaber.coreworks.de>
+ <1119249575.3387.3.camel@localhost.localdomain> <42B6B373.20507@trash.net>
+ <1119293193.3381.9.camel@localhost.localdomain> <42B74FC5.3070404@trash.net>
+ <1119338382.3390.24.camel@localhost.localdomain> <42B82F35.3040909@trash.net>
+ <20050622214920.GA13519@gondor.apana.org.au>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 23 Jun 2005, Herbert Xu wrote:
+> Longer term though we should obsolete the ipt_physdev module.  The
+> rationale there is that this creates a precedence that we can't
+> possibly maintain in a consistent way.  For example, we don't have
+> a target that matches by hardware MAC address.  If you wanted to
+> do that, you'd hook into the arptables interface rather than deferring
+> iptables after the creation of the hardware header.
 
+Agreed.
 
-On Wed, 22 Jun 2005, Jeff Garzik wrote:
-> 
-> Concrete example:  I have a git tree on local disk.  I need to find out 
-> where, between 2.6.12-rc1 and 2.6.12, a driver broke.  This requires 
-> that I have -ALL- linux-2.6.git/refs/tags on disk already, so that I can 
-> bounce quickly and easily between tags.
+> This can be done in two stages to minimise pain for people already
+> using it:
+>
+> 1) We rewrite ipt_physdev to do the lookups necessary to get the output
+> physical devices through the bridge layer.  Of course this may not be
+> the real output device due to changes in the environment.  So this should
+> be accompanied with a warning that users should switch to ebt.
 
-Absolutely not.
+IMO without defering the hooks the physdev match becomes pretty useless
+for locally generated packets. The bridge layer clones packets that are
+delivered to multiple ports and calls the NF_IP_* hooks for each clone, so
+each clone can be treated seperately. In the IP layer there is only a
+single packet, so clones for different ports couldn't be treated
+seperately anymore and the semantic of the physdev match would need to be
+changed to match on any bridge port in this case, which would probably
+break existing rulesets.
 
-I might have my private tags in my kernel, and you might have your private 
-tags ("tested") in your kernel, so there is no such thing as "ALL".
+> 2) We remove the iptables deferring since ipt_physdev will no longer need
+> it.
+>
+> 3) After a set period (say a year or so) we remove ipt_physdev altogether.
 
-The fact that BK had it was a BK deficiency, and just meant that you 
-basically couldn't use tags at all with BK, the "official ones" excepted. 
-It basically meant that nobody else than me could ever tag a tree. Do you 
-not see how that violates the very notion of "distributed"?
+How about we schedule it for removal in a year, keep the workaround
+until then and then remove the hook defering?
 
-This is _exactly_ the same thing as if you said "I want to merge with ALL
-BRANCHES".  That notion doesn't exist. You can rsync the whole repository,
-and you'll get all branches from that repository, that's really by virtue
-of doing a filesystem operation, not because you asked git to get you all
-branches.
-
-A tag is even _implemented_ exactly like a branch, except it allows (but
-does not require) that extra step of signing an object. The only
-difference is literally whether it is in refs/branches or refs/tags.
-
-> It is valuable to have a local copy of -all- tags, -before- you need 
-> them.
-
-You seem to not realize that "all tags" is a nonsensical statement in a 
-distributed system.
-
-If you want to have a list of official tags, why not just do exactly that? 
-What's so hard with saying "ok, that place has a list of 'official' tags, 
-let's fetch them".
-
-How would you fetch them? You might use rsync, for example. Or maybe wget. 
-Or whatever. The point is that this works already. You're asking for 
-something nonsensical, outside of just a script that does
-
-	rsync -r --ignore-existing repo/refs/tags/ .git/refs/tags/
-
-See? What's your complaint with just doing that?
-
-			Linus
+Regards
+Patrick

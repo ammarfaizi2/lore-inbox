@@ -1,46 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262141AbVFWGrh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262520AbVFWGmY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262141AbVFWGrh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 02:47:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262367AbVFWGqY
+	id S262520AbVFWGmY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 02:42:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262534AbVFWGlH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 02:46:24 -0400
-Received: from [24.22.56.4] ([24.22.56.4]:30694 "EHLO
-	w-gerrit.beaverton.ibm.com") by vger.kernel.org with ESMTP
-	id S262345AbVFWGTH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 02:19:07 -0400
-Message-Id: <20050623061758.266524000@w-gerrit.beaverton.ibm.com>
-References: <20050623061552.833852000@w-gerrit.beaverton.ibm.com>
-Date: Wed, 22 Jun 2005 23:16:12 -0700
-From: Gerrit Huizenga <gh@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Cc: ckrm-tech@lists.sourceforge.net, Nishanth Aravamudan <nacc@us.ibm.com>,
-       Gerrit Huizenga <gh@us.ibm.com>
-Subject: [patch 20/38] CKRM e18: Clean up typo in printk message
-Content-Disposition: inline; filename=ckrm-printf-cleanup
+	Thu, 23 Jun 2005 02:41:07 -0400
+Received: from wproxy.gmail.com ([64.233.184.205]:50838 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262284AbVFWGSp convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 02:18:45 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=erlm0Kkhh7qv2wHuokC3W4fTNxPZn2i5pBYTRCDqMtIPYdGgMXMe+0fkPFfNg1ihT2lWm70b6VERBm/lSOLW5HdkLT1+Uq4GSh8AZyuyytxG6HYn1I77TGOgwOd433/0Gqz9DvLaNuSS3qO12+1KnAeSQzIFPx2GD3OIltCFdHM=
+Message-ID: <e08b036d050622231841965f44@mail.gmail.com>
+Date: Thu, 23 Jun 2005 11:48:38 +0530
+From: rakesh <rakeshiitr@gmail.com>
+Reply-To: rakesh <rakeshiitr@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: driver framework for USB GADGET for OBEX
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Description: Simple typo, but makes code look incomplete.
+hi 
+i m linux user.
+is there any linux doc on driver framework for USB GADGET for OBEX.?
 
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
-Signed-off-by: Gerrit Huizenga <gh@us.ibm.com>
+can you help me???
+thank you
 
- ckrm.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-Index: linux-2.6.12-ckrm1/kernel/ckrm/ckrm.c
-===================================================================
---- linux-2.6.12-ckrm1.orig/kernel/ckrm/ckrm.c	2005-06-20 13:08:36.000000000 -0700
-+++ linux-2.6.12-ckrm1/kernel/ckrm/ckrm.c	2005-06-20 13:08:49.000000000 -0700
-@@ -598,7 +598,7 @@ ckrm_register_res_ctlr(struct ckrm_class
- 		 */
- 		read_lock(&ckrm_class_lock);
- 		list_for_each_entry(core, &clstype->classes, clslist) {
--			printk("CKRM .. create res clsobj for resouce <%s>"
-+			printk(KERN_NOTICE "CKRM .. create res clsobj for resource <%s>"
- 			       "class <%s> par=%p\n", rcbs->res_name,
- 			       core->name, core->hnode.parent);
- 			ckrm_alloc_res_class(core, core->hnode.parent, resid);
-
+regards rakesh
 --
+RAKESH YADAV
+B.Tech final Year
+Electronics and Communication ENGG
+I.I.T. ROORKEE

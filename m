@@ -1,46 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262278AbVFWMZv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262349AbVFWMdF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262278AbVFWMZv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 08:25:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262349AbVFWMZv
+	id S262349AbVFWMdF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 08:33:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262357AbVFWMdF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 08:25:51 -0400
-Received: from rproxy.gmail.com ([64.233.170.205]:19279 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262286AbVFWMZo convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 08:25:44 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=bTlhJAW7e2jYu69XBNzCgIRUP3mU6p9JjjschjuM5IbjvA22Nh4iU0E6zbLcTDZ23iT7NWU8plvBZTqrntN/3aVTPi0tTrBgODFSKCia6sOc7O+vLRz8dMbG6mJxd/8u9KejRFV5Je5rSke9CHp6hcwRbofJ7Hk5KrNru0aUTOo=
-Message-ID: <21d7e99705062305255b1ec58e@mail.gmail.com>
-Date: Thu, 23 Jun 2005 22:25:43 +1000
-From: Dave Airlie <airlied@gmail.com>
-Reply-To: Dave Airlie <airlied@gmail.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: Updated git HOWTO for kernel hackers
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Git Mailing List <git@vger.kernel.org>
-In-Reply-To: <42B9E536.60704@pobox.com>
+	Thu, 23 Jun 2005 08:33:05 -0400
+Received: from mummy.ncsc.mil ([144.51.88.129]:2551 "EHLO jazzhorn.ncsc.mil")
+	by vger.kernel.org with ESMTP id S262349AbVFWMdB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 08:33:01 -0400
+Subject: Re: [patch 1/1] selinux: minor cleanup in the
+	hooks.c:file_map_prot_check() code
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
+	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
+Cc: James Morris <jmorris@redhat.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1119492278.9254.32.camel@localhost.localdomain>
+References: <Xine.LNX.4.44.0506222150590.10175-100000@thoron.boston.redhat.com>
+	 <1119492278.9254.32.camel@localhost.localdomain>
+Content-Type: text/plain; charset=utf-8
+Organization: National Security Agency
+Date: Thu, 23 Jun 2005 08:31:52 -0400
+Message-Id: <1119529912.28493.10.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <42B9E536.60704@pobox.com>
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> jgarzik helper scripts, not in official git distribution:
-> http://www.kernel.org/pub/linux/kernel/people/jgarzik/git-new-branch
-> http://www.kernel.org/pub/linux/kernel/people/jgarzik/git-changes-script
+On Thu, 2005-06-23 at 04:04 +0200, Lorenzo Hernández García-Hierro
+wrote:
+> El mié, 22-06-2005 a las 21:55 -0400, James Morris escribió:
+> > Please send SELinux kernel patches via the maintainers.
 > 
+> It was sent to Stephen during the development of the execstack and
+> execheap permission checks patches, but it's up to him to decide about
+> it right now.
+> 
+> Stephen, is it OK for you?
 
-Do you have some sort of magic bk-make-sum type util at all... 
+James is correct that the first diff isn't useful (and will lead to
+warnings on ppc32), whereas the latter diff is a legitimate cleanup.  So
+I'd suggest resubmitting with just the latter diff.  Thanks.  Sorry for
+any confusion.
+ 
+-- 
+Stephen Smalley
+National Security Agency
 
-For sending trees to Linus I used to run bk-make-sum and gcapatch and
-then just throw my own stuff in the top of the mail ....
-
-I'm being lazy I probably could write it myself, but bk-make-sum was a
-very useful script for me...
-
-Dave.

@@ -1,51 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262363AbVFWITW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262461AbVFWII5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262363AbVFWITW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 04:19:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262863AbVFWIQc
+	id S262461AbVFWII5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 04:08:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262853AbVFWIHF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 04:16:32 -0400
-Received: from lyle.provo.novell.com ([137.65.81.174]:14513 "EHLO
-	lyle.provo.novell.com") by vger.kernel.org with ESMTP
-	id S262284AbVFWHDW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 03:03:22 -0400
-Date: Thu, 23 Jun 2005 00:03:09 -0700
-From: Greg KH <gregkh@suse.de>
-To: snogglethorpe@gmail.com, miles@gnu.org
-Cc: Greg KH <greg@kroah.com>, Mike Bell <kernel@mikebell.org>,
-       Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [GIT PATCH] Remove devfs from 2.6.12-git
-Message-ID: <20050623070309.GA12158@suse.de>
-References: <20050621062926.GB15062@kroah.com> <20050620235403.45bf9613.akpm@osdl.org> <20050621151019.GA19666@kroah.com> <20050623010031.GB17453@mikebell.org> <20050623045959.GB10386@kroah.com> <buoaclhwqfj.fsf@mctpc71.ucom.lsi.nec.co.jp> <20050623062627.GB11638@kroah.com> <fc339e4a05062223365c2a5ed5@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <fc339e4a05062223365c2a5ed5@mail.gmail.com>
-User-Agent: Mutt/1.5.8i
+	Thu, 23 Jun 2005 04:07:05 -0400
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:11725 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S262418AbVFWGgt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 02:36:49 -0400
+Message-ID: <42BA588B.2090001@bull.net>
+Date: Thu, 23 Jun 2005 08:36:59 +0200
+From: Jean-Pierre Dion <jean-pierre.dion@bull.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050414
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Gerrit Huizenga <gh@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       ckrm-tech@lists.sourceforge.net
+Subject: Re: [ckrm-tech] [patch 00/38] CKRM e18:  Updated core patches to
+ 2.6.12 and included e17 changes
+References: <20050623061552.833852000@w-gerrit.beaverton.ibm.com>
+In-Reply-To: <20050623061552.833852000@w-gerrit.beaverton.ibm.com>
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 23/06/2005 08:48:10,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 23/06/2005 08:48:11,
+	Serialize complete at 23/06/2005 08:48:11
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 23, 2005 at 03:36:11PM +0900, Miles Bader wrote:
-> On 6/23/05, Greg KH <greg@kroah.com> wrote:
-> > Not that I know of.  If you want to do this, compare the original udev
-> > releases that were around 5kb of code, as the nice features it has today
-> > are stuff that devfs can not support at all.
-> 
-> That wouldn't be such an effective tool for convincing people to
-> switch though... :-)  "Look this obsolete version is much smaller!"
-> 
-> If udev has really bloated up due to whizzy new features, how hard
-> would it be to compile a stripped-down version?  [Well I should look
-> at the busybox support somebody mentioned -- perhaps it's exactly
-> that.]
+Hi Gerrit,
 
-It wouldn't be that hard at all, just look at the first couple of
-releases for example code to use (you would want it to be a totally
-separate project, the current udev is not ment for such a stripped down
-thing, it's ment to take over all of the /sbin/hotplug funcionality,
-through netlink no less.)
+just a typo.
 
-thanks,
+Gerrit Huizenga wrote:
 
-greg k-h
+>All of these changes have been tested on IA32 and PPC64, with CONIG_CKRM
+>  
+>
+                                                                        
+        CONFIG_CKRM    ;-)
+
+jean-pierre
+
+>--
+>gerrit
+>
+>
+>-------------------------------------------------------
+>SF.Net email is sponsored by: Discover Easy Linux Migration Strategies
+>from IBM. Find simple to follow Roadmaps, straightforward articles,
+>informative Webcasts and more! Get everything you need to get up to
+>speed, fast. http://ads.osdn.com/?ad_id=7477&alloc_id=16492&op=click
+>_______________________________________________
+>ckrm-tech mailing list
+>https://lists.sourceforge.net/lists/listinfo/ckrm-tech
+>
+>  
+>

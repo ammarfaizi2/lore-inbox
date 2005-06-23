@@ -1,54 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261830AbVFWBS5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261963AbVFWBSf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261830AbVFWBS5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 21:18:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261841AbVFWBS5
+	id S261963AbVFWBSf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 21:18:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261958AbVFWBSe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 21:18:57 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:25238 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261830AbVFWBSx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 21:18:53 -0400
-Date: Wed, 22 Jun 2005 18:18:25 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Mike Bell <kernel@mikebell.org>
-Cc: greg@kroah.com, gregkh@suse.de, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [GIT PATCH] Remove devfs from 2.6.12-git
-Message-Id: <20050622181825.204fbcb7.akpm@osdl.org>
-In-Reply-To: <20050623010031.GB17453@mikebell.org>
-References: <20050621062926.GB15062@kroah.com>
-	<20050620235403.45bf9613.akpm@osdl.org>
-	<20050621151019.GA19666@kroah.com>
-	<20050623010031.GB17453@mikebell.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 22 Jun 2005 21:18:34 -0400
+Received: from fmr18.intel.com ([134.134.136.17]:27618 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261955AbVFWBSb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 21:18:31 -0400
+Date: Wed, 22 Jun 2005 18:18:23 -0700
+Message-Id: <200506230118.j5N1INsc016585@linux.jf.intel.com>
+From: Rusty Lynch <rusty.lynch@intel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: [ia64][patch] Fix 2.6.12-mm1 default tiger config
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Bell <kernel@mikebell.org> wrote:
->
-> On Tue, Jun 21, 2005 at 08:10:19AM -0700, Greg KH wrote:
-> > There might be some complaints.  But I doubt they would be from anyone
-> > running a -mm tree as those people kind of know the current status of
-> > things in the kernel.  There have been numerous warnings as to the fact
-> > that this was going away, and I waited a _year_ to do this.
-> 
-> I use -mm and I'm complaining.
+With the addition of the CONFIG_FUSION_FC and CONFIG_FUSION_SPI
+config entries, the ia64 default tiger configuration is broken
+(because system fails to mount root device.)  This patch fixes
+the default for tiger systems.
 
-Thanks!
+    --rusty
 
-> It breaks a lot of my embedded setups which have read-only storage only
-> and thus need /dev on devfs or tmpfs.
+signed-off-by: Rusty Lynch <rusty.lynch@intel.com>
 
-Well that's quite a problem.  We're certainly causing people such as
-yourself to take on quite a lot of work.  But on the other hand we do want
-the kernel to progress sanely, and that sometimes involves taking things
-out.
+ arch/ia64/configs/tiger_defconfig |    2 ++
+ 1 files changed, 2 insertions(+)
 
-I don't have enough info to know whether the world would be a better place
-if we keep devfs, remove devfs or remove devfs even later on.  I don't
-think anyone knows, which is why we're taking this little
-disable-it-and-see-who-shouts approach.
+Index: linux-2.6.12-mm1/arch/ia64/configs/tiger_defconfig
+===================================================================
+--- linux-2.6.12-mm1.orig/arch/ia64/configs/tiger_defconfig
++++ linux-2.6.12-mm1/arch/ia64/configs/tiger_defconfig
+@@ -366,6 +366,8 @@ CONFIG_DM_ZERO=m
+ # Fusion MPT device support
+ #
+ CONFIG_FUSION=y
++CONFIG_FUSION_SPI=y
++# CONFIG_FUSION_FC is not set
+ CONFIG_FUSION_MAX_SGE=40
+ # CONFIG_FUSION_CTL is not set
+ 

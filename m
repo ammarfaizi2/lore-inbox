@@ -1,49 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262710AbVFWVIj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262676AbVFWVND@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262710AbVFWVIj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 17:08:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262662AbVFWVIi
+	id S262676AbVFWVND (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 17:13:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262662AbVFWVMV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 17:08:38 -0400
-Received: from pilet.ens-lyon.fr ([140.77.167.16]:21176 "EHLO
-	relaissmtp.ens-lyon.fr") by vger.kernel.org with ESMTP
-	id S262752AbVFWVHW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 17:07:22 -0400
-Message-ID: <42BB247A.50506@ens-lyon.org>
-Date: Thu, 23 Jun 2005 23:07:06 +0200
-From: Brice Goglin <Brice.Goglin@ens-lyon.org>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: Rajesh Shah <rajesh.shah@intel.com>
-Cc: Dominik Brodowski <linux@dominikbrodowski.net>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.12-mm1
-References: <20050619233029.45dd66b8.akpm@osdl.org> <42B6746B.4020305@ens-lyon.org> <20050620081443.GA31831@isilmar.linta.de> <42B6831B.3040506@ens-lyon.org> <20050620085449.GA32330@isilmar.linta.de> <42B6C06F.4000704@ens-lyon.org> <20050622163427.A10079@unix-os.sc.intel.com> <42BA55D2.7020900@ens-lyon.org> <20050623100536.A21592@unix-os.sc.intel.com> <42BAFADF.2030804@ens-lyon.org> <20050623133238.A24026@unix-os.sc.intel.com>
-In-Reply-To: <20050623133238.A24026@unix-os.sc.intel.com>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	Thu, 23 Jun 2005 17:12:21 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:57992
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S261709AbVFWVKp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 17:10:45 -0400
+Date: Thu, 23 Jun 2005 14:10:38 -0700 (PDT)
+Message-Id: <20050623.141038.122619255.davem@davemloft.net>
+To: jesper.juhl@gmail.com, juhl-lkml@dif.dk
+Cc: loz@holmes.demon.co.uk, linux-serial@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] SLIP: simplify sl_free_bufs
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <Pine.LNX.4.62.0506232243340.7467@dragon.hyggekrogen.localhost>
+References: <Pine.LNX.4.62.0506152136310.3842@dragon.hyggekrogen.localhost>
+	<Pine.LNX.4.62.0506232243340.7467@dragon.hyggekrogen.localhost>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le 23.06.2005 22:32, Rajesh Shah a écrit :
-> The host bridge resources being reported were fine. I think this
-> failure is a yenta bug exposed by the combination of the host
-> bridge resource collection patch and the patch to improve the
-> handling for transparent bridges. I think the yenta code thinks
-> there's a resource conflict for the ranges being decoded by the
-> cardbus bridge when in fact there isn't any conflict in this case.
-> It then claims and reprograms the cardbus bridge to IO resources
-> that are already programmed into another device (winmodem in this
-> case), causing problems.
-> 
-> Does the following patch to 2.6.12-mm1 fix the problem?
+From: Jesper Juhl <juhl-lkml@dif.dk>
+Date: Thu, 23 Jun 2005 22:46:06 +0200 (CEST)
 
-No, sorry, doesn't change anything.
-I still get a few "Preassigned resource 0 busy, reconfiguring..."
-followed by "parent PCI bridge I/O window: 0x2000 - 0x2fff" and
-then the system hangs right after "cs: IO probe 0x2000-0x2ffff;".
+> The patch below still applies cleanly to 2.6.12 - any chance this might 
+> get applied? or any good reasons not to apply it?
 
-Brice
+I'll put it in my tree, give me a day or so.

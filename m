@@ -1,67 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262157AbVFWFXc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262160AbVFWFgJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262157AbVFWFXc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 01:23:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262185AbVFWFXc
+	id S262160AbVFWFgJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 01:36:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262163AbVFWFgI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 01:23:32 -0400
-Received: from saturn.billgatliff.com ([209.251.101.200]:6847 "EHLO
-	saturn.billgatliff.com") by vger.kernel.org with ESMTP
-	id S262157AbVFWFW6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 01:22:58 -0400
-Message-ID: <42BA471E.7010208@billgatliff.com>
-Date: Thu, 23 Jun 2005 00:22:38 -0500
-From: Bill Gatliff <bgat@billgatliff.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
+	Thu, 23 Jun 2005 01:36:08 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:13234 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S262085AbVFWFfq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 01:35:46 -0400
+Message-ID: <42BA4A29.7030601@pobox.com>
+Date: Thu, 23 Jun 2005 01:35:37 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [GIT PATCH] Remove devfs from 2.6.12-git
-References: <200506222208.58494.david-b@pacbell.net>
-In-Reply-To: <200506222208.58494.david-b@pacbell.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Adam Kropelin <akropel1@rochester.rr.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Git Mailing List <git@vger.kernel.org>
+Subject: Re: Updated git HOWTO for kernel hackers
+References: <42B9E536.60704@pobox.com> <Pine.LNX.4.58.0506221603120.11175@ppc970.osdl.org> <42BA18AF.2070406@pobox.com> <Pine.LNX.4.58.0506221915280.11175@ppc970.osdl.org> <07be01c577a7$05108660$03c8a8c0@kroptech.com> <Pine.LNX.4.58.0506222146460.11175@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0506222146460.11175@ppc970.osdl.org>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David:
+Linus Torvalds wrote:
+> The problem I have with "git commit" committing everything dirty by
+> default is that it encourages exactly the wrong kind of behaviour, ie the 
+> "commit it all in one go without thinking about it".
 
-David Brownell wrote:
-
->The downside of "disable-and-remove-later" is that it becomes
->too easy to just re-enable the Kconfig stuff rather than just
->fixing the userspace bugs.  Expecting userspace to change at
->any point before it absolutely _must_ tends to be a formula
->for userspace never changing, sadly enough.  
->
->If 2.6.13 doesn't remove devfs, when will it really go away?
->  
->
-
-Good point.  I've come this far somewhat reluctantly, but can see that 
-udev is a better long-term solution.  Once devfs is gone, it's easier 
-for me to justify doing the work to go fully over to udev (GregKH, can 
-you post a link or two to those "packages" you refer to?).
-
-And also, once devfs is gone it's an easier economic decision for my 
-customers, too: either they move ahead and get whatever new features 
-that non-devfs kernels offer, or they do the work to keep the current 
-stuff in the state they want it.  It's their call, I (sometimes) get 
-paid either way...
-
-And it isn't like just my customers would be in this situation, everyone 
-will have to face it.  So it's "fair" for everyone.
-
-So, I guess I'm into the "say goodbye to devfs" camp now.  In case 
-anyone asks, that is.  :^)
+100% agreed
 
 
-b.g.
+> And "git status" really isn't that hard to type, and it will tell you 
+> exactly what you've already marked for commit, and what you have dirty in 
+> the tree but isn't marked for commit yet.
 
--- 
-Bill Gatliff
-Build a man a fire, and he's warm for the rest of the night.
-Set a man on fire, and he's warm for the rest of his life.
-   -- Anonymous
-bgat@billgatliff.com
+Having found about it recently, 'git status' is quite useful.
+
+
+> So I think the "git commit <file-list>" thing is very convenient, but it's
+> convenient exactly because it's concise yet still precise and doesn't 
+> encourage the "just commit whatever random dirty state I have right now" 
+> mentality.
+> 
+> And if you have more than a few files dirty in your tree, I really think
+> it's much better to do "git status" and think about it a bit and select
+> the files you do want to commit than it is to just do "git commit" and let
+> it rip.
+
+For me at least, providing a file list is a pain, because I am so 
+precise [read: obsessive] about keeping an otherwise clean working dir 
+:)  Except in rare occasions, I know precisely that the changes in the 
+working dir comprise 100% of what I plan to commit.
+
+Locally I have scripted
+
+      git-diff-cache -p HEAD | diffstat -p1 | awk '{print $1}' > /tmp/lst
+      git-update-cache `cat /tmp/lst`
+
+because of this.
+
+[again, clearly doesn't work with remove/add/mode change]
+
+
+> Now, I could well imagine adding an "--all" flag (and not even allow the 
+> shorthane version) to both git-update-cache and "git commit". So that you 
+> could say "commit all the dirty state", but you'd at least have to think 
+> about it before you did so.
+
+That's pretty much what I suggested when I said
+
+	git commit --figure-out-for-me-what-files-changed
+
+:)
+
+So I certainly agree there.
+
+	Jeff
+
+
 

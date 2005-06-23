@@ -1,56 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262619AbVFWQn6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262588AbVFWQxT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262619AbVFWQn6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 12:43:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262622AbVFWQn6
+	id S262588AbVFWQxT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 12:53:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262609AbVFWQxT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 12:43:58 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:5138 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262619AbVFWQn4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 12:43:56 -0400
-Date: Thu, 23 Jun 2005 17:43:49 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Jamey Hicks <jamey.hicks@hp.com>
-Cc: dpervushin@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] SPI core -- revisited
-Message-ID: <20050623174349.A12573@flint.arm.linux.org.uk>
-Mail-Followup-To: Jamey Hicks <jamey.hicks@hp.com>, dpervushin@gmail.com,
-	linux-kernel@vger.kernel.org
-References: <1119529135.4739.6.camel@diimka.dev.rtsoft.ru> <42BADA42.9090908@hp.com>
+	Thu, 23 Jun 2005 12:53:19 -0400
+Received: from ojjektum.uhulinux.hu ([62.112.194.64]:50319 "EHLO
+	ojjektum.uhulinux.hu") by vger.kernel.org with ESMTP
+	id S262588AbVFWQxM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 12:53:12 -0400
+Date: Thu, 23 Jun 2005 18:53:09 +0200
+From: =?iso-8859-1?Q?Pozs=E1r_Bal=E1zs?= <pozsy@uhulinux.hu>
+To: Tim Bird <tim.bird@am.sony.com>
+Cc: linux-kernel@vger.kernel.org, David Woodhouse <dwmw2@infradead.org>,
+       "Sean M. Burke" <sburke@cpan.org>, trivial@rustcorp.com.au
+Subject: Re: PATCH: "Ok" -> "OK" in messages
+Message-ID: <20050623165309.GA23548@ojjektum.uhulinux.hu>
+References: <42985251.6030006@cpan.org> <1117279792.32118.11.camel@localhost.localdomain> <20050528125430.GB3870@ojjektum.uhulinux.hu> <42BAE3B1.5010209@am.sony.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <42BADA42.9090908@hp.com>; from jamey.hicks@hp.com on Thu, Jun 23, 2005 at 11:50:26AM -0400
+In-Reply-To: <42BAE3B1.5010209@am.sony.com>
+User-Agent: Mutt/1.5.7i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 23, 2005 at 11:50:26AM -0400, Jamey Hicks wrote:
-> dmitry pervushin wrote:
-> >we finally decided to rework the SPI core and now it its ready for your comments.. 
-> >Here we have several boards equipped with SPI bus, and use this spi core with these boards; 
-> >Drivers for them are available by request (...and if community approve this patch)
+On Thu, Jun 23, 2005 at 09:30:41AM -0700, Tim Bird wrote:
+> >> While we are at it, what about changing this string to something
+> >> language-neutral, like this:
+> >>
+> >> diff -Naurdp a/arch/i386/boot/compressed/misc.c b/arch/i386/boot/compressed/misc.c
+> >> --- a/arch/i386/boot/compressed/misc.c	2004-04-04 05:37:23.000000000 +0200
+> >> +++ b/arch/i386/boot/compressed/misc.c	2004-05-09 23:18:06.000000000 +0200
+> >> @@ -10,6 +10,7 @@
+> >>   */
+> >>
+> >>  #include <linux/linkage.h>
+> >> +#include <linux/version.h>
+> >>  #include <linux/vmalloc.h>
+> >>  #include <linux/tty.h>
+> >>  #include <video/edid.h>
+> >> @@ -373,9 +374,9 @@ asmlinkage int decompress_kernel(struct
+> >>  	else setup_output_buffer_if_we_run_high(mv);
+> >>
+> >>  	makecrc();
+> >> -	putstr("Uncompressing Linux... ");
+> >> +	putstr("Linux " UTS_RELEASE);
+> >>  	gunzip();
+> >> -	putstr("Ok, booting the kernel.\n");
+> >> +	putstr("\n");
+> >>  	if (high_loaded) close_output_buffer_if_we_run_high(mv);
+> >>  	return high_loaded;
+> >>  }
 > 
-> I'm glad to see that work is progressing on SPI core.  I've worked on 
-> drivers on both ARM linux and Blackfin uclinux that use SPI and would 
-> prefer that they not be platform specific.
+> 
+> Language neutrality is not a goal for kernel messages,
+> that I'm aware of.
 
-I worry about SPI at the moment because I can't see how it's being used
-from just this code.
+Of course this is true, but I think this very one is an exception: this 
+is the only one seen when booting with the "quiet" kernel option or 
+using some shiny bootlogo patches, both of which is common practice 
+among distribution-shipped kernels.
 
-The worry I have is that it appears to contain an algorithm layer.  Would
-this be better as a library for drivers to use, or something like that?
 
-The reason I bring up this point is that my L3 layer is over-complex
-for what it does (despite being about 378 lines) because it tried far
-too hard to look like the I2C layer - soo much so I'm not happy with
-it for mainline.
+> I disagree with this change because
+> it yields a net reduction in understanding what's going
+> on during booting.
 
-(I also have some concerns with the amount of NULL pointer checking in
-the SPI code...)
+No, it does not yields any reduction. Only the strings itself are 
+changed, not the time they are printed.
+Besides, nobody is interested that actually an uncompress step is in 
+progress, that just works. And, btw if it fails (the gunzip), it prints 
+an error message anyway iirc.
+
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+pozsy

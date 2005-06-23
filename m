@@ -1,48 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262875AbVFWI2y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262878AbVFWI2y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262875AbVFWI2y (ORCPT <rfc822;willy@w.ods.org>);
+	id S262878AbVFWI2y (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 23 Jun 2005 04:28:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263226AbVFWIWW
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263277AbVFWIYR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 04:22:22 -0400
-Received: from mail.kroah.org ([69.55.234.183]:1699 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262352AbVFWHLt (ORCPT
+	Thu, 23 Jun 2005 04:24:17 -0400
+Received: from holomorphy.com ([66.93.40.71]:48819 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S262639AbVFWH0N (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 03:11:49 -0400
-Date: Thu, 23 Jun 2005 00:11:33 -0700
-From: Greg KH <greg@kroah.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Git Mailing List <git@vger.kernel.org>
-Subject: Re: Updated git HOWTO for kernel hackers
-Message-ID: <20050623071133.GA12304@kroah.com>
-References: <42BA14B8.2020609@pobox.com> <Pine.LNX.4.58.0506221853280.11175@ppc970.osdl.org> <42BA1B68.9040505@pobox.com> <Pine.LNX.4.58.0506221929430.11175@ppc970.osdl.org> <42BA271F.6080505@pobox.com> <Pine.LNX.4.58.0506222014000.11175@ppc970.osdl.org> <42BA45B1.7060207@pobox.com> <Pine.LNX.4.58.0506222225010.11175@ppc970.osdl.org> <20050623062045.GA11638@kroah.com> <Pine.LNX.4.58.0506222338290.11175@ppc970.osdl.org>
+	Thu, 23 Jun 2005 03:26:13 -0400
+Date: Thu, 23 Jun 2005 00:26:09 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Hugh Dickins <hugh@veritas.com>, Badari Pulavarty <pbadari@us.ibm.com>
+Subject: Re: [patch][rfc] 2/5: micro optimisation for mm/rmap.c
+Message-ID: <20050623072609.GA3334@holomorphy.com>
+References: <42BA5F37.6070405@yahoo.com.au> <42BA5F5C.3080101@yahoo.com.au> <42BA5F7B.30904@yahoo.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0506222338290.11175@ppc970.osdl.org>
-User-Agent: Mutt/1.5.8i
+In-Reply-To: <42BA5F7B.30904@yahoo.com.au>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 22, 2005 at 11:51:40PM -0700, Linus Torvalds wrote:
-> 
-> 
-> On Wed, 22 Jun 2005, Greg KH wrote:
-> > 
-> > Hm, that doesn't work right now.
-> 
-> Yeah, my suggested mod sucks.
-> 
-> Try the following slightly modified version instead, with
-> 
-> 	git fetch rsync://rsync.kernel.org/pub/scm/linux/kernel/git/chrisw/linux-2.6.12.y.git tag v2.6.12.1
-> 
-> and now it should work.
+On Thu, Jun 23, 2005 at 05:06:35PM +1000, Nick Piggin wrote:
+> +		index = (address - vma->vm_start) >> PAGE_SHIFT;
+> +		index += vma->vm_pgoff;
+> +		index >>= PAGE_CACHE_SHIFT - PAGE_SHIFT;
+> +		page->index = index;
 
-Yes, that patch works for me.
+linear_page_index()
 
-thanks,
 
-greg k-h
+-- wli

@@ -1,68 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262398AbVFWMqu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262447AbVFWMxS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262398AbVFWMqu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 08:46:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262416AbVFWMqu
+	id S262447AbVFWMxS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 08:53:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262449AbVFWMxR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 08:46:50 -0400
-Received: from alog0308.analogic.com ([208.224.222.84]:27043 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262398AbVFWMqr
+	Thu, 23 Jun 2005 08:53:17 -0400
+Received: from gw1.cosmosbay.com ([62.23.185.226]:56045 "EHLO
+	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S262447AbVFWMxO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 08:46:47 -0400
-Date: Thu, 23 Jun 2005 08:46:30 -0400 (EDT)
-From: "Richard B. Johnson" <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Andreas Schwab <schwab@suse.de>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Possible spin-problem in nanosleep()
-In-Reply-To: <jell516ymn.fsf@sykes.suse.de>
-Message-ID: <Pine.LNX.4.61.0506230841390.15910@chaos.analogic.com>
-References: <Pine.LNX.4.61.0506230812160.15775@chaos.analogic.com>
- <jell516ymn.fsf@sykes.suse.de>
+	Thu, 23 Jun 2005 08:53:14 -0400
+Message-ID: <42BAB0BA.1010100@cosmosbay.com>
+Date: Thu, 23 Jun 2005 14:53:14 +0200
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1879706418-300157276-1119530790=:15910"
+To: Andi Kleen <ak@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] x86_64 prefetchw() function can take into account CONFIG_MK8
+ / CONFIG_MPSC
+References: <20050622.132241.21929037.davem@davemloft.net> <200506222242.j5MMgbxS009935@guinness.s2io.com> <20050622231300.GC14251@wotan.suse.de> <42BA81B2.4070108@cosmosbay.com> <20050623113150.GK14251@wotan.suse.de>
+In-Reply-To: <20050623113150.GK14251@wotan.suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Thu, 23 Jun 2005 14:53:09 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+Andi Kleen a écrit :
+> On Thu, Jun 23, 2005 at 11:32:34AM +0200, Eric Dumazet wrote:
+> 
+>>If we build a x86_64 kernel for an AMD64 or for an Intel EMT64, no need to 
+>>use alternative_input.
+>>Reserve alternative_input only for a generic kernel.
+> 
+> 
+> An EM64T kernel should still boot on AMD64 and vice versa. Rejected.
+> 
+> -Andi
+> 
+> 
 
---1879706418-300157276-1119530790=:15910
-Content-Type: TEXT/PLAIN; charset=iso-8859-1; format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+OK, I wrongly assumed the 'MK8' or 'MPSC' choices were like x86 choices :
 
-On Thu, 23 Jun 2005, Andreas Schwab wrote:
+A kernel compiled for a Pentium-4 will not run on a i486.
 
-> "Richard B. Johnson" <linux-os@analogic.com> writes:
->
->> nanosleep() appears to have a problem. It may be just an
->> 'accounting' problem, but it isn't pretty. Code that used
->> to use usleep() to spend most of it's time sleeping, used
->> little or no CPU time as shown by `top`. The same code,
->> converted to nanosleep() appears to spend a lot of CPU
->> cycles spinning. The result is that `top` or similar
->> programs show lots of wasted CPU time.
->
-> usleep() is just a wrapper around nanosleep().  Are you sure you got the
-> units right?
->
-> Andreas.
->
+But then what is the meaning of the choice "Generic-x86-64" in the "Processor family" menu ?
+The Help message is : CONFIG_GENERIC_CPU: Generic x86-64 CPU.
 
-Yeah nano is -9 micro is -6, three more zeros when using nano.
-I note that the actual syscall is __NR_nanosleep =3D 162. I don't
-understand the discrepancy either.
-
-> --=20
-> Andreas Schwab, SuSE Labs, schwab@suse.de
-> SuSE Linux Products GmbH, Maxfeldstra=DFe 5, 90409 N=FCrnberg, Germany
-> Key fingerprint =3D 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-> "And now for something completely different."
->
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.12 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
---1879706418-300157276-1119530790=:15910--
+Eric

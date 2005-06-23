@@ -1,63 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262066AbVFWE2J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262102AbVFWEuy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262066AbVFWE2J (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 00:28:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262079AbVFWE2J
+	id S262102AbVFWEuy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 00:50:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262086AbVFWEuy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 00:28:09 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:37279 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S262066AbVFWE2B (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 00:28:01 -0400
-Message-ID: <07be01c577a7$05108660$03c8a8c0@kroptech.com>
-From: "Adam Kropelin" <akropel1@rochester.rr.com>
-To: "Linus Torvalds" <torvalds@osdl.org>, "Jeff Garzik" <jgarzik@pobox.com>
-Cc: "Linux Kernel" <linux-kernel@vger.kernel.org>,
-       "Git Mailing List" <git@vger.kernel.org>
-References: <42B9E536.60704@pobox.com> <Pine.LNX.4.58.0506221603120.11175@ppc970.osdl.org> <42BA18AF.2070406@pobox.com> <Pine.LNX.4.58.0506221915280.11175@ppc970.osdl.org>
-Subject: Re: Updated git HOWTO for kernel hackers
-Date: Wed, 22 Jun 2005 23:52:47 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2527
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
+	Thu, 23 Jun 2005 00:50:54 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:65036 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S262102AbVFWEua (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 00:50:30 -0400
+Date: Thu, 23 Jun 2005 06:49:52 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Pekka J Enberg <penberg@cs.helsinki.fi>
+Cc: Pekka Enberg <penberg@gmail.com>,
+       "Bouchard, Sebastien" <Sebastien.Bouchard@ca.kontron.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       "Lorenzini, Mario" <mario.lorenzini@ca.kontron.com>
+Subject: Re: Patch of a new driver for kernel 2.4.x that need review
+Message-ID: <20050623044952.GA21017@alpha.home.local>
+References: <5009AD9521A8D41198EE00805F85F18F067F6A36@sembo111.teknor.com> <84144f020506221243163d06a2@mail.gmail.com> <20050622203211.GI8907@alpha.home.local> <courier.42BA3791.000006F9@courier.cs.helsinki.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <courier.42BA3791.000006F9@courier.cs.helsinki.fi>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> On Wed, 22 Jun 2005, Jeff Garzik wrote:
->> git commit --figure-out-for-me-what-files-changed
->
-> Well, it _does_ do that. That's what the "git status" thing does, and
-> look at the initial commit message comments that it prepares for you: 
-> it
-> tells you which files are modified but haven't been marked for 
-> check-in
-> etc.
->
-> But the thing is, you need to have a graphical tool for that. I don't
-> want to have some silly command line that asks for each modified file
-> whether you want to include that file in the commit or not.
+Hi Pekka,
 
-I know I shouldn't invoke this particular acronym, but I rather like 
-CVS's approach. If the user does not specify any files on the command 
-line, assume he wants to check in everything that has changed (added and 
-removed files excluded). When you see the initial commit message you can 
-review the list of affected files and you can always abort and specify 
-files explictly if you realize you want to exclude some.
+On Thu, Jun 23, 2005 at 07:16:17AM +0300, Pekka J Enberg wrote:
+> Hi Willy, 
+> 
+> Willy Tarreau writes:
+> >I dont agree with you here : enums are good to simply specify an 
+> >ordering.
+> >But they must not be used to specify static mapping. Eg: if REG4 *must* 
+> >be
+> >equal to BASE+4, you should not use enums, otherwise it will render the
+> >code unreadable. I personnaly don't want to count the position of REG7 in
+> >the enum to discover that it's at BASE+7.
+> 
+> Sorry, what do you have to count with the following? 
+> 
+> enum {
+>       TLCLK_REG0 = TLCLK_BASE,
+>       TLCLK_REG1 = TLCLK_BASE+1,
+>       TLCLK_REG2 = TLCLK_BASE+2,
+> }; 
 
-I like that method because it gives you a kick in the pants for having 
-mixed multiple unrelated changes in your working directory. "Oh, you 
-were lazy and changed six unrelated things without comitting, eh? You 
-will now pay for your lack of rigor by typing filenames..." On the flip 
-side, you get rewarded with less typing if you keep your working 
-directory clean.
-
---Adam
+Sorry for the noise, I replied in a second mail that I was perfectly OK
+with this usage. What I though you wanted to propose was the simplest for
+of enum where only the first value is specified, and which is a nightmare
+to debug afterwards. Bill Gatliff also suggested that gdb can display and
+use the symbolic values while it's not the case on defines.
+ 
+Regards,
+Willy
 

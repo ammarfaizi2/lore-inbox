@@ -1,44 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262376AbVFWFG4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262374AbVFWFJO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262376AbVFWFG4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 01:06:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262374AbVFWFGz
+	id S262374AbVFWFJO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 01:09:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262375AbVFWFJO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 01:06:55 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:53424
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S262367AbVFWFGt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 01:06:49 -0400
-Date: Wed, 22 Jun 2005 22:06:33 -0700 (PDT)
-Message-Id: <20050622.220633.34603084.davem@davemloft.net>
-To: jmoyer@redhat.com
-Cc: mpm@selenic.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [patch 0/3] netpoll: support multiple netpoll clients per
- net_device
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <17082.4037.875432.648439@segfault.boston.redhat.com>
-References: <17082.4037.875432.648439@segfault.boston.redhat.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Thu, 23 Jun 2005 01:09:14 -0400
+Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:478 "EHLO
+	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S262374AbVFWFJC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 01:09:02 -0400
+X-ORBL: [69.107.32.110]
+From: David Brownell <david-b@pacbell.net>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [GIT PATCH] Remove devfs from 2.6.12-git
+User-Agent: KMail/1.7.1
+Cc: Andrew Morton <akpm@osdl.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Date: Wed, 22 Jun 2005 22:08:58 -0700
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200506222208.58494.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Jeff Moyer <jmoyer@redhat.com>
-Date: Wed, 22 Jun 2005 21:26:29 -0400
+Quoth Andrew Morton:
+> I don't have enough info to know whether the world would be a better place
+> if we keep devfs, remove devfs or remove devfs even later on.  I don't
+> think anyone knows, which is why we're taking this little
+> disable-it-and-see-who-shouts approach.
 
-> This patch series restores the ability to register multiple netpoll clients
-> against the same network interface.  To this end, I created a new structure:
- ...
-> I have tested this by registering two netpoll clients, and verifying that
-> they both function properly.  The clients were netconsole, and a quick
-> module I hacked together to send console messages to syslog.  I issued
-> sysrq-h, sysrq-m, and sysrq-t's both by echo'ing to /proc/sysrq-trigger and
-> by hitting the key combination on the keyboard.  This verifies that the
-> modules work both inside and out of interrupt context.
+The downside of "disable-and-remove-later" is that it becomes
+too easy to just re-enable the Kconfig stuff rather than just
+fixing the userspace bugs.  Expecting userspace to change at
+any point before it absolutely _must_ tends to be a formula
+for userspace never changing, sadly enough.  
 
-This all looks great.  I've applied all 3 patches.
+If 2.6.13 doesn't remove devfs, when will it really go away?
 
-Thanks for taking care of this Jeff.
+- Dave
+
+
+

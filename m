@@ -1,69 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261984AbVFWCsg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261977AbVFWCv2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261984AbVFWCsg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 22:48:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262025AbVFWCse
+	id S261977AbVFWCv2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 22:51:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262025AbVFWCv2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 22:48:34 -0400
-Received: from 67.Red-80-25-56.pooles.rima-tde.net ([80.25.56.67]:20801 "EHLO
-	estila.tuxedo-es.org") by vger.kernel.org with ESMTP
-	id S261984AbVFWCs2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 22:48:28 -0400
-Subject: Re: [patch 1/1] selinux: minor cleanup in the
-	hooks.c:file_map_prot_check() code
-From: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
-	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
-To: James Morris <jmorris@redhat.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, sds@tycho.nsa.gov
-In-Reply-To: <Xine.LNX.4.44.0506222203060.10598-100000@thoron.boston.redhat.com>
-References: <Xine.LNX.4.44.0506222203060.10598-100000@thoron.boston.redhat.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-aDCuL355iwiLrYQBre5I"
-Date: Thu, 23 Jun 2005 04:48:24 +0200
-Message-Id: <1119494904.9254.33.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+	Wed, 22 Jun 2005 22:51:28 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:18882 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261977AbVFWCvR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 22:51:17 -0400
+Date: Wed, 22 Jun 2005 22:51:01 -0400 (EDT)
+From: Rik Van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       andrea@suse.de, mason@suse.de
+Subject: Re: [patch 1/2] vm early reclaim orphaned pages (take 2)
+In-Reply-To: <1119252756.6240.27.camel@npiggin-nld.site>
+Message-ID: <Pine.LNX.4.61.0506222250250.17731@chimarrao.boston.redhat.com>
+References: <1118978590.5261.4.camel@npiggin-nld.site> 
+ <1119252194.6240.22.camel@npiggin-nld.site> <1119252756.6240.27.camel@npiggin-nld.site>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.LNX.4.61.0506222250252.17731@chimarrao.boston.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 20 Jun 2005, Nick Piggin wrote:
 
---=-aDCuL355iwiLrYQBre5I
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+> +       if (PageLRU(page) && PageActive(page)) {
+> +               list_move(&page->lru, &zone->inactive_list);
+> +               ClearPageActive(page);
+> +       }
 
-El mi=E9, 22-06-2005 a las 22:03 -0400, James Morris escribi=F3:
-> On Wed, 22 Jun 2005, James Morris wrote:
->=20
-> > > @@ -2485,7 +2487,7 @@ static int selinux_file_mprotect(struct=20
-> > >  		 * check ability to execute the possibly modified content.
-> > >  		 * This typically should only occur for text relocations.
-> > >  		 */
-> > > -		int rc =3D file_has_perm(current, vma->vm_file, FILE__EXECMOD);
-> > > +		rc =3D file_has_perm(current, vma->vm_file, FILE__EXECMOD);
-> > >  		if (rc)
-> > >  			return rc;
-> > >  	}
-> > > _
-> >=20
-> Actually, this one's ok.
+Unless I'm missing something subtle, you might want to
+update zone->nr_active and zone->nr_inactive ...
 
-OK, thanks. I'll wait for Stephen to review it and then decide what to
-do.
-
-Cheers,
---=20
-Lorenzo Hern=E1ndez Garc=EDa-Hierro <lorenzo@gnu.org>
-[1024D/6F2B2DEC] & [2048g/9AE91A22][http://tuxedo-es.org]
-
---=-aDCuL355iwiLrYQBre5I
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBCuiL4DcEopW8rLewRAtNPAKDNOzygU8W+DLtTCxkvX+3vQewXCgCeNk3K
-g1KcQvVPtHcrZP4QrdYzAfk=
-=rAyD
------END PGP SIGNATURE-----
-
---=-aDCuL355iwiLrYQBre5I--
+-- 
+The Theory of Escalating Commitment: "The cost of continuing mistakes is
+borne by others, while the cost of admitting mistakes is borne by yourself."
+  -- Joseph Stiglitz, Nobel Laureate in Economics

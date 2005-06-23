@@ -1,43 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262244AbVFWLIl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261606AbVFWLNm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262244AbVFWLIl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 07:08:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262095AbVFWLIk
+	id S261606AbVFWLNm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 07:13:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262095AbVFWLNm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 07:08:40 -0400
-Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:39176 "EHLO
-	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S262244AbVFWLI1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 07:08:27 -0400
-To: Nick Warne <nick@linicks.net>
+	Thu, 23 Jun 2005 07:13:42 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:11466 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261606AbVFWLNi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 07:13:38 -0400
+Date: Thu, 23 Jun 2005 13:13:06 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem compiling 2.6.12
-References: <200506222037.17738.nick@linicks.net>
-	<20050622213038.GA3749@stusta.de>
-	<200506222253.47777.nick@linicks.net>
-From: Nix <nix@esperi.org.uk>
-X-Emacs: or perhaps you'd prefer Russian Roulette, after all?
-Date: Thu, 23 Jun 2005 12:08:13 +0100
-In-Reply-To: <200506222253.47777.nick@linicks.net> (Nick Warne's message of
- "22 Jun 2005 23:13:10 +0100")
-Message-ID: <87r7et2uw2.fsf@amaterasu.srvr.nix>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
-MIME-Version: 1.0
+Subject: Re: DEBUG_PAGEALLOC & SMP?
+Message-ID: <20050623111306.GA6480@elte.hu>
+References: <20050623090936.GA28112@elte.hu> <20050623022000.094169d4.akpm@osdl.org> <20050623092902.GA29602@elte.hu> <20050623094008.GA31207@elte.hu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050623094008.GA31207@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 22 Jun 2005, Nick Warne stipulated:
-> Is it?  I thought kernel didn't care what Glibc or what kernel headers you had 
-> (that is system requirement) - it is automous.  Isn't HOSTCC explicitly just 
-> what compiler you have?
 
-HOSTCC is a non-cross-compiler, i.e. for building userspace stuff to run
-on the build machine. There are a number of such things built during a
-normal kernel build (code generators, the config system, et al) and they
-use the C library just like any userspace app does.
+* Ingo Molnar <mingo@elte.hu> wrote:
 
--- 
-`It's as bizarre an intrusion as, I don't know, the hobbits coming home
- to find that the Shire has been taken over by gangsta rappers.'
+> > full log attached below. (ob'fun: the oom-killer picked the migration 
+> > thread to kill ;)
+> 
+> this was with the -RT tree - let me try whether the same happens on 
+> vanilla 2.6.12 too.
+
+[ 1 hour later ... ] the mystery is solved: i had a ~15 MB kernel image 
+size due to various debugging options plus per-CPU tracing buffer at 
+NR_CPUS=8. PAGEALLOC caused an extra +1MB of DMA-zone kernel footprint 
+(the 4k granular kernel pagetables of 1 GB physical RAM), which was the 
+final drop and depleted the DMA pool completely.
+
+	Ingo

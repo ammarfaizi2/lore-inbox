@@ -1,87 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262365AbVFWFEz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262376AbVFWFG4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262365AbVFWFEz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 01:04:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262367AbVFWFEz
+	id S262376AbVFWFG4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 01:06:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262374AbVFWFGz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 01:04:55 -0400
-Received: from wproxy.gmail.com ([64.233.184.199]:57410 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262365AbVFWFE0 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 01:04:26 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=jI5CF0wHIE2+JMTGDtgrbEtr5f62c9lBVxE0blbAHzBgFaIWxLNF+ufL61C9mlmdlL87QWYWXOI+FtzGEAJTjvmKcOHF2qhIlYXRlH1m/OJLX4z23ayA19G/XTd7J2f4xeFhYTnqipw0OkxSEIR3q4qY+shQZ/5jZ9IeTfDBhqU=
-Message-ID: <d73ab4d0050622220431db20de@mail.gmail.com>
-Date: Thu, 23 Jun 2005 13:04:23 +0800
-From: guorke <gourke@gmail.com>
-Reply-To: guorke <gourke@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12 can not support via rhine?
-In-Reply-To: <d73ab4d0050622212120e87004@mail.gmail.com>
+	Thu, 23 Jun 2005 01:06:55 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:53424
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S262367AbVFWFGt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 01:06:49 -0400
+Date: Wed, 22 Jun 2005 22:06:33 -0700 (PDT)
+Message-Id: <20050622.220633.34603084.davem@davemloft.net>
+To: jmoyer@redhat.com
+Cc: mpm@selenic.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [patch 0/3] netpoll: support multiple netpoll clients per
+ net_device
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <17082.4037.875432.648439@segfault.boston.redhat.com>
+References: <17082.4037.875432.648439@segfault.boston.redhat.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <d73ab4d005062221176e77a960@mail.gmail.com>
-	 <d73ab4d0050622212120e87004@mail.gmail.com>
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-who can give helps?
-Thanks
+From: Jeff Moyer <jmoyer@redhat.com>
+Date: Wed, 22 Jun 2005 21:26:29 -0400
 
-On 6/23/05, guorke <gourke@gmail.com> wrote:
-> VFS: Mounted root (ext3 filesystem) readonly. |VFS: Mounted root (ext3
-> filesystem) readonly.
-> better is
-> Freeing unused kernel memory: 220k freed      | Freeing unused kernel
-> memory... freed
-> kjournald starting.  Commit interval 5 seconds <
-> EXT3 FS on hda1, internal journal                  | EXT3 FS on hda1,
-> internal journal
-> Adding 265064k swap on /dev/hda2.....          | Adding 265064k swap
-> /dev/hda2. ...
-> via-rhine.c:v1.10-LK1.2.0-2.6 June-10-2004..                        <
-> ACPI: PCI Interrupt Link [LNKB] enabled at IRQ 12              <
-> PCI: setting IRQ 12 as level-triggered                                  <
-> ACPI: PCI interrupt 0000:00:09.0[A] -> GSI 12 (level, low) -> <
-> eth0: VIA Rhine II at 0x1e800, 00:05:5d:fb:7d:29, IRQ 12.     <
-> eth0: MII PHY found at address 8, status 0x782d advertising <
-> eth0: link up, 100Mbps, full-duplex, lpa 0x45E1               <
-> 
-> 
-> 
-> On 6/23/05, guorke <gourke@gmail.com> wrote:
-> > hi
-> > when i reboot use 2.6.11,it's ok.
-> > but when i use 2.6.12 kernel, i get this:
-> >
-> > via rhine device dose not seem to be present , delaying eth0 initialzation..
-> > but in 2.6.11, it's say ok, I must say i have add via rhine support.
-> > this following is difference output demsg :
-> > diff -y dmesg_2.6.11 dmesg_2.6.12
-> >
-> > VFS: Mounted root (ext3 filesystem) readonly.                   VFS:
-> > Mounted root (ext3 filesystem) readonly.
-> > Freeing unused kernel memory: 220k freed                      |
-> > Freeing unused kernel memory: 224k freed
-> > kjournald starting.  Commit interval 5 seconds                <
-> > EXT3 FS on hda1, internal journal                               EXT3
-> > FS on hda1, internal journal
-> > Adding 265064k swap on /dev/hda2.  Priority:-1 extents:1        Adding
-> > 265064k swap on /dev/hda2.  Priority:-1 extents:1
-> > via-rhine.c:v1.10-LK1.2.0-2.6 June-10-2004 Written by Donald  <
-> > ACPI: PCI Interrupt Link [LNKB] enabled at IRQ 12             <
-> > PCI: setting IRQ 12 as level-triggered                        <
-> > ACPI: PCI interrupt 0000:00:09.0[A] -> GSI 12 (level, low) -> <
-> > eth0: VIA Rhine II at 0x1e800, 00:05:5d:fb:7d:29, IRQ 12.     <
-> > eth0: MII PHY found at address 8, status 0x782d advertising 0 <
-> > eth0: link up, 100Mbps, full-duplex, lpa 0x45E1               <
-> >
-> > like no via rhine.
-> >
-> > Thanks
-> >
->
+> This patch series restores the ability to register multiple netpoll clients
+> against the same network interface.  To this end, I created a new structure:
+ ...
+> I have tested this by registering two netpoll clients, and verifying that
+> they both function properly.  The clients were netconsole, and a quick
+> module I hacked together to send console messages to syslog.  I issued
+> sysrq-h, sysrq-m, and sysrq-t's both by echo'ing to /proc/sysrq-trigger and
+> by hitting the key combination on the keyboard.  This verifies that the
+> modules work both inside and out of interrupt context.
+
+This all looks great.  I've applied all 3 patches.
+
+Thanks for taking care of this Jeff.

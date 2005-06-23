@@ -1,62 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262329AbVFWN1I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261900AbVFWNif@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262329AbVFWN1I (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 09:27:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262397AbVFWNXP
+	id S261900AbVFWNif (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 09:38:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262445AbVFWNif
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 09:23:15 -0400
-Received: from styx.suse.cz ([82.119.242.94]:15566 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S262329AbVFWNSo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 09:18:44 -0400
-Date: Thu, 23 Jun 2005 15:18:42 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Alejandro Bonilla <abonilla@linuxwireless.org>
-Cc: "'Eric Piel'" <Eric.Piel@tremplin-utc.net>, borislav@users.sourceforge.net,
-       "'Pavel Machek'" <pavel@ucw.cz>, "'Lee Revell'" <rlrevell@joe-job.com>,
-       "'Yani Ioannou'" <yani.ioannou@gmail.com>,
-       linux-thinkpad@linux-thinkpad.org, linux-kernel@vger.kernel.org
-Subject: Re: [ltp] Re: IBM HDAPS Someone interested?
-Message-ID: <20050623131842.GA13276@ucw.cz>
-References: <42BA89B4.50900@tremplin-utc.net> <004001c577f2$865ab650$600cc60a@amer.sykes.com>
+	Thu, 23 Jun 2005 09:38:35 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:40096 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261900AbVFWNfT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 09:35:19 -0400
+Date: Thu, 23 Jun 2005 15:35:16 +0200
+From: Jan Kara <jack@suse.cz>
+To: Przemyslaw Sowa <sowa.przemyslaw@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Intercepting VFS calls
+Message-ID: <20050623133516.GH28670@atrey.karlin.mff.cuni.cz>
+References: <405bb5a1050620073741a589f9@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-In-Reply-To: <004001c577f2$865ab650$600cc60a@amer.sykes.com>
-User-Agent: Mutt/1.5.6i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <405bb5a1050620073741a589f9@mail.gmail.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 23, 2005 at 06:53:15AM -0600, Alejandro Bonilla wrote:
->   
-> > > But that doesn't mean it's not connected to the embedded 
-> > controller. It
-> > > just means the embedded controller doesn't generate any 
-> > inertial events
-> > > by itself - it may have to be polled with some specific command.
-> > > 
-> > 
-> > Well, in the changelog of the embedded controller firmware 
-> > (ftp://ftp.software.ibm.com/pc/pccbbs/mobiles/1uhj07us.txt) there is:
-> > - (New) Support for IBM Hard Disk Active Protection System.
-> > 
-> > I would conclude that the embedded controller is involved 
-> > with the HDAPS!
-> > 
-> > Just my two cents.
-> > 
-> > Eric
-> > 
-> OK, awesome. This gives us pretty much a where to go from now.
+> Frederik Deweerdt wrote:
 > 
-> Should the IBM-ACPI project have anything to do with this? I mean, we
-> should, or could be getting more -vvv information from ecdump or the
-> fact that because this is attached to the embedded controller makes
-> things harder?
- 
-We'll likely have to take a look at the extra IBM ACPI BIOS methods the
-BIOS exports and see if any of them is interfacing to the EC.
+> > Le 20/06/05 12:37 +0200, Przemyslaw Sowa écrivit:
+> >  
+> >
+> >> Hello,
+> >>
+> >> I'd like to intercept VFS calls like read() and write() in 2.6
+> kernels but I'm new in kernel development and I don't know how to do
+> it.
+> >>
+> >> Could you help me, please?
+> >>
+> >>   
+> >
+> > You could have a look at kprobes.
+> > Regards,
+> > Frederik Deweerdt
+> >
+> >  
+> >
+> Thank you for the answer, but I need some way to execute my own
+> function (from a module) instead of read(), wrte()... and I don't want
+> to use any kernel patch. Is it possible?
+  It's impossible without patching the kernel. Why do you want to
+intercept the calls? Isn't it enough to intercept the system calls? Then
+you can do it from the userspace by tracing the process.
+
+								Honza
 
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

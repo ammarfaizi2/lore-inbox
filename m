@@ -1,46 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261934AbVFWNNF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262247AbVFWNNF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261934AbVFWNNF (ORCPT <rfc822;willy@w.ods.org>);
+	id S262247AbVFWNNF (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 23 Jun 2005 09:13:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262247AbVFWNND
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262246AbVFWNMr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 09:13:03 -0400
-Received: from wproxy.gmail.com ([64.233.184.199]:18595 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261934AbVFWNKZ convert rfc822-to-8bit
+	Thu, 23 Jun 2005 09:12:47 -0400
+Received: from mail.harcroschem.com ([208.188.194.242]:39172 "EHLO
+	kcdc1.harcros.com") by vger.kernel.org with ESMTP id S261900AbVFWNKL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 09:10:25 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=lyRLgwHzjcrO6kw+AV0yF197JGvug3bCpZS/azzdNu6IDwOONJwY8mbBpiFScWZBjaOQhu2m5ohEuhcUo+A49BMgLPk4Sn7NhD/JMpHRR+iqb6B9vELmsWBaxhIE+QvPfBDZoeRluoG484C3qTR1rfAy02+nj7BcC4Bl9vRK1S8=
-Message-ID: <5c77e70705062306044e1c411f@mail.gmail.com>
-Date: Thu, 23 Jun 2005 15:04:04 +0200
-From: Carsten Otte <cotte.de@gmail.com>
-Reply-To: Carsten Otte <cotte.de@gmail.com>
-To: Chris Wright <chrisw@osdl.org>
-Subject: Re: -mm -> 2.6.13 merge status
-Cc: Andrew Morton <akpm@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050622233256.GC9153@shell0.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050620235458.5b437274.akpm@osdl.org>
-	 <42B831B4.9020603@pobox.com> <20050621132204.1b57b6ba.akpm@osdl.org>
-	 <5c77e707050621142841ad3225@mail.gmail.com>
-	 <20050622233256.GC9153@shell0.pdx.osdl.net>
+	Thu, 23 Jun 2005 09:10:11 -0400
+Message-ID: <D9A1161581BD7541BC59D143B4A06294021FAA7C@KCDC1>
+From: "Hodle, Brian" <BHodle@harcroschem.com>
+To: "'Bharath Ramesh'" <krosswindz@gmail.com>, linux-kernel@vger.kernel.org
+Subject: RE: [2.6.12] System becomes unresponsive with USB errors
+Date: Thu, 23 Jun 2005 08:05:35 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/23/05, Chris Wright <chrisw@osdl.org> wrote:
-> * Carsten Otte (cotte.de@gmail.com) wrote:
-> > For 390, we ship standalone bootable crashdump tools with both sles
-> > and rhel. As for kexec, I'd like to see a kexec based 390 bootloader
-> > in the future which would be more flexible then our current one. So
-> > I'd like to vote for merging kexec/kdump.
-> 
-> Xen is making similar noises w.r.t. using kexec for flexible bootloader.
+Bharath,
+   I also have an Athlon 64 workstation, and had the same problem. You need
+to disable legacy USB support in your BIOS.
 
-Oh cool, then we should look at what they're doing instead of reinventing
-the wheel. Any pointer we can follow, or person we would contact?
+-Brian
+
+-----Original Message-----
+From: Bharath Ramesh [mailto:krosswindz@gmail.com]
+Sent: Wednesday, June 22, 2005 7:21 PM
+To: linux-kernel@vger.kernel.org
+Subject: [2.6.12] System becomes unresponsive with USB errors
+
+
+I am running the 2.6.12 kernel on my Athlon64 workstation. I am using
+the Microsoft Wireless Optical Desktop keyboard and mice. Every now
+and then my system becomes unresponsive to the input devices. I can
+still login remotely and my dmesg is full of the following message:
+
+drivers/usb/input/hid-core.c: input irq status -75 received
+
+I have filed this bug at bugme.osdl.org the bug number is 4724.
+
+http://bugzilla.kernel.org/show_bug.cgi?id=4724
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

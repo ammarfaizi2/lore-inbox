@@ -1,47 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261890AbVFWAJ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261895AbVFWAQ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261890AbVFWAJ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 20:09:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261839AbVFWAHs
+	id S261895AbVFWAQ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 20:16:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261842AbVFWAOH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 20:07:48 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:47602 "EHLO
-	dhcp153.mvista.com") by vger.kernel.org with ESMTP id S261842AbVFWAG6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 20:06:58 -0400
-Date: Wed, 22 Jun 2005 17:05:49 -0700 (PDT)
-From: Daniel Walker <dwalker@mvista.com>
-To: Karim Yaghmour <karim@opersys.com>
-cc: Ingo Molnar <mingo@elte.hu>, Bill Huey <bhuey@lnxw.com>,
-       Kristian Benoit <kbenoit@opersys.com>, <linux-kernel@vger.kernel.org>,
-       <paulmck@us.ibm.com>, <andrea@suse.de>, <tglx@linutronix.de>,
-       <pmarques@grupopie.com>, <bruce@andrew.cmu.edu>,
-       <nickpiggin@yahoo.com.au>, <ak@muc.de>, <sdietrich@mvista.com>,
-       <hch@infradead.org>, <akpm@osdl.org>, <rpm@xenomai.org>
-Subject: Re: PREEMPT_RT vs I-PIPE: the numbers, part 2
-In-Reply-To: <42B9F673.4040100@opersys.com>
-Message-ID: <Pine.LNX.4.44.0506221703030.6783-100000@dhcp153.mvista.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 22 Jun 2005 20:14:07 -0400
+Received: from mx2.suse.de ([195.135.220.15]:48054 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S261764AbVFWAMu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 20:12:50 -0400
+Date: Thu, 23 Jun 2005 02:12:49 +0200
+From: Andi Kleen <ak@suse.de>
+To: YhLu <YhLu@tyan.com>
+Cc: Andi Kleen <ak@suse.de>, Peter Buckingham <peter@pantasys.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12 with dual way dual core ck804 MB
+Message-ID: <20050623001249.GF14251@wotan.suse.de>
+References: <3174569B9743D511922F00A0C94314230AF96FB1@TYANWEB>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3174569B9743D511922F00A0C94314230AF96FB1@TYANWEB>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Jun 2005, Karim Yaghmour wrote:
+On Wed, Jun 22, 2005 at 05:07:44PM -0700, YhLu wrote:
+> actually with LinuxBIOS I can boot into 8 way dual core system.
+> 
+> But it will randomly hang. acutally when using 
+> cat /proc/interrupts.
 
-> To be honest, however, I have a very hard time, as a user, to
-> convince myself that I should enable preempt_rt under any but
-> the most dire situations given the results I now have in front
-> of me. Surely there's more of an argument than "this will cost
-> you as much as SMP" for someone deploying UP systems, which
-> apparently is the main target of preempt_rt with things like
-> audio and embedded systems.
+Because it needs physical addressing, not logical like it is used right now.
+That it works at all is surprising.
 
-What situation do you consider dire?
-
-I do appreciate the testing that you've done and I hope you do more in the 
-future. Remember that PREEMPT_RT is a fast moving object, we need those 
-kinds of tests every day .. 
-
-
-Daniel
-
+-Andi

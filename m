@@ -1,58 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261841AbVFWBuX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261938AbVFWBtw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261841AbVFWBuX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 21:50:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261818AbVFWBuU
+	id S261938AbVFWBtw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 21:49:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261987AbVFWBrn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 21:50:20 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:31153 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S261972AbVFWBrn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 22 Jun 2005 21:47:43 -0400
-Message-ID: <42BA14B8.2020609@pobox.com>
-Date: Wed, 22 Jun 2005 21:47:36 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
+Received: from fmr22.intel.com ([143.183.121.14]:63687 "EHLO
+	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261967AbVFWBl5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 21:41:57 -0400
+Message-Id: <200506230141.j5N1fsg12336@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Ingo Molnar'" <mingo@elte.hu>
+Cc: <linux-kernel@vger.kernel.org>, <linux-ia64@vger.kernel.org>
+Subject: RE: Variation in measure_migration_cost() with scheduler-cache-hot-autodetect.patch in -mm
+Date: Wed, 22 Jun 2005 18:41:54 -0700
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Greg KH <greg@kroah.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Git Mailing List <git@vger.kernel.org>
-Subject: Re: Updated git HOWTO for kernel hackers
-References: <42B9E536.60704@pobox.com> <20050622230905.GA7873@kroah.com> <Pine.LNX.4.58.0506221623210.11175@ppc970.osdl.org> <42B9FCAE.1000607@pobox.com> <Pine.LNX.4.58.0506221724140.11175@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0506221724140.11175@ppc970.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcV3BY5OU4SZ2HHSTSS7JdsXnsIgaQAjTQdQ
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+In-Reply-To: <20050622071458.GA16042@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+Ingo Molnar wrote on Wednesday, June 22, 2005 12:15 AM
+> probably coloring effects, yes. Another reason could be that 
+> touch_cache() touches 6 separate areas of memory, which combined with 
+> the stack give a minimum of 7 hugepage TLBs. How many are there in these 
+> Xeons? If there are say 4 of them then we could be trashing these TLB 
+> entries. There are much more 4K TLBs. To reduce the number of TLBs
+> utilized, could you change touch_cache() to do something like:
 > 
-> On Wed, 22 Jun 2005, Jeff Garzik wrote:
+>         unsigned long size = __size/sizeof(long), chunk1 = size/2;
+>         unsigned long *cache = __cache;
+>         int i;
 > 
->>>But, like branches, it means that if you want a tag, you need to know the 
->>>tag you want, and download it the same way you download a branch.
->>
->>Still -- that's interesting data that no script currently tracks.  You 
->>gotta fall back to rsync.
+>         for (i = 0; i < size/4; i += 8) {
+>                 switch (i % 4) {
+>                         case 0: cache[i]++;
+>                         case 1: cache[size-1-i]++;
+>                         case 2: cache[chunk1-i]++;
+>                         case 3: cache[chunk1+i]++;
+>                 }
+>         }
 > 
-> 
-> Something like
-> 
-> 	git-ssh/http-pull -w tags/<tagname> tags/<tagname> <url>
-> 
-> _should_ hopefully work now (and the "-a" flag should mean that you also 
-> get all the objects needed for the tag).
+> does this change the migration-cost values?
 
-The problem isn't pulling tags, the problem is that nothing 
-automatically downloads the 41-byte tag files themselves.  Pulling 
-linux-2.6.git after the 2.6.12 release did not cause refs/tags/v2.6.12 
-to be downloaded.
+Yes it does.  On one processor, it goes down, but goes up on another.
+So I'm not sure if I completely understand the behavior.
 
-With BK, tags came with each pull.  With git, you have to go "outside 
-the system" (rsync) just get the new tags.
+			vmalloc'ed	__get_free_pages
+3.0GHz Xeon, 8MB	6.46ms	 7.05ms
+3.4GHz Xeon, 2MB	0.93ms	 1.22ms
+1.6GHz ia64, 9MB	9.72ms	10.06ms
 
-	Jeff
+What I'm really after though is to have the parameter close to an
+experimentally determined optimal value.  So either algorithm with
+__get_free_pages appears to be closer.
 
+
+> Btw., how did you determine the value of the 'ideal' migration cost?
+> Was this based on the database benchmark measurements?
+
+Yes, it is based on my favorite "industry standard transaction processing
+database" bench (I probably should use a shorter name like OLTP).
 

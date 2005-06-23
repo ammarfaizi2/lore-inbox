@@ -1,272 +1,285 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262653AbVFWR32@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262639AbVFWRcH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262653AbVFWR32 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 13:29:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262639AbVFWR17
+	id S262639AbVFWRcH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 13:32:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262641AbVFWR3D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 13:27:59 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:46793 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S262613AbVFWRRS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 13:17:18 -0400
-Message-ID: <42BAEEA1.2060305@namesys.com>
-Date: Thu, 23 Jun 2005 10:17:21 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
+	Thu, 23 Jun 2005 13:29:03 -0400
+Received: from [217.12.183.243] ([217.12.183.243]:64780 "EHLO
+	webmail.infracomspa.it") by vger.kernel.org with ESMTP
+	id S262653AbVFWRRn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 13:17:43 -0400
+Message-ID: <42BAEEB3.6080309@gmail.com>
+Date: Thu, 23 Jun 2005 19:17:39 +0200
+From: Roberto Oppedisano <roppedisano.oppedisano@gmail.com>
 MIME-Version: 1.0
-To: Vladimir Saveliev <vs@namesys.com>
-CC: Pekka Enberg <penberg@gmail.com>, Alexander Zarochentcev <zam@namesys.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: -mm -> 2.6.13 merge status
-References: <20050620235458.5b437274.akpm@osdl.org.suse.lists.linux.kernel>	 <p73d5qgc67h.fsf@verdi.suse.de> <42B86027.3090001@namesys.com>	 <20050621195642.GD14251@wotan.suse.de> <42B8C0FF.2010800@namesys.com>	 <84144f0205062223226d560e41@mail.gmail.com>  <42BA67C9.7060604@namesys.com> <1119543302.4115.141.camel@tribesman.namesys.com>
-In-Reply-To: <1119543302.4115.141.camel@tribesman.namesys.com>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: LKML <linux-kernel@vger.kernel.org>, jgarzik@pobox.com
+Subject: Re: 2.6.12 breaks 8139cp
+References: <42B9D21F.7040908@drzeus.cx>
+In-Reply-To: <42B9D21F.7040908@drzeus.cx>
+X-MIMETrack: Itemize by SMTP Server on Pegaso/SRV/InfracomSpA/IT(Release 5.0.11  |July
+ 24, 2002) at 23/06/2005 19.17.37,
+	Serialize by Router on Pegaso/SRV/InfracomSpA/IT(Release 5.0.11  |July 24, 2002) at
+ 23/06/2005 19.17.43
+Content-Type: multipart/mixed;
+ boundary="------------090102040708080006010903"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vladimir Saveliev wrote:
 
->  
->
->>>>+/*
->>>>+ * Initialization stages for reiser4.
->>>>+ *
->>>>+ * These enumerate various things that have to be done during reiser4
->>>>+ * startup. Initialization code (init_reiser4()) keeps track of what stage was
->>>>+ * reached, so that proper undo can be done if error occurs during
->>>>+ * initialization.
->>>>+ */
->>>>+typedef enum {
->>>>+	INIT_NONE,               /* nothing is initialized yet */
->>>>+	INIT_INODECACHE,         /* inode cache created */
->>>>+	INIT_CONTEXT_MGR,        /* list of active contexts created */
->>>>+	INIT_ZNODES,             /* znode slab created */
->>>>+	INIT_PLUGINS,            /* plugins initialized */
->>>>+	INIT_PLUGIN_SET,         /* psets initialized */
->>>>+	INIT_TXN,                /* transaction manager initialized */
->>>>+	INIT_FAKES,              /* fake inode initialized */
->>>>+	INIT_JNODES,             /* jnode slab initialized */
->>>>+	INIT_EFLUSH,             /* emergency flush initialized */
->>>>+	INIT_FQS,                /* flush queues initialized */
->>>>+	INIT_DENTRY_FSDATA,      /* dentry_fsdata slab initialized */
->>>>+	INIT_FILE_FSDATA,        /* file_fsdata slab initialized */
->>>>+	INIT_D_CURSOR,           /* d_cursor suport initialized */
->>>>+	INIT_FS_REGISTERED,      /* reiser4 file system type registered */
->>>>+} reiser4_init_stage;
->>>>   
->>>>
->>>>        
->>>>
->>>Please use regular gotos instead. This is a silly hack especially since you
->>>don't have release function for all of the stages.
->>> 
->>>
->>>      
->>>
->>I'll let vs comment.
->>
->>    
->>
->
->IMHO, it is convinient. But lets change it as requested.
->  
->
-No, if you like it, say so and it stays.
+--------------090102040708080006010903
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
 
->>>>+ *
->>>>+ *     kmalloc/kfree leak detection: reiser4_kmalloc(), reiser4_kfree(),
->>>>+ *     reiser4_kfree_in_sb().
->>>>   
->>>>
->>>>        
->>>>
->>>Please don't do this! We've had enough trouble trying to get the
->>>current subsystem specific allocators out, so do not introduce a new one. If
->>>you need memory leak detection, make it generic and submit that. Reiser4, like
->>>all other subsystems, should use kmalloc() and friends directly.
->>> 
->>>
->>>      
->>>
->>I will let vs comment.
->>
->>    
->>
->I agree with Pekka.
->  
->
-Ok, can you make it generic easily?
+Pierre Ossman wrote:
 
+>Upgrading from 2.6.11 to 2.6.12 caused my 8139cp network card to stop
+>working. No error messages are emitted and everything seems to work
+>(from the local computers point of view). But nothing can be recieved
+>from the network.
 >  
 >
->>> 
->>>
->>>      
->>>
->>>>--- /dev/null	2003-09-23 21:59:22.000000000 +0400
->>>>+++ linux-2.6.11-vs/fs/reiser4/debug.h	2005-06-03 17:49:38.297184283 +0400
->>>>+
->>>>+/*
->>>>+ * Error code tracing facility. (Idea is borrowed from XFS code.)
->>>>   
->>>>
->>>>        
->>>>
->>>Could this be turned into a generic facility?
->>> 
->>>      
->>>
->
->I do not think that it will ever become accepted.
->To get use of that task_t would have to be extended with fields to store
->error code, file name and line in it, and several return addresses.
->Moreover lines like 
->return -ENOENT;
->would have to be replaced with:
->return RETERR(-ENOENT);
->
->This is debugging feature, we should probably move it to our internal
->debugging patch.
->
->  
->
->>> 
->>>
->>>      
->>>
->>>>+#define reiser4_internal
->>>>   
->>>>
->>>>        
->>>>
->>>Please drop the above useless #define.
->>>
->>>      
->>>
->
->ok
->
->  
->
->>>>--- /dev/null	2003-09-23 21:59:22.000000000 +0400
->>>>+++ linux-2.6.11-vs/fs/reiser4/init_super.c	2005-06-03 17:51:27.959201950 +0400
->>>>+
->>>>+#define _INIT_PARAM_LIST (struct super_block * s, reiser4_context * ctx, void * data, int silent)
->>>>+#define _DONE_PARAM_LIST (struct super_block * s)
->>>>+
->>>>+#define _INIT_(subsys) static int _init_##subsys _INIT_PARAM_LIST
->>>>+#define _DONE_(subsys) static void _done_##subsys _DONE_PARAM_LIST
->>>>   
->>>>
->>>>        
->>>>
->>>Please remove this macro obfuscation.
->>> 
->>>
->>>      
->>>
->>vs, I think he is right, do you?
->>
->>    
->>
->>> 
->>>
->>>      
->>>
->>>>+
->>>>+_DONE_EMPTY(exit_context)
->>>>+
->>>>+struct reiser4_subsys {
->>>>+	int  (*init) _INIT_PARAM_LIST;
->>>>+	void (*done) _DONE_PARAM_LIST;
->>>>+};
->>>>+
->>>>+#define _SUBSYS(subsys) {.init = &_init_##subsys, .done = &_done_##subsys}
->>>>+static struct reiser4_subsys subsys_array[] = {
->>>>+	_SUBSYS(mount_flags_check),
->>>>+	_SUBSYS(sinfo),
->>>>+	_SUBSYS(context),
->>>>+	_SUBSYS(parse_options),
->>>>+	_SUBSYS(object_ops),
->>>>+	_SUBSYS(read_super),
->>>>+	_SUBSYS(tree0),
->>>>+	_SUBSYS(txnmgr),
->>>>+	_SUBSYS(ktxnmgrd_context),
->>>>+	_SUBSYS(ktxnmgrd),
->>>>+	_SUBSYS(entd),
->>>>+	_SUBSYS(formatted_fake),
->>>>+	_SUBSYS(disk_format),
->>>>+	_SUBSYS(sb_counters),
->>>>+	_SUBSYS(d_cursor),
->>>>+	_SUBSYS(fs_root),
->>>>+	_SUBSYS(safelink),
->>>>+	_SUBSYS(exit_context)
->>>>+};
->>>>   
->>>>
->>>>        
->>>>
->>>The above is overkill and silly. parse_options and read_super, for
->>>example, are _not_ a subsystem inits but regular fs ops. Please consider
->>>dropping this altogether but at least trim it down to something sane.
->>>
->>>      
->>>
->
->Pekka, would you prefer something like:
->
->reiser4_fill_super()
->{
->    if (init_a() == 0) {
->	if (init_b() == 0) {
->	    if (init_c() == 0) {
->		if (init_last() == 0)
->		    return 0;
->		else {
->		    done_c();
->		    done_b();
->		    done_a();
->		}
->	    } else {
->		done_b();
->		done_a();
->	    }
->	} else {
->	    done_a();
->	}
->    }
->}
->  
->
-I think the above is easier to read than the below.  Macros can obscure
-sometimes, and one of our weaknesses is a tendency to use macros in such
-a way that it frustrates meta-. use in emacs.   Nikita did however
-mention that there was something that could understand macros when
-constructing tags files, but I forgot what that was.
+Hi there!
+I'm seeing the same problem with 8139cp (everithing seems fine, mii-tool
+works, but only seldom packets are received from the device). Last good
+kernel for me was 2.6.11-bk4. I tried pci=routeirq on 2.6.12, but made
+no difference. Here's lscpi output (on 2.6.11-bk4).
 
->With these macros we have reiser4_fill_super to look like the below, and
->it remains unchanged when something new is added for initilizing on
->filesystem mounting.
->
->reiser4_fill_super()
->{
->	for (i = 0; i < REISER4_NR_SUBSYS; i++) {
->		ret = subsys_array[i].init(s, &ctx, data, silent);
->		if (ret) {
->			done_super(s, i - 1);
->			return ret;
->		}
->	}
->}
->
->
->
->
->  
->
+rao@poppero1:~$ lspci
+0000:00:00.0 Host bridge: Intel Corp. 82855PM Processor to I/O
+Controller (rev 03)
+0000:00:01.0 PCI bridge: Intel Corp. 82855PM Processor to AGP Controller
+(rev 03)
+0000:00:1d.0 USB Controller: Intel Corp. 82801DB/DBL/DBM
+(ICH4/ICH4-L/ICH4-M) USB UHCI Controller #1 (rev 01)
+0000:00:1d.1 USB Controller: Intel Corp. 82801DB/DBL/DBM
+(ICH4/ICH4-L/ICH4-M) USB UHCI Controller #2 (rev 01)
+0000:00:1d.2 USB Controller: Intel Corp. 82801DB/DBL/DBM
+(ICH4/ICH4-L/ICH4-M) USB UHCI Controller #3 (rev 01)
+0000:00:1d.7 USB Controller: Intel Corp. 82801DB/DBM (ICH4/ICH4-M) USB
+2.0 EHCI Controller (rev 01)
+0000:00:1e.0 PCI bridge: Intel Corp. 82801 PCI Bridge (rev 81)
+0000:00:1f.0 ISA bridge: Intel Corp. 82801DBM LPC Interface Controller
+(rev 01)
+0000:00:1f.1 IDE interface: Intel Corp. 82801DBM (ICH4) Ultra ATA
+Storage Controller (rev 01)
+0000:00:1f.3 SMBus: Intel Corp. 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M)
+SMBus Controller (rev 01)
+0000:00:1f.5 Multimedia audio controller: Intel Corp. 82801DB/DBL/DBM
+(ICH4/ICH4-L/ICH4-M) AC'97 Audio Controller (rev 01)
+0000:00:1f.6 Modem: Intel Corp. 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M)
+AC'97 Modem Controller (rev 01)
+0000:01:00.0 VGA compatible controller: ATI Technologies Inc Radeon R250
+Lf [Radeon Mobility 9000 M9] (rev 01)
+0000:02:00.0 FireWire (IEEE 1394): VIA Technologies, Inc. IEEE 1394 Host
+Controller (rev 80)
+0000:02:01.0 Ethernet controller: Realtek Semiconductor Co., Ltd.
+RTL-8139/8139C/8139C+ (rev 20)
+0000:02:02.0 Network controller: Intel Corp. PRO/Wireless 2200BG (rev 05)
+0000:02:04.0 CardBus bridge: ENE Technology Inc CB1410 Cardbus
+Controller (rev 01)
+rao@poppero1:~$             
 
+Attached dmesg for a working (2.6.11bk4) and a non working kernel
+
+Kind regards,
+    Roberto Oppedisano
+
+PS: attached dmesg shows a tainted kernel; the problem is exactly the
+same also with a vanilla kernel (whitout ever loading slamr module).
+
+--------------090102040708080006010903
+Content-Type: application/gzip;
+ name="2.6.11-bk4ipw.gz"
+Content-Disposition: inline;
+ filename="2.6.11-bk4ipw.gz"
+Content-Transfer-Encoding: base64
+
+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
+
+--------------090102040708080006010903
+Content-Type: application/gzip;
+ name="2.6.12-rc4-git7ipw.gz"
+Content-Disposition: inline;
+ filename="2.6.12-rc4-git7ipw.gz"
+Content-Transfer-Encoding: base64
+
+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
+
+--------------090102040708080006010903--

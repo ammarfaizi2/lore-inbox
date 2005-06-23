@@ -1,52 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261889AbVFWB2U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261953AbVFWB2F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261889AbVFWB2U (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 21:28:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261818AbVFWB2T
+	id S261953AbVFWB2F (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 21:28:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbVFWB2E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 21:28:19 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:41882 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261841AbVFWB1r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 21:27:47 -0400
-From: Jeff Moyer <jmoyer@redhat.com>
+	Wed, 22 Jun 2005 21:28:04 -0400
+Received: from web53508.mail.yahoo.com ([206.190.37.69]:24194 "HELO
+	web53508.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261818AbVFWB1l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 21:27:41 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=w3b6JMUqCjTgkQIEeVVZdUXfwVTEgfKkrWjd3PEg+tSfJ/QF69DMnPLZjcLSDDWNjW1iJtJIA1r0gyT5MlqUaYLnFcSGDHkaKzBb6qcLxQty3h7s7SdG4SGeGMkVRe8KJX4cGzl/Vq7xPZhrFpe1q/+xt/TMREiZjTfhO1kB/mw=  ;
+Message-ID: <20050623012732.64286.qmail@web53508.mail.yahoo.com>
+Date: Wed, 22 Jun 2005 18:27:32 -0700 (PDT)
+From: roger blofeld <blofeldus@yahoo.com>
+Subject: [W1] Fix slave addition on big-endian platform
+To: gregkh@suse.de
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17082.4106.825017.811757@segfault.boston.redhat.com>
-Date: Wed, 22 Jun 2005 21:27:38 -0400
-To: mpm@selenic.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: [patch 1/3] netpoll: set poll_owner to -1 before unlocking in netpoll_poll_unlock
-In-Reply-To: <17082.4037.875432.648439@segfault.boston.redhat.com>
-References: <17082.4037.875432.648439@segfault.boston.redhat.com>
-X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
-Reply-To: jmoyer@redhat.com
-X-PGP-KeyID: 1F78E1B4
-X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
-X-PCLoadLetter: What the f**k does that mean?
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi
+ In the 2.6.12 code the "rn" structure is in the wrong-endianness when
+passed to w1_attach_slave_device(). This causes problems like the
+family and crc being swapped around. The following patch fixes the
+problem for me.
 
-This trivial patch moves the assignment of poll_owner to -1 inside of the
-lock.  This fixes a potential SMP race in the code.
+Signed-off-by: Roger Blofeld <blofeldus@yahoo.com>
 
--Jeff
-
-Signed-off-by: Jeff Moyer <jmoyer@redhat.com>
----
-
---- linux-2.6.12/include/linux/netpoll.h.orig	2005-06-22 18:47:12.917261688 -0400
-+++ linux-2.6.12/include/linux/netpoll.h	2005-06-22 18:47:15.799783018 -0400
-@@ -53,8 +53,8 @@ static inline void netpoll_poll_lock(str
- static inline void netpoll_poll_unlock(struct net_device *dev)
- {
- 	if (dev->np) {
--		spin_unlock(&dev->np->poll_lock);
- 		dev->np->poll_owner = -1;
-+		spin_unlock(&dev->np->poll_lock);
- 	}
- }
+diff --git a/drivers/w1/w1.c b/drivers/w1/w1.c
+--- a/drivers/w1/w1.c
++++ b/drivers/w1/w1.c
+@@ -493,6 +493,7 @@ void w1_slave_found(unsigned long data, 
+        struct w1_reg_num *tmp;
+        int family_found = 0;
+        struct w1_master *dev;
++       u64 rn_le = cpu_to_le64(rn);
  
+        dev = w1_search_master(data);
+        if (!dev) {
+@@ -522,10 +523,8 @@ void w1_slave_found(unsigned long data, 
+                slave_count++;
+        }
+ 
+-       rn = cpu_to_le64(rn);
+-
+        if (slave_count == dev->slave_count &&
+-               rn && ((le64_to_cpu(rn) >> 56) & 0xff) ==
+w1_calc_crc8((u8 *)&rn, 7)) {
++               rn && ((rn >> 56) & 0xff) == w1_calc_crc8((u8 *)&rn_le,
+7)) {
+                w1_attach_slave_device(dev, tmp);
+        }
+                        
+
+
+
+		
+__________________________________ 
+Yahoo! Mail 
+Stay connected, organized, and protected. Take the tour: 
+http://tour.mail.yahoo.com/mailtour.html 
+

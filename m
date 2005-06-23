@@ -1,67 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262033AbVFWDG1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262031AbVFWDJ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262033AbVFWDG1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 23:06:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262031AbVFWDG0
+	id S262031AbVFWDJ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 23:09:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262034AbVFWDJ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 23:06:26 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:46513 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S262026AbVFWDGM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 23:06:12 -0400
-Message-ID: <42BA271F.6080505@pobox.com>
-Date: Wed, 22 Jun 2005 23:06:07 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
+	Wed, 22 Jun 2005 23:09:58 -0400
+Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:26727 "HELO
+	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262031AbVFWDJ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 23:09:57 -0400
+Message-ID: <42BA26EF.2040807@yahoo.com.au>
+Date: Thu, 23 Jun 2005 13:05:19 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Greg KH <greg@kroah.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Git Mailing List <git@vger.kernel.org>
-Subject: Re: Updated git HOWTO for kernel hackers
-References: <42B9E536.60704@pobox.com> <20050622230905.GA7873@kroah.com> <Pine.LNX.4.58.0506221623210.11175@ppc970.osdl.org> <42B9FCAE.1000607@pobox.com> <Pine.LNX.4.58.0506221724140.11175@ppc970.osdl.org> <42BA14B8.2020609@pobox.com> <Pine.LNX.4.58.0506221853280.11175@ppc970.osdl.org> <42BA1B68.9040505@pobox.com> <Pine.LNX.4.58.0506221929430.11175@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0506221929430.11175@ppc970.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Rik Van Riel <riel@redhat.com>
+CC: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       andrea@suse.de, mason@suse.de
+Subject: Re: [patch 1/2] vm early reclaim orphaned pages (take 2)
+References: <1118978590.5261.4.camel@npiggin-nld.site>  <1119252194.6240.22.camel@npiggin-nld.site> <1119252756.6240.27.camel@npiggin-nld.site> <Pine.LNX.4.61.0506222250250.17731@chimarrao.boston.redhat.com>
+In-Reply-To: <Pine.LNX.4.61.0506222250250.17731@chimarrao.boston.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> What I'm saying is that for a tagged release, that really translates to
-> "please pull tag xyz from repo abc" and the tools like git-ssh-pull will 
-> just do the right thing: they'll pull the tag itself _and_ they'll pull 
-> the objects it points to.
-
-Yes, everything does the right there here.
-
-
-> Of course, right now "git fetch" is hardcoded to always write FETCH_HEAD 
-> (not the tag name), but I'm saying ythat _literally_ you can do this 
-> already:
+Rik Van Riel wrote:
+> On Mon, 20 Jun 2005, Nick Piggin wrote:
 > 
-> 	git fetch repo-name tags/xyz &&
-> 		( cat .git/FETCH_HEAD > .git/tags/xyz )
 > 
-> and it should do exactly what you want. Hmm?
+>>+       if (PageLRU(page) && PageActive(page)) {
+>>+               list_move(&page->lru, &zone->inactive_list);
+>>+               ClearPageActive(page);
+>>+       }
+> 
+> 
+> Unless I'm missing something subtle, you might want to
+> update zone->nr_active and zone->nr_inactive ...
+> 
 
-No, not at all.  This sub-thread is all about tags/ dir updates.  Users 
-should be able to do
+You're right, thanks very much Rik.
 
-	git pull-more rsync://...
-
-and get ALL of .git/refs/tags/* that have appeared since their last update.
-
-Concrete example:  I have a git tree on local disk.  I need to find out 
-where, between 2.6.12-rc1 and 2.6.12, a driver broke.  This requires 
-that I have -ALL- linux-2.6.git/refs/tags on disk already, so that I can 
-bounce quickly and easily between tags.
-
-It is valuable to have a local copy of -all- tags, -before- you need 
-them.  That is why people like me and GregKH use rsync directly.  We 
-want EVERYTHING in the kernel.org linux-2.6.git tree, not just what we 
-know we need right now.
-
-	Jeff
-
-
+Send instant messages to your online friends http://au.messenger.yahoo.com 

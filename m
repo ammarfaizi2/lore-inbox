@@ -1,109 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262707AbVFWVIR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262710AbVFWVIj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262707AbVFWVIR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 17:08:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262662AbVFWVIR
+	id S262710AbVFWVIj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 17:08:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262662AbVFWVIi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 17:08:17 -0400
-Received: from warden2-p.diginsite.com ([209.195.52.120]:55259 "HELO
-	warden2.diginsite.com") by vger.kernel.org with SMTP
-	id S262710AbVFWVFd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 17:05:33 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Netdev List <netdev@vger.kernel.org>
-X-X-Sender: dlang@dlang.diginsite.com
-Date: Thu, 23 Jun 2005 14:04:57 -0700 (PDT)
-X-X-Sender: dlang@dlang.diginsite.com
-Subject: Re: [git patch] urgent e1000 fix
-In-Reply-To: <42BA7FB5.5020804@pobox.com>
-Message-ID: <Pine.LNX.4.62.0506231402340.18154@qynat.qvtvafvgr.pbz>
-References: <42BA7FB5.5020804@pobox.com>
+	Thu, 23 Jun 2005 17:08:38 -0400
+Received: from pilet.ens-lyon.fr ([140.77.167.16]:21176 "EHLO
+	relaissmtp.ens-lyon.fr") by vger.kernel.org with ESMTP
+	id S262752AbVFWVHW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 17:07:22 -0400
+Message-ID: <42BB247A.50506@ens-lyon.org>
+Date: Thu, 23 Jun 2005 23:07:06 +0200
+From: Brice Goglin <Brice.Goglin@ens-lyon.org>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-Content-Type: MULTIPART/Mixed; boundary=------------010705020707050403070901
+To: Rajesh Shah <rajesh.shah@intel.com>
+Cc: Dominik Brodowski <linux@dominikbrodowski.net>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.12-mm1
+References: <20050619233029.45dd66b8.akpm@osdl.org> <42B6746B.4020305@ens-lyon.org> <20050620081443.GA31831@isilmar.linta.de> <42B6831B.3040506@ens-lyon.org> <20050620085449.GA32330@isilmar.linta.de> <42B6C06F.4000704@ens-lyon.org> <20050622163427.A10079@unix-os.sc.intel.com> <42BA55D2.7020900@ens-lyon.org> <20050623100536.A21592@unix-os.sc.intel.com> <42BAFADF.2030804@ens-lyon.org> <20050623133238.A24026@unix-os.sc.intel.com>
+In-Reply-To: <20050623133238.A24026@unix-os.sc.intel.com>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-
---------------010705020707050403070901
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-
-hmm, I know I'm not that experianced with patch, but when I saved this to 
-a file and did patch -p1 <file the hunk was rejected, the reject file is 
-saying
-
-***************
-*** 2307,2312 ****
-          tso = e1000_tso(adapter, skb);
-          if (tso < 0) {
-                  dev_kfree_skb_any(skb);
-                  return NETDEV_TX_OK;
-          }
-
---- 2307,2313 ----
-          tso = e1000_tso(adapter, skb);
-          if (tso < 0) {
-                  dev_kfree_skb_any(skb);
-+                spin_unlock_irqrestore(&adapter->tx_lock, flags);
-                  return NETDEV_TX_OK;
-          }
-
-I manually put the line in and am compiling it now to test it, but is 
-someone could take a few seconds and teach me what I did wrong it would be 
-appriciated.
-
-David Lang
-
-  On Thu, 23 Jun 2005, Jeff Garzik wrote:
-
-> Date: Thu, 23 Jun 2005 05:24:05 -0400
-> From: Jeff Garzik <jgarzik@pobox.com>
-> To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-> Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
->     Netdev List <netdev@vger.kernel.org>
-> Subject: [git patch] urgent e1000 fix
+Le 23.06.2005 22:32, Rajesh Shah a écrit :
+> The host bridge resources being reported were fine. I think this
+> failure is a yenta bug exposed by the combination of the host
+> bridge resource collection patch and the patch to improve the
+> handling for transparent bridges. I think the yenta code thinks
+> there's a resource conflict for the ranges being decoded by the
+> cardbus bridge when in fact there isn't any conflict in this case.
+> It then claims and reprograms the cardbus bridge to IO resources
+> that are already programmed into another device (winmodem in this
+> case), causing problems.
 > 
-> Please pull from 'misc-fixes' branch of
-> rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/netdev-2.6.git
->
-> to obtain the spinlock fix described in the attached text.
->
->
->
+> Does the following patch to 2.6.12-mm1 fix the problem?
 
--- 
-There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
-  -- C.A.R. Hoare
+No, sorry, doesn't change anything.
+I still get a few "Preassigned resource 0 busy, reconfiguring..."
+followed by "parent PCI bridge I/O window: 0x2000 - 0x2fff" and
+then the system hangs right after "cs: IO probe 0x2000-0x2ffff;".
 
-
---------------010705020707050403070901
-Content-Type: TEXT/PLAIN; name=netdev-2.6.txt
-Content-Description: 
-Content-Disposition: inline; filename=netdev-2.6.txt
-
-
- drivers/net/e1000/e1000_main.c |    1 +
- 1 files changed, 1 insertion(+)
-
-
-Mitch Williams:
-  e1000: fix spinlock bug
-
-
-diff --git a/drivers/net/e1000/e1000_main.c b/drivers/net/e1000/e1000_main.c
---- a/drivers/net/e1000/e1000_main.c
-+++ b/drivers/net/e1000/e1000_main.c
-@@ -2307,6 +2307,7 @@ e1000_xmit_frame(struct sk_buff *skb, st
- 	tso = e1000_tso(adapter, skb);
- 	if (tso < 0) {
- 		dev_kfree_skb_any(skb);
-+		spin_unlock_irqrestore(&adapter->tx_lock, flags);
- 		return NETDEV_TX_OK;
- 	}
- 
-
---------------010705020707050403070901--
+Brice

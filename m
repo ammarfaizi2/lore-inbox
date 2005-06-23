@@ -1,59 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262272AbVFWJst@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263014AbVFWIIz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262272AbVFWJst (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 05:48:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262268AbVFWJof
+	id S263014AbVFWIIz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 04:08:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262514AbVFWIEm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 05:44:35 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:53691 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262272AbVFWJkY (ORCPT
+	Thu, 23 Jun 2005 04:04:42 -0400
+Received: from mail.kroah.org ([69.55.234.183]:2190 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262457AbVFWG0l (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 05:40:24 -0400
-Date: Thu, 23 Jun 2005 11:40:08 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: DEBUG_PAGEALLOC & SMP?
-Message-ID: <20050623094008.GA31207@elte.hu>
-References: <20050623090936.GA28112@elte.hu> <20050623022000.094169d4.akpm@osdl.org> <20050623092902.GA29602@elte.hu>
+	Thu, 23 Jun 2005 02:26:41 -0400
+Date: Wed, 22 Jun 2005 23:26:27 -0700
+From: Greg KH <greg@kroah.com>
+To: Miles Bader <miles@gnu.org>
+Cc: Mike Bell <kernel@mikebell.org>, Andrew Morton <akpm@osdl.org>,
+       Greg KH <gregkh@suse.de>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [GIT PATCH] Remove devfs from 2.6.12-git
+Message-ID: <20050623062627.GB11638@kroah.com>
+References: <20050621062926.GB15062@kroah.com> <20050620235403.45bf9613.akpm@osdl.org> <20050621151019.GA19666@kroah.com> <20050623010031.GB17453@mikebell.org> <20050623045959.GB10386@kroah.com> <buoaclhwqfj.fsf@mctpc71.ucom.lsi.nec.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050623092902.GA29602@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <buoaclhwqfj.fsf@mctpc71.ucom.lsi.nec.co.jp>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Ingo Molnar <mingo@elte.hu> wrote:
-
-> added them, it's:
+On Thu, Jun 23, 2005 at 03:14:08PM +0900, Miles Bader wrote:
+> Greg KH <greg@kroah.com> writes:
+> > And again, for embedded systems, there are packages to build it and put
+> > it in initramfs.  People have already done the work for you.
 > 
-> (gdb) list *0xc02f993f
-> 0xc02f993f is in sd_revalidate_disk (drivers/scsi/sd.c:1472).
-> 1467                           "failure.\n");
-> 1468                    goto out;
-> 1469            }
-> 1470
-> 1471            buffer = kmalloc(512, GFP_KERNEL | __GFP_DMA);
-> 1472            if (!buffer) {
-> 1473                    printk(KERN_WARNING "(sd_revalidate_disk:) Memory allocation "
-> 1474                           "failure.\n");
-> 1475                    goto out_release_request;
-> 1476            }
-> (gdb)
-> 
-> full log attached below. (ob'fun: the oom-killer picked the migration 
-> thread to kill ;)
+> BTW, has anyone done a comparison of the space usage of udev vs. devfs
+> (including size of code etc....)?
 
-this was with the -RT tree - let me try whether the same happens on 
-vanilla 2.6.12 too.
+Not that I know of.  If you want to do this, compare the original udev
+releases that were around 5kb of code, as the nice features it has today
+are stuff that devfs can not support at all.
 
-	Ingo
+thanks,
+
+greg k-h

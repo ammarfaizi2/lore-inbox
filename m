@@ -1,76 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262884AbVFWI26@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262682AbVFWJWo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262884AbVFWI26 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 04:28:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262867AbVFWIZm
+	id S262682AbVFWJWo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 05:22:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262286AbVFWJTM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 04:25:42 -0400
-Received: from w241.dkm.cz ([62.24.88.241]:14761 "HELO machine.sinus.cz")
-	by vger.kernel.org with SMTP id S262516AbVFWHir (ORCPT
+	Thu, 23 Jun 2005 05:19:12 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:47287 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262627AbVFWJRT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 03:38:47 -0400
-Date: Thu, 23 Jun 2005 09:38:45 +0200
-From: Petr Baudis <pasky@ucw.cz>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Greg KH <greg@kroah.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Git Mailing List <git@vger.kernel.org>
-Subject: Re: Updated git HOWTO for kernel hackers
-Message-ID: <20050623073845.GA5204@pasky.ji.cz>
-References: <42B9FCAE.1000607@pobox.com> <Pine.LNX.4.58.0506221724140.11175@ppc970.osdl.org> <42BA14B8.2020609@pobox.com> <Pine.LNX.4.58.0506221853280.11175@ppc970.osdl.org> <42BA1B68.9040505@pobox.com> <Pine.LNX.4.58.0506221929430.11175@ppc970.osdl.org> <42BA271F.6080505@pobox.com> <Pine.LNX.4.58.0506222014000.11175@ppc970.osdl.org> <42BA45B1.7060207@pobox.com> <Pine.LNX.4.58.0506222225010.11175@ppc970.osdl.org>
+	Thu, 23 Jun 2005 05:17:19 -0400
+Date: Thu, 23 Jun 2005 11:16:55 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Gerrit Huizenga <gh@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       ckrm-tech@lists.sourceforge.net,
+       Chandra Seetharaman <sekharan@us.ibm.com>,
+       Hubertus Franke <frankeh@us.ibm.com>, Shailabh Nagar <nagar@us.ibm.com>
+Subject: Re: [patch 02/38] CKRM e18: Processor Delay Accounting
+Message-ID: <20050623091655.GA28722@elte.hu>
+References: <20050623061552.833852000@w-gerrit.beaverton.ibm.com> <20050623061754.354811000@w-gerrit.beaverton.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0506222225010.11175@ppc970.osdl.org>
-User-Agent: Mutt/1.4i
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+In-Reply-To: <20050623061754.354811000@w-gerrit.beaverton.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear diary, on Thu, Jun 23, 2005 at 07:58:13AM CEST, I got a letter
-where Linus Torvalds <torvalds@osdl.org> told me that...
-> Does it help when I scream?
 
-Nope. I still think you are wrong. :-) (BTW, Cogito always fetches all
-the tags now - but it's not that I would have a huge problem with
-changing that to some better behaviour.)
+* Gerrit Huizenga <gh@us.ibm.com> wrote:
 
-> > Multiple users -- not just me -- would prefer that git-pull-script 
-> > pulled the tags, too.
-> 
-> And multiple users -- clearly including you -- aren't listening to me. 
-> Tags are separate from the source they tag, and they HAVE TO BE. There is 
-> no "you automatically get the tags when you get the tree", because the two 
-> don't have a 1:1 relationship.
-> 
-> And not making them separate breaks a lot of things. As mentioned, it
-> fundamentally breaks the distributed nature, but that also means that it
-> breaks whenever two people use the same name for a tag, for example. You
-> can't "merge" tags. BK had a very strange form of merging, which was (I
-> think) to pick the one last in the BK ChangeSet file, but that didn't make
-> it "right". You just never noticed, because Linux could never use tags at
-> all due to the lack of privacy, except for big releases..
+> +#ifdef CONFIG_DELAY_ACCT
+> +int task_running_sys(struct task_struct *p)
+> +{
+> +	return task_is_running(p);
+> +}
+> +EXPORT_SYMBOL_GPL(task_running_sys);
+> +#endif
 
-I think there should simply be two namespaces - public tags and private
-tags. Private tags for stuff like "broken", "merged", or "funnychange".
-Other people don't care about those, and they certainly shouldn't get
-them by default (but they should have a way to get them explicitly, if
-you tell them). But then there are the official tags, like "v2.6.13" or
-even "v2.6.12-ck2" - if you merge with those branches, you should always
-get those precisely for what Jeff says - they are big syncing points for
-a lot of people and you should be always able to refer to v2.6.13 if you
-have the commit in your tree.
+why is this function defined, and why is it exported?
 
-Since there should be _few_ of those tags, you might even want to get
-tags only from branches marked "tagtrusted" (Cogito's origin branch
-would be by default), or want to interactively confirm new tag additions
-during a pull. Also, ideally there would be no or only extremely rare
-tag conflicts.
-
-I think it would be simplest to use a special prefix for the private
-tags. ~ and ! might get touched by shell, so what about %?
-
--- 
-				Petr "Pasky" Baudis
-Stuff: http://pasky.or.cz/
-<Espy> be careful, some twit might quote you out of context..
+	Ingo

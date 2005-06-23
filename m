@@ -1,87 +1,147 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262818AbVFWWG0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262774AbVFWWMl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262818AbVFWWG0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 18:06:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262766AbVFWWBr
+	id S262774AbVFWWMl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 18:12:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262830AbVFWWIt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 18:01:47 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:59579 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S262663AbVFWV7a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 17:59:30 -0400
-Date: Thu, 23 Jun 2005 23:59:21 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: john stultz <johnstul@us.ibm.com>
-cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       George Anzinger <george@mvista.com>,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>
-Subject: Re: [PATCH 1/6] new timeofday core subsystem for -mm (v.B3)
-In-Reply-To: <1119486592.9947.354.camel@cog.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.61.0506231157180.3728@scrub.home>
-References: <1119063400.9663.2.camel@cog.beaverton.ibm.com> 
- <Pine.LNX.4.61.0506181344000.3743@scrub.home>  <1119287354.9947.22.camel@cog.beaverton.ibm.com>
-  <Pine.LNX.4.61.0506202231070.3728@scrub.home>  <1119311734.9947.143.camel@cog.beaverton.ibm.com>
-  <Pine.LNX.4.61.0506211542580.3728@scrub.home>  <1119401841.9947.255.camel@cog.beaverton.ibm.com>
-  <Pine.LNX.4.61.0506221739510.3728@scrub.home> <1119486592.9947.354.camel@cog.beaverton.ibm.com>
+	Thu, 23 Jun 2005 18:08:49 -0400
+Received: from 69-18-3-179.lisco.net ([69.18.3.179]:49681 "EHLO
+	ninja.slaphack.com") by vger.kernel.org with ESMTP id S262769AbVFWWEc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 18:04:32 -0400
+Message-ID: <42BB31E9.50805@slaphack.com>
+Date: Thu, 23 Jun 2005 17:04:25 -0500
+From: David Masover <ninja@slaphack.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050325)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: Hans Reiser <reiser@namesys.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: reiser4 plugins
+References: <200506231924.j5NJOvLA031008@laptop11.inf.utfsm.cl>
+In-Reply-To: <200506231924.j5NJOvLA031008@laptop11.inf.utfsm.cl>
+X-Enigmail-Version: 0.89.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Wed, 22 Jun 2005, john stultz wrote:
-
-> Some other architectures try to handle these situations as well. One
-> good example is PPC64 (which has greatly influenced my design). For
-> correctness PPC64 goes as far as not using interpolation by avoiding
-> almost all of the arch generic time code. It even has its own NTP
-> adjustment code! 
+Horst von Brand wrote:
+> David Masover <ninja@slaphack.com> wrote:
 > 
-> I have come to believe the current arch generic tick based timekeeping
-> is not sustainable. It seems to me in order to avoid bugs that customers
-> are seeing, arches are going to have to avoid the current tick based
-> arch generic code and implement their own non-interpolated based
-> timekeeping code. So that is why I've created this proposal and
-> implementation instead of just "fixing one issue".
+>>Hans Reiser wrote:
+>>
+>>>Jeff Garzik wrote:
+> 
+> 
+> [...]
+> 
+> 
+>>>You missed his point.  He is saying ext3 code should migrate towards
+>>>becoming reiser4 plugins, and reiser4 should be merged now so that the
+>>>migration can get started.
+> 
+> 
+>>Sort of.
+>>
+>>I think ext3 would be nice as a reiser4 plugin.
+> 
+> 
+> What for? It works just fine as it stands, AFAICS.
 
-I agree with you that the current time code is a problem for machines like 
-ppc64, which basically use two different time sources.
+So does DOS.  Do you use DOS?  I don't even use DOS to run DOS programs.
 
-We basically have two timer architectures: timer tick and continuous 
-timer. The latter currently has to emulate the timer tick. Your patch 
-completely reverses the rolls and forces everybody to produce a continuous 
-timer, which I think is equally bad, as some simple computations become a 
-lot more complex. Why should it not be possible to support both equally?
+"Ain't broke" is the battle cry of stagnation.
 
-> So the question becomes: in order to achieve correctness, should every
-> architecture implement a full timeofday subsystem of its own? I designed
-> a system that would work, but instead of making it i386 and copying it
-> for x86-64 and whatever else I end up working on, I propose we make it a
-> common implementation.
+But, there are some things Reiser does better and faster than ext3, even
+if you don't count file-as-directory and other toys.  There's nothing
+ext3 does better than Reiser, unless you count the compatibility with
+random bootloaders and low-level tools.
 
-That might result in the worst of both worlds. If I look at the ppc64 
-implementation of gettimeofday, it's really nice and your (current) code 
-would make this worse again. So why not leave it to the timer source, if 
-it wants to manage a cycle counter or a xtime+offset? The common code can 
-provide some helper functions to manage either of this. Converting 
-everything to nanoseconds looks like a really bad compromise.
+>>                                                Not everyone will want
+>>to reformat at once, but as the reiser4 code matures and proves itself
+>>(even more than it already has),
+> 
+> 
+> I for one have seen mainly people with wild claims that it will make their
+> machines much faster, and coming back later asking how they can recover
+> their thrashed partitions...
 
-In the ppc64 example the main problem is that the generic tries to adjust 
-for the wrong for the time source - the scheduler tick, which is derived 
-from the cycle counter, so it has to redo all the work. Your code now 
-introduces an abstract concept of nanosecond which adds extra overhead to 
-either timer concept. Why not integrating what ppc64 does into the current 
-timer code instead of replacing the current code with something else?
+You know how many I've had thrashed on Reiser4?  Two.  The first one was
+with a VERY early alpha/beta, and the second one was when I dropped a
+laptop and the disk failed.
 
-For tick based timer sources there is not much to do than incrementing 
-xtime by precomputed constant. If I take ppc64 as an example for 
-continuous time sources it does a lot less than your 
-timeofday_periodic_hook(). Why is all this needed?
-John, what I'd really like to see here is some math or code examples, 
-which demonstrate how your new code is better compared to the old code. 
-Your code makes a _huge_ transformation jump and I'd like you to explain 
-some of the steps inbetween.
+And it does make certain things faster.  For one thing, "emerge sync" on
+Gentoo is twice to four times as fast, and /usr/portage is 75% as big,
+as on ReiserFS (3).
 
-bye, Roman
+>>                                 the ext3 people may find themselves
+>>wanting some of the more generic optimizations.
+> 
+> 
+> They'll filch them in due time, don't worry.
+
+Duplication of effort.  With plugins, we can optimize the upper layers
+of ALL filesystems, regardless of the lower layers, in such a way that
+it is optional.  I'm sure it's far easier to write a Reiser storage
+plugin than a brand new FS.
+
+Eventually, once competition is only based on storage format, we could
+end up with just one format.  Just one filesystem!  (except for
+fat/ntfs/iso/udf/network...)  And in the open source world, sometimes a
+single product is a good thing.
+
+>>But, I don't think that will realistically happen at all.
+>>
+>>Instead, what will probably happen is that once Reiser4 is in the
+>>mainstream kernel, it will become more popular and noticable.  Other
+>>FSes will take note.  ext3 people may decide they want
+>>file-as-directory,
+> 
+> 
+> That idea is even much older than Linux itself, and no other (Unix)
+> filesystem has implemented it. Ever. Wonder why...
+> 
+> 
+>>                   and vfat people may decide they want cryptocompress,
+> 
+> 
+> I'm sure they don't, because it is mostly for Windows and assorted devices
+> (pendrives, digital cameras, ...) compatibility.
+
+I, for one, would like to use a pendrive and have certain files be
+encrypted transparently, only for use on Linux, but others be ready to
+transfer to a Windows box.
+
+>>Eventually, with all the features ported, we end up with a situation
+>>where there may be no meaningful difference between a filesystem and a
+>>low-level reiser4 plugin.
+> 
+> 
+> Could very well take decades, if ever.
+
+How would you do it, in a way that doesn't take decades?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iQIVAwUBQrsx6HgHNmZLgCUhAQKXYw//Z9bSh74AWr2o1n+EM0nCHUNV78xgeuey
+ZHtzUT8rCv2KQ+2fMe5EnRUaRYTKvFnnGccH4vu/OAArqKqt/RgP3NP8UZALsZbB
+MMoEHZSX/E0BFlKKiBjPgvwfnnY9ZYF0GPkU5L97dj1K0dEQMndOZoYDV07H4TnN
+/1VkytnsXuhm5nqRhPd89rDbvQtXpzHiDjVNPfT+J6M6JFw8jfYQZ0Fo1T9dVKMg
+qibVneJj+onHVBmBBqGTZ0Ane5VmG0h0a2ZwsslQPkf03DAgprliykr40NCECdli
+OdaS73qYPlYRRl1nuw84g2KOLXbTnSGmW1t4qt/tyI6t3TOEn9FqY7YzwvbWIVLP
+GMkJG1htAQefGNcEXx+15xAHJi6/0DiSoJu+P+ie+yG8pkG943936AxEgs89pTpC
+z8i/GV9Uq+S6BgA+RJuxpk6U8rQ0YHMhAiK83p+s7vdUsGIKomUmSbn7a6DC7cZt
+aGkqxYyaoV2MlHUMUebSv5F82JUgx6rPuc8SQW1wvVIVdNA7QhlYYsPa5vFFj34C
+scxN9vNGyxWGu60yKx7LSYRkB9/prJytKvpezVKRkn8pnKnl4AHodKioSPxt1iHC
+BvNsLL8Kn8FBe/HG98d1v8vwTqe0Y8KgBMRe/J73u/OzU82lh2V3YbXNaW+DLVGz
+MOaHYEzfoNg=
+=yFsv
+-----END PGP SIGNATURE-----

@@ -1,57 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262996AbVFWIIw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262628AbVFWKO1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262996AbVFWIIw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 04:08:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262628AbVFWIFQ
+	id S262628AbVFWKO1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 06:14:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262527AbVFWKLP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 04:05:16 -0400
-Received: from pilet.ens-lyon.fr ([140.77.167.16]:36286 "EHLO
-	relaissmtp.ens-lyon.fr") by vger.kernel.org with ESMTP
-	id S262455AbVFWGZ3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 02:25:29 -0400
-Message-ID: <42BA55D2.7020900@ens-lyon.org>
-Date: Thu, 23 Jun 2005 08:25:22 +0200
-From: Brice Goglin <Brice.Goglin@ens-lyon.org>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: fr, en
+	Thu, 23 Jun 2005 06:11:15 -0400
+Received: from general.keba.co.at ([193.154.24.243]:31574 "EHLO
+	helga.keba.co.at") by vger.kernel.org with ESMTP id S262613AbVFWKAp convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 06:00:45 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Rajesh Shah <rajesh.shah@intel.com>
-Cc: Dominik Brodowski <linux@dominikbrodowski.net>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.12-mm1
-References: <20050619233029.45dd66b8.akpm@osdl.org> <42B6746B.4020305@ens-lyon.org> <20050620081443.GA31831@isilmar.linta.de> <42B6831B.3040506@ens-lyon.org> <20050620085449.GA32330@isilmar.linta.de> <42B6C06F.4000704@ens-lyon.org> <20050622163427.A10079@unix-os.sc.intel.com>
-In-Reply-To: <20050622163427.A10079@unix-os.sc.intel.com>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: PCMCIA: Statically linked CF card driver?
+Date: Thu, 23 Jun 2005 12:00:44 +0200
+Message-ID: <AAD6DA242BC63C488511C611BD51F36732324A@MAILIT.keba.co.at>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: PCMCIA: Statically linked CF card driver?
+Thread-Index: AcV3yiKGSGArjdIPSDavsyGiKetNmgAD1NBg
+From: "kus Kusche Klaus" <kus@keba.com>
+To: "Dominik Brodowski" <linux@dominikbrodowski.net>
+Cc: <linux-pcmcia@lists.infradead.org>, <dahinds@users.sourceforge.net>,
+       <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le 23.06.2005 01:34, Rajesh Shah a écrit :
-> On Mon, Jun 20, 2005 at 03:11:11PM +0200, Brice Goglin wrote:
+> From: Dominik Brodowski [mailto:linux@dominikbrodowski.net] 
+> Hi,
 > 
->>Dominik Brodowski a écrit :
->>
->>>Did you modify the .config in between?
->>
->>I just checked carrefully which versions do work.
->>It seems that this breakage appeared in rc6-mm1 with the same
->>config than a working rc5-mm2.
+> - use 2.6.12-mm1, and build all you need into the kernel
+> - in drivers/pcmcia/ds.c , remove the following block:
 > 
+>                 /* also, FUNC_ID matching needs to be 
+> activated by userspace
+>                  * after it has re-checked that there is no 
+> possible module
+>                  * with a prod_id/manf_id/card_id match.
+>                  */
+>                 if (!dev->allow_func_id_match)
+>                         return 0;
 > 
-> Can you revert gregkh-pci-pci-collect-host-bridge-resources-02.patch
-> from the broken-out patches for 2.6.12-mm1 and see if the problem
-> goes away? If yes, it could be that the ACPI firmware on this
-> system is not reporting proper host bridge resources, and all
-> downstream device resources get messed up..
+> - it should(tm) work then... though I haven't and can't try it myself.
 
-You're right. I reverted this one two days ago and got a working
-system. Actually, the system had other problems (got an oops when
-reading /proc/ioports). But they might be caused by dependencies
-between Grekgh's PCI patches that were still applied and and the
-one I removed, right ?
-Anyway, this fixed my maestro3 divide error and the yenta hang
-during boot.
+Thanks, I'll try it.
 
-Brice
+> > * Any chance to boot from it?
+> 
+> > * It would be nice to be able to replace the CF 
+> >   without rebooting.
+> 
+> I'm not sure whether these two aspects exclude each other.
+
+We don't need them at the same time:
+
+* Usually, the system boots from flash, 
+  and the CF is used for data transfer 
+  (and hence should be changeable).
+
+* In case of emergency (when the system in flash got messed up), 
+  or for the first-time flash,
+  it would be nice to be able to boot from CF.
+  In that case, the CF will not be removed in flight!
+
+-- 
+Klaus Kusche                 (Software Development - Control Systems)
+KEBA AG             Gewerbepark Urfahr, A-4041 Linz, Austria (Europe)
+Tel: +43 / 732 / 7090-3120                 Fax: +43 / 732 / 7090-6301
+E-Mail: kus@keba.com                                WWW: www.keba.com

@@ -1,41 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262583AbVFWPgk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262326AbVFWPuo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262583AbVFWPgk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 11:36:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262592AbVFWPgj
+	id S262326AbVFWPuo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 11:50:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262588AbVFWPun
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 11:36:39 -0400
-Received: from gw02.mail.saunalahti.fi ([195.197.172.116]:52446 "EHLO
-	gw02.mail.saunalahti.fi") by vger.kernel.org with ESMTP
-	id S262583AbVFWPe3 (ORCPT <rfc822;<linux-kernel@vger.kernel.org>>);
-	Thu, 23 Jun 2005 11:34:29 -0400
-From: Jan Knutar <jk-lkml@sci.fi>
-To: Lee Revell <rlrevell@joe-job.com>
-Subject: Re: [ltp] Re: IBM HDAPS Someone interested?
-Date: Thu, 23 Jun 2005 18:33:34 +0300
-User-Agent: KMail/1.6.2
-Cc: Alejandro Bonilla <abonilla@linuxwireless.org>,
-       "'Yani Ioannou'" <yani.ioannou@gmail.com>,
-       linux-thinkpad@linux-thinkpad.org, linux-kernel@vger.kernel.org
-References: <007301c575d9$77decb90$600cc60a@amer.sykes.com> <42B73BB7.4030906@linuxwireless.org> <1119310501.17602.1.camel@mindpipe>
-In-Reply-To: <1119310501.17602.1.camel@mindpipe>
+	Thu, 23 Jun 2005 11:50:43 -0400
+Received: from crl-mail-dmz.crl.hpl.hp.com ([192.58.210.9]:49853 "EHLO
+	crl-mailb.crl.dec.com") by vger.kernel.org with ESMTP
+	id S262326AbVFWPuh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 11:50:37 -0400
+Message-ID: <42BADA42.9090908@hp.com>
+Date: Thu, 23 Jun 2005 11:50:26 -0400
+From: Jamey Hicks <jamey.hicks@hp.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
+To: dpervushin@gmail.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] SPI core -- revisited
+References: <1119529135.4739.6.camel@diimka.dev.rtsoft.ru>
+In-Reply-To: <1119529135.4739.6.camel@diimka.dev.rtsoft.ru>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200506231833.34423.jk-lkml@sci.fi>
+X-HPLC-MailScanner-Information: Please contact the ISP for more information
+X-HPLC-MailScanner: Found to be clean
+X-HPLC-MailScanner-SpamCheck: not spam (whitelisted),
+	SpamAssassin (score=-4.9, required 5, BAYES_00 -4.90)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 21 June 2005 02:35, Lee Revell wrote:
+dmitry pervushin wrote:
 
-> I was thinking more along the lines of figure out the io port it's
-> using, then boot windows, set an IO breakpoint in softice, then drop
-> your laptop on the bed or something.
+>Hello guys,
+>
+>we finally decided to rework the SPI core and now it its ready for your comments.. 
+>Here we have several boards equipped with SPI bus, and use this spi core with these boards; 
+>Drivers for them are available by request (...and if community approve this patch)
+>
+>  
+>
+I'm glad to see that work is progressing on SPI core.  I've worked on 
+drivers on both ARM linux and Blackfin uclinux that use SPI and would 
+prefer that they not be platform specific.
 
-io ports 0x2E, 0x2F and 0xED aren't assigned to anything "known"
-on other computers, are they? Someone with windows, softice and
-tendency to reach deep insights into life, the universe and everything,
-might find it fun to stare at.
+What I've found in my Blackfin work is that I need asynchronous SPI 
+support.  The driver starts an SPI transaction and receives a callback 
+when the SPI transaction has completed.  The operations are similar to 
+what you've suggested, except that the message structure includes a 
+pointer to a callback and a void *data pointer. 
+
+The driver I'm working on is for the Chipcon CC2420 802.15.4 radio, 
+which uses SPI to access its registers and transmit and receive FIFOs.  
+In my CC2420, it queues SPI requests and initiates the next one when an 
+SPI transaction completes.
+
+Jamey
 

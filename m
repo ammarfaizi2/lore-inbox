@@ -1,47 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262611AbVFWIsv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262345AbVFWI5E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262611AbVFWIsv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 04:48:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262613AbVFWIqH
+	id S262345AbVFWI5E (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 04:57:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262613AbVFWItK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 04:46:07 -0400
-Received: from styx.suse.cz ([82.119.242.94]:8898 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S263048AbVFWIa0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 04:30:26 -0400
-Date: Thu, 23 Jun 2005 10:30:25 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Greg KH <greg@kroah.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Git Mailing List <git@vger.kernel.org>
-Subject: Re: Updated git HOWTO for kernel hackers
-Message-ID: <20050623083025.GA5066@ucw.cz>
-References: <42B9FCAE.1000607@pobox.com> <Pine.LNX.4.58.0506221724140.11175@ppc970.osdl.org> <42BA14B8.2020609@pobox.com> <Pine.LNX.4.58.0506221853280.11175@ppc970.osdl.org> <42BA1B68.9040505@pobox.com> <Pine.LNX.4.58.0506221929430.11175@ppc970.osdl.org> <42BA271F.6080505@pobox.com> <Pine.LNX.4.58.0506222014000.11175@ppc970.osdl.org> <42BA45B1.7060207@pobox.com> <Pine.LNX.4.58.0506222225010.11175@ppc970.osdl.org>
+	Thu, 23 Jun 2005 04:49:10 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:31723 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S262345AbVFWIoG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 04:44:06 -0400
+Date: Thu, 23 Jun 2005 10:44:03 +0200
+From: Jan Kara <jack@suse.cz>
+To: domen@coderock.org
+Cc: linux-kernel@vger.kernel.org, Maximilian Attems <janitor@sternwelten.at>
+Subject: Re: [patch 1/1] list_for_each_entry: fs-dquot.c
+Message-ID: <20050623084403.GK31919@atrey.karlin.mff.cuni.cz>
+References: <20050620215654.202069000@nd47.coderock.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0506222225010.11175@ppc970.osdl.org>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20050620215654.202069000@nd47.coderock.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 22, 2005 at 10:58:13PM -0700, Linus Torvalds wrote:
+  Hello,
 
-> And thinking that "fetching a tree fetches all the tags from that tree"  
-> really _is_ a stupid decision. It's missing the big picture. It's missing
-> the fact that tags _should_ be normal every-day things that you just use
-> as "book-marks", and that the kind of big "synchronization point for many
-> people" tag should actually be the _rare_ case.
+> From: Domen Puncer <domen@coderock.org>
 > 
-> The fact that global tags make that private "bookmark" usage impossible
-> should be a big red blinking sign saying "don't do global tags".
+> 
+> 
+> Make code more readable with list_for_each_entry_safe.
+  Thanks for the patch. I've forwarded it to Andrew Morton with my ACK.
 
-Maybe it'd make sense to differentiate between the two types of tags?
-To have local tags which don't propagate, and global (version) tags
-which do? They could live in different namespaces and thus wouldn't
-interfere.
+									Honza
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR

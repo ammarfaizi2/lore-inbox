@@ -1,126 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262312AbVFWJnU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262516AbVFWJss@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262312AbVFWJnU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 05:43:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262269AbVFWJjj
+	id S262516AbVFWJss (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 05:48:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262272AbVFWJpE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 05:39:39 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:17671 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262312AbVFWJhA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 05:37:00 -0400
-Date: Thu, 23 Jun 2005 11:36:56 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: rostedt@goodmis.org, gregkh@suse.de, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: [2.6 patch] better USB_MON dependencies
-Message-ID: <20050623093656.GC3749@stusta.de>
-References: <Pine.LNX.4.58.0506172156220.7916@ppc970.osdl.org> <1119119175.6786.4.camel@localhost.localdomain> <20050621143227.GO3666@stusta.de> <20050621123507.6b83ddf0.zaitcev@redhat.com> <20050621210410.GA3705@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050621210410.GA3705@stusta.de>
-User-Agent: Mutt/1.5.9i
+	Thu, 23 Jun 2005 05:45:04 -0400
+Received: from gw1.cosmosbay.com ([62.23.185.226]:44471 "EHLO
+	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S262627AbVFWJci
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 05:32:38 -0400
+Message-ID: <42BA81B2.4070108@cosmosbay.com>
+Date: Thu, 23 Jun 2005 11:32:34 +0200
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] x86_64 prefetchw() function can take into account CONFIG_MK8
+ / CONFIG_MPSC 
+References: <20050622.132241.21929037.davem@davemloft.net> <200506222242.j5MMgbxS009935@guinness.s2io.com> <20050622231300.GC14251@wotan.suse.de>
+In-Reply-To: <20050622231300.GC14251@wotan.suse.de>
+Content-Type: multipart/mixed;
+ boundary="------------080701060704080303000906"
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Thu, 23 Jun 2005 11:32:22 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 21, 2005 at 11:04:10PM +0200, Adrian Bunk wrote:
-> 
-> I thought it was required, but reading Documentation/kbuild/makefiles.txt
-> convinces me you are correct.
+This is a multi-part message in MIME format.
+--------------080701060704080303000906
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I forgot to attach the updated patch...
-Here it is.
-
-cu
-Adrian
-
-
-<--  snip  -->
+If we build a x86_64 kernel for an AMD64 or for an Intel EMT64, no need to use alternative_input.
+Reserve alternative_input only for a generic kernel.
 
 
 
-This patch makes the USB_MON less confusing.
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
----
-
- drivers/usb/core/hcd.c   |    2 +-
- drivers/usb/core/hcd.h   |    2 +-
- drivers/usb/mon/Kconfig  |   13 ++++---------
- drivers/usb/mon/Makefile |    2 +-
- include/linux/usb.h      |    2 +-
- 5 files changed, 8 insertions(+), 13 deletions(-)
-
---- linux-2.6.12-mm1-full/drivers/usb/mon/Kconfig.old	2005-06-21 16:01:03.000000000 +0200
-+++ linux-2.6.12-mm1-full/drivers/usb/mon/Kconfig	2005-06-21 16:02:13.000000000 +0200
-@@ -2,13 +2,9 @@
- # USB Monitor configuration
- #
- 
--# In normal life, it makes little sense to have usbmon as a module, and in fact
--# it is harmful, because there is no way to autoload the module.
--# The 'm' option is allowed for hackers who debug the usbmon itself,
--# and for those who have usbcore as a module.
- config USB_MON
--	tristate "USB Monitor"
--	depends on USB
-+	bool "USB Monitor"
-+	depends on USB!=n
- 	default y
- 	help
- 	  If you say Y here, a component which captures the USB traffic
-@@ -17,6 +13,5 @@
- 	  Harding's USBMon.
- 
- 	  This is somewhat experimental at this time, but it should be safe,
--	  as long as you aren't building this as a module and then removing it.
--
--	  If unsure, say Y. Do not say M.
-+	  as long as you aren't using modular USB and try to remove this
-+	  module.
---- linux-2.6.12-mm1-full/drivers/usb/mon/Makefile.old	2005-06-21 16:02:29.000000000 +0200
-+++ linux-2.6.12-mm1-full/drivers/usb/mon/Makefile	2005-06-21 16:03:09.000000000 +0200
-@@ -4,4 +4,4 @@
- 
- usbmon-objs	:= mon_main.o mon_stat.o mon_text.o
- 
--obj-$(CONFIG_USB_MON)	+= usbmon.o
-+obj-$(CONFIG_USB)	+= usbmon.o
---- linux-2.6.12-mm1-full/include/linux/usb.h.old	2005-06-21 16:04:38.000000000 +0200
-+++ linux-2.6.12-mm1-full/include/linux/usb.h	2005-06-21 16:04:44.000000000 +0200
-@@ -290,7 +290,7 @@
- 	struct class_device *class_dev;	/* class device for this bus */
- 	struct kref kref;		/* handles reference counting this bus */
- 	void (*release)(struct usb_bus *bus);	/* function to destroy this bus's memory */
--#if defined(CONFIG_USB_MON) || defined(CONFIG_USB_MON_MODULE)
-+#if defined(CONFIG_USB_MON)
- 	struct mon_bus *mon_bus;	/* non-null when associated */
- 	int monitored;			/* non-zero when monitored */
- #endif
---- linux-2.6.12-mm1-full/drivers/usb/core/hcd.h.old	2005-06-21 16:05:02.000000000 +0200
-+++ linux-2.6.12-mm1-full/drivers/usb/core/hcd.h	2005-06-21 16:05:08.000000000 +0200
-@@ -410,7 +410,7 @@
- 
- /*-------------------------------------------------------------------------*/
- 
--#if defined(CONFIG_USB_MON) || defined(CONFIG_USB_MON_MODULE)
-+#if defined(CONFIG_USB_MON)
- 
- struct usb_mon_operations {
- 	void (*urb_submit)(struct usb_bus *bus, struct urb *urb);
---- linux-2.6.12-mm1-full/drivers/usb/core/hcd.c.old	2005-06-21 16:05:21.000000000 +0200
-+++ linux-2.6.12-mm1-full/drivers/usb/core/hcd.c	2005-06-21 16:05:27.000000000 +0200
-@@ -1855,7 +1855,7 @@
- 
- /*-------------------------------------------------------------------------*/
- 
--#if defined(CONFIG_USB_MON) || defined(CONFIG_USB_MON_MODULE)
-+#if defined(CONFIG_USB_MON)
- 
- struct usb_mon_operations *mon_ops;
- 
 
 
+--------------080701060704080303000906
+Content-Type: text/plain;
+ name="patch.2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch.2"
+
+diff -Nru linux-2.6.12/include/asm-x86_64/processor.h linux-2.6.12-orig/include/asm-x86_64/processor.h
+--- linux-2.6.12-orig/include/asm-x86_64/processor.h 2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.12/include/asm-x86_64/processor.h       2005-06-23 11:20:08.000000000 +0200
+@@ -389,10 +389,21 @@
+ #define ARCH_HAS_PREFETCHW 1
+ static inline void prefetchw(void *x)
+ {
++#if defined(CONFIG_MK8)
++       /* AMD64 / MK8 has 3DNOW, we can emit a true prefetchw, using a "m" in the asm input */
++       asm volatile("prefetchw %0" :: "m" (*(unsigned long *)x));
++#elif defined(CONFIG_MPSC)
++       /* Intel EMT64 does not have 3DNOW, no prefetchw instruction */
++#else
++       /* If we build a generic X86_64 kernel,
++        * we must use alternative_input() and a "r" asm constraint to make sure
++        * the size of the instruction will be <= 5
++        */
+        alternative_input(ASM_NOP5,
+                          "prefetchw (%1)",
+                          X86_FEATURE_3DNOW,
+                          "r" (x));
++#endif
+ }
+
+ #define ARCH_HAS_SPINLOCK_PREFETCH 1
+
+--------------080701060704080303000906--

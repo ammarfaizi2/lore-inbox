@@ -1,58 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261932AbVFWAt1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261880AbVFWArz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261932AbVFWAt1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 20:49:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261331AbVFWAt0
+	id S261880AbVFWArz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 20:47:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261331AbVFWArz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 20:49:26 -0400
-Received: from smtp.lnxw.com ([207.21.185.24]:29700 "EHLO smtp.lnxw.com")
-	by vger.kernel.org with ESMTP id S261935AbVFWAtE (ORCPT
+	Wed, 22 Jun 2005 20:47:55 -0400
+Received: from titan.genwebhost.com ([209.9.226.66]:17645 "EHLO
+	titan.genwebhost.com") by vger.kernel.org with ESMTP
+	id S261880AbVFWAru convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 20:49:04 -0400
-Date: Wed, 22 Jun 2005 17:55:38 -0700
-To: Karim Yaghmour <karim@opersys.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Bill Huey <bhuey@lnxw.com>,
-       Kristian Benoit <kbenoit@opersys.com>, linux-kernel@vger.kernel.org,
-       paulmck@us.ibm.com, andrea@suse.de, tglx@linutronix.de,
-       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
-       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, rpm@xenomai.org
-Subject: Re: PREEMPT_RT vs I-PIPE: the numbers, part 2
-Message-ID: <20050623005538.GA3348@nietzsche.lynx.com>
-References: <1119287612.6863.1.camel@localhost> <20050620183115.GA27028@nietzsche.lynx.com> <42B98B20.7020304@opersys.com> <20050622192927.GA13817@nietzsche.lynx.com> <20050622200554.GA16119@elte.hu> <42B9CC98.1040402@opersys.com> <20050622220428.GA28906@elte.hu> <42B9F673.4040100@opersys.com> <20050623000607.GB11486@elte.hu> <42BA069D.20208@opersys.com>
+	Wed, 22 Jun 2005 20:47:50 -0400
+Date: Wed, 22 Jun 2005 17:47:44 -0700
+From: randy_dunlap <rdunlap@xenotime.net>
+To: =?ISO-8859-1?B?TWljaGFfXw==?= Piotrowski 
+	<piotrowskim@trex.wsi.edu.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Script to help users to report a BUG
+Message-Id: <20050622174744.75a07a7f.rdunlap@xenotime.net>
+In-Reply-To: <42B9CFA1.6030702@trex.wsi.edu.pl>
+References: <4d8e3fd30506191332264eb4ae@mail.gmail.com>
+	<20050622120848.717e2fe2.rdunlap@xenotime.net>
+	<42B9CFA1.6030702@trex.wsi.edu.pl>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42BA069D.20208@opersys.com>
-User-Agent: Mutt/1.5.9i
-From: Bill Huey (hui) <bhuey@lnxw.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - titan.genwebhost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - xenotime.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 22, 2005 at 08:47:25PM -0400, Karim Yaghmour wrote:
-> FWIW, Opersys has no engineering cycles to spare. This current
-> testset and all related human and hardware costs are actually
-> coming straight out of my personal pocket. I have no client paying
-> for this. And, FWIW, I had absolutely no idea what we were going
-> to find when I started this. Certainly I didn't expect that
+On Wed, 22 Jun 2005 22:52:49 +0200 Micha__ Piotrowski wrote:
 
-What you found with this is the very limit of your patience :)
+| Hi,
+| 
+| randy_dunlap napisa__(a):
+| 
+| >On Sun, 19 Jun 2005 22:32:16 +0200 Paolo Ciarrocchi wrote:
+| >
+| >| Hi all,
+| >| what do you think about this simple idea of a script that could help
+| >| users to fill better BUG reports ?
+| >| 
+| >| The usage is quite simple, put the attached file in
+| >| /usr/src/linux/scripts and then:
+| >| 
+| >| [root@frodo scripts]# ./report-bug.sh /tmp/BUGREPORT/
+| >| cat: /proc/scsi/scsi: No such file or directory
+| >| 
+| >| [root@frodo scripts]# ls /tmp/BUGREPORT/
+| >| cpuinfo.bug  ioports.bug  modules.bug  software.bug
+| >| iomem.bug    lspci.bug    scsi.bug     version.bug
+| >| 
+| >| Now you can simply attach all the .bug files to the bugzilla report or
+| >| inline them in a email.
+| >| 
+| >| The script is rude but it is enough to give you an idea of what I have in mind.
+| >| 
+| >| Any comment ?
+| >
+| >It can be useful.  We certainly see bug reports with a good bit
+| >of missing information.
+| >
+| >I would rather see the script write all /proc etc. contents to just
+| >one file (with some headings prior to each file).  One file would be
+| >easier to email inline or to attach...
+| >
+| >---
+| >  
+| >
+| We talk about it (me and Paolo) in private correspondence.
+| 
+| Here is my version:
+| http://stud.wsi.edu.pl/~piotrowskim/files/ort/ort-a5.tar.bz2
+| 
+| Here is my topic on kerneltrap:
+| http://kerneltrap.org/node/5325
+| 
+| If you have any suggestions, coments, please send me email or post on 
+| kerneltrap.
 
-> preempt_rt would be able to do as good as the ipipe in terms of
-> interrupt latency, and that's to your credit.
+OK, I looked and I have a few suggestions or comments.
 
-...
+1.  ort.sh needs to be run as root so that lspci -vvv and lsusb -v
+work as expected.  Maybe include that requirement in 'help'?
+Aha, that's what root@ng02 is supposed to mean, right?
+I think it should be more explicit than that.
 
-> After all, showing how much of a fraud we are shouldn't be that
-> difficult, you're a very competent developer. And because of
-> that last reason, I have a hard time holding this ad-hominem
-> attack against you. I am dissapointed though.
+2.  Item 2 (full description) should allow for more than one line
+of input.
 
-He's probably confusing you from the real FUDers. I don't see you
-as a FUDer.
+3.  Item 3 (keywords) probably should allow for more than one line
+of input.
 
-He's just resentful fighting with you over attention from the same
-batch of strippers at last years OLS. :)
+4.  Item 4 (kernel version) and all of 7 (Environment) assume that
+the oops happened on the system where the oops report is being
+produced.  That's probably correct lots of the time, but not always.
+But I don't know what to do about it.
 
-bill
+5.  Item 7 (small sample program to duplicate problem):  at least put
+an empty reminder at this spot, this is a Very Important Program.
 
+6.  Use $EDITOR instead of vim if it is defined (set).
+
+7.  Consider ending with on-screen message to email 'ort_oops.txt'
+to linux-kernel@vger.kernel.org or some other appropriate Linux
+mailing list.
+
+
+I did use ort.sh and it produced a pretty good output file.
+
+Thanks,
+---
+~Randy

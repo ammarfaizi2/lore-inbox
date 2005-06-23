@@ -1,46 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262853AbVFWTpD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262782AbVFWTpC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262853AbVFWTpD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 15:45:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262850AbVFWTip
+	id S262782AbVFWTpC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 15:45:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262715AbVFWTjh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 15:38:45 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:60380 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S263051AbVFWTff (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 15:35:35 -0400
-Subject: Re: aic79xx -> can't  suspend
-From: Lee Revell <rlrevell@joe-job.com>
-To: Jim Crilly <jim@why.dont.jablowme.net>
-Cc: linux-scsi@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050623193224.GD2251@voodoo>
-References: <1119549104.13259.1.camel@mindpipe>
-	 <20050623193224.GD2251@voodoo>
-Content-Type: text/plain
-Date: Thu, 23 Jun 2005 15:35:31 -0400
-Message-Id: <1119555331.13259.16.camel@mindpipe>
+	Thu, 23 Jun 2005 15:39:37 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:19932 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262659AbVFWTb7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 15:31:59 -0400
+Date: Thu, 23 Jun 2005 21:32:49 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jeff Mahoney <jeffm@suse.de>, penberg@gmail.com, reiser@namesys.com,
+       ak@suse.de, flx@namesys.com, zam@namesys.com, vs@thebsh.namesys.com,
+       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com,
+       penberg@cs.helsinki.fi
+Subject: Re: -mm -> 2.6.13 merge status
+Message-ID: <20050623193247.GC6814@suse.de>
+References: <20050620235458.5b437274.akpm@osdl.org.suse.lists.linux.kernel> <p73d5qgc67h.fsf@verdi.suse.de> <42B86027.3090001@namesys.com> <20050621195642.GD14251@wotan.suse.de> <42B8C0FF.2010800@namesys.com> <84144f0205062223226d560e41@mail.gmail.com> <42BB0151.3030904@suse.de> <20050623114318.5ae13514.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.3.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050623114318.5ae13514.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-06-23 at 15:32 -0400, Jim Crilly wrote:
-> On 06/23/05 01:51:43PM -0400, Lee Revell wrote:
-> > I have a machine with an Adaptec 2940U2W adapter running 2.6.11.  When I
-> > try to go into standby like so:
+On Thu, Jun 23 2005, Andrew Morton wrote:
+> Jeff Mahoney <jeffm@suse.de> wrote:
+> >
+> > >>+	assert("nikita-955", pool != NULL);
+> >  > 
+> >  > These assertion codes are meaningless to the rest of us so please drop
+> >  > them.
 > > 
-> >     echo standby > /sys/power/state
-> > 
-> > this is what happens:
+> >  As someone who spends time debugging reiser3 issues, I've grown
+> >  accustomed to the named assertions. They make discussing a particular
+> >  assertion much more natural in conversation than file:line.
 > 
-> AFAIK no SCSI drivers have had power management functions implemented, a
-> quick grep for PM_ in drivers/scsi seems to confirm that only the PCMCIA
-> SCSI drivers even look for PM events.
+> __FUNCTION__?
 
-Thanks, I suspected as much.  I'll take a look at implementing it then,
-can't be too hard.  It would be nice if I could suspend this machine,
-because I have a small apartment and it gets hot in here.
+Doesn't help a lot. I've also been annoyed several times in the past
+when having to lookup a BUG() for a kernel source I don't exactly have
+at hand right then and there. If you have constructs ala
 
-Lee
+function()
+{
+        if (cond_a)
+                BUG();
+        if (cond_b)
+                BUG();
+        if (cond_c)
+                BUG();
+
+        do_stuff...
+}
+
+then it's impossible to know which one it is without the identical
+source at hand.
+
+That said, I don't like the reiser name-number style. If you must do
+something like this, mark responsibility by using a named identifier
+covering the layer in question instead.
+
+        assert("trace_hash-89", is_hashed(foo) != 0);
+
+or whatever.
+
+-- 
+Jens Axboe
 

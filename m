@@ -1,37 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262140AbVFWLCM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261947AbVFWLGk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262140AbVFWLCM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 07:02:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262308AbVFWLCL
+	id S261947AbVFWLGk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 07:06:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262095AbVFWLGk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 07:02:11 -0400
-Received: from mx1.suse.de ([195.135.220.2]:27877 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S262140AbVFWLA3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 07:00:29 -0400
-From: Andreas Gruenbacher <agruen@suse.de>
-Organization: SUSE LINUX Products GMBH
-To: Florian Weimer <fw@deneb.enyo.de>
-Subject: Re: Potential xdr_xcode_array2 security issue
-Date: Thu, 23 Jun 2005 13:00:26 +0200
-User-Agent: KMail/1.8
-Cc: Trond Myklebust <Trond.Myklebust@netapp.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Olaf Kirch <okir@suse.de>
-References: <200506230502.j5N52PWP007955@hera.kernel.org> <200506231153.41318.agruen@suse.de> <87hdfpz70t.fsf@deneb.enyo.de>
-In-Reply-To: <87hdfpz70t.fsf@deneb.enyo.de>
-MIME-Version: 1.0
+	Thu, 23 Jun 2005 07:06:40 -0400
+Received: from onewaywebstop.propagation.net ([66.221.214.10]:19360 "EHLO
+	onewaywebstop.propagation.net") by vger.kernel.org with ESMTP
+	id S261947AbVFWLG2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 07:06:28 -0400
+Date: Thu, 23 Jun 2005 05:41:32 -0500
+Message-Id: <200506231041.j5NAfWP09392@onewaywebstop.propagation.net>
+To: juliet_matthew@ny.com
+Subject: CONSOLATION PRIZE WINNER NOTICE
+From: juliet_matthew@ny.com
+User-Agent: Instant Web Mail 0.61
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506231300.27082.agruen@suse.de>
+	charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 23 June 2005 12:45, Florian Weimer wrote:
-> [...] I can't tell if you must protect against desc->elem_size beign zero.
+                                 POWERBALL INTER LOTTO. BV
+                              POWERBALL LOTTO-WHEEL E-GAME 2005,
+Date: 23 - 06 - 2005
+Ref Nr: PBL/CN/6654/CP
+Dear Consolation Prize Winner,
+            RE: CONSOLATION PRIZE WINNER NOTICE
+----------------------------------------------------------------------------------------------------------------------------
+The POWERBALL INTER LOTTO BV, Netherlands; international lotto e-games
+organizers and sponsors, officially notify you of the final draw result
+of the Powerball Lotto - Wheel E-game draw held on 25th MAY 2005. All
+draws where conducted at our international corporate office complex in
+The Netherlands.
+We wish to congratulate you on the selection of your email coupon
+number which was selected among the 45 lucky consolation prize winners.
+Your email ID identified with Coupon No.PBL2348974321 and was selected
+by Electronic Random Selection System (ERSS) with entries from the
+50,000 different email addresses enrolled for the Lotto-Wheel E-game.
+Your email ID included among the 50,000 different email addresses where
+submitted by our partner international email provider companies.
+You have won a consolation cash prize of US $500,000.00 (Five Hundred
+Thousand US Dollars Only). The POWERBALL INTER LOTTO BV, have approved
+the payout of your consolation cash prize which will be remunerated
+directly to you by the official 
+Payment Agency Board upon your preferred option.
+Our DUE PROCESS UNIT (DPU) will render to you complete assistance and
+provide additional information and processes for the claims of your
+consultation prize. For more information on claim of your prize, please
+contact the DPU Information Officer
+ 
+NAME:     Mr. Frank Dikkens
+E-mail:   Frankdikkens@atmail.com
+TEL:      0031-621-987-260
+FAX:      0031-847-300-537
+Congratulations once again from all our staffs on your consolation
+prize winning, we hope you will partake in our forth coming Powerball
+Lotto-Wheel Email-games.
+Regards,
+ 
+Mrs.Juliet Matthew,
+(Lottery Coordinator)
+----------------------------------------------------------------------------------------------------------------------------
+NB: In accordance with the POWERBALL LOTTO -wheel E-games policy and
+regulations, this notification is dispatched directly to only the 45
+lucky consolation prize Winners. This notification also contains
+information that is proprietary, privileged or confidential or
+otherwise legally exempt from disclosure. If you are not the right
+recipient whose email address attached to the lucky numbers along with
+the winning information’s you are not authorized to read, print,
+retain, copy or disseminate this notice or any part of it.
 
-No.
 
--- Andreas.

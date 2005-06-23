@@ -1,54 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263006AbVFWIIx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262284AbVFWKOX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263006AbVFWIIx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 04:08:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262576AbVFWIEx
+	id S262284AbVFWKOX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 06:14:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262481AbVFWKKi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 04:04:53 -0400
-Received: from nproxy.gmail.com ([64.233.182.199]:22307 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262500AbVFWG0i convert rfc822-to-8bit
+	Thu, 23 Jun 2005 06:10:38 -0400
+Received: from embla.aitel.hist.no ([158.38.50.22]:29611 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S262609AbVFWJ4A
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 02:26:38 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ZsubFC+G7CDRoZmmI1ORvVWIYrmh3suAD/ULGEHOrIgCvGV1AyoteaRHBvIRiNHfT+1s9+5c215GelrKjVjc02JiUBEljsXFR/dCMedAZnFmKfgNBLhBj8+vy67Dc3R+8xBd6QmzypCRbMoUF+CnGk0fpM0pbVCctNlQL9ajMq4=
-Message-ID: <84144f0205062223266ab40243@mail.gmail.com>
-Date: Thu, 23 Jun 2005 09:26:37 +0300
-From: Pekka Enberg <penberg@gmail.com>
-Reply-To: Pekka Enberg <penberg@gmail.com>
-To: Hans Reiser <reiser@namesys.com>
-Subject: Re: reiser4 plugins
-Cc: Jeff Garzik <jgarzik@pobox.com>, David Masover <ninja@slaphack.com>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, ReiserFS List <reiserfs-list@namesys.com>,
-       Pekka Enberg <penberg@cs.helsinki.fi>
-In-Reply-To: <42BA4F7E.6000402@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050620235458.5b437274.akpm@osdl.org>
-	 <42B831B4.9020603@pobox.com> <42B87318.80607@namesys.com>
-	 <20050621202448.GB30182@infradead.org> <42B8B9EE.7020002@namesys.com>
-	 <42B8BB5E.8090008@pobox.com> <42B8E834.5030809@slaphack.com>
-	 <42B8F4BC.5060100@pobox.com> <42BA4F7E.6000402@namesys.com>
+	Thu, 23 Jun 2005 05:56:00 -0400
+Message-ID: <42BA88A9.6010701@aitel.hist.no>
+Date: Thu, 23 Jun 2005 12:02:17 +0200
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@davemloft.net>
+CC: jim@why.dont.jablowme.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] devfs: remove devfs from Kconfig preventing it from being
+ built
+References: <20050621222419.GA23896@kroah.com>	<20050621.155919.85409752.davem@davemloft.net>	<20050622041330.GB27716@suse.de> <20050621.214527.71091057.davem@davemloft.net>
+In-Reply-To: <20050621.214527.71091057.davem@davemloft.net>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Hans,
+David S. Miller wrote:
 
-Jeff Garzik wrote:
-> > We have to maintain said ugly code for decades.
+>From: Greg KH <gregkh@suse.de>
+>Date: Tue, 21 Jun 2005 21:13:30 -0700
+>
+>  
+>
+>>On Tue, Jun 21, 2005 at 03:59:19PM -0700, David S. Miller wrote:
+>>    
+>>
+>>>From: Greg KH <gregkh@suse.de>
+>>>Date: Tue, 21 Jun 2005 15:24:19 -0700
+>>>
+>>>However, this does mean I do need to reinstall a couple
+>>>debian boxes here to something newer before I can continue
+>>>doing kernel work in 2.6.x on them.
+>>>      
+>>>
+>>Those boxes rely on devfs?
+>>    
+>>
+>
+>Yeah, when I forget to turn on DEVFS_FS and DEVFS_MOUNT in the
+>kernel config the machine won't boot. :-)
+>
+>  
+>
+>>Can't you just grab the "static dev" debian package and continue on?
+>>I'm sure there is one in there somewhere (don't really know for sure,
+>>not running debian anywhere here, sorry.)
+>>
+>>Or how about a tarball of a /dev tree?  Would that help you out?
+>>    
+>>
+>
+>I don't know if Debian has such a package.
+>
+>Don't worry, I'll take care of this by simply reinstalling
+>and thus moving to udev.
+>
+That works, but seems like "the long way".
+You don't need to be given a tarball of a /dev tree - make your own!
+tar up your existing devfs-based /dev tree (at a time when all
+your devices are present)  then umount devfs and untar it
+all.   Then you have a static /dev which works with the existing setup,
+and a nondevfs kernel can boot right away.
 
-On 6/23/05, Hans Reiser <reiser@namesys.com> wrote:
-> No you don't, I do.
+The udev way may be necessary if you actually have lots of devices
+that come and go, such as usb thingies.  It shouldn't be necessary
+just to boot the machine though.
 
-Lots of people work on the kernel. If you wish to keep reiser4
-maintenance to yourself, you probably need to keep it as a separate
-patch. Please consider submitting the non-controversial bits for
-merging first and then continue with the rest. It does not make a lot
-of sense reviewing the current patchkit as many parts of it won't be
-merged as is (e.g. the plugin stuff).
+Jim Crilly wrote:
 
-                          Pekka
+>I think he's just saying that since he did the install with devfs enabled
+>and has been using devfs device names, a conversion back to 'standard'
+>names would be a major PITA. It's definately possible to convert, but if
+>there's not much on the boxes a reinstall might be quicker.
+
+Fortunately, one doesn't need to convert back.  Just copy devfs-dev onto
+ext3-dev and there you have the "good old" devfs-names in a static /dev.
+
+Helge Hafting
+
+
+

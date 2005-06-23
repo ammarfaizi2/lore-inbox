@@ -1,70 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262029AbVFWEJB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262035AbVFWEQV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262029AbVFWEJB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 00:09:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262035AbVFWEJB
+	id S262035AbVFWEQV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 00:16:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262042AbVFWEQU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 00:09:01 -0400
-Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:9942 "EHLO
-	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S262029AbVFWEI6
+	Thu, 23 Jun 2005 00:16:20 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:59572 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S262035AbVFWEQS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 00:08:58 -0400
-X-ORBL: [69.107.32.110]
-From: David Brownell <david-b@pacbell.net>
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [GIT PATCH] Remove devfs from 2.6.12-git
-Date: Wed, 22 Jun 2005 21:08:50 -0700
-User-Agent: KMail/1.7.1
-Cc: kernel@mikebell.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Thu, 23 Jun 2005 00:16:18 -0400
+References: <5009AD9521A8D41198EE00805F85F18F067F6A36@sembo111.teknor.com>
+            <84144f020506221243163d06a2@mail.gmail.com>
+            <20050622203211.GI8907@alpha.home.local>
+In-Reply-To: <20050622203211.GI8907@alpha.home.local>
+From: "Pekka J Enberg" <penberg@cs.helsinki.fi>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: Pekka Enberg <penberg@gmail.com>,
+       "Bouchard, Sebastien" <Sebastien.Bouchard@ca.kontron.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       "Lorenzini, Mario" <mario.lorenzini@ca.kontron.com>
+Subject: Re: Patch of a new driver for kernel 2.4.x that need review
+Date: Thu, 23 Jun 2005 07:16:17 +0300
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed; charset="utf-8,iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506222108.50905.david-b@pacbell.net>
+Message-ID: <courier.42BA3791.000006F9@courier.cs.helsinki.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoth Mike Bell:
-> 
-> > Also, no disto uses devfs only (gentoo is close, but offers users udev
-> > and a static /dev also.)
-> 
-> It breaks a lot of my embedded setups which have read-only storage only
-> and thus need /dev on devfs or tmpfs.
+Hi Willy, 
 
-I'd agree that embedded setups are the ones that have been slowest to
-switch over, for various reasons.  One of them is that many LKML folk
-ignore embedded systems issues; "just PC class or better".  Another
-has been that the basic hotplug scripts never worked well with "ash",
-and who's going to want to ship "bash" and friends?  :)
+Willy Tarreau writes:
+> I dont agree with you here : enums are good to simply specify an ordering.
+> But they must not be used to specify static mapping. Eg: if REG4 *must* be
+> equal to BASE+4, you should not use enums, otherwise it will render the
+> code unreadable. I personnaly don't want to count the position of REG7 in
+> the enum to discover that it's at BASE+7.
 
-Those problems seem resolved with 2.6.12 and current modutils and udev.
-Leaving basically an "upgrade your userspace" requirement.
+Sorry, what do you have to count with the following? 
 
+enum {
+       TLCLK_REG0 = TLCLK_BASE,
+       TLCLK_REG1 = TLCLK_BASE+1,
+       TLCLK_REG2 = TLCLK_BASE+2,
+}; 
 
-> and thus need /dev on devfs or tmpfs. With early-userspace-udev-on-tmpfs
-> being - in my experience - still unready.
+Please note that enums are a general way of specifying _constants_ with the 
+type int, not necessarily named enumerations. 
 
-Hmm, could you explain why you think udev-on-ramfs/tmpfs/... is still
-unready?  And what it's "unready" for?  It can work fine without
-needing to hack early userspace and initramfs, by the way.  :)  
+Willy Tarreau writes:
+> if you need something more verbose to say exactly "write 7 to port 123",
+> it's better to use defines (or even variables sometimes) than enums.
 
-I recently submitted patches to make buildroot support it.  They're
-mostly merged [1] but adding a simple patch fixes up the remaining
-glitches.  OpenEmbedded has supported it for a while too.
+I would agree on variables (for some special cases) but not for defines. The 
+problem with defines is that you can override a constant without even 
+noticing it. Therefore, always use enums when you can, and defines only when 
+you must. 
 
-In short, I think udev-on-ramfs is simple enough to set up on 2.6.12
-based embedded configs, and with "modprobe -q $MODALIAS" phasing in,
-it seems to me [2] that hotplug-with-udev [3] can do most of what
-folk have used devfs to achieve.  I've quilted buildroot so that it
-works that way by default for me; it's turnkey, with no problems.
-
-Of course, 2.6.13 will be better with cardmgr finally gone.  :)
-
-- Dave
-
-[1] http://bugs.busybox.net/view.php?id=290
-[2] http://marc.theaimsgroup.com/?l=linux-hotplug-devel&m=111903617808816&w=2
-[3] http://marc.theaimsgroup.com/?l=linux-hotplug-devel&m=111903647518255&w=2
+                  Pekka 
 

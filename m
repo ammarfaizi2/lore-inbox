@@ -1,58 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263001AbVFWSdI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262922AbVFWSdX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263001AbVFWSdI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 14:33:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262997AbVFWSdI
+	id S262922AbVFWSdX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 14:33:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263005AbVFWSdW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 14:33:08 -0400
-Received: from rgminet04.oracle.com ([148.87.122.33]:47855 "EHLO
-	rgminet04.oracle.com") by vger.kernel.org with ESMTP
-	id S262883AbVFWSaG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 14:30:06 -0400
-Date: Thu, 23 Jun 2005 11:29:01 -0700
-From: Mark Fasheh <mark.fasheh@oracle.com>
-To: James Morris <jmorris@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       ocfs2-devel@oss.oracle.com, torvalds@osdl.org, akpm@osdl.org,
-       wim.coekaerts@oracle.com, lmb@suse.de
-Subject: Re: [RFC] [PATCH] OCFS2
-Message-ID: <20050623182901.GB8215@ca-server1.us.oracle.com>
-Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
-References: <20050518223303.GE1340@ca-server1.us.oracle.com> <Xine.LNX.4.44.0506231358230.14123-100000@thoron.boston.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Xine.LNX.4.44.0506231358230.14123-100000@thoron.boston.redhat.com>
-Organization: Oracle Corporation
-User-Agent: Mutt/1.5.9i
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
+	Thu, 23 Jun 2005 14:33:22 -0400
+Received: from web30710.mail.mud.yahoo.com ([68.142.200.143]:47232 "HELO
+	web30710.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S262922AbVFWSaz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 14:30:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=2nGvXHPXAYcUVlG8JedWpNSIXGAabL39cHV4hJoTWiu7/Y4njD782QwZFgB1OdAhGwLdvFyercVFABOefVWdeMgtK9kCg2ku1Z8xWDzfB6jEfrN3CZ9Lop8ynG6JAs1k1D+3M6rtEBTNcMUQs7ReP/WVxT86jPH7p2iwqqMVzHU=  ;
+Message-ID: <20050623183051.98655.qmail@web30710.mail.mud.yahoo.com>
+Date: Thu, 23 Jun 2005 11:30:51 -0700 (PDT)
+From: <spaminos-ker@yahoo.com>
+Reply-To: spaminos-ker@yahoo.com
+Subject: Re: cfq misbehaving on 2.6.11-1.14_FC3
+To: Jens Axboe <axboe@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050622204308.GC26925@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi James,
+--- Jens Axboe <axboe@suse.de> wrote:
+> Journalled file systems will behave worse for this, because it has to
+> tend to the journal as well. Can you try mounting that partition as ext2
+> and see what numbers that gives you?
 
-Thanks for looking over this.
+I did the tests again on a partition that I could mkfs/mount at will.
 
-On Thu, Jun 23, 2005 at 02:03:35PM -0400, James Morris wrote:
-> The masklog code looks potentially useful outside of ocfs2, as a general 
-> kernel facility.  Any chance of splitting it out?
-Absolutely. We've found that stuff invaluable in debugging issues for a
-while now, and as far as I recall, Zach wrote it with the idea that it could
-be useful to other folks too. I think the only issue to resolve there would
-be how other subsystems reserve a debugging bit...
+On ext3, I get about 33 seconds average latency.
 
-> Quibbles:
-> 
-> - A lot of the macros should probably be replaced with static inlines, 
-> like OCFS2_IS_VALID_DINODE.
-> 
-> - Approx. 80 typedefs.  ouch.
-Heh, we're slowly removing those :)
-	--Mark
+And on ext2, as predicted, I have latencies in average of about 0.4 seconds.
 
---
-Mark Fasheh
-Senior Software Developer, Oracle
-mark.fasheh@oracle.com
+I also tried reiserfs, and it gets about 22 seconds latency.
+
+As you pointed out, it seems that there is a flow in the way IO queues and
+journals (that are in some ways queues as well), interact in the presence of
+flushes.
+
+Nicolas
 

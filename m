@@ -1,82 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262216AbVFWNqI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262502AbVFWNq0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262216AbVFWNqI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 09:46:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262326AbVFWNqI
+	id S262502AbVFWNq0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 09:46:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262326AbVFWNq0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 09:46:08 -0400
-Received: from ppsw-9.csi.cam.ac.uk ([131.111.8.139]:65259 "EHLO
-	ppsw-9.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S262216AbVFWNol (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 09:44:41 -0400
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-From: Mark Williamson <mark.williamson@cl.cam.ac.uk>
-To: "Ian Pratt" <m+Ian.Pratt@cl.cam.ac.uk>
-Subject: Re: -mm -> 2.6.13 merge status
-Date: Thu, 23 Jun 2005 14:37:10 +0100
-User-Agent: KMail/1.8
-Cc: "Carsten Otte" <cotte.de@gmail.com>, "Chris Wright" <chrisw@osdl.org>,
-       "Andrew Morton" <akpm@osdl.org>, "Jeff Garzik" <jgarzik@pobox.com>,
-       linux-kernel@vger.kernel.org, ian.pratt@cl.cam.ac.uk
-References: <A95E2296287EAD4EB592B5DEEFCE0E9D28236E@liverpoolst.ad.cl.cam.ac.uk>
-In-Reply-To: <A95E2296287EAD4EB592B5DEEFCE0E9D28236E@liverpoolst.ad.cl.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506231437.12046.mark.williamson@cl.cam.ac.uk>
+	Thu, 23 Jun 2005 09:46:26 -0400
+Received: from vms048pub.verizon.net ([206.46.252.48]:41936 "EHLO
+	vms048pub.verizon.net") by vger.kernel.org with ESMTP
+	id S262507AbVFWNpm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 09:45:42 -0400
+Date: Thu, 23 Jun 2005 09:45:27 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
+In-reply-to: <20050623075601.GA23320@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Ingo Molnar <mingo@elte.hu>, William Weston <weston@sysex.net>,
+       "K.R. Foley" <kr@cybsft.com>, "Eugeny S. Mints" <emints@ru.mvista.com>,
+       Daniel Walker <dwalker@mvista.com>
+Message-id: <200506230945.27358.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <20050608112801.GA31084@elte.hu>
+ <Pine.LNX.4.58.0506221848480.23287@echo.lysdexia.org>
+ <20050623075601.GA23320@elte.hu>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > Xen is making similar noises w.r.t. using kexec for
-> >
-> > flexible bootloader.
-> >
-> > Oh cool, then we should look at what they're doing instead of
-> > reinventing the wheel. Any pointer we can follow, or person
-> > we would contact?
+On Thursday 23 June 2005 03:56, Ingo Molnar wrote:
+>* William Weston <weston@sysex.net> wrote:
+>> Hi Ingo,
+>>
+>> I just found this oops from last night on my home audio/midi
+>> system (AthlonXP running -48-37).  I was burning a CD at the time,
+>> and the scsi error precedes the oops trace by 46 seconds.  The
+>> system is still up and fully functional, BTW.
+>
+>Found the bug and it should be fixed in -50-16 and later kernels. I
+> had debugging code that called into print_IO_APIC() (when you had
+> an scsi interrupt timeout), but that function was an __init call -
+> so the kernel called into an already freed code area.
+>
+> Ingo
+I just tried to build & boot 50-17 in mode=3, no hardirq's and got the 
+same boot failure as mode 4 for 50-06 gave:
 
-Right now, that would be me (hello!).
+On screen:
 
-All going well - I should have Xen guests kexec-ing properly in the next day 
-or so.  All the machinery is in place, so it's just a question of doing some 
-plumbing.  nb. this is a separate issue to kexecing the whole host, which 
-I'll probably look at later.
+Checking to see if this processor honours the WP bit even in 
+supervisor mode...  OK.
 
-Carsten: can you tell me what you were planning for your bootloader?  Also, if 
-you could point me at any docs regarding your current / proposed boot 
-sequence that'd be really interesting.
+and its stuck, needs a hardware reset to recover.  The next line 
+should be the bogomips check/report I believe.
 
-Regarding our kexec-based bootloader:
-* We call running virtual machines "domains".
-* Under Xen, guests get built using a kernel specified in domain 0's (the 
-"host") filesystem.  That implies that the user of the guest domain can't 
-choose their kernel.
-* To fix this we now have a bootloader than runs in domain 0, which can poke 
-around in the guest's filesystem, find a menu.lst / grub.conf, then load the 
-appropriate kernel.
-* This provides the functionality the user wants but implies that programs in 
-dom0 have to access the guest filesystem, which could be malicious.  We'd 
-rather not have programs in dom0 trusting guests.
-* The proposed solution is to initially run a "bootloader kernel", with a 
-bootloader app on an initrd.  This will run in the guest itself, so all the 
-filesystem accesses occur in an unprivileged virtual machine.
-* The bootloader will cause a kexec to the new kernel.
-* This fixes the isolation problem and immediately allows us to support all 
-the random filesystems Linux supports ;-)
-
-My current plan is that the bootloader app will act much like Grub and use 
-Grub's config files.  It'll also be possible to use something more 
-heavyweight, such as XenoBoot 
-(http://www.cl.cam.ac.uk/Research/SRG/netos/xeno/xenoboot/).  It's possible 
-that XenoBoot has some code we could use in the bootloader - I haven't 
-looked.
-
-Feel free to mail me offline.  If our goals are compatible, it'd be good to 
-work together on this.
-
-Cheers,
-Mark
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.35% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

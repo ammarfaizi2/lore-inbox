@@ -1,55 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262544AbVFWORQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262527AbVFWO0D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262544AbVFWORQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 10:17:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262547AbVFWORQ
+	id S262527AbVFWO0D (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 10:26:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262549AbVFWO0D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 10:17:16 -0400
-Received: from mta10.adelphia.net ([68.168.78.202]:18899 "EHLO
-	mta10.adelphia.net") by vger.kernel.org with ESMTP id S262544AbVFWORL
+	Thu, 23 Jun 2005 10:26:03 -0400
+Received: from 69-18-3-179.lisco.net ([69.18.3.179]:58889 "EHLO
+	ninja.slaphack.com") by vger.kernel.org with ESMTP id S262527AbVFWOZr
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 10:17:11 -0400
-Message-ID: <23192954.1119536228604.JavaMail.root@web10.mail.adelphia.net>
-Date: Thu, 23 Jun 2005 10:17:08 -0400
-From: <cspalletta@adelphia.net>
-To: linux-kernel@vger.kernel.org
-Subject: /proc/mounts broken
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+	Thu, 23 Jun 2005 10:25:47 -0400
+Message-ID: <42BAC668.2030604@slaphack.com>
+Date: Thu, 23 Jun 2005 09:25:44 -0500
+From: David Masover <ninja@slaphack.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050325)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nikita Danilov <nikita@clusterfs.com>
+Cc: "Artem B. Bityuckiy" <dedekind@yandex.ru>,
+       =?UTF-8?B?TWFya3VzIFTQlnJu?= =?UTF-8?B?cXZpc3Q=?= <mjt@nysv.org>,
+       Christophe Saout <christophe@saout.de>, Andrew Morton <akpm@osdl.org>,
+       Hans Reiser <reiser@namesys.com>, hch@infradead.org, jgarzik@pobox.com,
+       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: Re: reiser4 plugins
+References: <200506221733.j5MHXEoH007541@laptop11.inf.utfsm.cl>	<42B9DD48.6060601@slaphack.com> <17081.58619.671650.812286@gargle.gargle.HOWL>
+In-Reply-To: <17081.58619.671650.812286@gargle.gargle.HOWL>
+X-Enigmail-Version: 0.89.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-Sensitivity: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Do a google on '/dev2/root2' and you will see that /proc/mounts on Debian reports false information for the root filesystem device, and this is a longstanding problem. The result is that on systems with this problem /etc/mtab is correct but /proc/mounts is not.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-This appears to be more a kernel problem than a distribution problem - how is it even _possible_ for some userspace process to get /proc/mounts to publish erroneous information?  Why are there no consistency checks in /proc/mounts?
+Nikita Danilov wrote:
+> David Masover writes:
+> 
+> [...]
+> 
+>  > 
+>  > What we want is to have programs that can write small changes to one
+>  > file or to many files, lump all those changes into a transaction, and
+>  > have the transaction either succeed or fail.
+> 
+> No existing file system guarantees such behavior. Even atomicity of
+> single system call is not guaranteed.
 
-$ cat /proc/mounts
-rootfs / rootfs rw 0 0
-/dev2/root2 / ext3 rw 0 0
-proc /proc proc rw,nodiratime 0 0
-sysfs /sys sysfs rw 0 0
-devpts /dev/pts devpts rw 0 0
-tmpfs /dev/shm tmpfs rw 0 0
-/dev/hda1 /boot ext2 rw 0 0
-usbfs /proc/bus/usb usbfs rw 0 0
+No _existing_ filesystem.  But I seem to recall that this was one of the
+design decisions of Reiser4, and that the system call itself was pushed
+off to 4.1?
 
-$ ls -l /dev2 /dev2/root2
-ls: /dev2: No such file or directory
-ls: /dev2/root2: No such file or directory
+Maybe I'm just wrong about how big a transaction can be.  Maybe it was
+limited to a single file.  I don't think so, though.  From the
+whitepaper:  "Stuffing a transaction into a single file just because you
+need the transaction to be atomic is hardly what one would call flexible
+semantics."
 
-$ mount -l
-/dev/hda2 on / type ext3 (rw,errors=remount-ro) [debian-sarge-roo]
-proc on /proc type proc (rw)
-sysfs on /sys type sysfs (rw)
-devpts on /dev/pts type devpts (rw,gid=5,mode=620)
-tmpfs on /dev/shm type tmpfs (rw)
-/dev/hda1 on /boot type ext2 (rw) [/boot]
-usbfs on /proc/bus/usb type usbfs (rw)
+I also seem to recall that the rolling back of the transaction, should
+it fail, was supposed to be handled by the application.  This doesn't
+quite click with the whitepaper, but it could work.
 
-$ uname -a
-Linux nectarsys 2.6.10-1-k7 #1 Fri Mar 11 03:13:32 EST 2005 i686 GNU/Linux
+More whitepaper goodness:
 
+"A new system call sys_reiser4() will be implemented to support
+applications that don't have to be fooled into thinking that they are
+using POSIX. Through this entry point a richer set of semantics will
+access the same files that are also accessible using POSIX calls.
+Reiser4() will not implement more than hierarchical names. A full set
+theoretic naming system as described on our future vision page will not
+be implemented before Reiser6() is implemented (Reiser5 is our
+distributed filesystem, Reiser6 is our enhanced semantics, whether we
+implement Reiser5 or Reiser6 first depends on which sponsors we find ;-)
+). Reiser4() will implement all features necessary to access ACLs as
+files/directories rather than as something neither file nor directory.
+These include opening and closing transactions, performing a sequence of
+I/Os in one system call, and accessing files without use of file
+descriptors (necessary for efficient small I/O). Reiser4 will use a
+syntax suitable for evolving into Reiser5() syntax with its set
+theoretic naming."
 
+So, some sort of transaction is planned.
+
+But, as I said, I wasn't paying enough attention.  Maybe there is a
+technical reason why this can't be done in Linux?
+
+>  > > it doesn't stop the system dead in its tracks waiting for some very long
+>  > > transaction to finish?
+>  > 
+>  > We've also discussed this.  For one thing, if we can have transactions
+>  > in databases which don't stop the database dead in its tracks, why can't
+>  > we do it with filesystems?
+> 
+> Because to have such transactions databases pay huge price in both
+> resource consumption and available concurrency (isolation, commit-time
+> locks, etc.), and yet mechanism they use to deal with stuck transactions
+> (which is simply to abort it) is not very suitable for the file system.
+
+Oh, really?  If we've got application support through sys_reiser4?  The
+application should be ready to deal with a transaction abort.
+
+I'm still not convinced of any of that paragraph.  I don't know enough
+to argue the point, but it intuitively feels wrong.  After all, if the
+metadata is atomic, and we are allowed to make our own system calls, why
+can't we make the data atomic?
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iQIVAwUBQrrGOngHNmZLgCUhAQJZhw//dmJ6S2GlGT6J5YI9DTCyoTDIPUYNb8o0
+M1me6KDTElzzQ3yUak/eUd0sbGBAQcf0vn/iVscfq2DoAwnUWxHjht+PaOA98axR
+0pnofqE291QLTQJ36epW0kKqFjavVVsrpD80llcaCFz9Rq48W40DoI5CWuX1RQqK
+pCnr9vYe8cAsRY+PzV9/KUaSQ+eZJ9daLsAmMwA3Gcxo4XYqILlZm90X3QQTdc8W
+gnKSabG3zIjEozfgG/nvtV/09mktHINGq3ud8W1XubBOXs4z+ECsLyvi7QNW83Bq
+b/wTDUX3PkrjDHnfcmFkFZJqRrCBD9Ko36f9NThxuaba5eV7kb6h+qx+kS5ZM6Lm
+bh90TjJrIpJ4aQr2qrPRAE85GSnvSlyi3E01gk/+UnkBFMoTqTvw2dPb0GhvMINM
+EhSUhEyeaopWXIdv3IszOOpbHJLwczixLDBtZ8OFDS26bnJGj7YlnTjdf+TZ9CGf
+ZXn7GaG16CiSTOt0YkKk2UGZz+AOubPAUHc6v8Wg587qXWKD3cXVQeZVqYwJG/8B
+G5qq51LB6jypjAoP4uSeuTs4DfANGi2H2mHjZVAyaGcwzhxf3ffGRFkfjElAj8RA
+RdmB6bq10nt32mL7YP8+n7xa38iCP+ks9wsoOY2KBBDlOpHu07xb/c2DS9yfTCpj
+FvMShQw6EBI=
+=S7ds
+-----END PGP SIGNATURE-----

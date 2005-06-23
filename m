@@ -1,73 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263047AbVFWKGa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262673AbVFWKDW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263047AbVFWKGa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 06:06:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263048AbVFWKFe
+	id S262673AbVFWKDW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 06:03:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262532AbVFWJ7h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 06:05:34 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:29959 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262398AbVFWJxu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 05:53:50 -0400
-Date: Thu, 23 Jun 2005 11:53:42 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Nick Warne <nick@linicks.net>
-Cc: linux-kernel@vger.kernel.org, George Kasica <georgek@netwrx1.com>
-Subject: Re: Problem compiling 2.6.12
-Message-ID: <20050623095342.GD3749@stusta.de>
-References: <200506222037.17738.nick@linicks.net> <20050622213038.GA3749@stusta.de> <200506222253.47777.nick@linicks.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200506222253.47777.nick@linicks.net>
-User-Agent: Mutt/1.5.9i
+	Thu, 23 Jun 2005 05:59:37 -0400
+Received: from cantor.suse.de ([195.135.220.2]:6878 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S262449AbVFWJxt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 05:53:49 -0400
+From: Andreas Gruenbacher <agruen@suse.de>
+Organization: SUSE LINUX Products GMBH
+To: Trond Myklebust <Trond.Myklebust@netapp.com>
+Subject: Re: Potential xdr_xcode_array2 security issue (was: Re: [PATCH] RPC: Encode and decode arbitrary XDR arrays)
+Date: Thu, 23 Jun 2005 11:53:41 +0200
+User-Agent: KMail/1.8
+Cc: Florian Weimer <fw@deneb.enyo.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Olaf Kirch <okir@suse.de>
+References: <200506230502.j5N52PWP007955@hera.kernel.org> <87y8911v46.fsf@deneb.enyo.de>
+In-Reply-To: <87y8911v46.fsf@deneb.enyo.de>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_laouCOffTQ+vw9y"
+Message-Id: <200506231153.41318.agruen@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 22, 2005 at 10:53:47PM +0100, Nick Warne wrote:
-> On Wednesday 22 June 2005 22:30, Adrian Bunk wrote:
-> > On Wed, Jun 22, 2005 at 08:37:17PM +0100, Nick Warne wrote:
-> > > George Kasica wrote:
-> > > > Tried that here and got not much farther...here's the error:
-> > > >
-> > > > [root@eagle linux]# make bzImage
-> > > >    CHK     include/linux/version.h
-> > > >    SPLIT   include/linux/autoconf.h -> include/config/*
-> > > >    HOSTCC  scripts/mod/sumversion.o
-> > > > In file included from /usr/include/linux/errno.h:4,
-> > >
-> > > That last line looks wrong...  I think you may have symlinks linking to
-> > > other older kernel header stuff.
-> > >...
-> >
-> > No, it looks correct.
-> >
-> > That's the copy of linux/errno.h shipped with glibc and that's correct
-> > when using HOSTCC.
-> 
-> Is it?  I thought kernel didn't care what Glibc or what kernel headers you had 
-> (that is system requirement) - it is automous.  Isn't HOSTCC explicitly just 
-> what compiler you have?
->...
+--Boundary-00=_laouCOffTQ+vw9y
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-CC is the compiler to actually compile the kernel for the target 
-platform.
+On Thursday 23 June 2005 07:48, Florian Weimer wrote:
+> This looks suspiciously like CVE-2002-0391.
 
-HOSTCC is the compiler to build helper programs for kernel compilation.
+Thanks, Florian. How about the attached patch?
 
-The helper programs HOSTCC compiles aren't part of the kernel, they are 
-ordinary userspace programs that could have as well been written in 
-Perl.
+Cheers,
+Andreas.
 
-> Nick
+--Boundary-00=_laouCOffTQ+vw9y
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="xdr-input-validation.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="xdr-input-validation.diff"
 
-cu
-Adrian
+From: Andreas Gruenbacher <agruen@suse.de>
+Subject: Overflow in xdr input validation
 
--- 
+The bounds check in xdr_xcode_array2 can overflow. Reported by
+Florian Weimer <fw@deneb.enyo.de>.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Signed-off-by: Andreas Gruenbacher <agruen@suse.de>
 
+Index: linux-2.6.5/net/sunrpc/xdr.c
+===================================================================
+--- linux-2.6.5.orig/net/sunrpc/xdr.c
++++ linux-2.6.5/net/sunrpc/xdr.c
+@@ -989,8 +989,7 @@ xdr_xcode_array2(struct xdr_buf *buf, un
+ 			return -EINVAL;
+ 	} else {
+ 		if (xdr_decode_word(buf, base, &desc->array_len) != 0 ||
+-		    (unsigned long) base + 4 + desc->array_len *
+-				    desc->elem_size > buf->len)
++		    desc->array_len > (buf->len - base - 4) / desc->elem_size)
+ 			return -EINVAL;
+ 	}
+ 	base += 4;
+@@ -1158,8 +1157,8 @@ int
+ xdr_encode_array2(struct xdr_buf *buf, unsigned int base,
+ 		  struct xdr_array2_desc *desc)
+ {
+-	if ((unsigned long) base + 4 + desc->array_len * desc->elem_size >
+-	    buf->head->iov_len + buf->page_len + buf->tail->iov_len)
++	if (buf->head->iov_len + buf->page_len + buf->tail->iov_len -
++	    base < desc->array_len * desc->elem_size + 4)
+ 		return -EINVAL;
+ 
+ 	return xdr_xcode_array2(buf, base, desc, 1);
+
+--Boundary-00=_laouCOffTQ+vw9y--

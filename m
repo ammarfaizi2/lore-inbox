@@ -1,51 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262447AbVFWMxS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262449AbVFWMyE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262447AbVFWMxS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 08:53:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262449AbVFWMxR
+	id S262449AbVFWMyE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 08:54:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262457AbVFWMyE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 08:53:17 -0400
-Received: from gw1.cosmosbay.com ([62.23.185.226]:56045 "EHLO
-	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S262447AbVFWMxO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 08:53:14 -0400
-Message-ID: <42BAB0BA.1010100@cosmosbay.com>
-Date: Thu, 23 Jun 2005 14:53:14 +0200
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: fr, en
+	Thu, 23 Jun 2005 08:54:04 -0400
+Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:46730
+	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
+	with ESMTP id S262455AbVFWMx5 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 08:53:57 -0400
+Reply-To: <abonilla@linuxwireless.org>
+From: "Alejandro Bonilla" <abonilla@linuxwireless.org>
+To: "'Eric Piel'" <Eric.Piel@tremplin-utc.net>,
+       "'Vojtech Pavlik'" <vojtech@suse.cz>, <borislav@users.sourceforge.net>
+Cc: "'Pavel Machek'" <pavel@ucw.cz>, "'Lee Revell'" <rlrevell@joe-job.com>,
+       "'Yani Ioannou'" <yani.ioannou@gmail.com>,
+       <linux-thinkpad@linux-thinkpad.org>, <linux-kernel@vger.kernel.org>
+Subject: RE: [ltp] Re: IBM HDAPS Someone interested?
+Date: Thu, 23 Jun 2005 06:53:15 -0600
+Message-ID: <004001c577f2$865ab650$600cc60a@amer.sykes.com>
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] x86_64 prefetchw() function can take into account CONFIG_MK8
- / CONFIG_MPSC
-References: <20050622.132241.21929037.davem@davemloft.net> <200506222242.j5MMgbxS009935@guinness.s2io.com> <20050622231300.GC14251@wotan.suse.de> <42BA81B2.4070108@cosmosbay.com> <20050623113150.GK14251@wotan.suse.de>
-In-Reply-To: <20050623113150.GK14251@wotan.suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Thu, 23 Jun 2005 14:53:09 +0200 (CEST)
+Content-Type: text/plain;
+	charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <42BA89B4.50900@tremplin-utc.net>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1478
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen a écrit :
-> On Thu, Jun 23, 2005 at 11:32:34AM +0200, Eric Dumazet wrote:
+  
+> > But that doesn't mean it's not connected to the embedded 
+> controller. It
+> > just means the embedded controller doesn't generate any 
+> inertial events
+> > by itself - it may have to be polled with some specific command.
+> > 
 > 
->>If we build a x86_64 kernel for an AMD64 or for an Intel EMT64, no need to 
->>use alternative_input.
->>Reserve alternative_input only for a generic kernel.
+> Well, in the changelog of the embedded controller firmware 
+> (ftp://ftp.software.ibm.com/pc/pccbbs/mobiles/1uhj07us.txt) there is:
+> - (New) Support for IBM Hard Disk Active Protection System.
 > 
+> I would conclude that the embedded controller is involved 
+> with the HDAPS!
 > 
-> An EM64T kernel should still boot on AMD64 and vice versa. Rejected.
+> Just my two cents.
 > 
-> -Andi
+> Eric
 > 
-> 
+OK, awesome. This gives us pretty much a where to go from now.
 
-OK, I wrongly assumed the 'MK8' or 'MPSC' choices were like x86 choices :
+Should the IBM-ACPI project have anything to do with this? I mean, we should, or could be getting more -vvv information from ecdump or the fact that because this is attached to the embedded controller makes things harder?
 
-A kernel compiled for a Pentium-4 will not run on a i486.
+.Alejandro
 
-But then what is the meaning of the choice "Generic-x86-64" in the "Processor family" menu ?
-The Help message is : CONFIG_GENERIC_CPU: Generic x86-64 CPU.
-
-Eric

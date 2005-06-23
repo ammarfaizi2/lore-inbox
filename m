@@ -1,93 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262284AbVFWKOX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262086AbVFWKQU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262284AbVFWKOX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 06:14:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262481AbVFWKKi
+	id S262086AbVFWKQU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 06:16:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262631AbVFWKOy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 06:10:38 -0400
-Received: from embla.aitel.hist.no ([158.38.50.22]:29611 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S262609AbVFWJ4A
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 05:56:00 -0400
-Message-ID: <42BA88A9.6010701@aitel.hist.no>
-Date: Thu, 23 Jun 2005 12:02:17 +0200
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@davemloft.net>
-CC: jim@why.dont.jablowme.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] devfs: remove devfs from Kconfig preventing it from being
- built
-References: <20050621222419.GA23896@kroah.com>	<20050621.155919.85409752.davem@davemloft.net>	<20050622041330.GB27716@suse.de> <20050621.214527.71091057.davem@davemloft.net>
-In-Reply-To: <20050621.214527.71091057.davem@davemloft.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 23 Jun 2005 06:14:54 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:43783 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262086AbVFWKIa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 06:08:30 -0400
+Date: Thu, 23 Jun 2005 12:08:21 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] schedule the obsolete raw driver for removal
+Message-ID: <20050623100821.GE3749@stusta.de>
+References: <20050521001925.GQ5112@stusta.de> <20050521053558.GA23542@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050521053558.GA23542@kroah.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
+On Fri, May 20, 2005 at 10:35:58PM -0700, Greg KH wrote:
+> On Sat, May 21, 2005 at 02:19:25AM +0200, Adrian Bunk wrote:
+> > Since kernel 2.6.3 the Kconfig text explicitely stated this driver was 
+> > obsolete.
+> > 
+> > It seems to be time to remove it.
+> 
+> As much as I would like to agree with you, no, not yet.  Mark it as
+> going to go away in the Documenation/feature-removal.txt file 6-8 months
+> from now (or longer if people object, but no longer than a year) and
+> then after that time expires, we can delete it.
 
->From: Greg KH <gregkh@suse.de>
->Date: Tue, 21 Jun 2005 21:13:30 -0700
->
->  
->
->>On Tue, Jun 21, 2005 at 03:59:19PM -0700, David S. Miller wrote:
->>    
->>
->>>From: Greg KH <gregkh@suse.de>
->>>Date: Tue, 21 Jun 2005 15:24:19 -0700
->>>
->>>However, this does mean I do need to reinstall a couple
->>>debian boxes here to something newer before I can continue
->>>doing kernel work in 2.6.x on them.
->>>      
->>>
->>Those boxes rely on devfs?
->>    
->>
->
->Yeah, when I forget to turn on DEVFS_FS and DEVFS_MOUNT in the
->kernel config the machine won't boot. :-)
->
->  
->
->>Can't you just grab the "static dev" debian package and continue on?
->>I'm sure there is one in there somewhere (don't really know for sure,
->>not running debian anywhere here, sorry.)
->>
->>Or how about a tarball of a /dev tree?  Would that help you out?
->>    
->>
->
->I don't know if Debian has such a package.
->
->Don't worry, I'll take care of this by simply reinstalling
->and thus moving to udev.
->
-That works, but seems like "the long way".
-You don't need to be given a tarball of a /dev tree - make your own!
-tar up your existing devfs-based /dev tree (at a time when all
-your devices are present)  then umount devfs and untar it
-all.   Then you have a static /dev which works with the existing setup,
-and a nondevfs kernel can boot right away.
+Patch below.
 
-The udev way may be necessary if you actually have lots of devices
-that come and go, such as usb thingies.  It shouldn't be necessary
-just to boot the machine though.
+> thanks,
+> 
+> greg k-h
 
-Jim Crilly wrote:
-
->I think he's just saying that since he did the install with devfs enabled
->and has been using devfs device names, a conversion back to 'standard'
->names would be a major PITA. It's definately possible to convert, but if
->there's not much on the boxes a reinstall might be quicker.
-
-Fortunately, one doesn't need to convert back.  Just copy devfs-dev onto
-ext3-dev and there you have the "good old" devfs-names in a static /dev.
-
-Helge Hafting
+cu
+Adrian
 
 
+<--  snip  -->
+
+
+Since kernel 2.6.3 the Kconfig text explicitely stated this driver was
+obsolete.
+
+It seems to be time to schedule it's removal.
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.12-mm1-full/Documentation/feature-removal-schedule.txt.old	2005-06-23 12:01:40.000000000 +0200
++++ linux-2.6.12-mm1-full/Documentation/feature-removal-schedule.txt	2005-06-23 12:04:09.000000000 +0200
+@@ -45,0 +46,8 @@
++What:	RAW driver (CONFIG_RAW_DRIVER)
++When:	December 2005
++Why:	declared obsolete since kernel 2.6.3
++	O_DIRECT can be used instead
++Who:	Adrian Bunk <bunk@stusta.de>
++
++---------------------------
++
+--- linux-2.6.12-mm1-full/drivers/char/Kconfig.old	2005-06-23 12:04:20.000000000 +0200
++++ linux-2.6.12-mm1-full/drivers/char/Kconfig	2005-06-23 12:04:46.000000000 +0200
+@@ -943,2 +943,2 @@
+-          The raw driver is deprecated and may be removed from 2.7
+-          kernels.  Applications should simply open the device (eg /dev/hda1)
++          The raw driver is deprecated and will be removed soon.
++          Applications should simply open the device (eg /dev/hda1)
 

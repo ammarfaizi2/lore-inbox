@@ -1,177 +1,305 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262696AbVFWTHp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262688AbVFWTF1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262696AbVFWTHp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 15:07:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262694AbVFWTG1
+	id S262688AbVFWTF1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 15:05:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262691AbVFWTF1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 15:06:27 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:13461 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S263050AbVFWTAI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 15:00:08 -0400
-Message-ID: <42BB06B6.1090203@namesys.com>
-Date: Thu, 23 Jun 2005 12:00:06 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
+	Thu, 23 Jun 2005 15:05:27 -0400
+Received: from mail.dif.dk ([193.138.115.101]:20374 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S262688AbVFWSxf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 14:53:35 -0400
+Date: Thu, 23 Jun 2005 20:59:08 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: =?ISO-8859-2?Q?Micha=B3_Piotrowski?= <piotrowskim@trex.wsi.edu.pl>
+Cc: Jesper Juhl <jesper.juhl@gmail.com>,
+       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
+       randy_dunlap <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org
+Subject: Re: Script to help users to report a BUG
+In-Reply-To: <42BAE190.20405@trex.wsi.edu.pl>
+Message-ID: <Pine.LNX.4.62.0506232057150.7467@dragon.hyggekrogen.localhost>
+References: <4d8e3fd30506191332264eb4ae@mail.gmail.com> 
+ <4d8e3fd30506201322242d540a@mail.gmail.com>  <4d8e3fd305062205371b0a506d@mail.gmail.com>
+  <42B951B4.80703@trex.wsi.edu.pl>  <4d8e3fd30506220656241e1521@mail.gmail.com>
+  <42B9544E.7030007@trex.wsi.edu.pl>  <4d8e3fd305062212343d9849ee@mail.gmail.com>
+  <42B9D391.4020602@trex.wsi.edu.pl>  <4d8e3fd305062300541eca2c10@mail.gmail.com>
+  <42BAA5C2.7060906@trex.wsi.edu.pl> <9a8748490506231011128f7a38@mail.gmail.com>
+ <42BAE190.20405@trex.wsi.edu.pl>
 MIME-Version: 1.0
-To: Christophe Saout <christophe@saout.de>
-CC: Andrew Morton <akpm@osdl.org>, hch@infradead.org, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: reiser4 plugins
-References: <20050620235458.5b437274.akpm@osdl.org>	 <42B831B4.9020603@pobox.com> <42B87318.80607@namesys.com>	 <20050621202448.GB30182@infradead.org> <42B8B9EE.7020002@namesys.com>	 <20050621181802.11a792cc.akpm@osdl.org> <1119452212.15527.33.camel@server.cs.pocnet.net>
-In-Reply-To: <1119452212.15527.33.camel@server.cs.pocnet.net>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a very nice description, thank you Christophe.  My comments are
-below.
+On Thu, 23 Jun 2005, [ISO-8859-2] Micha? Piotrowski wrote:
 
-Christophe Saout wrote:
+> Hi,
+> 
+> Here is the latest verion:
+> http://stud.wsi.edu.pl/~piotrowskim/files/ort/ort-a8.tar.bz2
+> 
+> Changelog:
+> - Randy's patch
+> - Jesper's idea (Great thanks. I haven't test it yet ;))
+> - Tainted kernel detection ;)
+> - Some code "reorganization"
+> 
 
->Am Dienstag, den 21.06.2005, 18:18 -0700 schrieb Andrew Morton:
->
->  
->
->>>What is wrong with having an encryption plugin implemented in this
->>> manner?  What is wrong with being able to have some files implemented
->>> using a compression plugin, and others in the same filesystem not.
->>>
->>> What is wrong with having one file in the FS use a write only plugin, in
->>> which the encrypion key is changed with every append in a forward but
->>> not backward computable manner, and in order to read a file you must
->>> either have a key that is stored on another computer or be reading what
->>> was written after the moment of cracking root?
->>>
->>> What is wrong with having a set of critical data files use a CRC
->>> checking file plugin?
->>>      
->>>
->>I think the concern here is that this is implemented at the wrong level.
->>
->>In Linux, a filesystem is some dumb thing which implements
->>address_space_operations, filesystem_operations, etc.
->>
->>Advanced features such as those which you describe are implemented on top
->>of the filesystem, not within it.  reiser4 turns it all upside down.
->>
->>Now, some of the features which you envision are not amenable to
->>above-the-fs implementations.  But some will be, and that's where we should
->>implement those.
->>    
->>
->
->Yes, but that would be difficult, probably worse. The name "plugins" is
->perhaps a bit misleading. These plugins are most of the time some sort
->client to the reiser4 on-disk database structure. The core code is does
->on-disk tree handling, journalling and these things. The plugins in turn
->glue this core database system to the rest of the system in order to
->make a filesystem of it. The "file plugin" tells the database how to
->store files.
->
->A compression plugins is more tricky. Files should be randomly
->accessible and if you write in the middle of the file the compressed
->block might change in size. For reiser4 this is not a problem since it
->just tells the underlying database "give me some room for 1234 bytes and
->insert it in the tree instead of the other block". The reiser4 core has
->totally different semantics than the VFS layer and I don't see how these
->things could be handled elsewhere in this simple way.
->
->The reiser4 core is more some sort of library that abstracts a block
->device and provides some sort of database API (which is highly optimized
->for filesystem purposes). The actual filesystem is then another layer on
->top of this. You could actually implement lots of different filesystems
->on top of that database core.
->
->The actual layer is a bit different though. The database core itself
->registers with the Linux VFS and then passes the calls down to one of
->the plugins which then calls back into the reiser4 core to do the actual
->database modification. I think this was the point that Christoph was
->criticizing the most.
->
->Currently it looks like this:
->
->             ,--------------.       ,--------------.
->VFS -------> |              | ----> |              |
->             | /fs/reiser4/ |       | .../plugins/ |
->blockdev <-- |              | <---> |              |
->             `--------------'       `--------------'
->
->So the reiser4 code is introducing another abstraction of the Linux VFS
->layer instead of letting the plugins define the Linux VFS ops directly.
->Which would look like this:
->
->                                    ,--------------.
->VFS ------------------------------> |              |
->             ,--------------,       | .../plugins/ |
->blockdev <-- | /fs/reiser4/ | <---> |              |
->             `--------------'       `--------------'
->  
->
-Note that the proposed change (as I understand it) creates a need to
-load plugin definitions (classes) into VFS vectors (instances), which
-requires additional code and operations. 
+Here's a small patch with a few suggested changes. I don't know if you'll 
+like all the changes, but feel free to use the bits you like and drop the 
+rest :-)
 
-Plugins need to be FS specific by their nature (unless someone wants the
-nightmare of allocating pluginids to each of the different filesystems
-and dealing with the inevitable collisions and violations).
 
-Note that with the proposed change there are now two places the contents
-of the plugin definition must reside:  once in each VFS instance of that
-plugin, and once in the plugin definition.  As Codd taught us, putting
-data in two places that must be kept synchronous is strongly
-undesirable, and it always causes more bugs over time than people think
-it will.
+--- ort.sh.original	2005-06-23 20:37:07.000000000 +0200
++++ ort.sh	2005-06-23 20:55:19.000000000 +0200
+@@ -4,17 +4,17 @@
+ # Copyright (C) 2005  Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
+ # Copyright (C) 2005  Paul TT <paultt@bilug.linux.it>
+ # Copyright (C) 2005  Randy Dunlap <rdunlap@xenotime.net>
+-
++#
+ # This program is free software; you can redistribute it and/or modify
+ # it under the terms of the GNU General Public License as published by
+ # the Free Software Foundation; either version 2 of the License, or
+ # (at your option) any later version.
+-		
++#		
+ # This program is distributed in the hope that it will be useful,
+ # but WITHOUT ANY WARRANTY; without even the implied warranty of
+ # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ # GNU General Public License for more details.
+-				
++#				
+ # You should have received a copy of the GNU General Public License
+ # along with this program; if not, write to the Free Software
+ # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+@@ -23,16 +23,16 @@
+ ORT_O=$1
+ VER=v.a8
+ 
+-M_EMAIL=a@b.c
+-U_EMAIL=user@email
++M_EMAIL=joe.random.maintainer@somewhere.domain.example
++U_EMAIL=reporter@mylinuxbox.domain.example
+ LKML=linux-kernel@vger.kernel.org
+-TOPIC=ORT
++TOPIC="Automagically generated bug report (ORT)"
+ 
+ EDITOR=vim
+ EM_CLI=mutt
+ 
+ help() {
+-    echo "Usage: [root@ng02 ort]$ ./ort.sh oops.txt"
++    echo "Usage: [root@mylinuxbox ~]$ ./ort.sh oops.txt"
+     echo "You need to be root to run the script"
+     exit 1
+ }
+@@ -43,7 +43,7 @@
+ 	    help
+     elif [[ ! -f "$ORT_O" ]]
+ 	then
+-	    echo "ERROR: You must give proper file with Oops"
++	    echo "ERROR: You must provide a proper file with the Oops text"
+ 	    help
+ 	    exit 1
+     fi
+@@ -62,11 +62,11 @@
+     echo "OOPS Reporting Tool $VER" > $ORT_F
+ }
+ 
+-chose_editor() {
++choose_editor() {
+     END_B=0
+     while [ $END_B = 0 ]
+     do
+-	echo -e "\nChose Your favourite text editor"
++	echo -e "\nChoose Your favourite text editor"
+ 	echo -e "1 - vim"
+ 	echo -e "2 - emacs"
+ 	echo -e "3 - mcedit"
+@@ -91,7 +91,7 @@
+ 	        do
+ 	        	echo -e "\nWrite editor name"
+ 			read EDITOR
+-			echo -e "You wrote < $EDITOR > is it corect?"
++			echo -e "You wrote < $EDITOR > is it correct?"
+ 		        echo -e "[Y(es)/N(o)]"
+ 			read TXT
+ 			if [ $TXT = "Y" ] || [ $TXT = "y" ]
+@@ -107,11 +107,11 @@
+     done
+ }
+ 
+-chose_em_cli() {
++choose_em_cli() {
+     END_B=0
+     while [ $END_B = 0 ]
+     do
+-	echo -e "\nChose Your favourite (and configured) email client (i haven't test it ;))"
++	echo -e "\nChoose Your favourite (and configured) email client (I have not tested it ;))"
+ 	echo -e "1 - mutt (it may not work)"
+ 	echo -e "2 - sendmail"
+ 	echo -e "o - other"
+@@ -131,7 +131,7 @@
+ 	        do
+ 	        	echo -e "\nWrite email client name"
+ 			read EM_CLI
+-			echo -e "You wrote < $EM_CLI > is it corect?"
++			echo -e "You wrote < $EM_CLI > is it correct?"
+ 		        echo -e "[Y(es)/N(o)]"
+ 			read TXT
+ 			if [ $TXT = "Y" ] || [ $TXT = "y" ]
+@@ -188,7 +188,8 @@
+     if [ "$TAINTED" > "$NULL" ]
+ 	then
+ 	    echo "Tainted kernel!!!"
+-	    echo "You can't send it to LKML"
++	    echo "Please reproduce with an untainted kernel before you send the report to LKML."
++	    echo "This script will not allow you to send a report for a tainted kernel."
+ 	    LKML=banned@banned.org
+     fi
+ }
+@@ -242,7 +243,7 @@
+ }
+ 
+ point_7_8() {
+-    echo -e "\n[7.8.] Dmesg log" >> $ORT_F
++    echo -e "\n[7.8.] dmesg log" >> $ORT_F
+     dmesg -s 100000 >> $ORT_F
+ }
+ 
+@@ -254,7 +255,7 @@
+ #echo -e "\n[7.9.] /proc copy"
+ #while [ $END = 0 ]
+ #do
+-#    echo -e "\nDo You want to create /proc copy?"
++#    echo -e "\nDo you want to create /proc copy?"
+ #    echo -e "[Y(es)/N(o)]"
+ #    read TXT
+ #    if [ $TXT = "Y" ] || [ $TXT = "y" ]
+@@ -278,7 +279,7 @@
+ END=0
+ while [ $END = 0 ]
+ do
+-    echo -e "\nDo You want to pass the path to kernel .config file?"
++    echo -e "\nDo you want to manually enter the path to the kernels .config file?"
+     echo -e "[A(utomagic)/Y(es)/S(kip)]"
+     read TXT
+     if [ $TXT = "Y" ] || [ $TXT = "y" ]
+@@ -327,7 +328,7 @@
+     END=0
+     while [ $END = 0 ]
+     do
+-	echo -e "\nDo You want to see $ORT_F?"
++	echo -e "\nDo you want to see $ORT_F?"
+         echo -e "[Y(es)/N(o)]"
+ 	read TXT
+         if [ $TXT = "Y" ] || [ $TXT = "y" ]
+@@ -345,7 +346,7 @@
+     END=0
+     while [ $END = 0 ]
+     do
+-	echo -e "\nDo You want to edit $ORT_F in $EDITOR?"
++	echo -e "\nDo you want to edit $ORT_F in $EDITOR?"
+         echo -e "[Y(es)/N(o)]"
+ 	read TXT
+         if [ $TXT = "Y" ] || [ $TXT = "y" ]
+@@ -363,7 +364,7 @@
+     END_A=0
+     while [ $END_A = 0 ]
+     do
+-	echo -e "\nDo you want to list MAINTERNERS list?"
++	echo -e "\nDo you want to list the MAINTERNERS file to locate the proper maintainer?"
+         echo -e "[Y(es)/N(o)]"
+ 	read TXT
+ 	if [ $TXT = "Y" ] || [ $TXT = "y" ]
+@@ -384,7 +385,7 @@
+     END_A=0
+     while [ $END_A = 0 ]
+     do
+-	echo -e "\nWrite mainterner e-mail"
++	echo -e "\nWrite maintainer e-mail"
+ 	read M_EMAIL
+ 	echo -e "You wrote < $M_EMAIL > is it corect?"
+         echo -e "[Y(es)/N(o)]"
+@@ -403,7 +404,8 @@
+     END_A=0
+     while [ $END_A = 0 ]
+     do
+-	echo -e "\nWrite your e-mail"
++	echo -e "\nWrite your e-mail (to be used as from address)"
++	echo -e "Please make sure it's correct so people can get back to you."
+ 	read U_EMAIL
+ 	echo -e "You wrote < $U_EMAIL > is it corect?"
+         echo -e "[Y(es)/N(o)]"
+@@ -422,7 +424,7 @@
+     END=0
+     while [ $END = 0 ]
+     do
+-        echo -e "\nDo You want to send $ORT_F?"
++        echo -e "\nDo you want to send $ORT_F?"
+ 	echo -e "[Y(es)/N(o)]"
+         read TXT
+ 	if [ $TXT = "Y" ] || [ $TXT = "y" ]
+@@ -433,8 +435,8 @@
+ 		while [ $END_1 = 0 ]
+ 	        do
+ 		    echo -e "1 to LKML"
+-		    echo -e "2 to mainterner"
+-		    echo -e "3 to mainterner and LKML"
++		    echo -e "2 to maintainer"
++		    echo -e "3 to maintainer and LKML"
+ 	            read TXT_1
+ 		    if [ $TXT_1 = "1" ]
+ 		        then
+@@ -443,7 +445,7 @@
+ 				    mutt -s "[OOPS] $TOPIC" -i $ORT_F -c $LKML
+ 			    elif [ $EM_CLI = "sendmail" ]
+ 				then
+-				    echo -e "Subject: Automagically generated bug report\n`cat topic.txt`\n" | sendmail -f <$U_EMAIL> $LKML
++				    echo -e "Subject: ${TOPIC}\n`cat ${ORT_F}`\n" | sendmail -f $U_EMAIL $LKML
+ 			    fi
+ 			    END_1=1
+ 	            elif [ $TXT_1 = "2" ]
+@@ -472,17 +474,14 @@
+ rm_ortmp
+ logo
+ 
+-chose_editor
+-chose_em_cli
++choose_editor
++choose_em_cli
+ 
+ point_1
+ point_2
+ point_3
+-
+ point_4
+-
+ point_5
+-
+ point_6
+ 
+ point_7_1
+@@ -496,11 +495,10 @@
+ #point_7_9
+ 
+ point_8
+-
+ point_9
+ 
+ less_r
+ edit_r
+ send_r
+ 
+-rm_ortmp
+\ No newline at end of file
++rm_ortmp
 
-By loading the instance from the plugin layer into VFS, we are creating
-a need to instantiate something that could instead be shared among all
-the instances.  It seems an additional step that is unneeded.
 
-The advantage though is that it avoids a function dereference.
 
-Perhaps I miss something here?
 
->Which probably would be okay for most of the time except for some
->details (which could probably be solved otherwise).
->
->Actually the flow is not always this simple, usually the path goes back
->and forth multiple time between the core and the plugins.
->
->One of the features Hans is using is that there can be different kinds
->of files. The on-disk structure tells the core which of the plugins is
->responsible for the "database object" found on the disk. It could be a
->directory or a "stat data" (inode) or a file. The file itself could be
->handled by different plugins like one that stores the data directly or
->one that compresses it.
->
->reiser4 is different than other filesystems in that it uses a lot more
->abstraction levels. The database aspect and the semantic aspect of a
->traditional filesystems are strongly separated.
->
->To understand the code probably means a lot of work because it is a bit
->different. Some of the layering concerns may be right, other probably
->not.
->
->The plugins that add additional VFS semantics (that are currently
->disable) should most definitely not be implemented only inside the
->filesystem. I think Hans did this because it would have been a lot more
->work doing this at the proper layer (which means talking to people and a
->lot of politics...).
->
->The last time I looked at the code is a while ago, so if I'm wrong on
->something, please don't shoot me. The only thing I can say is that
->reiser4 has very stable for me (though I've gone back to reiser3 for
->most of my filesystems because I wanted acl/xattr).
->
->So here's my advice: Instead of insulting each other or doing pure
->marketing talk, please try to address each detail and explain why
->something has been done and if it's good or bad and if it should be
->changed and how.
->
->  
->
+Kind regards,
+
+Jesper Juhl
+
 

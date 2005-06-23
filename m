@@ -1,41 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262155AbVFWGri@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262163AbVFWGrk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262155AbVFWGri (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 02:47:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262558AbVFWGqO
+	id S262163AbVFWGrk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 02:47:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262538AbVFWGpx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 02:46:14 -0400
-Received: from TYO201.gate.nec.co.jp ([202.32.8.214]:61609 "EHLO
-	tyo201.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S262367AbVFWGVh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 02:21:37 -0400
-To: David Brownell <david-b@pacbell.net>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>, kernel@mikebell.org
-Subject: Re: [GIT PATCH] Remove devfs from 2.6.12-git
-References: <200506222108.50905.david-b@pacbell.net>
-From: Miles Bader <miles@lsi.nec.co.jp>
-Reply-To: Miles Bader <miles@gnu.org>
-System-Type: i686-pc-linux-gnu
-Blat: Foop
-Date: Thu, 23 Jun 2005 15:21:26 +0900
-In-Reply-To: <200506222108.50905.david-b@pacbell.net> (David Brownell's message of "Wed, 22 Jun 2005 21:08:50 -0700")
-Message-Id: <buo4qbpwq3d.fsf@mctpc71.ucom.lsi.nec.co.jp>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 23 Jun 2005 02:45:53 -0400
+Received: from [24.22.56.4] ([24.22.56.4]:28902 "EHLO
+	w-gerrit.beaverton.ibm.com") by vger.kernel.org with ESMTP
+	id S262329AbVFWGTC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 02:19:02 -0400
+Message-Id: <20050623061755.954580000@w-gerrit.beaverton.ibm.com>
+References: <20050623061552.833852000@w-gerrit.beaverton.ibm.com>
+Date: Wed, 22 Jun 2005 23:16:01 -0700
+From: Gerrit Huizenga <gh@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Cc: ckrm-tech@lists.sourceforge.net, Chandra Seetharaman <sekharan@us.ibm.com>,
+       Gerrit Huizenga <gh@us.ibm.com>
+Subject: [patch 09/38] CKRM e18: Add missing read_unlock
+Content-Disposition: inline; filename=03a-missing_unlock
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Brownell <david-b@pacbell.net> writes:
-> I'd agree that embedded setups are the ones that have been slowest to
-> switch over, for various reasons.  One of them is that many LKML folk
-> ignore embedded systems issues; "just PC class or better".
+Function returns without unlocking the readlock in a case.
+This patch fixes it.
 
-I dunno about that -- while maybe the average LKMLer doesn't actively
-worry so much about embedded issues, I've found many of them are very
-friendly and helpful in getting patches for embedded/small-system
-functionality cleaned up and merged into the mainstream kernel.
+Signed-Off-By: Chandra Seetharaman <sekharan@us.ibm.com>
+Signed-Off-By: Gerrit Huizenga <gh@us.ibm.com>
 
--miles
--- 
-The car has become... an article of dress without which we feel uncertain,
-unclad, and incomplete.  [Marshall McLuhan, Understanding Media, 1964]
+ ckrm.c |    1 +
+ 1 files changed, 1 insertion(+)
+
+Index: linux-2.6.12-ckrm1/kernel/ckrm/ckrm.c
+===================================================================
+--- linux-2.6.12-ckrm1.orig/kernel/ckrm/ckrm.c	2005-06-20 13:08:29.000000000 -0700
++++ linux-2.6.12-ckrm1/kernel/ckrm/ckrm.c	2005-06-20 13:08:36.000000000 -0700
+@@ -106,6 +106,7 @@ void *ckrm_classobj(char *classname, int
+ 			if (core->name && !strcmp(core->name, classname)) {
+ 				/* FIXME:   should grep reference. */
+ 				*classtype_id = ctype->type_id;
++				read_unlock(&ckrm_class_lock);
+ 				return core;
+ 			}
+ 		}
+
+--

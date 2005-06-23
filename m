@@ -1,135 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262124AbVFWF4a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262085AbVFWF61@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262124AbVFWF4a (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 01:56:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262085AbVFWF43
+	id S262085AbVFWF61 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 01:58:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262140AbVFWF61
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 01:56:29 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:57287 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262124AbVFWF4Q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 01:56:16 -0400
-Date: Wed, 22 Jun 2005 22:58:13 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Greg KH <greg@kroah.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Git Mailing List <git@vger.kernel.org>
-Subject: Re: Updated git HOWTO for kernel hackers
-In-Reply-To: <42BA45B1.7060207@pobox.com>
-Message-ID: <Pine.LNX.4.58.0506222225010.11175@ppc970.osdl.org>
-References: <42B9E536.60704@pobox.com> <20050622230905.GA7873@kroah.com>
- <Pine.LNX.4.58.0506221623210.11175@ppc970.osdl.org> <42B9FCAE.1000607@pobox.com>
- <Pine.LNX.4.58.0506221724140.11175@ppc970.osdl.org> <42BA14B8.2020609@pobox.com>
- <Pine.LNX.4.58.0506221853280.11175@ppc970.osdl.org> <42BA1B68.9040505@pobox.com>
- <Pine.LNX.4.58.0506221929430.11175@ppc970.osdl.org> <42BA271F.6080505@pobox.com>
- <Pine.LNX.4.58.0506222014000.11175@ppc970.osdl.org> <42BA45B1.7060207@pobox.com>
+	Thu, 23 Jun 2005 01:58:27 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:9622 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S262085AbVFWF6U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 01:58:20 -0400
+Message-ID: <42BA4F7E.6000402@namesys.com>
+Date: Wed, 22 Jun 2005 22:58:22 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: David Masover <ninja@slaphack.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: reiser4 plugins
+References: <20050620235458.5b437274.akpm@osdl.org> <42B831B4.9020603@pobox.com> <42B87318.80607@namesys.com> <20050621202448.GB30182@infradead.org> <42B8B9EE.7020002@namesys.com> <42B8BB5E.8090008@pobox.com> <42B8E834.5030809@slaphack.com> <42B8F4BC.5060100@pobox.com>
+In-Reply-To: <42B8F4BC.5060100@pobox.com>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jeff Garzik wrote:
 
+> We have to maintain said ugly code for decades.
 
-On Thu, 23 Jun 2005, Jeff Garzik wrote:
+No you don't, I do.
+
+>> filesystem, but if so, it will have to do it much more slowly.  Take the
+>> good ideas -- things like plugins -- and make them at least look like
+>> incremental updates to the current VFS, and make them available to all
+>> filesystems.
 >
-> No complaint with that operation.  The complaint is that it's an 
-> additional operation.  Re-read what Greg said:
+> So, Reiser4 may eventually take over VFS and be the only Linux
+>
+> This is how all Linux development is done.
+>
+> The code evolves over time.
+>
+> You have just described the path ReiserFS needs to take, in order to
+> get this stuff into the kernel, in fact.
 
-Please re-read what I said.
+You missed his point.  He is saying ext3 code should migrate towards
+becoming reiser4 plugins, and reiser4 should be merged now so that the
+migration can get started.
 
-Pulling a regular head _cannot_ and _must_not_ update tags. Tags are not 
-associated with the tree, and they _cannot_ and _must_not_ be so, exactly 
-because that would make them global instead of private, and it would 
-fundamentally make them not be distributed, and would mean that they'd be 
-pointless as anything but "Linus' official tags".
+I don't really care whether ext3 uses our plugin model.  (If it does,
+fine, please credit me for it though, and consider maybe a thank you.  I
+am happy to thank the XFS team for the idea of delayed allocation....)
 
-That's what we had in BK _AND IT DOES NOT WORK_!
+I am entitled to get some advantage from being the first on the block. 
+Other fs maintainers don't want me to have that entitlement, so they add
+delays to slow us down.  It is odd how Hellwig no longer describes
+himself as XFS associated.  Did SGI and him
 
-Does it help when I scream?
+> There is no entitlement to be merged in the upstream kernel.  
 
-> > Is there some reason why git doesn't pull the
-> > tags in properly when doing a merge?  Chris and I just hit this when I
-> > pulled his 2.6.12.1 tree and and was wondering where the tag went.
+True, but what is interesting is that you don't think the faster
+filesystem should be merged, and the others should catch up to it later
+if they can, instead you think it should be delayed until all of its
+benefits can be transmitted to the other filesystems first so that
+everyone can be equal. 
 
-And I suggested that if you want that, then you pull on the TAG. You take 
-my modification, you test it, and you see if
 
-	git fetch tag ..repo.. tagname
-
-works.
-
-That solves exactly the case that Greg is complaining about, and it solves
-it in a _sane_ manner: you tell git that you want a tag, and git fetches
-it for you. It's that simple, and it does not introduce the _BROKEN_
-notion that tags are associated directly with the commit itself and
-somehow visible to all.
-
-> Multiple users -- not just me -- would prefer that git-pull-script 
-> pulled the tags, too.
-
-And multiple users -- clearly including you -- aren't listening to me. 
-Tags are separate from the source they tag, and they HAVE TO BE. There is 
-no "you automatically get the tags when you get the tree", because the two 
-don't have a 1:1 relationship.
-
-And not making them separate breaks a lot of things. As mentioned, it
-fundamentally breaks the distributed nature, but that also means that it
-breaks whenever two people use the same name for a tag, for example. You
-can't "merge" tags. BK had a very strange form of merging, which was (I
-think) to pick the one last in the BK ChangeSet file, but that didn't make
-it "right". You just never noticed, because Linux could never use tags at
-all due to the lack of privacy, except for big releases..
-
-> Suggested solution:  add '--tags' to git-pull-script 
-> (git-fetch-script?), which calls
-> 	rsync -r --ignore-existing repo/refs/tags/ .git/refs/tags/
-
-How is this AT ALL different from just having a separate script that does
-this? You've introduced nothing but syntactic fluff, and you've made it
-less flexible at the same time. First off, you might want to get new tags
-_without_ fetching anything else, and you might indeed want to get the 
-tags _first_ in order to decide what you want to fetch. In fact, in many 
-cases that's exactly what you want, namely you want to fetch the data 
-based on the tag.
-
-Secondly, if your worry is that you forget, then hell, write a small shell 
-function, and be done with it.
-
-BUT DO NOT MESS UP THINGS FOR OTHER PEOPLE.
-
-When I fetch somebody elses head, I had better not fetch his tags. His
-tags may not even make _sense_ in what I have - he may tag things in other
-branches that I'm not fetching at all. In fact, his tag-namespace might be
-_different_ from mine, ie he might have tagged something "broken" in his
-tree, and I tagged something _else_ "broken" in mine, just because it
-happens to be a very useful tag for when you want to mark "ok, that was a
-broken tree".
-
-It is wrong, wrong, _wrong_ to think that fetching somebody elses tree
-means that you should fetch his tags. The _only_ reason you think it's
-right is because you've only ever seen centralized tags: tags were the one
-thing that BK kept centralized.
-
-But once people realize that they can use tags in their own trees, and 
-nobody else will ever notice, they'll slowly start using them. Maybe it 
-takes a few months or even longer. But it will happen. And I refuse to 
-make stupid decisions that makes it not work.
-
-And thinking that "fetching a tree fetches all the tags from that tree"  
-really _is_ a stupid decision. It's missing the big picture. It's missing
-the fact that tags _should_ be normal every-day things that you just use
-as "book-marks", and that the kind of big "synchronization point for many
-people" tag should actually be the _rare_ case.
-
-The fact that global tags make that private "bookmark" usage impossible
-should be a big red blinking sign saying "don't do global tags".
-
-> Let the kernel hacker say "yes, I really do want to download the tags 
-> Linus publicly posted in linux-2.6.git/refs/tags" because this was a 
-> common operation in the previous workflow, a common operation that we 
-> -made use of-.
-
-And I already suggested a trivial script. Send me the script patch,
-instead of arguing for stupid things.
-
-			Linus

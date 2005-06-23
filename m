@@ -1,66 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262406AbVFWNaz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262418AbVFWNay@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262406AbVFWNaz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 09:30:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261900AbVFWN1i
+	id S262418AbVFWNay (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 09:30:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262406AbVFWN2T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 09:27:38 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:28429 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262406AbVFWNXn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 09:23:43 -0400
-Date: Thu, 23 Jun 2005 14:23:35 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: Pavel Machek <pavel@suse.cz>, Andi Kleen <ak@muc.de>,
-       Christoph Hellwig <hch@lst.de>
-Subject: [PATCH] Add removal schedule of register_serial/unregister_serial to appropriate file
-Message-ID: <20050623142335.A5564@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-	Pavel Machek <pavel@suse.cz>, Andi Kleen <ak@muc.de>,
-	Christoph Hellwig <hch@lst.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	Thu, 23 Jun 2005 09:28:19 -0400
+Received: from mail07.syd.optusnet.com.au ([211.29.132.188]:31715 "EHLO
+	mail07.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S262418AbVFWNYw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 09:24:52 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [patch] fix SMT scheduler latency bug
+Date: Thu, 23 Jun 2005 23:24:30 +1000
+User-Agent: KMail/1.8.1
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       William Weston <weston@sysex.net>
+References: <20050622102541.GA10043@elte.hu> <20050622233254.GA11486@elte.hu> <200506231003.31084.kernel@kolivas.org>
+In-Reply-To: <200506231003.31084.kernel@kolivas.org>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_PgruC/51esjJaN/"
+Message-Id: <200506232324.31156.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I hope there's no need to explain this in the email; if there is, the
-entry isn't good enough. 8)
+--Boundary-00=_PgruC/51esjJaN/
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-However, wouldn't it be a good idea if this file was ordered by "when" ?
-A quick scan of the file reveals a couple of overdue/forgotten items
-(maybe they happened but the entry in the file got missed?):
+On Thu, 23 Jun 2005 10:03, Con Kolivas wrote:
+> About the only scenario I can envision a high priority task being delayed
+> with the code as it currently is in 2.6.12-mm1 is with a high priority task
+> being on the expired array and a low priority task being delayed on the
+> active array. This still should not create large latencies unless array
+> swapping is significantly delayed. I considered adding a check for this
+> originally but it seemed to be unnecessary extra complexity since an
+> expired task by design is expected to be delayed more anyway.
 
-What:   ACPI S4bios support
-When:   May 2005
+BTW if this is an issue it would only require a patch like this.
 
-What:   register_ioctl32_conversion() / unregister_ioctl32_conversion()
-When:   April 2005
+Cheers,
+Con
 
+--Boundary-00=_PgruC/51esjJaN/
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="sched-smt_nice_check_expired_array.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+	filename="sched-smt_nice_check_expired_array.patch"
 
-diff -up -x BitKeeper -x ChangeSet -x SCCS -x _xlk -x *.orig -x *.rej orig/Documentation/feature-removal-schedule.txt linux/Documentation/feature-removal-schedule.txt
---- orig/Documentation/feature-removal-schedule.txt	Sat May 28 20:58:15 2005
-+++ linux/Documentation/feature-removal-schedule.txt	Thu Jun 23 14:19:05 2005
-@@ -83,3 +83,13 @@ Why:	Deprecated in favour of the new ioc
- 	more efficient.  You should really be using libraw1394 for raw1394
- 	access anyway.
- Who:	Jody McIntyre <scjody@steamballoon.com>
-+
-+---------------------------
-+
-+What:	register_serial/unregister_serial
-+When:	December 2005
-+Why:	This interface does not allow serial ports to be registered against
-+	a struct device, and as such does not allow correct power management
-+	of such ports.  8250-based ports should use serial8250_register_port
-+	and serial8250_unregister_port instead.
-+Who:	Russell King <rmk@arm.linux.org.uk>
+Index: linux-2.6.12-mm1/kernel/sched.c
+===================================================================
+--- linux-2.6.12-mm1.orig/kernel/sched.c	2005-06-23 00:10:22.000000000 +1000
++++ linux-2.6.12-mm1/kernel/sched.c	2005-06-23 23:19:35.000000000 +1000
+@@ -2784,7 +2784,8 @@ static inline int dependent_sleeper(int 
+ 					ret = 1;
+ 		} else
+ 			if (((smt_curr->time_slice * (100 - sd->per_cpu_gain) /
+-				100) > task_timeslice(p)))
++				100) > task_timeslice(p)) &&
++				p->static_prio <= this_rq->best_expired_prio)
+ 					ret = 1;
+ 
+ check_smt_task:
+@@ -2807,7 +2808,8 @@ check_smt_task:
+ 					resched_task(smt_curr);
+ 		} else {
+ 			if ((p->time_slice * (100 - sd->per_cpu_gain) / 100) >
+-				task_timeslice(smt_curr))
++				task_timeslice(smt_curr) &&
++				smt_curr->static_prio <= smt_rq->best_expired_prio)
+ 					resched_task(smt_curr);
+ 			else
+ 				wakeup_busy_runqueue(smt_rq);
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+--Boundary-00=_PgruC/51esjJaN/--

@@ -1,47 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262709AbVFWVWG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262700AbVFWVVt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262709AbVFWVWG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 17:22:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262718AbVFWVWD
+	id S262700AbVFWVVt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 17:21:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262702AbVFWVSD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 17:22:03 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:51644 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S262709AbVFWVTO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 17:19:14 -0400
-Message-ID: <42BB2749.1020209@pobox.com>
-Date: Thu, 23 Jun 2005 17:19:05 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: David Lang <david.lang@digitalinsight.com>
-CC: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Netdev List <netdev@vger.kernel.org>
-Subject: Re: [git patch] urgent e1000 fix
-References: <42BA7FB5.5020804@pobox.com> <Pine.LNX.4.62.0506231402340.18154@qynat.qvtvafvgr.pbz>
-In-Reply-To: <Pine.LNX.4.62.0506231402340.18154@qynat.qvtvafvgr.pbz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Thu, 23 Jun 2005 17:18:03 -0400
+Received: from zproxy.gmail.com ([64.233.162.205]:13087 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262700AbVFWVQF convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 17:16:05 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Acz49pSuA10ZwqVyQcKqBRoxADRcGQfSmw9v3iirGzK3qCv+PffZ0dn9eaUe/R4HMgvnqiHwn3xslnFsnp72KgWPNIXUrqiCN1SxTeZeXAkolFsVYJXnl5ORn4P/DfwvnpBMwHkz89L1mwY7iDRr6UDdcXJ3PQ6bOCOsII08AyE=
+Message-ID: <9a87484905062314165a4a3ecb@mail.gmail.com>
+Date: Thu, 23 Jun 2005 23:16:04 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
+To: "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH] SLIP: simplify sl_free_bufs
+Cc: juhl-lkml@dif.dk, loz@holmes.demon.co.uk, linux-serial@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050623.141038.122619255.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <Pine.LNX.4.62.0506152136310.3842@dragon.hyggekrogen.localhost>
+	 <Pine.LNX.4.62.0506232243340.7467@dragon.hyggekrogen.localhost>
+	 <20050623.141038.122619255.davem@davemloft.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Lang wrote:
-> hmm, I know I'm not that experianced with patch, but when I saved this 
-> to a file and did patch -p1 <file the hunk was rejected, the reject file 
-> is saying
+On 6/23/05, David S. Miller <davem@davemloft.net> wrote:
+> From: Jesper Juhl <juhl-lkml@dif.dk>
+> Date: Thu, 23 Jun 2005 22:46:06 +0200 (CEST)
+> 
+> > The patch below still applies cleanly to 2.6.12 - any chance this might
+> > get applied? or any good reasons not to apply it?
+> 
+> I'll put it in my tree, 
 
-It's probably the whitespace thing that Linus's git-apply gadget was 
-complaining about.
+Thanks.
 
-I'm terribly surprising, though, since my patch(1) applied the diff just 
-fine.
-
-<shrug>
-
-	Jeff
+>give me a day or so.
+> 
+No problem. :)
 
 
-
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

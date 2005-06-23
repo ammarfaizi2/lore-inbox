@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262349AbVFWMdF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262357AbVFWMeG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262349AbVFWMdF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 08:33:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262357AbVFWMdF
+	id S262357AbVFWMeG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 08:34:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262397AbVFWMeF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 08:33:05 -0400
-Received: from mummy.ncsc.mil ([144.51.88.129]:2551 "EHLO jazzhorn.ncsc.mil")
-	by vger.kernel.org with ESMTP id S262349AbVFWMdB (ORCPT
+	Thu, 23 Jun 2005 08:34:05 -0400
+Received: from mx1.suse.de ([195.135.220.2]:3968 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S262357AbVFWMdz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 08:33:01 -0400
-Subject: Re: [patch 1/1] selinux: minor cleanup in the
-	hooks.c:file_map_prot_check() code
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
-	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
-Cc: James Morris <jmorris@redhat.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1119492278.9254.32.camel@localhost.localdomain>
-References: <Xine.LNX.4.44.0506222150590.10175-100000@thoron.boston.redhat.com>
-	 <1119492278.9254.32.camel@localhost.localdomain>
-Content-Type: text/plain; charset=utf-8
-Organization: National Security Agency
-Date: Thu, 23 Jun 2005 08:31:52 -0400
-Message-Id: <1119529912.28493.10.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+	Thu, 23 Jun 2005 08:33:55 -0400
+From: Andreas Schwab <schwab@suse.de>
+To: linux-os@analogic.com
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Possible spin-problem in nanosleep()
+References: <Pine.LNX.4.61.0506230812160.15775@chaos.analogic.com>
+X-Yow: Now I'm telling MISS PIGGY about MONEY MARKET FUNDS!
+Date: Thu, 23 Jun 2005 14:33:52 +0200
+In-Reply-To: <Pine.LNX.4.61.0506230812160.15775@chaos.analogic.com> (Richard
+	B. Johnson's message of "Thu, 23 Jun 2005 08:18:05 -0400 (EDT)")
+Message-ID: <jell516ymn.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/22.0.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-06-23 at 04:04 +0200, Lorenzo Hernández García-Hierro
-wrote:
-> El mié, 22-06-2005 a las 21:55 -0400, James Morris escribió:
-> > Please send SELinux kernel patches via the maintainers.
-> 
-> It was sent to Stephen during the development of the execstack and
-> execheap permission checks patches, but it's up to him to decide about
-> it right now.
-> 
-> Stephen, is it OK for you?
+"Richard B. Johnson" <linux-os@analogic.com> writes:
 
-James is correct that the first diff isn't useful (and will lead to
-warnings on ppc32), whereas the latter diff is a legitimate cleanup.  So
-I'd suggest resubmitting with just the latter diff.  Thanks.  Sorry for
-any confusion.
- 
+> nanosleep() appears to have a problem. It may be just an
+> 'accounting' problem, but it isn't pretty. Code that used
+> to use usleep() to spend most of it's time sleeping, used
+> little or no CPU time as shown by `top`. The same code,
+> converted to nanosleep() appears to spend a lot of CPU
+> cycles spinning. The result is that `top` or similar
+> programs show lots of wasted CPU time.
+
+usleep() is just a wrapper around nanosleep().  Are you sure you got the
+units right?
+
+Andreas.
+
 -- 
-Stephen Smalley
-National Security Agency
-
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstra�e 5, 90409 N�rnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

@@ -1,80 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262268AbVFWJsu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263125AbVFWITY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262268AbVFWJsu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 05:48:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262398AbVFWJoS
+	id S263125AbVFWITY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 04:19:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262853AbVFWIQW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 05:44:18 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:38075 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262268AbVFWJiZ (ORCPT
+	Thu, 23 Jun 2005 04:16:22 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:29874 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S262544AbVFWHGc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 05:38:25 -0400
-Date: Thu, 23 Jun 2005 11:37:32 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Gerrit Huizenga <gh@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ckrm-tech@lists.sourceforge.net,
-       Chandra Seetharaman <sekharan@us.ibm.com>,
-       Hubertus Franke <frankeh@us.ibm.com>, Shailabh Nagar <nagar@us.ibm.com>
-Subject: Re: [patch 02/38] CKRM e18: Processor Delay Accounting
-Message-ID: <20050623093732.GA30848@elte.hu>
-References: <20050623061552.833852000@w-gerrit.beaverton.ibm.com> <20050623061754.354811000@w-gerrit.beaverton.ibm.com> <20050623091655.GA28722@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050623091655.GA28722@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Thu, 23 Jun 2005 03:06:32 -0400
+Message-ID: <42BA5F6F.9090406@pobox.com>
+Date: Thu, 23 Jun 2005 03:06:23 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Git Mailing List <git@vger.kernel.org>
+Subject: Re: Updated git HOWTO for kernel hackers
+References: <42B9E536.60704@pobox.com> <Pine.LNX.4.58.0506221603120.11175@ppc970.osdl.org> <42B9FF3A.4010700@pobox.com> <Pine.LNX.4.58.0506221850030.11175@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0506221850030.11175@ppc970.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds wrote:
+> (Of course, since the rsync protocol doesn't know anything about git
+> consistency, if the mirroring is half-way, you'll end up with something
+> less than wonderful, and confusing. Details, details)
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+Would it make sense to add an fsck step to git-clone-script?
 
-> 
-> * Gerrit Huizenga <gh@us.ibm.com> wrote:
-> 
-> > +#ifdef CONFIG_DELAY_ACCT
-> > +int task_running_sys(struct task_struct *p)
-> > +{
-> > +	return task_is_running(p);
-> > +}
-> > +EXPORT_SYMBOL_GPL(task_running_sys);
-> > +#endif
-> 
-> why is this function defined, and why is it exported?
+	Jeff
 
-this:
 
-+#define task_is_running(p)     (this_rq() == task_rq(p))
-
-is totally bogus. What you are checking is not whether 'the task is 
-running', but it is a complex way of doing p->thread_info->cpu == 
-smp_processor_id(). This, combined with:
-
-+               if (pdata == NULL)
-+                       /* some wierdo race condition .. simply ignore */
-+                       continue;
-+               if (thread->state == TASK_RUNNING) {
-+                       if (task_running_sys(thread)) {
-+                               atomic_inc((atomic_t *) &
-+                                          (PSAMPLE(pdata)->cpu_running));
-+                               run++;
-+                       } else {
-+                               atomic_inc((atomic_t *) &
-+                                          (PSAMPLE(pdata)->cpu_waiting));
-+                               wait++;
-+                       }
-+               }
-
-yields completely incorrect code, and bogus data. If your goal is to 
-sample executing-on-cpu vs. on-runqueue-waiting-to-run states then you 
-should use the already existing task_curr(p) call.
-
-	Ingo

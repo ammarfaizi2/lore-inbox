@@ -1,557 +1,427 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262542AbVFWKXH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262683AbVFWKh2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262542AbVFWKXH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 06:23:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262629AbVFWKUl
+	id S262683AbVFWKh2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 06:37:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262447AbVFWKgE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 06:20:41 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:44303 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262449AbVFWKDo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 06:03:44 -0400
-Date: Thu, 23 Jun 2005 11:03:37 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Cc: Linux Serial List <linux-serial@vger.kernel.org>
-Subject: [RFC/CFT] Split 8250 port table
-Message-ID: <20050623110337.A31259@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	Linux Serial List <linux-serial@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	Thu, 23 Jun 2005 06:36:04 -0400
+Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:5230 "HELO
+	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262286AbVFWKc2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 06:32:28 -0400
+Message-ID: <42BA8FA5.2070407@yahoo.com.au>
+Date: Thu, 23 Jun 2005 20:32:05 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Hugh Dickins <hugh@veritas.com>, Badari Pulavarty <pbadari@us.ibm.com>
+Subject: Re: [patch][rfc] 5/5: core remove PageReserved
+References: <42BA5F37.6070405@yahoo.com.au> <42BA5F5C.3080101@yahoo.com.au> <42BA5F7B.30904@yahoo.com.au> <42BA5FA8.7080905@yahoo.com.au> <42BA5FC8.9020501@yahoo.com.au> <42BA5FE8.2060207@yahoo.com.au> <20050623095153.GB3334@holomorphy.com>
+In-Reply-To: <20050623095153.GB3334@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's a patch which some people may rejoice over, others may groan.
+William Lee Irwin III wrote:
+> On Thu, Jun 23, 2005 at 05:08:24PM +1000, Nick Piggin wrote:
+> 
+>>@@ -337,7 +338,7 @@ static inline void get_page(struct page 
+>> static inline void put_page(struct page *page)
+>> {
+>>-	if (!PageReserved(page) && put_page_testzero(page))
+>>+	if (put_page_testzero(page))
+>> 		__page_cache_release(page);
+>> }
+> 
+> 
+> No sweep before this? I'm not so sure.
+> 
 
-Add separate files for the different 8250 ISA-based serial boards.
+Sweep what? There is a warning that will get triggered in the case
+we free a PageReserved page through this path.
 
-Looking across all the various architectures, it seems reasonable that
-we can key the availability of the configuration options for these
-beasts to the bus-related symbols (iow, CONFIG_ISA).  We also standardise
-the base baud/uart clock rate for these boards - I'm sure that isn't
-architecture specific, but is solely dependent on the crystal fitted
-on the board (which should be the same no matter what type of machine
-its fitted into.)
+> 
+> On Thu, Jun 23, 2005 at 05:08:24PM +1000, Nick Piggin wrote:
+> 
+>>@@ -514,7 +534,8 @@ int copy_page_range(struct mm_struct *ds
+>> 	return 0;
+>> }
+>> 
+>>-static void zap_pte_range(struct mmu_gather *tlb, pmd_t *pmd,
+>>+static void zap_pte_range(struct mmu_gather *tlb,
+>>+				struct vm_area_struct *vma, pmd_t *pmd,
+>> 				unsigned long addr, unsigned long end,
+>> 				struct zap_details *details)
+>> {
+> 
+> 
+> As exciting as this is, !!(vma->vm_flags & VM_RESERVED) could trivially
+> go into struct zap_details without excess args or diff.
+> 
 
-The ordering of the ports has been kept the same, provided the modules
-are linked into the kernel in the link order specified.
+Actually, it isn't trivial. I thought of trying that.
 
-Once this patch has been accepted, we can kill the ISA serial board
-static entries in _all_ of the architecture specific serial.h files.
+> 
+> On Thu, Jun 23, 2005 at 05:08:24PM +1000, Nick Piggin wrote:
+> 
+>>@@ -1225,6 +1251,8 @@ static int do_wp_page(struct mm_struct *
+>> 	unsigned long pfn = pte_pfn(pte);
+>> 	pte_t entry;
+>> 
+>>+	BUG_ON(vma->vm_flags & VM_RESERVED);
+>>+
+>> 	if (unlikely(!pfn_valid(pfn))) {
+>> 		/*
+>> 		 * This should really halt the system so it can be debugged or
+> 
+> 
+> !pfn_valid(pfn) is banned when !(vma->vm_flags & VM_RESERVED); here we
+> BUG_ON the precondition then handle !pfn_valid(pfn) in the old manner
+> where some new infrastructure has been erected for reporting such errors.
+> 
 
-However, the biggest downside to this is the way platform devices with
-the same name are handled - they must have a unique ID, which is
-hard-coded into the structure.
+No, it uses print_invalid_pfn too.
 
-There appears to be three choices in respect of this:
+> 
+> On Thu, Jun 23, 2005 at 05:08:24PM +1000, Nick Piggin wrote:
+> 
+>>@@ -1259,13 +1286,16 @@ static int do_wp_page(struct mm_struct *
+>> 	/*
+>> 	 * Ok, we need to copy. Oh, well..
+>> 	 */
+>>-	if (!PageReserved(old_page))
+>>+	if (old_page == ZERO_PAGE(address))
+>>+		old_page = NULL;
+>>+	else
+>> 		page_cache_get(old_page);
+>>+
+>> 	spin_unlock(&mm->page_table_lock);
+>> 
+>> 	if (unlikely(anon_vma_prepare(vma)))
+>> 		goto no_new_page;
+>>-	if (old_page == ZERO_PAGE(address)) {
+>>+	if (old_page == NULL) {
+>> 		new_page = alloc_zeroed_user_highpage(vma, address);
+>> 		if (!new_page)
+>> 			goto no_new_page;
+> 
+> 
+> There are some micro-optimizations mixed in with this and some
+> subsequent do_wp_page() alterations.
+> 
 
-1. we hard-code the values as below
-2. we build into the kernel another object whose sole purpose is to
-   provide 8250-based platform devices with unique IDs.
-3. we fix the platform device layer so that it can look at the ID, and
-   if its an "allocate me a new number" it scans the platform device
-   list for the next free ID for that name.
+We no longer page_cache_get ZERO_PAGE, ever. That I changed it so
+in a more optimal way than it was is surely acceptable?
 
-Comments?
+> 
+> On Thu, Jun 23, 2005 at 05:08:24PM +1000, Nick Piggin wrote:
+> 
+>>@@ -1654,7 +1656,7 @@ void __init memmap_init_zone(unsigned lo
+>> 
+>> 	for (page = start; page < (start + size); page++) {
+>> 		set_page_zone(page, NODEZONE(nid, zone));
+>>-		set_page_count(page, 0);
+>>+		set_page_count(page, 1);
+>> 		reset_page_mapcount(page);
+>> 		SetPageReserved(page);
+>> 		INIT_LIST_HEAD(&page->lru);
+> 
+> 
+> The refcounting and PG_reserved activity in memmap_init_zone() is
+> superfluous. bootmem.c does all the necessary accounting internally.
+> 
 
-diff -up -x BitKeeper -x ChangeSet -x SCCS -x _xlk -x '*.orig' -x '*.rej' -x .git -N orig/drivers/serial/8250.c linux/drivers/serial/8250.c
---- orig/drivers/serial/8250.c	Sun May  1 20:59:28 2005
-+++ linux/drivers/serial/8250.c	Wed May  4 13:18:10 2005
-@@ -77,23 +77,9 @@ static unsigned int share_irqs = SERIAL8
-  */
- #define is_real_interrupt(irq)	((irq) != 0)
- 
--/*
-- * This converts from our new CONFIG_ symbols to the symbols
-- * that asm/serial.h expects.  You _NEED_ to comment out the
-- * linux/config.h include contained inside asm/serial.h for
-- * this to work.
-- */
--#undef CONFIG_SERIAL_MANY_PORTS
--#undef CONFIG_SERIAL_DETECT_IRQ
--#undef CONFIG_SERIAL_MULTIPORT
--#undef CONFIG_HUB6
--
- #ifdef CONFIG_SERIAL_8250_DETECT_IRQ
- #define CONFIG_SERIAL_DETECT_IRQ 1
- #endif
--#ifdef CONFIG_SERIAL_8250_MULTIPORT
--#define CONFIG_SERIAL_MULTIPORT 1
--#endif
- #ifdef CONFIG_SERIAL_8250_MANY_PORTS
- #define CONFIG_SERIAL_MANY_PORTS 1
- #endif
-@@ -2348,10 +2334,11 @@ static int __devinit serial8250_probe(st
- {
- 	struct plat_serial8250_port *p = dev->platform_data;
- 	struct uart_port port;
-+	int ret, i;
- 
- 	memset(&port, 0, sizeof(struct uart_port));
- 
--	for (; p && p->flags != 0; p++) {
-+	for (i = 0; p && p->flags != 0; p++, i++) {
- 		port.iobase	= p->iobase;
- 		port.membase	= p->membase;
- 		port.irq	= p->irq;
-@@ -2360,10 +2347,16 @@ static int __devinit serial8250_probe(st
- 		port.iotype	= p->iotype;
- 		port.flags	= p->flags;
- 		port.mapbase	= p->mapbase;
-+		port.hub6	= p->hub6;
- 		port.dev	= dev;
- 		if (share_irqs)
- 			port.flags |= UPF_SHARE_IRQ;
--		serial8250_register_port(&port);
-+		ret = serial8250_register_port(&port);
-+		if (ret < 0) {
-+			dev_err(dev, "unable to register port at index %d "
-+				"(IO%lx MEM%lx IRQ%d): %d\n", i,
-+				p->iobase, p->mapbase, p->irq, ret);
-+		}
- 	}
- 	return 0;
- }
-diff -up -x BitKeeper -x ChangeSet -x SCCS -x _xlk -x '*.orig' -x '*.rej' -x .git -N orig/drivers/serial/8250_accent.c linux/drivers/serial/8250_accent.c
---- orig/drivers/serial/8250_accent.c	Thu Jan  1 01:00:00 1970
-+++ linux/drivers/serial/8250_accent.c	Wed May  4 13:31:09 2005
-@@ -0,0 +1,47 @@
-+/*
-+ *  linux/drivers/serial/8250_accent.c
-+ *
-+ *  Copyright (C) 2005 Russell King.
-+ *  Data taken from include/asm-i386/serial.h
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/serial_8250.h>
-+
-+#define PORT(_base,_irq)				\
-+	{						\
-+		.iobase		= _base,		\
-+		.irq		= _irq,			\
-+		.uartclk	= 1843200,		\
-+		.iotype		= UPIO_PORT,		\
-+		.flags		= UPF_BOOT_AUTOCONF,	\
-+	}
-+
-+static struct plat_serial8250_port accent_data[] = {
-+	PORT(0x330, 4),
-+	PORT(0x338, 4),
-+	{ },
-+};
-+
-+static struct platform_device accent_device = {
-+	.name			= "serial8250",
-+	.id			= 2,
-+	.dev			= {
-+		.platform_data	= accent_data,
-+	},
-+};
-+
-+static int __init accent_init(void)
-+{
-+	return platform_device_register(&accent_device);
-+}
-+
-+module_init(accent_init);
-+
-+MODULE_AUTHOR("Russell King");
-+MODULE_DESCRIPTION("8250 serial probe module for Accent Async cards");
-+MODULE_LICENSE("GPL");
-diff -up -x BitKeeper -x ChangeSet -x SCCS -x _xlk -x '*.orig' -x '*.rej' -x .git -N orig/drivers/serial/8250_boca.c linux/drivers/serial/8250_boca.c
---- orig/drivers/serial/8250_boca.c	Thu Jan  1 01:00:00 1970
-+++ linux/drivers/serial/8250_boca.c	Wed May  4 13:31:09 2005
-@@ -0,0 +1,61 @@
-+/*
-+ *  linux/drivers/serial/8250_boca.c
-+ *
-+ *  Copyright (C) 2005 Russell King.
-+ *  Data taken from include/asm-i386/serial.h
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/serial_8250.h>
-+
-+#define PORT(_base,_irq)				\
-+	{						\
-+		.iobase		= _base,		\
-+		.irq		= _irq,			\
-+		.uartclk	= 1843200,		\
-+		.iotype		= UPIO_PORT,		\
-+		.flags		= UPF_BOOT_AUTOCONF,	\
-+	}
-+
-+static struct plat_serial8250_port boca_data[] = {
-+	PORT(0x100, 12),
-+	PORT(0x108, 12),
-+	PORT(0x110, 12),
-+	PORT(0x118, 12),
-+	PORT(0x120, 12),
-+	PORT(0x128, 12),
-+	PORT(0x130, 12),
-+	PORT(0x138, 12),
-+	PORT(0x140, 12),
-+	PORT(0x148, 12),
-+	PORT(0x150, 12),
-+	PORT(0x158, 12),
-+	PORT(0x160, 12),
-+	PORT(0x168, 12),
-+	PORT(0x170, 12),
-+	PORT(0x178, 12),
-+	{ },
-+};
-+
-+static struct platform_device boca_device = {
-+	.name			= "serial8250",
-+	.id			= 3,
-+	.dev			= {
-+		.platform_data	= boca_data,
-+	},
-+};
-+
-+static int __init boca_init(void)
-+{
-+	return platform_device_register(&boca_device);
-+}
-+
-+module_init(boca_init);
-+
-+MODULE_AUTHOR("Russell King");
-+MODULE_DESCRIPTION("8250 serial probe module for Boca cards");
-+MODULE_LICENSE("GPL");
-diff -up -x BitKeeper -x ChangeSet -x SCCS -x _xlk -x '*.orig' -x '*.rej' -x .git -N orig/drivers/serial/8250_fourport.c linux/drivers/serial/8250_fourport.c
---- orig/drivers/serial/8250_fourport.c	Thu Jan  1 01:00:00 1970
-+++ linux/drivers/serial/8250_fourport.c	Wed May  4 13:31:09 2005
-@@ -0,0 +1,53 @@
-+/*
-+ *  linux/drivers/serial/8250_fourport.c
-+ *
-+ *  Copyright (C) 2005 Russell King.
-+ *  Data taken from include/asm-i386/serial.h
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/serial_8250.h>
-+
-+#define PORT(_base,_irq)						\
-+	{								\
-+		.iobase		= _base,				\
-+		.irq		= _irq,					\
-+		.uartclk	= 1843200,				\
-+		.iotype		= UPIO_PORT,				\
-+		.flags		= UPF_BOOT_AUTOCONF | UPF_FOURPORT,	\
-+	}
-+
-+static struct plat_serial8250_port fourport_data[] = {
-+	PORT(0x1a0, 9),
-+	PORT(0x1a8, 9),
-+	PORT(0x1b0, 9),
-+	PORT(0x1b8, 9),
-+	PORT(0x2a0, 5),
-+	PORT(0x2a8, 5),
-+	PORT(0x2b0, 5),
-+	PORT(0x2b8, 5),
-+	{ },
-+};
-+
-+static struct platform_device fourport_device = {
-+	.name			= "serial8250",
-+	.id			= 1,
-+	.dev			= {
-+		.platform_data	= fourport_data,
-+	},
-+};
-+
-+static int __init fourport_init(void)
-+{
-+	return platform_device_register(&fourport_device);
-+}
-+
-+module_init(fourport_init);
-+
-+MODULE_AUTHOR("Russell King");
-+MODULE_DESCRIPTION("8250 serial probe module for AST Fourport cards");
-+MODULE_LICENSE("GPL");
-diff -up -x BitKeeper -x ChangeSet -x SCCS -x _xlk -x '*.orig' -x '*.rej' -x .git -N orig/drivers/serial/8250_hub6.c linux/drivers/serial/8250_hub6.c
---- orig/drivers/serial/8250_hub6.c	Thu Jan  1 01:00:00 1970
-+++ linux/drivers/serial/8250_hub6.c	Wed May  4 13:31:09 2005
-@@ -0,0 +1,58 @@
-+/*
-+ *  linux/drivers/serial/8250_hub6.c
-+ *
-+ *  Copyright (C) 2005 Russell King.
-+ *  Data taken from include/asm-i386/serial.h
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/serial_8250.h>
-+
-+#define HUB6(card,port)							\
-+	{								\
-+		.iobase		= 0x302,				\
-+		.irq		= 3,					\
-+		.uartclk	= 1843200,				\
-+		.iotype		= UPIO_HUB6,				\
-+		.flags		= UPF_BOOT_AUTOCONF,			\
-+		.hub6		= (card) << 6 | (port) << 3 | 1,	\
-+	}
-+
-+static struct plat_serial8250_port hub6_data[] = {
-+	HUB6(0,0),
-+	HUB6(0,1),
-+	HUB6(0,2),
-+	HUB6(0,3),
-+	HUB6(0,4),
-+	HUB6(0,5),
-+	HUB6(1,0),
-+	HUB6(1,1),
-+	HUB6(1,2),
-+	HUB6(1,3),
-+	HUB6(1,4),
-+	HUB6(1,5),
-+	{ },
-+};
-+
-+static struct platform_device hub6_device = {
-+	.name			= "serial8250",
-+	.id			= 4,
-+	.dev			= {
-+		.platform_data	= hub6_data,
-+	},
-+};
-+
-+static int __init hub6_init(void)
-+{
-+	return platform_device_register(&hub6_device);
-+}
-+
-+module_init(hub6_init);
-+
-+MODULE_AUTHOR("Russell King");
-+MODULE_DESCRIPTION("8250 serial probe module for Hub6 cards");
-+MODULE_LICENSE("GPL");
-diff -up -x BitKeeper -x ChangeSet -x SCCS -x _xlk -x '*.orig' -x '*.rej' -x .git -N orig/drivers/serial/8250_mca.c linux/drivers/serial/8250_mca.c
---- orig/drivers/serial/8250_mca.c	Thu Jan  1 01:00:00 1970
-+++ linux/drivers/serial/8250_mca.c	Wed May  4 13:31:09 2005
-@@ -0,0 +1,64 @@
-+/*
-+ *  linux/drivers/serial/8250_mca.c
-+ *
-+ *  Copyright (C) 2005 Russell King.
-+ *  Data taken from include/asm-i386/serial.h
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+#include <linux/config.h>
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/mca.h>
-+#include <linux/serial_8250.h>
-+
-+/*
-+ * FIXME: Should we be doing AUTO_IRQ here?
-+ */
-+#ifdef CONFIG_SERIAL_8250_DETECT_IRQ
-+#define MCA_FLAGS	UPF_BOOT_AUTOCONF | UPF_SKIP_TEST | UPF_AUTO_IRQ
-+#else
-+#define MCA_FLAGS	UPF_BOOT_AUTOCONF | UPF_SKIP_TEST
-+#endif
-+
-+#define PORT(_base,_irq)			\
-+	{					\
-+		.iobase		= _base,	\
-+		.irq		= _irq,		\
-+		.uartclk	= 1843200,	\
-+		.iotype		= UPIO_PORT,	\
-+		.flags		= MCA_FLAGS,	\
-+	}
-+
-+static struct plat_serial8250_port mca_data[] = {
-+	PORT(0x3220, 3),
-+	PORT(0x3228, 3),
-+	PORT(0x4220, 3),
-+	PORT(0x4228, 3),
-+	PORT(0x5220, 3),
-+	PORT(0x5228, 3),
-+	{ },
-+};
-+
-+static struct platform_device mca_device = {
-+	.name			= "serial8250",
-+	.id			= 5,
-+	.dev			= {
-+		.platform_data	= mca_data,
-+	},
-+};
-+
-+static int __init mca_init(void)
-+{
-+	if (!MCA_bus)
-+		return -ENODEV;
-+	return platform_device_register(&mca_device);
-+}
-+
-+module_init(mca_init);
-+
-+MODULE_AUTHOR("Russell King");
-+MODULE_DESCRIPTION("8250 serial probe module for MCA ports");
-+MODULE_LICENSE("GPL");
-diff -up -x BitKeeper -x ChangeSet -x SCCS -x _xlk -x *.orig -x *.rej -x .git orig/drivers/serial/Kconfig linux/drivers/serial/Kconfig
---- orig/drivers/serial/Kconfig	Sun May  1 08:07:54 2005
-+++ linux/drivers/serial/Kconfig	Wed May  4 13:38:46 2005
-@@ -89,11 +89,11 @@ config SERIAL_8250_NR_UARTS
- 	int "Maximum number of non-legacy 8250/16550 serial ports"
- 	depends on SERIAL_8250
- 	default "4"
--	---help---
--	  Set this to the number of non-legacy serial ports you want
--	  the driver to support.  This includes any ports discovered
--	  via ACPI or PCI enumeration and any ports that may be added
--	  at run-time via hot-plug.
-+	help
-+	  Set this to the number of serial ports you want the driver
-+	  to support.  This includes any ports discovered via ACPI or
-+	  PCI enumeration and any ports that may be added at run-time
-+	  via hot-plug, or any ISA multi-port serial cards.
- 
- config SERIAL_8250_EXTENDED
- 	bool "Extended 8250/16550 serial driver options"
-@@ -141,31 +141,74 @@ config SERIAL_8250_DETECT_IRQ
- 
- 	  If unsure, say N.
- 
--config SERIAL_8250_MULTIPORT
--	bool "Support special multiport boards"
--	depends on SERIAL_8250_EXTENDED
--	help
--	  Some multiport serial ports have special ports which are used to
--	  signal when there are any serial ports on the board which need
--	  servicing. Say Y here to enable the serial driver to take advantage
--	  of those special I/O ports.
--
- config SERIAL_8250_RSA
- 	bool "Support RSA serial ports"
- 	depends on SERIAL_8250_EXTENDED
- 	help
- 	  ::: To be written :::
- 
--comment "Non-8250 serial port support"
-+#
-+# Multi-port serial cards
-+#
-+
-+config SERIAL_8250_FOURPORT
-+	tristate "Support Fourport cards"
-+	depends on SERIAL_8250 != n && ISA && SERIAL_8250_MANY_PORTS
-+	help
-+	  Say Y here if you have an AST FourPort serial board.
-+
-+	  To compile this driver as a module, choose M here: the module
-+	  will be called 8250_fourport.
-+
-+config SERIAL_8250_ACCENT
-+	tristate "Support Accent cards"
-+	depends on SERIAL_8250 != n && ISA && SERIAL_8250_MANY_PORTS
-+	help
-+	  Say Y here if you have an Accent Async serial board.
-+
-+	  To compile this driver as a module, choose M here: the module
-+	  will be called 8250_accent.
-+
-+
-+config SERIAL_8250_BOCA
-+	tristate "Support Boca cards"
-+	depends on SERIAL_8250 != n && ISA && SERIAL_8250_MANY_PORTS
-+	help
-+	  Say Y here if you have a Boca serial board.  Please read the Boca
-+	  mini-HOWTO, avaialble from <http://www.tldp.org/docs.html#howto>
-+
-+	  To compile this driver as a module, choose M here: the module
-+	  will be called 8250_boca.
-+
-+
-+config SERIAL_8250_HUB6
-+	tristate "Support Hub6 cards"
-+	depends on SERIAL_8250 != n && ISA && SERIAL_8250_MANY_PORTS
-+	help
-+	  Say Y here if you have a HUB6 serial board.
-+
-+	  To compile this driver as a module, choose M here: the module
-+	  will be called 8250_hub6.
-+
-+config SERIAL_8250_MCA
-+	tristate "Support 8250-type ports on MCA buses"
-+	depends on SERIAL_8250 != n && MCA
-+	help
-+	  Say Y here if you have a MCA serial ports.
-+
-+	  To compile this driver as a module, choose M here: the module
-+	  will be called 8250_mca.
- 
- config SERIAL_8250_ACORN
- 	tristate "Acorn expansion card serial port support"
--	depends on ARM && ARCH_ACORN && SERIAL_8250
-+	depends on ARCH_ACORN && SERIAL_8250
- 	help
- 	  If you have an Atomwide Serial card or Serial Port card for an Acorn
- 	  system, say Y to this option.  The driver can handle 1, 2, or 3 port
- 	  cards.  If unsure, say N.
- 
-+comment "Non-8250 serial port support"
-+
- config SERIAL_AMBA_PL010
- 	tristate "ARM AMBA PL010 serial port support"
- 	depends on ARM_AMBA
-diff -up -x BitKeeper -x ChangeSet -x SCCS -x _xlk -x '*.orig' -x '*.rej' -x .git -N orig/drivers/serial/Makefile linux/drivers/serial/Makefile
---- orig/drivers/serial/Makefile	Sun May  1 08:07:54 2005
-+++ linux/drivers/serial/Makefile	Wed May  4 11:23:11 2005
-@@ -17,6 +17,11 @@ obj-$(CONFIG_SERIAL_8250) += 8250.o $(se
- obj-$(CONFIG_SERIAL_8250_CS) += serial_cs.o
- obj-$(CONFIG_SERIAL_8250_ACORN) += 8250_acorn.o
- obj-$(CONFIG_SERIAL_8250_CONSOLE) += 8250_early.o
-+obj-$(CONFIG_SERIAL_8250_FOURPORT) += 8250_fourport.o
-+obj-$(CONFIG_SERIAL_8250_ACCENT) += 8250_accent.o
-+obj-$(CONFIG_SERIAL_8250_BOCA) += 8250_boca.o
-+obj-$(CONFIG_SERIAL_8250_HUB6) += 8250_hub6.o
-+obj-$(CONFIG_SERIAL_8250_MCA) += 8250_mca.o
- obj-$(CONFIG_SERIAL_AMBA_PL010) += amba-pl010.o
- obj-$(CONFIG_SERIAL_AMBA_PL011) += amba-pl011.o
- obj-$(CONFIG_SERIAL_CLPS711X) += clps711x.o
-diff -up -x BitKeeper -x ChangeSet -x SCCS -x _xlk -x *.orig -x *.rej -x .git orig/include/linux/serial_8250.h linux/include/linux/serial_8250.h
---- orig/include/linux/serial_8250.h	Sun May  1 08:11:18 2005
-+++ linux/include/linux/serial_8250.h	Wed May  4 12:31:24 2005
-@@ -22,6 +22,7 @@ struct plat_serial8250_port {
- 	unsigned int	uartclk;	/* UART clock rate */
- 	unsigned char	regshift;	/* register shift */
- 	unsigned char	iotype;		/* UPIO_* */
-+	unsigned char	hub6;
- 	unsigned int	flags;		/* UPF_* flags */
- };
- 
+Well not superfluous yet. It is kept around to support all the arch
+code that still uses it (not much, mainly reserved memory reporting).
+
+> 
+> On Thu, Jun 23, 2005 at 05:08:24PM +1000, Nick Piggin wrote:
+> 
+>>Index: linux-2.6/mm/fremap.c
+>>===================================================================
+>>--- linux-2.6.orig/mm/fremap.c
+>>+++ linux-2.6/mm/fremap.c
+>>@@ -29,18 +29,21 @@ static inline void zap_pte(struct mm_str
+>> 		return;
+>> 	if (pte_present(pte)) {
+>> 		unsigned long pfn = pte_pfn(pte);
+>>+		struct page *page;
+>> 
+>> 		flush_cache_page(vma, addr, pfn);
+>> 		pte = ptep_clear_flush(vma, addr, ptep);
+>>-		if (pfn_valid(pfn)) {
+>>-			struct page *page = pfn_to_page(pfn);
+>>-			if (!PageReserved(page)) {
+>>-				if (pte_dirty(pte))
+>>-					set_page_dirty(page);
+>>-				page_remove_rmap(page);
+>>-				page_cache_release(page);
+>>-				dec_mm_counter(mm, rss);
+>>-			}
+>>+		if (unlikely(!pfn_valid(pfn))) {
+>>+			print_invalid_pfn("zap_pte", pte, vma->vm_flags, addr);
+>>+			return;
+>>+		}
+>>+		page = pfn_to_page(pfn);
+>>+		if (page != ZERO_PAGE(addr)) {
+>>+			if (pte_dirty(pte))
+>>+				set_page_dirty(page);
+>>+			page_remove_rmap(page);
+>>+			dec_mm_counter(mm, rss);
+>>+			page_cache_release(page);
+>> 		}
+>> 	} else {
+>> 		if (!pte_file(pte))
+> 
+> 
+> There is no error returned here to be handled by the caller.
+> 
+
+That's OK, the pte has been cleared. Nothing else we can do.
+
+> 
+> On Thu, Jun 23, 2005 at 05:08:24PM +1000, Nick Piggin wrote:
+> 
+>>@@ -65,6 +68,8 @@ int install_page(struct mm_struct *mm, s
+>> 	pgd_t *pgd;
+>> 	pte_t pte_val;
+>> 
+>>+	BUG_ON(vma->vm_flags & VM_RESERVED);
+>>+
+>> 	pgd = pgd_offset(mm, addr);
+>> 	spin_lock(&mm->page_table_lock);
+>> 	
+>>@@ -122,6 +127,8 @@ int install_file_pte(struct mm_struct *m
+>> 	pgd_t *pgd;
+>> 	pte_t pte_val;
+>> 
+>>+	BUG_ON(vma->vm_flags & VM_RESERVED);
+>>+
+>> 	pgd = pgd_offset(mm, addr);
+>> 	spin_lock(&mm->page_table_lock);
+> 
+> 
+> This has no effect but to artificially constrain the interface. There
+> is no a priori reason to avoid the use of install_page() to deposit
+> mappings to normal pages in VM_RESERVED vmas. It's only the reverse
+> being "banned" here. Similar comments also apply to zap_pte().
+> 
+
+No, install_page is playing with the page (eg. page_add_file_rmap)
+which is explicity banned even before my PageReserved removal. It
+is unclear that this ever safely worked for normal pages, and will
+hit NULL page dereferences if trying to do it with iomem.
+
+> 
+> On Thu, Jun 23, 2005 at 05:08:24PM +1000, Nick Piggin wrote:
+> 
+>>Index: linux-2.6/drivers/scsi/sg.c
+>>===================================================================
+>>--- linux-2.6.orig/drivers/scsi/sg.c
+>>+++ linux-2.6/drivers/scsi/sg.c
+>>@@ -1887,9 +1887,10 @@ st_unmap_user_pages(struct scatterlist *
+>> 	int i;
+>> 
+>> 	for (i=0; i < nr_pages; i++) {
+>>-		if (dirtied && !PageReserved(sgl[i].page))
+>>+		if (dirtied)
+>> 			SetPageDirty(sgl[i].page);
+>> 		/* unlock_page(sgl[i].page); */
+>>+		/* FIXME: XXX don't dirty/unmap VM_RESERVED regions? */
+>> 		/* FIXME: cache flush missing for rw==READ
+>> 		 * FIXME: call the correct reference counting function
+>> 		 */
+> 
+> 
+> An answer should be devised for this. My numerous SCSI CD-ROM devices
+> (I have 5 across several different machines of several different arches)
+> are rather unlikely to be happy with /* FIXME: XXX ... as an answer.
+> 
+
+The worst it will do is dirty a VM_RESERVED page. So it is going
+to work unless you're thinking about doing something crazy like
+mmap /dev/mem and send your CDROM some pages from there. But yeah,
+I have to find someone who knows what they're doing to look at this.
+
+> 
+> On Thu, Jun 23, 2005 at 05:08:24PM +1000, Nick Piggin wrote:
+> 
+>>Index: linux-2.6/drivers/scsi/st.c
+>>===================================================================
+>>--- linux-2.6.orig/drivers/scsi/st.c
+>>+++ linux-2.6/drivers/scsi/st.c
+>>@@ -4435,8 +4435,9 @@ static int sgl_unmap_user_pages(struct s
+>> 	int i;
+>> 
+>> 	for (i=0; i < nr_pages; i++) {
+>>-		if (dirtied && !PageReserved(sgl[i].page))
+>>+		if (dirtied)
+>> 			SetPageDirty(sgl[i].page);
+>>+		/* FIXME: XXX don't dirty/unmap VM_RESERVED regions? */
+>> 		/* FIXME: cache flush missing for rw==READ
+>> 		 * FIXME: call the correct reference counting function
+>> 		 */
+> 
+> 
+> Mutatis mutandis for my SCSI tape drive.
+> 
+> 
+> On Thu, Jun 23, 2005 at 05:08:24PM +1000, Nick Piggin wrote:
+> 
+>>Index: linux-2.6/sound/core/pcm_native.c
+>>===================================================================
+>>--- linux-2.6.orig/sound/core/pcm_native.c
+>>+++ linux-2.6/sound/core/pcm_native.c
+>>@@ -2942,8 +2942,7 @@ static struct page * snd_pcm_mmap_status
+>> 		return NOPAGE_OOM;
+>> 	runtime = substream->runtime;
+>> 	page = virt_to_page(runtime->status);
+>>-	if (!PageReserved(page))
+>>-		get_page(page);
+>>+	get_page(page);
+>> 	if (type)
+>> 		*type = VM_FAULT_MINOR;
+>> 	return page;
+> 
+> 
+> snd_malloc_pages() marks all pages it allocates PG_reserved. This
+> merits some commentary, and likely the removal of the superfluous
+> PG_reserved usage.
+> 
+
+Sure, but not in this patch. The aim here is just to eliminate special
+casing of refcounting. Other PG_reserved usage can stay around for the
+moment (and is actually good for catching errors).
+
+> 
+> On Thu, Jun 23, 2005 at 05:08:24PM +1000, Nick Piggin wrote:
+> 
+>>Index: linux-2.6/mm/mmap.c
+>>===================================================================
+>>--- linux-2.6.orig/mm/mmap.c
+>>+++ linux-2.6/mm/mmap.c
+>>@@ -1073,6 +1073,17 @@ munmap_back:
+>> 		error = file->f_op->mmap(file, vma);
+>> 		if (error)
+>> 			goto unmap_and_free_vma;
+>>+		if ((vma->vm_flags & (VM_SHARED | VM_WRITE | VM_RESERVED))
+>>+						== (VM_WRITE | VM_RESERVED)) {
+>>+			printk(KERN_WARNING "program %s is using MAP_PRIVATE, "
+>>+				"PROT_WRITE mmap of VM_RESERVED memory, which "
+>>+				"is deprecated. Please report this to "
+>>+				"linux-kernel@vger.kernel.org\n",current->comm);
+>>+			if (vma->vm_ops && vma->vm_ops->close)
+>>+				vma->vm_ops->close(vma);
+>>+			error = -EACCES;
+>>+			goto unmap_and_free_vma;
+>>+		}
+>> 	} else if (vm_flags & VM_SHARED) {
+>> 		error = shmem_zero_setup(vma);
+>> 		if (error)
+> 
+> 
+> This is user-triggerable where the driver honors mmap() protection
+> flags blindly.
+> 
+
+If the user is allowed write access to VM_RESERVED memory, then I
+suspect there is a lot worse they can do than flood the log.
+
+But the check isn't going to stay around forever.
+
+> 
+> On Thu, Jun 23, 2005 at 05:08:24PM +1000, Nick Piggin wrote:
+> 
+>>Index: linux-2.6/mm/bootmem.c
+>>===================================================================
+>>--- linux-2.6.orig/mm/bootmem.c
+>>+++ linux-2.6/mm/bootmem.c
+>>@@ -286,6 +286,7 @@ static unsigned long __init free_all_boo
+>> 				if (j + 16 < BITS_PER_LONG)
+>> 					prefetchw(page + j + 16);
+>> 				__ClearPageReserved(page + j);
+>>+				set_page_count(page + j, 0);
+>> 			}
+>> 			__free_pages(page, order);
+>> 			i += BITS_PER_LONG;
+> 
+> 
+> ibid re: bootmem
+> 
+
+Not yet.
+
+> 
+> On Thu, Jun 23, 2005 at 05:08:24PM +1000, Nick Piggin wrote:
+> 
+>>Index: linux-2.6/kernel/power/swsusp.c
+>>===================================================================
+>>--- linux-2.6.orig/kernel/power/swsusp.c
+>>+++ linux-2.6/kernel/power/swsusp.c
+>>@@ -433,15 +433,12 @@ static int save_highmem_zone(struct zone
+>> 			continue;
+>> 		page = pfn_to_page(pfn);
+>> 		/*
+>>+		 * PageReserved(page) -
+>> 		 * This condition results from rvmalloc() sans vmalloc_32()
+>> 		 * and architectural memory reservations. This should be
+>> 		 * corrected eventually when the cases giving rise to this
+>> 		 * are better understood.
+>> 		 */
+>>-		if (PageReserved(page)) {
+>>-			printk("highmem reserved page?!\n");
+>>-			continue;
+>>-		}
+>> 		BUG_ON(PageNosave(page));
+>> 		if (PageNosaveFree(page))
+>> 			continue;
+> 
+> 
+> This behavioral change needs to be commented on. There are some additional
+> difficulties when memory holes are unintentionally covered by mem_map[];
+> It is beneficial otherwise. It's likely to triplefault on such holes.
+> 
+
+It seems the author of this code themselves didn't really understand
+what was going on here, so I'm buggered if I can be bothered :)
+
+Remember though, PageReserved can stay around for as long as we need,
+so this hunk can be trivially reverted if it is an immediate problem.
+
+> 
+> On Thu, Jun 23, 2005 at 05:08:24PM +1000, Nick Piggin wrote:
+> 
+>>@@ -527,13 +524,8 @@ static int saveable(struct zone * zone, 
+>> 		return 0;
+>> 
+>> 	page = pfn_to_page(pfn);
+>>-	BUG_ON(PageReserved(page) && PageNosave(page));
+>> 	if (PageNosave(page))
+>> 		return 0;
+>>-	if (PageReserved(page) && pfn_is_nosave(pfn)) {
+>>-		pr_debug("[nosave pfn 0x%lx]", pfn);
+>>-		return 0;
+>>-	}
+>> 	if (PageNosaveFree(page))
+>> 		return 0;
+> 
+> 
+> The pfn_is_nosave() check must stand barring justification of why
+> unintentionally saving (and hence restoring) the page is tolerable.
+> 
+
+I thought the PageNosave should catch that, and the next line is
+just a debug check. But I'm looking for someone who *actually* knows
+how swsusp works, if anyone would like to volunteer :)
+
+Thanks very much for the review!
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

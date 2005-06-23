@@ -1,65 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262027AbVFWCVx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262013AbVFWCWA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262027AbVFWCVx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 22:21:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262025AbVFWCS7
+	id S262013AbVFWCWA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 22:22:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261818AbVFWCTT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 22:18:59 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:38577 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S261977AbVFWCQM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 22:16:12 -0400
-Message-ID: <42BA1B68.9040505@pobox.com>
-Date: Wed, 22 Jun 2005 22:16:08 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+	Wed, 22 Jun 2005 22:19:19 -0400
+Received: from saturn.billgatliff.com ([209.251.101.200]:16574 "EHLO
+	saturn.billgatliff.com") by vger.kernel.org with ESMTP
+	id S261930AbVFWCOG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 22:14:06 -0400
+Message-ID: <42BA1ADB.6090006@billgatliff.com>
+Date: Wed, 22 Jun 2005 21:13:47 -0500
+From: Bill Gatliff <bgat@billgatliff.com>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Greg KH <greg@kroah.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Git Mailing List <git@vger.kernel.org>
-Subject: Re: Updated git HOWTO for kernel hackers
-References: <42B9E536.60704@pobox.com> <20050622230905.GA7873@kroah.com> <Pine.LNX.4.58.0506221623210.11175@ppc970.osdl.org> <42B9FCAE.1000607@pobox.com> <Pine.LNX.4.58.0506221724140.11175@ppc970.osdl.org> <42BA14B8.2020609@pobox.com> <Pine.LNX.4.58.0506221853280.11175@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0506221853280.11175@ppc970.osdl.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [GIT PATCH] Remove devfs from 2.6.12-git
+References: <20050621062926.GB15062@kroah.com>	<20050620235403.45bf9613.akpm@osdl.org>	<20050621151019.GA19666@kroah.com>	<20050623010031.GB17453@mikebell.org> <20050622181825.204fbcb7.akpm@osdl.org>
+In-Reply-To: <20050622181825.204fbcb7.akpm@osdl.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Wed, 22 Jun 2005, Jeff Garzik wrote:
-> 
->>With BK, tags came with each pull.  With git, you have to go "outside 
->>the system" (rsync) just get the new tags.
-> 
-> 
-> You don't have to use rsync, and you don't have to go outside the system. 
-> That was my point: you can use "git-ssh-pull" to pull the tags.
-
-OK, understood.
+Andrew:
 
 
-> But yes, you have to explicitly ask for them by name, ie the other side 
-> has to let you know: "Oh, btw, I created a 'xyz' tag for you". And having 
-> another helper script to hide the details of how git-*-pull handles tags 
-> is obviously also a good idea, although it's pretty low on my list of 
-> things to worry about.
+>>It breaks a lot of my embedded setups which have read-only storage only
+>>and thus need /dev on devfs or tmpfs.
+>>    
+>>
+>
+>Well that's quite a problem.  We're certainly causing people such as
+>yourself to take on quite a lot of work.  But on the other hand we do want
+>the kernel to progress sanely, and that sometimes involves taking things
+>out.
+>
+>I don't have enough info to know whether the world would be a better place
+>if we keep devfs, remove devfs or remove devfs even later on.  I don't
+>think anyone knows, which is why we're taking this little
+>disable-it-and-see-who-shouts approach.
+>  
+>
 
-The problem is still that nothing says "oh, btw, I created 'xyz' tag for 
-you" AFAICS?
+I would prefer to keep devfs around as well, but most of my embedded 
+systems have enough RAM to put a primitive /dev tree in tmpfs using a 
+linuxrc script at boot.  The workarounds for the userland requirements 
+of udev are a little less clear to me, but I'm not sure they're 
+insurmountable yet for anything except the smallest embedded systems, 
+since Busybox appears to have some udev support available now.
 
-IMO the user (GregKH and me, at least) just wants to know their set of 
-tags and heads is up-to-date on local disk.  Wants to know what tags are 
-out there.  It's quite annoying when two data sets are out of sync 
-(.git/objects and .git/refs/tags).
+I think that devfs and udev appeal to different audiences, hence I don't 
+think you can say that the "world will be a better place" with one or 
+the other.  It would be nice to find a way to have the two coexist 
+peacefully...
 
-Asking for the tag by name isn't useful at all, in that regard, because 
-that requires that the user already know what tags are available.  To 
-get that info, one must use rsync, gitweb, or a subscription to Psychic 
-Friends Network.
+Case in point.  I'm going to udev reluctantly; all my embedded work 
+based on earlier kernels used devfs exclusively.
 
-	Jeff
 
+b.g.
+
+-- 
+Bill Gatliff
+So what part of:
+   $ make oldconfig clean dep zImage
+do you not understand?
+bgat@billgatliff.com
 

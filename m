@@ -1,73 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261947AbVFWLGk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262244AbVFWLIl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261947AbVFWLGk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 07:06:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262095AbVFWLGk
+	id S262244AbVFWLIl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 07:08:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262095AbVFWLIk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 07:06:40 -0400
-Received: from onewaywebstop.propagation.net ([66.221.214.10]:19360 "EHLO
-	onewaywebstop.propagation.net") by vger.kernel.org with ESMTP
-	id S261947AbVFWLG2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 07:06:28 -0400
-Date: Thu, 23 Jun 2005 05:41:32 -0500
-Message-Id: <200506231041.j5NAfWP09392@onewaywebstop.propagation.net>
-To: juliet_matthew@ny.com
-Subject: CONSOLATION PRIZE WINNER NOTICE
-From: juliet_matthew@ny.com
-User-Agent: Instant Web Mail 0.61
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+	Thu, 23 Jun 2005 07:08:40 -0400
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:39176 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S262244AbVFWLI1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 07:08:27 -0400
+To: Nick Warne <nick@linicks.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problem compiling 2.6.12
+References: <200506222037.17738.nick@linicks.net>
+	<20050622213038.GA3749@stusta.de>
+	<200506222253.47777.nick@linicks.net>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: or perhaps you'd prefer Russian Roulette, after all?
+Date: Thu, 23 Jun 2005 12:08:13 +0100
+In-Reply-To: <200506222253.47777.nick@linicks.net> (Nick Warne's message of
+ "22 Jun 2005 23:13:10 +0100")
+Message-ID: <87r7et2uw2.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-                                 POWERBALL INTER LOTTO. BV
-                              POWERBALL LOTTO-WHEEL E-GAME 2005,
-Date: 23 - 06 - 2005
-Ref Nr: PBL/CN/6654/CP
-Dear Consolation Prize Winner,
-            RE: CONSOLATION PRIZE WINNER NOTICE
-----------------------------------------------------------------------------------------------------------------------------
-The POWERBALL INTER LOTTO BV, Netherlands; international lotto e-games
-organizers and sponsors, officially notify you of the final draw result
-of the Powerball Lotto - Wheel E-game draw held on 25th MAY 2005. All
-draws where conducted at our international corporate office complex in
-The Netherlands.
-We wish to congratulate you on the selection of your email coupon
-number which was selected among the 45 lucky consolation prize winners.
-Your email ID identified with Coupon No.PBL2348974321 and was selected
-by Electronic Random Selection System (ERSS) with entries from the
-50,000 different email addresses enrolled for the Lotto-Wheel E-game.
-Your email ID included among the 50,000 different email addresses where
-submitted by our partner international email provider companies.
-You have won a consolation cash prize of US $500,000.00 (Five Hundred
-Thousand US Dollars Only). The POWERBALL INTER LOTTO BV, have approved
-the payout of your consolation cash prize which will be remunerated
-directly to you by the official 
-Payment Agency Board upon your preferred option.
-Our DUE PROCESS UNIT (DPU) will render to you complete assistance and
-provide additional information and processes for the claims of your
-consultation prize. For more information on claim of your prize, please
-contact the DPU Information Officer
- 
-NAME:     Mr. Frank Dikkens
-E-mail:   Frankdikkens@atmail.com
-TEL:      0031-621-987-260
-FAX:      0031-847-300-537
-Congratulations once again from all our staffs on your consolation
-prize winning, we hope you will partake in our forth coming Powerball
-Lotto-Wheel Email-games.
-Regards,
- 
-Mrs.Juliet Matthew,
-(Lottery Coordinator)
-----------------------------------------------------------------------------------------------------------------------------
-NB: In accordance with the POWERBALL LOTTO -wheel E-games policy and
-regulations, this notification is dispatched directly to only the 45
-lucky consolation prize Winners. This notification also contains
-information that is proprietary, privileged or confidential or
-otherwise legally exempt from disclosure. If you are not the right
-recipient whose email address attached to the lucky numbers along with
-the winning information’s you are not authorized to read, print,
-retain, copy or disseminate this notice or any part of it.
+On 22 Jun 2005, Nick Warne stipulated:
+> Is it?  I thought kernel didn't care what Glibc or what kernel headers you had 
+> (that is system requirement) - it is automous.  Isn't HOSTCC explicitly just 
+> what compiler you have?
 
+HOSTCC is a non-cross-compiler, i.e. for building userspace stuff to run
+on the build machine. There are a number of such things built during a
+normal kernel build (code generators, the config system, et al) and they
+use the C library just like any userspace app does.
 
+-- 
+`It's as bizarre an intrusion as, I don't know, the hobbits coming home
+ to find that the Shire has been taken over by gangsta rappers.'

@@ -1,49 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262731AbVFWTXM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263028AbVFWTN4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262731AbVFWTXM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 15:23:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262704AbVFWTQR
+	id S263028AbVFWTN4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 15:13:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262693AbVFWTIA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 15:16:17 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:13220 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S262715AbVFWTPV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 15:15:21 -0400
-Message-Id: <200506231913.j5NJD1IY030869@laptop11.inf.utfsm.cl>
-To: Adrian Bunk <bunk@stusta.de>
-cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Pavel Machek <pavel@suse.cz>, Andi Kleen <ak@muc.de>,
-       Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH] Add removal schedule of register_serial/unregister_serial to appropriate file 
-In-Reply-To: Message from Adrian Bunk <bunk@stusta.de> 
-   of "Thu, 23 Jun 2005 16:03:16 +0200." <20050623140316.GH3749@stusta.de> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Thu, 23 Jun 2005 15:13:01 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Thu, 23 Jun 2005 15:13:02 -0400 (CLT)
+	Thu, 23 Jun 2005 15:08:00 -0400
+Received: from chretien.genwebhost.com ([209.59.175.22]:27576 "EHLO
+	chretien.genwebhost.com") by vger.kernel.org with ESMTP
+	id S262687AbVFWTHC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 15:07:02 -0400
+Date: Thu, 23 Jun 2005 12:06:47 -0700
+From: randy_dunlap <rdunlap@xenotime.net>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: piotrowskim@trex.wsi.edu.pl, linux-kernel@vger.kernel.org
+Subject: Re: Script to help users to report a BUG
+Message-Id: <20050623120647.2a5783d1.rdunlap@xenotime.net>
+In-Reply-To: <9a87484905062311246243774e@mail.gmail.com>
+References: <4d8e3fd30506191332264eb4ae@mail.gmail.com>
+	<20050622120848.717e2fe2.rdunlap@xenotime.net>
+	<42B9CFA1.6030702@trex.wsi.edu.pl>
+	<20050622174744.75a07a7f.rdunlap@xenotime.net>
+	<9a87484905062311246243774e@mail.gmail.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Antivirus-Scanner: Clean mail though you should still use an Antivirus
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - chretien.genwebhost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - xenotime.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk <bunk@stusta.de> wrote:
-> On Thu, Jun 23, 2005 at 02:23:35PM +0100, Russell King wrote:
-> >...
-> > However, wouldn't it be a good idea if this file was ordered by "when" ?
-> > A quick scan of the file reveals a couple of overdue/forgotten items
-> > (maybe they happened but the entry in the file got missed?):
-> >...
-> > What:   register_ioctl32_conversion() / unregister_ioctl32_conversion()
-> > When:   April 2005
-> >...
-> 
-> The removal (including the removal of the feature-removal-schedule.txt 
-> entry) is already in -mm.
+On Thu, 23 Jun 2005 20:24:15 +0200 Jesper Juhl wrote:
 
-Perhaps they should be moved to a REMOVED file, with the date (and version)
-the patch went in? For future generations who wonder when something was
-axed...
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+| On 6/23/05, randy_dunlap <rdunlap@xenotime.net> wrote:
+| > 
+| > 6.  Use $EDITOR instead of vim if it is defined (set).
+| > 
+| Wouldn't the very best be to try and find the editor to use in the
+| following order?  :
+| 
+| A) the value of $EDITOR (if set)
+| B) the value of $VISUAL (if set)
+| C) the first editor in a hardcoded list that exists and is executable
+| (a list could contain for example; vim, vi, elvis, joe, jove, nano,
+| pico, mcedit, emacs )...
+
+Yes, that sounds better to me.
+
+---
+~Randy

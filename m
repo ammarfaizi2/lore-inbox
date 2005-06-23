@@ -1,58 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263103AbVFWU2K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262960AbVFWU2S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263103AbVFWU2K (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 16:28:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263065AbVFWUYg
+	id S262960AbVFWU2S (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 16:28:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263083AbVFWUYu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 16:24:36 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:30690 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S263046AbVFWUW0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 16:22:26 -0400
-Subject: Re: aic79xx -> can't  suspend
-From: Lee Revell <rlrevell@joe-job.com>
-To: Jim Crilly <jim@why.dont.jablowme.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-scsi@vger.kernel.org
-In-Reply-To: <20050623193224.GD2251@voodoo>
-References: <1119549104.13259.1.camel@mindpipe>
-	 <20050623193224.GD2251@voodoo>
-Content-Type: text/plain
-Date: Thu, 23 Jun 2005 16:22:24 -0400
-Message-Id: <1119558145.1609.3.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.3.1 
-Content-Transfer-Encoding: 7bit
+	Thu, 23 Jun 2005 16:24:50 -0400
+Received: from trex.wsi.edu.pl ([195.117.114.133]:43954 "EHLO trex.wsi.edu.pl")
+	by vger.kernel.org with ESMTP id S262880AbVFWUXi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 16:23:38 -0400
+Message-ID: <42BAFE3E.2050407@trex.wsi.edu.pl>
+Date: Thu, 23 Jun 2005 20:23:58 +0200
+From: =?ISO-8859-2?Q?Micha=B3_Piotrowski?= <piotrowskim@trex.wsi.edu.pl>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: pl, en-us, en
+MIME-Version: 1.0
+To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
+       Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org,
+       randy_dunlap <rdunlap@xenotime.net>
+Subject: Re: Script to help users to report a BUG
+References: <4d8e3fd30506191332264eb4ae@mail.gmail.com>	 <20050622120848.717e2fe2.rdunlap@xenotime.net>	 <42B9CFA1.6030702@trex.wsi.edu.pl>	 <20050622174744.75a07a7f.rdunlap@xenotime.net>	 <9a87484905062311246243774e@mail.gmail.com>	 <20050623120647.2a5783d1.rdunlap@xenotime.net>	 <9a87484905062312131e5f6b05@mail.gmail.com>	 <42BAF608.6080802@trex.wsi.edu.pl> <4d8e3fd305062313032c9789e8@mail.gmail.com>
+In-Reply-To: <4d8e3fd305062313032c9789e8@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-06-23 at 15:32 -0400, Jim Crilly wrote: 
-> On 06/23/05 01:51:43PM -0400, Lee Revell wrote:
-> > I have a machine with an Adaptec 2940U2W adapter running 2.6.11.  When I
-> > try to go into standby like so:
-> > 
-> >     echo standby > /sys/power/state
-> > 
-> > this is what happens:
-> 
-> AFAIK no SCSI drivers have had power management functions implemented, a
-> quick grep for PM_ in drivers/scsi seems to confirm that only the PCMCIA
-> SCSI drivers even look for PM events.
+Hi,
 
-Hmm, actually, this is still pretty bad.  Shouldn't the suspend fail
-with "power management not implemented for device aic9xxx?" rather than
-crashing and burning?
+Paolo Ciarrocchi wrote:
 
-Also, who is the aic9xxx maintainer?  I could not find any reference to
-it at all in MAINTAINERS.
+>
+>Jus tried, it works well.
+>
+>How about adding this patch, or something like that ?
+>
+>--- ort.sh	2005-06-23 19:45:54.000000000 +0200
+>+++ ort-new.sh	2005-06-23 21:56:25.655604560 +0200
+>@@ -507,6 +507,7 @@ send_r() {
+> 	    then
+> 		echo -e "\nPlease email $ORT_F to linux-kernel@vger.kernel.org"
+> 		echo -e "or some other appropriate Linux mailing list."
+>+		echo -e "And please, use this information to file a BUG in the
+>kernel Bugzilla you'll find at bugme.osdl.org. Thanks "
+> 	        END=1
+>         fi
+>     done
+>
+>It seems to that there is a general agreement that all the BUG should
+>be filed in bugzilla too.
+>
+>  
+>
+Ok. Good idea.
+How can we do automatic posts on bugzilla? Is it possible?
 
-Finally, is there an authoritative, up to date driver developers guide
-for the SCSI subsystem, like the one for ALSA?
+For future:
+We need something like ORT-HOWTO in Documentation.
 
-TIA,
-
-Lee
-
-
-
-
-
+Regards,
+Micha³ piotrowski

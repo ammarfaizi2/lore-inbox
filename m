@@ -1,42 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262633AbVFWIMh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262248AbVFWIMi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262633AbVFWIMh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 04:12:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262632AbVFWIL3
+	id S262248AbVFWIMi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 04:12:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262630AbVFWILH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 04:11:29 -0400
-Received: from nome.ca ([65.61.200.81]:49857 "HELO gobo.nome.ca")
-	by vger.kernel.org with SMTP id S262128AbVFWGrU (ORCPT
+	Thu, 23 Jun 2005 04:11:07 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:10960 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262526AbVFWGjR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 02:47:20 -0400
-Date: Wed, 22 Jun 2005 23:47:06 -0700
-From: Mike Bell <kernel@mikebell.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: miles@gnu.org, greg@kroah.com, gregkh@suse.de, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [GIT PATCH] Remove devfs from 2.6.12-git
-Message-ID: <20050623064705.GC955@mikebell.org>
-Mail-Followup-To: Mike Bell <kernel@mikebell.org>,
-	Andrew Morton <akpm@osdl.org>, miles@gnu.org, greg@kroah.com,
-	gregkh@suse.de, torvalds@osdl.org, linux-kernel@vger.kernel.org
-References: <20050621062926.GB15062@kroah.com> <20050620235403.45bf9613.akpm@osdl.org> <20050621151019.GA19666@kroah.com> <20050623010031.GB17453@mikebell.org> <20050623045959.GB10386@kroah.com> <buoaclhwqfj.fsf@mctpc71.ucom.lsi.nec.co.jp> <20050623063457.GB955@mikebell.org> <20050622233759.7a1130a9.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050622233759.7a1130a9.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
+	Thu, 23 Jun 2005 02:39:17 -0400
+Date: Wed, 22 Jun 2005 23:37:57 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Adam Kropelin <akropel1@rochester.rr.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Git Mailing List <git@vger.kernel.org>
+Subject: Re: Updated git HOWTO for kernel hackers
+In-Reply-To: <42BA4A29.7030601@pobox.com>
+Message-ID: <Pine.LNX.4.58.0506222325080.11175@ppc970.osdl.org>
+References: <42B9E536.60704@pobox.com> <Pine.LNX.4.58.0506221603120.11175@ppc970.osdl.org>
+ <42BA18AF.2070406@pobox.com> <Pine.LNX.4.58.0506221915280.11175@ppc970.osdl.org>
+ <07be01c577a7$05108660$03c8a8c0@kroptech.com> <Pine.LNX.4.58.0506222146460.11175@ppc970.osdl.org>
+ <42BA4A29.7030601@pobox.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 22, 2005 at 11:37:59PM -0700, Andrew Morton wrote:
-> sysfs certainly has a history of goggling gobs of memory.  But you can
-> disable it in .config.
 
-Right. Which breaks udev. Hence I say that if you're looking at "size of
-devfs versus udev for solution X" and your devfs solution doesn't require
-sysfs, then sysfs should be included in the size of udev for the sake of
-the comparison.
 
-Before anyone asks, that's not to say that sysfs is useless in a devfs
-setting, merely that it's not required in most whereas it is required
-for udev to even work.
+On Thu, 23 Jun 2005, Jeff Garzik wrote:
+> 
+> Locally I have scripted
+> 
+>       git-diff-cache -p HEAD | diffstat -p1 | awk '{print $1}' > /tmp/lst
+>       git-update-cache `cat /tmp/lst`
+> 
+> because of this.
+
+Btw, that's some extremely convoluted computation.
+
+This is exactly when you do _not_ want the diff in "patch" form, and you
+really want the native git format (which is just a strange "this file
+changed from this mode/sha1 to that mode/sha1" format).
+
+So instead, try to do just
+
+	git-diff-cache HEAD | cut -f2
+
+and now it's going to be a whole lot simpler and faster - it won't turn 
+things into a diff only to do a "diffstat" on it to turn it into a name 
+again. I bet it's more reliable too.
+
+> [again, clearly doesn't work with remove/add/mode change]
+
+Well, it actually can work with removes, and rewriting it to be a bit 
+more clean (and handle files that start with "-") gives you:
+
+	git-update-cache --remove -- $(git-diff-cache HEAD | cut -f2)
+
+which should actually work fine for files that you have removed. But yes,
+it fundamentally _cannot_ work for new files, of course, since git will
+never even try to look for files you haven't told it about. So you always 
+have to add files by hand some way.
+
+Note how the "--remove" parameter to git-update-cache really only means
+"it's ok if some of the files mentioned don't exist any more, and that
+means you should remove them from the cache".
+
+Without the "--remove" flag, a filename that is listed but that doesn't
+exist in the working tree is either considered an error, or is ignored
+(depending on the "--ignore-missing" flag).
+
+That's actually what "--add" means too: it means "it's ok if some of the
+filenames on the command line don't currently exist in the index: if they
+exist in the working directory, you should add them".
+
+So even if it looks a bit strange, in a script it actually makes perfect
+sense to write something that seems as _apparently_ senseless as:
+
+	git-update-cache --add --remove --refresh -- "$@"
+
+and it will refresh all existing files, and add or remove any files 
+explicitly mentioned that either exist or have been removed in the working 
+directory.
+
+			Linus

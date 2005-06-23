@@ -1,94 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262032AbVFWCSP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262023AbVFWCQ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262032AbVFWCSP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 22:18:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262013AbVFWCR7
+	id S262023AbVFWCQ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 22:16:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262013AbVFWCNx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 22:17:59 -0400
-Received: from warden2-p.diginsite.com ([209.195.52.120]:18105 "HELO
-	warden2.diginsite.com") by vger.kernel.org with SMTP
-	id S262026AbVFWCQk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 22:16:40 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: Karim Yaghmour <karim@opersys.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Bill Huey <bhuey@lnxw.com>,
-       Kristian Benoit <kbenoit@opersys.com>, linux-kernel@vger.kernel.org,
-       paulmck@us.ibm.com, andrea@suse.de, tglx@linutronix.de,
-       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
-       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, rpm@xenomai.org
-X-X-Sender: dlang@dlang.diginsite.com
-Date: Wed, 22 Jun 2005 19:15:34 -0700 (PDT)
-X-X-Sender: dlang@dlang.diginsite.com
-Subject: Re: PREEMPT_RT vs I-PIPE: the numbers, part 2
-In-Reply-To: <42BA19CB.4040300@opersys.com>
-Message-ID: <Pine.LNX.4.62.0506221914110.16773@qynat.qvtvafvgr.pbz>
-References: <1119287612.6863.1.camel@localhost> <20050620183115.GA27028@nietzsche.lynx.com>
- <42B98B20.7020304@opersys.com> <20050622192927.GA13817@nietzsche.lynx.com>
- <20050622200554.GA16119@elte.hu> <42B9CC98.1040402@opersys.com>
- <20050622220428.GA28906@elte.hu> <42B9F673.4040100@opersys.com>
- <20050623000607.GB11486@elte.hu> <42BA069D.20208@opersys.com>
- <Pine.LNX.4.62.0506221753010.16773@qynat.qvtvafvgr.pbz> <42BA0ED4.80207@opersys.com>
- <Pine.LNX.4.62.0506221821240.16773@qynat.qvtvafvgr.pbz> <42BA19CB.4040300@opersys.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 22 Jun 2005 22:13:53 -0400
+Received: from everest.sosdg.org ([66.93.203.161]:7149 "EHLO mail.sosdg.org")
+	by vger.kernel.org with ESMTP id S261930AbVFWCEy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 22:04:54 -0400
+Date: Wed, 22 Jun 2005 21:04:45 -0500
+From: Coywolf Qi Hunt <coywolf@sosdg.org>
+To: lkml@dervishd.net
+Cc: sam@ravnborg.org, linux-kernel@vger.kernel.org
+Subject: Re: [question] pass CONFIG_FOO to CC problem
+Message-ID: <20050623020445.GA19528@everest.sosdg.org>
+Reply-To: coywolf@lovecn.org
+References: <2cd57c90050622013937d2c209@mail.gmail.com> <20050622181207.GC57@DervishD>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050622181207.GC57@DervishD>
+User-Agent: Mutt/1.5.9i
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: coywolf@mail.sosdg.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Jun 2005, Karim Yaghmour wrote:
+On Wed, Jun 22, 2005 at 08:12:07PM +0200, DervishD wrote:
+>     Hi Coywolf :)
+> 
+>  * Coywolf Qi Hunt <coywolf@gmail.com> dixit:
+> > I was expecting kbuild passes CONFIG_FOO from .config to CC
+> > -DCONFIG_FOO, but it doesn't.  So I have to add
+> > 
+> > ifdef CONFIG_FOO
+> > EXTRA_CFLAGS += -DCONFIG_FOO
+> > endif
+> 
+>     NO! You don't do it that way in the kernel. Think: if you have to
+> pass a '-D' option for each config item you set, you will end up with
+> TONS of '-D' options, in fact you probably exceed the command line
+> size limit.
 
-> David Lang wrote:
->> what pinout do I need to connect the printer ports
->
-> For LRTBF you'll find the pinout in the README of the package.
->
->> I'm thinking that the best approach for this would be to setup a static
->> logger and host and then one (or more) target machines, then we can setup
->> a small website on the host that will allow Ingo (and others) to submit
->> kernels for testing, queue those kernels and then run the tests on each
->> one in turn (and if it runs out of kernels to test it re-tests the last
->> one with a longer run)
->
-> Things is you're going to need one logger per target. As for a
-> small website, that sounds good enough. Don't know how feasible
-> it would be but it may be desirable to also have a background
-> task that automatically checks for new releases and conducts
-> the tests automatically.
+I see. It's not only ugly, but also harmful.
 
-the only problem with that would be the need for these low-powered boxes 
-to compile the kernel.
+> 
+>     You have to include <linux/config.h> if I recall correctly ;)
+> 
 
->> how much needs to change in userspace between the various tests? I would
->> assume that between the plain, preempt, and RT kernels no userspace
->> changes are needed, what about the other options?
->
-> There are no user-space changes needed, but you may need to
-> install a few things that aren't there (LMbench, LTP, hackbench,
-> etc.)
->
->> given the slow speed of these systems it would seem to make more sense to
->> have a full kernel downloaded to them rather then having the local box
->> compile it.
->
-> It's your choice really, but if the tests are to be automated,
-> then local compile shouldn't be a problem since you won't be
-> waiting on it personally.
+<linux/config.h> is for this purpose, if I understand correctly.
 
-that depends on how quickly Ingo releases updates, it would be nice to 
-have a system fast enough to run the tests on each version before the next 
-is released :-)
 
->> does this sound reasonable?
->
-> For me at least.
->
-> Karim
-> -- 
-> Author, Speaker, Developer, Consultant
-> Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-> http://www.opersys.com || karim@opersys.com || 1-866-677-4546
->
-
--- 
-There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
-  -- C.A.R. Hoare
+		Coywolf

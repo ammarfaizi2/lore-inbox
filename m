@@ -1,67 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262355AbVFWH07@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262584AbVFWH1A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262355AbVFWH07 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 03:26:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262635AbVFWHZh
+	id S262584AbVFWH1A (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 03:27:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262636AbVFWHZr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 03:25:37 -0400
-Received: from [24.22.56.4] ([24.22.56.4]:14566 "EHLO
+	Thu, 23 Jun 2005 03:25:47 -0400
+Received: from [24.22.56.4] ([24.22.56.4]:13286 "EHLO
 	w-gerrit.beaverton.ibm.com") by vger.kernel.org with ESMTP
-	id S262272AbVFWGSm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S262263AbVFWGSm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 23 Jun 2005 02:18:42 -0400
-Message-Id: <20050623061801.618872000@w-gerrit.beaverton.ibm.com>
+Message-Id: <20050623061801.276853000@w-gerrit.beaverton.ibm.com>
 References: <20050623061552.833852000@w-gerrit.beaverton.ibm.com>
-Date: Wed, 22 Jun 2005 23:16:29 -0700
+Date: Wed, 22 Jun 2005 23:16:27 -0700
 From: Gerrit Huizenga <gh@us.ibm.com>
 To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Cc: ckrm-tech@lists.sourceforge.net, Chandra Seetharaman <sekharan@us.ibm.com>,
+Cc: ckrm-tech@lists.sourceforge.net, Matt Helsley <matthltc@us.ibm.com>,
        Gerrit Huizenga <gh@us.ibm.com>
-Subject: [patch 37/38] CKRM e18: Use sizeof instead of define for the array size in RBCE
-Content-Disposition: inline; filename=use_sizeof_instead_of_define_for_the_array_size_in_rbce
+Subject: [patch 35/38] CKRM e18: Fix a NULL dereference bug
+Content-Disposition: inline; filename=ckrm-numtasks_lockfix
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While creating the config files for rbce, instead of using #define
-use sizeof so that when the array size changes, things still work as
-expected.
+Fix a NULL dereference bug by checking before locking.
 
-Signed-off-by:  Chandra Seetharaman <sekharan@us.ibm.com>
-Signed-off-by:  Gerrit Huizenga <gh@us.ibm.com>
+Parent shares recalculation fix.
 
-Index: linux-2.6.12-ckrm1/kernel/ckrm/rbce/rbce_fs.c
+Signed-Off-By: Matt Helsley <matthltc@us.ibm.com>
+Signed-Off-By: Gerrit Huizenga <gh@us.ibm.com>
+
+Index: linux-2.6.12-ckrm1/kernel/ckrm/ckrm_numtasks.c
 ===================================================================
---- linux-2.6.12-ckrm1.orig/kernel/ckrm/rbce/rbce_fs.c	2005-06-20 15:02:49.000000000 -0700
-+++ linux-2.6.12-ckrm1/kernel/ckrm/rbce/rbce_fs.c	2005-06-20 16:01:57.000000000 -0700
-@@ -273,8 +273,7 @@ rbce_symlink(struct inode *dir, struct d
+--- linux-2.6.12-ckrm1.orig/kernel/ckrm/ckrm_numtasks.c	2005-06-20 15:59:12.000000000 -0700
++++ linux-2.6.12-ckrm1/kernel/ckrm/ckrm_numtasks.c	2005-06-20 16:01:24.000000000 -0700
+@@ -303,6 +303,7 @@ static void numtasks_res_free(void *my_r
+ 	return;
+ }
  
- /******************************* Config files  ********************/
++
+ /*
+  * Recalculate the guarantee and limit in real units... and propagate the
+  * same to children.
+@@ -357,9 +358,13 @@ recalc_and_propagate(struct ckrm_numtask
+ 	while ((child = ckrm_get_next_child(res->core, child)) != NULL) {
+ 		childres = ckrm_get_res_class(child, resid, struct ckrm_numtasks);
  
--#define RBCE_NR_CONFIG 5
--struct rcfs_magf rbce_config_files[RBCE_NR_CONFIG] = {
-+struct rcfs_magf rbce_config_files[] = {
- 	{
- 	 .name = CONFIG_CE_DIR,
- 	 .mode = RCFS_DEFAULT_DIR_MODE,
-@@ -302,16 +301,17 @@ static struct dentry *ce_root_dentry;
+-		spin_lock(&childres->cnt_lock);
+-		recalc_and_propagate(childres, res);
+-		spin_unlock(&childres->cnt_lock);
++		if (childres) {
++		    spin_lock(&childres->cnt_lock);
++		    recalc_and_propagate(childres, res);
++		    spin_unlock(&childres->cnt_lock);
++		} else {
++			printk(KERN_ERR "%s: numtasks resclass missing\n",__FUNCTION__);
++		}
+ 	}
+ 	ckrm_unlock_hier(res->core);
+ 	return;
+@@ -376,7 +381,7 @@ static int numtasks_set_share_values(voi
  
- int rbce_create_config(void)
- {
--	int rc;
-+	int rc, nr;
+ 	if (res->parent) {
+ 		parres =
+-		    ckrm_get_res_class(res->parent, resid, struct ckrm_numtasks);
++		   ckrm_get_res_class(res->parent, resid, struct ckrm_numtasks);
+ 		spin_lock(&parres->cnt_lock);
+ 		spin_lock(&res->cnt_lock);
+ 		par = &parres->shares;
+@@ -390,7 +395,16 @@ static int numtasks_set_share_values(voi
  
-+	nr = sizeof(rbce_config_files) / sizeof(struct rcfs_magf);
- 	/* Make root dentry */
--	rc = rcfs_mkroot(rbce_config_files, RBCE_NR_CONFIG, &ce_root_dentry);
-+	rc = rcfs_mkroot(rbce_config_files, nr, &ce_root_dentry);
- 	if ((!ce_root_dentry) || rc)
- 		return rc;
- 
- 	/* Create config files */
- 	if ((rc = rcfs_create_magic(ce_root_dentry, &rbce_config_files[1],
--				    RBCE_NR_CONFIG - 1))) {
-+				    nr - 1))) {
- 		printk(KERN_ERR "Failed to create c/rbce config files."
- 		       " Deleting c/rbce root\n");
- 		rcfs_rmroot(ce_root_dentry);
+ 	if ((rc == 0) && parres) {
+ 		/* Calculate parent's unused units */
+-		recalc_and_propagate(parres, NULL);
++		if (parres->cnt_guarantee == CKRM_SHARE_DONTCARE) {
++			parres->cnt_unused = CKRM_SHARE_DONTCARE;
++		} else if (par->total_guarantee) {
++			u64 temp = (u64) par->unused_guarantee * parres->cnt_guarantee;
++			do_div(temp, par->total_guarantee);
++			parres->cnt_unused = (int) temp;
++		} else {
++			parres->cnt_unused = 0;
++		}
++		recalc_and_propagate(res, parres);
+ 	}
+ 	spin_unlock(&res->cnt_lock);
+ 	if (res->parent)
 
 --

@@ -1,305 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262688AbVFWTF1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262697AbVFWTPF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262688AbVFWTF1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 15:05:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262691AbVFWTF1
+	id S262697AbVFWTPF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 15:15:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262704AbVFWTPB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 15:05:27 -0400
-Received: from mail.dif.dk ([193.138.115.101]:20374 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S262688AbVFWSxf (ORCPT
+	Thu, 23 Jun 2005 15:15:01 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:23765 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262697AbVFWTKa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 14:53:35 -0400
-Date: Thu, 23 Jun 2005 20:59:08 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: =?ISO-8859-2?Q?Micha=B3_Piotrowski?= <piotrowskim@trex.wsi.edu.pl>
-Cc: Jesper Juhl <jesper.juhl@gmail.com>,
-       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-       randy_dunlap <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org
-Subject: Re: Script to help users to report a BUG
-In-Reply-To: <42BAE190.20405@trex.wsi.edu.pl>
-Message-ID: <Pine.LNX.4.62.0506232057150.7467@dragon.hyggekrogen.localhost>
-References: <4d8e3fd30506191332264eb4ae@mail.gmail.com> 
- <4d8e3fd30506201322242d540a@mail.gmail.com>  <4d8e3fd305062205371b0a506d@mail.gmail.com>
-  <42B951B4.80703@trex.wsi.edu.pl>  <4d8e3fd30506220656241e1521@mail.gmail.com>
-  <42B9544E.7030007@trex.wsi.edu.pl>  <4d8e3fd305062212343d9849ee@mail.gmail.com>
-  <42B9D391.4020602@trex.wsi.edu.pl>  <4d8e3fd305062300541eca2c10@mail.gmail.com>
-  <42BAA5C2.7060906@trex.wsi.edu.pl> <9a8748490506231011128f7a38@mail.gmail.com>
- <42BAE190.20405@trex.wsi.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 23 Jun 2005 15:10:30 -0400
+Date: Thu, 23 Jun 2005 21:11:47 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: SMP+irq handling broken in current git?
+Message-ID: <20050623191146.GB6814@suse.de>
+References: <20050623135318.GC9768@suse.de> <42BAEA67.7090606@pobox.com> <20050623184234.GE9768@suse.de> <200506231258.35258.bjorn.helgaas@hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200506231258.35258.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 23 Jun 2005, [ISO-8859-2] Micha? Piotrowski wrote:
-
-> Hi,
+On Thu, Jun 23 2005, Bjorn Helgaas wrote:
+> On Thursday 23 June 2005 12:42 pm, Jens Axboe wrote:
+> > On Thu, Jun 23 2005, Jeff Garzik wrote:
+> > > Jens Axboe wrote:
+> > > >Hi,
+> > > >
+> > > >Something strange is going on with current git as of this morning (head
+> > > >ee98689be1b054897ff17655008c3048fe88be94). On an old test box (dual p3
+> > > >800MHz), using the same old config I always do on this box has very
+> > > >broken interrupt handling:
+> > > 
+> > > Does 2.6.12 work for you?
+> > > 2.6.11?
+> > 
+> > 2.6.11 works, 2.6.12 does not.
 > 
-> Here is the latest verion:
-> http://stud.wsi.edu.pl/~piotrowskim/files/ort/ort-a8.tar.bz2
-> 
-> Changelog:
-> - Randy's patch
-> - Jesper's idea (Great thanks. I haven't test it yet ;))
-> - Tainted kernel detection ;)
-> - Some code "reorganization"
-> 
+> Do you have any VIA devices?  If so, you might try the attached.
+> (Just for debugging; if the patch helps, I have no idea how to
+> do it correctly.)
 
-Here's a small patch with a few suggested changes. I don't know if you'll 
-like all the changes, but feel free to use the bits you like and drop the 
-rest :-)
+No VIA devices, it's an intel board with intel chipset. Do you still
+want me to test it?
 
 
---- ort.sh.original	2005-06-23 20:37:07.000000000 +0200
-+++ ort.sh	2005-06-23 20:55:19.000000000 +0200
-@@ -4,17 +4,17 @@
- # Copyright (C) 2005  Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
- # Copyright (C) 2005  Paul TT <paultt@bilug.linux.it>
- # Copyright (C) 2005  Randy Dunlap <rdunlap@xenotime.net>
--
-+#
- # This program is free software; you can redistribute it and/or modify
- # it under the terms of the GNU General Public License as published by
- # the Free Software Foundation; either version 2 of the License, or
- # (at your option) any later version.
--		
-+#		
- # This program is distributed in the hope that it will be useful,
- # but WITHOUT ANY WARRANTY; without even the implied warranty of
- # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- # GNU General Public License for more details.
--				
-+#				
- # You should have received a copy of the GNU General Public License
- # along with this program; if not, write to the Free Software
- # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-@@ -23,16 +23,16 @@
- ORT_O=$1
- VER=v.a8
- 
--M_EMAIL=a@b.c
--U_EMAIL=user@email
-+M_EMAIL=joe.random.maintainer@somewhere.domain.example
-+U_EMAIL=reporter@mylinuxbox.domain.example
- LKML=linux-kernel@vger.kernel.org
--TOPIC=ORT
-+TOPIC="Automagically generated bug report (ORT)"
- 
- EDITOR=vim
- EM_CLI=mutt
- 
- help() {
--    echo "Usage: [root@ng02 ort]$ ./ort.sh oops.txt"
-+    echo "Usage: [root@mylinuxbox ~]$ ./ort.sh oops.txt"
-     echo "You need to be root to run the script"
-     exit 1
- }
-@@ -43,7 +43,7 @@
- 	    help
-     elif [[ ! -f "$ORT_O" ]]
- 	then
--	    echo "ERROR: You must give proper file with Oops"
-+	    echo "ERROR: You must provide a proper file with the Oops text"
- 	    help
- 	    exit 1
-     fi
-@@ -62,11 +62,11 @@
-     echo "OOPS Reporting Tool $VER" > $ORT_F
- }
- 
--chose_editor() {
-+choose_editor() {
-     END_B=0
-     while [ $END_B = 0 ]
-     do
--	echo -e "\nChose Your favourite text editor"
-+	echo -e "\nChoose Your favourite text editor"
- 	echo -e "1 - vim"
- 	echo -e "2 - emacs"
- 	echo -e "3 - mcedit"
-@@ -91,7 +91,7 @@
- 	        do
- 	        	echo -e "\nWrite editor name"
- 			read EDITOR
--			echo -e "You wrote < $EDITOR > is it corect?"
-+			echo -e "You wrote < $EDITOR > is it correct?"
- 		        echo -e "[Y(es)/N(o)]"
- 			read TXT
- 			if [ $TXT = "Y" ] || [ $TXT = "y" ]
-@@ -107,11 +107,11 @@
-     done
- }
- 
--chose_em_cli() {
-+choose_em_cli() {
-     END_B=0
-     while [ $END_B = 0 ]
-     do
--	echo -e "\nChose Your favourite (and configured) email client (i haven't test it ;))"
-+	echo -e "\nChoose Your favourite (and configured) email client (I have not tested it ;))"
- 	echo -e "1 - mutt (it may not work)"
- 	echo -e "2 - sendmail"
- 	echo -e "o - other"
-@@ -131,7 +131,7 @@
- 	        do
- 	        	echo -e "\nWrite email client name"
- 			read EM_CLI
--			echo -e "You wrote < $EM_CLI > is it corect?"
-+			echo -e "You wrote < $EM_CLI > is it correct?"
- 		        echo -e "[Y(es)/N(o)]"
- 			read TXT
- 			if [ $TXT = "Y" ] || [ $TXT = "y" ]
-@@ -188,7 +188,8 @@
-     if [ "$TAINTED" > "$NULL" ]
- 	then
- 	    echo "Tainted kernel!!!"
--	    echo "You can't send it to LKML"
-+	    echo "Please reproduce with an untainted kernel before you send the report to LKML."
-+	    echo "This script will not allow you to send a report for a tainted kernel."
- 	    LKML=banned@banned.org
-     fi
- }
-@@ -242,7 +243,7 @@
- }
- 
- point_7_8() {
--    echo -e "\n[7.8.] Dmesg log" >> $ORT_F
-+    echo -e "\n[7.8.] dmesg log" >> $ORT_F
-     dmesg -s 100000 >> $ORT_F
- }
- 
-@@ -254,7 +255,7 @@
- #echo -e "\n[7.9.] /proc copy"
- #while [ $END = 0 ]
- #do
--#    echo -e "\nDo You want to create /proc copy?"
-+#    echo -e "\nDo you want to create /proc copy?"
- #    echo -e "[Y(es)/N(o)]"
- #    read TXT
- #    if [ $TXT = "Y" ] || [ $TXT = "y" ]
-@@ -278,7 +279,7 @@
- END=0
- while [ $END = 0 ]
- do
--    echo -e "\nDo You want to pass the path to kernel .config file?"
-+    echo -e "\nDo you want to manually enter the path to the kernels .config file?"
-     echo -e "[A(utomagic)/Y(es)/S(kip)]"
-     read TXT
-     if [ $TXT = "Y" ] || [ $TXT = "y" ]
-@@ -327,7 +328,7 @@
-     END=0
-     while [ $END = 0 ]
-     do
--	echo -e "\nDo You want to see $ORT_F?"
-+	echo -e "\nDo you want to see $ORT_F?"
-         echo -e "[Y(es)/N(o)]"
- 	read TXT
-         if [ $TXT = "Y" ] || [ $TXT = "y" ]
-@@ -345,7 +346,7 @@
-     END=0
-     while [ $END = 0 ]
-     do
--	echo -e "\nDo You want to edit $ORT_F in $EDITOR?"
-+	echo -e "\nDo you want to edit $ORT_F in $EDITOR?"
-         echo -e "[Y(es)/N(o)]"
- 	read TXT
-         if [ $TXT = "Y" ] || [ $TXT = "y" ]
-@@ -363,7 +364,7 @@
-     END_A=0
-     while [ $END_A = 0 ]
-     do
--	echo -e "\nDo you want to list MAINTERNERS list?"
-+	echo -e "\nDo you want to list the MAINTERNERS file to locate the proper maintainer?"
-         echo -e "[Y(es)/N(o)]"
- 	read TXT
- 	if [ $TXT = "Y" ] || [ $TXT = "y" ]
-@@ -384,7 +385,7 @@
-     END_A=0
-     while [ $END_A = 0 ]
-     do
--	echo -e "\nWrite mainterner e-mail"
-+	echo -e "\nWrite maintainer e-mail"
- 	read M_EMAIL
- 	echo -e "You wrote < $M_EMAIL > is it corect?"
-         echo -e "[Y(es)/N(o)]"
-@@ -403,7 +404,8 @@
-     END_A=0
-     while [ $END_A = 0 ]
-     do
--	echo -e "\nWrite your e-mail"
-+	echo -e "\nWrite your e-mail (to be used as from address)"
-+	echo -e "Please make sure it's correct so people can get back to you."
- 	read U_EMAIL
- 	echo -e "You wrote < $U_EMAIL > is it corect?"
-         echo -e "[Y(es)/N(o)]"
-@@ -422,7 +424,7 @@
-     END=0
-     while [ $END = 0 ]
-     do
--        echo -e "\nDo You want to send $ORT_F?"
-+        echo -e "\nDo you want to send $ORT_F?"
- 	echo -e "[Y(es)/N(o)]"
-         read TXT
- 	if [ $TXT = "Y" ] || [ $TXT = "y" ]
-@@ -433,8 +435,8 @@
- 		while [ $END_1 = 0 ]
- 	        do
- 		    echo -e "1 to LKML"
--		    echo -e "2 to mainterner"
--		    echo -e "3 to mainterner and LKML"
-+		    echo -e "2 to maintainer"
-+		    echo -e "3 to maintainer and LKML"
- 	            read TXT_1
- 		    if [ $TXT_1 = "1" ]
- 		        then
-@@ -443,7 +445,7 @@
- 				    mutt -s "[OOPS] $TOPIC" -i $ORT_F -c $LKML
- 			    elif [ $EM_CLI = "sendmail" ]
- 				then
--				    echo -e "Subject: Automagically generated bug report\n`cat topic.txt`\n" | sendmail -f <$U_EMAIL> $LKML
-+				    echo -e "Subject: ${TOPIC}\n`cat ${ORT_F}`\n" | sendmail -f $U_EMAIL $LKML
- 			    fi
- 			    END_1=1
- 	            elif [ $TXT_1 = "2" ]
-@@ -472,17 +474,14 @@
- rm_ortmp
- logo
- 
--chose_editor
--chose_em_cli
-+choose_editor
-+choose_em_cli
- 
- point_1
- point_2
- point_3
--
- point_4
--
- point_5
--
- point_6
- 
- point_7_1
-@@ -496,11 +495,10 @@
- #point_7_9
- 
- point_8
--
- point_9
- 
- less_r
- edit_r
- send_r
- 
--rm_ortmp
-\ No newline at end of file
-+rm_ortmp
+> Index: work/drivers/pci/quirks.c
+> ===================================================================
+> --- work.orig/drivers/pci/quirks.c	2005-06-21 13:43:29.000000000 -0600
+> +++ work/drivers/pci/quirks.c	2005-06-23 10:40:55.000000000 -0600
+> @@ -510,7 +510,7 @@
+>  		pci_write_config_byte(dev, PCI_INTERRUPT_LINE, new_irq);
+>  	}
+>  }
+> -DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_ANY_ID, quirk_via_irq);
+> +DECLARE_PCI_FIXUP_ENABLE(PCI_ANY_ID, PCI_ANY_ID, quirk_via_irq);
+>  
+>  /*
+>   * PIIX3 USB: We have to disable USB interrupts that are
 
 
-
-
-Kind regards,
-
-Jesper Juhl
-
+-- 
+Jens Axboe
 

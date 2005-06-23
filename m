@@ -1,97 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261930AbVFWChl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261984AbVFWCsg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261930AbVFWChl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 22:37:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261984AbVFWChk
+	id S261984AbVFWCsg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 22:48:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262025AbVFWCse
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 22:37:40 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:1442 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261930AbVFWChY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 22:37:24 -0400
-Date: Wed, 22 Jun 2005 19:39:24 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Greg KH <greg@kroah.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Git Mailing List <git@vger.kernel.org>
-Subject: Re: Updated git HOWTO for kernel hackers
-In-Reply-To: <42BA1B68.9040505@pobox.com>
-Message-ID: <Pine.LNX.4.58.0506221929430.11175@ppc970.osdl.org>
-References: <42B9E536.60704@pobox.com> <20050622230905.GA7873@kroah.com>
- <Pine.LNX.4.58.0506221623210.11175@ppc970.osdl.org> <42B9FCAE.1000607@pobox.com>
- <Pine.LNX.4.58.0506221724140.11175@ppc970.osdl.org> <42BA14B8.2020609@pobox.com>
- <Pine.LNX.4.58.0506221853280.11175@ppc970.osdl.org> <42BA1B68.9040505@pobox.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 22 Jun 2005 22:48:34 -0400
+Received: from 67.Red-80-25-56.pooles.rima-tde.net ([80.25.56.67]:20801 "EHLO
+	estila.tuxedo-es.org") by vger.kernel.org with ESMTP
+	id S261984AbVFWCs2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 22:48:28 -0400
+Subject: Re: [patch 1/1] selinux: minor cleanup in the
+	hooks.c:file_map_prot_check() code
+From: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
+	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
+To: James Morris <jmorris@redhat.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, sds@tycho.nsa.gov
+In-Reply-To: <Xine.LNX.4.44.0506222203060.10598-100000@thoron.boston.redhat.com>
+References: <Xine.LNX.4.44.0506222203060.10598-100000@thoron.boston.redhat.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-aDCuL355iwiLrYQBre5I"
+Date: Thu, 23 Jun 2005 04:48:24 +0200
+Message-Id: <1119494904.9254.33.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--=-aDCuL355iwiLrYQBre5I
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, 22 Jun 2005, Jeff Garzik wrote:
-> 
-> The problem is still that nothing says "oh, btw, I created 'xyz' tag for 
-> you" AFAICS?
-> 
-> IMO the user (GregKH and me, at least) just wants to know their set of 
-> tags and heads is up-to-date on local disk.  Wants to know what tags are 
-> out there.  It's quite annoying when two data sets are out of sync 
-> (.git/objects and .git/refs/tags).
+El mi=E9, 22-06-2005 a las 22:03 -0400, James Morris escribi=F3:
+> On Wed, 22 Jun 2005, James Morris wrote:
+>=20
+> > > @@ -2485,7 +2487,7 @@ static int selinux_file_mprotect(struct=20
+> > >  		 * check ability to execute the possibly modified content.
+> > >  		 * This typically should only occur for text relocations.
+> > >  		 */
+> > > -		int rc =3D file_has_perm(current, vma->vm_file, FILE__EXECMOD);
+> > > +		rc =3D file_has_perm(current, vma->vm_file, FILE__EXECMOD);
+> > >  		if (rc)
+> > >  			return rc;
+> > >  	}
+> > > _
+> >=20
+> Actually, this one's ok.
 
-Well, I really think this is the exact same issue as when you write any 
-annoucement, and say "please pull from branch xyz of repo abc".
+OK, thanks. I'll wait for Stephen to review it and then decide what to
+do.
 
-What I'm saying is that for a tagged release, that really translates to
-"please pull tag xyz from repo abc" and the tools like git-ssh-pull will 
-just do the right thing: they'll pull the tag itself _and_ they'll pull 
-the objects it points to.
+Cheers,
+--=20
+Lorenzo Hern=E1ndez Garc=EDa-Hierro <lorenzo@gnu.org>
+[1024D/6F2B2DEC] & [2048g/9AE91A22][http://tuxedo-es.org]
 
-Of course, right now "git fetch" is hardcoded to always write FETCH_HEAD 
-(not the tag name), but I'm saying ythat _literally_ you can do this 
-already:
+--=-aDCuL355iwiLrYQBre5I
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-	git fetch repo-name tags/xyz &&
-		( cat .git/FETCH_HEAD > .git/tags/xyz )
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
 
-and it should do exactly what you want. Hmm?
+iD8DBQBCuiL4DcEopW8rLewRAtNPAKDNOzygU8W+DLtTCxkvX+3vQewXCgCeNk3K
+g1KcQvVPtHcrZP4QrdYzAfk=
+=rAyD
+-----END PGP SIGNATURE-----
 
-So if we script this (maybe teach "git-fetch-script" to take "tag" as its 
-first argument and do this on its own), and people learn to just do
-
-	git fetch tag v2.6.18.5
-
-when Chris or Greg make an announcement about "v2.6.18.5", then you're all
-done, no?
-
-The change to "git-fetch-script" would look something like the appended.. 
-Totally untested, of course. Give it a try,
-
-			Linus
-
----
-diff --git a/git-fetch-script b/git-fetch-script
---- a/git-fetch-script
-+++ b/git-fetch-script
-@@ -1,5 +1,12 @@
- #!/bin/sh
- #
-+destination=FETCH_HEAD
-+
-+if [ "$1" = "tag" ]; then
-+	shift
-+	destination="refs/tags/$2"
-+fi
-+
- merge_repo=$1
- merge_name=${2:-HEAD}
- 
-@@ -35,7 +42,7 @@ download_objects () {
- }
- 
- echo "Getting remote $merge_name"
--download_one "$merge_repo/$merge_name" "$GIT_DIR"/FETCH_HEAD || exit 1
-+download_one "$merge_repo/$merge_name" "$GIT_DIR/$dest" || exit 1
- 
- echo "Getting object database"
--download_objects "$merge_repo" "$(cat "$GIT_DIR"/FETCH_HEAD)" || exit 1
-+download_objects "$merge_repo" "$(cat "$GIT_DIR/$dest")" || exit 1
+--=-aDCuL355iwiLrYQBre5I--

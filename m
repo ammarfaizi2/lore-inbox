@@ -1,70 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261938AbVFWBtw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261972AbVFWB7Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261938AbVFWBtw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 21:49:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261987AbVFWBrn
+	id S261972AbVFWB7Y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 21:59:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261964AbVFWB5X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 21:47:43 -0400
-Received: from fmr22.intel.com ([143.183.121.14]:63687 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S261967AbVFWBl5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 21:41:57 -0400
-Message-Id: <200506230141.j5N1fsg12336@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Ingo Molnar'" <mingo@elte.hu>
-Cc: <linux-kernel@vger.kernel.org>, <linux-ia64@vger.kernel.org>
-Subject: RE: Variation in measure_migration_cost() with scheduler-cache-hot-autodetect.patch in -mm
-Date: Wed, 22 Jun 2005 18:41:54 -0700
+	Wed, 22 Jun 2005 21:57:23 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:39078 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262014AbVFWBzP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 21:55:15 -0400
+Date: Wed, 22 Jun 2005 21:55:03 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: lorenzo@gnu.org
+cc: akpm@osdl.org, <linux-kernel@vger.kernel.org>, <sds@tycho.nsa.gov>
+Subject: Re: [patch 1/1] selinux: minor cleanup in the hooks.c:file_map_prot_check()
+ code
+In-Reply-To: <20050622221541.CE72F56C741@estila.tuxedo-es.org>
+Message-ID: <Xine.LNX.4.44.0506222150590.10175-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcV3BY5OU4SZ2HHSTSS7JdsXnsIgaQAjTQdQ
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-In-Reply-To: <20050622071458.GA16042@elte.hu>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote on Wednesday, June 22, 2005 12:15 AM
-> probably coloring effects, yes. Another reason could be that 
-> touch_cache() touches 6 separate areas of memory, which combined with 
-> the stack give a minimum of 7 hugepage TLBs. How many are there in these 
-> Xeons? If there are say 4 of them then we could be trashing these TLB 
-> entries. There are much more 4K TLBs. To reduce the number of TLBs
-> utilized, could you change touch_cache() to do something like:
-> 
->         unsigned long size = __size/sizeof(long), chunk1 = size/2;
->         unsigned long *cache = __cache;
->         int i;
-> 
->         for (i = 0; i < size/4; i += 8) {
->                 switch (i % 4) {
->                         case 0: cache[i]++;
->                         case 1: cache[size-1-i]++;
->                         case 2: cache[chunk1-i]++;
->                         case 3: cache[chunk1+i]++;
->                 }
->         }
-> 
-> does this change the migration-cost values?
+On Thu, 23 Jun 2005 lorenzo@gnu.org wrote:
 
-Yes it does.  On one processor, it goes down, but goes up on another.
-So I'm not sure if I completely understand the behavior.
+> Minor cleanup of the SELinux hooks code (hooks.c) around
+> some definitions of return values.
 
-			vmalloc'ed	__get_free_pages
-3.0GHz Xeon, 8MB	6.46ms	 7.05ms
-3.4GHz Xeon, 2MB	0.93ms	 1.22ms
-1.6GHz ia64, 9MB	9.72ms	10.06ms
+>  static int file_map_prot_check(struct file *file, unsigned long prot, int shared)
+>  {
+> +	int rc;
+> +
+>  #ifndef CONFIG_PPC32
+>  	if ((prot & PROT_EXEC) && (!file || (!shared && (prot & PROT_WRITE)))) {
+>  		/*
+> @@ -2426,7 +2428,7 @@ static int file_map_prot_check(struct fi
+>  		 * private file mapping that will also be writable.
+>  		 * This has an additional check.
+>  		 */
+> -		int rc = task_has_perm(current, current, PROCESS__EXECMEM);
+> +		rc = task_has_perm(current, current, PROCESS__EXECMEM);
+>  		if (rc)
+>  			return rc;
+>  	}
 
-What I'm really after though is to have the parameter close to an
-experimentally determined optimal value.  So either algorithm with
-__get_free_pages appears to be closer.
+What is the point of this?  You're needlessly increasing the scope of rc 
+and you'll also get a compiler warning on ppc32.
+
+> @@ -2485,7 +2487,7 @@ static int selinux_file_mprotect(struct 
+>  		 * check ability to execute the possibly modified content.
+>  		 * This typically should only occur for text relocations.
+>  		 */
+> -		int rc = file_has_perm(current, vma->vm_file, FILE__EXECMOD);
+> +		rc = file_has_perm(current, vma->vm_file, FILE__EXECMOD);
+>  		if (rc)
+>  			return rc;
+>  	}
+> _
+
+No, causes ppc32 warning.
+
+Please send SELinux kernel patches via the maintainers.
 
 
-> Btw., how did you determine the value of the 'ideal' migration cost?
-> Was this based on the database benchmark measurements?
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
 
-Yes, it is based on my favorite "industry standard transaction processing
-database" bench (I probably should use a shorter name like OLTP).
 

@@ -1,496 +1,712 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263039AbVFWI3H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263045AbVFWIjo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263039AbVFWI3H (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 04:29:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262882AbVFWI15
+	id S263045AbVFWIjo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 04:39:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263066AbVFWIg1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 04:27:57 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:49824 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S262583AbVFWHl7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 03:41:59 -0400
-Message-ID: <42BA67C9.7060604@namesys.com>
-Date: Thu, 23 Jun 2005 00:42:01 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+	Thu, 23 Jun 2005 04:36:27 -0400
+Received: from [85.8.12.41] ([85.8.12.41]:43960 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S262513AbVFWHuh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 03:50:37 -0400
+Message-ID: <42BA69AC.5090202@drzeus.cx>
+Date: Thu, 23 Jun 2005 09:50:04 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
 X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pekka Enberg <penberg@gmail.com>, vs <vs@thebsh.namesys.com>
-CC: Andi Kleen <ak@suse.de>, Alexander Lyamin aka FLX <flx@namesys.com>,
-       Alexander Zarochentcev <zam@namesys.com>, vs <vs@thebsh.namesys.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ReiserFS List <reiserfs-list@namesys.com>,
-       Pekka Enberg <penberg@cs.helsinki.fi>
-Subject: Re: -mm -> 2.6.13 merge status
-References: <20050620235458.5b437274.akpm@osdl.org.suse.lists.linux.kernel>	 <p73d5qgc67h.fsf@verdi.suse.de> <42B86027.3090001@namesys.com>	 <20050621195642.GD14251@wotan.suse.de> <42B8C0FF.2010800@namesys.com> <84144f0205062223226d560e41@mail.gmail.com>
-In-Reply-To: <84144f0205062223226d560e41@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="=_hermes.drzeus.cx-29420-1119513036-0001-2"
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+CC: LKML <linux-kernel@vger.kernel.org>, jgarzik@pobox.com
+Subject: Re: 2.6.12 breaks 8139cp
+References: <42B9D21F.7040908@drzeus.cx> <200506221534.03716.bjorn.helgaas@hp.com>
+In-Reply-To: <200506221534.03716.bjorn.helgaas@hp.com>
 X-Enigmail-Version: 0.90.1.0
 X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pekka Enberg wrote:
+This is a MIME-formatted message.  If you see this text it means that your
+E-mail software does not support MIME-formatted messages.
 
->Hi Hans,
->
->On 6/22/05, Hans Reiser <reiser@namesys.com> wrote:
+--=_hermes.drzeus.cx-29420-1119513036-0001-2
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+
+Bjorn Helgaas wrote:
+
+>On Wednesday 22 June 2005 3:03 pm, Pierre Ossman wrote:
 >  
 >
->>I would in particular love to have you Andi Kleen do a full review of V4
->>if you could be that generous with your time, as I liked much of the
->>advice you gave us on V3.
+>>Upgrading from 2.6.11 to 2.6.12 caused my 8139cp network card to stop
+>>working. No error messages are emitted and everything seems to work
+>>(from the local computers point of view). But nothing can be recieved
+>>from the network.
 >>    
 >>
 >
->Well, I am not Andi Kleen and this is not even in the ballpark of a full
->review but here goes...
+>You might post a little more information (i.e., the 2.6.12 dmesg and
+>possibly a diff vs. 2.6.11).  My guess is something's busted with its
+>IRQ.
 >  
 >
-thanks kindly for your time, your comments were appreciated
 
->P.S. Would it be possible to have a version without the plugin stuff
->submitted (and perhaps file as directory)?
->
-No, I am sorry.  It is like asking for ext2 without directories.
+dmesg:s included. But they don't really differ more than some cosmetic
+changes in the output strings.
 
-> It would make much more
->sense for the rest of us to review reiser4 without the most controversial
->bits and get the bits that people agree on merged.
->
->                                     Pekka
->
->  
->
->>--- /dev/null	2003-09-23 21:59:22.000000000 +0400
->>+++ linux-2.6.11-vs/fs/reiser4/pool.c	2005-06-03 17:49:38.668204642 +0400
->>+/* initialise new pool */
->>+reiser4_internal void
->>+reiser4_init_pool(reiser4_pool * pool /* pool to initialise */ ,
->>+		  size_t obj_size /* size of objects in @pool */ ,
->>+		  int num_of_objs /* number of preallocated objects */ ,
->>+		  char *data /* area for preallocated objects */ )
->>+{
->>+	reiser4_pool_header *h;
->>+	int i;
->>+
->>+	assert("nikita-955", pool != NULL);
->>    
->>
->
->These assertion codes are meaningless to the rest of us so please drop
->them.
->  
->
-I think you don't appreciate the role of assertions in making code
-easier to audit and debug.
+The problem is I can't find anything that differs. 2.6.12 behaves more
+or less like someone cut of the rx pins in the connector. ifconfig
+doesn't report any errors so it isn't a problem with packets getting
+dropped. tcpdump only shows the outgoing packets.
 
->  
->
->>--- /dev/null	2003-09-23 21:59:22.000000000 +0400
->>+++ linux-2.6.11-vs/fs/reiser4/type_safe_hash.h	2005-06-03 17:49:38.751209197 +0400
->>@@ -0,0 +1,320 @@
->>+/* Copyright 2001, 2002, 2003 by Hans Reiser, licensing governed by
->>+ * reiser4/README */
->>+
->>+/* A hash table class that uses hash chains (singly-linked) and is
->>+   parametrized to provide type safety.  */
->>    
->>
->
->This belongs to include/linux, not reiser4.
->  
->
-Too much politics are involved in modifying other peoples directories,
-or I'd agree with you.  The first person outside the reiser4 project to
-use it should move it into a different place.
+Any more ideas on what I should examine to find any differences?
 
->  
->
->>--- /dev/null	2003-09-23 21:59:22.000000000 +0400
->>+++ linux-2.6.11-vs/fs/reiser4/type_safe_list.h	2005-06-03 17:49:38.755209417 +0400
->>@@ -0,0 +1,436 @@
->>+/* Copyright 2001, 2002, 2003 by Hans Reiser, licensing governed by reiser4/README */
->>+
->>+#ifndef __REISER4_TYPE_SAFE_LIST_H__
->>+#define __REISER4_TYPE_SAFE_LIST_H__
->>+
->>+#include "debug.h"
->>+/* A circular doubly linked list that differs from the previous
->>+   <linux/list.h> implementation because it is parametrized to provide
->>+   type safety.  This data structure is also useful as a queue or stack.
->>    
->>
->
->This belongs to include/linux, not reiser4.
->  
->
-Yes, but see above about first person outside reiser4 project should.....
+Rgds
+Pierre
 
->  
->
->>--- /dev/null	2003-09-23 21:59:22.000000000 +0400
->>+++ linux-2.6.11-vs/fs/reiser4/vfs_ops.c	2005-06-03 17:51:28.110210237 +0400
->>+/* ->get_sb() method of file_system operations. */
->>+static struct super_block *
->>+reiser4_get_sb(struct file_system_type *fs_type	/* file
->>+						 * system
->>+						 * type */ ,
->>+	       int flags /* flags */ ,
->>+	       const char *dev_name /* device name */ ,
->>+	       void *data /* mount options */ )
->>    
->>
->
->Please drop the useless parameter comments.
->  
->
-vs, figure out who added the flags and device name comments and ask them
-to prepare a patch.  If nobody admits to the shameful act,;-) have
-Edward fix it.
 
->  
->
->>+/*
->>+ * Initialization stages for reiser4.
->>+ *
->>+ * These enumerate various things that have to be done during reiser4
->>+ * startup. Initialization code (init_reiser4()) keeps track of what stage was
->>+ * reached, so that proper undo can be done if error occurs during
->>+ * initialization.
->>+ */
->>+typedef enum {
->>+	INIT_NONE,               /* nothing is initialized yet */
->>+	INIT_INODECACHE,         /* inode cache created */
->>+	INIT_CONTEXT_MGR,        /* list of active contexts created */
->>+	INIT_ZNODES,             /* znode slab created */
->>+	INIT_PLUGINS,            /* plugins initialized */
->>+	INIT_PLUGIN_SET,         /* psets initialized */
->>+	INIT_TXN,                /* transaction manager initialized */
->>+	INIT_FAKES,              /* fake inode initialized */
->>+	INIT_JNODES,             /* jnode slab initialized */
->>+	INIT_EFLUSH,             /* emergency flush initialized */
->>+	INIT_FQS,                /* flush queues initialized */
->>+	INIT_DENTRY_FSDATA,      /* dentry_fsdata slab initialized */
->>+	INIT_FILE_FSDATA,        /* file_fsdata slab initialized */
->>+	INIT_D_CURSOR,           /* d_cursor suport initialized */
->>+	INIT_FS_REGISTERED,      /* reiser4 file system type registered */
->>+} reiser4_init_stage;
->>    
->>
->
->Please use regular gotos instead. This is a silly hack especially since you
->don't have release function for all of the stages.
->  
->
-I'll let vs comment.
+--=_hermes.drzeus.cx-29420-1119513036-0001-2
+Content-Type: text/plain; name="dmesg-2.6.11"; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="dmesg-2.6.11"
 
->  
->
->>+reiser4_internal void reiser4_handle_error(void)
->>+{
->>+	struct super_block *sb = reiser4_get_current_sb();
->>+
->>+	if ( !sb )
->>+		return;
->>+	reiser4_status_write(REISER4_STATUS_DAMAGED, 0, "Filesystem error occured");
->>+	switch ( get_super_private(sb)->onerror ) {
->>+	case 0:
->>+		reiser4_panic("foobar-42", "Filesystem error occured\n");
->>+	case 1:
->>+		if ( sb->s_flags & MS_RDONLY )
->>+			return;
->>+		sb->s_flags |= MS_RDONLY;
->>+		break;
->>+	case 2:
->>+		machine_restart(NULL);
->>    
->>
->
->Probably not something you should do at fs level.
->  
->
-Not sure why you say that.
+000000a0000 (reserved)
+ BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
+ BIOS-e820: 0000000000100000 - 000000001ffd0000 (usable)
+ BIOS-e820: 000000001ffd0000 - 000000001fff0c00 (reserved)
+ BIOS-e820: 000000001fff0c00 - 000000001fffc000 (ACPI NVS)
+ BIOS-e820: 000000001fffc000 - 0000000020000000 (reserved)
+511MB LOWMEM available.
+On node 0 totalpages: 131024
+  DMA zone: 4096 pages, LIFO batch:1
+  Normal zone: 126928 pages, LIFO batch:16
+  HighMem zone: 0 pages, LIFO batch:1
+DMI 2.3 present.
+ACPI: RSDP (v000 COMPAQ                                ) @ 0x000f6560
+ACPI: RSDT (v001 HP     CPQ0860  0x13090420 CPQ  0x00000001) @ 0x1fff0c84
+ACPI: FADT (v002 HP     CPQ0860  0x00000002 CPQ  0x00000001) @ 0x1fff0c00
+ACPI: SSDT (v001 COMPAQ  CPQGysr 0x00001001 MSFT 0x0100000e) @ 0x1fff5c3c
+ACPI: DSDT (v001 HP       nx7000 0x00010000 MSFT 0x0100000e) @ 0x00000000
+ACPI: PM-Timer IO Port: 0x1008
+Allocating PCI resources starting at 20000000 (gap: 20000000:e0000000)
+Built 1 zonelists
+Kernel command line: ro root=/dev/hda5 rhgb quiet
+Local APIC disabled by BIOS -- you can enable it with "lapic"
+mapped APIC to ffffd000 (01404000)
+Initializing CPU#0
+CPU 0 irqstacks, hard=c0541000 soft=c0540000
+PID hash table entries: 2048 (order: 11, 32768 bytes)
+Detected 1594.918 MHz processor.
+Using pmtmr for high-res timesource
+Console: colour VGA+ 80x25
+Dentry cache hash table entries: 131072 (order: 7, 524288 bytes)
+Inode-cache hash table entries: 65536 (order: 6, 262144 bytes)
+Memory: 512904k/524096k available (3371k kernel code, 10588k reserved, 732k data, 220k init, 0k highmem)
+Checking if this processor honours the WP bit even in supervisor mode... Ok.
+Calibrating delay loop... 3162.11 BogoMIPS (lpj=1581056)
+Security Framework v1.0.0 initialized
+Capability LSM initialized
+Mount-cache hash table entries: 512 (order: 0, 4096 bytes)
+CPU: After generic identify, caps: a7e9f9bf 00000000 00000000 00000000 00000180 00000000 00000000
+CPU: After vendor identify, caps: a7e9f9bf 00000000 00000000 00000000 00000180 00000000 00000000
+CPU: L1 I cache: 32K, L1 D cache: 32K
+CPU: L2 cache: 1024K
+CPU: After all inits, caps: a7e9f9bf 00000000 00000000 00000040 00000180 00000000 00000000
+Intel machine check architecture supported.
+Intel machine check reporting enabled on CPU#0.
+CPU: Intel(R) Pentium(R) M processor 1600MHz stepping 05
+Enabling fast FPU save and restore... done.
+Enabling unmasked SIMD FPU exception support... done.
+Checking 'hlt' instruction... OK.
+ACPI: setting ELCR to 0200 (from 0c20)
+checking if image is initramfs... it is
+Freeing initrd memory: 1090k freed
+NET: Registered protocol family 16
+PCI: PCI BIOS revision 2.10 entry at 0xf031f, last bus=3
+PCI: Using configuration type 1
+mtrr: v2.0 (20020519)
+ACPI: Subsystem revision 20050211
+ACPI: Interpreter enabled
+ACPI: Using PIC for interrupt routing
+ACPI: PCI Root Bridge [C046] (00:00)
+PCI: Probing PCI hardware (bus 00)
+PCI: Ignoring BAR0-3 of IDE controller 0000:00:1f.1
+PCI: Via IRQ fixup
+PCI: Transparent bridge - 0000:00:1e.0
+ACPI: PCI Interrupt Routing Table [\_SB_.C046._PRT]
+ACPI: PCI Interrupt Routing Table [\_SB_.C046.C047._PRT]
+ACPI: PCI Interrupt Routing Table [\_SB_.C046.C058._PRT]
+ACPI: Embedded Controller [C0EA] (gpe 28)
+ACPI: Power Resource [C18D] (on)
+ACPI: Power Resource [C195] (on)
+ACPI: Power Resource [C19C] (on)
+ACPI: Power Resource [C1A6] (on)
+ACPI: PCI Interrupt Link [C0C2] (IRQs 5 *10)
+ACPI: PCI Interrupt Link [C0C3] (IRQs 5 *10)
+ACPI: PCI Interrupt Link [C0C4] (IRQs *5 10)
+ACPI: PCI Interrupt Link [C0C5] (IRQs *5 10)
+ACPI: PCI Interrupt Link [C0C6] (IRQs 5 10) *0, disabled.
+ACPI: PCI Interrupt Link [C0C7] (IRQs 5 10) *11
+ACPI: PCI Interrupt Link [C0C8] (IRQs 5 10) *0, disabled.
+ACPI: PCI Interrupt Link [C0C9] (IRQs *5 10)
+Linux Plug and Play Support v0.97 (c) Adam Belay
+pnp: PnP ACPI init
+pnp: PnP ACPI: found 15 devices
+PnPBIOS: Disabled by ACPI PNP
+usbcore: registered new driver usbfs
+usbcore: registered new driver hub
+PCI: Using ACPI for IRQ routing
+** PCI interrupts are no longer routed automatically.  If this
+** causes a device to stop working, it is probably because the
+** driver failed to call pci_enable_device().  As a temporary
+** workaround, the "pci=routeirq" argument restores the old
+** behavior.  If this argument makes the device work again,
+** please email the output of "lspci" to bjorn.helgaas@hp.com
+** so I can fix the driver.
+pnp: the driver 'system' has been registered
+pnp: match found with the PnP device '00:00' and the driver 'system'
+pnp: match found with the PnP device '00:0c' and the driver 'system'
+pnp: match found with the PnP device '00:0d' and the driver 'system'
+pnp: 00:0d: ioport range 0x4d0-0x4d1 has been reserved
+pnp: 00:0d: ioport range 0x1000-0x107f could not be reserved
+pnp: 00:0d: ioport range 0x1100-0x113f has been reserved
+pnp: 00:0d: ioport range 0x1200-0x121f has been reserved
+pnp: match found with the PnP device '00:0e' and the driver 'system'
+apm: BIOS version 1.2 Flags 0x03 (Driver version 1.16ac)
+apm: overridden by ACPI.
+audit: initializing netlink socket (disabled)
+audit(1119514693.293:0): initialized
+Total HugeTLB memory allocated, 0
+VFS: Disk quotas dquot_6.5.1
+Dquot-cache hash table entries: 1024 (order 0, 4096 bytes)
+SGI XFS with ACLs, security attributes, no debug enabled
+SGI XFS Quota Management subsystem
+Initializing Cryptographic API
+ACPI: CPU0 (power states: C1[C1] C2[C2] C3[C3])
+ACPI: Processor [CPU0] (supports 8 throttling states)
+isapnp: Scanning for PnP cards...
+isapnp: No Plug & Play device found
+Real Time Clock Driver v1.12
+Linux agpgart interface v0.100 (c) Dave Jones
+agpgart: Detected an Intel 855PM Chipset.
+agpgart: Maximum main memory to use for agp memory: 439M
+agpgart: AGP aperture is 256M @ 0xb0000000
+[drm] Initialized drm 1.0.0 20040925
+ACPI: PS/2 Keyboard Controller [C1A3] at I/O 0x60, 0x64, irq 1
+ACPI: PS/2 Mouse Controller [C1A4] at irq 12
+i8042.c: Detected active multiplexing controller, rev 1.1.
+serio: i8042 AUX0 port at 0x60,0x64 irq 12
+serio: i8042 AUX1 port at 0x60,0x64 irq 12
+serio: i8042 AUX2 port at 0x60,0x64 irq 12
+serio: i8042 AUX3 port at 0x60,0x64 irq 12
+serio: i8042 KBD port at 0x60,0x64 irq 1
+Serial: 8250/16550 driver $Revision: 1.90 $ 8 ports, IRQ sharing enabled
+ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+ttyS2 at I/O 0x3e8 (irq = 3) is a 16550A
+pnp: the driver 'serial' has been registered
+pnp: match found with the PnP device '00:03' and the driver 'serial'
+ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+ACPI: PCI Interrupt Link [C0C3] enabled at IRQ 10
+PCI: setting IRQ 10 as level-triggered
+ACPI: PCI interrupt 0000:00:1f.6[B] -> GSI 10 (level, low) -> IRQ 10
+io scheduler noop registered
+io scheduler anticipatory registered
+io scheduler deadline registered
+io scheduler cfq registered
+RAMDISK driver initialized: 16 RAM disks of 16384K size 1024 blocksize
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+ICH4: IDE controller at PCI slot 0000:00:1f.1
+PCI: Enabling device 0000:00:1f.1 (0005 -> 0007)
+ACPI: PCI Interrupt Link [C0C4] enabled at IRQ 5
+PCI: setting IRQ 5 as level-triggered
+ACPI: PCI interrupt 0000:00:1f.1[A] -> GSI 5 (level, low) -> IRQ 5
+ICH4: chipset revision 1
+ICH4: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0x4c40-0x4c47, BIOS settings: hda:DMA, hdb:pio
+    ide1: BM-DMA at 0x4c48-0x4c4f, BIOS settings: hdc:DMA, hdd:pio
+Probing IDE interface ide0...
+hda: TOSHIBA MK4025GAS, ATA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+Probing IDE interface ide1...
+hdc: HL-DT-STCD-RW/DVD DRIVE GCC-4241N, ATAPI CD/DVD-ROM drive
+ide1 at 0x170-0x177,0x376 on irq 15
+pnp: the driver 'ide' has been registered
+ide2: I/O resource 0x3EE-0x3EE not free.
+ide2: ports already in use, skipping probe
+Probing IDE interface ide3...
+Probing IDE interface ide4...
+Probing IDE interface ide5...
+hda: max request size: 128KiB
+hda: 78140160 sectors (40007 MB), CHS=65535/16/63, UDMA(100)
+hda: cache flushes supported
+ hda: hda1 hda2 hda3 hda4 < hda5 hda6 >
+hdc: ATAPI 24X DVD-ROM CD-R/RW drive, 2048kB Cache, DMA
+Uniform CD-ROM driver Revision: 3.20
+ide-floppy driver 0.99.newide
+usbcore: registered new driver hiddev
+usbcore: registered new driver usbhid
+drivers/usb/input/hid-core.c: v2.0:USB HID core driver
+mice: PS/2 mouse device common for all mice
+input: AT Translated Set 2 keyboard on isa0060/serio0
+Synaptics Touchpad, model: 1
+ Firmware: 5.9
+ Sensor: 35
+ new absolute packet format
+ Touchpad has extended capability bits
+ -> multifinger detection
+ -> palm detection
+input: SynPS/2 Synaptics TouchPad on isa0060/serio4
+NET: Registered protocol family 2
+IP: routing cache hash table of 1024 buckets, 32Kbytes
+TCP established hash table entries: 32768 (order: 6, 262144 bytes)
+TCP bind hash table entries: 32768 (order: 7, 917504 bytes)
+TCP: Hash tables configured (established 32768 bind 32768)
+Initializing IPsec netlink socket
+NET: Registered protocol family 1
+NET: Registered protocol family 17
+Software Suspend Core.
+Software Suspend text mode support loaded.
+Software Suspend LZF Compression Driver registered.
+Software Suspend Swap Writer registered.
+ACPI wakeup devices: 
+C058 C1AD C1A3 C1A4 C0AC C0B3 C0B4 C0B5 C0E7 C136 
+ACPI: (supports S0 S3 S4 S4bios S5)
+Freeing unused kernel memory: 220k freed
+Looking for first block of swap header at block 0.
+Setting logical block size of resume device to 4096.
+Software Suspend 2.1.8: Swap space signature found.
+Software Suspend 2.1.8: Suspending enabled.
+Software Suspend 2.1.8: This is normal swap space.
+EXT3-fs: mounted filesystem with ordered data mode.
+kjournald starting.  Commit interval 5 seconds
+8139cp: 10/100 PCI Ethernet driver v1.2 (Mar 22, 2004)
+ACPI: PCI interrupt 0000:02:01.0[A] -> GSI 10 (level, low) -> IRQ 10
+eth0: RTL-8139C+ at 0xe0828000, 00:02:3f:22:db:8c, IRQ 10
+ieee80211_crypt: registered algorithm 'NULL'
+ipw2200: Intel(R) PRO/Wireless 2200/2915 Network Driver, 1.0.4
+ipw2200: Copyright(c) 2003-2004 Intel Corporation
+ACPI: PCI Interrupt Link [C0C5] enabled at IRQ 5
+ACPI: PCI interrupt 0000:02:02.0[A] -> GSI 5 (level, low) -> IRQ 5
+ipw2200: Detected Intel PRO/Wireless 2200BG Network Connection
+ipw2200: Radio Frequency Kill Switch is On:
+Kill switch must be turned off for wireless networking to work.
+ACPI: PCI interrupt 0000:00:1f.5[B] -> GSI 10 (level, low) -> IRQ 10
+PCI: Setting latency timer of device 0000:00:1f.5 to 64
+intel8x0_measure_ac97_clock: measured 49284 usecs
+intel8x0: clocking to 48000
+ACPI: PCI interrupt 0000:00:1f.6[B] -> GSI 10 (level, low) -> IRQ 10
+PCI: Setting latency timer of device 0000:00:1f.6 to 64
+hw_random: RNG not detected
+ACPI: PCI Interrupt Link [C0C9] enabled at IRQ 5
+ACPI: PCI interrupt 0000:00:1d.7[D] -> GSI 5 (level, low) -> IRQ 5
+ehci_hcd 0000:00:1d.7: EHCI Host Controller
+PCI: Setting latency timer of device 0000:00:1d.7 to 64
+ehci_hcd 0000:00:1d.7: irq 5, pci mem 0xa0000000
+ehci_hcd 0000:00:1d.7: new USB bus registered, assigned bus number 1
+PCI: cache line size of 32 is not supported by device 0000:00:1d.7
+ehci_hcd 0000:00:1d.7: USB 2.0 initialized, EHCI 1.00, driver 10 Dec 2004
+hub 1-0:1.0: USB hub found
+hub 1-0:1.0: 6 ports detected
+USB Universal Host Controller Interface driver v2.2
+ACPI: PCI Interrupt Link [C0C2] enabled at IRQ 10
+ACPI: PCI interrupt 0000:00:1d.0[A] -> GSI 10 (level, low) -> IRQ 10
+uhci_hcd 0000:00:1d.0: UHCI Host Controller
+PCI: Setting latency timer of device 0000:00:1d.0 to 64
+uhci_hcd 0000:00:1d.0: irq 10, io base 0x48c0
+uhci_hcd 0000:00:1d.0: new USB bus registered, assigned bus number 2
+hub 2-0:1.0: USB hub found
+hub 2-0:1.0: 2 ports detected
+ACPI: PCI interrupt 0000:00:1d.1[B] -> GSI 5 (level, low) -> IRQ 5
+uhci_hcd 0000:00:1d.1: UHCI Host Controller
+PCI: Setting latency timer of device 0000:00:1d.1 to 64
+uhci_hcd 0000:00:1d.1: irq 5, io base 0x48e0
+uhci_hcd 0000:00:1d.1: new USB bus registered, assigned bus number 3
+hub 3-0:1.0: USB hub found
+hub 3-0:1.0: 2 ports detected
+ACPI: PCI interrupt 0000:00:1d.2[C] -> GSI 5 (level, low) -> IRQ 5
+uhci_hcd 0000:00:1d.2: UHCI Host Controller
+PCI: Setting latency timer of device 0000:00:1d.2 to 64
+uhci_hcd 0000:00:1d.2: irq 5, io base 0x4c00
+uhci_hcd 0000:00:1d.2: new USB bus registered, assigned bus number 4
+hub 4-0:1.0: USB hub found
+hub 4-0:1.0: 2 ports detected
+Linux Kernel Card Services
+  options:  [pci] [cardbus] [pm]
+ACPI: PCI interrupt 0000:02:04.0[A] -> GSI 5 (level, low) -> IRQ 5
+Yenta: CardBus bridge found at 0000:02:04.0 [0e11:0860]
+Yenta: Using CSCINT to route CSC interrupts to PCI
+Yenta: Routing CardBus interrupts to PCI
+Yenta TI: socket 0000:02:04.0, mfunc 0x001c1112, devctl 0x44
+Yenta: ISA IRQ mask 0x0000, PCI irq 5
+Socket status: 30000006
+ieee1394: Initialized config rom entry `ip1394'
+ohci1394: $Rev: 1223 $ Ben Collins <bcollins@debian.org>
+ACPI: PCI interrupt 0000:02:00.0[A] -> GSI 10 (level, low) -> IRQ 10
+ohci1394: fw-host0: OHCI-1394 1.0 (PCI): IRQ=[10]  MMIO=[90200000-902007ff]  Max Packet=[1024]
+ieee1394: Host added: ID:BUS[0-00:1023]  GUID[00023f454a000284]
+ACPI: AC Adapter [C134] (on-line)
+ACPI: Battery Slot [C11F] (battery absent)
+ACPI: Power Button (FF) [PWRF]
+ACPI: Lid Switch [C136]
+ibm_acpi: ec object not found
+ACPI: Video Device [C0D0] (multi-head: yes  rom: no  post: no)
+EXT3 FS on hda5, internal journal
+kjournald starting.  Commit interval 5 seconds
+EXT3 FS on hda1, internal journal
+EXT3-fs: mounted filesystem with ordered data mode.
+Adding 977248k swap on /dev/hda2.  Priority:-1 extents:1
+ip_tables: (C) 2000-2002 Netfilter core team
+ip_conntrack version 2.1 (4094 buckets, 32752 max) - 244 bytes per conntrack
+cs: IO port probe 0xc00-0xcff: clean.
+cs: IO port probe 0x800-0x8ff: clean.
+cs: IO port probe 0x100-0x4ff: excluding 0x140-0x14f 0x200-0x20f 0x378-0x37f
+cs: IO port probe 0xa00-0xaff: clean.
+Bluetooth: Core ver 2.7
+NET: Registered protocol family 31
+Bluetooth: HCI device and connection manager initialized
+Bluetooth: HCI socket layer initialized
+Bluetooth: L2CAP ver 2.7
+Bluetooth: L2CAP socket layer initialized
+Bluetooth: RFCOMM ver 1.5
+Bluetooth: RFCOMM socket layer initialized
+Bluetooth: RFCOMM TTY layer initialized
+Bluetooth: HIDP (Human Interface Emulation) ver 1.1
+NET: Registered protocol family 23
+IrCOMM protocol (Dag Brattli)
+CSLIP: code copyright 1989 Regents of the University of California
+PPP generic driver version 2.4.2
+IrDA: Registered device irda0 (irport io=0x3E8 irq=3)
+drivers/net/irda/irport.c:442: spin_is_locked(drivers/net/irda/irport.c:db025608) already locked by drivers/net/irda/irport.c/912
+drivers/net/irda/irport.c:443: spin_lock(drivers/net/irda/irport.c:db025608) already locked by drivers/net/irda/irport.c/912
+drivers/net/irda/irport.c:919: spin_unlock(drivers/net/irda/irport.c:db025608) not locked
+pnp: the driver 'parport_pc' has been registered
+pnp: match found with the PnP device '00:05' and the driver 'parport_pc'
+parport: PnPBIOS parport detected.
+parport0: PC-style at 0x378 (0x778), irq 7 [PCSPP,TRISTATE]
+lp0: using parport0 (interrupt-driven).
+lp0: console ready
+tun: Universal TUN/TAP device driver, 1.6
+tun: (C) 1999-2004 Max Krasnyansky <maxk@qualcomm.com>
+eth0: link up, 100Mbps, full-duplex, lpa 0x45E1
+ACPI: PCI interrupt 0000:01:00.0[A] -> GSI 10 (level, low) -> IRQ 10
+[drm] Initialized radeon 1.14.0 20050125 on minor 0: 
+eth0: link up, 100Mbps, full-duplex, lpa 0x45E1
+eth0: link up, 100Mbps, full-duplex, lpa 0x45E1
+ipw2200: failed to send SYSTEM_CONFIG command
+ipw2200: ipw_send_system_config failed
 
-vs, given the existence of case 0, why do we need to have case 2?
+--=_hermes.drzeus.cx-29420-1119513036-0001-2
+Content-Type: text/plain; name="dmesg-2.6.12"; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="dmesg-2.6.12"
 
->  
->
->>+/* free this znode */
->>+reiser4_internal void
->>+zfree(znode * node /* znode to free */ )
->>+{
->>+	assert("nikita-465", node != NULL);
->>+	assert("nikita-2120", znode_page(node) == NULL);
->>+	assert("nikita-2301", owners_list_empty(&node->lock.owners));
->>+	assert("nikita-2302", requestors_list_empty(&node->lock.requestors));
->>+	assert("nikita-2663", capture_list_is_clean(ZJNODE(node)) && NODE_LIST(ZJNODE(node)) == NOT_CAPTURED);
->>+	assert("nikita-2773", !JF_ISSET(ZJNODE(node), JNODE_EFLUSH));
->>+	assert("nikita-3220", list_empty(&ZJNODE(node)->jnodes));
->>+	assert("nikita-3293", !znode_is_right_connected(node));
->>+	assert("nikita-3294", !znode_is_left_connected(node));
->>+	assert("nikita-3295", node->left == NULL);
->>+	assert("nikita-3296", node->right == NULL);
->>    
->>
->
->Are all these still required? Seems bit too defensive for the kernel.
->  
->
-Hmm, someday must put you in a room with DARPA guys, and let you get us
-another round of funding by trying to convince them that our code is too
-defensive.;-)
+Linux version 2.6.12 (root@poseidon.drzeus.cx) (gcc version 4.0.0 20050616 (Red Hat 4.0.0-12)) #3 Wed Jun 22 21:10:33 CEST 2005
+BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
+ BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
+ BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
+ BIOS-e820: 0000000000100000 - 000000001ffd0000 (usable)
+ BIOS-e820: 000000001ffd0000 - 000000001fff0c00 (reserved)
+ BIOS-e820: 000000001fff0c00 - 000000001fffc000 (ACPI NVS)
+ BIOS-e820: 000000001fffc000 - 0000000020000000 (reserved)
+511MB LOWMEM available.
+On node 0 totalpages: 131024
+  DMA zone: 4096 pages, LIFO batch:1
+  Normal zone: 126928 pages, LIFO batch:31
+  HighMem zone: 0 pages, LIFO batch:1
+DMI 2.3 present.
+ACPI: RSDP (v000 COMPAQ                                ) @ 0x000f6560
+ACPI: RSDT (v001 HP     CPQ0860  0x13090420 CPQ  0x00000001) @ 0x1fff0c84
+ACPI: FADT (v002 HP     CPQ0860  0x00000002 CPQ  0x00000001) @ 0x1fff0c00
+ACPI: SSDT (v001 COMPAQ  CPQGysr 0x00001001 MSFT 0x0100000e) @ 0x1fff5c3c
+ACPI: DSDT (v001 HP       nx7000 0x00010000 MSFT 0x0100000e) @ 0x00000000
+ACPI: PM-Timer IO Port: 0x1008
+Allocating PCI resources starting at 20000000 (gap: 20000000:e0000000)
+Built 1 zonelists
+Kernel command line: ro root=/dev/hda5 rhgb quiet
+Local APIC disabled by BIOS -- you can enable it with "lapic"
+mapped APIC to ffffd000 (01404000)
+Initializing CPU#0
+CPU 0 irqstacks, hard=c0542000 soft=c0541000
+PID hash table entries: 2048 (order: 11, 32768 bytes)
+Detected 1594.880 MHz processor.
+Using pmtmr for high-res timesource
+Console: colour VGA+ 80x25
+Dentry cache hash table entries: 131072 (order: 7, 524288 bytes)
+Inode-cache hash table entries: 65536 (order: 6, 262144 bytes)
+Memory: 512892k/524096k available (3386k kernel code, 10600k reserved, 725k data, 216k init, 0k highmem)
+Checking if this processor honours the WP bit even in supervisor mode... Ok.
+Calibrating delay loop... 3162.11 BogoMIPS (lpj=1581056)
+Security Framework v1.0.0 initialized
+Capability LSM initialized
+Mount-cache hash table entries: 512
+CPU: After generic identify, caps: a7e9f9bf 00000000 00000000 00000000 00000180 00000000 00000000
+CPU: After vendor identify, caps: a7e9f9bf 00000000 00000000 00000000 00000180 00000000 00000000
+CPU: L1 I cache: 32K, L1 D cache: 32K
+CPU: L2 cache: 1024K
+CPU: After all inits, caps: a7e9f9bf 00000000 00000000 00000040 00000180 00000000 00000000
+Intel machine check architecture supported.
+Intel machine check reporting enabled on CPU#0.
+CPU: Intel(R) Pentium(R) M processor 1600MHz stepping 05
+Enabling fast FPU save and restore... done.
+Enabling unmasked SIMD FPU exception support... done.
+Checking 'hlt' instruction... OK.
+ACPI: setting ELCR to 0200 (from 0c20)
+checking if image is initramfs... it is
+Freeing initrd memory: 1090k freed
+NET: Registered protocol family 16
+PCI: PCI BIOS revision 2.10 entry at 0xf031f, last bus=3
+PCI: Using configuration type 1
+mtrr: v2.0 (20020519)
+ACPI: Subsystem revision 20050309
+ACPI: Interpreter enabled
+ACPI: Using PIC for interrupt routing
+ACPI: PCI Root Bridge [C046] (0000:00)
+PCI: Probing PCI hardware (bus 00)
+PCI: Ignoring BAR0-3 of IDE controller 0000:00:1f.1
+Boot video device is 0000:01:00.0
+PCI: Transparent bridge - 0000:00:1e.0
+ACPI: PCI Interrupt Routing Table [\_SB_.C046._PRT]
+ACPI: PCI Interrupt Routing Table [\_SB_.C046.C047._PRT]
+ACPI: PCI Interrupt Routing Table [\_SB_.C046.C058._PRT]
+ACPI: Embedded Controller [C0EA] (gpe 28)
+ACPI: Power Resource [C18D] (on)
+ACPI: Power Resource [C195] (on)
+ACPI: Power Resource [C19C] (on)
+ACPI: Power Resource [C1A6] (on)
+ACPI: PCI Interrupt Link [C0C2] (IRQs 5 *10)
+ACPI: PCI Interrupt Link [C0C3] (IRQs 5 *10)
+ACPI: PCI Interrupt Link [C0C4] (IRQs *5 10)
+ACPI: PCI Interrupt Link [C0C5] (IRQs *5 10)
+ACPI: PCI Interrupt Link [C0C6] (IRQs 5 10) *0, disabled.
+ACPI: PCI Interrupt Link [C0C7] (IRQs 5 10) *11
+ACPI: PCI Interrupt Link [C0C8] (IRQs 5 10) *0, disabled.
+ACPI: PCI Interrupt Link [C0C9] (IRQs *5 10)
+Linux Plug and Play Support v0.97 (c) Adam Belay
+pnp: PnP ACPI init
+pnp: PnP ACPI: found 15 devices
+PnPBIOS: Disabled by ACPI PNP
+usbcore: registered new driver usbfs
+usbcore: registered new driver hub
+PCI: Using ACPI for IRQ routing
+PCI: If a device doesn't work, try "pci=routeirq".  If it helps, post a report
+pnp: the driver 'system' has been registered
+pnp: match found with the PnP device '00:00' and the driver 'system'
+pnp: match found with the PnP device '00:0c' and the driver 'system'
+pnp: match found with the PnP device '00:0d' and the driver 'system'
+pnp: 00:0d: ioport range 0x4d0-0x4d1 has been reserved
+pnp: 00:0d: ioport range 0x1000-0x107f could not be reserved
+pnp: 00:0d: ioport range 0x1100-0x113f has been reserved
+pnp: 00:0d: ioport range 0x1200-0x121f has been reserved
+pnp: match found with the PnP device '00:0e' and the driver 'system'
+audit: initializing netlink socket (disabled)
+audit(1119514452.486:0): initialized
+Total HugeTLB memory allocated, 0
+VFS: Disk quotas dquot_6.5.1
+Dquot-cache hash table entries: 1024 (order 0, 4096 bytes)
+SGI XFS with ACLs, security attributes, no debug enabled
+SGI XFS Quota Management subsystem
+Initializing Cryptographic API
+isapnp: Scanning for PnP cards...
+isapnp: No Plug & Play device found
+Real Time Clock Driver v1.12
+Linux agpgart interface v0.101 (c) Dave Jones
+agpgart: Detected an Intel 855PM Chipset.
+agpgart: AGP aperture is 256M @ 0xb0000000
+[drm] Initialized drm 1.0.0 20040925
+pnp: the driver 'i8042 kbd' has been registered
+pnp: match found with the PnP device '00:0a' and the driver 'i8042 kbd'
+pnp: the driver 'i8042 aux' has been registered
+pnp: match found with the PnP device '00:0b' and the driver 'i8042 aux'
+PNP: PS/2 Controller [PNP0303:C1A3,PNP0f13:C1A4] at 0x60,0x64 irq 1,12
+i8042.c: Detected active multiplexing controller, rev 1.1.
+serio: i8042 AUX0 port at 0x60,0x64 irq 12
+serio: i8042 AUX1 port at 0x60,0x64 irq 12
+serio: i8042 AUX2 port at 0x60,0x64 irq 12
+serio: i8042 AUX3 port at 0x60,0x64 irq 12
+serio: i8042 KBD port at 0x60,0x64 irq 1
+Serial: 8250/16550 driver $Revision: 1.90 $ 8 ports, IRQ sharing enabled
+ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+ttyS2 at I/O 0x3e8 (irq = 3) is a 16550A
+pnp: the driver 'serial' has been registered
+pnp: match found with the PnP device '00:03' and the driver 'serial'
+ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+ACPI: PCI Interrupt Link [C0C3] enabled at IRQ 10
+PCI: setting IRQ 10 as level-triggered
+ACPI: PCI Interrupt 0000:00:1f.6[B] -> Link [C0C3] -> GSI 10 (level, low) -> IRQ 10
+io scheduler noop registered
+io scheduler anticipatory registered
+io scheduler deadline registered
+io scheduler cfq registered
+RAMDISK driver initialized: 16 RAM disks of 16384K size 1024 blocksize
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+ICH4: IDE controller at PCI slot 0000:00:1f.1
+PCI: Enabling device 0000:00:1f.1 (0005 -> 0007)
+ACPI: PCI Interrupt Link [C0C4] enabled at IRQ 5
+PCI: setting IRQ 5 as level-triggered
+ACPI: PCI Interrupt 0000:00:1f.1[A] -> Link [C0C4] -> GSI 5 (level, low) -> IRQ 5
+ICH4: chipset revision 1
+ICH4: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0x4c40-0x4c47, BIOS settings: hda:DMA, hdb:pio
+    ide1: BM-DMA at 0x4c48-0x4c4f, BIOS settings: hdc:DMA, hdd:pio
+Probing IDE interface ide0...
+hda: TOSHIBA MK4025GAS, ATA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+Probing IDE interface ide1...
+hdc: HL-DT-STCD-RW/DVD DRIVE GCC-4241N, ATAPI CD/DVD-ROM drive
+ide1 at 0x170-0x177,0x376 on irq 15
+pnp: the driver 'ide' has been registered
+ide2: I/O resource 0x3EE-0x3EE not free.
+ide2: ports already in use, skipping probe
+Probing IDE interface ide3...
+Probing IDE interface ide4...
+Probing IDE interface ide5...
+hda: max request size: 128KiB
+hda: 78140160 sectors (40007 MB), CHS=65535/16/63, UDMA(100)
+hda: cache flushes supported
+ hda: hda1 hda2 hda3 hda4 < hda5 hda6 >
+hdc: ATAPI 24X DVD-ROM CD-R/RW drive, 2048kB Cache, DMA
+Uniform CD-ROM driver Revision: 3.20
+ide-floppy driver 0.99.newide
+usbmon: debugs is not available
+usbcore: registered new driver hiddev
+usbcore: registered new driver usbhid
+drivers/usb/input/hid-core.c: v2.01:USB HID core driver
+mice: PS/2 mouse device common for all mice
+NET: Registered protocol family 2
+IP: routing cache hash table of 1024 buckets, 32Kbytes
+TCP established hash table entries: 32768 (order: 6, 262144 bytes)
+TCP bind hash table entries: 32768 (order: 7, 917504 bytes)
+TCP: Hash tables configured (established 32768 bind 32768)
+Initializing IPsec netlink socket
+NET: Registered protocol family 1
+NET: Registered protocol family 17
+Software Suspend Core.
+Software Suspend Compression Driver loading.
+Software Suspend Encryption Driver loading.
+Software Suspend text mode support loading.
+Software Suspend userspace UI support loading.
+Software Suspend Swap Writer loading.
+ACPI wakeup devices: 
+C058 C1AD C1A3 C1A4 C0AC C0B3 C0B4 C0B5 C0E7 C136 
+ACPI: (supports S0 S3 S4 S4bios S5)
+Freeing unused kernel memory: 216k freed
+Software Suspend 2.1.9.5: Swapwriter: Signature found.
+Software Suspend 2.1.9.5: Suspending enabled.
+input: AT Translated Set 2 keyboard on isa0060/serio0
+EXT3-fs: mounted filesystem with ordered data mode.
+kjournald starting.  Commit interval 5 seconds
+Synaptics Touchpad, model: 1, fw: 5.9, id: 0x236eb3, caps: 0x904713/0x10008
+input: SynPS/2 Synaptics TouchPad on isa0060/serio4
+8139cp: 10/100 PCI Ethernet driver v1.2 (Mar 22, 2004)
+ACPI: PCI Interrupt 0000:02:01.0[A] -> Link [C0C3] -> GSI 10 (level, low) -> IRQ 10
+eth0: RTL-8139C+ at 0xe0828000, 00:02:3f:22:db:8c, IRQ 10
+ACPI: PCI Interrupt 0000:00:1f.5[B] -> Link [C0C3] -> GSI 10 (level, low) -> IRQ 10
+PCI: Setting latency timer of device 0000:00:1f.5 to 64
+intel8x0_measure_ac97_clock: measured 49076 usecs
+intel8x0: clocking to 48000
+ACPI: PCI Interrupt 0000:00:1f.6[B] -> Link [C0C3] -> GSI 10 (level, low) -> IRQ 10
+PCI: Setting latency timer of device 0000:00:1f.6 to 64
+hw_random: RNG not detected
+ACPI: PCI Interrupt Link [C0C9] enabled at IRQ 5
+ACPI: PCI Interrupt 0000:00:1d.7[D] -> Link [C0C9] -> GSI 5 (level, low) -> IRQ 5
+PCI: Setting latency timer of device 0000:00:1d.7 to 64
+ehci_hcd 0000:00:1d.7: EHCI Host Controller
+ehci_hcd 0000:00:1d.7: debug port 1
+ehci_hcd 0000:00:1d.7: new USB bus registered, assigned bus number 1
+ehci_hcd 0000:00:1d.7: irq 5, io mem 0xa0000000
+PCI: cache line size of 32 is not supported by device 0000:00:1d.7
+ehci_hcd 0000:00:1d.7: USB 2.0 initialized, EHCI 1.00, driver 10 Dec 2004
+hub 1-0:1.0: USB hub found
+hub 1-0:1.0: 6 ports detected
+USB Universal Host Controller Interface driver v2.2
+ACPI: PCI Interrupt Link [C0C2] enabled at IRQ 10
+ACPI: PCI Interrupt 0000:00:1d.0[A] -> Link [C0C2] -> GSI 10 (level, low) -> IRQ 10
+PCI: Setting latency timer of device 0000:00:1d.0 to 64
+uhci_hcd 0000:00:1d.0: UHCI Host Controller
+uhci_hcd 0000:00:1d.0: new USB bus registered, assigned bus number 2
+uhci_hcd 0000:00:1d.0: irq 10, io base 0x000048c0
+hub 2-0:1.0: USB hub found
+hub 2-0:1.0: 2 ports detected
+ACPI: PCI Interrupt Link [C0C5] enabled at IRQ 5
+ACPI: PCI Interrupt 0000:00:1d.1[B] -> Link [C0C5] -> GSI 5 (level, low) -> IRQ 5
+PCI: Setting latency timer of device 0000:00:1d.1 to 64
+uhci_hcd 0000:00:1d.1: UHCI Host Controller
+uhci_hcd 0000:00:1d.1: new USB bus registered, assigned bus number 3
+uhci_hcd 0000:00:1d.1: irq 5, io base 0x000048e0
+hub 3-0:1.0: USB hub found
+hub 3-0:1.0: 2 ports detected
+ACPI: PCI Interrupt 0000:00:1d.2[C] -> Link [C0C4] -> GSI 5 (level, low) -> IRQ 5
+PCI: Setting latency timer of device 0000:00:1d.2 to 64
+uhci_hcd 0000:00:1d.2: UHCI Host Controller
+uhci_hcd 0000:00:1d.2: new USB bus registered, assigned bus number 4
+uhci_hcd 0000:00:1d.2: irq 5, io base 0x00004c00
+hub 4-0:1.0: USB hub found
+hub 4-0:1.0: 2 ports detected
+Linux Kernel Card Services
+  options:  [pci] [cardbus] [pm]
+ACPI: PCI Interrupt 0000:02:04.0[A] -> Link [C0C4] -> GSI 5 (level, low) -> IRQ 5
+Yenta: CardBus bridge found at 0000:02:04.0 [0e11:0860]
+Yenta: Using CSCINT to route CSC interrupts to PCI
+Yenta: Routing CardBus interrupts to PCI
+Yenta TI: socket 0000:02:04.0, mfunc 0x001c1112, devctl 0x44
+Yenta: ISA IRQ mask 0x0000, PCI irq 5
+Socket status: 30000006
+ieee1394: Initialized config rom entry `ip1394'
+ohci1394: $Rev: 1250 $ Ben Collins <bcollins@debian.org>
+ACPI: PCI Interrupt 0000:02:00.0[A] -> Link [C0C2] -> GSI 10 (level, low) -> IRQ 10
+ohci1394: fw-host0: OHCI-1394 1.0 (PCI): IRQ=[10]  MMIO=[90200000-902007ff]  Max Packet=[1024]
+ACPI: AC Adapter [C134] (on-line)
+ACPI: Battery Slot [C11F] (battery absent)
+ACPI: Power Button (FF) [PWRF]
+ACPI: Lid Switch [C136]
+ACPI: CPU0 (power states: C1[C1] C2[C2] C3[C3])
+ACPI: Processor [CPU0] (supports 8 throttling states)
+ACPI: Video Device [C0D0] (multi-head: yes  rom: no  post: no)
+EXT3 FS on hda5, internal journal
+kjournald starting.  Commit interval 5 seconds
+EXT3 FS on hda1, internal journal
+EXT3-fs: mounted filesystem with ordered data mode.
+Adding 977248k swap on /dev/hda2.  Priority:-1 extents:1
+ip_tables: (C) 2000-2002 Netfilter core team
+ip_conntrack version 2.1 (4094 buckets, 32752 max) - 240 bytes per conntrack
+cs: IO port probe 0xc00-0xcff: clean.
+cs: IO port probe 0x800-0x8ff: clean.
+cs: IO port probe 0x100-0x4ff: excluding 0x140-0x14f 0x200-0x20f 0x378-0x37f
+cs: IO port probe 0xa00-0xaff: clean.
+Bluetooth: Core ver 2.7
+NET: Registered protocol family 31
+Bluetooth: HCI device and connection manager initialized
+Bluetooth: HCI socket layer initialized
+Bluetooth: L2CAP ver 2.7
+Bluetooth: L2CAP socket layer initialized
+Bluetooth: RFCOMM ver 1.5
+Bluetooth: RFCOMM socket layer initialized
+Bluetooth: RFCOMM TTY layer initialized
+Bluetooth: HIDP (Human Interface Emulation) ver 1.1
+NET: Registered protocol family 23
+IrCOMM protocol (Dag Brattli)
+CSLIP: code copyright 1989 Regents of the University of California
+PPP generic driver version 2.4.2
+IrDA: Registered device irda0 (irport io=0x3E8 irq=3)
+drivers/net/irda/irport.c:406: spin_is_locked(drivers/net/irda/irport.c:db38c548) already locked by drivers/net/irda/irport.c/878
+drivers/net/irda/irport.c:407: spin_lock(drivers/net/irda/irport.c:db38c548) already locked by drivers/net/irda/irport.c/878
+drivers/net/irda/irport.c:885: spin_unlock(drivers/net/irda/irport.c:db38c548) not locked
+pnp: the driver 'parport_pc' has been registered
+pnp: match found with the PnP device '00:05' and the driver 'parport_pc'
+parport: PnPBIOS parport detected.
+parport0: PC-style at 0x378 (0x778), irq 7 [PCSPP,TRISTATE]
+lp0: using parport0 (interrupt-driven).
+lp0: console ready
+tun: Universal TUN/TAP device driver, 1.6
+tun: (C) 1999-2004 Max Krasnyansky <maxk@qualcomm.com>
+eth0: link up, 100Mbps, full-duplex, lpa 0x45E1
+ACPI: PCI Interrupt 0000:01:00.0[A] -> Link [C0C2] -> GSI 10 (level, low) -> IRQ 10
+[drm] Initialized radeon 1.16.0 20050311 on minor 0: 
+eth0: link up, 100Mbps, full-duplex, lpa 0x45E1
 
-This is not too defensive.  Nikita did well here.  The culture of code
-auditors is very different from most programmers.  Like most
-specialists, they have wisdom to offer those who listen to them.  In
-essence, they teach that every function should have a specification of
-every possible restriction on allowed input that can be imagined and is
-correct as a restriction.  Code auditors love assertions like this.  I
-look at my understanding of this before DARPA, and I wince.  DARPA
-patiently taught me much in this area as I listened to security talks at
-our meetings, and I thank them for it. 
-
-Large scale projects like reiser4 are crippled by debugging costs. 
-Anything that reduces debugging time is worth so much.....
-
->  
->
->>+
->>+
->>+	/* not yet phash_jnode_destroy(ZJNODE(node)); */
->>+
->>+	/* poison memory. */
->>+	ON_DEBUG(memset(node, 0xde, sizeof *node));
->>    
->>
->
->Poisoning belongs to slab, not fs.
->  
->
-vs, please comment.
-
->  
->
->>+/* allocate fresh znode */
->>+reiser4_internal znode *
->>+zalloc(int gfp_flag /* allocation flag */ )
->>+{
->>+	znode *node;
->>+
->>+	node = kmem_cache_alloc(znode_slab, gfp_flag);
->>+	return node;
->>+}
->>    
->>
->
->Please drop this useless wrapper.
->  
->
-Thanks.  vs, I think he is right here.... I see zalloc used in only two
-places.....  Or is the desire to ease future porting work?
-
->  
->
->>+reiser4_internal void
->>+znode_remove(znode * node /* znode to remove */ , reiser4_tree * tree)
->>+{
->>+	assert("nikita-2108", node != NULL);
->>+	assert("nikita-470", node->c_count == 0);
->>+	assert("zam-879", rw_tree_is_write_locked(tree));
->>+
->>+	/* remove reference to this znode from cbk cache */
->>+	cbk_cache_invalidate(node, tree);
->>+
->>+	/* update c_count of parent */
->>+	if (znode_parent(node) != NULL) {
->>+		assert("nikita-472", znode_parent(node)->c_count > 0);
->>+		/* father, onto your hands I forward my spirit... */
->>+		znode_parent(node)->c_count --;
->>+		node->in_parent.node = NULL;
->>+	} else {
->>+		/* orphaned znode?! Root? */
->>    
->>
->
->Drop the useless else branch.
->  
->
->>--- /dev/null	2003-09-23 21:59:22.000000000 +0400
->>+++ linux-2.6.11-vs/fs/reiser4/debug.c	2005-06-03 17:49:38.293184063 +0400
->>@@ -0,0 +1,447 @@
->>+/* Copyright 2001, 2002, 2003 by Hans Reiser, licensing governed by
->>+ * reiser4/README */
->>+
->>+/* Debugging facilities. */
->>+
->>+/*
->>+ * This file contains generic debugging functions used by reiser4. Roughly
->>+ * following:
->>+ *
->>+ *     panicking: reiser4_do_panic(), reiser4_print_prefix().
->>+ *
->>+ *     locking: schedulable(), lock_counters(), print_lock_counters(),
->>+ *     no_counters_are_held(), commit_check_locks()
->>+ *
->>+ *     {debug,trace,log}_flags: reiser4_are_all_debugged(),
->>+ *     reiser4_is_debugged(), get_current_trace_flags(),
->>+ *     get_current_log_flags().
->>+ *
->>+ *     kmalloc/kfree leak detection: reiser4_kmalloc(), reiser4_kfree(),
->>+ *     reiser4_kfree_in_sb().
->>    
->>
->
->Please don't do this! We've had enough trouble trying to get the
->current subsystem specific allocators out, so do not introduce a new one. If
->you need memory leak detection, make it generic and submit that. Reiser4, like
->all other subsystems, should use kmalloc() and friends directly.
->  
->
-I will let vs comment.
-
->  
->
->>--- /dev/null	2003-09-23 21:59:22.000000000 +0400
->>+++ linux-2.6.11-vs/fs/reiser4/debug.h	2005-06-03 17:49:38.297184283 +0400
->>+
->>+/*
->>+ * Error code tracing facility. (Idea is borrowed from XFS code.)
->>    
->>
->
->Could this be turned into a generic facility?
->  
->
-Probably it already is one.  Getting it used as such sounds like a lot
-of political work though.  Maybe the first person outside the reiser4
-project to want to use it should move the code into a different location.
-
->  
->
->>+ *
->>+ * Suppose some strange and/or unexpected code is returned from some function
->>+ * (for example, write(2) returns -EEXIST). It is possible to place a
->>+ * breakpoint in the reiser4_write(), but it is too late here. How to find out
->>    
->>
->--
->  
->
->>+#define RETERR(code) 				\
->>+({						\
->>+	typeof(code) __code;			\
->>+						\
->>+	__code = (code);			\
->>+	return_err(__code, __FILE__, __LINE__);	\
->>+	__code;					\
->>+})
->>    
->>
->
->  
->
->>+#define reiser4_internal
->>    
->>
->
->Please drop the above useless #define.
->
->  
->
->>--- /dev/null	2003-09-23 21:59:22.000000000 +0400
->>+++ linux-2.6.11-vs/fs/reiser4/emergency_flush.c	2005-06-03 17:51:59.000905353 +0400
->>@@ -0,0 +1,913 @@
->>+/* Copyright 2002, 2003 by Hans Reiser, licensing governed by reiser4/README */
->>+
->>+/* This file exists only until VM gets fixed to reserve pages properly, which
->>+ * might or might not be very political. */
->>    
->>
->
->Please fix vm instead of working around it in fs.
->  
->
-actually I want to see emergency flush die very very much.   As for
-fixing vm, easier said than done, politically.
-
->  
->
->>--- /dev/null	2003-09-23 21:59:22.000000000 +0400
->>+++ linux-2.6.11-vs/fs/reiser4/init_super.c	2005-06-03 17:51:27.959201950 +0400
->>+
->>+#define _INIT_PARAM_LIST (struct super_block * s, reiser4_context * ctx, void * data, int silent)
->>+#define _DONE_PARAM_LIST (struct super_block * s)
->>+
->>+#define _INIT_(subsys) static int _init_##subsys _INIT_PARAM_LIST
->>+#define _DONE_(subsys) static void _done_##subsys _DONE_PARAM_LIST
->>    
->>
->
->Please remove this macro obfuscation.
->  
->
-vs, I think he is right, do you?
-
->  
->
->>+
->>+_DONE_EMPTY(exit_context)
->>+
->>+struct reiser4_subsys {
->>+	int  (*init) _INIT_PARAM_LIST;
->>+	void (*done) _DONE_PARAM_LIST;
->>+};
->>+
->>+#define _SUBSYS(subsys) {.init = &_init_##subsys, .done = &_done_##subsys}
->>+static struct reiser4_subsys subsys_array[] = {
->>+	_SUBSYS(mount_flags_check),
->>+	_SUBSYS(sinfo),
->>+	_SUBSYS(context),
->>+	_SUBSYS(parse_options),
->>+	_SUBSYS(object_ops),
->>+	_SUBSYS(read_super),
->>+	_SUBSYS(tree0),
->>+	_SUBSYS(txnmgr),
->>+	_SUBSYS(ktxnmgrd_context),
->>+	_SUBSYS(ktxnmgrd),
->>+	_SUBSYS(entd),
->>+	_SUBSYS(formatted_fake),
->>+	_SUBSYS(disk_format),
->>+	_SUBSYS(sb_counters),
->>+	_SUBSYS(d_cursor),
->>+	_SUBSYS(fs_root),
->>+	_SUBSYS(safelink),
->>+	_SUBSYS(exit_context)
->>+};
->>    
->>
->
->The above is overkill and silly. parse_options and read_super, for
->example, are _not_ a subsystem inits but regular fs ops. Please consider
->dropping this altogether but at least trim it down to something sane.
->  
->
-vs please comment.
-
->  
->
->>--- /dev/null	2003-09-23 21:59:22.000000000 +0400
->>+++ linux-2.6.11-vs/fs/reiser4/page_cache.c	2005-06-03 17:51:59.003905518 +0400
->>+/* one-time initialization of fake inodes handling functions. */
->>+reiser4_internal int
->>+init_fakes()
->>+{
->>+	return 0;
->>+}
->>    
->>
->
->Please drop this empty function.
->
->
->  
->
-sure.
+--=_hermes.drzeus.cx-29420-1119513036-0001-2--

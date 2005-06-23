@@ -1,49 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263030AbVFWSnv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263053AbVFWSsP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263030AbVFWSnv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 14:43:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263035AbVFWSje
+	id S263053AbVFWSsP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 14:48:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262678AbVFWSoW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 14:39:34 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:22441 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S263031AbVFWSgv (ORCPT
+	Thu, 23 Jun 2005 14:44:22 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:30154 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S263036AbVFWSlW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 14:36:51 -0400
-Date: Thu, 23 Jun 2005 11:32:54 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, pavel@suse.cz, ak@muc.de,
-       hch@lst.de, Dave Airlie <airlied@linux.ie>
-Subject: Re: [PATCH] Add removal schedule of
- register_serial/unregister_serial to appropriate file
-Message-Id: <20050623113254.2675ffc6.akpm@osdl.org>
-In-Reply-To: <20050623140316.GH3749@stusta.de>
-References: <20050623142335.A5564@flint.arm.linux.org.uk>
-	<20050623140316.GH3749@stusta.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 23 Jun 2005 14:41:22 -0400
+Date: Thu, 23 Jun 2005 20:42:35 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: SMP+irq handling broken in current git?
+Message-ID: <20050623184234.GE9768@suse.de>
+References: <20050623135318.GC9768@suse.de> <42BAEA67.7090606@pobox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42BAEA67.7090606@pobox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk <bunk@stusta.de> wrote:
->
-> On Thu, Jun 23, 2005 at 02:23:35PM +0100, Russell King wrote:
-> >...
-> > However, wouldn't it be a good idea if this file was ordered by "when" ?
-> > A quick scan of the file reveals a couple of overdue/forgotten items
-> > (maybe they happened but the entry in the file got missed?):
-> >...
-> > What:   register_ioctl32_conversion() / unregister_ioctl32_conversion()
-> > When:   April 2005
-> >...
+On Thu, Jun 23 2005, Jeff Garzik wrote:
+> Jens Axboe wrote:
+> >Hi,
+> >
+> >Something strange is going on with current git as of this morning (head
+> >ee98689be1b054897ff17655008c3048fe88be94). On an old test box (dual p3
+> >800MHz), using the same old config I always do on this box has very
+> >broken interrupt handling:
 > 
-> The removal (including the removal of the feature-removal-schedule.txt 
-> entry) is already in -mm.
+> Does 2.6.12 work for you?
+> 2.6.11?
 
-Actually it has been temporarily removed because it has a dependency on
-update-drm-ioctl-compatibility-to-new-world-order.patch which has a
-dependency on David's DRM tree and I don't know how to get David's DRM tree
-any more.  Hint.
+2.6.11 works, 2.6.12 does not.
+
+
+> I noticed a few "2.6.12 is broken, 2.6.11 works" bug reports with 
+> vaguely similar circumstances -- irq handling being a culprit.
+
+One boot kept looping with screaming floppy interrupts, so something has
+gone really bad there.
+
+-- 
+Jens Axboe
 

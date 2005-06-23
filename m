@@ -1,48 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262922AbVFWSdX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263018AbVFWSjN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262922AbVFWSdX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 14:33:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263005AbVFWSdW
+	id S263018AbVFWSjN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 14:39:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263011AbVFWSdk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 14:33:22 -0400
-Received: from web30710.mail.mud.yahoo.com ([68.142.200.143]:47232 "HELO
-	web30710.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S262922AbVFWSaz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 14:30:55 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=2nGvXHPXAYcUVlG8JedWpNSIXGAabL39cHV4hJoTWiu7/Y4njD782QwZFgB1OdAhGwLdvFyercVFABOefVWdeMgtK9kCg2ku1Z8xWDzfB6jEfrN3CZ9Lop8ynG6JAs1k1D+3M6rtEBTNcMUQs7ReP/WVxT86jPH7p2iwqqMVzHU=  ;
-Message-ID: <20050623183051.98655.qmail@web30710.mail.mud.yahoo.com>
-Date: Thu, 23 Jun 2005 11:30:51 -0700 (PDT)
-From: <spaminos-ker@yahoo.com>
-Reply-To: spaminos-ker@yahoo.com
-Subject: Re: cfq misbehaving on 2.6.11-1.14_FC3
-To: Jens Axboe <axboe@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050622204308.GC26925@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 23 Jun 2005 14:33:40 -0400
+Received: from mta10.adelphia.net ([68.168.78.202]:11495 "EHLO
+	mta10.adelphia.net") by vger.kernel.org with ESMTP id S262930AbVFWSbD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 14:31:03 -0400
+Message-ID: <5353647.1119551462209.JavaMail.root@web1.mail.adelphia.net>
+Date: Thu, 23 Jun 2005 14:31:02 -0400
+From: <cspalletta@adelphia.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: namespace question
+Cc: mikew@google.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+Sensitivity: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Jens Axboe <axboe@suse.de> wrote:
-> Journalled file systems will behave worse for this, because it has to
-> tend to the journal as well. Can you try mounting that partition as ext2
-> and see what numbers that gives you?
+ 
+---- Mike Waychison <mikew@google.com> wrote: 
+> cspalletta@adelphia.net wrote:
+> > I don't believe the following to be an error, but I am curious how it occurs:
+> > 
+> > Running a kernel module using dpath iteratively on the mnt_mountpoint member ... I get a curious doubling of the mount point names:
 
-I did the tests again on a partition that I could mkfs/mount at will.
+>> proc /proc/proc proc
+>> sysfs /sys/sys sysfs
+>>  devpts /dev/pts/dev/pts devpts
+>>  tmpfs /dev/shm/dev/shm tmpfs
+>> /dev/hda1 /boot/boot ext2
+>> usbfs /proc/bus/usb/bus/usb usbfs
 
-On ext3, I get about 33 seconds average latency.
+>  Using the same algorithm with mnt_root produces correct results.  
 
-And on ext2, as predicted, I have latencies in average of about 0.4 seconds.
+> >                 dentry = dget(vfsmnt_ptr->mnt_mountpoint);
+> 
+> should be:
+> 
+> dentry = dget(vfsmnt_ptr->mnt_root);
 
-I also tried reiserfs, and it gets about 22 seconds latency.
-
-As you pointed out, it seems that there is a flow in the way IO queues and
-journals (that are in some ways queues as well), interact in the presence of
-flushes.
-
-Nicolas
-
+Yes I pointed that out above - what I want to know is why the doubling of the names for mnt_mntpoint.  It must be used for something, I suppose.

@@ -1,101 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262650AbVFWR4R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262642AbVFWSBr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262650AbVFWR4R (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 13:56:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262655AbVFWR4R
+	id S262642AbVFWSBr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 14:01:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262638AbVFWSBr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 13:56:17 -0400
-Received: from zproxy.gmail.com ([64.233.162.205]:5294 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262650AbVFWRzg convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 13:55:36 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=Q+MWxg8d5pOI7mhGzUxQf9mPTzX/9ReqIr6TtbelQsIqp5UQRzztrnT0kdqaBgji+rYBlAiIZL2ARR2TYqpq0CxzboqDFDrkySnvBkYXHYDRu1t3ItWW55yDdxPoDe1B+3oHQVAyW05aQLyFZKCQCAomV9jh458QbDL6Nuv4rrs=
-Message-ID: <699a19ea050623105516cd5eb8@mail.gmail.com>
-Date: Thu, 23 Jun 2005 23:25:34 +0530
-From: k8 s <uint32@gmail.com>
-Reply-To: k8 s <uint32@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: IPSec Inbound Processing Basic Doubt
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Thu, 23 Jun 2005 14:01:47 -0400
+Received: from atlrel9.hp.com ([156.153.255.214]:45768 "EHLO atlrel9.hp.com")
+	by vger.kernel.org with ESMTP id S262642AbVFWSAw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 14:00:52 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Roberto Oppedisano <roppedisano.oppedisano@gmail.com>
+Subject: Re: 2.6.12 breaks 8139cp
+Date: Thu, 23 Jun 2005 12:00:43 -0600
+User-Agent: KMail/1.8.1
+Cc: Pierre Ossman <drzeus-list@drzeus.cx>, LKML <linux-kernel@vger.kernel.org>,
+       jgarzik@pobox.com
+References: <42B9D21F.7040908@drzeus.cx> <42BAEEB3.6080309@gmail.com>
+In-Reply-To: <42BAEEB3.6080309@gmail.com>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_LjvuCWXxuPn16ol"
+Message-Id: <200506231200.43671.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+--Boundary-00=_LjvuCWXxuPn16ol
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-I have a basic doubt regarding ipsec inbound packet processing.
-I have idea about the stackable destination.If I am not wrong it is like this.
- /* Output packet to network from transport.  */
-static inline int dst_output(struct sk_buff *skb)
-{
-        int err;
+On Thursday 23 June 2005 11:17 am, Roberto Oppedisano wrote:
+> I'm seeing the same problem with 8139cp (everithing seems fine, mii-tool
+> works, but only seldom packets are received from the device). Last good
+> kernel for me was 2.6.11-bk4. I tried pci=routeirq on 2.6.12, but made
+> no difference. Here's lscpi output (on 2.6.11-bk4).
 
-        for (;;) {
-                err = skb->dst->output(skb);
+> 0000:02:00.0 FireWire (IEEE 1394): VIA Technologies, Inc. IEEE 1394 Host Controller (rev 80)
+> 0000:02:01.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 20)
 
-                if (likely(err == 0))
-                        return err;
-                if (unlikely(err != NET_XMIT_BYPASS))
-                        return err;
-        }
-}
+You have a VIA device with dev/function == 0, so 2.6.11 will do the
+VIA IRQ fixup for all devices.  2.6.12 will do it only for VIA
+devices.  Can you try the attached patch for debugging purposes?
 
-here skb->dst->oututput(skb)
-               xfrm4_output(skb) 
-                     {
-                                x->type->output(skb)
-                                skb->dst = dst_pop(skb);
-                      }
-                                            
-And x->type->output(skb) calls ah_output | esp_output and the skb->dst
-value is reset during dst_pop(skb)
+--Boundary-00=_LjvuCWXxuPn16ol
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="via-irq"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="via-irq"
 
-All methods return non zero for the dst_output for loop to continue
-except ip_queue_xmit   (I Think) which returns 0 and the for loop
-exits. Error reporting by any member in the chain is through returning
-XMIT_BYPASS or similar
+Index: work/drivers/pci/quirks.c
+===================================================================
+--- work.orig/drivers/pci/quirks.c	2005-06-21 13:43:29.000000000 -0600
++++ work/drivers/pci/quirks.c	2005-06-23 10:40:55.000000000 -0600
+@@ -510,7 +510,7 @@
+ 		pci_write_config_byte(dev, PCI_INTERRUPT_LINE, new_irq);
+ 	}
+ }
+-DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_ANY_ID, quirk_via_irq);
++DECLARE_PCI_FIXUP_ENABLE(PCI_ANY_ID, PCI_ANY_ID, quirk_via_irq);
+ 
+ /*
+  * PIIX3 USB: We have to disable USB interrupts that are
 
-I hope Its the way
-
-My doubt regarding Inbound processing is
- dst_input()
-{
-    for(;;)
-   {
-        err = skb->dst->input()
-   }
-}
-hope that it calls rxfrm4_rcv (ipv4)  calls
-                                xfrm4_rcv_encap()
-                                   {
-                                        x->type->input()
-                                        dst_release(skb->dst);
-
-                                          //also there is a
-netif_rx(skb) in the same method
-                                    }
- and  x->type->input() calling ah_input | esp_input()
-
-Now is it that 
-a) inbound is similar to outbound stackable destination calls except
-that the calls are in                                              
-reverse direction
-b)Does netif_rx call in xfrm4_rcv_encap mean one of the many xfrms of
-ipsec gets processed first and the packet is fed back to the ipstack
-through netif_rx() and the whole game starts again with ip_rcv
-checking protocol finding 50 0r 51 and calling xfrm4_rcv
-
-So is it a call chain 
-or 
-packet looping between ipsec and ip continuosly using  netif_rx and
-ip_rcv and xfrm4_rcv
-
-
-
-
-S Kartikeyan
+--Boundary-00=_LjvuCWXxuPn16ol--

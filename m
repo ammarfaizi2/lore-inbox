@@ -1,78 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262674AbVFWJnL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262665AbVFWITX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262674AbVFWJnL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 05:43:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262532AbVFWJir
+	id S262665AbVFWITX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 04:19:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262849AbVFWIQQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 05:38:47 -0400
-Received: from gw1.cosmosbay.com ([62.23.185.226]:16568 "EHLO
-	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S262269AbVFWJhc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 05:37:32 -0400
-Message-ID: <42BA82E4.3040801@cosmosbay.com>
-Date: Thu, 23 Jun 2005 11:37:40 +0200
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: fr, en
+	Thu, 23 Jun 2005 04:16:16 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:28338 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S262563AbVFWHEK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 03:04:10 -0400
+Message-ID: <42BA5EDF.3020804@pobox.com>
+Date: Thu, 23 Jun 2005 03:03:59 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Eric Dumazet <dada1@cosmosbay.com>
-CC: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: [PATCH] x86_64 prefetchw() function can take into account CONFIG_MK8
- / CONFIG_MPSC
-References: <20050622.132241.21929037.davem@davemloft.net> <200506222242.j5MMgbxS009935@guinness.s2io.com> <20050622231300.GC14251@wotan.suse.de> <42BA81B2.4070108@cosmosbay.com>
-In-Reply-To: <42BA81B2.4070108@cosmosbay.com>
-Content-Type: multipart/mixed;
- boundary="------------000902070703080901010100"
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Thu, 23 Jun 2005 11:37:27 +0200 (CEST)
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Greg KH <greg@kroah.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Git Mailing List <git@vger.kernel.org>
+Subject: Re: Updated git HOWTO for kernel hackers
+References: <42B9E536.60704@pobox.com> <20050622230905.GA7873@kroah.com> <Pine.LNX.4.58.0506221623210.11175@ppc970.osdl.org> <42B9FCAE.1000607@pobox.com> <Pine.LNX.4.58.0506221724140.11175@ppc970.osdl.org> <42BA14B8.2020609@pobox.com> <Pine.LNX.4.58.0506221853280.11175@ppc970.osdl.org> <42BA1B68.9040505@pobox.com> <Pine.LNX.4.58.0506221929430.11175@ppc970.osdl.org> <42BA271F.6080505@pobox.com> <Pine.LNX.4.58.0506222014000.11175@ppc970.osdl.org> <42BA45B1.7060207@pobox.com> <Pine.LNX.4.58.0506222225010.11175@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0506222225010.11175@ppc970.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000902070703080901010100
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Linus Torvalds wrote:
+> Pulling a regular head _cannot_ and _must_not_ update tags. Tags are not 
+> associated with the tree, and they _cannot_ and _must_not_ be so, exactly 
 
-If we build a x86_64 kernel for an AMD64 or for an Intel EMT64, no need to use alternative_input.
-Reserve alternative_input only for a generic kernel.
-
-Thank you
-
-Eric Dumazet
-
-Signed-off-by: Eric Dumazet <dada1@cosmosbay.com>
+For general git implementation, strongly agreed.
 
 
---------------000902070703080901010100
-Content-Type: text/plain;
- name="patch.2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch.2"
+> And not making them separate breaks a lot of things. As mentioned, it
+> fundamentally breaks the distributed nature, but that also means that it
+> breaks whenever two people use the same name for a tag, for example. You
+> can't "merge" tags. BK had a very strange form of merging, which was (I
+> think) to pick the one last in the BK ChangeSet file, but that didn't make
+> it "right". You just never noticed, because Linux could never use tags at
+> all due to the lack of privacy, except for big releases..
 
-diff -Nru linux-2.6.12/include/asm-x86_64/processor.h linux-2.6.12-orig/include/asm-x86_64/processor.h
---- linux-2.6.12-orig/include/asm-x86_64/processor.h 2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.12/include/asm-x86_64/processor.h       2005-06-23 11:20:08.000000000 +0200
-@@ -389,10 +389,21 @@
- #define ARCH_HAS_PREFETCHW 1
- static inline void prefetchw(void *x)
- {
-+#if defined(CONFIG_MK8)
-+       /* AMD64 / MK8 has 3DNOW, we can emit a true prefetchw, using a "m" in the asm input */
-+       asm volatile("prefetchw %0" :: "m" (*(unsigned long *)x));
-+#elif defined(CONFIG_MPSC)
-+       /* Intel EMT64 does not have 3DNOW, no prefetchw instruction */
-+#else
-+       /* If we build a generic X86_64 kernel,
-+        * we must use alternative_input() and a "r" asm constraint to make sure
-+        * the size of the instruction will be <= 5
-+        */
-        alternative_input(ASM_NOP5,
-                          "prefetchw (%1)",
-                          X86_FEATURE_3DNOW,
-                          "r" (x));
-+#endif
- }
+Agreed.
 
- #define ARCH_HAS_SPINLOCK_PREFETCH 1
 
---------------000902070703080901010100--
+> How is this AT ALL different from just having a separate script that does
+> this? You've introduced nothing but syntactic fluff, and you've made it
+> less flexible at the same time. First off, you might want to get new tags
+> _without_ fetching anything else, and you might indeed want to get the 
+> tags _first_ in order to decide what you want to fetch.
+
+That's a fair point.  A separate script would be better.
+
+
+> because that would make them global instead of private, and it would 
+> fundamentally make them not be distributed, and would mean that they'd be 
+> pointless as anything but "Linus' official tags".
+[...]
+> the fact that tags _should_ be normal every-day things that you just use
+> as "book-marks", and that the kind of big "synchronization point for many
+> people" tag should actually be the _rare_ case.
+
+For my use, I require all "Linus official tags" to be present in all my 
+kernel trees, precisely because it is a big sync point for many people.
+
+User A sends me a patch against 2.6.12-rc2, user B sends me a patch 
+against 2.6.12-rc3, user C sends me a patch against 2.6.12...  I create 
+a branch with
+	cp .git/refs/tags/$kversion .git/refs/heads/foo-net-drvr
+	git checkout -f foo-net-drvr
+apply the patch, then pull linux-2.6.git to merge up to the latest version.
+
+So in my case, the rare case is the 99% common case :)
+
+I suppose this usage is just highly specific to me.
+
+	Jeff
+
+

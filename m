@@ -1,64 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261941AbVFWBIj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261946AbVFWBIw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261941AbVFWBIj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 21:08:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261946AbVFWBIj
+	id S261946AbVFWBIw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 21:08:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261952AbVFWBIw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 21:08:39 -0400
-Received: from smtp.lnxw.com ([207.21.185.24]:4869 "EHLO smtp.lnxw.com")
-	by vger.kernel.org with ESMTP id S261941AbVFWBIe (ORCPT
+	Wed, 22 Jun 2005 21:08:52 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:4245 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261946AbVFWBIs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 21:08:34 -0400
-Date: Wed, 22 Jun 2005 18:15:10 -0700
-To: Karim Yaghmour <karim@opersys.com>
-Cc: "Bill Huey (hui)" <bhuey@lnxw.com>, Ingo Molnar <mingo@elte.hu>,
-       Kristian Benoit <kbenoit@opersys.com>, linux-kernel@vger.kernel.org,
-       paulmck@us.ibm.com, andrea@suse.de, tglx@linutronix.de,
-       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
-       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, rpm@xenomai.org
-Subject: Re: PREEMPT_RT vs I-PIPE: the numbers, part 2
-Message-ID: <20050623011510.GA3448@nietzsche.lynx.com>
-References: <42B98B20.7020304@opersys.com> <20050622192927.GA13817@nietzsche.lynx.com> <20050622200554.GA16119@elte.hu> <42B9CC98.1040402@opersys.com> <20050622220428.GA28906@elte.hu> <42B9F673.4040100@opersys.com> <20050623000607.GB11486@elte.hu> <42BA069D.20208@opersys.com> <20050623005538.GA3348@nietzsche.lynx.com> <42BA0BCA.6020903@opersys.com>
+	Wed, 22 Jun 2005 21:08:48 -0400
+Date: Wed, 22 Jun 2005 18:08:13 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Vara Prasad <prasadav@us.ibm.com>
+Cc: gh@us.ibm.com, jgarzik@pobox.com, linux-kernel@vger.kernel.org
+Subject: Re: -mm -> 2.6.13 merge status (kexec/kdump)
+Message-Id: <20050622180813.01515fa4.akpm@osdl.org>
+In-Reply-To: <42BA092A.7090408@us.ibm.com>
+References: <20050621132204.1b57b6ba.akpm@osdl.org>
+	<E1Dkpn1-0006va-00@w-gerrit.beaverton.ibm.com>
+	<20050621140441.53513a7a.akpm@osdl.org>
+	<42BA092A.7090408@us.ibm.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42BA0BCA.6020903@opersys.com>
-User-Agent: Mutt/1.5.9i
-From: Bill Huey (hui) <bhuey@lnxw.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 22, 2005 at 09:09:30PM -0400, Karim Yaghmour wrote:
-> But I don't want to "fight" Ingo. There would just be no point
-> whatsoever with "fighting" with one the best developers Linux
-> has. I started my involvement in these recent threads with a
-> very clear statement that I was open to being shown wrong in
-> having exclusively championed the nanokernel approach in the
-> past. I set out to show myself wrong with these tests and
-> beside some vague expectations, I truely didn't know what I
-> was going to find. I certainly wouldn't have bet a hot-dog on
-> preempt_rt coming neck-to-neck with the ipipe on interrupt
-> latency ... So yes, in doing so some results I've found aren't
+Vara Prasad <prasadav@us.ibm.com> wrote:
+>
+> I think all the alternatives out there are less reliable than Kdump 
+>  based on the design. Vendors are currently shipping other solutions 
+>  since they didn't have any better alternatives until now. The existing 
+>  solutions in the two major distro's doesn't work lot of times. I don't 
+>  know what percentage of times they work as i only get involved when they 
+>  don't work, but i can certainly tell you they don't work many a times. 
+>  It is very embarrassing to tell the customer sorry we couldn't get dump 
+>  can you try reproducing the problem again.  At least two major distros 
+>  expressed interest in replacing their current solutions with kdump once 
+>  it matures. As you are well aware we are doing testing with as many 
+>  configurations as we can to iron out the bugs. Hope this addresses some 
+>  of your concerns.
 
-Yeah, but so what ? don't freak out and take all of this so seriously.
-It's not like nanokernels are going to disappear when this patch gets
-broader acceptance. And who cares if you're wrong ? you ? :) Really,
-get a grip man. :)
+Yes, thanks.
 
-And, of course, DUH, making a kernel fully preemptive makes it (near)
-real time. These aren't unexpected results.
+And the meta-goodness here is that at least we have a *design* which is
+acceptable from this-is-sane standpoint.  So at least everyone will be
+pulling in the same direction.
 
-> that nice. But, hell, I didn't invent those results. They are
-> there for anyone to repdroduce or contradict. I have no
-> monopoly over LMbench, PC hardware, the Linux kernel, or
-> anything else used to get those numbers.
-
-Thanks for the numbers, really. I do expect some kind of performance
-degradation, but there seems to be triggering some oddities with the
-patch that aren't consistent with some of our expectations.
-
-Be patient. :)
-
-bill
-
+So as I said, it's a bit of a bet at this point in time, but we've gone as
+far as we can get with it out-of-tree, so let's merge it and hope that it
+matures into an acceptably useful dumper.

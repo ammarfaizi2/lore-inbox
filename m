@@ -1,43 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262983AbVFXB0q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262943AbVFXBcC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262983AbVFXB0q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 21:26:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262985AbVFXB0q
+	id S262943AbVFXBcC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 21:32:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262947AbVFXBcB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 21:26:46 -0400
-Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:51286 "HELO
-	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262983AbVFXB0k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 21:26:40 -0400
-Message-ID: <42BB610E.8000705@yahoo.com.au>
-Date: Fri, 24 Jun 2005 11:25:34 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>,
-       Hugh Dickins <hugh@veritas.com>, Badari Pulavarty <pbadari@us.ibm.com>
-Subject: Re: [patch][rfc] 5/5: core remove PageReserved
-References: <42BA5F37.6070405@yahoo.com.au> <42BA5F5C.3080101@yahoo.com.au> <42BA5F7B.30904@yahoo.com.au> <42BA5FA8.7080905@yahoo.com.au> <42BA5FC8.9020501@yahoo.com.au> <42BA5FE8.2060207@yahoo.com.au> <20050623095153.GB3334@holomorphy.com> <42BA8FA5.2070407@yahoo.com.au> <20050623220812.GD3334@holomorphy.com> <42BB43FB.1060609@yahoo.com.au> <20050624005952.GE3334@holomorphy.com>
-In-Reply-To: <20050624005952.GE3334@holomorphy.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 23 Jun 2005 21:32:01 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8929 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S262943AbVFXBbl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 21:31:41 -0400
+Date: Thu, 23 Jun 2005 17:03:01 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Andrei Konovalov <akonovalov@ru.mvista.com>, akpm@osdl.org,
+       trini@kernel.crashing.org, linux-kernel@vger.kernel.org,
+       yshpilevsky@ru.mvista.com, linuxppc-embedded@ozlabs.org
+Subject: Re: [PATCH] ppc32: add Freescale MPC885ADS board support
+Message-ID: <20050623200301.GA26802@logos.cnet>
+References: <42BAD78E.1020801@ru.mvista.com> <20050623140522.GA25724@logos.cnet> <20050623194856.GA4588@gate.ebshome.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050623194856.GA4588@gate.ebshome.net>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
-
->>I wouldn't pretend to be able to fix every bug everywhere in the
->>kernel myself.
+On Thu, Jun 23, 2005 at 12:48:56PM -0700, Eugene Surovegin wrote:
+> On Thu, Jun 23, 2005 at 11:05:22AM -0300, Marcelo Tosatti wrote:
+> > 
+> > Hi Andrei,
+> > 
+> > On Thu, Jun 23, 2005 at 07:38:54PM +0400, Andrei Konovalov wrote:
+> > <snip>
+> > 
+> > > diff --git a/arch/ppc/syslib/m8xx_setup.c b/arch/ppc/syslib/m8xx_setup.c
+> > > --- a/arch/ppc/syslib/m8xx_setup.c
+> > > +++ b/arch/ppc/syslib/m8xx_setup.c
+> > > @@ -369,7 +369,7 @@ m8xx_map_io(void)
+> > >  #if defined(CONFIG_HTDMSOUND) || defined(CONFIG_RPXTOUCH) || defined(CONFIG_FB_RPX)
+> > >  	io_block_mapping(HIOX_CSR_ADDR, HIOX_CSR_ADDR, HIOX_CSR_SIZE, _PAGE_IO);
+> > >  #endif
+> > > -#ifdef CONFIG_FADS
+> > > +#if defined(CONFIG_FADS) || defined(CONFIG_MPC885ADS)
+> > >  	io_block_mapping(BCSR_ADDR, BCSR_ADDR, BCSR_SIZE, _PAGE_IO);
+> > >  #endif
+> > >  #ifdef CONFIG_PCI
+> > 
+> > I suppose you also want to include CONFIG_MPC885ADS in the io_block_mapping(IO_BASE) 
+> > here?
 > 
+> I think it'd be great if we _stop_ adding new io_block_mapping users, 
+> there is ioremap() for stuff like this, let's use it instead.
 
-> If you can't handle the sweep, you have no business writing the patch.
-> 
+(go back after reading previous discussion)
 
-Let me just say that where I have introduced incompatibilities
-I will try to look through drivers and arch code. I can't look
-through and find everything that is already buggy though.
+For that you need ioremap() to handle BATs and CAMs right?
+What would be the difficulties with doing that?
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+For 8xx (which lacks BAT's and CAM's) we could try immediately I suppose.
+
+Seems to be BenH's plan, along with making the virtual addresses
+dynamic and not static. 
+
+While at it, what are the possibilities of making BAT's and/or CAM's
+available to userspace through hugetlbfs or some other mechanism?
+
+

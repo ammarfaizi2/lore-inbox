@@ -1,41 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262656AbVFWSVj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262643AbVFWSWL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262656AbVFWSVj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 14:21:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262661AbVFWSVj
+	id S262643AbVFWSWL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 14:22:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262647AbVFWSWL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 14:21:39 -0400
-Received: from trex.wsi.edu.pl ([195.117.114.133]:32169 "EHLO trex.wsi.edu.pl")
-	by vger.kernel.org with ESMTP id S262656AbVFWSVE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 14:21:04 -0400
-Message-ID: <42BAE190.20405@trex.wsi.edu.pl>
-Date: Thu, 23 Jun 2005 18:21:36 +0200
-From: =?ISO-8859-2?Q?Micha=B3_Piotrowski?= <piotrowskim@trex.wsi.edu.pl>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: pl, en-us, en
+	Thu, 23 Jun 2005 14:22:11 -0400
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:8203 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S262643AbVFWSWD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 14:22:03 -0400
+Date: Thu, 23 Jun 2005 19:22:08 +0100 (BST)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: IDE - sensible probing for PCI systems
+In-Reply-To: <1119379587.3325.182.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.61L.0506231903170.31113@blysk.ds.pg.gda.pl>
+References: <1119356601.3279.118.camel@localhost.localdomain> 
+ <Pine.LNX.4.61L.0506211422190.9446@blysk.ds.pg.gda.pl> 
+ <1119363150.3325.151.camel@localhost.localdomain> 
+ <Pine.LNX.4.61L.0506211535100.17779@blysk.ds.pg.gda.pl>
+ <1119379587.3325.182.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: Jesper Juhl <jesper.juhl@gmail.com>,
-       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-       randy_dunlap <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org
-Subject: Re: Script to help users to report a BUG
-References: <4d8e3fd30506191332264eb4ae@mail.gmail.com>	 <4d8e3fd30506201322242d540a@mail.gmail.com>	 <4d8e3fd305062205371b0a506d@mail.gmail.com>	 <42B951B4.80703@trex.wsi.edu.pl>	 <4d8e3fd30506220656241e1521@mail.gmail.com>	 <42B9544E.7030007@trex.wsi.edu.pl>	 <4d8e3fd305062212343d9849ee@mail.gmail.com>	 <42B9D391.4020602@trex.wsi.edu.pl>	 <4d8e3fd305062300541eca2c10@mail.gmail.com>	 <42BAA5C2.7060906@trex.wsi.edu.pl> <9a8748490506231011128f7a38@mail.gmail.com>
-In-Reply-To: <9a8748490506231011128f7a38@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 21 Jun 2005, Alan Cox wrote:
 
-Here is the latest verion:
-http://stud.wsi.edu.pl/~piotrowskim/files/ort/ort-a8.tar.bz2
+> >  How is the range defined -- is there a way for us to find it?  I'd assume 
+> > in the absence of a PCI-ISA or PCI-EISA bridge all I/O port addresses 
+> > belong to PCI.  Otherwise the usual rule of "(addr & 0x300) == 0" applies.  
+> > Perhaps with the addition of "(addr & ~0xff) != 0" for safety as junk I/O 
+> > is often not recorded properly in BARs, sigh...
+> 
+> No the low addresses belong to the chipset and motherboard. There is
 
-Changelog:
-- Randy's patch
-- Jesper's idea (Great thanks. I haven't test it yet ;))
-- Tainted kernel detection ;)
-- Some code "reorganization"
+ Well, that doesn't mean they can't be properly reported in a BAR.  
 
-Regards,
-Micha³ Piotrowski
+ Besides, does a modern i386 really require them?  DOS compatibility is no 
+longer an issue for commodity hardware and the ISA bridge is gone.  
+Apparently the only legacy device still not replaced by anything else is 
+the RTC, which is rather surprising as there seems to be a lot of 
+reasonable alternatives for I2C available these days and i386 boxes have 
+had I2C for quite a while now.
+
+> also magic then for video and IDE legacy port ranges. I suspect your
+
+ Both IDE and video are distinct PCI devices these days, so there is no 
+need for them to hide their decoded address ranges.  I've thought that has 
+been sorted out.
+
+> mips boxen might be a lot cleaner than the PC world.
+
+ They are certainly cleaner, but if a lot, it depends on whether an (E)ISA 
+bridge is there somewhere or not.  E.g. some PCI-ISA bridges positively 
+decode some memory address ranges unconditionally which results in the 
+corresponding range of RAM being unreachable from PCI.  And if there is no 
+(E)ISA bridge, there may still be traces of legacy, like P2P bridges with 
+an implicit special treatment of certain address ranges that traditionally 
+used to be used for ISA.  Or APIC interrupt codes in messages sent over 
+HT.
+
+  Maciej

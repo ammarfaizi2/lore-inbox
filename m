@@ -1,55 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262314AbVFWGTC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262185AbVFWGOP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262314AbVFWGTC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 02:19:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262312AbVFWGTB
+	id S262185AbVFWGOP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 02:14:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262204AbVFWGMI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 02:19:01 -0400
-Received: from poros.telenet-ops.be ([195.130.132.44]:49313 "EHLO
-	poros.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S262223AbVFWGOz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 02:14:55 -0400
-Subject: Re: [Ebtables-devel] Re: 2.6.12: connection tracking broken?
-From: Bart De Schuymer <bdschuym@pandora.be>
-To: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>,
-       Patrick McHardy <kaber@trash.net>,
-       Bart De Schuymer <bdschuym@telenet.be>, netfilter-devel@manty.net,
-       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
-       ebtables-devel@lists.sourceforge.net, rankincj@yahoo.com
-In-Reply-To: <42B9FC19.2000604@gmx.net>
-References: <E1Dk9nK-0001ww-00@gondolin.me.apana.org.au>
-	 <Pine.LNX.4.62.0506200432100.31737@kaber.coreworks.de>
-	 <1119249575.3387.3.camel@localhost.localdomain>	<42B6B373.20507@trash.net>
-	 <1119293193.3381.9.camel@localhost.localdomain>
-	 <42B74FC5.3070404@trash.net>
-	 <1119338382.3390.24.camel@localhost.localdomain>
-	 <42B82F35.3040909@trash.net> <20050622214920.GA13519@gondor.apana.org.au>
-	 <42B9FC19.2000604@gmx.net>
-Content-Type: text/plain
-Date: Thu, 23 Jun 2005 06:27:49 +0000
-Message-Id: <1119508069.3387.20.camel@localhost.localdomain>
+	Thu, 23 Jun 2005 02:12:08 -0400
+Received: from mail.kroah.org ([69.55.234.183]:134 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262224AbVFWGKg convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 02:10:36 -0400
+Cc: stelian@popies.net
+Subject: [PATCH] USB: fix hid core to return proper error code from probe
+In-Reply-To: <20050623060933.GA11578@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Wed, 22 Jun 2005 23:10:30 -0700
+Message-Id: <11195070302202@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Greg K-H <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Op do, 23-06-2005 te 02:02 +0200, schreef Carl-Daniel Hailfinger:
-> For my local setup it is already a minor PITA that there is no tool
-> combining the functionality of arptables, ebtables and iptables, but
-> I can cope with the help of marking and ipt_physdev. If that doesn't
-> work reliably anymore, I'll be stuck.
-> 
-> Wasn't someone working on a unified framework for *tables? IIRC that
-> would have been pkttables, but Harald(?) said there was not much
-> code there yet.
+[PATCH] USB: fix hid core to return proper error code from probe
 
-On my todo list is making the arptables matches usable in ebtables
-rules. I think it would be very nice if {eb,ip,ip6,arp}tables modules
-could be used together.
+Drivers need to return -ENODEV when they can't bind to a device.
+Anything else stops the "bind a device to a driver" search.
 
-cheers,
-Bart
+From: Stelian Pop <stelian@popies.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
+---
+commit 479f6ea85e513551510ad52f37e69e1c596ad356
+tree 60eadfd85297f42be75be8863cacbc0ea9d82f3b
+parent b7c84c6ada2be942eca6722edb2cfaad412cd5de
+author Stelian Pop <stelian@popies.net> Wed, 22 Jun 2005 17:53:28 +0200
+committer Greg Kroah-Hartman <gregkh@suse.de> Wed, 22 Jun 2005 23:01:09 -0700
+
+ drivers/usb/input/hid-core.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/usb/input/hid-core.c b/drivers/usb/input/hid-core.c
+--- a/drivers/usb/input/hid-core.c
++++ b/drivers/usb/input/hid-core.c
+@@ -1762,7 +1762,7 @@ static int hid_probe(struct usb_interfac
+ 			intf->altsetting->desc.bInterfaceNumber);
+ 
+ 	if (!(hid = usb_hid_configure(intf)))
+-		return -EIO;
++		return -ENODEV;
+ 
+ 	hid_init_reports(hid);
+ 	hid_dump_device(hid);
+@@ -1777,7 +1777,7 @@ static int hid_probe(struct usb_interfac
+ 	if (!hid->claimed) {
+ 		printk ("HID device not claimed by input or hiddev\n");
+ 		hid_disconnect(intf);
+-		return -EIO;
++		return -ENODEV;
+ 	}
+ 
+ 	printk(KERN_INFO);
 

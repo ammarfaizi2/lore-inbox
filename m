@@ -1,121 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262662AbVFWWAW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262818AbVFWWG0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262662AbVFWWAW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 18:00:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262732AbVFWV7w
+	id S262818AbVFWWG0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 18:06:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262766AbVFWWBr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 17:59:52 -0400
-Received: from smtp-104-thursday.noc.nerim.net ([62.4.17.104]:18948 "EHLO
-	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
-	id S262662AbVFWV7N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 17:59:13 -0400
-Date: Thu, 23 Jun 2005 23:59:04 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Dmitry Pervushin <dpervushin@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] SPI core -- revisited
-Message-Id: <20050623235904.494e64f3.khali@linux-fr.org>
-In-Reply-To: <1119529135.4739.6.camel@diimka.dev.rtsoft.ru>
-References: <1119529135.4739.6.camel@diimka.dev.rtsoft.ru>
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 23 Jun 2005 18:01:47 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:59579 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S262663AbVFWV7a (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 17:59:30 -0400
+Date: Thu, 23 Jun 2005 23:59:21 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: john stultz <johnstul@us.ibm.com>
+cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       George Anzinger <george@mvista.com>,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>
+Subject: Re: [PATCH 1/6] new timeofday core subsystem for -mm (v.B3)
+In-Reply-To: <1119486592.9947.354.camel@cog.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.61.0506231157180.3728@scrub.home>
+References: <1119063400.9663.2.camel@cog.beaverton.ibm.com> 
+ <Pine.LNX.4.61.0506181344000.3743@scrub.home>  <1119287354.9947.22.camel@cog.beaverton.ibm.com>
+  <Pine.LNX.4.61.0506202231070.3728@scrub.home>  <1119311734.9947.143.camel@cog.beaverton.ibm.com>
+  <Pine.LNX.4.61.0506211542580.3728@scrub.home>  <1119401841.9947.255.camel@cog.beaverton.ibm.com>
+  <Pine.LNX.4.61.0506221739510.3728@scrub.home> <1119486592.9947.354.camel@cog.beaverton.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Dmitry,
+Hi,
 
-> we finally decided to rework the SPI core and now it its ready for
-> your comments..  Here we have several boards equipped with SPI bus,
-> and use this spi core with these boards;  Drivers for them are
-> available by request (...and if community approve this patch)
+On Wed, 22 Jun 2005, john stultz wrote:
 
-I'm not exactly the best qualified person to comment on your work, but
-I'd have a couple remarks nevertheless:
+> Some other architectures try to handle these situations as well. One
+> good example is PPC64 (which has greatly influenced my design). For
+> correctness PPC64 goes as far as not using interpolation by avoiding
+> almost all of the arch generic time code. It even has its own NTP
+> adjustment code! 
+> 
+> I have come to believe the current arch generic tick based timekeeping
+> is not sustainable. It seems to me in order to avoid bugs that customers
+> are seeing, arches are going to have to avoid the current tick based
+> arch generic code and implement their own non-interpolated based
+> timekeeping code. So that is why I've created this proposal and
+> implementation instead of just "fixing one issue".
 
-> --- linux-2.6.12/drivers/spi/helpers.c	1970-01-01 03:00:00.000000000 +0300
-> +++ linux/drivers/spi/helpers.c	2005-06-23 13:28:23.000000000 +0400
-> @@ -0,0 +1,45 @@
-> +/*
-> + * drivers/spi/helper.c
-> + *
-> + * Helper functions.
-> + *
-> + * Author: dmitry pervushin <dpervushin@ru.mvista.com>
-> + *
-> + * 2004 (c) MontaVista Software, Inc. This file is licensed under
-> + * the terms of the GNU General Public License version 2. This program
-> + * is licensed "as is" without any warranty of any kind, whether express
-> + * or implied.
-> + */
-> +
-> +#include <linux/module.h>
-> +#include <linux/config.h>
-> +#include <linux/kernel.h>
-> +#include <linux/device.h>
-> +
-> +typedef struct {
-> +	int (*callback) (struct device * dev, void *data);
-> +	struct device_driver *drv;
-> +	void *data;
-> +} _find_t;
-> +
-> +static int dfed_callback(struct device *device, void *data)
-> +{
-> +	_find_t *local_data = (_find_t *) data;
-> +
-> +	return (device->driver != local_data->drv) ? 0 : 
-> +	        (*local_data->callback) (device, local_data->data);
-> +}
-> +
-> +int driver_for_each_dev(struct device_driver *drv, void *data,
-> +			int (*callback) (struct device * dev, void *data))
-> +{
-> +	_find_t local_data;
-> +
-> +	local_data.drv = drv;
-> +	local_data.data = data;
-> +	local_data.callback = callback;
-> +	return bus_for_each_dev(drv->bus, NULL, &local_data, dfed_callback);
-> +}
-> +
-> +EXPORT_SYMBOL(driver_for_each_dev);
+I agree with you that the current time code is a problem for machines like 
+ppc64, which basically use two different time sources.
 
-This stuff doesn't seem to be spi-specific at all. It would rather be
-driver core material, right?
+We basically have two timer architectures: timer tick and continuous 
+timer. The latter currently has to emulate the timer tick. Your patch 
+completely reverses the rolls and forces everybody to produce a continuous 
+timer, which I think is equally bad, as some simple computations become a 
+lot more complex. Why should it not be possible to support both equally?
 
-At any rate, I don't think anybody would enjoy a kernel module named
-"helpers", whether spi-specific or not.
+> So the question becomes: in order to achieve correctness, should every
+> architecture implement a full timeofday subsystem of its own? I designed
+> a system that would work, but instead of making it i386 and copying it
+> for x86-64 and whatever else I end up working on, I propose we make it a
+> common implementation.
 
-> +MODULE_AUTHOR("Jamey Hicks <jamey.hicks@compaq.com> Frodo Looijaard
-> <frodol@dds.nl> and Simon G. Vogl <simon@tk.uni-linz.ac.at>");
+That might result in the worst of both worlds. If I look at the ppc64 
+implementation of gettimeofday, it's really nice and your (current) code 
+would make this worse again. So why not leave it to the timer source, if 
+it wants to manage a cycle counter or a xtime+offset? The common code can 
+provide some helper functions to manage either of this. Converting 
+everything to nanoseconds looks like a really bad compromise.
 
-Please leave Frodo and Simon out of this. Crediting them in the headers
-is fine if this work is derived from theirs, but they definitely are not
-the authors of these modules.
+In the ppc64 example the main problem is that the generic tries to adjust 
+for the wrong for the time source - the scheduler tick, which is derived 
+from the cycle counter, so it has to redo all the work. Your code now 
+introduces an abstract concept of nanosecond which adds extra overhead to 
+either timer concept. Why not integrating what ppc64 does into the current 
+timer code instead of replacing the current code with something else?
 
-> --- linux-2.6.12/drivers/spi/spi.h	1970-01-01 03:00:00.000000000 +0300
-> +++ linux/drivers/spi/spi.h	2005-06-23 15:03:48.000000000 +0400
-> (...)
-> --- linux-2.6.12/include/linux/spi/spi.h	1970-01-01 03:00:00.000000000 +0300
-> +++ linux/include/linux/spi/spi.h	2005-06-23 13:55:06.000000000 +0400
+For tick based timer sources there is not much to do than incrementing 
+xtime by precomputed constant. If I take ppc64 as an example for 
+continuous time sources it does a lot less than your 
+timeofday_periodic_hook(). Why is all this needed?
+John, what I'd really like to see here is some math or code examples, 
+which demonstrate how your new code is better compared to the old code. 
+Your code makes a _huge_ transformation jump and I'd like you to explain 
+some of the steps inbetween.
 
-I don't think it's very smart to have two different files with the same
-name in the kernel tree. More likely than not it will create confusion
-at some point in time.
-
-> +#define SELECT   	0x01
-> +#define UNSELECT 	0x02
-> +#define BEFORE_READ 	0x03
-> +#define BEFORE_WRITE	0x04
-> +#define AFTER_READ	0x05
-> +#define AFTER_WRITE	0x06
-
-This doesn't seem to belong there. You don't seem to use these values
-anywhere in the spi core, and if you did these constants would need to
-be prefixed with SPI_.
-
-Thanks,
--- 
-Jean Delvare
+bye, Roman

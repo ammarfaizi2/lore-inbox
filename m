@@ -1,55 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262766AbVFWWup@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262769AbVFWWvd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262766AbVFWWup (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 18:50:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262834AbVFWWup
+	id S262769AbVFWWvd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 18:51:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262834AbVFWWvd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 18:50:45 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:39604 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S262766AbVFWWuj
+	Thu, 23 Jun 2005 18:51:33 -0400
+Received: from mid-2.inet.it ([213.92.5.19]:57579 "EHLO mid-2.inet.it")
+	by vger.kernel.org with ESMTP id S262769AbVFWWv3 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 18:50:39 -0400
-Subject: Re: PATCH: IDE - sensible probing for PCI systems
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Maciej W. Rozycki" <macro@linux-mips.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61L.0506231903170.31113@blysk.ds.pg.gda.pl>
-References: <1119356601.3279.118.camel@localhost.localdomain>
-	 <Pine.LNX.4.61L.0506211422190.9446@blysk.ds.pg.gda.pl>
-	 <1119363150.3325.151.camel@localhost.localdomain>
-	 <Pine.LNX.4.61L.0506211535100.17779@blysk.ds.pg.gda.pl>
-	 <1119379587.3325.182.camel@localhost.localdomain>
-	 <Pine.LNX.4.61L.0506231903170.31113@blysk.ds.pg.gda.pl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1119566026.18655.30.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 23 Jun 2005 23:48:14 +0100
+	Thu, 23 Jun 2005 18:51:29 -0400
+From: Valerio Vanni <valerio.vanni@inwind.it>
+To: linux-kernel@vger.kernel.org
+Subject: Re: kernel: __alloc_pages: 0-order allocation failed
+Date: Fri, 24 Jun 2005 00:51:27 +0200
+Message-ID: <61dmb1t6onlec2rd9tk9femhke6f3s8ehg@4ax.com>
+References: <4ieIc-67r-1@gated-at.bofh.it> <4ihmM-8ny-5@gated-at.bofh.it>
+In-Reply-To: <4ihmM-8ny-5@gated-at.bofh.it>
+X-Mailer: Forte Agent 1.93/32.576 Italiano
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2005-06-23 at 19:22, Maciej W. Rozycki wrote:
->  Besides, does a modern i386 really require them?  DOS compatibility is no 
-> longer an issue for commodity hardware and the ISA bridge is gone.
+On Wed, 22 Jun 2005 19:40:08 +0200, Chris Wedgwood <cw@f00f.org>
+wrote:
+>> as before) or the kernel is in some way locked up (in particular: is
+>> it necessary/better to reboot? Is there some risk of filesystem
+>> corruption?).
+>
+>It's memory allocation failures.  This might not work until memory is
+>free but it shouldn't kill the kernel of be a huge problem if it's
+>just the result of one ore more processes being memory hungry
 
-Untrue on both counts
+I'm blaming myself for not having given a closer look before shutting
+down the machine.
+But, as I said, the shut down happened regularly. Later, to be sure, i
+ran an fsck on all partitions and they were ok.
 
-> Apparently the only legacy device still not replaced by anything else is 
-> the RTC, which is rather surprising as there seems to be a lot of 
-> reasonable alternatives for I2C available these days and i386 boxes have 
-> had I2C for quite a while now.
+>It could also occur if there is a memory leak, in which case there is
+>a bug that needs to be fixed and a reboot would be needed (I would
+>only suspect that if it did it often and processes were not using much
+>memory though).
 
-DMA controller, floppy controller, keyboard, serial, mouse, parallel,
-some video ports, random other objects on the lpc bus, miscellaneous
-motherboard gunge.
+It was the first time: this machine had been running on the same
+kernel for six month with very long uptimes interrupted only by ups
+control daemon (during blackouts).
 
->  Both IDE and video are distinct PCI devices these days, so there is no 
-> need for them to hide their decoded address ranges.  I've thought that has 
-> been sorted out.
+Ah, no: the kernel had been changed about one month ago, but it was
+the same version (2.4.26) and the same .config (except ext3 support
+which I moved from modules to kernel itself).
 
-We still support older machines that are pre PCI even. Most PC systems
-also have ranges of non-PCI decoded space that appears in no PCI bar.
 
-Alan
-
+-- 
+Ci sono 10 tipi di persone al mondo: quelle che capiscono il sistema binario
+e quelle che non lo capiscono.

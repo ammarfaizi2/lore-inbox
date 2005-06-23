@@ -1,130 +1,211 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262513AbVFWIxU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263038AbVFWI3F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262513AbVFWIxU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 04:53:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262345AbVFWIt6
+	id S263038AbVFWI3F (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 04:29:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263266AbVFWIYE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 04:49:58 -0400
-Received: from ercist.iscas.ac.cn ([159.226.5.94]:22532 "EHLO
-	ercist.iscas.ac.cn") by vger.kernel.org with ESMTP id S262684AbVFWIjK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 04:39:10 -0400
-Subject: [PATCH][RESEND] ReiserFS file.c several bug-fix - modified version
-From: fs <fs@ercist.iscas.ac.cn>
-To: Hans Reiser <reiser@namesys.com>
-Cc: zhiming@admin.iscas.ac.cn, qufuping@ercist.iscas.ac.cn,
-       madsys@ercist.iscas.ac.cn, xuh@nttdata.com.cn, koichi@intellilink.co.jp,
-       kuroiwaj@intellilink.co.jp, okuyama@intellilink.co.jp,
-       matsui_v@valinux.co.jp, kikuchi_v@valinux.co.jp,
-       fernando@intellilink.co.jp, kskmori@intellilink.co.jp,
-       takenakak@intellilink.co.jp, yamaguchi@intellilink.co.jp,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Vladimir Saveliev <vs@namesys.com>
-Content-Type: multipart/mixed; boundary="=-Q1L8WruaB3hWtURsZIPn"
-Organization: iscas
-Message-Id: <1119555533.3026.104.camel@CoolQ>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 23 Jun 2005 15:38:53 -0400
-X-ArGoMail-Authenticated: fs@ercist.iscas.ac.cn
+	Thu, 23 Jun 2005 04:24:04 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:33970 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S262613AbVFWHPH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 03:15:07 -0400
+Message-ID: <42BA6177.8060202@pobox.com>
+Date: Thu, 23 Jun 2005 03:15:03 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Git Mailing List <git@vger.kernel.org>
+Subject: Re: Updated git HOWTO for kernel hackers
+References: <42B9E536.60704@pobox.com> <Pine.LNX.4.58.0506221603120.11175@ppc970.osdl.org> <42BA18AF.2070406@pobox.com> <Pine.LNX.4.58.0506221915280.11175@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0506221915280.11175@ppc970.osdl.org>
+Content-Type: multipart/mixed;
+ boundary="------------070008040508040306090201"
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-Q1L8WruaB3hWtURsZIPn
-Content-Type: text/plain
+This is a multi-part message in MIME format.
+--------------070008040508040306090201
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 Content-Transfer-Encoding: 7bit
 
-hi, all, in the previous patch, i accidentally typed several 
-'dd(vim)'
+Linus Torvalds wrote:
+> How about this patch? Then you can say
+> 
+> 	git-apply --stat --summary --apply --index /tmp/my.patch
+> 
+> and it will not only apply the patch, but also give a diffstat and a
+> summary or renames etc..
 
-Sorry
-
-> Related FS:
->     ReiserFS
-> 
-> Related Files:
->     fs/reiserfs/file.c
-> 
-> Bug description:
->     Make a ReiserFS partition in USB storage HDD, create a test file
-> with enough size.
->     Write a program, do: open(O_SYNC/O_DSYNC) - read - close. After
-> each
-> operation, pause for a while, such as 3s. Between open and read, unlug
-> the USB wire. open returns zero-filled buffer, no error returns.
-> 
-> Bug analysis:
->     reiserfs_file_write will claim some blocks, commit the I/O
-> request,
-> if O_SYNC and O_DSYNC is used, it will
->     if ((file->f_flags & O_SYNC) || IS_SYNC(inode))
->         res = generic_osync_inode(inode, file->f_mapping,
->                                   OSYNC_METADATA|OSYNC_DATA);
-> The question is, if I/O error occurs,       
->         res = reiserfs_allocate_blocks_for_region fails with -EIO, so
-> it will exit the loop, no I/O request, no page marked as dirty.
-> If run generic_osync_inode, it returns 0(no dirty page), res will be
-> overwritten from -EIO to 0, thus no error report.
-> 
-> Also,  reiserfs_file_write contains a serious bug, see here
->         blocks_to_allocate = reiserfs_prepare_file_region_for_write
->                 (inode, pos, num_pages, write_bytes, prepared_pages);
-> Here blocks_to_allocate is defined as size_t, i.e. unsigned int, but
-> reiserfs_prepare_file_region_for_write is declared as int, so
-> sometimes
-> it will return -EIO, -ENOENT, etc, take a look at this line
->         if ( blocks_to_allocate < 0 ) { <- This will never happen
->             res = blocks_to_allocate;
->             reiserfs_release_claimed_blocks(inode->i_sb, 
->                 num_pages << (PAGE_CACHE_SHIFT - inode->i_blkbits));
->             break;
->         }
-> 
-> Way around:
-> 1) if already_written is zero, don't do generic_osync_inode
-> 2) tell the result of reiserfs_prepare_file_region_for_write with
-> IS_ERR
->    macro or cast it to size_t
-> 
-> Signed-off-by: Qu Fuping<fs@ercist.iscas.ac.cn>
-> 
-> Patch:
-> diff -uNp linux-2.6.12/fs/reiserfs/file.c
-> linux-2.6.12-new/fs/reiserfs/file.c
-> 
+Quite nice.
 
 
 
---=-Q1L8WruaB3hWtURsZIPn
-Content-Disposition: attachment; filename=reiserfs_write.diff
-Content-Type: text/x-patch; name=reiserfs_write.diff; charset=gb2312
+>>I usually want just two things:
+>>
+>>1) browse the log
+>>
+>>2) list changes in local tree that are not in $remote_tree, a la
+>>	bk changes -L ../linux-2.6
+>>
+>>I agree that seeing the merge csets is useful, that is why [being 
+>>ignorant of 'git log'] I used git-changes-script.
+> 
+> 
+> For (1) "bk log" is good.
+
+Chuckle.  What does one call a Freudian slip, in computer-land?
+
+
+> For (2) you'll have to use your own script, or
+> just have the remote tree as a branch in the same tree, in which case you
+> can do
+> 
+> 	git log remotebranch..mybranch
+
+Very neat.  That makes some things a bit easier, since I usually carry a 
+'vanilla' branch as .git/refs/heads/master, and do all my modifications 
+on other branches.
+
+FWIW, git-changes-script (attached) facilitates #2 for me right now.  I 
+use it just like BK's '-L' feature:
+
+	cd netdev-2.6
+	git checkout -f ieee80211
+	git-changes-script -L ../linux-2.6 | less
+
+That will produce the same output as the feature you just taught me,
+
+	git log master..ieee80211
+
+WARNING:  You have previously called git-changes-script quite ugly (not 
+surprising), and this 'git log x..y' will probably replace it in my 
+usage, long term.
+
+	Jeff
+
+
+
+--------------070008040508040306090201
+Content-Type: text/plain;
+ name="git-changes-script"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="git-changes-script"
 
---- linux-2.6.12/fs/reiserfs/file.c	2005-06-23 14:59:27.000000000 -0400
-+++ linux-2.6.12-new/fs/reiserfs/file.c	2005-06-23 15:34:49.000000000 -0400
-@@ -1306,7 +1306,7 @@ static ssize_t reiserfs_file_write( stru
- 	   so that nobody else can access these until we are done.
- 	   We get number of actual blocks needed as a result.*/
- 	blocks_to_allocate = reiserfs_prepare_file_region_for_write(inode, pos, num_pages, write_bytes, prepared_pages);
--	if ( blocks_to_allocate < 0 ) {
-+	if ( IS_ERROR((const void *)blocks_to_allocate) ) {
- 	    res = blocks_to_allocate;
- 	    reiserfs_release_claimed_blocks(inode->i_sb, num_pages << (PAGE_CACHE_SHIFT - inode->i_blkbits));
- 	    break;
-@@ -1363,6 +1363,10 @@ static ssize_t reiserfs_file_write( stru
-         }
-     }
- 
-+    /* If nothing is written, no need(actually, mustn't) to sync pages, just return res */
-+    if( already_written == 0 )
-+	    goto out;
-+    
-     if ((file->f_flags & O_SYNC) || IS_SYNC(inode))
- 	res = generic_osync_inode(inode, file->f_mapping, OSYNC_METADATA|OSYNC_DATA);
- 
+#!/bin/bash
+#
+# Make a log of changes in a GIT branch.
+#
+# This script was originally written by (c) Ross Vandegrift.
+# Adapted to his scripts set by (c) Petr Baudis, 2005.
+# Major optimizations by (c) Phillip Lougher.
+# Rendered trivial by Linus Torvalds.
+# Added -L|-R option by James Bottomley
+#
+# options:
+# script [-L <dir> | -R <dir> |-r <from_sha1> [ -r <to_sha1] ] [<sha1>]
+#
+# With no options shows all the revisions from HEAD to the root
+# -L shows all the changes in the local tree compared to the tree at <dir>
+# -R shows all the changes in the remote tree at <dir> compared to the local
+# -r shows all the changes in one commit or between two
 
---=-Q1L8WruaB3hWtURsZIPn--
+tmpfile=/tmp/git_changes.$$
+r1=
+r2=
 
+showcommit() {
+	commit="$1"
+	echo commit ${commit%:*};
+	git-cat-file commit $commit | \
+		while read key rest; do
+			case "$key" in
+			"author"|"committer")
+				date=(${rest#*> })
+				sec=${date[0]}; tz=${date[1]}
+				dtz=${tz/+/+ }; dtz=${dtz/-/- }
+				pdate="$(date -Rud "1970-01-01 UTC + $sec sec $dtz" 2>/dev/null)"
+				if [ "$pdate" ]; then
+					echo $key $rest | sed "s/>.*/> ${pdate/+0000/$tz}/"
+				else
+					echo $key $rest
+				fi
+				;;
+			"")
+				echo; cat
+				;;
+			*)
+				echo $key $rest
+				;;
+			esac
 
+		done
+}
+
+while true; do
+	case "$1" in
+		-R)	shift;
+			diffsearch=+
+			remote="$1"
+			shift;;
+		-L)	shift;
+			diffsearch=-
+			remote="$1"
+			shift;;
+		-r)	shift;
+			if [ -z "$r1" ]; then
+				r1="$1"
+			else
+				r2="$1"
+			fi
+			shift;;
+		*)	base="$1"
+			break;;
+	esac
+done
+
+if [ -n "$r1" ]; then
+	if [ -z "$r2" ]; then
+		showcommit $r1
+		exit 0
+	fi
+	diffsearch=+
+	remote=`pwd`;
+	tobase="$r2";
+	base="$r1"
+fi
+	
+if [ -z "$base" ]; then
+	base=$(cat .git/HEAD) || exit 1
+fi
+
+git-rev-tree $base | sort -rn  > ${tmpfile}.base
+if [ -n "$remote" ]; then
+	[ -d $remote/.git ] || exit 1
+	if [ -z "$tobase" ]; then
+		tobase=$(cat $remote/.git/HEAD) || exit 1
+	fi
+	pushd $remote > /dev/null
+	git-rev-tree $tobase | sort -rn > ${tmpfile}.remote
+	diff -u ${tmpfile}.base ${tmpfile}.remote | grep "^${diffsearch}[^${diffsearch}]" | cut -c 1- > ${tmpfile}.diff
+	rm -f ${tmpfile}.base ${tmpfile}.remote
+	mv ${tmpfile}.diff ${tmpfile}.base
+	if [ $diffsearch = "-" ]; then
+		popd > /dev/null
+	fi
+fi
+
+[ -s "${tmpfile}.base" ] || exit 0
+
+cat ${tmpfile}.base | while read time commit parents; do
+	showcommit $commit
+	echo -e "\n--------------------------"
+
+done
+rm -f ${tmpfile}.base
+
+--------------070008040508040306090201--

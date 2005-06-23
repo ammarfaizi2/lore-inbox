@@ -1,65 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262460AbVFWPMe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262481AbVFWPNh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262460AbVFWPMe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 11:12:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262481AbVFWPMe
+	id S262481AbVFWPNh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 11:13:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262500AbVFWPNh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 11:12:34 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:30414 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S262460AbVFWPMb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 11:12:31 -0400
-Message-ID: <42BAD15D.5030808@namesys.com>
-Date: Thu, 23 Jun 2005 08:12:29 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
+	Thu, 23 Jun 2005 11:13:37 -0400
+Received: from 1-1-2-5a.f.sth.bostream.se ([81.26.255.57]:53184 "EHLO
+	1-1-2-5a.f.sth.bostream.se") by vger.kernel.org with ESMTP
+	id S262481AbVFWPN0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 11:13:26 -0400
+Date: Thu, 23 Jun 2005 17:13:18 +0200 (CEST)
+From: Per Liden <per@fukt.bth.se>
+X-X-Sender: per@1-1-2-5a.f.sth.bostream.se
+To: Greg KH <greg@kroah.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [GIT PATCH] Remove devfs from 2.6.12-git
+In-Reply-To: <20050623064847.GC11638@kroah.com>
+Message-ID: <Pine.LNX.4.63.0506231709090.3147@1-1-2-5a.f.sth.bostream.se>
+References: <20050621062926.GB15062@kroah.com> <20050620235403.45bf9613.akpm@osdl.org>
+ <20050621151019.GA19666@kroah.com> <20050623010031.GB17453@mikebell.org>
+ <20050623045959.GB10386@kroah.com> <20050623062842.GE17453@mikebell.org>
+ <20050623064847.GC11638@kroah.com>
 MIME-Version: 1.0
-To: David Masover <ninja@slaphack.com>
-CC: Nikita Danilov <nikita@clusterfs.com>,
-       "Artem B. Bityuckiy" <dedekind@yandex.ru>,
-       =?UTF-8?B?TWFya3VzIFTQlnJucXZpc3Q=?= <mjt@nysv.org>,
-       Christophe Saout <christophe@saout.de>, Andrew Morton <akpm@osdl.org>,
-       hch@infradead.org, jgarzik@pobox.com, linux-kernel@vger.kernel.org,
-       reiserfs-list@namesys.com
-Subject: Re: reiser4 plugins
-References: <200506221733.j5MHXEoH007541@laptop11.inf.utfsm.cl>	<42B9DD48.6060601@slaphack.com> <17081.58619.671650.812286@gargle.gargle.HOWL> <42BAC668.2030604@slaphack.com>
-In-Reply-To: <42BAC668.2030604@slaphack.com>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Masover wrote:
+On Wed, 22 Jun 2005, Greg KH wrote:
 
-> Nikita Danilov wrote:
->
-> >David Masover writes:
->
-> >[...]
->
-> > >
-> > > What we want is to have programs that can write small changes to one
-> > > file or to many files, lump all those changes into a transaction, and
-> > > have the transaction either succeed or fail.
->
-> >No existing file system guarantees such behavior. Even atomicity of
-> >single system call is not guaranteed.
->
->
-> No _existing_ filesystem.  But I seem to recall that this was one of the
-> design decisions of Reiser4, and that the system call itself was pushed
-> off to 4.1?
+> On Wed, Jun 22, 2005 at 11:28:42PM -0700, Mike Bell wrote:
+> > On Wed, Jun 22, 2005 at 09:59:59PM -0700, Greg KH wrote:
+[...]
+> > > 	- no distro uses it
+> > 
+> > Bull. Complete. Can I claim by similar logic that no distro uses udev?
+> 
+> What distro shipps support for devfs and a 2.6 kernel?  I am not aware
+> of one (Gentoo doesn't count, they don't "ship" anything :)  Honestly, I
+> don't know of any.  I do know of a lot of them that ship udev.
 
-Thats right.
+CRUX (http://crux.nu) is one example of such a dist.
 
->
-> Maybe I'm just wrong about how big a transaction can be.
-
-No, you are not.
-
-Isolation is not easy for an fs, but fusing multiple atoms from multiple
-file modifications into one "guaranteed to commit or fail all together"
-atom is easy.
+/Per

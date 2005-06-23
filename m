@@ -1,81 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262608AbVFWQ1M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262610AbVFWQb4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262608AbVFWQ1M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 12:27:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262609AbVFWQ1L
+	id S262610AbVFWQb4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 12:31:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262612AbVFWQb4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 12:27:11 -0400
-Received: from 216-239-45-4.google.com ([216.239.45.4]:62856 "EHLO
-	216-239-45-4.google.com") by vger.kernel.org with ESMTP
-	id S262608AbVFWQZv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 12:25:51 -0400
-Message-ID: <42BAE280.1000801@google.com>
-Date: Thu, 23 Jun 2005 09:25:36 -0700
-From: Mike Waychison <mikew@google.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050207)
+	Thu, 23 Jun 2005 12:31:56 -0400
+Received: from mail8.fw-bc.sony.com ([160.33.98.75]:26067 "EHLO
+	mail8.fw-bc.sony.com") by vger.kernel.org with ESMTP
+	id S262610AbVFWQbw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 12:31:52 -0400
+Message-ID: <42BAE3B1.5010209@am.sony.com>
+Date: Thu, 23 Jun 2005 09:30:41 -0700
+From: Tim Bird <tim.bird@am.sony.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: cspalletta@adelphia.net
-CC: linux-kernel@vger.kernel.org
-Subject: Re: namespace question
-References: <12745583.1119539003004.JavaMail.root@web10.mail.adelphia.net>
-In-Reply-To: <12745583.1119539003004.JavaMail.root@web10.mail.adelphia.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+To: linux-kernel@vger.kernel.org
+CC: David Woodhouse <dwmw2@infradead.org>, "Sean M. Burke" <sburke@cpan.org>,
+       trivial@rustcorp.com.au
+Subject: Re: PATCH: "Ok" -> "OK" in messages
+References: <42985251.6030006@cpan.org> <1117279792.32118.11.camel@localhost.localdomain> <20050528125430.GB3870@ojjektum.uhulinux.hu>
+In-Reply-To: <20050528125430.GB3870@ojjektum.uhulinux.hu>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-cspalletta@adelphia.net wrote:
-> I don't believe the following to be an error, but I am curious how it occurs:
-> 
-> Running a kernel module which uses d_path iteratively over the mnt_mountpoint members of the vfsmount structures which hang off of current->namespace->list, I get a curious doubling of the mount point names:
-> 
-> rootfs / rootfs
-> /dev2/root2 / ext3
-> proc /proc/proc proc
-> sysfs /sys/sys sysfs
-> devpts /dev/pts/dev/pts devpts
-> tmpfs /dev/shm/dev/shm tmpfs
-> /dev/hda1 /boot/boot ext2
-> usbfs /proc/bus/usb/bus/usb usbfs
-> 
-> Is there any simple explanation? I have cross-checked and it appears _not_ be be an artifact of my programming, and I have no CLONE_NEWNS processes. Using the same algorithm with mnt_root produces correct results.  
-> 
-> The code follows:
-> 
->         char *path;
-> ...
->         namespace = current-> namespace
->         down_read(&namespace->sem);
->         list_for_each_entry(vfsmnt_ptr,&namespace->list,mnt_list) {
->                 mount = mntget(vfsmnt_ptr);
->                 dentry = dget(vfsmnt_ptr->mnt_mountpoint);
+� wrote:
 
-should be:
-
-dentry = dget(vfsmnt_ptr->mnt_root);
-
-> 
->                 device = vfsmnt_ptr->mnt_devname ? vfsmnt_ptr->mnt_devname : "none";
-> 
->                 path = d_path(dentry, mount, buf, PAGE_SIZE);
->                 error = PTR_ERR(path);
->                 if(IS_ERR(path)) {
->                         dput(dentry);
->                         mntput(mount);
->                         goto out;
->                 }
-> 
->                 fstype = vfsmnt_ptr->mnt_sb->s_type->name;
->                 printk("%s\t%s\t%s\n",device,path,fstype);
-> ---
-> 
-> $ uname -a
-> Linux nectarsys 2.6.10-1-k7 #1 Fri Mar 11 03:13:32 EST 2005 i686 GNU/Linux
-> 
-> 
-> 
-> 
+>> While we are at it, what about changing this string to something
+>> language-neutral, like this:
+>>
+>> diff -Naurdp a/arch/i386/boot/compressed/misc.c b/arch/i386/boot/compressed/misc.c
+>> --- a/arch/i386/boot/compressed/misc.c	2004-04-04 05:37:23.000000000 +0200
+>> +++ b/arch/i386/boot/compressed/misc.c	2004-05-09 23:18:06.000000000 +0200
+>> @@ -10,6 +10,7 @@
+>>   */
+>>
+>>  #include <linux/linkage.h>
+>> +#include <linux/version.h>
+>>  #include <linux/vmalloc.h>
+>>  #include <linux/tty.h>
+>>  #include <video/edid.h>
+>> @@ -373,9 +374,9 @@ asmlinkage int decompress_kernel(struct
+>>  	else setup_output_buffer_if_we_run_high(mv);
+>>
+>>  	makecrc();
+>> -	putstr("Uncompressing Linux... ");
+>> +	putstr("Linux " UTS_RELEASE);
+>>  	gunzip();
+>> -	putstr("Ok, booting the kernel.\n");
+>> +	putstr("\n");
+>>  	if (high_loaded) close_output_buffer_if_we_run_high(mv);
+>>  	return high_loaded;
+>>  }
 
 
-Mike Waychison
+Language neutrality is not a goal for kernel messages,
+that I'm aware of.  I disagree with this change because
+it yields a net reduction in understanding what's going
+on during booting.
+
+=============================
+Tim Bird
+Architecture Group Chair, CE Linux Forum
+Senior Staff Engineer, Sony Electronics
+=============================

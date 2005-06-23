@@ -1,67 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263050AbVFWTXF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262723AbVFWTaL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263050AbVFWTXF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 15:23:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262719AbVFWTPp
+	id S262723AbVFWTaL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 15:30:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262705AbVFWTXn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 15:15:45 -0400
-Received: from zproxy.gmail.com ([64.233.162.202]:43197 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262705AbVFWTNa convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 15:13:30 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=P9hgkZGedztzTsgNDKV3f1hlOMJm5W2r0PHbW/Ph0iv2OXQ47CLbPOWUAWOprCOR/Pt86ixOHGZkJ5hl8Yvf1492i8OKSe0x02vNl8VAYwztQ9xQP1HMyM6mTPrZhblwcBMvtPHJ/td7up04HeFNA/+TsPbW+oaAGjB9cEjvHgo=
-Message-ID: <9a87484905062312131e5f6b05@mail.gmail.com>
-Date: Thu, 23 Jun 2005 21:13:29 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
-To: randy_dunlap <rdunlap@xenotime.net>
-Subject: Re: Script to help users to report a BUG
-Cc: piotrowskim@trex.wsi.edu.pl, linux-kernel@vger.kernel.org
-In-Reply-To: <20050623120647.2a5783d1.rdunlap@xenotime.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 23 Jun 2005 15:23:43 -0400
+Received: from atlrel7.hp.com ([156.153.255.213]:63121 "EHLO atlrel7.hp.com")
+	by vger.kernel.org with ESMTP id S262722AbVFWTUh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 15:20:37 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: SMP+irq handling broken in current git?
+Date: Thu, 23 Jun 2005 13:20:28 -0600
+User-Agent: KMail/1.8.1
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+References: <20050623135318.GC9768@suse.de> <200506231258.35258.bjorn.helgaas@hp.com> <20050623191146.GB6814@suse.de>
+In-Reply-To: <20050623191146.GB6814@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <4d8e3fd30506191332264eb4ae@mail.gmail.com>
-	 <20050622120848.717e2fe2.rdunlap@xenotime.net>
-	 <42B9CFA1.6030702@trex.wsi.edu.pl>
-	 <20050622174744.75a07a7f.rdunlap@xenotime.net>
-	 <9a87484905062311246243774e@mail.gmail.com>
-	 <20050623120647.2a5783d1.rdunlap@xenotime.net>
+Message-Id: <200506231320.28172.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/23/05, randy_dunlap <rdunlap@xenotime.net> wrote:
-> On Thu, 23 Jun 2005 20:24:15 +0200 Jesper Juhl wrote:
+On Thursday 23 June 2005 1:11 pm, Jens Axboe wrote:
+> On Thu, Jun 23 2005, Bjorn Helgaas wrote:
+> > On Thursday 23 June 2005 12:42 pm, Jens Axboe wrote:
+> > > On Thu, Jun 23 2005, Jeff Garzik wrote:
+> > > > Jens Axboe wrote:
+> > > > >Hi,
+> > > > >
+> > > > >Something strange is going on with current git as of this morning (head
+> > > > >ee98689be1b054897ff17655008c3048fe88be94). On an old test box (dual p3
+> > > > >800MHz), using the same old config I always do on this box has very
+> > > > >broken interrupt handling:
+> > > > 
+> > > > Does 2.6.12 work for you?
+> > > > 2.6.11?
+> > > 
+> > > 2.6.11 works, 2.6.12 does not.
+> > 
+> > Do you have any VIA devices?  If so, you might try the attached.
+> > (Just for debugging; if the patch helps, I have no idea how to
+> > do it correctly.)
 > 
-> | On 6/23/05, randy_dunlap <rdunlap@xenotime.net> wrote:
-> | >
-> | > 6.  Use $EDITOR instead of vim if it is defined (set).
-> | >
-> | Wouldn't the very best be to try and find the editor to use in the
-> | following order?  :
-> |
-> | A) the value of $EDITOR (if set)
-> | B) the value of $VISUAL (if set)
-> | C) the first editor in a hardcoded list that exists and is executable
-> | (a list could contain for example; vim, vi, elvis, joe, jove, nano,
-> | pico, mcedit, emacs )...
-> 
-> Yes, that sounds better to me.
-> 
+> No VIA devices, it's an intel board with intel chipset. Do you still
+> want me to test it?
 
-A similar thing could be done for sending the email;
-
-Look for known email clients - like mutt, pine, elm, check they exist
-and are executable, then check if sendmail is available.  Present the
-user with a list of the email clients found (and sendmail, if found
-and local MTA process is running) and then ask them to pick their
-prefered email client/sending method from the list.
-
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Nope, I don't think it will make any difference then.

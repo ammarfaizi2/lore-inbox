@@ -1,58 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261154AbVFWNM0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261934AbVFWNNF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261154AbVFWNM0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 09:12:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262246AbVFWNMZ
+	id S261934AbVFWNNF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 09:13:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262247AbVFWNND
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 09:12:25 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:41355 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261154AbVFWNKK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 09:10:10 -0400
-Date: Thu, 23 Jun 2005 15:10:05 +0200
-From: Andi Kleen <ak@suse.de>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, jh@suse.cz
-Subject: Re: [PATCH] x86_64 prefetchw() function can take into account CONFIG_MK8 / CONFIG_MPSC
-Message-ID: <20050623131004.GL14251@wotan.suse.de>
-References: <20050622.132241.21929037.davem@davemloft.net> <200506222242.j5MMgbxS009935@guinness.s2io.com> <20050622231300.GC14251@wotan.suse.de> <42BA81B2.4070108@cosmosbay.com> <20050623113150.GK14251@wotan.suse.de> <42BAB0BA.1010100@cosmosbay.com>
+	Thu, 23 Jun 2005 09:13:03 -0400
+Received: from wproxy.gmail.com ([64.233.184.199]:18595 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261934AbVFWNKZ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 09:10:25 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=lyRLgwHzjcrO6kw+AV0yF197JGvug3bCpZS/azzdNu6IDwOONJwY8mbBpiFScWZBjaOQhu2m5ohEuhcUo+A49BMgLPk4Sn7NhD/JMpHRR+iqb6B9vELmsWBaxhIE+QvPfBDZoeRluoG484C3qTR1rfAy02+nj7BcC4Bl9vRK1S8=
+Message-ID: <5c77e70705062306044e1c411f@mail.gmail.com>
+Date: Thu, 23 Jun 2005 15:04:04 +0200
+From: Carsten Otte <cotte.de@gmail.com>
+Reply-To: Carsten Otte <cotte.de@gmail.com>
+To: Chris Wright <chrisw@osdl.org>
+Subject: Re: -mm -> 2.6.13 merge status
+Cc: Andrew Morton <akpm@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050622233256.GC9153@shell0.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <42BAB0BA.1010100@cosmosbay.com>
+References: <20050620235458.5b437274.akpm@osdl.org>
+	 <42B831B4.9020603@pobox.com> <20050621132204.1b57b6ba.akpm@osdl.org>
+	 <5c77e707050621142841ad3225@mail.gmail.com>
+	 <20050622233256.GC9153@shell0.pdx.osdl.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 23, 2005 at 02:53:14PM +0200, Eric Dumazet wrote:
-> Andi Kleen a ?crit :
-> >On Thu, Jun 23, 2005 at 11:32:34AM +0200, Eric Dumazet wrote:
-> >
-> >>If we build a x86_64 kernel for an AMD64 or for an Intel EMT64, no need 
-> >>to use alternative_input.
-> >>Reserve alternative_input only for a generic kernel.
-> >
-> >
-> >An EM64T kernel should still boot on AMD64 and vice versa. Rejected.
-> >
-> >-Andi
-> >
-> >
+On 6/23/05, Chris Wright <chrisw@osdl.org> wrote:
+> * Carsten Otte (cotte.de@gmail.com) wrote:
+> > For 390, we ship standalone bootable crashdump tools with both sles
+> > and rhel. As for kexec, I'd like to see a kexec based 390 bootloader
+> > in the future which would be more flexible then our current one. So
+> > I'd like to vote for merging kexec/kdump.
 > 
-> OK, I wrongly assumed the 'MK8' or 'MPSC' choices were like x86 choices :
-> 
-> A kernel compiled for a Pentium-4 will not run on a i486.
-> 
-> But then what is the meaning of the choice "Generic-x86-64" in the 
-> "Processor family" menu ?
-> The Help message is : CONFIG_GENERIC_CPU: Generic x86-64 CPU.
+> Xen is making similar noises w.r.t. using kexec for flexible bootloader.
 
-Optimize for both. It's a catch all setting for future changes
-and does not do too much right now.
-
-It also won't pass any -mcpu=... arguments to gcc. This currently
-doesn't make any difference (gcc x86-64 default is to optimize
-for K8), but I assume it might at some point when gcc gets
-a "combined" mode that optimizes for both Intel and AMD CPUs.
-
--Andi
-
+Oh cool, then we should look at what they're doing instead of reinventing
+the wheel. Any pointer we can follow, or person we would contact?

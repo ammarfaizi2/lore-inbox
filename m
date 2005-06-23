@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262547AbVFWOc3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262549AbVFWOmL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262547AbVFWOc3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 10:32:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262552AbVFWOc3
+	id S262549AbVFWOmL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 10:42:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262550AbVFWOmK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 10:32:29 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:27806 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S262547AbVFWOcW (ORCPT
+	Thu, 23 Jun 2005 10:42:10 -0400
+Received: from gw.alcove.fr ([81.80.245.157]:24528 "EHLO smtp.fr.alcove.com")
+	by vger.kernel.org with ESMTP id S262549AbVFWOmG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 10:32:22 -0400
-Message-Id: <200506231431.j5NEVvpK004472@laptop11.inf.utfsm.cl>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Linus Torvalds <torvalds@osdl.org>, Greg KH <greg@kroah.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Git Mailing List <git@vger.kernel.org>
-Subject: Re: Updated git HOWTO for kernel hackers 
-In-Reply-To: Message from Jeff Garzik <jgarzik@pobox.com> 
-   of "Thu, 23 Jun 2005 01:16:33 -0400." <42BA45B1.7060207@pobox.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Thu, 23 Jun 2005 10:31:57 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Thu, 23 Jun 2005 10:31:58 -0400 (CLT)
+	Thu, 23 Jun 2005 10:42:06 -0400
+Subject: rmmod ohci1394 hangs in klist_remove
+From: Stelian Pop <stelian@popies.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Thu, 23 Jun 2005 16:40:10 +0200
+Message-Id: <1119537610.5848.3.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@pobox.com> said:
-> Linus Torvalds wrote:
-> > 	rsync -r --ignore-existing repo/refs/tags/ .git/refs/tags/
-> > 
-> > See? What's your complaint with just doing that?
-> 
-> No complaint with that operation.  The complaint is that it's an 
-> additional operation.  Re-read what Greg said:
-> 
-> > Is there some reason why git doesn't pull the
-> > tags in properly when doing a merge?  Chris and I just hit this when I
-> > pulled his 2.6.12.1 tree and and was wondering where the tag went.
-> 
-> Multiple users -- not just me -- would prefer that git-pull-script 
-> pulled the tags, too.
-> 
-> Suggested solution:  add '--tags' to git-pull-script 
-> (git-fetch-script?), which calls
-> 	rsync -r --ignore-existing repo/refs/tags/ .git/refs/tags/
+Removing the ohci1394 module no longer works, sysrq+t shows:
 
-I don't think either is really a solution. IMHO there should be a
-distinction between "official tags" (that get passed around together with
-everything else) and "private tags" for everybodys own home use (that could
-be passed around, but only explicitly). Plus the possibility to erase,
-move, &c private tags, and perhaps upgrade them to official status (thus
-setting them in stone).
+rmmod         D 0FF7F724     0  6044   6038                     (NOTLB)
+Call trace:
+ [c00073ec] __switch_to+0x48/0x70
+ [c02954c8] schedule+0x348/0x6f8
+ [c02958f0] wait_for_completion+0x78/0xe4
+ [c0294c1c] klist_remove+0x24/0x38
+ [c01313ec] device_del+0x34/0xb8
+ [c0131488] device_unregister+0x18/0x30
+ [c0185afc] nodemgr_remove_ne+0x6c/0x88
+ [c0185b2c] __nodemgr_remove_host_dev+0x14/0x28
+ [c0131520] device_for_each_child+0x4c/0x74
+ [c0185b68] nodemgr_remove_host_dev+0x28/0x6c
+ [c018234c] __unregister_host+0xdc/0xe0
+ [c0182e98] highlevel_remove_host+0x70/0xd8
+ [c0181cc0] hpsb_remove_host+0x60/0x8c
+ [e2218fec] ohci1394_pci_remove+0x5c/0x288 [ohci1394]
+ [c00e02d0] pci_device_remove+0x60/0x64
+
+This is with the latest Linus' git tree, on a Powerbook laptop (ppc).
+Removing the module works with stock 2.4.12.
+
+Thanks.
+
+Stelian.
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Stelian Pop <stelian@popies.net>
+

@@ -1,78 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262009AbVFWCCT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262015AbVFWCJW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262009AbVFWCCT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 22:02:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261976AbVFWB7n
+	id S262015AbVFWCJW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 22:09:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262010AbVFWCFo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 21:59:43 -0400
-Received: from opersys.com ([64.40.108.71]:4627 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261933AbVFWB6Y (ORCPT
+	Wed, 22 Jun 2005 22:05:44 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:36273 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S262014AbVFWCEj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 21:58:24 -0400
-Message-ID: <42BA19CB.4040300@opersys.com>
-Date: Wed, 22 Jun 2005 22:09:15 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+	Wed, 22 Jun 2005 22:04:39 -0400
+Message-ID: <42BA18AF.2070406@pobox.com>
+Date: Wed, 22 Jun 2005 22:04:31 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: David Lang <david.lang@digitalinsight.com>
-CC: Ingo Molnar <mingo@elte.hu>, Bill Huey <bhuey@lnxw.com>,
-       Kristian Benoit <kbenoit@opersys.com>, linux-kernel@vger.kernel.org,
-       paulmck@us.ibm.com, andrea@suse.de, tglx@linutronix.de,
-       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
-       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, rpm@xenomai.org
-Subject: Re: PREEMPT_RT vs I-PIPE: the numbers, part 2
-References: <1119287612.6863.1.camel@localhost> <20050620183115.GA27028@nietzsche.lynx.com> <42B98B20.7020304@opersys.com> <20050622192927.GA13817@nietzsche.lynx.com> <20050622200554.GA16119@elte.hu> <42B9CC98.1040402@opersys.com> <20050622220428.GA28906@elte.hu> <42B9F673.4040100@opersys.com> <20050623000607.GB11486@elte.hu> <42BA069D.20208@opersys.com> <Pine.LNX.4.62.0506221753010.16773@qynat.qvtvafvgr.pbz> <42BA0ED4.80207@opersys.com> <Pine.LNX.4.62.0506221821240.16773@qynat.qvtvafvgr.pbz>
-In-Reply-To: <Pine.LNX.4.62.0506221821240.16773@qynat.qvtvafvgr.pbz>
-Content-Type: text/plain; charset=us-ascii
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Git Mailing List <git@vger.kernel.org>
+Subject: Re: Updated git HOWTO for kernel hackers
+References: <42B9E536.60704@pobox.com> <Pine.LNX.4.58.0506221603120.11175@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0506221603120.11175@ppc970.osdl.org>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds wrote:
+> A few notes on these things:
+> 
+> 	git-apply --index /tmp/my.patch
+> 
+> will not only apply the patch (unified patches only!), but will do the
+> index updates for you while it's at it, so if the patch contains new files
+> (or it deletes files), you don't need to worry about it.
 
-David Lang wrote:
-> what pinout do I need to connect the printer ports
+The output isn't terribly helpful:
 
-For LRTBF you'll find the pinout in the README of the package.
+[jgarzik@pretzel netdev-2.6]$ git apply --index \
+	~/tmp/linux-2.6.12-rc4-cxgb2.1.1.patch
+Fragment applied at offset 11
 
-> I'm thinking that the best approach for this would be to setup a static 
-> logger and host and then one (or more) target machines, then we can setup 
-> a small website on the host that will allow Ingo (and others) to submit 
-> kernels for testing, queue those kernels and then run the tests on each 
-> one in turn (and if it runs out of kernels to test it re-tests the last 
-> one with a longer run)
+That is worse than no message at all...  fragment?  offset 11?  did it 
+work?  Did it apply only a "fragment" of my patch, not the whole thing? 
+  I'm worried! </mental monologue>
 
-Things is you're going to need one logger per target. As for a
-small website, that sounds good enough. Don't know how feasible
-it would be but it may be desirable to also have a background
-task that automatically checks for new releases and conducts
-the tests automatically.
+Outputting the following (stolen from 'git commit') would be far more 
+useful:
 
-> how much needs to change in userspace between the various tests? I would 
-> assume that between the plain, preempt, and RT kernels no userspace 
-> changes are needed, what about the other options?
+       modified: Documentation/networking/cxgb.txt
+       modified: drivers/net/chelsio/Makefile
+       deleted:  drivers/net/chelsio/ch_ethtool.h
+       modified: drivers/net/chelsio/common.h
+       modified: drivers/net/chelsio/cphy.h
+       modified: drivers/net/chelsio/cpl5_cmd.h
+       modified: drivers/net/chelsio/cxgb2.c
+       deleted:  drivers/net/chelsio/cxgb2.h
+       modified: drivers/net/chelsio/elmer0.h
+       modified: drivers/net/chelsio/espi.c
+       modified: drivers/net/chelsio/espi.h
+       modified: drivers/net/chelsio/gmac.h
+       modified: drivers/net/chelsio/mv88x201x.c
+       deleted:  drivers/net/chelsio/osdep.h
+       modified: drivers/net/chelsio/pm3393.c
+       modified: drivers/net/chelsio/regs.h
+       modified: drivers/net/chelsio/sge.c
+       modified: drivers/net/chelsio/sge.h
+       modified: drivers/net/chelsio/subr.c
+       modified: drivers/net/chelsio/suni1x10gexp_regs.h
+       deleted:  drivers/net/chelsio/tp.c
+       deleted:  drivers/net/chelsio/tp.h
+       modified: include/linux/pci_ids.h
 
-There are no user-space changes needed, but you may need to
-install a few things that aren't there (LMbench, LTP, hackbench,
-etc.)
 
-> given the slow speed of these systems it would seem to make more sense to 
-> have a full kernel downloaded to them rather then having the local box 
-> compile it.
+> Also, you can do
+> 
+> 	git commit <list-of-files-to-commit>
+> 
+> as a shorthand for
+> 
+> 	git-update-cache <list-of-files-to-commit>
+> 	git commit
+> 
+> which some people will probably find more natural.
 
-It's your choice really, but if the tests are to be automated,
-then local compile shouldn't be a problem since you won't be
-waiting on it personally.
+It would be natural if it functioned like 'bk citool' ;-)
 
-> does this sound reasonable?
+	git commit --figure-out-for-me-what-files-changed
 
-For me at least.
+'git diff' can do this, so it's certainly feasible.
 
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+Obviously added/removed files would still require git-update-cache or 
+git-commit<list of files>.
+
+
+> "git-whatchanged" is useful if you actually want to see what the commits 
+> _changed_, and then you often want to use the "-p" flag to see it as 
+> patches. Also, it's worth pointing out the fact that you can limit it to 
+> certain subdirectories (or individual files) etc, ie:
+> 
+> 	git-whatchanged -p drivers/net
+> 
+> since that is often what people want.
+> 
+> But if you just want the log, "git log" is faster and simpler and more 
+> correct.
+
+I usually want just two things:
+
+1) browse the log
+
+2) list changes in local tree that are not in $remote_tree, a la
+	bk changes -L ../linux-2.6
+
+I agree that seeing the merge csets is useful, that is why [being 
+ignorant of 'git log'] I used git-changes-script.
+
+	Jeff
+
+

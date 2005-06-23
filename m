@@ -1,46 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262894AbVFWXmt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262911AbVFWXqz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262894AbVFWXmt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 19:42:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262900AbVFWXmt
+	id S262911AbVFWXqz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 19:46:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262919AbVFWXqy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 19:42:49 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:43957 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S262894AbVFWXkh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 19:40:37 -0400
-Subject: Re: reiser4 plugins
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Michael Dreher <michael.dreher@uni-konstanz.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Adrian Ulrich <reiser4@blinkenlights.ch>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, ninja@slaphack.com,
-       reiser@namesys.com, jgarzik@pobox.com, hch@infradead.org, akpm@osdl.org,
-       reiserfs-list@namesys.com
-In-Reply-To: <200506232249.47302.michael.dreher@uni-konstanz.de>
-References: <42BAC304.2060802@slaphack.com>
-	 <200506231924.j5NJOvLA031008@laptop11.inf.utfsm.cl>
-	 <20050623221222.33074838.reiser4@blinkenlights.ch>
-	 <200506232249.47302.michael.dreher@uni-konstanz.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1119569841.17066.70.camel@localhost.localdomain>
+	Thu, 23 Jun 2005 19:46:54 -0400
+Received: from mail.kroah.org ([69.55.234.183]:26753 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262911AbVFWXqe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 19:46:34 -0400
+Date: Thu, 23 Jun 2005 16:43:56 -0700
+From: Greg KH <greg@kroah.com>
+To: Clyde Griffin <CGRIFFIN@novell.com>
+Cc: linux-kernel@vger.kernel.org, Jan Beulich <JBeulich@novell.com>
+Subject: Re: Novell Linux Kernel Debugger (NLKD)
+Message-ID: <20050623234356.GA21406@kroah.com>
+References: <s2bae938.075@sinclair.provo.novell.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 24 Jun 2005 00:37:23 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <s2bae938.075@sinclair.provo.novell.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2005-06-23 at 21:49, Michael Dreher wrote:
-> My impression: reiser3 is not 100% stable, but quite stable, 
-> written by someone who asks for "review by benchmark".
+On Thu, Jun 23, 2005 at 04:54:09PM -0600, Clyde Griffin wrote:
+> 
+> Patches against the mainline will be forthcoming after community feedback.
 
-Review by uniprocessor benchmark perhaps. However Reiser4 is new code.
-The original extfs on Linux was not very good either while ext2 was
-excellent. It seems inappropriate to technically review one fs based on
-the other. Looking at the authors maintenance record I think is
-important but every single star Linux kernel contributors first major
-contribution was generally not very good.
+Please provide patches against a mainline kernel, otherwise it's pretty
+much impossible to review.
 
-Alan
+And try to reduce the ammount of #ifdev CONFIG_CDE you have placed in
+your patch, it's quite excessive and against the kernel coding style
+rules.
 
+thanks,
+
+greg k-h

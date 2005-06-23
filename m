@@ -1,86 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262673AbVFWKDW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263006AbVFWIIx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262673AbVFWKDW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 06:03:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262532AbVFWJ7h
+	id S263006AbVFWIIx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 04:08:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262576AbVFWIEx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 05:59:37 -0400
-Received: from cantor.suse.de ([195.135.220.2]:6878 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S262449AbVFWJxt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 05:53:49 -0400
-From: Andreas Gruenbacher <agruen@suse.de>
-Organization: SUSE LINUX Products GMBH
-To: Trond Myklebust <Trond.Myklebust@netapp.com>
-Subject: Re: Potential xdr_xcode_array2 security issue (was: Re: [PATCH] RPC: Encode and decode arbitrary XDR arrays)
-Date: Thu, 23 Jun 2005 11:53:41 +0200
-User-Agent: KMail/1.8
-Cc: Florian Weimer <fw@deneb.enyo.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Olaf Kirch <okir@suse.de>
-References: <200506230502.j5N52PWP007955@hera.kernel.org> <87y8911v46.fsf@deneb.enyo.de>
-In-Reply-To: <87y8911v46.fsf@deneb.enyo.de>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_laouCOffTQ+vw9y"
-Message-Id: <200506231153.41318.agruen@suse.de>
+	Thu, 23 Jun 2005 04:04:53 -0400
+Received: from nproxy.gmail.com ([64.233.182.199]:22307 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262500AbVFWG0i convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 02:26:38 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ZsubFC+G7CDRoZmmI1ORvVWIYrmh3suAD/ULGEHOrIgCvGV1AyoteaRHBvIRiNHfT+1s9+5c215GelrKjVjc02JiUBEljsXFR/dCMedAZnFmKfgNBLhBj8+vy67Dc3R+8xBd6QmzypCRbMoUF+CnGk0fpM0pbVCctNlQL9ajMq4=
+Message-ID: <84144f0205062223266ab40243@mail.gmail.com>
+Date: Thu, 23 Jun 2005 09:26:37 +0300
+From: Pekka Enberg <penberg@gmail.com>
+Reply-To: Pekka Enberg <penberg@gmail.com>
+To: Hans Reiser <reiser@namesys.com>
+Subject: Re: reiser4 plugins
+Cc: Jeff Garzik <jgarzik@pobox.com>, David Masover <ninja@slaphack.com>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, ReiserFS List <reiserfs-list@namesys.com>,
+       Pekka Enberg <penberg@cs.helsinki.fi>
+In-Reply-To: <42BA4F7E.6000402@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050620235458.5b437274.akpm@osdl.org>
+	 <42B831B4.9020603@pobox.com> <42B87318.80607@namesys.com>
+	 <20050621202448.GB30182@infradead.org> <42B8B9EE.7020002@namesys.com>
+	 <42B8BB5E.8090008@pobox.com> <42B8E834.5030809@slaphack.com>
+	 <42B8F4BC.5060100@pobox.com> <42BA4F7E.6000402@namesys.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_laouCOffTQ+vw9y
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Hi Hans,
 
-On Thursday 23 June 2005 07:48, Florian Weimer wrote:
-> This looks suspiciously like CVE-2002-0391.
+Jeff Garzik wrote:
+> > We have to maintain said ugly code for decades.
 
-Thanks, Florian. How about the attached patch?
+On 6/23/05, Hans Reiser <reiser@namesys.com> wrote:
+> No you don't, I do.
 
-Cheers,
-Andreas.
+Lots of people work on the kernel. If you wish to keep reiser4
+maintenance to yourself, you probably need to keep it as a separate
+patch. Please consider submitting the non-controversial bits for
+merging first and then continue with the rest. It does not make a lot
+of sense reviewing the current patchkit as many parts of it won't be
+merged as is (e.g. the plugin stuff).
 
---Boundary-00=_laouCOffTQ+vw9y
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="xdr-input-validation.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="xdr-input-validation.diff"
-
-From: Andreas Gruenbacher <agruen@suse.de>
-Subject: Overflow in xdr input validation
-
-The bounds check in xdr_xcode_array2 can overflow. Reported by
-Florian Weimer <fw@deneb.enyo.de>.
-
-Signed-off-by: Andreas Gruenbacher <agruen@suse.de>
-
-Index: linux-2.6.5/net/sunrpc/xdr.c
-===================================================================
---- linux-2.6.5.orig/net/sunrpc/xdr.c
-+++ linux-2.6.5/net/sunrpc/xdr.c
-@@ -989,8 +989,7 @@ xdr_xcode_array2(struct xdr_buf *buf, un
- 			return -EINVAL;
- 	} else {
- 		if (xdr_decode_word(buf, base, &desc->array_len) != 0 ||
--		    (unsigned long) base + 4 + desc->array_len *
--				    desc->elem_size > buf->len)
-+		    desc->array_len > (buf->len - base - 4) / desc->elem_size)
- 			return -EINVAL;
- 	}
- 	base += 4;
-@@ -1158,8 +1157,8 @@ int
- xdr_encode_array2(struct xdr_buf *buf, unsigned int base,
- 		  struct xdr_array2_desc *desc)
- {
--	if ((unsigned long) base + 4 + desc->array_len * desc->elem_size >
--	    buf->head->iov_len + buf->page_len + buf->tail->iov_len)
-+	if (buf->head->iov_len + buf->page_len + buf->tail->iov_len -
-+	    base < desc->array_len * desc->elem_size + 4)
- 		return -EINVAL;
- 
- 	return xdr_xcode_array2(buf, base, desc, 1);
-
---Boundary-00=_laouCOffTQ+vw9y--
+                          Pekka

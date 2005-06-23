@@ -1,84 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262739AbVFWKac@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262667AbVFWK2W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262739AbVFWKac (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 06:30:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262683AbVFWK3p
+	id S262667AbVFWK2W (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 06:28:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261947AbVFWKX7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 06:29:45 -0400
-Received: from mta09-winn.ispmail.ntl.com ([81.103.221.49]:2696 "EHLO
-	mta09-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S262631AbVFWK0K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 06:26:10 -0400
-Subject: [PATCH] Allow cscope to index multiple architectures
-From: Ian Campbell <ijc@hellion.org.uk>
-To: kai@germaschewski.name, sam@ravnborg.org
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Thu, 23 Jun 2005 11:25:54 +0100
-Message-Id: <1119522355.2995.23.camel@icampbell-debian>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+	Thu, 23 Jun 2005 06:23:59 -0400
+Received: from reserv6.univ-lille1.fr ([193.49.225.20]:23787 "EHLO
+	reserv6.univ-lille1.fr") by vger.kernel.org with ESMTP
+	id S262667AbVFWKP1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 06:15:27 -0400
+Message-ID: <42BA89B4.50900@tremplin-utc.net>
+Date: Thu, 23 Jun 2005 12:06:44 +0200
+From: Eric Piel <Eric.Piel@tremplin-utc.net>
+User-Agent: Mozilla Thunderbird 1.0.2-3mdk (X11/20050322)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: Vojtech Pavlik <vojtech@suse.cz>
+CC: Alejandro Bonilla <abonilla@linuxwireless.org>,
+       "'Pavel Machek'" <pavel@ucw.cz>, "'Lee Revell'" <rlrevell@joe-job.com>,
+       "'Yani Ioannou'" <yani.ioannou@gmail.com>,
+       linux-thinkpad@linux-thinkpad.org, linux-kernel@vger.kernel.org
+Subject: Re: [ltp] Re: IBM HDAPS Someone interested?
+References: <20050622104927.GB2561@openzaurus.ucw.cz> <001201c57729$0a645840$600cc60a@amer.sykes.com> <20050623071345.GA4553@ucw.cz>
+In-Reply-To: <20050623071345.GA4553@ucw.cz>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-USTL-MailScanner-Information: Please contact the ISP for more information
+X-USTL-MailScanner: Found to be clean
+X-MailScanner-From: eric.piel@tremplin-utc.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+06/23/2005 09:13 AM, Vojtech Pavlik wrote/a écrit:
+> On Wed, Jun 22, 2005 at 06:50:59AM -0600, Alejandro Bonilla wrote:
+> 
+>>/proc/acpi/ibm/ecdump is really not providing any information about this
+>>sensor. yesterday, I almost broke the laptop to see if it would generate
+>>anything, but it really only outputs ACPI events...
+>>
+>>I shaked it, moved it 90deg and still no result, threw the lappy from like
+>>40cm to the bed and nothing was really generated. Unless it is too fast like
+>>to generate it in the watch or to be seen by human eye. I dunno.
+>>
+>>It looks like /ecdump won't do it.
+> 
+>  
+> But that doesn't mean it's not connected to the embedded controller. It
+> just means the embedded controller doesn't generate any inertial events
+> by itself - it may have to be polled with some specific command.
+> 
 
-I have a single source tree which I cross compile for a couple of
-different architectures using ARHC=foo O=blah etc.
+Well, in the changelog of the embedded controller firmware 
+(ftp://ftp.software.ibm.com/pc/pccbbs/mobiles/1uhj07us.txt) there is:
+- (New) Support for IBM Hard Disk Active Protection System.
 
-The existing cscope target is very handy but only indexes the current
-$(ARCH), which is a pain since inevitably I'm interested in the other
-one at any given time ;-). This patch allows me to pass a list of
-architectures for cscope to index. e.g.
-	make ALLSOURCE_ARCHS="i386 arm" cscope
+I would conclude that the embedded controller is involved with the HDAPS!
 
-This change also works for etags etc, and I presume it is just as useful
-there.
+Just my two cents.
 
-Signed-off-by: Ian Campbell <ijc@hellion.org.uk>
-
-Index: 2.6/Makefile
-===================================================================
---- 2.6.orig/Makefile	2005-06-23 11:15:05.000000000 +0100
-+++ 2.6/Makefile	2005-06-23 11:24:12.000000000 +0100
-@@ -1156,19 +1156,25 @@
- __srctree = $(srctree)/
- endif
- 
-+ALLSOURCE_ARCHS := $(ARCH)
-+
- define all-sources
- 	( find $(__srctree) $(RCS_FIND_IGNORE) \
- 	       \( -name include -o -name arch \) -prune -o \
- 	       -name '*.[chS]' -print; \
--	  find $(__srctree)arch/$(ARCH) $(RCS_FIND_IGNORE) \
--	       -name '*.[chS]' -print; \
-+	  for ARCH in $(ALLSOURCE_ARCHS) ; do \
-+	       find $(__srctree)arch/$${ARCH} $(RCS_FIND_IGNORE) \
-+	            -name '*.[chS]' -print; \
-+	  done ; \
- 	  find $(__srctree)security/selinux/include $(RCS_FIND_IGNORE) \
- 	       -name '*.[chS]' -print; \
- 	  find $(__srctree)include $(RCS_FIND_IGNORE) \
- 	       \( -name config -o -name 'asm-*' \) -prune \
- 	       -o -name '*.[chS]' -print; \
--	  find $(__srctree)include/asm-$(ARCH) $(RCS_FIND_IGNORE) \
--	       -name '*.[chS]' -print; \
-+	  for ARCH in $(ALLSOURCE_ARCHS) ; do \
-+	       find $(__srctree)include/asm-$${ARCH} $(RCS_FIND_IGNORE) \
-+	            -name '*.[chS]' -print; \
-+	  done ; \
- 	  find $(__srctree)include/asm-generic $(RCS_FIND_IGNORE) \
- 	       -name '*.[chS]' -print )
- endef
-
-
-
--- 
-Ian Campbell
-Current Noise: Devin Townsend - Seventh Wave
-
-I am a deeply superficial person.
-		-- Andy Warhol
-
+Eric

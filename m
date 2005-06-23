@@ -1,43 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263014AbVFWIIz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263047AbVFWKGa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263014AbVFWIIz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 04:08:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262514AbVFWIEm
+	id S263047AbVFWKGa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 06:06:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263048AbVFWKFe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 04:04:42 -0400
-Received: from mail.kroah.org ([69.55.234.183]:2190 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262457AbVFWG0l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 02:26:41 -0400
-Date: Wed, 22 Jun 2005 23:26:27 -0700
-From: Greg KH <greg@kroah.com>
-To: Miles Bader <miles@gnu.org>
-Cc: Mike Bell <kernel@mikebell.org>, Andrew Morton <akpm@osdl.org>,
-       Greg KH <gregkh@suse.de>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [GIT PATCH] Remove devfs from 2.6.12-git
-Message-ID: <20050623062627.GB11638@kroah.com>
-References: <20050621062926.GB15062@kroah.com> <20050620235403.45bf9613.akpm@osdl.org> <20050621151019.GA19666@kroah.com> <20050623010031.GB17453@mikebell.org> <20050623045959.GB10386@kroah.com> <buoaclhwqfj.fsf@mctpc71.ucom.lsi.nec.co.jp>
+	Thu, 23 Jun 2005 06:05:34 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:29959 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262398AbVFWJxu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 05:53:50 -0400
+Date: Thu, 23 Jun 2005 11:53:42 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Nick Warne <nick@linicks.net>
+Cc: linux-kernel@vger.kernel.org, George Kasica <georgek@netwrx1.com>
+Subject: Re: Problem compiling 2.6.12
+Message-ID: <20050623095342.GD3749@stusta.de>
+References: <200506222037.17738.nick@linicks.net> <20050622213038.GA3749@stusta.de> <200506222253.47777.nick@linicks.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <buoaclhwqfj.fsf@mctpc71.ucom.lsi.nec.co.jp>
-User-Agent: Mutt/1.5.8i
+In-Reply-To: <200506222253.47777.nick@linicks.net>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 23, 2005 at 03:14:08PM +0900, Miles Bader wrote:
-> Greg KH <greg@kroah.com> writes:
-> > And again, for embedded systems, there are packages to build it and put
-> > it in initramfs.  People have already done the work for you.
+On Wed, Jun 22, 2005 at 10:53:47PM +0100, Nick Warne wrote:
+> On Wednesday 22 June 2005 22:30, Adrian Bunk wrote:
+> > On Wed, Jun 22, 2005 at 08:37:17PM +0100, Nick Warne wrote:
+> > > George Kasica wrote:
+> > > > Tried that here and got not much farther...here's the error:
+> > > >
+> > > > [root@eagle linux]# make bzImage
+> > > >    CHK     include/linux/version.h
+> > > >    SPLIT   include/linux/autoconf.h -> include/config/*
+> > > >    HOSTCC  scripts/mod/sumversion.o
+> > > > In file included from /usr/include/linux/errno.h:4,
+> > >
+> > > That last line looks wrong...  I think you may have symlinks linking to
+> > > other older kernel header stuff.
+> > >...
+> >
+> > No, it looks correct.
+> >
+> > That's the copy of linux/errno.h shipped with glibc and that's correct
+> > when using HOSTCC.
 > 
-> BTW, has anyone done a comparison of the space usage of udev vs. devfs
-> (including size of code etc....)?
+> Is it?  I thought kernel didn't care what Glibc or what kernel headers you had 
+> (that is system requirement) - it is automous.  Isn't HOSTCC explicitly just 
+> what compiler you have?
+>...
 
-Not that I know of.  If you want to do this, compare the original udev
-releases that were around 5kb of code, as the nice features it has today
-are stuff that devfs can not support at all.
+CC is the compiler to actually compile the kernel for the target 
+platform.
 
-thanks,
+HOSTCC is the compiler to build helper programs for kernel compilation.
 
-greg k-h
+The helper programs HOSTCC compiles aren't part of the kernel, they are 
+ordinary userspace programs that could have as well been written in 
+Perl.
+
+> Nick
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,64 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261976AbVFWDjK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262071AbVFWDlb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261976AbVFWDjK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 23:39:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262021AbVFWDjJ
+	id S262071AbVFWDlb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 23:41:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262042AbVFWDje
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 23:39:09 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:49087 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S261976AbVFWDjF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 23:39:05 -0400
-Message-ID: <42BA2ED5.6040309@namesys.com>
-Date: Wed, 22 Jun 2005 20:39:01 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
+	Wed, 22 Jun 2005 23:39:34 -0400
+Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:26386 "EHLO
+	mail.rtr.ca") by vger.kernel.org with ESMTP id S262020AbVFWDj0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 23:39:26 -0400
+Message-ID: <42BA2EE8.7010303@rtr.ca>
+Date: Wed, 22 Jun 2005 23:39:20 -0400
+From: Mark Lord <liml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050420 Debian/1.7.7-2
+X-Accept-Language: en, en-us
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: Alexander Zarochentsev <zam@namesys.com>, Jeff Garzik <jgarzik@pobox.com>,
-       reiserfs-list@namesys.com, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: reiser4 plugins
-References: <20050620235458.5b437274.akpm@osdl.org> <42B8B9EE.7020002@namesys.com> <42B8BB5E.8090008@pobox.com> <200506221824.32995.zam@namesys.com> <20050622142947.GA26993@infradead.org>
-In-Reply-To: <20050622142947.GA26993@infradead.org>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Greg Stark <gsstark@mit.edu>,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>,
+       James Bottomley <James.Bottomley@steeleye.com>
+Subject: Re: [SATA] libata-dev queue updated
+References: <42A14541.6020209@pobox.com> <87vf4ujgmj.fsf@stark.xeocode.com>	<42A1E96C.6080806@pobox.com> <20050604185028.GZ4992@stusta.de>	<42A1FB91.5060702@pobox.com> <87psv2j5mb.fsf@stark.xeocode.com>	<20050604191958.GA13111@havoc.gtf.org> <87k6l9k0aa.fsf@stark.xeocode.com> <42A263BB.9070606@pobox.com> <42B98EBF.7020500@rtr.ca> <42B9C8AB.8040001@pobox.com>
+In-Reply-To: <42B9C8AB.8040001@pobox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Correct me if I am wrong:
-
-What exists currently in VFS are vector instances, not classes. Plugins,
-selected by pluginids, are vector classes, with each pluginid selecting
-a vector class. You propose to have the vector class layer (aka plugin
-layer) in reiser4 export the vector instance to VFS for VFS to handle
-for each object, rather than having VFS select reiser4 and reiser4
-selecting a vector class (aka plugin) which selects a method.
-
-If we agree on the above, then I will comment further.
-
-Christoph Hellwig wrote:
-
->On Wed, Jun 22, 2005 at 06:24:32PM +0400, Alexander Zarochentsev wrote:
->  
+Jeff Garzik wrote:
 >
->>Reiser plugins are for the same.  Would you agree with reiser4 plugin design 
->>if the plugins will not dispatch VFS object methods calls by themselves but 
->>set ->foo_ops fileds instead?  I guess you don't like to have the two 
->>dispatching systems at the same level.
->>    
->>
->
->That is exactly the point I want to make.  I haven't looked at the design
->in detail for a long time, but schemes to allow different object to have
->different operation vectors is a good idea.  We already have that to
->varying degrees in all filesystems, and making that more formal is a good
->thing.  
->
->
->  
->
+> You can obtain a patch from the 'passthru' branch by doing
+> 
+>     git checkout -f passthru
+>     git-diff-tree -p master HEAD > /tmp/patch
+> 
+> or simply by downloading what I just uploaded a few minutes ago
 
+Great, it works now!  I had actually stumbled across a similar recipe
+on my own, but prior to your very recent update of libata-dev.git
+it gave me a huge unruly diff that didn't look right.
+
+Now, though, the recipe above gives me exactly the same patch
+that you posted, thanks!
+
+Now if only the same were possible for atapi-enable,
+though I suspect that branch is simply a one-liner to libata.h.
+
+Do you have the suspend/resume stuff (Jens A.) in a tree some place?
+
+Thanks Jeff!

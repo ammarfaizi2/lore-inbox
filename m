@@ -1,63 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263140AbVFWITZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262312AbVFWJnU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263140AbVFWITZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 04:19:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262782AbVFWIP4
+	id S262312AbVFWJnU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 05:43:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262269AbVFWJjj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 04:15:56 -0400
-Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:8276 "HELO
-	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262530AbVFWHGW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 03:06:22 -0400
-Message-ID: <42BA5F5C.3080101@yahoo.com.au>
-Date: Thu, 23 Jun 2005 17:06:04 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-CC: Hugh Dickins <hugh@veritas.com>, Badari Pulavarty <pbadari@us.ibm.com>
-Subject: [patch][rfc] 1/5: comment for mm/rmap.c
-References: <42BA5F37.6070405@yahoo.com.au>
-In-Reply-To: <42BA5F37.6070405@yahoo.com.au>
-Content-Type: multipart/mixed;
- boundary="------------070204050208010906070700"
+	Thu, 23 Jun 2005 05:39:39 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:17671 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262312AbVFWJhA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 05:37:00 -0400
+Date: Thu, 23 Jun 2005 11:36:56 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: rostedt@goodmis.org, gregkh@suse.de, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: [2.6 patch] better USB_MON dependencies
+Message-ID: <20050623093656.GC3749@stusta.de>
+References: <Pine.LNX.4.58.0506172156220.7916@ppc970.osdl.org> <1119119175.6786.4.camel@localhost.localdomain> <20050621143227.GO3666@stusta.de> <20050621123507.6b83ddf0.zaitcev@redhat.com> <20050621210410.GA3705@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050621210410.GA3705@stusta.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070204050208010906070700
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Tue, Jun 21, 2005 at 11:04:10PM +0200, Adrian Bunk wrote:
+> 
+> I thought it was required, but reading Documentation/kbuild/makefiles.txt
+> convinces me you are correct.
 
-1/5
+I forgot to attach the updated patch...
+Here it is.
 
---------------070204050208010906070700
-Content-Type: text/plain;
- name="mm-comment-rmap.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="mm-comment-rmap.patch"
+cu
+Adrian
 
-Just be clear that VM_RESERVED pages here are a bug, and the test
-is not there because they are expected.
 
-Signed-off-by: Nick Piggin <npiggin@suse.de>
+<--  snip  -->
 
-Index: linux-2.6/mm/rmap.c
-===================================================================
---- linux-2.6.orig/mm/rmap.c
-+++ linux-2.6/mm/rmap.c
-@@ -532,6 +532,8 @@ static int try_to_unmap_one(struct page 
- 	 * If the page is mlock()d, we cannot swap it out.
- 	 * If it's recently referenced (perhaps page_referenced
- 	 * skipped over this mm) then we should reactivate it.
-+	 *
-+	 * Pages belonging to VM_RESERVED regions should not happen here.
- 	 */
- 	if ((vma->vm_flags & (VM_LOCKED|VM_RESERVED)) ||
- 			ptep_clear_flush_young(vma, address, pte)) {
 
---------------070204050208010906070700--
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+
+This patch makes the USB_MON less confusing.
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+---
+
+ drivers/usb/core/hcd.c   |    2 +-
+ drivers/usb/core/hcd.h   |    2 +-
+ drivers/usb/mon/Kconfig  |   13 ++++---------
+ drivers/usb/mon/Makefile |    2 +-
+ include/linux/usb.h      |    2 +-
+ 5 files changed, 8 insertions(+), 13 deletions(-)
+
+--- linux-2.6.12-mm1-full/drivers/usb/mon/Kconfig.old	2005-06-21 16:01:03.000000000 +0200
++++ linux-2.6.12-mm1-full/drivers/usb/mon/Kconfig	2005-06-21 16:02:13.000000000 +0200
+@@ -2,13 +2,9 @@
+ # USB Monitor configuration
+ #
+ 
+-# In normal life, it makes little sense to have usbmon as a module, and in fact
+-# it is harmful, because there is no way to autoload the module.
+-# The 'm' option is allowed for hackers who debug the usbmon itself,
+-# and for those who have usbcore as a module.
+ config USB_MON
+-	tristate "USB Monitor"
+-	depends on USB
++	bool "USB Monitor"
++	depends on USB!=n
+ 	default y
+ 	help
+ 	  If you say Y here, a component which captures the USB traffic
+@@ -17,6 +13,5 @@
+ 	  Harding's USBMon.
+ 
+ 	  This is somewhat experimental at this time, but it should be safe,
+-	  as long as you aren't building this as a module and then removing it.
+-
+-	  If unsure, say Y. Do not say M.
++	  as long as you aren't using modular USB and try to remove this
++	  module.
+--- linux-2.6.12-mm1-full/drivers/usb/mon/Makefile.old	2005-06-21 16:02:29.000000000 +0200
++++ linux-2.6.12-mm1-full/drivers/usb/mon/Makefile	2005-06-21 16:03:09.000000000 +0200
+@@ -4,4 +4,4 @@
+ 
+ usbmon-objs	:= mon_main.o mon_stat.o mon_text.o
+ 
+-obj-$(CONFIG_USB_MON)	+= usbmon.o
++obj-$(CONFIG_USB)	+= usbmon.o
+--- linux-2.6.12-mm1-full/include/linux/usb.h.old	2005-06-21 16:04:38.000000000 +0200
++++ linux-2.6.12-mm1-full/include/linux/usb.h	2005-06-21 16:04:44.000000000 +0200
+@@ -290,7 +290,7 @@
+ 	struct class_device *class_dev;	/* class device for this bus */
+ 	struct kref kref;		/* handles reference counting this bus */
+ 	void (*release)(struct usb_bus *bus);	/* function to destroy this bus's memory */
+-#if defined(CONFIG_USB_MON) || defined(CONFIG_USB_MON_MODULE)
++#if defined(CONFIG_USB_MON)
+ 	struct mon_bus *mon_bus;	/* non-null when associated */
+ 	int monitored;			/* non-zero when monitored */
+ #endif
+--- linux-2.6.12-mm1-full/drivers/usb/core/hcd.h.old	2005-06-21 16:05:02.000000000 +0200
++++ linux-2.6.12-mm1-full/drivers/usb/core/hcd.h	2005-06-21 16:05:08.000000000 +0200
+@@ -410,7 +410,7 @@
+ 
+ /*-------------------------------------------------------------------------*/
+ 
+-#if defined(CONFIG_USB_MON) || defined(CONFIG_USB_MON_MODULE)
++#if defined(CONFIG_USB_MON)
+ 
+ struct usb_mon_operations {
+ 	void (*urb_submit)(struct usb_bus *bus, struct urb *urb);
+--- linux-2.6.12-mm1-full/drivers/usb/core/hcd.c.old	2005-06-21 16:05:21.000000000 +0200
++++ linux-2.6.12-mm1-full/drivers/usb/core/hcd.c	2005-06-21 16:05:27.000000000 +0200
+@@ -1855,7 +1855,7 @@
+ 
+ /*-------------------------------------------------------------------------*/
+ 
+-#if defined(CONFIG_USB_MON) || defined(CONFIG_USB_MON_MODULE)
++#if defined(CONFIG_USB_MON)
+ 
+ struct usb_mon_operations *mon_ops;
+ 
+
+

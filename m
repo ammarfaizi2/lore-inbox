@@ -1,47 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261846AbVFWAhe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261932AbVFWAt1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261846AbVFWAhe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 20:37:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261927AbVFWAhe
+	id S261932AbVFWAt1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 20:49:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261331AbVFWAt0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 20:37:34 -0400
-Received: from opersys.com ([64.40.108.71]:2834 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261846AbVFWAh0 (ORCPT
+	Wed, 22 Jun 2005 20:49:26 -0400
+Received: from smtp.lnxw.com ([207.21.185.24]:29700 "EHLO smtp.lnxw.com")
+	by vger.kernel.org with ESMTP id S261935AbVFWAtE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 20:37:26 -0400
-Message-ID: <42BA06C8.5040502@opersys.com>
-Date: Wed, 22 Jun 2005 20:48:08 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
-MIME-Version: 1.0
-To: Daniel Walker <dwalker@mvista.com>
-CC: Ingo Molnar <mingo@elte.hu>, Bill Huey <bhuey@lnxw.com>,
+	Wed, 22 Jun 2005 20:49:04 -0400
+Date: Wed, 22 Jun 2005 17:55:38 -0700
+To: Karim Yaghmour <karim@opersys.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Bill Huey <bhuey@lnxw.com>,
        Kristian Benoit <kbenoit@opersys.com>, linux-kernel@vger.kernel.org,
        paulmck@us.ibm.com, andrea@suse.de, tglx@linutronix.de,
        pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
-       ak@muc.de, sdietrich@mvista.com, hch@infradead.org, akpm@osdl.org,
-       rpm@xenomai.org
+       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org, rpm@xenomai.org
 Subject: Re: PREEMPT_RT vs I-PIPE: the numbers, part 2
-References: <Pine.LNX.4.44.0506221703030.6783-100000@dhcp153.mvista.com>
-In-Reply-To: <Pine.LNX.4.44.0506221703030.6783-100000@dhcp153.mvista.com>
+Message-ID: <20050623005538.GA3348@nietzsche.lynx.com>
+References: <1119287612.6863.1.camel@localhost> <20050620183115.GA27028@nietzsche.lynx.com> <42B98B20.7020304@opersys.com> <20050622192927.GA13817@nietzsche.lynx.com> <20050622200554.GA16119@elte.hu> <42B9CC98.1040402@opersys.com> <20050622220428.GA28906@elte.hu> <42B9F673.4040100@opersys.com> <20050623000607.GB11486@elte.hu> <42BA069D.20208@opersys.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <42BA069D.20208@opersys.com>
+User-Agent: Mutt/1.5.9i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jun 22, 2005 at 08:47:25PM -0400, Karim Yaghmour wrote:
+> FWIW, Opersys has no engineering cycles to spare. This current
+> testset and all related human and hardware costs are actually
+> coming straight out of my personal pocket. I have no client paying
+> for this. And, FWIW, I had absolutely no idea what we were going
+> to find when I started this. Certainly I didn't expect that
 
-Daniel Walker wrote:
-> I do appreciate the testing that you've done and I hope you do more in the 
-> future. Remember that PREEMPT_RT is a fast moving object, we need those 
-> kinds of tests every day .. 
+What you found with this is the very limit of your patience :)
 
-Which is exactly what I was suggesting.
+> preempt_rt would be able to do as good as the ipipe in terms of
+> interrupt latency, and that's to your credit.
 
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+...
+
+> After all, showing how much of a fraud we are shouldn't be that
+> difficult, you're a very competent developer. And because of
+> that last reason, I have a hard time holding this ad-hominem
+> attack against you. I am dissapointed though.
+
+He's probably confusing you from the real FUDers. I don't see you
+as a FUDer.
+
+He's just resentful fighting with you over attention from the same
+batch of strippers at last years OLS. :)
+
+bill
+

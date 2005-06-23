@@ -1,43 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263184AbVFWIT1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263196AbVFWIT2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263184AbVFWIT1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 04:19:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262685AbVFWIPl
+	id S263196AbVFWIT2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 04:19:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262286AbVFWIJx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 04:15:41 -0400
-Received: from lyle.provo.novell.com ([137.65.81.174]:23985 "EHLO
-	lyle.provo.novell.com") by vger.kernel.org with ESMTP
-	id S262619AbVFWHEj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 03:04:39 -0400
-Date: Thu, 23 Jun 2005 00:04:33 -0700
-From: Greg KH <gregkh@suse.de>
-To: roger blofeld <blofeldus@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [W1] Fix slave addition on big-endian platform
-Message-ID: <20050623070433.GB12158@suse.de>
-References: <20050623012732.64286.qmail@web53508.mail.yahoo.com>
+	Thu, 23 Jun 2005 04:09:53 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:6608 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262288AbVFWGiq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 02:38:46 -0400
+Date: Wed, 22 Jun 2005 23:37:59 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Mike Bell <kernel@mikebell.org>
+Cc: miles@gnu.org, greg@kroah.com, gregkh@suse.de, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [GIT PATCH] Remove devfs from 2.6.12-git
+Message-Id: <20050622233759.7a1130a9.akpm@osdl.org>
+In-Reply-To: <20050623063457.GB955@mikebell.org>
+References: <20050621062926.GB15062@kroah.com>
+	<20050620235403.45bf9613.akpm@osdl.org>
+	<20050621151019.GA19666@kroah.com>
+	<20050623010031.GB17453@mikebell.org>
+	<20050623045959.GB10386@kroah.com>
+	<buoaclhwqfj.fsf@mctpc71.ucom.lsi.nec.co.jp>
+	<20050623063457.GB955@mikebell.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050623012732.64286.qmail@web53508.mail.yahoo.com>
-User-Agent: Mutt/1.5.8i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 22, 2005 at 06:27:32PM -0700, roger blofeld wrote:
-> Hi
->  In the 2.6.12 code the "rn" structure is in the wrong-endianness when
-> passed to w1_attach_slave_device(). This causes problems like the
-> family and crc being swapped around. The following patch fixes the
-> problem for me.
+Mike Bell <kernel@mikebell.org> wrote:
+>
+> On Thu, Jun 23, 2005 at 03:14:08PM +0900, Miles Bader wrote:
+> > BTW, has anyone done a comparison of the space usage of udev vs. devfs
+> > (including size of code etc....)?
 > 
-> Signed-off-by: Roger Blofeld <blofeldus@yahoo.com>
+> Greg gave me an "I assume so" estimate that udev was smaller by excluding
+> the size of sysfs a while back. If you include sysfs in udev's overhead
+> then I believe devfs wins handily, but I haven't done the numbers to
+> prove it so my estimate is no better. I'm just basing it on sysfs being
+> absolutely huge, in linux-tiny terms.
 
-Hm, your patch is line-wrapped and the tabs are missing :(
-
-You should also send this to the w1 author/maintainer first, he would
-know if this is the correct fix or not.
-
-thanks,
-
-greg k-h
+sysfs certainly has a history of goggling gobs of memory.  But you can
+disable it in .config.

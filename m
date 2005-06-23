@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262700AbVFWVVt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262752AbVFWV2R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262700AbVFWVVt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 17:21:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262702AbVFWVSD
+	id S262752AbVFWV2R (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 17:28:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262717AbVFWVW1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 17:18:03 -0400
-Received: from zproxy.gmail.com ([64.233.162.205]:13087 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262700AbVFWVQF convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 17:16:05 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Acz49pSuA10ZwqVyQcKqBRoxADRcGQfSmw9v3iirGzK3qCv+PffZ0dn9eaUe/R4HMgvnqiHwn3xslnFsnp72KgWPNIXUrqiCN1SxTeZeXAkolFsVYJXnl5ORn4P/DfwvnpBMwHkz89L1mwY7iDRr6UDdcXJ3PQ6bOCOsII08AyE=
-Message-ID: <9a87484905062314165a4a3ecb@mail.gmail.com>
-Date: Thu, 23 Jun 2005 23:16:04 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
-To: "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH] SLIP: simplify sl_free_bufs
-Cc: juhl-lkml@dif.dk, loz@holmes.demon.co.uk, linux-serial@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050623.141038.122619255.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <Pine.LNX.4.62.0506152136310.3842@dragon.hyggekrogen.localhost>
-	 <Pine.LNX.4.62.0506232243340.7467@dragon.hyggekrogen.localhost>
-	 <20050623.141038.122619255.davem@davemloft.net>
+	Thu, 23 Jun 2005 17:22:27 -0400
+Received: from [80.71.243.242] ([80.71.243.242]:61312 "EHLO tau.rusteko.ru")
+	by vger.kernel.org with ESMTP id S262711AbVFWVSF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 17:18:05 -0400
+From: Nikita Danilov <nikita@clusterfs.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17083.9995.105576.61184@gargle.gargle.HOWL>
+Date: Fri, 24 Jun 2005 01:18:03 +0400
+To: Hans Reiser <reiser@namesys.com>
+Cc: Pekka Enberg <penberg@gmail.com>, Alexander Zarochentcev <zam@namesys.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: -mm -> 2.6.13 merge status
+Newsgroups: gmane.comp.file-systems.reiserfs.general,gmane.linux.kernel
+In-Reply-To: <42BAEEA1.2060305@namesys.com>
+References: <20050620235458.5b437274.akpm@osdl.org.suse.lists.linux.kernel>
+	<p73d5qgc67h.fsf@verdi.suse.de>
+	<42B86027.3090001@namesys.com>
+	<20050621195642.GD14251@wotan.suse.de>
+	<42B8C0FF.2010800@namesys.com>
+	<84144f0205062223226d560e41@mail.gmail.com>
+	<42BA67C9.7060604@namesys.com>
+	<1119543302.4115.141.camel@tribesman.namesys.com>
+	<42BAEEA1.2060305@namesys.com>
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/23/05, David S. Miller <davem@davemloft.net> wrote:
-> From: Jesper Juhl <juhl-lkml@dif.dk>
-> Date: Thu, 23 Jun 2005 22:46:06 +0200 (CEST)
-> 
-> > The patch below still applies cleanly to 2.6.12 - any chance this might
-> > get applied? or any good reasons not to apply it?
-> 
-> I'll put it in my tree, 
+Hans Reiser writes:
 
-Thanks.
+[...]
 
->give me a day or so.
-> 
-No problem. :)
+ > I think the above is easier to read than the below.  Macros can obscure
+ > sometimes, and one of our weaknesses is a tendency to use macros in such
+ > a way that it frustrates meta-. use in emacs.   Nikita did however
+ > mention that there was something that could understand macros when
+ > constructing tags files, but I forgot what that was.
 
+xref.el (http://xref-tech.com/xrefactory/main.html). With it one can
+type current->[TAB] and it shows fields of struct task_struct in the
+emacs completion buffer.
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Nikita.

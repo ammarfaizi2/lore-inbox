@@ -1,82 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262718AbVFWWYI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262892AbVFWWT0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262718AbVFWWYI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 18:24:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262900AbVFWWUf
+	id S262892AbVFWWT0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 18:19:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262851AbVFWWTY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 18:20:35 -0400
-Received: from [85.8.12.41] ([85.8.12.41]:46008 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S262858AbVFWWOG (ORCPT
+	Thu, 23 Jun 2005 18:19:24 -0400
+Received: from unused.mind.net ([69.9.134.98]:55513 "EHLO echo.lysdexia.org")
+	by vger.kernel.org with ESMTP id S262766AbVFWWOA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 18:14:06 -0400
-Message-ID: <42BB3428.6030708@drzeus.cx>
-Date: Fri, 24 Jun 2005 00:14:00 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
+	Thu, 23 Jun 2005 18:14:00 -0400
+Date: Thu, 23 Jun 2005 15:11:52 -0700 (PDT)
+From: William Weston <weston@sysex.net>
+X-X-Sender: weston@echo.lysdexia.org
+To: Ingo Molnar <mingo@elte.hu>
+cc: "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
+       "Eugeny S. Mints" <emints@ru.mvista.com>,
+       Daniel Walker <dwalker@mvista.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
+In-Reply-To: <20050623001023.GC11486@elte.hu>
+Message-ID: <Pine.LNX.4.58.0506231330450.27096@echo.lysdexia.org>
+References: <20050616072935.GB19772@elte.hu> <42B160F5.9060208@cybsft.com>
+ <20050616173247.GA32552@elte.hu> <Pine.LNX.4.58.0506171139570.32721@echo.lysdexia.org>
+ <20050621131249.GB22691@elte.hu> <Pine.LNX.4.58.0506211228210.16701@echo.lysdexia.org>
+ <20050622082450.GA19957@elte.hu> <Pine.LNX.4.58.0506221434170.22191@echo.lysdexia.org>
+ <20050622220007.GA28258@elte.hu> <Pine.LNX.4.58.0506221558260.22649@echo.lysdexia.org>
+ <20050623001023.GC11486@elte.hu>
 MIME-Version: 1.0
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-CC: LKML <linux-kernel@vger.kernel.org>, jgarzik@pobox.com
-Subject: Re: 2.6.12 breaks 8139cp
-References: <42B9D21F.7040908@drzeus.cx> <200506221534.03716.bjorn.helgaas@hp.com> <42BA69AC.5090202@drzeus.cx> <200506231143.34769.bjorn.helgaas@hp.com>
-In-Reply-To: <200506231143.34769.bjorn.helgaas@hp.com>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bjorn Helgaas wrote:
+On Thu, 23 Jun 2005, Ingo Molnar wrote:
 
->
->Your 2.6.11 dmesg mentions the VIA IRQ fixup, but the 2.6.12 one
->doesn't.  I bet something's broken there.
->
->Can you try the attached debugging patch?  And please collect the
->output of lspci, too.
->  
->
+> yes, very likely hardware (or system BIOS, e.g. SMM) induced.
 
-I tried the attached patch and it had no effect. I also tried porting
-the 2.6.11 way of handling the VIA quirk but it didn't have any effect.
-I'll try a more complete port tomorrow (it was a bit of a hack this time).
+Running -50-17 on the Xeon/HT box, now with the ICH5 USB controller
+disabled in BIOS.
 
-Rgds
-Pierre
+The strangely regular ~200us idle jumps for both CPUs went away.  Now I'm
+seeing one CPU at a time disappear (often completely absent) in the 
+traces, with a the maximum wakeup generally hitting between 150us and 
+300us.  While compiling a kernel and running vlc (which would skip frames 
+like mad, even with RR scheduling) I was able to get one trace of 2556us.
 
-lspci:
+There's also BUG warnings for update_out_trace().  I'm not quite sure if 
+the trace behavior I'm seeing is related to this bug, but judging by the 
+behavior of vlc, I wouldn't bet on it.
 
-00:00.0 Host bridge: Intel Corporation 82855PM Processor to I/O
-Controller (rev 03)
-00:01.0 PCI bridge: Intel Corporation 82855PM Processor to AGP
-Controller (rev 03)
-00:1d.0 USB Controller: Intel Corporation 82801DB/DBL/DBM
-(ICH4/ICH4-L/ICH4-M) USB UHCI Controller #1 (rev 01)
-00:1d.1 USB Controller: Intel Corporation 82801DB/DBL/DBM
-(ICH4/ICH4-L/ICH4-M) USB UHCI Controller #2 (rev 01)
-00:1d.2 USB Controller: Intel Corporation 82801DB/DBL/DBM
-(ICH4/ICH4-L/ICH4-M) USB UHCI Controller #3 (rev 01)
-00:1d.7 USB Controller: Intel Corporation 82801DB/DBM (ICH4/ICH4-M) USB2
-EHCI Controller (rev 01)
-00:1e.0 PCI bridge: Intel Corporation 82801 Mobile PCI Bridge (rev 81)
-00:1f.0 ISA bridge: Intel Corporation 82801DBM (ICH4-M) LPC Interface
-Bridge (rev 01)
-00:1f.1 IDE interface: Intel Corporation 82801DBM (ICH4-M) IDE
-Controller (rev 01)
-00:1f.3 SMBus: Intel Corporation 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M)
-SMBus Controller (rev 01)
-00:1f.5 Multimedia audio controller: Intel Corporation 82801DB/DBL/DBM
-(ICH4/ICH4-L/ICH4-M) AC'97 Audio Controller (rev 01)
-00:1f.6 Modem: Intel Corporation 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M)
-AC'97 Modem Controller (rev 01)
-01:00.0 VGA compatible controller: ATI Technologies Inc Radeon R250 Lf
-[FireGL 9000] (rev 01)
-02:00.0 FireWire (IEEE 1394): VIA Technologies, Inc. IEEE 1394 Host
-Controller (rev 80)
-02:01.0 Ethernet controller: Realtek Semiconductor Co., Ltd.
-RTL-8139/8139C/8139C+ (rev 20)
-02:02.0 Network controller: Intel Corporation PRO/Wireless 2200BG (rev 05)
-02:04.0 CardBus bridge: ENE Technology Inc CB1410 Cardbus Controller
-(rev 01)
+Since the 2556us trace is quite large all the info is posted at:
 
+http://sysex.net/testing/2.6.12-RT-V0.7.50-17/xeonht/
+
+
+--ww

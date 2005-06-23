@@ -1,72 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263011AbVFWSnu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263043AbVFWSjH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263011AbVFWSnu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 14:43:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263030AbVFWSjt
+	id S263043AbVFWSjH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 14:39:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263028AbVFWSey
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 14:39:49 -0400
-Received: from locomotive.csh.rit.edu ([129.21.60.149]:10785 "EHLO
-	locomotive.unixthugs.org") by vger.kernel.org with ESMTP
-	id S263032AbVFWShI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 14:37:08 -0400
-Message-ID: <42BB0151.3030904@suse.de>
-Date: Thu, 23 Jun 2005 14:37:05 -0400
-From: Jeff Mahoney <jeffm@suse.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
+	Thu, 23 Jun 2005 14:34:54 -0400
+Received: from mail8.fw-bc.sony.com ([160.33.98.75]:43767 "EHLO
+	mail8.fw-bc.sony.com") by vger.kernel.org with ESMTP
+	id S262989AbVFWScw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 14:32:52 -0400
+Message-ID: <42BB0027.6030502@am.sony.com>
+Date: Thu, 23 Jun 2005 11:32:07 -0700
+From: Tim Bird <tim.bird@am.sony.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Pekka Enberg <penberg@gmail.com>
-Cc: Hans Reiser <reiser@namesys.com>, Andi Kleen <ak@suse.de>,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       Alexander Zarochentcev <zam@namesys.com>, vs <vs@thebsh.namesys.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ReiserFS List <reiserfs-list@namesys.com>,
-       Pekka Enberg <penberg@cs.helsinki.fi>
-Subject: Re: -mm -> 2.6.13 merge status
-References: <20050620235458.5b437274.akpm@osdl.org.suse.lists.linux.kernel>	 <p73d5qgc67h.fsf@verdi.suse.de> <42B86027.3090001@namesys.com>	 <20050621195642.GD14251@wotan.suse.de> <42B8C0FF.2010800@namesys.com> <84144f0205062223226d560e41@mail.gmail.com>
-In-Reply-To: <84144f0205062223226d560e41@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+To: =?UTF-8?B?77+9?= <pozsy@uhulinux.hu>
+CC: linux-kernel@vger.kernel.org, David Woodhouse <dwmw2@infradead.org>,
+       "Sean M. Burke" <sburke@cpan.org>, trivial@rustcorp.com.au
+Subject: Re: PATCH: "Ok" -> "OK" in messages
+References: <42985251.6030006@cpan.org> <1117279792.32118.11.camel@localhost.localdomain> <20050528125430.GB3870@ojjektum.uhulinux.hu> <42BAE3B1.5010209@am.sony.com> <20050623165309.GA23548@ojjektum.uhulinux.hu>
+In-Reply-To: <20050623165309.GA23548@ojjektum.uhulinux.hu>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pekka Enberg wrote:
->>--- /dev/null	2003-09-23 21:59:22.000000000 +0400
->>+++ linux-2.6.11-vs/fs/reiser4/pool.c	2005-06-03 17:49:38.668204642 +0400
->>+/* initialise new pool */
->>+reiser4_internal void
->>+reiser4_init_pool(reiser4_pool * pool /* pool to initialise */ ,
->>+		  size_t obj_size /* size of objects in @pool */ ,
->>+		  int num_of_objs /* number of preallocated objects */ ,
->>+		  char *data /* area for preallocated objects */ )
->>+{
->>+	reiser4_pool_header *h;
->>+	int i;
->>+
->>+	assert("nikita-955", pool != NULL);
+> >>-	putstr("Uncompressing Linux... ");
+> >> +	putstr("Linux " UTS_RELEASE);
+> >>  	gunzip();
+> >> -	putstr("Ok, booting the kernel.\n");
+> >> +	putstr("\n");
+> >>
+
+� wrote:
+>>Language neutrality is not a goal for kernel messages,
+>>that I'm aware of.
 > 
-> These assertion codes are meaningless to the rest of us so please drop
-> them.
+> Of course this is true, but I think this very one is an exception: this 
+> is the only one seen when booting with the "quiet" kernel option or 
+> using some shiny bootlogo patches, both of which is common practice 
+> among distribution-shipped kernels.
+> 
+OK, I understand why this one might worth different
+consideration.
 
-As someone who spends time debugging reiser3 issues, I've grown
-accustomed to the named assertions. They make discussing a particular
-assertion much more natural in conversation than file:line. It also
-makes difficult to reproduce assertions more trackable over time. The
-assertion number never changes, but the line number can with even the
-most trivial of patches.
+> 
+>>I disagree with this change because
+>>it yields a net reduction in understanding what's going
+>>on during booting.
+> 
+> No, it does not yields any reduction. Only the strings itself are 
+> changed, not the time they are printed.
+This is only true if the words themselves have no meaning or utility.
+They do.
 
-That said, one of my gripes with the named assertions in reiser3 (and
-reiser4 now) is that the development staff changes over time. There are
-many named assertions in reiser3 that refer to developers no longer
-employed by Hans. The quoted one is a perfect example.
+> Besides, nobody is interested that actually an uncompress step is in 
+> progress, that just works.
+This is not true, a developer working on a new board support package
+cares whether we're in the decompress step or in the kernel booting step.
 
-Hans, would it be acceptable to you to keep only numbered assertions and
- keep a code responsbility list internal to namesys? It would serve a
-dual purpose of keeping the idea of named assertions, but also remove a
-huge number of strings that bloat the implementation.
+New developers unfamiliar with the kernel booting sequence will have
+to find out where this message is coming from, when things fail.
+Without a unique string to search for, this becomes quite difficult
+to find.
 
--Jeff
+In my field, I work with a LOT of developers who are not deeply
+familiar with the kernel, but still face these bootup messages.
 
--- 
-Jeff Mahoney
-SuSE Labs
+> And, btw if it fails (the gunzip), it prints 
+> an error message anyway iirc.
+
+I'm not sure what happens on gunzip failure, but
+I see kernel boot failures quite often during
+board bringup, and it's nice to know if you've
+passed the decompression phase, etc.  The messages
+you propose are much less instructive for the
+developer.
+
+However, I will grant that we're not trying to
+optimize for the developer, but rather should
+be optimizing for the user.  But if we can
+do something that is suitable to both, I would
+prefer it.  Could we put just a little more
+wording back in?
+
+ -- Tim
+
+=============================
+Tim Bird
+Architecture Group Chair, CE Linux Forum
+Senior Staff Engineer, Sony Electronics
+=============================

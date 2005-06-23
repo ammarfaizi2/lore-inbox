@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261952AbVFWBMB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261830AbVFWBS5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261952AbVFWBMB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 21:12:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261953AbVFWBMA
+	id S261830AbVFWBS5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 21:18:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261841AbVFWBS5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 21:12:00 -0400
-Received: from opersys.com ([64.40.108.71]:34834 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261952AbVFWBLo (ORCPT
+	Wed, 22 Jun 2005 21:18:57 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:25238 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261830AbVFWBSx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 21:11:44 -0400
-Message-ID: <42BA0ED4.80207@opersys.com>
-Date: Wed, 22 Jun 2005 21:22:28 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
-MIME-Version: 1.0
-To: David Lang <dlang@digitalinsight.com>
-CC: Ingo Molnar <mingo@elte.hu>, Bill Huey <bhuey@lnxw.com>,
-       Kristian Benoit <kbenoit@opersys.com>, linux-kernel@vger.kernel.org,
-       paulmck@us.ibm.com, andrea@suse.de, tglx@linutronix.de,
-       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
-       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, rpm@xenomai.org
-Subject: Re: PREEMPT_RT vs I-PIPE: the numbers, part 2
-References: <1119287612.6863.1.camel@localhost> <20050620183115.GA27028@nietzsche.lynx.com> <42B98B20.7020304@opersys.com> <20050622192927.GA13817@nietzsche.lynx.com> <20050622200554.GA16119@elte.hu> <42B9CC98.1040402@opersys.com> <20050622220428.GA28906@elte.hu> <42B9F673.4040100@opersys.com> <20050623000607.GB11486@elte.hu> <42BA069D.20208@opersys.com> <Pine.LNX.4.62.0506221753010.16773@qynat.qvtvafvgr.pbz>
-In-Reply-To: <Pine.LNX.4.62.0506221753010.16773@qynat.qvtvafvgr.pbz>
-Content-Type: text/plain; charset=us-ascii
+	Wed, 22 Jun 2005 21:18:53 -0400
+Date: Wed, 22 Jun 2005 18:18:25 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Mike Bell <kernel@mikebell.org>
+Cc: greg@kroah.com, gregkh@suse.de, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [GIT PATCH] Remove devfs from 2.6.12-git
+Message-Id: <20050622181825.204fbcb7.akpm@osdl.org>
+In-Reply-To: <20050623010031.GB17453@mikebell.org>
+References: <20050621062926.GB15062@kroah.com>
+	<20050620235403.45bf9613.akpm@osdl.org>
+	<20050621151019.GA19666@kroah.com>
+	<20050623010031.GB17453@mikebell.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Mike Bell <kernel@mikebell.org> wrote:
+>
+> On Tue, Jun 21, 2005 at 08:10:19AM -0700, Greg KH wrote:
+> > There might be some complaints.  But I doubt they would be from anyone
+> > running a -mm tree as those people kind of know the current status of
+> > things in the kernel.  There have been numerous warnings as to the fact
+> > that this was going away, and I waited a _year_ to do this.
+> 
+> I use -mm and I'm complaining.
 
-David Lang wrote:
-> I know that I have a large number of slow (<200MHz) pentiums that are just 
-> sitting around at home and could be used for this, but I don't know if 
-> they would be considered fast enough for any portions of this test (I have 
-> a much smaller number of faster machines that could possibly be used)
+Thanks!
 
-I don't think that there should be any limitation on the type of
-hardware being tested. In fact, I would think that having as
-diverse a test hardware as possible would be a good thing.
-Many of the embedded platforms are in fact not that far different
-from those slow pentiums you have lying around.
+> It breaks a lot of my embedded setups which have read-only storage only
+> and thus need /dev on devfs or tmpfs.
 
-My 0.02$,
+Well that's quite a problem.  We're certainly causing people such as
+yourself to take on quite a lot of work.  But on the other hand we do want
+the kernel to progress sanely, and that sometimes involves taking things
+out.
 
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+I don't have enough info to know whether the world would be a better place
+if we keep devfs, remove devfs or remove devfs even later on.  I don't
+think anyone knows, which is why we're taking this little
+disable-it-and-see-who-shouts approach.

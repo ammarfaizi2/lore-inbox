@@ -1,85 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262728AbVFWTaG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262745AbVFWTiT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262728AbVFWTaG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 15:30:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262752AbVFWT3p
+	id S262745AbVFWTiT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 15:38:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262715AbVFWTbi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 15:29:45 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:13010 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S262992AbVFWTZ6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 15:25:58 -0400
-Message-Id: <200506231924.j5NJOvLA031008@laptop11.inf.utfsm.cl>
-To: David Masover <ninja@slaphack.com>
-cc: Hans Reiser <reiser@namesys.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: reiser4 plugins 
-In-Reply-To: Message from David Masover <ninja@slaphack.com> 
-   of "Thu, 23 Jun 2005 09:11:16 EST." <42BAC304.2060802@slaphack.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Thu, 23 Jun 2005 15:24:57 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Thu, 23 Jun 2005 15:24:58 -0400 (CLT)
+	Thu, 23 Jun 2005 15:31:38 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:25517 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S262722AbVFWTYa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 15:24:30 -0400
+Message-ID: <42BB0C6C.8070308@namesys.com>
+Date: Thu, 23 Jun 2005 12:24:28 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Mahoney <jeffm@suse.de>
+CC: Pekka Enberg <penberg@gmail.com>, Andi Kleen <ak@suse.de>,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       Alexander Zarochentcev <zam@namesys.com>, vs <vs@thebsh.namesys.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       ReiserFS List <reiserfs-list@namesys.com>,
+       Pekka Enberg <penberg@cs.helsinki.fi>
+Subject: Re: -mm -> 2.6.13 merge status
+References: <20050620235458.5b437274.akpm@osdl.org.suse.lists.linux.kernel>	 <p73d5qgc67h.fsf@verdi.suse.de> <42B86027.3090001@namesys.com>	 <20050621195642.GD14251@wotan.suse.de> <42B8C0FF.2010800@namesys.com> <84144f0205062223226d560e41@mail.gmail.com> <42BB0151.3030904@suse.de>
+In-Reply-To: <42BB0151.3030904@suse.de>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Masover <ninja@slaphack.com> wrote:
-> Hans Reiser wrote:
-> > Jeff Garzik wrote:
+Jeff Mahoney wrote:
 
-[...]
+>Pekka Enberg wrote:
+>  
+>
+>>>--- /dev/null	2003-09-23 21:59:22.000000000 +0400
+>>>+++ linux-2.6.11-vs/fs/reiser4/pool.c	2005-06-03 17:49:38.668204642 +0400
+>>>+/* initialise new pool */
+>>>+reiser4_internal void
+>>>+reiser4_init_pool(reiser4_pool * pool /* pool to initialise */ ,
+>>>+		  size_t obj_size /* size of objects in @pool */ ,
+>>>+		  int num_of_objs /* number of preallocated objects */ ,
+>>>+		  char *data /* area for preallocated objects */ )
+>>>+{
+>>>+	reiser4_pool_header *h;
+>>>+	int i;
+>>>+
+>>>+	assert("nikita-955", pool != NULL);
+>>>      
+>>>
+>>These assertion codes are meaningless to the rest of us so please drop
+>>them.
+>>    
+>>
+>
+>As someone who spends time debugging reiser3 issues, I've grown
+>accustomed to the named assertions. They make discussing a particular
+>assertion much more natural in conversation than file:line. It also
+>makes difficult to reproduce assertions more trackable over time. The
+>assertion number never changes, but the line number can with even the
+>most trivial of patches.
+>
+>That said, one of my gripes with the named assertions in reiser3 (and
+>reiser4 now) is that the development staff changes over time. There are
+>many named assertions in reiser3 that refer to developers no longer
+>employed by Hans. The quoted one is a perfect example.
+>  
+>
+Yes, but when I get stuck I still send him an email and he still sends
+me an answer.  He is a nice guy even if he can't stand working for me....
 
-> > You missed his point.  He is saying ext3 code should migrate towards
-> > becoming reiser4 plugins, and reiser4 should be merged now so that the
-> > migration can get started.
+>Hans, would it be acceptable to you to keep only numbered assertions and
+> keep a code responsbility list internal to namesys?
+>
+No effort to document who is the current maintainer of a section of our
+code (and thus presumed to be able to figure something nonobvious about
+it out) has ever worked as well as these named assertions. 
 
-> Sort of.
-> 
-> I think ext3 would be nice as a reiser4 plugin.
+Efforts to put at the top of files who worked on what part of it always
+get miserably out of date, and people are always too shy to update them
+for valid social reasons.
 
-What for? It works just fine as it stands, AFAICS.
+Internal lists are not the open source way.
 
->                                                 Not everyone will want
-> to reformat at once, but as the reiser4 code matures and proves itself
-> (even more than it already has),
+The reason some developers hate these named assertions is because they
+are afraid that it makes them famous for their bugs, when actually it
+does not.  Assertions hit are not equal to bugs authored, and users
+understand that better than those developers think.  Writing an
+assertion means you can understand a bug, not that you created it.  The
+real effect of your name being on many assertions is that people know
+you contributed a lot.
 
-I for one have seen mainly people with wild claims that it will make their
-machines much faster, and coming back later asking how they can recover
-their thrashed partitions...
+It is not necessary for Namesys to be an opaque corporation with no
+faces on its surface.  My name is on the filesystem, every bit of credit
+I can give to the others I owe them many times over. 
 
->                                  the ext3 people may find themselves
-> wanting some of the more generic optimizations.
-
-They'll filch them in due time, don't worry.
-
-> But, I don't think that will realistically happen at all.
-> 
-> Instead, what will probably happen is that once Reiser4 is in the
-> mainstream kernel, it will become more popular and noticable.  Other
-> FSes will take note.  ext3 people may decide they want
-> file-as-directory,
-
-That idea is even much older than Linux itself, and no other (Unix)
-filesystem has implemented it. Ever. Wonder why...
-
->                    and vfat people may decide they want cryptocompress,
-
-I'm sure they don't, because it is mostly for Windows and assorted devices
-(pendrives, digital cameras, ...) compatibility.
-
-> and so on.  In order to do this, they can work with Namesys to port
-> whatever feature they need at the time to the standard VFS.
-
-I'm sure they are grateful for the offer.
-
-> Eventually, with all the features ported, we end up with a situation
-> where there may be no meaningful difference between a filesystem and a
-> low-level reiser4 plugin.
-
-Could very well take decades, if ever.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

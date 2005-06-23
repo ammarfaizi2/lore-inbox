@@ -1,72 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262737AbVFWVmE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262722AbVFWVxX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262737AbVFWVmE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 17:42:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262761AbVFWVjP
+	id S262722AbVFWVxX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 17:53:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262769AbVFWVtY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 17:39:15 -0400
-Received: from [12.172.143.34] ([12.172.143.34]:26305 "EHLO
-	mail.teleformix.com") by vger.kernel.org with ESMTP id S262816AbVFWVhe
+	Thu, 23 Jun 2005 17:49:24 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:18184 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S262715AbVFWViq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 17:37:34 -0400
-Message-ID: <42BB2B51.5030604@teleformix.com>
-Date: Thu, 23 Jun 2005 16:36:17 -0500
-From: Dan Oglesby <doglesby@teleformix.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Avuton Olrich <avuton@gmail.com>
-CC: Adrian Ulrich <reiser4@blinkenlights.ch>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, ninja@slaphack.com,
-       reiser@namesys.com, jgarzik@pobox.com, hch@infradead.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: reiser4 plugins
-References: <42BAC304.2060802@slaphack.com>	 <200506231924.j5NJOvLA031008@laptop11.inf.utfsm.cl>	 <20050623221222.33074838.reiser4@blinkenlights.ch> <3aa654a405062314296a4ca2ae@mail.gmail.com>
-In-Reply-To: <3aa654a405062314296a4ca2ae@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-PMX-Version: 4.7.1.128075, Antispam-Engine: 2.0.3.2, Antispam-Data: 2005.6.8.46
-X-PerlMx-Spam: Gauge=IIIIIII, Probability=7%, Report='__CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __MIME_VERSION 0, __SANE_MSGID 0'
+	Thu, 23 Jun 2005 17:38:46 -0400
+Date: Fri, 24 Jun 2005 07:38:30 +1000
+To: "Kluba, Patrik" <pajko@halom.u-szeged.hu>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       Ferenc Havasi <havasi@inf.u-szeged.hu>,
+       "Artem B. Bityuckiy" <dedekind@yandex.ru>,
+       Michal Ludvig <michal@logix.cz>
+Subject: Re: cryptoapi compression modules & JFFSx
+Message-ID: <20050623213830.GA3803@gondor.apana.org.au>
+References: <1119555217l.7540l.1l@detonator>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1119555217l.7540l.1l@detonator>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Avuton Olrich wrote:
-> On 6/23/05, Adrian Ulrich <reiser4@blinkenlights.ch> wrote:
+On Thu, Jun 23, 2005 at 07:33:37PM +0000, Kluba, Patrik wrote:
 > 
->>From my POV:
->> I've been using Reiser4 for almost everything (Rootfs / External
->> Harddrives) for about ~8 Months without any data loss..
->>
->> Powerloss, unpluging the Disk while writing, full filesystem,
->> heavy use : No problems with reiser4.. It *is* stable.
-> 
-> 
-> *From users who use it* I have heard nothing but love for reiser4.
-> It's amazing how quickly people seem to be dismissive about what
-> reiser4 has to offer when they more than likely haven't taken it for a
-> spin at all. All I hear about is 'we can't let something ugly go into
-> the stable kernel' then in the same day I looked into some of the
-> config options...
-> 
-> CONFIG_WDC_ALI15X3:
-> *snip*
-> This allows for UltraDMA support for WDC drives that ignore CRC
-> checking. You are a fool for enabling this option, but there have been
-> requests.
-> *snip*
-> 
-> How many have requested that reiser4 make it into the kernel? I'd
-> imagine many more then requested this IDE feature. And it's an
-> *option*. Please work something out on this.
-> 
-> avuton
-> 
+> I'm going to port JFFS2's compression modules to CryptoApi except  
+> {in|de}flate, which Artem is working(?) on.
+> I've noticed that the pcompress thing (slen <-> *slen and partial  
+> compression which about a discussion was on the list) is in Herbert's  
+> repository. Does it mean that it will get into the kernel once? I just  
+> would like to be sure whether should I implement pcompress or not.
 
-As a user who uses ReiserFS v3, I have nothing but love for ReiserFS.
+Well I've removed it actually because Artem said he didn't need it
+anymore.
 
-The speed and reliability are great right now, I'm really looking 
-forward to using ReiserFS v4.
+However, if you can provide an implementation of pcompress for deflate
+that's generic enough then I'm happy to put it back.  By genericity
+I mean not making assumptions such as the input buffer size being
+less than 4K.
 
---Dan
+> The second thing is that we would like to use CryptoApi from user  
+> space. This way it won't be necessary to reimplement compression  
+> algorithms in user space filesystem image creation programs  
+> (mkfs.jffsx), and it would make using & distributing closed-source  
+> proprietary compression methods easier.
+> There's a patch at http://www.logix.cz/michal/devel/cryptodev/, written  
+> by Michal Ludvig, which adds a /dev/crypto device for this purpose, as  
+> on *BSD. Is there a chance that this can get into the kernel?
 
+Something liks this will be included once we have async crypto.  However,
+that could be a while yet so I suggest that you start by including the
+deflate implementation in user-space.
 
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

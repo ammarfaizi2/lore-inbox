@@ -1,67 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261939AbVFWA6c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261945AbVFWBCe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261939AbVFWA6c (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 20:58:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261940AbVFWA6b
+	id S261945AbVFWBCe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 21:02:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261946AbVFWBCd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 20:58:31 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:59852 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261939AbVFWA6Z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 20:58:25 -0400
-Message-ID: <42BA092A.7090408@us.ibm.com>
-Date: Wed, 22 Jun 2005 17:58:18 -0700
-From: Vara Prasad <prasadav@us.ibm.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.2) Gecko/20040804 Netscape/7.2 (ax)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Gerrit Huizenga <gh@us.ibm.com>, jgarzik@pobox.com,
+	Wed, 22 Jun 2005 21:02:33 -0400
+Received: from nome.ca ([65.61.200.81]:60599 "HELO gobo.nome.ca")
+	by vger.kernel.org with SMTP id S261945AbVFWBAY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 21:00:24 -0400
+Date: Wed, 22 Jun 2005 18:00:32 -0700
+From: Mike Bell <kernel@mikebell.org>
+To: Greg KH <greg@kroah.com>
+Cc: Andrew Morton <akpm@osdl.org>, Greg KH <gregkh@suse.de>, torvalds@osdl.org,
        linux-kernel@vger.kernel.org
-Subject: Re: -mm -> 2.6.13 merge status (kexec/kdump)
-References: <20050621132204.1b57b6ba.akpm@osdl.org>	<E1Dkpn1-0006va-00@w-gerrit.beaverton.ibm.com> <20050621140441.53513a7a.akpm@osdl.org>
-In-Reply-To: <20050621140441.53513a7a.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: [GIT PATCH] Remove devfs from 2.6.12-git
+Message-ID: <20050623010031.GB17453@mikebell.org>
+Mail-Followup-To: Mike Bell <kernel@mikebell.org>, Greg KH <greg@kroah.com>,
+	Andrew Morton <akpm@osdl.org>, Greg KH <gregkh@suse.de>,
+	torvalds@osdl.org, linux-kernel@vger.kernel.org
+References: <20050621062926.GB15062@kroah.com> <20050620235403.45bf9613.akpm@osdl.org> <20050621151019.GA19666@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050621151019.GA19666@kroah.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+On Tue, Jun 21, 2005 at 08:10:19AM -0700, Greg KH wrote:
+> There might be some complaints.  But I doubt they would be from anyone
+> running a -mm tree as those people kind of know the current status of
+> things in the kernel.  There have been numerous warnings as to the fact
+> that this was going away, and I waited a _year_ to do this.
 
->Gerrit Huizenga <gh@us.ibm.com> wrote:
->  
->
->>Kexec/kdump has a chance of working reliably.
->>    
->>
->
->IOW: Kexec/kdump has a chance of not working reliably.
->
->Worried.
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
-I understand your concerns based on the device shutdown issues but these 
-are not fundamental design problems that we can not solve. We should be 
-able to fix them either through generic solutions to a class of devices 
-or one of kind for special devices. As you know we are engaging in those 
-discussions and providing fixes.
+I use -mm and I'm complaining.
 
-I think all the alternatives out there are less reliable than Kdump 
-based on the design. Vendors are currently shipping other solutions 
-since they didn't have any better alternatives until now. The existing 
-solutions in the two major distro's doesn't work lot of times. I don't 
-know what percentage of times they work as i only get involved when they 
-don't work, but i can certainly tell you they don't work many a times. 
-It is very embarrassing to tell the customer sorry we couldn't get dump 
-can you try reproducing the problem again.  At least two major distros 
-expressed interest in replacing their current solutions with kdump once 
-it matures. As you are well aware we are doing testing with as many 
-configurations as we can to iron out the bugs. Hope this addresses some 
-of your concerns.
+Knowing it's coming isn't the same as agreeing with it. :)
 
+Once devfs is out, it's out for good. It is for all intents and purposes
+impossible to maintain such a thing outside of mainline. You should know
+that, udev's kernel infrastructure was developed pretty much entirely
+within mainline and look how long it took to get even the present number
+of drivers working with it.
+
+It's pretty hard to put effort into devfs when said patches won't get
+merged because it has already been decided by certain people that devfs
+is not the way to go. For example the quick death without comment of the
+earlier devfs-on-top-of-tmpfs patches.
+
+Or, look at how hard of a time udev had gaining mindshare, how long it
+was around for until now. Only shock tactics like marking devfs OBSOLETE
+(at a time when udev was completely unready to replace devfs, making
+it far from obsolete) got people switching.
+
+> Also, no disto uses devfs only (gentoo is close, but offers users udev
+> and a static /dev also.)
+
+It breaks a lot of my embedded setups which have read-only storage only
+and thus need /dev on devfs or tmpfs. With early-userspace-udev-on-tmpfs
+being - in my experience - still unready. Not to mention the general
+bother of having to change dozens of desktop/server systems to work with
+udev, but I doubt you care about that.

@@ -1,84 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262792AbVFWU5M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262699AbVFWU5N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262792AbVFWU5M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 16:57:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262662AbVFWUyb
+	id S262699AbVFWU5N (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 16:57:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262710AbVFWUyi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 16:54:31 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:40409 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262668AbVFWUpP
+	Thu, 23 Jun 2005 16:54:38 -0400
+Received: from rproxy.gmail.com ([64.233.170.194]:28349 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262699AbVFWUra convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 16:45:15 -0400
-To: Ingo Molnar <mingo@elte.hu>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ckrm-tech@lists.sourceforge.net,
-       Chandra Seetharaman <sekharan@us.ibm.com>,
-       Hubertus Franke <frankeh@us.ibm.com>, Shailabh Nagar <nagar@us.ibm.com>
-Reply-To: Gerrit Huizenga <gh@us.ibm.com>
-From: Gerrit Huizenga <gh@us.ibm.com>
-Subject: Re: [patch 02/38] CKRM e18: Processor Delay Accounting 
-In-reply-to: Your message of Thu, 23 Jun 2005 11:37:32 +0200.
-             <20050623093732.GA30848@elte.hu> 
-Date: Thu, 23 Jun 2005 13:44:49 -0700
-Message-Id: <E1DlYZ7-0003Mw-00@w-gerrit.beaverton.ibm.com>
+	Thu, 23 Jun 2005 16:47:30 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=GmYSGY0K9lZND9/Dn8/7WeD6V50K4z+wca1rUqdPFEgVsOnNoZ07YcLUhMJIYJ7nKUXdh5Bmnrq+CNy69RDo1pvUB3dChXC3B2N35lJkVaJeW2EaQoeo3txpe1DQsl0Io4QpLHPhBwDjfdV6a+psPSt6NyZBm2U+sTFq/KtQq84=
+Message-ID: <105c793f050623134739cd502@mail.gmail.com>
+Date: Thu, 23 Jun 2005 16:47:29 -0400
+From: Andrew Haninger <ahaning@gmail.com>
+Reply-To: Andrew Haninger <ahaning@gmail.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Subject: Re: [ltp] Re: IBM HDAPS Someone interested?
+Cc: Jan Knutar <jk-lkml@sci.fi>,
+       Alejandro Bonilla <abonilla@linuxwireless.org>,
+       Yani Ioannou <yani.ioannou@gmail.com>,
+       linux-thinkpad@linux-thinkpad.org, linux-kernel@vger.kernel.org
+In-Reply-To: <1119546519.32469.17.camel@mindpipe>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <007301c575d9$77decb90$600cc60a@amer.sykes.com>
+	 <42B73BB7.4030906@linuxwireless.org>
+	 <1119310501.17602.1.camel@mindpipe>
+	 <200506231833.34423.jk-lkml@sci.fi>
+	 <1119546519.32469.17.camel@mindpipe>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 6/23/05, Lee Revell <rlrevell@joe-job.com> wrote:
+> Anyone want to lend me their Thinkpad? ;-P
+While I'd like APS support on my Thinkpad while running Linux as much
+as the next guy/gal, I'm not sure that I'm ready to do this just yet
+(unless someone on the Ohio State University campus thinks they can do
+something, in which case, contact me off-list).
 
-On Thu, 23 Jun 2005 11:37:32 +0200, Ingo Molnar wrote:
-> 
-> * Ingo Molnar <mingo@elte.hu> wrote:
-> 
-> > 
-> > * Gerrit Huizenga <gh@us.ibm.com> wrote:
-> > 
-> > > +#ifdef CONFIG_DELAY_ACCT
-> > > +int task_running_sys(struct task_struct *p)
-> > > +{
-> > > +	return task_is_running(p);
-> > > +}
-> > > +EXPORT_SYMBOL_GPL(task_running_sys);
-> > > +#endif
-> > 
-> > why is this function defined, and why is it exported?
+However, if the more knowledgeable hardware hackers amongst us could
+put together some instructions for the daring but not-yet-initiated of
+us that happen to have this hardware, I'd be happy to try to do what I
+can.
 
-This was exported so it could be used in the classification engine
-which is a loadable module which determines how and when tasks join
-classes.  There are two classification engines - a basic one (RBCE)
-and a more advanced one (CRBCE).  The latter allows a user to set some
-basic rules on how newly created tasks will join a class.
+Someone else mentioned SoftIce, which appears to cost more than 0USD,
+so I'm not going to get and try that right away. Are there any other
+low-cost methods of getting detailed information about the hardware as
+it's initialized and used?
 
-> this:
-> 
-> +#define task_is_running(p)     (this_rq() == task_rq(p))
-> 
-> is totally bogus. What you are checking is not whether 'the task is 
-> running', but it is a complex way of doing p->thread_info->cpu == 
-> smp_processor_id(). This, combined with:
-> 
-> +               if (pdata == NULL)
-> +                       /* some wierdo race condition .. simply ignore */
-> +                       continue;
-> +               if (thread->state == TASK_RUNNING) {
-> +                       if (task_running_sys(thread)) {
-> +                               atomic_inc((atomic_t *) &
-> +                                          (PSAMPLE(pdata)->cpu_running));
-> +                               run++;
-> +                       } else {
-> +                               atomic_inc((atomic_t *) &
-> +                                          (PSAMPLE(pdata)->cpu_waiting));
-> +                               wait++;
-> +                       }
-> +               }
-> 
-> yields completely incorrect code, and bogus data. If your goal is to 
-> sample executing-on-cpu vs. on-runqueue-waiting-to-run states then you 
-> should use the already existing task_curr(p) call.
-> 
-> 	Ingo
-
-I'll clean this up later this afternoon and regen a patch.
-
-thanks!
-
-gerrit
+-Andy

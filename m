@@ -1,63 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261940AbVFWA6q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261939AbVFWA6c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261940AbVFWA6q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 20:58:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261941AbVFWA6q
+	id S261939AbVFWA6c (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 20:58:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261940AbVFWA6b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 20:58:46 -0400
-Received: from opersys.com ([64.40.108.71]:17682 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261940AbVFWA6j (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 20:58:39 -0400
-Message-ID: <42BA0BCA.6020903@opersys.com>
-Date: Wed, 22 Jun 2005 21:09:30 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+	Wed, 22 Jun 2005 20:58:31 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:59852 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261939AbVFWA6Z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 20:58:25 -0400
+Message-ID: <42BA092A.7090408@us.ibm.com>
+Date: Wed, 22 Jun 2005 17:58:18 -0700
+From: Vara Prasad <prasadav@us.ibm.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.2) Gecko/20040804 Netscape/7.2 (ax)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Bill Huey (hui)" <bhuey@lnxw.com>
-CC: Ingo Molnar <mingo@elte.hu>, Kristian Benoit <kbenoit@opersys.com>,
-       linux-kernel@vger.kernel.org, paulmck@us.ibm.com, andrea@suse.de,
-       tglx@linutronix.de, pmarques@grupopie.com, bruce@andrew.cmu.edu,
-       nickpiggin@yahoo.com.au, ak@muc.de, sdietrich@mvista.com,
-       dwalker@mvista.com, hch@infradead.org, akpm@osdl.org, rpm@xenomai.org
-Subject: Re: PREEMPT_RT vs I-PIPE: the numbers, part 2
-References: <1119287612.6863.1.camel@localhost> <20050620183115.GA27028@nietzsche.lynx.com> <42B98B20.7020304@opersys.com> <20050622192927.GA13817@nietzsche.lynx.com> <20050622200554.GA16119@elte.hu> <42B9CC98.1040402@opersys.com> <20050622220428.GA28906@elte.hu> <42B9F673.4040100@opersys.com> <20050623000607.GB11486@elte.hu> <42BA069D.20208@opersys.com> <20050623005538.GA3348@nietzsche.lynx.com>
-In-Reply-To: <20050623005538.GA3348@nietzsche.lynx.com>
-Content-Type: text/plain; charset=us-ascii
+To: Andrew Morton <akpm@osdl.org>
+CC: Gerrit Huizenga <gh@us.ibm.com>, jgarzik@pobox.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: -mm -> 2.6.13 merge status (kexec/kdump)
+References: <20050621132204.1b57b6ba.akpm@osdl.org>	<E1Dkpn1-0006va-00@w-gerrit.beaverton.ibm.com> <20050621140441.53513a7a.akpm@osdl.org>
+In-Reply-To: <20050621140441.53513a7a.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
 
-Bill Huey (hui) wrote:
-> He's probably confusing you from the real FUDers. I don't see you
-> as a FUDer.
+>Gerrit Huizenga <gh@us.ibm.com> wrote:
+>  
+>
+>>Kexec/kdump has a chance of working reliably.
+>>    
+>>
+>
+>IOW: Kexec/kdump has a chance of not working reliably.
+>
+>Worried.
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
+I understand your concerns based on the device shutdown issues but these 
+are not fundamental design problems that we can not solve. We should be 
+able to fix them either through generic solutions to a class of devices 
+or one of kind for special devices. As you know we are engaging in those 
+discussions and providing fixes.
 
-Thanks, I appreciate the vote of confidence.
+I think all the alternatives out there are less reliable than Kdump 
+based on the design. Vendors are currently shipping other solutions 
+since they didn't have any better alternatives until now. The existing 
+solutions in the two major distro's doesn't work lot of times. I don't 
+know what percentage of times they work as i only get involved when they 
+don't work, but i can certainly tell you they don't work many a times. 
+It is very embarrassing to tell the customer sorry we couldn't get dump 
+can you try reproducing the problem again.  At least two major distros 
+expressed interest in replacing their current solutions with kdump once 
+it matures. As you are well aware we are doing testing with as many 
+configurations as we can to iron out the bugs. Hope this addresses some 
+of your concerns.
 
-> He's just resentful fighting with you over attention from the same
-> batch of strippers at last years OLS. :)
-
-But I don't want to "fight" Ingo. There would just be no point
-whatsoever with "fighting" with one the best developers Linux
-has. I started my involvement in these recent threads with a
-very clear statement that I was open to being shown wrong in
-having exclusively championed the nanokernel approach in the
-past. I set out to show myself wrong with these tests and
-beside some vague expectations, I truely didn't know what I
-was going to find. I certainly wouldn't have bet a hot-dog on
-preempt_rt coming neck-to-neck with the ipipe on interrupt
-latency ... So yes, in doing so some results I've found aren't
-that nice. But, hell, I didn't invent those results. They are
-there for anyone to repdroduce or contradict. I have no
-monopoly over LMbench, PC hardware, the Linux kernel, or
-anything else used to get those numbers.
-
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546

@@ -1,71 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263070AbVFWUHm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262941AbVFWUIA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263070AbVFWUHm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 16:07:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262920AbVFWUCh
+	id S262941AbVFWUIA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 16:08:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262700AbVFWUDa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 16:02:37 -0400
-Received: from soundwarez.org ([217.160.171.123]:24018 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S262992AbVFWTyb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 15:54:31 -0400
-Date: Thu, 23 Jun 2005 21:54:30 +0200
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: Greg KH <greg@kroah.com>
-Cc: Miles Bader <miles@gnu.org>, Mike Bell <kernel@mikebell.org>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <gregkh@suse.de>,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [GIT PATCH] Remove devfs from 2.6.12-git
-Message-ID: <20050623195430.GA16162@vrfy.org>
-References: <20050621062926.GB15062@kroah.com> <20050620235403.45bf9613.akpm@osdl.org> <20050621151019.GA19666@kroah.com> <20050623010031.GB17453@mikebell.org> <20050623045959.GB10386@kroah.com> <buoaclhwqfj.fsf@mctpc71.ucom.lsi.nec.co.jp> <20050623062627.GB11638@kroah.com>
+	Thu, 23 Jun 2005 16:03:30 -0400
+Received: from zproxy.gmail.com ([64.233.162.194]:43843 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S263082AbVFWT4X convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 15:56:23 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=lqnCNDCjqfkmXNBk66S4vqAzYHQILwyx+1HkAY67ADtJYfsPRPFoyid4mIUHku5BtMUWv5PfcjA10s319s4YaLjT3f4o5O6JyRkxHp9HFXVToBP3pkK1hid/OO0j57pi4rjpfuOG+sOUZe+oEO58DKRs4LNRaaK/O9Be/kVyXKA=
+Message-ID: <8783be66050623125612b19b32@mail.gmail.com>
+Date: Thu, 23 Jun 2005 15:56:20 -0400
+From: Ross Biro <ross.biro@gmail.com>
+Reply-To: Ross Biro <ross.biro@gmail.com>
+To: Olivier Galibert <galibert@pobox.com>, Vladimir Saveliev <vs@namesys.com>,
+       Pekka Enberg <penberg@gmail.com>,
+       Alexander Zarochentcev <zam@namesys.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: -mm -> 2.6.13 merge status
+In-Reply-To: <20050623162325.GA21971@dspnet.fr.eu.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20050623062627.GB11638@kroah.com>
-User-Agent: Mutt/1.5.9i
+References: <20050620235458.5b437274.akpm@osdl.org.suse.lists.linux.kernel>
+	 <p73d5qgc67h.fsf@verdi.suse.de> <42B86027.3090001@namesys.com>
+	 <20050621195642.GD14251@wotan.suse.de> <42B8C0FF.2010800@namesys.com>
+	 <84144f0205062223226d560e41@mail.gmail.com>
+	 <42BA67C9.7060604@namesys.com>
+	 <1119543302.4115.141.camel@tribesman.namesys.com>
+	 <20050623162325.GA21971@dspnet.fr.eu.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 22, 2005 at 11:26:27PM -0700, Greg KH wrote:
-> On Thu, Jun 23, 2005 at 03:14:08PM +0900, Miles Bader wrote:
-> > Greg KH <greg@kroah.com> writes:
-> > > And again, for embedded systems, there are packages to build it and put
-> > > it in initramfs.  People have already done the work for you.
-> > 
-> > BTW, has anyone done a comparison of the space usage of udev vs. devfs
-> > (including size of code etc....)?
+On 6/23/05, Olivier Galibert <galibert@pobox.com> wrote:
+
+> No, I think he means the traditional:
 > 
-> Not that I know of.  If you want to do this, compare the original udev
-> releases that were around 5kb of code, as the nice features it has today
-> are stuff that devfs can not support at all.
+> reiser4_fill_super()
+> {
+>    if (init_a())
+>      goto failed_a;
+.
+.
+.
 
-Sure, the main udev target is not the embedded world, just because there
-is not such a big requirement to adapt a system to so many possible changes
-that a desktop system or big servers seeing today.
+IMO this works very well when the initialization always completes or
+fails totally in a single routine.  When your init routine can leave
+something partially inited, then putting all of the cleanup code in a
+single function and using the enums eliminates duplicate code and
+makes things easier to read.  (it's a state machine like many device
+drivers and network stacks).
 
-But we have prepared the kernel with hotplug-events over netlink and a
-full featured environment carried with the event. Instead of whining
-about devfs going, start implementing your own tiny "udev" that even works
-without sysfs at all:
+Also, perhaps a compromise on the asserts at the beggining of
+functions.  If they are moved into a header file, say
+resier4_contracts.h and replaced with a single macro, you get most of
+the benefits and elminate most of the clutter.  If properly done,
+there may even be some advantages gained by auto generating the
+conttact.h file(s) from some sort of formal spec or design doc.
 
-  o Set /proc/sys/kernel/hotplug to "".
-
-  o Create a single daemon that listens for netlink/events. Use $MAJOR $MINOR
-    from the environment and create a node.
-
-  o Define a simple kernel-name <-> node-name + action lookup table in the daemon
-    If an action is defined, fork an event with the environment of the received
-    netlink/event and handle the event externally.
-
-  o For bootup, embedded setups can probably just use the minimal required set
-    of nodes, which are copied over to the tmpfs /dev - mount. After
-    real userspace is up, the daemon will take care of maintaining /dev.
-
-That way, you have a nice replacement for devfs, /sbin/hotplug and using
-$MODALIAS a replacement for most of the hotplug scripts.
-
-Based on udevd.c in the current udev-tree one can do this in less than a
-week, still enough time before devfs is removed. :)
-
-Thanks,
-Kay
+    Ross

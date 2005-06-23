@@ -1,57 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262041AbVFWDbu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261976AbVFWDjK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262041AbVFWDbu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 23:31:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262042AbVFWDbt
+	id S261976AbVFWDjK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 23:39:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262021AbVFWDjJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 23:31:49 -0400
-Received: from [62.206.217.67] ([62.206.217.67]:973 "EHLO kaber.coreworks.de")
-	by vger.kernel.org with ESMTP id S262041AbVFWDbr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 23:31:47 -0400
-Date: Thu, 23 Jun 2005 05:31:39 +0200 (CEST)
-From: Patrick McHardy <kaber@trash.net>
-X-X-Sender: kaber@kaber.coreworks.de
-To: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>
-cc: Herbert Xu <herbert@gondor.apana.org.au>,
-       Bart De Schuymer <bdschuym@telenet.be>,
-       Bart De Schuymer <bdschuym@pandora.be>, netfilter-devel@manty.net,
-       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
-       ebtables-devel@lists.sourceforge.net, rankincj@yahoo.com
-Subject: Re: 2.6.12: connection tracking broken?
-In-Reply-To: <42B9FC19.2000604@gmx.net>
-Message-ID: <Pine.LNX.4.62.0506230527460.12228@kaber.coreworks.de>
-References: <E1Dk9nK-0001ww-00@gondolin.me.apana.org.au>
- <Pine.LNX.4.62.0506200432100.31737@kaber.coreworks.de>
- <1119249575.3387.3.camel@localhost.localdomain> <42B6B373.20507@trash.net>
- <1119293193.3381.9.camel@localhost.localdomain> <42B74FC5.3070404@trash.net>
- <1119338382.3390.24.camel@localhost.localdomain> <42B82F35.3040909@trash.net>
- <20050622214920.GA13519@gondor.apana.org.au> <42B9FC19.2000604@gmx.net>
+	Wed, 22 Jun 2005 23:39:09 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:49087 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261976AbVFWDjF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 23:39:05 -0400
+Message-ID: <42BA2ED5.6040309@namesys.com>
+Date: Wed, 22 Jun 2005 20:39:01 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Christoph Hellwig <hch@infradead.org>
+CC: Alexander Zarochentsev <zam@namesys.com>, Jeff Garzik <jgarzik@pobox.com>,
+       reiserfs-list@namesys.com, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: reiser4 plugins
+References: <20050620235458.5b437274.akpm@osdl.org> <42B8B9EE.7020002@namesys.com> <42B8BB5E.8090008@pobox.com> <200506221824.32995.zam@namesys.com> <20050622142947.GA26993@infradead.org>
+In-Reply-To: <20050622142947.GA26993@infradead.org>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 23 Jun 2005, Carl-Daniel Hailfinger wrote:
+Correct me if I am wrong:
 
-> Herbert Xu schrieb:
->>
->> 3) After a set period (say a year or so) we remove ipt_physdev altogether.
+What exists currently in VFS are vector instances, not classes. Plugins,
+selected by pluginids, are vector classes, with each pluginid selecting
+a vector class. You propose to have the vector class layer (aka plugin
+layer) in reiser4 export the vector instance to VFS for VFS to handle
+for each object, rather than having VFS select reiser4 and reiser4
+selecting a vector class (aka plugin) which selects a method.
+
+If we agree on the above, then I will comment further.
+
+Christoph Hellwig wrote:
+
+>On Wed, Jun 22, 2005 at 06:24:32PM +0400, Alexander Zarochentsev wrote:
+>  
 >
-> For my local setup it is already a minor PITA that there is no tool
-> combining the functionality of arptables, ebtables and iptables, but
-> I can cope with the help of marking and ipt_physdev. If that doesn't
-> work reliably anymore, I'll be stuck.
+>>Reiser plugins are for the same.  Would you agree with reiser4 plugin design 
+>>if the plugins will not dispatch VFS object methods calls by themselves but 
+>>set ->foo_ops fileds instead?  I guess you don't like to have the two 
+>>dispatching systems at the same level.
+>>    
+>>
+>
+>That is exactly the point I want to make.  I haven't looked at the design
+>in detail for a long time, but schemes to allow different object to have
+>different operation vectors is a good idea.  We already have that to
+>varying degrees in all filesystems, and making that more formal is a good
+>thing.  
+>
+>
+>  
+>
 
-You would still be able to mark packets in iptables and match on that
-mark in ebtables, where filtering on the bridge port can be performed.
-
-> Wasn't someone working on a unified framework for *tables? IIRC that
-> would have been pkttables, but Harald(?) said there was not much
-> code there yet.
-
-Not much has changed AFAIK, but pkttables wouldn't change the fact
-that the bridge port isn't available at the IP layer.
-
-Regards
-Patrick

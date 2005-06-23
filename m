@@ -1,46 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261599AbVFVX5p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261689AbVFWACc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261599AbVFVX5p (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 19:57:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261689AbVFVX5p
+	id S261689AbVFWACc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 20:02:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261830AbVFWACc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 19:57:45 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:25363
-	"EHLO g5.random") by vger.kernel.org with ESMTP id S261599AbVFVX5e
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 19:57:34 -0400
-Date: Thu, 23 Jun 2005 01:57:20 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Karim Yaghmour <karim@opersys.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Bill Huey <bhuey@lnxw.com>,
-       Kristian Benoit <kbenoit@opersys.com>, linux-kernel@vger.kernel.org,
-       paulmck@us.ibm.com, tglx@linutronix.de, pmarques@grupopie.com,
-       bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au, ak@muc.de,
-       sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, rpm@xenomai.org
-Subject: Re: PREEMPT_RT vs I-PIPE: the numbers, part 2
-Message-ID: <20050622235720.GA6200@g5.random>
-References: <1119287612.6863.1.camel@localhost> <20050620183115.GA27028@nietzsche.lynx.com> <42B98B20.7020304@opersys.com> <20050622192927.GA13817@nietzsche.lynx.com> <20050622200554.GA16119@elte.hu> <42B9CC98.1040402@opersys.com> <20050622220428.GA28906@elte.hu> <42B9F673.4040100@opersys.com>
-Mime-Version: 1.0
+	Wed, 22 Jun 2005 20:02:32 -0400
+Received: from mail.gmx.net ([213.165.64.20]:4013 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261689AbVFWAC1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 20:02:27 -0400
+X-Authenticated: #26200865
+Message-ID: <42B9FC19.2000604@gmx.net>
+Date: Thu, 23 Jun 2005 02:02:33 +0200
+From: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.7) Gecko/20050414
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Herbert Xu <herbert@gondor.apana.org.au>
+CC: Patrick McHardy <kaber@trash.net>, Bart De Schuymer <bdschuym@telenet.be>,
+       Bart De Schuymer <bdschuym@pandora.be>, netfilter-devel@manty.net,
+       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
+       ebtables-devel@lists.sourceforge.net, rankincj@yahoo.com
+Subject: Re: 2.6.12: connection tracking broken?
+References: <E1Dk9nK-0001ww-00@gondolin.me.apana.org.au>	<Pine.LNX.4.62.0506200432100.31737@kaber.coreworks.de>	<1119249575.3387.3.camel@localhost.localdomain>	<42B6B373.20507@trash.net>	<1119293193.3381.9.camel@localhost.localdomain>	<42B74FC5.3070404@trash.net>	<1119338382.3390.24.camel@localhost.localdomain>	<42B82F35.3040909@trash.net> <20050622214920.GA13519@gondor.apana.org.au>
+In-Reply-To: <20050622214920.GA13519@gondor.apana.org.au>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42B9F673.4040100@opersys.com>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-User-Agent: Mutt/1.5.9i
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 22, 2005 at 07:38:27PM -0400, Karim Yaghmour wrote:
-> Bare in mind here that what we're trying to find out with such
-> tests is what is the bare minimum cost of the proposed rt
-> enhancements to Linux, and how well do these perform in their
-> rt duties, the most basic of which being interrupt latency.
+Herbert Xu schrieb:
+> 
+> Longer term though we should obsolete the ipt_physdev module.  The
+> rationale there is that this creates a precedence that we can't
+> possibly maintain in a consistent way.  For example, we don't have
+> a target that matches by hardware MAC address.  If you wanted to
+> do that, you'd hook into the arptables interface rather than deferring
+> iptables after the creation of the hardware header.
+> 
+> This can be done in two stages to minimise pain for people already
+> using it:
+> 
+> 1) We rewrite ipt_physdev to do the lookups necessary to get the output
+> physical devices through the bridge layer.  Of course this may not be
+> the real output device due to changes in the environment.  So this should
+> be accompanied with a warning that users should switch to ebt.
+> 
+> 2) We remove the iptables deferring since ipt_physdev will no longer need
+> it.
+> 
+> 3) After a set period (say a year or so) we remove ipt_physdev altogether.
 
-Agreed. I think it makes more sense to keep comparing it against the UP
-kernel with preempt disabled, since most embedded devices aren't smp.
+For my local setup it is already a minor PITA that there is no tool
+combining the functionality of arptables, ebtables and iptables, but
+I can cope with the help of marking and ipt_physdev. If that doesn't
+work reliably anymore, I'll be stuck.
 
-> To be honest, however, I have a very hard time, as a user, to
-> convince myself that I should enable preempt_rt under any but
-> the most dire situations given the results I now have in front
+Wasn't someone working on a unified framework for *tables? IIRC that
+would have been pkttables, but Harald(?) said there was not much
+code there yet.
 
-Same here.
+Regards,
+Carl-Daniel
+-- 
+http://www.hailfinger.org/

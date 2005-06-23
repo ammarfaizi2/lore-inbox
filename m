@@ -1,52 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262549AbVFWOmL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262550AbVFWOoS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262549AbVFWOmL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 10:42:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262550AbVFWOmK
+	id S262550AbVFWOoS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 10:44:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262552AbVFWOoS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 10:42:10 -0400
-Received: from gw.alcove.fr ([81.80.245.157]:24528 "EHLO smtp.fr.alcove.com")
-	by vger.kernel.org with ESMTP id S262549AbVFWOmG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 10:42:06 -0400
-Subject: rmmod ohci1394 hangs in klist_remove
-From: Stelian Pop <stelian@popies.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Thu, 23 Jun 2005 16:40:10 +0200
-Message-Id: <1119537610.5848.3.camel@localhost.localdomain>
+	Thu, 23 Jun 2005 10:44:18 -0400
+Received: from wproxy.gmail.com ([64.233.184.200]:44332 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262550AbVFWOoM convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 10:44:12 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=BiTdhfE5b+0HXNZemErtf5YjbKgACMGNuKQM2vfG3kp5u8AR750CdXDqAeBbWBesvgXYm0hrSVRgwJAHFljCkL4I6t/LfW/hrzQEDut9vuZqqZslzm2m519xXOXN0Sw/b6PNXx4o8Urhwy1tCU7Vj/WaBPLiWC4FlJtiiO+0YRc=
+Message-ID: <c775eb9b050623074431056898@mail.gmail.com>
+Date: Thu, 23 Jun 2005 10:44:12 -0400
+From: Bharath Ramesh <krosswindz@gmail.com>
+Reply-To: Bharath Ramesh <krosswindz@gmail.com>
+To: "Hodle, Brian" <BHodle@harcroschem.com>
+Subject: Re: [2.6.12] System becomes unresponsive with USB errors
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <D9A1161581BD7541BC59D143B4A06294021FAA7C@KCDC1>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <D9A1161581BD7541BC59D143B4A06294021FAA7C@KCDC1>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Removing the ohci1394 module no longer works, sysrq+t shows:
+USB legacy support is already disabled in my BIOS. I still get these
+errors in my dmesg.
 
-rmmod         D 0FF7F724     0  6044   6038                     (NOTLB)
-Call trace:
- [c00073ec] __switch_to+0x48/0x70
- [c02954c8] schedule+0x348/0x6f8
- [c02958f0] wait_for_completion+0x78/0xe4
- [c0294c1c] klist_remove+0x24/0x38
- [c01313ec] device_del+0x34/0xb8
- [c0131488] device_unregister+0x18/0x30
- [c0185afc] nodemgr_remove_ne+0x6c/0x88
- [c0185b2c] __nodemgr_remove_host_dev+0x14/0x28
- [c0131520] device_for_each_child+0x4c/0x74
- [c0185b68] nodemgr_remove_host_dev+0x28/0x6c
- [c018234c] __unregister_host+0xdc/0xe0
- [c0182e98] highlevel_remove_host+0x70/0xd8
- [c0181cc0] hpsb_remove_host+0x60/0x8c
- [e2218fec] ohci1394_pci_remove+0x5c/0x288 [ohci1394]
- [c00e02d0] pci_device_remove+0x60/0x64
+-Bharath
 
-This is with the latest Linus' git tree, on a Powerbook laptop (ppc).
-Removing the module works with stock 2.4.12.
-
-Thanks.
-
-Stelian.
--- 
-Stelian Pop <stelian@popies.net>
-
+On 6/23/05, Hodle, Brian <BHodle@harcroschem.com> wrote:
+> Bharath,
+>    I also have an Athlon 64 workstation, and had the same problem. You need
+> to disable legacy USB support in your BIOS.
+> 
+> -Brian
+> 
+> -----Original Message-----
+> From: Bharath Ramesh [mailto:krosswindz@gmail.com]
+> Sent: Wednesday, June 22, 2005 7:21 PM
+> To: linux-kernel@vger.kernel.org
+> Subject: [2.6.12] System becomes unresponsive with USB errors
+> 
+> 
+> I am running the 2.6.12 kernel on my Athlon64 workstation. I am using
+> the Microsoft Wireless Optical Desktop keyboard and mice. Every now
+> and then my system becomes unresponsive to the input devices. I can
+> still login remotely and my dmesg is full of the following message:
+> 
+> drivers/usb/input/hid-core.c: input irq status -75 received
+> 
+> I have filed this bug at bugme.osdl.org the bug number is 4724.
+> 
+> http://bugzilla.kernel.org/show_bug.cgi?id=4724
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

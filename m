@@ -1,57 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262769AbVFWWvd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262854AbVFWW4f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262769AbVFWWvd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 18:51:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262834AbVFWWvd
+	id S262854AbVFWW4f (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 18:56:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262881AbVFWWy0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 18:51:33 -0400
-Received: from mid-2.inet.it ([213.92.5.19]:57579 "EHLO mid-2.inet.it")
-	by vger.kernel.org with ESMTP id S262769AbVFWWv3 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 18:51:29 -0400
-From: Valerio Vanni <valerio.vanni@inwind.it>
-To: linux-kernel@vger.kernel.org
-Subject: Re: kernel: __alloc_pages: 0-order allocation failed
-Date: Fri, 24 Jun 2005 00:51:27 +0200
-Message-ID: <61dmb1t6onlec2rd9tk9femhke6f3s8ehg@4ax.com>
-References: <4ieIc-67r-1@gated-at.bofh.it> <4ihmM-8ny-5@gated-at.bofh.it>
-In-Reply-To: <4ihmM-8ny-5@gated-at.bofh.it>
-X-Mailer: Forte Agent 1.93/32.576 Italiano
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 23 Jun 2005 18:54:26 -0400
+Received: from sinclair.provo.novell.com ([137.65.81.169]:62507 "EHLO
+	sinclair.provo.novell.com") by vger.kernel.org with ESMTP
+	id S262854AbVFWWyS convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 18:54:18 -0400
+Message-Id: <s2bae938.075@sinclair.provo.novell.com>
+X-Mailer: Novell GroupWise Internet Agent 6.5.4 
+Date: Thu, 23 Jun 2005 16:54:09 -0600
+From: "Clyde Griffin" <CGRIFFIN@novell.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: "Clyde Griffin" <CGRIFFIN@novell.com>, "Jan Beulich" <JBeulich@novell.com>
+Subject: Novell Linux Kernel Debugger (NLKD)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Jun 2005 19:40:08 +0200, Chris Wedgwood <cw@f00f.org>
-wrote:
->> as before) or the kernel is in some way locked up (in particular: is
->> it necessary/better to reboot? Is there some risk of filesystem
->> corruption?).
->
->It's memory allocation failures.  This might not work until memory is
->free but it shouldn't kill the kernel of be a huge problem if it's
->just the result of one ore more processes being memory hungry
 
-I'm blaming myself for not having given a closer look before shutting
-down the machine.
-But, as I said, the shut down happened regularly. Later, to be sure, i
-ran an fsck on all partitions and they were ok.
+Novell engineering is introducing the Novell Linux Kernel Debugger (NLKD) as an open source project intended to provide an enhanced and robust debugging experience for Linux kernel developers. 
 
->It could also occur if there is a memory leak, in which case there is
->a bug that needs to be fixed and a reboot would be needed (I would
->only suspect that if it did it often and processes were not using much
->memory though).
+The project (nlkd) at http://forge.novell.com/modules/xfmod/project/?nlkd currently has code patches to SUSE Linux Enterprise Server v9 SP1 and SP2, which when applied allow kernel developers to recompile the Linux kernel exposing the functionality provided by NLKD.  
 
-It was the first time: this machine had been running on the same
-kernel for six month with very long uptimes interrupted only by ups
-control daemon (during blackouts).
+Patches against the mainline will be forthcoming after community feedback.
 
-Ah, no: the kernel had been changed about one month ago, but it was
-the same version (2.4.26) and the same .config (except ext3 support
-which I moved from modules to kernel itself).
+At this point the intent of this project is to gather comments and suggestions on how to improve NLKD and make it possible for NLKD to be included as a native (mainline) kernel debugger for Linux.  Novell engineering will be actively involved in reviewing comments regarding NLKD and submitting and receiving patches for the support of NLKD.
+ 
+NLKD provides an architecture for supporting a stable debugging experience as well as debug agents supporting local and remote debugging.  NLKD's Console Debug Agent (CDA) supports on-box kernel debugging and is extremely rich in functionality and easy to use.  The Remote Debug Agent (RDA) supports remote source level debugging via gdbtransport to your favorite gdb based client.  Both agents benefit from the Core Debug Engine (CDE), which provides the state machine logic supporting the debug agents.
+
+A detailed description of the architecture will be presented in a paper titled "The Novell Linux Kernel Debugger, NLKD" at the Ottawa Linux Symposium July 20-23, 2005.
+
+NLKD provides debugging capabilities that will be a benefit to the whole development community and we invite developers interested in using NLKD to download the patches, provide feedback, and benefit from the use of this great tool.
+
+Developers interested in commenting on, contributing to, testing, documenting, and improving NLKD should subscribe to the nlkd-dev mailing list at http://forge.novell.com/modules/xfmod/project/?nlkd and post to nlkd-dev@forge.novell.com.
 
 
--- 
-Ci sono 10 tipi di persone al mondo: quelle che capiscono il sistema binario
-e quelle che non lo capiscono.
+

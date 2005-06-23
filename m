@@ -1,71 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262013AbVFWCWA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262012AbVFWCZY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262013AbVFWCWA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 22:22:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261818AbVFWCTT
+	id S262012AbVFWCZY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 22:25:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261818AbVFWCW3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 22:19:19 -0400
-Received: from saturn.billgatliff.com ([209.251.101.200]:16574 "EHLO
-	saturn.billgatliff.com") by vger.kernel.org with ESMTP
-	id S261930AbVFWCOG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 22:14:06 -0400
-Message-ID: <42BA1ADB.6090006@billgatliff.com>
-Date: Wed, 22 Jun 2005 21:13:47 -0500
-From: Bill Gatliff <bgat@billgatliff.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
+	Wed, 22 Jun 2005 22:22:29 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:31156 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S261984AbVFWCVV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 22:21:21 -0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, fastboot@osdl.org
+Subject: Re: -mm -> 2.6.13 merge status
+References: <20050620235458.5b437274.akpm@osdl.org>
+	<42B831B4.9020603@pobox.com> <20050621132204.1b57b6ba.akpm@osdl.org>
+	<m1fyvamiyu.fsf@ebiederm.dsl.xmission.com>
+	<20050622135235.038b5222.akpm@osdl.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 22 Jun 2005 20:14:36 -0600
+In-Reply-To: <20050622135235.038b5222.akpm@osdl.org>
+Message-ID: <m1y891lsz7.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [GIT PATCH] Remove devfs from 2.6.12-git
-References: <20050621062926.GB15062@kroah.com>	<20050620235403.45bf9613.akpm@osdl.org>	<20050621151019.GA19666@kroah.com>	<20050623010031.GB17453@mikebell.org> <20050622181825.204fbcb7.akpm@osdl.org>
-In-Reply-To: <20050622181825.204fbcb7.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew:
+Andrew Morton <akpm@osdl.org> writes:
 
+> ebiederm@xmission.com (Eric W. Biederman) wrote:
+> >
+> > Andrew the good news is unless something comes up I will have time
+> > starting about Monday to help with the 2.6.13 merge.  It looks like
+> > the first thing I should do is split up the indent patch so it pairs
+> > well with the rest.  And then I have a few pending patches for the user
+> > space and I think I can fix a number of the device_shutdown problems,
+> > for at least the normal kexec path.
+> 
+> I'd be inclined to leave it as-is, really.  I'm not sure that it's worth
+> the effort+risk of significantly refactoring the patches.
+> 
+> I've cut it down from 58 patches to 45 and will take another pass at it in
+> the next day or two, but it's looking like 40-odd patches is the right
+> number.
 
->>It breaks a lot of my embedded setups which have read-only storage only
->>and thus need /dev on devfs or tmpfs.
->>    
->>
->
->Well that's quite a problem.  We're certainly causing people such as
->yourself to take on quite a lot of work.  But on the other hand we do want
->the kernel to progress sanely, and that sometimes involves taking things
->out.
->
->I don't have enough info to know whether the world would be a better place
->if we keep devfs, remove devfs or remove devfs even later on.  I don't
->think anyone knows, which is why we're taking this little
->disable-it-and-see-who-shouts approach.
->  
->
+Ok.  Then I won't put a priority on that piece.
 
-I would prefer to keep devfs around as well, but most of my embedded 
-systems have enough RAM to put a primitive /dev tree in tmpfs using a 
-linuxrc script at boot.  The workarounds for the userland requirements 
-of udev are a little less clear to me, but I'm not sure they're 
-insurmountable yet for anything except the smallest embedded systems, 
-since Busybox appears to have some udev support available now.
+I will still look at cleaning up the sematics of the reboot
+path so fewer things break.
 
-I think that devfs and udev appeal to different audiences, hence I don't 
-think you can say that the "world will be a better place" with one or 
-the other.  It would be nice to find a way to have the two coexist 
-peacefully...
-
-Case in point.  I'm going to udev reluctantly; all my embedded work 
-based on earlier kernels used devfs exclusively.
-
-
-b.g.
-
--- 
-Bill Gatliff
-So what part of:
-   $ make oldconfig clean dep zImage
-do you not understand?
-bgat@billgatliff.com
+Eric
 

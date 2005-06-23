@@ -1,65 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262722AbVFWVxX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262736AbVFWVs4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262722AbVFWVxX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 17:53:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262769AbVFWVtY
+	id S262736AbVFWVs4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 17:48:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262743AbVFWVsp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 17:49:24 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:18184 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S262715AbVFWViq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 17:38:46 -0400
-Date: Fri, 24 Jun 2005 07:38:30 +1000
-To: "Kluba, Patrik" <pajko@halom.u-szeged.hu>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       Ferenc Havasi <havasi@inf.u-szeged.hu>,
-       "Artem B. Bityuckiy" <dedekind@yandex.ru>,
-       Michal Ludvig <michal@logix.cz>
-Subject: Re: cryptoapi compression modules & JFFSx
-Message-ID: <20050623213830.GA3803@gondor.apana.org.au>
-References: <1119555217l.7540l.1l@detonator>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1119555217l.7540l.1l@detonator>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+	Thu, 23 Jun 2005 17:48:45 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:22509 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S262736AbVFWVi6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 17:38:58 -0400
+Date: Thu, 23 Jun 2005 22:38:47 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: Andrew Morton <akpm@osdl.org>
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, pavel@suse.cz, ak@muc.de, hch@lst.de
+Subject: Re: [PATCH] Add removal schedule of register_serial/unregister_serial
+ to appropriate file
+In-Reply-To: <20050623113254.2675ffc6.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0506232237040.20678@skynet>
+References: <20050623142335.A5564@flint.arm.linux.org.uk> <20050623140316.GH3749@stusta.de>
+ <20050623113254.2675ffc6.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 23, 2005 at 07:33:37PM +0000, Kluba, Patrik wrote:
-> 
-> I'm going to port JFFS2's compression modules to CryptoApi except  
-> {in|de}flate, which Artem is working(?) on.
-> I've noticed that the pcompress thing (slen <-> *slen and partial  
-> compression which about a discussion was on the list) is in Herbert's  
-> repository. Does it mean that it will get into the kernel once? I just  
-> would like to be sure whether should I implement pcompress or not.
+>
+> Actually it has been temporarily removed because it has a dependency on
+> update-drm-ioctl-compatibility-to-new-world-order.patch which has a
+> dependency on David's DRM tree and I don't know how to get David's DRM tree
+> any more.  Hint.
 
-Well I've removed it actually because Artem said he didn't need it
-anymore.
+I'll have a new DRM tree up in the next day or two, with it you can drop
+that patch as I've folded it into my tree...
 
-However, if you can provide an implementation of pcompress for deflate
-that's generic enough then I'm happy to put it back.  By genericity
-I mean not making assumptions such as the input buffer size being
-less than 4K.
+I'm still trying to get my head around the best workflow for git and me...
 
-> The second thing is that we would like to use CryptoApi from user  
-> space. This way it won't be necessary to reimplement compression  
-> algorithms in user space filesystem image creation programs  
-> (mkfs.jffsx), and it would make using & distributing closed-source  
-> proprietary compression methods easier.
-> There's a patch at http://www.logix.cz/michal/devel/cryptodev/, written  
-> by Michal Ludvig, which adds a /dev/crypto device for this purpose, as  
-> on *BSD. Is there a chance that this can get into the kernel?
+Dave.
 
-Something liks this will be included once we have async crypto.  However,
-that could be a while yet so I suggest that you start by including the
-deflate implementation in user-space.
-
-Cheers,
 -- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied at skynet.ie
+Linux kernel - DRI, VAX / pam_smb / ILUG
+

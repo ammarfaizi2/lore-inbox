@@ -1,79 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262668AbVFWU7r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262707AbVFWVIR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262668AbVFWU7r (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 16:59:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262752AbVFWU5n
+	id S262707AbVFWVIR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 17:08:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262662AbVFWVIR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 16:57:43 -0400
-Received: from cytosin.uni-konstanz.de ([134.34.240.61]:9651 "EHLO
-	cytosin.uni-konstanz.de") by vger.kernel.org with ESMTP
-	id S262691AbVFWUuA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 16:50:00 -0400
-From: Michael Dreher <michael.dreher@uni-konstanz.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: reiser4 plugins
-Date: Thu, 23 Jun 2005 22:49:47 +0200
-User-Agent: KMail/1.6.2
-Cc: Adrian Ulrich <reiser4@blinkenlights.ch>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, ninja@slaphack.com,
-       reiser@namesys.com, jgarzik@pobox.com, hch@infradead.org, akpm@osdl.org,
-       reiserfs-list@namesys.com
-References: <42BAC304.2060802@slaphack.com> <200506231924.j5NJOvLA031008@laptop11.inf.utfsm.cl> <20050623221222.33074838.reiser4@blinkenlights.ch>
-In-Reply-To: <20050623221222.33074838.reiser4@blinkenlights.ch>
+	Thu, 23 Jun 2005 17:08:17 -0400
+Received: from warden2-p.diginsite.com ([209.195.52.120]:55259 "HELO
+	warden2.diginsite.com") by vger.kernel.org with SMTP
+	id S262710AbVFWVFd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 17:05:33 -0400
+From: David Lang <david.lang@digitalinsight.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Netdev List <netdev@vger.kernel.org>
+X-X-Sender: dlang@dlang.diginsite.com
+Date: Thu, 23 Jun 2005 14:04:57 -0700 (PDT)
+X-X-Sender: dlang@dlang.diginsite.com
+Subject: Re: [git patch] urgent e1000 fix
+In-Reply-To: <42BA7FB5.5020804@pobox.com>
+Message-ID: <Pine.LNX.4.62.0506231402340.18154@qynat.qvtvafvgr.pbz>
+References: <42BA7FB5.5020804@pobox.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200506232249.47302.michael.dreher@uni-konstanz.de>
+Content-Type: MULTIPART/Mixed; boundary=------------010705020707050403070901
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>                                                 Not everyone will want
->>> to reformat at once, but as the reiser4 code matures and proves itself
->>> (even more than it already has),
->>
->> I for one have seen mainly people with wild claims that it will make
->> their machines much faster, and coming back later asking how they can
->> recover their thrashed partitions...
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+
+--------------010705020707050403070901
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+
+hmm, I know I'm not that experianced with patch, but when I saved this to 
+a file and did patch -p1 <file the hunk was rejected, the reject file is 
+saying
+
+***************
+*** 2307,2312 ****
+          tso = e1000_tso(adapter, skb);
+          if (tso < 0) {
+                  dev_kfree_skb_any(skb);
+                  return NETDEV_TX_OK;
+          }
+
+--- 2307,2313 ----
+          tso = e1000_tso(adapter, skb);
+          if (tso < 0) {
+                  dev_kfree_skb_any(skb);
++                spin_unlock_irqrestore(&adapter->tx_lock, flags);
+                  return NETDEV_TX_OK;
+          }
+
+I manually put the line in and am compiling it now to test it, but is 
+someone could take a few seconds and teach me what I did wrong it would be 
+appriciated.
+
+David Lang
+
+  On Thu, 23 Jun 2005, Jeff Garzik wrote:
+
+> Date: Thu, 23 Jun 2005 05:24:05 -0400
+> From: Jeff Garzik <jgarzik@pobox.com>
+> To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+> Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+>     Netdev List <netdev@vger.kernel.org>
+> Subject: [git patch] urgent e1000 fix
+> 
+> Please pull from 'misc-fixes' branch of
+> rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/netdev-2.6.git
 >
-> Then please show us some Links/Message-IDs to such postings.
-> I'd like to read them.
+> to obtain the spinlock fix described in the attached text.
+>
+>
+>
 
-Here you are....
+-- 
+There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
+  -- C.A.R. Hoare
 
-The following happened to me with reiserfs as it was shipped with
-suse 9.1:
 
-------------------------------------------------------------------
-dreher@euler03:~/mytex/konstanz/wohnung> ls
-auto          makler2.aux  makler2.log  makler2.tex  makler.aux  makler.log  
-swk.eps      unilogo.eps
-briefkpf.tex  makler2.dvi  makler2.ps   makler3.tex  makler.dvi  makler.tex  
-unikopf.tex
-dreher@euler03:~/mytex/konstanz/wohnung> rm *.aux *.log
-rm: cannot remove `makler2.log': No such file or directory
-dreher@euler03:~/mytex/konstanz/wohnung> ls
-auto  briefkpf.tex  makler2.dvi  makler2.ps  makler2.tex  makler3.tex  
-makler.dvi  makler.tex  swk.eps  unikopf.tex  unilogo.eps
-dreher@euler03:~/mytex/konstanz/wohnung> uname -a
-Linux euler03 2.6.5-7.108-smp #1 SMP Wed Aug 25 13:34:40 UTC 2004 i686 i686 
-i386 GNU/Linux
-dreher@euler03:~/mytex/konstanz/wohnung> date
-Tue Sep 21 13:15:45 CEST 2004
-----------------------------------------------------------
+--------------010705020707050403070901
+Content-Type: TEXT/PLAIN; name=netdev-2.6.txt
+Content-Description: 
+Content-Disposition: inline; filename=netdev-2.6.txt
 
-Note the line "rm: cannot remove `makler2.log': No such file or directory"
 
-There was no data loss, but such a bug should not happen.
-I never had similar experiences with ext3.
+ drivers/net/e1000/e1000_main.c |    1 +
+ 1 files changed, 1 insertion(+)
 
-Unfortunately, I cannot reproduce this behavior. 
 
->  Powerloss, unpluging the Disk while writing, full filesystem,
->  heavy use : No problems with reiser4.. It *is* stable.
+Mitch Williams:
+  e1000: fix spinlock bug
 
-My impression: reiser3 is not 100% stable, but quite stable, 
-written by someone who asks for "review by benchmark".
 
-Michael
+diff --git a/drivers/net/e1000/e1000_main.c b/drivers/net/e1000/e1000_main.c
+--- a/drivers/net/e1000/e1000_main.c
++++ b/drivers/net/e1000/e1000_main.c
+@@ -2307,6 +2307,7 @@ e1000_xmit_frame(struct sk_buff *skb, st
+ 	tso = e1000_tso(adapter, skb);
+ 	if (tso < 0) {
+ 		dev_kfree_skb_any(skb);
++		spin_unlock_irqrestore(&adapter->tx_lock, flags);
+ 		return NETDEV_TX_OK;
+ 	}
+ 
+
+--------------010705020707050403070901--

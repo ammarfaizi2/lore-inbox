@@ -1,65 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262643AbVFWSWL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262661AbVFWSYl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262643AbVFWSWL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 14:22:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262647AbVFWSWL
+	id S262661AbVFWSYl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 14:24:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262662AbVFWSY3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 14:22:11 -0400
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:8203 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S262643AbVFWSWD
+	Thu, 23 Jun 2005 14:24:29 -0400
+Received: from zproxy.gmail.com ([64.233.162.207]:46814 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262647AbVFWSYR convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 14:22:03 -0400
-Date: Thu, 23 Jun 2005 19:22:08 +0100 (BST)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: IDE - sensible probing for PCI systems
-In-Reply-To: <1119379587.3325.182.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.61L.0506231903170.31113@blysk.ds.pg.gda.pl>
-References: <1119356601.3279.118.camel@localhost.localdomain> 
- <Pine.LNX.4.61L.0506211422190.9446@blysk.ds.pg.gda.pl> 
- <1119363150.3325.151.camel@localhost.localdomain> 
- <Pine.LNX.4.61L.0506211535100.17779@blysk.ds.pg.gda.pl>
- <1119379587.3325.182.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 23 Jun 2005 14:24:17 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=EN3Ujo8n7BlYM7cwkjgoO4z/eyQEQrgXutOy3xw7AX2WflbBiVha9HFVO2B22cSN5/S8+/dW8nLE+CPynPaP91n2/cGzImW+Neo7iO8wgfGdMUaSlDWFmfokcYFRKhR6Tzb18h/ZsoIKuB2GOoMcKpHAWsmahtUrvuTHESXra/M=
+Message-ID: <9a87484905062311246243774e@mail.gmail.com>
+Date: Thu, 23 Jun 2005 20:24:15 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
+To: randy_dunlap <rdunlap@xenotime.net>
+Subject: Re: Script to help users to report a BUG
+Cc: Micha__ Piotrowski <piotrowskim@trex.wsi.edu.pl>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050622174744.75a07a7f.rdunlap@xenotime.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <4d8e3fd30506191332264eb4ae@mail.gmail.com>
+	 <20050622120848.717e2fe2.rdunlap@xenotime.net>
+	 <42B9CFA1.6030702@trex.wsi.edu.pl>
+	 <20050622174744.75a07a7f.rdunlap@xenotime.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Jun 2005, Alan Cox wrote:
-
-> >  How is the range defined -- is there a way for us to find it?  I'd assume 
-> > in the absence of a PCI-ISA or PCI-EISA bridge all I/O port addresses 
-> > belong to PCI.  Otherwise the usual rule of "(addr & 0x300) == 0" applies.  
-> > Perhaps with the addition of "(addr & ~0xff) != 0" for safety as junk I/O 
-> > is often not recorded properly in BARs, sigh...
+On 6/23/05, randy_dunlap <rdunlap@xenotime.net> wrote:
 > 
-> No the low addresses belong to the chipset and motherboard. There is
+> 6.  Use $EDITOR instead of vim if it is defined (set).
+> 
+Wouldn't the very best be to try and find the editor to use in the
+following order?  :
 
- Well, that doesn't mean they can't be properly reported in a BAR.  
+A) the value of $EDITOR (if set)
+B) the value of $VISUAL (if set)
+C) the first editor in a hardcoded list that exists and is executable
+(a list could contain for example; vim, vi, elvis, joe, jove, nano,
+pico, mcedit, emacs )...
 
- Besides, does a modern i386 really require them?  DOS compatibility is no 
-longer an issue for commodity hardware and the ISA bridge is gone.  
-Apparently the only legacy device still not replaced by anything else is 
-the RTC, which is rather surprising as there seems to be a lot of 
-reasonable alternatives for I2C available these days and i386 boxes have 
-had I2C for quite a while now.
 
-> also magic then for video and IDE legacy port ranges. I suspect your
-
- Both IDE and video are distinct PCI devices these days, so there is no 
-need for them to hide their decoded address ranges.  I've thought that has 
-been sorted out.
-
-> mips boxen might be a lot cleaner than the PC world.
-
- They are certainly cleaner, but if a lot, it depends on whether an (E)ISA 
-bridge is there somewhere or not.  E.g. some PCI-ISA bridges positively 
-decode some memory address ranges unconditionally which results in the 
-corresponding range of RAM being unreachable from PCI.  And if there is no 
-(E)ISA bridge, there may still be traces of legacy, like P2P bridges with 
-an implicit special treatment of certain address ranges that traditionally 
-used to be used for ISA.  Or APIC interrupt codes in messages sent over 
-HT.
-
-  Maciej
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

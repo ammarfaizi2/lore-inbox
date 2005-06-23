@@ -1,60 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263089AbVFWUiI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262977AbVFWUjb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263089AbVFWUiI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 16:38:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262705AbVFWUeB
+	id S262977AbVFWUjb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 16:39:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262980AbVFWUjX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 16:34:01 -0400
-Received: from fmr21.intel.com ([143.183.121.13]:39065 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S262954AbVFWUcw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 16:32:52 -0400
-Date: Thu, 23 Jun 2005 13:32:39 -0700
-From: Rajesh Shah <rajesh.shah@intel.com>
-To: Brice Goglin <Brice.Goglin@ens-lyon.org>
-Cc: Rajesh Shah <rajesh.shah@intel.com>,
-       Dominik Brodowski <linux@dominikbrodowski.net>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.12-mm1
-Message-ID: <20050623133238.A24026@unix-os.sc.intel.com>
-Reply-To: Rajesh Shah <rajesh.shah@intel.com>
-References: <20050619233029.45dd66b8.akpm@osdl.org> <42B6746B.4020305@ens-lyon.org> <20050620081443.GA31831@isilmar.linta.de> <42B6831B.3040506@ens-lyon.org> <20050620085449.GA32330@isilmar.linta.de> <42B6C06F.4000704@ens-lyon.org> <20050622163427.A10079@unix-os.sc.intel.com> <42BA55D2.7020900@ens-lyon.org> <20050623100536.A21592@unix-os.sc.intel.com> <42BAFADF.2030804@ens-lyon.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <42BAFADF.2030804@ens-lyon.org>; from Brice.Goglin@ens-lyon.org on Thu, Jun 23, 2005 at 08:09:35PM +0200
+	Thu, 23 Jun 2005 16:39:23 -0400
+Received: from sccrmhc14.comcast.net ([204.127.202.59]:38821 "EHLO
+	sccrmhc14.comcast.net") by vger.kernel.org with ESMTP
+	id S262977AbVFWUij (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 16:38:39 -0400
+Message-ID: <42BB1DBD.5060808@comcast.net>
+Date: Thu, 23 Jun 2005 16:38:21 -0400
+From: Ed Sweetman <safemode@comcast.net>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+CC: Roberto Oppedisano <roppedisano.oppedisano@gmail.com>,
+       Pierre Ossman <drzeus-list@drzeus.cx>,
+       LKML <linux-kernel@vger.kernel.org>, jgarzik@pobox.com
+Subject: Re: 2.6.12 breaks 8139cp
+References: <42B9D21F.7040908@drzeus.cx> <42BAEEB3.6080309@gmail.com> <200506231200.43671.bjorn.helgaas@hp.com>
+In-Reply-To: <200506231200.43671.bjorn.helgaas@hp.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 23, 2005 at 08:09:35PM +0200, Brice Goglin wrote:
-> dmesg and dsdt are attached.
-> 
-The host bridge resources being reported were fine. I think this
-failure is a yenta bug exposed by the combination of the host
-bridge resource collection patch and the patch to improve the
-handling for transparent bridges. I think the yenta code thinks
-there's a resource conflict for the ranges being decoded by the
-cardbus bridge when in fact there isn't any conflict in this case.
-It then claims and reprograms the cardbus bridge to IO resources
-that are already programmed into another device (winmodem in this
-case), causing problems.
+Note: this is not with 8139cp, but with 8139too, particularly 8139b
 
-Does the following patch to 2.6.12-mm1 fix the problem?
-------------------------------
+in 2.6.12, 2.6.12-mm1 and 2.6.12-RT-V0.7.49-01
+With preempt enabled/disabled/rt/voluntary...
+With mmio and pio in 8139too , with old rx reset and combinations of 
+enabled and disabled
 
-Index: linux-2.6.12-mm1/drivers/pcmcia/yenta_socket.c
-===================================================================
---- linux-2.6.12-mm1.orig/drivers/pcmcia/yenta_socket.c
-+++ linux-2.6.12-mm1/drivers/pcmcia/yenta_socket.c
-@@ -562,9 +562,6 @@ static int yenta_try_allocate_res(struct
- 	bus = socket->dev->subordinate;
- 	res = socket->dev->resource + PCI_BRIDGE_RESOURCES + nr;
- 	res->name = bus->name;
--	res->flags = type;
--	res->start = 0;
--	res->end = run;
- 	root = pci_find_parent_resource(socket->dev, res);
- 
- 	if (!root)
+Even changed ethernet cables ... nothing stopped my Tx problems.
+This is all occurring on a box that until yesterday, had an uptime of 
+over 410 days on 2.6.0-mm1, so it's not the hardware, also, reverting to 
+that kernel remedied the problem.
+
+Here is a snip from dmesg
+
+NETDEV WATCHDOG: eth0: transmit timed out
+eth0: Transmit timeout, status 0c 0055 c07f media 00.
+eth0: Tx queue start entry 78  dirty entry 74.
+eth0:  Tx descriptor 0 is 0008a03c.
+eth0:  Tx descriptor 1 is 0008a03c.
+eth0:  Tx descriptor 2 is 0008a03c. (queue head)
+eth0:  Tx descriptor 3 is 0008a03c.
+eth0: link up, 100Mbps, full-duplex, lpa 0x45E1
+
+I'm not sure if this is exactly related to the thread, but it seemed too 
+much of a coincidence to think that it's not. 
+
+The symptoms of the problem is short bursts of traffic with 30 second or 
+so pauses of absolutely no response, repeating. The higher the bandwidth 
+the worse the situation, but it occurs regardless. 
+
+No other errors are reported or seen on the box except this Tx problem.  
+I'm tempted to go ahead and try 2.6.11, but haven't yet.
+

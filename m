@@ -1,53 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262612AbVFWQkA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262619AbVFWQn6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262612AbVFWQkA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 12:40:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262613AbVFWQkA
+	id S262619AbVFWQn6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 12:43:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262622AbVFWQn6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 12:40:00 -0400
-Received: from kanga.kvack.org ([66.96.29.28]:61338 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S262612AbVFWQj6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 12:39:58 -0400
-Date: Thu, 23 Jun 2005 12:41:37 -0400
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: Suparna Bhattacharya <suparna@in.ibm.com>
-Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: aio_down() patch series -- cancellation support added
-Message-ID: <20050623164137.GA5279@kvack.org>
-References: <20050620213835.GA6628@kvack.org> <20050620214614.GC6628@kvack.org> <20050623132926.GA6669@in.ibm.com>
+	Thu, 23 Jun 2005 12:43:58 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:5138 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262619AbVFWQn4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 12:43:56 -0400
+Date: Thu, 23 Jun 2005 17:43:49 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Jamey Hicks <jamey.hicks@hp.com>
+Cc: dpervushin@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] SPI core -- revisited
+Message-ID: <20050623174349.A12573@flint.arm.linux.org.uk>
+Mail-Followup-To: Jamey Hicks <jamey.hicks@hp.com>, dpervushin@gmail.com,
+	linux-kernel@vger.kernel.org
+References: <1119529135.4739.6.camel@diimka.dev.rtsoft.ru> <42BADA42.9090908@hp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050623132926.GA6669@in.ibm.com>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <42BADA42.9090908@hp.com>; from jamey.hicks@hp.com on Thu, Jun 23, 2005 at 11:50:26AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 23, 2005 at 06:59:26PM +0530, Suparna Bhattacharya wrote:
-> One quick question.
-> Since lock_kiocb() may block, does that mean that the aio worker thread
-> could be put to sleep while an iocb cancellation is in progress, even though
-> there may be other iocbs/ioctx's to process ?
+On Thu, Jun 23, 2005 at 11:50:26AM -0400, Jamey Hicks wrote:
+> dmitry pervushin wrote:
+> >we finally decided to rework the SPI core and now it its ready for your comments.. 
+> >Here we have several boards equipped with SPI bus, and use this spi core with these boards; 
+> >Drivers for them are available by request (...and if community approve this patch)
+> 
+> I'm glad to see that work is progressing on SPI core.  I've worked on 
+> drivers on both ARM linux and Blackfin uclinux that use SPI and would 
+> prefer that they not be platform specific.
 
-It's mostly to deal with the case in the other direction: an iocb that is 
-in the process of being cancelled somehow needs to block any retries from 
-occurring.  Likewise, if a retry was in progress, the cancellation needs 
-to be blocked until that retry is complete.  It should be sufficiently 
-rare that it's not a problem, but we may have to revisit the issue as more 
-cancel methods get written.
+I worry about SPI at the moment because I can't see how it's being used
+from just this code.
 
-> Looking at the rest a little more closely in terms of how everything
-> will fit together, a few questions come to mind - need to think
-> about it a little more. I guess the main reason you need the aio_down_wait
-> callback is to make sure the semaphore is grabbed right in the context
-> of the wakeup rather than at retry time, is that correct ?
+The worry I have is that it appears to contain an algorithm layer.  Would
+this be better as a library for drivers to use, or something like that?
 
-Yes, that way the retry method is only called if it will make progress, 
-and we will not have a thundering herd problem.  I'm debugging the changes 
-needed to implement async pipes using aio_down(), and the patch so far 
-looks pretty straightforward.
+The reason I bring up this point is that my L3 layer is over-complex
+for what it does (despite being about 378 lines) because it tried far
+too hard to look like the I2C layer - soo much so I'm not happy with
+it for mainline.
 
-		-ben
+(I also have some concerns with the amount of NULL pointer checking in
+the SPI code...)
+
 -- 
-"Time is what keeps everything from happening all at once." -- John Wheeler
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

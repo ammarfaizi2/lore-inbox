@@ -1,78 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262694AbVFWVhO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262786AbVFWVhD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262694AbVFWVhO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 17:37:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262743AbVFWVee
+	id S262786AbVFWVhD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 17:37:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262820AbVFWV3T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 17:34:34 -0400
-Received: from pilet.ens-lyon.fr ([140.77.167.16]:32955 "EHLO
-	relaissmtp.ens-lyon.fr") by vger.kernel.org with ESMTP
-	id S262681AbVFWVd1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 17:33:27 -0400
-Message-ID: <42BB2AA1.9000507@ens-lyon.org>
-Date: Thu, 23 Jun 2005 23:33:21 +0200
-From: Brice Goglin <Brice.Goglin@ens-lyon.org>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: Rajesh Shah <rajesh.shah@intel.com>
-Cc: Dominik Brodowski <linux@dominikbrodowski.net>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.12-mm1
-References: <20050619233029.45dd66b8.akpm@osdl.org> <42B6746B.4020305@ens-lyon.org> <20050620081443.GA31831@isilmar.linta.de> <42B6831B.3040506@ens-lyon.org> <20050620085449.GA32330@isilmar.linta.de> <42B6C06F.4000704@ens-lyon.org> <20050622163427.A10079@unix-os.sc.intel.com> <42BA55D2.7020900@ens-lyon.org> <20050623100536.A21592@unix-os.sc.intel.com> <42BAFADF.2030804@ens-lyon.org> <20050623133238.A24026@unix-os.sc.intel.com> <42BB247A.50506@ens-lyon.org>
-In-Reply-To: <42BB247A.50506@ens-lyon.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	Thu, 23 Jun 2005 17:29:19 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35790 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S262744AbVFWVWc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 17:22:32 -0400
+Date: Thu, 23 Jun 2005 22:23:52 +0100
+From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+To: cspalletta@adelphia.net
+Cc: linux-kernel@vger.kernel.org, mikew@google.com
+Subject: Re: namespace question
+Message-ID: <20050623212352.GO29811@parcelfarce.linux.theplanet.co.uk>
+References: <5353647.1119551462209.JavaMail.root@web1.mail.adelphia.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5353647.1119551462209.JavaMail.root@web1.mail.adelphia.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le 23.06.2005 23:07, Brice Goglin a écrit :
-> Le 23.06.2005 22:32, Rajesh Shah a écrit :
+On Thu, Jun 23, 2005 at 02:31:02PM -0400, cspalletta@adelphia.net wrote:
+> > > Running a kernel module using dpath iteratively on the mnt_mountpoint member ... I get a curious doubling of the mount point names:
 > 
->>The host bridge resources being reported were fine. I think this
->>failure is a yenta bug exposed by the combination of the host
->>bridge resource collection patch and the patch to improve the
->>handling for transparent bridges. I think the yenta code thinks
->>there's a resource conflict for the ranges being decoded by the
->>cardbus bridge when in fact there isn't any conflict in this case.
->>It then claims and reprograms the cardbus bridge to IO resources
->>that are already programmed into another device (winmodem in this
->>case), causing problems.
->>
->>Does the following patch to 2.6.12-mm1 fix the problem?
+> >> proc /proc/proc proc
+> >> sysfs /sys/sys sysfs
+> >>  devpts /dev/pts/dev/pts devpts
+> >>  tmpfs /dev/shm/dev/shm tmpfs
+> >> /dev/hda1 /boot/boot ext2
+> >> usbfs /proc/bus/usb/bus/usb usbfs
 > 
+> >  Using the same algorithm with mnt_root produces correct results.  
 > 
-> No, sorry, doesn't change anything.
-> I still get a few "Preassigned resource 0 busy, reconfiguring..."
-> followed by "parent PCI bridge I/O window: 0x2000 - 0x2fff" and
-> then the system hangs right after "cs: IO probe 0x2000-0x2ffff;".
+> > >                 dentry = dget(vfsmnt_ptr->mnt_mountpoint);
+> > 
+> > should be:
+> > 
+> > dentry = dget(vfsmnt_ptr->mnt_root);
+> 
+> Yes I pointed that out above - what I want to know is why the doubling of the names for mnt_mntpoint.  It must be used for something, I suppose.
 
-In case this matters, the messages are a little bit different.
-
--mm1 says (see http://lkml.org/lkml/2005/6/20/28) :
-
-yenta 0000:02:03.0: Preassigned resource 0 busy, reconfiguring...
-yenta 0000:02:03.0: Preassigned resource 0 busy, reconfiguring...
-yenta 0000:02:03.0: no resource of type 1200 available, trying to
-continue...
-yenta 0000:02:03.0: Preassigned resource 1 busy, reconfiguring...
-yenta 0000:02:03.0: Preassigned resource 2 busy, reconfiguring...
-yenta 0000:02:03.0: Preassigned resource 3 busy, reconfiguring...
-yenta 0000:02:03.0: Preassigned resource 3 busy, reconfiguring...
-
-With your patch :
-
-yenta 0000:02:03.0: Preassigned resource 0 busy, reconfiguring...
-yenta 0000:02:03.0: Preassigned resource 0 busy, reconfiguring...
-yenta 0000:02:03.0: no resource of type 1200 available, trying to
-continue...
-yenta 0000:02:03.0: Preassigned resource 1 busy, reconfiguring...
-yenta 0000:02:03.0: Preassigned resource 1 busy, reconfiguring...
-yenta 0000:02:03.0: no resource of type 200 available, trying to continue...
-yenta 0000:02:03.0: Preassigned resource 2 busy, reconfiguring...
-yenta 0000:02:03.0: Preassigned resource 2 busy, reconfiguring...
-yenta 0000:02:03.0: no resource of type 100 available, trying to continue...
-yenta 0000:02:03.0: Preassigned resource 3 busy, reconfiguring...
-
-Brice
+You are passing d_path() inconsistent arguments and get BS result.
+Garbage in, garbage out...

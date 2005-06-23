@@ -1,63 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262461AbVFWII5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262272AbVFWJst@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262461AbVFWII5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 04:08:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262853AbVFWIHF
+	id S262272AbVFWJst (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 05:48:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262268AbVFWJof
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 04:07:05 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:11725 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S262418AbVFWGgt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 02:36:49 -0400
-Message-ID: <42BA588B.2090001@bull.net>
-Date: Thu, 23 Jun 2005 08:36:59 +0200
-From: Jean-Pierre Dion <jean-pierre.dion@bull.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050414
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Gerrit Huizenga <gh@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ckrm-tech@lists.sourceforge.net
-Subject: Re: [ckrm-tech] [patch 00/38] CKRM e18:  Updated core patches to
- 2.6.12 and included e17 changes
-References: <20050623061552.833852000@w-gerrit.beaverton.ibm.com>
-In-Reply-To: <20050623061552.833852000@w-gerrit.beaverton.ibm.com>
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 23/06/2005 08:48:10,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 23/06/2005 08:48:11,
-	Serialize complete at 23/06/2005 08:48:11
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 23 Jun 2005 05:44:35 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:53691 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262272AbVFWJkY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 05:40:24 -0400
+Date: Thu, 23 Jun 2005 11:40:08 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: DEBUG_PAGEALLOC & SMP?
+Message-ID: <20050623094008.GA31207@elte.hu>
+References: <20050623090936.GA28112@elte.hu> <20050623022000.094169d4.akpm@osdl.org> <20050623092902.GA29602@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050623092902.GA29602@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Gerrit,
 
-just a typo.
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-Gerrit Huizenga wrote:
+> added them, it's:
+> 
+> (gdb) list *0xc02f993f
+> 0xc02f993f is in sd_revalidate_disk (drivers/scsi/sd.c:1472).
+> 1467                           "failure.\n");
+> 1468                    goto out;
+> 1469            }
+> 1470
+> 1471            buffer = kmalloc(512, GFP_KERNEL | __GFP_DMA);
+> 1472            if (!buffer) {
+> 1473                    printk(KERN_WARNING "(sd_revalidate_disk:) Memory allocation "
+> 1474                           "failure.\n");
+> 1475                    goto out_release_request;
+> 1476            }
+> (gdb)
+> 
+> full log attached below. (ob'fun: the oom-killer picked the migration 
+> thread to kill ;)
 
->All of these changes have been tested on IA32 and PPC64, with CONIG_CKRM
->  
->
-                                                                        
-        CONFIG_CKRM    ;-)
+this was with the -RT tree - let me try whether the same happens on 
+vanilla 2.6.12 too.
 
-jean-pierre
-
->--
->gerrit
->
->
->-------------------------------------------------------
->SF.Net email is sponsored by: Discover Easy Linux Migration Strategies
->from IBM. Find simple to follow Roadmaps, straightforward articles,
->informative Webcasts and more! Get everything you need to get up to
->speed, fast. http://ads.osdn.com/?ad_id=7477&alloc_id=16492&op=click
->_______________________________________________
->ckrm-tech mailing list
->https://lists.sourceforge.net/lists/listinfo/ckrm-tech
->
->  
->
+	Ingo

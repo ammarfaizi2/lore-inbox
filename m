@@ -1,77 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262086AbVFWKQU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262627AbVFWKO0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262086AbVFWKQU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 06:16:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262631AbVFWKOy
+	id S262627AbVFWKO0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 06:14:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262530AbVFWKLZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 06:14:54 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:43783 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262086AbVFWKIa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 06:08:30 -0400
-Date: Thu, 23 Jun 2005 12:08:21 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] schedule the obsolete raw driver for removal
-Message-ID: <20050623100821.GE3749@stusta.de>
-References: <20050521001925.GQ5112@stusta.de> <20050521053558.GA23542@kroah.com>
+	Thu, 23 Jun 2005 06:11:25 -0400
+Received: from rproxy.gmail.com ([64.233.170.201]:60642 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S263074AbVFWISW convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 04:18:22 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=YTFdPXNdpFlruui9qc7rrWbF4U9pMUYZ93b1zHtKgZwGz1GDpUiLy2CPX5gFzdJXG30787XBrC87gW65IT09aynHvwFYwkv7YjHlHJ6ZOlxayNA2XbDTkGL+I3o1nhGqIPTvrHxVB07YsPe1UVsBKCbqBBRWX4zLre6+kZMhNi4=
+Message-ID: <46a038f9050623011838d6b85f@mail.gmail.com>
+Date: Thu, 23 Jun 2005 20:18:22 +1200
+From: Martin Langhoff <martin.langhoff@gmail.com>
+Reply-To: Martin Langhoff <martin.langhoff@gmail.com>
+To: Petr Baudis <pasky@ucw.cz>
+Subject: Re: Updated git HOWTO for kernel hackers
+Cc: Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Greg KH <greg@kroah.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Git Mailing List <git@vger.kernel.org>
+In-Reply-To: <20050623073845.GA5204@pasky.ji.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20050521053558.GA23542@kroah.com>
-User-Agent: Mutt/1.5.9i
+References: <42B9FCAE.1000607@pobox.com> <42BA14B8.2020609@pobox.com>
+	 <Pine.LNX.4.58.0506221853280.11175@ppc970.osdl.org>
+	 <42BA1B68.9040505@pobox.com>
+	 <Pine.LNX.4.58.0506221929430.11175@ppc970.osdl.org>
+	 <42BA271F.6080505@pobox.com>
+	 <Pine.LNX.4.58.0506222014000.11175@ppc970.osdl.org>
+	 <42BA45B1.7060207@pobox.com>
+	 <Pine.LNX.4.58.0506222225010.11175@ppc970.osdl.org>
+	 <20050623073845.GA5204@pasky.ji.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 20, 2005 at 10:35:58PM -0700, Greg KH wrote:
-> On Sat, May 21, 2005 at 02:19:25AM +0200, Adrian Bunk wrote:
-> > Since kernel 2.6.3 the Kconfig text explicitely stated this driver was 
-> > obsolete.
-> > 
-> > It seems to be time to remove it.
-> 
-> As much as I would like to agree with you, no, not yet.  Mark it as
-> going to go away in the Documenation/feature-removal.txt file 6-8 months
-> from now (or longer if people object, but no longer than a year) and
-> then after that time expires, we can delete it.
+On 6/23/05, Petr Baudis <pasky@ucw.cz> wrote:
+> I think there should simply be two namespaces - public tags and private
+> tags. Private tags for stuff like "broken", "merged", or "funnychange".
 
-Patch below.
+I guess that public tags would also probably be in a different
+location from the actual tree. With the split Linus advocates, several
+people could be publishing sets of "public" tags, as well as having
+the official tags hosted separately from the .git repo.
 
-> thanks,
-> 
-> greg k-h
-
-cu
-Adrian
+cheers,
 
 
-<--  snip  -->
-
-
-Since kernel 2.6.3 the Kconfig text explicitely stated this driver was
-obsolete.
-
-It seems to be time to schedule it's removal.
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.12-mm1-full/Documentation/feature-removal-schedule.txt.old	2005-06-23 12:01:40.000000000 +0200
-+++ linux-2.6.12-mm1-full/Documentation/feature-removal-schedule.txt	2005-06-23 12:04:09.000000000 +0200
-@@ -45,0 +46,8 @@
-+What:	RAW driver (CONFIG_RAW_DRIVER)
-+When:	December 2005
-+Why:	declared obsolete since kernel 2.6.3
-+	O_DIRECT can be used instead
-+Who:	Adrian Bunk <bunk@stusta.de>
-+
-+---------------------------
-+
---- linux-2.6.12-mm1-full/drivers/char/Kconfig.old	2005-06-23 12:04:20.000000000 +0200
-+++ linux-2.6.12-mm1-full/drivers/char/Kconfig	2005-06-23 12:04:46.000000000 +0200
-@@ -943,2 +943,2 @@
--          The raw driver is deprecated and may be removed from 2.7
--          kernels.  Applications should simply open the device (eg /dev/hda1)
-+          The raw driver is deprecated and will be removed soon.
-+          Applications should simply open the device (eg /dev/hda1)
-
+martin

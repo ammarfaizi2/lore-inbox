@@ -1,94 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263043AbVFWSjH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263030AbVFWSnv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263043AbVFWSjH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 14:39:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263028AbVFWSey
+	id S263030AbVFWSnv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 14:43:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263035AbVFWSje
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 14:34:54 -0400
-Received: from mail8.fw-bc.sony.com ([160.33.98.75]:43767 "EHLO
-	mail8.fw-bc.sony.com") by vger.kernel.org with ESMTP
-	id S262989AbVFWScw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 14:32:52 -0400
-Message-ID: <42BB0027.6030502@am.sony.com>
-Date: Thu, 23 Jun 2005 11:32:07 -0700
-From: Tim Bird <tim.bird@am.sony.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: =?UTF-8?B?77+9?= <pozsy@uhulinux.hu>
-CC: linux-kernel@vger.kernel.org, David Woodhouse <dwmw2@infradead.org>,
-       "Sean M. Burke" <sburke@cpan.org>, trivial@rustcorp.com.au
-Subject: Re: PATCH: "Ok" -> "OK" in messages
-References: <42985251.6030006@cpan.org> <1117279792.32118.11.camel@localhost.localdomain> <20050528125430.GB3870@ojjektum.uhulinux.hu> <42BAE3B1.5010209@am.sony.com> <20050623165309.GA23548@ojjektum.uhulinux.hu>
-In-Reply-To: <20050623165309.GA23548@ojjektum.uhulinux.hu>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+	Thu, 23 Jun 2005 14:39:34 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:22441 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S263031AbVFWSgv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 14:36:51 -0400
+Date: Thu, 23 Jun 2005 11:32:54 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, pavel@suse.cz, ak@muc.de,
+       hch@lst.de, Dave Airlie <airlied@linux.ie>
+Subject: Re: [PATCH] Add removal schedule of
+ register_serial/unregister_serial to appropriate file
+Message-Id: <20050623113254.2675ffc6.akpm@osdl.org>
+In-Reply-To: <20050623140316.GH3749@stusta.de>
+References: <20050623142335.A5564@flint.arm.linux.org.uk>
+	<20050623140316.GH3749@stusta.de>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >>-	putstr("Uncompressing Linux... ");
-> >> +	putstr("Linux " UTS_RELEASE);
-> >>  	gunzip();
-> >> -	putstr("Ok, booting the kernel.\n");
-> >> +	putstr("\n");
-> >>
-
-� wrote:
->>Language neutrality is not a goal for kernel messages,
->>that I'm aware of.
+Adrian Bunk <bunk@stusta.de> wrote:
+>
+> On Thu, Jun 23, 2005 at 02:23:35PM +0100, Russell King wrote:
+> >...
+> > However, wouldn't it be a good idea if this file was ordered by "when" ?
+> > A quick scan of the file reveals a couple of overdue/forgotten items
+> > (maybe they happened but the entry in the file got missed?):
+> >...
+> > What:   register_ioctl32_conversion() / unregister_ioctl32_conversion()
+> > When:   April 2005
+> >...
 > 
-> Of course this is true, but I think this very one is an exception: this 
-> is the only one seen when booting with the "quiet" kernel option or 
-> using some shiny bootlogo patches, both of which is common practice 
-> among distribution-shipped kernels.
-> 
-OK, I understand why this one might worth different
-consideration.
+> The removal (including the removal of the feature-removal-schedule.txt 
+> entry) is already in -mm.
 
-> 
->>I disagree with this change because
->>it yields a net reduction in understanding what's going
->>on during booting.
-> 
-> No, it does not yields any reduction. Only the strings itself are 
-> changed, not the time they are printed.
-This is only true if the words themselves have no meaning or utility.
-They do.
+Actually it has been temporarily removed because it has a dependency on
+update-drm-ioctl-compatibility-to-new-world-order.patch which has a
+dependency on David's DRM tree and I don't know how to get David's DRM tree
+any more.  Hint.
 
-> Besides, nobody is interested that actually an uncompress step is in 
-> progress, that just works.
-This is not true, a developer working on a new board support package
-cares whether we're in the decompress step or in the kernel booting step.
-
-New developers unfamiliar with the kernel booting sequence will have
-to find out where this message is coming from, when things fail.
-Without a unique string to search for, this becomes quite difficult
-to find.
-
-In my field, I work with a LOT of developers who are not deeply
-familiar with the kernel, but still face these bootup messages.
-
-> And, btw if it fails (the gunzip), it prints 
-> an error message anyway iirc.
-
-I'm not sure what happens on gunzip failure, but
-I see kernel boot failures quite often during
-board bringup, and it's nice to know if you've
-passed the decompression phase, etc.  The messages
-you propose are much less instructive for the
-developer.
-
-However, I will grant that we're not trying to
-optimize for the developer, but rather should
-be optimizing for the user.  But if we can
-do something that is suitable to both, I would
-prefer it.  Could we put just a little more
-wording back in?
-
- -- Tim
-
-=============================
-Tim Bird
-Architecture Group Chair, CE Linux Forum
-Senior Staff Engineer, Sony Electronics
-=============================

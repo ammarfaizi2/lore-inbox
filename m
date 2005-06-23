@@ -1,97 +1,177 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262690AbVFWTHo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262696AbVFWTHp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262690AbVFWTHo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 15:07:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262696AbVFWTGw
+	id S262696AbVFWTHp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 15:07:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262694AbVFWTG1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 15:06:52 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:46230 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262687AbVFWTFJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 15:05:09 -0400
-Date: Fri, 24 Jun 2005 00:32:18 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: syrius.ml@no-log.org
-Cc: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, bero@arklinux.org, rjw@sisk.pl,
-       sharyath@in.ibm.com
-Subject: Re: 2.6.12-mm1: BUG() in fd_install, RCU related?
-Message-ID: <20050623190218.GA4999@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20050621083424.GA2076@elf.ucw.cz> <20050621090721.GA7976@in.ibm.com> <874qbpwbae.873br9wbae@871x6twbae.message.id>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <874qbpwbae.873br9wbae@871x6twbae.message.id>
-User-Agent: Mutt/1.4.1i
+	Thu, 23 Jun 2005 15:06:27 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:13461 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S263050AbVFWTAI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 15:00:08 -0400
+Message-ID: <42BB06B6.1090203@namesys.com>
+Date: Thu, 23 Jun 2005 12:00:06 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christophe Saout <christophe@saout.de>
+CC: Andrew Morton <akpm@osdl.org>, hch@infradead.org, jgarzik@pobox.com,
+       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: Re: reiser4 plugins
+References: <20050620235458.5b437274.akpm@osdl.org>	 <42B831B4.9020603@pobox.com> <42B87318.80607@namesys.com>	 <20050621202448.GB30182@infradead.org> <42B8B9EE.7020002@namesys.com>	 <20050621181802.11a792cc.akpm@osdl.org> <1119452212.15527.33.camel@server.cs.pocnet.net>
+In-Reply-To: <1119452212.15527.33.camel@server.cs.pocnet.net>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 23, 2005 at 01:50:11PM +0200, syrius.ml@no-log.org wrote:
-> Dipankar Sarma <dipankar@in.ibm.com> writes:
-> 
-> > Some things are common - always with fcntl() or fcntl64() and with
-> > a daemon. Does your box come up at all ? If so, can you get me an
-> > strace on the process that triggers this ? If I can narrow it
-> > down to a small testcase, it would be a lot easier. Also, does
-> > switching off CONFIG_PREEMPT fix this problem ?
-> 
-> I haven't read about this thread. I hope u'll find a way to reproduce
-> it. here debian/sid i386 (.config sent in an earlier message), it 100%
-> reproducible when restarting bind9. (it also happens on its own on
-> different occasion)
-> 
-> 
-> then i restart the daemon:
-> 
-> end of a strace -f /etc/init.d/bind9 start
-> 6541  rt_sigaction(SIGPIPE, {0xb7ca2a70, [], 0}, {SIG_IGN}, 8) = 0
-> 6541  send(3, "<30>Jun 23 00:51:35 named[6540]:"..., 82, 0) = 82
-> 6541  rt_sigaction(SIGPIPE, {SIG_IGN}, NULL, 8) = 0
-> 6541  socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP) = 10
-> 6541  fcntl64(10, F_DUPFD, 20)          = 32
-> 6541  close(10)                         = 0
-> 6541  fcntl64(32, F_GETFL)              = 0x2 (flags O_RDWR)
-> 6541  fcntl64(32, F_SETFL, O_RDWR|O_NONBLOCK) = 0
-> 6541  setsockopt(32, SOL_SOCKET, SO_TIMESTAMP, [1], 4) = 0
-> 6541  setsockopt(32, SOL_SOCKET, SO_REUSEADDR, [1], 4) = 0
-> 6541  bind(32, {sa_family=AF_INET, sin_port=htons(53),
-> sin_addr=inet_addr("172.16.254.1")}, 16) = 0
-> 6541  socket(PF_INET, SOCK_STREAM, IPPROTO_TCP) = 10
-> 6541  fcntl64(10, F_DUPFD, 20
+This is a very nice description, thank you Christophe.  My comments are
+below.
 
-Aha, this has been extremely helpful. Could you all please try the
-following (untested) patch ? This should fix the problem, or
-atleast one problem that I can see.
+Christophe Saout wrote:
 
-Thanks
-Dipankar
+>Am Dienstag, den 21.06.2005, 18:18 -0700 schrieb Andrew Morton:
+>
+>  
+>
+>>>What is wrong with having an encryption plugin implemented in this
+>>> manner?  What is wrong with being able to have some files implemented
+>>> using a compression plugin, and others in the same filesystem not.
+>>>
+>>> What is wrong with having one file in the FS use a write only plugin, in
+>>> which the encrypion key is changed with every append in a forward but
+>>> not backward computable manner, and in order to read a file you must
+>>> either have a key that is stored on another computer or be reading what
+>>> was written after the moment of cracking root?
+>>>
+>>> What is wrong with having a set of critical data files use a CRC
+>>> checking file plugin?
+>>>      
+>>>
+>>I think the concern here is that this is implemented at the wrong level.
+>>
+>>In Linux, a filesystem is some dumb thing which implements
+>>address_space_operations, filesystem_operations, etc.
+>>
+>>Advanced features such as those which you describe are implemented on top
+>>of the filesystem, not within it.  reiser4 turns it all upside down.
+>>
+>>Now, some of the features which you envision are not amenable to
+>>above-the-fs implementations.  But some will be, and that's where we should
+>>implement those.
+>>    
+>>
+>
+>Yes, but that would be difficult, probably worse. The name "plugins" is
+>perhaps a bit misleading. These plugins are most of the time some sort
+>client to the reiser4 on-disk database structure. The core code is does
+>on-disk tree handling, journalling and these things. The plugins in turn
+>glue this core database system to the rest of the system in order to
+>make a filesystem of it. The "file plugin" tells the database how to
+>store files.
+>
+>A compression plugins is more tricky. Files should be randomly
+>accessible and if you write in the middle of the file the compressed
+>block might change in size. For reiser4 this is not a problem since it
+>just tells the underlying database "give me some room for 1234 bytes and
+>insert it in the tree instead of the other block". The reiser4 core has
+>totally different semantics than the VFS layer and I don't see how these
+>things could be handled elsewhere in this simple way.
+>
+>The reiser4 core is more some sort of library that abstracts a block
+>device and provides some sort of database API (which is highly optimized
+>for filesystem purposes). The actual filesystem is then another layer on
+>top of this. You could actually implement lots of different filesystems
+>on top of that database core.
+>
+>The actual layer is a bit different though. The database core itself
+>registers with the Linux VFS and then passes the calls down to one of
+>the plugins which then calls back into the reiser4 core to do the actual
+>database modification. I think this was the point that Christoph was
+>criticizing the most.
+>
+>Currently it looks like this:
+>
+>             ,--------------.       ,--------------.
+>VFS -------> |              | ----> |              |
+>             | /fs/reiser4/ |       | .../plugins/ |
+>blockdev <-- |              | <---> |              |
+>             `--------------'       `--------------'
+>
+>So the reiser4 code is introducing another abstraction of the Linux VFS
+>layer instead of letting the plugins define the Linux VFS ops directly.
+>Which would look like this:
+>
+>                                    ,--------------.
+>VFS ------------------------------> |              |
+>             ,--------------,       | .../plugins/ |
+>blockdev <-- | /fs/reiser4/ | <---> |              |
+>             `--------------'       `--------------'
+>  
+>
+Note that the proposed change (as I understand it) creates a need to
+load plugin definitions (classes) into VFS vectors (instances), which
+requires additional code and operations. 
 
+Plugins need to be FS specific by their nature (unless someone wants the
+nightmare of allocating pluginids to each of the different filesystems
+and dealing with the inevitable collisions and violations).
 
-locate_fd() may expand fdtable, so the fdtable pointer must be
-reloaded after locate_fd().
+Note that with the proposed change there are now two places the contents
+of the plugin definition must reside:  once in each VFS instance of that
+plugin, and once in the plugin definition.  As Codd taught us, putting
+data in two places that must be kept synchronous is strongly
+undesirable, and it always causes more bugs over time than people think
+it will.
 
-Signed-of-by: Dipankar Sarma <dipankar@in.ibm.com>
----
+By loading the instance from the plugin layer into VFS, we are creating
+a need to instantiate something that could instead be shared among all
+the instances.  It seems an additional step that is unneeded.
 
+The advantage though is that it avoids a function dereference.
 
- fs/fcntl.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletion(-)
+Perhaps I miss something here?
 
-diff -puN fs/fcntl.c~fix-dupfd-reacquire-fdt fs/fcntl.c
---- linux-2.6.12-mm1-fix/fs/fcntl.c~fix-dupfd-reacquire-fdt	2005-06-25 14:56:58.000000000 +0530
-+++ linux-2.6.12-mm1-fix-dipankar/fs/fcntl.c	2005-06-25 14:58:26.000000000 +0530
-@@ -118,9 +118,10 @@ static int dupfd(struct file *file, unsi
- 	int fd;
- 
- 	spin_lock(&files->file_lock);
--	fdt = files_fdtable(files);
- 	fd = locate_fd(files, file, start);
- 	if (fd >= 0) {
-+		/* locate_fd() may have expanded fdtable, load the ptr */
-+		fdt = files_fdtable(files);
- 		FD_SET(fd, fdt->open_fds);
- 		FD_CLR(fd, fdt->close_on_exec);
- 		spin_unlock(&files->file_lock);
+>Which probably would be okay for most of the time except for some
+>details (which could probably be solved otherwise).
+>
+>Actually the flow is not always this simple, usually the path goes back
+>and forth multiple time between the core and the plugins.
+>
+>One of the features Hans is using is that there can be different kinds
+>of files. The on-disk structure tells the core which of the plugins is
+>responsible for the "database object" found on the disk. It could be a
+>directory or a "stat data" (inode) or a file. The file itself could be
+>handled by different plugins like one that stores the data directly or
+>one that compresses it.
+>
+>reiser4 is different than other filesystems in that it uses a lot more
+>abstraction levels. The database aspect and the semantic aspect of a
+>traditional filesystems are strongly separated.
+>
+>To understand the code probably means a lot of work because it is a bit
+>different. Some of the layering concerns may be right, other probably
+>not.
+>
+>The plugins that add additional VFS semantics (that are currently
+>disable) should most definitely not be implemented only inside the
+>filesystem. I think Hans did this because it would have been a lot more
+>work doing this at the proper layer (which means talking to people and a
+>lot of politics...).
+>
+>The last time I looked at the code is a while ago, so if I'm wrong on
+>something, please don't shoot me. The only thing I can say is that
+>reiser4 has very stable for me (though I've gone back to reiser3 for
+>most of my filesystems because I wanted acl/xattr).
+>
+>So here's my advice: Instead of insulting each other or doing pure
+>marketing talk, please try to address each detail and explain why
+>something has been done and if it's good or bad and if it should be
+>changed and how.
+>
+>  
+>
 
-_

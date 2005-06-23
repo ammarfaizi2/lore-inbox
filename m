@@ -1,69 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261689AbVFWACc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261838AbVFWAET@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261689AbVFWACc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Jun 2005 20:02:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261830AbVFWACc
+	id S261838AbVFWAET (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Jun 2005 20:04:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261841AbVFWAET
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Jun 2005 20:02:32 -0400
-Received: from mail.gmx.net ([213.165.64.20]:4013 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261689AbVFWAC1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Jun 2005 20:02:27 -0400
-X-Authenticated: #26200865
-Message-ID: <42B9FC19.2000604@gmx.net>
-Date: Thu, 23 Jun 2005 02:02:33 +0200
-From: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.7) Gecko/20050414
-X-Accept-Language: de, en
+	Wed, 22 Jun 2005 20:04:19 -0400
+Received: from mail01.syd.optusnet.com.au ([211.29.132.182]:21642 "EHLO
+	mail01.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261838AbVFWADs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Jun 2005 20:03:48 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch] fix SMT scheduler latency bug
+Date: Thu, 23 Jun 2005 10:03:28 +1000
+User-Agent: KMail/1.8.1
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       William Weston <weston@sysex.net>
+References: <20050622102541.GA10043@elte.hu> <200506230903.56351.kernel@kolivas.org> <20050622233254.GA11486@elte.hu>
+In-Reply-To: <20050622233254.GA11486@elte.hu>
 MIME-Version: 1.0
-To: Herbert Xu <herbert@gondor.apana.org.au>
-CC: Patrick McHardy <kaber@trash.net>, Bart De Schuymer <bdschuym@telenet.be>,
-       Bart De Schuymer <bdschuym@pandora.be>, netfilter-devel@manty.net,
-       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
-       ebtables-devel@lists.sourceforge.net, rankincj@yahoo.com
-Subject: Re: 2.6.12: connection tracking broken?
-References: <E1Dk9nK-0001ww-00@gondolin.me.apana.org.au>	<Pine.LNX.4.62.0506200432100.31737@kaber.coreworks.de>	<1119249575.3387.3.camel@localhost.localdomain>	<42B6B373.20507@trash.net>	<1119293193.3381.9.camel@localhost.localdomain>	<42B74FC5.3070404@trash.net>	<1119338382.3390.24.camel@localhost.localdomain>	<42B82F35.3040909@trash.net> <20050622214920.GA13519@gondor.apana.org.au>
-In-Reply-To: <20050622214920.GA13519@gondor.apana.org.au>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed;
+  boundary="nextPart2513205.T9SgmNIfP2";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Message-Id: <200506231003.31084.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herbert Xu schrieb:
-> 
-> Longer term though we should obsolete the ipt_physdev module.  The
-> rationale there is that this creates a precedence that we can't
-> possibly maintain in a consistent way.  For example, we don't have
-> a target that matches by hardware MAC address.  If you wanted to
-> do that, you'd hook into the arptables interface rather than deferring
-> iptables after the creation of the hardware header.
-> 
-> This can be done in two stages to minimise pain for people already
-> using it:
-> 
-> 1) We rewrite ipt_physdev to do the lookups necessary to get the output
-> physical devices through the bridge layer.  Of course this may not be
-> the real output device due to changes in the environment.  So this should
-> be accompanied with a warning that users should switch to ebt.
-> 
-> 2) We remove the iptables deferring since ipt_physdev will no longer need
-> it.
-> 
-> 3) After a set period (say a year or so) we remove ipt_physdev altogether.
+--nextPart2513205.T9SgmNIfP2
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-For my local setup it is already a minor PITA that there is no tool
-combining the functionality of arptables, ebtables and iptables, but
-I can cope with the help of marking and ipt_physdev. If that doesn't
-work reliably anymore, I'll be stuck.
+On Thu, 23 Jun 2005 09:32, Ingo Molnar wrote:
+> * Con Kolivas <kernel@kolivas.org> wrote:
+> > > task_timeslice(p) is indeed constant over time, but
+> > > smt_curr->time_slice is not. So this condition opens up the possibili=
+ty
+> > > of a lower prio thread accumulating a larger ->time_slice and thus
+> > > reversing the priority equation.
+> >
+> > I'm not clear on how the value of ->time_slice can ever grow to larger
+> > than task_timeslice(p). It starts at task_timeslice(p) and decrements
+> > till it gets to 0 when it refills again.
+>
+> I was thinking abut sched_exit(), there we let unused child timeslices
+> 'flow back' into the parent thread, if the child thread was shortlived.
+> The check there does:
+>
+>         if (p->first_time_slice) {
+>                 p->parent->time_slice +=3D p->time_slice;
+>                 if (unlikely(p->parent->time_slice > task_timeslice(p)))
+>                         p->parent->time_slice =3D task_timeslice(p);
+>         }
+>
+> notice that we check parent->time_slice against the child's
+> task_timeslice(p), not against task_timeslice(p->parent). So if the
+> child thread got reniced, it could cause a higher-than-normal amount of
+> timeslices. But this should be a rare scenario, and the above code is
+> more of a bug than a feature (will send a patch for it tomorrow), and it
+> should not affect the workloads i was testing.
 
-Wasn't someone working on a unified framework for *tables? IIRC that
-would have been pkttables, but Harald(?) said there was not much
-code there yet.
+Agreed.
 
-Regards,
-Carl-Daniel
--- 
-http://www.hailfinger.org/
+> lets take a look at the second condition again:
+>
+>                 if ((p->time_slice * (100 - sd->per_cpu_gain) / 100) >
+>                         task_timeslice(smt_curr))
+>                                 resched_task(smt_curr);
+>
+> if this condition is true then we trigger a preemption at smt_curr. Now
+> in the bug scenario, 'p' is a highprio task and smt_curr is a lowprio
+> task. If p->time_slice (which fluctuates between task_timeslice(p) and
+> 0) happens to be low enough, preemption wont be triggered and we lose a
+> wakeup in essence - 'p', despite being the highest-prio task around,
+> wont be run until some CPU runs schedule() voluntarily. Ok?
+
+In dependent_sleeper() we return 1 only to prevent p from scheduling. This=
+=20
+second condition does not return 1 from dependent_sleeper() so p will still=
+=20
+go ahead and schedule. This second condition only affects the scheduling on=
+=20
+the smt sibling.
+
+About the only scenario I can envision a high priority task being delayed w=
+ith=20
+the code as it currently is in 2.6.12-mm1 is with a high priority task bein=
+g=20
+on the expired array and a low priority task being delayed on the active=20
+array. This still should not create large latencies unless array swapping i=
+s=20
+significantly delayed. I considered adding a check for this originally but =
+it=20
+seemed to be unnecessary extra complexity since an expired task by design i=
+s=20
+expected to be delayed more anyway.
+
+Cheers,
+Con
+
+
+Cheers,
+Con
+
+--nextPart2513205.T9SgmNIfP2
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBCufxTZUg7+tp6mRURAsV4AJsFvTqJDfNnuukAQr8WQfQJjKT6CACghHHG
+9yHJ0EGn8TMgJV4L/pvPNIA=
+=a9VI
+-----END PGP SIGNATURE-----
+
+--nextPart2513205.T9SgmNIfP2--

@@ -1,74 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262863AbVFWI2x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262585AbVFWJ2x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262863AbVFWI2x (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 04:28:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263241AbVFWIW7
+	id S262585AbVFWJ2x (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 05:28:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262613AbVFWJZr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 04:22:59 -0400
-Received: from styx.suse.cz ([82.119.242.94]:58558 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S262601AbVFWHNz (ORCPT
+	Thu, 23 Jun 2005 05:25:47 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:33459 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S262585AbVFWJYQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 03:13:55 -0400
-Date: Thu, 23 Jun 2005 09:13:45 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Alejandro Bonilla <abonilla@linuxwireless.org>
-Cc: "'Pavel Machek'" <pavel@ucw.cz>, "'Lee Revell'" <rlrevell@joe-job.com>,
-       "'Yani Ioannou'" <yani.ioannou@gmail.com>,
-       linux-thinkpad@linux-thinkpad.org, linux-kernel@vger.kernel.org
-Subject: Re: [ltp] Re: IBM HDAPS Someone interested?
-Message-ID: <20050623071345.GA4553@ucw.cz>
-References: <20050622104927.GB2561@openzaurus.ucw.cz> <001201c57729$0a645840$600cc60a@amer.sykes.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <001201c57729$0a645840$600cc60a@amer.sykes.com>
-User-Agent: Mutt/1.5.6i
+	Thu, 23 Jun 2005 05:24:16 -0400
+Message-ID: <42BA7FB5.5020804@pobox.com>
+Date: Thu, 23 Jun 2005 05:24:05 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Netdev List <netdev@vger.kernel.org>
+Subject: [git patch] urgent e1000 fix
+Content-Type: multipart/mixed;
+ boundary="------------010705020707050403070901"
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 22, 2005 at 06:50:59AM -0600, Alejandro Bonilla wrote:
-> 
-> > Hi!
-> >
-> > > > I'm trying to do watch -n1 cat /proc/acpi/ibm/ecdump, But
-> > I don't have
-> > > > ecdump. I'm with ibm-acpi 0.8
-> > > >
-> > >
-> > > I was thinking more along the lines of figure out the io port it's
-> > > using, then boot windows, set an IO breakpoint in softice, then drop
-> > > your laptop on the bed or something.
-> >
-> > It should be enough to tilt your laptop so that it parks
-> > heads... safer than
-> > dropping it.
-> >
-> > And perhaps easier solution is to locate the sensor on the
-> > mainboard, and
-> > trace where it is connected with magnifying glass (as vojtech
-> > already suggested).
-> >
-> > 				Pavel
-> >
-> > --
-> > 64 bytes from 195.113.31.123: icmp_seq=28 ttl=51
-> > time=448769.1 ms
-> >
-> 
-> /proc/acpi/ibm/ecdump is really not providing any information about this
-> sensor. yesterday, I almost broke the laptop to see if it would generate
-> anything, but it really only outputs ACPI events...
-> 
-> I shaked it, moved it 90deg and still no result, threw the lappy from like
-> 40cm to the bed and nothing was really generated. Unless it is too fast like
-> to generate it in the watch or to be seen by human eye. I dunno.
-> 
-> It looks like /ecdump won't do it.
- 
-But that doesn't mean it's not connected to the embedded controller. It
-just means the embedded controller doesn't generate any inertial events
-by itself - it may have to be polled with some specific command.
+This is a multi-part message in MIME format.
+--------------010705020707050403070901
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Please pull from 'misc-fixes' branch of
+rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/netdev-2.6.git
+
+to obtain the spinlock fix described in the attached text.
+
+
+--------------010705020707050403070901
+Content-Type: text/plain;
+ name="netdev-2.6.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="netdev-2.6.txt"
+
+
+ drivers/net/e1000/e1000_main.c |    1 +
+ 1 files changed, 1 insertion(+)
+
+
+Mitch Williams:
+  e1000: fix spinlock bug
+
+
+diff --git a/drivers/net/e1000/e1000_main.c b/drivers/net/e1000/e1000_main.c
+--- a/drivers/net/e1000/e1000_main.c
++++ b/drivers/net/e1000/e1000_main.c
+@@ -2307,6 +2307,7 @@ e1000_xmit_frame(struct sk_buff *skb, st
+ 	tso = e1000_tso(adapter, skb);
+ 	if (tso < 0) {
+ 		dev_kfree_skb_any(skb);
++		spin_unlock_irqrestore(&adapter->tx_lock, flags);
+ 		return NETDEV_TX_OK;
+ 	}
+ 
+
+--------------010705020707050403070901--

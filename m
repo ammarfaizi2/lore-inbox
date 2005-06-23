@@ -1,62 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262960AbVFWU2S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263089AbVFWUiI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262960AbVFWU2S (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 16:28:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263083AbVFWUYu
+	id S263089AbVFWUiI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 16:38:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262705AbVFWUeB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 16:24:50 -0400
-Received: from trex.wsi.edu.pl ([195.117.114.133]:43954 "EHLO trex.wsi.edu.pl")
-	by vger.kernel.org with ESMTP id S262880AbVFWUXi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 16:23:38 -0400
-Message-ID: <42BAFE3E.2050407@trex.wsi.edu.pl>
-Date: Thu, 23 Jun 2005 20:23:58 +0200
-From: =?ISO-8859-2?Q?Micha=B3_Piotrowski?= <piotrowskim@trex.wsi.edu.pl>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: pl, en-us, en
-MIME-Version: 1.0
-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-       Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org,
-       randy_dunlap <rdunlap@xenotime.net>
-Subject: Re: Script to help users to report a BUG
-References: <4d8e3fd30506191332264eb4ae@mail.gmail.com>	 <20050622120848.717e2fe2.rdunlap@xenotime.net>	 <42B9CFA1.6030702@trex.wsi.edu.pl>	 <20050622174744.75a07a7f.rdunlap@xenotime.net>	 <9a87484905062311246243774e@mail.gmail.com>	 <20050623120647.2a5783d1.rdunlap@xenotime.net>	 <9a87484905062312131e5f6b05@mail.gmail.com>	 <42BAF608.6080802@trex.wsi.edu.pl> <4d8e3fd305062313032c9789e8@mail.gmail.com>
-In-Reply-To: <4d8e3fd305062313032c9789e8@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8bit
+	Thu, 23 Jun 2005 16:34:01 -0400
+Received: from fmr21.intel.com ([143.183.121.13]:39065 "EHLO
+	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
+	id S262954AbVFWUcw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 16:32:52 -0400
+Date: Thu, 23 Jun 2005 13:32:39 -0700
+From: Rajesh Shah <rajesh.shah@intel.com>
+To: Brice Goglin <Brice.Goglin@ens-lyon.org>
+Cc: Rajesh Shah <rajesh.shah@intel.com>,
+       Dominik Brodowski <linux@dominikbrodowski.net>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.12-mm1
+Message-ID: <20050623133238.A24026@unix-os.sc.intel.com>
+Reply-To: Rajesh Shah <rajesh.shah@intel.com>
+References: <20050619233029.45dd66b8.akpm@osdl.org> <42B6746B.4020305@ens-lyon.org> <20050620081443.GA31831@isilmar.linta.de> <42B6831B.3040506@ens-lyon.org> <20050620085449.GA32330@isilmar.linta.de> <42B6C06F.4000704@ens-lyon.org> <20050622163427.A10079@unix-os.sc.intel.com> <42BA55D2.7020900@ens-lyon.org> <20050623100536.A21592@unix-os.sc.intel.com> <42BAFADF.2030804@ens-lyon.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <42BAFADF.2030804@ens-lyon.org>; from Brice.Goglin@ens-lyon.org on Thu, Jun 23, 2005 at 08:09:35PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Jun 23, 2005 at 08:09:35PM +0200, Brice Goglin wrote:
+> dmesg and dsdt are attached.
+> 
+The host bridge resources being reported were fine. I think this
+failure is a yenta bug exposed by the combination of the host
+bridge resource collection patch and the patch to improve the
+handling for transparent bridges. I think the yenta code thinks
+there's a resource conflict for the ranges being decoded by the
+cardbus bridge when in fact there isn't any conflict in this case.
+It then claims and reprograms the cardbus bridge to IO resources
+that are already programmed into another device (winmodem in this
+case), causing problems.
 
-Paolo Ciarrocchi wrote:
+Does the following patch to 2.6.12-mm1 fix the problem?
+------------------------------
 
->
->Jus tried, it works well.
->
->How about adding this patch, or something like that ?
->
->--- ort.sh	2005-06-23 19:45:54.000000000 +0200
->+++ ort-new.sh	2005-06-23 21:56:25.655604560 +0200
->@@ -507,6 +507,7 @@ send_r() {
-> 	    then
-> 		echo -e "\nPlease email $ORT_F to linux-kernel@vger.kernel.org"
-> 		echo -e "or some other appropriate Linux mailing list."
->+		echo -e "And please, use this information to file a BUG in the
->kernel Bugzilla you'll find at bugme.osdl.org. Thanks "
-> 	        END=1
->         fi
->     done
->
->It seems to that there is a general agreement that all the BUG should
->be filed in bugzilla too.
->
->  
->
-Ok. Good idea.
-How can we do automatic posts on bugzilla? Is it possible?
-
-For future:
-We need something like ORT-HOWTO in Documentation.
-
-Regards,
-Micha³ piotrowski
+Index: linux-2.6.12-mm1/drivers/pcmcia/yenta_socket.c
+===================================================================
+--- linux-2.6.12-mm1.orig/drivers/pcmcia/yenta_socket.c
++++ linux-2.6.12-mm1/drivers/pcmcia/yenta_socket.c
+@@ -562,9 +562,6 @@ static int yenta_try_allocate_res(struct
+ 	bus = socket->dev->subordinate;
+ 	res = socket->dev->resource + PCI_BRIDGE_RESOURCES + nr;
+ 	res->name = bus->name;
+-	res->flags = type;
+-	res->start = 0;
+-	res->end = run;
+ 	root = pci_find_parent_resource(socket->dev, res);
+ 
+ 	if (!root)

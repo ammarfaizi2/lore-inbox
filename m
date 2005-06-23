@@ -1,39 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262878AbVFWI2y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262884AbVFWI26@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262878AbVFWI2y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 04:28:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263277AbVFWIYR
+	id S262884AbVFWI26 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 04:28:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262867AbVFWIZm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 04:24:17 -0400
-Received: from holomorphy.com ([66.93.40.71]:48819 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S262639AbVFWH0N (ORCPT
+	Thu, 23 Jun 2005 04:25:42 -0400
+Received: from w241.dkm.cz ([62.24.88.241]:14761 "HELO machine.sinus.cz")
+	by vger.kernel.org with SMTP id S262516AbVFWHir (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 03:26:13 -0400
-Date: Thu, 23 Jun 2005 00:26:09 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>,
-       Hugh Dickins <hugh@veritas.com>, Badari Pulavarty <pbadari@us.ibm.com>
-Subject: Re: [patch][rfc] 2/5: micro optimisation for mm/rmap.c
-Message-ID: <20050623072609.GA3334@holomorphy.com>
-References: <42BA5F37.6070405@yahoo.com.au> <42BA5F5C.3080101@yahoo.com.au> <42BA5F7B.30904@yahoo.com.au>
+	Thu, 23 Jun 2005 03:38:47 -0400
+Date: Thu, 23 Jun 2005 09:38:45 +0200
+From: Petr Baudis <pasky@ucw.cz>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Greg KH <greg@kroah.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Git Mailing List <git@vger.kernel.org>
+Subject: Re: Updated git HOWTO for kernel hackers
+Message-ID: <20050623073845.GA5204@pasky.ji.cz>
+References: <42B9FCAE.1000607@pobox.com> <Pine.LNX.4.58.0506221724140.11175@ppc970.osdl.org> <42BA14B8.2020609@pobox.com> <Pine.LNX.4.58.0506221853280.11175@ppc970.osdl.org> <42BA1B68.9040505@pobox.com> <Pine.LNX.4.58.0506221929430.11175@ppc970.osdl.org> <42BA271F.6080505@pobox.com> <Pine.LNX.4.58.0506222014000.11175@ppc970.osdl.org> <42BA45B1.7060207@pobox.com> <Pine.LNX.4.58.0506222225010.11175@ppc970.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42BA5F7B.30904@yahoo.com.au>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <Pine.LNX.4.58.0506222225010.11175@ppc970.osdl.org>
+User-Agent: Mutt/1.4i
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 23, 2005 at 05:06:35PM +1000, Nick Piggin wrote:
-> +		index = (address - vma->vm_start) >> PAGE_SHIFT;
-> +		index += vma->vm_pgoff;
-> +		index >>= PAGE_CACHE_SHIFT - PAGE_SHIFT;
-> +		page->index = index;
+Dear diary, on Thu, Jun 23, 2005 at 07:58:13AM CEST, I got a letter
+where Linus Torvalds <torvalds@osdl.org> told me that...
+> Does it help when I scream?
 
-linear_page_index()
+Nope. I still think you are wrong. :-) (BTW, Cogito always fetches all
+the tags now - but it's not that I would have a huge problem with
+changing that to some better behaviour.)
 
+> > Multiple users -- not just me -- would prefer that git-pull-script 
+> > pulled the tags, too.
+> 
+> And multiple users -- clearly including you -- aren't listening to me. 
+> Tags are separate from the source they tag, and they HAVE TO BE. There is 
+> no "you automatically get the tags when you get the tree", because the two 
+> don't have a 1:1 relationship.
+> 
+> And not making them separate breaks a lot of things. As mentioned, it
+> fundamentally breaks the distributed nature, but that also means that it
+> breaks whenever two people use the same name for a tag, for example. You
+> can't "merge" tags. BK had a very strange form of merging, which was (I
+> think) to pick the one last in the BK ChangeSet file, but that didn't make
+> it "right". You just never noticed, because Linux could never use tags at
+> all due to the lack of privacy, except for big releases..
 
--- wli
+I think there should simply be two namespaces - public tags and private
+tags. Private tags for stuff like "broken", "merged", or "funnychange".
+Other people don't care about those, and they certainly shouldn't get
+them by default (but they should have a way to get them explicitly, if
+you tell them). But then there are the official tags, like "v2.6.13" or
+even "v2.6.12-ck2" - if you merge with those branches, you should always
+get those precisely for what Jeff says - they are big syncing points for
+a lot of people and you should be always able to refer to v2.6.13 if you
+have the commit in your tree.
+
+Since there should be _few_ of those tags, you might even want to get
+tags only from branches marked "tagtrusted" (Cogito's origin branch
+would be by default), or want to interactively confirm new tag additions
+during a pull. Also, ideally there would be no or only extremely rare
+tag conflicts.
+
+I think it would be simplest to use a special prefix for the private
+tags. ~ and ! might get touched by shell, so what about %?
+
+-- 
+				Petr "Pasky" Baudis
+Stuff: http://pasky.or.cz/
+<Espy> be careful, some twit might quote you out of context..

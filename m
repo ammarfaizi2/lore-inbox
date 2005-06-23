@@ -1,255 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262939AbVFXAAn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262933AbVFXAET@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262939AbVFXAAn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 20:00:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262881AbVFWX73
+	id S262933AbVFXAET (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 20:04:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262881AbVFXACa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 19:59:29 -0400
-Received: from waste.org ([216.27.176.166]:50127 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262928AbVFWX4h (ORCPT
+	Thu, 23 Jun 2005 20:02:30 -0400
+Received: from bizon.gios.gov.pl ([212.244.124.8]:9415 "EHLO bizon.gios.gov.pl")
+	by vger.kernel.org with ESMTP id S262936AbVFXAAd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 19:56:37 -0400
-Date: Thu, 23 Jun 2005 16:56:34 -0700
-From: Matt Mackall <mpm@selenic.com>
+	Thu, 23 Jun 2005 20:00:33 -0400
+Date: Fri, 24 Jun 2005 01:47:35 +0200 (CEST)
+From: Krzysztof Oledzki <olel@ans.pl>
+X-X-Sender: olel@bizon.gios.gov.pl
 To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Git Mailing List <git@vger.kernel.org>, mercurial@selenic.com
-Subject: Mercurial vs Updated git HOWTO for kernel hackers
-Message-ID: <20050623235634.GC14426@waste.org>
-References: <42B9E536.60704@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42B9E536.60704@pobox.com>
-User-Agent: Mutt/1.5.9i
+cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: SATA speed. Should be 150 or 133?
+Message-ID: <Pine.LNX.4.62.0506240135340.29382@bizon.gios.gov.pl>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-187430788-789118242-1119570455=:29382"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 22, 2005 at 06:24:54PM -0400, Jeff Garzik wrote:
-> 
-> Things in git-land are moving at lightning speed, and usability has 
-> improved a lot since my post a month ago:  http://lkml.org/lkml/2005/5/26/11
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-And here's a quick comparison with the current state of Mercurial..
+---187430788-789118242-1119570455=:29382
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 
-> 1) installing git
-> 
-> git requires bootstrapping, since you must have git installed in order 
-> to check out git.git (git repo), and linux-2.6.git (kernel repo).  I 
-> have put together a bootstrap tarball of today's git repository.
-> 
-> Download tarball from:
-> http://www.kernel.org/pub/linux/kernel/people/jgarzik/git-20050622.tar.bz2
-> 
-> tarball build-deps:  zlib, libcurl, libcrypto (openssl)
-> 
-> install tarball:  unpack && make && sudo make prefix=/usr/local install
-> 
-> jgarzik helper scripts, not in official git distribution:
-> http://www.kernel.org/pub/linux/kernel/people/jgarzik/git-new-branch
-> http://www.kernel.org/pub/linux/kernel/people/jgarzik/git-changes-script
-> 
-> After reading the rest of this document, come back and update your copy 
-> of git to the latest:
-> rsync://rsync.kernel.org/pub/scm/linux/kernel/git/torvalds/git.git
+Hello,
 
-Download from: http://selenic.com/mercurial/mercurial-snapshot.tar.gz
-Build-deps: Python 2.3
-Install: unpack && python setup.py install [--home=/usr/local]
+Is it normal that each time kernel reports UDMA/133 instead of UDMA/150=20
+for sata? I noticed this on both ICH5 and ICH6 (AHCI).
 
-> 2) download a linux kernel tree for the very first time
-> 
-> $ mkdir -p linux-2.6/.git
-> $ cd linux-2.6
-> $ rsync -a --delete --verbose --stats --progress \
-> rsync://rsync.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git/ 
-> \          <- word-wrapped backslash; sigh
->     .git/
+* 2.6.12 with ICH5:
+libata version 1.11 loaded.
+ata_piix version 1.03
+ACPI: PCI Interrupt 0000:00:1f.2[A] -> GSI 18 (level, low) -> IRQ 193
+PCI: Setting latency timer of device 0000:00:1f.2 to 64
+ata1: SATA max UDMA/133 cmd 0xCCB8 ctl 0xCCB2 bmdma 0xCC80 irq 193
+ata2: SATA max UDMA/133 cmd 0xCCA0 ctl 0xCC9A bmdma 0xCC88 irq 193
+ata1: dev 0 cfg 49:2f00 82:7c6b 83:7b09 84:4003 85:7c69 86:3801 87:4003 88:=
+207f
+ata1: dev 0 ATA, max UDMA/133, 156250000 sectors:
+ata1: dev 0 configured for UDMA/133
+scsi0 : ata_piix
+ata2: dev 0 cfg 49:2f00 82:7c6b 83:7b09 84:4003 85:7c69 86:3801 87:4003 88:=
+207f
+ata2: dev 0 ATA, max UDMA/133, 156250000 sectors:
+ata2: dev 0 configured for UDMA/133
+scsi1 : ata_piix
+   Vendor: ATA       Model: Maxtor 6Y080M0    Rev: YAR5
+   Type:   Direct-Access                      ANSI SCSI revision: 05
+   Vendor: ATA       Model: Maxtor 6Y080M0    Rev: YAR5
+   Type:   Direct-Access                      ANSI SCSI revision: 05
 
-$ mkdir linux-2.6
-$ cd linux-2.6
-$ hg init http://www.kernel.org/hg/    # obviously you can also browse this
-
-This downloads about 125M of data, which include the whole kernel history
-back to 2.4.0 and everything in Linus' git repo as well.
-
-> 3) update local kernel tree to latest 2.6.x upstream ("fast-forward merge")
-> 
-> $ cd linux-2.6
-> $ git-pull-script \
-> rsync://rsync.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
-
-$ hg pull        # defaults to where you originally pulled from
-
-It takes about 4M of transfer and well under a minute to pull the
-entire git history, starting from a base of 2.6.12-rc2.
-
-> 4) check out files from the git repository into the working directory
-> 
-> $ git checkout -f
-
-$ hg update      # or up or checkout or co, depending on your SCM habits
-
-> 5) check in your own modifications (e.g. do some hacking, or apply a patch)
-> 
-> # go to repo
-> $ cd linux-2.6
-> 
-> # make some modifications
-> $ patch -sp1 < /tmp/my.patch
-> $ diffstat -p1 < /tmp/my.patch
-> 
-> # NOTE: add '--add' and/or '--remove' if files were added or removed
-> $ git-update-cache <list of all files changed>
-> 
-> # check in changes
-> $ git commit
-
-$ hg commit [files]    # check in everything changed or just the named files
-
-5.1) undo the last commit or pull
-
-$ hg undo
-
-> 6) List all changes in working dir, in diff format.
-> 
-> $ git-diff-cache -p HEAD
-
-$ hg status            # show changed files
-
-> 7) List all changesets (i.e. show each cset's description text) in local 
-> branch of local tree, that are not present in remote tree.
-> 
-> $ cd my-kernel-tree-2.6
-> $ git-changes-script -L ../linux-2.6 | less
-
-$ hg history | less         # How does git know what's not in the
-                            # remote tree? Psychic?
-
-> 8) List all changesets:
-> 
-> $ git-whatchanged
-
-$ hg history | less
-
-> 9) apply all patches in a Berkeley mbox-format file
-> 
-> First, download and add to your PATH Linus's git tools:
-> rsync://rsync.kernel.org/pub/scm/linux/kernel/git/torvalds/git-tools.git
-> 
-> $ cd my-kernel-tree-2.6
-> $ dotest /path/to/mbox  # yes, Linus has no taste in naming scripts
-
-hg doesn't do mboxes directly, but you can do:
-
-$ cat patch-list | xargs hg import
-
-> 10) don't forget to download tags from time to time.
-> 
-> git-pull-script only downloads sha1-indexed object data, and the 
-> requested remote head.  This misses updates to the .git/refs/tags/ and 
-> .git/refs/heads directories.  It is advisable to update your kernel .git 
-> directories periodically with a full rsync command, to make sure you got 
-> everything:
->
-> $ cd linux-2.6
-> $ rsync -a --delete --verbose --stats --progress \
-> rsync://rsync.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git/
-> \          <- word-wrapped backslash; sigh
->     .git/
-
-Tags in mercurial are properly version controlled and come along for
-the ride with pulls. Also, the right thing happens with merges.
- 
-> 11) list all branches, such as those found in my netdev-2.6 or 
-> libata-dev trees.
-> 
-> Download
-> rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/netdev-2.6.git
-> 	or
-> rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
-> 
-> 
-> $ cd netdev-2.6
-> $ ls .git/refs/heads/
-> 
-> { these are the current netdev-2.6 branches }
-> >8139cp       forcedeth    master     qeth           smc91x         we18
-> >8139too-iomap  for-linus    natsemi      r8169      smc91x-eeprom  wifi
-> >airo           hdlc         ns83820      register-netdev  starfire
-> >atmel          ieee80211    orinoco      remove-drivers   tlan
-> >chelsio        iff-running  orinoco-hch  sis900           veth
-> >dm9000         janitor      ppp          skge             viro
-
-$ hg heads   # Has Andrew mentioned your git forest gives him a headache?
-
-> 12) make desired branch current in working directory
-> 
-> $ git checkout -f $branch
-
-$ hg update -C <rev or id or tag>
-
-> 13) create a new branch, and make it current
-> 
-> $ cp .git/refs/heads/master .git/refs/heads/my-new-branch-name
-> $ git checkout -f my-new-branch-name
-
-Since the hg repo is lightweight, this is usually done by just having
-different directories. Thus we don't explicitly name branches.
-
-$ mkdir new-branch
-$ cd new-branch
-$ hg init -u ../linux   # makes hardlinks and does a checkout
-
-> 14) examine which branch is current
-> 
-> $ ls -l .git/HEAD
-
-$ echo $PWD
-
-> 15) undo all local modifications (same as checkout):
-> 
-> $ git checkout -f
-
-$ hg update -C
-
-> 16) obtain a diff between current branch, and master branch
-> 
-> In most trees WITH BRANCHES, .git/refs/heads/master contains the current 
-> 'vanilla' upstream tree, for easy diffing and merging.  (in trees 
-> without branches, 'master' simply contains your latest changes)
-> 
-> $ git-diff-tree -p master HEAD
-
-$ hg diff -r <rev> -r <rev> 
-
-17) run a browsable, pullable repo server of the current repo on your
-local machine
-
-$ hg serve
-
-18) push your changes to a remote server
-
-$ hg push ssh://user@host/path/  # aliases and defaults in .hgrc
-
-19) get per-file history
-
-$ hg log <file> | less
-
-20) get annotated file contents
-
-$ hg annotate [file]
-
-21) record that a file has been copied or renamed for the next commit
-
-$ hg copy <source> <dest>
-
-22) get online help
-
-$ hg help [command]
+* 2.6.12 with ICH6:
+libata version 1.11 loaded.
+ahci version 1.00
+ACPI: PCI Interrupt 0000:00:1f.2[B] -> GSI 19 (level, low) -> IRQ 217
+PCI: Setting latency timer of device 0000:00:1f.2 to 64
+ahci(0000:00:1f.2) AHCI 0001.0000 32 slots 4 ports 1.5 Gbps 0xf impl SATA m=
+ode
+ahci(0000:00:1f.2) flags: 64bit ncq pm led slum part
+ata1: SATA max UDMA/133 cmd 0xE0802100 ctl 0x0 bmdma 0x0 irq 217
+ata2: SATA max UDMA/133 cmd 0xE0802180 ctl 0x0 bmdma 0x0 irq 217
+ata3: SATA max UDMA/133 cmd 0xE0802200 ctl 0x0 bmdma 0x0 irq 217
+ata4: SATA max UDMA/133 cmd 0xE0802280 ctl 0x0 bmdma 0x0 irq 217
+ata1: dev 0 cfg 49:2f00 82:346b 83:7d01 84:4003 85:3469 86:3c01 87:4003 88:=
+007f
+ata1: dev 0 ATA, max UDMA/133, 156301488 sectors: lba48
+ata1: dev 0 configured for UDMA/133
+scsi0 : ahci
+ata2: dev 0 cfg 49:2f00 82:346b 83:7d01 84:4003 85:3469 86:3c01 87:4003 88:=
+007f
+ata2: dev 0 ATA, max UDMA/133, 156301488 sectors: lba48
+ata2: dev 0 configured for UDMA/133
+scsi1 : ahci
+ata3: no device found (phy stat 00000000)
+scsi2 : ahci
+ata4: no device found (phy stat 00000000)
+scsi3 : ahci
+   Vendor: ATA       Model: ST380817AS        Rev: 3.42
+   Type:   Direct-Access                      ANSI SCSI revision: 05
+   Vendor: ATA       Model: ST380817AS        Rev: 3.42
+   Type:   Direct-Access                      ANSI SCSI revision: 05
 
 
-More info at http://selenic.com/mercurial/
+Best regards,
 
--- 
-Mathematics is the supreme nostalgia of our time.
+
+ =09=09=09Krzysztof Ol=EAdzki
+
+
+PS: Thank you for updating the libata-dev/passthru repository and creating=
+=20
+the 2.6.12-git4-passthru1 patch. :)
+---187430788-789118242-1119570455=:29382--

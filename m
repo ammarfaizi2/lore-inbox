@@ -1,48 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262352AbVFWJd2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263161AbVFWIT0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262352AbVFWJd2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 05:33:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262894AbVFWI23
+	id S263161AbVFWIT0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 04:19:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262894AbVFWIQx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 04:28:29 -0400
-Received: from wproxy.gmail.com ([64.233.184.197]:15146 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262312AbVFWHt0 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 03:49:26 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=iXKnQgPvCLjkGxJf4K6inB4wo9ns6QU052fgDiVs5fTmb/klFyX7Mj5D8m7NPh+lv1SZur2p3sMWW5caeGSjEVoH7GcxcadEVhctT1x1txmxGojTV62sjpxTeFiJZ9oKlc6HFt7yNtORNbyOLumADnhAHmg17GtuIUQdV/ssXXQ=
-Message-ID: <e08b036d050623004945b41ace@mail.gmail.com>
-Date: Thu, 23 Jun 2005 13:19:21 +0530
-From: rakesh <rakeshiitr@gmail.com>
-Reply-To: rakesh <rakeshiitr@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: OBEX USB gadget driver
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Thu, 23 Jun 2005 04:16:53 -0400
+Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:10870 "HELO
+	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262550AbVFWHGt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 03:06:49 -0400
+Message-ID: <42BA5F7B.30904@yahoo.com.au>
+Date: Thu, 23 Jun 2005 17:06:35 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+CC: Hugh Dickins <hugh@veritas.com>, Badari Pulavarty <pbadari@us.ibm.com>
+Subject: [patch][rfc] 2/5: micro optimisation for mm/rmap.c
+References: <42BA5F37.6070405@yahoo.com.au> <42BA5F5C.3080101@yahoo.com.au>
+In-Reply-To: <42BA5F5C.3080101@yahoo.com.au>
+Content-Type: multipart/mixed;
+ boundary="------------060707040302090207070309"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi
+This is a multi-part message in MIME format.
+--------------060707040302090207070309
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-i am writing a usb gadget driver code for OBEX of WMC .
-i want your help  that  how will i implement this OBEX?
+2/5
 
-there is not sufficient information in pdf file "USB CDC Sub Class
-specification for WMC Devices" version1.0.
+--------------060707040302090207070309
+Content-Type: text/plain;
+ name="mm-microopt-rmap.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="mm-microopt-rmap.patch"
 
-is there any patch or source code availabe on linux releated to OBEX
-USB gadget driver.
+Microoptimise page_add_anon_rmap. Although these expressions are used only
+in the taken branch of the if() statement, the compiler can't reorder them
+inside because atomic_inc_and_test is a barrier.
 
-i think you will help me..
-thanks a lot.......
-regards 
-rakesh
+Signed-off-by: Nick Piggin <npiggin@suse.de>
 
-RAKESH YADAV
-B.tech Final Year
-Electronics and Communication ENGG
-I.I.T. ROORKEE
+Index: linux-2.6/mm/rmap.c
+===================================================================
+--- linux-2.6.orig/mm/rmap.c
++++ linux-2.6/mm/rmap.c
+@@ -442,22 +442,23 @@ int page_referenced(struct page *page, i
+ void page_add_anon_rmap(struct page *page,
+ 	struct vm_area_struct *vma, unsigned long address)
+ {
+-	struct anon_vma *anon_vma = vma->anon_vma;
+-	pgoff_t index;
+-
+ 	BUG_ON(PageReserved(page));
+-	BUG_ON(!anon_vma);
+ 
+ 	inc_mm_counter(vma->vm_mm, anon_rss);
+ 
+-	anon_vma = (void *) anon_vma + PAGE_MAPPING_ANON;
+-	index = (address - vma->vm_start) >> PAGE_SHIFT;
+-	index += vma->vm_pgoff;
+-	index >>= PAGE_CACHE_SHIFT - PAGE_SHIFT;
+-
+ 	if (atomic_inc_and_test(&page->_mapcount)) {
+-		page->index = index;
++		struct anon_vma *anon_vma = vma->anon_vma;
++		pgoff_t index;
++
++		BUG_ON(!anon_vma);
++		anon_vma = (void *) anon_vma + PAGE_MAPPING_ANON;
+ 		page->mapping = (struct address_space *) anon_vma;
++
++		index = (address - vma->vm_start) >> PAGE_SHIFT;
++		index += vma->vm_pgoff;
++		index >>= PAGE_CACHE_SHIFT - PAGE_SHIFT;
++		page->index = index;
++
+ 		inc_page_state(nr_mapped);
+ 	}
+ 	/* else checking page index and mapping is racy */
+
+--------------060707040302090207070309--
+Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,89 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262672AbVFWIsp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262670AbVFWIsq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262672AbVFWIsp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 04:48:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262585AbVFWIp2
+	id S262670AbVFWIsq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 04:48:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262609AbVFWIpu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 04:45:28 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:25046 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S263053AbVFWIRZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 04:17:25 -0400
-Date: Thu, 23 Jun 2005 10:17:29 +0200
-From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: James Courtier-Dutton <James@superbug.demon.co.uk>,
+	Thu, 23 Jun 2005 04:45:50 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:18185 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263259AbVFWIXj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 04:23:39 -0400
+Date: Thu, 23 Jun 2005 09:23:30 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: kus Kusche Klaus <kus@keba.com>
+Cc: linux-pcmcia@lists.infradead.org, dahinds@users.sourceforge.net,
        linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc6-mm1 oops on startup.
-Message-ID: <20050623101729.0d89dff6@frecb000711.frec.bull.fr>
-In-Reply-To: <20050621235144.15fc55c6.akpm@osdl.org>
-References: <42B46C18.2030101@superbug.demon.co.uk>
-	<20050621235144.15fc55c6.akpm@osdl.org>
-Organization: BULL SA.
-X-Mailer: Sylpheed-Claws 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Subject: Re: PCMCIA: Statically linked CF card driver?
+Message-ID: <20050623092330.B26836@flint.arm.linux.org.uk>
+Mail-Followup-To: kus Kusche Klaus <kus@keba.com>,
+	linux-pcmcia@lists.infradead.org, dahinds@users.sourceforge.net,
+	linux-kernel@vger.kernel.org
+References: <AAD6DA242BC63C488511C611BD51F367323249@MAILIT.keba.co.at>
 Mime-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 23/06/2005 10:28:43,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 23/06/2005 10:28:47,
-	Serialize complete at 23/06/2005 10:28:47
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <AAD6DA242BC63C488511C611BD51F367323249@MAILIT.keba.co.at>; from kus@keba.com on Thu, Jun 23, 2005 at 09:39:15AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Jun 2005 23:51:44 -0700
-Andrew Morton <akpm@osdl.org> wrote:
+On Thu, Jun 23, 2005 at 09:39:15AM +0200, kus Kusche Klaus wrote:
+> Question:
+> * Any chance to get the CF card working in that environment?
 
-> Someone does a call_usermodehelper() which uses CLONE_VFORK.  The new
-> process at `p' exits quickly so when the parent returns from
-> wait_for_completion() it is left with freed memory at *p.  When the parent
-> tries to reference p->pid we oops due to the use-after-free bug.
-> 
-> Guillaume, I'll do this for now:
-> 
-> --- 25/kernel/fork.c~connector-add-a-fork-connector-use-after-free-fix	2005-06-21 23:46:35.000000000 -0700
-> +++ 25-akpm/kernel/fork.c	2005-06-21 23:46:58.000000000 -0700
-> @@ -1248,14 +1248,15 @@ long do_fork(unsigned long clone_flags,
->  			ptrace_notify ((trace << 8) | SIGTRAP);
->  		}
->  
-> +		fork_connector(current->tgid, current->pid, p->tgid, p->pid);
-> +
->  		if (clone_flags & CLONE_VFORK) {
-> +
->  			wait_for_completion(&vfork);
->  			if (unlikely (current->ptrace & PT_TRACE_VFORK_DONE))
-> -				ptrace_notify ((PTRACE_EVENT_VFORK_DONE << 8) | SIGTRAP);
-> +				ptrace_notify((PTRACE_EVENT_VFORK_DONE << 8) |
-> +						SIGTRAP);
->  		}
-> -
-> -		fork_connector(current->tgid, current->pid,
-> -		               p->tgid, p->pid);
->  	} else {
->  		free_pidmap(pid);
->  		pid = PTR_ERR(p);
-> _
-> 
-> 
-> But you need to work out what semantics you want for vfork()?
+It should work anyway, although you'll need to use cardmgr with vanilla
+mainline kernels.
 
-The information about the creation of a new process is sent through the
-connector and it's available to every application that is connected to
-the fork connector even if this new process is an "helper" program or
-has the CLONE_VFORK flag set. The problem with "helper" program is that
-we can not know if it is terminated but it's the problem of the
-application that uses this kind of information. 
+> * Any chance to boot from it?
 
-So I think the fix is correct and the application that uses the fork
-connector will take the decision if the sending information is
-interesting or not. To help the application in this choice it could be
-interesting to add the 'clone_flags' in the fork_connector() parameters.
-By doing this we could know if two processes run in the same memory
-space or share other ressources. I'm working on this. 
+Maybe, maybe not.  Even with Dominik's great work, I suspect that PCMCIA
+may suffer the same problem as USB in this respect, and require a delay
+before trying to mount the root filesystem.  We'll have to see when folk
+start using this.
 
+> Wishes and non-wishes:
+> * It would be nice to be able to replace the CF 
+>   without rebooting.
 
-Thank you for your help,
+That's an interesting one.  Alan Cox may have done some work on IDE to
+resolve this, but there seems to be some issue preventing it (and Alan's
+other IDE patches) being merged.
 
-Guillaume
+> * It can be assumed that the PC card CF adapter 
+>   is present during boot.
+> * There is no need to support hotplugging of the PC card CF adapter.
+>   (i.e. the PC card CF adapter could be treated as a static,
+>   builtin device, with its driver linked into the kernel).
+
+The CF adapter is a dumb piece of hardware which just converts the
+socket pins from PCMCIA format to CF format.  It's completely
+transparent to software.  In fact, software doesn't even know it's
+there.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

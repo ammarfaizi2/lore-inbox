@@ -1,53 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263066AbVFWUQ6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262946AbVFWUPu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263066AbVFWUQ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 16:16:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263062AbVFWUQ4
+	id S262946AbVFWUPu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 16:15:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262945AbVFWUPr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 16:16:56 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:19632
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S262947AbVFWUQF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 16:16:05 -0400
-Date: Thu, 23 Jun 2005 13:15:41 -0700 (PDT)
-Message-Id: <20050623.131541.71084496.davem@davemloft.net>
-To: kiragon@gmail.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.12 Ethernet bridge over bonding interfaces
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <d4cc500a05062304344ebb57d7@mail.gmail.com>
-References: <200506230742.49926.kiragon@gmail.com>
-	<d4cc500a05062304344ebb57d7@mail.gmail.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Thu, 23 Jun 2005 16:15:47 -0400
+Received: from mail21.bluewin.ch ([195.186.18.66]:7886 "EHLO mail21.bluewin.ch")
+	by vger.kernel.org with ESMTP id S263083AbVFWUNO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 16:13:14 -0400
+Date: Thu, 23 Jun 2005 22:12:22 +0200
+From: Adrian Ulrich <reiser4@blinkenlights.ch>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: ninja@slaphack.com, reiser@namesys.com, jgarzik@pobox.com,
+       hch@infradead.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       reiserfs-list@namesys.com
+Subject: Re: reiser4 plugins
+Message-Id: <20050623221222.33074838.reiser4@blinkenlights.ch>
+In-Reply-To: <200506231924.j5NJOvLA031008@laptop11.inf.utfsm.cl>
+References: <42BAC304.2060802@slaphack.com>
+	<200506231924.j5NJOvLA031008@laptop11.inf.utfsm.cl>
+Organization: Bluewin AG
+X-Mailer: Sylpheed version 2.0.0beta2 (GTK+ 2.6.7; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Garik E <kiragon@gmail.com>
-Date: Thu, 23 Jun 2005 14:34:59 +0300
 
-> Ethernet bridge configured over bonding interfaces dead loops and
-> multiplies ethernet broadcast packets (ARP requests)
-> The following patch solves this problem.
+> >                                                 Not everyone will want
+> > to reformat at once, but as the reiser4 code matures and proves itself
+> > (even more than it already has),
 > 
-> Signed-off-by: Garik E. <kiragon@gmail.com>
+> I for one have seen mainly people with wild claims that it will make their
+> machines much faster, and coming back later asking how they can recover
+> their thrashed partitions...
 
-1) Your email client mangled the TAB characters and spacing
-   in the patch.
+Then please show us some Links/Message-IDs to such postings.
+I'd like to read them.
 
-2) Networking patches should be sent to netdev@vger.kernel.org
-   and usually with the maintainer of the code you're touching
-   CC:'d.  In this case it would be (from linux/MAINTAINERS):
+>From my POV:
+ I've been using Reiser4 for almost everything (Rootfs / External
+ Harddrives) for about ~8 Months without any data loss..
 
-	BONDING DRIVER
-	P:   Chad Tindel
-	M:   ctindel@users.sourceforge.net
-	P:   Jay Vosburgh
-	M:   fubar@us.ibm.com
-	L:   bonding-devel@lists.sourceforge.net
-	W:   http://sourceforge.net/projects/bonding/
-	S:   Supported
+ Powerloss, unpluging the Disk while writing, full filesystem,
+ heavy use : No problems with reiser4.. It *is* stable.
 
-Thanks.
+
+
+ -- Adrian
+
+
+

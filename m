@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261606AbVFWLNm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262128AbVFWL1z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261606AbVFWLNm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 07:13:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262095AbVFWLNm
+	id S262128AbVFWL1z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 07:27:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262095AbVFWL1z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 07:13:42 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:11466 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261606AbVFWLNi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 07:13:38 -0400
-Date: Thu, 23 Jun 2005 13:13:06 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: DEBUG_PAGEALLOC & SMP?
-Message-ID: <20050623111306.GA6480@elte.hu>
-References: <20050623090936.GA28112@elte.hu> <20050623022000.094169d4.akpm@osdl.org> <20050623092902.GA29602@elte.hu> <20050623094008.GA31207@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050623094008.GA31207@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Thu, 23 Jun 2005 07:27:55 -0400
+Received: from rudy.mif.pg.gda.pl ([153.19.42.16]:4512 "EHLO
+	rudy.mif.pg.gda.pl") by vger.kernel.org with ESMTP id S262128AbVFWL1x
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 07:27:53 -0400
+Date: Thu, 23 Jun 2005 13:28:06 +0200 (CEST)
+From: =?ISO-8859-2?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
+To: Chris Wright <chrisw@osdl.org>
+cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org,
+       stable@kernel.org
+Subject: Re: Linux 2.6.12.1
+In-Reply-To: <20050622220713.GV9046@shell0.pdx.osdl.net>
+Message-ID: <Pine.BSO.4.62.0506231325150.19853@rudy.mif.pg.gda.pl>
+References: <20050622220713.GV9046@shell0.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="0-906902408-1119526086=:19853"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+--0-906902408-1119526086=:19853
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8BIT
 
-> > full log attached below. (ob'fun: the oom-killer picked the migration 
-> > thread to kill ;)
-> 
-> this was with the -RT tree - let me try whether the same happens on 
-> vanilla 2.6.12 too.
+On Wed, 22 Jun 2005, Chris Wright wrote:
 
-[ 1 hour later ... ] the mystery is solved: i had a ~15 MB kernel image 
-size due to various debugging options plus per-CPU tracing buffer at 
-NR_CPUS=8. PAGEALLOC caused an extra +1MB of DMA-zone kernel footprint 
-(the 4k granular kernel pagetables of 1 GB physical RAM), which was the 
-final drop and depleted the DMA pool completely.
+> We (the -stable team) are announcing the release of the 2.6.12.1 kernel
+> which has two security fixes.
+>
+> The diffstat and short summary of the fixes are below.
+>
+> I'll also be replying to this message with a copy of the patch between
+> 2.6.12 and 2.6.12.1, as it is small enough to do so.
+>
+> The updated 2.6.12.y git tree can be found at:
+> 	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/linux-2.6.12.y.git
+> and can be browsed at the normal kernel.org git web browser:
+> 	www.kernel.org/git/
 
-	Ingo
+Qlogic driver still is broken.
+Patch with minimal set of changes for this was sended to k-l few days ago.
+Is it something wrong with this fixes ?
+
+kloczek
+-- 
+-----------------------------------------------------------
+*Ludzie nie maj± problemów, tylko sobie sami je stwarzaj±*
+-----------------------------------------------------------
+Tomasz K³oczko, sys adm @zie.pg.gda.pl|*e-mail: kloczek@rudy.mif.pg.gda.pl*
+--0-906902408-1119526086=:19853--

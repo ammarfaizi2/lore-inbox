@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263053AbVFWSsP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263026AbVFWSw5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263053AbVFWSsP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 14:48:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262678AbVFWSoW
+	id S263026AbVFWSw5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 14:52:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263033AbVFWSts
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 14:44:22 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:30154 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263036AbVFWSlW (ORCPT
+	Thu, 23 Jun 2005 14:49:48 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:50602 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S263029AbVFWSoY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 14:41:22 -0400
-Date: Thu, 23 Jun 2005 20:42:35 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SMP+irq handling broken in current git?
-Message-ID: <20050623184234.GE9768@suse.de>
-References: <20050623135318.GC9768@suse.de> <42BAEA67.7090606@pobox.com>
+	Thu, 23 Jun 2005 14:44:24 -0400
+Date: Thu, 23 Jun 2005 11:43:18 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jeff Mahoney <jeffm@suse.de>
+Cc: penberg@gmail.com, reiser@namesys.com, ak@suse.de, flx@namesys.com,
+       zam@namesys.com, vs@thebsh.namesys.com, linux-kernel@vger.kernel.org,
+       reiserfs-list@namesys.com, penberg@cs.helsinki.fi
+Subject: Re: -mm -> 2.6.13 merge status
+Message-Id: <20050623114318.5ae13514.akpm@osdl.org>
+In-Reply-To: <42BB0151.3030904@suse.de>
+References: <20050620235458.5b437274.akpm@osdl.org.suse.lists.linux.kernel>
+	<p73d5qgc67h.fsf@verdi.suse.de>
+	<42B86027.3090001@namesys.com>
+	<20050621195642.GD14251@wotan.suse.de>
+	<42B8C0FF.2010800@namesys.com>
+	<84144f0205062223226d560e41@mail.gmail.com>
+	<42BB0151.3030904@suse.de>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42BAEA67.7090606@pobox.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 23 2005, Jeff Garzik wrote:
-> Jens Axboe wrote:
-> >Hi,
-> >
-> >Something strange is going on with current git as of this morning (head
-> >ee98689be1b054897ff17655008c3048fe88be94). On an old test box (dual p3
-> >800MHz), using the same old config I always do on this box has very
-> >broken interrupt handling:
+Jeff Mahoney <jeffm@suse.de> wrote:
+>
+> >>+	assert("nikita-955", pool != NULL);
+>  > 
+>  > These assertion codes are meaningless to the rest of us so please drop
+>  > them.
 > 
-> Does 2.6.12 work for you?
-> 2.6.11?
+>  As someone who spends time debugging reiser3 issues, I've grown
+>  accustomed to the named assertions. They make discussing a particular
+>  assertion much more natural in conversation than file:line.
 
-2.6.11 works, 2.6.12 does not.
-
-
-> I noticed a few "2.6.12 is broken, 2.6.11 works" bug reports with 
-> vaguely similar circumstances -- irq handling being a culprit.
-
-One boot kept looping with screaming floppy interrupts, so something has
-gone really bad there.
-
--- 
-Jens Axboe
-
+__FUNCTION__?

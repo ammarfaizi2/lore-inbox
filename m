@@ -1,74 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263071AbVFWTC0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262690AbVFWTHo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263071AbVFWTC0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 15:02:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262676AbVFWS7i
+	id S262690AbVFWTHo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 15:07:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262696AbVFWTGw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 14:59:38 -0400
-Received: from atlrel7.hp.com ([156.153.255.213]:46827 "EHLO atlrel7.hp.com")
-	by vger.kernel.org with ESMTP id S262695AbVFWS6w (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 14:58:52 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: SMP+irq handling broken in current git?
-Date: Thu, 23 Jun 2005 12:58:35 -0600
-User-Agent: KMail/1.8.1
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-References: <20050623135318.GC9768@suse.de> <42BAEA67.7090606@pobox.com> <20050623184234.GE9768@suse.de>
-In-Reply-To: <20050623184234.GE9768@suse.de>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_bZwuCQGhvrgQXqA"
-Message-Id: <200506231258.35258.bjorn.helgaas@hp.com>
+	Thu, 23 Jun 2005 15:06:52 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:46230 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262687AbVFWTFJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 15:05:09 -0400
+Date: Fri, 24 Jun 2005 00:32:18 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: syrius.ml@no-log.org
+Cc: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, bero@arklinux.org, rjw@sisk.pl,
+       sharyath@in.ibm.com
+Subject: Re: 2.6.12-mm1: BUG() in fd_install, RCU related?
+Message-ID: <20050623190218.GA4999@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20050621083424.GA2076@elf.ucw.cz> <20050621090721.GA7976@in.ibm.com> <874qbpwbae.873br9wbae@871x6twbae.message.id>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <874qbpwbae.873br9wbae@871x6twbae.message.id>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_bZwuCQGhvrgQXqA
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-On Thursday 23 June 2005 12:42 pm, Jens Axboe wrote:
-> On Thu, Jun 23 2005, Jeff Garzik wrote:
-> > Jens Axboe wrote:
-> > >Hi,
-> > >
-> > >Something strange is going on with current git as of this morning (head
-> > >ee98689be1b054897ff17655008c3048fe88be94). On an old test box (dual p3
-> > >800MHz), using the same old config I always do on this box has very
-> > >broken interrupt handling:
-> > 
-> > Does 2.6.12 work for you?
-> > 2.6.11?
+On Thu, Jun 23, 2005 at 01:50:11PM +0200, syrius.ml@no-log.org wrote:
+> Dipankar Sarma <dipankar@in.ibm.com> writes:
 > 
-> 2.6.11 works, 2.6.12 does not.
+> > Some things are common - always with fcntl() or fcntl64() and with
+> > a daemon. Does your box come up at all ? If so, can you get me an
+> > strace on the process that triggers this ? If I can narrow it
+> > down to a small testcase, it would be a lot easier. Also, does
+> > switching off CONFIG_PREEMPT fix this problem ?
+> 
+> I haven't read about this thread. I hope u'll find a way to reproduce
+> it. here debian/sid i386 (.config sent in an earlier message), it 100%
+> reproducible when restarting bind9. (it also happens on its own on
+> different occasion)
+> 
+> 
+> then i restart the daemon:
+> 
+> end of a strace -f /etc/init.d/bind9 start
+> 6541  rt_sigaction(SIGPIPE, {0xb7ca2a70, [], 0}, {SIG_IGN}, 8) = 0
+> 6541  send(3, "<30>Jun 23 00:51:35 named[6540]:"..., 82, 0) = 82
+> 6541  rt_sigaction(SIGPIPE, {SIG_IGN}, NULL, 8) = 0
+> 6541  socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP) = 10
+> 6541  fcntl64(10, F_DUPFD, 20)          = 32
+> 6541  close(10)                         = 0
+> 6541  fcntl64(32, F_GETFL)              = 0x2 (flags O_RDWR)
+> 6541  fcntl64(32, F_SETFL, O_RDWR|O_NONBLOCK) = 0
+> 6541  setsockopt(32, SOL_SOCKET, SO_TIMESTAMP, [1], 4) = 0
+> 6541  setsockopt(32, SOL_SOCKET, SO_REUSEADDR, [1], 4) = 0
+> 6541  bind(32, {sa_family=AF_INET, sin_port=htons(53),
+> sin_addr=inet_addr("172.16.254.1")}, 16) = 0
+> 6541  socket(PF_INET, SOCK_STREAM, IPPROTO_TCP) = 10
+> 6541  fcntl64(10, F_DUPFD, 20
 
-Do you have any VIA devices?  If so, you might try the attached.
-(Just for debugging; if the patch helps, I have no idea how to
-do it correctly.)
+Aha, this has been extremely helpful. Could you all please try the
+following (untested) patch ? This should fix the problem, or
+atleast one problem that I can see.
 
---Boundary-00=_bZwuCQGhvrgQXqA
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="via-irq"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="via-irq"
+Thanks
+Dipankar
 
-Index: work/drivers/pci/quirks.c
-===================================================================
---- work.orig/drivers/pci/quirks.c	2005-06-21 13:43:29.000000000 -0600
-+++ work/drivers/pci/quirks.c	2005-06-23 10:40:55.000000000 -0600
-@@ -510,7 +510,7 @@
- 		pci_write_config_byte(dev, PCI_INTERRUPT_LINE, new_irq);
- 	}
- }
--DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_ANY_ID, quirk_via_irq);
-+DECLARE_PCI_FIXUP_ENABLE(PCI_ANY_ID, PCI_ANY_ID, quirk_via_irq);
+
+locate_fd() may expand fdtable, so the fdtable pointer must be
+reloaded after locate_fd().
+
+Signed-of-by: Dipankar Sarma <dipankar@in.ibm.com>
+---
+
+
+ fs/fcntl.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletion(-)
+
+diff -puN fs/fcntl.c~fix-dupfd-reacquire-fdt fs/fcntl.c
+--- linux-2.6.12-mm1-fix/fs/fcntl.c~fix-dupfd-reacquire-fdt	2005-06-25 14:56:58.000000000 +0530
++++ linux-2.6.12-mm1-fix-dipankar/fs/fcntl.c	2005-06-25 14:58:26.000000000 +0530
+@@ -118,9 +118,10 @@ static int dupfd(struct file *file, unsi
+ 	int fd;
  
- /*
-  * PIIX3 USB: We have to disable USB interrupts that are
+ 	spin_lock(&files->file_lock);
+-	fdt = files_fdtable(files);
+ 	fd = locate_fd(files, file, start);
+ 	if (fd >= 0) {
++		/* locate_fd() may have expanded fdtable, load the ptr */
++		fdt = files_fdtable(files);
+ 		FD_SET(fd, fdt->open_fds);
+ 		FD_CLR(fd, fdt->close_on_exec);
+ 		spin_unlock(&files->file_lock);
 
---Boundary-00=_bZwuCQGhvrgQXqA--
+_

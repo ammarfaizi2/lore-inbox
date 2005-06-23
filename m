@@ -1,125 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262527AbVFWO0D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262547AbVFWOc3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262527AbVFWO0D (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 10:26:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262549AbVFWO0D
+	id S262547AbVFWOc3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 10:32:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262552AbVFWOc3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 10:26:03 -0400
-Received: from 69-18-3-179.lisco.net ([69.18.3.179]:58889 "EHLO
-	ninja.slaphack.com") by vger.kernel.org with ESMTP id S262527AbVFWOZr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 10:25:47 -0400
-Message-ID: <42BAC668.2030604@slaphack.com>
-Date: Thu, 23 Jun 2005 09:25:44 -0500
-From: David Masover <ninja@slaphack.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050325)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nikita Danilov <nikita@clusterfs.com>
-Cc: "Artem B. Bityuckiy" <dedekind@yandex.ru>,
-       =?UTF-8?B?TWFya3VzIFTQlnJu?= =?UTF-8?B?cXZpc3Q=?= <mjt@nysv.org>,
-       Christophe Saout <christophe@saout.de>, Andrew Morton <akpm@osdl.org>,
-       Hans Reiser <reiser@namesys.com>, hch@infradead.org, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: reiser4 plugins
-References: <200506221733.j5MHXEoH007541@laptop11.inf.utfsm.cl>	<42B9DD48.6060601@slaphack.com> <17081.58619.671650.812286@gargle.gargle.HOWL>
-In-Reply-To: <17081.58619.671650.812286@gargle.gargle.HOWL>
-X-Enigmail-Version: 0.89.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+	Thu, 23 Jun 2005 10:32:29 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:27806 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S262547AbVFWOcW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 10:32:22 -0400
+Message-Id: <200506231431.j5NEVvpK004472@laptop11.inf.utfsm.cl>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Linus Torvalds <torvalds@osdl.org>, Greg KH <greg@kroah.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Git Mailing List <git@vger.kernel.org>
+Subject: Re: Updated git HOWTO for kernel hackers 
+In-Reply-To: Message from Jeff Garzik <jgarzik@pobox.com> 
+   of "Thu, 23 Jun 2005 01:16:33 -0400." <42BA45B1.7060207@pobox.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
+Date: Thu, 23 Jun 2005 10:31:57 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Thu, 23 Jun 2005 10:31:58 -0400 (CLT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Nikita Danilov wrote:
-> David Masover writes:
+Jeff Garzik <jgarzik@pobox.com> said:
+> Linus Torvalds wrote:
+> > 	rsync -r --ignore-existing repo/refs/tags/ .git/refs/tags/
+> > 
+> > See? What's your complaint with just doing that?
 > 
-> [...]
+> No complaint with that operation.  The complaint is that it's an 
+> additional operation.  Re-read what Greg said:
 > 
->  > 
->  > What we want is to have programs that can write small changes to one
->  > file or to many files, lump all those changes into a transaction, and
->  > have the transaction either succeed or fail.
+> > Is there some reason why git doesn't pull the
+> > tags in properly when doing a merge?  Chris and I just hit this when I
+> > pulled his 2.6.12.1 tree and and was wondering where the tag went.
 > 
-> No existing file system guarantees such behavior. Even atomicity of
-> single system call is not guaranteed.
-
-No _existing_ filesystem.  But I seem to recall that this was one of the
-design decisions of Reiser4, and that the system call itself was pushed
-off to 4.1?
-
-Maybe I'm just wrong about how big a transaction can be.  Maybe it was
-limited to a single file.  I don't think so, though.  From the
-whitepaper:  "Stuffing a transaction into a single file just because you
-need the transaction to be atomic is hardly what one would call flexible
-semantics."
-
-I also seem to recall that the rolling back of the transaction, should
-it fail, was supposed to be handled by the application.  This doesn't
-quite click with the whitepaper, but it could work.
-
-More whitepaper goodness:
-
-"A new system call sys_reiser4() will be implemented to support
-applications that don't have to be fooled into thinking that they are
-using POSIX. Through this entry point a richer set of semantics will
-access the same files that are also accessible using POSIX calls.
-Reiser4() will not implement more than hierarchical names. A full set
-theoretic naming system as described on our future vision page will not
-be implemented before Reiser6() is implemented (Reiser5 is our
-distributed filesystem, Reiser6 is our enhanced semantics, whether we
-implement Reiser5 or Reiser6 first depends on which sponsors we find ;-)
-). Reiser4() will implement all features necessary to access ACLs as
-files/directories rather than as something neither file nor directory.
-These include opening and closing transactions, performing a sequence of
-I/Os in one system call, and accessing files without use of file
-descriptors (necessary for efficient small I/O). Reiser4 will use a
-syntax suitable for evolving into Reiser5() syntax with its set
-theoretic naming."
-
-So, some sort of transaction is planned.
-
-But, as I said, I wasn't paying enough attention.  Maybe there is a
-technical reason why this can't be done in Linux?
-
->  > > it doesn't stop the system dead in its tracks waiting for some very long
->  > > transaction to finish?
->  > 
->  > We've also discussed this.  For one thing, if we can have transactions
->  > in databases which don't stop the database dead in its tracks, why can't
->  > we do it with filesystems?
+> Multiple users -- not just me -- would prefer that git-pull-script 
+> pulled the tags, too.
 > 
-> Because to have such transactions databases pay huge price in both
-> resource consumption and available concurrency (isolation, commit-time
-> locks, etc.), and yet mechanism they use to deal with stuck transactions
-> (which is simply to abort it) is not very suitable for the file system.
+> Suggested solution:  add '--tags' to git-pull-script 
+> (git-fetch-script?), which calls
+> 	rsync -r --ignore-existing repo/refs/tags/ .git/refs/tags/
 
-Oh, really?  If we've got application support through sys_reiser4?  The
-application should be ready to deal with a transaction abort.
-
-I'm still not convinced of any of that paragraph.  I don't know enough
-to argue the point, but it intuitively feels wrong.  After all, if the
-metadata is atomic, and we are allowed to make our own system calls, why
-can't we make the data atomic?
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iQIVAwUBQrrGOngHNmZLgCUhAQJZhw//dmJ6S2GlGT6J5YI9DTCyoTDIPUYNb8o0
-M1me6KDTElzzQ3yUak/eUd0sbGBAQcf0vn/iVscfq2DoAwnUWxHjht+PaOA98axR
-0pnofqE291QLTQJ36epW0kKqFjavVVsrpD80llcaCFz9Rq48W40DoI5CWuX1RQqK
-pCnr9vYe8cAsRY+PzV9/KUaSQ+eZJ9daLsAmMwA3Gcxo4XYqILlZm90X3QQTdc8W
-gnKSabG3zIjEozfgG/nvtV/09mktHINGq3ud8W1XubBOXs4z+ECsLyvi7QNW83Bq
-b/wTDUX3PkrjDHnfcmFkFZJqRrCBD9Ko36f9NThxuaba5eV7kb6h+qx+kS5ZM6Lm
-bh90TjJrIpJ4aQr2qrPRAE85GSnvSlyi3E01gk/+UnkBFMoTqTvw2dPb0GhvMINM
-EhSUhEyeaopWXIdv3IszOOpbHJLwczixLDBtZ8OFDS26bnJGj7YlnTjdf+TZ9CGf
-ZXn7GaG16CiSTOt0YkKk2UGZz+AOubPAUHc6v8Wg587qXWKD3cXVQeZVqYwJG/8B
-G5qq51LB6jypjAoP4uSeuTs4DfANGi2H2mHjZVAyaGcwzhxf3ffGRFkfjElAj8RA
-RdmB6bq10nt32mL7YP8+n7xa38iCP+ks9wsoOY2KBBDlOpHu07xb/c2DS9yfTCpj
-FvMShQw6EBI=
-=S7ds
------END PGP SIGNATURE-----
+I don't think either is really a solution. IMHO there should be a
+distinction between "official tags" (that get passed around together with
+everything else) and "private tags" for everybodys own home use (that could
+be passed around, but only explicitly). Plus the possibility to erase,
+move, &c private tags, and perhaps upgrade them to official status (thus
+setting them in stone).
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

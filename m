@@ -1,106 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262532AbVFWK2q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262237AbVFWIIu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262532AbVFWK2q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 06:28:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262678AbVFWKVT
+	id S262237AbVFWIIu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 04:08:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262669AbVFWIFl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 06:21:19 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:6846 "HELO thebsh.namesys.com")
-	by vger.kernel.org with SMTP id S262571AbVFWKNd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 06:13:33 -0400
-Subject: [PATCH] reiserfs: do not ignore i/io error on readpage
-From: Vladimir Saveliev <vs@namesys.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="=-4om+Tp6WHfOdfQcCdylH"
-Message-Id: <1119521586.4115.78.camel@tribesman.namesys.com>
+	Thu, 23 Jun 2005 04:05:41 -0400
+Received: from [213.33.64.140] ([213.33.64.140]:2345 "EHLO
+	vi-edv003.villach.lkh.at") by vger.kernel.org with ESMTP
+	id S262498AbVFWGaM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 02:30:12 -0400
+Date: Thu, 23 Jun 2005 08:30:10 +0200
+To: linux-kernel@vger.kernel.org
+Subject: Adaptec AIC7902B Dual Channel question
+Message-ID: <20050623063010.GA7260@tuxx-home.at>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Thu, 23 Jun 2005 14:13:07 +0400
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="liOOAslEiF7prFVr"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
+From: Alexander Griesser <tuxx@tuxx-home.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-4om+Tp6WHfOdfQcCdylH
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+--liOOAslEiF7prFVr
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Hello, Andrew
+Hi folks!
 
-Reiserfs's readpage does not notice i/o errors. This patch makes
-reiserfs_readpage to return -EIO when i/o error appears.
-Please, apply.
+I bought an IBM xSeries 346 server which is equipped with an onboard
+Adaptec AIC7902B SCSI Raid Hostbus Controller. This controller is driven
+by the aic79xx driver but a quick look over the source code showed me,
+that it seems to only supports the channel 'A' (it is hardcoded on many
+places).
 
---=-4om+Tp6WHfOdfQcCdylH
-Content-Disposition: attachment; filename=reiserfs-get_block-handle-io-error.patch
-Content-Type: text/plain; name=reiserfs-get_block-handle-io-error.patch; charset=KOI8-R
-Content-Transfer-Encoding: 7bit
+The xSeries 346 has only one connector on the motherboard which allows
+me to connect my disks to channel 'B' only. At system boot, the
+controller is recognized by the driver, but no disks are available here.=20
+dmesg output only states, that channel 'A' has been scanned for SCSI
+devices.
 
+So my question is: Is there a way to get my Host RAID on channel 'B'
+to work?
+Does it help to change all occurences of the hardcoded 'A' in the driver
+with a 'B'?
 
-From: Qu Fuping <fs@ercist.iscas.ac.cn>
+As I am not subscribed to the list, please CC me in all answers.
 
-This patch makes reiserfs to not ignore I/O error on readpage.
+Thanks in Advance,
+--=20
+|   .-.  |    Alexander Griesser -- <private@tuxx-home.at>     | .''`. |
+|   /v\   \              http://www.tuxx-home.at/             / : :' : |
+| /(   )\  |              GPG-KeyID: 0xA2949B5A              |  `. `'  |
+|  ^^ ^^   `-------------------------------------------------'    `-   |
 
-Signed-off-by: Qu Fuping <fs@ercist.iscas.ac.cn>
-Signed-off-by: Vladimir V. Saveliev <vs@namesys.com>
----
+--liOOAslEiF7prFVr
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
- fs/reiserfs/inode.c |   15 ++++++++++++---
- 1 files changed, 12 insertions(+), 3 deletions(-)
+iD8DBQFCulby66HVD6KUm1oRAq5uAJ9IlwTSs76Sg5eUPRaFLYo2YD/6UgCdHlmL
+2CzSDpMKUzdJbgkLJfwA3ls=
+=Rjn0
+-----END PGP SIGNATURE-----
 
-diff -puN fs/reiserfs/inode.c~reiserfs-get_block-handle-io-error fs/reiserfs/inode.c
---- linux-2.6.12-mm1/fs/reiserfs/inode.c~reiserfs-get_block-handle-io-error	2005-06-23 13:37:41.000000000 +0400
-+++ linux-2.6.12-mm1-vs/fs/reiserfs/inode.c	2005-06-23 13:47:36.000000000 +0400
-@@ -254,6 +254,7 @@ static int _get_block_create_0 (struct i
-     char * p = NULL;
-     int chars;
-     int ret ;
-+    int result ;
-     int done = 0 ;
-     unsigned long offset ;
- 
-@@ -262,10 +263,13 @@ static int _get_block_create_0 (struct i
- 		  (loff_t)block * inode->i_sb->s_blocksize + 1, TYPE_ANY, 3);
- 
- research:
--    if (search_for_position_by_key (inode->i_sb, &key, &path) != POSITION_FOUND) {
-+    result = search_for_position_by_key (inode->i_sb, &key, &path) ;
-+    if (result != POSITION_FOUND) {
- 	pathrelse (&path);
-         if (p)
-             kunmap(bh_result->b_page) ;
-+	if (result == IO_ERROR)
-+	    return -EIO;
- 	// We do not return -ENOENT if there is a hole but page is uptodate, because it means
- 	// That there is some MMAPED data associated with it that is yet to be written to disk.
- 	if ((args & GET_BLOCK_NO_HOLE) && !PageUptodate(bh_result->b_page) ) {
-@@ -382,8 +386,9 @@ research:
- 
- 	// update key to look for the next piece
- 	set_cpu_key_k_offset (&key, cpu_key_k_offset (&key) + chars);
--	if (search_for_position_by_key (inode->i_sb, &key, &path) != POSITION_FOUND)
--	    // we read something from tail, even if now we got IO_ERROR
-+	result = search_for_position_by_key (inode->i_sb, &key, &path);
-+	if (result != POSITION_FOUND)
-+	    // i/o error most likely
- 	    break;
- 	bh = get_last_bh (&path);
- 	ih = get_ih (&path);
-@@ -394,6 +399,10 @@ research:
- 
- finished:
-     pathrelse (&path);
-+
-+    if (result == IO_ERROR)
-+	return -EIO;
-+    
-     /* this buffer has valid data, but isn't valid for io.  mapping it to
-      * block #0 tells the rest of reiserfs it just has a tail in it
-      */
-
-_
-
---=-4om+Tp6WHfOdfQcCdylH--
-
+--liOOAslEiF7prFVr--

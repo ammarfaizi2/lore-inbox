@@ -1,99 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262933AbVFXAET@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262928AbVFXABz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262933AbVFXAET (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 20:04:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262881AbVFXACa
+	id S262928AbVFXABz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 20:01:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262881AbVFXABq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 20:02:30 -0400
-Received: from bizon.gios.gov.pl ([212.244.124.8]:9415 "EHLO bizon.gios.gov.pl")
-	by vger.kernel.org with ESMTP id S262936AbVFXAAd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 20:00:33 -0400
-Date: Fri, 24 Jun 2005 01:47:35 +0200 (CEST)
-From: Krzysztof Oledzki <olel@ans.pl>
-X-X-Sender: olel@bizon.gios.gov.pl
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: SATA speed. Should be 150 or 133?
-Message-ID: <Pine.LNX.4.62.0506240135340.29382@bizon.gios.gov.pl>
+	Thu, 23 Jun 2005 20:01:46 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:30425 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S262919AbVFWX6P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 19:58:15 -0400
+Message-ID: <42BB4C81.6070500@namesys.com>
+Date: Thu, 23 Jun 2005 16:57:53 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-187430788-789118242-1119570455=:29382"
+To: Michael Dreher <michael.dreher@uni-konstanz.de>, vitaly@thebsh.namesys.com
+CC: linux-kernel@vger.kernel.org, Adrian Ulrich <reiser4@blinkenlights.ch>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, ninja@slaphack.com,
+       jgarzik@pobox.com, hch@infradead.org, akpm@osdl.org,
+       reiserfs-list@namesys.com
+Subject: Re: reiser4 plugins
+References: <42BAC304.2060802@slaphack.com> <200506231924.j5NJOvLA031008@laptop11.inf.utfsm.cl> <20050623221222.33074838.reiser4@blinkenlights.ch> <200506232249.47302.michael.dreher@uni-konstanz.de>
+In-Reply-To: <200506232249.47302.michael.dreher@uni-konstanz.de>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+One, you were using V3 not V4.
 
----187430788-789118242-1119570455=:29382
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Two, this bug you mention is probably not an fs bug.  rm first creates a
+list of names, and then removes them. 
 
-Hello,
+reiser@linux:~/scratch> touch fufu
+reiser@linux:~/scratch> touch fifu
+reiser@linux:~/scratch> rm *fu fi*
+rm: cannot remove `fifu': No such file or directory
 
-Is it normal that each time kernel reports UDMA/133 instead of UDMA/150=20
-for sata? I noticed this on both ICH5 and ICH6 (AHCI).
+Your file either somehow got removed before rm got to it, or rm somehow
+got to it twice.  Vitaly, can you look at the error handling by rm and
+see if it can get to things twice when it hits an error or if you can
+otherwise figure this out?  If I remember right, I have hit this myself
+for non-reiserfs filesystems, and I never investigated it.
 
-* 2.6.12 with ICH5:
-libata version 1.11 loaded.
-ata_piix version 1.03
-ACPI: PCI Interrupt 0000:00:1f.2[A] -> GSI 18 (level, low) -> IRQ 193
-PCI: Setting latency timer of device 0000:00:1f.2 to 64
-ata1: SATA max UDMA/133 cmd 0xCCB8 ctl 0xCCB2 bmdma 0xCC80 irq 193
-ata2: SATA max UDMA/133 cmd 0xCCA0 ctl 0xCC9A bmdma 0xCC88 irq 193
-ata1: dev 0 cfg 49:2f00 82:7c6b 83:7b09 84:4003 85:7c69 86:3801 87:4003 88:=
-207f
-ata1: dev 0 ATA, max UDMA/133, 156250000 sectors:
-ata1: dev 0 configured for UDMA/133
-scsi0 : ata_piix
-ata2: dev 0 cfg 49:2f00 82:7c6b 83:7b09 84:4003 85:7c69 86:3801 87:4003 88:=
-207f
-ata2: dev 0 ATA, max UDMA/133, 156250000 sectors:
-ata2: dev 0 configured for UDMA/133
-scsi1 : ata_piix
-   Vendor: ATA       Model: Maxtor 6Y080M0    Rev: YAR5
-   Type:   Direct-Access                      ANSI SCSI revision: 05
-   Vendor: ATA       Model: Maxtor 6Y080M0    Rev: YAR5
-   Type:   Direct-Access                      ANSI SCSI revision: 05
+Michael Dreher wrote:
 
-* 2.6.12 with ICH6:
-libata version 1.11 loaded.
-ahci version 1.00
-ACPI: PCI Interrupt 0000:00:1f.2[B] -> GSI 19 (level, low) -> IRQ 217
-PCI: Setting latency timer of device 0000:00:1f.2 to 64
-ahci(0000:00:1f.2) AHCI 0001.0000 32 slots 4 ports 1.5 Gbps 0xf impl SATA m=
-ode
-ahci(0000:00:1f.2) flags: 64bit ncq pm led slum part
-ata1: SATA max UDMA/133 cmd 0xE0802100 ctl 0x0 bmdma 0x0 irq 217
-ata2: SATA max UDMA/133 cmd 0xE0802180 ctl 0x0 bmdma 0x0 irq 217
-ata3: SATA max UDMA/133 cmd 0xE0802200 ctl 0x0 bmdma 0x0 irq 217
-ata4: SATA max UDMA/133 cmd 0xE0802280 ctl 0x0 bmdma 0x0 irq 217
-ata1: dev 0 cfg 49:2f00 82:346b 83:7d01 84:4003 85:3469 86:3c01 87:4003 88:=
-007f
-ata1: dev 0 ATA, max UDMA/133, 156301488 sectors: lba48
-ata1: dev 0 configured for UDMA/133
-scsi0 : ahci
-ata2: dev 0 cfg 49:2f00 82:346b 83:7d01 84:4003 85:3469 86:3c01 87:4003 88:=
-007f
-ata2: dev 0 ATA, max UDMA/133, 156301488 sectors: lba48
-ata2: dev 0 configured for UDMA/133
-scsi1 : ahci
-ata3: no device found (phy stat 00000000)
-scsi2 : ahci
-ata4: no device found (phy stat 00000000)
-scsi3 : ahci
-   Vendor: ATA       Model: ST380817AS        Rev: 3.42
-   Type:   Direct-Access                      ANSI SCSI revision: 05
-   Vendor: ATA       Model: ST380817AS        Rev: 3.42
-   Type:   Direct-Access                      ANSI SCSI revision: 05
+>>>>                                                Not everyone will want
+>>>>to reformat at once, but as the reiser4 code matures and proves itself
+>>>>(even more than it already has),
+>>>>        
+>>>>
+>>>I for one have seen mainly people with wild claims that it will make
+>>>their machines much faster, and coming back later asking how they can
+>>>recover their thrashed partitions...
+>>>      
+>>>
+>>Then please show us some Links/Message-IDs to such postings.
+>>I'd like to read them.
+>>    
+>>
+>
+>Here you are....
+>
+>The following happened to me with reiserfs as it was shipped with
+>suse 9.1:
+>
+>------------------------------------------------------------------
+>dreher@euler03:~/mytex/konstanz/wohnung> ls
+>auto          makler2.aux  makler2.log  makler2.tex  makler.aux  makler.log  
+>swk.eps      unilogo.eps
+>briefkpf.tex  makler2.dvi  makler2.ps   makler3.tex  makler.dvi  makler.tex  
+>unikopf.tex
+>dreher@euler03:~/mytex/konstanz/wohnung> rm *.aux *.log
+>rm: cannot remove `makler2.log': No such file or directory
+>dreher@euler03:~/mytex/konstanz/wohnung> ls
+>auto  briefkpf.tex  makler2.dvi  makler2.ps  makler2.tex  makler3.tex  
+>makler.dvi  makler.tex  swk.eps  unikopf.tex  unilogo.eps
+>dreher@euler03:~/mytex/konstanz/wohnung> uname -a
+>Linux euler03 2.6.5-7.108-smp #1 SMP Wed Aug 25 13:34:40 UTC 2004 i686 i686 
+>i386 GNU/Linux
+>dreher@euler03:~/mytex/konstanz/wohnung> date
+>Tue Sep 21 13:15:45 CEST 2004
+>----------------------------------------------------------
+>
+>Note the line "rm: cannot remove `makler2.log': No such file or directory"
+>
+>There was no data loss, but such a bug should not happen.
+>I never had similar experiences with ext3.
+>
+>Unfortunately, I cannot reproduce this behavior. 
+>
+>  
+>
+>> Powerloss, unpluging the Disk while writing, full filesystem,
+>> heavy use : No problems with reiser4.. It *is* stable.
+>>    
+>>
+>
+>My impression: reiser3 is not 100% stable, but quite stable, 
+>written by someone who asks for "review by benchmark".
+>
+>Michael
+>
+>
+>  
+>
 
-
-Best regards,
-
-
- =09=09=09Krzysztof Ol=EAdzki
-
-
-PS: Thank you for updating the libata-dev/passthru repository and creating=
-=20
-the 2.6.12-git4-passthru1 patch. :)
----187430788-789118242-1119570455=:29382--

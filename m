@@ -1,55 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263100AbVFXPx5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263035AbVFXPrz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263100AbVFXPx5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 11:53:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263115AbVFXPxl
+	id S263035AbVFXPrz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 11:47:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263067AbVFXPrS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 11:53:41 -0400
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:34558 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S263100AbVFXPuX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 11:50:23 -0400
-Date: Fri, 24 Jun 2005 08:38:19 -0400
-From: Christopher Li <hg@chrisli.org>
-To: Petr Baudis <pasky@ucw.cz>
-Cc: Matt Mackall <mpm@selenic.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Git Mailing List <git@vger.kernel.org>, mercurial@selenic.com
-Subject: Re: Mercurial vs Updated git HOWTO for kernel hackers
-Message-ID: <20050624123819.GD9519@64m.dyndns.org>
-References: <42B9E536.60704@pobox.com> <20050623235634.GC14426@waste.org> <20050624064101.GB14292@pasky.ji.cz>
+	Fri, 24 Jun 2005 11:47:18 -0400
+Received: from chretien.genwebhost.com ([209.59.175.22]:38846 "EHLO
+	chretien.genwebhost.com") by vger.kernel.org with ESMTP
+	id S263035AbVFXPpu convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Jun 2005 11:45:50 -0400
+Date: Fri, 24 Jun 2005 08:45:40 -0700
+From: randy_dunlap <rdunlap@xenotime.net>
+To: Christian <evil@g-house.de>
+Cc: linux-kernel@vger.kernel.org, piotrowskim@trex.wsi.edu.pl
+Subject: Re: [ANNOUNCE] ORT - Oops Reporting Tool
+Message-Id: <20050624084540.22a8785b.rdunlap@xenotime.net>
+In-Reply-To: <42BC0DCD.8020206@g-house.de>
+References: <42BBE593.9090407@trex.wsi.edu.pl>
+	<42BC0DCD.8020206@g-house.de>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050624064101.GB14292@pasky.ji.cz>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Antivirus-Scanner: Clean mail though you should still use an Antivirus
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - chretien.genwebhost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - xenotime.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 24, 2005 at 08:41:01AM +0200, Petr Baudis wrote:
-> > 5.1) undo the last commit or pull
-> > 
-> > $ hg undo
-> 
-> $ cg-admin-uncommit
-> 
-> Note that you should never do this if you already pushed the changes
-> out, or someone might get them. (That holds for regular Git too.) See
-> 
-> $ cg-help cg-admin-uncommit   # (or cg-admin-uncommit --help)
-> 
-> for details. (That's another Cogito's cool feature. Handy docs! ;-)
-> 
+On Fri, 24 Jun 2005 15:42:37 +0200 Christian wrote:
 
-Does it still works if the last commit was interrupted  or due to error for some
-reason?  Undo pull is pretty cool because you might pull a lot of commit
-in one blow. Get rid of commit one by one is going to be painful. Some times
-the object you pull has more than one chain of history it will be very nasty
-if you want to clean it up.
+| Micha__ Piotrowski schrieb:
+| > If you know something about bash scripting you can review it, add some 
+| > useful features and make some optimalisations. Or just send me an idea.
+| 
+| why does it have to be run as root? the only things i see missing are 
+| the "Capabilities" output from lspci -vvv when running as a user.
 
-Mercurial's undo is taking a snapshot of all the changed file's repo file length
-at every commit or pull.  It just truncate the file to original size and undo 
-is done.
+'lsusb -v' also needs root permissions, but yes, other than those
+2 commands, root is not needed AFAIK.
 
-Chris
+| otherwise: great script, could be even included in ../scripts ?
 
+
+---
+~Randy

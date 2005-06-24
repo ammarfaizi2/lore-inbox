@@ -1,64 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262920AbVFXPMq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262991AbVFXPOC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262920AbVFXPMq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 11:12:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262959AbVFXPMq
+	id S262991AbVFXPOC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 11:14:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262985AbVFXPOC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 11:12:46 -0400
-Received: from RT-soft-2.Moscow.itn.ru ([80.240.96.70]:22963 "HELO
-	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S262920AbVFXPMk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 11:12:40 -0400
-Message-ID: <42BC2501.5090101@ru.mvista.com>
-Date: Fri, 24 Jun 2005 19:21:37 +0400
-From: Andrei Konovalov <akonovalov@ru.mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-CC: akpm@osdl.org, linuxppc-embedded@ozlabs.org, linux-kernel@vger.kernel.org,
-       trini@kernel.crashing.org, yshpilevsky@ru.mvista.com
-Subject: Re: [PATCH] ppc32: add Freescale MPC885ADS board support
-References: <42BAD78E.1020801@ru.mvista.com> <20050623140522.GA25724@logos.cnet>
-In-Reply-To: <20050623140522.GA25724@logos.cnet>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 24 Jun 2005 11:14:02 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:48317 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S262959AbVFXPNs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Jun 2005 11:13:48 -0400
+Message-Id: <200506241511.j5OFBSn9013742@laptop11.inf.utfsm.cl>
+To: Denis Vlasenko <vda@ilport.com.ua>
+cc: Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
+       David Lang <david.lang@digitalinsight.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Netdev List <netdev@vger.kernel.org>
+Subject: Re: [git patch] urgent e1000 fix 
+In-Reply-To: Message from Denis Vlasenko <vda@ilport.com.ua> 
+   of "Fri, 24 Jun 2005 09:49:05 +0300." <200506240949.05620.vda@ilport.com.ua> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
+Date: Fri, 24 Jun 2005 11:11:28 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.19.1]); Fri, 24 Jun 2005 11:11:30 -0400 (CLT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
-
-Marcelo Tosatti wrote:
-> Hi Andrei,
+Denis Vlasenko <vda@ilport.com.ua> wrote:
+> On Friday 24 June 2005 02:33, Linus Torvalds wrote:
+> > To actually allow real fuzz or to allow real whitespace differences in the
+> > patch data itself is a _much_ bigger issue than this trivial patch
+> > corruption, and I'd prefer to avoid going there if at all possible.
 > 
-> On Thu, Jun 23, 2005 at 07:38:54PM +0400, Andrei Konovalov wrote:
-> <snip>
-> 
->>diff --git a/arch/ppc/syslib/m8xx_setup.c b/arch/ppc/syslib/m8xx_setup.c
->>--- a/arch/ppc/syslib/m8xx_setup.c
->>+++ b/arch/ppc/syslib/m8xx_setup.c
->>@@ -369,7 +369,7 @@ m8xx_map_io(void)
->> #if defined(CONFIG_HTDMSOUND) || defined(CONFIG_RPXTOUCH) || defined(CONFIG_FB_RPX)
->> 	io_block_mapping(HIOX_CSR_ADDR, HIOX_CSR_ADDR, HIOX_CSR_SIZE, _PAGE_IO);
->> #endif
->>-#ifdef CONFIG_FADS
->>+#if defined(CONFIG_FADS) || defined(CONFIG_MPC885ADS)
->> 	io_block_mapping(BCSR_ADDR, BCSR_ADDR, BCSR_SIZE, _PAGE_IO);
->> #endif
->> #ifdef CONFIG_PCI
-> 
-> 
-> I suppose you also want to include CONFIG_MPC885ADS in the io_block_mapping(IO_BASE) 
-> here?
+> How about automatic stripping of _trailing_ whitespace on all incoming
+> patches? IIRC no file type (C, sh, Makefile, you name it) depends on
+> conservation of it, thus it's 100% safe.
 
-No, not at the moment at least.
-Actually, the patch doesn't even #define IO_BASE.
-In 2.4 that io_block_mapping(IO_BASE) was needed for PCMCIA / CF cards to work.
-We haven't got to PCMCIA support in 2.6 yet, and PCMCIA is unlikely to work
-as is in case of MPC885ADS, as drivers/pcmcia/m8xx_pcmcia.c is just missing.
-We plan to address PCMCIA later.
+Works iff the patched code is similarly mangled first... I can hear a
+distant howling on LKML on the bare thought of proposing this.
 
-
-Thanks,
-Andrei
+You also can't assume that spaces at the end of lines make no difference
+for all uses people might want to put git to.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
 

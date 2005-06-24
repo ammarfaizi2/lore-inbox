@@ -1,84 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262675AbVFXXHX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263106AbVFXXHc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262675AbVFXXHX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 19:07:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263133AbVFXXHW
+	id S263106AbVFXXHc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 19:07:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262601AbVFXXHc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 19:07:22 -0400
-Received: from s0003.shadowconnect.net ([213.239.201.226]:47378 "EHLO
-	mail.shadowconnect.com") by vger.kernel.org with ESMTP
-	id S262675AbVFXXHM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 19:07:12 -0400
-Message-ID: <42BC93EC.8030909@shadowconnect.com>
-Date: Sat, 25 Jun 2005 01:14:52 +0200
-From: Markus Lidel <Markus.Lidel@shadowconnect.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] I2O: Lindent run and replacement of printk through osm
- printing functions
-References: <200506241709.j5OH98vv000983@hera.kernel.org> <42BC888E.3010600@pobox.com>
-In-Reply-To: <42BC888E.3010600@pobox.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 24 Jun 2005 19:07:32 -0400
+Received: from thunk.org ([69.25.196.29]:9655 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S263106AbVFXXHT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Jun 2005 19:07:19 -0400
+Date: Fri, 24 Jun 2005 19:06:44 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, David Masover <ninja@slaphack.com>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: reiser4 plugins
+Message-ID: <20050624230644.GA20185@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Hans Reiser <reiser@namesys.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	David Masover <ninja@slaphack.com>,
+	Horst von Brand <vonbrand@inf.utfsm.cl>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	Christoph Hellwig <hch@infradead.org>,
+	Andrew Morton <akpm@osdl.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	ReiserFS List <reiserfs-list@namesys.com>
+References: <200506231924.j5NJOvLA031008@laptop11.inf.utfsm.cl> <42BB31E9.50805@slaphack.com> <1119570225.18655.75.camel@localhost.localdomain> <42BB7B32.4010100@slaphack.com> <1119612849.17063.105.camel@localhost.localdomain> <42BC5D2E.1070307@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42BC5D2E.1070307@namesys.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Fri, Jun 24, 2005 at 12:21:18PM -0700, Hans Reiser wrote:
+> There is an area where we suffered from writing fsck last.  When there
+> are two leaf nodes with the same key range AND the bitmap cannot be
+> trusted to tell us which is the valid one, we don't know which is the
+> most recent, and pick arbitrarily.  Also, if you store a backup of V3,
+> and you don't compress it, and you wipe out the bitmap blocks and need
+> to use fsck, we don't know what blocks are backup image and what blocks
+> are the fs.  We advise users to never store a V3 backup on V3 without
+> compressing it.
 
-Jeff Garzik wrote:
-> Linux Kernel Mailing List wrote:
->> tree da7e51e7204625f21371eac23a931f4fe479e9db
->> parent 9e87545f06930c1d294423a8091d1077e7444a47
->> author Markus Lidel <Markus.Lidel@shadowconnect.com> Fri, 24 Jun 2005 
->> 12:02:23 -0700
->> committer Linus Torvalds <torvalds@ppc970.osdl.org> Fri, 24 Jun 2005 
->> 14:05:29 -0700
->> [PATCH] I2O: Lindent run and replacement of printk through osm 
->> printing functions
->> Lindent run and replaced printk() through the corresponding osm_*() 
->> function
-> Please don't combine ANY code changes with an Lindent patch.
+Unfortunately, there are plenty of reasons why you might want to store
+a filesystem image on disk besides for backup purposes:
 
-Also if there is no functional change, only cosmetical (the osm_*() 
-function just mappes to printk(*, ...))?
+	* Regression tests --- I have some 70+ small filesystem images
+		used for e2fsck's regression test suite.  (I am always
+		amazed how many filesystem fsck programs don't have
+		regression test suites.)
+	* Initial ram-disk images
+	* Image files for qemu or user-mode-linux
 
-> Also, you typically want to do a pass through the post-Lindent code, to 
-> fix crazy word-wrapped lines like
->>                  if (copy_from_user
->> -                    (p->virt, (void __user *)(unsigned 
->> long)sg[i].addr_bus,
->> -                     sg_size)) {
->> +                    (p->virt,
->> +                     (void __user *)(unsigned long)sg[i].
->> +                     addr_bus, sg_size)) {
->>                      printk(KERN_DEBUG
->>                             "%s: Could not copy SG buf %d FROM user\n",
->>                             c->name, i);
+... and probably many more.  None of these are safe to store on a
+reiserfs3 filesystem if you're worried about fsck being robust after a
+disk failure.
 
-OK, next time i do this too (i've not touched it, because i only have a 
-80x24 terminal and  it was more readable after the Lindent run for me :-D)...
+Funny thing.  When I tell system administrators who have been around
+the block more than a few times about this particular "feature" of
+reiserfs3, they usually very quickly decide that it's time to switch
+to another filesystem.....
 
-Thank you very much!
-
-
-Best regards,
-
-
-Markus Lidel
-------------------------------------------
-Markus Lidel (Senior IT Consultant)
-
-Shadow Connect GmbH
-Carl-Reisch-Weg 12
-D-86381 Krumbach
-Germany
-
-Phone:  +49 82 82/99 51-0
-Fax:    +49 82 82/99 51-11
-
-E-Mail: Markus.Lidel@shadowconnect.com
-URL:    http://www.shadowconnect.com
+						- Ted

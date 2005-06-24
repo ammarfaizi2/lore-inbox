@@ -1,135 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263162AbVFXRnC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263375AbVFXRxw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263162AbVFXRnC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 13:43:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262637AbVFXRnC
+	id S263375AbVFXRxw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 13:53:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263376AbVFXRxu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 13:43:02 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:39840 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263162AbVFXRlN (ORCPT
+	Fri, 24 Jun 2005 13:53:50 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:65253 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263375AbVFXRwp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 13:41:13 -0400
-Date: Fri, 24 Jun 2005 13:40:54 -0400
-From: Neil Horman <nhorman@redhat.com>
-To: Julian Anastasov <ja@ssi.bg>
-Cc: Neil Horman <nhorman@redhat.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Wensong Zhang <wensong@linux-vs.org>, akpm@osdl.org, netdev@oss.sgi.com,
-       davem@davemloft.net
-Subject: Re: [Patch] ipvs: close race conditions on ip_vs_conn_tab list modification
-Message-ID: <20050624174054.GE21499@hmsendeavour.rdu.redhat.com>
-References: <20050624144822.GD21499@hmsendeavour.rdu.redhat.com> <Pine.LNX.4.44.0506241808150.2776-100000@l>
+	Fri, 24 Jun 2005 13:52:45 -0400
+Subject: kernel setsocketoptions API - can not set options to avoid very
+	slow TCP ACK
+From: Steve French <smfltc@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: jra@samba.org, linux-cifs-client@lists.samba.org
+Content-Type: text/plain
+Organization: IBM - Linux Technology Center
+Message-Id: <1119635364.14908.51.camel@stevef95.austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0506241808150.2776-100000@l>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 24 Jun 2005 12:49:24 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 24, 2005 at 06:09:40PM +0300, Julian Anastasov wrote:
-> 
-> 	Hello,
-> 
-> On Fri, 24 Jun 2005, Neil Horman wrote:
-> 
-> >  			if (ct) {
-> >  				IP_VS_DBG(4, "del conn template\n");
-> >  				ip_vs_conn_expire_now(ct);
-> >  			}
-> 
-> 	Don't forget to use cp->control instead of ct, ct is not needed
-> anymore.
-> 
-> Regards
-> 
-> --
-> Julian Anastasov <ja@ssi.bg>
-> 
+I was looking at some network traces today that indicated the need to
+set TCP_NODELAY, and possibly turn on/off TCP_QUICKACK in a few places -
+but I don't see a reasonable way to call set socketoptions for TCP
+sockets from kernel - they seem to require a user space pointer.
 
+The details, sequential network file copy from server:
+	mounted over loopback interface using most current cifs 
+	to most current samba 3
 
-Good catch.  Sorry, should have seen that earlier.  New patch attached with
-corrections.  When you're comfortable with this, I'll post the 2.4 version of
-the patch.
+	dd if=/mnt/bigfile of=/dev/null BS=1M
 
-Regards 
-Neil
+	The file read requests are for 16K (the negotiated buffer size)
+	over the network to Samba
 
-Signed-off-by: Neil Horman <nhorman@redhat.com>
+	The read responses are being sent quickly enough by
+	samba (less than 1ms).  The responses are a bit over 16K due to 
+	protocol headers - perhaps 16K+100.
 
- ip_vs_conn.c |   24 ++++--------------------
- 1 files changed, 4 insertions(+), 20 deletions(-)
+	TCP/IP fragments the response into two pieces.  One almost
+	16K and and the remaining 100 bytes or so in a second frame.
 
+	The second small frame is held up for a few hundred 
+	milliseconds (!) waiting on the client TCP stack to 
+	do a TCP ACK.
 
---- linux-2.6.git/net/ipv4/ipvs/ip_vs_conn.c.orig	2005-06-23 13:11:00.000000000 -0400
-+++ linux-2.6.git/net/ipv4/ipvs/ip_vs_conn.c	2005-06-24 13:33:03.000000000 -0400
-@@ -548,7 +548,6 @@
- {
- 	if (del_timer(&cp->timer))
- 		mod_timer(&cp->timer, jiffies);
--	__ip_vs_conn_put(cp);
- }
- 
- 
-@@ -801,21 +800,12 @@
- 					continue;
- 			}
- 
--			/*
--			 * Drop the entry, and drop its ct if not referenced
--			 */
--			atomic_inc(&cp->refcnt);
--			ct_write_unlock(hash);
--
--			if ((ct = cp->control))
--				atomic_inc(&ct->refcnt);
- 			IP_VS_DBG(4, "del connection\n");
- 			ip_vs_conn_expire_now(cp);
--			if (ct) {
-+			if (cp->control) {
- 				IP_VS_DBG(4, "del conn template\n");
--				ip_vs_conn_expire_now(ct);
-+				ip_vs_conn_expire_now(cp->control);
- 			}
--			ct_write_lock(hash);
- 		}
- 		ct_write_unlock(hash);
- 	}
-@@ -829,7 +819,6 @@
- {
- 	int idx;
- 	struct ip_vs_conn *cp;
--	struct ip_vs_conn *ct;
- 
-   flush_again:
- 	for (idx=0; idx<IP_VS_CONN_TAB_SIZE; idx++) {
-@@ -839,18 +828,13 @@
- 		ct_write_lock_bh(idx);
- 
- 		list_for_each_entry(cp, &ip_vs_conn_tab[idx], c_list) {
--			atomic_inc(&cp->refcnt);
--			ct_write_unlock(idx);
- 
--			if ((ct = cp->control))
--				atomic_inc(&ct->refcnt);
- 			IP_VS_DBG(4, "del connection\n");
- 			ip_vs_conn_expire_now(cp);
--			if (ct) {
-+			if (cp->control) {
- 				IP_VS_DBG(4, "del conn template\n");
--				ip_vs_conn_expire_now(ct);
-+				ip_vs_conn_expire_now(cp->control);
- 			}
--			ct_write_lock(idx);
- 		}
- 		ct_write_unlock_bh(idx);
- 	}
--- 
-/***************************************************
- *Neil Horman
- *Software Engineer
- *Red Hat, Inc.
- *nhorman@redhat.com
- *gpg keyid: 1024D / 0x92A74FA1
- *http://pgp.mit.edu
- ***************************************************/
+	This results in terrible network utilization as the second 
+	read request will not be issued until the first response is 
+	completely received.  This particular case is probably about
+	50 times slower than it should be due to waiting on the slow
+	ACK.
+
+There are various other things that would help of course - running other
+processes on the client accessing the network filesystem would cause the
+ack to sometimes happen faster, and async dispatching of more read
+requests at one time, or of even larger read requests, but this case
+does indicate that turning on quickack on the client for the case of
+waiting for large read responses, and probably readdir (which responses
+are also similar in size) is worth trying.   In addition, smbfs (in user
+space) sets TCP_NODELAY for its sockets when it mounts and that is
+probably appropriate here as well for cifs client.  Is there a
+recommended way to set this in kernel - NFS/SunRPC seems to set its
+socket options directly in sock->sk and that is fine with me but it
+would look a little strange to do
+	tp->nonagle |= TCP_NAGLE_OFF | TCP_NAGLE_PUSH 
+and
+	ip_push_pending _frames
+in filesystem code (since calling net/ipv4/tcp.c setsocketoption is not
+possible).
+

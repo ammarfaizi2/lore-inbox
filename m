@@ -1,61 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263205AbVFXSjJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263160AbVFXSsF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263205AbVFXSjJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 14:39:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263207AbVFXSjE
+	id S263160AbVFXSsF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 14:48:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263135AbVFXSsF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 14:39:04 -0400
-Received: from bizon.gios.gov.pl ([212.244.124.8]:4240 "EHLO bizon.gios.gov.pl")
-	by vger.kernel.org with ESMTP id S263190AbVFXSfi (ORCPT
+	Fri, 24 Jun 2005 14:48:05 -0400
+Received: from main.gmane.org ([80.91.229.2]:15785 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S263160AbVFXSru (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 14:35:38 -0400
-Date: Fri, 24 Jun 2005 20:35:24 +0200 (CEST)
-From: Krzysztof Oledzki <olel@ans.pl>
-X-X-Sender: olel@bizon.gios.gov.pl
-To: Mark Lord <liml@rtr.ca>
-cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: Re: SATA speed. Should be 150 or 133?
-In-Reply-To: <42BC284E.7050202@rtr.ca>
-Message-ID: <Pine.LNX.4.62.0506242032290.1394@bizon.gios.gov.pl>
-References: <Pine.LNX.4.62.0506240135340.29382@bizon.gios.gov.pl>
- <42BB794B.6080109@rtr.ca> <Pine.LNX.4.62.0506241127210.3016@bizon.gios.gov.pl>
- <42BC284E.7050202@rtr.ca>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-187430788-481984758-1119638124=:1394"
+	Fri, 24 Jun 2005 14:47:50 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Hubert Chan <hubert@uhoreg.ca>
+Subject: Re: reiser4 plugins
+Date: Fri, 24 Jun 2005 14:42:54 -0400
+Message-ID: <874qbnh9zl.fsf@evinrude.uhoreg.ca>
+References: <ninja@slaphack.com> <200506240241.j5O2f1eb005609@laptop11.inf.utfsm.cl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: cpe0004e289e618-cm000f212c9dfc.cpe.net.cable.rogers.com
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+Cancel-Lock: sha1:vOnRAann/ZpASWAu6lCbq3z2tUQ=
+Cc: reiserfs-list@namesys.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Thu, 23 Jun 2005 22:41:01 -0400, Horst von Brand <vonbrand@inf.utfsm.cl> said:
 
----187430788-481984758-1119638124=:1394
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+> David Masover <ninja@slaphack.com> wrote:
+>> I, for one, would like to use a pendrive and have certain files be
+>> encrypted transparently, only for use on Linux, but others be ready
+>> to transfer to a Windows box.
 
+> And that would surely break Windows compatibility (because you have to
+> keep the data on what to encrypt one the filesystem itself).
 
+Easily solved, using the same method OS/2 added Extended Attribute
+support to FAT.  Of course, things may break if you try to manipulate
+the encrypted file under Windows (e.g. deleting those files would leave
+some garbage blocks behind), but breakage should be minor and relatively
+easy to fix.
 
-On Fri, 24 Jun 2005, Mark Lord wrote:
+> Besides, having pgp, or gpg, or crypt, or my own whacky encryption
+> proggie do the job in /userland/, and not shoving into the kernel and
+> so down the next user's throat, is in the end a largeish part of what
+> Unix is all about for me.
 
-<CUT>
->> Oh, so how to check true (current) speed?
-> Same as always:  hdparm -I /dev/sd?
-> (requires the libata-dev "passthru" patch
-> recently reposted here by Jeff Garzik).
+Meh.  It's nice to have encrypting to be transparent.  Unless your
+editor supports gpg/crypt/etc., you'll need to decrypt the file to a
+temporary area, edit the file, and then re-encrypt.  Much easier to make
+a mistake and lose data, or leave traces of the cleartext data.
 
-Got it :)
+Besides, the encryption would be optional, and hence not being shoved
+down the user's throat.  If you don't like it, don't use it.
 
-# hdparm -I /dev/sda
+-- 
+Hubert Chan <hubert@uhoreg.ca> - http://www.uhoreg.ca/
+PGP/GnuPG key: 1024D/124B61FA
+Fingerprint: 96C5 012F 5F74 A5F7 1FF7  5291 AF29 C719 124B 61FA
+Key available at wwwkeys.pgp.net.   Encrypted e-mail preferred.
 
-/dev/sda:
-(...)
-         DMA: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 udma4 udma5 *udma6
-(...)
-
-This one? udma6?
-
-Best regards,
-
-
- =09=09=09Krzysztof Ol=EAdzki
----187430788-481984758-1119638124=:1394--

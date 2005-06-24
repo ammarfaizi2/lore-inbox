@@ -1,46 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263239AbVFXKrv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263237AbVFXKxB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263239AbVFXKrv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 06:47:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263242AbVFXKrv
+	id S263237AbVFXKxB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 06:53:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263240AbVFXKxB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 06:47:51 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:30903 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S263239AbVFXKpr
+	Fri, 24 Jun 2005 06:53:01 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:45536 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S263237AbVFXKw6
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 06:45:47 -0400
-Subject: Re: reiser4 plugins
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Hans Reiser <reiser@namesys.com>
-Cc: David Masover <ninja@slaphack.com>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-In-Reply-To: <42BB5E1A.70903@namesys.com>
-References: <200506231924.j5NJOvLA031008@laptop11.inf.utfsm.cl>
-	 <42BB31E9.50805@slaphack.com>
-	 <1119570225.18655.75.camel@localhost.localdomain>
-	 <42BB5E1A.70903@namesys.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1119609680.17066.81.camel@localhost.localdomain>
+	Fri, 24 Jun 2005 06:52:58 -0400
+Date: Fri, 24 Jun 2005 16:20:11 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 0/4] files: various updates
+Message-ID: <20050624105011.GB4804@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 24 Jun 2005 11:41:21 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2005-06-24 at 02:12, Hans Reiser wrote:
-> >In which case the features belong in the VFS as all those with
-> >experience and kernel contributions have been arguing.
-> So you fundamentally reject the prototype it in one fs and then abstract
-> it to others development model?
+Andrew,
 
-More fundamentally - prototype things *out* of the main kernel. If
-everyone was doing their prototyping in kernel Andrew Morton would by
-now be a team of about 25
+Here is the set of update patches that fixes, changes and documents
+various issues in the new fd management patchset in -mm1. The
+first patch - fix-dupfd-reacquire-fdt.patch fixes bugme #4770
+and the oopses people other than me were seeing.
 
-Alan
+I have tested this patchset with 2.6.12-mm1 in my lab, not sure
+if it means anything, given bugme #4770 and my userland :-)
+Please include these in -mm1 for testing.
 
+Thanks
+Dipankar

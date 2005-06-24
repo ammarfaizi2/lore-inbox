@@ -1,100 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263020AbVFXDb4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263029AbVFXDda@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263020AbVFXDb4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 23:31:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263024AbVFXD3j
+	id S263029AbVFXDda (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 23:33:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263051AbVFXDdF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 23:29:39 -0400
-Received: from mail19.syd.optusnet.com.au ([211.29.132.200]:36813 "EHLO
-	mail19.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S263029AbVFXD1y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 23:27:54 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: spaminos-ker@yahoo.com
-Subject: Re: cfq misbehaving on 2.6.11-1.14_FC3
-Date: Fri, 24 Jun 2005 13:27:28 +1000
-User-Agent: KMail/1.8.1
-Cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>,
-       Andrew Morton <akpm@osdl.org>
-References: <20050624023356.63888.qmail@web30705.mail.mud.yahoo.com>
-In-Reply-To: <20050624023356.63888.qmail@web30705.mail.mud.yahoo.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2063186.5mn2sRinXa";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Thu, 23 Jun 2005 23:33:05 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:19877
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S263029AbVFXDcQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 23:32:16 -0400
+Date: Thu, 23 Jun 2005 20:32:09 -0700 (PDT)
+Message-Id: <20050623.203209.102574546.davem@davemloft.net>
+To: christoph@lameter.com
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org, shai@scalex86.org,
+       akpm@osdl.org
+Subject: Re: [PATCH] dst numa: Avoid dst counter cacheline bouncing
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <Pine.LNX.4.62.0506232005030.28244@graphe.net>
+References: <Pine.LNX.4.62.0506231953260.28244@graphe.net>
+	<Pine.LNX.4.62.0506232005030.28244@graphe.net>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <200506241327.31043.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2063186.5mn2sRinXa
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+From: Christoph Lameter <christoph@lameter.com>
+Date: Thu, 23 Jun 2005 20:10:06 -0700 (PDT)
 
-On Fri, 24 Jun 2005 12:33, spaminos-ker@yahoo.com wrote:
-> --- Con Kolivas <kernel@kolivas.org> wrote:
-> > I found the same, and the effect was blunted by noatime and
-> > journal_data_writeback (on ext3). Try them one at a time and see what y=
-ou
-> > get.
->
-> I had to move to a different box, but get the same kind of results (for
-> ext3 default mount options).
->
-> Here are the latencies (all cfq) I get with different values for the mount
-> parameters
->
-> ext2 default
-> 0.1s
->
-> ext3 default
-> 52.6s avg
->
-> reiser defaults
-> 29s avg 5 minutes
-> then,
-> 12.9s avg
->
-> ext3 rw,noatime,data=3Dwriteback
-> 0.1s avg
->
-> reiser rw,noatime,data=3Dwriteback
-> 4s avg for 20 seconds
-> then 0.1 seconds avg
->
->
-> So, indeed adding noatime,data=3Dwriteback to the mount options improves
-> things a lot.
-> I also tried without the noatime, and that doesn't make much difference to
-> me.
->
-> That looks like a good workaround, I'll now try with the actual server and
-> see how things go.
+> AIM7 results (tcp_test and udp_test) on i386 (IBM x445 8p 16G):
+> 
+> No patch	94788.2
+> w/patch		97739.2 (+3.11%)
+> 
+> The numbers will be much higher on larger NUMA machines.
 
-That's more or less what I found, although I found noatime also helped my t=
-est=20
-cases, but also less than the journal options. Coincidentally I only=20
-discovered this recently and hadn't gotten around to telling anyone how=20
-dramatic this was and this seemed as good a time as any. I am suspicious th=
-at=20
-it wasn't this bad in past kernels but haven't been able to instrument=20
-earlier kernels to check.
+How much higher?  I don't believe it.  And %3 doesn't justify the
+complexity (both in time and memory usage) added by this patch.
 
-Cheers,
-Con
+Performance of our stack's routing cache is _DEEPLY_ tied to the
+size of the routing cache entries, of which dst entry is a member.
+Every single byte counts.
 
---nextPart2063186.5mn2sRinXa
-Content-Type: application/pgp-signature
+You've exploded this to be (NR_NODES * sizeof(void *)) larger.  That
+is totally unacceptable, even for NUMA.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+Secondly, inlining the "for_each_online_node()" loops isn't very nice
+either.
 
-iD8DBQBCu32jZUg7+tp6mRURAjqFAJ4tr7YKNG88xQE6xQnw7efyzz5UogCeMYUt
-uJlcD963LOcgu/PMKylFERg=
-=f5ke
------END PGP SIGNATURE-----
+Consider making a per-node routing cache instead, just like the flow
+cache is per-cpu, or make socket dst entries have a per-node array of
+object pointers.  Fill the per-node array in lazily, just as you do
+for the dst.  The first time you try to clone a dst on a cpu for a
+socket, create the per-cpu entry slot.
 
---nextPart2063186.5mn2sRinXa--
+We don't need to make them per-node system wide, only per-socket is
+this really needed.
+
+This way you do per-node walking when you detach the dst from the
+socket at close() time, not at every dst_release() call, and thus for
+every packet in the system.
+
+In light of that, I don't see what the advantage is.  Instead of
+atomic inc/dec on every packet sent in the system, you walk the whole
+array of counters for every packet sent in the system.  If you really
+get contention amongst nodes for a DST entry, this walk should result
+in ReadToShare transactions, and thus cacheline movement, between the
+NUMA nodes, on every __kfree_skb() call.
+
+Essentially you're trading 1 atomic inc (ReadToOwn) and 1 atomic dec
+(ReadToOwn) per packet for significant extra memory, much bigger code,
+and 1 ReadToShare transaction per packet.
+
+And since you're still using atomic_inc/atomic_dec you'll still hit
+ReadToOwn transactions within the node.

@@ -1,72 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262881AbVFXA2r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262925AbVFXAcb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262881AbVFXA2r (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 20:28:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262938AbVFXA2r
+	id S262925AbVFXAcb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 20:32:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262919AbVFXAcb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 20:28:47 -0400
-Received: from fmr22.intel.com ([143.183.121.14]:45256 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S262881AbVFXA2k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 20:28:40 -0400
-Date: Thu, 23 Jun 2005 17:28:33 -0700
-From: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-To: akpm@osdl.org
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linux IA64 <linux-ia64@vger.kernel.org>
-Subject: [patch][ia64]Refuse kprobe on ivt code
-Message-ID: <20050623172832.B26121@unix-os.sc.intel.com>
-Reply-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+	Thu, 23 Jun 2005 20:32:31 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:16531 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262925AbVFXAcY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 20:32:24 -0400
+Subject: Re: aic79xx -> can't  suspend
+From: Lee Revell <rlrevell@joe-job.com>
+To: Jim Crilly <jim@why.dont.jablowme.net>
+Cc: linux-scsi@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050623193224.GD2251@voodoo>
+References: <1119549104.13259.1.camel@mindpipe>
+	 <20050623193224.GD2251@voodoo>
+Content-Type: text/plain
+Date: Thu, 23 Jun 2005 20:32:22 -0400
+Message-Id: <1119573142.20628.15.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+X-Mailer: Evolution 2.3.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2005-06-23 at 15:32 -0400, Jim Crilly wrote:
+> On 06/23/05 01:51:43PM -0400, Lee Revell wrote:
+> > I have a machine with an Adaptec 2940U2W adapter running 2.6.11.
+> > When I try to go into standby like so:
+> > 
+> >     echo standby > /sys/power/state
+> > 
+> > this is what happens:
+> 
+> AFAIK no SCSI drivers have had power management functions implemented,
+> a quick grep for PM_ in drivers/scsi seems to confirm that only the
+> PCMCIA SCSI drivers even look for PM events. 
 
-Subject: Refuse kprobe insert on IVT code
+Actually it is implemented in the aic7xxx driver, see ahc_suspend and
+ahc_resume.
 
-Not safe to insert kprobes on IVT code.
+I tried it with 2.6.12, and I no longer have the problem with the ahc_dv
+thread as it no longer exists (AFAICT the functionality is handled by
+the SCSI midlayer now?).
 
-This patch checks to see if the address on which Kprobes is being
-inserted is  in ivt code and if it is in ivt code then
-refuse to register kprobe.
+Now it just immediately resumes:
 
-Signed-off-by: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
+[4297399.286000] PM: Preparing system for standby sleep
+[4297399.609000] Stopping tasks: ================================|
+[4297399.610000] Restarting tasks... done
 
-===============================================
- arch/ia64/kernel/kprobes.c |   13 +++++++++++++
- 1 files changed, 13 insertions(+)
+How can I debug this further?
 
-Index: linux-2.6.12-mm1/arch/ia64/kernel/kprobes.c
-===================================================================
---- linux-2.6.12-mm1.orig/arch/ia64/kernel/kprobes.c
-+++ linux-2.6.12-mm1/arch/ia64/kernel/kprobes.c
-@@ -263,6 +263,13 @@ static inline void get_kprobe_inst(bundl
- 	}
- }
- 
-+/* Returns non-zero if the PC is in the Interrupt Vector Table */
-+static inline int in_ivt_code(unsigned long pc)
-+{
-+	extern char ia64_ivt[];
-+	return (pc >= (u_long)ia64_ivt && pc < (u_long)ia64_ivt+32768);
-+}
-+
- static int valid_kprobe_addr(int template, int slot, unsigned long addr)
- {
- 	if ((slot > 2) || ((bundle_encoding[template][1] == L) && slot > 1)) {
-@@ -271,6 +278,12 @@ static int valid_kprobe_addr(int templat
- 		return -EINVAL;
- 	}
- 
-+ 	if (in_ivt_code(addr)) {
-+ 		printk(KERN_WARNING "Kprobes can't be inserted inside "
-+				"IVT code at 0x%lx\n", addr);
-+ 		return -EINVAL;
-+ 	}
-+
- 	if (slot == 1) {
- 		printk(KERN_WARNING "Inserting kprobes on slot #1 "
- 		       "is not supported\n");
+Lee
+
+
+

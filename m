@@ -1,64 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261978AbVFXG1p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263178AbVFXGhO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261978AbVFXG1p (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 02:27:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263177AbVFXG1p
+	id S263178AbVFXGhO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 02:37:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263179AbVFXGhO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 02:27:45 -0400
-Received: from [67.137.28.189] ([67.137.28.189]:2962 "EHLO vger")
-	by vger.kernel.org with ESMTP id S263178AbVFXG12 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 02:27:28 -0400
-Message-ID: <42BB932D.9050808@utah-nac.org>
-Date: Thu, 23 Jun 2005 22:59:25 -0600
-From: jmerkey <jmerkey@utah-nac.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+	Fri, 24 Jun 2005 02:37:14 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:55207 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S263178AbVFXGhK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Jun 2005 02:37:10 -0400
+Message-ID: <42BBAA0F.2020404@namesys.com>
+Date: Thu, 23 Jun 2005 23:37:03 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jan Beulich <JBeulich@novell.com>
-Cc: Christoph Lameter <christoph@lameter.com>,
-       Clyde Griffin <CGRIFFIN@novell.com>,
-       "John W. Linville" <linville@tuxdriver.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Novell Linux Kernel Debugger (NLKD)
-References: <s2bae938.075@sinclair.provo.novell.com>  <Pine.LNX.4.62.0506231723360.26299@graphe.net>  <20050624003515.GB28077@tuxdriver.com> <42BB510B.5080500@utah-nac.org> <42BBC297020000780001D4A5@emea1-mh.id2.novell.com>
-In-Reply-To: <42BBC297020000780001D4A5@emea1-mh.id2.novell.com>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
+To: Nikita Danilov <nikita@clusterfs.com>
+CC: David Masover <ninja@slaphack.com>,
+       "Artem B. Bityuckiy" <dedekind@yandex.ru>,
+       =?UTF-8?B?TWFya3VzIFTQlnJucXZpc3Q=?= <mjt@nysv.org>,
+       Christophe Saout <christophe@saout.de>, Andrew Morton <akpm@osdl.org>,
+       hch@infradead.org, jgarzik@pobox.com, linux-kernel@vger.kernel.org,
+       reiserfs-list@namesys.com
+Subject: Re: reiser4 plugins
+References: <200506221733.j5MHXEoH007541@laptop11.inf.utfsm.cl>	<42B9DD48.6060601@slaphack.com>	<17081.58619.671650.812286@gargle.gargle.HOWL>	<42BAC668.2030604@slaphack.com> <17083.14428.546772.353003@gargle.gargle.HOWL>
+In-Reply-To: <17083.14428.546772.353003@gargle.gargle.HOWL>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Beulich wrote:
+Nikita, I respectfully disagree with what you say about the state of our
+atomicity code.   It is not so far away as you describe, and probably 6
+man weeks work could polish it off.  You don't see the value in what I
+define as useful, namely atomicity without isolation.  Since you don't
+see that, it is harder for you to see that something is close to working
+and just needs 6 weeks of someone who groks what I am asking for.
 
->>It's a GBD replacement and is not fully open source.
->>    
->>
->
->What is not open source in it ()?
->
->  
->
->>KDB is at present more capable. It has a lot of promise, but it does not 
->>have the all the architectural
->>features necessary to replace either KDB or GDB at present.
->>    
->>
->
->While I never used or saw kdb, I'd be curious about what you immediately saw missing...
->  
->
-
-1. No back trace
-2. Doesn't run standalone fully embeded in the kernel
-3. Not fully open source (since it's not embeded in the kernel)
-4. IA64 doesn't really matter, since IA64 is basically dead anyway
-5. No advanced recursive descent parser for conditional breakpoints
-
-Jeff
-
->Jan
->
->
->  
->
+Hans
 

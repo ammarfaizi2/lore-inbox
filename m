@@ -1,56 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263254AbVFXLwa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263272AbVFXL6v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263254AbVFXLwa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 07:52:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263258AbVFXLwa
+	id S263272AbVFXL6v (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 07:58:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263267AbVFXL6u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 07:52:30 -0400
-Received: from ns.suse.de ([195.135.220.2]:64400 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S263254AbVFXLuL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 07:50:11 -0400
-From: Chris Mason <mason@suse.com>
-To: jmerkey <jmerkey@utah-nac.org>
-Subject: Re: Novell Linux Kernel Debugger (NLKD)
-Date: Fri, 24 Jun 2005 07:50:02 -0400
-User-Agent: KMail/1.8
-Cc: Jan Beulich <JBeulich@novell.com>,
-       Christoph Lameter <christoph@lameter.com>,
-       Clyde Griffin <CGRIFFIN@novell.com>,
-       "John W. Linville" <linville@tuxdriver.com>,
-       linux-kernel@vger.kernel.org
-References: <s2bae938.075@sinclair.provo.novell.com> <42BBC297020000780001D4A5@emea1-mh.id2.novell.com> <42BB932D.9050808@utah-nac.org>
-In-Reply-To: <42BB932D.9050808@utah-nac.org>
+	Fri, 24 Jun 2005 07:58:50 -0400
+Received: from hulk.hostingexpert.com ([69.57.134.39]:35264 "EHLO
+	hulk.hostingexpert.com") by vger.kernel.org with ESMTP
+	id S263262AbVFXLxR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Jun 2005 07:53:17 -0400
+Message-ID: <42BBF454.2040305@m1k.net>
+Date: Fri, 24 Jun 2005 07:53:56 -0400
+From: Michael Krufky <mkrufky@m1k.net>
+Reply-To: mkrufky@m1k.net
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: mkrufky@m1k.net
+CC: video4linux-list@redhat.com, linux-kernel@vger.kernel.org
+Subject: [GIT PATCH] remove tuner constant declared twice in /linux/include/media/tuner.h
+References: <42BBEF45.6000301@m1k.net>
+In-Reply-To: <42BBEF45.6000301@m1k.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506240750.03736.mason@suse.com>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - m1k.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 24 June 2005 00:59, jmerkey wrote:
-> Jan Beulich wrote:
-> >>It's a GBD replacement and is not fully open source.
-> >
-> >What is not open source in it ()?
-> >
-> >>KDB is at present more capable. It has a lot of promise, but it does not
-> >>have the all the architectural
-> >>features necessary to replace either KDB or GDB at present.
-> >
-> >While I never used or saw kdb, I'd be curious about what you immediately
-> > saw missing...
+Michael Krufky wrote:
+
+> Linus-
 >
-> 1. No back trace
-> 2. Doesn't run standalone fully embeded in the kernel
-> 3. Not fully open source (since it's not embeded in the kernel)
-> 4. IA64 doesn't really matter, since IA64 is basically dead anyway
-> 5. No advanced recursive descent parser for conditional breakpoints
+> I reviewed -git6 this morning, and I noticed that a constant is 
+> declared twice for tuner #60 in /linux/include/media/tuner.h
+>
+> This patch removes the second entry.  This has already been corrected 
+> in -mm by a later patch.
+>
+> Thank you.
+>
+> Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+>
+>------------------------------------------------------------------------
+>
+>diff -upr linux-2.6.12-git6/include/media/tuner.h linux/include/media/tuner.h
+>--- linux-2.6.12-git6/include/media/tuner.h	2005-06-24 07:16:35.000000000 +0000
+>+++ linux/include/media/tuner.h	2005-06-24 07:18:03.000000000 +0000
+>@@ -108,8 +108,6 @@
+> 
+> #define TEA5767_TUNER_NAME "Philips TEA5767HN FM Radio"
+> 
+>-#define TUNER_THOMSON_DTT7611    60
+>-
+> #define NOTUNER 0
+> #define PAL     1	/* PAL_BG */
+> #define PAL_I   2
+>  
+>
+I sent this to Linus this morning and forgot to CC the lists... This is 
+a very minor change, if he doesn't accept it, things will work the same 
+just as well.
 
-This is more or less completely inaccurate.
-
--chris
-
+-- 
+Michael Krufky
 

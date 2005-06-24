@@ -1,47 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263268AbVFXLNj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263261AbVFXLDt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263268AbVFXLNj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 07:13:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263251AbVFXLJO
+	id S263261AbVFXLDt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 07:03:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263250AbVFXK6s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 07:09:14 -0400
-Received: from main.gmane.org ([80.91.229.2]:27270 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S263240AbVFXLFn (ORCPT
+	Fri, 24 Jun 2005 06:58:48 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:9882 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263247AbVFXK5A (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 07:05:43 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Matthias Urlichs <smurf@smurf.noris.de>
-Subject: Re: Finding what change broke ARM
-Date: Fri, 24 Jun 2005 13:04:06 +0200
-Organization: {M:U} IT Consulting
-Message-ID: <pan.2005.06.24.11.04.04.815183@smurf.noris.de>
-References: <20050624101951.B23185@flint.arm.linux.org.uk>
+	Fri, 24 Jun 2005 06:57:00 -0400
+Date: Fri, 24 Jun 2005 16:24:10 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/4] files: change fd_install assertion
+Message-ID: <20050624105410.GE4804@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20050624105011.GB4804@in.ibm.com> <20050624105209.GC4804@in.ibm.com> <20050624105318.GD4804@in.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: run.smurf.noris.de
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
-X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050624105318.GD4804@in.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Russell King wrote:
-
-> With git... ?  We don't have per-file revision history so...
-
-That doesn't really matter -- "cg-log FILE" will show you the changes
-which change FILE. Works with subdirectories too.
-
--- 
-Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
-Disclaimer: The quote was selected randomly. Really. | http://smurf.noris.de
- - -
-"Of all the many, many different versions of gods in the world;
- Christians seem to have sought out the most unmoving, uncompromising,
- hateful, and murderous version they could find to give their worship
- too. A sad sorry lot they be indeed."
-                    [Michael Suetkamp]
 
 
+Change the fds[fd] != NULL check in fd_install() to be a BUG_ON.
+
+Signed-off-by: Dipankar Sarma <dipankar@in.ibm.com>
+---
+
+
+ fs/open.c |    3 +--
+ 1 files changed, 1 insertion(+), 2 deletions(-)
+
+diff -puN fs/open.c~change-fd-install-assert fs/open.c
+--- linux-2.6.12-mm1-fix/fs/open.c~change-fd-install-assert	2005-06-25 16:43:02.000000000 +0530
++++ linux-2.6.12-mm1-fix-dipankar/fs/open.c	2005-06-25 16:43:02.000000000 +0530
+@@ -931,8 +931,7 @@ void fastcall fd_install(unsigned int fd
+ 	struct fdtable *fdt;
+ 	spin_lock(&files->file_lock);
+ 	fdt = files_fdtable(files);
+-	if (unlikely(fdt->fd[fd] != NULL))
+-		BUG();
++	BUG_ON(fdt->fd[fd] != NULL);
+ 	rcu_assign_pointer(fdt->fd[fd], file);
+ 	spin_unlock(&files->file_lock);
+ }
+
+_

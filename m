@@ -1,56 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263244AbVFXK5n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263268AbVFXLNj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263244AbVFXK5n (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 06:57:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263248AbVFXK5n
+	id S263268AbVFXLNj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 07:13:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263251AbVFXLJO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 06:57:43 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:21400 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S263244AbVFXKyz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 06:54:55 -0400
-Date: Fri, 24 Jun 2005 16:22:09 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/4] files: fix dupfd by fdt reload
-Message-ID: <20050624105209.GC4804@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20050624105011.GB4804@in.ibm.com>
+	Fri, 24 Jun 2005 07:09:14 -0400
+Received: from main.gmane.org ([80.91.229.2]:27270 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S263240AbVFXLFn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Jun 2005 07:05:43 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Matthias Urlichs <smurf@smurf.noris.de>
+Subject: Re: Finding what change broke ARM
+Date: Fri, 24 Jun 2005 13:04:06 +0200
+Organization: {M:U} IT Consulting
+Message-ID: <pan.2005.06.24.11.04.04.815183@smurf.noris.de>
+References: <20050624101951.B23185@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050624105011.GB4804@in.ibm.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: run.smurf.noris.de
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
+X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi, Russell King wrote:
+
+> With git... ?  We don't have per-file revision history so...
+
+That doesn't really matter -- "cg-log FILE" will show you the changes
+which change FILE. Works with subdirectories too.
+
+-- 
+Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
+Disclaimer: The quote was selected randomly. Really. | http://smurf.noris.de
+ - -
+"Of all the many, many different versions of gods in the world;
+ Christians seem to have sought out the most unmoving, uncompromising,
+ hateful, and murderous version they could find to give their worship
+ too. A sad sorry lot they be indeed."
+                    [Michael Suetkamp]
 
 
-locate_fd() may expand fdtable, so the fdtable pointer must be
-reloaded after locate_fd(). Fixes bugme #4770.
-
-Signed-off-by: Dipankar Sarma <dipankar@in.ibm.com>
----
-
-
- fs/fcntl.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletion(-)
-
-diff -puN fs/fcntl.c~fix-dupfd-reacquire-fdt fs/fcntl.c
---- linux-2.6.12-mm1-fix/fs/fcntl.c~fix-dupfd-reacquire-fdt	2005-06-25 14:56:58.000000000 +0530
-+++ linux-2.6.12-mm1-fix-dipankar/fs/fcntl.c	2005-06-25 14:58:26.000000000 +0530
-@@ -118,9 +118,10 @@ static int dupfd(struct file *file, unsi
- 	int fd;
- 
- 	spin_lock(&files->file_lock);
--	fdt = files_fdtable(files);
- 	fd = locate_fd(files, file, start);
- 	if (fd >= 0) {
-+		/* locate_fd() may have expanded fdtable, load the ptr */
-+		fdt = files_fdtable(files);
- 		FD_SET(fd, fdt->open_fds);
- 		FD_CLR(fd, fdt->close_on_exec);
- 		spin_unlock(&files->file_lock);
-
-_

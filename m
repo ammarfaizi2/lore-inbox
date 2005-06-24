@@ -1,57 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263177AbVFXG3F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261978AbVFXG1p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263177AbVFXG3F (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 02:29:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263141AbVFXG3E
+	id S261978AbVFXG1p (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 02:27:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263177AbVFXG1p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 02:29:04 -0400
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:30772
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S263177AbVFXG24 convert rfc822-to-8bit (ORCPT
+	Fri, 24 Jun 2005 02:27:45 -0400
+Received: from [67.137.28.189] ([67.137.28.189]:2962 "EHLO vger")
+	by vger.kernel.org with ESMTP id S263178AbVFXG12 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 02:28:56 -0400
-Message-Id: <42BBC468020000780001D4B0@emea1-mh.id2.novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0 
-Date: Fri, 24 Jun 2005 08:29:28 +0200
-From: "Jan Beulich" <JBeulich@novell.com>
-To: "Keith Owens" <kaos@sgi.com>
-Cc: "Clyde Griffin" <CGRIFFIN@novell.com>, <linux-kernel@vger.kernel.org>
+	Fri, 24 Jun 2005 02:27:28 -0400
+Message-ID: <42BB932D.9050808@utah-nac.org>
+Date: Thu, 23 Jun 2005 22:59:25 -0600
+From: jmerkey <jmerkey@utah-nac.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jan Beulich <JBeulich@novell.com>
+Cc: Christoph Lameter <christoph@lameter.com>,
+       Clyde Griffin <CGRIFFIN@novell.com>,
+       "John W. Linville" <linville@tuxdriver.com>,
+       linux-kernel@vger.kernel.org
 Subject: Re: Novell Linux Kernel Debugger (NLKD)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
+References: <s2bae938.075@sinclair.provo.novell.com>  <Pine.LNX.4.62.0506231723360.26299@graphe.net>  <20050624003515.GB28077@tuxdriver.com> <42BB510B.5080500@utah-nac.org> <42BBC297020000780001D4A5@emea1-mh.id2.novell.com>
+In-Reply-To: <42BBC297020000780001D4A5@emea1-mh.id2.novell.com>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> Keith Owens <kaos@sgi.com> 24.06.05 04:15:19 >>>
->On Thu, 23 Jun 2005 16:54:09 -0600, 
->"Clyde Griffin" <CGRIFFIN@novell.com> wrote:
+Jan Beulich wrote:
+
+>>It's a GBD replacement and is not fully open source.
+>>    
 >>
->>Novell engineering is introducing the Novell Linux Kernel Debugger
->>(NLKD) as an open source project intended to provide an enhanced and
->>robust debugging experience for Linux kernel developers.
+>
+>What is not open source in it ()?
+>
+>  
+>
+>>KDB is at present more capable. It has a lot of promise, but it does not 
+>>have the all the architectural
+>>features necessary to replace either KDB or GDB at present.
+>>    
+>>
+>
+>While I never used or saw kdb, I'd be curious about what you immediately saw missing...
+>  
+>
 
->Hmm, no backtrace,
+1. No back trace
+2. Doesn't run standalone fully embeded in the kernel
+3. Not fully open source (since it's not embeded in the kernel)
+4. IA64 doesn't really matter, since IA64 is basically dead anyway
+5. No advanced recursive descent parser for conditional breakpoints
 
-That's certainly wrong: for x86 it uses .eh_frame info, for ia64 it would use the native one.
+Jeff
 
->turns off kprobes,
-
-A temporary measure; enabling this again is on the todo list.
-
->does not handle ia64 MCA/INIT.
-
-It doesn't handle ia64 at all at present; the code in there is yet-to-be-ported code. Only x86{,-64} has been dealt with so far.
-
->And don't get me started about the trailing white space in the patch.
-
-While I wasn't aware of any (and honestly, I hate discovering such, too), that is certainly the easiest thing to take care of.
-
->I'll stick with KDB for now.
-
-Your choice, obviously.
-
-Jan
-
+>Jan
+>
+>
+>  
+>
 

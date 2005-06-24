@@ -1,86 +1,695 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263312AbVFXV3l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263310AbVFXV3k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263312AbVFXV3l (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 17:29:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263334AbVFXV1f
+	id S263310AbVFXV3k (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 17:29:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263333AbVFXV1S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 17:27:35 -0400
-Received: from smtp.wp.pl ([212.77.101.1]:40749 "EHLO smtp.wp.pl")
-	by vger.kernel.org with ESMTP id S263290AbVFXVSD (ORCPT
+	Fri, 24 Jun 2005 17:27:18 -0400
+Received: from mail22.bluewin.ch ([195.186.19.66]:6398 "EHLO mail22.bluewin.ch")
+	by vger.kernel.org with ESMTP id S263282AbVFXVQF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 17:18:03 -0400
-From: "Stanislaw W. Gruszka" <stf_xl@wp.pl>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] request_firmware: avoid race conditions
-Date: Fri, 24 Jun 2005 22:56:54 +0200
-User-Agent: KMail/1.6.2
+	Fri, 24 Jun 2005 17:16:05 -0400
+Message-ID: <42BC77EE.3070608@bluewin.ch>
+Date: Fri, 24 Jun 2005 23:15:26 +0200
+From: =?ISO-8859-15?Q?Ren=E9_Lanz?= <tscheggsches@bluewin.ch>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: de-DE, de, en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200506242256.54652.stf_xl@wp.pl>
-X-WP-AV: skaner antywirusowy poczty Wirtualnej Polski S. A.
-X-WP-SPAM: NO AS1=NO(Body=1 Fuz1=1 Fuz2=1) AS2=NO(0.565083) AS3=NO AS4=NO                          
+To: linux-kernel@vger.kernel.org
+Subject: mpc855 hangs on boot before console_init on upgrade from 2.4.22 to
+ 2.4.23
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Avoid race occurs when some process have open file descriptor for class 
-device attributes and already firmware allocated memory are freed.
-Don't allow negative loading timeout.
+Hi
 
-Signed-off-by: Stanislaw W. Gruszka <stf_xl@wp.pl>
+We've developed a custom board deploying a mpc 855 (ppc). With kernel 
+2.4.22 and linuxppc-2.4.22 patch from  /pub/linux/kernel/ports/ppc/2.4 
+as well as some platform specific adaptions we are able to boot and use 
+2.4.22 succsessfully. Unfortunately, jffs2 has a nasty gc-bug so we want 
+to upgrade to 2.4.23 and maybe later to 2.4.31.
 
-diff -up linux-2.6.12/drivers/base/firmware_class.c{-orig,}
---- linux/drivers/base/firmware_class.c-orig	2005-06-23 12:12:04.000000000 +0200
-+++ linux/drivers/base/firmware_class.c	2005-06-24 17:01:55.000000000 +0200
-@@ -74,6 +74,8 @@ static ssize_t
- firmware_timeout_store(struct class *class, const char *buf, size_t count)
- {
- 	loading_timeout = simple_strtol(buf, NULL, 10);
-+	if (loading_timeout < 0)
-+		loading_timeout = 0;
- 	return count;
- }
- 
-@@ -138,6 +140,10 @@ firmware_loading_store(struct class_devi
- 	switch (loading) {
- 	case 1:
- 		down(&fw_lock);
-+		if (!fw_priv->fw) {
-+			up(&fw_lock);
-+			break;
-+		}
- 		vfree(fw_priv->fw->data);
- 		fw_priv->fw->data = NULL;
- 		fw_priv->fw->size = 0;
-@@ -178,7 +184,7 @@ firmware_data_read(struct kobject *kobj,
- 
- 	down(&fw_lock);
- 	fw = fw_priv->fw;
--	if (test_bit(FW_STATUS_DONE, &fw_priv->status)) {
-+	if (!fw || test_bit(FW_STATUS_DONE, &fw_priv->status)) {
- 		ret_count = -ENODEV;
- 		goto out;
- 	}
-@@ -238,9 +244,10 @@ firmware_data_write(struct kobject *kobj
- 
- 	if (!capable(CAP_SYS_RAWIO))
- 		return -EPERM;
-+
- 	down(&fw_lock);
- 	fw = fw_priv->fw;
--	if (test_bit(FW_STATUS_DONE, &fw_priv->status)) {
-+	if (!fw || test_bit(FW_STATUS_DONE, &fw_priv->status)) {
- 		retval = -ENODEV;
- 		goto out;
- 	}
-@@ -418,7 +425,7 @@ request_firmware(const struct firmware *
- 
- 	fw_priv = class_get_devdata(class_dev);
- 
--	if (loading_timeout) {
-+	if (loading_timeout > 0) {
- 		fw_priv->timeout.expires = jiffies + loading_timeout * HZ;
- 		add_timer(&fw_priv->timeout);
- 	}
+It was possible to apply all our custom patches to 2.4.23. No ppc-port 
+patch was applied as we assume this was incorporated into 2.4.23. 
+Unfortunately we can not boot anymore. Using BDI, a md xxxx log_buf and 
+some printk debugging reveals "Decrementer frequency..." as last 
+message. Therefore, kernel hangs when jumping into console_init in main.c.
+
+Our hardware did not change in the meantime nor did our custom patches. 
+Any clues on how to proceed/chase down this bug? Patch 2.4.23 was a 
+rather fat one to start tracking...  Supposedly, we're encountering a 
+memory bug, but switching on memory checks in the kernel hacking section 
+didn't help neither.
+
+Any help is most welcome. Please CC me as well.
+
+René
+
+
+#
+# Automatically generated by make menuconfig: don't edit
+#
+# CONFIG_UID16 is not set
+# CONFIG_RWSEM_GENERIC_SPINLOCK is not set
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_HAVE_DEC_LOCK=y
+
+#
+# Code maturity level options
+#
+CONFIG_EXPERIMENTAL=y
+CONFIG_ADVANCED_OPTIONS=y
+
+#
+# Loadable module support
+#
+CONFIG_MODULES=y
+# CONFIG_MODVERSIONS is not set
+CONFIG_KMOD=y
+
+#
+# Platform support
+#
+CONFIG_PPC=y
+CONFIG_PPC32=y
+# CONFIG_6xx is not set
+# CONFIG_40x is not set
+# CONFIG_44x is not set
+# CONFIG_POWER3 is not set
+# CONFIG_POWER4 is not set
+CONFIG_8xx=y
+CONFIG_SERIAL_CONSOLE=y
+CONFIG_NOT_COHERENT_CACHE=y
+# CONFIG_RPXLITE is not set
+# CONFIG_RPXCLASSIC is not set
+# CONFIG_BSEIP is not set
+# CONFIG_FADS is not set
+# CONFIG_DBOX2 is not set
+# CONFIG_TQM823L is not set
+# CONFIG_TQM850L is not set
+# CONFIG_TQM855L is not set
+# CONFIG_TQM860L is not set
+# CONFIG_FPS850L is not set
+# CONFIG_TQM860 is not set
+# CONFIG_SPD823TS is not set
+CONFIG_PD860=y
+# CONFIG_IVMS8 is not set
+# CONFIG_IVML24 is not set
+# CONFIG_SM850 is not set
+# CONFIG_MBX is not set
+# CONFIG_WINCEPT is not set
+CONFIG_PD8xx=y
+# CONFIG_SMP is not set
+CONFIG_MATH_EMULATION=y
+CONFIG_EMBEDDEDBOOT=y
+
+#
+# General setup
+#
+# CONFIG_HIGHMEM is not set
+# CONFIG_LOWMEM_SIZE_BOOL is not set
+# CONFIG_KERNEL_START_BOOL is not set
+# CONFIG_TASK_SIZE_BOOL is not set
+CONFIG_HIGHMEM_START=0xfe000000
+CONFIG_LOWMEM_SIZE=0x30000000
+CONFIG_KERNEL_START=0xc0000000
+CONFIG_TASK_SIZE=0x80000000
+# CONFIG_ISA is not set
+# CONFIG_EISA is not set
+# CONFIG_SBUS is not set
+# CONFIG_MCA is not set
+# CONFIG_PCI_QSPAN is not set
+# CONFIG_PCI is not set
+CONFIG_NET=y
+CONFIG_SYSCTL=y
+CONFIG_SYSVIPC=y
+CONFIG_BSD_PROCESS_ACCT=y
+CONFIG_KCORE_ELF=y
+CONFIG_BINFMT_ELF=y
+CONFIG_KERNEL_ELF=y
+# CONFIG_BINFMT_MISC is not set
+# CONFIG_HOTPLUG is not set
+# CONFIG_PCMCIA is not set
+
+#
+# Parallel port support
+#
+# CONFIG_PARPORT is not set
+# CONFIG_GEN_RTC is not set
+# CONFIG_PPC_RTC is not set
+# CONFIG_CMDLINE_BOOL is not set
+
+#
+# Memory Technology Devices (MTD)
+#
+CONFIG_MTD=y
+# CONFIG_MTD_DEBUG is not set
+CONFIG_MTD_PARTITIONS=y
+CONFIG_MTD_CONCAT=y
+# CONFIG_MTD_REDBOOT_PARTS is not set
+# CONFIG_MTD_CMDLINE_PARTS is not set
+CONFIG_MTD_CHAR=y
+CONFIG_MTD_BLOCK=y
+# CONFIG_FTL is not set
+# CONFIG_NFTL is not set
+
+#
+# RAM/ROM/Flash chip drivers
+#
+CONFIG_MTD_CFI=y
+# CONFIG_MTD_JEDECPROBE is not set
+CONFIG_MTD_GEN_PROBE=y
+# CONFIG_MTD_CFI_ADV_OPTIONS is not set
+# CONFIG_MTD_CFI_INTELEXT is not set
+CONFIG_MTD_CFI_AMDSTD=y
+# CONFIG_MTD_CFI_STAA is not set
+# CONFIG_MTD_RAM is not set
+# CONFIG_MTD_ROM is not set
+# CONFIG_MTD_ABSENT is not set
+# CONFIG_MTD_OBSOLETE_CHIPS is not set
+# CONFIG_MTD_AMDSTD is not set
+# CONFIG_MTD_SHARP is not set
+# CONFIG_MTD_JEDEC is not set
+
+#
+# Mapping drivers for chip access
+#
+# CONFIG_MTD_PHYSMAP is not set
+# CONFIG_MTD_TQM8XXL is not set
+# CONFIG_MTD_RPXLITE is not set
+# CONFIG_MTD_MBX860 is not set
+# CONFIG_MTD_DBOX2 is not set
+# CONFIG_MTD_CFI_FLAGADM is not set
+CONFIG_MTD_PD8XX=y
+# CONFIG_MTD_REDWOOD is not set
+# CONFIG_MTD_PCI is not set
+# CONFIG_MTD_PCMCIA is not set
+
+#
+# Self-contained MTD device drivers
+#
+# CONFIG_MTD_PMC551 is not set
+# CONFIG_MTD_SLRAM is not set
+# CONFIG_MTD_MTDRAM is not set
+# CONFIG_MTD_BLKMTD is not set
+# CONFIG_MTD_DOC1000 is not set
+# CONFIG_MTD_DOC2000 is not set
+# CONFIG_MTD_DOC2001 is not set
+# CONFIG_MTD_DOCPROBE is not set
+
+#
+# NAND Flash Device Drivers
+#
+# CONFIG_MTD_NAND is not set
+
+#
+# Plug and Play configuration
+#
+# CONFIG_PNP is not set
+# CONFIG_ISAPNP is not set
+
+#
+# Block devices
+#
+# CONFIG_BLK_DEV_FD is not set
+# CONFIG_BLK_DEV_XD is not set
+# CONFIG_PARIDE is not set
+# CONFIG_BLK_CPQ_DA is not set
+# CONFIG_BLK_CPQ_CISS_DA is not set
+# CONFIG_CISS_SCSI_TAPE is not set
+# CONFIG_CISS_MONITOR_THREAD is not set
+# CONFIG_BLK_DEV_DAC960 is not set
+# CONFIG_BLK_DEV_UMEM is not set
+CONFIG_BLK_DEV_LOOP=y
+# CONFIG_BLK_DEV_NBD is not set
+# CONFIG_BLK_DEV_RAM is not set
+# CONFIG_BLK_DEV_INITRD is not set
+# CONFIG_BLK_STATS is not set
+
+#
+# Multi-device support (RAID and LVM)
+#
+# CONFIG_MD is not set
+# CONFIG_BLK_DEV_MD is not set
+# CONFIG_MD_LINEAR is not set
+# CONFIG_MD_RAID0 is not set
+# CONFIG_MD_RAID1 is not set
+# CONFIG_MD_RAID5 is not set
+# CONFIG_MD_MULTIPATH is not set
+# CONFIG_BLK_DEV_LVM is not set
+
+#
+# Networking options
+#
+CONFIG_PACKET=y
+# CONFIG_PACKET_MMAP is not set
+# CONFIG_NETLINK_DEV is not set
+CONFIG_NETFILTER=y
+# CONFIG_NETFILTER_DEBUG is not set
+# CONFIG_FILTER is not set
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+# CONFIG_IP_ADVANCED_ROUTER is not set
+CONFIG_IP_PNP=y
+# CONFIG_IP_PNP_DHCP is not set
+# CONFIG_IP_PNP_BOOTP is not set
+# CONFIG_IP_PNP_RARP is not set
+# CONFIG_NET_IPIP is not set
+# CONFIG_NET_IPGRE is not set
+CONFIG_IP_MROUTE=y
+CONFIG_IP_PIMSM_V1=y
+CONFIG_IP_PIMSM_V2=y
+# CONFIG_ARPD is not set
+# CONFIG_INET_ECN is not set
+# CONFIG_SYN_COOKIES is not set
+
+#
+#   IP: Netfilter Configuration
+#
+CONFIG_IP_NF_CONNTRACK=m
+# CONFIG_IP_NF_FTP is not set
+# CONFIG_IP_NF_AMANDA is not set
+# CONFIG_IP_NF_TFTP is not set
+# CONFIG_IP_NF_IRC is not set
+# CONFIG_IP_NF_QUEUE is not set
+CONFIG_IP_NF_IPTABLES=m
+# CONFIG_IP_NF_MATCH_LIMIT is not set
+# CONFIG_IP_NF_MATCH_MAC is not set
+# CONFIG_IP_NF_MATCH_PKTTYPE is not set
+# CONFIG_IP_NF_MATCH_MARK is not set
+# CONFIG_IP_NF_MATCH_MULTIPORT is not set
+# CONFIG_IP_NF_MATCH_TOS is not set
+# CONFIG_IP_NF_MATCH_RECENT is not set
+# CONFIG_IP_NF_MATCH_ECN is not set
+# CONFIG_IP_NF_MATCH_DSCP is not set
+# CONFIG_IP_NF_MATCH_AH_ESP is not set
+# CONFIG_IP_NF_MATCH_LENGTH is not set
+# CONFIG_IP_NF_MATCH_TTL is not set
+# CONFIG_IP_NF_MATCH_TCPMSS is not set
+# CONFIG_IP_NF_MATCH_HELPER is not set
+# CONFIG_IP_NF_MATCH_STATE is not set
+# CONFIG_IP_NF_MATCH_CONNTRACK is not set
+# CONFIG_IP_NF_MATCH_UNCLEAN is not set
+# CONFIG_IP_NF_MATCH_OWNER is not set
+CONFIG_IP_NF_FILTER=m
+# CONFIG_IP_NF_TARGET_REJECT is not set
+# CONFIG_IP_NF_TARGET_MIRROR is not set
+CONFIG_IP_NF_NAT=m
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=m
+# CONFIG_IP_NF_TARGET_REDIRECT is not set
+# CONFIG_IP_NF_NAT_LOCAL is not set
+# CONFIG_IP_NF_NAT_SNMP_BASIC is not set
+# CONFIG_IP_NF_MANGLE is not set
+# CONFIG_IP_NF_TARGET_LOG is not set
+# CONFIG_IP_NF_TARGET_ULOG is not set
+# CONFIG_IP_NF_TARGET_TCPMSS is not set
+# CONFIG_IP_NF_ARPTABLES is not set
+# CONFIG_IP_NF_COMPAT_IPCHAINS is not set
+# CONFIG_IP_NF_COMPAT_IPFWADM is not set
+
+#
+#   IP: Virtual Server Configuration
+#
+# CONFIG_IP_VS is not set
+# CONFIG_IPV6 is not set
+# CONFIG_KHTTPD is not set
+
+#
+#    SCTP Configuration (EXPERIMENTAL)
+#
+CONFIG_IPV6_SCTP__=y
+# CONFIG_IP_SCTP is not set
+# CONFIG_ATM is not set
+# CONFIG_VLAN_8021Q is not set
+# CONFIG_IPX is not set
+# CONFIG_ATALK is not set
+
+#
+# Appletalk devices
+#
+# CONFIG_DEV_APPLETALK is not set
+# CONFIG_DECNET is not set
+# CONFIG_BRIDGE is not set
+# CONFIG_X25 is not set
+# CONFIG_LAPB is not set
+# CONFIG_LLC is not set
+# CONFIG_NET_DIVERT is not set
+# CONFIG_ECONET is not set
+# CONFIG_WAN_ROUTER is not set
+# CONFIG_NET_FASTROUTE is not set
+# CONFIG_NET_HW_FLOWCONTROL is not set
+
+#
+# QoS and/or fair queueing
+#
+# CONFIG_NET_SCHED is not set
+
+#
+# Network testing
+#
+# CONFIG_NET_PKTGEN is not set
+
+#
+# ATA/IDE/MFM/RLL support
+#
+# CONFIG_IDE is not set
+# CONFIG_BLK_DEV_IDE_MODES is not set
+# CONFIG_BLK_DEV_HD is not set
+
+#
+# SCSI support
+#
+# CONFIG_SCSI is not set
+
+#
+# Network device support
+#
+CONFIG_NETDEVICES=y
+
+#
+# ARCnet devices
+#
+# CONFIG_ARCNET is not set
+# CONFIG_DUMMY is not set
+# CONFIG_BONDING is not set
+# CONFIG_EQUALIZER is not set
+# CONFIG_TUN is not set
+# CONFIG_ETHERTAP is not set
+
+#
+# Ethernet (10 or 100Mbit)
+#
+CONFIG_NET_ETHERNET=y
+# CONFIG_MACE is not set
+# CONFIG_BMAC is not set
+# CONFIG_GMAC is not set
+# CONFIG_SUNLANCE is not set
+# CONFIG_SUNBMAC is not set
+# CONFIG_SUNQE is not set
+# CONFIG_SUNGEM is not set
+# CONFIG_NET_VENDOR_3COM is not set
+# CONFIG_LANCE is not set
+# CONFIG_NET_VENDOR_SMC is not set
+# CONFIG_NET_VENDOR_RACAL is not set
+# CONFIG_NET_ISA is not set
+# CONFIG_NET_PCI is not set
+# CONFIG_NET_POCKET is not set
+
+#
+# Ethernet (1000 Mbit)
+#
+# CONFIG_ACENIC is not set
+# CONFIG_DL2K is not set
+# CONFIG_E1000 is not set
+# CONFIG_MYRI_SBUS is not set
+# CONFIG_NS83820 is not set
+# CONFIG_HAMACHI is not set
+# CONFIG_YELLOWFIN is not set
+# CONFIG_R8169 is not set
+# CONFIG_SK98LIN is not set
+# CONFIG_TIGON3 is not set
+# CONFIG_FDDI is not set
+# CONFIG_HIPPI is not set
+# CONFIG_PLIP is not set
+# CONFIG_PPP is not set
+# CONFIG_SLIP is not set
+
+#
+# Wireless LAN (non-hamradio)
+#
+# CONFIG_NET_RADIO is not set
+
+#
+# Token Ring devices
+#
+# CONFIG_TR is not set
+# CONFIG_NET_FC is not set
+# CONFIG_RCPCI is not set
+# CONFIG_SHAPER is not set
+
+#
+# Wan interfaces
+#
+# CONFIG_WAN is not set
+
+#
+# Amateur Radio support
+#
+# CONFIG_HAMRADIO is not set
+
+#
+# IrDA (infrared) support
+#
+# CONFIG_IRDA is not set
+
+#
+# ISDN subsystem
+#
+# CONFIG_ISDN is not set
+
+#
+# Old CD-ROM drivers (not SCSI, not IDE)
+#
+# CONFIG_CD_NO_IDESCSI is not set
+
+#
+# Console drivers
+#
+
+#
+# Frame-buffer support
+#
+# CONFIG_FB is not set
+
+#
+# Input core support
+#
+# CONFIG_INPUT is not set
+# CONFIG_INPUT_KEYBDEV is not set
+# CONFIG_INPUT_MOUSEDEV is not set
+# CONFIG_INPUT_JOYDEV is not set
+# CONFIG_INPUT_EVDEV is not set
+
+#
+# Macintosh device drivers
+#
+
+#
+# Character devices
+#
+# CONFIG_VT is not set
+# CONFIG_SERIAL is not set
+# CONFIG_SERIAL_EXTENDED is not set
+# CONFIG_SERIAL_NONSTANDARD is not set
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=32
+
+#
+# I2C support
+#
+# CONFIG_I2C is not set
+
+#
+# Mice
+#
+# CONFIG_BUSMOUSE is not set
+# CONFIG_MOUSE is not set
+
+#
+# Joysticks
+#
+# CONFIG_INPUT_GAMEPORT is not set
+# CONFIG_QIC02_TAPE is not set
+# CONFIG_IPMI_HANDLER is not set
+# CONFIG_IPMI_PANIC_EVENT is not set
+# CONFIG_IPMI_DEVICE_INTERFACE is not set
+# CONFIG_IPMI_KCS is not set
+# CONFIG_IPMI_WATCHDOG is not set
+
+#
+# Watchdog Cards
+#
+# CONFIG_WATCHDOG is not set
+# CONFIG_SCx200_GPIO is not set
+# CONFIG_AMD_PM768 is not set
+# CONFIG_NVRAM is not set
+# CONFIG_RTC is not set
+# CONFIG_DTLK is not set
+# CONFIG_R3964 is not set
+# CONFIG_APPLICOM is not set
+
+#
+# Ftape, the floppy tape device driver
+#
+# CONFIG_FTAPE is not set
+# CONFIG_AGP is not set
+
+#
+# Direct Rendering Manager (XFree86 DRI support)
+#
+# CONFIG_DRM is not set
+
+#
+# Multimedia devices
+#
+# CONFIG_VIDEO_DEV is not set
+
+#
+# File systems
+#
+# CONFIG_QUOTA is not set
+# CONFIG_QFMT_V2 is not set
+# CONFIG_AUTOFS_FS is not set
+# CONFIG_AUTOFS4_FS is not set
+# CONFIG_REISERFS_FS is not set
+# CONFIG_REISERFS_CHECK is not set
+# CONFIG_REISERFS_PROC_INFO is not set
+# CONFIG_ADFS_FS is not set
+# CONFIG_ADFS_FS_RW is not set
+# CONFIG_AFFS_FS is not set
+# CONFIG_HFS_FS is not set
+# CONFIG_HFSPLUS_FS is not set
+# CONFIG_BEFS_FS is not set
+# CONFIG_BEFS_DEBUG is not set
+# CONFIG_BFS_FS is not set
+# CONFIG_EXT3_FS is not set
+# CONFIG_JBD is not set
+# CONFIG_JBD_DEBUG is not set
+# CONFIG_FAT_FS is not set
+# CONFIG_MSDOS_FS is not set
+# CONFIG_UMSDOS_FS is not set
+# CONFIG_VFAT_FS is not set
+# CONFIG_EFS_FS is not set
+# CONFIG_JFFS_FS is not set
+CONFIG_JFFS2_FS=y
+CONFIG_JFFS2_FS_DEBUG=2
+# CONFIG_CRAMFS is not set
+# CONFIG_TMPFS is not set
+CONFIG_RAMFS=y
+# CONFIG_ISO9660_FS is not set
+# CONFIG_JOLIET is not set
+# CONFIG_ZISOFS is not set
+# CONFIG_JFS_FS is not set
+# CONFIG_JFS_DEBUG is not set
+# CONFIG_JFS_STATISTICS is not set
+# CONFIG_MINIX_FS is not set
+# CONFIG_VXFS_FS is not set
+# CONFIG_NTFS_FS is not set
+# CONFIG_NTFS_RW is not set
+# CONFIG_HPFS_FS is not set
+CONFIG_PROC_FS=y
+# CONFIG_DEVFS_FS is not set
+# CONFIG_DEVFS_MOUNT is not set
+# CONFIG_DEVFS_DEBUG is not set
+CONFIG_DEVPTS_FS=y
+# CONFIG_QNX4FS_FS is not set
+# CONFIG_QNX4FS_RW is not set
+# CONFIG_ROMFS_FS is not set
+# CONFIG_EXT2_FS is not set
+# CONFIG_SYSV_FS is not set
+# CONFIG_UDF_FS is not set
+# CONFIG_UDF_RW is not set
+# CONFIG_UFS_FS is not set
+# CONFIG_UFS_FS_WRITE is not set
+
+#
+# Network File Systems
+#
+# CONFIG_CODA_FS is not set
+# CONFIG_INTERMEZZO_FS is not set
+CONFIG_NFS_FS=y
+CONFIG_NFS_V3=y
+# CONFIG_NFS_DIRECTIO is not set
+CONFIG_ROOT_NFS=y
+# CONFIG_NFSD is not set
+# CONFIG_NFSD_V3 is not set
+# CONFIG_NFSD_TCP is not set
+CONFIG_SUNRPC=y
+CONFIG_LOCKD=y
+CONFIG_LOCKD_V4=y
+# CONFIG_SMB_FS is not set
+# CONFIG_NCP_FS is not set
+# CONFIG_NCPFS_PACKET_SIGNING is not set
+# CONFIG_NCPFS_IOCTL_LOCKING is not set
+# CONFIG_NCPFS_STRONG is not set
+# CONFIG_NCPFS_NFS_NS is not set
+# CONFIG_NCPFS_OS2_NS is not set
+# CONFIG_NCPFS_SMALLDOS is not set
+# CONFIG_NCPFS_NLS is not set
+# CONFIG_NCPFS_EXTRAS is not set
+# CONFIG_ZISOFS_FS is not set
+
+#
+# Partition Types
+#
+# CONFIG_PARTITION_ADVANCED is not set
+CONFIG_MSDOS_PARTITION=y
+# CONFIG_SMB_NLS is not set
+# CONFIG_NLS is not set
+
+#
+# Sound
+#
+# CONFIG_SOUND is not set
+
+#
+# MPC8xx Options
+#
+# CONFIG_8xx_COPYBACK is not set
+# CONFIG_8xx_CPU6 is not set
+# CONFIG_UCODE_PATCH is not set
+# CONFIG_SCC_ENET is not set
+# CONFIG_FEC_ENET is not set
+# CONFIG_ENET_BIG_BUFFERS is not set
+CONFIG_8xx_SMC1=y
+# CONFIG_SMC2_UART is not set
+# CONFIG_8xx_SCC1 is not set
+# CONFIG_8xx_SCC2 is not set
+# CONFIG_8xx_SCC3 is not set
+# CONFIG_8xx_SCC4 is not set
+
+#
+# USB support
+#
+# CONFIG_USB is not set
+
+#
+# Support for USB gadgets
+#
+# CONFIG_USB_GADGET is not set
+
+#
+# Bluetooth support
+#
+# CONFIG_BLUEZ is not set
+
+#
+# Cryptographic options
+#
+# CONFIG_CRYPTO is not set
+
+#
+# Library routines
+#
+# CONFIG_CRC32 is not set
+CONFIG_ZLIB_INFLATE=y
+CONFIG_ZLIB_DEFLATE=y
+
+#
+# Kernel hacking
+#
+CONFIG_DEBUG_KERNEL=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_DEBUG_HIGHMEM=y
+CONFIG_DEBUG_SLAB=y
+# CONFIG_DEBUG_WAITQ is not set
+# CONFIG_KGDB is not set
+# CONFIG_KGDB_CONSOLE is not set
+# CONFIG_XMON is not set
+# CONFIG_BDI_SWITCH is not set
+CONFIG_LOG_BUF_SHIFT=0
+

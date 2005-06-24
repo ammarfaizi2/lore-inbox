@@ -1,87 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263275AbVFXVPS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263142AbVFXV3m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263275AbVFXVPS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 17:15:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263273AbVFXVPQ
+	id S263142AbVFXV3m (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 17:29:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263278AbVFXV3a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 17:15:16 -0400
-Received: from lugor.de ([217.160.170.124]:15115 "EHLO solar.mylinuxtime.de")
-	by vger.kernel.org with ESMTP id S263220AbVFXVJw (ORCPT
+	Fri, 24 Jun 2005 17:29:30 -0400
+Received: from waste.org ([216.27.176.166]:59607 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S263267AbVFXVYP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 17:09:52 -0400
-From: Christian Hesse <mail@earthworm.de>
-To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: [PATCH] Kernel .patches support
-Date: Fri, 24 Jun 2005 23:03:17 +0200
-User-Agent: KMail/1.8.1
-Cc: linux-kernel@vger.kernel.org
-References: <200506232358.34897.mail@earthworm.de> <20050624073624.GB26545@stusta.de>
-In-Reply-To: <20050624073624.GB26545@stusta.de>
-X-Face: 1\p'dhO'VZk,x0lx6U}!Y*9UjU4n2@4c<"a*K%3Eiu'VwM|-OYs;S-PH>4EdJMfGyycC)=?utf-8?q?k=0A=09=3Anv*xqk4C?=@1b8tdr||mALWpN[2|~h#Iv;)M"O$$#P9Kg+S8+O#%EJx0TBH7b&Q<m)=?utf-8?q?n=23Q=2Eo=0A=09kE=7E=26T=5D0cQX6=5D?=<q!HEE,F}O'Jd#lx/+){Gr@W~J`h7sTS(M+oe5<=?utf-8?q?3O7GY9y=5Fi!qG=26Vv=5CD8/=0A=09=254?=@&~$Z@UwV'NQ$Ph&3fZc(qbDO?{LN'nk>+kRh4`C3[KN`-1uT-TD_m
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1868539.5UsmYfzxls";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200506242303.17813.mail@earthworm.de>
+	Fri, 24 Jun 2005 17:24:15 -0400
+Date: Fri, 24 Jun 2005 14:24:07 -0700
+From: Matt Mackall <mpm@selenic.com>
+To: mercurial@selenic.com, linux-kernel <linux-kernel@vger.kernel.org>,
+       git@vger.kernel.org
+Subject: Mercurial 0.6 released!
+Message-ID: <20050624212407.GV27572@waste.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1868539.5UsmYfzxls
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+This is release 0.6 of Mercurial, the distributed SCM.
 
-On Friday 24 June 2005 09:36, Adrian Bunk wrote:
-> On Thu, Jun 23, 2005 at 11:58:27PM +0200, Christian Hesse wrote:
-> > Hi everybody,
-> >
-> > every time I apply a patch to my kernel tree I (or my scripts) make an
-> >
-> > echo $PATCHNAME $PATCHVERSION >> .patches
-> >
-> > This patch makes the file accessible via /proc/patches.gz. I think this
-> > can be handy if you want to know what patches you (or your distributor)
-> > applied to your running kernel...
-> >...
-> > Let me know what you think.
->
-> To be honest, I'm not a fan of it.
->
-> If e.g. looking at a Debian kernel source that has 289 different patches
-> with names like tty-locking-fixes7 applied, you'll see that this often
-> won't give you much valuable information.
+Mercurial is:
+ - fast: as fast or faster than git or others for all important operations
+ - easy to use: familiar commands, integrated help, integrated web server
+ - space efficient: Linux kernel history back to 2.4.0 in 300MB
+ - bandwidth efficient: 120MB to transfer that history
+ - distributed: supports decentralized development with arbitrary merging
+ - scalable: handles large numbers of files and revisions effortlessly
+ - robust: append-only storage model with journalling and rollback
+ - lightweight: small Python codebase
 
-You can search Debian lists, archives, ... for "tty-locking-fixes7". After=
-=20
-that you probably know what the fix is good for.
+Available at http://selenic.com/mercurial/
+Linux kernel repository at http://www.kernel.org/hg/
 
-On the other hand if there is a security fix in a Debian list you can check=
- if=20
-your kernel is patched by running "zcat /proc/patches.gz | grep=20
-security-fix-foo-bar".
+This release contains a huge number of improvements:
 
-> You'd need an uniform naming convention for patches across
-> distributions, and I don't think such things are worth the effort.
+improved source tracking
+  multi-head support
+  permission tracking
+  rename and copy tracking
+  improved tag handling
+friendlier, more robust command line interface
+  integrated help
+  faster startup
+  better exception handling
+  smarter three-way merge helper
+improved communication
+  faster outstanding changeset detection
+  SSH-based push support
+  non-transparent proxy support
+improved configuration handling
+  support for .hgrc and .hg/hgrc files
+  save per-repo defaults for pull
+new delta extension
+  faster, smaller, and simpler than GNU diff or xdiff
+  faster commit, push/pull, and annotate
+improved interoperability
+  convert-repo framework for importing from other SCMs 
+  can work with gitk and git-viz
+portability improvements
+  tested on big and little-endian 32 and 64-bit UNIX platforms
+  Windows support is nearly complete
+and much more
+  numerous performance tweaks and bugfixes
+  automated test suite
+  updated docs and FAQ
 
-If a distribution has a naming convention for itself this patch can already=
- be=20
-useful I think. Even without it can be.
 
-=2D-=20
-Christian
-
---nextPart1868539.5UsmYfzxls
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.9.15 (GNU/Linux)
-
-iD8DBQBCvHUVlZfG2c8gdSURAvnxAJ9bMPqjPSXWUjG8O5/FVRdaReN+WwCdE+7b
-F2+pMDzEPBTWj6kH+N0cKqE=
-=ybVq
------END PGP SIGNATURE-----
-
---nextPart1868539.5UsmYfzxls--
+-- 
+Mathematics is the supreme nostalgia of our time.

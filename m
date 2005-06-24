@@ -1,42 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262959AbVFXQL6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263065AbVFXQVu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262959AbVFXQL6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 12:11:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262256AbVFXQL5
+	id S263065AbVFXQVu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 12:21:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262256AbVFXQVu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 12:11:57 -0400
-Received: from dp.samba.org ([66.70.73.150]:25016 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S263115AbVFXQK1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 12:10:27 -0400
-Date: Fri, 24 Jun 2005 09:10:21 -0700
-From: Jeremy Allison <jra@samba.org>
-To: Suparna Bhattacharya <suparna@in.ibm.com>
-Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org, bcrl@kvack.org,
-       wli@holomorphy.com, zab@zabbo.net, mason@suse.com
-Subject: Re: [PATCH 0/2] Buffered filesystem AIO read/write
-Message-ID: <20050624161021.GA25059@jeremy2>
-Reply-To: Jeremy Allison <jra@samba.org>
-References: <20050620120154.GA4810@in.ibm.com> <20050624104928.GA4408@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050624104928.GA4408@in.ibm.com>
-User-Agent: Mutt/1.4.1i
+	Fri, 24 Jun 2005 12:21:50 -0400
+Received: from RT-soft-2.Moscow.itn.ru ([80.240.96.70]:11976 "HELO
+	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S263065AbVFXQUE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Jun 2005 12:20:04 -0400
+Message-ID: <42BC34CE.603@ru.mvista.com>
+Date: Fri, 24 Jun 2005 20:29:02 +0400
+From: Andrei Konovalov <akonovalov@ru.mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Tom Rini <trini@kernel.crashing.org>
+CC: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, akpm@osdl.org,
+       linuxppc-embedded@ozlabs.org, linux-kernel@vger.kernel.org,
+       yshpilevsky@ru.mvista.com
+Subject: Re: [PATCH] ppc32: add Freescale MPC885ADS board support
+References: <42BAD78E.1020801@ru.mvista.com> <20050623140522.GA25724@logos.cnet> <42BC2501.5090101@ru.mvista.com> <20050624154311.GB3628@smtp.west.cox.net>
+In-Reply-To: <20050624154311.GB3628@smtp.west.cox.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 24, 2005 at 04:19:28PM +0530, Suparna Bhattacharya wrote:
+Tom Rini wrote:
+> On Fri, Jun 24, 2005 at 07:21:37PM +0400, Andrei Konovalov wrote:
 > 
-> Feedback on (1) seems positive so far, so now moving to (2), here are
-> the patches that implement the changes to make filesystem AIO read
-> and write truly asynchronous even without O_DIRECT. With these patches
-> in place it will no longer be necessary for the POSIX AIO library
-> (from Sébastien et al) to force O_DIRECT and memcpy for alignment.
-> (Samba should find this useful)
+>>Hi Marcelo,
+>>
+>>Marcelo Tosatti wrote:
+>>
+>>>Hi Andrei,
+>>>
+>>>On Thu, Jun 23, 2005 at 07:38:54PM +0400, Andrei Konovalov wrote:
+>>><snip>
+>>>
+>>>>diff --git a/arch/ppc/syslib/m8xx_setup.c b/arch/ppc/syslib/m8xx_setup.c
+>>>>--- a/arch/ppc/syslib/m8xx_setup.c
+>>>>+++ b/arch/ppc/syslib/m8xx_setup.c
+>>>>@@ -369,7 +369,7 @@ m8xx_map_io(void)
+>>>>#if defined(CONFIG_HTDMSOUND) || defined(CONFIG_RPXTOUCH) || 
+>>>>defined(CONFIG_FB_RPX)
+>>>>	io_block_mapping(HIOX_CSR_ADDR, HIOX_CSR_ADDR, HIOX_CSR_SIZE, 
+>>>>	_PAGE_IO);
+>>>>#endif
+>>>>-#ifdef CONFIG_FADS
+>>>>+#if defined(CONFIG_FADS) || defined(CONFIG_MPC885ADS)
+>>>>	io_block_mapping(BCSR_ADDR, BCSR_ADDR, BCSR_SIZE, _PAGE_IO);
+>>>>#endif
+>>>>#ifdef CONFIG_PCI
+>>>
+>>>
+>>>I suppose you also want to include CONFIG_MPC885ADS in the 
+>>>io_block_mapping(IO_BASE) here?
+>>
+>>No, not at the moment at least.
+>>Actually, the patch doesn't even #define IO_BASE.
+>>In 2.4 that io_block_mapping(IO_BASE) was needed for PCMCIA / CF cards to 
+>>work.
+>>We haven't got to PCMCIA support in 2.6 yet, and PCMCIA is unlikely to work
+>>as is in case of MPC885ADS, as drivers/pcmcia/m8xx_pcmcia.c is just missing.
+>>We plan to address PCMCIA later.
+> 
+> 
+> Lets just drop that hunk then..
+> 
 
-Wonderful ! That's exactly what we need - thanks. I could have fixed this
-in userspace but it would be rather ugly.
+Do you mean not to use
+   io_block_mapping(BCSR_ADDR, BCSR_ADDR, BCSR_SIZE, _PAGE_IO);
+?
 
-Jeremy.
+Thanks,
+Andrei
+

@@ -1,58 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263016AbVFXPRp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262998AbVFXPSF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263016AbVFXPRp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 11:17:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263008AbVFXPRo
+	id S262998AbVFXPSF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 11:18:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263023AbVFXPSF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 11:17:44 -0400
-Received: from mail.kroah.org ([69.55.234.183]:5336 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262985AbVFXPQd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 11:16:33 -0400
-Date: Fri, 24 Jun 2005 08:16:15 -0700
-From: Greg KH <greg@kroah.com>
-To: Michael Tokarev <mjt@tls.msk.ru>
-Cc: linux-kernel@vger.kernel.org
+	Fri, 24 Jun 2005 11:18:05 -0400
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:54440 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S262998AbVFXPRG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Jun 2005 11:17:06 -0400
+Date: Fri, 24 Jun 2005 11:17:02 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@localhost.localdomain
+Reply-To: rostedt@goodmis.org
+To: Greg KH <greg@kroah.com>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: [ANNOUNCE] ndevfs - a "nano" devfs
-Message-ID: <20050624151615.GA29854@kroah.com>
-References: <20050624081808.GA26174@kroah.com> <42BBFB55.3040008@tls.msk.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42BBFB55.3040008@tls.msk.ru>
-User-Agent: Mutt/1.5.8i
+In-Reply-To: <20050624081808.GA26174@kroah.com>
+Message-ID: <Pine.LNX.4.58.0506241113460.17615@localhost.localdomain>
+References: <20050624081808.GA26174@kroah.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 24, 2005 at 04:23:49PM +0400, Michael Tokarev wrote:
 
-<snip>
+On Fri, 24 Jun 2005, Greg KH wrote:
 
-I'll respond to your comments later, it's too early...
+> Now I just know I'm going to regret this somehow...
+>
 
-> A question.  I can't apply this to 2.6.12, it fails in
-> drivers/base/class.c -- the main portion i think.  What's
-> this patch against?
 
-2.6.12-git5, sorry I should have mentioned that.
+;)
 
-> And another question.  Why it isn't possible to use
-> plain tmpfs for this sort of things?
+> --- /dev/null	1970-01-01 00:00:00.000000000 +0000
+> +++ gregkh-2.6/fs/ndevfs/inode.c	2005-06-24 01:06:02.000000000 -0700
+> @@ -0,0 +1,249 @@
+> +/*
+> + *  inode.c - part of ndevfs, a tiny little device file system
+> + *
+> + *  Copyright (C) 2004,2005 Greg Kroah-Hartman <greg@kroah.com>
+> + *
+> + *	This program is free software; you can redistribute it and/or
+> + *	modify it under the terms of the GNU General Public License version
+> + *	2 as published by the Free Software Foundation.
+> + *
+> + * Written for all of the people out there who just hate userspace solutions.
+> + *
+> + */
+> +
+> +/* uncomment to get debug messages */
+> +#define DEBUG
+> +
 
-What do you mean?  What's wrong with a ramfs based fs?  To use tmpfs
-would require a lot more work.  But if you want to do it, I'll gladly
-take patches :)
+Don't you mean here "comment to turn off debug messages?" :-)
 
-> Why to create another filesystem, instead of just using current
-> tmpfs and call mknod/unlink on it as appropriate?
+-- Steve
 
-Um, that's about all that this code does.
-
-> This same tmpfs can be used by udev too (to create that "policy"-based
-> names), and it gives us all the directories and other stuff...
-
-udev doesn't need a kernel specific fs.
-
-thanks,
-
-greg k-h
+> +#include <linux/config.h>
+> +#include <linux/module.h>
+> +#include <linux/fs.h>
+> +#include <linux/mount.h>
+> +#include <linux/pagemap.h>
+> +#include <linux/init.h>
+> +#include <linux/namei.h>

@@ -1,69 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263048AbVFXPrC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263100AbVFXPx5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263048AbVFXPrC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 11:47:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263077AbVFXPoj
+	id S263100AbVFXPx5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 11:53:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263115AbVFXPxl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 11:44:39 -0400
-Received: from fed1rmmtao11.cox.net ([68.230.241.28]:33259 "EHLO
-	fed1rmmtao11.cox.net") by vger.kernel.org with ESMTP
-	id S263058AbVFXPnT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 11:43:19 -0400
-Date: Fri, 24 Jun 2005 08:43:12 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Andrei Konovalov <akonovalov@ru.mvista.com>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, akpm@osdl.org,
-       linuxppc-embedded@ozlabs.org, linux-kernel@vger.kernel.org,
-       yshpilevsky@ru.mvista.com
-Subject: Re: [PATCH] ppc32: add Freescale MPC885ADS board support
-Message-ID: <20050624154311.GB3628@smtp.west.cox.net>
-References: <42BAD78E.1020801@ru.mvista.com> <20050623140522.GA25724@logos.cnet> <42BC2501.5090101@ru.mvista.com>
+	Fri, 24 Jun 2005 11:53:41 -0400
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:34558 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S263100AbVFXPuX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Jun 2005 11:50:23 -0400
+Date: Fri, 24 Jun 2005 08:38:19 -0400
+From: Christopher Li <hg@chrisli.org>
+To: Petr Baudis <pasky@ucw.cz>
+Cc: Matt Mackall <mpm@selenic.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Git Mailing List <git@vger.kernel.org>, mercurial@selenic.com
+Subject: Re: Mercurial vs Updated git HOWTO for kernel hackers
+Message-ID: <20050624123819.GD9519@64m.dyndns.org>
+References: <42B9E536.60704@pobox.com> <20050623235634.GC14426@waste.org> <20050624064101.GB14292@pasky.ji.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42BC2501.5090101@ru.mvista.com>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20050624064101.GB14292@pasky.ji.cz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 24, 2005 at 07:21:37PM +0400, Andrei Konovalov wrote:
-> Hi Marcelo,
+On Fri, Jun 24, 2005 at 08:41:01AM +0200, Petr Baudis wrote:
+> > 5.1) undo the last commit or pull
+> > 
+> > $ hg undo
 > 
-> Marcelo Tosatti wrote:
-> >Hi Andrei,
-> >
-> >On Thu, Jun 23, 2005 at 07:38:54PM +0400, Andrei Konovalov wrote:
-> ><snip>
-> >
-> >>diff --git a/arch/ppc/syslib/m8xx_setup.c b/arch/ppc/syslib/m8xx_setup.c
-> >>--- a/arch/ppc/syslib/m8xx_setup.c
-> >>+++ b/arch/ppc/syslib/m8xx_setup.c
-> >>@@ -369,7 +369,7 @@ m8xx_map_io(void)
-> >>#if defined(CONFIG_HTDMSOUND) || defined(CONFIG_RPXTOUCH) || 
-> >>defined(CONFIG_FB_RPX)
-> >>	io_block_mapping(HIOX_CSR_ADDR, HIOX_CSR_ADDR, HIOX_CSR_SIZE, 
-> >>	_PAGE_IO);
-> >>#endif
-> >>-#ifdef CONFIG_FADS
-> >>+#if defined(CONFIG_FADS) || defined(CONFIG_MPC885ADS)
-> >>	io_block_mapping(BCSR_ADDR, BCSR_ADDR, BCSR_SIZE, _PAGE_IO);
-> >>#endif
-> >>#ifdef CONFIG_PCI
-> >
-> >
-> >I suppose you also want to include CONFIG_MPC885ADS in the 
-> >io_block_mapping(IO_BASE) here?
+> $ cg-admin-uncommit
 > 
-> No, not at the moment at least.
-> Actually, the patch doesn't even #define IO_BASE.
-> In 2.4 that io_block_mapping(IO_BASE) was needed for PCMCIA / CF cards to 
-> work.
-> We haven't got to PCMCIA support in 2.6 yet, and PCMCIA is unlikely to work
-> as is in case of MPC885ADS, as drivers/pcmcia/m8xx_pcmcia.c is just missing.
-> We plan to address PCMCIA later.
+> Note that you should never do this if you already pushed the changes
+> out, or someone might get them. (That holds for regular Git too.) See
+> 
+> $ cg-help cg-admin-uncommit   # (or cg-admin-uncommit --help)
+> 
+> for details. (That's another Cogito's cool feature. Handy docs! ;-)
+> 
 
-Lets just drop that hunk then..
+Does it still works if the last commit was interrupted  or due to error for some
+reason?  Undo pull is pretty cool because you might pull a lot of commit
+in one blow. Get rid of commit one by one is going to be painful. Some times
+the object you pull has more than one chain of history it will be very nasty
+if you want to clean it up.
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+Mercurial's undo is taking a snapshot of all the changed file's repo file length
+at every commit or pull.  It just truncate the file to original size and undo 
+is done.
+
+Chris
+

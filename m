@@ -1,63 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263160AbVFXSsF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263159AbVFXSqb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263160AbVFXSsF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 14:48:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263135AbVFXSsF
+	id S263159AbVFXSqb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 14:46:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263135AbVFXSqa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 14:48:05 -0400
-Received: from main.gmane.org ([80.91.229.2]:15785 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S263160AbVFXSru (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 14:47:50 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Hubert Chan <hubert@uhoreg.ca>
-Subject: Re: reiser4 plugins
-Date: Fri, 24 Jun 2005 14:42:54 -0400
-Message-ID: <874qbnh9zl.fsf@evinrude.uhoreg.ca>
-References: <ninja@slaphack.com> <200506240241.j5O2f1eb005609@laptop11.inf.utfsm.cl>
+	Fri, 24 Jun 2005 14:46:30 -0400
+Received: from fmr24.intel.com ([143.183.121.16]:34184 "EHLO
+	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261251AbVFXSp4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Jun 2005 14:45:56 -0400
+Date: Fri, 24 Jun 2005 11:45:46 -0700
+From: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+To: davidm@hpl.hp.com
+Cc: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>, akpm@osdl.org,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linux IA64 <linux-ia64@vger.kernel.org>
+Subject: Re: [patch][ia64]Refuse kprobe on ivt code
+Message-ID: <20050624114545.A4826@unix-os.sc.intel.com>
+Reply-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+References: <20050623172832.B26121@unix-os.sc.intel.com> <17083.25625.991516.736507@napali.hpl.hp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: cpe0004e289e618-cm000f212c9dfc.cpe.net.cable.rogers.com
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-Cancel-Lock: sha1:vOnRAann/ZpASWAu6lCbq3z2tUQ=
-Cc: reiserfs-list@namesys.com
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <17083.25625.991516.736507@napali.hpl.hp.com>; from davidm@napali.hpl.hp.com on Thu, Jun 23, 2005 at 06:38:33PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 23 Jun 2005 22:41:01 -0400, Horst von Brand <vonbrand@inf.utfsm.cl> said:
+On Thu, Jun 23, 2005 at 06:38:33PM -0700, David Mosberger wrote:
+> Please do the checking based on the .text.ivt section instead (and add
+> the necessary labels to vmlinux.S and asm-ia64/sections.h).
 
-> David Masover <ninja@slaphack.com> wrote:
->> I, for one, would like to use a pendrive and have certain files be
->> encrypted transparently, only for use on Linux, but others be ready
->> to transfer to a Windows box.
+Subject: Refuse kprobe insert on IVT code
 
-> And that would surely break Windows compatibility (because you have to
-> keep the data on what to encrypt one the filesystem itself).
+Not safe to insert kprobes on IVT code.
 
-Easily solved, using the same method OS/2 added Extended Attribute
-support to FAT.  Of course, things may break if you try to manipulate
-the encrypted file under Windows (e.g. deleting those files would leave
-some garbage blocks behind), but breakage should be minor and relatively
-easy to fix.
+This patch checks to see if the address on which Kprobes is being
+inserted is  in ivt code and if it is in ivt code then
+refuse to register kprobe.
 
-> Besides, having pgp, or gpg, or crypt, or my own whacky encryption
-> proggie do the job in /userland/, and not shoving into the kernel and
-> so down the next user's throat, is in the end a largeish part of what
-> Unix is all about for me.
+Take 1: This patch is based on review comments from David Mosberger,
+now checking based on .text.ivt
 
-Meh.  It's nice to have encrypting to be transparent.  Unless your
-editor supports gpg/crypt/etc., you'll need to decrypt the file to a
-temporary area, edit the file, and then re-encrypt.  Much easier to make
-a mistake and lose data, or leave traces of the cleartext data.
+Signed-off-by: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
 
-Besides, the encryption would be optional, and hence not being shoved
-down the user's throat.  If you don't like it, don't use it.
+===============================================
+ arch/ia64/kernel/kprobes.c     |   14 ++++++++++++++
+ arch/ia64/kernel/vmlinux.lds.S |    7 ++++++-
+ include/asm-ia64/sections.h    |    1 +
+ 3 files changed, 21 insertions(+), 1 deletion(-)
 
--- 
-Hubert Chan <hubert@uhoreg.ca> - http://www.uhoreg.ca/
-PGP/GnuPG key: 1024D/124B61FA
-Fingerprint: 96C5 012F 5F74 A5F7 1FF7  5291 AF29 C719 124B 61FA
-Key available at wwwkeys.pgp.net.   Encrypted e-mail preferred.
+Index: linux-2.6.12-mm1/arch/ia64/kernel/kprobes.c
+===================================================================
+--- linux-2.6.12-mm1.orig/arch/ia64/kernel/kprobes.c
++++ linux-2.6.12-mm1/arch/ia64/kernel/kprobes.c
+@@ -263,6 +263,14 @@ static inline void get_kprobe_inst(bundl
+ 	}
+ }
+ 
++/* Returns non-zero if the addr is in the Interrupt Vector Table */
++static inline int in_ivt_functions(unsigned long addr)
++{
++	extern char __start_ivt_text[], __end_ivt_text[];
++	return (addr >= (unsigned long)__start_ivt_text
++		&& addr < (unsigned long)__end_ivt_text);
++}
++
+ static int valid_kprobe_addr(int template, int slot, unsigned long addr)
+ {
+ 	if ((slot > 2) || ((bundle_encoding[template][1] == L) && slot > 1)) {
+@@ -271,6 +279,12 @@ static int valid_kprobe_addr(int templat
+ 		return -EINVAL;
+ 	}
+ 
++ 	if (in_ivt_functions(addr)) {
++ 		printk(KERN_WARNING "Kprobes can't be inserted inside "
++				"IVT code at 0x%lx\n", addr);
++ 		return -EINVAL;
++ 	}
++
+ 	if (slot == 1) {
+ 		printk(KERN_WARNING "Inserting kprobes on slot #1 "
+ 		       "is not supported\n");
+Index: linux-2.6.12-mm1/arch/ia64/kernel/vmlinux.lds.S
+===================================================================
+--- linux-2.6.12-mm1.orig/arch/ia64/kernel/vmlinux.lds.S
++++ linux-2.6.12-mm1/arch/ia64/kernel/vmlinux.lds.S
+@@ -8,6 +8,11 @@
+ #define LOAD_OFFSET	(KERNEL_START - KERNEL_TR_PAGE_SIZE)
+ #include <asm-generic/vmlinux.lds.h>
+ 
++#define IVT_TEXT							\
++		VMLINUX_SYMBOL(__start_ivt_text) = .;			\
++		*(.text.ivt)						\
++		VMLINUX_SYMBOL(__end_ivt_text) = .;
++
+ OUTPUT_FORMAT("elf64-ia64-little")
+ OUTPUT_ARCH(ia64)
+ ENTRY(phys_start)
+@@ -39,7 +44,7 @@ SECTIONS
+ 
+   .text : AT(ADDR(.text) - LOAD_OFFSET)
+     {
+-	*(.text.ivt)
++	IVT_TEXT
+ 	*(.text)
+ 	SCHED_TEXT
+ 	LOCK_TEXT
+Index: linux-2.6.12-mm1/include/asm-ia64/sections.h
+===================================================================
+--- linux-2.6.12-mm1.orig/include/asm-ia64/sections.h
++++ linux-2.6.12-mm1/include/asm-ia64/sections.h
+@@ -17,6 +17,7 @@ extern char __start_gate_vtop_patchlist[
+ extern char __start_gate_fsyscall_patchlist[], __end_gate_fsyscall_patchlist[];
+ extern char __start_gate_brl_fsys_bubble_down_patchlist[], __end_gate_brl_fsys_bubble_down_patchlist[];
+ extern char __start_unwind[], __end_unwind[];
++extern char __start_ivt_text[], __end_ivt_text[];
+ 
+ #endif /* _ASM_IA64_SECTIONS_H */
+ 
 

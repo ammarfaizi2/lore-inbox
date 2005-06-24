@@ -1,52 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263126AbVFXQiq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263141AbVFXQmX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263126AbVFXQiq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 12:38:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263141AbVFXQiq
+	id S263141AbVFXQmX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 12:42:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263135AbVFXQmN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 12:38:46 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:16780 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S263126AbVFXQin (ORCPT
+	Fri, 24 Jun 2005 12:42:13 -0400
+Received: from mail.kroah.org ([69.55.234.183]:63375 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263151AbVFXQls (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 12:38:43 -0400
-Date: Fri, 24 Jun 2005 09:40:09 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: =?ISO-8859-1?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
-cc: Keith Owens <kaos@ocs.com.au>, Denis Vlasenko <vda@ilport.com.ua>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       David Lang <david.lang@digitalinsight.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Netdev List <netdev@vger.kernel.org>
-Subject: Re: [git patch] urgent e1000 fix 
-In-Reply-To: <Pine.BSO.4.62.0506241140280.19853@rudy.mif.pg.gda.pl>
-Message-ID: <Pine.LNX.4.58.0506240938210.11175@ppc970.osdl.org>
-References: <13661.1119601379@kao2.melbourne.sgi.com>
- <Pine.LNX.4.58.0506240149440.11175@ppc970.osdl.org>
- <Pine.BSO.4.62.0506241140280.19853@rudy.mif.pg.gda.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Fri, 24 Jun 2005 12:41:48 -0400
+Date: Fri, 24 Jun 2005 09:39:40 -0700
+From: Greg KH <greg@kroah.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Quadriplegic Leprechaun <quadriplegic_leprechaun@ukonline.co.uk>,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.12-mm1: PCI compile error with CONFIG_HOTPLUG=n
+Message-ID: <20050624163940.GA30685@kroah.com>
+References: <42BBBBC0.2050702@ukonline.co.uk> <20050624092454.GE26545@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050624092454.GE26545@stusta.de>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 24 Jun 2005, Tomasz K³oczko wrote:
+On Fri, Jun 24, 2005 at 11:24:54AM +0200, Adrian Bunk wrote:
+> On Fri, Jun 24, 2005 at 08:52:32AM +0100, Quadriplegic Leprechaun wrote:
 > 
-> Linus .. why for kernel tree can't be used indent or other source 
-> code formater ?
+> > Hi,
+> 
+> Hi,
+> 
+> > With the attached config, I get an undefined symbol error when building 
+> > the following kernel:
+> > 
+> > $ head Makefile
+> > VERSION = 2
+> > PATCHLEVEL = 6
+> > SUBLEVEL = 12
+> > EXTRAVERSION = -mm1
+> > NAME=Woozy Numbat
+> > 
+> > And this is the error I get:
+> > [ ... lots of output snipped ... ]
+> >  LD      vmlinux
+> > arch/i386/pci/built-in.o(.init.text+0x101e): In function `pcibios_init':
+> > common.c: undefined reference to `pci_assign_unassigned_resources'
+> > make: *** [vmlinux] Error 1
+> 
+> thanks for this report.
+> 
+> @Ivan, Greg:
+> gregkh-pci-pci-assign-unassigned-resources.patch breaks compilation with 
+> CONFIG_HOTPLUG=n.
 
-Sure, we do it, but then we try to make it obvious to all sides.
+Known problem, see the patch on lkml to fix this already.
 
-It's the "small and non-obvious" differences that are really poisonous. 
-You don't see them in the soruces, yet patches don't apply.
+thanks,
 
-So don't do subtle whitespace "fixups" by default. It just makes everybody
-unhappy down the line.
-
-That's not to say that we don't do whitespace fixups _occasionally_. When 
-it's ugly enough to be noticeable, I sure as hell fix up whitespace. But 
-not by default.
-
-		Linus
+greg k-h

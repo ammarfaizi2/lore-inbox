@@ -1,46 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263231AbVFXKS4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263153AbVFXKdP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263231AbVFXKS4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 06:18:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263239AbVFXKSz
+	id S263153AbVFXKdP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 06:33:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263221AbVFXKdP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 06:18:55 -0400
-Received: from trex.wsi.edu.pl ([195.117.114.133]:17625 "EHLO trex.wsi.edu.pl")
-	by vger.kernel.org with ESMTP id S263231AbVFXKQf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 06:16:35 -0400
-Message-ID: <42BBC189.5050805@trex.wsi.edu.pl>
-Date: Fri, 24 Jun 2005 10:17:13 +0200
-From: =?ISO-8859-2?Q?Micha=B3_Piotrowski?= <piotrowskim@trex.wsi.edu.pl>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: pl, en-us, en
-MIME-Version: 1.0
-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-       linux-kernel@vger.kernel.org, randy_dunlap <rdunlap@xenotime.net>,
-       Jesper Juhl <jesper.juhl@gmail.com>
-Subject: Re: Script to help users to report a BUG
-References: <4d8e3fd30506191332264eb4ae@mail.gmail.com>	 <20050622120848.717e2fe2.rdunlap@xenotime.net>	 <42B9CFA1.6030702@trex.wsi.edu.pl>	 <20050622174744.75a07a7f.rdunlap@xenotime.net>	 <9a87484905062311246243774e@mail.gmail.com>	 <20050623120647.2a5783d1.rdunlap@xenotime.net>	 <9a87484905062312131e5f6b05@mail.gmail.com>	 <42BAF608.6080802@trex.wsi.edu.pl>	 <4d8e3fd305062313032c9789e8@mail.gmail.com>	 <42BAFE3E.2050407@trex.wsi.edu.pl> <4d8e3fd305062400524f0ad358@mail.gmail.com>
-In-Reply-To: <4d8e3fd305062400524f0ad358@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8bit
+	Fri, 24 Jun 2005 06:33:15 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:34318 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263153AbVFXKdD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Jun 2005 06:33:03 -0400
+Date: Fri, 24 Jun 2005 11:32:58 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Finding what change broke ARM
+Message-ID: <20050624113258.A27909@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
+References: <20050624101951.B23185@flint.arm.linux.org.uk> <20050624105328.C23185@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050624105328.C23185@flint.arm.linux.org.uk>; from rmk+lkml@arm.linux.org.uk on Fri, Jun 24, 2005 at 10:53:28AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Jun 24, 2005 at 10:53:28AM +0100, Russell King wrote:
+> and a .config which looks like this:
+> 
+> CONFIG_ARCH_SA1100=y
+> ...
+> # CONFIG_ARCH_DISCONTIGMEM_ENABLE is not set
+> CONFIG_SELECT_MEMORY_MODEL=y
+> CONFIG_FLATMEM_MANUAL=y
+> # CONFIG_DISCONTIGMEM_MANUAL is not set
+> # CONFIG_SPARSEMEM_MANUAL is not set
+> CONFIG_DISCONTIGMEM=y
+> CONFIG_FLATMEM=y
+> CONFIG_FLAT_NODE_MEM_MAP=y
+> CONFIG_NEED_MULTIPLE_NODES=y
+> 
+> At a guess, this is because we have two memory models selected - because
+> the Kconfig magic in mm/Kconfig isn't correct for ARM.
+> 
+> ARM selects CONFIG_DISCONTIGMEM for certain platforms (based on
+> CONFIG_ARCH_SA1100 in this case.)  mm/Kconfig decides on its own back
+> that it'll choose CONFIG_FLATMEM for us.  So two models get selected.
+> 
+> Should I remove the mm/Kconfig include and replicate what's required for
+> ARM, or... ?  TBH mm/Kconfig seems to be rather OTT.
+> 
+> Help!
 
-Here is the latest version:
-http://stud.wsi.edu.pl/~piotrowskim/files/ort/ort-a10.tar.bz2
+Well, this fixes the problem, but I doubt people will like it.
 
-Changelog:
-- Paolo's text input method - txt_read() (old is txt_read_ed() it's only 
-a test ;))
-- now only root [uid=0] may run script
-- small optimalisations (point 8 etc.)
+Index: mm/Kconfig
+===================================================================
+--- fc736377c5c7e23ee78569392ed31a6030289e44/mm/Kconfig  (mode:100644)
++++ uncommitted/mm/Kconfig  (mode:100644)
+@@ -71,7 +71,7 @@
+ 
+ config FLATMEM
+ 	def_bool y
+-	depends on (!DISCONTIGMEM && !SPARSEMEM) || FLATMEM_MANUAL
++	depends on (!DISCONTIGMEM && !SPARSEMEM) #|| FLATMEM_MANUAL
+ 
+ config FLAT_NODE_MEM_MAP
+ 	def_bool y
 
-Todo:
-- more email clients
-- bugzilla automatic posts?
-- documentation
 
-Regards,
-Micha³ Piotrowski
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

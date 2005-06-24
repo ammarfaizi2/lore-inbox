@@ -1,54 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263036AbVFXQ27@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263022AbVFXQ2y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263036AbVFXQ27 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 12:28:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263115AbVFXQ27
+	id S263022AbVFXQ2y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 12:28:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263115AbVFXQ2y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 12:28:59 -0400
-Received: from mail.kroah.org ([69.55.234.183]:55434 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263036AbVFXQ2x (ORCPT
+	Fri, 24 Jun 2005 12:28:54 -0400
+Received: from mail.kroah.org ([69.55.234.183]:55178 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263022AbVFXQ2u (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 12:28:53 -0400
-Date: Fri, 24 Jun 2005 09:27:14 -0700
+	Fri, 24 Jun 2005 12:28:50 -0400
+Date: Fri, 24 Jun 2005 09:26:28 -0700
 From: Greg KH <greg@kroah.com>
-To: tvrtko.ursulin@sophos.com
+To: Michael Tokarev <mjt@tls.msk.ru>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: [ANNOUNCE] ndevfs - a "nano" devfs
-Message-ID: <20050624162714.GB30598@kroah.com>
-References: <OFD982C671.CCDA87F9-ON8025702A.0054FDEB-8025702A.00556118@sophos.com>
+Message-ID: <20050624162628.GA30598@kroah.com>
+References: <20050624081808.GA26174@kroah.com> <42BBFB55.3040008@tls.msk.ru> <20050624151615.GA29854@kroah.com> <42BC297A.9000008@tls.msk.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <OFD982C671.CCDA87F9-ON8025702A.0054FDEB-8025702A.00556118@sophos.com>
+In-Reply-To: <42BC297A.9000008@tls.msk.ru>
 User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 24, 2005 at 04:32:34PM +0100, tvrtko.ursulin@sophos.com wrote:
-> On 24/06/2005 16:23:11 Greg KH wrote:
+On Fri, Jun 24, 2005 at 07:40:42PM +0400, Michael Tokarev wrote:
+> Greg KH wrote:
+> > On Fri, Jun 24, 2005 at 04:23:49PM +0400, Michael Tokarev wrote:
+> >>And another question.  Why it isn't possible to use
+> >>plain tmpfs for this sort of things?
+> > 
+> > What do you mean?  What's wrong with a ramfs based fs?  To use tmpfs
+> > would require a lot more work.  But if you want to do it, I'll gladly
+> > take patches :)
 > 
-> >> ndevfs: creating file '0000:02' with major 0 and minor 0
-> >
-> >Hm, that is odd.  That shouldn't happen.
-> >
-> >Wait, I think it was due to where you put the class hooks, try it
-> >against Linus's latest tree, it will work better there (in fact, I don't
-> >know if it would work properly in 2.6.12 due to the class driver core
-> >changes.)
-> >
-> >Could you try that and let me know if it still has issues?
+> Hmm.  Ramfs and Tmpfs...  I mean, we already have several filesystems
+> which works, and are complete filesystems.  Tmpfs is just one of them.
+
+Heh, I know this quite well :)
+
+> The point is as the following.  Instead of creating completely new
+> filesystem, there should be a possibility to create just a small
+> layer on top of existing, feature-complete (think directories)
+> filesystem, like tmpfs, with the only difference is that it's
+> especially known by the kernel as containing device nodes (where
+> the kernel should create/delete the nodes), and is mountable as
+> such (not as any generic tmpfs).  When a new device is created,
+> ndevfs_mknod() (or similar) is called as in your patch, but the
+> node is created in normal, regular tmpfs, instead of on some
+> stripped-down filesystem.
+
+Again, that's exactly what this patch does.
+
+> >>Why to create another filesystem, instead of just using current
+> >>tmpfs and call mknod/unlink on it as appropriate?
+> > 
+> > Um, that's about all that this code does.
 > 
-> It was me incorrectly fixing the rejects. If I had looked at it more 
-> carefully I would have got it right the first time. Anyway, I moved the 
-> relevant ndevfs_create in the right 'if' block and now everything is fine. 
-> Am I still using 2.6.12 btw.
+> ....Ah ok.  Well.  Hmm.  So I misread the code it seems.
+> I thought it does not support directories and symlinks..
 
-Great, thanks for validating this.
+It supports it, but I stipped it down to not allow that, I'll have to
+add code to enable that, if enough people complain :)
 
-> Sorry for not letting you know that earlier, I was waiting for my post to 
-> show up so that I can reply to myself.
+> >>This same tmpfs can be used by udev too (to create that "policy"-based
+> >>names), and it gives us all the directories and other stuff...
+> > 
+> > udev doesn't need a kernel specific fs.
+> 
+> I know.  But it should be able to run on top of such an FS
+> to (at least I don't see why it shouldn't), provided it only
+> maintains that "policy" names (symlinks) to "canonical" device
+> nodes (which is easily doable by just stripping config file).
 
-Your message was too big and was probably rejected by the list.
+I eagerly await your patch to show what you are referring to.
 
 thanks,
 

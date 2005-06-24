@@ -1,48 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263262AbVFXTx5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263286AbVFXTy3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263262AbVFXTx5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 15:53:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263051AbVFXTxq
+	id S263286AbVFXTy3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 15:54:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262919AbVFXTyJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 15:53:46 -0400
-Received: from graphe.net ([209.204.138.32]:10965 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S263262AbVFXTt0 (ORCPT
+	Fri, 24 Jun 2005 15:54:09 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:49819 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S263385AbVFXTxA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 15:49:26 -0400
-Date: Fri, 24 Jun 2005 12:49:22 -0700 (PDT)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@graphe.net
-To: Lee Revell <rlrevell@joe-job.com>
-cc: Jan Beulich <JBeulich@novell.com>, jmerkey <jmerkey@utah-nac.org>,
-       Clyde Griffin <CGRIFFIN@novell.com>,
-       "John W. Linville" <linville@tuxdriver.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Novell Linux Kernel Debugger (NLKD)
-In-Reply-To: <1119641349.3290.39.camel@mindpipe>
-Message-ID: <Pine.LNX.4.62.0506241241390.30074@graphe.net>
-References: <s2bae938.075@sinclair.provo.novell.com> 
- <Pine.LNX.4.62.0506231723360.26299@graphe.net>  <20050624003515.GB28077@tuxdriver.com>
- <42BB510B.5080500@utah-nac.org>  <42BBC297020000780001D4A5@emea1-mh.id2.novell.com>
- <1119641349.3290.39.camel@mindpipe>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.9
+	Fri, 24 Jun 2005 15:53:00 -0400
+Date: Fri, 24 Jun 2005 21:52:48 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Con Kolivas <kernel@kolivas.org>
+Subject: Re: 2.6.12-mm1 boot failure on NUMA box.
+Message-ID: <20050624195248.GA9663@elte.hu>
+References: <20050621130344.05d62275.akpm@osdl.org> <51900000.1119622290@[10.10.2.4]> <20050624170112.GD6393@elte.hu> <320710000.1119632967@flay>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <320710000.1119632967@flay>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Jun 2005, Lee Revell wrote:
 
-> On Fri, 2005-06-24 at 08:21 +0200, Jan Beulich wrote:
-> > While I never used or saw kdb, I'd be curious about what you immediately saw missing...
+* Martin J. Bligh <mbligh@mbligh.org> wrote:
+
+> > -	/*
+> > -	 * In the NUMA case we dont use the TSC as they are not
+> > -	 * synchronized across all CPUs.
+> > -	 */
+> > -#ifndef CONFIG_NUMA
+> > -	if (!use_tsc)
+> > -#endif
+> > +	if (!cpu_has_tsc)
+> >  		/* no locking but a rare wrong value is not a big deal */
+> >  		return jiffies_64 * (1000000000 / HZ);
 > 
-> Um, you guys developed your own kernel debugger without looking at KDB
-> first?  How would you know you're not just reinventing the wheel?
+> Humpf. That does look dangerous on a NUMA-Q. The TSCs aren't synced, 
+> and we can't use them .... have to use PIT, whether the CPUs have TSC 
+> or not.
 
-Isnt the name "Novell ..." already a giveway? This is some kind of 
-corporate management artifact. Someone wants to do something good for the 
-poor Linux community that has no debuggers available and they just got 
-something from somewhere that is going nowhere (merger?). They are in the 
-period clueing in to opensource. Just give them some time .....
+is the only problem the unsyncedness? That should be fine as far as the 
+scheduler is concerned. (we compensate for per-CPU drifts)
 
-Hint to Novell Management : You own SuSE who 
-has provided KDB with their kernel for quite some time.
+	Ingo

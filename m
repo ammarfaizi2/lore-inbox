@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263204AbVFXHi6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263214AbVFXHnl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263204AbVFXHi6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 03:38:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263206AbVFXHi5
+	id S263214AbVFXHnl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 03:43:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263207AbVFXHjV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 03:38:57 -0400
-Received: from [213.170.72.194] ([213.170.72.194]:33740 "EHLO
-	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP id S263204AbVFXHgb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 03:36:31 -0400
-Message-ID: <42BBB7F8.8070309@yandex.ru>
-Date: Fri, 24 Jun 2005 11:36:24 +0400
-From: "Artem B. Bityuckiy" <dedekind@yandex.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Fedora/1.7.8-1.3.1
-X-Accept-Language: en, ru, en-us
-MIME-Version: 1.0
-To: "Kluba, Patrik" <pajko@halom.u-szeged.hu>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       Ferenc Havasi <havasi@inf.u-szeged.hu>,
-       Herbert Xu <herbert@gondor.apana.org.au>,
-       Michal Ludvig <michal@logix.cz>
-Subject: Re: cryptoapi compression modules & JFFSx
-References: <1119555217l.7540l.1l@detonator>
-In-Reply-To: <1119555217l.7540l.1l@detonator>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 24 Jun 2005 03:39:21 -0400
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:1338
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S263205AbVFXHiU convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Jun 2005 03:38:20 -0400
+Message-Id: <42BBD4A1020000780001D4D1@emea1-mh.id2.novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0 
+Date: Fri, 24 Jun 2005 09:38:41 +0200
+From: "Jan Beulich" <JBeulich@novell.com>
+To: "jmerkey" <jmerkey@utah-nac.org>
+Cc: "Christoph Lameter" <christoph@lameter.com>,
+       "Clyde Griffin" <CGRIFFIN@novell.com>,
+       "John W. Linville" <linville@tuxdriver.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Novell Linux Kernel Debugger (NLKD)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kluba, Patrik wrote:
-> 
-> Hi everybody,
-> 
-> I'm going to port JFFS2's compression modules to CryptoApi except  
-> {in|de}flate, which Artem is working(?) on.
-No, I don't work on that anymore, so you probably want to port deflate 
-as well. My investigation showed that it can't be easily done without 
-hacking zlib internals, unless you greatly lose the compression ratio by 
-flushing the zstream and do other ugly things.
+>1. No back trace
 
-Nevertheless, you're the compression specialist(s), so you should do 
-this better :-)
+You're the second one to mention this, and I wonder where you take this from.
 
+>2. Doesn't run standalone fully embeded in the kernel
 
--- 
-Best Regards,
-Artem B. Bityuckiy,
-St.-Petersburg, Russia.
+What do you mean with 'fully embedded'? As long as the agents aren't compiled as modules, everything's right in the kernel (of course, not the mainline one, but that's same as for kdb and kgdb).
+
+>3. Not fully open source (since it's not embeded in the kernel)
+
+What has embedding things in the kernel to do with being open source?
+
+>5. No advanced recursive descent parser for conditional breakpoints
+
+Where've you seen this? What functionality does the parser miss?
+
+Jan
+

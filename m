@@ -1,74 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263153AbVFXKdP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263167AbVFXKct@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263153AbVFXKdP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 06:33:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263221AbVFXKdP
+	id S263167AbVFXKct (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 06:32:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263153AbVFXKct
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 06:33:15 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:34318 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263153AbVFXKdD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 06:33:03 -0400
-Date: Fri, 24 Jun 2005 11:32:58 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Finding what change broke ARM
-Message-ID: <20050624113258.A27909@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-References: <20050624101951.B23185@flint.arm.linux.org.uk> <20050624105328.C23185@flint.arm.linux.org.uk>
-Mime-Version: 1.0
+	Fri, 24 Jun 2005 06:32:49 -0400
+Received: from [80.71.243.242] ([80.71.243.242]:38534 "EHLO tau.rusteko.ru")
+	by vger.kernel.org with ESMTP id S263167AbVFXKbH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Jun 2005 06:31:07 -0400
+To: Hans Reiser <reiser@namesys.com>
+Cc: David Masover <ninja@slaphack.com>,
+       "Artem B. Bityuckiy" <dedekind@yandex.ru>,
+       Markus =?ISO-8859-1?Q?=20=22T=16rnqvist=22?= <mjt@nysv.org>,
+       Christophe Saout <christophe@saout.de>, Andrew Morton <akpm@osdl.org>,
+       hch@infradead.org, jgarzik@pobox.com, linux-kernel@vger.kernel.org,
+       reiserfs-list@namesys.com
+Subject: Re: reiser4 plugins
+References: <200506221733.j5MHXEoH007541@laptop11.inf.utfsm.cl>
+	<42B9DD48.6060601@slaphack.com>
+	<17081.58619.671650.812286@gargle.gargle.HOWL>
+	<42BAC668.2030604@slaphack.com>
+	<17083.14428.546772.353003@gargle.gargle.HOWL>
+	<42BBAA0F.2020404@namesys.com>
+From: Nikita Danilov <nikita@clusterfs.com>
+Date: Fri, 24 Jun 2005 14:31:07 +0400
+In-Reply-To: <42BBAA0F.2020404@namesys.com> (Hans Reiser's message of "Thu,
+ 23 Jun 2005 23:37:03 -0700")
+Message-ID: <m1slz8oxlg.fsf@clusterfs.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.5 (chayote, linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050624105328.C23185@flint.arm.linux.org.uk>; from rmk+lkml@arm.linux.org.uk on Fri, Jun 24, 2005 at 10:53:28AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 24, 2005 at 10:53:28AM +0100, Russell King wrote:
-> and a .config which looks like this:
-> 
-> CONFIG_ARCH_SA1100=y
-> ...
-> # CONFIG_ARCH_DISCONTIGMEM_ENABLE is not set
-> CONFIG_SELECT_MEMORY_MODEL=y
-> CONFIG_FLATMEM_MANUAL=y
-> # CONFIG_DISCONTIGMEM_MANUAL is not set
-> # CONFIG_SPARSEMEM_MANUAL is not set
-> CONFIG_DISCONTIGMEM=y
-> CONFIG_FLATMEM=y
-> CONFIG_FLAT_NODE_MEM_MAP=y
-> CONFIG_NEED_MULTIPLE_NODES=y
-> 
-> At a guess, this is because we have two memory models selected - because
-> the Kconfig magic in mm/Kconfig isn't correct for ARM.
-> 
-> ARM selects CONFIG_DISCONTIGMEM for certain platforms (based on
-> CONFIG_ARCH_SA1100 in this case.)  mm/Kconfig decides on its own back
-> that it'll choose CONFIG_FLATMEM for us.  So two models get selected.
-> 
-> Should I remove the mm/Kconfig include and replicate what's required for
-> ARM, or... ?  TBH mm/Kconfig seems to be rather OTT.
-> 
-> Help!
+Hans Reiser <reiser@namesys.com> writes:
 
-Well, this fixes the problem, but I doubt people will like it.
+> Nikita, I respectfully disagree with what you say about the state of our
+> atomicity code.   It is not so far away as you describe, and probably 6
+> man weeks work could polish it off.  You don't see the value in what I
+> define as useful, namely atomicity without isolation.  Since you don't
+> see that, it is harder for you to see that something is close to working
+> and just needs 6 weeks of someone who groks what I am asking for.
 
-Index: mm/Kconfig
-===================================================================
---- fc736377c5c7e23ee78569392ed31a6030289e44/mm/Kconfig  (mode:100644)
-+++ uncommitted/mm/Kconfig  (mode:100644)
-@@ -71,7 +71,7 @@
- 
- config FLATMEM
- 	def_bool y
--	depends on (!DISCONTIGMEM && !SPARSEMEM) || FLATMEM_MANUAL
-+	depends on (!DISCONTIGMEM && !SPARSEMEM) #|| FLATMEM_MANUAL
- 
- config FLAT_NODE_MEM_MAP
- 	def_bool y
+No, I see the value of "atomicity", and think it is very useful. What I
+don't see the value of is the making of premature claims.
 
+_When_ reiser4 has atomic write(2), you have full right to call it
+atomic, not before.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+_When_ reiser4 is tested through objective benchmark-set exercising
+various workloads, you can refer to these benchmarks as the proof of
+reiser4 technical superiority, not before.
+
+On a more personal note, I invested large amount of my time and effort
+into developing reiser4, and I feel attached to it and to the great
+ideas embodied in it. For reiser4 to rot on the forgotten shelf in
+obscurity is the thing I want least. I want it to be included into
+mainline kernel, but for this to happen, you have to take more realistic
+stance towards err... reality.
+
+>
+> Hans
+
+Nikita.

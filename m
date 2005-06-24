@@ -1,67 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263220AbVFXXeT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263168AbVFXXjs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263220AbVFXXeT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 19:34:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263256AbVFXXeT
+	id S263168AbVFXXjs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 19:39:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263133AbVFXXjs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 19:34:19 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:35013 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S263220AbVFXXeI (ORCPT
+	Fri, 24 Jun 2005 19:39:48 -0400
+Received: from mail.tyan.com ([66.122.195.4]:64018 "EHLO tyanweb.tyan")
+	by vger.kernel.org with ESMTP id S263168AbVFXXjl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 19:34:08 -0400
-Message-ID: <42BC986A.4050807@pobox.com>
-Date: Fri, 24 Jun 2005 19:34:02 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
+	Fri, 24 Jun 2005 19:39:41 -0400
+Message-ID: <3174569B9743D511922F00A0C94314230AF9718A@TYANWEB>
+From: YhLu <YhLu@tyan.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Peter Buckingham <peter@pantasys.com>, linux-kernel@vger.kernel.org
+Subject: RE: 2.6.12 with dual way dual core ck804 MB
+Date: Fri, 24 Jun 2005 16:42:58 -0700
 MIME-Version: 1.0
-To: Markus Lidel <Markus.Lidel@shadowconnect.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] I2O: Lindent run and replacement of printk through osm
- printing functions
-References: <200506241709.j5OH98vv000983@hera.kernel.org> <42BC888E.3010600@pobox.com> <42BC93EC.8030909@shadowconnect.com>
-In-Reply-To: <42BC93EC.8030909@shadowconnect.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Markus Lidel wrote:
-> Hello,
+Andi,
+
+the timing problem come out from 2.6.12.rc5....
+
+YH 
+
+> -----Original Message-----
+> From: YhLu 
+> Sent: Friday, June 24, 2005 11:56 AM
+> To: Andi Kleen
+> Cc: Peter Buckingham; linux-kernel@vger.kernel.org
+> Subject: RE: 2.6.12 with dual way dual core ck804 MB
 > 
-> Jeff Garzik wrote:
+> Andi,
 > 
->> Linux Kernel Mailing List wrote:
->>
->>> tree da7e51e7204625f21371eac23a931f4fe479e9db
->>> parent 9e87545f06930c1d294423a8091d1077e7444a47
->>> author Markus Lidel <Markus.Lidel@shadowconnect.com> Fri, 24 Jun 2005 
->>> 12:02:23 -0700
->>> committer Linus Torvalds <torvalds@ppc970.osdl.org> Fri, 24 Jun 2005 
->>> 14:05:29 -0700
->>> [PATCH] I2O: Lindent run and replacement of printk through osm 
->>> printing functions
->>> Lindent run and replaced printk() through the corresponding osm_*() 
->>> function
->>
->> Please don't combine ANY code changes with an Lindent patch.
+> Thanks for the patch, I tried that with my LinuxBIOS + 8way dual core.
 > 
+> It works well. 
 > 
-> Also if there is no functional change, only cosmetical (the osm_*() 
-> function just mappes to printk(*, ...))?
-
-Yes.  An Lindent patch needs to contain absolutely nothing else, not 
-even documentation changes.
-
-The rationale is that it is extremely difficult for reviewers to review 
-your non-Lindent changes, because they are so obscured by Lindent.
-
-In the past, one person even hid a [valid] security fix inside an 
-Lindent patch.
-
-	Jeff
-
-
-
+> I'm using that with 2.6.12, because 2.6.11 has problem with 
+> nvidia chipset....
+> 
+> ~ # cat /proc/interrupts 
+>            CPU0       CPU1       CPU2       CPU3       CPU4       CPU5
+> CPU6       CPU7       CPU8       CPU9       CPU10       CPU11 
+>       CPU12
+> CPU13       CPU14       CPU15       
+>   0:     378977          0          0          0          0          0
+> 0          0          0          0          0          0          0
+> 0          0          0    IO-APIC-edge  timer
+>   2:          0          0          0          0          0          0
+> 0          0          0          0          0          0          0
+> 0          0          0          XT-PIC  cascade
+>   4:       1284          0          0          0          0          0
+> 0          0          0          0          0         0          0
+> 0          0          0    IO-APIC-edge  serial
+>   8:          0          0          0          0          0          0
+> 0          0          0          0          0          0          0
+> 0          0          0    IO-APIC-edge  rtc
+>  20:          0          0          0          0          0          0
+> 0          0          0          0          0          0          0
+> 0          0          0   IO-APIC-level  ehci_hcd:usb1
+>  21:          0          0          0          0          0          0
+> 0          0          0          0          0          0          0
+> 0          0          0   IO-APIC-level  ohci_hcd:usb2
+>  22:          0          0          0          0          0          0
+> 0          0          0          0          0          0          0
+> 0          0          0   IO-APIC-level  libata
+>  23:          0          0          0          0          0          0
+> 0          0          0          0          0          0          0
+> 0          0          0   IO-APIC-level  libata
+> NMI:        781        661         48         51         51         51
+> 51         51         51         51         53         52         53
+> 53         53         53 
+> LOC:     378822     378680     379254     379214     379172     379131
+> 379088     379046     379004     378962     378921     378877 
+>     378834
+> 378791     378748     378705 
+> ERR:         55
+> 
+> and all int come to first cpu now.
+> 
+> the problem is the 2.6.12 timing problem with nvidia chipset 
+> is still there, i hope that i have time to dubug it for your 
+> next week.
+> 
+> YH
+> 
+> > -----Original Message-----
+> > From: Andi Kleen [mailto:ak@suse.de]
+> > Sent: Wednesday, June 22, 2005 5:13 PM
+> > To: YhLu
+> > Cc: Andi Kleen; Peter Buckingham; linux-kernel@vger.kernel.org
+> > Subject: Re: 2.6.12 with dual way dual core ck804 MB
+> > 
+> > On Wed, Jun 22, 2005 at 05:07:44PM -0700, YhLu wrote:
+> > > actually with LinuxBIOS I can boot into 8 way dual core system.
+> > > 
+> > > But it will randomly hang. acutally when using cat 
+> /proc/interrupts.
+> > 
+> > Because it needs physical addressing, not logical like it is used 
+> > right now.
+> > That it works at all is surprising.
+> > 
+> > -Andi
+> > 
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in the body of a message to 
+> majordomo@vger.kernel.org More majordomo info at  
+> http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

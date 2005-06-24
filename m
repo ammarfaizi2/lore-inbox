@@ -1,82 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262601AbVFXXMD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263220AbVFXXeT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262601AbVFXXMD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 19:12:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263146AbVFXXJj
+	id S263220AbVFXXeT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 19:34:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263256AbVFXXeT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 19:09:39 -0400
-Received: from mailfe01.swip.net ([212.247.154.1]:43995 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S263133AbVFXXIg (ORCPT
+	Fri, 24 Jun 2005 19:34:19 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:35013 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S263220AbVFXXeI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 19:08:36 -0400
-X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
-Subject: Re: [Fastboot] Re: [-mm patch] i386: enable REGPARM by default
-From: Alexander Nyberg <alexn@dsv.su.se>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Adrian Bunk <bunk@stusta.de>, fastboot@lists.osdl.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050624132826.4cdfb63c.akpm@osdl.org>
-References: <20050624200916.GJ6656@stusta.de>
-	 <20050624132826.4cdfb63c.akpm@osdl.org>
-Content-Type: text/plain
-Date: Sat, 25 Jun 2005 01:08:22 +0200
-Message-Id: <1119654502.1868.12.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+	Fri, 24 Jun 2005 19:34:08 -0400
+Message-ID: <42BC986A.4050807@pobox.com>
+Date: Fri, 24 Jun 2005 19:34:02 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Markus Lidel <Markus.Lidel@shadowconnect.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] I2O: Lindent run and replacement of printk through osm
+ printing functions
+References: <200506241709.j5OH98vv000983@hera.kernel.org> <42BC888E.3010600@pobox.com> <42BC93EC.8030909@shadowconnect.com>
+In-Reply-To: <42BC93EC.8030909@shadowconnect.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-fre 2005-06-24 klockan 13:28 -0700 skrev Andrew Morton:
-> Adrian Bunk <bunk@stusta.de> wrote:
-> >
-> > This patch:
-> > - removes the dependency of REGPARM on EXPERIMENTAL
-> > - let REGPARM default to y
+Markus Lidel wrote:
+> Hello,
 > 
-> hm, a compromise.
+> Jeff Garzik wrote:
 > 
-> One other concern I have with this is that I expect -mregparm will make
-> kgdb (and now crashdump) less useful.  When incoming args are on the stack
-> you have a good chance of being able to see what their value is by walking
-> the stack slots.
+>> Linux Kernel Mailing List wrote:
+>>
+>>> tree da7e51e7204625f21371eac23a931f4fe479e9db
+>>> parent 9e87545f06930c1d294423a8091d1077e7444a47
+>>> author Markus Lidel <Markus.Lidel@shadowconnect.com> Fri, 24 Jun 2005 
+>>> 12:02:23 -0700
+>>> committer Linus Torvalds <torvalds@ppc970.osdl.org> Fri, 24 Jun 2005 
+>>> 14:05:29 -0700
+>>> [PATCH] I2O: Lindent run and replacement of printk through osm 
+>>> printing functions
+>>> Lindent run and replaced printk() through the corresponding osm_*() 
+>>> function
+>>
+>> Please don't combine ANY code changes with an Lindent patch.
 > 
-> When the incoming args are in registers I'd expect that it would be a lot
-> harder (or impossible) to work out their value.
 > 
-> Have the kdump guys thought about (or encountered) this?
+> Also if there is no functional change, only cosmetical (the osm_*() 
+> function just mappes to printk(*, ...))?
 
-Hmmm. I played a bit with this. Without regparm there is some argument
-output although not correct. For example the argument 'ptr' to b_first
-should have been 0xbeef. both x=0 and y=299264 are incorrect. Not sure
-why, have to look into that.
+Yes.  An Lindent patch needs to contain absolutely nothing else, not 
+even documentation changes.
 
-#0  b_second (pid=1, ptr=0xbeef, x=0, y=299264) at
-arch/i386/kernel/process.c:180
-#1  0xc0100ce8 in b_first (pid=1, ptr=0x1) at
-arch/i386/kernel/process.c:188
--------------- (only the above is interesting)
-#2  0xc0100d66 in cpu_idle () at arch/i386/kernel/process.c:221
-#3  0xc010027b in rest_init () at init/main.c:393
-#4  0xc033e838 in start_kernel () at init/main.c:534
-#5  0xc0100199 in is386 () at arch/i386/kernel/head.S:327
+The rationale is that it is extremely difficult for reviewers to review 
+your non-Lindent changes, because they are so obscured by Lindent.
+
+In the past, one person even hid a [valid] security fix inside an 
+Lindent patch.
+
+	Jeff
 
 
-Now with regparm. Suprisingly enough only y=0 is now errenous and the
-rest are correct (double-checked, have to look into this aswell).
-
-#0  b_second (pid=1, ptr=0xbeef, x=65297, y=0) at
-arch/i386/kernel/process.c:180
-#1  0xc0100c87 in b_first (pid=1, ptr=0xbeef) at
-arch/i386/kernel/process.c:188
--------------- (only the above is interesting)
-#2  0xc0100d01 in cpu_idle () at arch/i386/kernel/process.c:221
-#3  0xc010026d in rest_init () at init/main.c:393
-#4  0xc03247d1 in start_kernel () at init/main.c:534
-#5  0xc0100199 in is386 () at arch/i386/kernel/head.S:327
-
-This was at first glance but is interesting.
-
-Adrian, why do we want REGPARM on by default? Performance? I haven't
-seen any figures
 

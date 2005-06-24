@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263083AbVFXJRv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263079AbVFXJR1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263083AbVFXJRv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 05:17:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263117AbVFXJRv
+	id S263079AbVFXJR1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 05:17:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263082AbVFXJR1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 05:17:51 -0400
-Received: from naig.caltech.edu ([131.215.49.17]:25305 "EHLO naig.caltech.edu")
-	by vger.kernel.org with ESMTP id S263083AbVFXJRq (ORCPT
+	Fri, 24 Jun 2005 05:17:27 -0400
+Received: from gate.corvil.net ([213.94.219.177]:14345 "EHLO corvil.com")
+	by vger.kernel.org with ESMTP id S263079AbVFXJRY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 05:17:46 -0400
-Message-Id: <200506240917.j5O9Hfx7003557@naig.caltech.edu>
-From: Pls.fax.instead.of.e-mail@nntp-server.caltech.edu
-To: mlist-linux-kernel@nntp-server.caltech.edu
-Subject: To make various molded parts for you(Small Q'ty OK)(cmb+wlw)
-Date: Fri, 24 Jun 05 12:19:53 Taipei Standard Time
+	Fri, 24 Jun 2005 05:17:24 -0400
+Message-ID: <42BBCF8A.5060409@draigBrady.com>
+Date: Fri, 24 Jun 2005 10:16:58 +0100
+From: P@draigBrady.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040124
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/mixed;boundary= "----=_NextPart_000_001A_3299D0E2.B5F4ECDA"
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000 
+To: Lee Revell <rlrevell@joe-job.com>
+CC: Jan Knutar <jk-lkml@sci.fi>,
+       Alejandro Bonilla <abonilla@linuxwireless.org>,
+       "'Yani Ioannou'" <yani.ioannou@gmail.com>,
+       linux-thinkpad@linux-thinkpad.org, linux-kernel@vger.kernel.org
+Subject: Re: [ltp] Re: IBM HDAPS Someone interested?
+References: <007301c575d9$77decb90$600cc60a@amer.sykes.com>	 <42B73BB7.4030906@linuxwireless.org> <1119310501.17602.1.camel@mindpipe>	 <200506231833.34423.jk-lkml@sci.fi> <1119546519.32469.17.camel@mindpipe>
+In-Reply-To: <1119546519.32469.17.camel@mindpipe>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_NextPart_000_001A_3299D0E2.B5F4ECDA
-Content-Type: text/plain; charset= "US-ASCII"
-Content-Transfer-Encoding: base64
+Lee Revell wrote:
+> On Thu, 2005-06-23 at 18:33 +0300, Jan Knutar wrote:
+> 
+>>On Tuesday 21 June 2005 02:35, Lee Revell wrote:
+>>
+>>
+>>>I was thinking more along the lines of figure out the io port it's
+>>>using, then boot windows, set an IO breakpoint in softice, then drop
+>>>your laptop on the bed or something.
+>>
+>>io ports 0x2E, 0x2F and 0xED aren't assigned to anything "known"
+>>on other computers, are they?
 
-RGVhciBTaXIvTWFkYW0sDQoNCkZJUlNUIE9GIEFMTCxQTEVBU0UgS0lORExZIE5PVEUgVEhJ
-UyBFLU1BSUwgSVMgU0VOVCBCWQ0KT1VSICJBRFZFUlRJU0lORyBDT01QQU5ZIiBBTkQgVEhF
-IEUtTUFJTCBBRERSRVNTIElTDQpOT1QgIlJFQUwiKFZJUlRVQUwpLFRIRVJFRk9SRSxQTEVB
-U0UgQ09OVEFDVCBVUw0KVklBICJGQVgiICBPUiAiUE9TVCIuRE9OJ1QgRElSRUNUTFkgUkVT
-UE9OU0UgVklBICIgRS1NQUlMIg0KQkVDQVVTRSBXRSBDQU4nVCBSRUNFSVZFIFlPVVIgRS1N
-QUlMLg0KSUYgWU9VIFdBTlQgVE8gQkUgUkVNT1ZFRCBGUk9NIFRIRSBMSVNULFBMRUFTRSBB
-RFZJU0UNCllPVVIgRS1NQUlMIEFERFJFU1MgVklBICJGQVgiIE9SICJQT1NUIi4NCg0KV2Ug
-YXJlIHRoZSBwcm9mZXNzaW9uYWwgbW9sZCAmIGRpZSBtYWtlciBhbmQgbW9sZGVkIHBhcnRz
-KG1vbGRpbmdzKSBzdXBwbGllcg0KZm9yIHRoZSBmb2xsb3dpbmcgcGFydHM6DQoqIENhc3Rp
-bmJncyhzYW5kIGNhc3RpbmcpIGZvciBJcm9uICYgQWx1bWluaXVtDQoqIFBsYXN0aWMgSW5q
-ZWN0aW9uIG1vbGRpbmdzLg0KKiBaaW5jIG9yIEFsdW1pbml1bSAoUHJlc3N1cmUpIERpZSBD
-YXN0aW5ncy4NCiogU2hlZXQgTWV0YWwgU3RhbXBpbmdzLg0KKiBPaWwgU2VhbHMgJiBvdGhl
-ciBSdWJiZXIgTW9sZGluZ3MoYm90aCBmb3IgaW5kdXN0cmlhbCBvciBnZW5lcmFsIHVzZXMp
-Lg0KKiBWYXJpb3VzIE1hZ25ldHMuDQoqIE1hY2hpbmluZ3MoTWFjaGluZWQgcGFydHMpDQoq
-IFByZWNpc2lvbiBNYWNoaW5pbmdzLg0KDQpTTUFMTCBPUkRFUiBJUyBPSyxQTEVBU0UgQ09O
-VEFDVCBVUyBUTyBTQVZFIFlPVVIgQ09TVCENCg0KVGhhbmsgeW91DQoNCkJlc3QgUmVnYXJk
-cw0KSi5TLkZ1L1ByZXNpZGVudCAmIENFTw0KTm8uMTA3LEt1YW4tRnUgUmQuLEJlaS1Eb3Uo
-NTIxKSxDaGFuIGdod2EgSHNpZW4sVGFpd2FuLg0KRmF4Ojg4Ni00LTg4NzMwNTYgKDg4NiBp
-cyB0aGUgY291bnRyeSBjb2RlKQ0KDQogICAg
-------=_NextPart_000_001A_3299D0E2.B5F4ECDA--
+Generally watchdogs use 2[EF]
+
+Pádraig.

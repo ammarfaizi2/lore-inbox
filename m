@@ -1,73 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263073AbVFXPnd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263081AbVFXPmt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263073AbVFXPnd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 11:43:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263044AbVFXPnb
+	id S263081AbVFXPmt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 11:42:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263048AbVFXPjM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 11:43:31 -0400
-Received: from hobbit.corpit.ru ([81.13.94.6]:27983 "EHLO hobbit.corpit.ru")
-	by vger.kernel.org with ESMTP id S263073AbVFXPko (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 11:40:44 -0400
-Message-ID: <42BC297A.9000008@tls.msk.ru>
-Date: Fri, 24 Jun 2005 19:40:42 +0400
-From: Michael Tokarev <mjt@tls.msk.ru>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
+	Fri, 24 Jun 2005 11:39:12 -0400
+Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:23566 "EHLO
+	mail.rtr.ca") by vger.kernel.org with ESMTP id S263051AbVFXPft
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Jun 2005 11:35:49 -0400
+Message-ID: <42BC284E.7050202@rtr.ca>
+Date: Fri, 24 Jun 2005 11:35:42 -0400
+From: Mark Lord <liml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050420 Debian/1.7.7-2
+X-Accept-Language: en, en-us
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] ndevfs - a "nano" devfs
-References: <20050624081808.GA26174@kroah.com> <42BBFB55.3040008@tls.msk.ru> <20050624151615.GA29854@kroah.com>
-In-Reply-To: <20050624151615.GA29854@kroah.com>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+To: Krzysztof Oledzki <olel@ans.pl>
+Cc: Mark Lord <lkml@rtr.ca>, Jeff Garzik <jgarzik@pobox.com>,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: SATA speed. Should be 150 or 133?
+References: <Pine.LNX.4.62.0506240135340.29382@bizon.gios.gov.pl> <42BB794B.6080109@rtr.ca> <Pine.LNX.4.62.0506241127210.3016@bizon.gios.gov.pl>
+In-Reply-To: <Pine.LNX.4.62.0506241127210.3016@bizon.gios.gov.pl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Fri, Jun 24, 2005 at 04:23:49PM +0400, Michael Tokarev wrote:
->>And another question.  Why it isn't possible to use
->>plain tmpfs for this sort of things?
+>> True SATA drives ignore the "transfer speed",
+>> as it really is meaningless and does not apply.
 > 
-> What do you mean?  What's wrong with a ramfs based fs?  To use tmpfs
-> would require a lot more work.  But if you want to do it, I'll gladly
-> take patches :)
+> So, am I the the only person confused by this message? ;)
+> There is "SATA max UDMA/133" not "PATA max UDMA/133".
 
-Hmm.  Ramfs and Tmpfs...  I mean, we already have several filesystems
-which works, and are complete filesystems.  Tmpfs is just one of them.
+No, it really is as confusing as it sounds!
+The drive is SATA, but the transfer speed gunk only
+applies to the internal "PATA" portion of the drive,
+which communicates to the built-in SATA bridge chip
+of the same drive, which in turn presents a pure SATA
+interface to the host computer.
 
-The point is as the following.  Instead of creating completely new
-filesystem, there should be a possibility to create just a small
-layer on top of existing, feature-complete (think directories)
-filesystem, like tmpfs, with the only difference is that it's
-especially known by the kernel as containing device nodes (where
-the kernel should create/delete the nodes), and is mountable as
-such (not as any generic tmpfs).  When a new device is created,
-ndevfs_mknod() (or similar) is called as in your patch, but the
-node is created in normal, regular tmpfs, instead of on some
-stripped-down filesystem.
+> Oh, so how to check true (current) speed?
 
-This tmpfs will be mountable ofcourse, *and* it will support all
-the other normal filesystem operations.  But...
+Same as always:  hdparm -I /dev/sd?
+(requires the libata-dev "passthru" patch
+recently reposted here by Jeff Garzik).
 
->>Why to create another filesystem, instead of just using current
->>tmpfs and call mknod/unlink on it as appropriate?
-> 
-> Um, that's about all that this code does.
-
-....Ah ok.  Well.  Hmm.  So I misread the code it seems.
-I thought it does not support directories and symlinks..
-
->>This same tmpfs can be used by udev too (to create that "policy"-based
->>names), and it gives us all the directories and other stuff...
-> 
-> udev doesn't need a kernel specific fs.
-
-I know.  But it should be able to run on top of such an FS
-to (at least I don't see why it shouldn't), provided it only
-maintains that "policy" names (symlinks) to "canonical" device
-nodes (which is easily doable by just stripping config file).
-
-/mjt
+cheers

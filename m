@@ -1,71 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262256AbVFXQWX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263036AbVFXQ27@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262256AbVFXQWX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 12:22:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263106AbVFXQWX
+	id S263036AbVFXQ27 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 12:28:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263115AbVFXQ27
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 12:22:23 -0400
-Received: from wproxy.gmail.com ([64.233.184.207]:10640 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262256AbVFXQWO (ORCPT
+	Fri, 24 Jun 2005 12:28:59 -0400
+Received: from mail.kroah.org ([69.55.234.183]:55434 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263036AbVFXQ2x (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 12:22:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:subject:content-type;
-        b=o8+9mdHTf3vsIydMHiw0ft4jfjywGAZ5pe4vBFvNmZYVM2h5eZqCLTsGecv3tfLh8qr5a6qEv/lWMMIOqghUUhWf/sQYQni1sq+ocJrIg4ewo1h5Yesb0mGMHLwODnkRAOB56uftWBX2JrDr0GA83cd7iTXumtL5kZbx17OFY2E=
-Message-ID: <42BC41C4.7010501@gmail.com>
-Date: Fri, 24 Jun 2005 20:24:20 +0300
-From: Pasha Zubkov <pasha.zubkov@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050310)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.6.12.1 & disabled CONFIG_PCI
-Content-Type: multipart/mixed;
- boundary="------------060302040109080907090504"
+	Fri, 24 Jun 2005 12:28:53 -0400
+Date: Fri, 24 Jun 2005 09:27:14 -0700
+From: Greg KH <greg@kroah.com>
+To: tvrtko.ursulin@sophos.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] ndevfs - a "nano" devfs
+Message-ID: <20050624162714.GB30598@kroah.com>
+References: <OFD982C671.CCDA87F9-ON8025702A.0054FDEB-8025702A.00556118@sophos.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OFD982C671.CCDA87F9-ON8025702A.0054FDEB-8025702A.00556118@sophos.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060302040109080907090504
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+On Fri, Jun 24, 2005 at 04:32:34PM +0100, tvrtko.ursulin@sophos.com wrote:
+> On 24/06/2005 16:23:11 Greg KH wrote:
+> 
+> >> ndevfs: creating file '0000:02' with major 0 and minor 0
+> >
+> >Hm, that is odd.  That shouldn't happen.
+> >
+> >Wait, I think it was due to where you put the class hooks, try it
+> >against Linus's latest tree, it will work better there (in fact, I don't
+> >know if it would work properly in 2.6.12 due to the class driver core
+> >changes.)
+> >
+> >Could you try that and let me know if it still has issues?
+> 
+> It was me incorrectly fixing the rejects. If I had looked at it more 
+> carefully I would have got it right the first time. Anyway, I moved the 
+> relevant ndevfs_create in the right 'if' block and now everything is fine. 
+> Am I still using 2.6.12 btw.
 
-If CONFIG_PCI disabled then kernel can't compile properly.
+Great, thanks for validating this.
 
-This is an error:
---
-  LD      .tmp_vmlinux1
-drivers/built-in.o: In function `pnpacpi_allocated_resource':
-rsparser.c:(.text+0x31955): undefined reference to
-`pcibios_penalize_isa_irq'
-make[1]: *** [.tmp_vmlinux1] Error 1
---
+> Sorry for not letting you know that earlier, I was waiting for my post to 
+> show up so that I can reply to myself.
 
-This is a small patch for ./drivers/pnp/pnpacpi/rsparser.c
+Your message was too big and was probably rejected by the list.
 
---------------060302040109080907090504
-Content-Type: text/plain;
- name="rsparser.c_undefined_reference.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="rsparser.c_undefined_reference.diff"
+thanks,
 
---- linux-2.6.12.1/drivers/pnp/pnpacpi/rsparser.c	2005-06-24 20:12:26.000000000 +0300
-+++ /usr/src/linux-2.6.12.1/drivers/pnp/pnpacpi/rsparser.c	2005-06-24 20:03:32.000000000 +0300
-@@ -20,7 +20,13 @@
-  */
- #include <linux/kernel.h>
- #include <linux/acpi.h>
-+
-+#ifdef CONFIG_PCI
- #include <linux/pci.h>
-+#else
-+inline void pcibios_penalize_isa_irq(int irq) {}
-+#endif /* CONFIG_PCI */
-+
- #include "pnpacpi.h"
- 
- #ifdef CONFIG_IA64
-
---------------060302040109080907090504--
+greg k-h

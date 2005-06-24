@@ -1,43 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262880AbVFXAnV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262962AbVFXAqr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262880AbVFXAnV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 20:43:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262956AbVFXAnV
+	id S262962AbVFXAqr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 20:46:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262958AbVFXAqr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 20:43:21 -0400
-Received: from ns1.g-housing.de ([62.75.136.201]:41887 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S262880AbVFXAnT (ORCPT
+	Thu, 23 Jun 2005 20:46:47 -0400
+Received: from graphe.net ([209.204.138.32]:36523 "EHLO graphe.net")
+	by vger.kernel.org with ESMTP id S262965AbVFXAqJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 20:43:19 -0400
-Message-ID: <42BB5707.2070301@g-house.de>
-Date: Fri, 24 Jun 2005 02:42:47 +0200
-From: Christian Kujau <evil@g-house.de>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050404)
-X-Accept-Language: de-DE, de, en-us, en
+	Thu, 23 Jun 2005 20:46:09 -0400
+Date: Thu, 23 Jun 2005 17:46:08 -0700 (PDT)
+From: Christoph Lameter <christoph@lameter.com>
+X-X-Sender: christoph@graphe.net
+To: "John W. Linville" <linville@tuxdriver.com>
+cc: Clyde Griffin <CGRIFFIN@novell.com>, linux-kernel@vger.kernel.org,
+       Jan Beulich <JBeulich@novell.com>
+Subject: Re: Novell Linux Kernel Debugger (NLKD)
+In-Reply-To: <20050624003515.GB28077@tuxdriver.com>
+Message-ID: <Pine.LNX.4.62.0506231744430.26572@graphe.net>
+References: <s2bae938.075@sinclair.provo.novell.com>
+ <Pine.LNX.4.62.0506231723360.26299@graphe.net> <20050624003515.GB28077@tuxdriver.com>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Updated git HOWTO for kernel hackers
-References: <42B9E536.60704@pobox.com> <Pine.LNX.4.58.0506221603120.11175@ppc970.osdl.org> <42BA0E0B.3080302@g-house.de> <Pine.LNX.4.58.0506221829270.11175@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0506221829270.11175@ppc970.osdl.org>
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -5.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds schrieb:
-> Yes, but I want git to at least be usable stand-alone, and have example
-> scripts for the basics.
+On Thu, 23 Jun 2005, John W. Linville wrote:
 
-ah, ok. thanks for clarifying this. (and the snipped rest)
+> On Thu, Jun 23, 2005 at 05:24:04PM -0700, Christoph Lameter wrote:
+> > On Thu, 23 Jun 2005, Clyde Griffin wrote:
+> > 
+> > > Novell engineering is introducing the Novell Linux Kernel Debugger 
+> > > (NLKD) as an open source project intended to provide an enhanced and 
+> > > robust debugging experience for Linux kernel developers.
+> > 
+> > Umm... How does this differ from KDB?
+> 
+> Sounds like it overlaps w/ both KDB and KGDB...still, the question
+> stands...
 
-
-Christian.
-
--- 
-BOFH excuse #383:
-
-Your processor has taken a ride to Heaven's Gate on the UFO behind
-Hale-Bopp's comet.
+I would appreciate efforts to consolidate all of these and finally get one 
+into the kernel.

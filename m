@@ -1,50 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261429AbVFXID2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262958AbVFXINT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261429AbVFXID2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 04:03:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262858AbVFXID2
+	id S262958AbVFXINT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 04:13:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263211AbVFXINT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 04:03:28 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:3334 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261429AbVFXIDU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 04:03:20 -0400
-Date: Fri, 24 Jun 2005 10:03:15 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Joel Becker <joel.becker@oracle.com>
-Cc: ocfs2-devel@oss.oracle.com, linux-kernel@vger.kernel.org
-Subject: [-mm patch] CONFIGFS_FS shouldn't be user-visible
-Message-ID: <20050624080315.GC26545@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Fri, 24 Jun 2005 04:13:19 -0400
+Received: from [67.137.28.189] ([67.137.28.189]:5266 "EHLO vger")
+	by vger.kernel.org with ESMTP id S262958AbVFXIND (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Jun 2005 04:13:03 -0400
+Message-ID: <42BBABE9.7010300@utah-nac.org>
+Date: Fri, 24 Jun 2005 00:44:57 -0600
+From: jmerkey <jmerkey@utah-nac.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jan Beulich <JBeulich@novell.com>
+Cc: Christoph Lameter <christoph@lameter.com>,
+       Clyde Griffin <CGRIFFIN@novell.com>,
+       "John W. Linville" <linville@tuxdriver.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Novell Linux Kernel Debugger (NLKD)
+References: <42BBD4A1020000780001D4D1@emea1-mh.id2.novell.com>
+In-Reply-To: <42BBD4A1020000780001D4D1@emea1-mh.id2.novell.com>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I haven't found any reason why CONFIGFS_FS is user-visible.
-Other parts of the kernel using configfs should simply select it.
+Jan Beulich wrote:
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+>>1. No back trace
+>>    
+>>
+>
+>You're the second one to mention this, and I wonder where you take this from.
+>  
+>
+Check the version binaries on NovellForge. Didn't work. Suse Linux perhaps?
 
---- linux-2.6.12-mm1-full/fs/Kconfig.old	2005-06-21 23:19:19.000000000 +0200
-+++ linux-2.6.12-mm1-full/fs/Kconfig	2005-06-21 23:22:30.000000000 +0200
-@@ -981,16 +981,7 @@
- 	  ramfs.
- 
- config CONFIGFS_FS
--	tristate "Userspace-driven configuration filesystem (EXPERIMENTAL)"
--	depends on EXPERIMENTAL
--	help
--	  configfs is a ram-based filesystem that provides the converse
--	  of sysfs's functionality. Where sysfs is a filesystem-based
--	  view of kernel objects, configfs is a filesystem-based manager
--	  of kernel objects, or config_items.
--
--	  Both sysfs and configfs can and should exist together on the
--	  same system. One is not a replacement for the other.
-+	tristate
- 
- config RELAYFS_FS
- 	tristate "Relayfs file system support"
+>  
+>
+>>2. Doesn't run standalone fully embeded in the kernel
+>>    
+>>
+>
+>What do you mean with 'fully embedded'? As long as the agents aren't compiled as modules, everything's right in the kernel (of course, not the mainline one, but that's same as for kdb and kgdb).
+>  
+>
+
+Right.
+
+>  
+>
+>>3. Not fully open source (since it's not embeded in the kernel)
+>>    
+>>
+>
+>What has embedding things in the kernel to do with being open source?
+>  
+>
+
+Debuggers need to be open source to work on Linux (socially work, not 
+technically). They also need to use kdb
+and gdb as a base, so you can have one patch that runs on all the kdb 
+versions for the kernels. Then you can use kdb
+and let it do all the interfacing beneath you and leverage KDB and the 
+porting effort there. Hook kdb() and traps.c
+for events to userspace.
+
+
+>  
+>
+>>5. No advanced recursive descent parser for conditional breakpoints
+>>    
+>>
+>
+>Where've you seen this? What functionality does the parser miss?
+>  
+>
+
+Your architecture is event based, but there's no source code to change 
+this, just a white paper. How do I know a conditional
+breakpoint is running real time when it triggers. No source code, no 
+interest.... Social Problem.
+
+There is ****NO**** commerical debugger business on Linux. I don't agree 
+that the GPL contaminates most
+kernel modules, but a kernel debugger is one exception, because it has 
+to include key kernel header files and truly is
+an "integrated" component (at least a decent one is).
+
+If you want to promote an interesting project and make no money off of 
+it, open source your debugger, put it on KDB
+as a base, and lots of folks will use it. We tried the whole kernel 
+debugger product thing, and there are actual legal
+issues if you choose not to open source it. File Systems, drivers, etc. 
+-- not the case. Kernel debugger is the case.
+
+:-)
+
+Jeff
+
+
+>Jan
+>
+>
+>  
+>
 

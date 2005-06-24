@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262991AbVFXPOC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263016AbVFXPRp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262991AbVFXPOC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 11:14:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262985AbVFXPOC
+	id S263016AbVFXPRp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 11:17:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263008AbVFXPRo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 11:14:02 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:48317 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S262959AbVFXPNs (ORCPT
+	Fri, 24 Jun 2005 11:17:44 -0400
+Received: from mail.kroah.org ([69.55.234.183]:5336 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262985AbVFXPQd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 11:13:48 -0400
-Message-Id: <200506241511.j5OFBSn9013742@laptop11.inf.utfsm.cl>
-To: Denis Vlasenko <vda@ilport.com.ua>
-cc: Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-       David Lang <david.lang@digitalinsight.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Netdev List <netdev@vger.kernel.org>
-Subject: Re: [git patch] urgent e1000 fix 
-In-Reply-To: Message from Denis Vlasenko <vda@ilport.com.ua> 
-   of "Fri, 24 Jun 2005 09:49:05 +0300." <200506240949.05620.vda@ilport.com.ua> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Fri, 24 Jun 2005 11:11:28 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.19.1]); Fri, 24 Jun 2005 11:11:30 -0400 (CLT)
+	Fri, 24 Jun 2005 11:16:33 -0400
+Date: Fri, 24 Jun 2005 08:16:15 -0700
+From: Greg KH <greg@kroah.com>
+To: Michael Tokarev <mjt@tls.msk.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] ndevfs - a "nano" devfs
+Message-ID: <20050624151615.GA29854@kroah.com>
+References: <20050624081808.GA26174@kroah.com> <42BBFB55.3040008@tls.msk.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42BBFB55.3040008@tls.msk.ru>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Denis Vlasenko <vda@ilport.com.ua> wrote:
-> On Friday 24 June 2005 02:33, Linus Torvalds wrote:
-> > To actually allow real fuzz or to allow real whitespace differences in the
-> > patch data itself is a _much_ bigger issue than this trivial patch
-> > corruption, and I'd prefer to avoid going there if at all possible.
-> 
-> How about automatic stripping of _trailing_ whitespace on all incoming
-> patches? IIRC no file type (C, sh, Makefile, you name it) depends on
-> conservation of it, thus it's 100% safe.
+On Fri, Jun 24, 2005 at 04:23:49PM +0400, Michael Tokarev wrote:
 
-Works iff the patched code is similarly mangled first... I can hear a
-distant howling on LKML on the bare thought of proposing this.
+<snip>
 
-You also can't assume that spaces at the end of lines make no difference
-for all uses people might want to put git to.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+I'll respond to your comments later, it's too early...
 
+> A question.  I can't apply this to 2.6.12, it fails in
+> drivers/base/class.c -- the main portion i think.  What's
+> this patch against?
+
+2.6.12-git5, sorry I should have mentioned that.
+
+> And another question.  Why it isn't possible to use
+> plain tmpfs for this sort of things?
+
+What do you mean?  What's wrong with a ramfs based fs?  To use tmpfs
+would require a lot more work.  But if you want to do it, I'll gladly
+take patches :)
+
+> Why to create another filesystem, instead of just using current
+> tmpfs and call mknod/unlink on it as appropriate?
+
+Um, that's about all that this code does.
+
+> This same tmpfs can be used by udev too (to create that "policy"-based
+> names), and it gives us all the directories and other stuff...
+
+udev doesn't need a kernel specific fs.
+
+thanks,
+
+greg k-h

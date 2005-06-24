@@ -1,51 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263137AbVFXEWd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263121AbVFXEWe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263137AbVFXEWd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 00:22:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263132AbVFXEVi
+	id S263121AbVFXEWe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 00:22:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263134AbVFXEVv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 00:21:38 -0400
-Received: from webmail.topspin.com ([12.162.17.3]:33605 "EHLO
-	exch-1.topspincom.com") by vger.kernel.org with ESMTP
-	id S263104AbVFXEE1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 00:04:27 -0400
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: [PATCH 14/14] IB/mthca: Bump version
-In-Reply-To: <2005623214.1yVGvzp1yi0UQ3bC@topspin.com>
-X-Mailer: Roland's Patchbomber
-Date: Thu, 23 Jun 2005 21:04:21 -0700
-Message-Id: <2005623214.KAnnSVPywiOCFGvX@topspin.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: akpm@osdl.org
-Content-Transfer-Encoding: 7BIT
-From: Roland Dreier <roland@topspin.com>
-X-OriginalArrivalTime: 24 Jun 2005 04:04:21.0339 (UTC) FILETIME=[CCD9CAB0:01C57871]
+	Fri, 24 Jun 2005 00:21:51 -0400
+Received: from graphe.net ([209.204.138.32]:7363 "EHLO graphe.net")
+	by vger.kernel.org with ESMTP id S263115AbVFXEGd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Jun 2005 00:06:33 -0400
+Date: Thu, 23 Jun 2005 21:06:30 -0700 (PDT)
+From: Christoph Lameter <christoph@lameter.com>
+X-X-Sender: christoph@graphe.net
+To: "David S. Miller" <davem@davemloft.net>
+cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org, shai@scalex86.org,
+       akpm@osdl.org, netdev@vger.kernel.org, herbert@gondor.apana.org.au
+Subject: Re: [PATCH] dst_entry structure use,lastuse and refcnt abstraction
+In-Reply-To: <20050623.205447.66178303.davem@davemloft.net>
+Message-ID: <Pine.LNX.4.62.0506232057340.29222@graphe.net>
+References: <Pine.LNX.4.62.0506232037430.28814@graphe.net>
+ <20050623.204702.26274560.davem@davemloft.net> <Pine.LNX.4.62.0506232047450.29103@graphe.net>
+ <20050623.205447.66178303.davem@davemloft.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -5.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It's about time for a version bump.
+On Thu, 23 Jun 2005, David S. Miller wrote:
 
-Signed-off-by: Roland Dreier <roland@topspin.com>
+> Ok.  You're going to have to come up with something better
+> than a %3 AIM benchmark increase with 5000 threads to justify
+> those invasive NUMA changes, and thus this infrastructure for
+> it.
 
----
+I am sure one can do better than that. The x445 is the smallest NUMA box 
+that I know of and the only one available in the context of that project. 
+But I am also not sure that this will reach proportions  that will 
+outweigh the complexity added by these patches. What would be 
+the performance benefit that we would need to see to feel that is 
+is right to get such a change in?
 
- linux.git/drivers/infiniband/hw/mthca/mthca_dev.h |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+> I'm picking those examples, because I am rather certain your patches
+> will hurt performance in those cases.  The data structure size
+> expansion and extra memory allocations alone for the per-node dst
+> stuff should be good about doing that.
 
-
-
---- linux.git.orig/drivers/infiniband/hw/mthca/mthca_dev.h	2005-06-23 13:03:09.283107924 -0700
-+++ linux.git/drivers/infiniband/hw/mthca/mthca_dev.h	2005-06-23 13:03:10.111928547 -0700
-@@ -47,8 +47,8 @@
- 
- #define DRV_NAME	"ib_mthca"
- #define PFX		DRV_NAME ": "
--#define DRV_VERSION	"0.06-pre"
--#define DRV_RELDATE	"November 8, 2004"
-+#define DRV_VERSION	"0.06"
-+#define DRV_RELDATE	"June 23, 2005"
- 
- enum {
- 	MTHCA_FLAG_DDR_HIDDEN = 1 << 1,
-
+Hmm. I like the idea of a separate routing cache per node. May actually 
+reach higher performance than splitting the counters. Lets think a bit 
+about that.

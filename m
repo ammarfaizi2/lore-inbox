@@ -1,47 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263144AbVFXGRp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263175AbVFXGVX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263144AbVFXGRp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 02:17:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263168AbVFXGRp
+	id S263175AbVFXGVX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 02:21:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263176AbVFXGVX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 02:17:45 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:40585
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S263144AbVFXGRK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 02:17:10 -0400
-Date: Thu, 23 Jun 2005 23:16:55 -0700 (PDT)
-Message-Id: <20050623.231655.68159153.davem@davemloft.net>
-To: clameter@engr.sgi.com
-Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org, shai@scalex86.org,
-       akpm@osdl.org, netdev@vger.kernel.org, herbert@gondor.apana.org.au
-Subject: Re: [PATCH] dst_entry structure use,lastuse and refcnt abstraction
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <Pine.LNX.4.62.0506232256360.17993@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.62.0506232057340.29222@graphe.net>
-	<20050623.211140.131918815.davem@davemloft.net>
-	<Pine.LNX.4.62.0506232256360.17993@schroedinger.engr.sgi.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Fri, 24 Jun 2005 02:21:23 -0400
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:6964
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S263175AbVFXGVR convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Jun 2005 02:21:17 -0400
+Message-Id: <42BBC297020000780001D4A5@emea1-mh.id2.novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0 
+Date: Fri, 24 Jun 2005 08:21:43 +0200
+From: "Jan Beulich" <JBeulich@novell.com>
+To: "jmerkey" <jmerkey@utah-nac.org>
+Cc: "Christoph Lameter" <christoph@lameter.com>,
+       "Clyde Griffin" <CGRIFFIN@novell.com>,
+       "John W. Linville" <linville@tuxdriver.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Novell Linux Kernel Debugger (NLKD)
+References: <s2bae938.075@sinclair.provo.novell.com>  <Pine.LNX.4.62.0506231723360.26299@graphe.net>  <20050624003515.GB28077@tuxdriver.com> <42BB510B.5080500@utah-nac.org>
+In-Reply-To: <42BB510B.5080500@utah-nac.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Christoph Lameter <clameter@engr.sgi.com>
-Date: Thu, 23 Jun 2005 23:03:45 -0700 (PDT)
+>It's a GBD replacement and is not fully open source.
 
-> Ok. Then we are done. With 58 Itanium processors and 200G Ram I get 
-> more than 10% improvement ;-). With 500 tasks we have 453 vs. 499 j/m/t.
-> That is 9.21%. For 300 tasks we have 9.4% etc. I am sure that I can push 
-> this some more with bigger counts of processors and also some other NUMA 
-> related performance issues.
+What is not open source in it ()?
 
-So it took 7 times more processors to increase the performance gain by
-just over 3 on a microscopic synthetic benchmark.  That's not
-impressive at all.
+>KDB is at present more capable. It has a lot of promise, but it does not 
+>have the all the architectural
+>features necessary to replace either KDB or GDB at present.
 
-And you still haven't shown what happens for the workloads I
-suggested.  A web benchmark, with say a thousand unique clients, would
-be sufficient for one of those btw.  That case has very low dst
-locality, yet dsts are useful because you'll have about 2 or 3
-concurrent connections per dst.
+While I never used or saw kdb, I'd be curious about what you immediately saw missing...
+
+Jan
+

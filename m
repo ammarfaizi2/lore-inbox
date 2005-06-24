@@ -1,64 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263141AbVFXQmX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263158AbVFXQ6w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263141AbVFXQmX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 12:42:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263135AbVFXQmN
+	id S263158AbVFXQ6w (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 12:58:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263163AbVFXQ6w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 12:42:13 -0400
-Received: from mail.kroah.org ([69.55.234.183]:63375 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263151AbVFXQls (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 12:41:48 -0400
-Date: Fri, 24 Jun 2005 09:39:40 -0700
-From: Greg KH <greg@kroah.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Quadriplegic Leprechaun <quadriplegic_leprechaun@ukonline.co.uk>,
-       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-       Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.12-mm1: PCI compile error with CONFIG_HOTPLUG=n
-Message-ID: <20050624163940.GA30685@kroah.com>
-References: <42BBBBC0.2050702@ukonline.co.uk> <20050624092454.GE26545@stusta.de>
+	Fri, 24 Jun 2005 12:58:52 -0400
+Received: from fed1rmmtao12.cox.net ([68.230.241.27]:14500 "EHLO
+	fed1rmmtao12.cox.net") by vger.kernel.org with ESMTP
+	id S263158AbVFXQ6s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Jun 2005 12:58:48 -0400
+Date: Fri, 24 Jun 2005 09:58:42 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Andrei Konovalov <akonovalov@ru.mvista.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, yshpilevsky@ru.mvista.com,
+       linuxppc-embedded@ozlabs.org
+Subject: Re: [PATCH] ppc32: add Freescale MPC885ADS board support
+Message-ID: <20050624165841.GD3628@smtp.west.cox.net>
+References: <42BAD78E.1020801@ru.mvista.com> <20050623140522.GA25724@logos.cnet> <42BC2501.5090101@ru.mvista.com> <20050624154311.GB3628@smtp.west.cox.net> <42BC34CE.603@ru.mvista.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050624092454.GE26545@stusta.de>
-User-Agent: Mutt/1.5.8i
+In-Reply-To: <42BC34CE.603@ru.mvista.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 24, 2005 at 11:24:54AM +0200, Adrian Bunk wrote:
-> On Fri, Jun 24, 2005 at 08:52:32AM +0100, Quadriplegic Leprechaun wrote:
+On Fri, Jun 24, 2005 at 08:29:02PM +0400, Andrei Konovalov wrote:
+> Tom Rini wrote:
+[snip]
+> >Lets just drop that hunk then..
 > 
-> > Hi,
-> 
-> Hi,
-> 
-> > With the attached config, I get an undefined symbol error when building 
-> > the following kernel:
-> > 
-> > $ head Makefile
-> > VERSION = 2
-> > PATCHLEVEL = 6
-> > SUBLEVEL = 12
-> > EXTRAVERSION = -mm1
-> > NAME=Woozy Numbat
-> > 
-> > And this is the error I get:
-> > [ ... lots of output snipped ... ]
-> >  LD      vmlinux
-> > arch/i386/pci/built-in.o(.init.text+0x101e): In function `pcibios_init':
-> > common.c: undefined reference to `pci_assign_unassigned_resources'
-> > make: *** [vmlinux] Error 1
-> 
-> thanks for this report.
-> 
-> @Ivan, Greg:
-> gregkh-pci-pci-assign-unassigned-resources.patch breaks compilation with 
-> CONFIG_HOTPLUG=n.
+> Do you mean not to use
+>   io_block_mapping(BCSR_ADDR, BCSR_ADDR, BCSR_SIZE, _PAGE_IO);
 
-Known problem, see the patch on lkml to fix this already.
+So I had myself slightly confused as first, but yes, what Eugene said at
+first is right, as shouldn't add more io_block_mappings, we should use
+ioremap() and fix drivers.
 
-thanks,
-
-greg k-h
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

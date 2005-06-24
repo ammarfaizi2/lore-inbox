@@ -1,85 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262989AbVFXCcP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263007AbVFXCeO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262989AbVFXCcP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 22:32:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263005AbVFXCcO
+	id S263007AbVFXCeO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 22:34:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263008AbVFXCeO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 22:32:14 -0400
-Received: from sj-iport-5.cisco.com ([171.68.10.87]:16555 "EHLO
-	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
-	id S262989AbVFXCbs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 22:31:48 -0400
-X-IronPort-AV: i="3.93,225,1115017200"; 
-   d="scan'208"; a="193881628:sNHT29090732"
-Message-ID: <42BB7083.2070107@cisco.com>
-Date: Fri, 24 Jun 2005 12:31:31 +1000
-From: Lincoln Dale <ltd@cisco.com>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
+	Thu, 23 Jun 2005 22:34:14 -0400
+Received: from web30705.mail.mud.yahoo.com ([68.142.200.138]:33170 "HELO
+	web30705.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S263007AbVFXCeC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 22:34:02 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=tgjBEZi27ezYyuVOJeiplFDFpnkYP0KUYhDa+QEKfLsjrJ5lRw9CpSiuZindYU0e5+nq4ll2yjU/4NQeip0jW/FbgRIMxYUJt1DliD0FeC8eeT6FGisVHiCGTvuGxI6yKbtAdZKklvw+TOgIlmoYp+PhkRil9UwNH7A0pPe3fzM=  ;
+Message-ID: <20050624023356.63888.qmail@web30705.mail.mud.yahoo.com>
+Date: Thu, 23 Jun 2005 19:33:56 -0700 (PDT)
+From: <spaminos-ker@yahoo.com>
+Reply-To: spaminos-ker@yahoo.com
+Subject: Re: cfq misbehaving on 2.6.11-1.14_FC3
+To: Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org
+Cc: Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <200506240933.55951.kernel@kolivas.org>
 MIME-Version: 1.0
-To: Hans Reiser <reiser@namesys.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, David Masover <ninja@slaphack.com>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: reiser4 plugins
-References: <200506231924.j5NJOvLA031008@laptop11.inf.utfsm.cl>	 <42BB31E9.50805@slaphack.com> <1119570225.18655.75.camel@localhost.localdomain> <42BB5E1A.70903@namesys.com>
-In-Reply-To: <42BB5E1A.70903@namesys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser wrote:
+--- Con Kolivas <kernel@kolivas.org> wrote:
+> I found the same, and the effect was blunted by noatime and 
+> journal_data_writeback (on ext3). Try them one at a time and see what you 
+> get.
 
->So you fundamentally reject the prototype it in one fs and then abstract
->it to others development model?
->  
->
+I had to move to a different box, but get the same kind of results (for ext3
+default mount options).
 
-Hans,
-after many years here now, one would have thought you would have "got" 
-this part of Linux: kernel development & code that gets into the kernel 
-only does so by getting past the benevolent dictators.
-instead, it seems that every time there is ReiserFS to be merged (and we 
-can go back in history a number of years here..), it always seems to 
-come as a great shock that your code won't be merged 'as-is' without 
-peer review & comment.
+Here are the latencies (all cfq) I get with different values for the mount
+parameters
 
-don't feel that you're being singled out here.  you aren't.  there isn't 
-any anti-Hans-and-his-filesystem conspiracy here.
-there are plenty of examples on where this has happened in Linux 
-previously in other parts of the tree.
-EVMS is a great example of similar things - a proposal to include kernel 
-code to do various volume-mgmt functions - which was basically 
-accomplishing the same goal as that of LVM/LVM2 and MD drivers (& DM 
-framework).
-the EVMS team are a great act to follow -  see 
-http://lwn.net/Articles/14714/ - they showed high levels of professional 
-conduct and made what was essentially a 'hard' but 'correct' decision in 
-reworking EVMS to use the same DM infrastructure as LVM2.
-there are countless other examples at various times - various 
-'competing' IPv6 projects, IPSec, various "hardware" (software) RAID 
-controllers, various IP offload schemes et al.
+ext2 default
+0.1s
 
-why does Reiserfs have to be any different?
+ext3 default
+52.6s avg
 
-you know that VFS is the mechanism in Linux.  you know (i hope..) how it 
-works.  it isn't so hard to see how many of the Reiser4 "plug-ins" could 
-be tied into VFS calls.
-OR, if they cannot TODAY, propose how VFS _COULD_ be made to do this.
+reiser defaults
+29s avg 5 minutes
+then, 
+12.9s avg
 
-the key here is trust.  and trust is a two-way street.
+ext3 rw,noatime,data=writeback
+0.1s avg
 
-the irony of this whole thread is that history is repeating itself.  see 
-http://www.ussg.iu.edu/hypermail/linux/kernel/0112.1/0519.html
-kernel developers pushed back on you 3 years ago - in 2001 - what has 
-really changed?
+reiser rw,noatime,data=writeback
+4s avg for 20 seconds
+then 0.1 seconds avg
 
-*an observation*
 
-cheers,
+So, indeed adding noatime,data=writeback to the mount options improves things a
+lot.
+I also tried without the noatime, and that doesn't make much difference to me.
 
-lincoln.
+That looks like a good workaround, I'll now try with the actual server and see
+how things go.
+
+Nicolas
+

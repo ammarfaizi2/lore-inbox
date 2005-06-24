@@ -1,59 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262905AbVFXOvF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262629AbVFXOvr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262905AbVFXOvF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 10:51:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262919AbVFXOvF
+	id S262629AbVFXOvr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 10:51:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262918AbVFXOvq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 10:51:05 -0400
-Received: from dvhart.com ([64.146.134.43]:12978 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S262905AbVFXOue convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 10:50:34 -0400
-Date: Fri, 24 Jun 2005 07:50:32 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-Cc: linux-kernel@vger.kernel.org, randy_dunlap <rdunlap@xenotime.net>,
-       Jesper Juhl <jesper.juhl@gmail.com>,
-       =?ISO-8859-1?Q?Micha=B3_Piotrowski?= <piotrowskim@trex.wsi.edu.pl>
-Subject: Re: Script to help users to report a BUG
-Message-ID: <9500000.1119624632@[10.10.2.4]>
-In-Reply-To: <4d8e3fd3050624050955aac41b@mail.gmail.com>
-References: <4d8e3fd30506191332264eb4ae@mail.gmail.com> <9a87484905062311246243774e@mail.gmail.com> <20050623120647.2a5783d1.rdunlap@xenotime.net> <9a87484905062312131e5f6b05@mail.gmail.com> <42BAF608.6080802@trex.wsi.edu.pl> <4d8e3fd305062313032c9789e8@mail.gmail.com> <42BAFE3E.2050407@trex.wsi.edu.pl> <4d8e3fd305062400524f0ad358@mail.gmail.com> <42BBC189.5050805@trex.wsi.edu.pl> <4d8e3fd3050624032264081edf@mail.gmail.com> <4d8e3fd3050624050955aac41b@mail.gmail.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Fri, 24 Jun 2005 10:51:46 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:13961 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S262629AbVFXOvf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Jun 2005 10:51:35 -0400
+Date: Fri, 24 Jun 2005 15:53:00 +0100
+From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Alexander Zarochentcev <zam@namesys.com>, Lincoln Dale <ltd@cisco.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, David Masover <ninja@slaphack.com>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: reiser4 plugins
+Message-ID: <20050624145259.GS29811@parcelfarce.linux.theplanet.co.uk>
+References: <200506231924.j5NJOvLA031008@laptop11.inf.utfsm.cl> <42BB31E9.50805@slaphack.com> <1119570225.18655.75.camel@localhost.localdomain> <42BB5E1A.70903@namesys.com> <42BB7083.2070107@cisco.com> <42BBAD0F.2040802@namesys.com> <20050624071159.GQ29811@parcelfarce.linux.theplanet.co.uk> <42BBCC65.8060709@namesys.com> <20050624144522.GR29811@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20050624144522.GR29811@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
---Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com> wrote (on Friday, June 24, 2005 14:09:18 +0200):
-
-> 2005/6/24, Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>:
->> 2005/6/24, Micha³ Piotrowski <piotrowskim@trex.wsi.edu.pl>:
->> > Hi,
->> > 
->> > Here is the latest version:
->> > http://stud.wsi.edu.pl/~piotrowskim/files/ort/ort-a10.tar.bz2
->> > 
->> > Changelog:
->> > - Paolo's text input method - txt_read() (old is txt_read_ed() it's only
->> > a test ;))
->> > - now only root [uid=0] may run script
->> > - small optimalisations (point 8 etc.)
->> > 
->> > Todo:
->> > - more email clients
->> > - bugzilla automatic posts?
+On Fri, Jun 24, 2005 at 03:45:23PM +0100, Al Viro wrote:
+> On Fri, Jun 24, 2005 at 02:03:33AM -0700, Hans Reiser wrote:
+> > Al Viro wrote:
+> > 
+> > >Have I missed the posting with analysis of changes in locking scheme
+> > >and update of proof of correctness?  If so, please give the message ID.
+> > >
+> > >_That_ had been the major showstopper for any merges, IIRC.
+> > >  
+> > >
+> > Ah, the prince of helpfulness has arrived.
+> > 
+> > Yes, as I remember,
 > 
-> May be Martin can help us ?
-> automatic post to bugzilla would be a great things!
+> Kindly put some efforts into remembering the thread that contains e.g.
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=109347094309283&w=2
+> 
+> If that work (summary: introduction of hybrid objects invalidates the
+> existing locking scheme for directories and that had lead at least to
+> several user-exploitable deadlocks described in details in the same
+> thread; current proof of correctness is in the tree, see
+> Documentation/filesystems/Directory-Locking.txt and at the very least
 
-Not really keen on that ... when the script goes wrong, it'll potentially
-file bugs at a huge rate. Plus you'd have to fill out fields, etc properly.
-
-M.
-
+	gaaack...  Sorry - should've proofread better -
+s/Directory-Locking.txt/directory-locking/ in the above.
+> it needs to be updated) had been done - please, give the message ID
+> of posting with such update.  If not - please, arrange getting it done.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

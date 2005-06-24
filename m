@@ -1,79 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263065AbVFXQVu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262256AbVFXQWX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263065AbVFXQVu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 12:21:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262256AbVFXQVu
+	id S262256AbVFXQWX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 12:22:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263106AbVFXQWX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 12:21:50 -0400
-Received: from RT-soft-2.Moscow.itn.ru ([80.240.96.70]:11976 "HELO
-	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S263065AbVFXQUE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 12:20:04 -0400
-Message-ID: <42BC34CE.603@ru.mvista.com>
-Date: Fri, 24 Jun 2005 20:29:02 +0400
-From: Andrei Konovalov <akonovalov@ru.mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+	Fri, 24 Jun 2005 12:22:23 -0400
+Received: from wproxy.gmail.com ([64.233.184.207]:10640 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262256AbVFXQWO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Jun 2005 12:22:14 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:subject:content-type;
+        b=o8+9mdHTf3vsIydMHiw0ft4jfjywGAZ5pe4vBFvNmZYVM2h5eZqCLTsGecv3tfLh8qr5a6qEv/lWMMIOqghUUhWf/sQYQni1sq+ocJrIg4ewo1h5Yesb0mGMHLwODnkRAOB56uftWBX2JrDr0GA83cd7iTXumtL5kZbx17OFY2E=
+Message-ID: <42BC41C4.7010501@gmail.com>
+Date: Fri, 24 Jun 2005 20:24:20 +0300
+From: Pasha Zubkov <pasha.zubkov@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050310)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Tom Rini <trini@kernel.crashing.org>
-CC: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, akpm@osdl.org,
-       linuxppc-embedded@ozlabs.org, linux-kernel@vger.kernel.org,
-       yshpilevsky@ru.mvista.com
-Subject: Re: [PATCH] ppc32: add Freescale MPC885ADS board support
-References: <42BAD78E.1020801@ru.mvista.com> <20050623140522.GA25724@logos.cnet> <42BC2501.5090101@ru.mvista.com> <20050624154311.GB3628@smtp.west.cox.net>
-In-Reply-To: <20050624154311.GB3628@smtp.west.cox.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2.6.12.1 & disabled CONFIG_PCI
+Content-Type: multipart/mixed;
+ boundary="------------060302040109080907090504"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom Rini wrote:
-> On Fri, Jun 24, 2005 at 07:21:37PM +0400, Andrei Konovalov wrote:
-> 
->>Hi Marcelo,
->>
->>Marcelo Tosatti wrote:
->>
->>>Hi Andrei,
->>>
->>>On Thu, Jun 23, 2005 at 07:38:54PM +0400, Andrei Konovalov wrote:
->>><snip>
->>>
->>>>diff --git a/arch/ppc/syslib/m8xx_setup.c b/arch/ppc/syslib/m8xx_setup.c
->>>>--- a/arch/ppc/syslib/m8xx_setup.c
->>>>+++ b/arch/ppc/syslib/m8xx_setup.c
->>>>@@ -369,7 +369,7 @@ m8xx_map_io(void)
->>>>#if defined(CONFIG_HTDMSOUND) || defined(CONFIG_RPXTOUCH) || 
->>>>defined(CONFIG_FB_RPX)
->>>>	io_block_mapping(HIOX_CSR_ADDR, HIOX_CSR_ADDR, HIOX_CSR_SIZE, 
->>>>	_PAGE_IO);
->>>>#endif
->>>>-#ifdef CONFIG_FADS
->>>>+#if defined(CONFIG_FADS) || defined(CONFIG_MPC885ADS)
->>>>	io_block_mapping(BCSR_ADDR, BCSR_ADDR, BCSR_SIZE, _PAGE_IO);
->>>>#endif
->>>>#ifdef CONFIG_PCI
->>>
->>>
->>>I suppose you also want to include CONFIG_MPC885ADS in the 
->>>io_block_mapping(IO_BASE) here?
->>
->>No, not at the moment at least.
->>Actually, the patch doesn't even #define IO_BASE.
->>In 2.4 that io_block_mapping(IO_BASE) was needed for PCMCIA / CF cards to 
->>work.
->>We haven't got to PCMCIA support in 2.6 yet, and PCMCIA is unlikely to work
->>as is in case of MPC885ADS, as drivers/pcmcia/m8xx_pcmcia.c is just missing.
->>We plan to address PCMCIA later.
-> 
-> 
-> Lets just drop that hunk then..
-> 
+This is a multi-part message in MIME format.
+--------------060302040109080907090504
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-Do you mean not to use
-   io_block_mapping(BCSR_ADDR, BCSR_ADDR, BCSR_SIZE, _PAGE_IO);
-?
+If CONFIG_PCI disabled then kernel can't compile properly.
 
-Thanks,
-Andrei
+This is an error:
+--
+  LD      .tmp_vmlinux1
+drivers/built-in.o: In function `pnpacpi_allocated_resource':
+rsparser.c:(.text+0x31955): undefined reference to
+`pcibios_penalize_isa_irq'
+make[1]: *** [.tmp_vmlinux1] Error 1
+--
 
+This is a small patch for ./drivers/pnp/pnpacpi/rsparser.c
+
+--------------060302040109080907090504
+Content-Type: text/plain;
+ name="rsparser.c_undefined_reference.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="rsparser.c_undefined_reference.diff"
+
+--- linux-2.6.12.1/drivers/pnp/pnpacpi/rsparser.c	2005-06-24 20:12:26.000000000 +0300
++++ /usr/src/linux-2.6.12.1/drivers/pnp/pnpacpi/rsparser.c	2005-06-24 20:03:32.000000000 +0300
+@@ -20,7 +20,13 @@
+  */
+ #include <linux/kernel.h>
+ #include <linux/acpi.h>
++
++#ifdef CONFIG_PCI
+ #include <linux/pci.h>
++#else
++inline void pcibios_penalize_isa_irq(int irq) {}
++#endif /* CONFIG_PCI */
++
+ #include "pnpacpi.h"
+ 
+ #ifdef CONFIG_IA64
+
+--------------060302040109080907090504--

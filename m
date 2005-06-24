@@ -1,64 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263069AbVFXJFH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263083AbVFXJRv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263069AbVFXJFH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 05:05:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263065AbVFXJEb
+	id S263083AbVFXJRv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 05:17:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263117AbVFXJRv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 05:04:31 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:14235 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S263063AbVFXJD7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 05:03:59 -0400
-Message-ID: <42BBCC65.8060709@namesys.com>
-Date: Fri, 24 Jun 2005 02:03:33 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
+	Fri, 24 Jun 2005 05:17:51 -0400
+Received: from naig.caltech.edu ([131.215.49.17]:25305 "EHLO naig.caltech.edu")
+	by vger.kernel.org with ESMTP id S263083AbVFXJRq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Jun 2005 05:17:46 -0400
+Message-Id: <200506240917.j5O9Hfx7003557@naig.caltech.edu>
+From: Pls.fax.instead.of.e-mail@nntp-server.caltech.edu
+To: mlist-linux-kernel@nntp-server.caltech.edu
+Subject: To make various molded parts for you(Small Q'ty OK)(cmb+wlw)
+Date: Fri, 24 Jun 05 12:19:53 Taipei Standard Time
 MIME-Version: 1.0
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Alexander Zarochentcev <zam@namesys.com>
-CC: Lincoln Dale <ltd@cisco.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       David Masover <ninja@slaphack.com>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: reiser4 plugins
-References: <200506231924.j5NJOvLA031008@laptop11.inf.utfsm.cl> <42BB31E9.50805@slaphack.com> <1119570225.18655.75.camel@localhost.localdomain> <42BB5E1A.70903@namesys.com> <42BB7083.2070107@cisco.com> <42BBAD0F.2040802@namesys.com> <20050624071159.GQ29811@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20050624071159.GQ29811@parcelfarce.linux.theplanet.co.uk>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed;boundary= "----=_NextPart_000_001A_3299D0E2.B5F4ECDA"
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Viro wrote:
+------=_NextPart_000_001A_3299D0E2.B5F4ECDA
+Content-Type: text/plain; charset= "US-ASCII"
+Content-Transfer-Encoding: base64
 
->Have I missed the posting with analysis of changes in locking scheme
->and update of proof of correctness?  If so, please give the message ID.
->
->_That_ had been the major showstopper for any merges, IIRC.
->  
->
-Ah, the prince of helpfulness has arrived.
-
-Yes, as I remember, last time with V3 you announced that there were race
-conditions that we needed to fix if V3 was to be merged, you would not
-tell us what they were when asked, Linus merged us anyway, you never did
-tell us what they were, later vs fixed some race conditions but I have
-no idea if they were the same ones you found, oh well, getting rid of
-bugs never was your objective was it?  Does V3 still have those race
-conditions you spoke of?
-
-Proof of correctness, is that where we check and see if the filesystems
-all mount/unmount before checking in code changes to the stable release
-branch?  Oh dear, that was unkind of me.
-
-Ok, sure, define what you want in the way of a proof of correctness and
-an analysis.  Is this a new VFS tradition?  Is it documented anywhere? 
-Are there tools for it?  Probably I should ask Zam if we already did it
-too.....  Zam?
-
-Hans
+RGVhciBTaXIvTWFkYW0sDQoNCkZJUlNUIE9GIEFMTCxQTEVBU0UgS0lORExZIE5PVEUgVEhJ
+UyBFLU1BSUwgSVMgU0VOVCBCWQ0KT1VSICJBRFZFUlRJU0lORyBDT01QQU5ZIiBBTkQgVEhF
+IEUtTUFJTCBBRERSRVNTIElTDQpOT1QgIlJFQUwiKFZJUlRVQUwpLFRIRVJFRk9SRSxQTEVB
+U0UgQ09OVEFDVCBVUw0KVklBICJGQVgiICBPUiAiUE9TVCIuRE9OJ1QgRElSRUNUTFkgUkVT
+UE9OU0UgVklBICIgRS1NQUlMIg0KQkVDQVVTRSBXRSBDQU4nVCBSRUNFSVZFIFlPVVIgRS1N
+QUlMLg0KSUYgWU9VIFdBTlQgVE8gQkUgUkVNT1ZFRCBGUk9NIFRIRSBMSVNULFBMRUFTRSBB
+RFZJU0UNCllPVVIgRS1NQUlMIEFERFJFU1MgVklBICJGQVgiIE9SICJQT1NUIi4NCg0KV2Ug
+YXJlIHRoZSBwcm9mZXNzaW9uYWwgbW9sZCAmIGRpZSBtYWtlciBhbmQgbW9sZGVkIHBhcnRz
+KG1vbGRpbmdzKSBzdXBwbGllcg0KZm9yIHRoZSBmb2xsb3dpbmcgcGFydHM6DQoqIENhc3Rp
+bmJncyhzYW5kIGNhc3RpbmcpIGZvciBJcm9uICYgQWx1bWluaXVtDQoqIFBsYXN0aWMgSW5q
+ZWN0aW9uIG1vbGRpbmdzLg0KKiBaaW5jIG9yIEFsdW1pbml1bSAoUHJlc3N1cmUpIERpZSBD
+YXN0aW5ncy4NCiogU2hlZXQgTWV0YWwgU3RhbXBpbmdzLg0KKiBPaWwgU2VhbHMgJiBvdGhl
+ciBSdWJiZXIgTW9sZGluZ3MoYm90aCBmb3IgaW5kdXN0cmlhbCBvciBnZW5lcmFsIHVzZXMp
+Lg0KKiBWYXJpb3VzIE1hZ25ldHMuDQoqIE1hY2hpbmluZ3MoTWFjaGluZWQgcGFydHMpDQoq
+IFByZWNpc2lvbiBNYWNoaW5pbmdzLg0KDQpTTUFMTCBPUkRFUiBJUyBPSyxQTEVBU0UgQ09O
+VEFDVCBVUyBUTyBTQVZFIFlPVVIgQ09TVCENCg0KVGhhbmsgeW91DQoNCkJlc3QgUmVnYXJk
+cw0KSi5TLkZ1L1ByZXNpZGVudCAmIENFTw0KTm8uMTA3LEt1YW4tRnUgUmQuLEJlaS1Eb3Uo
+NTIxKSxDaGFuIGdod2EgSHNpZW4sVGFpd2FuLg0KRmF4Ojg4Ni00LTg4NzMwNTYgKDg4NiBp
+cyB0aGUgY291bnRyeSBjb2RlKQ0KDQogICAg
+------=_NextPart_000_001A_3299D0E2.B5F4ECDA--

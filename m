@@ -1,69 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263015AbVFXJ2j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263082AbVFXJeQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263015AbVFXJ2j (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 05:28:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263241AbVFXJ2i
+	id S263082AbVFXJeQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 05:34:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263117AbVFXJeQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 05:28:38 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:65286 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S263257AbVFXJY4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 05:24:56 -0400
-Date: Fri, 24 Jun 2005 11:24:54 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Quadriplegic Leprechaun <quadriplegic_leprechaun@ukonline.co.uk>,
-       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: 2.6.12-mm1: PCI compile error with CONFIG_HOTPLUG=n
-Message-ID: <20050624092454.GE26545@stusta.de>
-References: <42BBBBC0.2050702@ukonline.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42BBBBC0.2050702@ukonline.co.uk>
-User-Agent: Mutt/1.5.9i
+	Fri, 24 Jun 2005 05:34:16 -0400
+Received: from bizon.gios.gov.pl ([212.244.124.8]:19162 "EHLO
+	bizon.gios.gov.pl") by vger.kernel.org with ESMTP id S263082AbVFXJeJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Jun 2005 05:34:09 -0400
+Date: Fri, 24 Jun 2005 11:33:58 +0200 (CEST)
+From: Krzysztof Oledzki <olel@ans.pl>
+X-X-Sender: olel@bizon.gios.gov.pl
+To: Mark Lord <lkml@rtr.ca>
+cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: Re: SATA speed. Should be 150 or 133?
+In-Reply-To: <42BB794B.6080109@rtr.ca>
+Message-ID: <Pine.LNX.4.62.0506241127210.3016@bizon.gios.gov.pl>
+References: <Pine.LNX.4.62.0506240135340.29382@bizon.gios.gov.pl>
+ <42BB794B.6080109@rtr.ca>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-187430788-1671707983-1119605638=:3016"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 24, 2005 at 08:52:32AM +0100, Quadriplegic Leprechaun wrote:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-> Hi,
+---187430788-1671707983-1119605638=:3016
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 
-Hi,
 
-> With the attached config, I get an undefined symbol error when building 
-> the following kernel:
-> 
-> $ head Makefile
-> VERSION = 2
-> PATCHLEVEL = 6
-> SUBLEVEL = 12
-> EXTRAVERSION = -mm1
-> NAME=Woozy Numbat
-> 
-> And this is the error I get:
-> [ ... lots of output snipped ... ]
->  LD      vmlinux
-> arch/i386/pci/built-in.o(.init.text+0x101e): In function `pcibios_init':
-> common.c: undefined reference to `pci_assign_unassigned_resources'
-> make: *** [vmlinux] Error 1
 
-thanks for this report.
+On Thu, 23 Jun 2005, Mark Lord wrote:
 
-@Ivan, Greg:
-gregkh-pci-pci-assign-unassigned-resources.patch breaks compilation with 
-CONFIG_HOTPLUG=n.
+> True SATA drives ignore the "transfer speed",
+> as it really is meaningless and does not apply.
+So, am I the the only person confused by this message? ;)
+There is "SATA max UDMA/133" not "PATA max UDMA/133".
 
-> Quad
+> But most (all?) first-gen SATA drives are really
+> PATA drives with a SATA bridge built-in.
+> Some of those drives require that Linux set the
+> DMA transfer speed for them to work reliably.
+Oh, so how to check true (current) speed?
 
-cu
-Adrian
+> Last I looked, the highest valid PATA transfer
+> speed was still "UDMA/133".  150 just plain
+> doesn't exist for PATA (and the whole concept
+> doesn't exist for SATA, so ..)
+OK :)
 
--- 
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Best regards,
 
+ =09=09=09=09Krzysztof Ol=EAdzki
+---187430788-1671707983-1119605638=:3016--

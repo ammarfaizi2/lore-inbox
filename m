@@ -1,43 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261266AbVFXMZ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261440AbVFXMgK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261266AbVFXMZ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 08:25:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261840AbVFXMZC
+	id S261440AbVFXMgK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 08:36:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261902AbVFXMgK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 08:25:02 -0400
-Received: from viefep15-int.chello.at ([213.46.255.19]:24363 "EHLO
-	viefep15-int.chello.at") by vger.kernel.org with ESMTP
-	id S261266AbVFXMYy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 08:24:54 -0400
-To: linux-kernel@vger.kernel.org
-Subject: GDTH error on 2.6
-From: Mario Lang <mlang@delysid.org>
-Date: Fri, 24 Jun 2005 14:24:52 +0200
-Message-ID: <877jgkndrf.fsf@lexx.delysid.org>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Fri, 24 Jun 2005 08:36:10 -0400
+Received: from 41.150.104.212.access.eclipse.net.uk ([212.104.150.41]:3789
+	"EHLO pinky.shadowen.org") by vger.kernel.org with ESMTP
+	id S261440AbVFXMgA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Jun 2005 08:36:00 -0400
+Date: Fri, 24 Jun 2005 13:35:49 +0100
+To: rmk+lkml@arm.linux.org.uk, haveblue@us.ibm.com
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>, akpm@osdl.org
+Subject: Re: Finding what change broke ARM
+Message-ID: <20050624123549.GA10636@shadowen.org>
+References: <20050624101951.B23185@flint.arm.linux.org.uk> <20050624105328.C23185@flint.arm.linux.org.uk> <20050624113258.A27909@flint.arm.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050624113258.A27909@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.9i
+From: Andy Whitcroft <apw@shadowen.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+> Well, this fixes the problem, but I doubt people will like it.
 
-After upgrading an existing system from 2.4 to 2.6, we noticed
-a strange error message from the DGTH module:
+This looks like a problem with the way the configuration options where
+changed to allow more than two memory models for SPARSMEM.  I think the
+right fix is the patch below.  Russell could you try this one instead.
+Dave, you did most of the work on the configuration side could you look
+this over (assuming it works!).
 
-GDT-HA 0: Unknown SCSI command 0x4d to cache service !
-SCSI error : <0 0 0 0> return code = 0x50000
+-apw
 
-Which repeats itself over and over again.
-
-This is with version 3.04 of gdth.c from
-2.6.9-5.0.5.ELsmp SMP 686 REGPARM 4KSTACKS gcc-3.4
-
-Has anyone ever seen this behaviour, and perhaps knows a fix for it?
-
-We've already done a controller BIOS upgrade, but the problem did
-not go away.
-
--- 
-CYa,
-  Mario
+Signed-off-by: Andy Whitcroft <apw@shadowen.org>
+---
+ Kconfig |    3 +--
+ 1 files changed, 1 insertion(+), 2 deletions(-)
+diff -upN reference/arch/arm/Kconfig current/arch/arm/Kconfig
+--- reference/arch/arm/Kconfig
++++ current/arch/arm/Kconfig
+@@ -161,7 +161,6 @@ config ARCH_RPC
+ config ARCH_SA1100
+ 	bool "SA1100-based"
+ 	select ISA
+-	select DISCONTIGMEM
+ 
+ config ARCH_S3C2410
+ 	bool "Samsung S3C2410"
+@@ -345,7 +344,7 @@ config PREEMPT
+ 
+ config ARCH_DISCONTIGMEM_ENABLE
+ 	bool
+-	default (ARCH_LH7A40X && !LH7A40X_CONTIGMEM)
++	default (ARCH_LH7A40X && !LH7A40X_CONTIGMEM) || ARCH_SA1100
+ 	help
+ 	  Say Y to support efficient handling of discontiguous physical memory,
+ 	  for architectures which are either NUMA (Non-Uniform Memory Access)

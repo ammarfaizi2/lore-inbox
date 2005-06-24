@@ -1,61 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262993AbVFXDDz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263017AbVFXDLL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262993AbVFXDDz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 23:03:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263008AbVFXDDx
+	id S263017AbVFXDLL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 23:11:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263020AbVFXDLC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 23:03:53 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:58347 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262993AbVFXDDo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 23:03:44 -0400
-Date: Thu, 23 Jun 2005 20:05:24 -0700
-From: Paul Jackson <pj@sgi.com>
-To: James Morris <jmorris@redhat.com>
-Cc: mark.fasheh@oracle.com, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, ocfs2-devel@oss.oracle.com,
-       torvalds@osdl.org, akpm@osdl.org, wim.coekaerts@oracle.com, lmb@suse.de
-Subject: Re: [RFC] [PATCH] OCFS2
-Message-Id: <20050623200524.298a6ab4.pj@sgi.com>
-In-Reply-To: <Xine.LNX.4.44.0506231358230.14123-100000@thoron.boston.redhat.com>
-References: <20050518223303.GE1340@ca-server1.us.oracle.com>
-	<Xine.LNX.4.44.0506231358230.14123-100000@thoron.boston.redhat.com>
-Organization: SGI
-X-Mailer: Sylpheed version 1.9.12 (GTK+ 2.6.7; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 23 Jun 2005 23:11:02 -0400
+Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:61712 "EHLO
+	mail.rtr.ca") by vger.kernel.org with ESMTP id S263017AbVFXDJE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 23:09:04 -0400
+Message-ID: <42BB794B.6080109@rtr.ca>
+Date: Thu, 23 Jun 2005 23:08:59 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050420 Debian/1.7.7-2
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: Krzysztof Oledzki <olel@ans.pl>
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: Re: SATA speed. Should be 150 or 133?
+References: <Pine.LNX.4.62.0506240135340.29382@bizon.gios.gov.pl>
+In-Reply-To: <Pine.LNX.4.62.0506240135340.29382@bizon.gios.gov.pl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James wrote:
-> Any chance of splitting it out?
+True SATA drives ignore the "transfer speed",
+as it really is meaningless and does not apply.
 
-Responding to your post, but I guess it's really Oracle I'm asking:
+But most (all?) first-gen SATA drives are really
+PATA drives with a SATA bridge built-in.
+Some of those drives require that Linux set the
+DMA transfer speed for them to work reliably.
 
-On my first glance just now at the git-ocfs patch, I was surprised that
-what seemed to be separable facilities were combined into one patch.  I
-see a file system, a lock manager (is that what DLM stands for - please
-spell out acronyms)  and a configuration file system.
+Last I looked, the highest valid PATA transfer
+speed was still "UDMA/133".  150 just plain
+doesn't exist for PATA (and the whole concept
+doesn't exist for SATA, so ..)
 
-
-+configfs/
-+       - directory containing configfs documentation and example code.
-  ...
-+dlmfs.txt
-+       - info on the userspace interface to the OCFS2 DLM.
-  ...
-+ocfs2.txt
-+       - info and mount options for the OCFS2 clustered filesystem.
-
-
-These combine to make a 45 thousand line patch.  That's a big patch.
-Only the netdev and reiser4 patches (and the combined linus.patch)
-are bigger.
-
-Shouldn't these be 3 patches, or more?
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Cheers

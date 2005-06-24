@@ -1,39 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263172AbVFXTdA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263206AbVFXTsF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263172AbVFXTdA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 15:33:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263207AbVFXT3J
+	id S263206AbVFXTsF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 15:48:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263215AbVFXTsA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 15:29:09 -0400
-Received: from apollo.tuxdriver.com ([24.172.12.2]:27915 "EHLO
-	apollo.tuxdriver.com") by vger.kernel.org with ESMTP
-	id S263190AbVFXT0z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 15:26:55 -0400
-Date: Fri, 24 Jun 2005 15:25:49 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Matthias Urlichs <smurf@smurf.noris.de>, git@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Mercurial vs Updated git HOWTO for kernel hackers
-Message-ID: <20050624192547.GA6736@tuxdriver.com>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Matthias Urlichs <smurf@smurf.noris.de>, git@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-References: <42B9E536.60704@pobox.com> <20050623235634.GC14426@waste.org> <20050624064101.GB14292@pasky.ji.cz> <pan.2005.06.24.13.16.10.406827@smurf.noris.de> <Pine.LNX.4.58.0506241153180.11175@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0506241153180.11175@ppc970.osdl.org>
-User-Agent: Mutt/1.4.1i
+	Fri, 24 Jun 2005 15:48:00 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:13239 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S263388AbVFXTqc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Jun 2005 15:46:32 -0400
+Message-ID: <42BC6307.3080808@namesys.com>
+Date: Fri, 24 Jun 2005 12:46:15 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David Masover <ninja@slaphack.com>, vitaly@thebsh.namesys.com
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: reiser4 plugins
+References: <200506231924.j5NJOvLA031008@laptop11.inf.utfsm.cl>	 <42BB31E9.50805@slaphack.com> <1119570225.18655.75.camel@localhost.localdomain> <42BB7B32.4010100@slaphack.com>
+In-Reply-To: <42BB7B32.4010100@slaphack.com>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 24, 2005 at 12:00:33PM -0700, Linus Torvalds wrote:
+David Masover wrote:
 
-> Jeff, do people go "Boy, you've got a big head" the 
-> first time they meet you?)
 
-FWIW, Jeff _does_ have quite the melon riding around on his shoulders...
--- 
-John W. Linville
-linville@tuxdriver.com
+>
+>
+> I was able to recover from bad blocks, though of course no Reiser that I
+> know of has had bad block relocation built in...  
+
+there was a patch somewhere.  Vitaly, please comment.
+

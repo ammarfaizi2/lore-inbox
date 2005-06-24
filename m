@@ -1,91 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263148AbVFXJxs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263235AbVFXKOY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263148AbVFXJxs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 05:53:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263151AbVFXJxr
+	id S263235AbVFXKOY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 06:14:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263231AbVFXKOY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 05:53:47 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:63244 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263148AbVFXJxb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 05:53:31 -0400
-Date: Fri, 24 Jun 2005 10:53:28 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Finding what change broke ARM
-Message-ID: <20050624105328.C23185@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-References: <20050624101951.B23185@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050624101951.B23185@flint.arm.linux.org.uk>; from rmk+lkml@arm.linux.org.uk on Fri, Jun 24, 2005 at 10:19:51AM +0100
+	Fri, 24 Jun 2005 06:14:24 -0400
+Received: from rudy.mif.pg.gda.pl ([153.19.42.16]:27506 "EHLO
+	rudy.mif.pg.gda.pl") by vger.kernel.org with ESMTP id S263153AbVFXKOB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Jun 2005 06:14:01 -0400
+Date: Fri, 24 Jun 2005 12:14:14 +0200 (CEST)
+From: =?ISO-8859-2?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Keith Owens <kaos@ocs.com.au>, Denis Vlasenko <vda@ilport.com.ua>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       David Lang <david.lang@digitalinsight.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Netdev List <netdev@vger.kernel.org>
+Subject: Re: [git patch] urgent e1000 fix 
+In-Reply-To: <Pine.LNX.4.58.0506240149440.11175@ppc970.osdl.org>
+Message-ID: <Pine.BSO.4.62.0506241140280.19853@rudy.mif.pg.gda.pl>
+References: <13661.1119601379@kao2.melbourne.sgi.com>
+ <Pine.LNX.4.58.0506240149440.11175@ppc970.osdl.org>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="0-1705927858-1119608054=:19853"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 24, 2005 at 10:19:51AM +0100, Russell King wrote:
-> When building current git for ARM, I see:
-> 
->   CC      arch/arm/mm/consistent.o
-> arch/arm/mm/consistent.c: In function `dma_free_coherent':
-> arch/arm/mm/consistent.c:357: error: `mem_map' undeclared (first use in this function)
-> arch/arm/mm/consistent.c:357: error: (Each undeclared identifier is reported only once
-> arch/arm/mm/consistent.c:357: error: for each function it appears in.)
-> make[2]: *** [arch/arm/mm/consistent.o] Error 1
-> 
-> How can I find what change elsewhere in the kernel tree caused this
-> breakage?
-> 
-> With bk, you could ask for a per-file revision history of the likely
-> candidates, and then find the changeset to view the other related
-> changes.
-> 
-> With git... ?  We don't have per-file revision history so...
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-This particular breakage appears to have been caused by kbuild not
-automatically updating .config.  That's odd because at other times
-I've seen kbuild be over-insistent that it needs to update .config.
+--0-1705927858-1119608054=:19853
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8BIT
 
-However, now I get a different error:
+On Fri, 24 Jun 2005, Linus Torvalds wrote:
 
-  CC      arch/arm/mm/discontig.o
-arch/arm/mm/discontig.c:19:3: #error Fix Me Please
-arch/arm/mm/discontig.c:30: warning: excess elements in array initializer
-arch/arm/mm/discontig.c:30: warning: (near initialization for `discontig_node_data')
-arch/arm/mm/discontig.c:31: warning: excess elements in array initializer
-arch/arm/mm/discontig.c:31: warning: (near initialization for `discontig_node_data')
-arch/arm/mm/discontig.c:32: warning: excess elements in array initializer
-arch/arm/mm/discontig.c:32: warning: (near initialization for `discontig_node_data')
-make[2]: *** [arch/arm/mm/discontig.o] Error 1
+>
+>
+> On Fri, 24 Jun 2005, Keith Owens wrote:
+>
+>> On Fri, 24 Jun 2005 09:49:05 +0300,
+>> Denis Vlasenko <vda@ilport.com.ua> wrote:
+>>> On Friday 24 June 2005 02:33, Linus Torvalds wrote:
+>>>> To actually allow real fuzz or to allow real whitespace differences in the
+>>>> patch data itself is a _much_ bigger issue than this trivial patch
+>>>> corruption, and I'd prefer to avoid going there if at all possible.
+>>>
+>>> How about automatic stripping of _trailing_ whitespace on all incoming
+>>> patches? IIRC no file type (C, sh, Makefile, you name it) depends on
+>>> conservation of it, thus it's 100% safe.
+>>
+>> One (admittedly rare) case - adding a text file that contains an
+>> embedded patch, so you have a patch that includes a patch.  This is
+>> sometimes done in Documentation files when an external file has to be
+>> changed.  In embedded patch, empty lines are converted to a single
+>> space, which then appears as trailing whitespace.  Not sure if that is
+>> a big enough reason not to strip whitespace.
+>
+> There's a much more important reason never _ever_ to mess with whitespace
+> in patches: it by definition measn that the resulting whitespace now does
+> not match the thing at the other end, and that _will_ mean merge problems
+> later (ie subsequent patches will have increasingly incorrect whitespace,
+> and now everybody has to live with whitespace not being reliable).
+>
+> So no. The only reliable way to handle whitespace is to never corrupt it.
+> Don't make excuses for broken email clients etc.
 
-and a .config which looks like this:
+Linus .. why for kernel tree can't be used indent or other source 
+code formater ?
 
-CONFIG_ARCH_SA1100=y
-...
-# CONFIG_ARCH_DISCONTIGMEM_ENABLE is not set
-CONFIG_SELECT_MEMORY_MODEL=y
-CONFIG_FLATMEM_MANUAL=y
-# CONFIG_DISCONTIGMEM_MANUAL is not set
-# CONFIG_SPARSEMEM_MANUAL is not set
-CONFIG_DISCONTIGMEM=y
-CONFIG_FLATMEM=y
-CONFIG_FLAT_NODE_MEM_MAP=y
-CONFIG_NEED_MULTIPLE_NODES=y
+If indent tool can't feet all what is neccessary or have some not ease 
+solveable bugs or can't be adopted other now avalaible tool IMO *it is* 
+*time* for start project with special formater for kernel source tree. 
+Using it can cut all this kind dissusions :>
 
-At a guess, this is because we have two memory models selected - because
-the Kconfig magic in mm/Kconfig isn't correct for ARM.
+If indent can handle correcly kernel source tree it will be posiible place
+in source root tree one .indent.pro file and add small modificatiom to 
+make suit with additional "indent" target.
+In case using indent neccessary patch can take only few lines :>
 
-ARM selects CONFIG_DISCONTIGMEM for certain platforms (based on
-CONFIG_ARCH_SA1100 in this case.)  mm/Kconfig decides on its own back
-that it'll choose CONFIG_FLATMEM for us.  So two models get selected.
+After this all developers before generate patches will must only pass 
+"make indent" .. nothing more.
+As result can be also removed Documentation/CodingStyle file (description 
+about passing "make indent" before generate patches can be moved to 
+Documentation/SubmittingPatches)
 
-Should I remove the mm/Kconfig include and replicate what's required for
-ARM, or... ?  TBH mm/Kconfig seems to be rather OTT.
-
-Help!
-
+kloczek
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+-----------------------------------------------------------
+*Ludzie nie maj± problemów, tylko sobie sami je stwarzaj±*
+-----------------------------------------------------------
+Tomasz K³oczko, sys adm @zie.pg.gda.pl|*e-mail: kloczek@rudy.mif.pg.gda.pl*
+--0-1705927858-1119608054=:19853--

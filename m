@@ -1,54 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262240AbVFXMnE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262401AbVFXMw4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262240AbVFXMnE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 08:43:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262239AbVFXMja
+	id S262401AbVFXMw4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 08:52:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262239AbVFXMw4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 08:39:30 -0400
-Received: from w241.dkm.cz ([62.24.88.241]:39616 "HELO machine.sinus.cz")
-	by vger.kernel.org with SMTP id S262169AbVFXMjT (ORCPT
+	Fri, 24 Jun 2005 08:52:56 -0400
+Received: from dspnet.fr.eu.org ([213.186.44.138]:6672 "EHLO dspnet.fr.eu.org")
+	by vger.kernel.org with ESMTP id S262401AbVFXMtx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 08:39:19 -0400
-Date: Fri, 24 Jun 2005 14:39:15 +0200
-From: Petr Baudis <pasky@ucw.cz>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>, git@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Finding what change broke ARM
-Message-ID: <20050624123914.GA5393@pasky.ji.cz>
-References: <20050624101951.B23185@flint.arm.linux.org.uk>
+	Fri, 24 Jun 2005 08:49:53 -0400
+Date: Fri, 24 Jun 2005 14:49:43 +0200
+From: Olivier Galibert <galibert@pobox.com>
+To: David Masover <ninja@slaphack.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Hans Reiser <reiser@namesys.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: reiser4 plugins
+Message-ID: <20050624124943.GA75817@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	David Masover <ninja@slaphack.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Horst von Brand <vonbrand@inf.utfsm.cl>,
+	Hans Reiser <reiser@namesys.com>, Jeff Garzik <jgarzik@pobox.com>,
+	Christoph Hellwig <hch@infradead.org>,
+	Andrew Morton <akpm@osdl.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	ReiserFS List <reiserfs-list@namesys.com>
+References: <200506231924.j5NJOvLA031008@laptop11.inf.utfsm.cl> <42BB31E9.50805@slaphack.com> <1119570225.18655.75.camel@localhost.localdomain> <42BB7B32.4010100@slaphack.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050624101951.B23185@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4i
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+In-Reply-To: <42BB7B32.4010100@slaphack.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear diary, on Fri, Jun 24, 2005 at 11:19:51AM CEST, I got a letter
-where Russell King <rmk+lkml@arm.linux.org.uk> told me that...
-> When building current git for ARM, I see:
-> 
->   CC      arch/arm/mm/consistent.o
-> arch/arm/mm/consistent.c: In function `dma_free_coherent':
-> arch/arm/mm/consistent.c:357: error: `mem_map' undeclared (first use in this function)
-> arch/arm/mm/consistent.c:357: error: (Each undeclared identifier is reported only once
-> arch/arm/mm/consistent.c:357: error: for each function it appears in.)
-> make[2]: *** [arch/arm/mm/consistent.o] Error 1
-> 
-> How can I find what change elsewhere in the kernel tree caused this
-> breakage?
-> 
-> With bk, you could ask for a per-file revision history of the likely
-> candidates, and then find the changeset to view the other related
-> changes.
-> 
-> With git... ?  We don't have per-file revision history so...
+On Thu, Jun 23, 2005 at 10:17:06PM -0500, David Masover wrote:
+> I was able to recover from bad blocks, though of course no Reiser that I
+> know of has had bad block relocation built in...  But I got all my files
+> off of it, fortunately.
 
-With Cogito, you can pass cg-log list of files, and it will show only
-the history of the given files.
+My experience shows that you've been very, very lucky.  I hope r4 is
+better in that regard.
 
--- 
-				Petr "Pasky" Baudis
-Stuff: http://pasky.or.cz/
-<Espy> be careful, some twit might quote you out of context..
+If you want to try with r3, take a well-used partition[1] and copy it
+at block level to another partition or a file.  Then zero some random
+spans of blocks in the copy and reiserfsck --rebuild-tree it.  My
+experience is that you'll usually get the files names and directory
+tree but their contents will have been scattered all over the place.
+
+  OG.
+
+[1] I suspect a minimum of fragmentation is in order to see the
+problem
+

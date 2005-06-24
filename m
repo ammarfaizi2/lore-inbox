@@ -1,130 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263054AbVFXDV5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263021AbVFXD2q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263054AbVFXDV5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 23:21:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263027AbVFXDSi
+	id S263021AbVFXD2q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 23:28:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263048AbVFXD2p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 23:18:38 -0400
-Received: from 69-18-3-179.lisco.net ([69.18.3.179]:2567 "EHLO
-	ninja.slaphack.com") by vger.kernel.org with ESMTP id S263024AbVFXDRO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 23:17:14 -0400
-Message-ID: <42BB7B32.4010100@slaphack.com>
-Date: Thu, 23 Jun 2005 22:17:06 -0500
-From: David Masover <ninja@slaphack.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050325)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Horst von Brand <vonbrand@inf.utfsm.cl>, Hans Reiser <reiser@namesys.com>,
-       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: reiser4 plugins
-References: <200506231924.j5NJOvLA031008@laptop11.inf.utfsm.cl>	 <42BB31E9.50805@slaphack.com> <1119570225.18655.75.camel@localhost.localdomain>
-In-Reply-To: <1119570225.18655.75.camel@localhost.localdomain>
-X-Enigmail-Version: 0.89.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Thu, 23 Jun 2005 23:28:45 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:14721 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263021AbVFXD0d (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 23:26:33 -0400
+Date: Thu, 23 Jun 2005 23:26:32 -0400
+From: Dave Jones <davej@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: gcc4 compile fix for recent ia64 xpc changes.
+Message-ID: <20050624032632.GA26322@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Gcc4 doesn't like volatile casts as lvalues. Make the structure
+members volatile instead.
 
-Alan Cox wrote:
-> On Iau, 2005-06-23 at 23:04, David Masover wrote:
-> 
->>>What for? It works just fine as it stands, AFAICS.
->>
->>So does DOS.  Do you use DOS?  I don't even use DOS to run DOS programs.
-> 
-> 
-> False argument. So does the pen, so do hinges on doors. Do you still
-> have hinges on your doors - probably.
+Signed-off-by: Dave Jones <davej@redhat.com>
 
-Indeed.  Because there's nothing better -- not because I "like it the
-way it is".
-
->>"Ain't broke" is the battle cry of stagnation.
-> 
-> 
-> Its also the battle cry of everyone over the age of 20 who also has a
-> real job to do 8)
-
-You caught me.  I'm not over 20.  But I have a real job, with a company
-that understands the difference between "ain't broke" and "works well".
-
->>But, there are some things Reiser does better and faster than ext3, even
->>if you don't count file-as-directory and other toys.  There's nothing
->>ext3 does better than Reiser, unless you count the compatibility with
->>random bootloaders and low-level tools.
-> 
-> 
-> Certainly compared with reiser3 you've missed a few out including
-> resilience to disk errors (nearly nil on reiser3), and SMP scaling.
-
-Actually, I was talking about reiser4.  And Hans corrected me on that...
-
-Although resilience to disk errors isn't a design decision.  That's what
-SMART and new hard drives are for.  And if you're stubborn enough to
-keep the same FS around, there's dm-bbr.
-
-I think Hans (or someone) decided that when hardware stops working, it's
-not the job of the FS to compensate, it's the job of lower layers, or
-better, the job of the admin to replace the disk and restore from backups.
-
->>You know how many I've had thrashed on Reiser4?  Two.  The first one was
->>with a VERY early alpha/beta, and the second one was when I dropped a
->>laptop and the disk failed.
-> 
-> 
-> Entirely or bad blocks ? The latter should have a minimal cost on a well
-> designed fs.
-
-I was able to recover from bad blocks, though of course no Reiser that I
-know of has had bad block relocation built in...  But I got all my files
-off of it, fortunately.
-
-But the disk did fail, completely, later.  Lots of loud clicking.
-
->>Duplication of effort.  With plugins, we can optimize the upper layers
->>of ALL filesystems, regardless of the lower layers, in such a way that
-> 
-> 
-> In which case the features belong in the VFS as all those with
-> experience and kernel contributions have been arguing.
-
-No one's arguing that.  What we're arguing is that there does seem to be
-a bit of prejudice when fuck-me-with-a-chainsaw and YOU ARE A FOOL FOR
-ENABLING THIS all got in, and with at least one of those, there doesn't
-seem to be any intention of changing it -- all of that, and even with an
-expressed intention to fix the aesthetical problems with Reiser4 later,
-we can't get the working version in now.
-
-More infuriatingly, I, at least, have a distinct feeling that once all
-the issues are fixed, an entirely different crowd of benevolent
-dictators will come around and say that we can't get in because we
-change the VFS.  At least some people on this list have said things to
-that effect.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iQIVAwUBQrt7MngHNmZLgCUhAQKdXA/+PDpOzZYTVXgF2n4qiFyrmjFeQ6h0n8i6
-c/hXx+QUU0Hw5mjq31+jf2vNpDCKQxcE/HTLdJlRfw8az+xklVOfxzEHf9yV41tv
-mVKMRJYBhzk2mEvKEDNtnw47SQPBAKo9BtJvl7gOEofiPK/f2K/cy8yMUrow1E9D
-02PNT0XX8ysoe86Dqip35+sphczkQN8gilXyUQujNe8edEdkW7PBhbJn92zBQag2
-JxA194bquxRyhW78T3tKAEN6/tTPgZYJNy202KC619zzLlK3TslwjjfOQILdRb2i
-NNkaSQBdYDK70BiFs5Ri7ZbfJHenY6mgGv7yG0vjGF6zjoXtVNsKGrYt9KBL6E1D
-392ayxOlWCvBoG9n9sAUzHzcQxmU1lP6OHcO9xWrL6ySD7Fzv4rCtM0uo7gXOzNB
-aDl5vK7q+ysEjOXZJWT0ikj5ndATCv0Ry8wnt1uL/uktOuaE0egwsouU0jgCDgx1
-8Ib8KX/B6bhCy13WkYLPTb6Yg0k+ph0BUyONEcN5cxJIcqfcEt/4Un4MYM+CjGck
-KLYrrZDclZr8p/paWdNqx1dI9NIBn+F3u78OcWY3NIGfZPh1jmSdG3LRt9DZo5bZ
-ua2UlAiAWnEDHNLQyMH2zcji31DMqIUwmQ5bX9isBcxt8LORX+IKxoLdUICoY8JS
-Ii5kNWJAjf4=
-=Xsdv
------END PGP SIGNATURE-----
+--- linux-2.6.12/arch/ia64/sn/kernel/xpc.h~	2005-06-22 15:10:37.000000000 -0400
++++ linux-2.6.12/arch/ia64/sn/kernel/xpc.h	2005-06-22 15:14:19.000000000 -0400
+@@ -138,7 +138,7 @@ struct xpc_vars {
+  * occupies half a cacheline.
+  */
+ struct xpc_vars_part {
+-	u64 magic;
++	volatile u64 magic;
+ 
+ 	u64 openclose_args_pa;	/* physical address of open and close args */
+ 	u64 GPs_pa;		/* physical address of Get/Put values */
+@@ -185,8 +185,8 @@ struct xpc_vars_part {
+  * Define a Get/Put value pair (pointers) used with a message queue.
+  */
+ struct xpc_gp {
+-	s64 get;	/* Get value */
+-	s64 put;	/* Put value */
++	volatile s64 get;	/* Get value */
++	volatile s64 put;	/* Put value */
+ };
+ 
+ #define XPC_GP_SIZE \
+@@ -231,7 +231,7 @@ struct xpc_openclose_args {
+  */
+ struct xpc_notify {
+ 	struct semaphore sema;		/* notify semaphore */
+-	u8 type;			/* type of notification */
++	volatile u8 type;			/* type of notification */
+ 
+ 	/* the following two fields are only used if type == XPC_N_CALL */
+ 	xpc_notify_func func;		/* user's notify function */
+@@ -439,7 +439,7 @@ struct xpc_partition {
+ 
+ 	/* XPC infrastructure referencing and teardown control */
+ 
+-	u8 setup_state;			/* infrastructure setup state */
++	volatile u8 setup_state;			/* infrastructure setup state */
+ 	wait_queue_head_t teardown_wq;	/* kthread waiting to teardown infra */
+ 	atomic_t references;		/* #of references to infrastructure */
+ 
+--- 1/arch/ia64/sn/kernel/xpc_channel.c	2005-06-17 15:48:29.000000000 -0400
++++ 2/arch/ia64/sn/kernel/xpc_channel.c	2005-06-22 15:14:17.000000000 -0400
+@@ -209,7 +209,7 @@ xpc_setup_infrastructure(struct xpc_part
+ 	 * With the setting of the partition setup_state to XPC_P_SETUP, we're
+ 	 * declaring that this partition is ready to go.
+ 	 */
+-	(volatile u8) part->setup_state = XPC_P_SETUP;
++	part->setup_state = XPC_P_SETUP;
+ 
+ 
+ 	/*
+@@ -227,7 +227,7 @@ xpc_setup_infrastructure(struct xpc_part
+ 	xpc_vars_part[partid].IPI_phys_cpuid =
+ 					cpu_physical_id(smp_processor_id());
+ 	xpc_vars_part[partid].nchannels = part->nchannels;
+-	(volatile u64) xpc_vars_part[partid].magic = XPC_VP_MAGIC1;
++	xpc_vars_part[partid].magic = XPC_VP_MAGIC1;
+ 
+ 	return xpcSuccess;
+ }
+@@ -355,7 +355,7 @@ xpc_pull_remote_vars_part(struct xpc_par
+ 
+ 		/* let the other side know that we've pulled their variables */
+ 
+-		(volatile u64) xpc_vars_part[partid].magic = XPC_VP_MAGIC2;
++		xpc_vars_part[partid].magic = XPC_VP_MAGIC2;
+ 	}
+ 
+ 	if (pulled_entry->magic == XPC_VP_MAGIC1) {
+@@ -1183,7 +1183,7 @@ xpc_process_msg_IPI(struct xpc_partition
+ 		 */
+ 		xpc_clear_local_msgqueue_flags(ch);
+ 
+-		(volatile s64) ch->w_remote_GP.get = ch->remote_GP.get;
++		ch->w_remote_GP.get = ch->remote_GP.get;
+ 
+ 		dev_dbg(xpc_chan, "w_remote_GP.get changed to %ld, partid=%d, "
+ 			"channel=%d\n", ch->w_remote_GP.get, ch->partid,
+@@ -1211,7 +1211,7 @@ xpc_process_msg_IPI(struct xpc_partition
+ 		 */
+ 		xpc_clear_remote_msgqueue_flags(ch);
+ 
+-		(volatile s64) ch->w_remote_GP.put = ch->remote_GP.put;
++		ch->w_remote_GP.put = ch->remote_GP.put;
+ 
+ 		dev_dbg(xpc_chan, "w_remote_GP.put changed to %ld, partid=%d, "
+ 			"channel=%d\n", ch->w_remote_GP.put, ch->partid,
+@@ -1875,7 +1875,7 @@ xpc_send_msg(struct xpc_channel *ch, str
+ 		notify = &ch->notify_queue[msg_number % ch->local_nentries];
+ 		notify->func = func;
+ 		notify->key = key;
+-		(volatile u8) notify->type = notify_type;
++		notify->type = notify_type;
+ 
+ 		// >>> is a mb() needed here?
+ 
+--- linux-2.6.12/arch/ia64/sn/kernel/xpc.h~	2005-06-22 16:30:55.000000000 -0400
++++ linux-2.6.12/arch/ia64/sn/kernel/xpc.h	2005-06-22 16:31:04.000000000 -0400
+@@ -87,7 +87,7 @@ struct xpc_rsvd_page {
+ 	u8 partid;		/* partition ID from SAL */
+ 	u8 version;
+ 	u8 pad[6];		/* pad to u64 align */
+-	u64 vars_pa;
++	volatile u64 vars_pa;
+ 	u64 part_nasids[XP_NASID_MASK_WORDS] ____cacheline_aligned;
+ 	u64 mach_nasids[XP_NASID_MASK_WORDS] ____cacheline_aligned;
+ };
+--- linux-2.6.12/arch/ia64/sn/kernel/xpc_partition.c~	2005-06-22 16:31:06.000000000 -0400
++++ linux-2.6.12/arch/ia64/sn/kernel/xpc_partition.c	2005-06-22 16:31:10.000000000 -0400
+@@ -253,7 +253,7 @@ xpc_rsvd_page_init(void)
+ 	 * This signifies to the remote partition that our reserved
+ 	 * page is initialized.
+ 	 */
+-	(volatile u64) rp->vars_pa = __pa(xpc_vars);
++	rp->vars_pa = __pa(xpc_vars);
+ 
+ 	return rp;
+ }

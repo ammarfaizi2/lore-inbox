@@ -1,57 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262997AbVFXCBd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263002AbVFXCLp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262997AbVFXCBd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 22:01:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262989AbVFXB7Y
+	id S263002AbVFXCLp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 22:11:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263003AbVFXCLp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 21:59:24 -0400
-Received: from [67.137.28.189] ([67.137.28.189]:658 "EHLO vger")
-	by vger.kernel.org with ESMTP id S262988AbVFXB7T (ORCPT
+	Thu, 23 Jun 2005 22:11:45 -0400
+Received: from gate.ebshome.net ([64.81.67.12]:48587 "EHLO gate.ebshome.net")
+	by vger.kernel.org with ESMTP id S263002AbVFXCLj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 21:59:19 -0400
-Message-ID: <42BB544A.2030906@utah-nac.org>
-Date: Thu, 23 Jun 2005 18:31:06 -0600
-From: jmerkey <jmerkey@utah-nac.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Rik Van Riel <riel@redhat.com>
-Cc: "John W. Linville" <linville@tuxdriver.com>,
-       Christoph Lameter <christoph@lameter.com>,
-       Clyde Griffin <CGRIFFIN@novell.com>, linux-kernel@vger.kernel.org,
-       Jan Beulich <JBeulich@novell.com>
-Subject: Re: Novell Linux Kernel Debugger (NLKD)
-References: <s2bae938.075@sinclair.provo.novell.com> <Pine.LNX.4.62.0506231723360.26299@graphe.net> <20050624003515.GB28077@tuxdriver.com> <42BB510B.5080500@utah-nac.org> <Pine.LNX.4.61.0506232156180.27679@chimarrao.boston.redhat.com>
-In-Reply-To: <Pine.LNX.4.61.0506232156180.27679@chimarrao.boston.redhat.com>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 23 Jun 2005 22:11:39 -0400
+Date: Thu, 23 Jun 2005 19:11:37 -0700
+From: Eugene Surovegin <ebs@ebshome.net>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Andrei Konovalov <akonovalov@ru.mvista.com>, akpm@osdl.org,
+       trini@kernel.crashing.org, linux-kernel@vger.kernel.org,
+       yshpilevsky@ru.mvista.com, linuxppc-embedded@ozlabs.org
+Subject: Re: [PATCH] ppc32: add Freescale MPC885ADS board support
+Message-ID: <20050624021137.GB4588@gate.ebshome.net>
+Mail-Followup-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+	Andrei Konovalov <akonovalov@ru.mvista.com>, akpm@osdl.org,
+	trini@kernel.crashing.org, linux-kernel@vger.kernel.org,
+	yshpilevsky@ru.mvista.com, linuxppc-embedded@ozlabs.org
+References: <42BAD78E.1020801@ru.mvista.com> <20050623140522.GA25724@logos.cnet> <20050623194856.GA4588@gate.ebshome.net> <20050623200301.GA26802@logos.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050623200301.GA26802@logos.cnet>
+X-ICQ-UIN: 1193073
+X-Operating-System: Linux i686
+X-PGP-Key: http://www.ebshome.net/pubkey.asc
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik Van Riel wrote:
+On Thu, Jun 23, 2005 at 05:03:01PM -0300, Marcelo Tosatti wrote:
+> On Thu, Jun 23, 2005 at 12:48:56PM -0700, Eugene Surovegin wrote:
+> > On Thu, Jun 23, 2005 at 11:05:22AM -0300, Marcelo Tosatti wrote:
+> > > 
+> > > Hi Andrei,
+> > > 
+> > > On Thu, Jun 23, 2005 at 07:38:54PM +0400, Andrei Konovalov wrote:
+> > > <snip>
+> > > 
+> > > > diff --git a/arch/ppc/syslib/m8xx_setup.c b/arch/ppc/syslib/m8xx_setup.c
+> > > > --- a/arch/ppc/syslib/m8xx_setup.c
+> > > > +++ b/arch/ppc/syslib/m8xx_setup.c
+> > > > @@ -369,7 +369,7 @@ m8xx_map_io(void)
+> > > >  #if defined(CONFIG_HTDMSOUND) || defined(CONFIG_RPXTOUCH) || defined(CONFIG_FB_RPX)
+> > > >  	io_block_mapping(HIOX_CSR_ADDR, HIOX_CSR_ADDR, HIOX_CSR_SIZE, _PAGE_IO);
+> > > >  #endif
+> > > > -#ifdef CONFIG_FADS
+> > > > +#if defined(CONFIG_FADS) || defined(CONFIG_MPC885ADS)
+> > > >  	io_block_mapping(BCSR_ADDR, BCSR_ADDR, BCSR_SIZE, _PAGE_IO);
+> > > >  #endif
+> > > >  #ifdef CONFIG_PCI
+> > > 
+> > > I suppose you also want to include CONFIG_MPC885ADS in the io_block_mapping(IO_BASE) 
+> > > here?
+> > 
+> > I think it'd be great if we _stop_ adding new io_block_mapping users, 
+> > there is ioremap() for stuff like this, let's use it instead.
+> 
+> (go back after reading previous discussion)
+> 
+> For that you need ioremap() to handle BATs and CAMs right?
 
->On Thu, 23 Jun 2005, jmerkey wrote:
->
->  
->
->>I have downloaded and reviewed the code. It's a GBD replacement and is 
->>not fully open source.
->>    
->>
->
->Thanks for that info.  Guess I really won't have to bother
->looking at it any more now ;)
->
->I'll go back to waiting for systemtap...
->
->  
->
-Rik,
+Why? BATs or CAMs are just an optimization. You can use ordinary 4K 
+ptes.
 
-You are most welcome. You should encourage Clyde though to keep working 
-to convince Novell to release all
-of it open source. Clyde is a really good guy, and he knows what he's doing.
+We don't have BATs on 44x and don't use io_block_mapping also. It's 
+not that difficult - just start using ioremap() instead of 
+io_block_mapping() and fix code which assumes phys_addr == virt_addr.
 
-:-)
-
-Jeff
+-- 
+Eugene

@@ -1,56 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263067AbVFXWrm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263119AbVFXW4q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263067AbVFXWrm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 18:47:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263119AbVFXWrl
+	id S263119AbVFXW4q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 18:56:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263106AbVFXW4p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 18:47:41 -0400
-Received: from agminet04.oracle.com ([141.146.126.231]:2837 "EHLO
-	agminet04.oracle.com") by vger.kernel.org with ESMTP
-	id S263067AbVFXWqd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 18:46:33 -0400
-Date: Fri, 24 Jun 2005 15:45:34 -0700
-From: Joel Becker <Joel.Becker@oracle.com>
-To: Petr Baudis <pasky@ucw.cz>
-Cc: Matt Mackall <mpm@selenic.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Git Mailing List <git@vger.kernel.org>, mercurial@selenic.com
-Subject: Re: Mercurial vs Updated git HOWTO for kernel hackers
-Message-ID: <20050624224534.GF31165@ca-server1.us.oracle.com>
-Mail-Followup-To: Petr Baudis <pasky@ucw.cz>,
-	Matt Mackall <mpm@selenic.com>, Jeff Garzik <jgarzik@pobox.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	Git Mailing List <git@vger.kernel.org>, mercurial@selenic.com
-References: <42B9E536.60704@pobox.com> <20050623235634.GC14426@waste.org> <20050624064101.GB14292@pasky.ji.cz>
+	Fri, 24 Jun 2005 18:56:45 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:32740 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262601AbVFXWyb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Jun 2005 18:54:31 -0400
+Date: Fri, 24 Jun 2005 15:55:04 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Hifumi Hisashi <hifumi.hisashi@lab.ntt.co.jp>
+Cc: sct@redhat.com, adilger@clusterfs.com, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, linux-aio@kvack.org
+Subject: Re: [PATCH] Fix the error handling in direct I/O
+Message-Id: <20050624155504.20b7a51e.akpm@osdl.org>
+In-Reply-To: <6.0.0.20.2.20050622211238.03e6ba30@mailsv2.y.ecl.ntt.co.jp>
+References: <6.0.0.20.2.20050622211238.03e6ba30@mailsv2.y.ecl.ntt.co.jp>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050624064101.GB14292@pasky.ji.cz>
-X-Burt-Line: Trees are cool.
-X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
-User-Agent: Mutt/1.5.9i
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 24, 2005 at 08:41:01AM +0200, Petr Baudis wrote:
-> Theoretically, dotest should work just fine even if you use Cogito.
-> Anyone tested it?
+Hifumi Hisashi <hifumi.hisashi@lab.ntt.co.jp> wrote:
+>
+> 	Hello.
+> 
+> 	I fixed a bug on error handling in the direct I/O function.
+> Currenlty, if a file is opened with the O_DIRECT|O_SYNC flag,
+>   write() syscall cannot receive the EIO error just after
+> I/O error(SCSI cable is disconnected etc.) occur.
+> 
+> 	Return values of other points that call generic_osync_inode()
+> are treated appropriately.
+> 
+> 	With the following patch, this problem was fixed.
+> 	Please apply this patch.
+> 
+> 	Thanks,
+> 
+> 
+> Signed-off-by: Hisashi Hifumi  <hifumi.hisashi@lab.ntt.co.jp>
+> 
+> diff -Nru linux-2.6.12/mm/filemap.c linux-2.6.12_fix/mm/filemap.c
+> --- linux-2.6.12/mm/filemap.c	2005-06-22 17:21:21.000000000 +0900
+> +++ linux-2.6.12_fix/mm/filemap.c	2005-06-22 20:26:34.000000000 +0900
+> @@ -1927,8 +1927,12 @@
+>   	 * i_sem is held, which protects generic_osync_inode() from
+>   	 * livelocking.
+>   	 */
+> -	if (written >= 0 && file->f_flags & O_SYNC)
+> -		generic_osync_inode(inode, mapping, OSYNC_METADATA);
+> +	if (written >= 0 && ((file->f_flags & O_SYNC) || IS_SYNC(inode))) {
+> +		int err;
+> +		err = generic_osync_inode(inode, mapping, OSYNC_METADATA);
+> +		if (err < 0)
+> +			written = err;
+> +	}
+>   	if (written == count && !is_sync_kiocb(iocb))
+>   		written = -EIOCBQUEUED;
+>   	return written; 
 
-	When I update the OCFS2 git tree, I clone with Cogito and patch
-with dotest.  Been doing it for a month or two, no problems.
+Yes, I suppose so.
 
-Joel
+I note that generic_file_aio_write_nolock() for O_SYNC or IS_SYNC will end
+up calling generic_osync_inode() twice.  Once in sync_page_range_nolock()
+and once in __generic_file_aio_write_nolock->generic_file_direct_write or
+in __generic_file_aio_write_nolock->generic_file_buffered_write
 
--- 
-
-"I think it would be a good idea."  
-        - Mahatma Ghandi, when asked what he thought of Western
-          civilization
-
-Joel Becker
-Senior Member of Technical Staff
-Oracle
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127
+It's all a bit of a mess.  I guess we should sit down and work out where we
+actually want to do all this syncing and get it done consistently and
+completely, all at the same level.  A filemap.c call graph would be needed :(

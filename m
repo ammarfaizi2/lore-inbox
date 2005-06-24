@@ -1,128 +1,162 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262470AbVFXNNI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262466AbVFXNLC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262470AbVFXNNI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 09:13:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262495AbVFXNLt
+	id S262466AbVFXNLC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 09:11:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262505AbVFXNLB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 09:11:49 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:62908 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S262470AbVFXNJ4 (ORCPT
+	Fri, 24 Jun 2005 09:11:01 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:61628 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S262466AbVFXNJm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 09:09:56 -0400
-Message-Id: <200506240334.j5O3YowB008100@laptop11.inf.utfsm.cl>
+	Fri, 24 Jun 2005 09:09:42 -0400
+Message-Id: <200506240241.j5O2f1eb005609@laptop11.inf.utfsm.cl>
 To: David Masover <ninja@slaphack.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Hans Reiser <reiser@namesys.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+cc: Horst von Brand <vonbrand@inf.utfsm.cl>, Hans Reiser <reiser@namesys.com>,
+       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
        ReiserFS List <reiserfs-list@namesys.com>
 Subject: Re: reiser4 plugins 
 In-Reply-To: Message from David Masover <ninja@slaphack.com> 
-   of "Thu, 23 Jun 2005 22:17:06 EST." <42BB7B32.4010100@slaphack.com> 
+   of "Thu, 23 Jun 2005 17:04:25 EST." <42BB31E9.50805@slaphack.com> 
 X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Thu, 23 Jun 2005 23:34:50 -0400
+Date: Thu, 23 Jun 2005 22:41:01 -0400
 From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Fri, 24 Jun 2005 09:08:52 -0400 (CLT)
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Fri, 24 Jun 2005 09:08:53 -0400 (CLT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 David Masover <ninja@slaphack.com> wrote:
-> Alan Cox wrote:
-> > On Iau, 2005-06-23 at 23:04, David Masover wrote:
+> Horst von Brand wrote:
+> > David Masover <ninja@slaphack.com> wrote:
+> >>Hans Reiser wrote:
+> >>>Jeff Garzik wrote:
 
-[...]
+> > [...]
 
-> >>>What for? It works just fine as it stands, AFAICS.
+> >>>You missed his point.  He is saying ext3 code should migrate towards
+> >>>becoming reiser4 plugins, and reiser4 should be merged now so that the
+> >>>migration can get started.
 
-> >>So does DOS.  Do you use DOS?  I don't even use DOS to run DOS programs.
+> >>Sort of.
+> >>
+> >>I think ext3 would be nice as a reiser4 plugin.
 
-> > False argument. So does the pen, so do hinges on doors. Do you still
-> > have hinges on your doors - probably.
+> > What for? It works just fine as it stands, AFAICS.
 
-> Indeed.  Because there's nothing better -- not because I "like it the
-> way it is".
+> So does DOS.
 
-There being nothing better means nobody has ever been able to come up with
-a better way. Most of the time at least.
+I'm sorry?
 
-> >>"Ain't broke" is the battle cry of stagnation.
+>              Do you use DOS?
 
-> > Its also the battle cry of everyone over the age of 20 who also has a
-> > real job to do 8)
+Good riddance, no! Not for something like 15 years.
 
-> You caught me.  I'm not over 20.  But I have a real job, with a company
-> that understands the difference between "ain't broke" and "works well".
+>                               I don't even use DOS to run DOS programs.
 
-"Doesn't work well" /is/ the definition of "broken". Modulo how irritating
-the "not working well" is...
+Haven't seen one in quite some time, to be honest. Oops, sorry, I just
+lied. Booted it from floppy to run a program to whack the BIOS password on
+a PC some two weeks ago. Only use in a long time.
 
-> >>But, there are some things Reiser does better and faster than ext3, even
-> >>if you don't count file-as-directory and other toys.  There's nothing
-> >>ext3 does better than Reiser, unless you count the compatibility with
-> >>random bootloaders and low-level tools.
+> "Ain't broke" is the battle cry of stagnation.
 
-> > Certainly compared with reiser3 you've missed a few out including
-> > resilience to disk errors (nearly nil on reiser3), and SMP scaling.
+I see it as the battle cry of those that are looking for /real/ problems to
+solve.
 
-> Actually, I was talking about reiser4.  And Hans corrected me on that...
-> 
-> Although resilience to disk errors isn't a design decision.  That's what
-> SMART and new hard drives are for.  And if you're stubborn enough to
-> keep the same FS around, there's dm-bbr.
+> But, there are some things Reiser does better and faster than ext3,
 
-> I think Hans (or someone) decided that when hardware stops working, it's
-> not the job of the FS to compensate, it's the job of lower layers, or
-> better, the job of the admin to replace the disk and restore from
-> backups.
+Yes, I've heard it is supposed to be faster on huge directories, and
+doesn't run out of inodes. And it is more efficient spacewise on small
+files. But then again, space is extremely cheap today...
 
-Handling other people's data this way is just reckless irresponsibility.
-Sure, you can get high performance if you just forego some of your basic
-responsibilities.
+And again, on a list around here I've seen several cries for help with
+completely hosed filesystems, all ReiserFS. No solution has ever come
+forth.
 
-> >>You know how many I've had thrashed on Reiser4?  Two.  The first one was
-> >>with a VERY early alpha/beta, and the second one was when I dropped a
-> >>laptop and the disk failed.
+>                                                                     even
+> if you don't count file-as-directory and other toys.  There's nothing
+> ext3 does better than Reiser, unless you count the compatibility with
+> random bootloaders and low-level tools.
 
-> > Entirely or bad blocks ? The latter should have a minimal cost on a well
-> > designed fs.
+For me, those are quite critical...
 
-> I was able to recover from bad blocks, though of course no Reiser that I
-> know of has had bad block relocation built in...  But I got all my files
-> off of it, fortunately.
+> >>                                                Not everyone will want
+> >>to reformat at once, but as the reiser4 code matures and proves itself
+> >>(even more than it already has),
 
-And if the bad blocks had been on files? 
+> > I for one have seen mainly people with wild claims that it will make their
+> > machines much faster, and coming back later asking how they can recover
+> > their thrashed partitions...
 
-[...]
+> You know how many I've had thrashed on Reiser4?  Two.  The first one was
+> with a VERY early alpha/beta, and the second one was when I dropped a
+> laptop and the disk failed.
 
-> > In which case the features belong in the VFS as all those with
-> > experience and kernel contributions have been arguing.
+OK. Know how many I thrashed with ext2/3? I remember 3, could have been as
+many as 5. One was due to a failed disk, another one because of DMA to a
+disk causing slow corruption. Another one I believe was due to a odd kernel
+compiled with a snapshot gcc a long time back, plus power loss at the wrong
+time. And that is from using ext2/3 since they were in early beta. On
+several machines at the same time, over years. I'd have to say that there
+isn't much of a difference.
 
-> No one's arguing that.  What we're arguing is that there does seem to be
-> a bit of prejudice when fuck-me-with-a-chainsaw and YOU ARE A FOOL FOR
-> ENABLING THIS all got in, and with at least one of those, there doesn't
-> seem to be any intention of changing it -- all of that, and even with an
-> expressed intention to fix the aesthetical problems with Reiser4 later,
-> we can't get the working version in now.
-> 
-> More infuriatingly, I, at least, have a distinct feeling that once all
-> the issues are fixed, an entirely different crowd of benevolent
-> dictators will come around and say that we can't get in because we
-> change the VFS.  At least some people on this list have said things to
-> that effect.
+> And it does make certain things faster.  For one thing, "emerge sync" on
+> Gentoo is twice to four times as fast, and /usr/portage is 75% as big,
+> as on ReiserFS (3).
 
-The dictators here have changed over time, sure. Their general attitude has
-been the same all the way through, since the list started. And you might
-not like it that way, but I am sure Linux is of the current high quality
-exactly because any core code that gets into the kernel (and a new
-filesystem that wants to be central is clearly of this kind) is checked by
-multiple people with (sometimes widely) diverging backgrounds, interests,
-and views. Linus himself has stated more than once that his principal job
-isn't to integrate code into the kernel, but leaving stuff out.
+That can't all be due to on-disk format.
+
+> >>                                 the ext3 people may find themselves
+> >>wanting some of the more generic optimizations.
+
+> > They'll filch them in due time, don't worry.
+
+> Duplication of effort.  With plugins, we can optimize the upper layers
+> of ALL filesystems, regardless of the lower layers, in such a way that
+> it is optional.
+
+Generic optimizations how, if they need VFS support?!
+
+>                  I'm sure it's far easier to write a Reiser storage
+> plugin than a brand new FS.
+
+Comparing apples and oranges tells you what?
+
+> Eventually, once competition is only based on storage format, we could
+> end up with just one format.  Just one filesystem!  (except for
+> fat/ntfs/iso/udf/network...)  And in the open source world, sometimes a
+> single product is a good thing.
+
+Sorry, I don't think this will come to pass in our lifetime, if ever. There
+are different requirements, and the way to cater to them is different
+solutions. That has always been what Linux (as opposed to the propietary
+and even some open source systems) is all about...
+
+> >>But, I don't think that will realistically happen at all.
+
+> >>Instead, what will probably happen is that once Reiser4 is in the
+> >>mainstream kernel, it will become more popular and noticable.  Other
+> >>FSes will take note.  ext3 people may decide they want
+> >>file-as-directory,
+
+> > That idea is even much older than Linux itself, and no other (Unix)
+> > filesystem has implemented it. Ever. Wonder why...
+
+> >>                   and vfat people may decide they want cryptocompress,
+
+> > I'm sure they don't, because it is mostly for Windows and assorted devices
+> > (pendrives, digital cameras, ...) compatibility.
+
+> I, for one, would like to use a pendrive and have certain files be
+> encrypted transparently, only for use on Linux, but others be ready to
+> transfer to a Windows box.
+
+And that would surely break Windows compatibility (because you have to keep
+the data on what to encrypt one the filesystem itself). Besides, having
+pgp, or gpg, or crypt, or my own whacky encryption proggie do the job in
+/userland/, and not shoving into the kernel and so down the next user's
+throat, is in the end a largeish part of what Unix is all about for me.
 -- 
 Dr. Horst H. von Brand                   User #22616 counter.li.org
 Departamento de Informatica                     Fono: +56 32 654431
 Universidad Tecnica Federico Santa Maria              +56 32 654239
 Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
-
-

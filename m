@@ -1,87 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263317AbVFXWSe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263298AbVFXWT4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263317AbVFXWSe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 18:18:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263300AbVFXWSd
+	id S263298AbVFXWT4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 18:19:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263220AbVFXWT0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 18:18:33 -0400
-Received: from warden-p.diginsite.com ([208.29.163.248]:12499 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP id S263332AbVFXWPQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 18:15:16 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-X-X-Sender: dlang@dlang.diginsite.com
-Date: Fri, 24 Jun 2005 15:15:06 -0700 (PDT)
-X-X-Sender: dlang@dlang.diginsite.com
-Subject: Re: Fwd: [Bug 4774] e1000 driver works on UP, but not SMP x86_64
-In-Reply-To: <200506250157.14499.adobriyan@gmail.com>
-Message-ID: <Pine.LNX.4.62.0506241514440.19335@qynat.qvtvafvgr.pbz>
-References: <200506250157.14499.adobriyan@gmail.com>
+	Fri, 24 Jun 2005 18:19:26 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:9438 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S263316AbVFXWSO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Jun 2005 18:18:14 -0400
+Date: Fri, 24 Jun 2005 15:20:02 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "Alexander Y. Fomichev" <gluk@php4.ru>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>, admin@list.net.ru,
+       Git Mailing List <git@vger.kernel.org>
+Subject: Re: 2.6.12 hangs on boot
+In-Reply-To: <200506221813.50385.gluk@php4.ru>
+Message-ID: <Pine.LNX.4.58.0506241446440.11175@ppc970.osdl.org>
+References: <200506221813.50385.gluk@php4.ru>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-here's what happens.
 
-happy1-p:~# ifconfig eth11 192.168.255.1
-SIOCSIFFLAGS: Invalid argument
-happy1-p:~# tail -3 /var/log/messages
-Jun 24 15:14:01 happy1-p /USR/SBIN/CRON[392]: (root) CMD (touch 
-/tmp/.crond_running >/dev/null 2>/dev/null)
-Jun 24 15:14:22 happy1-p kernel: request_irq: IRQ requested is greater 
-than NR_IRQs!
-Jun 24 15:14:22 happy1-p kernel: e1000: eth11: e1000_up: Unable to 
-allocate interrupt Error: -22
 
-On Sat, 25 Jun 2005, Alexey Dobriyan wrote:
-
-> Date: Sat, 25 Jun 2005 01:57:13 +0400
-> From: Alexey Dobriyan <adobriyan@gmail.com>
-> To: David Lang <david.lang@digitalinsight.com>
-> Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-> Subject: Fwd: [Bug 4774] e1000 driver works on UP, but not SMP x86_64
+On Wed, 22 Jun 2005, Alexander Y. Fomichev wrote:
 > 
-> David, please try this debugging patch.
->
-> You can also register at http://bugme.osdl.org/createaccount.cgi and add
-> yourself to CC list.
->
-> ----------  Forwarded Message  ----------
->
-> Subject: [Bug 4774] e1000 driver works on UP, but not SMP x86_64
-> Date: Saturday 25 June 2005 01:27
-> From: bugme-daemon@kernel-bugs.osdl.org
-> To: adobriyan@gmail.com
->
-> http://bugzilla.kernel.org/show_bug.cgi?id=4774
->
->
-> ------- Additional Comments From nacc@us.ibm.com  2005-06-24 14:27 -------
-> Created an attachment (id=5211)
-> --> (http://bugzilla.kernel.org/attachment.cgi?id=5211&action=view)
-> Debugging patch
->
-> That e1000 error message indicates an EINVAL error code, which is from this
-> code:
->
-> 	if ((irqflags & SA_SHIRQ) && !dev_id)
-> 		return -EINVAL;
-> 	if (irq >= NR_IRQS)
-> 		return -EINVAL;
-> 	if (!handler)
-> 		return -EINVAL;
->
-> I don't think it's the last one, because e1000_intr (which is sent in to
-> request_irq() from e1000) is prototyped/defined. I spun up a patch to spit out
-> some debugging here which simply inserts some printks (if the only driver which
-> gets this warning is e1000, then it shouldn't flood your logs) -- basically
-> narrowing down which error condition is causing the failure. I'm guessing it's
-> probably the first case, but let's be sure.
->
+> I've been trying to switch from 2.6.12-rc3 to 2.6.12 on Dual EM64T 2.8 GHz
+> [ MoBo: Intel E7520, intel 82801 ]
+> but kernel hangs on boot right after records:
+> 
+> Booting processor 2/1 rip 6000 rsp ffff8100023dbf58
+> Initializing CPU#2
 
--- 
-There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
-  -- C.A.R. Hoare
+Hmm.. Since you seem to be a git user, maybe you could try the git
+"bisect" thing to help narrow down exactly where this happened (and help
+test that thing too ;).
+
+You can basically use git to find the half-way point between a set of
+"known good" points and a "known bad" point ("bisecting" the set of
+commits), and doing just a few of those should give us a much better view
+of where things started going wrong.
+
+For example, since you know that 2.6.12-rc3 is good, and 2.6.12 is bad, 
+you'd do
+
+	git-rev-list --bisect v2.6.12 ^v2.6.12-rc3
+
+where the "v2.6.12 ^v2.6.12-rc3" thing basically means "everything in 
+v2.6.12 but _not_ in v2.6.12-rc3" (that's what the ^ marks), and the 
+"--bisect" flag just asks git-rev-list to list the middle-most commit, 
+rather than all the commits in between those kernel versions.
+
+You should get the answer "0e6ef3e02b6f07e37ba1c1abc059f8bee4e0847f", but
+before you go any further, just make sure your git index is all clean:
+
+	git status
+
+should not print anything else than "nothing to commit". If so, then
+you're ready to try the new "mid-point" head:
+
+	git-rev-list --bisect v2.6.12 ^v2.6.12-rc3 > .git/refs/heads/try1
+	git checkout try1
+
+which will create a new branch called "try1", where the head is that 
+"mid-point", and it will switch to that branch (this requires a fairly 
+recent "git", btw, so make sure you update your git first).
+
+Then, compile that kernel, and try it out.
+
+Now, there are two possibilities: either "try1" ends up being good, or it
+still shows the bug. If it is a buggy kernel, then you now have a new
+"bad"  point, and you do
+
+	git-rev-list --bisect try1 ^v2.6.12-rc3 > .git/refs/heads/try2
+	git checkout try2
+
+which is all the same thing as you did before, except now we use "try1" as 
+the known bad one rather than v2.6.12 (and we call the new branch "try2" 
+of course).
+
+However, if that "try1" is _good_, and doesn't show the bug, then you 
+shouldn't replace the other "known good" case, but instead you should add 
+it to the list of good commits (aka commits we don't want to know about):
+
+	git-rev-list --bisect v2.6.12 ^v2.6.12-rc3 ^try1 > .git/refs/heads/try2
+	git checkout try2
+
+ie notice how we now say: want to get the bisection of the commits in 
+v2.6.12 (known bad) but _not_ in either of v2.6.12-rc3 or the 'try1' 
+branch (which are known good).
+
+After compiling and testing a few kernels, you will have narrowed the 
+range down a _lot_, and at some point you can just say
+
+	git-rev-list --pretty try4 ^v2.6.12-rc3 ^try1 ^try3
+
+(or however the "success/failure" pattern ends up being - the above
+example line assumes that "try1" didn't have the bug, but "try2" did, and
+then "try3" was ok again but "try4" was buggy), and you'll get a fairly
+small list of commits that are the potential "bad" ones.
+
+After the above four tries, you'd have limited it down to a list of 95
+changes (from the original 1520), so it would really be best to try six or
+seven different kernels, but at that point you'd have it down to less than
+20 commits and then pinpointing the bug is usually much easier.
+
+And when you're done, you can just do
+
+	git checkout master
+
+and you're back to where you started.
+
+		Linus

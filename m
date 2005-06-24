@@ -1,59 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263318AbVFXROS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263299AbVFXRN4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263318AbVFXROS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 13:14:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263388AbVFXROR
+	id S263299AbVFXRN4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 13:13:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263381AbVFXRNz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 13:14:17 -0400
-Received: from hobbit.corpit.ru ([81.13.94.6]:33113 "EHLO hobbit.corpit.ru")
-	by vger.kernel.org with ESMTP id S263318AbVFXRKi (ORCPT
+	Fri, 24 Jun 2005 13:13:55 -0400
+Received: from dvhart.com ([64.146.134.43]:17074 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S263299AbVFXRJb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 13:10:38 -0400
-Message-ID: <42BC3E8C.30602@tls.msk.ru>
-Date: Fri, 24 Jun 2005 21:10:36 +0400
-From: Michael Tokarev <mjt@tls.msk.ru>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
+	Fri, 24 Jun 2005 13:09:31 -0400
+Date: Fri, 24 Jun 2005 10:09:27 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Con Kolivas <kernel@kolivas.org>
+Subject: Re: 2.6.12-mm1 boot failure on NUMA box.
+Message-ID: <320710000.1119632967@flay>
+In-Reply-To: <20050624170112.GD6393@elte.hu>
+References: <20050621130344.05d62275.akpm@osdl.org> <51900000.1119622290@[10.10.2.4]> <20050624170112.GD6393@elte.hu>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] ndevfs - a "nano" devfs
-References: <20050624081808.GA26174@kroah.com>
-In-Reply-To: <20050624081808.GA26174@kroah.com>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> Now I just know I'm going to regret this somehow...
+>> OK, still broken with the last 3 backed out, but works with the last 4 
+>> backed out. So I guess it's scheduler-cache-hot-autodetect.patch that 
+>> breaks it. Con just sent me something else to try to fix it in order 
+>> to run next ... will do that.
 > 
-> Anyway, here's yet-another-ramfs-based filesystem, ndevfs.  It's a very
-> tiny:
-> $ size fs/ndevfs/inode.o 
->    text    data     bss     dec     hex filename
->    1571     200       8    1779     6f3 fs/ndevfs/inode.o
-> replacement for devfs for those embedded users who just can't live
-> without the damm thing.  It doesn't allow subdirectories, and only uses
-> LSB compliant names.  But it works, and should be enough for people to
-> use, if they just can't wean themselves off of the idea of an in-kernel
-> fs to provide device nodes.
+> hm. Does it work if you disable migration-autodetect via passing in e.g.  
+> migration_cost=1000,2000,3000 on the boot line? Is it perhaps the 
+> excessive debugging that hurts.
+> 
+> or does it work if you undo the chunk below? Seemed harmless, but has 
+> CONFIG_NUMA relevance.
+> 
+> 	Ingo
+> 
+> --- linux/arch/i386/kernel/timers/timer_tsc.c.orig
+> +++ linux/arch/i386/kernel/timers/timer_tsc.c
+> @@ -133,18 +133,15 @@ static unsigned long long monotonic_cloc
+>  
+>  /*
+>   * Scheduler clock - returns current time in nanosec units.
+> + *
+> + * it's not a problem if the TSC is unsynchronized,
+> + * as the scheduler will carefully compensate for it.
+>   */
+>  unsigned long long sched_clock(void)
+>  {
+>  	unsigned long long this_offset;
+>  
+> -	/*
+> -	 * In the NUMA case we dont use the TSC as they are not
+> -	 * synchronized across all CPUs.
+> -	 */
+> -#ifndef CONFIG_NUMA
+> -	if (!use_tsc)
+> -#endif
+> +	if (!cpu_has_tsc)
+>  		/* no locking but a rare wrong value is not a big deal */
+>  		return jiffies_64 * (1000000000 / HZ);
 
-Well.  Maybe directories really are of no use, but mknod/symlink/unlink
-*are* useful.  That same mdadm who needs to create /dev/mdX *before*
-that device is created?  And socket for /dev/log...
+Humpf. That does look dangerous on a NUMA-Q. The TSCs aren't synced,
+and we can't use them .... have to use PIT, whether the CPUs have TSC
+or not.
 
-And oh, directories.. devpts?  Stuff like cciss/... represented in sysfs
-like cciss!... ?
-
-I don't see anything wrong with allowing creating/removing files in
-the filesystem (except of possible locking issues which can arise) --
-in-kernel support just does mknod/unlink on insert/remove, and if
-that fails (EEXIST/ENOENT), well, so be it...
-
-And since the whole namespace is now flat, another question comes in:
-is there any guarantee the names will not overlap?  /dev/ttyS0 and
-/dev/usb/ttyS0 (I don't remember which one it was, but I *think* I
-saw same names but in different dirs in /dev...)
-
-/mjt
+M.

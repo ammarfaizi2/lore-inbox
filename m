@@ -1,49 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262734AbVFXOSw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263060AbVFXOUX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262734AbVFXOSw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 10:18:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263036AbVFXOSw
+	id S263060AbVFXOUX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 10:20:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263036AbVFXOUX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 10:18:52 -0400
-Received: from mail18.syd.optusnet.com.au ([211.29.132.199]:41138 "EHLO
-	mail18.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S262734AbVFXOOq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 10:14:46 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Subject: Re: 2.6.12-mm1 boot failure on NUMA box.
-Date: Sat, 25 Jun 2005 00:14:26 +1000
-User-Agent: KMail/1.8.1
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, mingo@elte.hu
-References: <208690000.1119330454@[10.10.2.4]> <20050621130344.05d62275.akpm@osdl.org> <51900000.1119622290@[10.10.2.4]>
-In-Reply-To: <51900000.1119622290@[10.10.2.4]>
+	Fri, 24 Jun 2005 10:20:23 -0400
+Received: from [213.170.72.194] ([213.170.72.194]:47310 "EHLO
+	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP id S263048AbVFXOUH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Jun 2005 10:20:07 -0400
+Message-ID: <42BC1692.4060203@oktetlabs.ru>
+Date: Fri, 24 Jun 2005 18:20:02 +0400
+From: "Artem B. Bityuckiy" <dedekind@oktetlabs.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Fedora/1.7.8-1.3.1
+X-Accept-Language: en, ru, en-us
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: dipankar@in.ibm.com
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/4] files: change fd_install assertion
+References: <20050624105011.GB4804@in.ibm.com> <20050624105209.GC4804@in.ibm.com> <20050624105318.GD4804@in.ibm.com> <20050624105410.GE4804@in.ibm.com> <42BBF6D5.2030109@oktetlabs.ru> <20050624130049.GG4804@in.ibm.com> <42BC10C9.9020309@oktetlabs.ru> <20050624140918.GA4562@in.ibm.com>
+In-Reply-To: <20050624140918.GA4562@in.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506250014.26504.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 25 Jun 2005 00:11, Martin J. Bligh wrote:
-> --Andrew Morton <akpm@osdl.org> wrote (on Tuesday, June 21, 2005 13:03:44 
--0700):
-> > "Martin J. Bligh" <mbligh@mbligh.org> wrote:
-> >> Or I guess it's binary chop
-> >>  search amongst sched patches (or at least the ones that are new in
-> >>  this -mm ?)
-> >
-> > Yes please.
->
-> OK, still broken with the last 3 backed out, but works with the last
-> 4 backed out. So I guess it's scheduler-cache-hot-autodetect.patch
-> that breaks it. Con just sent me something else to try to fix it in order
-> to run next ... will do that.
+Dipankar Sarma wrote:
+> I did not. BUG_ON() is supposed to have unlikely() inside. See the
+> generic version. If an arch specific BUG_ON() doesn't have some
+> branch hint, it definitely should.
+Ah, pardon.
 
-Sorry, that patch I sent isn't a fix for any known problem, it's another tweak 
-to my code. If you have breakage elsewhere don't waste your time with my code 
-just yet.
-
-Cheers,
-Con
+-- 
+Best regards, Artem B. Bityuckiy
+Oktet Labs (St. Petersburg), Software Engineer.
++78124286709 (office) +79112449030 (mobile)
+E-mail: dedekind@oktetlabs.ru, web: http://www.oktetlabs.ru

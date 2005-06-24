@@ -1,49 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262606AbVFXIkr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262966AbVFXIr1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262606AbVFXIkr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 04:40:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261535AbVFXIkq
+	id S262966AbVFXIr1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 04:47:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263183AbVFXIml
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 04:40:46 -0400
-Received: from [62.206.217.67] ([62.206.217.67]:48095 "EHLO kaber.coreworks.de")
-	by vger.kernel.org with ESMTP id S262606AbVFXIje (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 04:39:34 -0400
-Message-ID: <42BBC6AC.9010704@trash.net>
-Date: Fri, 24 Jun 2005 10:39:08 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.8) Gecko/20050514 Debian/1.7.8-1
-X-Accept-Language: en
+	Fri, 24 Jun 2005 04:42:41 -0400
+Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:65139 "EHLO
+	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
+	id S261535AbVFXIlO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Jun 2005 04:41:14 -0400
+Message-ID: <42BBC710.8010906@cisco.com>
+Date: Fri, 24 Jun 2005 18:40:48 +1000
+From: Lincoln Dale <ltd@cisco.com>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "David S. Miller" <davem@davemloft.net>
-CC: rankincj@yahoo.com, chrisw@osdl.org, bdschuym@pandora.be,
-       bdschuym@telenet.be, herbert@gondor.apana.org.au,
-       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
-       ebtables-devel@lists.sourceforge.net, netfilter-devel@manty.net
-Subject: Re: 2.6.12: connection tracking broken?
-References: <20050622225816.97752.qmail@web52903.mail.yahoo.com>	<42BAF48E.70309@trash.net> <20050623.124951.130237121.davem@davemloft.net>
-In-Reply-To: <20050623.124951.130237121.davem@davemloft.net>
-Content-Type: text/plain; charset=us-ascii
+To: Hans Reiser <reiser@namesys.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, David Masover <ninja@slaphack.com>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: reiser4 plugins
+References: <200506231924.j5NJOvLA031008@laptop11.inf.utfsm.cl>	 <42BB31E9.50805@slaphack.com> <1119570225.18655.75.camel@localhost.localdomain> <42BB5E1A.70903@namesys.com> <42BB7083.2070107@cisco.com> <42BBAD0F.2040802@namesys.com> <42BBB1FA.7070400@cisco.com> <42BBC2EC.2080000@namesys.com>
+In-Reply-To: <42BBC2EC.2080000@namesys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
-> I have the patch, can you give me a nice changelog entry
-> for it?
+Hans Reiser wrote:
 
-Here you go:
+>>>ow, if his target is reduced to whether we can eliminate a function
+>>>indirection, and whether we can review the code together and see if it
+>>>is easy to extend plugins and pluginids to other filesystems by finding
+>>>places to make it more generic and accepting of per filesystem plugins,
+>>>especially if it is not tied to going into 2.6.13, well, that is the
+>>>conversation I would have liked to have had.
+>>>
+>>fantastic - some common ground.
+>>any reason WHY there has to be an abstraction of 'pluginid' when in
+>>theory VFS operations can already provide the necessary abstraction on
+>>a per-object basis?
+>>    
+>>
+>VFS supplies instances, plugins are classes.  If a language can
+>instantiate an object, that does not eliminate the value of being able
+>to create classes.
+>
+>Does it make sense to you now?
+>  
+>
+you've lost me . . .
 
-In 2.6.12 we started dropping the conntrack reference when a packet
-leaves the IP layer. This broke connection tracking on a bridge,
-because bridge-netfilter defers calling some NF_IP_* hooks to the bridge
-layer for locally generated packets going out a bridge, where the
-conntrack reference is no longer available. This patch keeps the
-reference in this case as a temporary solution, long term we will
-remove the defered hook calling. No attempt is made to drop the
-reference in the bridge-code when it is no longer needed, tc actions
-could already have sent the packet anywhere.
+regardless, it isn't /me/ that you need to convince.  how about a 
+posting to l-k on "why Reiser4 cannot use VFS infrastructure for 
+[crypto,compression,blahblah] plugins" - ideally, for each plugin.
 
-Regards
-Patrick
 
+cheers,
+
+lincoln.

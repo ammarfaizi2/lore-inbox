@@ -1,67 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263170AbVFXTIp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263202AbVFXTK4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263170AbVFXTIp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 15:08:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263135AbVFXTIp
+	id S263202AbVFXTK4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 15:10:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263183AbVFXTK4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 15:08:45 -0400
-Received: from nome.ca ([65.61.200.81]:11918 "HELO gobo.nome.ca")
-	by vger.kernel.org with SMTP id S263170AbVFXTFH (ORCPT
+	Fri, 24 Jun 2005 15:10:56 -0400
+Received: from palrel12.hp.com ([156.153.255.237]:12491 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S263135AbVFXTKk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 15:05:07 -0400
-Date: Fri, 24 Jun 2005 12:05:15 -0700
-From: Mike Bell <mike@mikebell.org>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] ndevfs - a "nano" devfs
-Message-ID: <20050624190513.GA1046@mikebell.org>
-Mail-Followup-To: Mike Bell <mike@mikebell.org>, Greg KH <greg@kroah.com>,
-	linux-kernel@vger.kernel.org
-References: <20050624081808.GA26174@kroah.com>
-Mime-Version: 1.0
+	Fri, 24 Jun 2005 15:10:40 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050624081808.GA26174@kroah.com>
-User-Agent: Mutt/1.5.9i
+Content-Transfer-Encoding: 7bit
+Message-ID: <17084.23214.237084.224128@napali.hpl.hp.com>
+Date: Fri, 24 Jun 2005 12:10:38 -0700
+To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+Cc: davidm@hpl.hp.com, akpm@osdl.org,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linux IA64 <linux-ia64@vger.kernel.org>
+Subject: Re: [patch][ia64]Refuse kprobe on ivt code
+In-Reply-To: <20050624114545.A4826@unix-os.sc.intel.com>
+References: <20050623172832.B26121@unix-os.sc.intel.com>
+	<17083.25625.991516.736507@napali.hpl.hp.com>
+	<20050624114545.A4826@unix-os.sc.intel.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 24, 2005 at 01:18:08AM -0700, Greg KH wrote:
-> Anyway, here's yet-another-ramfs-based filesystem, ndevfs.  It's a very
-> tiny:
-...
-> replacement for devfs for those embedded users who just can't live
-> without the damm thing.  It doesn't allow subdirectories, and only uses
-> LSB compliant names.  But it works, and should be enough for people to
-> use, if they just can't wean themselves off of the idea of an in-kernel
-> fs to provide device nodes.
+>>>>> On Fri, 24 Jun 2005 11:45:46 -0700, Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com> said:
 
-As far as ideas go, this is pretty much all I asked for. A simple kernel
-filesystem to export device nodes with names, rather than just the
-numbers as sysfs does. The "detecting non-existant device names" thing
-never meant anything to me personally, and if anyone does care this
-gives them a simple place to add such a hook - unlike device names I
-don't see why such a thing would be difficult to maintain as a patch.
+  Anil> On Thu, Jun 23, 2005 at 06:38:33PM -0700, David Mosberger wrote:
+  >> Please do the checking based on the .text.ivt section instead (and add
+  >> the necessary labels to vmlinux.S and asm-ia64/sections.h).
 
-It'll obviously need support for symlinks, directories and mknod. And
-I'm not sure you can change the mode/owner of those devices yet. Also, I
-have no idea what the device support is like yet (am currently in the
-middle of nowhere, getting the latest bk to test this patch with over
-my handphone would not be fun) but looking at the bit where it's getting
-the names from the device model I can see it encountering problems with
-oddly named devices. And any devices which aren't dynamic in udev
-obviously aren't going to work with this patch either.
+  Anil> Subject: Refuse kprobe insert on IVT code
 
-What's the method for bootstrapping this filesystem onto a system? Is
-a mount from early userspace the only way you'd accept, or would a
-kernel parameter to automount over /dev as devfs does be tolerable?
+  Anil> Not safe to insert kprobes on IVT code.
 
-> Now, with this, is there still anyone out there who just can't live
-> without devfs in their kernel?
+  Anil> This patch checks to see if the address on which Kprobes is being
+  Anil> inserted is  in ivt code and if it is in ivt code then
+  Anil> refuse to register kprobe.
 
-If devfs could be left alone (disabled, if necessary) until something
-like this was working, I would be completely mollified.
+  Anil> Take 1: This patch is based on review comments from David Mosberger,
+  Anil> now checking based on .text.ivt
 
-> For embedded people to use since they seem to hate userspace.
+  Anil> Signed-off-by: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
 
-Userspace killed my father.
+Looks fine, except:
+
+  Anil> +/* Returns non-zero if the addr is in the Interrupt Vector Table */
+  Anil> +static inline int in_ivt_functions(unsigned long addr)
+  Anil> +{
+  Anil> +	extern char __start_ivt_text[], __end_ivt_text[];
+		^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  Anil> +	return (addr >= (unsigned long)__start_ivt_text
+  Anil> +		&& addr < (unsigned long)__end_ivt_text);
+  Anil> +}
+
+Surely you meant to use the declaration from sections.h instead?
+
+Thanks,
+
+	--david

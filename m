@@ -1,44 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262630AbVFXNnZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262505AbVFXNm5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262630AbVFXNnZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 09:43:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261975AbVFXNnF
+	id S262505AbVFXNm5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 09:42:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262602AbVFXNm5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 09:43:05 -0400
-Received: from ns1.g-housing.de ([62.75.136.201]:60045 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S262506AbVFXNl5 (ORCPT
+	Fri, 24 Jun 2005 09:42:57 -0400
+Received: from thunk.org ([69.25.196.29]:6061 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S262423AbVFXNkM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 09:41:57 -0400
-Message-ID: <42BC0DCD.8020206@g-house.de>
-Date: Fri, 24 Jun 2005 15:42:37 +0200
-From: Christian <evil@g-house.de>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: de-DE, de, en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: =?ISO-8859-2?Q?Micha=B3_Piotrowski?= <piotrowskim@trex.wsi.edu.pl>
-Subject: Re: [ANNOUNCE] ORT - Oops Reporting Tool
-References: <42BBE593.9090407@trex.wsi.edu.pl>
-In-Reply-To: <42BBE593.9090407@trex.wsi.edu.pl>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8bit
+	Fri, 24 Jun 2005 09:40:12 -0400
+Date: Fri, 24 Jun 2005 09:39:52 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Petr Baudis <pasky@ucw.cz>, mercurial@selenic.com,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Git Mailing List <git@vger.kernel.org>
+Subject: Re: Mercurial vs Updated git HOWTO for kernel hackers
+Message-ID: <20050624133952.GB7445@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Andrea Arcangeli <andrea@suse.de>, Petr Baudis <pasky@ucw.cz>,
+	mercurial@selenic.com, Jeff Garzik <jgarzik@pobox.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Git Mailing List <git@vger.kernel.org>
+References: <42B9E536.60704@pobox.com> <20050623235634.GC14426@waste.org> <20050624064101.GB14292@pasky.ji.cz> <20050624130604.GK17715@g5.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050624130604.GK17715@g5.random>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Micha³ Piotrowski schrieb:
-> If you know something about bash scripting you can review it, add some 
-> useful features and make some optimalisations. Or just send me an idea.
+On Fri, Jun 24, 2005 at 03:06:04PM +0200, Andrea Arcangeli wrote:
+> On Fri, Jun 24, 2005 at 08:41:01AM +0200, Petr Baudis wrote:
+> > Cool. Except where the concepts are just different, Cogito mostly
+> > appears at least equally simple to use as Mercurial. Yes, some features
+> > are missing yet. I hope to fix that soon. :-)
+> 
+> The user interface and network protocol isn't the big deal, the big deal
+> is the more efficient on-disk storage format IMHO.
 
-why does it have to be run as root? the only things i see missing are 
-the "Capabilities" output from lspci -vvv when running as a user.
+E2fsprogs with the full revision history imported into git is 100
+megs, and that's with deltas.  E2fsprogs imported into Mercurial is 17
+megs (and actually, the imported repository was just a tad bit smaller
+than e2fsprogs' BK repository).
 
-otherwise: great script, could be even included in ../scripts ?
+Which do you think is going to be faster to operate from a cold start
+using 4200 rpm laptop drives?  :-)
 
-thanks,
-Christian.
--- 
-BOFH excuse #145:
-
-Flat tire on station wagon with tapes.  ("Never underestimate the 
-bandwidth of a station wagon full of tapes hurling down the highway" 
-Andrew S. Tannenbaum)
+						- Ted

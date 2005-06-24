@@ -1,107 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263143AbVFXQG5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263058AbVFXQHh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263143AbVFXQG5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 12:06:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263151AbVFXQEi
+	id S263058AbVFXQHh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 12:07:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263146AbVFXQHh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 12:04:38 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:59012 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S263067AbVFXQBk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 12:01:40 -0400
-Date: Fri, 24 Jun 2005 09:03:11 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Git Mailing List <git@vger.kernel.org>,
-       Andy Whitcroft <apw@shadowen.org>, Dave Hansen <haveblue@us.ibm.com>
-Subject: Re: Finding what change broke ARM
-In-Reply-To: <20050624101951.B23185@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.58.0506240824320.11175@ppc970.osdl.org>
-References: <20050624101951.B23185@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 24 Jun 2005 12:07:37 -0400
+Received: from a.relay.invitel.net ([62.77.203.3]:55201 "EHLO
+	a.relay.invitel.net") by vger.kernel.org with ESMTP id S263058AbVFXQA1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Jun 2005 12:00:27 -0400
+Date: Fri, 24 Jun 2005 18:00:18 +0200
+From: =?iso-8859-2?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>
+To: linux-kernel@vger.kernel.org
+Subject: Re: -mm -> 2.6.13 merge status (fuse)
+Message-ID: <20050624160018.GB8591@vega.lgb.hu>
+Reply-To: lgb@lgb.hu
+References: <20050620235458.5b437274.akpm@osdl.org> <E1Dkfu2-0005Ju-00@dorka.pomaz.szeredi.hu> <20050621142820.GC2015@openzaurus.ucw.cz> <E1DkkRE-0005mt-00@dorka.pomaz.szeredi.hu> <20050621220619.GC2815@elf.ucw.cz> <E1Dkyas-0006wu-00@dorka.pomaz.szeredi.hu> <20050621233914.69a5c85e.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050621233914.69a5c85e.akpm@osdl.org>
+X-Operating-System: vega Linux 2.6.11.11-grsec-vega i686
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+EHLO,
 
-
-On Fri, 24 Jun 2005, Russell King wrote:
->
-> When building current git for ARM, I see:
+On Tue, Jun 21, 2005 at 11:39:14PM -0700, Andrew Morton wrote:
+> >  > System where users can mount their own filesystems should not be
+> >  > called "Unix" any more.
+> > 
+> >  It's not.  It's "Linux".
 > 
->   CC      arch/arm/mm/consistent.o
-> arch/arm/mm/consistent.c: In function `dma_free_coherent':
-> arch/arm/mm/consistent.c:357: error: `mem_map' undeclared (first use in this function)
-> arch/arm/mm/consistent.c:357: error: (Each undeclared identifier is reported only once
-> arch/arm/mm/consistent.c:357: error: for each function it appears in.)
-> make[2]: *** [arch/arm/mm/consistent.o] Error 1
-> 
-> How can I find what change elsewhere in the kernel tree caused this
-> breakage?
+> It would be helpful if we could have a brief description of the feature
+> which you're discussing here.  We discussed this a couple of months back,
+> but I've forgotten most of it and it was off-list I think.
 
-Ahhah! A real-world example of what cool things git can do. 
+<offtopic>
 
-Anyway, the first starting point is _exactly_ the same as under BK, except 
-the syntax is very different, and git does it better, in fact:
+Excuse me, I'm far from being a filesystem/vfs expert ... However I've
+got the idea about the merging fuse/reiser4 that some guys keep complaining
+about the quite strange behaviour of these stuffs: when I write 'strange'
+I mean strange from the view point of some standard unix ideas about filesystems
+ (and anything related to filesystems like permission checking, namespaces
+etc) and how they should be implemented and handled.
 
-	git-whatchanged -p arch/arm/mm/consistent.c
+This reminds me articles about comparing Linux and BSDs. BSD guys claims
+that BSD distros _ARE_ unices but Linux is not. It's out of scope to waste
+mails about these flames like this (it's question of view point as almost
+always) however there IS some lesson here. BSD systems are somewhat (well,
+not counting the interesting ideas of DragonFly BSD) conservative to
+implement new stuffs. I'm about stuffs like filesystem transactions, API
+exported to the user space to be able to do things like deleting data from
+the begining of the file (there is API call to truncate - from the end of
+the file ...) and such (what a quite braindead idea to rewrite eg a 10Gbyte
+long file just for inserting one byte to somewhere in the middle of the file
+- in 2005 ...). The only thing explains where the later is not present in
+most OSes is because of historical reasons and not technical ones. And if even
+Linux does not want to open toward extended filesystem abilities which common
+open source system will? I guess none.
 
-However, in this case nothing has changed in that file over the whole 
-git history, so you get an empty answer. Let's go to phase two, but first 
-a comment:
+I can inmagine that vendors of some closed source systems will exploit
+the hole in the area of outdated filesystem concept of our current world
+and when it becomes reality it's to late. Maybe.
 
-> With bk, you could ask for a per-file revision history of the likely
-> candidates, and then find the changeset to view the other related
-> changes.
-> 
-> With git... ?  We don't have per-file revision history so...
+Please forgive for my possible offtopic mail here but I could not resist :)
 
-We don't _store_ changes as per-file revision histories, but we do store 
-it in a way where finding out what happened is efficient even per-file. 
-While a line-by-line "annotate" is not efficient, the "what changed" 
-certainly is.
+</offtopic>
 
-And git actually does better than BK (or _any_ per-file history thing),
-because "git-whatchanged" actually works over directories or multiple
-independent files too, and it works purely on pathnames, so you can say
-"git-whatchanged" for a file that has gone away to see _why_ it went away.  
-In most other systems it's really hard to see what happened to something
-that isn't there any more..
-
-Anyway, the problem clearly didn't happen because of any changes to that 
-file at all, so here per-file history simply doesn't help. But never fear, 
-we're not screwed yet. In particular, you will now obviously suspect that 
-since it wasn't that _file_ that changed, and since you know what changed 
-in the ARM code, it's going to be a generic linux header file change that 
-screwed you over.
-
-So phase #2 is to do
-
-	git-whatchanged -p include/linux
-
-(which shows every commit that touches include/linux, and shows that part
-as a patch, thus the "-p"). That starts up a pager on the results by
-default, so we just be stupid about it and do a "/mem_map" to look for
-changes that mention mem_map. Maybe we'll be lucky.
-
-Even that doesn't show a whole lot: but it does point a very suspicious
-finger to the recently merged sparse-mem stuff from Andy Whitcroft,
-though.
-
-And now you have a commit to look at, namely the "sparsemem memory model" 
-one, commit ID d41dee369bff3b9dcb6328d4d822926c28cc2594.
-
-In fact, looking at it, I think it's simply config option changes, and
-probably the SPARSEMEM config option that has preempted your lack of
-DISCONTIGMEM support.  But now you have somebody to blame and to ask for
-help from: Andy Whitcroft and Dave Hansen, whom I've cc'd.
-
-I might start phase #3 with
-
-	git-whatchanged -p mm/Kconfig arch/arm/Kconfig
-
-but at this point you may already have enough of a clue that you don't 
-even care any more.
-
-		Linus
+-- 
+- Gábor

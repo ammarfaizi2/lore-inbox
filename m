@@ -1,74 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263201AbVFXHik@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263204AbVFXHi6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263201AbVFXHik (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 03:38:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263206AbVFXHij
+	id S263204AbVFXHi6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 03:38:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263206AbVFXHi5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 03:38:39 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:50693 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S263201AbVFXHg1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 03:36:27 -0400
-Date: Fri, 24 Jun 2005 09:36:24 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Christian Hesse <mail@earthworm.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Kernel .patches support
-Message-ID: <20050624073624.GB26545@stusta.de>
-References: <200506232358.34897.mail@earthworm.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200506232358.34897.mail@earthworm.de>
-User-Agent: Mutt/1.5.9i
+	Fri, 24 Jun 2005 03:38:57 -0400
+Received: from [213.170.72.194] ([213.170.72.194]:33740 "EHLO
+	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP id S263204AbVFXHgb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Jun 2005 03:36:31 -0400
+Message-ID: <42BBB7F8.8070309@yandex.ru>
+Date: Fri, 24 Jun 2005 11:36:24 +0400
+From: "Artem B. Bityuckiy" <dedekind@yandex.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Fedora/1.7.8-1.3.1
+X-Accept-Language: en, ru, en-us
+MIME-Version: 1.0
+To: "Kluba, Patrik" <pajko@halom.u-szeged.hu>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       Ferenc Havasi <havasi@inf.u-szeged.hu>,
+       Herbert Xu <herbert@gondor.apana.org.au>,
+       Michal Ludvig <michal@logix.cz>
+Subject: Re: cryptoapi compression modules & JFFSx
+References: <1119555217l.7540l.1l@detonator>
+In-Reply-To: <1119555217l.7540l.1l@detonator>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 23, 2005 at 11:58:27PM +0200, Christian Hesse wrote:
+Kluba, Patrik wrote:
+> 
 > Hi everybody,
 > 
-> every time I apply a patch to my kernel tree I (or my scripts) make an
-> 
-> echo $PATCHNAME $PATCHVERSION >> .patches
-> 
-> This patch makes the file accessible via /proc/patches.gz. I think this can be 
-> handy if you want to know what patches you (or your distributor) applied to 
-> your running kernel...
->...
-> Let me know what you think.
+> I'm going to port JFFS2's compression modules to CryptoApi except  
+> {in|de}flate, which Artem is working(?) on.
+No, I don't work on that anymore, so you probably want to port deflate 
+as well. My investigation showed that it can't be easily done without 
+hacking zlib internals, unless you greatly lose the compression ratio by 
+flushing the zstream and do other ugly things.
 
-To be honest, I'm not a fan of it.
+Nevertheless, you're the compression specialist(s), so you should do 
+this better :-)
 
-If e.g. looking at a Debian kernel source that has 289 different patches 
-with names like tty-locking-fixes7 applied, you'll see that this often 
-won't give you much valuable information.
-
-You'd need an uniform naming convention for patches across 
-distributions, and I don't think such things are worth the effort.
-
-> Regards,
-> Christian
-
-> --- linux-2.6.12+/include/linux/patches.h	1970-01-01 01:00:00.000000000 +0100
-> +++ linux-2.6.12+-patches/include/linux/patches.h	2005-06-23 23:10:15.278685000 +0200
-> @@ -0,0 +1,6 @@
-> +#ifndef _LINUX_PATCHES_H
-> +#define _LINUX_PATCHES_H
-> +
-> +#include <linux/autoconf.h>
-> +
-> +#endif
->...
-
-What do you need this file for?
-
-cu
-Adrian
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Best Regards,
+Artem B. Bityuckiy,
+St.-Petersburg, Russia.

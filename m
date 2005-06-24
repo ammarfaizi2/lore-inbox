@@ -1,44 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263208AbVFXTSQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263218AbVFXTR7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263208AbVFXTSQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 15:18:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263215AbVFXTSP
+	id S263218AbVFXTR7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 15:17:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263190AbVFXTOh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 15:18:15 -0400
-Received: from wproxy.gmail.com ([64.233.184.206]:42170 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S263208AbVFXTQz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 15:16:55 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=dXIzRuuKqC39sxlHIPng1iSKM3mO9+syxumBrgy3DwS2DGVnNpUhBPQ3TDod5Sy2xyQ/IIlwRJwlB3AotQKPuQVZrCJnf1dj2XJmA2sNAsIC9r+EyKGdBK5R/oBpWb5K3dWv10MsqqUmQ4TnswaY4ULv0jauVbjgJwhBOuUaG9U=
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Greg KH <greg@kroah.com>
-Subject: Re: [ANNOUNCE] ndevfs - a "nano" devfs
-Date: Fri, 24 Jun 2005 23:22:31 +0400
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org
-References: <20050624081808.GA26174@kroah.com>
-In-Reply-To: <20050624081808.GA26174@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 24 Jun 2005 15:14:37 -0400
+Received: from smtp-105-friday.noc.nerim.net ([62.4.17.105]:40456 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S263183AbVFXTOP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Jun 2005 15:14:15 -0400
+Date: Fri, 24 Jun 2005 21:14:16 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Ben Gardner <BGardner@Wabtec.com>, Greg KH <greg@kroah.com>
+Cc: LM Sensors <lm-sensors@lm-sensors.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: New max6875 driver may corrupt EEPROMs
+Message-Id: <20050624211416.7330b4d5.khali@linux-fr.org>
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506242322.32248.adobriyan@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 24 June 2005 12:18, Greg KH wrote:
-> --- /dev/null
-> +++ gregkh-2.6/fs/ndevfs/inode.c
+Hi all,
 
-> + *	This program is free software; you can redistribute it and/or
-> + *	modify it under the terms of the GNU General Public License version
-> + *	2 as published by the Free Software Foundation.
-> + *
-> + * Written for all of the people out there who just hate userspace solutions.
+After a careful code analysis on the new max6875 driver
+(drivers/i2c/chips/max6875.c), I have come to the conclusion that this
+driver may cause EEPROM corruptions if used on random systems.
 
-No. Whining. License. Please. ;-)
+The EEPROM part of the MAX6875 chip is accessed using rather uncommon
+I2C sequences. What is seen by the MAX6875 as reads can be seen by a
+standard EEPROM (24C02) as writes. If you check the detection method
+used by the driver, you'll find that the first SMBus command it will
+send on the bus is i2c_smbus_write_byte_data(client, 0x80, 0x40). For
+the MAX6875 it makes an internal pointer point to a specific offset of
+the EEPROM waiting for a subsequent read command, so it's not an actual
+data write operation, but for a standard EEPROM, this instead means
+writing value 0x40 to offset 0x80. Blame Philips and Intel for the
+obscure protocol.
 
+Since the MAX6875 and the standard, common 24C02 EEPROMs share two I2C
+addresses (0x50 and 0x52), loading the max6875 driver on a system with
+standard EEPROMs at either address will trigger a write on these
+EEPROMs, which will lead to their corruption if they happen not to be
+write protected. This kind of EEPROMs can be found on memory modules
+(SPD), ethernet adapters (MAC address), laptops (proprietary data) and
+displays (EDID/DDC). Most of these are hopefully write-protected, but
+not all of them.
+
+For this reason, I would recommend that the max6875 driver be
+neutralized, in a way that nobody can corrupt his/her EEPROMs by just
+loading the driver. This means either deleting the driver completely, or
+not listing any default address for it. I'd like this to be done before
+2.6.13-rc1 is released.
+
+Additionally, the max6875 driver lacks the 24RF08 corruption preventer
+present in the eeprom driver, which means that loading this driver in a
+system with such a chip would corrupt it as well.
+
+Here is a proposed quick patch addressing the issue, although I wouldn't
+mind a complete removal if it makes everyone feel safer. I think Ben
+has plans to replace this driver by a much simplified one anyway.
+
+Thanks.
+
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
+
+ drivers/i2c/chips/max6875.c |    6 +++++-
+ 1 files changed, 5 insertions(+), 1 deletion(-)
+
+--- linux-2.6.12-git5.orig/drivers/i2c/chips/max6875.c	2005-06-23 21:32:01.000000000 +0200
++++ linux-2.6.12-git5/drivers/i2c/chips/max6875.c	2005-06-24 21:05:37.000000000 +0200
+@@ -37,7 +37,8 @@
+ #include <linux/i2c-sensor.h>
+ 
+ /* Addresses to scan */
+-static unsigned short normal_i2c[] = {0x50, 0x52, I2C_CLIENT_END};
++/* No address scanned by default, as this could corrupt standard EEPROMS. */
++static unsigned short normal_i2c[] = {I2C_CLIENT_END};
+ static unsigned int normal_isa[] = {I2C_CLIENT_ISA_END};
+ 
+ /* Insmod parameters */
+@@ -369,6 +370,9 @@
+ 	new_client->driver = &max6875_driver;
+ 	new_client->flags = 0;
+ 
++	/* Prevent 24RF08 corruption */
++	i2c_smbus_write_quick(new_client, 0);
++
+ 	/* Setup the user section */
+ 	data->blocks[max6875_eeprom_user].type    = max6875_eeprom_user;
+ 	data->blocks[max6875_eeprom_user].slices  = USER_EEPROM_SLICES;
+
+
+-- 
+Jean Delvare

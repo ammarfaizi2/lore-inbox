@@ -1,52 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263157AbVFXQ6V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263163AbVFXRDE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263157AbVFXQ6V (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 12:58:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263159AbVFXQ6U
+	id S263163AbVFXRDE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 13:03:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263168AbVFXRDD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 12:58:20 -0400
-Received: from fmr18.intel.com ([134.134.136.17]:27555 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S263157AbVFXQ6O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 12:58:14 -0400
-Date: Fri, 24 Jun 2005 09:58:06 -0700
-Message-Id: <200506241658.j5OGw6Kj007412@linux.jf.intel.com>
-From: Rusty Lynch <rusty.lynch@intel.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
-       anil.s.keshavamurthy@intel.com
-Subject: [ia64][patch] Refuse inserting kprobe on slot 1 - take 2
+	Fri, 24 Jun 2005 13:03:03 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:33678 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S263163AbVFXQ7o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Jun 2005 12:59:44 -0400
+Date: Fri, 24 Jun 2005 12:59:57 -0400
+From: Frank Peters <frank.peters@comcast.net>
+To: linux-kernel@vger.kernel.org
+Cc: mkrufky@m1k.net
+Subject: Re: isa0060/serio0 problems -WAS- Re: Asus MB and 2.6.12 Problems
+Message-Id: <20050624125957.238204a4.frank.peters@comcast.net>
+In-Reply-To: <42BC306A.1030904@m1k.net>
+References: <20050624113404.198d254c.frank.peters@comcast.net>
+	<42BC306A.1030904@m1k.net>
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Without the ability to atomically write 16 bytes, we can not update the
-middle slot of a bundle, slot 1, unless we stop the machine first.  This 
-patch will ensure the ability to robustly insert and remove a kprobe by
-refusing to insert a kprobe on slot 1 until a mechanism is in place to 
-safely handle this case.
+On Fri, 24 Jun 2005 12:10:18 -0400
+Michael Krufky <mkrufky@m1k.net> wrote:
 
-	--rusty
+> I am having the same problem with my Shuttle FT61 motherboard, although 
+> I have not tried to disable ACPI... Until now I thought I just had a 
+> faulty keyboard, as my method to fix this was to unplug the keyboard and 
+> plug it back in after bootup.  When this happens, I see this in dmesg as 
+> the last line:
+> 
+> input: AT Translated Set 2 keyboard on isa0060/serio0
+> 
+> I am also having problems with my AUX mouse, as seen in message
+> 
+> Subject: 2.6.12-rc5-mm1 breaks serio: i8042 AUX port
+> 
+> Frank, are you having problems with your ps/2 mouse port as well?
+> 
 
-Signed-off-by: Rusty Lynch <rusty.lynch@intel.com>
+I am so glad that you asked this.
 
- arch/ia64/kernel/kprobes.c |    7 +++++++
- 1 files changed, 7 insertions(+)
+I have not been able to get my ps/2 mouse to function with any
+2.6.x or 2.4.x kernel (same ASUS MB).  The problem is already
+so long standing that I have completely given up on it and use
+a serial mouse exclusively and no longer bother with ps/2.
 
-Index: linux-2.6.12-mm1/arch/ia64/kernel/kprobes.c
-===================================================================
---- linux-2.6.12-mm1.orig/arch/ia64/kernel/kprobes.c
-+++ linux-2.6.12-mm1/arch/ia64/kernel/kprobes.c
-@@ -270,6 +270,13 @@ static int valid_kprobe_addr(int templat
- 				addr);
- 		return -EINVAL;
- 	}
-+
-+	if (slot == 1 && bundle_encoding[template][1] != L) {
-+		printk(KERN_WARNING "Inserting kprobes on slot #1 "
-+		       "is not supported\n");
-+		return -EINVAL;
-+	}
-+
- 	return 0;
- }
- 
+(I also hate to report that since I dual boot with MS Windows,
+the ps/2 mouse functions properly under the same conditions
+with MS Windows 2K.  The hardware cannot be at fault.) 
+
+> As a clarification, I have been having these keyboard problems 
+> intermittently, regardless of whether I'm using -mm or mainline kernel.  
+> I was NOT having this problem in 2.6.11  I wasn't having the psaux mouse 
+> problems in 2.6.11 either  .... I unplugged my psaux mouse from that 
+> machine before 2.6.12-mainline was released, so I don't know if those 
+> symptoms are still present.
+
+Actually, my keyboard problems began with kernel-2.6.11, but were
+quickly resolved when I used the following parameter in my lilo.conf
+file:
+
+i8042.nomux
+
+When I use this parameter, or any other i8042 specific parameter,
+with kernel-2.6.12, there is no effect.  The keyboard still occasionally
+comes up dead.
+
+Thanks for the information on unplugging and re-plugging the keyboard.
+I'll give that a try soon.
+
+Frank Peters
+
+(Please CC to frank.peters@comcast.net as I am not a subscriber to this
+list.)

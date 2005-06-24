@@ -1,59 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263052AbVFXE4i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263080AbVFXFBv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263052AbVFXE4i (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 00:56:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263080AbVFXE4i
+	id S263080AbVFXFBv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 01:01:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263102AbVFXFBu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 00:56:38 -0400
-Received: from chretien.genwebhost.com ([209.59.175.22]:47511 "EHLO
-	chretien.genwebhost.com") by vger.kernel.org with ESMTP
-	id S263052AbVFXEyy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 00:54:54 -0400
-Date: Thu, 23 Jun 2005 21:54:46 -0700
-From: randy_dunlap <rdunlap@xenotime.net>
-To: Paul Jackson <pj@sgi.com>
-Cc: akpm@osdl.org, jgarzik@pobox.com, linux-kernel@vger.kernel.org
-Subject: Re: -mm -> 2.6.13 merge status
-Message-Id: <20050623215446.0e5ce93e.rdunlap@xenotime.net>
-In-Reply-To: <20050623210638.53232e90.pj@sgi.com>
-References: <20050620235458.5b437274.akpm@osdl.org>
-	<42B831B4.9020603@pobox.com>
-	<20050621132204.1b57b6ba.akpm@osdl.org>
-	<20050623210638.53232e90.pj@sgi.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 24 Jun 2005 01:01:50 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:35029 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S263080AbVFXFBr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Jun 2005 01:01:47 -0400
+Date: Fri, 24 Jun 2005 10:28:54 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Christoph Lameter <christoph@lameter.com>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, davem@davemloft.net,
+       shai@scalex86.org, akpm@osdl.org
+Subject: Re: [PATCH] dst numa: Avoid dst counter cacheline bouncing
+Message-ID: <20050624045854.GA6465@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <Pine.LNX.4.62.0506231953260.28244@graphe.net> <Pine.LNX.4.62.0506232005030.28244@graphe.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Antivirus-Scanner: Clean mail though you should still use an Antivirus
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - chretien.genwebhost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - xenotime.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.62.0506232005030.28244@graphe.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 23 Jun 2005 21:06:38 -0700 Paul Jackson wrote:
+On Thu, Jun 23, 2005 at 08:10:06PM -0700, Christoph Lameter wrote:
+> The dst_entry structure contains an atomic counter that is incremented and
+> decremented for each network packet being sent. If there is a high number of
+> packets being sent from multiple processors then cacheline bouncing between
+> NUMA nodes can limit the tcp performance in a NUMA system.
+> 
+> The following patch splits the usage counter into counters per node.
+> 
 
-| > I wish people would absorb CodingStyle.
-| 
-| Some people just can't see it, Andrew.  Just like some people
-| are tone deaf, some people don't notice minor variations in
-| code spacing and layout, unless pointed out in tedious detail.
-| 
-| Not that I disagree with you ... ;).
+Do we really need to do a distributed reference counter implementation
+inside dst cache code ? If you are willing to wait for a while,
+we should have modified Rusty's bigref implementation on top of the 
+interleaving dynamic per-cpu allocator. We can look at distributed 
+reference counter for dst refcount then and see how that can be 
+worked out.
 
-I also agree.
-
-The problem (for me at least) is that bad coding style needs
-to be fixed before I can do a functional code review, so it
-slows down the review cycle quite a bit.  Further, it's mostly
-well-known what the requirements are, so there aren't very
-many good excuses not to follow CodingStyle...
-
----
-~Randy
+Thanks
+Dipankar

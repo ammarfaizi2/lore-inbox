@@ -1,80 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263023AbVFXPhz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263073AbVFXPnd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263023AbVFXPhz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 11:37:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263036AbVFXPhy
+	id S263073AbVFXPnd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 11:43:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263044AbVFXPnb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 11:37:54 -0400
-Received: from sccrmhc14.comcast.net ([204.127.202.59]:15797 "EHLO
-	sccrmhc14.comcast.net") by vger.kernel.org with ESMTP
-	id S263023AbVFXPdu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 11:33:50 -0400
-Date: Fri, 24 Jun 2005 11:34:04 -0400
-From: Frank Peters <frank.peters@comcast.net>
-To: linux-kernel@vger.kernel.org
-Subject: Asus MB and 2.6.12 Problems
-Message-Id: <20050624113404.198d254c.frank.peters@comcast.net>
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 24 Jun 2005 11:43:31 -0400
+Received: from hobbit.corpit.ru ([81.13.94.6]:27983 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S263073AbVFXPko (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Jun 2005 11:40:44 -0400
+Message-ID: <42BC297A.9000008@tls.msk.ru>
+Date: Fri, 24 Jun 2005 19:40:42 +0400
+From: Michael Tokarev <mjt@tls.msk.ru>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] ndevfs - a "nano" devfs
+References: <20050624081808.GA26174@kroah.com> <42BBFB55.3040008@tls.msk.ru> <20050624151615.GA29854@kroah.com>
+In-Reply-To: <20050624151615.GA29854@kroah.com>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Greg KH wrote:
+> On Fri, Jun 24, 2005 at 04:23:49PM +0400, Michael Tokarev wrote:
+>>And another question.  Why it isn't possible to use
+>>plain tmpfs for this sort of things?
+> 
+> What do you mean?  What's wrong with a ramfs based fs?  To use tmpfs
+> would require a lot more work.  But if you want to do it, I'll gladly
+> take patches :)
 
-For the very first time in the long history of the Linux kernel,
-I am having significant problems.
+Hmm.  Ramfs and Tmpfs...  I mean, we already have several filesystems
+which works, and are complete filesystems.  Tmpfs is just one of them.
 
-After downloading and compiling the latest version 2.6.12, my
-keyboard becomes unresponsive and dead following the boot process.
-This doesn't occur all of the time, but only some of the time.
-In particular, the follwing boot up message will be seen at
-sporadic places among the other text output:
+The point is as the following.  Instead of creating completely new
+filesystem, there should be a possibility to create just a small
+layer on top of existing, feature-complete (think directories)
+filesystem, like tmpfs, with the only difference is that it's
+especially known by the kernel as containing device nodes (where
+the kernel should create/delete the nodes), and is mountable as
+such (not as any generic tmpfs).  When a new device is created,
+ndevfs_mknod() (or similar) is called as in your patch, but the
+node is created in normal, regular tmpfs, instead of on some
+stripped-down filesystem.
 
-input: AT Translated Set 2 keyboard on isa0060/serio0
+This tmpfs will be mountable ofcourse, *and* it will support all
+the other normal filesystem operations.  But...
 
-When this message does not occur anywhere in the boot messages,
-the keyboard is not functional.  When the message does occur, then
-the keyboard will respond, but sometimes with an erratic key
-repeat rate.  After rebooting several times I can usually get
-the system up and running smoothly, but with this current kernel
-2.6.12, there is no guarantee that it will boot properly at any
-given time.
+>>Why to create another filesystem, instead of just using current
+>>tmpfs and call mknod/unlink on it as appropriate?
+> 
+> Um, that's about all that this code does.
 
-Also, after a successful boot with 2.6.12, I will attempt to
-connect with my cable Internet service using the following
-commands:
+....Ah ok.  Well.  Hmm.  So I misread the code it seems.
+I thought it does not support directories and symlinks..
 
-modprobe 3c59x  (load the ethernet modules)
-dhcpcd -t 240   (get the IP address from my ISP)
+>>This same tmpfs can be used by udev too (to create that "policy"-based
+>>names), and it gives us all the directories and other stuff...
+> 
+> udev doesn't need a kernel specific fs.
 
-Formerly, with kernels 2.6.11 and earlier, the connection could
-be established very quickly (about 10-15 seconds).  But with
-kernel 2.6.12, it now requires about 3-4 minutes to establish
-the link.
+I know.  But it should be able to run on top of such an FS
+to (at least I don't see why it shouldn't), provided it only
+maintains that "policy" names (symlinks) to "canonical" device
+nodes (which is easily doable by just stripping config file).
 
-My system is an ASUS P4B533 motherboard with a Pentium 3.6 Ghz
-Hyperthreaded processor and 1 GHz RAM.  The kernel is the stock
-linux kernel (compiled with gcc-2.95.3) and the rest of my software
-is self-compiled (i.e. no distribution).
-
-If I disable ACPI, either by compiling a new 2.6.12 kernel or
-through boot up parameters, the keyboard will respond normally
-without any problems, but the kernel will not recognize my
-hyperthreaded processor.  Only one CPU will be initialized and
-active.
-
-Thus, I can enjoy a problem-free 2.6.12 kernel if I choose to 
-sacrifice ACPI and hyperthreading.
-
-However in either case the cable Internet connection with DHCP
-still takes 3-4 minutes, which is markedly different from previous
-behavior.
-
-If anyone has any suggestions or needs any more information,
-please CC me at the address frank.peters@comcast.net as I am not
-a subscriber to the list.
-
-Frank Peters
-
+/mjt

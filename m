@@ -1,41 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263266AbVFXWmT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263067AbVFXWrm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263266AbVFXWmT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 18:42:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263282AbVFXWmC
+	id S263067AbVFXWrm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 18:47:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263119AbVFXWrl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 18:42:02 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:12229 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S263266AbVFXWlZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 18:41:25 -0400
-Message-ID: <42BC8C10.1040604@pobox.com>
-Date: Fri, 24 Jun 2005 18:41:20 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Maciej W. Rozycki" <macro@linux-mips.org>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: IDE - sensible probing for PCI systems
-References: <1119356601.3279.118.camel@localhost.localdomain>  <Pine.LNX.4.61L.0506211422190.9446@blysk.ds.pg.gda.pl>  <1119363150.3325.151.camel@localhost.localdomain>  <Pine.LNX.4.61L.0506211535100.17779@blysk.ds.pg.gda.pl>  <1119379587.3325.182.camel@localhost.localdomain>  <Pine.LNX.4.61L.0506231903170.31113@blysk.ds.pg.gda.pl> <1119566026.18655.30.camel@localhost.localdomain> <Pine.LNX.4.61L.0506241217490.28452@blysk.ds.pg.gda.pl>
-In-Reply-To: <Pine.LNX.4.61L.0506241217490.28452@blysk.ds.pg.gda.pl>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Fri, 24 Jun 2005 18:47:41 -0400
+Received: from agminet04.oracle.com ([141.146.126.231]:2837 "EHLO
+	agminet04.oracle.com") by vger.kernel.org with ESMTP
+	id S263067AbVFXWqd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Jun 2005 18:46:33 -0400
+Date: Fri, 24 Jun 2005 15:45:34 -0700
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Petr Baudis <pasky@ucw.cz>
+Cc: Matt Mackall <mpm@selenic.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Git Mailing List <git@vger.kernel.org>, mercurial@selenic.com
+Subject: Re: Mercurial vs Updated git HOWTO for kernel hackers
+Message-ID: <20050624224534.GF31165@ca-server1.us.oracle.com>
+Mail-Followup-To: Petr Baudis <pasky@ucw.cz>,
+	Matt Mackall <mpm@selenic.com>, Jeff Garzik <jgarzik@pobox.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Git Mailing List <git@vger.kernel.org>, mercurial@selenic.com
+References: <42B9E536.60704@pobox.com> <20050623235634.GC14426@waste.org> <20050624064101.GB14292@pasky.ji.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050624064101.GB14292@pasky.ji.cz>
+X-Burt-Line: Trees are cool.
+X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
+User-Agent: Mutt/1.5.9i
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maciej W. Rozycki wrote:
->  Well, keyboard and mouse are USB these days, serial and parallel are PCI, 
-> floppies are not used anymore and the ISA DMA controller would only be 
+On Fri, Jun 24, 2005 at 08:41:01AM +0200, Petr Baudis wrote:
+> Theoretically, dotest should work just fine even if you use Cogito.
+> Anyone tested it?
 
-Oh, how I wish this were true!
+	When I update the OCFS2 git tree, I clone with Cogito and patch
+with dotest.  Been doing it for a month or two, no problems.
 
-The pre-production machines I get (i.e. not even on the market yet) 
-still have floppy, serial, and PS/2 kbd/mouse.
+Joel
 
-	Jeff
+-- 
 
+"I think it would be a good idea."  
+        - Mahatma Ghandi, when asked what he thought of Western
+          civilization
 
+Joel Becker
+Senior Member of Technical Staff
+Oracle
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

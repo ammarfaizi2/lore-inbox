@@ -1,68 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262971AbVFXBNK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262972AbVFXBQx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262971AbVFXBNK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 21:13:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262972AbVFXBNK
+	id S262972AbVFXBQx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 21:16:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262975AbVFXBQx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 21:13:10 -0400
-Received: from rwcrmhc14.comcast.net ([216.148.227.89]:32686 "EHLO
-	rwcrmhc14.comcast.net") by vger.kernel.org with ESMTP
-	id S262971AbVFXBNF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 21:13:05 -0400
-Message-ID: <42BB5E1A.70903@namesys.com>
-Date: Thu, 23 Jun 2005 18:12:58 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: David Masover <ninja@slaphack.com>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: reiser4 plugins
-References: <200506231924.j5NJOvLA031008@laptop11.inf.utfsm.cl>	 <42BB31E9.50805@slaphack.com> <1119570225.18655.75.camel@localhost.localdomain>
-In-Reply-To: <1119570225.18655.75.camel@localhost.localdomain>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Thu, 23 Jun 2005 21:16:53 -0400
+Received: from main.gmane.org ([80.91.229.2]:3790 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S262972AbVFXBQv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 21:16:51 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Hubert Chan <hubert@uhoreg.ca>
+Subject: Re: -mm -> 2.6.13 merge status
+Date: Thu, 23 Jun 2005 21:13:01 -0400
+Message-ID: <87fyv8h80y.fsf@evinrude.uhoreg.ca>
+References: <20050620235458.5b437274.akpm@osdl.org.suse.lists.linux.kernel> <p73d5qgc67h.fsf@verdi.suse.de>
+ <42B86027.3090001@namesys.com> <20050621195642.GD14251@wotan.suse.de>
+ <42B8C0FF.2010800@namesys.com> <84144f0205062223226d560e41@mail.gmail.com>
+ <42BB0151.3030904@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: cpe0004e289e618-cm000f212c9dfc.cpe.net.cable.rogers.com
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+Cancel-Lock: sha1:buGNKLnDk/aurgiEPcBt3I8rKSM=
+Cc: reiserfs-list@namesys.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+On Thu, 23 Jun 2005 14:37:05 -0400, Jeff Mahoney <jeffm@suse.de> said:
 
-> SMP scaling.
+> As someone who spends time debugging reiser3 issues, I've grown
+> accustomed to the named assertions. They make discussing a particular
+> assertion much more natural in conversation than file:line. It also
+> makes difficult to reproduce assertions more trackable over time. The
+> assertion number never changes, but the line number can with even the
+> most trivial of patches.
 
-Reiser4 should do much better at this, as it was designed for it.  I
-wish we had a nice hunking multiprocessor to verify that and work
-through the inevitable unintended sources of bottlenecks though.
+How about something of the form "nikita-955(file:line)"?  Or the
+reverse: "file:line(nikita-955)".  Would that keep everyone happy?
 
->  
->
->>You know how many I've had thrashed on Reiser4?  Two.  The first one was
->>with a VERY early alpha/beta, and the second one was when I dropped a
->>laptop and the disk failed.
->>    
->>
->
->Entirely or bad blocks ? The latter should have a minimal cost on a well
->designed fs.
->
->  
->
->>Duplication of effort.  With plugins, we can optimize the upper layers
->>of ALL filesystems, regardless of the lower layers, in such a way that
->>    
->>
->
->In which case the features belong in the VFS as all those with
->experience and kernel contributions have been arguing.
->  
->
-So you fundamentally reject the prototype it in one fs and then abstract
-it to others development model?
-
+-- 
+Hubert Chan <hubert@uhoreg.ca> - http://www.uhoreg.ca/
+PGP/GnuPG key: 1024D/124B61FA
+Fingerprint: 96C5 012F 5F74 A5F7 1FF7  5291 AF29 C719 124B 61FA
+Key available at wwwkeys.pgp.net.   Encrypted e-mail preferred.
 

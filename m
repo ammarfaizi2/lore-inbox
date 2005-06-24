@@ -1,66 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262998AbVFXPSF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263010AbVFXPXr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262998AbVFXPSF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 11:18:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263023AbVFXPSF
+	id S263010AbVFXPXr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 11:23:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263022AbVFXPXq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 11:18:05 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:54440 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S262998AbVFXPRG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 11:17:06 -0400
-Date: Fri, 24 Jun 2005 11:17:02 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@localhost.localdomain
-Reply-To: rostedt@goodmis.org
-To: Greg KH <greg@kroah.com>
-cc: linux-kernel@vger.kernel.org
+	Fri, 24 Jun 2005 11:23:46 -0400
+Received: from mail.kroah.org ([69.55.234.183]:34011 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263010AbVFXPXl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Jun 2005 11:23:41 -0400
+Date: Fri, 24 Jun 2005 08:23:11 -0700
+From: Greg KH <greg@kroah.com>
+To: tvrtko.ursulin@sophos.com
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: [ANNOUNCE] ndevfs - a "nano" devfs
-In-Reply-To: <20050624081808.GA26174@kroah.com>
-Message-ID: <Pine.LNX.4.58.0506241113460.17615@localhost.localdomain>
-References: <20050624081808.GA26174@kroah.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20050624152311.GB29955@kroah.com>
+References: <OF831AC472.851744FE-ON8025702A.004A57EC-8025702A.004B5AE9@sophos.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OF831AC472.851744FE-ON8025702A.004A57EC-8025702A.004B5AE9@sophos.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jun 24, 2005 at 02:43:04PM +0100, tvrtko.ursulin@sophos.com wrote:
+> On 24/06/2005 09:18:08 linux-kernel-owner wrote:
+> 
+> >Now I just know I'm going to regret this somehow...
+> 
+> You got that right! ;)
+> 
+> >Comments?  Questions?  Criticisms?
+> 
+> It's cool and small. I like it, and I agree with Michael policy vs. policy 
+> analisys.
 
-On Fri, 24 Jun 2005, Greg KH wrote:
+Thanks.
 
-> Now I just know I'm going to regret this somehow...
->
+> I applied it to 2.6.12 (of course some manual intervention was needed) and 
+> are you curious about what happened next? Below are the relevant logs and 
+> outputs. As you can see, some of them are not working as expected.
+
+Yeah, 2.6.12-git5 was what it was against, sorry I didn't mention that.
 
 
-;)
+> ACPI: PCI Root Bridge [PCI0] (0000:00)
+> PCI: Probing PCI hardware (bus 00)
+> ndevfs: creating file '0000:00' with major 0 and minor 0
+> PCI: Ignoring BAR0-3 of IDE controller 0000:00:1f.1
+> ndevfs: creating file '0000:01' with major 0 and minor 0
+> Boot video device is 0000:01:00.0
+> ndevfs: creating file '0000:02' with major 0 and minor 0
 
-> --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-> +++ gregkh-2.6/fs/ndevfs/inode.c	2005-06-24 01:06:02.000000000 -0700
-> @@ -0,0 +1,249 @@
-> +/*
-> + *  inode.c - part of ndevfs, a tiny little device file system
-> + *
-> + *  Copyright (C) 2004,2005 Greg Kroah-Hartman <greg@kroah.com>
-> + *
-> + *	This program is free software; you can redistribute it and/or
-> + *	modify it under the terms of the GNU General Public License version
-> + *	2 as published by the Free Software Foundation.
-> + *
-> + * Written for all of the people out there who just hate userspace solutions.
-> + *
-> + */
-> +
-> +/* uncomment to get debug messages */
-> +#define DEBUG
-> +
+Hm, that is odd.  That shouldn't happen.
 
-Don't you mean here "comment to turn off debug messages?" :-)
+Wait, I think it was due to where you put the class hooks, try it
+against Linus's latest tree, it will work better there (in fact, I don't
+know if it would work properly in 2.6.12 due to the class driver core
+changes.)
 
--- Steve
+Could you try that and let me know if it still has issues?
 
-> +#include <linux/config.h>
-> +#include <linux/module.h>
-> +#include <linux/fs.h>
-> +#include <linux/mount.h>
-> +#include <linux/pagemap.h>
-> +#include <linux/init.h>
-> +#include <linux/namei.h>
+thanks,
+
+greg k-h

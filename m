@@ -1,112 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263297AbVFXRTT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263162AbVFXRnC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263297AbVFXRTT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 13:19:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263395AbVFXRR0
+	id S263162AbVFXRnC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 13:43:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262637AbVFXRnC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 13:17:26 -0400
-Received: from kirby.webscope.com ([204.141.84.57]:33754 "EHLO
-	kirby.webscope.com") by vger.kernel.org with ESMTP id S263366AbVFXRMj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 13:12:39 -0400
-Message-ID: <42BC3EFE.5090302@m1k.net>
-Date: Fri, 24 Jun 2005 13:12:30 -0400
-From: Michael Krufky <mkrufky@m1k.net>
-Reply-To: mkrufky@m1k.net
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Frank Peters <frank.peters@comcast.net>
-CC: linux-kernel@vger.kernel.org, vojtech@suse.cz
-Subject: Re: isa0060/serio0 problems -WAS- Re: Asus MB and 2.6.12 Problems
-References: <20050624113404.198d254c.frank.peters@comcast.net>	<42BC306A.1030904@m1k.net> <20050624125957.238204a4.frank.peters@comcast.net>
-In-Reply-To: <20050624125957.238204a4.frank.peters@comcast.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 24 Jun 2005 13:43:02 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:39840 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263162AbVFXRlN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Jun 2005 13:41:13 -0400
+Date: Fri, 24 Jun 2005 13:40:54 -0400
+From: Neil Horman <nhorman@redhat.com>
+To: Julian Anastasov <ja@ssi.bg>
+Cc: Neil Horman <nhorman@redhat.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Wensong Zhang <wensong@linux-vs.org>, akpm@osdl.org, netdev@oss.sgi.com,
+       davem@davemloft.net
+Subject: Re: [Patch] ipvs: close race conditions on ip_vs_conn_tab list modification
+Message-ID: <20050624174054.GE21499@hmsendeavour.rdu.redhat.com>
+References: <20050624144822.GD21499@hmsendeavour.rdu.redhat.com> <Pine.LNX.4.44.0506241808150.2776-100000@l>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0506241808150.2776-100000@l>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am cc'ing your message to Vojtech Pavlik, the INPUT DRIVERS kernel 
-maintainer.
-
-Vojtech, I figured these should be sent to you.  If I am wrong, please 
-redirect them to the correct person / list and let us know.
-
-Thank you.
-
-Frank Peters wrote:
-
->On Fri, 24 Jun 2005 12:10:18 -0400
->Michael Krufky <mkrufky@m1k.net> wrote:
->
->  
->
->>I am having the same problem with my Shuttle FT61 motherboard, although 
->>I have not tried to disable ACPI... Until now I thought I just had a 
->>faulty keyboard, as my method to fix this was to unplug the keyboard and 
->>plug it back in after bootup.  When this happens, I see this in dmesg as 
->>the last line:
->>
->>input: AT Translated Set 2 keyboard on isa0060/serio0
->>
->>I am also having problems with my AUX mouse, as seen in message
->>
->>Subject: 2.6.12-rc5-mm1 breaks serio: i8042 AUX port
->>
->>Frank, are you having problems with your ps/2 mouse port as well?
->>
->>    
->>
->
->I am so glad that you asked this.
->
->I have not been able to get my ps/2 mouse to function with any
->2.6.x or 2.4.x kernel (same ASUS MB).  The problem is already
->so long standing that I have completely given up on it and use
->a serial mouse exclusively and no longer bother with ps/2.
->
->(I also hate to report that since I dual boot with MS Windows,
->the ps/2 mouse functions properly under the same conditions
->with MS Windows 2K.  The hardware cannot be at fault.) 
->
->  
->
->>As a clarification, I have been having these keyboard problems 
->>intermittently, regardless of whether I'm using -mm or mainline kernel.  
->>I was NOT having this problem in 2.6.11  I wasn't having the psaux mouse 
->>problems in 2.6.11 either  .... I unplugged my psaux mouse from that 
->>machine before 2.6.12-mainline was released, so I don't know if those 
->>symptoms are still present.
->>    
->>
->
->Actually, my keyboard problems began with kernel-2.6.11, but were
->quickly resolved when I used the following parameter in my lilo.conf
->file:
->
->i8042.nomux
->
->When I use this parameter, or any other i8042 specific parameter,
->with kernel-2.6.12, there is no effect.  The keyboard still occasionally
->comes up dead.
->
->Thanks for the information on unplugging and re-plugging the keyboard.
->I'll give that a try soon.
->
->Frank Peters
->
->(Please CC to frank.peters@comcast.net as I am not a subscriber to this
->list.)
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->  
->
+On Fri, Jun 24, 2005 at 06:09:40PM +0300, Julian Anastasov wrote:
+> 
+> 	Hello,
+> 
+> On Fri, 24 Jun 2005, Neil Horman wrote:
+> 
+> >  			if (ct) {
+> >  				IP_VS_DBG(4, "del conn template\n");
+> >  				ip_vs_conn_expire_now(ct);
+> >  			}
+> 
+> 	Don't forget to use cp->control instead of ct, ct is not needed
+> anymore.
+> 
+> Regards
+> 
+> --
+> Julian Anastasov <ja@ssi.bg>
+> 
 
 
+Good catch.  Sorry, should have seen that earlier.  New patch attached with
+corrections.  When you're comfortable with this, I'll post the 2.4 version of
+the patch.
+
+Regards 
+Neil
+
+Signed-off-by: Neil Horman <nhorman@redhat.com>
+
+ ip_vs_conn.c |   24 ++++--------------------
+ 1 files changed, 4 insertions(+), 20 deletions(-)
+
+
+--- linux-2.6.git/net/ipv4/ipvs/ip_vs_conn.c.orig	2005-06-23 13:11:00.000000000 -0400
++++ linux-2.6.git/net/ipv4/ipvs/ip_vs_conn.c	2005-06-24 13:33:03.000000000 -0400
+@@ -548,7 +548,6 @@
+ {
+ 	if (del_timer(&cp->timer))
+ 		mod_timer(&cp->timer, jiffies);
+-	__ip_vs_conn_put(cp);
+ }
+ 
+ 
+@@ -801,21 +800,12 @@
+ 					continue;
+ 			}
+ 
+-			/*
+-			 * Drop the entry, and drop its ct if not referenced
+-			 */
+-			atomic_inc(&cp->refcnt);
+-			ct_write_unlock(hash);
+-
+-			if ((ct = cp->control))
+-				atomic_inc(&ct->refcnt);
+ 			IP_VS_DBG(4, "del connection\n");
+ 			ip_vs_conn_expire_now(cp);
+-			if (ct) {
++			if (cp->control) {
+ 				IP_VS_DBG(4, "del conn template\n");
+-				ip_vs_conn_expire_now(ct);
++				ip_vs_conn_expire_now(cp->control);
+ 			}
+-			ct_write_lock(hash);
+ 		}
+ 		ct_write_unlock(hash);
+ 	}
+@@ -829,7 +819,6 @@
+ {
+ 	int idx;
+ 	struct ip_vs_conn *cp;
+-	struct ip_vs_conn *ct;
+ 
+   flush_again:
+ 	for (idx=0; idx<IP_VS_CONN_TAB_SIZE; idx++) {
+@@ -839,18 +828,13 @@
+ 		ct_write_lock_bh(idx);
+ 
+ 		list_for_each_entry(cp, &ip_vs_conn_tab[idx], c_list) {
+-			atomic_inc(&cp->refcnt);
+-			ct_write_unlock(idx);
+ 
+-			if ((ct = cp->control))
+-				atomic_inc(&ct->refcnt);
+ 			IP_VS_DBG(4, "del connection\n");
+ 			ip_vs_conn_expire_now(cp);
+-			if (ct) {
++			if (cp->control) {
+ 				IP_VS_DBG(4, "del conn template\n");
+-				ip_vs_conn_expire_now(ct);
++				ip_vs_conn_expire_now(cp->control);
+ 			}
+-			ct_write_lock(idx);
+ 		}
+ 		ct_write_unlock_bh(idx);
+ 	}
 -- 
-Michael Krufky
-
-
+/***************************************************
+ *Neil Horman
+ *Software Engineer
+ *Red Hat, Inc.
+ *nhorman@redhat.com
+ *gpg keyid: 1024D / 0x92A74FA1
+ *http://pgp.mit.edu
+ ***************************************************/

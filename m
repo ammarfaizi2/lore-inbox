@@ -1,80 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263022AbVFXQ2y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263126AbVFXQiq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263022AbVFXQ2y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 12:28:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263115AbVFXQ2y
+	id S263126AbVFXQiq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 12:38:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263141AbVFXQiq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 12:28:54 -0400
-Received: from mail.kroah.org ([69.55.234.183]:55178 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263022AbVFXQ2u (ORCPT
+	Fri, 24 Jun 2005 12:38:46 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:16780 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S263126AbVFXQin (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 12:28:50 -0400
-Date: Fri, 24 Jun 2005 09:26:28 -0700
-From: Greg KH <greg@kroah.com>
-To: Michael Tokarev <mjt@tls.msk.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] ndevfs - a "nano" devfs
-Message-ID: <20050624162628.GA30598@kroah.com>
-References: <20050624081808.GA26174@kroah.com> <42BBFB55.3040008@tls.msk.ru> <20050624151615.GA29854@kroah.com> <42BC297A.9000008@tls.msk.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42BC297A.9000008@tls.msk.ru>
-User-Agent: Mutt/1.5.8i
+	Fri, 24 Jun 2005 12:38:43 -0400
+Date: Fri, 24 Jun 2005 09:40:09 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: =?ISO-8859-1?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
+cc: Keith Owens <kaos@ocs.com.au>, Denis Vlasenko <vda@ilport.com.ua>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       David Lang <david.lang@digitalinsight.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Netdev List <netdev@vger.kernel.org>
+Subject: Re: [git patch] urgent e1000 fix 
+In-Reply-To: <Pine.BSO.4.62.0506241140280.19853@rudy.mif.pg.gda.pl>
+Message-ID: <Pine.LNX.4.58.0506240938210.11175@ppc970.osdl.org>
+References: <13661.1119601379@kao2.melbourne.sgi.com>
+ <Pine.LNX.4.58.0506240149440.11175@ppc970.osdl.org>
+ <Pine.BSO.4.62.0506241140280.19853@rudy.mif.pg.gda.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 24, 2005 at 07:40:42PM +0400, Michael Tokarev wrote:
-> Greg KH wrote:
-> > On Fri, Jun 24, 2005 at 04:23:49PM +0400, Michael Tokarev wrote:
-> >>And another question.  Why it isn't possible to use
-> >>plain tmpfs for this sort of things?
-> > 
-> > What do you mean?  What's wrong with a ramfs based fs?  To use tmpfs
-> > would require a lot more work.  But if you want to do it, I'll gladly
-> > take patches :)
+
+
+On Fri, 24 Jun 2005, Tomasz K³oczko wrote:
 > 
-> Hmm.  Ramfs and Tmpfs...  I mean, we already have several filesystems
-> which works, and are complete filesystems.  Tmpfs is just one of them.
+> Linus .. why for kernel tree can't be used indent or other source 
+> code formater ?
 
-Heh, I know this quite well :)
+Sure, we do it, but then we try to make it obvious to all sides.
 
-> The point is as the following.  Instead of creating completely new
-> filesystem, there should be a possibility to create just a small
-> layer on top of existing, feature-complete (think directories)
-> filesystem, like tmpfs, with the only difference is that it's
-> especially known by the kernel as containing device nodes (where
-> the kernel should create/delete the nodes), and is mountable as
-> such (not as any generic tmpfs).  When a new device is created,
-> ndevfs_mknod() (or similar) is called as in your patch, but the
-> node is created in normal, regular tmpfs, instead of on some
-> stripped-down filesystem.
+It's the "small and non-obvious" differences that are really poisonous. 
+You don't see them in the soruces, yet patches don't apply.
 
-Again, that's exactly what this patch does.
+So don't do subtle whitespace "fixups" by default. It just makes everybody
+unhappy down the line.
 
-> >>Why to create another filesystem, instead of just using current
-> >>tmpfs and call mknod/unlink on it as appropriate?
-> > 
-> > Um, that's about all that this code does.
-> 
-> ....Ah ok.  Well.  Hmm.  So I misread the code it seems.
-> I thought it does not support directories and symlinks..
+That's not to say that we don't do whitespace fixups _occasionally_. When 
+it's ugly enough to be noticeable, I sure as hell fix up whitespace. But 
+not by default.
 
-It supports it, but I stipped it down to not allow that, I'll have to
-add code to enable that, if enough people complain :)
-
-> >>This same tmpfs can be used by udev too (to create that "policy"-based
-> >>names), and it gives us all the directories and other stuff...
-> > 
-> > udev doesn't need a kernel specific fs.
-> 
-> I know.  But it should be able to run on top of such an FS
-> to (at least I don't see why it shouldn't), provided it only
-> maintains that "policy" names (symlinks) to "canonical" device
-> nodes (which is easily doable by just stripping config file).
-
-I eagerly await your patch to show what you are referring to.
-
-thanks,
-
-greg k-h
+		Linus

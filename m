@@ -1,48 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263230AbVFXJXI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263015AbVFXJ2j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263230AbVFXJXI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 05:23:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263235AbVFXJXG
+	id S263015AbVFXJ2j (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 05:28:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263241AbVFXJ2i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 05:23:06 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:62987 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263141AbVFXJTz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 05:19:55 -0400
-Date: Fri, 24 Jun 2005 10:19:51 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>, git@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Finding what change broke ARM
-Message-ID: <20050624101951.B23185@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	git@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+	Fri, 24 Jun 2005 05:28:38 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:65286 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S263257AbVFXJY4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Jun 2005 05:24:56 -0400
+Date: Fri, 24 Jun 2005 11:24:54 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Quadriplegic Leprechaun <quadriplegic_leprechaun@ukonline.co.uk>,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: 2.6.12-mm1: PCI compile error with CONFIG_HOTPLUG=n
+Message-ID: <20050624092454.GE26545@stusta.de>
+References: <42BBBBC0.2050702@ukonline.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <42BBBBC0.2050702@ukonline.co.uk>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When building current git for ARM, I see:
+On Fri, Jun 24, 2005 at 08:52:32AM +0100, Quadriplegic Leprechaun wrote:
 
-  CC      arch/arm/mm/consistent.o
-arch/arm/mm/consistent.c: In function `dma_free_coherent':
-arch/arm/mm/consistent.c:357: error: `mem_map' undeclared (first use in this function)
-arch/arm/mm/consistent.c:357: error: (Each undeclared identifier is reported only once
-arch/arm/mm/consistent.c:357: error: for each function it appears in.)
-make[2]: *** [arch/arm/mm/consistent.o] Error 1
+> Hi,
 
-How can I find what change elsewhere in the kernel tree caused this
-breakage?
+Hi,
 
-With bk, you could ask for a per-file revision history of the likely
-candidates, and then find the changeset to view the other related
-changes.
+> With the attached config, I get an undefined symbol error when building 
+> the following kernel:
+> 
+> $ head Makefile
+> VERSION = 2
+> PATCHLEVEL = 6
+> SUBLEVEL = 12
+> EXTRAVERSION = -mm1
+> NAME=Woozy Numbat
+> 
+> And this is the error I get:
+> [ ... lots of output snipped ... ]
+>  LD      vmlinux
+> arch/i386/pci/built-in.o(.init.text+0x101e): In function `pcibios_init':
+> common.c: undefined reference to `pci_assign_unassigned_resources'
+> make: *** [vmlinux] Error 1
 
-With git... ?  We don't have per-file revision history so...
+thanks for this report.
+
+@Ivan, Greg:
+gregkh-pci-pci-assign-unassigned-resources.patch breaks compilation with 
+CONFIG_HOTPLUG=n.
+
+> Quad
+
+cu
+Adrian
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

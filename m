@@ -1,93 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263164AbVFXSx6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261251AbVFXTCq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263164AbVFXSx6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 14:53:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263168AbVFXSx6
+	id S261251AbVFXTCq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 15:02:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263135AbVFXTCq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 14:53:58 -0400
-Received: from mail.tyan.com ([66.122.195.4]:24841 "EHLO tyanweb.tyan")
-	by vger.kernel.org with ESMTP id S263176AbVFXSxF (ORCPT
+	Fri, 24 Jun 2005 15:02:46 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:18096 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261251AbVFXTBj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 14:53:05 -0400
-Message-ID: <3174569B9743D511922F00A0C94314230AF97123@TYANWEB>
-From: YhLu <YhLu@tyan.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Peter Buckingham <peter@pantasys.com>, linux-kernel@vger.kernel.org
-Subject: RE: 2.6.12 with dual way dual core ck804 MB
-Date: Fri, 24 Jun 2005 11:56:23 -0700
+	Fri, 24 Jun 2005 15:01:39 -0400
+Date: Fri, 24 Jun 2005 12:00:33 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Matthias Urlichs <smurf@smurf.noris.de>
+cc: git@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Mercurial vs Updated git HOWTO for kernel hackers
+In-Reply-To: <pan.2005.06.24.13.16.10.406827@smurf.noris.de>
+Message-ID: <Pine.LNX.4.58.0506241153180.11175@ppc970.osdl.org>
+References: <42B9E536.60704@pobox.com> <20050623235634.GC14426@waste.org>
+ <20050624064101.GB14292@pasky.ji.cz> <pan.2005.06.24.13.16.10.406827@smurf.noris.de>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi,
 
-Thanks for the patch, I tried that with my LinuxBIOS + 8way dual core.
 
-It works well. 
-
-I'm using that with 2.6.12, because 2.6.11 has problem with nvidia
-chipset....
-
-~ # cat /proc/interrupts 
-           CPU0       CPU1       CPU2       CPU3       CPU4       CPU5
-CPU6       CPU7       CPU8       CPU9       CPU10       CPU11       CPU12
-CPU13       CPU14       CPU15       
-  0:     378977          0          0          0          0          0
-0          0          0          0          0          0          0
-0          0          0    IO-APIC-edge  timer
-  2:          0          0          0          0          0          0
-0          0          0          0          0          0          0
-0          0          0          XT-PIC  cascade
-  4:       1284          0          0          0          0          0
-0          0          0          0          0         0          0
-0          0          0    IO-APIC-edge  serial
-  8:          0          0          0          0          0          0
-0          0          0          0          0          0          0
-0          0          0    IO-APIC-edge  rtc
- 20:          0          0          0          0          0          0
-0          0          0          0          0          0          0
-0          0          0   IO-APIC-level  ehci_hcd:usb1
- 21:          0          0          0          0          0          0
-0          0          0          0          0          0          0
-0          0          0   IO-APIC-level  ohci_hcd:usb2
- 22:          0          0          0          0          0          0
-0          0          0          0          0          0          0
-0          0          0   IO-APIC-level  libata
- 23:          0          0          0          0          0          0
-0          0          0          0          0          0          0
-0          0          0   IO-APIC-level  libata
-NMI:        781        661         48         51         51         51
-51         51         51         51         53         52         53
-53         53         53 
-LOC:     378822     378680     379254     379214     379172     379131
-379088     379046     379004     378962     378921     378877     378834
-378791     378748     378705 
-ERR:         55
-
-and all int come to first cpu now.
-
-the problem is the 2.6.12 timing problem with nvidia chipset is still there,
-i hope that i have time to dubug it for your next week.
-
-YH
-
-> -----Original Message-----
-> From: Andi Kleen [mailto:ak@suse.de] 
-> Sent: Wednesday, June 22, 2005 5:13 PM
-> To: YhLu
-> Cc: Andi Kleen; Peter Buckingham; linux-kernel@vger.kernel.org
-> Subject: Re: 2.6.12 with dual way dual core ck804 MB
+On Fri, 24 Jun 2005, Matthias Urlichs wrote:
 > 
-> On Wed, Jun 22, 2005 at 05:07:44PM -0700, YhLu wrote:
-> > actually with LinuxBIOS I can boot into 8 way dual core system.
-> > 
-> > But it will randomly hang. acutally when using cat /proc/interrupts.
+> Well, I don't. Main reason: It's simply a lot faster to create+switch to a
+> branch locally for doing independent work, than to hardlink the whole
+> Linux directory tree into a clone tree.
 > 
-> Because it needs physical addressing, not logical like it is 
-> used right now.
-> That it works at all is surprising.
-> 
-> -Andi
-> 
+> Having one tree also simpifies the "what do I have that's not merged yet"
+> question -- just call "gitk $(cat .git/refs/heads/*)". ;-)
+
+Actually, I think that gets close to another real advantage of branches:  
+that is also what allows you to edit things that failed a merge.
+
+For example, let's say that a merge fail. You've got the HEAD and the
+MERGE_HEAD, but a file type conflict (like a symlink that has turned into
+a directory) or something like that means that you can't resolve them
+sanely at all.
+
+So this is merge problem where you can't just do a three-way merge and fix 
+up the result and commit: you have to fix things up before you can even 
+really do the merge. This is when switching to the MERGE_HEAD thing and 
+fixing it up there, committing it, and then doing the merge with the 
+original HEAD and the new MERGE_HEAD is really convenient.
+
+(No, the scripts don't help you in cases like this, and we don't do the
+MERGE_HEAD as a real branch right now, but the point is that we _can_, and
+that this is more than an efficiency issue, it's a fundamental issue of
+working with multiple end-points together. You _could_ clone the other 
+head into a totally new repository, fix it there, and then try the merge 
+anew, but now you're working around a limitation, not just doing 
+something slower).
+
+I still think you can go a bit too far on your branch usage (ie Jeff), but 
+hey, what's the difference between three branches and fifty, really?
+
+(I'm kidding. The difference between three and fifty is how well you can 
+keep track of them in your head, but maybe Jeff just has a bigger head 
+than most people do. Jeff, do people go "Boy, you've got a big head" the 
+first time they meet you?)
+
+			Linus

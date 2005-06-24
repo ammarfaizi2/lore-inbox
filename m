@@ -1,207 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263094AbVFXEIP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263092AbVFXEIO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263094AbVFXEIP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 00:08:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263116AbVFXEGz
+	id S263092AbVFXEIO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 00:08:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263113AbVFXEGN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 00:06:55 -0400
+	Fri, 24 Jun 2005 00:06:13 -0400
 Received: from webmail.topspin.com ([12.162.17.3]:33605 "EHLO
 	exch-1.topspincom.com") by vger.kernel.org with ESMTP
-	id S263096AbVFXEEX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S263094AbVFXEEX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 24 Jun 2005 00:04:23 -0400
 Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: [PATCH 07/14] IB/mthca: Enable unreliable connected transport
-In-Reply-To: <2005623214.rtUVEh14lfm8dUC3@topspin.com>
+Subject: [PATCH 06/14] IB/mthca: Set RDMA/atomic capabilities correctly
+In-Reply-To: <2005623214.ZulWzVKl5lpV91f5@topspin.com>
 X-Mailer: Roland's Patchbomber
 Date: Thu, 23 Jun 2005 21:04:20 -0700
-Message-Id: <2005623214.1YZfsHaBvXkxQMAb@topspin.com>
+Message-Id: <2005623214.rtUVEh14lfm8dUC3@topspin.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: akpm@osdl.org
 Content-Transfer-Encoding: 7BIT
 From: Roland Dreier <roland@topspin.com>
-X-OriginalArrivalTime: 24 Jun 2005 04:04:20.0870 (UTC) FILETIME=[CC923A60:01C57871]
+X-OriginalArrivalTime: 24 Jun 2005 04:04:20.0792 (UTC) FILETIME=[CC865380:01C57871]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add support for unreliable connected (UC) transport to mthca driver:
- - Add attributes for UC to modify QP table.
- - Add support for posting UC work requests.
+mthca apparently had the meanings of the max_rd_atomic and
+max_dest_rd_atomic QP attributes backwards.  max_rd_atomic limits the
+maximum number of outstanding RDMA/atomic requests as an initiator (on
+a send queue), and max_dest_rd_atomic specifies the resources
+allocated to handle RMDA/atomic requests from the remote end of the
+connection.  We were programming our QP context with these values
+swapped.
 
 Signed-off-by: Roland Dreier <roland@topspin.com>
 
 ---
 
- linux.git/drivers/infiniband/hw/mthca/mthca_qp.c |   79 ++++++++++++++++++++++++++++++++-
- 1 files changed, 78 insertions(+), 1 deletion(-)
+ linux.git/drivers/infiniband/hw/mthca/mthca_qp.c |   16 ++++++++--------
+ 1 files changed, 8 insertions(+), 8 deletions(-)
 
 
 
---- linux.git.orig/drivers/infiniband/hw/mthca/mthca_qp.c	2005-06-23 13:03:05.636897055 -0700
-+++ linux.git/drivers/infiniband/hw/mthca/mthca_qp.c	2005-06-23 13:03:06.027812451 -0700
-@@ -357,6 +357,9 @@ static const struct {
- 				[UD]  = (IB_QP_PKEY_INDEX |
- 					 IB_QP_PORT       |
- 					 IB_QP_QKEY),
-+				[UC]  = (IB_QP_PKEY_INDEX |
-+					 IB_QP_PORT       |
-+					 IB_QP_ACCESS_FLAGS),
- 				[RC]  = (IB_QP_PKEY_INDEX |
- 					 IB_QP_PORT       |
- 					 IB_QP_ACCESS_FLAGS),
-@@ -378,6 +381,9 @@ static const struct {
- 				[UD]  = (IB_QP_PKEY_INDEX |
- 					 IB_QP_PORT       |
- 					 IB_QP_QKEY),
-+				[UC]  = (IB_QP_PKEY_INDEX |
-+					 IB_QP_PORT       |
-+					 IB_QP_ACCESS_FLAGS),
- 				[RC]  = (IB_QP_PKEY_INDEX |
- 					 IB_QP_PORT       |
- 					 IB_QP_ACCESS_FLAGS),
-@@ -388,6 +394,11 @@ static const struct {
- 		[IB_QPS_RTR]   = {
- 			.trans = MTHCA_TRANS_INIT2RTR,
- 			.req_param = {
-+				[UC]  = (IB_QP_AV                  |
-+					 IB_QP_PATH_MTU            |
-+					 IB_QP_DEST_QPN            |
-+					 IB_QP_RQ_PSN              |
-+					 IB_QP_MAX_DEST_RD_ATOMIC),
- 				[RC]  = (IB_QP_AV                  |
- 					 IB_QP_PATH_MTU            |
- 					 IB_QP_DEST_QPN            |
-@@ -398,6 +409,9 @@ static const struct {
- 			.opt_param = {
- 				[UD]  = (IB_QP_PKEY_INDEX |
- 					 IB_QP_QKEY),
-+				[UC]  = (IB_QP_ALT_PATH     |
-+					 IB_QP_ACCESS_FLAGS |
-+					 IB_QP_PKEY_INDEX),
- 				[RC]  = (IB_QP_ALT_PATH     |
- 					 IB_QP_ACCESS_FLAGS |
- 					 IB_QP_PKEY_INDEX),
-@@ -413,6 +427,8 @@ static const struct {
- 			.trans = MTHCA_TRANS_RTR2RTS,
- 			.req_param = {
- 				[UD]  = IB_QP_SQ_PSN,
-+				[UC]  = (IB_QP_SQ_PSN            |
-+					 IB_QP_MAX_QP_RD_ATOMIC),
- 				[RC]  = (IB_QP_TIMEOUT           |
- 					 IB_QP_RETRY_CNT         |
- 					 IB_QP_RNR_RETRY         |
-@@ -423,6 +439,11 @@ static const struct {
- 			.opt_param = {
- 				[UD]  = (IB_QP_CUR_STATE             |
- 					 IB_QP_QKEY),
-+				[UC]  = (IB_QP_CUR_STATE             |
-+					 IB_QP_ALT_PATH              |
-+					 IB_QP_ACCESS_FLAGS          |
-+					 IB_QP_PKEY_INDEX            |
-+					 IB_QP_PATH_MIG_STATE),
- 				[RC]  = (IB_QP_CUR_STATE             |
- 					 IB_QP_ALT_PATH              |
- 					 IB_QP_ACCESS_FLAGS          |
-@@ -442,6 +463,9 @@ static const struct {
- 			.opt_param = {
- 				[UD]  = (IB_QP_CUR_STATE             |
- 					 IB_QP_QKEY),
-+				[UC]  = (IB_QP_ACCESS_FLAGS          |
-+					 IB_QP_ALT_PATH              |
-+					 IB_QP_PATH_MIG_STATE),
- 				[RC]  = (IB_QP_ACCESS_FLAGS          |
- 					 IB_QP_ALT_PATH              |
- 					 IB_QP_PATH_MIG_STATE        |
-@@ -462,6 +486,10 @@ static const struct {
- 			.opt_param = {
- 				[UD]  = (IB_QP_CUR_STATE             |
- 					 IB_QP_QKEY),
-+				[UC]  = (IB_QP_CUR_STATE             |
-+					 IB_QP_ALT_PATH              |
-+					 IB_QP_ACCESS_FLAGS          |
-+					 IB_QP_PATH_MIG_STATE),
- 				[RC]  = (IB_QP_CUR_STATE             |
- 					 IB_QP_ALT_PATH              |
- 					 IB_QP_ACCESS_FLAGS          |
-@@ -476,6 +504,14 @@ static const struct {
- 			.opt_param = {
- 				[UD]  = (IB_QP_PKEY_INDEX            |
- 					 IB_QP_QKEY),
-+				[UC]  = (IB_QP_AV                    |
-+					 IB_QP_MAX_QP_RD_ATOMIC      |
-+					 IB_QP_MAX_DEST_RD_ATOMIC    |
-+					 IB_QP_CUR_STATE             |
-+					 IB_QP_ALT_PATH              |
-+					 IB_QP_ACCESS_FLAGS          |
-+					 IB_QP_PKEY_INDEX            |
-+					 IB_QP_PATH_MIG_STATE),
- 				[RC]  = (IB_QP_AV                    |
- 					 IB_QP_TIMEOUT               |
- 					 IB_QP_RETRY_CNT             |
-@@ -501,6 +537,7 @@ static const struct {
- 			.opt_param = {
- 				[UD]  = (IB_QP_CUR_STATE             |
- 					 IB_QP_QKEY),
-+				[UC]  = (IB_QP_CUR_STATE),
- 				[RC]  = (IB_QP_CUR_STATE             |
- 					 IB_QP_MIN_RNR_TIMER),
- 				[MLX] = (IB_QP_CUR_STATE             |
-@@ -1530,6 +1567,26 @@ int mthca_tavor_post_send(struct ib_qp *
+--- linux.git.orig/drivers/infiniband/hw/mthca/mthca_qp.c	2005-06-23 13:03:05.234984039 -0700
++++ linux.git/drivers/infiniband/hw/mthca/mthca_qp.c	2005-06-23 13:03:05.636897055 -0700
+@@ -724,9 +724,9 @@ int mthca_modify_qp(struct ib_qp *ibqp, 
+ 		qp_param->opt_param_mask |= cpu_to_be32(MTHCA_QP_OPTPAR_RETRY_COUNT);
+ 	}
  
- 			break;
+-	if (attr_mask & IB_QP_MAX_DEST_RD_ATOMIC) {
+-		qp_context->params1 |= cpu_to_be32(min(attr->max_dest_rd_atomic ?
+-						       ffs(attr->max_dest_rd_atomic) - 1 : 0,
++	if (attr_mask & IB_QP_MAX_QP_RD_ATOMIC) {
++		qp_context->params1 |= cpu_to_be32(min(attr->max_rd_atomic ?
++						       ffs(attr->max_rd_atomic) - 1 : 0,
+ 						       7) << 21);
+ 		qp_param->opt_param_mask |= cpu_to_be32(MTHCA_QP_OPTPAR_SRA_MAX);
+ 	}
+@@ -764,10 +764,10 @@ int mthca_modify_qp(struct ib_qp *ibqp, 
+ 		qp->atomic_rd_en = attr->qp_access_flags;
+ 	}
  
-+		case UC:
-+			switch (wr->opcode) {
-+			case IB_WR_RDMA_WRITE:
-+			case IB_WR_RDMA_WRITE_WITH_IMM:
-+				((struct mthca_raddr_seg *) wqe)->raddr =
-+					cpu_to_be64(wr->wr.rdma.remote_addr);
-+				((struct mthca_raddr_seg *) wqe)->rkey =
-+					cpu_to_be32(wr->wr.rdma.rkey);
-+				((struct mthca_raddr_seg *) wqe)->reserved = 0;
-+				wqe += sizeof (struct mthca_raddr_seg);
-+				size += sizeof (struct mthca_raddr_seg) / 16;
-+				break;
-+
-+			default:
-+				/* No extra segments required for sends */
-+				break;
-+			}
-+
-+			break;
-+
- 		case UD:
- 			((struct mthca_tavor_ud_seg *) wqe)->lkey =
- 				cpu_to_be32(to_mah(wr->wr.ud.ah)->key);
-@@ -1815,9 +1872,29 @@ int mthca_arbel_post_send(struct ib_qp *
- 					sizeof (struct mthca_atomic_seg);
- 				break;
+-	if (attr_mask & IB_QP_MAX_QP_RD_ATOMIC) {
++	if (attr_mask & IB_QP_MAX_DEST_RD_ATOMIC) {
+ 		u8 rra_max;
  
-+			case IB_WR_RDMA_READ:
-+			case IB_WR_RDMA_WRITE:
-+			case IB_WR_RDMA_WRITE_WITH_IMM:
-+				((struct mthca_raddr_seg *) wqe)->raddr =
-+					cpu_to_be64(wr->wr.rdma.remote_addr);
-+				((struct mthca_raddr_seg *) wqe)->rkey =
-+					cpu_to_be32(wr->wr.rdma.rkey);
-+				((struct mthca_raddr_seg *) wqe)->reserved = 0;
-+				wqe += sizeof (struct mthca_raddr_seg);
-+				size += sizeof (struct mthca_raddr_seg) / 16;
-+				break;
-+
-+			default:
-+				/* No extra segments required for sends */
-+				break;
-+			}
-+
-+			break;
-+
-+		case UC:
-+			switch (wr->opcode) {
- 			case IB_WR_RDMA_WRITE:
- 			case IB_WR_RDMA_WRITE_WITH_IMM:
--			case IB_WR_RDMA_READ:
- 				((struct mthca_raddr_seg *) wqe)->raddr =
- 					cpu_to_be64(wr->wr.rdma.remote_addr);
- 				((struct mthca_raddr_seg *) wqe)->rkey =
+-		if (qp->resp_depth && !attr->max_rd_atomic) {
++		if (qp->resp_depth && !attr->max_dest_rd_atomic) {
+ 			/*
+ 			 * Lowering our responder resources to zero.
+ 			 * Turn off RDMA/atomics as responder.
+@@ -778,7 +778,7 @@ int mthca_modify_qp(struct ib_qp *ibqp, 
+ 								MTHCA_QP_OPTPAR_RAE);
+ 		}
+ 
+-		if (!qp->resp_depth && attr->max_rd_atomic) {
++		if (!qp->resp_depth && attr->max_dest_rd_atomic) {
+ 			/*
+ 			 * Increasing our responder resources from
+ 			 * zero.  Turn on RDMA/atomics as appropriate.
+@@ -799,7 +799,7 @@ int mthca_modify_qp(struct ib_qp *ibqp, 
+ 		}
+ 
+ 		for (rra_max = 0;
+-		     1 << rra_max < attr->max_rd_atomic &&
++		     1 << rra_max < attr->max_dest_rd_atomic &&
+ 			     rra_max < dev->qp_table.rdb_shift;
+ 		     ++rra_max)
+ 			; /* nothing */
+@@ -807,7 +807,7 @@ int mthca_modify_qp(struct ib_qp *ibqp, 
+ 		qp_context->params2      |= cpu_to_be32(rra_max << 21);
+ 		qp_param->opt_param_mask |= cpu_to_be32(MTHCA_QP_OPTPAR_RRA_MAX);
+ 
+-		qp->resp_depth = attr->max_rd_atomic;
++		qp->resp_depth = attr->max_dest_rd_atomic;
+ 	}
+ 
+ 	qp_context->params2 |= cpu_to_be32(MTHCA_QP_BIT_RSC);
 

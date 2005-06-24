@@ -1,42 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263158AbVFXQ6w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263157AbVFXQ6V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263158AbVFXQ6w (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 12:58:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263163AbVFXQ6w
+	id S263157AbVFXQ6V (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 12:58:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263159AbVFXQ6U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 12:58:52 -0400
-Received: from fed1rmmtao12.cox.net ([68.230.241.27]:14500 "EHLO
-	fed1rmmtao12.cox.net") by vger.kernel.org with ESMTP
-	id S263158AbVFXQ6s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 12:58:48 -0400
-Date: Fri, 24 Jun 2005 09:58:42 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Andrei Konovalov <akonovalov@ru.mvista.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, yshpilevsky@ru.mvista.com,
-       linuxppc-embedded@ozlabs.org
-Subject: Re: [PATCH] ppc32: add Freescale MPC885ADS board support
-Message-ID: <20050624165841.GD3628@smtp.west.cox.net>
-References: <42BAD78E.1020801@ru.mvista.com> <20050623140522.GA25724@logos.cnet> <42BC2501.5090101@ru.mvista.com> <20050624154311.GB3628@smtp.west.cox.net> <42BC34CE.603@ru.mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42BC34CE.603@ru.mvista.com>
-User-Agent: Mutt/1.5.9i
+	Fri, 24 Jun 2005 12:58:20 -0400
+Received: from fmr18.intel.com ([134.134.136.17]:27555 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S263157AbVFXQ6O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Jun 2005 12:58:14 -0400
+Date: Fri, 24 Jun 2005 09:58:06 -0700
+Message-Id: <200506241658.j5OGw6Kj007412@linux.jf.intel.com>
+From: Rusty Lynch <rusty.lynch@intel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
+       anil.s.keshavamurthy@intel.com
+Subject: [ia64][patch] Refuse inserting kprobe on slot 1 - take 2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 24, 2005 at 08:29:02PM +0400, Andrei Konovalov wrote:
-> Tom Rini wrote:
-[snip]
-> >Lets just drop that hunk then..
-> 
-> Do you mean not to use
->   io_block_mapping(BCSR_ADDR, BCSR_ADDR, BCSR_SIZE, _PAGE_IO);
+Without the ability to atomically write 16 bytes, we can not update the
+middle slot of a bundle, slot 1, unless we stop the machine first.  This 
+patch will ensure the ability to robustly insert and remove a kprobe by
+refusing to insert a kprobe on slot 1 until a mechanism is in place to 
+safely handle this case.
 
-So I had myself slightly confused as first, but yes, what Eugene said at
-first is right, as shouldn't add more io_block_mappings, we should use
-ioremap() and fix drivers.
+	--rusty
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+Signed-off-by: Rusty Lynch <rusty.lynch@intel.com>
+
+ arch/ia64/kernel/kprobes.c |    7 +++++++
+ 1 files changed, 7 insertions(+)
+
+Index: linux-2.6.12-mm1/arch/ia64/kernel/kprobes.c
+===================================================================
+--- linux-2.6.12-mm1.orig/arch/ia64/kernel/kprobes.c
++++ linux-2.6.12-mm1/arch/ia64/kernel/kprobes.c
+@@ -270,6 +270,13 @@ static int valid_kprobe_addr(int templat
+ 				addr);
+ 		return -EINVAL;
+ 	}
++
++	if (slot == 1 && bundle_encoding[template][1] != L) {
++		printk(KERN_WARNING "Inserting kprobes on slot #1 "
++		       "is not supported\n");
++		return -EINVAL;
++	}
++
+ 	return 0;
+ }
+ 

@@ -1,68 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263202AbVFXTK4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263208AbVFXTSQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263202AbVFXTK4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 15:10:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263183AbVFXTK4
+	id S263208AbVFXTSQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 15:18:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263215AbVFXTSP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 15:10:56 -0400
-Received: from palrel12.hp.com ([156.153.255.237]:12491 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S263135AbVFXTKk (ORCPT
+	Fri, 24 Jun 2005 15:18:15 -0400
+Received: from wproxy.gmail.com ([64.233.184.206]:42170 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S263208AbVFXTQz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 15:10:40 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	Fri, 24 Jun 2005 15:16:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=dXIzRuuKqC39sxlHIPng1iSKM3mO9+syxumBrgy3DwS2DGVnNpUhBPQ3TDod5Sy2xyQ/IIlwRJwlB3AotQKPuQVZrCJnf1dj2XJmA2sNAsIC9r+EyKGdBK5R/oBpWb5K3dWv10MsqqUmQ4TnswaY4ULv0jauVbjgJwhBOuUaG9U=
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Greg KH <greg@kroah.com>
+Subject: Re: [ANNOUNCE] ndevfs - a "nano" devfs
+Date: Fri, 24 Jun 2005 23:22:31 +0400
+User-Agent: KMail/1.7.2
+Cc: linux-kernel@vger.kernel.org
+References: <20050624081808.GA26174@kroah.com>
+In-Reply-To: <20050624081808.GA26174@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <17084.23214.237084.224128@napali.hpl.hp.com>
-Date: Fri, 24 Jun 2005 12:10:38 -0700
-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-Cc: davidm@hpl.hp.com, akpm@osdl.org,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linux IA64 <linux-ia64@vger.kernel.org>
-Subject: Re: [patch][ia64]Refuse kprobe on ivt code
-In-Reply-To: <20050624114545.A4826@unix-os.sc.intel.com>
-References: <20050623172832.B26121@unix-os.sc.intel.com>
-	<17083.25625.991516.736507@napali.hpl.hp.com>
-	<20050624114545.A4826@unix-os.sc.intel.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Disposition: inline
+Message-Id: <200506242322.32248.adobriyan@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Fri, 24 Jun 2005 11:45:46 -0700, Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com> said:
+On Friday 24 June 2005 12:18, Greg KH wrote:
+> --- /dev/null
+> +++ gregkh-2.6/fs/ndevfs/inode.c
 
-  Anil> On Thu, Jun 23, 2005 at 06:38:33PM -0700, David Mosberger wrote:
-  >> Please do the checking based on the .text.ivt section instead (and add
-  >> the necessary labels to vmlinux.S and asm-ia64/sections.h).
+> + *	This program is free software; you can redistribute it and/or
+> + *	modify it under the terms of the GNU General Public License version
+> + *	2 as published by the Free Software Foundation.
+> + *
+> + * Written for all of the people out there who just hate userspace solutions.
 
-  Anil> Subject: Refuse kprobe insert on IVT code
+No. Whining. License. Please. ;-)
 
-  Anil> Not safe to insert kprobes on IVT code.
-
-  Anil> This patch checks to see if the address on which Kprobes is being
-  Anil> inserted is  in ivt code and if it is in ivt code then
-  Anil> refuse to register kprobe.
-
-  Anil> Take 1: This patch is based on review comments from David Mosberger,
-  Anil> now checking based on .text.ivt
-
-  Anil> Signed-off-by: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
-
-Looks fine, except:
-
-  Anil> +/* Returns non-zero if the addr is in the Interrupt Vector Table */
-  Anil> +static inline int in_ivt_functions(unsigned long addr)
-  Anil> +{
-  Anil> +	extern char __start_ivt_text[], __end_ivt_text[];
-		^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-  Anil> +	return (addr >= (unsigned long)__start_ivt_text
-  Anil> +		&& addr < (unsigned long)__end_ivt_text);
-  Anil> +}
-
-Surely you meant to use the declaration from sections.h instead?
-
-Thanks,
-
-	--david

@@ -1,34 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262936AbVFXAYI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262881AbVFXA2r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262936AbVFXAYI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 20:24:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262881AbVFXAYI
+	id S262881AbVFXA2r (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 20:28:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262938AbVFXA2r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 20:24:08 -0400
-Received: from graphe.net ([209.204.138.32]:61849 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S262936AbVFXAYG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 20:24:06 -0400
-Date: Thu, 23 Jun 2005 17:24:04 -0700 (PDT)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@graphe.net
-To: Clyde Griffin <CGRIFFIN@novell.com>
-cc: linux-kernel@vger.kernel.org, Jan Beulich <JBeulich@novell.com>
-Subject: Re: Novell Linux Kernel Debugger (NLKD)
-In-Reply-To: <s2bae938.075@sinclair.provo.novell.com>
-Message-ID: <Pine.LNX.4.62.0506231723360.26299@graphe.net>
-References: <s2bae938.075@sinclair.provo.novell.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.9
+	Thu, 23 Jun 2005 20:28:47 -0400
+Received: from fmr22.intel.com ([143.183.121.14]:45256 "EHLO
+	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
+	id S262881AbVFXA2k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 20:28:40 -0400
+Date: Thu, 23 Jun 2005 17:28:33 -0700
+From: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+To: akpm@osdl.org
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linux IA64 <linux-ia64@vger.kernel.org>
+Subject: [patch][ia64]Refuse kprobe on ivt code
+Message-ID: <20050623172832.B26121@unix-os.sc.intel.com>
+Reply-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 23 Jun 2005, Clyde Griffin wrote:
 
-> Novell engineering is introducing the Novell Linux Kernel Debugger 
-> (NLKD) as an open source project intended to provide an enhanced and 
-> robust debugging experience for Linux kernel developers.
+Subject: Refuse kprobe insert on IVT code
 
-Umm... How does this differ from KDB?
+Not safe to insert kprobes on IVT code.
 
+This patch checks to see if the address on which Kprobes is being
+inserted is  in ivt code and if it is in ivt code then
+refuse to register kprobe.
+
+Signed-off-by: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
+
+===============================================
+ arch/ia64/kernel/kprobes.c |   13 +++++++++++++
+ 1 files changed, 13 insertions(+)
+
+Index: linux-2.6.12-mm1/arch/ia64/kernel/kprobes.c
+===================================================================
+--- linux-2.6.12-mm1.orig/arch/ia64/kernel/kprobes.c
++++ linux-2.6.12-mm1/arch/ia64/kernel/kprobes.c
+@@ -263,6 +263,13 @@ static inline void get_kprobe_inst(bundl
+ 	}
+ }
+ 
++/* Returns non-zero if the PC is in the Interrupt Vector Table */
++static inline int in_ivt_code(unsigned long pc)
++{
++	extern char ia64_ivt[];
++	return (pc >= (u_long)ia64_ivt && pc < (u_long)ia64_ivt+32768);
++}
++
+ static int valid_kprobe_addr(int template, int slot, unsigned long addr)
+ {
+ 	if ((slot > 2) || ((bundle_encoding[template][1] == L) && slot > 1)) {
+@@ -271,6 +278,12 @@ static int valid_kprobe_addr(int templat
+ 		return -EINVAL;
+ 	}
+ 
++ 	if (in_ivt_code(addr)) {
++ 		printk(KERN_WARNING "Kprobes can't be inserted inside "
++				"IVT code at 0x%lx\n", addr);
++ 		return -EINVAL;
++ 	}
++
+ 	if (slot == 1) {
+ 		printk(KERN_WARNING "Inserting kprobes on slot #1 "
+ 		       "is not supported\n");

@@ -1,70 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262980AbVFXBWu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262981AbVFXBYU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262980AbVFXBWu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Jun 2005 21:22:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262983AbVFXBWu
+	id S262981AbVFXBYU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Jun 2005 21:24:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262983AbVFXBYT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Jun 2005 21:22:50 -0400
-Received: from hummeroutlaws.com ([12.161.0.3]:270 "EHLO atpro.com")
-	by vger.kernel.org with ESMTP id S262980AbVFXBUl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Jun 2005 21:20:41 -0400
-Date: Thu, 23 Jun 2005 21:19:28 -0400
-From: Jim Crilly <jim@why.dont.jablowme.net>
-To: Avuton Olrich <avuton@gmail.com>
-Cc: Adrian Ulrich <reiser4@blinkenlights.ch>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, ninja@slaphack.com,
-       reiser@namesys.com, jgarzik@pobox.com, hch@infradead.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: reiser4 plugins
-Message-ID: <20050624011928.GO21897@mail>
-Mail-Followup-To: Avuton Olrich <avuton@gmail.com>,
-	Adrian Ulrich <reiser4@blinkenlights.ch>,
-	Horst von Brand <vonbrand@inf.utfsm.cl>, ninja@slaphack.com,
-	reiser@namesys.com, jgarzik@pobox.com, hch@infradead.org,
-	akpm@osdl.org, linux-kernel@vger.kernel.org,
-	reiserfs-list@namesys.com
-References: <42BAC304.2060802@slaphack.com> <200506231924.j5NJOvLA031008@laptop11.inf.utfsm.cl> <20050623221222.33074838.reiser4@blinkenlights.ch> <3aa654a405062314296a4ca2ae@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3aa654a405062314296a4ca2ae@mail.gmail.com>
-User-Agent: Mutt/1.5.9i
+	Thu, 23 Jun 2005 21:24:19 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:13309 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S262981AbVFXBYC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Jun 2005 21:24:02 -0400
+Message-ID: <42BB60AA.1060606@namesys.com>
+Date: Thu, 23 Jun 2005 18:23:54 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Jeff Garzik <jgarzik@pobox.com>, David Masover <ninja@slaphack.com>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: reiser4 plugins (back to flames, oh well)
+References: <20050620235458.5b437274.akpm@osdl.org>	 <42B831B4.9020603@pobox.com> <42B87318.80607@namesys.com>	 <20050621202448.GB30182@infradead.org> <42B8B9EE.7020002@namesys.com>	 <42B8BB5E.8090008@pobox.com> <42B8E834.5030809@slaphack.com>	 <42B8F4BC.5060100@pobox.com>  <42BA4F7E.6000402@namesys.com> <1119546015.17063.14.camel@localhost.localdomain>
+In-Reply-To: <1119546015.17063.14.camel@localhost.localdomain>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 06/23/05 02:29:21PM -0700, Avuton Olrich wrote:
-> On 6/23/05, Adrian Ulrich <reiser4@blinkenlights.ch> wrote:
-> > From my POV:
-> >  I've been using Reiser4 for almost everything (Rootfs / External
-> >  Harddrives) for about ~8 Months without any data loss..
-> > 
-> >  Powerloss, unpluging the Disk while writing, full filesystem,
-> >  heavy use : No problems with reiser4.. It *is* stable.
-> 
-> *From users who use it* I have heard nothing but love for reiser4.
-> It's amazing how quickly people seem to be dismissive about what
-> reiser4 has to offer when they more than likely haven't taken it for a
-> spin at all. All I hear about is 'we can't let something ugly go into
-> the stable kernel' then in the same day I looked into some of the
-> config options...
-> 
-> CONFIG_WDC_ALI15X3:
-> *snip*
-> This allows for UltraDMA support for WDC drives that ignore CRC
-> checking. You are a fool for enabling this option, but there have been
-> requests.
-> *snip*
+Alan Cox wrote:
 
-That's hardly a good example, that config option, while obviously
-questionable, only added 2 #ifdef blocks and affects 1 function that's 20
-lines long.
+>>I am entitled to get some advantage from being the first on the block
+>>    
+>>
+>
+>You were not first on the block. Linus was, 
+>
+>thats why it's Linux (well
+>not directly his fault about the name) and why he sets policy. I've
+>never heard Linus espousing such an idea so I wonder why you think that
+>way. Rather I've heard Linus tell groups of people with differing ideas
+>about interfaces to go figure it out first and build the right interface
+>then come back with a consensus (for example with SELinux)
+>  
+>
+We aren't people with differing ideas about interfaces, we are one
+filesystem team with functionality that no other filesystem has yet
+expressed a concrete desire to use, and some guy who complains about it
+after it has been the basis for coding for 4 years without expressing
+any desire to use it himself, merely expressing a desire that we not use
+it because he never paid any attention to our website or mailing list
+for the last 4 years as we developed it.  
 
-> 
-> How many have requested that reiser4 make it into the kernel? I'd
-> imagine many more then requested this IDE feature. And it's an
-> *option*. Please work something out on this.
-> 
-> avuton
+Oh, and he says it is duplicative without explaining where in VFS
+plugins and pluginids are currently defined. 
 
-Jim.
+Oh, and rather than saying "clever guys, thanks for coming up with this,
+I am going to go write a patch that makes your ideas available to other
+filesystems to do this", he says, stay out of the tree because your code
+is so crappy that it has to be used by everyone else before you can go in.
+
+There is absolutely nothing preventing him from generalizing it to other
+filesystems after we go into the tree.  If you take the existing code as
+a base, the generic part of the work required is I hope small.   The fs
+specific part is more though, as each filesystem has to implement
+methods for storing and retrieving plugins, and then a set of plugins
+(and their methods).
+
+It is all pure turf war.  Some guy suddenly realized that VFS was not
+doing something, and got upset that someone else was writing code that
+did the job.  Since it was someone else's code, and ready to go, and he
+had nothing himself written yet, it had to be crap and kept out.
+
+In fairness, it might be possible to eliminate a function indirection or
+two if the effort was made.   There is no need to do it this week as
+merging our code will not make it the least bit more difficult to change
+things later, but hey, if someone wants it, happy to discuss the right
+way to do it.
+
+This is why Linux doesn't have the contributors its market share would
+suggest it should expect.  Contributing to Linux is such a misery.
+
+If you guys would just say "plugins, interesting, can we make it more
+general so other filesystems can use it?"  I would be happy to have Zam
+do it for you.

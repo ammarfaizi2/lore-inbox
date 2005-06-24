@@ -1,76 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263117AbVFXPwy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263145AbVFXP6N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263117AbVFXPwy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 11:52:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263058AbVFXPsd
+	id S263145AbVFXP6N (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 11:58:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263134AbVFXPyo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 11:48:33 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:13773 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S263036AbVFXPrR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 11:47:17 -0400
-Message-Id: <200506241545.j5OFj3Iw014214@laptop11.inf.utfsm.cl>
-To: tdwebste2@yahoo.com
-cc: Lincoln Dale <ltd@cisco.com>, Hans Reiser <reiser@namesys.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, David Masover <ninja@slaphack.com>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: reiser4 plugins 
-In-Reply-To: Message from Timothy Webster <tdwebste2@yahoo.com> 
-   of "Fri, 24 Jun 2005 02:35:10 MST." <20050624093510.4330.qmail@web51301.mail.yahoo.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Fri, 24 Jun 2005 11:45:03 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Fri, 24 Jun 2005 11:45:04 -0400 (CLT)
+	Fri, 24 Jun 2005 11:54:44 -0400
+Received: from natnoddy.rzone.de ([81.169.145.166]:15797 "EHLO
+	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S263104AbVFXPua
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Jun 2005 11:50:30 -0400
+Date: Fri, 24 Jun 2005 17:50:26 +0200
+From: Nico Golde <nico@ngolde.de>
+To: linux@brodo.de
+Cc: linux-kernel@vger.kernel.org
+Subject: [Patch] documentation govenors.txt
+Message-ID: <20050624155026.GA10987@ngolde.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="St7VIuEGZ6dlpu13"
+Content-Disposition: inline
+X-Editor: VIM - Vi IMproved 6.3 (2004 June 7, compiled Jun 15 2005 18:17:41)
+X-Mailer: Mutt-ng http://www.muttng.org
+X-Operating-System: Debian GNU/Linux sid
+X-My-Homepage: http://www.ngolde.de
+User-Agent: mutt-ng devel-20050619 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Timothy Webster <tdwebste2@yahoo.com> wrote:
 
-[...]
+--St7VIuEGZ6dlpu13
+Content-Type: multipart/mixed; boundary="cNdxnHkX5QqsyA0e"
+Content-Disposition: inline
 
-> I think it is the task of the linux community to
-> generalize the vfs layer and not lock out reiserfs4
-> until that is done.
 
-No... the task of the Linux community is to make a better kernel.
+--cNdxnHkX5QqsyA0e
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-You will have to do the work to convince it that the changes give a better
-kernel if included. That means the work to find out what they object to,
-solve the problem (if it can be solved), and try again.
+Hi,
+I corrected a small error and enhanced the govenor.txt file
+with the ondemand daemon because the kernel configs link to
+the documentation but ondemand wasn't documentated.
+Feel free to include the patch in the attachment...
+Regards Nico
+Please CC me, I am not on the list.
+--=20
+Nico Golde - JAB: nion@jabber.ccc.de | GPG: 0x73647CFF
+http://www.ngolde.de | http://www.muttng.org | http://grml.org=20
+VIM has two modes - the one in which it beeps=20
+and the one in which it doesn't -- encrypted mail preferred
 
->                     reiserfs4 wants to keep a plugin
-> id for each and every file.
+--cNdxnHkX5QqsyA0e
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="govenors.txt.patch"
+Content-Transfer-Encoding: quoted-printable
 
-Good for you. Nobody else has shown any interest in that.
+--- /usr/src/linux/Documentation/cpu-freq/governors.txt	2005-05-27 07:06:46=
+=2E000000000 +0200
++++ governors.txt	2005-06-24 16:40:40.000000000 +0200
+@@ -9,6 +9,7 @@
+=20
+=20
+ 		    Dominik Brodowski  <linux@brodo.de>
++            some additions and corrections by Nico Golde <nico@ngolde.de>
+=20
+=20
+=20
+@@ -25,6 +26,7 @@
+ 2.1  Performance
+ 2.2  Powersave
+ 2.3  Userspace
++2.4  Ondemand
+=20
+ 3.   The Governor Interface in the CPUfreq Core
+=20
+@@ -86,7 +88,7 @@
+ scaling_max_freq.
+=20
+=20
+-2.1 Powersave
++2.2 Powersave
+ -------------
+=20
+ The CPUfreq governor "powersave" sets the CPU statically to the
+@@ -94,7 +96,7 @@
+ scaling_max_freq.
+=20
+=20
+-2.2 Userspace
++2.3 Userspace
+ -------------
+=20
+ The CPUfreq governor "userspace" allows the user, or any userspace
+@@ -103,6 +105,14 @@
+ directory.
+=20
+=20
++2.4 Ondemand
++------------
++
++The CPUfreq govenor "ondemand" sets the CPU depending on the
++current usage. To do this the CPU must have the capability to
++switch the frequency very fast.
++
++
+=20
+ 3. The Governor Interface in the CPUfreq Core
+ =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 
->                             An additional filesystem
-> layer is the traditional solution to achieve advanced
-> features, but not an optimal solution in my opinion.
+--cNdxnHkX5QqsyA0e--
 
-Right. And what is said here is to /use/ said layer (VFS) or see how it can
-be changed to cater for your needs.
+--St7VIuEGZ6dlpu13
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-> Yes gnome, kde and perhaps cifs do it.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-Gnome and KDE are userspace utilities, designed to run on several operating
-systems that do not have such filesystem plugins at all, plus for the
-foreseable future the mayority of Linux (file)systems won't have them
-either; so they probably won't ever use it for portability's sake. CIFS is
-a second class citizen AFAIU, as it exists for compatibility with legacy
-systems only. So none of the above is in any way compelling.
+iD8DBQFCvCvCHYflSXNkfP8RAo66AJwMelFSLNatJrwbNko4A7QsVFbXEwCdGZ5d
+/TN2h6YD9c7DQHAiQMRAIg0=
+=gzWn
+-----END PGP SIGNATURE-----
 
->                                        But if instead
-> they used file plugins a lot more could be shared.
-
-> Blush, I am not a file system expert
-
-/me neither ;-)
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+--St7VIuEGZ6dlpu13--

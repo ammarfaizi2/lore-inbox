@@ -1,76 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261241AbVFYSmf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261247AbVFYSni@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261241AbVFYSmf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Jun 2005 14:42:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261237AbVFYSme
+	id S261247AbVFYSni (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Jun 2005 14:43:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261249AbVFYSnh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Jun 2005 14:42:34 -0400
-Received: from [128.173.37.102] ([128.173.37.102]:38810 "EHLO
-	h80ad2566.async.vt.edu") by vger.kernel.org with ESMTP
-	id S261241AbVFYSmI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Jun 2005 14:42:08 -0400
-Message-Id: <200506251840.j5PIelGv012506@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel Hackers Guide to git (v3) 
-In-Reply-To: Your message of "Sat, 25 Jun 2005 01:13:46 EDT."
-             <42BCE80A.2010802@pobox.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <42BCE80A.2010802@pobox.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1119724846_5998P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Sat, 25 Jun 2005 14:43:37 -0400
+Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:45252
+	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
+	with ESMTP id S261247AbVFYSnV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Jun 2005 14:43:21 -0400
+Message-ID: <42BD9797.4030009@linuxwireless.org>
+Date: Sat, 25 Jun 2005 12:42:47 -0500
+From: Alejandro Bonilla <abonilla@linuxwireless.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Paul Sladen <thinkpad@paul.sladen.org>
+CC: linux-thinkpad@linux-thinkpad.org, Eric Piel <Eric.Piel@tremplin-utc.net>,
+       "'Vojtech Pavlik'" <vojtech@suse.cz>, borislav@users.sourceforge.net,
+       "'Pavel Machek'" <pavel@ucw.cz>,
+       "'Yani Ioannou'" <yani.ioannou@gmail.com>, linux-kernel@vger.kernel.org,
+       hdaps-devel@lists.sourceforge.net
+Subject: Re: [ltp] IBM HDAPS Someone interested? (Accelerometer)
+References: <Pine.LNX.4.21.0506250712140.10376-100000@starsky.19inch.net>
+In-Reply-To: <Pine.LNX.4.21.0506250712140.10376-100000@starsky.19inch.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Sat, 25 Jun 2005 14:40:46 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1119724846_5998P
-Content-Type: text/plain; charset=us-ascii
+Paul Sladen wrote:
 
-On Sat, 25 Jun 2005 01:13:46 EDT, Jeff Garzik said:
+>On Thu, 23 Jun 2005, Lee Revell wrote:
+>  
+>
+>>Yup, it's just doing port IO.  Get a kernel debugger for windows like
+>>softice and this will be trivial to RE.
+>>READ_PORT_USHORT / WRITE_PORT_UCHAR / READ_PORT_UCHAR
+>>    
+>>
+>
+>There are 3 ports involved.  The 0xed "non-existant delay port" and a pair
+>of ports that are through the Super-I/O / IDE.  They are used in a
+>index+value setup similar to reading/writing the AT keyboard controller.
+>
+>>From what I remember, my conclusion was that these instructions were the
+>ones to park the heads and then lock the IDE bus.  It's a couple of months
+>ago, but somewhere I have the simplified version of what it was doing...
+>
+>	-Paul
+>  
+>
+Paul, if you can find that information and Join us into the Project, 
+then we will be very happy about it. I hope you still have your 
+ThinkPad. ;-)
 
-> Kernel Hackers' Guide to git
-> 
-> 
-> 1) installing git
+So, let me get this correct. The Super-I/O only sends the information or 
+should we be reading the information of what the accelerometer is 
+outputting?
 
-A nice document.  Unfortunately, my brain is tiny, and there's some
-usage questions you don't cover, and I can't seem to figure out myself...
+The way I was thinking about it, is that you would only read from the 
+accelerometer, and within the value that is read, you will park or not 
+the heads depending on how sensitive the user specified the option on 
+the driver.
 
-Let's say I've cloned Linus's git tree, and now I want to build a kernel
-that has Linus's stuff, the 'audit' tree that's (last I checked) located at
-kernel.org/pub/scm/linux/kernel/git/dwmw2/audit-2.6, and another tree (foobar-2.6).
-
-1) How do I do this merge?
-
-2) How do I handle if an audit-2.6 and foobar-2.6 patch conflict -
-   a) for right now...
-   b) so it gets it right the *next* time I pull both and there's a collision
-      (possibly between the next foobar-2.6 changeset and my modification of
-      the previous changeset's results to clean the conflict)
-
-Another (possibly even more important to me at the moment) usage question:
-
-I have a non-git 2.6.12-mm1 tree. Given a Linus git tree and an audit-2.6 git
-tree, how do I create a tree that contains "2.6.12-mm1 plus additional
-audit-2.6 changes since Andrew cut -mm1"?  (I'm chasing a bug that was
-supposedly fixed in userspace audit-0.9.10, but is still borked for me in
-0.9.13 - I'm suspecting the bugfix is dependent on a divergence between the
-Fedora kernel (basically 2.6.12-git5 for this discussion) and -mm1...)
-
-
---==_Exmh_1119724846_5998P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFCvaUucC3lWbTT17ARAjfgAJ9RWdP7x/uFWAN4RKQFJaWAXs69uQCfacqM
-bO+tFK+RAJT327MTSo8EvZo=
-=zMWg
------END PGP SIGNATURE-----
-
---==_Exmh_1119724846_5998P--
+.Alejandro

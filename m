@@ -1,48 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261223AbVFYSI2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261234AbVFYSQW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261223AbVFYSI2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Jun 2005 14:08:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbVFYSI2
+	id S261234AbVFYSQW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Jun 2005 14:16:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261242AbVFYSQW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Jun 2005 14:08:28 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:6086 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261223AbVFYSI0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Jun 2005 14:08:26 -0400
-Subject: Re: 2.6.12-mm1 boot failure on NUMA box.
-From: Lee Revell <rlrevell@joe-job.com>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Con Kolivas <kernel@kolivas.org>
-In-Reply-To: <44570000.1119681732@[10.10.2.4]>
-References: <20050621130344.05d62275.akpm@osdl.org>
-	 <51900000.1119622290@[10.10.2.4]> <20050624170112.GD6393@elte.hu>
-	 <320710000.1119632967@flay> <20050624195248.GA9663@elte.hu>
-	 <344410000.1119646572@flay> <20050625040052.GB4800@elte.hu>
-	 <44570000.1119681732@[10.10.2.4]>
-Content-Type: text/plain
-Date: Sat, 25 Jun 2005 14:08:25 -0400
-Message-Id: <1119722905.5762.15.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.3.1 
+	Sat, 25 Jun 2005 14:16:22 -0400
+Received: from rproxy.gmail.com ([64.233.170.192]:21393 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261236AbVFYSQQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Jun 2005 14:16:16 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:subject:date:user-agent:to:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=Py3mCdoOsLA1tJrORMQrK7FuOIgGrUOOvdl8eD2F+vYUUc1dOwWCcEenj19TTVOpOn81KVSjiuRxsschvnFJG+1EeT7Ge6ygiDZN7sj3VkuwVfsAW3DQKar6Y7aOH90zQ0siQfTmsaeUq6G36uZeyCcHPa+vT0TpfRttbOLd0fM=
+From: Alexey Dobriyan <adobriyan@gmail.com>
+Subject: Fwd: [Bug 4774] e1000 driver works on UP, but not SMP x86_64
+Date: Sat, 25 Jun 2005 22:22:18 +0400
+User-Agent: KMail/1.7.2
+To: David Lang <david.lang@digitalinsight.com>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200506252222.18681.adobriyan@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-06-24 at 23:42 -0700, Martin J. Bligh wrote:
-> > (btw., if the TSC is that unreliable on numaq boxes, shouldnt we disable 
-> > it for userspace apps too? Or are those hangs purely kernel bugs? In 
-> > which case it might make sense to debug those a bit more - large-scale 
-> > TSC unsyncedness is something that could slip in on other hardware too.)
-> 
-> Well it reads reliably. it just reliably reads utter random crap (well,
-> across CPUs). Not many things read tsc from userspace, and it won't hang
-> I guess .... depends what their expecations are. I do like gettimeofday
-> not to go backwards though - that tends to bugger things up ;-)
+----------  Forwarded Message  ----------
 
-The userspace apps that read the TSC know what they are doing, and have
-chosen to use the TSC because they need a cheap, fast timer rather than
-a correct one.  Please don't break it.
+Subject: [Bug 4774] e1000 driver works on UP, but not SMP x86_64
+Date: Saturday 25 June 2005 21:55
+From: bugme-daemon@kernel-bugs.osdl.org
+To: adobriyan@gmail.com
 
-Lee
+http://bugzilla.kernel.org/show_bug.cgi?id=4774
 
+------- Additional Comments From nacc@us.ibm.com  2005-06-25 10:55 -------
+Hrm, that means that the corresponding PCI device (adapter->pdev->irq) is
+requesting an IRQ greater than 224? Could you also attach the SMP .config? I
+assume all you did was enabled SMP, ran make oldconfig & rebuilt? Do you know of
+any kernel that *does* work?

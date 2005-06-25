@@ -1,51 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263337AbVFYEtF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261426AbVFYEqJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263337AbVFYEtF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Jun 2005 00:49:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263338AbVFYEtF
+	id S261426AbVFYEqJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Jun 2005 00:46:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263339AbVFYEqJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Jun 2005 00:49:05 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:5300 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S263337AbVFYEtA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Jun 2005 00:49:00 -0400
-Date: Sat, 25 Jun 2005 06:47:57 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
-Message-ID: <20050625044757.GA14979@elte.hu>
-References: <20050608112801.GA31084@elte.hu> <200506212242.39113.gene.heskett@verizon.net> <20050622074054.GC16508@elte.hu> <200506220927.07874.gene.heskett@verizon.net> <20050625044129.GA12440@elte.hu>
+	Sat, 25 Jun 2005 00:46:09 -0400
+Received: from [203.171.93.254] ([203.171.93.254]:37060 "EHLO
+	cunningham.myip.net.au") by vger.kernel.org with ESMTP
+	id S261426AbVFYEpV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Jun 2005 00:45:21 -0400
+Subject: Re: [RFC] Fix SMP brokenness for PF_FREEZE and make freezing
+	usable for other purposes
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: Christoph Lameter <christoph@lameter.com>
+Cc: Pavel Machek <pavel@ucw.cz>, Linux Memory Management <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       raybry@engr.sgi.com, Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <Pine.LNX.4.62.0506242127040.3433@graphe.net>
+References: <Pine.LNX.4.62.0506241316370.30503@graphe.net>
+	 <20050625025122.GC22393@atrey.karlin.mff.cuni.cz>
+	 <Pine.LNX.4.62.0506242127040.3433@graphe.net>
+Content-Type: text/plain
+Organization: Cycades
+Message-Id: <1119674790.4170.6.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050625044129.GA12440@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Sat, 25 Jun 2005 14:46:30 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi.
 
-* Ingo Molnar <mingo@elte.hu> wrote:
-
+On Sat, 2005-06-25 at 14:31, Christoph Lameter wrote:
+> > Previous code had important property: try_to_freeze was optimized away
+> > in !CONFIG_PM case. Please keep that.
 > 
-> * Gene Heskett <gene.heskett@verizon.net> wrote:
-> 
-> > I can report that mode 4 is not at all well here.  I turned it on and 
-> > changed the extraversion, built it, and when it booted, it got to this 
-> > line and hung:
-> > 
-> > Checking to see if this processor honours the WP bit even in 
-> > supervisor mode... OK.
-> 
-> ok, could you try the patch below, ontop of whatever tree hung for you?
+> Obviously that will not work if we use try_to_freeze for 
+> non-power-management purposes. The code from kernel/power/process.c may 
+> have to be merged into some other kernel file. kernel/sched.c?
 
-also included in -V0.7.50-19 and later patches.
+Do you have a non-power-management purpose in mind?
 
-	Ingo
+Regards,
+
+Nigel
+

@@ -1,49 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261207AbVFYNIg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261219AbVFYNVi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261207AbVFYNIg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Jun 2005 09:08:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261219AbVFYNIc
+	id S261219AbVFYNVi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Jun 2005 09:21:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261170AbVFYNVi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Jun 2005 09:08:32 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:63686 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S261207AbVFYNI2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Jun 2005 09:08:28 -0400
-Date: Sat, 25 Jun 2005 15:08:33 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Vojtech Pavlik <vojtech@suse.cz>
-cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org,
-       Stuart Shelton <stuart@zeus.com>, Daniel Drake <dsd@gentoo.org>,
-       Alan Lake <alan.lake@lakeinfoworks.com>, petero2@telia.co.uk
-Subject: Re: ALPS touchpad issues still exist in 2.6.12-rc4h
-In-Reply-To: <20050625124818.GA1385@ucw.cz>
-Message-ID: <Pine.LNX.4.61.0506251504180.3743@scrub.home>
-References: <42801AEE.5080308@lakeinfoworks.com> <d120d5000505101520ad1761@mail.gmail.com>
- <1115767038.12779.36.camel@callisto.dnsalias.net> <200505102059.36744.dtor_core@ameritech.net>
- <Pine.LNX.4.61.0506251431340.3743@scrub.home> <20050625124818.GA1385@ucw.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 25 Jun 2005 09:21:38 -0400
+Received: from vms040pub.verizon.net ([206.46.252.40]:11262 "EHLO
+	vms040pub.verizon.net") by vger.kernel.org with ESMTP
+	id S261219AbVFYNTy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Jun 2005 09:19:54 -0400
+Date: Sat, 25 Jun 2005 09:19:52 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
+In-reply-to: <20050625091215.GC27073@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Ingo Molnar <mingo@elte.hu>
+Message-id: <200506250919.52640.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <20050608112801.GA31084@elte.hu>
+ <200506250326.14998.gene.heskett@verizon.net> <20050625091215.GC27073@elte.hu>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Saturday 25 June 2005 05:12, Ingo Molnar wrote:
+>* Gene Heskett <gene.heskett@verizon.net> wrote:
+>> It seems the transmitter only needed a goodnight kiss, so I came
+>> back & built it.  So far running good, 5 minute uptime, looks
+>> good.  More reports if I find any gotcha's :) Seemed to boot
+>> marginally faster too, but no stopwatch timeings were done.
+>
+>great. To make sure, these earlier boot failures are gone:
+>> I just tried to build & boot 50-17 in mode=3, no hardirq's and got
+>> the same boot failure as mode 4 for 50-06 gave:
+>
+>right?
+>
+> Ingo
 
-On Sat, 25 Jun 2005, Vojtech Pavlik wrote:
+Yes.  Same mode 3, no hardirq's config.  I have not tried mode=4.  
+Here thats been a lockup every time for recent versions.  I just 
+checked the log, pretty quiet, nothing out of line.
 
-> > I skipped 2.6.11 on my laptop, so I'm only noticing this problem now.
-> > You didn't really answer the question, why has the _default_ been changed, 
-> > giving users the possibility to change the defaults is fine, but why is it 
-> > necessary to break existing setups?
->  
-> Because we added a driver for the pad. There was none before and the pad
-> had to work in compatibility mode. It seems more beneficial to me to
-> have the driver enabled by default (saving a lot of #ifdefs) than to
-> keep perfect compatibility with a no-driver situation.
-
-Adding a driver for it is nice, but that still doesn't question: why does 
-it change the default settings? If you can't restore the defaults 
-settings, then just detect the hardware but don't change it until it's 
-explicitely requested somehow.
-
-bye, Roman
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.35% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

@@ -1,88 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263382AbVFYJrm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263384AbVFYJvt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263382AbVFYJrm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Jun 2005 05:47:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263384AbVFYJrm
+	id S263384AbVFYJvt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Jun 2005 05:51:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263385AbVFYJvt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Jun 2005 05:47:42 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:2569 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263382AbVFYJrf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Jun 2005 05:47:35 -0400
-Date: Sat, 25 Jun 2005 10:47:25 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Paul Mackerass <paulus@au.ibm.com>,
-       David McCullough <davidm@snapgear.com>,
-       Mikael Starvik <starvik@axis.com>
-Subject: Re: [PATCH] Add removal schedule of register_serial/unregister_serial to appropriate file
-Message-ID: <20050625104725.A16381@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>, Paul Mackerass <paulus@au.ibm.com>,
-	David McCullough <davidm@snapgear.com>,
-	Mikael Starvik <starvik@axis.com>
-References: <20050623142335.A5564@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 25 Jun 2005 05:51:49 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:21961 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S263384AbVFYJvD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Jun 2005 05:51:03 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: linux-kernel@vger.kernel.org
+Subject: [RFC] Driver writer's guide to sleeping
+Date: Sat, 25 Jun 2005 12:50:18 +0300
+User-Agent: KMail/1.5.4
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050623142335.A5564@flint.arm.linux.org.uk>; from rmk+lkml@arm.linux.org.uk on Thu, Jun 23, 2005 at 02:23:35PM +0100
+Message-Id: <200506251250.18133.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 23, 2005 at 02:23:35PM +0100, Russell King wrote:
-> +What:	register_serial/unregister_serial
-> +When:	December 2005
-> +Why:	This interface does not allow serial ports to be registered against
-> +	a struct device, and as such does not allow correct power management
-> +	of such ports.  8250-based ports should use serial8250_register_port
-> +	and serial8250_unregister_port instead.
-> +Who:	Russell King <rmk@arm.linux.org.uk>
+Hi folks,
 
-Ok, now that this is in, I guess I should arrange for register_serial &
-co to throw a compiler warning.  However, this is non-trivial because
-several other drivers declare this function:
+I'm working on a Linux wireless driver.
 
-drivers/macintosh/macserial.c:int register_serial(struct serial_struct *req)
-drivers/macintosh/macserial.c:void unregister_serial(int line)
-drivers/serial/68328serial.c:int register_serial(struct serial_struct *req)
-drivers/serial/68328serial.c:void unregister_serial(int line)
-drivers/serial/crisv10.c:register_serial(struct serial_struct *req)
-drivers/serial/crisv10.c:void unregister_serial(int line)
+I compiled a little guide for myself about waiting primitives.
+I would appreciate if you look thru it. Maybe I'm wrong somewhere.
 
-Can folk who look after these drivers please comment on why these
-functions are there.
+udelay(us)
+	Busywaits for specified amount of usecs.
+	Ok to call in IRQ-disabled regions.
+	May be preempted (if not in atomic region).
+    Q: how precise is it? (can it sometimes wait much longer?
+    If yes, is that happens only if preempted?)
 
+mdelay(ms)
+	Same as udelay but for msecs.
 
-Other places appear to have a prototype for these functions but do not
-use them:
+schedule()
+	switch to other runnable task, if any. CPU
+	will be returned to us as soon as no other runnable tasks
+	with higher dynamic prio are left. This means
+	that sometimes schedule() returns practically at once.
 
-arch/xtensa/platform-iss/console.c:int register_serial(struct serial_struct*);
-arch/xtensa/platform-iss/console.c:void unregister_serial(int);
-drivers/char/amiserial.c:int register_serial(struct serial_struct *req);
-drivers/char/amiserial.c:void unregister_serial(int line);
+yield()
+	like schedule() but also drop our dynamic prio
+	to the minimum. result: all other runnable tasks will
+	run before CPU is returned to us. Yet, yield may return
+	at once if there is no runnable tasks.
 
-The patch which follows this message will remove these.
+schedule_timeout(timeout)
+	Whee, it has a comment! :)
+ * %TASK_UNINTERRUPTIBLE - at least @timeout jiffies are guaranteed to
+ * pass before the routine returns. The routine will return 0
+ *
+ * %TASK_INTERRUPTIBLE - the routine may return early if a signal is
+ * delivered to the current task. In this case the remaining time
+ * in jiffies will be returned, or 0 if the timer expired in time
+ *
+ * The current task state is guaranteed to be TASK_RUNNING when this
+ * routine returns.
+	Thus:
+	set_current_state(TASK_[UN]INTERRUPTIBLE);
+	schedule_timeout(timeout_in_jiffies)
 
+msleep(ms)
+	Sleeps at least ms msecs.
+	Equivalent to:
+	set_current_state(TASK_UNINTERRUPTIBLE);
+	schedule_timeout(timeout)
+    Q: why implementation does while(timeout) timeout = schedule_timeout(timeout)?
+    Does that mean that	schedule_timeout's comment (see above) is not true?!
 
-In terms of the use of these functions, this is the state of play as of
-yesterday:
+msleep_interruptible(ms)
+	Sleeps ms msecs (or more) unless has been woken up (signal, waitqueue...).
+    Q: exact list of possible waking events? (I'm a bit overwhelmed by multitude
+    of slightly different waitqueues, tasklets, softirqs, bhs...)
 
-arch/frv/kernel/setup.c://      register_serial(&__frv_uart0);
-arch/frv/kernel/setup.c://      register_serial(&__frv_uart1);
-drivers/char/mwave/mwavedd.c:   return register_serial(&serial);
-drivers/char/mwave/mwavedd.c:           unregister_serial(pDrvData->sLine);
-drivers/misc/ibmasm/uart.c:     sp->serial_line = register_serial(&serial);
-drivers/misc/ibmasm/uart.c:     unregister_serial(sp->serial_line);
-drivers/net/ioc3-eth.c: register_serial(&req);
-drivers/net/ioc3-eth.c: register_serial(&req);
-drivers/parport/parport_serial.c:               line = register_serial (&serial_req);
-drivers/parport/parport_serial.c:               unregister_serial (priv->line[i]);
-drivers/serial/bast_sio.c:      return register_serial(&serial_req);
-drivers/serial/bast_sio.c:              unregister_serial(port[0]);
-drivers/serial/bast_sio.c:              unregister_serial(port[1]);
+ssleep(s)
+	Same as msleep but in seconds
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+need_resched()
+	returns true if for some reason kernel would like to schedule
+	another task. Useful to check under lock for lock breaking.
+
+cond_resched()
+	basically: while(need_resched()) schedule();
+	returns 1 if scheduled at least once.
+--
+vda
+

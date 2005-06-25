@@ -1,56 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261339AbVFYVI5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261349AbVFYVcT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261339AbVFYVI5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Jun 2005 17:08:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261341AbVFYVI4
+	id S261349AbVFYVcT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Jun 2005 17:32:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261356AbVFYVcT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Jun 2005 17:08:56 -0400
-Received: from THUNK.ORG ([69.25.196.29]:10948 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S261339AbVFYVIm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Jun 2005 17:08:42 -0400
-Date: Sat, 25 Jun 2005 17:08:20 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Pekka Enberg <penberg@cs.helsinki.fi>, Jens Axboe <axboe@suse.de>,
-       Andrew Morton <akpm@osdl.org>, Jeff Mahoney <jeffm@suse.de>,
-       penberg@gmail.com, ak@suse.de, flx@namesys.com, zam@namesys.com,
-       vs@thebsh.namesys.com, linux-kernel@vger.kernel.org,
-       reiserfs-list@namesys.com
-Subject: Re: -mm -> 2.6.13 merge status
-Message-ID: <20050625210820.GA26946@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Hans Reiser <reiser@namesys.com>,
-	Pekka Enberg <penberg@cs.helsinki.fi>, Jens Axboe <axboe@suse.de>,
-	Andrew Morton <akpm@osdl.org>, Jeff Mahoney <jeffm@suse.de>,
-	penberg@gmail.com, ak@suse.de, flx@namesys.com, zam@namesys.com,
-	vs@thebsh.namesys.com, linux-kernel@vger.kernel.org,
-	reiserfs-list@namesys.com
-References: <p73d5qgc67h.fsf@verdi.suse.de> <42B86027.3090001@namesys.com> <20050621195642.GD14251@wotan.suse.de> <42B8C0FF.2010800@namesys.com> <84144f0205062223226d560e41@mail.gmail.com> <42BB0151.3030904@suse.de> <20050623114318.5ae13514.akpm@osdl.org> <20050623193247.GC6814@suse.de> <1119717967.9392.2.camel@localhost> <42BDAF3D.6060809@namesys.com>
+	Sat, 25 Jun 2005 17:32:19 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:48647 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261349AbVFYVcP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Jun 2005 17:32:15 -0400
+Date: Sat, 25 Jun 2005 23:32:14 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: rostedt@goodmis.org, gregkh@suse.de, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [2.6 patch] better USB_MON dependencies
+Message-ID: <20050625213214.GC3629@stusta.de>
+References: <Pine.LNX.4.58.0506172156220.7916@ppc970.osdl.org> <1119119175.6786.4.camel@localhost.localdomain> <20050621143227.GO3666@stusta.de> <20050621123507.6b83ddf0.zaitcev@redhat.com> <20050621210410.GA3705@stusta.de> <20050623093656.GC3749@stusta.de> <20050625131520.2cd9eda4.zaitcev@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42BDAF3D.6060809@namesys.com>
+In-Reply-To: <20050625131520.2cd9eda4.zaitcev@redhat.com>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 25, 2005 at 12:23:41PM -0700, Hans Reiser wrote:
-> >>
-> >>        assert("trace_hash-89", is_hashed(foo) != 0);
-> >>
-> Lots of people like corporate anonymity.  Some don't.  I don't.  I like
-> knowing who wrote what.  It helps me know who to pay how much.  It helps
-> me know who to forward the bug report to.   Losing your anonymity
-> exposes you, mostly for better since more communication is on balance a
-> good thing, but the fear is there for some.  I don't think we can agree
-> on this, it is an issue of the soul. 
+On Sat, Jun 25, 2005 at 01:15:20PM -0700, Pete Zaitcev wrote:
+> On Thu, 23 Jun 2005 11:36:56 +0200, Adrian Bunk <bunk@stusta.de> wrote:
+> 
+> > I forgot to attach the updated patch...
+> > Here it is.
+> 
+> I have tested this for all 6 build positions (CONFIG_USB = n, m, y  and
+> CONFIG_USB_MON = n y) with a positive result. But I thought the help
+> wordage was not quite what we needed, and the reference to USBMon was
+> incorrect. So, the attached is just a little different.
+> Adrian, how about this?
+>...
 
-Fallacy.
+Looks good.
 
-The assert doesn't tell you who is at fault; it tells you who placed
-the assert which triggered; it could have triggered due to bugs caused
-by anyone, including the propietary binary-only module from Nvidia
-which the user loaded into his system....
+cu
+Adrian
 
-						- Ted
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

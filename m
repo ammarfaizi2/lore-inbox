@@ -1,58 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261432AbVFYEB1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263326AbVFYECq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261432AbVFYEB1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Jun 2005 00:01:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263316AbVFYEB1
+	id S263326AbVFYECq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Jun 2005 00:02:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263325AbVFYECp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Jun 2005 00:01:27 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:48531 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261432AbVFYEBX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Jun 2005 00:01:23 -0400
-Date: Sat, 25 Jun 2005 06:00:52 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Con Kolivas <kernel@kolivas.org>
-Subject: Re: 2.6.12-mm1 boot failure on NUMA box.
-Message-ID: <20050625040052.GB4800@elte.hu>
-References: <20050621130344.05d62275.akpm@osdl.org> <51900000.1119622290@[10.10.2.4]> <20050624170112.GD6393@elte.hu> <320710000.1119632967@flay> <20050624195248.GA9663@elte.hu> <344410000.1119646572@flay>
+	Sat, 25 Jun 2005 00:02:45 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:38351 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S263316AbVFYEBz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Jun 2005 00:01:55 -0400
+Date: Sat, 25 Jun 2005 06:01:52 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Jim Crilly <jim@why.dont.jablowme.net>, linux-scsi@vger.kernel.org,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: aic79xx -> can't  suspend
+Message-ID: <20050625040152.GG22393@atrey.karlin.mff.cuni.cz>
+References: <1119549104.13259.1.camel@mindpipe> <20050623193224.GD2251@voodoo> <1119573142.20628.15.camel@mindpipe>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <344410000.1119646572@flay>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <1119573142.20628.15.camel@mindpipe>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Martin J. Bligh <Martin.Bligh@us.ibm.com> wrote:
-
-> > is the only problem the unsyncedness? That should be fine as far as the 
-> > scheduler is concerned. (we compensate for per-CPU drifts)
+> On Thu, 2005-06-23 at 15:32 -0400, Jim Crilly wrote:
+> > On 06/23/05 01:51:43PM -0400, Lee Revell wrote:
+> > > I have a machine with an Adaptec 2940U2W adapter running 2.6.11.
+> > > When I try to go into standby like so:
+> > > 
+> > >     echo standby > /sys/power/state
+> > > 
+> > > this is what happens:
+> > 
+> > AFAIK no SCSI drivers have had power management functions implemented,
+> > a quick grep for PM_ in drivers/scsi seems to confirm that only the
+> > PCMCIA SCSI drivers even look for PM events. 
 > 
-> Well, I think so. But I don't see how you're going to compensate for 
-> large-scale unsynced-ness safely. I've always completely avoided the 
-> TSC altogether on NUMA-Q ... would prefer to keep it that way. We got 
-> lots of wierd random crashes, panics, hangs, and -ve time offsets 
-> returned from userspace time commands last time I tried it.
+> Actually it is implemented in the aic7xxx driver, see ahc_suspend and
+> ahc_resume.
+> 
+> I tried it with 2.6.12, and I no longer have the problem with the ahc_dv
+> thread as it no longer exists (AFAICT the functionality is handled by
+> the SCSI midlayer now?).
+> 
+> Now it just immediately resumes:
+> 
+> [4297399.286000] PM: Preparing system for standby sleep
+> [4297399.609000] Stopping tasks: ================================|
+> [4297399.610000] Restarting tasks... done
+> 
+> How can I debug this further?
 
-ok. Would be nice to check whether reverting that single change solves 
-the boot problem. If it does i'll switch the measurement method to be 
-do_gettimeoffset based, that way the measurement will still be accurate.  
-(which is needed for precise migration cost results) Right now the 
-calibration uses sched_clock() - which was the reason for the change.
+Enable debugging in drivers/base/power/*...
 
-(btw., if the TSC is that unreliable on numaq boxes, shouldnt we disable 
-it for userspace apps too? Or are those hangs purely kernel bugs? In 
-which case it might make sense to debug those a bit more - large-scale 
-TSC unsyncedness is something that could slip in on other hardware too.)
+								Pavel
 
-	Ingo
+-- 
+Boycott Kodak -- for their patent abuse against Java.

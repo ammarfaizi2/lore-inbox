@@ -1,49 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263077AbVFYJMn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263387AbVFYJlm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263077AbVFYJMn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Jun 2005 05:12:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263368AbVFYJMn
+	id S263387AbVFYJlm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Jun 2005 05:41:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261295AbVFYJj3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Jun 2005 05:12:43 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:19104 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S263077AbVFYJMj (ORCPT
+	Sat, 25 Jun 2005 05:39:29 -0400
+Received: from hobbit.corpit.ru ([81.13.94.6]:23388 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S263384AbVFYJj0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Jun 2005 05:12:39 -0400
-Date: Sat, 25 Jun 2005 11:12:15 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
-Message-ID: <20050625091215.GC27073@elte.hu>
-References: <20050608112801.GA31084@elte.hu> <20050625044757.GA14979@elte.hu> <200506250139.59620.gene.heskett@verizon.net> <200506250326.14998.gene.heskett@verizon.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200506250326.14998.gene.heskett@verizon.net>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Sat, 25 Jun 2005 05:39:26 -0400
+Message-ID: <42BD2649.5090008@tls.msk.ru>
+Date: Sat, 25 Jun 2005 13:39:21 +0400
+From: Michael Tokarev <mjt@tls.msk.ru>
+Organization: Telecom Service, JSC
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+CC: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>,
+       Patrick Mochel <mochel@digitalimplant.org>
+Subject: Re: [PATCH] driver core: Add the ability to unbind drivers to devices
+ from userspace
+References: <20050624051229.GA24621@kroah.com> <Pine.LNX.4.50.0506240855460.24799-100000@monsoon.he.net> <20050625032715.GB3934@kroah.com> <200506242316.10958.dtor_core@ameritech.net>
+In-Reply-To: <200506242316.10958.dtor_core@ameritech.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dmitry Torokhov wrote:
+[bind/unbind in device or driver dir in sysfs]
+> 
+> Actually, I think that both should be in device's directory. When unbinding
+> a device you normally don't care what driver it is bound to, you just want
+> to make sure that there is no driver bound to the device afterwards. I.e it
+> is a operation on device. When binding you could argue both ways, but then
+> again you usually have a piece of hardware you want to assign specific driver
+> for, so I'd say it is operation on device as well.
 
-* Gene Heskett <gene.heskett@verizon.net> wrote:
+A small comment.  How about having one file named 'bind', which acts like
+either bind or unbind if nothing (empty string) has written to it?
 
-> It seems the transmitter only needed a goodnight kiss, so I came back 
-> & built it.  So far running good, 5 minute uptime, looks good.  More 
-> reports if I find any gotcha's :) Seemed to boot marginally faster 
-> too, but no stopwatch timeings were done.
+(for fun.. that'd be 'driver' file, which, when read, returns the name
+of the driver currently bound to the device.. but too bad, 'driver' is
+a symlink already...)
 
-great. To make sure, these earlier boot failures are gone:
-
-> I just tried to build & boot 50-17 in mode=3, no hardirq's and got the 
-> same boot failure as mode 4 for 50-06 gave:
-
-right?
-
-	Ingo
+/mjt

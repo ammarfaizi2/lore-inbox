@@ -1,76 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261395AbVFYC2a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263284AbVFYCdE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261395AbVFYC2a (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 22:28:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263282AbVFYC2a
+	id S263284AbVFYCdE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 22:33:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263288AbVFYCdD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 22:28:30 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:63390 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261395AbVFYC2X (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 22:28:23 -0400
-Date: Sat, 25 Jun 2005 04:28:12 +0200
-From: Andi Kleen <ak@suse.de>
-To: Stuart_Hayes@Dell.com
-Cc: riel@redhat.com, ak@suse.de, andrea@suse.dk, linux-kernel@vger.kernel.org
-Subject: Re: page allocation/attributes question (i386/x86_64 specific)
-Message-ID: <20050625022811.GY14251@wotan.suse.de>
-References: <7A8F92187EF7A249BF847F1BF4903C040AFD05@ausx2kmpc103.aus.amer.dell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7A8F92187EF7A249BF847F1BF4903C040AFD05@ausx2kmpc103.aus.amer.dell.com>
+	Fri, 24 Jun 2005 22:33:03 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:25317 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S263284AbVFYCc5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Jun 2005 22:32:57 -0400
+Message-ID: <42BCC257.5060900@comcast.net>
+Date: Fri, 24 Jun 2005 22:32:55 -0400
+From: Ed Sweetman <safemode@comcast.net>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ed Sweetman <safemode@comcast.net>
+CC: Pierre Ossman <drzeus-list@drzeus.cx>,
+       Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       LKML <linux-kernel@vger.kernel.org>, jgarzik@pobox.com
+Subject: Re: 2.6.12 breaks 8139cp
+References: <42B9D21F.7040908@drzeus.cx> <200506221534.03716.bjorn.helgaas@hp.com> <42BA69AC.5090202@drzeus.cx> <200506231143.34769.bjorn.helgaas@hp.com> <42BB3428.6030708@drzeus.cx> <42BCBB60.7000508@comcast.net> <42BCBF01.206@comcast.net>
+In-Reply-To: <42BCBF01.206@comcast.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 24, 2005 at 01:20:04PM -0500, Stuart_Hayes@Dell.com wrote:
-> Rik Van Riel wrote:
-> > On Wed, 22 Jun 2005 Stuart_Hayes@Dell.com wrote:
-> > 
-> >> My question is this:  when split_large_page() is called, should it
-> >> make the other 511 PTEs inherit the page attributes from the large
-> >> page (with the exception of PAGE_PSE, obviously)?
-> > 
-> > I suspect it should.
-> 
-> (Copying Andi Kleen & Andrea Arcangeli since they were involved in a
-> previous discussion of this.  I'm trying to fix the NX handling when
-> change_page_attr() is called in i386.)
-> 
-> After looking into it further, I agree completely.  I found a thread in
-> which this was discussed
-> (http://marc.theaimsgroup.com/?l=linux-kernel&m=109964359124731&w=2),
-> and discovered that this has been addressed in the X86_64 kernel.
+Sorry, i'm retarded, i pasted the wrong changelog line.
 
-You don't say which kernel you were working against. 2.6.11 has
-some fixes in this area (in particular with the reference counts) 
+<hch@lst.de>
+	[8139TOO]: Use rtnl_lock_interruptible()
+	
+	The 8139too thread needs to use rtnl_lock_interruptible so it can avoid
+	doing the actual work once it's been kill_proc()ed on module removal
+	time.
+	
+	Based on debugging and an earlier patch that adds a driver-private
+	semaphore from Herbert Xu.
+	
+	Signed-off-by: David S. Miller <davem@davemloft.net>
 
-> However, when I used "change_page_attr()" to change the page to
-> PAGE_KERNEL, it did just that.  But PAGE_KERNEL has the _PAGE_NX bit set
-> and isn't executable.  And, since PAGE_KERNEL (with _PAGE_NX set) didn't
-> match the original pages attributes, the 512 PTEs weren't reverted back
-> into a large page.  (Also, __change_page_attr() did *another* get_page()
-> on the page containing these 512 PTEs, so now the page_count has gone up
-> to 3, instead of going back down to 1 (or staying at 2).)
+This seems to be the only patch that contains a change to the 8139too code between 
+working and non-working code.
 
-That should be already fixed.
-> 
-> Is the function that calls "change_page_attr()" expected to look at the
-> attributes of the page before calling change_page_attr(), so it knows
-> how to un-change the attributes when it is finished with the page (since
-> PAGE_KERNEL isn't always what the page was originally)?
+nothing in mm's patchset seems to have anything to cause these problems.
 
-No, it's not supposed to do such checks on its own.
 
-> 
-> Or should "change_page_attr()" ignore the NX bit in the "pgprot_t prot"
-> parameter that's passed to it, and just inherit NX from the
-> large/existing page?  Then change_page_attr(page,PAGE_KERNEL) could be
-> used to undo changes, but change_page_attr() couldn't be used to modify
-> the NX bit.
 
-I don't think that makes sense. It should exactly set the protection
-the caller requested and revert when the protection is exactly like
-it was before.
 
--Andi
+Ed Sweetman wrote:
+
+> this is in the changefile to 2.6.11.   This seems to be the real 
+> culprit.  I guarantee you if this patch is reverted, there will be no 
+> problems.
+>
+> <romieu@fr.zoreil.com>
+>     [PATCH] r8169: hint for Tx flow control
+>     
+>     return 1 in start_xmit() when the required descriptors are not 
+> available
+>     and wait for more room.
+>     
+>     Signed-off-by: Francois Romieu <romieu@fr.zoreil.com>
+>
+>
+>
+>
+> Ed Sweetman wrote:
+>
+>> Pierre Ossman wrote:
+>>
+>>> Bjorn Helgaas wrote:
+>>>
+>>>  
+>>>
+>>>> Your 2.6.11 dmesg mentions the VIA IRQ fixup, but the 2.6.12 one
+>>>> doesn't.  I bet something's broken there.
+>>>>
+>>>> Can you try the attached debugging patch?  And please collect the
+>>>> output of lspci, too.
+>>>>
+>>>>
+>>>>   
+>>>
+>>>
+>>>
+>>> I tried the attached patch and it had no effect. I also tried porting
+>>> the 2.6.11 way of handling the VIA quirk but it didn't have any effect.
+>>> I'll try a more complete port tomorrow (it was a bit of a hack this 
+>>> time).
+>>>
+>>>  
+>>>
+>> 2.6.11-mm4 doesn't work. So i'm guessing 2.6.11 wont work either 
+>> which may be why backporting it's via fixes didn't do anything.  I'm 
+>> gonna try vanilla and if that by some crazy chance works, then it'll 
+>> be fairly easy to see what change did it since mm has a nice Changelog.
+>> -
+>> To unsubscribe from this list: send the line "unsubscribe 
+>> linux-kernel" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> Please read the FAQ at  http://www.tux.org/lkml/
+>>
+

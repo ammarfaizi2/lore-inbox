@@ -1,44 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261234AbVFYSQW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261261AbVFYSWR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261234AbVFYSQW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Jun 2005 14:16:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261242AbVFYSQW
+	id S261261AbVFYSWR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Jun 2005 14:22:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261259AbVFYSWM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Jun 2005 14:16:22 -0400
-Received: from rproxy.gmail.com ([64.233.170.192]:21393 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261236AbVFYSQQ (ORCPT
+	Sat, 25 Jun 2005 14:22:12 -0400
+Received: from rproxy.gmail.com ([64.233.170.206]:14704 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261263AbVFYSUp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Jun 2005 14:16:16 -0400
+	Sat, 25 Jun 2005 14:20:45 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:from:subject:date:user-agent:to:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=Py3mCdoOsLA1tJrORMQrK7FuOIgGrUOOvdl8eD2F+vYUUc1dOwWCcEenj19TTVOpOn81KVSjiuRxsschvnFJG+1EeT7Ge6ygiDZN7sj3VkuwVfsAW3DQKar6Y7aOH90zQ0siQfTmsaeUq6G36uZeyCcHPa+vT0TpfRttbOLd0fM=
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=E6bGY0J9RpzPxosHLVvVSHklOezxNjb4//uA4cI70yXhskMFpDirQB3WuTK58ug3NtiPEgT092ctSPeOUp4Qs1Xoppgp07pWyMfOwWjSK7FXWxvs305xrsU47PLDNRhMTxMDbPTK5zoqPOjGI3QFmC0CMPeA4UsCbuSn/vVaw4M=
 From: Alexey Dobriyan <adobriyan@gmail.com>
-Subject: Fwd: [Bug 4774] e1000 driver works on UP, but not SMP x86_64
-Date: Sat, 25 Jun 2005 22:22:18 +0400
+To: Paolo Marchetti <natryum@gmail.com>
+Subject: Re: [PATCH] cpufreq: ondemand+conservative=condemand
+Date: Sat, 25 Jun 2005 22:26:49 +0400
 User-Agent: KMail/1.7.2
-To: David Lang <david.lang@digitalinsight.com>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Cc: Dave Jones <davej@codemonkey.org.uk>,
+       kernel <linux-kernel@vger.kernel.org>
+References: <cc27d5b105062508086939012a@mail.gmail.com>
+In-Reply-To: <cc27d5b105062508086939012a@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200506252222.18681.adobriyan@gmail.com>
+Message-Id: <200506252226.49598.adobriyan@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-----------  Forwarded Message  ----------
+On Saturday 25 June 2005 19:08, Paolo Marchetti wrote:
+> 'condemand' - This driver adds a dynamic cpufreq policy governor.
+> The governor does a periodic polling and 
+> changes frequency based on the CPU utilization.
+> The support for this governor depends on CPU capability to
+> do fast frequency switching (i.e, very low latency frequency
+> transitions). 
+> This driver takes inspiration (and code) from the ondemand and
+> conservative governors, it does fast scale down like ondemand
+> and gradual scale up like conservative.
 
-Subject: [Bug 4774] e1000 driver works on UP, but not SMP x86_64
-Date: Saturday 25 June 2005 21:55
-From: bugme-daemon@kernel-bugs.osdl.org
-To: adobriyan@gmail.com
-
-http://bugzilla.kernel.org/show_bug.cgi?id=4774
-
-------- Additional Comments From nacc@us.ibm.com  2005-06-25 10:55 -------
-Hrm, that means that the corresponding PCI device (adapter->pdev->irq) is
-requesting an IRQ greater than 224? Could you also attach the SMP .config? I
-assume all you did was enabled SMP, ran make oldconfig & rebuilt? Do you know of
-any kernel that *does* work?
+Just change defaults in conservative governor to make it more responsive.

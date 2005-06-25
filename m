@@ -1,55 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261357AbVFYWP2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261363AbVFYWSn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261357AbVFYWP2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Jun 2005 18:15:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbVFYWP2
+	id S261363AbVFYWSn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Jun 2005 18:18:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbVFYWSn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Jun 2005 18:15:28 -0400
-Received: from waste.org ([216.27.176.166]:4029 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261357AbVFYWPV (ORCPT
+	Sat, 25 Jun 2005 18:18:43 -0400
+Received: from trex.wsi.edu.pl ([195.117.114.133]:54999 "EHLO trex.wsi.edu.pl")
+	by vger.kernel.org with ESMTP id S261363AbVFYWSl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Jun 2005 18:15:21 -0400
-Date: Sat, 25 Jun 2005 15:15:16 -0700
-From: Matt Mackall <mpm@selenic.com>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] ndevfs - a "nano" devfs
-Message-ID: <20050625221516.GD14426@waste.org>
-References: <20050624081808.GA26174@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050624081808.GA26174@kroah.com>
-User-Agent: Mutt/1.5.9i
+	Sat, 25 Jun 2005 18:18:41 -0400
+Message-ID: <42BDBC6E.8080706@trex.wsi.edu.pl>
+Date: Sat, 25 Jun 2005 22:19:58 +0200
+From: =?UTF-8?B?TWljaGHFgiBQaW90cm93c2tp?= <piotrowskim@trex.wsi.edu.pl>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: pl, en-us, en
+MIME-Version: 1.0
+To: Christian Kujau <evil@g-house.de>, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] ORT - Oops Reporting Tool
+References: <42BBE593.9090407@trex.wsi.edu.pl> <42BC0DCD.8020206@g-house.de> <4d8e3fd3050624085929581341@mail.gmail.com> <42BDD3FC.8090706@g-house.de>
+In-Reply-To: <42BDD3FC.8090706@g-house.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 24, 2005 at 01:18:08AM -0700, Greg KH wrote:
-> Now I just know I'm going to regret this somehow...
-> 
-> Anyway, here's yet-another-ramfs-based filesystem, ndevfs.  It's a very
-> tiny:
-> $ size fs/ndevfs/inode.o 
->    text    data     bss     dec     hex filename
->    1571     200       8    1779     6f3 fs/ndevfs/inode.o
-> replacement for devfs for those embedded users who just can't live
-> without the damm thing.  It doesn't allow subdirectories, and only uses
-> LSB compliant names.  But it works, and should be enough for people to
-> use, if they just can't wean themselves off of the idea of an in-kernel
-> fs to provide device nodes.
-> 
-> Now, with this, is there still anyone out there who just can't live
-> without devfs in their kernel?
-> 
-> Damm, the depths I've sunk to these days, I'm such a people pleaser...
+Hi,
 
-Hmm. I'm not pleased. Perhaps you're pleasing the wrong people?
+Christian Kujau wrote:
 
-What we really need is a short HOWTO that covers:
+> Paolo Ciarrocchi wrote:
+>
+>>
+>> The commands that are requiring root capabilties are:
+>> lspci -vvv lsusb -v
+>
+>
+> i still dislike the idea being forced to be root, does the attached 
+> patch looks ok?
+>
+>
+Maybe something like that
 
-- Do you really need a dynamic /dev?
-- How to embed a static /dev in your embedded kernel with initramfs
-- How to add a dynamic /dev to your kernel with udev
+sudo lspci -vvv
+sudo lsusb -v
 
--- 
-Mathematics is the supreme nostalgia of our time.
+?
+
+Regards,
+Michał Piotrowski

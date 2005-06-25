@@ -1,78 +1,196 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263338AbVFYEw6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263340AbVFYFOB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263338AbVFYEw6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Jun 2005 00:52:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263339AbVFYEw5
+	id S263340AbVFYFOB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Jun 2005 01:14:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263341AbVFYFOB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Jun 2005 00:52:57 -0400
-Received: from 69-18-3-179.lisco.net ([69.18.3.179]:23558 "EHLO
-	ninja.slaphack.com") by vger.kernel.org with ESMTP id S263338AbVFYEtI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Jun 2005 00:49:08 -0400
-Message-ID: <42BCE23E.5060505@slaphack.com>
-Date: Fri, 24 Jun 2005 23:49:02 -0500
-From: David Masover <ninja@slaphack.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050325)
+	Sat, 25 Jun 2005 01:14:01 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:4039 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S263340AbVFYFNv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Jun 2005 01:13:51 -0400
+Message-ID: <42BCE80A.2010802@pobox.com>
+Date: Sat, 25 Jun 2005 01:13:46 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Hans Reiser <reiser@namesys.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: reiser4 plugins
-References: <200506231924.j5NJOvLA031008@laptop11.inf.utfsm.cl>	 <42BB31E9.50805@slaphack.com>	 <1119570225.18655.75.camel@localhost.localdomain>	 <42BB7B32.4010100@slaphack.com> <1119612849.17063.105.camel@localhost.localdomain> <42BCCC32.1090802@slaphack.com> <42BCCCED.3030705@pobox.com> <42BCDE06.8080309@namesys.com>
-In-Reply-To: <42BCDE06.8080309@namesys.com>
-X-Enigmail-Version: 0.89.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Kernel Hackers Guide to git (v3)
+Content-Type: multipart/mixed;
+ boundary="------------020809050601000305070204"
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+This is a multi-part message in MIME format.
+--------------020809050601000305070204
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hans Reiser wrote:
-[...]
-> David has used reiser4.  Have you?  Maybe you guys should try it.  Maybe
-> you should all have less faith in your ability to skim code and
-> understand it instantly.  Maybe you guys should actually read the
-> technical parts of this thread rather than the flame parts only?
+See attached.
 
-To be fair, I use it, but I haven't read much of it.  I mostly read the
-whitepaper, and then read it again, several times, to make sure I groked
-it.  Then I read the Future Vision paper, once, and completely failed to
-understand it.  Now that I understand Spotlight, I might go back to it.
+An HTML version is also available at http://linux.yyz.us/git-howto.html
 
-This is why I stay out of the deeply technical stuff, and frequently
-insist that I don't know what I'm doing and don't work here.
+	Jeff
 
-> Maybe our community's social traditions are a bit lacking?  Maybe saying
-> that everyone else goes through this just means that changing the way we
-> do things is needed even more?
 
-The social traditions aren't uniform.  In fact, if we're referring to
-all of open source, go hang out on irc.freenode.net#gentoo for a great
-community, whether or not you like the distro.  If you want developers,
-there's not too many RTFM's and "I was coding bytecode engines when you
-were in dipers" attitudes in #perl, either.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+--------------020809050601000305070204
+Content-Type: text/plain;
+ name="git-howto.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="git-howto.txt"
 
-iQIVAwUBQrziPXgHNmZLgCUhAQKJiA//aIvOMGjwvorsU8YhIhR9jpqITFzR16/y
-YeXef0o7vX5UC6ws/eP3EQbl46/NbT8mth0l3x0OgXIkTha3edCPMtNUBuJ/ISad
-nYY17mNPCr5NWzyh5aL7Cw1DYBIVrwQ8dcVg7VbmnbutPyTxKnFxugABExk9MASQ
-+1n1FVmKRRl4cjte3qERnFN9crPxkLnGWWT5UneGo9tnxKCqd3VBcJQ23PYHsskF
-dyYmh9/YJaPMskFRK9oQzw9TAM740rwZvOOrQGO84fQkYnrgjrVxis3O6JYbVYzP
-tiQNC7kSE2HQoMwFratL+tTj2mpx2+Akmhb/XT738tDSNvpSIBhy2eGqXU2p61MF
-sZiz0kNiSpW2e2kUGYiDKtey9o7bTlQJJ1KmzLtVKqOhPgMpRkyR8PG7X9Sz0P//
-zLaETf02VHt+1stN9xKum9zYI3Ba0aOt3fhA+1RqBSszV9JdTYVA8/zekGSTYezx
-neEGJGMkZCRISY2hWQTmHYNVG55ie3cxGgKQdYRxM7wO6AMQID1074UMIqE2aPn5
-qjGdtkLXtiLQ33gg7v5uAQeysyQxBZSEBI+uQSH3guXIjOX9XItMaqqygKNXB7ak
-zsZw8qguDVNHIAyPlHVBVHkCUEZ0hstdfYUU5gyMY+mLP0eq/HgSp5XEReX6RU0U
-3KSielBMshs=
-=ipn3
------END PGP SIGNATURE-----
+
+
+Kernel Hackers' Guide to git
+
+
+1) installing git
+
+git requires bootstrapping, since you must have git installed in order
+to check out git.git (git repo), and linux-2.6.git (kernel repo).  I
+have put together a bootstrap tarball of a recent git repository.
+
+Download tarball from:
+http://www.kernel.org/pub/linux/kernel/people/jgarzik/git-20050622.tar.bz2
+
+tarball build-deps:  zlib, libcurl, libcrypto (openssl)
+
+install tarball:  unpack && make && sudo make prefix=/usr/local install
+
+jgarzik helper scripts, not in official git distribution:
+http://www.kernel.org/pub/linux/kernel/people/jgarzik/git-new-branch
+http://www.kernel.org/pub/linux/kernel/people/jgarzik/git-changes-script
+
+After reading the rest of this document, come back and update your copy
+of git to the latest:
+rsync://rsync.kernel.org/pub/scm/linux/kernel/git/torvalds/git.git
+
+
+2) download a linux kernel tree for the very first time
+
+$ git clone \
+   rsync://rsync.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git \
+   linux-2.6
+$ cd linux-2.6
+$ rsync -a --delete --verbose --stats --progress \
+   rsync://rsync.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git/ \
+   .git/
+
+
+NOTE:  The kernel tree is very large.  This constitutes downloading
+several hundred megabytes of data.
+
+
+3) update local kernel tree to latest 2.6.x upstream ("fast-forward merge")
+
+$ cd linux-2.6
+$ git-pull-script \
+rsync://rsync.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
+
+
+4) check out files from the git repository into the working directory
+
+$ git checkout -f
+
+
+5) check in your own modifications (e.g. do some hacking, or apply a
+patch)
+
+# go to repo
+$ cd linux-2.6
+
+# make some modifications
+$ vi drivers/net/sk98lin/skdim.c
+
+# NOTE: add '--add' and/or '--remove' if files were added or removed
+$ git-update-cache <list of all files changed>
+
+# check in changes
+$ git commit
+
+
+6) List all changes in working dir, in diff format.
+
+$ git diff
+
+
+7) Obtain summary of all changes in working dir
+
+$ git status
+
+
+8) List all changesets (i.e. show each cset's description text) in local
+branch of local tree, that are not present in remote tree.
+
+$ cd my-kernel-tree-2.6
+$ git-changes-script -L ../linux-2.6 | less
+
+
+9) List all changesets:
+
+$ git log
+
+
+10) apply all patches in a Berkeley mbox-format file
+
+First, download and add to your PATH Linus's git tools:
+rsync://rsync.kernel.org/pub/scm/linux/kernel/git/torvalds/git-tools.git
+
+$ cd my-kernel-tree-2.6
+$ dotest /path/to/mbox  # yes, Linus has no taste in naming scripts
+
+
+11) don't forget to download tags from time to time.
+
+git-pull-script only downloads sha1-indexed object data, and the
+requested remote head.  This misses updates to the .git/refs/tags/ and
+.git/refs/heads directories.  It is advisable to update your kernel .git
+directories periodically with a full rsync command, to make sure you got
+everything:
+
+$ cd linux-2.6
+$ rsync -a --delete --verbose --stats --progress \
+   rsync://rsync.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git/ \
+   .git/
+
+
+12) list all branches
+
+$ ls .git/refs/heads/
+
+
+13) make desired branch current in working directory
+
+$ git checkout -f $branch
+
+
+14) create a new branch, and make it current
+
+$ cp .git/refs/heads/master .git/refs/heads/my-new-branch-name
+$ git checkout -f my-new-branch-name
+
+
+15) examine which branch is current
+
+$ ls -l .git/HEAD
+
+
+16) undo all local modifications (same as checkout):
+
+$ git checkout -f
+
+
+17) obtain a diff between current branch, and master branch
+
+In most trees WITH BRANCHES, .git/refs/heads/master contains the current
+'vanilla' upstream tree, for easy diffing and merging.  (in trees
+without branches, 'master' simply contains your latest changes)
+
+$ git diff master..HEAD
+
+
+--------------020809050601000305070204--

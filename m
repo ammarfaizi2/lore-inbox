@@ -1,57 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263364AbVFYHqu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263365AbVFYIbo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263364AbVFYHqu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Jun 2005 03:46:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263348AbVFYHqu
+	id S263365AbVFYIbo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Jun 2005 04:31:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263370AbVFYIbo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Jun 2005 03:46:50 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:50618 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S263364AbVFYHqg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Jun 2005 03:46:36 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [-mm patch] i386: enable REGPARM by default
-Date: Sat, 25 Jun 2005 10:46:22 +0300
-User-Agent: KMail/1.5.4
+	Sat, 25 Jun 2005 04:31:44 -0400
+Received: from oldconomy.demon.nl ([212.238.217.56]:21464 "EHLO
+	artemis.slagter.name") by vger.kernel.org with ESMTP
+	id S263365AbVFYIaG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Jun 2005 04:30:06 -0400
+Subject: Re: Promise ATA/133 Errors With 2.6.10+
+From: Erik Slagter <erik@slagter.name>
+To: Justin Piszcz <jpiszcz@lucidpixels.com>
 Cc: linux-kernel@vger.kernel.org
-References: <20050624200916.GJ6656@stusta.de>
-In-Reply-To: <20050624200916.GJ6656@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+In-Reply-To: <Pine.LNX.4.63.0506241653580.31140@p34>
+References: <Pine.LNX.4.63.0506241653580.31140@p34>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506251046.22944.vda@ilport.com.ua>
+Date: Sat, 25 Jun 2005 10:29:51 +0200
+Message-Id: <1119688191.4293.5.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-8) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 24 June 2005 23:09, Adrian Bunk wrote:
-> This patch should _not_ go into Linus' tree.
-> 
-> At some time in the future, we want to unconditionally enable REGPARM on 
-> i386.
-> 
-> Let's give it a bit broader testing coverage among -mm users.
-> 
-> This patch:
-> - removes the dependency of REGPARM on EXPERIMENTAL
-> - let REGPARM default to y
-> 
-> This patch assumes that people who use -mm are willing to test some more 
-> experimental features.
-> 
-> After this patch, REGPARM is still a config option users can disable.
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+On Fri, 2005-06-24 at 16:55 -0400, Justin Piszcz wrote:
 
-Jens Axboe had hit an obscure bug with regparm just yesterday.
-It happened for him with gcc 3.3.5.
+> Jun 24 15:24:18 localhost kernel: PDC202XX: Primary channel reset.
+> Jun 24 15:24:18 localhost kernel: hde: timeout waiting for DMA
+> Jun 24 15:24:18 localhost kernel: hde: status error: status=0x58 { 
+> DriveReady SeekComplete DataRequest }
+> Jun 24 15:24:18 localhost kernel:
+> Jun 24 15:24:18 localhost kernel: ide: failed opcode was: unknown
+> Jun 24 15:24:18 localhost kernel: hde: drive not ready for command
+> Jun 24 15:24:18 localhost kernel: hde: status timeout: status=0xd0 { Busy 
+> }
+> Jun 24 15:24:18 localhost kernel:
+> Jun 24 15:24:18 localhost kernel: ide: failed opcode was: unknown
+> Jun 24 15:24:18 localhost kernel: PDC202XX: Primary channel reset.
+> Jun 24 15:24:18 localhost kernel: hde: no DRQ after issuing MULTWRITE_EXT
+> Jun 24 15:24:18 localhost kernel: ide2: reset: success
 
-I have a preprocessed .c file which allows to reporduce this.
-For me, gcc 3.3.6 is okay. need to build 3.3.5 and test.
+I have exactly this (these messages) but then with a amd/via ata driver
+on tyan/amd motherboard with an IBM/Hitachi harddisk.
 
-Meanwhile, maybe we shall prohibit regparm if gcc <=3.3.6 or 3.4?
---
-vda
+It looks like the drive cpu locks up every now and then, notably when
+the environmental temperature and/or the drive's temperature are high
+and there is much activity on the drive.
 
+A reset (either from the driver or manually using hdparm) helps
+(temporarily).
+
+I was going to buy new drives for this fact (from another brand) but it
+looks that won't necessarily mean my problem will be solved :-(
+
+BTW I have another, exactly identical harddisk in the same computer
+(well, ok, 1 year younger) and that one doesn't show the problem. 
+
+BTW2 could it be that somewhere a timeout has been lowered in recent
+kernels? That must have been pre-2.6.11 then.

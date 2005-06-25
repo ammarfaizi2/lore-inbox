@@ -1,90 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263385AbVFYJwK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263386AbVFYJ5y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263385AbVFYJwK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Jun 2005 05:52:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263386AbVFYJwK
+	id S263386AbVFYJ5y (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Jun 2005 05:57:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263388AbVFYJ5y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Jun 2005 05:52:10 -0400
-Received: from rproxy.gmail.com ([64.233.170.202]:19721 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S263385AbVFYJv5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Jun 2005 05:51:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:openpgp:content-type;
-        b=GAIjS/dr4KdjIHDg1JY2GjmrENiUJBhbY0noOoMuCEWzlDPq5FGwYnbyWYn2gw2EwiPY2M33tKCkPtf3Vj/I6AAG/amIMZfhkgjnc9RVd701zwzgQE/PD8fcEM7sor0SbSy2yb0zKmzO4pVzIpcpkMuRWBEEDaEj/jopfKYigoE=
-Message-ID: <42BD293E.5080803@gmail.com>
-Date: Sat, 25 Jun 2005 15:21:58 +0530
-From: Toufeeq Hussain <toufeeqh@gmail.com>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel Hackers Guide to git (v3)
-References: <42BCE80A.2010802@pobox.com>
-In-Reply-To: <42BCE80A.2010802@pobox.com>
-X-Enigmail-Version: 0.91.0.0
-OpenPGP: id=218783B9
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigD23C04ADB4D6E83C3FEEFA78"
+	Sat, 25 Jun 2005 05:57:54 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:59405 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263386AbVFYJ5t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Jun 2005 05:57:49 -0400
+Date: Sat, 25 Jun 2005 10:57:44 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Chris Zankel <chris@zankel.net>,
+       David Howells <dhowells@redhat.com>
+Subject: Re: [PATCH] Add removal schedule of register_serial/unregister_serial to appropriate file
+Message-ID: <20050625105744.B16381@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>, Chris Zankel <chris@zankel.net>,
+	David Howells <dhowells@redhat.com>
+References: <20050623142335.A5564@flint.arm.linux.org.uk> <20050625104725.A16381@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050625104725.A16381@flint.arm.linux.org.uk>; from rmk+lkml@arm.linux.org.uk on Sat, Jun 25, 2005 at 10:47:25AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigD23C04ADB4D6E83C3FEEFA78
-Content-Type: multipart/mixed;
- boundary="------------000906080409090801090508"
-
-This is a multi-part message in MIME format.
---------------000906080409090801090508
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
-Jeff Garzik wrote:
-
-> 2) download a linux kernel tree for the very first time
+On Sat, Jun 25, 2005 at 10:47:25AM +0100, Russell King wrote:
+> On Thu, Jun 23, 2005 at 02:23:35PM +0100, Russell King wrote:
+> > +What:	register_serial/unregister_serial
+> > +When:	December 2005
+> > +Why:	This interface does not allow serial ports to be registered against
+> > +	a struct device, and as such does not allow correct power management
+> > +	of such ports.  8250-based ports should use serial8250_register_port
+> > +	and serial8250_unregister_port instead.
+> > +Who:	Russell King <rmk@arm.linux.org.uk>
 > 
-> $ git clone \
->    rsync://rsync.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git \
->    linux-2.6
+> Other places appear to have a prototype for these functions but do not
+> use them:
+> 
+> arch/xtensa/platform-iss/console.c:int register_serial(struct serial_struct*);
+> arch/xtensa/platform-iss/console.c:void unregister_serial(int);
+> drivers/char/amiserial.c:int register_serial(struct serial_struct *req);
+> drivers/char/amiserial.c:void unregister_serial(int line);
+> 
+> The patch which follows this message will remove these.
+> 
+> 
+> In terms of the use of these functions, this is the state of play as of
+> yesterday:
+> 
+> arch/frv/kernel/setup.c://      register_serial(&__frv_uart0);
+> arch/frv/kernel/setup.c://      register_serial(&__frv_uart1);
 
-Git "clone" command not found error with git-20050622.
+I've also removed this.  The following is mostly for comment only.
+I'm intending to commit this change by Monday at the latest.
 
--toufeeq
+[PATCH] Serial: remove unnecessary register_serial/unregister_serial
 
---------------000906080409090801090508
-Content-Type: text/x-vcard; charset=utf-8;
- name="toufeeqh.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="toufeeqh.vcf"
+A couple of drivers declare register_serial/unregister_serial
+prototypes but don't use them.  FRV contains a commented out
+call to register_serial.  Since these are deprecated, remove
+these unnecessary references.
 
-begin:vcard
-fn:Toufeeq Hussain
-n:Hussain;Toufeeq
-email;internet:toufeeqh@gmail.com
-tel;home:091-044-24832063
-tel;cell:091-9840196690
-x-mozilla-html:FALSE
-version:2.1
-end:vcard
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+
+Index: arch/frv/kernel/setup.c
+===================================================================
+--- 39040c7a05edd69381c0a25636a1a328d856cb9c/arch/frv/kernel/setup.c  (mode:100644)
++++ uncommitted/arch/frv/kernel/setup.c  (mode:100644)
+@@ -790,12 +790,10 @@
+ #ifndef CONFIG_GDBSTUB_UART0
+ 	__reg(UART0_BASE + UART_IER * 8) = 0;
+ 	early_serial_setup(&__frv_uart0);
+-//	register_serial(&__frv_uart0);
+ #endif
+ #ifndef CONFIG_GDBSTUB_UART1
+ 	__reg(UART1_BASE + UART_IER * 8) = 0;
+ 	early_serial_setup(&__frv_uart1);
+-//	register_serial(&__frv_uart1);
+ #endif
+ 
+ #if defined(CONFIG_CHR_DEV_FLASH) || defined(CONFIG_BLK_DEV_FLASH)
+Index: arch/xtensa/platform-iss/console.c
+===================================================================
+--- 39040c7a05edd69381c0a25636a1a328d856cb9c/arch/xtensa/platform-iss/console.c  (mode:100644)
++++ uncommitted/arch/xtensa/platform-iss/console.c  (mode:100644)
+@@ -198,9 +198,6 @@
+ }
+ 
+ 
+-int register_serial(struct serial_struct*);
+-void unregister_serial(int);
+-
+ static struct tty_operations serial_ops = {
+ 	.open = rs_open,
+ 	.close = rs_close,
+Index: drivers/char/amiserial.c
+===================================================================
+--- 39040c7a05edd69381c0a25636a1a328d856cb9c/drivers/char/amiserial.c  (mode:100644)
++++ uncommitted/drivers/char/amiserial.c  (mode:100644)
+@@ -1973,10 +1973,6 @@
+ }
+ 
+ 
+-int register_serial(struct serial_struct *req);
+-void unregister_serial(int line);
+-
+-
+ static struct tty_operations serial_ops = {
+ 	.open = rs_open,
+ 	.close = rs_close,
 
 
---------------000906080409090801090508--
-
---------------enigD23C04ADB4D6E83C3FEEFA78
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFCvSk//4Tq3iGHg7kRAgYJAJ4u+m2JqsqshFfUc6tzYSvyYV46IgCeI5Q6
-riJczzvJe+oZ/p3lqmF4PKM=
-=XRPX
------END PGP SIGNATURE-----
-
---------------enigD23C04ADB4D6E83C3FEEFA78--
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

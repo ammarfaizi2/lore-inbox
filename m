@@ -1,64 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261324AbVFYU4y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261337AbVFYVBn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261324AbVFYU4y (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Jun 2005 16:56:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261329AbVFYU4y
+	id S261337AbVFYVBn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Jun 2005 17:01:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261329AbVFYVBn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Jun 2005 16:56:54 -0400
-Received: from opersys.com ([64.40.108.71]:25862 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261324AbVFYU4v (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Jun 2005 16:56:51 -0400
-Message-ID: <42BDC7A9.7070906@opersys.com>
-Date: Sat, 25 Jun 2005 17:07:53 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
-MIME-Version: 1.0
-To: Sean Bruno <sean.bruno@dsl-only.net>
-CC: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "Hodle, Brian" <BHodle@harcroschem.com>
-Subject: Re: FW: PROBLEM: Devices behind PCI Express-to-PCI bridge not	mapped
-References: <D9A1161581BD7541BC59D143B4A06294021FAA68@KCDC1>	 <42BDB338.9030800@opersys.com>  <1119729766.9540.0.camel@oscar.metro1.com> <1119729942.9614.1.camel@oscar.metro1.com>
-In-Reply-To: <1119729942.9614.1.camel@oscar.metro1.com>
+	Sat, 25 Jun 2005 17:01:43 -0400
+Received: from smtpauth07.mail.atl.earthlink.net ([209.86.89.67]:20679 "EHLO
+	smtpauth07.mail.atl.earthlink.net") by vger.kernel.org with ESMTP
+	id S261337AbVFYVBM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Jun 2005 17:01:12 -0400
+Date: Sat, 25 Jun 2005 14:01:10 -0700
+From: Stefan Baums <baums@u.washington.edu>
+To: linux-kernel@vger.kernel.org
+Subject: ACPI and the idle loop - possible bug
+Message-ID: <20050625210110.GA7738@localhost.localdomain>
+Mail-Followup-To: Stefan Baums <baums@u.washington.edu>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
+X-ELNK-Trace: e038963e4549bfac9083c4ad5838e4354d2b10475b571120f96fe132b06acb9c8befb9d65759e416c6b317bf5bc479bb350badd9bab72f9c350badd9bab72f9c
+X-Originating-IP: 67.101.5.154
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Some Lenove (IBM) ThinkPad models (in my case the ThinkPad X41
+2528-6NU) produce irritating high-pitch crackling noises under
+Linux in certain conditions, see the discussion here:
 
-Sean Bruno wrote:
-> I got FC4 to install using the Silicon Image SATA controller and an IDE
-> CDROM.  I also inserted a PCI 10/100 card to get network support.  After
-> installing FC4(or any distro for that matter), edit your inittab before 
-> you reboot and set it to boot into run level 3.  Once you have rebooted,
-> you can run an update(via yum) to get the latest kernel and Xorg stuff.
-> This allowed me to boot the machine into level 5 and my video card did
-> function(NV 6200).
+   http://thinkwiki.org/wiki/Problem_with_high_pitch_noises
 
-I actually never had problems with the video working, it always did
-work. Given the information I have at hand, though, the video card
-I'm using is apparently conflicting with the secondary IDE.
+This noise only occurs when the processor is not busy (with, e.g.,
+compiling or video playback), so it seems to be related to the
+idle loop (see also below about 'idle=halt').  Furthermore, it
+seems to be caused by something that ACPI is doing to the
+processor: if the 'processor' module (and its dependants:
+'speedstep_centrino'/'acpi_cpufreq' and 'thermal') are not loaded,
+the high-pitch noise does not occur.
 
-> I am assuming that this is causing some kind of weirdness that disables
-> the use of the NV SATA, USB, Sound and the Broadcom ethernet device.
-> Any ideas what the "OUT OF SPEC" warning actually means?
+If the 'processor' module (and its dependants) _are_ loaded, then
+the noise can be initially avoided by passing the boot parameter
 
-Well I don't know whether this is what is causing the weirdness that's
-creating the ck804 problems, but I can confirm that I do get those exact
-same "OUT OF SPEC" messages when running dmidecode.
+   idle=halt
 
-Here's what google turns up:
-https://bugzilla.redhat.com/bugzilla/attachment.cgi?id=114778
+to the kernel (causing it to halt, not poll, the processor during
+idle loops), but this workaround _only_ works until either
 
-Looking at the dmidecode sources, it seems that it reports "OUT OF SPEC"
-for anything it doesn't recognize. There's not much more about it in the
-sources or the docs, from what I can see that is.
+   1) the system resumes from either suspend or hibernation, or
 
-Karim
+   2) the power state changes from battery to plugged-in or vice
+      versa.
+
+whereupon the high-pitch noise makes a return.
+
+Taken all together, it would appear that the ACPI system is doubly
+at fault:
+
+   - First, for causing the high-pitch noise to start with, though
+     it could be argued that this is a hardware defect that is
+     just triggered by ACPI.  (However not by Windows XP, on the
+     same computer, so it is definitely avoidable.)
+
+   - Second, for apparently not respecting the kernel boot
+     parameter "idle=halt" when it resumes or changes power state:
+     it seems like ACPI is reverting to idle polling on those
+     occasions.
+
+Do you agree with this analysis?  Is it clear what ACPI's root
+problem ('first' above) is, and will it be solved?  (Not loading
+the 'processor', 'speedstep_centrino'/'acpi_cpufreq' and 'thermal'
+modules - and losing their features - is not an acceptable
+solution.)
+
+As for the 'idle=halt' workaround: Is there any way to test
+whether a running kernel actually uses polling or halt for the
+idle loop?  What can I do to force ACPI never to use idle polling,
+but halt instead?
+
+My kernel version is Linux 2.6.12, custom-compiled on Ubuntu 5.04.
+I have enabled all the usual ACPI features as modules.  The noise
+problem occurs both with the 'speedstep_centrino' and the
+'acpi_cpufreq' modules.  If necessary for diagnosis, I can put up
+my kernel .config file online somewhere.
+
+Many thanks for your help,
+Stefan
+
+PS.  Setting the polling frequency to 100 Hz instead of 1000 Hz at
+compile time, as recommended by some people on the ThinkWiki page,
+did not have any effect on the noise problem on my computer.
+
 -- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+Stefan Baums
+Asian Languages and Literature
+University of Washington

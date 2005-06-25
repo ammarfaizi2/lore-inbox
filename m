@@ -1,32 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261206AbVFYR5i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261223AbVFYSI2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261206AbVFYR5i (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Jun 2005 13:57:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261223AbVFYR5g
+	id S261223AbVFYSI2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Jun 2005 14:08:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbVFYSI2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Jun 2005 13:57:36 -0400
-Received: from kiln.isn.net ([198.167.161.1]:6858 "EHLO kiln.isn.net")
-	by vger.kernel.org with ESMTP id S261206AbVFYRzI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Jun 2005 13:55:08 -0400
-Message-ID: <42BD9A67.3090303@isn.net>
-Date: Sat, 25 Jun 2005 12:54:47 -0500
-From: "Garst R. Reese" <garstr@isn.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050319
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: ATI Radeon xpress 200M
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 25 Jun 2005 14:08:28 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:6086 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261223AbVFYSI0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Jun 2005 14:08:26 -0400
+Subject: Re: 2.6.12-mm1 boot failure on NUMA box.
+From: Lee Revell <rlrevell@joe-job.com>
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Con Kolivas <kernel@kolivas.org>
+In-Reply-To: <44570000.1119681732@[10.10.2.4]>
+References: <20050621130344.05d62275.akpm@osdl.org>
+	 <51900000.1119622290@[10.10.2.4]> <20050624170112.GD6393@elte.hu>
+	 <320710000.1119632967@flay> <20050624195248.GA9663@elte.hu>
+	 <344410000.1119646572@flay> <20050625040052.GB4800@elte.hu>
+	 <44570000.1119681732@[10.10.2.4]>
+Content-Type: text/plain
+Date: Sat, 25 Jun 2005 14:08:25 -0400
+Message-Id: <1119722905.5762.15.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.3.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can any tell me if this grapics card is supported with the radeon 
-module, and which 2.6.xx kernel would be required? I'm trying to get it 
-running on a Compaq R4000, with no success.
+On Fri, 2005-06-24 at 23:42 -0700, Martin J. Bligh wrote:
+> > (btw., if the TSC is that unreliable on numaq boxes, shouldnt we disable 
+> > it for userspace apps too? Or are those hangs purely kernel bugs? In 
+> > which case it might make sense to debug those a bit more - large-scale 
+> > TSC unsyncedness is something that could slip in on other hardware too.)
+> 
+> Well it reads reliably. it just reliably reads utter random crap (well,
+> across CPUs). Not many things read tsc from userspace, and it won't hang
+> I guess .... depends what their expecations are. I do like gettimeofday
+> not to go backwards though - that tends to bugger things up ;-)
 
-pls cc me.
+The userspace apps that read the TSC know what they are doing, and have
+chosen to use the TSC because they need a cheap, fast timer rather than
+a correct one.  Please don't break it.
 
-Thanks,
-  Garst
+Lee
+

@@ -1,57 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbVFYWhY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261361AbVFYW4k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261375AbVFYWhY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Jun 2005 18:37:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261378AbVFYWhY
+	id S261361AbVFYW4k (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Jun 2005 18:56:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261272AbVFYW4k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Jun 2005 18:37:24 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:20372 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261375AbVFYWhS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Jun 2005 18:37:18 -0400
-Date: Sun, 26 Jun 2005 00:37:15 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Christoph Lameter <christoph@lameter.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, raybry@engr.sgi.com,
-       torvalds@osdl.org
-Subject: Re: [RFC] Fix SMP brokenness for PF_FREEZE and make freezing usable for other purposes
-Message-ID: <20050625223715.GA11438@atrey.karlin.mff.cuni.cz>
-References: <Pine.LNX.4.62.0506241316370.30503@graphe.net> <20050625025122.GC22393@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.62.0506242127040.3433@graphe.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0506242127040.3433@graphe.net>
-User-Agent: Mutt/1.5.6+20040907i
+	Sat, 25 Jun 2005 18:56:40 -0400
+Received: from web54501.mail.yahoo.com ([68.142.225.171]:62290 "HELO
+	web54501.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261378AbVFYWzq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Jun 2005 18:55:46 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.br;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=eoqz2CPLBmgUHK8XlRAxmXFpTcUsUJHHrRptWpL6x9qXhwNGgNPMnIGycEj5Bbs8Ucwx4LLUH/aCl1i+d4qgdguvcKyUosO6D5eIazW8PPIACY4++RiAUX/1P/bUodjm20JkMgRGe9v0qLTB/4cAJlLaD2NqJyndIDAk39iUXzE=  ;
+Message-ID: <20050625225546.54532.qmail@web54501.mail.yahoo.com>
+Date: Sat, 25 Jun 2005 19:55:46 -0300 (ART)
+From: Joilnen Leite <knl_joi@yahoo.com.br>
+Subject: early_cpu_init
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-> > > I only know that this boots correctly since I have no system that can do 
-> > > suspend. But Ray needs an effective means of process suspension for 
-> > > his process migration patches.
-> > 
-> > Any i386 or x86-64 machine can do suspend... It should be easy to get
-> > some notebook... [What kind of hardware are you working on normally?]
-> 
-> Umm... Sorry to be so negative but that has never worked for me on lots of 
-> laptops. Usually something with ACPI or some driver I guess... After 
-> awhile I gave up trying.
+Hi 
 
-You should be able to do acpi=off if it gives you a problem. Going
-with minimal drivers help, too...
+in the function:
+early_cpu_init we could to change to avoid initialize
+unecessary code ?
 
-> > Previous code had important property: try_to_freeze was optimized away
-> > in !CONFIG_PM case. Please keep that.
-> 
-> Obviously that will not work if we use try_to_freeze for 
-> non-power-management purposes. The code from kernel/power/process.c may 
-> have to be merged into some other kernel file. kernel/sched.c?
+arch/i386/cpu/common.c:536
+void __init early_cpu_init(void)
+{
+#ifdef CONFIG_MCYRIXIII         
+         cyrix_init_cpu();
+#elif defined CONFIG_MGODE6X1
+         nsc_init_cpu();
+#elif defined CONFIG_MK6 || defined CONFIG_MK7
+||defined CONFIG_MK8
+         amd_init_cpu();
+#elif defined CONFIG_CRUSOE || defined CONFIG_EFFICEON
+         transmeta_init_cpu();
+#elif defined OTHERS_THAT_I_DONT_KNOW
+         centaur_init_cpu();
+         rise_init_cpu();
+         nexgen_init_cpu();
+         umc_init_cpu();
+         early_cpu_detect();
+#else
+         intel_cpu_init();
 
-You want to use it for process migration, right? Not everyone wants
-either software or process migration... We may want to keep overhead
-low for embedded systems...
+just only a idea.
 
-								Pavel 
+thanks Joilnen
 
--- 
-Boycott Kodak -- for their patent abuse against Java.
+
+	
+	
+		
+_______________________________________________________ 
+Yahoo! Acesso Grátis - Internet rápida e grátis. 
+Instale o discador agora! http://br.acesso.yahoo.com/

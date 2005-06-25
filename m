@@ -1,114 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261269AbVFYPlu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261277AbVFYQB3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261269AbVFYPlu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Jun 2005 11:41:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261273AbVFYPlt
+	id S261277AbVFYQB3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Jun 2005 12:01:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261273AbVFYQB3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Jun 2005 11:41:49 -0400
-Received: from mail.linicks.net ([217.204.244.146]:22797 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S261269AbVFYPlo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Jun 2005 11:41:44 -0400
-From: Nick Warne <nick@linicks.net>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Allow number of IDE interfaces to be selected (X86)
-Date: Sat, 25 Jun 2005 16:41:40 +0100
-User-Agent: KMail/1.8.1
+	Sat, 25 Jun 2005 12:01:29 -0400
+Received: from dvhart.com ([64.146.134.43]:28850 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S261277AbVFYQBX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Jun 2005 12:01:23 -0400
+Date: Sat, 25 Jun 2005 09:01:18 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.6.12-git1 onwards: oops whilst reading /proc (scsi_is_host_device, adaptec)
+Message-ID: <51970000.1119715278@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200506251641.40922.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A small patch I done to allow X86 users to select the max number of IDE 
-interfaces they have - this eliminates the need for passing idex=noprobe on 
-the command line and/or stops the needless probes at boot on non-existant IDE 
-interfaces.
+I get lots of these whilst doing runs ... Doesn't happen in 2.6.12, but
+does in 2.6.12-git1 onwards.
 
-I have done this as I assume the majority of X86 users will only have 2 IDE 
-interfaces, and therefore it allows the option to specify this.
+http://ftp.kernel.org/pub/linux/kernel/people/mbligh/abat/6712/debug/console.log
 
-ALPHA and SUPERH users need to select this to continue as per the way it works 
-for them.
+Unable to handle kernel NULL pointer dereference at virtual address 00000124
+ printing eip:
+c02ef66c
+*pde = 0650e001
+*pte = 00000000
+Oops: 0000 [#2]
+SMP 
+CPU:    1
+EIP:    0060:[<c02ef66c>]    Not tainted VLI
+EFLAGS: 00010296   (2.6.12-git7-autokern1) 
+EIP is at scsi_is_host_device+0x4/0x18
+eax: 00000014   ebx: 00000014   ecx: 00000000   edx: d7506b80
+esi: 00000000   edi: d630c500   ebp: ca5c9ef4   esp: ca5c9dac
+ds: 007b   es: 007b   ss: 0068
+Process cp (pid: 9354, threadinfo=ca5c8000 task=d39d6540)
+Stack: c030f59b 00000014 00000000 ca5c9ef4 d7755200 0000000f 4130fa43 c030fb09 
+       d7755200 ca5c9ef4 00000007 00000041 00000000 00000000 ca5c9f68 00000c00 
+       d6ada000 ca5c9f64 37636961 3a393938 746c5520 36316172 69572030 43206564 
+Call Trace:
+ [<c030f59b>] ahc_dump_target_state+0xa3/0x10c
+ [<c030fb09>] ahc_linux_proc_info+0x199/0x1ca
+ [<c0141fb8>] do_anonymous_page+0x1f0/0x21c
+ [<c0141fd0>] do_anonymous_page+0x208/0x21c
+ [<c0142039>] do_no_page+0x55/0x3d8
+ [<c0136335>] prep_new_page+0x49/0x50
+ [<c01369c3>] buffered_rmqueue+0x153/0x1b4
+ [<c0136e6b>] __alloc_pages+0x3bb/0x3c8
+ [<c02f72bb>] proc_scsi_read+0x2b/0x44
+ [<c017dc58>] proc_file_read+0xec/0x200
+ [<c0150bf0>] vfs_read+0x90/0xec
+ [<c0150e7c>] sys_read+0x40/0x6c
+ [<c0102e49>] syscall_call+0x7/0xb
+Code: fd ff 83 c4 04 c3 90 68 40 8d 46 c0 e8 2a 30 fd ff 83 c4 04 c3 89 f6 68 40 8d 46 c0 e8 a6 30 fd ff 83 c4 04 c3 89 f6 8b 44 24 04 <81> b8 10 01 00 00 10 f1 2e c0 0f 94 c0 0f b6 c0 c3 8d 76 00 8b 
 
-For X86 people, not selecting this allows the kernel to use the defaults 'as 
-was'.
-
-
-By making a contribution to this project, I certify that:
-The contribution was created in whole or in part by me and
-I have the right to submit it under the open source license
-indicated in the file.
-
-Signed-off-by: Nick Warne<nick@linicks.net>
-
-
-
- drivers/ide/Kconfig    |   17 ++++++++++++++++-
- include/asm-i386/ide.h |    4 ++++
- 2 files changed, 20 insertions(+), 1 deletion(-)
-
-
---- linux-2.6.12n/include/asm-i386/ide.h        2005-06-17 20:48:29.000000000 
-+0100
-+++ linux-2.6.12/include/asm-i386/ide.h 2005-06-25 14:13:43.000000000 +0100
-@@ -16,11 +16,15 @@
- #include <linux/config.h>
-
- #ifndef MAX_HWIFS
-+#ifndef CONFIG_IDE_HWIFS_NUM
- # ifdef CONFIG_BLK_DEV_IDEPCI
- #define MAX_HWIFS      10
- # else
- #define MAX_HWIFS      6
- # endif
-+#else
-+#define MAX_HWIFS       CONFIG_IDE_MAX_HWIFS
-+#endif
- #endif
-
- #define IDE_ARCH_OBSOLETE_DEFAULTS
-
---- linux-2.6.12n/drivers/ide/Kconfig   2005-06-17 20:48:29.000000000 +0100
-+++ linux-2.6.12/drivers/ide/Kconfig    2005-06-25 14:11:17.000000000 +0100
-@@ -52,14 +52,29 @@
-
- if IDE
-
-+config IDE_HWIFS_NUM
-+        bool "Specify the number of IDE Interfaces"
-+       depends on (ALPHA || SUPERH || X86)
-+        default n
-+       help
-+
-+         ALPHA and SUPERH say 'y' here.
-+
-+         X86 say 'y' to this if you wish to specify the number of IDE
-+         interfaces on your system.  If unsure, say 'n' to use
-+         the kernel default options (6 or 10).
-+
- config IDE_MAX_HWIFS
-        int "Max IDE interfaces"
--       depends on ALPHA || SUPERH
-+       depends on IDE_HWIFS_NUM
-        default 4
-        help
-          This is the maximum number of IDE hardware interfaces that will
-          be supported by the driver. Make sure it is at least as high as
-          the number of IDE interfaces in your system.
-+
-+         On X86 architecture default is (6 or 10) IDE interfaces if this
-+         is not used (IDE_HWIFS_NUM = n)
-
- config BLK_DEV_IDE
-        tristate "Enhanced IDE/MFM/RLL disk/cdrom/tape/floppy support"
-
-
-
-Nick
--- 
-"When you're chewing on life's gristle,
-Don't grumble, Give a whistle..."

@@ -1,41 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263300AbVFYC4U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263306AbVFYDGU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263300AbVFYC4U (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 22:56:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263302AbVFYC4U
+	id S263306AbVFYDGU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 23:06:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263304AbVFYDGT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 22:56:20 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:717 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S263300AbVFYC4Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 22:56:16 -0400
-Date: Sat, 25 Jun 2005 04:56:13 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Shaohua Li <shaohua.li@intel.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
-Subject: Re: [PATCH] add suspend/resume for timer
-Message-ID: <20050625025613.GD22393@atrey.karlin.mff.cuni.cz>
-References: <1119496186.3325.1.camel@linux-hp.sh.intel.com>
+	Fri, 24 Jun 2005 23:06:19 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:51651 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263306AbVFYDGQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Jun 2005 23:06:16 -0400
+Date: Fri, 24 Jun 2005 23:05:53 -0400
+From: Bill Nottingham <notting@redhat.com>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, Patrick Mochel <mochel@digitalimplant.org>
+Subject: Re: [RFC] bind and unbind drivers from userspace through sysfs
+Message-ID: <20050625030553.GB7380@nostromo.devel.redhat.com>
+Mail-Followup-To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+	Patrick Mochel <mochel@digitalimplant.org>
+References: <20050624051229.GA24621@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1119496186.3325.1.camel@linux-hp.sh.intel.com>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20050624051229.GA24621@kroah.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Greg KH (greg@kroah.com) said: 
+> Even so, with these two patches, people should be able to do things that
+> they have been wanting to do for a while (like take over the what driver
+> to what device logic in userspace, as I know some distro installers
+> really want to do.)
 
-> The timers lack .suspend/.resume methods. Because of this, jiffies got a
-> big compensation after a S3 resume. And then softlockup watchdog reports
-> an oops. This occured with HPET enabled, but it's also possible for
-> other timers.
-> I know Linux will introduce a new timer core system, but it maybe take a
-> long time, so I send this patch to fix bugs at hand. If the new timer
-> system will be merged soon, please ignore this one.
+Playing devils advocate, with this, the process flow is:
 
-Patch looks good to me. Setting up timers as system devices was ugly,
-and this fixes it. Good.
-								Pavel
--- 
-Boycott Kodak -- for their patent abuse against Java.
+- kernel sees a new device
+- kernel sends hotplug event for bus with slot, address, vendor id, etc.
+- userspace loads a module based on that info
+  <some sort of synchronization here waiting for driver to initialize>
+- userspace echos to sysfs to bind device
+- kernel sends hotplug device event
+- userspace creates device node, then continues with device
+
+This looks:
+a) inefficient
+b) an awful lot like the PCMCIA model. Which... eww.
+
+Bill

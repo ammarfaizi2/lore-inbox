@@ -1,59 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263336AbVFYEnr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263337AbVFYEtF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263336AbVFYEnr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Jun 2005 00:43:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263337AbVFYEnq
+	id S263337AbVFYEtF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Jun 2005 00:49:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263338AbVFYEtF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Jun 2005 00:43:46 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:60614 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S263336AbVFYEnY (ORCPT
+	Sat, 25 Jun 2005 00:49:05 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:5300 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S263337AbVFYEtA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Jun 2005 00:43:24 -0400
-Message-ID: <42BCE0DD.5050608@pobox.com>
-Date: Sat, 25 Jun 2005 00:43:09 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Hans Reiser <reiser@namesys.com>
-CC: David Masover <ninja@slaphack.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: reiser4 plugins
-References: <200506231924.j5NJOvLA031008@laptop11.inf.utfsm.cl>	 <42BB31E9.50805@slaphack.com>	 <1119570225.18655.75.camel@localhost.localdomain>	 <42BB7B32.4010100@slaphack.com> <1119612849.17063.105.camel@localhost.localdomain> <42BCCC32.1090802@slaphack.com> <42BCCCED.3030705@pobox.com> <42BCDE06.8080309@namesys.com>
-In-Reply-To: <42BCDE06.8080309@namesys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Sat, 25 Jun 2005 00:49:00 -0400
+Date: Sat, 25 Jun 2005 06:47:57 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Gene Heskett <gene.heskett@verizon.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
+Message-ID: <20050625044757.GA14979@elte.hu>
+References: <20050608112801.GA31084@elte.hu> <200506212242.39113.gene.heskett@verizon.net> <20050622074054.GC16508@elte.hu> <200506220927.07874.gene.heskett@verizon.net> <20050625044129.GA12440@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050625044129.GA12440@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser wrote:
-> Jeff Garzik wrote:
+
+* Ingo Molnar <mingo@elte.hu> wrote:
+
 > 
+> * Gene Heskett <gene.heskett@verizon.net> wrote:
 > 
->>Then why not listen to authorities, all of whom are saying "it's not
->>ready yet"
+> > I can report that mode 4 is not at all well here.  I turned it on and 
+> > changed the extraversion, built it, and when it booted, it got to this 
+> > line and hung:
+> > 
+> > Checking to see if this processor honours the WP bit even in 
+> > supervisor mode... OK.
 > 
-> 
-> What exactly is not ready Jeff?  As I see it, this thread is 95%
-> posturing, and almost no technical reasons for not merging.  These
-> "authorities"seem perfectly content with echoing the words of someone
-> who skimmed the code and shot his mouth off without understanding it,
-> and now these "authorities" just echo him because they like him and
-> assume he must be right.
+> ok, could you try the patch below, ontop of whatever tree hung for you?
 
-I've already listed two rather large technical reasons.
+also included in -V0.7.50-19 and later patches.
 
-When a vendor submits code, they know their [hardware | filesystem] 
-best, but Linux kernel developers know the kernel code and kernel 
-direction best.
-
-There needs to be a meeting of the minds.  Vendors that stick to "I know 
-best" line of reasoning don't get very far in Linux.
-
-	Jeff
-
-
-
+	Ingo

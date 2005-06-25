@@ -1,42 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261338AbVFYVzi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261356AbVFYWBF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261338AbVFYVzi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Jun 2005 17:55:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261356AbVFYVzi
+	id S261356AbVFYWBF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Jun 2005 18:01:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261357AbVFYWBF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Jun 2005 17:55:38 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:61394 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261338AbVFYVyf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Jun 2005 17:54:35 -0400
-Subject: Re: 2.6.12-mm1 boot failure on NUMA box.
-From: Lee Revell <rlrevell@joe-job.com>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Con Kolivas <kernel@kolivas.org>
-In-Reply-To: <55020000.1119733402@[10.10.2.4]>
-References: <20050621130344.05d62275.akpm@osdl.org>
-	 <51900000.1119622290@[10.10.2.4]> <20050624170112.GD6393@elte.hu>
-	 <320710000.1119632967@flay> <20050624195248.GA9663@elte.hu>
-	 <344410000.1119646572@flay> <20050625040052.GB4800@elte.hu>
-	 <44570000.1119681732@[10.10.2.4]> <1119722905.5762.15.camel@mindpipe>
-	 <55020000.1119733402@[10.10.2.4]>
-Content-Type: text/plain
-Date: Sat, 25 Jun 2005 17:54:33 -0400
-Message-Id: <1119736473.15994.8.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.3.1 
-Content-Transfer-Encoding: 7bit
+	Sat, 25 Jun 2005 18:01:05 -0400
+Received: from ns1.g-housing.de ([62.75.136.201]:27113 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S261356AbVFYWA5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Jun 2005 18:00:57 -0400
+Message-ID: <42BDD3FC.8090706@g-house.de>
+Date: Sun, 26 Jun 2005 00:00:28 +0200
+From: Christian Kujau <evil@g-house.de>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: =?UTF-8?B?TWljaGHFgiBQaW90cm93c2tp?= <piotrowskim@trex.wsi.edu.pl>
+CC: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] ORT - Oops Reporting Tool
+References: <42BBE593.9090407@trex.wsi.edu.pl> <42BC0DCD.8020206@g-house.de> <4d8e3fd3050624085929581341@mail.gmail.com>
+In-Reply-To: <4d8e3fd3050624085929581341@mail.gmail.com>
+Content-Type: multipart/mixed;
+ boundary="------------030807040705060702030803"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-06-25 at 14:03 -0700, Martin J. Bligh wrote:
-> I have no intent, nor method, of doing so. rdtsc is a direct instruction,
-> without intervention, as I understand it.
+This is a multi-part message in MIME format.
+--------------030807040705060702030803
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I thought so too, but it turns out the CPU lets you disable it at boot.
-This was suggested as a possible fix for the alleged hyperthreading
-vulnerability.
+Paolo Ciarrocchi wrote:
+> 
+> The commands that are requiring root capabilties are:
+> lspci -vvv 
+> lsusb -v
 
-Lee
+i still dislike the idea being forced to be root, does the attached patch 
+looks ok?
 
+thank you,
+Christian.
+
+-- 
+BOFH excuse #211:
+
+Lightning strikes.
+
+--------------030807040705060702030803
+Content-Type: text/plain;
+ name="ort-b1.diff"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="ort-b1.diff"
+
+LS0tIG9ydC9vcnQuc2gub3JpZwkyMDA1LTA2LTI1IDIzOjQyOjIyLjAwMDAwMDAwMCArMDIw
+MAorKysgb3J0L29ydC5zaAkyMDA1LTA2LTI1IDIzOjU0OjMyLjAwMDAwMDAwMCArMDIwMApA
+QCAtMzQsNyArMzQsNiBAQCBFTV9DTEk9bXV0dAogCiBoZWxwKCkgewogICAgIGVjaG8gIlVz
+YWdlOiBbcm9vdEBteWxpbnV4Ym94IH5dJCAuL29ydC5zaCBvb3BzLnR4dCIKLSAgICBlY2hv
+ICJZb3UgbmVlZCB0byBiZSByb290IFt1aWQ9MF0gdG8gcnVuIHRoZSBzY3JpcHQiCiAgICAg
+ZXhpdCAxCiB9CiAKQEAgLTUzLDcgKzUyLDEyIEBAIGNtZF9saW5lKCkgewogY2hlY2tfdWlk
+KCkgewogICAgIGlmIFsgJFVJRCAhPSAiMCIgXQogCXRoZW4KLQkgICAgaGVscAorCSAgICBl
+Y2hvIC1uICJZb3Ugc2hvdWxkIGJlIHJvb3QgW3VpZD0wXSB0byBydW4gdGhlIHNjcmlwdCwg
+Y29udGludWU/IFt5LG5dICAiCisJICAgIHJlYWQgYworCSAgICBpZiBbICIkYyIgIT0gInki
+IF07IHRoZW4KKwkJZWNobyAiQWJvcnRlZC4iCisJCWV4aXQgMQorCSAgICBmaQogICAgIGZp
+CiB9CiAKQEAgLTI3NCw3ICsyNzgsNyBAQCBwb2ludF83XzQoKSB7CiAKIHBvaW50XzdfNSgp
+IHsKICAgICBlY2hvIC1lICJcbls3LjUuXSBQQ0kgaW5mb3JtYXRpb24iID4+ICRPUlRfRgot
+ICAgIGxzcGNpIC12dnYgPj4gJE9SVF9GCisgICAgZW52IFBBVEg9L2JpbjovdXNyL2Jpbjov
+c2JpbjovdXNyL3NiaW4gbHNwY2kgLXZ2diA+PiAkT1JUX0YKIH0KIAogcG9pbnRfN182KCkg
+ewpAQCAtMjg2LDcgKzI5MCw3IEBAIHBvaW50XzdfNigpIHsKIAogcG9pbnRfN183KCkgewog
+ICAgIGVjaG8gLWUgIlxuWzcuNy5dIFVTQiBpbmZvcm1hdGlvbiIgPj4gJE9SVF9GCi0gICAg
+bHN1c2IgLXYgPj4gJE9SVF9GCisgICAgZW52IFBBVEg9L2JpbjovdXNyL2Jpbjovc2Jpbjov
+dXNyL3NiaW4gbHN1c2IgLXYgPj4gJE9SVF9GCiB9CiAKIHBvaW50XzdfOCgpIHsK
+--------------030807040705060702030803--

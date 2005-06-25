@@ -1,59 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263335AbVFYEm7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263336AbVFYEnr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263335AbVFYEm7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Jun 2005 00:42:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263336AbVFYEm7
+	id S263336AbVFYEnr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Jun 2005 00:43:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263337AbVFYEnq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Jun 2005 00:42:59 -0400
-Received: from smtp113.sbc.mail.mud.yahoo.com ([68.142.198.212]:60022 "HELO
-	smtp113.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S263335AbVFYEmw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Jun 2005 00:42:52 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] bind and unbind drivers from userspace through sysfs
-Date: Fri, 24 Jun 2005 23:22:57 -0500
-User-Agent: KMail/1.8.1
-Cc: Greg KH <greg@kroah.com>, Patrick Mochel <mochel@digitalimplant.org>
-References: <20050624051229.GA24621@kroah.com>
-In-Reply-To: <20050624051229.GA24621@kroah.com>
+	Sat, 25 Jun 2005 00:43:46 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:60614 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S263336AbVFYEnY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Jun 2005 00:43:24 -0400
+Message-ID: <42BCE0DD.5050608@pobox.com>
+Date: Sat, 25 Jun 2005 00:43:09 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Hans Reiser <reiser@namesys.com>
+CC: David Masover <ninja@slaphack.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: reiser4 plugins
+References: <200506231924.j5NJOvLA031008@laptop11.inf.utfsm.cl>	 <42BB31E9.50805@slaphack.com>	 <1119570225.18655.75.camel@localhost.localdomain>	 <42BB7B32.4010100@slaphack.com> <1119612849.17063.105.camel@localhost.localdomain> <42BCCC32.1090802@slaphack.com> <42BCCCED.3030705@pobox.com> <42BCDE06.8080309@namesys.com>
+In-Reply-To: <42BCDE06.8080309@namesys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506242322.57535.dtor_core@ameritech.net>
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 24 June 2005 00:12, Greg KH wrote:
-> Now that we have the internal infrastructure of the driver model
-> reworked so the locks aren't so global and imposing, it's possible to
-> bind and unbind drivers from devices from userspace with only a very
-> tiny ammount of code.
+Hans Reiser wrote:
+> Jeff Garzik wrote:
 > 
-> In reply to this email, are two patches, one that adds bind and one that
-> adds unbind functionality.  I've added these to my trees and should show
-> up in the next -mm releases.  Comments appreciated.
 > 
-> Oh, and yes, we still need a way to add new device ids to drivers from
-> sysfs, like PCI currently has.  I'll be working on that next.
->
-
-I think this is an overkill if you can do manual bind/unbind.
-
-> Even so, with these two patches, people should be able to do things that
-> they have been wanting to do for a while (like take over the what driver
-> to what device logic in userspace, as I know some distro installers
-> really want to do.)
+>>Then why not listen to authorities, all of whom are saying "it's not
+>>ready yet"
 > 
+> 
+> What exactly is not ready Jeff?  As I see it, this thread is 95%
+> posturing, and almost no technical reasons for not merging.  These
+> "authorities"seem perfectly content with echoing the words of someone
+> who skimmed the code and shot his mouth off without understanding it,
+> and now these "authorities" just echo him because they like him and
+> assume he must be right.
 
-I think bind/unbind should be bus's methods and attributes should be
-created only if bus supports such operations. Some buses either have
-or may need additional locking considerations and will not particularly
-like driver core getting in the middle of things.
+I've already listed two rather large technical reasons.
 
-Btw, do we really need separate attributes for bind/unbind?
+When a vendor submits code, they know their [hardware | filesystem] 
+best, but Linux kernel developers know the kernel code and kernel 
+direction best.
 
--- 
-Dmitry
+There needs to be a meeting of the minds.  Vendors that stick to "I know 
+best" line of reasoning don't get very far in Linux.
+
+	Jeff
+
+
+

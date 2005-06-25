@@ -1,26 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263370AbVFYJKS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263077AbVFYJMn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263370AbVFYJKS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Jun 2005 05:10:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263371AbVFYJKS
+	id S263077AbVFYJMn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Jun 2005 05:12:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263368AbVFYJMn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Jun 2005 05:10:18 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:13984 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S263370AbVFYJKN (ORCPT
+	Sat, 25 Jun 2005 05:12:43 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:19104 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S263077AbVFYJMj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Jun 2005 05:10:13 -0400
-Date: Sat, 25 Jun 2005 11:09:41 +0200
+	Sat, 25 Jun 2005 05:12:39 -0400
+Date: Sat, 25 Jun 2005 11:12:15 +0200
 From: Ingo Molnar <mingo@elte.hu>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Con Kolivas <kernel@kolivas.org>
-Subject: Re: 2.6.12-mm1 boot failure on NUMA box.
-Message-ID: <20050625090941.GB27073@elte.hu>
-References: <20050621130344.05d62275.akpm@osdl.org> <51900000.1119622290@[10.10.2.4]> <20050624170112.GD6393@elte.hu> <320710000.1119632967@flay> <20050624195248.GA9663@elte.hu> <344410000.1119646572@flay> <20050625040052.GB4800@elte.hu> <44570000.1119681732@[10.10.2.4]>
+To: Gene Heskett <gene.heskett@verizon.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
+Message-ID: <20050625091215.GC27073@elte.hu>
+References: <20050608112801.GA31084@elte.hu> <20050625044757.GA14979@elte.hu> <200506250139.59620.gene.heskett@verizon.net> <200506250326.14998.gene.heskett@verizon.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44570000.1119681732@[10.10.2.4]>
+In-Reply-To: <200506250326.14998.gene.heskett@verizon.net>
 User-Agent: Mutt/1.4.2.1i
 X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
 X-ELTE-VirusStatus: clean
@@ -33,25 +32,18 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Martin J. Bligh <mbligh@mbligh.org> wrote:
+* Gene Heskett <gene.heskett@verizon.net> wrote:
 
-> > (btw., if the TSC is that unreliable on numaq boxes, shouldnt we disable 
-> > it for userspace apps too? Or are those hangs purely kernel bugs? In 
-> > which case it might make sense to debug those a bit more - large-scale 
-> > TSC unsyncedness is something that could slip in on other hardware too.)
-> 
-> Well it reads reliably. it just reliably reads utter random crap 
-> (well, across CPUs). Not many things read tsc from userspace, and it 
-> won't hang I guess .... depends what their expecations are. I do like 
-> gettimeofday not to go backwards though - that tends to bugger things 
-> up ;-)
+> It seems the transmitter only needed a goodnight kiss, so I came back 
+> & built it.  So far running good, 5 minute uptime, looks good.  More 
+> reports if I find any gotcha's :) Seemed to boot marginally faster 
+> too, but no stopwatch timeings were done.
 
-the patch only adds the TSC back for purposes of sched_clock() (whose 
-call sites are robust against cross-CPU migration) - gettimeofday() is 
-still using the PIT or HPET.
+great. To make sure, these earlier boot failures are gone:
 
-but i intended this to be an problem-free change - if it causes any 
-problems i'll switch the code to use gettimeofday() and not the 
-[thus-]lower-accuracy sched_clock().
+> I just tried to build & boot 50-17 in mode=3, no hardirq's and got the 
+> same boot failure as mode 4 for 50-06 gave:
+
+right?
 
 	Ingo

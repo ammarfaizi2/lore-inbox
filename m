@@ -1,63 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261245AbVFYQqd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261250AbVFYQtN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261245AbVFYQqd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Jun 2005 12:46:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbVFYQqd
+	id S261250AbVFYQtN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Jun 2005 12:49:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261306AbVFYQtN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Jun 2005 12:46:33 -0400
-Received: from customer-200-33-143-226.uninet.net.mx ([200.33.143.226]:28421
-	"EHLO canela.sanfelipe.com.mx") by vger.kernel.org with ESMTP
-	id S261245AbVFYQou (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Jun 2005 12:44:50 -0400
-Subject: Re: reiser4 plugins
-From: "Bob R. Taylor" <brtaylor@sanfelipe.com.mx>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <42BCF68F.5030705@namesys.com>
-References: <200506231924.j5NJOvLA031008@laptop11.inf.utfsm.cl>
-	 <42BB31E9.50805@slaphack.com>
-	 <1119570225.18655.75.camel@localhost.localdomain>
-	 <42BB7B32.4010100@slaphack.com>
-	 <1119612849.17063.105.camel@localhost.localdomain>
-	 <42BCCC32.1090802@slaphack.com> <42BCCCED.3030705@pobox.com>
-	 <42BCDE06.8080309@namesys.com> <42BCE23E.5060505@slaphack.com>
-	 <42BCF68F.5030705@namesys.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1119684829.3913.25.camel@ann.qtpi.local>
+	Sat, 25 Jun 2005 12:49:13 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:20972 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S261250AbVFYQtK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Jun 2005 12:49:10 -0400
+Subject: Re: -mm -> 2.6.13 merge status
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: Jens Axboe <axboe@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, Jeff Mahoney <jeffm@suse.de>,
+       penberg@gmail.com, reiser@namesys.com, ak@suse.de, flx@namesys.com,
+       zam@namesys.com, vs@thebsh.namesys.com, linux-kernel@vger.kernel.org,
+       reiserfs-list@namesys.com
+In-Reply-To: <20050623193247.GC6814@suse.de>
+References: <20050620235458.5b437274.akpm@osdl.org.suse.lists.linux.kernel>
+	 <p73d5qgc67h.fsf@verdi.suse.de> <42B86027.3090001@namesys.com>
+	 <20050621195642.GD14251@wotan.suse.de> <42B8C0FF.2010800@namesys.com>
+	 <84144f0205062223226d560e41@mail.gmail.com> <42BB0151.3030904@suse.de>
+	 <20050623114318.5ae13514.akpm@osdl.org>  <20050623193247.GC6814@suse.de>
+Date: Sat, 25 Jun 2005 19:46:07 +0300
+Message-Id: <1119717967.9392.2.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sat, 25 Jun 2005 00:33:49 -0700
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.2.1.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-06-24 at 23:15, Hans Reiser wrote:
+Hi,
 
-> I would develop for BSD instead if they were anywhere near Linux in
-> marketshare.  These attitudes, when the BSD guys had them, were why I
-> chose Linux over BSD to develop for.  Now Linux has the market share,
-> and they act like the old BSD guys used to.   Sad.  Somebody else will
-> come along and challenge Linux someday.   I wonder if Apple is a better
-> social environment for developers these days than Linux?  It would be
-> fun to work with Steve Jobs, he has such a sense of vision and a delight
-> in new things.  He hires good people too; Dominic Giampaolo is really
-> sharp. 
+On Thu, 2005-06-23 at 21:32 +0200, Jens Axboe wrote:
+> then it's impossible to know which one it is without the identical
+> source at hand.
 
-I hate to jump in here but this is just too much!
+In which case, debugging is risky IMO (the source code could have
+changed a lot).
 
-Hans, I remember well the bellyaching you did when you insisted on the
-Linux developers merging Reiserfs V1 into the kernel. Did you not learn
-from *that* experience? You have taken *some* criticism here which may
-*not* have been flames at you until you flamed *first*. You have been
-told by at least 2 developers here what you must do *first* before
-consideration of merging V4. As of this writing YOU HAVE NOT ANSWERED!
-You obviously have not even read all articles posted here. When Jeff
-Garzik said "I've already listed two rather large technical reasons."
-You answered "They are?". You just continue your insane bickering, now
-followed by picking up your marbles and leaving. Grow up.
+On Thu, 2005-06-23 at 21:32 +0200, Jens Axboe wrote:
+> That said, I don't like the reiser name-number style. If you must do
+> something like this, mark responsibility by using a named identifier
+> covering the layer in question instead.
+> 
+>         assert("trace_hash-89", is_hashed(foo) != 0);
 
-BTW, I could care less whether V4 gets merged or not as I am *not* a
-developer.
+A human readable message would be nicer. For example, "foo was hashed".
 
-Bob
--- 
-Bob R. Taylor <brtaylor@sanfelipe.com.mx>
+		Pekka
+

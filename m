@@ -1,53 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263376AbVFYOqm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263398AbVFYOr5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263376AbVFYOqm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Jun 2005 10:46:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263397AbVFYOql
+	id S263398AbVFYOr5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Jun 2005 10:47:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263397AbVFYOr5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Jun 2005 10:46:41 -0400
-Received: from wproxy.gmail.com ([64.233.184.199]:14279 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S263376AbVFYOpM convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Jun 2005 10:45:12 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=REqy+TBAobkmyXokgSsvWwsBZ08LTqO9EMCWQptXCPn6lha4GiJDSl3C8GTCmWX0oi4BqCUTOSKmMcylXTMYpSdxRLsXmBQWtsDko3pbAnhE7gocw99tU93+SmKs+ibuAdjf3OueSenlAifMkxwHp9FPE33RsGbrBJ0sM/nxlig=
-Date: Sat, 25 Jun 2005 16:45:02 +0200
-From: Diego Calleja <diegocg@gmail.com>
-To: Hans Reiser <reiser@namesys.com>
-Cc: jgarzik@pobox.com, ninja@slaphack.com, alan@lxorguk.ukuu.org.uk,
-       hch@infradead.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       reiserfs-list@namesys.com
-Subject: Re: reiser4 plugins
-Message-Id: <20050625164502.7c9745b5.diegocg@gmail.com>
-In-Reply-To: <42BCDE06.8080309@namesys.com>
-References: <200506231924.j5NJOvLA031008@laptop11.inf.utfsm.cl>
-	<42BB31E9.50805@slaphack.com>
-	<1119570225.18655.75.camel@localhost.localdomain>
-	<42BB7B32.4010100@slaphack.com>
-	<1119612849.17063.105.camel@localhost.localdomain>
-	<42BCCC32.1090802@slaphack.com>
-	<42BCCCED.3030705@pobox.com>
-	<42BCDE06.8080309@namesys.com>
-X-Mailer: Sylpheed version 2.0.0beta3 (GTK+ 2.6.4; i686-pc-linux-gnu)
+	Sat, 25 Jun 2005 10:47:57 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:64748 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S263398AbVFYOrn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Jun 2005 10:47:43 -0400
+Date: Sat, 25 Jun 2005 16:47:36 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Paul Sladen <thinkpad@paul.sladen.org>
+Cc: linux-thinkpad@linux-thinkpad.org, Eric Piel <Eric.Piel@tremplin-utc.net>,
+       abonilla@linuxwireless.org, "'Vojtech Pavlik'" <vojtech@suse.cz>,
+       borislav@users.sourceforge.net,
+       "'Yani Ioannou'" <yani.ioannou@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: [ltp] IBM HDAPS Someone interested? (Accelerometer)
+Message-ID: <20050625144736.GB7496@atrey.karlin.mff.cuni.cz>
+References: <1119559367.20628.5.camel@mindpipe> <Pine.LNX.4.21.0506250712140.10376-100000@starsky.19inch.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0506250712140.10376-100000@starsky.19inch.net>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Fri, 24 Jun 2005 21:31:02 -0700,
-Hans Reiser <reiser@namesys.com> escribió:
+Hi!
 
 
-> What exactly is not ready Jeff?  As I see it, this thread is 95%
-> posturing, and almost no technical reasons for not merging.  These
-> "authorities"seem perfectly content with echoing the words of someone
-> who skimmed the code and shot his mouth off without understanding it,
-> and now these "authorities" just echo him because they like him and
-> assume he must be right.
+> > Yup, it's just doing port IO.  Get a kernel debugger for windows like
+> > softice and this will be trivial to RE.
+> > READ_PORT_USHORT / WRITE_PORT_UCHAR / READ_PORT_UCHAR
+> 
+> There are 3 ports involved.  The 0xed "non-existant delay port" and a pair
+> of ports that are through the Super-I/O / IDE.  They are used in a
+> index+value setup similar to reading/writing the AT keyboard
+> > controller.
 
+I think you got it... 2ports seem like enough for some kind of small
+u-controller...
 
-I'm not one of those "authorities" but I doubt reiser4 will be merged at all
-with that attitude.
+> >From what I remember, my conclusion was that these instructions were the
+> ones to park the heads and then lock the IDE bus.  It's a couple of months
+> ago, but somewhere I have the simplified version of what it was doing...
+
+Don't think so... parking heads will go through IDE layer...
+								Pavel
+
+-- 
+Boycott Kodak -- for their patent abuse against Java.

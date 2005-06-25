@@ -1,63 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263329AbVFYEQy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261416AbVFYEQn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263329AbVFYEQy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Jun 2005 00:16:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263328AbVFYEQx
+	id S261416AbVFYEQn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Jun 2005 00:16:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263331AbVFYEQn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Jun 2005 00:16:53 -0400
-Received: from smtp114.sbc.mail.re2.yahoo.com ([68.142.229.91]:30598 "HELO
-	smtp114.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S263329AbVFYEQR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Jun 2005 00:16:17 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] driver core: Add the ability to unbind drivers to devices from userspace
-Date: Fri, 24 Jun 2005 23:16:10 -0500
-User-Agent: KMail/1.8.1
-Cc: Greg KH <greg@kroah.com>, Patrick Mochel <mochel@digitalimplant.org>
-References: <20050624051229.GA24621@kroah.com> <Pine.LNX.4.50.0506240855460.24799-100000@monsoon.he.net> <20050625032715.GB3934@kroah.com>
-In-Reply-To: <20050625032715.GB3934@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 25 Jun 2005 00:16:43 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:62642 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261416AbVFYEPM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Jun 2005 00:15:12 -0400
+Date: Sat, 25 Jun 2005 06:14:53 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: William Weston <weston@sysex.net>
+Cc: "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
+       "Eugeny S. Mints" <emints@ru.mvista.com>,
+       Daniel Walker <dwalker@mvista.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
+Message-ID: <20050625041453.GC6981@elte.hu>
+References: <Pine.LNX.4.58.0506211228210.16701@echo.lysdexia.org> <20050622082450.GA19957@elte.hu> <Pine.LNX.4.58.0506221434170.22191@echo.lysdexia.org> <20050622220007.GA28258@elte.hu> <Pine.LNX.4.58.0506221558260.22649@echo.lysdexia.org> <20050623001023.GC11486@elte.hu> <Pine.LNX.4.58.0506231330450.27096@echo.lysdexia.org> <Pine.LNX.4.58.0506231755020.27757@echo.lysdexia.org> <20050624070639.GB5941@elte.hu> <Pine.LNX.4.58.0506241510040.32173@echo.lysdexia.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200506242316.10958.dtor_core@ameritech.net>
+In-Reply-To: <Pine.LNX.4.58.0506241510040.32173@echo.lysdexia.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 24 June 2005 22:27, Greg KH wrote:
-> On Fri, Jun 24, 2005 at 08:57:15AM -0700, Patrick Mochel wrote:
-> > 
-> > On Thu, 23 Jun 2005, Greg KH wrote:
-> > 
-> > > This adds a single file, "unbind", to the sysfs directory of every
-> > > device that is currently bound to a driver.  To unbind the driver from
-> > > the device, write anything to this file and they will be disconnected
-> > > from each other.
-> > 
-> > Do you think it would be better to put the 'unbind' file in the driver's
-> > directory and have it accept the bus ID of a device that it's bound to?
-> > This would make it more similar to the complementary 'bind' functionality.
->
 
-It is more complex this way. You need to do additional parsing...
- 
-> Yeah, you are right, I'll make that change.  Heh, symmetry, what a
-> concept...
->
+* William Weston <weston@sysex.net> wrote:
 
-Actually, I think that both should be in device's directory. When unbinding
-a device you normally don't care what driver it is bound to, you just want
-to make sure that there is no driver bound to the device afterwards. I.e it
-is a operation on device. When binding you could argue both ways, but then
-again you usually have a piece of hardware you want to assign specific driver
-for, so I'd say it is operation on device as well.
+> On Fri, 24 Jun 2005, Ingo Molnar wrote:
+> 
+> > do you have the NMI watchdog enabled? Find below 
+> > serial-logging-earlyprintk-nmi.txt.
+> 
+> I had a serial console up, but not NMI watchdog until now.  Here's 
+> some NMI watchdog traces from both -50-17 and -50-18:
 
-Also, some buses may implement other similar operatons, like rescan and
-reconnect (serio/gameport buses). They are similar to "bind" except that
-you do not specify driver at all. If bind/unbind is in the driver and
-connect/reconnect are in the device's directory it will be complete mess.  
- 
--- 
-Dmitry
+all of these traces seem to have lockupcli involved - is that correct?  
+lockupcli is just a userspace test-app to artificially trigger a 
+hard-lockup (it disables interrupts and goes into an infinite loop). So 
+the NMI watchdog triggering on lockupcli would be normal and expected.  
+So once this works, it would be nice to reproduce whatever hard lockup 
+you are seeing and see whether the NMI watchdog produces any output to 
+the serial log. (if such log is supposed to be included in your dmesg 
+then it somehow got intermixed with lockupcli logs)
+
+	Ingo

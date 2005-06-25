@@ -1,78 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261378AbVFYXnd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261222AbVFYX4e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261378AbVFYXnd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Jun 2005 19:43:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261382AbVFYXnd
+	id S261222AbVFYX4e (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Jun 2005 19:56:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261288AbVFYX4b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Jun 2005 19:43:33 -0400
-Received: from mail.kroah.org ([69.55.234.183]:3273 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261378AbVFYXnS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Jun 2005 19:43:18 -0400
-Date: Sat, 25 Jun 2005 16:43:05 -0700
-From: Greg KH <greg@kroah.com>
-To: Matt Mackall <mpm@selenic.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] ndevfs - a "nano" devfs
-Message-ID: <20050625234305.GA11282@kroah.com>
-References: <20050624081808.GA26174@kroah.com> <20050625221516.GD14426@waste.org>
-Mime-Version: 1.0
+	Sat, 25 Jun 2005 19:56:31 -0400
+Received: from services106.cs.uwaterloo.ca ([129.97.152.164]:9130 "EHLO
+	services106.cs.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S261222AbVFYXzo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Jun 2005 19:55:44 -0400
+X-Mailer: emacs 21.4.1 (via feedmail 8 I)
+To: Hans Reiser <reiser@namesys.com>
+Cc: Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Jeff Mahoney <jeffm@suse.de>, penberg@gmail.com, ak@suse.de,
+       flx@namesys.com, zam@namesys.com, vs@thebsh.namesys.com,
+       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: Re: -mm -> 2.6.13 merge status
+From: Hubert Chan <hubert@uhoreg.ca>
+In-Reply-To: <42BDAF3D.6060809@namesys.com> (Hans Reiser's message of "Sat,
+ 25 Jun 2005 12:23:41 -0700")
+References: <20050620235458.5b437274.akpm@osdl.org.suse.lists.linux.kernel>
+	<p73d5qgc67h.fsf@verdi.suse.de> <42B86027.3090001@namesys.com>
+	<20050621195642.GD14251@wotan.suse.de> <42B8C0FF.2010800@namesys.com>
+	<84144f0205062223226d560e41@mail.gmail.com> <42BB0151.3030904@suse.de>
+	<20050623114318.5ae13514.akpm@osdl.org>
+	<20050623193247.GC6814@suse.de> <1119717967.9392.2.camel@localhost>
+	<42BDAF3D.6060809@namesys.com>
+X-Hashcash: 1:23:050625:reiser@namesys.com::jbBSAmsAh4yl2xIN:0000000000000000000000000000000000000000001CF5Z
+X-Hashcash: 1:23:050625:axboe@suse.de::1nMOt956nrC3Vc79:0000BdRs
+X-Hashcash: 1:23:050625:akpm@osdl.org::l08qywD6n08XeCWC:0000RfxU
+X-Hashcash: 1:23:050625:jeffm@suse.de::5cIxjqf338FAdu1m:00003sJ+
+X-Hashcash: 1:23:050625:penberg@gmail.com::imgWHZyshD4kGvc2:00000000000000000000000000000000000000000000B/Xa
+X-Hashcash: 1:23:050625:ak@suse.de::N6rIpCYt+ZioDZ8f:0000000U4vD
+X-Hashcash: 1:23:050625:flx@namesys.com::IB3OUxPZL/l8K7LZ:00BO9y
+X-Hashcash: 1:23:050625:zam@namesys.com::jk+aB5rvJ07DVYyc:00PCfV
+X-Hashcash: 1:23:050625:vs@thebsh.namesys.com::Dk3O1Lqoc+hb9gBo:0000000000000000000000000000000000000000BgFB
+X-Hashcash: 1:23:050625:linux-kernel@vger.kernel.org::MOpdMaGeep9pTi3b:000000000000000000000000000000000Hrox
+X-Hashcash: 1:23:050625:reiserfs-list@namesys.com::E2wRbjIKXm+Wsuwc:0000000000000000000000000000000000001B9f
+Date: Sat, 25 Jun 2005 19:54:52 -0400
+Message-ID: <87slz6f0vn.fsf@evinrude.uhoreg.ca>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050625221516.GD14426@waste.org>
-User-Agent: Mutt/1.5.8i
+X-Miltered: at minos with ID 42BDED34.002 by Joe's j-chkmail (http://j-chkmail.ensmp.fr)!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 25, 2005 at 03:15:16PM -0700, Matt Mackall wrote:
-> On Fri, Jun 24, 2005 at 01:18:08AM -0700, Greg KH wrote:
-> > Now I just know I'm going to regret this somehow...
-> > 
-> > Anyway, here's yet-another-ramfs-based filesystem, ndevfs.  It's a very
-> > tiny:
-> > $ size fs/ndevfs/inode.o 
-> >    text    data     bss     dec     hex filename
-> >    1571     200       8    1779     6f3 fs/ndevfs/inode.o
-> > replacement for devfs for those embedded users who just can't live
-> > without the damm thing.  It doesn't allow subdirectories, and only uses
-> > LSB compliant names.  But it works, and should be enough for people to
-> > use, if they just can't wean themselves off of the idea of an in-kernel
-> > fs to provide device nodes.
-> > 
-> > Now, with this, is there still anyone out there who just can't live
-> > without devfs in their kernel?
-> > 
-> > Damm, the depths I've sunk to these days, I'm such a people pleaser...
-> 
-> Hmm. I'm not pleased. Perhaps you're pleasing the wrong people?
+On Sat, 25 Jun 2005 12:23:41 -0700, Hans Reiser <reiser@namesys.com> said:
 
-You are so right, I am.  I need to be pleasing me, and devfs in the
-kernel is not the correct solution.  I knew this 4 years ago when Pat
-and I started working on the driver core (my main goal was to do it to
-support a udev-like solution), and I still know this today.
+>>> assert("trace_hash-89", is_hashed(foo) != 0);
 
-So no, I'm not going to be submitting this.  But what it is, is a nice
-proof-of-concept for people who "just can't live without a in-kernel
-devfs" to show that it can be done in less than 300 lines of code, and
-only 6 hooks (2 functions in 3 different places) in the main kernel
-tree.  That is managable outside of the main kernel for years, with
-almost little to no effort.
+> Lots of people like corporate anonymity.  Some don't.  I don't.  I
+> like knowing who wrote what. ...
 
-> What we really need is a short HOWTO that covers:
-> 
-> - Do you really need a dynamic /dev?
-> - How to embed a static /dev in your embedded kernel with initramfs
-> - How to add a dynamic /dev to your kernel with udev
+For what it's worth (I know: not much), I like the named asserts in
+Reiser4/Reiserfs.  Although I haven't been bitten by any BUGs yet (maybe
+I'm just lucky), whenever I see these on the mailing list, it gives the
+impression that the users are interacting more directly with the
+developers, and it helps us to get to know the developers better.
 
-Yes, I'm going to start working with some of the people who really know
-this stuff (the distro developers who make the whole dynamic boot and
-early boot process work correctly) and we will hash out a coheirant
-future together, and document it all really well.
+If people really want more standard-looking identifiers, I think Namesys
+should keep the names and make a hybrid identifier, like
+"nikita-123(<file>:<line>)"
 
-But I'm going to wait to do that till next week, the sun is shining, the
-beer is cold, and I'm going to relax now...
+-- 
+Hubert Chan <hubert@uhoreg.ca> - http://www.uhoreg.ca/
+PGP/GnuPG key: 1024D/124B61FA
+Fingerprint: 96C5 012F 5F74 A5F7 1FF7  5291 AF29 C719 124B 61FA
+Key available at wwwkeys.pgp.net.   Encrypted e-mail preferred.
 
-Thanks for calling me on this, I appreciate it.  You weren't the only
-one either, which is a good thing.
-
-greg k-h

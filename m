@@ -1,52 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261349AbVFYVcT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261338AbVFYVzi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261349AbVFYVcT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Jun 2005 17:32:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261356AbVFYVcT
+	id S261338AbVFYVzi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Jun 2005 17:55:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261356AbVFYVzi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Jun 2005 17:32:19 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:48647 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261349AbVFYVcP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Jun 2005 17:32:15 -0400
-Date: Sat, 25 Jun 2005 23:32:14 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: rostedt@goodmis.org, gregkh@suse.de, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: [2.6 patch] better USB_MON dependencies
-Message-ID: <20050625213214.GC3629@stusta.de>
-References: <Pine.LNX.4.58.0506172156220.7916@ppc970.osdl.org> <1119119175.6786.4.camel@localhost.localdomain> <20050621143227.GO3666@stusta.de> <20050621123507.6b83ddf0.zaitcev@redhat.com> <20050621210410.GA3705@stusta.de> <20050623093656.GC3749@stusta.de> <20050625131520.2cd9eda4.zaitcev@redhat.com>
+	Sat, 25 Jun 2005 17:55:38 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:61394 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261338AbVFYVyf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Jun 2005 17:54:35 -0400
+Subject: Re: 2.6.12-mm1 boot failure on NUMA box.
+From: Lee Revell <rlrevell@joe-job.com>
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Con Kolivas <kernel@kolivas.org>
+In-Reply-To: <55020000.1119733402@[10.10.2.4]>
+References: <20050621130344.05d62275.akpm@osdl.org>
+	 <51900000.1119622290@[10.10.2.4]> <20050624170112.GD6393@elte.hu>
+	 <320710000.1119632967@flay> <20050624195248.GA9663@elte.hu>
+	 <344410000.1119646572@flay> <20050625040052.GB4800@elte.hu>
+	 <44570000.1119681732@[10.10.2.4]> <1119722905.5762.15.camel@mindpipe>
+	 <55020000.1119733402@[10.10.2.4]>
+Content-Type: text/plain
+Date: Sat, 25 Jun 2005 17:54:33 -0400
+Message-Id: <1119736473.15994.8.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050625131520.2cd9eda4.zaitcev@redhat.com>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.3.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 25, 2005 at 01:15:20PM -0700, Pete Zaitcev wrote:
-> On Thu, 23 Jun 2005 11:36:56 +0200, Adrian Bunk <bunk@stusta.de> wrote:
-> 
-> > I forgot to attach the updated patch...
-> > Here it is.
-> 
-> I have tested this for all 6 build positions (CONFIG_USB = n, m, y  and
-> CONFIG_USB_MON = n y) with a positive result. But I thought the help
-> wordage was not quite what we needed, and the reference to USBMon was
-> incorrect. So, the attached is just a little different.
-> Adrian, how about this?
->...
+On Sat, 2005-06-25 at 14:03 -0700, Martin J. Bligh wrote:
+> I have no intent, nor method, of doing so. rdtsc is a direct instruction,
+> without intervention, as I understand it.
 
-Looks good.
+I thought so too, but it turns out the CPU lets you disable it at boot.
+This was suggested as a possible fix for the alleged hyperthreading
+vulnerability.
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Lee
 

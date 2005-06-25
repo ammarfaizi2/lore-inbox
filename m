@@ -1,78 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261153AbVFYL4C@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261189AbVFYMbn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261153AbVFYL4C (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Jun 2005 07:56:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261162AbVFYL4C
+	id S261189AbVFYMbn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Jun 2005 08:31:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261207AbVFYMbn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Jun 2005 07:56:02 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:30946 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S261153AbVFYLyv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Jun 2005 07:54:51 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Oliver Neukum <neukum@fachschaft.cup.uni-muenchen.de>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [RFC] Driver writer's guide to sleeping
-Date: Sat, 25 Jun 2005 14:54:36 +0300
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org, davem@davemloft.net
-References: <200506251250.18133.vda@ilport.com.ua> <Pine.LNX.4.58.0506251327390.3206@fachschaft.cup.uni-muenchen.de>
-In-Reply-To: <Pine.LNX.4.58.0506251327390.3206@fachschaft.cup.uni-muenchen.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sat, 25 Jun 2005 08:31:43 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:217 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261189AbVFYMaV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Jun 2005 08:30:21 -0400
+Subject: Re: i2o driver and OOM killer on 2.6.9
+From: Arjan van de Ven <arjan@infradead.org>
+To: hyoshiok@miraclelinux.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <98df96d305062503281efa5f5a@mail.gmail.com>
+References: <98df96d305062503281efa5f5a@mail.gmail.com>
+Content-Type: text/plain
+Date: Sat, 25 Jun 2005 14:30:12 +0200
+Message-Id: <1119702614.3157.19.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506251454.36745.vda@ilport.com.ua>
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 25 June 2005 14:29, Oliver Neukum wrote:
-> On Sat, 25 Jun 2005, Denis Vlasenko wrote:
+On Sat, 2005-06-25 at 19:28 +0900, Hiro Yoshioka wrote:
+> Hi,
 > 
-> > schedule_timeout(timeout)
-> > 	Whee, it has a comment! :)
-> >  * %TASK_UNINTERRUPTIBLE - at least @timeout jiffies are guaranteed to
-> >  * pass before the routine returns. The routine will return 0
-[snip]
-> > 	Thus:
-> > 	set_current_state(TASK_[UN]INTERRUPTIBLE);
-> > 	schedule_timeout(timeout_in_jiffies)
-> > 
-> > msleep(ms)
-> > 	Sleeps at least ms msecs.
-> > 	Equivalent to:
-> > 	set_current_state(TASK_UNINTERRUPTIBLE);
-> > 	schedule_timeout(timeout)
-> 
-> If and only if you are not on any waitqueue. You may not be interrupted
-> by a signal, but you still can be woken with an explicit wake_up()
+> I got the following OOM killer on 2.6.9 by iozone. The machine has a
+> i2o driver so it may have issues.
 
-Like this?
---
-vda
 
---- linux-2.6.12.src/kernel/timer.c.orig	Sun Jun 19 16:11:00 2005
-+++ linux-2.6.12.src/kernel/timer.c	Sat Jun 25 14:50:22 2005
-@@ -1059,12 +1059,16 @@ static void process_timeout(unsigned lon
-  *
-  * You can set the task state as follows -
-  *
-- * %TASK_UNINTERRUPTIBLE - at least @timeout jiffies are guaranteed to
-- * pass before the routine returns. The routine will return 0
-+ * %TASK_UNINTERRUPTIBLE - at least @timeout jiffies will pass
-+ * before the routine returns, unless something explicitly
-+ * wakes you up with wake_up_process(). Signals won't interrupt
-+ * such sleep.
-  *
-  * %TASK_INTERRUPTIBLE - the routine may return early if a signal is
-- * delivered to the current task. In this case the remaining time
-- * in jiffies will be returned, or 0 if the timer expired in time
-+ * delivered to the current task.
-+ *
-+ * The remaining time in jiffies will be returned, or 0 if the timer
-+ * expired in time.
-  *
-  * The current task state is guaranteed to be TASK_RUNNING when this
-  * routine returns.
+2.6.9 is a really really old kernel by now; you're probably much better
+off using 2.6.12 
 

@@ -1,106 +1,164 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263333AbVFYEgr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263328AbVFYEmH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263333AbVFYEgr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Jun 2005 00:36:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263328AbVFYEgr
+	id S263328AbVFYEmH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Jun 2005 00:42:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263335AbVFYEmH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Jun 2005 00:36:47 -0400
-Received: from [203.171.93.254] ([203.171.93.254]:44261 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S263333AbVFYEfv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Jun 2005 00:35:51 -0400
-Subject: Re: Mismatched suspend2 interfaces == Suspend was aborted
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Andrew Haninger <ahaning@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Suspend2-Users <suspend2-users@lists.suspend2.net>
-In-Reply-To: <105c793f05062421207c6ad27@mail.gmail.com>
-References: <105c793f05062421207c6ad27@mail.gmail.com>
-Content-Type: text/plain
-Organization: Cycades
-Message-Id: <1119674219.4170.4.camel@localhost>
+	Sat, 25 Jun 2005 00:42:07 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:54963 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S263328AbVFYElm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Jun 2005 00:41:42 -0400
+Date: Sat, 25 Jun 2005 06:41:29 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Gene Heskett <gene.heskett@verizon.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
+Message-ID: <20050625044129.GA12440@elte.hu>
+References: <20050608112801.GA31084@elte.hu> <200506212242.39113.gene.heskett@verizon.net> <20050622074054.GC16508@elte.hu> <200506220927.07874.gene.heskett@verizon.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Sat, 25 Jun 2005 14:36:59 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200506220927.07874.gene.heskett@verizon.net>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew.
 
-The Suspend2 mailing lists can be found via suspend2.net.
+* Gene Heskett <gene.heskett@verizon.net> wrote:
 
-On Sat, 2005-06-25 at 14:20, Andrew Haninger wrote:
-> I'm having an odd problem with software-suspend recently. Running the
-> latest kernel/suspend2/hibernate, I'm getting an error which is
-> confusing me:
+> I can report that mode 4 is not at all well here.  I turned it on and 
+> changed the extraversion, built it, and when it booted, it got to this 
+> line and hung:
 > 
-> WARNING: The suspend2 scriptlet was written for a different suspend2 interface
->          version from the one in your running kernel. This scriptlet was
->          written for version between 15 and 15 where as the version running
->          in your kernel is 16. Things may not work as expected, but proceeding
->          anyway ...
-> 
->  - hibernate: Suspend reported the following errors:
-> Suspend was aborted (see dmesg).
-> 
-> "written for a version between 15 and 15" is the part that is
-> confusing me. First, version 15 of what? Second, between a version and
-> itself?
+> Checking to see if this processor honours the WP bit even in 
+> supervisor mode... OK.
 
-The hibernate script is talking about the version of Suspend2's proc
-interface (cat /proc/software_suspend/interface_version). With the
-change to cryptoapi, I updated the number to 16 (as you correctly guess
-below).
+ok, could you try the patch below, ontop of whatever tree hung for you?
 
-> So, I look at dmesg. Here's the stuff it says to give when reporting
-> bugs (plus some extra stuff):
-> 
-> Software Suspend 2.1.9.5: Initiating a software suspend cycle.
-> Software Suspend 2.1.9.5: Swapwriter: Signature found.
-> Software Suspend 2.1.9.5: Suspending enabled.
-> Suspend2: Failed to initialise the compression transform.
-> Please include the following information in bug reports:
-> - SUSPEND core   : 2.1.9.5
-> - Kernel Version : 2.6.12.1
-> - Compiler vers. : 3.2
-> - Attempt number : 8
-> - Pageset sizes  : 3281 (3281 low) and 12192 (12192 low).
-> - Parameters     : 1 64 0 1 0 5
-> - Calculations   : Image size: 15676. Ram to suspend: 524.
-> - Limits         : 49147 pages RAM. Initial boot: 46744.
-> - Overall expected compression percentage: 0.
-> - Compressor  enabled.
-> - Swapwriter active.
->   Swap available for image: 48185 pages.
-> - Filewriter inactive.
-> - Preemptive kernel.
-> - Max extents used: 8
-> - No I/O speed stats available.
-> 
-> 
-> I've tried removing /etc/hibernate and /usr/local/sbin/hibernate and
-> reinstalling hibernate script 1.08, but I still get this error.
-> 
-> I think this might have something to do with the new movement to the
-> cryptoapi and there's just something I'm not getting.
+	Ingo
 
-That's right.
+----
+tree ca8b6bbafab35c5c1099c54696c36dc0b8c17cf7
+parent 59a49e38711a146dc0bef4837c825b5422335460
+author Linus Torvalds <torvalds@ppc970.osdl.org> Sat, 25 Jun 2005 00:39:17 -0700
+committer Linus Torvalds <torvalds@ppc970.osdl.org> Sat, 25 Jun 2005 00:39:17 -0700
 
-Assuming you compiled LZF cryptoapi support in and want to use it, the
-right thing to do is edit your hibernate.conf (probably in
-/etc/hibernate) and add the lines:
+Add "memory" clobbers to the x86 inline asm of strncmp and friends
 
-ProcSetting compressor lzf
-ProcSetting disable_encryption 1
+They don't actually clobber memory, but gcc doesn't even know they
+_read_ memory, so can apparently re-order memory accesses around them.
 
-If you haven't compiled lzf in, you'll need to include the module in an
-initrd/initramfs and load it before doing echo >
-/proc/software_suspend/do_resume in the script, so compiling in is the
-simpler option.
+Which obviously does the wrong thing if the memory access happens to
+change the memory that the compare function is accessing..
 
-Hope this helps.
+Verified to fix a strange boot problem by Jens Axboe.
 
-Nigel
+ include/asm-i386/string.h |   32 ++++++++++++++++++++++----------
+ 1 files changed, 22 insertions(+), 10 deletions(-)
 
+diff --git a/include/asm-i386/string.h b/include/asm-i386/string.h
+--- a/include/asm-i386/string.h
++++ b/include/asm-i386/string.h
+@@ -116,7 +116,8 @@ __asm__ __volatile__(
+ 	"orb $1,%%al\n"
+ 	"3:"
+ 	:"=a" (__res), "=&S" (d0), "=&D" (d1)
+-		     :"1" (cs),"2" (ct));
++	:"1" (cs),"2" (ct)
++	:"memory");
+ return __res;
+ }
+ 
+@@ -138,8 +139,9 @@ __asm__ __volatile__(
+ 	"3:\tsbbl %%eax,%%eax\n\t"
+ 	"orb $1,%%al\n"
+ 	"4:"
+-		     :"=a" (__res), "=&S" (d0), "=&D" (d1), "=&c" (d2)
+-		     :"1" (cs),"2" (ct),"3" (count));
++	:"=a" (__res), "=&S" (d0), "=&D" (d1), "=&c" (d2)
++	:"1" (cs),"2" (ct),"3" (count)
++	:"memory");
+ return __res;
+ }
+ 
+@@ -158,7 +160,9 @@ __asm__ __volatile__(
+ 	"movl $1,%1\n"
+ 	"2:\tmovl %1,%0\n\t"
+ 	"decl %0"
+-	:"=a" (__res), "=&S" (d0) : "1" (s),"0" (c));
++	:"=a" (__res), "=&S" (d0)
++	:"1" (s),"0" (c)
++	:"memory");
+ return __res;
+ }
+ 
+@@ -175,7 +179,9 @@ __asm__ __volatile__(
+ 	"leal -1(%%esi),%0\n"
+ 	"2:\ttestb %%al,%%al\n\t"
+ 	"jne 1b"
+-	:"=g" (__res), "=&S" (d0), "=&a" (d1) :"0" (0),"1" (s),"2" (c));
++	:"=g" (__res), "=&S" (d0), "=&a" (d1)
++	:"0" (0),"1" (s),"2" (c)
++	:"memory");
+ return __res;
+ }
+ 
+@@ -189,7 +195,9 @@ __asm__ __volatile__(
+ 	"scasb\n\t"
+ 	"notl %0\n\t"
+ 	"decl %0"
+-	:"=c" (__res), "=&D" (d0) :"1" (s),"a" (0), "0" (0xffffffffu));
++	:"=c" (__res), "=&D" (d0)
++	:"1" (s),"a" (0), "0" (0xffffffffu)
++	:"memory");
+ return __res;
+ }
+ 
+@@ -333,7 +341,9 @@ __asm__ __volatile__(
+ 	"je 1f\n\t"
+ 	"movl $1,%0\n"
+ 	"1:\tdecl %0"
+-	:"=D" (__res), "=&c" (d0) : "a" (c),"0" (cs),"1" (count));
++	:"=D" (__res), "=&c" (d0)
++	:"a" (c),"0" (cs),"1" (count)
++	:"memory");
+ return __res;
+ }
+ 
+@@ -369,7 +379,7 @@ __asm__ __volatile__(
+ 	"je 2f\n\t"
+ 	"stosb\n"
+ 	"2:"
+-	: "=&c" (d0), "=&D" (d1)
++	:"=&c" (d0), "=&D" (d1)
+ 	:"a" (c), "q" (count), "0" (count/4), "1" ((long) s)
+ 	:"memory");
+ return (s);	
+@@ -392,7 +402,8 @@ __asm__ __volatile__(
+ 	"jne 1b\n"
+ 	"3:\tsubl %2,%0"
+ 	:"=a" (__res), "=&d" (d0)
+-	:"c" (s),"1" (count));
++	:"c" (s),"1" (count)
++	:"memory");
+ return __res;
+ }
+ /* end of additional stuff */
+@@ -473,7 +484,8 @@ static inline void * memscan(void * addr
+ 		"dec %%edi\n"
+ 		"1:"
+ 		: "=D" (addr), "=c" (size)
+-		: "0" (addr), "1" (size), "a" (c));
++		: "0" (addr), "1" (size), "a" (c)
++		: "memory");
+ 	return addr;
+ }
+ 

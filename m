@@ -1,49 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261189AbVFYMbn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261180AbVFYMhW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261189AbVFYMbn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Jun 2005 08:31:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261207AbVFYMbn
+	id S261180AbVFYMhW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Jun 2005 08:37:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261151AbVFYMhV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Jun 2005 08:31:43 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:217 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261189AbVFYMaV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Jun 2005 08:30:21 -0400
-Subject: Re: i2o driver and OOM killer on 2.6.9
-From: Arjan van de Ven <arjan@infradead.org>
-To: hyoshiok@miraclelinux.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <98df96d305062503281efa5f5a@mail.gmail.com>
-References: <98df96d305062503281efa5f5a@mail.gmail.com>
+	Sat, 25 Jun 2005 08:37:21 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:24766 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S261216AbVFYMfO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Jun 2005 08:35:14 -0400
+Subject: Re: PATCH: IDE - sensible probing for PCI systems
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Maciej W. Rozycki" <macro@linux-mips.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61L.0506241217490.28452@blysk.ds.pg.gda.pl>
+References: <1119356601.3279.118.camel@localhost.localdomain>
+	 <Pine.LNX.4.61L.0506211422190.9446@blysk.ds.pg.gda.pl>
+	 <1119363150.3325.151.camel@localhost.localdomain>
+	 <Pine.LNX.4.61L.0506211535100.17779@blysk.ds.pg.gda.pl>
+	 <1119379587.3325.182.camel@localhost.localdomain>
+	 <Pine.LNX.4.61L.0506231903170.31113@blysk.ds.pg.gda.pl>
+	 <1119566026.18655.30.camel@localhost.localdomain>
+	 <Pine.LNX.4.61L.0506241217490.28452@blysk.ds.pg.gda.pl>
 Content-Type: text/plain
-Date: Sat, 25 Jun 2005 14:30:12 +0200
-Message-Id: <1119702614.3157.19.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Message-Id: <1119702761.28649.2.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sat, 25 Jun 2005 13:32:43 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-06-25 at 19:28 +0900, Hiro Yoshioka wrote:
-> Hi,
+On Gwe, 2005-06-24 at 12:52, Maciej W. Rozycki wrote:
+>  Well, keyboard and mouse are USB these days, serial and parallel are PCI, 
+> floppies are not used anymore and the ISA DMA controller would only be 
+> needed for them.  Video?  I've thought ISA implementations are gone -- 
+> what is all that AGP/PCI-E noise about then?  And no more ISA slots 
+> either.
+
+PC systems have serial at 0x3f8/0x2f8 (lpc bus), almost always PS/2 port
+on the mainboard. Timers, interrupt controllers. 
+
+> logic, though, which hasn't been moved elsewhere, indeed.  I think it 
+> really belongs to the PCI configuration space somewhere -- probably I/O 
+> APICs or host bridges.
+
+As I understand it both Windows XP and Linux x86 still require some of
+these ports. There is also a range of ports that are needed _before_ the
+PCI bus can be used in order to bootstrap the system, configure ram
+timings etc and in some cases adjust the caches.
+
+> > also have ranges of non-PCI decoded space that appears in no PCI bar.
 > 
-> I got the following OOM killer on 2.6.9 by iozone. The machine has a
-> i2o driver so it may have issues.
+>  That is what surprises me and what my whole consideration is about.  
+> It's just I don't see a need for such a setup anymore and for a system 
+> with no ISA or EISA bridge I'd expect all that legacy to be gone leaving 
+> us with no need to handle implicit resources.  But has any manufacturer 
+> produced such an i386 system yet?
 
-
-2.6.9 is a really really old kernel by now; you're probably much better
-off using 2.6.12 
+Whats the _economic_ incentive to do so ? There basically isnt one.
 

@@ -1,62 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263343AbVFYFlT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263344AbVFYFsH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263343AbVFYFlT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Jun 2005 01:41:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263344AbVFYFlS
+	id S263344AbVFYFsH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Jun 2005 01:48:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263345AbVFYFsG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Jun 2005 01:41:18 -0400
-Received: from vms042pub.verizon.net ([206.46.252.42]:11916 "EHLO
-	vms042pub.verizon.net") by vger.kernel.org with ESMTP
-	id S263343AbVFYFkI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Jun 2005 01:40:08 -0400
-Date: Sat, 25 Jun 2005 01:39:59 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
-In-reply-to: <20050625044757.GA14979@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: Ingo Molnar <mingo@elte.hu>
-Message-id: <200506250139.59620.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <20050608112801.GA31084@elte.hu> <20050625044129.GA12440@elte.hu>
- <20050625044757.GA14979@elte.hu>
-User-Agent: KMail/1.7
+	Sat, 25 Jun 2005 01:48:06 -0400
+Received: from rproxy.gmail.com ([64.233.170.206]:50668 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S263344AbVFYFsC convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Jun 2005 01:48:02 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=kJmprrVQT9+RCys0rkI6CTS+r28a8Ao0lebJXwMjo7/cnmI11nZk0bTLOLN4ct+ao8C5LwIRBZTyRI+pYgKzcwWUtXAyg2r8DiFrY3C6LAQ8FlkPvMO0ttuMHLzScuu0qRTh+A7FwG5tr1XBKT1srm9JP93uAF4ns8ho4NxheM4=
+Message-ID: <105c793f050624224872c46b38@mail.gmail.com>
+Date: Sat, 25 Jun 2005 01:48:02 -0400
+From: Andrew Haninger <ahaning@gmail.com>
+Reply-To: Andrew Haninger <ahaning@gmail.com>
+To: ncunningham@cyclades.com
+Subject: Re: Mismatched suspend2 interfaces == Suspend was aborted
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Suspend2-Users <suspend2-users@lists.suspend2.net>
+In-Reply-To: <1119674219.4170.4.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <105c793f05062421207c6ad27@mail.gmail.com>
+	 <1119674219.4170.4.camel@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 25 June 2005 00:47, Ingo Molnar wrote:
->* Ingo Molnar <mingo@elte.hu> wrote:
->> * Gene Heskett <gene.heskett@verizon.net> wrote:
->> > I can report that mode 4 is not at all well here.  I turned it
->> > on and changed the extraversion, built it, and when it booted,
->> > it got to this line and hung:
->> >
->> > Checking to see if this processor honours the WP bit even in
->> > supervisor mode... OK.
->>
->> ok, could you try the patch below, ontop of whatever tree hung for
->> you?
->
->also included in -V0.7.50-19 and later patches.
->
-> Ingo
+On 6/25/05, Nigel Cunningham <ncunningham@cyclades.com> wrote:
+> Assuming you compiled LZF cryptoapi support in and want to use it, the
+> right thing to do is edit your hibernate.conf (probably in
+> /etc/hibernate) and add the lines:
+> 
+> ProcSetting compressor lzf
+> ProcSetting disable_encryption 1
+I saw the note about this on suspend2.net but, for whatever reason,
+read it as "add this to your hibernate script." So I incorrectly added
+the above lines to /usr/local/sbin/hibernate. Durrr.
 
-Gahh, and I just built -18 but amanda is running so can't reboot 
-anyway.  This is my night to do a graveyard at the tv transmitter so 
-it'll be the middle of the day Saturday before I get one eye open 
-simultainiously again.  -19 wasn't there 3 or 4 hours ago.
+> If you haven't compiled lzf in, you'll need to include the module in an
+> initrd/initramfs and load it before doing echo >
+> /proc/software_suspend/do_resume in the script, so compiling in is the
+> simpler option.
+I think I had compiled lzh as a module so this was also causing
+problems. Since I compiled lzh (and some of the others that looked
+like fun) into the kernel and added the above lines to
+/etc/hibernate/hibernate.conf, hibernation seems to be working better.
+I'll have to play with it some more so it breaks.
 
-Thanks, I report back when I have done it.
+> Hope this helps.
+Unfortunately, it did.
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.35% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+Thanks.
+
+-Andy

@@ -1,72 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261447AbVFYOlm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263376AbVFYOqm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261447AbVFYOlm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Jun 2005 10:41:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261265AbVFYOll
+	id S263376AbVFYOqm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Jun 2005 10:46:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263397AbVFYOql
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Jun 2005 10:41:41 -0400
-Received: from vms044pub.verizon.net ([206.46.252.44]:53698 "EHLO
-	vms044pub.verizon.net") by vger.kernel.org with ESMTP
-	id S263376AbVFYOjY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Jun 2005 10:39:24 -0400
-Date: Sat, 25 Jun 2005 10:39:14 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
-In-reply-to: <200506250919.52640.gene.heskett@verizon.net>
-To: linux-kernel@vger.kernel.org
-Cc: Ingo Molnar <mingo@elte.hu>
-Message-id: <200506251039.14746.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <20050608112801.GA31084@elte.hu> <20050625091215.GC27073@elte.hu>
- <200506250919.52640.gene.heskett@verizon.net>
-User-Agent: KMail/1.7
+	Sat, 25 Jun 2005 10:46:41 -0400
+Received: from wproxy.gmail.com ([64.233.184.199]:14279 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S263376AbVFYOpM convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Jun 2005 10:45:12 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=REqy+TBAobkmyXokgSsvWwsBZ08LTqO9EMCWQptXCPn6lha4GiJDSl3C8GTCmWX0oi4BqCUTOSKmMcylXTMYpSdxRLsXmBQWtsDko3pbAnhE7gocw99tU93+SmKs+ibuAdjf3OueSenlAifMkxwHp9FPE33RsGbrBJ0sM/nxlig=
+Date: Sat, 25 Jun 2005 16:45:02 +0200
+From: Diego Calleja <diegocg@gmail.com>
+To: Hans Reiser <reiser@namesys.com>
+Cc: jgarzik@pobox.com, ninja@slaphack.com, alan@lxorguk.ukuu.org.uk,
+       hch@infradead.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       reiserfs-list@namesys.com
+Subject: Re: reiser4 plugins
+Message-Id: <20050625164502.7c9745b5.diegocg@gmail.com>
+In-Reply-To: <42BCDE06.8080309@namesys.com>
+References: <200506231924.j5NJOvLA031008@laptop11.inf.utfsm.cl>
+	<42BB31E9.50805@slaphack.com>
+	<1119570225.18655.75.camel@localhost.localdomain>
+	<42BB7B32.4010100@slaphack.com>
+	<1119612849.17063.105.camel@localhost.localdomain>
+	<42BCCC32.1090802@slaphack.com>
+	<42BCCCED.3030705@pobox.com>
+	<42BCDE06.8080309@namesys.com>
+X-Mailer: Sylpheed version 2.0.0beta3 (GTK+ 2.6.4; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 25 June 2005 09:19, Gene Heskett wrote:
->On Saturday 25 June 2005 05:12, Ingo Molnar wrote:
->>* Gene Heskett <gene.heskett@verizon.net> wrote:
->>> It seems the transmitter only needed a goodnight kiss, so I came
->>> back & built it.  So far running good, 5 minute uptime, looks
->>> good.  More reports if I find any gotcha's :) Seemed to boot
->>> marginally faster too, but no stopwatch timeings were done.
->>
->>great. To make sure, these earlier boot failures are gone:
->>> I just tried to build & boot 50-17 in mode=3, no hardirq's and
->>> got the same boot failure as mode 4 for 50-06 gave:
->>
->>right?
->>
->> Ingo
->
->Yes.  Same mode 3, no hardirq's config.  I have not tried mode=4.
->Here thats been a lockup every time for recent versions.  I just
->checked the log, pretty quiet, nothing out of line.
+El Fri, 24 Jun 2005 21:31:02 -0700,
+Hans Reiser <reiser@namesys.com> escribió:
 
-Now I've tried -22 in mode=4 and its the same hard lockup after this 
-line is printed to the screen:
 
-"Checking to see if this processor honours the WP bit even in the 
-supervisor mode...  OK"
+> What exactly is not ready Jeff?  As I see it, this thread is 95%
+> posturing, and almost no technical reasons for not merging.  These
+> "authorities"seem perfectly content with echoing the words of someone
+> who skimmed the code and shot his mouth off without understanding it,
+> and now these "authorities" just echo him because they like him and
+> assume he must be right.
 
-reset button to recover. -22 in mode=3, no hardirq's now building 
-while running -19.
 
--22, mode=3 no hardirq's is running, but it took kmail a couple of 
-minutes to fully init its screen, with a spamd child eating 99% of 
-the cpu.  The logs are silent after "loading the r200 code" from 
-startx.  But, it seems to be ok now.  More data when available.
-
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.35% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+I'm not one of those "authorities" but I doubt reiser4 will be merged at all
+with that attitude.

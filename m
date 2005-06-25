@@ -1,105 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261217AbVFYOJF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261231AbVFYOWe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261217AbVFYOJF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Jun 2005 10:09:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261231AbVFYOJF
+	id S261231AbVFYOWe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Jun 2005 10:22:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261235AbVFYOWe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Jun 2005 10:09:05 -0400
-Received: from mail.portrix.net ([212.202.157.208]:42218 "EHLO
-	zoidberg.portrix.net") by vger.kernel.org with ESMTP
-	id S261217AbVFYOI5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Jun 2005 10:08:57 -0400
-Message-ID: <42BD6557.9070102@ppp0.net>
-Date: Sat, 25 Jun 2005 16:08:23 +0200
-From: Jan Dittmer <jdittmer@ppp0.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050331 Thunderbird/1.0.2 Mnenhy/0.6.0.104
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: czankel@tensilica.com
-CC: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: arch xtensa does not compile
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Sat, 25 Jun 2005 10:22:34 -0400
+Received: from h80ad2695.async.vt.edu ([128.173.38.149]:58603 "EHLO
+	h80ad2695.async.vt.edu") by vger.kernel.org with ESMTP
+	id S261231AbVFYOWW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Jun 2005 10:22:22 -0400
+Message-Id: <200506251420.j5PEKce4006891@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: David Masover <ninja@slaphack.com>
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>, Hans Reiser <reiser@namesys.com>,
+       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: reiser4 plugins 
+In-Reply-To: Your message of "Fri, 24 Jun 2005 23:10:35 CDT."
+             <42BCD93B.7030608@slaphack.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <200506240241.j5O2f1eb005609@laptop11.inf.utfsm.cl>
+            <42BCD93B.7030608@slaphack.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1119709238_3698P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Sat, 25 Jun 2005 10:20:38 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Chris,
+--==_Exmh_1119709238_3698P
+Content-Type: text/plain; charset=us-ascii
 
-the recently merged xtensa arch does not (cross) compile successfully.
-I'm using 2.6.12-git7 which seems to have all patches (1-8) merged.
+On Fri, 24 Jun 2005 23:10:35 CDT, David Masover said:
 
-1. numnodes.h missing
-$ make mrproper
-$ make ARCH=xtensa CROSS_COMPILE=xtensa-linux- defconfig
-$ make ARCH=xtensa CROSS_COMPILE=xtensa-linux-
-  CHK     include/linux/version.h
-  UPD     include/linux/version.h
-  SYMLINK include/asm -> include/asm-xtensa
-  SPLIT   include/linux/autoconf.h -> include/config/*
-  Setting up cpu (linux_be) and platform (xt2000) symlinks
-  HOSTCC  scripts/genksyms/genksyms.o
-  SHIPPED scripts/genksyms/lex.c
-  SHIPPED scripts/genksyms/parse.h
-  SHIPPED scripts/genksyms/keywords.c
-  HOSTCC  scripts/genksyms/lex.o
-  SHIPPED scripts/genksyms/parse.c
-  HOSTCC  scripts/genksyms/parse.o
-  HOSTLD  scripts/genksyms/genksyms
-  CC      scripts/mod/empty.o
-  HOSTCC  scripts/mod/mk_elfconfig
-  MKELF   scripts/mod/elfconfig.h
-  HOSTCC  scripts/mod/file2alias.o
-  HOSTCC  scripts/mod/modpost.o
-  HOSTCC  scripts/mod/sumversion.o
-  HOSTLD  scripts/mod/modpost
-  HOSTCC  scripts/kallsyms
-  HOSTCC  scripts/conmakehash
-  CC      arch/xtensa/kernel/asm-offsets.s
-In file included from include/linux/nodemask.h:82,
-                 from include/linux/sched.h:17,
-                 from arch/xtensa/kernel/asm-offsets.c:18:
-include/linux/numa.h:7:26: asm/numnodes.h: No such file or directory
-make[1]: *** [arch/xtensa/kernel/asm-offsets.s] Error 1
-make: *** [arch/xtensa/kernel/asm-offsets.s] Error 2
+> But Linux is better.  DOS ain't broke, but Linux is better.  So maybe
+> VFS ain't broke, but plugins would be better.  I guess we'll only know
+> if we let Reiser4 merge...
 
-2. O= support
-$ mkdir /tmp/x
-$ make mrproper
-$ make ARCH=xtensa CROSS_COMPILE=xtensa-linux- O=/tmp/x defconfig
-[ ... ]
-$ make ARCH=xtensa CROSS_COMPILE=xtensa-linux- O=/tmp/x
-  Using /usr/src/ctest/oo/kernel as source for kernel
-  GEN    /tmp/x/Makefile
-  CHK     include/linux/version.h
-  UPD     include/linux/version.h
-  SYMLINK include/asm -> include/asm-xtensa
-  GEN    /tmp/x/Makefile
-scripts/kconfig/conf -s arch/xtensa/Kconfig
-#
-# using defaults found in .config
-#
-  SPLIT   include/linux/autoconf.h -> include/config/*
-  Setting up cpu (linux_be) and platform (xt2000) symlinks
-/bin/sh: line 1: cd: include/asm-xtensa/: No such file or directory
-/bin/sh: line 1: cd: include/asm-xtensa/xtensa: No such file or directory
+No, we'll only know if we merge something that does plugins at the VFS
+level in a well-designed way.
 
-then a lots of follow up errors.
+> This was about a hypothetical ext3 format as a reiser4 storage plugin.
+> I'm not sure how this ties into the VFS stuff.
 
-$ xtensa-linux-gcc -v
-Reading specs from /usr/cc/xtensa/lib/gcc-lib/xtensa-linux/3.3.6/specs
-Configured with: ../configure --prefix=/usr/cc --exec-prefix=/usr/cc/xtensa --target=xtensa-linux --disable-shared --disable-werror --disable-nls
---disable-threads --disable-werror --with-newlib --with-gnu-as --with-gnu-ld --enable-languages=c
-Thread model: single
-gcc version 3.3.6
-$ xtensa-linux-ld -v
-GNU ld version 2.15.94.0.2.2 20041220
+Very poorly.  There's only two interpretations of "ext3 as a reiser4 plugin"
+that make *any* sense.  The first is that reiser4 is totally violating the VFS
+layer boundary, and the second is that reiser4 is trying to be an all-singing
+all-dancing wankfest.  Later on, you say:
 
-It would be nice if you could fix these issues.
+> A lot of what people like about ext3 is its stability and fairly
+> universally accepted format.  A lot of what people like about XFS is its
+> stability and speed, mainly with large files.  A lot of what people like
+> about Reiser4 (as it is today) is its speed, with large and especially
+> with small files.
 
-Thanks,
+Now *think* for a moment - how does a hypothetical Reiser4 using ext3 format
+gain any speed advantage with small files, when the speed advantage is based
+on using a format other than ext3?
 
--- 
-Jan
+As I said, either it's violating the VFS boundary, or it's busy wanking.
 
-http://l4x.org/k/
+The Reiser4 proponents would be well served to disavow that particular
+hypothetical example - I have yet to see *anything* that does more damage
+to the Reiser4 cause.
+
+> So, in this hypothetical situation where ext3 is a reiser4 plugin,
+> suddenly all the ext3 developers are trying to improve the speed and
+> reliability of reiser4, which benefits both ext3 and reiser4, instead of
+> just ext3.
+
+Or we can do what *should* be done, which is:
+
+a) Put the crack pipe down.
+
+b) Tell reiser4 to get its grubby little paws off the VFS if it ever intends
+to have a chance of being merged in mainline.
+
+c) Have a *separate* project to improve the speed/reliability/function of
+the VFS layer, which is the only way that your vision of having the ext3 and
+reiser developers cooperating will ever happen.
+
+Yes, the VFS could probably use an overhaul.  But that *will* happen like this:
+
+1) A patch is submitted and passes review to change the VFS.
+2) If appropriate, a patch for reiser4 (if it gets merged) is also submitted
+(possibly by the same people) to be the first user of the new API/functionality.
+
+There's a *reason* why we see patch streams that look like:
+
+Patch 1/3: Add moby_foo_init function to nautical core.
+Patch 2/3: Modify white_whale driver to use moby_foo_init
+Patch 3/3: Modify captain_ahab driver to use moby_foo_init
+
+> Aside from what someone else already said about this, why not just have
+> support for accessing, say, a .gpg file as transparently decrypted?  You
+> don't even need file-as-directory, just create a file called foo which
+> is really the decrypted version of foo.gpg.  No need to change the
+> format, just the filesystem.
+
+I don't think this is what they mean by "Linux gives you enough rope to
+shoot yourself in the foot with"...
+
+> Plus, as someone else said, it's much easier to do
+> $ vim /some/encrypted/file
+> than
+> $ gpg --decrypt /some/encrypted/file > /some/decrypted/file
+> $ vim /some/decrypted/file
+> $ gpg --encrypt /some/decrypted/file > /some/encrypted/file
+> $ shred /some/decrypted/file
+
+You've totally failed to understand that the whole *point* of PGP is that 'vim
+/some/encrypted/file' *isnt* easy to do.  A better example might be the various
+crypto-loop-ish variants or Microsoft's EFS, where the key management model is
+more tractable to this sort of automation.
+
+
+--==_Exmh_1119709238_3698P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFCvWg1cC3lWbTT17ARAqE4AJwKKsz/KeL2vNfsEJOe9piqK8eMAQCdFCPL
+rTf73AOC1LRF3Y1NUKvyJNg=
+=mHH5
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1119709238_3698P--

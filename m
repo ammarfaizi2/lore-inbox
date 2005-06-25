@@ -1,51 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261226AbVFYNrY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261170AbVFYNrT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261226AbVFYNrY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Jun 2005 09:47:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261235AbVFYNrX
+	id S261170AbVFYNrT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Jun 2005 09:47:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261235AbVFYNrT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Jun 2005 09:47:23 -0400
-Received: from wproxy.gmail.com ([64.233.184.193]:59009 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261226AbVFYNrR convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Jun 2005 09:47:17 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Snp5hNCpg0RIpbkTn4I7iHbNUYPVnl93PROpNDj8vB94go66dwAnqgSmVNIIofwIioO5gQaJxa/PUkYpPTJ0bVZ7hK6egV1rBOKHt+sRpzn8x1/947G6eoQhfDwItKoZEuCc14oYMK9fO/hxo4t0wdhvEVXsQc/AwHym+5xMAAg=
-Message-ID: <98df96d305062506477e32f447@mail.gmail.com>
-Date: Sat, 25 Jun 2005 22:47:17 +0900
-From: Hiro Yoshioka <lkml.hyoshiok@gmail.com>
-Reply-To: hyoshiok@miraclelinux.com
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: i2o driver and OOM killer on 2.6.9
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1119702614.3157.19.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sat, 25 Jun 2005 09:47:19 -0400
+Received: from mail.linicks.net ([217.204.244.146]:42767 "EHLO
+	linux233.linicks.net") by vger.kernel.org with ESMTP
+	id S261170AbVFYNrL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Jun 2005 09:47:11 -0400
+From: Nick Warne <nick@linicks.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: IDE probing IDE_MAX_HWIFS
+Date: Sat, 25 Jun 2005 14:47:09 +0100
+User-Agent: KMail/1.8.1
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <98df96d305062503281efa5f5a@mail.gmail.com>
-	 <1119702614.3157.19.camel@laptopd505.fenrus.org>
+Message-Id: <200506251447.09633.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan,
+> Now my question :-)  Is there a specific reason why this isn't included in
+> other architectures?  I am asking as I guess one hell of a lot of people
+> running on i386 have only two IDE interfaces anyway, and it could do with
+> defining it as 2...
 
-On 6/25/05, Arjan van de Ven <arjan@infradead.org> wrote:
-> On Sat, 2005-06-25 at 19:28 +0900, Hiro Yoshioka wrote:
-> > Hi,
-> >
-> > I got the following OOM killer on 2.6.9 by iozone. The machine has a
-> > i2o driver so it may have issues.
-> 
-> 
-> 2.6.9 is a really really old kernel by now; you're probably much better
-> off using 2.6.12
+I have a patch here, works very well.  But I need to see if I am a bit 'Mickey 
+Mouse' and need to ask all you proper coders if this would be an acceptable 
+patch.
 
-Thanks for your help.
+In drivers/ide/Kconfig
 
-It is RHEL 2.6.9-5.EL based kernel. I'll try to reproduce 2.6.12 kernel.
+if IDE
 
-Regards,
-  Hiro
+config IDE_HWIFS_NUM
+        bool "Specify the number of IDE Interfaces"
+        depends on (ALPHA || SUPERH || X86)
+        default n
+        help
+
+          ALPHA and SUPERH say 'y' here.
+
+          X86 say 'y' to this if you wish to specify the number of IDE
+          interfaces on your system.  If unsure, say 'n' to use
+          the kernel default options (6 or 10).
+
+config IDE_MAX_HWIFS
+        int "Max IDE interfaces"
+        depends on IDE_HWIFS_NUM
+        default 4
+        help
+          This is the maximum number of IDE hardware interfaces that will
+          be supported by the driver. Make sure it is at least as high as
+          the number of IDE interfaces in your system.
+
+          On X86 architecture default is (10 or 6) IDE interfaces if this
+          is not used (IDE_HWIFS_NUM = n)
+
+
+
+and in include/asm-i386/ide.h
+
+#ifndef MAX_HWIFS
+#ifndef CONFIG_IDE_HWIFS_NUM
+# ifdef CONFIG_BLK_DEV_IDEPCI
+#define MAX_HWIFS       10
+# else
+#define MAX_HWIFS       6
+# endif
+#else
+#define MAX_HWIFS       CONFIG_IDE_MAX_HWIFS
+#endif
+#endif
+
+
+I have just built and it works great - boot time seems to increase a lot (but 
+I haven't measured as such).  It also eliminates me needing all the 
+idex=noprobe also.
+
+Nick
+-- 
+"When you're chewing on life's gristle,
+Don't grumble, Give a whistle..."

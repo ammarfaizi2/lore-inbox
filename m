@@ -1,81 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263332AbVFYEU7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263316AbVFYEbH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263332AbVFYEU7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Jun 2005 00:20:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261426AbVFYEU7
+	id S263316AbVFYEbH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Jun 2005 00:31:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263325AbVFYEbH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Jun 2005 00:20:59 -0400
-Received: from rproxy.gmail.com ([64.233.170.193]:8807 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S263332AbVFYEUl convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Jun 2005 00:20:41 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=AcvIPT8sLNvmiozUpcUkMkoOOmseg1dTqA5fD6G2hJbgNMQtKMeDKTydHM16euC/zq5LJSs0Z4D4X7RXbsC0J1b2t4lUUUb3OEZN6sddTJPQ7JzU+kkO3Ajpqg2+TB+oZ4M4o/AmxiMQcMDyADpj9WWNCZQh5JWejVboMqmYDFU=
-Message-ID: <105c793f05062421207c6ad27@mail.gmail.com>
-Date: Sat, 25 Jun 2005 00:20:36 -0400
-From: Andrew Haninger <ahaning@gmail.com>
-Reply-To: Andrew Haninger <ahaning@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Mismatched suspend2 interfaces == Suspend was aborted
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Sat, 25 Jun 2005 00:31:07 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:17549 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S263316AbVFYEbF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Jun 2005 00:31:05 -0400
+Message-ID: <42BCDE06.8080309@namesys.com>
+Date: Fri, 24 Jun 2005 21:31:02 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: David Masover <ninja@slaphack.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: reiser4 plugins
+References: <200506231924.j5NJOvLA031008@laptop11.inf.utfsm.cl>	 <42BB31E9.50805@slaphack.com>	 <1119570225.18655.75.camel@localhost.localdomain>	 <42BB7B32.4010100@slaphack.com> <1119612849.17063.105.camel@localhost.localdomain> <42BCCC32.1090802@slaphack.com> <42BCCCED.3030705@pobox.com>
+In-Reply-To: <42BCCCED.3030705@pobox.com>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm having an odd problem with software-suspend recently. Running the
-latest kernel/suspend2/hibernate, I'm getting an error which is
-confusing me:
+Jeff Garzik wrote:
 
-WARNING: The suspend2 scriptlet was written for a different suspend2 interface
-         version from the one in your running kernel. This scriptlet was
-         written for version between 15 and 15 where as the version running
-         in your kernel is 16. Things may not work as expected, but proceeding
-         anyway ...
+> Then why not listen to authorities, all of whom are saying "it's not
+> ready yet"
 
- - hibernate: Suspend reported the following errors:
-Suspend was aborted (see dmesg).
+What exactly is not ready Jeff?  As I see it, this thread is 95%
+posturing, and almost no technical reasons for not merging.  These
+"authorities"seem perfectly content with echoing the words of someone
+who skimmed the code and shot his mouth off without understanding it,
+and now these "authorities" just echo him because they like him and
+assume he must be right.
 
-"written for a version between 15 and 15" is the part that is
-confusing me. First, version 15 of what? Second, between a version and
-itself?
+Actually, David's understanding of reiser4 is far deeper than those of
+anyone claiming to be an "authority".  He understands what a plugin is. 
+Wow.  He does not have to be told that VFS does not currently support a
+notion of pluginids, so it is not duplicative.  Wow.  He does not have
+to be told that plugins are analogous to classes and what VFS currently
+has is analogous to instances.  Wow.  He gets it that reiser4 plugins
+disturb absolutely nothing in the rest of the kernel because we use the
+standard VFS interface.  Wow.  Does any of the rest of that echo chamber
+of authority understand those things?  Seems to me that these
+"authorities" are just as capable of shooting their mouths off before
+doing their homework as anyone else is..... 
 
+David has used reiser4.  Have you?  Maybe you guys should try it.  Maybe
+you should all have less faith in your ability to skim code and
+understand it instantly.  Maybe you guys should actually read the
+technical parts of this thread rather than the flame parts only?
 
-So, I look at dmesg. Here's the stuff it says to give when reporting
-bugs (plus some extra stuff):
+Maybe our community's social traditions are a bit lacking?  Maybe saying
+that everyone else goes through this just means that changing the way we
+do things is needed even more?
 
-Software Suspend 2.1.9.5: Initiating a software suspend cycle.
-Software Suspend 2.1.9.5: Swapwriter: Signature found.
-Software Suspend 2.1.9.5: Suspending enabled.
-Suspend2: Failed to initialise the compression transform.
-Please include the following information in bug reports:
-- SUSPEND core   : 2.1.9.5
-- Kernel Version : 2.6.12.1
-- Compiler vers. : 3.2
-- Attempt number : 8
-- Pageset sizes  : 3281 (3281 low) and 12192 (12192 low).
-- Parameters     : 1 64 0 1 0 5
-- Calculations   : Image size: 15676. Ram to suspend: 524.
-- Limits         : 49147 pages RAM. Initial boot: 46744.
-- Overall expected compression percentage: 0.
-- Compressor  enabled.
-- Swapwriter active.
-  Swap available for image: 48185 pages.
-- Filewriter inactive.
-- Preemptive kernel.
-- Max extents used: 8
-- No I/O speed stats available.
-
-
-I've tried removing /etc/hibernate and /usr/local/sbin/hibernate and
-reinstalling hibernate script 1.08, but I still get this error.
-
-I think this might have something to do with the new movement to the
-cryptoapi and there's just something I'm not getting.
-
-Anyway, here's my bug report. Thanks.
-
--Andy
+Hans

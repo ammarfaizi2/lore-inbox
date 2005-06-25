@@ -1,59 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263309AbVFYD1d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263321AbVFYDdx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263309AbVFYD1d (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Jun 2005 23:27:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263313AbVFYD1c
+	id S263321AbVFYDdx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Jun 2005 23:33:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263320AbVFYDdw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Jun 2005 23:27:32 -0400
-Received: from mail.kroah.org ([69.55.234.183]:21177 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263309AbVFYD1a (ORCPT
+	Fri, 24 Jun 2005 23:33:52 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:30150 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S263313AbVFYDdo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Jun 2005 23:27:30 -0400
-Date: Fri, 24 Jun 2005 20:26:39 -0700
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, Patrick Mochel <mochel@digitalimplant.org>
-Subject: Re: [RFC] bind and unbind drivers from userspace through sysfs
-Message-ID: <20050625032639.GA3934@kroah.com>
-References: <20050624051229.GA24621@kroah.com> <20050625030553.GB7380@nostromo.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050625030553.GB7380@nostromo.devel.redhat.com>
-User-Agent: Mutt/1.5.8i
+	Fri, 24 Jun 2005 23:33:44 -0400
+Message-ID: <42BCD092.6050201@pobox.com>
+Date: Fri, 24 Jun 2005 23:33:38 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Dave Jones <davej@redhat.com>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Git Mailing List <git@vger.kernel.org>
+Subject: Re: Updated git HOWTO for kernel hackers
+References: <42B9E536.60704@pobox.com> <20050622224003.GA21298@redhat.com>
+In-Reply-To: <20050622224003.GA21298@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 24, 2005 at 11:05:53PM -0400, Bill Nottingham wrote:
-> Greg KH (greg@kroah.com) said: 
-> > Even so, with these two patches, people should be able to do things that
-> > they have been wanting to do for a while (like take over the what driver
-> > to what device logic in userspace, as I know some distro installers
-> > really want to do.)
+Dave Jones wrote:
+> On Wed, Jun 22, 2005 at 06:24:54PM -0400, Jeff Garzik wrote:
+>  > 
+>  > Things in git-land are moving at lightning speed, and usability has 
+>  > improved a lot since my post a month ago:  http://lkml.org/lkml/2005/5/26/11
+>  > 
+>  > 
+>  > 
+>  > 1) installing git
+>  > 
+>  > git requires bootstrapping, since you must have git installed in order 
+>  > to check out git.git (git repo), and linux-2.6.git (kernel repo).  I 
+>  > have put together a bootstrap tarball of today's git repository.
+>  > 
+>  > Download tarball from:
+>  > http://www.kernel.org/pub/linux/kernel/people/jgarzik/git-20050622.tar.bz2
 > 
-> Playing devils advocate, with this, the process flow is:
-> 
-> - kernel sees a new device
-> - kernel sends hotplug event for bus with slot, address, vendor id, etc.
-> - userspace loads a module based on that info
->   <some sort of synchronization here waiting for driver to initialize>
-> - userspace echos to sysfs to bind device
-> - kernel sends hotplug device event
-> - userspace creates device node, then continues with device
+> <blatant self-promotion>
+> daily snapshots (refreshed once an hour) are available at:
+> http://www.codemonkey.org.uk/projects/git-snapshots/git/
+> </blatant self-promotion>
 
-Yeah, I'm not saying I think it's a good process flow for people to
-implement.  But if they want to, they now can.
+I was about to link to this, but a problem arose:  your snapshots don't 
+include the .git/objects directory.
 
-The main reason for this is for drivers that replace built in drivers,
-or multiple modules for the same device (think of new rev of driver,
-both loaded at once, some devices should bind to the new one, other
-devices you want staying with the old one due to it controlling your
-root partition.)  Now userspace has a chance to unbind and bind devices
-to drivers in those situations, which it never could before.
+Also, a git-latest.tar.gz symlink would be nice.
 
-But remember, I'm not changing the way things bind to devices here, like
-requiring userspace to pick the driver for the device, so no one lives
-will change at all, if they don't want to.
+	Jeff
 
-Hope this helps explain it.
 
-greg k-h

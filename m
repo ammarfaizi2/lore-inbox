@@ -1,51 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261164AbVFZLvn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261165AbVFZL51@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261164AbVFZLvn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Jun 2005 07:51:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261165AbVFZLvn
+	id S261165AbVFZL51 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Jun 2005 07:57:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261172AbVFZL51
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Jun 2005 07:51:43 -0400
-Received: from mxout04.versatel.de ([212.7.152.118]:35280 "EHLO
-	mxout04.versatel.de") by vger.kernel.org with ESMTP id S261164AbVFZLvk
+	Sun, 26 Jun 2005 07:57:27 -0400
+Received: from mxout01.versatel.de ([212.7.152.115]:57475 "EHLO
+	mxout01.versatel.de") by vger.kernel.org with ESMTP id S261165AbVFZL5U
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Jun 2005 07:51:40 -0400
-Message-ID: <42BE9725.5070101@web.de>
-Date: Sun, 26 Jun 2005 13:53:09 +0200
+	Sun, 26 Jun 2005 07:57:20 -0400
+Message-ID: <42BE98C5.1070102@web.de>
+Date: Sun, 26 Jun 2005 14:00:05 +0200
 From: Christian Trefzer <ctrefzer@web.de>
 User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050617)
 X-Accept-Language: de-DE, de, en-us, en
 MIME-Version: 1.0
-To: =?UTF-8?B?UG96c8OhciBCYWzDoXpz?= <pozsy@uhulinux.hu>
-CC: Andrew Morton <akpm@osdl.org>, "Darryl L. Miles" <darryl@netbauds.net>,
-       linux-kernel@vger.kernel.org,
-       Martin Wilck <martin.wilck@fujitsu-siemens.com>
+To: "Darryl L. Miles" <darryl@netbauds.net>
+CC: linux-kernel@vger.kernel.org
 Subject: Re: 2.6.12 initrd module loading seems parallel on bootup
-References: <42BDFEC2.3030004@netbauds.net> <20050625234611.118b391d.akpm@osdl.org> <20050626092604.GA26658@ojjektum.uhulinux.hu>
-In-Reply-To: <20050626092604.GA26658@ojjektum.uhulinux.hu>
+References: <42BDFEC2.3030004@netbauds.net> <20050625234611.118b391d.akpm@osdl.org> <42BE7E38.9070703@netbauds.net>
+In-Reply-To: <42BE7E38.9070703@netbauds.net>
 X-Enigmail-Version: 0.92.0.0
 OpenPGP: id=6B99E3A5
 Content-Type: multipart/signed; micalg=pgp-sha1;
  protocol="application/pgp-signature";
- boundary="------------enig7A3FA6DB3C821DF5D69805A7"
+ boundary="------------enigCBFE0D91D2FF3BC60A4B13E2"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig7A3FA6DB3C821DF5D69805A7
+--------------enigCBFE0D91D2FF3BC60A4B13E2
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 7bit
 
-Pozs=C3=A1r Bal=C3=A1zs schrieb:
-> See http://lkml.org/lkml/2005/1/17/132
-The patch was against 2.6.11-rc1, has it not been adapted into mainline? =
+Darryl L. Miles schrieb:
+> Andrew Morton wrote:
 
-As far as I can see, most of the hunks were already applied, and some=20
-parts of the code have evolved further since. BTW, I never had this=20
-problem with any 2.6.11 until .12 so far.
-Thanks for your pointer!
+[snip]
 
+> Found the thread:   
+> http://www.ussg.iu.edu/hypermail/linux/kernel/0506.0/1556.html
+> 
+> 
+> This works for me:
+> 
 
---------------enig7A3FA6DB3C821DF5D69805A7
+[snip]
+
+Thanks, but still no go, as I am using Gentoo and a totally bloated 
+self-grown glibc initramfs environment. Whenever I boot 2.6.11.12, there 
+is no problem whatsoever about modprobe returning before device nodes 
+are created. Any ideas? I changed udev versions back and forth between 
+058 and 056, did not make any difference either...
+
+I can send any information of interest later tonight, but have to run 
+for now. Thanks in advance!
+
+--------------enigCBFE0D91D2FF3BC60A4B13E2
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="signature.asc"
@@ -54,19 +65,19 @@ Content-Disposition: attachment; filename="signature.asc"
 Version: GnuPG v1.4.1 (GNU/Linux)
 Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-iQIVAwUBQr6XJV2m8MprmeOlAQI3Jg//dnvAv6qZIEF1T7x+DESYrePiz6S66UcG
-0MnRcVogxmMzt3LsUjadW5JX50aXHhNGGi0h5lKctlUUh0ZeM1rJnw+XSeaHujfl
-HdW4LjC77773mvUkXdKGlzT9UzkURPWXuHi5PdGpxJaf5Z+zYxAnVlXI9oiYDMub
-Z9M2NplvKu2iaUW3Ixk4BYAFLfXZCjgG/HQUrJQtjq4bfzndGnSoqWqS9QRRAmjy
-zvkWlQtTsc0+v+Dmb46+oOErDJiFSvMjKc5AyH38EpWcPqir13/y0PVNN73OVc6z
-Y2Gj4XoBv7MX7dZQkC2VaaYS18aV/7J9QVJT5iw+QxBxk1xlrwOkf8ia1l062nwD
-j+i8QeYDH8hM74ES4dklyaQv7qEBTiGpTwrw4/ZtHamboAlXCxlXf0ye+K/Vp1N/
-ToIb0fjgqcC/qDpcGeAI8HmPWb4zuOlb+P//vcgzFSHZ5mvzVFDDsCdH+FEdvbjL
-HidPnWZiePiP1pEEPcEuqiPjs4wBSqFE6RLcZzt9VKDeOuAF/VW+gX5R0HM7DJd4
-ZYcRXXV0g245P39MfgzrS5Z+NoMFEH/HjiM4LNNojxsePEWZ7hAPM8/s/zLZ8Lcn
-3hlLHQPf2kq/JRZFP4Y/DAbyUG3o8bsILCNd7V88szL706B56+rVquXY1xQn3QKp
-upoDDzDyUng=
-=WO4d
+iQIVAwUBQr6YxV2m8MprmeOlAQLUlw//cnpTh/uVTJ+EvWmJfvSzM9y8Pa3W7PW6
+p83Zu5weveKsQHXGTQhnMWxUvem9q8PCQH3OtDNkUtcYKwxB73U3QTBcTpUBO5Tl
+LPuaTiv2xCmCzdFcp/CLpiK/vg+ub2t8rs2Gj1g/J9mEdpxQxgNTXP6A1+d4VEFW
+mRGLMCgez8zOraRTJBv1X3NmrtA3AToCJa2cJrGNSZIbyCqvkxboZBuutkPn33R6
+i0JuvEqKdsybV/8FLAnuoms0OLh8unGiJGWa4DCCLPHbo67mmF4XM/Yphd9Ni2jB
+tBLOUSoMLBHZkFYHh/hYuNyV37yDN+QzHawYphFYmEUMDNyZ5xUzZWDqMYe3Blb5
+3uSbbeLk8uNI74Nrh+RW7lME0gLba3Vt1v9vitQYWEIc6JwNhUDkGvxm5ivT4Tij
+hfs/KuxpGpkiEv20+8clHwVH+9VGC4I6Lu8fvm2d4AluNWZY8+oFx/wEhZULr6WN
+U0rGJjKfFtpTRrEsh8gUdYV0UY/DvfGWmuVP0uVgVT3pjGwrH4UdMB/Y89QZZGSp
+ScVGnCAyXY5MgtbFcwTXPklwWgRiHyScprHEsBlLIco1gu8K1dxGWuS0xGh2tT9l
+NwQrODD3Lbw9nPoYU7qw1mzfI97Kyl01jHqUygBhFBkaP2a5O9i7m6X2aBs+N8nB
+fdiXkE8PHfM=
+=VEet
 -----END PGP SIGNATURE-----
 
---------------enig7A3FA6DB3C821DF5D69805A7--
+--------------enigCBFE0D91D2FF3BC60A4B13E2--

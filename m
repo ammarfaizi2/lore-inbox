@@ -1,76 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261664AbVFZXie@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261661AbVFZXme@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261664AbVFZXie (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Jun 2005 19:38:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261666AbVFZXie
+	id S261661AbVFZXme (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Jun 2005 19:42:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261666AbVFZXme
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Jun 2005 19:38:34 -0400
-Received: from vms044pub.verizon.net ([206.46.252.44]:8095 "EHLO
-	vms044pub.verizon.net") by vger.kernel.org with ESMTP
-	id S261664AbVFZXiU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Jun 2005 19:38:20 -0400
-Date: Sun, 26 Jun 2005 19:38:18 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: [CFT:PATCH] 2/3: Check status of CTS when using flow control
-In-reply-to: <20050626233706.E28598@flint.arm.linux.org.uk>
-To: linux-kernel@vger.kernel.org
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>
-Message-id: <200506261938.18690.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <20050626221501.GA5769@dyn-67.arm.linux.org.uk>
- <200506261826.43244.gene.heskett@verizon.net>
- <20050626233706.E28598@flint.arm.linux.org.uk>
-User-Agent: KMail/1.7
+	Sun, 26 Jun 2005 19:42:34 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:19840 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261661AbVFZXmb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Jun 2005 19:42:31 -0400
+Message-ID: <42BF3D6B.7000404@namesys.com>
+Date: Sun, 26 Jun 2005 16:42:35 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>,
+       Alexander Zarochentcev <zam@namesys.com>
+CC: Alexander Zarochentsev <zam@namesys.com>, Jeff Garzik <jgarzik@pobox.com>,
+       reiserfs-list@namesys.com, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: reiser4 plugins
+References: <20050620235458.5b437274.akpm@osdl.org> <42B8B9EE.7020002@namesys.com> <42B8BB5E.8090008@pobox.com> <200506221824.32995.zam@namesys.com> <20050622142947.GA26993@infradead.org> <42BA2ED5.6040309@namesys.com> <20050626164606.GA18942@infradead.org>
+In-Reply-To: <20050626164606.GA18942@infradead.org>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 26 June 2005 18:37, Russell King wrote:
->On Sun, Jun 26, 2005 at 06:26:43PM -0400, Gene Heskett wrote:
->> On Sunday 26 June 2005 18:17, Russell King wrote:
->> >Fix bugme #4712: read the CTS status and set hw_stopped if CTS
->> >is not active.
->> >
->> >Thanks to Stefan Wolff for spotting this problem.
+Christoph Hellwig wrote:
+
+>On Wed, Jun 22, 2005 at 08:39:01PM -0700, Hans Reiser wrote:
+>  
+>
+>>Correct me if I am wrong:
 >>
->> This one needs to make mainline & maybe, after 3 years, I can use
->> a pl2303 to talk to an old slow coco.  Twould be very nice if that
->> fixed the lack of flow controls the connection apparently fails
->> from.
+>>What exists currently in VFS are vector instances, not classes. Plugins,
+>>selected by pluginids, are vector classes, with each pluginid selecting
+>>a vector class. You propose to have the vector class layer (aka plugin
+>>layer) in reiser4 export the vector instance to VFS for VFS to handle
+>>for each object, rather than having VFS select reiser4 and reiser4
+>>selecting a vector class (aka plugin) which selects a method.
+>>
+>>If we agree on the above, then I will comment further.
+>>    
+>>
 >
->Sorry, wasn't aware of the problem until recently.  Reviewing the
->code reveals that this bug has existed through many many many kernel
->series. ;(
+>I'm a bit confused about what you're saying here.  What does the 'vector'
+>in all these expressions mean?
+>  
 >
-Yes it has, and I may have even posted about it, but that would be a 
-year plus back into ancient history Russell.  You mention another 
-required patch also?  Where might it be obtained?
+Was your word, I thought, for the *_operation structures.
 
->Have you been able to test it?  You will need the first patch as
-> well.
+>In OO terminology our *_operation structures are interfaces.  Each particular
+>instance of such a struct that is filled with function pointers is a class.
+>Each instance of an inode/file/dentry/superblock/... that uses these operation
+>vectors is an object.
 >
->(also, please remember I can't send you mail directly... still.)
+>What I propose (or rather demand ;-)) is that you don't duplicate this
+>infrastructure, and add another dispath layer below these objects but instead
+>re-use it for what it is done and only handle things specific to reiser4
+>in your own code. 
+>
+Well, that is very different from saying that we get rid of the plugin
+layer.
 
-I'm also getting bounces involving the address in the CC: line,
-Russell King <rmk+lkml@arm.linux.org.uk>
+So, rather than having a hierarchy, in which we first select filesystem,
+and then select plugin, VFS should treat each plugin as though it was a
+filesystem, if I understand you. Plugins and pluginids continue to exist
+with the exact same functionality, we just eliminate a function
+dereference for the *_operation structures. Let's see how it codes up in
+its details.
 
-While I can goto vz and add that address to the incoming whitelist, I 
-doubt that would do you any good.  Looks like I need to bookmark that 
-page and start using it more often.  Did I mention how bad vz sucks?  
-Unforch, only game in this neck of the appalacians (hell I can't even 
-spell it right), sorry.
+Zam, can you work on this?
 
-Anyway, your domain name is now in the vz whitelist.
-
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.35% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+Hans

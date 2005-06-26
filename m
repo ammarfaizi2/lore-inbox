@@ -1,116 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261517AbVFZSOR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261541AbVFZSTG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261517AbVFZSOR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Jun 2005 14:14:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261534AbVFZSOR
+	id S261541AbVFZSTG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Jun 2005 14:19:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261534AbVFZSTG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Jun 2005 14:14:17 -0400
-Received: from mta8.srv.hcvlny.cv.net ([167.206.4.203]:8175 "EHLO
-	mta8.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S261517AbVFZSOL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Jun 2005 14:14:11 -0400
-Date: Sun, 26 Jun 2005 14:14:09 -0400
-From: Nick Orlov <bugfixer@list.ru>
-Subject: 2.6.12-mm2: 3ware SATA RAID inaccessible
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org
-Mail-followup-to: linux-kernel@vger.kernel.org, akpm@osdl.org
-Message-id: <20050626181409.GA4561@nikolas.hn.org>
-MIME-version: 1.0
-Content-type: text/plain; charset=koi8-r
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-User-Agent: Mutt/1.5.9i
+	Sun, 26 Jun 2005 14:19:06 -0400
+Received: from h80ad261f.async.vt.edu ([128.173.38.31]:65178 "EHLO
+	h80ad261f.async.vt.edu") by vger.kernel.org with ESMTP
+	id S261547AbVFZSSC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Jun 2005 14:18:02 -0400
+Message-Id: <200506261816.j5QIGMdI010142@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: David Masover <ninja@slaphack.com>
+Cc: Lincoln Dale <ltd@cisco.com>, Gregory Maxwell <gmaxwell@gmail.com>,
+       Hans Reiser <reiser@namesys.com>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: reiser4 plugins 
+In-Reply-To: Your message of "Sun, 26 Jun 2005 02:48:06 CDT."
+             <42BE5DB6.8040103@slaphack.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <200506240241.j5O2f1eb005609@laptop11.inf.utfsm.cl> <42BCD93B.7030608@slaphack.com> <200506251420.j5PEKce4006891@turing-police.cc.vt.edu> <42BDA377.6070303@slaphack.com> <200506252031.j5PKVb4Y004482@turing-police.cc.vt.edu> <42BDC422.6020401@namesys.com> <42BE3645.4070806@cisco.com> <e692861c05062522071fe380a5@mail.gmail.com> <42BE563D.4000402@cisco.com>
+            <42BE5DB6.8040103@slaphack.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1119809781_3659P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sun, 26 Jun 2005 14:16:21 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-3Ware SATA RAID inaccessible with 2.6.12-mm2:
+--==_Exmh_1119809781_3659P
+Content-Type: text/plain; charset=us-ascii
 
-==================================================
+On Sun, 26 Jun 2005 02:48:06 CDT, David Masover said:
 
-Jun 26 11:49:51 nikolas kernel: 3ware Storage Controller device driver for Linux v1.26.02.001.
-Jun 26 11:49:51 nikolas kernel: PCI: Found IRQ 9 for device 0000:00:0f.0
-Jun 26 11:49:51 nikolas kernel: IRQ routing conflict for 0000:00:0f.0, have irq 5, want irq 9
-Jun 26 11:49:51 nikolas kernel: scsi0 : 3ware Storage Controller
-Jun 26 11:49:51 nikolas kernel: 3w-xxxx: scsi0: Found a 3ware Storage Controller at 0xa400, IRQ: 5.
-Jun 26 11:49:51 nikolas kernel:   Vendor:           Model:                   Rev:     
-Jun 26 11:49:51 nikolas kernel:   Type:   Direct-Access                      ANSI SCSI revision: 00
-Jun 26 11:49:51 nikolas kernel: sda : sector size 0 reported, assuming 512.
-Jun 26 11:49:51 nikolas kernel: SCSI device sda: 1 512-byte hdwr sectors (0 MB)
-Jun 26 11:49:51 nikolas kernel: sda: asking for cache data failed
-Jun 26 11:49:51 nikolas kernel: sda: assuming drive cache: write through
-Jun 26 11:49:51 nikolas kernel: sda : sector size 0 reported, assuming 512.
-Jun 26 11:49:51 nikolas kernel: SCSI device sda: 1 512-byte hdwr sectors (0 MB)
-Jun 26 11:49:51 nikolas kernel: sda: asking for cache data failed
-Jun 26 11:49:51 nikolas kernel: sda: assuming drive cache: write through
-Jun 26 11:49:51 nikolas kernel:  sda: sda1 sda2 sda3
-Jun 26 11:49:51 nikolas kernel: Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
+> Lincoln Dale wrote:
 
-..........
+> > this is the WHOLE point of standardization .. i don't think its that
+> > Reiser4's EAs offer any more or less capabilities than standard EAs -
+> 
+> They do.  Reiser4's EAs can look like any other object -- files,
+> folders, symlinks, whatever.  This is important, especially for
+> transparency.
 
-Jun 26 11:49:51 nikolas kernel: ReiserFS: sda2: warning: sh-2006: read_super_block: bread failed (dev sda2, block 2, size 4096)
-Jun 26 11:49:51 nikolas kernel: ReiserFS: sda2: warning: sh-2006: read_super_block: bread failed (dev sda2, block 16, size 4096)
-Jun 26 11:49:51 nikolas kernel: ReiserFS: sda2: warning: sh-2021: reiserfs_fill_super: can not find reiserfs on sda2
-Jun 26 11:49:51 nikolas kernel: ReiserFS: sda3: warning: sh-2006: read_super_block: bread failed (dev sda3, block 2, size 4096)
-Jun 26 11:49:51 nikolas kernel: ReiserFS: sda3: warning: sh-2006: read_super_block: bread failed (dev sda3, block 16, size 4096)
-Jun 26 11:49:51 nikolas kernel: ReiserFS: sda3: warning: sh-2021: reiserfs_fill_super: can not find reiserfs on sda3
+No, you want them to look like the same objects that {get|set}xattr() manage
+currently.  You don't want programs to have to guess what an EA looks like
+this week, with this user's combination of plugins that's different from
+everybody else's.
 
-==================================================
+> > lets take this a step further.  what about compression?  do we accept
+> > that each filesystem can implement its own proprietary compression via
+> > its own API - and now we need individual user-space tools to understand
+> 
+> No, that's the beauty of these "EAs" in Reiser4.  The API is standard
+> write(2) commands.  sys_reiser4 supposedly implements an interface to
+> make this scale better, but otherwise have the same semantics.  And who
+> said anything about proprietary compression?  I think we were planning
+> on the kernel's zlib, though we might have been planning to make it a
+> bit more seekable...
+> 
+> > each of these APIs?
+> 
+> So, the API becomes something like:
+> 
+> cat crypto/inflated/foo		# transparently decompressed
+> cat crypto/raw/foo.gz		# raw, gzip-compressed
+
+And 'cat crypto/raw/foo' or 'crypto/inflated/foo.gz' gets you what, exactly?
+
+Now throw some .bz2 and .zip files into the mix... ;)
+
+> Another possibility, if you like file-as-a-directory:
+> 
+> cat foo.gz			# raw
+> cat foo.gz/inflated		# decompressed
+> 
+> One could easily imagine things like these two potentially equivalent
+> commands:
+> 
+> cp foo bar.zip/
+> zip bar foo
+
+Unless of course the user had done 'mkdir sorted.by.city.zip' to make
+a directory of files containing data sorted by USPS Zip code.
+
+And what happens if the user has a file 'bar' that's not a ZIP file,
+and a directory 'bar.zip' isn't a view into 'bar'?
+
+Most of the time, if I have a file 'linux-2.6.12.tar.bz2' and a
+directory 'linux-2.6.12', what is under the directory is *NOT* the same
+data as what's in the .bz2 - I've done 'make oldconfig' and a few builds
+and some variable amount of patching, usually with rejects, and I *don't*
+want that .bz2 being updated during all this (hint - what's my next command
+after 'rm -rf linux-2.6.12' likely to be, and why, and  what expectations
+do I have when I do it?)
+
+You want to think this sort of thing through *really* thoroughly, because
+there's a *lot* of things, both users and programs, that have expectations
+about The Way Things Work.
+
+> The whole point is to have less userland tools, not more.  I'm not
+> saying we move zip into the kernel, just that the user now has one less
+> command to remember.
+
+But now instead of having to remember the one meme "I can manage any
+compressed-archive format that's stored in a file, and put other files in it,
+and all I need is the appropriate userspace tool", they have to remember "the
+cp trick works for .zip and .tar, but I'll get a "not a directory" error if I
+try it with a .hqx file, and that other file format may or may not work,
+because I can't remember if this kernel has a working out-of-tree module for
+this kernel...."
 
 
-2.6.12-mm1 works just fine:
+--==_Exmh_1119809781_3659P
+Content-Type: application/pgp-signature
 
-==================================================
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
+iD8DBQFCvvD1cC3lWbTT17ARAsd7AKDFfaRMu7syu+Mfp7vDbwGLxPFgYgCggVI1
+eWZRdBbusKt0+c/Y6Vyj04c=
+=LXfT
+-----END PGP SIGNATURE-----
 
-Jun 26 11:59:07 nikolas kernel: 3ware Storage Controller device driver for Linux v1.26.02.001.
-Jun 26 11:59:07 nikolas kernel: PCI: Found IRQ 9 for device 0000:00:0f.0
-Jun 26 11:59:07 nikolas kernel: IRQ routing conflict for 0000:00:0f.0, have irq 5, want irq 9
-Jun 26 11:59:07 nikolas kernel: scsi0 : 3ware Storage Controller
-Jun 26 11:59:07 nikolas kernel: 3w-xxxx: scsi0: Found a 3ware Storage Controller at 0xa400, IRQ: 5.
-Jun 26 11:59:07 nikolas kernel:   Vendor: 3ware     Model: Logical Disk 0    Rev: 1.2 
-Jun 26 11:59:07 nikolas kernel:   Type:   Direct-Access                      ANSI SCSI revision: 00
-Jun 26 11:59:07 nikolas kernel: SCSI device sda: 488395120 512-byte hdwr sectors (250058 MB)
-Jun 26 11:59:07 nikolas kernel: SCSI device sda: drive cache: write back
-Jun 26 11:59:07 nikolas kernel: SCSI device sda: 488395120 512-byte hdwr sectors (250058 MB)
-Jun 26 11:59:07 nikolas kernel: SCSI device sda: drive cache: write back
-Jun 26 11:59:07 nikolas kernel:  sda: sda1 sda2 sda3
-Jun 26 11:59:07 nikolas kernel: Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
-
-..........
-
-
-Jun 26 11:59:07 nikolas kernel: ReiserFS: sda2: found reiserfs format "3.6" with standard journal
-Jun 26 11:59:07 nikolas kernel: ReiserFS: sda2: using ordered data mode
-Jun 26 11:59:07 nikolas kernel: ReiserFS: sda2: journal params: device sda2, size 8192, journal first block 18, max trans len 1024, max batch 900, max commit age 30, max trans age 30
-Jun 26 11:59:07 nikolas kernel: ReiserFS: sda2: checking transaction log (sda2)
-Jun 26 11:59:07 nikolas kernel: ReiserFS: sda2: Using r5 hash to sort names
-Jun 26 11:59:07 nikolas kernel: ReiserFS: sda3: found reiserfs format "3.6" with standard journal
-Jun 26 11:59:07 nikolas kernel: ReiserFS: sda3: using ordered data mode
-Jun 26 11:59:07 nikolas kernel: ReiserFS: sda3: journal params: device sda3, size 8192, journal first block 18, max trans len 1024, max batch 900, max commit age 30, max trans age 30
-Jun 26 11:59:07 nikolas kernel: ReiserFS: sda3: checking transaction log (sda3)
-Jun 26 11:59:07 nikolas kernel: ReiserFS: sda3: Using r5 hash to sort names
-
-==================================================
-
-reverting git-scsi-block-fix.patch git-scsi-block.patch solves the
-problem.
-
-
-Also, please note that some of the info printed twice:
-
-Jun 26 11:59:07 nikolas kernel: SCSI device sda: 488395120 512-byte hdwr
-sectors (250058 MB)
-Jun 26 11:59:07 nikolas kernel: SCSI device sda: drive cache: write back
-Jun 26 11:59:07 nikolas kernel: SCSI device sda: 488395120 512-byte hdwr
-sectors (250058 MB)
-Jun 26 11:59:07 nikolas kernel: SCSI device sda: drive cache: write back
-
-This glitch was introduced long time ago, somewhere after 2.6.9-mm1.
-I have an archive of all the kernels I've built, so if it'll help I can do
-a binary search among them to find when exactly it happend.
-
--- 
-With best wishes,
-	Nick Orlov.
-
+--==_Exmh_1119809781_3659P--

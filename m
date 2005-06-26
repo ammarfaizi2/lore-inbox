@@ -1,38 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261385AbVFZBNv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261505AbVFZBmg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261385AbVFZBNv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Jun 2005 21:13:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261394AbVFZBNv
+	id S261505AbVFZBmg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Jun 2005 21:42:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261509AbVFZBmd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Jun 2005 21:13:51 -0400
-Received: from rwcrmhc14.comcast.net ([216.148.227.89]:22989 "EHLO
-	rwcrmhc14.comcast.net") by vger.kernel.org with ESMTP
-	id S261385AbVFZBNt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Jun 2005 21:13:49 -0400
-Message-ID: <42BE0151.7010606@namesys.com>
-Date: Sat, 25 Jun 2005 18:13:53 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christian Trefzer <ctrefzer@web.de>
-CC: Hubert Chan <hubert@uhoreg.ca>, linux-kernel@vger.kernel.org,
-       reiserfs-list@namesys.com
-Subject: Re: -mm -> 2.6.13 merge status
-References: <20050620235458.5b437274.akpm@osdl.org.suse.lists.linux.kernel> <p73d5qgc67h.fsf@verdi.suse.de> <42B86027.3090001@namesys.com> <20050621195642.GD14251@wotan.suse.de> <42B8C0FF.2010800@namesys.com> <84144f0205062223226d560e41@mail.gmail.com> <42BB0151.3030904@suse.de> <87fyv8h80y.fsf@evinrude.uhoreg.ca> <42BDFA8E.6060608@web.de>
-In-Reply-To: <42BDFA8E.6060608@web.de>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Sat, 25 Jun 2005 21:42:33 -0400
+Received: from rproxy.gmail.com ([64.233.170.201]:48082 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261505AbVFZBma convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Jun 2005 21:42:30 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=dYr/0ge2eE4EZonMLKW6+qQct+MCKhbA9eW3HCffFqtVGhkcZMH49/j1NUZytOnUxmky8nCqCMtW7XSMdIWEHni3hPymZ9dmO0A+/czoOPcol6TyUHGbLETyRGsJtwXfHFl2NN+HmpESS7mU7r3ApEd12sLOUYJw3gFaQAvIjqo=
+Message-ID: <21d7e99705062518422178eb67@mail.gmail.com>
+Date: Sun, 26 Jun 2005 11:42:30 +1000
+From: Dave Airlie <airlied@gmail.com>
+Reply-To: Dave Airlie <airlied@gmail.com>
+To: "Garst R. Reese" <garstr@isn.net>
+Subject: Re: ATI Radeon xpress 200M
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <42BD9A67.3090303@isn.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <42BD9A67.3090303@isn.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian Trefzer wrote:
+> Can any tell me if this grapics card is supported with the radeon
+> module, and which 2.6.xx kernel would be required? I'm trying to get it
+> running on a Compaq R4000, with no success.
+> 
+> pls cc me.
+> 
 
-> Hubert Chan schrieb:
->
->> How about something of the form "nikita-955(file:line)"?  Or the
->> reverse: "file:line(nikita-955)".  Would that keep everyone happy?
->>
-Makes me happy.....
+The radeon kernel module is only used for 3D support features, at the
+moment there isn't any real support for r300 class cards for 3D (ether
+fglrx from ATI, or r300.sf.net).
+
+For 2D support you don't need any kernel drivers.. X should support
+your card but you might have to set the ChipID ... but that is OT for
+lkml....
+
+Dave.

@@ -1,49 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261525AbVFZSIT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261530AbVFZSKq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261525AbVFZSIT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Jun 2005 14:08:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261534AbVFZSIT
+	id S261530AbVFZSKq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Jun 2005 14:10:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261517AbVFZSKp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Jun 2005 14:08:19 -0400
-Received: from mail.linicks.net ([217.204.244.146]:49931 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S261525AbVFZSIO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Jun 2005 14:08:14 -0400
-From: Nick Warne <nick@linicks.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: IDE probing IDE_MAX_HWIFS
-Date: Sun, 26 Jun 2005 19:08:12 +0100
-User-Agent: KMail/1.8.1
-References: <200506251210.37623.nick@linicks.net> <1119808271.28644.33.camel@localhost.localdomain>
-In-Reply-To: <1119808271.28644.33.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-6"
+	Sun, 26 Jun 2005 14:10:45 -0400
+Received: from iron.pdx.net ([207.149.241.18]:45787 "EHLO iron.pdx.net")
+	by vger.kernel.org with ESMTP id S261537AbVFZSJr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Jun 2005 14:09:47 -0400
+Subject: Re: FW: PROBLEM: Devices behind PCI Express-to-PCI bridge
+	not	mapped
+From: Sean Bruno <sean.bruno@dsl-only.net>
+To: karim@opersys.com
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "Hodle, Brian" <BHodle@harcroschem.com>
+In-Reply-To: <42BDC7A9.7070906@opersys.com>
+References: <D9A1161581BD7541BC59D143B4A06294021FAA68@KCDC1>
+	 <42BDB338.9030800@opersys.com>  <1119729766.9540.0.camel@oscar.metro1.com>
+	 <1119729942.9614.1.camel@oscar.metro1.com>  <42BDC7A9.7070906@opersys.com>
+Content-Type: text/plain
+Date: Sun, 26 Jun 2005 11:09:43 -0700
+Message-Id: <1119809383.3520.0.camel@oscar.metro1.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506261908.12398.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 26 June 2005 18:51, you wrote:
-> On Sad, 2005-06-25 at 12:10, Nick Warne wrote:
-> > Looking at the Kconfig, I see APLHA & SUPERH do get an option to change
-> > this to suit
-> > drivers/ide/Kconfig
->
-> To make embedded systems as small as possible
->
-> > Now my question :-)  Is there a specific reason why this isn't included
-> > in other architectures?
->
-> They are not embedded ?
 
-Heh.  Yes I know now, but I was thinking along the lines that if someone knows 
-how many IDE interfaces they have it could be specified exactly - I 
-didn't/don't see why it is considered an option for config_embedded only to 
-be allowed to do that.
+> 
+> Here's what google turns up:
+> https://bugzilla.redhat.com/bugzilla/attachment.cgi?id=114778
 
-Nick
--- 
-"When you're chewing on life's gristle,
-Don't grumble, Give a whistle..."
+lol...look who the bug submitter for that issue is...  :)
+
+Sean
+

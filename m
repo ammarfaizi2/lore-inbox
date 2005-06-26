@@ -1,109 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261597AbVFZVZ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261611AbVFZVlH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261597AbVFZVZ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Jun 2005 17:25:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261424AbVFZVZ5
+	id S261611AbVFZVlH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Jun 2005 17:41:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbVFZVje
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Jun 2005 17:25:57 -0400
-Received: from [141.211.252.161] ([141.211.252.161]:38535 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261597AbVFZVYg (ORCPT
+	Sun, 26 Jun 2005 17:39:34 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:22410 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S261600AbVFZVjZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Jun 2005 17:24:36 -0400
-Date: Sun, 26 Jun 2005 23:24:26 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Gerrit Huizenga <gh@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ckrm-tech@lists.sourceforge.net, Hubertus Franke <frankeh@us.ibm.com>,
-       Chandra Seetharaman <sekharan@us.ibm.com>,
-       Shailabh Nagar <nagar@us.ibm.com>, Vivek Kashyap <vivk@us.ibm.com>
-Subject: Re: [patch 08/38] CKRM e18: Documentation
-Message-ID: <20050626212426.GB1315@elf.ucw.cz>
-References: <20050623061552.833852000@w-gerrit.beaverton.ibm.com> <20050623061755.719424000@w-gerrit.beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050623061755.719424000@w-gerrit.beaverton.ibm.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Sun, 26 Jun 2005 17:39:25 -0400
+Date: Sun, 26 Jun 2005 22:39:21 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: Christoph Hellwig <hch@infradead.org>
+Cc: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, paulus@samba.org,
+       eich@pdx.freedesktop.org
+Subject: Re: [git patch] DRM 32/64 ioctl patch..
+In-Reply-To: <20050626183948.GA21318@infradead.org>
+Message-ID: <Pine.LNX.4.58.0506262235400.29729@skynet>
+References: <Pine.LNX.4.58.0506261313390.3269@skynet> <20050626183948.GA21318@infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+>
+> I talked to Egbert Eich at Linuxtag and he said he had different compat
+> ioctl patch for drm, which actually supports running a 64bit server
+> and 32bit clients.
+>
+> The big question is here, does this patch help to reach this goal or does
+> it make that more awkward?
 
-> This patch adds all current documentation on CKRM.
-> 
-> Signed-Off-By: Hubertus Franke <frankeh@us.ibm.com>
-> Signed-Off-By: Chandra Seetharaman <sekharan@us.ibm.com>
-> Signed-Off-By: Shailabh Nagar <nagar@us.ibm.com>
-> Signed-Off-By: Vivek Kashyap <vivk@us.ibm.com>
-> Signed-Off-By: Gerrit Huizenga <gh@us.ibm.com>
-> 
->  TODO         |   16 +++++++++
->  ckrm_basics  |   66 +++++++++++++++++++++++++++++++++++++++
->  core_usage   |   72 +++++++++++++++++++++++++++++++++++++++++++
->  crbce        |   33 +++++++++++++++++++
->  installation |   70 ++++++++++++++++++++++++++++++++++++++++++
->  rbce_basics  |   67 ++++++++++++++++++++++++++++++++++++++++
->  rbce_usage   |   98 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
->  7 files changed, 422 insertions(+)
-> 
-> Index: linux-2.6.12-ckrm1/Documentation/ckrm/ckrm_basics
-> ===================================================================
-> --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-> +++ linux-2.6.12-ckrm1/Documentation/ckrm/ckrm_basics	2005-06-20 13:08:35.000000000 -0700
-> @@ -0,0 +1,66 @@
-> +CKRM Basics
-> +-------------
+It shouldn't break it, Paulus and Egbert were at least talking about this
+stuff, Paulus gave me an easier to integrate patch and worked with me to
+get it in shape, my next plan was to start taking pieces of Egberts work
+for the other cards and putting it into the kernel...
 
-Perhaps you want to explain what "CKRM" means?
+Egberts work also fixes some problems in userspace but these aren't any
+concern of mine really and those fixes need to be put into the Mesa and
+X.org trees, it also makes sure backwards compat is better satisfied as
+more people will test with a new/old combination..
 
-> +RCFS depicts a CKRM class as a directory. Hierarchy of classes can be
+Dave.
 
-Another four letter acronym, unexplained?
-
-> +   # cat /rcfs/taskclass/c1/members
-> +   lists pids of tasks belonging to c1
-> +
-> +   # cat /rcfs/socket_class/s1/members
-> +   lists the ipaddress\port of all listening sockets in s1
-                         ~
-			  did you want to use "/" here?
-
-> Index: linux-2.6.12-ckrm1/Documentation/ckrm/crbce
-> ===================================================================
-> --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-> +++ linux-2.6.12-ckrm1/Documentation/ckrm/crbce	2005-06-20 13:08:35.000000000 -0700
-> @@ -0,0 +1,33 @@
-> +CRBCE
-> +----------
-> +
-> +crbce is a superset of rbce. In addition to providing automatic
-> +classification, the crbce module
-
-Nice, but you should describe what RBCE means... And capitalize your
-acronyms consistently...
-
-> Index: linux-2.6.12-ckrm1/Documentation/ckrm/rbce_basics
-> ===================================================================
-> --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-> +++ linux-2.6.12-ckrm1/Documentation/ckrm/rbce_basics	2005-06-20 13:08:35.000000000 -0700
-> @@ -0,0 +1,67 @@
-> +Rule-based Classification Engine (RBCE)
-> +-------------------------------------------
-> +
-> +The ckrm/rbce directory contains the sources for two classification engines
-> +called rbce and crbce. Both are optional, built as kernel modules and share much
-> +of their codebase. Only one classification engine (CE) can be loaded at a time
-> +in CKRM.
-
-TMFLAs! (*)
-
-Your resource managment may be quite nice system, but the naming is
-definitely very ugly. With your design we would not have open() system
-call, but ofsoarh() -- open filesystem object and return its
-handle. Can you come up with some reasonable naming?
-
-								Pavel
-(*) Too many four letter acronyms.
 -- 
-teflon -- maybe it is a trademark, but it should not be.
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied at skynet.ie
+Linux kernel - DRI, VAX / pam_smb / ILUG
+

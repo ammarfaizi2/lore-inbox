@@ -1,73 +1,195 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261388AbVFZBD3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261382AbVFZBEZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261388AbVFZBD3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Jun 2005 21:03:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261385AbVFZBD2
+	id S261382AbVFZBEZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Jun 2005 21:04:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261428AbVFZBEZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Jun 2005 21:03:28 -0400
-Received: from rwcrmhc14.comcast.net ([216.148.227.89]:41131 "EHLO
-	rwcrmhc14.comcast.net") by vger.kernel.org with ESMTP
-	id S261354AbVFZBDH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Jun 2005 21:03:07 -0400
-Message-ID: <42BDFEC7.5010400@namesys.com>
-Date: Sat, 25 Jun 2005 18:03:03 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
+	Sat, 25 Jun 2005 21:04:25 -0400
+Received: from mail-1.netbauds.net ([62.232.161.102]:15327 "EHLO
+	mail-1.netbauds.net") by vger.kernel.org with ESMTP id S261382AbVFZBDR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Jun 2005 21:03:17 -0400
+Message-ID: <42BDFEC2.3030004@netbauds.net>
+Date: Sun, 26 Jun 2005 02:02:58 +0100
+From: "Darryl L. Miles" <darryl@netbauds.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-GB; rv:1.8b) Gecko/20050217
 MIME-Version: 1.0
-To: "Theodore Ts'o" <tytso@mit.edu>
-CC: Pekka Enberg <penberg@cs.helsinki.fi>, Jens Axboe <axboe@suse.de>,
-       Andrew Morton <akpm@osdl.org>, Jeff Mahoney <jeffm@suse.de>,
-       penberg@gmail.com, ak@suse.de, flx@namesys.com, zam@namesys.com,
-       vs@thebsh.namesys.com, linux-kernel@vger.kernel.org,
-       reiserfs-list@namesys.com
-Subject: Re: -mm -> 2.6.13 merge status
-References: <p73d5qgc67h.fsf@verdi.suse.de> <42B86027.3090001@namesys.com> <20050621195642.GD14251@wotan.suse.de> <42B8C0FF.2010800@namesys.com> <84144f0205062223226d560e41@mail.gmail.com> <42BB0151.3030904@suse.de> <20050623114318.5ae13514.akpm@osdl.org> <20050623193247.GC6814@suse.de> <1119717967.9392.2.camel@localhost> <42BDAF3D.6060809@namesys.com> <20050625210820.GA26946@thunk.org>
-In-Reply-To: <20050625210820.GA26946@thunk.org>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12 initrd module loading seems parallel on bootup
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Theodore Ts'o wrote:
 
->On Sat, Jun 25, 2005 at 12:23:41PM -0700, Hans Reiser wrote:
->  
->
->>>>       assert("trace_hash-89", is_hashed(foo) != 0);
->>>>
->>>>        
->>>>
->>Lots of people like corporate anonymity.  Some don't.  I don't.  I like
->>knowing who wrote what.  It helps me know who to pay how much.  It helps
->>me know who to forward the bug report to.   Losing your anonymity
->>exposes you, mostly for better since more communication is on balance a
->>good thing, but the fear is there for some.  I don't think we can agree
->>on this, it is an issue of the soul. 
->>    
->>
->
->Fallacy.
->
->The assert doesn't tell you who is at fault; it tells you who placed
->the assert which triggered; it could have triggered due to bugs caused
->by anyone, including the propietary binary-only module from Nvidia
->which the user loaded into his system....
->
->						- Ted
->
->
->  
->
-If you read the thread again carefully, you will see that I already said
-that it doesn't tell you who is at fault for the bug. Furthermore, I
-said that the basis of the resistance of some developers to the use of
-this is that they are not fully convinced that others understand that it
-identifies only the assertion writer not the bug writer. As the boss of
-the guys writing these assertions, I see no reason to indulge baseless
-fears. When guys become experienced members of our team, they lose this
-fear. Sending the bug report to the assertion writer often works nicely
-as a first step, in my project, in my experience, in the cases where I
-don't know anything about the likely implications of the assertion myself.
+
+The kernel is panic'ed trying to mount even before the sym53c8xx driver 
+has completed SCSI bus detection, the MD driver does not find any 
+volumes (since neither the cpqarray.ko or sym53c8xx.ko have registered 
+any disks on the system yet).
+
+I have also witnessed (when booting 2.6.12.1) what appeared to be 
+ext3.ko load failure, I think due to jbd.ko not having chance to 
+register its exported symbols before ext3.ko needs to find them.
+
+
+The broken sequence on 2.6.12 (excuse any errors, this has been typed in 
+not pasted) it would be handy to allow Shift-Page Up to work from a 
+panic, "unable to mount root" or "unable to exec init" if that were 
+possible.
+
+You can see the out of place "input: AT Translated Set 2 keyboard on 
+isa0060/serio0" and "Compaq SMART2 Driver (v 2.6.0)" the elapsed time to 
+print all these messages is < 1.5 seconds.
+
+RedHat nash version 4.1.18 stable
+Mounting /proc filesystem
+Mounting sysfs
+Creating /dev
+Starting udev
+input: AT Translated Set 2 keyboard on isa0060/serio0
+Loading scsi_mod.ko module
+Loading sd_mod.ko module
+SCSI subsystem initialized
+Loading scsi_transport_spi.ko module
+Loading sym53c8xx.ko module
+Loading cpqarray.ko module
+Loading raid1.ko module
+Loading jbd.ko module
+Loading ext3.ko module
+ACPI: PCI interrupt 0000:05:04.0[A] -> GSI 22 (level, low) -> IRQ 169
+sym0: <896> rev 0x5 at pci 0000:05:04.0 irq 177
+Compaq SMART2 Driver (v 2.6.0)
+sym0: No NVRAM, ID 7, Fast-40, LVD, parity checking
+sym0: SCSI BUS has been reset.
+scsi0 : sym-2.2.0
+md: raid1 personality registered as nr 3
+md: Autodetecting RAID arrays.
+md: ... autorun DONE.
+md: Autodetecting RAID arrays.
+md: autorun ...
+md: ... autorun DONE.
+md: Autodetecting RAID arrays.
+md: autorun ...
+md: ... autorun DONE.
+
+Creating root device
+Mounting root filesystem
+mount: error 19 mounting ext3
+mount: error 2 mounting none
+Switching to new root
+switchroot: mount failed: 22
+umount /initrd /dev failed: 2
+kernel panic - not syncing: Attempted to kill init!
+<0>Rebooting in 240 seconds...
+
+
+
+The following is what a healthy 2.6.11.12 bootup on the same system looks like:
+
+
+Freeing unused kernel memory: 232k freed
+SCSI subsystem initialized
+Compaq SMART2 Driver (v 2.6.0)
+cpqarray: Device 0xae10 has been found at bus 6 dev 0 func 0
+ACPI: PCI interrupt 0000:06:00.0[A] -> GSI 30 (level, low) -> IRQ 169
+cpqarray: Finding drives on ida0 (Smart Array 3200)
+cpqarray ida/c0d0: blksz=512 nr_blks=35561280
+cpqarray ida/c0d1: blksz=512 nr_blks=71130720
+cpqarray ida/c0d2: blksz=512 nr_blks=17764320
+cpqarray ida/c0d3: blksz=512 nr_blks=35838720
+ ida/c0d0: p1 p2
+ ida/c0d1: p1
+ ida/c0d2: p1 p2
+ ida/c0d3: p1
+ACPI: PCI interrupt 0000:05:04.0[A] -> GSI 22 (level, low) -> IRQ 177
+sym0: <896> rev 0x5 at pci 0000:05:04.0 irq 177
+sym0: No NVRAM, ID 7, Fast-40, LVD, parity checking
+sym0: SCSI BUS has been reset.
+scsi0 : sym-2.1.18n
+  Vendor: COMPAQ    Model: BD30088279        Rev: HPB0
+  Type:   Direct-Access                      ANSI SCSI revision: 03
+sym0:0:0: tagged command queuing enabled, command queue depth 16.
+ target0:0:0: Beginning Domain Validation
+sym0:0: wide asynchronous.
+sym0:0: FAST-40 WIDE SCSI 80.0 MB/s ST (25.0 ns, offset 31)
+ target0:0:0: Ending Domain Validation
+SCSI device sda: 585937500 512-byte hdwr sectors (300000 MB)
+SCSI device sda: drive cache: write through
+SCSI device sda: 585937500 512-byte hdwr sectors (300000 MB)
+SCSI device sda: drive cache: write through
+ sda: sda1 sda2 sda3 sda4
+Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
+  Vendor: COMPAQ    Model: BD30088279        Rev: HPB0
+  Type:   Direct-Access                      ANSI SCSI revision: 03
+sym0:4:0: tagged command queuing enabled, command queue depth 16.
+ target0:0:4: Beginning Domain Validation
+sym0:4: wide asynchronous.
+sym0:4: FAST-40 WIDE SCSI 80.0 MB/s ST (25.0 ns, offset 31)
+ target0:0:4: Ending Domain Validation
+SCSI device sdb: 585937500 512-byte hdwr sectors (300000 MB)
+SCSI device sdb: drive cache: write through
+SCSI device sdb: 585937500 512-byte hdwr sectors (300000 MB)
+SCSI device sdb: drive cache: write through
+SCSI device sdb: drive cache: write through
+ sdb: sdb1 sdb2 sdb3 sdb4
+Attached scsi disk sdb at scsi0, channel 0, id 4, lun 0
+ACPI: PCI interrupt 0000:05:04.1[B] -> GSI 21 (level, low) -> IRQ 185
+sym1: <896> rev 0x5 at pci 0000:05:04.1 irq 185
+sym1: No NVRAM, ID 7, Fast-40, LVD, parity checking
+sym1: SCSI BUS has been reset.
+scsi1 : sym-2.1.18n
+md: raid1 personality registered as nr 3
+md: Autodetecting RAID arrays.
+md: invalid raid superblock magic on sda4
+md: sda4 has invalid sb, not importing!
+md: invalid raid superblock magic on sdb4
+md: sdb4 has invalid sb, not importing!
+md: autorun ...
+md: considering sdb3 ...
+md:  adding sdb3 ...
+md: sdb2 has different UUID to sdb3
+md: sdb1 has different UUID to sdb3
+md:  adding sda3 ...
+md: sda2 has different UUID to sdb3
+md: sda1 has different UUID to sdb3
+md: created md2
+md: bind<sda3>
+md: bind<sdb3>
+md: running: <sdb3><sda3>
+raid1: raid set md2 active with 2 out of 2 mirrors
+md: considering sdb2 ...
+md:  adding sdb2 ...
+md: sdb1 has different UUID to sdb2
+md:  adding sda2 ...
+md: sda1 has different UUID to sdb2
+md: created md0
+md: bind<sda2>
+md: bind<sdb2>
+md: running: <sdb2><sda2>
+raid1: raid set md0 active with 2 out of 2 mirrors
+md: considering sdb1 ...
+md:  adding sdb1 ...
+md:  adding sda1 ...
+md: created md1
+md: bind<sda1>
+md: bind<sdb1>
+md: running: <sdb1><sda1>
+raid1: raid set md1 active with 2 out of 2 mirrors
+md: ... autorun DONE.
+md: Autodetecting RAID arrays.
+md: autorun ...
+md: ... autorun DONE.
+md: Autodetecting RAID arrays.
+md: autorun ...
+md: ... autorun DONE.
+kjournald starting.  Commit interval 5 seconds
+EXT3-fs: mounted filesystem with ordered data mode.
+
+Hope this helps
+
+
+-- 
+Darryl L. Miles
+
+

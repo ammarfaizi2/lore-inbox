@@ -1,44 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261240AbVFZLhp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261259AbVFZLmf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261240AbVFZLhp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Jun 2005 07:37:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261259AbVFZLho
+	id S261259AbVFZLmf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Jun 2005 07:42:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261390AbVFZLmf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Jun 2005 07:37:44 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:51376 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S261240AbVFZLhl convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Jun 2005 07:37:41 -0400
-From: Parag Warudkar <kernel-stuff@comcast.net>
+	Sun, 26 Jun 2005 07:42:35 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:44559 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261259AbVFZLmY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Jun 2005 07:42:24 -0400
+Date: Sun, 26 Jun 2005 12:42:19 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
 To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.12 initrd module loading seems parallel on bootup
-Date: Sun, 26 Jun 2005 09:19:41 -0400
-User-Agent: KMail/1.8.1
-Cc: "Darryl L. Miles" <darryl@netbauds.net>, linux-kernel@vger.kernel.org,
-       Christian Trefzer <ctrefzer@web.de>,
-       Martin Wilck <martin.wilck@fujitsu-siemens.com>
-References: <42BDFEC2.3030004@netbauds.net> <20050625234611.118b391d.akpm@osdl.org>
-In-Reply-To: <20050625234611.118b391d.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-mm2
+Message-ID: <20050626124219.G14862@flint.arm.linux.org.uk>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20050626040329.3849cf68.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200506260919.41982.kernel-stuff@comcast.net>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050626040329.3849cf68.akpm@osdl.org>; from akpm@osdl.org on Sun, Jun 26, 2005 at 04:03:29AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 26 June 2005 02:46, Andrew Morton wrote:
-> I'd like to know what changed in the kernel to make nash's behaviour
-> change.  Martin, did you work that out?
-Quoting from Prarit Bhargava's email (http://lkml.org/lkml/2005/6/14/149)
--
-"The issue is that David Howells posted a patch that changed the behaviour of 
-kallsyms/insmod/rmmod sometime ago.  The patch *is correct* in what it does, 
-however, the patch requires that /sbin/sh must be aware of pid returns by 
-wait() - http://lkml.org/lkml/2005/1/17/132"
+On Sun, Jun 26, 2005 at 04:03:29AM -0700, Andrew Morton wrote:
+> - Lots of merges.  I'm holding off on the 80-odd pcmcia patches until we get
+>   the recent PCI breakage sorted out.
 
-IIRC this issue was same as the one faced by Martin.
+I'm not sure what PCI breakage you're referring to, but a lot of the
+Cardbus-centric "breakage" isn't a regression - it's new machines
+with weird PCI BIOS setups being incompatible Linux's current PCI
+bus handing strategy.
 
-Parag
+I've been trying to get this fixed for a considerable time, but linux-pci
+folk seem to be disinterested.
+
+The assumption that the PCI BIOS will sanely assign the PCI bus numbers
+and that Linux does not need to reassign them is looking increasingly
+incorrect - most of the Cardbus "why can't the system see my card"
+are resolved by passing "pci=assign-busses", which causes the PCI
+subsystem to renumber all PCI busses.
+
+So far, no one who has tried this solution has reported any additional
+problems that I'm aware of.
+
+Therefore, maybe that should become the default behaviour?
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,70 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261340AbVFZKHN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261287AbVFZKxJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261340AbVFZKHN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Jun 2005 06:07:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261354AbVFZKHN
+	id S261287AbVFZKxJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Jun 2005 06:53:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261390AbVFZKxI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Jun 2005 06:07:13 -0400
-Received: from mail-1.netbauds.net ([62.232.161.102]:25260 "EHLO
-	mail-1.netbauds.net") by vger.kernel.org with ESMTP id S261340AbVFZKHF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Jun 2005 06:07:05 -0400
-Message-ID: <42BE7E38.9070703@netbauds.net>
-Date: Sun, 26 Jun 2005 11:06:48 +0100
-From: "Darryl L. Miles" <darryl@netbauds.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-GB; rv:1.8b) Gecko/20050217
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12 initrd module loading seems parallel on bootup
-References: <42BDFEC2.3030004@netbauds.net> <20050625234611.118b391d.akpm@osdl.org>
-In-Reply-To: <20050625234611.118b391d.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 26 Jun 2005 06:53:08 -0400
+Received: from [203.171.93.254] ([203.171.93.254]:54500 "EHLO
+	cunningham.myip.net.au") by vger.kernel.org with ESMTP
+	id S261287AbVFZKxE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Jun 2005 06:53:04 -0400
+Subject: Re: [RFC] Fix SMP brokenness for PF_FREEZE and make freezing
+	usable for other purposes
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Christoph Lameter <christoph@lameter.com>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       raybry@engr.sgi.com, Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <20050626023053.GA2871@atrey.karlin.mff.cuni.cz>
+References: <Pine.LNX.4.62.0506241316370.30503@graphe.net>
+	 <20050625025122.GC22393@atrey.karlin.mff.cuni.cz>
+	 <Pine.LNX.4.62.0506242311220.7971@graphe.net>
+	 <20050626023053.GA2871@atrey.karlin.mff.cuni.cz>
+Content-Type: text/plain
+Organization: Cycades
+Message-Id: <1119783254.8083.5.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Sun, 26 Jun 2005 20:54:14 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+Hi!
 
->"Darryl L. Miles" <darryl@netbauds.net> wrote:
->  
->
->>[ modules getting loaded out-of-order and in parallel from initrd ]
->>    
->>
->
->On June 7, Martin Wilck reported:
->  
->
->>It turned out to be a problem with Red Hat's nash that didn't check the 
->>returned pid in it's wait4() call and thus ended up insmod'ing mutliple 
->>modules simultaneously, leading to "Unkown symbol" errors. Yuck, it took 
->>me a day figure that out.
->>
->>That bug is fixed in redhat's "mkinitrd" package 4.2.0.3-1 and later, 
->>but that package is currently only in Fedora's "Development" tree.
->>    
->>
+On Sun, 2005-06-26 at 12:30, Pavel Machek wrote:
+> > Index: linux-2.6.12/arch/i386/kernel/signal.c
+> > ===================================================================
+> > --- linux-2.6.12.orig/arch/i386/kernel/signal.c	2005-06-25 05:01:26.000000000 +0000
+> > +++ linux-2.6.12/arch/i386/kernel/signal.c	2005-06-25 05:01:28.000000000 +0000
+> > @@ -608,10 +608,8 @@ int fastcall do_signal(struct pt_regs *r
+> >  	if (!user_mode(regs))
+> >  		return 1;
+> >  
+> > -	if (current->flags & PF_FREEZE) {
+> > -		refrigerator(0);
+> > +	if (try_to_freeze)
+> >  		goto no_signal;
+> > -	}
+> >  
+> 
+> This is not good. Missing ().
 
-Found the thread:   
-http://www.ussg.iu.edu/hypermail/linux/kernel/0506.0/1556.html
+Thanks!
 
+I was just going to begin a search to find out why, after applying it,
+everything stopped dead in the water :>
 
-This works for me:
-
-wget 
-http://download.fedora.redhat.com/pub/fedora/linux/core/development/i386/SRPMS/udev-058-1.src.rpm
-rpmbuild --rebuild udev-058-1.src.rpm
-rpm -Uvh /usr/src/redhat/RPMS/i386/udev-058-1.i386.rpm
-
-wget 
-http://download.fedora.redhat.com/pub/fedora/linux/core/development/i386/SRPMS/mkinitrd-4.2.17-1.src.rpm
-rpmbuild --rebuild mkinitrd-4.2.17-1.src.rpm
-rpm -Uvh /usr/src/redhat/RPMS/i386/mkinitrd-4.2.17-1.i386.rpm
-
-Thanks
-
-
--- 
-Darryl L. Miles
-
+Nigel
 

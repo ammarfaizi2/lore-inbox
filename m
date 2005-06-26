@@ -1,71 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261409AbVFZXZe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261664AbVFZXie@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261409AbVFZXZe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Jun 2005 19:25:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261639AbVFZXZe
+	id S261664AbVFZXie (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Jun 2005 19:38:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261666AbVFZXie
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Jun 2005 19:25:34 -0400
-Received: from smtp-out2.blueyonder.co.uk ([195.188.213.5]:32539 "EHLO
-	smtp-out2.blueyonder.co.uk") by vger.kernel.org with ESMTP
-	id S261409AbVFZXZZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Jun 2005 19:25:25 -0400
-Message-ID: <42BF3964.5010809@blueyonder.co.uk>
-Date: Mon, 27 Jun 2005 00:25:24 +0100
-From: Sid Boyce <sboyce@blueyonder.co.uk>
-Reply-To: sboyce@blueyonder.co.uk
-Organization: blueyonder.co.uk
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Sun, 26 Jun 2005 19:38:34 -0400
+Received: from vms044pub.verizon.net ([206.46.252.44]:8095 "EHLO
+	vms044pub.verizon.net") by vger.kernel.org with ESMTP
+	id S261664AbVFZXiU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Jun 2005 19:38:20 -0400
+Date: Sun, 26 Jun 2005 19:38:18 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: [CFT:PATCH] 2/3: Check status of CTS when using flow control
+In-reply-to: <20050626233706.E28598@flint.arm.linux.org.uk>
 To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12 USB Keypad still not working
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 26 Jun 2005 23:26:03.0171 (UTC) FILETIME=[6B34CF30:01C57AA6]
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>
+Message-id: <200506261938.18690.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <20050626221501.GA5769@dyn-67.arm.linux.org.uk>
+ <200506261826.43244.gene.heskett@verizon.net>
+ <20050626233706.E28598@flint.arm.linux.org.uk>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Henk Wrote:
- > Hi Sid,
- >
- > Search results for 'sk04'
- >
- > Documents 1 - 7 of 7 matches. More *'s indicate a better match.
- > **** LKML: Sid Boyce: Re: [PATCH] new driver for yealink usb-p1k phone
- > **** LKML: Sid Boyce: Re: [PATCH] new driver for yealink usb-p1k phone
- > *** LKML: Sid Boyce: Re: 2.6.12 USB Keypad still not working
- > *** LKML: Andrew Morton: Re: 2.6.12 USB Keypad still not working
- > *** LKML: Sid Boyce: 2.6.12 USB Keypad still not working
- > ** LKML: Sid Boyce: Re: [PATCH] new driver for yealink usb-p1k phone
- > ** LKML: Sid Boyce: RE: [PATCH] new driver for yealink usb-p1k phone
- >
- >
- > Well the yealink driver is specifically targeted for the USB-P1K from
- > Yealink, I would be suprised if it works with the SK04.
- >
- > Apart from that, the SK-04 manual seems to indicate that its a generic
- > HID keyboard with a generic USB sound card.
- >
- > I dont have a generic HID usb keyboard myself so I cant give you 
-first > hand
- > infos.
- >
- >In any case its best to consult the linux-usb-* mailing lists.
+On Sunday 26 June 2005 18:37, Russell King wrote:
+>On Sun, Jun 26, 2005 at 06:26:43PM -0400, Gene Heskett wrote:
+>> On Sunday 26 June 2005 18:17, Russell King wrote:
+>> >Fix bugme #4712: read the CTS status and set hw_stopped if CTS
+>> >is not active.
+>> >
+>> >Thanks to Stefan Wolff for spotting this problem.
+>>
+>> This one needs to make mainline & maybe, after 3 years, I can use
+>> a pl2303 to talk to an old slow coco.  Twould be very nice if that
+>> fixed the lack of flow controls the connection apparently fails
+>> from.
+>
+>Sorry, wasn't aware of the problem until recently.  Reviewing the
+>code reveals that this bug has existed through many many many kernel
+>series. ;(
+>
+Yes it has, and I may have even posted about it, but that would be a 
+year plus back into ancient history Russell.  You mention another 
+required patch also?  Where might it be obtained?
 
- > Henk
-I tried the Yealink patch on 2.6.12 with the same results. All kernels 
-up to 2.6.12-git8 (without the yealink patch) recognise the keypad, it's 
-registered in /sys and looks good, but udev doesn't seem to create a 
-device for it. udev on SuSE 9.3 is 053, but probably is modified beyond 
-figuring out exactly how it stacks up against 058.
-  # less /sys/bus/usb/devices/usb3/3-2/3-2:1.3/interface
-Keypad
+>Have you been able to test it?  You will need the first patch as
+> well.
+>
+>(also, please remember I can't send you mail directly... still.)
 
-The manufacturer's blurb says it works under Linux, but I can't get a 
-reply from them.
-Regards
-Sid.
---
-Sid Boyce ... Hamradio License G3VBV, Keen licensed Private Pilot
-Retired IBM Mainframes and Sun Servers Tech Support Specialist
-Microsoft Windows Free Zone - Linux used for all Computing Tasks
+I'm also getting bounces involving the address in the CC: line,
+Russell King <rmk+lkml@arm.linux.org.uk>
+
+While I can goto vz and add that address to the incoming whitelist, I 
+doubt that would do you any good.  Looks like I need to bookmark that 
+page and start using it more often.  Did I mention how bad vz sucks?  
+Unforch, only game in this neck of the appalacians (hell I can't even 
+spell it right), sorry.
+
+Anyway, your domain name is now in the vz whitelist.
+
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.35% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

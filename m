@@ -1,60 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261187AbVFZMVx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbVFZMXj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261187AbVFZMVx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Jun 2005 08:21:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbVFZMVx
+	id S261184AbVFZMXj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Jun 2005 08:23:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbVFZMXi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Jun 2005 08:21:53 -0400
-Received: from god.demon.nl ([83.160.164.11]:57106 "EHLO god.dyndns.org")
-	by vger.kernel.org with ESMTP id S261187AbVFZMVv (ORCPT
+	Sun, 26 Jun 2005 08:23:38 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:7369 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S261184AbVFZMXA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Jun 2005 08:21:51 -0400
-Date: Sun, 26 Jun 2005 14:21:49 +0200
-From: Henk <Henk.Vergonet@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12 USB Keypad still not working
-Message-ID: <20050626122149.GA18869@god.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	Sun, 26 Jun 2005 08:23:00 -0400
+Date: Sun, 26 Jun 2005 13:22:56 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, paulus@samba.org
+Subject: [git patch] DRM 32/64 ioctl patch..
+Message-ID: <Pine.LNX.4.58.0506261313390.3269@skynet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sid Boyce <sboyce@blueyonder.co.uk> wrote:
->
-> PhoneSkype USB Phone SK-04.
-> It gets detected, is registered in /sys/bus/usb as a Keypad.
-> Everything 
-> else USB works including the phone handset. Nothing is detected by 
-> showkey when keys are pressed.
-> # less /sys/bus/usb/devices/usb3/3-2/3-2:1.3/interface
-> Keypad
 
-Hi Sid,
-	
-	Search results for 'sk04'
-	 
-	Documents 1 - 7 of 7 matches. More *'s indicate a better match.
-	**** LKML: Sid Boyce: Re: [PATCH] new driver for yealink usb-p1k phone
-	**** LKML: Sid Boyce: Re: [PATCH] new driver for yealink usb-p1k phone
-	*** LKML: Sid Boyce: Re: 2.6.12 USB Keypad still not working
-	*** LKML: Andrew Morton: Re: 2.6.12 USB Keypad still not working
-	*** LKML: Sid Boyce: 2.6.12 USB Keypad still not working
-	** LKML: Sid Boyce: Re: [PATCH] new driver for yealink usb-p1k phone
-	** LKML: Sid Boyce: RE: [PATCH] new driver for yealink usb-p1k phone
-	 
+Hi Linus,
+	Please pull the 'drm-3264' branch of
+rsync://rsync.kernel.org/pub/scm/linux/kernel/git/airlied/drm-2.6.git
 
-Well the yealink driver is specifically targeted for the USB-P1K from
-Yealink, I would be suprised if it works with the SK04.
+This contains the initial patch from Paul Mackerras, for supporting
+radeons on 32/64 systems, I'll try and submit patches for other chips
+later as people get them working.
 
-Apart from that, the SK-04 manual seems to indicate that its a generic
-HID keyboard with a generic USB sound card.
+The patch is at
+http://www.skynet.ie/~airlied/patches/lk_drm/drm_3264_git.diff
+for anyone else interested.
 
-I dont have a generic HID usb keyboard myself so I cant give you first hand
-infos.
 
-In any case its best to consult the linux-usb-* mailing lists. 
+ Makefile       |    5
+ drmP.h         |    5
+ drm_bufs.c     |   25 -
+ drm_context.c  |    6
+ drm_ioc32.c    | 1069 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ radeon_drv.c   |    3
+ radeon_drv.h   |    3
+ radeon_ioc32.c |  395 +++++++++++++++++++++
+ 8 files changed, 1501 insertions(+), 10 deletions(-)
 
-Henk
+commit 9a18664506dbce5e23f3c5de7b1c5a042dd26520
+tree 8f047c14a507b3f925e50f797650b15e23058a77
+parent ee98689be1b054897ff17655008c3048fe88be94
+author Dave Airlie <airlied@starflyer.(none)> Thu, 23 Jun 2005 21:29:18 +1000
+committer Dave Airlie <airlied@linux.ie> Thu, 23 Jun 2005 21:29:18 +1000
+
+drm: 32/64-bit DRM ioctl compatibility patch
+
+The patch is against a 2.6.11 kernel tree.  I am running this with a
+32-bit X server (compiled up from X.org CVS as of a couple of weeks
+ago) and 32-bit DRI libraries and clients.  All the userland stuff is
+identical to what I am using under a 32-bit kernel on my G4 powerbook
+(which is a 32-bit machine of course).  I haven't tried compiling up a
+64-bit X server or clients yet.
+
+In the compatibility routines I have assumed that the kernel can
+safely access user addresses after set_fs(KERNEL_DS).  That is, where
+an ioctl argument structure contains pointers to other structures, and
+those other structures are already compatible between the 32-bit and
+64-bit ABIs (i.e. they only contain things like chars, shorts or
+ints), I just check the address with access_ok() and then pass it
+through to the 64-bit ioctl code.  I believe this approach may not
+work on sparc64, but it does work on ppc64 and x86_64 at least.
+
+One tricky area which may need to be revisited is the question of how
+to handle the handles which we pass back to userspace to identify
+mappings.  These handles are generated in the ADDMAP ioctl and then
+passed in as the offset value to mmap.  However, offset values for
+mmap seem to be generated in other ways as well, particularly for AGP
+mappings.
+
+The approach I have ended up with is to generate a fake 32-bit handle
+only for _DRM_SHM mappings.  The handles for other mappings (AGP, REG,
+FB) are physical addresses which are already limited to 32 bits, and
+generating fake handles for them created all sorts of problems in the
+mmap/nopage code.
+
+This patch has been updated to use the new compatibility ioctls.
+
+From: Paul Mackerras <paulus@samba.org>
+Signed-off-by: Dave Airlie <airlied@linux.ie>
 

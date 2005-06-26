@@ -1,176 +1,213 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261519AbVFZE2f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261514AbVFZE2J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261519AbVFZE2f (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Jun 2005 00:28:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261520AbVFZE2f
+	id S261514AbVFZE2J (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Jun 2005 00:28:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261520AbVFZE2J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Jun 2005 00:28:35 -0400
+	Sun, 26 Jun 2005 00:28:09 -0400
 Received: from inti.inf.utfsm.cl ([200.1.21.155]:8596 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S261519AbVFZE17 (ORCPT
+	by vger.kernel.org with ESMTP id S261514AbVFZE1y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Jun 2005 00:27:59 -0400
-Message-Id: <200506250040.j5P0eXDQ005342@laptop11.inf.utfsm.cl>
-To: Daniel Arnold <arnomane@gmx.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Sun, 26 Jun 2005 00:27:54 -0400
+Message-Id: <200506260401.j5Q41iR4024249@laptop11.inf.utfsm.cl>
+To: David Masover <ninja@slaphack.com>
+cc: Horst von Brand <vonbrand@inf.utfsm.cl>, Hans Reiser <reiser@namesys.com>,
+       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       ReiserFS List <reiserfs-list@namesys.com>
 Subject: Re: reiser4 plugins 
-In-Reply-To: Message from Daniel Arnold <arnomane@gmx.de> 
-   of "Sat, 25 Jun 2005 01:43:16 +0200." <200506250143.17343.arnomane@gmx.de> 
+In-Reply-To: Message from David Masover <ninja@slaphack.com> 
+   of "Fri, 24 Jun 2005 23:10:35 EST." <42BCD93B.7030608@slaphack.com> 
 X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Fri, 24 Jun 2005 20:40:33 -0400
+Date: Sun, 26 Jun 2005 00:01:39 -0400
 From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Arnold <arnomane@gmx.de> wrote:
+David Masover <ninja@slaphack.com> wrote:
+> Horst von Brand wrote:
+> > David Masover <ninja@slaphack.com> wrote:
+> >>Horst von Brand wrote:
+> >>>David Masover <ninja@slaphack.com> wrote:
+> >>>>Hans Reiser wrote:
+> >>>>>Jeff Garzik wrote:
 
 [...]
 
-> Although I'm currently using ReiserFS v3 at my (Suse) Linux box (and am
-> happy that it uses my small hard disk space better than other file
-> systems and that I could always repair the data on the file system in
-> some minutes at least in large parts
+> >>"Ain't broke" is the battle cry of stagnation.
 
-Not enough in my book.
+> > I see it as the battle cry of those that are looking for /real/
+> > problems to solve.
 
->                                      in case my _hardware_ caused a
-> system crash; I had a evil graphics card...), I'm very excited of the
-> possibilities v4 provides and wonder why there are people at LKML that
-> don't see those possibilities although they have a lot of more knowledge
-> than I have on files system issues (as I'm mainly a user). Perhapes some
-> are beside technical concerns trapped into to a "traditional Unix
-> religion" (for me this is the real reason why e.g. the free BSD's are
-> constantly forked, as everyone thinks he has found the only true way in
-> the "Unix religion").
+> I'll refer you to my other rant about stagnation and oil.
 
-OK, let's look.
+Read it. Makes no sense, wind and solar power have their /own/ problems,
+environmentally speaking. Besides, as things stand today, they are *extremely*
+expnsive and hard to use, so next to useless (for now).
 
-> Here are only some possibilities that come into my mind regarding Reiser4:
+> And, listen to yourself.  "Good riddance, no, I don't use DOS" but
+> "Ain't broke is the battle cry of those looking for real problems to solve."
 
-> One big thing are all the nice applications that want databases like
-> MySQL.
+> You can solve real problems in DOS,
 
-Shoving the RDBMS into the kernel doesn't solve this, quite to the
-contrary. It makes the whole system less flexible (if you don't want MySQL
-but something else, you can't get it easily). The whole is /more/ complex
-(kernel space programming is /a huge lot harder/ than userspace
-programming). It will be /much more/ unstable, as any idiotic bug in the
-RDBMS will bring the /whole system/ down, or screw up completely unrelated
-innocent bystanders.
+Sure. But not all (or even most) problems I'd like to solve with a computer
+as of today. So...
 
->        As they need that extra database software with its own tools and
-> structures they are often too complicated for a normal end user.
+>                                     it's usable, it ain't broke, there
+> are even some decent games (doom) and windowing systems (win3.1 and
+> others) for it.
 
-Having stuff inside the kernel doesn't make it magically simple(r) to
-use. Quite the opposite.
+Sure. But that's not enough.
 
->                                                                  Having
-> the same software using an intelligent file system without need for a
-> special database would be a big step in end user usability especially but
-> not only at the desktop. And of course you can easily manipulate your
-> database with easy standard tools like a file manager or from command
-> line like cp, mv, rm which would be again a big step back to simplicity.
+> But Linux is better.  DOS ain't broke,
 
-If what you want to do can be expressed in terms of ln(1), mv(1), rm(1) et
-al, do use them and be happy: No need for any fancy database stuff. If it
-can't, I'm sorry, but it /will/ be complex anyway.
+For me, it is.
 
-> Another idea is a CVS-like revision file system. Especially in /etc/ this
-> would help a lot... Imagine a revision-plugin for Reiser4: This system
-> would be self documenting as you don't need to keep in mind where, when,
-> what you changed (and for system scripts it would be easier to track the
-> manual manipulations; especially a problem at system upgrades). You could
-> easily make a diff of two revisions of a file e.g. for
-> /etc/squid/squid.conf (a huge single config file) with standard command
-> line tools like diff (like "diff /etc/squid/squid.conf/rev-0
-> /etc/squid/squid.conf/rev-current").
+>                                        but Linux is better.  So maybe
+> VFS ain't broke,
 
-And why don't you use a version management system for this? You could use
-RCS (simple, easy to use; but doesn't handle sideways relations at all), or
-something more complex. Userland solutions /do/ exist, and work fine. They
-even handle saving stuff over the network, etc.
+I think it is doing fine.
 
-> Another possibility would be e.g. replacing the RPM-database by a
-> structure in the Reiser4 file system. Imagine the structure of the rpm
-> database which software is installed sitting below /etc/packages/,
-> e.g. in /etc/packages/apache/. With removing the /etc/packages/apache/
-> directory a clever Reiser4-plugin would instantly remove the whole
-> package (don't know how to handle the problem of executing necessary
-> system scripts during that procedure though). That this idea is highly
-> demanded can be seen on Apple computers and on a wired approach at a new
-> FreeBSD distribution called PC-BSD, where everything of a application is
-> installed in a own separate directory as on Windows...
+>                  but plugins would be better.
 
-And shove RPM into the kernel... 
+Maybe. It's up to /you/ to convince the head kernel hackers (and me on the
+way).
 
-All this means that you have /zilch/ possibility to savage your data if the
-system with the custom plugins isn't available. Thanks, had more than
-enough fun with corrupted "databases" elsewhere. No need to make /all/ data
-dependent on something like that.
+>                                                I guess we'll only know
+> if we let Reiser4 merge...
 
-> Of course there are competiting approaches to this problem via hiding the
-> database structure to the user and reinventing again the file system
-> level as e.g. FUSE (which is/was also controversial at LKML but also
-> highly demanded by end users). You could also mount a rpm database with a
-> proper FUSE-plugin and let it look like a file system but this approach
-> is not that elegant, needs a lot more software than the "filesystem as a
-> database vision" and has of course poor performance by design compared to
-> a direct solution like Reiser4.
+No. Just like devfs was "the obvious right way", it /had/ to be merged
+ASAP, "wrinkles will be ironed out later". Turned out it wasn't wrinkles,
+but fundamental brokenness, and it was soon abandoned by the people who
+promised to maintain it forever. And now we have the flamewar about its
+removal...
 
-You have to consider not only the userland code, but also the kernel
-code. That it comes "for free" with ReiserFS doesn't make it go away. Plus
-the fact that whatever it provides will be ideal for a few applications, a
-bad fit (but livable) for many, and completely useless (or even plainly
-counterproductive) for some. Yes, there are operating systems around that
-don't have "files", everything is in a database. PHBs love them, the
-people who develop for them or have to manage them hate them.
+> >>But, there are some things Reiser does better and faster than ext3,
 
-Again, operating systems with funny "just as applications require"
-structured files were common until Unix came along with the simple "a file
-is a sequence of bytes, do as you wish with it but in userland" and the lot
-went away like a bad dream. Unix is about simple, generic infrastructure on
-which you can build what /you/ want, not just what /the system/ allows.
-Don't kill that.
+> > Yes, I've heard it is supposed to be faster on huge directories, and
+> > doesn't run out of inodes. And it is more efficient spacewise on small
+> > files. But then again, space is extremely cheap today...
 
-> And even FUSE is higly demanded as you can see e.g. with the KIO-Slaves
-> of KDE where the filesystem view is implemented even in a higher level
-> (to my knowledge KIO only exists as KDE needed a solution that works
-> right now and not after many flames and discussions about a system like
-> FUSE).
+> Speed isn't.  CPU is, but not disk speed.  And packing stuff more
+> efficiently, without actually compressing it, will give you some of that
+> speed.
 
-> So I personally see FUSE and Reiser4 somewhat related and beeing objected by 
-> some people at LKML beside implementational problems by the same reasons of 
-> "traditional" thinking.
+For my current uses, ext3 is plenty fast enough. No pressing need to change.
 
-Funny. The "traditional" thinking was once radical, and swept away much of
-what you advocate...
+> Also, space is not so cheap that I won't take 25% more.
+
+It is cheap enough that I can't realistically fill the disks I have with
+/usefull/ stuff. So...
+
+> > And again, on a list around here I've seen several cries for help with
+> > completely hosed filesystems, all ReiserFS. No solution has ever come
+> > forth.
+
+> I haven't been counting, but I've seen a number of solutions fly around
+> reiserfs-list for people with reiser4 problems.
+
+It was ReiserFS 3. Maybe the problems are fixed now, but as they say about
+burned children...
+[...]
+
+> A lot of what people like about ext3 is its stability and fairly
+> universally accepted format.  A lot of what people like about XFS is its
+> stability and speed, mainly with large files.  A lot of what people like
+> about Reiser4 (as it is today) is its speed, with large and especially
+> with small files.
+
+Right. And mushing it all together is way more likely to combine all /bad/
+features than to retain some of the /good/ ones.
+
+> Those are broad and somewhat uneducated statements, but I doubt most
+> people care what FS they are using if the stability and performance is
+> what they want.  In that case, why have so much duplicated effort
+> between different filesystems -- even between ISO and UDF and Reiser and
+> XFS -- when most of what's really different is the on-disk format and
+> the optimization?
+
+Because they are different on-disk and are optimized for different uses,
+perhaps? I can't use ext3 for reading my CDs, I need NTFS to access the
+Windows partition here, ...
+
+> So, in this hypothetical situation where ext3 is a reiser4 plugin,
+> suddenly all the ext3 developers are trying to improve the speed and
+> reliability of reiser4, which benefits both ext3 and reiser4, instead of
+> just ext3.
+
+I guess that it won't ever turn out to be that simple. ext3 developers will
+have to consider not screwing up XFS, etc. And I don't see any real
+difference there from where we stand today... just a bigger mess: VFS with
+ReiserFS with plugins for ext3, instead of VFS with ext3. No gain, much
+pain.
 
 [...]
 
-> Both ideas would be the killer feature of Linux desktops if used in 
-> applications on larger scale.
+> > And that would surely break Windows compatibility (because you have to keep
+> > the data on what to encrypt one the filesystem itself). Besides, having
 
-Chicken and egg: Applications using strange filesystem semantics won't show
-up until said semantics are commonplace, which won't be until there is
-extensive use...
+> Aside from what someone else already said about this, why not just have
+> support for accessing, say, a .gpg file as transparently decrypted?
 
-> So I wish you very much luck with getting this finally into the Linux 2.6
-> main kernel as this software works right now
+That should, if anything, be a /user/ decision, not a /kernel/ one. Even
+sometimes decrypt, sometimes don't.
 
-It hasn't been integrated exactly because it /doesn't/ work right.
+>                                                                      You
+> don't even need file-as-directory, just create a file called foo which
+> is really the decrypted version of foo.gpg.  No need to change the
+> format, just the filesystem.
 
->                                              and is needed right
-> now.
+No need to change the filesystem, learn to use the tools at hand.
 
-Very few people have expressed any need for it.
+> > pgp, or gpg, or crypt, or my own whacky encryption proggie do the job in
+> > /userland/, and not shoving into the kernel and so down the next user's
+> > throat, is in the end a largeish part of what Unix is all about for me.
 
->      There is always room for later tuning in which kernel layer a
-> specific function has to be...
+> Do you use ipv6?
 
-No. It has to be done right (or nearly right) from the start. Also,
-screwing around with filesystems /is/ risky, as it could affect innocent
-bystanding filesystems.
+Sometimes.
+
+>                   I don't.  And it's not shoved down my throat, either,
+> although it's in the kernel.  I simply disable it, and you would (I'm
+> sure) disable the crypto stuff.
+
+An Internet standard is a quite different kettle of fish than the pet
+experimental filesystem for a minority operating system...
+
+> Plus, as someone else said, it's much easier to do
+> $ vim /some/encrypted/file
+> than
+> $ gpg --decrypt /some/encrypted/file > /some/decrypted/file
+> $ vim /some/decrypted/file
+> $ gpg --encrypt /some/decrypted/file > /some/encrypted/file
+> $ shred /some/decrypted/file
+
+So what? Write your script to do it. Or use emacs, I'm sure it either has
+now or will soon have a plugin for it... much easier to develop, much more
+flexible to use, ...
+
+> Not to mention, shred doesn't work on modern filesystems, so you need to
+> either patch vim (and any other program you might want to use), create
+> an actual ramdisk, or deactivate swap and mount a tmpfs.
+
+Right. And all this complex futzing around (and making sure the unencrypted
+data doesn't remain if the power is cut in the right moment, and...)
+
+> On doing stuff in userland:  I am all for moving tons of stuff to
+> userland, but not until someone does a microkernel right, if it's even
+> possible.  And even then, I'd probably still use Linux and argue for
+> some stuff in the kernel, because Linux has developers.  Developers.
+> Developers.  Developers.
+
+Sorry, I don't buy this. Linux (the kernel) has tons of developers. But
+that doesn't mean everybody is interested in everything. Just like there
+are probably much more userland developers (for one, it is /much/ easier to
+work with...), and there not everybody is interested in everything. Putting
+stuff in the kernel that doesn't belong there (== can't be done elsewhere)
+is useless bloat.
 -- 
 Dr. Horst H. von Brand                   User #22616 counter.li.org
 Departamento de Informatica                     Fono: +56 32 654431
 Universidad Tecnica Federico Santa Maria              +56 32 654239
 Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+

@@ -1,52 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261607AbVFZToC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261566AbVFZTv4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261607AbVFZToC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Jun 2005 15:44:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261603AbVFZTmP
+	id S261566AbVFZTv4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Jun 2005 15:51:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261585AbVFZTv4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Jun 2005 15:42:15 -0400
-Received: from zproxy.gmail.com ([64.233.162.199]:21157 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261610AbVFZTll (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Jun 2005 15:41:41 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=UFBQYDbC0Gls2HihQUgaUxj7CPclnb/XStbwGcfSqCB2aE64+0MjtLbkA+KvdWxHzytmub5VnyEwARHIdTXEbPsEq21L3keBvB5/IQW0SfHkLiAo2F4heVD49fedoHnlv71vjdPG+azGpfzUKErNY4Fu/kDUaYAVjtkEQPUBD5o=
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Frank Peters <frank.peters@comcast.net>
-Subject: Re: Asus MB and 2.6.12 Problems
-Date: Sun, 26 Jun 2005 23:47:46 +0400
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org
-References: <20050624113404.198d254c.frank.peters@comcast.net>
-In-Reply-To: <20050624113404.198d254c.frank.peters@comcast.net>
+	Sun, 26 Jun 2005 15:51:56 -0400
+Received: from pilet.ens-lyon.fr ([140.77.167.16]:54922 "EHLO
+	relaissmtp.ens-lyon.fr") by vger.kernel.org with ESMTP
+	id S261566AbVFZTvx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Jun 2005 15:51:53 -0400
+Message-ID: <42BF074D.6020305@ens-lyon.org>
+Date: Sun, 26 Jun 2005 21:51:41 +0200
+From: Brice Goglin <Brice.Goglin@ens-lyon.org>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506262347.46821.adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-mm2
+References: <20050626040329.3849cf68.akpm@osdl.org>
+In-Reply-To: <20050626040329.3849cf68.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 24 June 2005 19:34, Frank Peters wrote:
-> Also, after a successful boot with 2.6.12, I will attempt to
-> connect with my cable Internet service using the following
-> commands:
+Le 26.06.2005 13:03, Andrew Morton a écrit :
+> - Lots of merges.  I'm holding off on the 80-odd pcmcia patches until we get
+>   the recent PCI breakage sorted out.
+
+Hi Andrew,
+
+> +alsa-maestro3-div-by-zero-fix.patch
 > 
-> modprobe 3c59x  (load the ethernet modules)
-> dhcpcd -t 240   (get the IP address from my ISP)
+>  Revert an alsa change which appears to cause a divide-by-zero.
+
+I think you can now drop this one.
+My "divide error" does not appear in -mm2.
+It seems that it is fixed by the following patch:
+
+> +revert-gregkh-pci-pci-assign-unassigned-resources.patch
 > 
-> Formerly, with kernels 2.6.11 and earlier, the connection could
-> be established very quickly (about 10-15 seconds).  But with
-> kernel 2.6.12, it now requires about 3-4 minutes to establish
-> the link.
+>  Revert a bad patch in it
 
-I've filed a bug at kernel bugzilla for this part of the problem, so your
-report won't be lost. See http://bugme.osdl.org/show_bug.cgi?id=4803
+To summarize, everything seems to now work fine on my Compaq Evo
+N600c laptop. Both breakages I was seeing in -mm1 are now fixed:
+* the maestro3 divide error does not appear anymore
+* I reported a few days ago that my yenta hang was fixed
+by pci-yenta-cardbus-fix.patch
 
-You can register at http://bugme.osdl.org/createaccount.cgi and add yourself
-to CC list.
-
-P. S.: Compilation for keyboard problem will be filed RSN.
+Thanks,
+Brice

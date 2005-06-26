@@ -1,64 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261576AbVFZUfg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261565AbVFZUnW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261576AbVFZUfg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Jun 2005 16:35:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261584AbVFZUff
+	id S261565AbVFZUnW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Jun 2005 16:43:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261584AbVFZUnW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Jun 2005 16:35:35 -0400
-Received: from mail.linicks.net ([217.204.244.146]:8715 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S261576AbVFZUe7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Jun 2005 16:34:59 -0400
-From: Nick Warne <nick@linicks.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Allow number of IDE interfaces to be selected (X86)
-Date: Sun, 26 Jun 2005 21:34:56 +0100
-User-Agent: KMail/1.8.1
-References: <200506251641.40922.nick@linicks.net> <1119808554.28649.37.camel@localhost.localdomain>
-In-Reply-To: <1119808554.28649.37.camel@localhost.localdomain>
+	Sun, 26 Jun 2005 16:43:22 -0400
+Received: from zproxy.gmail.com ([64.233.162.205]:2005 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261565AbVFZUnL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Jun 2005 16:43:11 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=crrMhS9FnDIpdvLAuUrUlFkM7/j185a8qTObg/uU03yJ2vN6s0ljN1eKner63Q50bPtkXs9bCLwsuG3gIQLR4mOOQ8CyU29UiPNT2giCPhMeKyJ6+HjyztqeSrnsQMvDBty1fF3A+AZnhbV/aKZD/BO1uihIdmcReSrrSLptmuw=
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: dpervushin@ru.mvista.com
+Subject: Re: [RFC] SPI core -- revisited
+Date: Mon, 27 Jun 2005 00:49:10 +0400
+User-Agent: KMail/1.7.2
+Cc: linux-kernel@vger.kernel.org
+References: <20050626193621.8B8E44C4D1@abc.pervushin.pp.ru>
+In-Reply-To: <20050626193621.8B8E44C4D1@abc.pervushin.pp.ru>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200506262134.57000.nick@linicks.net>
+Message-Id: <200506270049.10970.adobriyan@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 26 June 2005 18:55, you wrote:
+On Sunday 26 June 2005 23:36, dpervushin@ru.mvista.com wrote:
+> Here is the sample of usage of our SPI core; this is the driver of atmel
+> chip connected to the pnx spi bus; 
 
-> I don't think this patch should go in - the one real reason for having
-> it in embedded boxes was saving memory. The right fix for that is
-> already something Bartlomiej has talked about fixing - the static
-> allocation of the ide_hwifs array itself.
+> --- /dev/null
+> +++ linux-2.6.10/drivers/spi/spi-pnx010x.c
 
-OK :-).
+> +#define DBG(args...)	pr_debug(args)
 
-But I learnt a lot here on the kernel.
+Just use pr_debug()
 
-Also found not to cut 'n' paste from nano in X.  It doesn't perserve tabs... 
-so the patch was bum anyway.  I only found out it was fubar when I was 
-looking at what Matt done to get the struct sizes on different vmlinuz 
-builds, and cut and paste back into a file from the mail.
+> +static void		*phys_spi_data_reg = 0;
 
-But here is the results anyway using my .config but with the option off and 
-on:
+NULL for pointers.
 
+> +void spipnx_select_chip (void)
+> +{
+> +	unsigned reg = gpio_read_reg (PADMUX1_MODE0);
+> +	gpio_write_reg ((reg & ~GPIO_PIN_SPI_CE), PADMUX1_MODE0); }
 
-Orig (off):
+Closing brackets on the separate line, _please_.
 
-bash-2.05b# nm -t d -rS --size-sort linux-2.6.12orig/vmlinux | grep hwifs
-0000003225966208 0000000000014080 B ide_hwifs
+> +static void spipnx_spi_init (void *algo_data) {
 
+As well as opening ones.
 
-With the IDE selection option (but not EMBEDDED) with 2 IDE interfaces 
-selected (on with 2):
+> --- /dev/null
+> +++ linux-2.6.10/drivers/spi/spi-pnx010x_atmel.c
 
-bash-2.05b# nm -t d -rS --size-sort linux-2.6.12/vmlinux | grep hwifs
-0000003225974400 0000000000002816 B ide_hwifs
+> +#define DBG(args...)	pr_debug(args)
 
+> +static struct spi_algorithm spipnx_algorithm = {
+> +	name:		ALGORITHM_NAME,
+> +	xfer:		spipnx_xfer,
 
-Nick
--- 
-"When you're chewing on life's gristle,
-Don't grumble, Give a whistle..."
+	.name = ALGORITHM_NAME,
+	.xfer = ...
+
+> +static spi_pnx0105_algo_data_t spi_pnx_algo_data = {
+> +	cb_data:		NULL,
+> +	chip_cs_callback:	NULL,
+> +};
+
+> +static struct spi_adapter spipnx_adapter = {
+> +	name:		ADAPTER_NAME,
+> +	algo:		&spipnx_algorithm,
+> +	algo_data:	(void *) &spi_pnx_algo_data,
+> +	owner:		THIS_MODULE,
+> +	alloc:		NULL,
+> +	free:		NULL,
+> +	copy_from_user:	NULL,
+> +	copy_to_user:	NULL,
+> +};
+
+> +void *pnx_memory_alloc(size_t size, int base) {
+> +	spi_pnx_msg_buff_t *buff;
+> +
+> +	buff = (spi_pnx_msg_buff_t *) kmalloc(sizeof(spi_pnx_msg_buff_t),
+
+Useless cast.
+
+> base);
+> +	buff->size = size;
+> +	buff->io_buffer = dma_alloc_coherent (NULL, size, &buff->dma_buffer,
+> 
+> +base);
+> +	
+> +	DBG("%s:allocated memory(%x) for io_buffer = %x dma_buffer = %x\n",
+> +		__FUNCTION__, buff, buff->io_buffer,buff->dma_buffer );
+> +
+> +	return (void *) buff;
+> +}
+
+No error path. You're an optimist.
+
+> +void pnx_memory_free(const void *data)
+> +{
+> +	spi_pnx_msg_buff_t *buff;
+> +
+> +	buff = (spi_pnx_msg_buff_t *) data;
+> +	DBG("%s:deleted memory(%x) for io_buffer = %x dma_buffer = %x\n",
+> +		__FUNCTION__, buff, buff->io_buffer,buff->dma_buffer );
+
+%p was invented for pointers.
+
+> +unsigned long pnx_copy_from_user(void *to, const void *from_user, 
+
+const void __user *from, I believe.
+
+> +unsigned long pnx_copy_to_user(void *to_user, const void *from,
+
+const void __user *to.

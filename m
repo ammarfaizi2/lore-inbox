@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261666AbVFZXnZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261669AbVFZXui@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261666AbVFZXnZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Jun 2005 19:43:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261667AbVFZXnY
+	id S261669AbVFZXui (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Jun 2005 19:50:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261667AbVFZXuh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Jun 2005 19:43:24 -0400
-Received: from rwcrmhc14.comcast.net ([216.148.227.89]:17854 "EHLO
-	rwcrmhc14.comcast.net") by vger.kernel.org with ESMTP
-	id S261666AbVFZXnH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Jun 2005 19:43:07 -0400
-Message-ID: <42BF3D8F.4060503@namesys.com>
-Date: Sun, 26 Jun 2005 16:43:11 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: David Masover <ninja@slaphack.com>
-CC: Valdis.Kletnieks@vt.edu, Lincoln Dale <ltd@cisco.com>,
-       Gregory Maxwell <gmaxwell@gmail.com>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: reiser4 plugins
-References: <200506240241.j5O2f1eb005609@laptop11.inf.utfsm.cl> <42BCD93B.7030608@slaphack.com> <200506251420.j5PEKce4006891@turing-police.cc.vt.edu> <42BDA377.6070303@slaphack.com> <200506252031.j5PKVb4Y004482@turing-police.cc.vt.edu> <42BDC422.6020401@namesys.com> <42BE3645.4070806@cisco.com> <e692861c05062522071fe380a5@mail.gmail.com> <42BE563D.4000402@cisco.com> <42BE5DB6.8040103@slaphack.com> <200506261816.j5QIGMdI010142@turing-police.cc.vt.edu>            <42BF08CF.2020703@slaphack.com> <200506262105.j5QL5kdR018609@turing-police.cc.vt.edu> <42BF2DC4.8030901@slaphack.com>
-In-Reply-To: <42BF2DC4.8030901@slaphack.com>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
+	Sun, 26 Jun 2005 19:50:37 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:44164 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261669AbVFZXuN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Jun 2005 19:50:13 -0400
+Date: Sun, 26 Jun 2005 16:49:39 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org, bcrl@kvack.org
+Subject: Re: increased translation cache footprint in v2.6
+Message-Id: <20050626164939.2f457bf6.akpm@osdl.org>
+In-Reply-To: <20050626172334.GA5786@logos.cnet>
+References: <20050626172334.GA5786@logos.cnet>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Masover wrote:
+Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
+>
+> As can be seen the number of entries is more than twice (dominated by kernel addresses).
 
-> Valdis.Kletnieks@vt.edu wrote:
->
-> >On Sun, 26 Jun 2005 14:58:07 CDT, David Masover said:
->
->
-> >>"Plugins" is a bad word.  This user's combination of plugins is most
-> >>likely identical to other users', it's just which ones are enabled, and
-> >>which aren't?  If they are all included, I assume they play nice.
->
->
-> >Which ones are enabled. Exactly.
+But doesn't this:
 
-Reiser4 plugins are not per user, but per kernel.  They are compiled
-in.  The model is intended to ease the development process, nothing
-more.  Apologies if the naming suggests more.
+I-TLB userspace misses: 142369  I-TLB userspace misses: 2179    ITLB u: 139190
+I-TLB kernel misses: 118288    	I-TLB kernel misses: 1369	ITLB k: 116319
+D-TLB userspace misses: 222916 	D-TLB userspace misses: 180249	DTLB u: 38667
+D-TLB kernel misses: 207773    	D-TLB kernel misses: 167236	DTLB k: 38273
 
-Hans
+mean that we're mainly missing on data accesses?
+
+>  Sorry, I've got no list of functions for these addresses, but it was pretty obvious at the time 
+>  looking at the sys_read() codepath and respective virtual addresses.
+> 
+>  Manual reorganization of the functions sounded too messy, although BenL mentions something about
+>  fget_light() can and should be optimized.
+
+The workload you're using also does write(), and the write() paths got
+significantly deeper.
+
+Stack misses, perhaps.  But a tlb entry caches the translation for a single
+page, yes?

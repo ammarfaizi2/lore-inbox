@@ -1,66 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261488AbVFZR1F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261482AbVFZRan@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261488AbVFZR1F (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Jun 2005 13:27:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261484AbVFZR1D
+	id S261482AbVFZRan (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Jun 2005 13:30:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261503AbVFZRal
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Jun 2005 13:27:03 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:21380 "EHLO
+	Sun, 26 Jun 2005 13:30:41 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:27268 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261488AbVFZRZ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Jun 2005 13:25:27 -0400
-Date: Sun, 26 Jun 2005 18:25:20 +0100
+	id S261482AbVFZR2T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Jun 2005 13:28:19 -0400
+Date: Sun, 26 Jun 2005 18:28:16 +0100
 From: Christoph Hellwig <hch@infradead.org>
-To: "Artem B. Bityuckiy" <dedekind@oktetlabs.ru>
-Cc: Hans Reiser <reiser@namesys.com>, Alexander Zarochentsev <zam@namesys.com>,
-       Jeff Garzik <jgarzik@pobox.com>, reiserfs-list@namesys.com,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+To: David Masover <ninja@slaphack.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Hans Reiser <reiser@namesys.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, ReiserFS List <reiserfs-list@namesys.com>
 Subject: Re: reiser4 plugins
-Message-ID: <20050626172520.GA19630@infradead.org>
+Message-ID: <20050626172816.GB19630@infradead.org>
 Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"Artem B. Bityuckiy" <dedekind@oktetlabs.ru>,
-	Hans Reiser <reiser@namesys.com>,
-	Alexander Zarochentsev <zam@namesys.com>,
-	Jeff Garzik <jgarzik@pobox.com>, reiserfs-list@namesys.com,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20050620235458.5b437274.akpm@osdl.org> <42B8B9EE.7020002@namesys.com> <42B8BB5E.8090008@pobox.com> <200506221824.32995.zam@namesys.com> <20050622142947.GA26993@infradead.org> <42BA2ED5.6040309@namesys.com> <20050626164606.GA18942@infradead.org> <42BEE0B4.3030804@oktetlabs.ru>
+	David Masover <ninja@slaphack.com>, Jeff Garzik <jgarzik@pobox.com>,
+	Hans Reiser <reiser@namesys.com>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org,
+	ReiserFS List <reiserfs-list@namesys.com>
+References: <42B831B4.9020603@pobox.com> <42B87318.80607@namesys.com> <20050621202448.GB30182@infradead.org> <42B8B9EE.7020002@namesys.com> <42B8BB5E.8090008@pobox.com> <42B8E834.5030809@slaphack.com> <20050622053656.GB28228@infradead.org> <42B91764.1080208@slaphack.com> <20050626165246.GB18942@infradead.org> <42BEE430.7010505@slaphack.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=unknown-8bit
 Content-Disposition: inline
-In-Reply-To: <42BEE0B4.3030804@oktetlabs.ru>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <42BEE430.7010505@slaphack.com>
 User-Agent: Mutt/1.4.1i
 X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
 	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 26, 2005 at 09:07:00PM +0400, Artem B. Bityuckiy wrote:
-> Just out of curiosity, could you please specify few exact examples with 
-> specific file/function names which duplicate the existing 
-> infrastructure. What do they duplicate and why? How should these 
-> functions be implemented on VFS? Ho should the the other FSes 
-> implement/ignore them? Why are you shure they will fit VFS well? etc.
+On Sun, Jun 26, 2005 at 12:21:52PM -0500, David Masover wrote:
+> I seem to remember the comment was more about hardcoded ID tables.
+> 
+> And this was the generic ID code database, which is now maintained out
+> of the kernel:
+> 
+> /usr/share/misc/pci.ids
+> 	A list of all known PCI ID's (vendors, devices, classes and sub-classes).
+> 
+> That is what I was referring to, that used to be in the kernel.
 
-Right now every file/inode/etc method in reiser4 is just a trivial
-wrapper around a plugin call.  It should instead just set the method
-table directly in the plugin initialization.  Example:
+And you once again showed that you don't understand what you're talking
+about.  Said database is a pci id to name mapping, which is completely
+irrelevant for any driver.  For things like your example there's very
+little thing you can do but hardcoding a set of pci ids in one way or
+another.
 
-static int
-reiser4_permission(struct inode *inode /* object */ ,
-                   int mask,    /* mode bits to check permissions
-                                 * for */
-                   struct nameidata *nameidata)
-{
-	/* reiser4_context creation/destruction removed from here,
-	   because permission checks currently don't require this.
+> What this has to do with is whether you believe that it's better to keep
+> code out until it's perfectly clean, or to let in code that has some
 
-           Permission plugin have to create context itself if necessary. */
-	assert("nikita-1687", inode != NULL);
+I doesn't need to be perfect, we just need it in a reasonable state and
+have a buying that it's going to continue to evolve in the rigþt direction.
 
-	return perm_chk(inode, mask, inode, mask);
-}
+And we're are very far from both of them in this ccase.
 
-besides a useless assert we just call into perm_chk, which is a macro
-obsfucation to call generic_permission which would be called if
-->permission was zero.  A hypothetical reiser4 "plugin" that would need
-redefine ->permission would just override it in a set inode_operations.

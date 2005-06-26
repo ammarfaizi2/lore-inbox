@@ -1,84 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261674AbVF0A0j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261672AbVF0A2R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261674AbVF0A0j (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Jun 2005 20:26:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261672AbVF0A0h
+	id S261672AbVF0A2R (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Jun 2005 20:28:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261677AbVF0A2Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Jun 2005 20:26:37 -0400
-Received: from 69-18-3-179.lisco.net ([69.18.3.179]:19730 "EHLO
-	ninja.slaphack.com") by vger.kernel.org with ESMTP id S261674AbVF0ARC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Jun 2005 20:17:02 -0400
-Message-ID: <42BF4570.9010405@slaphack.com>
-Date: Sun, 26 Jun 2005 19:16:48 -0500
-From: David Masover <ninja@slaphack.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050325)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Hans Reiser <reiser@namesys.com>
-Cc: Valdis.Kletnieks@vt.edu, Lincoln Dale <ltd@cisco.com>,
-       Gregory Maxwell <gmaxwell@gmail.com>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: reiser4 plugins
-References: <200506240241.j5O2f1eb005609@laptop11.inf.utfsm.cl> <42BCD93B.7030608@slaphack.com> <200506251420.j5PEKce4006891@turing-police.cc.vt.edu> <42BDA377.6070303@slaphack.com> <200506252031.j5PKVb4Y004482@turing-police.cc.vt.edu> <42BDC422.6020401@namesys.com> <42BE3645.4070806@cisco.com> <e692861c05062522071fe380a5@mail.gmail.com> <42BE563D.4000402@cisco.com> <42BE5DB6.8040103@slaphack.com> <200506261816.j5QIGMdI010142@turing-police.cc.vt.edu>            <42BF08CF.2020703@slaphack.com> <200506262105.j5QL5kdR018609@turing-police.cc.vt.edu> <42BF2DC4.8030901@slaphack.com> <42BF3D8F.4060503@namesys.com>
-In-Reply-To: <42BF3D8F.4060503@namesys.com>
-X-Enigmail-Version: 0.89.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Sun, 26 Jun 2005 20:28:16 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:25310 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261672AbVF0A14 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Jun 2005 20:27:56 -0400
+Date: Sun, 26 Jun 2005 15:52:10 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, bcrl@kvack.org
+Subject: Re: increased translation cache footprint in v2.6
+Message-ID: <20050626185210.GB6091@logos.cnet>
+References: <20050626172334.GA5786@logos.cnet> <20050626164939.2f457bf6.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050626164939.2f457bf6.akpm@osdl.org>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Hans Reiser wrote:
-> David Masover wrote:
+On Sun, Jun 26, 2005 at 04:49:39PM -0700, Andrew Morton wrote:
+> Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
+> >
+> > As can be seen the number of entries is more than twice (dominated by kernel addresses).
 > 
+> But doesn't this:
 > 
->>Valdis.Kletnieks@vt.edu wrote:
->>
->>
->>>On Sun, 26 Jun 2005 14:58:07 CDT, David Masover said:
->>
->>
->>>>"Plugins" is a bad word.  This user's combination of plugins is most
->>>>likely identical to other users', it's just which ones are enabled, and
->>>>which aren't?  If they are all included, I assume they play nice.
->>
->>
->>>Which ones are enabled. Exactly.
+> I-TLB userspace misses: 142369  I-TLB userspace misses: 2179    ITLB u: 139190
+> I-TLB kernel misses: 118288    	I-TLB kernel misses: 1369	ITLB k: 116319
+> D-TLB userspace misses: 222916 	D-TLB userspace misses: 180249	DTLB u: 38667
+> D-TLB kernel misses: 207773    	D-TLB kernel misses: 167236	DTLB k: 38273
 > 
+> mean that we're mainly missing on data accesses?
+
+The input files where "diff -u" works are listing only entries from the 
+instruction cache. 
+
+I say that because I suppose that you thought that the files "diff -u" 
+works on could have mixed i/d cache entries.
+
+Yes, the ratio between instruction/data misses is about 1/2, but the amount 
+of data misses is about the same between v2.4 and v2.6.
+
+> >  Sorry, I've got no list of functions for these addresses, but it was pretty obvious at the time 
+> >  looking at the sys_read() codepath and respective virtual addresses.
+> > 
+> >  Manual reorganization of the functions sounded too messy, although BenL mentions something about
+> >  fget_light() can and should be optimized.
 > 
-> Reiser4 plugins are not per user, but per kernel.  They are compiled
-> in.  The model is intended to ease the development process, nothing
-> more.  Apologies if the naming suggests more.
+> The workload you're using also does write(), and the write() paths got
+> significantly deeper.
 
-But, to avoid confusion, the inclusion of a crytocompress plugin in a
-given kernel doesn't mean that all files accessed from that kernel are
-encrypted and compressed.  It just means that you can pick an individual
-file and set it to be transparently encrypted/compressed.
+What can be done to bring those functions which compose the paths into the 
+smaller amounts of pages as possible? 
 
-That is what I meant by "enabled".  Not per-user, but per-file.
+> Stack misses, perhaps. 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+Can you elaborate? The deltas of data cache misses are about the same.
 
-iQIVAwUBQr9FcHgHNmZLgCUhAQJ2+BAAgnqAcEg41VXTUmpUUZWMduWeJKKYDE16
-QvWore6MK/FWoU8hqFMddTzJVpzKNH8NoZ1Jfm2nEC51nndckwtBDsuIlMb1CGC+
-I+wCrpe1kjXTz8sTs++CwDg29YojHP1/Wa5MwnUgTEBkZxacPI7r0VXyt1oO+f/N
-Eu6Jpgl4IN3ba52/PS+dXCQrmOJDhLeHAb+l4rtRsK+LASJitqmGmpf4PRwEejM8
-dWZyjEYdiAcMx6mkeB/lho5IIcp1Xi5QBACf6S8SHXvHxRW50cKeouAISR25Ttk2
-Oa1vKhWPGo4IBREjK7fzgj6GwfpIBnUfE25ZRjrBRupWumwekaCAY91JOoRkdRI+
-Lw70OZhqqIKQ/O46xqhyCrroP/6is5ZxLyIRe1q3qsQfsWUfHBOONRUBdtaTQlaa
-3OWzAU49cxn4Jv9S9UEYEyKx9ggqJ5hd94wZpXPq4GogWt4S8cYK3d4ZtRIyXEBr
-qOrLoJoTF9WeT254u+uq5gLP5kxq7Z7J51aMXbGF+4luuGJPq/50Y4hbapAMQWFA
-v0Z8YNWoOnOJgYji/+u8qJhsfzBdi/dmWlhhy9Te1e1b/1+zHcsbCslgsIrG2spk
-3uF1GOv5NorO2n7RhierhkUrkUsLLlFqf0vPmgMqJ9DG4h6wl3bOJkYShBKTYQB+
-ldYcxERKMZ4=
-=jv9S
------END PGP SIGNATURE-----
+>  But a tlb entry caches the translation for a single
+> page, yes?
+
+Well, a TLB entry might cache different sized pages. The platform support 4kb, 
+16kb and 8Mb (IIRC, maybe some other size also).
+
+The bigger pages (8Mb) are only used to map 8Mbytes of instruction at KERNELBASE,
+24Mbytes of data (3 8Mbyte entries) also at KERNELBASE and another 8Mbytes of the
+configuration registers memory space, which lives outside RAM space.
+
+There was a bug causing the first 8Mbyte entry to be invalidated, which led the 
+system to use translations from the 4kB pagetables at KERNELBASE. 
+
+So, the issue has been "solved" for this particular machine, but its still there
+(and potentially affects platforms I wonder).

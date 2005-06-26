@@ -1,56 +1,146 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261462AbVFZRHO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261483AbVFZRK5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261462AbVFZRHO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Jun 2005 13:07:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261465AbVFZRHO
+	id S261483AbVFZRK5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Jun 2005 13:10:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261468AbVFZRJc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Jun 2005 13:07:14 -0400
-Received: from [213.170.72.194] ([213.170.72.194]:60884 "EHLO
-	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP id S261462AbVFZRHI
+	Sun, 26 Jun 2005 13:09:32 -0400
+Received: from [202.109.113.90] ([202.109.113.90]:10893 "EHLO
+	dragon.linux-vs.org") by vger.kernel.org with ESMTP id S261466AbVFZRIs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Jun 2005 13:07:08 -0400
-Message-ID: <42BEE0B4.3030804@oktetlabs.ru>
-Date: Sun, 26 Jun 2005 21:07:00 +0400
-From: "Artem B. Bityuckiy" <dedekind@oktetlabs.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Fedora/1.7.8-1.3.1
-X-Accept-Language: en, ru, en-us
+	Sun, 26 Jun 2005 13:08:48 -0400
+Date: Mon, 27 Jun 2005 01:05:55 +0800 (CST)
+From: Wensong Zhang <wensong@linux-vs.org>
+To: Neil Horman <nhorman@redhat.com>
+Cc: Julian Anastasov <ja@ssi.bg>, linux-kernel <linux-kernel@vger.kernel.org>,
+       akpm@osdl.org, netdev@oss.sgi.com, davem@davemloft.net
+Subject: Re: [Patch] ipvs: close race conditions on ip_vs_conn_tab list
+ modification
+In-Reply-To: <20050624174054.GE21499@hmsendeavour.rdu.redhat.com>
+Message-ID: <Pine.LNX.4.63.0506270103070.2351@penguin.linux-vs.org>
+References: <20050624144822.GD21499@hmsendeavour.rdu.redhat.com>
+ <Pine.LNX.4.44.0506241808150.2776-100000@l> <20050624174054.GE21499@hmsendeavour.rdu.redhat.com>
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Hans Reiser <reiser@namesys.com>, Alexander Zarochentsev <zam@namesys.com>,
-       Jeff Garzik <jgarzik@pobox.com>, reiserfs-list@namesys.com,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: reiser4 plugins
-References: <20050620235458.5b437274.akpm@osdl.org> <42B8B9EE.7020002@namesys.com> <42B8BB5E.8090008@pobox.com> <200506221824.32995.zam@namesys.com> <20050622142947.GA26993@infradead.org> <42BA2ED5.6040309@namesys.com> <20050626164606.GA18942@infradead.org>
-In-Reply-To: <20050626164606.GA18942@infradead.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> I'm a bit confused about what you're saying here.  What does the 'vector'
-> in all these expressions mean?
-> 
-> In OO terminology our *_operation structures are interfaces.  Each particular
-> instance of such a struct that is filled with function pointers is a class.
-> Each instance of an inode/file/dentry/superblock/... that uses these operation
-> vectors is an object.
-> 
-> What I propose (or rather demand ;-)) is that you don't duplicate this
-> infrastructure, and add another dispath layer below these objects but instead
-> re-use it for what it is done and only handle things specific to reiser4
-> in your own code. 
 
-Just out of curiosity, could you please specify few exact examples with 
-specific file/function names which duplicate the existing 
-infrastructure. What do they duplicate and why? How should these 
-functions be implemented on VFS? Ho should the the other FSes 
-implement/ignore them? Why are you shure they will fit VFS well? etc.
+Hello Neil,
 
-Thanks.
+It's a good fix. Please continue on kernel 2.4 version of your patch.
 
--- 
-Best regards, Artem B. Bityuckiy
-Oktet Labs (St. Petersburg), Software Engineer.
-+78124286709 (office) +79112449030 (mobile)
-E-mail: dedekind@oktetlabs.ru, web: http://www.oktetlabs.ru
+Thanks,
+
+Wensong
+
+
+On Fri, 24 Jun 2005, Neil Horman wrote:
+
+> On Fri, Jun 24, 2005 at 06:09:40PM +0300, Julian Anastasov wrote:
+>>
+>> 	Hello,
+>>
+>> On Fri, 24 Jun 2005, Neil Horman wrote:
+>>
+>>>  			if (ct) {
+>>>  				IP_VS_DBG(4, "del conn template\n");
+>>>  				ip_vs_conn_expire_now(ct);
+>>>  			}
+>>
+>> 	Don't forget to use cp->control instead of ct, ct is not needed
+>> anymore.
+>>
+>> Regards
+>>
+>> --
+>> Julian Anastasov <ja@ssi.bg>
+>>
+>
+>
+> Good catch.  Sorry, should have seen that earlier.  New patch attached with
+> corrections.  When you're comfortable with this, I'll post the 2.4 version of
+> the patch.
+>
+> Regards
+> Neil
+>
+> Signed-off-by: Neil Horman <nhorman@redhat.com>
+>
+> ip_vs_conn.c |   24 ++++--------------------
+> 1 files changed, 4 insertions(+), 20 deletions(-)
+>
+>
+> --- linux-2.6.git/net/ipv4/ipvs/ip_vs_conn.c.orig	2005-06-23 13:11:00.000000000 -0400
+> +++ linux-2.6.git/net/ipv4/ipvs/ip_vs_conn.c	2005-06-24 13:33:03.000000000 -0400
+> @@ -548,7 +548,6 @@
+> {
+> 	if (del_timer(&cp->timer))
+> 		mod_timer(&cp->timer, jiffies);
+> -	__ip_vs_conn_put(cp);
+> }
+>
+>
+> @@ -801,21 +800,12 @@
+> 					continue;
+> 			}
+>
+> -			/*
+> -			 * Drop the entry, and drop its ct if not referenced
+> -			 */
+> -			atomic_inc(&cp->refcnt);
+> -			ct_write_unlock(hash);
+> -
+> -			if ((ct = cp->control))
+> -				atomic_inc(&ct->refcnt);
+> 			IP_VS_DBG(4, "del connection\n");
+> 			ip_vs_conn_expire_now(cp);
+> -			if (ct) {
+> +			if (cp->control) {
+> 				IP_VS_DBG(4, "del conn template\n");
+> -				ip_vs_conn_expire_now(ct);
+> +				ip_vs_conn_expire_now(cp->control);
+> 			}
+> -			ct_write_lock(hash);
+> 		}
+> 		ct_write_unlock(hash);
+> 	}
+> @@ -829,7 +819,6 @@
+> {
+> 	int idx;
+> 	struct ip_vs_conn *cp;
+> -	struct ip_vs_conn *ct;
+>
+>   flush_again:
+> 	for (idx=0; idx<IP_VS_CONN_TAB_SIZE; idx++) {
+> @@ -839,18 +828,13 @@
+> 		ct_write_lock_bh(idx);
+>
+> 		list_for_each_entry(cp, &ip_vs_conn_tab[idx], c_list) {
+> -			atomic_inc(&cp->refcnt);
+> -			ct_write_unlock(idx);
+>
+> -			if ((ct = cp->control))
+> -				atomic_inc(&ct->refcnt);
+> 			IP_VS_DBG(4, "del connection\n");
+> 			ip_vs_conn_expire_now(cp);
+> -			if (ct) {
+> +			if (cp->control) {
+> 				IP_VS_DBG(4, "del conn template\n");
+> -				ip_vs_conn_expire_now(ct);
+> +				ip_vs_conn_expire_now(cp->control);
+> 			}
+> -			ct_write_lock(idx);
+> 		}
+> 		ct_write_unlock_bh(idx);
+> 	}
+> -- 
+> /***************************************************
+> *Neil Horman
+> *Software Engineer
+> *Red Hat, Inc.
+> *nhorman@redhat.com
+> *gpg keyid: 1024D / 0x92A74FA1
+> *http://pgp.mit.edu
+> ***************************************************/
+>

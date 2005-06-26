@@ -1,29 +1,29 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261489AbVFZHsU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261492AbVFZIBN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261489AbVFZHsU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Jun 2005 03:48:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261492AbVFZHsU
+	id S261492AbVFZIBN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Jun 2005 04:01:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261495AbVFZIBN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Jun 2005 03:48:20 -0400
-Received: from 69-18-3-179.lisco.net ([69.18.3.179]:29200 "EHLO
-	ninja.slaphack.com") by vger.kernel.org with ESMTP id S261489AbVFZHsH
+	Sun, 26 Jun 2005 04:01:13 -0400
+Received: from 69-18-3-179.lisco.net ([69.18.3.179]:52748 "EHLO
+	ninja.slaphack.com") by vger.kernel.org with ESMTP id S261492AbVFZIAq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Jun 2005 03:48:07 -0400
-Message-ID: <42BE5DB6.8040103@slaphack.com>
-Date: Sun, 26 Jun 2005 02:48:06 -0500
+	Sun, 26 Jun 2005 04:00:46 -0400
+Message-ID: <42BE60AC.9090604@slaphack.com>
+Date: Sun, 26 Jun 2005 03:00:44 -0500
 From: David Masover <ninja@slaphack.com>
 User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050325)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: Lincoln Dale <ltd@cisco.com>
-Cc: Gregory Maxwell <gmaxwell@gmail.com>, Hans Reiser <reiser@namesys.com>,
-       Valdis.Kletnieks@vt.edu, Horst von Brand <vonbrand@inf.utfsm.cl>,
+Cc: Hans Reiser <reiser@namesys.com>, Valdis.Kletnieks@vt.edu,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
        Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
        Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
        ReiserFS List <reiserfs-list@namesys.com>
 Subject: Re: reiser4 plugins
-References: <200506240241.j5O2f1eb005609@laptop11.inf.utfsm.cl>	 <42BCD93B.7030608@slaphack.com>	 <200506251420.j5PEKce4006891@turing-police.cc.vt.edu>	 <42BDA377.6070303@slaphack.com>	 <200506252031.j5PKVb4Y004482@turing-police.cc.vt.edu>	 <42BDC422.6020401@namesys.com> <42BE3645.4070806@cisco.com> <e692861c05062522071fe380a5@mail.gmail.com> <42BE563D.4000402@cisco.com>
-In-Reply-To: <42BE563D.4000402@cisco.com>
+References: <200506240241.j5O2f1eb005609@laptop11.inf.utfsm.cl> <42BCD93B.7030608@slaphack.com> <200506251420.j5PEKce4006891@turing-police.cc.vt.edu>            <42BDA377.6070303@slaphack.com> <200506252031.j5PKVb4Y004482@turing-police.cc.vt.edu> <42BDC422.6020401@namesys.com> <42BE3645.4070806@cisco.com> <42BE3A90.1090403@slaphack.com> <42BE5492.4030903@cisco.com>
+In-Reply-To: <42BE5492.4030903@cisco.com>
 X-Enigmail-Version: 0.89.6.0
 X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=ISO-8859-1
@@ -35,110 +35,74 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 Hash: SHA1
 
 Lincoln Dale wrote:
+> David Masover wrote:
+> 
+>> Ok, I'll bite.  Hans put it best a moment ago:
+>>  
+>>
+> [..]
+> 
+> you seem to have some misconceived notion that this is somehow a
+> "ReiserFS versus XFS" or "ReiserFS versus ext3" case.
+> l-k could do without those conspiracy theories.  lets just stick to the
+> facts.
+
+erm, let me take a peek at what you just chopped out.
+
+Yeah.  Um.  I mention XFS and ext3 *once* in the whole message.  As an
+example of filesystems in general, because the only other two I'd
+consider (or ever use) for a desktop FS at this point is XFS or ext3.
+And it was a hypothetical opinion (I don't really know if / how much
+Hans feels that way), and I personally find it far easier to believe
+that there are stubborn people or that there isn't enough communication
+of facts than that there is actually some anti-reiser conspiracy.
+
+So, my mistake for trying to speak for other people.
+
+>> No, as a user, I just want a working plugin architecture to play with
+>> (I'm not *just* a user), and a working Reiser4 'cause it's fast, and I
+>> am eager to see new improvements coming out of Namesys, instead of two
+>> years spent trying to keep up with the vanilla kernel *and* adapt to
+>> some unspecified, possibly unneccessary, decree of a benevolent dictator.
 
 [...]
+> but just don't have the false expectation that just because something is
+> 'kool' that its going to get into the kernel without rigorous peer
+> review & approval
 
-> this is the WHOLE point of standardization .. i don't think its that
-> Reiser4's EAs offer any more or less capabilities than standard EAs -
+I don't, actually.
 
-They do.  Reiser4's EAs can look like any other object -- files,
-folders, symlinks, whatever.  This is important, especially for
-transparency.
+I did expect the peer review to be a little more efficient, less
+confrontational, and (maybe) more fair.  But I'm actually a bit content
+right now.  After all, I *am* running reiser4 on two of the three
+machines I maintain at home.
 
-For one thing, can I access a Beagle search as a folder?
+And, if you scroll up a bit, at this point I just want this resolved.  I
+don't particularly care if Hans decides to just keep maintaining a
+patchset, although I would be happier if it got into the mainstream
+kernel -- I wouldn't have to wait as long to install each new 2.6.11 or
+2.6.12 + nvidia module.
 
-> BUT they haven't used the standard mechanisms available for implementing
-> them, such for Beagle to work on Reiser4, there now needs to be logic
-> added to Beagle to do so.
+But this is a lot of time and energy from a lot of people on both sides
+who I would rather see working on something else.
 
-Well, ideally, I'd like to see people stop bickering, come up with
-something better than sys_reiser4, add an emulation layer for xattrs and
-mark them obsolete.
-
-But I don't speak for Namesys.
-
-> lets take this a step further.  what about compression?  do we accept
-> that each filesystem can implement its own proprietary compression via
-> its own API - and now we need individual user-space tools to understand
-
-No, that's the beauty of these "EAs" in Reiser4.  The API is standard
-write(2) commands.  sys_reiser4 supposedly implements an interface to
-make this scale better, but otherwise have the same semantics.  And who
-said anything about proprietary compression?  I think we were planning
-on the kernel's zlib, though we might have been planning to make it a
-bit more seekable...
-
-> each of these APIs?
-
-So, the API becomes something like:
-
-cat crypto/inflated/foo		# transparently decompressed
-cat crypto/raw/foo.gz		# raw, gzip-compressed
-
-Another possibility, if you like file-as-a-directory:
-
-cat foo.gz			# raw
-cat foo.gz/inflated		# decompressed
-
-One could easily imagine things like these two potentially equivalent
-commands:
-
-cp foo bar.zip/
-zip bar foo
-
-The whole point is to have less userland tools, not more.  I'm not
-saying we move zip into the kernel, just that the user now has one less
-command to remember.
-
-But, back to reality.  file-as-directory probably won't happen, at least
-not for awhile, so imagine more along the lines of my first example.
-
-> how about encryption?
-
-About the same, only now you have a key file that you write to in order
-to unlock the decrypted files.
-
-> ... and so-on.
-> suddenly every user app out there needs to have specialized knowledge of
-> each type of filesystem.
-
-Not really.
-
-More like, every app that cares to has generalized knowledge, if that.
-
-> none of this is rocket-science.  its just plain common sense.
-
-I could say the same of my stuff, but lots of people seem to disagree
-with me, or at least fail to see it.  I guess I can say the same of your
-comments.
-
->> It's a filesysem for gods sake. Hans and his team have worked hard to
->> minimize its impact and they are still willing to accept more
->> guidance,
->>
-> i don't see any acceptance at this point.  simply lots of hot air that
-> smells like marketing & PR.
-
-They do keep asking for specifically what they need to do to put this
-stuff in VFS.  Or am I wrong?
-
-Or maybe it should be obvious to them?
+I appologize for the tone of that, too.  I know you don't work for me...
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (GNU/Linux)
 Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-iQIVAwUBQr5dtngHNmZLgCUhAQIBGxAAiLK6EyHnLRhEA+rUIDCwacM4K89wlE7X
-+dcw3xv3Pc9tZZqVVAd7Y27whEzjmNOwfGkvPkzPk/ATQditnyt+7xHcuXpqORNU
-j7zHc5zS8MGDRU8Re4MXTO6jCXDgtTwQHjcdg4i8KYWLMPT7LpO+DHY/mZyQEgpD
-kZGE4WJePA+aNlHAzySW9u/atnwp5hSRvmfuF4zzN8ng5tf8SSMvbfoCyjYSue8l
-N6jvcGnt+yItmbHVaij0IdHUw1/9/u6b3Q0Ut39NBk8fUKXJcASHmKtjwLTAoWW+
-hiYVhLdZQGkWo2d6XdzdNY2OgE3kWVnLBqrOuTo7zCjMojvWIrEGE/x3Yh/E6Hs8
-cAPVRebG5yUQBxJk1lcDeJOBozutIpCVyTzwBnKU1nz3KArqanU51oT++3cTjVha
-1tBnaLS4RLcdy8UD1ewS+VHj61VSlcBjv2abCrYw4DC0anUFrYUSciNjx3tdYJRx
-o7l/pEn7UYPpGaXgHyBdVDIRlRNdOoTRZp3aIY2Z2v6/jyi3TeufMUjGtpuQHl2k
-BuYm7tV4l1Ec/QZLM+PbAyVU9qqlz9BuHlI1U7z1p3gYeAzz0guAeDHfi1l95sUn
-l+bFCOfmXi3qRAxVZyidczqeOtGtCed3nIUH+1z+siuFzH3jecjzUpGWKcGxzVlc
-jkUS+tlihfg=
-=C4UP
+iQIVAwUBQr5gq3gHNmZLgCUhAQLgixAAgC1WTVa8+6wP3CbCJafz4V5+f/hcJkuG
+xtXeh/CPvN4FzRRu+UjDVgji6yrLQ9AxFOa9kg9iJzZLIDDUNKu6UvFe+j22Mmpv
+F/24aLD8NAtF4JNGOJv6xFZtwk03N8Q92+CU0b5jPEViom2h55OkKfSIzoGz47Ee
+45XGDx0v2LCHVG+HhVuG3EVQNjI4oBiwQteErHjmoNcvh7npkbdYGvEHRULgX3rO
+eCals0WPCQ+A10xDoTll6NvqEU59aHeheDw+FBkCZw4GhGaSCdZn0q8EHqqTdufL
+iU5z/Q6J98KvjeMdhlCW8QRWA+hSIwQJcn+09IzI2lT4QnpPDRTeX3NxsdCrVbLu
+fg37+d46cfWNrXpIrm3SoaTMl5GGvGGTekD46deTtotbJ40fSXGv3FbB6KCFK04s
+U6kjfnqO8fFG/iKWExCqts6HUPiboI/zpz8w/oL7XudJO/jxKavKQGk+POCFquyT
+U2e7KvZig5Ct0aunlIec7NrrRbutfYU6TFlYYRlV6XmIDP29ZDtqN9DsIBEvSeP5
+7RFs4r0nTaIj17mpWmX5XCaLGNSUqzsQ1bzIoAl/D8NzbRTD9dsukvZyz5lW7tiZ
+zsWe4mHtJrZ1/mQf/oCj36FXID+bd3xN0WGIjli5gzMjCK8uCkS09MQ+JeLGQHES
+M/wMDcMcrwE=
+=3y4o
 -----END PGP SIGNATURE-----

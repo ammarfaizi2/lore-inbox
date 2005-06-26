@@ -1,64 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbVFZQJN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261376AbVFZQOI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261347AbVFZQJN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Jun 2005 12:09:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261365AbVFZQIA
+	id S261376AbVFZQOI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Jun 2005 12:14:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261359AbVFZQOI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Jun 2005 12:08:00 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:15886 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261347AbVFZQFy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Jun 2005 12:05:54 -0400
-Date: Sun, 26 Jun 2005 18:05:52 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, Luca Falavigna <dktrkranz@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       Jeff Garzik <jgarzik@pobox.com>
-Subject: [-mm patch] kernel/irq/autoprobe.c: remove an unused variable
-Message-ID: <20050626160552.GK3629@stusta.de>
-References: <20050626040329.3849cf68.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 26 Jun 2005 12:14:08 -0400
+Received: from rproxy.gmail.com ([64.233.170.203]:17162 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261376AbVFZQNj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Jun 2005 12:13:39 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=qUMT0VL6Jx7mYkxQJE/RLSBlA7wFWpSzg2dAMYNnbaJDfAL8UlGJYMquRkbo8mWFxbjRvSZ3EhG2nVG+Z1VkZerzADzDhMImH74ROsyXslG7SbYNnZfoMC0j5xlswg9Z3QSunSuIouFw4l1RH9OL1twX9Zxv0PIsYfZe3Ijr96Q=
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Alexander Nyberg <alexn@telia.com>
+Subject: Re: x86_64 access of some bad address
+Date: Sun, 26 Jun 2005 20:19:38 +0400
+User-Agent: KMail/1.7.2
+Cc: ak@suse.de, linux-kernel@vger.kernel.org
+References: <1119539630.1170.6.camel@localhost.localdomain>
+In-Reply-To: <1119539630.1170.6.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050626040329.3849cf68.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200506262019.39195.adobriyan@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 26, 2005 at 04:03:29AM -0700, Andrew Morton wrote:
->...
-> Changes since 2.6.12-mm1:
->...
-> +using-msleep-instead-of-hz.patch
->...
->  cleanup
->...
+On Thursday 23 June 2005 19:13, Alexander Nyberg wrote:
+> As I only have one x86_64 which is my main workstation it's far too
+> tedious to do binary searching (this doesn't happen on x86).
+> 
+> Happens with both latest -git and 2.6.12-mm1
+> The tools to reproduce this is at: http://serkiaden.mine.nu/kp2.tar
+> 
+> Just do:
+> gdb lyze
+> run
+> 
+> and it crashes here giving:
+> 
+> ----------- [cut here ] --------- [please bite here ] ---------
+> Kernel BUG at "mm/memory.c":911
 
-This patch causes the following warning:
+I've filed a bug at kernel bugzilla, so your report won't be lost.
+See http://bugme.osdl.org/show_bug.cgi?id=4801
 
-<--  snip  -->
-
-...
-  CC      kernel/irq/autoprobe.o
-kernel/irq/autoprobe.c: In function `probe_irq_on':
-kernel/irq/autoprobe.c:30: warning: unused variable `delay'
-...
-
-<--  snip  -->
-
-
-This patch removes this no longer used variable.
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.12-mm2-full/kernel/irq/autoprobe.c.old	2005-06-26 14:46:35.000000000 +0200
-+++ linux-2.6.12-mm2-full/kernel/irq/autoprobe.c	2005-06-26 14:46:46.000000000 +0200
-@@ -27,7 +27,7 @@
-  */
- unsigned long probe_irq_on(void)
- {
--	unsigned long val, delay;
-+	unsigned long val;
- 	irq_desc_t *desc;
- 	unsigned int i;
- 
+You can register at http://bugme.osdl.org/createaccount.cgi and add yourself
+to CC list.

@@ -1,148 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261577AbVFZVMa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261597AbVFZVZ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261577AbVFZVMa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Jun 2005 17:12:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261597AbVFZVMa
+	id S261597AbVFZVZ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Jun 2005 17:25:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261424AbVFZVZ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Jun 2005 17:12:30 -0400
-Received: from h80ad261f.async.vt.edu ([128.173.38.31]:23171 "EHLO
-	h80ad261f.async.vt.edu") by vger.kernel.org with ESMTP
-	id S261577AbVFZVMQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Jun 2005 17:12:16 -0400
-Message-Id: <200506262105.j5QL5kdR018609@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: David Masover <ninja@slaphack.com>
-Cc: Lincoln Dale <ltd@cisco.com>, Gregory Maxwell <gmaxwell@gmail.com>,
-       Hans Reiser <reiser@namesys.com>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: reiser4 plugins 
-In-Reply-To: Your message of "Sun, 26 Jun 2005 14:58:07 CDT."
-             <42BF08CF.2020703@slaphack.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <200506240241.j5O2f1eb005609@laptop11.inf.utfsm.cl> <42BCD93B.7030608@slaphack.com> <200506251420.j5PEKce4006891@turing-police.cc.vt.edu> <42BDA377.6070303@slaphack.com> <200506252031.j5PKVb4Y004482@turing-police.cc.vt.edu> <42BDC422.6020401@namesys.com> <42BE3645.4070806@cisco.com> <e692861c05062522071fe380a5@mail.gmail.com> <42BE563D.4000402@cisco.com> <42BE5DB6.8040103@slaphack.com> <200506261816.j5QIGMdI010142@turing-police.cc.vt.edu>
-            <42BF08CF.2020703@slaphack.com>
+	Sun, 26 Jun 2005 17:25:57 -0400
+Received: from [141.211.252.161] ([141.211.252.161]:38535 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261597AbVFZVYg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Jun 2005 17:24:36 -0400
+Date: Sun, 26 Jun 2005 23:24:26 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Gerrit Huizenga <gh@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       ckrm-tech@lists.sourceforge.net, Hubertus Franke <frankeh@us.ibm.com>,
+       Chandra Seetharaman <sekharan@us.ibm.com>,
+       Shailabh Nagar <nagar@us.ibm.com>, Vivek Kashyap <vivk@us.ibm.com>
+Subject: Re: [patch 08/38] CKRM e18: Documentation
+Message-ID: <20050626212426.GB1315@elf.ucw.cz>
+References: <20050623061552.833852000@w-gerrit.beaverton.ibm.com> <20050623061755.719424000@w-gerrit.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1119819931_3659P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Sun, 26 Jun 2005 17:05:32 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050623061755.719424000@w-gerrit.beaverton.ibm.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1119819931_3659P
-Content-Type: text/plain; charset=us-ascii
+Hi!
 
-On Sun, 26 Jun 2005 14:58:07 CDT, David Masover said:
-
-> "Plugins" is a bad word.  This user's combination of plugins is most
-> likely identical to other users', it's just which ones are enabled, and
-> which aren't?  If they are all included, I assume they play nice.
-
-Which ones are enabled. Exactly.
-
-> And just because they are called "plugins" doesn't mean the EA looks
-> different every week.
-
-They do if the one enabled this week is "make EAs look like symlinks", and
-last week's was "make EAs look like folders".
-
-(Don't blame me, *you're* the one that said "EAs can look like any other object"..)
-
-
-> > And 'cat crypto/raw/foo' or 'crypto/inflated/foo.gz' gets you what, exactly
-?
-> > 
-> > Now throw some .bz2 and .zip files into the mix... ;)
+> This patch adds all current documentation on CKRM.
 > 
-> Interface is the same.  Only, zip files aren't just compression, so
-> maybe the interface changes a little there.
-
-Right. So please explain what crypto/raw/foo and crypto/inflated/foo.gz give you.
-
-> Point is, now you have a standard interface for any program to access
-> any simple lossless compression, transparently.
+> Signed-Off-By: Hubertus Franke <frankeh@us.ibm.com>
+> Signed-Off-By: Chandra Seetharaman <sekharan@us.ibm.com>
+> Signed-Off-By: Shailabh Nagar <nagar@us.ibm.com>
+> Signed-Off-By: Vivek Kashyap <vivk@us.ibm.com>
+> Signed-Off-By: Gerrit Huizenga <gh@us.ibm.com>
 > 
-> >>Another possibility, if you like file-as-a-directory:
-> >>
-> >>cat foo.gz			# raw
-> >>cat foo.gz/inflated		# decompressed
-> >>
-> >>One could easily imagine things like these two potentially equivalent
-> >>commands:
-> >>
-> >>cp foo bar.zip/
-> >>zip bar foo
-
-> > Unless of course the user had done 'mkdir sorted.by.city.zip' to make
-> > a directory of files containing data sorted by USPS Zip code.
+>  TODO         |   16 +++++++++
+>  ckrm_basics  |   66 +++++++++++++++++++++++++++++++++++++++
+>  core_usage   |   72 +++++++++++++++++++++++++++++++++++++++++++
+>  crbce        |   33 +++++++++++++++++++
+>  installation |   70 ++++++++++++++++++++++++++++++++++++++++++
+>  rbce_basics  |   67 ++++++++++++++++++++++++++++++++++++++++
+>  rbce_usage   |   98 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+>  7 files changed, 422 insertions(+)
 > 
-> What's this got to do with anything?
+> Index: linux-2.6.12-ckrm1/Documentation/ckrm/ckrm_basics
+> ===================================================================
+> --- /dev/null	1970-01-01 00:00:00.000000000 +0000
+> +++ linux-2.6.12-ckrm1/Documentation/ckrm/ckrm_basics	2005-06-20 13:08:35.000000000 -0700
+> @@ -0,0 +1,66 @@
+> +CKRM Basics
+> +-------------
 
-It's got a *LOT* to do with it if I created a *DIRECTORY*, to use *AS A DIRECTORY*,
-the way Unix-style systems have done for 3 decades, and suddenly my system is
-running like a pig because the kernel decided that it's a .zip file.
+Perhaps you want to explain what "CKRM" means?
 
-> > And what happens if the user has a file 'bar' that's not a ZIP file,
-> > and a directory 'bar.zip' isn't a view into 'bar'?
-> 
-> In file-as-a-directory (which is probably NOT happening soon), bar.zip
-> is both the actual zipfile and the view inside, depending on whether you
-> try to open() it directly or peek inside it as a directory.
+> +RCFS depicts a CKRM class as a directory. Hierarchy of classes can be
 
-Ahem.  "bar.zip' is a *DIRECTORY*. I said 'mkdir bar.zip' - why is it not
-acting like a directory?
- 
-> However, let's not discuss this now.  I do NOT want to start another
-> "silent semantic changes with reiser4" thread.  File-as-directory is not
-> happening this time, so don't worry about it -- this time.
+Another four letter acronym, unexplained?
 
-Fish or cut bait.  You are the one who started handwaving the 'file-as-directory'.
-If you don't want it discussed, don't mention it.
+> +   # cat /rcfs/taskclass/c1/members
+> +   lists pids of tasks belonging to c1
+> +
+> +   # cat /rcfs/socket_class/s1/members
+> +   lists the ipaddress\port of all listening sockets in s1
+                         ~
+			  did you want to use "/" here?
 
-> > Most of the time, if I have a file 'linux-2.6.12.tar.bz2' and a
-> > directory 'linux-2.6.12', what is under the directory is *NOT* the same
-> > data as what's in the .bz2 - I've done 'make oldconfig' and a few builds
-> > and some variable amount of patching, usually with rejects, and I *don't*
-> > want that .bz2 being updated during all this (hint - what's my next command
-> > after 'rm -rf linux-2.6.12' likely to be, and why, and  what expectations
-> > do I have when I do it?)
-> 
-> You're misunderstanding.  man zip.
-> $ zip bar foo
-> creates/modifies a file named "bar.zip", not "bar", which contains the
-> file "foo".
+> Index: linux-2.6.12-ckrm1/Documentation/ckrm/crbce
+> ===================================================================
+> --- /dev/null	1970-01-01 00:00:00.000000000 +0000
+> +++ linux-2.6.12-ckrm1/Documentation/ckrm/crbce	2005-06-20 13:08:35.000000000 -0700
+> @@ -0,0 +1,33 @@
+> +CRBCE
+> +----------
+> +
+> +crbce is a superset of rbce. In addition to providing automatic
+> +classification, the crbce module
 
-No. *YOU* are misunderstanding.  I have a directory 'linux-2.6.12', and
-I have a file 'linux-2.6.12.tar.bz2', and I do *NOT* want directory operations
-to be silently converted into "let's scribble into the middle of this tar file
-and then compress it".  (Hint - work out how long a kernel 'make' would take
-if you were doing it inside a .tar.bz2).
+Nice, but you should describe what RBCE means... And capitalize your
+acronyms consistently...
 
-> > You want to think this sort of thing through *really* thoroughly, because
-> > there's a *lot* of things, both users and programs, that have expectations
-> > about The Way Things Work.
-> 
-> Or, I can avoid those issues altogether, and simply delegate this kind
-> of stuff to user-created-but-magic directories.  For instance, I could
-> have a directory called "/foo" which contains encrypted files, and
-> "/foo/decrypted" which has transparently decrypted representations of them.
+> Index: linux-2.6.12-ckrm1/Documentation/ckrm/rbce_basics
+> ===================================================================
+> --- /dev/null	1970-01-01 00:00:00.000000000 +0000
+> +++ linux-2.6.12-ckrm1/Documentation/ckrm/rbce_basics	2005-06-20 13:08:35.000000000 -0700
+> @@ -0,0 +1,67 @@
+> +Rule-based Classification Engine (RBCE)
+> +-------------------------------------------
+> +
+> +The ckrm/rbce directory contains the sources for two classification engines
+> +called rbce and crbce. Both are optional, built as kernel modules and share much
+> +of their codebase. Only one classification engine (CE) can be loaded at a time
+> +in CKRM.
 
-So rather than everything working in a funky manner, a program gets to guess
-how funky, and in what direction, a given magical directory is....
+TMFLAs! (*)
 
---==_Exmh_1119819931_3659P
-Content-Type: application/pgp-signature
+Your resource managment may be quite nice system, but the naming is
+definitely very ugly. With your design we would not have open() system
+call, but ofsoarh() -- open filesystem object and return its
+handle. Can you come up with some reasonable naming?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFCvxibcC3lWbTT17ARAmdDAKCl03u+0C3DbpXJ1w7PZrP65g3zSQCeO7gk
-oQrsDYtfrhfdEmwbRCFZpN4=
-=2HPw
------END PGP SIGNATURE-----
-
---==_Exmh_1119819931_3659P--
+								Pavel
+(*) Too many four letter acronyms.
+-- 
+teflon -- maybe it is a trademark, but it should not be.

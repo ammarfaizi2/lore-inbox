@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261603AbVFZToD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261607AbVFZToC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261603AbVFZToD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Jun 2005 15:44:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261597AbVFZTmH
+	id S261607AbVFZToC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Jun 2005 15:44:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261603AbVFZTmP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Jun 2005 15:42:07 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:59071 "EHLO suse.cz")
-	by vger.kernel.org with ESMTP id S261603AbVFZTja (ORCPT
+	Sun, 26 Jun 2005 15:42:15 -0400
+Received: from zproxy.gmail.com ([64.233.162.199]:21157 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261610AbVFZTll (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Jun 2005 15:39:30 -0400
-Date: Sun, 26 Jun 2005 21:39:43 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Adam Kropelin <akropel1@rochester.rr.com>, linux-kernel@vger.kernel.org,
-       greg@kroah.com, dtor@mail.ru
-Subject: Re: 2.6.12-mm2
-Message-ID: <20050626193943.GA2120@ucw.cz>
-References: <20050626040329.3849cf68.akpm@osdl.org> <20050626101851.A18283@mail.kroptech.com> <20050626122538.34152dda.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 26 Jun 2005 15:41:41 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=UFBQYDbC0Gls2HihQUgaUxj7CPclnb/XStbwGcfSqCB2aE64+0MjtLbkA+KvdWxHzytmub5VnyEwARHIdTXEbPsEq21L3keBvB5/IQW0SfHkLiAo2F4heVD49fedoHnlv71vjdPG+azGpfzUKErNY4Fu/kDUaYAVjtkEQPUBD5o=
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Frank Peters <frank.peters@comcast.net>
+Subject: Re: Asus MB and 2.6.12 Problems
+Date: Sun, 26 Jun 2005 23:47:46 +0400
+User-Agent: KMail/1.7.2
+Cc: linux-kernel@vger.kernel.org
+References: <20050624113404.198d254c.frank.peters@comcast.net>
+In-Reply-To: <20050624113404.198d254c.frank.peters@comcast.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050626122538.34152dda.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
+Message-Id: <200506262347.46821.adobriyan@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 26, 2005 at 12:25:38PM -0700, Andrew Morton wrote:
-
-> Adam Kropelin <akropel1@rochester.rr.com> wrote:
-> >
-> > I'd like to lobby for the merging into mainline of this patch from
-> > git-input. It fixes a real bug, seen by real users, and has been
-> > languishing in the input tree since March. It may also be a candidate
-> > for the stable tree given it's one-linedness.
-> > 
+On Friday 24 June 2005 19:34, Frank Peters wrote:
+> Also, after a successful boot with 2.6.12, I will attempt to
+> connect with my cable Internet service using the following
+> commands:
 > 
-> I think we can merge all of git-input into Linus's tree immediately.
+> modprobe 3c59x  (load the ethernet modules)
+> dhcpcd -t 240   (get the IP address from my ISP)
 > 
-> But if that'll take some time then sure, we can merge up this little bit.
+> Formerly, with kernels 2.6.11 and earlier, the connection could
+> be established very quickly (about 10-15 seconds).  But with
+> kernel 2.6.12, it now requires about 3-4 minutes to establish
+> the link.
 
-I have some minor issues with a few of the patches. I'll take care of
-that tomorrow, and then it can be merged to Linus.
+I've filed a bug at kernel bugzilla for this part of the problem, so your
+report won't be lost. See http://bugme.osdl.org/show_bug.cgi?id=4803
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+You can register at http://bugme.osdl.org/createaccount.cgi and add yourself
+to CC list.
+
+P. S.: Compilation for keyboard problem will be filed RSN.

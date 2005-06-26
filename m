@@ -1,79 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261446AbVFZCYK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261435AbVFZCdd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261446AbVFZCYK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Jun 2005 22:24:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261698AbVFZCYK
+	id S261435AbVFZCdd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Jun 2005 22:33:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261784AbVFZCda
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Jun 2005 22:24:10 -0400
-Received: from mxout03.versatel.de ([212.7.152.117]:55459 "EHLO
-	mxout03.versatel.de") by vger.kernel.org with ESMTP id S261446AbVFZCYC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Jun 2005 22:24:02 -0400
-Message-ID: <42BE11B5.1020402@web.de>
-Date: Sun, 26 Jun 2005 04:23:49 +0200
-From: Christian Trefzer <ctrefzer@web.de>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050617)
-X-Accept-Language: de-DE, de, en-us, en
-MIME-Version: 1.0
-To: Hans Reiser <reiser@namesys.com>
-CC: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: -mm -> 2.6.13 merge status
-References: <20050620235458.5b437274.akpm@osdl.org.suse.lists.linux.kernel> <p73d5qgc67h.fsf@verdi.suse.de> <42B86027.3090001@namesys.com> <20050621195642.GD14251@wotan.suse.de> <42B8C0FF.2010800@namesys.com> <84144f0205062223226d560e41@mail.gmail.com> <42BB0151.3030904@suse.de> <87fyv8h80y.fsf@evinrude.uhoreg.ca> <42BDFA8E.6060608@web.de> <42BE0151.7010606@namesys.com>
-In-Reply-To: <42BE0151.7010606@namesys.com>
-X-Enigmail-Version: 0.92.0.0
-OpenPGP: id=6B99E3A5
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig566D91FB0838F110136A2B31"
+	Sat, 25 Jun 2005 22:33:30 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:13218 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261435AbVFZCbA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Jun 2005 22:31:00 -0400
+Date: Sun, 26 Jun 2005 04:30:54 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Christoph Lameter <christoph@lameter.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, raybry@engr.sgi.com,
+       torvalds@osdl.org
+Subject: Re: [RFC] Fix SMP brokenness for PF_FREEZE and make freezing usable for other purposes
+Message-ID: <20050626023053.GA2871@atrey.karlin.mff.cuni.cz>
+References: <Pine.LNX.4.62.0506241316370.30503@graphe.net> <20050625025122.GC22393@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.62.0506242311220.7971@graphe.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.62.0506242311220.7971@graphe.net>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig566D91FB0838F110136A2B31
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi!
 
-Hans Reiser schrieb:
-> Christian Trefzer wrote:
+> > It includes whitespace changes and most of patch is nice cleanup that
+> > should probably go in separately. (Hint hint :-). 
 > 
+> > Previous code had important property: try_to_freeze was optimized away
+> > in !CONFIG_PM case. Please keep that.
+> > 
+> > Best way is to introduce macros and cleanup the code to use the
+> > macros, without actually changing any object code. That can go in very
+> > fast. Then we can switch to atomic_t ... yeah I think that's
+> > neccessary, but I'd like cleanups first.
 > 
->>Hubert Chan schrieb:
->>
->>
->>>How about something of the form "nikita-955(file:line)"?  Or the
->>>reverse: "file:line(nikita-955)".  Would that keep everyone happy?
->>>
+> Here is such a patch:
 > 
-> Makes me happy.....
+> ---
+> Cleanup patch for freezing against 2.6.12-git5.
 > 
+> 1. Establish a simple API for process freezing defined in linux/include/sched.h:
+> 
+> frozen(process)		Check for frozen process
+> freezing(process)	Check if a process is being frozen
+> freeze(process)		Tell a process to freeze (go to refrigerator)
+> thaw_process(process)	Restart process
+> frozen_process(process)		Process is frozen now
+> 
+> 2. Remove all references to PF_FREEZE and PF_FROZEN from all
+>    kernel sources except sched.h
+> 
+> 3. Fix numerous locations where try_to_freeze is manually done by a driver
+> 
+> 4. Remove the argument that is no longer necessary from two function
+> calls.
 
-Nice, how about the others?
+Can you just keep the argument? Rename it to int unused or whatever,
+but if you do it, it stays backwards-compatible (and smaller patch,
+too).
 
-Hey, if we need some objective and neutral mediators on lkml, I'd be 
-glad to give my reading frenzies a meaning : )
+> 5. Some whitespace cleanup
+> 
+> 6. Clear potential race in refrigerator (provides an open window of PF_FREEZE
+>    cleared before setting PF_FROZEN, recalc_sigpending does not check 
+>    PF_FROZEN).
+> 
+> This patch does not address the problem of freeze_processes() violating the rule
+> that a task may only modify its own flags by setting PF_FREEZE. This is not clean
+> in an SMP environment. freeze(process) is therefore not SMP safe!
+> 
+> Signed-off-by: Christoph Lameter <christoph@lameter.com>
 
---------------enig566D91FB0838F110136A2B31
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+Looks mostly good but:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+> Index: linux-2.6.12/arch/i386/kernel/signal.c
+> ===================================================================
+> --- linux-2.6.12.orig/arch/i386/kernel/signal.c	2005-06-25 05:01:26.000000000 +0000
+> +++ linux-2.6.12/arch/i386/kernel/signal.c	2005-06-25 05:01:28.000000000 +0000
+> @@ -608,10 +608,8 @@ int fastcall do_signal(struct pt_regs *r
+>  	if (!user_mode(regs))
+>  		return 1;
+>  
+> -	if (current->flags & PF_FREEZE) {
+> -		refrigerator(0);
+> +	if (try_to_freeze)
+>  		goto no_signal;
+> -	}
+>  
 
-iQIVAwUBQr4RuF2m8MprmeOlAQKyuRAAskisvOsZxWMcuEJRTB9Mx00fPT6oZcZr
-BIWxvaA37XpNE9uZKNMpfFlah7e56+iq8pXtSRIB8a9604eXGoxQ6G6BZB8B3huz
-PS9dIE8II+q7G7wHexpJg/5ZpFDHHT0Fd+0J2dEbbKVJB52yIFtZkvkcIZ5BDvQW
-sgcxO4jH8a+/kmgBm30XLfoiTJ9XfaHg5jee9Vc1oG17fO9Lq3QXYhNUIlVpU0+w
-2Z+Bf5UB5i6RFmTXM7TTdhp+LRjdLw9VN11w2RvWg4GjWmdmAtmHSl95NT4A11UB
-vw/QNCQXEHqIwC4jG0j5+5YpqhzS8UShZPDwmyX7izPmrILyamG5fH7zBMEOqhGt
-4D+x6jjyQKlLXxJgai1i4AXq3IrQ81fGJb4LTdCnZ/oGlWKY0iC/MHJG+bRXL/Nx
-NeQXIBXvCJZByLLpTv8TvJAs/96FVO+EgFe9du+QLJAdjeZLAspIarhz+1QnaS92
-9rxZL6QNFa5z8kTOTzeB+RE5xlqq4Y0xPa5Ymb67TwdtzyNgxB/A6lM4+6FlTu6G
-U01cds3cSBDATG0oQKg8cBTA9rw5ibuw2sniUxfafKUJAU4rpm4XFj0uyiTxj+Qx
-CRGlNeodiTvv4nsoB5q3rjoLlVRouDdlBMRS7WLDLBowDoNz3pnpFd52Yj/2s3vQ
-OGFowZ9Z0do=
-=ibMZ
------END PGP SIGNATURE-----
+This is not good. Missing ().
 
---------------enig566D91FB0838F110136A2B31--
+							Pavel
+-- 
+Boycott Kodak -- for their patent abuse against Java.

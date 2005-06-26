@@ -1,62 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261579AbVFZUOW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261576AbVFZUfg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261579AbVFZUOW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Jun 2005 16:14:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261593AbVFZUOV
+	id S261576AbVFZUfg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Jun 2005 16:35:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261584AbVFZUff
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Jun 2005 16:14:21 -0400
-Received: from isilmar.linta.de ([213.239.214.66]:7554 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S261579AbVFZUOR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Jun 2005 16:14:17 -0400
-Date: Sun, 26 Jun 2005 22:14:14 +0200
-From: Dominik Brodowski <linux@dominikbrodowski.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: greg@kroah.com, rajesh.shah@intel.com, linux-kernel@vger.kernel.org
-Subject: Re: ACPI-based PCI resources: PCMCIA bugfix, but resources missing in trees
-Message-ID: <20050626201414.GA22402@isilmar.linta.de>
-Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
-	Andrew Morton <akpm@osdl.org>, greg@kroah.com,
-	rajesh.shah@intel.com, linux-kernel@vger.kernel.org
-References: <20050626040329.3849cf68.akpm@osdl.org> <20050626140411.GA8597@dominikbrodowski.de> <20050626121710.44c1df8d.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 26 Jun 2005 16:35:35 -0400
+Received: from mail.linicks.net ([217.204.244.146]:8715 "EHLO
+	linux233.linicks.net") by vger.kernel.org with ESMTP
+	id S261576AbVFZUe7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Jun 2005 16:34:59 -0400
+From: Nick Warne <nick@linicks.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Allow number of IDE interfaces to be selected (X86)
+Date: Sun, 26 Jun 2005 21:34:56 +0100
+User-Agent: KMail/1.8.1
+References: <200506251641.40922.nick@linicks.net> <1119808554.28649.37.camel@localhost.localdomain>
+In-Reply-To: <1119808554.28649.37.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050626121710.44c1df8d.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200506262134.57000.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 26, 2005 at 12:17:10PM -0700, Andrew Morton wrote:
-> Dominik Brodowski <linux@dominikbrodowski.net> wrote:
-> >
-> > On Sun, Jun 26, 2005 at 04:03:29AM -0700, Andrew Morton wrote:
-> >  > - Lots of merges.  I'm holding off on the 80-odd pcmcia patches until we get
-> >  >   the recent PCI breakage sorted out.
-> > 
-> >  pci-yenta-cardbus-fix.patch and the following patch should solve the
-> >  initialization time trouble. However, the ACPI-based PCI resource handling
-> >  is badly broken, IMHO:
-> > 
-> >  - many resources of devices don't show up in the resource trees (
-> >    /proc/iomem and /proc/ioports) any longer. This means that PCMCIA, but
-> >    also possibly other subsystems (ISA, PnP, ...) do not know which resources
-> >    it cannot use.
-> 
-> Is this a recent regression?  Is it only in -mm?
+On Sunday 26 June 2005 18:55, you wrote:
 
-Yes. Yes.
+> I don't think this patch should go in - the one real reason for having
+> it in embedded boxes was saving memory. The right fix for that is
+> already something Bartlomiej has talked about fixing - the static
+> allocation of the ide_hwifs array itself.
 
-> IOW: can you identify the bad patch?  Or the bad patcher ;)
+OK :-).
 
-gregkh-pci-pci-collect-host-bridge-resources-02.patch
+But I learnt a lot here on the kernel.
 
-> >  - verify_root_windows() should fail if there are no iomem _or_ ioport
-> >    resources, not only if there are no iomem _and_ ioport resources.
-> 
-> This too.
+Also found not to cut 'n' paste from nano in X.  It doesn't perserve tabs... 
+so the patch was bum anyway.  I only found out it was fubar when I was 
+looking at what Matt done to get the struct sizes on different vmlinuz 
+builds, and cut and paste back into a file from the mail.
 
-Same one.
+But here is the results anyway using my .config but with the option off and 
+on:
 
-Thanks,
-	Dominik
+
+Orig (off):
+
+bash-2.05b# nm -t d -rS --size-sort linux-2.6.12orig/vmlinux | grep hwifs
+0000003225966208 0000000000014080 B ide_hwifs
+
+
+With the IDE selection option (but not EMBEDDED) with 2 IDE interfaces 
+selected (on with 2):
+
+bash-2.05b# nm -t d -rS --size-sort linux-2.6.12/vmlinux | grep hwifs
+0000003225974400 0000000000002816 B ide_hwifs
+
+
+Nick
+-- 
+"When you're chewing on life's gristle,
+Don't grumble, Give a whistle..."

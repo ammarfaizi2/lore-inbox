@@ -1,101 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261527AbVFZS6j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261572AbVFZTGZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261527AbVFZS6j (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Jun 2005 14:58:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261553AbVFZS6f
+	id S261572AbVFZTGZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Jun 2005 15:06:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261603AbVFZTGZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Jun 2005 14:58:35 -0400
-Received: from rproxy.gmail.com ([64.233.170.195]:50931 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261527AbVFZS6b convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Jun 2005 14:58:31 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=RocyJ29wu8QOe8gfF1FZgrFoDyz6JWRDhMs3xgobbsr+iSru0kslY+geepTJ61E8+ve8V2umFb4+f7eG8oqr7sgZryxJGpKklPHeyLeCB6ufCiDr2IZjZrmRgNL3MZLOM+G+/zUIAdkQTMyzTXNRDCM8wJsnj4HbNTW7BUnPlYg=
-Message-ID: <4d8e3fd305062611586bda6c30@mail.gmail.com>
-Date: Sun, 26 Jun 2005 20:58:30 +0200
-From: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-Reply-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-To: Christian Kujau <evil@g-house.de>
-Subject: Re: [ANNOUNCE] ORT - Oops Reporting Tool
-Cc: =?ISO-8859-2?Q?Micha=B3_Piotrowski?= <piotrowskim@trex.wsi.edu.pl>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <42BDD3FC.8090706@g-house.de>
-Mime-Version: 1.0
+	Sun, 26 Jun 2005 15:06:25 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:32186 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S261572AbVFZTFm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Jun 2005 15:05:42 -0400
+Message-ID: <42BEFC77.6000608@namesys.com>
+Date: Sun, 26 Jun 2005 12:05:27 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Reuben Farrelly <reuben-lkml@reub.net>, vitaly@thebsh.namesys.com
+CC: "Theodore Ts'o" <tytso@mit.edu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       David Masover <ninja@slaphack.com>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: reiser4 plugins
+References: <fa.d8odcmh.1u56sbb@ifi.uio.no> <fa.cg8nk4u.jj8tqg@ifi.uio.no> <42BE5058.4070307@reub.net>
+In-Reply-To: <42BE5058.4070307@reub.net>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-References: <42BBE593.9090407@trex.wsi.edu.pl> <42BC0DCD.8020206@g-house.de>
-	 <4d8e3fd3050624085929581341@mail.gmail.com>
-	 <42BDD3FC.8090706@g-house.de>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2005/6/26, Christian Kujau <evil@g-house.de>:
-> Paolo Ciarrocchi wrote:
-> >
-> > The commands that are requiring root capabilties are:
-> > lspci -vvv
-> > lsusb -v
-> 
-> i still dislike the idea being forced to be root, does the attached patch
-> looks ok?
+Reuben Farrelly wrote:
 
-Just for my understanding, why do you dislike to be forced to be root ?
-You are reporting a kernel problem, I don't see any problem in being
-root, but I donìt have a clear understing of pro and cons.
+> Hi Hans,
+>
+> On 25/06/2005 12:38 a.m., Hans Reiser wrote:
+>
+>> fsck is better in V4 than it is in V3. Users should move from V3 to V4,
+>> as V3 is obsolete. I agree on that Ted.
+>
+>
+> Perhaps before moving to V4, reiser4progs-1.04 (the most recent I
+> think) could be made to compile with gcc4/fedora core 4 system, and
+> some of the warnings cleaned up.  There are a fair lot of them - all
+> the same warnings as below but in a heap of different files.
+>
+I will ask Vitaly to look into this.  None of us at Namesys use fedora.....
 
-> --- ort/ort.sh.orig     2005-06-25 23:42:22.000000000 +0200
-> +++ ort/ort.sh  2005-06-25 23:54:32.000000000 +0200
-> @@ -34,7 +34,6 @@ EM_CLI=mutt
-> 
-> help() {
->     echo "Usage: [root@mylinuxbox ~]$ ./ort.sh oops.txt"
-> -    echo "You need to be root [uid=0] to run the script"
->     exit 1
-> }
-> 
-> @@ -53,7 +52,12 @@ cmd_line() {
-> check_uid() {
->     if [ $UID != "0" ]
->        then
-> -           help
-> +           echo -n "You should be root [uid=0] to run the script, continue? [y,n]  "
-> +           read c
-> +           if [ "$c" != "y" ]; then
-> +               echo "Aborted."
-> +               exit 1
-> +           fi
->     fi
-> }
+Vitaly?
 
-This is fine with me.
- 
-> @@ -274,7 +278,7 @@ point_7_4() {
-> 
-> point_7_5() {
->     echo -e "\n[7.5.] PCI information" >> $ORT_F
-> -    lspci -vvv >> $ORT_F
-> +    env PATH=/bin:/usr/bin:/sbin:/usr/sbin lspci -vvv >> $ORT_F
-
-What's the benefit of this change ?
-
-> }
-> 
-> point_7_6() {
-> @@ -286,7 +290,7 @@ point_7_6() {
-> 
-> point_7_7() {
->     echo -e "\n[7.7.] USB information" >> $ORT_F
-> -    lsusb -v >> $ORT_F
-> +    env PATH=/bin:/usr/bin:/sbin:/usr/sbin lsusb -v >> $ORT_F
-> }
-> 
-> point_7_8() {
-> 
-> 
-
-
--- 
-Paolo
+Hans

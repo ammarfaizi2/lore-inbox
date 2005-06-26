@@ -1,124 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261191AbVFZAl3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261288AbVFZAq1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261191AbVFZAl3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Jun 2005 20:41:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261288AbVFZAl3
+	id S261288AbVFZAq1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Jun 2005 20:46:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261368AbVFZAq1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Jun 2005 20:41:29 -0400
-Received: from smtp-out6.blueyonder.co.uk ([195.188.213.9]:8546 "EHLO
-	smtp-out6.blueyonder.co.uk") by vger.kernel.org with ESMTP
-	id S261191AbVFZAja (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Jun 2005 20:39:30 -0400
-Message-ID: <42BDF93F.4050205@blueyonder.co.uk>
-Date: Sun, 26 Jun 2005 01:39:27 +0100
-From: Sid Boyce <sboyce@blueyonder.co.uk>
-Reply-To: sboyce@blueyonder.co.uk
-Organization: blueyonder.co.uk
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
+	Sat, 25 Jun 2005 20:46:27 -0400
+Received: from mxout03.versatel.de ([212.7.152.117]:52874 "EHLO
+	mxout03.versatel.de") by vger.kernel.org with ESMTP id S261288AbVFZApQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Jun 2005 20:45:16 -0400
+Message-ID: <42BDFA8E.6060608@web.de>
+Date: Sun, 26 Jun 2005 02:45:02 +0200
+From: Christian Trefzer <ctrefzer@web.de>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050617)
+X-Accept-Language: de-DE, de, en-us, en
 MIME-Version: 1.0
-To: georgek@netwrx1.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Problem compiling 2.6.12
-References: <Pine.LNX.4.62.0506240856460.10920@eagle.netwrx1.com> <42BC1C43.3040505@blueyonder.co.uk> <Pine.LNX.4.62.0506241258500.20958@eagle.netwrx1.com> <42BC9FF1.1010400@blueyonder.co.uk> <5nerb117olj7kahv0k8b1vss382ini6bfr@4ax.com>
-In-Reply-To: <5nerb117olj7kahv0k8b1vss382ini6bfr@4ax.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 26 Jun 2005 00:40:08.0387 (UTC) FILETIME=[9A593130:01C579E7]
+To: Hubert Chan <hubert@uhoreg.ca>
+CC: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: Re: -mm -> 2.6.13 merge status
+References: <20050620235458.5b437274.akpm@osdl.org.suse.lists.linux.kernel> <p73d5qgc67h.fsf@verdi.suse.de> <42B86027.3090001@namesys.com> <20050621195642.GD14251@wotan.suse.de> <42B8C0FF.2010800@namesys.com> <84144f0205062223226d560e41@mail.gmail.com> <42BB0151.3030904@suse.de> <87fyv8h80y.fsf@evinrude.uhoreg.ca>
+In-Reply-To: <87fyv8h80y.fsf@evinrude.uhoreg.ca>
+X-Enigmail-Version: 0.92.0.0
+OpenPGP: id=6B99E3A5
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig4215EEB3A6EEE9136AA59BA7"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-George R. Kasica wrote:
-> Sid:
-> 
-> That seems to have got it!!
-> 
-> Any kernel tuning or optimizations you'd care to recommend?
-> 
-I've tried a few from time to time, but nothing permanent. I can't 
-off-hand remember them, but a google search turns up some options.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig4215EEB3A6EEE9136AA59BA7
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> In the future what do I do here or will this continue to work?
+Hubert Chan schrieb:
+> How about something of the form "nikita-955(file:line)"?  Or the
+> reverse: "file:line(nikita-955)".  Would that keep everyone happy?
 > 
-As a permanent solution, as suggested in my other email, copying the 
-stuff from /usr/include/{linux, asm, asm-generic} to /usr/local/include/ 
-seems preferable to making symlinks for every new kernel.
+Damn, I was wondering how long it would take until someone would come up 
+with a compromise solution ; ) Compromises everywhere will lead to 
+nowhere, I've learned that the hard way. But this is really not a major 
+issue, so let's not make a showstopper out of this one and the likes.
 
-> Thank you SO much, now I remember why I like linux. Helpful people
-> like yourself.
-> 
-> 
-> George
-> 
-> 
-As a friend often says, "One hand washes the other", a maxim never more 
-true or apt than when applied to Linux and opensource in general.
-Regards
-Sid.
+For what I know about the whole inclusion discussion until now, there's 
+been a whole lot of flamewar chickenshit so far. Considering that I have 
+no FS developing abilities whatsoever, I'm pretty pissed at people who 
+do know better in their field and should know better than waste their 
+time on discussions other than constructive ones.
 
-> 
->>On Sat, 25 Jun 2005 01:06:09 +0100, you wrote:
-> 
-> 
->>George Kasica wrote:
->>
->>>>Try "ln -s /usr/src/linux-2.6.12/include/linux /usr/local/include" and 
->>>>"ln -s /usr/src/linux-2.6.12/include/asm /usr/local/include", see if 
->>>>it resolves the problem, I expect it will find them. If you still have 
->>>>problems, try "rm /usr/local/include/asm" and "ln -s 
->>>>/usr/src/linux-2.6.12/include/asm-i386 /usr/local/include/asm".
->>>
->>>
->>>Here are the links in /usr/local/include:
->>>
->>>lrwxrwxrwx    1 root     root           35 Jun 24 12:55 asm -> 
->>>/usr/src/linux-2.6.12/include/linux
->>>lrwxrwxrwx    1 root     root           35 Jun 24 12:55 asm-i386 -> 
->>>/usr/src/linux-2.6.12/include/linux
->>>lrwxrwxrwx    1 root     root           35 Jun 24 12:56 linux -> 
->>>/usr/src/linux-2.6.12/include/linux
->>>
->>>
->>>Well, it got further with the links as shown here:
->>>
->>># cd /usr/src/linux-2.6.12.1
->>># make oldconfig
->>>  HOSTCC  scripts/basic/split-include
->>>  HOSTCC  scripts/basic/docproc
->>>  SHIPPED scripts/kconfig/zconf.tab.h
->>>  HOSTCC  scripts/kconfig/conf.o
->>>  HOSTCC  scripts/kconfig/kxgettext.o
->>>  HOSTCC  scripts/kconfig/mconf.o
->>>scripts/kconfig/mconf.c: In function `exec_conf':
->>>scripts/kconfig/mconf.c:486: `EINTR' undeclared (first use in this 
->>>function)
->>>scripts/kconfig/mconf.c:486: (Each undeclared identifier is reported 
->>>only once
->>>scripts/kconfig/mconf.c:486: for each function it appears in.)
->>>scripts/kconfig/mconf.c:486: `EAGAIN' undeclared (first use in this 
->>>function)
->>>make[1]: *** [scripts/kconfig/mconf.o] Error 1
->>>make: *** [oldconfig] Error 2
->>>
->>>But still no joy.
->>>
->>>What now?
->>>
->>>George
->>>
->>>
->>>
->>
->>OK, "ln -s /usr/src/linux-2.6.12.1/include/asm-generic /usr/include".
->>Regards
->>Sid.
-> 
-> 
-> 
-> 
+Get the personal bullshit out of the way, everyone, please! Get in touch 
+and work out your differences in a productive manner. If every 
+interesting yet at first intrusive extension to the kernel causes as 
+much kindergarten as this one, where will we end up? Stagnation sucks, 
+yet good progress is sometimes slow-paced...
+
+Peace, everyone!
+Chris
+(hardcore, not hippie)
 
 
--- 
-Sid Boyce ... Hamradio License G3VBV, Keen licensed Private Pilot
-Retired IBM Mainframes and Sun Servers Tech Support Specialist
-Microsoft Windows Free Zone - Linux used for all Computing Tasks
+--------------enig4215EEB3A6EEE9136AA59BA7
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iQIVAwUBQr36kl2m8MprmeOlAQIRxA//fH196LTXn2kr2C76lQ3na6Mbw8H6vZU9
+6GSg1GZaNr54/HlRIfns80Il4cZvIh4GdemSbKQXq1YUMY9Aia2UA7rnMplsriSd
+n12HLD65eDo3SFhh+GT2VsuvjJs08O2y/OJqqwcGCcWpD3AMcx5xm9vnZ3MgDk3R
+dirGLi6lxxArF0mSaZCP9fSLcNXz46PaSzYH6K3MeFwdih/Rq43tnjGlaUIv+9UP
+POtXmnGICLOeRRKhbKKbdDo17TPl/0ruVacL8TI4p1ru2T5oX2T7kukCzscbg+nx
+Vl0hj8ufRiu/z55wPesVza+JiZh5Ph7SvnHFeVDe7e+9V4D6iaGRGojKffPYLEYe
+9xzCo49EFhTieDsw2K48fPWhy+/t95458sMgNoIwmpMkZHbOl4HpPEM6L/+L9lTR
+j8rcAK5YhWQYVD3MHgCKiQS93b0WEq0S/bt7un+bTXvpIuqjwBld59Jn/X17LQxt
+5KZZ37zwyndYvAIO/0tRTiFhL3TFpl4nOAu9Tg5qeXgBbcaeFTUc9IzaxGeZmb4l
+ghrOJuGfYdINeBl++RIyU+bI2H/gBMKn+nTMlLsaF37/xVBsU7euKxn2ttrpZuSA
+14DtkY2gR1W7O8BHOSZCjAX/sBDRHOv/9/AoVUwy7vVhE7KnxAPiOZ2fNP3NWcIb
+Ld/nuKgQoEk=
+=m+Po
+-----END PGP SIGNATURE-----
+
+--------------enig4215EEB3A6EEE9136AA59BA7--

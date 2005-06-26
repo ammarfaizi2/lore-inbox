@@ -1,72 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261539AbVFZIaM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261163AbVFZIlm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261539AbVFZIaM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Jun 2005 04:30:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbVFZI2V
+	id S261163AbVFZIlm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Jun 2005 04:41:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261214AbVFZIlm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Jun 2005 04:28:21 -0400
-Received: from sj-iport-5.cisco.com ([171.68.10.87]:61097 "EHLO
-	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
-	id S261530AbVFZI1E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Jun 2005 04:27:04 -0400
-X-IronPort-AV: i="3.93,230,1115017200"; 
-   d="scan'208"; a="194333661:sNHT29052604"
-Message-ID: <42BE66C2.3000509@cisco.com>
-Date: Sun, 26 Jun 2005 18:26:42 +1000
-From: Lincoln Dale <ltd@cisco.com>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
+	Sun, 26 Jun 2005 04:41:42 -0400
+Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:49816 "HELO
+	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261163AbVFZIlh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Jun 2005 04:41:37 -0400
+Message-ID: <42BE6A3E.8030703@yahoo.com.au>
+Date: Sun, 26 Jun 2005 18:41:34 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: David Masover <ninja@slaphack.com>
-CC: Gregory Maxwell <gmaxwell@gmail.com>, Hans Reiser <reiser@namesys.com>,
-       Valdis.Kletnieks@vt.edu, Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: reiser4 plugins
-References: <200506240241.j5O2f1eb005609@laptop11.inf.utfsm.cl>	 <42BCD93B.7030608@slaphack.com>	 <200506251420.j5PEKce4006891@turing-police.cc.vt.edu>	 <42BDA377.6070303@slaphack.com>	 <200506252031.j5PKVb4Y004482@turing-police.cc.vt.edu>	 <42BDC422.6020401@namesys.com> <42BE3645.4070806@cisco.com> <e692861c05062522071fe380a5@mail.gmail.com> <42BE563D.4000402@cisco.com> <42BE5DB6.8040103@slaphack.com>
-In-Reply-To: <42BE5DB6.8040103@slaphack.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Andrew Morton <akpm@osdl.org>
+CC: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, hugh@veritas.com, pbadari@us.ibm.com,
+       linux-scsi@vger.kernel.org
+Subject: Re: [patch][rfc] 5/5: core remove PageReserved
+References: <42BA5F37.6070405@yahoo.com.au>	<42BA5F5C.3080101@yahoo.com.au>	<42BA5F7B.30904@yahoo.com.au>	<42BA5FA8.7080905@yahoo.com.au>	<42BA5FC8.9020501@yahoo.com.au>	<42BA5FE8.2060207@yahoo.com.au>	<20050623095153.GB3334@holomorphy.com> <20050623215011.0b1e6ef2.akpm@osdl.org>
+In-Reply-To: <20050623215011.0b1e6ef2.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
+> William Lee Irwin III <wli@holomorphy.com> wrote:
 
+>> Mutatis mutandis for my SCSI tape drive.
+> 
+> 
 
-David Masover wrote:
+OK, for the VM_RESERVED case, it looks like it won't be much of a problem
+because get_user_pages faults on VM_IO regions (which is already set in
+remap_pfn_range which is used by mem.c and most drivers). So this code will
+simply not encounter VM_RESERVED regions - well obviously, get_user_pages
+should be made to explicitly check for VM_RESERVED too, but the point being
+that introducing such a check will not overly restrict drivers.
 
->-----BEGIN PGP SIGNED MESSAGE-----
->Hash: SHA1
->
->Lincoln Dale wrote:
->
->[...]
->
->  
->
->>this is the WHOLE point of standardization .. i don't think its that
->>Reiser4's EAs offer any more or less capabilities than standard EAs -
->>    
->>
->
->They do.  Reiser4's EAs can look like any other object -- files,
->folders, symlinks, whatever.  This is important, especially for
->transparency.
->  
->
-it was accepted not so long ago that 'file-as-directory' and 'EA' are 
-two different things, predominantly because existing tools and apps 
-won't necessarily "do the right thing<tm>".
+[snip SetPageDirty is wrong]
 
-this has been discussed to death previously.  oh what a surprise.  
-http://lwn.net/Articles/100271/
+Not that this helps the existing bug...
 
+-- 
+SUSE Labs, Novell Inc.
 
-cheers,
-
-lincoln.
-
-
-cheers,
-
-lincoln.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

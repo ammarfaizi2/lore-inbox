@@ -1,51 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261640AbVFZWkY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261626AbVFZWqj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261640AbVFZWkY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Jun 2005 18:40:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261637AbVFZWjM
+	id S261626AbVFZWqj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Jun 2005 18:46:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261646AbVFZWqZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Jun 2005 18:39:12 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:19217 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261636AbVFZWhM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Jun 2005 18:37:12 -0400
-Date: Sun, 26 Jun 2005 23:37:06 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [CFT:PATCH] 2/3: Check status of CTS when using flow control
-Message-ID: <20050626233706.E28598@flint.arm.linux.org.uk>
-Mail-Followup-To: Gene Heskett <gene.heskett@verizon.net>,
-	linux-kernel@vger.kernel.org
-References: <20050626221501.GA5769@dyn-67.arm.linux.org.uk> <20050626221750.GA5789@dyn-67.arm.linux.org.uk> <200506261826.43244.gene.heskett@verizon.net>
+	Sun, 26 Jun 2005 18:46:25 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:20241 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261626AbVFZWiY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Jun 2005 18:38:24 -0400
+Date: Mon, 27 Jun 2005 00:38:20 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: [2.6 patch] drivers/net/hamradio/: cleanups
+Message-ID: <20050626223820.GL3629@stusta.de>
+References: <20050502014637.GQ3592@stusta.de> <42BF2BA9.8060502@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200506261826.43244.gene.heskett@verizon.net>; from gene.heskett@verizon.net on Sun, Jun 26, 2005 at 06:26:43PM -0400
+In-Reply-To: <42BF2BA9.8060502@pobox.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 26, 2005 at 06:26:43PM -0400, Gene Heskett wrote:
-> On Sunday 26 June 2005 18:17, Russell King wrote:
-> >Fix bugme #4712: read the CTS status and set hw_stopped if CTS
-> >is not active.
-> >
-> >Thanks to Stefan Wolff for spotting this problem.
-> >
-> This one needs to make mainline & maybe, after 3 years, I can use a 
-> pl2303 to talk to an old slow coco.  Twould be very nice if that 
-> fixed the lack of flow controls the connection apparently fails from.
+On Sun, Jun 26, 2005 at 06:26:49PM -0400, Jeff Garzik wrote:
+> Adrian Bunk wrote:
+> >This patch contains the following cleanups:
+> >- dmascc.c: remove the unused global function dmascc_setup
+> 
+> Better to use it, then remove it.
 
-Sorry, wasn't aware of the problem until recently.  Reviewing the
-code reveals that this bug has existed through many many many kernel
-series. ;(
+Can you give me a hint how it should be used?
 
-Have you been able to test it?  You will need the first patch as well.
+Why doesn't dmascc_init together with the MODULE_PARM(io,...) work in 
+the non-modular case?
 
-(also, please remember I can't send you mail directly... still.)
+> 	Jeff
+
+cu
+Adrian
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

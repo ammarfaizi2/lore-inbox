@@ -1,108 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261492AbVFZIBN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261405AbVFZIXI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261492AbVFZIBN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Jun 2005 04:01:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261495AbVFZIBN
+	id S261405AbVFZIXI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Jun 2005 04:23:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261456AbVFZIXH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Jun 2005 04:01:13 -0400
-Received: from 69-18-3-179.lisco.net ([69.18.3.179]:52748 "EHLO
-	ninja.slaphack.com") by vger.kernel.org with ESMTP id S261492AbVFZIAq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Jun 2005 04:00:46 -0400
-Message-ID: <42BE60AC.9090604@slaphack.com>
-Date: Sun, 26 Jun 2005 03:00:44 -0500
-From: David Masover <ninja@slaphack.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050325)
-X-Accept-Language: en-us, en
+	Sun, 26 Jun 2005 04:23:07 -0400
+Received: from mail.linicks.net ([217.204.244.146]:42756 "EHLO
+	linux233.linicks.net") by vger.kernel.org with ESMTP
+	id S261405AbVFZIWs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Jun 2005 04:22:48 -0400
+From: Nick Warne <nick@linicks.net>
+To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Matt Mackall <mpm@selenic.com>,
+       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Subject: Re: Fw: [PATCH] Allow number of IDE interfaces to be selected (X86)
+Date: Sun, 26 Jun 2005 09:22:35 +0100
+User-Agent: KMail/1.8.1
+References: <20050625123345.364d8ddd.akpm@osdl.org> <20050625200043.GQ12006@waste.org> <20050625132957.1ed2aa96.akpm@osdl.org>
+In-Reply-To: <20050625132957.1ed2aa96.akpm@osdl.org>
 MIME-Version: 1.0
-To: Lincoln Dale <ltd@cisco.com>
-Cc: Hans Reiser <reiser@namesys.com>, Valdis.Kletnieks@vt.edu,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: reiser4 plugins
-References: <200506240241.j5O2f1eb005609@laptop11.inf.utfsm.cl> <42BCD93B.7030608@slaphack.com> <200506251420.j5PEKce4006891@turing-police.cc.vt.edu>            <42BDA377.6070303@slaphack.com> <200506252031.j5PKVb4Y004482@turing-police.cc.vt.edu> <42BDC422.6020401@namesys.com> <42BE3645.4070806@cisco.com> <42BE3A90.1090403@slaphack.com> <42BE5492.4030903@cisco.com>
-In-Reply-To: <42BE5492.4030903@cisco.com>
-X-Enigmail-Version: 0.89.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200506260922.35746.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Saturday 25 June 2005 21:29, you wrote:
+> Matt Mackall <mpm@selenic.com> wrote:
+> > On Sat, Jun 25, 2005 at 12:33:45PM -0700, Andrew Morton wrote:
+> > > I have a vague feeling that this'll save some memory?
+> >
+> > It's the biggest static structure in the kernel, so yes. I've had a
+> > similar patch in -tiny since the beginning.
+> >
+> > Not sure if I like exposing this as a general config option without
+> > CONFIG_EMBEDDED.
+>
+> OK.  Nick, could you make it depend on EMBEDDED as well, work out how much
+> memory it'll save then resend?
 
-Lincoln Dale wrote:
-> David Masover wrote:
-> 
->> Ok, I'll bite.  Hans put it best a moment ago:
->>  
->>
-> [..]
-> 
-> you seem to have some misconceived notion that this is somehow a
-> "ReiserFS versus XFS" or "ReiserFS versus ext3" case.
-> l-k could do without those conspiracy theories.  lets just stick to the
-> facts.
+As discussed, here is the fixed patch as required - now depends on EMBEDDED on 
+an X86 architecture (default N) - ALPHA and SUPERH continue as before 
+(default Y).
 
-erm, let me take a peek at what you just chopped out.
+Nick
 
-Yeah.  Um.  I mention XFS and ext3 *once* in the whole message.  As an
-example of filesystems in general, because the only other two I'd
-consider (or ever use) for a desktop FS at this point is XFS or ext3.
-And it was a hypothetical opinion (I don't really know if / how much
-Hans feels that way), and I personally find it far easier to believe
-that there are stubborn people or that there isn't enough communication
-of facts than that there is actually some anti-reiser conspiracy.
 
-So, my mistake for trying to speak for other people.
 
->> No, as a user, I just want a working plugin architecture to play with
->> (I'm not *just* a user), and a working Reiser4 'cause it's fast, and I
->> am eager to see new improvements coming out of Namesys, instead of two
->> years spent trying to keep up with the vanilla kernel *and* adapt to
->> some unspecified, possibly unneccessary, decree of a benevolent dictator.
+ drivers/ide/Kconfig    |   17 ++++++++++++++++-
+ include/asm-i386/ide.h |    4 ++++
+ 2 files changed, 20 insertions(+), 1 deletion(-)
 
-[...]
-> but just don't have the false expectation that just because something is
-> 'kool' that its going to get into the kernel without rigorous peer
-> review & approval
 
-I don't, actually.
+--- linux-2.6.12orig/include/asm-i386/ide.h     2005-06-17 20:48:29.000000000 
++0100
++++ linux-2.6.12/include/asm-i386/ide.h 2005-06-25 14:13:43.000000000 +0100
+@@ -16,11 +16,15 @@
+ #include <linux/config.h>
 
-I did expect the peer review to be a little more efficient, less
-confrontational, and (maybe) more fair.  But I'm actually a bit content
-right now.  After all, I *am* running reiser4 on two of the three
-machines I maintain at home.
+ #ifndef MAX_HWIFS
++#ifndef CONFIG_IDE_HWIFS_NUM
+ # ifdef CONFIG_BLK_DEV_IDEPCI
+ #define MAX_HWIFS      10
+ # else
+ #define MAX_HWIFS      6
+ # endif
++#else
++#define MAX_HWIFS       CONFIG_IDE_MAX_HWIFS
++#endif
+ #endif
 
-And, if you scroll up a bit, at this point I just want this resolved.  I
-don't particularly care if Hans decides to just keep maintaining a
-patchset, although I would be happier if it got into the mainstream
-kernel -- I wouldn't have to wait as long to install each new 2.6.11 or
-2.6.12 + nvidia module.
+ #define IDE_ARCH_OBSOLETE_DEFAULTS
 
-But this is a lot of time and energy from a lot of people on both sides
-who I would rather see working on something else.
 
-I appologize for the tone of that, too.  I know you don't work for me...
+--- linux-2.6.12orig/drivers/ide/Kconfig        2005-06-17 20:48:29.000000000 
++0100
++++ linux-2.6.12/drivers/ide/Kconfig    2005-06-26 09:04:45.000000000 +0100
+@@ -52,14 +52,29 @@
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+ if IDE
 
-iQIVAwUBQr5gq3gHNmZLgCUhAQLgixAAgC1WTVa8+6wP3CbCJafz4V5+f/hcJkuG
-xtXeh/CPvN4FzRRu+UjDVgji6yrLQ9AxFOa9kg9iJzZLIDDUNKu6UvFe+j22Mmpv
-F/24aLD8NAtF4JNGOJv6xFZtwk03N8Q92+CU0b5jPEViom2h55OkKfSIzoGz47Ee
-45XGDx0v2LCHVG+HhVuG3EVQNjI4oBiwQteErHjmoNcvh7npkbdYGvEHRULgX3rO
-eCals0WPCQ+A10xDoTll6NvqEU59aHeheDw+FBkCZw4GhGaSCdZn0q8EHqqTdufL
-iU5z/Q6J98KvjeMdhlCW8QRWA+hSIwQJcn+09IzI2lT4QnpPDRTeX3NxsdCrVbLu
-fg37+d46cfWNrXpIrm3SoaTMl5GGvGGTekD46deTtotbJ40fSXGv3FbB6KCFK04s
-U6kjfnqO8fFG/iKWExCqts6HUPiboI/zpz8w/oL7XudJO/jxKavKQGk+POCFquyT
-U2e7KvZig5Ct0aunlIec7NrrRbutfYU6TFlYYRlV6XmIDP29ZDtqN9DsIBEvSeP5
-7RFs4r0nTaIj17mpWmX5XCaLGNSUqzsQ1bzIoAl/D8NzbRTD9dsukvZyz5lW7tiZ
-zsWe4mHtJrZ1/mQf/oCj36FXID+bd3xN0WGIjli5gzMjCK8uCkS09MQ+JeLGQHES
-M/wMDcMcrwE=
-=3y4o
------END PGP SIGNATURE-----
++config IDE_HWIFS_NUM
++        bool "Specify the number of IDE Interfaces"
++       depends on (ALPHA || SUPERH || (X86 && EMBEDDED))
++       default y if !(X86)
++       help
++
++         ALPHA and SUPERH say Y here (default).
++
++         X86 say Y to this if you wish to specify the number of IDE
++         interfaces on your system.  If unsure, say N to use
++         the kernel default options (6 or 10).
++
+ config IDE_MAX_HWIFS
+        int "Max IDE interfaces"
+-       depends on ALPHA || SUPERH
++       depends on IDE_HWIFS_NUM
+        default 4
+        help
+          This is the maximum number of IDE hardware interfaces that will
+          be supported by the driver. Make sure it is at least as high as
+          the number of IDE interfaces in your system.
++
++         On X86 architecture default is 6 or 10 IDE interfaces if this
++         is not used (IDE_HWIFS_NUM = N).
+
+ config BLK_DEV_IDE
+        tristate "Enhanced IDE/MFM/RLL disk/cdrom/tape/floppy support"
+
+
+-- 
+"When you're chewing on life's gristle,
+Don't grumble, Give a whistle..."

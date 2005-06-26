@@ -1,34 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261493AbVFZSEw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261525AbVFZSIT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261493AbVFZSEw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Jun 2005 14:04:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261527AbVFZSEw
+	id S261525AbVFZSIT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Jun 2005 14:08:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261534AbVFZSIT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Jun 2005 14:04:52 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:59078 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261493AbVFZSEv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Jun 2005 14:04:51 -0400
-Subject: Re: Promise ATA/133 Errors With 2.6.10+
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Justin Piszcz <jpiszcz@lucidpixels.com>
-Cc: Erik Slagter <erik@slagter.name>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.63.0506250435110.32759@p34>
-References: <Pine.LNX.4.63.0506241653580.31140@p34>
-	 <1119688191.4293.5.camel@localhost.localdomain>
-	 <Pine.LNX.4.63.0506250435110.32759@p34>
-Content-Type: text/plain
+	Sun, 26 Jun 2005 14:08:19 -0400
+Received: from mail.linicks.net ([217.204.244.146]:49931 "EHLO
+	linux233.linicks.net") by vger.kernel.org with ESMTP
+	id S261525AbVFZSIO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Jun 2005 14:08:14 -0400
+From: Nick Warne <nick@linicks.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: IDE probing IDE_MAX_HWIFS
+Date: Sun, 26 Jun 2005 19:08:12 +0100
+User-Agent: KMail/1.8.1
+References: <200506251210.37623.nick@linicks.net> <1119808271.28644.33.camel@localhost.localdomain>
+In-Reply-To: <1119808271.28644.33.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-6"
 Content-Transfer-Encoding: 7bit
-Message-Id: <1119808784.28649.41.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 26 Jun 2005 18:59:46 +0100
+Content-Disposition: inline
+Message-Id: <200506261908.12398.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2005-06-25 at 09:35, Justin Piszcz wrote:
-> > BTW2 could it be that somewhere a timeout has been lowered in recent
-> > kernels? That must have been pre-2.6.11 then.
+On Sunday 26 June 2005 18:51, you wrote:
+> On Sad, 2005-06-25 at 12:10, Nick Warne wrote:
+> > Looking at the Kconfig, I see APLHA & SUPERH do get an option to change
+> > this to suit
+> > drivers/ide/Kconfig
+>
+> To make embedded systems as small as possible
+>
+> > Now my question :-)  Is there a specific reason why this isn't included
+> > in other architectures?
+>
+> They are not embedded ?
 
-Timeouts have not changed or have increased in fact.
+Heh.  Yes I know now, but I was thinking along the lines that if someone knows 
+how many IDE interfaces they have it could be specified exactly - I 
+didn't/don't see why it is considered an option for config_embedded only to 
+be allowed to do that.
+
+Nick
+-- 
+"When you're chewing on life's gristle,
+Don't grumble, Give a whistle..."

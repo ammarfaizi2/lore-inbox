@@ -1,130 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261541AbVFZSTG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261544AbVFZSRc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261541AbVFZSTG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Jun 2005 14:19:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261534AbVFZSTG
+	id S261544AbVFZSRc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Jun 2005 14:17:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261537AbVFZSRb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Jun 2005 14:19:06 -0400
-Received: from h80ad261f.async.vt.edu ([128.173.38.31]:65178 "EHLO
-	h80ad261f.async.vt.edu") by vger.kernel.org with ESMTP
-	id S261547AbVFZSSC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Jun 2005 14:18:02 -0400
-Message-Id: <200506261816.j5QIGMdI010142@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: David Masover <ninja@slaphack.com>
-Cc: Lincoln Dale <ltd@cisco.com>, Gregory Maxwell <gmaxwell@gmail.com>,
-       Hans Reiser <reiser@namesys.com>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: reiser4 plugins 
-In-Reply-To: Your message of "Sun, 26 Jun 2005 02:48:06 CDT."
-             <42BE5DB6.8040103@slaphack.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <200506240241.j5O2f1eb005609@laptop11.inf.utfsm.cl> <42BCD93B.7030608@slaphack.com> <200506251420.j5PEKce4006891@turing-police.cc.vt.edu> <42BDA377.6070303@slaphack.com> <200506252031.j5PKVb4Y004482@turing-police.cc.vt.edu> <42BDC422.6020401@namesys.com> <42BE3645.4070806@cisco.com> <e692861c05062522071fe380a5@mail.gmail.com> <42BE563D.4000402@cisco.com>
-            <42BE5DB6.8040103@slaphack.com>
+	Sun, 26 Jun 2005 14:17:31 -0400
+Received: from chretien.genwebhost.com ([209.59.175.22]:11216 "EHLO
+	chretien.genwebhost.com") by vger.kernel.org with ESMTP
+	id S261544AbVFZSOq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Jun 2005 14:14:46 -0400
+Date: Sun, 26 Jun 2005 11:14:35 -0700
+From: randy_dunlap <rdunlap@xenotime.net>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: reiser@namesys.com, zam@namesys.com, jgarzik@pobox.com,
+       reiserfs-list@namesys.com, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: reiser4 plugins
+Message-Id: <20050626111435.6c5d54c8.rdunlap@xenotime.net>
+In-Reply-To: <20050626164606.GA18942@infradead.org>
+References: <20050620235458.5b437274.akpm@osdl.org>
+	<42B8B9EE.7020002@namesys.com>
+	<42B8BB5E.8090008@pobox.com>
+	<200506221824.32995.zam@namesys.com>
+	<20050622142947.GA26993@infradead.org>
+	<42BA2ED5.6040309@namesys.com>
+	<20050626164606.GA18942@infradead.org>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1119809781_3659P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Date: Sun, 26 Jun 2005 14:16:21 -0400
+X-Antivirus-Scanner: Clean mail though you should still use an Antivirus
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - chretien.genwebhost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - xenotime.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1119809781_3659P
-Content-Type: text/plain; charset=us-ascii
+On Sun, 26 Jun 2005 17:46:06 +0100 Christoph Hellwig wrote:
 
-On Sun, 26 Jun 2005 02:48:06 CDT, David Masover said:
+| On Wed, Jun 22, 2005 at 08:39:01PM -0700, Hans Reiser wrote:
+| > Correct me if I am wrong:
+| > 
+| > What exists currently in VFS are vector instances, not classes. Plugins,
+| > selected by pluginids, are vector classes, with each pluginid selecting
+| > a vector class. You propose to have the vector class layer (aka plugin
+| > layer) in reiser4 export the vector instance to VFS for VFS to handle
+| > for each object, rather than having VFS select reiser4 and reiser4
+| > selecting a vector class (aka plugin) which selects a method.
+| > 
+| > If we agree on the above, then I will comment further.
+| 
+| I'm a bit confused about what you're saying here.  What does the 'vector'
+| in all these expressions mean?
+| 
+| In OO terminology our *_operation structures are interfaces.  Each particular
+| instance of such a struct that is filled with function pointers is a class.
+| Each instance of an inode/file/dentry/superblock/... that uses these operation
+| vectors is an object.
+| 
+| What I propose (or rather demand ;-)) is that you don't duplicate this
+| infrastructure, and add another dispath layer below these objects but instead
+| re-use it for what it is done and only handle things specific to reiser4
+| in your own code. 
 
-> Lincoln Dale wrote:
+I think that what Hans is trying to say is that the functionality
+that is handled by plugin_operations are a different dimension or
+vector from the inode/file/dentry etc. operations.
+Whether he is right or not is part of the discussion.
+and "plugin" is a bad name :(
 
-> > this is the WHOLE point of standardization .. i don't think its that
-> > Reiser4's EAs offer any more or less capabilities than standard EAs -
-> 
-> They do.  Reiser4's EAs can look like any other object -- files,
-> folders, symlinks, whatever.  This is important, especially for
-> transparency.
+Is part of the problem that plugins are too extensible?
+I.e., the plugin_operations methods can do almost anything?
 
-No, you want them to look like the same objects that {get|set}xattr() manage
-currently.  You don't want programs to have to guess what an EA looks like
-this week, with this user's combination of plugins that's different from
-everybody else's.
+I would want to see a list of methods that should be supported and then
+a reasonable infrastructure for supporting those.
+Pick one (like metadata) and drill down on how to support that.
 
-> > lets take this a step further.  what about compression?  do we accept
-> > that each filesystem can implement its own proprietary compression via
-> > its own API - and now we need individual user-space tools to understand
-> 
-> No, that's the beauty of these "EAs" in Reiser4.  The API is standard
-> write(2) commands.  sys_reiser4 supposedly implements an interface to
-> make this scale better, but otherwise have the same semantics.  And who
-> said anything about proprietary compression?  I think we were planning
-> on the kernel's zlib, though we might have been planning to make it a
-> bit more seekable...
-> 
-> > each of these APIs?
-> 
-> So, the API becomes something like:
-> 
-> cat crypto/inflated/foo		# transparently decompressed
-> cat crypto/raw/foo.gz		# raw, gzip-compressed
-
-And 'cat crypto/raw/foo' or 'crypto/inflated/foo.gz' gets you what, exactly?
-
-Now throw some .bz2 and .zip files into the mix... ;)
-
-> Another possibility, if you like file-as-a-directory:
-> 
-> cat foo.gz			# raw
-> cat foo.gz/inflated		# decompressed
-> 
-> One could easily imagine things like these two potentially equivalent
-> commands:
-> 
-> cp foo bar.zip/
-> zip bar foo
-
-Unless of course the user had done 'mkdir sorted.by.city.zip' to make
-a directory of files containing data sorted by USPS Zip code.
-
-And what happens if the user has a file 'bar' that's not a ZIP file,
-and a directory 'bar.zip' isn't a view into 'bar'?
-
-Most of the time, if I have a file 'linux-2.6.12.tar.bz2' and a
-directory 'linux-2.6.12', what is under the directory is *NOT* the same
-data as what's in the .bz2 - I've done 'make oldconfig' and a few builds
-and some variable amount of patching, usually with rejects, and I *don't*
-want that .bz2 being updated during all this (hint - what's my next command
-after 'rm -rf linux-2.6.12' likely to be, and why, and  what expectations
-do I have when I do it?)
-
-You want to think this sort of thing through *really* thoroughly, because
-there's a *lot* of things, both users and programs, that have expectations
-about The Way Things Work.
-
-> The whole point is to have less userland tools, not more.  I'm not
-> saying we move zip into the kernel, just that the user now has one less
-> command to remember.
-
-But now instead of having to remember the one meme "I can manage any
-compressed-archive format that's stored in a file, and put other files in it,
-and all I need is the appropriate userspace tool", they have to remember "the
-cp trick works for .zip and .tar, but I'll get a "not a directory" error if I
-try it with a .hqx file, and that other file format may or may not work,
-because I can't remember if this kernel has a working out-of-tree module for
-this kernel...."
-
-
---==_Exmh_1119809781_3659P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFCvvD1cC3lWbTT17ARAsd7AKDFfaRMu7syu+Mfp7vDbwGLxPFgYgCggVI1
-eWZRdBbusKt0+c/Y6Vyj04c=
-=LXfT
------END PGP SIGNATURE-----
-
---==_Exmh_1119809781_3659P--
+---
+~Randy

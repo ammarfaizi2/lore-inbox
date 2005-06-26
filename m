@@ -1,53 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261376AbVFZQOI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261350AbVFZQRr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261376AbVFZQOI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Jun 2005 12:14:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261359AbVFZQOI
+	id S261350AbVFZQRr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Jun 2005 12:17:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261369AbVFZQRr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Jun 2005 12:14:08 -0400
-Received: from rproxy.gmail.com ([64.233.170.203]:17162 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261376AbVFZQNj (ORCPT
+	Sun, 26 Jun 2005 12:17:47 -0400
+Received: from rproxy.gmail.com ([64.233.170.198]:31374 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261350AbVFZQRh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Jun 2005 12:13:39 -0400
+	Sun, 26 Jun 2005 12:17:37 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=qUMT0VL6Jx7mYkxQJE/RLSBlA7wFWpSzg2dAMYNnbaJDfAL8UlGJYMquRkbo8mWFxbjRvSZ3EhG2nVG+Z1VkZerzADzDhMImH74ROsyXslG7SbYNnZfoMC0j5xlswg9Z3QSunSuIouFw4l1RH9OL1twX9Zxv0PIsYfZe3Ijr96Q=
+        b=E6jkilswC2Kv1ELLKoyb7yeQgSQ+ykScno6n0G153pbNJ7JLjcrl2TjyefnL0mcapZ8TEP4+tY6TULXh3Jdi/f0FijEvK7DYsWhLzb9QDNJrAZNcut+xD1rsPIZxzy/QzR+L7Bl5e84WBSVe3NBXIF9RcNS5ZZKD7uEnPWUTIXE=
 From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Alexander Nyberg <alexn@telia.com>
-Subject: Re: x86_64 access of some bad address
-Date: Sun, 26 Jun 2005 20:19:38 +0400
+To: Mario Lang <mlang@delysid.org>
+Subject: Re: GDTH error on 2.6
+Date: Sun, 26 Jun 2005 20:23:41 +0400
 User-Agent: KMail/1.7.2
-Cc: ak@suse.de, linux-kernel@vger.kernel.org
-References: <1119539630.1170.6.camel@localhost.localdomain>
-In-Reply-To: <1119539630.1170.6.camel@localhost.localdomain>
+Cc: linux-kernel@vger.kernel.org
+References: <877jgkndrf.fsf@lexx.delysid.org>
+In-Reply-To: <877jgkndrf.fsf@lexx.delysid.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200506262019.39195.adobriyan@gmail.com>
+Message-Id: <200506262023.41683.adobriyan@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 23 June 2005 19:13, Alexander Nyberg wrote:
-> As I only have one x86_64 which is my main workstation it's far too
-> tedious to do binary searching (this doesn't happen on x86).
+On Friday 24 June 2005 16:24, Mario Lang wrote:
+> After upgrading an existing system from 2.4 to 2.6, we noticed
+> a strange error message from the DGTH module:
 > 
-> Happens with both latest -git and 2.6.12-mm1
-> The tools to reproduce this is at: http://serkiaden.mine.nu/kp2.tar
+> GDT-HA 0: Unknown SCSI command 0x4d to cache service !
+> SCSI error : <0 0 0 0> return code = 0x50000
 > 
-> Just do:
-> gdb lyze
-> run
+> Which repeats itself over and over again.
 > 
-> and it crashes here giving:
-> 
-> ----------- [cut here ] --------- [please bite here ] ---------
-> Kernel BUG at "mm/memory.c":911
+> This is with version 3.04 of gdth.c from
+> 2.6.9-5.0.5.ELsmp SMP 686 REGPARM 4KSTACKS gcc-3.4
 
-I've filed a bug at kernel bugzilla, so your report won't be lost.
-See http://bugme.osdl.org/show_bug.cgi?id=4801
+Does it happen with 2.6.12?
 
-You can register at http://bugme.osdl.org/createaccount.cgi and add yourself
-to CC list.
+> We've already done a controller BIOS upgrade, but the problem did
+> not go away.
+

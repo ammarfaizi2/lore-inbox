@@ -1,72 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261436AbVFZRCQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261462AbVFZRHO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261436AbVFZRCQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Jun 2005 13:02:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261437AbVFZRCQ
+	id S261462AbVFZRHO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Jun 2005 13:07:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261465AbVFZRHO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Jun 2005 13:02:16 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:57219 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261436AbVFZRCL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Jun 2005 13:02:11 -0400
-Date: Sun, 26 Jun 2005 18:02:03 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: David Masover <ninja@slaphack.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Hans Reiser <reiser@namesys.com>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, ReiserFS List <reiserfs-list@namesys.com>
+	Sun, 26 Jun 2005 13:07:14 -0400
+Received: from [213.170.72.194] ([213.170.72.194]:60884 "EHLO
+	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP id S261462AbVFZRHI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Jun 2005 13:07:08 -0400
+Message-ID: <42BEE0B4.3030804@oktetlabs.ru>
+Date: Sun, 26 Jun 2005 21:07:00 +0400
+From: "Artem B. Bityuckiy" <dedekind@oktetlabs.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Fedora/1.7.8-1.3.1
+X-Accept-Language: en, ru, en-us
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Hans Reiser <reiser@namesys.com>, Alexander Zarochentsev <zam@namesys.com>,
+       Jeff Garzik <jgarzik@pobox.com>, reiserfs-list@namesys.com,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
 Subject: Re: reiser4 plugins
-Message-ID: <20050626170203.GC18942@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	David Masover <ninja@slaphack.com>, Jeff Garzik <jgarzik@pobox.com>,
-	Hans Reiser <reiser@namesys.com>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org,
-	ReiserFS List <reiserfs-list@namesys.com>
-References: <20050620235458.5b437274.akpm@osdl.org> <42B831B4.9020603@pobox.com> <42B87318.80607@namesys.com> <20050621202448.GB30182@infradead.org> <42B8B9EE.7020002@namesys.com> <42B8BB5E.8090008@pobox.com> <42B8E834.5030809@slaphack.com> <42B8F4BC.5060100@pobox.com> <42B92AA1.3010107@slaphack.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42B92AA1.3010107@slaphack.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+References: <20050620235458.5b437274.akpm@osdl.org> <42B8B9EE.7020002@namesys.com> <42B8BB5E.8090008@pobox.com> <200506221824.32995.zam@namesys.com> <20050622142947.GA26993@infradead.org> <42BA2ED5.6040309@namesys.com> <20050626164606.GA18942@infradead.org>
+In-Reply-To: <20050626164606.GA18942@infradead.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 22, 2005 at 04:08:49AM -0500, David Masover wrote:
-> I've been reading a bit of history, and the reason Linux got so popular
-> in the first place was the tendency to include stuff that worked and
-> provided a feature people wanted, even if it was ugly.  The philosophy
-> would be:  choose a good implementation over an ugly one, but choose an
-> ugly one over nothing at all.
-
-And things change over time.  Back in those days the linux codebase was
-small and it was easy to change things all over the place.  These times
-our codebase is huge, and people that know enough parts of the kernel to
-do big changes are overloaded with work.  Thus we have to set our
-acceptance criteria a lot higher now - else we'd be totally lost with
-the current size of the project already.
-
-> > We have to maintain said ugly code for decades.  Maintainability is a
-> > big deal when you deal with the timeframes we deal with.
+Christoph Hellwig wrote:
+> I'm a bit confused about what you're saying here.  What does the 'vector'
+> in all these expressions mean?
 > 
-> Maintainability is like optimization.  The maintainability of a
-> non-working program is irrelevant.  You'd be right if we already had
-> plugins-in-the-VFS.  We don't.  The most maintainable solution for
-> plugins-in-the-FS that actually exists is Reiser4, exactly as it is now
-> - -- because it is the _only_ one that actually exists right now.
+> In OO terminology our *_operation structures are interfaces.  Each particular
+> instance of such a struct that is filled with function pointers is a class.
+> Each instance of an inode/file/dentry/superblock/... that uses these operation
+> vectors is an object.
+> 
+> What I propose (or rather demand ;-)) is that you don't duplicate this
+> infrastructure, and add another dispath layer below these objects but instead
+> re-use it for what it is done and only handle things specific to reiser4
+> in your own code. 
 
-We do have plugins in the VFS, every filesystem is a set of a few of them
-and some gluecode.
+Just out of curiosity, could you please specify few exact examples with 
+specific file/function names which duplicate the existing 
+infrastructure. What do they duplicate and why? How should these 
+functions be implemented on VFS? Ho should the the other FSes 
+implement/ignore them? Why are you shure they will fit VFS well? etc.
 
-<skipping a lot stuff>
+Thanks.
 
-David and Hans, I've read through my backlog a lot now, and I must say
-it's pretty pointless - you're discussing lots of highlevel what if and
-don't actually care about something as boring as actual technical details.
-
-Hans has lots of very skillfull technical people like zam and vs, and maybe
-he should give them some freedom to sort out technical issues for a basic
-reiser4 merge, and one that is done we can turn back to discussion of
-advanced features and their implementation, hopefully with a few more
-arguments on both sides and a real technical discussion.
+-- 
+Best regards, Artem B. Bityuckiy
+Oktet Labs (St. Petersburg), Software Engineer.
++78124286709 (office) +79112449030 (mobile)
+E-mail: dedekind@oktetlabs.ru, web: http://www.oktetlabs.ru

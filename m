@@ -1,47 +1,147 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261456AbVFZIXa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261495AbVFZI1s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261456AbVFZIXa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Jun 2005 04:23:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261495AbVFZIXa
+	id S261495AbVFZI1s (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Jun 2005 04:27:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261466AbVFZI1r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Jun 2005 04:23:30 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:48139 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261456AbVFZIX1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Jun 2005 04:23:27 -0400
-Date: Sun, 26 Jun 2005 09:23:20 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Greg KH <greg@kroah.com>
-Cc: Matt Mackall <mpm@selenic.com>, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] ndevfs - a "nano" devfs
-Message-ID: <20050626092320.B14862@flint.arm.linux.org.uk>
-Mail-Followup-To: Greg KH <greg@kroah.com>, Matt Mackall <mpm@selenic.com>,
-	linux-kernel@vger.kernel.org
-References: <20050624081808.GA26174@kroah.com> <20050625221516.GD14426@waste.org> <20050625234305.GA11282@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050625234305.GA11282@kroah.com>; from greg@kroah.com on Sat, Jun 25, 2005 at 04:43:05PM -0700
+	Sun, 26 Jun 2005 04:27:47 -0400
+Received: from mail24.syd.optusnet.com.au ([211.29.133.165]:35228 "EHLO
+	mail24.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261503AbVFZIZg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Jun 2005 04:25:36 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] sched: consider migration thread with smp nice
+Date: Sun, 26 Jun 2005 18:25:16 +1000
+User-Agent: KMail/1.8.1
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       "Martin J. Bligh" <mbligh@aracnet.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1434534.BAFI97bJtD";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200506261825.19740.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 25, 2005 at 04:43:05PM -0700, Greg KH wrote:
-> > What we really need is a short HOWTO that covers:
-> > 
-> > - Do you really need a dynamic /dev?
-> > - How to embed a static /dev in your embedded kernel with initramfs
-> > - How to add a dynamic /dev to your kernel with udev
-> 
-> Yes, I'm going to start working with some of the people who really know
-> this stuff (the distro developers who make the whole dynamic boot and
-> early boot process work correctly) and we will hash out a coheirant
-> future together, and document it all really well.
+--nextPart1434534.BAFI97bJtD
+Content-Type: multipart/mixed;
+  boundary="Boundary-01=_tZmvC98yY70b5rb"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-I hope "distro developers" will include folk like Open Embedded developers
-rather than just targetting the Red Hat's, Debians and SuSE's ?
+--Boundary-01=_tZmvC98yY70b5rb
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+This patch improves throughput with the smp nice balancing code. Many thank=
+s=20
+to Martin Bligh for the usage of his regression testing bed to confirm the=
+=20
+effectiveness of various patches.
+
+Con
+=2D--
+
+
+
+--Boundary-01=_tZmvC98yY70b5rb
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="sched-consider_migration_thread_smp_nice.patch"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline;
+	filename="sched-consider_migration_thread_smp_nice.patch"
+
+The intermittent scheduling of the migration thread at ultra high priority
+makes the smp nice handling see that runqueue as being heavily loaded. The
+migration thread itself actually handles the balancing so its influence on
+priority balancing should be ignored.
+
+Signed-off-by: Con Kolivas <kernel@kolivas.org>
+
+Index: linux-2.6.12-mm1/kernel/sched.c
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+=2D-- linux-2.6.12-mm1.orig/kernel/sched.c	2005-06-26 17:59:10.000000000 +1=
+000
++++ linux-2.6.12-mm1/kernel/sched.c	2005-06-26 18:02:01.000000000 +1000
+@@ -669,6 +669,31 @@ static inline void dec_prio_bias(runqueu
+ {
+ 	rq->prio_bias -=3D MAX_PRIO - prio;
+ }
++
++static inline void inc_nr_running(task_t *p, runqueue_t *rq)
++{
++	rq->nr_running++;
++	if (rt_task(p)) {
++		if (p !=3D rq->migration_thread)
++			/*
++			 * The migration thread does the actual balancing. Do
++			 * not bias by its priority as the ultra high priority
++			 * will skew balancing adversely.
++			 */
++			inc_prio_bias(rq, p->prio);
++	} else
++		inc_prio_bias(rq, p->static_prio);
++}
++
++static inline void dec_nr_running(task_t *p, runqueue_t *rq)
++{
++	rq->nr_running--;
++	if (rt_task(p)) {
++		if (p !=3D rq->migration_thread)
++			dec_prio_bias(rq, p->prio);
++	} else
++		dec_prio_bias(rq, p->static_prio);
++}
+ #else
+ static inline void inc_prio_bias(runqueue_t *rq, int prio)
+ {
+@@ -677,25 +702,17 @@ static inline void inc_prio_bias(runqueu
+ static inline void dec_prio_bias(runqueue_t *rq, int prio)
+ {
+ }
+=2D#endif
+=20
+ static inline void inc_nr_running(task_t *p, runqueue_t *rq)
+ {
+ 	rq->nr_running++;
+=2D	if (rt_task(p))
+=2D		inc_prio_bias(rq, p->prio);
+=2D	else
+=2D		inc_prio_bias(rq, p->static_prio);
+ }
+=20
+ static inline void dec_nr_running(task_t *p, runqueue_t *rq)
+ {
+ 	rq->nr_running--;
+=2D	if (rt_task(p))
+=2D		dec_prio_bias(rq, p->prio);
+=2D	else
+=2D		dec_prio_bias(rq, p->static_prio);
+ }
++#endif
+=20
+ /*
+  * __activate_task - move a task to the runqueue.
+
+--Boundary-01=_tZmvC98yY70b5rb--
+
+--nextPart1434534.BAFI97bJtD
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBCvmZvZUg7+tp6mRURAkUGAJ9035oe9cEQ6hbIAs0PR5eJnojTYACdFoDe
+OWOUmuhpcBMnG2HUeIFcfyc=
+=9vjf
+-----END PGP SIGNATURE-----
+
+--nextPart1434534.BAFI97bJtD--

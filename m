@@ -1,51 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261163AbVFZIlm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261218AbVFZJ0N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261163AbVFZIlm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Jun 2005 04:41:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261214AbVFZIlm
+	id S261218AbVFZJ0N (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Jun 2005 05:26:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261295AbVFZJ0N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Jun 2005 04:41:42 -0400
-Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:49816 "HELO
-	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261163AbVFZIlh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Jun 2005 04:41:37 -0400
-Message-ID: <42BE6A3E.8030703@yahoo.com.au>
-Date: Sun, 26 Jun 2005 18:41:34 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
+	Sun, 26 Jun 2005 05:26:13 -0400
+Received: from ojjektum.uhulinux.hu ([62.112.194.64]:14564 "EHLO
+	ojjektum.uhulinux.hu") by vger.kernel.org with ESMTP
+	id S261218AbVFZJ0L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Jun 2005 05:26:11 -0400
+Date: Sun, 26 Jun 2005 11:26:04 +0200
+From: =?iso-8859-1?Q?Pozs=E1r_Bal=E1zs?= <pozsy@uhulinux.hu>
 To: Andrew Morton <akpm@osdl.org>
-CC: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, hugh@veritas.com, pbadari@us.ibm.com,
-       linux-scsi@vger.kernel.org
-Subject: Re: [patch][rfc] 5/5: core remove PageReserved
-References: <42BA5F37.6070405@yahoo.com.au>	<42BA5F5C.3080101@yahoo.com.au>	<42BA5F7B.30904@yahoo.com.au>	<42BA5FA8.7080905@yahoo.com.au>	<42BA5FC8.9020501@yahoo.com.au>	<42BA5FE8.2060207@yahoo.com.au>	<20050623095153.GB3334@holomorphy.com> <20050623215011.0b1e6ef2.akpm@osdl.org>
-In-Reply-To: <20050623215011.0b1e6ef2.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: "Darryl L. Miles" <darryl@netbauds.net>, linux-kernel@vger.kernel.org,
+       Christian Trefzer <ctrefzer@web.de>,
+       Martin Wilck <martin.wilck@fujitsu-siemens.com>
+Subject: Re: 2.6.12 initrd module loading seems parallel on bootup
+Message-ID: <20050626092604.GA26658@ojjektum.uhulinux.hu>
+References: <42BDFEC2.3030004@netbauds.net> <20050625234611.118b391d.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050625234611.118b391d.akpm@osdl.org>
+User-Agent: Mutt/1.5.7i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> William Lee Irwin III <wli@holomorphy.com> wrote:
+On Sat, Jun 25, 2005 at 11:46:11PM -0700, Andrew Morton wrote:
+> I'd like to know what changed in the kernel to make nash's behaviour
+> change.  Martin, did you work that out?
 
->> Mutatis mutandis for my SCSI tape drive.
-> 
-> 
+See http://lkml.org/lkml/2005/1/17/132
 
-OK, for the VM_RESERVED case, it looks like it won't be much of a problem
-because get_user_pages faults on VM_IO regions (which is already set in
-remap_pfn_range which is used by mem.c and most drivers). So this code will
-simply not encounter VM_RESERVED regions - well obviously, get_user_pages
-should be made to explicitly check for VM_RESERVED too, but the point being
-that introducing such a check will not overly restrict drivers.
-
-[snip SetPageDirty is wrong]
-
-Not that this helps the existing bug...
 
 -- 
-SUSE Labs, Novell Inc.
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+pozsy

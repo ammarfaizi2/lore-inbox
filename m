@@ -1,99 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261435AbVFZCdd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261467AbVFZCqk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261435AbVFZCdd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Jun 2005 22:33:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261784AbVFZCda
+	id S261467AbVFZCqk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Jun 2005 22:46:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261804AbVFZCqk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Jun 2005 22:33:30 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:13218 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261435AbVFZCbA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Jun 2005 22:31:00 -0400
-Date: Sun, 26 Jun 2005 04:30:54 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Christoph Lameter <christoph@lameter.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, raybry@engr.sgi.com,
-       torvalds@osdl.org
-Subject: Re: [RFC] Fix SMP brokenness for PF_FREEZE and make freezing usable for other purposes
-Message-ID: <20050626023053.GA2871@atrey.karlin.mff.cuni.cz>
-References: <Pine.LNX.4.62.0506241316370.30503@graphe.net> <20050625025122.GC22393@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.62.0506242311220.7971@graphe.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0506242311220.7971@graphe.net>
-User-Agent: Mutt/1.5.6+20040907i
+	Sat, 25 Jun 2005 22:46:40 -0400
+Received: from 69-18-3-179.lisco.net ([69.18.3.179]:48391 "EHLO
+	ninja.slaphack.com") by vger.kernel.org with ESMTP id S261467AbVFZCq2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Jun 2005 22:46:28 -0400
+Message-ID: <42BE1702.4000106@slaphack.com>
+Date: Sat, 25 Jun 2005 21:46:26 -0500
+From: David Masover <ninja@slaphack.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050325)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Hubert Chan <hubert@uhoreg.ca>
+Cc: Valdis.Kletnieks@vt.edu, Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Hans Reiser <reiser@namesys.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: reiser4 plugins
+References: <200506240241.j5O2f1eb005609@laptop11.inf.utfsm.cl>	<42BCD93B.7030608@slaphack.com>	<200506251420.j5PEKce4006891@turing-police.cc.vt.edu>	<42BDA377.6070303@slaphack.com>	<200506252031.j5PKVb4Y004482@turing-police.cc.vt.edu> <87fyv6ezhi.fsf@evinrude.uhoreg.ca>
+In-Reply-To: <87fyv6ezhi.fsf@evinrude.uhoreg.ca>
+X-Enigmail-Version: 0.89.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> > It includes whitespace changes and most of patch is nice cleanup that
-> > should probably go in separately. (Hint hint :-). 
+Hubert Chan wrote:
+> On Sat, 25 Jun 2005 16:31:37 -0400, Valdis.Kletnieks@vt.edu said:
 > 
-> > Previous code had important property: try_to_freeze was optimized away
-> > in !CONFIG_PM case. Please keep that.
-> > 
-> > Best way is to introduce macros and cleanup the code to use the
-> > macros, without actually changing any object code. That can go in very
-> > fast. Then we can switch to atomic_t ... yeah I think that's
-> > neccessary, but I'd like cleanups first.
+> [...]
 > 
-> Here is such a patch:
 > 
-> ---
-> Cleanup patch for freezing against 2.6.12-git5.
-> 
-> 1. Establish a simple API for process freezing defined in linux/include/sched.h:
-> 
-> frozen(process)		Check for frozen process
-> freezing(process)	Check if a process is being frozen
-> freeze(process)		Tell a process to freeze (go to refrigerator)
-> thaw_process(process)	Restart process
-> frozen_process(process)		Process is frozen now
-> 
-> 2. Remove all references to PF_FREEZE and PF_FROZEN from all
->    kernel sources except sched.h
-> 
-> 3. Fix numerous locations where try_to_freeze is manually done by a driver
-> 
-> 4. Remove the argument that is no longer necessary from two function
-> calls.
+>>Meanwhile, PGP was designed to be used in an environment where you
+>>could do this: "Today's secret plans are AES256 encrypted.  The key is
+>>the next key in your one-time-pad book, XOR'ed with your 128-bit
+>>secret key - do it in your head".  (And yes, you can easily memorize a
+>>16-digit hex number and learn to do an XOR with another 16-digit
+>>number, if failing to do so means you could end up dead).
 
-Can you just keep the argument? Rename it to int unused or whatever,
-but if you do it, it stays backwards-compatible (and smaller patch,
-too).
+[...]
 
-> 5. Some whitespace cleanup
-> 
-> 6. Clear potential race in refrigerator (provides an open window of PF_FREEZE
->    cleared before setting PF_FROZEN, recalc_sigpending does not check 
->    PF_FROZEN).
-> 
-> This patch does not address the problem of freeze_processes() violating the rule
-> that a task may only modify its own flags by setting PF_FREEZE. This is not clean
-> in an SMP environment. freeze(process) is therefore not SMP safe!
-> 
-> Signed-off-by: Christoph Lameter <christoph@lameter.com>
+> [1] I have no idea what kind of interface the crypto plugin in Reiser4
+> will have.  I'm assuming that there will be some commands for adding and
+> removing keys from the plugin.  If such commands don't exist, then we
+> have a seriously broken system.
 
-Looks mostly good but:
+If we do meta-files as was originally intended, the command will be a
+shell script could look something like this:
 
-> Index: linux-2.6.12/arch/i386/kernel/signal.c
-> ===================================================================
-> --- linux-2.6.12.orig/arch/i386/kernel/signal.c	2005-06-25 05:01:26.000000000 +0000
-> +++ linux-2.6.12/arch/i386/kernel/signal.c	2005-06-25 05:01:28.000000000 +0000
-> @@ -608,10 +608,8 @@ int fastcall do_signal(struct pt_regs *r
->  	if (!user_mode(regs))
->  		return 1;
->  
-> -	if (current->flags & PF_FREEZE) {
-> -		refrigerator(0);
-> +	if (try_to_freeze)
->  		goto no_signal;
-> -	}
->  
+#!/bin/bash
+read -sp 'passphrase: ' key
+echo "$key" > "$0"/.../plugins/cryptocompress/key
 
-This is not good. Missing ().
+The syntax of that echo command may change, but this is what we like
+about metas -- less namespace fragmentation, less random interfaces.
 
-							Pavel
--- 
-Boycott Kodak -- for their patent abuse against Java.
+>>Two words: "phishing e-mail".
+
+[...]
+
+> I'd rather have people encrypting all their stuff and still be
+> vulnerable to phishing but secure from someone stealing their computer
+> and fetching all their personal data, than having people not encrypt
+> their stuff and have all their personal data harvested when they lose
+> their computers and still be vulnerable to phishing.
+
+Thank you, I was just about to say that.
+
+There's a quote about this.  Someone once asked Mohammed, "Should we tie
+up the horses or trust in Allah?"  Mohammed said, "Trust in Allah.
+...But, tie up the horses."
+
+> P.S.  Is the custom on the linux-kernel list really to Cc: everyone and
+> their dog?  I'm seeing a lot of long Cc: lists here...
+
+It seems to be the custom of any list to just hit "reply-to-all".  That
+way, even if someone posted a reply after reading the archives or from a
+forwarded mail, or even if they unsubscribe from the list, or even if
+someone simply opened up their client and started a thread by mailing
+linux-kernel@vger.kernel.org directly, or if someone just randomly adds
+someone who might be interested to the CC list directly -- no matter
+what, someone who's posted on a topic will see replies to that post
+until the topic dies.
+
+Of course, this isn't true of all lists.  Some lists munge headers,
+meaning that either "reply" or "reply-to-all" goes to the same place,
+meaning no automatic CC's.  I don't like that, because then it's harder
+to take something off-list, and easier to accidently send something
+supposedly private to the entire list.
+
+If you take something off-list when you don't mean to, you can just
+re-send it, but if you put something on-list when it was supposed to be
+private, there isn't much you can do...
+
+Of course, there's the annoying side-effect that if you are subscribed
+to the list, you'll get lots of dupes, but so what?  Bandwidth is cheap.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iQIVAwUBQr4XAngHNmZLgCUhAQK+JRAAgg4YlZ9cb0S5hp9JzGdZHm0FeJDoKIok
+voT5LvqgooQpJZk3mwyagYqvP5uvY2UgFA74seMqzTHRnynCDp4orCPGgADofaFU
+KfjGcVUS6SuY3VgeF7WBEjFj1NHSwDp3h0LfeRocEglbFxoPGJvw3gWSnX1QDZ68
+nmuSRGVSB7nb1Os6c2zsM0uXvJA43HNJ+W/UrEPOFjiRI1bOOioxzphgVwCAQH3j
+8Vb2/HWmPLTCqXoOYESZ5OBQOR6iZViegh/x/Rn+O99UfiENdacoX5xwGM68SAXM
+CR3JjRA3JEA1iScz9I2byD2dZyb2596Q09Xh/5/5PQxK8zGm0FtWWEbOvDeF7Re7
+cQiXkZB9uLQDJel+jlwatKGCPRVlx9wDJ8puIMf47QOsWhx0TY8lAxCebu4zorjz
+K2vQiF/ZMOYXFB5nBCvgHL7XG24FRpuaU0wWo7+0cY2o4WBhvfBO5o+93Klwa7Na
+ltPKRFPv6B6KBDD71quSwZ9M1YkjfR0vaPZWV9T5TFBklfRv26N1DhNmW1o2KjRI
+wX3yrsIbAAG9dK3Vs71oxWIw0hqmfpo4UZTZGRoi8GL+drHBNvHxzNtaeSBF4AeO
+fxYnQHXO1+Us3zbb/oBR4Hm3ugvsRYXMyArm1hHHFlmcXdggjz+K36IiCK7wKpfp
+2gVec7JaEkY=
+=3Mkk
+-----END PGP SIGNATURE-----

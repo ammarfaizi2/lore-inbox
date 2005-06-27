@@ -1,52 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261929AbVF0LdG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261997AbVF0Lf1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261929AbVF0LdG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 07:33:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261931AbVF0LdG
+	id S261997AbVF0Lf1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 07:35:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261992AbVF0Le3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 07:33:06 -0400
-Received: from styx.suse.cz ([82.119.242.94]:45019 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S261929AbVF0LdC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 07:33:02 -0400
-Date: Mon, 27 Jun 2005 13:33:01 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Erik Slagter <erik@slagter.name>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Justin Piszcz <jpiszcz@lucidpixels.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Promise ATA/133 Errors With 2.6.10+
-Message-ID: <20050627113301.GA8476@ucw.cz>
-References: <Pine.LNX.4.63.0506241653580.31140@p34> <1119688191.4293.5.camel@localhost.localdomain> <Pine.LNX.4.63.0506250435110.32759@p34> <1119808784.28649.41.camel@localhost.localdomain> <1119867096.4020.59.camel@localhost.localdomain>
+	Mon, 27 Jun 2005 07:34:29 -0400
+Received: from 135.80-203-45.nextgentel.com ([80.203.45.135]:10290 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261931AbVF0LeQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 07:34:16 -0400
+Subject: Re: [2.6 patch] lib/zlib*: possible cleanups
+From: Kjartan Maraas <kmaraas@broadpark.no>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050621133738.GM3666@stusta.de>
+References: <20050620234326.GG3666@stusta.de>
+	 <20050620172920.541f4112.akpm@osdl.org>  <20050621133738.GM3666@stusta.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 27 Jun 2005 10:51:58 +0200
+Message-Id: <1119862318.2760.18.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1119867096.4020.59.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.2.2 (2.2.2-8) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 27, 2005 at 12:11:36PM +0200, Erik Slagter wrote:
-
-> On Sun, 2005-06-26 at 18:59 +0100, Alan Cox wrote:
-> > On Sad, 2005-06-25 at 09:35, Justin Piszcz wrote:
-> > > > BTW2 could it be that somewhere a timeout has been lowered in recent
-> > > > kernels? That must have been pre-2.6.11 then.
+tir, 21,.06.2005 kl. 15.37 +0200, skrev Adrian Bunk:
+> On Mon, Jun 20, 2005 at 05:29:20PM -0700, Andrew Morton wrote:
+> > Adrian Bunk <bunk@stusta.de> wrote:
+> > >
+> > > - #if 0 the following unused functions:
+> > >   - zlib_deflate/deflate.c: zlib_deflateSetDictionary
+> > >   - zlib_deflate/deflate.c: zlib_deflateParams
+> > >   - zlib_deflate/deflate.c: zlib_deflateCopy
+> > >   - zlib_inflate/infblock.c: zlib_inflate_set_dictionary
+> > >   - zlib_inflate/infblock.c: zlib_inflate_blocks_sync_point
+> > >   - zlib_inflate/inflate_sync.c: zlib_inflateSync
+> > >   - zlib_inflate/inflate_sync.c: zlib_inflateSyncPoint
 > > 
-> > Timeouts have not changed or have increased in fact.
+> > OK...
+> > 
+> > > - remove the following unneeded EXPORT_SYMBOL's:
+> > >   - zlib_deflate/deflate_syms.c: zlib_deflateCopy
+> > >   - zlib_deflate/deflate_syms.c: zlib_deflateParams
+> > >   - zlib_inflate/inflate_syms.c: zlib_inflateSync
+> > >   - zlib_inflate/inflate_syms.c: zlib_inflateSyncPoint
+> > 
+> > Adrian, I've dropped just about every "remove the following unneeded
+> > EXPORT_SYMBOL's" I've seen in the past several months.  We've been round this
+> > numerous times.
+> > 
+> > The question is, who are we screwing if we remove these?
+> > 
+> > It's difficult to answer, but we need to answer it.
 > 
-> Never mind, the offending harddisk has ceased to be yesterday, it is no
-> more.
 > 
-> What really bothers me, though, is that until the very last moment it
-> was alive, it didn't report any smart error, nor did any self test fail.
-> I guess IBM is to blame here :-(
- 
-Most drives report no SMART problems until they die. I've seen several
-drives who weren't able to read/write or at least remap bad sectors, and
-still their SMART statistics were almost perfect. The SMART event log
-included the errors, though.
+> I'm sorry, but I'm not getting your point:
+> 
+> First, you ACK the part of my patch to #if 0 unused functions.
+> 
+> Then you complain that I've documented which EXPORT_SYMBOL's I have to 
+> remove because I have #if 0'ed the functions they are exporting.
+> 
+The way I read it the "OK..." wasn't an agreement with the first hunk
+but more of a prelude to the following comment. Or maybe I got it all
+wrong too :-)
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Cheers
+Kjartan
+

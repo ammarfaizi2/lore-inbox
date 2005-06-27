@@ -1,93 +1,183 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261891AbVF0HH2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261913AbVF0HG3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261891AbVF0HH2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 03:07:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261892AbVF0HH2
+	id S261913AbVF0HG3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 03:06:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261888AbVF0HD7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 03:07:28 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:59825 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261891AbVF0HFV (ORCPT
+	Mon, 27 Jun 2005 03:03:59 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:54203 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261887AbVF0HCG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 03:05:21 -0400
-Message-ID: <42BFA591.1070503@engr.sgi.com>
-Date: Mon, 27 Jun 2005 02:06:57 -0500
-From: Ray Bryant <raybry@engr.sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Kirill Korotaev <dev@sw.ru>
-CC: Christoph Lameter <christoph@lameter.com>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, pavel@suse.cz, torvalds@osdl.org,
-       raybry@engr.sgi.com, lhms <lhms-devel@lists.sourceforge.net>
-Subject: Re: [RFC] Fix SMP brokenness for PF_FREEZE and make freezing usable
- for other purposes
-References: <Pine.LNX.4.62.0506241316370.30503@graphe.net> <1104805430.20050625113534@sw.ru>
-In-Reply-To: <1104805430.20050625113534@sw.ru>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 27 Jun 2005 03:02:06 -0400
+Date: Mon, 27 Jun 2005 00:01:25 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Levent Serinol <lserinol@gmail.com>
+Cc: linux-kernel@vger.kernel.org, riel@redhat.com, wli@holomorphy.com
+Subject: Re: [PATCH] enable/disable profiling via proc/sysctl
+Message-Id: <20050627000125.1a6f8a91.akpm@osdl.org>
+In-Reply-To: <2c1942a705062623411b7e88c3@mail.gmail.com>
+References: <2c1942a705062623411b7e88c3@mail.gmail.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kirill Korotaev wrote:
-> CL> The process freezing used by software suspend currently relies on modifying
-> current->>flags from outside of the processes context. This makes freezing and
-> CL> unfreezing SMP unsafe since a process may change the flags at any time without
-> CL> locking. The following patch introduces a new atomic_t field in task_struct
-> CL> to allow SMP safe freezing and unfreezing.
+Levent Serinol <lserinol@gmail.com> wrote:
+>
+> This patch enables controlling kernel profiling through proc/sysctl inferface.
 > 
-> CL> It provides a simple API for process freezing:
-> 
-> CL> frozen(process)             Check for frozen process
-> CL> freezing(process)   Check if a process is being frozen
-> CL> freeze(process)             Tell a process to freeze (go to refrigerator)
-> CL> thaw_process(process)       Restart process
-> 
-> CL> I only know that this boots correctly since I have no system that can do
-> CL> suspend. But Ray needs an effective means of process suspension for
-> CL> his process migration patches.
+>  With this patch profiling will be available without rebooting the
+>  machine (especially for
+>  production servers) with some drawbacks of vmalloc(tlb). So, bootime
+>  algorithm part is left unchanged for anyone who wishes to use
+>  profiling as usual without tlb drawback by rebooting the machine.
 
-The process migration patches that Christoph mentions are avaialable at
 
-http://marc.theaimsgroup.com/?l=linux-mm&m=111945947315561&w=2
+> --- include/linux/sysctl.h.org	2005-06-13 16:05:17.000000000 +0300
+> +++ include/linux/sysctl.h	2005-06-25 15:05:06.000000000 +0300
 
-and subsequent notes to the -mm or lhms-devel lists.  The problem there is
-that this code depends on user space code to suspend and then resume the
-processes to be migrated before/after the migration.  Christoph suggested
-using PF_FREEZE, but I pointed out that was broken on SMP so hence the
-current patch.
+Patches should be in `patch -p1' form, please.  See
+http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt
 
-The idea would be to use PF_FREEZE to cause the process suspension.
-A minor flaw in this approach is what happens if a process migration
-is in progress when the machine is suspended/resumed.  (Probably not
-a common occurrence on Altix... :-), but anyway...).  If the processes
-are PF_FROZEN by the migration code, then unfrozen by the resume code,
-and then the migration code continues, then we have unstopped processes
-being migratated again.  Not a good thing.  On the other hand, the
-manual page migration stuff is only existent on NUMA boxes, so the
-question is whether any NUMA boxes support suspend/resume.  (Anyone
-have a NUMA laptop handy to test this on?   Thought not....)
+> +static int prof_on = 0;
+> +static int prof_booton = 0;
 
-Is the above scenario even possible?  manual page migration runs as a system
-call.  Do system calls all complete before suspend starts?  If that is
-the case, then the above is not something to worry about.
+There's no need to explicitly initialise these.
 
-The other approach would be to fix the manual page migration code to
-handle non-suspended processes, but that hasn't been achieved yet,
-in spite of the fact that the underlying page migration code from the
-memory hotplug project is designed to support that.  Even then,
-there is still a potential race if the migrated application also uses
-SIGTOP/SIGCONT, which is how the migrated processes are suspended
-today.
+> +#ifdef CONFIG_SMP
+> +static int remove_hash_tables(void)
+> +{
+> +	int cpu;
+> +
+> +	smp_mb();
+> +	on_each_cpu(profile_nop, NULL, 0, 1);
 
-Finally, how comfortable are people about using the PF_FREEZE stuff
-to start and resume processes for purposes unrelated to suspend/resume?
--- 
-Best Regards,
-Ray
------------------------------------------------
-                   Ray Bryant
-512-453-9679 (work)         512-507-7807 (cell)
-raybry@sgi.com             raybry@austin.rr.com
-The box said: "Requires Windows 98 or better",
-            so I installed Linux.
------------------------------------------------
+Why?
+
+> +	for_each_online_cpu(cpu) {
+> +		struct page *page;
+> +
+> +		if (per_cpu(cpu_profile_hits, cpu)[0]) {
+> +			page = virt_to_page(per_cpu(cpu_profile_hits, cpu)[0]);
+> +			per_cpu(cpu_profile_hits, cpu)[0] = NULL;
+> +			__free_page(page);
+> +		}
+> +		if (per_cpu(cpu_profile_hits, cpu)[1]) {
+> +			page = virt_to_page(per_cpu(cpu_profile_hits, cpu)[1]);
+> +			per_cpu(cpu_profile_hits, cpu)[1] = NULL;
+> +			__free_page(page);
+> +		}
+> +	}
+
+Can this race against itself?  If two cpus run the sysctl at the same time?
+We seem to have lock_kernel() coverage.  It's be nice to do something
+firmer.
+
+> +int profile_sysctl_handler(ctl_table *table, int write,
+> +	struct file *file, void __user *buffer, size_t *length, loff_t *ppos)
+> +{
+> +	int err;
+> +	struct proc_dir_entry *entry;
+> +
+> +	if (prof_booton && write) return 0;
+> +	err=proc_dointvec(table, write, file, buffer, length, ppos);
+> +	if ((err >= 0) && write) {
+> +	prof_shift = profile_params[1];
+> +	switch(profile_params[0])
+> +	{
+> +	case 0:
+> +		if (prof_on) {
+
+Coding style is all over the place here, as well as in most of the rest of
+the patch.
+
+
+	if (prof_booton && write)
+		return 0;
+	err = proc_dointvec(table, write, file, buffer, length, ppos);
+	if (err >= 0 && write) {
+		prof_shift = profile_params[1];
+		switch (profile_params[0])
+		{
+		case 0:
+			if (prof_on) {
+
+Every line was changed there...
+
+Also, doing multiple returns per function is unpopular, although the
+very-early
+
+	if (foo)
+		return <something>;
+
+right at the top of the function is OK.  You can use
+
+	if (err < 0 || !write)
+		goto out;
+
+to save a tab stop.
+
+> +		     } 
+> +		break;
+
+		} 
+		break;
+
+> +	case SCHED_PROFILING || CPU_PROFILING:
+
+eh?  I'm surprised the compiler swallowed that.  I guess it's the same as
+`case 1:'.  Looks like a bug though.
+
+> +		if (prof_on) return -1;
+> +        	prof_len = (_etext - _stext) >> prof_shift;
+> +        	prof_buffer = vmalloc(prof_len*sizeof(atomic_t));
+> +		if (!prof_buffer) return(-ENOMEM);
+> +		if (create_hash_tables()) {
+> +			vfree(prof_buffer);
+> +			return -1;
+> +			}
+> +		prof_on = profile_params[0];
+> +		if (!(entry = create_proc_entry("profile", S_IWUSR | S_IRUGO, NULL))) {
+> +			remove_hash_tables();
+> +			vfree(prof_buffer);
+> +			return 0;
+> +			}
+> +		entry->proc_fops = &proc_profile_operations;
+> +		entry->size = (1+prof_len) * sizeof(atomic_t);
+> +#ifdef CONFIG_HOTPLUG_CPU
+> +		register_cpu_notifier(&profile_cpu_notifier);
+> +#endif
+> +		profile_discard_flip_buffers();
+> +        	memset(prof_buffer, 0, prof_len * sizeof(atomic_t));
+> +			switch(prof_on)
+> +			{
+> +			case SCHED_PROFILING:printk(KERN_INFO
+> +				"kernel schedule profiling enabled (shift: %ld)\n",
+> +				prof_shift);
+> +				break;
+> +			case CPU_PROFILING:printk(KERN_INFO
+> +				"kernel profiling enabled (shift: %ld)\n",
+> +				prof_shift);
+> +				break;
+> +				} 
+> +			break;
+> +			}
+> +		}
+> +	return 0;
+> +}
+
+Documentation/CodingStyle is your friend ;)
+
+> --- kernel/sysctl.c.org	2005-06-13 16:05:23.000000000 +0300
+> +++ kernel/sysctl.c	2005-06-26 02:06:23.000000000 +0300
+> ...
+> +extern int profile_params[];
+
+Try to place this declaration in a header.
+
+What locking protects prof_boot_on()?  lock_kernel() won't be sufficient
+because we're doing sleeping allocations in here.
+
+I suspect it would be best to whap a semaphore around the whole thing.

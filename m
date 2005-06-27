@@ -1,149 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261729AbVF0Ovd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261470AbVF0RAS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261729AbVF0Ovd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 10:51:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261741AbVF0OuH
+	id S261470AbVF0RAS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 13:00:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261475AbVF0Q6c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 10:50:07 -0400
-Received: from nysv.org ([213.157.66.145]:12172 "EHLO nysv.org")
-	by vger.kernel.org with ESMTP id S262164AbVF0M4I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 08:56:08 -0400
-Date: Mon, 27 Jun 2005 15:55:55 +0300
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Hans Reiser <reiser@namesys.com>,
-       David Masover <ninja@slaphack.com>,
+	Mon, 27 Jun 2005 12:58:32 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:35011 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261399AbVF0Qy3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 12:54:29 -0400
+Message-Id: <200506271653.j5RGrHUL019484@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: David Masover <ninja@slaphack.com>
+Cc: Hubert Chan <hubert@uhoreg.ca>, Lincoln Dale <ltd@cisco.com>,
+       Gregory Maxwell <gmaxwell@gmail.com>, Hans Reiser <reiser@namesys.com>,
        Horst von Brand <vonbrand@inf.utfsm.cl>,
        Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
        ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: reiser4 plugins
-Message-ID: <20050627125555.GE11013@nysv.org>
-References: <200506231924.j5NJOvLA031008@laptop11.inf.utfsm.cl> <42BB31E9.50805@slaphack.com> <1119570225.18655.75.camel@localhost.localdomain> <42BB5E1A.70903@namesys.com> <1119609680.17066.81.camel@localhost.localdomain> <20050627091808.GC11013@nysv.org> <42BFCAE7.6070708@yahoo.com.au>
+Subject: Re: reiser4 plugins 
+In-Reply-To: Your message of "Mon, 27 Jun 2005 02:07:46 CDT."
+             <42BFA5C2.1010807@slaphack.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <200506240241.j5O2f1eb005609@laptop11.inf.utfsm.cl> <42BCD93B.7030608@slaphack.com> <200506251420.j5PEKce4006891@turing-police.cc.vt.edu> <42BDA377.6070303@slaphack.com> <200506252031.j5PKVb4Y004482@turing-police.cc.vt.edu> <42BDC422.6020401@namesys.com> <42BE3645.4070806@cisco.com> <e692861c05062522071fe380a5@mail.gmail.com> <42BE563D.4000402@cisco.com> <42BE5DB6.8040103@slaphack.com> <200506261816.j5QIGMdI010142@turing-police.cc.vt.edu> <42BF08CF.2020703@slaphack.com> <200506262105.j5QL5kdR018609@turing-police.cc.vt.edu> <42BF2DC4.8030901@slaphack.com> <200506270040.j5R0eUNA030632@turing-police.cc.vt.edu> <87y88webpo.fsf@evinrude.uhoreg.ca> <200506270459.j5R4xdZp005659@turing-police.cc.vt.edu> <42BF9489.9080202@slaphack.com> <200506270624.j5R6OWFn008836@turing-police.cc.vt.edu>
+            <42BFA5C2.1010807@slaphack.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="TMTfqzsZeEKgETVO"
-Content-Disposition: inline
-In-Reply-To: <42BFCAE7.6070708@yahoo.com.au>
-User-Agent: Mutt/1.5.9i
-From: mjt@nysv.org (Markus  =?ISO-8859-1?Q?=20T=F6rnqvist?=)
+Content-Type: multipart/signed; boundary="==_Exmh_1119891196_6336P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 27 Jun 2005 12:53:17 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---TMTfqzsZeEKgETVO
+--==_Exmh_1119891196_6336P
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jun 27, 2005 at 07:46:15PM +1000, Nick Piggin wrote:
->
->The scheduler is being improved for better behaviour on complex
->topologies like multi core + NUMA and multi level NUMA systems.
->If Con's work had gone in first, then conversely these improvements
->would have had to wait.
+On Mon, 27 Jun 2005 02:07:46 CDT, David Masover said:
+> > Exactly the same sort of thing - traditionally it's been more or less ignored
+> > in the system accounting, because A would usually average out to causing as
+> > many I/Os as B did, and they were roughly equal in cost so it was a wash.
+> 
+> Even if A is doing A/V work and B is programming?
 
-Or be merged in later.
+I said "traditionally" - it's been a "oh well, we can't do much about it"
+problem for a *long* time (for instance, time spent in an interrupt handler
+has usually been charged off against whoever's timeslide the interrupt handler
+took a chunk out of).  It's only been tolerated so far because (a) the costs
+for both users are about equal and (b) you rarely have a heavy I/O DB and a
+number cruncher on the same box, or a user doing A/V work and a user doing
+programming - if it's not a single-use machine, there's *multiple* number
+crunchers, DBs, or programmers, and they tend to balance out.
 
-The problem is, why do the interfaces have to live so much that
-examples like this come to my ears (or eyes ;) all the time?
+Said tendency can dissapear quite easily here....
 
-I hate to say this without digging out any URLs, but one friend
-of mine says he has a very hard time doing any networking code
-because it's too labile. Maybe that's being embettered for something
-else too?
+> How do we get over quota errors, btw?  Can we get them from write()
+> calls?  If so, I don't see a Problem(TM), just an annoyance.
 
-Or the other friend who curses that the networking code is just
-crap and basically has to rewrite the code to get it working.
-Yes, I've tried to get these guys to submit their code, but they
-argue back that no one wants to see it.
+One gotcha here is that it means that you can't do delayed allocation on
+writes - you *have* to allocate disk space at each write and then update
+the quotas. (And yes, I know that 'man 2 close' says that bad stuff can
+happen to your data even after your program exits - that doesn't mean we
+should go out of our way to make things worse.. ;)
 
->>There's also my all-time favorite, http://lkml.org/lkml/2005/3/14/4
->
->What's wrong with that? The slowdown is due to the workload
->becoming disk bound. The reasons are still not entirely clear,
->but I don't think it is a recent (ie. 2.6) regression (or even
->a regression at all IIRC).
-
-It's not that easy.
-
-So let's say the scheduler slowdown is a temporary situation to
-adapt it to multicore+NUMA.
-I assume that's what you mean, by having the kernels on par
-with 2.6.10 and the above paragraph.
-
-Why on earth did the slowdown ever get merged and we have to wait
-for it to be on par with some older version?
-
-Maybe the multicore+NUMA guys don't think it's a regression, hell,
-it may be better for them at the cost of the embedded (or desktop
-or whoever) guys.
-
-Still my initial reaction is "if a patch slows things down, revert
-it. If it didn't do anything, keep reverting until you have the
-original situation."
-It's also my reaction after the initial one :)
-
-Sure, 2.4 and others did also have issues, so you couldn't automatically
-assume each and every new kernel would be better than the last,
-but it seems nowadays it's also hard to predict even the trend.
-
-But to be fair, Linux is not a disaster yet and you guys are doing
-good work, despite things looking very shaky at times and
-my temper being more and more easily flared nowadays at signs
-of trouble :)
-
->I think if you are resorting to bringing up all time favourite
->blunders when trying to justify Reiser4 being included, then
->that is a sign right there that something is fundamentally wrong
->(if not with the code, then with your line of thought0
-
-Myeah, I know, this is not helping the Reiser4 cause _as_such_.
-
-What I'm saying is, Reiser4 could be merged as it looks like a
-lot of other stuff is merged too, which may not be very
-tested.
-
-Reiser4 at least is tested.
-
-We can skip the parts that appear to suck.
-
->And note my email has nothing to do with any *real* argument for
->or against R4.
-
-I think this could be further split into an argument about
-the development model :P
-
-Having a separate dev tree would keep the majority happy,
-as things are "good enough for most people" and after all
-has been evened out in the dev tree, a new stable tree can
-be launched.
-
-This particular new file system should not be too drastic a
-thing to merge into a stable kernel, without the instability-
-inducing factors, and I think in the old model, all this would
-have been fleshed out in the dev tree automagically.
-
-Please do correct me if I'm wrong :)
-
-Thanks!
-
---=20
-mjt
-
-
---TMTfqzsZeEKgETVO
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+--==_Exmh_1119891196_6336P
+Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQFCv/dbIqNMpVm8OhwRAlaUAJ4hscxhPYTQPVMMae6znUpjn+mZ/QCfema0
-VXRq3jMHxypG1S7LE44JiWY=
-=e4+u
+iD8DBQFCwC78cC3lWbTT17ARApC0AKCBGqN04tsNIu6Wvpq1MYJyhtt7PQCcDGZG
+ka34Pp0d87Y1cWn7kDpHU64=
+=Yb7G
 -----END PGP SIGNATURE-----
 
---TMTfqzsZeEKgETVO--
+--==_Exmh_1119891196_6336P--

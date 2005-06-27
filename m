@@ -1,57 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262052AbVF0QHJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261296AbVF0QSV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262052AbVF0QHJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 12:07:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262044AbVF0QCU
+	id S261296AbVF0QSV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 12:18:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261730AbVF0QRy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 12:02:20 -0400
-Received: from embeddededge.com ([209.113.146.155]:35591 "EHLO
-	penguin.netx4.com") by vger.kernel.org with ESMTP id S261296AbVF0P6K
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 11:58:10 -0400
-In-Reply-To: <20050626.175347.104031526.davem@davemloft.net>
-References: <20050626185210.GB6091@logos.cnet> <20050626.173338.41634345.davem@davemloft.net> <20050626190944.GC6091@logos.cnet> <20050626.175347.104031526.davem@davemloft.net>
-Mime-Version: 1.0 (Apple Message framework v622)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <705a40397bb8383399109debccaebaa3@embeddededge.com>
+	Mon, 27 Jun 2005 12:17:54 -0400
+Received: from [80.71.243.242] ([80.71.243.242]:32723 "EHLO tau.rusteko.ru")
+	by vger.kernel.org with ESMTP id S261296AbVF0QPu (ORCPT
+	<rfc822;Linux-Kernel@Vger.Kernel.ORG>);
+	Mon, 27 Jun 2005 12:15:50 -0400
+From: Nikita Danilov <nikita@clusterfs.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Cc: akpm@osdl.org, marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
-From: Dan Malek <dan@embeddededge.com>
-Subject: Re: increased translation cache footprint in v2.6
-Date: Mon, 27 Jun 2005 11:57:51 -0400
-To: "David S. Miller" <davem@davemloft.net>
-X-Mailer: Apple Mail (2.622)
+Message-ID: <17088.9784.776332.225807@gargle.gargle.HOWL>
+To: Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>
+Subject: Re: [PATCH] fs:lock_rename()/unlock_rename() can lead to deadlock in distributed fs.
+Date: Mon, 27 Jun 2005 20:15:13 +0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Zuzana Petrova writes:
+ > The problem with lock_rename() is that it compares parent directory dentries  
+ > when trying to decide how many inode i_sem semaphores to acquire.  That works  
+ > fine on a single node system, but not in a distributed environment, on a  
+ > distributed filesystem.  
+ >   
+ > The problem with rename(2) in a cluster, is that there is no guarantee that  
+ > path_lookup()s will return a coherent path structure while at the same time  
+ > renames, on another node, are executing on that same path hierarchy.  In our  
+ > case, in do_rename(), the parent directory path_lookup()s find/create unique  
+ > dentries for the old_dir and new_dir, however, because a rename(2) on another  
+ > node was executing, both dentries end up pointing to the same inode.  
+ >   
+ > When lock_rename(new_dir, old_dir) is called, the dentries don't match, so we  
+ > end up in a code path that tries to acquire the inode i_sem of both the  
+ > old_dir and new_dir, but since they point to the same inode, the second  
+ > attempt to acquire the same i_sem results in a deadlock.  
+ >   
+ > A fix would be to compare the dentries ->d_inode field instead.  Patch for  
+ > kernel 2.6.12.1 attached.
 
-On Jun 26, 2005, at 8:53 PM, David S. Miller wrote:
+reiser4 had identical patch before pseudo files were disabled. It even
+went into -mm:
 
-> So that's 7 instructions, 2 instruction cache lines, with no main
-> memory accesses.  Surely the PPC folks can do something similar. :-)
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc1/2.6.9-rc1-mm1/broken-out/reiser4-aliased-dir.patch
 
-It's not that easy on the 8xx.  It actually implements a two level
-hardware page table.  Basically, I want to load the PMD into the
-first level of the hardware, then the PTE into the second level 
-register.
-We have to load both registers with some information, but I can't
-get the control bits organized in the pmd/pte to do this easily.
-There is also a fair amount of hardware assist in the MMU for
-initializing these registers and providing page table offset computation
-that we need to utilize.
+Nikita.
 
-With the right page table structure the tlb miss handler is very 
-trivial.
-Without it, we have to spend lots of time building the entries 
-dynamically.
-Because of the configurability of the address space among text, data,
-IO, and uncached mapping, we simply can't test an address bit and
-build a new TLB entry.  So, I want to use the existing page tables to
-represent the spaces, then have the tlb miss handler just use that
-information.  I'll take a closer look at the kernel/user separate code
-paths again.
+ > 
+ > Author of the patch is Michael Gaughen <mgaughen@polyserve.com>
+ > 
+ > --
+ > Zuzana Petrova
 
-Thanks.
-
-	-- Dan
-
+Nikita.

@@ -1,56 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261708AbVF0UeY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261703AbVF0UeY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261708AbVF0UeY (ORCPT <rfc822;willy@w.ods.org>);
+	id S261703AbVF0UeY (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 27 Jun 2005 16:34:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261689AbVF0UbA
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261709AbVF0Ubc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 16:31:00 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:32262 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261709AbVF0U3O
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 16:29:14 -0400
-Message-ID: <42C0623E.5040405@tmr.com>
-Date: Mon, 27 Jun 2005 16:31:58 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050319
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Maciej W. Rozycki" <macro@linux-mips.org>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: IDE - sensible probing for PCI systems
-References: <1119356601.3279.118.camel@localhost.localdomain>  <Pine.LNX.4.61L.0506211422190.9446@blysk.ds.pg.gda.pl>  <1119363150.3325.151.camel@localhost.localdomain>  <Pine.LNX.4.61L.0506211535100.17779@blysk.ds.pg.gda.pl>  <1119379587.3325.182.camel@localhost.localdomain>  <Pine.LNX.4.61L.0506231903170.31113@blysk.ds.pg.gda.pl> <1119566026.18655.30.camel@localhost.localdomain> <Pine.LNX.4.61L.0506241217490.28452@blysk.ds.pg.gda.pl> <42BC8C10.1040604@pobox.com> <Pine.LNX.4.61L.0506271516270.23903@blysk.ds.pg.gda.pl>
-In-Reply-To: <Pine.LNX.4.61L.0506271516270.23903@blysk.ds.pg.gda.pl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 27 Jun 2005 16:31:32 -0400
+Received: from thunk.org ([69.25.196.29]:32991 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S261726AbVF0U3Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 16:29:24 -0400
+Date: Mon, 27 Jun 2005 16:28:41 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Steve Lord <lord@xfs.org>
+Cc: Hans Reiser <reiser@namesys.com>, Markus T?rnqvist <mjt@nysv.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       David Masover <ninja@slaphack.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: reiser4 plugins
+Message-ID: <20050627202841.GA27805@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>, Steve Lord <lord@xfs.org>,
+	Hans Reiser <reiser@namesys.com>, Markus T?rnqvist <mjt@nysv.org>,
+	Horst von Brand <vonbrand@inf.utfsm.cl>,
+	David Masover <ninja@slaphack.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	Christoph Hellwig <hch@infradead.org>,
+	Andrew Morton <akpm@osdl.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	ReiserFS List <reiserfs-list@namesys.com>
+References: <42BB7B32.4010100@slaphack.com> <200506240334.j5O3YowB008100@laptop11.inf.utfsm.cl> <20050627092138.GD11013@nysv.org> <20050627124255.GB6280@thunk.org> <42C0578F.7030608@namesys.com> <42C05F16.5000804@xfs.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42C05F16.5000804@xfs.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maciej W. Rozycki wrote:
-> On Fri, 24 Jun 2005, Jeff Garzik wrote:
-> 
-> 
->>>Well, keyboard and mouse are USB these days, serial and parallel are PCI,
->>>floppies are not used anymore and the ISA DMA controller would only be 
->>
->>Oh, how I wish this were true!
->>
->>The pre-production machines I get (i.e. not even on the market yet) still have
->>floppy, serial, and PS/2 kbd/mouse.
-> 
-> 
->  You must be getting them from wrong vendors. ;-)  How about switching to 
-> a reasonable platform that doesn't imply DOS compatibility?
+On Mon, Jun 27, 2005 at 03:18:30PM -0500, Steve Lord wrote:
+> I presume Ted is referring to problems guaranteeing the integrity of
+> the journal at recovery time. I am coming into this without all the
+> available context, so I may be barking up the wrong tree.... In
+> particular, I am not sure how journaling whole blocks protects
+> you from this.
 
-What's reasonable about a system without serial connectivity? Damn hard 
-to debug with a serial console without one. Yes you can get around it, 
-but it's one more issue to address. PS/2? I have enough KVM hardware in 
-place to make that non-sales point, and I bet that there are lots of 
-people with some fancy mouse, or keyboard, or game thingie, that it's 
-cheaper to keep the features than drop them. I don't know if the ATX 
-standard requires them, but low cost features are hard to drop.
+Actually, I was talking about the problem what happens when power
+fails while DMA'ing to the disk, and memory, which is more sensitive
+to voltage drops than the rest of the system, starts sending garbage
+to the bus, which the disk then faithfully writes to the inode table.
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+As I recall, you were the one who told me about this problem, and how
+it was fixed in Irix by using a powerfail interrupt to abort DMA
+transfers, as well as giving me a program which tests for this
+condition (basically it writes known test pattern to the disk, and
+then you do an unclean shutdown, and you look to see if garbage is
+written to the disk instead of one of the known test patterns).  If it
+wasn't you, it must have been Jim Mostek --- but I could have sworn it
+was you.....
+
+						- Ted

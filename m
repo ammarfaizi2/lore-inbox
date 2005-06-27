@@ -1,23 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261881AbVF0Nbo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262037AbVF0OcX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261881AbVF0Nbo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 09:31:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262052AbVF0N2c
+	id S262037AbVF0OcX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 10:32:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262117AbVF0Nbj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 09:28:32 -0400
-Received: from ipx10786.ipxserver.de ([80.190.251.108]:19685 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S262067AbVF0MQm
+	Mon, 27 Jun 2005 09:31:39 -0400
+Received: from ipx10786.ipxserver.de ([80.190.251.108]:24549 "EHLO
+	allen.werkleitz.de") by vger.kernel.org with ESMTP id S262075AbVF0MQu
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 08:16:42 -0400
-Message-Id: <20050627121416.460798000@abc>
+	Mon, 27 Jun 2005 08:16:50 -0400
+Message-Id: <20050627121419.201856000@abc>
 References: <20050627120600.739151000@abc>
-Date: Mon, 27 Jun 2005 14:06:35 +0200
+Date: Mon, 27 Jun 2005 14:06:48 +0200
 From: Johannes Stezenbach <js@linuxtv.org>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Patrick Boettcher <pb@linuxtv.org>
-Content-Disposition: inline; filename=dvb-usb-adstech-instanttv-dvbt.patch
+Cc: linux-kernel@vger.kernel.org, Michael Paxton <packo@tpg.com.au>,
+       Patrick Boettcher <pb@linuxtv.org>
+Content-Disposition: inline; filename=dvb-usb-twinhan-vp7045-rc.patch
 X-SA-Exim-Connect-IP: 84.189.248.249
-Subject: [DVB patch 35/51] usb: fix ADSTech Instant TV DVB-T USB2.0 support
+Subject: [DVB patch 48/51] usb: add vp7045 IR keymap
 X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
 X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
 Sender: linux-kernel-owner@vger.kernel.org
@@ -25,108 +26,81 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Patrick Boettcher <pb@linuxtv.org>
 
-Fixed support for the ADSTech Instant TV DVB-T USB (2.0 version).
-Thanks to Gerolf Wendland for his support.
+Add keymap for Twinhan vp7045 remote control.
 
+Signed-off-by: Michael Paxton <packo@tpg.com.au>
 Signed-off-by: Patrick Boettcher <pb@linuxtv.org>
 Signed-off-by: Johannes Stezenbach <js@linuxtv.org>
 
- drivers/media/dvb/dvb-usb/dibusb-mb.c |   28 ++++++++++++++++++----------
- 1 files changed, 18 insertions(+), 10 deletions(-)
+ Documentation/dvb/README.dvb-usb   |    4 ++-
+ drivers/media/dvb/dvb-usb/vp7045.c |   39 ++++++++++++++++++++++++++++++-------
+ 2 files changed, 35 insertions(+), 8 deletions(-)
 
-Index: linux-2.6.12-git8/drivers/media/dvb/dvb-usb/dibusb-mb.c
+Index: linux-2.6.12-git8/Documentation/dvb/README.dvb-usb
 ===================================================================
---- linux-2.6.12-git8.orig/drivers/media/dvb/dvb-usb/dibusb-mb.c	2005-06-27 13:24:27.000000000 +0200
-+++ linux-2.6.12-git8/drivers/media/dvb/dvb-usb/dibusb-mb.c	2005-06-27 13:24:28.000000000 +0200
-@@ -31,10 +31,17 @@ static int dibusb_dib3000mb_frontend_att
- 	return 0;
- }
+--- linux-2.6.12-git8.orig/Documentation/dvb/README.dvb-usb	2005-06-27 13:26:18.000000000 +0200
++++ linux-2.6.12-git8/Documentation/dvb/README.dvb-usb	2005-06-27 13:27:07.000000000 +0200
+@@ -226,7 +226,9 @@ Patches, comments and suggestions are ve
+    Jennifer Chen, Jeff and Jack from Twinhan for kindly supporting by
+ 	writing the vp7045-driver.
  
--/* some of the dibusb 1.1 device aren't equipped with the default tuner
-+static int dibusb_thomson_tuner_attach(struct dvb_usb_device *d)
-+{
-+	d->pll_addr = 0x61;
-+	d->pll_desc = &dvb_pll_tua6010xs;
-+	return 0;
-+}
+-   Some guys on the linux-dvb mailing list for encouraging me
++   Michael Paxton for submitting remote control keymaps.
 +
-+/* Some of the Artec 1.1 device aren't equipped with the default tuner
-  * (Thomson Cable), but with a Panasonic ENV77H11D5.  This function figures
-  * this out. */
--static int dibusb_dib3000mb_tuner_attach (struct dvb_usb_device *d)
-+static int dibusb_tuner_probe_and_attach(struct dvb_usb_device *d)
- {
- 	u8 b[2] = { 0,0 }, b2[1];
- 	int ret = 0;
-@@ -59,8 +66,7 @@ static int dibusb_dib3000mb_tuner_attach
++   Some guys on the linux-dvb mailing list for encouraging me.
  
- 	if (b2[0] == 0xfe) {
- 		info("this device has the Thomson Cable onboard. Which is default.");
--		d->pll_addr = 0x61;
--		d->pll_desc = &dvb_pll_tua6010xs;
-+		dibusb_thomson_tuner_attach(d);
- 	} else {
- 		u8 bpll[4] = { 0x0b, 0xf5, 0x85, 0xab };
- 		info("this device has the Panasonic ENV77H11D5 onboard.");
-@@ -114,6 +120,8 @@ static struct usb_device_id dibusb_dib30
- /* 21 */	{ USB_DEVICE(USB_VID_ULTIMA_ELECTRONIC, USB_PID_ULTIMA_TVBOX_AN2235_COLD) },
- /* 22 */	{ USB_DEVICE(USB_VID_ULTIMA_ELECTRONIC, USB_PID_ULTIMA_TVBOX_AN2235_WARM) },
- /* 23 */	{ USB_DEVICE(USB_VID_ADSTECH,		USB_PID_ADSTECH_USB2_COLD) },
-+
-+/* device ID with default DIBUSB2_0-firmware and with the hacked firmware */
- /* 24 */	{ USB_DEVICE(USB_VID_ADSTECH,		USB_PID_ADSTECH_USB2_WARM) },
- 
- // #define DVB_USB_DIBUSB_MB_FAULTY_USB_IDs
-@@ -140,7 +148,7 @@ static struct dvb_usb_properties dibusb1
- 	.pid_filter_ctrl  = dibusb_pid_filter_ctrl,
- 	.power_ctrl       = dibusb_power_ctrl,
- 	.frontend_attach  = dibusb_dib3000mb_frontend_attach,
--	.tuner_attach     = dibusb_dib3000mb_tuner_attach,
-+	.tuner_attach     = dibusb_tuner_probe_and_attach,
- 
- 	.rc_interval      = DEFAULT_RC_INTERVAL,
- 	.rc_key_map       = dibusb_rc_keys,
-@@ -212,7 +220,7 @@ static struct dvb_usb_properties dibusb1
- 	.pid_filter_ctrl  = dibusb_pid_filter_ctrl,
- 	.power_ctrl       = dibusb_power_ctrl,
- 	.frontend_attach  = dibusb_dib3000mb_frontend_attach,
--	.tuner_attach     = dibusb_dib3000mb_tuner_attach,
-+	.tuner_attach     = dibusb_tuner_probe_and_attach,
- 
- 	.rc_interval      = DEFAULT_RC_INTERVAL,
- 	.rc_key_map       = dibusb_rc_keys,
-@@ -257,7 +265,7 @@ static struct dvb_usb_properties dibusb2
- 	.caps = DVB_USB_HAS_PID_FILTER | DVB_USB_PID_FILTER_CAN_BE_TURNED_OFF | DVB_USB_IS_AN_I2C_ADAPTER,
- 	.usb_ctrl = CYPRESS_FX2,
- 
--	.firmware = "dvb-usb-adstech-usb2-01.fw",
-+	.firmware = "dvb-usb-adstech-usb2-02.fw",
- 
- 	.size_of_priv     = sizeof(struct dibusb_state),
- 
-@@ -266,7 +274,7 @@ static struct dvb_usb_properties dibusb2
- 	.pid_filter_ctrl  = dibusb_pid_filter_ctrl,
- 	.power_ctrl       = dibusb2_0_power_ctrl,
- 	.frontend_attach  = dibusb_dib3000mb_frontend_attach,
--	.tuner_attach     = dibusb_dib3000mb_tuner_attach,
-+	.tuner_attach     = dibusb_thomson_tuner_attach,
- 
- 	.rc_interval      = DEFAULT_RC_INTERVAL,
- 	.rc_key_map       = dibusb_rc_keys,
-@@ -288,11 +296,11 @@ static struct dvb_usb_properties dibusb2
- 		}
- 	},
- 
--	.num_device_descs = 2,
-+	.num_device_descs = 1,
- 	.devices = {
- 		{	"KWorld/ADSTech Instant DVB-T USB 2.0",
- 			{ &dibusb_dib3000mb_table[23], NULL },
--			{ &dibusb_dib3000mb_table[24], NULL }, /* device ID with default DIBUSB2_0-firmware */
-+			{ &dibusb_dib3000mb_table[24], NULL },
- 		},
- 	}
+    Peter Schildmann >peter.schildmann-nospam-at-web.de< for his
+     user-level firmware loader, which saves a lot of time
+Index: linux-2.6.12-git8/drivers/media/dvb/dvb-usb/vp7045.c
+===================================================================
+--- linux-2.6.12-git8.orig/drivers/media/dvb/dvb-usb/vp7045.c	2005-06-27 13:18:22.000000000 +0200
++++ linux-2.6.12-git8/drivers/media/dvb/dvb-usb/vp7045.c	2005-06-27 13:27:07.000000000 +0200
+@@ -94,13 +94,38 @@ static int vp7045_power_ctrl(struct dvb_
+ /* The keymapping struct. Somehow this should be loaded to the driver, but
+  * currently it is hardcoded. */
+ static struct dvb_usb_rc_key vp7045_rc_keys[] = {
+-	/* insert the keys like this. to make the raw keys visible, enable
+-	 * debug=0x04 when loading dvb-usb-vp7045. */
+-
+-	/* these keys are probably wrong. I don't have a working IR-receiver on my
+-	 * vp7045, so I can't test it.  Patches are welcome. */
+-	{ 0x00, 0x01, KEY_1 },
+-	{ 0x00, 0x02, KEY_2 },
++	{ 0x00, 0x16, KEY_POWER },
++	{ 0x00, 0x10, KEY_MUTE },
++	{ 0x00, 0x03, KEY_1 },
++	{ 0x00, 0x01, KEY_2 },
++	{ 0x00, 0x06, KEY_3 },
++	{ 0x00, 0x09, KEY_4 },
++	{ 0x00, 0x1d, KEY_5 },
++	{ 0x00, 0x1f, KEY_6 },
++	{ 0x00, 0x0d, KEY_7 },
++	{ 0x00, 0x19, KEY_8 },
++	{ 0x00, 0x1b, KEY_9 },
++	{ 0x00, 0x15, KEY_0 },
++	{ 0x00, 0x05, KEY_CHANNELUP },
++	{ 0x00, 0x02, KEY_CHANNELDOWN },
++	{ 0x00, 0x1e, KEY_VOLUMEUP },
++	{ 0x00, 0x0a, KEY_VOLUMEDOWN },
++	{ 0x00, 0x11, KEY_RECORD },
++	{ 0x00, 0x17, KEY_FAVORITES }, /* Heart symbol - Channel list. */
++	{ 0x00, 0x14, KEY_PLAY },
++	{ 0x00, 0x1a, KEY_STOP },
++	{ 0x00, 0x40, KEY_REWIND },
++	{ 0x00, 0x12, KEY_FASTFORWARD },
++	{ 0x00, 0x0e, KEY_PREVIOUS }, /* Recall - Previous channel. */
++	{ 0x00, 0x4c, KEY_PAUSE },
++	{ 0x00, 0x4d, KEY_SCREEN }, /* Full screen mode. */
++	{ 0x00, 0x54, KEY_AUDIO }, /* MTS - Switch to secondary audio. */
++	{ 0x00, 0xa1, KEY_CANCEL }, /* Cancel */
++	{ 0x00, 0x1c, KEY_EPG }, /* EPG */
++	{ 0x00, 0x40, KEY_TAB }, /* Tab */
++	{ 0x00, 0x48, KEY_INFO }, /* Preview */
++	{ 0x00, 0x04, KEY_LIST }, /* RecordList */
++	{ 0x00, 0x0f, KEY_TEXT } /* Teletext */
  };
+ 
+ static int vp7045_rc_query(struct dvb_usb_device *d, u32 *key_buf, int *state)
 
 --
 

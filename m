@@ -1,102 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261360AbVF0QwE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261721AbVF0QwF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261360AbVF0QwE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 12:52:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261759AbVF0Qtt
+	id S261721AbVF0QwF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 12:52:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261705AbVF0Qsn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 12:49:49 -0400
-Received: from vms046pub.verizon.net ([206.46.252.46]:37563 "EHLO
-	vms046pub.verizon.net") by vger.kernel.org with ESMTP
-	id S261360AbVF0Qk2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 12:40:28 -0400
-Date: Mon, 27 Jun 2005 12:40:24 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: [CFT:PATCH] 2/3: Check status of CTS when using flow control
-In-reply-to: <20050627090501.A7934@flint.arm.linux.org.uk>
-To: linux-kernel@vger.kernel.org
-Message-id: <200506271240.24295.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <20050626221501.GA5769@dyn-67.arm.linux.org.uk>
- <200506261938.18690.gene.heskett@verizon.net>
- <20050627090501.A7934@flint.arm.linux.org.uk>
-User-Agent: KMail/1.7
+	Mon, 27 Jun 2005 12:48:43 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:31616 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261399AbVF0Qlh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 12:41:37 -0400
+Message-Id: <200506271640.j5RGefRQ018912@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: David Masover <ninja@slaphack.com>
+Cc: Lincoln Dale <ltd@cisco.com>, Gregory Maxwell <gmaxwell@gmail.com>,
+       Hans Reiser <reiser@namesys.com>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: reiser4 plugins 
+In-Reply-To: Your message of "Mon, 27 Jun 2005 02:00:49 CDT."
+             <42BFA421.70506@slaphack.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <200506240241.j5O2f1eb005609@laptop11.inf.utfsm.cl> <42BCD93B.7030608@slaphack.com> <200506251420.j5PEKce4006891@turing-police.cc.vt.edu> <42BDA377.6070303@slaphack.com> <200506252031.j5PKVb4Y004482@turing-police.cc.vt.edu> <42BDC422.6020401@namesys.com> <42BE3645.4070806@cisco.com> <e692861c05062522071fe380a5@mail.gmail.com> <42BE563D.4000402@cisco.com> <42BE5DB6.8040103@slaphack.com> <200506261816.j5QIGMdI010142@turing-police.cc.vt.edu> <42BF08CF.2020703@slaphack.com> <200506262105.j5QL5kdR018609@turing-police.cc.vt.edu> <42BF2DC4.8030901@slaphack.com> <200506270040.j5R0eUNA030632@turing-police.cc.vt.edu> <42BF667C.50606@slaphack.com> <200506270423.j5R4Np9n004510@turing-police.cc.vt.edu> <42BF8F42.7030308@slaphack.com> <200506270541.j5R5fULX007282@turing-police.cc.vt.edu> <42BF9562.4090602@slaphack.com> <200506270612.j5R6CZGX008462@turing-police.cc.vt.edu> <42BF9C4D.3080800@slaphack.com> <200506270643.j5R6hqRh009781@turing-police.cc.vt.edu>
+            <42BFA421.70506@slaphack.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1119890441_6336P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 27 Jun 2005 12:40:41 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 27 June 2005 04:05, Russell King wrote:
->On Sun, Jun 26, 2005 at 07:38:18PM -0400, Gene Heskett wrote:
->> On Sunday 26 June 2005 18:37, Russell King wrote:
->> >On Sun, Jun 26, 2005 at 06:26:43PM -0400, Gene Heskett wrote:
->> >> On Sunday 26 June 2005 18:17, Russell King wrote:
->> >> >Fix bugme #4712: read the CTS status and set hw_stopped if CTS
->> >> >is not active.
->> >> >
->> >> >Thanks to Stefan Wolff for spotting this problem.
->> >>
->> >> This one needs to make mainline & maybe, after 3 years, I can
->> >> use a pl2303 to talk to an old slow coco.  Twould be very nice
->> >> if that fixed the lack of flow controls the connection
->> >> apparently fails from.
->> >
->> >Sorry, wasn't aware of the problem until recently.  Reviewing the
->> >code reveals that this bug has existed through many many many
->> > kernel series. ;(
->>
->> Yes it has, and I may have even posted about it, but that would be
->> a year plus back into ancient history Russell.  You mention
->> another required patch also?  Where might it be obtained?
->
->You replied to the second message in the thread (which contains the
->second patch).  The first message contains the first patch. 
-> lkml.org has it archived if you need it.
+--==_Exmh_1119890441_6336P
+Content-Type: text/plain; charset=us-ascii
 
-Ok, found all 3 of them in this thread and saved them.  From my own 
-kmail archive.  Thanks.  I'll merge them into one file and see if it 
-will apply when I build the next of Ingo's RT bleeders.
+On Mon, 27 Jun 2005 02:00:49 CDT, David Masover said:
 
->> >(also, please remember I can't send you mail directly... still.)
->>
->> I'm also getting bounces involving the address in the CC: line,
->> Russell King <rmk+lkml@arm.linux.org.uk>
->>
->> While I can goto vz and add that address to the incoming
->> whitelist, I doubt that would do you any good.  Looks like I need
->> to bookmark that page and start using it more often.  Did I
->> mention how bad vz sucks? Unforch, only game in this neck of the
->> appalacians (hell I can't even spell it right), sorry.
->>
->> Anyway, your domain name is now in the vz whitelist.
->
->And I now have 20 messages from verizon to postmaster / abuse
-> requesting that I go and fill in their "ISP" whitelist form... one
-> to each would have done, but 10 times as much?  That's definitely
-> abuse in itself.
+> >>Speaking of backup, that's another nice place for a plugin.  Imagine a
+> >>dump that didn't have to be of the entire FS, but rather an arbitrary
+> >>tree...  That might be a nice new archive format.  I know Apple already
+> >>uses something like this for their dmg packages.
+> > Hmm.. you mean like 'tar' or 'cpio' or 'pax' or 'rsync'? :) 
+> No, a dmg is an OS X program installer.  It appears to be a disk image
+> of sorts.  So this is the backup idea in reverse.
 
-Amen to that!
+I was addressing the ability to deal with an arbitrary tree.  By that definition,
+a dmg, being a disk image and not a tree image, is *not* what you want....
 
->On this ISP whitelist form, Verizon require a phonenumber that they
-> can call anytime during some random timezone (CST, where ever that
-> is.) Being located in the UK, that's not acceptable so I'm unable
-> to comply with their requirements for whitelisting.  Sorry.
+--==_Exmh_1119890441_6336P
+Content-Type: application/pgp-signature
 
-That tz would be america-chicago in the tz list.  Since I'm a 
-(captive) customer, I apparently don't have to go thru that BS. But 
-that should be taken care of as I get the impression that my 
-whitelisting you should be for *my* incoming.  Give it one more shot 
-& see if it still makes a bounce message to you now.  I put your 
-domain into the whitelist yesterday.  I also shut off vz's so called 
-spam filter as SA seems to be catching far more than theirs ever did.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.35% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+iD8DBQFCwCwJcC3lWbTT17ARAgRvAJ97aLQPxXPmwyRxzjRtplO4qZRmfwCgoEeJ
+begE6L5YF0RAgkWi9u4DXoY=
+=PlVl
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1119890441_6336P--

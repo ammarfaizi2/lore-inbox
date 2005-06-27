@@ -1,71 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261973AbVF0JV5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261982AbVF0J0A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261973AbVF0JV5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 05:21:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261974AbVF0JV5
+	id S261982AbVF0J0A (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 05:26:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261988AbVF0J0A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 05:21:57 -0400
-Received: from nysv.org ([213.157.66.145]:55990 "EHLO nysv.org")
-	by vger.kernel.org with ESMTP id S261973AbVF0JVu (ORCPT
+	Mon, 27 Jun 2005 05:26:00 -0400
+Received: from styx.suse.cz ([82.119.242.94]:41686 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S261982AbVF0JYu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 05:21:50 -0400
-Date: Mon, 27 Jun 2005 12:21:38 +0300
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: David Masover <ninja@slaphack.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Hans Reiser <reiser@namesys.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: reiser4 plugins
-Message-ID: <20050627092138.GD11013@nysv.org>
-References: <42BB7B32.4010100@slaphack.com> <200506240334.j5O3YowB008100@laptop11.inf.utfsm.cl>
+	Mon, 27 Jun 2005 05:24:50 -0400
+Date: Mon, 27 Jun 2005 11:24:49 +0200
+From: Zuzana Petrova <zpetrova@suse.cz>
+To: linux-kernel@vger.kernel.org
+Cc: Michael Gaughen <mgaughen@polyserve.com>
+Subject: [PATCH] fs:lock_rename()/unlock_rename() can lead to deadlock in distributed fs.
+Message-ID: <20050627092448.GA8822@lilac.suse.cz>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="j6zkAHxOZJkiczrA"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200506240334.j5O3YowB008100@laptop11.inf.utfsm.cl>
 User-Agent: Mutt/1.5.9i
-From: mjt@nysv.org (Markus  =?ISO-8859-1?Q?=20T=F6rnqvist?=)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The problem with lock_rename() is that it compares parent directory dentries  
+when trying to decide how many inode i_sem semaphores to acquire.  That works  
+fine on a single node system, but not in a distributed environment, on a  
+distributed filesystem.  
+  
+The problem with rename(2) in a cluster, is that there is no guarantee that  
+path_lookup()s will return a coherent path structure while at the same time  
+renames, on another node, are executing on that same path hierarchy.  In our  
+case, in do_rename(), the parent directory path_lookup()s find/create unique  
+dentries for the old_dir and new_dir, however, because a rename(2) on another  
+node was executing, both dentries end up pointing to the same inode.  
+  
+When lock_rename(new_dir, old_dir) is called, the dentries don't match, so we  
+end up in a code path that tries to acquire the inode i_sem of both the  
+old_dir and new_dir, but since they point to the same inode, the second  
+attempt to acquire the same i_sem results in a deadlock.  
+  
+A fix would be to compare the dentries ->d_inode field instead.  Patch for  
+kernel 2.6.12.1 attached.
 
---j6zkAHxOZJkiczrA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Author of the patch is Michael Gaughen <mgaughen@polyserve.com>
 
-On Thu, Jun 23, 2005 at 11:34:50PM -0400, Horst von Brand wrote:
->David Masover <ninja@slaphack.com> wrote:
+--
+Zuzana Petrova
 
->> I think Hans (or someone) decided that when hardware stops working, it's
->> not the job of the FS to compensate, it's the job of lower layers, or
->> better, the job of the admin to replace the disk and restore from
->> backups.
->Handling other people's data this way is just reckless irresponsibility.
->Sure, you can get high performance if you just forego some of your basic
->responsibilities.
+===================================================================
+#
+# This patch changes lock_rename()/unlock_rename() to compare the inodes
+# referenced by the dentries.  The problem with distributed filesystems is
+# that there is no guarantee the path_lookup() will return valid path dentry 
+# components at the same time rename(2)s of that same path hierarchy are 
+# executing on another node.  So there are cases where the dentries, passed 
+# to lock_rename()/unlock_rename(), are different, but refer to the same 
+# inode.  In that case, the check for equivalent dentries will fail, and an
+# attempt to acquire each of the dentries inode will be made, resulting in
+# a deadlock since the inodes are the same.
+#
+--- linux-2.6.11.12.old/fs/namei.c	2005-03-11 13:56:30.877725438 +0100
++++ linux-2.6.11.12/fs/namei.c	2005-03-11 14:01:49.196080914 +0100
+@@ -1197,7 +1197,7 @@ lock_rename(
+ {
+ 	struct dentry *p;
+ 
+-	if (p1 == p2) {
++	if (p1->d_inode == p2->d_inode) {
+ 		down(&p1->d_inode->i_sem);
+ 		return NULL;
+ 	}
+@@ -1228,7 +1228,7 @@
+ void unlock_rename(struct dentry *p1, struct dentry *p2)
+ {
+ 	up(&p1->d_inode->i_sem);
+-	if (p1 != p2) {
++	if (p1->d_inode != p2->d_inode) {
+ 		up(&p2->d_inode->i_sem);
+ 		up(&p1->d_inode->i_sb->s_vfs_rename_sem);
+ 	}
 
-Your honest-to-bog opinion is that the FS vendor is responsible for
-the admin not taking backups or the hardware vendor shipping crap?
-
-*still trying to understand how that can be*
-
---=20
-mjt
-
-
---j6zkAHxOZJkiczrA
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFCv8UiIqNMpVm8OhwRAnOTAJ45eYnRA5qu76wDikLbuoMMLgub+ACdH21T
-qmysNUGGUTyynfCoqnn6c/Y=
-=B/KR
------END PGP SIGNATURE-----
-
---j6zkAHxOZJkiczrA--

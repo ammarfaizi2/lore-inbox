@@ -1,88 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261783AbVF0U7r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261797AbVF0U7l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261783AbVF0U7r (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 16:59:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261796AbVF0U7k
+	id S261797AbVF0U7l (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 16:59:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261783AbVF0U7O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 16:59:40 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:55509 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261689AbVF0U44 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 16:56:56 -0400
-Date: Mon, 27 Jun 2005 22:56:51 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Gerrit Huizenga <gh@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ckrm-tech@lists.sourceforge.net, Hubertus Franke <frankeh@us.ibm.com>,
-       Chandra Seetharaman <sekharan@us.ibm.com>,
-       Shailabh Nagar <nagar@us.ibm.com>, Vivek Kashyap <vivk@us.ibm.com>
-Subject: Re: [patch 08/38] CKRM e18: Documentation
-Message-ID: <20050627205650.GA7278@atrey.karlin.mff.cuni.cz>
-References: <20050626212426.GB1315@elf.ucw.cz> <E1Dmybs-0004I0-00@w-gerrit.beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1Dmybs-0004I0-00@w-gerrit.beaverton.ibm.com>
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 27 Jun 2005 16:59:14 -0400
+Received: from [63.81.117.10] ([63.81.117.10]:10711 "EHLO mail00hq.adic.com")
+	by vger.kernel.org with ESMTP id S261796AbVF0U6d (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 16:58:33 -0400
+Message-ID: <42C06873.7020102@xfs.org>
+Date: Mon, 27 Jun 2005 15:58:27 -0500
+From: Steve Lord <lord@xfs.org>
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.3 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Theodore Ts'o" <tytso@mit.edu>
+CC: Hans Reiser <reiser@namesys.com>, Markus T?rnqvist <mjt@nysv.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       David Masover <ninja@slaphack.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: reiser4 plugins
+References: <42BB7B32.4010100@slaphack.com> <200506240334.j5O3YowB008100@laptop11.inf.utfsm.cl> <20050627092138.GD11013@nysv.org> <20050627124255.GB6280@thunk.org> <42C0578F.7030608@namesys.com> <42C05F16.5000804@xfs.org> <20050627202841.GA27805@thunk.org>
+In-Reply-To: <20050627202841.GA27805@thunk.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 27 Jun 2005 20:58:28.0985 (UTC) FILETIME=[F81CFE90:01C57B5A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > +CKRM Basics
-> > > +-------------
-> > 
-> > Perhaps you want to explain what "CKRM" means?
->  
-> I'll update this to spell out CKRM a bit more.  CKRM stands for
-> Class based Kernel Resource Management.  I realize that that is a
-> bit wordy but early on the team chose to try to be explicit about what
-> was being added.  And, I'm guessing you really don't want to see
-> class_base_kernel_resource_management_number_of_tasks as a structure
-> name or class_base_kernel_resource_management_register_classification_engine()
-> as a function name.  And, while the term class is great for grouping in
-> the workload management context, using class_number_of_tasks seems a
-> bit presumptious in the kernel naming space.
+Theodore Ts'o wrote:
+> On Mon, Jun 27, 2005 at 03:18:30PM -0500, Steve Lord wrote:
 > 
-> I'm inclined to leave the name CKRM as is and improve the documentation
-> at this point unless you have a more specific solution which can be
-> acceptable to all.
-
-I guess that CKRM was used so much that it is acceptable. But I still
-liked beancounter as a better name :-) [it was similar project, IIRC].
-
-> > > Index: linux-2.6.12-ckrm1/Documentation/ckrm/rbce_basics
-> > > ===================================================================
-> > > --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-> > > +++ linux-2.6.12-ckrm1/Documentation/ckrm/rbce_basics	2005-06-20 13:08:35.000000000 -0700
-> > > @@ -0,0 +1,67 @@
-> > > +Rule-based Classification Engine (RBCE)
-> > > +-------------------------------------------
-> > > +
-> > > +The ckrm/rbce directory contains the sources for two classification engines
-> > > +called rbce and crbce. Both are optional, built as kernel modules and share much
-> > > +of their codebase. Only one classification engine (CE) can be loaded at a time
-> > > +in CKRM.
-> > 
-> > TMFLAs! (*)
-> > 
-> > Your resource managment may be quite nice system, but the naming is
-> > definitely very ugly. With your design we would not have open() system
-> > call, but ofsoarh() -- open filesystem object and return its
-> > handle. Can you come up with some reasonable naming?
+>>I presume Ted is referring to problems guaranteeing the integrity of
+>>the journal at recovery time. I am coming into this without all the
+>>available context, so I may be barking up the wrong tree.... In
+>>particular, I am not sure how journaling whole blocks protects
+>>you from this.
 > 
-> Can you help?  ;)  I'd rather not change CKRM itself at this point - too
-> many papers and users and such.   While it is not impossible, I'm not
-> sure that it would help.  RCFS seems quite reasonable.  RBCE and CRBCE,
-> well, I'm much more likely to get excited about better names here.
-> ;)
+> 
+> Actually, I was talking about the problem what happens when power
+> fails while DMA'ing to the disk, and memory, which is more sensitive
+> to voltage drops than the rest of the system, starts sending garbage
+> to the bus, which the disk then faithfully writes to the inode table.
+> 
+> As I recall, you were the one who told me about this problem, and how
+> it was fixed in Irix by using a powerfail interrupt to abort DMA
+> transfers, as well as giving me a program which tests for this
+> condition (basically it writes known test pattern to the disk, and
+> then you do an unclean shutdown, and you look to see if garbage is
+> written to the disk instead of one of the known test patterns).  If it
+> wasn't you, it must have been Jim Mostek --- but I could have sworn it
+> was you.....
+> 
+> 						- Ted
+> 
 
-rcfs would be reasonable; unfortunately we already have those /etc/rc*
-directories, and rcfs may confuse people into thinking it does
-something with system startup. resourcefs?
+Your memory is better than mine, not sure about the test program, but
+there was at one point a scenario like that on Irix, and I quite
+probably did mention it to you. That was certainly not PC hardware,
+but more likely a large Irix system with multiple power busses spread
+around a large amount of hardware. I presume you are saying that the fact
+that ext3 journals complete inode blocks rather that subsections of inodes
+means that, should a similar trashing of metadata occur during power down,
+a journal replay would fix it?
 
-RBCE/CRBCE are really bad. SimpleClassifier / CustomClassifier?
+I see no way short of hardware fixes of avoiding the general problem of
+a system failing in an ugly manner like this. Unless you write everything
+to disk twice (i.e. journal all data), you can still end up with a
+legitimate set of metadata, and the master copy of your employee
+database full of nasty little bits of corruption.
 
-								Pavel
--- 
-Boycott Kodak -- for their patent abuse against Java.
+Steve

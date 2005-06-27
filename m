@@ -1,140 +1,152 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262093AbVF0XKm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262081AbVF0XKl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262093AbVF0XKm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 19:10:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262096AbVF0XHd
+	id S262081AbVF0XKl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 19:10:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262100AbVF0XIj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 19:07:33 -0400
-Received: from smtpout.mac.com ([17.250.248.85]:36552 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S262101AbVF0XEN (ORCPT
+	Mon, 27 Jun 2005 19:08:39 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:62904 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262093AbVF0XCb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 19:04:13 -0400
-In-Reply-To: <42C06D59.2090200@slaphack.com>
-References: <200506240241.j5O2f1eb005609@laptop11.inf.utfsm.cl> <42BCD93B.7030608@slaphack.com> <200506251420.j5PEKce4006891@turing-police.cc.vt.edu> <42BDA377.6070303@slaphack.com> <200506252031.j5PKVb4Y004482@turing-police.cc.vt.edu> <42BDC422.6020401@namesys.com> <42BE3645.4070806@cisco.com> <e692861c05062522071fe380a5@mail.gmail.com> <42BE563D.4000402@cisco.com> <42BE5DB6.8040103@slaphack.com> <200506261816.j5QIGMdI010142@turing-police.cc.vt.edu> <42BF08CF.2020703@slaphack.com> <200506262105.j5QL5kdR018609@turing-police.cc.vt.edu> <42BF2DC4.8030901@slaphack.com> <200506270040.j5R0eUNA030632@turing-police.cc.vt.edu> <42BF667C.50606@slaphack.com> <5284F665-873C-45B7-8DDB-5F475F2CE399@mac.com> <42BF7167.80201@slaphack.com> <EC02A684-815A-4DF8-B5C1-9029FE45E187@mac.com> <42C06D59.2090200@slaphack.com>
-Mime-Version: 1.0 (Apple Message framework v730)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <CD59AE36-FD15-4A4C-9E1D-AB2F8B52D653@mac.com>
-Cc: Valdis.Kletnieks@vt.edu, Lincoln Dale <ltd@cisco.com>,
-       Gregory Maxwell <gmaxwell@gmail.com>, Hans Reiser <reiser@namesys.com>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ReiserFS List <reiserfs-list@namesys.com>
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: reiser4 plugins
-Date: Mon, 27 Jun 2005 19:03:24 -0400
-To: David Masover <ninja@slaphack.com>
-X-Mailer: Apple Mail (2.730)
+	Mon, 27 Jun 2005 19:02:31 -0400
+Date: Mon, 27 Jun 2005 16:01:44 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: linux-kernel@vger.kernel.org, stable@kernel.org
+Cc: akpm@osdl.org, "Theodore Ts'o" <tytso@mit.edu>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Randy Dunlap <rdunlap@xenotime.net>, torvalds@osdl.org,
+       Chuck Wolber <chuckw@quantumlinux.com>, alan@lxorguk.ukuu.org.uk,
+       jgarzik@pobox.com
+Subject: [05/07] Add "memory" clobbers to the x86 inline asm of strncmp and friends
+Message-ID: <20050627230144.GN9046@shell0.pdx.osdl.net>
+References: <20050627224651.GI9046@shell0.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050627224651.GI9046@shell0.pdx.osdl.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jun 27, 2005, at 17:19:21, David Masover wrote:
->> Precisely.  Come back when you have a good sturdy set of  
->> arguments.  See
->> the FUSE project (Also discussed in this thread), for better ideas  
->> on  how
->> to add strange filesystem semantics.
->
-> If I didn't care about performance.  I will read up on how FUSE works,
-> though, to see if there's anything in the _kernel_ code that would be
-> useful.
+-stable review patch.  If anyone has any objections, please let us know.
 
-A number of projects do their performance critical things in userspace,
-including real-time audio and video editing.  The kernel is *NOT* for
-performance-critical things, unless they cannot be done efficiently in
-userspace.  It is for _security_critical_ and _stability_critical_  
-things,
-and even then, some of those are pushed to userspace as well.
+------------------
 
->> NOTE:  Even the FUSE project,  which
->> is in _userspace_ (as opposed to the massive kernelspace mess of   
->> reiser4),
->> is taking a lot of flak for changing UNIX semantics, so I see no  
->> reason
->> why Reiser4 should be special.
->
-> Right.  Kernel people hate change.  Got it.
->
-> No, seriously, I have to respect the history involved, which is why  
-> I'm
-> not pretending to know more than I do.
 
-There is a good reason to hate change (at least without thorough  
-evidence
-to back it up).  Even small changes can break things in subtle ways.   
-Big
-changes can tend to wreak kernel-global (and even userspace-global)  
-havoc.
+From: Linus Torvalds <torvalds@ppc970.osdl.org>
 
->> Ok, good.  That's one of the first issues.  A _lot_ of applications
->> would get themselves thoroughly confused at that '...' interface, not
->> to  mention a lot of sysadmins :-D.
->>
->
-> Not as much as you think.  Unless a lot of applications can't handle
-> opening or saving files that have '...' in the pathname?
+Add "memory" clobbers to the x86 inline asm of strncmp and friends
 
-If those files are as special as you lead me to believe, even a simple
-"tar -cjvf foo.tar.bz2 foo" would break horribly, because it would  
-tar up
-all sorts of strange special files that shouldn't be included.  Worse,
-when I untar that archive on the filesystem, it will overwrite those  
-files,
-which probably should be overwritten even less than they should be  
-stored
-in an archive.
+They don't actually clobber memory, but gcc doesn't even know they
+_read_ memory, so can apparently re-order memory accesses around them.
 
-> The sysadmin problem doesn't worry me so much.
+Which obviously does the wrong thing if the memory access happens to
+change the memory that the compare function is accessing..
 
-Personally, I know several sysadmins who, never having heard of Reiser4
-but using it anyways, would get scared when all of the '...' directories
-started showing up, thinking that some cracker had gotten a module  
-loaded
-in their kernel.  If you can, please avoid overloading existing  
-semantics
-in filesystems.  You can either claim that your filesystem is POSIXy,
-(similar to ext3, xfs, etc), or you can claim that it's not  
-compatible by
-design (AFS, Coda) or you can claim that it's a completely virtualized
-interface (procfs, sysfs, CKRM fs, etc) and doesn't care about POSIX in
-any case.  Reiser4 definitely isn't the third, but neither is it  
-either of
-the first two, because it would break standard operations.
+Verified to fix a strange boot problem by Jens Axboe.
 
-> Agreed.  I don't know enough about VFS to propose one, though.  I  
-> think
-> others are working on that, finally.
+Signed-off-by: Chris Wright <chrisw@osdl.org>
+---
 
-When the VFS work gets done, this discussion can move on, otherwise, we
-are stuck at an impasse.
+ include/asm-i386/string.h |   32 ++++++++++++++++++++++----------
+ 1 files changed, 22 insertions(+), 10 deletions(-)
 
-> Not too much, I hope.
->
-> Although being able to use different keys on a per-file basis would be
-> nice.  I'm not sure if that would work in the existing system.  Not to
-> mention that keys would also be handlable with '...', if/when it  
-> happens.
-
-I think the '...' is just a bad idea in general, because it breaks tar
-and such.  An interface like this might be simpler to design and use:
-
-# mkdir /attr
-# mount -t attrfs attrfs /attr
-
-/attr/fd/$FD_NUM              == '...' directory for a filedescriptor
-/attr/fs/$DEV_NUM/$INODE_NUM  == '...' directory for an inode
-
-It would be usable from a shell with a simple "getattrpath" command
-which returns "fs/$DEV_NUM/$INODE_NUM" by stat-ing any given path.
-
-Cheers,
-Kyle Moffett
-
---
-There are two ways of constructing a software design. One way is to  
-make it so simple that there are obviously no deficiencies. And the  
-other way is to make it so complicated that there are no obvious  
-deficiencies.
-  -- C.A.R. Hoare
-
+diff --git a/include/asm-i386/string.h b/include/asm-i386/string.h
+--- a/include/asm-i386/string.h
++++ b/include/asm-i386/string.h
+@@ -116,7 +116,8 @@ __asm__ __volatile__(
+ 	"orb $1,%%al\n"
+ 	"3:"
+ 	:"=a" (__res), "=&S" (d0), "=&D" (d1)
+-		     :"1" (cs),"2" (ct));
++	:"1" (cs),"2" (ct)
++	:"memory");
+ return __res;
+ }
+ 
+@@ -138,8 +139,9 @@ __asm__ __volatile__(
+ 	"3:\tsbbl %%eax,%%eax\n\t"
+ 	"orb $1,%%al\n"
+ 	"4:"
+-		     :"=a" (__res), "=&S" (d0), "=&D" (d1), "=&c" (d2)
+-		     :"1" (cs),"2" (ct),"3" (count));
++	:"=a" (__res), "=&S" (d0), "=&D" (d1), "=&c" (d2)
++	:"1" (cs),"2" (ct),"3" (count)
++	:"memory");
+ return __res;
+ }
+ 
+@@ -158,7 +160,9 @@ __asm__ __volatile__(
+ 	"movl $1,%1\n"
+ 	"2:\tmovl %1,%0\n\t"
+ 	"decl %0"
+-	:"=a" (__res), "=&S" (d0) : "1" (s),"0" (c));
++	:"=a" (__res), "=&S" (d0)
++	:"1" (s),"0" (c)
++	:"memory");
+ return __res;
+ }
+ 
+@@ -175,7 +179,9 @@ __asm__ __volatile__(
+ 	"leal -1(%%esi),%0\n"
+ 	"2:\ttestb %%al,%%al\n\t"
+ 	"jne 1b"
+-	:"=g" (__res), "=&S" (d0), "=&a" (d1) :"0" (0),"1" (s),"2" (c));
++	:"=g" (__res), "=&S" (d0), "=&a" (d1)
++	:"0" (0),"1" (s),"2" (c)
++	:"memory");
+ return __res;
+ }
+ 
+@@ -189,7 +195,9 @@ __asm__ __volatile__(
+ 	"scasb\n\t"
+ 	"notl %0\n\t"
+ 	"decl %0"
+-	:"=c" (__res), "=&D" (d0) :"1" (s),"a" (0), "0" (0xffffffffu));
++	:"=c" (__res), "=&D" (d0)
++	:"1" (s),"a" (0), "0" (0xffffffffu)
++	:"memory");
+ return __res;
+ }
+ 
+@@ -333,7 +341,9 @@ __asm__ __volatile__(
+ 	"je 1f\n\t"
+ 	"movl $1,%0\n"
+ 	"1:\tdecl %0"
+-	:"=D" (__res), "=&c" (d0) : "a" (c),"0" (cs),"1" (count));
++	:"=D" (__res), "=&c" (d0)
++	:"a" (c),"0" (cs),"1" (count)
++	:"memory");
+ return __res;
+ }
+ 
+@@ -369,7 +379,7 @@ __asm__ __volatile__(
+ 	"je 2f\n\t"
+ 	"stosb\n"
+ 	"2:"
+-	: "=&c" (d0), "=&D" (d1)
++	:"=&c" (d0), "=&D" (d1)
+ 	:"a" (c), "q" (count), "0" (count/4), "1" ((long) s)
+ 	:"memory");
+ return (s);	
+@@ -392,7 +402,8 @@ __asm__ __volatile__(
+ 	"jne 1b\n"
+ 	"3:\tsubl %2,%0"
+ 	:"=a" (__res), "=&d" (d0)
+-	:"c" (s),"1" (count));
++	:"c" (s),"1" (count)
++	:"memory");
+ return __res;
+ }
+ /* end of additional stuff */
+@@ -473,7 +484,8 @@ static inline void * memscan(void * addr
+ 		"dec %%edi\n"
+ 		"1:"
+ 		: "=D" (addr), "=c" (size)
+-		: "0" (addr), "1" (size), "a" (c));
++		: "0" (addr), "1" (size), "a" (c)
++		: "memory");
+ 	return addr;
+ }
+ 

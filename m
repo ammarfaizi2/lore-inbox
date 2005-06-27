@@ -1,108 +1,218 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261823AbVF0VP7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261846AbVF0VSP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261823AbVF0VP7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 17:15:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261800AbVF0VOJ
+	id S261846AbVF0VSP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 17:18:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbVF0VIs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 17:14:09 -0400
-Received: from 69-18-3-179.lisco.net ([69.18.3.179]:44300 "EHLO
-	ninja.slaphack.com") by vger.kernel.org with ESMTP id S261823AbVF0VMk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 17:12:40 -0400
-Message-ID: <42C06BC6.7090002@slaphack.com>
-Date: Mon, 27 Jun 2005 16:12:38 -0500
-From: David Masover <ninja@slaphack.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050325)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Theodore Ts'o" <tytso@mit.edu>
-Cc: Markus T?rnqvist <mjt@nysv.org>, Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Hans Reiser <reiser@namesys.com>,
-       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: reiser4 plugins
-References: <42BB7B32.4010100@slaphack.com> <200506240334.j5O3YowB008100@laptop11.inf.utfsm.cl> <20050627092138.GD11013@nysv.org> <20050627124255.GB6280@thunk.org> <42C018E5.8030805@slaphack.com> <20050627162839.GA22799@thunk.org>
-In-Reply-To: <20050627162839.GA22799@thunk.org>
-X-Enigmail-Version: 0.89.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Mon, 27 Jun 2005 17:08:48 -0400
+Received: from verein.lst.de ([213.95.11.210]:45190 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S261821AbVF0VFH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 17:05:07 -0400
+Date: Mon, 27 Jun 2005 23:05:02 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: paulus@samba.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] move /proc/ppc_htab creating self-contained in arch/ppc/ code
+Message-ID: <20050627210502.GA20487@lst.de>
+References: <20050504184439.GA20671@lst.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050504184439.GA20671@lst.de>
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Theodore Ts'o wrote:
-> On Mon, Jun 27, 2005 at 10:19:01AM -0500, David Masover wrote:
-[...]
->>Given a choice between changing filesystems or getting a Streamload
->>account, I choose Streamload.  (streamload.com)
+On Wed, May 04, 2005 at 08:44:39PM +0200, Christoph Hellwig wrote:
+> additional benefit is cleaning up the ifdef mess in ppc_htab.c
 > 
 > 
-> *If* you can afford the upload bandwidth to backup over the network,
-> and *if* you don't mind these gems in their legal T's and C's:
-> 
-> 	Streamload cannot warrant and does not guarantee, and You
-> 	should not expect, that all of Your private communications and
-> 	other personal information will never be disclosed in ways not
-> 	otherwise described in this Privacy Policy.
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
 
-gpg.  Was in my upload script to begin with.  I keep my key written many
-times on a single hidden CD.  So long as the isofs can be read, at least
-one of the copies should be usable.
+ping?
 
-> 	As-Is and As-Available. Neither Streamload nor any User, or
-> 	their respective agents, warrants that the service, Private
-> 	Content or Public Content, or Your access thereto, will be
-> 	uninterrupted or error free, and Streamload's services and
-> 	both Public Content and Private Content are provided on an "as
-> 	is, as available" basis. Streamload has the right to make
-> 	changes to its services without notice to You. Neither
-
-They don't have any billing information on me.  If they charge me for
-something, I'll cancel my account.
-
-> 	Streamload nor any User warrants that Public Content or
-> 	Private Content will be free of viruses or similar
-> 	contamination or destructive features. You expressly agree to
-> 	assume any and all risk as to the use, quality, performance,
-> 	accuracy or completeness of any Private Content, Public
-> 	Content, or Streamload's services.
-
-They are giving you unlimited storage for free.  Even with all of that,
-it's a damn good deal.
-
-> And of course, while Streamload is pretty cheap for a minimal account,
-> if you have say, a several hundred gigabytes of data which is lost
-> when your filesystem implodes, they have you over a barrel and charge
-> $$$ in order for you to recover it.  But if you think it's this works
-> for you, please, go right ahead.  Just don't come whining to us
-> afterwards if you get screwed.
-
-I don't have several hundred gigabytes of dynamic data, and neither does
-the average desktop user.  The several hundred gigabytes of static data
-I have would be backed up on DVDs anyway.
-
-Now, if we're talking about a sysadmin, then of course you need a better
-backup solution -- no matter what FS you use.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iQIVAwUBQsBrxngHNmZLgCUhAQLihw//Qz+m971rPW90Fw9We2pqK49pstfsdk4Z
-n7kimE7kptdcQX0ndnBa1UJ/1bTdIsaGrL+OFTkqLVKtNfitt8DuhdrbXlgm9gvJ
-k8mwiopXIcfPA7BZ7vxzudttX/35tRfV2ubosagqWZjnpRgBLE3mEdDRCAJb1Z7+
-YkynyekwzLPNo4qxWjhazDLqkBvGz4gntQrAwMoOYFlgpQZHlcDAABdRgd1rv+EA
-paf/ZD90sGm5ZSodwURA8rUKIhRGqv+a5icJQ/PFWl8Cyjtg61w6toWjeK52tE+t
-1AezDvjYy7JBItV3BlScgcCze6lKlAEHXDgjUZzKBllh4+h8b46IR6qjvpEk1YeX
-jOeJpUwIv/YPtRgfGbUBgVyd5wBWqD4+W7a2qn+GIr6sQT176X+fNFzs6RKy+QlZ
-Ty6yXGejFoydOhbg8zuhZvbEfJKuZCAv+1JkUijFZI6uVZj4Yychc04+qRybg+SQ
-yY+52KbHyeeH3yQSQrGNa3ngEh84LJjoUpvYXGhQg+ex7kDuQAYlqdUAd7NIQIFj
-LFvGzkVT/8SLAOi9D7lXB0g52+W4Atl7a3nYpFhIkm2AthNjUkSFhZxyu6wmhFrj
-5SPReftDmp4MVQeC4FVZfB72muY4zcO/WYSVmpGn2P89lHEgD4uw8gqQ0XAi5xe6
-Gwdb2XcczCo=
-=+R+m
------END PGP SIGNATURE-----
+Index: arch/ppc/kernel/ppc_htab.c
+===================================================================
+--- b023d524fb0a3b71aa0b957ce7c5540611497370/arch/ppc/kernel/ppc_htab.c  (mode:100644 sha1:ca810025993f3a9ab882fb46722cd46543b6e85e)
++++ uncommitted/arch/ppc/kernel/ppc_htab.c  (mode:100644)
+@@ -32,9 +32,6 @@
+ #include <asm/system.h>
+ #include <asm/reg.h>
+ 
+-static int ppc_htab_show(struct seq_file *m, void *v);
+-static ssize_t ppc_htab_write(struct file * file, const char __user * buffer,
+-			      size_t count, loff_t *ppos);
+ extern PTE *Hash, *Hash_end;
+ extern unsigned long Hash_size, Hash_mask;
+ extern unsigned long _SDR1;
+@@ -46,19 +43,7 @@
+ extern unsigned int primary_pteg_full;
+ extern unsigned int htab_hash_searches;
+ 
+-static int ppc_htab_open(struct inode *inode, struct file *file)
+-{
+-	return single_open(file, ppc_htab_show, NULL);
+-}
+-
+-struct file_operations ppc_htab_operations = {
+-	.open		= ppc_htab_open,
+-	.read		= seq_read,
+-	.llseek		= seq_lseek,
+-	.write		= ppc_htab_write,
+-	.release	= single_release,
+-};
+-
++#ifdef CONFIG_PROC_FS
+ static char *pmc1_lookup(unsigned long mmcr0)
+ {
+ 	switch ( mmcr0 & (0x7f<<7) )
+@@ -132,6 +117,16 @@
+ 		return 0;
+ 	}
+ 
++	seq_printf(m, "PTE Hash Table Information\n"
++		      "Size\t\t: %luKb\n"
++		      "Buckets\t\t: %lu\n"
++ 		      "Address\t\t: %08lx\n"
++		      "Entries\t\t: %lu\n",
++                      (unsigned long)(Hash_size>>10),
++		      (Hash_size/(sizeof(PTE)*8)),
++		      (unsigned long)Hash,
++		      Hash_size/sizeof(PTE));
++
+ #ifndef CONFIG_PPC64BRIDGE
+ 	for (ptr = Hash; ptr < Hash_end; ptr++) {
+ 		unsigned int mctx, vsid;
+@@ -146,32 +141,16 @@
+ 		else
+ 			uptes++;
+ 	}
+-#endif
+ 
+-	seq_printf(m,
+-		      "PTE Hash Table Information\n"
+-		      "Size\t\t: %luKb\n"
+-		      "Buckets\t\t: %lu\n"
+- 		      "Address\t\t: %08lx\n"
+-		      "Entries\t\t: %lu\n"
+-#ifndef CONFIG_PPC64BRIDGE
+-		      "User ptes\t: %u\n"
++	seq_printf(m, "User ptes\t: %u\n"
+ 		      "Kernel ptes\t: %u\n"
+-		      "Percent full\t: %lu%%\n"
+-#endif
+-                      , (unsigned long)(Hash_size>>10),
+-		      (Hash_size/(sizeof(PTE)*8)),
+-		      (unsigned long)Hash,
+-		      Hash_size/sizeof(PTE)
+-#ifndef CONFIG_PPC64BRIDGE
+-                      , uptes,
++		      "Percent full\t: %lu%%\n",
++		      uptes,
+ 		      kptes,
+-		      ((kptes+uptes)*100) / (Hash_size/sizeof(PTE))
++		      ((kptes+uptes)*100) / (Hash_size/sizeof(PTE)));
+ #endif
+-		);
+ 
+-	seq_printf(m,
+-		      "Reloads\t\t: %lu\n"
++	seq_printf(m, "Reloads\t\t: %lu\n"
+ 		      "Preloads\t: %lu\n"
+ 		      "Searches\t: %u\n"
+ 		      "Overflows\t: %u\n"
+@@ -180,20 +159,19 @@
+ 		      primary_pteg_full, htab_evicts);
+ #endif /* CONFIG_PPC_STD_MMU */
+ 
+-	seq_printf(m,
+-		      "Non-error misses: %lu\n"
++	seq_printf(m, "Non-error misses: %lu\n"
+ 		      "Error misses\t: %lu\n",
+ 		      pte_misses, pte_errors);
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_PPC_STD_MMU
+ /*
+  * Allow user to define performance counters and resize the hash table
+  */
+ static ssize_t ppc_htab_write(struct file * file, const char __user * ubuffer,
+ 			      size_t count, loff_t *ppos)
+ {
+-#ifdef CONFIG_PPC_STD_MMU
+ 	unsigned long tmp;
+ 	char buffer[16];
+ 
+@@ -312,12 +290,43 @@
+ 	}
+ 
+ 	return count;
++}
+ #else /* CONFIG_PPC_STD_MMU */
++static ssize_t ppc_htab_write(struct file * file, const char __user * ubuffer,
++			      size_t count, loff_t *ppos)
++{
+ 	return 0;
++}
+ #endif /* CONFIG_PPC_STD_MMU */
++
++static int ppc_htab_open(struct inode *inode, struct file *file)
++{
++	return single_open(file, ppc_htab_show, NULL);
+ }
+ 
+-int proc_dol2crvec(ctl_table *table, int write, struct file *filp,
++static struct file_operations ppc_htab_operations = {
++	.open		= ppc_htab_open,
++	.read		= seq_read,
++	.llseek		= seq_lseek,
++	.write		= ppc_htab_write,
++	.release	= single_release,
++};
++
++static int __init ppc_htab_proc_init(void)
++{
++	struct proc_dir_entry *entry;
++
++	entry = create_proc_entry("ppc_htab", S_IRUGO|S_IWUSR, NULL);
++	if (entry)
++		entry->proc_fops = &ppc_htab_operations;
++
++	return 0;
++}
++__initcall(ppc_htab_proc_init);
++#endif
++
++#ifdef CONFIG_SYSCTL
++static int proc_dol2crvec(ctl_table *table, int write, struct file *filp,
+ 		  void __user *buffer_arg, size_t *lenp, loff_t *ppos)
+ {
+ 	int vleft, first=1, len, left, val;
+@@ -437,7 +446,6 @@
+ 	return 0;
+ }
+ 
+-#ifdef CONFIG_SYSCTL
+ /*
+  * Register our sysctl.
+  */
+Index: fs/proc/proc_misc.c
+===================================================================
+--- b023d524fb0a3b71aa0b957ce7c5540611497370/fs/proc/proc_misc.c  (mode:100644 sha1:a60a3b3d8a7b1c31870dee3d947fe119a5787a5d)
++++ uncommitted/fs/proc/proc_misc.c  (mode:100644)
+@@ -609,12 +609,4 @@
+ 	if (entry)
+ 		entry->proc_fops = &proc_sysrq_trigger_operations;
+ #endif
+-#ifdef CONFIG_PPC32
+-	{
+-		extern struct file_operations ppc_htab_operations;
+-		entry = create_proc_entry("ppc_htab", S_IRUGO|S_IWUSR, NULL);
+-		if (entry)
+-			entry->proc_fops = &ppc_htab_operations;
+-	}
+-#endif
+ }

@@ -1,59 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261589AbVF0SvW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261582AbVF0SvP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261589AbVF0SvW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 14:51:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261590AbVF0SvW
+	id S261582AbVF0SvP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 14:51:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261589AbVF0SvP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 14:51:22 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:15755 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261589AbVF0SvR
+	Mon, 27 Jun 2005 14:51:15 -0400
+Received: from wproxy.gmail.com ([64.233.184.192]:6764 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261582AbVF0SvN convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 14:51:17 -0400
-Subject: RE: [rfc] lockless pagecache
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: "'Nick Piggin'" <nickpiggin@yahoo.com.au>, Lincoln Dale <ltd@cisco.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-In-Reply-To: <200506271814.j5RIEwg22390@unix-os.sc.intel.com>
-References: <200506271814.j5RIEwg22390@unix-os.sc.intel.com>
-Content-Type: text/plain
-Date: Mon, 27 Jun 2005 11:50:58 -0700
-Message-Id: <1119898264.13376.89.camel@dyn9047017102.beaverton.ibm.com>
+	Mon, 27 Jun 2005 14:51:13 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=fomysrSAwCQuQhPwoY3XWeAkXpb/IXKN/IOsSSnxVY4z/pLrj4fM1XkbbOPiMc1ges2DUoiQdALTj6LukIM+c0IQmmLvsQReMOEBoKEMrfPeOaDNeu80jeWrgE2/9JYRxXn5CHiFlw7Vn61EYYmVMYhgmsxhZM7uJugG/EUYsLM=
+Message-ID: <2d4e1ff6050627115141bb2828@mail.gmail.com>
+Date: Mon, 27 Jun 2005 20:51:12 +0200
+From: Stefano Mangione <s.mangione@gmail.com>
+Reply-To: Stefano Mangione <s.mangione@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [2.6.12] USB storage device stalls after a few KB transfer
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-06-27 at 11:14 -0700, Chen, Kenneth W wrote:
-> Nick Piggin wrote on Monday, June 27, 2005 2:04 AM
-> > >> However I think for Oracle and others that use shared memory like
-> > >> this, they are probably not doing linear access, so that would be a
-> > >> net loss. I'm not completely sure (I don't have access to real loads
-> > >> at the moment), but I would have thought those guys would have looked
-> > >> into fault ahead if it were a possibility.
-> > > 
-> > > 
-> > > i thought those guys used O_DIRECT - in which case, wouldn't the page 
-> > > cache not be used?
-> > > 
-> > 
-> > Well I think they do use O_DIRECT for their IO, but they need to
-> > use the Linux pagecache for their shared memory - that shared
-> > memory being the basis for their page cache. I think. Whatever
-> > the setup I believe they have issues with the tree_lock, which is
-> > why it was changed to an rwlock.
-> 
-> Typically shared memory is used as db buffer cache, and O_DIRECT is
-> performed on these buffer cache (hence O_DIRECT on the shared memory).
-> You must be thinking some other workload.  Nevertheless, for OLTP type
-> of db workload, tree_lock hasn't been a problem so far.
+The device is seen, can be mounted and the filesystem listed, but file
+transfers run very slow, i guess they stop after a few KB.
 
-What about DSS ? I need to go back and verify some of the profiles
-we have.
+This happened in 2.6.12, 2.6.11.12 works well, everything else seems
+to work perfectly. The device is a 256MB OTi Flash Disk, my USB host
+is listed as a VIA VT6202, the motherboard is an MSI with A6712VMS
+V1.9 072903 BIOS
 
-Thanks,
-Badari
+/sbin/lspci -n:
+00:10.0 Class 0c03: 1106:3038 (rev 80)
+00:10.1 Class 0c03: 1106:3038 (rev 80)
+00:10.2 Class 0c03: 1106:3038 (rev 80)
+00:10.3 Class 0c03: 1106:3104 (rev 82)
 
-
+I didn't subscribe to the list, so please Cc: me in replies

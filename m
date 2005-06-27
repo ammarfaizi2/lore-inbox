@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261706AbVF0CiM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261762AbVF0CuB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261706AbVF0CiM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Jun 2005 22:38:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbVF0CiM
+	id S261762AbVF0CuB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Jun 2005 22:50:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261768AbVF0CuB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Jun 2005 22:38:12 -0400
-Received: from 69-18-3-179.lisco.net ([69.18.3.179]:25604 "EHLO
-	ninja.slaphack.com") by vger.kernel.org with ESMTP id S261706AbVF0Chu
+	Sun, 26 Jun 2005 22:50:01 -0400
+Received: from 69-18-3-179.lisco.net ([69.18.3.179]:24075 "EHLO
+	ninja.slaphack.com") by vger.kernel.org with ESMTP id S261762AbVF0Ctz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Jun 2005 22:37:50 -0400
-Message-ID: <42BF667C.50606@slaphack.com>
-Date: Sun, 26 Jun 2005 21:37:48 -0500
+	Sun, 26 Jun 2005 22:49:55 -0400
+Message-ID: <42BF6952.4080004@slaphack.com>
+Date: Sun, 26 Jun 2005 21:49:54 -0500
 From: David Masover <ninja@slaphack.com>
 User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050325)
 X-Accept-Language: en-us, en
@@ -51,107 +51,72 @@ Valdis.Kletnieks@vt.edu wrote:
 > 
 > 
 > I'm *quite* aware of what your preconceived notions think it *should* be.
-> 
+
+So, by "what would ... give you", you meant what the benefits are?  I
+was just clarifying how they work, I *thought* that's what you meant...
+
 > Maybe the two examples I asked for have *real-world* meanings that you should
 > be allowing for.  Like, for instance, on a mail server, where the A/V software
 > may need to unzip a file 5 or 6 times to find out if there's malicious content.
-> 
+
+Why would it want to unzip the *same* file that many times?
+
+If you're talking about nested zipfiles, we can do nested plugins just
+as easily.
+
 > Or seeing if it's a ".zip bomb", where a small .zip will decompress to gigabytes.
-> 
+
 > Or I'm testing a new compression algorithm, to see if multiple compressions help
 > (yes, I know that it *shouldn't* help - but I've seen real-world cases where the
 > algorithm could only look at a 4K or 8K window at a time, and if you hit a *very*
 > long run of duplicate 4K segments, a second compression would compress all the
 > identical or near-identical "this is a 4K chunk" tokens...)
-> 
-> 
-> 
->>>It's got a *LOT* to do with it if I created a *DIRECTORY*, to use *AS A DIRECTORY*,
->>>the way Unix-style systems have done for 3 decades, and suddenly my system is
->>>running like a pig because the kernel decided that it's a .zip file.
->>
->>The kernel does not decide that.  You do.  And it doesn't automatically
->>decide that every time you create a file.  You have to use some
->>interface to trigger the plugins.
-> 
-> 
-> Oh, I'm waiting for the fun the first time somebody deploys a plugin that
-> has similar semantics to 'chmod g+s dirname/' ;)
-> 
-> 
+
+Tune the plugin, or use zip directly.  I'm not proposing necessarily to
+embed zip in the kernel and drop it from userland, just to have a kernel
+interface so that apps/people don't have to all know about the zip
+program and how to use it.
+
+Besides, in the zip example, I made very sure that unless you point a
+program specifically at where the zip plugin unpacks stuff, you can
+easily get the zipfile.
+
+Of course, that could be turned on its head if it was more low-level
+transparent compression, the kind where you just compress everything in
+/etc because it's all tiny text files.  In that case, you would want a
+setup where you have to work to get the raw data.  But in that case,
+it's a different kind of plugin anyway -- a plugin for storing data,
+rather than just accessing it.
+
+Stop worrying about automagic stuff, though.  It won't trigger unless
+you go looking for it.  It will just be easier to find if you do.
+
 >>I guess I need a new name for this approach.  That's three possible ways
 >>of doing this?
 > 
 > 
 > I *said* you need to think this through in detail, didn't I? ;)
->  
-> 
->>I remember discussing that, actually.  It wouldn't automatically do this
->>if you didn't want it to, but it would be nice if, say, it was something
->>truly seekable like linux-2.6.12.zip, and linux-2.6.12 was a
->>user-created symlink to linux-2.6.12.zip/.../contents, and we had a nice
->>caching system...
-> 
-> 
-> I think you're highly deluded as to just how much or little performance gain
-> this will get you. Model what happens with a kernel 'make' on a 256M machine
-> with and without all that zipping and compressing, and assume that a constant
-> 48M is available for caching of the linux-2.6.12/ tree.
 
-Ignoring Hans' point, there is still a performance gain.
+I said we already did, which is true.  I don't think I'm making these
+up, I just don't remember where they were in Silent Semantic.
 
-Assume we can do on-disk caching, similar to fscache/cachefs for nfs.
-Now, benchmark:
 
-$ unzip linux-2.6.12.zip && make -C linux-2.6.12
-
-versus the hypothetical
-
-$ make -C linux-2.6.12.zip/.../contents
-
-This is an automatic performance gain, in theory, because the second
-command is identical to unzipping just the parts you need into
-linux-2.6.12, then running "make".  The one disadvantage is that because
-the unzipping is done on demand, it only really performs well if you can
-keep the "zip" binary cached.  Even on most embedded systems, 54K of RAM
-is really not much to ask these days.
-
-Also, once you've run "make" once, you get to run it as many times as
-you like, and so long as the on-disk cache of the zipfile is still there
-and valid, you never have the overhead of unzipping again.
-
-Of course, this probably saves only a minute or two at most per kernel
-compile.  But that doesn't mean there aren't real-world situations where
-this kind of architecture would be much more beneficial.
-
->>This is nice because then you get exactly the same performance during
->>"make" as you would with "unzip && make", only better, because files you
->>don't ever use (lots of arch, for instance) are not unpacked.
-> 
-> 
-> Go read http://www.tux.org/lkml/#s7-7 and ponder until enlightenment arrives.
-
-So what?  I don't intend to convince anyone based on how much
-slower/faster their kernel compiles.  It's meant to illustrate the
-principle of the thing.
-
-Besides, your point was that you could not run make inside of a kernel
-tarball/zipfile.  Nobody ever suggested that you would actually want to.
+(oops, I fired the last one off before I was done...)
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (GNU/Linux)
 Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-iQIVAwUBQr9mfHgHNmZLgCUhAQJi0g//RGxFXWi8Om4EnKsZHcI0J7X3G6T9pj2a
-nwkWwjLdyg6jykdt3a5MTELBgOM2uT87k7CeO7TasA/T1ZkZ/y2Yw7x50YIgrb7j
-W1u5N/vfDLw3C2Nd6O2fe/b4ygReyBB6HQtNTw/k+XxDswxtEp0mcZHpNxt+W9B4
-s0naezawRjF51P4ISqa6HoRo7vZUkXv+3CwuZinC5m8KnW2Us8Ww5uDjtNBLpJGR
-zs79w24zaj6VSHjF8lO6CuMKQLjSelMDXKDEkFHaybJgz7AckkcZg5c6VDTrc3/t
-m8HM5oyHWfRqVeQt9cMdLdcBZnhdbspSwQaNQkdkrZx1IX96mPoMNDUwk1B/TIi7
-++iqpkDYeOdg+DWzGPVpwQ+5LQC+7m8vRHv5dROIM6T89TnlUck2clBiPovzSP+8
-KMR1R6F7qBPxJMkPcy2MNOVMkjN+VLSOCzOeOXVEUkNYdXjrJB5h3XIN5MyRR7C/
-pRmjB2crzPTUz2yBatP+QUFNUMadikMqj44sEc/ie8iHbo9pfxQC/wY4M4VkJcf2
-03spe2e8M+k3txj63O9TmJYgobkjx+d+cJ5Zm7DbKJmGlVaAGqmCXeNjxhTtBSwU
-yP2Jrz6Awu+nDxFxMAsN4GP17/0/aXdBhIYLPGyAJ9/HV7KHENIqIjnvD4e3bXnU
-shBrM+G1N5E=
-=BXCi
+iQIVAwUBQr9pUXgHNmZLgCUhAQKQ8w/+OQXWdt1pEF6t/0D+x3mPYWq2lhlUbchZ
+BYywcGN6Z/yFZQrZovJABZVnB+CXlUlx8DGqQN+Lj9+8HLko/P75ErTWHfuiscpS
+wRJIN5dVeZ4f1RImEa8PjQf3c+n+B/ft9hq28yaR58C9vBQwAWOPVL0/4n4unNAV
+49odg/IKJM9sdSF+6sVwgWNfuacRcZ5/jXtkDFXIIyJzKl6r45r3HmTkbgRdxqpU
+p1aOIsXa7fciN+UK+eiw5jruzJsKHaJtBdISsMWbPdVBFjsDVZmhsdOMv2RZMPo6
+2V78OQ4g7pJHSMZsaWQ/vvD3PuHxZm9qglJcdGnL6jNk8OXkKzxXaGDn/SHjYFTu
+c8keR1KYu+U5r5RmTiihavFPpN3zefS5W5o5IyLvEZkApRCngDFitq4t2tRfDbfT
+zV1JZWz7/bqtoY0zdaZ3gFwxXxh8FMw/LCnsjKkBQ7etlvnvcW2IPssd9rTIV0+4
+9CmA2EaYIiXAwGoFzLbbPoKf0a+6tB38oHanBrRBZuTzu9mKHZvyefQa0j2+1KOp
+iiCmrK49/APXfp4IUu284r2dPUqAu33LtomxwFbNLaPDZFWgQ9qPjafJBO3L8Y/9
+HlFe46Jo5tL7YAEq/UyKpDYWxVcUiDZ40z2w/WKq+v9JjmUZMm+jonXHa9Nq0cQn
+YlE9bxtEac8=
+=5eSh
 -----END PGP SIGNATURE-----

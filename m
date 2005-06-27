@@ -1,85 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261832AbVF0Frm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261831AbVF0Ftz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261832AbVF0Frm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 01:47:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261834AbVF0Frm
+	id S261831AbVF0Ftz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 01:49:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261834AbVF0Ftz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 01:47:42 -0400
-Received: from mail-1.netbauds.net ([62.232.161.102]:58784 "EHLO
-	mail-1.netbauds.net") by vger.kernel.org with ESMTP id S261832AbVF0FrZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 01:47:25 -0400
-Message-ID: <42BF92D4.3040609@netbauds.net>
-Date: Mon, 27 Jun 2005 06:47:00 +0100
-From: "Darryl L. Miles" <darryl@netbauds.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-GB; rv:1.8b) Gecko/20050217
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12 initrd module loading seems parallel on bootup
-References: <42BDFEC2.3030004@netbauds.net> <20050625234611.118b391d.akpm@osdl.org> <42BE7E38.9070703@netbauds.net> <42BE98C5.1070102@web.de> <20050626141106.GA12223@shuttle.vanvergehaald.nl>
-In-Reply-To: <20050626141106.GA12223@shuttle.vanvergehaald.nl>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 27 Jun 2005 01:49:55 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:8850 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261831AbVF0Fts (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 01:49:48 -0400
+Date: Mon, 27 Jun 2005 11:21:50 +0530
+From: Prasanna S Panchamukhi <prasanna@in.ibm.com>
+To: Jeff Sipek <jeffpc@optonline.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       trivial@rustcorp.com.au
+Subject: Re: [PATCH][TRIVIAL] Allocate kprobe_table at runtime
+Message-ID: <20050627055150.GA10659@in.ibm.com>
+Reply-To: prasanna@in.ibm.com
+References: <20050626183049.GA22898@optonline.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050626183049.GA22898@optonline.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jeff,
 
-Are we sure we are not talking about two different problems here.
+On Sun, Jun 26, 2005 at 06:37:29PM +0000, Jeff Sipek wrote:
+> Allocates kprobe_table at runtime.
+> -	/* FIXME allocate the probe table, currently defined statically */
+> +	kprobe_table = kmalloc(sizeof(struct hlist_head)*KPROBE_TABLE_SIZE, GFP_ATOMIC);
 
-I'm using RedHat and mkinitrd, in the initrd image there is already a 
-skeleton /dev tree that contains my real-root device.  udev also exists 
-in the initrd image.  I don't think any /dev device magic was necessary 
-for me too mount root.
+Memory allocation using GFP_KERNEL has more chances of success as compared to
+GFP_ATOMIC. Why can't we use GFP_KERNEL here?
 
-It is not clear Chris which tools you are using on initrd, standard 
-Gentoo methods or a home brew setup ?  What shell is calling modprobe ?  
-Can you confirm at what point you are seeing modprobe exit ?
-
-* Immediatly (before device driver has detected hardware and reported / 
-registered its findings).  This is the symptom I was seeing, but the 
-cause was incorrect shell handling. 
-* After detection but before device node creation.
-* After device node creation.
-
-
-FYI - This looks like the snippet from nash.c
-
-@@ -403,7 +450,7 @@
- int otherCommand(char * bin, char * cmd, char * end, int doFork) {
-     char ** args;
-     char ** nextArg;
--    int pid;
-+    int pid, wpid;
-     int status;
-     char fullPath[255];
-     static const char * sysPath = PATH;
-@@ -479,10 +526,20 @@
-
-        close(stdoutFd);
-
--       wait4(-1, &status, 0, NULL);
--       if (!WIFEXITED(status) || WEXITSTATUS(status)) {
--           printf("ERROR: %s exited abnormally!\n", args[0]);
--           return 1;
-+       for (;;) {
-+            wpid = wait4(-1, &status, 0, NULL);
-+            if (wpid == -1) {
-+                 printf("ERROR: Failed to wait for process %d\n", wpid);
-+            }
-+
-+            if (wpid != pid)
-+                 continue;
-+
-+            if (!WIFEXITED(status) || WEXITSTATUS(status)) {
-+                 printf("ERROR: %s exited abnormally with value %d ! (pid %d)\n", args[0], WEXITSTATUS(status), pid);
-+                 return 1;
-+            }
-+            break;
-        }
-     }
-
+Thanks
+Prasanna
 
 -- 
-Darryl L. Miles
 
-
+Prasanna S Panchamukhi
+Linux Technology Center
+India Software Labs, IBM Bangalore
+Ph: 91-80-25044636
+<prasanna@in.ibm.com>

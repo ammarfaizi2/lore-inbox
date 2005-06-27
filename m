@@ -1,58 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262015AbVF0Xq7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262002AbVF0Xx0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262015AbVF0Xq7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 19:46:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262019AbVF0Xq7
+	id S262002AbVF0Xx0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 19:53:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262031AbVF0Xx0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 19:46:59 -0400
-Received: from aeimail.aei.ca ([206.123.6.84]:35825 "EHLO aeimail.aei.ca")
-	by vger.kernel.org with ESMTP id S262015AbVF0Xqp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 19:46:45 -0400
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: Rik Van Riel <riel@redhat.com>
-Subject: Re: [PATCH] 0/2 swap token tuning
-Date: Mon, 27 Jun 2005 19:46:32 -0400
-User-Agent: KMail/1.8.1
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       Song Jiang <sjiang@lanl.gov>
-References: <Pine.LNX.4.61.0506261827500.18834@chimarrao.boston.redhat.com>
-In-Reply-To: <Pine.LNX.4.61.0506261827500.18834@chimarrao.boston.redhat.com>
+	Mon, 27 Jun 2005 19:53:26 -0400
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:54454 "EHLO
+	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S262002AbVF0XxN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 19:53:13 -0400
+From: Andreas Kies <andikies@t-online.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: A Bug in gcc or asm/string.h ?
+Date: Tue, 28 Jun 2005 01:53:04 +0200
+User-Agent: KMail/1.8
+Cc: Paolo Ornati <ornati@fastwebnet.it>
+References: <200506270105.28782.andikies@t-online.de> <200506272059.20477.andikies@t-online.de> <20050627214315.4b8850f5@localhost>
+In-Reply-To: <20050627214315.4b8850f5@localhost>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200506271946.33083.tomlins@cam.org>
+Message-Id: <200506280153.04620.andikies@t-online.de>
+X-ID: rCkngrZGoeIs7OWbN3f3mCsyHTEnOjzF+YazukaoOSV2pJI3QLRIoD
+X-TOI-MSGID: 461d4dd6-50ba-44a3-b06b-fee57df376cb
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 26 June 2005 18:34, Rik Van Riel wrote:
-> A while ago the swap token (aka token based thrashing control)
-> mechanism was introduced into Linux.  This code improves performance
-> under heavy VM loads, but can reduce performance under very light
-> VM loads.
-> 
-> The cause turns out to be me overlooking something in the original
-> token based thrashing control paper: the swap token is only supposed
-> to be enforced while the task holding the swap token is paging data
-> in, not while the task is running (and referencing its working set).
-> 
-> The temporary solution in Linux was to disable the swap token code
-> and have users turn it on again via /proc.  The following patch
-> instead approximates the "only enforce the swap token if the task
-> holding it is swapping something in" idea.  This should make sure
-> the swap token is effectively disabled when the VM load is low.
-> 
-> I have not benchmarked these patches yet; instead, I'm posting
-> them before the weekend is over, hoping to catch a bit of test
-> time from others while my own tests are being run ;)
+On Monday 27 June 2005 21:43, Paolo Ornati wrote:
+> PS: I've readded LKML to CC, since I think that this is a problem with the
+> ASM template
 
-Rik,
+Yes, you are right, it is not a compiler bug.
+My apologies to the GCC team, in case anyone has read it.
 
-What are the suggested  values to put into /proc/sys/vm/swap_token_timeout ?
-The docs are not at all clear about this (proc/filesystems.txt).
+[...]
 
-TIA,
-Ed Tomlinson
+> A little better workaround would be to add "memory" to clobbered registers
+> in the asm template:
+>
+> static inline int strcmp(const char * cs,const char * ct)
+> {
+> int d0, d1;
+> register int __res;
+> __asm__ __volatile__(
+>         "1:\tlodsb\n\t"
+>         "scasb\n\t"
+>         "jne 2f\n\t"
+>         "testb %%al,%%al\n\t"
+>         "jne 1b\n\t"
+>         "xorl %%eax,%%eax\n\t"
+>         "jmp 3f\n"
+>         "2:\tsbbl %%eax,%%eax\n\t"
+>         "orb $1,%%al\n"
+>         "3:"
+>
+>         :"=a" (__res), "=&S" (d0), "=&D" (d1)
+>         :
+>                      :"1" (cs),"2" (ct)
+>                      : "memory"); // <--- workaround
+>
+> return __res;
+> }
+>
+>
+> In this way GCC puts everything is cached in register back to memory when
+> you call strcmp()... but you can argue that this isn't optimal.
+
+Indeed the compiler has to assume that any memory location has changed.
+
+> I don't know if there is a better way... basically you need to tell GCC to
+> NOT cache these values.
+
+There is one, it says that cs and ct address structures with 4 gigabyte size.
+This is anyway not 64 bit clean.
+
+static inline int strcmp(const char * cs,const char * ct)
+{
+        int d0, d1;
+        register int __res;
+        __asm__ __volatile__(
+                        "1:\tlodsb\n\t"
+                        "scasb\n\t"
+                        "jne 2f\n\t"
+                        "testb %%al,%%al\n\t"
+                        "jne 1b\n\t"
+                        "xorl %%eax,%%eax\n\t"
+                        "jmp 3f\n"
+                        "2:\tsbbl %%eax,%%eax\n\t"
+                        "orb $1,%%al\n"
+                        "3:"
+                        :"=a" (__res), "=&S" (d0), "=&D" (d1)
+                        :"1" (cs),"2" (ct),
+                        "m" ( *(struct { char __x[0xfffffff]; } *)cs),
+                        "m" ( *(struct { char __x[0xfffffff]; } *)ct));
+        return __res;
+}
+
+
+Now, how do i formally submit this as a bug report ?
+
+Andreas.

@@ -1,109 +1,158 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261874AbVF0GVv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261850AbVF0GXm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261874AbVF0GVv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 02:21:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261858AbVF0GSj
+	id S261850AbVF0GXm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 02:23:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261851AbVF0GXl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 02:18:39 -0400
-Received: from natnoddy.rzone.de ([81.169.145.166]:198 "EHLO natnoddy.rzone.de")
-	by vger.kernel.org with ESMTP id S261844AbVF0GQb convert rfc822-to-8bit
+	Mon, 27 Jun 2005 02:23:41 -0400
+Received: from 69-18-3-179.lisco.net ([69.18.3.179]:25612 "EHLO
+	ninja.slaphack.com") by vger.kernel.org with ESMTP id S261850AbVF0GSd
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 02:16:31 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Dave Airlie <airlied@linux.ie>
-Subject: Re: [git patch] DRM 32/64 ioctl patch..
-Date: Mon, 27 Jun 2005 08:11:31 +0200
-User-Agent: KMail/1.7.2
-Cc: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, paulus@samba.org,
-       "David S. Miller" <davem@davemloft.net>
-References: <Pine.LNX.4.58.0506261313390.3269@skynet>
-In-Reply-To: <Pine.LNX.4.58.0506261313390.3269@skynet>
+	Mon, 27 Jun 2005 02:18:33 -0400
+Message-ID: <42BF9A34.7010204@slaphack.com>
+Date: Mon, 27 Jun 2005 01:18:28 -0500
+From: David Masover <ninja@slaphack.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050325)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200506270811.32758.arnd@arndb.de>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: Kyle Moffett <mrmacman_g4@mac.com>, Valdis.Kletnieks@vt.edu,
+       Lincoln Dale <ltd@cisco.com>, Gregory Maxwell <gmaxwell@gmail.com>,
+       Hans Reiser <reiser@namesys.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: reiser4 plugins
+References: <200506270538.j5R5cww2005785@laptop11.inf.utfsm.cl>
+In-Reply-To: <200506270538.j5R5cww2005785@laptop11.inf.utfsm.cl>
+X-Enigmail-Version: 0.89.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sünndag 26 Juni 2005 14:22, Dave Airlie wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> In the compatibility routines I have assumed that the kernel can
-> safely access user addresses after set_fs(KERNEL_DS).  That is, where
-> an ioctl argument structure contains pointers to other structures, and
-> those other structures are already compatible between the 32-bit and
-> 64-bit ABIs (i.e. they only contain things like chars, shorts or
-> ints), I just check the address with access_ok() and then pass it
-> through to the 64-bit ioctl code.  I believe this approach may not
-> work on sparc64, but it does work on ppc64 and x86_64 at least.
+Horst von Brand wrote:
+> David Masover <ninja@slaphack.com> wrote:
+> 
+>>Kyle Moffett wrote:
+>>
+>>>On Jun 26, 2005, at 22:37:48, David Masover wrote:
+> 
+> 
+> [...]
+> 
+> 
+>>That just means the zip plugin has to be more carefully written than I
+>>thought.  It would have to be sandboxed and limited to prevent buffer
+>>overruns and zip bombs.
+> 
+> 
+> [...]
+> 
+> 
+>>Remember that zip, at least, would not be in the kernel.  I think what
+>>is going in the kernel is gzip and lzo, and it's being done so
+>>transparently that you never actually see the compressed version.
+> 
+> 
+> Doesn't matter if it is zip of some other compression, the problem is
+> exactly the same.
 
-Are you sure that comment still applies? I can't find any reference
-to set_fs in the drm code and compat_alloc_user_space() based handlers
-do not have the problem.
+zlib is in the kernel.  Isn't lzo also in the kernel?
 
-Otherwise that approach opens up a security hole by giving user access to
-kernel memory on all architectures that have separate address spaces for
-user and kernel instead of different ranges in the same address space.
+The problem is still the same, but not as bad.
 
-Guessing from the implementation of get_fs/set_fs, these would include
-m68k, s390{,x}, sparc{,64} and i386 with the 4G/4G mapping, so these
-must never build code that relies on working user pointer dereferences
-under set_fs(KERNEL_DS).
+And it's completely irrelevant to the current cryptocompress.  Saying
+that someone could create a malicious transparently-compressed file that
+blows up when decompressed (inflated?) is like saying that my /dev/hda5
+is no longer trusted.  Because that's the only layer at which a userland
+program can see the compressed version of a transparently-compressed file.
 
-> +typedef struct drm_version_32 {
-> +	int	version_major;	  /**< Major version */
-> +	int	version_minor;	  /**< Minor version */
-> +	int	version_patchlevel;/**< Patch level */
-> +	u32	name_len;	  /**< Length of name buffer */
-> +	u32	name;		  /**< Name of driver */
+Now, if you're talking about going the other way, I think the problems
+were less about buffer overflows and more about bombs where 1k
+compressed data = 1 gig uncompressed data.  Going the other way is kind
+of pointless if you're an attacker.
 
-compat_uptr_t ?
+Unless there are buffer overflows in the kernel's zlib.  I hope not!
+After all, I don't necessarily trust all the CDs that I try to mount!
 
-> +	u32	date_len;	  /**< Length of date buffer */
-> +	u32	date;		  /**< User-space buffer to hold date */
+>>>Can you illustrate for me with precise, clear, and unambiguous arguments
+> 
+> 
+>>That will take some time.  And some thinking.
+> 
+> 
+> See? Exactly what has been demanded by all the "unfair", "ReiserFS-racist",
+> "shove-any-junk-but-do-not-accept-perfect-filesystems-into-the-kernel" etc
+> people here on LKML from the very start.
 
-same here
+Back at ya.
 
-> +	u32	desc_len;	  /**< Length of desc buffer */
-> +	u32	desc;		  /**< User-space buffer to hold desc */
+Many of the people I can't abide here are people who don't seem to
+actually understand anywhere near as much of Reiser4 as I do.  And I've
+never read much of its source code.
 
-and here
+It would be nice if this was approached more along the lines of helping
+get good stuff into the kernel than keeping anything bad out.  But
+that's too much to ask, no sarcasm intended.  Didn't Linus say that his
+job is more to keep stuff out anyway?
 
-> +} drm_version32_t;
-> +
-> +static int compat_drm_version(struct file *file, unsigned int cmd,
-> +			      unsigned long arg)
-> +{
-> +	drm_version32_t v32;
-> +	drm_version_t __user *version;
-> +	int err;
-> +
-> +	if (copy_from_user(&v32, (void __user *) arg, sizeof(v32)))
 
-(void __user *) arg should really be compat_ptr(arg). In theory,
-this is only necessary on s390, which does not implement drm,
-but we just do it the right way so other people don't copy
-the incorrect code.
+> [...]
+> 
+> 
+>>Now, the cryptocompress as it currently stands does not involve ... and
+>>does not introduce any new security holes in the way that you are
+>>describing.  There might be some issues with key management (someone
+>>hinted vaguely at that), but nothing insurmountable.
+> 
+> 
+> OK, I see a week of flamefest going by until you admit it has the same
+> problemas as compression
 
-> +		return -EFAULT;
-> +
-> +	version = compat_alloc_user_space(sizeof(*version));
-> +	if (!access_ok(VERIFY_WRITE, version, sizeof(*version)))
-> +		return -EFAULT;
-> +	if (__put_user(v32.name_len, &version->name_len)
-> +	    || __put_user((void __user *)(unsigned long)v32.name,
-> +			  &version->name)
-> +	    || __put_user(v32.date_len, &version->date_len)
-> +	    || __put_user((void __user *)(unsigned long)v32.date,
-> +			  &version->date)
-> +	    || __put_user(v32.desc_len, &version->desc_len)
-> +	    || __put_user((void __user *)(unsigned long)v32.desc,
-> +			  &version->desc))
-> +		return -EFAULT;
+Did I admit that compression has problems?  I admitted that zip has
+problems, not the planned cryptocompress plugin.
 
-Same here. Note how compat_ptr also makes that more readable.
-More of these are in other parts of the patch.
+> and then a whole lot of its
+> /own/ problems (that somebody can peek at a cached uncompressed copy of my
+> files is not so bad, if they can peek at my decrypted files I'd be rather
+> less pleased... and here you have to include a malicious root (Yes, I'm
+> paranoid. Doesn't mean root is not out to get me.).). Perhaps this can't be
+> all solved, but the exact boundaries of what /is/ provided, and what
+> /isn't/ must be made clear.
 
-	Arnd <><
+Can't trust the kernel at all if root is malicious.  For that matter,
+can't trust anything if root is malicious.
+
+Or is there a system which blocks such things as keyloggers, kernel
+modifications, eavesdropping on random ptys, or simply brute forcing
+/dev/mem?  I don't see any existing solutions other than heavily patched
+everything (text editors included) for even blocking simple temporary
+file hijacking.
+
+Now, if root is not malicious, we can just go back to UNIX permissions
+to keep your files safe -- only now your stuff is safe if the FBI steals
+your disk, and I assume your root can be trusted to power off the system
+before they can touch it in that event?
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iQIVAwUBQr+aM3gHNmZLgCUhAQLEGw//YgLNHfZNRBBD9wFd6Si0xnl+75eAwqOm
+7WMDPdtXeZORhUnmNnS+EO71nMupUQmOaMI/AGbAJgTRHJKAiVKz1rt25TtMfkMg
+tOeZ4PGOmI2eMe2Ltw8ocR6YDYLc/2VTLCE51pCvVswHPbcY2W+j1JHoIwo/y/3f
+/WnO8QYNdGnvlYJB+smNEpO8ggwPItK5Ge2PoK1+3A+e+boX2xZyk3RzZ5Oth3Se
+H8oW9wfNXoXp50BjVRXcCcOSbHiFFYWMRUD/i3izFwB3JNS523rMLjyJH/5zeciL
+lW+b9dCjHqt0ULtkuw0gVbEQh4LTPBKM8WIKDRNkuFl9kz8FQk0BuQrpvmr8JZ3z
+4S4etxhdnmuxMkXznJ0ioUTa+p7hXjRxpN1wZLXQi9xJfnOEkUHazI8GZui7qrlQ
+UlRyxyZTezEfROk+Ova0DWfAJEV4qY2SktxXZeMr7Z2a8WdkdozfPOFHt1GG38c4
+xc/L5z2maXAG0fQbZPZtrYi65ES5MQ472T6KNnwNb3nFJr1CRO0l4PpZa6kNLQ1G
+XDKKpsPUR9A1/oOh81Ep1YN+RfJKWJCU3O59z1+ro3eKa1ckWEjX2TEwKIjeUaGd
+B8n5FenOsSslHw1of1aVCRyNVUMFH2wTRf0CcIVBIMxZJ/RhJ6m2tqbOIsIK4V+H
+rMEvogPEbtM=
+=1+LH
+-----END PGP SIGNATURE-----

@@ -1,45 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261738AbVF0Ovg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261741AbVF0Ovg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261738AbVF0Ovg (ORCPT <rfc822;willy@w.ods.org>);
+	id S261741AbVF0Ovg (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 27 Jun 2005 10:51:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261747AbVF0Oui
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261748AbVF0Oup
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 10:50:38 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:14825 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262135AbVF0NIg (ORCPT
+	Mon, 27 Jun 2005 10:50:45 -0400
+Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:48820
+	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
+	with ESMTP id S262022AbVF0NLc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 09:08:36 -0400
-Date: Mon, 27 Jun 2005 09:08:14 -0400 (EDT)
-From: Rik Van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Martin Schlemmer <azarah@nosferatu.za.org>
-cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       Song Jiang <sjiang@lanl.gov>
-Subject: Re: [PATCH] 2/2 swap token tuning
-In-Reply-To: <1119877465.25717.4.camel@lycan.lan>
-Message-ID: <Pine.LNX.4.61.0506270907110.18834@chimarrao.boston.redhat.com>
-References: <Pine.LNX.4.61.0506261827500.18834@chimarrao.boston.redhat.com>
-  <Pine.LNX.4.61.0506261835000.18834@chimarrao.boston.redhat.com>
- <1119877465.25717.4.camel@lycan.lan>
+	Mon, 27 Jun 2005 09:11:32 -0400
+Reply-To: <abonilla@linuxwireless.org>
+From: "Alejandro Bonilla" <abonilla@linuxwireless.org>
+To: <borislav@users.sourceforge.net>, <hdaps-devel@lists.sourceforge.net>
+Cc: "'Pavel Machek'" <pavel@suse.cz>,
+       "'Paul Sladen'" <thinkpad@paul.sladen.org>,
+       "'Eric Piel'" <Eric.Piel@tremplin-utc.net>,
+       "'Yani Ioannou'" <yani.ioannou@gmail.com>,
+       <linux-kernel@vger.kernel.org>, <linux-thinkpad@linux-thinkpad.org>
+Subject: RE: [ltp] IBM HDAPS Someone interested? (Accelerometer)
+Date: Mon, 27 Jun 2005 07:10:05 -0600
+Message-ID: <003601c57b19$89f0ddb0$600cc60a@amer.sykes.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <42BFF220.2060704@grimmer.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1478
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Jun 2005, Martin Schlemmer wrote:
+> > A small problem is that the 8042 normally doesn't have any ADCs,
+> > however, I assume most of the 8042 implementations in modern
+> > notebooks do have at least a few ADCs, for battery monitoring, etc.
+>
+> Hmm, but isn't that exactly the kind of data that is printed by the
+> ibm_acpi kernel module in "/proc/acpi/ibm/ecdump" then?
+>
+> According to the README "this feature dumps the values of 256 embedded
+> controller registers." So shouldn't the reading of the accelerometers
+> be included in these values as well?
+>
+> Or could this mean that the embedded controller might have more than
+> these 256 registers that could be read out? Or does it need
+> to be "told"
+> to poll the accelerometer for these values repeatedly?
+>
+> Many register values in there change automatically (e.g. fan
+> speed), but
+> so far we have not seen a pattern of register value changes that look
+> like they are related to acceleration of the laptop in any direction.
+>
+> Bye,
+> 	LenZ
 
-> -+				sem_is_read_locked(mm->mmap_sem))
-> +                               sem_is_read_locked(&mm->mmap_sem))
+Borislav,
 
-Yes, you are right.  I sent out the patch before the weekend
-was over, before having tested it locally ;)
+	Do you have any input or anything to say? You are probably the one who has
+messed more with the ecdump or with the controller and might be able to help
+us grow a clue here. Any answer should point us more to were we want.
 
-My compile hit the error a few minutes after I sent out the
-mail, doh ;)
+Could ecdump give any output of the accelerometer?
+Could this be really attached to the controller?
 
-Andrew has a fixed version of the patch already.
+.Alejandro
 
--- 
-The Theory of Escalating Commitment: "The cost of continuing mistakes is
-borne by others, while the cost of admitting mistakes is borne by yourself."
-  -- Joseph Stiglitz, Nobel Laureate in Economics

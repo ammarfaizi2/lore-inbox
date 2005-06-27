@@ -1,248 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261868AbVF0GjS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261863AbVF0Gee@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261868AbVF0GjS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 02:39:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261861AbVF0Giv
+	id S261863AbVF0Gee (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 02:34:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261866AbVF0GdA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 02:38:51 -0400
-Received: from smtp203.mail.sc5.yahoo.com ([216.136.129.93]:25021 "HELO
-	smtp203.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261868AbVF0GeX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 02:34:23 -0400
-Message-ID: <42BF9DE5.6010701@yahoo.com.au>
-Date: Mon, 27 Jun 2005 16:34:13 +1000
+	Mon, 27 Jun 2005 02:33:00 -0400
+Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:18569 "HELO
+	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261869AbVF0Gaf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 02:30:35 -0400
+Message-ID: <42BF9CD1.2030102@yahoo.com.au>
+Date: Mon, 27 Jun 2005 16:29:37 +1000
 From: Nick Piggin <nickpiggin@yahoo.com.au>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
 X-Accept-Language: en
 MIME-Version: 1.0
 To: linux-kernel <linux-kernel@vger.kernel.org>,
        Linux Memory Management <linux-mm@kvack.org>
-Subject: [patch 4] radix tree: lockless readside
-References: <42BF9CD1.2030102@yahoo.com.au> <42BF9D67.10509@yahoo.com.au> <42BF9D86.90204@yahoo.com.au> <42BF9DBA.3000607@yahoo.com.au>
-In-Reply-To: <42BF9DBA.3000607@yahoo.com.au>
-Content-Type: multipart/mixed;
- boundary="------------090403090108030001020801"
+Subject: [rfc] lockless pagecache
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090403090108030001020801
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi,
 
+This is going to be a fairly long and probably incoherent post. The
+idea and implementation are not completely analysed for holes, and
+I wouldn't be surprised if some (even fatal ones) exist.
+
+That said, I wanted something to talk about at Ottawa and I think
+this is a promising idea - it is at the stage where it would be good
+to have interested parties pick it apart. BTW. this is my main reason
+for the PageReserved removal patches, so if this falls apart then
+some good will have come from it! :)
+
+OK, so my aim is to remove the requirement to take mapping->tree_lock
+when looking up pagecache pages (eg. for a read/write or nopage fault).
+Note that this does not deal with insertion and removal of pages from
+pagecache mappings - that is usually a slower path operation associated
+with IO or page reclaim or truncate. However if there was interest in
+making these paths more scalable, there are possibilities for that too.
+
+What for? Well there are probably lots of reasons, but suppose you have
+a big app with lots of processes all mmaping and playing around with
+various parts of the same big file (say, a shared memory file), then
+you might start seeing problems if you want to scale this workload up
+to say 32+ CPUs.
+
+Now the tree_lock was recently(ish) converted to an rwlock, precisely
+for such a workload and that was apparently very successful. However
+an rwlock is significantly heavier, and as machines get faster and
+bigger, rwlocks (and any locks) will tend to use more and more of Paul
+McKenney's toilet paper due to cacheline bouncing.
+
+So in the interest of saving some trees, let's try it without any locks.
+
+First I'll put up some numbers to get you interested - of a 64-way Altix
+with 64 processes each read-faulting in their own 512MB part of a 32GB
+file that is preloaded in pagecache (with the proper NUMA memory
+allocation).
+
+[best of 5 runs]
+
+plain 2.6.12-git4:
+  1 proc    0.65u   1.43s 2.09e 99%CPU
+64 proc    0.75u 291.30s 4.92e 5927%CPU
+
+64 proc prof:
+3242763 total                                      0.5366
+1269413 _read_unlock_irq                         19834.5781
+842042 do_no_page                               355.5921
+779373 cond_resched                             3479.3438
+100667 ia64_pal_call_static                     524.3073
+  96469 _spin_lock                               1004.8854
+  92857 default_idle                             241.8151
+  25572 filemap_nopage                            15.6691
+  11981 ia64_load_scratch_fpregs                 187.2031
+  11671 ia64_save_scratch_fpregs                 182.3594
+   2566 page_fault                                 2.5867
+
+It has slowed by a factor of 2.5x when going from serial to 64-way, and it
+is due to mapping->tree_lock. Serial is even at the disadvantage of reading
+from remote memory 62 times out of 64.
+
+2.6.12-git4-lockless:
+  1 proc    0.66u   1.38s 2.04e 99%CPU
+64 proc    0.68u   1.42s 0.12e 1686%CPU
+
+64 proc prof:
+  81934 total                                      0.0136
+  31108 ia64_pal_call_static                     162.0208
+  28394 default_idle                              73.9427
+   3796 ia64_save_scratch_fpregs                  59.3125
+   3736 ia64_load_scratch_fpregs                  58.3750
+   2208 page_fault                                 2.2258
+   1380 unmap_vmas                                 0.3292
+   1298 __mod_page_state                           8.1125
+   1089 do_no_page                                 0.4599
+    830 find_get_page                              2.5938
+    781 ia64_do_page_fault                         0.2805
+
+So we have increased performance exactly 17x when going from 1 to 64 way,
+however if you look at the CPU utilisation figure and the elapsed time,
+you'll see my test didn't provide enough work to keep all CPUs busy, and
+for the amount of CPU time used, we appear to have perfect scalability.
+In fact, it is slightly superlinear probably due to remote memory access
+on the serial run.
+
+I'll reply to this post with the series of commented patches which is
+probably the best way to explain how it is done. They are against
+2.6.12-git4 + some future iteration of the PageReserved patches. I
+can provide the complete rollup privately on request.
+
+Comments, flames, laughing me out of town, etc. are all very welcome.
+
+Nick
 
 -- 
 SUSE Labs, Novell Inc.
 
---------------090403090108030001020801
-Content-Type: text/plain;
- name="radix-tree-lockless-readside.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="radix-tree-lockless-readside.patch"
-
-Make radix tree lookups safe to be performed without locks.
-
-Also introduce a lockfree gang_lookup_slot which will be used
-by a future patch.
-
-Index: linux-2.6/lib/radix-tree.c
-===================================================================
---- linux-2.6.orig/lib/radix-tree.c
-+++ linux-2.6/lib/radix-tree.c
-@@ -45,6 +45,7 @@
- 	((RADIX_TREE_MAP_SIZE + BITS_PER_LONG - 1) / BITS_PER_LONG)
- 
- struct radix_tree_node {
-+	unsigned int	height;		/* Height from the bottom */
- 	unsigned int	count;
- 	void		*slots[RADIX_TREE_MAP_SIZE];
- 	unsigned long	tags[RADIX_TREE_TAGS][RADIX_TREE_TAG_LONGS];
-@@ -196,6 +197,7 @@ static int radix_tree_extend(struct radi
- 	}
- 
- 	do {
-+		unsigned int newheight;
- 		if (!(node = radix_tree_node_alloc(root)))
- 			return -ENOMEM;
- 
-@@ -208,9 +210,13 @@ static int radix_tree_extend(struct radi
- 				tag_set(node, tag, 0);
- 		}
- 
-+		newheight = root->height+1;
-+		node->height = newheight;
- 		node->count = 1;
-+		/* Make ->height visible before node visible via ->rnode */
-+		smp_wmb();
- 		root->rnode = node;
--		root->height++;
-+		root->height = newheight;
- 	} while (height > root->height);
- out:
- 	return 0;
-@@ -250,6 +256,9 @@ int radix_tree_insert(struct radix_tree_
- 			/* Have to add a child node.  */
- 			if (!(tmp = radix_tree_node_alloc(root)))
- 				return -ENOMEM;
-+			tmp->height = height;
-+			/* Make ->height visible before node visible via slot */
-+			smp_wmb();
- 			*slot = tmp;
- 			if (node)
- 				node->count++;
-@@ -282,12 +291,14 @@ static inline void **__lookup_slot(struc
- 	unsigned int height, shift;
- 	struct radix_tree_node **slot;
- 
--	height = root->height;
-+	if (root->rnode == NULL)
-+		return NULL;
-+	slot = &root->rnode;
-+	height = (*slot)->height;
- 	if (index > radix_tree_maxindex(height))
- 		return NULL;
- 
- 	shift = (height-1) * RADIX_TREE_MAP_SHIFT;
--	slot = &root->rnode;
- 
- 	while (height > 0) {
- 		if (*slot == NULL)
-@@ -491,21 +502,24 @@ EXPORT_SYMBOL(radix_tree_tag_get);
- #endif
- 
- static unsigned int
--__lookup(struct radix_tree_root *root, void **results, unsigned long index,
-+__lookup(struct radix_tree_root *root, void ***results, unsigned long index,
- 	unsigned int max_items, unsigned long *next_index)
- {
-+	unsigned long i;
- 	unsigned int nr_found = 0;
- 	unsigned int shift;
--	unsigned int height = root->height;
-+	unsigned int height;
- 	struct radix_tree_node *slot;
- 
--	shift = (height-1) * RADIX_TREE_MAP_SHIFT;
- 	slot = root->rnode;
-+	if (!slot)
-+		goto out;
-+	height = slot->height;
-+	shift = (height-1) * RADIX_TREE_MAP_SHIFT;
- 
--	while (height > 0) {
--		unsigned long i = (index >> shift) & RADIX_TREE_MAP_MASK;
--
--		for ( ; i < RADIX_TREE_MAP_SIZE; i++) {
-+	for (;;) {
-+		for (i = (index >> shift) & RADIX_TREE_MAP_MASK;
-+						i < RADIX_TREE_MAP_SIZE; i++) {
- 			if (slot->slots[i] != NULL)
- 				break;
- 			index &= ~((1UL << shift) - 1);
-@@ -516,21 +530,23 @@ __lookup(struct radix_tree_root *root, v
- 		if (i == RADIX_TREE_MAP_SIZE)
- 			goto out;
- 		height--;
--		if (height == 0) {	/* Bottom level: grab some items */
--			unsigned long j = index & RADIX_TREE_MAP_MASK;
--
--			for ( ; j < RADIX_TREE_MAP_SIZE; j++) {
--				index++;
--				if (slot->slots[j]) {
--					results[nr_found++] = slot->slots[j];
--					if (nr_found == max_items)
--						goto out;
--				}
--			}
-+		if (height == 0) {
-+			/* Bottom level: grab some items */
-+			break;
- 		}
- 		shift -= RADIX_TREE_MAP_SHIFT;
- 		slot = slot->slots[i];
- 	}
-+
-+	for (i = index & RADIX_TREE_MAP_MASK; i < RADIX_TREE_MAP_SIZE; i++) {
-+		index++;
-+		if (slot->slots[i]) {
-+			results[nr_found++] = &(slot->slots[i]);
-+			if (nr_found == max_items)
-+				goto out;
-+		}
-+	}
-+
- out:
- 	*next_index = index;
- 	return nr_found;
-@@ -558,6 +574,43 @@ radix_tree_gang_lookup(struct radix_tree
- 	unsigned int ret = 0;
- 
- 	while (ret < max_items) {
-+		unsigned int nr_found, i;
-+		unsigned long next_index;	/* Index of next search */
-+
-+		if (cur_index > max_index)
-+			break;
-+		nr_found = __lookup(root, (void ***)results + ret, cur_index,
-+					max_items - ret, &next_index);
-+		for (i = 0; i < nr_found; i++)
-+			results[ret + i] = *(((void ***)results)[ret + i]);
-+		ret += nr_found;
-+		if (next_index == 0)
-+			break;
-+		cur_index = next_index;
-+	}
-+	return ret;
-+}
-+EXPORT_SYMBOL(radix_tree_gang_lookup);
-+
-+/**
-+ *	radix_tree_gang_lookup_slot - perform multiple lookup on a radix tree
-+ *	@root:		radix tree root
-+ *	@results:	where the results of the lookup are placed
-+ *	@first_index:	start the lookup from this key
-+ *	@max_items:	place up to this many items at *results
-+ *
-+ *	Same as radix_tree_gang_lookup, but returns an array of pointers
-+ *	(slots) to the stored items instead of the items themselves.
-+ */
-+unsigned int
-+radix_tree_gang_lookup_slot(struct radix_tree_root *root, void ***results,
-+			unsigned long first_index, unsigned int max_items)
-+{
-+	const unsigned long max_index = radix_tree_maxindex(root->height);
-+	unsigned long cur_index = first_index;
-+	unsigned int ret = 0;
-+
-+	while (ret < max_items) {
- 		unsigned int nr_found;
- 		unsigned long next_index;	/* Index of next search */
- 
-@@ -572,7 +625,8 @@ radix_tree_gang_lookup(struct radix_tree
- 	}
- 	return ret;
- }
--EXPORT_SYMBOL(radix_tree_gang_lookup);
-+EXPORT_SYMBOL(radix_tree_gang_lookup_slot);
-+
- 
- /*
-  * FIXME: the two tag_get()s here should use find_next_bit() instead of
-Index: linux-2.6/include/linux/radix-tree.h
-===================================================================
---- linux-2.6.orig/include/linux/radix-tree.h
-+++ linux-2.6/include/linux/radix-tree.h
-@@ -51,6 +51,9 @@ void *radix_tree_delete(struct radix_tre
- unsigned int
- radix_tree_gang_lookup(struct radix_tree_root *root, void **results,
- 			unsigned long first_index, unsigned int max_items);
-+unsigned int
-+radix_tree_gang_lookup_slot(struct radix_tree_root *root, void ***results,
-+			unsigned long first_index, unsigned int max_items);
- int radix_tree_preload(int gfp_mask);
- void radix_tree_init(void);
- void *radix_tree_tag_set(struct radix_tree_root *root,
-
---------------090403090108030001020801--
 Send instant messages to your online friends http://au.messenger.yahoo.com 

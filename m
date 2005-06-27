@@ -1,81 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261986AbVF0QBt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262022AbVF0QBt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261986AbVF0QBt (ORCPT <rfc822;willy@w.ods.org>);
+	id S262022AbVF0QBt (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 27 Jun 2005 12:01:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262049AbVF0PUm
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261779AbVF0PTp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 11:20:42 -0400
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:32262 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261774AbVF0Oze
+	Mon, 27 Jun 2005 11:19:45 -0400
+Received: from mail.parknet.co.jp ([210.171.160.6]:59145 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S261472AbVF0Omr
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 10:55:34 -0400
-Date: Mon, 27 Jun 2005 15:55:39 +0100 (BST)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: IDE - sensible probing for PCI systems
-In-Reply-To: <1119702761.28649.2.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.61L.0506271519060.23903@blysk.ds.pg.gda.pl>
-References: <1119356601.3279.118.camel@localhost.localdomain> 
- <Pine.LNX.4.61L.0506211422190.9446@blysk.ds.pg.gda.pl> 
- <1119363150.3325.151.camel@localhost.localdomain> 
- <Pine.LNX.4.61L.0506211535100.17779@blysk.ds.pg.gda.pl> 
- <1119379587.3325.182.camel@localhost.localdomain> 
- <Pine.LNX.4.61L.0506231903170.31113@blysk.ds.pg.gda.pl> 
- <1119566026.18655.30.camel@localhost.localdomain> 
- <Pine.LNX.4.61L.0506241217490.28452@blysk.ds.pg.gda.pl>
- <1119702761.28649.2.camel@localhost.localdomain>
+	Mon, 27 Jun 2005 10:42:47 -0400
+To: Karel Kulhavy <clock@twibright.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [bugzilla-daemon@gentoo.org: [Bug 93671] mount uses wrong default umask for fat filesystem]
+References: <20050627100746.GC24093@kestrel>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Mon, 27 Jun 2005 23:42:37 +0900
+In-Reply-To: <20050627100746.GC24093@kestrel> (Karel Kulhavy's message of "Mon, 27 Jun 2005 12:07:46 +0200")
+Message-ID: <87br5r509u.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 25 Jun 2005, Alan Cox wrote:
+Karel Kulhavy <clock@twibright.com> writes:
 
-> PC systems have serial at 0x3f8/0x2f8 (lpc bus), almost always PS/2 port
+> ------- Additional Comments From stian@nixia.no  2005-06-26 16:36 PDT -------
+> This is not a mount bug, but a kernel-bug. umask=nnn is passed along other
+> user-flags to the mount syscall as a string, and the kernel-filesystem driver
+> parses the string and denies the syscall if a syntax-error occures. Not all
+> filesystems supports umask, so umask is not sent unless spesified. If the mount
+> man-page claims that umask is defaulted to the current shell umask setting, the
+> kernel-driver needs to take this into account when umask isn't found in the
+> string it receives from user-space. Just my 5 cent about this bug
 
- Strange -- boxes have started to appear that have no connectors or at 
-least PCB headers for them.  What's the point in removing connectors and 
-leaving the (otherwise useful) hardware inaccessible?
-
-> on the mainboard. Timers, interrupt controllers. 
-
- Indeed, but APICs make them redundant.  I recall ACPI has defined 
-additional "board" timers as well, hasn't it?
-
-> As I understand it both Windows XP and Linux x86 still require some of
-> these ports. There is also a range of ports that are needed _before_ the
-
- Adjusting software to get rid of these requirements should be pretty 
-straightforward -- there are really very few these days.  In Linux that is 
--- I can't comment the others, but Intel has recommended against using the 
-PITs or the PICs as implemented by the PC/AT standard for some ten years 
-now and "the others" follow these guidelines more closely it would seem.  
-In particular for a "legacy-free" box I can't see any problem with leaving 
-the firmware upon bootstrap with the APIC mode already set up.  Perhaps 
-even in the protected mode.
-
-> PCI bus can be used in order to bootstrap the system, configure ram
-> timings etc and in some cases adjust the caches.
-
- Well, that should normally be done using PCI configuration(!) space (it's 
-been invented for that purpose after all) of host bridges.  Some tasks may 
-require poking at I2C mapped somewhere, but the space for that device may 
-be properly handled with BARs.  Or it can be system-specific and disabled 
-after initial setup -- I've seen systems with a minimal I2C controller 
-wired directly to the CPU bus and a full-blown one available in a south 
-bridge with the former being able to be disabled once unneeded.
-
-> >  That is what surprises me and what my whole consideration is about.  
-> > It's just I don't see a need for such a setup anymore and for a system 
-> > with no ISA or EISA bridge I'd expect all that legacy to be gone leaving 
-> > us with no need to handle implicit resources.  But has any manufacturer 
-> > produced such an i386 system yet?
-> 
-> Whats the _economic_ incentive to do so ? There basically isnt one.
-
- One chip less?  Well, perhaps the cost of R&D for such a system would 
-exceed the total cost of keeping that chip included in all boards 
-manufactured during the term corporate planning is able to cover....
-
-  Maciej
+Look util-linux-2.12q... hm, mount command is reseting the umask in main().
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

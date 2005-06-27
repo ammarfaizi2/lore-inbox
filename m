@@ -1,52 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261887AbVF0Hdr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261704AbVF0HbZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261887AbVF0Hdr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 03:33:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261893AbVF0Hdr
+	id S261704AbVF0HbZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 03:31:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261893AbVF0HbZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 03:33:47 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:45500 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261887AbVF0Hdm (ORCPT
+	Mon, 27 Jun 2005 03:31:25 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:13453 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S261704AbVF0H2d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 03:33:42 -0400
-Date: Mon, 27 Jun 2005 09:31:39 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Dave Airlie <airlied@gmail.com>
-Cc: Dave Airlie <airlied@linux.ie>, Andrew Morton <akpm@osdl.org>,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: SiS drm broken during 2.6.9-rc1-bk1
-Message-ID: <20050627073139.GB12776@elte.hu>
-References: <Pine.LNX.4.58.0502131124090.16528@skynet> <21d7e99705021400266bcbc0f2@mail.gmail.com> <20050215103207.GA19866@elte.hu> <21d7e997050626160729afdff2@mail.gmail.com>
+	Mon, 27 Jun 2005 03:28:33 -0400
+Date: Mon, 27 Jun 2005 09:28:32 +0200
+From: Andi Kleen <ak@suse.de>
+To: Jens Axboe <axboe@suse.de>
+Cc: Pekka Enberg <penberg@cs.helsinki.fi>, Andrew Morton <akpm@osdl.org>,
+       Jeff Mahoney <jeffm@suse.de>, penberg@gmail.com, reiser@namesys.com,
+       ak@suse.de, flx@namesys.com, zam@namesys.com, vs@thebsh.namesys.com,
+       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: Re: -mm -> 2.6.13 merge status
+Message-ID: <20050627072832.GA14251@wotan.suse.de>
+References: <p73d5qgc67h.fsf@verdi.suse.de> <42B86027.3090001@namesys.com> <20050621195642.GD14251@wotan.suse.de> <42B8C0FF.2010800@namesys.com> <84144f0205062223226d560e41@mail.gmail.com> <42BB0151.3030904@suse.de> <20050623114318.5ae13514.akpm@osdl.org> <20050623193247.GC6814@suse.de> <1119717967.9392.2.camel@localhost> <20050627072449.GF19550@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <21d7e997050626160729afdff2@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20050627072449.GF19550@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Dave Airlie <airlied@gmail.com> wrote:
-
-> Just for completeness, Thomas Winischoffer tracked this down over the 
-> weekend, I had stared at it previously to no great avail,
+> > On Thu, 2005-06-23 at 21:32 +0200, Jens Axboe wrote:
+> > > That said, I don't like the reiser name-number style. If you must do
+> > > something like this, mark responsibility by using a named identifier
+> > > covering the layer in question instead.
+> > > 
+> > >         assert("trace_hash-89", is_hashed(foo) != 0);
+> > 
+> > A human readable message would be nicer. For example, "foo was hashed".
 > 
-> The issue was with the user space SiS Mesa driver having an 
-> uninitialised structure on the stack for the copy command sent to the 
-> DRM, with the old layout it would end up with zero'ed reserved fields 
-> by luck most of the time, with the new one it went the other way..
+> Indeed.
 
-ah, makes sense.
+You can just dump the expression (with #argument). That is what
+traditional userspace assert did forever.
 
-> the fix is now in Mesa CVS....
+It won't help for BUG_ON(a || b || c || d || e) but these
+are bad style anyways and should be avoided.
 
-great!
-
-	Ingo
+-Andi

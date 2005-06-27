@@ -1,89 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261714AbVF0Ors@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261715AbVF0Or5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261714AbVF0Ors (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 10:47:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261707AbVF0Ors
+	id S261715AbVF0Or5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 10:47:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261707AbVF0Or5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 10:47:48 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:34512 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S262096AbVF0MV3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 08:21:29 -0400
-Message-ID: <42BFEF45.8000302@pobox.com>
-Date: Mon, 27 Jun 2005 08:21:25 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-CC: "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [git patch] 2.6.x libata fix
-Content-Type: multipart/mixed;
- boundary="------------000005040907070609080203"
-X-Spam-Score: 0.0 (/)
+	Mon, 27 Jun 2005 10:47:57 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:29386 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S262103AbVF0M2J
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 08:28:09 -0400
+Date: Mon, 27 Jun 2005 15:27:50 +0300 (EEST)
+From: Pekka J Enberg <penberg@cs.Helsinki.FI>
+To: Andi Kleen <ak@suse.de>
+cc: Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Jeff Mahoney <jeffm@suse.de>, penberg@gmail.com, reiser@namesys.com,
+       flx@namesys.com, zam@namesys.com, vs@thebsh.namesys.com,
+       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com,
+       joern@wohnheim.fh-wedel.de
+Subject: [PATCH] verbose BUG_ON reporting
+In-Reply-To: <20050627082046.GC14251@wotan.suse.de>
+Message-ID: <Pine.LNX.4.58.0506271525240.3200@sbz-30.cs.Helsinki.FI>
+References: <20050621195642.GD14251@wotan.suse.de> <42B8C0FF.2010800@namesys.com>
+ <84144f0205062223226d560e41@mail.gmail.com> <42BB0151.3030904@suse.de>
+ <20050623114318.5ae13514.akpm@osdl.org> <20050623193247.GC6814@suse.de>
+ <1119717967.9392.2.camel@localhost> <20050627072449.GF19550@suse.de>
+ <20050627072832.GA14251@wotan.suse.de> <Pine.LNX.4.58.0506271048310.26869@sbz-30.cs.Helsinki.FI>
+ <20050627082046.GC14251@wotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000005040907070609080203
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Mon, 27 Jun 2005, Andi Kleen wrote:
+> It won't work for me because it'll bloat the kernel .text
+> considerable. There is a reason why BUG is implemented
+> like it is. Compare it.
 
-Please pull from the 'upstream' branch of
-rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
+The assertion codes bloat the kernel all the same. So how about this 
+instead?
 
-to obtain the fix (and cleanup) described in the attachment.
+This patch adds a CONFIG_DEBUG_BUG_ON_VERBOSE that makes BUG_ON report the
+evaluated expression in human readable form when the assertion fails.
 
+The size of vmlinux with allyesconfig increases about 100k when the config
+option is enabled:
 
---------------000005040907070609080203
-Content-Type: text/plain;
- name="libata-dev.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="libata-dev.txt"
+    text    data     bss      dec filename
+19333351 6699691 1845604 27878646 vmlinux-2.6.12-git8
+19434139 6699691 1845604 27979434 vmlinux-2.6.12-git8-verbose-bug_on
 
- drivers/scsi/libata-scsi.c |   16 +++++++++++-----
- 1 files changed, 11 insertions(+), 5 deletions(-)
+Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
+---
 
+ include/asm-generic/bug.h |   11 ++++++++++-
+ lib/Kconfig.debug         |    7 +++++++
+ 2 files changed, 17 insertions(+), 1 deletion(-)
 
-Philip Pokorny:
-  libata fix read capacity handling for more than 2TB
-
-
-diff --git a/drivers/scsi/libata-scsi.c b/drivers/scsi/libata-scsi.c
---- a/drivers/scsi/libata-scsi.c
-+++ b/drivers/scsi/libata-scsi.c
-@@ -1176,8 +1176,12 @@ unsigned int ata_scsiop_read_cap(struct 
- 		n_sectors = ata_id_u32(args->id, 60);
- 	n_sectors--;		/* ATA TotalUserSectors - 1 */
+Index: 2.6/include/asm-generic/bug.h
+===================================================================
+--- 2.6.orig/include/asm-generic/bug.h
++++ 2.6/include/asm-generic/bug.h
+@@ -12,8 +12,17 @@
+ } while (0)
+ #endif
  
--	tmp = n_sectors;	/* note: truncates, if lba48 */
- 	if (args->cmd->cmnd[0] == READ_CAPACITY) {
-+		if( n_sectors >= 0xffffffffULL )
-+			tmp = 0xffffffff ;  /* Return max count on overflow */
-+		else
-+			tmp = n_sectors ;
++#ifdef CONFIG_DEBUG_BUG_ON_VERBOSE
++#define FAIL_BUG_ON(expr_str) do { \
++	printk("BUG_ON(%s) failed.\n", expr_str); \
++	BUG(); \
++} while (0)
++#else
++#define FAIL_BUG_ON(expr_str) BUG()
++#endif
 +
- 		/* sector count, 32-bit */
- 		rbuf[0] = tmp >> (8 * 3);
- 		rbuf[1] = tmp >> (8 * 2);
-@@ -1191,10 +1195,12 @@ unsigned int ata_scsiop_read_cap(struct 
+ #ifndef HAVE_ARCH_BUG_ON
+-#define BUG_ON(condition) do { if (unlikely((condition)!=0)) BUG(); } while(0)
++#define BUG_ON(condition) do { if (unlikely((condition)!=0)) FAIL_BUG_ON(#condition); } while(0)
+ #endif
  
- 	} else {
- 		/* sector count, 64-bit */
--		rbuf[2] = n_sectors >> (8 * 7);
--		rbuf[3] = n_sectors >> (8 * 6);
--		rbuf[4] = n_sectors >> (8 * 5);
--		rbuf[5] = n_sectors >> (8 * 4);
-+		tmp = n_sectors >> (8 * 4);
-+		rbuf[2] = tmp >> (8 * 3);
-+		rbuf[3] = tmp >> (8 * 2);
-+		rbuf[4] = tmp >> (8 * 1);
-+		rbuf[5] = tmp;
-+		tmp = n_sectors;
- 		rbuf[6] = tmp >> (8 * 3);
- 		rbuf[7] = tmp >> (8 * 2);
- 		rbuf[8] = tmp >> (8 * 1);
-
---------------000005040907070609080203--
+ #ifndef HAVE_ARCH_WARN_ON
+Index: 2.6/lib/Kconfig.debug
+===================================================================
+--- 2.6.orig/lib/Kconfig.debug
++++ 2.6/lib/Kconfig.debug
+@@ -116,6 +116,13 @@ config DEBUG_BUGVERBOSE
+ 	  of the BUG call as well as the EIP and oops trace.  This aids
+ 	  debugging but costs about 70-100K of memory.
+ 
++config DEBUG_BUG_ON_VERBOSE
++	bool "Verbose BUG_ON() reporting"
++	depends on DEBUG_KERNEL && BUG
++	default false
++	help
++	  Say Y here to make BUG_ON() panics output the evaluated expression.
++
+ config DEBUG_INFO
+ 	bool "Compile the kernel with debug info"
+ 	depends on DEBUG_KERNEL

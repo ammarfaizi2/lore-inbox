@@ -1,73 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261591AbVF0TAi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261595AbVF0TBr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261591AbVF0TAi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 15:00:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbVF0TAi
+	id S261595AbVF0TBr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 15:01:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261587AbVF0TBq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 15:00:38 -0400
-Received: from usbb-lacimss1.unisys.com ([192.63.108.51]:61444 "EHLO
-	usbb-lacimss1.unisys.com") by vger.kernel.org with ESMTP
-	id S261591AbVF0TA3 convert rfc822-to-8bit (ORCPT
+	Mon, 27 Jun 2005 15:01:46 -0400
+Received: from smtp-3.llnl.gov ([128.115.41.83]:29936 "EHLO smtp-3.llnl.gov")
+	by vger.kernel.org with ESMTP id S261595AbVF0TBl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 15:00:29 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: Boot failure with roof file system under LVM (2.6.12-mm*)
-Date: Mon, 27 Jun 2005 14:00:23 -0500
-Message-ID: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04C16@USRV-EXCH4.na.uis.unisys.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Boot failure with roof file system under LVM (2.6.12-mm*)
-Thread-Index: AcV7SnF506piLeHyTdChPOoQ5ovp1A==
-From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: <linux-lvm@redhat.com>, "E.Gryaznova" <grev@namesys.com>
-X-OriginalArrivalTime: 27 Jun 2005 19:00:23.0830 (UTC) FILETIME=[79082360:01C57B4A]
+	Mon, 27 Jun 2005 15:01:41 -0400
+Date: Mon, 27 Jun 2005 12:01:38 -0700 (PDT)
+From: Chuck Harding <charding@llnl.gov>
+Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.50-24
+In-reply-to: <200506251039.14746.gene.heskett@verizon.net>
+To: Linux Kernel Discussion List <linux-kernel@vger.kernel.org>
+Message-id: <Pine.LNX.4.63.0506271157200.8605@ghostwheel.llnl.gov>
+Organization: Lawrence Livermore National Laboratory
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-transfer-encoding: 7BIT
+User-Agent: Pine/4.62 (X11; U; Linux i686; en-US; rv:2.6.11-rc2-mm1)
+References: <20050608112801.GA31084@elte.hu> <20050625091215.GC27073@elte.hu>
+ <200506250919.52640.gene.heskett@verizon.net>
+ <200506251039.14746.gene.heskett@verizon.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I cannot boot -mm kernel on my system since 2.6.12-rc5-mm1. The system
-is a partition on ES7000 and has a dual boot for SuSE/RH, which is set
-up using two LVM volumes. 
+What can be causing the following message to appear in dmesg and
+how can I fix it?
 
-le020-p2:~ # pvs
-PV         VG         Fmt  Attr PSize  PFree
-/dev/sda2  stash      lvm2 a-   16.50G  3.50G
-/dev/sdb2  rhel4stash lvm2 a-   16.50G 16.00M
+BUG: scheduling with irqs disabled: kapmd/0x00000000/46
+caller is schedule_timeout+0x51/0x9e
+  [<c02b3bc9>] schedule+0x96/0xf6 (8)
+  [<c02b43f7>] schedule_timeout+0x51/0x9e (28)
+  [<c01222ed>] process_timeout+0x0/0x5 (32)
+  [<c0112063>] apm_mainloop+0x7a/0x96 (24)
+  [<c0115e45>] default_wake_function+0x0/0x16 (12)
+  [<c0115e45>] default_wake_function+0x0/0x16 (32)
+  [<c0111485>] apm_driver_version+0x1c/0x38 (16)
+  [<c01126f7>] apm+0x0/0x289 (8)
+  [<c01127a6>] apm+0xaf/0x289 (8)
+  [<c010133c>] kernel_thread_helper+0x0/0xb (20)
+  [<c0101341>] kernel_thread_helper+0x5/0xb (4)
 
-The other partition on that system set up for dual boot also, but uses 2
-disks directly without LVM, and boots just fine.
+This was also present in earlier final-V0.7.50 version I've tried
+(since -00) I don't get hangs but that doesn't look like it should
+be happening. Thanks.
 
-Last thing I see on the console during failed boot:
-...
-device-mapper: 4.4.0-ioctl (2005-01-12) initialised: dm-devel@redhat.com
-ReiserFS: dm-0: found reiserfs format "3.6" with standard journal
-
-
-I put little debug in and it turned out that the boot hangs while
-waiting on a buffer in fs/reiserfs/super.c read_bitmaps() routine, on
-second iteration of the following loop:
-
-    for (i = 0; i < SB_BMAP_NR(s); i++) {
-        wait_on_buffer(SB_AP_BITMAP (s)[i].bh);  <========waiting here
-indefinitely
-        if (!buffer_uptodate(SB_AP_BITMAP(s)[i].bh)) {
-            reiserfs_warning(s,"sh-2029: reiserfs read_bitmaps: "
-                         "bitmap block (#%lu) reading failed",
-                         SB_AP_BITMAP(s)[i].bh->b_blocknr);
-            for (i = 0; i < SB_BMAP_NR(s); i++)
-                brelse(SB_AP_BITMAP(s)[i].bh);
-            vfree(SB_AP_BITMAP(s));
-            SB_AP_BITMAP(s) = NULL;
-            return 1;
-        }
-        load_bitmap_info_data (s, SB_AP_BITMAP (s) + i);
-    }
-
-Thanks,
---Natalie 
+-- 
+Charles D. (Chuck) Harding <charding@llnl.gov>  Voice: 925-423-8879
+Senior Computer Associate         ICCD            Fax: 925-423-6961
+Lawrence Livermore National Laboratory      Computation Directorate
+Livermore, CA USA  http://www.llnl.gov  GPG Public Key ID: B9EB6601
+------------------ http://tinyurl.com/5w5ey -----------------------
+-- Unburdened by the rigors of coherent thought. --

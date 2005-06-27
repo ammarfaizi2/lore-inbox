@@ -1,82 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261777AbVF0Uvo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261783AbVF0U7r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261777AbVF0Uvo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 16:51:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbVF0UvB
+	id S261783AbVF0U7r (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 16:59:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261796AbVF0U7k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 16:51:01 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:61363 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S261689AbVF0UrZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 16:47:25 -0400
-Message-ID: <42C065D5.30805@namesys.com>
-Date: Mon, 27 Jun 2005 13:47:17 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Theodore Ts'o" <tytso@mit.edu>
-CC: Steve Lord <lord@xfs.org>, Markus T?rnqvist <mjt@nysv.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       David Masover <ninja@slaphack.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>, vitaly@thebsh.namesys.com,
-       Chris Mason <mason@suse.com>
-Subject: Re: reiser4 plugins
-References: <42BB7B32.4010100@slaphack.com> <200506240334.j5O3YowB008100@laptop11.inf.utfsm.cl> <20050627092138.GD11013@nysv.org> <20050627124255.GB6280@thunk.org> <42C0578F.7030608@namesys.com> <42C05F16.5000804@xfs.org> <20050627202841.GA27805@thunk.org>
-In-Reply-To: <20050627202841.GA27805@thunk.org>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Mon, 27 Jun 2005 16:59:40 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:55509 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261689AbVF0U44 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 16:56:56 -0400
+Date: Mon, 27 Jun 2005 22:56:51 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Gerrit Huizenga <gh@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       ckrm-tech@lists.sourceforge.net, Hubertus Franke <frankeh@us.ibm.com>,
+       Chandra Seetharaman <sekharan@us.ibm.com>,
+       Shailabh Nagar <nagar@us.ibm.com>, Vivek Kashyap <vivk@us.ibm.com>
+Subject: Re: [patch 08/38] CKRM e18: Documentation
+Message-ID: <20050627205650.GA7278@atrey.karlin.mff.cuni.cz>
+References: <20050626212426.GB1315@elf.ucw.cz> <E1Dmybs-0004I0-00@w-gerrit.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1Dmybs-0004I0-00@w-gerrit.beaverton.ibm.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Theodore Ts'o wrote:
+Hi!
 
->On Mon, Jun 27, 2005 at 03:18:30PM -0500, Steve Lord wrote:
+> > > +CKRM Basics
+> > > +-------------
+> > 
+> > Perhaps you want to explain what "CKRM" means?
 >  
->
->>I presume Ted is referring to problems guaranteeing the integrity of
->>the journal at recovery time. I am coming into this without all the
->>available context, so I may be barking up the wrong tree.... In
->>particular, I am not sure how journaling whole blocks protects
->>you from this.
->>    
->>
->
->Actually, I was talking about the problem what happens when power
->fails while DMA'ing to the disk, and memory, which is more sensitive
->to voltage drops than the rest of the system, starts sending garbage
->to the bus, which the disk then faithfully writes to the inode table.
->
->As I recall, you were the one who told me about this problem, and how
->it was fixed in Irix by using a powerfail interrupt to abort DMA
->transfers, as well as giving me a program which tests for this
->condition (basically it writes known test pattern to the disk, and
->then you do an unclean shutdown, and you look to see if garbage is
->written to the disk instead of one of the known test patterns).  If it
->wasn't you, it must have been Jim Mostek --- but I could have sworn it
->was you.....
->
->						- Ted
->
->
->  
->
-Maybe a more positive approach would be to say, hey, I got this program
-from the XFS guys that tests for DMA problems on power failure, maybe
-all the Linux filesystem developers should give it a try?
+> I'll update this to spell out CKRM a bit more.  CKRM stands for
+> Class based Kernel Resource Management.  I realize that that is a
+> bit wordy but early on the team chose to try to be explicit about what
+> was being added.  And, I'm guessing you really don't want to see
+> class_base_kernel_resource_management_number_of_tasks as a structure
+> name or class_base_kernel_resource_management_register_classification_engine()
+> as a function name.  And, while the term class is great for grouping in
+> the workload management context, using class_number_of_tasks seems a
+> bit presumptious in the kernel naming space.
+> 
+> I'm inclined to leave the name CKRM as is and improve the documentation
+> at this point unless you have a more specific solution which can be
+> acceptable to all.
 
-Shall we try that style of interaction?
+I guess that CKRM was used so much that it is acceptable. But I still
+liked beancounter as a better name :-) [it was similar project, IIRC].
 
-Ted, if this corruption hits an ext3 directory structure, and that
-corrupted directory structure commits, what happens?  With ReiserFS
-(Chris please comment here) it would have to corrupt the directory in
-the journal, return successful IO, then after that point not corrupt the
-commit block and have enough power to write the commit block.  How is
-that different for XFS or ext3?
+> > > Index: linux-2.6.12-ckrm1/Documentation/ckrm/rbce_basics
+> > > ===================================================================
+> > > --- /dev/null	1970-01-01 00:00:00.000000000 +0000
+> > > +++ linux-2.6.12-ckrm1/Documentation/ckrm/rbce_basics	2005-06-20 13:08:35.000000000 -0700
+> > > @@ -0,0 +1,67 @@
+> > > +Rule-based Classification Engine (RBCE)
+> > > +-------------------------------------------
+> > > +
+> > > +The ckrm/rbce directory contains the sources for two classification engines
+> > > +called rbce and crbce. Both are optional, built as kernel modules and share much
+> > > +of their codebase. Only one classification engine (CE) can be loaded at a time
+> > > +in CKRM.
+> > 
+> > TMFLAs! (*)
+> > 
+> > Your resource managment may be quite nice system, but the naming is
+> > definitely very ugly. With your design we would not have open() system
+> > call, but ofsoarh() -- open filesystem object and return its
+> > handle. Can you come up with some reasonable naming?
+> 
+> Can you help?  ;)  I'd rather not change CKRM itself at this point - too
+> many papers and users and such.   While it is not impossible, I'm not
+> sure that it would help.  RCFS seems quite reasonable.  RBCE and CRBCE,
+> well, I'm much more likely to get excited about better names here.
+> ;)
 
-Hans
+rcfs would be reasonable; unfortunately we already have those /etc/rc*
+directories, and rcfs may confuse people into thinking it does
+something with system startup. resourcefs?
+
+RBCE/CRBCE are really bad. SimpleClassifier / CustomClassifier?
+
+								Pavel
+-- 
+Boycott Kodak -- for their patent abuse against Java.

@@ -1,65 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261825AbVF0Fmg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261828AbVF0FoK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261825AbVF0Fmg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 01:42:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbVF0Fmg
+	id S261828AbVF0FoK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 01:44:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261832AbVF0FoJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 01:42:36 -0400
-Received: from h80ad25a1.async.vt.edu ([128.173.37.161]:62676 "EHLO
-	h80ad25a1.async.vt.edu") by vger.kernel.org with ESMTP
-	id S261825AbVF0Fme (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 01:42:34 -0400
-Message-Id: <200506270541.j5R5fULX007282@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: David Masover <ninja@slaphack.com>
-Cc: Lincoln Dale <ltd@cisco.com>, Gregory Maxwell <gmaxwell@gmail.com>,
-       Hans Reiser <reiser@namesys.com>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: reiser4 plugins 
-In-Reply-To: Your message of "Mon, 27 Jun 2005 00:31:46 CDT."
-             <42BF8F42.7030308@slaphack.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <200506240241.j5O2f1eb005609@laptop11.inf.utfsm.cl> <42BCD93B.7030608@slaphack.com> <200506251420.j5PEKce4006891@turing-police.cc.vt.edu> <42BDA377.6070303@slaphack.com> <200506252031.j5PKVb4Y004482@turing-police.cc.vt.edu> <42BDC422.6020401@namesys.com> <42BE3645.4070806@cisco.com> <e692861c05062522071fe380a5@mail.gmail.com> <42BE563D.4000402@cisco.com> <42BE5DB6.8040103@slaphack.com> <200506261816.j5QIGMdI010142@turing-police.cc.vt.edu> <42BF08CF.2020703@slaphack.com> <200506262105.j5QL5kdR018609@turing-police.cc.vt.edu> <42BF2DC4.8030901@slaphack.com> <200506270040.j5R0eUNA030632@turing-police.cc.vt.edu> <42BF667C.50606@slaphack.com> <200506270423.j5R4Np9n004510@turing-police.cc.vt.edu>
-            <42BF8F42.7030308@slaphack.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1119850889_3633P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 27 Jun 2005 01:41:29 -0400
+	Mon, 27 Jun 2005 01:44:09 -0400
+Received: from vms046pub.verizon.net ([206.46.252.46]:4801 "EHLO
+	vms046pub.verizon.net") by vger.kernel.org with ESMTP
+	id S261828AbVF0Fnu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 01:43:50 -0400
+Date: Mon, 27 Jun 2005 01:43:44 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
+In-reply-to: <20050625041453.GC6981@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Ingo Molnar <mingo@elte.hu>, William Weston <weston@sysex.net>,
+       "K.R. Foley" <kr@cybsft.com>, "Eugeny S. Mints" <emints@ru.mvista.com>,
+       Daniel Walker <dwalker@mvista.com>
+Message-id: <200506270143.47690.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <Pine.LNX.4.58.0506211228210.16701@echo.lysdexia.org>
+ <Pine.LNX.4.58.0506241510040.32173@echo.lysdexia.org>
+ <20050625041453.GC6981@elte.hu>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1119850889_3633P
-Content-Type: text/plain; charset=us-ascii
+On Saturday 25 June 2005 00:14, Ingo Molnar wrote:
+>* William Weston <weston@sysex.net> wrote:
+>> On Fri, 24 Jun 2005, Ingo Molnar wrote:
+>> > do you have the NMI watchdog enabled? Find below
+>> > serial-logging-earlyprintk-nmi.txt.
+>>
+>> I had a serial console up, but not NMI watchdog until now.  Here's
+>> some NMI watchdog traces from both -50-17 and -50-18:
+>
+>all of these traces seem to have lockupcli involved - is that
+> correct? lockupcli is just a userspace test-app to artificially
+> trigger a hard-lockup (it disables interrupts and goes into an
+> infinite loop). So the NMI watchdog triggering on lockupcli would
+> be normal and expected. So once this works, it would be nice to
+> reproduce whatever hard lockup you are seeing and see whether the
+> NMI watchdog produces any output to the serial log. (if such log is
+> supposed to be included in your dmesg then it somehow got
+> intermixed with lockupcli logs)
+>
+> Ingo
 
-On Mon, 27 Jun 2005 00:31:46 CDT, David Masover said:
+In the FWIW category, I booted 50-23 about an hour & a half ago, same 
+mode 3, no hardirq's, everything seems to be working fine except for 
+kmails total lack of threading causeing composer hangs while a mail 
+fetch/spamassassin run is in progress.  But thats not anything new to 
+this patchset, its an equal opportunity annoyer.
 
-> *If* we decide that this must go both ways, *then* we either turn off
-> write support inside the zipfile
-
-Oh, *that* will do wonders for command symmetry.  And you just shot down
-the whole 'mv foo bar' being equivalent to 'zip bar foo' concept. ;)
-
->                                  and do "make" with a symlink farm (cp
-> - -as isn't hard), or (better) we can set things up so that only on access
-> (most likely a read) of the original zipfile do we re-add all the changes.
-
-Those chuckleheads who have filled up a disk by saying 'tar cvf foo.tar .' just
-got a whole new way to fill the disk... ;)
-
---==_Exmh_1119850889_3633P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFCv5GIcC3lWbTT17ARAhMqAKD87+f5vw21YvQ9EFpW2JpWQYdoRQCg9mMm
-eRHe1OQqND9xzThpHF0NrWA=
-=sllL
------END PGP SIGNATURE-----
-
---==_Exmh_1119850889_3633P--
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.35% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

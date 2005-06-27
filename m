@@ -1,77 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262077AbVF0Www@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262065AbVF0Wwm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262077AbVF0Www (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 18:52:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262050AbVF0Www
+	id S262065AbVF0Wwm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 18:52:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262050AbVF0Wwm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 18:52:52 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:2486 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262080AbVF0Wtz (ORCPT
+	Mon, 27 Jun 2005 18:52:42 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:44213 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262065AbVF0Wrj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 18:49:55 -0400
-Date: Mon, 27 Jun 2005 15:50:46 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Johannes Stezenbach <js@linuxtv.org>
-Cc: linux-kernel@vger.kernel.org, pb@linuxtv.org
-Subject: Re: [DVB patch 17/51] flexcop: add big endian register definitions
-Message-Id: <20050627155046.1c44bbdd.akpm@osdl.org>
-In-Reply-To: <20050627121412.899787000@abc>
-References: <20050627120600.739151000@abc>
-	<20050627121412.899787000@abc>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Mon, 27 Jun 2005 18:47:39 -0400
+Date: Mon, 27 Jun 2005 15:46:51 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: linux-kernel@vger.kernel.org, stable@kernel.org
+Cc: akpm@osdl.org, "Theodore Ts'o" <tytso@mit.edu>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Randy Dunlap <rdunlap@xenotime.net>, torvalds@osdl.org,
+       Chuck Wolber <chuckw@quantumlinux.com>, alan@lxorguk.ukuu.org.uk
+Subject: [00/07] -stable review
+Message-ID: <20050627224651.GI9046@shell0.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Johannes Stezenbach <js@linuxtv.org> wrote:
->
-> From: Patrick Boettcher <pb@linuxtv.org>
-> 
-> Add big-endian register definitions for running on a PowerPC.
-> (Thanks to Paavo Hartikainen for testing.)
-> 
-> ...
-> +	struct {
-> +		u32 dma_address0                   :30;
-> +		u32 dma_0No_update                 : 1;
-> +		u32 dma_0start                     : 1;
-> +	} dma_0x0;
->...
-> +
-> +	struct {
-> +		u32 dma_0start                     : 1;
-> +		u32 dma_0No_update                 : 1;
-> +		u32 dma_address0                   :30;
-> +	} dma_0x0;
+This is the start of the stable review cycle for the 2.6.12.2 release.  There
+are 7 patches in this series, all will be posted as a response to this one.
+If anyone has any issues with these being applied, please let us know.  If
+anyone is a maintainer of the proper subsystem, and wants to add a
+signed-off-by: line to the patch, please respond with it.
 
-Oh dear.  This is a good demonstration of the downside of trying to use
-compiler bitfields to represent hardware registers.  I have vague memories
-of writing BFINS and BFEXT in 3c59x to stomp this problem.
+These patches are sent out with a number of different people on the Cc: line.
+If you wish to be a reviewer, please email stable@kernel.org to add your name
+to the list.  If you want to be off the reviewer list, also email us.
 
-I don't think there's any guarantee that the code you have there will work
-on all architectures/compiler versions btw.
+Responses should be made by Wed, Jun 29, 23:00 UTC.  Anything received after
+that time, might be too late.
 
-Also...  The code appears to be assuming that BE architectures will
-bit-reverse their bitfields.  Is that right?  I'd expect them to only
-byte-reverse them?
+thanks,
 
-IOW:
-
-   31 30 ... 15 14 13 12 11 10 09 08 07 06 05 04 03 02 01 00
-
-   |--------------- dma_address0 --------------------|
-                                                       | dma_0No_update
-                                                          | dma_0start
-
-versus
-
-   31 30 29 28 27 26 25 24 23 ... 08 07 06 05 04 03 02 01 00
-
-   |--------------| dma_address0
-                           |---- more of dma_address0 -----|
-                     | dma_0No_update
-                        | dma_0start
-
-or something like that...  Brain hurts.
+the -stable release team (i.e. the ones wearing the joker hat in the corner...)

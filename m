@@ -1,41 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261412AbVF0Ruh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261399AbVF0R60@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261412AbVF0Ruh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 13:50:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261407AbVF0Rtb
+	id S261399AbVF0R60 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 13:58:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261408AbVF0R60
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 13:49:31 -0400
-Received: from graphe.net ([209.204.138.32]:46977 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S261399AbVF0Rt1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 13:49:27 -0400
-Date: Mon, 27 Jun 2005 10:49:24 -0700 (PDT)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@graphe.net
-To: Andrew Morton <akpm@osdl.org>
-cc: Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: [rfc] lockless pagecache
-In-Reply-To: <20050627004624.53f0415e.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.62.0506271048260.19550@graphe.net>
-References: <42BF9CD1.2030102@yahoo.com.au> <20050627004624.53f0415e.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.9
+	Mon, 27 Jun 2005 13:58:26 -0400
+Received: from nproxy.gmail.com ([64.233.182.192]:55088 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261399AbVF0R6Y convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 13:58:24 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=d7YtcEfD1k8ss8/yoZDMuYW6OpcDmOxaen0XStPOjlrz/AxO422eRPnCFkR9Q70kXWZFNYV1iQtL4l2ZCVLm2YwMK0cL00ktZIpUeNXb0KEWa7WbHEUso9F9lpR+gF+O5WVaXnc1q2IYWyFWh3PdSVIO95XGM/5ATidYr+bB6ZI=
+Message-ID: <84144f0205062710582ca366c0@mail.gmail.com>
+Date: Mon, 27 Jun 2005 20:58:23 +0300
+From: Pekka Enberg <penberg@gmail.com>
+Reply-To: Pekka Enberg <penberg@gmail.com>
+To: =?ISO-8859-1?Q?Guillermo_L=F3pez_Alejos?= <glalejos@gmail.com>
+Subject: Re: Documentation about the Virtual File-System
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <4fec73ca05062710082e273097@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+References: <4fec73ca05062710082e273097@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Jun 2005, Andrew Morton wrote:
+Hi,
 
-> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-> >
-> > First I'll put up some numbers to get you interested - of a 64-way Altix
-> >  with 64 processes each read-faulting in their own 512MB part of a 32GB
-> >  file that is preloaded in pagecache (with the proper NUMA memory
-> >  allocation).
-> 
-> I bet you can get a 5x to 10x reduction in ->tree_lock traffic by doing
-> 16-page faultahead.
+On 6/27/05, Guillermo López Alejos <glalejos@gmail.com> wrote:
+> Is there any "Building a File system HOWTO"?
 
-Could be working into the prefault patch.... Good idea.
+I am not aware of such document but take a look at fs/ramfs/inode.c.
+It is a simple memory-based filesystem and sort of a tutorial to the
+VFS.
 
+                               Pekka

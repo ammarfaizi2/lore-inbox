@@ -1,63 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261665AbVF0Un2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261754AbVF0Uvn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261665AbVF0Un2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 16:43:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261732AbVF0Uj0
+	id S261754AbVF0Uvn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 16:51:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261777AbVF0Uve
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 16:39:26 -0400
-Received: from embeddededge.com ([209.113.146.155]:22536 "EHLO
-	penguin.netx4.com") by vger.kernel.org with ESMTP id S261665AbVF0UgE
+	Mon, 27 Jun 2005 16:51:34 -0400
+Received: from rproxy.gmail.com ([64.233.170.197]:614 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261754AbVF0Us1 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 16:36:04 -0400
-In-Reply-To: <20050627.125052.108115648.davem@davemloft.net>
-References: <20050626190944.GC6091@logos.cnet> <20050626.175347.104031526.davem@davemloft.net> <705a40397bb8383399109debccaebaa3@embeddededge.com> <20050627.125052.108115648.davem@davemloft.net>
-Mime-Version: 1.0 (Apple Message framework v622)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <dd805c30d3ab223b650077cca3c82d86@embeddededge.com>
-Content-Transfer-Encoding: 7bit
-Cc: akpm@osdl.org, marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
-From: Dan Malek <dan@embeddededge.com>
-Subject: Re: increased translation cache footprint in v2.6
-Date: Mon, 27 Jun 2005 16:35:41 -0400
-To: "David S. Miller" <davem@davemloft.net>
-X-Mailer: Apple Mail (2.622)
+	Mon, 27 Jun 2005 16:48:27 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=fnHjymqffD3nLwDoJp5kl7hsS+Uu5g0B+NBDf8od1A1CVF0bsloNZMA8xidKIuChSB/IS4xQPkRJjP9DD10B9VHk1vT8EAa70tesJaUz9V0tFGI4161j1u4ipKKZaIQu6WE39/oH5aECd6hwJ3UdJyJ6hzSAJno4Vtc+0jAdXJk=
+Message-ID: <c295378405062713485b7e071d@mail.gmail.com>
+Date: Mon, 27 Jun 2005 13:48:23 -0700
+From: "Jason R. Martin" <nsxfreddy@gmail.com>
+Reply-To: "Jason R. Martin" <nsxfreddy@gmail.com>
+To: John Jasen <jjasen@realityfailure.org>
+Subject: Re: bonding driver issues: slave interface not coming up
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.63.0506271620160.12410@bushido>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <Pine.LNX.4.63.0506271620160.12410@bushido>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 6/27/05, John Jasen <jjasen@realityfailure.org> wrote:
+> 
+> Hello;
+> 
+> In short, using redhat enterprise 4, we're attempting to bond two tg3
+> gigabit cards in XOR mode.
+> 
+> These cards are plugged into a cisco 2970 switch, configured with
+> etherchannel bonding in src-dst-mac, which looks to be mode 2.
+> 
+> The problem area is, upon boot, the first slave NIC does not come up.
+> Furthermore, running ethtool against the slave yields the following message:
+> 
+> [root@XXX ~]# ethtool eth0
+> Settings for eth0:
+> Cannot get device settings: Resource temporarily unavailable
+>          Supports Wake-on: g
+>          Wake-on: d
+>          Current message level: 0x000000ff (255)
+>          Link detected: no
+> 
+> Now, curiously enough, after boot, logging in and bringing down the
+> bonding interface, then bringing it back up will activate both
+> interfaces. ie:
+> 
+> ifdown bond0
+> ifup bond0
+> 
+> ethtool eth0
+> [root@XXX ~]# ethtool eth0
+> Settings for eth0:
+>          Supported ports: [ MII ]
+>          Supported link modes:   10baseT/Half 10baseT/Full
+>                                  100baseT/Half 100baseT/Full
+>                                  1000baseT/Half 1000baseT/Full
+>          Supports auto-negotiation: Yes
+>          Advertised link modes:  Not reported
+>          Advertised auto-negotiation: No
+>          Speed: 1000Mb/s
+>          Duplex: Full
+>          Port: Twisted Pair
+>          PHYAD: 1
+>          Transceiver: internal
+>          Auto-negotiation: off
+>          Supports Wake-on: g
+>          Wake-on: d
+>          Current message level: 0x000000ff (255)
+>          Link detected: yes
+> 
+> Attempts at debugging that we've taken and their results:
+> 
+> duplex/speed forced on both switch and card: no effect
+> turning off spanning tree protocol: no effect
+> enabling fastport: no effect
+> switching from tg3 to bcm5700 drivers: no effect
+> attempting to down and up the interface in /etc/rc.d/init.d/network: no
+> effect
+> attempting a script that runs after network and irqbalance to do the
+> same thing: no effect
+> putting something in rc.local to do the same: works, our current ugly
+> workaround
+> breaking the bond, using the interfaces as two independent NICS: works
+> restarting the bond0 interface manually: works
+> 
+> This problem also manifests on more than one system, which would seem to
+> preclude possible cable, host, or port problems.
+> 
+> Any ideas, or any further information I can send you to help diagnose?
+> Any help would be much appreciated.
 
-On Jun 27, 2005, at 3:50 PM, David S. Miller wrote:
+What's in /proc/net/bonding/bond0?
 
-> I think you're making this problem more complex than it really
-> is.  There is no reason at all to hold page tables for the direct
-> physical memory mappings of lowmem if you have any control whatsoever
-> over the TLB miss handler.
+You'll probably have better luck getting help with this issue on
+netdev@vger.kernel.org and bonding-devel@lists.sourceforge.net.
 
-I'm not one to make it more complex, I just want to cover
-all of the possibilities :-)  The "compute kernel" part of
-it needs to be generic for all of the possibilities.   Like I mentioned.
-we have a quite configurable address space for mapping text,
-data, IO, and uncached spaces.  In addition, we have execute
-in place out of flash and other embedded custom options.
-I was hoping to find a solution where the kernel TLBs could
-be dynamically loaded as well, with the standard look up
-algorithm.  Yes, I still need a kernel path for the special
-case processing of other than 4K pages, but it would be nice
-to keep that generic as well.
-
-I agree, it's rather trivial to fabricate the kernel text/data
-large page sizes on the fly, but there are other address spaces
-that would also benefit from such mapping.  I'd like to find a
-complete solution to this, and I am working on it as time permits.
-I'd rather not try to define a half-baked solution in the future, as
-I sometimes have to do of code written years ago :-)
-
-Even if we don't use the page tables, we still need to create
-them, as the Abatron BDI2000 has knowledge of Linux page
-tables.  When using this jtag debugger, it performs virtual->physical
-translations of addresses not currently mapped by the MMU.
-
-Thanks.
-
-
-	-- Dan
-
+Jason

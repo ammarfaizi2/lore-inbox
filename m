@@ -1,443 +1,163 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261873AbVF0GtM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261866AbVF0GtL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261873AbVF0GtM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 02:49:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261888AbVF0GqS
+	id S261866AbVF0GtL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 02:49:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261873AbVF0Gr6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 02:46:18 -0400
-Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:24175 "HELO
-	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261869AbVF0GgB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 02:36:01 -0400
-Message-ID: <42BF9E2A.7060006@yahoo.com.au>
-Date: Mon, 27 Jun 2005 16:35:22 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-Subject: [patch 6] mm: spinlock tree_lock
-References: <42BF9CD1.2030102@yahoo.com.au> <42BF9D67.10509@yahoo.com.au> <42BF9D86.90204@yahoo.com.au> <42BF9DBA.3000607@yahoo.com.au> <42BF9DE5.6010701@yahoo.com.au> <42BF9E03.9050507@yahoo.com.au>
-In-Reply-To: <42BF9E03.9050507@yahoo.com.au>
-Content-Type: multipart/mixed;
- boundary="------------040906060801080103060200"
+	Mon, 27 Jun 2005 02:47:58 -0400
+Received: from zproxy.gmail.com ([64.233.162.193]:61786 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261879AbVF0Gl3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 02:41:29 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type;
+        b=lzWySdJGvUTRR285cOHxJjq2Vf/GUmKq+iQyg5S3plRmptDmwNCmRNxDjMPm/tcjPcT8n3V+0h1oIJf33+aDpB1EwaPwnl1r34qMRqQefbMwacHSJq6auuTn+g1QOtDNBSGvaczUVL+9nBBrz99MrbeHiQXaSUlScFtgeKwkud0=
+Message-ID: <2c1942a705062623411b7e88c3@mail.gmail.com>
+Date: Mon, 27 Jun 2005 09:41:28 +0300
+From: Levent Serinol <lserinol@gmail.com>
+Reply-To: Levent Serinol <lserinol@gmail.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Rik van Riel <riel@redhat.com>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: [PATCH] enable/disable profiling via proc/sysctl
+Mime-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_3605_25509096.1119854488339"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040906060801080103060200
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+------=_Part_3605_25509096.1119854488339
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+This patch enables controlling kernel profiling through proc/sysctl inferfa=
+ce.
+
+With this patch profiling will be available without rebooting the
+machine (especially for
+production servers) with some drawbacks of vmalloc(tlb). So, bootime
+algorithm part is left unchanged for anyone who wishes to use
+profiling as usual without tlb drawback by rebooting the machine.
 
 
--- 
-SUSE Labs, Novell Inc.
+PS. This patch is against  2.6.12-rc6
 
---------------040906060801080103060200
-Content-Type: text/plain;
- name="mm-spinlock-tree_lock.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="mm-spinlock-tree_lock.patch"
+------=_Part_3605_25509096.1119854488339
+Content-Type: text/x-patch; name="profile.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="profile.patch"
 
-With practially all the read locks gone from mapping->tree_lock,
-convert the lock from an rwlock back to a spinlock.
-
-The remaining locks including the read locks mainly deal with IO
-submission and not the lookup fastpaths.
-
-Index: linux-2.6/fs/buffer.c
-===================================================================
---- linux-2.6.orig/fs/buffer.c
-+++ linux-2.6/fs/buffer.c
-@@ -875,7 +875,7 @@ int __set_page_dirty_buffers(struct page
- 	spin_unlock(&mapping->private_lock);
- 
- 	if (!TestSetPageDirty(page)) {
--		write_lock_irq(&mapping->tree_lock);
-+		spin_lock_irq(&mapping->tree_lock);
- 		if (page->mapping) {	/* Race with truncate? */
- 			if (mapping_cap_account_dirty(mapping))
- 				inc_page_state(nr_dirty);
-@@ -883,7 +883,7 @@ int __set_page_dirty_buffers(struct page
- 						page_index(page),
- 						PAGECACHE_TAG_DIRTY);
- 		}
--		write_unlock_irq(&mapping->tree_lock);
-+		spin_unlock_irq(&mapping->tree_lock);
- 		__mark_inode_dirty(mapping->host, I_DIRTY_PAGES);
- 	}
- 	
-Index: linux-2.6/fs/inode.c
-===================================================================
---- linux-2.6.orig/fs/inode.c
-+++ linux-2.6/fs/inode.c
-@@ -194,7 +194,7 @@ void inode_init_once(struct inode *inode
- 	sema_init(&inode->i_sem, 1);
- 	init_rwsem(&inode->i_alloc_sem);
- 	INIT_RADIX_TREE(&inode->i_data.page_tree, GFP_ATOMIC);
--	rwlock_init(&inode->i_data.tree_lock);
-+	spin_lock_init(&inode->i_data.tree_lock);
- 	spin_lock_init(&inode->i_data.i_mmap_lock);
- 	INIT_LIST_HEAD(&inode->i_data.private_list);
- 	spin_lock_init(&inode->i_data.private_lock);
-Index: linux-2.6/include/linux/fs.h
-===================================================================
---- linux-2.6.orig/include/linux/fs.h
-+++ linux-2.6/include/linux/fs.h
-@@ -336,7 +336,7 @@ struct backing_dev_info;
- struct address_space {
- 	struct inode		*host;		/* owner: inode, block_device */
- 	struct radix_tree_root	page_tree;	/* radix tree of all pages */
--	rwlock_t		tree_lock;	/* and rwlock protecting it */
-+	spinlock_t		tree_lock;	/* and lock protecting it */
- 	unsigned int		i_mmap_writable;/* count VM_SHARED mappings */
- 	struct prio_tree_root	i_mmap;		/* tree of private and shared mappings */
- 	struct list_head	i_mmap_nonlinear;/*list VM_NONLINEAR mappings */
-Index: linux-2.6/mm/filemap.c
-===================================================================
---- linux-2.6.orig/mm/filemap.c
-+++ linux-2.6/mm/filemap.c
-@@ -120,9 +120,9 @@ void remove_from_page_cache(struct page 
- 
- 	BUG_ON(!PageLocked(page));
- 
--	write_lock_irq(&mapping->tree_lock);
-+	spin_lock_irq(&mapping->tree_lock);
- 	__remove_from_page_cache(page);
--	write_unlock_irq(&mapping->tree_lock);
-+	spin_unlock_irq(&mapping->tree_lock);
- }
- 
- static int sync_page(void *word)
-@@ -383,13 +383,13 @@ int add_to_page_cache(struct page *page,
- 		page->mapping = mapping;
- 		page->index = offset;
- 
--		write_lock_irq(&mapping->tree_lock);
-+		spin_lock_irq(&mapping->tree_lock);
- 		error = radix_tree_insert(&mapping->page_tree, offset, page);
- 		if (!error) {
- 			mapping->nrpages++;
- 			pagecache_acct(1);
- 		}
--		write_unlock_irq(&mapping->tree_lock);
-+		spin_unlock_irq(&mapping->tree_lock);
- 		radix_tree_preload_end();
- 
- 		if (error) {
-@@ -647,12 +647,12 @@ unsigned find_get_pages(struct address_s
- 	unsigned int i;
- 	unsigned int ret;
- 
--	read_lock_irq(&mapping->tree_lock);
-+	spin_lock_irq(&mapping->tree_lock);
- 	ret = radix_tree_gang_lookup(&mapping->page_tree,
- 				(void **)pages, start, nr_pages);
- 	for (i = 0; i < ret; i++)
- 		page_cache_get(pages[i]);
--	read_unlock_irq(&mapping->tree_lock);
-+	spin_unlock_irq(&mapping->tree_lock);
- 	return ret;
- }
- 
-@@ -690,14 +690,14 @@ unsigned find_get_pages_tag(struct addre
- 	unsigned int i;
- 	unsigned int ret;
- 
--	read_lock_irq(&mapping->tree_lock);
-+	spin_lock_irq(&mapping->tree_lock);
- 	ret = radix_tree_gang_lookup_tag(&mapping->page_tree,
- 				(void **)pages, *index, nr_pages, tag);
- 	for (i = 0; i < ret; i++)
- 		page_cache_get(pages[i]);
- 	if (ret)
- 		*index = pages[ret - 1]->index + 1;
--	read_unlock_irq(&mapping->tree_lock);
-+	spin_unlock_irq(&mapping->tree_lock);
- 	return ret;
- }
- 
-Index: linux-2.6/mm/swap_state.c
-===================================================================
---- linux-2.6.orig/mm/swap_state.c
-+++ linux-2.6/mm/swap_state.c
-@@ -35,7 +35,7 @@ static struct backing_dev_info swap_back
- 
- struct address_space swapper_space = {
- 	.page_tree	= RADIX_TREE_INIT(GFP_ATOMIC|__GFP_NOWARN),
--	.tree_lock	= RW_LOCK_UNLOCKED,
-+	.tree_lock	= SPIN_LOCK_UNLOCKED,
- 	.a_ops		= &swap_aops,
- 	.i_mmap_nonlinear = LIST_HEAD_INIT(swapper_space.i_mmap_nonlinear),
- 	.backing_dev_info = &swap_backing_dev_info,
-@@ -81,14 +81,14 @@ static int __add_to_swap_cache(struct pa
- 		SetPageSwapCache(page);
- 		page->private = entry.val;
- 
--		write_lock_irq(&swapper_space.tree_lock);
-+		spin_lock_irq(&swapper_space.tree_lock);
- 		error = radix_tree_insert(&swapper_space.page_tree,
- 						entry.val, page);
- 		if (!error) {
- 			total_swapcache_pages++;
- 			pagecache_acct(1);
- 		}
--		write_unlock_irq(&swapper_space.tree_lock);
-+		spin_unlock_irq(&swapper_space.tree_lock);
- 		radix_tree_preload_end();
- 
- 		if (error) {
-@@ -210,9 +210,9 @@ void delete_from_swap_cache(struct page 
-   
- 	entry.val = page->private;
- 
--	write_lock_irq(&swapper_space.tree_lock);
-+	spin_lock_irq(&swapper_space.tree_lock);
- 	__delete_from_swap_cache(page);
--	write_unlock_irq(&swapper_space.tree_lock);
-+	spin_unlock_irq(&swapper_space.tree_lock);
- 
- 	swap_free(entry);
- 	page_cache_release(page);
-Index: linux-2.6/mm/swapfile.c
-===================================================================
---- linux-2.6.orig/mm/swapfile.c
-+++ linux-2.6/mm/swapfile.c
-@@ -339,13 +339,13 @@ int remove_exclusive_swap_page(struct pa
- 	if (p->swap_map[swp_offset(entry)] == 1) {
- 		/* Recheck the page count with the swapcache lock held.. */
- 		SetPageFreeing(page);
--		write_lock_irq(&swapper_space.tree_lock);
-+		spin_lock_irq(&swapper_space.tree_lock);
- 		if ((page_count(page) == 2) && !PageWriteback(page)) {
- 			__delete_from_swap_cache(page);
- 			SetPageDirty(page);
- 			retval = 1;
- 		}
--		write_unlock_irq(&swapper_space.tree_lock);
-+		spin_unlock_irq(&swapper_space.tree_lock);
- 		ClearPageFreeing(page);
- 	}
- 	swap_info_put(p);
-Index: linux-2.6/mm/truncate.c
-===================================================================
---- linux-2.6.orig/mm/truncate.c
-+++ linux-2.6/mm/truncate.c
-@@ -76,15 +76,15 @@ invalidate_complete_page(struct address_
- 	if (PagePrivate(page) && !try_to_release_page(page, 0))
- 		return 0;
- 
--	write_lock_irq(&mapping->tree_lock);
-+	spin_lock_irq(&mapping->tree_lock);
- 	if (PageDirty(page)) {
--		write_unlock_irq(&mapping->tree_lock);
-+		spin_unlock_irq(&mapping->tree_lock);
- 		return 0;
- 	}
- 
- 	BUG_ON(PagePrivate(page));
- 	__remove_from_page_cache(page);
--	write_unlock_irq(&mapping->tree_lock);
-+	spin_unlock_irq(&mapping->tree_lock);
- 	ClearPageUptodate(page);
- 	page_cache_release(page);	/* pagecache ref */
- 	return 1;
-Index: linux-2.6/mm/vmscan.c
-===================================================================
---- linux-2.6.orig/mm/vmscan.c
-+++ linux-2.6/mm/vmscan.c
-@@ -505,7 +505,7 @@ static int shrink_list(struct list_head 
- 			goto keep_locked;	/* truncate got there first */
- 
- 		SetPageFreeing(page);
--		write_lock_irq(&mapping->tree_lock);
-+		spin_lock_irq(&mapping->tree_lock);
- 
- 		/*
- 		 * The non-racy check for busy page.  It is critical to check
-@@ -513,7 +513,7 @@ static int shrink_list(struct list_head 
- 		 * not in use by anybody. 	(pagecache + us == 2)
- 		 */
- 		if (page_count(page) != 2 || PageDirty(page)) {
--			write_unlock_irq(&mapping->tree_lock);
-+			spin_unlock_irq(&mapping->tree_lock);
- 			ClearPageFreeing(page);
- 			goto keep_locked;
- 		}
-@@ -522,7 +522,7 @@ static int shrink_list(struct list_head 
- 		if (PageSwapCache(page)) {
- 			swp_entry_t swap = { .val = page->private };
- 			__delete_from_swap_cache(page);
--			write_unlock_irq(&mapping->tree_lock);
-+			spin_unlock_irq(&mapping->tree_lock);
- 			swap_free(swap);
- 			__put_page(page);	/* The pagecache ref */
- 			goto free_it;
-@@ -530,7 +530,7 @@ static int shrink_list(struct list_head 
- #endif /* CONFIG_SWAP */
- 
- 		__remove_from_page_cache(page);
--		write_unlock_irq(&mapping->tree_lock);
-+		spin_unlock_irq(&mapping->tree_lock);
- 		__put_page(page);
- 
- free_it:
-Index: linux-2.6/mm/page-writeback.c
-===================================================================
---- linux-2.6.orig/mm/page-writeback.c
-+++ linux-2.6/mm/page-writeback.c
-@@ -623,7 +623,7 @@ int __set_page_dirty_nobuffers(struct pa
- 		struct address_space *mapping2;
- 
- 		if (mapping) {
--			write_lock_irq(&mapping->tree_lock);
-+			spin_lock_irq(&mapping->tree_lock);
- 			mapping2 = page_mapping(page);
- 			if (mapping2) { /* Race with truncate? */
- 				BUG_ON(mapping2 != mapping);
-@@ -632,7 +632,7 @@ int __set_page_dirty_nobuffers(struct pa
- 				radix_tree_tag_set(&mapping->page_tree,
- 					page_index(page), PAGECACHE_TAG_DIRTY);
- 			}
--			write_unlock_irq(&mapping->tree_lock);
-+			spin_unlock_irq(&mapping->tree_lock);
- 			if (mapping->host) {
- 				/* !PageAnon && !swapper_space */
- 				__mark_inode_dirty(mapping->host,
-@@ -707,17 +707,17 @@ int test_clear_page_dirty(struct page *p
- 	unsigned long flags;
- 
- 	if (mapping) {
--		write_lock_irqsave(&mapping->tree_lock, flags);
-+		spin_lock_irqsave(&mapping->tree_lock, flags);
- 		if (TestClearPageDirty(page)) {
- 			radix_tree_tag_clear(&mapping->page_tree,
- 						page_index(page),
- 						PAGECACHE_TAG_DIRTY);
--			write_unlock_irqrestore(&mapping->tree_lock, flags);
-+			spin_unlock_irqrestore(&mapping->tree_lock, flags);
- 			if (mapping_cap_account_dirty(mapping))
- 				dec_page_state(nr_dirty);
- 			return 1;
- 		}
--		write_unlock_irqrestore(&mapping->tree_lock, flags);
-+		spin_unlock_irqrestore(&mapping->tree_lock, flags);
- 		return 0;
- 	}
- 	return TestClearPageDirty(page);
-@@ -762,13 +762,13 @@ int test_clear_page_writeback(struct pag
- 	if (mapping) {
- 		unsigned long flags;
- 
--		write_lock_irqsave(&mapping->tree_lock, flags);
-+		spin_lock_irqsave(&mapping->tree_lock, flags);
- 		ret = TestClearPageWriteback(page);
- 		if (ret)
- 			radix_tree_tag_clear(&mapping->page_tree,
- 						page_index(page),
- 						PAGECACHE_TAG_WRITEBACK);
--		write_unlock_irqrestore(&mapping->tree_lock, flags);
-+		spin_unlock_irqrestore(&mapping->tree_lock, flags);
- 	} else {
- 		ret = TestClearPageWriteback(page);
- 	}
-@@ -783,7 +783,7 @@ int test_set_page_writeback(struct page 
- 	if (mapping) {
- 		unsigned long flags;
- 
--		write_lock_irqsave(&mapping->tree_lock, flags);
-+		spin_lock_irqsave(&mapping->tree_lock, flags);
- 		ret = TestSetPageWriteback(page);
- 		if (!ret)
- 			radix_tree_tag_set(&mapping->page_tree,
-@@ -793,7 +793,7 @@ int test_set_page_writeback(struct page 
- 			radix_tree_tag_clear(&mapping->page_tree,
- 						page_index(page),
- 						PAGECACHE_TAG_DIRTY);
--		write_unlock_irqrestore(&mapping->tree_lock, flags);
-+		spin_unlock_irqrestore(&mapping->tree_lock, flags);
- 	} else {
- 		ret = TestSetPageWriteback(page);
- 	}
-@@ -812,9 +812,9 @@ int mapping_tagged(struct address_space 
- 	int ret;
- 
- 	/* XXX: radix_tree_tagged is safe to run without the lock */
--	read_lock_irqsave(&mapping->tree_lock, flags);
-+	spin_lock_irqsave(&mapping->tree_lock, flags);
- 	ret = radix_tree_tagged(&mapping->page_tree, tag);
--	read_unlock_irqrestore(&mapping->tree_lock, flags);
-+	spin_unlock_irqrestore(&mapping->tree_lock, flags);
- 	return ret;
- }
- EXPORT_SYMBOL(mapping_tagged);
-Index: linux-2.6/drivers/mtd/devices/block2mtd.c
-===================================================================
---- linux-2.6.orig/drivers/mtd/devices/block2mtd.c
-+++ linux-2.6/drivers/mtd/devices/block2mtd.c
-@@ -59,7 +59,7 @@ void cache_readahead(struct address_spac
- 
- 	end_index = ((isize - 1) >> PAGE_CACHE_SHIFT);
- 
--	read_lock_irq(&mapping->tree_lock);
-+	spin_lock_irq(&mapping->tree_lock);
- 	for (i = 0; i < PAGE_READAHEAD; i++) {
- 		pagei = index + i;
- 		if (pagei > end_index) {
-@@ -71,16 +71,16 @@ void cache_readahead(struct address_spac
- 			break;
- 		if (page)
- 			continue;
--		read_unlock_irq(&mapping->tree_lock);
-+		spin_unlock_irq(&mapping->tree_lock);
- 		page = page_cache_alloc_cold(mapping);
--		read_lock_irq(&mapping->tree_lock);
-+		spin_lock_irq(&mapping->tree_lock);
- 		if (!page)
- 			break;
- 		page->index = pagei;
- 		list_add(&page->lru, &page_pool);
- 		ret++;
- 	}
--	read_unlock_irq(&mapping->tree_lock);
-+	spin_unlock_irq(&mapping->tree_lock);
- 	if (ret)
- 		read_cache_pages(mapping, &page_pool, filler, NULL);
- }
-Index: linux-2.6/include/asm-arm/cacheflush.h
-===================================================================
---- linux-2.6.orig/include/asm-arm/cacheflush.h
-+++ linux-2.6/include/asm-arm/cacheflush.h
-@@ -315,9 +315,9 @@ flush_cache_page(struct vm_area_struct *
- extern void flush_dcache_page(struct page *);
- 
- #define flush_dcache_mmap_lock(mapping) \
--	write_lock_irq(&(mapping)->tree_lock)
-+	spin_lock_irq(&(mapping)->tree_lock)
- #define flush_dcache_mmap_unlock(mapping) \
--	write_unlock_irq(&(mapping)->tree_lock)
-+	spin_unlock_irq(&(mapping)->tree_lock)
- 
- #define flush_icache_user_range(vma,page,addr,len) \
- 	flush_dcache_page(page)
-Index: linux-2.6/include/asm-parisc/cacheflush.h
-===================================================================
---- linux-2.6.orig/include/asm-parisc/cacheflush.h
-+++ linux-2.6/include/asm-parisc/cacheflush.h
-@@ -57,9 +57,9 @@ flush_user_icache_range(unsigned long st
- extern void flush_dcache_page(struct page *page);
- 
- #define flush_dcache_mmap_lock(mapping) \
--	write_lock_irq(&(mapping)->tree_lock)
-+	spin_lock_irq(&(mapping)->tree_lock)
- #define flush_dcache_mmap_unlock(mapping) \
--	write_unlock_irq(&(mapping)->tree_lock)
-+	spin_unlock_irq(&(mapping)->tree_lock)
- 
- #define flush_icache_page(vma,page)	do { flush_kernel_dcache_page(page_address(page)); flush_kernel_icache_page(page_address(page)); } while (0)
- 
-
---------------040906060801080103060200--
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+LS0tIGluY2x1ZGUvbGludXgvc3lzY3RsLmgub3JnCTIwMDUtMDYtMTMgMTY6MDU6MTcuMDAwMDAw
+MDAwICswMzAwCisrKyBpbmNsdWRlL2xpbnV4L3N5c2N0bC5oCTIwMDUtMDYtMjUgMTU6MDU6MDYu
+MDAwMDAwMDAwICswMzAwCkBAIC0xMzYsNiArMTM2LDcgQEAgZW51bQogCUtFUk5fVU5LTk9XTl9O
+TUlfUEFOSUM9NjYsIC8qIGludDogdW5rbm93biBubWkgcGFuaWMgZmxhZyAqLwogCUtFUk5fQk9P
+VExPQURFUl9UWVBFPTY3LCAvKiBpbnQ6IGJvb3QgbG9hZGVyIHR5cGUgKi8KIAlLRVJOX1JBTkRP
+TUlaRT02OCwgLyogaW50OiByYW5kb21pemUgdmlydHVhbCBhZGRyZXNzIHNwYWNlICovCisJS0VS
+Tl9QUk9GSUxFPTY5LCAvKiBpbnQ6IHByb2ZpbGUgb24vb2ZmICovCiB9OwogCiAKLS0tIGluY2x1
+ZGUvbGludXgvcHJvZmlsZS5oLm9yZwkyMDA1LTAzLTAyIDA5OjM4OjA4LjAwMDAwMDAwMCArMDIw
+MAorKysgaW5jbHVkZS9saW51eC9wcm9maWxlLmgJMjAwNS0wNi0yNiAwMTo1Njo0Ni4wMDAwMDAw
+MDAgKzAzMDAKQEAgLTYsMTQgKzYsMjAgQEAKICNpbmNsdWRlIDxsaW51eC9rZXJuZWwuaD4KICNp
+bmNsdWRlIDxsaW51eC9jb25maWcuaD4KICNpbmNsdWRlIDxsaW51eC9pbml0Lmg+CisjaW5jbHVk
+ZSA8bGludXgvc3lzY3RsLmg+CiAjaW5jbHVkZSA8bGludXgvY3B1bWFzay5oPgogI2luY2x1ZGUg
+PGFzbS9lcnJuby5oPgogCiAjZGVmaW5lIENQVV9QUk9GSUxJTkcJMQogI2RlZmluZSBTQ0hFRF9Q
+Uk9GSUxJTkcJMgogCitzdHJ1Y3QgY3RsX3RhYmxlOworc3RydWN0IGZpbGU7CiBzdHJ1Y3QgcHJv
+Y19kaXJfZW50cnk7CiBzdHJ1Y3QgcHRfcmVnczsKK2ludCBwcm9maWxlX3N5c2N0bF9oYW5kbGVy
+KGN0bF90YWJsZSAqdGFibGUsIGludCB3cml0ZSwKKyAgICAgICAgICAgICAgIHN0cnVjdCBmaWxl
+ICpmaWxlLCB2b2lkIF9fdXNlciAqYnVmZmVyLCBzaXplX3QKKypsZW5ndGgsIGxvZmZfdCAqcHBv
+cyk7CiAKIC8qIGluaXQgYmFzaWMga2VybmVsIHByb2ZpbGVyICovCiB2b2lkIF9faW5pdCBwcm9m
+aWxlX2luaXQodm9pZCk7Ci0tLSBrZXJuZWwvcHJvZmlsZS5jLm9yZwkyMDA1LTA2LTEzIDE2OjA1
+OjIzLjAwMDAwMDAwMCArMDMwMAorKysga2VybmVsL3Byb2ZpbGUuYwkyMDA1LTA2LTI2IDIxOjM0
+OjI4LjAwMDAwMDAwMCArMDMwMApAQCAtMjEsNyArMjEsNiBAQAogI2luY2x1ZGUgPGxpbnV4L21t
+Lmg+CiAjaW5jbHVkZSA8bGludXgvY3B1bWFzay5oPgogI2luY2x1ZGUgPGxpbnV4L2NwdS5oPgot
+I2luY2x1ZGUgPGxpbnV4L3Byb2ZpbGUuaD4KICNpbmNsdWRlIDxsaW51eC9oaWdobWVtLmg+CiAj
+aW5jbHVkZSA8YXNtL3NlY3Rpb25zLmg+CiAjaW5jbHVkZSA8YXNtL3NlbWFwaG9yZS5oPgpAQCAt
+MzcsOSArMzYsMTEgQEAgc3RydWN0IHByb2ZpbGVfaGl0IHsKIC8qIE9wcm9maWxlIHRpbWVyIHRp
+Y2sgaG9vayAqLwogaW50ICgqdGltZXJfaG9vaykoc3RydWN0IHB0X3JlZ3MgKik7CiAKK2ludCBw
+cm9maWxlX3BhcmFtc1syXSA9IHswLCAwfTsKIHN0YXRpYyBhdG9taWNfdCAqcHJvZl9idWZmZXI7
+CiBzdGF0aWMgdW5zaWduZWQgbG9uZyBwcm9mX2xlbiwgcHJvZl9zaGlmdDsKLXN0YXRpYyBpbnQg
+cHJvZl9vbjsKK3N0YXRpYyBpbnQgcHJvZl9vbiA9IDA7CitzdGF0aWMgaW50IHByb2ZfYm9vdG9u
+ID0gMDsKIHN0YXRpYyBjcHVtYXNrX3QgcHJvZl9jcHVfbWFzayA9IENQVV9NQVNLX0FMTDsKICNp
+ZmRlZiBDT05GSUdfU01QCiBzdGF0aWMgREVGSU5FX1BFUl9DUFUoc3RydWN0IHByb2ZpbGVfaGl0
+ICpbMl0sIGNwdV9wcm9maWxlX2hpdHMpOwpAQCAtODAsNiArODEsNyBAQCB2b2lkIF9faW5pdCBw
+cm9maWxlX2luaXQodm9pZCkKIAkvKiBvbmx5IHRleHQgaXMgcHJvZmlsZWQgKi8KIAlwcm9mX2xl
+biA9IChfZXRleHQgLSBfc3RleHQpID4+IHByb2Zfc2hpZnQ7CiAJcHJvZl9idWZmZXIgPSBhbGxv
+Y19ib290bWVtKHByb2ZfbGVuKnNpemVvZihhdG9taWNfdCkpOworCXByb2ZfYm9vdG9uID0gMTsK
+IH0KIAogLyogUHJvZmlsZSBldmVudCBub3RpZmljYXRpb25zICovCkBAIC0zNjcsNiArMzY5LDEy
+IEBAIHN0YXRpYyBpbnQgX19kZXZpbml0IHByb2ZpbGVfY3B1X2NhbGxiYWMKIAl9CiAJcmV0dXJu
+IE5PVElGWV9PSzsKIH0KK3N0YXRpYyBzdHJ1Y3Qgbm90aWZpZXJfYmxvY2sgcHJvZmlsZV9jcHVf
+bm90aWZpZXIgPQoreworICAgICAgICAgLm5vdGlmaWVyX2NhbGwgPSBwcm9maWxlX2NwdV9jYWxs
+YmFjaywKKyAgICAgICAgIC5wcmlvcml0eSA9IDAsCit9OworCiAjZW5kaWYgLyogQ09ORklHX0hP
+VFBMVUdfQ1BVICovCiAjZWxzZSAvKiAhQ09ORklHX1NNUCAqLwogI2RlZmluZSBwcm9maWxlX2Zs
+aXBfYnVmZmVycygpCQlkbyB7IH0gd2hpbGUgKDApCkBAIC01NDgsNiArNTU2LDk2IEBAIG91dF9j
+bGVhbnVwOgogI2RlZmluZSBjcmVhdGVfaGFzaF90YWJsZXMoKQkJCSh7IDA7IH0pCiAjZW5kaWYK
+IAorI2lmZGVmIENPTkZJR19TTVAKK3N0YXRpYyBpbnQgcmVtb3ZlX2hhc2hfdGFibGVzKHZvaWQp
+Cit7CisJaW50IGNwdTsKKworCXNtcF9tYigpOworCW9uX2VhY2hfY3B1KHByb2ZpbGVfbm9wLCBO
+VUxMLCAwLCAxKTsKKwlmb3JfZWFjaF9vbmxpbmVfY3B1KGNwdSkgeworCQlzdHJ1Y3QgcGFnZSAq
+cGFnZTsKKworCQlpZiAocGVyX2NwdShjcHVfcHJvZmlsZV9oaXRzLCBjcHUpWzBdKSB7CisJCQlw
+YWdlID0gdmlydF90b19wYWdlKHBlcl9jcHUoY3B1X3Byb2ZpbGVfaGl0cywgY3B1KVswXSk7CisJ
+CQlwZXJfY3B1KGNwdV9wcm9maWxlX2hpdHMsIGNwdSlbMF0gPSBOVUxMOworCQkJX19mcmVlX3Bh
+Z2UocGFnZSk7CisJCX0KKwkJaWYgKHBlcl9jcHUoY3B1X3Byb2ZpbGVfaGl0cywgY3B1KVsxXSkg
+eworCQkJcGFnZSA9IHZpcnRfdG9fcGFnZShwZXJfY3B1KGNwdV9wcm9maWxlX2hpdHMsIGNwdSlb
+MV0pOworCQkJcGVyX2NwdShjcHVfcHJvZmlsZV9oaXRzLCBjcHUpWzFdID0gTlVMTDsKKwkJCV9f
+ZnJlZV9wYWdlKHBhZ2UpOworCQl9CisJfQorCXJldHVybiAtMTsKK30KKyNlbHNlCisjZGVmaW5l
+IHJlbW92ZV9oYXNoX3RhYmxlcygpCQkJKHsgMDsgfSkKKyNlbmRpZgorCitpbnQgcHJvZmlsZV9z
+eXNjdGxfaGFuZGxlcihjdGxfdGFibGUgKnRhYmxlLCBpbnQgd3JpdGUsCisJc3RydWN0IGZpbGUg
+KmZpbGUsIHZvaWQgX191c2VyICpidWZmZXIsIHNpemVfdCAqbGVuZ3RoLCBsb2ZmX3QgKnBwb3Mp
+Cit7CisJaW50IGVycjsKKwlzdHJ1Y3QgcHJvY19kaXJfZW50cnkgKmVudHJ5OworCisJaWYgKHBy
+b2ZfYm9vdG9uICYmIHdyaXRlKSByZXR1cm4gMDsKKwllcnI9cHJvY19kb2ludHZlYyh0YWJsZSwg
+d3JpdGUsIGZpbGUsIGJ1ZmZlciwgbGVuZ3RoLCBwcG9zKTsKKwlpZiAoKGVyciA+PSAwKSAmJiB3
+cml0ZSkgeworCXByb2Zfc2hpZnQgPSBwcm9maWxlX3BhcmFtc1sxXTsKKwlzd2l0Y2gocHJvZmls
+ZV9wYXJhbXNbMF0pCisJeworCWNhc2UgMDoKKwkJaWYgKHByb2Zfb24pIHsKKwkJCXByb2Zfb24g
+PSAwOworCQkJcmVtb3ZlX3Byb2NfZW50cnkoInByb2ZpbGUiLE5VTEwpOworI2lmZGVmIENPTkZJ
+R19IT1RQTFVHX0NQVQorCQkJdW5yZWdpc3Rlcl9jcHVfbm90aWZpZXIoJnByb2ZpbGVfY3B1X25v
+dGlmaWVyKTsKKyNlbmRpZgorCQkJcmVtb3ZlX2hhc2hfdGFibGVzKCk7CisJCQl2ZnJlZShwcm9m
+X2J1ZmZlcik7CisJCQlwcmludGsoS0VSTl9JTkZPICJrZXJuZWwgcHJvZmlsaW5nIGRpc2FibGVk
+XG4iKTsKKwkJICAgICB9IAorCQlicmVhazsKKwljYXNlIFNDSEVEX1BST0ZJTElORyB8fCBDUFVf
+UFJPRklMSU5HOgorCQlpZiAocHJvZl9vbikgcmV0dXJuIC0xOworICAgICAgICAJcHJvZl9sZW4g
+PSAoX2V0ZXh0IC0gX3N0ZXh0KSA+PiBwcm9mX3NoaWZ0OworICAgICAgICAJcHJvZl9idWZmZXIg
+PSB2bWFsbG9jKHByb2ZfbGVuKnNpemVvZihhdG9taWNfdCkpOworCQlpZiAoIXByb2ZfYnVmZmVy
+KSByZXR1cm4oLUVOT01FTSk7CisJCWlmIChjcmVhdGVfaGFzaF90YWJsZXMoKSkgeworCQkJdmZy
+ZWUocHJvZl9idWZmZXIpOworCQkJcmV0dXJuIC0xOworCQkJfQorCQlwcm9mX29uID0gcHJvZmls
+ZV9wYXJhbXNbMF07CisJCWlmICghKGVudHJ5ID0gY3JlYXRlX3Byb2NfZW50cnkoInByb2ZpbGUi
+LCBTX0lXVVNSIHwgU19JUlVHTywgTlVMTCkpKSB7CisJCQlyZW1vdmVfaGFzaF90YWJsZXMoKTsK
+KwkJCXZmcmVlKHByb2ZfYnVmZmVyKTsKKwkJCXJldHVybiAwOworCQkJfQorCQllbnRyeS0+cHJv
+Y19mb3BzID0gJnByb2NfcHJvZmlsZV9vcGVyYXRpb25zOworCQllbnRyeS0+c2l6ZSA9ICgxK3By
+b2ZfbGVuKSAqIHNpemVvZihhdG9taWNfdCk7CisjaWZkZWYgQ09ORklHX0hPVFBMVUdfQ1BVCisJ
+CXJlZ2lzdGVyX2NwdV9ub3RpZmllcigmcHJvZmlsZV9jcHVfbm90aWZpZXIpOworI2VuZGlmCisJ
+CXByb2ZpbGVfZGlzY2FyZF9mbGlwX2J1ZmZlcnMoKTsKKyAgICAgICAgCW1lbXNldChwcm9mX2J1
+ZmZlciwgMCwgcHJvZl9sZW4gKiBzaXplb2YoYXRvbWljX3QpKTsKKwkJCXN3aXRjaChwcm9mX29u
+KQorCQkJeworCQkJY2FzZSBTQ0hFRF9QUk9GSUxJTkc6cHJpbnRrKEtFUk5fSU5GTworCQkJCSJr
+ZXJuZWwgc2NoZWR1bGUgcHJvZmlsaW5nIGVuYWJsZWQgKHNoaWZ0OiAlbGQpXG4iLAorCQkJCXBy
+b2Zfc2hpZnQpOworCQkJCWJyZWFrOworCQkJY2FzZSBDUFVfUFJPRklMSU5HOnByaW50ayhLRVJO
+X0lORk8KKwkJCQkia2VybmVsIHByb2ZpbGluZyBlbmFibGVkIChzaGlmdDogJWxkKVxuIiwKKwkJ
+CQlwcm9mX3NoaWZ0KTsKKwkJCQlicmVhazsKKwkJCQl9IAorCQkJYnJlYWs7CisJCQl9CisJCX0K
+KwlyZXR1cm4gMDsKK30KKwogc3RhdGljIGludCBfX2luaXQgY3JlYXRlX3Byb2NfcHJvZmlsZSh2
+b2lkKQogewogCXN0cnVjdCBwcm9jX2Rpcl9lbnRyeSAqZW50cnk7CkBAIC01NjAsNyArNjU4LDEx
+IEBAIHN0YXRpYyBpbnQgX19pbml0IGNyZWF0ZV9wcm9jX3Byb2ZpbGUodm8KIAkJcmV0dXJuIDA7
+CiAJZW50cnktPnByb2NfZm9wcyA9ICZwcm9jX3Byb2ZpbGVfb3BlcmF0aW9uczsKIAllbnRyeS0+
+c2l6ZSA9ICgxK3Byb2ZfbGVuKSAqIHNpemVvZihhdG9taWNfdCk7Ci0JaG90Y3B1X25vdGlmaWVy
+KHByb2ZpbGVfY3B1X2NhbGxiYWNrLCAwKTsKKyNpZmRlZiBDT05GSUdfSE9UUExVR19DUFUKKwly
+ZWdpc3Rlcl9jcHVfbm90aWZpZXIoJnByb2ZpbGVfY3B1X25vdGlmaWVyKTsKKyNlbmRpZgorCXBy
+b2ZpbGVfcGFyYW1zWzBdID0gcHJvZl9vbjsKKwlwcm9maWxlX3BhcmFtc1sxXSA9IHByb2Zfc2hp
+ZnQ7CiAJcmV0dXJuIDA7CiB9CiBtb2R1bGVfaW5pdChjcmVhdGVfcHJvY19wcm9maWxlKTsKLS0t
+IGtlcm5lbC9zeXNjdGwuYy5vcmcJMjAwNS0wNi0xMyAxNjowNToyMy4wMDAwMDAwMDAgKzAzMDAK
+KysrIGtlcm5lbC9zeXNjdGwuYwkyMDA1LTA2LTI2IDAyOjA2OjIzLjAwMDAwMDAwMCArMDMwMApA
+QCAtMjEsNiArMjEsNyBAQAogI2luY2x1ZGUgPGxpbnV4L2NvbmZpZy5oPgogI2luY2x1ZGUgPGxp
+bnV4L21vZHVsZS5oPgogI2luY2x1ZGUgPGxpbnV4L21tLmg+CisjaW5jbHVkZSA8bGludXgvcHJv
+ZmlsZS5oPgogI2luY2x1ZGUgPGxpbnV4L3N3YXAuaD4KICNpbmNsdWRlIDxsaW51eC9zbGFiLmg+
+CiAjaW5jbHVkZSA8bGludXgvc3lzY3RsLmg+CkBAIC02NSw2ICs2Niw3IEBAIGV4dGVybiBpbnQg
+bWluX2ZyZWVfa2J5dGVzOwogZXh0ZXJuIGludCBwcmludGtfcmF0ZWxpbWl0X2ppZmZpZXM7CiBl
+eHRlcm4gaW50IHByaW50a19yYXRlbGltaXRfYnVyc3Q7CiBleHRlcm4gaW50IHBpZF9tYXhfbWlu
+LCBwaWRfbWF4X21heDsKK2V4dGVybiBpbnQgcHJvZmlsZV9wYXJhbXNbXTsKIAogI2lmIGRlZmlu
+ZWQoQ09ORklHX1g4Nl9MT0NBTF9BUElDKSAmJiBkZWZpbmVkKENPTkZJR19YODYpCiBpbnQgdW5r
+bm93bl9ubWlfcGFuaWM7CkBAIC02NDIsNyArNjQ0LDE1IEBAIHN0YXRpYyBjdGxfdGFibGUga2Vy
+bl90YWJsZVtdID0gewogCQkubW9kZQkJPSAwNjQ0LAogCQkucHJvY19oYW5kbGVyCT0gJnByb2Nf
+ZG9pbnR2ZWMsCiAJfSwKLQorCXsKKwkJLmN0bF9uYW1lICAgICAgID0gS0VSTl9QUk9GSUxFLAor
+CQkucHJvY25hbWUgICAgICAgPSAicHJvZmlsZSIsCisJCS5kYXRhICAgICAgICAgICA9ICZwcm9m
+aWxlX3BhcmFtcywKKwkJLm1heGxlbiAgICAgICAgID0gMipzaXplb2YoaW50KSwKKwkJLm1vZGUg
+ICAgICAgICAgID0gMDY0NCwKKwkJLnByb2NfaGFuZGxlciAgID0gJnByb2ZpbGVfc3lzY3RsX2hh
+bmRsZXIsCisJCS5zdHJhdGVneSAgICAgICA9ICZzeXNjdGxfaW50dmVjLAorCX0sCiAJeyAuY3Rs
+X25hbWUgPSAwIH0KIH07CiAK
+------=_Part_3605_25509096.1119854488339--

@@ -1,57 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261381AbVF0Tyh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261251AbVF0TqR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261381AbVF0Tyh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 15:54:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261154AbVF0Tyg
+	id S261251AbVF0TqR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 15:46:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261243AbVF0ToR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 15:54:36 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:36534
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S261429AbVF0TvF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 15:51:05 -0400
-Date: Mon, 27 Jun 2005 12:50:52 -0700 (PDT)
-Message-Id: <20050627.125052.108115648.davem@davemloft.net>
-To: dan@embeddededge.com
-Cc: akpm@osdl.org, marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
-Subject: Re: increased translation cache footprint in v2.6
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <705a40397bb8383399109debccaebaa3@embeddededge.com>
-References: <20050626190944.GC6091@logos.cnet>
-	<20050626.175347.104031526.davem@davemloft.net>
-	<705a40397bb8383399109debccaebaa3@embeddededge.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Mon, 27 Jun 2005 15:44:17 -0400
+Received: from ms004msg.fastwebnet.it ([213.140.2.58]:64479 "EHLO
+	ms004msg.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S261251AbVF0Tnd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 15:43:33 -0400
+Date: Mon, 27 Jun 2005 21:43:15 +0200
+From: Paolo Ornati <ornati@fastwebnet.it>
+To: Andreas Kies <andikies@t-online.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: A Bug in gcc or asm/string.h ?
+Message-ID: <20050627214315.4b8850f5@localhost>
+In-Reply-To: <200506272059.20477.andikies@t-online.de>
+References: <200506270105.28782.andikies@t-online.de>
+	<20050627160453.6b815e8a@localhost>
+	<200506272059.20477.andikies@t-online.de>
+X-Mailer: Sylpheed-Claws 1.0.4 (GTK+ 1.2.10; x86_64-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Dan Malek <dan@embeddededge.com>
-Date: Mon, 27 Jun 2005 11:57:51 -0400
+PS: I've readded LKML to CC, since I think that this is a problem with the
+ASM template
 
-> Because of the configurability of the address space among text, data,
-> IO, and uncached mapping, we simply can't test an address bit and
-> build a new TLB entry.
 
-Maybe not by testing a bit, but instead via a range test.
+On Mon, 27 Jun 2005 20:59:20 +0200
+Andreas Kies <andikies@t-online.de> wrote:
 
-      cmp %reg, PAGE_OFFSET_BEGIN
-      bl  not_kernel
-      cmp %reg, PAGE_OFFSET_END
-      bge not_kernel
+> Them it works, but that's not a solution at all. "volatile" destroys more
+> or  less all optimizations.
 
-      Calculate 8MB PTE here
+Yes... I know, it was just to see what was the problem.
 
-not_kernel:
 
-That's 4 instructions, completely trivial.
+The problem is that GCC is caching in registers the value of "ptr[0]" and/or
+"ptr[1]" and/or "ptr[2]".
 
-I think you're making this problem more complex than it really
-is.  There is no reason at all to hold page tables for the direct
-physical memory mappings of lowmem if you have any control whatsoever
-over the TLB miss handler.
+A little better workaround would be to add "memory" to clobbered registers
+in the asm template:
 
-You'll be saving tons of memory accesses, and that alone should
-count for some significant performance savings especially on
-embedded setups.  What's more, you'll get 8MB mappings as well,
-decreasing the TLB miss rate.
+static inline int strcmp(const char * cs,const char * ct)
+{
+int d0, d1;
+register int __res;
+__asm__ __volatile__(
+        "1:\tlodsb\n\t"
+        "scasb\n\t"
+        "jne 2f\n\t"
+        "testb %%al,%%al\n\t"
+        "jne 1b\n\t"
+        "xorl %%eax,%%eax\n\t"
+        "jmp 3f\n"
+        "2:\tsbbl %%eax,%%eax\n\t"
+        "orb $1,%%al\n"
+        "3:"
+        :"=a" (__res), "=&S" (d0), "=&D" (d1)
+                     :"1" (cs),"2" (ct)
+                     : "memory");	// <--- workaround
+return __res;
+}
+
+
+In this way GCC puts everything is cached in register back to memory when
+you call strcmp()... but you can argue that this isn't optimal.
+
+
+I don't know if there is a better way... basically you need to tell GCC to
+NOT cache these values.
+
+I think that nobody hits this bug because the typical usage is different...
+something like this:
+
+	...
+	char *str = "Hello!";		// or even char str[] = "Hello!";
+	...
+	strcmp (str, other_str);
+	...
+
+In this way "Hello!" _IS_ allocated in memory and "str" points to it.... GCC
+optimizations can't hurt here (I hope ;).
+
+
+CONCLUSION: I think that it should be fixed... but adding "memory" doesn't
+seems The Right Thing to do.
+
+--
+	Paolo Ornati
+	Linux 2.6.12.1 on x86_64

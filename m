@@ -1,79 +1,141 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261556AbVF0S0m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261580AbVF0Sbj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261556AbVF0S0m (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 14:26:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261555AbVF0S0l
+	id S261580AbVF0Sbj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 14:31:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261557AbVF0Sbi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 14:26:41 -0400
-Received: from 69-18-3-179.lisco.net ([69.18.3.179]:3342 "EHLO
-	ninja.slaphack.com") by vger.kernel.org with ESMTP id S261569AbVF0SZT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 14:25:19 -0400
-Message-ID: <42C0448A.6070802@slaphack.com>
-Date: Mon, 27 Jun 2005 13:25:14 -0500
-From: David Masover <ninja@slaphack.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050325)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu
-Cc: Lincoln Dale <ltd@cisco.com>, Gregory Maxwell <gmaxwell@gmail.com>,
-       Hans Reiser <reiser@namesys.com>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: reiser4 plugins
-References: <200506240241.j5O2f1eb005609@laptop11.inf.utfsm.cl> <42BDA377.6070303@slaphack.com> <200506252031.j5PKVb4Y004482@turing-police.cc.vt.edu> <42BDC422.6020401@namesys.com> <42BE3645.4070806@cisco.com> <e692861c05062522071fe380a5@mail.gmail.com> <42BE563D.4000402@cisco.com> <42BE5DB6.8040103@slaphack.com> <200506261816.j5QIGMdI010142@turing-police.cc.vt.edu> <42BF08CF.2020703@slaphack.com> <200506262105.j5QL5kdR018609@turing-police.cc.vt.edu> <42BF2DC4.8030901@slaphack.com> <200506270040.j5R0eUNA030632@turing-police.cc.vt.edu> <42BF667C.50606@slaphack.com> <200506270423.j5R4Np9n004510@turing-police.cc.vt.edu> <42BF8F42.7030308@slaphack.com> <200506270541.j5R5fULX007282@turing-police.cc.vt.edu> <42BF9562.4090602@slaphack.com> <200506270612.j5R6CZGX008462@turing-police.cc.vt.edu> <42BF9C4D.3080800@slaphack.com> <200506270643.j5R6hqRh009781@turing-police.cc.vt.edu>            <42BFA421.70506@slaphack.com> <200506271640.j5RGefRQ018912@turing-police.cc.vt.edu>
-In-Reply-To: <200506271640.j5RGefRQ018912@turing-police.cc.vt.edu>
-X-Enigmail-Version: 0.89.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Mon, 27 Jun 2005 14:31:38 -0400
+Received: from station-6.events.itd.umich.edu ([141.211.252.135]:18155 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261552AbVF0SbY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 14:31:24 -0400
+Date: Mon, 27 Jun 2005 20:31:18 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Matt Mackall <mpm@selenic.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Git Mailing List <git@vger.kernel.org>, mercurial@selenic.com
+Subject: Re: Mercurial vs Updated git HOWTO for kernel hackers
+Message-ID: <20050627183118.GB1415@elf.ucw.cz>
+References: <42B9E536.60704@pobox.com> <20050623235634.GC14426@waste.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050623235634.GC14426@waste.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi!
 
-Valdis.Kletnieks@vt.edu wrote:
-> On Mon, 27 Jun 2005 02:00:49 CDT, David Masover said:
+> > Things in git-land are moving at lightning speed, and usability has 
+> > improved a lot since my post a month ago:  http://lkml.org/lkml/2005/5/26/11
 > 
+> And here's a quick comparison with the current state of Mercurial..
 > 
->>>>Speaking of backup, that's another nice place for a plugin.  Imagine a
->>>>dump that didn't have to be of the entire FS, but rather an arbitrary
->>>>tree...  That might be a nice new archive format.  I know Apple already
->>>>uses something like this for their dmg packages.
->>>
->>>Hmm.. you mean like 'tar' or 'cpio' or 'pax' or 'rsync'? :) 
->>
->>No, a dmg is an OS X program installer.  It appears to be a disk image
->>of sorts.  So this is the backup idea in reverse.
+> > 1) installing git
+> > 
+> > git requires bootstrapping, since you must have git installed in order 
+> > to check out git.git (git repo), and linux-2.6.git (kernel repo).  I 
+> > have put together a bootstrap tarball of today's git repository.
+> > 
+> > Download tarball from:
+> > http://www.kernel.org/pub/linux/kernel/people/jgarzik/git-20050622.tar.bz2
+> > 
+> > tarball build-deps:  zlib, libcurl, libcrypto (openssl)
+> > 
+> > install tarball:  unpack && make && sudo make prefix=/usr/local install
+> > 
+> > jgarzik helper scripts, not in official git distribution:
+> > http://www.kernel.org/pub/linux/kernel/people/jgarzik/git-new-branch
+> > http://www.kernel.org/pub/linux/kernel/people/jgarzik/git-changes-script
+> > 
+> > After reading the rest of this document, come back and update your copy 
+> > of git to the latest:
+> > rsync://rsync.kernel.org/pub/scm/linux/kernel/git/torvalds/git.git
 > 
+> Download from: http://selenic.com/mercurial/mercurial-snapshot.tar.gz
+> Build-deps: Python 2.3
+> Install: unpack && python setup.py install [--home=/usr/local]
+
+Did that... (had to install python2.3-dev, first), but got...
+
+> $ mkdir linux-2.6
+> $ cd linux-2.6
+> $ hg init http://www.kernel.org/hg/    # obviously you can also browse this
 > 
-> I was addressing the ability to deal with an arbitrary tree.  By that definition,
-> a dmg, being a disk image and not a tree image, is *not* what you want....
+> This downloads about 125M of data, which include the whole kernel history
+> back to 2.4.0 and everything in Linus' git repo as well.
 
-Not exactly what I want, no.
-
-I was just trying to avoid the "people will never adopt a new archive
-format" argument by pointing out that a similar archive format was
-recently created and adopted.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iQIVAwUBQsBEingHNmZLgCUhAQLTCw//XdrVgjaxvz9jzbiiSXVY60ItW5aechNV
-JdvHBf1edVOCHs6OLil/cioK4Pjsfw3pKU+aBLN+eroS0RDomQkrqcy2zmFQ5JW6
-oFJQEnb/uA95AhFtdCrbOF3rKABfJNo0TjwsRBuKyiabpYTGjfTJ0gDaQGAtBoOb
-JmycKjZlJxhQgef9Q3LhG6UQaszCQrKX++pakKYaqOlughIpZ4O2AJTQWEq5ujdu
-N9GNtO2DGd2sumWdxNpb0KSISZIs6PmPVthPsHwOvD0E6533q9a2AJH49j8AcuOz
-1FCU7oFtpm994lwvc4G7eubRMbJ5Xgyy+suqfhTbumOgKzzBw8cKgpxkXFlcyDte
-4WyNUlyIqAn0n9GAEVHWSDZ+vqN3E1u+bgLWJq0PEJJSjv9dJzhtH1WPu1bDA2v2
-s1qNQDQromF+VfE1QF/fhy1Ttpqh7xAjBmxdxi+g3OU6Vlij7/j0fpMurIELknI0
-MRFmw63TzMnFB07Vwi00L7ZR8GKSWDT0/smYF8R1V7stRqrAxHKDlT6E526ESMv+
-ALa2pa1lGKWyCSgBMwPC0Cm9FBcOfaqxi60/5KE+bQOQc3Yc+20HCH5BIIQcNgWq
-axOUO4txg9uz0GxfuvHWaa2tKE1vpbNO0Oy92QqdpCRmssyTNxs7EyhmdUB92Xar
-SZVTSjpEmv0=
-=WLzu
------END PGP SIGNATURE-----
+byte-compiling /usr/local/lib/python/mercurial/fancyopts.py to
+fancyopts.pyc
+byte-compiling /usr/local/lib/python/mercurial/hg.py to hg.pyc
+byte-compiling /usr/local/lib/python/mercurial/hgweb.py to hgweb.pyc
+byte-compiling /usr/local/lib/python/mercurial/httprangereader.py to
+httprangereader.pyc
+byte-compiling /usr/local/lib/python/mercurial/lock.py to lock.pyc
+byte-compiling /usr/local/lib/python/mercurial/mdiff.py to mdiff.pyc
+byte-compiling /usr/local/lib/python/mercurial/revlog.py to revlog.pyc
+byte-compiling /usr/local/lib/python/mercurial/transaction.py to
+transaction.pyc
+byte-compiling /usr/local/lib/python/mercurial/ui.py to ui.pyc
+byte-compiling /usr/local/lib/python/mercurial/util.py to util.pyc
+byte-compiling /usr/local/lib/python/mercurial/version.py to
+version.pyc
+running install_scripts
+copying build/scripts-2.3/hg -> /usr/local/bin
+copying build/scripts-2.3/hgmerge -> /usr/local/bin
+changing mode of /usr/local/bin/hg to 755
+changing mode of /usr/local/bin/hgmerge to 755
+running install_data
+creating /usr/local/lib/python/mercurial/templates
+copying templates/map -> /usr/local/lib/python/mercurial/templates
+copying templates/map-raw -> /usr/local/lib/python/mercurial/templates
+copying templates/changelog.tmpl ->
+/usr/local/lib/python/mercurial/templates
+copying templates/changelogentry.tmpl ->
+/usr/local/lib/python/mercurial/templates
+copying templates/changeset-raw.tmpl ->
+/usr/local/lib/python/mercurial/templates
+copying templates/changeset.tmpl ->
+/usr/local/lib/python/mercurial/templates
+copying templates/fileannotate.tmpl ->
+/usr/local/lib/python/mercurial/templates
+copying templates/filediff-raw.tmpl ->
+/usr/local/lib/python/mercurial/templates
+copying templates/filediff.tmpl ->
+/usr/local/lib/python/mercurial/templates
+copying templates/filelog.tmpl ->
+/usr/local/lib/python/mercurial/templates
+copying templates/filelogentry.tmpl ->
+/usr/local/lib/python/mercurial/templates
+copying templates/filerevision-raw.tmpl ->
+/usr/local/lib/python/mercurial/templates
+copying templates/filerevision.tmpl ->
+/usr/local/lib/python/mercurial/templates
+copying templates/footer.tmpl ->
+/usr/local/lib/python/mercurial/templates
+copying templates/header-raw.tmpl ->
+/usr/local/lib/python/mercurial/templates
+copying templates/header.tmpl ->
+/usr/local/lib/python/mercurial/templates
+copying templates/manifest.tmpl ->
+/usr/local/lib/python/mercurial/templates
+copying templates/tags.tmpl ->
+/usr/local/lib/python/mercurial/templates
+root@Elf:/data/tmp/hg/mercurial-snapshot# Use "exit" to leave the
+shell.
+root@Elf:/data/tmp/hg/mercurial-snapshot# exit
+pavel@Elf:/data/tmp/hg/mercurial-snapshot$ cd ../..
+pavel@Elf:/data/tmp$ mkdir linux-hg
+pavel@Elf:/data/tmp$ cd linux-hg/
+pavel@Elf:/data/tmp/linux-hg$ hg init http://www.kernel.org/hg/
+Traceback (most recent call last):
+  File "/usr/local/bin/hg", line 11, in ?
+    from mercurial import commands
+ImportError: No module named mercurial
+pavel@Elf:/data/tmp/linux-hg$
+							Pavel
+-- 
+teflon -- maybe it is a trademark, but it should not be.

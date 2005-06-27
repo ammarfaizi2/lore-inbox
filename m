@@ -1,112 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261833AbVF0V2w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261842AbVF0Van@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261833AbVF0V2w (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 17:28:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261796AbVF0V1H
+	id S261842AbVF0Van (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 17:30:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261889AbVF0V33
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 17:27:07 -0400
-Received: from smtp-101-monday.nerim.net ([62.4.16.101]:29191 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S261895AbVF0VZD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 17:25:03 -0400
-Date: Mon, 27 Jun 2005 23:25:06 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: LM Sensors <lm-sensors@lm-sensors.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Cc: Greg KH <greg@kroah.com>, "Mark M. Hoffman" <mhoffman@lightlink.com>
-Subject: Moving hardware monitoring drivers to drivers/hwmon (2/3)
-Message-Id: <20050627232506.084d4fc0.khali@linux-fr.org>
-In-Reply-To: <20050627224003.4b1ce717.khali@linux-fr.org>
-References: <20050627224003.4b1ce717.khali@linux-fr.org>
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 27 Jun 2005 17:29:29 -0400
+Received: from thunk.org ([69.25.196.29]:62687 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S261817AbVF0V0z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 17:26:55 -0400
+Date: Mon, 27 Jun 2005 17:26:28 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Markus T?rnqvist <mjt@nysv.org>, Horst von Brand <vonbrand@inf.utfsm.cl>,
+       David Masover <ninja@slaphack.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>, Steve Lord <lord@xfs.org>
+Subject: Re: reiser4 plugins
+Message-ID: <20050627212628.GB27805@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Hans Reiser <reiser@namesys.com>, Markus T?rnqvist <mjt@nysv.org>,
+	Horst von Brand <vonbrand@inf.utfsm.cl>,
+	David Masover <ninja@slaphack.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	Christoph Hellwig <hch@infradead.org>,
+	Andrew Morton <akpm@osdl.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	ReiserFS List <reiserfs-list@namesys.com>,
+	Steve Lord <lord@xfs.org>
+References: <42BB7B32.4010100@slaphack.com> <200506240334.j5O3YowB008100@laptop11.inf.utfsm.cl> <20050627092138.GD11013@nysv.org> <20050627124255.GB6280@thunk.org> <42C0578F.7030608@namesys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42C0578F.7030608@namesys.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Mon, Jun 27, 2005 at 12:46:23PM -0700, Hans Reiser wrote:
+> A difference between us is
+> that I tell them that with all the major linux filesystems (I include
+> XFS and JFS in this)  it is by this time far more likely to be hardware
+> that caused corruption than the filesystem software, whereas I guess you
+> tell them something else.
 
-This second patch moves the hardware monitoring drivers themselves from
-drivers/i2c/chips to drivers/hwmon.
+Oh, I agree with this, and I do tell people that.  The question though
+is how the filesystem recovers from said hardware-caused corruption
+once it does happen.  You've admitted that reiserfs3 has less than
+optimal recovery characteristics from hardware-induced corruptions if
+said filesystem contains reiserfs filesystem images; that would be an
+example of a filesystem not being as robust as it could be.  (It'll be
+interesting to see if SuSE will support reiserfsv3 in combination with
+the Xen hypervisor or other virtualization systems, which makes use of
+filesystem images.)  Another example would be DMA'ing garbage into the
+hard drive after a power failure --- how does a filesystem respond to
+this eventuality?
 
-The patch being very large (1.6 MB) and rather uninteresting (it's
-really only moving files), I am not including it here. You can get it
-from:
+You probably hear more stories people who got unlucky with
+hardware-induced corruptions with ext2/3, and I probably hear more
+from users who have sworn off of reiserfs just because are sample sets
+are somewhat biased.  Such are the dangers of relying on anecdotal
+evidence.
 
-http://jdelvare.net1.nerim.net/sensors/linux-2.6.12-git5-hwmon-move-all-drivers-2-drv.diff.gz
+However, logically speaking, if a filesystem is designed such that in
+certain cases, the fsck program has to brute-force search every single
+disk block looking for data structures that _look_ like they might be
+part of the filesystem data, well, that's always going to be more
+error prone than one where the filesystem metadata is in
+easily-predicted locations.  It sounds like you've added some more
+checks in reiser4, and that's definitely a good thing.  Time will tell
+whether they are sufficient or not.
 
- drivers/hwmon/adm1021.c        |  402 +++++++++
- drivers/hwmon/adm1025.c        |  577 +++++++++++++
- drivers/hwmon/adm1026.c        | 1714 +++++++++++++++++++++++++++++++++++++++++
- drivers/hwmon/adm1031.c        |  977 +++++++++++++++++++++++
- drivers/hwmon/adm9240.c        |  791 ++++++++++++++++++
- drivers/hwmon/asb100.c         | 1065 +++++++++++++++++++++++++
- drivers/hwmon/atxp1.c          |  361 ++++++++
- drivers/hwmon/ds1621.c         |  341 ++++++++
- drivers/hwmon/fscher.c         |  691 ++++++++++++++++
- drivers/hwmon/fscpos.c         |  641 +++++++++++++++
- drivers/hwmon/gl518sm.c        |  604 ++++++++++++++
- drivers/hwmon/gl520sm.c        |  769 ++++++++++++++++++
- drivers/hwmon/it87.c           | 1184 ++++++++++++++++++++++++++++
- drivers/hwmon/lm63.c           |  597 ++++++++++++++
- drivers/hwmon/lm75.c           |  296 +++++++
- drivers/hwmon/lm75.h           |   49 +
- drivers/hwmon/lm77.c           |  420 ++++++++++
- drivers/hwmon/lm78.c           |  795 +++++++++++++++++++
- drivers/hwmon/lm80.c           |  601 ++++++++++++++
- drivers/hwmon/lm83.c           |  408 +++++++++
- drivers/hwmon/lm85.c           | 1575 +++++++++++++++++++++++++++++++++++++
- drivers/hwmon/lm87.c           |  828 +++++++++++++++++++
- drivers/hwmon/lm90.c           |  655 +++++++++++++++
- drivers/hwmon/lm92.c           |  429 ++++++++++
- drivers/hwmon/max1619.c        |  372 ++++++++
- drivers/hwmon/pc87360.c        | 1348 ++++++++++++++++++++++++++++++++
- drivers/hwmon/sis5595.c        |  817 +++++++++++++++++++
- drivers/hwmon/smsc47b397.c     |  352 ++++++++
- drivers/hwmon/smsc47m1.c       |  593 ++++++++++++++
- drivers/hwmon/via686a.c        |  875 ++++++++++++++++++++
- drivers/hwmon/w83627ehf.c      |  846 ++++++++++++++++++++
- drivers/hwmon/w83627hf.c       | 1511 ++++++++++++++++++++++++++++++++++++
- drivers/hwmon/w83781d.c        | 1632 +++++++++++++++++++++++++++++++++++++++
- drivers/hwmon/w83l785ts.c      |  328 +++++++
- drivers/i2c/chips/adm1021.c    |  402 ---------
- drivers/i2c/chips/adm1025.c    |  577 -------------
- drivers/i2c/chips/adm1026.c    | 1714 -----------------------------------------
- drivers/i2c/chips/adm1031.c    |  977 -----------------------
- drivers/i2c/chips/adm9240.c    |  791 ------------------
- drivers/i2c/chips/asb100.c     | 1065 -------------------------
- drivers/i2c/chips/atxp1.c      |  361 --------
- drivers/i2c/chips/ds1621.c     |  341 --------
- drivers/i2c/chips/fscher.c     |  691 ----------------
- drivers/i2c/chips/fscpos.c     |  641 ---------------
- drivers/i2c/chips/gl518sm.c    |  604 --------------
- drivers/i2c/chips/gl520sm.c    |  769 ------------------
- drivers/i2c/chips/it87.c       | 1184 ----------------------------
- drivers/i2c/chips/lm63.c       |  597 --------------
- drivers/i2c/chips/lm75.c       |  296 -------
- drivers/i2c/chips/lm75.h       |   49 -
- drivers/i2c/chips/lm77.c       |  420 ----------
- drivers/i2c/chips/lm78.c       |  795 -------------------
- drivers/i2c/chips/lm80.c       |  601 --------------
- drivers/i2c/chips/lm83.c       |  408 ---------
- drivers/i2c/chips/lm85.c       | 1575 -------------------------------------
- drivers/i2c/chips/lm87.c       |  828 -------------------
- drivers/i2c/chips/lm90.c       |  655 ---------------
- drivers/i2c/chips/lm92.c       |  429 ----------
- drivers/i2c/chips/max1619.c    |  372 --------
- drivers/i2c/chips/pc87360.c    | 1348 --------------------------------
- drivers/i2c/chips/sis5595.c    |  817 -------------------
- drivers/i2c/chips/smsc47b397.c |  352 --------
- drivers/i2c/chips/smsc47m1.c   |  593 --------------
- drivers/i2c/chips/via686a.c    |  875 --------------------
- drivers/i2c/chips/w83627ehf.c  |  846 --------------------
- drivers/i2c/chips/w83627hf.c   | 1511 ------------------------------------
- drivers/i2c/chips/w83781d.c    | 1632 ---------------------------------------
- drivers/i2c/chips/w83l785ts.c  |  328 -------
- 68 files changed, 25444 insertions(+), 25444 deletions(-)
+Regards,
 
-
-
--- 
-Jean Delvare
+						- Ted

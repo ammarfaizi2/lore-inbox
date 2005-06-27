@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261689AbVF0VEM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261814AbVF0VEM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261689AbVF0VEM (ORCPT <rfc822;willy@w.ods.org>);
+	id S261814AbVF0VEM (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 27 Jun 2005 17:04:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbVF0VD3
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261800AbVF0VDM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 17:03:29 -0400
-Received: from relay1.wplus.net ([195.131.52.143]:52781 "EHLO relay1.wplus.net")
-	by vger.kernel.org with ESMTP id S261759AbVF0VBr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 17:01:47 -0400
-From: Vitaly Fertman <vitaly@namesys.com>
-To: Hans Reiser <reiser@namesys.com>
-Subject: Re: reiser4 plugins
-Date: Tue, 28 Jun 2005 00:52:31 +0400
-User-Agent: KMail/1.7.1
-Cc: David Masover <ninja@slaphack.com>, vitaly@thebsh.namesys.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-References: <200506231924.j5NJOvLA031008@laptop11.inf.utfsm.cl> <42BB7B32.4010100@slaphack.com> <42BC6307.3080808@namesys.com>
-In-Reply-To: <42BC6307.3080808@namesys.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
+	Mon, 27 Jun 2005 17:03:12 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:46242 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261785AbVF0VC0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 17:02:26 -0400
+Subject: RE: [ltp] IBM HDAPS Someone interested? (Accelerometer)
+From: Lee Revell <rlrevell@joe-job.com>
+To: abonilla@linuxwireless.org
+Cc: borislav@users.sourceforge.net, hdaps-devel@lists.sourceforge.net,
+       "'Pavel Machek'" <pavel@suse.cz>,
+       "'Paul Sladen'" <thinkpad@paul.sladen.org>,
+       "'Eric Piel'" <Eric.Piel@tremplin-utc.net>,
+       "'Yani Ioannou'" <yani.ioannou@gmail.com>, linux-kernel@vger.kernel.org,
+       linux-thinkpad@linux-thinkpad.org
+In-Reply-To: <003601c57b19$89f0ddb0$600cc60a@amer.sykes.com>
+References: <003601c57b19$89f0ddb0$600cc60a@amer.sykes.com>
+Content-Type: text/plain
+Date: Mon, 27 Jun 2005 17:02:23 -0400
+Message-Id: <1119906144.13285.6.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.0 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506280052.32571.vitaly@namesys.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 24 June 2005 23:46, Hans Reiser wrote:
-> David Masover wrote:
+On Mon, 2005-06-27 at 07:10 -0600, Alejandro Bonilla wrote:
+>         Do you have any input or anything to say? You are probably the
+> one who has
+> messed more with the ecdump or with the controller and might be able
+> to help
+> us grow a clue here. Any answer should point us more to were we want.
 > 
-> 
-> >
-> >
-> > I was able to recover from bad blocks, though of course no Reiser that I
-> > know of has had bad block relocation built in...  
-> 
-> there was a patch somewhere.  Vitaly, please comment.
+> Could ecdump give any output of the accelerometer?
+> Could this be really attached to the controller?
 
-http://www.namesys.com/bad-block-handling.html describes 
-how reiserfs handles bad blocks.
+IMHO anything other than capturing the port IO from the Windows driver
+is a waste of time.  You'll never figure it out with blind guesswork.
 
--- 
-Thanks,
-Vitaly Fertman
+Good luck,
+
+Lee 
+

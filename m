@@ -1,70 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261985AbVF0Nhd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262144AbVF0Nh0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261985AbVF0Nhd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 09:37:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261886AbVF0Nc3
+	id S262144AbVF0Nh0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 09:37:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262147AbVF0NdB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 09:32:29 -0400
-Received: from ipx10786.ipxserver.de ([80.190.251.108]:25061 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S262076AbVF0MQv
+	Mon, 27 Jun 2005 09:33:01 -0400
+Received: from ipx10786.ipxserver.de ([80.190.251.108]:25829 "EHLO
+	allen.werkleitz.de") by vger.kernel.org with ESMTP id S262074AbVF0MQw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 08:16:51 -0400
-Message-Id: <20050627121410.172610000@abc>
+	Mon, 27 Jun 2005 08:16:52 -0400
+Message-Id: <20050627121409.748333000@abc>
 References: <20050627120600.739151000@abc>
-Date: Mon, 27 Jun 2005 14:06:03 +0200
+Date: Mon, 27 Jun 2005 14:06:01 +0200
 From: Johannes Stezenbach <js@linuxtv.org>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Peter Beutner <p.beutner@gmx.net>
-Content-Disposition: inline; filename=dvb-core-fe_read_status-race-fix.patch
+Cc: linux-kernel@vger.kernel.org, Martin Loschwitz <madkiss@madkiss.org>,
+       Patrick Boettcher <pb@linuxtv.org>
+Content-Disposition: inline; filename=dvb-cinergyT2-ir-endian-fix.patch
 X-SA-Exim-Connect-IP: 84.189.248.249
-Subject: [DVB patch 03/51] core: fix race condition in FE_READ_STATUS ioctl
+Subject: [DVB patch 01/51] cinergyT2: endianness fix for raw remote-control keys
 X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
 X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Peter Beutner <p.beutner@gmx.net>
+From: Martin Loschwitz <madkiss@madkiss.org>
 
-Fix a race condition where an application which issued a FE_READ_STATUS
-ioctl directly after FE_SET_FRONTEND would see an old status, i.e.
-FE_READ_STATUS would be executed before the frontend thread
-has even seen the tungin request from FE_SET_FRONTEND.
+Fixed litte/big-endian conversion for raw remote-control keys.
 
-Signed-off-by: Peter Beutner <p.beutner@gmx.net>
+Signed-off-by: Martin Loschwitz <madkiss@madkiss.org>
+Signed-off-by: Patrick Boettcher <pb@linuxtv.org>
 Signed-off-by: Johannes Stezenbach <js@linuxtv.org>
 
- drivers/media/dvb/dvb-core/dvb_frontend.c |   16 +++++++++++++---
- 1 files changed, 13 insertions(+), 3 deletions(-)
+ drivers/media/dvb/cinergyT2/cinergyT2.c |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletion(-)
 
-Index: linux-2.6.12-git8/drivers/media/dvb/dvb-core/dvb_frontend.c
+Index: linux-2.6.12-git8/drivers/media/dvb/cinergyT2/cinergyT2.c
 ===================================================================
---- linux-2.6.12-git8.orig/drivers/media/dvb/dvb-core/dvb_frontend.c	2005-06-27 13:18:22.000000000 +0200
-+++ linux-2.6.12-git8/drivers/media/dvb/dvb-core/dvb_frontend.c	2005-06-27 13:22:55.000000000 +0200
-@@ -626,11 +626,21 @@ static int dvb_frontend_ioctl(struct ino
- 		break;
- 	}
+--- linux-2.6.12-git8.orig/drivers/media/dvb/cinergyT2/cinergyT2.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.12-git8/drivers/media/dvb/cinergyT2/cinergyT2.c	2005-06-27 13:22:35.000000000 +0200
+@@ -699,6 +699,8 @@ static void cinergyt2_query_rc (void *da
+ 	for (n=0; len>0 && n<(len/sizeof(rc_events[0])); n++) {
+ 		int i;
  
--	case FE_READ_STATUS:
-+	case FE_READ_STATUS: {
-+		fe_status_t* status = parg;
++/*		dprintk(1,"rc_events[%d].value = %x, type=%x\n",n,le32_to_cpu(rc_events[n].value),rc_events[n].type);*/
 +
-+		/* if retune was requested but hasn't occured yet, prevent
-+		 * that user get signal state from previous tuning */
-+		if(fepriv->state == FESTATE_RETUNE) {
-+			err=0;
-+			*status = 0;
-+			break;
-+		}
-+
- 		if (fe->ops->read_status)
--			err = fe->ops->read_status(fe, (fe_status_t*) parg);
-+			err = fe->ops->read_status(fe, status);
- 		break;
--
-+	}
- 	case FE_READ_BER:
- 		if (fe->ops->read_ber)
- 			err = fe->ops->read_ber(fe, (__u32*) parg);
+ 		if (rc_events[n].type == CINERGYT2_RC_EVENT_TYPE_NEC &&
+ 		    rc_events[n].value == ~0)
+ 		{
+@@ -714,7 +716,7 @@ static void cinergyt2_query_rc (void *da
+ 			cinergyt2->rc_input_event = KEY_MAX;
+ 			for (i=0; i<sizeof(rc_keys)/sizeof(rc_keys[0]); i+=3) {
+ 				if (rc_keys[i+0] == rc_events[n].type &&
+-				    rc_keys[i+1] == rc_events[n].value)
++				    rc_keys[i+1] == le32_to_cpu(rc_events[n].value))
+ 				{
+ 					cinergyt2->rc_input_event = rc_keys[i+2];
+ 					break;
 
 --
 

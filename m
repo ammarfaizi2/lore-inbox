@@ -1,63 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261770AbVF0Qha@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261736AbVF0Ovd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261770AbVF0Qha (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 12:37:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262075AbVF0PAt
+	id S261736AbVF0Ovd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 10:51:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261743AbVF0OuY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 11:00:49 -0400
-Received: from smtpout3.uol.com.br ([200.221.4.194]:23505 "EHLO
-	smtp.uol.com.br") by vger.kernel.org with ESMTP id S261203AbVF0N5z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 09:57:55 -0400
-Date: Sun, 26 Jun 2005 23:50:59 -0300
-From: =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Problems with Firewire and -mm kernels (was: Re: 2.6.12-mm2)
-Message-ID: <20050627025059.GC10920@ime.usp.br>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20050626040329.3849cf68.akpm@osdl.org> <42BE99C3.9080307@trex.wsi.edu.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050626040329.3849cf68.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
+	Mon, 27 Jun 2005 10:50:24 -0400
+Received: from mta1.srv.hcvlny.cv.net ([167.206.4.196]:4659 "EHLO
+	mta1.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S262125AbVF0NBq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 09:01:46 -0400
+Date: Mon, 27 Jun 2005 09:01:39 -0400
+From: Jeff Sipek <jeffpc@optonline.net>
+Subject: [PATCH v2][TRIVIAL] Allocate kprobe_table at runtime
+In-reply-to: <p737jggwcln.fsf@verdi.suse.de>
+To: Andi Kleen <ak@suse.de>
+Cc: Prasanna S Panchamukhi <prasanna@in.ibm.com>, linux-kernel@vger.kernel.org,
+       trivial@rustcorp.com.au
+Message-id: <20050627130139.GD22311@optonline.net>
+MIME-version: 1.0
+Content-type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature"; boundary=llIrKcgUOe3dCx0c
+Content-disposition: inline
+References: <20050626183049.GA22898@optonline.net.suse.lists.linux.kernel>
+ <20050627055150.GA10659@in.ibm.com.suse.lists.linux.kernel>
+ <p737jggwcln.fsf@verdi.suse.de>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Andrew.
 
-I am experiencing problems with -mm kernels and my firewire HD. I can use
-it without any problems with Linus's 2.6.12, but I had problems with both
--mm1 and -mm2 (I just compiled -mm2 to see if the problem would go away,
-but it didn't).
+--llIrKcgUOe3dCx0c
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I am using the same .config file for all compiles, except that I wanted to
-use the -mm tree for some things that I think would be orthogonal to the
-issue (like using FUSE, for example).
+On Mon, Jun 27, 2005 at 08:14:12AM +0200, Andi Kleen wrote:
+> Prasanna S Panchamukhi <prasanna@in.ibm.com> writes:
+>=20
+> > Jeff,
+> >=20
+> > On Sun, Jun 26, 2005 at 06:37:29PM +0000, Jeff Sipek wrote:
+> > > Allocates kprobe_table at runtime.
+> > > -	/* FIXME allocate the probe table, currently defined statically */
+> > > +	kprobe_table =3D kmalloc(sizeof(struct hlist_head)*KPROBE_TABLE_SIZ=
+E, GFP_ATOMIC);
+> >=20
+> > Memory allocation using GFP_KERNEL has more chances of success as compa=
+red to
+> > GFP_ATOMIC. Why can't we use GFP_KERNEL here?
+>=20
+> I don't see any sense in the change anyways. Just using BSS=20
+> should be fine.
+>=20
+> Jeff, when you submit a patch you should add a small blurb
+> describing why you think it is a good idea.
 
-I can't provide more details now, but as soon as I go to work with the
-machine that presented the problem, I can give you all the details.
+That patch was somewhat impulsive...I was looking at some code and saw a
+FIXME that required minimal work. I agree that BSS is good enough.
 
-Essentially, what happens with -mm kernels that don't happen with Linus's
-kernel is that the sbp2 module gets loaded, but it seems that the subsystem
-never gets to actually see the partitions of the HD (I am using a HFS+
-formatted disk for transfers of data between Linux and MacOS X).
+Patch below removes the FIXME notice.
 
-If others also have the problem, I would like to know about it.
+Pick one ;-) (Patch Monkey is CC'd).
 
-The Firewire controller that I am using is a vanilla VIA card and the HD is
-a Seagate PATA HD in a Firewire enclosure (it's a ADS Tech DLX-185, if I am
-not mistaken).
-
-As I said, I can provide further details if wanted/needed.
+Jeff.
 
 
-Thanks for your work, Rogério.
+Remove useless FIXME.
 
--- 
-Rogério Brito : rbrito@ime.usp.br : http://www.ime.usp.br/~rbrito
-Homepage of the algorithms package : http://algorithms.berlios.de
-Homepage on freshmeat:  http://freshmeat.net/projects/algorithms/
+Signed-off-by: Josef "Jeff" Sipek
+
+diff --git a/kernel/kprobes.c b/kernel/kprobes.c
+--- a/kernel/kprobes.c
++++ b/kernel/kprobes.c
+@@ -261,7 +261,6 @@ static int __init init_kprobes(void)
+ {
+ 	int i, err =3D 0;
+=20
+-	/* FIXME allocate the probe table, currently defined statically */
+ 	/* initialize all list heads */
+ 	for (i =3D 0; i < KPROBE_TABLE_SIZE; i++)
+ 		INIT_HLIST_HEAD(&kprobe_table[i]);
+
+--llIrKcgUOe3dCx0c
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQFCv/izwFP0+seVj/4RAoD/AJ4/3xi5x+Yy5oaTrWHbDB1CoQSeGwCdFgsT
+j7DbGh8wAB1Cw4MM1Ab9pWk=
+=GNi/
+-----END PGP SIGNATURE-----
+
+--llIrKcgUOe3dCx0c--

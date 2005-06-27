@@ -1,77 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261470AbVF0RAS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261728AbVF0Ovc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261470AbVF0RAS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 13:00:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261475AbVF0Q6c
+	id S261728AbVF0Ovc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 10:51:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261729AbVF0Osx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 12:58:32 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:35011 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261399AbVF0Qy3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 12:54:29 -0400
-Message-Id: <200506271653.j5RGrHUL019484@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: David Masover <ninja@slaphack.com>
-Cc: Hubert Chan <hubert@uhoreg.ca>, Lincoln Dale <ltd@cisco.com>,
-       Gregory Maxwell <gmaxwell@gmail.com>, Hans Reiser <reiser@namesys.com>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	Mon, 27 Jun 2005 10:48:53 -0400
+Received: from THUNK.ORG ([69.25.196.29]:8665 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S262119AbVF0Mnr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 08:43:47 -0400
+Date: Mon, 27 Jun 2005 08:42:55 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Markus T?rnqvist <mjt@nysv.org>
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
+       David Masover <ninja@slaphack.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Hans Reiser <reiser@namesys.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: reiser4 plugins 
-In-Reply-To: Your message of "Mon, 27 Jun 2005 02:07:46 CDT."
-             <42BFA5C2.1010807@slaphack.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <200506240241.j5O2f1eb005609@laptop11.inf.utfsm.cl> <42BCD93B.7030608@slaphack.com> <200506251420.j5PEKce4006891@turing-police.cc.vt.edu> <42BDA377.6070303@slaphack.com> <200506252031.j5PKVb4Y004482@turing-police.cc.vt.edu> <42BDC422.6020401@namesys.com> <42BE3645.4070806@cisco.com> <e692861c05062522071fe380a5@mail.gmail.com> <42BE563D.4000402@cisco.com> <42BE5DB6.8040103@slaphack.com> <200506261816.j5QIGMdI010142@turing-police.cc.vt.edu> <42BF08CF.2020703@slaphack.com> <200506262105.j5QL5kdR018609@turing-police.cc.vt.edu> <42BF2DC4.8030901@slaphack.com> <200506270040.j5R0eUNA030632@turing-police.cc.vt.edu> <87y88webpo.fsf@evinrude.uhoreg.ca> <200506270459.j5R4xdZp005659@turing-police.cc.vt.edu> <42BF9489.9080202@slaphack.com> <200506270624.j5R6OWFn008836@turing-police.cc.vt.edu>
-            <42BFA5C2.1010807@slaphack.com>
+Subject: Re: reiser4 plugins
+Message-ID: <20050627124255.GB6280@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Markus T?rnqvist <mjt@nysv.org>,
+	Horst von Brand <vonbrand@inf.utfsm.cl>,
+	David Masover <ninja@slaphack.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Hans Reiser <reiser@namesys.com>, Jeff Garzik <jgarzik@pobox.com>,
+	Christoph Hellwig <hch@infradead.org>,
+	Andrew Morton <akpm@osdl.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	ReiserFS List <reiserfs-list@namesys.com>
+References: <42BB7B32.4010100@slaphack.com> <200506240334.j5O3YowB008100@laptop11.inf.utfsm.cl> <20050627092138.GD11013@nysv.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1119891196_6336P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 27 Jun 2005 12:53:17 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050627092138.GD11013@nysv.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1119891196_6336P
-Content-Type: text/plain; charset=us-ascii
-
-On Mon, 27 Jun 2005 02:07:46 CDT, David Masover said:
-> > Exactly the same sort of thing - traditionally it's been more or less ignored
-> > in the system accounting, because A would usually average out to causing as
-> > many I/Os as B did, and they were roughly equal in cost so it was a wash.
+On Mon, Jun 27, 2005 at 12:21:38PM +0300, Markus   T?rnqvist wrote:
+> On Thu, Jun 23, 2005 at 11:34:50PM -0400, Horst von Brand wrote:
+> >David Masover <ninja@slaphack.com> wrote:
 > 
-> Even if A is doing A/V work and B is programming?
+> >> I think Hans (or someone) decided that when hardware stops working, it's
+> >> not the job of the FS to compensate, it's the job of lower layers, or
+> >> better, the job of the admin to replace the disk and restore from
+> >> backups.
+> >Handling other people's data this way is just reckless irresponsibility.
+> >Sure, you can get high performance if you just forego some of your basic
+> >responsibilities.
+> 
+> Your honest-to-bog opinion is that the FS vendor is responsible for
+> the admin not taking backups or the hardware vendor shipping crap?
+> 
+> *still trying to understand how that can be*
 
-I said "traditionally" - it's been a "oh well, we can't do much about it"
-problem for a *long* time (for instance, time spent in an interrupt handler
-has usually been charged off against whoever's timeslide the interrupt handler
-took a chunk out of).  It's only been tolerated so far because (a) the costs
-for both users are about equal and (b) you rarely have a heavy I/O DB and a
-number cruncher on the same box, or a user doing A/V work and a user doing
-programming - if it's not a single-use machine, there's *multiple* number
-crunchers, DBs, or programmers, and they tend to balance out.
+Most Linux users are using PC-class hardware.  And Ted's First Law of
+PC-Class Hardware is: "Most of it is crap".  And then there's Ted's
+Second Law, "Too many system administrators don't do backups".  This
+is because most system admins are users who've never been trained to
+be a sysadmin, or who haven't (yet) had weeks or months of works
+disappear after a hardware failure.  
 
-Said tendency can dissapear quite easily here....
+So it's a matter of matching the filesystem to the needs of the user.
+If you have a filesystem which is blazingly fast, but which at the
+slightest sign of trouble, trashes your data, versus one which is fast
+but perhaps not-so-fast as the other filesystem, but which is much
+more reliable, which would you choose?  
 
-> How do we get over quota errors, btw?  Can we get them from write()
-> calls?  If so, I don't see a Problem(TM), just an annoyance.
+XFS has similar issues where it assumes that hardware has powerfail
+interrupts, and that the OS can use said powerfail interrupt to stop
+DMA's in its tracks on an power failure, so that you don't have
+garbage written to key filesystem data structures when the memory
+starts suffering from the dropping voltage on the power bus faster
+than the DMA engine or the disk drives.  So XFS is a great filesystem
+--- but you'd better be running it on a UPS, or on a system which has
+power fail interrupts and an OS that knows what to do.  Ext3, because
+it does physical block journalling, does not suffer from this problem.
+(Yes, Resierfs uses logical journalling as well, so it suffers from
+the same problem.)
 
-One gotcha here is that it means that you can't do delayed allocation on
-writes - you *have* to allocate disk space at each write and then update
-the quotas. (And yes, I know that 'man 2 close' says that bad stuff can
-happen to your data even after your program exits - that doesn't mean we
-should go out of our way to make things worse.. ;)
+So perhaps it's not the job of the FS vendor to be responsible for
+crap hardware or lazy sysadmins that don't do backups.  But a system
+administrator who knows that he doesn't do backups frequently enough,
+or is running on cheap, crap hardware, would be wise to consider
+carefully which filesystem he/she wants to use given the systems
+configuration and his backup habits.  
 
---==_Exmh_1119891196_6336P
-Content-Type: application/pgp-signature
+Me, I'll go for the robust filesystem, just on general principles.  As
+a friend from the large-scale enterprise storage world once put it,
+"Performance is Job 2.  Robustness is Job #1."  (Of course, if you
+want to put your fragile filesystem on a multi-million dollar
+enterprise storage system such as an IBM Shark or an EMC Symmetrix
+box, I'm sure IBM or EMC will be happy to sell you one.  :-)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFCwC78cC3lWbTT17ARApC0AKCBGqN04tsNIu6Wvpq1MYJyhtt7PQCcDGZG
-ka34Pp0d87Y1cWn7kDpHU64=
-=Yb7G
------END PGP SIGNATURE-----
-
---==_Exmh_1119891196_6336P--
+							- Ted

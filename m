@@ -1,95 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261251AbVF0TqR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261599AbVF0T6s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261251AbVF0TqR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 15:46:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261243AbVF0ToR
+	id S261599AbVF0T6s (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 15:58:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261570AbVF0T6Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 15:44:17 -0400
-Received: from ms004msg.fastwebnet.it ([213.140.2.58]:64479 "EHLO
-	ms004msg.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S261251AbVF0Tnd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 15:43:33 -0400
-Date: Mon, 27 Jun 2005 21:43:15 +0200
-From: Paolo Ornati <ornati@fastwebnet.it>
-To: Andreas Kies <andikies@t-online.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: A Bug in gcc or asm/string.h ?
-Message-ID: <20050627214315.4b8850f5@localhost>
-In-Reply-To: <200506272059.20477.andikies@t-online.de>
-References: <200506270105.28782.andikies@t-online.de>
-	<20050627160453.6b815e8a@localhost>
-	<200506272059.20477.andikies@t-online.de>
-X-Mailer: Sylpheed-Claws 1.0.4 (GTK+ 1.2.10; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 27 Jun 2005 15:58:24 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:22993 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261599AbVF0T5Y
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 15:57:24 -0400
+Subject: Re: PATCH: IDE - sensible probing for PCI systems
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Maciej W. Rozycki" <macro@linux-mips.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61L.0506271519060.23903@blysk.ds.pg.gda.pl>
+References: <1119356601.3279.118.camel@localhost.localdomain>
+	 <Pine.LNX.4.61L.0506211422190.9446@blysk.ds.pg.gda.pl>
+	 <1119363150.3325.151.camel@localhost.localdomain>
+	 <Pine.LNX.4.61L.0506211535100.17779@blysk.ds.pg.gda.pl>
+	 <1119379587.3325.182.camel@localhost.localdomain>
+	 <Pine.LNX.4.61L.0506231903170.31113@blysk.ds.pg.gda.pl>
+	 <1119566026.18655.30.camel@localhost.localdomain>
+	 <Pine.LNX.4.61L.0506241217490.28452@blysk.ds.pg.gda.pl>
+	 <1119702761.28649.2.camel@localhost.localdomain>
+	 <Pine.LNX.4.61L.0506271519060.23903@blysk.ds.pg.gda.pl>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1119902086.27009.32.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 27 Jun 2005 20:54:46 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-PS: I've readded LKML to CC, since I think that this is a problem with the
-ASM template
+On Llu, 2005-06-27 at 15:55, Maciej W. Rozycki wrote:
+>  Strange -- boxes have started to appear that have no connectors or at 
+> least PCB headers for them.  What's the point in removing connectors and 
+> leaving the (otherwise useful) hardware inaccessible?
+
+It saves external components, buffers etc and makes it easier to pass
+FCC and CE emissions testing, while removing it from the chip means two
+chips and that costs money
+
+> > Whats the _economic_ incentive to do so ? There basically isnt one.
+> 
+>  One chip less?  Well, perhaps the cost of R&D for such a system would 
+> exceed the total cost of keeping that chip included in all boards 
+> manufactured during the term corporate planning is able to cover....
+
+A PC with all the LPC bus goodies is generally a three chip solution
+anyway. The ISA bus vanished, some bits got integrated and an LPC bus
+was added. By now the LPC bus and its contents have all vanished into
+the onboard logic too.
 
 
-On Mon, 27 Jun 2005 20:59:20 +0200
-Andreas Kies <andikies@t-online.de> wrote:
-
-> Them it works, but that's not a solution at all. "volatile" destroys more
-> or  less all optimizations.
-
-Yes... I know, it was just to see what was the problem.
-
-
-The problem is that GCC is caching in registers the value of "ptr[0]" and/or
-"ptr[1]" and/or "ptr[2]".
-
-A little better workaround would be to add "memory" to clobbered registers
-in the asm template:
-
-static inline int strcmp(const char * cs,const char * ct)
-{
-int d0, d1;
-register int __res;
-__asm__ __volatile__(
-        "1:\tlodsb\n\t"
-        "scasb\n\t"
-        "jne 2f\n\t"
-        "testb %%al,%%al\n\t"
-        "jne 1b\n\t"
-        "xorl %%eax,%%eax\n\t"
-        "jmp 3f\n"
-        "2:\tsbbl %%eax,%%eax\n\t"
-        "orb $1,%%al\n"
-        "3:"
-        :"=a" (__res), "=&S" (d0), "=&D" (d1)
-                     :"1" (cs),"2" (ct)
-                     : "memory");	// <--- workaround
-return __res;
-}
-
-
-In this way GCC puts everything is cached in register back to memory when
-you call strcmp()... but you can argue that this isn't optimal.
-
-
-I don't know if there is a better way... basically you need to tell GCC to
-NOT cache these values.
-
-I think that nobody hits this bug because the typical usage is different...
-something like this:
-
-	...
-	char *str = "Hello!";		// or even char str[] = "Hello!";
-	...
-	strcmp (str, other_str);
-	...
-
-In this way "Hello!" _IS_ allocated in memory and "str" points to it.... GCC
-optimizations can't hurt here (I hope ;).
-
-
-CONCLUSION: I think that it should be fixed... but adding "memory" doesn't
-seems The Right Thing to do.
-
---
-	Paolo Ornati
-	Linux 2.6.12.1 on x86_64

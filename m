@@ -1,88 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261912AbVF0H4y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261898AbVF0IC1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261912AbVF0H4y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 03:56:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261914AbVF0H4y
+	id S261898AbVF0IC1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 04:02:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261914AbVF0IC1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 03:56:54 -0400
-Received: from sv1.valinux.co.jp ([210.128.90.2]:48809 "EHLO sv1.valinux.co.jp")
-	by vger.kernel.org with ESMTP id S261912AbVF0H4u (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 03:56:50 -0400
-Date: Mon, 27 Jun 2005 16:56:45 +0900
-From: KUROSAWA Takahiro <kurosawa@valinux.co.jp>
-To: Gerrit Huizenga <gh@us.ibm.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
-       ckrm-tech@lists.sourceforge.net, sekharan@us.ibm.com,
-       frankeh@us.ibm.com, nagar@us.ibm.com, vivk@us.ibm.com, gh@us.ibm.com,
-       nacc@us.ibm.com
-Subject: Re: [ckrm-tech] [patch 04/38] CKRM e18: Resource Control File
- System (rcfs)
-In-Reply-To: <20050623061754.815239000@w-gerrit.beaverton.ibm.com>
-References: <20050623061552.833852000@w-gerrit.beaverton.ibm.com>
-	<20050623061754.815239000@w-gerrit.beaverton.ibm.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 27 Jun 2005 04:02:27 -0400
+Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:39006 "HELO
+	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261898AbVF0ICS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 04:02:18 -0400
+Message-ID: <42BFB287.5060104@yahoo.com.au>
+Date: Mon, 27 Jun 2005 18:02:15 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [rfc] lockless pagecache
+References: <42BF9CD1.2030102@yahoo.com.au> <20050627004624.53f0415e.akpm@osdl.org>
+In-Reply-To: <20050627004624.53f0415e.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <20050627075648.F39E07002C@sv1.valinux.co.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Andrew Morton wrote:
+> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> 
+>>First I'll put up some numbers to get you interested - of a 64-way Altix
+>> with 64 processes each read-faulting in their own 512MB part of a 32GB
+>> file that is preloaded in pagecache (with the proper NUMA memory
+>> allocation).
+> 
+> 
+> I bet you can get a 5x to 10x reduction in ->tree_lock traffic by doing
+> 16-page faultahead.
+> 
+> 
 
-On Wed, 22 Jun 2005 23:15:56 -0700
-Gerrit Huizenga <gh@us.ibm.com> wrote:
+Definitely, for the microbenchmark I was testing with.
 
-> Index: linux-2.6.12-ckrm1/fs/rcfs/magic.c
+However I think for Oracle and others that use shared memory like
+this, they are probably not doing linear access, so that would be a
+net loss. I'm not completely sure (I don't have access to real loads
+at the moment), but I would have thought those guys would have looked
+into fault ahead if it were a possibility.
 
-> +static ssize_t
-> +magic_write(struct file *file, const char __user *buf,
-> +			   size_t count, loff_t *ppos)
-> +{
-> +	struct rcfs_inode_info *ri =
-> +		rcfs_get_inode_info(file->f_dentry->d_parent->d_inode);
+Also, the memory usage regression cases that fault ahead brings makes it
+a bit contentious.
 
-> +	done = magic_parse(ri->mfdentry->d_name.name,
-> +			optbuf, &resname, &otherstr);
+I like that the lockless patch completely removes the problem at its
+source and even makes the serial path lighter. The other things is, the
+speculative get_page may be useful for more code than just pagecache
+lookups. But it is fairly tricky I'll give you that.
 
-I've got kernel oops (NULL pointer dereference) when writing 
-"res=cpu,mode=enabled" to /rcfs/taskclass/config.  ri->mfdentry
-has been NULL.
-The 1st argument of magic_parse() should not be anything of 
-the class directory but the name of the written file itself.
+Anyway it is obviously not something that can go in tomorrow. At the
+very least the PageReserved patches need to go in first, and even they
+will need a lot of testing out of tree.
 
-The following patch fixes the problem for me:
+Perhaps it can be discussed at KS and we can think about what to do with
+it after that - that kind of time frame. No rush.
 
---- fs/rcfs/magic.c	2005/06/27 05:42:47	1.1
-+++ fs/rcfs/magic.c	2005/06/27 07:23:57
-@@ -181,23 +181,23 @@ magic_write(struct file *file, const cha
- 	}
- 	__copy_from_user(optbuf, buf, count);
- 	mkvalidstr(optbuf);
--	done = magic_parse(ri->mfdentry->d_name.name,
-+	done = magic_parse(file->f_dentry->d_name.name,
- 			optbuf, &resname, &otherstr);
- 	if (!done) {
- 		printk(KERN_ERR "Error parsing data written to %s\n",
--				ri->mfdentry->d_name.name);
-+				file->f_dentry->d_name.name);
- 		goto out;
- 	}
--	if (!strcmp(ri->mfdentry->d_name.name, RCFS_CONFIG_NAME)) {
-+	if (!strcmp(file->f_dentry->d_name.name, RCFS_CONFIG_NAME)) {
- 		func = core->classtype->set_config;
--	} else if (!strcmp(ri->mfdentry->d_name.name, RCFS_STATS_NAME)) {
-+	} else if (!strcmp(file->f_dentry->d_name.name, RCFS_STATS_NAME)) {
- 		func = core->classtype->reset_stats;
- 	}
- 	if (func) {
- 		rc = func(core, resname, otherstr);
- 		if (rc) {
--			printk(KERN_ERR "magic_write: %s: error\n",
--				ri->mfdentry->d_name.name);
-+			printk(KERN_ERR "magic_write: %s: error %d\n",
-+				file->f_dentry->d_name.name, rc);
- 		}
- 	}
- out:
+Oh yeah, and obviously it would be nice if it provided real improvements
+on real workloads too ;)
+
+-- 
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

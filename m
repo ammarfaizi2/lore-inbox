@@ -1,44 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261331AbVF0TqQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261449AbVF0Tq5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261331AbVF0TqQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 15:46:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261251AbVF0ToX
+	id S261449AbVF0Tq5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 15:46:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261401AbVF0Tqm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 15:44:23 -0400
-Received: from fmr23.intel.com ([143.183.121.15]:38588 "EHLO
-	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
-	id S261458AbVF0Tnf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 15:43:35 -0400
-Message-Id: <200506271942.j5RJgig23410@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Christoph Lameter'" <christoph@lameter.com>
-Cc: "'Badari Pulavarty'" <pbadari@us.ibm.com>,
-       "'Nick Piggin'" <nickpiggin@yahoo.com.au>,
-       "Lincoln Dale" <ltd@cisco.com>, "Andrew Morton" <akpm@osdl.org>,
-       <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
-Subject: RE: [rfc] lockless pagecache
-Date: Mon, 27 Jun 2005 12:42:44 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcV7TZtHaSHpyPSvRqmDYudh5n1MVAAAL69Q
-In-Reply-To: <Pine.LNX.4.62.0506271221540.21616@graphe.net>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+	Mon, 27 Jun 2005 15:46:42 -0400
+Received: from agminet03.oracle.com ([141.146.126.230]:8231 "EHLO
+	agminet03.oracle.com") by vger.kernel.org with ESMTP
+	id S261449AbVF0Tpi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 15:45:38 -0400
+Date: Mon, 27 Jun 2005 12:44:02 -0700
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: -mm -> 2.6.13 merge status
+Message-ID: <20050627194402.GK31165@ca-server1.us.oracle.com>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20050620235458.5b437274.akpm@osdl.org> <20050627090640.GA5410@infradead.org> <1119882343.4256.358.camel@tribesman.namesys.com> <20050627192651.GB21932@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050627192651.GB21932@infradead.org>
+X-Burt-Line: Trees are cool.
+X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
+User-Agent: Mutt/1.5.9i
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote on Monday, June 27, 2005 12:23 PM
-> On Mon, 27 Jun 2005, Chen, Kenneth W wrote:
-> > I don't recall seeing tree_lock to be a problem for DSS workload either.
-> 
-> I have seen the tree_lock being a problem a number of times with large 
-> scale NUMA type workloads.
+On Mon, Jun 27, 2005 at 08:26:51PM +0100, Christoph Hellwig wrote:
+> drop_inode is not going to die, we need it to support filesystems that
+> want to call generic_delete_inode even for a non-null i_nlink.  What's
+> hopefully going to die is the last instance of it that isn't either
+> generic_drop_inode or generic_delete_inode.
 
-I totally agree!  My earlier posts are strictly referring to industry
-standard db workloads (OLTP, DSS).  I'm not saying it's not a problem
-for everyone :-)  Obviously you just outlined a few ....
+	OCFS2 uses drop_inode as well, as it must handle last-close when
+another node did the unlink.  It fixes up i_nlink in that case, then
+calls generic_drop_inode().
+	If there's a more elegant solution, we're all ears.
 
-- Ken
+Joel
 
+-- 
+
+"When choosing between two evils, I always like to try the one
+ I've never tried before."
+        - Mae West
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

@@ -1,48 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261814AbVF0VEM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261813AbVF0VIl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261814AbVF0VEM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 17:04:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261800AbVF0VDM
+	id S261813AbVF0VIl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 17:08:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbVF0VC4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 17:03:12 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:46242 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261785AbVF0VC0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 17:02:26 -0400
-Subject: RE: [ltp] IBM HDAPS Someone interested? (Accelerometer)
-From: Lee Revell <rlrevell@joe-job.com>
-To: abonilla@linuxwireless.org
-Cc: borislav@users.sourceforge.net, hdaps-devel@lists.sourceforge.net,
-       "'Pavel Machek'" <pavel@suse.cz>,
-       "'Paul Sladen'" <thinkpad@paul.sladen.org>,
-       "'Eric Piel'" <Eric.Piel@tremplin-utc.net>,
-       "'Yani Ioannou'" <yani.ioannou@gmail.com>, linux-kernel@vger.kernel.org,
-       linux-thinkpad@linux-thinkpad.org
-In-Reply-To: <003601c57b19$89f0ddb0$600cc60a@amer.sykes.com>
-References: <003601c57b19$89f0ddb0$600cc60a@amer.sykes.com>
-Content-Type: text/plain
-Date: Mon, 27 Jun 2005 17:02:23 -0400
-Message-Id: <1119906144.13285.6.camel@mindpipe>
+	Mon, 27 Jun 2005 17:02:56 -0400
+Received: from rproxy.gmail.com ([64.233.170.195]:2939 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261800AbVF0VCl convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 17:02:41 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Q63iV1N6lhS67Vaq+JQheUsBbOQkAG2C0VzlOAtXa2p3Og/vKB/J/rvfJLpdLzVtIUNBoTFxvnaIb4+wYYrqiLi2fbIImRZWGDQvLLY2sHg9JhRC/u3zeGe7xG+2lh/HrRbbM2y3K7pvGMbGD/m9VWbAjlxBT0hnGLyV5Gl2CuM=
+Message-ID: <105c793f05062714022ad4359@mail.gmail.com>
+Date: Mon, 27 Jun 2005 17:02:37 -0400
+From: Andrew Haninger <ahaning@gmail.com>
+Reply-To: Andrew Haninger <ahaning@gmail.com>
+To: Jim serio <jseriousenet@gmail.com>
+Subject: Re: 2.6.X not recognizing second CPU
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3642108305062713487326b672@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <3642108305062711524e1e163@mail.gmail.com>
+	 <105c793f050627123583a70d0@mail.gmail.com>
+	 <3642108305062713487326b672@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-06-27 at 07:10 -0600, Alejandro Bonilla wrote:
->         Do you have any input or anything to say? You are probably the
-> one who has
-> messed more with the ecdump or with the controller and might be able
-> to help
-> us grow a clue here. Any answer should point us more to were we want.
-> 
-> Could ecdump give any output of the accelerometer?
-> Could this be really attached to the controller?
+On 6/27/05, Jim serio <jseriousenet@gmail.com> wrote:
+> Thanks for the reply. I think it was a typo but just in case I did try
+> acpi=force and still no go.
+I've not used SMP systems much, but AFAIK, power management is not
+supported. (Though, I guess ACPI is used for stuff other than power
+savings.) Maybe acpi=off?
 
-IMHO anything other than capturing the port IO from the Windows driver
-is a waste of time.  You'll never figure it out with blind guesswork.
+(I'm stabbing in the dark, now. Watch out.)
 
-Good luck,
-
-Lee 
-
+-Andy

@@ -1,44 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261536AbVF0SOq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbVF0SQe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261536AbVF0SOq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 14:14:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261533AbVF0SOq
+	id S261551AbVF0SQe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 14:16:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261540AbVF0SQd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 14:14:46 -0400
-Received: from station-6.events.itd.umich.edu ([141.211.252.135]:39836 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261536AbVF0SOo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 14:14:44 -0400
-Date: Mon, 27 Jun 2005 20:14:28 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Clyde Griffin <CGRIFFIN@novell.com>
-Cc: linux-kernel@vger.kernel.org, Jan Beulich <JBeulich@novell.com>
-Subject: Re: Novell Linux Kernel Debugger (NLKD)
-Message-ID: <20050627181428.GA1415@elf.ucw.cz>
-References: <s2bae938.075@sinclair.provo.novell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <s2bae938.075@sinclair.provo.novell.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Mon, 27 Jun 2005 14:16:33 -0400
+Received: from fmr24.intel.com ([143.183.121.16]:28843 "EHLO
+	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261533AbVF0SQR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 14:16:17 -0400
+Message-Id: <200506271814.j5RIEwg22390@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Nick Piggin'" <nickpiggin@yahoo.com.au>, "Lincoln Dale" <ltd@cisco.com>
+Cc: "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
+       <linux-mm@kvack.org>
+Subject: RE: [rfc] lockless pagecache
+Date: Mon, 27 Jun 2005 11:14:58 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcV6928keiUVJvUgQleTCfKTXmW9DwASyEyw
+In-Reply-To: <42BFC10E.50204@yahoo.com.au>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-(please wrap your lines after 72 characters or so)
-
-> Novell engineering is introducing the Novell Linux Kernel Debugger (NLKD) as an open source project intended to provide an enhanced and robust debugging experience for Linux kernel developers. 
+Nick Piggin wrote on Monday, June 27, 2005 2:04 AM
+> >> However I think for Oracle and others that use shared memory like
+> >> this, they are probably not doing linear access, so that would be a
+> >> net loss. I'm not completely sure (I don't have access to real loads
+> >> at the moment), but I would have thought those guys would have looked
+> >> into fault ahead if it were a possibility.
+> > 
+> > 
+> > i thought those guys used O_DIRECT - in which case, wouldn't the page 
+> > cache not be used?
+> > 
 > 
-> The project (nlkd) at http://forge.novell.com/modules/xfmod/project/?nlkd currently has code patches to SUSE Linux Enterprise Server v9 SP1 and SP2, which when applied allow kernel developers to recompile the Linux kernel exposing the functionality provided by NLKD.  
-> 
-> Patches against the mainline will be forthcoming after community
-> feedback.
+> Well I think they do use O_DIRECT for their IO, but they need to
+> use the Linux pagecache for their shared memory - that shared
+> memory being the basis for their page cache. I think. Whatever
+> the setup I believe they have issues with the tree_lock, which is
+> why it was changed to an rwlock.
 
-gettingRidOfFunkyCapitalisation and rid of hungarian notation_t would
-be a good start. (I only seen the docs, but it has some code snippets
-that look very ugly).
-								Pavel
--- 
-teflon -- maybe it is a trademark, but it should not be.
+Typically shared memory is used as db buffer cache, and O_DIRECT is
+performed on these buffer cache (hence O_DIRECT on the shared memory).
+You must be thinking some other workload.  Nevertheless, for OLTP type
+of db workload, tree_lock hasn't been a problem so far.
+
+- Ken
+

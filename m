@@ -1,60 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261957AbVF0PET@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261649AbVF0PCj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261957AbVF0PET (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 11:04:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261759AbVF0PDo
+	id S261649AbVF0PCj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 11:02:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262022AbVF0O4h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 11:03:44 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:47537 "EHLO
+	Mon, 27 Jun 2005 10:56:37 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:40619 "EHLO
 	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S262090AbVF0ONd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 10:13:33 -0400
-Date: Mon, 27 Jun 2005 16:13:20 +0200
+	id S262116AbVF0NRQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 09:17:16 -0400
+Date: Mon, 27 Jun 2005 15:17:09 +0200
 From: Pavel Machek <pavel@ucw.cz>
-To: Christoph Lameter <christoph@lameter.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, raybry@engr.sgi.com
+To: Ray Bryant <raybry@engr.sgi.com>
+Cc: Kirill Korotaev <dev@sw.ru>, Christoph Lameter <christoph@lameter.com>,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org, torvalds@osdl.org,
+       lhms <lhms-devel@lists.sourceforge.net>
 Subject: Re: [RFC] Fix SMP brokenness for PF_FREEZE and make freezing usable for other purposes
-Message-ID: <20050627141320.GA4945@atrey.karlin.mff.cuni.cz>
-References: <Pine.LNX.4.62.0506241316370.30503@graphe.net> <20050625025122.GC22393@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.62.0506242311220.7971@graphe.net> <20050626023053.GA2871@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.62.0506251954470.26198@graphe.net> <20050626030925.GA4156@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.62.0506261928010.1679@graphe.net> <Pine.LNX.4.58.0506262121070.19755@ppc970.osdl.org> <Pine.LNX.4.62.0506262249080.4374@graphe.net>
+Message-ID: <20050627131709.GA30467@atrey.karlin.mff.cuni.cz>
+References: <Pine.LNX.4.62.0506241316370.30503@graphe.net> <1104805430.20050625113534@sw.ru> <42BFA591.1070503@engr.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0506262249080.4374@graphe.net>
+In-Reply-To: <42BFA591.1070503@engr.sgi.com>
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > It's called "work", and we have the "TIF_xxx" flags for it. That's how 
-> > "need-resched" and "sigpending" are done. There could be a 
-> > "TIF_FREEZEPENDING" thing there too..
+> >CL> frozen(process)             Check for frozen process
+> >CL> freezing(process)   Check if a process is being frozen
+> >CL> freeze(process)             Tell a process to freeze (go to 
+> >refrigerator)
+> >CL> thaw_process(process)       Restart process
+> >
+> >CL> I only know that this boots correctly since I have no system that can 
+> >do
+> >CL> suspend. But Ray needs an effective means of process suspension for
+> >CL> his process migration patches.
 > 
-> Ok. Here is yet another version of the patch:
+> The process migration patches that Christoph mentions are avaialable at
 > 
-> ---
-> The current suspend code modifies thread flags from outside the context of process.
-> This creates a SMP race.
+> http://marc.theaimsgroup.com/?l=linux-mm&m=111945947315561&w=2
 > 
-> The patch fixes that by introducing a TIF_FREEZE flag (for all arches). Also
+> and subsequent notes to the -mm or lhms-devel lists.  The problem there is
+> that this code depends on user space code to suspend and then resume the
+> processes to be migrated before/after the migration.  Christoph suggested
+> using PF_FREEZE, but I pointed out that was broken on SMP so hence the
+> current patch.
 > 
-> - Uses a completion handler instead of waiting in a schedule loop in the refrigerator.
-> 
-> - Introduces a semaphore freezer_sem to provide a way that multiple kernel
->   subsystems can use the freezing ability without interfering with one another.
-> 
-> - Include necessary definitions for the migration code if CONFIG_MIGRATE is set.
-> 
-> - Removes PF_FREEZE
-> 
-> If this approach is okay then we will need to move the refrigerator() and the
-> definition of the semaphore and the completion variable out of kernel/power/process.c
-> into kernel/sched.c (right?).
+> The idea would be to use PF_FREEZE to cause the process suspension.
+> A minor flaw in this approach is what happens if a process migration
+> is in progress when the machine is suspended/resumed.  (Probably not
+> a common occurrence on Altix... :-), but anyway...).  If the processes
+> are PF_FROZEN by the migration code, then unfrozen by the resume code,
+> and then the migration code continues, then we have unstopped processes
+> being migratated again.  Not a good thing.  On the other hand, the
 
-Approach seems okay... Perhaps better place is something like
-kernel/freezer.c so it stays separate file? It is not really scheduler
-core, and it is only conditionally compiled...
+Should be very easy to solve with one semaphore. Simply make swsusp
+wait until all migrations are done.  
+
+> Is the above scenario even possible?  manual page migration runs as a system
+> call.  Do system calls all complete before suspend starts?  If that is
+> the case, then the above is not something to worry about.
+
+Yes, are normal system calls complete before suspend starts -- but
+that's what refrigerator cares about.
+
+> Finally, how comfortable are people about using the PF_FREEZE stuff
+> to start and resume processes for purposes unrelated to suspend/resume?
+
+No problem with that...
+
+BTW smp notebooks will come, sooner or later, and 2-core 2-way-HT
+notebook is already NUMA system.
 								Pavel
 -- 
 Boycott Kodak -- for their patent abuse against Java.

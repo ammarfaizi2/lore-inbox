@@ -1,119 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262131AbVF0Xe4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262010AbVF0XpK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262131AbVF0Xe4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 19:34:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262015AbVF0Xbd
+	id S262010AbVF0XpK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 19:45:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262015AbVF0XpJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 19:31:33 -0400
-Received: from smtp04.auna.com ([62.81.186.14]:10470 "EHLO smtp04.retemail.es")
-	by vger.kernel.org with ESMTP id S262008AbVF0X1L convert rfc822-to-8bit
+	Mon, 27 Jun 2005 19:45:09 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:64449 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262010AbVF0Xox convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 19:27:11 -0400
-Date: Mon, 27 Jun 2005 23:27:09 +0000
-From: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: [ANNOUNCE] ndevfs - a "nano" devfs
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <200506271521.j5RFL5Z02225@freya.yggdrasil.com> (from
-	adam@yggdrasil.com on Mon Jun 27 17:21:05 2005)
-X-Mailer: Balsa 2.3.3
-Message-Id: <1119914829l.29992l.0l@werewolf.able.es>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	Mon, 27 Jun 2005 19:44:53 -0400
+Date: Mon, 27 Jun 2005 16:45:40 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: =?ISO-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
+Cc: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net
+Subject: Re: Problems with Firewire and -mm kernels (was: Re: 2.6.12-mm2)
+Message-Id: <20050627164540.7ded07fc.akpm@osdl.org>
+In-Reply-To: <20050627025059.GC10920@ime.usp.br>
+References: <20050626040329.3849cf68.akpm@osdl.org>
+	<42BE99C3.9080307@trex.wsi.edu.pl>
+	<20050627025059.GC10920@ime.usp.br>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 8BIT
-X-Auth-Info: Auth:LOGIN IP:[83.138.212.68] Login:jamagallon@able.es Fecha:Tue, 28 Jun 2005 01:27:09 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi...
 
-I will post in this dicussion, even I'm not aware of any
-techical/religious concerns with devfs, udev and co.
-I just want to give a suer/admin point of view.
-Flame-proof suit goes on...
+(Added linux1394-devel)
 
-On 06.27, Adam J. Richter wrote:
-> On 2005-06-24, Greg KH wrote:
-> >Anyway, here's yet-another-ramfs-based filesystem, ndevfs.  It's a very
-> >tiny:
-> >$ size fs/ndevfs/inode.o 
-> >   text    data     bss     dec     hex filename
-> >   1571     200       8    1779     6f3 fs/ndevfs/inode.o
-> >replacement for devfs for those embedded users who just can't live
-> >without the damm thing.  It doesn't allow subdirectories, and only uses
-> >LSB compliant names.  But it works, and should be enough for people to
-> >use, if they just can't wean themselves off of the idea of an in-kernel
-> >fs to provide device nodes.
-> >
-> >Now, with this, is there still anyone out there who just can't live
-> >without devfs in their kernel?
-> >
-> >Damm, the depths I've sunk to these days, I'm such a people pleaser...
-> >
-> >Comments?  Questions?  Criticisms?
+Rogério Brito <rbrito@ime.usp.br> wrote:
+>
+> Hi, Andrew.
 > 
-...
+> I am experiencing problems with -mm kernels and my firewire HD. I can use
+> it without any problems with Linus's 2.6.12, but I had problems with both
+> -mm1 and -mm2 (I just compiled -mm2 to see if the problem would go away,
+> but it didn't).
 > 
-> 	To start with the most obvious, subdirectories in /dev is
-> something many people find to be a much more readable user interface
-> (which can save human time and avoid mistakes, which is often the whole
-> point of computers).
+> I am using the same .config file for all compiles, except that I wanted to
+> use the -mm tree for some things that I think would be orthogonal to the
+> issue (like using FUSE, for example).
 > 
-
-I agree on this.
-
-> 	Perhaps less obvious, ndevfs system lacks demand-loading
-> functionality, which will typically make your system consume _more_
-> memory than a system using either the old devfs or my lookup trapping
-> facility that I separated from my devfs variant.  With demand loading,
-> it is not necessary to load modules for sound interfaces, or devices
-> that are available but will not be used before the computer shuts down,
-> or even to spin up disks to scan partition tables that will not be used.
-> It can also be useful to be able to create soft devices on demand that
-> have no hardware counterpart, especially in /dev/mapper/.
+> I can't provide more details now, but as soon as I go to work with the
+> machine that presented the problem, I can give you all the details.
+> 
+> Essentially, what happens with -mm kernels that don't happen with Linus's
+> kernel is that the sbp2 module gets loaded, but it seems that the subsystem
+> never gets to actually see the partitions of the HD (I am using a HFS+
+> formatted disk for transfers of data between Linux and MacOS X).
+> 
+> If others also have the problem, I would like to know about it.
+> 
+> The Firewire controller that I am using is a vanilla VIA card and the HD is
+> a Seagate PATA HD in a Firewire enclosure (it's a ADS Tech DLX-185, if I am
+> not mistaken).
+> 
+> As I said, I can provide further details if wanted/needed.
+> 
 > 
 
-What I would like (I know the answer will be 'write it', but anyways...)
+Could you please generate the dmesg output from 2.6.12 and 2.6.12-mm2 and,
+if there are any relevant-looking differences, send them?
 
-- Boot with an empty /dev. Especially for diskless nodes on clusters
-- Mount a filesystem on /dev that shows the registered drivers _at the
-  moment of mount action_. No need to magically show devices afterwards.
-  Let rc mount it as the very first thing it does. Or even it could
-  be mounted in kernel just before calling init, to allow booting
-  with init=/bin/bash and have a console...
-- That filesystem should allow all normal ops (mkdir, ln -s, chmod ...)
-  to let udev do its work after init starts.
-- Let devices appear on /sys, and let userspace decide if it wants the
-  device created or not and where.
+Also, try:
 
-No magical load of drivers if I access a non existent device node. What
-for ? I want the node when device is there, not when somebody tries to
-open it. I want the device when the user plugs its firewire drive, not
-when he tries to open it and forgot to plug it.
+wget ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12/2.6.12-mm2/broken-out/gregkh-pci-pci-collect-host-bridge-resources-02.patch
 
-What about devices present but not used ? Is it so big the overload in
-memory that an embedded system will have ? Sure you can shave many more
-bytes in userspace...
-What if I don't want to see sound devices even if I have the hardware ?
-Write the right init scripts sequence. Nowadays distros use udev, but
-just start udev and let it create everything. All it finds under /sys.
-You could split current udev
-in each subsytem, and make the sound initscript to do something like
-'udevstart SOUND' (don't remember the exact syntax) to create the
-sound device nodes (forced hotplugging ?). If you don't start sound,
-no sound devices. With a fully configured udev/hotplug system, perhaps
-initscripts could reduce to 'udevstart XXXX'...
+patch -R -p1 < gregkh-pci-pci-collect-host-bridge-resources-02.patch
 
-I am surely missing too many techical details, but this is what I would
-really like to see from a user point of view.
-
-Is it so difficult to get an agreement ?
-
-
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
-werewolf!able!es                         \         It's better when it's free
-Mandriva Linux release 2006.0 (Cooker) for i586
-Linux 2.6.12-jam4 (gcc 4.0.1 (4.0.1-0.2mdk for Mandriva Linux release 2006.0))
-
-
+Thanks.

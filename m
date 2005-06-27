@@ -1,39 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262022AbVF0QBt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262103AbVF0QBs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262022AbVF0QBt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 12:01:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261779AbVF0PTp
+	id S262103AbVF0QBs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 12:01:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262048AbVF0PUN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 11:19:45 -0400
-Received: from mail.parknet.co.jp ([210.171.160.6]:59145 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S261472AbVF0Omr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 10:42:47 -0400
-To: Karel Kulhavy <clock@twibright.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [bugzilla-daemon@gentoo.org: [Bug 93671] mount uses wrong default umask for fat filesystem]
-References: <20050627100746.GC24093@kestrel>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Mon, 27 Jun 2005 23:42:37 +0900
-In-Reply-To: <20050627100746.GC24093@kestrel> (Karel Kulhavy's message of "Mon, 27 Jun 2005 12:07:46 +0200")
-Message-ID: <87br5r509u.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
+	Mon, 27 Jun 2005 11:20:13 -0400
+Received: from hobbit.corpit.ru ([81.13.94.6]:38484 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S261559AbVF0Oqg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 10:46:36 -0400
+Message-ID: <42C0114A.2000401@tls.msk.ru>
+Date: Mon, 27 Jun 2005 18:46:34 +0400
+From: Michael Tokarev <mjt@tls.msk.ru>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: getdents, unlink and tmpfs vs otherFS
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Karel Kulhavy <clock@twibright.com> writes:
+I've got a weird problem a while back - my initrd script
+does not work when the root is on cciss device.  It turned
+out to be a problem with $SUBJ.  /dev/cciss/ is quite large
+(alot of disks and partitions), and when initrd is on tmpfs
+(initramfs it really is), and run-init is executed, it tries
+to remove /dev/cciss, it fails.  And here's why.
 
-> ------- Additional Comments From stian@nixia.no  2005-06-26 16:36 PDT -------
-> This is not a mount bug, but a kernel-bug. umask=nnn is passed along other
-> user-flags to the mount syscall as a string, and the kernel-filesystem driver
-> parses the string and denies the syscall if a syntax-error occures. Not all
-> filesystems supports umask, so umask is not sent unless spesified. If the mount
-> man-page claims that umask is defaulted to the current shell umask setting, the
-> kernel-driver needs to take this into account when umask isn't found in the
-> string it receives from user-space. Just my 5 cent about this bug
+uclibc does the following on readdir():
 
-Look util-linux-2.12q... hm, mount command is reseting the umask in main().
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+open(.., O_DIRECTORY)                   = 3
+getdents(3, /* 197 entries */, 3933)    = 3932
+lseek(3, 2728, SEEK_SET)                = 2728
+unlink(..)
+....
+getdents(3, /* 85 entries */, 3933)     = 1700
+unlink()
+....
+getdents(3, /* 196 entries */, 3933)    = 3920
+lseek(3, 6816, SEEK_SET)                = 6816
+....
+
+and finally rmdir() which fails with "Directory
+not empty" error.
+
+And eg glibc, or dietlibc, or klibc - it's all
+the same but without all the lseek()s, and with
+final rmdir() successeful.
+
+It's on tmpfs.
+
+On ext[23], final rmdir succed on both cases,
+ie, with and without lseek.
+
+Is it a bug in tmpfs, or in uclibc?
+
+Thanks.
+
+/mjt

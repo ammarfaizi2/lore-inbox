@@ -1,42 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261623AbVF0TLM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261613AbVF0TLL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261623AbVF0TLM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 15:11:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261680AbVF0TLF
+	id S261613AbVF0TLL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 15:11:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261623AbVF0TIK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 15:11:05 -0400
-Received: from fmr21.intel.com ([143.183.121.13]:58318 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S261619AbVF0TH6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 15:07:58 -0400
-Message-Id: <200506271905.j5RJ5ag22991@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Badari Pulavarty'" <pbadari@us.ibm.com>
-Cc: "'Nick Piggin'" <nickpiggin@yahoo.com.au>, "Lincoln Dale" <ltd@cisco.com>,
-       "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
-       <linux-mm@kvack.org>
-Subject: RE: [rfc] lockless pagecache
-Date: Mon, 27 Jun 2005 12:05:36 -0700
+	Mon, 27 Jun 2005 15:08:10 -0400
+Received: from zproxy.gmail.com ([64.233.162.192]:57076 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261620AbVF0TGc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 15:06:32 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=lT38RfrSYQG+oI6Rz2z1QUjP7RkJX/LRknbChrzYTebKVDXR5SbXJirAbZ4Ujz3raQCF4UR4aHqjaWO+FwfDjsiB0TnirT8Y+ELhb2bVOfqYo1m4VX/emv7yV+FF2HGWb2kj8jrWt6wO9DDByedORCCiGafXYcRQN3LCNOmAHcc=
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Eric Biederman <ebiederm@xmission.com>, Randy Dunlap <rddunlap@osdl.org>
+Subject: [PATCH] kexec: fix sparse warnings
+Date: Mon, 27 Jun 2005 23:12:29 +0400
+User-Agent: KMail/1.7.2
+Cc: fastboot@osdl.org, linux-kernel@vger.kernel.org,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcV7STUcsUHyaCVPRsq/iJiIYzQpNQAAa/nw
-In-Reply-To: <1119898264.13376.89.camel@dyn9047017102.beaverton.ibm.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Content-Disposition: inline
+Message-Id: <200506272312.29445.adobriyan@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Badari Pulavarty wrote on Monday, June 27, 2005 11:51 AM
-> On Mon, 2005-06-27 at 11:14 -0700, Chen, Kenneth W wrote:
-> > Typically shared memory is used as db buffer cache, and O_DIRECT is
-> > performed on these buffer cache (hence O_DIRECT on the shared memory).
-> > You must be thinking some other workload.  Nevertheless, for OLTP type
-> > of db workload, tree_lock hasn't been a problem so far.
-> 
-> What about DSS ? I need to go back and verify some of the profiles
-> we have.
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
 
-I don't recall seeing tree_lock to be a problem for DSS workload either.
-
+Index: linux-sparse/kernel/kexec.c
+===================================================================
+--- linux-sparse.orig/kernel/kexec.c	2005-06-27 09:32:52.000000000 +0400
++++ linux-sparse/kernel/kexec.c	2005-06-27 23:08:00.000000000 +0400
+@@ -241,7 +241,7 @@ static int kimage_normal_alloc(struct ki
+ 
+ static int kimage_crash_alloc(struct kimage **rimage, unsigned long entry,
+ 				unsigned long nr_segments,
+-				struct kexec_segment *segments)
++				struct kexec_segment __user *segments)
+ {
+ 	int result;
+ 	struct kimage *image;
+@@ -650,7 +650,7 @@ static kimage_entry_t *kimage_dst_used(s
+ 		}
+ 	}
+ 
+-	return 0;
++	return NULL;
+ }
+ 
+ static struct page *kimage_alloc_page(struct kimage *image,
+@@ -696,7 +696,7 @@ static struct page *kimage_alloc_page(st
+ 		/* Allocate a page, if we run out of memory give up */
+ 		page = kimage_alloc_pages(gfp_mask, 0);
+ 		if (!page)
+-			return 0;
++			return NULL;
+ 		/* If the page cannot be used file it away */
+ 		if (page_to_pfn(page) >
+ 				(KEXEC_SOURCE_MEMORY_LIMIT >> PAGE_SHIFT)) {
+@@ -754,7 +754,7 @@ static int kimage_load_normal_segment(st
+ 	unsigned long maddr;
+ 	unsigned long ubytes, mbytes;
+ 	int result;
+-	unsigned char *buf;
++	unsigned char __user *buf;
+ 
+ 	result = 0;
+ 	buf = segment->buf;
+@@ -818,7 +818,7 @@ static int kimage_load_crash_segment(str
+ 	unsigned long maddr;
+ 	unsigned long ubytes, mbytes;
+ 	int result;
+-	unsigned char *buf;
++	unsigned char __user *buf;
+ 
+ 	result = 0;
+ 	buf = segment->buf;

@@ -1,56 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262152AbVF0XY7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262098AbVF0Xd1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262152AbVF0XY7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 19:24:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262125AbVF0XUZ
+	id S262098AbVF0Xd1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 19:33:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262008AbVF0XcI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 19:20:25 -0400
-Received: from ipx10786.ipxserver.de ([80.190.251.108]:41191 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S262123AbVF0XSX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 19:18:23 -0400
-Date: Tue, 28 Jun 2005 01:20:27 +0200
-From: Johannes Stezenbach <js@linuxtv.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, bunk@stusta.de
-Message-ID: <20050627232027.GB8701@linuxtv.org>
-Mail-Followup-To: Johannes Stezenbach <js@linuxtv.org>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	bunk@stusta.de
-References: <20050627120600.739151000@abc> <20050627121413.689826000@abc> <20050627155403.70e2d77d.akpm@osdl.org>
+	Mon, 27 Jun 2005 19:32:08 -0400
+Received: from mail.kroah.org ([69.55.234.183]:61858 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262140AbVF0X36 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 19:29:58 -0400
+Date: Mon, 27 Jun 2005 16:29:48 -0700
+From: Greg KH <greg@kroah.com>
+To: Luben Tuikov <luben_tuikov@adaptec.com>
+Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Question on "embedded" classes
+Message-ID: <20050627232948.GA24904@kroah.com>
+References: <42C0897A.8010705@adaptec.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050627155403.70e2d77d.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
-X-SA-Exim-Connect-IP: 84.189.203.165
-Subject: Re: [DVB patch 21/51] ttusb-dec: kfree cleanup
-X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
-X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
+In-Reply-To: <42C0897A.8010705@adaptec.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Johannes Stezenbach <js@linuxtv.org> wrote:
-> >
-> > From: Adrian Bunk <bunk@stusta.de>
-> > 
-> > The Coverity checker discovered that these two kfree's can never be
-> > executed.
-> > 
+On Mon, Jun 27, 2005 at 07:19:22PM -0400, Luben Tuikov wrote:
+> Hi,
 > 
-> That's a bit strange - the code was OK beforehand.  It's a bit of a tossup.
-
-Hm, the comment was a bit misleading, but the kfree(NULL) is a no-op.
-
-> >  	/* allocate memory for the internal state */
-> >  	state = (struct ttusbdecfe_state*) kmalloc(sizeof(struct ttusbdecfe_state), GFP_KERNEL);
+> I was wondering what the reason was for allowing
+> class and classdev to only be at level 3 and level
+> 4 respectively of sysfs (/ is level 0)?
 > 
-> This typecast is unneeded btw.  We tend to avoid casts to and from void*
-> because they defeat typechecking and uglify things.
+> 1) Some devices would not have any relevance
+> ouside the scope of the "parent" device.
+> 2) "Hooking" them all at /sys/class/ level
+> would create quite a lot of symlinks (and with
+> cryptic names in order to reference the proper
+> "parent" device in the same directory).
+> 
+> E.g. Some devices, like SAS host adapters, have "devices
+> inside devices" and I'd like to represent this in
+> sysfs.
+> 
+> /sys/class/sas          (a class)
+> /sys/class/sas/ha0/     (a classdev)
+> /sys/class/sas/ha1/     (a classdev)
+> 
+> /sys/class/sas/ha0/device -> symlink to PCI device
+> /sys/class/sas/ha0/device_name    (text attribute)
+> 
+> /sys/class/sas/ha0/phys/     (a class)
+> /sys/class/sas/ha0/phys/0/   (a classdev)
 
-I just passed the patch on unchanged. The void-cast cleanup is for
-another patch (the issue is known and we already cleaned up quite
-a lot of them).
+Nope, this is not allowed.
 
-Johannes
+Classes are not allowed to have children classes.
+class devices can not have children, be they class_device or a class.
+
+That is the reason you are getting oopses :)
+
+thanks,
+
+greg k-h

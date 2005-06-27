@@ -1,79 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261649AbVF0PCj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261413AbVF0PNa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261649AbVF0PCj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 11:02:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262022AbVF0O4h
+	id S261413AbVF0PNa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 11:13:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261195AbVF0PGA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 10:56:37 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:40619 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S262116AbVF0NRQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 09:17:16 -0400
-Date: Mon, 27 Jun 2005 15:17:09 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Ray Bryant <raybry@engr.sgi.com>
-Cc: Kirill Korotaev <dev@sw.ru>, Christoph Lameter <christoph@lameter.com>,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org, torvalds@osdl.org,
-       lhms <lhms-devel@lists.sourceforge.net>
-Subject: Re: [RFC] Fix SMP brokenness for PF_FREEZE and make freezing usable for other purposes
-Message-ID: <20050627131709.GA30467@atrey.karlin.mff.cuni.cz>
-References: <Pine.LNX.4.62.0506241316370.30503@graphe.net> <1104805430.20050625113534@sw.ru> <42BFA591.1070503@engr.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42BFA591.1070503@engr.sgi.com>
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 27 Jun 2005 11:06:00 -0400
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:42506 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261751AbVF0OSw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 10:18:52 -0400
+Date: Mon, 27 Jun 2005 15:18:50 +0100 (BST)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: IDE - sensible probing for PCI systems
+In-Reply-To: <42BC8C10.1040604@pobox.com>
+Message-ID: <Pine.LNX.4.61L.0506271516270.23903@blysk.ds.pg.gda.pl>
+References: <1119356601.3279.118.camel@localhost.localdomain> 
+ <Pine.LNX.4.61L.0506211422190.9446@blysk.ds.pg.gda.pl> 
+ <1119363150.3325.151.camel@localhost.localdomain> 
+ <Pine.LNX.4.61L.0506211535100.17779@blysk.ds.pg.gda.pl> 
+ <1119379587.3325.182.camel@localhost.localdomain> 
+ <Pine.LNX.4.61L.0506231903170.31113@blysk.ds.pg.gda.pl>
+ <1119566026.18655.30.camel@localhost.localdomain>
+ <Pine.LNX.4.61L.0506241217490.28452@blysk.ds.pg.gda.pl> <42BC8C10.1040604@pobox.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, 24 Jun 2005, Jeff Garzik wrote:
 
-> >CL> frozen(process)             Check for frozen process
-> >CL> freezing(process)   Check if a process is being frozen
-> >CL> freeze(process)             Tell a process to freeze (go to 
-> >refrigerator)
-> >CL> thaw_process(process)       Restart process
-> >
-> >CL> I only know that this boots correctly since I have no system that can 
-> >do
-> >CL> suspend. But Ray needs an effective means of process suspension for
-> >CL> his process migration patches.
+> > Well, keyboard and mouse are USB these days, serial and parallel are PCI,
+> > floppies are not used anymore and the ISA DMA controller would only be 
 > 
-> The process migration patches that Christoph mentions are avaialable at
+> Oh, how I wish this were true!
 > 
-> http://marc.theaimsgroup.com/?l=linux-mm&m=111945947315561&w=2
-> 
-> and subsequent notes to the -mm or lhms-devel lists.  The problem there is
-> that this code depends on user space code to suspend and then resume the
-> processes to be migrated before/after the migration.  Christoph suggested
-> using PF_FREEZE, but I pointed out that was broken on SMP so hence the
-> current patch.
-> 
-> The idea would be to use PF_FREEZE to cause the process suspension.
-> A minor flaw in this approach is what happens if a process migration
-> is in progress when the machine is suspended/resumed.  (Probably not
-> a common occurrence on Altix... :-), but anyway...).  If the processes
-> are PF_FROZEN by the migration code, then unfrozen by the resume code,
-> and then the migration code continues, then we have unstopped processes
-> being migratated again.  Not a good thing.  On the other hand, the
+> The pre-production machines I get (i.e. not even on the market yet) still have
+> floppy, serial, and PS/2 kbd/mouse.
 
-Should be very easy to solve with one semaphore. Simply make swsusp
-wait until all migrations are done.  
+ You must be getting them from wrong vendors. ;-)  How about switching to 
+a reasonable platform that doesn't imply DOS compatibility?
 
-> Is the above scenario even possible?  manual page migration runs as a system
-> call.  Do system calls all complete before suspend starts?  If that is
-> the case, then the above is not something to worry about.
-
-Yes, are normal system calls complete before suspend starts -- but
-that's what refrigerator cares about.
-
-> Finally, how comfortable are people about using the PF_FREEZE stuff
-> to start and resume processes for purposes unrelated to suspend/resume?
-
-No problem with that...
-
-BTW smp notebooks will come, sooner or later, and 2-core 2-way-HT
-notebook is already NUMA system.
-								Pavel
--- 
-Boycott Kodak -- for their patent abuse against Java.
+  Maciej

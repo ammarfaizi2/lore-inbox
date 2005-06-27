@@ -1,36 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261796AbVF0Vhd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261812AbVF0VSO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261796AbVF0Vhd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 17:37:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbVF0VhY
+	id S261812AbVF0VSO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 17:18:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261846AbVF0VRr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 17:37:24 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:46536 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261796AbVF0VgT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 17:36:19 -0400
-Date: Mon, 27 Jun 2005 12:58:07 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Al Boldi <a1426z@gawab.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kswapd flaw
-Message-ID: <20050627155807.GA10171@logos.cnet>
-References: <200506272004.XAA09696@raad.intranet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200506272004.XAA09696@raad.intranet>
-User-Agent: Mutt/1.5.5.1i
+	Mon, 27 Jun 2005 17:17:47 -0400
+Received: from afp150.internetdsl.tpnet.pl ([83.16.145.150]:32236 "HELO
+	afp150.internetdsl.tpnet.pl") by vger.kernel.org with SMTP
+	id S261844AbVF0VQ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 17:16:27 -0400
+Mime-Version: 1.0 (Apple Message framework v728)
+Content-Transfer-Encoding: 7bit
+Message-Id: <2551469155.11389371503@afp150.internetdsl.tpnet.pl>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+To: linux-kernel@vger.kernel.org
+From: Siegfried <falsifies@muren.net>
+Subject: Buy Cheap PC Software from Special Reserve.
+Date: Mon, 27 Jun 2005 23:16:10 +0200
+X-Mailer: Apple Mail (2.728)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 27, 2005 at 11:04:08PM +0300, Al Boldi wrote:
-> 
-> In 2.4.31 kswapd starts paging during OOMs even w/o swap enabled.
-> 
-> Is there a way to fix/disable this behaviour?
+You best friends and family deserve the BEST internet photo album! 
+http://rgaaxzf.dkzayuvoa5dkswd.hemicranicef.info
 
-Al,
 
-What do you mean by paging? Can you be more detailed on the problem 
-description please?
+
+
+Kites rise highest against the wind - not with it.   
+Beware of the man whose God is in the skies.   
+
+

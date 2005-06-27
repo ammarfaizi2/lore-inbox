@@ -1,63 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262103AbVF0QBs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262052AbVF0QHJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262103AbVF0QBs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 12:01:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262048AbVF0PUN
+	id S262052AbVF0QHJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 12:07:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262044AbVF0QCU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 11:20:13 -0400
-Received: from hobbit.corpit.ru ([81.13.94.6]:38484 "EHLO hobbit.corpit.ru")
-	by vger.kernel.org with ESMTP id S261559AbVF0Oqg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 10:46:36 -0400
-Message-ID: <42C0114A.2000401@tls.msk.ru>
-Date: Mon, 27 Jun 2005 18:46:34 +0400
-From: Michael Tokarev <mjt@tls.msk.ru>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: getdents, unlink and tmpfs vs otherFS
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Mon, 27 Jun 2005 12:02:20 -0400
+Received: from embeddededge.com ([209.113.146.155]:35591 "EHLO
+	penguin.netx4.com") by vger.kernel.org with ESMTP id S261296AbVF0P6K
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 11:58:10 -0400
+In-Reply-To: <20050626.175347.104031526.davem@davemloft.net>
+References: <20050626185210.GB6091@logos.cnet> <20050626.173338.41634345.davem@davemloft.net> <20050626190944.GC6091@logos.cnet> <20050626.175347.104031526.davem@davemloft.net>
+Mime-Version: 1.0 (Apple Message framework v622)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <705a40397bb8383399109debccaebaa3@embeddededge.com>
 Content-Transfer-Encoding: 7bit
+Cc: akpm@osdl.org, marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
+From: Dan Malek <dan@embeddededge.com>
+Subject: Re: increased translation cache footprint in v2.6
+Date: Mon, 27 Jun 2005 11:57:51 -0400
+To: "David S. Miller" <davem@davemloft.net>
+X-Mailer: Apple Mail (2.622)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've got a weird problem a while back - my initrd script
-does not work when the root is on cciss device.  It turned
-out to be a problem with $SUBJ.  /dev/cciss/ is quite large
-(alot of disks and partitions), and when initrd is on tmpfs
-(initramfs it really is), and run-init is executed, it tries
-to remove /dev/cciss, it fails.  And here's why.
 
-uclibc does the following on readdir():
+On Jun 26, 2005, at 8:53 PM, David S. Miller wrote:
 
-open(.., O_DIRECTORY)                   = 3
-getdents(3, /* 197 entries */, 3933)    = 3932
-lseek(3, 2728, SEEK_SET)                = 2728
-unlink(..)
-....
-getdents(3, /* 85 entries */, 3933)     = 1700
-unlink()
-....
-getdents(3, /* 196 entries */, 3933)    = 3920
-lseek(3, 6816, SEEK_SET)                = 6816
-....
+> So that's 7 instructions, 2 instruction cache lines, with no main
+> memory accesses.  Surely the PPC folks can do something similar. :-)
 
-and finally rmdir() which fails with "Directory
-not empty" error.
+It's not that easy on the 8xx.  It actually implements a two level
+hardware page table.  Basically, I want to load the PMD into the
+first level of the hardware, then the PTE into the second level 
+register.
+We have to load both registers with some information, but I can't
+get the control bits organized in the pmd/pte to do this easily.
+There is also a fair amount of hardware assist in the MMU for
+initializing these registers and providing page table offset computation
+that we need to utilize.
 
-And eg glibc, or dietlibc, or klibc - it's all
-the same but without all the lseek()s, and with
-final rmdir() successeful.
-
-It's on tmpfs.
-
-On ext[23], final rmdir succed on both cases,
-ie, with and without lseek.
-
-Is it a bug in tmpfs, or in uclibc?
+With the right page table structure the tlb miss handler is very 
+trivial.
+Without it, we have to spend lots of time building the entries 
+dynamically.
+Because of the configurability of the address space among text, data,
+IO, and uncached mapping, we simply can't test an address bit and
+build a new TLB entry.  So, I want to use the existing page tables to
+represent the spaces, then have the tlb miss handler just use that
+information.  I'll take a closer look at the kernel/user separate code
+paths again.
 
 Thanks.
 
-/mjt
+	-- Dan
+

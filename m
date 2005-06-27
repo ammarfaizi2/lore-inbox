@@ -1,47 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261943AbVF0I24@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261937AbVF0I2Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261943AbVF0I24 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 04:28:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261923AbVF0I24
+	id S261937AbVF0I2Z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 04:28:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261943AbVF0I2Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 04:28:56 -0400
-Received: from smtp203.mail.sc5.yahoo.com ([216.136.129.93]:52138 "HELO
-	smtp203.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261943AbVF0I2u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 04:28:50 -0400
-Message-ID: <42BFB8BE.20903@yahoo.com.au>
-Date: Mon, 27 Jun 2005 18:28:46 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [rfc] lockless pagecache
-References: <42BF9CD1.2030102@yahoo.com.au>	<20050627004624.53f0415e.akpm@osdl.org>	<42BFB287.5060104@yahoo.com.au> <20050627011539.28793896.akpm@osdl.org>
-In-Reply-To: <20050627011539.28793896.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 27 Jun 2005 04:28:25 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:9106 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261937AbVF0I2R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 04:28:17 -0400
+Subject: Re: [RFC] SPI core -- revisited
+From: Arjan van de Ven <arjan@infradead.org>
+To: Vitaly Wool <vwool@dev.rtsoft.ru>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <42BF7496.7080204@dev.rtsoft.ru>
+References: <20050626193621.8B8E44C4D1@abc.pervushin.pp.ru>
+	 <200506270049.10970.adobriyan@gmail.com>
+	 <1119819580.3215.47.camel@laptopd505.fenrus.org>
+	 <42BF7496.7080204@dev.rtsoft.ru>
+Content-Type: text/plain
+Date: Mon, 27 Jun 2005 10:28:03 +0200
+Message-Id: <1119860886.3186.30.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+On Mon, 2005-06-27 at 07:37 +0400, Vitaly Wool wrote:
+> Arjan van de Ven wrote:
 > 
->>Also, the memory usage regression cases that fault ahead brings makes it
->> a bit contentious.
+> <snip>
 > 
-> 
-> faultahead consumes no more memory: if the page is present then point a pte
-> at it.  It'll make reclaim work a bit harder in some situations.
-> 
+> >
+> > ... or just kill the wrappers entirely!
+> >
+> >  
+> >
+> Nothing's gonna work in DMA case if he kills the wrappers.
 
-Oh OK we'll call that faultahead and Christoph's thing prefault then.
+how is that??
 
-I suspect it may still be a net loss for those that are running into
-tree_lock contention, but we'll see.
-
--- 
-SUSE Labs, Novell Inc.
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,132 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261513AbVF0HLN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261950AbVF0HQA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261513AbVF0HLN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 03:11:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261869AbVF0HIp
+	id S261950AbVF0HQA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 03:16:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261898AbVF0HNF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 03:08:45 -0400
-Received: from adren.mine.nu ([81.56.37.44]:16858 "EHLO adren.mine.nu")
-	by vger.kernel.org with ESMTP id S261893AbVF0HHY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 03:07:24 -0400
-Date: Mon, 27 Jun 2005 09:07:09 +0200
-From: Cyril Chaboisseau <cyril.chaboisseau@free.fr>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: dm-mirror/kmirrord oops
-Message-ID: <20050627070709.GA9169@adren.mine.nu>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Operating-System: Linux 2.6.11.11
-X-GPG-Key-Fingerprint: F4AD 74A4 8F10 C2CB C569  8BD6 2E64 953B B725 9AF5
-User-Agent: Mutt/1.5.9i
+	Mon, 27 Jun 2005 03:13:05 -0400
+Received: from 69-18-3-179.lisco.net ([69.18.3.179]:9995 "EHLO
+	ninja.slaphack.com") by vger.kernel.org with ESMTP id S261901AbVF0HH4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 03:07:56 -0400
+Message-ID: <42BFA5C2.1010807@slaphack.com>
+Date: Mon, 27 Jun 2005 02:07:46 -0500
+From: David Masover <ninja@slaphack.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050325)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Valdis.Kletnieks@vt.edu
+Cc: Hubert Chan <hubert@uhoreg.ca>, Lincoln Dale <ltd@cisco.com>,
+       Gregory Maxwell <gmaxwell@gmail.com>, Hans Reiser <reiser@namesys.com>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: reiser4 plugins
+References: <200506240241.j5O2f1eb005609@laptop11.inf.utfsm.cl> <42BCD93B.7030608@slaphack.com> <200506251420.j5PEKce4006891@turing-police.cc.vt.edu> <42BDA377.6070303@slaphack.com> <200506252031.j5PKVb4Y004482@turing-police.cc.vt.edu> <42BDC422.6020401@namesys.com> <42BE3645.4070806@cisco.com> <e692861c05062522071fe380a5@mail.gmail.com> <42BE563D.4000402@cisco.com> <42BE5DB6.8040103@slaphack.com> <200506261816.j5QIGMdI010142@turing-police.cc.vt.edu> <42BF08CF.2020703@slaphack.com> <200506262105.j5QL5kdR018609@turing-police.cc.vt.edu> <42BF2DC4.8030901@slaphack.com> <200506270040.j5R0eUNA030632@turing-police.cc.vt.edu> <87y88webpo.fsf@evinrude.uhoreg.ca> <200506270459.j5R4xdZp005659@turing-police.cc.vt.edu>            <42BF9489.9080202@slaphack.com> <200506270624.j5R6OWFn008836@turing-police.cc.vt.edu>
+In-Reply-To: <200506270624.j5R6OWFn008836@turing-police.cc.vt.edu>
+X-Enigmail-Version: 0.89.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just had a big problem lately when I wanted to migrate my PV from one
-disk to another
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-to do so, I first created a LVM partition on my second disk,
+Valdis.Kletnieks@vt.edu wrote:
+> On Mon, 27 Jun 2005 00:54:17 CDT, David Masover said:
+> 
+> 
+>>There has been some mention of inheritance, but I've forgotten how
+>>that's supposed to work.  If there's some sort of inheritance where
+>>children inherit properties of their parent directory, and also inherit
+>>changes to those properties, than Hans probably wants that to be the
+>>prefered way of doing things?
+> 
+> 
+> Well, the 'chmod g+s dirname/' example *is* just "children inherit the
+> group of the directory", and somebody didn't like that.. ;)
 
-then I initialized the partition (pvcreate)
-# pvcreate /dev/sdb1
+Respectfully ignoring this until he can comment.  I suspect he made a
+mistake, but I'm trying to avoid putting words in his mouth...
 
-I extended my vg to the newly PV
-# vgextend vg /dev/sdb1
+>>>Now throw in multiple users and CPU limits.  User A enters that directory and
+>>>references everything, causing the buffer cache to get filled up.  While there,
+>>>A makes changes, so the pages are dirty - "for i in */*; do echo " " >> $i; done"
+>>>would do the job...  User B now does something that causes a writeback of one
+>>>of those buffer cache pages.
+>>>
+>>>A) What process currently gets ticked for the CPU and I/O for the writeback?
+>>>
+>>>B) In your model, who will get ticked for the resources?
+>>>
+>>>C) Will the users riot? (Note that you can't win here - currently, the "price"
+>>>of writing back A's and B's pages are about equal.  However, if A gets dinked
+>>>for an expensive writeback due to B's process, A will get miffed.  If B gets
+>>>charge for an expensive writeback of A's, B will get miffed. If you say "screw it"
+>>>and bill it to a kernel thread, the bean counters will get miffed... ;)
+>>
+>>If I understand this correctly, this is somewhat like if user A creates
+>>a 50 meg file on a system with 100 megs free RAM, and user B runs
+>>"sync".  Also similar to if B were to suddenly fill up 75 megs of RAM,
+>>forcing A's file to be flushed -- last I checked, in Reiser4, only a
+>>sync or memory pressure causes writes to flush.
+> 
+> 
+> Exactly the same sort of thing - traditionally it's been more or less ignored
+> in the system accounting, because A would usually average out to causing as
+> many I/Os as B did, and they were roughly equal in cost so it was a wash.
 
-and then I tried to move the data from the old PV to the newly created
-# pvmove -v /dev/sda4 /dev/sdb1
+Even if A is doing A/V work and B is programming?
 
-everything went fine for maybe half an hour, but at 21% it froze
+> However, if one user has a much higher per-page cost than the other, the
+> imbalance can start to matter *very* quickly....
 
-I waited for maybe 15/20mn and couldn't do anything
-the machine seemed to respond (KDE running with clock and gkrellm
-showing progress) but I couldn't launch any command : everytime I typed
-one nothing happened
+I see.  My instinct is to charge A if B just caused a sync, but change B
+if B was automagically forcing A to do something...
 
-so, I ended up rebooting the machine (reset)
+But I still don't understand the layers involved well enough.
 
+>>Right?  This is tempting to comment on, but I want to make sure I grok
+>>it first...
+> 
+> 
+> For more fun, consider how you can write 1 megabyte of data to a file,
+> lseek to the beginning and start writing again - and you go over quota
+> on the *second* write even though you're over-writing already existing
+> data.  Can happen if you're compressing, and the second write doesn't
+> compress as well as the first. (To be fair, we already have similar
+> issues with sparse files - but at least 'tar --sparse' has an easy way
+> to deal with it compared to this. ;)
 
-after that, every attempt to boot multi-user or Single failed with an
-oops on dm-mirror
+To be even more fair, but possibly launch another flame, Reiser4
+reserves 5% of disk space by default to avoid this kind of thing.  But
+that's talking about total disk, not quotas.
 
-at that point I was running 2.6.11.11 + grsec (BTW, the processor is amd64)
+Also doesn't answer my question, but it seems I'm starting to get it.
 
-I finally stabilized things by commenting some LVM partitions on my fstab
-(everything except /usr and /var) but every time I tried to backup
-things onto another disk it would crash again
+How do we get over quota errors, btw?  Can we get them from write()
+calls?  If so, I don't see a Problem(TM), just an annoyance.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-so I tried 2.6.12.1 with CONFIG_DM_MIRROR built-in instead of module
-
-it worked a little but again after some time it crashed again with the
-following :
-
-
-
-
-Unable to handle kernel paging request at ffffc2000015c128 RIP: 
-<ffffffff802964a8>{core_in_sync+8}
-PGD 3ff92067 PUD 3ff91067 PMD 3ff90067 PTE 0
-Oops: 0000 [1] 
-CPU 0 
-Modules linked in: af_packet ipv6 ip_nat_ftp ip_conntrack_ftp iptable_mangle iptable_nat snd_via82xx gameport snd_ac97_codec snd_pcm_oss snd_mixer_oss snd_pcm snd_timer snd_page_alloc snd_mpu401_uart snd_rawmidi snd_seq_device snd soundcore ehci_hcd tsdev eth1394 usbhid uhci_hcd 3c59x rt2500 ohci1394 quota_v2 cpufreq_powersave cpufreq_ondemand powernow_k8 freq_table processor w83627hf i2c_sensor i2c_isa i2c_core sr_mod sbp2 ieee1394 ide_cd cdrom evdev unix
-Pid: 848, comm: kmirrord/0 Not tainted 2.6.12.1
-RIP: 0010:[core_in_sync+8/32] <ffffffff802964a8>{core_in_sync+8}
-RSP: 0018:ffff8100022afbf0  EFLAGS: 00010246
-RAX: ffffc2000015b000 RBX: ffff81003b42e2d8 RCX: ffffc2000015f1a0
-RDX: 0000000000000001 RSI: 0000000000008940 RDI: ffff81000ff93440
-RBP: 0000000000008940 R08: 0000000000008940 R09: ffff810001b71f38
-R10: 0000000000000001 R11: ffff810001000000 R12: 0000000000000001
-R13: ffff81003b42e2c0 R14: ffff81003b42e2d8 R15: ffff81000ff93440
-FS:  00002aaaab00d4a0(0000) GS:ffffffff8047a9c0(0000) knlGS:0000000000000000
-CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
-CR2: ffffc2000015c128 CR3: 000000002475a000 CR4: 00000000000006e0
-Process kmirrord/0 (pid: 848, threadinfo ffff8100022ae000, task ffff810002264130)
-Stack: ffffffff802969da ffff81000bb56b00 0000000000000000 ffff8100022afd28 
-       ffffffff802972c7 ffff81003f7c3e00 32c932e0cc32cc37 9300814000002400 
-       ffff81003b42e308 0000000000000002 
-Call Trace:<ffffffff802969da>{rh_state+58} <ffffffff802972c7>{do_work+1735}
-       <ffffffff801536c0>{mempool_free_slab+0} <ffffffff80306184>{thread_return+0}
-       <ffffffff8013e5a8>{worker_thread+440} <ffffffff8012c1e0>{default_wake_function+0}
-       <ffffffff8012c1e0>{default_wake_function+0} <ffffffff8013e3f0>{worker_thread+0}
-       <ffffffff8014241d>{kthread+205} <ffffffff8010f173>{child_rip+8}
-       <ffffffff801e4b70>{vgacon_cursor+0} <ffffffff80142460>{keventd_create_kthread+0}
-       <ffffffff80142350>{kthread+0} <ffffffff8010f16b>{child_rip+0}
-       
-
-Code: 0f a3 30 19 f6 31 c0 85 f6 0f 95 c0 c3 66 66 66 90 66 66 66 
-RIP <ffffffff802964a8>{core_in_sync+8} RSP <ffff8100022afbf0>
-CR2: ffffc2000015c128
-
-
-
-after several attemps to move the PV to another disk, I finally rebooted
-multi-user and under a graphical console I realized that a lot of disk
-activity was going on plus a /dev/vg/pmove0 LV was created
-
-so I waited until the pvmove finalized and after that, I could copy,
-delete, remove LV and so on without any glitch or freeze !
-
-
-
-
-from my understanding, there is a locking problem and if a process tries
-to do something on a block while it's being moved, then dm-mirror (or
-kmirrod if built-in) crashes
-
-has anyone experienced the same problem ?
-
-could this be related to the 64 bits arch ? (amd64)
-
-
-thanks for your help
-
-
-
-PS : I finally destroyed the whole LVM and reconstructed another one
-from backup so I cannot provide anymore information nor reproduce the
-bug
-
--- 
-	Cyril Chaboisseau
+iQIVAwUBQr+lwngHNmZLgCUhAQKYUw/9HmIZRqL7+1qcji/y4EhgUMftbdaKHUaJ
+D+gyssdIgkfNwAR5vEvE6Lb0Fdj4zWU12nnx/ppL0nU1n6pWOBqyOMMtbHs4dbwe
+iTJmoe1OCBM5uOS8bSdYUfVFUWNRF5+MPc8cWcpBa1LPCBmpzUnr5hS8iuNknWl2
+7r6Hs64GSJ1JI7djE0P8fZVTou95azc/1pRU4kRtlsavXMmmAL3sefA9HS4b85VB
+haOuNPmDIhJhPXhAMY6ZYKq3xnVyGWuiU6Z1Clv8JyP0Y7jaqGjF+V16zVSKvJH8
+d0BrN05zGL1CIYDQrLtC0CQHuuLek34NDYimgVSLhkSB73GJ/MHxfO++68Pnhxhz
+NOF86tPhoDQHhdEkUw0Kq5ZeI43ETejbMRIMoPAhuWo1vCQNFsfsSLljWLatBGNr
+Lzgb0Q74Iqnrw9fPwrQttA/aPdlnVmOGv1qVYz/LQ8C+UHPVLXkjm5NVzHFDesPS
+XXRZxSxPcOcMK9zPxLNer3zPlGPNOjQbylfL6+RwcJDmHq3IrDJDLY4TB4cZzJpc
+gJyXrpSjprYCbSi+cc1d1R4cLcbdMHjR/rEszibLyeMuINYyx6vJklKy9xvpmyEB
+woGrADFDnmKyv4WOzswSgIM6s8U2dLY4GFM/GW7KLx+rMF98UDhGyLjvSyvIpigs
+BJz4T03qCtA=
+=GoJz
+-----END PGP SIGNATURE-----

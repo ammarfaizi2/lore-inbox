@@ -1,56 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261682AbVF0Ahp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261677AbVF0Aks@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261682AbVF0Ahp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Jun 2005 20:37:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261677AbVF0Aho
+	id S261677AbVF0Aks (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Jun 2005 20:40:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261684AbVF0Aks
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Jun 2005 20:37:44 -0400
-Received: from pacific.moreton.com.au ([203.143.235.130]:21714 "EHLO
-	moreton.com.au") by vger.kernel.org with ESMTP id S261682AbVF0AhE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Jun 2005 20:37:04 -0400
-Date: Mon, 27 Jun 2005 10:36:55 +1000
-From: David McCullough <davidm@snapgear.com>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Paul Mackerass <paulus@au.ibm.com>,
-       Mikael Starvik <starvik@axis.com>
-Subject: Re: [PATCH] Add removal schedule of register_serial/unregister_serial to appropriate file
-Message-ID: <20050627003655.GD27196@beast>
-References: <20050623142335.A5564@flint.arm.linux.org.uk> <20050625104725.A16381@flint.arm.linux.org.uk>
+	Sun, 26 Jun 2005 20:40:48 -0400
+Received: from h80ad25fc.async.vt.edu ([128.173.37.252]:55430 "EHLO
+	h80ad25fc.async.vt.edu") by vger.kernel.org with ESMTP
+	id S261677AbVF0Ake (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Jun 2005 20:40:34 -0400
+Message-Id: <200506270036.j5R0adSk030387@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: David Masover <ninja@slaphack.com>
+Cc: Hans Reiser <reiser@namesys.com>, Lincoln Dale <ltd@cisco.com>,
+       Gregory Maxwell <gmaxwell@gmail.com>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: reiser4 plugins 
+In-Reply-To: Your message of "Sun, 26 Jun 2005 19:16:48 CDT."
+             <42BF4570.9010405@slaphack.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <200506240241.j5O2f1eb005609@laptop11.inf.utfsm.cl> <42BCD93B.7030608@slaphack.com> <200506251420.j5PEKce4006891@turing-police.cc.vt.edu> <42BDA377.6070303@slaphack.com> <200506252031.j5PKVb4Y004482@turing-police.cc.vt.edu> <42BDC422.6020401@namesys.com> <42BE3645.4070806@cisco.com> <e692861c05062522071fe380a5@mail.gmail.com> <42BE563D.4000402@cisco.com> <42BE5DB6.8040103@slaphack.com> <200506261816.j5QIGMdI010142@turing-police.cc.vt.edu> <42BF08CF.2020703@slaphack.com> <200506262105.j5QL5kdR018609@turing-police.cc.vt.edu> <42BF2DC4.8030901@slaphack.com> <42BF3D8F.4060503@namesys.com>
+            <42BF4570.9010405@slaphack.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050625104725.A16381@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: multipart/signed; boundary="==_Exmh_1119832598_3659P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sun, 26 Jun 2005 20:36:38 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_1119832598_3659P
+Content-Type: text/plain; charset=us-ascii
 
-Jivin Russell King lays it down ...
-> On Thu, Jun 23, 2005 at 02:23:35PM +0100, Russell King wrote:
-> > +What:	register_serial/unregister_serial
-> > +When:	December 2005
-> > +Why:	This interface does not allow serial ports to be registered against
-> > +	a struct device, and as such does not allow correct power management
-> > +	of such ports.  8250-based ports should use serial8250_register_port
-> > +	and serial8250_unregister_port instead.
-> > +Who:	Russell King <rmk@arm.linux.org.uk>
+On Sun, 26 Jun 2005 19:16:48 CDT, David Masover said:
+
+> But, to avoid confusion, the inclusion of a crytocompress plugin in a
+> given kernel doesn't mean that all files accessed from that kernel are
+> encrypted and compressed.  It just means that you can pick an individual
+> file and set it to be transparently encrypted/compressed.
 > 
-> Ok, now that this is in, I guess I should arrange for register_serial &
-> co to throw a compiler warning.  However, this is non-trivial because
-> several other drivers declare this function:
+> That is what I meant by "enabled".  Not per-user, but per-file.
 
-...
+Doing key management in a secure manner is going to be *fun*. :)
 
-> drivers/serial/68328serial.c:int register_serial(struct serial_struct *req)
-> drivers/serial/68328serial.c:void unregister_serial(int line)
+--==_Exmh_1119832598_3659P
+Content-Type: application/pgp-signature
 
-These can go.  AFAICT they were never used and I have no idea why they
-are there.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-Cheers,
-Davidm
+iD8DBQFCv0oWcC3lWbTT17ARAqxRAJ9b8p/7BREnaMLwAGw+34B1n96+2QCg6V56
+kgJ+9xEb6YW/qqUa6b3KRdA=
+=l3W2
+-----END PGP SIGNATURE-----
 
--- 
-David McCullough, davidm@snapgear.com  Ph:+61 7 34352815 http://www.SnapGear.com
-Custom Embedded Solutions + Security   Fx:+61 7 38913630 http://www.uCdot.org
+--==_Exmh_1119832598_3659P--

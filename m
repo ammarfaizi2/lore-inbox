@@ -1,42 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261343AbVF0HoV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261894AbVF0HrD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261343AbVF0HoV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 03:44:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261893AbVF0HoV
+	id S261894AbVF0HrD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 03:47:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261893AbVF0HrC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 03:44:21 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:33422 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261343AbVF0HoS (ORCPT
+	Mon, 27 Jun 2005 03:47:02 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:19139 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261896AbVF0Hqw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 03:44:18 -0400
-Date: Mon, 27 Jun 2005 09:44:15 +0200
-From: Andi Kleen <ak@suse.de>
+	Mon, 27 Jun 2005 03:46:52 -0400
+Date: Mon, 27 Jun 2005 00:46:24 -0700
+From: Andrew Morton <akpm@osdl.org>
 To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: VFS scalability
-Message-ID: <20050627074414.GB14251@wotan.suse.de>
-References: <42BF9CD1.2030102@yahoo.com.au> <42BFA014.9090604@yahoo.com.au> <p733br4w9uw.fsf@verdi.suse.de> <42BFABD7.5000006@yahoo.com.au>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [rfc] lockless pagecache
+Message-Id: <20050627004624.53f0415e.akpm@osdl.org>
+In-Reply-To: <42BF9CD1.2030102@yahoo.com.au>
+References: <42BF9CD1.2030102@yahoo.com.au>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42BFABD7.5000006@yahoo.com.au>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 27, 2005 at 05:33:43PM +1000, Nick Piggin wrote:
-> >Maybe adding a prefetch for it at the beginning of sys_read() 
-> >might help, but then with 64CPUs writing to parts of the inode
-> >it will always thrash no matter how many prefetches.
-> >
-> 
-> True. I'm just not sure what is causing the bouncing - I guess
-> ->f_count due to get_file()?
+Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+>
+> First I'll put up some numbers to get you interested - of a 64-way Altix
+>  with 64 processes each read-faulting in their own 512MB part of a 32GB
+>  file that is preloaded in pagecache (with the proper NUMA memory
+>  allocation).
 
-That's in the file, not in the inode. It must be some inode field.
-I don't know which one.
-
-There is probably some oprofile/perfmon event that could tell
-you which function dirties the cacheline.
-
--Andi
+I bet you can get a 5x to 10x reduction in ->tree_lock traffic by doing
+16-page faultahead.
 

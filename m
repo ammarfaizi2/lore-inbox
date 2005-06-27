@@ -1,43 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261960AbVF0JGp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261966AbVF0JNT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261960AbVF0JGp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 05:06:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261965AbVF0JGo
+	id S261966AbVF0JNT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 05:13:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261965AbVF0JNT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 05:06:44 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:49810 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261960AbVF0JGm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 05:06:42 -0400
-Date: Mon, 27 Jun 2005 10:06:40 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Morton <akpm@osdl.org>, zam@namesys.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: -mm -> 2.6.13 merge status
-Message-ID: <20050627090640.GA5410@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@osdl.org>, zam@namesys.com,
-	linux-kernel@vger.kernel.org
-References: <20050620235458.5b437274.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050620235458.5b437274.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 27 Jun 2005 05:13:19 -0400
+Received: from RT-soft-2.Moscow.itn.ru ([80.240.96.70]:5270 "HELO
+	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S261968AbVF0JNP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 05:13:15 -0400
+Message-ID: <42BFC348.5040709@dev.rtsoft.ru>
+Date: Mon, 27 Jun 2005 13:13:44 +0400
+From: Vitaly Wool <vwool@dev.rtsoft.ru>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Arjan van de Ven <arjan@infradead.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] SPI core -- revisited
+References: <20050626193621.8B8E44C4D1@abc.pervushin.pp.ru>	 <200506270049.10970.adobriyan@gmail.com>	 <1119819580.3215.47.camel@laptopd505.fenrus.org>	 <42BF7496.7080204@dev.rtsoft.ru> <1119860886.3186.30.camel@laptopd505.fenrus.org>
+In-Reply-To: <1119860886.3186.30.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=KOI8-R; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 20, 2005 at 11:54:58PM -0700, Andrew Morton wrote:
-> reiser4
+Arjan van de Ven wrote:
 
-So looking over the code a little for the plugin debate I found that a
-reason patch introduces a ->put_inode method in reiser4.  We plan to
-kill ->put_inode because it's the wrong abstraction and almost impossible
-to use non-racy (reiser4 usage is racy).
+>>Nothing's gonna work in DMA case if he kills the wrappers.
+>>    
+>>
+>
+>how is that??
+>  
+>
+These functions are not exactly *wrappers*, there's some little 
+additional logic inside.
+spi-pnx0105_atmel.c uses spi_pnx_msg_buff_t structure to embed physical 
+and virtual address and length of the memory area allocated by 
+consistent_alloc, so if we just get rid of the alloc/free functions, 
+we'll copy wrong data from the userspace and nothing'll work.
 
-I had a discussion with someone from namesys how to solve this correctly,
-but I don't remember the details of either the solution or problem anymore.
-Unless someone else does let's describe the problem again so we can find
-a proper fix.
+Let's look at it from another point. When a read request comes from the 
+userspace to spi-dev, spi-dev should allocate  memory and copy the user 
+data in there. The problem is it is not (and shouldn't be) aware whether 
+the transfer is gonna be DMA or not so spi-dev can't choose 
+theappropriate method of memory allocation. Therefore it's reasonable to 
+let algorithm provide routines to do that.
+

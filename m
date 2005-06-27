@@ -1,73 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261908AbVF0HCd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261891AbVF0HH2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261908AbVF0HCd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 03:02:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261893AbVF0HCc
+	id S261891AbVF0HH2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 03:07:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261892AbVF0HH2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 03:02:32 -0400
-Received: from 69-18-3-179.lisco.net ([69.18.3.179]:42768 "EHLO
-	ninja.slaphack.com") by vger.kernel.org with ESMTP id S261913AbVF0HA4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 03:00:56 -0400
-Message-ID: <42BFA421.70506@slaphack.com>
-Date: Mon, 27 Jun 2005 02:00:49 -0500
-From: David Masover <ninja@slaphack.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050325)
+	Mon, 27 Jun 2005 03:07:28 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:59825 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261891AbVF0HFV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 03:05:21 -0400
+Message-ID: <42BFA591.1070503@engr.sgi.com>
+Date: Mon, 27 Jun 2005 02:06:57 -0500
+From: Ray Bryant <raybry@engr.sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu
-Cc: Lincoln Dale <ltd@cisco.com>, Gregory Maxwell <gmaxwell@gmail.com>,
-       Hans Reiser <reiser@namesys.com>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: reiser4 plugins
-References: <200506240241.j5O2f1eb005609@laptop11.inf.utfsm.cl> <42BCD93B.7030608@slaphack.com> <200506251420.j5PEKce4006891@turing-police.cc.vt.edu> <42BDA377.6070303@slaphack.com> <200506252031.j5PKVb4Y004482@turing-police.cc.vt.edu> <42BDC422.6020401@namesys.com> <42BE3645.4070806@cisco.com> <e692861c05062522071fe380a5@mail.gmail.com> <42BE563D.4000402@cisco.com> <42BE5DB6.8040103@slaphack.com> <200506261816.j5QIGMdI010142@turing-police.cc.vt.edu> <42BF08CF.2020703@slaphack.com> <200506262105.j5QL5kdR018609@turing-police.cc.vt.edu> <42BF2DC4.8030901@slaphack.com> <200506270040.j5R0eUNA030632@turing-police.cc.vt.edu> <42BF667C.50606@slaphack.com> <200506270423.j5R4Np9n004510@turing-police.cc.vt.edu> <42BF8F42.7030308@slaphack.com> <200506270541.j5R5fULX007282@turing-police.cc.vt.edu> <42BF9562.4090602@slaphack.com> <200506270612.j5R6CZGX008462@turing-police.cc.vt.edu>            <42BF9C4D.3080800@slaphack.com> <200506270643.j5R6hqRh009781@turing-police.cc.vt.edu>
-In-Reply-To: <200506270643.j5R6hqRh009781@turing-police.cc.vt.edu>
-X-Enigmail-Version: 0.89.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
+To: Kirill Korotaev <dev@sw.ru>
+CC: Christoph Lameter <christoph@lameter.com>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, pavel@suse.cz, torvalds@osdl.org,
+       raybry@engr.sgi.com, lhms <lhms-devel@lists.sourceforge.net>
+Subject: Re: [RFC] Fix SMP brokenness for PF_FREEZE and make freezing usable
+ for other purposes
+References: <Pine.LNX.4.62.0506241316370.30503@graphe.net> <1104805430.20050625113534@sw.ru>
+In-Reply-To: <1104805430.20050625113534@sw.ru>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Valdis.Kletnieks@vt.edu wrote:
-> On Mon, 27 Jun 2005 01:27:25 CDT, David Masover said:
-
-[...]
-
->>Speaking of backup, that's another nice place for a plugin.  Imagine a
->>dump that didn't have to be of the entire FS, but rather an arbitrary
->>tree...  That might be a nice new archive format.  I know Apple already
->>uses something like this for their dmg packages.
+Kirill Korotaev wrote:
+> CL> The process freezing used by software suspend currently relies on modifying
+> current->>flags from outside of the processes context. This makes freezing and
+> CL> unfreezing SMP unsafe since a process may change the flags at any time without
+> CL> locking. The following patch introduces a new atomic_t field in task_struct
+> CL> to allow SMP safe freezing and unfreezing.
 > 
+> CL> It provides a simple API for process freezing:
 > 
-> Hmm.. you mean like 'tar' or 'cpio' or 'pax' or 'rsync'? :) 
+> CL> frozen(process)             Check for frozen process
+> CL> freezing(process)   Check if a process is being frozen
+> CL> freeze(process)             Tell a process to freeze (go to refrigerator)
+> CL> thaw_process(process)       Restart process
+> 
+> CL> I only know that this boots correctly since I have no system that can do
+> CL> suspend. But Ray needs an effective means of process suspension for
+> CL> his process migration patches.
 
-No, a dmg is an OS X program installer.  It appears to be a disk image
-of sorts.  So this is the backup idea in reverse.
+The process migration patches that Christoph mentions are avaialable at
 
-They even "optimize" (repack? defrag?) the hard drive after each update.
+http://marc.theaimsgroup.com/?l=linux-mm&m=111945947315561&w=2
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+and subsequent notes to the -mm or lhms-devel lists.  The problem there is
+that this code depends on user space code to suspend and then resume the
+processes to be migrated before/after the migration.  Christoph suggested
+using PF_FREEZE, but I pointed out that was broken on SMP so hence the
+current patch.
 
-iQIVAwUBQr+kIXgHNmZLgCUhAQKMbg/9GMCtXtlC76wYEvzALVQROXh5xTKHJg8q
-+sngIMVKfCPOwGVe62tUfrzGaQ0/t9FJ/p40yAzRrWHV7msJWwQZYjf918AA1Vmg
-IMmsbzFPH+3oRROSfwWcPB/MPG5n1YVfsaq09BUSFM7pasubGgEiFz3TA7gwRTh1
-sOw/3J1mlhcxUUbQJrLPAe6e4u59h6MwUZVSdnF2D0Gnnxgwvl8ZemLVSqDaaMGs
-F7fHJWUd7pZO+d4h2c9AnFLQQL5TvJHDOWuHcGVHZbt/Vaz7F79TWWyC74MeDUA6
-ErSGbrZ4fLnocP8zqmDkWJ9GnqE/w9HAhDC2vPtRqCl4z8Mbc/0e5FOxi3M+7WVH
-TXXBTKnBQG97DWEwneVRFndmhzP/rccnCYIlWhTugiATkStNkOKabTHVp2tpC7lB
-VP+NwBsMFoaS3vvKcYMF9709OglLRdGmHoju87UIvyLLUZ1fYvZ2+7WlEez0cqSh
-I0GTCq8gshagIAKhjR/vhVT0i20xyrS/oJEIYdtXz470E2S9tf1NvIwlokO153wL
-6PaAN2okmC+YLG+lMeHDZs2lKDfmPzOtbzxR8XyEQHLxsbdWJBnm9B6Epa02iiE1
-wZ8feMMsAOjzb/8iiZFqMRROe+j9m+beDLMdc3fYVrNQM72EyPAMw1zUr1GgXeVA
-USJDqNWK5S4=
-=BpTW
------END PGP SIGNATURE-----
+The idea would be to use PF_FREEZE to cause the process suspension.
+A minor flaw in this approach is what happens if a process migration
+is in progress when the machine is suspended/resumed.  (Probably not
+a common occurrence on Altix... :-), but anyway...).  If the processes
+are PF_FROZEN by the migration code, then unfrozen by the resume code,
+and then the migration code continues, then we have unstopped processes
+being migratated again.  Not a good thing.  On the other hand, the
+manual page migration stuff is only existent on NUMA boxes, so the
+question is whether any NUMA boxes support suspend/resume.  (Anyone
+have a NUMA laptop handy to test this on?   Thought not....)
+
+Is the above scenario even possible?  manual page migration runs as a system
+call.  Do system calls all complete before suspend starts?  If that is
+the case, then the above is not something to worry about.
+
+The other approach would be to fix the manual page migration code to
+handle non-suspended processes, but that hasn't been achieved yet,
+in spite of the fact that the underlying page migration code from the
+memory hotplug project is designed to support that.  Even then,
+there is still a potential race if the migrated application also uses
+SIGTOP/SIGCONT, which is how the migrated processes are suspended
+today.
+
+Finally, how comfortable are people about using the PF_FREEZE stuff
+to start and resume processes for purposes unrelated to suspend/resume?
+-- 
+Best Regards,
+Ray
+-----------------------------------------------
+                   Ray Bryant
+512-453-9679 (work)         512-507-7807 (cell)
+raybry@sgi.com             raybry@austin.rr.com
+The box said: "Requires Windows 98 or better",
+            so I installed Linux.
+-----------------------------------------------

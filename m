@@ -1,93 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261612AbVF0US7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261695AbVF0UVr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261612AbVF0US7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 16:18:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261608AbVF0US7
+	id S261695AbVF0UVr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 16:21:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261703AbVF0UVn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 16:18:59 -0400
-Received: from [63.81.117.10] ([63.81.117.10]:30408 "EHLO mail00hq.adic.com")
-	by vger.kernel.org with ESMTP id S261612AbVF0USg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 16:18:36 -0400
-Message-ID: <42C05F16.5000804@xfs.org>
-Date: Mon, 27 Jun 2005 15:18:30 -0500
-From: Steve Lord <lord@xfs.org>
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.3 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Hans Reiser <reiser@namesys.com>
-CC: "Theodore Ts'o" <tytso@mit.edu>, Markus T?rnqvist <mjt@nysv.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       David Masover <ninja@slaphack.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: reiser4 plugins
-References: <42BB7B32.4010100@slaphack.com> <200506240334.j5O3YowB008100@laptop11.inf.utfsm.cl> <20050627092138.GD11013@nysv.org> <20050627124255.GB6280@thunk.org> <42C0578F.7030608@namesys.com>
-In-Reply-To: <42C0578F.7030608@namesys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 27 Jun 2005 20:18:33.0908 (UTC) FILETIME=[64893F40:01C57B55]
+	Mon, 27 Jun 2005 16:21:43 -0400
+Received: from ccssun1.nrl.navy.mil ([132.250.113.66]:36519 "EHLO
+	ccssun1.nrl.navy.mil") by vger.kernel.org with ESMTP
+	id S261665AbVF0UTy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 16:19:54 -0400
+Date: Mon, 27 Jun 2005 16:19:49 -0400
+From: "Tim Strobell \(Contractor\)" <timothy.strobell@nrl.navy.mil>
+To: linux-kernel@vger.kernel.org
+Subject: no output on serial console between probe and init
+Message-ID: <20050627201949.GC955@ccs.nrl.navy.mil>
+Reply-To: Tim Strobell <timothy.strobell@nrl.navy.mil>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser wrote:
-> Steve, there is a remark about XFS below which you are going to be more
-> expert on.
-> 
-> Theodore Ts'o wrote:
-> 
+Prior to 2.6.12, I was experiencing garbage on the serial console as others
+have mentioned in this thread:
+http://www.uwsg.iu.edu/hypermail/linux/kernel/0503.3/0491.html 
+Applying Phil Oester's quick patch 
+http://www.uwsg.iu.edu/hypermail/linux/kernel/0503.3/1061.html
+indeed removes the garbage but now produces no output until init is started.
 
->>
->>XFS has similar issues where it assumes that hardware has powerfail
->>interrupts, and that the OS can use said powerfail interrupt to stop
->>DMA's in its tracks on an power failure, so that you don't have
->>garbage written to key filesystem data structures when the memory
->>starts suffering from the dropping voltage on the power bus faster
->>than the DMA engine or the disk drives.  So XFS is a great filesystem
->>--- but you'd better be running it on a UPS, or on a system which has
->>power fail interrupts and an OS that knows what to do.  Ext3, because
->>it does physical block journalling, does not suffer from this problem.
->>(Yes, Resierfs uses logical journalling as well, so it suffers from
->>the same problem.)
->>
+The patch that was integrated into 2.6.12 also exhibits the same problem.
 
-I presume Ted is referring to problems guaranteeing the integrity of
-the journal at recovery time. I am coming into this without all the
-available context, so I may be barking up the wrong tree.... In
-particular, I am not sure how journaling whole blocks protects
-you from this.
+Output to the console:
 
-The xfs journal protects itself against partial writes, to a certain
-degree. The header of a journal write (inside a 512 byte sector)
-contains an array of words which are swapped out from the start of
-each following 512 byte sector of the journal write. The following
-sectors then each have the log sequence number (LSN) of the write inserted
-in place of that data.
+....
+PNP: PS/2 controller doesn't have AUX irq; using default 0xc
+PNP: PS/2 Controller [PNP0303:KBD] at 0x60,0x64 irq 112
+serio: i8042 AUX port at 0x60,0x64 irq 12
+serio: i8042 KBD port at 0x60,0x64 irq 1
+Serial: 8250/16550 driver $Revision: 1.90 $ 8 ports, IRQ sharing disabled
+ttyS0 at I/O 0x3f8 (irq = 4) is a NS16550A
 
-During recovery, we find the most recent LSN via a binary chop
-search, this gives us an associated tail LSN. A scan backwards
-from the head LSN is then done - this covers the total possible
-amount of in flight data (maximum log buffers x maximum log buffer
-size). If any of the sectors has the wrong LSN in the first word,
-then it an all following data is discarded from replay. Of course,
-we will also not replay any journal entry for which we do not find
-the transaction commit record.
+< nothing for about a minute; should at least see SCSI init here >
 
-Now, this protects against some failure cases, it assumes that
-sector writes are atomic, they either happen or they do not
-happen. If sector writes are not atomic and one end can be
-good with the other is bad, then a partial sector is possibly
-going to get replayed. There have been discussions about doing
-this with the head and tail of each sector, or using a checksum
-instead.
+INIT: version 2.86 booting
+Activating swap.Adding 2104504k swap on /dev/sda2.  Priority:-1 extents:1
+Checking root file system...
+.....
 
-XFS on linux has had power cycle crash testing, but there is no
-way you can cover all possible hardware configurations, and I
-seem to recall some hardware never recovered from this testing,
-by that I mean the PC did not survive the continual power cycling
-and went up in smoke.
 
-Steve
+This is on a relatively new Dell PowerEdge 1850; all serial output is at 9600
+8N1.
 
+Please CC any replies directly to me since I'm not on the list. Thanks!
+
+-Tim
+
+--
+Tim Strobell, Sr. Systems Administrator	                       V 202 767 8449
+Center for Computational Science, Naval Research Lab           F 202 404 7402
+Code 5595 (A49-32), 4555 Overlook Ave SW, Washington DC 20375

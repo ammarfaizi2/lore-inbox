@@ -1,94 +1,248 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261851AbVF0Gby@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261868AbVF0GjS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261851AbVF0Gby (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 02:31:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261859AbVF0Gbw
+	id S261868AbVF0GjS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 02:39:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261861AbVF0Giv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 02:31:52 -0400
-Received: from 69-18-3-179.lisco.net ([69.18.3.179]:62473 "EHLO
-	ninja.slaphack.com") by vger.kernel.org with ESMTP id S261851AbVF0G1e
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 02:27:34 -0400
-Message-ID: <42BF9C4D.3080800@slaphack.com>
-Date: Mon, 27 Jun 2005 01:27:25 -0500
-From: David Masover <ninja@slaphack.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050325)
-X-Accept-Language: en-us, en
+	Mon, 27 Jun 2005 02:38:51 -0400
+Received: from smtp203.mail.sc5.yahoo.com ([216.136.129.93]:25021 "HELO
+	smtp203.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261868AbVF0GeX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 02:34:23 -0400
+Message-ID: <42BF9DE5.6010701@yahoo.com.au>
+Date: Mon, 27 Jun 2005 16:34:13 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu
-Cc: Lincoln Dale <ltd@cisco.com>, Gregory Maxwell <gmaxwell@gmail.com>,
-       Hans Reiser <reiser@namesys.com>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: reiser4 plugins
-References: <200506240241.j5O2f1eb005609@laptop11.inf.utfsm.cl> <42BCD93B.7030608@slaphack.com> <200506251420.j5PEKce4006891@turing-police.cc.vt.edu> <42BDA377.6070303@slaphack.com> <200506252031.j5PKVb4Y004482@turing-police.cc.vt.edu> <42BDC422.6020401@namesys.com> <42BE3645.4070806@cisco.com> <e692861c05062522071fe380a5@mail.gmail.com> <42BE563D.4000402@cisco.com> <42BE5DB6.8040103@slaphack.com> <200506261816.j5QIGMdI010142@turing-police.cc.vt.edu> <42BF08CF.2020703@slaphack.com> <200506262105.j5QL5kdR018609@turing-police.cc.vt.edu> <42BF2DC4.8030901@slaphack.com> <200506270040.j5R0eUNA030632@turing-police.cc.vt.edu> <42BF667C.50606@slaphack.com> <200506270423.j5R4Np9n004510@turing-police.cc.vt.edu> <42BF8F42.7030308@slaphack.com> <200506270541.j5R5fULX007282@turing-police.cc.vt.edu>            <42BF9562.4090602@slaphack.com> <200506270612.j5R6CZGX008462@turing-police.cc.vt.edu>
-In-Reply-To: <200506270612.j5R6CZGX008462@turing-police.cc.vt.edu>
-X-Enigmail-Version: 0.89.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+To: linux-kernel <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+Subject: [patch 4] radix tree: lockless readside
+References: <42BF9CD1.2030102@yahoo.com.au> <42BF9D67.10509@yahoo.com.au> <42BF9D86.90204@yahoo.com.au> <42BF9DBA.3000607@yahoo.com.au>
+In-Reply-To: <42BF9DBA.3000607@yahoo.com.au>
+Content-Type: multipart/mixed;
+ boundary="------------090403090108030001020801"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+This is a multi-part message in MIME format.
+--------------090403090108030001020801
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Valdis.Kletnieks@vt.edu wrote:
-> On Mon, 27 Jun 2005 00:57:54 CDT, David Masover said:
-> 
-> 
->>In one of three possible settings for the imaginary zipfile plugin, yes.
->> But if we're talking about a kernel source tree, how many of us
->>actually build zipfiles/tarballs of their kernel source trees, rather
->>than unpack existing ones?
-> 
-> 
-> I dunno.  I'll often build a tarball of "-mm plus local patches" known to
-> be working at the moment, precisely so I can just untar that as a known good
-> base for the next kernel-hackfest, rather than untar Linus's tree, apply all
-> of the -mm patch, then all my local patches again...
 
-What you really want is a copy-on-write tree, or a simpe cp.  Or are you
-that short on space that you need compression?
+-- 
+SUSE Labs, Novell Inc.
 
-Speaking of which, I know copy-on-write files are planned.  What about
-whole trees?
+--------------090403090108030001020801
+Content-Type: text/plain;
+ name="radix-tree-lockless-readside.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="radix-tree-lockless-readside.patch"
 
-But, short of that, you can always do a poor man's copy-on-write with
-"cp -al" or "cp -as", assuming you remember to copy when you write...
+Make radix tree lookups safe to be performed without locks.
 
-> And even if I'm not *that* ambitious, I'll at least tar up a clean -mm tree
-> to use as a base. :)
+Also introduce a lockfree gang_lookup_slot which will be used
+by a future patch.
 
-I just keep a -mm patch around and the original vanilla tarball, but to
-each his own.
+Index: linux-2.6/lib/radix-tree.c
+===================================================================
+--- linux-2.6.orig/lib/radix-tree.c
++++ linux-2.6/lib/radix-tree.c
+@@ -45,6 +45,7 @@
+ 	((RADIX_TREE_MAP_SIZE + BITS_PER_LONG - 1) / BITS_PER_LONG)
+ 
+ struct radix_tree_node {
++	unsigned int	height;		/* Height from the bottom */
+ 	unsigned int	count;
+ 	void		*slots[RADIX_TREE_MAP_SIZE];
+ 	unsigned long	tags[RADIX_TREE_TAGS][RADIX_TREE_TAG_LONGS];
+@@ -196,6 +197,7 @@ static int radix_tree_extend(struct radi
+ 	}
+ 
+ 	do {
++		unsigned int newheight;
+ 		if (!(node = radix_tree_node_alloc(root)))
+ 			return -ENOMEM;
+ 
+@@ -208,9 +210,13 @@ static int radix_tree_extend(struct radi
+ 				tag_set(node, tag, 0);
+ 		}
+ 
++		newheight = root->height+1;
++		node->height = newheight;
+ 		node->count = 1;
++		/* Make ->height visible before node visible via ->rnode */
++		smp_wmb();
+ 		root->rnode = node;
+-		root->height++;
++		root->height = newheight;
+ 	} while (height > root->height);
+ out:
+ 	return 0;
+@@ -250,6 +256,9 @@ int radix_tree_insert(struct radix_tree_
+ 			/* Have to add a child node.  */
+ 			if (!(tmp = radix_tree_node_alloc(root)))
+ 				return -ENOMEM;
++			tmp->height = height;
++			/* Make ->height visible before node visible via slot */
++			smp_wmb();
+ 			*slot = tmp;
+ 			if (node)
+ 				node->count++;
+@@ -282,12 +291,14 @@ static inline void **__lookup_slot(struc
+ 	unsigned int height, shift;
+ 	struct radix_tree_node **slot;
+ 
+-	height = root->height;
++	if (root->rnode == NULL)
++		return NULL;
++	slot = &root->rnode;
++	height = (*slot)->height;
+ 	if (index > radix_tree_maxindex(height))
+ 		return NULL;
+ 
+ 	shift = (height-1) * RADIX_TREE_MAP_SHIFT;
+-	slot = &root->rnode;
+ 
+ 	while (height > 0) {
+ 		if (*slot == NULL)
+@@ -491,21 +502,24 @@ EXPORT_SYMBOL(radix_tree_tag_get);
+ #endif
+ 
+ static unsigned int
+-__lookup(struct radix_tree_root *root, void **results, unsigned long index,
++__lookup(struct radix_tree_root *root, void ***results, unsigned long index,
+ 	unsigned int max_items, unsigned long *next_index)
+ {
++	unsigned long i;
+ 	unsigned int nr_found = 0;
+ 	unsigned int shift;
+-	unsigned int height = root->height;
++	unsigned int height;
+ 	struct radix_tree_node *slot;
+ 
+-	shift = (height-1) * RADIX_TREE_MAP_SHIFT;
+ 	slot = root->rnode;
++	if (!slot)
++		goto out;
++	height = slot->height;
++	shift = (height-1) * RADIX_TREE_MAP_SHIFT;
+ 
+-	while (height > 0) {
+-		unsigned long i = (index >> shift) & RADIX_TREE_MAP_MASK;
+-
+-		for ( ; i < RADIX_TREE_MAP_SIZE; i++) {
++	for (;;) {
++		for (i = (index >> shift) & RADIX_TREE_MAP_MASK;
++						i < RADIX_TREE_MAP_SIZE; i++) {
+ 			if (slot->slots[i] != NULL)
+ 				break;
+ 			index &= ~((1UL << shift) - 1);
+@@ -516,21 +530,23 @@ __lookup(struct radix_tree_root *root, v
+ 		if (i == RADIX_TREE_MAP_SIZE)
+ 			goto out;
+ 		height--;
+-		if (height == 0) {	/* Bottom level: grab some items */
+-			unsigned long j = index & RADIX_TREE_MAP_MASK;
+-
+-			for ( ; j < RADIX_TREE_MAP_SIZE; j++) {
+-				index++;
+-				if (slot->slots[j]) {
+-					results[nr_found++] = slot->slots[j];
+-					if (nr_found == max_items)
+-						goto out;
+-				}
+-			}
++		if (height == 0) {
++			/* Bottom level: grab some items */
++			break;
+ 		}
+ 		shift -= RADIX_TREE_MAP_SHIFT;
+ 		slot = slot->slots[i];
+ 	}
++
++	for (i = index & RADIX_TREE_MAP_MASK; i < RADIX_TREE_MAP_SIZE; i++) {
++		index++;
++		if (slot->slots[i]) {
++			results[nr_found++] = &(slot->slots[i]);
++			if (nr_found == max_items)
++				goto out;
++		}
++	}
++
+ out:
+ 	*next_index = index;
+ 	return nr_found;
+@@ -558,6 +574,43 @@ radix_tree_gang_lookup(struct radix_tree
+ 	unsigned int ret = 0;
+ 
+ 	while (ret < max_items) {
++		unsigned int nr_found, i;
++		unsigned long next_index;	/* Index of next search */
++
++		if (cur_index > max_index)
++			break;
++		nr_found = __lookup(root, (void ***)results + ret, cur_index,
++					max_items - ret, &next_index);
++		for (i = 0; i < nr_found; i++)
++			results[ret + i] = *(((void ***)results)[ret + i]);
++		ret += nr_found;
++		if (next_index == 0)
++			break;
++		cur_index = next_index;
++	}
++	return ret;
++}
++EXPORT_SYMBOL(radix_tree_gang_lookup);
++
++/**
++ *	radix_tree_gang_lookup_slot - perform multiple lookup on a radix tree
++ *	@root:		radix tree root
++ *	@results:	where the results of the lookup are placed
++ *	@first_index:	start the lookup from this key
++ *	@max_items:	place up to this many items at *results
++ *
++ *	Same as radix_tree_gang_lookup, but returns an array of pointers
++ *	(slots) to the stored items instead of the items themselves.
++ */
++unsigned int
++radix_tree_gang_lookup_slot(struct radix_tree_root *root, void ***results,
++			unsigned long first_index, unsigned int max_items)
++{
++	const unsigned long max_index = radix_tree_maxindex(root->height);
++	unsigned long cur_index = first_index;
++	unsigned int ret = 0;
++
++	while (ret < max_items) {
+ 		unsigned int nr_found;
+ 		unsigned long next_index;	/* Index of next search */
+ 
+@@ -572,7 +625,8 @@ radix_tree_gang_lookup(struct radix_tree
+ 	}
+ 	return ret;
+ }
+-EXPORT_SYMBOL(radix_tree_gang_lookup);
++EXPORT_SYMBOL(radix_tree_gang_lookup_slot);
++
+ 
+ /*
+  * FIXME: the two tag_get()s here should use find_next_bit() instead of
+Index: linux-2.6/include/linux/radix-tree.h
+===================================================================
+--- linux-2.6.orig/include/linux/radix-tree.h
++++ linux-2.6/include/linux/radix-tree.h
+@@ -51,6 +51,9 @@ void *radix_tree_delete(struct radix_tre
+ unsigned int
+ radix_tree_gang_lookup(struct radix_tree_root *root, void **results,
+ 			unsigned long first_index, unsigned int max_items);
++unsigned int
++radix_tree_gang_lookup_slot(struct radix_tree_root *root, void ***results,
++			unsigned long first_index, unsigned int max_items);
+ int radix_tree_preload(int gfp_mask);
+ void radix_tree_init(void);
+ void *radix_tree_tag_set(struct radix_tree_root *root,
 
-> And even if I didn't do that, you *do* have to do something when the disk
-> gets backed up.  You *do* intend for sensible things to happen then, right? ;)
-
-I back up with rsync, actually.
-
-Speaking of backup, that's another nice place for a plugin.  Imagine a
-dump that didn't have to be of the entire FS, but rather an arbitrary
-tree...  That might be a nice new archive format.  I know Apple already
-uses something like this for their dmg packages.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iQIVAwUBQr+cTXgHNmZLgCUhAQIvvxAAk70+cz4yOZaMX6TDIuUWNsPjqM890FMa
-jpNE5I2K3ZV91yJFAMdSZW1fQSQakorJyt0DV6wnxu3EbIZV8ATeIkNgJsqcDxAD
-O6dZoIQnFZND90Fh3HdJb46DRZyml4NbeEKhQRzIAnuANIAa4+6it2aERcpbDNxE
-ijOiVVpjTkUEutI2uuCJTYSXOGDa+rI0Jmth/9VnPAb5r+wqUb49wUziaSslnZs5
-Jt6UlIcXU/OymzhWe+9JM0gydP+V2nP4N14oYoiXaqINPCA9OHV7BudClkKDeCyv
-bYXyRfjmuiDNoOel6ZfURqUFR2GK/dPqI1PBV6Vc4UMsUqIKkGLAuQ5rU0csb39f
-eS+6Dp8DJ7tOvQp73x1KTMJWP0lha1VRAj8s3SwdCp0Xar8YHymfCDjHvx/iJe50
-rY5aZfWXGCzVmbKVETE8ACWeF5bgpnzwMDwU2RlaWhV/1yIZSOttuJFWMHNG4Rns
-ajUrRsV9cmmngIJBMcM6XaZD9eRsJ9gb+E9POpsFbo6OwhS0IpRlzu/AGGoEiHSW
-ZGNBoSDuLDluHP1jiXrnM7ONcFPEe2opUD7ltgSkYPKpya9C7lEfsEBzXh5Gqc5X
-Iw8P0Md7U6rjCJYGb0pwnJQa0MYMimXq3hOTVsLdoj4A1Nn0EVntHzpB/QTe4UX2
-NjMlwpPIXkU=
-=fqm7
------END PGP SIGNATURE-----
+--------------090403090108030001020801--
+Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,127 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261901AbVF0IMP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261910AbVF0IQN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261901AbVF0IMP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 04:12:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261919AbVF0IMP
+	id S261910AbVF0IQN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 04:16:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261919AbVF0IQN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 04:12:15 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:42769 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261901AbVF0ILx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 04:11:53 -0400
-Date: Mon, 27 Jun 2005 09:11:46 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Grant Coady <grant_lkml@dodo.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-mm2
-Message-ID: <20050627091146.B7934@flint.arm.linux.org.uk>
-Mail-Followup-To: Grant Coady <grant_lkml@dodo.com.au>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20050626040329.3849cf68.akpm@osdl.org> <20050626124219.G14862@flint.arm.linux.org.uk> <didub15c1ucfs9t23opuvvm3a0rapikeoq@4ax.com>
+	Mon, 27 Jun 2005 04:16:13 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:202 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261910AbVF0IQL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 04:16:11 -0400
+Date: Mon, 27 Jun 2005 01:15:39 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [rfc] lockless pagecache
+Message-Id: <20050627011539.28793896.akpm@osdl.org>
+In-Reply-To: <42BFB287.5060104@yahoo.com.au>
+References: <42BF9CD1.2030102@yahoo.com.au>
+	<20050627004624.53f0415e.akpm@osdl.org>
+	<42BFB287.5060104@yahoo.com.au>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <didub15c1ucfs9t23opuvvm3a0rapikeoq@4ax.com>; from grant_lkml@dodo.com.au on Mon, Jun 27, 2005 at 09:17:34AM +1000
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 27, 2005 at 09:17:34AM +1000, Grant Coady wrote:
-> Not the case for where I'm having problems, Toshiba laptop, more 
-> info on http://scatter.mine.nu/test/linux-2.6/tosh/
+Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+>
+> Also, the memory usage regression cases that fault ahead brings makes it
+>  a bit contentious.
 
-Yes in this case.  The PCI resources are the ones which say either
-PCI CardBus, PCI Bus, or are of the format: xxxx:xx:xx.x, and all
-of them are missing.
+faultahead consumes no more memory: if the page is present then point a pte
+at it.  It'll make reclaim work a bit harder in some situations.
 
-The ESS Maestro and others which were below these are driver
-resources created by the drivers themselves, not the PCI subsystem.
-Hence these still show up.
+>  I like that the lockless patch completely removes the problem at its
+>  source and even makes the serial path lighter. The other things is, the
+>  speculative get_page may be useful for more code than just pagecache
+>  lookups. But it is fairly tricky I'll give you that.
 
-> --- ioports-2.6.12.1a   2005-06-27 09:00:21.000000000 +1000
-> +++ ioports-2.6.12-mm2a 2005-06-27 09:03:44.000000000 +1000
-> @@ -10,20 +10,13 @@
->  00f0-00ff : fpu
->  0170-0177 : ide1
->  01f0-01f7 : ide0
-> -02f8-02ff : 0000:00:07.0
->  0376-0376 : ide1
->  0378-037a : parport0
->  03c0-03df : vesafb
->  03f6-03f6 : ide0
->  03f8-03ff : serial
->  0cf8-0cff : PCI conf1
-> -1c00-1cff : 0000:00:07.0
-> -4000-40ff : PCI CardBus #02
-> -  4000-407f : 0000:02:00.0
-> -    4000-407f : xircom_cb
-> -4400-44ff : PCI CardBus #02
-> -fc00-fcff : 0000:00:0c.0
-> -  fc00-fcff : ESS Maestro
-> +fc00-fcff : ESS Maestro
->  fd00-fd3f : motherboard
->  fe00-fe3f : 0000:00:05.3
->    fe00-fe3f : motherboard
-> @@ -40,8 +33,6 @@
->  fe90-fe97 : motherboard
->  fe9e-fe9e : motherboard
->  feac-feac : motherboard
-> -ff80-ff9f : 0000:00:05.2
-> -  ff80-ff9f : uhci_hcd
-> -fff0-ffff : 0000:00:05.1
-> -  fff0-fff7 : ide0
-> -  fff8-ffff : ide1
-> +ff80-ff9f : uhci_hcd
-> +fff0-fff7 : ide0
-> +fff8-ffff : ide1
-> 
-> lilo.conf:
-> image = /boot/bzImage-2.6.12-mm2a
->   optional
->   label = 2.6.12-mm2ap
->   append="pci=assign-busses"
-> 
-> --- ioports-2.6.12.1a   2005-06-27 09:00:21.000000000 +1000
-> +++ ioports-2.6.12-mm2ap        2005-06-27 09:06:31.000000000 +1000
-> @@ -10,20 +10,13 @@
->  00f0-00ff : fpu
->  0170-0177 : ide1
->  01f0-01f7 : ide0
-> -02f8-02ff : 0000:00:07.0
->  0376-0376 : ide1
->  0378-037a : parport0
->  03c0-03df : vesafb
->  03f6-03f6 : ide0
->  03f8-03ff : serial
->  0cf8-0cff : PCI conf1
-> -1c00-1cff : 0000:00:07.0
-> -4000-40ff : PCI CardBus #02
-> -  4000-407f : 0000:02:00.0
-> -    4000-407f : xircom_cb
-> -4400-44ff : PCI CardBus #02
-> -fc00-fcff : 0000:00:0c.0
-> -  fc00-fcff : ESS Maestro
-> +fc00-fcff : ESS Maestro
->  fd00-fd3f : motherboard
->  fe00-fe3f : 0000:00:05.3
->    fe00-fe3f : motherboard
-> @@ -40,8 +33,6 @@
->  fe90-fe97 : motherboard
->  fe9e-fe9e : motherboard
->  feac-feac : motherboard
-> -ff80-ff9f : 0000:00:05.2
-> -  ff80-ff9f : uhci_hcd
-> -fff0-ffff : 0000:00:05.1
-> -  fff0-fff7 : ide0
-> -  fff8-ffff : ide1
-> +ff80-ff9f : uhci_hcd
-> +fff0-fff7 : ide0
-> +fff8-ffff : ide1
-> 
-> --Grant.
-> 
+Yes, it's scary-looking stuff.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+>  Anyway it is obviously not something that can go in tomorrow. At the
+>  very least the PageReserved patches need to go in first, and even they
+>  will need a lot of testing out of tree.
+> 
+>  Perhaps it can be discussed at KS and we can think about what to do with
+>  it after that - that kind of time frame. No rush.
+> 
+>  Oh yeah, and obviously it would be nice if it provided real improvements
+>  on real workloads too ;)
+
+umm, yes.

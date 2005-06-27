@@ -1,64 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261703AbVF0UeY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261749AbVF0Uji@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261703AbVF0UeY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 16:34:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261709AbVF0Ubc
+	id S261749AbVF0Uji (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 16:39:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261689AbVF0Uit
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 16:31:32 -0400
-Received: from thunk.org ([69.25.196.29]:32991 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S261726AbVF0U3Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 16:29:24 -0400
-Date: Mon, 27 Jun 2005 16:28:41 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Steve Lord <lord@xfs.org>
-Cc: Hans Reiser <reiser@namesys.com>, Markus T?rnqvist <mjt@nysv.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       David Masover <ninja@slaphack.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: reiser4 plugins
-Message-ID: <20050627202841.GA27805@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>, Steve Lord <lord@xfs.org>,
-	Hans Reiser <reiser@namesys.com>, Markus T?rnqvist <mjt@nysv.org>,
-	Horst von Brand <vonbrand@inf.utfsm.cl>,
-	David Masover <ninja@slaphack.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	ReiserFS List <reiserfs-list@namesys.com>
-References: <42BB7B32.4010100@slaphack.com> <200506240334.j5O3YowB008100@laptop11.inf.utfsm.cl> <20050627092138.GD11013@nysv.org> <20050627124255.GB6280@thunk.org> <42C0578F.7030608@namesys.com> <42C05F16.5000804@xfs.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42C05F16.5000804@xfs.org>
-User-Agent: Mutt/1.5.9i
+	Mon, 27 Jun 2005 16:38:49 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:6130 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S261754AbVF0Uhf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 16:37:35 -0400
+Message-ID: <42C06390.5070609@namesys.com>
+Date: Mon, 27 Jun 2005 13:37:36 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>,
+       vitaly@thebsh.namesys.com
+Subject: Re: -mm -> 2.6.13 merge status
+References: <20050620235458.5b437274.akpm@osdl.org> <20050627193051.GA22208@infradead.org>
+In-Reply-To: <20050627193051.GA22208@infradead.org>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 27, 2005 at 03:18:30PM -0500, Steve Lord wrote:
-> I presume Ted is referring to problems guaranteeing the integrity of
-> the journal at recovery time. I am coming into this without all the
-> available context, so I may be barking up the wrong tree.... In
-> particular, I am not sure how journaling whole blocks protects
-> you from this.
+Christoph Hellwig wrote:
 
-Actually, I was talking about the problem what happens when power
-fails while DMA'ing to the disk, and memory, which is more sensitive
-to voltage drops than the rest of the system, starts sending garbage
-to the bus, which the disk then faithfully writes to the inode table.
+>>reiser4
+>>    
+>>
+>
+>sparse isn't to happy about this:
+>
+>hch@macfly:/work/linux-2.6.12$ make C=1 SUBDIRS=fs/reiser4/ >/dev/null 2>err.log && wc -l err.log
+>2286 err.log
+>
+>The log is at http://verein.lst.de/~hch/linux-2.6.12-mm2-fs-reiser4-errors.log
+>
+>
+>  
+>
+Thanks for telling us about sparse, we will work on fixing these. 
+Vitaly, can you do this?
 
-As I recall, you were the one who told me about this problem, and how
-it was fixed in Irix by using a powerfail interrupt to abort DMA
-transfers, as well as giving me a program which tests for this
-condition (basically it writes known test pattern to the disk, and
-then you do an unclean shutdown, and you look to see if garbage is
-written to the disk instead of one of the known test patterns).  If it
-wasn't you, it must have been Jim Mostek --- but I could have sworn it
-was you.....
-
-						- Ted
+Hans

@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261892AbVF0H1d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261887AbVF0Hdr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261892AbVF0H1d (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 03:27:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261761AbVF0H0F
+	id S261887AbVF0Hdr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 03:33:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261893AbVF0Hdr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 03:26:05 -0400
-Received: from [213.170.72.194] ([213.170.72.194]:14295 "EHLO
-	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP id S261704AbVF0HYd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 03:24:33 -0400
-Message-ID: <42BFA9AD.5090000@yandex.ru>
-Date: Mon, 27 Jun 2005 11:24:29 +0400
-From: "Artem B. Bityuckiy" <dedekind@yandex.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Fedora/1.7.8-1.3.1
-X-Accept-Language: en, ru, en-us
-MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu
-Cc: David Masover <ninja@slaphack.com>, Hubert Chan <hubert@uhoreg.ca>,
-       Lincoln Dale <ltd@cisco.com>, Gregory Maxwell <gmaxwell@gmail.com>,
-       Hans Reiser <reiser@namesys.com>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: reiser4 plugins
-References: <200506240241.j5O2f1eb005609@laptop11.inf.utfsm.cl> <42BCD93B.7030608@slaphack.com> <200506251420.j5PEKce4006891@turing-police.cc.vt.edu> <42BDA377.6070303@slaphack.com> <200506252031.j5PKVb4Y004482@turing-police.cc.vt.edu> <42BDC422.6020401@namesys.com> <42BE3645.4070806@cisco.com> <e692861c05062522071fe380a5@mail.gmail.com> <42BE563D.4000402@cisco.com> <42BE5DB6.8040103@slaphack.com> <200506261816.j5QIGMdI010142@turing-police.cc.vt.edu> <42BF08CF.2020703@slaphack.com> <200506262105.j5QL5kdR018609@turing-police.cc.vt.edu> <42BF2DC4.8030901@slaphack.com> <200506270040.j5R0eUNA030632@turing-police.cc.vt.edu> <87y88webpo.fsf@evinrude.uhoreg.ca> <200506270459.j5R4xdZp005659@turing-police.cc.vt.edu>            <42BF9489.9080202@slaphack.com> <200506270624.j5R6OWFn008836@turing-police.cc.vt.edu>
-In-Reply-To: <200506270624.j5R6OWFn008836@turing-police.cc.vt.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 27 Jun 2005 03:33:47 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:45500 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261887AbVF0Hdm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 03:33:42 -0400
+Date: Mon, 27 Jun 2005 09:31:39 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Dave Airlie <airlied@gmail.com>
+Cc: Dave Airlie <airlied@linux.ie>, Andrew Morton <akpm@osdl.org>,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: SiS drm broken during 2.6.9-rc1-bk1
+Message-ID: <20050627073139.GB12776@elte.hu>
+References: <Pine.LNX.4.58.0502131124090.16528@skynet> <21d7e99705021400266bcbc0f2@mail.gmail.com> <20050215103207.GA19866@elte.hu> <21d7e997050626160729afdff2@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <21d7e997050626160729afdff2@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu wrote:
-> For more fun, consider how you can write 1 megabyte of data to a file,
-> lseek to the beginning and start writing again - and you go over quota
-> on the *second* write even though you're over-writing already existing
-> data.  Can happen if you're compressing, and the second write doesn't
-> compress as well as the first. (To be fair, we already have similar
-> issues with sparse files - but at least 'tar --sparse' has an easy way
-> to deal with it compared to this. ;)
-Sorry, may be I'm out of the context, but here is my view.
 
-In case of compression in the kernel space you may take into account the 
-size of file in the _uncompressed_ form and how much it takes in the 
-compressed form - doesn't matter. So, no problems with rewriting.
+* Dave Airlie <airlied@gmail.com> wrote:
 
-Moreover, are you sure that the current quota model is enough for FSes 
-with on-fligh compression? The model should probably be extended/changed.
+> Just for completeness, Thomas Winischoffer tracked this down over the 
+> weekend, I had stared at it previously to no great avail,
+> 
+> The issue was with the user space SiS Mesa driver having an 
+> uninitialised structure on the stack for the copy command sent to the 
+> DRM, with the old layout it would end up with zero'ed reserved fields 
+> by luck most of the time, with the new one it went the other way..
 
-Problems with quota and accounting is not the reason to forbid the 
-on-flight compression. And they don't have to co-exist well.
+ah, makes sense.
 
--- 
-Best Regards,
-Artem B. Bityuckiy,
-St.-Petersburg, Russia.
+> the fix is now in Mesa CVS....
+
+great!
+
+	Ingo

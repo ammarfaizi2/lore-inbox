@@ -1,83 +1,293 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261211AbVF0Bip@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261341AbVF0Bm3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261211AbVF0Bip (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Jun 2005 21:38:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261341AbVF0Bip
+	id S261341AbVF0Bm3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Jun 2005 21:42:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261698AbVF0Bm3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Jun 2005 21:38:45 -0400
-Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:25048 "EHLO
-	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S261211AbVF0Bim (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Jun 2005 21:38:42 -0400
-From: Grant Coady <grant_lkml@dodo.com.au>
-To: Dominik Brodowski <linux@dominikbrodowski.net>
-Cc: Andrew Morton <akpm@osdl.org>, greg@kroah.com, rajesh.shah@intel.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: ACPI-based PCI resources: PCMCIA bugfix, but resources missing in trees
-Date: Mon, 27 Jun 2005 11:38:34 +1000
-Organization: <http://scatter.mine.nu/>
-Message-ID: <06lub192nippc5a4fkju7gfr18kmv33aqn@4ax.com>
-References: <20050626040329.3849cf68.akpm@osdl.org> <20050626140411.GA8597@dominikbrodowski.de>
-In-Reply-To: <20050626140411.GA8597@dominikbrodowski.de>
-X-Mailer: Forte Agent 2.0/32.652
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 26 Jun 2005 21:42:29 -0400
+Received: from gate.crashing.org ([63.228.1.57]:64642 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261341AbVF0BlW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Jun 2005 21:41:22 -0400
+Subject: [PATCH] ppc/ppc64: Fix pci mmap via sysfs
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-pci <linux-pci@atrey.karlin.mff.cuni.cz>,
+       linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Mon, 27 Jun 2005 11:36:29 +1000
+Message-Id: <1119836190.5133.59.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 26 Jun 2005 16:04:12 +0200, Dominik Brodowski <linux@dominikbrodowski.net> wrote:
+Hi !
 
->On Sun, Jun 26, 2005 at 04:03:29AM -0700, Andrew Morton wrote:
->> - Lots of merges.  I'm holding off on the 80-odd pcmcia patches until we get
->>   the recent PCI breakage sorted out.
->
->pci-yenta-cardbus-fix.patch and the following patch should solve the
->initialization time trouble. However, the ACPI-based PCI resource handling
->is badly broken, IMHO:
->
+This implement the change to /proc and sysfs PCI mmap functions that we
+discussed a while ago, that is adding an arch optional
+pci_resource_to_user() to allow munging on the exposed value of PCI
+resources to userland and thus hiding kernel internal values. It also
+implements using of that callback to sanitize exposed values on ppc an
+ppc64, thus fixing mmap of PCI devices via /proc and sysfs.
 
-Well this patch doesn't do it for Toshiba laptop, ToPIC-100 ZV 
-bridge in 'auto' mode.
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 
-"-mm2b" info set on http://scatter.mine.nu/test/linux-2.6/tosh/
+Index: linux-work/arch/ppc64/kernel/pci.c
+===================================================================
+--- linux-work.orig/arch/ppc64/kernel/pci.c	2005-06-25 09:22:56.000000000 +1000
++++ linux-work/arch/ppc64/kernel/pci.c	2005-06-27 11:34:23.000000000 +1000
+@@ -351,9 +351,10 @@
+ 		*offset += hose->pci_mem_offset;
+ 		res_bit = IORESOURCE_MEM;
+ 	} else {
+-		io_offset = (unsigned long)hose->io_base_virt;
++		io_offset = (unsigned long)hose->io_base_virt - pci_io_base;
+ 		*offset += io_offset;
+ 		res_bit = IORESOURCE_IO;
++		printk(" -> offset: %lx\n", *offset);
+ 	}
+ 
+ 	/*
+@@ -373,12 +374,15 @@
+ 			continue;
+ 
+ 		/* In the range of this resource? */
++		printk(" r%d: %lx -> %lx\n", i, rp->start, rp->end);
+ 		if (*offset < (rp->start & PAGE_MASK) || *offset > rp->end)
+ 			continue;
+ 
+ 		/* found it! construct the final physical address */
+-		if (mmap_state == pci_mmap_io)
+-			*offset += hose->io_base_phys - io_offset;
++		if (mmap_state == pci_mmap_io) {
++		       	*offset += hose->io_base_phys - io_offset;
++			printk(" result: %lx\n", *offset);
++		}
+ 		return rp;
+ 	}
+ 
+@@ -944,4 +948,22 @@
+ }
+ EXPORT_SYMBOL(pci_read_irq_line);
+ 
++void pci_resource_to_user(const struct pci_dev *dev, int bar,
++			  const struct resource *rsrc,
++			  u64 *start, u64 *end)
++{
++	struct pci_controller *hose = pci_bus_to_host(dev->bus);
++	unsigned long offset = 0;
++
++	if (hose == NULL)
++		return;
++
++	if (rsrc->flags & IORESOURCE_IO)
++		offset = pci_io_base - (unsigned long)hose->io_base_virt +
++			hose->io_base_phys;
++
++	*start = rsrc->start + offset;
++	*end = rsrc->end + offset;
++}
++
+ #endif /* CONFIG_PPC_MULTIPLATFORM */
+Index: linux-work/drivers/pci/pci-sysfs.c
+===================================================================
+--- linux-work.orig/drivers/pci/pci-sysfs.c	2005-06-25 09:22:57.000000000 +1000
++++ linux-work/drivers/pci/pci-sysfs.c	2005-06-27 11:28:21.000000000 +1000
+@@ -60,15 +60,18 @@
+ 	char * str = buf;
+ 	int i;
+ 	int max = 7;
++	u64 start, end;
+ 
+ 	if (pci_dev->subordinate)
+ 		max = DEVICE_COUNT_RESOURCE;
+ 
+ 	for (i = 0; i < max; i++) {
+-		str += sprintf(str,"0x%016lx 0x%016lx 0x%016lx\n",
+-			       pci_resource_start(pci_dev,i),
+-			       pci_resource_end(pci_dev,i),
+-			       pci_resource_flags(pci_dev,i));
++		struct resource *res =  &pci_dev->resource[i];
++		pci_resource_to_user(pci_dev, i, res, &start, &end);
++		str += sprintf(str,"0x%016llx 0x%016llx 0x%016llx\n",
++			       (unsigned long long)start,
++			       (unsigned long long)end,
++			       (unsigned long long)res->flags);
+ 	}
+ 	return (str - buf);
+ }
+@@ -313,8 +316,21 @@
+ 						       struct device, kobj));
+ 	struct resource *res = (struct resource *)attr->private;
+ 	enum pci_mmap_state mmap_type;
++	u64 start, end;
++	int i;
+ 
+-	vma->vm_pgoff += res->start >> PAGE_SHIFT;
++	for (i = 0; i < PCI_ROM_RESOURCE; i++)
++		if (res == &pdev->resource[i])
++			break;
++	if (i >= PCI_ROM_RESOURCE)
++		return -ENODEV;
++
++	/* pci_mmap_page_range() expects the same kind of entry as coming
++	 * from /proc/bus/pci/ which is a "user visible" value. If this is
++	 * different from the resource itself, arch will do necessary fixup.
++	 */
++	pci_resource_to_user(pdev, i, res, &start, &end);
++	vma->vm_pgoff += start >> PAGE_SHIFT;
+ 	mmap_type = res->flags & IORESOURCE_MEM ? pci_mmap_mem : pci_mmap_io;
+ 
+ 	return pci_mmap_page_range(pdev, vma, mmap_type, 0);
+Index: linux-work/include/asm-ppc64/pci.h
+===================================================================
+--- linux-work.orig/include/asm-ppc64/pci.h	2005-05-02 10:50:01.000000000 +1000
++++ linux-work/include/asm-ppc64/pci.h	2005-06-27 11:28:21.000000000 +1000
+@@ -135,6 +135,11 @@
+ 					 unsigned long offset,
+ 					 unsigned long size,
+ 					 pgprot_t prot);
++#define HAVE_ARCH_PCI_RESOURCE_TO_USER
++extern void pci_resource_to_user(const struct pci_dev *dev, int bar,
++				 const struct resource *rsrc,
++				 u64 *start, u64 *end);
++
+ 
+ 
+ #endif	/* __KERNEL__ */
+Index: linux-work/drivers/pci/proc.c
+===================================================================
+--- linux-work.orig/drivers/pci/proc.c	2005-05-05 15:56:37.000000000 +1000
++++ linux-work/drivers/pci/proc.c	2005-06-27 11:28:21.000000000 +1000
+@@ -355,14 +355,20 @@
+ 			dev->device,
+ 			dev->irq);
+ 	/* Here should be 7 and not PCI_NUM_RESOURCES as we need to preserve compatibility */
+-	for(i=0; i<7; i++)
++	for(i=0; i<7; i++) {
++		u64 start, end;
++		pci_resource_to_user(dev, i, &dev->resource[i], &start, &end);
+ 		seq_printf(m, LONG_FORMAT,
+-			dev->resource[i].start |
++			((unsigned long)start) |
+ 			(dev->resource[i].flags & PCI_REGION_FLAG_MASK));
+-	for(i=0; i<7; i++)
++	}
++	for(i=0; i<7; i++) {
++		u64 start, end;
++		pci_resource_to_user(dev, i, &dev->resource[i], &start, &end);
+ 		seq_printf(m, LONG_FORMAT,
+ 			dev->resource[i].start < dev->resource[i].end ?
+-			dev->resource[i].end - dev->resource[i].start + 1 : 0);
++			(unsigned long)(end - start) + 1 : 0);
++	}
+ 	seq_putc(m, '\t');
+ 	if (drv)
+ 		seq_printf(m, "%s", drv->name);
+Index: linux-work/drivers/pci/pci.c
+===================================================================
+--- linux-work.orig/drivers/pci/pci.c	2005-05-05 15:56:37.000000000 +1000
++++ linux-work/drivers/pci/pci.c	2005-06-27 11:28:21.000000000 +1000
+@@ -759,7 +759,7 @@
+ 	return 0;
+ }
+ #endif
+-     
++
+ static int __devinit pci_init(void)
+ {
+ 	struct pci_dev *dev = NULL;
+Index: linux-work/include/linux/pci.h
+===================================================================
+--- linux-work.orig/include/linux/pci.h	2005-05-05 15:56:38.000000000 +1000
++++ linux-work/include/linux/pci.h	2005-06-27 11:28:21.000000000 +1000
+@@ -1016,6 +1016,21 @@
+ #define pci_pretty_name(dev) ""
+ #endif
+ 
++
++/* Some archs don't want to expose struct resource to userland as-is
++ * in sysfs and /proc
++ */
++#ifndef HAVE_ARCH_PCI_RESOURCE_TO_USER
++static void pci_resource_to_user(const struct pci_dev *dev, int bar,
++				 const struct resource *rsrc,
++				 u64 *start, u64 *end)
++{
++	*start = rsrc->start;
++	*end = rsrc->end;
++}
++#endif /* HAVE_ARCH_PCI_RESOURCE_TO_USER */
++
++
+ /*
+  *  The world is not perfect and supplies us with broken PCI devices.
+  *  For at least a part of these bugs we need a work-around, so both
+Index: linux-work/include/asm-ppc/pci.h
+===================================================================
+--- linux-work.orig/include/asm-ppc/pci.h	2005-05-02 10:49:57.000000000 +1000
++++ linux-work/include/asm-ppc/pci.h	2005-06-27 11:28:21.000000000 +1000
+@@ -103,6 +103,12 @@
+ 					 unsigned long size,
+ 					 pgprot_t prot);
+ 
++#define HAVE_ARCH_PCI_RESOURCE_TO_USER
++extern void pci_resource_to_user(const struct pci_dev *dev, int bar,
++				 const struct resource *rsrc,
++				 u64 *start, u64 *end);
++
++
+ #endif	/* __KERNEL__ */
+ 
+ #endif /* __PPC_PCI_H */
+Index: linux-work/arch/ppc/kernel/pci.c
+===================================================================
+--- linux-work.orig/arch/ppc/kernel/pci.c	2005-06-25 09:22:56.000000000 +1000
++++ linux-work/arch/ppc/kernel/pci.c	2005-06-27 11:28:21.000000000 +1000
+@@ -1495,7 +1495,7 @@
+ 		*offset += hose->pci_mem_offset;
+ 		res_bit = IORESOURCE_MEM;
+ 	} else {
+-		io_offset = (unsigned long)hose->io_base_virt;
++		io_offset = hose->io_base_virt - ___IO_BASE;
+ 		*offset += io_offset;
+ 		res_bit = IORESOURCE_IO;
+ 	}
+@@ -1522,7 +1522,7 @@
+ 
+ 		/* found it! construct the final physical address */
+ 		if (mmap_state == pci_mmap_io)
+-			*offset += hose->io_base_phys - _IO_BASE;
++			*offset += hose->io_base_phys - io_offset;
+ 		return rp;
+ 	}
+ 
+@@ -1739,6 +1739,23 @@
+ 	return result;
+ }
+ 
++void pci_resource_to_user(const struct pci_dev *dev, int bar,
++			  const struct resource *rsrc,
++			  u64 *start, u64 *end)
++{
++	struct pci_controller *hose = pci_bus_to_hose(dev->bus->number);
++	unsigned long offset = 0;
++
++	if (hose == NULL)
++		return;
++
++	if (rsrc->flags & IORESOURCE_IO)
++		offset = ___IO_BASE - hose->io_base_virt + hose->io_base_phys;
++
++	*start = rsrc->start + offset;
++	*end = rsrc->end + offset;
++}
++
+ void __init
+ pci_init_resource(struct resource *res, unsigned long start, unsigned long end,
+ 		  int flags, char *name)
 
---- ioports-2.6.12.1a   2005-06-27 09:00:21.000000000 +1000
-+++ ioports-2.6.12-mm2b 2005-06-27 09:54:45.000000000 +1000
-@@ -10,20 +10,13 @@
- 00f0-00ff : fpu
- 0170-0177 : ide1
- 01f0-01f7 : ide0
--02f8-02ff : 0000:00:07.0
- 0376-0376 : ide1
- 0378-037a : parport0
- 03c0-03df : vesafb
- 03f6-03f6 : ide0
- 03f8-03ff : serial
- 0cf8-0cff : PCI conf1
--1c00-1cff : 0000:00:07.0
--4000-40ff : PCI CardBus #02
--  4000-407f : 0000:02:00.0
--    4000-407f : xircom_cb
--4400-44ff : PCI CardBus #02
--fc00-fcff : 0000:00:0c.0
--  fc00-fcff : ESS Maestro
-+fc00-fcff : ESS Maestro
- fd00-fd3f : motherboard
- fe00-fe3f : 0000:00:05.3
-   fe00-fe3f : motherboard
-@@ -40,8 +33,6 @@
- fe90-fe97 : motherboard
- fe9e-fe9e : motherboard
- feac-feac : motherboard
--ff80-ff9f : 0000:00:05.2
--  ff80-ff9f : uhci_hcd
--fff0-ffff : 0000:00:05.1
--  fff0-fff7 : ide0
--  fff8-ffff : ide1
-+ff80-ff9f : uhci_hcd
-+fff0-fff7 : ide0
-+fff8-ffff : ide1
-
---Grant.
 

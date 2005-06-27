@@ -1,41 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261885AbVF0HQ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261438AbVF0HWR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261885AbVF0HQ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 03:16:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261869AbVF0HQX
+	id S261438AbVF0HWR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 03:22:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261474AbVF0HWQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 03:16:23 -0400
-Received: from mx2.suse.de ([195.135.220.15]:2188 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261916AbVF0HN2 (ORCPT
+	Mon, 27 Jun 2005 03:22:16 -0400
+Received: from nome.ca ([65.61.200.81]:49893 "HELO gobo.nome.ca")
+	by vger.kernel.org with SMTP id S261668AbVF0HTF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 03:13:28 -0400
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: VFS scalability (was: [rfc] lockless pagecache)
-References: <42BF9CD1.2030102@yahoo.com.au> <42BFA014.9090604@yahoo.com.au>
-From: Andi Kleen <ak@suse.de>
-Date: 27 Jun 2005 09:13:27 +0200
-In-Reply-To: <42BFA014.9090604@yahoo.com.au>
-Message-ID: <p733br4w9uw.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Mon, 27 Jun 2005 03:19:05 -0400
+Date: Mon, 27 Jun 2005 00:19:08 -0700
+From: Mike Bell <kernel@mikebell.org>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] ndevfs - a "nano" devfs
+Message-ID: <20050627071907.GA5433@mikebell.org>
+Mail-Followup-To: Mike Bell <kernel@mikebell.org>, Greg KH <greg@kroah.com>,
+	linux-kernel@vger.kernel.org
+References: <20050624081808.GA26174@kroah.com> <20050625221516.GD14426@waste.org> <20050625234305.GA11282@kroah.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050625234305.GA11282@kroah.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <nickpiggin@yahoo.com.au> writes:
+On Sat, Jun 25, 2005 at 04:43:05PM -0700, Greg KH wrote:
+> So no, I'm not going to be submitting this.  But what it is, is a nice
+> proof-of-concept for people who "just can't live without a in-kernel
+> devfs" to show that it can be done in less than 300 lines of code, and
+> only 6 hooks (2 functions in 3 different places) in the main kernel
+> tree.  That is managable outside of the main kernel for years, with
+> almost little to no effort.
 
-> This is with the filesystem mounted as noatime, so I can't work
-> out why update_atime is so high on the list. I suspect maybe a
-> false sharing issue with some other fields.
+Except that it isn't.
 
-Did all the 64CPUs write to the same file?
+The "everything in the root" model just doesn't seem to work. It's been
+so long since I used linux without devfs I hadn't thought about how
+things like ALSA and the input subsystem have gone beyond supporting
+device nodes in a subdirectory to actually requiring device nodes to be
+in a subdirectory.
 
-Then update_atime was just the messenger - it is the first function
-to read the inode so it eats the cache miss overhead.
+The obvious (and less important) legacy stuff has the old standard
+names, but for the newer, properly named stuff like the input subsystem
+and ALSA, it's just yet another incompatible naming scheme, and this one
+doesn't even have the advantage of being an improvement in /dev
+cleanliness like devfs tried to be.
 
-Maybe adding a prefetch for it at the beginning of sys_read() 
-might help, but then with 64CPUs writing to parts of the inode
-it will always thrash no matter how many prefetches.
+For it to be manageable outside the mainline kernel the device names
+/have/ to be inside the mainline kernel and have to be something
+applications recognise without patching. When the ones in sysfs don't
+work, we're back to needing the ones drivers provide through devfs
+hooks, since I somehow don't see you modifying sysfs to accommodate a
+project like this. :)
 
--Andi
+It's a shame too, once I had symlink, mkdir, mknod, chown/chmod and
+unlink of symlinks working on the filesystem I was able to boot up with
+it as /dev on my laptop, and figured it would just be a matter of
+de-devfsifying my scripts, but it looks now like the names it implements
+are just plain unworkable rather than merely inconvenient, quite aside
+from the unholy amount of pointless chmoding required.
+
+What could work is using the devfs-style registration hooks with a
+filesystem like this, but that returns us to what I proposed (and I
+believe a few people before me actually have coded up) of a simply
+cleaned up and simplified devfs. Which, as far as I know, you outright
+reject.

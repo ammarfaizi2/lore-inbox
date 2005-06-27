@@ -1,71 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262119AbVF0QMu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262067AbVF0QBm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262119AbVF0QMu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 12:12:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261751AbVF0QIU
+	id S262067AbVF0QBm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 12:01:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261844AbVF0PT7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 12:08:20 -0400
-Received: from zproxy.gmail.com ([64.233.162.193]:26331 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261745AbVF0QEa convert rfc822-to-8bit
+	Mon, 27 Jun 2005 11:19:59 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:23453 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261480AbVF0Opy
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 12:04:30 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=pc8V/jKbyViM3NWz3wzXZgOw6/UXoRwUjxOz3OVz7d5QDE4pELTLnerd1KLCjUnN5pOmeObECw0eryhRtRGuqB9vsVXVnfBZObx5XcNRgp5j2VwYv8CjP+WuHnUZ7TNfrTFZ6ULk6nB+jVg1A+PMrTfTPFvSPa25OohvZ3weCnA=
-Message-ID: <29495f1d05062709041af9f9cd@mail.gmail.com>
-Date: Mon, 27 Jun 2005 09:04:27 -0700
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
-Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
-To: Denis Vlasenko <vda@ilport.com.ua>
-Subject: Re: [RFC] Driver writer's guide to sleeping
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200506251250.18133.vda@ilport.com.ua>
+	Mon, 27 Jun 2005 10:45:54 -0400
+Subject: Re: [Jfs-discussion] Re: Question about file system failure
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: penney@msu.edu
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       jfs-discussion@lists.sourceforge.net
+In-Reply-To: <1119883314.9271.29.camel@localhost>
+References: <111aefd05062707103d24f568@mail.gmail.com>
+	 <1119883314.9271.29.camel@localhost>
+Content-Type: text/plain
+Date: Mon, 27 Jun 2005 09:45:51 -0500
+Message-Id: <1119883552.9296.32.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200506251250.18133.vda@ilport.com.ua>
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/25/05, Denis Vlasenko <vda@ilport.com.ua> wrote:
-> Hi folks,
+On Mon, 2005-06-27 at 09:41 -0500, Dave Kleikamp wrote:
+> On Mon, 2005-06-27 at 10:10 -0400, Chris Penney wrote:
+> > I had an NFS file server using JFS fail this weekend.  A reboot, which
+> > made fsck do a full check, seems to have cleared everything up.  The
+> > initial errors I got were:
+> > 
+> > Jun 25 09:27:04 nicfs2 kernel: Incorrect number of segments after building list
+> > Jun 25 09:27:04 nicfs2 kernel: counted 16, received 15
+> > Jun 25 09:27:04 nicfs2 kernel: req nr_sec 320, cur_nr_sec 8
 > 
-> I'm working on a Linux wireless driver.
+> These are coming from scsi_init_io() in drivers/scsi/scsi_lib.c.  I
+> don't know what it means, but I'm inclined to think that it indicates a
+> software bug rather than a hardware error.
 > 
-> I compiled a little guide for myself about waiting primitives.
-> I would appreciate if you look thru it. Maybe I'm wrong somewhere.
+> > Jun 25 09:27:04 nicfs2 kernel: device-mapper: dm-multipath: Failing path 8:96.
+> > Jun 25 09:27:04 nicfs2 kernel: cfq: depth 4 reached, tagging now on
+> > Jun 25 09:27:04 nicfs2 kernel: end_request: I/O error, dev sdc, sector
+> > 1592060824
+> > Jun 25 09:27:04 nicfs2 kernel: device-mapper: dm-multipath: Failing path 8:32.
+> > Jun 25 09:27:04 nicfs2 kernel: end_request: I/O error, dev sdc, sector
+> > 1592062936
+> 
+> I'm not sure if dm-multipath may be responsible.
+> 
+> > Following that was a flurry of JFS errors.  I assume these messages
+> > have nothing at all to do with JFS, but I wanted to make certain.
+> 
+> I don't think that JFS is the cause.
+> 
+> > I can't turn up much googling that error.  If anyone has any idea what
+> > caused that I'd love to hear it.
+> 
+> I'm copying this to linux-kernel in the hopes that someone there will be
+> able to help.  It would be useful to know what kernel you are running.
 
-<snip>
-> schedule_timeout(timeout)
-<snip>
-> msleep(ms)
-<snip>
-> msleep_interruptible(ms)
-<snip>
+Well, I meant to cc linux-kernel.  :-)
 
-So, there are four cases in the schedule_timeout() family of sleeps,
-based one what you would like to be woken up on:
+> > One last question, for an NFS server is it better to mount the volume
+> > with errors=panic?  It seems like that would keep I/Os from failing
+> > due to it being a read-only file system on error.  In this case it
+> > would seem like a panic + boot would have let a lot of processes (this
+> > is used in a batch environment) resume.
+> 
+> Seems reasonable, but I'll let others comment.
+> 
+> >    Chris
+> 
+> Thanks,
+> Shaggy
+-- 
+David Kleikamp
+IBM Linux Technology Center
 
-Signals and Waitqueue events:
-     set_current_state(TASK_INTERRUPTIBLE);
-     schedule_timeout(some_time_in_jiffies);
-
-Signals only:
-     msleep_interruptible(some_time_in_msecs);
-
-Waitqueue events only:
-      set_current_state(TASK_UNINTERRUPTIBLE);
-      schedule_timeout(some_time_in_jiffies);
-
-Neither signals nor waitqueues:
-      msleep(some_time_in_msecs);
-
-Hopefully that clears some things up.
-
-w.r.t to wait-queue event sleeping, you probably should also be aware
-of the wait_event() family of macros.
-
-Thanks,
-Nish

@@ -1,54 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261910AbVF0IQN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261922AbVF0ISa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261910AbVF0IQN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 04:16:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261919AbVF0IQN
+	id S261922AbVF0ISa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 04:18:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261923AbVF0ISa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 04:16:13 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:202 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261910AbVF0IQL (ORCPT
+	Mon, 27 Jun 2005 04:18:30 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:17346 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261922AbVF0ISX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 04:16:11 -0400
-Date: Mon, 27 Jun 2005 01:15:39 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [rfc] lockless pagecache
-Message-Id: <20050627011539.28793896.akpm@osdl.org>
-In-Reply-To: <42BFB287.5060104@yahoo.com.au>
-References: <42BF9CD1.2030102@yahoo.com.au>
-	<20050627004624.53f0415e.akpm@osdl.org>
-	<42BFB287.5060104@yahoo.com.au>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 27 Jun 2005 04:18:23 -0400
+Date: Mon, 27 Jun 2005 10:17:12 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Gene Heskett <gene.heskett@verizon.net>
+Cc: linux-kernel@vger.kernel.org, William Weston <weston@sysex.net>,
+       "K.R. Foley" <kr@cybsft.com>, "Eugeny S. Mints" <emints@ru.mvista.com>,
+       Daniel Walker <dwalker@mvista.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
+Message-ID: <20050627081712.GB15096@elte.hu>
+References: <Pine.LNX.4.58.0506211228210.16701@echo.lysdexia.org> <Pine.LNX.4.58.0506241510040.32173@echo.lysdexia.org> <20050625041453.GC6981@elte.hu> <200506270143.47690.gene.heskett@verizon.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200506270143.47690.gene.heskett@verizon.net>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <nickpiggin@yahoo.com.au> wrote:
->
-> Also, the memory usage regression cases that fault ahead brings makes it
->  a bit contentious.
 
-faultahead consumes no more memory: if the page is present then point a pte
-at it.  It'll make reclaim work a bit harder in some situations.
+* Gene Heskett <gene.heskett@verizon.net> wrote:
 
->  I like that the lockless patch completely removes the problem at its
->  source and even makes the serial path lighter. The other things is, the
->  speculative get_page may be useful for more code than just pagecache
->  lookups. But it is fairly tricky I'll give you that.
+> In the FWIW category, I booted 50-23 about an hour & a half ago, same 
+> mode 3, no hardirq's, everything seems to be working fine except for 
+> kmails total lack of threading causeing composer hangs while a mail 
+> fetch/spamassassin run is in progress.  But thats not anything new to 
+> this patchset, its an equal opportunity annoyer.
 
-Yes, it's scary-looking stuff.
+does the patch below make the kmail starvation go away?
 
->  Anyway it is obviously not something that can go in tomorrow. At the
->  very least the PageReserved patches need to go in first, and even they
->  will need a lot of testing out of tree.
-> 
->  Perhaps it can be discussed at KS and we can think about what to do with
->  it after that - that kind of time frame. No rush.
-> 
->  Oh yeah, and obviously it would be nice if it provided real improvements
->  on real workloads too ;)
+	Ingo
 
-umm, yes.
+Index: kernel/sched.c
+===================================================================
+--- kernel/sched.c.orig
++++ kernel/sched.c
+@@ -1055,7 +1055,7 @@ static int try_to_wake_up(task_t * p, un
+ 	/*
+ 	 * sync wakeups can increase wakeup latencies:
+ 	 */
+-	if (rt_task(p))
++//	if (rt_task(p))
+ 		sync = 0;
+ #endif
+ 	rq = task_rq_lock(p, &flags);

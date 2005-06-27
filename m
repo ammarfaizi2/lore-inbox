@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262081AbVF0XKl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262109AbVF0XPV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262081AbVF0XKl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 19:10:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262100AbVF0XIj
+	id S262109AbVF0XPV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 19:15:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262085AbVF0XL4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 19:08:39 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:62904 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262093AbVF0XCb (ORCPT
+	Mon, 27 Jun 2005 19:11:56 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:62137 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261999AbVF0XGf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 19:02:31 -0400
-Date: Mon, 27 Jun 2005 16:01:44 -0700
+	Mon, 27 Jun 2005 19:06:35 -0400
+Date: Mon, 27 Jun 2005 16:05:12 -0700
 From: Chris Wright <chrisw@osdl.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: akpm@osdl.org, "Theodore Ts'o" <tytso@mit.edu>,
@@ -17,9 +17,9 @@ Cc: akpm@osdl.org, "Theodore Ts'o" <tytso@mit.edu>,
        Justin Forbes <jmforbes@linuxtx.org>,
        Randy Dunlap <rdunlap@xenotime.net>, torvalds@osdl.org,
        Chuck Wolber <chuckw@quantumlinux.com>, alan@lxorguk.ukuu.org.uk,
-       jgarzik@pobox.com
-Subject: [05/07] Add "memory" clobbers to the x86 inline asm of strncmp and friends
-Message-ID: <20050627230144.GN9046@shell0.pdx.osdl.net>
+       davem@davemloft.net
+Subject: [07/07] [NETLINK]: Fix two socket hashing bugs.
+Message-ID: <20050627230512.GP9046@shell0.pdx.osdl.net>
 References: <20050627224651.GI9046@shell0.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -34,119 +34,70 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 ------------------
 
 
-From: Linus Torvalds <torvalds@ppc970.osdl.org>
+1) netlink_release() should only decrement the hash entry
+   count if the socket was actually hashed.
 
-Add "memory" clobbers to the x86 inline asm of strncmp and friends
+   This was causing hash->entries to underflow, which
+   resulting in all kinds of troubles.
 
-They don't actually clobber memory, but gcc doesn't even know they
-_read_ memory, so can apparently re-order memory accesses around them.
+   On 64-bit systems, this would cause the following
+   conditional to erroneously trigger:
 
-Which obviously does the wrong thing if the memory access happens to
-change the memory that the compare function is accessing..
+	err = -ENOMEM;
+	if (BITS_PER_LONG > 32 && unlikely(hash->entries >= UINT_MAX))
+		goto err;
 
-Verified to fix a strange boot problem by Jens Axboe.
+2) netlink_autobind() needs to propagate the error return from
+   netlink_insert().  Otherwise, callers will not see the error
+   as they should and thus try to operate on a socket with a zero pid,
+   which is very bad.
 
+   However, it should not propagate -EBUSY.  If two threads race
+   to autobind the socket, that is fine.  This is consistent with the
+   autobind behavior in other protocols.
+
+   So bug #1 above, combined with this one, resulted in hangs
+   on netlink_sendmsg() calls to the rtnetlink socket.  We'd try
+   to do the user sendmsg() with the socket's pid set to zero,
+   later we do a socket lookup using that pid (via the value we
+   stashed away in NETLINK_CB(skb).pid), but that won't give us the
+   user socket, it will give us the rtnetlink socket.  So when we
+   try to wake up the receive queue, we dive back into rtnetlink_rcv()
+   which tries to recursively take the rtnetlink semaphore.
+
+Thanks to Jakub Jelink for providing backtraces.  Also, thanks to
+Herbert Xu for supplying debugging patches to help track this down,
+and also finding a mistake in an earlier version of this fix.
+
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Chris Wright <chrisw@osdl.org>
 ---
 
- include/asm-i386/string.h |   32 ++++++++++++++++++++++----------
- 1 files changed, 22 insertions(+), 10 deletions(-)
+--- 1/net/netlink/af_netlink.c.~1~	2005-06-26 15:30:20.000000000 -0700
++++ 2/net/netlink/af_netlink.c	2005-06-26 15:30:46.000000000 -0700
+@@ -315,8 +315,8 @@
+ static void netlink_remove(struct sock *sk)
+ {
+ 	netlink_table_grab();
+-	nl_table[sk->sk_protocol].hash.entries--;
+-	sk_del_node_init(sk);
++	if (sk_del_node_init(sk))
++		nl_table[sk->sk_protocol].hash.entries--;
+ 	if (nlk_sk(sk)->groups)
+ 		__sk_del_bind_node(sk);
+ 	netlink_table_ungrab();
+@@ -429,7 +429,12 @@
+ 	err = netlink_insert(sk, pid);
+ 	if (err == -EADDRINUSE)
+ 		goto retry;
+-	return 0;
++
++	/* If 2 threads race to autobind, that is fine.  */
++	if (err == -EBUSY)
++		err = 0;
++
++	return err;
+ }
+ 
+ static inline int netlink_capable(struct socket *sock, unsigned int flag) 
 
-diff --git a/include/asm-i386/string.h b/include/asm-i386/string.h
---- a/include/asm-i386/string.h
-+++ b/include/asm-i386/string.h
-@@ -116,7 +116,8 @@ __asm__ __volatile__(
- 	"orb $1,%%al\n"
- 	"3:"
- 	:"=a" (__res), "=&S" (d0), "=&D" (d1)
--		     :"1" (cs),"2" (ct));
-+	:"1" (cs),"2" (ct)
-+	:"memory");
- return __res;
- }
- 
-@@ -138,8 +139,9 @@ __asm__ __volatile__(
- 	"3:\tsbbl %%eax,%%eax\n\t"
- 	"orb $1,%%al\n"
- 	"4:"
--		     :"=a" (__res), "=&S" (d0), "=&D" (d1), "=&c" (d2)
--		     :"1" (cs),"2" (ct),"3" (count));
-+	:"=a" (__res), "=&S" (d0), "=&D" (d1), "=&c" (d2)
-+	:"1" (cs),"2" (ct),"3" (count)
-+	:"memory");
- return __res;
- }
- 
-@@ -158,7 +160,9 @@ __asm__ __volatile__(
- 	"movl $1,%1\n"
- 	"2:\tmovl %1,%0\n\t"
- 	"decl %0"
--	:"=a" (__res), "=&S" (d0) : "1" (s),"0" (c));
-+	:"=a" (__res), "=&S" (d0)
-+	:"1" (s),"0" (c)
-+	:"memory");
- return __res;
- }
- 
-@@ -175,7 +179,9 @@ __asm__ __volatile__(
- 	"leal -1(%%esi),%0\n"
- 	"2:\ttestb %%al,%%al\n\t"
- 	"jne 1b"
--	:"=g" (__res), "=&S" (d0), "=&a" (d1) :"0" (0),"1" (s),"2" (c));
-+	:"=g" (__res), "=&S" (d0), "=&a" (d1)
-+	:"0" (0),"1" (s),"2" (c)
-+	:"memory");
- return __res;
- }
- 
-@@ -189,7 +195,9 @@ __asm__ __volatile__(
- 	"scasb\n\t"
- 	"notl %0\n\t"
- 	"decl %0"
--	:"=c" (__res), "=&D" (d0) :"1" (s),"a" (0), "0" (0xffffffffu));
-+	:"=c" (__res), "=&D" (d0)
-+	:"1" (s),"a" (0), "0" (0xffffffffu)
-+	:"memory");
- return __res;
- }
- 
-@@ -333,7 +341,9 @@ __asm__ __volatile__(
- 	"je 1f\n\t"
- 	"movl $1,%0\n"
- 	"1:\tdecl %0"
--	:"=D" (__res), "=&c" (d0) : "a" (c),"0" (cs),"1" (count));
-+	:"=D" (__res), "=&c" (d0)
-+	:"a" (c),"0" (cs),"1" (count)
-+	:"memory");
- return __res;
- }
- 
-@@ -369,7 +379,7 @@ __asm__ __volatile__(
- 	"je 2f\n\t"
- 	"stosb\n"
- 	"2:"
--	: "=&c" (d0), "=&D" (d1)
-+	:"=&c" (d0), "=&D" (d1)
- 	:"a" (c), "q" (count), "0" (count/4), "1" ((long) s)
- 	:"memory");
- return (s);	
-@@ -392,7 +402,8 @@ __asm__ __volatile__(
- 	"jne 1b\n"
- 	"3:\tsubl %2,%0"
- 	:"=a" (__res), "=&d" (d0)
--	:"c" (s),"1" (count));
-+	:"c" (s),"1" (count)
-+	:"memory");
- return __res;
- }
- /* end of additional stuff */
-@@ -473,7 +484,8 @@ static inline void * memscan(void * addr
- 		"dec %%edi\n"
- 		"1:"
- 		: "=D" (addr), "=c" (size)
--		: "0" (addr), "1" (size), "a" (c));
-+		: "0" (addr), "1" (size), "a" (c)
-+		: "memory");
- 	return addr;
- }
- 

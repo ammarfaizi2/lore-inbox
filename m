@@ -1,290 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261554AbVF0S0b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261556AbVF0S0m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261554AbVF0S0b (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 14:26:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261552AbVF0S0a
+	id S261556AbVF0S0m (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 14:26:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261555AbVF0S0l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 14:26:30 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:53893 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261556AbVF0SZB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 14:25:01 -0400
-Message-ID: <42C043B0.1040103@redhat.com>
-Date: Mon, 27 Jun 2005 14:21:36 -0400
-From: Peter Staubach <staubach@redhat.com>
-User-Agent: Mozilla Thunderbird  (X11/20050322)
+	Mon, 27 Jun 2005 14:26:41 -0400
+Received: from 69-18-3-179.lisco.net ([69.18.3.179]:3342 "EHLO
+	ninja.slaphack.com") by vger.kernel.org with ESMTP id S261569AbVF0SZT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 14:25:19 -0400
+Message-ID: <42C0448A.6070802@slaphack.com>
+Date: Mon, 27 Jun 2005 13:25:14 -0500
+From: David Masover <ninja@slaphack.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050325)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] stale POSIX lock handling
-Content-Type: multipart/mixed;
- boundary="------------040306070609000900010305"
+To: Valdis.Kletnieks@vt.edu
+Cc: Lincoln Dale <ltd@cisco.com>, Gregory Maxwell <gmaxwell@gmail.com>,
+       Hans Reiser <reiser@namesys.com>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: reiser4 plugins
+References: <200506240241.j5O2f1eb005609@laptop11.inf.utfsm.cl> <42BDA377.6070303@slaphack.com> <200506252031.j5PKVb4Y004482@turing-police.cc.vt.edu> <42BDC422.6020401@namesys.com> <42BE3645.4070806@cisco.com> <e692861c05062522071fe380a5@mail.gmail.com> <42BE563D.4000402@cisco.com> <42BE5DB6.8040103@slaphack.com> <200506261816.j5QIGMdI010142@turing-police.cc.vt.edu> <42BF08CF.2020703@slaphack.com> <200506262105.j5QL5kdR018609@turing-police.cc.vt.edu> <42BF2DC4.8030901@slaphack.com> <200506270040.j5R0eUNA030632@turing-police.cc.vt.edu> <42BF667C.50606@slaphack.com> <200506270423.j5R4Np9n004510@turing-police.cc.vt.edu> <42BF8F42.7030308@slaphack.com> <200506270541.j5R5fULX007282@turing-police.cc.vt.edu> <42BF9562.4090602@slaphack.com> <200506270612.j5R6CZGX008462@turing-police.cc.vt.edu> <42BF9C4D.3080800@slaphack.com> <200506270643.j5R6hqRh009781@turing-police.cc.vt.edu>            <42BFA421.70506@slaphack.com> <200506271640.j5RGefRQ018912@turing-police.cc.vt.edu>
+In-Reply-To: <200506271640.j5RGefRQ018912@turing-police.cc.vt.edu>
+X-Enigmail-Version: 0.89.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040306070609000900010305
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Hi.
+Valdis.Kletnieks@vt.edu wrote:
+> On Mon, 27 Jun 2005 02:00:49 CDT, David Masover said:
+> 
+> 
+>>>>Speaking of backup, that's another nice place for a plugin.  Imagine a
+>>>>dump that didn't have to be of the entire FS, but rather an arbitrary
+>>>>tree...  That might be a nice new archive format.  I know Apple already
+>>>>uses something like this for their dmg packages.
+>>>
+>>>Hmm.. you mean like 'tar' or 'cpio' or 'pax' or 'rsync'? :) 
+>>
+>>No, a dmg is an OS X program installer.  It appears to be a disk image
+>>of sorts.  So this is the backup idea in reverse.
+> 
+> 
+> I was addressing the ability to deal with an arbitrary tree.  By that definition,
+> a dmg, being a disk image and not a tree image, is *not* what you want....
 
-I believe that there is a problem with the handling of POSIX locks,
-which the attached patch should address.
+Not exactly what I want, no.
 
-The problem appears to be a race between fcntl(2) and close(2).
-A multithreaded application could close a file descriptor at the same time
-as it is trying to acquire a lock using the same file descriptor.  I would
-suggest that that multithreaded application is not providing the proper
-synchronization for itself, but the OS should still behave correctly.
+I was just trying to avoid the "people will never adopt a new archive
+format" argument by pointing out that a similar archive format was
+recently created and adopted.
 
-SUS3 (Single UNIX Specification Version 3, read: POSIX) indicates that
-when a file descriptor is closed, that all POSIX locks on the file,
-owned by the process which closed the file descriptor, should be released.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-The trick here is when those locks are released.  The current code
-releases all locks which exist when close is processing, but any locks in
-progress are handled when the last reference to the open file is released.
-
-There are three cases to consider.
-
-One is the simple case, a multithreaded (mt) process has a file open
-and races to close it and acquire a lock on it.  In this case, the close
-will release one reference to the open file and when the fcntl is done,
-it will release the other reference.  For this situation, no locks should
-exist on the file when both the close and fcntl operations are done.
-The current system will handle this case because the last reference to
-the open file is being released.
-
-The second case is when the mt process has dup(2)'d the file descriptor.
-The close will release one reference to the file and the fcntl, when done,
-will release another, but there will still be at least one more reference
-to the open file.  One could argue that the existence of a lock on the
-file after the close has completed is okay, because it was acquired
-after the close operation and there is still a way for the application
-to release the lock on the file, using an existing file descriptor.
-
-The third case is when the mt process has forked, after opening the
-file and either before or after becoming an mt process.  In this case,
-each process would hold a reference to the open file.  For each process,
-this degenerates to first case above.  However, the lock continues to
-exist until both processes have released their references to the open
-file.  This lock could block other lock requests.
-
-The changes to release the lock when the last reference to the open file
-aren't quite right because they would allow the lock to exist as long as
-there was a reference to the open file.  This is too long.
-
-The new proposed solution is to add support in the fcntl code path
-to detect a race with close and then to release the lock which was
-just acquired when such as race is detected.  This causes locks to be
-released in a timely fashion and for the system to conform to the POSIX
-semantic specification.
-
-This was tested by instrumenting a kernel to detect the handling locks
-and then running a program which generates case #3 above.  A dangling lock
-could be reliably generated.  When the changes to detect the close/fcntl
-race were added, a dangling lock could no longer be generated.
-
-My apologies for the length of this note.  Describing the situations in
-words is difficult and takes a bunch of them to do so.  :-)
-
-    Thanx...
-
-       ps
-
-
---------------040306070609000900010305
-Content-Type: text/plain;
- name="devel"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="devel"
-
---- ./fs/locks.c.org	2005-06-27 08:54:55.000000000 -0400
-+++ ./fs/locks.c	2005-06-27 13:24:38.447157408 -0400
-@@ -1589,7 +1589,8 @@ out:
- /* Apply the lock described by l to an open file descriptor.
-  * This implements both the F_SETLK and F_SETLKW commands of fcntl().
-  */
--int fcntl_setlk(struct file *filp, unsigned int cmd, struct flock __user *l)
-+int fcntl_setlk(unsigned int fd, struct file *filp, unsigned int cmd,
-+		struct flock __user *l)
- {
- 	struct file_lock *file_lock = locks_alloc_lock();
- 	struct flock flock;
-@@ -1618,6 +1619,7 @@ int fcntl_setlk(struct file *filp, unsig
- 		goto out;
- 	}
- 
-+again:
- 	error = flock_to_posix_lock(filp, file_lock, &flock);
- 	if (error)
- 		goto out;
-@@ -1646,25 +1648,34 @@ int fcntl_setlk(struct file *filp, unsig
- 	if (error)
- 		goto out;
- 
--	if (filp->f_op && filp->f_op->lock != NULL) {
-+	if (filp->f_op && filp->f_op->lock != NULL)
- 		error = filp->f_op->lock(filp, cmd, file_lock);
--		goto out;
--	}
--
--	for (;;) {
--		error = __posix_lock_file(inode, file_lock);
--		if ((error != -EAGAIN) || (cmd == F_SETLK))
-+	else {
-+		for (;;) {
-+			error = __posix_lock_file(inode, file_lock);
-+			if ((error != -EAGAIN) || (cmd == F_SETLK))
-+				break;
-+			error = wait_event_interruptible(file_lock->fl_wait,
-+					!file_lock->fl_next);
-+			if (!error)
-+				continue;
-+	
-+			locks_delete_block(file_lock);
- 			break;
--		error = wait_event_interruptible(file_lock->fl_wait,
--				!file_lock->fl_next);
--		if (!error)
--			continue;
-+		}
-+	}
- 
--		locks_delete_block(file_lock);
--		break;
-+	/*
-+	 * Attempt to detect a close/fcntl race and recover by
-+	 * releasing the lock that was just acquired.
-+	 */
-+	if (!error &&
-+	    cmd != F_UNLCK && fcheck(fd) != filp && flock.l_type != F_UNLCK) {
-+		flock.l_type = F_UNLCK;
-+		goto again;
- 	}
- 
-- out:
-+out:
- 	locks_free_lock(file_lock);
- 	return error;
- }
-@@ -1722,7 +1733,8 @@ out:
- /* Apply the lock described by l to an open file descriptor.
-  * This implements both the F_SETLK and F_SETLKW commands of fcntl().
-  */
--int fcntl_setlk64(struct file *filp, unsigned int cmd, struct flock64 __user *l)
-+int fcntl_setlk64(unsigned int fd, struct file *filp, unsigned int cmd,
-+		struct flock64 __user *l)
- {
- 	struct file_lock *file_lock = locks_alloc_lock();
- 	struct flock64 flock;
-@@ -1751,6 +1763,7 @@ int fcntl_setlk64(struct file *filp, uns
- 		goto out;
- 	}
- 
-+again:
- 	error = flock64_to_posix_lock(filp, file_lock, &flock);
- 	if (error)
- 		goto out;
-@@ -1779,22 +1792,31 @@ int fcntl_setlk64(struct file *filp, uns
- 	if (error)
- 		goto out;
- 
--	if (filp->f_op && filp->f_op->lock != NULL) {
-+	if (filp->f_op && filp->f_op->lock != NULL)
- 		error = filp->f_op->lock(filp, cmd, file_lock);
--		goto out;
--	}
--
--	for (;;) {
--		error = __posix_lock_file(inode, file_lock);
--		if ((error != -EAGAIN) || (cmd == F_SETLK64))
-+	else {
-+		for (;;) {
-+			error = __posix_lock_file(inode, file_lock);
-+			if ((error != -EAGAIN) || (cmd == F_SETLK64))
-+				break;
-+			error = wait_event_interruptible(file_lock->fl_wait,
-+					!file_lock->fl_next);
-+			if (!error)
-+				continue;
-+	
-+			locks_delete_block(file_lock);
- 			break;
--		error = wait_event_interruptible(file_lock->fl_wait,
--				!file_lock->fl_next);
--		if (!error)
--			continue;
-+		}
-+	}
- 
--		locks_delete_block(file_lock);
--		break;
-+	/*
-+	 * Attempt to detect a close/fcntl race and recover by
-+	 * releasing the lock that was just acquired.
-+	 */
-+	if (!error &&
-+	    cmd != F_UNLCK && fcheck(fd) != filp && flock.l_type != F_UNLCK) {
-+		flock.l_type = F_UNLCK;
-+		goto again;
- 	}
- 
- out:
-@@ -1886,12 +1908,7 @@ void locks_remove_flock(struct file *fil
- 
- 	while ((fl = *before) != NULL) {
- 		if (fl->fl_file == filp) {
--			/*
--			 * We might have a POSIX lock that was created at the same time
--			 * the filp was closed for the last time. Just remove that too,
--			 * regardless of ownership, since nobody can own it.
--			 */
--			if (IS_FLOCK(fl) || IS_POSIX(fl)) {
-+			if (IS_FLOCK(fl)) {
- 				locks_delete_lock(before);
- 				continue;
- 			}
---- ./fs/fcntl.c.org	2005-06-27 08:54:57.000000000 -0400
-+++ ./fs/fcntl.c	2005-06-27 13:24:38.471153760 -0400
-@@ -290,7 +290,7 @@ static long do_fcntl(int fd, unsigned in
- 		break;
- 	case F_SETLK:
- 	case F_SETLKW:
--		err = fcntl_setlk(filp, cmd, (struct flock __user *) arg);
-+		err = fcntl_setlk(fd, filp, cmd, (struct flock __user *) arg);
- 		break;
- 	case F_GETOWN:
- 		/*
-@@ -378,7 +378,8 @@ asmlinkage long sys_fcntl64(unsigned int
- 			break;
- 		case F_SETLK64:
- 		case F_SETLKW64:
--			err = fcntl_setlk64(filp, cmd, (struct flock64 __user *) arg);
-+			err = fcntl_setlk64(fd, filp, cmd,
-+					(struct flock64 __user *) arg);
- 			break;
- 		default:
- 			err = do_fcntl(fd, cmd, arg, filp);
---- ./include/linux/fs.h.org	2005-06-27 08:54:57.000000000 -0400
-+++ ./include/linux/fs.h	2005-06-27 13:24:38.444157864 -0400
-@@ -691,11 +691,13 @@ extern struct list_head file_lock_list;
- #include <linux/fcntl.h>
- 
- extern int fcntl_getlk(struct file *, struct flock __user *);
--extern int fcntl_setlk(struct file *, unsigned int, struct flock __user *);
-+extern int fcntl_setlk(unsigned int, struct file *, unsigned int,
-+			struct flock __user *);
- 
- #if BITS_PER_LONG == 32
- extern int fcntl_getlk64(struct file *, struct flock64 __user *);
--extern int fcntl_setlk64(struct file *, unsigned int, struct flock64 __user *);
-+extern int fcntl_setlk64(unsigned int, struct file *, unsigned int,
-+			struct flock64 __user *);
- #endif
- 
- extern void send_sigio(struct fown_struct *fown, int fd, int band);
-
---------------040306070609000900010305--
+iQIVAwUBQsBEingHNmZLgCUhAQLTCw//XdrVgjaxvz9jzbiiSXVY60ItW5aechNV
+JdvHBf1edVOCHs6OLil/cioK4Pjsfw3pKU+aBLN+eroS0RDomQkrqcy2zmFQ5JW6
+oFJQEnb/uA95AhFtdCrbOF3rKABfJNo0TjwsRBuKyiabpYTGjfTJ0gDaQGAtBoOb
+JmycKjZlJxhQgef9Q3LhG6UQaszCQrKX++pakKYaqOlughIpZ4O2AJTQWEq5ujdu
+N9GNtO2DGd2sumWdxNpb0KSISZIs6PmPVthPsHwOvD0E6533q9a2AJH49j8AcuOz
+1FCU7oFtpm994lwvc4G7eubRMbJ5Xgyy+suqfhTbumOgKzzBw8cKgpxkXFlcyDte
+4WyNUlyIqAn0n9GAEVHWSDZ+vqN3E1u+bgLWJq0PEJJSjv9dJzhtH1WPu1bDA2v2
+s1qNQDQromF+VfE1QF/fhy1Ttpqh7xAjBmxdxi+g3OU6Vlij7/j0fpMurIELknI0
+MRFmw63TzMnFB07Vwi00L7ZR8GKSWDT0/smYF8R1V7stRqrAxHKDlT6E526ESMv+
+ALa2pa1lGKWyCSgBMwPC0Cm9FBcOfaqxi60/5KE+bQOQc3Yc+20HCH5BIIQcNgWq
+axOUO4txg9uz0GxfuvHWaa2tKE1vpbNO0Oy92QqdpCRmssyTNxs7EyhmdUB92Xar
+SZVTSjpEmv0=
+=WLzu
+-----END PGP SIGNATURE-----

@@ -1,150 +1,590 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261366AbVF0Pdv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261387AbVF0Pdv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261366AbVF0Pdv (ORCPT <rfc822;willy@w.ods.org>);
+	id S261387AbVF0Pdv (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 27 Jun 2005 11:33:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261387AbVF0PbL
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbVF0P3f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 11:31:11 -0400
-Received: from 69-18-3-179.lisco.net ([69.18.3.179]:11017 "EHLO
-	ninja.slaphack.com") by vger.kernel.org with ESMTP id S261257AbVF0PTF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 11:19:05 -0400
-Message-ID: <42C018E5.8030805@slaphack.com>
-Date: Mon, 27 Jun 2005 10:19:01 -0500
-From: David Masover <ninja@slaphack.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050325)
-X-Accept-Language: en-us, en
+	Mon, 27 Jun 2005 11:29:35 -0400
+Received: from graphe.net ([209.204.138.32]:26564 "EHLO graphe.net")
+	by vger.kernel.org with ESMTP id S261397AbVF0PNp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 11:13:45 -0400
+Date: Mon, 27 Jun 2005 08:13:27 -0700 (PDT)
+From: Christoph Lameter <christoph@lameter.com>
+X-X-Sender: christoph@graphe.net
+To: Pavel Machek <pavel@ucw.cz>
+cc: Linus Torvalds <torvalds@osdl.org>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, raybry@engr.sgi.com
+Subject: Re: [RFC] Fix SMP brokenness for PF_FREEZE and make freezing usable
+ for other purposes
+In-Reply-To: <20050627141320.GA4945@atrey.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.4.62.0506270804450.17400@graphe.net>
+References: <Pine.LNX.4.62.0506241316370.30503@graphe.net>
+ <20050625025122.GC22393@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.62.0506242311220.7971@graphe.net>
+ <20050626023053.GA2871@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.62.0506251954470.26198@graphe.net>
+ <20050626030925.GA4156@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.62.0506261928010.1679@graphe.net>
+ <Pine.LNX.4.58.0506262121070.19755@ppc970.osdl.org>
+ <Pine.LNX.4.62.0506262249080.4374@graphe.net> <20050627141320.GA4945@atrey.karlin.mff.cuni.cz>
 MIME-Version: 1.0
-To: "Theodore Ts'o" <tytso@mit.edu>
-Cc: Markus T?rnqvist <mjt@nysv.org>, Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Hans Reiser <reiser@namesys.com>,
-       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: reiser4 plugins
-References: <42BB7B32.4010100@slaphack.com> <200506240334.j5O3YowB008100@laptop11.inf.utfsm.cl> <20050627092138.GD11013@nysv.org> <20050627124255.GB6280@thunk.org>
-In-Reply-To: <20050627124255.GB6280@thunk.org>
-X-Enigmail-Version: 0.89.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -5.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, 27 Jun 2005, Pavel Machek wrote:
 
-Theodore Ts'o wrote:
-> On Mon, Jun 27, 2005 at 12:21:38PM +0300, Markus   T?rnqvist wrote:
-> 
->>On Thu, Jun 23, 2005 at 11:34:50PM -0400, Horst von Brand wrote:
->>
->>>David Masover <ninja@slaphack.com> wrote:
->>
->>>>I think Hans (or someone) decided that when hardware stops working, it's
->>>>not the job of the FS to compensate, it's the job of lower layers, or
->>>>better, the job of the admin to replace the disk and restore from
->>>>backups.
->>>
->>>Handling other people's data this way is just reckless irresponsibility.
->>>Sure, you can get high performance if you just forego some of your basic
->>>responsibilities.
->>
->>Your honest-to-bog opinion is that the FS vendor is responsible for
->>the admin not taking backups or the hardware vendor shipping crap?
->>
->>*still trying to understand how that can be*
-> 
-> 
-> Most Linux users are using PC-class hardware.  And Ted's First Law of
-> PC-Class Hardware is: "Most of it is crap".  And then there's Ted's
-> Second Law, "Too many system administrators don't do backups".
+> Approach seems okay... Perhaps better place is something like
+> kernel/freezer.c so it stays separate file? It is not really scheduler
+> core, and it is only conditionally compiled...
 
-Not our problem anymore.  This is like saying that we should run all
-filesystems in synchronous mode because some users will grab stuff out
-of the computer without unmounting it -- even more a problem now that we
-have SATA, which supports hot-swapping.
+There is already lots of other conditional code in kernel/sched.c and this 
+is just one function. It is scheduler like and uses scheduler variables 
+since it suspends a process. So lets move it there.
 
-Too many system administrators don't do backups?  Some day the building
-will burn down and they will wish they had.
+I think this is as far as I can take it. Could you test this and see 
+if it works okay?
 
-> So it's a matter of matching the filesystem to the needs of the user.
+For suspension for migration do:
 
-My needs are a filesystem which doesn't assume I'm an idiot who can't
-make backups.
+1. down(&freezer_sem)
 
-> If you have a filesystem which is blazingly fast, but which at the
-> slightest sign of trouble, trashes your data, versus one which is fast
-> but perhaps not-so-fast as the other filesystem, but which is much
-> more reliable, which would you choose?  
+2. Signal processes to sleep (see kernel/power/process.c). Basically
+   set the TIF_FREEZE and may be do the fake signal thing.
 
-Hypothetically?  I choose the faster one.  Failures happen only rarely,
-and when they happen, there's no telling how small or large they will
-be, therefore I keep regular backups, and as soon as I see my hardware
-starts to fail, I grab what I can off of it, merge that with the latest
-backup, and buy new hardware.
+3. If all processes have PF_FROZEN set then they are asleep.
 
-> XFS has similar issues where it assumes that hardware has powerfail
-> interrupts, and that the OS can use said powerfail interrupt to stop
-> DMA's in its tracks on an power failure, so that you don't have
-> garbage written to key filesystem data structures when the memory
-> starts suffering from the dropping voltage on the power bus faster
-> than the DMA engine or the disk drives.  So XFS is a great filesystem
-> --- but you'd better be running it on a UPS, or on a system which has
-> power fail interrupts and an OS that knows what to do.
+4. Do migration things
 
-XFS, Reiser3, and Reiser4 all pass the pull-the-plug test.  Maybe I just
-haven't pushed them hard enough?
+5. complete_all(&thaw)
 
-> Ext3, because
-> it does physical block journalling, does not suffer from this problem.
-> (Yes, Resierfs uses logical journalling as well, so it suffers from
-> the same problem.)
+6. up(&freezer_sem)
 
-I don't actually understand the difference here.  Are we talking about
-metadata journalling vs. data journalling?
+----
+Revise handling of freezing in the suspend code
 
-> So perhaps it's not the job of the FS vendor to be responsible for
-> crap hardware or lazy sysadmins that don't do backups.
+The current suspend code modifies thread flags from outside the context of process.
+This creates a SMP race.
 
-Good!  Glad we agree!
+The patch fixes that by introducing a TIF_FREEZE flag (for all arches). Also
 
-> But a system
-> administrator who knows that he doesn't do backups frequently enough,
-> or is running on cheap, crap hardware, would be wise to consider
-> carefully which filesystem he/she wants to use given the systems
-> configuration and his backup habits.  
+- Uses a completion handler instead of waiting in a schedule loop in the refrigerator.
 
-Given a choice between changing filesystems or getting a Streamload
-account, I choose Streamload.  (streamload.com)
+- Introduces a semaphore freezer_sem to provide a way that multiple kernel
+  subsystems can use the freezing ability without interfering with one another.
 
-Given a choice between reformatting or editing cron, I'd edit cron.
+- Include necessary definitions for the migration code if CONFIG_MIGRATE is set.
 
-> Me, I'll go for the robust filesystem, just on general principles.  As
-> a friend from the large-scale enterprise storage world once put it,
-> "Performance is Job 2.  Robustness is Job #1."  (Of course, if you
-> want to put your fragile filesystem on a multi-million dollar
-> enterprise storage system such as an IBM Shark or an EMC Symmetrix
-> box, I'm sure IBM or EMC will be happy to sell you one.  :-)
+- Removes PF_FREEZE
 
-Job 1 is done by either that system or by good backups.  Don't overkill
-Job 1 at the expense of Job 2.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+Signed-off-by: Christoph Lameter <christoph@lameter.com>
 
-iQIVAwUBQsAY5XgHNmZLgCUhAQJq6g/9G2GEK0R1kujoqn3tjsTIbgC23iu8byYV
-d6NHSrmmDV8035oo5iCgjSXbaTlIEyOQQqSB78fBC27eHbGctEZJIpSQfHrWlJu6
-UJvvaEyl+sR/Mzq8sButKeSUv/T8RMCBKyhdfSgm28lDM/kt9OGZcrf1P1ChUSeK
-ZnaToh4SAReRhGzq247o+qa2rW5IuIlpKeYGMZhiOB/tXGC3IDMtUOE9IBkn8KVd
-TtDN4f74PuDJ9VX8K/tZ9DDtKebOJ1wKvIQ/BwyNXt5g36vwj2UwK6GkT2ZJ3bd6
-2XLL24LpIBcVU16bk5WPkADRKe0W7S6AseUj7ggjAK0OL8z889vQ3NWJ/rmT/Wx7
-OQi58QBwL89OZGSM2qZFJ09CLEH42GXD5jjTrKt4URudYzoIa45VZxD9YYhzeu5e
-Gxxj4r2BM8bf/AHczCU/tEQwb6hfqxrq+SImWd1uIsozjeiwInHBC56x2qUDjFB/
-kiyO1LVmVzrq+6frjPAg6n/i0zuPfF24SeeHX02UOx0jlNLkq2D4Qu1wDB5XlVTK
-4xrN83Uy+dHSuDBvnf2tWTqmBju2YG6zmOl1xWKzi3/AVV6mfg1ur0gX0Q6GiZVa
-5Nqp618Cs00ZtSk759eAPQRu7Ico0vTHhA0+rTUhApLYMboGaRN5W8OtQu2utHz8
-ALX7pD3DrfE=
-=wdYo
------END PGP SIGNATURE-----
+Index: linux-2.6.12/include/linux/sched.h
+===================================================================
+--- linux-2.6.12.orig/include/linux/sched.h	2005-06-27 05:20:15.000000000 +0000
++++ linux-2.6.12/include/linux/sched.h	2005-06-27 05:33:46.000000000 +0000
+@@ -804,7 +804,6 @@ do { if (atomic_dec_and_test(&(tsk)->usa
+ #define PF_MEMALLOC	0x00000800	/* Allocating memory */
+ #define PF_FLUSHER	0x00001000	/* responsible for disk writeback */
+ #define PF_USED_MATH	0x00002000	/* if unset the fpu must be initialized before use */
+-#define PF_FREEZE	0x00004000	/* this task is being frozen for suspend now */
+ #define PF_NOFREEZE	0x00008000	/* this thread should not be frozen */
+ #define PF_FROZEN	0x00010000	/* frozen for system suspend */
+ #define PF_FSTRANS	0x00020000	/* inside a filesystem transaction */
+@@ -1265,78 +1264,37 @@ extern void normalize_rt_tasks(void);
+ 
+ #endif
+ 
+-#ifdef CONFIG_PM
+-/*
+- * Check if a process has been frozen
+- */
+-static inline int frozen(struct task_struct *p)
+-{
+-	return p->flags & PF_FROZEN;
+-}
+-
+-/*
+- * Check if there is a request to freeze a process
+- */
+-static inline int freezing(struct task_struct *p)
+-{
+-	return p->flags & PF_FREEZE;
+-}
++#if defined(CONFIG_PM) || defined(CONFIG_MIGRATE)
++extern struct semaphore freezer_sem;
++extern struct completion thaw;
+ 
+-/*
+- * Request that a process be frozen
+- * FIXME: SMP problem. We may not modify other process' flags!
+- */
+-static inline void freeze(struct task_struct *p)
+-{
+-	p->flags |= PF_FREEZE;
+-}
+-
+-/*
+- * Wake up a frozen process
+- */
+-static inline int thaw_process(struct task_struct *p)
+-{
+-	if (frozen(p)) {
+-		p->flags &= ~PF_FROZEN;
+-		wake_up_process(p);
+-		return 1;
+-	}
+-	return 0;
+-}
++extern void refrigerator(void);
+ 
+-/*
+- * freezing is complete, mark process as frozen
+- */
+-static inline void frozen_process(struct task_struct *p)
++static inline int freezing(struct task_struct *p)
+ {
+-	p->flags = (p->flags & ~PF_FREEZE) | PF_FROZEN;
++	return test_ti_thread_flag(p->thread_info, TIF_FREEZE);
+ }
+ 
+-extern void refrigerator(void);
+-extern int freeze_processes(void);
+-extern void thaw_processes(void);
+-
+ static inline int try_to_freeze(void)
+ {
+-	if (freezing(current)) {
++	if (test_thread_flag(TIF_FREEZE)) {
+ 		refrigerator();
+ 		return 1;
+ 	} else
+ 		return 0;
+ }
+ #else
+-static inline int frozen(struct task_struct *p) { return 0; }
++static inline void refrigerator(void) {}
+ static inline int freezing(struct task_struct *p) { return 0; }
+-static inline void freeze(struct task_struct *p) { BUG(); }
+-static inline int thaw_process(struct task_struct *p) { return 1; }
+-static inline void frozen_process(struct task_struct *p) { BUG(); }
++static inline int try_to_freeze(void) { return 0; }
++#endif
+ 
+-static inline void refrigerator(void) {}
++#ifdef CONFIG_PM
++extern int freeze_processes(void);
++extern void thaw_processes(void);
++#else
+ static inline int freeze_processes(void) { BUG(); return 0; }
+ static inline void thaw_processes(void) {}
+-
+-static inline int try_to_freeze(void) { return 0; }
+-
+ #endif /* CONFIG_PM */
+ #endif /* __KERNEL__ */
+ 
+Index: linux-2.6.12/kernel/power/process.c
+===================================================================
+--- linux-2.6.12.orig/kernel/power/process.c	2005-06-27 05:20:15.000000000 +0000
++++ linux-2.6.12/kernel/power/process.c	2005-06-27 15:07:46.000000000 +0000
+@@ -18,7 +18,6 @@
+  */
+ #define TIMEOUT	(6 * HZ)
+ 
+-
+ static inline int freezeable(struct task_struct * p)
+ {
+ 	if ((p == current) || 
+@@ -31,28 +30,6 @@ static inline int freezeable(struct task
+ 	return 1;
+ }
+ 
+-/* Refrigerator is place where frozen processes are stored :-). */
+-void refrigerator(void)
+-{
+-	/* Hmm, should we be allowed to suspend when there are realtime
+-	   processes around? */
+-	long save;
+-	save = current->state;
+-	current->state = TASK_UNINTERRUPTIBLE;
+-	pr_debug("%s entered refrigerator\n", current->comm);
+-	printk("=");
+-
+-	frozen_process(current);
+-	spin_lock_irq(&current->sighand->siglock);
+-	recalc_sigpending(); /* We sent fake signal, clean it up */
+-	spin_unlock_irq(&current->sighand->siglock);
+-
+-	while (frozen(current))
+-		schedule();
+-	pr_debug("%s left refrigerator\n", current->comm);
+-	current->state = save;
+-}
+-
+ /* 0 = success, else # of processes that we failed to stop */
+ int freeze_processes(void)
+ {
+@@ -60,6 +37,7 @@ int freeze_processes(void)
+ 	unsigned long start_time;
+ 	struct task_struct *g, *p;
+ 
++	down(&freezer_sem);
+ 	printk( "Stopping tasks: " );
+ 	start_time = jiffies;
+ 	do {
+@@ -69,12 +47,12 @@ int freeze_processes(void)
+ 			unsigned long flags;
+ 			if (!freezeable(p))
+ 				continue;
+-			if ((frozen(p)) ||
++			if ((p->flags & PF_FROZEN) ||
+ 			    (p->state == TASK_TRACED) ||
+ 			    (p->state == TASK_STOPPED))
+ 				continue;
+ 
+-			freeze(p);
++			set_thread_flag(TIF_FREEZE);
+ 			spin_lock_irqsave(&p->sighand->siglock, flags);
+ 			signal_wake_up(p, 0);
+ 			spin_unlock_irqrestore(&p->sighand->siglock, flags);
+@@ -96,20 +74,6 @@ int freeze_processes(void)
+ 
+ void thaw_processes(void)
+ {
+-	struct task_struct *g, *p;
+-
+-	printk( "Restarting tasks..." );
+-	read_lock(&tasklist_lock);
+-	do_each_thread(g, p) {
+-		if (!freezeable(p))
+-			continue;
+-		if (!thaw_process(p))
+-			printk(KERN_INFO " Strange, %s not stopped\n", p->comm );
+-	} while_each_thread(g, p);
+-
+-	read_unlock(&tasklist_lock);
+-	schedule();
+-	printk( " done\n" );
++	complete_all(&thaw);
++	up(&freezer_sem);
+ }
+-
+-EXPORT_SYMBOL(refrigerator);
+Index: linux-2.6.12/include/asm-x86_64/thread_info.h
+===================================================================
+--- linux-2.6.12.orig/include/asm-x86_64/thread_info.h	2005-06-27 05:20:15.000000000 +0000
++++ linux-2.6.12/include/asm-x86_64/thread_info.h	2005-06-27 05:37:24.000000000 +0000
+@@ -108,6 +108,7 @@ static inline struct thread_info *stack_
+ #define TIF_FORK		18	/* ret_from_fork */
+ #define TIF_ABI_PENDING		19
+ #define TIF_MEMDIE		20
++#define TIF_FREEZE		21	/* Freeze process */
+ 
+ #define _TIF_SYSCALL_TRACE	(1<<TIF_SYSCALL_TRACE)
+ #define _TIF_NOTIFY_RESUME	(1<<TIF_NOTIFY_RESUME)
+Index: linux-2.6.12/include/asm-ia64/thread_info.h
+===================================================================
+--- linux-2.6.12.orig/include/asm-ia64/thread_info.h	2005-06-27 05:20:15.000000000 +0000
++++ linux-2.6.12/include/asm-ia64/thread_info.h	2005-06-27 05:26:12.000000000 +0000
+@@ -76,6 +76,7 @@ struct thread_info {
+ #define TIF_SIGDELAYED		5	/* signal delayed from MCA/INIT/NMI/PMI context */
+ #define TIF_POLLING_NRFLAG	16	/* true if poll_idle() is polling TIF_NEED_RESCHED */
+ #define TIF_MEMDIE		17
++#define TIF_FREEZE		18	/* Freeze process */
+ 
+ #define _TIF_SYSCALL_TRACE	(1 << TIF_SYSCALL_TRACE)
+ #define _TIF_SYSCALL_AUDIT	(1 << TIF_SYSCALL_AUDIT)
+Index: linux-2.6.12/include/asm-i386/thread_info.h
+===================================================================
+--- linux-2.6.12.orig/include/asm-i386/thread_info.h	2005-06-27 05:20:15.000000000 +0000
++++ linux-2.6.12/include/asm-i386/thread_info.h	2005-06-27 05:25:49.000000000 +0000
+@@ -143,6 +143,7 @@ register unsigned long current_stack_poi
+ #define TIF_SECCOMP		8	/* secure computing */
+ #define TIF_POLLING_NRFLAG	16	/* true if poll_idle() is polling TIF_NEED_RESCHED */
+ #define TIF_MEMDIE		17
++#define TIF_FREEZE		18	/* Freeze thread */
+ 
+ #define _TIF_SYSCALL_TRACE	(1<<TIF_SYSCALL_TRACE)
+ #define _TIF_NOTIFY_RESUME	(1<<TIF_NOTIFY_RESUME)
+Index: linux-2.6.12/include/asm-xtensa/thread_info.h
+===================================================================
+--- linux-2.6.12.orig/include/asm-xtensa/thread_info.h	2005-06-27 02:23:01.000000000 +0000
++++ linux-2.6.12/include/asm-xtensa/thread_info.h	2005-06-27 05:36:54.000000000 +0000
+@@ -118,6 +118,7 @@ static inline struct thread_info *curren
+ #define TIF_SINGLESTEP		4	/* restore singlestep on return to user mode */
+ #define TIF_IRET		5	/* return with iret */
+ #define TIF_MEMDIE		6
++#define TIF_FREEZE		7
+ #define TIF_POLLING_NRFLAG	16	/* true if poll_idle() is polling TIF_NEED_RESCHED */
+ 
+ #define _TIF_SYSCALL_TRACE	(1<<TIF_SYSCALL_TRACE)
+Index: linux-2.6.12/include/asm-h8300/thread_info.h
+===================================================================
+--- linux-2.6.12.orig/include/asm-h8300/thread_info.h	2005-06-27 02:23:01.000000000 +0000
++++ linux-2.6.12/include/asm-h8300/thread_info.h	2005-06-27 05:25:25.000000000 +0000
+@@ -94,6 +94,7 @@ static inline struct thread_info *curren
+ #define TIF_POLLING_NRFLAG	4	/* true if poll_idle() is polling
+ 					   TIF_NEED_RESCHED */
+ #define TIF_MEMDIE		5
++#define TIF_FREEZE		6
+ 
+ /* as above, but as bit values */
+ #define _TIF_SYSCALL_TRACE	(1<<TIF_SYSCALL_TRACE)
+Index: linux-2.6.12/include/asm-ppc/thread_info.h
+===================================================================
+--- linux-2.6.12.orig/include/asm-ppc/thread_info.h	2005-06-27 02:23:01.000000000 +0000
++++ linux-2.6.12/include/asm-ppc/thread_info.h	2005-06-27 05:28:53.000000000 +0000
+@@ -80,6 +80,7 @@ static inline struct thread_info *curren
+ #define TIF_MEMDIE		5
+ #define TIF_SYSCALL_AUDIT       6       /* syscall auditing active */
+ #define TIF_SECCOMP             7      /* secure computing */
++#define TIF_FREEZE		8
+ 
+ /* as above, but as bit values */
+ #define _TIF_SYSCALL_TRACE	(1<<TIF_SYSCALL_TRACE)
+Index: linux-2.6.12/include/asm-sh64/thread_info.h
+===================================================================
+--- linux-2.6.12.orig/include/asm-sh64/thread_info.h	2005-06-27 02:23:01.000000000 +0000
++++ linux-2.6.12/include/asm-sh64/thread_info.h	2005-06-27 05:35:02.000000000 +0000
+@@ -80,6 +80,7 @@ static inline struct thread_info *curren
+ #define TIF_SIGPENDING		2	/* signal pending */
+ #define TIF_NEED_RESCHED	3	/* rescheduling necessary */
+ #define TIF_MEMDIE		4
++#define TIF_FREEZE		5
+ 
+ 
+ #endif /* __KERNEL__ */
+Index: linux-2.6.12/include/asm-alpha/thread_info.h
+===================================================================
+--- linux-2.6.12.orig/include/asm-alpha/thread_info.h	2005-06-17 19:48:29.000000000 +0000
++++ linux-2.6.12/include/asm-alpha/thread_info.h	2005-06-27 05:23:06.000000000 +0000
+@@ -78,6 +78,7 @@ register struct thread_info *__current_t
+ #define TIF_UAC_NOFIX		7
+ #define TIF_UAC_SIGBUS		8
+ #define TIF_MEMDIE		9
++#define TIF_FREEZE		10
+ 
+ #define _TIF_SYSCALL_TRACE	(1<<TIF_SYSCALL_TRACE)
+ #define _TIF_NOTIFY_RESUME	(1<<TIF_NOTIFY_RESUME)
+Index: linux-2.6.12/include/asm-sparc/thread_info.h
+===================================================================
+--- linux-2.6.12.orig/include/asm-sparc/thread_info.h	2005-06-27 02:23:01.000000000 +0000
++++ linux-2.6.12/include/asm-sparc/thread_info.h	2005-06-27 05:35:23.000000000 +0000
+@@ -139,6 +139,7 @@ BTFIXUPDEF_CALL(void, free_thread_info, 
+ #define TIF_POLLING_NRFLAG	9	/* true if poll_idle() is polling
+ 					 * TIF_NEED_RESCHED */
+ #define TIF_MEMDIE		10
++#define TIF_FREEZE		11
+ 
+ /* as above, but as bit values */
+ #define _TIF_SYSCALL_TRACE	(1<<TIF_SYSCALL_TRACE)
+Index: linux-2.6.12/include/asm-frv/thread_info.h
+===================================================================
+--- linux-2.6.12.orig/include/asm-frv/thread_info.h	2005-06-27 02:23:01.000000000 +0000
++++ linux-2.6.12/include/asm-frv/thread_info.h	2005-06-27 05:25:02.000000000 +0000
+@@ -133,6 +133,7 @@ register struct thread_info *__current_t
+ #define TIF_IRET		5	/* return with iret */
+ #define TIF_POLLING_NRFLAG	16	/* true if poll_idle() is polling TIF_NEED_RESCHED */
+ #define TIF_MEMDIE		17	/* OOM killer killed process */
++#define TIF_FREEZE		18
+ 
+ #define _TIF_SYSCALL_TRACE	(1 << TIF_SYSCALL_TRACE)
+ #define _TIF_NOTIFY_RESUME	(1 << TIF_NOTIFY_RESUME)
+Index: linux-2.6.12/include/asm-parisc/thread_info.h
+===================================================================
+--- linux-2.6.12.orig/include/asm-parisc/thread_info.h	2005-06-27 02:23:01.000000000 +0000
++++ linux-2.6.12/include/asm-parisc/thread_info.h	2005-06-27 05:28:34.000000000 +0000
+@@ -64,6 +64,7 @@ struct thread_info {
+ #define TIF_POLLING_NRFLAG	4	/* true if poll_idle() is polling TIF_NEED_RESCHED */
+ #define TIF_32BIT               5       /* 32 bit binary */
+ #define TIF_MEMDIE		6
++#define TIF_FREEZE		7
+ 
+ #define _TIF_SYSCALL_TRACE	(1 << TIF_SYSCALL_TRACE)
+ #define _TIF_NOTIFY_RESUME	(1 << TIF_NOTIFY_RESUME)
+Index: linux-2.6.12/include/asm-m68knommu/thread_info.h
+===================================================================
+--- linux-2.6.12.orig/include/asm-m68knommu/thread_info.h	2005-06-27 02:23:01.000000000 +0000
++++ linux-2.6.12/include/asm-m68knommu/thread_info.h	2005-06-27 05:27:13.000000000 +0000
+@@ -91,6 +91,7 @@ static inline struct thread_info *curren
+ #define TIF_POLLING_NRFLAG	4	/* true if poll_idle() is polling
+ 					   TIF_NEED_RESCHED */
+ #define TIF_MEMDIE		5
++#define TIF_FREEZE		6
+ 
+ /* as above, but as bit values */
+ #define _TIF_SYSCALL_TRACE	(1<<TIF_SYSCALL_TRACE)
+Index: linux-2.6.12/include/asm-m68k/thread_info.h
+===================================================================
+--- linux-2.6.12.orig/include/asm-m68k/thread_info.h	2005-06-27 02:23:01.000000000 +0000
++++ linux-2.6.12/include/asm-m68k/thread_info.h	2005-06-27 05:26:49.000000000 +0000
+@@ -49,6 +49,7 @@ struct thread_info {
+ #define TIF_SIGPENDING		3	/* signal pending */
+ #define TIF_NEED_RESCHED	4	/* rescheduling necessary */
+ #define TIF_MEMDIE		5
++#define TIF_FREEZE		6
+ 
+ extern int thread_flag_fixme(void);
+ 
+Index: linux-2.6.12/include/asm-sh/thread_info.h
+===================================================================
+--- linux-2.6.12.orig/include/asm-sh/thread_info.h	2005-06-27 02:23:01.000000000 +0000
++++ linux-2.6.12/include/asm-sh/thread_info.h	2005-06-27 05:34:43.000000000 +0000
+@@ -84,6 +84,7 @@ static inline struct thread_info *curren
+ #define TIF_USEDFPU		16	/* FPU was used by this task this quantum (SMP) */
+ #define TIF_POLLING_NRFLAG	17	/* true if poll_idle() is polling TIF_NEED_RESCHED */
+ #define TIF_MEMDIE		18
++#define TIF_FREEZE		19
+ #define TIF_USERSPACE		31	/* true if FS sets userspace */
+ 
+ #define _TIF_SYSCALL_TRACE	(1<<TIF_SYSCALL_TRACE)
+Index: linux-2.6.12/include/asm-s390/thread_info.h
+===================================================================
+--- linux-2.6.12.orig/include/asm-s390/thread_info.h	2005-06-27 02:23:01.000000000 +0000
++++ linux-2.6.12/include/asm-s390/thread_info.h	2005-06-27 05:34:19.000000000 +0000
+@@ -102,6 +102,7 @@ static inline struct thread_info *curren
+ 					   TIF_NEED_RESCHED */
+ #define TIF_31BIT		18	/* 32bit process */ 
+ #define TIF_MEMDIE		19
++#define TIF_FREEZE		20
+ 
+ #define _TIF_SYSCALL_TRACE	(1<<TIF_SYSCALL_TRACE)
+ #define _TIF_NOTIFY_RESUME	(1<<TIF_NOTIFY_RESUME)
+Index: linux-2.6.12/include/asm-arm/thread_info.h
+===================================================================
+--- linux-2.6.12.orig/include/asm-arm/thread_info.h	2005-06-27 02:23:01.000000000 +0000
++++ linux-2.6.12/include/asm-arm/thread_info.h	2005-06-27 05:23:34.000000000 +0000
+@@ -132,6 +132,7 @@ extern void iwmmxt_task_release(struct t
+ #define TIF_POLLING_NRFLAG	16
+ #define TIF_USING_IWMMXT	17
+ #define TIF_MEMDIE		18
++#define TIF_FREEZE		19
+ 
+ #define _TIF_NOTIFY_RESUME	(1 << TIF_NOTIFY_RESUME)
+ #define _TIF_SIGPENDING		(1 << TIF_SIGPENDING)
+Index: linux-2.6.12/include/asm-v850/thread_info.h
+===================================================================
+--- linux-2.6.12.orig/include/asm-v850/thread_info.h	2005-06-27 02:23:01.000000000 +0000
++++ linux-2.6.12/include/asm-v850/thread_info.h	2005-06-27 05:36:25.000000000 +0000
+@@ -85,6 +85,7 @@ struct thread_info {
+ #define TIF_POLLING_NRFLAG	4	/* true if poll_idle() is polling
+ 					   TIF_NEED_RESCHED */
+ #define TIF_MEMDIE		5
++#define TIF_FREEZE		6
+ 
+ /* as above, but as bit values */
+ #define _TIF_SYSCALL_TRACE	(1<<TIF_SYSCALL_TRACE)
+Index: linux-2.6.12/include/asm-mips/thread_info.h
+===================================================================
+--- linux-2.6.12.orig/include/asm-mips/thread_info.h	2005-06-27 02:23:01.000000000 +0000
++++ linux-2.6.12/include/asm-mips/thread_info.h	2005-06-27 05:27:41.000000000 +0000
+@@ -117,6 +117,7 @@ register struct thread_info *__current_t
+ #define TIF_USEDFPU		16	/* FPU was used by this task this quantum (SMP) */
+ #define TIF_POLLING_NRFLAG	17	/* true if poll_idle() is polling TIF_NEED_RESCHED */
+ #define TIF_MEMDIE		18
++#define TIF_FREEZE		19
+ #define TIF_SYSCALL_TRACE	31	/* syscall trace active */
+ 
+ #define _TIF_SYSCALL_TRACE	(1<<TIF_SYSCALL_TRACE)
+Index: linux-2.6.12/include/asm-cris/thread_info.h
+===================================================================
+--- linux-2.6.12.orig/include/asm-cris/thread_info.h	2005-06-27 02:23:01.000000000 +0000
++++ linux-2.6.12/include/asm-cris/thread_info.h	2005-06-27 05:24:28.000000000 +0000
+@@ -86,6 +86,7 @@ struct thread_info {
+ #define TIF_NEED_RESCHED	3	/* rescheduling necessary */
+ #define TIF_POLLING_NRFLAG	16	/* true if poll_idle() is polling TIF_NEED_RESCHED */
+ #define TIF_MEMDIE		17
++#define TIF_FREEZE		18
+ 
+ #define _TIF_SYSCALL_TRACE	(1<<TIF_SYSCALL_TRACE)
+ #define _TIF_NOTIFY_RESUME	(1<<TIF_NOTIFY_RESUME)
+Index: linux-2.6.12/include/asm-arm26/thread_info.h
+===================================================================
+--- linux-2.6.12.orig/include/asm-arm26/thread_info.h	2005-06-27 02:23:01.000000000 +0000
++++ linux-2.6.12/include/asm-arm26/thread_info.h	2005-06-27 05:24:02.000000000 +0000
+@@ -127,6 +127,7 @@ extern void free_thread_info(struct thre
+ #define TIF_USED_FPU		16
+ #define TIF_POLLING_NRFLAG	17
+ #define TIF_MEMDIE		18
++#define TIF_FREEZE		19
+ 
+ #define _TIF_NOTIFY_RESUME	(1 << TIF_NOTIFY_RESUME)
+ #define _TIF_SIGPENDING		(1 << TIF_SIGPENDING)
+Index: linux-2.6.12/include/asm-sparc64/thread_info.h
+===================================================================
+--- linux-2.6.12.orig/include/asm-sparc64/thread_info.h	2005-06-27 02:23:01.000000000 +0000
++++ linux-2.6.12/include/asm-sparc64/thread_info.h	2005-06-27 05:35:45.000000000 +0000
+@@ -229,6 +229,7 @@ register struct thread_info *current_thr
+  */
+ #define TIF_ABI_PENDING		12
+ #define TIF_MEMDIE		13
++#define TIF_FREEZE		14
+ 
+ #define _TIF_SYSCALL_TRACE	(1<<TIF_SYSCALL_TRACE)
+ #define _TIF_NOTIFY_RESUME	(1<<TIF_NOTIFY_RESUME)
+Index: linux-2.6.12/include/asm-m32r/thread_info.h
+===================================================================
+--- linux-2.6.12.orig/include/asm-m32r/thread_info.h	2005-06-27 02:23:01.000000000 +0000
++++ linux-2.6.12/include/asm-m32r/thread_info.h	2005-06-27 05:26:33.000000000 +0000
+@@ -156,6 +156,7 @@ static inline unsigned int get_thread_fa
+ #define TIF_POLLING_NRFLAG	16	/* true if poll_idle() is polling TIF_NEED_RESCHED */
+ 					/* 31..28 fault code */
+ #define TIF_MEMDIE		17
++#define TIF_FREEZE		18
+ 
+ #define _TIF_SYSCALL_TRACE	(1<<TIF_SYSCALL_TRACE)
+ #define _TIF_NOTIFY_RESUME	(1<<TIF_NOTIFY_RESUME)
+Index: linux-2.6.12/include/asm-ppc64/thread_info.h
+===================================================================
+--- linux-2.6.12.orig/include/asm-ppc64/thread_info.h	2005-06-27 02:23:01.000000000 +0000
++++ linux-2.6.12/include/asm-ppc64/thread_info.h	2005-06-27 05:29:13.000000000 +0000
+@@ -102,6 +102,7 @@ static inline struct thread_info *curren
+ #define TIF_SINGLESTEP		9	/* singlestepping active */
+ #define TIF_MEMDIE		10
+ #define TIF_SECCOMP		11	/* secure computing */
++#define TIF_FREEZE		12
+ 
+ /* as above, but as bit values */
+ #define _TIF_SYSCALL_TRACE	(1<<TIF_SYSCALL_TRACE)
+Index: linux-2.6.12/include/asm-um/thread_info.h
+===================================================================
+--- linux-2.6.12.orig/include/asm-um/thread_info.h	2005-06-27 02:23:01.000000000 +0000
++++ linux-2.6.12/include/asm-um/thread_info.h	2005-06-27 05:36:07.000000000 +0000
+@@ -72,6 +72,7 @@ static inline struct thread_info *curren
+ #define TIF_RESTART_BLOCK 	4
+ #define TIF_MEMDIE	 	5
+ #define TIF_SYSCALL_AUDIT	6
++#define TIF_FREEZE		7
+ 
+ #define _TIF_SYSCALL_TRACE	(1 << TIF_SYSCALL_TRACE)
+ #define _TIF_SIGPENDING		(1 << TIF_SIGPENDING)
+Index: linux-2.6.12/kernel/sched.c
+===================================================================
+--- linux-2.6.12.orig/kernel/sched.c	2005-06-27 02:23:01.000000000 +0000
++++ linux-2.6.12/kernel/sched.c	2005-06-27 15:08:19.000000000 +0000
+@@ -5203,6 +5203,25 @@ void __init sched_init(void)
+ 	init_idle(current, smp_processor_id());
+ }
+ 
++#if defined(CONFIG_PM) || defined(CONFIG_MIGRATE)
++DECLARE_MUTEX(freezer_sem);
++DECLARE_COMPLETION(thaw);
++
++void refrigerator(void)
++{
++	current->flags |= PF_FROZEN;
++	clear_thread_flag(TIF_FREEZE);
++	/* A fake signal 0 may have been sent. Recalculate sigpending */
++	spin_lock_irq(&current->sighand->siglock);
++	recalc_sigpending();
++	spin_unlock_irq(&current->sighand->siglock);
++	wait_for_completion(&thaw);
++	current->flags &= ~PF_FROZEN;
++}
++EXPORT_SYMBOL(refrigerator);
++#endif
++
++
+ #ifdef CONFIG_DEBUG_SPINLOCK_SLEEP
+ void __might_sleep(char *file, int line)
+ {

@@ -1,1100 +1,1520 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262170AbVF0Mwi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261998AbVF0MmL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262170AbVF0Mwi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 08:52:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262117AbVF0Mtv
+	id S261998AbVF0MmL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 08:42:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262119AbVF0MlK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 08:49:51 -0400
-Received: from ipx10786.ipxserver.de ([80.190.251.108]:5605 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S262044AbVF0MQS
+	Mon, 27 Jun 2005 08:41:10 -0400
+Received: from ipx10786.ipxserver.de ([80.190.251.108]:2277 "EHLO
+	allen.werkleitz.de") by vger.kernel.org with ESMTP id S262022AbVF0MQG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 08:16:18 -0400
-Message-Id: <20050627121413.908833000@abc>
+	Mon, 27 Jun 2005 08:16:06 -0400
+Message-Id: <20050627121412.899787000@abc>
 References: <20050627120600.739151000@abc>
-Date: Mon, 27 Jun 2005 14:06:22 +0200
+Date: Mon, 27 Jun 2005 14:06:17 +0200
 From: Johannes Stezenbach <js@linuxtv.org>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Andrew de Quincey <adq_dvb@lidskialf.net>
-Content-Disposition: inline; filename=dvb-ttpci-hauppauge-dvb-s-se.patch
+Cc: linux-kernel@vger.kernel.org, Patrick Boettcher <pb@linuxtv.org>
+Content-Disposition: inline; filename=dvb-flexcop-endianness-fixes.patch
 X-SA-Exim-Connect-IP: 84.189.248.249
-Subject: [DVB patch 22/51] ttpci: add support for Technotrend/Hauppauge DVB-S SE
+Subject: [DVB patch 17/51] flexcop: add big endian register definitions
 X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
 X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andrew de Quincey <adq_dvb@lidskialf.net>
+From: Patrick Boettcher <pb@linuxtv.org>
 
-Add support for s5h1420 frontend (new Technotrend/Hauppauge DVB-S SE).
+Add big-endian register definitions for running on a PowerPC.
+(Thanks to Paavo Hartikainen for testing.)
 
-Signed-off-by: Andrew de Quincey <adq_dvb@lidskialf.net>
+Signed-off-by: Patrick Boettcher <pb@linuxtv.org>
 Signed-off-by: Johannes Stezenbach <js@linuxtv.org>
 
- drivers/media/dvb/frontends/Kconfig   |    6 
- drivers/media/dvb/frontends/Makefile  |    1 
- drivers/media/dvb/frontends/s5h1420.c |  800 ++++++++++++++++++++++++++++++++++
- drivers/media/dvb/frontends/s5h1420.h |   41 +
- drivers/media/dvb/ttpci/Kconfig       |    9 
- drivers/media/dvb/ttpci/budget.c      |   99 ++++
- 6 files changed, 952 insertions(+), 4 deletions(-)
+ drivers/media/dvb/b2c2/flexcop-reg.h          |  548 --------------------------
+ drivers/media/dvb/b2c2/flexcop_ibi_value_be.h |  451 +++++++++++++++++++++
+ drivers/media/dvb/b2c2/flexcop_ibi_value_le.h |  451 +++++++++++++++++++++
+ 3 files changed, 909 insertions(+), 541 deletions(-)
 
-Index: linux-2.6.12-git8/drivers/media/dvb/frontends/Kconfig
+Index: linux-2.6.12-git8/drivers/media/dvb/b2c2/flexcop-reg.h
 ===================================================================
---- linux-2.6.12-git8.orig/drivers/media/dvb/frontends/Kconfig	2005-06-27 13:18:22.000000000 +0200
-+++ linux-2.6.12-git8/drivers/media/dvb/frontends/Kconfig	2005-06-27 13:24:15.000000000 +0200
-@@ -40,6 +40,12 @@ config DVB_VES1X93
- 	help
- 	  A DVB-S tuner module. Say Y when you want to support this frontend.
+--- linux-2.6.12-git8.orig/drivers/media/dvb/b2c2/flexcop-reg.h	2005-06-27 13:18:22.000000000 +0200
++++ linux-2.6.12-git8/drivers/media/dvb/b2c2/flexcop-reg.h	2005-06-27 13:24:09.000000000 +0200
+@@ -36,555 +36,21 @@ typedef enum {
+ extern const char *flexcop_device_names[];
  
-+config DVB_S5H1420
-+	tristate "Samsung S5H1420 based"
-+	depends on DVB_CORE
-+	help
-+	  A DVB-S tuner module. Say Y when you want to support this frontend.
-+
- comment "DVB-T (terrestrial) frontends"
- 	depends on DVB_CORE
+ /* FlexCop IBI Registers */
++#if defined(__LITTLE_ENDIAN)
++	#include "flexcop_ibi_value_le.h"
++#elif defined(__BIG_ENDIAN)
++	#include "flexcop_ibi_value_be.h"
++#else
++	#error no endian defined
++#endif
  
-Index: linux-2.6.12-git8/drivers/media/dvb/frontends/Makefile
-===================================================================
---- linux-2.6.12-git8.orig/drivers/media/dvb/frontends/Makefile	2005-06-27 13:18:22.000000000 +0200
-+++ linux-2.6.12-git8/drivers/media/dvb/frontends/Makefile	2005-06-27 13:24:15.000000000 +0200
-@@ -29,3 +29,4 @@ obj-$(CONFIG_DVB_NXT2002) += nxt2002.o
- obj-$(CONFIG_DVB_OR51211) += or51211.o
- obj-$(CONFIG_DVB_OR51132) += or51132.o
- obj-$(CONFIG_DVB_BCM3510) += bcm3510.o
-+obj-$(CONFIG_DVB_S5H1420) += s5h1420.o
-Index: linux-2.6.12-git8/drivers/media/dvb/frontends/s5h1420.c
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.12-git8/drivers/media/dvb/frontends/s5h1420.c	2005-06-27 13:24:15.000000000 +0200
-@@ -0,0 +1,800 @@
-+/*
-+Driver for Samsung S5H1420 QPSK Demodulator
-+
-+Copyright (C) 2005 Andrew de Quincey <adq_dvb@lidskialf.net>
-+
-+This program is free software; you can redistribute it and/or modify
-+it under the terms of the GNU General Public License as published by
-+the Free Software Foundation; either version 2 of the License, or
-+(at your option) any later version.
-+
-+This program is distributed in the hope that it will be useful,
-+but WITHOUT ANY WARRANTY; without even the implied warranty of
-+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+
-+GNU General Public License for more details.
-+
-+You should have received a copy of the GNU General Public License
-+along with this program; if not, write to the Free Software
-+Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+
-+*/
-+
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/string.h>
-+#include <linux/slab.h>
-+#include <linux/delay.h>
-+
-+#include "dvb_frontend.h"
-+#include "s5h1420.h"
-+
-+
-+
-+#define TONE_FREQ 22000
-+
-+struct s5h1420_state {
-+	struct i2c_adapter* i2c;
-+	struct dvb_frontend_ops ops;
-+	const struct s5h1420_config* config;
-+	struct dvb_frontend frontend;
-+
-+	u8 postlocked:1;
-+	u32 fclk;
-+	u32 tunedfreq;
-+	fe_code_rate_t fec_inner;
-+	u32 symbol_rate;
-+};
-+
-+static u32 s5h1420_getsymbolrate(struct s5h1420_state* state);
-+static int s5h1420_get_tune_settings(struct dvb_frontend* fe, struct dvb_frontend_tune_settings* fesettings);
-+
-+
-+static int debug = 0;
-+#define dprintk if (debug) printk
-+
-+static int s5h1420_writereg (struct s5h1420_state* state, u8 reg, u8 data)
-+{
-+	u8 buf [] = { reg, data };
-+	struct i2c_msg msg = { .addr = state->config->demod_address, .flags = 0, .buf = buf, .len = 2 };
-+	int err;
-+
-+	if ((err = i2c_transfer (state->i2c, &msg, 1)) != 1) {
-+		dprintk ("%s: writereg error (err == %i, reg == 0x%02x, data == 0x%02x)\n", __FUNCTION__, err, reg, data);
-+		return -EREMOTEIO;
-+	}
-+
-+	return 0;
-+}
-+
-+static u8 s5h1420_readreg (struct s5h1420_state* state, u8 reg)
-+{
-+	int ret;
-+	u8 b0 [] = { reg };
-+	u8 b1 [] = { 0 };
-+	struct i2c_msg msg1 = { .addr = state->config->demod_address, .flags = 0, .buf = b0, .len = 1 };
-+	struct i2c_msg msg2 = { .addr = state->config->demod_address, .flags = I2C_M_RD, .buf = b1, .len = 1 };
-+
-+	if ((ret = i2c_transfer (state->i2c, &msg1, 1)) != 1)
-+		return ret;
-+
-+	if ((ret = i2c_transfer (state->i2c, &msg2, 1)) != 1)
-+		return ret;
-+
-+	return b1[0];
-+}
-+
-+static int s5h1420_set_voltage (struct dvb_frontend* fe, fe_sec_voltage_t voltage)
-+{
-+	struct s5h1420_state* state = fe->demodulator_priv;
-+
-+	switch(voltage) {
-+	case SEC_VOLTAGE_13:
-+		s5h1420_writereg(state, 0x3c, (s5h1420_readreg(state, 0x3c) & 0xfe) | 0x02);
-+		break;
-+
-+	case SEC_VOLTAGE_18:
-+		s5h1420_writereg(state, 0x3c, s5h1420_readreg(state, 0x3c) | 0x03);
-+		break;
-+
-+	case SEC_VOLTAGE_OFF:
-+		s5h1420_writereg(state, 0x3c, s5h1420_readreg(state, 0x3c) & 0xfd);
-+		break;
-+	}
-+
-+	return 0;
-+}
-+
-+static int s5h1420_set_tone (struct dvb_frontend* fe, fe_sec_tone_mode_t tone)
-+{
-+	struct s5h1420_state* state = fe->demodulator_priv;
-+
-+	switch(tone) {
-+	case SEC_TONE_ON:
-+		s5h1420_writereg(state, 0x3b, (s5h1420_readreg(state, 0x3b) & 0x74) | 0x08);
-+		break;
-+
-+	case SEC_TONE_OFF:
-+		s5h1420_writereg(state, 0x3b, (s5h1420_readreg(state, 0x3b) & 0x74) | 0x01);
-+		break;
-+	}
-+
-+	return 0;
-+}
-+
-+static int s5h1420_send_master_cmd (struct dvb_frontend* fe, struct dvb_diseqc_master_cmd* cmd)
-+{
-+	struct s5h1420_state* state = fe->demodulator_priv;
-+	u8 val;
-+	int i;
-+	unsigned long timeout;
-+	int result = 0;
-+
-+	/* setup for DISEQC */
-+	val = s5h1420_readreg(state, 0x3b);
-+	s5h1420_writereg(state, 0x3b, 0x02);
-+	msleep(15);
-+
-+	/* write the DISEQC command bytes */
-+	for(i=0; i< cmd->msg_len; i++) {
-+		s5h1420_writereg(state, 0x3c + i, cmd->msg[i]);
-+	}
-+
-+	/* kick off transmission */
-+	s5h1420_writereg(state, 0x3b, s5h1420_readreg(state, 0x3b) | ((cmd->msg_len-1) << 4) | 0x08);
-+
-+	/* wait for transmission to complete */
-+	timeout = jiffies + ((100*HZ) / 1000);
-+	while(time_before(jiffies, timeout)) {
-+		if (s5h1420_readreg(state, 0x3b) & 0x08)
-+			break;
-+
-+		msleep(5);
-+	}
-+	if (time_after(jiffies, timeout))
-+		result = -ETIMEDOUT;
-+
-+	/* restore original settings */
-+	s5h1420_writereg(state, 0x3b, val);
-+	msleep(15);
-+	return result;
-+}
-+
-+static int s5h1420_recv_slave_reply (struct dvb_frontend* fe, struct dvb_diseqc_slave_reply* reply)
-+{
-+	struct s5h1420_state* state = fe->demodulator_priv;
-+	u8 val;
-+	int i;
-+	int length;
-+	unsigned long timeout;
-+	int result = 0;
-+
-+	/* setup for DISEQC recieve */
-+	val = s5h1420_readreg(state, 0x3b);
-+	s5h1420_writereg(state, 0x3b, 0x82); /* FIXME: guess - do we need to set DIS_RDY(0x08) in receive mode? */
-+	msleep(15);
-+
-+	/* wait for reception to complete */
-+	timeout = jiffies + ((reply->timeout*HZ) / 1000);
-+	while(time_before(jiffies, timeout)) {
-+		if (!(s5h1420_readreg(state, 0x3b) & 0x80)) /* FIXME: do we test DIS_RDY(0x08) or RCV_EN(0x80)? */
-+			break;
-+
-+		msleep(5);
-+	}
-+	if (time_after(jiffies, timeout)) {
-+		result = -ETIMEDOUT;
-+		goto exit;
-+	}
-+
-+	/* check error flag - FIXME: not sure what this does - docs do not describe
-+	 * beyond "error flag for diseqc receive data :( */
-+	if (s5h1420_readreg(state, 0x49)) {
-+		result = -EIO;
-+		goto exit;
-+	}
-+
-+	/* check length */
-+	length = (s5h1420_readreg(state, 0x3b) & 0x70) >> 4;
-+	if (length > sizeof(reply->msg)) {
-+		result = -EOVERFLOW;
-+		goto exit;
-+	}
-+	reply->msg_len = length;
-+
-+	/* extract data */
-+	for(i=0; i< length; i++) {
-+		reply->msg[i] = s5h1420_readreg(state, 0x3c + i);
-+	}
-+
-+exit:
-+	/* restore original settings */
-+	s5h1420_writereg(state, 0x3b, val);
-+	msleep(15);
-+	return result;
-+}
-+
-+static int s5h1420_send_burst (struct dvb_frontend* fe, fe_sec_mini_cmd_t minicmd)
-+{
-+	struct s5h1420_state* state = fe->demodulator_priv;
-+	u8 val;
-+	int result = 0;
-+	unsigned long timeout;
-+
-+	/* setup for tone burst */
-+	val = s5h1420_readreg(state, 0x3b);
-+	s5h1420_writereg(state, 0x3b, (s5h1420_readreg(state, 0x3b) & 0x70) | 0x01);
-+
-+	/* set value for B position if requested */
-+	if (minicmd == SEC_MINI_B) {
-+		s5h1420_writereg(state, 0x3b, s5h1420_readreg(state, 0x3b) | 0x04);
-+	}
-+	msleep(15);
-+
-+	/* start transmission */
-+	s5h1420_writereg(state, 0x3b, s5h1420_readreg(state, 0x3b) | 0x08);
-+
-+	/* wait for transmission to complete */
-+	timeout = jiffies + ((20*HZ) / 1000);
-+	while(time_before(jiffies, timeout)) {
-+		if (!(s5h1420_readreg(state, 0x3b) & 0x08))
-+			break;
-+
-+		msleep(5);
-+	}
-+	if (time_after(jiffies, timeout))
-+		result = -ETIMEDOUT;
-+
-+	/* restore original settings */
-+	s5h1420_writereg(state, 0x3b, val);
-+	msleep(15);
-+	return result;
-+}
-+
-+static fe_status_t s5h1420_get_status_bits(struct s5h1420_state* state)
-+{
-+	u8 val;
-+	fe_status_t status = 0;
-+
-+	val = s5h1420_readreg(state, 0x14);
-+	if (val & 0x02)
-+		status |=  FE_HAS_SIGNAL; // FIXME: not sure if this is right
-+	if (val & 0x01)
-+		status |=  FE_HAS_CARRIER; // FIXME: not sure if this is right
-+	val = s5h1420_readreg(state, 0x36);
-+	if (val & 0x01)
-+		status |=  FE_HAS_VITERBI;
-+	if (val & 0x20)
-+		status |=  FE_HAS_SYNC;
-+	if (status == (FE_HAS_SIGNAL|FE_HAS_CARRIER|FE_HAS_VITERBI|FE_HAS_SYNC))
-+		status |=  FE_HAS_LOCK;
-+
-+	return status;
-+}
-+
-+static int s5h1420_read_status(struct dvb_frontend* fe, fe_status_t* status)
-+{
-+	struct s5h1420_state* state = fe->demodulator_priv;
-+	u8 val;
-+
-+	if (status == NULL)
-+		return -EINVAL;
-+
-+	/* determine lock state */
-+	*status = s5h1420_get_status_bits(state);
-+
-+	/* fix for FEC 5/6 inversion issue - if it doesn't quite lock, invert the inversion,
-+	wait a bit and check again */
-+	if (*status == (FE_HAS_SIGNAL|FE_HAS_CARRIER|FE_HAS_VITERBI)) {
-+		val = s5h1420_readreg(state, 0x32);
-+		if ((val & 0x07) == 0x03) {
-+			if (val & 0x08)
-+				s5h1420_writereg(state, 0x31, 0x13);
-+			else
-+				s5h1420_writereg(state, 0x31, 0x1b);
-+
-+			/* wait a bit then update lock status */
-+			mdelay(200);
-+			*status = s5h1420_get_status_bits(state);
-+		}
-+	}
-+
-+	/* perform post lock setup */
-+	if ((*status & FE_HAS_LOCK) && (!state->postlocked)) {
-+
-+		/* calculate the data rate */
-+		u32 tmp = s5h1420_getsymbolrate(state);
-+		switch(s5h1420_readreg(state, 0x32) & 0x07) {
-+		case 0:
-+			tmp = (tmp * 2 * 1) / 2;
-+			break;
-+
-+		case 1:
-+			tmp = (tmp * 2 * 2) / 3;
-+			break;
-+
-+		case 2:
-+			tmp = (tmp * 2 * 3) / 4;
-+			break;
-+
-+		case 3:
-+			tmp = (tmp * 2 * 5) / 6;
-+			break;
-+
-+		case 4:
-+			tmp = (tmp * 2 * 6) / 7;
-+			break;
-+
-+		case 5:
-+			tmp = (tmp * 2 * 7) / 8;
-+			break;
-+		}
-+		tmp = state->fclk / tmp;
-+
-+		/* set the MPEG_CLK_INTL for the calculated data rate */
-+		if (tmp < 4)
-+			val = 0x00;
-+		else if (tmp < 8)
-+			val = 0x01;
-+		else if (tmp < 12)
-+			val = 0x02;
-+		else if (tmp < 16)
-+			val = 0x03;
-+		else if (tmp < 24)
-+			val = 0x04;
-+		else if (tmp < 32)
-+			val = 0x05;
-+		else
-+			val = 0x06;
-+		s5h1420_writereg(state, 0x22, val);
-+
-+		/* DC freeze */
-+		s5h1420_writereg(state, 0x1f, s5h1420_readreg(state, 0x1f) | 0x01);
-+
-+		/* kicker disable + remove DC offset */
-+		s5h1420_writereg(state, 0x05, s5h1420_readreg(state, 0x05) & 0x6f);
-+
-+		/* post-lock processing has been done! */
-+		state->postlocked = 1;
-+	}
-+
-+	return 0;
-+}
-+
-+static int s5h1420_read_ber(struct dvb_frontend* fe, u32* ber)
-+{
-+	struct s5h1420_state* state = fe->demodulator_priv;
-+
-+	s5h1420_writereg(state, 0x46, 0x1d);
-+	mdelay(25);
-+	return (s5h1420_readreg(state, 0x48) << 8) | s5h1420_readreg(state, 0x47);
-+}
-+
-+static int s5h1420_read_signal_strength(struct dvb_frontend* fe, u16* strength)
-+{
-+	struct s5h1420_state* state = fe->demodulator_priv;
-+
-+	u8 val = 0xff - s5h1420_readreg(state, 0x15);
-+
-+	return (int) ((val << 8) | val);
-+}
-+
-+static int s5h1420_read_ucblocks(struct dvb_frontend* fe, u32* ucblocks)
-+{
-+	struct s5h1420_state* state = fe->demodulator_priv;
-+
-+	s5h1420_writereg(state, 0x46, 0x1f);
-+	mdelay(25);
-+	return (s5h1420_readreg(state, 0x48) << 8) | s5h1420_readreg(state, 0x47);
-+}
-+
-+static void s5h1420_reset(struct s5h1420_state* state)
-+{
-+	s5h1420_writereg (state, 0x01, 0x08);
-+	s5h1420_writereg (state, 0x01, 0x00);
-+	udelay(10);
-+}
-+
-+static void s5h1420_setsymbolrate(struct s5h1420_state* state, struct dvb_frontend_parameters *p)
-+{
-+	u64 val;
-+
-+	val = (p->u.qpsk.symbol_rate / 1000) * (1<<24);
-+	if (p->u.qpsk.symbol_rate <= 21000000) {
-+		val *= 2;
-+	}
-+	do_div(val, (state->fclk / 1000));
-+
-+	s5h1420_writereg(state, 0x09, s5h1420_readreg(state, 0x09) & 0x7f);
-+	s5h1420_writereg(state, 0x11, val >> 16);
-+	s5h1420_writereg(state, 0x12, val >> 8);
-+	s5h1420_writereg(state, 0x13, val & 0xff);
-+	s5h1420_writereg(state, 0x09, s5h1420_readreg(state, 0x09) | 0x80);
-+}
-+
-+static u32 s5h1420_getsymbolrate(struct s5h1420_state* state)
-+{
-+	u64 val;
-+	int sampling = 2;
-+
-+	if (s5h1420_readreg(state, 0x05) & 0x2)
-+		sampling = 1;
-+
-+	s5h1420_writereg(state, 0x06, s5h1420_readreg(state, 0x06) | 0x08);
-+	val  = s5h1420_readreg(state, 0x11) << 16;
-+	val |= s5h1420_readreg(state, 0x12) << 8;
-+	val |= s5h1420_readreg(state, 0x13);
-+	s5h1420_writereg(state, 0x06, s5h1420_readreg(state, 0x06) & 0xf7);
-+
-+	val *= (state->fclk / 1000);
-+	do_div(val, ((1<<24) * sampling));
-+
-+	return (u32) (val * 1000);
-+}
-+
-+static void s5h1420_setfreqoffset(struct s5h1420_state* state, int freqoffset)
-+{
-+	int val;
-+
-+	/* remember freqoffset is in kHz, but the chip wants the offset in Hz, so
-+	 * divide fclk by 1000000 to get the correct value. */
-+	val = -(int) ((freqoffset * (1<<24)) / (state->fclk / 1000000));
-+
-+	s5h1420_writereg(state, 0x09, s5h1420_readreg(state, 0x09) & 0xbf);
-+	s5h1420_writereg(state, 0x0e, val >> 16);
-+	s5h1420_writereg(state, 0x0f, val >> 8);
-+	s5h1420_writereg(state, 0x10, val & 0xff);
-+	s5h1420_writereg(state, 0x09, s5h1420_readreg(state, 0x09) | 0x40);
-+}
-+
-+static int s5h1420_getfreqoffset(struct s5h1420_state* state)
-+{
-+	int val;
-+
-+	s5h1420_writereg(state, 0x06, s5h1420_readreg(state, 0x06) | 0x08);
-+	val  = s5h1420_readreg(state, 0x0e) << 16;
-+	val |= s5h1420_readreg(state, 0x0f) << 8;
-+	val |= s5h1420_readreg(state, 0x10);
-+	s5h1420_writereg(state, 0x06, s5h1420_readreg(state, 0x06) & 0xf7);
-+
-+	if (val & 0x800000)
-+		val |= 0xff000000;
-+
-+	/* remember freqoffset is in kHz, but the chip wants the offset in Hz, so
-+	 * divide fclk by 1000000 to get the correct value. */
-+	val = - ((val * (state->fclk/1000000)) / (1<<24));
-+
-+	return val;
-+}
-+
-+static void s5h1420_setfec(struct s5h1420_state* state, struct dvb_frontend_parameters *p)
-+{
-+	if ((p->u.qpsk.fec_inner == FEC_AUTO) || (p->inversion == INVERSION_AUTO)) {
-+		s5h1420_writereg(state, 0x31, 0x00);
-+		s5h1420_writereg(state, 0x30, 0x3f);
-+	} else {
-+		switch(p->u.qpsk.fec_inner) {
-+		case FEC_1_2:
-+			s5h1420_writereg(state, 0x31, 0x10);
-+			s5h1420_writereg(state, 0x30, 0x01);
-+			break;
-+
-+		case FEC_2_3:
-+			s5h1420_writereg(state, 0x31, 0x11);
-+			s5h1420_writereg(state, 0x30, 0x02);
-+			break;
-+
-+		case FEC_3_4:
-+			s5h1420_writereg(state, 0x31, 0x12);
-+			s5h1420_writereg(state, 0x30, 0x04);
-+			break;
-+
-+		case FEC_5_6:
-+			s5h1420_writereg(state, 0x31, 0x13);
-+			s5h1420_writereg(state, 0x30, 0x08);
-+			break;
-+
-+		case FEC_6_7:
-+			s5h1420_writereg(state, 0x31, 0x14);
-+			s5h1420_writereg(state, 0x30, 0x10);
-+			break;
-+
-+		case FEC_7_8:
-+			s5h1420_writereg(state, 0x31, 0x15);
-+			s5h1420_writereg(state, 0x30, 0x20);
-+			break;
-+
-+		default:
-+			return;
-+		}
-+	}
-+}
-+
-+static fe_code_rate_t s5h1420_getfec(struct s5h1420_state* state)
-+{
-+	switch(s5h1420_readreg(state, 0x32) & 0x07) {
-+	case 0:
-+		return FEC_1_2;
-+
-+	case 1:
-+		return FEC_2_3;
-+
-+	case 2:
-+		return FEC_3_4;
-+
-+	case 3:
-+		return FEC_5_6;
-+
-+	case 4:
-+		return FEC_6_7;
-+
-+	case 5:
-+		return FEC_7_8;
-+	}
-+
-+	return FEC_NONE;
-+}
-+
-+static void s5h1420_setinversion(struct s5h1420_state* state, struct dvb_frontend_parameters *p)
-+{
-+	if ((p->u.qpsk.fec_inner == FEC_AUTO) || (p->inversion == INVERSION_AUTO)) {
-+		s5h1420_writereg(state, 0x31, 0x00);
-+		s5h1420_writereg(state, 0x30, 0x3f);
-+	} else {
-+		u8 tmp = s5h1420_readreg(state, 0x31) & 0xf7;
-+			tmp |= 0x10;
-+
-+		if (p->inversion == INVERSION_ON)
-+			tmp |= 0x80;
-+
-+		s5h1420_writereg(state, 0x31, tmp);
-+	}
-+}
-+
-+static fe_spectral_inversion_t s5h1420_getinversion(struct s5h1420_state* state)
-+{
-+	if (s5h1420_readreg(state, 0x32) & 0x08)
-+		return INVERSION_ON;
-+
-+	return INVERSION_OFF;
-+}
-+
-+static int s5h1420_set_frontend(struct dvb_frontend* fe, struct dvb_frontend_parameters *p)
-+{
-+	struct s5h1420_state* state = fe->demodulator_priv;
-+	u32 frequency_delta;
-+	struct dvb_frontend_tune_settings fesettings;
-+
-+	/* check if we should do a fast-tune */
-+	memcpy(&fesettings.parameters, p, sizeof(struct dvb_frontend_parameters));
-+	s5h1420_get_tune_settings(fe, &fesettings);
-+	frequency_delta = p->frequency - state->tunedfreq;
-+	if ((frequency_delta > -fesettings.max_drift) && (frequency_delta < fesettings.max_drift) &&
-+	    (frequency_delta != 0) &&
-+	    (state->fec_inner == p->u.qpsk.fec_inner) &&
-+	    (state->symbol_rate == p->u.qpsk.symbol_rate)) {
-+
-+		s5h1420_setfreqoffset(state, frequency_delta);
-+		return 0;
-+	}
-+
-+	/* first of all, software reset */
-+	s5h1420_reset(state);
-+
-+	/* set tuner PLL */
-+	if (state->config->pll_set) {
-+		s5h1420_writereg (state, 0x02, s5h1420_readreg(state,0x02) | 1);
-+		state->config->pll_set(fe, p, &state->tunedfreq);
-+		s5h1420_writereg (state, 0x02, s5h1420_readreg(state,0x02) & 0xfe);
-+	}
-+
-+	/* set s5h1420 fclk PLL according to desired symbol rate */
-+	if (p->u.qpsk.symbol_rate > 28000000) {
-+		state->fclk = 88000000;
-+		s5h1420_writereg(state, 0x03, 0x50);
-+		s5h1420_writereg(state, 0x04, 0x40);
-+		s5h1420_writereg(state, 0x05, 0xae);
-+	} else if (p->u.qpsk.symbol_rate > 21000000) {
-+		state->fclk = 59000000;
-+		s5h1420_writereg(state, 0x03, 0x33);
-+		s5h1420_writereg(state, 0x04, 0x40);
-+		s5h1420_writereg(state, 0x05, 0xae);
-+	} else {
-+		state->fclk = 88000000;
-+		s5h1420_writereg(state, 0x03, 0x50);
-+		s5h1420_writereg(state, 0x04, 0x40);
-+		s5h1420_writereg(state, 0x05, 0xac);
-+	}
-+
-+	/* set misc registers */
-+	s5h1420_writereg(state, 0x02, 0x00);
-+	s5h1420_writereg(state, 0x07, 0xb0);
-+	s5h1420_writereg(state, 0x0a, 0x67);
-+	s5h1420_writereg(state, 0x0b, 0x78);
-+	s5h1420_writereg(state, 0x0c, 0x48);
-+	s5h1420_writereg(state, 0x0d, 0x6b);
-+	s5h1420_writereg(state, 0x2e, 0x8e);
-+	s5h1420_writereg(state, 0x35, 0x33);
-+	s5h1420_writereg(state, 0x38, 0x01);
-+	s5h1420_writereg(state, 0x39, 0x7d);
-+	s5h1420_writereg(state, 0x3a, (state->fclk + (TONE_FREQ * 32) - 1) / (TONE_FREQ * 32));
-+	s5h1420_writereg(state, 0x3c, 0x00);
-+	s5h1420_writereg(state, 0x45, 0x61);
-+	s5h1420_writereg(state, 0x46, 0x1d);
-+
-+	/* start QPSK */
-+	s5h1420_writereg(state, 0x05, s5h1420_readreg(state, 0x05) | 1);
-+
-+	/* set the frequency offset to adjust for PLL inaccuracy */
-+	s5h1420_setfreqoffset(state, p->frequency - state->tunedfreq);
-+
-+	/* set the reset of the parameters */
-+	s5h1420_setsymbolrate(state, p);
-+	s5h1420_setinversion(state, p);
-+	s5h1420_setfec(state, p);
-+
-+	state->fec_inner = p->u.qpsk.fec_inner;
-+	state->symbol_rate = p->u.qpsk.symbol_rate;
-+	state->postlocked = 0;
-+	return 0;
-+}
-+
-+static int s5h1420_get_frontend(struct dvb_frontend* fe, struct dvb_frontend_parameters *p)
-+{
-+	struct s5h1420_state* state = fe->demodulator_priv;
-+
-+	p->frequency = state->tunedfreq + s5h1420_getfreqoffset(state);
-+	p->inversion = s5h1420_getinversion(state);
-+	p->u.qpsk.symbol_rate = s5h1420_getsymbolrate(state);
-+	p->u.qpsk.fec_inner = s5h1420_getfec(state);
-+
-+	return 0;
-+}
-+
-+static int s5h1420_get_tune_settings(struct dvb_frontend* fe, struct dvb_frontend_tune_settings* fesettings)
-+{
-+	if (fesettings->parameters.u.qpsk.symbol_rate > 20000000) {
-+		fesettings->min_delay_ms = 50;
-+		fesettings->step_size = 2000;
-+		fesettings->max_drift = 8000;
-+	} else if (fesettings->parameters.u.qpsk.symbol_rate > 12000000) {
-+		fesettings->min_delay_ms = 100;
-+		fesettings->step_size = 1500;
-+		fesettings->max_drift = 9000;
-+	} else if (fesettings->parameters.u.qpsk.symbol_rate > 8000000) {
-+		fesettings->min_delay_ms = 100;
-+		fesettings->step_size = 1000;
-+		fesettings->max_drift = 8000;
-+	} else if (fesettings->parameters.u.qpsk.symbol_rate > 4000000) {
-+		fesettings->min_delay_ms = 100;
-+		fesettings->step_size = 500;
-+		fesettings->max_drift = 7000;
-+	} else if (fesettings->parameters.u.qpsk.symbol_rate > 2000000) {
-+		fesettings->min_delay_ms = 200;
-+		fesettings->step_size = (fesettings->parameters.u.qpsk.symbol_rate / 8000);
-+		fesettings->max_drift = 14 * fesettings->step_size;
-+	} else {
-+		fesettings->min_delay_ms = 200;
-+		fesettings->step_size = (fesettings->parameters.u.qpsk.symbol_rate / 8000);
-+		fesettings->max_drift = 18 * fesettings->step_size;
-+	}
-+
-+	return 0;
-+}
-+
-+static int s5h1420_init (struct dvb_frontend* fe)
-+{
-+	struct s5h1420_state* state = fe->demodulator_priv;
-+
-+	/* disable power down and do reset */
-+	s5h1420_writereg(state, 0x02, 0x10);
-+	msleep(10);
-+	s5h1420_reset(state);
-+
-+	/* init PLL */
-+	if (state->config->pll_init) {
-+		s5h1420_writereg (state, 0x02, s5h1420_readreg(state,0x02) | 1);
-+		state->config->pll_init(fe);
-+		s5h1420_writereg (state, 0x02, s5h1420_readreg(state,0x02) & 0xfe);
-+	}
-+
-+	return 0;
-+}
-+
-+static int s5h1420_sleep(struct dvb_frontend* fe)
-+{
-+	struct s5h1420_state* state = fe->demodulator_priv;
-+
-+	return s5h1420_writereg(state, 0x02, 0x12);
-+}
-+
-+static void s5h1420_release(struct dvb_frontend* fe)
-+{
-+	struct s5h1420_state* state = fe->demodulator_priv;
-+	kfree(state);
-+}
-+
-+static struct dvb_frontend_ops s5h1420_ops;
-+
-+struct dvb_frontend* s5h1420_attach(const struct s5h1420_config* config, struct i2c_adapter* i2c)
-+{
-+	struct s5h1420_state* state = NULL;
-+	u8 identity;
-+
-+	/* allocate memory for the internal state */
-+	state = kmalloc(sizeof(struct s5h1420_state), GFP_KERNEL);
-+	if (state == NULL)
-+		goto error;
-+
-+	/* setup the state */
-+	state->config = config;
-+	state->i2c = i2c;
-+	memcpy(&state->ops, &s5h1420_ops, sizeof(struct dvb_frontend_ops));
-+	state->postlocked = 0;
-+	state->fclk = 88000000;
-+	state->tunedfreq = 0;
-+	state->fec_inner = FEC_NONE;
-+	state->symbol_rate = 0;
-+
-+	/* check if the demod is there + identify it */
-+	identity = s5h1420_readreg(state, 0x00);
-+	if (identity != 0x03)
-+		goto error;
-+
-+	/* create dvb_frontend */
-+	state->frontend.ops = &state->ops;
-+	state->frontend.demodulator_priv = state;
-+	return &state->frontend;
-+
-+error:
-+	kfree(state);
-+	return NULL;
-+}
-+
-+static struct dvb_frontend_ops s5h1420_ops = {
-+
-+	.info = {
-+		.name     = "Samsung S5H1420 DVB-S",
-+		.type     = FE_QPSK,
-+		.frequency_min    = 950000,
-+		.frequency_max    = 2150000,
-+		.frequency_stepsize = 125,     /* kHz for QPSK frontends */
-+		.frequency_tolerance  = 29500,
-+		.symbol_rate_min  = 1000000,
-+		.symbol_rate_max  = 45000000,
-+		/*  .symbol_rate_tolerance  = ???,*/
-+		.caps = FE_CAN_INVERSION_AUTO |
-+		FE_CAN_FEC_1_2 | FE_CAN_FEC_2_3 | FE_CAN_FEC_3_4 |
-+		FE_CAN_FEC_5_6 | FE_CAN_FEC_6_7 | FE_CAN_FEC_7_8 | FE_CAN_FEC_AUTO |
-+		FE_CAN_QPSK
-+	},
-+
-+	.release = s5h1420_release,
-+
-+	.init = s5h1420_init,
-+	.sleep = s5h1420_sleep,
-+
-+	.set_frontend = s5h1420_set_frontend,
-+	.get_frontend = s5h1420_get_frontend,
-+	.get_tune_settings = s5h1420_get_tune_settings,
-+
-+	.read_status = s5h1420_read_status,
-+	.read_ber = s5h1420_read_ber,
-+	.read_signal_strength = s5h1420_read_signal_strength,
-+	.read_ucblocks = s5h1420_read_ucblocks,
-+
-+	.diseqc_send_master_cmd = s5h1420_send_master_cmd,
-+	.diseqc_recv_slave_reply = s5h1420_recv_slave_reply,
-+	.diseqc_send_burst = s5h1420_send_burst,
-+	.set_tone = s5h1420_set_tone,
-+	.set_voltage = s5h1420_set_voltage,
-+};
-+
-+module_param(debug, int, 0644);
-+
-+MODULE_DESCRIPTION("Samsung S5H1420 DVB-S Demodulator driver");
-+MODULE_AUTHOR("Andrew de Quincey");
-+MODULE_LICENSE("GPL");
-+
-+EXPORT_SYMBOL(s5h1420_attach);
-Index: linux-2.6.12-git8/drivers/media/dvb/frontends/s5h1420.h
+-/* flexcop_ibi_reg - a huge union representing the register structure */
+-typedef union {
+-	u32 raw;
+-
+-/* DMA 0x000 to 0x01c
+- * DMA1 0x000 to 0x00c
+- * DMA2 0x010 to 0x01c
+- */
+-	struct {
+-		u32 dma_0start        : 1;   /* set: data will be delivered to dma1_address0 */
+-        u32 dma_0No_update    : 1;   /* set: dma1_cur_address will be updated, unset: no update */
+-        u32 dma_address0      :30;   /* physical/virtual host memory address0 DMA */
+-	} dma_0x0;
+-
+-	struct {
+-		u32 DMA_maxpackets    : 8;   /* (remapped) PCI DMA1 Packet Count Interrupt. This variable
+-										is able to be read and written while bit(1) of register
+-										0x00c (remap_enable) is set. This variable represents
+-										the number of packets that will be transmitted to the PCI
+-										host using PCI DMA1 before an interrupt to the PCI is
+-										asserted. This functionality may be enabled using bit(20)
+-										of register 0x208. N=0 disables the IRQ. */
+-		u32 dma_addr_size     :24;   /* size of memory buffer in DWORDs (bytesize / 4) for DMA */
+-	} dma_0x4_remap;
+-
+-	struct {
+-		u32 dma1timer         : 7;   /* reading PCI DMA1 timer ... when remap_enable is 0 */
+-		u32 unused            : 1;
+-		u32 dma_addr_size     :24;
+-	} dma_0x4_read;
+-
+-	struct {
+-		u32 unused            : 1;
+-		u32 dmatimer          : 7;   /* writing PCI DMA1 timer ... when remap_enable is 0 */
+-		u32 dma_addr_size     :24;
+-	} dma_0x4_write;
+-
+-	struct {
+-		u32 unused            : 2;
+-		u32 dma_cur_addr      :30;   /* current physical host memory address pointer for DMA */
+-	} dma_0x8;
+-
+-	struct {
+-		u32 dma_1start        : 1;   /* set: data will be delivered to dma_address1, when dma_address0 is full */
+-		u32 remap_enable      : 1;   /* remap enable for 0x0x4(7:0) */
+-		u32 dma_address1      :30;   /* Physical/virtual address 1 on DMA */
+-	} dma_0xc;
+-
+-/* Two-wire Serial Master and Clock 0x100-0x110 */
+-	struct {
+-//		u32 slave_transmitter : 1;   /* ???*/
+-		u32 chipaddr          : 7;   /* two-line serial address of the target slave */
+-		u32 reserved1         : 1;
+-		u32 baseaddr          : 8;   /* address of the location of the read/write operation */
+-		u32 data1_reg         : 8;   /* first byte in two-line serial read/write operation */
+-		u32 working_start     : 1;  /* when doing a write operation this indicator is 0 when ready
+-									  * set to 1 when doing a write operation */
+-		u32 twoWS_rw          : 1;   /* read/write indicator (1 = read, 0 write) */
+-		u32 total_bytes       : 2;   /* number of data bytes in each two-line serial transaction (0 = 1 byte, 11 = 4byte)*/
+-		u32 twoWS_port_reg    : 2;   /* port selection: 01 - Front End/Demod, 10 - EEPROM, 11 - Tuner */
+-		u32 no_base_addr_ack_error : 1;   /* writing: write-req: frame is produced w/o baseaddr, read-req: read-cycles w/o
+-									  * preceding address assignment write frame
+-									  * ACK_ERROR = 1 when no ACK from slave in the last transaction */
+-		u32 st_done           : 1;   /* indicator for transaction is done */
+-	} tw_sm_c_100;
+-
+-	struct {
+-		u32 data2_reg         : 8;   /* 2nd data byte */
+-		u32 data3_reg         : 8;   /* 3rd data byte */
+-		u32 data4_reg         : 8;   /* 4th data byte */
+-		u32 exlicit_stops     : 1;   /* when set, transactions are produced w/o trailing STOP flag, then send isolated STOP flags */
+-		u32 force_stop        : 1;   /* isolated stop flag */
+-		u32 unused            : 6;
+-	} tw_sm_c_104;
+-
+-/* Clock. The register allows the FCIII to convert an incoming Master clock
+- * (MCLK) signal into a lower frequency clock through the use of a LowCounter
+- * (TLO) and a High- Counter (THI). The time counts for THI and TLO are
+- * measured in MCLK; each count represents 4 MCLK input clock cycles.
+- *
+- * The default output for port #1 is set for Front End Demod communication. (0x108)
+- * The default output for port #2 is set for EEPROM communication. (0x10c)
+- * The default output for port #3 is set for Tuner communication. (0x110)
+- */
+-	struct {
+-		u32 thi1              : 6;   /* Thi for port #1 (def: 100110b; 38) */
+-		u32 reserved1         : 2;
+-		u32 tlo1              : 5;   /* Tlo for port #1 (def: 11100b; 28) */
+-		u32 reserved2         :19;
+-	} tw_sm_c_108;
+-
+-	struct {
+-		u32 thi1              : 6;   /* Thi for port #2 (def: 111001b; 57) */
+-		u32 reserved1         : 2;
+-		u32 tlo1              : 5;   /* Tlo for port #2 (def: 11100b; 28) */
+-		u32 reserved2         :19;
+-	} tw_sm_c_10c;
+-
+-	struct {
+-		u32 thi1              : 6;   /* Thi for port #3 (def: 111001b; 57) */
+-		u32 reserved1         : 2;
+-		u32 tlo1              : 5;   /* Tlo for port #3 (def: 11100b; 28) */
+-		u32 reserved2         :19;
+-	} tw_sm_c_110;
+-
+-/* LNB Switch Frequency 0x200
+- * Clock that creates the LNB switch tone. The default is set to have a fixed
+- * low output (not oscillating) to the LNB_CTL line.
+- */
+-	struct {
+-		u32 LNB_CTLHighCount_sig :15; /* It is the number of pre-scaled clock cycles that will be low. */
+-		u32 LNB_CTLLowCount_sig  :15; /* For example, to obtain a 22KHz output given a 45 Mhz Master
+-										Clock signal (MCLK), set PreScalar=01 and LowCounter value to 0x1ff. */
+-		u32 LNB_CTLPrescaler_sig : 2; /* pre-scaler divides MCLK: 00 (no division), 01 by 2, 10 by 4, 11 by 12 */
+-	} lnb_switch_freq_200;
+-
+-/* ACPI, Peripheral Reset, LNB Polarity
+- * ACPI power conservation mode, LNB polarity selection (low or high voltage),
+- * and peripheral reset.
+- */
+-	struct {
+-		u32 ACPI1_sig         : 1;   /* turn of the power of tuner and LNB, not implemented in FCIII */
+-		u32 ACPI3_sig         : 1;   /* turn of power of the complete satelite receiver board (except FCIII) */
+-		u32 LNB_L_H_sig       : 1;   /* low or high voltage for LNB. (0 = low, 1 = high) */
+-		u32 Per_reset_sig     : 1;   /* misc. init reset (default: 1), to reset set to low and back to high */
+-		u32 reserved          :20;
+-		u32 Rev_N_sig_revision_hi : 4;/* 0xc in case of FCIII */
+-		u32 Rev_N_sig_reserved1 : 2;
+-		u32 Rev_N_sig_caps    : 1;   /* if 1, FCIII has 32 PID- and MAC-filters and is capable of IP multicast */
+-		u32 Rev_N_sig_reserved2 : 1;
+-	} misc_204;
+-
+-/* Control and Status 0x208 to 0x21c */
+-/* Gross enable and disable control */
+-	struct {
+-		u32 Stream1_filter_sig : 1;  /* Stream1 PID filtering */
+-		u32 Stream2_filter_sig : 1;  /* Stream2 PID filtering */
+-		u32 PCR_filter_sig    : 1;   /* PCR PID filter */
+-		u32 PMT_filter_sig    : 1;   /* PMT PID filter */
+-
+-		u32 EMM_filter_sig    : 1;   /* EMM PID filter */
+-		u32 ECM_filter_sig    : 1;   /* ECM PID filter */
+-		u32 Null_filter_sig   : 1;   /* Filters null packets, PID=0x1fff. */
+-		u32 Mask_filter_sig   : 1;   /* mask PID filter */
+-
+-		u32 WAN_Enable_sig    : 1;   /* WAN output line through V8 memory space is activated. */
+-		u32 WAN_CA_Enable_sig : 1;   /* not in FCIII */
+-		u32 CA_Enable_sig     : 1;   /* not in FCIII */
+-		u32 SMC_Enable_sig    : 1;   /* CI stream data (CAI) goes directly to the smart card intf (opposed IBI 0x600 or SC-cmd buf). */
+-
+-		u32 Per_CA_Enable_sig : 1;   /* not in FCIII */
+-		u32 Multi2_Enable_sig : 1;   /* ? */
+-		u32 MAC_filter_Mode_sig : 1; /* (MAC_filter_enable) Globally enables MAC filters for Net PID filteres. */
+-		u32 Rcv_Data_sig      : 1;   /* PID filtering module enable. When this bit is a one, the PID filter will
+-										examine and process packets according to all other (individual) PID
+-										filtering controls. If it a zero, no packet processing of any kind will
+-										take place. All data from the tuner will be thrown away. */
+-
+-		u32 DMA1_IRQ_Enable_sig : 1; /* When set, a DWORD counter is enabled on PCI DMA1 that asserts the PCI
+-									  * interrupt after the specified count for filling the buffer. */
+-		u32 DMA1_Timer_Enable_sig : 1; /* When set, a timer is enabled on PCI DMA1 that asserts the PCI interrupt
+-											after a specified amount of time. */
+-		u32 DMA2_IRQ_Enable_sig : 1;   /* same as DMA1_IRQ_Enable_sig but for DMA2 */
+-		u32 DMA2_Timer_Enable_sig : 1;   /* same as DMA1_Timer_Enable_sig but for DMA2 */
+-
+-		u32 DMA1_Size_IRQ_Enable_sig : 1; /* When set, a packet count detector is enabled on PCI DMA1 that asserts the PCI interrupt. */
+-		u32 DMA2_Size_IRQ_Enable_sig : 1; /* When set, a packet	count detector is enabled on PCI DMA2 that asserts the PCI interrupt. */
+-		u32 Mailbox_from_V8_Enable_sig: 1; /* When set, writes to the mailbox register produce an interrupt to the
+-											PCI host to indicate that mailbox data is available. */
+-
+-		u32 unused            : 9;
+-	} ctrl_208;
+-
+-/* General status. When a PCI interrupt occurs, this register is read to
+- * discover the reason for the interrupt.
+- */
+-	struct {
+-		u32 DMA1_IRQ_Status   : 1;   /* When set(1) the DMA1 counter had generated an IRQ. Read Only. */
+-		u32 DMA1_Timer_Status : 1;   /* When set(1) the DMA1 timer had generated an IRQ. Read Only. */
+-		u32 DMA2_IRQ_Status   : 1;   /* When set(1) the DMA2 counter had generated an IRQ. Read Only. */
+-		u32 DMA2_Timer_Status : 1;   /* When set(1) the DMA2 timer had generated an IRQ. Read Only. */
+-		u32 DMA1_Size_IRQ_Status : 1; /* (Read only). This register is read after an interrupt to */
+-		u32 DMA2_Size_IRQ_Status : 1; /* find out why we had an IRQ. Reading this register will clear this bit. Packet count*/
+-		u32 Mailbox_from_V8_Status_sig: 1; /* Same as above. Reading this register will clear this bit. */
+-		u32 Data_receiver_error : 1; /* 1 indicate an error in the receiver Front End (Tuner module) */
+-		u32 Continuity_error_flag : 1;   /* 1 indicates a continuity error in the TS stream. */
+-		u32 LLC_SNAP_FLAG_set : 1;   /* 1 indicates that the LCC_SNAP_FLAG was set. */
+-		u32 Transport_Error   : 1;   /*  When set indicates that an unexpected packet was received. */
+-		u32 reserved          :21;
+-	} irq_20c;
+-
+-
+-/* Software reset register */
+-	struct {
+-		u32 reset_blocks      : 8;   /* Enabled when Block_reset_enable = 0xB2 and 0x208 bits 15:8 = 0x00.
+-										Each bit location represents a 0x100 block of registers. Writing
+-										a one in a bit location resets that block of registers and the logic
+-										that it controls. */
+-		u32 Block_reset_enable : 8;  /* This variable is set to 0xB2 when the register is written. */
+-		u32 Special_controls  :16;   /* Asserts Reset_V8 => 0xC258; Turns on pci encryption => 0xC25A;
+-										Turns off pci encryption => 0xC259 Note: pci_encryption default
+-										at power-up is ON. */
+-	} sw_reset_210;
+-
+-	struct {
+-		u32 vuart_oe_sig      : 1;   /* When clear, the V8 processor has sole control of the serial UART
+-										(RS-232 Smart Card interface). When set, the IBI interface
+-										defined by register 0x600 controls the serial UART. */
+-		u32 v2WS_oe_sig       : 1;   /* When clear, the V8 processor has direct control of the Two-line
+-										Serial Master EEPROM target. When set, the Two-line Serial Master
+-										EEPROM target interface is controlled by IBI register 0x100. */
+-		u32 halt_V8_sig       : 1;   /* When set, contiguous wait states are applied to the V8-space
+-										bus masters. Once this signal is cleared, normal V8-space
+-										operations resume. */
+-		u32 section_pkg_enable_sig: 1; /* When set, this signal enables the front end translation circuitry
+-										  to process section packed transport streams. */
+-		u32 s2p_sel_sig       : 1;   /* Serial to parallel conversion. When set, polarized transport data
+-										within the FlexCop3 front end circuitry is converted from a serial
+-										stream into parallel data before downstream processing otherwise
+-										interprets the data. */
+-		u32 unused1           : 3;
+-		u32 polarity_PS_CLK_sig: 1;  /* This signal is used to invert the input polarity of the tranport
+-										stream CLOCK signal before any processing occurs on the transport
+-										stream within FlexCop3. */
+-		u32 polarity_PS_VALID_sig: 1; /* This signal is used to invert the input polarity of the tranport
+-										stream VALID signal before any processing occurs on the transport
+-										stream within FlexCop3. */
+-		u32 polarity_PS_SYNC_sig: 1; /* This signal is used to invert the input polarity of the tranport
+-										stream SYNC signal before any processing occurs on the transport
+-										stream within FlexCop3. */
+-		u32 polarity_PS_ERR_sig: 1;  /* This signal is used to invert the input polarity of the tranport
+-										stream ERROR signal before any processing occurs on the transport
+-										stream within FlexCop3. */
+-		u32 unused2           :20;
+-	} misc_214;
+-
+-/* Mailbox from V8 to host */
+-	struct {
+-		u32 Mailbox_from_V8   :32;   /* When this register is written by either the V8 processor or by an
+-										end host, an interrupt is generated to the PCI host to indicate
+-										that mailbox data is available. Reading register 20c will clear
+-										the IRQ. */
+-	} mbox_v8_to_host_218;
+-
+-/* Mailbox from host to v8 Mailbox_to_V8
+- * Mailbox_to_V8 mailbox storage register
+- * used to send messages from PCI to V8. Writing to this register will send an
+- * IRQ to the V8. Then it can read the data from here. Reading this register
+- * will clear the IRQ. If the V8 is halted and bit 31 of this register is set,
+- * then this register is used instead as a direct interface to access the
+- * V8space memory.
+- */
+-	struct {
+-		u32 sysramaccess_data : 8;   /* Data byte written or read from the specified address in V8 SysRAM. */
+-		u32 sysramaccess_addr :15;   /* 15 bit address used to access V8 Sys-RAM. */
+-		u32 unused            : 7;
+-		u32 sysramaccess_write: 1;   /* Write flag used to latch data into the V8 SysRAM. */
+-		u32 sysramaccess_busmuster: 1; /* Setting this bit when the V8 is halted at 0x214 Bit(2) allows
+-										  this IBI register interface to directly drive the V8-space memory. */
+-	} mbox_host_to_v8_21c;
+-
+-
+-/* PIDs, Translation Bit, SMC Filter Select 0x300 to 0x31c */
+-	struct {
+-		u32 Stream1_PID       :13;   /* Primary use is receiving Net data, so these 13 bits normally
+-										hold the PID value for the desired network stream. */
+-		u32 Stream1_trans     : 1;   /* When set, Net translation will take place for Net data ferried in TS packets. */
+-		u32 MAC_Multicast_filter : 1;   /* When clear, multicast MAC filtering is not allowed for Stream1 and PID_n filters. */
+-		u32 debug_flag_pid_saved : 1;
+-		u32 Stream2_PID       :13;   /* 13 bits for Stream 2 PID filter value. General use. */
+-		u32 Stream2_trans     : 1;   /* When set Tables/CAI translation will take place for the data ferried in
+-										Stream2_PID TS packets. */
+-		u32 debug_flag_write_status00 : 1;
+-		u32 debug_fifo_problem : 1;
+-	} pid_filter_300;
+-
+-	struct {
+-		u32 PCR_PID           :13;   /* PCR stream PID filter value. Primary use is Program Clock Reference stream filtering. */
+-		u32 PCR_trans         : 1;   /* When set, Tables/CAI translation will take place for these packets. */
+-		u32 debug_overrun3    : 1;
+-		u32 debug_overrun2    : 1;
+-		u32 PMT_PID           :13;   /* stream PID filter value. Primary use is Program Management Table segment filtering. */
+-		u32 PMT_trans         : 1;   /* When set, Tables/CAI translation will take place for these packets. */
+-		u32 reserved          : 2;
+-	} pid_filter_304;
+-
+-	struct {
+-		u32 EMM_PID           :13;   /* EMM PID filter value. Primary use is Entitlement Management Messaging for
+-										conditional access-related data. */
+-		u32 EMM_trans         : 1;   /* When set, Tables/CAI translation will take place for these packets. */
+-		u32 EMM_filter_4      : 1;   /* When set will pass only EMM data possessing the same ID code as the
+-										first four bytes (32 bits) of the end-user s 6-byte Smart Card ID number Select */
+-		u32 EMM_filter_6      : 1;   /* When set will pass only EMM data possessing the same 6-byte code as the end-users
+-										complete 6-byte Smart Card ID number. */
+-		u32 ECM_PID           :13;   /* ECM PID filter value. Primary use is Entitlement Control Messaging for conditional
+-										access-related data. */
+-		u32 ECM_trans         : 1;   /* When set, Tables/CAI translation will take place for these packets. */
+-		u32 reserved          : 2;
+-	} pid_filter_308;
+-
+-	struct {
+-		u32 Group_PID     :13;   /* PID value for group filtering. */
+-		u32 Group_trans   : 1;   /* When set, Tables/CAI translation will take place for these packets. */
+-		u32 unused1       : 2;
+-		u32 Group_mask    :13;   /* Mask value used in logical "and" equation that defines group filtering */
+-		u32 unused2       : 3;
+-	} pid_filter_30c_ext_ind_0_7;
+-
+-	struct {
+-		u32 net_master_read :17;
+-		u32 unused        :15;
+-	} pid_filter_30c_ext_ind_1;
+-
+-	struct {
+-		u32 net_master_write :17;
+-		u32 unused        :15;
+-	} pid_filter_30c_ext_ind_2;
+-
+-	struct {
+-		u32 next_net_master_write :17;
+-		u32 unused        :15;
+-	} pid_filter_30c_ext_ind_3;
+-
+-	struct {
+-		u32 unused1       : 1;
+-		u32 state_write   :10;
+-		u32 reserved1     : 6;   /* default: 000100 */
+-		u32 stack_read    :10;
+-		u32 reserved2     : 5;   /* default: 00100 */
+-	} pid_filter_30c_ext_ind_4;
+-
+-	struct {
+-		u32 stack_cnt     :10;
+-		u32 unused        :22;
+-	} pid_filter_30c_ext_ind_5;
+-
+-	struct {
+-		u32 pid_fsm_save_reg0 : 2;
+-		u32 pid_fsm_save_reg1 : 2;
+-		u32 pid_fsm_save_reg2 : 2;
+-		u32 pid_fsm_save_reg3 : 2;
+-		u32 pid_fsm_save_reg4 : 2;
+-		u32 pid_fsm_save_reg300 : 2;
+-		u32 write_status1 : 2;
+-		u32 write_status4 : 2;
+-		u32 data_size_reg :12;
+-		u32 unused        : 4;
+-	} pid_filter_30c_ext_ind_6;
+-
+-	struct {
+-		u32 index_reg         : 5;   /* (Index pointer) Points at an internal PIDn register. A binary code
+-										representing one of 32 internal PIDn registers as well as its
+-										corresponding internal MAC_lown register. */
+-		u32 extra_index_reg   : 3;   /* This vector is used to select between sets of debug signals routed to register 0x30c. */
+-		u32 AB_select         : 1;   /* Used in conjunction with 0x31c. read/write to the MAC_highA or MAC_highB register
+-										0=MAC_highB register, 1=MAC_highA */
+-		u32 pass_alltables    : 1;   /* 1=Net packets are not filtered against the Network Table ID found in register 0x400.
+-										All types of networks (DVB, ATSC, ISDB) are passed. */
+-		u32 unused            :22;
+-	} index_reg_310;
+-
+-	struct {
+-		u32 PID               :13;   /* PID value */
+-		u32 PID_trans         : 1;   /* translation will take place for packets filtered */
+-		u32 PID_enable_bit    : 1;   /* When set this PID filter is enabled */
+-		u32 reserved          :17;
+-	} pid_n_reg_314;
+-
+-	struct {
+-		u32 A4_byte           : 8;
+-		u32 A5_byte           : 8;
+-		u32 A6_byte           : 8;
+-		u32 Enable_bit        : 1;   /* enabled (1) or disabled (1) */
+-		u32 HighAB_bit        : 1;   /* use MAC_highA (1) or MAC_highB (0) as MSB */
+-		u32 reserved          : 6;
+-	} mac_low_reg_318;
+-
+-	struct {
+-		u32 A1_byte           : 8;
+-		u32 A2_byte           : 8;
+-		u32 A3_byte           : 8;
+-		u32 reserved          : 8;
+-	} mac_high_reg_31c;
+-
+-/* Table, SMCID,MACDestination Filters 0x400 to 0x41c */
+-	struct {
+-		u32 reserved          :16;
+ #define fc_data_Tag_ID_DVB  0x3e
+ #define fc_data_Tag_ID_ATSC 0x3f
+ #define fc_data_Tag_ID_IDSB 0x8b
+-		u32 data_Tag_ID       :16;
+-	} data_tag_400;
+ 
+-	struct {
+-		u32 Card_IDbyte6      : 8;
+-		u32 Card_IDbyte5      : 8;
+-		u32 Card_IDbyte4      : 8;
+-		u32 Card_IDbyte3      : 8;
+-	} card_id_408;
+-
+-	struct {
+-		u32 Card_IDbyte2      : 8;
+-		u32 Card_IDbyte1      : 8;
+-	} card_id_40c;
+-
+-	/* holding the unique mac address of the receiver which houses the FlexCopIII */
+-	struct {
+-		u32 MAC1              : 8;
+-		u32 MAC2              : 8;
+-		u32 MAC3              : 8;
+-		u32 MAC6              : 8;
+-	} mac_address_418;
+-
+-	struct {
+-		u32 MAC7              : 8;
+-		u32 MAC8              : 8;
+-		u32 reserved          : 16;
+-	} mac_address_41c;
+-
+-	struct {
+-		u32 transmitter_data_byte : 8;
+-		u32 ReceiveDataReady  : 1;
+-		u32 ReceiveByteFrameError: 1;
+-		u32 txbuffempty       : 1;
+-		u32 reserved          :21;
+-	} ci_600;
+-
+-	struct {
+-		u32 pi_d              : 8;
+-		u32 pi_ha             :20;
+-		u32 pi_rw             : 1;
+-		u32 pi_component_reg  : 3;
+-	} pi_604;
+-
+-	struct {
+-		u32 serialReset       : 1;
+-		u32 oncecycle_read    : 1;
+-		u32 Timer_Read_req    : 1;
+-		u32 Timer_Load_req    : 1;
+-		u32 timer_data        : 7;
+-		u32 unused            : 1; /* ??? not mentioned in data book */
+-		u32 Timer_addr        : 5;
+-		u32 reserved          : 3;
+-		u32 pcmcia_a_mod_pwr_n : 1;
+-		u32 pcmcia_b_mod_pwr_n : 1;
+-		u32 config_Done_stat  : 1;
+-		u32 config_Init_stat  : 1;
+-		u32 config_Prog_n     : 1;
+-		u32 config_wr_n       : 1;
+-		u32 config_cs_n       : 1;
+-		u32 config_cclk       : 1;
+-		u32 pi_CiMax_IRQ_n    : 1;
+-		u32 pi_timeout_status : 1;
+-		u32 pi_wait_n         : 1;
+-		u32 pi_busy_n         : 1;
+-	} pi_608;
+-
+-	struct {
+-		u32 PID               :13;
+-		u32 key_enable        : 1;
+ #define fc_key_code_default 0x1
+ #define fc_key_code_even    0x2
+ #define fc_key_code_odd     0x3
+-		u32 key_code          : 2;
+-		u32 key_array_col     : 3;
+-		u32 key_array_row     : 5;
+-		u32 dvb_en            : 1; /* 0=TS bypasses the Descrambler */
+-		u32 rw_flag           : 1;
+-		u32 reserved          : 6;
+-	} dvb_reg_60c;
+-
+-/* SRAM and Output Destination 0x700 to 0x714 */
+-	struct {
+-		u32 sram_addr         :15;
+-		u32 sram_rw           : 1;   /* 0=write, 1=read */
+-		u32 sram_data         : 8;
+-		u32 sc_xfer_bit       : 1;
+-		u32 reserved1         : 3;
+-		u32 oe_pin_reg        : 1;
+-		u32 ce_pin_reg        : 1;
+-		u32 reserved2         : 1;
+-		u32 start_sram_ibi    : 1;
+-	} sram_ctrl_reg_700;
+-
+-	struct {
+-		u32 net_addr_read     :16;
+-		u32 net_addr_write    :16;
+-	} net_buf_reg_704;
+-
+-	struct {
+-		u32 cai_read          :11;
+-		u32 reserved1         : 5;
+-		u32 cai_write         :11;
+-		u32 reserved2         : 6;
+-		u32 cai_cnt           : 4;
+-	} cai_buf_reg_708;
+-
+-	struct {
+-		u32 cao_read          :11;
+-		u32 reserved1         : 5;
+-		u32 cap_write         :11;
+-		u32 reserved2         : 6;
+-		u32 cao_cnt           : 4;
+-	} cao_buf_reg_70c;
+-
+-	struct {
+-		u32 media_read        :11;
+-		u32 reserved1         : 5;
+-		u32 media_write       :11;
+-		u32 reserved2         : 6;
+-		u32 media_cnt         : 4;
+-	} media_buf_reg_710;
+-
+-	struct {
+-		u32 NET_Dest          : 2;
+-		u32 CAI_Dest          : 2;
+-		u32 CAO_Dest          : 2;
+-		u32 MEDIA_Dest        : 2;
+-		u32 net_ovflow_error  : 1;
+-		u32 media_ovflow_error : 1;
+-		u32 cai_ovflow_error  : 1;
+-		u32 cao_ovflow_error  : 1;
+-		u32 ctrl_usb_wan      : 1;
+-		u32 ctrl_sramdma      : 1;
+-		u32 ctrl_maximumfill  : 1;
+-		u32 reserved          :17;
+-	} sram_dest_reg_714;
+-
+-	struct {
+-		u32 net_cnt           :12;
+-		u32 reserved1         : 4;
+-		u32 net_addr_read     : 1;
+-		u32 reserved2         : 3;
+-		u32 net_addr_write    : 1;
+-		u32 reserved3         :11;
+-	} net_buf_reg_718;
+-
+-	struct {
+-		u32 wan_speed_sig     : 2;
+-		u32 reserved1         : 6;
+-		u32 wan_wait_state    : 8;
+-		u32 sram_chip         : 2;
+-		u32 sram_memmap       : 2;
+-		u32 reserved2         : 4;
+-		u32 wan_pkt_frame     : 4;
+-		u32 reserved3         : 4;
+-	} wan_ctrl_reg_71c;
+-} flexcop_ibi_value;
+ 
+ extern flexcop_ibi_value ibi_zero;
+ 
+Index: linux-2.6.12-git8/drivers/media/dvb/b2c2/flexcop_ibi_value_be.h
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.12-git8/drivers/media/dvb/frontends/s5h1420.h	2005-06-27 13:24:15.000000000 +0200
-@@ -0,0 +1,41 @@
-+/*
-+    Driver for S5H1420 QPSK Demodulators
++++ linux-2.6.12-git8/drivers/media/dvb/b2c2/flexcop_ibi_value_be.h	2005-06-27 13:24:09.000000000 +0200
+@@ -0,0 +1,451 @@
++/* This file is part of linux driver for digital TV devices equipped with B2C2 FlexcopII(b)/III
++ *
++ * register descriptions
++ *
++ * see flexcop.c for copyright information.
++ */
 +
-+    Copyright (C) 2005 Andrew de Quincey <adq_dvb@lidskialf.net>
++/* This file is automatically generated, do not edit things here. */
++#ifndef __FLEXCOP_IBI_VALUE_INCLUDED__
++#define __FLEXCOP_IBI_VALUE_INCLUDED__
 +
-+    This program is free software; you can redistribute it and/or modify
-+    it under the terms of the GNU General Public License as published by
-+    the Free Software Foundation; either version 2 of the License, or
-+    (at your option) any later version.
++typedef union {
++	u32 raw;
 +
-+    This program is distributed in the hope that it will be useful,
-+    but WITHOUT ANY WARRANTY; without even the implied warranty of
-+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++	struct {
++		u32 dma_address0                   :30;
++		u32 dma_0No_update                 : 1;
++		u32 dma_0start                     : 1;
++	} dma_0x0;
 +
-+    GNU General Public License for more details.
++	struct {
++		u32 dma_addr_size                  :24;
++		u32 DMA_maxpackets                 : 8;
++	} dma_0x4_remap;
 +
-+    You should have received a copy of the GNU General Public License
-+    along with this program; if not, write to the Free Software
-+    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++	struct {
++		u32 dma_addr_size                  :24;
++		u32 unused                         : 1;
++		u32 dma1timer                      : 7;
++	} dma_0x4_read;
 +
-+*/
++	struct {
++		u32 dma_addr_size                  :24;
++		u32 dmatimer                       : 7;
++		u32 unused                         : 1;
++	} dma_0x4_write;
 +
-+#ifndef S5H1420_H
-+#define S5H1420_H
++	struct {
++		u32 dma_cur_addr                   :30;
++		u32 unused                         : 2;
++	} dma_0x8;
 +
-+#include <linux/dvb/frontend.h>
++	struct {
++		u32 dma_address1                   :30;
++		u32 remap_enable                   : 1;
++		u32 dma_1start                     : 1;
++	} dma_0xc;
 +
-+struct s5h1420_config
-+{
-+	/* the demodulator's i2c address */
-+	u8 demod_address;
++	struct {
++		u32 st_done                        : 1;
++		u32 no_base_addr_ack_error         : 1;
++		u32 twoWS_port_reg                 : 2;
++		u32 total_bytes                    : 2;
++		u32 twoWS_rw                       : 1;
++		u32 working_start                  : 1;
++		u32 data1_reg                      : 8;
++		u32 baseaddr                       : 8;
++		u32 reserved1                      : 1;
++		u32 chipaddr                       : 7;
++	} tw_sm_c_100;
 +
-+	/* PLL maintenance */
-+	int (*pll_init)(struct dvb_frontend* fe);
-+	int (*pll_set)(struct dvb_frontend* fe, struct dvb_frontend_parameters* params, u32* freqout);
-+};
++	struct {
++		u32 unused                         : 6;
++		u32 force_stop                     : 1;
++		u32 exlicit_stops                  : 1;
++		u32 data4_reg                      : 8;
++		u32 data3_reg                      : 8;
++		u32 data2_reg                      : 8;
++	} tw_sm_c_104;
 +
-+extern struct dvb_frontend* s5h1420_attach(const struct s5h1420_config* config,
-+             struct i2c_adapter* i2c);
++	struct {
++		u32 reserved2                      :19;
++		u32 tlo1                           : 5;
++		u32 reserved1                      : 2;
++		u32 thi1                           : 6;
++	} tw_sm_c_108;
 +
-+#endif // S5H1420_H
-Index: linux-2.6.12-git8/drivers/media/dvb/ttpci/Kconfig
++	struct {
++		u32 reserved2                      :19;
++		u32 tlo1                           : 5;
++		u32 reserved1                      : 2;
++		u32 thi1                           : 6;
++	} tw_sm_c_10c;
++
++	struct {
++		u32 reserved2                      :19;
++		u32 tlo1                           : 5;
++		u32 reserved1                      : 2;
++		u32 thi1                           : 6;
++	} tw_sm_c_110;
++
++	struct {
++		u32 LNB_CTLPrescaler_sig           : 2;
++		u32 LNB_CTLLowCount_sig            :15;
++		u32 LNB_CTLHighCount_sig           :15;
++	} lnb_switch_freq_200;
++
++	struct {
++		u32 Rev_N_sig_reserved2            : 1;
++		u32 Rev_N_sig_caps                 : 1;
++		u32 Rev_N_sig_reserved1            : 2;
++		u32 Rev_N_sig_revision_hi          : 4;
++		u32 reserved                       :20;
++		u32 Per_reset_sig                  : 1;
++		u32 LNB_L_H_sig                    : 1;
++		u32 ACPI3_sig                      : 1;
++		u32 ACPI1_sig                      : 1;
++	} misc_204;
++
++	struct {
++		u32 unused                         : 9;
++		u32 Mailbox_from_V8_Enable_sig     : 1;
++		u32 DMA2_Size_IRQ_Enable_sig       : 1;
++		u32 DMA1_Size_IRQ_Enable_sig       : 1;
++		u32 DMA2_Timer_Enable_sig          : 1;
++		u32 DMA2_IRQ_Enable_sig            : 1;
++		u32 DMA1_Timer_Enable_sig          : 1;
++		u32 DMA1_IRQ_Enable_sig            : 1;
++		u32 Rcv_Data_sig                   : 1;
++		u32 MAC_filter_Mode_sig            : 1;
++		u32 Multi2_Enable_sig              : 1;
++		u32 Per_CA_Enable_sig              : 1;
++		u32 SMC_Enable_sig                 : 1;
++		u32 CA_Enable_sig                  : 1;
++		u32 WAN_CA_Enable_sig              : 1;
++		u32 WAN_Enable_sig                 : 1;
++		u32 Mask_filter_sig                : 1;
++		u32 Null_filter_sig                : 1;
++		u32 ECM_filter_sig                 : 1;
++		u32 EMM_filter_sig                 : 1;
++		u32 PMT_filter_sig                 : 1;
++		u32 PCR_filter_sig                 : 1;
++		u32 Stream2_filter_sig             : 1;
++		u32 Stream1_filter_sig             : 1;
++	} ctrl_208;
++
++	struct {
++		u32 reserved                       :21;
++		u32 Transport_Error                : 1;
++		u32 LLC_SNAP_FLAG_set              : 1;
++		u32 Continuity_error_flag          : 1;
++		u32 Data_receiver_error            : 1;
++		u32 Mailbox_from_V8_Status_sig     : 1;
++		u32 DMA2_Size_IRQ_Status           : 1;
++		u32 DMA1_Size_IRQ_Status           : 1;
++		u32 DMA2_Timer_Status              : 1;
++		u32 DMA2_IRQ_Status                : 1;
++		u32 DMA1_Timer_Status              : 1;
++		u32 DMA1_IRQ_Status                : 1;
++	} irq_20c;
++
++	struct {
++		u32 Special_controls               :16;
++		u32 Block_reset_enable             : 8;
++		u32 reset_blocks                   : 8;
++	} sw_reset_210;
++
++	struct {
++		u32 unused2                        :20;
++		u32 polarity_PS_ERR_sig            : 1;
++		u32 polarity_PS_SYNC_sig           : 1;
++		u32 polarity_PS_VALID_sig          : 1;
++		u32 polarity_PS_CLK_sig            : 1;
++		u32 unused1                        : 3;
++		u32 s2p_sel_sig                    : 1;
++		u32 section_pkg_enable_sig         : 1;
++		u32 halt_V8_sig                    : 1;
++		u32 v2WS_oe_sig                    : 1;
++		u32 vuart_oe_sig                   : 1;
++	} misc_214;
++
++	struct {
++		u32 Mailbox_from_V8                :32;
++	} mbox_v8_to_host_218;
++
++	struct {
++		u32 sysramaccess_busmuster         : 1;
++		u32 sysramaccess_write             : 1;
++		u32 unused                         : 7;
++		u32 sysramaccess_addr              :15;
++		u32 sysramaccess_data              : 8;
++	} mbox_host_to_v8_21c;
++
++	struct {
++		u32 debug_fifo_problem             : 1;
++		u32 debug_flag_write_status00      : 1;
++		u32 Stream2_trans                  : 1;
++		u32 Stream2_PID                    :13;
++		u32 debug_flag_pid_saved           : 1;
++		u32 MAC_Multicast_filter           : 1;
++		u32 Stream1_trans                  : 1;
++		u32 Stream1_PID                    :13;
++	} pid_filter_300;
++
++	struct {
++		u32 reserved                       : 2;
++		u32 PMT_trans                      : 1;
++		u32 PMT_PID                        :13;
++		u32 debug_overrun2                 : 1;
++		u32 debug_overrun3                 : 1;
++		u32 PCR_trans                      : 1;
++		u32 PCR_PID                        :13;
++	} pid_filter_304;
++
++	struct {
++		u32 reserved                       : 2;
++		u32 ECM_trans                      : 1;
++		u32 ECM_PID                        :13;
++		u32 EMM_filter_6                   : 1;
++		u32 EMM_filter_4                   : 1;
++		u32 EMM_trans                      : 1;
++		u32 EMM_PID                        :13;
++	} pid_filter_308;
++
++	struct {
++		u32 unused2                        : 3;
++		u32 Group_mask                     :13;
++		u32 unused1                        : 2;
++		u32 Group_trans                    : 1;
++		u32 Group_PID                      :13;
++	} pid_filter_30c_ext_ind_0_7;
++
++	struct {
++		u32 unused                         :15;
++		u32 net_master_read                :17;
++	} pid_filter_30c_ext_ind_1;
++
++	struct {
++		u32 unused                         :15;
++		u32 net_master_write               :17;
++	} pid_filter_30c_ext_ind_2;
++
++	struct {
++		u32 unused                         :15;
++		u32 next_net_master_write          :17;
++	} pid_filter_30c_ext_ind_3;
++
++	struct {
++		u32 reserved2                      : 5;
++		u32 stack_read                     :10;
++		u32 reserved1                      : 6;
++		u32 state_write                    :10;
++		u32 unused1                        : 1;
++	} pid_filter_30c_ext_ind_4;
++
++	struct {
++		u32 unused                         :22;
++		u32 stack_cnt                      :10;
++	} pid_filter_30c_ext_ind_5;
++
++	struct {
++		u32 unused                         : 4;
++		u32 data_size_reg                  :12;
++		u32 write_status4                  : 2;
++		u32 write_status1                  : 2;
++		u32 pid_fsm_save_reg300            : 2;
++		u32 pid_fsm_save_reg4              : 2;
++		u32 pid_fsm_save_reg3              : 2;
++		u32 pid_fsm_save_reg2              : 2;
++		u32 pid_fsm_save_reg1              : 2;
++		u32 pid_fsm_save_reg0              : 2;
++	} pid_filter_30c_ext_ind_6;
++
++	struct {
++		u32 unused                         :22;
++		u32 pass_alltables                 : 1;
++		u32 AB_select                      : 1;
++		u32 extra_index_reg                : 3;
++		u32 index_reg                      : 5;
++	} index_reg_310;
++
++	struct {
++		u32 reserved                       :17;
++		u32 PID_enable_bit                 : 1;
++		u32 PID_trans                      : 1;
++		u32 PID                            :13;
++	} pid_n_reg_314;
++
++	struct {
++		u32 reserved                       : 6;
++		u32 HighAB_bit                     : 1;
++		u32 Enable_bit                     : 1;
++		u32 A6_byte                        : 8;
++		u32 A5_byte                        : 8;
++		u32 A4_byte                        : 8;
++	} mac_low_reg_318;
++
++	struct {
++		u32 reserved                       : 8;
++		u32 A3_byte                        : 8;
++		u32 A2_byte                        : 8;
++		u32 A1_byte                        : 8;
++	} mac_high_reg_31c;
++
++	struct {
++		u32 data_Tag_ID                    :16;
++		u32 reserved                       :16;
++	} data_tag_400;
++
++	struct {
++		u32 Card_IDbyte3                   : 8;
++		u32 Card_IDbyte4                   : 8;
++		u32 Card_IDbyte5                   : 8;
++		u32 Card_IDbyte6                   : 8;
++	} card_id_408;
++
++	struct {
++		u32 Card_IDbyte1                   : 8;
++		u32 Card_IDbyte2                   : 8;
++	} card_id_40c;
++
++	struct {
++		u32 MAC6                           : 8;
++		u32 MAC3                           : 8;
++		u32 MAC2                           : 8;
++		u32 MAC1                           : 8;
++	} mac_address_418;
++
++	struct {
++		u32 reserved                       :16;
++		u32 MAC8                           : 8;
++		u32 MAC7                           : 8;
++	} mac_address_41c;
++
++	struct {
++		u32 reserved                       :21;
++		u32 txbuffempty                    : 1;
++		u32 ReceiveByteFrameError          : 1;
++		u32 ReceiveDataReady               : 1;
++		u32 transmitter_data_byte          : 8;
++	} ci_600;
++
++	struct {
++		u32 pi_component_reg               : 3;
++		u32 pi_rw                          : 1;
++		u32 pi_ha                          :20;
++		u32 pi_d                           : 8;
++	} pi_604;
++
++	struct {
++		u32 pi_busy_n                      : 1;
++		u32 pi_wait_n                      : 1;
++		u32 pi_timeout_status              : 1;
++		u32 pi_CiMax_IRQ_n                 : 1;
++		u32 config_cclk                    : 1;
++		u32 config_cs_n                    : 1;
++		u32 config_wr_n                    : 1;
++		u32 config_Prog_n                  : 1;
++		u32 config_Init_stat               : 1;
++		u32 config_Done_stat               : 1;
++		u32 pcmcia_b_mod_pwr_n             : 1;
++		u32 pcmcia_a_mod_pwr_n             : 1;
++		u32 reserved                       : 3;
++		u32 Timer_addr                     : 5;
++		u32 unused                         : 1;
++		u32 timer_data                     : 7;
++		u32 Timer_Load_req                 : 1;
++		u32 Timer_Read_req                 : 1;
++		u32 oncecycle_read                 : 1;
++		u32 serialReset                    : 1;
++	} pi_608;
++
++	struct {
++		u32 reserved                       : 6;
++		u32 rw_flag                        : 1;
++		u32 dvb_en                         : 1;
++		u32 key_array_row                  : 5;
++		u32 key_array_col                  : 3;
++		u32 key_code                       : 2;
++		u32 key_enable                     : 1;
++		u32 PID                            :13;
++	} dvb_reg_60c;
++
++	struct {
++		u32 start_sram_ibi                 : 1;
++		u32 reserved2                      : 1;
++		u32 ce_pin_reg                     : 1;
++		u32 oe_pin_reg                     : 1;
++		u32 reserved1                      : 3;
++		u32 sc_xfer_bit                    : 1;
++		u32 sram_data                      : 8;
++		u32 sram_rw                        : 1;
++		u32 sram_addr                      :15;
++	} sram_ctrl_reg_700;
++
++	struct {
++		u32 net_addr_write                 :16;
++		u32 net_addr_read                  :16;
++	} net_buf_reg_704;
++
++	struct {
++		u32 cai_cnt                        : 4;
++		u32 reserved2                      : 6;
++		u32 cai_write                      :11;
++		u32 reserved1                      : 5;
++		u32 cai_read                       :11;
++	} cai_buf_reg_708;
++
++	struct {
++		u32 cao_cnt                        : 4;
++		u32 reserved2                      : 6;
++		u32 cap_write                      :11;
++		u32 reserved1                      : 5;
++		u32 cao_read                       :11;
++	} cao_buf_reg_70c;
++
++	struct {
++		u32 media_cnt                      : 4;
++		u32 reserved2                      : 6;
++		u32 media_write                    :11;
++		u32 reserved1                      : 5;
++		u32 media_read                     :11;
++	} media_buf_reg_710;
++
++	struct {
++		u32 reserved                       :17;
++		u32 ctrl_maximumfill               : 1;
++		u32 ctrl_sramdma                   : 1;
++		u32 ctrl_usb_wan                   : 1;
++		u32 cao_ovflow_error               : 1;
++		u32 cai_ovflow_error               : 1;
++		u32 media_ovflow_error             : 1;
++		u32 net_ovflow_error               : 1;
++		u32 MEDIA_Dest                     : 2;
++		u32 CAO_Dest                       : 2;
++		u32 CAI_Dest                       : 2;
++		u32 NET_Dest                       : 2;
++	} sram_dest_reg_714;
++
++	struct {
++		u32 reserved3                      :11;
++		u32 net_addr_write                 : 1;
++		u32 reserved2                      : 3;
++		u32 net_addr_read                  : 1;
++		u32 reserved1                      : 4;
++		u32 net_cnt                        :12;
++	} net_buf_reg_718;
++
++	struct {
++		u32 reserved3                      : 4;
++		u32 wan_pkt_frame                  : 4;
++		u32 reserved2                      : 4;
++		u32 sram_memmap                    : 2;
++		u32 sram_chip                      : 2;
++		u32 wan_wait_state                 : 8;
++		u32 reserved1                      : 6;
++		u32 wan_speed_sig                  : 2;
++	} wan_ctrl_reg_71c;
++} flexcop_ibi_value;
++
++#endif
+Index: linux-2.6.12-git8/drivers/media/dvb/b2c2/flexcop_ibi_value_le.h
 ===================================================================
---- linux-2.6.12-git8.orig/drivers/media/dvb/ttpci/Kconfig	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.12-git8/drivers/media/dvb/ttpci/Kconfig	2005-06-27 13:24:15.000000000 +0200
-@@ -12,7 +12,7 @@ config DVB_AV7110
- 	select DVB_STV0297
- 	select DVB_L64781
- 	help
--	  Support for SAA7146 and AV7110 based DVB cards as produced 
-+	  Support for SAA7146 and AV7110 based DVB cards as produced
- 	  by Fujitsu-Siemens, Technotrend, Hauppauge and others.
- 
- 	  This driver only supports the fullfeatured cards with
-@@ -33,7 +33,7 @@ config DVB_AV7110_FIRMWARE
- 	  If you want to compile the firmware into the driver you need to say
- 	  Y here and provide the correct path of the firmware. You need this
- 	  option if you want to compile the whole driver statically into the
--	  kernel. 
-+	  kernel.
- 
- 	  All other people say N.
- 
-@@ -66,6 +66,7 @@ config DVB_BUDGET
- 	select DVB_L64781
- 	select DVB_TDA8083
- 	select DVB_TDA10021
-+	select DVB_S5H1420
- 	help
- 	  Support for simple SAA7146 based DVB cards
- 	  (so called Budget- or Nova-PCI cards) without onboard
-@@ -119,9 +120,9 @@ config DVB_BUDGET_PATCH
- 	select DVB_VES1X93
- 	select DVB_TDA8083
- 	help
--	  Support for Budget Patch (full TS) modification on 
-+	  Support for Budget Patch (full TS) modification on
- 	  SAA7146+AV7110 based cards (DVB-S cards). This
--	  driver doesn't use onboard MPEG2 decoder. The 
-+	  driver doesn't use onboard MPEG2 decoder. The
- 	  card is driven in Budget-only mode. Card is
- 	  required to have loaded firmware to tune properly.
- 	  Firmware can be loaded by insertion and removal of
-Index: linux-2.6.12-git8/drivers/media/dvb/ttpci/budget.c
-===================================================================
---- linux-2.6.12-git8.orig/drivers/media/dvb/ttpci/budget.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.12-git8/drivers/media/dvb/ttpci/budget.c	2005-06-27 13:24:15.000000000 +0200
-@@ -40,6 +40,7 @@
- #include "ves1820.h"
- #include "l64781.h"
- #include "tda8083.h"
-+#include "s5h1420.h"
- 
- static void Set22K (struct budget *budget, int state)
- {
-@@ -177,6 +178,62 @@ static int budget_diseqc_send_burst(stru
- 	return 0;
- }
- 
-+static int lnbp21_set_voltage(struct dvb_frontend* fe, fe_sec_voltage_t voltage)
-+{
-+	struct budget* budget = (struct budget*) fe->dvb->priv;
-+	u8 buf;
-+	struct i2c_msg msg = { .addr = 0x08, .flags = I2C_M_RD, .buf = &buf, .len = sizeof(buf) };
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6.12-git8/drivers/media/dvb/b2c2/flexcop_ibi_value_le.h	2005-06-27 13:24:09.000000000 +0200
+@@ -0,0 +1,451 @@
++/* This file is part of linux driver for digital TV devices equipped with B2C2 FlexcopII(b)/III
++ *
++ * register descriptions
++ *
++ * see flexcop.c for copyright information.
++ */
 +
-+	if (i2c_transfer (&budget->i2c_adap, &msg, 1) != 1) return -EIO;
++/* This file is automatically generated, do not edit things here. */
++#ifndef __FLEXCOP_IBI_VALUE_INCLUDED__
++#define __FLEXCOP_IBI_VALUE_INCLUDED__
 +
-+	switch(voltage) {
-+	case SEC_VOLTAGE_13:
-+		buf = (buf & 0xf7) | 0x04;
-+		break;
++typedef union {
++	u32 raw;
 +
-+	case SEC_VOLTAGE_18:
-+		buf = (buf & 0xf7) | 0x0c;
-+		break;
++	struct {
++		u32 dma_0start                     : 1;
++		u32 dma_0No_update                 : 1;
++		u32 dma_address0                   :30;
++	} dma_0x0;
 +
-+	case SEC_VOLTAGE_OFF:
-+		buf = buf & 0xf0;
-+		break;
-+	}
++	struct {
++		u32 DMA_maxpackets                 : 8;
++		u32 dma_addr_size                  :24;
++	} dma_0x4_remap;
 +
-+	msg.flags = 0;
-+	if (i2c_transfer (&budget->i2c_adap, &msg, 1) != 1) return -EIO;
++	struct {
++		u32 dma1timer                      : 7;
++		u32 unused                         : 1;
++		u32 dma_addr_size                  :24;
++	} dma_0x4_read;
 +
-+	return 0;
-+}
++	struct {
++		u32 unused                         : 1;
++		u32 dmatimer                       : 7;
++		u32 dma_addr_size                  :24;
++	} dma_0x4_write;
 +
-+static int lnbp21_enable_high_lnb_voltage(struct dvb_frontend* fe, int arg)
-+{
-+	struct budget* budget = (struct budget*) fe->dvb->priv;
-+	u8 buf;
-+	struct i2c_msg msg = { .addr = 0x08, .flags = I2C_M_RD, .buf = &buf, .len = sizeof(buf) };
++	struct {
++		u32 unused                         : 2;
++		u32 dma_cur_addr                   :30;
++	} dma_0x8;
 +
-+	if (i2c_transfer (&budget->i2c_adap, &msg, 1) != 1) return -EIO;
++	struct {
++		u32 dma_1start                     : 1;
++		u32 remap_enable                   : 1;
++		u32 dma_address1                   :30;
++	} dma_0xc;
 +
-+	if (arg) {
-+		buf = buf | 0x10;
-+	} else {
-+		buf = buf & 0xef;
-+	}
++	struct {
++		u32 chipaddr                       : 7;
++		u32 reserved1                      : 1;
++		u32 baseaddr                       : 8;
++		u32 data1_reg                      : 8;
++		u32 working_start                  : 1;
++		u32 twoWS_rw                       : 1;
++		u32 total_bytes                    : 2;
++		u32 twoWS_port_reg                 : 2;
++		u32 no_base_addr_ack_error         : 1;
++		u32 st_done                        : 1;
++	} tw_sm_c_100;
 +
-+	msg.flags = 0;
-+	if (i2c_transfer (&budget->i2c_adap, &msg, 1) != 1) return -EIO;
++	struct {
++		u32 data2_reg                      : 8;
++		u32 data3_reg                      : 8;
++		u32 data4_reg                      : 8;
++		u32 exlicit_stops                  : 1;
++		u32 force_stop                     : 1;
++		u32 unused                         : 6;
++	} tw_sm_c_104;
 +
-+	return 0;
-+}
++	struct {
++		u32 thi1                           : 6;
++		u32 reserved1                      : 2;
++		u32 tlo1                           : 5;
++		u32 reserved2                      :19;
++	} tw_sm_c_108;
 +
-+static void lnbp21_init(struct budget* budget)
-+{
-+	u8 buf = 0x00;
-+	struct i2c_msg msg = { .addr = 0x08, .flags = 0, .buf = &buf, .len = sizeof(buf) };
++	struct {
++		u32 thi1                           : 6;
++		u32 reserved1                      : 2;
++		u32 tlo1                           : 5;
++		u32 reserved2                      :19;
++	} tw_sm_c_10c;
 +
-+	i2c_transfer (&budget->i2c_adap, &msg, 1);
-+}
++	struct {
++		u32 thi1                           : 6;
++		u32 reserved1                      : 2;
++		u32 tlo1                           : 5;
++		u32 reserved2                      :19;
++	} tw_sm_c_110;
 +
- static int alps_bsrv2_pll_set(struct dvb_frontend* fe, struct dvb_frontend_parameters* params)
- {
- 	struct budget* budget = (struct budget*) fe->dvb->priv;
-@@ -395,6 +452,38 @@ static struct tda8083_config grundig_295
- 	.pll_set = grundig_29504_451_pll_set,
- };
- 
-+static int s5h1420_pll_set(struct dvb_frontend* fe, struct dvb_frontend_parameters* params, u32* freqout)
-+{
-+	struct budget* budget = (struct budget*) fe->dvb->priv;
-+	u32 div;
-+	u8 data[4];
-+	struct i2c_msg msg = { .addr = 0x61, .flags = 0, .buf = data, .len = sizeof(data) };
++	struct {
++		u32 LNB_CTLHighCount_sig           :15;
++		u32 LNB_CTLLowCount_sig            :15;
++		u32 LNB_CTLPrescaler_sig           : 2;
++	} lnb_switch_freq_200;
 +
-+	div = params->frequency / 1000;
-+	data[0] = (div >> 8) & 0x7f;
-+	data[1] = div & 0xff;
-+	data[2] = 0xc2;
++	struct {
++		u32 ACPI1_sig                      : 1;
++		u32 ACPI3_sig                      : 1;
++		u32 LNB_L_H_sig                    : 1;
++		u32 Per_reset_sig                  : 1;
++		u32 reserved                       :20;
++		u32 Rev_N_sig_revision_hi          : 4;
++		u32 Rev_N_sig_reserved1            : 2;
++		u32 Rev_N_sig_caps                 : 1;
++		u32 Rev_N_sig_reserved2            : 1;
++	} misc_204;
 +
-+	if (div < 1450)
-+		data[3] = 0x00;
-+	else if (div < 1850)
-+		data[3] = 0x40;
-+	else if (div < 2000)
-+		data[3] = 0x80;
-+	else
-+		data[3] = 0xc0;
++	struct {
++		u32 Stream1_filter_sig             : 1;
++		u32 Stream2_filter_sig             : 1;
++		u32 PCR_filter_sig                 : 1;
++		u32 PMT_filter_sig                 : 1;
++		u32 EMM_filter_sig                 : 1;
++		u32 ECM_filter_sig                 : 1;
++		u32 Null_filter_sig                : 1;
++		u32 Mask_filter_sig                : 1;
++		u32 WAN_Enable_sig                 : 1;
++		u32 WAN_CA_Enable_sig              : 1;
++		u32 CA_Enable_sig                  : 1;
++		u32 SMC_Enable_sig                 : 1;
++		u32 Per_CA_Enable_sig              : 1;
++		u32 Multi2_Enable_sig              : 1;
++		u32 MAC_filter_Mode_sig            : 1;
++		u32 Rcv_Data_sig                   : 1;
++		u32 DMA1_IRQ_Enable_sig            : 1;
++		u32 DMA1_Timer_Enable_sig          : 1;
++		u32 DMA2_IRQ_Enable_sig            : 1;
++		u32 DMA2_Timer_Enable_sig          : 1;
++		u32 DMA1_Size_IRQ_Enable_sig       : 1;
++		u32 DMA2_Size_IRQ_Enable_sig       : 1;
++		u32 Mailbox_from_V8_Enable_sig     : 1;
++		u32 unused                         : 9;
++	} ctrl_208;
 +
-+	if (i2c_transfer (&budget->i2c_adap, &msg, 1) != 1) return -EIO;
++	struct {
++		u32 DMA1_IRQ_Status                : 1;
++		u32 DMA1_Timer_Status              : 1;
++		u32 DMA2_IRQ_Status                : 1;
++		u32 DMA2_Timer_Status              : 1;
++		u32 DMA1_Size_IRQ_Status           : 1;
++		u32 DMA2_Size_IRQ_Status           : 1;
++		u32 Mailbox_from_V8_Status_sig     : 1;
++		u32 Data_receiver_error            : 1;
++		u32 Continuity_error_flag          : 1;
++		u32 LLC_SNAP_FLAG_set              : 1;
++		u32 Transport_Error                : 1;
++		u32 reserved                       :21;
++	} irq_20c;
 +
-+	*freqout = div * 1000;
-+	return 0;
-+}
++	struct {
++		u32 reset_blocks                   : 8;
++		u32 Block_reset_enable             : 8;
++		u32 Special_controls               :16;
++	} sw_reset_210;
 +
-+static struct s5h1420_config s5h1420_config = {
-+	.demod_address = 0x53,
-+	.pll_set = s5h1420_pll_set,
-+};
++	struct {
++		u32 vuart_oe_sig                   : 1;
++		u32 v2WS_oe_sig                    : 1;
++		u32 halt_V8_sig                    : 1;
++		u32 section_pkg_enable_sig         : 1;
++		u32 s2p_sel_sig                    : 1;
++		u32 unused1                        : 3;
++		u32 polarity_PS_CLK_sig            : 1;
++		u32 polarity_PS_VALID_sig          : 1;
++		u32 polarity_PS_SYNC_sig           : 1;
++		u32 polarity_PS_ERR_sig            : 1;
++		u32 unused2                        :20;
++	} misc_214;
 +
- static u8 read_pwm(struct budget* budget)
- {
- 	u8 b = 0xff;
-@@ -459,6 +548,15 @@ static void frontend_init(struct budget 
- 			break;
- 		}
- 		break;
++	struct {
++		u32 Mailbox_from_V8                :32;
++	} mbox_v8_to_host_218;
 +
-+	case 0x1016: // Hauppauge/TT Nova-S SE (samsung s5h1420/????(tda8260))
-+		budget->dvb_frontend = s5h1420_attach(&s5h1420_config, &budget->i2c_adap);
-+		if (budget->dvb_frontend) {
-+			budget->dvb_frontend->ops->set_voltage = lnbp21_set_voltage;
-+			budget->dvb_frontend->ops->enable_high_lnb_voltage = lnbp21_enable_high_lnb_voltage;
-+			lnbp21_init(budget);
-+			break;
-+		}
- 	}
- 
- 	if (budget->dvb_frontend == NULL) {
-@@ -532,6 +630,7 @@ static struct pci_device_id pci_tbl[] = 
- 	MAKE_EXTENSION_PCI(ttbc,  0x13c2, 0x1004),
- 	MAKE_EXTENSION_PCI(ttbt,  0x13c2, 0x1005),
- 	MAKE_EXTENSION_PCI(satel, 0x13c2, 0x1013),
-+	MAKE_EXTENSION_PCI(ttbs,  0x13c2, 0x1016),
- 	MAKE_EXTENSION_PCI(fsacs1,0x1131, 0x4f60),
- 	MAKE_EXTENSION_PCI(fsacs0,0x1131, 0x4f61),
- 	{
++	struct {
++		u32 sysramaccess_data              : 8;
++		u32 sysramaccess_addr              :15;
++		u32 unused                         : 7;
++		u32 sysramaccess_write             : 1;
++		u32 sysramaccess_busmuster         : 1;
++	} mbox_host_to_v8_21c;
++
++	struct {
++		u32 Stream1_PID                    :13;
++		u32 Stream1_trans                  : 1;
++		u32 MAC_Multicast_filter           : 1;
++		u32 debug_flag_pid_saved           : 1;
++		u32 Stream2_PID                    :13;
++		u32 Stream2_trans                  : 1;
++		u32 debug_flag_write_status00      : 1;
++		u32 debug_fifo_problem             : 1;
++	} pid_filter_300;
++
++	struct {
++		u32 PCR_PID                        :13;
++		u32 PCR_trans                      : 1;
++		u32 debug_overrun3                 : 1;
++		u32 debug_overrun2                 : 1;
++		u32 PMT_PID                        :13;
++		u32 PMT_trans                      : 1;
++		u32 reserved                       : 2;
++	} pid_filter_304;
++
++	struct {
++		u32 EMM_PID                        :13;
++		u32 EMM_trans                      : 1;
++		u32 EMM_filter_4                   : 1;
++		u32 EMM_filter_6                   : 1;
++		u32 ECM_PID                        :13;
++		u32 ECM_trans                      : 1;
++		u32 reserved                       : 2;
++	} pid_filter_308;
++
++	struct {
++		u32 Group_PID                      :13;
++		u32 Group_trans                    : 1;
++		u32 unused1                        : 2;
++		u32 Group_mask                     :13;
++		u32 unused2                        : 3;
++	} pid_filter_30c_ext_ind_0_7;
++
++	struct {
++		u32 net_master_read                :17;
++		u32 unused                         :15;
++	} pid_filter_30c_ext_ind_1;
++
++	struct {
++		u32 net_master_write               :17;
++		u32 unused                         :15;
++	} pid_filter_30c_ext_ind_2;
++
++	struct {
++		u32 next_net_master_write          :17;
++		u32 unused                         :15;
++	} pid_filter_30c_ext_ind_3;
++
++	struct {
++		u32 unused1                        : 1;
++		u32 state_write                    :10;
++		u32 reserved1                      : 6;
++		u32 stack_read                     :10;
++		u32 reserved2                      : 5;
++	} pid_filter_30c_ext_ind_4;
++
++	struct {
++		u32 stack_cnt                      :10;
++		u32 unused                         :22;
++	} pid_filter_30c_ext_ind_5;
++
++	struct {
++		u32 pid_fsm_save_reg0              : 2;
++		u32 pid_fsm_save_reg1              : 2;
++		u32 pid_fsm_save_reg2              : 2;
++		u32 pid_fsm_save_reg3              : 2;
++		u32 pid_fsm_save_reg4              : 2;
++		u32 pid_fsm_save_reg300            : 2;
++		u32 write_status1                  : 2;
++		u32 write_status4                  : 2;
++		u32 data_size_reg                  :12;
++		u32 unused                         : 4;
++	} pid_filter_30c_ext_ind_6;
++
++	struct {
++		u32 index_reg                      : 5;
++		u32 extra_index_reg                : 3;
++		u32 AB_select                      : 1;
++		u32 pass_alltables                 : 1;
++		u32 unused                         :22;
++	} index_reg_310;
++
++	struct {
++		u32 PID                            :13;
++		u32 PID_trans                      : 1;
++		u32 PID_enable_bit                 : 1;
++		u32 reserved                       :17;
++	} pid_n_reg_314;
++
++	struct {
++		u32 A4_byte                        : 8;
++		u32 A5_byte                        : 8;
++		u32 A6_byte                        : 8;
++		u32 Enable_bit                     : 1;
++		u32 HighAB_bit                     : 1;
++		u32 reserved                       : 6;
++	} mac_low_reg_318;
++
++	struct {
++		u32 A1_byte                        : 8;
++		u32 A2_byte                        : 8;
++		u32 A3_byte                        : 8;
++		u32 reserved                       : 8;
++	} mac_high_reg_31c;
++
++	struct {
++		u32 reserved                       :16;
++		u32 data_Tag_ID                    :16;
++	} data_tag_400;
++
++	struct {
++		u32 Card_IDbyte6                   : 8;
++		u32 Card_IDbyte5                   : 8;
++		u32 Card_IDbyte4                   : 8;
++		u32 Card_IDbyte3                   : 8;
++	} card_id_408;
++
++	struct {
++		u32 Card_IDbyte2                   : 8;
++		u32 Card_IDbyte1                   : 8;
++	} card_id_40c;
++
++	struct {
++		u32 MAC1                           : 8;
++		u32 MAC2                           : 8;
++		u32 MAC3                           : 8;
++		u32 MAC6                           : 8;
++	} mac_address_418;
++
++	struct {
++		u32 MAC7                           : 8;
++		u32 MAC8                           : 8;
++		u32 reserved                       :16;
++	} mac_address_41c;
++
++	struct {
++		u32 transmitter_data_byte          : 8;
++		u32 ReceiveDataReady               : 1;
++		u32 ReceiveByteFrameError          : 1;
++		u32 txbuffempty                    : 1;
++		u32 reserved                       :21;
++	} ci_600;
++
++	struct {
++		u32 pi_d                           : 8;
++		u32 pi_ha                          :20;
++		u32 pi_rw                          : 1;
++		u32 pi_component_reg               : 3;
++	} pi_604;
++
++	struct {
++		u32 serialReset                    : 1;
++		u32 oncecycle_read                 : 1;
++		u32 Timer_Read_req                 : 1;
++		u32 Timer_Load_req                 : 1;
++		u32 timer_data                     : 7;
++		u32 unused                         : 1;
++		u32 Timer_addr                     : 5;
++		u32 reserved                       : 3;
++		u32 pcmcia_a_mod_pwr_n             : 1;
++		u32 pcmcia_b_mod_pwr_n             : 1;
++		u32 config_Done_stat               : 1;
++		u32 config_Init_stat               : 1;
++		u32 config_Prog_n                  : 1;
++		u32 config_wr_n                    : 1;
++		u32 config_cs_n                    : 1;
++		u32 config_cclk                    : 1;
++		u32 pi_CiMax_IRQ_n                 : 1;
++		u32 pi_timeout_status              : 1;
++		u32 pi_wait_n                      : 1;
++		u32 pi_busy_n                      : 1;
++	} pi_608;
++
++	struct {
++		u32 PID                            :13;
++		u32 key_enable                     : 1;
++		u32 key_code                       : 2;
++		u32 key_array_col                  : 3;
++		u32 key_array_row                  : 5;
++		u32 dvb_en                         : 1;
++		u32 rw_flag                        : 1;
++		u32 reserved                       : 6;
++	} dvb_reg_60c;
++
++	struct {
++		u32 sram_addr                      :15;
++		u32 sram_rw                        : 1;
++		u32 sram_data                      : 8;
++		u32 sc_xfer_bit                    : 1;
++		u32 reserved1                      : 3;
++		u32 oe_pin_reg                     : 1;
++		u32 ce_pin_reg                     : 1;
++		u32 reserved2                      : 1;
++		u32 start_sram_ibi                 : 1;
++	} sram_ctrl_reg_700;
++
++	struct {
++		u32 net_addr_read                  :16;
++		u32 net_addr_write                 :16;
++	} net_buf_reg_704;
++
++	struct {
++		u32 cai_read                       :11;
++		u32 reserved1                      : 5;
++		u32 cai_write                      :11;
++		u32 reserved2                      : 6;
++		u32 cai_cnt                        : 4;
++	} cai_buf_reg_708;
++
++	struct {
++		u32 cao_read                       :11;
++		u32 reserved1                      : 5;
++		u32 cap_write                      :11;
++		u32 reserved2                      : 6;
++		u32 cao_cnt                        : 4;
++	} cao_buf_reg_70c;
++
++	struct {
++		u32 media_read                     :11;
++		u32 reserved1                      : 5;
++		u32 media_write                    :11;
++		u32 reserved2                      : 6;
++		u32 media_cnt                      : 4;
++	} media_buf_reg_710;
++
++	struct {
++		u32 NET_Dest                       : 2;
++		u32 CAI_Dest                       : 2;
++		u32 CAO_Dest                       : 2;
++		u32 MEDIA_Dest                     : 2;
++		u32 net_ovflow_error               : 1;
++		u32 media_ovflow_error             : 1;
++		u32 cai_ovflow_error               : 1;
++		u32 cao_ovflow_error               : 1;
++		u32 ctrl_usb_wan                   : 1;
++		u32 ctrl_sramdma                   : 1;
++		u32 ctrl_maximumfill               : 1;
++		u32 reserved                       :17;
++	} sram_dest_reg_714;
++
++	struct {
++		u32 net_cnt                        :12;
++		u32 reserved1                      : 4;
++		u32 net_addr_read                  : 1;
++		u32 reserved2                      : 3;
++		u32 net_addr_write                 : 1;
++		u32 reserved3                      :11;
++	} net_buf_reg_718;
++
++	struct {
++		u32 wan_speed_sig                  : 2;
++		u32 reserved1                      : 6;
++		u32 wan_wait_state                 : 8;
++		u32 sram_chip                      : 2;
++		u32 sram_memmap                    : 2;
++		u32 reserved2                      : 4;
++		u32 wan_pkt_frame                  : 4;
++		u32 reserved3                      : 4;
++	} wan_ctrl_reg_71c;
++} flexcop_ibi_value;
++
++#endif
 
 --
 

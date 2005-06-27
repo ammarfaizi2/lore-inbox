@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261755AbVF0OvV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261188AbVF0Ov2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261755AbVF0OvV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 10:51:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261730AbVF0Os7
+	id S261188AbVF0Ov2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 10:51:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261737AbVF0OtT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 10:48:59 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:47568 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S262122AbVF0MoK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 08:44:10 -0400
-Message-ID: <42BFF496.3040105@pobox.com>
-Date: Mon, 27 Jun 2005 08:44:06 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-CC: Netdev List <netdev@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [git patches] 2.6.x more net driver updates
-References: <42BFEF86.8090000@pobox.com>
-In-Reply-To: <42BFEF86.8090000@pobox.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 27 Jun 2005 10:49:19 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:10445 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S261199AbVF0MpV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 08:45:21 -0400
+References: <84144f0205062223226d560e41@mail.gmail.com>
+            <42BB0151.3030904@suse.de>
+            <20050623114318.5ae13514.akpm@osdl.org>
+            <20050623193247.GC6814@suse.de>
+            <1119717967.9392.2.camel@localhost>
+            <20050627072449.GF19550@suse.de>
+            <20050627072832.GA14251@wotan.suse.de>
+            <Pine.LNX.4.58.0506271048310.26869@sbz-30.cs.Helsinki.FI>
+            <20050627082046.GC14251@wotan.suse.de>
+            <Pine.LNX.4.58.0506271525240.3200@sbz-30.cs.Helsinki.FI>
+            <20050627123821.GE14251@wotan.suse.de>
+In-Reply-To: <20050627123821.GE14251@wotan.suse.de>
+From: "Pekka J Enberg" <penberg@cs.helsinki.fi>
+To: Andi Kleen <ak@suse.de>
+Cc: Pekka J Enberg <penberg@cs.Helsinki.FI>, Jens Axboe <axboe@suse.de>,
+       Andrew Morton <akpm@osdl.org>, Jeff Mahoney <jeffm@suse.de>,
+       penberg@gmail.com, reiser@namesys.com, flx@namesys.com, zam@namesys.com,
+       vs@thebsh.namesys.com, linux-kernel@vger.kernel.org,
+       reiserfs-list@namesys.com, joern@wohnheim.fh-wedel.de
+Subject: Re: verbose BUG_ON reporting
+Date: Mon, 27 Jun 2005 15:45:12 +0300
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed; charset="utf-8,iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Message-ID: <courier.42BFF4D8.000010AF@courier.cs.helsinki.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Please pull from the 'upstream' branch of
-> rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/netdev-2.6.git
-> 
-> to obtain the various changes described in the attachment.
+Andi Kleen writes:
+> It's still useless - it is too bloated to turn on by default
+> and then if you need it you still won't have it.  And when you
+> explicitely turn it on then you likely don't need it because
+> you control the source.
 
-Or, if you wanted to be experimental, you could pull tag (not branch) 
-'upstream-20050627-1' of
-rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/netdev-2.6.git
+Hmm. Would a BUG_ON_WITH_TEXT be a better solution? The home-grown assert 
+macro in reiser4 can't be a long-term solution if people really want this 
+kind of functionality. Btw, the bloat argument applies to assertion codes 
+too. 
 
-to obtain the same changes.
-
-I think I will start using tags for my submissions, which will eliminate 
-an old problem with BK:  After emailing a BitKeeper pull request to you, 
-I had to stop pushing to the repo, until you pulled.  With tags, I can 
-keep on committing changes, without worrying that you are pulling from a 
-moving target.
-
-	Jeff
-
-
+                   Pekka 

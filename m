@@ -1,71 +1,185 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261997AbVF0Lf1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261931AbVF0LhP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261997AbVF0Lf1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 07:35:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261992AbVF0Le3
+	id S261931AbVF0LhP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 07:37:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261991AbVF0LhP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 07:34:29 -0400
-Received: from 135.80-203-45.nextgentel.com ([80.203.45.135]:10290 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261931AbVF0LeQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 07:34:16 -0400
-Subject: Re: [2.6 patch] lib/zlib*: possible cleanups
-From: Kjartan Maraas <kmaraas@broadpark.no>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050621133738.GM3666@stusta.de>
-References: <20050620234326.GG3666@stusta.de>
-	 <20050620172920.541f4112.akpm@osdl.org>  <20050621133738.GM3666@stusta.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 27 Jun 2005 10:51:58 +0200
-Message-Id: <1119862318.2760.18.camel@localhost.localdomain>
+	Mon, 27 Jun 2005 07:37:15 -0400
+Received: from wproxy.gmail.com ([64.233.184.197]:35830 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261931AbVF0Lgc convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 07:36:32 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=YLc/vNNZQC3YA5gNaCxdV5obg1kinp+w2NwwJqN5DGcPspNFmyPXguypdrAEqApT1N5gyBfZ1hgTVVv/YCZrrq8a9JwPztlLiOhGoqkQjgz9QKc92ASPPpvMvQOnZVI5JtGnpMBQSOyovH2v+76F8zitG2TxB5O5ubB3Q98fPbs=
+Message-ID: <cc27d5b105062704367ae2e44@mail.gmail.com>
+Date: Mon, 27 Jun 2005 13:36:30 +0200
+From: Paolo Marchetti <natryum@gmail.com>
+Reply-To: Paolo Marchetti <natryum@gmail.com>
+To: Peter Chubb <peter@chubb.wattle.id.au>,
+       kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] cpufreq: ondemand+conservative=condemand
+In-Reply-To: <17087.18663.601754.480257@wombat.chubb.wattle.id.au>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-8) 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <cc27d5b10506251801320fde44@mail.gmail.com>
+	 <17087.18663.601754.480257@wombat.chubb.wattle.id.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tir, 21,.06.2005 kl. 15.37 +0200, skrev Adrian Bunk:
-> On Mon, Jun 20, 2005 at 05:29:20PM -0700, Andrew Morton wrote:
-> > Adrian Bunk <bunk@stusta.de> wrote:
-> > >
-> > > - #if 0 the following unused functions:
-> > >   - zlib_deflate/deflate.c: zlib_deflateSetDictionary
-> > >   - zlib_deflate/deflate.c: zlib_deflateParams
-> > >   - zlib_deflate/deflate.c: zlib_deflateCopy
-> > >   - zlib_inflate/infblock.c: zlib_inflate_set_dictionary
-> > >   - zlib_inflate/infblock.c: zlib_inflate_blocks_sync_point
-> > >   - zlib_inflate/inflate_sync.c: zlib_inflateSync
-> > >   - zlib_inflate/inflate_sync.c: zlib_inflateSyncPoint
-> > 
-> > OK...
-> > 
-> > > - remove the following unneeded EXPORT_SYMBOL's:
-> > >   - zlib_deflate/deflate_syms.c: zlib_deflateCopy
-> > >   - zlib_deflate/deflate_syms.c: zlib_deflateParams
-> > >   - zlib_inflate/inflate_syms.c: zlib_inflateSync
-> > >   - zlib_inflate/inflate_syms.c: zlib_inflateSyncPoint
-> > 
-> > Adrian, I've dropped just about every "remove the following unneeded
-> > EXPORT_SYMBOL's" I've seen in the past several months.  We've been round this
-> > numerous times.
-> > 
-> > The question is, who are we screwing if we remove these?
-> > 
-> > It's difficult to answer, but we need to answer it.
+On 6/27/05, Peter Chubb <peter@chubb.wattle.id.au> wrote:
+> >>>>> "Paolo" == Paolo Marchetti <natryum@gmail.com> writes:
+> 
+> >> Just change defaults in conservative governor to make it more
+> >> responsive.
+> >>
+> Paolo> Alexey, I played with conservative governor trying to make it
+> Paolo> work decently on my p4 with no results.  As you know it works
+> Paolo> but it isn't responsive, it takes eons to step up/down.
+> 
+> You can always use a userspace governer.  I've attached the one I use.
+> 
+> Every five seconds (you can make it faster if you wish, but that seems
+> about right for my usage patterns), the program reads the load
+> average, and decides whether to adjust the CPU frequency.  If the one
+> second load average is above $FASTTRESHHOLD, the frequency will be
+> stepped up by $FASTINC; otherwise if it's above $SLOWTHRESHHOLD, it's
+> incremented by $SLOWINC.  If the 15-second load average is below
+> $DECTHRESSHOLD, the frequency is stepped downwards by $DEC.  So you
+> get fast increases, and slow decreases, but becasue the time constant
+> for the decrease is long, you can get good response for a load spike,
+> then fairly rapid decrease.  The aim is to keep the load average
+> around 0.9.
 > 
 > 
-> I'm sorry, but I'm not getting your point:
+> --
+> #!/bin/sh
 > 
-> First, you ACK the part of my patch to #if 0 unused functions.
+> # Seconds to sleep between adjustments
+> INTERVAL=5
 > 
-> Then you complain that I've documented which EXPORT_SYMBOL's I have to 
-> remove because I have #if 0'ed the functions they are exporting.
+> # The controller increments the throttling state by FASTINC
+> # if the load average is over FASTTRHESHHOLD.
+> # Thresholds are in percentage points load average -- i.e., the one
+> # second  load average of 1.0 corresponds to a threshold of 100.
+> FASTINC=3
+> FASTTHRESHOLD=100
+> # Slow increment
+> SLOWINC=1
+> SLOWTHRESHOLD=80
+> # Decrement
+> DEC=1
+> DECTHRESHOLD=500
 > 
-The way I read it the "OK..." wasn't an agreement with the first hunk
-but more of a prelude to the following comment. Or maybe I got it all
-wrong too :-)
-
-Cheers
-Kjartan
-
+> cd /sys/devices/system/cpu/cpu0/cpufreq
+> 
+> # Do some parameter checks.
+> [ $FASTTHRESHOLD -le $SLOWTHRESHOLD ] && {
+>     echo >&2 "Fast Threshold $FASTTHRESHOLD must be greater than the"
+>     echo >&2 "slow threshold $SLOWTHRESHOLD"
+>     exit 1
+> }
+> 
+> [ \( $SLOWINC -ge 1 \) -a  \( $FASTINC -ge 1 \) -a \( $DEC -ge 1 \) ] || {
+>     echo >&2 "Increments must all be small integers in the range 1 to  7"
+>     exit 1
+> }
+> 
+> # convert a two dec place number to an int scaled by 100.
+> function to_int()
+> {
+>         val=$1
+>         OIFS="$IFS"
+>         IFS="."
+>         set  $val
+>         IFS="$OIFS"
+>         expr $1 \* 100 + $2
+> }
+> 
+> # get load averages
+> function loadavg()
+> {
+>         read onesec fivesec fifteensec rest < /proc/loadavg
+>         onesec=`to_int $onesec`
+>         fifteensec=`to_int $fifteensec`
+> }
+> 
+> function getspeeds()
+> {
+>     echo userspace > scaling_governor
+>     set `cat scaling_available_frequencies`
+>     i=0
+>     for j
+>     do
+>         i=`expr $i + 1`
+>         eval speed$i=$j
+>     done
+>     nspeeds=$i
+> }
+> 
+> # Get current throttling factor.
+> # This can be changed automatically by the BIOS in response to power
+> # events (e.g., AC coming on line).
+> function throttle() {
+>         < scaling_cur_freq read curfreq
+>         i=1;
+>         while [ $i -lt $nspeeds ]
+>         do
+>             eval [ \$speed$i -eq 0$curfreq ] && expr $nspeeds - $i
+>             i=`expr $i + 1`
+>         done
+> }
+> 
+> function set_speed() {
+>         x=`expr $nspeeds - $1`
+>         eval speed=\$speed$x
+>         echo $speed  > scaling_setspeed
+> }
+> 
+> # Increase the effective processor speed.
+> function up()
+> {
+>          [ $current_throttle -eq 0 ] || {
+>                 current_throttle=`expr $current_throttle - $1`
+>                 [ $current_throttle -lt 0 ] && current_throttle=0
+>                 set_speed $current_throttle
+>          }
+> }
+> 
+> # Decrease the effective processor speed.
+> function down()
+> {
+>          [ $current_throttle -eq $nspeeds ] || {
+>                 current_throttle=`expr $current_throttle + $1`
+>                 [ $current_throttle -gt $nspeeds ] && current_throttle=$nspeeds
+>                 set_speed $current_throttle
+>         }
+> }
+> 
+> 
+> getspeeds
+> current_throttle=`throttle`
+> while sleep $INTERVAL
+> do
+>         loadavg
+> 
+>         # Go up fast, then tail off.
+>         #
+>         if [ $onesec -gt $FASTTHRESHOLD ]
+>         then
+>                 up $FASTINC
+>         elif [ $onesec -gt $SLOWTHRESHOLD ]
+>         then
+>                 up $SLOWINC
+>         elif [ $fifteensec -lt $DECTHRESHOLD ]
+>         then
+>                 down $DEC
+>         fi
+> done
+> 
+Thank you, I'll try it.
+Unfortunately the problem is: how to get conservative governor work
+decently on a p4 laptop?

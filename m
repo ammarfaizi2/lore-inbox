@@ -1,56 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261748AbVF0PEb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261742AbVF0PCk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261748AbVF0PEb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 11:04:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261778AbVF0PCv
+	id S261742AbVF0PCk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 11:02:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262044AbVF0O4u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 11:02:51 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:33960 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262064AbVF0OKj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 10:10:39 -0400
-Date: Mon, 27 Jun 2005 10:09:14 -0400
-From: Neil Horman <nhorman@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: greg@kroah.com, jeff.garzik@pobox.com, akpm@osdl.org, torvalds@osdl.org
-Subject: [Patch] Janitorial cleanup of GET_INDEX macro in arch/i386/pci/fixup.c
-Message-ID: <20050627140914.GD20880@hmsendeavour.rdu.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 27 Jun 2005 10:56:50 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:62692 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S261986AbVF0NVS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 09:21:18 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Oliver Neukum <oliver@neukum.org>
+Subject: Re: [RFC] Driver writer's guide to sleeping
+Date: Mon, 27 Jun 2005 16:20:52 +0300
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org
+References: <200506251250.18133.vda@ilport.com.ua> <200506251454.36745.vda@ilport.com.ua> <200506262138.03708.oliver@neukum.org>
+In-Reply-To: <200506262138.03708.oliver@neukum.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Message-Id: <200506271620.52836.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch to clean up the implementation of the GET_INDEX macro in the i386 pci
-fixup code so that it uses the PCI_DEVFN macro, rather than re-implements it.
+On Sunday 26 June 2005 22:38, Oliver Neukum wrote:
+> Am Samstag, 25. Juni 2005 13:54 schrieb Denis Vlasenko:
+> > On Saturday 25 June 2005 14:29, Oliver Neukum wrote:
+> > > On Sat, 25 Jun 2005, Denis Vlasenko wrote:
+> > > 
+> > > > schedule_timeout(timeout)
+> > > > 	Whee, it has a comment! :)
+> > > >  * %TASK_UNINTERRUPTIBLE - at least @timeout jiffies are guaranteed to
+> > > >  * pass before the routine returns. The routine will return 0
+> > [snip]
+> > > > 	Thus:
+> > > > 	set_current_state(TASK_[UN]INTERRUPTIBLE);
+> > > > 	schedule_timeout(timeout_in_jiffies)
+> > > > 
+> > > > msleep(ms)
+> > > > 	Sleeps at least ms msecs.
+> > > > 	Equivalent to:
+> > > > 	set_current_state(TASK_UNINTERRUPTIBLE);
+> > > > 	schedule_timeout(timeout)
+> > > 
+> > > If and only if you are not on any waitqueue. You may not be interrupted
+> > > by a signal, but you still can be woken with an explicit wake_up()
+> > 
+> > Like this?
+> 
+> Yes, but we have macros for that. You are supposed to use them.
 
-Thanks and Regards
-Neil
+Erm.. I meant "Shall we correct that comment then, like this?".
+Comment is plain wrong now.
+--
+vda
 
-Signed-off-by: Neil Horman <nhorman@redhat.com>
-
- fixup.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-
---- linux-2.6.git/arch/i386/pci/fixup.c.orig	2005-06-27 09:42:31.000000000 -0400
-+++ linux-2.6.git/arch/i386/pci/fixup.c	2005-06-27 09:43:46.000000000 -0400
-@@ -253,7 +253,7 @@
- #define MAX_PCIEROOT	6
- static int quirk_aspm_offset[MAX_PCIEROOT << 3];
- 
--#define GET_INDEX(a, b) ((((a) - PCI_DEVICE_ID_INTEL_MCH_PA) << 3) + ((b) & 7))
-+#define GET_INDEX(a, b) PCI_DEVFN((a - PCI_DEVICE_ID_INTEL_MCH_PA),b)
- 
- static int quirk_pcie_aspm_read(struct pci_bus *bus, unsigned int devfn, int where, int size, u32 *value)
- {
--- 
-/***************************************************
- *Neil Horman
- *Software Engineer
- *Red Hat, Inc.
- *nhorman@redhat.com
- *gpg keyid: 1024D / 0x92A74FA1
- *http://pgp.mit.edu
- ***************************************************/

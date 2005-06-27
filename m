@@ -1,60 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262104AbVF0XKk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262118AbVF0XYY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262104AbVF0XKk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 19:10:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262092AbVF0XJN
+	id S262118AbVF0XYY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 19:24:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262140AbVF0XVf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 19:09:13 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:50105 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262081AbVF0XGJ (ORCPT
+	Mon, 27 Jun 2005 19:21:35 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:15300 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S262126AbVF0XTc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 19:06:09 -0400
-Date: Mon, 27 Jun 2005 16:03:29 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: akpm@osdl.org, "Theodore Ts'o" <tytso@mit.edu>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Justin Forbes <jmforbes@linuxtx.org>,
-       Randy Dunlap <rdunlap@xenotime.net>, torvalds@osdl.org,
-       Chuck Wolber <chuckw@quantumlinux.com>, alan@lxorguk.ukuu.org.uk,
-       jgarzik@pobox.com
-Subject: [06/07] ACPI: Make sure we call acpi_register_gsi() even for default PCI interrupt assignment
-Message-ID: <20050627230329.GO9046@shell0.pdx.osdl.net>
-References: <20050627224651.GI9046@shell0.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050627224651.GI9046@shell0.pdx.osdl.net>
-User-Agent: Mutt/1.5.6i
+	Mon, 27 Jun 2005 19:19:32 -0400
+Message-ID: <42C0897A.8010705@adaptec.com>
+Date: Mon, 27 Jun 2005 19:19:22 -0400
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>
+Subject: Question on "embedded" classes
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 27 Jun 2005 23:18:34.0612 (UTC) FILETIME=[8A41E340:01C57B6E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
--stable review patch.  If anyone has any objections, please let us know.
+Hi,
 
-------------------
+I was wondering what the reason was for allowing
+class and classdev to only be at level 3 and level
+4 respectively of sysfs (/ is level 0)?
 
+1) Some devices would not have any relevance
+ouside the scope of the "parent" device.
+2) "Hooking" them all at /sys/class/ level
+would create quite a lot of symlinks (and with
+cryptic names in order to reference the proper
+"parent" device in the same directory).
 
-From: Linus Torvalds <torvalds@ppc970.osdl.org>
+E.g. Some devices, like SAS host adapters, have "devices
+inside devices" and I'd like to represent this in
+sysfs.
 
-ACPI: Make sure we call acpi_register_gsi() even for default PCI interrupt assignment
+/sys/class/sas          (a class)
+/sys/class/sas/ha0/     (a classdev)
+/sys/class/sas/ha1/     (a classdev)
 
-That's the part that keeps track of the ELCR register, and we want to
-make sure that the PCI interrupts are properly marked level/low.
+/sys/class/sas/ha0/device -> symlink to PCI device
+/sys/class/sas/ha0/device_name    (text attribute)
 
-Signed-off-by: Chris Wright <chrisw@osdl.org>
----
+/sys/class/sas/ha0/phys/     (a class)
+/sys/class/sas/ha0/phys/0/   (a classdev)
 
- drivers/acpi/pci_irq.c |    1 +
- 1 files changed, 1 insertion(+)
+etc.
 
-diff --git a/drivers/acpi/pci_irq.c b/drivers/acpi/pci_irq.c
---- a/drivers/acpi/pci_irq.c
-+++ b/drivers/acpi/pci_irq.c
-@@ -435,6 +435,7 @@ acpi_pci_irq_enable (
- 		/* Interrupt Line values above 0xF are forbidden */
- 		if (dev->irq >= 0 && (dev->irq <= 0xF)) {
- 			printk(" - using IRQ %d\n", dev->irq);
-+			acpi_register_gsi(dev->irq, ACPI_LEVEL_SENSITIVE, ACPI_ACTIVE_LOW);
- 			return_VALUE(0);
- 		}
- 		else {
+Question: how does one "marry" the class to the classdev?
+
+Or what is the alternative?
+
+Thanks,
+	Luben
+

@@ -1,38 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261942AbVF0Izk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261959AbVF0I50@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261942AbVF0Izk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 04:55:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261948AbVF0Izk
+	id S261959AbVF0I50 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 04:57:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261957AbVF0I50
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 04:55:40 -0400
-Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:22144 "EHLO
-	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S261942AbVF0Izf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 04:55:35 -0400
-From: Grant Coady <grant_lkml@dodo.com.au>
-To: Dominik Brodowski <linux@dominikbrodowski.net>
-Cc: Andrew Morton <akpm@osdl.org>, greg@kroah.com, rajesh.shah@intel.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: ACPI-based PCI resources: PCMCIA bugfix, but resources missing in trees
-Date: Mon, 27 Jun 2005 18:55:29 +1000
-Organization: <http://scatter.mine.nu/>
-Message-ID: <5nevb1l7n9igqinfr2a24t80h89a317hco@4ax.com>
-References: <20050626040329.3849cf68.akpm@osdl.org> <20050626140411.GA8597@dominikbrodowski.de> <06lub192nippc5a4fkju7gfr18kmv33aqn@4ax.com> <20050627055931.GA5387@isilmar.linta.de>
-In-Reply-To: <20050627055931.GA5387@isilmar.linta.de>
-X-Mailer: Forte Agent 2.0/32.652
+	Mon, 27 Jun 2005 04:57:26 -0400
+Received: from sj-iport-5.cisco.com ([171.68.10.87]:7612 "EHLO
+	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
+	id S261948AbVF0I5R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 04:57:17 -0400
+X-IronPort-AV: i="3.93,234,1115017200"; 
+   d="scan'208"; a="194479957:sNHT25822876"
+Message-ID: <42BFBF5B.7080301@cisco.com>
+Date: Mon, 27 Jun 2005 18:56:59 +1000
+From: Lincoln Dale <ltd@cisco.com>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: [rfc] lockless pagecache
+References: <42BF9CD1.2030102@yahoo.com.au> <20050627004624.53f0415e.akpm@osdl.org> <42BFB287.5060104@yahoo.com.au>
+In-Reply-To: <42BFB287.5060104@yahoo.com.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Jun 2005 07:59:31 +0200, Dominik Brodowski <linux@dominikbrodowski.net> wrote:
->
->Does reverting
->http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12/2.6.12-mm2/broken-out/gregkh-pci-pci-collect-host-bridge-resources-02.patch
->help in your case?
+Nick Piggin wrote:
+[..]
 
-CardBus 32-bit NIC appeared with this patch reverted :)
+> However I think for Oracle and others that use shared memory like
+> this, they are probably not doing linear access, so that would be a
+> net loss. I'm not completely sure (I don't have access to real loads
+> at the moment), but I would have thought those guys would have looked
+> into fault ahead if it were a possibility.
 
---Grant.
+i thought those guys used O_DIRECT - in which case, wouldn't the page 
+cache not be used?
 
+
+cheers,
+
+lincoln.

@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261883AbVF0N0f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261983AbVF0N0g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261883AbVF0N0f (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 09:26:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261717AbVF0NZb
+	id S261983AbVF0N0g (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 09:26:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261662AbVF0NY7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 09:25:31 -0400
-Received: from ipx10786.ipxserver.de ([80.190.251.108]:18149 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S262063AbVF0MQk
+	Mon, 27 Jun 2005 09:24:59 -0400
+Received: from ipx10786.ipxserver.de ([80.190.251.108]:17637 "EHLO
+	allen.werkleitz.de") by vger.kernel.org with ESMTP id S262062AbVF0MQj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 08:16:40 -0400
-Message-Id: <20050627121418.220489000@abc>
+	Mon, 27 Jun 2005 08:16:39 -0400
+Message-Id: <20050627121419.015924000@abc>
 References: <20050627120600.739151000@abc>
-Date: Mon, 27 Jun 2005 14:06:43 +0200
+Date: Mon, 27 Jun 2005 14:06:47 +0200
 From: Johannes Stezenbach <js@linuxtv.org>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, Patrick Boettcher <pb@linuxtv.org>
-Content-Disposition: inline; filename=dvb-usb-cxusb-fixes.patch
+Content-Disposition: inline; filename=dvb-usb-doc-update2.patch
 X-SA-Exim-Connect-IP: 84.189.248.249
-Subject: [DVB patch 43/51] usb: cxusb DVB-T fixes
+Subject: [DVB patch 47/51] usb Kconfig help text update
 X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
 X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
 Sender: linux-kernel-owner@vger.kernel.org
@@ -25,79 +25,57 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Patrick Boettcher <pb@linuxtv.org>
 
-cxusb DVB-T fixes.
+o corrected some typos
+o added the Wikilink pointing to the USB device list
 
 Signed-off-by: Patrick Boettcher <pb@linuxtv.org>
 Signed-off-by: Johannes Stezenbach <js@linuxtv.org>
 
- drivers/media/dvb/dvb-usb/cxusb.c |   22 +++++++++++++++-------
- 1 files changed, 15 insertions(+), 7 deletions(-)
+ drivers/media/dvb/dvb-usb/Kconfig |   16 +++++++++-------
+ 1 files changed, 9 insertions(+), 7 deletions(-)
 
-Index: linux-2.6.12-git8/drivers/media/dvb/dvb-usb/cxusb.c
+Index: linux-2.6.12-git8/drivers/media/dvb/dvb-usb/Kconfig
 ===================================================================
---- linux-2.6.12-git8.orig/drivers/media/dvb/dvb-usb/cxusb.c	2005-06-27 13:26:10.000000000 +0200
-+++ linux-2.6.12-git8/drivers/media/dvb/dvb-usb/cxusb.c	2005-06-27 13:26:15.000000000 +0200
-@@ -14,9 +14,6 @@
-  * TODO: check if the cx25840-driver (from ivtv) can be used for the analogue
-  * part
-  *
-- * FIXME: We're getting a lock and signal, but the isochronous transfer is empty
-- * for DVB-T.
-- *
-  * Copyright (C) 2005 Patrick Boettcher (patrick.boettcher@desy.de)
-  *
-  *	This program is free software; you can redistribute it and/or modify it
-@@ -157,12 +154,20 @@ static int cxusb_power_ctrl(struct dvb_u
+--- linux-2.6.12-git8.orig/drivers/media/dvb/dvb-usb/Kconfig	2005-06-27 13:26:10.000000000 +0200
++++ linux-2.6.12-git8/drivers/media/dvb/dvb-usb/Kconfig	2005-06-27 13:26:19.000000000 +0200
+@@ -3,19 +3,22 @@ config DVB_USB
+ 	depends on DVB_CORE && USB
+ 	select FW_LOADER
+ 	help
+-	  By enabling this you will be able to choose the various USB 1.1 and
+-	  USB2.0 DVB devices.
++	  By enabling this you will be able to choose the various supported
++	  USB1.1 and USB2.0 DVB devices.
  
- static int cxusb_streaming_ctrl(struct dvb_usb_device *d, int onoff)
- {
-+	u8 buf[2] = { 0x03, 0x00 };
-+	if (onoff)
-+		cxusb_ctrl_msg(d,0x36, buf, 2, NULL, 0);
-+	else
-+		cxusb_ctrl_msg(d,0x37, NULL, 0, NULL, 0);
+ 	  Almost every USB device needs a firmware, please look into
+-	  <file:Documentation/dvb/README.dvb-usb>
++	  <file:Documentation/dvb/README.dvb-usb>.
+ 
+-	  Say Y if you own an USB DVB device.
++	  For a complete list of supported USB devices see the LinuxTV DVB Wiki:
++	  <http://www.linuxtv.org/wiki/index.php/DVB_USB>
 +
- 	return 0;
- }
++	  Say Y if you own a USB DVB device.
  
- struct cx22702_config cxusb_cx22702_config = {
- 	.demod_address = 0x63,
+ config DVB_USB_DEBUG
+ 	bool "Enable extended debug support for all DVB-USB devices"
+ 	depends on DVB_USB
+ 	help
+-	  Say Y if you want to enable debuging. See modinfo dvb-usb (and the
++	  Say Y if you want to enable debugging. See modinfo dvb-usb (and the
+ 	  appropriate drivers) for debug levels.
  
-+	.output_mode = CX22702_PARALLEL_OUTPUT,
-+
- 	.pll_init = dvb_usb_pll_init_i2c,
- 	.pll_set  = dvb_usb_pll_set_i2c,
- };
-@@ -182,12 +187,15 @@ static int cxusb_frontend_attach(struct 
- 	u8 buf[2] = { 0x03, 0x00 };
- 	u8 b = 0;
+ config DVB_USB_A800
+@@ -79,8 +82,7 @@ config DVB_USB_CXUSB
+ 	select DVB_CX22702
+ 	help
+ 	  Say Y here to support the Medion MD95700 hybrid USB2.0 device. Currently
+-	  only the DVB-T part is supported and MPEG2 data transfer are not working
+-	  :(.
++	  only the DVB-T part is supported.
  
-+	if (usb_set_interface(d->udev,0,0) < 0)
-+		err("set interface to alts=0 failed");
-+
- 	cxusb_ctrl_msg(d,0xde,&b,0,NULL,0);
- 	cxusb_set_i2c_path(d,PATH_TUNER_OTHER);
- 	cxusb_ctrl_msg(d,CMD_POWER_OFF, NULL, 0, &b, 1);
- 
- 	if (usb_set_interface(d->udev,0,6) < 0)
--		err("set interface failed\n");
-+		err("set interface failed");
- 
- 	cxusb_ctrl_msg(d,0x36, buf, 2, NULL, 0);
- 	cxusb_set_i2c_path(d,PATH_CX22702);
-@@ -236,9 +244,9 @@ static struct dvb_usb_properties cxusb_p
- 		.endpoint = 0x02,
- 		.u = {
- 			.isoc = {
--				.framesperurb = 64,
--				.framesize = 940*3,
--				.interval = 1,
-+				.framesperurb = 32,
-+				.framesize = 940,
-+				.interval = 5,
- 			}
- 		}
- 	},
+ config DVB_USB_DIGITV
+ 	tristate "Nebula Electronics uDigiTV DVB-T USB2.0 support"
 
 --
 

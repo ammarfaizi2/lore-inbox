@@ -1,46 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261959AbVF0I50@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261948AbVF0I6L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261959AbVF0I50 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 04:57:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261957AbVF0I50
+	id S261948AbVF0I6L (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 04:58:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261957AbVF0I6L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 04:57:26 -0400
-Received: from sj-iport-5.cisco.com ([171.68.10.87]:7612 "EHLO
-	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
-	id S261948AbVF0I5R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 04:57:17 -0400
-X-IronPort-AV: i="3.93,234,1115017200"; 
-   d="scan'208"; a="194479957:sNHT25822876"
-Message-ID: <42BFBF5B.7080301@cisco.com>
-Date: Mon, 27 Jun 2005 18:56:59 +1000
-From: Lincoln Dale <ltd@cisco.com>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: [rfc] lockless pagecache
-References: <42BF9CD1.2030102@yahoo.com.au> <20050627004624.53f0415e.akpm@osdl.org> <42BFB287.5060104@yahoo.com.au>
-In-Reply-To: <42BFB287.5060104@yahoo.com.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 27 Jun 2005 04:58:11 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:36754 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261948AbVF0I6B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 04:58:01 -0400
+Date: Mon, 27 Jun 2005 09:57:55 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Alexander Zarochentcev <zam@namesys.com>, Jeff Garzik <jgarzik@pobox.com>,
+       reiserfs-list@namesys.com, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: reiser4 plugins
+Message-ID: <20050627085755.GA5015@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Hans Reiser <reiser@namesys.com>,
+	Alexander Zarochentcev <zam@namesys.com>,
+	Jeff Garzik <jgarzik@pobox.com>, reiserfs-list@namesys.com,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20050620235458.5b437274.akpm@osdl.org> <42B8B9EE.7020002@namesys.com> <42B8BB5E.8090008@pobox.com> <200506221824.32995.zam@namesys.com> <20050622142947.GA26993@infradead.org> <42BA2ED5.6040309@namesys.com> <20050626164606.GA18942@infradead.org> <42BF3D6B.7000404@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42BF3D6B.7000404@namesys.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-[..]
+On Sun, Jun 26, 2005 at 04:42:35PM -0700, Hans Reiser wrote:
+> >I'm a bit confused about what you're saying here.  What does the 'vector'
+> >in all these expressions mean?
+> >  
+> >
+> Was your word, I thought, for the *_operation structures.
 
-> However I think for Oracle and others that use shared memory like
-> this, they are probably not doing linear access, so that would be a
-> net loss. I'm not completely sure (I don't have access to real loads
-> at the moment), but I would have thought those guys would have looked
-> into fault ahead if it were a possibility.
+We tend to use the term operation vectors, yes.  But that's a different
+terminology that doesn't mix up very well with the OO terminology.
 
-i thought those guys used O_DIRECT - in which case, wouldn't the page 
-cache not be used?
+> So, rather than having a hierarchy, in which we first select filesystem,
+> and then select plugin, VFS should treat each plugin as though it was a
+> filesystem, if I understand you.
 
+Kinda.  The VFS doesn't have knowledge about what constitutes a file
+system driver, we register filesystems only to know what routine to
+call in on a mount with a particular filesystem type - the structure that
+does describe a filesystem (struct file_system_type) thus is very small.
+Starting from there the filesystem has always been able to use different
+methods for different objects (that's something very different from the
+vnode-based VFSes in the other UNIX variants).  
 
-cheers,
+> Plugins and pluginids continue to exist
+> with the exact same functionality, we just eliminate a function
+> dereference for the *_operation structures. Let's see how it codes up in
+> its details.
 
-lincoln.
+For the file and dir plugin that's pretty much that case.  What's more
+problematic is your security plugins.  With LSM we alredy have an
+infrastructure to provide pluggable access control.  If there actually
+was an implementation of "security" (it's actually access control) for it
+besides the default unix permission one it should move to an LSM.  You
+could even make your lsm part of the reiser4 module and poke into reiser4
+directly from a technical point of view.

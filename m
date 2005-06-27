@@ -1,81 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261199AbVF0Ov3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261283AbVF0R3X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261199AbVF0Ov3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 10:51:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261738AbVF0Ote
+	id S261283AbVF0R3X (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 13:29:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261291AbVF0R3X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 10:49:34 -0400
-Received: from holomorphy.com ([66.93.40.71]:5073 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S262181AbVF0M5S (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 08:57:18 -0400
-Date: Mon, 27 Jun 2005 05:56:49 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Levent Serinol <lserinol@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       riel@redhat.com
-Subject: Re: [PATCH] enable/disable profiling via proc/sysctl
-Message-ID: <20050627125649.GJ3334@holomorphy.com>
-References: <2c1942a705062623411b7e88c3@mail.gmail.com> <20050627000125.1a6f8a91.akpm@osdl.org> <2c1942a7050627051357e9b532@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2c1942a7050627051357e9b532@mail.gmail.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.9i
+	Mon, 27 Jun 2005 13:29:23 -0400
+Received: from vms040pub.verizon.net ([206.46.252.40]:6345 "EHLO
+	vms040pub.verizon.net") by vger.kernel.org with ESMTP
+	id S261283AbVF0R3Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 13:29:16 -0400
+Date: Mon, 27 Jun 2005 13:29:14 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
+In-reply-to: <20050627081712.GB15096@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Ingo Molnar <mingo@elte.hu>, William Weston <weston@sysex.net>,
+       "K.R. Foley" <kr@cybsft.com>, "Eugeny S. Mints" <emints@ru.mvista.com>,
+       Daniel Walker <dwalker@mvista.com>
+Message-id: <200506271329.14562.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <Pine.LNX.4.58.0506211228210.16701@echo.lysdexia.org>
+ <200506270143.47690.gene.heskett@verizon.net> <20050627081712.GB15096@elte.hu>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 27, 2005 at 03:13:13PM +0300, Levent Serinol wrote:
-> +#ifdef CONFIG_SMP
-> +int remove_hash_tables(void)
-> +{
-> +	int cpu;
-> +
-> +
-> +	for_each_online_cpu(cpu) {
-> +		struct page *page;
-> +
-> +		if (per_cpu(cpu_profile_hits, cpu)[0]) {
-> +			page = virt_to_page(per_cpu(cpu_profile_hits, cpu)[0]);
-> +			per_cpu(cpu_profile_hits, cpu)[0] = NULL;
-> +			__free_page(page);
-> +		}
-> +		if (per_cpu(cpu_profile_hits, cpu)[1]) {
-> +			page = virt_to_page(per_cpu(cpu_profile_hits, cpu)[1]);
-> +			per_cpu(cpu_profile_hits, cpu)[1] = NULL;
-> +			__free_page(page);
-> +		}
-> +	}
-> +	return -1;
+On Monday 27 June 2005 04:17, Ingo Molnar wrote:
+>* Gene Heskett <gene.heskett@verizon.net> wrote:
+>> In the FWIW category, I booted 50-23 about an hour & a half ago,
+>> same mode 3, no hardirq's, everything seems to be working fine
+>> except for kmails total lack of threading causeing composer hangs
+>> while a mail fetch/spamassassin run is in progress.  But thats not
+>> anything new to this patchset, its an equal opportunity annoyer.
+>
+>does the patch below make the kmail starvation go away?
+>
+I put in the comment and its building now.  I rather doubt its going 
+to make a huge diff though as its probably the single most repeated 
+bitch on the kmail lists, and has been for a long, very long as in 
+years, time.  From hints dropped here and there, it might finally be 
+fixed with kde-3.5.  But we'll give this a shot nontheless.  I'll add 
+more after I reboot to test.
 
-Big problem. Timer interrupts can be firing while this is in progress.
-The reason for profile_nop() is so that the code I have running during
-timer interrupts (protected by local_irq_save()) runs to completion,
-where it will afterward discover the flags or variables set to updated
-states. You'll probably have to add more (e.g. memory barriers) since
-you can tolerate less once you're dynamically allocating and freeing etc.
+Now rebooted.
 
+I don't think its made a noticable difference, I'm still getting the 
+hangs of up to 30 seconds but I'll let it run the rest of the 
+afternoon so I get a better feel for it.  It doesn't often miss a 
+keystroke, they will eventually be echoed back to the screen.
 
-On Mon, Jun 27, 2005 at 03:13:13PM +0300, Levent Serinol wrote:
-> @@ -560,7 +668,11 @@ static int __init create_proc_profile(vo
->  		return 0;
->  	entry->proc_fops = &proc_profile_operations;
->  	entry->size = (1+prof_len) * sizeof(atomic_t);
-> -	hotcpu_notifier(profile_cpu_callback, 0);
-> +#ifdef CONFIG_HOTPLUG_CPU
-> +	register_cpu_notifier(&profile_cpu_notifier);
-> +#endif
-> +	profile_params[0] = prof_on;
-> +	profile_params[1] = prof_shift;
->  	return 0;
->  }
->  module_init(create_proc_profile);
+> Ingo
+>
+>Index: kernel/sched.c
+>===================================================================
+>--- kernel/sched.c.orig
+>+++ kernel/sched.c
+>@@ -1055,7 +1055,7 @@ static int try_to_wake_up(task_t * p, un
+>  /*
+>   * sync wakeups can increase wakeup latencies:
+> 	 */
+>-	if (rt_task(p))
+>+//	if (rt_task(p))
+> 		sync = 0;
+> #endif
+> 	rq = task_rq_lock(p, &flags);
 
-hotcpu_notifier() is there to avoid the #ifdef; you shouldn't need to
-rearrange that.
-
-Anyway, just keep fixing it up. There should be a few more after this.
-
-
--- wli
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.35% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

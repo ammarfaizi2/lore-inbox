@@ -1,227 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261867AbVF0WBn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261934AbVF0WEi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261867AbVF0WBn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 18:01:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261889AbVF0WBm
+	id S261934AbVF0WEi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 18:04:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261905AbVF0WEW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 18:01:42 -0400
-Received: from mail.kroah.org ([69.55.234.183]:58850 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261867AbVF0WAx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 18:00:53 -0400
-Date: Mon, 27 Jun 2005 15:00:42 -0700
-From: Greg KH <gregkh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: [GIT PATCH] USB patches for 2.6.12
-Message-ID: <20050627220042.GA23269@kroah.com>
+	Mon, 27 Jun 2005 18:04:22 -0400
+Received: from zproxy.gmail.com ([64.233.162.198]:60710 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261921AbVF0WDj convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 18:03:39 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=JIjUP9XttaVljOIfn0YVWJe5M5IDY8BPSFH4VZkPvT1UtFzAfUUan+IAtn85+OS/H2FB8ZV/fhl4wXCP4TMf4BSvsV5d6VSijRH2Q3Dc35UzbZJY6qAJM8S+Tt9DZycsrpT/ktUfwPSWVSJoAPbMIyNO3LrTV5n+Bn0N842yz6k=
+Message-ID: <4789af9e0506271503bc7a52f@mail.gmail.com>
+Date: Mon, 27 Jun 2005 16:03:35 -0600
+From: Jim Ramsay <jim.ramsay@gmail.com>
+Reply-To: Jim Ramsay <jim.ramsay@gmail.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: USB ohci vs ehci
+In-Reply-To: <4789af9e05062714493e18fe0b@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.5.8i
+References: <4789af9e05062714493e18fe0b@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are a bunch of USB patches against your latest git tree.  They include:
-	- new host controller driver
-	- rewrite of the usb atm driver
-	- lots of gadget fixes and changes
-	- USB OTG header definitions
-	- lots of usb host controller driver tweaks.
-	- loads of other fixes all over the place.
+I have an NEC-based 'UP215-N101' USB 2.0 PCI card which can apparently
+appear as a device under ohci-hcd or ehci-hcd, depending on which one
+is loaded.  If both modules are loaded, the device doesn't seem to
+work, as it is detected by both
 
-All of these patches have been in the -mm tree for the past few months.
+I would just load the ehci-hcd device, except that the on-board USB is
+only detected by ohci-hcd.
 
-Please pull from:
-	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/usb-2.6.git/
-or if master.kernel.org hasn't synced up yet:
-	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/usb-2.6.git/
+Is there some way to make ohci-hcd ignore a specific PCI device or
+devices?  Or is there a way ehci-hcd can tell ohci-hcd to 'forget'
+about a particular device if it exists in ehci-hcd as well?
 
-The full patches will be sent to the linux-usb-devel mailing lists, if
-anyone wants to see them.
+Output of `dmesg` after loading ohci-hcd.  The card in question is at
+pci 0000:00:10
 
-thanks,
+ohci_hcd 0000:00:01.3: PCI device 1283:1234 (Integrated Technology Express, Inc.
+)
+ohci_hcd 0000:00:01.3: irq 35, pci mem 0xd020000
+ohci_hcd 0000:00:01.3: new USB bus registered, assigned bus number 1
+hub 1-0:1.0: USB hub found
+hub 1-0:1.0: 2 ports detected
+ohci_hcd 0000:00:10.0: NEC Corporation USB
+ohci_hcd 0000:00:10.0: irq 40, pci mem 0xd021000
+ohci_hcd 0000:00:10.0: new USB bus registered, assigned bus number 2
+hub 2-0:1.0: USB hub found
+hub 2-0:1.0: 3 ports detected
+ohci_hcd 0000:00:10.1: NEC Corporation USB (#2)
+ohci_hcd 0000:00:10.1: irq 40, pci mem 0xd022000
+ohci_hcd 0000:00:10.1: new USB bus registered, assigned bus number 3
+hub 3-0:1.0: USB hub found
+hub 3-0:1.0: 2 ports detected
 
-greg k-h
+Output of `dmesg` after loading ehci-hcd:
 
+ehci_hcd 0000:00:10.2: NEC Corporation USB 2.0
+ehci_hcd 0000:00:10.2: irq 40, pci mem 0xd024000
+ehci_hcd 0000:00:10.2: new USB bus registered, assigned bus number 4
+ehci_hcd 0000:00:10.2: park 0
+ehci_hcd 0000:00:10.2: USB 2.0 initialized, EHCI 1.00, driver 10 Dec 2004
+hub 4-0:1.0: USB hub found
+hub 4-0:1.0: 5 ports detected
 
- arch/arm/mach-omap/usb.c          |    8 
- drivers/usb/Makefile              |    1 
- drivers/usb/atm/Kconfig           |   50 
- drivers/usb/atm/Makefile          |    7 
- drivers/usb/atm/cxacru.c          |  878 +++++++++++++++++
- drivers/usb/atm/speedtch.c        | 1103 ++++++++++-----------
- drivers/usb/atm/usb_atm.c         | 1188 -----------------------
- drivers/usb/atm/usb_atm.h         |  176 ---
- drivers/usb/atm/usbatm.c          | 1266 ++++++++++++++++++++++++-
- drivers/usb/atm/usbatm.h          |  186 +++
- drivers/usb/atm/xusbatm.c         |  196 +++
- drivers/usb/class/cdc-acm.c       |  209 +++-
- drivers/usb/class/cdc-acm.h       |   25 
- drivers/usb/class/usblp.c         |    3 
- drivers/usb/core/devio.c          |    6 
- drivers/usb/core/hcd.c            |  281 +++--
- drivers/usb/core/hcd.h            |   19 
- drivers/usb/core/hub.c            |   19 
- drivers/usb/core/hub.h            |   11 
- drivers/usb/gadget/Kconfig        |   11 
- drivers/usb/gadget/dummy_hcd.c    |  825 ++++++++++------
- drivers/usb/gadget/ether.c        |  359 ++-----
- drivers/usb/gadget/file_storage.c |   67 -
- drivers/usb/gadget/goku_udc.c     |   28 
- drivers/usb/gadget/inode.c        |   12 
- drivers/usb/gadget/ndis.h         |   14 
- drivers/usb/gadget/net2280.c      |   51 -
- drivers/usb/gadget/omap_udc.c     |  303 ++++--
- drivers/usb/gadget/omap_udc.h     |    4 
- drivers/usb/gadget/pxa2xx_udc.c   |   43 
- drivers/usb/gadget/pxa2xx_udc.h   |   10 
- drivers/usb/gadget/rndis.c        |  517 +++++-----
- drivers/usb/gadget/rndis.h        |   95 -
- drivers/usb/gadget/serial.c       |   36 
- drivers/usb/gadget/zero.c         |    6 
- drivers/usb/host/Kconfig          |   13 
- drivers/usb/host/Makefile         |    1 
- drivers/usb/host/ehci-dbg.c       |   59 +
- drivers/usb/host/ehci-hcd.c       |   58 -
- drivers/usb/host/ehci-hub.c       |    2 
- drivers/usb/host/ehci-q.c         |    2 
- drivers/usb/host/ehci-sched.c     |   17 
- drivers/usb/host/isp116x-hcd.c    | 1909 +++++++++++++++++++++++++++++++++++++-
- drivers/usb/host/isp116x.h        |  583 +++++++++++
- drivers/usb/host/ohci-hcd.c       |   60 -
- drivers/usb/host/ohci-mem.c       |    1 
- drivers/usb/host/ohci-omap.c      |    4 
- drivers/usb/host/ohci.h           |    2 
- drivers/usb/host/sl811-hcd.c      |   20 
- drivers/usb/host/uhci-debug.c     |   32 
- drivers/usb/host/uhci-hcd.c       | 1211 ++++++++++++------------
- drivers/usb/host/uhci-hcd.h       |   73 -
- drivers/usb/host/uhci-hub.c       |   91 +
- drivers/usb/host/uhci-q.c         |   58 -
- drivers/usb/input/ati_remote.c    |    1 
- drivers/usb/media/stv680.c        |    8 
- drivers/usb/media/stv680.h        |    5 
- drivers/usb/misc/idmouse.c        |  149 +-
- drivers/usb/misc/usbtest.c        |   60 +
- drivers/usb/net/usbnet.c          |    2 
- drivers/usb/net/zd1201.c          |   41 
- drivers/usb/net/zd1201.h          |    1 
- drivers/usb/serial/cyberjack.c    |   19 
- drivers/usb/serial/generic.c      |   24 
- drivers/usb/serial/ipaq.c         |    5 
- drivers/usb/serial/ipw.c          |   14 
- drivers/usb/serial/ir-usb.c       |   16 
- drivers/usb/serial/keyspan_pda.c  |   19 
- drivers/usb/serial/omninet.c      |   17 
- drivers/usb/serial/safe_serial.c  |   13 
- drivers/usb/serial/usb-serial.c   |    1 
- drivers/usb/serial/usb-serial.h   |    3 
- drivers/usb/storage/scsiglue.c    |   54 -
- drivers/usb/storage/scsiglue.h    |    1 
- drivers/usb/storage/transport.c   |  118 +-
- drivers/usb/storage/transport.h   |    1 
- include/asm-arm/arch-omap/usb.h   |    9 
- include/linux/usb_ch9.h           |  183 +++
- include/linux/usb_gadget.h        |    2 
- include/linux/usb_isp116x.h       |   47 
- 80 files changed, 8883 insertions(+), 4139 deletions(-)
+Output of `lspci -vv -s 10`:
 
----------------
+00:10.0 Class 0c03: 1033:0035 (rev 43) (prog-if 10)
+        Subsystem: 3083:0035
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr+ Step
+ping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort
+- <MAbort- >SERR- <PERR-
+        Latency: 252 (250ns min, 10500ns max), cache line size 08
+        Interrupt: pin A routed to IRQ 40
+        Region 0: Memory at 0d021000 (32-bit, non-prefetchable) [size=4K]
+        Capabilities: [40] Power Management version 2
+                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot
++,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 
-Alan Stern:
-  USB: usbcore: inverted test for resuming interfaces
-  USB UHCI: Detect invalid ports
-  USB: dummy_hcd: sparse cleanups
-  USB: dummy_hcd: add suspend/resume support
-  USB dummy_hcd: Centralize link state computations
-  USB dummy_hcd: Use separate pdevs for HC and UDC
-  USB dummy_hcd: Use root-hub interrupts instead of polling
-  USB: dummy_hcd: USB_PORT_FEAT changed to USB_PORT_STAT
-  USB dummy_hcd: Partial OTG emulation
-  ohci-omap, sl811, dummy: remove hub_set_power_budget
-  usbcore: register root hub in usb_add_hcd
-  USB HCDs: no longer need to register root hub
-  usbcore: Remove hub_set_power_budget
-  UHCI: Don't store device pointer in QH or TD
-  usbcore support for root-hub IRQ instead of polling
-  USB UHCI: Add shutdown method
-  USB UHCI: improved reset handling
-  USB UHCI: Use root-hub IRQs while suspended
-  USB UHCI: Fix up loose ends
-  USB UHCI: Minor improvements
-  USB UHCI: Add root hub states
-  USB UHCI: Add root-hub suspend/resume support
-  USB UHCI: subroutine reordering
-  USB: g_file_storage: export "stall" parameter
-  USB: g_file_storage: Consolidate min()s
+00:10.1 Class 0c03: 1033:0035 (rev 43) (prog-if 10)
+        Subsystem: 3083:0035
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr+ Step
+ping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort
+- <MAbort- >SERR- <PERR-
+        Latency: 252 (250ns min, 10500ns max), cache line size 08
+        Interrupt: pin B routed to IRQ 40
+        Region 0: Memory at 0d022000 (32-bit, non-prefetchable) [size=4K]
+        Capabilities: [40] Power Management version 2
+                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot
++,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 
-Andrew Morton:
-  USB: fix usbatm gcc-2.95.x bug
-  USB: fix speedtch.c merge with next patch.
+00:10.2 Class 0c03: 1033:00e0 (rev 04) (prog-if 20)
+        Subsystem: 3083:00e0
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr+ Step
+ping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort
+- <MAbort- >SERR- <PERR-
+        Latency: 252 (4000ns min, 8500ns max), cache line size 08
+        Interrupt: pin C routed to IRQ 40
+        Region 0: Memory at 0d024000 (32-bit, non-prefetchable) [size=256]
+        Capabilities: [40] Power Management version 2
+                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot
++,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 
-C. Adam Oldham:
-  USB: Fix race condition in usblp_write
-
-Colin Leroy:
-  USB: check for device in zd1201_resume
-  USB: PM support for zd1201
-
-David Brownell:
-  USB: usbnet debug message fix
-  USB: resolve ethernet gadget build glitch on pxa
-  USB: wireless usb <linux/usb_ch9.h> declarations
-  USB: ehci-hcd - fix page pointer allocation in itd_patch()
-  USB gadget: drain rndis response queue on disconnect
-  USB: fix drivers/usb/gadget/ether.c compile error
-  USB: misc ehci updates
-  USB: goku_udc updates (sparse, SETUP api change)
-  USB: pxa2xx_udc updates
-  USB: net2280 updates (sparse, SETUP api change)
-  USB: gadget driver updates (SETUP api change)
-  USB: Kconfig fixes for usb/gadget
-  USB: ethernet gadget updates (mostly cleanup)
-  USB: more omap_udc updates (dma and omap1710)
-  USB: rndis updates (mostly cleanup)
-  USB: usbtest updates
-  USB: add reboot notifier to ohci
-  USB: turn a user mode driver error into a hard error
-  USB: omap_udc updates (mostly cleanups)
-
-Domen Puncer:
-  USB: usblp: 2x up() in usblp_read
-
-Duncan Sands:
-  USB: usbatm kcalloc cleanup
-  USB ATM: avoid oops on bind failure; plug memory leak
-  USB ATM: reduce log spamming
-  USB ATM: bits and bobs
-  USB ATM: generic DSL modem driver xusbatm
-  USB ATM: port speedtch to new usbatm core
-  USB ATM: driver for the Conexant AccessRunner chipset cxacru
-  USB ATM: new usbatm core
-
-Florian Echtler:
-  USB: upgrade of the idmouse driver
-
-Greg Kroah-Hartman:
-  USB: add ability for usb-serial drivers to determine if their write urb is currently being used.
-
-Kiril Jovchev:
-  USB: add support for Creative WebCam mini to stv680 driver
-
-Matthew Dharm:
-  USB Storage: retry hard errors
-  USB Storage: port reset on transport error
-  USB Storage: endpoint toggles and reset delays
-
-Olav Kongas:
-  USB: Fix oops at rmmod after failed probe in isp116x-hcd
-  USB: Add isp116x-hcd USB host controller driver
-
-Oliver Neukum:
-  USB: fix acm trouble with terminals
-
-Vincent Vanackere:
-  USB: fix atiremote input doesn`t register `device` & `driver` section in sysfs (/sys/class/input/event#)
-
+-- 
+Jim Ramsay
+"Me fail English?  That's unpossible!"

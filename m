@@ -1,141 +1,145 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261580AbVF0Sbj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261581AbVF0SqW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261580AbVF0Sbj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 14:31:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261557AbVF0Sbi
+	id S261581AbVF0SqW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 14:46:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261582AbVF0SqW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 14:31:38 -0400
-Received: from station-6.events.itd.umich.edu ([141.211.252.135]:18155 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261552AbVF0SbY (ORCPT
+	Mon, 27 Jun 2005 14:46:22 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:30405 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261581AbVF0SqB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 14:31:24 -0400
-Date: Mon, 27 Jun 2005 20:31:18 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Git Mailing List <git@vger.kernel.org>, mercurial@selenic.com
-Subject: Re: Mercurial vs Updated git HOWTO for kernel hackers
-Message-ID: <20050627183118.GB1415@elf.ucw.cz>
-References: <42B9E536.60704@pobox.com> <20050623235634.GC14426@waste.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050623235634.GC14426@waste.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Mon, 27 Jun 2005 14:46:01 -0400
+To: Pavel Machek <pavel@ucw.cz>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       ckrm-tech@lists.sourceforge.net, Hubertus Franke <frankeh@us.ibm.com>,
+       Chandra Seetharaman <sekharan@us.ibm.com>,
+       Shailabh Nagar <nagar@us.ibm.com>, Vivek Kashyap <vivk@us.ibm.com>
+Reply-To: Gerrit Huizenga <gh@us.ibm.com>
+From: Gerrit Huizenga <gh@us.ibm.com>
+Subject: Re: [patch 08/38] CKRM e18: Documentation 
+In-reply-to: Your message of Sun, 26 Jun 2005 23:24:26 +0200.
+             <20050626212426.GB1315@elf.ucw.cz> 
+Date: Mon, 27 Jun 2005 11:45:32 -0700
+Message-Id: <E1Dmybs-0004I0-00@w-gerrit.beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > Things in git-land are moving at lightning speed, and usability has 
-> > improved a lot since my post a month ago:  http://lkml.org/lkml/2005/5/26/11
-> 
-> And here's a quick comparison with the current state of Mercurial..
-> 
-> > 1) installing git
-> > 
-> > git requires bootstrapping, since you must have git installed in order 
-> > to check out git.git (git repo), and linux-2.6.git (kernel repo).  I 
-> > have put together a bootstrap tarball of today's git repository.
-> > 
-> > Download tarball from:
-> > http://www.kernel.org/pub/linux/kernel/people/jgarzik/git-20050622.tar.bz2
-> > 
-> > tarball build-deps:  zlib, libcurl, libcrypto (openssl)
-> > 
-> > install tarball:  unpack && make && sudo make prefix=/usr/local install
-> > 
-> > jgarzik helper scripts, not in official git distribution:
-> > http://www.kernel.org/pub/linux/kernel/people/jgarzik/git-new-branch
-> > http://www.kernel.org/pub/linux/kernel/people/jgarzik/git-changes-script
-> > 
-> > After reading the rest of this document, come back and update your copy 
-> > of git to the latest:
-> > rsync://rsync.kernel.org/pub/scm/linux/kernel/git/torvalds/git.git
-> 
-> Download from: http://selenic.com/mercurial/mercurial-snapshot.tar.gz
-> Build-deps: Python 2.3
-> Install: unpack && python setup.py install [--home=/usr/local]
+Hi Pavel - thanks for the comments - responses below:
 
-Did that... (had to install python2.3-dev, first), but got...
-
-> $ mkdir linux-2.6
-> $ cd linux-2.6
-> $ hg init http://www.kernel.org/hg/    # obviously you can also browse this
+On Sun, 26 Jun 2005 23:24:26 +0200, Pavel Machek wrote:
+> > +CKRM Basics
+> > +-------------
 > 
-> This downloads about 125M of data, which include the whole kernel history
-> back to 2.4.0 and everything in Linus' git repo as well.
+> Perhaps you want to explain what "CKRM" means?
+ 
+I'll update this to spell out CKRM a bit more.  CKRM stands for
+Class based Kernel Resource Management.  I realize that that is a
+bit wordy but early on the team chose to try to be explicit about what
+was being added.  And, I'm guessing you really don't want to see
+class_base_kernel_resource_management_number_of_tasks as a structure
+name or class_base_kernel_resource_management_register_classification_engine()
+as a function name.  And, while the term class is great for grouping in
+the workload management context, using class_number_of_tasks seems a
+bit presumptious in the kernel naming space.
 
-byte-compiling /usr/local/lib/python/mercurial/fancyopts.py to
-fancyopts.pyc
-byte-compiling /usr/local/lib/python/mercurial/hg.py to hg.pyc
-byte-compiling /usr/local/lib/python/mercurial/hgweb.py to hgweb.pyc
-byte-compiling /usr/local/lib/python/mercurial/httprangereader.py to
-httprangereader.pyc
-byte-compiling /usr/local/lib/python/mercurial/lock.py to lock.pyc
-byte-compiling /usr/local/lib/python/mercurial/mdiff.py to mdiff.pyc
-byte-compiling /usr/local/lib/python/mercurial/revlog.py to revlog.pyc
-byte-compiling /usr/local/lib/python/mercurial/transaction.py to
-transaction.pyc
-byte-compiling /usr/local/lib/python/mercurial/ui.py to ui.pyc
-byte-compiling /usr/local/lib/python/mercurial/util.py to util.pyc
-byte-compiling /usr/local/lib/python/mercurial/version.py to
-version.pyc
-running install_scripts
-copying build/scripts-2.3/hg -> /usr/local/bin
-copying build/scripts-2.3/hgmerge -> /usr/local/bin
-changing mode of /usr/local/bin/hg to 755
-changing mode of /usr/local/bin/hgmerge to 755
-running install_data
-creating /usr/local/lib/python/mercurial/templates
-copying templates/map -> /usr/local/lib/python/mercurial/templates
-copying templates/map-raw -> /usr/local/lib/python/mercurial/templates
-copying templates/changelog.tmpl ->
-/usr/local/lib/python/mercurial/templates
-copying templates/changelogentry.tmpl ->
-/usr/local/lib/python/mercurial/templates
-copying templates/changeset-raw.tmpl ->
-/usr/local/lib/python/mercurial/templates
-copying templates/changeset.tmpl ->
-/usr/local/lib/python/mercurial/templates
-copying templates/fileannotate.tmpl ->
-/usr/local/lib/python/mercurial/templates
-copying templates/filediff-raw.tmpl ->
-/usr/local/lib/python/mercurial/templates
-copying templates/filediff.tmpl ->
-/usr/local/lib/python/mercurial/templates
-copying templates/filelog.tmpl ->
-/usr/local/lib/python/mercurial/templates
-copying templates/filelogentry.tmpl ->
-/usr/local/lib/python/mercurial/templates
-copying templates/filerevision-raw.tmpl ->
-/usr/local/lib/python/mercurial/templates
-copying templates/filerevision.tmpl ->
-/usr/local/lib/python/mercurial/templates
-copying templates/footer.tmpl ->
-/usr/local/lib/python/mercurial/templates
-copying templates/header-raw.tmpl ->
-/usr/local/lib/python/mercurial/templates
-copying templates/header.tmpl ->
-/usr/local/lib/python/mercurial/templates
-copying templates/manifest.tmpl ->
-/usr/local/lib/python/mercurial/templates
-copying templates/tags.tmpl ->
-/usr/local/lib/python/mercurial/templates
-root@Elf:/data/tmp/hg/mercurial-snapshot# Use "exit" to leave the
-shell.
-root@Elf:/data/tmp/hg/mercurial-snapshot# exit
-pavel@Elf:/data/tmp/hg/mercurial-snapshot$ cd ../..
-pavel@Elf:/data/tmp$ mkdir linux-hg
-pavel@Elf:/data/tmp$ cd linux-hg/
-pavel@Elf:/data/tmp/linux-hg$ hg init http://www.kernel.org/hg/
-Traceback (most recent call last):
-  File "/usr/local/bin/hg", line 11, in ?
-    from mercurial import commands
-ImportError: No module named mercurial
-pavel@Elf:/data/tmp/linux-hg$
-							Pavel
--- 
-teflon -- maybe it is a trademark, but it should not be.
+I'm inclined to leave the name CKRM as is and improve the documentation
+at this point unless you have a more specific solution which can be
+acceptable to all.
+
+> > +RCFS depicts a CKRM class as a directory. Hierarchy of classes can be
+> 
+> Another four letter acronym, unexplained?
+
+Sorry - this is spelled out in a few places but probably not everywhere
+it should be.  RCFS is the resource control filesystem.  This is simply
+the place where class associates are defined and viewed.  This is a
+somewhat special filesystem, on the order of sysfs or procfs but
+specifically centered on CKRM management.  This avoids such nasties
+as ioctl's or a whole raft of system calls, and also allows a fair
+amount of flexibility for adding and modifying class based behaviors.
+
+> > +   # cat /rcfs/taskclass/c1/members
+> > +   lists pids of tasks belonging to c1
+> > +
+> > +   # cat /rcfs/socket_class/s1/members
+> > +   lists the ipaddress\port of all listening sockets in s1
+>                          ~
+> 			  did you want to use "/" here?
+
+I'm going to defer this one to Vivek.  This changed and I think the
+backslash was in there but it may have changed to a : later.  Vivek?
+
+> > Index: linux-2.6.12-ckrm1/Documentation/ckrm/crbce
+> > ===================================================================
+> > --- /dev/null	1970-01-01 00:00:00.000000000 +0000
+> > +++ linux-2.6.12-ckrm1/Documentation/ckrm/crbce	2005-06-20 13:08:35.000000000 -0700
+> > @@ -0,0 +1,33 @@
+> > +CRBCE
+> > +----------
+> > +
+> > +crbce is a superset of rbce. In addition to providing automatic
+> > +classification, the crbce module
+> 
+> Nice, but you should describe what RBCE means... And capitalize your
+> acronyms consistently...
+ 
+Sorry - again documentation should be updated here.  RBCE is one of
+several possible classification engines.  The goal of a classification
+engine is to automatically place processes at creation time (or at
+the time of a change in several key attributes such as uid/gid/etc.)
+into the proper user defined class.  RBCE is a Rule Based classification
+engine, allowing you to set up some very basic rules for how processes
+are classified.  It is the most simplistic of classification engines and
+happens to also be the basis for CRBCE.
+
+CRBCE has a *very* bad name. ;)   The C is for "Custom" rule based
+classification engine.  And in part, it was intended primarily to be
+an example of what more you could do in a classification engine beyond
+just the basic classification.  In particular, it is a classifation
+engine that also does some monitor of changes to classes, although I'm
+wondering now based on an idea from Matt Helsley if this could actually
+be a simple add-on to RBCE called something more like "class monitoring".
+
+We'll look at this one a little more - in the meantime it is pretty easy
+to play with as a good example of what else can be done.  It also shows
+how to tie in a user level program for additional monitoring and feedback
+which makes it both useful in a real sense as well as in an illustrative
+sense.
+
+> > Index: linux-2.6.12-ckrm1/Documentation/ckrm/rbce_basics
+> > ===================================================================
+> > --- /dev/null	1970-01-01 00:00:00.000000000 +0000
+> > +++ linux-2.6.12-ckrm1/Documentation/ckrm/rbce_basics	2005-06-20 13:08:35.000000000 -0700
+> > @@ -0,0 +1,67 @@
+> > +Rule-based Classification Engine (RBCE)
+> > +-------------------------------------------
+> > +
+> > +The ckrm/rbce directory contains the sources for two classification engines
+> > +called rbce and crbce. Both are optional, built as kernel modules and share much
+> > +of their codebase. Only one classification engine (CE) can be loaded at a time
+> > +in CKRM.
+> 
+> TMFLAs! (*)
+> 
+> Your resource managment may be quite nice system, but the naming is
+> definitely very ugly. With your design we would not have open() system
+> call, but ofsoarh() -- open filesystem object and return its
+> handle. Can you come up with some reasonable naming?
+
+Can you help?  ;)  I'd rather not change CKRM itself at this point - too
+many papers and users and such.   While it is not impossible, I'm not
+sure that it would help.  RCFS seems quite reasonable.  RBCE and CRBCE,
+well, I'm much more likely to get excited about better names here.  ;)
+
+There has to be a balance between 80 character names and complete
+obfuscation by elidification of alphabetical constructs (COEAC).
+
+I'm open to ideas...
+
+> 								Pavel
+> (*) Too many four letter acronyms.
+> -- 
+> teflon -- maybe it is a trademark, but it should not be.
+
+gerrit

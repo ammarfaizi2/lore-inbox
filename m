@@ -1,64 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261955AbVF0WdB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262014AbVF0WgF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261955AbVF0WdB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 18:33:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261958AbVF0WdB
+	id S262014AbVF0WgF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 18:36:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262016AbVF0WgF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 18:33:01 -0400
-Received: from mail.kroah.org ([69.55.234.183]:41347 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261955AbVF0Wc6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 18:32:58 -0400
-Date: Mon, 27 Jun 2005 15:32:39 -0700
-From: Greg KH <greg@kroah.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Neil Horman <nhorman@redhat.com>, linux-kernel@vger.kernel.org,
-       jeff.garzik@pobox.com, akpm@osdl.org
-Subject: Re: [Patch] Janitorial cleanup of GET_INDEX macro in arch/i386/pci/fixup.c
-Message-ID: <20050627223239.GA24080@kroah.com>
-References: <20050627140914.GD20880@hmsendeavour.rdu.redhat.com> <Pine.LNX.4.58.0506271516530.19755@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 27 Jun 2005 18:36:05 -0400
+Received: from smtp110.sbc.mail.re2.yahoo.com ([68.142.229.95]:3453 "HELO
+	smtp110.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S262014AbVF0Wf4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 18:35:56 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] ndevfs - a "nano" devfs
+Date: Mon, 27 Jun 2005 17:35:50 -0500
+User-Agent: KMail/1.8.1
+Cc: Mike Bell <kernel@mikebell.org>, Greg KH <greg@kroah.com>
+References: <20050624081808.GA26174@kroah.com> <20050625234305.GA11282@kroah.com> <20050627071907.GA5433@mikebell.org>
+In-Reply-To: <20050627071907.GA5433@mikebell.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0506271516530.19755@ppc970.osdl.org>
-User-Agent: Mutt/1.5.8i
+Message-Id: <200506271735.50565.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 27, 2005 at 03:19:11PM -0700, Linus Torvalds wrote:
+On Monday 27 June 2005 02:19, Mike Bell wrote:
+> On Sat, Jun 25, 2005 at 04:43:05PM -0700, Greg KH wrote:
+> > So no, I'm not going to be submitting this.  But what it is, is a nice
+> > proof-of-concept for people who "just can't live without a in-kernel
+> > devfs" to show that it can be done in less than 300 lines of code, and
+> > only 6 hooks (2 functions in 3 different places) in the main kernel
+> > tree.  That is managable outside of the main kernel for years, with
+> > almost little to no effort.
 > 
+> Except that it isn't.
 > 
-> On Mon, 27 Jun 2005, Neil Horman wrote:
-> >
-> > Patch to clean up the implementation of the GET_INDEX macro in the i386 pci
-> > fixup code so that it uses the PCI_DEVFN macro, rather than re-implements it.
-> 
-> This looks wrong:
-> 
-> > -#define GET_INDEX(a, b) ((((a) - PCI_DEVICE_ID_INTEL_MCH_PA) << 3) + ((b) & 7))
-> > +#define GET_INDEX(a, b) PCI_DEVFN((a - PCI_DEVICE_ID_INTEL_MCH_PA),b)
-> 
-> that first argument looks like it has parentheses at the wrong place, it 
-> should be
-> 
-> 	(a) - PCI_DEVICE_ID_INTEL_MCH_PA
-> 
-> rather than
-> 
-> 	(a - PCI_DEVICE_ID_INTEL_MCH_PA)
-> 
-> methinks.
-> 
-> Other than that... Greg?
+> The "everything in the root" model just doesn't seem to work. It's been
+> so long since I used linux without devfs I hadn't thought about how
+> things like ALSA and the input subsystem have gone beyond supporting
+> device nodes in a subdirectory to actually requiring device nodes to be
+> in a subdirectory.
 
-I'd like to say yes, but I'll get an ack by the pci express people from
-Intel first (PCI_DEVFN masks off bits that might be needed here, don't
-really know...)  Also, this is only used for an array index, not a
-pci devfn memory access (look at how it is used in the code...)
-
-I'll put it in my tree for now, and let it get testing, I would not
-recommend it for yours just yet.
-
-thanks,
-
-greg k-h
+AFAIK there is no requirement in input subsystem that devices should be
+created under /dev/input. When devfs is activated they are created there
+by default, but that's it.
+  
+-- 
+Dmitry

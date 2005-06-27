@@ -1,48 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262088AbVF0Qh1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262084AbVF0Qh0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262088AbVF0Qh1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 12:37:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262098AbVF0PCT
+	id S262084AbVF0Qh0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 12:37:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262093AbVF0PBa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 11:02:19 -0400
-Received: from dvhart.com ([64.146.134.43]:49074 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S261649AbVF0OI1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 10:08:27 -0400
-Date: Mon, 27 Jun 2005 07:08:26 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [rfc] lockless pagecache
-Message-ID: <95150000.1119881306@[10.10.2.4]>
-In-Reply-To: <20050627004624.53f0415e.akpm@osdl.org>
-References: <42BF9CD1.2030102@yahoo.com.au> <20050627004624.53f0415e.akpm@osdl.org>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 27 Jun 2005 11:01:30 -0400
+Received: from ms005msg.fastwebnet.it ([213.140.2.50]:55975 "EHLO
+	ms005msg.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S261281AbVF0OFO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 10:05:14 -0400
+Date: Mon, 27 Jun 2005 16:04:53 +0200
+From: Paolo Ornati <ornati@fastwebnet.it>
+To: Andreas Kies <andikies@t-online.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: A Bug in gcc or asm/string.h ?
+Message-ID: <20050627160453.6b815e8a@localhost>
+In-Reply-To: <200506270105.28782.andikies@t-online.de>
+References: <200506270105.28782.andikies@t-online.de>
+X-Mailer: Sylpheed-Claws 1.0.4 (GTK+ 1.2.10; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 27 Jun 2005 01:05:28 +0200
+Andreas Kies <andikies@t-online.de> wrote:
 
-
---Andrew Morton <akpm@osdl.org> wrote (on Monday, June 27, 2005 00:46:24 -0700):
-
-> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
->> 
->> First I'll put up some numbers to get you interested - of a 64-way Altix
->>  with 64 processes each read-faulting in their own 512MB part of a 32GB
->>  file that is preloaded in pagecache (with the proper NUMA memory
->>  allocation).
+> Hello,
 > 
-> I bet you can get a 5x to 10x reduction in ->tree_lock traffic by doing
-> 16-page faultahead.
+> When running a kernel module compiled with gcc 3.3.5, I think I've found a
+> bug  in either the compiler or the kernel definition of strcmp in 
+> asm-i386/string.h . The exact compiler version is :
+> 
+> Reading specs from /usr/lib/gcc-lib/i586-suse-linux/3.3.5/specs
+> Configured with: ../configure --enable-threads=posix --prefix=/usr 
+> --with-local-prefix=/usr/local --infodir=/usr/share/info 
+> --mandir=/usr/share/man --enable-languages=c,c++,f77,objc,java,ada 
+> --disable-checking --libdir=/usr/lib --enable-libgcj --with-slibdir=/lib 
+> --with-system-zlib --enable-shared --enable-__cxa_atexit i586-suse-linux
+> Thread model: posix
+> gcc version 3.3.5 20050117 (prerelease) (SUSE Linux)
+> 
+> I was able to construct a small pure usermode program.
+> If you compile the included test program with optimization level 1 or less
+> it  works, if compiled with level 2 it fails. Failing means the strcmp
+> result  is != 0 because char ptr has valid contents at the time strcmp is
+> expanded. Other platforms besides i386 might be affected, too.
+> In the case of a failure you get "Unrecognized" as output on stdout.
+> 
+> So, here are my questions :
+> - Is this a bug in the compiler ?
+> In Documentation/Changes version 2.95.x is still recommended, I guess this
+> is  outdated.
+> - Is it a bug in the definition of strcmp ? Maybe an addition volatile is 
+> missing.
+> 
+> Thanks for reading.
+> 
+...
+> 
+> int oem;
+> 
+> int main(void)
+> {
+>    char ptr[2];
 
-Maybe true, but when we last tried that, faultahead sucked for performance
-in a more general sense. All the extra setup and teardown cost for 
-unnecessary PTEs kills you, even if it's only 4 pages or so.
+what happens if you change "char ptr[2]" to "volatile char ptr[2]" ?
 
-M.
-
+--
+	Paolo Ornati
+	Linux 2.6.12.1 on x86_64

@@ -1,97 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261736AbVF0Ovd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262051AbVF0Qh2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261736AbVF0Ovd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 10:51:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261743AbVF0OuY
+	id S262051AbVF0Qh2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 12:37:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261770AbVF0PAR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 10:50:24 -0400
-Received: from mta1.srv.hcvlny.cv.net ([167.206.4.196]:4659 "EHLO
-	mta1.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S262125AbVF0NBq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 09:01:46 -0400
-Date: Mon, 27 Jun 2005 09:01:39 -0400
-From: Jeff Sipek <jeffpc@optonline.net>
-Subject: [PATCH v2][TRIVIAL] Allocate kprobe_table at runtime
-In-reply-to: <p737jggwcln.fsf@verdi.suse.de>
-To: Andi Kleen <ak@suse.de>
-Cc: Prasanna S Panchamukhi <prasanna@in.ibm.com>, linux-kernel@vger.kernel.org,
-       trivial@rustcorp.com.au
-Message-id: <20050627130139.GD22311@optonline.net>
-MIME-version: 1.0
-Content-type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature"; boundary=llIrKcgUOe3dCx0c
-Content-disposition: inline
-References: <20050626183049.GA22898@optonline.net.suse.lists.linux.kernel>
- <20050627055150.GA10659@in.ibm.com.suse.lists.linux.kernel>
- <p737jggwcln.fsf@verdi.suse.de>
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 27 Jun 2005 11:00:17 -0400
+Received: from khan.acc.umu.se ([130.239.18.139]:49809 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id S261276AbVF0NsB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 09:48:01 -0400
+Date: Mon, 27 Jun 2005 15:47:52 +0200
+From: David Weinehall <tao@acc.umu.se>
+To: David Masover <ninja@slaphack.com>
+Cc: Valdis.Kletnieks@vt.edu, Lincoln Dale <ltd@cisco.com>,
+       Gregory Maxwell <gmaxwell@gmail.com>, Hans Reiser <reiser@namesys.com>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: reiser4 plugins
+Message-ID: <20050627134752.GE16867@khan.acc.umu.se>
+Mail-Followup-To: David Masover <ninja@slaphack.com>,
+	Valdis.Kletnieks@vt.edu, Lincoln Dale <ltd@cisco.com>,
+	Gregory Maxwell <gmaxwell@gmail.com>,
+	Hans Reiser <reiser@namesys.com>,
+	Horst von Brand <vonbrand@inf.utfsm.cl>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org,
+	ReiserFS List <reiserfs-list@namesys.com>
+References: <200506270040.j5R0eUNA030632@turing-police.cc.vt.edu> <42BF667C.50606@slaphack.com> <200506270423.j5R4Np9n004510@turing-police.cc.vt.edu> <42BF8F42.7030308@slaphack.com> <200506270541.j5R5fULX007282@turing-police.cc.vt.edu> <42BF9562.4090602@slaphack.com> <200506270612.j5R6CZGX008462@turing-police.cc.vt.edu> <42BF9C4D.3080800@slaphack.com> <200506270643.j5R6hqRh009781@turing-police.cc.vt.edu> <42BFA421.70506@slaphack.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42BFA421.70506@slaphack.com>
+User-Agent: Mutt/1.4.1i
+X-Editor: Vi Improved <http://www.vim.org/>
+X-Accept-Language: Swedish, English
+X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
+X-GPG-Key: http://www.acc.umu.se/~tao/files/pub_dc47ca16.gpg.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jun 27, 2005 at 02:00:49AM -0500, David Masover wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> Valdis.Kletnieks@vt.edu wrote:
+> > On Mon, 27 Jun 2005 01:27:25 CDT, David Masover said:
+> 
+> [...]
+> 
+> >>Speaking of backup, that's another nice place for a plugin.  Imagine a
+> >>dump that didn't have to be of the entire FS, but rather an arbitrary
+> >>tree...  That might be a nice new archive format.  I know Apple already
+> >>uses something like this for their dmg packages.
+> > 
+> > 
+> > Hmm.. you mean like 'tar' or 'cpio' or 'pax' or 'rsync'? :) 
+> 
+> No, a dmg is an OS X program installer.  It appears to be a disk image
+> of sorts.  So this is the backup idea in reverse.
 
---llIrKcgUOe3dCx0c
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Yeah, disk images are really a new invention...  It's not like creating
+an arbitrarily large solid file and then doing mkfs on it would
+accomplish the same thing =)
 
-On Mon, Jun 27, 2005 at 08:14:12AM +0200, Andi Kleen wrote:
-> Prasanna S Panchamukhi <prasanna@in.ibm.com> writes:
->=20
-> > Jeff,
-> >=20
-> > On Sun, Jun 26, 2005 at 06:37:29PM +0000, Jeff Sipek wrote:
-> > > Allocates kprobe_table at runtime.
-> > > -	/* FIXME allocate the probe table, currently defined statically */
-> > > +	kprobe_table =3D kmalloc(sizeof(struct hlist_head)*KPROBE_TABLE_SIZ=
-E, GFP_ATOMIC);
-> >=20
-> > Memory allocation using GFP_KERNEL has more chances of success as compa=
-red to
-> > GFP_ATOMIC. Why can't we use GFP_KERNEL here?
->=20
-> I don't see any sense in the change anyways. Just using BSS=20
-> should be fine.
->=20
-> Jeff, when you submit a patch you should add a small blurb
-> describing why you think it is a good idea.
+> They even "optimize" (repack? defrag?) the hard drive after each update.
 
-That patch was somewhat impulsive...I was looking at some code and saw a
-FIXME that required minimal work. I agree that BSS is good enough.
-
-Patch below removes the FIXME notice.
-
-Pick one ;-) (Patch Monkey is CC'd).
-
-Jeff.
+That's what they call the updating of the prelinking information,
+AFAIK.
 
 
-Remove useless FIXME.
-
-Signed-off-by: Josef "Jeff" Sipek
-
-diff --git a/kernel/kprobes.c b/kernel/kprobes.c
---- a/kernel/kprobes.c
-+++ b/kernel/kprobes.c
-@@ -261,7 +261,6 @@ static int __init init_kprobes(void)
- {
- 	int i, err =3D 0;
-=20
--	/* FIXME allocate the probe table, currently defined statically */
- 	/* initialize all list heads */
- 	for (i =3D 0; i < KPROBE_TABLE_SIZE; i++)
- 		INIT_HLIST_HEAD(&kprobe_table[i]);
-
---llIrKcgUOe3dCx0c
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQFCv/izwFP0+seVj/4RAoD/AJ4/3xi5x+Yy5oaTrWHbDB1CoQSeGwCdFgsT
-j7DbGh8wAB1Cw4MM1Ab9pWk=
-=GNi/
------END PGP SIGNATURE-----
-
---llIrKcgUOe3dCx0c--
+Regards: David Weinehall
+-- 
+ /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/

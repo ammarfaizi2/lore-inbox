@@ -1,57 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261296AbVF0QSV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262119AbVF0QMu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261296AbVF0QSV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 12:18:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261730AbVF0QRy
+	id S262119AbVF0QMu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 12:12:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261751AbVF0QIU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 12:17:54 -0400
-Received: from [80.71.243.242] ([80.71.243.242]:32723 "EHLO tau.rusteko.ru")
-	by vger.kernel.org with ESMTP id S261296AbVF0QPu (ORCPT
-	<rfc822;Linux-Kernel@Vger.Kernel.ORG>);
-	Mon, 27 Jun 2005 12:15:50 -0400
-From: Nikita Danilov <nikita@clusterfs.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17088.9784.776332.225807@gargle.gargle.HOWL>
-To: Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>
-Subject: Re: [PATCH] fs:lock_rename()/unlock_rename() can lead to deadlock in distributed fs.
-Date: Mon, 27 Jun 2005 20:15:13 +0400
+	Mon, 27 Jun 2005 12:08:20 -0400
+Received: from zproxy.gmail.com ([64.233.162.193]:26331 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261745AbVF0QEa convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 12:04:30 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=pc8V/jKbyViM3NWz3wzXZgOw6/UXoRwUjxOz3OVz7d5QDE4pELTLnerd1KLCjUnN5pOmeObECw0eryhRtRGuqB9vsVXVnfBZObx5XcNRgp5j2VwYv8CjP+WuHnUZ7TNfrTFZ6ULk6nB+jVg1A+PMrTfTPFvSPa25OohvZ3weCnA=
+Message-ID: <29495f1d05062709041af9f9cd@mail.gmail.com>
+Date: Mon, 27 Jun 2005 09:04:27 -0700
+From: Nish Aravamudan <nish.aravamudan@gmail.com>
+Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
+To: Denis Vlasenko <vda@ilport.com.ua>
+Subject: Re: [RFC] Driver writer's guide to sleeping
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200506251250.18133.vda@ilport.com.ua>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200506251250.18133.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zuzana Petrova writes:
- > The problem with lock_rename() is that it compares parent directory dentries  
- > when trying to decide how many inode i_sem semaphores to acquire.  That works  
- > fine on a single node system, but not in a distributed environment, on a  
- > distributed filesystem.  
- >   
- > The problem with rename(2) in a cluster, is that there is no guarantee that  
- > path_lookup()s will return a coherent path structure while at the same time  
- > renames, on another node, are executing on that same path hierarchy.  In our  
- > case, in do_rename(), the parent directory path_lookup()s find/create unique  
- > dentries for the old_dir and new_dir, however, because a rename(2) on another  
- > node was executing, both dentries end up pointing to the same inode.  
- >   
- > When lock_rename(new_dir, old_dir) is called, the dentries don't match, so we  
- > end up in a code path that tries to acquire the inode i_sem of both the  
- > old_dir and new_dir, but since they point to the same inode, the second  
- > attempt to acquire the same i_sem results in a deadlock.  
- >   
- > A fix would be to compare the dentries ->d_inode field instead.  Patch for  
- > kernel 2.6.12.1 attached.
+On 6/25/05, Denis Vlasenko <vda@ilport.com.ua> wrote:
+> Hi folks,
+> 
+> I'm working on a Linux wireless driver.
+> 
+> I compiled a little guide for myself about waiting primitives.
+> I would appreciate if you look thru it. Maybe I'm wrong somewhere.
 
-reiser4 had identical patch before pseudo files were disabled. It even
-went into -mm:
+<snip>
+> schedule_timeout(timeout)
+<snip>
+> msleep(ms)
+<snip>
+> msleep_interruptible(ms)
+<snip>
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc1/2.6.9-rc1-mm1/broken-out/reiser4-aliased-dir.patch
+So, there are four cases in the schedule_timeout() family of sleeps,
+based one what you would like to be woken up on:
 
-Nikita.
+Signals and Waitqueue events:
+     set_current_state(TASK_INTERRUPTIBLE);
+     schedule_timeout(some_time_in_jiffies);
 
- > 
- > Author of the patch is Michael Gaughen <mgaughen@polyserve.com>
- > 
- > --
- > Zuzana Petrova
+Signals only:
+     msleep_interruptible(some_time_in_msecs);
 
-Nikita.
+Waitqueue events only:
+      set_current_state(TASK_UNINTERRUPTIBLE);
+      schedule_timeout(some_time_in_jiffies);
+
+Neither signals nor waitqueues:
+      msleep(some_time_in_msecs);
+
+Hopefully that clears some things up.
+
+w.r.t to wait-queue event sleeping, you probably should also be aware
+of the wait_event() family of macros.
+
+Thanks,
+Nish

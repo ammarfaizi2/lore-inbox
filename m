@@ -1,88 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261171AbVF0Tnm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261175AbVF0Tnu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261171AbVF0Tnm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 15:43:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261154AbVF0Tnm
+	id S261175AbVF0Tnu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 15:43:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261154AbVF0Tnu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 15:43:42 -0400
-Received: from waste.org ([216.27.176.166]:56719 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261171AbVF0Tkp (ORCPT
+	Mon, 27 Jun 2005 15:43:50 -0400
+Received: from smtp-1.llnl.gov ([128.115.250.81]:15333 "EHLO smtp-1.llnl.gov")
+	by vger.kernel.org with ESMTP id S261175AbVF0TmW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 15:40:45 -0400
-Date: Mon, 27 Jun 2005 12:40:31 -0700
-From: Matt Mackall <mpm@selenic.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Git Mailing List <git@vger.kernel.org>, mercurial@selenic.com
-Subject: Re: Mercurial vs Updated git HOWTO for kernel hackers
-Message-ID: <20050627194031.GK12006@waste.org>
-References: <42B9E536.60704@pobox.com> <20050623235634.GC14426@waste.org> <20050627183118.GB1415@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050627183118.GB1415@elf.ucw.cz>
-User-Agent: Mutt/1.5.9i
+	Mon, 27 Jun 2005 15:42:22 -0400
+Date: Mon, 27 Jun 2005 12:42:20 -0700 (PDT)
+From: Chuck Harding <charding@llnl.gov>
+Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.50-24
+In-reply-to: <Pine.LNX.4.63.0506271157200.8605@ghostwheel.llnl.gov>
+To: Linux Kernel Discussion List <linux-kernel@vger.kernel.org>
+Message-id: <Pine.LNX.4.63.0506271211510.8605@ghostwheel.llnl.gov>
+Organization: Lawrence Livermore National Laboratory
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-transfer-encoding: 7BIT
+User-Agent: Pine/4.62 (X11; U; Linux i686; en-US; rv:2.6.11-rc2-mm1)
+References: <20050608112801.GA31084@elte.hu> <20050625091215.GC27073@elte.hu>
+ <200506250919.52640.gene.heskett@verizon.net>
+ <200506251039.14746.gene.heskett@verizon.net>
+ <Pine.LNX.4.63.0506271157200.8605@ghostwheel.llnl.gov>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 27, 2005 at 08:31:18PM +0200, Pavel Machek wrote:
-> Hi!
-> 
-> > > Things in git-land are moving at lightning speed, and usability has 
-> > > improved a lot since my post a month ago:  http://lkml.org/lkml/2005/5/26/11
-> > 
-> > And here's a quick comparison with the current state of Mercurial..
-> > 
-> > > 1) installing git
-> > > 
-> > > git requires bootstrapping, since you must have git installed in order 
-> > > to check out git.git (git repo), and linux-2.6.git (kernel repo).  I 
-> > > have put together a bootstrap tarball of today's git repository.
-> > > 
-> > > Download tarball from:
-> > > http://www.kernel.org/pub/linux/kernel/people/jgarzik/git-20050622.tar.bz2
-> > > 
-> > > tarball build-deps:  zlib, libcurl, libcrypto (openssl)
-> > > 
-> > > install tarball:  unpack && make && sudo make prefix=/usr/local install
-> > > 
-> > > jgarzik helper scripts, not in official git distribution:
-> > > http://www.kernel.org/pub/linux/kernel/people/jgarzik/git-new-branch
-> > > http://www.kernel.org/pub/linux/kernel/people/jgarzik/git-changes-script
-> > > 
-> > > After reading the rest of this document, come back and update your copy 
-> > > of git to the latest:
-> > > rsync://rsync.kernel.org/pub/scm/linux/kernel/git/torvalds/git.git
-> > 
-> > Download from: http://selenic.com/mercurial/mercurial-snapshot.tar.gz
-> > Build-deps: Python 2.3
-> > Install: unpack && python setup.py install [--home=/usr/local]
-> 
-> Did that... (had to install python2.3-dev, first), but got...
-> Traceback (most recent call last):
->   File "/usr/local/bin/hg", line 11, in ?
->     from mercurial import commands
-> ImportError: No module named mercurial
+On Mon, 27 Jun 2005, Chuck Harding wrote:
 
->From the README:
-
- To install system-wide:
-
- $ python setup.py install   # change python to python2.3 if 2.2 is default
-
- To install in your home directory (~/bin and ~/lib, actually), run:
-
- $ python2.3 setup.py install --home=~
- $ export PYTHONPATH=${HOME}/lib/python  # add this to your .bashrc
- $ export PATH=${HOME}/bin:$PATH         # 
-
- And finally:
-
- $ hg                                    # test installation, show help
-
- If you get complaints about missing modules, you probably haven't set
- PYTHONPATH correctly.
+> What can be causing the following message to appear in dmesg and
+> how can I fix it?
+>
+> BUG: scheduling with irqs disabled: kapmd/0x00000000/46
+> caller is schedule_timeout+0x51/0x9e
+> [<c02b3bc9>] schedule+0x96/0xf6 (8)
+> [<c02b43f7>] schedule_timeout+0x51/0x9e (28)
+> [<c01222ed>] process_timeout+0x0/0x5 (32)
+> [<c0112063>] apm_mainloop+0x7a/0x96 (24)
+> [<c0115e45>] default_wake_function+0x0/0x16 (12)
+> [<c0115e45>] default_wake_function+0x0/0x16 (32)
+> [<c0111485>] apm_driver_version+0x1c/0x38 (16)
+> [<c01126f7>] apm+0x0/0x289 (8)
+> [<c01127a6>] apm+0xaf/0x289 (8)
+> [<c010133c>] kernel_thread_helper+0x0/0xb (20)
+> [<c0101341>] kernel_thread_helper+0x5/0xb (4)
+>
+> This was also present in earlier final-V0.7.50 version I've tried
+> (since -00) I don't get hangs but that doesn't look like it should
+> be happening. Thanks.
+>
+another symptom (don't know if it's actually related) is that if I
+try to switch to a virtual consol (ctl-alt-chift-F[1..6] the screen
+won't change out of graphics mode - it goes black like it's trying
+to switch but comes back with the graphical screen which isn't responsive
+and hitting alt-F7 restores it to operation. I just rebooted to a kernel
+that doesn't have the RT-preempt patch but uses the same .config and
+everything for switching between X and virtual terminals works just fine.
 
 -- 
-Mathematics is the supreme nostalgia of our time.
+Charles D. (Chuck) Harding <charding@llnl.gov>  Voice: 925-423-8879
+Senior Computer Associate         ICCD            Fax: 925-423-6961
+Lawrence Livermore National Laboratory      Computation Directorate
+Livermore, CA USA  http://www.llnl.gov  GPG Public Key ID: B9EB6601
+------------------ http://tinyurl.com/5w5ey -----------------------
+-- I'm not fat, just horizontally disproportionate. --

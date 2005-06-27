@@ -1,333 +1,157 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261720AbVF0CRm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261706AbVF0CiM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261720AbVF0CRm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Jun 2005 22:17:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbVF0CRl
+	id S261706AbVF0CiM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Jun 2005 22:38:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbVF0CiM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Jun 2005 22:17:41 -0400
-Received: from gate.crashing.org ([63.228.1.57]:25987 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261720AbVF0CPx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Jun 2005 22:15:53 -0400
-Subject: Re: [PATCH] ppc/ppc64: Fix pci mmap via sysfs
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-pci <linux-pci@atrey.karlin.mff.cuni.cz>,
-       linuxppc64-dev <linuxppc64-dev@ozlabs.org>
-In-Reply-To: <20050626185727.0ce92772.akpm@osdl.org>
-References: <1119836190.5133.59.camel@gaston>
-	 <20050626185727.0ce92772.akpm@osdl.org>
-Content-Type: text/plain
-Date: Mon, 27 Jun 2005 12:11:03 +1000
-Message-Id: <1119838264.5133.76.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+	Sun, 26 Jun 2005 22:38:12 -0400
+Received: from 69-18-3-179.lisco.net ([69.18.3.179]:25604 "EHLO
+	ninja.slaphack.com") by vger.kernel.org with ESMTP id S261706AbVF0Chu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Jun 2005 22:37:50 -0400
+Message-ID: <42BF667C.50606@slaphack.com>
+Date: Sun, 26 Jun 2005 21:37:48 -0500
+From: David Masover <ninja@slaphack.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050325)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Valdis.Kletnieks@vt.edu
+Cc: Lincoln Dale <ltd@cisco.com>, Gregory Maxwell <gmaxwell@gmail.com>,
+       Hans Reiser <reiser@namesys.com>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: reiser4 plugins
+References: <200506240241.j5O2f1eb005609@laptop11.inf.utfsm.cl> <42BCD93B.7030608@slaphack.com> <200506251420.j5PEKce4006891@turing-police.cc.vt.edu> <42BDA377.6070303@slaphack.com> <200506252031.j5PKVb4Y004482@turing-police.cc.vt.edu> <42BDC422.6020401@namesys.com> <42BE3645.4070806@cisco.com> <e692861c05062522071fe380a5@mail.gmail.com> <42BE563D.4000402@cisco.com> <42BE5DB6.8040103@slaphack.com> <200506261816.j5QIGMdI010142@turing-police.cc.vt.edu> <42BF08CF.2020703@slaphack.com> <200506262105.j5QL5kdR018609@turing-police.cc.vt.edu>            <42BF2DC4.8030901@slaphack.com> <200506270040.j5R0eUNA030632@turing-police.cc.vt.edu>
+In-Reply-To: <200506270040.j5R0eUNA030632@turing-police.cc.vt.edu>
+X-Enigmail-Version: 0.89.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-06-26 at 18:57 -0700, Andrew Morton wrote:
-> Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
-> >
-> > Hi !
-> > 
-> > This implement the change to /proc and sysfs PCI mmap functions that we
-> > discussed a while ago, that is adding an arch optional
-> > pci_resource_to_user() to allow munging on the exposed value of PCI
-> > resources to userland and thus hiding kernel internal values. It also
-> > implements using of that callback to sanitize exposed values on ppc an
-> > ppc64, thus fixing mmap of PCI devices via /proc and sysfs.
-> > 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Valdis.Kletnieks@vt.edu wrote:
+> On Sun, 26 Jun 2005 17:35:48 CDT, David Masover said:
 > 
-> You sure you want all those printks in there?
+> 
+>>>Right. So please explain what crypto/raw/foo and crypto/inflated/foo.gz give you.
+>>
+>>In that example (shouldn't have used the name "crypto", but oh well), it
+>>should be crypto/raw/foo.gz and crypto/inflated/foo -- where foo.gz is
+>>the gzip'ed file and foo is the transparently compressed/decompressed
+>>file.  Basically, these are equivalent:
+>>
+>>$ zcat crypto/raw/foo.gz
+>>$ cat crypto/inflated/foo
+> 
+> 
+> I'm *quite* aware of what your preconceived notions think it *should* be.
+> 
+> Maybe the two examples I asked for have *real-world* meanings that you should
+> be allowing for.  Like, for instance, on a mail server, where the A/V software
+> may need to unzip a file 5 or 6 times to find out if there's malicious content.
+> 
+> Or seeing if it's a ".zip bomb", where a small .zip will decompress to gigabytes.
+> 
+> Or I'm testing a new compression algorithm, to see if multiple compressions help
+> (yes, I know that it *shouldn't* help - but I've seen real-world cases where the
+> algorithm could only look at a 4K or 8K window at a time, and if you hit a *very*
+> long run of duplicate 4K segments, a second compression would compress all the
+> identical or near-identical "this is a 4K chunk" tokens...)
+> 
+> 
+> 
+>>>It's got a *LOT* to do with it if I created a *DIRECTORY*, to use *AS A DIRECTORY*,
+>>>the way Unix-style systems have done for 3 decades, and suddenly my system is
+>>>running like a pig because the kernel decided that it's a .zip file.
+>>
+>>The kernel does not decide that.  You do.  And it doesn't automatically
+>>decide that every time you create a file.  You have to use some
+>>interface to trigger the plugins.
+> 
+> 
+> Oh, I'm waiting for the fun the first time somebody deploys a plugin that
+> has similar semantics to 'chmod g+s dirname/' ;)
+> 
+> 
+>>I guess I need a new name for this approach.  That's three possible ways
+>>of doing this?
+> 
+> 
+> I *said* you need to think this through in detail, didn't I? ;)
+>  
+> 
+>>I remember discussing that, actually.  It wouldn't automatically do this
+>>if you didn't want it to, but it would be nice if, say, it was something
+>>truly seekable like linux-2.6.12.zip, and linux-2.6.12 was a
+>>user-created symlink to linux-2.6.12.zip/.../contents, and we had a nice
+>>caching system...
+> 
+> 
+> I think you're highly deluded as to just how much or little performance gain
+> this will get you. Model what happens with a kernel 'make' on a 256M machine
+> with and without all that zipping and compressing, and assume that a constant
+> 48M is available for caching of the linux-2.6.12/ tree.
 
-One quilt ref later ... :)
+Ignoring Hans' point, there is still a performance gain.
 
-Hi !
+Assume we can do on-disk caching, similar to fscache/cachefs for nfs.
+Now, benchmark:
 
-This implement the change to /proc and sysfs PCI mmap functions that we
-discussed a while ago, that is adding an arch optional
-pci_resource_to_user() to allow munging on the exposed value of PCI
-resources to userland and thus hiding kernel internal values. It also
-implements using of that callback to sanitize exposed values on ppc an
-ppc64, thus fixing mmap of PCI devices via /proc and sysfs.
+$ unzip linux-2.6.12.zip && make -C linux-2.6.12
 
-Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Index: linux-work/arch/ppc64/kernel/pci.c
-===================================================================
---- linux-work.orig/arch/ppc64/kernel/pci.c	2005-06-25
-09:22:56.000000000 +1000
-+++ linux-work/arch/ppc64/kernel/pci.c	2005-06-27 12:09:58.000000000
-+1000
-@@ -351,7 +351,7 @@
- 		*offset += hose->pci_mem_offset;
- 		res_bit = IORESOURCE_MEM;
- 	} else {
--		io_offset = (unsigned long)hose->io_base_virt;
-+		io_offset = (unsigned long)hose->io_base_virt - pci_io_base;
- 		*offset += io_offset;
- 		res_bit = IORESOURCE_IO;
- 	}
-@@ -378,7 +378,7 @@
- 
- 		/* found it! construct the final physical address */
- 		if (mmap_state == pci_mmap_io)
--			*offset += hose->io_base_phys - io_offset;
-+		       	*offset += hose->io_base_phys - io_offset;
- 		return rp;
- 	}
- 
-@@ -416,9 +416,6 @@
- 	else
- 		prot |= _PAGE_GUARDED;
- 
--	printk("PCI map for %s:%lx, prot: %lx\n", pci_name(dev), rp->start,
--	       prot);
--
- 	return __pgprot(prot);
- }
- 
-@@ -944,4 +941,22 @@
- }
- EXPORT_SYMBOL(pci_read_irq_line);
- 
-+void pci_resource_to_user(const struct pci_dev *dev, int bar,
-+			  const struct resource *rsrc,
-+			  u64 *start, u64 *end)
-+{
-+	struct pci_controller *hose = pci_bus_to_host(dev->bus);
-+	unsigned long offset = 0;
-+
-+	if (hose == NULL)
-+		return;
-+
-+	if (rsrc->flags & IORESOURCE_IO)
-+		offset = pci_io_base - (unsigned long)hose->io_base_virt +
-+			hose->io_base_phys;
-+
-+	*start = rsrc->start + offset;
-+	*end = rsrc->end + offset;
-+}
-+
- #endif /* CONFIG_PPC_MULTIPLATFORM */
-Index: linux-work/drivers/pci/pci-sysfs.c
-===================================================================
---- linux-work.orig/drivers/pci/pci-sysfs.c	2005-06-25
-09:22:57.000000000 +1000
-+++ linux-work/drivers/pci/pci-sysfs.c	2005-06-27 11:28:21.000000000
-+1000
-@@ -60,15 +60,18 @@
- 	char * str = buf;
- 	int i;
- 	int max = 7;
-+	u64 start, end;
- 
- 	if (pci_dev->subordinate)
- 		max = DEVICE_COUNT_RESOURCE;
- 
- 	for (i = 0; i < max; i++) {
--		str += sprintf(str,"0x%016lx 0x%016lx 0x%016lx\n",
--			       pci_resource_start(pci_dev,i),
--			       pci_resource_end(pci_dev,i),
--			       pci_resource_flags(pci_dev,i));
-+		struct resource *res =  &pci_dev->resource[i];
-+		pci_resource_to_user(pci_dev, i, res, &start, &end);
-+		str += sprintf(str,"0x%016llx 0x%016llx 0x%016llx\n",
-+			       (unsigned long long)start,
-+			       (unsigned long long)end,
-+			       (unsigned long long)res->flags);
- 	}
- 	return (str - buf);
- }
-@@ -313,8 +316,21 @@
- 						       struct device, kobj));
- 	struct resource *res = (struct resource *)attr->private;
- 	enum pci_mmap_state mmap_type;
-+	u64 start, end;
-+	int i;
- 
--	vma->vm_pgoff += res->start >> PAGE_SHIFT;
-+	for (i = 0; i < PCI_ROM_RESOURCE; i++)
-+		if (res == &pdev->resource[i])
-+			break;
-+	if (i >= PCI_ROM_RESOURCE)
-+		return -ENODEV;
-+
-+	/* pci_mmap_page_range() expects the same kind of entry as coming
-+	 * from /proc/bus/pci/ which is a "user visible" value. If this is
-+	 * different from the resource itself, arch will do necessary fixup.
-+	 */
-+	pci_resource_to_user(pdev, i, res, &start, &end);
-+	vma->vm_pgoff += start >> PAGE_SHIFT;
- 	mmap_type = res->flags & IORESOURCE_MEM ? pci_mmap_mem : pci_mmap_io;
- 
- 	return pci_mmap_page_range(pdev, vma, mmap_type, 0);
-Index: linux-work/include/asm-ppc64/pci.h
-===================================================================
---- linux-work.orig/include/asm-ppc64/pci.h	2005-05-02
-10:50:01.000000000 +1000
-+++ linux-work/include/asm-ppc64/pci.h	2005-06-27 11:28:21.000000000
-+1000
-@@ -135,6 +135,11 @@
- 					 unsigned long offset,
- 					 unsigned long size,
- 					 pgprot_t prot);
-+#define HAVE_ARCH_PCI_RESOURCE_TO_USER
-+extern void pci_resource_to_user(const struct pci_dev *dev, int bar,
-+				 const struct resource *rsrc,
-+				 u64 *start, u64 *end);
-+
- 
- 
- #endif	/* __KERNEL__ */
-Index: linux-work/drivers/pci/proc.c
-===================================================================
---- linux-work.orig/drivers/pci/proc.c	2005-05-05 15:56:37.000000000
-+1000
-+++ linux-work/drivers/pci/proc.c	2005-06-27 11:28:21.000000000 +1000
-@@ -355,14 +355,20 @@
- 			dev->device,
- 			dev->irq);
- 	/* Here should be 7 and not PCI_NUM_RESOURCES as we need to preserve
-compatibility */
--	for(i=0; i<7; i++)
-+	for(i=0; i<7; i++) {
-+		u64 start, end;
-+		pci_resource_to_user(dev, i, &dev->resource[i], &start, &end);
- 		seq_printf(m, LONG_FORMAT,
--			dev->resource[i].start |
-+			((unsigned long)start) |
- 			(dev->resource[i].flags & PCI_REGION_FLAG_MASK));
--	for(i=0; i<7; i++)
-+	}
-+	for(i=0; i<7; i++) {
-+		u64 start, end;
-+		pci_resource_to_user(dev, i, &dev->resource[i], &start, &end);
- 		seq_printf(m, LONG_FORMAT,
- 			dev->resource[i].start < dev->resource[i].end ?
--			dev->resource[i].end - dev->resource[i].start + 1 : 0);
-+			(unsigned long)(end - start) + 1 : 0);
-+	}
- 	seq_putc(m, '\t');
- 	if (drv)
- 		seq_printf(m, "%s", drv->name);
-Index: linux-work/drivers/pci/pci.c
-===================================================================
---- linux-work.orig/drivers/pci/pci.c	2005-05-05 15:56:37.000000000
-+1000
-+++ linux-work/drivers/pci/pci.c	2005-06-27 11:28:21.000000000 +1000
-@@ -759,7 +759,7 @@
- 	return 0;
- }
- #endif
--     
-+
- static int __devinit pci_init(void)
- {
- 	struct pci_dev *dev = NULL;
-Index: linux-work/include/linux/pci.h
-===================================================================
---- linux-work.orig/include/linux/pci.h	2005-05-05 15:56:38.000000000
-+1000
-+++ linux-work/include/linux/pci.h	2005-06-27 11:28:21.000000000 +1000
-@@ -1016,6 +1016,21 @@
- #define pci_pretty_name(dev) ""
- #endif
- 
-+
-+/* Some archs don't want to expose struct resource to userland as-is
-+ * in sysfs and /proc
-+ */
-+#ifndef HAVE_ARCH_PCI_RESOURCE_TO_USER
-+static void pci_resource_to_user(const struct pci_dev *dev, int bar,
-+				 const struct resource *rsrc,
-+				 u64 *start, u64 *end)
-+{
-+	*start = rsrc->start;
-+	*end = rsrc->end;
-+}
-+#endif /* HAVE_ARCH_PCI_RESOURCE_TO_USER */
-+
-+
- /*
-  *  The world is not perfect and supplies us with broken PCI devices.
-  *  For at least a part of these bugs we need a work-around, so both
-Index: linux-work/include/asm-ppc/pci.h
-===================================================================
---- linux-work.orig/include/asm-ppc/pci.h	2005-05-02 10:49:57.000000000
-+1000
-+++ linux-work/include/asm-ppc/pci.h	2005-06-27 11:28:21.000000000 +1000
-@@ -103,6 +103,12 @@
- 					 unsigned long size,
- 					 pgprot_t prot);
- 
-+#define HAVE_ARCH_PCI_RESOURCE_TO_USER
-+extern void pci_resource_to_user(const struct pci_dev *dev, int bar,
-+				 const struct resource *rsrc,
-+				 u64 *start, u64 *end);
-+
-+
- #endif	/* __KERNEL__ */
- 
- #endif /* __PPC_PCI_H */
-Index: linux-work/arch/ppc/kernel/pci.c
-===================================================================
---- linux-work.orig/arch/ppc/kernel/pci.c	2005-06-25 09:22:56.000000000
-+1000
-+++ linux-work/arch/ppc/kernel/pci.c	2005-06-27 12:09:30.000000000 +1000
-@@ -1495,7 +1495,7 @@
- 		*offset += hose->pci_mem_offset;
- 		res_bit = IORESOURCE_MEM;
- 	} else {
--		io_offset = (unsigned long)hose->io_base_virt;
-+		io_offset = hose->io_base_virt - ___IO_BASE;
- 		*offset += io_offset;
- 		res_bit = IORESOURCE_IO;
- 	}
-@@ -1522,7 +1522,7 @@
- 
- 		/* found it! construct the final physical address */
- 		if (mmap_state == pci_mmap_io)
--			*offset += hose->io_base_phys - _IO_BASE;
-+			*offset += hose->io_base_phys - io_offset;
- 		return rp;
- 	}
- 
-@@ -1560,9 +1560,6 @@
- 	else
- 		prot |= _PAGE_GUARDED;
- 
--	printk("PCI map for %s:%lx, prot: %lx\n", pci_name(dev), rp->start,
--	       prot);
--
- 	return __pgprot(prot);
- }
- 
-@@ -1739,6 +1736,23 @@
- 	return result;
- }
- 
-+void pci_resource_to_user(const struct pci_dev *dev, int bar,
-+			  const struct resource *rsrc,
-+			  u64 *start, u64 *end)
-+{
-+	struct pci_controller *hose = pci_bus_to_hose(dev->bus->number);
-+	unsigned long offset = 0;
-+
-+	if (hose == NULL)
-+		return;
-+
-+	if (rsrc->flags & IORESOURCE_IO)
-+		offset = ___IO_BASE - hose->io_base_virt + hose->io_base_phys;
-+
-+	*start = rsrc->start + offset;
-+	*end = rsrc->end + offset;
-+}
-+
- void __init
- pci_init_resource(struct resource *res, unsigned long start, unsigned
-long end,
- 		  int flags, char *name)
+versus the hypothetical
 
+$ make -C linux-2.6.12.zip/.../contents
 
+This is an automatic performance gain, in theory, because the second
+command is identical to unzipping just the parts you need into
+linux-2.6.12, then running "make".  The one disadvantage is that because
+the unzipping is done on demand, it only really performs well if you can
+keep the "zip" binary cached.  Even on most embedded systems, 54K of RAM
+is really not much to ask these days.
+
+Also, once you've run "make" once, you get to run it as many times as
+you like, and so long as the on-disk cache of the zipfile is still there
+and valid, you never have the overhead of unzipping again.
+
+Of course, this probably saves only a minute or two at most per kernel
+compile.  But that doesn't mean there aren't real-world situations where
+this kind of architecture would be much more beneficial.
+
+>>This is nice because then you get exactly the same performance during
+>>"make" as you would with "unzip && make", only better, because files you
+>>don't ever use (lots of arch, for instance) are not unpacked.
+> 
+> 
+> Go read http://www.tux.org/lkml/#s7-7 and ponder until enlightenment arrives.
+
+So what?  I don't intend to convince anyone based on how much
+slower/faster their kernel compiles.  It's meant to illustrate the
+principle of the thing.
+
+Besides, your point was that you could not run make inside of a kernel
+tarball/zipfile.  Nobody ever suggested that you would actually want to.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iQIVAwUBQr9mfHgHNmZLgCUhAQJi0g//RGxFXWi8Om4EnKsZHcI0J7X3G6T9pj2a
+nwkWwjLdyg6jykdt3a5MTELBgOM2uT87k7CeO7TasA/T1ZkZ/y2Yw7x50YIgrb7j
+W1u5N/vfDLw3C2Nd6O2fe/b4ygReyBB6HQtNTw/k+XxDswxtEp0mcZHpNxt+W9B4
+s0naezawRjF51P4ISqa6HoRo7vZUkXv+3CwuZinC5m8KnW2Us8Ww5uDjtNBLpJGR
+zs79w24zaj6VSHjF8lO6CuMKQLjSelMDXKDEkFHaybJgz7AckkcZg5c6VDTrc3/t
+m8HM5oyHWfRqVeQt9cMdLdcBZnhdbspSwQaNQkdkrZx1IX96mPoMNDUwk1B/TIi7
+++iqpkDYeOdg+DWzGPVpwQ+5LQC+7m8vRHv5dROIM6T89TnlUck2clBiPovzSP+8
+KMR1R6F7qBPxJMkPcy2MNOVMkjN+VLSOCzOeOXVEUkNYdXjrJB5h3XIN5MyRR7C/
+pRmjB2crzPTUz2yBatP+QUFNUMadikMqj44sEc/ie8iHbo9pfxQC/wY4M4VkJcf2
+03spe2e8M+k3txj63O9TmJYgobkjx+d+cJ5Zm7DbKJmGlVaAGqmCXeNjxhTtBSwU
+yP2Jrz6Awu+nDxFxMAsN4GP17/0/aXdBhIYLPGyAJ9/HV7KHENIqIjnvD4e3bXnU
+shBrM+G1N5E=
+=BXCi
+-----END PGP SIGNATURE-----

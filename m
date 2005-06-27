@@ -1,85 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261845AbVF0GCR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261856AbVF0GGT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261845AbVF0GCR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 02:02:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbVF0F7N
+	id S261856AbVF0GGT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 02:06:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261851AbVF0GCg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 01:59:13 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:14560 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S261844AbVF0FxM (ORCPT
+	Mon, 27 Jun 2005 02:02:36 -0400
+Received: from isilmar.linta.de ([213.239.214.66]:65462 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S261844AbVF0F7d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 01:53:12 -0400
-Message-Id: <200506270538.j5R5cww2005785@laptop11.inf.utfsm.cl>
-To: David Masover <ninja@slaphack.com>
-cc: Kyle Moffett <mrmacman_g4@mac.com>, Valdis.Kletnieks@vt.edu,
-       Lincoln Dale <ltd@cisco.com>, Gregory Maxwell <gmaxwell@gmail.com>,
-       Hans Reiser <reiser@namesys.com>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: reiser4 plugins 
-In-Reply-To: Message from David Masover <ninja@slaphack.com> 
-   of "Sun, 26 Jun 2005 22:24:23 EST." <42BF7167.80201@slaphack.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Mon, 27 Jun 2005 01:38:53 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Mon, 27 Jun 2005 01:59:33 -0400
+Date: Mon, 27 Jun 2005 07:59:31 +0200
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: Grant Coady <grant_lkml@dodo.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, greg@kroah.com, rajesh.shah@intel.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: ACPI-based PCI resources: PCMCIA bugfix, but resources missing in trees
+Message-ID: <20050627055931.GA5387@isilmar.linta.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
+	Grant Coady <grant_lkml@dodo.com.au>, Andrew Morton <akpm@osdl.org>,
+	greg@kroah.com, rajesh.shah@intel.com, linux-kernel@vger.kernel.org
+References: <20050626040329.3849cf68.akpm@osdl.org> <20050626140411.GA8597@dominikbrodowski.de> <06lub192nippc5a4fkju7gfr18kmv33aqn@4ax.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <06lub192nippc5a4fkju7gfr18kmv33aqn@4ax.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Masover <ninja@slaphack.com> wrote:
-> Kyle Moffett wrote:
-> > On Jun 26, 2005, at 22:37:48, David Masover wrote:
+On Mon, Jun 27, 2005 at 11:38:34AM +1000, Grant Coady wrote:
+> On Sun, 26 Jun 2005 16:04:12 +0200, Dominik Brodowski <linux@dominikbrodowski.net> wrote:
+> 
+> >On Sun, Jun 26, 2005 at 04:03:29AM -0700, Andrew Morton wrote:
+> >> - Lots of merges.  I'm holding off on the 80-odd pcmcia patches until we get
+> >>   the recent PCI breakage sorted out.
+> >
+> >pci-yenta-cardbus-fix.patch and the following patch should solve the
+> >initialization time trouble. However, the ACPI-based PCI resource handling
+> >is badly broken, IMHO:
+> >
+> 
+> Well this patch doesn't do it for Toshiba laptop, ToPIC-100 ZV 
+> bridge in 'auto' mode.
 
-[...]
+Does reverting
+http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12/2.6.12-mm2/broken-out/gregkh-pci-pci-collect-host-bridge-resources-02.patch
+help in your case?
 
-> That just means the zip plugin has to be more carefully written than I
-> thought.  It would have to be sandboxed and limited to prevent buffer
-> overruns and zip bombs.
-
-[...]
-
-> Remember that zip, at least, would not be in the kernel.  I think what
-> is going in the kernel is gzip and lzo, and it's being done so
-> transparently that you never actually see the compressed version.
-
-Doesn't matter if it is zip of some other compression, the problem is
-exactly the same.
-
-> > Can you illustrate for me with precise, clear, and unambiguous arguments
-
-> That will take some time.  And some thinking.
-
-See? Exactly what has been demanded by all the "unfair", "ReiserFS-racist",
-"shove-any-junk-but-do-not-accept-perfect-filesystems-into-the-kernel" etc
-people here on LKML from the very start.
-
-> > how this can avoid all possible pitfalls,
-
-> Especially if you want perfection.
-
-Perfection would be nice, but (IMHO) not required.
-
-[...]
-
-> Now, the cryptocompress as it currently stands does not involve ... and
-> does not introduce any new security holes in the way that you are
-> describing.  There might be some issues with key management (someone
-> hinted vaguely at that), but nothing insurmountable.
-
-OK, I see a week of flamefest going by until you admit it has the same
-problemas as compression (Hint: Most encryption compresses first, in order
-to give would-be cryptoanalysts less of a toehold via non-uniform
-distributions, and having less work to do), and then a whole lot of its
-/own/ problems (that somebody can peek at a cached uncompressed copy of my
-files is not so bad, if they can peek at my decrypted files I'd be rather
-less pleased... and here you have to include a malicious root (Yes, I'm
-paranoid. Doesn't mean root is not out to get me.).). Perhaps this can't be
-all solved, but the exact boundaries of what /is/ provided, and what
-/isn't/ must be made clear.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
-
+	Dominik

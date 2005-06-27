@@ -1,39 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261472AbVF0PVw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262180AbVF0P1w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261472AbVF0PVw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 11:21:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262117AbVF0PLs
+	id S262180AbVF0P1w (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 11:27:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261745AbVF0PY2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 11:11:48 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:9651 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261292AbVF0OXm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 10:23:42 -0400
-Date: Mon, 27 Jun 2005 16:23:28 +0200
-From: Jan Kara <jack@suse.cz>
-To: akpm@osdl.org
-Cc: sct@redhat.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] Checkpoint lists split
-Message-ID: <20050627142328.GM20512@atrey.karlin.mff.cuni.cz>
+	Mon, 27 Jun 2005 11:24:28 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:35026 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261758AbVF0PDS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 11:03:18 -0400
+Date: Mon, 27 Jun 2005 11:02:08 -0400
+From: Dave Jones <davej@redhat.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: fix silly config option.
+Message-ID: <20050627150207.GA15493@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
+	torvalds@osdl.org
+References: <20050627053928.GA9759@redhat.com> <20050627112120.GO3629@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20050627112120.GO3629@stusta.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hello Andrew!
+On Mon, Jun 27, 2005 at 01:21:20PM +0200, Adrian Bunk wrote:
+ > On Mon, Jun 27, 2005 at 01:39:28AM -0400, Dave Jones wrote:
+ > 
+ > > CONFIG_CONFIG_TUNER_MULTI_I2C probably isn't what the
+ > > author meant to create.
+ > >...
+ > 
+ > I can't find this option.
+ > 
+ > Which kernel is this patch against?
+ 
+2.6.12-git8 (git9 also needs it)
 
-  I've noticed that the patch splitting transaction's t_checkpoint_list
-into two lists (one for buffers to-be-submitted and one for already
-submitted buffers) is not in -mm kernels. Is there any reason why you've
-dropped it? If you just missed the version that fixed the bug or some
-similar mistake happened then please put the patch into -mm (it's
-attached and applies fine against 2.6.12-mm2). Any comments are welcome.
-
-							Thanks
-								Honza
-
--- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+		Dave

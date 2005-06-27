@@ -1,54 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261926AbVF0IYi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261943AbVF0I24@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261926AbVF0IYi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 04:24:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261943AbVF0IYi
+	id S261943AbVF0I24 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 04:28:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261923AbVF0I24
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 04:24:38 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:12747 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261926AbVF0IXE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 04:23:04 -0400
-Date: Mon, 27 Jun 2005 01:22:26 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Reuben Farrelly <reuben-lkml@reub.net>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: Re: 2.6.12-mm2
-Message-Id: <20050627012226.450bc86d.akpm@osdl.org>
-In-Reply-To: <42BFAF1F.8050201@reub.net>
-References: <fa.h6rvsi4.j68fhk@ifi.uio.no>
-	<42BFA05B.1090208@reub.net>
-	<20050627002429.40231fdf.akpm@osdl.org>
-	<42BFAF1F.8050201@reub.net>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 27 Jun 2005 04:28:56 -0400
+Received: from smtp203.mail.sc5.yahoo.com ([216.136.129.93]:52138 "HELO
+	smtp203.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261943AbVF0I2u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 04:28:50 -0400
+Message-ID: <42BFB8BE.20903@yahoo.com.au>
+Date: Mon, 27 Jun 2005 18:28:46 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [rfc] lockless pagecache
+References: <42BF9CD1.2030102@yahoo.com.au>	<20050627004624.53f0415e.akpm@osdl.org>	<42BFB287.5060104@yahoo.com.au> <20050627011539.28793896.akpm@osdl.org>
+In-Reply-To: <20050627011539.28793896.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Reuben Farrelly <reuben-lkml@reub.net> wrote:
->
->  > Anyway, scary trace.  It look like some spinlock is thought to be in the
->  > wrong state in schedule().  Send the .config, please.
+Andrew Morton wrote:
+> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 > 
->  Now online at  http://www.reub.net/kernel/.config
+>>Also, the memory usage regression cases that fault ahead brings makes it
+>> a bit contentious.
+> 
+> 
+> faultahead consumes no more memory: if the page is present then point a pte
+> at it.  It'll make reclaim work a bit harder in some situations.
+> 
 
-Me too.
+Oh OK we'll call that faultahead and Christoph's thing prefault then.
 
-BUG: spinlock recursion on CPU#0, swapper/0, c120d520             
- [<c01039ed>] dump_stack+0x19/0x20                   
- [<c01d9af2>] spin_bug+0x42/0x54  
- [<c01d9bfa>] _raw_spin_lock+0x3e/0x84
- [<c031d0ad>] _spin_lock+0x9/0x10     
- [<c031b9e9>] schedule+0x479/0xbc8
- [<c0100cb4>] cpu_idle+0x88/0x8c  
- [<c01002c1>] rest_init+0x21/0x28
- [<c0442899>] start_kernel+0x151/0x158
- [<c010020f>] 0xc010020f              
-Kernel panic - not syncing: bad locking
+I suspect it may still be a net loss for those that are running into
+tree_lock contention, but we'll see.
 
-The bug is in the new spinlock debugging code itself.  Ingo, can you test
-that .config please?
+-- 
+SUSE Labs, Novell Inc.
 
-Reuben, I guess disabling CONFIG_DEBUG_SPINLOCK will get you going.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

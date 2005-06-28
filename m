@@ -1,50 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261504AbVF1Hgg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261633AbVF1Hge@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261504AbVF1Hgg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 03:36:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261860AbVF1Hdq
+	id S261633AbVF1Hge (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 03:36:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261690AbVF1Hef
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 03:33:46 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:26338 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261504AbVF1HaT (ORCPT
+	Tue, 28 Jun 2005 03:34:35 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:4065 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261781AbVF1H2y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 03:30:19 -0400
-Date: Tue, 28 Jun 2005 09:30:06 +0200
-From: Ingo Molnar <mingo@elte.hu>
+	Tue, 28 Jun 2005 03:28:54 -0400
+Date: Tue, 28 Jun 2005 09:25:21 +0200
+From: Jens Axboe <axboe@suse.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: reuben-lkml@reub.net, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-mm2
-Message-ID: <20050628073006.GA7368@elte.hu>
-References: <fa.h6rvsi4.j68fhk@ifi.uio.no> <42BFA05B.1090208@reub.net> <20050627002429.40231fdf.akpm@osdl.org> <42BFAF1F.8050201@reub.net> <20050627012226.450bc86d.akpm@osdl.org> <20050627093708.GA23150@elte.hu> <20050627141439.4b3cb641.akpm@osdl.org>
+Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org
+Subject: Re: cfq build breakage
+Message-ID: <20050628072520.GA3668@suse.de>
+References: <42C0B39E.7070509@pobox.com> <20050627201333.4c7d3d06.akpm@osdl.org> <20050628062108.GA3411@suse.de> <20050627233055.20029d85.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050627141439.4b3cb641.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20050627233055.20029d85.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Andrew Morton <akpm@osdl.org> wrote:
-
-> Ingo Molnar <mingo@elte.hu> wrote:
+On Mon, Jun 27 2005, Andrew Morton wrote:
+> Jens Axboe <axboe@suse.de> wrote:
 > >
-> > is the fput()/sysfs_release() crash below known?
+> > On Mon, Jun 27 2005, Andrew Morton wrote:
+> > > Jeff Garzik <jgarzik@pobox.com> wrote:
+> > > >
+> > > > 
+> > > > In latest git tree...
+> > > > 
+> > > >    CC [M]  drivers/block/cfq-iosched.o
+> > > > drivers/block/cfq-iosched.c: In function `cfq_put_queue':
+> > > > drivers/block/cfq-iosched.c:303: sorry, unimplemented: inlining failed 
+> > > > in call to 'cfq_pending_requests': function body not available
+> > > > drivers/block/cfq-iosched.c:1080: sorry, unimplemented: called from here
+> > > > drivers/block/cfq-iosched.c: In function `__cfq_may_queue':
+> > > > drivers/block/cfq-iosched.c:1955: warning: the address of 
+> > > > `cfq_cfqq_must_alloc_slice', will always evaluate as `true'
+> > > > make[2]: *** [drivers/block/cfq-iosched.o] Error 1
+> > > > make[1]: *** [drivers/block] Error 2
+> > > > make: *** [drivers] Error 2
+> > > 
+> > > hm.  The inline thing is trivial, but the misuse of
+> > > cfq_cfqq_must_alloc_slice() means that we now wander into untested
+> > > territory.
+> > 
+> > Indeed, which compiler errors on that?
 > 
-> It doesn't ring any bells.
+> 4.0 and later, I guess.
+
+Ok
+
+> > > @@ -1969,7 +1968,7 @@ __cfq_may_queue(struct cfq_data *cfqd, s
+> > >  		 * only allow 1 ELV_MQUEUE_MUST per slice, otherwise we
+> > >  		 * can quickly flood the queue with writes from a single task
+> > >  		 */
+> > > -		if (rw == READ || !cfq_cfqq_must_alloc_slice) {
+> > > +		if (rw == READ || !cfq_cfqq_must_alloc_slice(cfqq)) {
+> > >  			cfq_mark_cfqq_must_alloc_slice(cfqq);
+> > >  			return ELV_MQUEUE_MUST;
+> > >  		}
+> > 
+> > thanks, clearly a typo but inside if 0.
 > 
-> You have a use-after-free error when udev is dinking with a sysfs 
-> file.  It could be anything.  Could you debug it a bit, please, work 
-> out which file caused the crash?
+> But the other instance was inside `#if 1'.  This fixup will change behaviour.
 
-unfortunately it's totally unreproducible, it triggered only once during 
-hundreds of bootups. Will keep eyes open though.
+Hrmpf strange, I submitted what I built. Must be some silly slip up
+here.
 
-	Ingo
+-- 
+Jens Axboe
+

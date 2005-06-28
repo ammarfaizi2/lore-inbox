@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261561AbVF1FeL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261980AbVF1Ff2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261561AbVF1FeL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 01:34:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261945AbVF1FeK
+	id S261980AbVF1Ff2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 01:35:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261970AbVF1Feg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 01:34:10 -0400
-Received: from mail.kroah.org ([69.55.234.183]:5612 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261561AbVF1Fda convert rfc822-to-8bit
+	Tue, 28 Jun 2005 01:34:36 -0400
+Received: from mail.kroah.org ([69.55.234.183]:6380 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261548AbVF1Fdc convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 01:33:30 -0400
-Cc: keithmo@exmsft.com
-Subject: [PATCH] cpqphp: fix oops during unload without probe
-In-Reply-To: <1119936774843@kroah.com>
+	Tue, 28 Jun 2005 01:33:32 -0400
+Cc: gregkh@suse.de
+Subject: [PATCH] PCI: use the MCFG table to properly access pci devices (i386)
+In-Reply-To: <11199367752277@kroah.com>
 X-Mailer: gregkh_patchbomb
 Date: Mon, 27 Jun 2005 22:32:55 -0700
-Message-Id: <1119936775691@kroah.com>
+Message-Id: <11199367751620@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,55 +24,81 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] cpqphp: fix oops during unload without probe
+[PATCH] PCI: use the MCFG table to properly access pci devices (i386)
 
-drivers/pci/hotplug/cpqphp_core.c calls cpqphp_event_start_thread()
-in one_time_init(), which is called whenever the hardware is probed.
-Unfortunately, cpqphp_event_stop_thread() is *always* called when
-the module is unloaded. If the hardware is never probed, then
-cpqphp_event_stop_thread() tries to manipulate a couple of
-uninitialized mutexes.
+Now that we have access to the whole MCFG table, let's properly use it
+for all pci device accesses (as that's what it is there for, some boxes
+don't put all the busses into one entry.)
 
-Signed-off-by: Keith Moore <keithmo@exmsft.com>
+If, for some reason, the table is incorrect, we fallback to the "old
+style" of mmconfig accesses, namely, we just assume the first entry in
+the table is the one for us, and blindly use it.
+
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit 4002307d2b563a6ab317ca4d7eb1d201a6673d37
-tree a95936bd9f9180eeaac3c41fae0baaf878486a2d
-parent 70549ad9cf074e12f12cdc931b29b2616dfb873a
-author Keith Moore <keithmo@exmsft.com> Thu, 02 Jun 2005 12:42:37 +0200
-committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 27 Jun 2005 21:52:46 -0700
+commit d57e26ceb7dbf44cd08128cb6146116d4281b58b
+tree 3fd0f4ff6ec93f3b8f4342649a4b717beb97c903
+parent 545493917dc90298e1c38f018ad893f5518928e7
+author Greg Kroah-Hartman <gregkh@suse.de> Thu, 23 Jun 2005 17:35:56 -0700
+committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 27 Jun 2005 21:52:47 -0700
 
- drivers/pci/hotplug/cpqphp_core.c |    5 +++--
- 1 files changed, 3 insertions(+), 2 deletions(-)
+ arch/i386/pci/mmconfig.c |   29 +++++++++++++++++++++++++----
+ 1 files changed, 25 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/pci/hotplug/cpqphp_core.c b/drivers/pci/hotplug/cpqphp_core.c
---- a/drivers/pci/hotplug/cpqphp_core.c
-+++ b/drivers/pci/hotplug/cpqphp_core.c
-@@ -60,6 +60,7 @@ static void __iomem *smbios_start;
- static void __iomem *cpqhp_rom_start;
- static int power_mode;
- static int debug;
-+static int initialized;
+diff --git a/arch/i386/pci/mmconfig.c b/arch/i386/pci/mmconfig.c
+--- a/arch/i386/pci/mmconfig.c
++++ b/arch/i386/pci/mmconfig.c
+@@ -22,10 +22,31 @@ static u32 mmcfg_last_accessed_device;
+ /*
+  * Functions for accessing PCI configuration space with MMCONFIG accesses
+  */
++static u32 get_base_addr(unsigned int seg, int bus)
++{
++	int cfg_num = -1;
++	struct acpi_table_mcfg_config *cfg;
++
++	while (1) {
++		++cfg_num;
++		if (cfg_num >= pci_mmcfg_config_num) {
++			/* something bad is going on, no cfg table is found. */
++			/* so we fall back to the old way we used to do this */
++			/* and just rely on the first entry to be correct. */
++			return pci_mmcfg_config[0].base_address;
++		}
++		cfg = &pci_mmcfg_config[cfg_num];
++		if (cfg->pci_segment_group_number != seg)
++			continue;
++		if ((cfg->start_bus_number <= bus) &&
++		    (cfg->end_bus_number >= bus))
++			return cfg->base_address;
++	}
++}
  
- #define DRIVER_VERSION	"0.9.8"
- #define DRIVER_AUTHOR	"Dan Zink <dan.zink@compaq.com>, Greg Kroah-Hartman <greg@kroah.com>"
-@@ -1271,7 +1272,6 @@ static int one_time_init(void)
+-static inline void pci_exp_set_dev_base(int bus, int devfn)
++static inline void pci_exp_set_dev_base(unsigned int seg, int bus, int devfn)
  {
- 	int loop;
- 	int retval = 0;
--	static int initialized = 0;
+-	u32 dev_base = pci_mmcfg_config[0].base_address | (bus << 20) | (devfn << 12);
++	u32 dev_base = get_base_addr(seg, bus) | (bus << 20) | (devfn << 12);
+ 	if (dev_base != mmcfg_last_accessed_device) {
+ 		mmcfg_last_accessed_device = dev_base;
+ 		set_fixmap_nocache(FIX_PCIE_MCFG, dev_base);
+@@ -42,7 +63,7 @@ static int pci_mmcfg_read(unsigned int s
  
- 	if (initialized)
- 		return 0;
-@@ -1441,7 +1441,8 @@ static void __exit unload_cpqphpd(void)
- 	}
+ 	spin_lock_irqsave(&pci_config_lock, flags);
  
- 	// Stop the notification mechanism
--	cpqhp_event_stop_thread();
-+	if (initialized)
-+		cpqhp_event_stop_thread();
+-	pci_exp_set_dev_base(bus, devfn);
++	pci_exp_set_dev_base(seg, bus, devfn);
  
- 	//unmap the rom address
- 	if (cpqhp_rom_start)
+ 	switch (len) {
+ 	case 1:
+@@ -71,7 +92,7 @@ static int pci_mmcfg_write(unsigned int 
+ 
+ 	spin_lock_irqsave(&pci_config_lock, flags);
+ 
+-	pci_exp_set_dev_base(bus, devfn);
++	pci_exp_set_dev_base(seg, bus, devfn);
+ 
+ 	switch (len) {
+ 	case 1:
 

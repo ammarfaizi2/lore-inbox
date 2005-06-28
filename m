@@ -1,47 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261469AbVF1JJM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261587AbVF1JM5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261469AbVF1JJM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 05:09:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261424AbVF1JJM
+	id S261587AbVF1JM5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 05:12:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261870AbVF1JM4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 05:09:12 -0400
-Received: from nome.ca ([65.61.200.81]:21155 "HELO gobo.nome.ca")
-	by vger.kernel.org with SMTP id S261469AbVF1JJG (ORCPT
+	Tue, 28 Jun 2005 05:12:56 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:32642 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261587AbVF1JMi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 05:09:06 -0400
-Date: Tue, 28 Jun 2005 02:08:53 -0700
-From: Mike Bell <kernel@mikebell.org>
-To: Greg KH <greg@kroah.com>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] ndevfs - a "nano" devfs
-Message-ID: <20050628090852.GA966@mikebell.org>
-Mail-Followup-To: Mike Bell <kernel@mikebell.org>, Greg KH <greg@kroah.com>,
-	Dmitry Torokhov <dtor_core@ameritech.net>,
-	linux-kernel@vger.kernel.org
-References: <20050624081808.GA26174@kroah.com> <20050625234305.GA11282@kroah.com> <20050627071907.GA5433@mikebell.org> <200506271735.50565.dtor_core@ameritech.net> <20050627232559.GA7690@mikebell.org> <20050628074015.GA3577@kroah.com>
+	Tue, 28 Jun 2005 05:12:38 -0400
+Date: Tue, 28 Jun 2005 11:12:22 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Daniel Walker <dwalker@mvista.com>, Chuck Harding <charding@llnl.gov>,
+       Linux Kernel Discussion List <linux-kernel@vger.kernel.org>
+Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.50-24
+Message-ID: <20050628091222.GA30629@elte.hu>
+References: <20050608112801.GA31084@elte.hu> <20050625091215.GC27073@elte.hu> <200506250919.52640.gene.heskett@verizon.net> <200506251039.14746.gene.heskett@verizon.net> <Pine.LNX.4.63.0506271157200.8605@ghostwheel.llnl.gov> <1119902991.4794.5.camel@dhcp153.mvista.com> <Pine.LNX.4.58.0506280337390.24849@localhost.localdomain> <20050628081843.GA16455@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050628074015.GA3577@kroah.com>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20050628081843.GA16455@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 28, 2005 at 12:40:15AM -0700, Greg KH wrote:
-> > 1) Predictable, canonical device names are a Good Thing.
+
+* Ingo Molnar <mingo@elte.hu> wrote:
+
+> * Steven Rostedt <rostedt@goodmis.org> wrote:
 > 
-> And impossible for the kernel to generate given hotpluggable devices.
+> > Although turning off apm works, this is a fix to the symptom and not a 
+> > cure.  Has someone already taken a look at this code? Since 
+> > apm_bios_call_simple calls local_save_flags and afterwards 
+> > raw_lock_irq_restore is then called.  Shouldn't that have been 
+> > raw_local_save_flags?
+> 
+> ah, indeed. I fixed this bug and have uploaded the -50-26 patch. 
+> Chuck, does this fix the APM problems for you?
 
-Bull. It's clear I'm talking about per-subsystem, not having individual
-devices show up with the same name each time. Or are you suggesting that
-hotplug might somehow turn my keyboard into a hard drive?
+i've also uploaded -50-27 in which i've improved the irq-flags debugging 
+code. They are activated if CONFIG_DEBUG_PREEMPT is enabled, and can 
+come in two variants of kernel messages:
 
-> I don't accept it, and neither does anyone else.
+ BUG: bad raw irq-flag value 80000000, test/3810!
+ BUG: bad soft irq-flag value 00000202, test/3810!
 
-So then explain this to me, I've got a GUI sound player, on first
-invocation it displays a list of sound cards installed on the system,
-allows the user to select one, and then plays the sound file. How is it
-supposed to do that if the device nodes for sound card 0 could be named
-anything? I can get a list of sound cards from /proc/asound or
-/sys/class/sound, but unless the sound card device nodes are predictably
-named there's no way to find them short of searching every node in /dev.
+so we should now be able to detect mismatches of irq flags right where 
+they occur.
+
+	Ingo

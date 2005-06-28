@@ -1,84 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261158AbVF1TO4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261355AbVF1TXy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261158AbVF1TO4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 15:14:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261170AbVF1TO4
+	id S261355AbVF1TXy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 15:23:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261363AbVF1TXy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 15:14:56 -0400
-Received: from 69-18-3-179.lisco.net ([69.18.3.179]:53258 "EHLO
-	ninja.slaphack.com") by vger.kernel.org with ESMTP id S261158AbVF1TO0
+	Tue, 28 Jun 2005 15:23:54 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:29630 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S261355AbVF1TXk
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 15:14:26 -0400
-Message-ID: <42C1A18D.7000902@slaphack.com>
-Date: Tue, 28 Jun 2005 14:14:21 -0500
-From: David Masover <ninja@slaphack.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050325)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Vitaly Fertman <vitaly@namesys.com>
-Cc: reiserfs-list@namesys.com, Hans Reiser <reiser@namesys.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: reiser4 plugins
-References: <200506231924.j5NJOvLA031008@laptop11.inf.utfsm.cl> <200506280052.32571.vitaly@namesys.com> <42C06A84.9040201@slaphack.com> <200506281232.24245.vitaly@namesys.com>
-In-Reply-To: <200506281232.24245.vitaly@namesys.com>
-X-Enigmail-Version: 0.89.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=KOI8-R
+	Tue, 28 Jun 2005 15:23:40 -0400
+Subject: Re: wrong madvise(MADV_DONTNEED) semantic
+From: Robert Love <rml@novell.com>
+To: Andy Isaacson <adi@hexapodia.org>
+Cc: Samuel Thibault <samuel.thibault@ens-lyon.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050628185300.GB30079@hexapodia.org>
+References: <20050628134316.GS5044@implementation.labri.fr>
+	 <20050628181620.GA1423@hexapodia.org> <1119983300.6745.1.camel@betsy>
+	 <20050628185300.GB30079@hexapodia.org>
+Content-Type: text/plain
+Date: Tue, 28 Jun 2005 15:23:43 -0400
+Message-Id: <1119986623.6745.10.camel@betsy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tue, 2005-06-28 at 11:53 -0700, Andy Isaacson wrote:
 
-Vitaly Fertman wrote:
-> On Tuesday 28 June 2005 01:07, David Masover wrote:
+> I contest your interpretation of the manpage; while it could be read
+> the way you suggest, I claim that because Linux mmap is inherently
+> coherent (as opposed to, for example, AIX 4.1 mmap) then the "underlying
+> file" already contains the updated contents, and ergo msync is not
+> required for correct MAP_SHARED semantics on Linux, and the manpage as
+> it stands is (misleading, but) both accurate to the 2.6.11
+> implementation and compliant with the POSIX description posted earlier.
+
+Well, there is nothing guaranteeing (either in the Linux implementation
+or the code) that the in-memory changes are synced back to disk.  You
+have to call msyc().
+
+> > if the file is mapped writable and not mysnc'ed
 > 
->>Vitaly Fertman wrote:
->>
->>>On Friday 24 June 2005 23:46, Hans Reiser wrote:
->>>
->>>
->>>>David Masover wrote:
->>>>
->>>>
->>>>
->>>>
->>>>>I was able to recover from bad blocks, though of course no Reiser that I
->>>>>know of has had bad block relocation built in...
->>>>
->>>>there was a patch somewhere.  Vitaly, please comment.
->>>
->>>
->>>http://www.namesys.com/bad-block-handling.html describes
->>>how reiserfs handles bad blocks.
->>
->>Anything like this for v4?
+> This is the case that my posted example code exercises, and I did not
+> see any problems.  Is there some additional circumstance that is
+> necessary to cause it to break?  (I tested on 2.6.11-rc5 or something
+> close to that.)
+
+Yah, I am not--at all--talking about actual behavior.  Just that the
+wording definitely says, its kind of been a common belief, that
+MADV_DONTNEED literally ditches your data.  If you need it, don't call
+MADV_DONTNEED.
+
+> > or if the memory mapping is anonymous.
+> >
+> > In the latter case, the data is dropped and the pages are
+> > zero-filled on access.
 > 
->  
-> in todo for v4, not implemented yet.
+> Yes, MAP_ANONYMOUS is a more interesting case.  Somebody else will have
+> to write the testcase for that...
 
-Is it significantly different that there'd be another doc I can read?
+It would have to discard the pages, losing the data, unless it caused
+swapout (let's hope not).
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+> I think the correct docs fix is to simply delete the misleading parts of
+> madvise.2 so that it reads
+> 
+>         MADV_DONTNEED
+>  	      Do not expect access in the near future.  (For the time
+>  	      being, the application is finished with the given range,
+>  	      so the kernel can free resources associated with it.)
+> 
+> and remove the erroneous parenthetical in the first paragraph.
+> 
+> .. unless, of course, someone can actually demonstrate a case where
+> madvise results in differing semantics...
 
-iQIVAwUBQsGhjXgHNmZLgCUhAQJaeg/7BeQVRKc0m0AEKiwp6B/N/R6/32JcIvk9
-0jZq3A6wYsSxmRSDfId+FVoHApAoZldOtw5CZ7W3TwUJBxzGwFZ7IYM4mQaZ5eRa
-7CdAoX9LrG85sY/2M9qypE5cW6BQ/0DJFPDOiree/+6mNomg8uOUJ6FeO93j2JW3
-jdPrWqsmYBPSDo4vKha+xoAZpCH/sMLwDDBUIFfC2iz4B4yTxYNfEX+mJ4T2mEls
-3YqSiTMkgnFbsVTdUiIjqVJY+jJ9ALhDKdc/hkNNrNir3Iib6aNbg9J9J5cDgNHU
-zzvNyp6WsCgQjtCvfMojVewKAMu94eg1sXt6ESNz4dKbdPBSdo+lBnATntnMjFCN
-7nS9K/kKcTKwSVQjQdyEhbm51C9SXYLxj4CMcru9ZyVtdlyzCLhBda1FvaxWbatJ
-iGCh8tg43Xkd1N4H+LlTQpJrfbkJBXu4U9oYIuNSQuolMfz6IbJqcfNzV0hm9drp
-lGLODFSFEWFqHUgPqLymk8/pBW9xP4XYwwWFcY8x0Dw4UxpWRB43EZ8Nydg4PBEk
-SrLnq1FNSP+QLHZvWwF+8vpWj1jyeiBU2hFpt/p9crU5uy4OWGbKEh8GuEHFgp9P
-BdKzp4iwTFwgjKR/uM3JnCfN4ct0yyyBZVMNf0N8w2Idu4OkBiS2edg/70A8/OqV
-U0JVANH5qxc=
-=sd/Q
------END PGP SIGNATURE-----
+Nod.
+
+I think we need to resolve the differences between the man pages,
+comments, expected user behavior, kernel implementation, POSIX standard,
+and what other OS's do.  Figure out what to do, then unify everything.
+
+	Robert Love
+
+

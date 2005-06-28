@@ -1,96 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261519AbVF1VpJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbVF1Vrv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261519AbVF1VpJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 17:45:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261482AbVF1VoY
+	id S261347AbVF1Vrv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 17:47:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261370AbVF1Vpl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 17:44:24 -0400
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:6840 "EHLO
-	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S261668AbVF1VmG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 17:42:06 -0400
-Date: Tue, 28 Jun 2005 23:41:57 +0200
-From: Michael Becker <michbec@t-online.de>
-X-Mailer: The Bat! (v1.62r) Personal
-Reply-To: Michael Becker <michbec@t-online.de>
-Organization: Privat
-X-Priority: 3 (Normal)
-Message-ID: <1267256797.20050628234157@t-online.de>
-To: k8 s <uint32@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re[2]: IPSec Inbound Processing Basic Doubt
-In-Reply-To: <699a19ea05062810087b79f12f@mail.gmail.com>
-References: <699a19ea050623105516cd5eb8@mail.gmail.com>
- <506243806.20050627182416@t-online.de>
- <699a19ea05062810087b79f12f@mail.gmail.com>
+	Tue, 28 Jun 2005 17:45:41 -0400
+Received: from fmr13.intel.com ([192.55.52.67]:36041 "EHLO
+	fmsfmr001.fm.intel.com") by vger.kernel.org with ESMTP
+	id S261301AbVF1Vnv convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 17:43:51 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-ID: rAid+eZdgewNeEHoaPbEt2F493I8gMfxUbYg+apDZTtvm+1eu7oxsM
-X-TOI-MSGID: 32e7b5d8-9a7f-40a3-9c88-cb99455d479a
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: C2/C3 on SMP [Was: Re: 2.6.X not recognizing second CPU]
+Date: Tue, 28 Jun 2005 17:43:35 -0400
+Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B3003F0720B@hdsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: C2/C3 on SMP [Was: Re: 2.6.X not recognizing second CPU]
+Thread-Index: AcV8KGtX8+0Fq0MeRfqpIkkQJjRVgQAAe+iw
+From: "Brown, Len" <len.brown@intel.com>
+To: "Dominik Brodowski" <linux@dominikbrodowski.net>,
+       "Erik Slagter" <erik@slagter.name>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+Cc: "Andrew Haninger" <ahaning@gmail.com>,
+       "Jim serio" <jseriousenet@gmail.com>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 28 Jun 2005 21:43:37.0689 (UTC) FILETIME=[710A2C90:01C57C2A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Yes, this patch, and some other acpi patches, should re-join mm and
+linus tree momentarily...
 
-ks> heard that IPSec is kept in a UDP packet and sent.  How does the tx
-ks> side processing happen (the host from which the udp encapsulated ipsec
-ks> packet originated). The last call in the stackable destination is
-ks> ip_output() as you said.
-ks> How does it go back to udp(transport) layer in this case.
+-----Original Message-----
+From: Dominik Brodowski [mailto:linux@dominikbrodowski.net] 
+Sent: Tuesday, June 28, 2005 5:29 PM
+To: Erik Slagter; Pallipadi, Venkatesh; Brown, Len
+Cc: Andrew Haninger; Jim serio; linux-kernel@vger.kernel.org
+Subject: C2/C3 on SMP [Was: Re: 2.6.X not recognizing second CPU]
 
-It doesn't go back.
+On Tue, Jun 28, 2005 at 01:32:59PM +0200, Erik Slagter wrote:
+> On Mon, 2005-06-27 at 23:42 +0200, Dominik Brodowski wrote:
+> > a) Power Management is available on SMP, though support for it is a
+bit less
+> >    wide-spread than it is for UP
+> 
+> Still no C2/C3 handling :-(
 
-UDP encapsulation is done for ...
+Uh, wasn't there a small, nice patch implementing this in bk-acpi a few 
+weeks ago?
+*clicketyclick* Oh yes,
+http://bugzilla.kernel.org/show_bug.cgi?id=4401
+states it was merged into bk-acpi-test on 2005-04-22. However, I can't
+find
+it in current -mm any more...
 
-INPUT:
- - udp_rcv
-     |
-     --- udp_queue_rcv_skb
-           |
-           --- udp_encap_rcv (strips of udp)
-           |
-           --- xfrm4_rcv_encap (usual procedure)
-
-
-OUTPUT:
-  - Done in esp_output as part of a stacked destination
-    (e.g. net/ipv4/esp4.c)
-    NAT-Traversal does only make sense for ESP, as AH protocol
-    authenticates ("hashes") whole IP header including
-    IP src / dst address, so you can't manipulate afterwards
-    like SNAT / DNAT would do.
-
-    exerpt from  net/ipv4/esp4.c
-
-  /* this is non-NULL only with UDP Encapsulation */
-71         if (x->encap) {
-72                 struct xfrm_encap_tmpl *encap = x->encap;
-..                 ...
-81
-82                 switch (encap->encap_type) {
-83                 default:
-84                 case UDP_ENCAP_ESPINUDP:
-..                         ....
-87                 case UDP_ENCAP_ESPINUDP_NON_IKE:
-..                         ....
-91                         break;
-92                 }
-93 
-94                 top_iph->protocol = IPPROTO_UDP;
-95         } else
-96                 top_iph->protocol = IPPROTO_ESP;
-
-
-As you see input and output processing isn't symetric any way,
-with or without UDP encapsulation (NAT-T)
-
-Have a look at http://lxr.linux.no which helps a lot sorting out
-different pathes in the code. It's a complete cross reference of
-the latest and some previous kernels
-
-Best regards
-     Michael Becker
-
-Hochschule Niederrhein - Krefeld, Germany
-
+	Dominik

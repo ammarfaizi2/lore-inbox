@@ -1,33 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261619AbVF1Uq4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261606AbVF1Uqz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261619AbVF1Uq4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 16:46:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261270AbVF1UqO
+	id S261606AbVF1Uqz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 16:46:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261668AbVF1Uqo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 16:46:14 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:22950
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S261668AbVF1Upp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 16:45:45 -0400
-Date: Tue, 28 Jun 2005 13:45:11 -0700 (PDT)
-Message-Id: <20050628.134511.24214061.davem@davemloft.net>
-To: jmacbaine@gmail.com
-Cc: stable@kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [00/07] -stable review
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <3afbacad050628051059b69bbe@mail.gmail.com>
-References: <20050627224651.GI9046@shell0.pdx.osdl.net>
-	<3afbacad050628051059b69bbe@mail.gmail.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Tue, 28 Jun 2005 16:46:44 -0400
+Received: from simmts8.bellnexxia.net ([206.47.199.166]:46077 "EHLO
+	simmts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S261606AbVF1UpN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 16:45:13 -0400
+Message-ID: <3886.10.10.10.24.1119991512.squirrel@linux1>
+In-Reply-To: <62CF578B-B9DF-4DEA-8BAD-041F357771FD@mac.com>
+References: <42B9E536.60704@pobox.com> <20050623235634.GC14426@waste.org>
+    <20050624064101.GB14292@pasky.ji.cz>
+    <20050624123819.GD9519@64m.dyndns.org>
+    <20050628150027.GB1275@pasky.ji.cz> <20050628180157.GI12006@waste.org>
+    <62CF578B-B9DF-4DEA-8BAD-041F357771FD@mac.com>
+Date: Tue, 28 Jun 2005 16:45:12 -0400 (EDT)
+Subject: Re: Mercurial vs Updated git HOWTO for kernel hackers
+From: "Sean" <seanlkml@sympatico.ca>
+To: "Kyle Moffett" <mrmacman_g4@mac.com>
+Cc: "Matt Mackall" <mpm@selenic.com>, "Petr Baudis" <pasky@ucw.cz>,
+       "Christopher Li" <hg@chrisli.org>, "Jeff Garzik" <jgarzik@pobox.com>,
+       "Linux Kernel" <linux-kernel@vger.kernel.org>,
+       "Git Mailing List" <git@vger.kernel.org>, mercurial@selenic.com
+User-Agent: SquirrelMail/1.4.4-2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Jim MacBaine <jmacbaine@gmail.com>
-Date: Tue, 28 Jun 2005 14:10:18 +0200
+On Tue, June 28, 2005 4:27 pm, Kyle Moffett said:
+> On Jun 28, 2005, at 14:01:57, Matt Mackall wrote:
+>> Everything in Mercurial is an append-only log. A transaction journal
+>> records the original length of each log so that it can be restored on
+>> failure.
+>
+> Does this mean that (excepting the "undo" feature) one could set the
+> ext3 "append-only" attribute on the repository files to avoid losing
+> data due to user account compromise?
+>
 
-> Will the fix for the iptables physdev match go into -stable?
+Probably.  In Git, which is a bit more flexible than Mecurial you can
+chmod your objects to read-only or use the ext3 immutable setting to
+protect your existing objects.   You can even have a setup where objects
+are archived onto write-once media like DVD and still participate in a
+live repository, where new objects are written to hard disk, but older
+object are (automatically) sourced from the DVD.
 
-I will submit it to stable@kernel.org, please be patient.
+Sean
+
+

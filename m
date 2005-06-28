@@ -1,95 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262548AbVF2LHW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262550AbVF2LLI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262548AbVF2LHW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 07:07:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262525AbVF2LGg
+	id S262550AbVF2LLI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 07:11:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262544AbVF2LLH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 07:06:36 -0400
-Received: from 71-36-17-141.bois.qwest.net ([71.36.17.141]:23564 "HELO
-	71-36-17-141.bois.qwest.net") by vger.kernel.org with SMTP
-	id S262538AbVF2LEq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 07:04:46 -0400
-Mime-Version: 1.0 (Intermedia news script)
+	Wed, 29 Jun 2005 07:11:07 -0400
+Received: from smtprelay01.ispgateway.de ([80.67.18.13]:33226 "EHLO
+	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
+	id S262550AbVF2LKh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 07:10:37 -0400
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: coverity-desc-bitmap-overrun-fix-fix
+Date: Tue, 28 Jun 2005 20:10:08 +0200
+User-Agent: KMail/1.7.2
+References: <BAY19-F38CD6342E8B675570A6E179CE10@phx.gbl> <20050628040045.7a829f77.akpm@osdl.org>
+In-Reply-To: <20050628040045.7a829f77.akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1719911.NrPNnbtZU7";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Message-Id: <10956238148.39520129639@71-36-17-141.bois.qwest.net>
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-From: Ronald <americium@chrismarino.com>
-Subject: Is Momentum Building for This Small-Cap?
-Date: Wed, 29 Jun 2005 05:04:53 -0600
-X-Mailer: Intermedia news script
+Message-Id: <200506282010.13916.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-TUESDAY 06/28/05 Its moving already..
+--nextPart1719911.NrPNnbtZU7
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-EXCITING ISSUE PGCN.OB GET IN NOW!!!
+Hi Andrew,
+hi lkml,
 
-(OTC Ti.cker: PGCN.OB)
+On Tuesday 28 June 2005 13:00, you wrote:
+> From a maintainability POV it would be better to memset the whole array
+> beforehand - I changed the patch to do that)
+=20
+Yes, but then you should not assign 0xff to memset regions.
 
-Current Price $1.75
-5-Day Target: $6
-10-Day Target: $11
-3-Month Target: $25-28 or Higher
+> Signed-off-by: Zaur Kambarov <zkambarov@coverity.com>
+> Cc: <linux-usb-devel@lists.sourceforge.net?
+> Cc: Greg KH <greg@kroah.com>
+> Signed-off-by: Andrew Morton <akpm@osdl.org>
+> ---
+>=20
+>  drivers/usb/host/ohci-hub.c |    3 ++-
+>  1 files changed, 2 insertions(+), 1 deletion(-)
+>=20
+> diff -puN drivers/usb/host/ohci-hub.c~coverity-desc-bitmap-overrun-fix dr=
+ivers/usb/host/ohci-hub.c
+> --- 25/drivers/usb/host/ohci-hub.c~coverity-desc-bitmap-overrun-fix	2005-=
+06-24 22:11:00.000000000 -0700
+> +++ 25-akpm/drivers/usb/host/ohci-hub.c	2005-06-24 22:19:48.000000000 -07=
+00
+> @@ -419,10 +419,11 @@ ohci_hub_descriptor (
+> =20
+>  	/* two bitmaps:  ports removable, and usb 1.0 legacy PortPwrCtrlMask */
+>  	rh =3D roothub_b (ohci);
+> +	memset(desc->bitmap, 0xff, sizeof(desc->bitmap));
+>  	desc->bitmap [0] =3D rh & RH_B_DR;
+>  	if (ports > 7) {
+>  		desc->bitmap [1] =3D (rh & RH_B_DR) >> 8;
+> -		desc->bitmap [2] =3D desc->bitmap [3] =3D 0xff;
+> +		desc->bitmap [2] =3D 0xff;
+>  	} else
+>  		desc->bitmap [1] =3D 0xff;
+>  }
 
-PRESS RELEASE
+I would suggest:
 
-Pingchuan Signed Market Research Consignment Agreement With Moscow Sing Sing
-Co. Ltd
+	if (ports > 7)=20
+		desc->bitmap[1] =3D (rh & RH_B_DR) >> 8
 
-Thursday June 23, 10:31 am ET
+instead of the whole if construct.
 
+Regards
 
-HARBIN, China, June 23 /Xinhua-PRNewswire/ -- Pingchuan Pharmaceutical Inc.
-(OTC Bulletin Board: PGCN.OB - News; "PINGCHUAN") announced today that
-PINGCHUAN signed a market research consignment agreement with Moscow Sing
-Sing Co. Ltd ("SING SING").
-
-ADVERTISEMENT
-
-According to the agreement, SING SING authorized PINGCHUAN as its exclusive
-partner to conduct market researches for business projects in P. R. China
-(exclude Hong Kong, Macao and Taiwan). PINGCHUAN promises to accomplish
-commercial market researches and deliver business plans for SING SING within
-the valid period of the agreement. The co-operation with SING SING, will
-bring in revenue of USD 200,000 for PINGCHUAN.
-
-HERE IS ANOTHER GOOD REASON TO LOOK AT PGCN.OB
-
-Pingchuan Pharmaceutical Inc. ("PINGCHUAN") is a modernized
-pharmaceutical manufacturer with first-class medical R&D ability, pioneered
-medicine products, and well-established marketing network. Since its
-establishment, PINGCHUAN has focused its businesses on diabetes medicine and
-its medical products. The products of PINGCHUAN include health care
-products, varieties of medicine, as well as medical apparatus. Kang Da
-Glycosuria Capsule is a successful product of PINGCHUAN for treating
-diabetes, which was first developed in 1998 and introduced to the market in
-2001. PINGCHUAN has well-established marketing network and sale branches,
-which include about 180,000 retail pharmacies/drugstores across China,
-agency network in major cities like Beijing, Shanghai, Guangzhou, and Xi'an,
-special counter sale at drug chain stores in key regions, residence
-community clinic sale and promotion, as well as internet marketing through
-the company's website. The marketing network of PINGCHUAN covers more than
-50% districts of China and exports to US, Japan, Russia, and south-eastern
-Asia.
-
-
-Sick of hedge funds and flippers getting all the great new issues? Most
-s.tock brokers give out their new issues to their largest commission paying
-clients---and if you trade through an online broker or discount
-broker---good luck ever getting 1 share of a new issue.
-
-WELL ALL THAT IS CHANGING -- THIS IS AN ONLINE INTERNET IPO. IF YOU ARE
-RECEIVING THIS EMAIL, YOU ARE AMONG THE FIRST PUBLIC INVESTORS TO KNOW ABOUT
-PGCN.OB !!!!
+Ingo Oeser
 
 
+--nextPart1719911.NrPNnbtZU7
+Content-Type: application/pgp-signature
 
-Remember the gains from our recent  Strong B.uy  recommendations...
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-It is only a matter of time before it is released out into the investment
-community and they take it to the moon..
+iD8DBQBCwZKFU56oYWuOrkARAnR0AKCJt5nYpUfWk6rMHPuTRaLcwYOcXwCgv/44
+f2gPQv/eEerJREt3hJJX3gc=
+=6MjV
+-----END PGP SIGNATURE-----
 
-
-
-
+--nextPart1719911.NrPNnbtZU7--

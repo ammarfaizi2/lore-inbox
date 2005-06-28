@@ -1,68 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262356AbVF1A5H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262358AbVF1BBw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262356AbVF1A5H (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 20:57:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262357AbVF1A5H
+	id S262358AbVF1BBw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 21:01:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262359AbVF1BBw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 20:57:07 -0400
-Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:878 "HELO
-	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262356AbVF1A46 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 20:56:58 -0400
-Message-ID: <42C0A04D.9060906@yahoo.com.au>
-Date: Tue, 28 Jun 2005 10:56:45 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-Subject: Re: [patch 2] mm: speculative get_page
-References: <42BF9CD1.2030102@yahoo.com.au> <42BF9D67.10509@yahoo.com.au> <42BF9D86.90204@yahoo.com.au> <20050627141220.GM3334@holomorphy.com> <42C093B4.3010707@yahoo.com.au>
-In-Reply-To: <42C093B4.3010707@yahoo.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 27 Jun 2005 21:01:52 -0400
+Received: from smtpout1.uol.com.br ([200.221.4.192]:15071 "EHLO
+	smtp.uol.com.br") by vger.kernel.org with ESMTP id S262358AbVF1BBs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 21:01:48 -0400
+Date: Mon, 27 Jun 2005 22:00:52 -0300
+From: =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net
+Subject: Re: Problems with Firewire and -mm kernels (was: Re: 2.6.12-mm2)
+Message-ID: <20050628010052.GA3947@ime.usp.br>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net
+References: <20050626040329.3849cf68.akpm@osdl.org> <42BE99C3.9080307@trex.wsi.edu.pl> <20050627025059.GC10920@ime.usp.br> <20050627164540.7ded07fc.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050627164540.7ded07fc.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-> William Lee Irwin III wrote:
-> 
->> On Mon, Jun 27, 2005 at 04:32:38PM +1000, Nick Piggin wrote:
->>
->>> +static inline struct page *page_cache_get_speculative(struct page 
->>> **pagep)
->>> +{
->>> +    struct page *page;
->>> +
->>> +    preempt_disable();
->>> +    page = *pagep;
->>> +    if (!page)
->>> +        goto out_failed;
->>> +
->>> +    if (unlikely(get_page_testone(page))) {
->>> +        /* Picked up a freed page */
->>> +        __put_page(page);
->>> +        goto out_failed;
->>> +    }
->>
->>
->>
->> So you pick up 0->1 refcount transitions.
->>
-> 
-> Yep ie. a page that's freed or being freed.
-> 
+On Jun 27 2005, Andrew Morton wrote:
+> Could you please generate the dmesg output from 2.6.12 and 2.6.12-mm2 and,
+> if there are any relevant-looking differences, send them?
 
-Oh, one thing it does need is a check for PageFree(), so it also
-picks up 1->2 and other transitions without freeing the free page
-if the put()s are done out of order. Maybe that's what you were
-alluding to.
+Ok, I put them both on <http://www.ime.usp.br/~rbrito/bug/>.
 
-I'll add that.
+> Also, try:
+> 
+> wget (...)
+> patch -R -p1 < gregkh-pci-pci-collect-host-bridge-resources-02.patch
 
+Ok. I am compiling the kernel right now and will post the results as soon
+as I am finished.
+
+> Thanks.
+
+Thank you very much for your feedback, Rogério.
+
+P.S.: I just noticed right now that the patch listed above changes only
+arch/i386/pci/acpi.c, but I am not using ACPI. Well, I will proceed anyway.
 -- 
-SUSE Labs, Novell Inc.
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Rogério Brito : rbrito@ime.usp.br : http://www.ime.usp.br/~rbrito
+Homepage of the algorithms package : http://algorithms.berlios.de
+Homepage on freshmeat:  http://freshmeat.net/projects/algorithms/

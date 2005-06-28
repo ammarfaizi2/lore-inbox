@@ -1,43 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262095AbVF1PpS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262101AbVF1Pwv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262095AbVF1PpS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 11:45:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262086AbVF1PpS
+	id S262101AbVF1Pwv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 11:52:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262102AbVF1Pwu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 11:45:18 -0400
-Received: from wproxy.gmail.com ([64.233.184.197]:65060 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262095AbVF1PpN convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 11:45:13 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=VmdtOKAHNEpepdb4jROud7Jk4fhyH5I8ZNTy0N04L8aBNCxDTcToevgB2vUuR339rAk9gwQBJK1JUqYotXlxI4MdWKKXyd3zT3wgwZqR158/t7jkoQrcDCL2X2hLK/r6vJWwuCbAPN0hCoJt7pXKT4QqxE6Kv5bYKQLdrqGnbPg=
-Message-ID: <cbecb30405062808446f520e6a@mail.gmail.com>
-Date: Tue, 28 Jun 2005 12:44:34 -0300
-From: Rodrigo Nascimento <underscore0x5f@gmail.com>
-Reply-To: Rodrigo Nascimento <underscore0x5f@gmail.com>
-To: =?ISO-8859-2?Q?Micha=B3_Piotrowski?= <piotrowskim@trex.wsi.edu.pl>
-Subject: Re: A new soldier
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <42C16A91.1050101@trex.wsi.edu.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <cbecb304050628072325516b6e@mail.gmail.com>
-	 <20050628144056.GC18116@wohnheim.fh-wedel.de>
-	 <cbecb30405062807595af820fe@mail.gmail.com>
-	 <42C16A91.1050101@trex.wsi.edu.pl>
+	Tue, 28 Jun 2005 11:52:50 -0400
+Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:21900 "HELO
+	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262101AbVF1Pws (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 11:52:48 -0400
+Message-ID: <42C17028.6050903@yahoo.com.au>
+Date: Wed, 29 Jun 2005 01:43:36 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, Anton Blanchard <anton@samba.org>
+Subject: Re: [patch 2] mm: speculative get_page
+References: <42C0AAF8.5090700@yahoo.com.au> <20050628040608.GQ3334@holomorphy.com> <42C0D717.2080100@yahoo.com.au> <20050627.220827.21920197.davem@davemloft.net> <20050628141903.GR3334@holomorphy.com>
+In-Reply-To: <20050628141903.GR3334@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks, Mr. Piotrowski.
-I got of LDD3. 
+William Lee Irwin III wrote:
+> On Mon, Jun 27, 2005 at 10:08:27PM -0700, David S. Miller wrote:
+> 
+>>BTW, I disagree with this assertion.  spin_unlock() does imply a
+>>memory barrier.
+>>All memory operations before the release of the lock must execute
+>>before the lock release memory operation is globally visible.
+> 
+> 
+> The affected architectures have only recently changed in this regard.
+> ppc64 was the most notable case, where it had a barrier for MMIO
+> (eieio) but not a general memory barrier. PA-RISC likewise formerly had
+> no such barrier and was a more normal case, with no barrier whatsoever.
+> 
+> Both have since been altered, ppc64 acquiring a heavyweight sync
+> (arch nomenclature), and PA-RISC acquiring 2 memory barriers.
+> 
 
-I have a lot of things to read before to send my first useful message.
+Parisc looks like it's doing the extra memory barrier to "be safe" :P
 
-Thanks !!!
+Re the ppc64 chageset: It looks to me like lwsync is the lightweight
+sync, and eieio is just referred to as the lightER (than sync) weight
+sync. What's more, it looks like eieio does order stores to system
+memory and is not just an MMIO barrier.
 
---
-underscore(0x5f)
+But nit picking aside, is it true that we need a load barrier before
+unlock? (store barrier I agree with) The ppc64 changeset in question
+indicates yes, but I can't quite work out why. There are noises in the
+archives about this, but I didn't pinpoint a conclusion...
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

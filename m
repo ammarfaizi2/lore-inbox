@@ -1,88 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261355AbVF1TXy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261217AbVF1TZ3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261355AbVF1TXy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 15:23:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261363AbVF1TXy
+	id S261217AbVF1TZ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 15:25:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261163AbVF1TZ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 15:23:54 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:29630 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S261355AbVF1TXk
+	Tue, 28 Jun 2005 15:25:29 -0400
+Received: from terminus.zytor.com ([209.128.68.124]:64679 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S261238AbVF1TZI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 15:23:40 -0400
-Subject: Re: wrong madvise(MADV_DONTNEED) semantic
-From: Robert Love <rml@novell.com>
-To: Andy Isaacson <adi@hexapodia.org>
-Cc: Samuel Thibault <samuel.thibault@ens-lyon.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050628185300.GB30079@hexapodia.org>
-References: <20050628134316.GS5044@implementation.labri.fr>
-	 <20050628181620.GA1423@hexapodia.org> <1119983300.6745.1.camel@betsy>
-	 <20050628185300.GB30079@hexapodia.org>
-Content-Type: text/plain
-Date: Tue, 28 Jun 2005 15:23:43 -0400
-Message-Id: <1119986623.6745.10.camel@betsy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
+	Tue, 28 Jun 2005 15:25:08 -0400
+Message-ID: <42C1A404.5080504@zytor.com>
+Date: Tue, 28 Jun 2005 12:24:52 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.3 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
+CC: webmaster@kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: www.kernel.org git changelog feature
+References: <1684741176.20050628203038@dns.toxicfilms.tv>
+In-Reply-To: <1684741176.20050628203038@dns.toxicfilms.tv>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-06-28 at 11:53 -0700, Andy Isaacson wrote:
-
-> I contest your interpretation of the manpage; while it could be read
-> the way you suggest, I claim that because Linux mmap is inherently
-> coherent (as opposed to, for example, AIX 4.1 mmap) then the "underlying
-> file" already contains the updated contents, and ergo msync is not
-> required for correct MAP_SHARED semantics on Linux, and the manpage as
-> it stands is (misleading, but) both accurate to the 2.6.11
-> implementation and compliant with the POSIX description posted earlier.
-
-Well, there is nothing guaranteeing (either in the Linux implementation
-or the code) that the in-memory changes are synced back to disk.  You
-have to call msyc().
-
-> > if the file is mapped writable and not mysnc'ed
+Maciej Soltysiak wrote:
+> Hi,
 > 
-> This is the case that my posted example code exercises, and I did not
-> see any problems.  Is there some additional circumstance that is
-> necessary to cause it to break?  (I tested on 2.6.11-rc5 or something
-> close to that.)
-
-Yah, I am not--at all--talking about actual behavior.  Just that the
-wording definitely says, its kind of been a common belief, that
-MADV_DONTNEED literally ditches your data.  If you need it, don't call
-MADV_DONTNEED.
-
-> > or if the memory mapping is anonymous.
-> >
-> > In the latter case, the data is dropped and the pages are
-> > zero-filled on access.
+> how about adding to the kernel list at http://kernel.org
+> a link to the git log.
 > 
-> Yes, MAP_ANONYMOUS is a more interesting case.  Somebody else will have
-> to write the testcase for that...
-
-It would have to discard the pages, losing the data, unless it caused
-swapout (let's hope not).
-
-> I think the correct docs fix is to simply delete the misleading parts of
-> madvise.2 so that it reads
+> Currently we have:
+> F V VI C Changelog
 > 
->         MADV_DONTNEED
->  	      Do not expect access in the near future.  (For the time
->  	      being, the application is finished with the given range,
->  	      so the kernel can free resources associated with it.)
+> How about adding a link to the respestive git logs ?
 > 
-> and remove the erroneous parenthetical in the first paragraph.
+> F V VI C Changelog GIT
 > 
-> .. unless, of course, someone can actually demonstrate a case where
-> madvise results in differing semantics...
+> GIT might be a link to:
+>         http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=shortlog
+> or
+>         http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=log
+> 
+> Personally I like better view through the changes looking at the git shortlog,
+> which is much more readable than files like patch-2.6.12-git10.log
+> 
+> Well git log is also more readable than the patch-git.log thing.
+> 
+> Whaddya think?
+> 
+> Regards,
+> Maciej
+> 
+> 
 
-Nod.
+An abbreviated shortlog is the first thing on the "C" page, and there is 
+already a link there to the full one.
 
-I think we need to resolve the differences between the man pages,
-comments, expected user behavior, kernel implementation, POSIX standard,
-and what other OS's do.  Figure out what to do, then unify everything.
-
-	Robert Love
-
-
+	-hpa

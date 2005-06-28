@@ -1,49 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261506AbVF1Qov@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261939AbVF1QoS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261506AbVF1Qov (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 12:44:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261780AbVF1Qov
+	id S261939AbVF1QoS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 12:44:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261854AbVF1QoS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 12:44:51 -0400
-Received: from mailfe06.swip.net ([212.247.154.161]:28671 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S261506AbVF1Qol (ORCPT
+	Tue, 28 Jun 2005 12:44:18 -0400
+Received: from [212.76.85.206] ([212.76.85.206]:39940 "EHLO raad.intranet")
+	by vger.kernel.org with ESMTP id S261780AbVF1QoA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 12:44:41 -0400
-X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
-Subject: Re: oom-killings, but I'm not out of memory!
-From: Alexander Nyberg <alexn@telia.com>
-To: Anthony DiSante <theant@nodivisions.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <42C179D5.3040603@nodivisions.com>
-References: <42C179D5.3040603@nodivisions.com>
-Content-Type: text/plain
-Date: Tue, 28 Jun 2005 18:44:33 +0200
-Message-Id: <1119977073.1723.2.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+	Tue, 28 Jun 2005 12:44:00 -0400
+Message-Id: <200506281643.TAA00504@raad.intranet>
+From: "Al Boldi" <a1426z@gawab.com>
+To: "'Marcelo Tosatti'" <marcelo.tosatti@cyclades.com>,
+       "'Paulo Marques'" <pmarques@grupopie.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Kswapd flaw
+Date: Tue, 28 Jun 2005 19:43:20 +0300
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+In-Reply-To: <20050628095815.GA13464@logos.cnet>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Thread-Index: AcV79vRBJTZRcuw5QaCtBDnDuFTlJAACTP5w
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'm running a 2.6.11 kernel.  I have 1 gig of RAM and 1 gig of swap.  Lately 
-> when my RAM gets full, the oom-killer takes out either Mozilla or 
-> Thunderbird (my two biggest memory hogs), even though my swap space is only 
-> 20% full.  I still have ~800 MB of free swap space, so shouldn't the kernel 
-> push Moz or T-bird into swap instead of oom-killing it?  At their maximum 
-> memory-hogging capacity, neither Moz nor T-bird is ever using more than 200 MB.
->
-> Jun 28 12:09:09 soma oom-killer: gfp_mask=0x80d2
-> ...
-> Jun 28 12:09:09 soma Free swap  = 781012kB
-> Jun 28 12:09:09 soma Total swap = 987988kB
-> Jun 28 12:09:09 soma Out of Memory: Killed process 30787 (thunderbird-bin).
-> Jun 28 12:09:09 soma Out of Memory: Killed process 18112 (thunderbird-bin).
-> Jun 28 12:09:09 soma Out of Memory: Killed process 18116 (thunderbird-bin).
-> Jun 28 12:09:09 soma Out of Memory: Killed process 18117 (thunderbird-bin).
-> Jun 28 12:09:09 soma Out of Memory: Killed process 18119 (thunderbird-bin).
-> Jun 28 12:09:09 soma Out of Memory: Killed process 8857 (thunderbird-bin).
+Marcelo wrote: {
+On Tue, Jun 28, 2005 at 03:55:29PM +0100, Paulo Marques wrote:
+> Al Boldi wrote:
+> >On Mon, Jun 27, 2005 at 11:04:08PM +0300, Al Boldi wrote:
+> >
+> >>In 2.4.31 kswapd starts paging during OOMs even w/o swap enabled.
+> >>
+> >>Is there a way to fix/disable this behaviour?
+> >
+> >
+> >Marcelo,
+> >
+> >Kswapd starts evicting processes to fullfil a malloc, when it should 
+> >just deny it because there is no swap.
 > 
+> I think what you really want is to adjust your "overcommit" settings.
+> 
+> See: "Documentation/vm/overcommit-accounting"
 
-You cut out the important part where it printed out memory usage
-information at the time of the OOM, please post it
+You might also want to disable the OOM killer (CONFIG_OOM_KILLER).
+}
+
+Paulo,
+Thanks for the pointer!  Overcommit is the problem, and kswapd is not
+honoring it.
+Can this be fixed/adjusted?
+
+Marcelo,
+Disable OOM killer? Is that an option in 2.4 or 2.6?
+
+Thanks!
 

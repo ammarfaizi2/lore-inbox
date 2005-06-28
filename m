@@ -1,100 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261279AbVF1MsV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261315AbVF1Mus@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261279AbVF1MsV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 08:48:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261315AbVF1MsV
+	id S261315AbVF1Mus (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 08:50:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261437AbVF1Mur
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 08:48:21 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:26824 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261279AbVF1Mry (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 08:47:54 -0400
-Date: Tue, 28 Jun 2005 14:47:50 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Christoph Lameter <christoph@lameter.com>,
-       Linus Torvalds <torvalds@osdl.org>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, raybry@engr.sgi.com,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-Subject: Re: [RFC] Fix SMP brokenness for PF_FREEZE and make freezing usable for other purposes
-Message-ID: <20050628124750.GB11129@atrey.karlin.mff.cuni.cz>
-References: <Pine.LNX.4.62.0506242311220.7971@graphe.net> <20050626023053.GA2871@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.62.0506251954470.26198@graphe.net> <20050626030925.GA4156@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.62.0506261928010.1679@graphe.net> <Pine.LNX.4.58.0506262121070.19755@ppc970.osdl.org> <Pine.LNX.4.62.0506262249080.4374@graphe.net> <20050627141320.GA4945@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.62.0506270804450.17400@graphe.net> <42C0EBAB.8070709@sw.ru>
-Mime-Version: 1.0
+	Tue, 28 Jun 2005 08:50:47 -0400
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:14860 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S261315AbVF1Mug
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 08:50:36 -0400
+To: "Al Boldi" <a1426z@gawab.com>
+Cc: "'Marcelo Tosatti'" <marcelo.tosatti@cyclades.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Kswapd flaw
+References: <200506281147.OAA20216@raad.intranet>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: featuring the world's first municipal garbage collector!
+Date: Tue, 28 Jun 2005 13:50:18 +0100
+In-Reply-To: <200506281147.OAA20216@raad.intranet> (Al Boldi's message of
+ "28 Jun 2005 12:49:42 +0100")
+Message-ID: <87irzy63xx.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42C0EBAB.8070709@sw.ru>
-User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> <<<< look at error path in freeze_processes (on timeout), it is broken 
-> as well. You need to wakeup tasks there...
+On 28 Jun 2005, Al Boldi yowled:
+> Nix wrote:
+>> On 28 Jun 2005, Al Boldi murmured woefully:
+>>> Kswapd starts evicting processes to fullfil a malloc, when it should 
+>>> just deny it because there is no swap.
+>> I can't even tell what you're expecting. Surely not that no pages are ever
+>> evicted or flushed; your memory would fill up with page cache in no time.
 > 
+> Please do flush anytime, and do it in sync during OOMs; but don't evict
+> procs especially not RUNNING procs, that is overkill.
 
-Yep, and I have this in my tree to fix it:
+But processes (really, mapped text pages; really, read-only mapped pages
+of all kinds) are loaded piecemeal in any case. Would you really like a
+system where once something was faulted in, it could never leave? You'd
+run out of memory *awfully* fast.
 
-[word-wrap-warning]
-
---- a/kernel/power/process.c
-+++ b/kernel/power/process.c
-@@ -60,6 +60,7 @@ int freeze_processes(void)
-        int todo;
-        unsigned long start_time;
-        struct task_struct *g, *p;
-+       unsigned long flags;
-
-        printk( "Stopping tasks: " );
-        start_time = jiffies;
-@@ -67,12 +68,9 @@ int freeze_processes(void)
-                todo = 0;
-                read_lock(&tasklist_lock);
-                do_each_thread(g, p) {
--                       unsigned long flags;
-                        if (!freezeable(p))
-                                continue;
--                       if ((p->flags & PF_FROZEN) ||
--                           (p->state == TASK_TRACED) ||
--                           (p->state == TASK_STOPPED))
-+                       if (p->flags & PF_FROZEN)
-                                continue;
-
-                        /* FIXME: smp problem here: we may not access other process' flags
-@@ -85,13 +83,28 @@ int freeze_processes(void)
-                } while_each_thread(g, p);
-                read_unlock(&tasklist_lock);
-                yield();                        /* Yield is okay here */
--               if (time_after(jiffies, start_time + TIMEOUT)) {
-+               if (todo && time_after(jiffies, start_time + TIMEOUT)) {
-                        printk( "\n" );
-                        printk(KERN_ERR " stopping tasks failed (%d tasks remaining)\n", todo );
--                       return todo;
-+                       break;
-                }
-        } while(todo);
--
-+
-+       if (todo) {
-+               read_lock(&tasklist_lock);
-+               do_each_thread(g, p)
-+                       if (p->flags & PF_FREEZE) {
-+                               pr_debug("  clean up: %s\n", p->comm);
-+                               p->flags &= ~PF_FREEZE;
-+                               spin_lock_irqsave(&p->sighand->siglock, flags);
-+                               recalc_sigpending_tsk(p);
-+                               spin_unlock_irqrestore(&p->sighand->siglock, flags);
-+                       }
-+               while_each_thread(g, p);
-+               read_unlock(&tasklist_lock);
-+               return todo;
-+       }
-+
-        printk( "|\n" );
-        BUG_ON(in_atomic());
-        return 0;
-
-									Pavel
+A system in which pages can be faulted in *and* out is consistent: one
+in which they can only be faulted in is both inconsistent and very
+deadlock-prone.
 
 -- 
-Boycott Kodak -- for their patent abuse against Java.
+`I lost interest in "blade servers" when I found they didn't throw knives
+ at people who weren't supposed to be in your machine room.'
+    --- Anthony de Boer

@@ -1,38 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262025AbVF1J2t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262017AbVF1JdH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262025AbVF1J2t (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 05:28:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262020AbVF1J1G
+	id S262017AbVF1JdH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 05:33:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262020AbVF1JdH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 05:27:06 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:16594
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S262023AbVF1J0W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 05:26:22 -0400
-Date: Tue, 28 Jun 2005 02:26:04 -0700 (PDT)
-Message-Id: <20050628.022604.02288401.davem@davemloft.net>
-To: dcb314@hotmail.com
-Cc: linux-kernel@vger.kernel.org
+	Tue, 28 Jun 2005 05:33:07 -0400
+Received: from mail.fh-wedel.de ([213.39.232.198]:22930 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S262017AbVF1Jci (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 05:32:38 -0400
+Date: Tue, 28 Jun 2005 11:32:07 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: d binderman <dcb314@hotmail.com>
+Cc: linux-kernel@vger.kernel.org, coreteam@netfilter.org
 Subject: Re: variable used before it is set
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <BAY19-F15587C5037C178B447330E9CE10@phx.gbl>
+Message-ID: <20050628093207.GA7460@wohnheim.fh-wedel.de>
 References: <BAY19-F15587C5037C178B447330E9CE10@phx.gbl>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <BAY19-F15587C5037C178B447330E9CE10@phx.gbl>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "d binderman" <dcb314@hotmail.com>
-Date: Tue, 28 Jun 2005 09:16:56 +0000
-
-> net/bridge/netfilter/ebt_log.c(91): remark #592: variable "u" is used before 
-> its value is set
->         printk(" IP tos=0x%02X, IP proto=%d", u.iph.tos,
->                                               ^
+On Tue, 28 June 2005 09:16:56 +0000, d binderman wrote:
+> 
+> I just tried to compile the Linux Kernel version 2.6.11.12
+> with the most excellent Intel C compiler. It said
+> 
+> net/bridge/netfilter/ebt_log.c(91): remark #592: variable "u" is used 
+> before its value is set
+>        printk(" IP tos=0x%02X, IP proto=%d", u.iph.tos,
+>                                              ^
 > I agree with the compiler. Suggest code rework.
 
-I added this bug, I'll fix it.  It should use iph->tos
-instead, and the entire 'u' array on the local stack
-removed since there are then no more users of it.
+Thank you for the reports.  But I fear that some of them may go
+unnoticed by the responsible maintainers.  Could you go through
+/usr/src/linux/MAINTAINERS and add relevant people and/or mailing
+lists to the Cc: list?
+
+Netfilter folks added, just to give an example.
+
+Jörn
+
+-- 
+The story so far:
+In the beginning the Universe was created.  This has made a lot
+of people very angry and been widely regarded as a bad move.
+-- Douglas Adams

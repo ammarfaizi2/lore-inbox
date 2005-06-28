@@ -1,47 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261483AbVF1Vnq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261359AbVF1VpQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261483AbVF1Vnq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 17:43:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbVF1Vlb
+	id S261359AbVF1VpQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 17:45:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbVF1Voh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 17:41:31 -0400
-Received: from fmr19.intel.com ([134.134.136.18]:51421 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261668AbVF1Vky (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 17:40:54 -0400
-Date: Tue, 28 Jun 2005 14:40:06 -0700
-From: Rusty Lynch <rusty@linux.intel.com>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: recent kprobe work
-Message-ID: <20050628214006.GA19157@linux.jf.intel.com>
-References: <20050628.140136.57453291.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050628.140136.57453291.davem@davemloft.net>
-User-Agent: Mutt/1.4.1i
+	Tue, 28 Jun 2005 17:44:37 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:11195 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S261630AbVF1Vlx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 17:41:53 -0400
+Message-Id: <200506282141.j5SLfZbH010128@laptop11.inf.utfsm.cl>
+To: Howard Owen <hbo@egbok.com>
+cc: LKML List <linux-kernel@vger.kernel.org>
+Subject: Re: Newbie Roadmap? 
+In-Reply-To: Message from Howard Owen <hbo@egbok.com> 
+   of "Mon, 27 Jun 2005 11:20:32 MST." <1119896432.9541.88.camel@Quirk.egbok.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
+Date: Tue, 28 Jun 2005 17:41:35 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Tue, 28 Jun 2005 17:41:36 -0400 (CLT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 28, 2005 at 02:01:36PM -0700, David S. Miller wrote:
-> 
-> Can the folks submitting all of the kprobe stuff at least consult me
-> when they can't figure out how to implement the sparc64 kprobe variant
-> for new features?
-> 
-> Currently, the sparc64 build is broken by recent kprobe
-> changes:
-> 
-> kernel/built-in.o: In function `init_kprobes':
-> : undefined reference to `arch_init'
-> 
-> Also, can we use a more namespace friendly name for this kprobe layer
-> specific function other than "arch_init()"?
-> 
-> Thanks.
+Howard Owen <hbo@egbok.com> wrote:
+> I've embarked on a project to write device drivers for an obscure and
+> rare ISA card. It's a modern version of the HP 82973 HP-IL interface
+> produced by Cristoph Klug. HP-IL was a bit-serial, dog-slow version of
+> HP-IB (IEEE-488) that was designed to work with the HP-41C family of
+> calculators, and later with the HP-71 and HP-85. The 41C calculators are
+> my hobby interest. I'd like to introduce myself, and ask for pointers
+> for a newbie device driver author.
 
-Sorry, just an oversight.  We have several arch_* functions, maybe we should
-start using kprobes_arch_* instead.
+As you say later you have stuff working in userland under DOSEMU (and the
+"dog slow" part), I'd suggest a userspace driver. It is probably easier to
+work with, and has the advantage that you can run it under the bog-standard
+$DISTRO kernel with some care, no patching/reconfiguring/rebuilding to be
+done.
 
-    --rusty
+[No, I'm just an old hand here; no expert of any sort. Good luck!]
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

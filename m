@@ -1,38 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261335AbVF1HB7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261972AbVF1HKw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261335AbVF1HB7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 03:01:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262006AbVF1Ggy
+	id S261972AbVF1HKw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 03:10:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261504AbVF1HH5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 02:36:54 -0400
-Received: from [85.8.12.41] ([85.8.12.41]:10681 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S261645AbVF1G3L (ORCPT
+	Tue, 28 Jun 2005 03:07:57 -0400
+Received: from isilmar.linta.de ([213.239.214.66]:26020 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S261860AbVF1HGh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 02:29:11 -0400
-Message-ID: <42C0EE1A.9050809@drzeus.cx>
-Date: Tue, 28 Jun 2005 08:28:42 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 1.0.2-7 (X11/20050623)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-CC: LKML <linux-kernel@vger.kernel.org>, jgarzik@pobox.com
-Subject: Re: 2.6.12 breaks 8139cp
-References: <42B9D21F.7040908@drzeus.cx> <200506221534.03716.bjorn.helgaas@hp.com> <42BA69AC.5090202@drzeus.cx> <200506231143.34769.bjorn.helgaas@hp.com> <42BB3428.6030708@drzeus.cx>
-In-Reply-To: <42BB3428.6030708@drzeus.cx>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Tue, 28 Jun 2005 03:06:37 -0400
+Date: Tue, 28 Jun 2005 09:06:36 +0200
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: greg@kroah.com, linux-kernel@vger.kernel.org, rajesh.shah@intel.com,
+       akpm@osdl.org
+Subject: pci transparent bridge resource management
+Message-ID: <20050628070636.GA10217@isilmar.linta.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
+	greg@kroah.com, linux-kernel@vger.kernel.org, rajesh.shah@intel.com,
+	akpm@osdl.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hmm... it seems that TPM has something to do with the bug. Not sure why
-though, can't see anything TPM related in dmesg. If I disable the TPM
-parts in kconfig then the network works just fine.
+Hi!
 
-I'm going to do a test of 2.6.12-rc1 through rc6 today to see where the
-problem appears.
+Could we get the following two patches into Linus' tree as well? AFAIK,
+these alone didn't do any harm; they're most useful for yenta-style
+PCMCIA-PCI bridges instead... so I'd very much like to get them into 2.6.13.
 
-Rgds
-Pierre
+http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12/2.6.12-mm2/broken-out/gregkh-pci-pci-collect-host-bridge-resources-01.patch
+http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12/2.6.12-mm2/broken-out/gregkh-pci-pci-handle-subtractive-decode.patch
+
+
+Thanks,
+	Dominik

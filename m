@@ -1,46 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261953AbVF1OY2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261977AbVF1OZN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261953AbVF1OY2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 10:24:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261675AbVF1OXK
+	id S261977AbVF1OZN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 10:25:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261675AbVF1OYf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 10:23:10 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:12741 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S261685AbVF1OVm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 10:21:42 -0400
-Message-ID: <42C15CDF.90803@jp.fujitsu.com>
-Date: Tue, 28 Jun 2005 23:21:19 +0900
-From: Naoaki Maeda <maeda.naoaki@jp.fujitsu.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: ja, en-us, en
-MIME-Version: 1.0
-To: Gerrit Huizenga <gh@us.ibm.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ckrm-tech@lists.sourceforge.net, Matt Helsley <matthltc@us.ibm.com>
-Subject: Re: [ckrm-tech] [patch 25/38] CKRM e18: Add fork rate control to
- the numtasks controller
-References: <E1Dmy24-00041J-00@w-gerrit.beaverton.ibm.com>
-In-Reply-To: <E1Dmy24-00041J-00@w-gerrit.beaverton.ibm.com>
-Content-Type: text/plain; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
+	Tue, 28 Jun 2005 10:24:35 -0400
+Received: from wproxy.gmail.com ([64.233.184.205]:39306 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261734AbVF1OXo convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 10:23:44 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=kcgVwfeawsHQyPZDNalBC3bgE6kn3UHU7zWRxwjaVHtRiwDCbLkNb3KhexIRPbfTIkIx11G2VS0X0+svK+neGiAqwdKvr7L0lPHUSPBubR7L4r9s8Vzj2/SSCh09nkrj/YBhzKC4AwmzCjrGKJkUtiOfz53bJBLMR+T4on+CxIk=
+Message-ID: <cbecb304050628072325516b6e@mail.gmail.com>
+Date: Tue, 28 Jun 2005 11:23:43 -0300
+From: Rodrigo Nascimento <underscore0x5f@gmail.com>
+Reply-To: Rodrigo Nascimento <underscore0x5f@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: A new soldier
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Gerrit,
+Hi all,
 
-Gerrit Huizenga wrote:
-> On Mon, 27 Jun 2005 16:07:50 +0900, Naoaki Maeda wrote:
-> 
->>Gerrit Huizenga wrote:
->>
-> Hello, Maeda-san, I would be fine with accepting such a patch.  Would
-> you care to generate a patch and post it?  I will include it in the
-> next release of CKRM.
+I'm a Science of Computers student and I'd like help you in something.
+I don't know if exists something that I could do. So if someone wants
+a help, I'm a volunteer.
 
-After we reach a consensus, I am willing to make a patch.
+See you,
+-- 
 
-Thanks,
-MAEDA Naoaki
-
-
+underscore(0x5f)

@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261485AbVF1Uid@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261447AbVF1Uic@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261485AbVF1Uid (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 16:38:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261630AbVF1Uhj
+	id S261447AbVF1Uic (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 16:38:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261485AbVF1Uh6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 16:37:39 -0400
-Received: from straum.hexapodia.org ([64.81.70.185]:11813 "EHLO
-	straum.hexapodia.org") by vger.kernel.org with ESMTP
-	id S261485AbVF1UhM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 16:37:12 -0400
-Date: Tue, 28 Jun 2005 13:37:07 -0700
-From: Andy Isaacson <adi@hexapodia.org>
-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
-       =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       Robert Love <rml@novell.com>, linux-kernel@vger.kernel.org
-Subject: Re: wrong madvise(MADV_DONTNEED) semantic
-Message-ID: <20050628203707.GD30079@hexapodia.org>
-References: <20050628134316.GS5044@implementation.labri.fr> <20050628181620.GA1423@hexapodia.org> <1119983300.6745.1.camel@betsy> <20050628185300.GB30079@hexapodia.org> <1119986623.6745.10.camel@betsy> <20050628194128.GM4645@bouh.labri.fr> <20050628200330.GB4453@wohnheim.fh-wedel.de> <1119989111.6745.21.camel@betsy> <20050628201704.GC4453@wohnheim.fh-wedel.de> <20050628202053.GO4645@bouh.labri.fr>
+	Tue, 28 Jun 2005 16:37:58 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:27538 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261447AbVF1UfL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 16:35:11 -0400
+Date: Tue, 28 Jun 2005 13:34:08 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Kylene Jo Hall <kjhall@us.ibm.com>
+Cc: Chris Wright <chrisw@osdl.org>, Pierre Ossman <drzeus-list@drzeus.cx>,
+       Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       LKML <linux-kernel@vger.kernel.org>, jgarzik@pobox.com,
+       tpmdd-devel@lists.sourceforge.net
+Subject: Re: 2.6.12 breaks 8139cp [PATCH 1 of 2]
+Message-ID: <20050628203408.GA9046@shell0.pdx.osdl.net>
+References: <42BA69AC.5090202@drzeus.cx> <200506231143.34769.bjorn.helgaas@hp.com> <42BB3428.6030708@drzeus.cx> <42C0EE1A.9050809@drzeus.cx> <42C1434F.2010003@drzeus.cx> <1119967788.6382.7.camel@localhost.localdomain> <42C16162.2070208@drzeus.cx> <1119971339.6382.18.camel@localhost.localdomain> <20050628172300.GE9153@shell0.pdx.osdl.net> <1119990572.6403.8.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050628202053.GO4645@bouh.labri.fr>
-User-Agent: Mutt/1.4.2i
-X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
-X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
-X-Domestic-Surveillance: money launder bomb tax evasion
+In-Reply-To: <1119990572.6403.8.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 28, 2005 at 10:20:53PM +0200, Samuel Thibault wrote:
-> Jörn Engel, le Tue 28 Jun 2005 22:17:04 +0200, a écrit :
-> > If the application knows 100% that it is the _only_ possible user of
-> > this data and will never again use it, dropping dirty pages might be a
-> > sane option.  Effectively that translates to anonymous memory only.
+* Kylene Jo Hall (kjhall@us.ibm.com) wrote:
+> On Tue, 2005-06-28 at 10:23 -0700, Chris Wright wrote:
+> > * Kylene Jo Hall (kjhall@us.ibm.com) wrote:
+> > > 
+> > > > You wouldn't happen to have just your patches available?
+> > > 
+> > > Here is the tpm portion of -mm patch
+> > 
+> > Can you narrow this down to a fix that's reasonable for -stable?
 > 
-> And private file mappings?
+> I'll be sending two patches to fix this problem.  The first one just
+> changes a bunch of #define's to named emums.  The second is the real
+> fix.  This was the easiest way for me, let me know if this is not ok.
 
-So long as the mapping exists, the data should not disappear.  So a
-MAP_PRIVATE mapping should behave just like a MAP_SHARED mapping, and
-both need to be fixed to not lose data due to madvise(MADV_DONTNEED).
-(I agree with Joern, MADV_FREE seems like an ill-advised extension.)
+Just the real fix is the best for -stable, please.
 
-If this means some swap needs to be allocated, well, so be it.
-
--andy
+thanks,
+-chris

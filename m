@@ -1,77 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261610AbVF1I40@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261573AbVF1I60@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261610AbVF1I40 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 04:56:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261424AbVF1Izu
+	id S261573AbVF1I60 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 04:58:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261486AbVF1Iye
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 04:55:50 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:8676 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S261610AbVF1GIo (ORCPT
+	Tue, 28 Jun 2005 04:54:34 -0400
+Received: from znsun1.ifh.de ([141.34.1.16]:48299 "EHLO znsun1.ifh.de")
+	by vger.kernel.org with ESMTP id S261424AbVF1Iwk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 02:08:44 -0400
-Message-ID: <42C0EB8A.4F6F1336@tv-sign.ru>
-Date: Tue, 28 Jun 2005 10:17:46 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
+	Tue, 28 Jun 2005 04:52:40 -0400
+Date: Tue, 28 Jun 2005 10:51:45 +0200 (CEST)
+From: Patrick Boettcher <patrick.boettcher@desy.de>
+X-X-Sender: pboettch@pub5.ifh.de
+To: Johannes Stezenbach <js@linuxtv.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [DVB patch 17/51] flexcop: add big endian register definitions
+In-Reply-To: <20050627231430.GA8701@linuxtv.org>
+Message-ID: <Pine.LNX.4.61.0506281041090.12435@pub5.ifh.de>
+References: <20050627120600.739151000@abc> <20050627121412.899787000@abc>  
+   <20050627155046.1c44bbdd.akpm@osdl.org> <20050627231430.GA8701@linuxtv.org>
 MIME-Version: 1.0
-To: Roland McGrath <roland@redhat.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] de_thread: eliminate unneccessary sighand locking
-References: <200506280150.j5S1oZ6V004866@magilla.sf.frob.com>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-Spam-Report: ALL_TRUSTED,AWL,BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roland McGrath wrote:
+Hi,
+
+On Tue, 28 Jun 2005, Johannes Stezenbach wrote:
+>>> +	struct {
+>>> +		u32 dma_address0                   :30;
+>>> +		u32 dma_0No_update                 : 1;
+>>> +		u32 dma_0start                     : 1;
+>>> +	} dma_0x0;
+>>> ...
+>>> +
+>>> +	struct {
+>>> +		u32 dma_0start                     : 1;
+>>> +		u32 dma_0No_update                 : 1;
+>>> +		u32 dma_address0                   :30;
+>>> +	} dma_0x0;
+>>
+>> Oh dear.  This is a good demonstration of the downside of trying to use
+>> compiler bitfields to represent hardware registers.  I have vague memories
+>> of writing BFINS and BFEXT in 3c59x to stomp this problem.
+>>
+>> I don't think there's any guarantee that the code you have there will work
+>> on all architectures/compiler versions btw.
+>>
+>> Also...  The code appears to be assuming that BE architectures will
+>> bit-reverse their bitfields.  Is that right?  I'd expect them to only
+>> byte-reverse them?
 >
-> > while switching current->sighand de_thread does:
-> >
-> > 	write_lock_irq(&tasklist_lock);
-> > 	spin_lock(&oldsighand->siglock);
-> > 	spin_lock(&newsighand->siglock);
-> >
-> > 	current->sighand = newsighand;
-> > 	recalc_sigpending();
-> >
-> > Is these 2 sighand locks are really needed?
->
-> Yes.  Other processes can do spin_lock_irq(&ourtask->sighand->siglock);
-> without holding tasklist_lock.  If someone just did that, they hold
-> oldsighand->siglock but no newsighand->siglock, and may then be about to
-> look at ourtask->sighand.  By holding oldsighand->siglock, we ensure that
-> we can't be colliding with anything like that.
+> Probably the code should use __BIG_ENDIAN_BITFIELD /
+> __LITTLE_ENDIAN_BITFIELD instead of __BIG_ENDIAN / __LITTLE_ENDIAN?
+> Anyway, the comment from the CVS commit suggests that it was tested.
 
-I think this would be a bug. If some another process can spin for
-ourtask->sighand->siglock without holding tasklist_lock it can
-read ourtask->sighand == oldsighand and spin for oldsighand->siglock.
+According to the user, it is tested and it is running flawlessly for
+2 weeks now.
 
-Then de_thread frees oldsighand:
-	if (atomic_dec_and_test(&oldsighand->count))
-		kmem_cache_free(sighand_cachep, oldsighand);
+> I completely agree that this code is ugly as hell. It was the obvious, 
+> simple fix to make the driver work on PowerPC (and a few users happy), 
+> though. Rewriting the driver not to use bitfields seems to be quite a 
+> bit of work. Blame me for not paying enough attention when the initial 
+> flexcop driver was submitted ;-(
 
-And we have use after free.
+It's my fault. The driver (skystar2) which has been replaced by the 
+flexcop-driver was so complicated to read, because of an IMHO abuse of 
+bitmask and bit-shifting. I absolutely wanted to bring more readability to 
+that driver without having the endian-issue in mind (rewrite was possible 
+after the vendor released the data sheets). Sorry for that.
 
-So I strongly believe we do not need to lock newsighand->siglock
-at least.
+regards,
+Patrick.
 
-And what about recalc_sigpending() ? Do you think it is needed?
-
-> > The only possibility that I can imagine is that some process
-> > does:
-> > 	read_lock(tasklist_lock);
-> > 	task = find_task();
-> > 	spin_lock(task->sighand->siglock);
-> > 	read_unlock(tasklist_lock);
-> > 	play with task->signal
-> >
-> > Is this possible/allowed?
->
-> Yes.
-
-Just for my education, could you please point me to the existed
-example?
-
-Oleg.
+--
+   Mail: patrick.boettcher@desy.de
+   WWW:  http://www.wi-bw.tfh-wildau.de/~pboettch/

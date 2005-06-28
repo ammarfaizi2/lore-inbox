@@ -1,53 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261935AbVF1GgQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261746AbVF1HCA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261935AbVF1GgQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 02:36:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261970AbVF1Gfn
+	id S261746AbVF1HCA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 03:02:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261878AbVF1Ggl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 02:35:43 -0400
-Received: from vms044pub.verizon.net ([206.46.252.44]:6882 "EHLO
-	vms044pub.verizon.net") by vger.kernel.org with ESMTP
-	id S261935AbVF1GYk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 02:24:40 -0400
-Date: Tue, 28 Jun 2005 02:24:14 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: How to install redhat9.0 on SATA harddisk
-In-reply-to: <42C0D0F6.9030508@shaw.ca>
-To: linux-kernel@vger.kernel.org
-Cc: Robert Hancock <hancockr@shaw.ca>
-Message-id: <200506280224.14226.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <4kdI3-5Eg-7@gated-at.bofh.it> <4ke1p-5So-1@gated-at.bofh.it>
- <42C0D0F6.9030508@shaw.ca>
-User-Agent: KMail/1.7
+	Tue, 28 Jun 2005 02:36:41 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:17317 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261633AbVF1G12 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 02:27:28 -0400
+Date: Mon, 27 Jun 2005 23:27:11 -0700
+Message-Id: <200506280627.j5S6RBSd027251@magilla.sf.frob.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+From: Roland McGrath <roland@redhat.com>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+X-Fcc: ~/Mail/linus
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] de_thread: eliminate unneccessary sighand locking
+In-Reply-To: Oleg Nesterov's message of  Tuesday, 28 June 2005 10:17:46 +0400 <42C0EB8A.4F6F1336@tv-sign.ru>
+X-Antipastobozoticataclysm: When George Bush projectile vomits antipasto on the Japanese.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 28 June 2005 00:24, Robert Hancock wrote:
->Gene Heskett wrote:
->> RH9.0 is sufficiently ancient that there is no SATA support.  IIRC
+> I think this would be a bug. If some another process can spin for
+> ourtask->sighand->siglock without holding tasklist_lock it can
+> read ourtask->sighand == oldsighand and spin for oldsighand->siglock.
+> 
+> Then de_thread frees oldsighand:
+> 	if (atomic_dec_and_test(&oldsighand->count))
+> 		kmem_cache_free(sighand_cachep, oldsighand);
+> 
+> And we have use after free.
 
-[...]
+That is not the scenario.  Something else must hold tasklist_lock while
+acquiring ourtask->sighand->siglock, but need not hold tasklist_lock
+throughout.  Someone can be holding oldsighand->lock but not not
+tasklist_lock, at the time we lock tasklist_lock.  So like I said, we need
+to hold oldsighand->siglock until the switch has been done.
 
->That's not entirely true - there are some SATA controller drivers in
-> the RH9 kernel, like the Silicon Image controllers, and of course
-> the 3ware cards..
->
-Both of which IIRC, kept this list busier than a one armed paper 
-hanger before they were tamed.  At about that time.
+It's possible that no such scenarios exist, but I'd really have to check on
+that.  My recollection is that there might be some.
 
-[...]
+> So I strongly believe we do not need to lock newsighand->siglock
+> at least.
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.35% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+The only reason to hold newsighand->siglock there is for the call to
+recalc_sigpending.  
+
+> And what about recalc_sigpending() ? Do you think it is needed?
+
+I don't think the need for it has anything to do with switching
+current->sighand.  That is, either it's needed in both cases or not at all.
+I suspect it lingers from past revisions of this code and related signals
+code that previously needed it.  I believe the redistribution of pending
+signals done at the top of exit_notify covers all the need, and that will
+have run in all the thread dying before we get to the end of de_thread.
+
+So I would tentatively conclude that recalc_sigpending is not needed here.
+(Of course, that call is always harmless.  So there isn't a pressing need
+to take it out.)
+
+> Just for my education, could you please point me to the existed example?
+
+It would require some auditing to hunt down whether they exist or don't.
+To make the change you suggest would require complete confidence none exist.
+
+
+Thanks,
+Roland

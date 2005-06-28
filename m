@@ -1,152 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261379AbVF1S5e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261384AbVF1TB0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261379AbVF1S5e (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 14:57:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261485AbVF1S5e
+	id S261384AbVF1TB0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 15:01:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261327AbVF1TBH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 14:57:34 -0400
-Received: from mailfe01.tele2.fr ([212.247.154.12]:33725 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S261379AbVF1Syy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 14:54:54 -0400
-X-T2-Posting-ID: dCnToGxhL58ot4EWY8b+QGwMembwLoz1X2yB7MdtIiA=
-Date: Tue, 28 Jun 2005 20:54:47 +0200
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-To: Andy Isaacson <adi@hexapodia.org>
+	Tue, 28 Jun 2005 15:01:07 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:43239 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261201AbVF1S6H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 14:58:07 -0400
+Message-Id: <200506281858.j5SIw2dr013640@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Sreeni <sreeni.pulichi@gmail.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: wrong madvise(MADV_DONTNEED) semantic
-Message-ID: <20050628185447.GL4645@bouh.labri.fr>
-Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
-	Andy Isaacson <adi@hexapodia.org>, linux-kernel@vger.kernel.org
-References: <20050628134316.GS5044@implementation.labri.fr> <20050628181620.GA1423@hexapodia.org>
+Subject: Re: Memory Management during Program Loading 
+In-Reply-To: Your message of "Tue, 28 Jun 2005 14:12:43 EDT."
+             <94e67edf0506281112545d4766@mail.gmail.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <94e67edf05062810497c7a20b5@mail.gmail.com> <200506281800.j5SI0FEe011475@turing-police.cc.vt.edu>
+            <94e67edf0506281112545d4766@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050628181620.GA1423@hexapodia.org>
-User-Agent: Mutt/1.5.9i-nntp
+Content-Type: multipart/signed; boundary="==_Exmh_1119985082_3764P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 28 Jun 2005 14:58:02 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy Isaacson, le Tue 28 Jun 2005 11:16:20 -0700, a écrit :
-> If your interpretation of the problem is correct, then it should be
-> trivial to write a test program demonstrating the problem.  Did you
-> write the simple test program and run it?
+--==_Exmh_1119985082_3764P
+Content-Type: text/plain; charset=us-ascii
 
-I indeed didn't, trusting both the man page, the source code comments,
-and my knowledge of zap_page_range().
+On Tue, 28 Jun 2005 14:12:43 EDT, Sreeni said:
 
->        MADV_DONTNEED
-> 	      Do not expect access in the near future.  (For the time
-> 	      being, the application is finished with the given range,
-> 	      so the kernel can free resources associated with it.)
-> 	      Subsequent accesses of pages in this range will succeed,
-> 	      but will result either in reloading of the memory contents
-> 	      from the underlying mapped file (see mmap) or
-> 	      zero-fill-on-demand pages for mappings without an
-> 	      underlying file.
-> 
-> You seem to think that "reloading ... from the underlying mapped file"
-> means that changes are lost, but that's not implied.
+> We have a "Bus Monitor hardware" which monitors and polices the bus at
+> the specified physical address.
 
-I didn't say anything precise. What mostly feared me was the
-"zero-fill-on-demand pages for mappings without an underlying file."
+What does this hardware do, exactly, in addition to the usual memory-protection
+capabilities of the main processor?  I suspect the answer to your query will
+depend largely on what your monitor does, exactly, and what capabilities
+it has, and what threat model you're trying to secure against....
 
-> Below is the test program I used.
+> Basically we need to run "secure" program under the supervision of the
+> Bus monitor hardware.
 
-It does indeed work, but this is no proof. It your testcase it does
-indeed work, since the page still remains in the page cache (it's a
-shared mapping of the file). But now try this one. It uses private
-mappings, and fails as expected, getting 0 in the ANONYMOUS case, and
-the original file value in the file mapping case.
+Is there an actual "threat model" here, as in "the attacker might try XYZ,
+and this monitor is a defense because it does ABC, rendering XYZ ineffective"?
 
-Regards,
-Samuel Thibault
+I'm unclear on how the monitor can provide any *real* security when it quite
+likely does *not* have access to the entire state of the system (in particular,
+if there's a security-critical value that's still in a CPU register or L1
+cache line...)
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#include <string.h>
-#include <errno.h>
+> Kernel can see the "secure" memory region, and kernel is reponsible for enabling
+> the "Bus monitor Hardware". 
 
-#include <signal.h>
-#include <unistd.h>
-#include <sys/mman.h>
-#include <fcntl.h>
-#include <sys/stat.h>
+The problem is that you're using an unsecured kernel to initially load the secure
+memory region - so an attacker is free to load broken code into the secure
+area.  The usual "trusted system" solution for this is to ensure that the kernel
+*also* runs inside the tamper-proof evironment....
 
-typedef unsigned int u32;
+Or is the *real* question here "We have a bus analyzer that can't see all of
+the physical memory, so we need the code we're interested in to be in the
+part of physical memory it can see"?  If that's the case, totally different
+answers will probably apply (as we don't have to do things in a "secure" manner,
+we just need to get the right pages in the right frames before the analyzer is
+turned on).....
 
-void die(char *fmt, ...)
-{
-    va_list ap;
+--==_Exmh_1119985082_3764P
+Content-Type: application/pgp-signature
 
-    va_start(ap, fmt);
-    vfprintf(stderr, fmt, ap);
-    va_end(ap);
-    exit(1);
-}
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-int check_cookie(char *file, u32 cookie)
-{
-    u32 buf;
-    int fd;
+iD8DBQFCwZ25cC3lWbTT17ARAigEAJ951HSkEOkeZwN529ZleCIOYal0HgCgxypu
+DuLLSs1//shwLPn1gP9jijQ=
+=GtsT
+-----END PGP SIGNATURE-----
 
-    if((fd = open(file, O_RDONLY, 0)) == -1)
-	die("%s: %s\n", file, strerror(errno));
-    if(read(fd, &buf, sizeof(buf)) == -1)
-	die("read: %s\n", strerror(errno));
-    close(fd);
-    return buf == cookie;
-}
-
-int dotest(char *file, u32 cookie, int do_anonymous, int do_msync, int do_madvise)
-{
-    void *p;
-    int fd, len = 16 * 1024, prot = PROT_READ|PROT_WRITE;
-    u32 newcookie;
-
-    if (!do_anonymous) {
-	if((fd = open(file, O_RDWR|O_CREAT, 0666)) == -1)
-	    die("%s: %s\n", file, strerror(errno));
-
-	if(ftruncate(fd, len) == -1)
-	    die("ftruncate: %s\n", strerror(errno));
-	if(write(fd, "", 1) == -1)
-	    die("write: %s\n", strerror(errno));
-    }
-
-    if((p = mmap(0, len, prot, (do_anonymous ? MAP_ANONYMOUS : 0) | MAP_PRIVATE, do_anonymous ? -1 : fd, 0)) == MAP_FAILED)
-	die("mmap: %s\n", strerror(errno));
-
-    *(u32 *)p = cookie;
-
-    if(do_msync)
-	if(msync(p, len, MS_SYNC) == -1)
-	    die("msync: %s\n", strerror(errno));
-    if(do_madvise)
-	if(madvise(p, len, MADV_DONTNEED) == -1)
-	    die("madvise: %s\n", strerror(errno));
-
-    newcookie = *(u32 *)p;
-
-    printf("c = %08x msync: %s madvise: %s %s\n",
-	cookie, do_msync ? "YES" : " NO", do_madvise ? "YES" : " NO",
-	newcookie == cookie ? "ok" : "FAILED");
-}
-
-int main(int argc, char **argv)
-{
-    if(argc != 2) die("usage: %s file\n", argv[0]);
-
-    lrand48();
-    dotest(argv[1], lrand48(), 0, 0, 0);
-    dotest(argv[1], lrand48(), 0, 1, 0);
-    dotest(argv[1], lrand48(), 0, 0, 1);
-    dotest(argv[1], lrand48(), 0, 1, 1);
-    dotest(argv[1], lrand48(), 1, 0, 0);
-    dotest(argv[1], lrand48(), 1, 1, 0);
-    dotest(argv[1], lrand48(), 1, 0, 1);
-    dotest(argv[1], lrand48(), 1, 1, 1);
-}
-
+--==_Exmh_1119985082_3764P--

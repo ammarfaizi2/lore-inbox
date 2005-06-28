@@ -1,87 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262005AbVF1PRb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262036AbVF1PUm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262005AbVF1PRb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 11:17:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262038AbVF1PRa
+	id S262036AbVF1PUm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 11:20:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262075AbVF1PUl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 11:17:30 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:44701 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S262005AbVF1PR0 (ORCPT
+	Tue, 28 Jun 2005 11:20:41 -0400
+Received: from trex.wsi.edu.pl ([195.117.114.133]:61925 "EHLO trex.wsi.edu.pl")
+	by vger.kernel.org with ESMTP id S262038AbVF1PUD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 11:17:26 -0400
-Message-Id: <200506281401.j5SE1ORW003589@laptop11.inf.utfsm.cl>
-To: Alexander Zarochentsev <zam@namesys.com>
-cc: Christoph Hellwig <hch@infradead.org>, David Masover <ninja@slaphack.com>,
-       Jeff Garzik <jgarzik@pobox.com>, Hans Reiser <reiser@namesys.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: reiser4 plugins 
-In-Reply-To: Message from Alexander Zarochentsev <zam@namesys.com> 
-   of "Mon, 27 Jun 2005 13:30:06 +0400." <200506271330.07451.zam@namesys.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Tue, 28 Jun 2005 10:01:24 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.19.1]); Tue, 28 Jun 2005 11:16:30 -0400 (CLT)
+	Tue, 28 Jun 2005 11:20:03 -0400
+Message-ID: <42C16A91.1050101@trex.wsi.edu.pl>
+Date: Tue, 28 Jun 2005 17:19:45 +0200
+From: =?UTF-8?B?TWljaGHFgiBQaW90cm93c2tp?= <piotrowskim@trex.wsi.edu.pl>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: pl, en-us, en
+MIME-Version: 1.0
+To: Rodrigo Nascimento <underscore0x5f@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: A new soldier
+References: <cbecb304050628072325516b6e@mail.gmail.com>	 <20050628144056.GC18116@wohnheim.fh-wedel.de> <cbecb30405062807595af820fe@mail.gmail.com>
+In-Reply-To: <cbecb30405062807595af820fe@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Zarochentsev <zam@namesys.com> wrote:
-> On Sunday 26 June 2005 21:02, Christoph Hellwig wrote:
+Hi,
 
-[...]
+Rodrigo Nascimento wrote:
 
-> > David and Hans, I've read through my backlog a lot now, and I must say
-> > it's pretty pointless - you're discussing lots of highlevel what if and
-> > don't actually care about something as boring as actual technical details.
-> >
-> > Hans has lots of very skillfull technical people like zam and vs, and maybe
-> > he should give them some freedom to sort out technical issues for a basic
-> > reiser4 merge, and one that is done we can turn back to discussion of
-> > advanced features and their implementation, hopefully with a few more
-> > arguments on both sides and a real technical discussion.
+>Mr. Engel,
+>
+>Thanks for the tip.
+>
+>I like to develop programs. If I have to write a program for something
+>that I don't know, I do some searchs, I read manuals, I understand
+>this thing and later I write the program.
+>
+>Can you suggest something to me? :)
+>I really want to help, but I don't know where I should start.
+>
+>I need to see how it works, what I need to have to help. I think that
+>a C compiler and a knowledge in C isn't sufficient. :)
+>
+>I don't know if exists a guide that I can read..... if it exists,
+>please, tell me where I can get it.
+>
+>  
+>
+http://www.kernelnewbies.org/
 
-> Unfortunately, this is not only a technical discussion...  it is about linux 
-> development model too.
+http://64.122.99.246/jeneral/ (for me it works only with internet explorer)
 
-Then better separate the two, keeping the technical discussion on LKML and
-taking the development model stuff elsewhere.
+http://lwn.net/Kernel/LDD3/
 
-> Well, about the plugins.
+I'm newbie too...
 
-First step: Axe them. They are (at most) /configuration options/, that will
-have to get fixed meanings, available to all ReiserFS filesystems purely
-for compatibility reasons. Sure, do get wild on new options in your own
-experimental trees, and migrate what survives into the standard version
-(and then it'll be ReiserFS 4.1, 4.2, ..., 4.25, ...).
-
->                          We can clean reiser4<->VFS interface up by setting 
-> per-vfs-object inode/dentry/super ops instead using of our own dispatcher.  
-
-Sounds reasonable.
-
-> So different reiser4 inodes/files will have different i_ops/f_ops.  That 
-> would be only visible-in-VFS part of reiser4 object plugins.   
-
-How would that work out from the userland (system call) perspective? How
-does that get handled from on-disk format?
-
-> Would the help to solve "reiser4 plugins" question?  It is just as other
-> FS do -- procfs has seq_file and sysconfig interfaces below the VFS and
-> l-k people do not complain each day about layering violation ;-) Procfs
-> is taken as an example because it deals with objects of different types,
-> actually anybody may create own procfs objects more or less general way.
-
-But procfs /is/ quite special, as it is supposed to be a window into the
-kernel, not real files. Some layering violation is unavoidable there.
-
-> I don't belive that you want to see all reiser4-specific things as item 
-> plugins, disk format plugins in the VFS.
-
-Only what makes sense. Plus many of those will probably have to go. Decide
-on /one/ way of doing things, even if not perfect for all uses. Everything
-else is useless bloat.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Regards,
+Michał Piotrowski

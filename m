@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261371AbVF1F6b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261407AbVF1F6a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261371AbVF1F6b (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 01:58:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261330AbVF1Fpf
+	id S261407AbVF1F6a (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 01:58:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbVF1FrH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 01:45:35 -0400
-Received: from mail.kroah.org ([69.55.234.183]:12524 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261631AbVF1Fdf convert rfc822-to-8bit
+	Tue, 28 Jun 2005 01:47:07 -0400
+Received: from mail.kroah.org ([69.55.234.183]:14060 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261650AbVF1Fdh convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 01:33:35 -0400
+	Tue, 28 Jun 2005 01:33:37 -0400
 Cc: rajesh.shah@intel.com
-Subject: [PATCH] acpi hotplug: decouple slot power state changes from physical hotplug
-In-Reply-To: <11199367743535@kroah.com>
+Subject: [PATCH] acpi bridge hotadd: Take the PCI lock when modifying pci bus or device lists
+In-Reply-To: <11199367724120@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Mon, 27 Jun 2005 22:32:54 -0700
-Message-Id: <1119936774423@kroah.com>
+Date: Mon, 27 Jun 2005 22:32:52 -0700
+Message-Id: <11199367722672@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,155 +24,70 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] acpi hotplug: decouple slot power state changes from physical hotplug
+[PATCH] acpi bridge hotadd: Take the PCI lock when modifying pci bus or device lists
 
-Current acpiphp code does not distinguish between the physical presence and
-power state of a device/slot.  That is, if a device has to be disabled, it
-also tries to physically ejects the device.  This patch decouples power state
-from physical presence.  You can now echo to the corresponding sysfs power
-control file to repeatedly enable and disable a device without having to
-physically re-insert it.
+With root bridge and pci bridge hot-plug, new buses and devices can be added
+or removed at run time.  Protect the pci bus and device lists with the pci
+lock when doing so.
 
 Signed-off-by: Rajesh Shah <rajesh.shah@intel.com>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit 8d50e332c8bd4f4e8cc76e8ed7326aa6f18182aa
-tree dd9caa96f0b5d5bff3d4fccc4be410c4ecad03aa
-parent 8e7561cfbdf00fb1cee694cef0e825d0548aedbc
-author Rajesh Shah <rajesh.shah@intel.com> Thu, 28 Apr 2005 00:25:57 -0700
-committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 27 Jun 2005 21:52:43 -0700
+commit e4ea9bb7e9f177e03a917b1f1213de0315f819ee
+tree 482599b5f367e997dfe30590860091bb06219882
+parent cc57450f5c044270d2cf1dd437c1850422262109
+author Rajesh Shah <rajesh.shah@intel.com> Thu, 28 Apr 2005 00:25:48 -0700
+committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 27 Jun 2005 21:52:40 -0700
 
- drivers/pci/hotplug/acpiphp_glue.c |   69 ++++++++++++++++++++----------------
- 1 files changed, 38 insertions(+), 31 deletions(-)
+ drivers/pci/probe.c |   11 ++++++++++-
+ 1 files changed, 10 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/pci/hotplug/acpiphp_glue.c b/drivers/pci/hotplug/acpiphp_glue.c
---- a/drivers/pci/hotplug/acpiphp_glue.c
-+++ b/drivers/pci/hotplug/acpiphp_glue.c
-@@ -592,8 +592,6 @@ static int power_off_slot(struct acpiphp
- 	acpi_status status;
- 	struct acpiphp_func *func;
- 	struct list_head *l;
--	struct acpi_object_list arg_list;
--	union acpi_object arg;
+diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
+--- a/drivers/pci/probe.c
++++ b/drivers/pci/probe.c
+@@ -374,8 +374,11 @@ struct pci_bus * __devinit pci_add_new_b
+ 	struct pci_bus *child;
  
- 	int retval = 0;
- 
-@@ -615,27 +613,6 @@ static int power_off_slot(struct acpiphp
- 		}
- 	}
- 
--	list_for_each (l, &slot->funcs) {
--		func = list_entry(l, struct acpiphp_func, sibling);
--
--		/* We don't want to call _EJ0 on non-existing functions. */
--		if (func->flags & FUNC_HAS_EJ0) {
--			/* _EJ0 method take one argument */
--			arg_list.count = 1;
--			arg_list.pointer = &arg;
--			arg.type = ACPI_TYPE_INTEGER;
--			arg.integer.value = 1;
--
--			status = acpi_evaluate_object(func->handle, "_EJ0", &arg_list, NULL);
--			if (ACPI_FAILURE(status)) {
--				warn("%s: _EJ0 failed\n", __FUNCTION__);
--				retval = -1;
--				goto err_exit;
--			} else
--				break;
--		}
--	}
--
- 	/* TBD: evaluate _STA to check if the slot is disabled */
- 
- 	slot->flags &= (~SLOT_POWEREDON);
-@@ -782,6 +759,39 @@ static unsigned int get_slot_status(stru
- }
- 
- /**
-+ * acpiphp_eject_slot - physically eject the slot
-+ */
-+static int acpiphp_eject_slot(struct acpiphp_slot *slot)
-+{
-+	acpi_status status;
-+	struct acpiphp_func *func;
-+	struct list_head *l;
-+	struct acpi_object_list arg_list;
-+	union acpi_object arg;
-+
-+	list_for_each (l, &slot->funcs) {
-+		func = list_entry(l, struct acpiphp_func, sibling);
-+
-+		/* We don't want to call _EJ0 on non-existing functions. */
-+		if ((func->flags & FUNC_HAS_EJ0)) {
-+			/* _EJ0 method take one argument */
-+			arg_list.count = 1;
-+			arg_list.pointer = &arg;
-+			arg.type = ACPI_TYPE_INTEGER;
-+			arg.integer.value = 1;
-+
-+			status = acpi_evaluate_object(func->handle, "_EJ0", &arg_list, NULL);
-+			if (ACPI_FAILURE(status)) {
-+				warn("%s: _EJ0 failed\n", __FUNCTION__);
-+				return -1;
-+			} else
-+				break;
-+		}
+ 	child = pci_alloc_child_bus(parent, dev, busnr);
+-	if (child)
++	if (child) {
++		spin_lock(&pci_bus_lock);
+ 		list_add_tail(&child->node, &parent->children);
++		spin_unlock(&pci_bus_lock);
 +	}
-+	return 0;
-+}
-+
-+/**
-  * acpiphp_check_bridge - re-enumerate devices
-  *
-  * Iterate over all slots under this bridge and make sure that if a
-@@ -804,6 +814,8 @@ static int acpiphp_check_bridge(struct a
- 			if (retval) {
- 				err("Error occurred in disabling\n");
- 				goto err_exit;
-+			} else {
-+				acpiphp_eject_slot(slot);
- 			}
- 			disabled++;
- 		} else {
-@@ -1041,7 +1053,6 @@ static void handle_hotplug_event_bridge(
+ 	return child;
+ }
+ 
+@@ -765,7 +768,9 @@ pci_scan_single_device(struct pci_bus *b
+ 	 * and the bus list for fixup functions, etc.
+ 	 */
+ 	INIT_LIST_HEAD(&dev->global_list);
++	spin_lock(&pci_bus_lock);
+ 	list_add_tail(&dev->bus_list, &bus->devices);
++	spin_unlock(&pci_bus_lock);
+ 
+ 	return dev;
+ }
+@@ -886,7 +891,9 @@ struct pci_bus * __devinit pci_scan_bus_
+ 		pr_debug("PCI: Bus %04x:%02x already known\n", pci_domain_nr(b), bus);
+ 		goto err_out;
  	}
- }
++	spin_lock(&pci_bus_lock);
+ 	list_add_tail(&b->node, &pci_root_buses);
++	spin_unlock(&pci_bus_lock);
  
--
- /**
-  * handle_hotplug_event_func - handle ACPI event on functions (i.e. slots)
-  *
-@@ -1084,7 +1095,8 @@ static void handle_hotplug_event_func(ac
- 	case ACPI_NOTIFY_EJECT_REQUEST:
- 		/* request device eject */
- 		dbg("%s: Device eject notify on %s\n", __FUNCTION__, objname);
--		acpiphp_disable_slot(func->slot);
-+		if (!(acpiphp_disable_slot(func->slot)))
-+			acpiphp_eject_slot(func->slot);
- 		break;
- 
- 	default:
-@@ -1268,7 +1280,6 @@ int acpiphp_enable_slot(struct acpiphp_s
- 	return retval;
- }
- 
--
- /**
-  * acpiphp_disable_slot - power off slot
-  */
-@@ -1300,11 +1311,7 @@ int acpiphp_disable_slot(struct acpiphp_
-  */
- u8 acpiphp_get_power_status(struct acpiphp_slot *slot)
- {
--	unsigned int sta;
--
--	sta = get_slot_status(slot);
--
--	return (sta & ACPI_STA_ENABLED) ? 1 : 0;
-+	return (slot->flags & SLOT_POWEREDON);
- }
- 
- 
+ 	memset(dev, 0, sizeof(*dev));
+ 	dev->parent = parent;
+@@ -928,7 +935,9 @@ class_dev_create_file_err:
+ class_dev_reg_err:
+ 	device_unregister(dev);
+ dev_reg_err:
++	spin_lock(&pci_bus_lock);
+ 	list_del(&b->node);
++	spin_unlock(&pci_bus_lock);
+ err_out:
+ 	kfree(dev);
+ 	kfree(b);
 

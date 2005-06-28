@@ -1,53 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262358AbVF1BBw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262359AbVF1BC0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262358AbVF1BBw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 21:01:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262359AbVF1BBw
+	id S262359AbVF1BC0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 21:02:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262360AbVF1BC0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 21:01:52 -0400
-Received: from smtpout1.uol.com.br ([200.221.4.192]:15071 "EHLO
-	smtp.uol.com.br") by vger.kernel.org with ESMTP id S262358AbVF1BBs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 21:01:48 -0400
-Date: Mon, 27 Jun 2005 22:00:52 -0300
-From: =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net
-Subject: Re: Problems with Firewire and -mm kernels (was: Re: 2.6.12-mm2)
-Message-ID: <20050628010052.GA3947@ime.usp.br>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net
-References: <20050626040329.3849cf68.akpm@osdl.org> <42BE99C3.9080307@trex.wsi.edu.pl> <20050627025059.GC10920@ime.usp.br> <20050627164540.7ded07fc.akpm@osdl.org>
+	Mon, 27 Jun 2005 21:02:26 -0400
+Received: from zlynx.org ([199.45.143.209]:40718 "EHLO 199.45.143.209")
+	by vger.kernel.org with ESMTP id S262359AbVF1BCP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 21:02:15 -0400
+Subject: Re: reiser4 plugins
+From: Zan Lynx <zlynx@acm.org>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Prakash Punnoor <lists@punnoor.de>, Steve Lord <lord@xfs.org>,
+       "Theodore Ts'o" <tytso@mit.edu>, Markus T?rnqvist <mjt@nysv.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       David Masover <ninja@slaphack.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+In-Reply-To: <42C09C91.6000901@namesys.com>
+References: <42BB7B32.4010100@slaphack.com>
+	 <200506240334.j5O3YowB008100@laptop11.inf.utfsm.cl>
+	 <20050627092138.GD11013@nysv.org> <20050627124255.GB6280@thunk.org>
+	 <42C0578F.7030608@namesys.com> <42C05F16.5000804@xfs.org>
+	 <20050627202841.GA27805@thunk.org> <42C06873.7020102@xfs.org>
+	 <42C0868E.4080003@punnoor.de>  <42C09C91.6000901@namesys.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-NYzrJMqwkcOfCSusKu0K"
+Date: Mon, 27 Jun 2005 19:00:58 -0600
+Message-Id: <1119920458.19945.15.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050627164540.7ded07fc.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.1.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jun 27 2005, Andrew Morton wrote:
-> Could you please generate the dmesg output from 2.6.12 and 2.6.12-mm2 and,
-> if there are any relevant-looking differences, send them?
 
-Ok, I put them both on <http://www.ime.usp.br/~rbrito/bug/>.
+--=-NYzrJMqwkcOfCSusKu0K
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> Also, try:
-> 
-> wget (...)
-> patch -R -p1 < gregkh-pci-pci-collect-host-bridge-resources-02.patch
+On Mon, 2005-06-27 at 17:40 -0700, Hans Reiser wrote:
+> Prakash Punnoor wrote:
+>=20
+> >
+> >. But nevertheless it didn't survive, as like V3, with time V4 became
+> >slower and slower. In this case no year was needed, but just one month o=
+r
+> >alike. So end of test...but in fact I'll give V4 another go in the near =
+future.
+> > =20
+> >
+> Interesting that it got slower with time.  It sounds like our online
+> repacker is much needed.  It will be a priority for after the kernel merg=
+e.
 
-Ok. I am compiling the kernel right now and will post the results as soon
-as I am finished.
+I told y'all that last year on the reiserfs-list, with benchmarks :-)
+--=20
+Zan Lynx <zlynx@acm.org>
 
-> Thanks.
+--=-NYzrJMqwkcOfCSusKu0K
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-Thank you very much for your feedback, Rogério.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-P.S.: I just noticed right now that the patch listed above changes only
-arch/i386/pci/acpi.c, but I am not using ACPI. Well, I will proceed anyway.
--- 
-Rogério Brito : rbrito@ime.usp.br : http://www.ime.usp.br/~rbrito
-Homepage of the algorithms package : http://algorithms.berlios.de
-Homepage on freshmeat:  http://freshmeat.net/projects/algorithms/
+iD8DBQBCwKFKG8fHaOLTWwgRArJpAJ4pV26PbRXZsttG4PS4l6WoVsKiSwCgkuxu
+XqKAsD9dyBZWfMwlQnGK7MA=
+=cgkd
+-----END PGP SIGNATURE-----
+
+--=-NYzrJMqwkcOfCSusKu0K--
+

@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262111AbVF1QPH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262114AbVF1QV3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262111AbVF1QPH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 12:15:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262113AbVF1QPG
+	id S262114AbVF1QV3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 12:21:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262126AbVF1QV3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 12:15:06 -0400
-Received: from [206.246.247.150] ([206.246.247.150]:60342 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S262111AbVF1QPB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 12:15:01 -0400
-Date: Tue, 28 Jun 2005 12:15:01 -0400
-From: Ben Collins <bcollins@debian.org>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux1394-devel@lists.sourceforge.net
-Subject: Re: Problems with Firewire and -mm kernels (was: Re: 2.6.12-mm2)
-Message-ID: <20050628161500.GA25788@phunnypharm.org>
-References: <20050626040329.3849cf68.akpm@osdl.org> <42BE99C3.9080307@trex.wsi.edu.pl> <20050627025059.GC10920@ime.usp.br> <20050627164540.7ded07fc.akpm@osdl.org> <20050628010052.GA3947@ime.usp.br> <20050627202226.43ebd761.akpm@osdl.org> <20050628040057.GA12499@phunnypharm.org> <20050628061245.GA5696@ime.usp.br>
+	Tue, 28 Jun 2005 12:21:29 -0400
+Received: from lyle.provo.novell.com ([137.65.81.174]:53012 "EHLO
+	lyle.provo.novell.com") by vger.kernel.org with ESMTP
+	id S262114AbVF1QVZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 12:21:25 -0400
+Date: Tue, 28 Jun 2005 09:21:25 -0700
+From: Greg KH <gregkh@suse.de>
+To: Markus Lidel <Markus.Lidel@shadowconnect.com>
+Cc: Christoph Hellwig <hch@lst.de>, linux-kernel@vger.kernel.org
+Subject: Re: sysfs abuse in recent i2o changes
+Message-ID: <20050628162125.GA9239@suse.de>
+References: <20050628112102.GA1111@lst.de> <42C16691.3090205@shadowconnect.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050628061245.GA5696@ime.usp.br>
+In-Reply-To: <42C16691.3090205@shadowconnect.com>
 User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 28, 2005 at 03:12:45AM -0300, Rog?rio Brito wrote:
-> On Jun 28 2005, Ben Collins wrote:
-> > Unless something is in git that isn't in subversion, nothing has really
-> > changed in the sbp2 module for 5-6 months.
+On Tue, Jun 28, 2005 at 05:02:41PM +0200, Markus Lidel wrote:
+> I know, but i hopefully also have a good reason to do so... First, the 
+> attributes provided through these functions are for accessing the 
+> firmware... The controller has a little limitation, it could only handle 
+> 64 blocks, but sysfs only have 4k...
 > 
-> Is there any other information that I can provide you with that would help
-> track this?
-
-Diff git2's ieee1394 directory and the SVN repo from linux1394.org if you
-could.
-
-> > Doesn't appear to be a problem with the ieee1394 subsystem itself (the
-> > cycle master thing isn't all that important), since that would cause not
-> > even being able to send/recv packets.
+> Now there are two options:
 > 
-> So, could this be a problem with the SCSI layer, then?
+> 1) when writing: read a 64k block, merge it with the 4k block and write 
+> it back, when reading: read a 64k block and only return the needed 4k block.
+> 
+> 2) extend the sysfs attribute to allow 64k blocks
+> 
+> IMHO the first is not a very good solution, because for a 64k block it 
+> has to be written 16 times...
+> 
+> Of course if someone finds a better solution i would be glad to hear 
+> about it...
 
-Doubtful.
+Use the binary file interface of sysfs, which was written exactly for
+this kind of thing. :)
 
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-SwissDisk  - http://www.swissdisk.com/
+thanks,
+
+greg k-h

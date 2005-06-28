@@ -1,40 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261422AbVF1Vb4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262122AbVF1VfY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261422AbVF1Vb4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 17:31:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbVF1Vby
+	id S262122AbVF1VfY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 17:35:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261435AbVF1VfX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 17:31:54 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:3742 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261435AbVF1Vbd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 17:31:33 -0400
-Date: Tue, 28 Jun 2005 14:30:24 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: mchehab@brturbo.com.br, video4linux-list@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/1]  V4L CX88 patch - against 2.6.12-mm2
-Message-Id: <20050628143024.121ba151.akpm@osdl.org>
-In-Reply-To: <20050628232157.214c76fd.khali@linux-fr.org>
-References: <42C19F6A.6020501@brturbo.com.br>
-	<20050628232157.214c76fd.khali@linux-fr.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 28 Jun 2005 17:35:23 -0400
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:60635 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S261505AbVF1Vdg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 17:33:36 -0400
+From: Jesse Barnes <jbarnes@virtuousgeek.org>
+To: "David S. Miller" <davem@davemloft.net>
+Subject: Re: [patch 2] mm: speculative get_page
+Date: Tue, 28 Jun 2005 14:32:30 -0700
+User-Agent: KMail/1.8
+Cc: nickpiggin@yahoo.com.au, wli@holomorphy.com, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+References: <42C0AAF8.5090700@yahoo.com.au> <42C0D717.2080100@yahoo.com.au> <20050627.220827.21920197.davem@davemloft.net>
+In-Reply-To: <20050627.220827.21920197.davem@davemloft.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200506281432.30868.jbarnes@virtuousgeek.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jean Delvare <khali@linux-fr.org> wrote:
+On Monday, June 27, 2005 10:08 pm, David S. Miller wrote:
+> From: Nick Piggin <nickpiggin@yahoo.com.au>
+> Subject: Re: [patch 2] mm: speculative get_page
+> Date: Tue, 28 Jun 2005 14:50:31 +1000
 >
-> Your patch adds trailing whitespace in various places:
+> > William Lee Irwin III wrote:
+> > >On Tue, Jun 28, 2005 at 11:42:16AM +1000, Nick Piggin wrote:
+> > >
+> > >spin_unlock() does not imply a memory barrier.
+> >
+> > Intriguing...
+>
+> BTW, I disagree with this assertion.  spin_unlock() does imply a
+> memory barrier.
+>
+> All memory operations before the release of the lock must execute
+> before the lock release memory operation is globally visible.
 
-Everybody adds trailing whitespace, although usually not so obviously.  I
-remove it again.
+On ia64 at least, the unlock is only a one way barrier.  The store to 
+realease the lock uses release semantics (since the lock is declared 
+volatile), which implies that prior stores are visible before the 
+unlock occurs, but subsequent accesses can 'float up' above the unlock.  
+See http://www.gelato.unsw.edu.au/linux-ia64/0304/5122.html for some 
+more details.
 
-In this case I expect the hunks which you've noticed came about because of
-my cleanup of a previous v4l patch, and whatever system the v4l team are
-using is trying to revert upstream changes which aren't in their tree.
-
-But whatever.  `patch -l' works.
+Jesse

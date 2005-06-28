@@ -1,74 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261240AbVF1UGp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261234AbVF1ULQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261240AbVF1UGp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 16:06:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261353AbVF1UEn
+	id S261234AbVF1ULQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 16:11:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261353AbVF1UH5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 16:04:43 -0400
-Received: from [82.92.89.47] ([82.92.89.47]:31544 "EHLO sibelius.xs4all.nl")
-	by vger.kernel.org with ESMTP id S261248AbVF1T77 (ORCPT
+	Tue, 28 Jun 2005 16:07:57 -0400
+Received: from smtpout.mac.com ([17.250.248.85]:55268 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S261264AbVF1UE0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 15:59:59 -0400
-Date: Tue, 28 Jun 2005 21:59:36 +0200 (CEST)
-Message-Id: <200506281959.j5SJxaeM022138@elgar.sibelius.xs4all.nl>
-From: Mark Kettenis <mark.kettenis@xs4all.nl>
-To: vgoyal@in.ibm.com
-CC: gdb@sources.redhat.com, dan@debian.org, fastboot@lists.osdl.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, bunk@stusta.de,
-       alexn@dsv.su.se
-In-reply-to: <20050628112412.GB5652@in.ibm.com> (message from Vivek Goyal on
-	Tue, 28 Jun 2005 16:54:12 +0530)
-Subject: Re: [Fastboot] Re: [-mm patch] i386: enable REGPARM by default
-References: <20050624200916.GJ6656@stusta.de> <20050624132826.4cdfb63c.akpm@osdl.org> <20050627132941.GD3764@in.ibm.com> <20050627140029.GB29121@nevyn.them.org> <20050628045111.GB4296@in.ibm.com> <20050628112412.GB5652@in.ibm.com>
+	Tue, 28 Jun 2005 16:04:26 -0400
+In-Reply-To: <42C1A5E8.2040603@slaphack.com>
+References: <200506240241.j5O2f1eb005609@laptop11.inf.utfsm.cl> <42BE563D.4000402@cisco.com> <42BE5DB6.8040103@slaphack.com> <200506261816.j5QIGMdI010142@turing-police.cc.vt.edu> <42BF08CF.2020703@slaphack.com> <200506262105.j5QL5kdR018609@turing-police.cc.vt.edu> <42BF2DC4.8030901@slaphack.com> <200506270040.j5R0eUNA030632@turing-police.cc.vt.edu> <42BF667C.50606@slaphack.com> <5284F665-873C-45B7-8DDB-5F475F2CE399@mac.com> <42BF7167.80201@slaphack.com> <EC02A684-815A-4DF8-B5C1-9029FE45E187@mac.com> <42C06D59.2090200@slaphack.com> <CD59AE36-FD15-4A4C-9E1D-AB2F8B52D653@mac.com> <42C08B5E.2080000@slaphack.com> <87y88vrzkg.fsf@evinrude.uhoreg.ca> <EBD8F590-0113-4509-9604-E6967C65C835@mac.com> <87mzpbrvpf.fsf@evinrude.uhoreg.ca> <D3A4ABBF-8062-4399-B1EC-61722295944A@mac.com> <87irzzrqu7.fsf@evinrude.uhoreg.ca> <2B1C058D-C304-4E15-ACDA-C3337E67E981@mac.com> <87d5q6pdyv.fsf@evinrude.uhoreg.ca> <42C1A5E8.2040603@slaphack.com>
+Mime-Version: 1.0 (Apple Message framework v730)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <1B33F15E-4519-466E-A5B8-F0C652856C57@mac.com>
+Cc: Hubert Chan <hubert@uhoreg.ca>, Valdis.Kletnieks@vt.edu,
+       Lincoln Dale <ltd@cisco.com>, Gregory Maxwell <gmaxwell@gmail.com>,
+       Hans Reiser <reiser@namesys.com>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       ReiserFS List <reiserfs-list@namesys.com>
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: reiser4 plugins
+Date: Tue, 28 Jun 2005 16:03:21 -0400
+To: David Masover <ninja@slaphack.com>
+X-Mailer: Apple Mail (2.730)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: Tue, 28 Jun 2005 16:54:12 +0530
-   From: Vivek Goyal <vgoyal@in.ibm.com>
+On Jun 28, 2005, at 15:32:56, David Masover wrote:
+> Hubert Chan wrote:
+>> On Tue, 28 Jun 2005 02:01:12 -0400, Kyle Moffett  
+>> <mrmacman_g4@mac.com> said:
+>>> I don't disagree with the thumbnail/icon/description, but things  
+>>> like
+>>> POSIX acls and extended attributes have _existing_ interfaces which
+>>> should be used.
+>
+> Any existing interface should be supported, but Reiser4 seems to  
+> want to
+> replace all existing interfaces except a direct open() and a proposed
+> new system call which opens lots of small files at once, efficiently.
+>
+> The two approaches are not mutually exclusive, though.
 
-   > Thanks. Any idea what might be amiss with my case where I am not seeing 
-   > proper function parameter values while analyzing kdump generated crash
-   > dump with gdb. I am using following gdb and gcc versions.
-   > 
-   > GNU gdb Red Hat Linux (6.1post-1.20040607.62rh)
-   > gcc (GCC) 3.4.3 20041212 (Red Hat 3.4.3-9.EL4)
-   > 
+I don't think most kernel developers are likely to favor an approach
+which smashes a bunch of unrelated data together.  Linux syscall
+overhead is incredibly low, so I don't see it being much of a problem.
+On the other hand, a simple syscall which smashes together a bunch of
+related data would not be that big of an issue either.  Let's wait for
+Namesys to tinker and come back with a new patch before commenting
+further.
 
-   Some more info. I dumped the stack contents and it seems that stack is fine 
-   and parameters are intact on stack. So now it seems to be a matter of 
-   how gdb is interpreting the stack contents. Any guess, what the problem is?
+Cheers,
+Kyle Moffett
 
-I'd say the problem is with a user building stuff with non-standard
-"optimizations", probably even stripping his executable, and expecting
-to be able to debug the result.
+--
+Somone asked me why I work on this free (http://www.fsf.org/philosophy/)
+software stuff and not get a real job. Charles Shultz had the best  
+answer:
 
-   Why func2() and func1() are not showing right parameter values. 
+"Why do musicians compose symphonies and poets write poems? They do it
+because life wouldn't have any meaning for them if they didn't.  
+That's why
+I draw cartoons. It's my life."
+-- Charles Shultz
 
-Repeating what Daniel said before, by using "regparm", function
-arguments are now passed in registers instead of on the stack.  It's
-extremely unlikely that these function arguments will stay in those
-registers for ever, especially since you've only got a handfull of
-them on the i386.  So eventually they will be moved to some other
-register or, more likely, to memory.  If the compiler doesn't tell gdb
-about it, gdb will still think the value is in the register, and
-display whatever what's there now, which is likely to be the wrong
-value.  There are two ways the compiler can tell gdb where things are:
-
-1. By explicitly specifying the new location.  Both DWARF 2 and stabs
-   debugging formats can do this, but AFAIK, GCC won't do this if a
-   register is spilled to the stack.
-
-2. By specifying where registers are saved.  Only DWARF 2 can do this.
-
-We've seen cases where the information generated by GCC for 1 or 2 is
-either incomplete or wrong.  There also have been cases where GDB
-didn't interpret that information correctly.  And then some people
-tend to remove some of the debug information by stripping their code
-or using broken linker scripts. You'll need to find out where the
-problem is, but my bet is that its's a problem with GCC since you make
-it generate non-standard code.
-
-Oh, by the way, don't expect gdb to be able to call "regparm"
-functions either.
-
-Mark

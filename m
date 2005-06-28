@@ -1,83 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261963AbVF1GgQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261820AbVF1HPd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261963AbVF1GgQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 02:36:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261935AbVF1GgG
+	id S261820AbVF1HPd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 03:15:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261688AbVF1HPO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 02:36:06 -0400
-Received: from gate.crashing.org ([63.228.1.57]:2709 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261963AbVF1G0y (ORCPT
+	Tue, 28 Jun 2005 03:15:14 -0400
+Received: from mail.kroah.org ([69.55.234.183]:33709 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261820AbVF1HNw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 02:26:54 -0400
-Subject: Re: increased translation cache footprint in v2.6
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Dan Malek <dan@embeddededge.com>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, akpm@osdl.org,
-       "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <6a3846d2436994d94aeacb0b0850d5f5@embeddededge.com>
-References: <20050626172334.GA5786@logos.cnet>
-	 <20050626164939.2f457bf6.akpm@osdl.org> <20050626185210.GB6091@logos.cnet>
-	 <20050626.173338.41634345.davem@davemloft.net>
-	 <20050626190944.GC6091@logos.cnet>
-	 <6a3846d2436994d94aeacb0b0850d5f5@embeddededge.com>
-Content-Type: text/plain
-Date: Tue, 28 Jun 2005 16:21:28 +1000
-Message-Id: <1119939689.5133.200.camel@gaston>
+	Tue, 28 Jun 2005 03:13:52 -0400
+Date: Tue, 28 Jun 2005 00:13:45 -0700
+From: Greg KH <greg@kroah.com>
+To: Dominik Brodowski <linux@dominikbrodowski.net>,
+       linux-kernel@vger.kernel.org, rajesh.shah@intel.com, akpm@osdl.org
+Subject: Re: pci transparent bridge resource management
+Message-ID: <20050628071345.GA3281@kroah.com>
+References: <20050628070636.GA10217@isilmar.linta.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050628070636.GA10217@isilmar.linta.de>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-06-27 at 11:46 -0400, Dan Malek wrote:
-> On Jun 26, 2005, at 3:09 PM, Marcelo Tosatti wrote:
+On Tue, Jun 28, 2005 at 09:06:36AM +0200, Dominik Brodowski wrote:
+> Hi!
 > 
-> > Thats a very interesting idea, will probably optimize performance in
-> > general ("why did nobody thought of it before?" kind).
+> Could we get the following two patches into Linus' tree as well? AFAIK,
+> these alone didn't do any harm; they're most useful for yenta-style
+> PCMCIA-PCI bridges instead... so I'd very much like to get them into 2.6.13.
 > 
-> I've done this before, used the pgd/pmd or pte  to hold large page
-> size entries.  The problem is the amount of code needed in the
-> tlbmiss handler to implement this.  The Linux page table structure
-> doesn't allow us to easily format this information, so we have lots
-> of code in the handler to fabricate these entries.  It's a significant
-> overhead for the normal 4K path that was hard to justify.
+> http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12/2.6.12-mm2/broken-out/gregkh-pci-pci-collect-host-bridge-resources-01.patch
+> http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12/2.6.12-mm2/broken-out/gregkh-pci-pci-handle-subtractive-decode.patch
 
-How so ? the linux page table structure allow you to format the PTE and
-PMD contents pretty much the way you want ...
+No, not right now.  Ivan's reworking these patches, due to the number of
+complaints in this area.  Give us a week or so...
 
-> We need to be optimizing the applications, since that is where the
-> real work is done and where the system spends most of it's time.
-> The kernel is easy to optimize with pinned entries, then we have the
-> best solution.  A minimal overhead for the 4K pages, plus an optimal
-> kernel mapping.
+thanks,
 
-Pinned entry are never a good solution, more like a workaround... It's
-never good to pin an entry on such a small TLB (though I can understand
-that you may want to always pin the kernel first entry) I don't think
-it's necessary.
-
-> I do want the solution of variable page sizes in the kernel, because
-> we don't have to reserve wired entries, providing the best solution.
-> I'm always thinking of this and experiment with it from time to time, 
-> but
-> I haven't found a solution that is satisfactory to me :-)  Maybe 
-> something
-> like an early kernel/user test and separate code paths, but I now have
-> a solution that eliminates our current test, and I don't want to put it
-> back in :-)  My holy grail is a 4 instruction tlb miss handler, but I 
-> haven't
-> been able to get the PTEs formatted correctly so everyone is happy.
-
-Paul told me the 8xx has some restrictions about what goes at the "PMD"
-level that is a problem for us (is it cache inhibited bit ?) and thus we
-cannot completely do the PMD/PTE thingy, but I don't know the details,
-can you tell me more ?
-
-For the kernel address space, however, we are pretty much free to do
-what we want. The only thing for which the kernel need page tables is
-the vmalloc space. The rest can be implemented the way you want by arch
-code (though it's often useful to also use page tables for io space).
-
-Ben.
-
-
+greg k-h

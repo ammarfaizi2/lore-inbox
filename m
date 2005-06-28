@@ -1,48 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261210AbVF1TpP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261219AbVF1TpP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261210AbVF1TpP (ORCPT <rfc822;willy@w.ods.org>);
+	id S261219AbVF1TpP (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 28 Jun 2005 15:45:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261227AbVF1Tna
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbVF1TnP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 15:43:30 -0400
-Received: from mailfe02.tele2.fr ([212.247.154.44]:51100 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S261198AbVF1Tlo (ORCPT
+	Tue, 28 Jun 2005 15:43:15 -0400
+Received: from graphe.net ([209.204.138.32]:35531 "EHLO graphe.net")
+	by vger.kernel.org with ESMTP id S261206AbVF1TmA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 15:41:44 -0400
-X-T2-Posting-ID: dCnToGxhL58ot4EWY8b+QGwMembwLoz1X2yB7MdtIiA=
-Date: Tue, 28 Jun 2005 21:41:28 +0200
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-To: Robert Love <rml@novell.com>
-Cc: Andy Isaacson <adi@hexapodia.org>, linux-kernel@vger.kernel.org
-Subject: Re: wrong madvise(MADV_DONTNEED) semantic
-Message-ID: <20050628194128.GM4645@bouh.labri.fr>
-Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
-	Robert Love <rml@novell.com>, Andy Isaacson <adi@hexapodia.org>,
-	linux-kernel@vger.kernel.org
-References: <20050628134316.GS5044@implementation.labri.fr> <20050628181620.GA1423@hexapodia.org> <1119983300.6745.1.camel@betsy> <20050628185300.GB30079@hexapodia.org> <1119986623.6745.10.camel@betsy>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1119986623.6745.10.camel@betsy>
-User-Agent: Mutt/1.5.9i-nntp
+	Tue, 28 Jun 2005 15:42:00 -0400
+Date: Tue, 28 Jun 2005 12:41:59 -0700 (PDT)
+From: Christoph Lameter <christoph@lameter.com>
+X-X-Sender: christoph@graphe.net
+To: Andi Kleen <ak@suse.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Read only syscall tables for x86_64 and i386
+In-Reply-To: <p73r7emuvi1.fsf@verdi.suse.de>
+Message-ID: <Pine.LNX.4.62.0506281238320.1734@graphe.net>
+References: <Pine.LNX.4.62.0506281141050.959@graphe.net.suse.lists.linux.kernel>
+ <p73r7emuvi1.fsf@verdi.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -5.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love, le Tue 28 Jun 2005 15:23:43 -0400, a écrit :
-> I think we need to resolve the differences between the man pages,
-> comments, expected user behavior, kernel implementation, POSIX standard,
-> and what other OS's do.  Figure out what to do, then unify everything.
+On Tue, 28 Jun 2005, Andi Kleen wrote:
 
-Well, posix says data should be kept. The solaris man page for madvise,
-since it proposes a MADV_FREE case too do agree with posix.
+> It's unfortunately useless because all the kernel is mapped in the
+> same 2 or 4MB page has to be writable because it overlaps with real
+> direct mapped memory.
 
-I've tested the program (thanks Andy) on solaris 5.8, it does work fine.
-On OSF1 it failed on the anonymous case.
+The question is: Are syscall tables are supposed to be 
+writable? If no then this patch should go in. If yes then forget about it.
+On IA64 they are readonly and so I thought they should also be readonly
+on i386 and x86_64.
 
-Some people may want their data to be kept, so the safe side is to keep
-data safe, i.e. both kernel and manpage be corrected, but leave a bug
-notice in the manpage about previous kernels.
+The ability to protect a readonly section may be another issue.
 
-Regards,
-Samuel

@@ -1,67 +1,156 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261250AbVF1UPm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261189AbVF1UPp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261250AbVF1UPm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 16:15:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261344AbVF1UPP
+	id S261189AbVF1UPp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 16:15:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261363AbVF1UMp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 16:15:15 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:47297 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261250AbVF1ULR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 16:11:17 -0400
-Subject: Re: [PATCH] Read only syscall tables for x86_64 and i386
-From: Arjan van de Ven <arjan@infradead.org>
-To: Jeremy Maitin-Shepard <jbms@cmu.edu>
+	Tue, 28 Jun 2005 16:12:45 -0400
+Received: from zproxy.gmail.com ([64.233.162.199]:16479 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261356AbVF1UI1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 16:08:27 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=jq9R4SAdsl5Dj2UWNE1gbgubzWZ6JUGviCFgWoomYJ775HA7KNB7k8rOec4T9i3k8ip7CQkdr85jFfuh8Z0VJwgsRsenyl++LuW389/3fEUNSSRS2RSxaHV/v8TC9vmxKlM5nDZueho5rQ3kIJdzeFxtWWUzWQVDDL5gXNnErQo=
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] mm: propagate __nocast annotations
+Date: Wed, 29 Jun 2005 00:14:03 +0400
+User-Agent: KMail/1.7.2
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <87vf3y2qzz.fsf@jbms.ath.cx>
-References: <Pine.LNX.4.62.0506281141050.959@graphe.net>
-	 <87oe9q70no.fsf@jbms.ath.cx> <Pine.LNX.4.62.0506281218030.1454@graphe.net>
-	 <87hdfi704d.fsf@jbms.ath.cx> <Pine.LNX.4.62.0506281230550.1630@graphe.net>
-	 <20050628194215.GB32240@infradead.org>  <87vf3y2qzz.fsf@jbms.ath.cx>
-Content-Type: text/plain
-Date: Tue, 28 Jun 2005 22:11:02 +0200
-Message-Id: <1119989463.3175.49.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
+Message-Id: <200506290014.03284.adobriyan@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-06-28 at 15:52 -0400, Jeremy Maitin-Shepard wrote:
-> Christoph Hellwig <hch@infradead.org> writes:
-> 
-> > On Tue, Jun 28, 2005 at 12:31:33PM -0700, Christoph Lameter wrote:
-> >> On Tue, 28 Jun 2005, Jeremy Maitin-Shepard wrote:
-> >> 
-> >> > It would probably be better implemented with a more generic mechanism,
-> >> > but I don't believe anyone is working on that now, so it looks like AFS
-> >> > will continue to use a special syscall.
-> >> 
-> >> We could put an #ifdef CONFIG_AFS into the syscall table definition?
-> >> That makes it explicit.
-> 
-> > No.  AFS is utterly wrong, and the sooner we make it fail to work the
-> > better.
-> 
-> Heh, well that is nice, but breaking it will only mean that I and every
-> other AFS user will have to revert the patch that breaks it;
-> furthermore, many distributions that provide binary kernels will
-> probably also have to revert the patch because many of their users will
-> want to use AFS.
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
 
-AFS isn't even using it... after all it's not even exported.
+ include/linux/gfp.h    |    4 ++--
+ include/linux/slab.h   |    6 +++---
+ include/linux/string.h |    2 +-
+ mm/mempool.c           |    2 +-
+ mm/slab.c              |   12 +++++++-----
+ 5 files changed, 14 insertions(+), 12 deletions(-)
 
-
+diff -uprN a/include/linux/gfp.h b/include/linux/gfp.h
+--- a/include/linux/gfp.h	2005-06-28 13:35:40.000000000 +0400
++++ b/include/linux/gfp.h	2005-06-29 00:07:10.000000000 +0400
+@@ -12,8 +12,8 @@ struct vm_area_struct;
+  * GFP bitmasks..
+  */
+ /* Zone modifiers in GFP_ZONEMASK (see linux/mmzone.h - low two bits) */
+-#define __GFP_DMA	0x01
+-#define __GFP_HIGHMEM	0x02
++#define __GFP_DMA	0x01u
++#define __GFP_HIGHMEM	0x02u
+ 
+ /*
+  * Action modifiers - doesn't change the zoning
+diff -uprN a/include/linux/slab.h b/include/linux/slab.h
+--- a/include/linux/slab.h	2005-06-28 13:35:48.000000000 +0400
++++ b/include/linux/slab.h	2005-06-29 00:07:37.000000000 +0400
+@@ -65,7 +65,7 @@ extern void *kmem_cache_alloc(kmem_cache
+ extern void kmem_cache_free(kmem_cache_t *, void *);
+ extern unsigned int kmem_cache_size(kmem_cache_t *);
+ extern const char *kmem_cache_name(kmem_cache_t *);
+-extern kmem_cache_t *kmem_find_general_cachep(size_t size, int gfpflags);
++extern kmem_cache_t *kmem_find_general_cachep(size_t size, unsigned int __nocast gfpflags);
+ 
+ /* Size description struct for general caches. */
+ struct cache_sizes {
+@@ -105,13 +105,13 @@ extern unsigned int ksize(const void *);
+ 
+ #ifdef CONFIG_NUMA
+ extern void *kmem_cache_alloc_node(kmem_cache_t *, int flags, int node);
+-extern void *kmalloc_node(size_t size, int flags, int node);
++extern void *kmalloc_node(size_t size, unsigned int __nocast flags, int node);
+ #else
+ static inline void *kmem_cache_alloc_node(kmem_cache_t *cachep, int flags, int node)
+ {
+ 	return kmem_cache_alloc(cachep, flags);
+ }
+-static inline void *kmalloc_node(size_t size, int flags, int node)
++static inline void *kmalloc_node(size_t size, unsigned int __nocast flags, int node)
+ {
+ 	return kmalloc(size, flags);
+ }
+diff -uprN a/include/linux/string.h b/include/linux/string.h
+--- a/include/linux/string.h	2005-06-28 13:35:48.000000000 +0400
++++ b/include/linux/string.h	2005-06-29 00:07:37.000000000 +0400
+@@ -88,7 +88,7 @@ extern int memcmp(const void *,const voi
+ extern void * memchr(const void *,int,__kernel_size_t);
+ #endif
+ 
+-extern char *kstrdup(const char *s, int gfp);
++extern char *kstrdup(const char *s, unsigned int __nocast gfp);
+ 
+ #ifdef __cplusplus
+ }
+diff -uprN a/mm/mempool.c b/mm/mempool.c
+--- a/mm/mempool.c	2005-06-28 13:35:59.000000000 +0400
++++ b/mm/mempool.c	2005-06-29 00:07:33.000000000 +0400
+@@ -205,7 +205,7 @@ void * mempool_alloc(mempool_t *pool, un
+ 	void *element;
+ 	unsigned long flags;
+ 	wait_queue_t wait;
+-	int gfp_temp;
++	unsigned int gfp_temp;
+ 
+ 	might_sleep_if(gfp_mask & __GFP_WAIT);
+ 
+diff -uprN a/mm/slab.c b/mm/slab.c
+--- a/mm/slab.c	2005-06-28 13:35:59.000000000 +0400
++++ b/mm/slab.c	2005-06-29 00:07:37.000000000 +0400
+@@ -584,7 +584,8 @@ static inline struct array_cache *ac_dat
+ 	return cachep->array[smp_processor_id()];
+ }
+ 
+-static inline kmem_cache_t *__find_general_cachep(size_t size, int gfpflags)
++static inline kmem_cache_t *__find_general_cachep(size_t size,
++						unsigned int __nocast gfpflags)
+ {
+ 	struct cache_sizes *csizep = malloc_sizes;
+ 
+@@ -608,7 +609,8 @@ static inline kmem_cache_t *__find_gener
+ 	return csizep->cs_cachep;
+ }
+ 
+-kmem_cache_t *kmem_find_general_cachep(size_t size, int gfpflags)
++kmem_cache_t *kmem_find_general_cachep(size_t size,
++		unsigned int __nocast gfpflags)
+ {
+ 	return __find_general_cachep(size, gfpflags);
+ }
+@@ -2100,7 +2102,7 @@ cache_alloc_debugcheck_before(kmem_cache
+ #if DEBUG
+ static void *
+ cache_alloc_debugcheck_after(kmem_cache_t *cachep,
+-			unsigned long flags, void *objp, void *caller)
++			unsigned int __nocast flags, void *objp, void *caller)
+ {
+ 	if (!objp)	
+ 		return objp;
+@@ -2439,7 +2441,7 @@ got_slabp:
+ }
+ EXPORT_SYMBOL(kmem_cache_alloc_node);
+ 
+-void *kmalloc_node(size_t size, int flags, int node)
++void *kmalloc_node(size_t size, unsigned int __nocast flags, int node)
+ {
+ 	kmem_cache_t *cachep;
+ 
+@@ -3091,7 +3093,7 @@ unsigned int ksize(const void *objp)
+  * @s: the string to duplicate
+  * @gfp: the GFP mask used in the kmalloc() call when allocating memory
+  */
+-char *kstrdup(const char *s, int gfp)
++char *kstrdup(const char *s, unsigned int __nocast gfp)
+ {
+ 	size_t len;
+ 	char *buf;

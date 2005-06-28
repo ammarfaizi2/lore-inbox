@@ -1,41 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262279AbVF1Chp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262310AbVF1C6u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262279AbVF1Chp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 22:37:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262389AbVF1Cho
+	id S262310AbVF1C6u (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 22:58:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262392AbVF1C6u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 22:37:44 -0400
-Received: from sp-260-1.net4.netcentrix.net ([4.21.254.118]:30988 "EHLO
-	asmodeus.mcnaught.org") by vger.kernel.org with ESMTP
-	id S262279AbVF1Cha (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 22:37:30 -0400
-To: Alex LIU <alex.liu@st.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: How to install redhat9.0 on SATA harddisk
-References: <002001c57b84$c5def530$9eb3c68a@SHZ.ST.COM>
-From: Douglas McNaught <doug@mcnaught.org>
-Date: Mon, 27 Jun 2005 22:36:55 -0400
-In-Reply-To: <002001c57b84$c5def530$9eb3c68a@SHZ.ST.COM> (Alex LIU's message of "Tue, 28 Jun 2005 09:57:35 +0800")
-Message-ID: <m2fyv35hrs.fsf@Douglas-McNaughts-Powerbook.local>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (darwin)
+	Mon, 27 Jun 2005 22:58:50 -0400
+Received: from ns1.suse.de ([195.135.220.2]:60034 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S262310AbVF1C6n (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 22:58:43 -0400
+To: Hans Reiser <reiser@namesys.com>
+Cc: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com, akpm@osdl.org,
+       hch@infradead.org
+Subject: Re: reiser4 merging action list
+References: <42BB7B32.4010100@slaphack.com.suse.lists.linux.kernel>
+	<200506240334.j5O3YowB008100@laptop11.inf.utfsm.cl.suse.lists.linux.kernel>
+	<20050627092138.GD11013@nysv.org.suse.lists.linux.kernel>
+	<20050627124255.GB6280@thunk.org.suse.lists.linux.kernel>
+	<42C0578F.7030608@namesys.com.suse.lists.linux.kernel>
+	<20050627212628.GB27805@thunk.org.suse.lists.linux.kernel>
+	<42C084F1.70607@namesys.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 28 Jun 2005 04:58:33 +0200
+In-Reply-To: <42C084F1.70607@namesys.com.suse.lists.linux.kernel>
+Message-ID: <p73vf3zuqzq.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex LIU <alex.liu@st.com> writes:
+Hans Reiser <reiser@namesys.com> writes:
 
-> Hi,all:
->
-> How to install redhat9.0 on a SATA 80G harddisk? When I boot from
-> the redhat9.0 CD it said couldn't find the harddisk. So there's no
-> SATA driver. Then how to create a SATA driver disk? I didn't find it
-> on the redhat website. Thanks a lot!
+>    * metafiles should be disabled until we can present code that works
+> right.  Half the list thinks we cannot solve the cycles problem ever. 
+> Disable metafiles and postpone problem until working code, or the
+> failure to produce it, makes it possible to do more than rant at each
+> other.  This is currently already done in the -mm patches, but is
+> mentioned lest someone think it forgotten.
+> 
+>    * update the locking documentation
+> 
+> Probably I forget something.
 
-This mailing list isn't for either Red Hat or installation issues.  
+These are all big picture issues, but I think some low level attention to
+the individual code is still needed.
 
-That said, Red Hat 9.0 is old, unsupported, and predates SATA.  You'd
-be much better off trying to get Fedora installed on that machine, and
-contact the Red Hat Fedora mailing lists if you have problems.
+Some stuff that stood out from a very quick look:
 
--Doug
+I would like for the custom spin lock debugging (spin_macros.h) and
+profiling code to be removed (prof.[ch], spinprof.[ch]). Such code shouldn't 
+be in specific subsystems. 
+
+The division functions in lib.h are useless IMHO, both callers seem
+to use divide by a power of two. And gcc supports shift in 64bit
+fine in the kernel. Can you remove that please? 
+
+statcnt.h: This is completely useless because you don't align
+the individual fields for cache lines - so you will still
+have false sharing everywhere. Also using NR_CPUS is nasty
+because it can be very big - num_possible_cpus() is better. 
+It should use the new dynamic per cpu allocator.
+
+Best you just remove it for now and use atomic_t and readd properly
+when you do real SMP tuning with measurements.
+
+debug.[ch]: A lot of these functions like "schedulable" are name space
+space polluting. 
+reiser4_kmalloc() such wrappers are deprecated. Please remove.
+xmemset et.al should be replaced with the normal functions everywhere
+
+Best would be probably to remove most of these files for submission.
+
+What is reiser4_internal? Can't you just use static like
+everybody else?
+
+status_flags.c: Please remove that CONFIG_FRAME_POINTER code.
+In general i think it would be better if you removed that 
+"private mini crashdumping".
+
+Is there any reason you can't just use wait queues like everybody
+else instead of these reimplemented condition variables in kcond.[ch]?
+
+In general it would be good if someone experienced not from the reiser team
+would read the whole source and looks for obvious problems
+(I didn't, just mentioning stuff I from a quick look at some support
+files) 
+
+-Andi
+

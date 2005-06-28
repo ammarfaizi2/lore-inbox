@@ -1,41 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262334AbVF2Bt5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261385AbVF1X6s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262334AbVF2Bt5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 21:49:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262255AbVF2Br7
+	id S261385AbVF1X6s (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 19:58:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262312AbVF1Xyp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 21:47:59 -0400
-Received: from gate.crashing.org ([63.228.1.57]:21408 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262268AbVF2BpR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 21:45:17 -0400
-Subject: Re: [PATCH 1/3] openfirmware: generate device table for userspace
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Jeff Mahoney <jeffm@suse.com>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050629003045.GD24094@locomotive.unixthugs.org>
-References: <20050629003045.GD24094@locomotive.unixthugs.org>
-Content-Type: text/plain
-Date: Wed, 29 Jun 2005 11:39:50 +1000
-Message-Id: <1120009190.5133.222.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+	Tue, 28 Jun 2005 19:54:45 -0400
+Received: from smtp005.mail.ukl.yahoo.com ([217.12.11.36]:7785 "HELO
+	smtp005.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S262313AbVF1Xux (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 19:50:53 -0400
+From: Karsten Wiese <annabellesgarden@yahoo.de>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.50-24
+Date: Wed, 29 Jun 2005 01:51:53 +0200
+User-Agent: KMail/1.8.1
+Cc: linux-kernel@vger.kernel.org
+References: <200506281927.43959.annabellesgarden@yahoo.de> <20050628202147.GA30862@elte.hu> <20050628203017.GA371@elte.hu>
+In-Reply-To: <20050628203017.GA371@elte.hu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200506290151.53675.annabellesgarden@yahoo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-06-28 at 20:30 -0400, Jeff Mahoney wrote:
->  This patch converts the usage of struct of_match to struct of_device_id,
->  similar to pci_device_id. This allows a device table to be generated, which 
->  can be parsed by depmod(8) to generate a map file for module loading.
->  
->  In order for hotplug to work with macio devices, patches to module-init-tools
->  and hotplug must be applied. Those patches are available at:
->  
-> ftp://ftp.suse.com/pub/people/jeffm/linux/macio-hotplug/
+Am Dienstag, 28. Juni 2005 22:30 schrieb Ingo Molnar:
+> 
+> * Ingo Molnar <mingo@elte.hu> wrote:
+> 
+> > 
+> > * Karsten Wiese <annabellesgarden@yahoo.de> wrote:
+> > 
+> > > Hi Ingo,
+> > > 
+> > > suffering (not really ;-) double-rated IO-APIC level-interrupts I 
+> > > found the following patch as a solution:
+> > 
+> > thanks. I've applied your patch but also tweaked this area a bit, to 
+> > make the i8259A PIC work too. I've uploaded the -31 patch with these 
+> > fixes included.
+> 
+> make that -50-32, had a leftover hack in io_apic.c.
+> 
+looked at -50-33 now and wonder why is mask_IO_APIC_irq() called twice
+from  __do_IRQ()?
+given a threaded interrupt:
+__do_IRQ() calls desc->handler->ack(irq).
+ack points to mask_and_ack_level_ioapic_irq(), which calls mask_IO_APIC_irq(irq).
+some lines later in __do_IRQ() desc->handler->disable(irq) is called.
+disable points to  mask_IO_APIC_irq(), now being called a 2nd time.
+I think this 2nd call isn't necessary.
+Is there a difference between masking an interrupt line and disabling it?
+What am I missing?
 
-They look good. I haven't tested yet though.
+Back at 2.6.12-rc5-RT-48-16 mask_and_ack_level_ioapic_irq() also contained the mask_IO_APIC_irq(irq)
+call and level interrupt-rates where fine.
+Some versions later it vanished there. Why was that?
 
-Ben.
+Karsten
 
+
+
+  
+
+	
+
+	
+		
+___________________________________________________________ 
+Gesendet von Yahoo! Mail - Jetzt mit 1GB Speicher kostenlos - Hier anmelden: http://mail.yahoo.de

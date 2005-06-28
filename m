@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261567AbVF1Fhj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261625AbVF1FlR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261567AbVF1Fhj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 01:37:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261945AbVF1FhC
+	id S261625AbVF1FlR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 01:41:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261979AbVF1Fjt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 01:37:02 -0400
-Received: from mail.kroah.org ([69.55.234.183]:6636 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261567AbVF1Fdd convert rfc822-to-8bit
+	Tue, 28 Jun 2005 01:39:49 -0400
+Received: from mail.kroah.org ([69.55.234.183]:7660 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261606AbVF1Fdd convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 28 Jun 2005 01:33:33 -0400
-Cc: gregkh@suse.de
-Subject: [PATCH] PCI: add proper MCFG table parsing to ACPI core.
-In-Reply-To: <11199367753992@kroah.com>
+Cc: akpm@osdl.org
+Subject: [PATCH] PCI: fix up errors after dma bursting patch and CONFIG_PCI=n
+In-Reply-To: <11199367752569@kroah.com>
 X-Mailer: gregkh_patchbomb
 Date: Mon, 27 Jun 2005 22:32:55 -0700
-Message-Id: <11199367751551@kroah.com>
+Message-Id: <11199367753992@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,231 +24,344 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] PCI: add proper MCFG table parsing to ACPI core.
+[PATCH] PCI: fix up errors after dma bursting patch and CONFIG_PCI=n
 
-This patch is the first step in properly handling the MCFG PCI table.
-It defines the structures properly, and saves off the table so that the
-pci mmconfig code can access it.  It moves the parsing of the table a
-little later in the boot process, but still before the information is
-needed.
+With CONFIG_PCI=n:
 
+In file included from include/linux/pci.h:917,
+                 from lib/iomap.c:6:
+include/asm/pci.h:104: warning: `enum pci_dma_burst_strategy' declared inside parameter list
+include/asm/pci.h:104: warning: its scope is only this definition or declaration, which is probably not what you want.
+include/asm/pci.h: In function `pci_dma_burst_advice':
+include/asm/pci.h:106: dereferencing pointer to incomplete type
+include/asm/pci.h:106: `PCI_DMA_BURST_INFINITY' undeclared (first use in this function)
+include/asm/pci.h:106: (Each undeclared identifier is reported only once
+include/asm/pci.h:106: for each function it appears in.)
+make[1]: *** [lib/iomap.o] Error 1
+
+Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit 545493917dc90298e1c38f018ad893f5518928e7
-tree 1c809616d3113785c0f7dd3039ea3b05c99c6440
-parent d18c3db58bc544fce6662ca7edba616ca9788a70
-author Greg Kroah-Hartman <gregkh@suse.de> Thu, 23 Jun 2005 17:35:56 -0700
-committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 27 Jun 2005 21:52:47 -0700
+commit bb4a61b6eaee01707f24deeefc5d7136f25f75c5
+tree 8d353d7b04addad950de8ae24eda7cdfe6fbea85
+parent e24c2d963a604d9eaa560c90371fa387d3eec8f1
+author Andrew Morton <akpm@osdl.org> Mon, 06 Jun 2005 23:07:46 -0700
+committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 27 Jun 2005 21:52:46 -0700
 
- arch/i386/kernel/acpi/boot.c |   41 +++++++++++++++++++++++++++++++++--------
- arch/i386/pci/mmconfig.c     |   12 +++++++-----
- arch/x86_64/pci/mmconfig.c   |   16 +++++++++-------
- include/linux/acpi.h         |   16 +++++++++++++---
- 4 files changed, 62 insertions(+), 23 deletions(-)
+ include/asm-alpha/pci.h   |    2 ++
+ include/asm-arm/pci.h     |    2 ++
+ include/asm-frv/pci.h     |    2 ++
+ include/asm-i386/pci.h    |    2 ++
+ include/asm-ia64/pci.h    |    2 ++
+ include/asm-mips/pci.h    |    2 ++
+ include/asm-parisc/pci.h  |    2 ++
+ include/asm-ppc/pci.h     |    2 ++
+ include/asm-ppc64/pci.h   |    2 ++
+ include/asm-sh/pci.h      |    2 ++
+ include/asm-sh64/pci.h    |    2 ++
+ include/asm-sparc/pci.h   |    2 ++
+ include/asm-sparc64/pci.h |    2 ++
+ include/asm-v850/pci.h    |    2 ++
+ include/asm-x86_64/pci.h  |    2 ++
+ include/linux/pci.h       |    2 ++
+ 16 files changed, 32 insertions(+), 0 deletions(-)
 
-diff --git a/arch/i386/kernel/acpi/boot.c b/arch/i386/kernel/acpi/boot.c
---- a/arch/i386/kernel/acpi/boot.c
-+++ b/arch/i386/kernel/acpi/boot.c
-@@ -159,9 +159,15 @@ char *__acpi_map_table(unsigned long phy
+diff --git a/include/asm-alpha/pci.h b/include/asm-alpha/pci.h
+--- a/include/asm-alpha/pci.h
++++ b/include/asm-alpha/pci.h
+@@ -223,6 +223,7 @@ pci_dac_dma_sync_single_for_device(struc
+ 	/* Nothing to do. */
+ }
+ 
++#ifdef CONFIG_PCI
+ static inline void pci_dma_burst_advice(struct pci_dev *pdev,
+ 					enum pci_dma_burst_strategy *strat,
+ 					unsigned long *strategy_parameter)
+@@ -239,6 +240,7 @@ static inline void pci_dma_burst_advice(
+ 	*strat = PCI_DMA_BURST_BOUNDARY;
+ 	*strategy_parameter = cacheline_size;
+ }
++#endif
+ 
+ /* TODO: integrate with include/asm-generic/pci.h ? */
+ static inline int pci_get_legacy_ide_irq(struct pci_dev *dev, int channel)
+diff --git a/include/asm-arm/pci.h b/include/asm-arm/pci.h
+--- a/include/asm-arm/pci.h
++++ b/include/asm-arm/pci.h
+@@ -42,6 +42,7 @@ static inline void pcibios_penalize_isa_
+ #define pci_unmap_len(PTR, LEN_NAME)		((PTR)->LEN_NAME)
+ #define pci_unmap_len_set(PTR, LEN_NAME, VAL)	(((PTR)->LEN_NAME) = (VAL))
+ 
++#ifdef CONFIG_PCI
+ static inline void pci_dma_burst_advice(struct pci_dev *pdev,
+ 					enum pci_dma_burst_strategy *strat,
+ 					unsigned long *strategy_parameter)
+@@ -49,6 +50,7 @@ static inline void pci_dma_burst_advice(
+ 	*strat = PCI_DMA_BURST_INFINITY;
+ 	*strategy_parameter = ~0UL;
+ }
++#endif
+ 
+ #define HAVE_PCI_MMAP
+ extern int pci_mmap_page_range(struct pci_dev *dev, struct vm_area_struct *vma,
+diff --git a/include/asm-frv/pci.h b/include/asm-frv/pci.h
+--- a/include/asm-frv/pci.h
++++ b/include/asm-frv/pci.h
+@@ -57,6 +57,7 @@ extern void pci_free_consistent(struct p
+  */
+ #define PCI_DMA_BUS_IS_PHYS	(1)
+ 
++#ifdef CONFIG_PCI
+ static inline void pci_dma_burst_advice(struct pci_dev *pdev,
+ 					enum pci_dma_burst_strategy *strat,
+ 					unsigned long *strategy_parameter)
+@@ -64,6 +65,7 @@ static inline void pci_dma_burst_advice(
+ 	*strat = PCI_DMA_BURST_INFINITY;
+ 	*strategy_parameter = ~0UL;
+ }
++#endif
+ 
+ /*
+  *	These are pretty much arbitary with the CoMEM implementation.
+diff --git a/include/asm-i386/pci.h b/include/asm-i386/pci.h
+--- a/include/asm-i386/pci.h
++++ b/include/asm-i386/pci.h
+@@ -99,6 +99,7 @@ static inline void pcibios_add_platform_
+ {
+ }
+ 
++#ifdef CONFIG_PCI
+ static inline void pci_dma_burst_advice(struct pci_dev *pdev,
+ 					enum pci_dma_burst_strategy *strat,
+ 					unsigned long *strategy_parameter)
+@@ -106,6 +107,7 @@ static inline void pci_dma_burst_advice(
+ 	*strat = PCI_DMA_BURST_INFINITY;
+ 	*strategy_parameter = ~0UL;
+ }
++#endif
+ 
+ #endif /* __KERNEL__ */
+ 
+diff --git a/include/asm-ia64/pci.h b/include/asm-ia64/pci.h
+--- a/include/asm-ia64/pci.h
++++ b/include/asm-ia64/pci.h
+@@ -82,6 +82,7 @@ extern int pcibios_prep_mwi (struct pci_
+ #define sg_dma_len(sg)		((sg)->dma_length)
+ #define sg_dma_address(sg)	((sg)->dma_address)
+ 
++#ifdef CONFIG_PCI
+ static inline void pci_dma_burst_advice(struct pci_dev *pdev,
+ 					enum pci_dma_burst_strategy *strat,
+ 					unsigned long *strategy_parameter)
+@@ -98,6 +99,7 @@ static inline void pci_dma_burst_advice(
+ 	*strat = PCI_DMA_BURST_MULTIPLE;
+ 	*strategy_parameter = cacheline_size;
+ }
++#endif
+ 
+ #define HAVE_PCI_MMAP
+ extern int pci_mmap_page_range (struct pci_dev *dev, struct vm_area_struct *vma,
+diff --git a/include/asm-mips/pci.h b/include/asm-mips/pci.h
+--- a/include/asm-mips/pci.h
++++ b/include/asm-mips/pci.h
+@@ -130,6 +130,7 @@ extern void pci_dac_dma_sync_single_for_
+ extern void pci_dac_dma_sync_single_for_device(struct pci_dev *pdev,
+ 	dma64_addr_t dma_addr, size_t len, int direction);
+ 
++#ifdef CONFIG_PCI
+ static inline void pci_dma_burst_advice(struct pci_dev *pdev,
+ 					enum pci_dma_burst_strategy *strat,
+ 					unsigned long *strategy_parameter)
+@@ -137,6 +138,7 @@ static inline void pci_dma_burst_advice(
+ 	*strat = PCI_DMA_BURST_INFINITY;
+ 	*strategy_parameter = ~0UL;
+ }
++#endif
+ 
+ extern void pcibios_resource_to_bus(struct pci_dev *dev,
+ 	struct pci_bus_region *region, struct resource *res);
+diff --git a/include/asm-parisc/pci.h b/include/asm-parisc/pci.h
+--- a/include/asm-parisc/pci.h
++++ b/include/asm-parisc/pci.h
+@@ -230,6 +230,7 @@ extern inline void pcibios_register_hba(
+ /* export the pci_ DMA API in terms of the dma_ one */
+ #include <asm-generic/pci-dma-compat.h>
+ 
++#ifdef CONFIG_PCI
+ static inline void pci_dma_burst_advice(struct pci_dev *pdev,
+ 					enum pci_dma_burst_strategy *strat,
+ 					unsigned long *strategy_parameter)
+@@ -246,6 +247,7 @@ static inline void pci_dma_burst_advice(
+ 	*strat = PCI_DMA_BURST_MULTIPLE;
+ 	*strategy_parameter = cacheline_size;
+ }
++#endif
+ 
+ extern void
+ pcibios_resource_to_bus(struct pci_dev *dev, struct pci_bus_region *region,
+diff --git a/include/asm-ppc/pci.h b/include/asm-ppc/pci.h
+--- a/include/asm-ppc/pci.h
++++ b/include/asm-ppc/pci.h
+@@ -69,6 +69,7 @@ extern unsigned long pci_bus_to_phys(uns
+ #define pci_unmap_len(PTR, LEN_NAME)		(0)
+ #define pci_unmap_len_set(PTR, LEN_NAME, VAL)	do { } while (0)
+ 
++#ifdef CONFIG_PCI
+ static inline void pci_dma_burst_advice(struct pci_dev *pdev,
+ 					enum pci_dma_burst_strategy *strat,
+ 					unsigned long *strategy_parameter)
+@@ -76,6 +77,7 @@ static inline void pci_dma_burst_advice(
+ 	*strat = PCI_DMA_BURST_INFINITY;
+ 	*strategy_parameter = ~0UL;
+ }
++#endif
+ 
+ /*
+  * At present there are very few 32-bit PPC machines that can have
+diff --git a/include/asm-ppc64/pci.h b/include/asm-ppc64/pci.h
+--- a/include/asm-ppc64/pci.h
++++ b/include/asm-ppc64/pci.h
+@@ -78,6 +78,7 @@ static inline int pci_dac_dma_supported(
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_PCI
+ static inline void pci_dma_burst_advice(struct pci_dev *pdev,
+ 					enum pci_dma_burst_strategy *strat,
+ 					unsigned long *strategy_parameter)
+@@ -94,6 +95,7 @@ static inline void pci_dma_burst_advice(
+ 	*strat = PCI_DMA_BURST_MULTIPLE;
+ 	*strategy_parameter = cacheline_size;
+ }
++#endif
+ 
+ extern int pci_domain_nr(struct pci_bus *bus);
+ 
+diff --git a/include/asm-sh/pci.h b/include/asm-sh/pci.h
+--- a/include/asm-sh/pci.h
++++ b/include/asm-sh/pci.h
+@@ -96,6 +96,7 @@ static inline void pcibios_penalize_isa_
+ #define sg_dma_address(sg)	(virt_to_bus((sg)->dma_address))
+ #define sg_dma_len(sg)		((sg)->length)
+ 
++#ifdef CONFIG_PCI
+ static inline void pci_dma_burst_advice(struct pci_dev *pdev,
+ 					enum pci_dma_burst_strategy *strat,
+ 					unsigned long *strategy_parameter)
+@@ -103,6 +104,7 @@ static inline void pci_dma_burst_advice(
+ 	*strat = PCI_DMA_BURST_INFINITY;
+ 	*strategy_parameter = ~0UL;
+ }
++#endif
+ 
+ /* Board-specific fixup routines. */
+ extern void pcibios_fixup(void);
+diff --git a/include/asm-sh64/pci.h b/include/asm-sh64/pci.h
+--- a/include/asm-sh64/pci.h
++++ b/include/asm-sh64/pci.h
+@@ -86,6 +86,7 @@ static inline void pcibios_penalize_isa_
+ #define sg_dma_address(sg)	((sg)->dma_address)
+ #define sg_dma_len(sg)		((sg)->length)
+ 
++#ifdef CONFIG_PCI
+ static inline void pci_dma_burst_advice(struct pci_dev *pdev,
+ 					enum pci_dma_burst_strategy *strat,
+ 					unsigned long *strategy_parameter)
+@@ -93,6 +94,7 @@ static inline void pci_dma_burst_advice(
+ 	*strat = PCI_DMA_BURST_INFINITY;
+ 	*strategy_parameter = ~0UL;
+ }
++#endif
+ 
+ /* Board-specific fixup routines. */
+ extern void pcibios_fixup(void);
+diff --git a/include/asm-sparc/pci.h b/include/asm-sparc/pci.h
+--- a/include/asm-sparc/pci.h
++++ b/include/asm-sparc/pci.h
+@@ -144,6 +144,7 @@ extern inline int pci_dma_supported(stru
+ 
+ #define pci_dac_dma_supported(dev, mask)	(0)
+ 
++#ifdef CONFIG_PCI
+ static inline void pci_dma_burst_advice(struct pci_dev *pdev,
+ 					enum pci_dma_burst_strategy *strat,
+ 					unsigned long *strategy_parameter)
+@@ -151,6 +152,7 @@ static inline void pci_dma_burst_advice(
+ 	*strat = PCI_DMA_BURST_INFINITY;
+ 	*strategy_parameter = ~0UL;
+ }
++#endif
+ 
+ static inline void pcibios_add_platform_entries(struct pci_dev *dev)
+ {
+diff --git a/include/asm-sparc64/pci.h b/include/asm-sparc64/pci.h
+--- a/include/asm-sparc64/pci.h
++++ b/include/asm-sparc64/pci.h
+@@ -220,6 +220,7 @@ static inline int pci_dma_mapping_error(
+ 	return (dma_addr == PCI_DMA_ERROR_CODE);
+ }
+ 
++#ifdef CONFIG_PCI
+ static inline void pci_dma_burst_advice(struct pci_dev *pdev,
+ 					enum pci_dma_burst_strategy *strat,
+ 					unsigned long *strategy_parameter)
+@@ -236,6 +237,7 @@ static inline void pci_dma_burst_advice(
+ 	*strat = PCI_DMA_BURST_BOUNDARY;
+ 	*strategy_parameter = cacheline_size;
+ }
++#endif
+ 
+ /* Return the index of the PCI controller for device PDEV. */
+ 
+diff --git a/include/asm-v850/pci.h b/include/asm-v850/pci.h
+--- a/include/asm-v850/pci.h
++++ b/include/asm-v850/pci.h
+@@ -81,6 +81,7 @@ extern void
+ pci_free_consistent (struct pci_dev *pdev, size_t size, void *cpu_addr,
+ 		     dma_addr_t dma_addr);
+ 
++#ifdef CONFIG_PCI
+ static inline void pci_dma_burst_advice(struct pci_dev *pdev,
+ 					enum pci_dma_burst_strategy *strat,
+ 					unsigned long *strategy_parameter)
+@@ -88,6 +89,7 @@ static inline void pci_dma_burst_advice(
+ 	*strat = PCI_DMA_BURST_INFINITY;
+ 	*strategy_parameter = ~0UL;
+ }
++#endif
+ 
+ static inline void pcibios_add_platform_entries(struct pci_dev *dev)
+ {
+diff --git a/include/asm-x86_64/pci.h b/include/asm-x86_64/pci.h
+--- a/include/asm-x86_64/pci.h
++++ b/include/asm-x86_64/pci.h
+@@ -123,6 +123,7 @@ pci_dac_dma_sync_single_for_device(struc
+ 	flush_write_buffers();
+ }
+ 
++#ifdef CONFIG_PCI
+ static inline void pci_dma_burst_advice(struct pci_dev *pdev,
+ 					enum pci_dma_burst_strategy *strat,
+ 					unsigned long *strategy_parameter)
+@@ -130,6 +131,7 @@ static inline void pci_dma_burst_advice(
+ 	*strat = PCI_DMA_BURST_INFINITY;
+ 	*strategy_parameter = ~0UL;
+ }
++#endif
+ 
+ #define HAVE_PCI_MMAP
+ extern int pci_mmap_page_range(struct pci_dev *dev, struct vm_area_struct *vma,
+diff --git a/include/linux/pci.h b/include/linux/pci.h
+--- a/include/linux/pci.h
++++ b/include/linux/pci.h
+@@ -985,6 +985,8 @@ static inline int pci_proc_domain(struct
+ }
  #endif
  
- #ifdef CONFIG_PCI_MMCONFIG
--static int __init acpi_parse_mcfg(unsigned long phys_addr, unsigned long size)
-+/* The physical address of the MMCONFIG aperture.  Set from ACPI tables. */
-+struct acpi_table_mcfg_config *pci_mmcfg_config;
-+int pci_mmcfg_config_num;
++#define pci_dma_burst_advice(pdev, strat, strategy_parameter) do { } while (0)
 +
-+int __init acpi_parse_mcfg(unsigned long phys_addr, unsigned long size)
- {
- 	struct acpi_table_mcfg *mcfg;
-+	unsigned long i;
-+	int config_size;
+ #endif /* !CONFIG_PCI */
  
- 	if (!phys_addr || !size)
- 		return -EINVAL;
-@@ -172,18 +178,38 @@ static int __init acpi_parse_mcfg(unsign
- 		return -ENODEV;
- 	}
- 
--	if (mcfg->base_reserved) {
--		printk(KERN_ERR PREFIX "MMCONFIG not in low 4GB of memory\n");
-+	/* how many config structures do we have */
-+	pci_mmcfg_config_num = 0;
-+	i = size - sizeof(struct acpi_table_mcfg);
-+	while (i >= sizeof(struct acpi_table_mcfg_config)) {
-+		++pci_mmcfg_config_num;
-+		i -= sizeof(struct acpi_table_mcfg_config);
-+	};
-+	if (pci_mmcfg_config_num == 0) {
-+		printk(KERN_ERR PREFIX "MMCONFIG has no entries\n");
- 		return -ENODEV;
- 	}
- 
--	pci_mmcfg_base_addr = mcfg->base_address;
-+	config_size = pci_mmcfg_config_num * sizeof(*pci_mmcfg_config);
-+	pci_mmcfg_config = kmalloc(config_size, GFP_KERNEL);
-+	if (!pci_mmcfg_config) {
-+		printk(KERN_WARNING PREFIX
-+		       "No memory for MCFG config tables\n");
-+		return -ENOMEM;
-+	}
-+
-+	memcpy(pci_mmcfg_config, &mcfg->config, config_size);
-+	for (i = 0; i < pci_mmcfg_config_num; ++i) {
-+		if (mcfg->config[i].base_reserved) {
-+			printk(KERN_ERR PREFIX
-+			       "MMCONFIG not in low 4GB of memory\n");
-+			return -ENODEV;
-+		}
-+	}
- 
- 	return 0;
- }
--#else
--#define	acpi_parse_mcfg NULL
--#endif /* !CONFIG_PCI_MMCONFIG */
-+#endif /* CONFIG_PCI_MMCONFIG */
- 
- #ifdef CONFIG_X86_LOCAL_APIC
- static int __init
-@@ -1139,7 +1165,6 @@ int __init acpi_boot_init(void)
- 	acpi_process_madt();
- 
- 	acpi_table_parse(ACPI_HPET, acpi_parse_hpet);
--	acpi_table_parse(ACPI_MCFG, acpi_parse_mcfg);
- 
- 	return 0;
- }
-diff --git a/arch/i386/pci/mmconfig.c b/arch/i386/pci/mmconfig.c
---- a/arch/i386/pci/mmconfig.c
-+++ b/arch/i386/pci/mmconfig.c
-@@ -11,11 +11,9 @@
- 
- #include <linux/pci.h>
- #include <linux/init.h>
-+#include <linux/acpi.h>
- #include "pci.h"
- 
--/* The physical address of the MMCONFIG aperture.  Set from ACPI tables. */
--u32 pci_mmcfg_base_addr;
--
- #define mmcfg_virt_addr ((void __iomem *) fix_to_virt(FIX_PCIE_MCFG))
- 
- /* The base address of the last MMCONFIG device accessed */
-@@ -27,7 +25,7 @@ static u32 mmcfg_last_accessed_device;
- 
- static inline void pci_exp_set_dev_base(int bus, int devfn)
- {
--	u32 dev_base = pci_mmcfg_base_addr | (bus << 20) | (devfn << 12);
-+	u32 dev_base = pci_mmcfg_config[0].base_address | (bus << 20) | (devfn << 12);
- 	if (dev_base != mmcfg_last_accessed_device) {
- 		mmcfg_last_accessed_device = dev_base;
- 		set_fixmap_nocache(FIX_PCIE_MCFG, dev_base);
-@@ -101,7 +99,11 @@ static int __init pci_mmcfg_init(void)
- {
- 	if ((pci_probe & PCI_PROBE_MMCONF) == 0)
- 		goto out;
--	if (!pci_mmcfg_base_addr)
-+
-+	acpi_table_parse(ACPI_MCFG, acpi_parse_mcfg);
-+	if ((pci_mmcfg_config_num == 0) ||
-+	    (pci_mmcfg_config == NULL) ||
-+	    (pci_mmcfg_config[0].base_address == 0))
- 		goto out;
- 
- 	/* Kludge for now. Don't use mmconfig on AMD systems because
-diff --git a/arch/x86_64/pci/mmconfig.c b/arch/x86_64/pci/mmconfig.c
---- a/arch/x86_64/pci/mmconfig.c
-+++ b/arch/x86_64/pci/mmconfig.c
-@@ -7,15 +7,13 @@
- 
- #include <linux/pci.h>
- #include <linux/init.h>
-+#include <linux/acpi.h>
- #include "pci.h"
- 
- #define MMCONFIG_APER_SIZE (256*1024*1024)
- 
--/* The physical address of the MMCONFIG aperture.  Set from ACPI tables. */
--u32 pci_mmcfg_base_addr;
--
- /* Static virtual mapping of the MMCONFIG aperture */
--char *pci_mmcfg_virt;
-+static char *pci_mmcfg_virt;
- 
- static inline char *pci_dev_base(unsigned int bus, unsigned int devfn)
- {
-@@ -77,7 +75,11 @@ static int __init pci_mmcfg_init(void)
- {
- 	if ((pci_probe & PCI_PROBE_MMCONF) == 0)
- 		return 0;
--	if (!pci_mmcfg_base_addr)
-+
-+	acpi_table_parse(ACPI_MCFG, acpi_parse_mcfg);
-+	if ((pci_mmcfg_config_num == 0) ||
-+	    (pci_mmcfg_config == NULL) ||
-+	    (pci_mmcfg_config[0].base_address == 0))
- 		return 0;
- 
- 	/* Kludge for now. Don't use mmconfig on AMD systems because
-@@ -88,13 +90,13 @@ static int __init pci_mmcfg_init(void)
- 		return 0; 
- 
- 	/* RED-PEN i386 doesn't do _nocache right now */
--	pci_mmcfg_virt = ioremap_nocache(pci_mmcfg_base_addr, MMCONFIG_APER_SIZE);
-+	pci_mmcfg_virt = ioremap_nocache(pci_mmcfg_config[0].base_address, MMCONFIG_APER_SIZE);
- 	if (!pci_mmcfg_virt) { 
- 		printk("PCI: Cannot map mmconfig aperture\n");
- 		return 0;
- 	}	
- 
--	printk(KERN_INFO "PCI: Using MMCONFIG at %x\n", pci_mmcfg_base_addr);
-+	printk(KERN_INFO "PCI: Using MMCONFIG at %x\n", pci_mmcfg_config[0].base_address);
- 	raw_pci_ops = &pci_mmcfg;
- 	pci_probe = (pci_probe & ~PCI_PROBE_MASK) | PCI_PROBE_MMCONF;
- 
-diff --git a/include/linux/acpi.h b/include/linux/acpi.h
---- a/include/linux/acpi.h
-+++ b/include/linux/acpi.h
-@@ -342,11 +342,19 @@ struct acpi_table_ecdt {
- 
- /* PCI MMCONFIG */
- 
-+/* Defined in PCI Firmware Specification 3.0 */
-+struct acpi_table_mcfg_config {
-+	u32				base_address;
-+	u32				base_reserved;
-+	u16				pci_segment_group_number;
-+	u8				start_bus_number;
-+	u8				end_bus_number;
-+	u8				reserved[4];
-+} __attribute__ ((packed));
- struct acpi_table_mcfg {
- 	struct acpi_table_header	header;
- 	u8				reserved[8];
--	u32				base_address;
--	u32				base_reserved;
-+	struct acpi_table_mcfg_config	config[0];
- } __attribute__ ((packed));
- 
- /* Table Handlers */
-@@ -391,6 +399,7 @@ int acpi_table_parse (enum acpi_table_id
- int acpi_get_table_header_early (enum acpi_table_id id, struct acpi_table_header **header);
- int acpi_table_parse_madt (enum acpi_madt_entry_id id, acpi_madt_entry_handler handler, unsigned int max_entries);
- int acpi_table_parse_srat (enum acpi_srat_entry_id id, acpi_madt_entry_handler handler, unsigned int max_entries);
-+int acpi_parse_mcfg (unsigned long phys_addr, unsigned long size);
- void acpi_table_print (struct acpi_table_header *header, unsigned long phys_addr);
- void acpi_table_print_madt_entry (acpi_table_entry_header *madt);
- void acpi_table_print_srat_entry (acpi_table_entry_header *srat);
-@@ -412,7 +421,8 @@ int acpi_unregister_ioapic(acpi_handle h
- 
- extern int acpi_mp_config;
- 
--extern u32 pci_mmcfg_base_addr;
-+extern struct acpi_table_mcfg_config *pci_mmcfg_config;
-+extern int pci_mmcfg_config_num;
- 
- extern int sbf_port ;
- 
+ /* these helpers provide future and backwards compatibility
 

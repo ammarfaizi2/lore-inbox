@@ -1,68 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261631AbVF1OQr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261568AbVF1OSu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261631AbVF1OQr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 10:16:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261600AbVF1OQr
+	id S261568AbVF1OSu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 10:18:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261465AbVF1ORH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 10:16:47 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:60097 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S261675AbVF1OMw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 10:12:52 -0400
-Message-ID: <42C15AA7.40508@jp.fujitsu.com>
-Date: Tue, 28 Jun 2005 23:11:51 +0900
-From: Naoaki Maeda <maeda.naoaki@jp.fujitsu.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: ja, en-us, en
+	Tue, 28 Jun 2005 10:17:07 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:44713 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S261461AbVF1OMQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 10:12:16 -0400
+Date: Tue, 28 Jun 2005 09:11:57 -0500 (CDT)
+From: Pat Gefre <pfg@americas.sgi.com>
+To: Stanislaw Skowronek <sskowron@ET.PUT.Poznan.PL>
+cc: pfg@sgi.com, akpm@osdl.org, hch@infradead.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6] Altix - add ioc3 serial driver support
+In-Reply-To: <Pine.GSO.4.10.10506280729520.16758-100000@helios.et.put.poznan.pl>
+Message-ID: <Pine.SGI.3.96.1050628090712.40806A-100000@fsgi900.americas.sgi.com>
 MIME-Version: 1.0
-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-CC: Gerrit Huizenga <gh@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net,
-       Matt Helsley <matthltc@us.ibm.com>
-Subject: Re: [ckrm-tech] [patch 25/38] CKRM e18: Add fork rate control to
- the numtasks controller
-References: <20050623061552.833852000@w-gerrit.beaverton.ibm.com> <20050623061759.325157000@w-gerrit.beaverton.ibm.com> <42BFA5C6.9040604@jp.fujitsu.com> <20050627132704.GA3555@bitwizard.nl>
-In-Reply-To: <20050627132704.GA3555@bitwizard.nl>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 28 Jun 2005, Stanislaw Skowronek wrote:
 
-Rogier Wolff wrote:
-> On Mon, Jun 27, 2005 at 04:07:50PM +0900, Naoaki Maeda wrote:
-> 
->>Gerrit Huizenga wrote:>
-> 
->  > +By default, the sys_total_tasks is set to 131072(128k), and forkrate is set
-> 
->>>+to 1 million and forkrate_interval is set to 3600 seconds. Which means the
->>>+total number of tasks in a system is limited to 131072 and the forks are
->>>+limited to 1 million per hour.
->>
->>From the same point of view, the default value of forkrate should be
->>no limit. (In addition, 1 million tasks per hour is not an abnormally
->>high rate.)
-> 
-> 
-> It is quite high. however, in some applications I can immagine that a
-> machine would indeed trigger a very high fork rate.
-> 
-> For example, a machine that runs lots of shell scripts that call each
-> other, may all of a sudden be forking the required 300/second....
++ > > Something I didn't make clear - the driver that I am adding is a pci
++ > > card based on the IOC3 serial part - it is a single function card - 2
++ > > serial ports. This is supported on Altix.
++ 
++ OK. Does it play along with the Ethernet part of the IOC3? And with the
++ pckm part? And with the different devices which hang off the IOC3?
++ (Especially the RTC on Octanes?) If yes, then I'm all over it :)
 
-I agree that it is quite high rate. However, as you pointed out,
-shell scripts may fork processes in very high rate.
+There is an ioc3 serial part on the same ioc3 as the ethernet - I'm not
+sure what the differneces are - I haven't looked at it.
 
-Another reason I don't like this default values is that
-forkrate_interval is too long.
++ 
++ Does your driver use DMA for serial? If not, then it is not really needed
++ as I have a driver that uses 16550-style IRQs.
 
-Please imagine if forkrate limite is reached in the first 30 minutes,
-we cannot fork any process for another 30 minutes. It is not what
-I expected.
+Yes.
 
-Thanks,
-MAEDA Naoaki
-
+-- Pat
 

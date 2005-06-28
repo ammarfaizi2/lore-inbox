@@ -1,84 +1,147 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262006AbVF1HuB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261925AbVF1IBk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262006AbVF1HuB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 03:50:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261712AbVF1Hql
+	id S261925AbVF1IBk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 04:01:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261884AbVF1GXt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 03:46:41 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:23204 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S261648AbVF1Hmd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 03:42:33 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <42C0FF50.7080300@s5r6.in-berlin.de>
-Date: Tue, 28 Jun 2005 09:42:08 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Reply-To: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net
-CC: Andrew Morton <akpm@osdl.org>,
-       =?ISO-8859-1?Q?Rog=E9rio_Brito?= <rbrito@ime.usp.br>
-Subject: Re: Problems with Firewire and -mm kernels
-References: <20050626040329.3849cf68.akpm@osdl.org>	<42BE99C3.9080307@trex.wsi.edu.pl>	<20050627025059.GC10920@ime.usp.br>	<20050627164540.7ded07fc.akpm@osdl.org>	<20050628010052.GA3947@ime.usp.br> <20050627202226.43ebd761.akpm@osdl.org>
-In-Reply-To: <20050627202226.43ebd761.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: (-1.554) AWL,BAYES_00
+	Tue, 28 Jun 2005 02:23:49 -0400
+Received: from mail.kroah.org ([69.55.234.183]:39916 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261938AbVF1Fd4 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 01:33:56 -0400
+Cc: gregkh@suse.de
+Subject: [PATCH] PCI: use the MCFG table to properly access pci devices (x86-64)
+In-Reply-To: <11199367751620@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Mon, 27 Jun 2005 22:32:55 -0700
+Message-Id: <11199367751784@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Greg K-H <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> -ieee1394: Node added: ID:BUS[0-00:1023]  GUID[0050c501e00010e8]
-> +ieee1394: Node added: ID:BUS[0-01:1023]  GUID[0050c501e00010e8]
-> +ieee1394: The root node is not cycle master capable; selecting a new root node and resetting...
-> +ieee1394: Node changed: 0-01:1023 -> 0-00:1023
->  ieee1394: Node changed: 0-00:1023 -> 0-01:1023
+[PATCH] PCI: use the MCFG table to properly access pci devices (x86-64)
 
-The IDs are assigned to nodes everytime they are attached to the bus in 
-a random order. It is a pure hardware thing; I cannot imagine any 
-influnce of the kernel to this procedure.
+Now that we have access to the whole MCFG table, let's properly use it
+for all pci device accesses (as that's what it is there for, some boxes
+don't put all the busses into one entry.)
 
-If the node with the highest ID does not fulfill certain criteria, Linux 
-tries to get the highest ID moved to the local node. This function is 
-unrelated to SBP-2 (it is necessary to let streaming devices like 
-cameras work) but it has been observed that it disturbs a few SBP-2 
-devices. But again, I don't see how -mm and the stock kernel should 
-differ to that respect.
+If, for some reason, the table is incorrect, we fallback to the "old
+style" of mmconfig accesses, namely, we just assume the first entry in
+the table is the one for us, and blindly use it.
 
-You could load ieee1394 with a new parameter that supresses the "Root 
-node is not cycle master capable..." routine:
-# modprobe ieee1394 disable_irm=1
-before ohci1394 and the other 1394 related drivers are loaded.
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
->  SCSI subsystem initialized
->  sbp2: $Rev: 1219 $ Ben Collins <bcollins@debian.org>
-> @@ -300,14 +308,6 @@
->  ieee1394: sbp2: Logged into SBP-2 device
->  ieee1394: Node 0-00:1023: Max speed [S400] - Max payload [2048]
->    Vendor: ST316002  Model: 1A                Rev: 3.06
-> -  Type:   Direct-Access                      ANSI SCSI revision: 06
-> -SCSI device sda: 312581808 512-byte hdwr sectors (160042 MB)
-> -sda: asking for cache data failed
-> -sda: assuming drive cache: write through
-> -SCSI device sda: 312581808 512-byte hdwr sectors (160042 MB)
-> -sda: asking for cache data failed
-> -sda: assuming drive cache: write through
-> - sda: [mac] sda1 sda2 sda3 sda4
-> -Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
-> +  Type:   Unknown                            ANSI SCSI revision: 04
+---
+commit 1cde8a16815bd85c8137d1ea556398983c597c11
+tree c43ab735f7fd96d0576dfb7749c8ded74f9b63b7
+parent d57e26ceb7dbf44cd08128cb6146116d4281b58b
+author Greg Kroah-Hartman <gregkh@suse.de> Thu, 23 Jun 2005 17:35:56 -0700
+committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 27 Jun 2005 21:52:48 -0700
 
-There was a discussion in May about discovery of devices which implement 
-the RBC command set: http://marc.theaimsgroup.com/?t=111620896500001 I 
-am not sure if the discussed change went into one or both of the kernels 
-in question.
+ arch/x86_64/pci/mmconfig.c |   58 ++++++++++++++++++++++++++++++++++++--------
+ 1 files changed, 48 insertions(+), 10 deletions(-)
 
->  ieee1394: Node changed: 0-01:1023 -> 0-00:1023
->  ieee1394: Node suspended: ID:BUS[0-00:1023]  GUID[0050c501e00010e8]
+diff --git a/arch/x86_64/pci/mmconfig.c b/arch/x86_64/pci/mmconfig.c
+--- a/arch/x86_64/pci/mmconfig.c
++++ b/arch/x86_64/pci/mmconfig.c
+@@ -13,17 +13,44 @@
+ #define MMCONFIG_APER_SIZE (256*1024*1024)
+ 
+ /* Static virtual mapping of the MMCONFIG aperture */
+-static char *pci_mmcfg_virt;
++struct mmcfg_virt {
++	struct acpi_table_mcfg_config *cfg;
++	char *virt;
++};
++static struct mmcfg_virt *pci_mmcfg_virt;
++
++static char *get_virt(unsigned int seg, int bus)
++{
++	int cfg_num = -1;
++	struct acpi_table_mcfg_config *cfg;
++
++	while (1) {
++		++cfg_num;
++		if (cfg_num >= pci_mmcfg_config_num) {
++			/* something bad is going on, no cfg table is found. */
++			/* so we fall back to the old way we used to do this */
++			/* and just rely on the first entry to be correct. */
++			return pci_mmcfg_virt[0].virt;
++		}
++		cfg = pci_mmcfg_virt[cfg_num].cfg;
++		if (cfg->pci_segment_group_number != seg)
++			continue;
++		if ((cfg->start_bus_number <= bus) &&
++		    (cfg->end_bus_number >= bus))
++			return pci_mmcfg_virt[cfg_num].virt;
++	}
++}
+ 
+-static inline char *pci_dev_base(unsigned int bus, unsigned int devfn)
++static inline char *pci_dev_base(unsigned int seg, unsigned int bus, unsigned int devfn)
+ {
+-	return pci_mmcfg_virt + ((bus << 20) | (devfn << 12));
++
++	return get_virt(seg, bus) + ((bus << 20) | (devfn << 12));
+ }
+ 
+ static int pci_mmcfg_read(unsigned int seg, unsigned int bus,
+ 			  unsigned int devfn, int reg, int len, u32 *value)
+ {
+-	char *addr = pci_dev_base(bus, devfn); 
++	char *addr = pci_dev_base(seg, bus, devfn);
+ 
+ 	if (unlikely(!value || (bus > 255) || (devfn > 255) || (reg > 4095)))
+ 		return -EINVAL;
+@@ -46,7 +73,7 @@ static int pci_mmcfg_read(unsigned int s
+ static int pci_mmcfg_write(unsigned int seg, unsigned int bus,
+ 			   unsigned int devfn, int reg, int len, u32 value)
+ {
+-	char *addr = pci_dev_base(bus,devfn);
++	char *addr = pci_dev_base(seg, bus, devfn);
+ 
+ 	if (unlikely((bus > 255) || (devfn > 255) || (reg > 4095)))
+ 		return -EINVAL;
+@@ -73,6 +100,8 @@ static struct pci_raw_ops pci_mmcfg = {
+ 
+ static int __init pci_mmcfg_init(void)
+ {
++	int i;
++
+ 	if ((pci_probe & PCI_PROBE_MMCONF) == 0)
+ 		return 0;
+ 
+@@ -90,13 +119,22 @@ static int __init pci_mmcfg_init(void)
+ 		return 0; 
+ 
+ 	/* RED-PEN i386 doesn't do _nocache right now */
+-	pci_mmcfg_virt = ioremap_nocache(pci_mmcfg_config[0].base_address, MMCONFIG_APER_SIZE);
+-	if (!pci_mmcfg_virt) { 
+-		printk("PCI: Cannot map mmconfig aperture\n");
++	pci_mmcfg_virt = kmalloc(sizeof(*pci_mmcfg_virt) * pci_mmcfg_config_num, GFP_KERNEL);
++	if (pci_mmcfg_virt == NULL) {
++		printk("PCI: Can not allocate memory for mmconfig structures\n");
+ 		return 0;
+-	}	
++	}
++	for (i = 0; i < pci_mmcfg_config_num; ++i) {
++		pci_mmcfg_virt[i].cfg = &pci_mmcfg_config[i];
++		pci_mmcfg_virt[i].virt = ioremap_nocache(pci_mmcfg_config[i].base_address, MMCONFIG_APER_SIZE);
++		if (!pci_mmcfg_virt[i].virt) {
++			printk("PCI: Cannot map mmconfig aperture for segment %d\n",
++			       pci_mmcfg_config[i].pci_segment_group_number);
++			return 0;
++		}
++		printk(KERN_INFO "PCI: Using MMCONFIG at %x\n", pci_mmcfg_config[i].base_address);
++	}
+ 
+-	printk(KERN_INFO "PCI: Using MMCONFIG at %x\n", pci_mmcfg_config[0].base_address);
+ 	raw_pci_ops = &pci_mmcfg;
+ 	pci_probe = (pci_probe & ~PCI_PROBE_MASK) | PCI_PROBE_MMCONF;
+ 
 
-What caused these two messages? Did you disconnect the drive at this point?
--- 
-Stefan Richter
--=====-=-=-= -==- ===--
-http://arcgraph.de/sr/

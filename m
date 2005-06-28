@@ -1,73 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261608AbVF1G1W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261529AbVF1GaO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261608AbVF1G1W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 02:27:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261949AbVF1G0N
+	id S261529AbVF1GaO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 02:30:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261971AbVF1G3H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 02:26:13 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:55251 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S261633AbVF1Fw7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 01:52:59 -0400
-Message-ID: <42C0E5F9.50609@jp.fujitsu.com>
-Date: Tue, 28 Jun 2005 14:54:01 +0900
-From: Naoaki Maeda <maeda.naoaki@jp.fujitsu.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: ja, en-us, en
+	Tue, 28 Jun 2005 02:29:07 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:10218 "EHLO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
+	id S261645AbVF1GJz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 02:09:55 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Andrew Morton <akpm@osdl.org>
+Date: Tue, 28 Jun 2005 16:09:44 +1000
 MIME-Version: 1.0
-To: Gerrit Huizenga <gh@us.ibm.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ckrm-tech@lists.sourceforge.net,
-       Chandra Seetharaman <sekharan@us.ibm.com>,
-       Hubertus Franke <frankeh@us.ibm.com>, Shailabh Nagar <nagar@us.ibm.com>
-Subject: Re: [ckrm-tech] [patch 07/38] CKRM e18: Numtasks Controller
-References: <20050623061552.833852000@w-gerrit.beaverton.ibm.com> <20050623061755.520778000@w-gerrit.beaverton.ibm.com>
-In-Reply-To: <20050623061755.520778000@w-gerrit.beaverton.ibm.com>
-Content-Type: text/plain; charset=ISO-2022-JP
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17088.59816.277303.588185@cse.unsw.edu.au>
+Cc: earny@net4u.de, linux-kernel@vger.kernel.org
+Subject: Re: dirty md raid5 slab bio leak
+In-Reply-To: message from Andrew Morton on Monday June 27
+References: <200506272222.51993.list-lkml@net4u.de>
+	<17088.41384.864708.23860@cse.unsw.edu.au>
+	<17088.52861.78252.726904@cse.unsw.edu.au>
+	<20050627212511.11402fd1.akpm@osdl.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+X-CSE-Spam-Checker-Version: SpamAssassin 3.0.2 (2004-11-16) on 
+	note.orchestra.cse.unsw.EDU.AU
+X-CSE-Spam-Level: 
+X-CSE-Spam-Status: No, score=-4.3 required=5.0 tests=ALL_TRUSTED,AWL,BAYES_00 
+	autolearn=ham version=3.0.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gerrit Huizenga wrote:
+On Monday June 27, akpm@osdl.org wrote:
+> Neil Brown <neilb@cse.unsw.edu.au> wrote:
+> >
+> > It's OK, I found it.  The bio leaks when writing the md superblock.
+> > 
+> 
+> Thanks.
+> 
+> >  insert a missing bio_put when writting the md superblock.
+> 
+> Does 2.6.12.x need this?
 
-> Index: linux-2.6.12-ckrm1/kernel/fork.c
-> ===================================================================
-> --- linux-2.6.12-ckrm1.orig/kernel/fork.c	2005-06-20 13:08:27.000000000 -0700
-> +++ linux-2.6.12-ckrm1/kernel/fork.c	2005-06-20 13:08:34.000000000 -0700
-> @@ -42,6 +42,8 @@
->  #include <linux/rmap.h>
->  #include <linux/acct.h>
->  #include <linux/ckrm_events.h>
-> +#include <linux/ckrm_tsk.h>
-> +#include <linux/ckrm_tc.h>
->  
->  #include <asm/pgtable.h>
->  #include <asm/pgalloc.h>
-> @@ -1211,6 +1213,9 @@ long do_fork(unsigned long clone_flags,
->  			clone_flags |= CLONE_PTRACE;
->  	}
->  
-> +	if (numtasks_get_ref(&current->taskclass->core, 0) == 0) {
-> +		return -ENOMEM;
-> +	}
->  	p = copy_process(clone_flags, stack_start, regs, stack_size, parent_tidptr, child_tidptr, pid);
->  	/*
->  	 * Do this prior waking up the new thread - the thread pointer
-> @@ -1250,6 +1255,7 @@ long do_fork(unsigned long clone_flags,
->  				ptrace_notify ((PTRACE_EVENT_VFORK_DONE << 8) | SIGTRAP);
->  		}
->  	} else {
-> +		numtasks_put_ref(&current->taskclass->core);
->  		free_pidmap(pid);
->  		pid = PTR_ERR(p);
->  	}
+Hmmm.. probably, though it isn't Ooopsable, and isn't a security
+problem.  Just a slow leak with a trivial patch...  
 
-Instead of returning -ENOMEM on fork fail due to numtask or forkrate
-limit, I'd rather prefer returning -EAGAIN.
+Is there a web-page somewhere that lists the acceptance criterea? I
+didn't save the mail message.
 
-Because, according to IEEE Std 1003.1, if fork() fails due to
-reaching limit, it shall set the errno to EAGAIN.
+Do I just mail the patch to stable@kernel.org ??
 
-Thanks,
-MAEDA Naoaki
-
+NeilBrown

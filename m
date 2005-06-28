@@ -1,49 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261233AbVF1KvP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261280AbVF1LAo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261233AbVF1KvP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 06:51:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261257AbVF1KvP
+	id S261280AbVF1LAo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 07:00:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261279AbVF1LAn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 06:51:15 -0400
-Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:1042 "EHLO
-	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S261233AbVF1KvN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 06:51:13 -0400
-To: "Al Boldi" <a1426z@gawab.com>
-Cc: "'Marcelo Tosatti'" <marcelo.tosatti@cyclades.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Kswapd flaw
-References: <200506280637.JAA07333@raad.intranet>
-From: Nix <nix@esperi.org.uk>
-X-Emacs: there's a reason it comes with a built-in psychotherapist.
-Date: Tue, 28 Jun 2005 11:50:49 +0100
-In-Reply-To: <200506280637.JAA07333@raad.intranet> (Al Boldi's message of
- "28 Jun 2005 07:47:44 +0100")
-Message-ID: <87r7em69h2.fsf@amaterasu.srvr.nix>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 28 Jun 2005 07:00:43 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:34773 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261293AbVF1LAZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 07:00:25 -0400
+Date: Tue, 28 Jun 2005 03:56:38 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "d binderman" <dcb314@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: array subscript out of range
+Message-Id: <20050628035638.41fd4004.akpm@osdl.org>
+In-Reply-To: <BAY19-F255ACFD14A7CB3309260039CE10@phx.gbl>
+References: <BAY19-F255ACFD14A7CB3309260039CE10@phx.gbl>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 28 Jun 2005, Al Boldi murmured woefully:
-> Kswapd starts evicting processes to fullfil a malloc, when it should just
-> deny it because there is no swap.
+"d binderman" <dcb314@hotmail.com> wrote:
+>
+> Hello there,
+> 
+> I just tried to compile the Linux Kernel version 2.6.11.12
+> with the most excellent Intel C compiler. It said
+> 
+> drivers/media/video/bt819.c(239): warning #175: subscript out of range
+>     init[0x19*2-1] = decoder->norm == 0 ? 115 : 93; /* Chroma burst delay */
+>         ^
+> 
+> This is clearly broken code, since the init data is declared
+> with 44 elements, but the index is for number 49.
+> 
+> Suggest code rework.
 
-This is how the kernel has always worked. If you have no swap, memory
-pressure is higher than it otherwise might be, because dirty pages must
-be kept in physical RAM even if they are rarely used. So when memory gets
-low the kernel *has* to evict pages which aren't dirty, and write out and
-flush dirty pages corresponding to files on disk.
+Was fixed.
 
-What else could it possibly do? Stop evicting everything?
 
-I can't even tell what you're expecting. Surely not that no pages are
-ever evicted or flushed; your memory would fill up with page cache in
-no time.
+From: "Ronald S. Bultje" <rbultje@ronald.bitfreak.net>
 
--- 
-`I lost interest in "blade servers" when I found they didn't throw knives
- at people who weren't supposed to be in your machine room.'
-    --- Anthony de Boer
+Signed-off-by: Ronald S. Bultje <rbultje@ronald.bitfreak.net>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+ 25-akpm/drivers/media/video/bt819.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletion(-)
+
+diff -puN drivers/media/video/bt819.c~bt819-array-indexing-fix drivers/media/video/bt819.c
+--- 25/drivers/media/video/bt819.c~bt819-array-indexing-fix	2005-03-28 14:21:43.000000000 -0800
++++ 25-akpm/drivers/media/video/bt819.c	2005-03-28 14:21:44.000000000 -0800
+@@ -236,7 +236,8 @@ bt819_init (struct i2c_client *client)
+ 	init[0x07 * 2 - 1] = timing->hactive & 0xff;
+ 	init[0x08 * 2 - 1] = timing->hscale >> 8;
+ 	init[0x09 * 2 - 1] = timing->hscale & 0xff;
+-	init[0x19*2-1] = decoder->norm == 0 ? 115 : 93;	/* Chroma burst delay */
++	/* 0x15 in array is address 0x19 */
++	init[0x15 * 2 - 1] = (decoder->norm == 0) ? 115 : 93;	/* Chroma burst delay */
+ 	/* reset */
+ 	bt819_write(client, 0x1f, 0x00);
+ 	mdelay(1);
+_
+

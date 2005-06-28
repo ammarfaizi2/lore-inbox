@@ -1,51 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262003AbVF1GaN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261688AbVF1H2s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262003AbVF1GaN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 02:30:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261976AbVF1G3S
+	id S261688AbVF1H2s (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 03:28:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261977AbVF1H1g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 02:29:18 -0400
-Received: from smtpout5.uol.com.br ([200.221.4.196]:35713 "EHLO
-	smtp.uol.com.br") by vger.kernel.org with ESMTP id S261712AbVF1GMv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 02:12:51 -0400
-Date: Tue, 28 Jun 2005 03:12:45 -0300
-From: =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
-To: Ben Collins <bcollins@debian.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux1394-devel@lists.sourceforge.net
-Subject: Re: Problems with Firewire and -mm kernels (was: Re: 2.6.12-mm2)
-Message-ID: <20050628061245.GA5696@ime.usp.br>
-Mail-Followup-To: Ben Collins <bcollins@debian.org>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	linux1394-devel@lists.sourceforge.net
-References: <20050626040329.3849cf68.akpm@osdl.org> <42BE99C3.9080307@trex.wsi.edu.pl> <20050627025059.GC10920@ime.usp.br> <20050627164540.7ded07fc.akpm@osdl.org> <20050628010052.GA3947@ime.usp.br> <20050627202226.43ebd761.akpm@osdl.org> <20050628040057.GA12499@phunnypharm.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050628040057.GA12499@phunnypharm.org>
-User-Agent: Mutt/1.5.9i
+	Tue, 28 Jun 2005 03:27:36 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:24258 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261899AbVF1H06 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 03:26:58 -0400
+Date: Tue, 28 Jun 2005 00:26:42 -0700
+Message-Id: <200506280726.j5S7QgZU027472@magilla.sf.frob.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+From: Roland McGrath <roland@redhat.com>
+To: Ingo Molnar <mingo@elte.hu>
+X-Fcc: ~/Mail/linus
+Cc: Oleg Nesterov <oleg@tv-sign.ru>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] de_thread: eliminate unneccessary sighand locking
+In-Reply-To: Ingo Molnar's message of  Tuesday, 28 June 2005 09:16:24 +0200 <20050628071624.GA2302@elte.hu>
+Emacs: ed  ::  20-megaton hydrogen bomb : firecracker
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jun 28 2005, Ben Collins wrote:
-> Unless something is in git that isn't in subversion, nothing has really
-> changed in the sbp2 module for 5-6 months.
+> the amount of potentially affected code (assuming all the locking is 
+> done in a single .[ch] file)
 
-Is there any other information that I can provide you with that would help
-track this?
+I'm not sure what that means.  I'm not confident that all relevant locking
+code is always in one file.  If you mean that you did as I said, checked
+every use of siglock and confirmed that tasklist_lock is held before
+examining ->sighand, then we are good.
 
-> Doesn't appear to be a problem with the ieee1394 subsystem itself (the
-> cycle master thing isn't all that important), since that would cause not
-> even being able to send/recv packets.
+> this reminds me about the patch below: it gets rid of tasklist_lock use 
+> in the POSIX timer signal delivery critical path.
 
-So, could this be a problem with the SCSI layer, then?
+I don't see how that works at all.  The thought that it would seems to
+contradict what we've just been discussing.  Holding tasklist_lock is what
+protects against ->sighand and ->signal changing and the old pointers
+becoming stale, not task_lock.  What am I missing here?
 
 
-Thank you, Rogério.
 
--- 
-Rogério Brito : rbrito@ime.usp.br : http://www.ime.usp.br/~rbrito
-Homepage of the algorithms package : http://algorithms.berlios.de
-Homepage on freshmeat:  http://freshmeat.net/projects/algorithms/
+Thanks,
+Roland

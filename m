@@ -1,44 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261712AbVF1HuH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261964AbVF1HuI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261712AbVF1HuH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 03:50:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbVF1Hqz
+	id S261964AbVF1HuI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 03:50:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261424AbVF1Htd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 03:46:55 -0400
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:55001 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S261860AbVF1HmX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 03:42:23 -0400
-In-Reply-To: <1119847159.5133.106.camel@gaston>
-References: <1119847159.5133.106.camel@gaston>
-Mime-Version: 1.0 (Apple Message framework v622)
-Message-Id: <931dc22c9709211c29f2d9d504d8ff9e@kernel.crashing.org>
-Cc: Andrew Morton <akpm@osdl.org>, linuxppc-dev list <linuxppc-dev@ozlabs.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-From: Segher Boessenkool <segher@kernel.crashing.org>
-Subject: Re: [PATCH] ppc32: Remove CONFIG_PMAC_PBOOK
-Date: Tue, 28 Jun 2005 09:43:02 +0200
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-X-Mailer: Apple Mail (2.622)
-X-MIMETrack: Itemize by SMTP Server on D12ML064/12/M/IBM(Release 6.53HF247 | January 6, 2005) at
- 28/06/2005 09:42:17,
-	Serialize by Router on D12ML064/12/M/IBM(Release 6.53HF247 | January 6, 2005) at
- 28/06/2005 09:42:18,
-	Serialize complete at 28/06/2005 09:42:18
+	Tue, 28 Jun 2005 03:49:33 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:58032 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261939AbVF1Hri (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 03:47:38 -0400
+Date: Tue, 28 Jun 2005 00:46:50 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net
+Cc: stefanr@s5r6.in-berlin.de, linux-kernel@vger.kernel.org,
+       linux1394-devel@lists.sourceforge.net, rbrito@ime.usp.br
+Subject: Re: Problems with Firewire and -mm kernels
+Message-Id: <20050628004650.18282bd6.akpm@osdl.org>
+In-Reply-To: <42C0FF50.7080300@s5r6.in-berlin.de>
+References: <20050626040329.3849cf68.akpm@osdl.org>
+	<42BE99C3.9080307@trex.wsi.edu.pl>
+	<20050627025059.GC10920@ime.usp.br>
+	<20050627164540.7ded07fc.akpm@osdl.org>
+	<20050628010052.GA3947@ime.usp.br>
+	<20050627202226.43ebd761.akpm@osdl.org>
+	<42C0FF50.7080300@s5r6.in-berlin.de>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This patch removes CONFIG_PMAC_PBOOK (PowerBook support). This is now
-> split into CONFIG_PMAC_MEDIABAY for the actual hotswap bay that some
-> powerbooks have, CONFIG_PM for power management related code, and just
-> left out of any CONFIG_* option for some generally useful stuff that 
-> can
-> be used on non-laptops as well.
+Stefan Richter <stefanr@s5r6.in-berlin.de> wrote:
+>
+> >  ieee1394: Node changed: 0-01:1023 -> 0-00:1023
+>  >  ieee1394: Node suspended: ID:BUS[0-00:1023]  GUID[0050c501e00010e8]
+> 
+>  What caused these two messages? Did you disconnect the drive at this point?
 
-Is there any real reason not to enable CONFIG_PM on all Macs?
+No, there is no device plugged into the machine.
 
-
-Segher
-
+Maybe the G5 has some internal 1394 device?  It would be news to me if so.

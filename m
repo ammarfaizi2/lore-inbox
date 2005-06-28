@@ -1,42 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262220AbVF1WkV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261326AbVF1VyG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262220AbVF1WkV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 18:40:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262199AbVF1WjZ
+	id S261326AbVF1VyG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 17:54:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261350AbVF1Vwu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 18:39:25 -0400
-Received: from mail-in-06.arcor-online.net ([151.189.21.46]:56469 "EHLO
-	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
-	id S262194AbVF1WgP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 18:36:15 -0400
-From: Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>
-Subject: Re: A new soldier
-To: Christoph Lameter <christoph@lameter.com>,
-       Rodrigo Nascimento <underscore0x5f@gmail.com>,
-       linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Tue, 28 Jun 2005 23:59:18 +0200
-References: <4kppU-5Yh-25@gated-at.bofh.it> <4ks4H-83L-39@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1DnO6z-0003rv-En@be1.7eggert.dyndns.org>
+	Tue, 28 Jun 2005 17:52:50 -0400
+Received: from smtp-102-tuesday.nerim.net ([62.4.16.102]:18449 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S261326AbVF1Vvl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 17:51:41 -0400
+Date: Tue, 28 Jun 2005 23:51:48 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Chris Wright <chrisw@osdl.org>
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org, akpm@osdl.org,
+       tytso@mit.edu, zwane@arm.linux.org.uk, jmforbes@linuxtx.org,
+       rdunlap@xenotime.net, torvalds@osdl.org, chuckw@quantumlinux.com,
+       alan@lxorguk.ukuu.org.uk, Andrew Vasquez <andrew.vasquez@qlogic.com>,
+       James Bottomley <James.Bottomley@SteelEye.com>
+Subject: Re: [02/07] [SCSI] qla2xxx: Pull-down scsi-host-addition to follow
+ board initialization.
+Message-Id: <20050628235148.4512d046.khali@linux-fr.org>
+In-Reply-To: <20050627225349.GK9046@shell0.pdx.osdl.net>
+References: <20050627224651.GI9046@shell0.pdx.osdl.net>
+	<20050627225349.GK9046@shell0.pdx.osdl.net>
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter <christoph@lameter.com> wrote:
-> On Tue, 28 Jun 2005, Rodrigo Nascimento wrote:
+Hi Chris, all,
 
->> I'm a Science of Computers student and I'd like help you in something.
->> I don't know if exists something that I could do. So if someone wants
->> a help, I'm a volunteer.
-> 
-> Submit patches to clean up all the whitespace problems in the kernel
-> sources. Andrew Morton indicated that he will take those.
+> -stable review patch.  If anyone has any objections, please let us
+> know.
 
-http://7eggert.dyndns.org/l/patches/trailing-ws/
+I have. This one patch is rather big and parts of it don't seem to
+belong to -stable. Can't it be simplified? More below.
 
+> Return to previous held-logic of calling scsi_add_host() only
+> after the board has been completely initialized.
+
+What real bug is it supposed to fix? (I guess some, but this leading
+comment should give the datails.)
+
+> Also return pci_*() error-codes during probe failure paths.
+
+How does this belong to stable please? I don't see this fixing any
+critical bug.
+
+> This also corrects an issue where only lun 0 is being scanned for
+> a given port.
+
+This OTOH is probably OK.
+
+> -	if (ret != 0) {
+> -		goto probe_alloc_failed;
+> -	}
+> +	if (ret)
+> +		goto probe_failed;
+
+This change can be made smaller.
+
+> -	if (ret != 0) {
+> +	if (ret) {
+
+This aint -stable material.
+
+Thanks,
 -- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+Jean Delvare

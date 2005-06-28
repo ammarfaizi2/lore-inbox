@@ -1,86 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262511AbVF1EEu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262512AbVF1EGq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262511AbVF1EEu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 00:04:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262512AbVF1EEf
+	id S262512AbVF1EGq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 00:06:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262509AbVF1EGq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 00:04:35 -0400
-Received: from moutng.kundenserver.de ([212.227.126.187]:8685 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S262509AbVF1EEU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 00:04:20 -0400
-Message-ID: <42C0CC0D.9040103@punnoor.de>
-Date: Tue, 28 Jun 2005 06:03:25 +0200
-From: Prakash Punnoor <lists@punnoor.de>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050511)
-X-Accept-Language: de-DE, de, en-us, en
-MIME-Version: 1.0
-To: Jim Crilly <jim@why.dont.jablowme.net>
-CC: Steve Lord <lord@xfs.org>, "Theodore Ts'o" <tytso@mit.edu>,
-       Hans Reiser <reiser@namesys.com>, Markus T?rnqvist <mjt@nysv.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       David Masover <ninja@slaphack.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: reiser4 plugins
-References: <42BB7B32.4010100@slaphack.com> <200506240334.j5O3YowB008100@laptop11.inf.utfsm.cl> <20050627092138.GD11013@nysv.org> <20050627124255.GB6280@thunk.org> <42C0578F.7030608@namesys.com> <42C05F16.5000804@xfs.org> <20050627202841.GA27805@thunk.org> <42C06873.7020102@xfs.org> <42C0868E.4080003@punnoor.de> <20050628010728.GC24548@mail>
-In-Reply-To: <20050628010728.GC24548@mail>
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig2F63D5A359CD96B6E75732BB"
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:cec1af1025af73746bdd9be3587eb485
+	Tue, 28 Jun 2005 00:06:46 -0400
+Received: from holomorphy.com ([66.93.40.71]:5582 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S262512AbVF1EGL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 00:06:11 -0400
+Date: Mon, 27 Jun 2005 21:06:08 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+Subject: Re: [patch 2] mm: speculative get_page
+Message-ID: <20050628040608.GQ3334@holomorphy.com>
+References: <42BF9CD1.2030102@yahoo.com.au> <42BF9D67.10509@yahoo.com.au> <42BF9D86.90204@yahoo.com.au> <20050627141220.GM3334@holomorphy.com> <42C093B4.3010707@yahoo.com.au> <20050628012254.GO3334@holomorphy.com> <42C0AAF8.5090700@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42C0AAF8.5090700@yahoo.com.au>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig2F63D5A359CD96B6E75732BB
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+William Lee Irwin III wrote:
+>> tmpfs
 
-Jim Crilly schrieb:
-> On 06/28/05 01:06:54AM +0200, Prakash Punnoor wrote:
-> 
->>So I gave ext3 a try. Very robust, but at the same time slooow. I couldn't
->>bear it after some months. So I gave xfs another try. Yes, now it felt much
->>better. Still not that fast as reiserfs, IIRC, but better than the first time
->>I tried. I am still having xfs on / and it works pretty well, and is rather
->>robust against hard locks with about the same amount of data losing as
->>reiserfs. But what annoys me very much, is that I have to run xfs_repair by
->>hand and by booting from another partition. Even after a hard lock, the
->>partition mounts w/o problems and everything seems OK, but it only seems like
->>that. In fact after some hours/days of use, you'll notice oddities, like files
->>or directories which cannot be removed and things like that. After running
->>xfs_repair everything is back in order.
-> 
-> 
-> I don't know what was going on with your systems, but I've been using XFS
-> since the original 1.0 Linux release from SGI and I'd guess that I've had to run
-> xfs_repair less than 10 times and most of them were on Alpha and Sparc64
-> before issues with those arches got ironed out.
+On Tue, Jun 28, 2005 at 11:42:16AM +1000, Nick Piggin wrote:
+> Well it switches between page and swap cache, but it seems to just
+> use the normal pagecache / swapcache functions for that. It could be
+> that I've got a big hole somewhere, but so far I don't think you've
+> pointed oen out.
 
-Perhaps it is due to the fact that I use xfs on software RAID-0 and both HDs
-have 8MB cache write-back enabled? So, all in all 16MB needs to be commited
-on/before lock-up, maybe too much for xfs? (This situation was no prob for
-ext3, though. Thinking again, I never used reiser V3 or V4 on the RAID-0, so
-my comparison might not have been fair.)
+Its radix tree movement bypasses the page allocator.
 
-Prakash
 
---------------enig2F63D5A359CD96B6E75732BB
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+William Lee Irwin III wrote:
+>> hugetlbfs
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+On Tue, Jun 28, 2005 at 11:42:16AM +1000, Nick Piggin wrote:
+> Well what's the trouble with it?
 
-iD8DBQFCwMwRxU2n/+9+t5gRAl9+AKCGFbGiYwT3MSRGFcBimanjGraYJQCg/LvF
-XYpxffi3E4V3oagSUeQ7VfQ=
-=hqYh
------END PGP SIGNATURE-----
+hugetlb reallocation doesn't go through the page allocator either.
 
---------------enig2F63D5A359CD96B6E75732BB--
+
+William Lee Irwin III wrote:
+>> Someone else deal with this (paulus? anton? other arch maintainers?).
+
+On Tue, Jun 28, 2005 at 11:42:16AM +1000, Nick Piggin wrote:
+> I know what a memory barrier is and does, so you said the
+> necessary memory barriers aren't in place, so can you deal
+> with it?
+
+spin_unlock() does not imply a memory barrier.
+
+
+William Lee Irwin III wrote:
+>> The above is as much as I wanted to go into it. I need to direct my
+>> capacity for the grunt work of devising adversary arguments elsewhere.
+
+On Tue, Jun 28, 2005 at 11:42:16AM +1000, Nick Piggin wrote:
+> I don't think there is anything wrong with it. I would be very
+> keen to see real adversary arguments elsewhere though.
+
+They take time to construct.
+
+
+William Lee Irwin III wrote:
+>> You requested comments. I made some.
+
+On Tue, Jun 28, 2005 at 11:42:16AM +1000, Nick Piggin wrote:
+> Well yeah thanks, you did point out a thinko I made, and that was very
+> helpful and I value any time you spend looking at it. But just saying
+> "this is wrong, that won't work, that's crap, ergo the concept is
+> useless" without finding anything specifically wrong is not very
+> constructive.
+
+I said nothing of that kind, and I did point out specific things.
+
+The limitation of time/effort is directly related to the nature of the
+responses.
+
+
+-- wli

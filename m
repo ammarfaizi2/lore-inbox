@@ -1,73 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261727AbVF1OGz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261578AbVF1OMO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261727AbVF1OGz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 10:06:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261507AbVF1OEZ
+	id S261578AbVF1OMO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 10:12:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261461AbVF1OMN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 10:04:25 -0400
-Received: from h80ad2540.async.vt.edu ([128.173.37.64]:35278 "EHLO
-	h80ad2540.async.vt.edu") by vger.kernel.org with ESMTP
-	id S261685AbVF1OAW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 10:00:22 -0400
-Message-Id: <200506281400.j5SE07pB005563@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: cigarette Chan <benbenshi@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: route trouble with kernel 
-In-Reply-To: Your message of "Tue, 28 Jun 2005 20:57:04 +0800."
-             <dc849d8505062805573a73ec99@mail.gmail.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <dc849d8505062805573a73ec99@mail.gmail.com>
+	Tue, 28 Jun 2005 10:12:13 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:8646 "EHLO e32.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261600AbVF1OJ4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 10:09:56 -0400
+Subject: Re: 2.6.12 breaks 8139cp
+From: Kylene Jo Hall <kjhall@us.ibm.com>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, LKML <linux-kernel@vger.kernel.org>,
+       jgarzik@pobox.com, tpmdd-devel@lists.sourceforge.net
+In-Reply-To: <42C1434F.2010003@drzeus.cx>
+References: <42B9D21F.7040908@drzeus.cx>
+	 <200506221534.03716.bjorn.helgaas@hp.com> <42BA69AC.5090202@drzeus.cx>
+	 <200506231143.34769.bjorn.helgaas@hp.com> <42BB3428.6030708@drzeus.cx>
+	 <42C0EE1A.9050809@drzeus.cx>  <42C1434F.2010003@drzeus.cx>
+Content-Type: text/plain
+Date: Tue, 28 Jun 2005 09:09:48 -0500
+Message-Id: <1119967788.6382.7.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1119967205_4284P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
-Date: Tue, 28 Jun 2005 10:00:06 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1119967205_4284P
-Content-Type: text/plain; charset=us-ascii
+I believe that the reason that unloading the module does not help is
+because the module_exit is calling pci_disable in the tpm_remove
+function.  I'll generate a patch to remove this.
 
-On Tue, 28 Jun 2005 20:57:04 +0800, cigarette Chan said:
-> i add a route to the kernel
-> eg: # route add -net XXX.XXX.XXX.XXX/24 gw XXX.XXX.XXX.XXX dev eth1
+Additionally this version of the driver  was doing a bunch of stuff to
+the LPC bus that I have since found not to be necessary and removed in
+patches that have been applied to the mm tree and were pushed to
+mainline this week.  Can anyone verify if this is still happening with
+the -mm patch?
+
+Regards,
+Kylie
+
+On Tue, 2005-06-28 at 14:32 +0200, Pierre Ossman wrote:
+> Pierre Ossman wrote:
+> > Hmm... it seems that TPM has something to do with the bug. Not sure why
+> > though, can't see anything TPM related in dmesg. If I disable the TPM
+> > parts in kconfig then the network works just fine.
+> > 
+> > I'm going to do a test of 2.6.12-rc1 through rc6 today to see where the
+> > problem appears.
+> > 
 > 
-> but after i restart eth1
+> Confirmed this behaviour. The problem appears in rc1 (where the TPM is
+> added). Unloading the module doesn't help, once it has been present the
+> system needs a reboot for the network card to function properly.
 > 
-> #ifdown eth1
-> #ifup eth1
+> I don't really see how the TPM can screw things up for the network card
+> but I'm guessing it breaks something in the chipset (the TPM module gets
+> loaded for the LPC bridge).
 > 
-> the route disappear,this make me a lot of troubles.i have several
-> interfaces,and i have to
-> re-add all of these routes...
+> (added TPM maintainer and list as cc)
 > 
-> Is there any way or patches to make route work like iptables,after i
-> restart the interface,
-> rules  are still there.
+> Rgds
+> Pierre
+> 
 
-Your system should have a way of doing this in a callout during the ifup
-and ifdown scripts.  Under Fedora, ifup calls ifup-post, which calls
-/sbin/ifup-local - you could add your routes there.
-
-More importantly, routes are different from iptables.  At worst, an iptable
-rule has a dangling '-i ethX' match that will fail if the interface is down,
-but that's a harmless because the packet isn't from that interface.
-
-On the other hand, what is the kernel supposed to do with a route that
-points to a down'ed ethX after you've done the ifdown, but before you've
-done the ifup?  It may as well clear routes to the down'ed interface....
-
---==_Exmh_1119967205_4284P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFCwVflcC3lWbTT17ARAoyzAKCjGAp51hnoZJaUVHvpwhLIcmNyxQCcC1iF
-tF4zt9Sgyg05VqQHd1FqAz0=
-=HLkZ
------END PGP SIGNATURE-----
-
---==_Exmh_1119967205_4284P--

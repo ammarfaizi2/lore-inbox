@@ -1,73 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261962AbVF1H5o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262006AbVF1HuB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261962AbVF1H5o (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 03:57:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbVF1HzQ
+	id S262006AbVF1HuB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 03:50:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261712AbVF1Hql
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 03:55:16 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:3791 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S261995AbVF1Hxn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 03:53:43 -0400
-Date: Tue, 28 Jun 2005 03:53:19 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@localhost.localdomain
-Reply-To: rostedt@goodmis.org
-To: Daniel Walker <dwalker@mvista.com>
-cc: Chuck Harding <charding@llnl.gov>, Ingo Molnar <mingo@elte.hu>,
-       Linux Kernel Discussion List <linux-kernel@vger.kernel.org>
-Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.50-24
-In-Reply-To: <1119902991.4794.5.camel@dhcp153.mvista.com>
-Message-ID: <Pine.LNX.4.58.0506280337390.24849@localhost.localdomain>
-References: <20050608112801.GA31084@elte.hu>  <20050625091215.GC27073@elte.hu>
-  <200506250919.52640.gene.heskett@verizon.net>  <200506251039.14746.gene.heskett@verizon.net>
-  <Pine.LNX.4.63.0506271157200.8605@ghostwheel.llnl.gov>
- <1119902991.4794.5.camel@dhcp153.mvista.com>
+	Tue, 28 Jun 2005 03:46:41 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:23204 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S261648AbVF1Hmd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 03:42:33 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <42C0FF50.7080300@s5r6.in-berlin.de>
+Date: Tue, 28 Jun 2005 09:42:08 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Reply-To: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net
+CC: Andrew Morton <akpm@osdl.org>,
+       =?ISO-8859-1?Q?Rog=E9rio_Brito?= <rbrito@ime.usp.br>
+Subject: Re: Problems with Firewire and -mm kernels
+References: <20050626040329.3849cf68.akpm@osdl.org>	<42BE99C3.9080307@trex.wsi.edu.pl>	<20050627025059.GC10920@ime.usp.br>	<20050627164540.7ded07fc.akpm@osdl.org>	<20050628010052.GA3947@ime.usp.br> <20050627202226.43ebd761.akpm@osdl.org>
+In-Reply-To: <20050627202226.43ebd761.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: (-1.554) AWL,BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
+> -ieee1394: Node added: ID:BUS[0-00:1023]  GUID[0050c501e00010e8]
+> +ieee1394: Node added: ID:BUS[0-01:1023]  GUID[0050c501e00010e8]
+> +ieee1394: The root node is not cycle master capable; selecting a new root node and resetting...
+> +ieee1394: Node changed: 0-01:1023 -> 0-00:1023
+>  ieee1394: Node changed: 0-00:1023 -> 0-01:1023
 
-[Please CC Ingo Molnar on all RT kernel issues]
+The IDs are assigned to nodes everytime they are attached to the bus in 
+a random order. It is a pure hardware thing; I cannot imagine any 
+influnce of the kernel to this procedure.
 
-On Mon, 27 Jun 2005, Daniel Walker wrote:
+If the node with the highest ID does not fulfill certain criteria, Linux 
+tries to get the highest ID moved to the local node. This function is 
+unrelated to SBP-2 (it is necessary to let streaming devices like 
+cameras work) but it has been observed that it disturbs a few SBP-2 
+devices. But again, I don't see how -mm and the stock kernel should 
+differ to that respect.
 
-> On Mon, 2005-06-27 at 12:01 -0700, Chuck Harding wrote:
-> > What can be causing the following message to appear in dmesg and
-> > how can I fix it?
-> >
-> > BUG: scheduling with irqs disabled: kapmd/0x00000000/46
-> > caller is schedule_timeout+0x51/0x9e
-> >   [<c02b3bc9>] schedule+0x96/0xf6 (8)
-> >   [<c02b43f7>] schedule_timeout+0x51/0x9e (28)
-> >   [<c01222ed>] process_timeout+0x0/0x5 (32)
-> >   [<c0112063>] apm_mainloop+0x7a/0x96 (24)
-> >   [<c0115e45>] default_wake_function+0x0/0x16 (12)
-> >   [<c0115e45>] default_wake_function+0x0/0x16 (32)
-> >   [<c0111485>] apm_driver_version+0x1c/0x38 (16)
-> >   [<c01126f7>] apm+0x0/0x289 (8)
-> >   [<c01127a6>] apm+0xaf/0x289 (8)
-> >   [<c010133c>] kernel_thread_helper+0x0/0xb (20)
-> >   [<c0101341>] kernel_thread_helper+0x5/0xb (4)
-> >
-> > This was also present in earlier final-V0.7.50 version I've tried
-> > (since -00) I don't get hangs but that doesn't look like it should
-> > be happening. Thanks.
->
-> If you have PREEMPT_RT enabled, it looks like interrupts are hard
-> disabled then there is a schedule_timeout() requested. You could try
-> turning off power management and see if you still have problems.
->
+You could load ieee1394 with a new parameter that supresses the "Root 
+node is not cycle master capable..." routine:
+# modprobe ieee1394 disable_irm=1
+before ohci1394 and the other 1394 related drivers are loaded.
 
-Although turning off apm works, this is a fix to the symptom and not a
-cure.  Has someone already taken a look at this code? Since
-apm_bios_call_simple calls local_save_flags and afterwards
-raw_lock_irq_restore is then called.  Shouldn't that have been
-raw_local_save_flags?
+>  SCSI subsystem initialized
+>  sbp2: $Rev: 1219 $ Ben Collins <bcollins@debian.org>
+> @@ -300,14 +308,6 @@
+>  ieee1394: sbp2: Logged into SBP-2 device
+>  ieee1394: Node 0-00:1023: Max speed [S400] - Max payload [2048]
+>    Vendor: ST316002  Model: 1A                Rev: 3.06
+> -  Type:   Direct-Access                      ANSI SCSI revision: 06
+> -SCSI device sda: 312581808 512-byte hdwr sectors (160042 MB)
+> -sda: asking for cache data failed
+> -sda: assuming drive cache: write through
+> -SCSI device sda: 312581808 512-byte hdwr sectors (160042 MB)
+> -sda: asking for cache data failed
+> -sda: assuming drive cache: write through
+> - sda: [mac] sda1 sda2 sda3 sda4
+> -Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
+> +  Type:   Unknown                            ANSI SCSI revision: 04
 
-That apm_bios_call_simple_asm also looks pretty scary!  I haven't yet
-figured out how APM_FUNC_VERSION becomes a normal function.
+There was a discussion in May about discovery of devices which implement 
+the RBC command set: http://marc.theaimsgroup.com/?t=111620896500001 I 
+am not sure if the discussed change went into one or both of the kernels 
+in question.
 
--- Steve
+>  ieee1394: Node changed: 0-01:1023 -> 0-00:1023
+>  ieee1394: Node suspended: ID:BUS[0-00:1023]  GUID[0050c501e00010e8]
 
+What caused these two messages? Did you disconnect the drive at this point?
+-- 
+Stefan Richter
+-=====-=-=-= -==- ===--
+http://arcgraph.de/sr/

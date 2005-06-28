@@ -1,63 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261836AbVF1JkN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262026AbVF1Jlv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261836AbVF1JkN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 05:40:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262026AbVF1JkN
+	id S262026AbVF1Jlv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 05:41:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262029AbVF1Jlu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 05:40:13 -0400
-Received: from nome.ca ([65.61.200.81]:45731 "HELO gobo.nome.ca")
-	by vger.kernel.org with SMTP id S261836AbVF1JkA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 05:40:00 -0400
-Date: Tue, 28 Jun 2005 02:40:05 -0700
-From: Mike Bell <kernel@mikebell.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Greg KH <greg@kroah.com>, Dmitry Torokhov <dtor_core@ameritech.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] ndevfs - a "nano" devfs
-Message-ID: <20050628094004.GA4673@mikebell.org>
-Mail-Followup-To: Mike Bell <kernel@mikebell.org>,
-	Arjan van de Ven <arjan@infradead.org>, Greg KH <greg@kroah.com>,
-	Dmitry Torokhov <dtor_core@ameritech.net>,
-	linux-kernel@vger.kernel.org
-References: <20050624081808.GA26174@kroah.com> <20050625234305.GA11282@kroah.com> <20050627071907.GA5433@mikebell.org> <200506271735.50565.dtor_core@ameritech.net> <20050627232559.GA7690@mikebell.org> <20050628074015.GA3577@kroah.com> <20050628090852.GA966@mikebell.org> <1119950487.3175.21.camel@laptopd505.fenrus.org>
+	Tue, 28 Jun 2005 05:41:50 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:27570 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262026AbVF1Jlo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 05:41:44 -0400
+Date: Tue, 28 Jun 2005 10:41:21 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Hans Reiser <reiser@namesys.com>
+Cc: "Theodore Ts'o" <tytso@mit.edu>, Markus T?rnqvist <mjt@nysv.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       David Masover <ninja@slaphack.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>, Steve Lord <lord@xfs.org>
+Subject: Re: reiser4 merging action list
+Message-ID: <20050628094121.GA16074@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Hans Reiser <reiser@namesys.com>, Theodore Ts'o <tytso@mit.edu>,
+	Markus T?rnqvist <mjt@nysv.org>,
+	Horst von Brand <vonbrand@inf.utfsm.cl>,
+	David Masover <ninja@slaphack.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	ReiserFS List <reiserfs-list@namesys.com>,
+	Steve Lord <lord@xfs.org>
+References: <42BB7B32.4010100@slaphack.com> <200506240334.j5O3YowB008100@laptop11.inf.utfsm.cl> <20050627092138.GD11013@nysv.org> <20050627124255.GB6280@thunk.org> <42C0578F.7030608@namesys.com> <20050627212628.GB27805@thunk.org> <42C084F1.70607@namesys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1119950487.3175.21.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <42C084F1.70607@namesys.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 28, 2005 at 11:21:27AM +0200, Arjan van de Ven wrote:
-> you still can't have that. think USB harddisks for example. The only way
-> you can do this reliable is to use UUIDs from the disks. Guess what..
-> udev does that. devfs doesn't.
+On Mon, Jun 27, 2005 at 04:00:01PM -0700, Hans Reiser wrote:
+> 
+> Andrew asked me to put together a list of things that need to be done
+> before merging:
 
-I thought I had made it clear that I wasn't talking about uniquely
-identifying a given piece of hardware, that can only be done in
-userspace (and often not even there).
+...
 
-What I'm talking about is the ability to find the device node that
-corresponds to the first entry in /proc/bus/input/devices, or play a
-sound file on the system's first sound card, or for X to find the drm
-device node that corresponds to a given video card. All these things are
-easy if you know that /dev/input/event0 is the device node for the first
-entry, but if that device node could be called /dev/myfunkykeyboard
-(note, the device name, you could still have a symlink to said name if
-you wanted without breaking anything), in a world where udev's
-supposed feature of allowing devices to be named anything you want is
-actually used, this isn't possible without scanning all of /dev.
+> Probably I forget something.
 
-> actually.. linphone for example shows you the name of the device, not
-> the device node. And at runtime it finds which device node belongs to
-> that name somehow. I didn't look at the code how it does that, but it
-> sure isn't impossible since it's done in practice already.
+I've started to do a very basic look over the tree and there's a few
+more things that spring to mind:
 
-It is impossible though, if you make use of that particular feature of
-udev. Give it a try, move all your alsa device nodes to other names and
-see how completely unusable ALSA becomes. Those device nodes HAVE to
-exist and HAVE to point to the right devices in order for ALSA to work.
-
-linphone and other programs "just work" because they know where to find
-their device nodes. If anything, you're arguing my point.
+ - cpp abuse.  There's quite a lot of really odd macros - the typesafe_list,
+   typesafe_hash stuff is mentioned already, but there's really horrible
+   stuff like _INIT_ and _DONE_ bits in init_super.c, and the wrappers for
+   plugin method invocations.
+ - endianess handling.  The d* types are a lovely attempt to make sure
+   you're not missing endianess conversions.  We have a more general
+   way to ensure that now using sparse, that's the __le* / __be* types.
+   Try running sparse -Wbitwise to find places you'll need that annotations
+   (after the normal sparse warnings are fixed, else you'll have a hard
+   time seeing them I guess) - after that the single element struct thing
+   can go away.  Also you're defining a CPU_IN_DISK_ORDER macro that's
+   never used..
+ - lease use kthread_* instead of kernel_thread() + lots of opencoding

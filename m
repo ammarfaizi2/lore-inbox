@@ -1,87 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261383AbVF1WIJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261572AbVF1WII@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261383AbVF1WIJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 18:08:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261530AbVF1WF4
+	id S261572AbVF1WII (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 18:08:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261491AbVF1WGQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 18:05:56 -0400
-Received: from zproxy.gmail.com ([64.233.162.196]:34308 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261383AbVF1WFP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 18:05:15 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=aft6X5WQbtdr83OnzU92FFhYfjcAaANtWBQzarGZFNGhRrFUhe/epoDMTFDRXmH+lJx92vFSVsQpuDYrRnLsuCm/zlMuUkc/UR9ovDwgX0OgZO/Frqb1GQOu4At6mW4P7ajqnOOmEIU5tULL1pzuHAz2lkEbZlo6+0eRg3h1FqE=
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-Subject: Re: [PATCH 1/1]  V4L CX88 patch - against 2.6.12-mm2
-Date: Wed, 29 Jun 2005 02:10:54 +0400
-User-Agent: KMail/1.7.2
-Cc: Jean Delvare <khali@linux-fr.org>, akpm@osdl.org,
-       video4linux-list@redhat.com, linux-kernel@vger.kernel.org
-References: <42C19F6A.6020501@brturbo.com.br> <20050628232157.214c76fd.khali@linux-fr.org>
-In-Reply-To: <20050628232157.214c76fd.khali@linux-fr.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 28 Jun 2005 18:06:16 -0400
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:14252 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261502AbVF1WA7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 18:00:59 -0400
+Date: Tue, 28 Jun 2005 14:47:55 -0400
+From: Christopher Li <hg@chrisli.org>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: Andrew Thompson <andrewkt@aktzero.com>, Petr Baudis <pasky@ucw.cz>,
+       mercurial@selenic.com, Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Git Mailing List <git@vger.kernel.org>
+Subject: Re: Mercurial vs Updated git HOWTO for kernel hackers
+Message-ID: <20050628184755.GA2255@64m.dyndns.org>
+References: <andrewkt@aktzero.com> <42C16877.6000909@aktzero.com> <200506282154.j5SLsETL010486@laptop11.inf.utfsm.cl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200506290210.54931.adobriyan@gmail.com>
+In-Reply-To: <200506282154.j5SLsETL010486@laptop11.inf.utfsm.cl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 29 June 2005 01:21, Jean Delvare wrote:
-> Your patch adds trailing whitespace in various places:
-	[snip]
-> Six people signing this patch and nobody noticed? Amazing.
+On Tue, Jun 28, 2005 at 05:54:14PM -0400, Horst von Brand wrote:
 > 
-> Please fix, thanks.
+> And is exactly the wrong way around. Even RCS stored the _last_ version and
+> differences to earlier ones (you'll normally want the last one (or
+> something near), and so occasionally having to reconstruct earlier ones by
+> going back isn't a big deal; having to build up the current version by
+> starting from /dev/null and applying each and every patch that ever touched
+> the file each time is expensive given enough history, besides that any
 
-Also:
+Mercurial store a full text node when it detect the delta gets too long
+to reach certain point. So what you describe here will not happen on
+mercurial. Having it append only is a very nice feature.
 
-> --- linux-2.6.12-mm2/drivers/media/video/cx88/cx88-core.c
-> +++ linux/drivers/media/video/cx88/cx88-core.c
+> error in the file is guaranteed to destroy the current version, not
+> (hopefully) just making old versions unavailable).  It also means that
+> losing old history (what you'll want to do once in a while, e.g. forget
+> everything before 2.8) is simple: Chop off at the right point.
 
-> +/* Used only on cx88-core */
->  static char *cx88_pci_irqs[32] = {
+You can still chop of the history before the full node, but rebuilding the
+repositories. Mercurial save some much space that you would wonder why do you
+what to chop the history if you can keep it.
 
-"static" already said that.
+Chris
 
-> +/* Used only on cx88-video */
->  char *cx88_vid_irqs[32] = {
 
-So move it there.
-
-> +/* Used only on cx88-mpeg */
->  char *cx88_mpeg_irqs[32] = {
-
-Move this too.
-
-> --- linux-2.6.12-mm2/drivers/media/video/cx88/cx88-input.c
-> +++ linux/drivers/media/video/cx88/cx88-input.c
-
-> +static IR_KEYTAB_TYPE ir_codes_msi_tvanywhere[IR_KEYTAB_SIZE] = {
-> +       [ 0x00 ] = KEY_0,           /* '0' */          
-> +       [ 0x01 ] = KEY_1,           /* '1' */
-> +       [ 0x02 ] = KEY_2,           /* '2' */
-> +       [ 0x03 ] = KEY_3,           /* '3' */
-> +       [ 0x04 ] = KEY_4,           /* '4' */
-> +       [ 0x05 ] = KEY_5,           /* '5' */
-> +       [ 0x06 ] = KEY_6,           /* '6' */
-> +       [ 0x07 ] = KEY_7,           /* '7' */
-> +       [ 0x08 ] = KEY_8,           /* '8' */
-> +       [ 0x09 ] = KEY_9,           /* '9' */
-> +       [ 0x0c ] = KEY_MUTE,        /* 'Mute' */
-
-Duplicating comments.
-
-> +       [ 0x10 ] = KEY_F,           /* 'Funtion' */
-
-Function.
-
-> +       [ 0x12 ] = KEY_POWER,       /* 'Power' */
-
-> +       [ 0x14 ] = KEY_SLOW,        /* 'Slow' */
-
-Duplicating comments. 

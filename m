@@ -1,52 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262004AbVF1O50@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262031AbVF1O7y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262004AbVF1O50 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 10:57:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261958AbVF1O50
+	id S262031AbVF1O7y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 10:59:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262005AbVF1O7c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 10:57:26 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:14502 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S262004AbVF1Oza (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 10:55:30 -0400
-Message-ID: <42C164E1.6000506@grupopie.com>
-Date: Tue, 28 Jun 2005 15:55:29 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Al Boldi <a1426z@gawab.com>
-Cc: "'Marcelo Tosatti'" <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Kswapd flaw
-References: <200506280637.JAA07333@raad.intranet>
-In-Reply-To: <200506280637.JAA07333@raad.intranet>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 28 Jun 2005 10:59:32 -0400
+Received: from wproxy.gmail.com ([64.233.184.205]:27233 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261958AbVF1O70 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 10:59:26 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=rB3vekpoaTm36luc8wBiMqL7/l1y/gGcfGGYsOXppxP4jAZGCvSjwZGr2TWduRXXbQyc7dHiW80w8ahM31E04XWfCFenomuypMOmQRf5vF+MrDO3mc3dLB12OFCctnjMQApKo8cQdzNMDvkUpQVvQC6/A9CCfEtIO1cVhbZigCw=
+Message-ID: <cbecb30405062807595af820fe@mail.gmail.com>
+Date: Tue, 28 Jun 2005 11:59:21 -0300
+From: Rodrigo Nascimento <underscore0x5f@gmail.com>
+Reply-To: Rodrigo Nascimento <underscore0x5f@gmail.com>
+To: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
+Subject: Re: A new soldier
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050628144056.GC18116@wohnheim.fh-wedel.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <cbecb304050628072325516b6e@mail.gmail.com>
+	 <20050628144056.GC18116@wohnheim.fh-wedel.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Boldi wrote:
-> On Mon, Jun 27, 2005 at 11:04:08PM +0300, Al Boldi wrote:
-> 
->>In 2.4.31 kswapd starts paging during OOMs even w/o swap enabled.
->>
->>Is there a way to fix/disable this behaviour?
-> 
-> 
-> Marcelo,
-> 
-> Kswapd starts evicting processes to fullfil a malloc, when it should just
-> deny it because there is no swap.
+Mr. Engel,
 
-I think what you really want is to adjust your "overcommit" settings.
+Thanks for the tip.
 
-See: "Documentation/vm/overcommit-accounting"
+I like to develop programs. If I have to write a program for something
+that I don't know, I do some searchs, I read manuals, I understand
+this thing and later I write the program.
 
--- 
-Paulo Marques - www.grupopie.com
+Can you suggest something to me? :)
+I really want to help, but I don't know where I should start.
 
-It is a mistake to think you can solve any major problems
-just with potatoes.
-Douglas Adams
+I need to see how it works, what I need to have to help. I think that
+a C compiler and a knowledge in C isn't sufficient. :)
+
+I don't know if exists a guide that I can read..... if it exists,
+please, tell me where I can get it.
+
+--
+Rodrigo

@@ -1,60 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261333AbVF1Lhm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261368AbVF1LsO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261333AbVF1Lhm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 07:37:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261325AbVF1Lhl
+	id S261368AbVF1LsO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 07:48:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261367AbVF1LsO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 07:37:41 -0400
-Received: from verein.lst.de ([213.95.11.210]:16022 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S261333AbVF1LhT (ORCPT
+	Tue, 28 Jun 2005 07:48:14 -0400
+Received: from [212.76.81.153] ([212.76.81.153]:35588 "EHLO raad.intranet")
+	by vger.kernel.org with ESMTP id S261368AbVF1LsM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 07:37:19 -0400
-Date: Tue, 28 Jun 2005 13:36:41 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] avoid lookup_hash usage in relayfs
-Message-ID: <20050628113641.GB1306@lst.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+	Tue, 28 Jun 2005 07:48:12 -0400
+Message-Id: <200506281147.OAA20216@raad.intranet>
+From: "Al Boldi" <a1426z@gawab.com>
+To: "'Nix'" <nix@esperi.org.uk>
+Cc: "'Marcelo Tosatti'" <marcelo.tosatti@cyclades.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE: Kswapd flaw
+Date: Tue, 28 Jun 2005 14:47:15 +0300
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+In-Reply-To: <87r7em69h2.fsf@amaterasu.srvr.nix>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Thread-Index: AcV7ztGawRTh4Lx0RtCA5gc1h+AxvQAAk0JA
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
--mm specific addon to the same kind of patches I sent a few weeks
+On 28 Jun 2005, Al Boldi murmured woefully:
+> Kswapd starts evicting processes to fullfil a malloc, when it should 
+> just deny it because there is no swap.
+Nix wrote:
+> I can't even tell what you're expecting. Surely not that no pages are ever
+evicted or flushed;
+> your memory would fill up with page cache in no time.
+
+Nix,
+Please do flush anytime, and do it in sync during OOMs; but don't evict
+procs especially not RUNNING procs, that is overkill.
 
 
-Index: linux-2.6.12/fs/relayfs/inode.c
-===================================================================
---- linux-2.6.12.orig/fs/relayfs/inode.c	2005-06-27 21:12:33.000000000 +0200
-+++ linux-2.6.12/fs/relayfs/inode.c	2005-06-28 13:24:05.000000000 +0200
-@@ -94,7 +94,6 @@
- 					   int mode,
- 					   struct rchan *chan)
- {
--	struct qstr qname;
- 	struct dentry *d;
- 	struct inode *inode;
- 	int error = 0;
-@@ -107,10 +106,6 @@
- 		return NULL;
- 	}
- 
--	qname.name = name;
--	qname.len = strlen(name);
--	qname.hash = full_name_hash(name, qname.len);
--
- 	if (!parent && relayfs_mount && relayfs_mount->mnt_sb)
- 		parent = relayfs_mount->mnt_sb->s_root;
- 
-@@ -121,7 +116,7 @@
- 
- 	parent = dget(parent);
- 	down(&parent->d_inode->i_sem);
--	d = lookup_hash(&qname, parent);
-+	d = lookup_one_len(name, parent, strlen(name));
- 	if (IS_ERR(d)) {
- 		d = NULL;
- 		goto release_mount;

@@ -1,124 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262526AbVF1Euz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262529AbVF1Evd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262526AbVF1Euz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 00:50:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262529AbVF1Euz
+	id S262529AbVF1Evd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 00:51:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262530AbVF1Evd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 00:50:55 -0400
-Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:5263 "HELO
-	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262526AbVF1Euj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 00:50:39 -0400
-Message-ID: <42C0D717.2080100@yahoo.com.au>
-Date: Tue, 28 Jun 2005 14:50:31 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-Subject: Re: [patch 2] mm: speculative get_page
-References: <42BF9CD1.2030102@yahoo.com.au> <42BF9D67.10509@yahoo.com.au> <42BF9D86.90204@yahoo.com.au> <20050627141220.GM3334@holomorphy.com> <42C093B4.3010707@yahoo.com.au> <20050628012254.GO3334@holomorphy.com> <42C0AAF8.5090700@yahoo.com.au> <20050628040608.GQ3334@holomorphy.com>
-In-Reply-To: <20050628040608.GQ3334@holomorphy.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 28 Jun 2005 00:51:33 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:38856 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262529AbVF1EvV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 00:51:21 -0400
+Date: Tue, 28 Jun 2005 10:21:12 +0530
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: gdb@sources.redhat.com, dan@debian.org
+Cc: Fastboot mailing list <fastboot@lists.osdl.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Morton Andrew Morton <akpm@osdl.org>, bunk@stusta.de
+Subject: Re: [Fastboot] Re: [-mm patch] i386: enable REGPARM by default
+Message-ID: <20050628045111.GB4296@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <20050624200916.GJ6656@stusta.de> <20050624132826.4cdfb63c.akpm@osdl.org> <20050627132941.GD3764@in.ibm.com> <20050627140029.GB29121@nevyn.them.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050627140029.GB29121@nevyn.them.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
-
->On Tue, Jun 28, 2005 at 11:42:16AM +1000, Nick Piggin wrote:
->
->>Well it switches between page and swap cache, but it seems to just
->>use the normal pagecache / swapcache functions for that. It could be
->>that I've got a big hole somewhere, but so far I don't think you've
->>pointed oen out.
->>
->
->Its radix tree movement bypasses the page allocator.
->
->
-
-That should be fine. Net result is the page has been looked up.
-What kind of atomicity did you imagine the locked find_get_page
-provides that I haven't?
-
->
->On Tue, Jun 28, 2005 at 11:42:16AM +1000, Nick Piggin wrote:
->
->>Well what's the trouble with it?
->>
->
->hugetlb reallocation doesn't go through the page allocator either.
->
->
-
-Ditto. Net result is that the page has been looked up. The
-speculative get page will recheck that it is in the radix
-tree after taking a reference, and if so then it assumes that
-reference to be valid.
-
-What is the hangup with the page allocator?
-
->On Tue, Jun 28, 2005 at 11:42:16AM +1000, Nick Piggin wrote:
->
->>I know what a memory barrier is and does, so you said the
->>necessary memory barriers aren't in place, so can you deal
->>with it?
->>
->
->spin_unlock() does not imply a memory barrier.
->
+On Mon, Jun 27, 2005 at 10:00:29AM -0400, Daniel Jacobowitz wrote:
+> On Mon, Jun 27, 2005 at 06:59:41PM +0530, Vivek Goyal wrote:
+> > On Fri, Jun 24, 2005 at 01:28:26PM -0700, Andrew Morton wrote:
+> > > Adrian Bunk <bunk@stusta.de> wrote:
+> > > >
+> > > > This patch:
+> > > > - removes the dependency of REGPARM on EXPERIMENTAL
+> > > > - let REGPARM default to y
+> > > 
+> > > hm, a compromise.
+> > > 
+> > > One other concern I have with this is that I expect -mregparm will make
+> > > kgdb (and now crashdump) less useful.  When incoming args are on the stack
+> > > you have a good chance of being able to see what their value is by walking
+> > > the stack slots.
+> > > 
+> > > When the incoming args are in registers I'd expect that it would be a lot
+> > > harder (or impossible) to work out their value.
+> > > 
+> > > Have the kdump guys thought about (or encountered) this?
+> 
+> GDB is more than capable of handling this - if your compiler is saving
+> arguments to the stack and dumping out useful information for the
+> debugger about where it put them.  Recent GCC versions are generally
+> pretty good about either saving the argument or clearly telling GDB
+> that it was not saved.
 >
 
-Intriguing...
+Thanks. Any idea what might be amiss with my case where I am not seeing 
+proper function parameter values while analyzing kdump generated crash
+dump with gdb. I am using following gdb and gcc versions.
 
->
->William Lee Irwin III wrote:
->
->>>The above is as much as I wanted to go into it. I need to direct my
->>>capacity for the grunt work of devising adversary arguments elsewhere.
->>>
->
->On Tue, Jun 28, 2005 at 11:42:16AM +1000, Nick Piggin wrote:
->
->>I don't think there is anything wrong with it. I would be very
->>keen to see real adversary arguments elsewhere though.
->>
->
->They take time to construct.
->
->
+GNU gdb Red Hat Linux (6.1post-1.20040607.62rh)
+gcc (GCC) 3.4.3 20041212 (Red Hat 3.4.3-9.EL4)
 
-I can imagine. I don't think I've seen one yet.
+Inlined with the mail is a test patch. This patch just invokes func1()
+and func2() upon reading a sysfs file "debug_stack" and finally calls panic()
+and boots into a new kernel.
 
->
->William Lee Irwin III wrote:
->
->>>You requested comments. I made some.
->>>
->
->On Tue, Jun 28, 2005 at 11:42:16AM +1000, Nick Piggin wrote:
->
->>Well yeah thanks, you did point out a thinko I made, and that was very
->>helpful and I value any time you spend looking at it. But just saying
->>"this is wrong, that won't work, that's crap, ergo the concept is
->>useless" without finding anything specifically wrong is not very
->>constructive.
->>
->
->I said nothing of that kind, and I did point out specific things.
->
->
+Associated stack traces retrieved from core dump file are available at 
+following link.
 
-You said "this RFC seems to have too far to go to use it to
-conclude anything about the subject", after failing to find
-any holes in the actual implementation.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=111988996408170&w=2
 
-And (parahprasing) "this needs memory barriers but I won't say
-where or why, somebody else deal with it" doesn't count as a
-specific thing.
+Thanks
+Vivek
 
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+
+---
+
+ linux-2.6.12-rc6-mm1-1M-root/kernel/ksysfs.c |   24 ++++++++++++++++++++++++
+ 1 files changed, 24 insertions(+)
+
+diff -puN kernel/ksysfs.c~kdump-gdb-stack-debug kernel/ksysfs.c
+--- linux-2.6.12-rc6-mm1-1M/kernel/ksysfs.c~kdump-gdb-stack-debug	2005-06-27 16:32:18.000000000 +0530
++++ linux-2.6.12-rc6-mm1-1M-root/kernel/ksysfs.c	2005-06-27 17:26:56.000000000 +0530
+@@ -30,6 +30,19 @@ static ssize_t hotplug_seqnum_show(struc
+ KERNEL_ATTR_RO(hotplug_seqnum);
+ #endif
+ 
++int func2(int a, int *b, char c)
++{
++        printk("a=%d, b=%p, c=%c \n", a, b, c);
++	panic("Vivek: Invoked panic\n");
++	return 0;
++}
++int func1(int a, int *b, char c)
++{
++        printk("a=%d, b=%p, c=%c\n", a, b, c);
++        func2(a, b, c);
++	return 0;
++}
++
+ #ifdef CONFIG_KEXEC
+ #include <asm/kexec.h>
+ 
+@@ -38,6 +51,16 @@ static ssize_t crash_notes_show(struct s
+ 	return sprintf(page, "%p\n", (void *)crash_notes);
+ }
+ KERNEL_ATTR_RO(crash_notes);
++static ssize_t stack_debug_show(struct subsystem *subsys, char *page)
++{
++	int a=20;
++	int *b=&a;
++	char c='d';
++	printk("Vivek: value of b is %p\n", b);
++	func1(a, b, c);
++	return sprintf(page, "%s\n", "Vivek copied");
++}
++KERNEL_ATTR_RO(stack_debug);
+ #endif
+ 
+ decl_subsys(kernel, NULL, NULL);
+@@ -49,6 +72,7 @@ static struct attribute * kernel_attrs[]
+ #endif
+ #ifdef CONFIG_KEXEC
+ 	&crash_notes_attr.attr,
++	&stack_debug_attr.attr,
+ #endif
+ 	NULL
+ };
+_

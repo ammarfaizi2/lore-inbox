@@ -1,143 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262495AbVF1Dfz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262400AbVF1Dpe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262495AbVF1Dfz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 23:35:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262350AbVF1Dfz
+	id S262400AbVF1Dpe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 23:45:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262498AbVF1Dpd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 23:35:55 -0400
-Received: from unused.mind.net ([69.9.134.98]:724 "EHLO echo.lysdexia.org")
-	by vger.kernel.org with ESMTP id S262498AbVF1De3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 23:34:29 -0400
-Date: Mon, 27 Jun 2005 20:32:37 -0700 (PDT)
-From: William Weston <weston@sysex.net>
-X-X-Sender: weston@echo.lysdexia.org
-To: Ingo Molnar <mingo@elte.hu>
-cc: "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       "Eugeny S. Mints" <emints@ru.mvista.com>,
-       Daniel Walker <dwalker@mvista.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
-In-Reply-To: <20050627081542.GA15096@elte.hu>
-Message-ID: <Pine.LNX.4.58.0506272001190.5720@echo.lysdexia.org>
-References: <Pine.LNX.4.58.0506221434170.22191@echo.lysdexia.org>
- <20050622220007.GA28258@elte.hu> <Pine.LNX.4.58.0506221558260.22649@echo.lysdexia.org>
- <20050623001023.GC11486@elte.hu> <Pine.LNX.4.58.0506231330450.27096@echo.lysdexia.org>
- <Pine.LNX.4.58.0506231755020.27757@echo.lysdexia.org> <20050624070639.GB5941@elte.hu>
- <Pine.LNX.4.58.0506241510040.32173@echo.lysdexia.org> <20050625041453.GC6981@elte.hu>
- <Pine.LNX.4.58.0506262102250.32435@echo.lysdexia.org> <20050627081542.GA15096@elte.hu>
+	Mon, 27 Jun 2005 23:45:33 -0400
+Received: from services106.cs.uwaterloo.ca ([129.97.152.164]:36570 "EHLO
+	services106.cs.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S262400AbVF1DpQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 23:45:16 -0400
+X-Mailer: emacs 21.4.1 (via feedmail 8 I)
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: David Masover <ninja@slaphack.com>, Valdis.Kletnieks@vt.edu,
+       Lincoln Dale <ltd@cisco.com>, Gregory Maxwell <gmaxwell@gmail.com>,
+       Hans Reiser <reiser@namesys.com>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: reiser4 plugins
+From: Hubert Chan <hubert@uhoreg.ca>
+In-Reply-To: <EBD8F590-0113-4509-9604-E6967C65C835@mac.com> (Kyle Moffett's
+ message of "Mon, 27 Jun 2005 22:59:24 -0400")
+References: <200506240241.j5O2f1eb005609@laptop11.inf.utfsm.cl>
+	<200506252031.j5PKVb4Y004482@turing-police.cc.vt.edu>
+	<42BDC422.6020401@namesys.com> <42BE3645.4070806@cisco.com>
+	<e692861c05062522071fe380a5@mail.gmail.com>
+	<42BE563D.4000402@cisco.com> <42BE5DB6.8040103@slaphack.com>
+	<200506261816.j5QIGMdI010142@turing-police.cc.vt.edu>
+	<42BF08CF.2020703@slaphack.com>
+	<200506262105.j5QL5kdR018609@turing-police.cc.vt.edu>
+	<42BF2DC4.8030901@slaphack.com>
+	<200506270040.j5R0eUNA030632@turing-police.cc.vt.edu>
+	<42BF667C.50606@slaphack.com>
+	<5284F665-873C-45B7-8DDB-5F475F2CE399@mac.com>
+	<42BF7167.80201@slaphack.com>
+	<EC02A684-815A-4DF8-B5C1-9029FE45E187@mac.com>
+	<42C06D59.2090200@slaphack.com>
+	<CD59AE36-FD15-4A4C-9E1D-AB2F8B52D653@mac.com>
+	<42C08B5E.2080000@slaphack.com> <87y88vrzkg.fsf@evinrude.uhoreg.ca>
+	<EBD8F590-0113-4509-9604-E6967C65C835@mac.com>
+X-Hashcash: 1:23:050628:mrmacman_g4@mac.com::igLbtPYHGOxNUaq+:000000000000000000000000000000000000000001QCt8
+X-Hashcash: 1:23:050628:ninja@slaphack.com::t8iToXXnkB3OZc9y:0000000000000000000000000000000000000000000aEb9
+X-Hashcash: 1:23:050628:valdis.kletnieks@vt.edu::57azIukefYHwj6SI:00000000000000000000000000000000000000cZmD
+X-Hashcash: 1:23:050628:ltd@cisco.com::GUQqE/c7bRLFOuCW:0000671A
+X-Hashcash: 1:23:050628:gmaxwell@gmail.com::B0xCzgbH7bXr6d7M:00000000000000000000000000000000000000000002RfD
+X-Hashcash: 1:23:050628:reiser@namesys.com::x3P2ijOmEFk30/7z:0000000000000000000000000000000000000000001gown
+X-Hashcash: 1:23:050628:vonbrand@inf.utfsm.cl::maJtEb7nMq26fTjK:00000000000000000000000000000000000000002aEm
+X-Hashcash: 1:23:050628:jgarzik@pobox.com::SVooBVRaoD89egNE:00000000000000000000000000000000000000000000/zZ9
+X-Hashcash: 1:23:050628:hch@infradead.org::LlvhRuhYMqUWAc/v:00000000000000000000000000000000000000000000aJ/a
+X-Hashcash: 1:23:050628:akpm@osdl.org::+FLnmic/4dykNgt6:0000xkEG
+X-Hashcash: 1:23:050628:linux-kernel@vger.kernel.org::w4lSlHlR5lCcvFlx:0000000000000000000000000000000002zBs
+X-Hashcash: 1:23:050628:reiserfs-list@namesys.com::OA9ep8rw6rU/SzMW:000000000000000000000000000000000000zUI6
+Date: Mon, 27 Jun 2005 23:45:00 -0400
+Message-ID: <87mzpbrvpf.fsf@evinrude.uhoreg.ca>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+X-Miltered: at aeacus with ID 42C0C7D4.000 by Joe's j-chkmail (http://j-chkmail.ensmp.fr)!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Jun 2005, Ingo Molnar wrote:
+On Mon, 27 Jun 2005 22:59:24 -0400, Kyle Moffett <mrmacman_g4@mac.com> said:
 
-> > I still haven't been able to get any NMI watchdog traces with the 
-> > lockups induced by VLC and burnP6.  Early printk is enabled on the 
-> > serial console. I have noticed, however, that scheduling performance 
-> > slowly degrades during the ~1 minute before locking up.  Once I was 
-> > able to get a delayed SysRq response (~30s) from the serial console 
-> > after the X console became unresponsive.  Is this possibly a scheduler 
-> > starvation issue that affects everything, including the NMI watchdog?  
-> > Any more suggestions for catching a trace?
-> 
-> hm. Nothing should starve the NMI watchdog. Only a nasty, complete 
-> kernel crash or a hardware failure can lock up the box in a way that not 
-> even the NMI watchdog can get some message out to the console. Just in 
-> case, could you try the latest patch (-50-24 or later), there were a 
-> couple of bugs fixed.
+> On Jun 27, 2005, at 22:21:35, Hubert Chan wrote:
+>> On Mon, 27 Jun 2005 18:27:26 -0500, David Masover
+>> <ninja@slaphack.com> said:
+>>> Kyle Moffett wrote:
 
-OK.  Running on -50-25 now.  The burnP6 starvation doesn't seem to affect
-the whole system, but comes close enough to require the reset button every
-time.  I usually, but not always, lose network, X, the keyboard, mouse,
-and serial console.  I'm still unable to get any sort of a trace from
-these lockups, since it's looking more like a bunch of processes starving 
-than a kernel crash or a full lockup.
+[...]
 
-Once, with VLC (viewing a 5mbit/s mcast/udp stream) and two burnP6
-instances running, I was able to fire up top on the serial console and
-found out that the IRQ thread for the ns83820 nic was using 99% of one
-CPU.
+>>>> /attr/fd/$FD_NUM == '...' directory for a filedescriptor
+>>>> /attr/fs/$DEV_NUM/$INODE_NUM == '...' directory for an inode
 
-Once, two burnP6 instances made the system unresponsive without running 
-VLC.  Everything froze as soon as I fired the second one up.  This may be 
-a good one to try to reproduce on an HT machine, since it doesn't require 
-VLC and a multicast video stream to make the system unresponsive.
+[...]
 
-Once, with a normal desktop load and a yum update, this came across on the 
-serial console:
+> These are not really "attributes" so much as they are "metadata", for
+> example, a "contents" subdirectory, if one existed, would be based on
+> the original file, and therefore non-unique, but would be looked up
+> based on information about the original file.
 
-cat/2100[CPU#1]: BUG in update_out_trace at kernel/latency.c:587
- [<c01041b3>] dump_stack+0x23/0x30 (20)
- [<c0122e0b>] __WARN_ON+0x6b/0x90 (52)
- [<c0140530>] update_out_trace+0x3d0/0x440 (104)
- [<c0140881>] l_stax2e1/0x310 (72)
- [<c0191eab>] seq_read+0x7b/0x2d0 (60)
- [<c016ecd4>] vfs_read+0xd4/0x140 (36)
- [<c016efb0>] sys_read+0x50/0x80 (44)
- [<c01031c0>] sysenter_past_esp+0x61/0x89 (-8116)
----------------------------
-| preempt count: 00000002 ]
-| 2-level deep critical section nesting:
-----------------------------------------
-.. [<c038dd9f>] .... _raw_spin_lock_irqsave+0x1f/0xb0
-.....[<c0122dc7>] ..   ( <= __WARN_ON+0x27/0x90)
-.. [<c014280d>] .... print_traces+0x1d/0x60
-.....[<c01040b2>] ..   ( <= show_trace+0xc2/0xf0)
+I think for most people on the reiser-fs list, the '...' directory
+represents an interface to many things including
+- automatic aggregating/tar/untar/compress
+- a different interface to stat data
+- adding extended attributes/substreams/acls/etc.
+- anything else you might imagine
+(I think this is your understanding too?  Just double-checking.)
+So some of that stuff would be separate from the file.  (Separate in the
+sense that it's not generated from the file's binary data.)
 
-------------------------------
-| showing all locks held by: |  (cat/2100 [deca9320, 117]):
-------------------------------
+Personally, I don't like it all being in one directory, but it's not
+that important.
 
-#001:             [d9ac47a4] {(struct semaphore *)(&p->sem)}
-... acquired at:  seq_read+0x2b/0x2d0
+>> You can still symlink.  It just takes a little more effort to figure
+>> out what $DEV_NUM/$INODE_NUM to use.
 
-#002:             [c03fb264] {out_mutex.lock}
-... acquired at:  l_start+0x1b/0x310
+> Also, unlike a symlink, if the path doesn't change and the file does,
+> it will break, also, if the file is removed and another created
+> elsewhere, it will be redirected improperly.  Perhaps a new symlink
+> syntax is needed to allow attribute specification (Ick, more changes
+> :-\).
 
-#003:             [c04d1404] {max_mutex.lock}
-... acquired at:  l_start+0x2dc/0x310
+I think those breakages are acceptable.  (IMHO) In other words, I think
+it would not occur very often without the user being aware of it, and
+should very rarely result in catastrophic effects.
 
-CPU0: 000000abfe71626e (000000abfe71654e) ... #3 (000000abfe71654e) 000000abfe7176be
-CPU1: 000000abfe6d3f0e (000000abfe6d4efe) ... #41 (000000abfe70fa46) 000000abfe71227e
-CPU1 entries: 41
-first stamp: 000000abfe71626e
- last stamp: 000000abfe71626e
-cat/2101[CPU#1]: BUG in update_out_trace at kernel/latency.c:587
- [<c01041b3>] dump_stack+0x23/0x30 (20)
- [<c0122e0b>] __WARN_ON+0x6b/0x90 (52)
- [<c0140530>] update_out_trace+0x3d0/0x440 (104)
- [<c0140881>] l_start+0x2e1/0x310 (72)
- [<c0191eab>] seq_read+0x7b/0x2d0 (60)
- [<c016ecd4>] vfs_read+0xd4/0x140 (36)
- [<c016efb0>] sys_read+0x50/0x80 (44)
- [<c01031c0>] sysenter_past_esp+0x61/0x89 (-8116)
----------------------------
-| preempt count: 00000002 ]
-| 2-level deep critical section nesting:
-----------------------------------------
-.. [<c038dd9f>] .... _raw_spin_lock_irqsave+0x1f/0xb0
-.....[<c0122dc7>] ..   ( <= __WARN_ON+0x27/0x90)
-.. [<c014280d>] .... print_traces+0x1d/0x60
-.....[<c01040b2>] ..   ( <= show_trace+0xc2/0xf0)
+One other minor annoyance is it isn't easy to go backwards from the
+... directory to the file.  e.g. if I have a symlink that points to
+/attr/fs/2/92036, I don't know what file's attributes that refers to.
+Hopefully I'm sane enough to give the symlink a descriptive enough
+name...
 
-------------------------------
-| showing all locks held by: |  (cat/2101 [deca9320, 116]):
-------------------------------
+>>> Hans, thoughts?  Seems to be namespace fragmentation, but seems
+>>> usable, less breakage, and so on.  And should it be /attr or /meta?
+>>  For the mount point, it doesn't matter; it's up to the user.  It's
+>> the attrfs or metafs or ???fs that matters (but which will greatly
+>> influence whether people user /attr or /meta).
 
-#001:             [d9ac47a4] {(struct semaphore *)(&p->sem)}
-... acquired at:  seq_read+0x2b/0x2d0
+> "meta" seems the more descriptive name.  There should also probably be
+> a somewhat standardized location for this, such that programs can
+> locate it without much trouble.
 
-#002:             [c04d1404] {max_mutex.lock}
-... acquired at:  l_start+0x2dc/0x310
+Agreed.  Ultimately, it's the user's decision where to put it, but
+probably 99.99999% of all people will put it in the same place.  Just
+like you could put procfs or sysfs somewhere other than /proc or /sys if
+you really wanted to, but nobody does that.
 
-CPU0: 000000abfe71626e (000000abfe71654e) ... #3 (00000071654e) 000000abfe7176be
-CPU1: 000000abfe6d3f0e (000000abfe6d4efe) ... #41 (000000abfe70fa46) 000000abfe71227e
-CPU1 entries: 41
-first stamp: 000000abfe71626e
- last stamp: 000000abfe71626e
+> This mechanism would be usable from all FSs, and could be built into
+> the VFS.  Also, it would allow one to access the meta data of meta
+> data (if supported by the filesystem, and possibly only through the
+> file descriptor lookup, due to numbering limitations.)
 
+One other issue is that the attrfs/metafs needs to communicate with the
+other filesystem somehow.  It needs to know if the filesystem can handle
+storing of extended attributes/substreams/etc. so that it knows whether
+or not to allow those interfaces.  In my
+/attr/fs/$(getattrpath /attr/fs/$(getattrpath ~/foo)/thumbnail)/mimetype
+example, it needs to be smart enough to store that in ~/foo's
+filesystem.  etc.
 
-Best Regards,
---ww
+-- 
+Hubert Chan <hubert@uhoreg.ca> - http://www.uhoreg.ca/
+PGP/GnuPG key: 1024D/124B61FA
+Fingerprint: 96C5 012F 5F74 A5F7 1FF7  5291 AF29 C719 124B 61FA
+Key available at wwwkeys.pgp.net.   Encrypted e-mail preferred.
 

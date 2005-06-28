@@ -1,52 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262141AbVF1ROY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262164AbVF1ROZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262141AbVF1ROY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 13:14:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262163AbVF1RNG
+	id S262164AbVF1ROZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 13:14:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262157AbVF1RN0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 13:13:06 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:225 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262157AbVF1RDh (ORCPT
+	Tue, 28 Jun 2005 13:13:26 -0400
+Received: from fsmlabs.com ([168.103.115.128]:4050 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S262165AbVF1RMH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 13:03:37 -0400
-Subject: Re: 2.6.12 breaks 8139cp
-From: Kylene Jo Hall <kjhall@us.ibm.com>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, LKML <linux-kernel@vger.kernel.org>,
-       jgarzik@pobox.com, tpmdd-devel@lists.sourceforge.net
-In-Reply-To: <42C18022.2010101@drzeus.cx>
-References: <42B9D21F.7040908@drzeus.cx>
-	 <200506221534.03716.bjorn.helgaas@hp.com> <42BA69AC.5090202@drzeus.cx>
-	 <200506231143.34769.bjorn.helgaas@hp.com> <42BB3428.6030708@drzeus.cx>
-	 <42C0EE1A.9050809@drzeus.cx>  <42C1434F.2010003@drzeus.cx>
-	 <1119967788.6382.7.camel@localhost.localdomain>
-	 <42C16162.2070208@drzeus.cx>
-	 <1119971339.6382.18.camel@localhost.localdomain>
-	 <42C18022.2010101@drzeus.cx>
-Content-Type: text/plain
-Date: Tue, 28 Jun 2005 12:03:32 -0500
-Message-Id: <1119978212.6403.4.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+	Tue, 28 Jun 2005 13:12:07 -0400
+Date: Tue, 28 Jun 2005 11:15:55 -0600 (MDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: "Paul E. McKenney" <paulmck@us.ibm.com>
+cc: linux-kernel@vger.kernel.org, dhowells@redhat.com, dipankar@in.ibm.com,
+       ak@suse.de, akpm@osdl.org, maneesh@in.ibm.com
+Subject: Re: [RFC,PATCH] RCU: clean up a few remaining synchronize_kernel()
+ calls
+In-Reply-To: <20050628153257.GD1294@us.ibm.com>
+Message-ID: <Pine.LNX.4.61.0506281055260.9135@montezuma.fsmlabs.com>
+References: <20050618002021.GA2892@us.ibm.com>
+ <Pine.LNX.4.61.0506191150300.26045@montezuma.fsmlabs.com>
+ <20050627050206.GA2139@us.ibm.com> <Pine.LNX.4.61.0506271305290.12042@montezuma.fsmlabs.com>
+ <20050628153257.GD1294@us.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 28 Jun 2005, Paul E. McKenney wrote:
 
-> (btw. does no output in dmesg mean that no TPM chip was found? it seems
-> to have found a pci id it likes atleast.)
+> On i386, writes are ordered.  So if CPU1 sees the callback, it is
+> guaranteed to also see the data.
+
+Yes indeed, i was certain that i missed something ;)
+
+> However, you do have a good point -- weakly ordered CPUs would need to
+> have an explicit memory barrier.  This might well already be taken care
+> of by the memory barriers in the locking primitives used by the up()
+> operation invoked at the end of oprofile_start(), but I did not check
+> all the possible ways that these functions can be called.
+
+I agree, that usage looks safe.
+
+> Given that set_nmi_callback isn't invoked all that often, seems like
+> it might be preferable to insert an smp_wmb() at the beginning of
+> set_nmi_callback(), so that it reads as follows:
 > 
-
-True I think if a chip is found there should be info in dmesg.  Are you
-loading tpm_atmel or tpm_nsc?  You can look at /proc/misc or see
-if /sys/class/misc/tpm0 exists.
-
-Do you know if your machine has a TPM?  Is it activated in BIOS?
-
-Thanks,
-Kylie
-
-> Rgds
-> Pierre
+> 	void set_nmi_callback(nmi_callback_t callback)
+> 	{
+> 		smp_wmb();
+> 		nmi_callback = callback;
+> 	}
 > 
+> Thoughts?
 
+Andrew (rightly) tends to howls whenever someone adds a memory barrier 
+without a comment ;) So if we were to make that change, how about the 
+following accompanying comment;
+
+"smp_wmb ensures that all data dependencies for the callback are posted 
+and callback is ready for execution"
+
+Thanks for elaborating, the examples certainly do help clarify usage.
+	Zwane

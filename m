@@ -1,53 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262241AbVF1Au0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262356AbVF1A5H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262241AbVF1Au0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 20:50:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262247AbVF1Au0
+	id S262356AbVF1A5H (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 20:57:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262357AbVF1A5H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 20:50:26 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:51963 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S262241AbVF1AuR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 20:50:17 -0400
-Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.50-24
-From: Daniel Walker <dwalker@mvista.com>
-Reply-To: dwalker@mvista.com
-To: Chuck Harding <charding@llnl.gov>
-Cc: Linux Kernel Discussion List <linux-kernel@vger.kernel.org>, mingo@elte.hu
-In-Reply-To: <Pine.LNX.4.63.0506271327040.5120@ghostwheel.llnl.gov>
-References: <20050608112801.GA31084@elte.hu>
-	 <20050625091215.GC27073@elte.hu>
-	 <200506250919.52640.gene.heskett@verizon.net>
-	 <200506251039.14746.gene.heskett@verizon.net>
-	 <Pine.LNX.4.63.0506271157200.8605@ghostwheel.llnl.gov>
-	 <1119902991.4794.5.camel@dhcp153.mvista.com>
-	 <Pine.LNX.4.63.0506271327040.5120@ghostwheel.llnl.gov>
-Content-Type: text/plain
-Organization: MontaVista
-Date: Mon, 27 Jun 2005 17:50:12 -0700
-Message-Id: <1119919812.4794.19.camel@dhcp153.mvista.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+	Mon, 27 Jun 2005 20:57:07 -0400
+Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:878 "HELO
+	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262356AbVF1A46 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 20:56:58 -0400
+Message-ID: <42C0A04D.9060906@yahoo.com.au>
+Date: Tue, 28 Jun 2005 10:56:45 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+Subject: Re: [patch 2] mm: speculative get_page
+References: <42BF9CD1.2030102@yahoo.com.au> <42BF9D67.10509@yahoo.com.au> <42BF9D86.90204@yahoo.com.au> <20050627141220.GM3334@holomorphy.com> <42C093B4.3010707@yahoo.com.au>
+In-Reply-To: <42C093B4.3010707@yahoo.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-06-27 at 13:28 -0700, Chuck Harding wrote:
-> On Mon, 27 Jun 2005, Daniel Walker wrote:
+Nick Piggin wrote:
+> William Lee Irwin III wrote:
 > 
-> > If you have PREEMPT_RT enabled, it looks like interrupts are hard
-> > disabled then there is a schedule_timeout() requested. You could try
-> > turning off power management and see if you still have problems.
-> >
-> > Daniel
-> >
+>> On Mon, Jun 27, 2005 at 04:32:38PM +1000, Nick Piggin wrote:
+>>
+>>> +static inline struct page *page_cache_get_speculative(struct page 
+>>> **pagep)
+>>> +{
+>>> +    struct page *page;
+>>> +
+>>> +    preempt_disable();
+>>> +    page = *pagep;
+>>> +    if (!page)
+>>> +        goto out_failed;
+>>> +
+>>> +    if (unlikely(get_page_testone(page))) {
+>>> +        /* Picked up a freed page */
+>>> +        __put_page(page);
+>>> +        goto out_failed;
+>>> +    }
+>>
+>>
+>>
+>> So you pick up 0->1 refcount transitions.
+>>
 > 
-> Well, putting apm=off in the kernel command line did the trick. I am
-> using a desktop system so apm really isn't needed. Time to change my
-> standard config file..... Thanks.
+> Yep ie. a page that's freed or being freed.
+> 
 
-Did it solve everything , including the virtual terminal switching, and
-the scheduling with irqs disabled ?
+Oh, one thing it does need is a check for PageFree(), so it also
+picks up 1->2 and other transitions without freeing the free page
+if the put()s are done out of order. Maybe that's what you were
+alluding to.
 
-Daniel
+I'll add that.
 
+-- 
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,67 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261578AbVF1OMO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261550AbVF1OLl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261578AbVF1OMO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 10:12:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261461AbVF1OMN
+	id S261550AbVF1OLl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 10:11:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261465AbVF1OLj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 10:12:13 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:8646 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261600AbVF1OJ4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 10:09:56 -0400
-Subject: Re: 2.6.12 breaks 8139cp
-From: Kylene Jo Hall <kjhall@us.ibm.com>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, LKML <linux-kernel@vger.kernel.org>,
-       jgarzik@pobox.com, tpmdd-devel@lists.sourceforge.net
-In-Reply-To: <42C1434F.2010003@drzeus.cx>
-References: <42B9D21F.7040908@drzeus.cx>
-	 <200506221534.03716.bjorn.helgaas@hp.com> <42BA69AC.5090202@drzeus.cx>
-	 <200506231143.34769.bjorn.helgaas@hp.com> <42BB3428.6030708@drzeus.cx>
-	 <42C0EE1A.9050809@drzeus.cx>  <42C1434F.2010003@drzeus.cx>
-Content-Type: text/plain
-Date: Tue, 28 Jun 2005 09:09:48 -0500
-Message-Id: <1119967788.6382.7.camel@localhost.localdomain>
+	Tue, 28 Jun 2005 10:11:39 -0400
+Received: from pih-relay06.plus.net ([212.159.14.133]:49849 "EHLO
+	pih-relay06.plus.net") by vger.kernel.org with ESMTP
+	id S261675AbVF1OKK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 10:10:10 -0400
+Date: Tue, 28 Jun 2005 15:09:59 +0100
+From: Ash Milsted <thatistosayiseenem@gawab.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: 2.6.12-git8 Voluntary preempt hangs at boot
+Message-Id: <20050628150959.728ac18a.thatistosayiseenem@gawab.com>
+In-Reply-To: <20050628072718.GA3755@elte.hu>
+References: <20050627161405.60490ec3.thatistosayiseenem@gawab.com>
+	<20050628072718.GA3755@elte.hu>
+X-Mailer: Sylpheed version 1.9.9 (GTK+ 2.6.8; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I believe that the reason that unloading the module does not help is
-because the module_exit is calling pci_disable in the tpm_remove
-function.  I'll generate a patch to remove this.
+Yes, this solves the problem. Cheers.
 
-Additionally this version of the driver  was doing a bunch of stuff to
-the LPC bus that I have since found not to be necessary and removed in
-patches that have been applied to the mm tree and were pushed to
-mainline this week.  Can anyone verify if this is still happening with
-the -mm patch?
+-Ash
 
-Regards,
-Kylie
+On Tue, 28 Jun 2005 09:27:18 +0200
+Ingo Molnar <mingo@elte.hu> wrote:
 
-On Tue, 2005-06-28 at 14:32 +0200, Pierre Ossman wrote:
-> Pierre Ossman wrote:
-> > Hmm... it seems that TPM has something to do with the bug. Not sure why
-> > though, can't see anything TPM related in dmesg. If I disable the TPM
-> > parts in kconfig then the network works just fine.
-> > 
-> > I'm going to do a test of 2.6.12-rc1 through rc6 today to see where the
-> > problem appears.
-> > 
 > 
-> Confirmed this behaviour. The problem appears in rc1 (where the TPM is
-> added). Unloading the module doesn't help, once it has been present the
-> system needs a reboot for the network card to function properly.
+> * Ash Milsted <thatistosayiseenem@gawab.com> wrote:
 > 
-> I don't really see how the TPM can screw things up for the network card
-> but I'm guessing it breaks something in the chipset (the TPM module gets
-> loaded for the LPC bridge).
+> > Just tried out VP on 2.6.12-git8 on my UP x86 system - it hangs just 
+> > after configuring the cpu, i.e. enabling fast FPU restore, etc.  
+> > Disabling ACPI and the local APIC makes no difference. Here's my 
+> > current config, which *does* work - I only need to enable VP to break 
+> > it. Btw, it also breaks without the CFQv3 and inotify patches.
 > 
-> (added TPM maintainer and list as cc)
+> i forgot about a dependency, -VP also needs this patch:
 > 
-> Rgds
-> Pierre
+>  http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12/2.6.12-mm2/broken-out/sched-tweak-idle-thread-setup-semantics.patch
 > 
-
+> could you check that this patch ontop of -git8 indeed fixes the boot 
+> problem for you?
+> 
+> 	Ingo

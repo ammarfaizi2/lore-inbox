@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261448AbVF1Mcs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261452AbVF1Mpp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261448AbVF1Mcs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 08:32:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261452AbVF1Mcs
+	id S261452AbVF1Mpp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 08:45:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261455AbVF1Mpp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 08:32:48 -0400
-Received: from [85.8.12.41] ([85.8.12.41]:13241 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S261448AbVF1Mcp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 08:32:45 -0400
-Message-ID: <42C1434F.2010003@drzeus.cx>
-Date: Tue, 28 Jun 2005 14:32:15 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 1.0.2-7 (X11/20050623)
+	Tue, 28 Jun 2005 08:45:45 -0400
+Received: from hellhawk.shadowen.org ([80.68.90.175]:53254 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S261452AbVF1Mpj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 08:45:39 -0400
+Message-ID: <42C14662.40809@shadowen.org>
+Date: Tue, 28 Jun 2005 13:45:22 +0100
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-CC: LKML <linux-kernel@vger.kernel.org>, jgarzik@pobox.com, kjhall@us.ibm.com,
-       tpmdd-devel@lists.sourceforge.net
-Subject: Re: 2.6.12 breaks 8139cp
-References: <42B9D21F.7040908@drzeus.cx> <200506221534.03716.bjorn.helgaas@hp.com> <42BA69AC.5090202@drzeus.cx> <200506231143.34769.bjorn.helgaas@hp.com> <42BB3428.6030708@drzeus.cx> <42C0EE1A.9050809@drzeus.cx>
-In-Reply-To: <42C0EE1A.9050809@drzeus.cx>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: linux-kernel <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+Subject: Re: [patch 2] mm: speculative get_page
+References: <42BF9CD1.2030102@yahoo.com.au> <42BF9D67.10509@yahoo.com.au> <42BF9D86.90204@yahoo.com.au>
+In-Reply-To: <42BF9D86.90204@yahoo.com.au>
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pierre Ossman wrote:
-> Hmm... it seems that TPM has something to do with the bug. Not sure why
-> though, can't see anything TPM related in dmesg. If I disable the TPM
-> parts in kconfig then the network works just fine.
-> 
-> I'm going to do a test of 2.6.12-rc1 through rc6 today to see where the
-> problem appears.
-> 
+Nick Piggin wrote:
 
-Confirmed this behaviour. The problem appears in rc1 (where the TPM is
-added). Unloading the module doesn't help, once it has been present the
-system needs a reboot for the network card to function properly.
+>  #define PG_free			20	/* Page is on the free lists */
+> +#define PG_freeing		21	/* PG_refcount about to be freed */
 
-I don't really see how the TPM can screw things up for the network card
-but I'm guessing it breaks something in the chipset (the TPM module gets
-loaded for the LPC bridge).
+Wow this needs two new page bits.  That might be a problem ongoing.
+There are only 24 of these puppies and this takes us to just two
+remaining.  Do we really need _two_ to track free?
 
-(added TPM maintainer and list as cc)
+One obvious area of overlap might be the PG_nosave_free which seems to
+be set on free pages for software suspend.  Perhaps that and PG_free
+will be equivalent in intent (though maintained differently) and allow
+us to recover a bit?
 
-Rgds
-Pierre
+There are a couple of bits which imply ownership such as PG_slab,
+PG_swapcache and PG_reserved which to my mind are all exclusive.
+Perhaps those plus the PG_free could be combined into a owner field.  I
+am unsure if the PG_freeing can be 'backed out' if not it may also combine?
+
+Mumble ...
+
+-apw

@@ -1,49 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbVF1Ud3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261514AbVF1UZN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261443AbVF1Ud3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 16:33:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbVF1UdZ
+	id S261514AbVF1UZN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 16:25:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261489AbVF1UYd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 16:33:25 -0400
-Received: from mail.fh-wedel.de ([213.39.232.198]:38601 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S261443AbVF1UbD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 16:31:03 -0400
-Date: Tue, 28 Jun 2005 22:30:57 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
-       Robert Love <rml@novell.com>, Andy Isaacson <adi@hexapodia.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: wrong madvise(MADV_DONTNEED) semantic
-Message-ID: <20050628203057.GD4453@wohnheim.fh-wedel.de>
-References: <20050628134316.GS5044@implementation.labri.fr> <20050628181620.GA1423@hexapodia.org> <1119983300.6745.1.camel@betsy> <20050628185300.GB30079@hexapodia.org> <1119986623.6745.10.camel@betsy> <20050628194128.GM4645@bouh.labri.fr> <20050628200330.GB4453@wohnheim.fh-wedel.de> <1119989111.6745.21.camel@betsy> <20050628201704.GC4453@wohnheim.fh-wedel.de> <20050628202053.GO4645@bouh.labri.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050628202053.GO4645@bouh.labri.fr>
-User-Agent: Mutt/1.3.28i
+	Tue, 28 Jun 2005 16:24:33 -0400
+Received: from smtp.andrew.cmu.edu ([128.2.10.83]:41865 "EHLO
+	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP id S261422AbVF1UXF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 16:23:05 -0400
+From: Jeremy Maitin-Shepard <jbms@cmu.edu>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Read only syscall tables for x86_64 and i386
+References: <Pine.LNX.4.62.0506281141050.959@graphe.net>
+	<87oe9q70no.fsf@jbms.ath.cx> <Pine.LNX.4.62.0506281218030.1454@graphe.net>
+	<87hdfi704d.fsf@jbms.ath.cx> <Pine.LNX.4.62.0506281230550.1630@graphe.net>
+	<20050628194215.GB32240@infradead.org> <87vf3y2qzz.fsf@jbms.ath.cx>
+	<1119989463.3175.49.camel@laptopd505.fenrus.org>
+X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
+X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
+X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
+X-Habeas-SWE-6: email in exchange for a license for this Habeas
+X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
+X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
+X-Habeas-SWE-3: like Habeas SWE (tm)
+X-Habeas-SWE-2: brightly anticipated
+X-Habeas-SWE-1: winter into spring
+Date: Tue, 28 Jun 2005 16:23:01 -0400
+In-Reply-To: <1119989463.3175.49.camel@laptopd505.fenrus.org> (Arjan van de
+	Ven's message of "Tue, 28 Jun 2005 22:11:02 +0200")
+Message-ID: <87mzpa2pui.fsf@jbms.ath.cx>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/22.0.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 June 2005 22:20:53 +0200, Samuel Thibault wrote:
-> Jörn Engel, le Tue 28 Jun 2005 22:17:04 +0200, a écrit :
-> > If the application knows 100% that it is the _only_ possible user of
-> > this data and will never again use it, dropping dirty pages might be a
-> > sane option.  Effectively that translates to anonymous memory only.
-> 
-> And private file mappings?
+Arjan van de Ven <arjan@infradead.org> writes:
 
-As in inode->i_nlink == 0?  Yes, if you can prove that only this one
-thread still has it open.  How to deal with multithreaded processes?
-I don't know and would default to "write it back" again.
+> AFS isn't even using it... after all it's not even exported.
 
-Besides, writing the dirty pages to backing store can only hurt
-performance, never correctness.  The data could already be synced at
-the time of the madvice call anyway.
-
-Jörn
+Even if it is not exported, the OpenAFS kernel module can locate the
+system call table using various methods.  It most certainly does write
+to the system call table, setting entry 137, which is reserved for the
+afs system call, to the correct function address.
 
 -- 
-This above all: to thine own self be true.
--- Shakespeare
+Jeremy Maitin-Shepard

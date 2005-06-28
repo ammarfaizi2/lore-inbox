@@ -1,61 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261939AbVF1QoS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261699AbVF1QuF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261939AbVF1QoS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 12:44:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261854AbVF1QoS
+	id S261699AbVF1QuF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 12:50:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261817AbVF1QuE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 12:44:18 -0400
-Received: from [212.76.85.206] ([212.76.85.206]:39940 "EHLO raad.intranet")
-	by vger.kernel.org with ESMTP id S261780AbVF1QoA (ORCPT
+	Tue, 28 Jun 2005 12:50:04 -0400
+Received: from mail.kroah.org ([69.55.234.183]:437 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261699AbVF1Qt1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 12:44:00 -0400
-Message-Id: <200506281643.TAA00504@raad.intranet>
-From: "Al Boldi" <a1426z@gawab.com>
-To: "'Marcelo Tosatti'" <marcelo.tosatti@cyclades.com>,
-       "'Paulo Marques'" <pmarques@grupopie.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Kswapd flaw
-Date: Tue, 28 Jun 2005 19:43:20 +0300
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-In-Reply-To: <20050628095815.GA13464@logos.cnet>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Thread-Index: AcV79vRBJTZRcuw5QaCtBDnDuFTlJAACTP5w
+	Tue, 28 Jun 2005 12:49:27 -0400
+Date: Tue, 28 Jun 2005 01:36:44 -0700
+From: Greg KH <greg@kroah.com>
+To: Eric FAURE <eric.faure@skynet.be>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: tungsten t5 doesn't sync anymore with kernel 2.6.12
+Message-ID: <20050628083644.GA4246@kroah.com>
+References: <42C0E879.5010605@skynet.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42C0E879.5010605@skynet.be>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo wrote: {
-On Tue, Jun 28, 2005 at 03:55:29PM +0100, Paulo Marques wrote:
-> Al Boldi wrote:
-> >On Mon, Jun 27, 2005 at 11:04:08PM +0300, Al Boldi wrote:
-> >
-> >>In 2.4.31 kswapd starts paging during OOMs even w/o swap enabled.
-> >>
-> >>Is there a way to fix/disable this behaviour?
-> >
-> >
-> >Marcelo,
-> >
-> >Kswapd starts evicting processes to fullfil a malloc, when it should 
-> >just deny it because there is no swap.
-> 
-> I think what you really want is to adjust your "overcommit" settings.
-> 
-> See: "Documentation/vm/overcommit-accounting"
+On Tue, Jun 28, 2005 at 08:04:41AM +0200, Eric FAURE wrote:
+> I tried loading the visor driver with debug=1
+> and here, the messages are differents from the kernel 2.6.11.12
+> dmesg kernel 2.6.12 output :
 
-You might also want to disable the OOM killer (CONFIG_OOM_KILLER).
-}
+How are they different?
 
-Paulo,
-Thanks for the pointer!  Overcommit is the problem, and kswapd is not
-honoring it.
-Can this be fixed/adjusted?
+thanks,
 
-Marcelo,
-Disable OOM killer? Is that an option in 2.4 or 2.6?
-
-Thanks!
-
+greg k-h

@@ -1,68 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261718AbVF1Gon@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261641AbVF1Gom@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261718AbVF1Gon (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 02:44:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261159AbVF1GoV
+	id S261641AbVF1Gom (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 02:44:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261899AbVF1Gn5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 02:44:21 -0400
-Received: from smtp109.sbc.mail.re2.yahoo.com ([68.142.229.96]:15295 "HELO
-	smtp109.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S262023AbVF1GlM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 02:41:12 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Dominik Brodowski <linux@dominikbrodowski.net>
-Subject: Re: pcmcia: release_class patch concern
-Date: Tue, 28 Jun 2005 01:41:00 -0500
-User-Agent: KMail/1.8.1
-Cc: LKML <linux-kernel@vger.kernel.org>, linux-pcmcia@lists.infradead.org
-References: <200506272356.50029.dtor_core@ameritech.net> <20050628061400.GA9019@isilmar.linta.de>
-In-Reply-To: <20050628061400.GA9019@isilmar.linta.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 28 Jun 2005 02:43:57 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:60636 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261718AbVF1Gmt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 02:42:49 -0400
+Date: Tue, 28 Jun 2005 08:42:09 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Roland McGrath <roland@redhat.com>
+Cc: Oleg Nesterov <oleg@tv-sign.ru>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] de_thread: eliminate unneccessary sighand locking
+Message-ID: <20050628064209.GA29540@elte.hu>
+References: <42C0EB8A.4F6F1336@tv-sign.ru> <200506280627.j5S6RBSd027251@magilla.sf.frob.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200506280141.01223.dtor_core@ameritech.net>
+In-Reply-To: <200506280627.j5S6RBSd027251@magilla.sf.frob.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 28 June 2005 01:14, Dominik Brodowski wrote:
-> Hi Dmitry,
+
+* Roland McGrath <roland@redhat.com> wrote:
+
+> That is not the scenario.  Something else must hold tasklist_lock 
+> while acquiring ourtask->sighand->siglock, but need not hold 
+> tasklist_lock throughout.  Someone can be holding oldsighand->lock but 
+> not not tasklist_lock, at the time we lock tasklist_lock.  So like I 
+> said, we need to hold oldsighand->siglock until the switch has been 
+> done.
 > 
-> On Mon, Jun 27, 2005 at 11:56:49PM -0500, Dmitry Torokhov wrote:
-> > Hi Dominik,
-> > 
-> > I noticed that Linus committed the patch from you that introduces waiting
-> > for completion in module's exit routine. I believe it is a big no-no
+> It's possible that no such scenarios exist, but I'd really have to 
+> check on that.  My recollection is that there might be some.
+
+i have checked it when acking the patch and it does not seem we do that 
+anywhere in the kernel. It would also be dangerous as per Oleg's 
+observations, unless something like this is done:
+
+	read_lock(&tasklist_lock);
+	p = find_task_by_pid(pid);
+	task_lock(p);
+	spin_lock(&p->sighand->siglock);
+	read_unlock(&tasklist_lock);
+
+	...
+
+do you know any such code?
+
+> > Just for my education, could you please point me to the existed example?
 > 
-> Is it really? Any PCI driver which calls pci_unregister_driver() waits for
-> completion (-> driver_unregister() -> wait_for_completion(&drv->unloaded) ).
->
+> It would require some auditing to hunt down whether they exist or 
+> don't. To make the change you suggest would require complete 
+> confidence none exist.
 
-Driver objects don't linger around - teardown is straightforward and
-attribute access protected with bumping up module's reference count.
-So it usually works out pretty well. 
+i have manually reviewed every .[ch] file that uses tasklist_lock, 
+siglock and lock_task:
 
-> 
-> > as something like this will wedge the kernel:
-> > 
-> > 	rmmod <module> < /sys/path/to/devices/attribute
-> 
-> Why would anybody issue such a command?
+  fs/proc/array.c
+  fs/exec.c
+  kernel/ptrace.c
+  kernel/fork.c
+  kernel/exit.c
+  kernel/sys.c
+  include/linux/sched.h
+  security/selinux/hooks.c
 
-This is just the simpliest method to illustrate the problem. I am sure
-someone could come up with a more realistic example. I think Al Viro
-mentioned it some time ago, but I can't find his post...
+can other valid locking variations exist, other than the one i outlined 
+above?
 
-> But it even wouldn't succeed, as 
-> the module usage count would be >0 if there are attributes below
-> /sys/class/pcmcia_socket/
-...
-> So I could have left the other wait_for_completion out, as it should never
-> actually _wait_. Nonethteless, I consider it to be a safeguard.
-
-Since the completion will never be actually used I'd rather not have it
-at all - I believe it sets bad example.
- 
--- 
-Dmitry
+	Ingo

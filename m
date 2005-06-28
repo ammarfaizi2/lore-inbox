@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261650AbVF1GKo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261751AbVF1GPk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261650AbVF1GKo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 02:10:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261631AbVF1GJh
+	id S261751AbVF1GPk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 02:15:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261757AbVF1GOF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 02:09:37 -0400
-Received: from mail.kroah.org ([69.55.234.183]:25324 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261855AbVF1Fdk convert rfc822-to-8bit
+	Tue, 28 Jun 2005 02:14:05 -0400
+Received: from mail.kroah.org ([69.55.234.183]:37612 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261900AbVF1Fdy convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 01:33:40 -0400
-Cc: gud@eth.net
-Subject: [PATCH] pci: remove deprecates
-In-Reply-To: <11199367714038@kroah.com>
+	Tue, 28 Jun 2005 01:33:54 -0400
+Cc: rajesh.shah@intel.com
+Subject: [PATCH] acpi bridge hotadd: Prevent duplicate bus numbers when scanning PCI bridge
+In-Reply-To: <1119936772835@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Mon, 27 Jun 2005 22:32:51 -0700
-Message-Id: <11199367711516@kroah.com>
+Date: Mon, 27 Jun 2005 22:32:52 -0700
+Message-Id: <11199367724120@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,42 +24,61 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] pci: remove deprecates
+[PATCH] acpi bridge hotadd: Prevent duplicate bus numbers when scanning PCI bridge
 
-Replace pci_find_device() with more safer pci_get_device().
+When hot-plugging a root bridge, as we try to assign bus numbers we may find
+that the hotplugged hieratchy has more PCI to PCI bridges (i.e.  bus
+requirements) than available.  Make sure we don't step over an existing bus
+when that happens.
 
-Signed-off-by: Amit Gud <gud@eth.net>
+Signed-off-by: Rajesh Shah <rajesh.shah@intel.com>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit efe1ec27837d6639eae82e1f5876910ba6433c3f
-tree 16070e93c8ea98f2da9ab8546024cc6d0e11388f
-parent 881a8c120acf7ec09c90289e2996b7c70f51e996
-author Amit Gud <gud@eth.net> Tue, 12 Apr 2005 19:04:27 +0530
-committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 27 Jun 2005 21:52:38 -0700
+commit cc57450f5c044270d2cf1dd437c1850422262109
+tree 418c7546c443cfc80601da045731f6b5a9f23442
+parent 71c3511c22e8e0648094672abec898b3bf84c18b
+author Rajesh Shah <rajesh.shah@intel.com> Thu, 28 Apr 2005 00:25:47 -0700
+committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 27 Jun 2005 21:52:40 -0700
 
- drivers/char/rio/rio_linux.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/pci/probe.c |   12 ++++++++++--
+ 1 files changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/char/rio/rio_linux.c b/drivers/char/rio/rio_linux.c
---- a/drivers/char/rio/rio_linux.c
-+++ b/drivers/char/rio/rio_linux.c
-@@ -1095,7 +1095,7 @@ static int __init rio_init(void) 
+diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
+--- a/drivers/pci/probe.c
++++ b/drivers/pci/probe.c
+@@ -411,7 +411,7 @@ int __devinit pci_scan_bridge(struct pci
+ {
+ 	struct pci_bus *child;
+ 	int is_cardbus = (dev->hdr_type == PCI_HEADER_TYPE_CARDBUS);
+-	u32 buses;
++	u32 buses, i;
+ 	u16 bctl;
  
- #ifdef CONFIG_PCI
-     /* First look for the JET devices: */
--    while ((pdev = pci_find_device (PCI_VENDOR_ID_SPECIALIX, 
-+    while ((pdev = pci_get_device (PCI_VENDOR_ID_SPECIALIX,
-                                     PCI_DEVICE_ID_SPECIALIX_SX_XIO_IO8, 
-                                     pdev))) {
-        if (pci_enable_device(pdev)) continue;
-@@ -1169,7 +1169,7 @@ static int __init rio_init(void) 
-   */
+ 	pci_read_config_dword(dev, PCI_PRIMARY_BUS, &buses);
+@@ -470,6 +470,10 @@ int __devinit pci_scan_bridge(struct pci
+ 		/* Clear errors */
+ 		pci_write_config_word(dev, PCI_STATUS, 0xffff);
  
-     /* Then look for the older RIO/PCI devices: */
--    while ((pdev = pci_find_device (PCI_VENDOR_ID_SPECIALIX, 
-+    while ((pdev = pci_get_device (PCI_VENDOR_ID_SPECIALIX,
-                                     PCI_DEVICE_ID_SPECIALIX_RIO, 
-                                     pdev))) {
-        if (pci_enable_device(pdev)) continue;
++		/* Prevent assigning a bus number that already exists.
++		 * This can happen when a bridge is hot-plugged */
++		if (pci_find_bus(pci_domain_nr(bus), max+1))
++			return max;
+ 		child = pci_alloc_child_bus(bus, dev, ++max);
+ 		buses = (buses & 0xff000000)
+ 		      | ((unsigned int)(child->primary)     <<  0)
+@@ -501,7 +505,11 @@ int __devinit pci_scan_bridge(struct pci
+ 			 * as cards with a PCI-to-PCI bridge can be
+ 			 * inserted later.
+ 			 */
+-			max += CARDBUS_RESERVE_BUSNR;
++			for (i=0; i<CARDBUS_RESERVE_BUSNR; i++)
++				if (pci_find_bus(pci_domain_nr(bus),
++							max+i+1))
++					break;
++			max += i;
+ 		}
+ 		/*
+ 		 * Set the subordinate bus number to its real value.
 

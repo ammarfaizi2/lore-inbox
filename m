@@ -1,97 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262075AbVF1PdI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261793AbVF1Pfu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262075AbVF1PdI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 11:33:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262071AbVF1PdH
+	id S261793AbVF1Pfu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 11:35:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262085AbVF1Pft
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 11:33:07 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:55468 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261793AbVF1Pcv (ORCPT
+	Tue, 28 Jun 2005 11:35:49 -0400
+Received: from [212.76.81.187] ([212.76.81.187]:38916 "EHLO raad.intranet")
+	by vger.kernel.org with ESMTP id S261793AbVF1PfW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 11:32:51 -0400
-Date: Tue, 28 Jun 2005 08:32:58 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org, dhowells@redhat.com, dipankar@in.ibm.com,
-       ak@suse.de, akpm@osdl.org, maneesh@in.ibm.com
-Subject: Re: [RFC,PATCH] RCU: clean up a few remaining synchronize_kernel() calls
-Message-ID: <20050628153257.GD1294@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20050618002021.GA2892@us.ibm.com> <Pine.LNX.4.61.0506191150300.26045@montezuma.fsmlabs.com> <20050627050206.GA2139@us.ibm.com> <Pine.LNX.4.61.0506271305290.12042@montezuma.fsmlabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0506271305290.12042@montezuma.fsmlabs.com>
-User-Agent: Mutt/1.4.1i
+	Tue, 28 Jun 2005 11:35:22 -0400
+Message-Id: <200506281535.SAA30164@raad.intranet>
+From: "Al Boldi" <a1426z@gawab.com>
+To: "'Nix'" <nix@esperi.org.uk>
+Cc: "'Marcelo Tosatti'" <marcelo.tosatti@cyclades.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE: Kswapd flaw
+Date: Tue, 28 Jun 2005 18:35:00 +0300
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+In-Reply-To: <871x6m5yzd.fsf@amaterasu.srvr.nix>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Thread-Index: AcV77nSvIFqxlrBMSY+zHp6XBEh9IwABPCGg
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 28, 2005 at 08:22:24AM -0600, Zwane Mwaikambo wrote:
-> Hello Paul,
+Nix wrote:{
+On Tue, 28 Jun 2005, Al Boldi wrote:
+> Hi Nix, how are you?
+> You wrote: {
+> On 28 Jun 2005, Al Boldi yowled:
+>> Please do flush anytime, and do it in sync during OOMs; but don't 
+>> evict procs especially not RUNNING procs, that is overkill.
 > 
-> On Sun, 26 Jun 2005, Paul E. McKenney wrote:
+> Would you really like a system where once something was faulted in, it 
+> could never leave? You'd run out of memory *awfully* fast.
+> }
 > 
-> > How does the following look for NMI-RCU documentation?
-> 
-> That looks good, there is just one bit i'm not entirely sure about and i'd 
-> appreciate it if you could entertain me for a bit;
+> You should only fault if you have a place to fault to, as into a swap.
+> Without swap faulting is overkill.
+>
+> Is it possible to change kswapd's default behaviour to not fault if 
+> there is no swap?
 
-I will see what entertainment I can provide.  ;-)
+I don't think so, except on a process-by-process basis via mlockall().
+(/proc/sys/vm/swappiness lets you say that swapping is more or less
+desirable, but under enough memory pressure paging *will* happen regardless
+of the value of that variable.)
 
-> Answer to Quick Quiz
-> 
->         Why might the rcu_dereference() be necessary on Alpha, given
->         that the code reference by the pointer is read-only?
-> 
->         Answer: The caller to set_nmi_callback() might well have
->                 initialized some data that is to be used by the
->                 new NMI handler.  In this case, the rcu_dereference()
->                 would be needed, because otherwise a CPU that received
->                 an NMI just after the new handler was set might see
->                 the pointer to the new NMI handler, but the old
->                 pre-initialized version of the handler's data.
-> 
-> Reading that i would think the general programming model for this would 
-> be;
-> 
-> setup data
-> write barrier
-> setup callback
+But I'm mystified as to why you might want to suppress paging. The only
+effect of suppressing it is to reduce the amount of memory you can allocate
+before you run completely out and start killing things.
+}
 
-Agreed!  I have updated the document to make this requirement clear.
+Nix,
+You start killing things because you overcommitted, when you were not
+supposed to fault in the first place because you have no swap.
 
-> Isn't that still required considering the following scenario;
-> 
-> CPU0			CPU1
-> setup data		<NMI>
-> setup callback		...
-> ...			call callback
-> 
-> on i386, interrupts are data synchronising events, however if we happen to 
-> take an interrupt right when the data is being setup we won't synchronise 
-> with respect to that data. This could be achieved via the explicit write 
-> barrier after data setup or rcu_dereference in the NMI handler. Or perhaps 
-> i'm missing something?
+( I couldn't find /proc/sys/vm/swappiness in 2.4, although I heard about it
+in 2.6.)
 
-On i386, writes are ordered.  So if CPU1 sees the callback, it is
-guaranteed to also see the data.
-
-However, you do have a good point -- weakly ordered CPUs would need to
-have an explicit memory barrier.  This might well already be taken care
-of by the memory barriers in the locking primitives used by the up()
-operation invoked at the end of oprofile_start(), but I did not check
-all the possible ways that these functions can be called.
-
-Given that set_nmi_callback isn't invoked all that often, seems like
-it might be preferable to insert an smp_wmb() at the beginning of
-set_nmi_callback(), so that it reads as follows:
-
-	void set_nmi_callback(nmi_callback_t callback)
-	{
-		smp_wmb();
-		nmi_callback = callback;
-	}
-
-Thoughts?
-
-						Thanx, Paul

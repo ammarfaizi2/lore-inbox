@@ -1,60 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261945AbVF1GZK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261967AbVF1G1V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261945AbVF1GZK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 02:25:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261944AbVF1GZC
+	id S261967AbVF1G1V (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 02:27:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261608AbVF1G0h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 02:25:02 -0400
-Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:4229 "HELO
-	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261971AbVF1Fev (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 01:34:51 -0400
-Message-ID: <42C0E173.30406@yahoo.com.au>
-Date: Tue, 28 Jun 2005 15:34:43 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en
+	Tue, 28 Jun 2005 02:26:37 -0400
+Received: from omta01ps.mx.bigpond.com ([144.140.82.153]:9937 "EHLO
+	omta01ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S261424AbVF1F7F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 01:59:05 -0400
+Message-ID: <42C0E722.5090803@bigpond.net.au>
+Date: Tue, 28 Jun 2005 15:58:58 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "David S. Miller" <davem@davemloft.net>
-CC: wli@holomorphy.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [patch 2] mm: speculative get_page
-References: <42C0AAF8.5090700@yahoo.com.au>	<20050628040608.GQ3334@holomorphy.com>	<42C0D717.2080100@yahoo.com.au> <20050627.220827.21920197.davem@davemloft.net>
-In-Reply-To: <20050627.220827.21920197.davem@davemloft.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Chris Han <xiphux@gmail.com>, Con Kolivas <kernel@kolivas.org>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: [ANNOUNCE][RFC] PlugSched-5.2.2 for 2.6.12 and 2.6.12-mm2
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta01ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Tue, 28 Jun 2005 05:58:58 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
+PlugSched-5.2.2 is available for 2.6.12 and 2.6.12-mm2 kernels.  This
+version applies Con Kolivas's latest modification to his "nice" aware
+SMP load balancing patches.
 
->From: Nick Piggin <nickpiggin@yahoo.com.au>
->Subject: Re: [patch 2] mm: speculative get_page
->Date: Tue, 28 Jun 2005 14:50:31 +1000
->
->
->>William Lee Irwin III wrote:
->>
->>
->>>On Tue, Jun 28, 2005 at 11:42:16AM +1000, Nick Piggin wrote:
->>>
->>>spin_unlock() does not imply a memory barrier.
->>>
->>>
->>Intriguing...
->>
->
->BTW, I disagree with this assertion.  spin_unlock() does imply a
->memory barrier.
->
->All memory operations before the release of the lock must execute
->before the lock release memory operation is globally visible.
->
+A patch to bring PlugSched-5.2.1 for 2.6.12 to PlugSched-5.2.2 is
+available at:
 
-Yes, it appears that way from looking at a sample set of arch
-code too (ie. those without strictly ordered stores put an
-explicit barrier there).
+<http://prdownloads.sourceforge.net/cpuse/plugsched-5.2.1-to-5.2.2-for-2.6.12.patch?download>
 
-I've always understood spin_unlock to imply a barrier.
+A patch for 2.6.12-mm2 is available at:
 
+<http://prdownloads.sourceforge.net/cpuse/plugsched-5.2.2-for-2.6.12-mm2.patch?download>
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Very Brief Documentation:
+
+You can select a default scheduler at kernel build time.  If you wish to
+boot with a scheduler other than the default it can be selected at boot
+time by adding:
+
+cpusched=<scheduler>
+
+to the boot command line where <scheduler> is one of: ingosched,
+nicksched, staircase, spa_no_frills or zaphod.  If you don't change the
+default when you build the kernel the default scheduler will be
+ingosched (which is the normal scheduler).
+
+The scheduler in force on a running system can be determined by the
+contents of:
+
+/proc/scheduler
+
+Control parameters for the scheduler can be read/set via files in:
+
+/sys/cpusched/<scheduler>/
+
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

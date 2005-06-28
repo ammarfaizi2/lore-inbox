@@ -1,153 +1,172 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261156AbVF1Fay@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261274AbVF1Fbd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261156AbVF1Fay (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 01:30:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261407AbVF1Fay
+	id S261274AbVF1Fbd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 01:31:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261407AbVF1Fbc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 01:30:54 -0400
-Received: from services106.cs.uwaterloo.ca ([129.97.152.164]:35817 "EHLO
-	services106.cs.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S261156AbVF1Fad (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 01:30:33 -0400
-X-Mailer: emacs 21.4.1 (via feedmail 8 I)
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: David Masover <ninja@slaphack.com>, Valdis.Kletnieks@vt.edu,
-       Lincoln Dale <ltd@cisco.com>, Gregory Maxwell <gmaxwell@gmail.com>,
-       Hans Reiser <reiser@namesys.com>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: reiser4 plugins
-From: Hubert Chan <hubert@uhoreg.ca>
-In-Reply-To: <D3A4ABBF-8062-4399-B1EC-61722295944A@mac.com> (Kyle Moffett's
- message of "Tue, 28 Jun 2005 00:38:38 -0400")
-References: <200506240241.j5O2f1eb005609@laptop11.inf.utfsm.cl>
-	<42BE3645.4070806@cisco.com>
-	<e692861c05062522071fe380a5@mail.gmail.com>
-	<42BE563D.4000402@cisco.com> <42BE5DB6.8040103@slaphack.com>
-	<200506261816.j5QIGMdI010142@turing-police.cc.vt.edu>
-	<42BF08CF.2020703@slaphack.com>
-	<200506262105.j5QL5kdR018609@turing-police.cc.vt.edu>
-	<42BF2DC4.8030901@slaphack.com>
-	<200506270040.j5R0eUNA030632@turing-police.cc.vt.edu>
-	<42BF667C.50606@slaphack.com>
-	<5284F665-873C-45B7-8DDB-5F475F2CE399@mac.com>
-	<42BF7167.80201@slaphack.com>
-	<EC02A684-815A-4DF8-B5C1-9029FE45E187@mac.com>
-	<42C06D59.2090200@slaphack.com>
-	<CD59AE36-FD15-4A4C-9E1D-AB2F8B52D653@mac.com>
-	<42C08B5E.2080000@slaphack.com> <87y88vrzkg.fsf@evinrude.uhoreg.ca>
-	<EBD8F590-0113-4509-9604-E6967C65C835@mac.com>
-	<87mzpbrvpf.fsf@evinrude.uhoreg.ca>
-	<D3A4ABBF-8062-4399-B1EC-61722295944A@mac.com>
-X-Hashcash: 1:23:050628:mrmacman_g4@mac.com::2zqOlT3UakxKH3AK:000000000000000000000000000000000000000000yPeM
-X-Hashcash: 1:23:050628:ninja@slaphack.com::vWNGBPSI8LQe0vl+:0000000000000000000000000000000000000000002I5Hf
-X-Hashcash: 1:23:050628:valdis.kletnieks@vt.edu::ehiy4pxk5rU8DXgQ:00000000000000000000000000000000000000A427
-X-Hashcash: 1:23:050628:ltd@cisco.com::5xthxHTVhNoFNyma:0000GrgV
-X-Hashcash: 1:23:050628:gmaxwell@gmail.com::sG6TFV57YVNdDaH4:0000000000000000000000000000000000000000000HTmd
-X-Hashcash: 1:23:050628:reiser@namesys.com::pXII1HGzxCKMh0+V:0000000000000000000000000000000000000000000C8RS
-X-Hashcash: 1:23:050628:vonbrand@inf.utfsm.cl::f3TbZ9rrlAA/bvOK:0000000000000000000000000000000000000000DxHM
-X-Hashcash: 1:23:050628:jgarzik@pobox.com::ZBdXy5WGGXejRUt/:000000000000000000000000000000000000000000004aws
-X-Hashcash: 1:23:050628:hch@infradead.org::bOgJstIcjaZjajgO:00000000000000000000000000000000000000000000f2iD
-X-Hashcash: 1:23:050628:akpm@osdl.org::9DMoOxXzRwy3fHfO:0000LSkR
-X-Hashcash: 1:23:050628:linux-kernel@vger.kernel.org::qULddCLxskYvx+/B:000000000000000000000000000000000scu9
-X-Hashcash: 1:23:050628:reiserfs-list@namesys.com::gHkqAQcD9J4H7C4Z:0000000000000000000000000000000000002Re3
-Date: Tue, 28 Jun 2005 01:30:08 -0400
-Message-ID: <87irzzrqu7.fsf@evinrude.uhoreg.ca>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Tue, 28 Jun 2005 01:31:32 -0400
+Received: from mail.kroah.org ([69.55.234.183]:3050 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261274AbVF1Fah (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 01:30:37 -0400
+Date: Mon, 27 Jun 2005 22:30:22 -0700
+From: Greg KH <gregkh@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: [GIT PATCH] PCI patches for 2.6.12
+Message-ID: <20050628053022.GA1588@kroah.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Agree with most of the stuff you wrote.
+Here are a bunch of PCI patches against your latest git tree, and even a
+merge (hey, it was my first, I was happy it all worked out ok...).  They
+include:
+	- acpi pci hotplug driver updates and reworks.
+	- dma bursting help for drivers
+	- msi minor cleanups
+	- MCFG acpi table parsing for pci busses
 
-On Tue, 28 Jun 2005 00:38:38 -0400, Kyle Moffett <mrmacman_g4@mac.com> said:
+All of these patches have been in the -mm tree for the past few months.
+I have not included any of the pci patches in the -mm tree that were
+causing people problems.  Those are still being worked on to get
+correct.
 
-> On Jun 27, 2005, at 23:45:00, Hubert Chan wrote:
+Please pull from:
+	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/pci-2.6.git/
+or if master.kernel.org hasn't synced up yet:
+	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/pci-2.6.git/
 
->> I think for most people on the reiser-fs list, the '...' directory
->> represents an interface to many things including
->> - automatic aggregating/tar/untar/compress
->> - a different interface to stat data
->> - adding extended attributes/substreams/acls/etc.
->> - anything else you might imagine
+The full patches will be sent to the linux-kernel and linux-pci mailing
+lists, if anyone wants to see them.
 
-> Ok.  Those things should probably be divided up.  Stuff like POSIX
-> extended attributes and such that have existing interfaces should use
-> those.
+thanks,
 
-One of the claimed advantages of the '...' interface is that everything
-is editable as a file.  So if someone wanted to edit the description
-extended attribute for foo.txt, he would just run
-"[editor] foo.txt/.../description" (or
-"[editor] /meta/fs/$(getattrpath foo.txt)/description"), instead of
-needing to use some special purpose editor.  It works well for things
-like being able to use Gimp to edit a thumbnail or icon attribute.
+greg k-h
 
-Of course, it shouldn't be too hard to provide both interfaces, as long
-as you get locking and caching right...
 
-The Reiser4 file-as-dir interface is also supposed to be more flexible
-than POSIX extended attributes.  For example adding attributes to
-attributes (e.g. adding a mimetype attribute to a thumbnail attribute).
-The point of it is to present many different things (extended
-attributes, file manipulation magic like automatic compress, etc.)
-through a single interface that everyone knows how to use (i.e. regular
-files) so that people can use regular programs to edit or manipulate
-them.
+ Documentation/kernel-parameters.txt |    4 
+ arch/i386/kernel/acpi/boot.c        |   57 +-
+ arch/i386/pci/common.c              |    8 
+ arch/i386/pci/irq.c                 |   51 +-
+ arch/i386/pci/legacy.c              |    2 
+ arch/i386/pci/mmconfig.c            |   41 +
+ arch/i386/pci/numa.c                |    2 
+ arch/i386/pci/pci.h                 |    1 
+ arch/ia64/kernel/acpi.c             |   38 +
+ arch/ia64/kernel/iosapic.c          |  134 ++++-
+ arch/ia64/pci/pci.c                 |   38 +
+ arch/ppc/kernel/pci.c               |   21 
+ arch/ppc64/kernel/pci.c             |   22 
+ arch/x86_64/pci/mmconfig.c          |   74 ++
+ drivers/acpi/container.c            |    2 
+ drivers/acpi/pci_bind.c             |   27 -
+ drivers/acpi/pci_root.c             |   24 
+ drivers/acpi/processor_core.c       |    2 
+ drivers/acpi/scan.c                 |  126 ++++-
+ drivers/char/moxa.c                 |    2 
+ drivers/char/rio/rio_linux.c        |    4 
+ drivers/message/fusion/mptfc.c      |    4 
+ drivers/message/fusion/mptscsih.c   |   10 
+ drivers/message/fusion/mptscsih.h   |    2 
+ drivers/message/fusion/mptspi.c     |    4 
+ drivers/net/e100.c                  |    9 
+ drivers/net/via-rhine.c             |   11 
+ drivers/parisc/dino.c               |    1 
+ drivers/parisc/lba_pci.c            |    2 
+ drivers/pci/bus.c                   |   11 
+ drivers/pci/hotplug/Makefile        |    4 
+ drivers/pci/hotplug/acpiphp.h       |   47 -
+ drivers/pci/hotplug/acpiphp_core.c  |    9 
+ drivers/pci/hotplug/acpiphp_glue.c  |  900 ++++++++++++++++++++----------------
+ drivers/pci/hotplug/acpiphp_pci.c   |  449 -----------------
+ drivers/pci/hotplug/acpiphp_res.c   |  700 ----------------------------
+ drivers/pci/hotplug/cpqphp_core.c   |    5 
+ drivers/pci/msi.c                   |   88 +--
+ drivers/pci/msi.h                   |    9 
+ drivers/pci/pci-sysfs.c             |   26 -
+ drivers/pci/probe.c                 |   29 -
+ drivers/pci/proc.c                  |   14 
+ drivers/pci/remove.c                |   14 
+ drivers/pci/setup-bus.c             |    5 
+ drivers/scsi/3w-9xxx.c              |    8 
+ drivers/scsi/3w-xxxx.c              |    8 
+ drivers/scsi/ipr.c                  |   10 
+ drivers/scsi/megaraid.c             |    8 
+ include/acpi/acpi_bus.h             |   17 
+ include/acpi/acpi_drivers.h         |    1 
+ include/asm-alpha/pci.h             |   19 
+ include/asm-arm/pci.h               |   10 
+ include/asm-frv/pci.h               |   10 
+ include/asm-i386/pci.h              |   10 
+ include/asm-ia64/iosapic.h          |   12 
+ include/asm-ia64/pci.h              |   19 
+ include/asm-mips/pci.h              |   10 
+ include/asm-parisc/pci.h            |   19 
+ include/asm-ppc/pci.h               |   16 
+ include/asm-ppc64/pci.h             |   26 +
+ include/asm-sh/pci.h                |   10 
+ include/asm-sh64/pci.h              |   10 
+ include/asm-sparc/pci.h             |   10 
+ include/asm-sparc64/pci.h           |   19 
+ include/asm-v850/pci.h              |   10 
+ include/asm-x86_64/pci.h            |   10 
+ include/linux/acpi.h                |   19 
+ include/linux/pci.h                 |   33 +
+ include/linux/pci_ids.h             |    2 
+ 69 files changed, 1509 insertions(+), 1850 deletions(-)
 
-The inspiration, I think, was the MacOS X/NeXTSTEP bundle format.  For
-example, MacOS X/NeXTSTEP .app file is actually a directory that behaves
-much like an executable file (double-clicking a .app file in the Finder
-launches the application, instead of opening the directory).  However,
-it is in reality a directory that contains many things that could be
-thought of as extended attributes (such as the application icon,
-information about the application, etc.).  Since the application icon is
-a real file, it can be edited by normal graphics editors (not like
-Windows programs, where you need a special icon editor).  And since it's
-inside the .app directory, it's attached to the application (not like
-Linux, where the program is in /usr/bin, and the icon is in
-/usr/share/pixmaps), so it makes package management easier (to delete an
-application, just delete the .app file -- don't need to look in
-/usr/share/pixmaps for the icon and delete it).
+---------------
 
-> Other types of data should chose other interfaces that make the most
-> sense for that type of data.  I think that the /meta fs should
-> probably only be used when the data is generated from the existing
-> file or directory, and perhaps a few other cases.
+Amit Gud:
+  pci: remove deprecates
+  pci: remove deprecates
 
-[...]
+Andrew Morton:
+  PCI: fix up errors after dma bursting patch and CONFIG_PCI=n
 
->> One other minor annoyance is it isn't easy to go backwards from the
->> ... directory to the file.  e.g. if I have a symlink that points to
->> /attr/fs/2/92036, I don't know what file's attributes that refers to.
->> Hopefully I'm sane enough to give the symlink a descriptive enough
->> name...
+David S. Miller:
+  PCI: DMA bursting advice
 
-> I don't see this occurring often enough to be a major problem,
+Greg Kroah-Hartman:
+  PCI: use the MCFG table to properly access pci devices (x86-64)
+  PCI: use the MCFG table to properly access pci devices (i386)
+  PCI: make drivers use the pci shutdown callback instead of the driver core callback.
+  PCI: add proper MCFG table parsing to ACPI core.
+  PCI: clean up the MSI code a bit.
 
-I don't see that this should be a major problem either, but I thought it
-was worth bringing up.
+jayalk@intworks.biz:
+  PCI Allow OutOfRange PIRQ table address
 
-> and in any case inodes are not path-exclusive (think hardlinks).  If
-> they have the filedescriptor open, however, they could use
-> /proc/$PID/* to figure out where the file is.
+Keith Moore:
+  cpqphp: fix oops during unload without probe
 
-Although I guess if they have a file descriptor open, they probably have
-the original filename lying around somewhere...
+Kenji Kaneshige:
+  ACPI based I/O APIC hot-plug: acpiphp support
+  ACPI based I/O APIC hot-plug: add interfaces
+  ACPI based I/O APIC hot-plug: ia64 support
 
-[...]
+Michael Ellerman:
+  PCI: fix-pci-mmap-on-ppc-and-ppc64.patch
 
-> On another note, it's nice to see the flamewar has died out and
-> several technical discussions are taking place on various levels :-D.
-
-Agreed! :-D
-
--- 
-Hubert Chan <hubert@uhoreg.ca> - http://www.uhoreg.ca/
-PGP/GnuPG key: 1024D/124B61FA
-Fingerprint: 96C5 012F 5F74 A5F7 1FF7  5291 AF29 C719 124B 61FA
-Key available at wwwkeys.pgp.net.   Encrypted e-mail preferred.
+Rajesh Shah:
+  acpi hotplug: aCPI based root bridge hot-add
+  acpi hotplug: decouple slot power state changes from physical hotplug
+  acpi hotplug: fix slot power-down problem with acpiphp
+  acpi bridge hotadd: Export the interface to get PCI id for an ACPI handle
+  acpi hotplug: convert acpiphp to use generic resource code
+  acpi bridge hotadd: Allow ACPI .add and .start operations to be done independently
+  acpi hotplug: clean up notify handlers on acpiphp unload
+  acpi bridge hotadd: Read bridge resources when fixing up the bus
+  acpi bridge hotadd: Remove hot-plugged devices that could not be allocated resources
+  acpi bridge hotadd: Make the PCI remove routines safe for failed hot-plug
+  acpi bridge hotadd: Take the PCI lock when modifying pci bus or device lists
+  acpi bridge hotadd: Prevent duplicate bus numbers when scanning PCI bridge
+  acpi bridge hotadd: Link newly created pci child bus to its parent on creation
+  acpi bridge hotadd: Fix pci_enable_device() for p2p bridges
+  acpi bridge hotadd: ACPI based root bridge hot-add
+  acpi bridge hotadd: Make pcibios_fixup_bus() hot-plug safe
 

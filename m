@@ -1,23 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262300AbVF1XsQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262304AbVF1XsS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262300AbVF1XsQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 19:48:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261385AbVF1XqJ
+	id S262304AbVF1XsS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 19:48:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262288AbVF1Xpz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 19:46:09 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:4554 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262242AbVF1Xa7 (ORCPT
+	Tue, 28 Jun 2005 19:45:55 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:55752 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261385AbVF1X2M (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 19:30:59 -0400
-Date: Tue, 28 Jun 2005 16:31:14 -0700
+	Tue, 28 Jun 2005 19:28:12 -0400
+Date: Tue, 28 Jun 2005 16:28:12 -0700
 From: Andrew Morton <akpm@osdl.org>
 To: Pekka Enberg <penberg@cs.helsinki.fi>
 Cc: hch@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/3] freevxfs: minor cleanups
-Message-Id: <20050628163114.6594e1e1.akpm@osdl.org>
-In-Reply-To: <iit0h1.q7pnex.bkir3xysppdufw6d9h65boz37.refire@cs.helsinki.fi>
+Subject: Re: [PATCH 1/3] freevxfs: fix buffer_head leak
+Message-Id: <20050628162812.483eb566.akpm@osdl.org>
+In-Reply-To: <iit0gm.lxobpl.5z2b9jduhy9fvx6tjxrco46v4.refire@cs.helsinki.fi>
 References: <iit0gm.lxobpl.5z2b9jduhy9fvx6tjxrco46v4.refire@cs.helsinki.fi>
-	<iit0h1.q7pnex.bkir3xysppdufw6d9h65boz37.refire@cs.helsinki.fi>
 X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -27,24 +26,83 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Pekka Enberg <penberg@cs.helsinki.fi> wrote:
 >
-> This patch addresses the following minor issues:
+> This patch fixes a buffer_head leak in the function vxfs_getfsh by
+> allocating the buffer before doing sb_bread(). In addition, the patch
+> replaces misused SLAB_KERNEL flag with the proper GFP_KERNEL and adds
+> a NULL check for sb_bread.
 > 
->   - Typo in printk
->   - Redundant casts
->   - Use C99 struct initializers instead of memset
->   - Parenthesis around return value
->   - Use inline instead of __inline__
 
-That struct initialisation:
+Yes, there does seem to be a leak there.
 
-> +	*infp = (struct vxfs_sb_info) {
-> +		.vsi_raw = rsbp,
-> +		.vsi_bp = bp,
-> +		.vsi_oltext = rsbp->vs_oltext[0],
-> +		.vsi_oltsize = rsbp->vs_oltsize,
-> +	};
+> ===================================================================
+> --- 2.6.orig/fs/freevxfs/vxfs_fshead.c	2005-06-28 19:48:12.000000000 +0300
+> +++ 2.6/fs/freevxfs/vxfs_fshead.c	2005-06-28 19:48:34.000000000 +0300
+> @@ -76,19 +76,22 @@
+>  vxfs_getfsh(struct inode *ip, int which)
+>  {
+>  	struct buffer_head		*bp;
+> +	struct vxfs_fsh			*fhp;
+> +
+> +	if (!(fhp = kmalloc(sizeof(*fhp), GFP_KERNEL)))
+> +		goto failed;
+>  
+>  	bp = vxfs_bread(ip, which);
+> -	if (buffer_mapped(bp)) {
+> -		struct vxfs_fsh		*fhp;
+> +	if (!bp || !buffer_mapped(bp))
+> +		goto failed;
+>  
+> -		if (!(fhp = kmalloc(sizeof(*fhp), SLAB_KERNEL)))
+> -			return NULL;
+> -		memcpy(fhp, bp->b_data, sizeof(*fhp));
+> +	memcpy(fhp, bp->b_data, sizeof(*fhp));
+>  
+> -		brelse(bp);
+> -		return (fhp);
+> -	}
+> +	brelse(bp);
+> +	return fhp;
+>  
+> +failed:
+> +	kfree(fhp);
+>  	return NULL;
+>  }
 >  
 
-Is a bit unconventional, but it doesn't alter the size of the .o file, so
-whatever.
+But your change means that we'll always perform that kmalloc, even if the
+buffer came back !buffer_mapped().
+
+<looks>
+
+I don't think sb_bread() can return an unmapped buffer at all.
+
+And sb_bread() can return NULL (I/O error) and we're not checking for that
+in there.
+
+Something like this?
+
+diff -puN fs/freevxfs/vxfs_fshead.c~freevxfs-fix-buffer_head-leak fs/freevxfs/vxfs_fshead.c
+--- 25/fs/freevxfs/vxfs_fshead.c~freevxfs-fix-buffer_head-leak	Tue Jun 28 16:19:53 2005
++++ 25-akpm/fs/freevxfs/vxfs_fshead.c	Tue Jun 28 16:24:53 2005
+@@ -78,14 +78,16 @@ vxfs_getfsh(struct inode *ip, int which)
+ 	struct buffer_head		*bp;
+ 
+ 	bp = vxfs_bread(ip, which);
+-	if (buffer_mapped(bp)) {
++	if (bp && buffer_mapped(bp)) {
+ 		struct vxfs_fsh		*fhp;
+ 
+-		if (!(fhp = kmalloc(sizeof(*fhp), SLAB_KERNEL)))
++		if (!(fhp = kmalloc(sizeof(*fhp), GFP_KERNEL))) {
++			put_bh(bp);
+ 			return NULL;
++		}
+ 		memcpy(fhp, bp->b_data, sizeof(*fhp));
+ 
+-		brelse(bp);
++		put_bh(bp);
+ 		return (fhp);
+ 	}
+ 
+_
 

@@ -1,56 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261552AbVF1N6t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261711AbVF1ODK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261552AbVF1N6t (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 09:58:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261958AbVF1N4E
+	id S261711AbVF1ODK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 10:03:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261987AbVF1Nzg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 09:56:04 -0400
-Received: from [212.76.86.236] ([212.76.86.236]:37892 "EHLO raad.intranet")
-	by vger.kernel.org with ESMTP id S261734AbVF1NwY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 09:52:24 -0400
-Message-Id: <200506281352.QAA25851@raad.intranet>
-From: "Al Boldi" <a1426z@gawab.com>
-To: "'Nix'" <nix@esperi.org.uk>
-Cc: "'Marcelo Tosatti'" <marcelo.tosatti@cyclades.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: Kswapd flaw
-Date: Tue, 28 Jun 2005 16:52:00 +0300
+	Tue, 28 Jun 2005 09:55:36 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:53171 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261744AbVF1Nwd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 09:52:33 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] net: add missing include to netdevice.h
+Date: Tue, 28 Jun 2005 15:47:03 +0200
+User-Agent: KMail/1.7.2
+Cc: linuxppc64-dev@ozlabs.org, netdev@vger.kernel.org,
+       Utz Bacher <utz.bacher@de.ibm.com>, linux-kernel@vger.kernel.org,
+       Jens Osterkamp <Jens.Osterkamp@de.ibm.com>
+References: <200506281528.08834.arnd@arndb.de>
+In-Reply-To: <200506281528.08834.arnd@arndb.de>
 MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200506281547.04620.arnd@arndb.de>
 Content-Type: text/plain;
-	charset="US-ASCII"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-In-Reply-To: <87irzy63xx.fsf@amaterasu.srvr.nix>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Thread-Index: AcV7333k46W3g0dLQ5miurYf15zZ8wAB8jqQ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Nix, how are you?
-You wrote: {
-On 28 Jun 2005, Al Boldi yowled:
-> Nix wrote:
->> On 28 Jun 2005, Al Boldi murmured woefully:
->>> Kswapd starts evicting processes to fullfil a malloc, when it should 
->>> just deny it because there is no swap.
->> I can't even tell what you're expecting. Surely not that no pages are 
->> ever evicted or flushed; your memory would fill up with page cache in no
-time.
-> 
-> Please do flush anytime, and do it in sync during OOMs; but don't 
-> evict procs especially not RUNNING procs, that is overkill.
+linux/etherdevice.h can't be included standalone at the moment, which
+is required in order to sort the header files in the recommended
+alphabetic order. This patch fixes that and is needed to build spider_net.
 
-Would you really like a system where once something was faulted in, it could
-never leave? You'd run out of memory *awfully* fast.
-}
+Signed-off-by: Arnd Bergmann <arndb@de.ibm.com>
 
-Nix,
-You should only fault if you have a place to fault to, as into a swap.
-Without swap faulting is overkill.
-
-Is it possible to change kswapd's default behaviour to not fault if there is
-no swap?
-
-Thanks!
-
+--- linux-cg.orig/include/linux/etherdevice.h	2005-05-31 07:48:50.044932320 -0400
++++ linux-cg/include/linux/etherdevice.h	2005-05-31 07:49:06.808914320 -0400
+@@ -25,6 +25,7 @@
+ #define _LINUX_ETHERDEVICE_H
+ 
+ #include <linux/if_ether.h>
++#include <linux/netdevice.h>
+ #include <linux/random.h>
+ 
+ #ifdef __KERNEL__

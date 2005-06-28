@@ -1,78 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262023AbVF1PNN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262033AbVF1PRh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262023AbVF1PNN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 11:13:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262005AbVF1PNM
+	id S262033AbVF1PRh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 11:17:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262038AbVF1PRg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 11:13:12 -0400
-Received: from octopus.dnsvelocity.com ([64.21.80.9]:28046 "EHLO
-	octopus.dnsvelocity.com") by vger.kernel.org with ESMTP
-	id S262036AbVF1PLE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 11:11:04 -0400
-Message-ID: <42C16877.6000909@aktzero.com>
-Date: Tue, 28 Jun 2005 11:10:47 -0400
-From: Andrew Thompson <andrewkt@aktzero.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Petr Baudis <pasky@ucw.cz>
-CC: Christopher Li <hg@chrisli.org>, mercurial@selenic.com,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Git Mailing List <git@vger.kernel.org>
-Subject: Re: Mercurial vs Updated git HOWTO for kernel hackers
-References: <42B9E536.60704@pobox.com> <20050623235634.GC14426@waste.org>	<20050624064101.GB14292@pasky.ji.cz>	<20050624123819.GD9519@64m.dyndns.org> <20050628150027.GB1275@pasky.ji.cz>
-In-Reply-To: <20050628150027.GB1275@pasky.ji.cz>
-Content-Type: multipart/mixed;
- boundary="------------020209000102070105000101"
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - octopus.dnsvelocity.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - aktzero.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Tue, 28 Jun 2005 11:17:36 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:45213 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S262033AbVF1PR3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 11:17:29 -0400
+Message-Id: <200506281344.j5SDixiH003441@laptop11.inf.utfsm.cl>
+To: mjt@nysv.org (Markus =?ISO-8859-1?Q?=20T=F6rnqvist?=)
+cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
+       David Masover <ninja@slaphack.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Hans Reiser <reiser@namesys.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: reiser4 plugins 
+In-Reply-To: Message from mjt@nysv.org (Markus =?ISO-8859-1?Q?=20T=F6rnqvist?=) 
+   of "Mon, 27 Jun 2005 12:21:38 +0300." <20050627092138.GD11013@nysv.org> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
+Date: Tue, 28 Jun 2005 09:44:59 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.19.1]); Tue, 28 Jun 2005 11:16:31 -0400 (CLT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020209000102070105000101
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Markus   Törnqvist <mjt@nysv.org> wrote:
+> On Thu, Jun 23, 2005 at 11:34:50PM -0400, Horst von Brand wrote:
+> >David Masover <ninja@slaphack.com> wrote:
+> >> I think Hans (or someone) decided that when hardware stops working, it's
+> >> not the job of the FS to compensate, it's the job of lower layers, or
+> >> better, the job of the admin to replace the disk and restore from
+> >> backups.
 
-Petr Baudis wrote:
->>Mercurial's undo is taking a snapshot of all the changed file's repo file length
->>at every commit or pull.  It just truncate the file to original size and undo 
->>is done.
-> 
-> "Trunactes"? That sounds very wrong... you mean replace with old
-> version? Anyway, what if the file has same length? It just doesn't make
-> much sense to me.
+> >Handling other people's data this way is just reckless irresponsibility.
+> >Sure, you can get high performance if you just forego some of your basic
+> >responsibilities.
 
-I believe this works because the files stored in a binary format that 
-appends new changesets onto the end. Thus, truncating the new stuff from 
-the end effectively removes the commit.
+> Your honest-to-bog opinion is that the FS vendor is responsible for
+> the admin not taking backups or the hardware vendor shipping crap?
 
+No. But just relying on perfect hardware and concientious sysadmins is
+reckless. Hardware /is/ flaky, sysadmins /are/ (sometimes) lazy (and
+besides, today they are increasingly just plain Joe Sixpack users). Also,
+backing up a few hundred GiB is /not/ fun, and then keeping track of all
+the backups is messy.
+
+Also, I'm not claiming that they are /solely/ responsible, but not having
+the filesystem fall apart utterly every time some bug breaths on it /is/ a
+requirement.
+
+> *still trying to understand how that can be*
+
+You haven't been around too much yet, do you?
 -- 
-Andrew Thompson
-http://aktzero.com/
-
---------------020209000102070105000101
-Content-Type: text/x-vcard; charset=utf-8;
- name="andrewkt.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="andrewkt.vcf"
-
-begin:vcard
-fn:Andrew Thompson
-n:Thompson;Andrew
-email;internet:andrewkt@aktzero.com
-x-mozilla-html:FALSE
-url:http://aktzero.com/
-version:2.1
-end:vcard
-
-
---------------020209000102070105000101--
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

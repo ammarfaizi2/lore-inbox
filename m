@@ -1,51 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261424AbVF1JLd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261821AbVF1JPM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261424AbVF1JLd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 05:11:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261587AbVF1JLd
+	id S261821AbVF1JPM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 05:15:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261870AbVF1JPM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 05:11:33 -0400
-Received: from ns.suse.de ([195.135.220.2]:52132 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S261424AbVF1JL0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 05:11:26 -0400
-Date: Tue, 28 Jun 2005 11:11:17 +0200
-From: Andi Kleen <ak@suse.de>
-To: Vladimir Saveliev <vs@namesys.com>
-Cc: Andi Kleen <ak@suse.de>, Hans Reiser <reiser@namesys.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       reiserfs-list@namesys.com, Andrew Morton <akpm@osdl.org>,
-       Christoph Hellwig <hch@infradead.org>
-Subject: Re: reiser4 merging action list
-Message-ID: <20050628091117.GJ8035@wotan.suse.de>
-References: <42BB7B32.4010100@slaphack.com.suse.lists.linux.kernel> <200506240334.j5O3YowB008100@laptop11.inf.utfsm.cl.suse.lists.linux.kernel> <20050627092138.GD11013@nysv.org.suse.lists.linux.kernel> <20050627124255.GB6280@thunk.org.suse.lists.linux.kernel> <42C0578F.7030608@namesys.com.suse.lists.linux.kernel> <20050627212628.GB27805@thunk.org.suse.lists.linux.kernel> <42C084F1.70607@namesys.com.suse.lists.linux.kernel> <p73vf3zuqzq.fsf@verdi.suse.de> <1119947829.3495.25.camel@tribesman.namesys.com>
+	Tue, 28 Jun 2005 05:15:12 -0400
+Received: from bay19-f35.bay19.hotmail.com ([64.4.53.85]:2516 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S261821AbVF1JO3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 05:14:29 -0400
+Message-ID: <BAY19-F35B8A38C4A94BA62F2B5139CE10@phx.gbl>
+X-Originating-IP: [81.155.14.152]
+X-Originating-Email: [dcb314@hotmail.com]
+From: "d binderman" <dcb314@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: variable used before set
+Date: Tue, 28 Jun 2005 09:14:28 +0000
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1119947829.3495.25.camel@tribesman.namesys.com>
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 28 Jun 2005 09:14:28.0822 (UTC) FILETIME=[C96D5F60:01C57BC1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 28, 2005 at 12:37:11PM +0400, Vladimir Saveliev wrote:
-> have neither prof.[ch], nor spinprof.[ch] and we removed already some
-> debugging code from spin_macros.h.
+Hello there,
 
-Yes, i was looking at some older tree with reiser4. Sorry, just
-ignore what is already done.
+I just tried to compile the Linux Kernel version 2.6.11.12
+with the most excellent Intel C compiler. It said
 
-But still spin_macros.h should be completely removed imho. Such
-custom lock wrappers are strongly discouraged because it 
-makes it hard for others to read your code.
+drivers/scsi/pcmcia/aha152x_stub.c(313): remark #592: variable "tmp" is used 
+before its value is set
+        tmp.device->host = info->host;
+        ^
 
+This is clearly broken code, since the field tmp.device has not been
+initialised, and so isn't pointing to anything.
 
-> > statcnt.h: This is completely useless because you don't align
-> > the individual fields for cache lines - so you will still
-> > have false sharing everywhere. Also using NR_CPUS is nasty
-> > because it can be very big - num_possible_cpus() is better. 
-> > It should use the new dynamic per cpu allocator.
-> > 
-> statcnt.h is already removed.
+Suggest code rework.
 
-Great.
+_________________________________________________________________
+Want to block unwanted pop-ups? Download the free MSN Toolbar now!  
+http://toolbar.msn.co.uk/
 
--Andi

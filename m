@@ -1,75 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262359AbVF1BC0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262366AbVF1BEw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262359AbVF1BC0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 21:02:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262360AbVF1BC0
+	id S262366AbVF1BEw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 21:04:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbVF1BEb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 21:02:26 -0400
-Received: from zlynx.org ([199.45.143.209]:40718 "EHLO 199.45.143.209")
-	by vger.kernel.org with ESMTP id S262359AbVF1BCP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 21:02:15 -0400
-Subject: Re: reiser4 plugins
-From: Zan Lynx <zlynx@acm.org>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Prakash Punnoor <lists@punnoor.de>, Steve Lord <lord@xfs.org>,
-       "Theodore Ts'o" <tytso@mit.edu>, Markus T?rnqvist <mjt@nysv.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       David Masover <ninja@slaphack.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-In-Reply-To: <42C09C91.6000901@namesys.com>
-References: <42BB7B32.4010100@slaphack.com>
-	 <200506240334.j5O3YowB008100@laptop11.inf.utfsm.cl>
-	 <20050627092138.GD11013@nysv.org> <20050627124255.GB6280@thunk.org>
-	 <42C0578F.7030608@namesys.com> <42C05F16.5000804@xfs.org>
-	 <20050627202841.GA27805@thunk.org> <42C06873.7020102@xfs.org>
-	 <42C0868E.4080003@punnoor.de>  <42C09C91.6000901@namesys.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-NYzrJMqwkcOfCSusKu0K"
-Date: Mon, 27 Jun 2005 19:00:58 -0600
-Message-Id: <1119920458.19945.15.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+	Mon, 27 Jun 2005 21:04:31 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.59]:63981 "EHLO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
+	id S262155AbVF1BDC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 21:03:02 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: earny@net4u.de
+Date: Tue, 28 Jun 2005 11:02:32 +1000
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17088.41384.864708.23860@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: dirty md raid5 slab bio leak
+In-Reply-To: message from Ernst Herzberg on Monday June 27
+References: <200506272222.51993.list-lkml@net4u.de>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+X-CSE-Spam-Checker-Version: SpamAssassin 3.0.2 (2004-11-16) on 
+	note.orchestra.cse.unsw.EDU.AU
+X-CSE-Spam-Level: 
+X-CSE-Spam-Status: No, score=-4.2 required=5.0 tests=ALL_TRUSTED,AWL,BAYES_00 
+	autolearn=ham version=3.0.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday June 27, list-lkml@net4u.de wrote:
+> Moin.
+> 
+> The machine:
+> 
+> amd64, 2G mem, 4 SATA disks on SiI 3114 [SATALink/SATARaid] Serial ATA 
+> Controller, configured as md raid5/raid1, using [cfq-scheduler], running 
+> 2.6.12-rc6 (application postgresql)
+> 
+> The story:
+> 
+> This morning the machine was very slow, first check shows that the machine 
+> swaps and all disk i/o are very slow.
+> 
+> Looking further slabtop shows
+> 
+>  Active / Total Objects (% used)    : 19821561 / 19828316 (100.0%)
+>  Active / Total Slabs (% used)      : 369737 / 369739 (100.0%)
+>  Active / Total Caches (% used)     : 80 / 120 (66.7%)
+>  Active / Total Size (% used)       : 1415795.50K / 1416586.19K (99.9%)
+>  Minimum / Average / Maximum Object : 0.02K / 0.07K / 128.00K
+> 
+>   OBJS ACTIVE  USE OBJ SIZE  SLABS OBJ/SLAB CACHE SIZE NAME
+> 9865575 9864690  99%    0.02K  43847      225    175388K biovec-1
+> 9865254 9864654  99%    0.12K 318234       31   1272936K bio
 
---=-NYzrJMqwkcOfCSusKu0K
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, 2005-06-27 at 17:40 -0700, Hans Reiser wrote:
-> Prakash Punnoor wrote:
->=20
-> >
-> >. But nevertheless it didn't survive, as like V3, with time V4 became
-> >slower and slower. In this case no year was needed, but just one month o=
-r
-> >alike. So end of test...but in fact I'll give V4 another go in the near =
-future.
-> > =20
-> >
-> Interesting that it got slower with time.  It sounds like our online
-> repacker is much needed.  It will be a priority for after the kernel merg=
-e.
+raid5 never allocates from these slabs, so this cannot be a raid5
+problem.
+raid1 does, and you mention in the intro that raid1 might be involved,
+but there are now more details...
+Could you say a little bit more about your setup.. How are each of
+raid1 and raid5 used.  Was there any error on a drive involved in raid1?
 
-I told y'all that last year on the reiserfs-list, with benchmarks :-)
---=20
-Zan Lynx <zlynx@acm.org>
+I just checked my test machine (running 2.6.12-rc3-mm3) and it had a
+really large number of bio and biovec-1 in use too (and it's been
+sitting fairly idle for several days).
 
---=-NYzrJMqwkcOfCSusKu0K
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+I've quickly reviewed the raid1 code and I cannot see a bio leak
+(though that doesn't mean there isn't one..)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+If anyone else has a large 'bio' slab, please report the configuration
+(kernel, is md in use, etc).
 
-iD8DBQBCwKFKG8fHaOLTWwgRArJpAJ4pV26PbRXZsttG4PS4l6WoVsKiSwCgkuxu
-XqKAsD9dyBZWfMwlQnGK7MA=
-=cgkd
------END PGP SIGNATURE-----
-
---=-NYzrJMqwkcOfCSusKu0K--
-
+NeilBrown

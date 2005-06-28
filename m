@@ -1,79 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261675AbVF1Oqo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261734AbVF1Oso@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261675AbVF1Oqo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 10:46:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261734AbVF1Oqo
+	id S261734AbVF1Oso (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 10:48:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261987AbVF1Osg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 10:46:44 -0400
-Received: from dsl093-119-032.blt1.dsl.speakeasy.net ([66.93.119.32]:9092 "EHLO
-	bushido.realityfailure.org") by vger.kernel.org with ESMTP
-	id S261675AbVF1OqB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 10:46:01 -0400
-Date: Tue, 28 Jun 2005 10:45:51 -0400 (EDT)
-From: John Jasen <jjasen@realityfailure.org>
-X-X-Sender: jjasen@bushido
-To: "Jason R. Martin" <nsxfreddy@gmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: bonding driver issues: slave interface not coming up
-In-Reply-To: <c295378405062713485b7e071d@mail.gmail.com>
-Message-ID: <Pine.LNX.4.63.0506281044200.23329@bushido>
-References: <Pine.LNX.4.63.0506271620160.12410@bushido>
- <c295378405062713485b7e071d@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (bushido.realityfailure.org [10.0.0.10]); Tue, 28 Jun 2005 10:45:53 -0400 (EDT)
+	Tue, 28 Jun 2005 10:48:36 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:3996 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261793AbVF1Ora (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 10:47:30 -0400
+Date: Tue, 28 Jun 2005 07:47:06 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Jim MacBaine <jmacbaine@gmail.com>
+Cc: stable@kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [stable] Re: [00/07] -stable review
+Message-ID: <20050628144706.GX9046@shell0.pdx.osdl.net>
+References: <20050627224651.GI9046@shell0.pdx.osdl.net> <3afbacad050628051059b69bbe@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3afbacad050628051059b69bbe@mail.gmail.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Jun 2005, Jason R. Martin wrote:
+* Jim MacBaine (jmacbaine@gmail.com) wrote:
+> On 6/28/05, Chris Wright <chrisw@osdl.org> wrote:
+> 
+> > Responses should be made by Wed, Jun 29, 23:00 UTC.  Anything received after
+> > that time, might be too late.
+> 
+> Will the fix for the iptables physdev match go into -stable?
 
-> What's in /proc/net/bonding/bond0?
+I assume you're referring to this fix:
 
-before a successful ifdown/ifup bond0:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=111936734211687&w=2
 
-Ethernet Channel Bonding Driver: v2.6.0 (January 14, 2004)
-
-Bonding Mode: load balancing (xor)
-MII Status: up
-MII Polling Interval (ms): 1000
-Up Delay (ms): 0
-Down Delay (ms): 3000
-
-Slave Interface: eth0
-MII Status: down
-Link Failure Count: 1
-Permanent HW addr: 00:09:3d:11:8d:93
-
-Slave Interface: eth1
-MII Status: up
-Link Failure Count: 0
-Permanent HW addr: 00:09:3d:11:8d:94
-
-after a successful ifdown/ifup bond0:
-Ethernet Channel Bonding Driver: v2.6.0 (January 14, 2004)
-
-Bonding Mode: load balancing (xor)
-MII Status: up
-MII Polling Interval (ms): 1000
-Up Delay (ms): 0
-Down Delay (ms): 3000
-
-Slave Interface: eth0
-MII Status: up
-Link Failure Count: 0
-Permanent HW addr: 00:09:3d:11:8d:93
-
-Slave Interface: eth1
-MII Status: up
-Link Failure Count: 0
-Permanent HW addr: 00:09:3d:11:8d:94
-
-> You'll probably have better luck getting help with this issue on
-> netdev@vger.kernel.org and bonding-devel@lists.sourceforge.net.
-
-Thanks. I will email them shortly.
-
--- 
--- John E. Jasen (jjasen@realityfailure.org)
--- No one will sorrow for me when I die, because those who would
--- are dead already. -- Lan Mandragoran, The Wheel of Time, New Spring
+If so, I expect it will.  Needs to hit mainline first and get pushed over
+to -stable.

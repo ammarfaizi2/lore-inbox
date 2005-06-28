@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261280AbVF1LAo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261244AbVF1LBk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261280AbVF1LAo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 07:00:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261279AbVF1LAn
+	id S261244AbVF1LBk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 07:01:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261279AbVF1LBk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 07:00:43 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:34773 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261293AbVF1LAZ (ORCPT
+	Tue, 28 Jun 2005 07:01:40 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:52949 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261244AbVF1LBT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 07:00:25 -0400
-Date: Tue, 28 Jun 2005 03:56:38 -0700
+	Tue, 28 Jun 2005 07:01:19 -0400
+Date: Tue, 28 Jun 2005 04:00:45 -0700
 From: Andrew Morton <akpm@osdl.org>
 To: "d binderman" <dcb314@hotmail.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: array subscript out of range
-Message-Id: <20050628035638.41fd4004.akpm@osdl.org>
-In-Reply-To: <BAY19-F255ACFD14A7CB3309260039CE10@phx.gbl>
-References: <BAY19-F255ACFD14A7CB3309260039CE10@phx.gbl>
+Subject: Re:
+Message-Id: <20050628040045.7a829f77.akpm@osdl.org>
+In-Reply-To: <BAY19-F38CD6342E8B675570A6E179CE10@phx.gbl>
+References: <BAY19-F38CD6342E8B675570A6E179CE10@phx.gbl>
 X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -26,44 +26,87 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 "d binderman" <dcb314@hotmail.com> wrote:
 >
-> Hello there,
-> 
 > I just tried to compile the Linux Kernel version 2.6.11.12
-> with the most excellent Intel C compiler. It said
+>  with the most excellent Intel C compiler. It said
 > 
-> drivers/media/video/bt819.c(239): warning #175: subscript out of range
->     init[0x19*2-1] = decoder->norm == 0 ? 115 : 93; /* Chroma burst delay */
->         ^
+>  drivers/usb/host/ohci-hub.c(424): warning #175: subscript out of range
+>          desc->bitmap [2] = desc->bitmap [3] = 0xff;
+>                             ^
 > 
-> This is clearly broken code, since the init data is declared
-> with 44 elements, but the index is for number 49.
+>  This is clearly broken code, since there are only up to 16 ports.
 > 
-> Suggest code rework.
+>  Suggest avoid trying to initialise bitmap[ 3].
 
-Was fixed.
+This is queued in -mm:
 
 
-From: "Ronald S. Bultje" <rbultje@ronald.bitfreak.net>
+From: "KAMBAROV, ZAUR" <kambarov@berkeley.edu>
 
-Signed-off-by: Ronald S. Bultje <rbultje@ronald.bitfreak.net>
+The length of the array desc->bitmap is 3, and not 4:
+
+Definitions involved:
+
+In drivers/usb/core/hcd.h
+
+464  	#define bitmap 	DeviceRemovable
+
+In drivers/usb/host/ohci-hub.c
+
+395  		struct usb_hub_descriptor	*desc
+
+In drivers/usb/core/hub.h
+
+130  	struct usb_hub_descriptor {
+131  		__u8  bDescLength;
+132  		__u8  bDescriptorType;
+133  		__u8  bNbrPorts;
+134  		__u16 wHubCharacteristics;
+135  		__u8  bPwrOn2PwrGood;
+136  		__u8  bHubContrCurrent;
+137  		    	/* add 1 bit for hub status change; round to bytes */
+138  		__u8  DeviceRemovable[(USB_MAXCHILDREN + 1 + 7) / 8];
+139  		__u8  PortPwrCtrlMask[(USB_MAXCHILDREN + 1 + 7) / 8];
+140  	} __attribute__ ((packed));
+
+In include/linux/usb.h
+
+306  	#define USB_MAXCHILDREN		(16)
+
+This defect was found automatically by Coverity Prevent, a static analysis
+tool.
+
+(akpm: this code should be shot.  Field `bitmap' doesn't exist in struct
+usb_hub_descriptor.  And this .c file is #included in
+drivers/usb/host/ohci-hcd.c, and someone somewhere #defines `bitmap' to
+`DeviceRemovable'.
+
+>From a maintainability POV it would be better to memset the whole array
+beforehand - I changed the patch to do that)
+
+Signed-off-by: Zaur Kambarov <zkambarov@coverity.com>
+Cc: <linux-usb-devel@lists.sourceforge.net?
+Cc: Greg KH <greg@kroah.com>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 ---
 
- 25-akpm/drivers/media/video/bt819.c |    3 ++-
+ drivers/usb/host/ohci-hub.c |    3 ++-
  1 files changed, 2 insertions(+), 1 deletion(-)
 
-diff -puN drivers/media/video/bt819.c~bt819-array-indexing-fix drivers/media/video/bt819.c
---- 25/drivers/media/video/bt819.c~bt819-array-indexing-fix	2005-03-28 14:21:43.000000000 -0800
-+++ 25-akpm/drivers/media/video/bt819.c	2005-03-28 14:21:44.000000000 -0800
-@@ -236,7 +236,8 @@ bt819_init (struct i2c_client *client)
- 	init[0x07 * 2 - 1] = timing->hactive & 0xff;
- 	init[0x08 * 2 - 1] = timing->hscale >> 8;
- 	init[0x09 * 2 - 1] = timing->hscale & 0xff;
--	init[0x19*2-1] = decoder->norm == 0 ? 115 : 93;	/* Chroma burst delay */
-+	/* 0x15 in array is address 0x19 */
-+	init[0x15 * 2 - 1] = (decoder->norm == 0) ? 115 : 93;	/* Chroma burst delay */
- 	/* reset */
- 	bt819_write(client, 0x1f, 0x00);
- 	mdelay(1);
+diff -puN drivers/usb/host/ohci-hub.c~coverity-desc-bitmap-overrun-fix drivers/usb/host/ohci-hub.c
+--- 25/drivers/usb/host/ohci-hub.c~coverity-desc-bitmap-overrun-fix	2005-06-24 22:11:00.000000000 -0700
++++ 25-akpm/drivers/usb/host/ohci-hub.c	2005-06-24 22:19:48.000000000 -0700
+@@ -419,10 +419,11 @@ ohci_hub_descriptor (
+ 
+ 	/* two bitmaps:  ports removable, and usb 1.0 legacy PortPwrCtrlMask */
+ 	rh = roothub_b (ohci);
++	memset(desc->bitmap, 0xff, sizeof(desc->bitmap));
+ 	desc->bitmap [0] = rh & RH_B_DR;
+ 	if (ports > 7) {
+ 		desc->bitmap [1] = (rh & RH_B_DR) >> 8;
+-		desc->bitmap [2] = desc->bitmap [3] = 0xff;
++		desc->bitmap [2] = 0xff;
+ 	} else
+ 		desc->bitmap [1] = 0xff;
+ }
 _
 

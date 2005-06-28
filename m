@@ -1,84 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261508AbVF1Rju@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262038AbVF1RuA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261508AbVF1Rju (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 13:39:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262038AbVF1Rju
+	id S262038AbVF1RuA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 13:50:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261516AbVF1RuA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 13:39:50 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:53993 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261508AbVF1Rjf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 13:39:35 -0400
-Date: Tue, 28 Jun 2005 10:40:07 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org, dhowells@redhat.com, dipankar@in.ibm.com,
-       ak@suse.de, akpm@osdl.org, maneesh@in.ibm.com
-Subject: Re: [RFC,PATCH] RCU: clean up a few remaining synchronize_kernel() calls
-Message-ID: <20050628174007.GH1294@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20050618002021.GA2892@us.ibm.com> <Pine.LNX.4.61.0506191150300.26045@montezuma.fsmlabs.com> <20050627050206.GA2139@us.ibm.com> <Pine.LNX.4.61.0506271305290.12042@montezuma.fsmlabs.com> <20050628153257.GD1294@us.ibm.com> <Pine.LNX.4.61.0506281055260.9135@montezuma.fsmlabs.com>
+	Tue, 28 Jun 2005 13:50:00 -0400
+Received: from wproxy.gmail.com ([64.233.184.205]:25544 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262038AbVF1Rtr convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 13:49:47 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=GQ7VfOHZDY3uo8zON3EfXiI1ZkTqe7vAMR2O3nnSSpuSdtEpMKLWl1ab31DDhBZQPysAfy2nrIK+A+qY20IIsvtQTHBS+IaKjYtsGArgnWRlqgXRn/4vU7jZsPih0doo7UztswfeyXrKFCObYr2vQ311PviV/ncGZTv8SAjsdDA=
+Message-ID: <94e67edf05062810497c7a20b5@mail.gmail.com>
+Date: Tue, 28 Jun 2005 13:49:46 -0400
+From: Sreeni <sreeni.pulichi@gmail.com>
+Reply-To: Sreeni <sreeni.pulichi@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Memory Management during Program Loading
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0506281055260.9135@montezuma.fsmlabs.com>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 28, 2005 at 11:15:55AM -0600, Zwane Mwaikambo wrote:
-> On Tue, 28 Jun 2005, Paul E. McKenney wrote:
-> > However, you do have a good point -- weakly ordered CPUs would need to
-> > have an explicit memory barrier.  This might well already be taken care
-> > of by the memory barriers in the locking primitives used by the up()
-> > operation invoked at the end of oprofile_start(), but I did not check
-> > all the possible ways that these functions can be called.
-> 
-> I agree, that usage looks safe.
+Hello,
 
-Cool!
+I have a query regarding memory management using Linux kernel.
 
-> > Given that set_nmi_callback isn't invoked all that often, seems like
-> > it might be preferable to insert an smp_wmb() at the beginning of
-> > set_nmi_callback(), so that it reads as follows:
-> > 
-> > 	void set_nmi_callback(nmi_callback_t callback)
-> > 	{
-> > 		smp_wmb();
-> > 		nmi_callback = callback;
-> > 	}
-> > 
-> > Thoughts?
-> 
-> Andrew (rightly) tends to howls whenever someone adds a memory barrier 
-> without a comment ;) So if we were to make that change, how about the 
-> following accompanying comment;
-> 
-> "smp_wmb ensures that all data dependencies for the callback are posted 
-> and callback is ready for execution"
+In our system we have a secure physical memory starting and ending at 	
+predefined addresses. We want to execute certain programs, which have 	
+to be running secure in those address spaces only. 
 
-Actually, I was guilty of posting email to LKML before being fully
-awake...  How about the following instead?
+Is it possible to force the loader to load the "particular" program 
+(both the code and data segment) at that pre-defined secure physical 	
+memory, without any major kernel changes?
 
-	void set_nmi_callback(nmi_callback_t callback)
-	{
-		rcu_assign_pointer(nmi_callback, callback);
-	}
+Thanks,
 
-Similarly:
+Sreeni
 
-	void unset_nmi_callback(void)
-	{
-		rcu_assign_pointer(nmi_callback, dummy_nmi_callback);
-	}
-
-This, combined with the rcu_dereference() in do_nmi() seem to me to
-make the usage a lot more clear.  If you agree, would you like to
-submit the patches, or should I?
-
-> Thanks for elaborating, the examples certainly do help clarify usage.
-
-Glad they help, will clean them up (so that the examples use
-rcu_dereference() and rcu_assign_pointer()) and submit them!
-
-							Thanx, Paul
+(sreeni@nec-labs.com)

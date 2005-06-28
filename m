@@ -1,43 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261964AbVF1HuI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261962AbVF1H5o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261964AbVF1HuI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 03:50:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261424AbVF1Htd
+	id S261962AbVF1H5o (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 03:57:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbVF1HzQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 03:49:33 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:58032 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261939AbVF1Hri (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 03:47:38 -0400
-Date: Tue, 28 Jun 2005 00:46:50 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net
-Cc: stefanr@s5r6.in-berlin.de, linux-kernel@vger.kernel.org,
-       linux1394-devel@lists.sourceforge.net, rbrito@ime.usp.br
-Subject: Re: Problems with Firewire and -mm kernels
-Message-Id: <20050628004650.18282bd6.akpm@osdl.org>
-In-Reply-To: <42C0FF50.7080300@s5r6.in-berlin.de>
-References: <20050626040329.3849cf68.akpm@osdl.org>
-	<42BE99C3.9080307@trex.wsi.edu.pl>
-	<20050627025059.GC10920@ime.usp.br>
-	<20050627164540.7ded07fc.akpm@osdl.org>
-	<20050628010052.GA3947@ime.usp.br>
-	<20050627202226.43ebd761.akpm@osdl.org>
-	<42C0FF50.7080300@s5r6.in-berlin.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 28 Jun 2005 03:55:16 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:3791 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261995AbVF1Hxn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 03:53:43 -0400
+Date: Tue, 28 Jun 2005 03:53:19 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@localhost.localdomain
+Reply-To: rostedt@goodmis.org
+To: Daniel Walker <dwalker@mvista.com>
+cc: Chuck Harding <charding@llnl.gov>, Ingo Molnar <mingo@elte.hu>,
+       Linux Kernel Discussion List <linux-kernel@vger.kernel.org>
+Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.50-24
+In-Reply-To: <1119902991.4794.5.camel@dhcp153.mvista.com>
+Message-ID: <Pine.LNX.4.58.0506280337390.24849@localhost.localdomain>
+References: <20050608112801.GA31084@elte.hu>  <20050625091215.GC27073@elte.hu>
+  <200506250919.52640.gene.heskett@verizon.net>  <200506251039.14746.gene.heskett@verizon.net>
+  <Pine.LNX.4.63.0506271157200.8605@ghostwheel.llnl.gov>
+ <1119902991.4794.5.camel@dhcp153.mvista.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stefan Richter <stefanr@s5r6.in-berlin.de> wrote:
+
+[Please CC Ingo Molnar on all RT kernel issues]
+
+On Mon, 27 Jun 2005, Daniel Walker wrote:
+
+> On Mon, 2005-06-27 at 12:01 -0700, Chuck Harding wrote:
+> > What can be causing the following message to appear in dmesg and
+> > how can I fix it?
+> >
+> > BUG: scheduling with irqs disabled: kapmd/0x00000000/46
+> > caller is schedule_timeout+0x51/0x9e
+> >   [<c02b3bc9>] schedule+0x96/0xf6 (8)
+> >   [<c02b43f7>] schedule_timeout+0x51/0x9e (28)
+> >   [<c01222ed>] process_timeout+0x0/0x5 (32)
+> >   [<c0112063>] apm_mainloop+0x7a/0x96 (24)
+> >   [<c0115e45>] default_wake_function+0x0/0x16 (12)
+> >   [<c0115e45>] default_wake_function+0x0/0x16 (32)
+> >   [<c0111485>] apm_driver_version+0x1c/0x38 (16)
+> >   [<c01126f7>] apm+0x0/0x289 (8)
+> >   [<c01127a6>] apm+0xaf/0x289 (8)
+> >   [<c010133c>] kernel_thread_helper+0x0/0xb (20)
+> >   [<c0101341>] kernel_thread_helper+0x5/0xb (4)
+> >
+> > This was also present in earlier final-V0.7.50 version I've tried
+> > (since -00) I don't get hangs but that doesn't look like it should
+> > be happening. Thanks.
 >
-> >  ieee1394: Node changed: 0-01:1023 -> 0-00:1023
->  >  ieee1394: Node suspended: ID:BUS[0-00:1023]  GUID[0050c501e00010e8]
-> 
->  What caused these two messages? Did you disconnect the drive at this point?
+> If you have PREEMPT_RT enabled, it looks like interrupts are hard
+> disabled then there is a schedule_timeout() requested. You could try
+> turning off power management and see if you still have problems.
+>
 
-No, there is no device plugged into the machine.
+Although turning off apm works, this is a fix to the symptom and not a
+cure.  Has someone already taken a look at this code? Since
+apm_bios_call_simple calls local_save_flags and afterwards
+raw_lock_irq_restore is then called.  Shouldn't that have been
+raw_local_save_flags?
 
-Maybe the G5 has some internal 1394 device?  It would be news to me if so.
+That apm_bios_call_simple_asm also looks pretty scary!  I haven't yet
+figured out how APM_FUNC_VERSION becomes a normal function.
+
+-- Steve
+

@@ -1,90 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261194AbVF1TKR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261158AbVF1TO4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261194AbVF1TKR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 15:10:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261158AbVF1TKR
+	id S261158AbVF1TO4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 15:14:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261170AbVF1TO4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 15:10:17 -0400
-Received: from wproxy.gmail.com ([64.233.184.196]:42354 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261194AbVF1TJ5 convert rfc822-to-8bit
+	Tue, 28 Jun 2005 15:14:56 -0400
+Received: from 69-18-3-179.lisco.net ([69.18.3.179]:53258 "EHLO
+	ninja.slaphack.com") by vger.kernel.org with ESMTP id S261158AbVF1TO0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 15:09:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=M+J07KqLW5Z5WnWViLUqWsm1uNEfySIzRIBNzK37aLT7UMQMGSc+dc4KZ1l9aQP8/A0diuVoCqzWwx+VlIkJ75DRqPJuEK4a2cgTUnZ6SoiIAvcZ48AAC89c+zgn63fgMbPt5Lccc5uIJurRrWYcML94e7yX3HVa8hKyXic0HPY=
-Message-ID: <94e67edf05062812096ece6cf7@mail.gmail.com>
-Date: Tue, 28 Jun 2005 15:09:56 -0400
-From: Sreeni <sreeni.pulichi@gmail.com>
-Reply-To: Sreeni <sreeni.pulichi@gmail.com>
-To: "Valdis.Kletnieks@vt.edu" <Valdis.Kletnieks@vt.edu>
-Subject: Re: Memory Management during Program Loading
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200506281858.j5SIw2dr013640@turing-police.cc.vt.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <94e67edf05062810497c7a20b5@mail.gmail.com>
-	 <200506281800.j5SI0FEe011475@turing-police.cc.vt.edu>
-	 <94e67edf0506281112545d4766@mail.gmail.com>
-	 <200506281858.j5SIw2dr013640@turing-police.cc.vt.edu>
+	Tue, 28 Jun 2005 15:14:26 -0400
+Message-ID: <42C1A18D.7000902@slaphack.com>
+Date: Tue, 28 Jun 2005 14:14:21 -0500
+From: David Masover <ninja@slaphack.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050325)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Vitaly Fertman <vitaly@namesys.com>
+Cc: reiserfs-list@namesys.com, Hans Reiser <reiser@namesys.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: reiser4 plugins
+References: <200506231924.j5NJOvLA031008@laptop11.inf.utfsm.cl> <200506280052.32571.vitaly@namesys.com> <42C06A84.9040201@slaphack.com> <200506281232.24245.vitaly@namesys.com>
+In-Reply-To: <200506281232.24245.vitaly@namesys.com>
+X-Enigmail-Version: 0.89.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=KOI8-R
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My main aim is to run a particular application in a known and fixed
-physical memory location. When kernel loads this binary, is there a
-way to force it to load at that fixed memory location. For example I
-always wanna run a program "hello_world.bin" from physical address
-location 0x007F_0000 to 0x007F_FFFF. I want my data, stack etc to be
-in this location only.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-The word "secure" is our internal terminology which seems to be bit confusing.
+Vitaly Fertman wrote:
+> On Tuesday 28 June 2005 01:07, David Masover wrote:
+> 
+>>Vitaly Fertman wrote:
+>>
+>>>On Friday 24 June 2005 23:46, Hans Reiser wrote:
+>>>
+>>>
+>>>>David Masover wrote:
+>>>>
+>>>>
+>>>>
+>>>>
+>>>>>I was able to recover from bad blocks, though of course no Reiser that I
+>>>>>know of has had bad block relocation built in...
+>>>>
+>>>>there was a patch somewhere.  Vitaly, please comment.
+>>>
+>>>
+>>>http://www.namesys.com/bad-block-handling.html describes
+>>>how reiserfs handles bad blocks.
+>>
+>>Anything like this for v4?
+> 
+>  
+> in todo for v4, not implemented yet.
 
-Thanks
-Sreeni
+Is it significantly different that there'd be another doc I can read?
 
-On 6/28/05, Valdis.Kletnieks@vt.edu <Valdis.Kletnieks@vt.edu> wrote:
-> On Tue, 28 Jun 2005 14:12:43 EDT, Sreeni said:
-> 
-> > We have a "Bus Monitor hardware" which monitors and polices the bus at
-> > the specified physical address.
-> 
-> What does this hardware do, exactly, in addition to the usual memory-protection
-> capabilities of the main processor?  I suspect the answer to your query will
-> depend largely on what your monitor does, exactly, and what capabilities
-> it has, and what threat model you're trying to secure against....
-> 
-> > Basically we need to run "secure" program under the supervision of the
-> > Bus monitor hardware.
-> 
-> Is there an actual "threat model" here, as in "the attacker might try XYZ,
-> and this monitor is a defense because it does ABC, rendering XYZ ineffective"?
-> 
-> I'm unclear on how the monitor can provide any *real* security when it quite
-> likely does *not* have access to the entire state of the system (in particular,
-> if there's a security-critical value that's still in a CPU register or L1
-> cache line...)
-> 
-> > Kernel can see the "secure" memory region, and kernel is reponsible for enabling
-> > the "Bus monitor Hardware".
-> 
-> The problem is that you're using an unsecured kernel to initially load the secure
-> memory region - so an attacker is free to load broken code into the secure
-> area.  The usual "trusted system" solution for this is to ensure that the kernel
-> *also* runs inside the tamper-proof evironment....
-> 
-> Or is the *real* question here "We have a bus analyzer that can't see all of
-> the physical memory, so we need the code we're interested in to be in the
-> part of physical memory it can see"?  If that's the case, totally different
-> answers will probably apply (as we don't have to do things in a "secure" manner,
-> we just need to get the right pages in the right frames before the analyzer is
-> turned on).....
-> 
-> 
-> 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-
--- 
-~Sreeni
-       -iDream
+iQIVAwUBQsGhjXgHNmZLgCUhAQJaeg/7BeQVRKc0m0AEKiwp6B/N/R6/32JcIvk9
+0jZq3A6wYsSxmRSDfId+FVoHApAoZldOtw5CZ7W3TwUJBxzGwFZ7IYM4mQaZ5eRa
+7CdAoX9LrG85sY/2M9qypE5cW6BQ/0DJFPDOiree/+6mNomg8uOUJ6FeO93j2JW3
+jdPrWqsmYBPSDo4vKha+xoAZpCH/sMLwDDBUIFfC2iz4B4yTxYNfEX+mJ4T2mEls
+3YqSiTMkgnFbsVTdUiIjqVJY+jJ9ALhDKdc/hkNNrNir3Iib6aNbg9J9J5cDgNHU
+zzvNyp6WsCgQjtCvfMojVewKAMu94eg1sXt6ESNz4dKbdPBSdo+lBnATntnMjFCN
+7nS9K/kKcTKwSVQjQdyEhbm51C9SXYLxj4CMcru9ZyVtdlyzCLhBda1FvaxWbatJ
+iGCh8tg43Xkd1N4H+LlTQpJrfbkJBXu4U9oYIuNSQuolMfz6IbJqcfNzV0hm9drp
+lGLODFSFEWFqHUgPqLymk8/pBW9xP4XYwwWFcY8x0Dw4UxpWRB43EZ8Nydg4PBEk
+SrLnq1FNSP+QLHZvWwF+8vpWj1jyeiBU2hFpt/p9crU5uy4OWGbKEh8GuEHFgp9P
+BdKzp4iwTFwgjKR/uM3JnCfN4ct0yyyBZVMNf0N8w2Idu4OkBiS2edg/70A8/OqV
+U0JVANH5qxc=
+=sd/Q
+-----END PGP SIGNATURE-----

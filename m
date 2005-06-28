@@ -1,48 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261297AbVF1UDb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261256AbVF1T65@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261297AbVF1UDb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 16:03:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbVF1UCw
+	id S261256AbVF1T65 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 15:58:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261240AbVF1T6w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 16:02:52 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:20870 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261269AbVF1UCS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 16:02:18 -0400
-Date: Tue, 28 Jun 2005 13:01:19 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Lameter <christoph@lameter.com>
-Cc: shai@scalex86.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] mostly_read data section
-Message-Id: <20050628130119.5eb366d6.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.62.0506281247360.1933@graphe.net>
-References: <Pine.LNX.4.62.0506281152060.1116@graphe.net>
-	<Pine.LNX.4.62.0506281247360.1933@graphe.net>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 28 Jun 2005 15:58:52 -0400
+Received: from fed1rmmtao01.cox.net ([68.230.241.38]:10473 "EHLO
+	fed1rmmtao01.cox.net") by vger.kernel.org with ESMTP
+	id S261256AbVF1T4f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 15:56:35 -0400
+Date: Tue, 28 Jun 2005 12:56:33 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Greg KH <greg@kroah.com>
+Cc: Kyle Moffett <mrmacman_g4@mac.com>, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] ndevfs - a "nano" devfs
+Message-ID: <20050628195633.GA26131@smtp.west.cox.net>
+References: <20050624081808.GA26174@kroah.com> <9EE4350F-5791-4787-950B-14E5C2B9ADB8@mac.com> <20050628074145.GC3577@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050628074145.GC3577@kroah.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter <christoph@lameter.com> wrote:
->
-> -static unsigned long hpet_usec_quotient;	/* convert hpet clks to usec */
->  +static unsigned long __read_mostly hpet_usec_quotient;	/* convert hpet clks to usec */
+On Tue, Jun 28, 2005 at 12:41:45AM -0700, Greg KH wrote:
+> On Fri, Jun 24, 2005 at 08:57:55PM -0400, Kyle Moffett wrote:
+> > One of the things that most annoys me about udev is that I still need
+> > a minimal static dev in order for the system to boot.
+> 
+> Why?  You should not.  Works just fine for me here :)
 
-__read_mostly
+Er, don't you need /dev/console for console output to happen? (And that
+it's a good idea to have /dev/null around too).  Or has that changed?
 
->   static unsigned long tsc_hpet_quotient;		/* convert tsc to hpet clks */
->   static unsigned long hpet_last; 	/* hpet counter value at last tick*/
->   static unsigned long last_tsc_low;	/* lsb 32 bits of Time Stamp Counter */
->  @@ -193,7 +193,7 @@ static int hpet_resume(void)
->   /************************************************************/
->   
->   /* tsc timer_opts struct */
->  -static struct timer_opts timer_hpet = {
->  +static struct timer_opts timer_hpet __mostly_read = {
-
-__mostly_read.
-
-
-I suggest you use __read_mostly throughout.
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

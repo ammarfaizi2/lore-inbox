@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262372AbVF1B6C@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262374AbVF1CBz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262372AbVF1B6C (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 21:58:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262373AbVF1B6C
+	id S262374AbVF1CBz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 22:01:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262376AbVF1CBz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 21:58:02 -0400
-Received: from lon-del-01.spheriq.net ([195.46.50.97]:41876 "EHLO
-	lon-del-01.spheriq.net") by vger.kernel.org with ESMTP
-	id S262372AbVF1B56 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 21:57:58 -0400
-From: Alex LIU <alex.liu@st.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: How to install redhat9.0 on SATA harddisk
-Date: Tue, 28 Jun 2005 09:57:35 +0800
-Message-ID: <002001c57b84$c5def530$9eb3c68a@SHZ.ST.COM>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4510
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-X-O-General-Status: No
-X-O-Spam1-Status: Not Scanned
-X-O-Spam2-Status: Not Scanned
-X-O-URL-Status: Not Scanned
-X-O-Virus1-Status: No
-X-O-Virus2-Status: Not Scanned
-X-O-Virus3-Status: No
-X-O-Virus4-Status: No
-X-O-Virus5-Status: Not Scanned
-X-O-Image-Status: Not Scanned
-X-O-Attach-Status: Not Scanned
-X-SpheriQ-Ver: 2.2.1
+	Mon, 27 Jun 2005 22:01:55 -0400
+Received: from chretien.genwebhost.com ([209.59.175.22]:43490 "EHLO
+	chretien.genwebhost.com") by vger.kernel.org with ESMTP
+	id S262374AbVF1CBr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 22:01:47 -0400
+Date: Mon, 27 Jun 2005 19:01:39 -0700
+From: randy_dunlap <rdunlap@xenotime.net>
+To: jnf <jnf@nosec.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ARM/Xscale mailing list?
+Message-Id: <20050627190139.41d19996.rdunlap@xenotime.net>
+In-Reply-To: <Pine.LNX.4.62.0506271826130.6338@fhozvffvba.vaabprapr-ybfg.arg>
+References: <Pine.LNX.4.62.0506271826130.6338@fhozvffvba.vaabprapr-ybfg.arg>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Antivirus-Scanner: Clean mail though you should still use an Antivirus
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - chretien.genwebhost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - xenotime.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,all:
+On Mon, 27 Jun 2005 18:27:19 -0700 (MST) jnf wrote:
 
-How to install redhat9.0 on a SATA 80G harddisk? When I boot from the redhat9.0 CD it said couldn't find the harddisk. So there's no SATA driver. Then how to create a SATA driver disk? I didn't find it on the redhat website. Thanks a lot! 
+| Hi,
+| 
+| I was just wondering if anyone was aware of a mailing list specific to
+| ARM/StrongARM/Xscale, or even something more specific about assembly
+| programming under linux on ARM/StrongARM/Xscale processors, any help would
+| be appreciated, thank you.
 
-Alex
+There are some ARM-specific mailing lists at
+http://www.arm.linux.org.uk/
 
+(you'll need to subscribe to them before using them)
+
+---
+~Randy

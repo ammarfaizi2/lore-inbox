@@ -1,72 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262206AbVF1Wev@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262220AbVF1WkV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262206AbVF1Wev (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 18:34:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262202AbVF1WcT
+	id S262220AbVF1WkV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 18:40:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262199AbVF1WjZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 18:32:19 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:13490 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262206AbVF1Wb2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 18:31:28 -0400
-Date: Tue, 28 Jun 2005 15:30:12 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jean Delvare <khali@linux-fr.org>, chrisw@osdl.org,
-       linux-kernel@vger.kernel.org, stable@kernel.org, tytso@mit.edu,
-       zwane@arm.linux.org.uk, jmforbes@linuxtx.org, rdunlap@xenotime.net,
-       torvalds@osdl.org, chuckw@quantumlinux.com, alan@lxorguk.ukuu.org.uk,
-       andrew.vasquez@qlogic.com, James.Bottomley@SteelEye.com
-Subject: Re: [02/07] [SCSI] qla2xxx: Pull-down scsi-host-addition to follow board initialization.
-Message-ID: <20050628223012.GG9046@shell0.pdx.osdl.net>
-References: <20050627224651.GI9046@shell0.pdx.osdl.net> <20050627225349.GK9046@shell0.pdx.osdl.net> <20050628235148.4512d046.khali@linux-fr.org> <20050628152037.690c3840.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050628152037.690c3840.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
+	Tue, 28 Jun 2005 18:39:25 -0400
+Received: from mail-in-06.arcor-online.net ([151.189.21.46]:56469 "EHLO
+	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
+	id S262194AbVF1WgP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 18:36:15 -0400
+From: Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>
+Subject: Re: A new soldier
+To: Christoph Lameter <christoph@lameter.com>,
+       Rodrigo Nascimento <underscore0x5f@gmail.com>,
+       linux-kernel@vger.kernel.org
+Reply-To: 7eggert@gmx.de
+Date: Tue, 28 Jun 2005 23:59:18 +0200
+References: <4kppU-5Yh-25@gated-at.bofh.it> <4ks4H-83L-39@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1DnO6z-0003rv-En@be1.7eggert.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Andrew Morton (akpm@osdl.org) wrote:
-> The threshold for "what belongs in -stable" is a) set too high and b)
-> over-zealously enforced.
+Christoph Lameter <christoph@lameter.com> wrote:
+> On Tue, 28 Jun 2005, Rodrigo Nascimento wrote:
 
-Do you have things you'd like to see in -stable that didn't make the
-cut?
-
-> > > Return to previous held-logic of calling scsi_add_host() only
-> > > after the board has been completely initialized.
-> > 
-> > What real bug is it supposed to fix? (I guess some, but this leading
-> > comment should give the datails.)
+>> I'm a Science of Computers student and I'd like help you in something.
+>> I don't know if exists something that I could do. So if someone wants
+>> a help, I'm a volunteer.
 > 
-> If that's what was in the patch which went into 2.6.13 then we should be OK
-> with a full backport.  If the person who originally raised that patch put
-> unrelated things into a single patch then that's where the problem started.
+> Submit patches to clean up all the whitespace problems in the kernel
+> sources. Andrew Morton indicated that he will take those.
 
-Agreed.
+http://7eggert.dyndns.org/l/patches/trailing-ws/
 
-> Bear in mind that there is also risk in only part-applying a patch.
-
-Yup, if it's only part of the patch, it needs to be re-tested to be sure
-something important wasn't dropped in the chop up.
-
-> > > Also return pci_*() error-codes during probe failure paths.
-> > 
-> > How does this belong to stable please? I don't see this fixing any
-> > critical bug.
-> 
-> But it's obviously safe.
-> 
-> > > -	if (ret != 0) {
-> > > +	if (ret) {
-> > 
-> > This aint -stable material.
-> 
-> But it's obviously safe.  Let's use our brains on these patches and not
-> become beholden to doctrine, OK?
-
-I agree.  The real fix only is 100% preferred, but not at the risk of
-a patch that's less stable.  We've certainly asked for that as the rule
-of thumb, but it is just that...a rule of thumb.
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

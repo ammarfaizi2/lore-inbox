@@ -1,68 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261967AbVF1G1V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261608AbVF1G1W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261967AbVF1G1V (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 02:27:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261608AbVF1G0h
+	id S261608AbVF1G1W (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 02:27:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261949AbVF1G0N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 02:26:37 -0400
-Received: from omta01ps.mx.bigpond.com ([144.140.82.153]:9937 "EHLO
-	omta01ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S261424AbVF1F7F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 01:59:05 -0400
-Message-ID: <42C0E722.5090803@bigpond.net.au>
-Date: Tue, 28 Jun 2005 15:58:58 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
+	Tue, 28 Jun 2005 02:26:13 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:55251 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S261633AbVF1Fw7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 01:52:59 -0400
+Message-ID: <42C0E5F9.50609@jp.fujitsu.com>
+Date: Tue, 28 Jun 2005 14:54:01 +0900
+From: Naoaki Maeda <maeda.naoaki@jp.fujitsu.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: ja, en-us, en
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Chris Han <xiphux@gmail.com>, Con Kolivas <kernel@kolivas.org>,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: [ANNOUNCE][RFC] PlugSched-5.2.2 for 2.6.12 and 2.6.12-mm2
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Gerrit Huizenga <gh@us.ibm.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       ckrm-tech@lists.sourceforge.net,
+       Chandra Seetharaman <sekharan@us.ibm.com>,
+       Hubertus Franke <frankeh@us.ibm.com>, Shailabh Nagar <nagar@us.ibm.com>
+Subject: Re: [ckrm-tech] [patch 07/38] CKRM e18: Numtasks Controller
+References: <20050623061552.833852000@w-gerrit.beaverton.ibm.com> <20050623061755.520778000@w-gerrit.beaverton.ibm.com>
+In-Reply-To: <20050623061755.520778000@w-gerrit.beaverton.ibm.com>
+Content-Type: text/plain; charset=ISO-2022-JP
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta01ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Tue, 28 Jun 2005 05:58:58 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-PlugSched-5.2.2 is available for 2.6.12 and 2.6.12-mm2 kernels.  This
-version applies Con Kolivas's latest modification to his "nice" aware
-SMP load balancing patches.
+Gerrit Huizenga wrote:
 
-A patch to bring PlugSched-5.2.1 for 2.6.12 to PlugSched-5.2.2 is
-available at:
+> Index: linux-2.6.12-ckrm1/kernel/fork.c
+> ===================================================================
+> --- linux-2.6.12-ckrm1.orig/kernel/fork.c	2005-06-20 13:08:27.000000000 -0700
+> +++ linux-2.6.12-ckrm1/kernel/fork.c	2005-06-20 13:08:34.000000000 -0700
+> @@ -42,6 +42,8 @@
+>  #include <linux/rmap.h>
+>  #include <linux/acct.h>
+>  #include <linux/ckrm_events.h>
+> +#include <linux/ckrm_tsk.h>
+> +#include <linux/ckrm_tc.h>
+>  
+>  #include <asm/pgtable.h>
+>  #include <asm/pgalloc.h>
+> @@ -1211,6 +1213,9 @@ long do_fork(unsigned long clone_flags,
+>  			clone_flags |= CLONE_PTRACE;
+>  	}
+>  
+> +	if (numtasks_get_ref(&current->taskclass->core, 0) == 0) {
+> +		return -ENOMEM;
+> +	}
+>  	p = copy_process(clone_flags, stack_start, regs, stack_size, parent_tidptr, child_tidptr, pid);
+>  	/*
+>  	 * Do this prior waking up the new thread - the thread pointer
+> @@ -1250,6 +1255,7 @@ long do_fork(unsigned long clone_flags,
+>  				ptrace_notify ((PTRACE_EVENT_VFORK_DONE << 8) | SIGTRAP);
+>  		}
+>  	} else {
+> +		numtasks_put_ref(&current->taskclass->core);
+>  		free_pidmap(pid);
+>  		pid = PTR_ERR(p);
+>  	}
 
-<http://prdownloads.sourceforge.net/cpuse/plugsched-5.2.1-to-5.2.2-for-2.6.12.patch?download>
+Instead of returning -ENOMEM on fork fail due to numtask or forkrate
+limit, I'd rather prefer returning -EAGAIN.
 
-A patch for 2.6.12-mm2 is available at:
+Because, according to IEEE Std 1003.1, if fork() fails due to
+reaching limit, it shall set the errno to EAGAIN.
 
-<http://prdownloads.sourceforge.net/cpuse/plugsched-5.2.2-for-2.6.12-mm2.patch?download>
+Thanks,
+MAEDA Naoaki
 
-Very Brief Documentation:
-
-You can select a default scheduler at kernel build time.  If you wish to
-boot with a scheduler other than the default it can be selected at boot
-time by adding:
-
-cpusched=<scheduler>
-
-to the boot command line where <scheduler> is one of: ingosched,
-nicksched, staircase, spa_no_frills or zaphod.  If you don't change the
-default when you build the kernel the default scheduler will be
-ingosched (which is the normal scheduler).
-
-The scheduler in force on a running system can be determined by the
-contents of:
-
-/proc/scheduler
-
-Control parameters for the scheduler can be read/set via files in:
-
-/sys/cpusched/<scheduler>/
-
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce

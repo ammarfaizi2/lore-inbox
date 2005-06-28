@@ -1,38 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261977AbVF1OZN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261600AbVF1OWx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261977AbVF1OZN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 10:25:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261675AbVF1OYf
+	id S261600AbVF1OWx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 10:22:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261744AbVF1OUy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 10:24:35 -0400
-Received: from wproxy.gmail.com ([64.233.184.205]:39306 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261734AbVF1OXo convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 10:23:44 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=kcgVwfeawsHQyPZDNalBC3bgE6kn3UHU7zWRxwjaVHtRiwDCbLkNb3KhexIRPbfTIkIx11G2VS0X0+svK+neGiAqwdKvr7L0lPHUSPBubR7L4r9s8Vzj2/SSCh09nkrj/YBhzKC4AwmzCjrGKJkUtiOfz53bJBLMR+T4on+CxIk=
-Message-ID: <cbecb304050628072325516b6e@mail.gmail.com>
-Date: Tue, 28 Jun 2005 11:23:43 -0300
-From: Rodrigo Nascimento <underscore0x5f@gmail.com>
-Reply-To: Rodrigo Nascimento <underscore0x5f@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: A new soldier
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Tue, 28 Jun 2005 10:20:54 -0400
+Received: from 65-102-103-67.albq.qwest.net ([65.102.103.67]:62628 "EHLO
+	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S261600AbVF1OTA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 10:19:00 -0400
+Date: Tue, 28 Jun 2005 08:22:24 -0600 (MDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: "Paul E. McKenney" <paulmck@us.ibm.com>
+cc: linux-kernel@vger.kernel.org, dhowells@redhat.com, dipankar@in.ibm.com,
+       ak@suse.de, akpm@osdl.org, maneesh@in.ibm.com
+Subject: Re: [RFC,PATCH] RCU: clean up a few remaining synchronize_kernel()
+ calls
+In-Reply-To: <20050627050206.GA2139@us.ibm.com>
+Message-ID: <Pine.LNX.4.61.0506271305290.12042@montezuma.fsmlabs.com>
+References: <20050618002021.GA2892@us.ibm.com>
+ <Pine.LNX.4.61.0506191150300.26045@montezuma.fsmlabs.com>
+ <20050627050206.GA2139@us.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Hello Paul,
 
-I'm a Science of Computers student and I'd like help you in something.
-I don't know if exists something that I could do. So if someone wants
-a help, I'm a volunteer.
+On Sun, 26 Jun 2005, Paul E. McKenney wrote:
 
-See you,
--- 
+> How does the following look for NMI-RCU documentation?
 
-underscore(0x5f)
+That looks good, there is just one bit i'm not entirely sure about and i'd 
+appreciate it if you could entertain me for a bit;
+
+Answer to Quick Quiz
+
+        Why might the rcu_dereference() be necessary on Alpha, given
+        that the code reference by the pointer is read-only?
+
+        Answer: The caller to set_nmi_callback() might well have
+                initialized some data that is to be used by the
+                new NMI handler.  In this case, the rcu_dereference()
+                would be needed, because otherwise a CPU that received
+                an NMI just after the new handler was set might see
+                the pointer to the new NMI handler, but the old
+                pre-initialized version of the handler's data.
+
+Reading that i would think the general programming model for this would 
+be;
+
+setup data
+write barrier
+setup callback
+
+Isn't that still required considering the following scenario;
+
+CPU0			CPU1
+setup data		<NMI>
+setup callback		...
+...			call callback
+
+on i386, interrupts are data synchronising events, however if we happen to 
+take an interrupt right when the data is being setup we won't synchronise 
+with respect to that data. This could be achieved via the explicit write 
+barrier after data setup or rcu_dereference in the NMI handler. Or perhaps 
+i'm missing something?
+
+Thanks!
+	Zwane
+

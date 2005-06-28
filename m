@@ -1,39 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262214AbVF1XCR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262244AbVF1XEE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262214AbVF1XCR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 19:02:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261482AbVF1XA1
+	id S262244AbVF1XEE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 19:04:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262216AbVF1XAU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 19:00:27 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:41450
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S261231AbVF1W76 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 18:59:58 -0400
-Date: Tue, 28 Jun 2005 15:59:01 -0700 (PDT)
-Message-Id: <20050628.155901.78169707.davem@davemloft.net>
-To: arnd@arndb.de
-Cc: jgarzik@pobox.com, akpm@osdl.org, linuxppc64-dev@ozlabs.org,
-       netdev@vger.kernel.org, utz.bacher@de.ibm.com,
-       linux-kernel@vger.kernel.org, Jens.Osterkamp@de.ibm.com
-Subject: Re: [PATCH] net: add missing include to netdevice.h
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <200506281547.04620.arnd@arndb.de>
-References: <200506281528.08834.arnd@arndb.de>
-	<200506281547.04620.arnd@arndb.de>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Tue, 28 Jun 2005 19:00:20 -0400
+Received: from simmts6.bellnexxia.net ([206.47.199.164]:37085 "EHLO
+	simmts6-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S262203AbVF1W7c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 18:59:32 -0400
+Message-ID: <4846.10.10.10.24.1119999568.squirrel@linux1>
+In-Reply-To: <20050628224946.GU12006@waste.org>
+References: <42B9E536.60704@pobox.com> <20050623235634.GC14426@waste.org>
+    <20050624064101.GB14292@pasky.ji.cz>
+    <20050624123819.GD9519@64m.dyndns.org>
+    <20050628150027.GB1275@pasky.ji.cz> <20050628180157.GI12006@waste.org>
+    <62CF578B-B9DF-4DEA-8BAD-041F357771FD@mac.com>
+    <3886.10.10.10.24.1119991512.squirrel@linux1>
+    <20050628221422.GT12006@waste.org>
+    <3993.10.10.10.24.1119997389.squirrel@linux1>
+    <20050628224946.GU12006@waste.org>
+Date: Tue, 28 Jun 2005 18:59:28 -0400 (EDT)
+Subject: Re: Mercurial vs Updated git HOWTO for kernel hackers
+From: "Sean" <seanlkml@sympatico.ca>
+To: "Matt Mackall" <mpm@selenic.com>
+Cc: "Kyle Moffett" <mrmacman_g4@mac.com>, "Petr Baudis" <pasky@ucw.cz>,
+       "Christopher Li" <hg@chrisli.org>, "Jeff Garzik" <jgarzik@pobox.com>,
+       "Linux Kernel" <linux-kernel@vger.kernel.org>,
+       "Git Mailing List" <git@vger.kernel.org>, mercurial@selenic.com
+User-Agent: SquirrelMail/1.4.4-2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Tue, 28 Jun 2005 15:47:03 +0200
+On Tue, June 28, 2005 6:49 pm, Matt Mackall said:
 
-> linux/etherdevice.h can't be included standalone at the moment, which
-> is required in order to sort the header files in the recommended
-> alphabetic order. This patch fixes that and is needed to build spider_net.
-> 
-> Signed-off-by: Arnd Bergmann <arndb@de.ibm.com>
+> Again, have fun with that. Mercurial already went down this path a
+> month ago, discovered it couldn't reasonably be fixed without
+> abandoning the hashes as file name scheme, and changed repo layout.
+>
+> Git's going to have a much harder time as it's pretty solidly tied to
+> lookup by contents hash. If you throw that out, you might as well use
+> Mercurial.
+>
 
-Applied, thanks a lot Arnd.
+By the sounds of it, git could just use Mecurial or some variation thereof
+as a back end.  Git is not tied to it's back end.   Afterall, Mecurial
+just took the basic ideas from Linus' and adapted them to a different back
+end.  But there are very few situation where Git performance is a
+practical problem, and where it is things are being addressed.   Git is
+already so much better for the things I do than BK ever was, I'll stick
+with it.
+
+Sean.
+
+

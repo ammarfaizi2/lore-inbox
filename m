@@ -1,40 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262267AbVF1CTq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262382AbVF1CXz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262267AbVF1CTq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 22:19:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262377AbVF1CT0
+	id S262382AbVF1CXz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 22:23:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262377AbVF1CXz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 22:19:26 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:10196 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S262261AbVF1CTW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 22:19:22 -0400
-Message-ID: <42C0B39E.7070509@pobox.com>
-Date: Mon, 27 Jun 2005 22:19:10 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: cfq build breakage
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Mon, 27 Jun 2005 22:23:55 -0400
+Received: from smtpout5.uol.com.br ([200.221.4.196]:51962 "EHLO
+	smtp.uol.com.br") by vger.kernel.org with ESMTP id S262382AbVF1CWv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 22:22:51 -0400
+Date: Mon, 27 Jun 2005 23:22:36 -0300
+From: =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux1394-devel@lists.sourceforge.net
+Subject: Re: Problems with Firewire and -mm kernels (was: Re: 2.6.12-mm2)
+Message-ID: <20050628022236.GB3921@ime.usp.br>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net
+References: <20050626040329.3849cf68.akpm@osdl.org> <42BE99C3.9080307@trex.wsi.edu.pl> <20050627025059.GC10920@ime.usp.br> <20050627164540.7ded07fc.akpm@osdl.org> <20050628010052.GA3947@ime.usp.br>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050628010052.GA3947@ime.usp.br>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi, Andrew.
 
-In latest git tree...
+On Jun 27 2005, Rogério Brito wrote:
+> Ok, I put them both on <http://www.ime.usp.br/~rbrito/bug/>.
+(...)
+> P.S.: I just noticed right now that the patch listed above changes only
+> arch/i386/pci/acpi.c, but I am not using ACPI. Well, I will proceed anyway.
 
-   CC [M]  drivers/block/cfq-iosched.o
-drivers/block/cfq-iosched.c: In function `cfq_put_queue':
-drivers/block/cfq-iosched.c:303: sorry, unimplemented: inlining failed 
-in call to 'cfq_pending_requests': function body not available
-drivers/block/cfq-iosched.c:1080: sorry, unimplemented: called from here
-drivers/block/cfq-iosched.c: In function `__cfq_may_queue':
-drivers/block/cfq-iosched.c:1955: warning: the address of 
-`cfq_cfqq_must_alloc_slice', will always evaluate as `true'
-make[2]: *** [drivers/block/cfq-iosched.o] Error 1
-make[1]: *** [drivers/block] Error 2
-make: *** [drivers] Error 2
+Well, as I felt before, backing out the patch didn't work. I posted the
+dmesg of the new compilation on the page above like I did before.
+
+Is there any other patch that I should try to revert?
+
+
+Thanks, Rogério.
+
+-- 
+Rogério Brito : rbrito@ime.usp.br : http://www.ime.usp.br/~rbrito
+Homepage of the algorithms package : http://algorithms.berlios.de
+Homepage on freshmeat:  http://freshmeat.net/projects/algorithms/

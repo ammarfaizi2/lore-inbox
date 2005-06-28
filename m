@@ -1,58 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262211AbVF1WjH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262206AbVF1Wev@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262211AbVF1WjH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 18:39:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262199AbVF1WfS
+	id S262206AbVF1Wev (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 18:34:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262202AbVF1WcT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 18:35:18 -0400
-Received: from mail.kroah.org ([69.55.234.183]:55763 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262204AbVF1Wcd (ORCPT
+	Tue, 28 Jun 2005 18:32:19 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:13490 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262206AbVF1Wb2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 18:32:33 -0400
-Date: Tue, 28 Jun 2005 13:08:24 -0700
-From: Greg KH <greg@kroah.com>
-To: Oliver Neukum <oliver@neukum.org>
-Cc: Mike Bell <kernel@mikebell.org>, Dmitry Torokhov <dtor_core@ameritech.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] ndevfs - a "nano" devfs
-Message-ID: <20050628200824.GA12851@kroah.com>
-References: <20050624081808.GA26174@kroah.com> <20050627232559.GA7690@mikebell.org> <20050628074015.GA3577@kroah.com> <200506281400.08777.oliver@neukum.org>
+	Tue, 28 Jun 2005 18:31:28 -0400
+Date: Tue, 28 Jun 2005 15:30:12 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jean Delvare <khali@linux-fr.org>, chrisw@osdl.org,
+       linux-kernel@vger.kernel.org, stable@kernel.org, tytso@mit.edu,
+       zwane@arm.linux.org.uk, jmforbes@linuxtx.org, rdunlap@xenotime.net,
+       torvalds@osdl.org, chuckw@quantumlinux.com, alan@lxorguk.ukuu.org.uk,
+       andrew.vasquez@qlogic.com, James.Bottomley@SteelEye.com
+Subject: Re: [02/07] [SCSI] qla2xxx: Pull-down scsi-host-addition to follow board initialization.
+Message-ID: <20050628223012.GG9046@shell0.pdx.osdl.net>
+References: <20050627224651.GI9046@shell0.pdx.osdl.net> <20050627225349.GK9046@shell0.pdx.osdl.net> <20050628235148.4512d046.khali@linux-fr.org> <20050628152037.690c3840.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200506281400.08777.oliver@neukum.org>
-User-Agent: Mutt/1.5.8i
+In-Reply-To: <20050628152037.690c3840.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 28, 2005 at 02:00:08PM +0200, Oliver Neukum wrote:
-> Am Dienstag, 28. Juni 2005 09:40 schrieb Greg KH:
-> > On Mon, Jun 27, 2005 at 04:26:00PM -0700, Mike Bell wrote:
-> > > On Mon, Jun 27, 2005 at 05:35:50PM -0500, Dmitry Torokhov wrote:
-> > > > AFAIK there is no requirement in input subsystem that devices should be
-> > > > created under /dev/input. When devfs is activated they are created there
-> > > > by default, but that's it.
-> > > 
-> > > Things which accept a path to an event file as an argument will work
-> > > just fine. But anything which tries autodiscovery HAS to be able to find
-> > > the device nodes. Think directfb, most (but not all) of the X patches,
-> > > any user-space driver that wants to find the hardware it owns, etc.
-> > > 
-> > > This illustrates nicely my reasons for preferring devfs.
-> > > 
-> > > 1) Predictable, canonical device names are a Good Thing.
+* Andrew Morton (akpm@osdl.org) wrote:
+> The threshold for "what belongs in -stable" is a) set too high and b)
+> over-zealously enforced.
+
+Do you have things you'd like to see in -stable that didn't make the
+cut?
+
+> > > Return to previous held-logic of calling scsi_add_host() only
+> > > after the board has been completely initialized.
 > > 
-> > And impossible for the kernel to generate given hotpluggable devices.
+> > What real bug is it supposed to fix? (I guess some, but this leading
+> > comment should give the datails.)
 > 
-> That is not true. The kernel can generate predictable device names.
-> It just cannot generate _stable_ device names under all circumstances.
+> If that's what was in the patch which went into 2.6.13 then we should be OK
+> with a full backport.  If the person who originally raised that patch put
+> unrelated things into a single patch then that's where the problem started.
 
-Well, I view "canonical" as, "this is the name for this specific device,
-and will always be that name".  But, if others think of it differently,
-hey, that's fine with me too.
+Agreed.
 
-And yes, I also agree with your statement.
+> Bear in mind that there is also risk in only part-applying a patch.
 
-thanks,
+Yup, if it's only part of the patch, it needs to be re-tested to be sure
+something important wasn't dropped in the chop up.
 
-greg k-h
+> > > Also return pci_*() error-codes during probe failure paths.
+> > 
+> > How does this belong to stable please? I don't see this fixing any
+> > critical bug.
+> 
+> But it's obviously safe.
+> 
+> > > -	if (ret != 0) {
+> > > +	if (ret) {
+> > 
+> > This aint -stable material.
+> 
+> But it's obviously safe.  Let's use our brains on these patches and not
+> become beholden to doctrine, OK?
+
+I agree.  The real fix only is 100% preferred, but not at the risk of
+a patch that's less stable.  We've certainly asked for that as the rule
+of thumb, but it is just that...a rule of thumb.

@@ -1,43 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261769AbVF1N6s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261552AbVF1N6t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261769AbVF1N6s (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 09:58:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261549AbVF1N4P
+	id S261552AbVF1N6t (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 09:58:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261958AbVF1N4E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 09:56:15 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:57559 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261862AbVF1NvW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 09:51:22 -0400
-Subject: Re: [2.6.12rc4] PROBLEM: "drive appears confused" and "irq 18:
-	nobody cared!"
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Alexander Fieroch <Fieroch@web.de>
-Cc: Jesper Juhl <jesper.juhl@gmail.com>, bzolnier@gmail.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, axboe@suse.de,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Alexey Dobriyan <adobriyan@gmail.com>, akpm@osdl.org,
-       Natalie.Protasevich@UNISYS.com
-In-Reply-To: <42C0953B.8000506@web.de>
-References: <d6gf8j$jnb$1@sea.gmane.org>
-	 <20050527171613.5f949683.akpm@osdl.org> <429A2397.6090609@web.de>
-	 <58cb370e05061401041a67cfa7@mail.gmail.com> <42B091EE.4020802@web.de>
-	 <20050615143039.24132251.akpm@osdl.org>
-	 <1118960606.24646.58.camel@localhost.localdomain> <42B2AACC.7070908@web.de>
-	 <1119011887.24646.84.camel@localhost.localdomain> <42B302C2.9030009@web.de>
-	 <9a874849050617101712b80b15@mail.gmail.com>  <42C0953B.8000506@web.de>
-Content-Type: text/plain
+	Tue, 28 Jun 2005 09:56:04 -0400
+Received: from [212.76.86.236] ([212.76.86.236]:37892 "EHLO raad.intranet")
+	by vger.kernel.org with ESMTP id S261734AbVF1NwY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 09:52:24 -0400
+Message-Id: <200506281352.QAA25851@raad.intranet>
+From: "Al Boldi" <a1426z@gawab.com>
+To: "'Nix'" <nix@esperi.org.uk>
+Cc: "'Marcelo Tosatti'" <marcelo.tosatti@cyclades.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE: Kswapd flaw
+Date: Tue, 28 Jun 2005 16:52:00 +0300
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-Message-Id: <1119966469.32381.11.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 28 Jun 2005 14:47:49 +0100
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+In-Reply-To: <87irzy63xx.fsf@amaterasu.srvr.nix>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Thread-Index: AcV7333k46W3g0dLQ5miurYf15zZ8wAB8jqQ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Running the mm2 kernel with "ITE IT8212 RAID CARD support" enabled and 
-> compiled into the kernel I get a kernel panic:
+Hi Nix, how are you?
+You wrote: {
+On 28 Jun 2005, Al Boldi yowled:
+> Nix wrote:
+>> On 28 Jun 2005, Al Boldi murmured woefully:
+>>> Kswapd starts evicting processes to fullfil a malloc, when it should 
+>>> just deny it because there is no swap.
+>> I can't even tell what you're expecting. Surely not that no pages are 
+>> ever evicted or flushed; your memory would fill up with page cache in no
+time.
+> 
+> Please do flush anytime, and do it in sync during OOMs; but don't 
+> evict procs especially not RUNNING procs, that is overkill.
 
-That driver fakes your IDE controller as scsi so it moved your rootfs.
+Would you really like a system where once something was faulted in, it could
+never leave? You'd run out of memory *awfully* fast.
+}
 
+Nix,
+You should only fault if you have a place to fault to, as into a swap.
+Without swap faulting is overkill.
+
+Is it possible to change kswapd's default behaviour to not fault if there is
+no swap?
+
+Thanks!
 

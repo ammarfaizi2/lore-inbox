@@ -1,132 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262529AbVF1Evd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262530AbVF1Ew4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262529AbVF1Evd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 00:51:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262530AbVF1Evd
+	id S262530AbVF1Ew4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 00:52:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262531AbVF1Ew4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 00:51:33 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:38856 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262529AbVF1EvV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 00:51:21 -0400
-Date: Tue, 28 Jun 2005 10:21:12 +0530
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: gdb@sources.redhat.com, dan@debian.org
-Cc: Fastboot mailing list <fastboot@lists.osdl.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Morton Andrew Morton <akpm@osdl.org>, bunk@stusta.de
-Subject: Re: [Fastboot] Re: [-mm patch] i386: enable REGPARM by default
-Message-ID: <20050628045111.GB4296@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <20050624200916.GJ6656@stusta.de> <20050624132826.4cdfb63c.akpm@osdl.org> <20050627132941.GD3764@in.ibm.com> <20050627140029.GB29121@nevyn.them.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050627140029.GB29121@nevyn.them.org>
-User-Agent: Mutt/1.4.2.1i
+	Tue, 28 Jun 2005 00:52:56 -0400
+Received: from smtpout.mac.com ([17.250.248.84]:11971 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S262530AbVF1Ewi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 00:52:38 -0400
+In-Reply-To: <20050627140549.1fbaf3e7.akpm@osdl.org>
+References: <20050627131633.62af898b.rdunlap@xenotime.net> <20050627140549.1fbaf3e7.akpm@osdl.org>
+Mime-Version: 1.0 (Apple Message framework v730)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <F1345581-A5B4-4535-B6A5-1A48CC496728@mac.com>
+Cc: randy_dunlap <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [PATCH -mm] Documentation/feature-removal-schedule.txt in date order
+Date: Tue, 28 Jun 2005 00:52:27 -0400
+To: Andrew Morton <akpm@osdl.org>
+X-Mailer: Apple Mail (2.730)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 27, 2005 at 10:00:29AM -0400, Daniel Jacobowitz wrote:
-> On Mon, Jun 27, 2005 at 06:59:41PM +0530, Vivek Goyal wrote:
-> > On Fri, Jun 24, 2005 at 01:28:26PM -0700, Andrew Morton wrote:
-> > > Adrian Bunk <bunk@stusta.de> wrote:
-> > > >
-> > > > This patch:
-> > > > - removes the dependency of REGPARM on EXPERIMENTAL
-> > > > - let REGPARM default to y
-> > > 
-> > > hm, a compromise.
-> > > 
-> > > One other concern I have with this is that I expect -mregparm will make
-> > > kgdb (and now crashdump) less useful.  When incoming args are on the stack
-> > > you have a good chance of being able to see what their value is by walking
-> > > the stack slots.
-> > > 
-> > > When the incoming args are in registers I'd expect that it would be a lot
-> > > harder (or impossible) to work out their value.
-> > > 
-> > > Have the kdump guys thought about (or encountered) this?
-> 
-> GDB is more than capable of handling this - if your compiler is saving
-> arguments to the stack and dumping out useful information for the
-> debugger about where it put them.  Recent GCC versions are generally
-> pretty good about either saving the argument or clearly telling GDB
-> that it was not saved.
+On Jun 27, 2005, at 17:05:49, Andrew Morton wrote:
+> randy_dunlap <rdunlap@xenotime.net> wrote:
+>> a.  arrange feature-removal items in date order
 >
+> I'm not sure that this will be very successful.  Every man and his  
+> dog is
+> patching this file - it's a major source of rejects for me and I  
+> have a
+> habit of sticking new records into random places just to avoid rejects
+> against changes coming in from other trees.
 
-Thanks. Any idea what might be amiss with my case where I am not seeing 
-proper function parameter values while analyzing kdump generated crash
-dump with gdb. I am using following gdb and gcc versions.
+Uhh, how about this?
 
-GNU gdb Red Hat Linux (6.1post-1.20040607.62rh)
-gcc (GCC) 3.4.3 20041212 (Red Hat 3.4.3-9.EL4)
+Documentation/feature-removal-schedule/2005-07_devfs.txt
+Documentation/feature-removal-schedule/2005-12_raw_driver.txt
 
-Inlined with the mail is a test patch. This patch just invokes func1()
-and func2() upon reading a sysfs file "debug_stack" and finally calls panic()
-and boots into a new kernel.
+On the plus side, no rejects, and significantly more readable diffs. On
+the minus side, it causes many more files in the source tree, though it
+does make it easier to sort by whatever takes your fancy.  grep works
+better too. :-D
 
-Associated stack traces retrieved from core dump file are available at 
-following link.
+Cheers,
+Kyle Moffett
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=111988996408170&w=2
+--
+Somone asked me why I work on this free (http://www.fsf.org/philosophy/)
+software stuff and not get a real job. Charles Shultz had the best  
+answer:
 
-Thanks
-Vivek
+"Why do musicians compose symphonies and poets write poems? They do it
+because life wouldn't have any meaning for them if they didn't.  
+That's why
+I draw cartoons. It's my life."
+-- Charles Shultz
 
-
-
----
-
- linux-2.6.12-rc6-mm1-1M-root/kernel/ksysfs.c |   24 ++++++++++++++++++++++++
- 1 files changed, 24 insertions(+)
-
-diff -puN kernel/ksysfs.c~kdump-gdb-stack-debug kernel/ksysfs.c
---- linux-2.6.12-rc6-mm1-1M/kernel/ksysfs.c~kdump-gdb-stack-debug	2005-06-27 16:32:18.000000000 +0530
-+++ linux-2.6.12-rc6-mm1-1M-root/kernel/ksysfs.c	2005-06-27 17:26:56.000000000 +0530
-@@ -30,6 +30,19 @@ static ssize_t hotplug_seqnum_show(struc
- KERNEL_ATTR_RO(hotplug_seqnum);
- #endif
- 
-+int func2(int a, int *b, char c)
-+{
-+        printk("a=%d, b=%p, c=%c \n", a, b, c);
-+	panic("Vivek: Invoked panic\n");
-+	return 0;
-+}
-+int func1(int a, int *b, char c)
-+{
-+        printk("a=%d, b=%p, c=%c\n", a, b, c);
-+        func2(a, b, c);
-+	return 0;
-+}
-+
- #ifdef CONFIG_KEXEC
- #include <asm/kexec.h>
- 
-@@ -38,6 +51,16 @@ static ssize_t crash_notes_show(struct s
- 	return sprintf(page, "%p\n", (void *)crash_notes);
- }
- KERNEL_ATTR_RO(crash_notes);
-+static ssize_t stack_debug_show(struct subsystem *subsys, char *page)
-+{
-+	int a=20;
-+	int *b=&a;
-+	char c='d';
-+	printk("Vivek: value of b is %p\n", b);
-+	func1(a, b, c);
-+	return sprintf(page, "%s\n", "Vivek copied");
-+}
-+KERNEL_ATTR_RO(stack_debug);
- #endif
- 
- decl_subsys(kernel, NULL, NULL);
-@@ -49,6 +72,7 @@ static struct attribute * kernel_attrs[]
- #endif
- #ifdef CONFIG_KEXEC
- 	&crash_notes_attr.attr,
-+	&stack_debug_attr.attr,
- #endif
- 	NULL
- };
-_

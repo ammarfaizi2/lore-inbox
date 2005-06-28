@@ -1,46 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261817AbVF1R0U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262174AbVF1RaA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261817AbVF1R0U (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 13:26:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262038AbVF1RXK
+	id S262174AbVF1RaA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 13:30:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262157AbVF1R1h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 13:23:10 -0400
-Received: from zproxy.gmail.com ([64.233.162.201]:39264 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262166AbVF1RTY convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 13:19:24 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=jL1tZ4LEbTXbWr6Nq8nl61+lsbjLHnOZUtDVhEvwoMco8PcnwAjFhTlFhUEzQ2s34Swi21dhgvKHE0eU1vZGO7q9OtRkIbMtFphdmHzvcR4lNqPbQ1gheOUotlnq+1pvUicoSY8CnXC3ptXQ+FjT/IqSKoJk3eW7+K/jOK9y6cI=
-Message-ID: <3afbacad05062810183bf640d2@mail.gmail.com>
-Date: Tue, 28 Jun 2005 19:18:44 +0200
-From: Jim MacBaine <jmacbaine@gmail.com>
-Reply-To: Jim MacBaine <jmacbaine@gmail.com>
-To: Chris Wright <chrisw@osdl.org>
-Subject: Re: [stable] Re: [00/07] -stable review
-Cc: stable@kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20050628144706.GX9046@shell0.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 28 Jun 2005 13:27:37 -0400
+Received: from smtp001.mail.ukl.yahoo.com ([217.12.11.32]:16569 "HELO
+	smtp001.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S262169AbVF1R05 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 13:26:57 -0400
+From: Karsten Wiese <annabellesgarden@yahoo.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.50-24
+Date: Tue, 28 Jun 2005 19:27:43 +0200
+User-Agent: KMail/1.8.1
+Cc: mingo@elte.hu
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20050627224651.GI9046@shell0.pdx.osdl.net>
-	 <3afbacad050628051059b69bbe@mail.gmail.com>
-	 <20050628144706.GX9046@shell0.pdx.osdl.net>
+Message-Id: <200506281927.43959.annabellesgarden@yahoo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/28/05, Chris Wright <chrisw@osdl.org> wrote:
+Hi Ingo,
 
-> I assume you're referring to this fix:
-> 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=111936734211687&w=2
-> 
-> If so, I expect it will.  Needs to hit mainline first and get pushed over
-> to -stable.
+suffering (not really ;-) double-rated IO-APIC level-interrupts I found the following patch as a solution:
+
+--- arch/i386/kernel/io_apic.c~	2005-06-28 19:07:49.000000000 +0200
++++ arch/i386/kernel/io_apic.c	2005-06-28 19:07:49.000000000 +0200
+@@ -1959,6 +1959,7 @@
+ static void mask_and_ack_level_ioapic_irq(unsigned int irq)
+ {
+ 	move_irq(irq);
++	mask_IO_APIC_irq(irq);
+ 	ack_APIC_irq();
+ }
  
-That's the one I'm referring to.  This patch works for me on 2.6.12.1.
+--- kernel/irq/handle.c~	2005-06-28 19:19:32.000000000 +0200
++++ kernel/irq/handle.c	2005-06-28 19:19:32.000000000 +0200
+@@ -214,7 +214,6 @@
+ 	 * hardirq redirection to the irqd process context:
+ 	 */
+ 	if (redirect_hardirq(desc)) {
+-		desc->handler->disable(irq);
+ 		goto out_no_end;
+ 	}
 
-Regards,
-Jim
+it works here on a PREEMPT_RT 2.6.12-RT-V0.7.50-29 base.
+Level-interrupts are sanely rated again.
+Didn't check, if the patch breaks XT-PIC mode, which works ok without the patch.
+Mainline shows the same effect here (VIA K8T800 UP), didn't dig there yet.
+
+thanks,
+Karsten
+
+	
+
+	
+		
+___________________________________________________________ 
+Gesendet von Yahoo! Mail - Jetzt mit 1GB Speicher kostenlos - Hier anmelden: http://mail.yahoo.de

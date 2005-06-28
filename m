@@ -1,61 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262244AbVF1XEE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262217AbVF1XIH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262244AbVF1XEE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 19:04:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262216AbVF1XAU
+	id S262217AbVF1XIH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 19:08:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262259AbVF1XEm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 19:00:20 -0400
-Received: from simmts6.bellnexxia.net ([206.47.199.164]:37085 "EHLO
-	simmts6-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S262203AbVF1W7c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 18:59:32 -0400
-Message-ID: <4846.10.10.10.24.1119999568.squirrel@linux1>
-In-Reply-To: <20050628224946.GU12006@waste.org>
-References: <42B9E536.60704@pobox.com> <20050623235634.GC14426@waste.org>
-    <20050624064101.GB14292@pasky.ji.cz>
-    <20050624123819.GD9519@64m.dyndns.org>
-    <20050628150027.GB1275@pasky.ji.cz> <20050628180157.GI12006@waste.org>
-    <62CF578B-B9DF-4DEA-8BAD-041F357771FD@mac.com>
-    <3886.10.10.10.24.1119991512.squirrel@linux1>
-    <20050628221422.GT12006@waste.org>
-    <3993.10.10.10.24.1119997389.squirrel@linux1>
-    <20050628224946.GU12006@waste.org>
-Date: Tue, 28 Jun 2005 18:59:28 -0400 (EDT)
-Subject: Re: Mercurial vs Updated git HOWTO for kernel hackers
-From: "Sean" <seanlkml@sympatico.ca>
-To: "Matt Mackall" <mpm@selenic.com>
-Cc: "Kyle Moffett" <mrmacman_g4@mac.com>, "Petr Baudis" <pasky@ucw.cz>,
-       "Christopher Li" <hg@chrisli.org>, "Jeff Garzik" <jgarzik@pobox.com>,
-       "Linux Kernel" <linux-kernel@vger.kernel.org>,
-       "Git Mailing List" <git@vger.kernel.org>, mercurial@selenic.com
-User-Agent: SquirrelMail/1.4.4-2
-MIME-Version: 1.0
+	Tue, 28 Jun 2005 19:04:42 -0400
+Received: from sj-iport-5.cisco.com ([171.68.10.87]:41396 "EHLO
+	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
+	id S262237AbVF1XD6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 19:03:58 -0400
+X-IronPort-AV: i="3.93,240,1115017200"; 
+   d="scan'208"; a="195037130:sNHT28093444"
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: [PATCH 16/16] IB uverbs: add documentation file
+In-Reply-To: <2005628163.VUsohVlfE72duiiM@cisco.com>
+X-Mailer: Roland's Patchbomber
+Date: Tue, 28 Jun 2005 16:03:44 -0700
+Message-Id: <2005628163.mVVkhZjoFQLjYM7E@cisco.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
+To: akpm@osdl.org
 Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+From: Roland Dreier <rolandd@cisco.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, June 28, 2005 6:49 pm, Matt Mackall said:
+Add documentation for InfiniBand userspace verbs.
 
-> Again, have fun with that. Mercurial already went down this path a
-> month ago, discovered it couldn't reasonably be fixed without
-> abandoning the hashes as file name scheme, and changed repo layout.
->
-> Git's going to have a much harder time as it's pretty solidly tied to
-> lookup by contents hash. If you throw that out, you might as well use
-> Mercurial.
->
+Signed-off-by: Roland Dreier <rolandd@cisco.com>
 
-By the sounds of it, git could just use Mecurial or some variation thereof
-as a back end.  Git is not tied to it's back end.   Afterall, Mecurial
-just took the basic ideas from Linus' and adapted them to a different back
-end.  But there are very few situation where Git performance is a
-practical problem, and where it is things are being addressed.   Git is
-already so much better for the things I do than BK ever was, I'll stick
-with it.
+---
 
-Sean.
+ Documentation/infiniband/user_verbs.txt |   69 ++++++++++++++++++++++++++++++++
+ 1 files changed, 69 insertions(+)
 
 
+
+--- /dev/null	2005-06-23 14:14:38.423479552 -0700
++++ linux/Documentation/infiniband/user_verbs.txt	2005-06-28 15:20:31.245140214 -0700
+@@ -0,0 +1,69 @@
++USERSPACE VERBS ACCESS
++
++  The ib_uverbs module, built by enabling CONFIG_INFINIBAND_USER_VERBS,
++  enables direct userspace access to IB hardware via "verbs," as
++  described in chapter 11 of the InfiniBand Architecture Specification.
++
++  To use the verbs, the libibverbs library, available from
++  <http://openib.org/>, is required.  libibverbs contains a
++  device-independent API for using the ib_uverbs interface.
++  libibverbs also requires appropriate device-dependent kernel and
++  userspace driver for your InfiniBand hardware.  For example, to use
++  a Mellanox HCA, you will need the ib_mthca kernel module and the
++  libmthca userspace driver be installed.
++
++User-kernel communication
++
++  Userspace communicates with the kernel for slow path, resource
++  management operations via the /dev/infiniband/uverbsN character
++  devices.  Fast path operations are typically performed by writing
++  directly to hardware registers mmap()ed into userspace, with no
++  system call or context switch into the kernel.
++
++  Commands are sent to the kernel via write()s on these device files.
++  The ABI is defined in drivers/infiniband/include/ib_user_verbs.h.
++  The structs for commands that require a response from the kernel
++  contain a 64-bit field used to pass a pointer to an output buffer.
++  Status is returned to userspace as the return value of the write()
++  system call.
++
++Resource management
++
++  Since creation and destruction of all IB resources is done by
++  commands passed through a file descriptor, the kernel can keep track
++  of which resources are attached to a given userspace context.  The
++  ib_uverbs module maintains idr tables that are used to translate
++  between kernel pointers and opaque userspace handles, so that kernel
++  pointers are never exposed to userspace and userspace cannot trick
++  the kernel into following a bogus pointer.
++
++  This also allows the kernel to clean up when a process exits and
++  prevent one process from touching another process's resources.
++
++Memory pinning
++
++  Direct userspace I/O requires that memory regions that are potential
++  I/O targets be kept resident at the same physical address.  The
++  ib_uverbs module manages pinning and unpinning memory regions via
++  get_user_pages() and put_page() calls.  It also accounts for the
++  amount of memory pinned in the process's locked_vm, and checks that
++  unprivileged processes do not exceed their RLIMIT_MEMLOCK limit.
++
++  Pages that are pinned multiple times are counted each time they are
++  pinned, so the value of locked_vm may be an overestimate of the
++  number of pages pinned by a process.
++
++/dev files
++
++  To create the appropriate character device files automatically with
++  udev, a rule like
++
++    KERNEL="uverbs*", NAME="infiniband/%k"
++
++  can be used.  This will create device nodes named
++
++    /dev/infiniband/uverbs0
++
++  and so on.  Since the InfiniBand userspace verbs should be safe for
++  use by non-privileged processes, it may be useful to add an
++  appropriate MODE or GROUP to the udev rule.

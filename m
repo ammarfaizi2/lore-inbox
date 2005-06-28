@@ -1,52 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261690AbVF1Hgf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261947AbVF1HmI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261690AbVF1Hgf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 03:36:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261504AbVF1HeL
+	id S261947AbVF1HmI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 03:42:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261860AbVF1HlT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 03:34:11 -0400
-Received: from mail.kroah.org ([69.55.234.183]:26548 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261939AbVF1H3Z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 03:29:25 -0400
-Date: Tue, 28 Jun 2005 00:29:13 -0700
-From: Greg KH <greg@kroah.com>
-To: Dominik Brodowski <linux@dominikbrodowski.net>,
-       linux-kernel@vger.kernel.org, rajesh.shah@intel.com, akpm@osdl.org
-Subject: Re: pci transparent bridge resource management
-Message-ID: <20050628072913.GA3438@kroah.com>
-References: <20050628070636.GA10217@isilmar.linta.de> <20050628071345.GA3281@kroah.com> <20050628072224.GA11393@isilmar.linta.de>
+	Tue, 28 Jun 2005 03:41:19 -0400
+Received: from ms001msg.fastwebnet.it ([213.140.2.51]:15772 "EHLO
+	ms001msg.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S261571AbVF1Hjz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 03:39:55 -0400
+Date: Tue, 28 Jun 2005 09:39:36 +0200
+From: Paolo Ornati <ornati@fastwebnet.it>
+To: Andreas Kies <andikies@t-online.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: A Bug in gcc or asm/string.h ?
+Message-ID: <20050628093936.2327c11c@localhost>
+In-Reply-To: <200506280153.04620.andikies@t-online.de>
+References: <200506270105.28782.andikies@t-online.de>
+	<200506272059.20477.andikies@t-online.de>
+	<20050627214315.4b8850f5@localhost>
+	<200506280153.04620.andikies@t-online.de>
+X-Mailer: Sylpheed-Claws 1.0.4 (GTK+ 1.2.10; x86_64-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050628072224.GA11393@isilmar.linta.de>
-User-Agent: Mutt/1.5.8i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 28, 2005 at 09:22:24AM +0200, Dominik Brodowski wrote:
-> On Tue, Jun 28, 2005 at 12:13:45AM -0700, Greg KH wrote:
-> > On Tue, Jun 28, 2005 at 09:06:36AM +0200, Dominik Brodowski wrote:
-> > > Hi!
-> > > 
-> > > Could we get the following two patches into Linus' tree as well? AFAIK,
-> > > these alone didn't do any harm; they're most useful for yenta-style
-> > > PCMCIA-PCI bridges instead... so I'd very much like to get them into 2.6.13.
-> > > 
-> > > http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12/2.6.12-mm2/broken-out/gregkh-pci-pci-collect-host-bridge-resources-01.patch
-> > > http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12/2.6.12-mm2/broken-out/gregkh-pci-pci-handle-subtractive-decode.patch
-> > 
-> > No, not right now.  Ivan's reworking these patches, due to the number of
-> > complaints in this area.  Give us a week or so...
-> 
-> The collect-resources-02 was the cause. Not the other ones, AFAIK, and they
-> are even independent...
+On Tue, 28 Jun 2005 01:53:04 +0200
+Andreas Kies <andikies@t-online.de> wrote:
 
-Not according to:
-	http://bugme.osdl.org/show_bug.cgi?id=4737
+> Now, how do i formally submit this as a bug report ?
 
-One person said the -01 patch messed up their box...
+Not needed.
 
-thanks,
+Linus has just fix it by adding "memory" to clobbered registers:
 
-greg k-h
+	http://marc.theaimsgroup.com/?l=bk-commits-head&m=111965412113339&w=2
+
+--
+	Paolo Ornati
+	Linux 2.6.12.1 on x86_64

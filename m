@@ -1,92 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261180AbVF1T1i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261185AbVF1TaF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261180AbVF1T1i (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 15:27:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbVF1T1h
+	id S261185AbVF1TaF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 15:30:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbVF1T1y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 15:27:37 -0400
-Received: from graphe.net ([209.204.138.32]:11195 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S261185AbVF1T0s (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 15:26:48 -0400
-Date: Tue, 28 Jun 2005 12:26:43 -0700 (PDT)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@graphe.net
-To: Arjan van de Ven <arjan@infradead.org>
-cc: linux-kernel@vger.kernel.org, akpm@osdl.org, ak@suse.de
+	Tue, 28 Jun 2005 15:27:54 -0400
+Received: from smtp.andrew.cmu.edu ([128.2.10.83]:39553 "EHLO
+	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP id S261163AbVF1T1f
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 15:27:35 -0400
+From: Jeremy Maitin-Shepard <jbms@cmu.edu>
+To: Christoph Lameter <christoph@lameter.com>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] Read only syscall tables for x86_64 and i386
-In-Reply-To: <1119984975.3175.41.camel@laptopd505.fenrus.org>
-Message-ID: <Pine.LNX.4.62.0506281224030.1523@graphe.net>
 References: <Pine.LNX.4.62.0506281141050.959@graphe.net>
- <1119984975.3175.41.camel@laptopd505.fenrus.org>
+	<87oe9q70no.fsf@jbms.ath.cx> <Pine.LNX.4.62.0506281218030.1454@graphe.net>
+X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
+X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
+X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
+X-Habeas-SWE-6: email in exchange for a license for this Habeas
+X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
+X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
+X-Habeas-SWE-3: like Habeas SWE (tm)
+X-Habeas-SWE-2: brightly anticipated
+X-Habeas-SWE-1: winter into spring
+Date: Tue, 28 Jun 2005 15:27:30 -0400
+In-Reply-To: <Pine.LNX.4.62.0506281218030.1454@graphe.net> (Christoph
+	Lameter's message of "Tue, 28 Jun 2005 12:18:29 -0700 (PDT)")
+Message-ID: <87hdfi704d.fsf@jbms.ath.cx>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/22.0.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.9
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Jun 2005, Arjan van de Ven wrote:
+Christoph Lameter <christoph@lameter.com> writes:
 
-> I like it.. however I think the 32 bit compat syscall table on x86-64
-> deserves the same treatment....
+> On Tue, 28 Jun 2005, Jeremy Maitin-Shepard wrote:
+>> As I mentioned previously when this patch was first posted to the list,
+>> AFS writes to the syscall table.  It does this even for Linux 2.6.
+>> Apparently, the rodata section is not actually mapped read-only, so this
+>> patch will probably not break AFS; nonetheless, it seems it would still
+>> be better to keep the syscall table in a section that is supposed to be
+>> writable.
 
-Ok.
+> Maybe this needs to be fixed?
 
----
+It would probably be better implemented with a more generic mechanism,
+but I don't believe anyone is working on that now, so it looks like AFS
+will continue to use a special syscall.
 
-Place x86_64 and i386 syscall table into the read only section.
-
-Remove the syscall tables from the data section and place them into the 
-readonly section (like IA64). Includes the ia32 syscall table on x86_64.
-
-Note that AFS seems to be modifying the syscall table. Is that legit?
-
-Signed-off-by: Christoph Lameter <christoph@scalex86.org>
-
-Index: linux-2.6.12-mm2/arch/i386/kernel/entry.S
-===================================================================
---- linux-2.6.12-mm2.orig/arch/i386/kernel/entry.S	2005-06-28 18:34:11.000000000 +0000
-+++ linux-2.6.12-mm2/arch/i386/kernel/entry.S	2005-06-28 19:06:42.000000000 +0000
-@@ -680,6 +680,7 @@ ENTRY(spurious_interrupt_bug)
- 	pushl $do_spurious_interrupt_bug
- 	jmp error_code
- 
-+.section .rodata,"a"
- #include "syscall_table.S"
- 
- syscall_table_size=(.-sys_call_table)
-Index: linux-2.6.12-mm2/arch/i386/kernel/syscall_table.S
-===================================================================
---- linux-2.6.12-mm2.orig/arch/i386/kernel/syscall_table.S	2005-06-28 18:34:11.000000000 +0000
-+++ linux-2.6.12-mm2/arch/i386/kernel/syscall_table.S	2005-06-28 19:06:42.000000000 +0000
-@@ -1,4 +1,3 @@
--.data
- ENTRY(sys_call_table)
- 	.long sys_restart_syscall	/* 0 - old "setup()" system call, used for restarting */
- 	.long sys_exit
-Index: linux-2.6.12-mm2/arch/x86_64/kernel/syscall.c
-===================================================================
---- linux-2.6.12-mm2.orig/arch/x86_64/kernel/syscall.c	2005-06-28 18:34:11.000000000 +0000
-+++ linux-2.6.12-mm2/arch/x86_64/kernel/syscall.c	2005-06-28 19:06:42.000000000 +0000
-@@ -19,7 +19,7 @@ typedef void (*sys_call_ptr_t)(void); 
- 
- extern void sys_ni_syscall(void);
- 
--sys_call_ptr_t sys_call_table[__NR_syscall_max+1] __cacheline_aligned = { 
-+const sys_call_ptr_t sys_call_table[__NR_syscall_max+1] = { 
- 	/* Smells like a like a compiler bug -- it doesn't work when the & below is removed. */ 
- 	[0 ... __NR_syscall_max] = &sys_ni_syscall,
- #include <asm-x86_64/unistd.h>
-Index: linux-2.6.12-mm2/arch/x86_64/ia32/ia32entry.S
-===================================================================
---- linux-2.6.12-mm2.orig/arch/x86_64/ia32/ia32entry.S	2005-06-28 17:46:31.000000000 +0000
-+++ linux-2.6.12-mm2/arch/x86_64/ia32/ia32entry.S	2005-06-28 19:13:20.000000000 +0000
-@@ -298,7 +298,7 @@ ENTRY(ia32_ptregs_common)
- 	jmp  ia32_sysret	/* misbalances the return cache */
- 	CFI_ENDPROC
- 
--	.data
-+	.section .rodata,"a"
- 	.align 8
- 	.globl ia32_sys_call_table
- ia32_sys_call_table:
+-- 
+Jeremy Maitin-Shepard

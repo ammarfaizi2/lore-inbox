@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262017AbVF1JdH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261870AbVF1JUL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262017AbVF1JdH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 05:33:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262020AbVF1JdH
+	id S261870AbVF1JUL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 05:20:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262025AbVF1JTe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 05:33:07 -0400
-Received: from mail.fh-wedel.de ([213.39.232.198]:22930 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S262017AbVF1Jci (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 05:32:38 -0400
-Date: Tue, 28 Jun 2005 11:32:07 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: d binderman <dcb314@hotmail.com>
-Cc: linux-kernel@vger.kernel.org, coreteam@netfilter.org
-Subject: Re: variable used before it is set
-Message-ID: <20050628093207.GA7460@wohnheim.fh-wedel.de>
-References: <BAY19-F15587C5037C178B447330E9CE10@phx.gbl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <BAY19-F15587C5037C178B447330E9CE10@phx.gbl>
-User-Agent: Mutt/1.3.28i
+	Tue, 28 Jun 2005 05:19:34 -0400
+Received: from [213.170.72.194] ([213.170.72.194]:55516 "EHLO
+	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP id S261836AbVF1JQz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 05:16:55 -0400
+Message-ID: <42C1157E.8040506@yandex.ru>
+Date: Tue, 28 Jun 2005 13:16:46 +0400
+From: "Artem B. Bityuckiy" <dedekind@yandex.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Fedora/1.7.8-1.3.1
+X-Accept-Language: en, ru, en-us
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+Cc: Vladimir Saveliev <vs@namesys.com>, Hans Reiser <reiser@namesys.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       reiserfs-list@namesys.com, Andrew Morton <akpm@osdl.org>,
+       Christoph Hellwig <hch@infradead.org>
+Subject: Re: reiser4 merging action list
+References: <42BB7B32.4010100@slaphack.com.suse.lists.linux.kernel> <200506240334.j5O3YowB008100@laptop11.inf.utfsm.cl.suse.lists.linux.kernel> <20050627092138.GD11013@nysv.org.suse.lists.linux.kernel> <20050627124255.GB6280@thunk.org.suse.lists.linux.kernel> <42C0578F.7030608@namesys.com.suse.lists.linux.kernel> <20050627212628.GB27805@thunk.org.suse.lists.linux.kernel> <42C084F1.70607@namesys.com.suse.lists.linux.kernel> <p73vf3zuqzq.fsf@verdi.suse.de> <1119947829.3495.25.camel@tribesman.namesys.com> <20050628091117.GJ8035@wotan.suse.de>
+In-Reply-To: <20050628091117.GJ8035@wotan.suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 June 2005 09:16:56 +0000, d binderman wrote:
+Andi Kleen wrote:
+> Yes, i was looking at some older tree with reiser4. Sorry, just
+> ignore what is already done.
 > 
-> I just tried to compile the Linux Kernel version 2.6.11.12
-> with the most excellent Intel C compiler. It said
-> 
-> net/bridge/netfilter/ebt_log.c(91): remark #592: variable "u" is used 
-> before its value is set
->        printk(" IP tos=0x%02X, IP proto=%d", u.iph.tos,
->                                              ^
-> I agree with the compiler. Suggest code rework.
-
-Thank you for the reports.  But I fear that some of them may go
-unnoticed by the responsible maintainers.  Could you go through
-/usr/src/linux/MAINTAINERS and add relevant people and/or mailing
-lists to the Cc: list?
-
-Netfilter folks added, just to give an example.
-
-Jörn
+> But still spin_macros.h should be completely removed imho. Such
+> custom lock wrappers are strongly discouraged because it 
+> makes it hard for others to read your code.
+>
+I may comfirm that this makes Reiser4 very difficult to investigate.
+Ctags doesn't work with that too..
 
 -- 
-The story so far:
-In the beginning the Universe was created.  This has made a lot
-of people very angry and been widely regarded as a bad move.
--- Douglas Adams
+Best Regards,
+Artem B. Bityuckiy,
+St.-Petersburg, Russia.

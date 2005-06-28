@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261330AbVF1F6b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261371AbVF1F6b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261330AbVF1F6b (ORCPT <rfc822;willy@w.ods.org>);
+	id S261371AbVF1F6b (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 28 Jun 2005 01:58:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262006AbVF1FlN
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261330AbVF1Fpf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 01:41:13 -0400
-Received: from mail.kroah.org ([69.55.234.183]:8940 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261625AbVF1Fde convert rfc822-to-8bit
+	Tue, 28 Jun 2005 01:45:35 -0400
+Received: from mail.kroah.org ([69.55.234.183]:12524 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261631AbVF1Fdf convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 01:33:34 -0400
-Cc: kaneshige.kenji@jp.fujitsu.com
-Subject: [PATCH] ACPI based I/O APIC hot-plug: acpiphp support
-In-Reply-To: <11199367741201@kroah.com>
+	Tue, 28 Jun 2005 01:33:35 -0400
+Cc: rajesh.shah@intel.com
+Subject: [PATCH] acpi hotplug: decouple slot power state changes from physical hotplug
+In-Reply-To: <11199367743535@kroah.com>
 X-Mailer: gregkh_patchbomb
 Date: Mon, 27 Jun 2005 22:32:54 -0700
-Message-Id: <11199367742637@kroah.com>
+Message-Id: <1119936774423@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,182 +24,155 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] ACPI based I/O APIC hot-plug: acpiphp support
+[PATCH] acpi hotplug: decouple slot power state changes from physical hotplug
 
-This patch adds PCI based I/O xAPIC hot-add support to ACPIPHP
-driver. When PCI root bridge is hot-added, all PCI based I/O xAPICs
-under the root bridge are hot-added by this patch. Hot-remove support
-is TBD.
+Current acpiphp code does not distinguish between the physical presence and
+power state of a device/slot.  That is, if a device has to be disabled, it
+also tries to physically ejects the device.  This patch decouples power state
+from physical presence.  You can now echo to the corresponding sysfs power
+control file to repeatedly enable and disable a device without having to
+physically re-insert it.
 
-Signed-off-by: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+Signed-off-by: Rajesh Shah <rajesh.shah@intel.com>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit a0d399a808916d22c1c222c6b5ca4e8edd6d91a9
-tree 4c4f41d86652c7783cd5900605f36344253d3ef1
-parent 0e888adc41ffc02b700ade715c182a17e766af84
-author Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com> Thu, 28 Apr 2005 00:25:59 -0700
-committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 27 Jun 2005 21:52:45 -0700
+commit 8d50e332c8bd4f4e8cc76e8ed7326aa6f18182aa
+tree dd9caa96f0b5d5bff3d4fccc4be410c4ecad03aa
+parent 8e7561cfbdf00fb1cee694cef0e825d0548aedbc
+author Rajesh Shah <rajesh.shah@intel.com> Thu, 28 Apr 2005 00:25:57 -0700
+committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 27 Jun 2005 21:52:43 -0700
 
- drivers/pci/hotplug/acpiphp_glue.c |  127 ++++++++++++++++++++++++++++++++++++
- include/linux/pci_ids.h            |    2 +
- 2 files changed, 129 insertions(+), 0 deletions(-)
+ drivers/pci/hotplug/acpiphp_glue.c |   69 ++++++++++++++++++++----------------
+ 1 files changed, 38 insertions(+), 31 deletions(-)
 
 diff --git a/drivers/pci/hotplug/acpiphp_glue.c b/drivers/pci/hotplug/acpiphp_glue.c
 --- a/drivers/pci/hotplug/acpiphp_glue.c
 +++ b/drivers/pci/hotplug/acpiphp_glue.c
-@@ -552,6 +552,132 @@ static void remove_bridge(acpi_handle ha
+@@ -592,8 +592,6 @@ static int power_off_slot(struct acpiphp
+ 	acpi_status status;
+ 	struct acpiphp_func *func;
+ 	struct list_head *l;
+-	struct acpi_object_list arg_list;
+-	union acpi_object arg;
+ 
+ 	int retval = 0;
+ 
+@@ -615,27 +613,6 @@ static int power_off_slot(struct acpiphp
+ 		}
  	}
+ 
+-	list_for_each (l, &slot->funcs) {
+-		func = list_entry(l, struct acpiphp_func, sibling);
+-
+-		/* We don't want to call _EJ0 on non-existing functions. */
+-		if (func->flags & FUNC_HAS_EJ0) {
+-			/* _EJ0 method take one argument */
+-			arg_list.count = 1;
+-			arg_list.pointer = &arg;
+-			arg.type = ACPI_TYPE_INTEGER;
+-			arg.integer.value = 1;
+-
+-			status = acpi_evaluate_object(func->handle, "_EJ0", &arg_list, NULL);
+-			if (ACPI_FAILURE(status)) {
+-				warn("%s: _EJ0 failed\n", __FUNCTION__);
+-				retval = -1;
+-				goto err_exit;
+-			} else
+-				break;
+-		}
+-	}
+-
+ 	/* TBD: evaluate _STA to check if the slot is disabled */
+ 
+ 	slot->flags &= (~SLOT_POWEREDON);
+@@ -782,6 +759,39 @@ static unsigned int get_slot_status(stru
  }
  
-+static struct pci_dev * get_apic_pci_info(acpi_handle handle)
-+{
-+	struct acpi_pci_id id;
-+	struct pci_bus *bus;
-+	struct pci_dev *dev;
-+
-+	if (ACPI_FAILURE(acpi_get_pci_id(handle, &id)))
-+		return NULL;
-+
-+	bus = pci_find_bus(id.segment, id.bus);
-+	if (!bus)
-+		return NULL;
-+
-+	dev = pci_get_slot(bus, PCI_DEVFN(id.device, id.function));
-+	if (!dev)
-+		return NULL;
-+
-+	if ((dev->class != PCI_CLASS_SYSTEM_PIC_IOAPIC) &&
-+	    (dev->class != PCI_CLASS_SYSTEM_PIC_IOXAPIC))
-+	{
-+		pci_dev_put(dev);
-+		return NULL;
-+	}
-+
-+	return dev;
-+}
-+
-+static int get_gsi_base(acpi_handle handle, u32 *gsi_base)
+ /**
++ * acpiphp_eject_slot - physically eject the slot
++ */
++static int acpiphp_eject_slot(struct acpiphp_slot *slot)
 +{
 +	acpi_status status;
-+	int result = -1;
-+	unsigned long gsb;
-+	struct acpi_buffer buffer = {ACPI_ALLOCATE_BUFFER, NULL};
-+	union acpi_object *obj;
-+	void *table;
++	struct acpiphp_func *func;
++	struct list_head *l;
++	struct acpi_object_list arg_list;
++	union acpi_object arg;
 +
-+	status = acpi_evaluate_integer(handle, "_GSB", NULL, &gsb);
-+	if (ACPI_SUCCESS(status)) {
-+		*gsi_base = (u32)gsb;
-+		return 0;
++	list_for_each (l, &slot->funcs) {
++		func = list_entry(l, struct acpiphp_func, sibling);
++
++		/* We don't want to call _EJ0 on non-existing functions. */
++		if ((func->flags & FUNC_HAS_EJ0)) {
++			/* _EJ0 method take one argument */
++			arg_list.count = 1;
++			arg_list.pointer = &arg;
++			arg.type = ACPI_TYPE_INTEGER;
++			arg.integer.value = 1;
++
++			status = acpi_evaluate_object(func->handle, "_EJ0", &arg_list, NULL);
++			if (ACPI_FAILURE(status)) {
++				warn("%s: _EJ0 failed\n", __FUNCTION__);
++				return -1;
++			} else
++				break;
++		}
 +	}
-+
-+	status = acpi_evaluate_object(handle, "_MAT", NULL, &buffer);
-+	if (ACPI_FAILURE(status) || !buffer.length || !buffer.pointer)
-+		return -1;
-+
-+	obj = buffer.pointer;
-+	if (obj->type != ACPI_TYPE_BUFFER)
-+		goto out;
-+
-+	table = obj->buffer.pointer;
-+	switch (((acpi_table_entry_header *)table)->type) {
-+	case ACPI_MADT_IOSAPIC:
-+		*gsi_base = ((struct acpi_table_iosapic *)table)->global_irq_base;
-+		result = 0;
-+		break;
-+	case ACPI_MADT_IOAPIC:
-+		*gsi_base = ((struct acpi_table_ioapic *)table)->global_irq_base;
-+		result = 0;
-+		break;
-+	default:
-+		break;
-+	}
-+ out:
-+	acpi_os_free(buffer.pointer);
-+	return result;
-+}
-+
-+static acpi_status
-+ioapic_add(acpi_handle handle, u32 lvl, void *context, void **rv)
-+{
-+	acpi_status status;
-+	unsigned long sta;
-+	acpi_handle tmp;
-+	struct pci_dev *pdev;
-+	u32 gsi_base;
-+	u64 phys_addr;
-+
-+	/* Evaluate _STA if present */
-+	status = acpi_evaluate_integer(handle, "_STA", NULL, &sta);
-+	if (ACPI_SUCCESS(status) && sta != ACPI_STA_ALL)
-+		return AE_CTRL_DEPTH;
-+
-+	/* Scan only PCI bus scope */
-+	status = acpi_get_handle(handle, "_HID", &tmp);
-+	if (ACPI_SUCCESS(status))
-+		return AE_CTRL_DEPTH;
-+
-+	if (get_gsi_base(handle, &gsi_base))
-+		return AE_OK;
-+
-+	pdev = get_apic_pci_info(handle);
-+	if (!pdev)
-+		return AE_OK;
-+
-+	if (pci_enable_device(pdev)) {
-+		pci_dev_put(pdev);
-+		return AE_OK;
-+	}
-+
-+	pci_set_master(pdev);
-+
-+	if (pci_request_region(pdev, 0, "I/O APIC(acpiphp)")) {
-+		pci_disable_device(pdev);
-+		pci_dev_put(pdev);
-+		return AE_OK;
-+	}
-+
-+	phys_addr = pci_resource_start(pdev, 0);
-+	if (acpi_register_ioapic(handle, phys_addr, gsi_base)) {
-+		pci_release_region(pdev, 0);
-+		pci_disable_device(pdev);
-+		pci_dev_put(pdev);
-+		return AE_OK;
-+	}
-+
-+	return AE_OK;
-+}
-+
-+static int acpiphp_configure_ioapics(acpi_handle handle)
-+{
-+	acpi_walk_namespace(ACPI_TYPE_DEVICE, handle,
-+			    ACPI_UINT32_MAX, ioapic_add, NULL, NULL);
 +	return 0;
 +}
 +
- static int power_on_slot(struct acpiphp_slot *slot)
- {
- 	acpi_status status;
-@@ -942,6 +1068,7 @@ static int acpiphp_configure_bridge (acp
- 	acpiphp_sanitize_bus(bus);
- 	acpiphp_set_hpp_values(handle, bus);
- 	pci_enable_bridges(bus);
-+	acpiphp_configure_ioapics(handle);
- 	return 0;
++/**
+  * acpiphp_check_bridge - re-enumerate devices
+  *
+  * Iterate over all slots under this bridge and make sure that if a
+@@ -804,6 +814,8 @@ static int acpiphp_check_bridge(struct a
+ 			if (retval) {
+ 				err("Error occurred in disabling\n");
+ 				goto err_exit;
++			} else {
++				acpiphp_eject_slot(slot);
+ 			}
+ 			disabled++;
+ 		} else {
+@@ -1041,7 +1053,6 @@ static void handle_hotplug_event_bridge(
+ 	}
  }
  
-diff --git a/include/linux/pci_ids.h b/include/linux/pci_ids.h
---- a/include/linux/pci_ids.h
-+++ b/include/linux/pci_ids.h
-@@ -62,6 +62,8 @@
+-
+ /**
+  * handle_hotplug_event_func - handle ACPI event on functions (i.e. slots)
+  *
+@@ -1084,7 +1095,8 @@ static void handle_hotplug_event_func(ac
+ 	case ACPI_NOTIFY_EJECT_REQUEST:
+ 		/* request device eject */
+ 		dbg("%s: Device eject notify on %s\n", __FUNCTION__, objname);
+-		acpiphp_disable_slot(func->slot);
++		if (!(acpiphp_disable_slot(func->slot)))
++			acpiphp_eject_slot(func->slot);
+ 		break;
  
- #define PCI_BASE_CLASS_SYSTEM		0x08
- #define PCI_CLASS_SYSTEM_PIC		0x0800
-+#define PCI_CLASS_SYSTEM_PIC_IOAPIC	0x080010
-+#define PCI_CLASS_SYSTEM_PIC_IOXAPIC	0x080020
- #define PCI_CLASS_SYSTEM_DMA		0x0801
- #define PCI_CLASS_SYSTEM_TIMER		0x0802
- #define PCI_CLASS_SYSTEM_RTC		0x0803
+ 	default:
+@@ -1268,7 +1280,6 @@ int acpiphp_enable_slot(struct acpiphp_s
+ 	return retval;
+ }
+ 
+-
+ /**
+  * acpiphp_disable_slot - power off slot
+  */
+@@ -1300,11 +1311,7 @@ int acpiphp_disable_slot(struct acpiphp_
+  */
+ u8 acpiphp_get_power_status(struct acpiphp_slot *slot)
+ {
+-	unsigned int sta;
+-
+-	sta = get_slot_status(slot);
+-
+-	return (sta & ACPI_STA_ENABLED) ? 1 : 0;
++	return (slot->flags & SLOT_POWEREDON);
+ }
+ 
+ 
 

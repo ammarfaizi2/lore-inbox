@@ -1,74 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262257AbVF2ADg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262327AbVF2ADz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262257AbVF2ADg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 20:03:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262247AbVF2ADV
+	id S262327AbVF2ADz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 20:03:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262250AbVF2ADq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 20:03:21 -0400
-Received: from atpro.com ([12.161.0.3]:46862 "EHLO atpro.com")
-	by vger.kernel.org with ESMTP id S262222AbVF1XoU (ORCPT
+	Tue, 28 Jun 2005 20:03:46 -0400
+Received: from gate.crashing.org ([63.228.1.57]:2719 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262327AbVF1X6o (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 19:44:20 -0400
-Date: Tue, 28 Jun 2005 19:43:10 -0400
-From: Jim Crilly <jim@why.dont.jablowme.net>
-To: Mike Bell <kernel@mikebell.org>, Arjan van de Ven <arjan@infradead.org>,
-       Greg KH <greg@kroah.com>, Dmitry Torokhov <dtor_core@ameritech.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] ndevfs - a "nano" devfs
-Message-ID: <20050628234310.GA29653@mail>
-Mail-Followup-To: Mike Bell <kernel@mikebell.org>,
-	Arjan van de Ven <arjan@infradead.org>, Greg KH <greg@kroah.com>,
-	Dmitry Torokhov <dtor_core@ameritech.net>,
-	linux-kernel@vger.kernel.org
-References: <20050624081808.GA26174@kroah.com> <20050625234305.GA11282@kroah.com> <20050627071907.GA5433@mikebell.org> <200506271735.50565.dtor_core@ameritech.net> <20050627232559.GA7690@mikebell.org> <20050628074015.GA3577@kroah.com> <20050628090852.GA966@mikebell.org> <1119950487.3175.21.camel@laptopd505.fenrus.org> <20050628214929.GB23980@voodoo> <20050628222318.GC4673@mikebell.org>
+	Tue, 28 Jun 2005 19:58:44 -0400
+Subject: Re: [PATCH] ppc32: Remove CONFIG_PMAC_PBOOK
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Andrew Morton <akpm@osdl.org>, linuxppc-dev list <linuxppc-dev@ozlabs.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050628085701.GA31218@lst.de>
+References: <1119847159.5133.106.camel@gaston>
+	 <20050628085701.GA31218@lst.de>
+Content-Type: text/plain
+Date: Wed, 29 Jun 2005 09:53:12 +1000
+Message-Id: <1120002793.5133.214.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050628222318.GC4673@mikebell.org>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 06/28/05 03:23:18PM -0700, Mike Bell wrote:
-> On Tue, Jun 28, 2005 at 05:49:29PM -0400, Jim Crilly wrote:
-> > I took a quick look and for OSS devices linphone seems to just loop over
-> > /dev/dsp* so if the names were moved, I doubt it would work. 
-> > 
-> > But it also seems to have ALSA support and in that case it uses 
-> > snd_card_get_name in a for loop to build a list of available cards, since 
-> > all ALSA functions use card index numbers they should work fine independent 
-> > of device file names.
+On Tue, 2005-06-28 at 10:57 +0200, Christoph Hellwig wrote:
+> On Mon, Jun 27, 2005 at 02:39:16PM +1000, Benjamin Herrenschmidt wrote:
+> > This patch removes CONFIG_PMAC_PBOOK (PowerBook support). This is now
+> > split into CONFIG_PMAC_MEDIABAY for the actual hotswap bay that some
+> > powerbooks have, CONFIG_PM for power management related code, and just
+> > left out of any CONFIG_* option for some generally useful stuff that can
+> > be used on non-laptops as well.
 > 
-> No, they shouldn't. Try it and see. Yes, your /program/ uses the sound
-> card index, but that's because the ALSA library internally assumes that
-> sound card index 0 corresponds to certain device nodes.
+> Can you clarify the CONFIG_PMAC_MEDIABAY for which powerbooks this
+> is needed exactly?  AFAIK up to one of the G3 models, but you probably
+> know better :)
 
-I stand corrected then. I didn't actually try anything with linphone, the
-ALSA API just makes it look like the device nodes don't matter.
+3400/3500 models (603 & first G3), wallstreet and 101 afaik. Mostly old
+models with a hotswap bay containing the CD-ROM, a floppy drive or an
+additional battery.
 
-> 
-> Eventually every program has to be able to find the device node. That's
-> just obvious, if you don't need the device node why have it in the first
-> place? And if it can't predict what that device node will be named, the
-> only thing it can do (short of creating its own private device node,
-> which breaks all sorts of stuff /and/ is dumb /and/ doesn't work unless
-> you're root) is search over every single device node in /dev to find the
-> one with the correct major/minor. Or ask the user to type it in
-> manually, which is all well and good for maybe an admin configuring some
-> system, but is completely broken for anything GUI or automatic.
-> 
-> Hence my conclusion, predictable device file names are a requirement.
-> udev's "name the device whatever you want" works fine for running vi on
-> /etc/fstab, but when you want a program to do anything intelligent like
-> present a list of available choices, you need to be able to find the
-> device node.
+Ben.
 
-Well it looks like the ALSA library already abstracts the device node
-enough that the app itself doesn't know what file is being used because it
-just calls snd_card_get_name, snd_open_pcm, etc with the ALSA index. So
-wouldn't it be feasible to make ALSA a little bit smarter so that it could
-track/find the device nodes no matter what name they have? I'm not
-advocating for or against it, but from my cursory look at the API it looks
-possible to do without breaking any ALSA apps.
 
-Jim.

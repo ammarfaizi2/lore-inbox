@@ -1,108 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262304AbVF1XsS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262316AbVF1Xxh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262304AbVF1XsS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 19:48:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262288AbVF1Xpz
+	id S262316AbVF1Xxh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 19:53:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262298AbVF1XpC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 19:45:55 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:55752 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261385AbVF1X2M (ORCPT
+	Tue, 28 Jun 2005 19:45:02 -0400
+Received: from free.hands.com ([83.142.228.128]:57759 "EHLO free.hands.com")
+	by vger.kernel.org with ESMTP id S261259AbVF1XYo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 19:28:12 -0400
-Date: Tue, 28 Jun 2005 16:28:12 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-Cc: hch@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/3] freevxfs: fix buffer_head leak
-Message-Id: <20050628162812.483eb566.akpm@osdl.org>
-In-Reply-To: <iit0gm.lxobpl.5z2b9jduhy9fvx6tjxrco46v4.refire@cs.helsinki.fi>
-References: <iit0gm.lxobpl.5z2b9jduhy9fvx6tjxrco46v4.refire@cs.helsinki.fi>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Tue, 28 Jun 2005 19:24:44 -0400
+Date: Wed, 29 Jun 2005 00:33:35 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: linux-kernel@vger.kernel.org
+Subject: accessing loopback filesystem+partitions on a file
+Message-ID: <20050628233335.GB9087@lkcl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pekka Enberg <penberg@cs.helsinki.fi> wrote:
->
-> This patch fixes a buffer_head leak in the function vxfs_getfsh by
-> allocating the buffer before doing sb_bread(). In addition, the patch
-> replaces misused SLAB_KERNEL flag with the proper GFP_KERNEL and adds
-> a NULL check for sb_bread.
-> 
+[if you are happy to reply at all, please reply cc'd thank you.]
 
-Yes, there does seem to be a leak there.
+hi,
 
-> ===================================================================
-> --- 2.6.orig/fs/freevxfs/vxfs_fshead.c	2005-06-28 19:48:12.000000000 +0300
-> +++ 2.6/fs/freevxfs/vxfs_fshead.c	2005-06-28 19:48:34.000000000 +0300
-> @@ -76,19 +76,22 @@
->  vxfs_getfsh(struct inode *ip, int which)
->  {
->  	struct buffer_head		*bp;
-> +	struct vxfs_fsh			*fhp;
-> +
-> +	if (!(fhp = kmalloc(sizeof(*fhp), GFP_KERNEL)))
-> +		goto failed;
->  
->  	bp = vxfs_bread(ip, which);
-> -	if (buffer_mapped(bp)) {
-> -		struct vxfs_fsh		*fhp;
-> +	if (!bp || !buffer_mapped(bp))
-> +		goto failed;
->  
-> -		if (!(fhp = kmalloc(sizeof(*fhp), SLAB_KERNEL)))
-> -			return NULL;
-> -		memcpy(fhp, bp->b_data, sizeof(*fhp));
-> +	memcpy(fhp, bp->b_data, sizeof(*fhp));
->  
-> -		brelse(bp);
-> -		return (fhp);
-> -	}
-> +	brelse(bp);
-> +	return fhp;
->  
-> +failed:
-> +	kfree(fhp);
->  	return NULL;
->  }
->  
+i'm really sorry to be bothering people on this list but i genuinely
+don't what phrases to google for what i am looking for without getting
+swamped by useless pages, which you will understand why when you see
+the question, below.
 
-But your change means that we'll always perform that kmalloc, even if the
-buffer came back !buffer_mapped().
+background:
 
-<looks>
+	i'm sort-of helping test a xen install project where a
+	block device is presented as the DRIVE - not, i repeat
+	not, the partitions on the drive which is the quotes
+	normal quotes way of doing xen installes
 
-I don't think sb_bread() can return an unmapped buffer at all.
+	(yes there are good reasons for doing this).
 
-And sb_bread() can return NULL (I/O error) and we're not checking for that
-in there.
+	the thing is that the install is failing, and we'd duh
+	like to analyse what's going on (access the log files -
+	no, sshd hasn't been installed yet) after terminating
+	the xen session [because afaik in xen guest sessions
+	there's no way i know of to access virtual consoles 2-6]
 
-Something like this?
+the question is, therefore:
 
-diff -puN fs/freevxfs/vxfs_fshead.c~freevxfs-fix-buffer_head-leak fs/freevxfs/vxfs_fshead.c
---- 25/fs/freevxfs/vxfs_fshead.c~freevxfs-fix-buffer_head-leak	Tue Jun 28 16:19:53 2005
-+++ 25-akpm/fs/freevxfs/vxfs_fshead.c	Tue Jun 28 16:24:53 2005
-@@ -78,14 +78,16 @@ vxfs_getfsh(struct inode *ip, int which)
- 	struct buffer_head		*bp;
- 
- 	bp = vxfs_bread(ip, which);
--	if (buffer_mapped(bp)) {
-+	if (bp && buffer_mapped(bp)) {
- 		struct vxfs_fsh		*fhp;
- 
--		if (!(fhp = kmalloc(sizeof(*fhp), SLAB_KERNEL)))
-+		if (!(fhp = kmalloc(sizeof(*fhp), GFP_KERNEL))) {
-+			put_bh(bp);
- 			return NULL;
-+		}
- 		memcpy(fhp, bp->b_data, sizeof(*fhp));
- 
--		brelse(bp);
-+		put_bh(bp);
- 		return (fhp);
- 	}
- 
-_
+	* how the hell do you loopback mount (or lvm mount
+	  or _anything_! something!)  partitions that have
+	  been created in a loopback'd file!!!!
 
+	  [aside from booting up a second pre-installed xen
+	  guest domain and making the filesystem-in-a-file
+	  available as /dev/hdb of course.]
+
+answers of the form "work out where the partitions are, then use
+hexedit to remove the first few blocks" will win no prizes here.
+
+l.
+
+-- 
+--
+<a href="http://lkcl.net">http://lkcl.net</a>
+--

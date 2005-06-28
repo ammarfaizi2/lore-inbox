@@ -1,35 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262167AbVF1ROZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262176AbVF1R0V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262167AbVF1ROZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 13:14:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262164AbVF1RNR
+	id S262176AbVF1R0V (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 13:26:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262171AbVF1RWt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 13:13:17 -0400
-Received: from graphe.net ([209.204.138.32]:58007 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S262166AbVF1RLe (ORCPT
+	Tue, 28 Jun 2005 13:22:49 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:45513 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261508AbVF1RUh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 13:11:34 -0400
-Date: Tue, 28 Jun 2005 10:11:32 -0700 (PDT)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@graphe.net
-To: Rodrigo Nascimento <underscore0x5f@gmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: A new soldier
-In-Reply-To: <cbecb304050628072325516b6e@mail.gmail.com>
-Message-ID: <Pine.LNX.4.62.0506281011020.10628@graphe.net>
-References: <cbecb304050628072325516b6e@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.9
+	Tue, 28 Jun 2005 13:20:37 -0400
+Date: Tue, 28 Jun 2005 10:20:19 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Jim MacBaine <jmacbaine@gmail.com>
+Cc: Chris Wright <chrisw@osdl.org>, stable@kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [stable] Re: [00/07] -stable review
+Message-ID: <20050628172019.GZ9046@shell0.pdx.osdl.net>
+References: <20050627224651.GI9046@shell0.pdx.osdl.net> <3afbacad050628051059b69bbe@mail.gmail.com> <20050628144706.GX9046@shell0.pdx.osdl.net> <3afbacad05062810183bf640d2@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3afbacad05062810183bf640d2@mail.gmail.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Jun 2005, Rodrigo Nascimento wrote:
+* Jim MacBaine (jmacbaine@gmail.com) wrote:
+> On 6/28/05, Chris Wright <chrisw@osdl.org> wrote:
+> 
+> > I assume you're referring to this fix:
+> > 
+> > http://marc.theaimsgroup.com/?l=linux-kernel&m=111936734211687&w=2
+> > 
+> > If so, I expect it will.  Needs to hit mainline first and get pushed over
+> > to -stable.
+>  
+> That's the one I'm referring to.  This patch works for me on 2.6.12.1.
 
-> I'm a Science of Computers student and I'd like help you in something.
-> I don't know if exists something that I could do. So if someone wants
-> a help, I'm a volunteer.
+Great, thanks.  As soon as net guys send it over we'll queue it up.
 
-Submit patches to clean up all the whitespace problems in the kernel 
-sources. Andrew Morton indicated that he will take those.
-
+thanks,
+-chris

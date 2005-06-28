@@ -1,77 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261471AbVF1RS3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262163AbVF1ROY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261471AbVF1RS3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 13:18:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262157AbVF1ROn
+	id S262163AbVF1ROY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 13:14:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262167AbVF1RNN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 13:14:43 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:9432 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S262166AbVF1RNo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 13:13:44 -0400
-Message-ID: <42C18543.4090604@pobox.com>
-Date: Tue, 28 Jun 2005 13:13:39 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Linus Torvalds <torvalds@osdl.org>, Neil Horman <nhorman@redhat.com>,
-       linux-kernel@vger.kernel.org, jeff.garzik@pobox.com, akpm@osdl.org
-Subject: Re: [Patch] Janitorial cleanup of GET_INDEX macro in arch/i386/pci/fixup.c
-References: <20050627140914.GD20880@hmsendeavour.rdu.redhat.com> <Pine.LNX.4.58.0506271516530.19755@ppc970.osdl.org> <20050627223239.GA24080@kroah.com>
-In-Reply-To: <20050627223239.GA24080@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Tue, 28 Jun 2005 13:13:13 -0400
+Received: from zproxy.gmail.com ([64.233.162.203]:11103 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262164AbVF1RIy convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 13:08:54 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=kU7HW3wQY61Wtvl2H9zqrkDS+50FEu6HBAUAhHIQtUp3lpIet9B5Eg2B3dbpJy+hhuculsunvGJTfeDDxMSXvRYP0Sgvmv0pJPtwPQkqnAjhwcayxw9h5ENlQXTl/J7LVUjkpOdGvTBEYLTiMxJ/Q0mklCw5xVuQhfkBm+0qa3M=
+Message-ID: <699a19ea05062810087b79f12f@mail.gmail.com>
+Date: Tue, 28 Jun 2005 22:38:17 +0530
+From: k8 s <uint32@gmail.com>
+Reply-To: k8 s <uint32@gmail.com>
+To: Michael Becker <michbec@t-online.de>
+Subject: Re: IPSec Inbound Processing Basic Doubt
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <506243806.20050627182416@t-online.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <699a19ea050623105516cd5eb8@mail.gmail.com>
+	 <506243806.20050627182416@t-online.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Mon, Jun 27, 2005 at 03:19:11PM -0700, Linus Torvalds wrote:
-> 
->>
->>On Mon, 27 Jun 2005, Neil Horman wrote:
->>
->>>Patch to clean up the implementation of the GET_INDEX macro in the i386 pci
->>>fixup code so that it uses the PCI_DEVFN macro, rather than re-implements it.
->>
->>This looks wrong:
->>
->>
->>>-#define GET_INDEX(a, b) ((((a) - PCI_DEVICE_ID_INTEL_MCH_PA) << 3) + ((b) & 7))
->>>+#define GET_INDEX(a, b) PCI_DEVFN((a - PCI_DEVICE_ID_INTEL_MCH_PA),b)
->>
->>that first argument looks like it has parentheses at the wrong place, it 
->>should be
->>
->>	(a) - PCI_DEVICE_ID_INTEL_MCH_PA
->>
->>rather than
->>
->>	(a - PCI_DEVICE_ID_INTEL_MCH_PA)
->>
->>methinks.
->>
->>Other than that... Greg?
-> 
-> 
-> I'd like to say yes, but I'll get an ack by the pci express people from
-> Intel first (PCI_DEVFN masks off bits that might be needed here, don't
-> really know...)  Also, this is only used for an array index, not a
-> pci devfn memory access (look at how it is used in the code...)
-> 
-> I'll put it in my tree for now, and let it get testing, I would not
-> recommend it for yours just yet.
+Hello,
 
-Please let me know, as I suggested this patch to Neil.
+> So far you are right with your assumptions, I hope my explanation just
+> made it a bit clearer.
 
-It sure seems like the code wants a real PCI devfn, even though it is 
-obviously doing a table index.
-
-Comments?
-
-	Jeff
+Yes. It was really nice organization of whole thing.
 
 
+>The whole decapsulation is done in xfrm4_rcv_encap, except in case of
+>nat-traversal, where udp_rcv comes into play.
+>After the whole xfrm processing is done the packet is put back into the
+>network stack as it would look like without being ever processed by IPSec
+>(almost :-).
 
+I have a doubt regarding nat-traversal. Let me first admit that I
+don't have a perfect understanding of the NAT traversal concept. I
+heard that IPSec is kept in a UDP packet and sent.  How does the tx
+side processing happen (the host from which the udp encapsulated ipsec
+packet originated). The last call in the stackable destination is
+ip_output() as you said.
+How does it go back to udp(transport) layer in this case.
+
+S.Kartikeyan
+http://www.geocities.com/kartikeyans/

@@ -1,147 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261925AbVF1IBk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261596AbVF1IC7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261925AbVF1IBk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 04:01:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261884AbVF1GXt
+	id S261596AbVF1IC7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 04:02:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261571AbVF1ICJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 02:23:49 -0400
-Received: from mail.kroah.org ([69.55.234.183]:39916 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261938AbVF1Fd4 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 01:33:56 -0400
-Cc: gregkh@suse.de
-Subject: [PATCH] PCI: use the MCFG table to properly access pci devices (x86-64)
-In-Reply-To: <11199367751620@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Mon, 27 Jun 2005 22:32:55 -0700
-Message-Id: <11199367751784@kroah.com>
+	Tue, 28 Jun 2005 04:02:09 -0400
+Received: from gate.crashing.org ([63.228.1.57]:149 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261921AbVF1GYH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 02:24:07 -0400
+Subject: Re: increased translation cache footprint in v2.6
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Dan Malek <dan@embeddededge.com>
+Cc: "David S. Miller" <davem@davemloft.net>, akpm@osdl.org,
+       marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
+In-Reply-To: <dd805c30d3ab223b650077cca3c82d86@embeddededge.com>
+References: <20050626190944.GC6091@logos.cnet>
+	 <20050626.175347.104031526.davem@davemloft.net>
+	 <705a40397bb8383399109debccaebaa3@embeddededge.com>
+	 <20050627.125052.108115648.davem@davemloft.net>
+	 <dd805c30d3ab223b650077cca3c82d86@embeddededge.com>
+Content-Type: text/plain
+Date: Tue, 28 Jun 2005 16:18:22 +1000
+Message-Id: <1119939502.5133.195.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Greg K-H <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <gregkh@suse.de>
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] PCI: use the MCFG table to properly access pci devices (x86-64)
+On Mon, 2005-06-27 at 16:35 -0400, Dan Malek wrote:
+> On Jun 27, 2005, at 3:50 PM, David S. Miller wrote:
+> 
+> > I think you're making this problem more complex than it really
+> > is.  There is no reason at all to hold page tables for the direct
+> > physical memory mappings of lowmem if you have any control whatsoever
+> > over the TLB miss handler.
+> 
+> I'm not one to make it more complex, I just want to cover
+> all of the possibilities :-)  The "compute kernel" part of
+> it needs to be generic for all of the possibilities.   Like I mentioned.
+> we have a quite configurable address space for mapping text,
+> data, IO, and uncached spaces.  In addition, we have execute
+> in place out of flash and other embedded custom options.
+> I was hoping to find a solution where the kernel TLBs could
+> be dynamically loaded as well, with the standard look up
+> algorithm.  Yes, I still need a kernel path for the special
+> case processing of other than 4K pages, but it would be nice
+> to keep that generic as well.
 
-Now that we have access to the whole MCFG table, let's properly use it
-for all pci device accesses (as that's what it is there for, some boxes
-don't put all the busses into one entry.)
+Can't you put the "8Mb page" flag at the PMD level and use normal kernel
+page tables ? You'll have to fill PMD entries two by two but that
+shouldn't be too difficult.
 
-If, for some reason, the table is incorrect, we fallback to the "old
-style" of mmconfig accesses, namely, we just assume the first entry in
-the table is the one for us, and blindly use it.
+You can then have the kernel linear mapping use 8Mb pages, along with
+some "block IO" translations and leave the rest to normal 4k page tables
 
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+Ben.
 
----
-commit 1cde8a16815bd85c8137d1ea556398983c597c11
-tree c43ab735f7fd96d0576dfb7749c8ded74f9b63b7
-parent d57e26ceb7dbf44cd08128cb6146116d4281b58b
-author Greg Kroah-Hartman <gregkh@suse.de> Thu, 23 Jun 2005 17:35:56 -0700
-committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 27 Jun 2005 21:52:48 -0700
-
- arch/x86_64/pci/mmconfig.c |   58 ++++++++++++++++++++++++++++++++++++--------
- 1 files changed, 48 insertions(+), 10 deletions(-)
-
-diff --git a/arch/x86_64/pci/mmconfig.c b/arch/x86_64/pci/mmconfig.c
---- a/arch/x86_64/pci/mmconfig.c
-+++ b/arch/x86_64/pci/mmconfig.c
-@@ -13,17 +13,44 @@
- #define MMCONFIG_APER_SIZE (256*1024*1024)
- 
- /* Static virtual mapping of the MMCONFIG aperture */
--static char *pci_mmcfg_virt;
-+struct mmcfg_virt {
-+	struct acpi_table_mcfg_config *cfg;
-+	char *virt;
-+};
-+static struct mmcfg_virt *pci_mmcfg_virt;
-+
-+static char *get_virt(unsigned int seg, int bus)
-+{
-+	int cfg_num = -1;
-+	struct acpi_table_mcfg_config *cfg;
-+
-+	while (1) {
-+		++cfg_num;
-+		if (cfg_num >= pci_mmcfg_config_num) {
-+			/* something bad is going on, no cfg table is found. */
-+			/* so we fall back to the old way we used to do this */
-+			/* and just rely on the first entry to be correct. */
-+			return pci_mmcfg_virt[0].virt;
-+		}
-+		cfg = pci_mmcfg_virt[cfg_num].cfg;
-+		if (cfg->pci_segment_group_number != seg)
-+			continue;
-+		if ((cfg->start_bus_number <= bus) &&
-+		    (cfg->end_bus_number >= bus))
-+			return pci_mmcfg_virt[cfg_num].virt;
-+	}
-+}
- 
--static inline char *pci_dev_base(unsigned int bus, unsigned int devfn)
-+static inline char *pci_dev_base(unsigned int seg, unsigned int bus, unsigned int devfn)
- {
--	return pci_mmcfg_virt + ((bus << 20) | (devfn << 12));
-+
-+	return get_virt(seg, bus) + ((bus << 20) | (devfn << 12));
- }
- 
- static int pci_mmcfg_read(unsigned int seg, unsigned int bus,
- 			  unsigned int devfn, int reg, int len, u32 *value)
- {
--	char *addr = pci_dev_base(bus, devfn); 
-+	char *addr = pci_dev_base(seg, bus, devfn);
- 
- 	if (unlikely(!value || (bus > 255) || (devfn > 255) || (reg > 4095)))
- 		return -EINVAL;
-@@ -46,7 +73,7 @@ static int pci_mmcfg_read(unsigned int s
- static int pci_mmcfg_write(unsigned int seg, unsigned int bus,
- 			   unsigned int devfn, int reg, int len, u32 value)
- {
--	char *addr = pci_dev_base(bus,devfn);
-+	char *addr = pci_dev_base(seg, bus, devfn);
- 
- 	if (unlikely((bus > 255) || (devfn > 255) || (reg > 4095)))
- 		return -EINVAL;
-@@ -73,6 +100,8 @@ static struct pci_raw_ops pci_mmcfg = {
- 
- static int __init pci_mmcfg_init(void)
- {
-+	int i;
-+
- 	if ((pci_probe & PCI_PROBE_MMCONF) == 0)
- 		return 0;
- 
-@@ -90,13 +119,22 @@ static int __init pci_mmcfg_init(void)
- 		return 0; 
- 
- 	/* RED-PEN i386 doesn't do _nocache right now */
--	pci_mmcfg_virt = ioremap_nocache(pci_mmcfg_config[0].base_address, MMCONFIG_APER_SIZE);
--	if (!pci_mmcfg_virt) { 
--		printk("PCI: Cannot map mmconfig aperture\n");
-+	pci_mmcfg_virt = kmalloc(sizeof(*pci_mmcfg_virt) * pci_mmcfg_config_num, GFP_KERNEL);
-+	if (pci_mmcfg_virt == NULL) {
-+		printk("PCI: Can not allocate memory for mmconfig structures\n");
- 		return 0;
--	}	
-+	}
-+	for (i = 0; i < pci_mmcfg_config_num; ++i) {
-+		pci_mmcfg_virt[i].cfg = &pci_mmcfg_config[i];
-+		pci_mmcfg_virt[i].virt = ioremap_nocache(pci_mmcfg_config[i].base_address, MMCONFIG_APER_SIZE);
-+		if (!pci_mmcfg_virt[i].virt) {
-+			printk("PCI: Cannot map mmconfig aperture for segment %d\n",
-+			       pci_mmcfg_config[i].pci_segment_group_number);
-+			return 0;
-+		}
-+		printk(KERN_INFO "PCI: Using MMCONFIG at %x\n", pci_mmcfg_config[i].base_address);
-+	}
- 
--	printk(KERN_INFO "PCI: Using MMCONFIG at %x\n", pci_mmcfg_config[0].base_address);
- 	raw_pci_ops = &pci_mmcfg;
- 	pci_probe = (pci_probe & ~PCI_PROBE_MASK) | PCI_PROBE_MMCONF;
- 
 

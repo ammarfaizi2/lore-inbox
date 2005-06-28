@@ -1,81 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261384AbVF1TB0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261446AbVF1TAA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261384AbVF1TB0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 15:01:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261327AbVF1TBH
+	id S261446AbVF1TAA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 15:00:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261485AbVF1S5i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 15:01:07 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:43239 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261201AbVF1S6H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 14:58:07 -0400
-Message-Id: <200506281858.j5SIw2dr013640@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Sreeni <sreeni.pulichi@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Memory Management during Program Loading 
-In-Reply-To: Your message of "Tue, 28 Jun 2005 14:12:43 EDT."
-             <94e67edf0506281112545d4766@mail.gmail.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <94e67edf05062810497c7a20b5@mail.gmail.com> <200506281800.j5SI0FEe011475@turing-police.cc.vt.edu>
-            <94e67edf0506281112545d4766@mail.gmail.com>
+	Tue, 28 Jun 2005 14:57:38 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:19903 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261201AbVF1S4X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 14:56:23 -0400
+Subject: Re: [PATCH] Read only syscall tables for x86_64 and i386
+From: Arjan van de Ven <arjan@infradead.org>
+To: Christoph Lameter <christoph@lameter.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, ak@suse.de
+In-Reply-To: <Pine.LNX.4.62.0506281141050.959@graphe.net>
+References: <Pine.LNX.4.62.0506281141050.959@graphe.net>
+Content-Type: text/plain
+Date: Tue, 28 Jun 2005 20:56:15 +0200
+Message-Id: <1119984975.3175.41.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1119985082_3764P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
-Date: Tue, 28 Jun 2005 14:58:02 -0400
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1119985082_3764P
-Content-Type: text/plain; charset=us-ascii
+On Tue, 2005-06-28 at 11:47 -0700, Christoph Lameter wrote:
+> Place x86_64 and i386 syscall table into the read only section.
+> 
+> Remove the syscall tables from the data section and place them into the 
+> readonly section (like IA64).
 
-On Tue, 28 Jun 2005 14:12:43 EDT, Sreeni said:
+I like it.. however I think the 32 bit compat syscall table on x86-64
+deserves the same treatment....
 
-> We have a "Bus Monitor hardware" which monitors and polices the bus at
-> the specified physical address.
 
-What does this hardware do, exactly, in addition to the usual memory-protection
-capabilities of the main processor?  I suspect the answer to your query will
-depend largely on what your monitor does, exactly, and what capabilities
-it has, and what threat model you're trying to secure against....
-
-> Basically we need to run "secure" program under the supervision of the
-> Bus monitor hardware.
-
-Is there an actual "threat model" here, as in "the attacker might try XYZ,
-and this monitor is a defense because it does ABC, rendering XYZ ineffective"?
-
-I'm unclear on how the monitor can provide any *real* security when it quite
-likely does *not* have access to the entire state of the system (in particular,
-if there's a security-critical value that's still in a CPU register or L1
-cache line...)
-
-> Kernel can see the "secure" memory region, and kernel is reponsible for enabling
-> the "Bus monitor Hardware". 
-
-The problem is that you're using an unsecured kernel to initially load the secure
-memory region - so an attacker is free to load broken code into the secure
-area.  The usual "trusted system" solution for this is to ensure that the kernel
-*also* runs inside the tamper-proof evironment....
-
-Or is the *real* question here "We have a bus analyzer that can't see all of
-the physical memory, so we need the code we're interested in to be in the
-part of physical memory it can see"?  If that's the case, totally different
-answers will probably apply (as we don't have to do things in a "secure" manner,
-we just need to get the right pages in the right frames before the analyzer is
-turned on).....
-
---==_Exmh_1119985082_3764P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFCwZ25cC3lWbTT17ARAigEAJ951HSkEOkeZwN529ZleCIOYal0HgCgxypu
-DuLLSs1//shwLPn1gP9jijQ=
-=GtsT
------END PGP SIGNATURE-----
-
---==_Exmh_1119985082_3764P--

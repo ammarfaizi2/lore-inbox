@@ -1,72 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262020AbVF1Jgx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261836AbVF1JkN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262020AbVF1Jgx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 05:36:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261836AbVF1Jgx
+	id S261836AbVF1JkN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 05:40:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262026AbVF1JkN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 05:36:53 -0400
-Received: from lucidpixels.com ([66.45.37.187]:17540 "EHLO lucidpixels.com")
-	by vger.kernel.org with ESMTP id S262020AbVF1JgS (ORCPT
+	Tue, 28 Jun 2005 05:40:13 -0400
+Received: from nome.ca ([65.61.200.81]:45731 "HELO gobo.nome.ca")
+	by vger.kernel.org with SMTP id S261836AbVF1JkA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 05:36:18 -0400
-Date: Tue, 28 Jun 2005 05:36:12 -0400 (EDT)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34
-To: linux-kernel@vger.kernel.org
-Subject: Packet of death w/NFS+ULOGD+XFS under Kernel 2.6.x?
-Message-ID: <Pine.LNX.4.63.0506280528550.18228@p34>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 28 Jun 2005 05:40:00 -0400
+Date: Tue, 28 Jun 2005 02:40:05 -0700
+From: Mike Bell <kernel@mikebell.org>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Greg KH <greg@kroah.com>, Dmitry Torokhov <dtor_core@ameritech.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] ndevfs - a "nano" devfs
+Message-ID: <20050628094004.GA4673@mikebell.org>
+Mail-Followup-To: Mike Bell <kernel@mikebell.org>,
+	Arjan van de Ven <arjan@infradead.org>, Greg KH <greg@kroah.com>,
+	Dmitry Torokhov <dtor_core@ameritech.net>,
+	linux-kernel@vger.kernel.org
+References: <20050624081808.GA26174@kroah.com> <20050625234305.GA11282@kroah.com> <20050627071907.GA5433@mikebell.org> <200506271735.50565.dtor_core@ameritech.net> <20050627232559.GA7690@mikebell.org> <20050628074015.GA3577@kroah.com> <20050628090852.GA966@mikebell.org> <1119950487.3175.21.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1119950487.3175.21.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following e-mail is related to the previous thread:
+On Tue, Jun 28, 2005 at 11:21:27AM +0200, Arjan van de Ven wrote:
+> you still can't have that. think USB harddisks for example. The only way
+> you can do this reliable is to use UUIDs from the disks. Guess what..
+> udev does that. devfs doesn't.
 
-http://www.uwsg.iu.edu/hypermail/linux/kernel/0506.2/0067.html
+I thought I had made it clear that I wasn't talking about uniquely
+identifying a given piece of hardware, that can only be done in
+userspace (and often not even there).
 
-Recently, I was copying some images I scanned in (a good 300MB or so) with 
-the following command: cp -r images /remote/disk2/share
+What I'm talking about is the ability to find the device node that
+corresponds to the first entry in /proc/bus/input/devices, or play a
+sound file on the system's first sound card, or for X to find the drm
+device node that corresponds to a given video card. All these things are
+easy if you know that /dev/input/event0 is the device node for the first
+entry, but if that device node could be called /dev/myfunkykeyboard
+(note, the device name, you could still have a symlink to said name if
+you wanted without breaking anything), in a world where udev's
+supposed feature of allowing devices to be named anything you want is
+actually used, this isn't possible without scanning all of /dev.
 
-It caused the _SAME_ lockup as my dd problems.
+> actually.. linphone for example shows you the name of the device, not
+> the device node. And at runtime it finds which device node belongs to
+> that name somehow. I didn't look at the code how it does that, but it
+> sure isn't impossible since it's done in practice already.
 
-The weird part is as follows, once the box locks up (the remote host I am 
-sending the images to), I reboot and when sets the IP interfaces up, the 
-client machine (which the images) is still sending it some kind of 'death' 
-packet, as you can see below:
+It is impossible though, if you make use of that particular feature of
+udev. Give it a try, move all your alsa device nodes to other names and
+see how completely unusable ALSA becomes. Those device nodes HAVE to
+exist and HAVE to point to the right devices in order for ALSA to work.
 
-May 14 08:51:27 localhost kernel: ipt_ULOG: error during NLMSG_PUT
-
-I get a few of these messages and then the kernel/console freezes up.  It 
-is not until I reboot or shutoff the client machine that the server can 
-come up.  I actually thought it might be a ulogd issue, I tried removing 
-all of the ulogd rules from my FWALL but still had freezing issues.
-
-Has anyone had similar problems?
-
-Syslog bootup & crash below:
-
-May 14 08:51:26 localhost kernel: e100: eth1: e100_watchdog: link up, 
-100Mbps, full-duplex
-May 14 08:51:26 localhost kernel: e100: eth2: e100_watchdog: link up, 
-100Mbps, full-duplex
-May 14 08:51:26 localhost kernel: ipt_ULOG: error during NLMSG_PUT
-May 14 08:51:26 localhost kernel: ipt_ULOG: Error building netlink message
-May 14 08:51:26 localhost kernel: nfs warning: mount version older than 
-kernel
-May 14 08:51:26 localhost last message repeated 4 times
-May 14 08:51:27 localhost kernel: process `named' is using obsolete 
-setsockopt SO_BSDCOMPAT
-May 14 08:51:27 localhost kernel: ipt_ULOG: error during NLMSG_PUT
-May 14 08:51:27 localhost kernel: ipt_ULOG: Error building netlink message
-May 14 08:51:27 localhost kernel: ipt_ULOG: error during NLMSG_PUT
-May 14 08:51:27 localhost kernel: ipt_ULOG: Error building netlink message
-May 14 08:51:29 localhost kernel: ipt_ULOG: error during NLMSG_PUT
-May 14 08:51:29 localhost kernel: ipt_ULOG: Error building netlink message
-
-^^ Once it gets to this point the console is locked hard, nothing will fix 
-except a reboot or shutdown.
-
-^^^ Also, until the other machine is shut off, rebooted or simply 
-disconnected from the network, this one will not boot.
-
-
+linphone and other programs "just work" because they know where to find
+their device nodes. If anything, you're arguing my point.

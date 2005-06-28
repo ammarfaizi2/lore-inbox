@@ -1,99 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261161AbVF1UyE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbVF1Ud3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261161AbVF1UyE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 16:54:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261634AbVF1UvD
+	id S261443AbVF1Ud3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 16:33:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbVF1UdZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 16:51:03 -0400
-Received: from nysv.org ([213.157.66.145]:11219 "EHLO nysv.org")
-	by vger.kernel.org with ESMTP id S261270AbVF1Ur1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 16:47:27 -0400
-Date: Tue, 28 Jun 2005 23:47:09 +0300
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: David Masover <ninja@slaphack.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Hans Reiser <reiser@namesys.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: reiser4 plugins
-Message-ID: <20050628204709.GH11013@nysv.org>
-References: <20050627092138.GD11013@nysv.org> <200506281344.j5SDixiH003441@laptop11.inf.utfsm.cl>
+	Tue, 28 Jun 2005 16:33:25 -0400
+Received: from mail.fh-wedel.de ([213.39.232.198]:38601 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S261443AbVF1UbD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 16:31:03 -0400
+Date: Tue, 28 Jun 2005 22:30:57 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
+       Robert Love <rml@novell.com>, Andy Isaacson <adi@hexapodia.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: wrong madvise(MADV_DONTNEED) semantic
+Message-ID: <20050628203057.GD4453@wohnheim.fh-wedel.de>
+References: <20050628134316.GS5044@implementation.labri.fr> <20050628181620.GA1423@hexapodia.org> <1119983300.6745.1.camel@betsy> <20050628185300.GB30079@hexapodia.org> <1119986623.6745.10.camel@betsy> <20050628194128.GM4645@bouh.labri.fr> <20050628200330.GB4453@wohnheim.fh-wedel.de> <1119989111.6745.21.camel@betsy> <20050628201704.GC4453@wohnheim.fh-wedel.de> <20050628202053.GO4645@bouh.labri.fr>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="DEfZqDS1MPR2ysog"
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <200506281344.j5SDixiH003441@laptop11.inf.utfsm.cl>
-User-Agent: Mutt/1.5.9i
-From: mjt@nysv.org (Markus  =?ISO-8859-1?Q?=20T=F6rnqvist?=)
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050628202053.GO4645@bouh.labri.fr>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 28 June 2005 22:20:53 +0200, Samuel Thibault wrote:
+> Jörn Engel, le Tue 28 Jun 2005 22:17:04 +0200, a écrit :
+> > If the application knows 100% that it is the _only_ possible user of
+> > this data and will never again use it, dropping dirty pages might be a
+> > sane option.  Effectively that translates to anonymous memory only.
+> 
+> And private file mappings?
 
---DEfZqDS1MPR2ysog
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+As in inode->i_nlink == 0?  Yes, if you can prove that only this one
+thread still has it open.  How to deal with multithreaded processes?
+I don't know and would default to "write it back" again.
 
-On Tue, Jun 28, 2005 at 09:44:59AM -0400, Horst von Brand wrote:
->
->No. But just relying on perfect hardware and concientious sysadmins is
->reckless. Hardware /is/ flaky, sysadmins /are/ (sometimes) lazy (and
->besides, today they are increasingly just plain Joe Sixpack users). Also,
->backing up a few hundred GiB is /not/ fun, and then keeping track of all
->the backups is messy.
+Besides, writing the dirty pages to backing store can only hurt
+performance, never correctness.  The data could already be synced at
+the time of the madvice call anyway.
 
-Even home users have started to set up raid mirrors at home now that
-disk space is cheap. That's a step in the right direction, I
-suppose, with hardware never being good.
+Jörn
 
-Taking backups in an environment where you need a few hundred GiB
-backed up is not that difficult.
-
-Get a separate, redundant box with a big tape changer and drop
-periodical backups off at your bank's vault.
-
-Get a separate, very reduntant box, with a truckload of proven=20
-drives in a separate raid box and run your stuff there.
-
-Get both of the above.
-
-If Joe Sixpack loses his mp3 collection, I don't really care,
-nor should anyone else. Anything important enough to care
-about is easy enough to back up. Always.
-
-Arrogance? Maybe.
-
->Also, I'm not claiming that they are /solely/ responsible, but not having
->the filesystem fall apart utterly every time some bug breaths on it /is/ a
->requirement.
-
-Reiserfs does not fall apart utterly every time some bug breaths on it.
-
->> *still trying to understand how that can be*
->You haven't been around too much yet, do you?
-
-Rather I take backups, buy better hardware and understand there's a
-risk involved.
-
-Computers as a complete set can't be trusted, you can only make
-the best accomodations you can.
-
---=20
-mjt
-
-
---DEfZqDS1MPR2ysog
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFCwbdNIqNMpVm8OhwRAg7yAJsHTe6asb4HRSNSAUFIXinO1MmU+ACfaHiT
-HARynNEimEs+CwJrIgjX7SM=
-=pYYj
------END PGP SIGNATURE-----
-
---DEfZqDS1MPR2ysog--
+-- 
+This above all: to thine own self be true.
+-- Shakespeare

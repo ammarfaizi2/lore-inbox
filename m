@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261152AbVF1F63@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261330AbVF1F6b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261152AbVF1F63 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 01:58:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261553AbVF1FtV
+	id S261330AbVF1F6b (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 01:58:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262006AbVF1FlN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 01:49:21 -0400
-Received: from mail.kroah.org ([69.55.234.183]:15084 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261713AbVF1Fdh convert rfc822-to-8bit
+	Tue, 28 Jun 2005 01:41:13 -0400
+Received: from mail.kroah.org ([69.55.234.183]:8940 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261625AbVF1Fde convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 01:33:37 -0400
-Cc: rajesh.shah@intel.com
-Subject: [PATCH] acpi bridge hotadd: Allow ACPI .add and .start operations to be done independently
-In-Reply-To: <11199367732527@kroah.com>
+	Tue, 28 Jun 2005 01:33:34 -0400
+Cc: kaneshige.kenji@jp.fujitsu.com
+Subject: [PATCH] ACPI based I/O APIC hot-plug: acpiphp support
+In-Reply-To: <11199367741201@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Mon, 27 Jun 2005 22:32:53 -0700
-Message-Id: <11199367731380@kroah.com>
+Date: Mon, 27 Jun 2005 22:32:54 -0700
+Message-Id: <11199367742637@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,315 +24,182 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] acpi bridge hotadd: Allow ACPI .add and .start operations to be done independently
+[PATCH] ACPI based I/O APIC hot-plug: acpiphp support
 
-Create new interfaces to recursively add an acpi namespace object to the acpi
-device list, and recursively start the namespace object.  This is needed for
-ACPI based hotplug of a root bridge hierarchy where the add operation must be
-performed first and the start operation must be performed separately after the
-hot-plugged devices have been properly configured.
+This patch adds PCI based I/O xAPIC hot-add support to ACPIPHP
+driver. When PCI root bridge is hot-added, all PCI based I/O xAPICs
+under the root bridge are hot-added by this patch. Hot-remove support
+is TBD.
 
-Signed-off-by: Rajesh Shah <rajesh.shah@intel.com>
+Signed-off-by: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit 3fb02738b0fd36f47710a2bf207129efd2f5daa2
-tree 56bd70ea1b957b601402745ee03b4c1b293ab23b
-parent f7d473d919627262816459f8dba70d72812be074
-author Rajesh Shah <rajesh.shah@intel.com> Thu, 28 Apr 2005 00:25:52 -0700
-committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 27 Jun 2005 21:52:42 -0700
+commit a0d399a808916d22c1c222c6b5ca4e8edd6d91a9
+tree 4c4f41d86652c7783cd5900605f36344253d3ef1
+parent 0e888adc41ffc02b700ade715c182a17e766af84
+author Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com> Thu, 28 Apr 2005 00:25:59 -0700
+committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 27 Jun 2005 21:52:45 -0700
 
- drivers/acpi/container.c      |    2 -
- drivers/acpi/processor_core.c |    2 -
- drivers/acpi/scan.c           |  126 +++++++++++++++++++++++++++++++++--------
- include/acpi/acpi_bus.h       |   17 +++++-
- 4 files changed, 119 insertions(+), 28 deletions(-)
+ drivers/pci/hotplug/acpiphp_glue.c |  127 ++++++++++++++++++++++++++++++++++++
+ include/linux/pci_ids.h            |    2 +
+ 2 files changed, 129 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/acpi/container.c b/drivers/acpi/container.c
---- a/drivers/acpi/container.c
-+++ b/drivers/acpi/container.c
-@@ -153,7 +153,7 @@ container_device_add(struct acpi_device 
- 		return_VALUE(-ENODEV);
+diff --git a/drivers/pci/hotplug/acpiphp_glue.c b/drivers/pci/hotplug/acpiphp_glue.c
+--- a/drivers/pci/hotplug/acpiphp_glue.c
++++ b/drivers/pci/hotplug/acpiphp_glue.c
+@@ -552,6 +552,132 @@ static void remove_bridge(acpi_handle ha
  	}
- 
--	result = acpi_bus_scan(*device);
-+	result = acpi_bus_start(*device);
- 
- 	return_VALUE(result);
  }
-diff --git a/drivers/acpi/processor_core.c b/drivers/acpi/processor_core.c
---- a/drivers/acpi/processor_core.c
-+++ b/drivers/acpi/processor_core.c
-@@ -723,7 +723,7 @@ int acpi_processor_device_add(
- 		return_VALUE(-ENODEV);
- 	}
  
--	acpi_bus_scan(*device);
-+	acpi_bus_start(*device);
- 
- 	pr = acpi_driver_data(*device);
- 	if (!pr)
-diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
---- a/drivers/acpi/scan.c
-+++ b/drivers/acpi/scan.c
-@@ -553,20 +553,29 @@ acpi_bus_driver_init (
- 	 * upon possible configuration and currently allocated resources.
- 	 */
- 
-+	ACPI_DEBUG_PRINT((ACPI_DB_INFO, "Driver successfully bound to device\n"));
-+	return_VALUE(0);
++static struct pci_dev * get_apic_pci_info(acpi_handle handle)
++{
++	struct acpi_pci_id id;
++	struct pci_bus *bus;
++	struct pci_dev *dev;
++
++	if (ACPI_FAILURE(acpi_get_pci_id(handle, &id)))
++		return NULL;
++
++	bus = pci_find_bus(id.segment, id.bus);
++	if (!bus)
++		return NULL;
++
++	dev = pci_get_slot(bus, PCI_DEVFN(id.device, id.function));
++	if (!dev)
++		return NULL;
++
++	if ((dev->class != PCI_CLASS_SYSTEM_PIC_IOAPIC) &&
++	    (dev->class != PCI_CLASS_SYSTEM_PIC_IOXAPIC))
++	{
++		pci_dev_put(dev);
++		return NULL;
++	}
++
++	return dev;
 +}
 +
-+int
-+acpi_start_single_object (
-+		struct acpi_device *device)
++static int get_gsi_base(acpi_handle handle, u32 *gsi_base)
 +{
-+	int result = 0;
-+	struct acpi_driver *driver;
++	acpi_status status;
++	int result = -1;
++	unsigned long gsb;
++	struct acpi_buffer buffer = {ACPI_ALLOCATE_BUFFER, NULL};
++	union acpi_object *obj;
++	void *table;
 +
-+	ACPI_FUNCTION_TRACE("acpi_start_single_object");
++	status = acpi_evaluate_integer(handle, "_GSB", NULL, &gsb);
++	if (ACPI_SUCCESS(status)) {
++		*gsi_base = (u32)gsb;
++		return 0;
++	}
 +
-+	if (!(driver = device->driver))
-+		return_VALUE(0);
++	status = acpi_evaluate_object(handle, "_MAT", NULL, &buffer);
++	if (ACPI_FAILURE(status) || !buffer.length || !buffer.pointer)
++		return -1;
 +
- 	if (driver->ops.start) {
- 		result = driver->ops.start(device);
- 		if (result && driver->ops.remove)
- 			driver->ops.remove(device, ACPI_BUS_REMOVAL_NORMAL);
--		return_VALUE(result);
--	}
--
--	ACPI_DEBUG_PRINT((ACPI_DB_INFO, "Driver successfully bound to device\n"));
--
--	if (driver->ops.scan) {
--		driver->ops.scan(device);
- 	}
- 
--	return_VALUE(0);
-+	return_VALUE(result);
- }
- 
- static int acpi_driver_attach(struct acpi_driver * drv)
-@@ -586,6 +595,7 @@ static int acpi_driver_attach(struct acp
- 
- 		if (!acpi_bus_match(dev, drv)) {
- 			if (!acpi_bus_driver_init(dev, drv)) {
-+				acpi_start_single_object(dev);
- 				atomic_inc(&drv->references);
- 				count++;
- 				ACPI_DEBUG_PRINT((ACPI_DB_INFO, "Found driver [%s] for device [%s]\n",
-@@ -1009,8 +1019,8 @@ acpi_bus_remove (
- }
- 
- 
--int
--acpi_bus_add (
-+static int
-+acpi_add_single_object (
- 	struct acpi_device	**child,
- 	struct acpi_device	*parent,
- 	acpi_handle		handle,
-@@ -1019,7 +1029,7 @@ acpi_bus_add (
- 	int			result = 0;
- 	struct acpi_device	*device = NULL;
- 
--	ACPI_FUNCTION_TRACE("acpi_bus_add");
-+	ACPI_FUNCTION_TRACE("acpi_add_single_object");
- 
- 	if (!child)
- 		return_VALUE(-EINVAL);
-@@ -1140,7 +1150,7 @@ acpi_bus_add (
- 	 *
- 	 * TBD: Assumes LDM provides driver hot-plug capability.
- 	 */
--	acpi_bus_find_driver(device);
-+	result = acpi_bus_find_driver(device);
- 
- end:
- 	if (!result)
-@@ -1153,10 +1163,10 @@ end:
- 
- 	return_VALUE(result);
- }
--EXPORT_SYMBOL(acpi_bus_add);
- 
- 
--int acpi_bus_scan (struct acpi_device	*start)
-+static int acpi_bus_scan (struct acpi_device	*start,
-+		struct acpi_bus_ops *ops)
++	obj = buffer.pointer;
++	if (obj->type != ACPI_TYPE_BUFFER)
++		goto out;
++
++	table = obj->buffer.pointer;
++	switch (((acpi_table_entry_header *)table)->type) {
++	case ACPI_MADT_IOSAPIC:
++		*gsi_base = ((struct acpi_table_iosapic *)table)->global_irq_base;
++		result = 0;
++		break;
++	case ACPI_MADT_IOAPIC:
++		*gsi_base = ((struct acpi_table_ioapic *)table)->global_irq_base;
++		result = 0;
++		break;
++	default:
++		break;
++	}
++ out:
++	acpi_os_free(buffer.pointer);
++	return result;
++}
++
++static acpi_status
++ioapic_add(acpi_handle handle, u32 lvl, void *context, void **rv)
++{
++	acpi_status status;
++	unsigned long sta;
++	acpi_handle tmp;
++	struct pci_dev *pdev;
++	u32 gsi_base;
++	u64 phys_addr;
++
++	/* Evaluate _STA if present */
++	status = acpi_evaluate_integer(handle, "_STA", NULL, &sta);
++	if (ACPI_SUCCESS(status) && sta != ACPI_STA_ALL)
++		return AE_CTRL_DEPTH;
++
++	/* Scan only PCI bus scope */
++	status = acpi_get_handle(handle, "_HID", &tmp);
++	if (ACPI_SUCCESS(status))
++		return AE_CTRL_DEPTH;
++
++	if (get_gsi_base(handle, &gsi_base))
++		return AE_OK;
++
++	pdev = get_apic_pci_info(handle);
++	if (!pdev)
++		return AE_OK;
++
++	if (pci_enable_device(pdev)) {
++		pci_dev_put(pdev);
++		return AE_OK;
++	}
++
++	pci_set_master(pdev);
++
++	if (pci_request_region(pdev, 0, "I/O APIC(acpiphp)")) {
++		pci_disable_device(pdev);
++		pci_dev_put(pdev);
++		return AE_OK;
++	}
++
++	phys_addr = pci_resource_start(pdev, 0);
++	if (acpi_register_ioapic(handle, phys_addr, gsi_base)) {
++		pci_release_region(pdev, 0);
++		pci_disable_device(pdev);
++		pci_dev_put(pdev);
++		return AE_OK;
++	}
++
++	return AE_OK;
++}
++
++static int acpiphp_configure_ioapics(acpi_handle handle)
++{
++	acpi_walk_namespace(ACPI_TYPE_DEVICE, handle,
++			    ACPI_UINT32_MAX, ioapic_add, NULL, NULL);
++	return 0;
++}
++
+ static int power_on_slot(struct acpiphp_slot *slot)
  {
- 	acpi_status		status = AE_OK;
- 	struct acpi_device	*parent = NULL;
-@@ -1229,9 +1239,20 @@ int acpi_bus_scan (struct acpi_device	*s
- 			continue;
- 		}
- 
--		status = acpi_bus_add(&child, parent, chandle, type);
--		if (ACPI_FAILURE(status))
--			continue;
-+		if (ops->acpi_op_add)
-+			status = acpi_add_single_object(&child, parent,
-+					chandle, type);
-+		 else
-+			status = acpi_bus_get_device(chandle, &child);
-+
-+		 if (ACPI_FAILURE(status))
-+			 continue;
-+
-+		if (ops->acpi_op_start) {
-+			status = acpi_start_single_object(child);
-+			if (ACPI_FAILURE(status))
-+				continue;
-+		}
- 
- 		/*
- 		 * If the device is present, enabled, and functioning then
-@@ -1257,8 +1278,50 @@ int acpi_bus_scan (struct acpi_device	*s
- 
- 	return_VALUE(0);
+ 	acpi_status status;
+@@ -942,6 +1068,7 @@ static int acpiphp_configure_bridge (acp
+ 	acpiphp_sanitize_bus(bus);
+ 	acpiphp_set_hpp_values(handle, bus);
+ 	pci_enable_bridges(bus);
++	acpiphp_configure_ioapics(handle);
+ 	return 0;
  }
--EXPORT_SYMBOL(acpi_bus_scan);
  
-+int
-+acpi_bus_add (
-+	struct acpi_device	**child,
-+	struct acpi_device	*parent,
-+	acpi_handle		handle,
-+	int			type)
-+{
-+	int result;
-+	struct acpi_bus_ops ops;
-+
-+	ACPI_FUNCTION_TRACE("acpi_bus_add");
-+
-+	result = acpi_add_single_object(child, parent, handle, type);
-+	if (!result) {
-+		memset(&ops, 0, sizeof(ops));
-+		ops.acpi_op_add = 1;
-+		result = acpi_bus_scan(*child, &ops);
-+	}
-+	return_VALUE(result);
-+}
-+EXPORT_SYMBOL(acpi_bus_add);
-+
-+int
-+acpi_bus_start (
-+	struct acpi_device *device)
-+{
-+	int result;
-+	struct acpi_bus_ops ops;
-+
-+	ACPI_FUNCTION_TRACE("acpi_bus_start");
-+
-+	if (!device)
-+		return_VALUE(-EINVAL);
-+
-+	result = acpi_start_single_object(device);
-+	if (!result) {
-+		memset(&ops, 0, sizeof(ops));
-+		ops.acpi_op_start = 1;
-+		result = acpi_bus_scan(device, &ops);
-+	}
-+	return_VALUE(result);
-+}
-+EXPORT_SYMBOL(acpi_bus_start);
+diff --git a/include/linux/pci_ids.h b/include/linux/pci_ids.h
+--- a/include/linux/pci_ids.h
++++ b/include/linux/pci_ids.h
+@@ -62,6 +62,8 @@
  
- static int
- acpi_bus_trim(struct acpi_device	*start,
-@@ -1331,13 +1394,19 @@ acpi_bus_scan_fixed (
- 	/*
- 	 * Enumerate all fixed-feature devices.
- 	 */
--	if (acpi_fadt.pwr_button == 0)
--		result = acpi_bus_add(&device, acpi_root, 
-+	if (acpi_fadt.pwr_button == 0) {
-+		result = acpi_add_single_object(&device, acpi_root,
- 			NULL, ACPI_BUS_TYPE_POWER_BUTTON);
-+		if (!result)
-+			result = acpi_start_single_object(device);
-+	}
- 
--	if (acpi_fadt.sleep_button == 0)
--		result = acpi_bus_add(&device, acpi_root, 
-+	if (acpi_fadt.sleep_button == 0) {
-+		result = acpi_add_single_object(&device, acpi_root,
- 			NULL, ACPI_BUS_TYPE_SLEEP_BUTTON);
-+		if (!result)
-+			result = acpi_start_single_object(device);
-+	}
- 
- 	return_VALUE(result);
- }
-@@ -1346,6 +1415,7 @@ acpi_bus_scan_fixed (
- static int __init acpi_scan_init(void)
- {
- 	int result;
-+	struct acpi_bus_ops ops;
- 
- 	ACPI_FUNCTION_TRACE("acpi_scan_init");
- 
-@@ -1357,17 +1427,23 @@ static int __init acpi_scan_init(void)
- 	/*
- 	 * Create the root device in the bus's device tree
- 	 */
--	result = acpi_bus_add(&acpi_root, NULL, ACPI_ROOT_OBJECT, 
-+	result = acpi_add_single_object(&acpi_root, NULL, ACPI_ROOT_OBJECT,
- 		ACPI_BUS_TYPE_SYSTEM);
- 	if (result)
- 		goto Done;
- 
-+	result = acpi_start_single_object(acpi_root);
-+
- 	/*
- 	 * Enumerate devices in the ACPI namespace.
- 	 */
- 	result = acpi_bus_scan_fixed(acpi_root);
--	if (!result) 
--		result = acpi_bus_scan(acpi_root);
-+	if (!result) {
-+		memset(&ops, 0, sizeof(ops));
-+		ops.acpi_op_add = 1;
-+		ops.acpi_op_start = 1;
-+		result = acpi_bus_scan(acpi_root, &ops);
-+	}
- 
- 	if (result)
- 		acpi_device_unregister(acpi_root, ACPI_BUS_REMOVAL_NORMAL);
-diff --git a/include/acpi/acpi_bus.h b/include/acpi/acpi_bus.h
---- a/include/acpi/acpi_bus.h
-+++ b/include/acpi/acpi_bus.h
-@@ -108,6 +108,21 @@ typedef int (*acpi_op_unbind)	(struct ac
- typedef int (*acpi_op_match)	(struct acpi_device *device,
- 				 struct acpi_driver *driver);
- 
-+struct acpi_bus_ops {
-+	u32 			acpi_op_add:1;
-+	u32			acpi_op_remove:1;
-+	u32			acpi_op_lock:1;
-+	u32			acpi_op_start:1;
-+	u32			acpi_op_stop:1;
-+	u32			acpi_op_suspend:1;
-+	u32			acpi_op_resume:1;
-+	u32			acpi_op_scan:1;
-+	u32			acpi_op_bind:1;
-+	u32			acpi_op_unbind:1;
-+	u32			acpi_op_match:1;
-+	u32			reserved:21;
-+};
-+
- struct acpi_device_ops {
- 	acpi_op_add		add;
- 	acpi_op_remove		remove;
-@@ -327,9 +342,9 @@ int acpi_bus_generate_event (struct acpi
- int acpi_bus_receive_event (struct acpi_bus_event *event);
- int acpi_bus_register_driver (struct acpi_driver *driver);
- int acpi_bus_unregister_driver (struct acpi_driver *driver);
--int acpi_bus_scan (struct acpi_device *start);
- int acpi_bus_add (struct acpi_device **child, struct acpi_device *parent,
- 		acpi_handle handle, int type);
-+int acpi_bus_start (struct acpi_device *device);
- 
- 
- int acpi_match_ids (struct acpi_device	*device, char	*ids);
+ #define PCI_BASE_CLASS_SYSTEM		0x08
+ #define PCI_CLASS_SYSTEM_PIC		0x0800
++#define PCI_CLASS_SYSTEM_PIC_IOAPIC	0x080010
++#define PCI_CLASS_SYSTEM_PIC_IOXAPIC	0x080020
+ #define PCI_CLASS_SYSTEM_DMA		0x0801
+ #define PCI_CLASS_SYSTEM_TIMER		0x0802
+ #define PCI_CLASS_SYSTEM_RTC		0x0803
 

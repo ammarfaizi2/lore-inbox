@@ -1,60 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261179AbVF1T7m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261297AbVF1UDb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261179AbVF1T7m (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 15:59:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbVF1T7I
+	id S261297AbVF1UDb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 16:03:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbVF1UCw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 15:59:08 -0400
-Received: from smtp.andrew.cmu.edu ([128.2.10.83]:61573 "EHLO
-	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP id S261179AbVF1T6M
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 15:58:12 -0400
-From: Jeremy Maitin-Shepard <jbms@cmu.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Read only syscall tables for x86_64 and i386
-In-Reply-To: <20050628194215.GB32240@infradead.org> (Christoph Hellwig's
-	message of "Tue, 28 Jun 2005 20:42:15 +0100")
-Date: Tue, 28 Jun 2005 15:52:50 -0400
-References: <Pine.LNX.4.62.0506281141050.959@graphe.net>
-	<87oe9q70no.fsf@jbms.ath.cx> <Pine.LNX.4.62.0506281218030.1454@graphe.net>
-	<87hdfi704d.fsf@jbms.ath.cx> <Pine.LNX.4.62.0506281230550.1630@graphe.net>
-	<20050628194215.GB32240@infradead.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/22.0.50 (gnu/linux)
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-1: winter into spring
-Message-ID: <87vf3y2qzz.fsf@jbms.ath.cx>
-MIME-Version: 1.0
-Content-Type: text/plain
+	Tue, 28 Jun 2005 16:02:52 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:20870 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261269AbVF1UCS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 16:02:18 -0400
+Date: Tue, 28 Jun 2005 13:01:19 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Lameter <christoph@lameter.com>
+Cc: shai@scalex86.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] mostly_read data section
+Message-Id: <20050628130119.5eb366d6.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.62.0506281247360.1933@graphe.net>
+References: <Pine.LNX.4.62.0506281152060.1116@graphe.net>
+	<Pine.LNX.4.62.0506281247360.1933@graphe.net>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@infradead.org> writes:
+Christoph Lameter <christoph@lameter.com> wrote:
+>
+> -static unsigned long hpet_usec_quotient;	/* convert hpet clks to usec */
+>  +static unsigned long __read_mostly hpet_usec_quotient;	/* convert hpet clks to usec */
 
-> On Tue, Jun 28, 2005 at 12:31:33PM -0700, Christoph Lameter wrote:
->> On Tue, 28 Jun 2005, Jeremy Maitin-Shepard wrote:
->> 
->> > It would probably be better implemented with a more generic mechanism,
->> > but I don't believe anyone is working on that now, so it looks like AFS
->> > will continue to use a special syscall.
->> 
->> We could put an #ifdef CONFIG_AFS into the syscall table definition?
->> That makes it explicit.
+__read_mostly
 
-> No.  AFS is utterly wrong, and the sooner we make it fail to work the
-> better.
+>   static unsigned long tsc_hpet_quotient;		/* convert tsc to hpet clks */
+>   static unsigned long hpet_last; 	/* hpet counter value at last tick*/
+>   static unsigned long last_tsc_low;	/* lsb 32 bits of Time Stamp Counter */
+>  @@ -193,7 +193,7 @@ static int hpet_resume(void)
+>   /************************************************************/
+>   
+>   /* tsc timer_opts struct */
+>  -static struct timer_opts timer_hpet = {
+>  +static struct timer_opts timer_hpet __mostly_read = {
 
-Heh, well that is nice, but breaking it will only mean that I and every
-other AFS user will have to revert the patch that breaks it;
-furthermore, many distributions that provide binary kernels will
-probably also have to revert the patch because many of their users will
-want to use AFS.
+__mostly_read.
 
--- 
-Jeremy Maitin-Shepard
+
+I suggest you use __read_mostly throughout.

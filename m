@@ -1,151 +1,141 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261245AbVF1SRM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262184AbVF1SWh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261245AbVF1SRM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 14:17:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262184AbVF1SRM
+	id S262184AbVF1SWh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 14:22:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262185AbVF1SWh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 14:17:12 -0400
-Received: from straum.hexapodia.org ([64.81.70.185]:7051 "EHLO
-	straum.hexapodia.org") by vger.kernel.org with ESMTP
-	id S261245AbVF1SQY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 14:16:24 -0400
-Date: Tue, 28 Jun 2005 11:16:20 -0700
-From: Andy Isaacson <adi@hexapodia.org>
-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: wrong madvise(MADV_DONTNEED) semantic
-Message-ID: <20050628181620.GA1423@hexapodia.org>
-References: <20050628134316.GS5044@implementation.labri.fr>
+	Tue, 28 Jun 2005 14:22:37 -0400
+Received: from fmr19.intel.com ([134.134.136.18]:35458 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S262184AbVF1SW1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 14:22:27 -0400
+Subject: Re: [patch 2/2] i386/x86_64: collect host bridge resources v2
+From: Kristen Accardi <kristen.c.accardi@intel.com>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: rajesh.shah@intel.com, gregkh@suse.de, ak@suse.de, len.brown@intel.com,
+       akpm@osdl.org, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, acpi-devel@lists.sourceforge.net
+In-Reply-To: <20050628155152.A24551@jurassic.park.msu.ru>
+References: <20050602224147.177031000@csdlinux-1>
+	 <20050602224327.051278000@csdlinux-1>
+	 <20050628155152.A24551@jurassic.park.msu.ru>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 28 Jun 2005 11:21:54 -0700
+Message-Id: <1119982914.19258.6.camel@whizzy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050628134316.GS5044@implementation.labri.fr>
-User-Agent: Mutt/1.4.2i
-X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
-X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
-X-Domestic-Surveillance: money launder bomb tax evasion
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+X-OriginalArrivalTime: 28 Jun 2005 18:21:56.0002 (UTC) FILETIME=[43DF4820:01C57C0E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 28, 2005 at 03:43:16PM +0200, Samuel Thibault wrote:
-> There is something wrong with the current madvise(MADV_DONTNEED)
-> implementation. Both the manpage and the source code says that
-> MADV_DONTNEED means that the application does not care about the data,
-> so it might be thrown away by the kernel.
-
-I agree that the Linux madvise manpage is unclear and should be fixed.
-
-If your interpretation of the problem is correct, then it should be
-trivial to write a test program demonstrating the problem.  Did you
-write the simple test program and run it?
-
-I did, and the results make me think that the Linux implementation does
-conform to the POSIX spec you quote.  I did not observe any data loss.
-
-So it's just a documentation issue.
-
-Besides, if you read the documentation closely, it does not say what you
-think it says.
-
-       MADV_DONTNEED
-	      Do not expect access in the near future.  (For the time
-	      being, the application is finished with the given range,
-	      so the kernel can free resources associated with it.)
-	      Subsequent accesses of pages in this range will succeed,
-	      but will result either in reloading of the memory contents
-	      from the underlying mapped file (see mmap) or
-	      zero-fill-on-demand pages for mappings without an
-	      underlying file.
-
-You seem to think that "reloading ... from the underlying mapped file"
-means that changes are lost, but that's not implied.
-
-Also, the parenthetical near the top of the manpage "(except in the case
-of MADV_DONTNEED)" is, AFAICS, wrong.  MADV_DONTNEED does not affect
-semantics.  It looks to me like someone "improved" madvise.2 without
-actually understanding what they were talking about.
-
-Below is the test program I used.
-
--andy
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#include <string.h>
-#include <errno.h>
-
-#include <unistd.h>
-#include <sys/mman.h>
-#include <fcntl.h>
-#include <sys/stat.h>
-
-typedef unsigned int u32;
-
-void die(char *fmt, ...)
-{
-    va_list ap;
-
-    va_start(ap, fmt);
-    vfprintf(stderr, fmt, ap);
-    va_end(ap);
-    exit(1);
-}
-
-int check_cookie(char *file, u32 cookie)
-{
-    u32 buf;
-    int fd;
-
-    if((fd = open(file, O_RDONLY, 0)) == -1)
-	die("%s: %s\n", file, strerror(errno));
-    if(read(fd, &buf, sizeof(buf)) == -1)
-	die("read: %s\n", strerror(errno));
-    close(fd);
-    return buf == cookie;
-}
-
-int dotest(char *file, u32 cookie, int do_msync, int do_madvise)
-{
-    void *p;
-    int fd, len = 16 * 1024, prot = PROT_READ|PROT_WRITE;
-
-    if((fd = open(file, O_RDWR|O_CREAT, 0666)) == -1)
-	die("%s: %s\n", file, strerror(errno));
-
-    if(ftruncate(fd, len) == -1)
-	die("ftruncate: %s\n", strerror(errno));
-    if(write(fd, "", 1) == -1)
-	die("write: %s\n", strerror(errno));
-
-    if((p = mmap(0, len, prot, MAP_SHARED, fd, 0)) == MAP_FAILED)
-	die("mmap: %s\n", strerror(errno));
-
-    *(u32 *)p = cookie;
-
-    if(do_msync)
-	if(msync(p, len, MS_SYNC) == -1)
-	    die("msync: %s\n", strerror(errno));
-    if(do_madvise)
-	if(madvise(p, len, MADV_DONTNEED) == -1)
-	    die("madvise: %s\n", strerror(errno));
-
-    if(close(fd) == -1)
-	die("close: %s\n", strerror(errno));
-
-    printf("c = %08x msync: %s madvise: %s %s\n",
-	cookie, do_msync ? "YES" : " NO", do_madvise ? "YES" : " NO",
-	check_cookie(file, cookie) ? "ok" : "FAILED");
-}
+On Tue, 2005-06-28 at 15:51 +0400, Ivan Kokshaysky wrote:
+> [This refers to "gregkh-pci-pci-collect-host-bridge-resources-02.patch"
+> which went into 2.6.12-mm1 and -mm2]
+> 
+> On Thu, Jun 02, 2005 at 03:41:49PM -0700, rajesh.shah@intel.com wrote:
+> > This patch reads and stores host bridge resources reported by
+> > ACPI BIOS for i386 and x86_64 systems.  This is needed since
+> > ACPI hotplug code now uses the PCI core for resource management. 
+> 
+> That patch introduces two major problems.
+> 
+> 1. The new root bus resources aren't properly inserted into global
+>    resource tree (missing request_resource calls). This leads to
+>    completely messed up PCI setup, especially with
+>    pci_assign_unassigned_resources() call, as seen in -mm1 (mm2 is
+>    also unsafe, though).
+> 
+> 2. Transparent bridge handling is broken, no matter is it old code
+>    in Linus' tree or the new one in -mm. At the point then
+>    pcibios_setup_root_windows() is called, the "transparent"
+>    resource pointers have been already set up in pci_read_bridge_bases()
+>    (typically to ioport_resource and iomem_resource), so after changing
+>    the root bus windows these pointers are wrong.
+> 
+> The appended patch fixes that. Just compare /proc/ioports and /proc/iomem
+> with and without it. ;-)
+> 
 
 
-int main(int argc, char **argv)
-{
-    if(argc != 2) die("usage: %s file\n", argv[0]);
+I gave this patch a try (against mm2), and found that I now get many
+errors on boot up complaining about not being able to allocate PCI
+resources due to resource collisions, and then the system begins to
+complain about lost interrupts on hda, and is never able to mount the
+root filesystem.
+Kristen
 
-    lrand48();
-    dotest(argv[1], lrand48(), 0, 0);
-    dotest(argv[1], lrand48(), 1, 0);
-    dotest(argv[1], lrand48(), 0, 1);
-    dotest(argv[1], lrand48(), 1, 1);
-}
+
+> Ivan.
+> 
+> --- 2.6.12-mm2/arch/i386/pci/acpi.c	2005-06-28 13:30:24.000000000 +0400
+> +++ linux/arch/i386/pci/acpi.c	2005-06-28 14:13:51.000000000 +0400
+> @@ -107,10 +107,22 @@ verify_root_windows(struct pci_bus *bus)
+>  			continue;
+>  		switch (bus->resource[i]->flags & type_mask) {
+>  			case IORESOURCE_IO:
+> -				num_io++;
+> +				if (!request_resource(&ioport_resource,
+> +						      bus->resource[i]))
+> +					num_io++;
+> +				else {
+> +					kfree(bus->resource[i]);
+> +					bus->resource[i] = NULL;
+> +				}
+>  				break;
+>  			case IORESOURCE_MEM:
+> -				num_mem++;
+> +				if (!request_resource(&iomem_resource,
+> +						      bus->resource[i]))
+> +					num_mem++;
+> +				else {
+> +					kfree(bus->resource[i]);
+> +					bus->resource[i] = NULL;
+> +				}
+>  				break;
+>  			default:
+>  				break;
+> @@ -126,6 +138,21 @@ verify_root_windows(struct pci_bus *bus)
+>  }
+>  
+>  static void __devinit
+> +fixup_transparent_bridges(struct list_head *bus_list)
+> +{
+> +	int i;
+> +	struct pci_bus *b;
+> +
+> +	list_for_each_entry(b, bus_list, node) {
+> +		if (b->self && b->self->transparent) {
+> +			for (i = 3; i < PCI_BUS_NUM_RESOURCES; i++)
+> +				b->resource[i] = b->parent->resource[i - 3];
+> +		}
+> +		fixup_transparent_bridges(&b->children);
+> +	}
+> +}
+> +
+> +static void __devinit
+>  pcibios_setup_root_windows(struct pci_bus *bus, acpi_handle handle)
+>  {
+>  	int i;
+> @@ -147,6 +174,21 @@ pcibios_setup_root_windows(struct pci_bu
+>  			kfree(bus->resource[i]);
+>  			bus->resource[i] = bres[i];
+>  		}
+> +	} else {
+> +		/* Squeeze out unused resource pointers. */
+> +		int idx = 0;
+> +
+> +		for (i = 0; i < PCI_BUS_NUM_RESOURCES; i++) {
+> +			if (bus->resource[i])
+> +				bus->resource[idx++] = bus->resource[i];
+> +		}
+> +		for (; idx < PCI_BUS_NUM_RESOURCES; idx++)
+> +			bus->resource[idx] = NULL;
+> +
+> +		/* The root bus resources have been changed. Fix up the
+> +		   resource pointers of buses behind "transparent" bridges
+> +		   as well. */
+> +		fixup_transparent_bridges(&bus->children);
+>  	}
+>  }
+>  

@@ -1,70 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262171AbVF1SAm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262169AbVF1SBw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262171AbVF1SAm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 14:00:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262166AbVF1SAl
+	id S262169AbVF1SBw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 14:01:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262166AbVF1SBC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 14:00:41 -0400
-Received: from s0003.shadowconnect.net ([213.239.201.226]:43789 "EHLO
-	mail.shadowconnect.com") by vger.kernel.org with ESMTP
-	id S262160AbVF1SAO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 14:00:14 -0400
-Message-ID: <42C19214.6070708@shadowconnect.com>
-Date: Tue, 28 Jun 2005 20:08:20 +0200
-From: Markus Lidel <Markus.Lidel@shadowconnect.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <gregkh@suse.de>
-CC: Christoph Hellwig <hch@lst.de>, linux-kernel@vger.kernel.org
-Subject: Re: sysfs abuse in recent i2o changes
-References: <20050628112102.GA1111@lst.de> <42C16691.3090205@shadowconnect.com> <20050628162125.GA9239@suse.de>
-In-Reply-To: <20050628162125.GA9239@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 28 Jun 2005 14:01:02 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:57000 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S262169AbVF1SA0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 14:00:26 -0400
+Message-Id: <200506281800.j5SI0FEe011475@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Sreeni <sreeni.pulichi@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Memory Management during Program Loading 
+In-Reply-To: Your message of "Tue, 28 Jun 2005 13:49:46 EDT."
+             <94e67edf05062810497c7a20b5@mail.gmail.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <94e67edf05062810497c7a20b5@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1119981615_3764P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Tue, 28 Jun 2005 14:00:15 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+--==_Exmh_1119981615_3764P
+Content-Type: text/plain; charset=us-ascii
 
-Greg KH wrote:
-> On Tue, Jun 28, 2005 at 05:02:41PM +0200, Markus Lidel wrote:
->>I know, but i hopefully also have a good reason to do so... First, the 
->>attributes provided through these functions are for accessing the 
->>firmware... The controller has a little limitation, it could only handle 
->>64 blocks, but sysfs only have 4k...
->>Now there are two options:
->>1) when writing: read a 64k block, merge it with the 4k block and write 
->>it back, when reading: read a 64k block and only return the needed 4k block.
->>2) extend the sysfs attribute to allow 64k blocks
->>IMHO the first is not a very good solution, because for a 64k block it 
->>has to be written 16 times...
->>Of course if someone finds a better solution i would be glad to hear 
->>about it...
-> Use the binary file interface of sysfs, which was written exactly for
-> this kind of thing. :)
+On Tue, 28 Jun 2005 13:49:46 EDT, Sreeni said:
+> In our system we have a secure physical memory starting and ending at	
+> predefined addresses. We want to execute certain programs, which have	
+> to be running secure in those address spaces only.
 
-Oh i tried to use the binary interface, but i haven't found a way to 
-increase the block size beyond 4k, could you please tell me how i could 
-adjust it, or where i could read about it?
+Can you explain how this memory is "secure", and how you expect a kernel that's
+running *outside* this secure space to load a program into it?
 
-Thank you very much!
+> Is it possible to force the loader to load the "particular" program 
+> (both the code and data segment) at that pre-defined secure physical 	
+> memory, without any major kernel changes?
 
+It's more complicated than that - not only do you need to worry about running
+the program in that space, you also need to worry about things like malloc()
+space for the program, I/O buffers, and so on.....
 
-Best regards,
+--==_Exmh_1119981615_3764P
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-Markus Lidel
-------------------------------------------
-Markus Lidel (Senior IT Consultant)
+iD8DBQFCwZAvcC3lWbTT17ARAq4PAKCLJuLIZ6LQ/2CfLWAAwBm7ADjCvwCgnV5B
+RxzLPhuQND68pHwtRxHigxA=
+=tCCK
+-----END PGP SIGNATURE-----
 
-Shadow Connect GmbH
-Carl-Reisch-Weg 12
-D-86381 Krumbach
-Germany
-
-Phone:  +49 82 82/99 51-0
-Fax:    +49 82 82/99 51-11
-
-E-Mail: Markus.Lidel@shadowconnect.com
-URL:    http://www.shadowconnect.com
+--==_Exmh_1119981615_3764P--

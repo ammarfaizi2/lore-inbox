@@ -1,73 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261436AbVF1WT0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262193AbVF1W0Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261436AbVF1WT0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 18:19:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262182AbVF1WSr
+	id S262193AbVF1W0Z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 18:26:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262199AbVF1WYD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 18:18:47 -0400
-Received: from smtp-1.llnl.gov ([128.115.250.81]:2945 "EHLO smtp-1.llnl.gov")
-	by vger.kernel.org with ESMTP id S261436AbVF1WQh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 18:16:37 -0400
-Date: Tue, 28 Jun 2005 15:16:33 -0700 (PDT)
-From: Chuck Harding <charding@llnl.gov>
-Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.50-24
-In-reply-to: <20050628091222.GA30629@elte.hu>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linux Kernel Discussion List <linux-kernel@vger.kernel.org>
-Message-id: <Pine.LNX.4.63.0506281513001.5191@ghostwheel.llnl.gov>
-Organization: Lawrence Livermore National Laboratory
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-Content-transfer-encoding: 7BIT
-User-Agent: Pine/4.62 (X11; U; Linux i686; en-US; rv:2.6.11-rc2-mm1)
-References: <20050608112801.GA31084@elte.hu> <20050625091215.GC27073@elte.hu>
- <200506250919.52640.gene.heskett@verizon.net>
- <200506251039.14746.gene.heskett@verizon.net>
- <Pine.LNX.4.63.0506271157200.8605@ghostwheel.llnl.gov>
- <1119902991.4794.5.camel@dhcp153.mvista.com>
- <Pine.LNX.4.58.0506280337390.24849@localhost.localdomain>
- <20050628081843.GA16455@elte.hu> <20050628091222.GA30629@elte.hu>
+	Tue, 28 Jun 2005 18:24:03 -0400
+Received: from simmts12.bellnexxia.net ([206.47.199.141]:26007 "EHLO
+	simmts12-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S262196AbVF1WXQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 18:23:16 -0400
+Message-ID: <3993.10.10.10.24.1119997389.squirrel@linux1>
+In-Reply-To: <20050628221422.GT12006@waste.org>
+References: <42B9E536.60704@pobox.com> <20050623235634.GC14426@waste.org>
+    <20050624064101.GB14292@pasky.ji.cz>
+    <20050624123819.GD9519@64m.dyndns.org>
+    <20050628150027.GB1275@pasky.ji.cz> <20050628180157.GI12006@waste.org>
+    <62CF578B-B9DF-4DEA-8BAD-041F357771FD@mac.com>
+    <3886.10.10.10.24.1119991512.squirrel@linux1>
+    <20050628221422.GT12006@waste.org>
+Date: Tue, 28 Jun 2005 18:23:09 -0400 (EDT)
+Subject: Re: Mercurial vs Updated git HOWTO for kernel hackers
+From: "Sean" <seanlkml@sympatico.ca>
+To: "Matt Mackall" <mpm@selenic.com>
+Cc: "Kyle Moffett" <mrmacman_g4@mac.com>, "Petr Baudis" <pasky@ucw.cz>,
+       "Christopher Li" <hg@chrisli.org>, "Jeff Garzik" <jgarzik@pobox.com>,
+       "Linux Kernel" <linux-kernel@vger.kernel.org>,
+       "Git Mailing List" <git@vger.kernel.org>, mercurial@selenic.com
+User-Agent: SquirrelMail/1.4.4-2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Jun 2005, Ingo Molnar wrote:
+On Tue, June 28, 2005 6:14 pm, Matt Mackall said:
+>> You can even have a setup where objects
+>> are archived onto write-once media like DVD and still participate in a
+>> live repository, where new objects are written to hard disk, but older
+>> object are (automatically) sourced from the DVD.
+>
+> Have fun with that. It's an excellent way to destroy your DVD drive.
+
+Oh come on, stop the FUD.   You pack all the objects up into a single pack
+file (see new feature in Git) and you burn it _once_ to dvd or cdrom.
 
 >
-> * Ingo Molnar <mingo@elte.hu> wrote:
+> Git's completely structureless filename hashing pretty much guarantees
+> that disk layout will degrade to worst-case random access behavior
+> over time. Just walking through the 2000 commit blobs in the current
+> tree can take minutes cold cache on a fast hard disk. Walking the 1700
+> tree blobs in a given version takes quite a while too.
 >
->> * Steven Rostedt <rostedt@goodmis.org> wrote:
->>
->>> Although turning off apm works, this is a fix to the symptom and not a
->>> cure.  Has someone already taken a look at this code? Since
->>> apm_bios_call_simple calls local_save_flags and afterwards
->>> raw_lock_irq_restore is then called.  Shouldn't that have been
->>> raw_local_save_flags?
->>
->> ah, indeed. I fixed this bug and have uploaded the -50-26 patch.
->> Chuck, does this fix the APM problems for you?
+> Put that on a DVD and that could easily turn into hours of continuous
+> seeking for a simple operation like checking out tip of tree.
 >
-> i've also uploaded -50-27 in which i've improved the irq-flags debugging
-> code. They are activated if CONFIG_DEBUG_PREEMPT is enabled, and can
-> come in two variants of kernel messages:
+> And as far as I know, ISO9660 and UDF don't really handle huge
+> directories well. So if you try and put the whole kernel history (200k
+> files, some huge number of directory blobs, and 30k-60k commit blobs)
+> on a DVD, you'll be really hurting.
 >
-> BUG: bad raw irq-flag value 80000000, test/3810!
-> BUG: bad soft irq-flag value 00000202, test/3810!
+> Meanwhile the whole history (>30k changesets) with Mercurial fits on a
+> regular CD, with reasonable directory sizes and I/O patterns.
 >
-> so we should now be able to detect mismatches of irq flags right where
-> they occur.
+> Not that it's really worth the trouble. It takes longer for me to burn
+> an ISO image to disc than to download a complete kernel repo from
+> kernel.org.
 >
-> 	Ingo
 
-Ack!! I didn't have that enabled so I am rebuilding again. One thing I've
-noticed is that sox seems to be hanging when it is trying to play a .wav
-file (for system beeps) and there aren't any error messages about what
-might be going on.
+Git is still developing, there will be new ways to seek and cache things
+etc eventually that remove any performance issue.  Git gets this right, it
+concentrates on what is important, stays flexible and trusts that down the
+road as things mature any performance problems can be dealt with.
 
--- 
-Charles D. (Chuck) Harding <charding@llnl.gov>  Voice: 925-423-8879
-Senior Computer Associate         ICCD            Fax: 925-423-6961
-Lawrence Livermore National Laboratory      Computation Directorate
-Livermore, CA USA  http://www.llnl.gov  GPG Public Key ID: B9EB6601
------------------- http://tinyurl.com/5w5ey -----------------------
--- If I knew what I was doing...I'd be dangerous... --
+It already has some tools that are better than BK ever had (gitk, gitweb,
+etc..)
+
+Cheers,
+Sean
+
+

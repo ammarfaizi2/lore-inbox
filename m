@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261651AbVF1GKn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261574AbVF1IyU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261651AbVF1GKn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 02:10:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261650AbVF1GKF
+	id S261574AbVF1IyU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 04:54:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261553AbVF1GJU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 02:10:05 -0400
-Received: from mail.kroah.org ([69.55.234.183]:26860 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261862AbVF1Fdk convert rfc822-to-8bit
+	Tue, 28 Jun 2005 02:09:20 -0400
+Received: from mail.kroah.org ([69.55.234.183]:25068 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261836AbVF1Fdj convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 01:33:40 -0400
-Cc: rajesh.shah@intel.com
-Subject: [PATCH] acpi bridge hotadd: Link newly created pci child bus to its parent on creation
-In-Reply-To: <11199367721790@kroah.com>
+	Tue, 28 Jun 2005 01:33:39 -0400
+Cc: kaneshige.kenji@jp.fujitsu.com
+Subject: [PATCH] ACPI based I/O APIC hot-plug: add interfaces
+In-Reply-To: <1119936774204@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Mon, 27 Jun 2005 22:32:52 -0700
-Message-Id: <1119936772835@kroah.com>
+Date: Mon, 27 Jun 2005 22:32:54 -0700
+Message-Id: <1119936774301@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,69 +24,105 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] acpi bridge hotadd: Link newly created pci child bus to its parent on creation
+[PATCH] ACPI based I/O APIC hot-plug: add interfaces
 
-When a pci child bus is created, add it to the parent's children list
-immediately rather than waiting till pci_bus_add_devices().  For hot-plug
-bridges/devices, pci_bus_add_devices() may be called much later, after they
-have been properly configured.  In the meantime, this allows us to use the
-normal pci bus search functions for the hot-plug bridges/buses.
+This patch adds the following new interfaces for I/O xAPIC
+hotplug. The implementation of these interfaces depends on each
+architecture.
 
-Signed-off-by: Rajesh Shah <rajesh.shah@intel.com>
+    o int acpi_register_ioapic(acpi_handle handle, u64 phys_addr,
+			       u32 gsi_base);
+
+        This new interface is to add a new I/O xAPIC specified by
+        phys_addr and gsi_base pair. phys_addr is the physical address
+        to which the I/O xAPIC is mapped and gsi_base is global system
+        interrupt base of the I/O xAPIC. acpi_register_ioapic returns
+        0 on success, or negative value on error.
+
+    o int acpi_unregister_ioapic(acpi_handle handle, u32 gsi_base);
+
+        This new interface is to remove a I/O xAPIC specified by
+        gsi_base. acpi_unregister_ioapic returns 0 on success, or
+        negative value on error.
+
+Signed-off-by: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit 6ef6f0e33c4645fc8d23201ad5a6a289b4303cbb
-tree ff7861a550b5eea24788ccc07ca0df5294f9067b
-parent e4ea9bb7e9f177e03a917b1f1213de0315f819ee
-author Rajesh Shah <rajesh.shah@intel.com> Thu, 28 Apr 2005 00:25:49 -0700
-committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 27 Jun 2005 21:52:40 -0700
+commit b1bb248a5d2230a3d8ef42199c742194a8580b15
+tree 5335d22256e1c6f755f7aff01432ed2d5d722c9b
+parent 8d50e332c8bd4f4e8cc76e8ed7326aa6f18182aa
+author Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com> Thu, 28 Apr 2005 00:25:58 -0700
+committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 27 Jun 2005 21:52:44 -0700
 
- drivers/pci/bus.c   |   11 +++++++----
- drivers/pci/probe.c |    4 ++--
- 2 files changed, 9 insertions(+), 6 deletions(-)
+ arch/i386/kernel/acpi/boot.c |   16 ++++++++++++++++
+ arch/ia64/kernel/acpi.c      |   17 +++++++++++++++++
+ include/linux/acpi.h         |    3 +++
+ 3 files changed, 36 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/pci/bus.c b/drivers/pci/bus.c
---- a/drivers/pci/bus.c
-+++ b/drivers/pci/bus.c
-@@ -121,10 +121,13 @@ void __devinit pci_bus_add_devices(struc
- 		 * If there is an unattached subordinate bus, attach
- 		 * it and then scan for unattached PCI devices.
- 		 */
--		if (dev->subordinate && list_empty(&dev->subordinate->node)) {
--			spin_lock(&pci_bus_lock);
--			list_add_tail(&dev->subordinate->node, &dev->bus->children);
--			spin_unlock(&pci_bus_lock);
-+		if (dev->subordinate) {
-+		       if (list_empty(&dev->subordinate->node)) {
-+			       spin_lock(&pci_bus_lock);
-+			       list_add_tail(&dev->subordinate->node,
-+					       &dev->bus->children);
-+			       spin_unlock(&pci_bus_lock);
-+		       }
- 			pci_bus_add_devices(dev->subordinate);
+diff --git a/arch/i386/kernel/acpi/boot.c b/arch/i386/kernel/acpi/boot.c
+--- a/arch/i386/kernel/acpi/boot.c
++++ b/arch/i386/kernel/acpi/boot.c
+@@ -507,6 +507,22 @@ acpi_unmap_lsapic(int cpu)
+ EXPORT_SYMBOL(acpi_unmap_lsapic);
+ #endif /* CONFIG_ACPI_HOTPLUG_CPU */
  
- 			sysfs_create_link(&dev->subordinate->class_dev.kobj, &dev->dev.kobj, "bridge");
-diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
---- a/drivers/pci/probe.c
-+++ b/drivers/pci/probe.c
-@@ -450,7 +450,7 @@ int __devinit pci_scan_bridge(struct pci
- 			return max;
- 		}
++int
++acpi_register_ioapic(acpi_handle handle, u64 phys_addr, u32 gsi_base)
++{
++	/* TBD */
++	return -EINVAL;
++}
++EXPORT_SYMBOL(acpi_register_ioapic);
++
++int
++acpi_unregister_ioapic(acpi_handle handle, u32 gsi_base)
++{
++	/* TBD */
++	return -EINVAL;
++}
++EXPORT_SYMBOL(acpi_unregister_ioapic);
++
+ static unsigned long __init
+ acpi_scan_rsdp (
+ 	unsigned long		start,
+diff --git a/arch/ia64/kernel/acpi.c b/arch/ia64/kernel/acpi.c
+--- a/arch/ia64/kernel/acpi.c
++++ b/arch/ia64/kernel/acpi.c
+@@ -825,4 +825,21 @@ acpi_map_iosapic (acpi_handle handle, u3
+ 	return AE_OK;
+ }
+ #endif /* CONFIG_NUMA */
++
++int
++acpi_register_ioapic (acpi_handle handle, u64 phys_addr, u32 gsi_base)
++{
++	/* TBD */
++	return -EINVAL;
++}
++EXPORT_SYMBOL(acpi_register_ioapic);
++
++int
++acpi_unregister_ioapic (acpi_handle handle, u32 gsi_base)
++{
++	/* TBD */
++	return -EINVAL;
++}
++EXPORT_SYMBOL(acpi_unregister_ioapic);
++
+ #endif /* CONFIG_ACPI_BOOT */
+diff --git a/include/linux/acpi.h b/include/linux/acpi.h
+--- a/include/linux/acpi.h
++++ b/include/linux/acpi.h
+@@ -407,6 +407,9 @@ int acpi_map_lsapic(acpi_handle handle, 
+ int acpi_unmap_lsapic(int cpu);
+ #endif /* CONFIG_ACPI_HOTPLUG_CPU */
  
--		child = pci_alloc_child_bus(bus, dev, busnr);
-+		child = pci_add_new_bus(bus, dev, busnr);
- 		if (!child)
- 			return max;
- 		child->primary = buses & 0xFF;
-@@ -477,7 +477,7 @@ int __devinit pci_scan_bridge(struct pci
- 		 * This can happen when a bridge is hot-plugged */
- 		if (pci_find_bus(pci_domain_nr(bus), max+1))
- 			return max;
--		child = pci_alloc_child_bus(bus, dev, ++max);
-+		child = pci_add_new_bus(bus, dev, ++max);
- 		buses = (buses & 0xff000000)
- 		      | ((unsigned int)(child->primary)     <<  0)
- 		      | ((unsigned int)(child->secondary)   <<  8)
++int acpi_register_ioapic(acpi_handle handle, u64 phys_addr, u32 gsi_base);
++int acpi_unregister_ioapic(acpi_handle handle, u32 gsi_base);
++
+ extern int acpi_mp_config;
+ 
+ extern u32 pci_mmcfg_base_addr;
 

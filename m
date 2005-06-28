@@ -1,72 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262213AbVF1Asx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262241AbVF1Au0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262213AbVF1Asx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 20:48:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262216AbVF1Asx
+	id S262241AbVF1Au0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 20:50:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262247AbVF1Au0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 20:48:53 -0400
-Received: from mail09.syd.optusnet.com.au ([211.29.132.190]:58070 "EHLO
-	mail09.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S262213AbVF1Ass (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 20:48:48 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Subject: Re: [PATCH] sched: consider migration thread with smp nice
-Date: Tue, 28 Jun 2005 10:48:25 +1000
-User-Agent: KMail/1.8.1
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       "Martin J. Bligh" <mbligh@aracnet.com>
-References: <200506261825.19740.kernel@kolivas.org> <42C09D31.5030207@bigpond.net.au>
-In-Reply-To: <42C09D31.5030207@bigpond.net.au>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1737584.kY5TFBqiYa";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Mon, 27 Jun 2005 20:50:26 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:51963 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S262241AbVF1AuR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 20:50:17 -0400
+Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.50-24
+From: Daniel Walker <dwalker@mvista.com>
+Reply-To: dwalker@mvista.com
+To: Chuck Harding <charding@llnl.gov>
+Cc: Linux Kernel Discussion List <linux-kernel@vger.kernel.org>, mingo@elte.hu
+In-Reply-To: <Pine.LNX.4.63.0506271327040.5120@ghostwheel.llnl.gov>
+References: <20050608112801.GA31084@elte.hu>
+	 <20050625091215.GC27073@elte.hu>
+	 <200506250919.52640.gene.heskett@verizon.net>
+	 <200506251039.14746.gene.heskett@verizon.net>
+	 <Pine.LNX.4.63.0506271157200.8605@ghostwheel.llnl.gov>
+	 <1119902991.4794.5.camel@dhcp153.mvista.com>
+	 <Pine.LNX.4.63.0506271327040.5120@ghostwheel.llnl.gov>
+Content-Type: text/plain
+Organization: MontaVista
+Date: Mon, 27 Jun 2005 17:50:12 -0700
+Message-Id: <1119919812.4794.19.camel@dhcp153.mvista.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
-Message-Id: <200506281048.29674.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1737584.kY5TFBqiYa
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Mon, 2005-06-27 at 13:28 -0700, Chuck Harding wrote:
+> On Mon, 27 Jun 2005, Daniel Walker wrote:
+> 
+> > If you have PREEMPT_RT enabled, it looks like interrupts are hard
+> > disabled then there is a schedule_timeout() requested. You could try
+> > turning off power management and see if you still have problems.
+> >
+> > Daniel
+> >
+> 
+> Well, putting apm=off in the kernel command line did the trick. I am
+> using a desktop system so apm really isn't needed. Time to change my
+> standard config file..... Thanks.
 
-On Tue, 28 Jun 2005 10:43, Peter Williams wrote:
-> Con Kolivas wrote:
-> > This patch improves throughput with the smp nice balancing code. Many
-> > thanks to Martin Bligh for the usage of his regression testing bed to
-> > confirm the effectiveness of various patches.
->
-> Con,
-> 	This doesn't build on non SMP systems due to the migration_thread field
-> only being defined for SMP.  Attached is a copy of a slightly modified
-> PlugSched version of the patch which I used to fix the problem in
-> PlugSched.  Even though it's for a different file it should be easy to
-> copy over.
+Did it solve everything , including the virtual terminal switching, and
+the scheduling with irqs disabled ?
 
-Peter
+Daniel
 
-Look at the actual patch I sent out you'll see it moved the ifdefs up to=20
-compensate. I believe your port of my patch doesn't build and I suspect it'=
-s=20
-because you missed these ifdef movements ;)
-
-Cheers,
-Con
-
---nextPart1737584.kY5TFBqiYa
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBCwJ5dZUg7+tp6mRURAhfLAJ0dmhYOpQn72r79P910nReZFCU5vACfUhst
-SE+0Ya+t7U7exzZ4DM2SoD8=
-=FL1L
------END PGP SIGNATURE-----
-
---nextPart1737584.kY5TFBqiYa--

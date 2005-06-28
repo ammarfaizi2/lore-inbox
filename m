@@ -1,52 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262374AbVF1CBz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262378AbVF1CD5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262374AbVF1CBz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Jun 2005 22:01:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262376AbVF1CBz
+	id S262378AbVF1CD5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Jun 2005 22:03:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262381AbVF1CD4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Jun 2005 22:01:55 -0400
-Received: from chretien.genwebhost.com ([209.59.175.22]:43490 "EHLO
-	chretien.genwebhost.com") by vger.kernel.org with ESMTP
-	id S262374AbVF1CBr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Jun 2005 22:01:47 -0400
-Date: Mon, 27 Jun 2005 19:01:39 -0700
-From: randy_dunlap <rdunlap@xenotime.net>
-To: jnf <jnf@nosec.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ARM/Xscale mailing list?
-Message-Id: <20050627190139.41d19996.rdunlap@xenotime.net>
-In-Reply-To: <Pine.LNX.4.62.0506271826130.6338@fhozvffvba.vaabprapr-ybfg.arg>
-References: <Pine.LNX.4.62.0506271826130.6338@fhozvffvba.vaabprapr-ybfg.arg>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Antivirus-Scanner: Clean mail though you should still use an Antivirus
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - chretien.genwebhost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - xenotime.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Mon, 27 Jun 2005 22:03:56 -0400
+Received: from zeus2.kernel.org ([204.152.191.36]:7594 "EHLO zeus2.kernel.org")
+	by vger.kernel.org with ESMTP id S262378AbVF1CDj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Jun 2005 22:03:39 -0400
+Date: Tue, 28 Jun 2005 14:01:46 -0500
+From: "Nol.Bergman@comcast.net" <Vynn.Tidwell@comcast.net>
+To: linux-kernel-announce@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: linux-kernel-announce@vger.kernel.org , your requested information Tue, 28 Jun 2005 11:07:46 -0800
+X-Mailer: Ximian Evolution 1.0.2
+Message-ID: <BKELLDAGKABIOCHDFD.3Vynn.Tidwell@comcast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Jun 2005 18:27:19 -0700 (MST) jnf wrote:
+Hello,
 
-| Hi,
-| 
-| I was just wondering if anyone was aware of a mailing list specific to
-| ARM/StrongARM/Xscale, or even something more specific about assembly
-| programming under linux on ARM/StrongARM/Xscale processors, any help would
-| be appreciated, thank you.
+We sent you an email a while ago, because you now qualify
+for a much lower rate based on the biggest rate drop in years.
 
-There are some ARM-specific mailing lists at
-http://www.arm.linux.org.uk/
+You can now get $327,000 for as little as $617 a month!
+Bad credit? Doesn't matter, ^low rates are fixed no matter what!
 
-(you'll need to subscribe to them before using them)
+Follow this link to process your application and a 24 hour approval:
 
----
-~Randy
+http://www.vjrefi.net
+
+Best Regards,
+Judith Rowland
+
+
+http://www.vjrefi.net/book.php

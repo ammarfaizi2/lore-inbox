@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261680AbVF1GKn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261650AbVF1GKo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261680AbVF1GKn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 02:10:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261651AbVF1GK1
+	id S261650AbVF1GKo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 02:10:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261631AbVF1GJh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 02:10:27 -0400
-Received: from mail.kroah.org ([69.55.234.183]:28140 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261878AbVF1Fdk convert rfc822-to-8bit
+	Tue, 28 Jun 2005 02:09:37 -0400
+Received: from mail.kroah.org ([69.55.234.183]:25324 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261855AbVF1Fdk convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 28 Jun 2005 01:33:40 -0400
-Cc: rajesh.shah@intel.com
-Subject: [PATCH] acpi bridge hotadd: Read bridge resources when fixing up the bus
-In-Reply-To: <11199367734132@kroah.com>
+Cc: gud@eth.net
+Subject: [PATCH] pci: remove deprecates
+In-Reply-To: <11199367714038@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Mon, 27 Jun 2005 22:32:53 -0700
-Message-Id: <11199367733440@kroah.com>
+Date: Mon, 27 Jun 2005 22:32:51 -0700
+Message-Id: <11199367711516@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,38 +24,42 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] acpi bridge hotadd: Read bridge resources when fixing up the bus
+[PATCH] pci: remove deprecates
 
-Read bridge io/mem/pfmem ranges when fixing up the bus so that bus resources
-are tracked.  This is required to properly support pci end device and bridge
-hotplug.
+Replace pci_find_device() with more safer pci_get_device().
 
-Signed-off-by: Rajesh Shah <rajesh.shah@intel.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Amit Gud <gud@eth.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit f7d473d919627262816459f8dba70d72812be074
-tree 8dabcd1eea9369d117962d2d3646032745c596db
-parent 542df5de56a23bf2d94b75e2b304ab0e5a5508a8
-author Rajesh Shah <rajesh.shah@intel.com> Thu, 28 Apr 2005 00:25:51 -0700
-committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 27 Jun 2005 21:52:41 -0700
+commit efe1ec27837d6639eae82e1f5876910ba6433c3f
+tree 16070e93c8ea98f2da9ab8546024cc6d0e11388f
+parent 881a8c120acf7ec09c90289e2996b7c70f51e996
+author Amit Gud <gud@eth.net> Tue, 12 Apr 2005 19:04:27 +0530
+committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 27 Jun 2005 21:52:38 -0700
 
- arch/ia64/pci/pci.c |    4 ++++
- 1 files changed, 4 insertions(+), 0 deletions(-)
+ drivers/char/rio/rio_linux.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/ia64/pci/pci.c b/arch/ia64/pci/pci.c
---- a/arch/ia64/pci/pci.c
-+++ b/arch/ia64/pci/pci.c
-@@ -418,6 +418,10 @@ pcibios_fixup_bus (struct pci_bus *b)
- {
- 	struct pci_dev *dev;
+diff --git a/drivers/char/rio/rio_linux.c b/drivers/char/rio/rio_linux.c
+--- a/drivers/char/rio/rio_linux.c
++++ b/drivers/char/rio/rio_linux.c
+@@ -1095,7 +1095,7 @@ static int __init rio_init(void) 
  
-+	if (b->self) {
-+		pci_read_bridge_bases(b);
-+		pcibios_fixup_device_resources(b->self);
-+	}
- 	list_for_each_entry(dev, &b->devices, bus_list)
- 		pcibios_fixup_device_resources(dev);
+ #ifdef CONFIG_PCI
+     /* First look for the JET devices: */
+-    while ((pdev = pci_find_device (PCI_VENDOR_ID_SPECIALIX, 
++    while ((pdev = pci_get_device (PCI_VENDOR_ID_SPECIALIX,
+                                     PCI_DEVICE_ID_SPECIALIX_SX_XIO_IO8, 
+                                     pdev))) {
+        if (pci_enable_device(pdev)) continue;
+@@ -1169,7 +1169,7 @@ static int __init rio_init(void) 
+   */
  
+     /* Then look for the older RIO/PCI devices: */
+-    while ((pdev = pci_find_device (PCI_VENDOR_ID_SPECIALIX, 
++    while ((pdev = pci_get_device (PCI_VENDOR_ID_SPECIALIX,
+                                     PCI_DEVICE_ID_SPECIALIX_RIO, 
+                                     pdev))) {
+        if (pci_enable_device(pdev)) continue;
 

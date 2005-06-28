@@ -1,172 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261274AbVF1Fbd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261561AbVF1FeL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261274AbVF1Fbd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 01:31:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261407AbVF1Fbc
+	id S261561AbVF1FeL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 01:34:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261945AbVF1FeK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 01:31:32 -0400
-Received: from mail.kroah.org ([69.55.234.183]:3050 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261274AbVF1Fah (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 01:30:37 -0400
-Date: Mon, 27 Jun 2005 22:30:22 -0700
-From: Greg KH <gregkh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: [GIT PATCH] PCI patches for 2.6.12
-Message-ID: <20050628053022.GA1588@kroah.com>
+	Tue, 28 Jun 2005 01:34:10 -0400
+Received: from mail.kroah.org ([69.55.234.183]:5612 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261561AbVF1Fda convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 01:33:30 -0400
+Cc: keithmo@exmsft.com
+Subject: [PATCH] cpqphp: fix oops during unload without probe
+In-Reply-To: <1119936774843@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Mon, 27 Jun 2005 22:32:55 -0700
+Message-Id: <1119936775691@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.8i
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Greg K-H <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are a bunch of PCI patches against your latest git tree, and even a
-merge (hey, it was my first, I was happy it all worked out ok...).  They
-include:
-	- acpi pci hotplug driver updates and reworks.
-	- dma bursting help for drivers
-	- msi minor cleanups
-	- MCFG acpi table parsing for pci busses
+[PATCH] cpqphp: fix oops during unload without probe
 
-All of these patches have been in the -mm tree for the past few months.
-I have not included any of the pci patches in the -mm tree that were
-causing people problems.  Those are still being worked on to get
-correct.
+drivers/pci/hotplug/cpqphp_core.c calls cpqphp_event_start_thread()
+in one_time_init(), which is called whenever the hardware is probed.
+Unfortunately, cpqphp_event_stop_thread() is *always* called when
+the module is unloaded. If the hardware is never probed, then
+cpqphp_event_stop_thread() tries to manipulate a couple of
+uninitialized mutexes.
 
-Please pull from:
-	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/pci-2.6.git/
-or if master.kernel.org hasn't synced up yet:
-	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/pci-2.6.git/
+Signed-off-by: Keith Moore <keithmo@exmsft.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
-The full patches will be sent to the linux-kernel and linux-pci mailing
-lists, if anyone wants to see them.
+---
+commit 4002307d2b563a6ab317ca4d7eb1d201a6673d37
+tree a95936bd9f9180eeaac3c41fae0baaf878486a2d
+parent 70549ad9cf074e12f12cdc931b29b2616dfb873a
+author Keith Moore <keithmo@exmsft.com> Thu, 02 Jun 2005 12:42:37 +0200
+committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 27 Jun 2005 21:52:46 -0700
 
-thanks,
+ drivers/pci/hotplug/cpqphp_core.c |    5 +++--
+ 1 files changed, 3 insertions(+), 2 deletions(-)
 
-greg k-h
-
-
- Documentation/kernel-parameters.txt |    4 
- arch/i386/kernel/acpi/boot.c        |   57 +-
- arch/i386/pci/common.c              |    8 
- arch/i386/pci/irq.c                 |   51 +-
- arch/i386/pci/legacy.c              |    2 
- arch/i386/pci/mmconfig.c            |   41 +
- arch/i386/pci/numa.c                |    2 
- arch/i386/pci/pci.h                 |    1 
- arch/ia64/kernel/acpi.c             |   38 +
- arch/ia64/kernel/iosapic.c          |  134 ++++-
- arch/ia64/pci/pci.c                 |   38 +
- arch/ppc/kernel/pci.c               |   21 
- arch/ppc64/kernel/pci.c             |   22 
- arch/x86_64/pci/mmconfig.c          |   74 ++
- drivers/acpi/container.c            |    2 
- drivers/acpi/pci_bind.c             |   27 -
- drivers/acpi/pci_root.c             |   24 
- drivers/acpi/processor_core.c       |    2 
- drivers/acpi/scan.c                 |  126 ++++-
- drivers/char/moxa.c                 |    2 
- drivers/char/rio/rio_linux.c        |    4 
- drivers/message/fusion/mptfc.c      |    4 
- drivers/message/fusion/mptscsih.c   |   10 
- drivers/message/fusion/mptscsih.h   |    2 
- drivers/message/fusion/mptspi.c     |    4 
- drivers/net/e100.c                  |    9 
- drivers/net/via-rhine.c             |   11 
- drivers/parisc/dino.c               |    1 
- drivers/parisc/lba_pci.c            |    2 
- drivers/pci/bus.c                   |   11 
- drivers/pci/hotplug/Makefile        |    4 
- drivers/pci/hotplug/acpiphp.h       |   47 -
- drivers/pci/hotplug/acpiphp_core.c  |    9 
- drivers/pci/hotplug/acpiphp_glue.c  |  900 ++++++++++++++++++++----------------
- drivers/pci/hotplug/acpiphp_pci.c   |  449 -----------------
- drivers/pci/hotplug/acpiphp_res.c   |  700 ----------------------------
- drivers/pci/hotplug/cpqphp_core.c   |    5 
- drivers/pci/msi.c                   |   88 +--
- drivers/pci/msi.h                   |    9 
- drivers/pci/pci-sysfs.c             |   26 -
- drivers/pci/probe.c                 |   29 -
- drivers/pci/proc.c                  |   14 
- drivers/pci/remove.c                |   14 
- drivers/pci/setup-bus.c             |    5 
- drivers/scsi/3w-9xxx.c              |    8 
- drivers/scsi/3w-xxxx.c              |    8 
- drivers/scsi/ipr.c                  |   10 
- drivers/scsi/megaraid.c             |    8 
- include/acpi/acpi_bus.h             |   17 
- include/acpi/acpi_drivers.h         |    1 
- include/asm-alpha/pci.h             |   19 
- include/asm-arm/pci.h               |   10 
- include/asm-frv/pci.h               |   10 
- include/asm-i386/pci.h              |   10 
- include/asm-ia64/iosapic.h          |   12 
- include/asm-ia64/pci.h              |   19 
- include/asm-mips/pci.h              |   10 
- include/asm-parisc/pci.h            |   19 
- include/asm-ppc/pci.h               |   16 
- include/asm-ppc64/pci.h             |   26 +
- include/asm-sh/pci.h                |   10 
- include/asm-sh64/pci.h              |   10 
- include/asm-sparc/pci.h             |   10 
- include/asm-sparc64/pci.h           |   19 
- include/asm-v850/pci.h              |   10 
- include/asm-x86_64/pci.h            |   10 
- include/linux/acpi.h                |   19 
- include/linux/pci.h                 |   33 +
- include/linux/pci_ids.h             |    2 
- 69 files changed, 1509 insertions(+), 1850 deletions(-)
-
----------------
-
-Amit Gud:
-  pci: remove deprecates
-  pci: remove deprecates
-
-Andrew Morton:
-  PCI: fix up errors after dma bursting patch and CONFIG_PCI=n
-
-David S. Miller:
-  PCI: DMA bursting advice
-
-Greg Kroah-Hartman:
-  PCI: use the MCFG table to properly access pci devices (x86-64)
-  PCI: use the MCFG table to properly access pci devices (i386)
-  PCI: make drivers use the pci shutdown callback instead of the driver core callback.
-  PCI: add proper MCFG table parsing to ACPI core.
-  PCI: clean up the MSI code a bit.
-
-jayalk@intworks.biz:
-  PCI Allow OutOfRange PIRQ table address
-
-Keith Moore:
-  cpqphp: fix oops during unload without probe
-
-Kenji Kaneshige:
-  ACPI based I/O APIC hot-plug: acpiphp support
-  ACPI based I/O APIC hot-plug: add interfaces
-  ACPI based I/O APIC hot-plug: ia64 support
-
-Michael Ellerman:
-  PCI: fix-pci-mmap-on-ppc-and-ppc64.patch
-
-Rajesh Shah:
-  acpi hotplug: aCPI based root bridge hot-add
-  acpi hotplug: decouple slot power state changes from physical hotplug
-  acpi hotplug: fix slot power-down problem with acpiphp
-  acpi bridge hotadd: Export the interface to get PCI id for an ACPI handle
-  acpi hotplug: convert acpiphp to use generic resource code
-  acpi bridge hotadd: Allow ACPI .add and .start operations to be done independently
-  acpi hotplug: clean up notify handlers on acpiphp unload
-  acpi bridge hotadd: Read bridge resources when fixing up the bus
-  acpi bridge hotadd: Remove hot-plugged devices that could not be allocated resources
-  acpi bridge hotadd: Make the PCI remove routines safe for failed hot-plug
-  acpi bridge hotadd: Take the PCI lock when modifying pci bus or device lists
-  acpi bridge hotadd: Prevent duplicate bus numbers when scanning PCI bridge
-  acpi bridge hotadd: Link newly created pci child bus to its parent on creation
-  acpi bridge hotadd: Fix pci_enable_device() for p2p bridges
-  acpi bridge hotadd: ACPI based root bridge hot-add
-  acpi bridge hotadd: Make pcibios_fixup_bus() hot-plug safe
+diff --git a/drivers/pci/hotplug/cpqphp_core.c b/drivers/pci/hotplug/cpqphp_core.c
+--- a/drivers/pci/hotplug/cpqphp_core.c
++++ b/drivers/pci/hotplug/cpqphp_core.c
+@@ -60,6 +60,7 @@ static void __iomem *smbios_start;
+ static void __iomem *cpqhp_rom_start;
+ static int power_mode;
+ static int debug;
++static int initialized;
+ 
+ #define DRIVER_VERSION	"0.9.8"
+ #define DRIVER_AUTHOR	"Dan Zink <dan.zink@compaq.com>, Greg Kroah-Hartman <greg@kroah.com>"
+@@ -1271,7 +1272,6 @@ static int one_time_init(void)
+ {
+ 	int loop;
+ 	int retval = 0;
+-	static int initialized = 0;
+ 
+ 	if (initialized)
+ 		return 0;
+@@ -1441,7 +1441,8 @@ static void __exit unload_cpqphpd(void)
+ 	}
+ 
+ 	// Stop the notification mechanism
+-	cpqhp_event_stop_thread();
++	if (initialized)
++		cpqhp_event_stop_thread();
+ 
+ 	//unmap the rom address
+ 	if (cpqhp_rom_start)
 

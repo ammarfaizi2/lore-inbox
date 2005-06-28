@@ -1,46 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261427AbVF1U3U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261522AbVF1Uda@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261427AbVF1U3U (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 16:29:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261485AbVF1U3F
+	id S261522AbVF1Uda (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 16:33:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbVF1Uc7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 16:29:05 -0400
-Received: from smtpout.mac.com ([17.250.248.46]:10741 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S261427AbVF1U2H (ORCPT
+	Tue, 28 Jun 2005 16:32:59 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:63694 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261456AbVF1Uba (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 16:28:07 -0400
-In-Reply-To: <20050628180157.GI12006@waste.org>
-References: <42B9E536.60704@pobox.com> <20050623235634.GC14426@waste.org> <20050624064101.GB14292@pasky.ji.cz> <20050624123819.GD9519@64m.dyndns.org> <20050628150027.GB1275@pasky.ji.cz> <20050628180157.GI12006@waste.org>
-Mime-Version: 1.0 (Apple Message framework v730)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <62CF578B-B9DF-4DEA-8BAD-041F357771FD@mac.com>
-Cc: Petr Baudis <pasky@ucw.cz>, Christopher Li <hg@chrisli.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Git Mailing List <git@vger.kernel.org>, mercurial@selenic.com
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: Mercurial vs Updated git HOWTO for kernel hackers
-Date: Tue, 28 Jun 2005 16:27:53 -0400
-To: Matt Mackall <mpm@selenic.com>
-X-Mailer: Apple Mail (2.730)
+	Tue, 28 Jun 2005 16:31:30 -0400
+Date: Tue, 28 Jun 2005 22:30:17 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Karsten Wiese <annabellesgarden@yahoo.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.50-24
+Message-ID: <20050628203017.GA371@elte.hu>
+References: <200506281927.43959.annabellesgarden@yahoo.de> <20050628202147.GA30862@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050628202147.GA30862@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jun 28, 2005, at 14:01:57, Matt Mackall wrote:
-> Everything in Mercurial is an append-only log. A transaction journal
-> records the original length of each log so that it can be restored on
-> failure.
 
-Does this mean that (excepting the "undo" feature) one could set the
-ext3 "append-only" attribute on the repository files to avoid losing
-data due to user account compromise?
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-Cheers,
-Kyle Moffett
+> 
+> * Karsten Wiese <annabellesgarden@yahoo.de> wrote:
+> 
+> > Hi Ingo,
+> > 
+> > suffering (not really ;-) double-rated IO-APIC level-interrupts I 
+> > found the following patch as a solution:
+> 
+> thanks. I've applied your patch but also tweaked this area a bit, to 
+> make the i8259A PIC work too. I've uploaded the -31 patch with these 
+> fixes included.
 
---
-I lost interest in "blade servers" when I found they didn't throw  
-knives at people who weren't supposed to be in your machine room.
-   -- Anthony de Boer
+make that -50-32, had a leftover hack in io_apic.c.
 
+	Ingo

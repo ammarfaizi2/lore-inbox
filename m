@@ -1,91 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261300AbVF1VwA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261350AbVF1VyH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261300AbVF1VwA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 17:52:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261376AbVF1Vub
+	id S261350AbVF1VyH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 17:54:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261376AbVF1VwU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 17:50:31 -0400
-Received: from email.msoe.edu ([155.92.194.61]:40293 "EHLO email.msoe.edu")
-	by vger.kernel.org with ESMTP id S261300AbVF1VtO convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 17:49:14 -0400
-Subject: Re: reiser4 plugins
-From: Jake Maciejewski <maciejej@msoe.edu>
-To: Markus =?ISO-8859-1?Q?T=F6rnqvist?= <mjt@nysv.org>
-Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
-       David Masover <ninja@slaphack.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Hans Reiser <reiser@namesys.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-In-Reply-To: <20050628204709.GH11013@nysv.org>
-References: <20050627092138.GD11013@nysv.org>
-	 <200506281344.j5SDixiH003441@laptop11.inf.utfsm.cl>
-	 <20050628204709.GH11013@nysv.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Tue, 28 Jun 2005 16:48:26 -0500
-Message-Id: <1119995306.18003.33.camel@gentoo>
+	Tue, 28 Jun 2005 17:52:20 -0400
+Received: from atpro.com ([12.161.0.3]:47364 "EHLO atpro.com")
+	by vger.kernel.org with ESMTP id S261350AbVF1Vv5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 17:51:57 -0400
+From: "Jim Crilly" <jim@why.dont.jablowme.net>
+Date: Tue, 28 Jun 2005 17:49:29 -0400
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Mike Bell <kernel@mikebell.org>, Greg KH <greg@kroah.com>,
+       Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] ndevfs - a "nano" devfs
+Message-ID: <20050628214929.GB23980@voodoo>
+Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>,
+	Mike Bell <kernel@mikebell.org>, Greg KH <greg@kroah.com>,
+	Dmitry Torokhov <dtor_core@ameritech.net>,
+	linux-kernel@vger.kernel.org
+References: <20050624081808.GA26174@kroah.com> <20050625234305.GA11282@kroah.com> <20050627071907.GA5433@mikebell.org> <200506271735.50565.dtor_core@ameritech.net> <20050627232559.GA7690@mikebell.org> <20050628074015.GA3577@kroah.com> <20050628090852.GA966@mikebell.org> <1119950487.3175.21.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 8BIT
-X-OriginalArrivalTime: 28 Jun 2005 21:49:13.0979 (UTC) FILETIME=[397BF4B0:01C57C2B]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1119950487.3175.21.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-06-28 at 23:47 +0300, Markus Törnqvist wrote:
-> On Tue, Jun 28, 2005 at 09:44:59AM -0400, Horst von Brand wrote:
-> >
-> >No. But just relying on perfect hardware and concientious sysadmins is
-> >reckless. Hardware /is/ flaky, sysadmins /are/ (sometimes) lazy (and
-> >besides, today they are increasingly just plain Joe Sixpack users). Also,
-> >backing up a few hundred GiB is /not/ fun, and then keeping track of all
-> >the backups is messy.
+On 06/28/05 11:21:27AM +0200, Arjan van de Ven wrote:
+> > 
+> > So then explain this to me, I've got a GUI sound player, on first
+> > invocation it displays a list of sound cards installed on the system,
+> > allows the user to select one, and then plays the sound file. How is it
+> > supposed to do that if the device nodes for sound card 0 could be named
+> > anything? I can get a list of sound cards from /proc/asound or
+> > /sys/class/sound, but unless the sound card device nodes are predictably
+> > named there's no way to find them short of searching every node in /dev.
 > 
-> Even home users have started to set up raid mirrors at home now that
-> disk space is cheap. That's a step in the right direction, I
-> suppose, with hardware never being good.
+> 
+> actually.. linphone for example shows you the name of the device, not
+> the device node. And at runtime it finds which device node belongs to
+> that name somehow. I didn't look at the code how it does that, but it
+> sure isn't impossible since it's done in practice already.
 
-I've lost more data to my own recklessness and stupidity than filesystem
-corruption and hardware failure combined. RAID isn't really a good
-solution. My policy for cheap storage (currently the only variety I own)
-is when I buy a new hard drive, use the old drive for backups. The old
-drive is always large enough to hold everything I'd miss and then some.
-Home users should be capable of doing the same, assuming Windows has
-something similar to rsync.
+I took a quick look and for OSS devices linphone seems to just loop over
+/dev/dsp* so if the names were moved, I doubt it would work. 
 
-> 
-> Taking backups in an environment where you need a few hundred GiB
-> backed up is not that difficult.
-> 
-> Get a separate, redundant box with a big tape changer and drop
-> periodical backups off at your bank's vault.
-> 
-> Get a separate, very reduntant box, with a truckload of proven 
-> drives in a separate raid box and run your stuff there.
-> 
-> Get both of the above.
-> 
-> If Joe Sixpack loses his mp3 collection, I don't really care,
-> nor should anyone else. Anything important enough to care
-> about is easy enough to back up. Always.
-> 
-> Arrogance? Maybe.
-> 
-> >Also, I'm not claiming that they are /solely/ responsible, but not having
-> >the filesystem fall apart utterly every time some bug breaths on it /is/ a
-> >requirement.
-> 
-> Reiserfs does not fall apart utterly every time some bug breaths on it.
-> 
-> >> *still trying to understand how that can be*
-> >You haven't been around too much yet, do you?
-> 
-> Rather I take backups, buy better hardware and understand there's a
-> risk involved.
-> 
-> Computers as a complete set can't be trusted, you can only make
-> the best accomodations you can.
-> 
--- 
-Jake Maciejewski <maciejej@msoe.edu>
+But it also seems to have ALSA support and in that case it uses 
+snd_card_get_name in a for loop to build a list of available cards, since 
+all ALSA functions use card index numbers they should work fine independent 
+of device file names.
 
+
+Jim.

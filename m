@@ -1,44 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262186AbVF1Vjo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261483AbVF1Vnq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262186AbVF1Vjo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 17:39:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262192AbVF1Vjc
+	id S261483AbVF1Vnq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 17:43:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbVF1Vlb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 17:39:32 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:11967 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S262182AbVF1VjC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 17:39:02 -0400
-Subject: Re: [patch] latest inotify.
-From: Robert Love <rml@novell.com>
-To: Grzegorz Kulewski <kangur@polcom.net>
-Cc: linux-kernel@vger.kernel.org,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Andrew Morton <akpm@osdl.org>, John McCutchan <ttb@tentacle.dhs.org>
-In-Reply-To: <Pine.LNX.4.63.0506282322000.7125@alpha.polcom.net>
-References: <1119989024.6745.20.camel@betsy>
-	 <Pine.LNX.4.63.0506282322000.7125@alpha.polcom.net>
-Content-Type: text/plain
-Date: Tue, 28 Jun 2005 17:39:06 -0400
-Message-Id: <1119994746.6745.28.camel@betsy>
+	Tue, 28 Jun 2005 17:41:31 -0400
+Received: from fmr19.intel.com ([134.134.136.18]:51421 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261668AbVF1Vky (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 17:40:54 -0400
+Date: Tue, 28 Jun 2005 14:40:06 -0700
+From: Rusty Lynch <rusty@linux.intel.com>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: recent kprobe work
+Message-ID: <20050628214006.GA19157@linux.jf.intel.com>
+References: <20050628.140136.57453291.davem@davemloft.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050628.140136.57453291.davem@davemloft.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-06-28 at 23:31 +0200, Grzegorz Kulewski wrote:
+On Tue, Jun 28, 2005 at 02:01:36PM -0700, David S. Miller wrote:
+> 
+> Can the folks submitting all of the kprobe stuff at least consult me
+> when they can't figure out how to implement the sparc64 kprobe variant
+> for new features?
+> 
+> Currently, the sparc64 build is broken by recent kprobe
+> changes:
+> 
+> kernel/built-in.o: In function `init_kprobes':
+> : undefined reference to `arch_init'
+> 
+> Also, can we use a more namespace friendly name for this kprobe layer
+> specific function other than "arch_init()"?
+> 
+> Thanks.
 
-> 0aa3dfb1940a12a4245ec87b4246db85b55abe40  inotify-0.23-rml-2.6.12-rc4-8.patch
+Sorry, just an oversight.  We have several arch_* functions, maybe we should
+start using kprobes_arch_* instead.
 
-Oh, I just noticed this.
-
-Can you please try with this latest release
-(inotify-0.23-rml-2.6.12-14.patch)?
-
-There is some code that might fix this for you, or reveal further what
-is going on.
-
-	Robert Love
-
-
+    --rusty

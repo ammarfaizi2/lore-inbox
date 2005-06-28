@@ -1,51 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261550AbVF1OLl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261862AbVF1OP2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261550AbVF1OLl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 10:11:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261465AbVF1OLj
+	id S261862AbVF1OP2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 10:15:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261631AbVF1OP1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 10:11:39 -0400
-Received: from pih-relay06.plus.net ([212.159.14.133]:49849 "EHLO
-	pih-relay06.plus.net") by vger.kernel.org with ESMTP
-	id S261675AbVF1OKK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 10:10:10 -0400
-Date: Tue, 28 Jun 2005 15:09:59 +0100
-From: Ash Milsted <thatistosayiseenem@gawab.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: 2.6.12-git8 Voluntary preempt hangs at boot
-Message-Id: <20050628150959.728ac18a.thatistosayiseenem@gawab.com>
-In-Reply-To: <20050628072718.GA3755@elte.hu>
-References: <20050627161405.60490ec3.thatistosayiseenem@gawab.com>
-	<20050628072718.GA3755@elte.hu>
-X-Mailer: Sylpheed version 1.9.9 (GTK+ 2.6.8; i686-pc-linux-gnu)
+	Tue, 28 Jun 2005 10:15:27 -0400
+Received: from iona.labri.fr ([147.210.8.143]:8132 "EHLO iona.labri.fr")
+	by vger.kernel.org with ESMTP id S261685AbVF1ONv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 10:13:51 -0400
+Date: Tue, 28 Jun 2005 15:43:16 +0200
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+To: linux-kernel@vger.kernel.org
+Subject: wrong madvise(MADV_DONTNEED) semantic
+Message-ID: <20050628134316.GS5044@implementation.labri.fr>
+Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i-nntp
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, this solves the problem. Cheers.
+Hi,
 
--Ash
+There is something wrong with the current madvise(MADV_DONTNEED)
+implementation. Both the manpage and the source code says that
+MADV_DONTNEED means that the application does not care about the data,
+so it might be thrown away by the kernel. But that's not what posix
+says:
 
-On Tue, 28 Jun 2005 09:27:18 +0200
-Ingo Molnar <mingo@elte.hu> wrote:
+http://www.opengroup.org/onlinepubs/009695399/functions/posix_madvise.html
 
-> 
-> * Ash Milsted <thatistosayiseenem@gawab.com> wrote:
-> 
-> > Just tried out VP on 2.6.12-git8 on my UP x86 system - it hangs just 
-> > after configuring the cpu, i.e. enabling fast FPU restore, etc.  
-> > Disabling ACPI and the local APIC makes no difference. Here's my 
-> > current config, which *does* work - I only need to enable VP to break 
-> > it. Btw, it also breaks without the CFQv3 and inotify patches.
-> 
-> i forgot about a dependency, -VP also needs this patch:
-> 
->  http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12/2.6.12-mm2/broken-out/sched-tweak-idle-thread-setup-semantics.patch
-> 
-> could you check that this patch ontop of -git8 indeed fixes the boot 
-> problem for you?
-> 
-> 	Ingo
+It says that "The posix_madvise() function shall have no effect on the
+semantics of access to memory in the specified range". I.e. the data
+that was recorded shall be saved!
+
+The current linux implementation of MADV_DONTNEED is rather an
+implementation of solaris' MADV_FREE, see its manpage:
+http://docs.sun.com/app/docs/doc/816-5168/6mbb3hrde?a=view
+
+Hence the current madvise_dontneed() implementation could be renamed
+into madvise_free() and the appropriate MADV_FREE case be added, while
+a new implementation of madvise_dontneed() _needs_ be written. It may
+for instance go through the range so as to zap clean pages (since it is
+safe), and set dirty pages as being least recently used so that they
+will be considered as good candidates for eviction.
+
+(And the manpage should get corrected too)
+
+Regards,
+Samuel Thibault

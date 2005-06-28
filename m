@@ -1,40 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262531AbVF1E5A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262533AbVF1FIq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262531AbVF1E5A (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 00:57:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262533AbVF1E5A
+	id S262533AbVF1FIq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 01:08:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262534AbVF1FIq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 00:57:00 -0400
-Received: from smtp107.sbc.mail.re2.yahoo.com ([68.142.229.98]:27239 "HELO
-	smtp107.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S262531AbVF1E4z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 00:56:55 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Dominik Brodowski <linux@dominikbrodowski.net>
-Subject: pcmcia: release_class patch concern
-Date: Mon, 27 Jun 2005 23:56:49 -0500
-User-Agent: KMail/1.8.1
-Cc: LKML <linux-kernel@vger.kernel.org>, linux-pcmcia@lists.infradead.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Tue, 28 Jun 2005 01:08:46 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:9915
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S262533AbVF1FIo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 01:08:44 -0400
+Date: Mon, 27 Jun 2005 22:08:27 -0700 (PDT)
+Message-Id: <20050627.220827.21920197.davem@davemloft.net>
+To: nickpiggin@yahoo.com.au
+Cc: wli@holomorphy.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [patch 2] mm: speculative get_page
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <42C0D717.2080100@yahoo.com.au>
+References: <42C0AAF8.5090700@yahoo.com.au>
+	<20050628040608.GQ3334@holomorphy.com>
+	<42C0D717.2080100@yahoo.com.au>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506272356.50029.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Dominik,
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [patch 2] mm: speculative get_page
+Date: Tue, 28 Jun 2005 14:50:31 +1000
 
-I noticed that Linus committed the patch from you that introduces waiting
-for completion in module's exit routine. I believe it is a big no-no as
-something like this will wedge the kernel:
+> William Lee Irwin III wrote:
+> 
+> >On Tue, Jun 28, 2005 at 11:42:16AM +1000, Nick Piggin wrote:
+> >
+> >spin_unlock() does not imply a memory barrier.
+> >
+> 
+> Intriguing...
 
-	rmmod <module> < /sys/path/to/devices/attribute
+BTW, I disagree with this assertion.  spin_unlock() does imply a
+memory barrier.
 
-Have you considered using Greg's class_create()/class_destroy() or maybe
-bumping up module's refrerence count when registering class devices so
-rmmod would fail if there are users of this module?
-
--- 
-Dmitry
+All memory operations before the release of the lock must execute
+before the lock release memory operation is globally visible.

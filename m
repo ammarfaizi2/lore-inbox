@@ -1,53 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261315AbVF1Mus@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261437AbVF1Mxw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261315AbVF1Mus (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 08:50:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261437AbVF1Mur
+	id S261437AbVF1Mxw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 08:53:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbVF1Mxv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 08:50:47 -0400
-Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:14860 "EHLO
-	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S261315AbVF1Mug
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 08:50:36 -0400
-To: "Al Boldi" <a1426z@gawab.com>
-Cc: "'Marcelo Tosatti'" <marcelo.tosatti@cyclades.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Kswapd flaw
-References: <200506281147.OAA20216@raad.intranet>
-From: Nix <nix@esperi.org.uk>
-X-Emacs: featuring the world's first municipal garbage collector!
-Date: Tue, 28 Jun 2005 13:50:18 +0100
-In-Reply-To: <200506281147.OAA20216@raad.intranet> (Al Boldi's message of
- "28 Jun 2005 12:49:42 +0100")
-Message-ID: <87irzy63xx.fsf@amaterasu.srvr.nix>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 28 Jun 2005 08:53:51 -0400
+Received: from mail.fh-wedel.de ([213.39.232.198]:28587 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S261437AbVF1Mxl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 08:53:41 -0400
+Date: Tue, 28 Jun 2005 14:40:29 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Christoph Hellwig <hch@lst.de>
+Cc: cotte@de.ibm.com, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] xip cleanups
+Message-ID: <20050628124029.GB7460@wohnheim.fh-wedel.de>
+References: <20050628120159.GA1745@lst.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050628120159.GA1745@lst.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 28 Jun 2005, Al Boldi yowled:
-> Nix wrote:
->> On 28 Jun 2005, Al Boldi murmured woefully:
->>> Kswapd starts evicting processes to fullfil a malloc, when it should 
->>> just deny it because there is no swap.
->> I can't even tell what you're expecting. Surely not that no pages are ever
->> evicted or flushed; your memory would fill up with page cache in no time.
+On Tue, 28 June 2005 14:01:59 +0200, Christoph Hellwig wrote:
 > 
-> Please do flush anytime, and do it in sync during OOMs; but don't evict
-> procs especially not RUNNING procs, that is overkill.
+> adjust to kernel style and remove some unneeded NULL checks
 
-But processes (really, mapped text pages; really, read-only mapped pages
-of all kinds) are loaded piecemeal in any case. Would you really like a
-system where once something was faulted in, it could never leave? You'd
-run out of memory *awfully* fast.
+Cool!
 
-A system in which pages can be faulted in *and* out is consistent: one
-in which they can only be faulted in is both inconsistent and very
-deadlock-prone.
+>  	rc = __inode_direct_access(inode, sector, &data);
+> -	if (rc)
+> -		return rc;
+> -	clear_page((void*)data);
+> -	return 0;
+> +	if (!rc)
+> +		clear_page(data);
+> +	return rc;
+
+I personally prefer the original code.  As a general rule, error
+handling code is indented further than regular good-case code.  That
+makes reading a *lot* faster and the compiler should be smart enough
+to generate identical code.
+
+What are your arguments for the change?
+
+> -		(mapping->host,tmp.b_blocknr*(PAGE_SIZE/512) ,&data);
+> +		(mapping->host,tmp.b_blocknr * (PAGE_SIZE/512), &data);
+                               ^
+You missed one.
+
+Jörn
 
 -- 
-`I lost interest in "blade servers" when I found they didn't throw knives
- at people who weren't supposed to be in your machine room.'
-    --- Anthony de Boer
+Fancy algorithms are slow when n is small, and n is usually small.
+Fancy algorithms have big constants. Until you know that n is
+frequently going to be big, don't get fancy.
+-- Rob Pike

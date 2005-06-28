@@ -1,39 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261523AbVF1Xni@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262254AbVF1Xnh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261523AbVF1Xni (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 19:43:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262221AbVF1Xmj
+	id S262254AbVF1Xnh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 19:43:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261523AbVF1Xmr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 19:42:39 -0400
-Received: from sj-iport-5.cisco.com ([171.68.10.87]:21276 "EHLO
-	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
-	id S261523AbVF1XDv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 19:03:51 -0400
-X-IronPort-AV: i="3.93,240,1115017200"; 
-   d="scan'208"; a="195037086:sNHT26254680"
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: [PATCH 00/16] Add InfiniBand userspace verbs (direct userspace access)
-X-Mailer: Roland's Patchbomber
-Date: Tue, 28 Jun 2005 16:03:43 -0700
-Message-Id: <2005628163.H103BaveG8tYGzYQ@cisco.com>
+	Tue, 28 Jun 2005 19:42:47 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:1498
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S262254AbVF1XIJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 19:08:09 -0400
+Date: Tue, 28 Jun 2005 16:07:11 -0700 (PDT)
+Message-Id: <20050628.160711.91199588.davem@davemloft.net>
+To: kaber@trash.net
+Cc: rankincj@yahoo.com, chrisw@osdl.org, bdschuym@pandora.be,
+       bdschuym@telenet.be, herbert@gondor.apana.org.au,
+       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
+       ebtables-devel@lists.sourceforge.net, netfilter-devel@manty.net
+Subject: Re: 2.6.12: connection tracking broken?
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <42BBC6AC.9010704@trash.net>
+References: <42BAF48E.70309@trash.net>
+	<20050623.124951.130237121.davem@davemloft.net>
+	<42BBC6AC.9010704@trash.net>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: akpm@osdl.org
-Content-Transfer-Encoding: 7BIT
-From: Roland Dreier <rolandd@cisco.com>
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is a series of patches that adds support for direct userspace access to
-InfiniBand hardware -- so-called "userspace verbs."  I believe these patches
-are ready to merge, but a final review would be useful.
+From: Patrick McHardy <kaber@trash.net>
+Date: Fri, 24 Jun 2005 10:39:08 +0200
 
-These patches should incorporate all of the feedback from the discussion when
-I posted an earlier version back in April (see
-http://lkml.org/lkml/2005/4/4/267 for the start of the thread).  In
-particular, memory pinned for use by userspace is accounted for in
-current->mm->vm_locked and requests to pin memory are checked against
-RLIMIT_MEMLOCK.
+> In 2.6.12 we started dropping the conntrack reference when a packet
+> leaves the IP layer. This broke connection tracking on a bridge,
+> because bridge-netfilter defers calling some NF_IP_* hooks to the bridge
+> layer for locally generated packets going out a bridge, where the
+> conntrack reference is no longer available. This patch keeps the
+> reference in this case as a temporary solution, long term we will
+> remove the defered hook calling. No attempt is made to drop the
+> reference in the bridge-code when it is no longer needed, tc actions
+> could already have sent the packet anywhere.
 
-Thanks,
-  Roland
+Patch applied and pushed to stable@kernel.org
+
+Thanks a lot.

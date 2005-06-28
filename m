@@ -1,76 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261633AbVF1Hge@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261690AbVF1Hgf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261633AbVF1Hge (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 03:36:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261690AbVF1Hef
+	id S261690AbVF1Hgf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 03:36:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261504AbVF1HeL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 03:34:35 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:4065 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261781AbVF1H2y (ORCPT
+	Tue, 28 Jun 2005 03:34:11 -0400
+Received: from mail.kroah.org ([69.55.234.183]:26548 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261939AbVF1H3Z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 03:28:54 -0400
-Date: Tue, 28 Jun 2005 09:25:21 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org
-Subject: Re: cfq build breakage
-Message-ID: <20050628072520.GA3668@suse.de>
-References: <42C0B39E.7070509@pobox.com> <20050627201333.4c7d3d06.akpm@osdl.org> <20050628062108.GA3411@suse.de> <20050627233055.20029d85.akpm@osdl.org>
+	Tue, 28 Jun 2005 03:29:25 -0400
+Date: Tue, 28 Jun 2005 00:29:13 -0700
+From: Greg KH <greg@kroah.com>
+To: Dominik Brodowski <linux@dominikbrodowski.net>,
+       linux-kernel@vger.kernel.org, rajesh.shah@intel.com, akpm@osdl.org
+Subject: Re: pci transparent bridge resource management
+Message-ID: <20050628072913.GA3438@kroah.com>
+References: <20050628070636.GA10217@isilmar.linta.de> <20050628071345.GA3281@kroah.com> <20050628072224.GA11393@isilmar.linta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050627233055.20029d85.akpm@osdl.org>
+In-Reply-To: <20050628072224.GA11393@isilmar.linta.de>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 27 2005, Andrew Morton wrote:
-> Jens Axboe <axboe@suse.de> wrote:
-> >
-> > On Mon, Jun 27 2005, Andrew Morton wrote:
-> > > Jeff Garzik <jgarzik@pobox.com> wrote:
-> > > >
-> > > > 
-> > > > In latest git tree...
-> > > > 
-> > > >    CC [M]  drivers/block/cfq-iosched.o
-> > > > drivers/block/cfq-iosched.c: In function `cfq_put_queue':
-> > > > drivers/block/cfq-iosched.c:303: sorry, unimplemented: inlining failed 
-> > > > in call to 'cfq_pending_requests': function body not available
-> > > > drivers/block/cfq-iosched.c:1080: sorry, unimplemented: called from here
-> > > > drivers/block/cfq-iosched.c: In function `__cfq_may_queue':
-> > > > drivers/block/cfq-iosched.c:1955: warning: the address of 
-> > > > `cfq_cfqq_must_alloc_slice', will always evaluate as `true'
-> > > > make[2]: *** [drivers/block/cfq-iosched.o] Error 1
-> > > > make[1]: *** [drivers/block] Error 2
-> > > > make: *** [drivers] Error 2
+On Tue, Jun 28, 2005 at 09:22:24AM +0200, Dominik Brodowski wrote:
+> On Tue, Jun 28, 2005 at 12:13:45AM -0700, Greg KH wrote:
+> > On Tue, Jun 28, 2005 at 09:06:36AM +0200, Dominik Brodowski wrote:
+> > > Hi!
 > > > 
-> > > hm.  The inline thing is trivial, but the misuse of
-> > > cfq_cfqq_must_alloc_slice() means that we now wander into untested
-> > > territory.
+> > > Could we get the following two patches into Linus' tree as well? AFAIK,
+> > > these alone didn't do any harm; they're most useful for yenta-style
+> > > PCMCIA-PCI bridges instead... so I'd very much like to get them into 2.6.13.
+> > > 
+> > > http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12/2.6.12-mm2/broken-out/gregkh-pci-pci-collect-host-bridge-resources-01.patch
+> > > http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12/2.6.12-mm2/broken-out/gregkh-pci-pci-handle-subtractive-decode.patch
 > > 
-> > Indeed, which compiler errors on that?
+> > No, not right now.  Ivan's reworking these patches, due to the number of
+> > complaints in this area.  Give us a week or so...
 > 
-> 4.0 and later, I guess.
+> The collect-resources-02 was the cause. Not the other ones, AFAIK, and they
+> are even independent...
 
-Ok
+Not according to:
+	http://bugme.osdl.org/show_bug.cgi?id=4737
 
-> > > @@ -1969,7 +1968,7 @@ __cfq_may_queue(struct cfq_data *cfqd, s
-> > >  		 * only allow 1 ELV_MQUEUE_MUST per slice, otherwise we
-> > >  		 * can quickly flood the queue with writes from a single task
-> > >  		 */
-> > > -		if (rw == READ || !cfq_cfqq_must_alloc_slice) {
-> > > +		if (rw == READ || !cfq_cfqq_must_alloc_slice(cfqq)) {
-> > >  			cfq_mark_cfqq_must_alloc_slice(cfqq);
-> > >  			return ELV_MQUEUE_MUST;
-> > >  		}
-> > 
-> > thanks, clearly a typo but inside if 0.
-> 
-> But the other instance was inside `#if 1'.  This fixup will change behaviour.
+One person said the -01 patch messed up their box...
 
-Hrmpf strange, I submitted what I built. Must be some silly slip up
-here.
+thanks,
 
--- 
-Jens Axboe
-
+greg k-h

@@ -1,39 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262086AbVF1RaD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262177AbVF1Re2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262086AbVF1RaD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 13:30:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261508AbVF1R1u
+	id S262177AbVF1Re2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 13:34:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262038AbVF1ReW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 13:27:50 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:19147 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262038AbVF1R0y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 13:26:54 -0400
-Date: Tue, 28 Jun 2005 10:23:00 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Kylene Jo Hall <kjhall@us.ibm.com>
-Cc: Pierre Ossman <drzeus-list@drzeus.cx>,
-       Bjorn Helgaas <bjorn.helgaas@hp.com>,
-       LKML <linux-kernel@vger.kernel.org>, jgarzik@pobox.com,
-       tpmdd-devel@lists.sourceforge.net
-Subject: Re: 2.6.12 breaks 8139cp
-Message-ID: <20050628172300.GE9153@shell0.pdx.osdl.net>
-References: <42B9D21F.7040908@drzeus.cx> <200506221534.03716.bjorn.helgaas@hp.com> <42BA69AC.5090202@drzeus.cx> <200506231143.34769.bjorn.helgaas@hp.com> <42BB3428.6030708@drzeus.cx> <42C0EE1A.9050809@drzeus.cx> <42C1434F.2010003@drzeus.cx> <1119967788.6382.7.camel@localhost.localdomain> <42C16162.2070208@drzeus.cx> <1119971339.6382.18.camel@localhost.localdomain>
+	Tue, 28 Jun 2005 13:34:22 -0400
+Received: from zproxy.gmail.com ([64.233.162.197]:35796 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262157AbVF1Rc1 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 13:32:27 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=OxW6fp43rXjnqC0xJSwg0MfcvuwLcIdfhxdYFFn89aX3/NSfb4KEjV17s/gloBzEGNpW2YHeYCgpcUciELjFoijuFuBgvNDZ4e3xyksvtWIHHLq8vH9fmg0B5FSaZ5IERnVmupBQMYe01wBbE+J5pYR/pQrtiLGfENFtTDwfRWY=
+Message-ID: <699a19ea05062810311934eb91@mail.gmail.com>
+Date: Tue, 28 Jun 2005 23:01:54 +0530
+From: k8 s <uint32@gmail.com>
+Reply-To: k8 s <uint32@gmail.com>
+To: Michael Becker <michbec@t-online.de>
+Subject: Re: IPSec Inbound Processing Basic Doubt
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <699a19ea05062810087b79f12f@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <1119971339.6382.18.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6i
+References: <699a19ea050623105516cd5eb8@mail.gmail.com>
+	 <506243806.20050627182416@t-online.de>
+	 <699a19ea05062810087b79f12f@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Kylene Jo Hall (kjhall@us.ibm.com) wrote:
-> 
-> > You wouldn't happen to have just your patches available?
-> 
-> Here is the tpm portion of -mm patch
+Also can you please tell me what is dst_input() forloop meant for .
+Infact the code seems to match for dst_output() in terms of the 
+NET_XMIT_BYPASS usage.
+Infact I saw that ip_rcv_finish() calls this dst_input() what purpose
+does it serve.
 
-Can you narrow this down to a fix that's reasonable for -stable?
 
-thanks,
--chris
+
+ S.Kartikeyan
+ http://www.geocities.com/kartikeyans/

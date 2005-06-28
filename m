@@ -1,59 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262101AbVF1Pwv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262087AbVF1PzS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262101AbVF1Pwv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 11:52:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262102AbVF1Pwu
+	id S262087AbVF1PzS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 11:55:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262102AbVF1PzS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 11:52:50 -0400
-Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:21900 "HELO
-	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262101AbVF1Pws (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 11:52:48 -0400
-Message-ID: <42C17028.6050903@yahoo.com.au>
-Date: Wed, 29 Jun 2005 01:43:36 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en
+	Tue, 28 Jun 2005 11:55:18 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:36340 "EHLO
+	godzilla.mvista.com") by vger.kernel.org with ESMTP id S262087AbVF1PzF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 11:55:05 -0400
+Date: Tue, 28 Jun 2005 08:54:46 -0700 (PDT)
+From: Daniel Walker <dwalker@mvista.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+cc: Chuck Harding <charding@llnl.gov>, Ingo Molnar <mingo@elte.hu>,
+       Linux Kernel Discussion List <linux-kernel@vger.kernel.org>
+Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.50-24
+In-Reply-To: <Pine.LNX.4.58.0506280337390.24849@localhost.localdomain>
+Message-ID: <Pine.LNX.4.10.10506280853380.817-100000@godzilla.mvista.com>
 MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, Anton Blanchard <anton@samba.org>
-Subject: Re: [patch 2] mm: speculative get_page
-References: <42C0AAF8.5090700@yahoo.com.au> <20050628040608.GQ3334@holomorphy.com> <42C0D717.2080100@yahoo.com.au> <20050627.220827.21920197.davem@davemloft.net> <20050628141903.GR3334@holomorphy.com>
-In-Reply-To: <20050628141903.GR3334@holomorphy.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
-> On Mon, Jun 27, 2005 at 10:08:27PM -0700, David S. Miller wrote:
-> 
->>BTW, I disagree with this assertion.  spin_unlock() does imply a
->>memory barrier.
->>All memory operations before the release of the lock must execute
->>before the lock release memory operation is globally visible.
-> 
-> 
-> The affected architectures have only recently changed in this regard.
-> ppc64 was the most notable case, where it had a barrier for MMIO
-> (eieio) but not a general memory barrier. PA-RISC likewise formerly had
-> no such barrier and was a more normal case, with no barrier whatsoever.
-> 
-> Both have since been altered, ppc64 acquiring a heavyweight sync
-> (arch nomenclature), and PA-RISC acquiring 2 memory barriers.
-> 
 
-Parisc looks like it's doing the extra memory barrier to "be safe" :P
 
-Re the ppc64 chageset: It looks to me like lwsync is the lightweight
-sync, and eieio is just referred to as the lightER (than sync) weight
-sync. What's more, it looks like eieio does order stores to system
-memory and is not just an MMIO barrier.
+On Tue, 28 Jun 2005, Steven Rostedt wrote:
 
-But nit picking aside, is it true that we need a load barrier before
-unlock? (store barrier I agree with) The ppc64 changeset in question
-indicates yes, but I can't quite work out why. There are noises in the
-archives about this, but I didn't pinpoint a conclusion...
+> 
+> [Please CC Ingo Molnar on all RT kernel issues]
+> 
+> On Mon, 27 Jun 2005, Daniel Walker wrote:
+> 
+> > On Mon, 2005-06-27 at 12:01 -0700, Chuck Harding wrote:
+> > > What can be causing the following message to appear in dmesg and
+> > > how can I fix it?
+> > >
+> > > BUG: scheduling with irqs disabled: kapmd/0x00000000/46
+> > > caller is schedule_timeout+0x51/0x9e
+> > >   [<c02b3bc9>] schedule+0x96/0xf6 (8)
+> > >   [<c02b43f7>] schedule_timeout+0x51/0x9e (28)
+> > >   [<c01222ed>] process_timeout+0x0/0x5 (32)
+> > >   [<c0112063>] apm_mainloop+0x7a/0x96 (24)
+> > >   [<c0115e45>] default_wake_function+0x0/0x16 (12)
+> > >   [<c0115e45>] default_wake_function+0x0/0x16 (32)
+> > >   [<c0111485>] apm_driver_version+0x1c/0x38 (16)
+> > >   [<c01126f7>] apm+0x0/0x289 (8)
+> > >   [<c01127a6>] apm+0xaf/0x289 (8)
+> > >   [<c010133c>] kernel_thread_helper+0x0/0xb (20)
+> > >   [<c0101341>] kernel_thread_helper+0x5/0xb (4)
+> > >
+> > > This was also present in earlier final-V0.7.50 version I've tried
+> > > (since -00) I don't get hangs but that doesn't look like it should
+> > > be happening. Thanks.
+> >
+> > If you have PREEMPT_RT enabled, it looks like interrupts are hard
+> > disabled then there is a schedule_timeout() requested. You could try
+> > turning off power management and see if you still have problems.
+> >
+> 
+> Although turning off apm works, this is a fix to the symptom and not a
+> cure.  Has someone already taken a look at this code? Since
+> apm_bios_call_simple calls local_save_flags and afterwards
+> raw_lock_irq_restore is then called.  Shouldn't that have been
+> raw_local_save_flags?
+> 
+> That apm_bios_call_simple_asm also looks pretty scary!  I haven't yet
+> figured out how APM_FUNC_VERSION becomes a normal function.
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+
+I looked at them briefly.. It looks like there is some raw and non-raw
+mixed usage .
+
+Daniel
+

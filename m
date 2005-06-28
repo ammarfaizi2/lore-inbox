@@ -1,61 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261437AbVF1Mxw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261455AbVF1M5o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261437AbVF1Mxw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 08:53:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbVF1Mxv
+	id S261455AbVF1M5o (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 08:57:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261457AbVF1M5o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 08:53:51 -0400
-Received: from mail.fh-wedel.de ([213.39.232.198]:28587 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S261437AbVF1Mxl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 08:53:41 -0400
-Date: Tue, 28 Jun 2005 14:40:29 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Christoph Hellwig <hch@lst.de>
-Cc: cotte@de.ibm.com, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] xip cleanups
-Message-ID: <20050628124029.GB7460@wohnheim.fh-wedel.de>
-References: <20050628120159.GA1745@lst.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050628120159.GA1745@lst.de>
-User-Agent: Mutt/1.3.28i
+	Tue, 28 Jun 2005 08:57:44 -0400
+Received: from ns.suse.de ([195.135.220.2]:31163 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261455AbVF1M5P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 08:57:15 -0400
+Message-ID: <42C14926.1040101@suse.de>
+Date: Tue, 28 Jun 2005 14:57:10 +0200
+From: Hannes Reinecke <hare@suse.de>
+Organization: SuSE Linux AG
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.5) Gecko/20050317
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Remove newline from pci MODALIAS variable
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------070901060106060402030504"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 June 2005 14:01:59 +0200, Christoph Hellwig wrote:
-> 
-> adjust to kernel style and remove some unneeded NULL checks
+This is a multi-part message in MIME format.
+--------------070901060106060402030504
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 
-Cool!
+Hi Greg,
 
->  	rc = __inode_direct_access(inode, sector, &data);
-> -	if (rc)
-> -		return rc;
-> -	clear_page((void*)data);
-> -	return 0;
-> +	if (!rc)
-> +		clear_page(data);
-> +	return rc;
+the pci core sends out a hotplug event variable MODALIAS with a trailing
+newline. This is inconsistent with all other event variables and breaks
+some hotplug tools. This patch removes the said newline.
 
-I personally prefer the original code.  As a general rule, error
-handling code is indented further than regular good-case code.  That
-makes reading a *lot* faster and the compiler should be smart enough
-to generate identical code.
+Please apply.
 
-What are your arguments for the change?
+Cheers,
 
-> -		(mapping->host,tmp.b_blocknr*(PAGE_SIZE/512) ,&data);
-> +		(mapping->host,tmp.b_blocknr * (PAGE_SIZE/512), &data);
-                               ^
-You missed one.
-
-Jörn
-
+Hannes
 -- 
-Fancy algorithms are slow when n is small, and n is usually small.
-Fancy algorithms have big constants. Until you know that n is
-frequently going to be big, don't get fancy.
--- Rob Pike
+Dr. Hannes Reinecke			hare@suse.de
+SuSE Linux AG				S390 & zSeries
+Maxfeldstraße 5				+49 911 74053 688
+90409 Nürnberg				http://www.suse.de
+
+--------------070901060106060402030504
+Content-Type: text/plain;
+ name="pci-hotplug-remove-nl"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="pci-hotplug-remove-nl"
+
+From: Hannes Reinecke <hare@suse.de>
+Subject: Remove newline from MODALIAS
+
+PCI hotplug events carry a newline in the MODALIAS variable.
+This confuses scripts unneccesarily.
+
+--- linux-2.6.12/drivers/pci/hotplug.c.orig	2005-06-23 09:33:03.000000000 +0200
++++ linux-2.6.12/drivers/pci/hotplug.c	2005-06-23 09:33:16.000000000 +0200
+@@ -54,7 +54,7 @@ int pci_hotplug (struct device *dev, cha
+ 
+ 	envp[i++] = scratch;
+ 	length += scnprintf (scratch, buffer_size - length,
+-			    "MODALIAS=pci:v%08Xd%08Xsv%08Xsd%08Xbc%02Xsc%02Xi%02x\n",
++			    "MODALIAS=pci:v%08Xd%08Xsv%08Xsd%08Xbc%02Xsc%02Xi%02x",
+ 			    pdev->vendor, pdev->device,
+ 			    pdev->subsystem_vendor, pdev->subsystem_device,
+ 			    (u8)(pdev->class >> 16), (u8)(pdev->class >> 8),
+
+--------------070901060106060402030504--

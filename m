@@ -1,43 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262176AbVF1R0V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261817AbVF1R0U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262176AbVF1R0V (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 13:26:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262171AbVF1RWt
+	id S261817AbVF1R0U (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 13:26:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262038AbVF1RXK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 13:22:49 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:45513 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261508AbVF1RUh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 13:20:37 -0400
-Date: Tue, 28 Jun 2005 10:20:19 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Jim MacBaine <jmacbaine@gmail.com>
-Cc: Chris Wright <chrisw@osdl.org>, stable@kernel.org,
-       linux-kernel@vger.kernel.org
+	Tue, 28 Jun 2005 13:23:10 -0400
+Received: from zproxy.gmail.com ([64.233.162.201]:39264 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262166AbVF1RTY convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 13:19:24 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=jL1tZ4LEbTXbWr6Nq8nl61+lsbjLHnOZUtDVhEvwoMco8PcnwAjFhTlFhUEzQ2s34Swi21dhgvKHE0eU1vZGO7q9OtRkIbMtFphdmHzvcR4lNqPbQ1gheOUotlnq+1pvUicoSY8CnXC3ptXQ+FjT/IqSKoJk3eW7+K/jOK9y6cI=
+Message-ID: <3afbacad05062810183bf640d2@mail.gmail.com>
+Date: Tue, 28 Jun 2005 19:18:44 +0200
+From: Jim MacBaine <jmacbaine@gmail.com>
+Reply-To: Jim MacBaine <jmacbaine@gmail.com>
+To: Chris Wright <chrisw@osdl.org>
 Subject: Re: [stable] Re: [00/07] -stable review
-Message-ID: <20050628172019.GZ9046@shell0.pdx.osdl.net>
-References: <20050627224651.GI9046@shell0.pdx.osdl.net> <3afbacad050628051059b69bbe@mail.gmail.com> <20050628144706.GX9046@shell0.pdx.osdl.net> <3afbacad05062810183bf640d2@mail.gmail.com>
+Cc: stable@kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20050628144706.GX9046@shell0.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <3afbacad05062810183bf640d2@mail.gmail.com>
-User-Agent: Mutt/1.5.6i
+References: <20050627224651.GI9046@shell0.pdx.osdl.net>
+	 <3afbacad050628051059b69bbe@mail.gmail.com>
+	 <20050628144706.GX9046@shell0.pdx.osdl.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Jim MacBaine (jmacbaine@gmail.com) wrote:
-> On 6/28/05, Chris Wright <chrisw@osdl.org> wrote:
+On 6/28/05, Chris Wright <chrisw@osdl.org> wrote:
+
+> I assume you're referring to this fix:
 > 
-> > I assume you're referring to this fix:
-> > 
-> > http://marc.theaimsgroup.com/?l=linux-kernel&m=111936734211687&w=2
-> > 
-> > If so, I expect it will.  Needs to hit mainline first and get pushed over
-> > to -stable.
->  
-> That's the one I'm referring to.  This patch works for me on 2.6.12.1.
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=111936734211687&w=2
+> 
+> If so, I expect it will.  Needs to hit mainline first and get pushed over
+> to -stable.
+ 
+That's the one I'm referring to.  This patch works for me on 2.6.12.1.
 
-Great, thanks.  As soon as net guys send it over we'll queue it up.
-
-thanks,
--chris
+Regards,
+Jim

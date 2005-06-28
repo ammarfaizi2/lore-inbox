@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261548AbVF1Ff3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261567AbVF1Fhj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261548AbVF1Ff3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 01:35:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261978AbVF1FfX
+	id S261567AbVF1Fhj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 01:37:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261945AbVF1FhC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 01:35:23 -0400
-Received: from mail.kroah.org ([69.55.234.183]:7148 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261600AbVF1Fdd convert rfc822-to-8bit
+	Tue, 28 Jun 2005 01:37:02 -0400
+Received: from mail.kroah.org ([69.55.234.183]:6636 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261567AbVF1Fdd convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 28 Jun 2005 01:33:33 -0400
 Cc: gregkh@suse.de
-Subject: [PATCH] PCI: clean up the MSI code a bit.
-In-Reply-To: <1119936775691@kroah.com>
+Subject: [PATCH] PCI: add proper MCFG table parsing to ACPI core.
+In-Reply-To: <11199367753992@kroah.com>
 X-Mailer: gregkh_patchbomb
 Date: Mon, 27 Jun 2005 22:32:55 -0700
-Message-Id: <11199367752569@kroah.com>
+Message-Id: <11199367751551@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,216 +24,231 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] PCI: clean up the MSI code a bit.
+[PATCH] PCI: add proper MCFG table parsing to ACPI core.
 
-Mostly just cleans up the irq handling logic to be smaller and a bit more
-descriptive as to what it really does.
+This patch is the first step in properly handling the MCFG PCI table.
+It defines the structures properly, and saves off the table so that the
+pci mmconfig code can access it.  It moves the parsing of the table a
+little later in the boot process, but still before the information is
+needed.
 
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit 70549ad9cf074e12f12cdc931b29b2616dfb873a
-tree dde5cdc320df87f1eee4b6ef94146dd741a31d14
-parent bb4a61b6eaee01707f24deeefc5d7136f25f75c5
-author Greg Kroah-Hartman <gregkh@suse.de> Mon, 06 Jun 2005 23:07:46 -0700
-committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 27 Jun 2005 21:52:46 -0700
+commit 545493917dc90298e1c38f018ad893f5518928e7
+tree 1c809616d3113785c0f7dd3039ea3b05c99c6440
+parent d18c3db58bc544fce6662ca7edba616ca9788a70
+author Greg Kroah-Hartman <gregkh@suse.de> Thu, 23 Jun 2005 17:35:56 -0700
+committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 27 Jun 2005 21:52:47 -0700
 
- drivers/pci/msi.c |   88 ++++++++++++++++++++---------------------------------
- drivers/pci/msi.h |    9 ++---
- 2 files changed, 37 insertions(+), 60 deletions(-)
+ arch/i386/kernel/acpi/boot.c |   41 +++++++++++++++++++++++++++++++++--------
+ arch/i386/pci/mmconfig.c     |   12 +++++++-----
+ arch/x86_64/pci/mmconfig.c   |   16 +++++++++-------
+ include/linux/acpi.h         |   16 +++++++++++++---
+ 4 files changed, 62 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/pci/msi.c b/drivers/pci/msi.c
---- a/drivers/pci/msi.c
-+++ b/drivers/pci/msi.c
-@@ -28,10 +28,10 @@ static struct msi_desc* msi_desc[NR_IRQS
- static kmem_cache_t* msi_cachep;
+diff --git a/arch/i386/kernel/acpi/boot.c b/arch/i386/kernel/acpi/boot.c
+--- a/arch/i386/kernel/acpi/boot.c
++++ b/arch/i386/kernel/acpi/boot.c
+@@ -159,9 +159,15 @@ char *__acpi_map_table(unsigned long phy
+ #endif
  
- static int pci_msi_enable = 1;
--static int last_alloc_vector = 0;
--static int nr_released_vectors = 0;
-+static int last_alloc_vector;
-+static int nr_released_vectors;
- static int nr_reserved_vectors = NR_HP_RESERVED_VECTORS;
--static int nr_msix_devices = 0;
-+static int nr_msix_devices;
- 
- #ifndef CONFIG_X86_IO_APIC
- int vector_irq[NR_VECTORS] = { [0 ... NR_VECTORS - 1] = -1};
-@@ -170,44 +170,30 @@ static unsigned int startup_msi_irq_wo_m
- 	return 0;	/* never anything pending */
- }
- 
--static void release_msi(unsigned int vector);
--static void shutdown_msi_irq(unsigned int vector)
--{
--	release_msi(vector);
--}
--
--#define shutdown_msi_irq_wo_maskbit	shutdown_msi_irq
--static void enable_msi_irq_wo_maskbit(unsigned int vector) {}
--static void disable_msi_irq_wo_maskbit(unsigned int vector) {}
--static void ack_msi_irq_wo_maskbit(unsigned int vector) {}
--static void end_msi_irq_wo_maskbit(unsigned int vector)
-+static unsigned int startup_msi_irq_w_maskbit(unsigned int vector)
- {
--	move_msi(vector);
--	ack_APIC_irq();
-+	startup_msi_irq_wo_maskbit(vector);
-+	unmask_MSI_irq(vector);
-+	return 0;	/* never anything pending */
- }
- 
--static unsigned int startup_msi_irq_w_maskbit(unsigned int vector)
-+static void shutdown_msi_irq(unsigned int vector)
- {
- 	struct msi_desc *entry;
- 	unsigned long flags;
- 
- 	spin_lock_irqsave(&msi_lock, flags);
- 	entry = msi_desc[vector];
--	if (!entry || !entry->dev) {
--		spin_unlock_irqrestore(&msi_lock, flags);
--		return 0;
--	}
--	entry->msi_attrib.state = 1;	/* Mark it active */
-+	if (entry && entry->dev)
-+		entry->msi_attrib.state = 0;	/* Mark it not active */
- 	spin_unlock_irqrestore(&msi_lock, flags);
--
--	unmask_MSI_irq(vector);
--	return 0;	/* never anything pending */
- }
- 
--#define shutdown_msi_irq_w_maskbit	shutdown_msi_irq
--#define enable_msi_irq_w_maskbit	unmask_MSI_irq
--#define disable_msi_irq_w_maskbit	mask_MSI_irq
--#define ack_msi_irq_w_maskbit		mask_MSI_irq
-+static void end_msi_irq_wo_maskbit(unsigned int vector)
-+{
-+	move_msi(vector);
-+	ack_APIC_irq();
-+}
- 
- static void end_msi_irq_w_maskbit(unsigned int vector)
- {
-@@ -216,6 +202,10 @@ static void end_msi_irq_w_maskbit(unsign
- 	ack_APIC_irq();
- }
- 
-+static void do_nothing(unsigned int vector)
-+{
-+}
+ #ifdef CONFIG_PCI_MMCONFIG
+-static int __init acpi_parse_mcfg(unsigned long phys_addr, unsigned long size)
++/* The physical address of the MMCONFIG aperture.  Set from ACPI tables. */
++struct acpi_table_mcfg_config *pci_mmcfg_config;
++int pci_mmcfg_config_num;
 +
- /*
-  * Interrupt Type for MSI-X PCI/PCI-X/PCI-Express Devices,
-  * which implement the MSI-X Capability Structure.
-@@ -223,10 +213,10 @@ static void end_msi_irq_w_maskbit(unsign
- static struct hw_interrupt_type msix_irq_type = {
- 	.typename	= "PCI-MSI-X",
- 	.startup	= startup_msi_irq_w_maskbit,
--	.shutdown	= shutdown_msi_irq_w_maskbit,
--	.enable		= enable_msi_irq_w_maskbit,
--	.disable	= disable_msi_irq_w_maskbit,
--	.ack		= ack_msi_irq_w_maskbit,
-+	.shutdown	= shutdown_msi_irq,
-+	.enable		= unmask_MSI_irq,
-+	.disable	= mask_MSI_irq,
-+	.ack		= mask_MSI_irq,
- 	.end		= end_msi_irq_w_maskbit,
- 	.set_affinity	= set_msi_irq_affinity
- };
-@@ -239,10 +229,10 @@ static struct hw_interrupt_type msix_irq
- static struct hw_interrupt_type msi_irq_w_maskbit_type = {
- 	.typename	= "PCI-MSI",
- 	.startup	= startup_msi_irq_w_maskbit,
--	.shutdown	= shutdown_msi_irq_w_maskbit,
--	.enable		= enable_msi_irq_w_maskbit,
--	.disable	= disable_msi_irq_w_maskbit,
--	.ack		= ack_msi_irq_w_maskbit,
-+	.shutdown	= shutdown_msi_irq,
-+	.enable		= unmask_MSI_irq,
-+	.disable	= mask_MSI_irq,
-+	.ack		= mask_MSI_irq,
- 	.end		= end_msi_irq_w_maskbit,
- 	.set_affinity	= set_msi_irq_affinity
- };
-@@ -255,10 +245,10 @@ static struct hw_interrupt_type msi_irq_
- static struct hw_interrupt_type msi_irq_wo_maskbit_type = {
- 	.typename	= "PCI-MSI",
- 	.startup	= startup_msi_irq_wo_maskbit,
--	.shutdown	= shutdown_msi_irq_wo_maskbit,
--	.enable		= enable_msi_irq_wo_maskbit,
--	.disable	= disable_msi_irq_wo_maskbit,
--	.ack		= ack_msi_irq_wo_maskbit,
-+	.shutdown	= shutdown_msi_irq,
-+	.enable		= do_nothing,
-+	.disable	= do_nothing,
-+	.ack		= do_nothing,
- 	.end		= end_msi_irq_wo_maskbit,
- 	.set_affinity	= set_msi_irq_affinity
- };
-@@ -407,7 +397,7 @@ static struct msi_desc* alloc_msi_entry(
++int __init acpi_parse_mcfg(unsigned long phys_addr, unsigned long size)
  {
- 	struct msi_desc *entry;
+ 	struct acpi_table_mcfg *mcfg;
++	unsigned long i;
++	int config_size;
  
--	entry = (struct msi_desc*) kmem_cache_alloc(msi_cachep, SLAB_KERNEL);
-+	entry = kmem_cache_alloc(msi_cachep, SLAB_KERNEL);
- 	if (!entry)
- 		return NULL;
- 
-@@ -796,18 +786,6 @@ void pci_disable_msi(struct pci_dev* dev
+ 	if (!phys_addr || !size)
+ 		return -EINVAL;
+@@ -172,18 +178,38 @@ static int __init acpi_parse_mcfg(unsign
+ 		return -ENODEV;
  	}
+ 
+-	if (mcfg->base_reserved) {
+-		printk(KERN_ERR PREFIX "MMCONFIG not in low 4GB of memory\n");
++	/* how many config structures do we have */
++	pci_mmcfg_config_num = 0;
++	i = size - sizeof(struct acpi_table_mcfg);
++	while (i >= sizeof(struct acpi_table_mcfg_config)) {
++		++pci_mmcfg_config_num;
++		i -= sizeof(struct acpi_table_mcfg_config);
++	};
++	if (pci_mmcfg_config_num == 0) {
++		printk(KERN_ERR PREFIX "MMCONFIG has no entries\n");
+ 		return -ENODEV;
+ 	}
+ 
+-	pci_mmcfg_base_addr = mcfg->base_address;
++	config_size = pci_mmcfg_config_num * sizeof(*pci_mmcfg_config);
++	pci_mmcfg_config = kmalloc(config_size, GFP_KERNEL);
++	if (!pci_mmcfg_config) {
++		printk(KERN_WARNING PREFIX
++		       "No memory for MCFG config tables\n");
++		return -ENOMEM;
++	}
++
++	memcpy(pci_mmcfg_config, &mcfg->config, config_size);
++	for (i = 0; i < pci_mmcfg_config_num; ++i) {
++		if (mcfg->config[i].base_reserved) {
++			printk(KERN_ERR PREFIX
++			       "MMCONFIG not in low 4GB of memory\n");
++			return -ENODEV;
++		}
++	}
+ 
+ 	return 0;
  }
+-#else
+-#define	acpi_parse_mcfg NULL
+-#endif /* !CONFIG_PCI_MMCONFIG */
++#endif /* CONFIG_PCI_MMCONFIG */
  
--static void release_msi(unsigned int vector)
--{
--	struct msi_desc *entry;
--	unsigned long flags;
+ #ifdef CONFIG_X86_LOCAL_APIC
+ static int __init
+@@ -1139,7 +1165,6 @@ int __init acpi_boot_init(void)
+ 	acpi_process_madt();
+ 
+ 	acpi_table_parse(ACPI_HPET, acpi_parse_hpet);
+-	acpi_table_parse(ACPI_MCFG, acpi_parse_mcfg);
+ 
+ 	return 0;
+ }
+diff --git a/arch/i386/pci/mmconfig.c b/arch/i386/pci/mmconfig.c
+--- a/arch/i386/pci/mmconfig.c
++++ b/arch/i386/pci/mmconfig.c
+@@ -11,11 +11,9 @@
+ 
+ #include <linux/pci.h>
+ #include <linux/init.h>
++#include <linux/acpi.h>
+ #include "pci.h"
+ 
+-/* The physical address of the MMCONFIG aperture.  Set from ACPI tables. */
+-u32 pci_mmcfg_base_addr;
 -
--	spin_lock_irqsave(&msi_lock, flags);
--	entry = msi_desc[vector];
--	if (entry && entry->dev)
--		entry->msi_attrib.state = 0;	/* Mark it not active */
--	spin_unlock_irqrestore(&msi_lock, flags);
--}
--
- static int msi_free_vector(struct pci_dev* dev, int vector, int reassign)
+ #define mmcfg_virt_addr ((void __iomem *) fix_to_virt(FIX_PCIE_MCFG))
+ 
+ /* The base address of the last MMCONFIG device accessed */
+@@ -27,7 +25,7 @@ static u32 mmcfg_last_accessed_device;
+ 
+ static inline void pci_exp_set_dev_base(int bus, int devfn)
  {
- 	struct msi_desc *entry;
-@@ -924,7 +902,7 @@ static int reroute_msix_table(int head, 
- /**
-  * pci_enable_msix - configure device's MSI-X capability structure
-  * @dev: pointer to the pci_dev data structure of MSI-X device function
-- * @data: pointer to an array of MSI-X entries
-+ * @entries: pointer to an array of MSI-X entries
-  * @nvec: number of MSI-X vectors requested for allocation by device driver
-  *
-  * Setup the MSI-X capability structure of device function with the number
-diff --git a/drivers/pci/msi.h b/drivers/pci/msi.h
---- a/drivers/pci/msi.h
-+++ b/drivers/pci/msi.h
-@@ -41,11 +41,11 @@ static inline void move_msi(int vector) 
- #define PCI_MSIX_FLAGS_BIRMASK		(7 << 0)
- #define PCI_MSIX_FLAGS_BITMASK		(1 << 0)
+-	u32 dev_base = pci_mmcfg_base_addr | (bus << 20) | (devfn << 12);
++	u32 dev_base = pci_mmcfg_config[0].base_address | (bus << 20) | (devfn << 12);
+ 	if (dev_base != mmcfg_last_accessed_device) {
+ 		mmcfg_last_accessed_device = dev_base;
+ 		set_fixmap_nocache(FIX_PCIE_MCFG, dev_base);
+@@ -101,7 +99,11 @@ static int __init pci_mmcfg_init(void)
+ {
+ 	if ((pci_probe & PCI_PROBE_MMCONF) == 0)
+ 		goto out;
+-	if (!pci_mmcfg_base_addr)
++
++	acpi_table_parse(ACPI_MCFG, acpi_parse_mcfg);
++	if ((pci_mmcfg_config_num == 0) ||
++	    (pci_mmcfg_config == NULL) ||
++	    (pci_mmcfg_config[0].base_address == 0))
+ 		goto out;
  
--#define PCI_MSIX_ENTRY_LOWER_ADDR_OFFSET	0
--#define PCI_MSIX_ENTRY_UPPER_ADDR_OFFSET	4
--#define PCI_MSIX_ENTRY_DATA_OFFSET		8
--#define PCI_MSIX_ENTRY_VECTOR_CTRL_OFFSET	12
- #define PCI_MSIX_ENTRY_SIZE			16
-+#define  PCI_MSIX_ENTRY_LOWER_ADDR_OFFSET	0
-+#define  PCI_MSIX_ENTRY_UPPER_ADDR_OFFSET	4
-+#define  PCI_MSIX_ENTRY_DATA_OFFSET		8
-+#define  PCI_MSIX_ENTRY_VECTOR_CTRL_OFFSET	12
+ 	/* Kludge for now. Don't use mmconfig on AMD systems because
+diff --git a/arch/x86_64/pci/mmconfig.c b/arch/x86_64/pci/mmconfig.c
+--- a/arch/x86_64/pci/mmconfig.c
++++ b/arch/x86_64/pci/mmconfig.c
+@@ -7,15 +7,13 @@
  
- #define msi_control_reg(base)		(base + PCI_MSI_FLAGS)
- #define msi_lower_address_reg(base)	(base + PCI_MSI_ADDRESS_LO)
-@@ -64,7 +64,6 @@ static inline void move_msi(int vector) 
- #define msi_enable(control, num) multi_msi_enable(control, num); \
- 	control |= PCI_MSI_FLAGS_ENABLE
+ #include <linux/pci.h>
+ #include <linux/init.h>
++#include <linux/acpi.h>
+ #include "pci.h"
  
--#define msix_control_reg		msi_control_reg
- #define msix_table_offset_reg(base)	(base + 0x04)
- #define msix_pba_offset_reg(base)	(base + 0x08)
- #define msix_enable(control)	 	control |= PCI_MSIX_FLAGS_ENABLE
+ #define MMCONFIG_APER_SIZE (256*1024*1024)
+ 
+-/* The physical address of the MMCONFIG aperture.  Set from ACPI tables. */
+-u32 pci_mmcfg_base_addr;
+-
+ /* Static virtual mapping of the MMCONFIG aperture */
+-char *pci_mmcfg_virt;
++static char *pci_mmcfg_virt;
+ 
+ static inline char *pci_dev_base(unsigned int bus, unsigned int devfn)
+ {
+@@ -77,7 +75,11 @@ static int __init pci_mmcfg_init(void)
+ {
+ 	if ((pci_probe & PCI_PROBE_MMCONF) == 0)
+ 		return 0;
+-	if (!pci_mmcfg_base_addr)
++
++	acpi_table_parse(ACPI_MCFG, acpi_parse_mcfg);
++	if ((pci_mmcfg_config_num == 0) ||
++	    (pci_mmcfg_config == NULL) ||
++	    (pci_mmcfg_config[0].base_address == 0))
+ 		return 0;
+ 
+ 	/* Kludge for now. Don't use mmconfig on AMD systems because
+@@ -88,13 +90,13 @@ static int __init pci_mmcfg_init(void)
+ 		return 0; 
+ 
+ 	/* RED-PEN i386 doesn't do _nocache right now */
+-	pci_mmcfg_virt = ioremap_nocache(pci_mmcfg_base_addr, MMCONFIG_APER_SIZE);
++	pci_mmcfg_virt = ioremap_nocache(pci_mmcfg_config[0].base_address, MMCONFIG_APER_SIZE);
+ 	if (!pci_mmcfg_virt) { 
+ 		printk("PCI: Cannot map mmconfig aperture\n");
+ 		return 0;
+ 	}	
+ 
+-	printk(KERN_INFO "PCI: Using MMCONFIG at %x\n", pci_mmcfg_base_addr);
++	printk(KERN_INFO "PCI: Using MMCONFIG at %x\n", pci_mmcfg_config[0].base_address);
+ 	raw_pci_ops = &pci_mmcfg;
+ 	pci_probe = (pci_probe & ~PCI_PROBE_MASK) | PCI_PROBE_MMCONF;
+ 
+diff --git a/include/linux/acpi.h b/include/linux/acpi.h
+--- a/include/linux/acpi.h
++++ b/include/linux/acpi.h
+@@ -342,11 +342,19 @@ struct acpi_table_ecdt {
+ 
+ /* PCI MMCONFIG */
+ 
++/* Defined in PCI Firmware Specification 3.0 */
++struct acpi_table_mcfg_config {
++	u32				base_address;
++	u32				base_reserved;
++	u16				pci_segment_group_number;
++	u8				start_bus_number;
++	u8				end_bus_number;
++	u8				reserved[4];
++} __attribute__ ((packed));
+ struct acpi_table_mcfg {
+ 	struct acpi_table_header	header;
+ 	u8				reserved[8];
+-	u32				base_address;
+-	u32				base_reserved;
++	struct acpi_table_mcfg_config	config[0];
+ } __attribute__ ((packed));
+ 
+ /* Table Handlers */
+@@ -391,6 +399,7 @@ int acpi_table_parse (enum acpi_table_id
+ int acpi_get_table_header_early (enum acpi_table_id id, struct acpi_table_header **header);
+ int acpi_table_parse_madt (enum acpi_madt_entry_id id, acpi_madt_entry_handler handler, unsigned int max_entries);
+ int acpi_table_parse_srat (enum acpi_srat_entry_id id, acpi_madt_entry_handler handler, unsigned int max_entries);
++int acpi_parse_mcfg (unsigned long phys_addr, unsigned long size);
+ void acpi_table_print (struct acpi_table_header *header, unsigned long phys_addr);
+ void acpi_table_print_madt_entry (acpi_table_entry_header *madt);
+ void acpi_table_print_srat_entry (acpi_table_entry_header *srat);
+@@ -412,7 +421,8 @@ int acpi_unregister_ioapic(acpi_handle h
+ 
+ extern int acpi_mp_config;
+ 
+-extern u32 pci_mmcfg_base_addr;
++extern struct acpi_table_mcfg_config *pci_mmcfg_config;
++extern int pci_mmcfg_config_num;
+ 
+ extern int sbf_port ;
+ 
 

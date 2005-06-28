@@ -1,68 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261314AbVF1SvC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261187AbVF1SwW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261314AbVF1SvC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 14:51:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261446AbVF1SvB
+	id S261187AbVF1SwW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 14:52:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261201AbVF1SwV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 14:51:01 -0400
-Received: from smtp-2.llnl.gov ([128.115.250.82]:49308 "EHLO smtp-2.llnl.gov")
-	by vger.kernel.org with ESMTP id S261314AbVF1Su2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 14:50:28 -0400
-Date: Tue, 28 Jun 2005 11:50:11 -0700 (PDT)
-From: Chuck Harding <charding@llnl.gov>
-Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.50-24
-In-reply-to: <20050628153139.GA2348@elte.hu>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linux Kernel Discussion List <linux-kernel@vger.kernel.org>
-Message-id: <Pine.LNX.4.63.0506281145270.31407@ghostwheel.llnl.gov>
-Organization: Lawrence Livermore National Laboratory
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-Content-transfer-encoding: 7BIT
-User-Agent: Pine/4.62 (X11; U; Linux i686; en-US; rv:2.6.11-rc2-mm1)
-References: <20050608112801.GA31084@elte.hu> <20050625091215.GC27073@elte.hu>
- <200506250919.52640.gene.heskett@verizon.net>
- <200506251039.14746.gene.heskett@verizon.net>
- <Pine.LNX.4.63.0506271157200.8605@ghostwheel.llnl.gov>
- <1119902991.4794.5.camel@dhcp153.mvista.com>
- <Pine.LNX.4.58.0506280337390.24849@localhost.localdomain>
- <20050628081843.GA16455@elte.hu> <20050628091222.GA30629@elte.hu>
- <42C16C1F.20202@stud.feec.vutbr.cz> <20050628153139.GA2348@elte.hu>
+	Tue, 28 Jun 2005 14:52:21 -0400
+Received: from simmts8.bellnexxia.net ([206.47.199.166]:62626 "EHLO
+	simmts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S261187AbVF1SwN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 14:52:13 -0400
+Message-ID: <4783.10.10.10.24.1119984732.squirrel@linux1>
+In-Reply-To: <200506281401.j5SE1ORW003589@laptop11.inf.utfsm.cl>
+References: Message from Alexander Zarochentsev <zam@namesys.com>    of "Mon,
+    27 Jun 2005 13:30:06 +0400." <200506271330.07451.zam@namesys.com>
+    <200506281401.j5SE1ORW003589@laptop11.inf.utfsm.cl>
+Date: Tue, 28 Jun 2005 14:52:12 -0400 (EDT)
+Subject: Re: reiser4 plugins
+From: "Sean" <seanlkml@sympatico.ca>
+To: "Horst von Brand" <vonbrand@inf.utfsm.cl>
+Cc: "Alexander Zarochentsev" <zam@namesys.com>,
+       "Christoph Hellwig" <hch@infradead.org>,
+       "David Masover" <ninja@slaphack.com>, "Jeff Garzik" <jgarzik@pobox.com>,
+       "Hans Reiser" <reiser@namesys.com>, "Andrew Morton" <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org,
+       "ReiserFS List" <reiserfs-list@namesys.com>
+User-Agent: SquirrelMail/1.4.4-2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Jun 2005, Ingo Molnar wrote:
+On Tue, June 28, 2005 10:01 am, Horst von Brand said:
+>> I don't belive that you want to see all reiser4-specific things as item
+>> plugins, disk format plugins in the VFS.
+>
+> Only what makes sense. Plus many of those will probably have to go. Decide
+> on /one/ way of doing things, even if not perfect for all uses. Everything
+> else is useless bloat.
 
->
-> * Michal Schmidt <xschmi00@stud.feec.vutbr.cz> wrote:
->
->> Ingo Molnar wrote:
->>> i've also uploaded -50-27 in which i've improved the irq-flags debugging
->>> code.
->>
->> Hi Ingo,
->> check_raw_flags needs to be exported. The attached one-line patch is
->> against -V0.7.50-29.
->
-> thanks, i've uploaded the -30 patch with your fix included.
->
-> 	Ingo
+It doesn't seem to be a problem as long as loadable plugins are GPL.  How
+is it useless bloat?  It doesn't seem much different from having loadable
+modules in the security system.  Just don't enable Reiser4 in your kernel
+if you don't want to use it.
 
-It's working fine now - switching back and forth between graphical mode
-and text console (which works with or with out the shift key B-)  and no
-more flooding of BUG: scheduling with irqsw disabled in dmesg. I did
-notice that 50-24 kernal was hard locked up when I came in this morning.
-SysRq-B would not reboot it and pinging from another machine said it
-was down. I went ahead and booted up another kernel and saw the message
-about 50-30 so I built that and that is what I am running on now. I really
-like using it because X works much better at rendering the screen and
-screen animations are really smooth. (this is on a 2GHz P4 with 1Gb RAM)
+Sean
 
--- 
-Charles D. (Chuck) Harding <charding@llnl.gov>  Voice: 925-423-8879
-Senior Computer Associate         ICCD            Fax: 925-423-6961
-Lawrence Livermore National Laboratory      Computation Directorate
-Livermore, CA USA  http://www.llnl.gov  GPG Public Key ID: B9EB6601
------------------- http://tinyurl.com/5w5ey -----------------------
--- Oxymoron: Spending Cuts. --
+

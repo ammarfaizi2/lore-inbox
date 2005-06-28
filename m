@@ -1,69 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262027AbVF1GjB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262044AbVF1GkH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262027AbVF1GjB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 02:39:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261975AbVF1Gh3
+	id S262044AbVF1GkH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 02:40:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262030AbVF1Gjh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 02:37:29 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:7330 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261971AbVF1Gbf (ORCPT
+	Tue, 28 Jun 2005 02:39:37 -0400
+Received: from [213.184.188.19] ([213.184.188.19]:6660 "EHLO raad.intranet")
+	by vger.kernel.org with ESMTP id S262013AbVF1Ghu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 02:31:35 -0400
-Date: Mon, 27 Jun 2005 23:30:55 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jens Axboe <axboe@suse.de>
-Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org
-Subject: Re: cfq build breakage
-Message-Id: <20050627233055.20029d85.akpm@osdl.org>
-In-Reply-To: <20050628062108.GA3411@suse.de>
-References: <42C0B39E.7070509@pobox.com>
-	<20050627201333.4c7d3d06.akpm@osdl.org>
-	<20050628062108.GA3411@suse.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 28 Jun 2005 02:37:50 -0400
+Message-Id: <200506280637.JAA07320@raad.intranet>
+From: "Al Boldi" <a1426z@gawab.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: <linux-fsdevel@vger.kernel.org>
+Subject: RE: reiser4 plugins
+Date: Tue, 28 Jun 2005 09:37:24 +0300
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+In-Reply-To: <42C05F16.5000804@xfs.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Thread-Index: AcV7VVlEB06iPAm0R0SOBxzhNMKQcAAU5UMQ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe <axboe@suse.de> wrote:
->
-> On Mon, Jun 27 2005, Andrew Morton wrote:
-> > Jeff Garzik <jgarzik@pobox.com> wrote:
-> > >
-> > > 
-> > > In latest git tree...
-> > > 
-> > >    CC [M]  drivers/block/cfq-iosched.o
-> > > drivers/block/cfq-iosched.c: In function `cfq_put_queue':
-> > > drivers/block/cfq-iosched.c:303: sorry, unimplemented: inlining failed 
-> > > in call to 'cfq_pending_requests': function body not available
-> > > drivers/block/cfq-iosched.c:1080: sorry, unimplemented: called from here
-> > > drivers/block/cfq-iosched.c: In function `__cfq_may_queue':
-> > > drivers/block/cfq-iosched.c:1955: warning: the address of 
-> > > `cfq_cfqq_must_alloc_slice', will always evaluate as `true'
-> > > make[2]: *** [drivers/block/cfq-iosched.o] Error 1
-> > > make[1]: *** [drivers/block] Error 2
-> > > make: *** [drivers] Error 2
-> > 
-> > hm.  The inline thing is trivial, but the misuse of
-> > cfq_cfqq_must_alloc_slice() means that we now wander into untested
-> > territory.
+Hans Reiser wrote:
+> Steve, there is a remark about XFS below which you are going to be 
+> more expert on.
 > 
-> Indeed, which compiler errors on that?
-
-4.0 and later, I guess.
-
-> > @@ -1969,7 +1968,7 @@ __cfq_may_queue(struct cfq_data *cfqd, s
-> >  		 * only allow 1 ELV_MQUEUE_MUST per slice, otherwise we
-> >  		 * can quickly flood the queue with writes from a single task
-> >  		 */
-> > -		if (rw == READ || !cfq_cfqq_must_alloc_slice) {
-> > +		if (rw == READ || !cfq_cfqq_must_alloc_slice(cfqq)) {
-> >  			cfq_mark_cfqq_must_alloc_slice(cfqq);
-> >  			return ELV_MQUEUE_MUST;
-> >  		}
+> Theodore Ts'o wrote:
 > 
-> thanks, clearly a typo but inside if 0.
+>>
+>>XFS has similar issues where it assumes that hardware has powerfail 
+>>interrupts, and that the OS can use said powerfail interrupt to stop 
+>>DMA's in its tracks on an power failure, so that you don't have 
+>>garbage written to key filesystem data structures when the memory 
+>>starts suffering from the dropping voltage on the power bus faster 
+>>than the DMA engine or the disk drives.  So XFS is a great filesystem
+>>--- but you'd better be running it on a UPS, or on a system which has 
+>>power fail interrupts and an OS that knows what to do.  Ext3, because 
+>>it does physical block journalling, does not suffer from this problem.
+>>(Yes, Resierfs uses logical journalling as well, so it suffers from 
+>>the same problem.)
+>>
 
-But the other instance was inside `#if 1'.  This fixup will change behaviour.
+True now, not so around 2.4.20 when XFS was rock-solid. I think they tried
+to improve on performance and broke something. I wish they would fix that
+because it forced me back to ext3, as in consistency over performance any
+time.
+
+
+

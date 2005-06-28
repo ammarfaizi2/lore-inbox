@@ -1,48 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261337AbVF1V2F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261302AbVF1Vbf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261337AbVF1V2F (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 17:28:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261422AbVF1V2F
+	id S261302AbVF1Vbf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 17:31:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261422AbVF1Vbe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 17:28:05 -0400
-Received: from fed1rmmtao01.cox.net ([68.230.241.38]:27046 "EHLO
-	fed1rmmtao01.cox.net") by vger.kernel.org with ESMTP
-	id S261337AbVF1VZT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 17:25:19 -0400
-Date: Tue, 28 Jun 2005 14:25:18 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Olaf Hering <olh@suse.de>
-Cc: Greg KH <greg@kroah.com>, Kyle Moffett <mrmacman_g4@mac.com>,
+	Tue, 28 Jun 2005 17:31:34 -0400
+Received: from isilmar.linta.de ([213.239.214.66]:57275 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S261302AbVF1V3G (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 17:29:06 -0400
+Date: Tue, 28 Jun 2005 23:29:05 +0200
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: Erik Slagter <erik@slagter.name>, venkatesh.pallipadi@intel.com,
+       len.brown@intel.com
+Cc: Andrew Haninger <ahaning@gmail.com>, Jim serio <jseriousenet@gmail.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] ndevfs - a "nano" devfs
-Message-ID: <20050628212518.GA26772@smtp.west.cox.net>
-References: <20050624081808.GA26174@kroah.com> <9EE4350F-5791-4787-950B-14E5C2B9ADB8@mac.com> <20050628074145.GC3577@kroah.com> <20050628195633.GA26131@smtp.west.cox.net> <20050628210804.GA26713@suse.de>
+Subject: C2/C3 on SMP [Was: Re: 2.6.X not recognizing second CPU]
+Message-ID: <20050628212905.GA31610@isilmar.linta.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
+	Erik Slagter <erik@slagter.name>, venkatesh.pallipadi@intel.com,
+	len.brown@intel.com, Andrew Haninger <ahaning@gmail.com>,
+	Jim serio <jseriousenet@gmail.com>, linux-kernel@vger.kernel.org
+References: <3642108305062711524e1e163@mail.gmail.com> <105c793f050627123583a70d0@mail.gmail.com> <3642108305062713487326b672@mail.gmail.com> <105c793f05062714022ad4359@mail.gmail.com> <20050627214249.GA29657@isilmar.linta.de> <1119958379.3969.9.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050628210804.GA26713@suse.de>
+In-Reply-To: <1119958379.3969.9.camel@localhost.localdomain>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 28, 2005 at 11:08:04PM +0200, Olaf Hering wrote:
->  On Tue, Jun 28, Tom Rini wrote:
+On Tue, Jun 28, 2005 at 01:32:59PM +0200, Erik Slagter wrote:
+> On Mon, 2005-06-27 at 23:42 +0200, Dominik Brodowski wrote:
+> > a) Power Management is available on SMP, though support for it is a bit less
+> >    wide-spread than it is for UP
 > 
-> > On Tue, Jun 28, 2005 at 12:41:45AM -0700, Greg KH wrote:
-> > > On Fri, Jun 24, 2005 at 08:57:55PM -0400, Kyle Moffett wrote:
-> > > > One of the things that most annoys me about udev is that I still need
-> > > > a minimal static dev in order for the system to boot.
-> > > 
-> > > Why?  You should not.  Works just fine for me here :)
-> > 
-> > Er, don't you need /dev/console for console output to happen? (And that
-> > it's a good idea to have /dev/null around too).  Or has that changed?
-> 
-> scripts/gen_initramfs_list.sh creates that for every kernel.
+> Still no C2/C3 handling :-(
 
-I get "Warning: unable to open initial console", so on post 2.6.12 (but
-now stale) git.  Does userspace need to be doing something as well?
+Uh, wasn't there a small, nice patch implementing this in bk-acpi a few 
+weeks ago?
+*clicketyclick* Oh yes,
+http://bugzilla.kernel.org/show_bug.cgi?id=4401
+states it was merged into bk-acpi-test on 2005-04-22. However, I can't find
+it in current -mm any more...
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+	Dominik

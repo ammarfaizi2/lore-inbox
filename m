@@ -1,94 +1,178 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262178AbVF2CXM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262208AbVF2CWs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262178AbVF2CXM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 22:23:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262333AbVF2CTZ
+	id S262208AbVF2CWs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 22:22:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262216AbVF2CU0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 22:19:25 -0400
-Received: from [218.94.38.158] ([218.94.38.158]:6034 "EHLO xianan.com.cn")
-	by vger.kernel.org with ESMTP id S262178AbVF2CRt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 22:17:49 -0400
-X-AuthUser: chengq@xianan.com.cn
-Message-ID: <42C204B6.1040806@gmail.com>
-Date: Wed, 29 Jun 2005 10:17:26 +0800
-From: Benbenshi <benbenshi@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-os@analogic.com, linux-kernel@vger.kernel.org,
-       zhuangyy@xianan.com.cn
-Subject: Re: route trouble with kernel
-References: <dc849d8505062805573a73ec99@mail.gmail.com> <Pine.LNX.4.61.0506280942330.12415@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0506280942330.12415@chaos.analogic.com>
-Content-Type: text/plain; charset=GB2312
-Content-Transfer-Encoding: 7bit
+	Tue, 28 Jun 2005 22:20:26 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:36501 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262301AbVF1X6r
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 19:58:47 -0400
+Date: Tue, 28 Jun 2005 18:58:39 -0500
+To: linux-kernel@vger.kernel.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       long <tlnguyen@snoqualmie.dp.intel.com>
+Cc: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>, Greg KH <greg@kroah.com>,
+       ak@muc.de, Paul Mackerras <paulus@samba.org>,
+       linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, johnrose@us.ibm.com
+Subject: [PATCH 3/13]: PCI Err: IPR scsi device driver recovery
+Message-ID: <20050628235839.GA6362@austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="FL5UXtIhxfXey3p5"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040818i
+From: Linas Vepstas <linas@austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard B. Johnson wrote:
 
->
-> It could be argued that if `iptables` retains its
-> parameters after its only interface has been shut
-> down it's a bug.
->
-> The fact that no routes remain after a network
-> interface has been shut down is both logical
-> and in conformance with de facto Unix standards.
-> This is partially as a result of route's manipulating
-> flags (the UP flag would be wrong if the interface
-> was down).
->
-> I can't imagine that you have so many routes
-> that it takes a significant amount of time to
-> reset them using a script. If so, you probably
-> have a configuration error where you are
-> not properly using netmasks. Certainly, you
-> shouldn't have to establish a host-route for
-> every host on your network. You only need a
-> network route (out the interface) and a
-> default route that goes to some router to get
-> out of your LAN. Even if you __are__ a router,
-> the network setup remains about the same,
-> only the user-mode software changes, which
-> may dynamically alter the routing tables.
->
-> On Tue, 28 Jun 2005, cigarette Chan wrote:
->
->> i add a route to the kernel
->> eg: # route add -net XXX.XXX.XXX.XXX/24 gw XXX.XXX.XXX.XXX dev eth1
->>
->> but after i restart eth1
->>
->> #ifdown eth1
->> #ifup eth1
->>
->> the route disappear,this make me a lot of troubles.i have several
->> interfaces,and i have to
->> re-add all of these routes...
->>
->> Is there any way or patches to make route work like iptables,after i
->> restart the interface,
->> rules are still there.
->
->
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.6.12 on an i686 machine (5537.79 BogoMips).
-> Notice : All mail here is now cached for review by Dictator Bush.
-> 98.36% of all statistics are fiction.
->
-my host is a vpn gateway, and i have several virtual interface to run
-vpn. ie tap0, tap1....
-I have to add routes to these TAPs to make vpn work. but after i restart
-the tapX, i have
-to re-add routes relate to this interface~
-
-If i have to maintain several vpn and lots of TAPs , So i need a simple
-way to maintian route tables.
-sometimes it's quite diffcult to do this with shell scipts ,especially
-when it's quite complex.
+--FL5UXtIhxfXey3p5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
 
-thanks~
+pci-err-3-ipr.patch
+
+Adds PCI error recovery callbacks to the IPR SCSI controller
+driver. Tested, seems to work well, a variant of this ships
+already in the Novell/SUSE SLES9 SP2 kernel.
+
+Signed-off-by: Linas Vepstas <linas@linas.org>
+
+--FL5UXtIhxfXey3p5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="pci-err-3-ipr.patch"
+
+--- linux-2.6.12-git10/drivers/scsi/ipr.c.linas-orig	2005-06-22 15:26:14.000000000 -0500
++++ linux-2.6.12-git10/drivers/scsi/ipr.c	2005-06-22 17:05:14.000000000 -0500
+@@ -5326,6 +5326,88 @@ static void ipr_initiate_ioa_reset(struc
+ 				shutdown_type);
+ }
+ 
++#ifdef CONFIG_SCSI_IPR_EEH_RECOVERY
++
++/** If the PCI slot is frozen, hold off all i/o
++ *  activity; then, as soon as the slot is available again,
++ *  initiate an adapter reset.
++ */
++static int ipr_reset_freeze(struct ipr_cmnd *ipr_cmd)
++{
++	list_add_tail(&ipr_cmd->queue, &ipr_cmd->ioa_cfg->pending_q);
++	ipr_cmd->done = ipr_reset_ioa_job;
++	return IPR_RC_JOB_RETURN;
++}
++
++/** ipr_eeh_frozen -- called when slot has experience PCI bus error.
++ *  This routine is called to tell us that the PCI bus is down.
++ *  Can't do anything here, except put the device driver into a
++ *  holding pattern, waiting for the PCI bus to come back.
++ */
++static void ipr_eeh_frozen (struct pci_dev *pdev)
++{
++	unsigned long flags = 0;
++	struct ipr_ioa_cfg *ioa_cfg = pci_get_drvdata(pdev);
++
++	spin_lock_irqsave(ioa_cfg->host->host_lock, flags);
++	_ipr_initiate_ioa_reset(ioa_cfg, ipr_reset_freeze, IPR_SHUTDOWN_NONE);
++	spin_unlock_irqrestore(ioa_cfg->host->host_lock, flags);
++}
++
++/** ipr_eeh_slot_reset - called when pci slot has been reset.
++ *
++ * This routine is called by the pci error recovery recovery
++ * code after the PCI slot has been reset, just before we
++ * should resume normal operations.
++ */
++static int ipr_eeh_slot_reset (struct pci_dev *pdev)
++{
++	unsigned long flags = 0;
++	struct ipr_ioa_cfg *ioa_cfg = pci_get_drvdata(pdev);
++
++	pci_enable_device(pdev);
++	pci_set_master(pdev);
++	enable_irq (pdev->irq);
++	spin_lock_irqsave(ioa_cfg->host->host_lock, flags);
++	_ipr_initiate_ioa_reset(ioa_cfg, ipr_reset_restore_cfg_space,
++	                                 IPR_SHUTDOWN_NONE);
++	spin_unlock_irqrestore(ioa_cfg->host->host_lock, flags);
++
++	return PCIERR_RESULT_RECOVERED;
++}
++
++/** This routine is called when the PCI bus has permanently
++ *  failed.  This routine should purge all pending I/O and
++ *  shut down the device driver (close and unload).
++ *  XXX Needs to be implemented.
++ */
++static void ipr_eeh_perm_failure (struct pci_dev *pdev)
++{
++#if 0  // XXXXXXXXXXXXXXXXXXXXXXX
++	ipr_cmd->job_step = ipr_reset_shutdown_ioa;
++	rc = IPR_RC_JOB_CONTINUE;
++#endif
++}
++
++static int ipr_eeh_error_detected (struct pci_dev *pdev,
++                                enum pci_channel_state state)
++{
++	switch (state) {
++		case pci_channel_io_frozen:
++			ipr_eeh_frozen (pdev);
++			return PCIERR_RESULT_NEED_RESET;
++
++		case pci_channel_io_perm_failure:
++			ipr_eeh_perm_failure (pdev);
++			return PCIERR_RESULT_DISCONNECT;
++			break;
++		default:
++			break;
++	}
++	return PCIERR_RESULT_NEED_RESET;
++}
++#endif
++
+ /**
+  * ipr_probe_ioa_part2 - Initializes IOAs found in ipr_probe_ioa(..)
+  * @ioa_cfg:	ioa cfg struct
+@@ -6068,6 +6150,10 @@ static struct pci_driver ipr_driver = {
+ 	.id_table = ipr_pci_table,
+ 	.probe = ipr_probe,
+ 	.remove = ipr_remove,
++	.err_handler = {
++		.error_detected = ipr_eeh_error_detected,
++		.slot_reset = ipr_eeh_slot_reset,
++	},
+ 	.driver = {
+ 		.shutdown = ipr_shutdown,
+ 	},
+--- linux-2.6.12-git10/drivers/scsi/Kconfig.linas-orig	2005-06-22 15:26:14.000000000 -0500
++++ linux-2.6.12-git10/drivers/scsi/Kconfig	2005-06-22 15:28:29.000000000 -0500
+@@ -1065,6 +1065,14 @@ config SCSI_IPR_DUMP
+ 	  If you enable this support, the iprdump daemon can be used
+ 	  to capture adapter failure analysis information.
+ 
++config SCSI_IPR_EEH_RECOVERY
++	bool "Enable PCI bus error recovery"
++	depends on SCSI_IPR && PPC_PSERIES
++	help
++		If you say Y here, the driver will be able to recover from
++		PCI bus errors on many PowerPC platforms. IBM pSeries users
++		should answer Y.
++
+ config SCSI_ZALON
+ 	tristate "Zalon SCSI support"
+ 	depends on GSC && SCSI
+--- linux-2.6.12-git10/arch/ppc64/configs/pSeries_defconfig.linas-orig	2005-06-17 14:48:29.000000000 -0500
++++ linux-2.6.12-git10/arch/ppc64/configs/pSeries_defconfig	2005-06-22 15:30:33.000000000 -0500
+@@ -314,6 +314,7 @@ CONFIG_SCSI_IPR
+ CONFIG_SCSI_IPR=y
+ CONFIG_SCSI_IPR_TRACE=y
+ CONFIG_SCSI_IPR_DUMP=y
++CONFIG_SCSI_IPR_EEH_RECOVERY=y
+ # CONFIG_SCSI_QLOGIC_FC is not set
+ # CONFIG_SCSI_QLOGIC_1280 is not set
+ CONFIG_SCSI_QLA2XXX=y
+
+--FL5UXtIhxfXey3p5--

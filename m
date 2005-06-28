@@ -1,20 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262232AbVF1XXJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262185AbVF1X0m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262232AbVF1XXJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 19:23:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262237AbVF1XXJ
+	id S262185AbVF1X0m (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 19:26:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261277AbVF1XYw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 19:23:09 -0400
-Received: from sj-iport-4.cisco.com ([171.68.10.86]:11926 "EHLO
-	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
-	id S262232AbVF1XD5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 19:03:57 -0400
+	Tue, 28 Jun 2005 19:24:52 -0400
+Received: from sj-iport-5.cisco.com ([171.68.10.87]:54439 "EHLO
+	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
+	id S262240AbVF1XEA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 19:04:00 -0400
+X-IronPort-AV: i="3.93,240,1115017200"; 
+   d="scan'208"; a="195037150:sNHT30452908"
 Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: [PATCH 11/16] IB uverbs: add mthca mmap support
-In-Reply-To: <2005628163.o84QGfsM7oMSy0oU@cisco.com>
+Subject: [PATCH 06/16] IB uverbs: memory pinning implementation
+In-Reply-To: <2005628163.jfSiMqRcI78iLMJP@cisco.com>
 X-Mailer: Roland's Patchbomber
 Date: Tue, 28 Jun 2005 16:03:43 -0700
-Message-Id: <2005628163.gtJFW6uLUrGQteys@cisco.com>
+Message-Id: <2005628163.qcqYIUxXOrm3IH43@cisco.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: akpm@osdl.org
@@ -23,54 +25,240 @@ From: Roland Dreier <rolandd@cisco.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add support for mmap() method to mthca, so that userspace can get
-access to doorbell registers.  This allows userspace to get direct
-access to the HCA for data path operations.
-
-Each userspace context gets its own copy of the doorbell registers and
-is only allowed to use resources that the kernel has given it access
-to.  In other words, this is safe.
+Add support for pinning userspace memory regions and returning a list
+of pages in the region.  This includes tracking pinned memory against
+vm_locked and preventing unprivileged users from exceeding RLIMIT_MEMLOCK.
 
 Signed-off-by: Roland Dreier <rolandd@cisco.com>
 
 ---
 
- drivers/infiniband/hw/mthca/mthca_provider.c |   18 ++++++++++++++++++
- 1 files changed, 18 insertions(+)
+ drivers/infiniband/core/uverbs_mem.c |  221 +++++++++++++++++++++++++++++++++++
+ 1 files changed, 221 insertions(+)
 
 
 
---- linux.orig/drivers/infiniband/hw/mthca/mthca_provider.c	2005-06-28 15:20:16.611313860 -0700
-+++ linux/drivers/infiniband/hw/mthca/mthca_provider.c	2005-06-28 15:20:18.380930082 -0700
-@@ -340,6 +340,23 @@ static int mthca_dealloc_ucontext(struct
- 	return 0;
- }
- 
-+static int mthca_mmap_uar(struct ib_ucontext *context,
-+			  struct vm_area_struct *vma)
+--- /dev/null	2005-06-23 14:14:38.423479552 -0700
++++ linux/drivers/infiniband/core/uverbs_mem.c	2005-06-28 15:20:06.718455487 -0700
+@@ -0,0 +1,221 @@
++/*
++ * Copyright (c) 2005 Topspin Communications.  All rights reserved.
++ * Copyright (c) 2005 Cisco Systems.  All rights reserved.
++ *
++ * This software is available to you under a choice of one of two
++ * licenses.  You may choose to be licensed under the terms of the GNU
++ * General Public License (GPL) Version 2, available from the file
++ * COPYING in the main directory of this source tree, or the
++ * OpenIB.org BSD license below:
++ *
++ *     Redistribution and use in source and binary forms, with or
++ *     without modification, are permitted provided that the following
++ *     conditions are met:
++ *
++ *      - Redistributions of source code must retain the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer.
++ *
++ *      - Redistributions in binary form must reproduce the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer in the documentation and/or other materials
++ *        provided with the distribution.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
++ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
++ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
++ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
++ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
++ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
++ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
++ * SOFTWARE.
++ *
++ * $Id: uverbs_mem.c 2743 2005-06-28 22:27:59Z roland $
++ */
++
++#include <linux/mm.h>
++#include <linux/dma-mapping.h>
++
++#include "uverbs.h"
++
++struct ib_umem_account_work {
++	struct work_struct work;
++	struct mm_struct  *mm;
++	unsigned long      diff;
++};
++
++
++static void __ib_umem_release(struct ib_device *dev, struct ib_umem *umem, int dirty)
 +{
-+	if (vma->vm_end - vma->vm_start != PAGE_SIZE)
-+		return -EINVAL;
++	struct ib_umem_chunk *chunk, *tmp;
++	int i;
 +
-+	vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
-+	vma->vm_flags    |= VM_DONTCOPY;
++	list_for_each_entry_safe(chunk, tmp, &umem->chunk_list, list) {
++		dma_unmap_sg(dev->dma_device, chunk->page_list,
++			     chunk->nents, DMA_BIDIRECTIONAL);
++		for (i = 0; i < chunk->nents; ++i) {
++			if (umem->writable && dirty)
++				set_page_dirty_lock(chunk->page_list[i].page);
++			put_page(chunk->page_list[i].page);
++		}
 +
-+	if (remap_pfn_range(vma, vma->vm_start,
-+			    to_mucontext(context)->uar.pfn,
-+			    PAGE_SIZE, vma->vm_page_prot))
-+		return -EAGAIN;
-+
-+	return 0;
++		kfree(chunk);
++	}
 +}
 +
- static struct ib_pd *mthca_alloc_pd(struct ib_device *ibdev,
- 				    struct ib_ucontext *context,
- 				    struct ib_udata *udata)
-@@ -766,6 +783,7 @@ int mthca_register_device(struct mthca_d
- 	dev->ib_dev.query_gid            = mthca_query_gid;
- 	dev->ib_dev.alloc_ucontext       = mthca_alloc_ucontext;
- 	dev->ib_dev.dealloc_ucontext     = mthca_dealloc_ucontext;
-+	dev->ib_dev.mmap                 = mthca_mmap_uar;
- 	dev->ib_dev.alloc_pd             = mthca_alloc_pd;
- 	dev->ib_dev.dealloc_pd           = mthca_dealloc_pd;
- 	dev->ib_dev.create_ah            = mthca_ah_create;
++int ib_umem_get(struct ib_device *dev, struct ib_umem *mem,
++		void *addr, size_t size, int write)
++{
++	struct page **page_list;
++	struct ib_umem_chunk *chunk;
++	unsigned long locked;
++	unsigned long lock_limit;
++	unsigned long cur_base;
++	unsigned long npages;
++	int ret = 0;
++	int off;
++	int i;
++
++	if (!can_do_mlock())
++		return -EPERM;
++
++	page_list = (struct page **) __get_free_page(GFP_KERNEL);
++	if (!page_list)
++		return -ENOMEM;
++
++	mem->user_base = (unsigned long) addr;
++	mem->length    = size;
++	mem->offset    = (unsigned long) addr & ~PAGE_MASK;
++	mem->page_size = PAGE_SIZE;
++	mem->writable  = write;
++
++	INIT_LIST_HEAD(&mem->chunk_list);
++
++	npages = PAGE_ALIGN(size + mem->offset) >> PAGE_SHIFT;
++
++	down_write(&current->mm->mmap_sem);
++
++	locked     = npages + current->mm->locked_vm;
++	lock_limit = current->signal->rlim[RLIMIT_MEMLOCK].rlim_cur >> PAGE_SHIFT;
++
++	if ((locked > lock_limit) && !capable(CAP_IPC_LOCK)) {
++		ret = -ENOMEM;
++		goto out;
++	}
++
++	cur_base = (unsigned long) addr & PAGE_MASK;
++
++	while (npages) {
++		ret = get_user_pages(current, current->mm, cur_base,
++				     min_t(int, npages,
++					   PAGE_SIZE / sizeof (struct page *)),
++				     1, !write, page_list, NULL);
++
++		if (ret < 0)
++			goto out;
++
++		cur_base += ret * PAGE_SIZE;
++		npages   -= ret;
++
++		off = 0;
++
++		while (ret) {
++			chunk = kmalloc(sizeof *chunk + sizeof (struct scatterlist) *
++					min_t(int, ret, IB_UMEM_MAX_PAGE_CHUNK),
++					GFP_KERNEL);
++			if (!chunk) {
++				ret = -ENOMEM;
++				goto out;
++			}
++
++			chunk->nents = min_t(int, ret, IB_UMEM_MAX_PAGE_CHUNK);
++			for (i = 0; i < chunk->nents; ++i) {
++				chunk->page_list[i].page   = page_list[i + off];
++				chunk->page_list[i].offset = 0;
++				chunk->page_list[i].length = PAGE_SIZE;
++			}
++
++			chunk->nmap = dma_map_sg(dev->dma_device,
++						 &chunk->page_list[0],
++						 chunk->nents,
++						 DMA_BIDIRECTIONAL);
++			if (chunk->nmap <= 0) {
++				for (i = 0; i < chunk->nents; ++i)
++					put_page(chunk->page_list[i].page);
++				kfree(chunk);
++
++				ret = -ENOMEM;
++				goto out;
++			}
++
++			ret -= chunk->nents;
++			off += chunk->nents;
++			list_add_tail(&chunk->list, &mem->chunk_list);
++		}
++
++		ret = 0;
++	}
++
++out:
++	if (ret < 0)
++		__ib_umem_release(dev, mem, 0);
++	else
++		current->mm->locked_vm = locked;
++
++	up_write(&current->mm->mmap_sem);
++	free_page((unsigned long) page_list);
++
++	return ret;
++}
++
++void ib_umem_release(struct ib_device *dev, struct ib_umem *umem)
++{
++	__ib_umem_release(dev, umem, 1);
++
++	down_write(&current->mm->mmap_sem);
++	current->mm->locked_vm -=
++		PAGE_ALIGN(umem->length + umem->offset) >> PAGE_SHIFT;
++	up_write(&current->mm->mmap_sem);
++}
++
++static void ib_umem_account(void *work_ptr)
++{
++	struct ib_umem_account_work *work = work_ptr;
++
++	down_write(&work->mm->mmap_sem);
++	work->mm->locked_vm -= work->diff;
++	up_write(&work->mm->mmap_sem);
++	mmput(work->mm);
++	kfree(work);
++}
++
++void ib_umem_release_on_close(struct ib_device *dev, struct ib_umem *umem)
++{
++	struct ib_umem_account_work *work;
++	struct mm_struct *mm;
++
++	__ib_umem_release(dev, umem, 1);
++
++	mm = get_task_mm(current);
++	if (!mm)
++		return;
++
++	/*
++	 * We may be called with the mm's mmap_sem already held.  This
++	 * can happen when a userspace munmap() is the call that drops
++	 * the last reference to our file and calls our release
++	 * method.  If there are memory regions to destroy, we'll end
++	 * up here and not be able to take the mmap_sem.  Therefore we
++	 * defer the vm_locked accounting to the system workqueue.
++	 */
++
++	work = kmalloc(sizeof *work, GFP_KERNEL);
++	if (!work)
++		return;
++
++	INIT_WORK(&work->work, ib_umem_account, work);
++	work->mm   = mm;
++	work->diff = PAGE_ALIGN(umem->length + umem->offset) >> PAGE_SHIFT;
++
++	schedule_work(&work->work);
++}

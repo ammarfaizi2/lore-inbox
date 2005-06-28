@@ -1,107 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261402AbVF1MCn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261403AbVF1MKZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261402AbVF1MCn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 08:02:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261403AbVF1MCn
+	id S261403AbVF1MKZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 08:10:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261439AbVF1MKZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 08:02:43 -0400
-Received: from verein.lst.de ([213.95.11.210]:59798 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S261402AbVF1MCO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 08:02:14 -0400
-Date: Tue, 28 Jun 2005 14:01:59 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: cotte@de.ibm.com, akpm@osdl.org
+	Tue, 28 Jun 2005 08:10:25 -0400
+Received: from zproxy.gmail.com ([64.233.162.194]:7231 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261403AbVF1MKV convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 08:10:21 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=jkRczmaCK5P8RxorjjqAlH77nMs75q+j1SsrSCXf2JcB0ah/zk6WlsdRVgHubp+xri40Ef5oRq7UMv2qMqeudcjs6J4VfNjDgVZS6GBtXTUYjDmfc2jot5Vqb67paPLG6+36E3xEcDidiBShNtF1QnR+kkF7YVM4hdMCzvEJHNU=
+Message-ID: <3afbacad050628051059b69bbe@mail.gmail.com>
+Date: Tue, 28 Jun 2005 14:10:18 +0200
+From: Jim MacBaine <jmacbaine@gmail.com>
+Reply-To: Jim MacBaine <jmacbaine@gmail.com>
+To: stable@kernel.org
+Subject: Re: [00/07] -stable review
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] xip cleanups
-Message-ID: <20050628120159.GA1745@lst.de>
+In-Reply-To: <20050627224651.GI9046@shell0.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+References: <20050627224651.GI9046@shell0.pdx.osdl.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-adjust to kernel style and remove some unneeded NULL checks
+On 6/28/05, Chris Wright <chrisw@osdl.org> wrote:
 
+> Responses should be made by Wed, Jun 29, 23:00 UTC.  Anything received after
+> that time, might be too late.
 
-Index: linux-2.6/fs/ext2/xip.c
-===================================================================
---- linux-2.6.orig/fs/ext2/xip.c	2005-06-26 13:26:24.000000000 +0200
-+++ linux-2.6/fs/ext2/xip.c	2005-06-26 13:30:39.000000000 +0200
-@@ -15,42 +15,39 @@
- #include "xip.h"
- 
- static inline int
--__inode_direct_access(struct inode *inode, sector_t sector, unsigned long *data) {
-+__inode_direct_access(struct inode *inode, sector_t sector, unsigned long *data)
-+{
- 	BUG_ON(!inode->i_sb->s_bdev->bd_disk->fops->direct_access);
- 	return inode->i_sb->s_bdev->bd_disk->fops
- 		->direct_access(inode->i_sb->s_bdev,sector,data);
- }
- 
- int
--ext2_clear_xip_target(struct inode *inode, int block) {
--	sector_t sector = block*(PAGE_SIZE/512);
-+ext2_clear_xip_target(struct inode *inode, int block)
-+{
-+	sector_t sector = block * (PAGE_SIZE/512);
- 	unsigned long data;
- 	int rc;
- 
- 	rc = __inode_direct_access(inode, sector, &data);
--	if (rc)
--		return rc;
--	clear_page((void*)data);
--	return 0;
-+	if (!rc)
-+		clear_page(data);
-+	return rc;
- }
- 
- void ext2_xip_verify_sb(struct super_block *sb)
- {
- 	struct ext2_sb_info *sbi = EXT2_SB(sb);
- 
--	if ((sbi->s_mount_opt & EXT2_MOUNT_XIP)) {
--		if ((sb->s_bdev == NULL) ||
--			sb->s_bdev->bd_disk == NULL ||
--			sb->s_bdev->bd_disk->fops == NULL ||
--			sb->s_bdev->bd_disk->fops->direct_access == NULL) {
--			sbi->s_mount_opt &= (~EXT2_MOUNT_XIP);
--			ext2_warning(sb, __FUNCTION__,
--				"ignoring xip option - not supported by bdev");
--		}
-+	if ((sbi->s_mount_opt & EXT2_MOUNT_XIP) &&
-+	    !sb->s_bdev->bd_disk->fops->direct_access) {
-+		sbi->s_mount_opt &= ~EXT2_MOUNT_XIP;
-+		ext2_warning(sb, __FUNCTION__,
-+			"ignoring xip option - not supported by bdev");
- 	}
- }
- 
--struct page*
-+struct page *
- ext2_get_xip_page(struct address_space *mapping, sector_t blockno,
- 		   int create)
- {
-@@ -60,7 +57,7 @@
- 
- 	tmp.b_state = 0;
- 	tmp.b_blocknr = 0;
--	rc = ext2_get_block(mapping->host, blockno/(PAGE_SIZE/512) , &tmp,
-+	rc = ext2_get_block(mapping->host, blockno/(PAGE_SIZE/512), &tmp,
- 				create);
- 	if (rc)
- 		return ERR_PTR(rc);
-@@ -71,7 +68,7 @@
- 	}
- 
- 	rc = __inode_direct_access
--		(mapping->host,tmp.b_blocknr*(PAGE_SIZE/512) ,&data);
-+		(mapping->host,tmp.b_blocknr * (PAGE_SIZE/512), &data);
- 	if (rc)
- 		return ERR_PTR(rc);
- 
+Will the fix for the iptables physdev match go into -stable?
+
+I'd regard the aesthetic objections as secondary in a stable kernel
+series.  If physdev match stays in the kernel, the fix should IMHO go
+into -stable.
+
+Regards,
+Jim

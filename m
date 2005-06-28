@@ -1,60 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261441AbVF1MSW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261442AbVF1MUy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261441AbVF1MSW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 08:18:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261442AbVF1MSW
+	id S261442AbVF1MUy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 08:20:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261443AbVF1MUx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 08:18:22 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:57539 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261441AbVF1MSR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 08:18:17 -0400
-Date: Tue, 28 Jun 2005 14:16:24 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Denis Vlasenko <vda@ilport.com.ua>
-Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [-mm patch] i386: enable REGPARM by default
-Message-ID: <20050628121623.GK4410@suse.de>
-References: <20050624200916.GJ6656@stusta.de> <200506251046.22944.vda@ilport.com.ua>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200506251046.22944.vda@ilport.com.ua>
+	Tue, 28 Jun 2005 08:20:53 -0400
+Received: from smtp203.mail.sc5.yahoo.com ([216.136.129.93]:54946 "HELO
+	smtp203.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261442AbVF1MUr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 08:20:47 -0400
+Message-ID: <42C1409B.8000305@yahoo.com.au>
+Date: Tue, 28 Jun 2005 22:20:43 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: David Kearster <david.kearster@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [rfc] lockless pagecache
+References: <3bba6cc4050628045676c61112@mail.gmail.com>
+In-Reply-To: <3bba6cc4050628045676c61112@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 25 2005, Denis Vlasenko wrote:
-> On Friday 24 June 2005 23:09, Adrian Bunk wrote:
-> > This patch should _not_ go into Linus' tree.
-> > 
-> > At some time in the future, we want to unconditionally enable REGPARM on 
-> > i386.
-> > 
-> > Let's give it a bit broader testing coverage among -mm users.
-> > 
-> > This patch:
-> > - removes the dependency of REGPARM on EXPERIMENTAL
-> > - let REGPARM default to y
-> > 
-> > This patch assumes that people who use -mm are willing to test some more 
-> > experimental features.
-> > 
-> > After this patch, REGPARM is still a config option users can disable.
-> > 
-> > Signed-off-by: Adrian Bunk <bunk@stusta.de>
+David Kearster wrote:
+> Hi nick,
 > 
-> Jens Axboe had hit an obscure bug with regparm just yesterday.
-> It happened for him with gcc 3.3.5.
+> The patches that u posted on lkml regarding the vfs scalibility, on
+> which kernel did u build them.
+> I tried applying them on 2.6.12-git4, 2.6.12-mm1, mm2, 2.6.12.1, but
+> to no avail.
 > 
-> I have a preprocessed .c file which allows to reporduce this.
-> For me, gcc 3.3.6 is okay. need to build 3.3.5 and test.
-> 
-> Meanwhile, maybe we shall prohibit regparm if gcc <=3.3.6 or 3.4?
 
-It triggered without regparm as well, so I don't think that is to blame
-here.
+Hi David,
+
+They are against 2.6.12-git4 plus a later revision of the PageRemoval
+patchset I posted to linux-mm earlier, which is needed to make page
+refcounting consistent.
+
+I have a couple of updates and fixes for both sets of patches, so I
+can send you a rollup of the current patches against a current -git
+kernel privately if you would like.
+
+Thanks,
+Nick
 
 -- 
-Jens Axboe
+SUSE Labs, Novell Inc.
 
+Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,44 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262324AbVF2CkN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262337AbVF2Cnj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262324AbVF2CkN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 22:40:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261164AbVF2Cgm
+	id S262337AbVF2Cnj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 22:43:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262332AbVF2Cni
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 22:36:42 -0400
-Received: from waste.org ([216.27.176.166]:19363 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262233AbVF1XaK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 19:30:10 -0400
-Date: Tue, 28 Jun 2005 16:29:51 -0700
-From: Matt Mackall <mpm@selenic.com>
-To: Sean <seanlkml@sympatico.ca>
-Cc: Kyle Moffett <mrmacman_g4@mac.com>, Petr Baudis <pasky@ucw.cz>,
-       Christopher Li <hg@chrisli.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Git Mailing List <git@vger.kernel.org>, mercurial@selenic.com
-Subject: Re: Mercurial vs Updated git HOWTO for kernel hackers
-Message-ID: <20050628232951.GW12006@waste.org>
-References: <20050624064101.GB14292@pasky.ji.cz> <20050624123819.GD9519@64m.dyndns.org> <20050628150027.GB1275@pasky.ji.cz> <20050628180157.GI12006@waste.org> <62CF578B-B9DF-4DEA-8BAD-041F357771FD@mac.com> <3886.10.10.10.24.1119991512.squirrel@linux1> <20050628221422.GT12006@waste.org> <3993.10.10.10.24.1119997389.squirrel@linux1> <20050628224946.GU12006@waste.org> <4846.10.10.10.24.1119999568.squirrel@linux1>
-Mime-Version: 1.0
+	Tue, 28 Jun 2005 22:43:38 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:53130 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S262286AbVF2Ckv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 22:40:51 -0400
+To: YhLu <YhLu@tyan.com>
+Cc: Andi Kleen <ak@suse.de>, Peter Buckingham <peter@pantasys.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12 with dual way dual core ck804 MB
+References: <3174569B9743D511922F00A0C94314230AF9718E@TYANWEB>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Tue, 28 Jun 2005 20:40:22 -0600
+In-Reply-To: <3174569B9743D511922F00A0C94314230AF9718E@TYANWEB> (YhLu@tyan.com's
+ message of "Fri, 24 Jun 2005 16:47:05 -0700")
+Message-ID: <m1fyv13my1.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4846.10.10.10.24.1119999568.squirrel@linux1>
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 28, 2005 at 06:59:28PM -0400, Sean wrote:
-> Afterall, Mecurial just took the basic ideas from Linus' and adapted
-> them to a different back end.
+YhLu <YhLu@tyan.com> writes:
 
-??!
+> start from 2.6.12.rc5.
 
-Just for the record, Mercurial had working distributed merge before
-Git had any sort of merge at all. So it's hardly a case of me copying
-git.
+A couple more tidbits of information on this problem.
 
-Linus and I both freely borrowed ideas from Monotone and others and
-thus there is some rough similarity between the two.
+1) I have seen this on two different boards
+a Tyan S4882 and a Arima HDAMA, with and without linuxbios.
+In just messing around adding "debug" on the kernel command line
+or changing Dprintk in smpboot.c:smp_callin() to printk,
+avoids this boot lock up for me.
 
--- 
-Mathematics is the supreme nostalgia of our time.
+Eric

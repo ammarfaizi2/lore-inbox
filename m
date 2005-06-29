@@ -1,96 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262228AbVF2IZv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262249AbVF2IfT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262228AbVF2IZv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 04:25:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262237AbVF2IZu
+	id S262249AbVF2IfT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 04:35:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262256AbVF2IfS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 04:25:50 -0400
-Received: from s0003.shadowconnect.net ([213.239.201.226]:46607 "EHLO
-	mail.shadowconnect.com") by vger.kernel.org with ESMTP
-	id S262228AbVF2IYv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 04:24:51 -0400
-Message-ID: <42C25CBF.8000509@shadowconnect.com>
-Date: Wed, 29 Jun 2005 10:33:03 +0200
-From: Markus Lidel <Markus.Lidel@shadowconnect.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <gregkh@suse.de>
-CC: Christoph Hellwig <hch@lst.de>, linux-kernel@vger.kernel.org
-Subject: Re: sysfs abuse in recent i2o changes
-References: <20050628112102.GA1111@lst.de> <42C16691.3090205@shadowconnect.com> <20050628162125.GA9239@suse.de> <42C19214.6070708@shadowconnect.com> <20050628180719.GA11585@suse.de>
-In-Reply-To: <20050628180719.GA11585@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 29 Jun 2005 04:35:18 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:43983 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262249AbVF2IfG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 04:35:06 -0400
+Date: Wed, 29 Jun 2005 14:04:52 +0530
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Mark Kettenis <mark.kettenis@xs4all.nl>
+Cc: gdb@sources.redhat.com, dan@debian.org, fastboot@lists.osdl.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, bunk@stusta.de,
+       alexn@dsv.su.se
+Subject: Re: [Fastboot] Re: [-mm patch] i386: enable REGPARM by default
+Message-ID: <20050629083452.GC3771@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <20050624200916.GJ6656@stusta.de> <20050624132826.4cdfb63c.akpm@osdl.org> <20050627132941.GD3764@in.ibm.com> <20050627140029.GB29121@nevyn.them.org> <20050628045111.GB4296@in.ibm.com> <20050628112412.GB5652@in.ibm.com> <200506281959.j5SJxaeM022138@elgar.sibelius.xs4all.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200506281959.j5SJxaeM022138@elgar.sibelius.xs4all.nl>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-
-Greg KH wrote:
-> On Tue, Jun 28, 2005 at 08:08:20PM +0200, Markus Lidel wrote:
->>Greg KH wrote:
->>>On Tue, Jun 28, 2005 at 05:02:41PM +0200, Markus Lidel wrote:
->>>>I know, but i hopefully also have a good reason to do so... First, the 
->>>>attributes provided through these functions are for accessing the 
->>>>firmware... The controller has a little limitation, it could only handle 
->>>>64 blocks, but sysfs only have 4k...
->>>>Now there are two options:
->>>>1) when writing: read a 64k block, merge it with the 4k block and write 
->>>>it back, when reading: read a 64k block and only return the needed 4k 
->>>>block.
->>>>2) extend the sysfs attribute to allow 64k blocks
->>>>IMHO the first is not a very good solution, because for a 64k block it 
->>>>has to be written 16 times...
->>>>Of course if someone finds a better solution i would be glad to hear 
->>>>about it...
->>>Use the binary file interface of sysfs, which was written exactly for
->>>this kind of thing. :)
->>Oh i tried to use the binary interface, but i haven't found a way to 
->>increase the block size beyond 4k, could you please tell me how i could 
->>adjust it, or where i could read about it?
-> Your code should not care about the block size of the data given to you,
-> as userspace could be giving you 1 byte at a time.  Buffer it up
-
-The driver don't care about the block size but the device do... Of course 
-you could send 1 byte at a time, but if you do so the controller blows up...
-
-> yourself and then write it out to the device when needed.
-
-Yep, but this way there is much more code needed to handle it, and also 
-the memory for the buffer may be used longer then just for the read/write...
-
-> But if you are doing this for firmware, then please use the kernel
-> firmware interface, it does all of the buffering for you.
-
-In my case the interface is for updating the firmware and also to access 
-the configuration settings of the controller... The way to retrieve/store 
-the firmware and the configuration settings is the same, so i still have 
-to implement the sysfs attributes for the configuration settings...
-
-> Either way, having your own file_ops in sysfs is not allowed.
-
-That was the reason i not changed sysfs and only used it in my own 
-module, because i see that it is only needed because of the limitations 
-of the hardware...
-
-Thank you very much.
+On Tue, Jun 28, 2005 at 09:59:36PM +0200, Mark Kettenis wrote:
+>    Date: Tue, 28 Jun 2005 16:54:12 +0530
+>    From: Vivek Goyal <vgoyal@in.ibm.com>
+> 
+>    > Thanks. Any idea what might be amiss with my case where I am not seeing 
+>    > proper function parameter values while analyzing kdump generated crash
+>    > dump with gdb. I am using following gdb and gcc versions.
+>    > 
+>    > GNU gdb Red Hat Linux (6.1post-1.20040607.62rh)
+>    > gcc (GCC) 3.4.3 20041212 (Red Hat 3.4.3-9.EL4)
+>    > 
+> 
+>    Some more info. I dumped the stack contents and it seems that stack is fine 
+>    and parameters are intact on stack. So now it seems to be a matter of 
+>    how gdb is interpreting the stack contents. Any guess, what the problem is?
+> 
+> I'd say the problem is with a user building stuff with non-standard
+> "optimizations", probably even stripping his executable, and expecting
+> to be able to debug the result.
+> 
+>    Why func2() and func1() are not showing right parameter values. 
+> 
 
 
-Best regards,
+In this case I am building linux kernel with debug info (-g) and -mregparm
+is not specified. So parameters should be passed on stack. Following
+is the effective command line to build kernel/sysfs.c. I am not sure if
+any of the below mentioned options are going to affect the gdb results.
+
+  gcc -m32 -Wp,-MD,kernel/.ksysfs.o.d  -nostdinc -isystem /usr/lib/gcc/i386-redhat-linux/3.4.3/include -D__KERNEL__ -Iinclude  -Wall -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -ffreestanding -O2     -fomit-frame-pointer -g -pipe -msoft-float -mpreferred-stack-boundary=2 -fno-unit-at-a-time -march=i686 -mtune=pentium4 -Iinclude/asm-i386/mach-default -Wdeclaration-after-statement     -DKBUILD_BASENAME=ksysfs -DKBUILD_MODNAME=ksysfs -c -o kernel/ksysfs.o kernel/ksysfs.c
 
 
-Markus Lidel
-------------------------------------------
-Markus Lidel (Senior IT Consultant)
+> Repeating what Daniel said before, by using "regparm", function
+> arguments are now passed in registers instead of on the stack.  It's
+> extremely unlikely that these function arguments will stay in those
+> registers for ever, especially since you've only got a handfull of
+> them on the i386.  
 
-Shadow Connect GmbH
-Carl-Reisch-Weg 12
-D-86381 Krumbach
-Germany
+Sorry for the confusion. In the last mail all the results were reported
+with REGPARM disabled. I wanted to make sure that first normal case works
+fine and then discuss the REGPARM case later.
 
-Phone:  +49 82 82/99 51-0
-Fax:    +49 82 82/99 51-11
 
-E-Mail: Markus.Lidel@shadowconnect.com
-URL:    http://www.shadowconnect.com
+> So eventually they will be moved to some other
+> register or, more likely, to memory.  If the compiler doesn't tell gdb
+> about it, gdb will still think the value is in the register, and
+> display whatever what's there now, which is likely to be the wrong
+> value.  There are two ways the compiler can tell gdb where things are:
+> 
+> 1. By explicitly specifying the new location.  Both DWARF 2 and stabs
+>    debugging formats can do this, but AFAIK, GCC won't do this if a
+>    register is spilled to the stack.
+> 
+> 2. By specifying where registers are saved.  Only DWARF 2 can do this.
+> 
+> We've seen cases where the information generated by GCC for 1 or 2 is
+> either incomplete or wrong.  There also have been cases where GDB
+> didn't interpret that information correctly.  And then some people
+> tend to remove some of the debug information by stripping their code
+> or using broken linker scripts. You'll need to find out where the
+> problem is, but my bet is that its's a problem with GCC since you make
+> it generate non-standard code.
+
+Ok. I will try to figure out where the problem is. Time to jump into gcc
+and gdb code. :-)
+
+Thanks
+Vivek

@@ -1,57 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262604AbVF2QUQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261575AbVF2QXq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262604AbVF2QUQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 12:20:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262596AbVF2QT3
+	id S261575AbVF2QXq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 12:23:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261564AbVF2QXp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 12:19:29 -0400
-Received: from node-40240a4a.sjc.onnet.us.uu.net ([64.36.10.74]:3848 "EHLO
-	sphinx.zankel.net") by vger.kernel.org with ESMTP id S262506AbVF2QPh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 12:15:37 -0400
-Message-ID: <42C2CAB8.1080402@zankel.net>
-Date: Wed, 29 Jun 2005 09:22:16 -0700
-From: Christian Zankel <chris@zankel.net>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050210)
-X-Accept-Language: en-us, en
+	Wed, 29 Jun 2005 12:23:45 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:62627 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S261575AbVF2QWL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 12:22:11 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: Greg KH <greg@kroah.com>, Mike Bell <kernel@mikebell.org>,
+       Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] ndevfs - a "nano" devfs
+Date: Wed, 29 Jun 2005 18:22:29 +0200
+User-Agent: KMail/1.8
+References: <20050624081808.GA26174@kroah.com> <200506290841.29785.oliver@neukum.org> <20050629160659.GA23594@kroah.com>
+In-Reply-To: <20050629160659.GA23594@kroah.com>
 MIME-Version: 1.0
-To: Arnd Bergmann <arnd@arndb.de>
-CC: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Xtensa syscalls (Was: Re: 2.6.12-rc5-mm1)
-References: <20050525134933.5c22234a.akpm@osdl.org> <200505272313.20734.arnd@arndb.de> <20050528070714.GB17005@infradead.org> <200506291542.02618.arnd@arndb.de>
-In-Reply-To: <200506291542.02618.arnd@arndb.de>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200506291822.29351.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arnd Bergmann wrote:
->>>Chris, are there any existing binaries that rely on your implementations
->>>of old_mmap, sys_fork, sys_vfork, sys_olduname or sys_ipc and need to
->>>work with future kernels? Otherwise, you should probably drop these.
->>>For sys_ipc, you would need to add the subcalls directly to the table,
->>>like parisc does.
-> Hmm, xtensa is now in -rc1, with the obsolete syscalls still in there,
-> so I guess this about the last chance to correct the ABI. Applying the
-> patch obviously breaks all sorts of user space binaries and probably
-> also requires the appropriate changes to be made to libc.
+Am Mittwoch, 29. Juni 2005 18:06 schrieben Sie:
+> On Wed, Jun 29, 2005 at 08:41:29AM +0200, Oliver Neukum wrote:
+> > What devfs and udev can do, and a static dev cannot, is names independent
+> > of order of detection.
+> 
+> devfs can not do that.
 
-I have to admit, the -rc1 caught me a bit by surprise; I have a few 
-patches pending that I want to send out today.
+Why not?
 
-The question is, if we had to break glibc compatibility, shouldn't we 
-use the opportunity to clean-up the syscall list? It was copied from 
-MIPS and, thus, has inherited a lot of legacy from there. As a new 
-architecture, maybe we should even go as far as removing all ni-syscalls 
-and start fresh?
+> > As for ressources, it is an illusion to think that user space means
+> > less ressources. A demon means page tables and a kernel stack. That
+> > 12K unswappable memory in the best case.
+> 
+> You don't have to run the udevd process if you are worried about an
 
-> On the other hand, if a decision is made to keep the broken interface,
-> it should at least be a conscious one instead of an oversight.
+What about events arriving out of order?
 
-I will try out your patch and see if there are any obvious problems.
+> extra process in your kernel tables.  Although this is the first time I
+> have heard anyone voice the "oh no, not another userspace task running"
+> point :)
 
-Thanks,
-~Chris
+Well, you should have. 16K is a more realistic figure. Tasks have their cost.
+In fact:
+root         1  0.0  0.0    684   248 ?        S    16:58   0:01 init [5]
+root         2  0.0  0.0      0     0 ?        SN   16:58   0:00 [ksoftirqd/0]
+root         3  0.0  0.0      0     0 ?        S<   16:58   0:00 [events/0]
+root         4  0.0  0.0      0     0 ?        S<   16:58   0:00 [khelper]
+root         5  0.0  0.0      0     0 ?        S<   16:58   0:00 [kthread]
+<snip>
+root      3424  0.0  0.1   2032   632 tty3     Ss+  16:59   0:00 /sbin/mingetty tty3
+root      3425  0.0  0.1   2032   632 tty4     Ss+  16:59   0:00 /sbin/mingetty tty4
+root      3426  0.0  0.1   2032   632 tty5     Ss+  16:59   0:00 /sbin/mingetty tty5
+root      3427  0.0  0.1   2032   632 tty6     Ss+  16:59   0:00 /sbin/mingetty tty6
+
+Counting this I arrive at 51*16K = 816K. That's a whole lot of unswappable
+memory. Thinking user space cheap is an automatic reflex these days. It's
+sometimes misleading like all blind reflexes.
+It makes me feel a fool for caring about __init and __exit.
+
+	Regards
+		Oliver

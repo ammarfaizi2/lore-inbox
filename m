@@ -1,43 +1,261 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262589AbVF2OYT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261186AbVF2OdZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262589AbVF2OYT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 10:24:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262590AbVF2OYS
+	id S261186AbVF2OdZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 10:33:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261396AbVF2OdZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 10:24:18 -0400
-Received: from mail.fh-wedel.de ([213.39.232.198]:34207 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S262589AbVF2OYF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 10:24:05 -0400
-Date: Wed, 29 Jun 2005 16:23:17 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Denis Vlasenko <vda@ilport.com.ua>
-Cc: rostedt@goodmis.org, Arjan van de Ven <arjan@infradead.org>,
-       Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: kmalloc without GFP_xxx?
-Message-ID: <20050629142317.GB2130@wohnheim.fh-wedel.de>
-References: <200506291402.18064.vda@ilport.com.ua> <1120045024.3196.34.camel@laptopd505.fenrus.org> <Pine.LNX.4.58.0506290927370.22775@localhost.localdomain> <200506291714.32990.vda@ilport.com.ua>
+	Wed, 29 Jun 2005 10:33:25 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:16119 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261186AbVF2OdA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 10:33:00 -0400
+Subject: Re: 2.6.12 breaks 8139cp [PATCH 1 of 2]
+From: Kylene Jo Hall <kjhall@us.ibm.com>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: Chris Wright <chrisw@osdl.org>, Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       LKML <linux-kernel@vger.kernel.org>, jgarzik@pobox.com,
+       tpmdd-devel@lists.sourceforge.net
+In-Reply-To: <42C25A3A.1070206@drzeus.cx>
+References: <42BA69AC.5090202@drzeus.cx>
+	 <200506231143.34769.bjorn.helgaas@hp.com> <42BB3428.6030708@drzeus.cx>
+	 <42C0EE1A.9050809@drzeus.cx> <42C1434F.2010003@drzeus.cx>
+	 <1119967788.6382.7.camel@localhost.localdomain>
+	 <42C16162.2070208@drzeus.cx>
+	 <1119971339.6382.18.camel@localhost.localdomain>
+	 <20050628172300.GE9153@shell0.pdx.osdl.net>
+	 <1119990572.6403.8.camel@localhost.localdomain>
+	 <20050628203408.GA9046@shell0.pdx.osdl.net>
+	 <1119996659.6403.14.camel@localhost.localdomain>
+	 <42C25A3A.1070206@drzeus.cx>
+Content-Type: text/plain
+Date: Wed, 29 Jun 2005 09:32:28 -0500
+Message-Id: <1120055548.7079.1.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200506291714.32990.vda@ilport.com.ua>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 June 2005 17:14:32 +0300, Denis Vlasenko wrote:
+On Wed, 2005-06-29 at 10:22 +0200, Pierre Ossman wrote:
+> Kylene Jo Hall wrote:
 > 
-> This is why I always use _irqsave. Less error prone.
-> And locking is a very easy to get 'slightly' wrong, thus
-> I trade 0.1% of performance for code simplicity.
+> >
+> >Here is the patch that should fix the problem.  Pierre can you remove
+> >the first patch I sent and test this one?
+> >
+> Apart from an improperly closed enum the patch worked fine. Great work!
+> 
+> Rgds
+> Pierre
 
-But sometimes you get lucky and trade 100ms latency for code
-simplicity.  Of course, the audio people don't mind anymore, now that
-we have all sorts of realtime patches.  Everyone's happy!
+Please accept this patch.  The enum closing Pierre mentioned has been
+fixed.  This patch fixes the 8309 networking problem.
 
-Jörn
+Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
+---
 
--- 
-He that composes himself is wiser than he that composes a book.
--- B. Franklin
+ drivers/char/tpm/tpm.c       |   90 -------------------------------------------
+ drivers/char/tpm/tpm.h       |    2 
+ drivers/char/tpm/tpm_atmel.c |   16 ++++---
+ drivers/char/tpm/tpm_nsc.c   |   22 ++++++----
+ 4 files changed, 22 insertions(+), 108 deletions(-)
+
+diff -puN drivers/char/tpm/tpm_atmel.c~tpm-replace-odd-LPC-init-function drivers/char/tpm/tpm_atmel.c
+--- 25/drivers/char/tpm/tpm_atmel.c~tpm-replace-odd-LPC-init-function	2005-06-23 21:26:00.000000000 -0700
++++ 25-akpm/drivers/char/tpm/tpm_atmel.c	2005-06-23 21:26:00.000000000 -0700
+@@ -22,6 +22,9 @@
+ #include "tpm.h"
+ 
+ /* Atmel definitions */
+-#define	TPM_ATML_BASE			0x400
++enum tpm_atmel_addr {
++	TPM_ATMEL_BASE_ADDR_LO = 0x08,
++	TPM_ATMEL_BASE_ADDR_HI = 0x09
++};
+ 
+ /* write status bits */
+@@ -148,5 +149,4 @@ static struct tpm_vendor_specific tpm_at
+ 	.req_complete_mask = ATML_STATUS_BUSY | ATML_STATUS_DATA_AVAIL,
+ 	.req_complete_val = ATML_STATUS_DATA_AVAIL,
+-	.base = TPM_ATML_BASE,
+ 	.miscdev = { .fops = &atmel_ops, },
+ };
+@@ -158,14 +158,16 @@ static int __devinit tpm_atml_init(struc
+ {
+ 	u8 version[4];
+ 	int rc = 0;
++	int lo, hi;
+ 
+ 	if (pci_enable_device(pci_dev))
+ 		return -EIO;
+ 
+-	if (tpm_lpc_bus_init(pci_dev, TPM_ATML_BASE)) {
+-		rc = -ENODEV;
+-		goto out_err;
+-	}
++	lo = tpm_read_index( TPM_ATMEL_BASE_ADDR_LO );
++	hi = tpm_read_index( TPM_ATMEL_BASE_ADDR_HI );
++
++	tpm_atmel.base = (hi<<8)|lo;
++	dev_dbg( &pci_dev->dev, "Operating with base: 0x%x\n", tpm_atmel.base);
+ 
+ 	/* verify that it is an Atmel part */
+ 	if (tpm_read_index(4) != 'A' || tpm_read_index(5) != 'T'
+diff -puN drivers/char/tpm/tpm.c~tpm-replace-odd-LPC-init-function drivers/char/tpm/tpm.c
+--- 25/drivers/char/tpm/tpm.c~tpm-replace-odd-LPC-init-function	2005-06-23 21:26:00.000000000 -0700
++++ 25-akpm/drivers/char/tpm/tpm.c	2005-06-23 21:52:40.000000000 -0700
+@@ -35,10 +35,4 @@ 
+ #define	TPM_BUFSIZE			2048
+ 
+-/* PCI configuration addresses */
+-#define	PCI_GEN_PMCON_1			0xA0
+-#define	PCI_GEN1_DEC			0xE4
+-#define	PCI_LPC_EN			0xE6
+-#define	PCI_GEN2_DEC			0xEC
+-
+ static LIST_HEAD(tpm_chip_list);
+ static DEFINE_SPINLOCK(driver_lock);
+@@ -61,72 +61,6 @@ void tpm_time_expired(unsigned long ptr)
+ EXPORT_SYMBOL_GPL(tpm_time_expired);
+ 
+ /*
+- * Initialize the LPC bus and enable the TPM ports
+- */
+-int tpm_lpc_bus_init(struct pci_dev *pci_dev, u16 base)
+-{
+-	u32 lpcenable, tmp;
+-	int is_lpcm = 0;
+-
+-	switch (pci_dev->vendor) {
+-	case PCI_VENDOR_ID_INTEL:
+-		switch (pci_dev->device) {
+-		case PCI_DEVICE_ID_INTEL_82801CA_12:
+-		case PCI_DEVICE_ID_INTEL_82801DB_12:
+-			is_lpcm = 1;
+-			break;
+-		}
+-		/* init ICH (enable LPC) */
+-		pci_read_config_dword(pci_dev, PCI_GEN1_DEC, &lpcenable);
+-		lpcenable |= 0x20000000;
+-		pci_write_config_dword(pci_dev, PCI_GEN1_DEC, lpcenable);
+-
+-		if (is_lpcm) {
+-			pci_read_config_dword(pci_dev, PCI_GEN1_DEC,
+-					      &lpcenable);
+-			if ((lpcenable & 0x20000000) == 0) {
+-				dev_err(&pci_dev->dev,
+-					"cannot enable LPC\n");
+-				return -ENODEV;
+-			}
+-		}
+-
+-		/* initialize TPM registers */
+-		pci_read_config_dword(pci_dev, PCI_GEN2_DEC, &tmp);
+-
+-		if (!is_lpcm)
+-			tmp = (tmp & 0xFFFF0000) | (base & 0xFFF0);
+-		else
+-			tmp =
+-			    (tmp & 0xFFFF0000) | (base & 0xFFF0) |
+-			    0x00000001;
+-
+-		pci_write_config_dword(pci_dev, PCI_GEN2_DEC, tmp);
+-
+-		if (is_lpcm) {
+-			pci_read_config_dword(pci_dev, PCI_GEN_PMCON_1,
+-					      &tmp);
+-			tmp |= 0x00000004;	/* enable CLKRUN */
+-			pci_write_config_dword(pci_dev, PCI_GEN_PMCON_1,
+-					       tmp);
+-		}
+-		tpm_write_index(0x0D, 0x55);	/* unlock 4F */
+-		tpm_write_index(0x0A, 0x00);	/* int disable */
+-		tpm_write_index(0x08, base);	/* base addr lo */
+-		tpm_write_index(0x09, (base & 0xFF00) >> 8);	/* base addr hi */
+-		tpm_write_index(0x0D, 0xAA);	/* lock 4F */
+-		break;
+-	case PCI_VENDOR_ID_AMD:
+-		/* nothing yet */
+-		break;
+-	}
+-
+-	return 0;
+-}
+-
+-EXPORT_SYMBOL_GPL(tpm_lpc_bus_init);
+-
+-/*
+  * Internal kernel interface to transmit TPM commands
+  */
+ static ssize_t tpm_transmit(struct tpm_chip *chip, const char *buf,
+@@ -586,10 +500,6 @@ int tpm_pm_resume(struct pci_dev *pci_de
+ 	if (chip == NULL)
+ 		return -ENODEV;
+ 
+-	spin_lock(&driver_lock);
+-	tpm_lpc_bus_init(pci_dev, chip->vendor->base);
+-	spin_unlock(&driver_lock);
+-
+ 	return 0;
+ }
+ 
+diff -puN drivers/char/tpm/tpm.h~tpm-replace-odd-LPC-init-function drivers/char/tpm/tpm.h
+--- 25/drivers/char/tpm/tpm.h~tpm-replace-odd-LPC-init-function	2005-06-23 21:26:00.000000000 -0700
++++ 25-akpm/drivers/char/tpm/tpm.h	2005-06-23 21:26:00.000000000 -0700
+@@ -91,9 +91,7 @@ static inline void tpm_write_index(int i
+ 	outb(value & 0xFF, TPM_DATA);
+ }
+
+ extern void tpm_time_expired(unsigned long);
+-extern int tpm_lpc_bus_init(struct pci_dev *, u16);
+-
+ extern int tpm_register_hardware(struct pci_dev *,
+ 				 struct tpm_vendor_specific *);
+ extern int tpm_open(struct inode *, struct file *);
+diff -puN drivers/char/tpm/tpm_nsc.c~tpm-replace-odd-LPC-init-function drivers/char/tpm/tpm_nsc.c
+--- 25/drivers/char/tpm/tpm_nsc.c~tpm-replace-odd-LPC-init-function	2005-06-23 21:26:00.000000000 -0700
++++ 25-akpm/drivers/char/tpm/tpm_nsc.c	2005-06-23 21:26:00.000000000 -0700
+@@ -22,6 +22,10 @@
+ /* National definitions */
+ #define 	TPM_NSC_BASE			0x360
+ #define	TPM_NSC_IRQ			0x07
++#define	TPM_NSC_BASE0_HI		0x60
++#define	TPM_NSC_BASE0_LO		0x61
++#define	TPM_NSC_BASE1_HI		0x62
++#define	TPM_NSC_BASE1_LO		0x63
+
+ #define	NSC_LDN_INDEX			0x07
+ #define	NSC_SID_INDEX			0x20
+@@ -246,5 +250,4 @@ static struct tpm_vendor_specific tpm_ns
+ 	.req_complete_mask = NSC_STATUS_OBF,
+ 	.req_complete_val = NSC_STATUS_OBF,
+-	.base = TPM_NSC_BASE,
+ 	.miscdev = { .fops = &nsc_ops, },
+ };
+@@ -255,15 +258,16 @@ static int __devinit tpm_nsc_init(struct
+ 				  const struct pci_device_id *pci_id)
+ {
+ 	int rc = 0;
++	int lo, hi;
++
++	hi = tpm_read_index(TPM_NSC_BASE0_HI);
++	lo = tpm_read_index(TPM_NSC_BASE0_LO);
++
++	tpm_nsc.base = (hi<<8) | lo;
+ 
+ 	if (pci_enable_device(pci_dev))
+ 		return -EIO;
+ 
+-	if (tpm_lpc_bus_init(pci_dev, TPM_NSC_BASE)) {
+-		rc = -ENODEV;
+-		goto out_err;
+-	}
+-
+ 	/* verify that it is a National part (SID) */
+ 	if (tpm_read_index(NSC_SID_INDEX) != 0xEF) {
+ 		rc = -ENODEV;
+_
+
+
+
+

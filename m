@@ -1,125 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262561AbVF2L6y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262563AbVF2MOH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262561AbVF2L6y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 07:58:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262562AbVF2L6y
+	id S262563AbVF2MOH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 08:14:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262564AbVF2MOH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 07:58:54 -0400
-Received: from mail.renesas.com ([202.234.163.13]:35580 "EHLO
-	mail03.idc.renesas.com") by vger.kernel.org with ESMTP
-	id S262561AbVF2L6s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 07:58:48 -0400
-Date: Wed, 29 Jun 2005 20:58:45 +0900 (JST)
-Message-Id: <20050629.205845.945132624.takata.hirokazu@renesas.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.12-mm2] m32r: build fix for spinlock_t update
-From: Hirokazu Takata <takata@linux-m32r.org>
-X-Mailer: Mew version 3.3 on XEmacs 21.4.17 (Jumbo Shrimp)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 29 Jun 2005 08:14:07 -0400
+Received: from moutng.kundenserver.de ([212.227.126.177]:12751 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S262563AbVF2MN7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 08:13:59 -0400
+Message-ID: <42C29082.8060104@punnoor.de>
+Date: Wed, 29 Jun 2005 14:13:54 +0200
+From: Prakash Punnoor <prakash@punnoor.de>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050511)
+X-Accept-Language: de-DE, de, en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>, se.witt@gmx.net
+Subject: Re: Linux 2.6.13-rc1 - [PATCH] Don't fill up log with atxp1 vcore
+ change message
+References: <Pine.LNX.4.58.0506282310040.14331@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0506282310040.14331@ppc970.osdl.org>
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig65E439B98C6F3F897173B649"
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:cec1af1025af73746bdd9be3587eb485
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig65E439B98C6F3F897173B649
+Content-Type: multipart/mixed;
+ boundary="------------080807010004040004070604"
+
+This is a multi-part message in MIME format.
+--------------080807010004040004070604
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
 Hi,
 
-There is a build error of arch/m32r/kernel/smp.c in 2.6.12-mm2.
-It is because that spinlock_t type was revised in the latest -mm tree.
-(Re: [patch] spinlock consolidation, v2
- http://www.ussg.iu.edu/hypermail/linux/kernel/0506.0/1119.html)
+I am using atxp1 module to change vcore on my NForce2 via userspace daemon
+(see punnoor.de). Currently atxp1 module will write to the log on every vcore
+change, thus filling up my log - which I don't want. I am no kernel coder, but
+I guess, this one-liner will change this behaviour in a wanted way, ie output
+will be made for debug purposes only. (Please use the attached patch, if
+inlined one got fsked up by TB.)
 
-Here is a patch to fix the build error.
-Please apply.
+Cheers,
 
-	* arch/m32r/kernel/smp.c (send_IPI_mask_phys):
-          - Update for the spinlock consolidation, v2.
-          - Change asm portion to C code for good maintainability.
+Prakash
 
-Thanks,
 
-Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
----
 
- arch/m32r/kernel/smp.c |   48 ++++++++++++------------------------------------
- 1 files changed, 12 insertions(+), 36 deletions(-)
+Signed-off-by: Prakash Punnoor <prakash@punnoor.de>
 
-Index: linux-2.6.12-mm2/arch/m32r/kernel/smp.c
-===================================================================
---- linux-2.6.12-mm2.orig/arch/m32r/kernel/smp.c	2005-06-28 10:54:48.000000000 +0900
-+++ linux-2.6.12-mm2/arch/m32r/kernel/smp.c	2005-06-28 12:06:33.000000000 +0900
-@@ -892,7 +892,6 @@ unsigned long send_IPI_mask_phys(cpumask
- 	int try)
- {
- 	spinlock_t *ipilock;
--	unsigned long flags = 0;
- 	volatile unsigned long *ipicr_addr;
- 	unsigned long ipicr_val;
- 	unsigned long my_physid_mask;
-@@ -916,50 +915,27 @@ unsigned long send_IPI_mask_phys(cpumask
- 	 * write IPICRi (send IPIi)
- 	 * unlock ipi_lock[i]
- 	 */
-+	spin_lock(ipilock);
- 	__asm__ __volatile__ (
--		";; LOCK ipi_lock[i]		\n\t"
-+		";; CHECK IPICRi == 0		\n\t"
- 		".fillinsn			\n"
- 		"1:				\n\t"
--		"mvfc	%1, psw 		\n\t"
--		"clrpsw	#0x40 -> nop		\n\t"
--		DCACHE_CLEAR("r4", "r5", "%2")
--		"lock	r4, @%2			\n\t"
--		"addi	r4, #-1			\n\t"
--		"unlock	r4, @%2			\n\t"
--		"mvtc	%1, psw			\n\t"
--		"bnez	r4, 2f			\n\t"
--		LOCK_SECTION_START(".balign 4 \n\t")
--		".fillinsn			\n"
--		"2:				\n\t"
--		"ld	r4, @%2			\n\t"
--		"blez	r4, 2b			\n\t"
-+		"ld	%0, @%1			\n\t"
-+		"and	%0, %4			\n\t"
-+		"beqz	%0, 2f			\n\t"
-+		"bnez	%3, 3f			\n\t"
- 		"bra	1b			\n\t"
--		LOCK_SECTION_END
--		";; CHECK IPICRi == 0		\n\t"
--		".fillinsn			\n"
--		"3:				\n\t"
--		"ld	%0, @%3			\n\t"
--		"and	%0, %6			\n\t"
--		"beqz	%0, 4f			\n\t"
--		"bnez	%5, 5f			\n\t"
--		"bra	3b			\n\t"
- 		";; WRITE IPICRi (send IPIi)	\n\t"
- 		".fillinsn			\n"
--		"4:				\n\t"
--		"st	%4, @%3			\n\t"
--		";; UNLOCK ipi_lock[i]		\n\t"
-+		"2:				\n\t"
-+		"st	%2, @%1			\n\t"
- 		".fillinsn			\n"
--		"5:				\n\t"
--		"ldi	r4, #1			\n\t"
--		"st	r4, @%2			\n\t"
-+		"3:				\n\t"
- 		: "=&r"(ipicr_val)
--		: "r"(flags), "r"(&ipilock->slock), "r"(ipicr_addr),
--		  "r"(mask), "r"(try), "r"(my_physid_mask)
--		: "memory", "r4"
--#ifdef CONFIG_CHIP_M32700_TS1
--		, "r5"
--#endif	/* CONFIG_CHIP_M32700_TS1 */
-+		: "r"(ipicr_addr), "r"(mask), "r"(try), "r"(my_physid_mask)
-+		: "memory"
- 	);
-+	spin_unlock(ipilock);
+
+
+--- drivers/i2c/chips/atxp1.c~	2005-06-29 13:59:04.000000000 +0200
++++ drivers/i2c/chips/atxp1.c	2005-06-29 13:59:22.164237992 +0200
+@@ -144,7 +144,7 @@
+ 	if (vid == cvid)
+ 		return count;
+
+-	dev_info(dev, "Setting VCore to %d mV (0x%02x)\n", vcore, vid);
++	dev_dbg(dev, "Setting VCore to %d mV (0x%02x)\n", vcore, vid);
+
+ 	/* Write every 25 mV step to increase stability */
+ 	if (cvid > vid) {
+
+
+
+
+--------------080807010004040004070604
+Content-Type: text/plain;
+ name="atxp1_debug.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="atxp1_debug.diff"
+
+--- drivers/i2c/chips/atxp1.c~	2005-06-29 13:59:04.000000000 +0200
++++ drivers/i2c/chips/atxp1.c	2005-06-29 13:59:22.164237992 +0200
+@@ -144,7 +144,7 @@
+ 	if (vid == cvid)
+ 		return count;
  
- 	return ipicr_val;
- }
+-	dev_info(dev, "Setting VCore to %d mV (0x%02x)\n", vcore, vid);
++	dev_dbg(dev, "Setting VCore to %d mV (0x%02x)\n", vcore, vid);
+ 
+ 	/* Write every 25 mV step to increase stability */
+ 	if (cvid > vid) {
 
---
-Hirokazu Takata <takata@linux-m32r.org>
-Linux/M32R Project:  http://www.linux-m32r.org/
+--------------080807010004040004070604--
+
+--------------enig65E439B98C6F3F897173B649
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFCwpCFxU2n/+9+t5gRAmmkAJ90zMe71B1c1BzTadz8QloJ1F/GZACg2fO2
+HNtMBpv0iU08ks49OFyv3H8=
+=5f95
+-----END PGP SIGNATURE-----
+
+--------------enig65E439B98C6F3F897173B649--

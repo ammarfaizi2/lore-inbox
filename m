@@ -1,40 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262616AbVF2Qvy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262611AbVF2Q4u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262616AbVF2Qvy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 12:51:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262613AbVF2Qvw
+	id S262611AbVF2Q4u (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 12:56:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262609AbVF2Q4u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 12:51:52 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:37593 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262616AbVF2Qs0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 12:48:26 -0400
-Date: Wed, 29 Jun 2005 09:47:39 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Christian Zankel <chris@zankel.net>
-Cc: arnd@arndb.de, hch@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: Xtensa syscalls (Was: Re: 2.6.12-rc5-mm1)
-Message-Id: <20050629094739.76330344.akpm@osdl.org>
-In-Reply-To: <42C2CAB8.1080402@zankel.net>
-References: <20050525134933.5c22234a.akpm@osdl.org>
-	<200505272313.20734.arnd@arndb.de>
-	<20050528070714.GB17005@infradead.org>
-	<200506291542.02618.arnd@arndb.de>
-	<42C2CAB8.1080402@zankel.net>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 29 Jun 2005 12:56:50 -0400
+Received: from alog0406.analogic.com ([208.224.222.182]:64457 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262613AbVF2Qwd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 12:52:33 -0400
+Date: Wed, 29 Jun 2005 12:51:48 -0400 (EDT)
+From: "Richard B. Johnson" <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Sreeni <sreeni.pulichi@gmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: **** How to lock memory pages?
+In-Reply-To: <94e67edf050629083745bb4183@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0506291245170.22243@chaos.analogic.com>
+References: <94e67edf05062810586d6141f3@mail.gmail.com>
+ <m1br5p3ib8.fsf@ebiederm.dsl.xmission.com> <94e67edf050629083745bb4183@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian Zankel <chris@zankel.net> wrote:
->
-> The question is, if we had to break glibc compatibility, shouldn't we 
->  use the opportunity to clean-up the syscall list? It was copied from 
->  MIPS and, thus, has inherited a lot of legacy from there. As a new 
->  architecture, maybe we should even go as far as removing all ni-syscalls 
->  and start fresh?
+On Wed, 29 Jun 2005, Sreeni wrote:
 
-If you can cope with having the syscalls renumbered then yes, that would be
-good.
+> Hi,
+>
+> Is there a way to lock a particular portion of the memory pages during
+> kernel bootup? I want to re-use these pages when I load my
+> application. I *don't* wanna use the idea of reserving some physical
+> memory and using ioremap. I want something that kernel should be able
+> to manage this memory but I don't want any other application to use
+> this memory.
+>
+> Thanks in advance
+> Sreeni
+> -
+
+Wrong kind of kernel for this kind of use. The kernel dynamically
+allocates/deallocates/pages of memory that it knows about. The only
+way to do what you want, with a kernel designed for multi-tasking
+multi-user applications use, is to reserve memory during boot.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.12 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

@@ -1,88 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262570AbVF2M6v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262575AbVF2NCy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262570AbVF2M6v (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 08:58:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262569AbVF2M5v
+	id S262575AbVF2NCy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 09:02:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262569AbVF2NCA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 08:57:51 -0400
-Received: from mailfe05.swip.net ([212.247.154.129]:20371 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S262570AbVF2M5V (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 08:57:21 -0400
-X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
-Subject: Re: oom-killings, but I'm not out of memory!
-From: Alexander Nyberg <alexn@telia.com>
-To: Anthony DiSante <theant@nodivisions.com>
-Cc: andrea@suse.de, akpm@osdl.org, linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <42C18031.50206@nodivisions.com>
-References: <42C179D5.3040603@nodivisions.com>
-	 <1119977073.1723.2.camel@localhost.localdomain>
-	 <42C18031.50206@nodivisions.com>
-Content-Type: text/plain
-Date: Wed, 29 Jun 2005 14:57:15 +0200
-Message-Id: <1120049835.1176.7.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+	Wed, 29 Jun 2005 09:02:00 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:35290 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262573AbVF2NBF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 09:01:05 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [PATCH] net: add driver for the NIC on Cell Blades
+Date: Wed, 29 Jun 2005 14:55:11 +0200
+User-Agent: KMail/1.7.2
+Cc: Jeff Garzik <jgarzik@pobox.com>, netdev@vger.kernel.org,
+       linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
+       Jens Osterkamp <Jens.Osterkamp@de.ibm.com>,
+       Utz Bacher <utz.bacher@de.ibm.com>
+References: <200506281528.08834.arnd@arndb.de> <200506290238.59231.arnd@arndb.de> <1120030346.3196.21.camel@laptopd505.fenrus.org>
+In-Reply-To: <1120030346.3196.21.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200506291455.12506.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >>I'm running a 2.6.11 kernel.  I have 1 gig of RAM and 1 gig of swap.  Lately 
-> >>when my RAM gets full, the oom-killer takes out either Mozilla or 
-> >>Thunderbird (my two biggest memory hogs), even though my swap space is only 
-> >>20% full.  I still have ~800 MB of free swap space, so shouldn't the kernel 
-> >>push Moz or T-bird into swap instead of oom-killing it?  At their maximum 
-> >>memory-hogging capacity, neither Moz nor T-bird is ever using more than 200 MB.
-> >>
-> > You cut out the important part where it printed out memory usage
-> > information at the time of the OOM, please post it
-> > 
+On Middeweken 29 Juni 2005 09:32, Arjan van de Ven wrote:
+
+> different problem. the sync will get the byte out of the cpu. It won't
+> get it out of the pci bridges...
 > 
-> Oops.  I left that out because it line-wrapped so bad, and I didn't realize 
-> it was important.  Here it is:
-> 
-> ... oom-killer: gfp_mask=0x80d2
-> ... DMA per-cpu:
-> ... cpu 0 hot: low 2, high 6, batch 1
-> ... cpu 0 cold: low 0, high 2, batch 1
-> ... Normal per-cpu:
-> ... cpu 0 hot: low 32, high 96, batch 16
-> ... cpu 0 cold: low 0, high 32, batch 16
-> ... HighMem per-cpu:
-> ... cpu 0 hot: low 14, high 42, batch 7
-> ... cpu 0 cold: low 0, high 14, batch 7
-> ...
-> ... Free pages:       12536kB (112kB HighMem)
-> ... Active:240797 inactive:2399 dirty:0 writeback:0 unstable:0 free:3134 
-> slab:7144 mapped:240597 pagetables:1073
-> ... DMA free:4096kB min:68kB low:84kB high:100kB active:8260kB inactive:0kB 
-> present:16384kB pages_scanned:9052 all_unreclaimable? yes
-> ... lowmem_reserve[]: 0 880 1007
-> ... Normal free:8328kB min:3756kB low:4692kB high:5632kB active:827084kB 
-> inactive:9468kB present:901120kB pages_scanned:23361 all_unreclaimable? no
-> ... lowmem_reserve[]: 0 0 1023
-> ... HighMem free:112kB min:128kB low:160kB high:192kB active:127844kB 
-> inactive:128kB present:131008kB pages_scanned:135459 all_unreclaimable? yes
-> ... lowmem_reserve[]: 0 0 0
-> ... DMA: 0*4kB 28*8kB 16*16kB 1*32kB 0*64kB 0*128kB 0*256kB 1*512kB 1*1024kB 
-> 1*2048kB 0*4096kB = 4096kB
-> ... Normal: 98*4kB 16*8kB 216*16kB 18*32kB 1*64kB 1*128kB 0*256kB 1*512kB 
-> 1*1024kB 1*2048kB 0*4096kB = 8328kB
-> ... HighMem: 0*4kB 2*8kB 2*16kB 0*32kB 1*64kB 0*128kB 0*256kB 0*512kB 
-> 0*1024kB 0*2048kB 0*4096kB = 112kB
-> ... Swap cache: add 166973, delete 149202, find 1714386/1723885, race 0+0
-> ... Free swap  = 781012kB
-> ... Total swap = 987988kB
-> ... Out of Memory: Killed process 30787 (thunderbird-bin).
-> ... Out of Memory: Killed process 18112 (thunderbird-bin).
-> ... Out of Memory: Killed process 18116 (thunderbird-bin).
-> ... Out of Memory: Killed process 18117 (thunderbird-bin).
-> ... Out of Memory: Killed process 18119 (thunderbird-bin).
-> ... Out of Memory: Killed process 8857 (thunderbird-bin).
+> In short, pci bridges are allowed to buffer (post) writes until data
+> traffic in the other direction happens (eg readl() or dma). 
 
-Yeah this indeed looks strange. gfp_mask == GFP_HIGHUSER | __GFP_ZERO
+Ok, understood. This patch changes all io writes within a spinlock
+to use a checking version of spider_net_write_reg(). Jens, could
+you verify if these are the only places where you rely on the
+write making it to the chip and then (n)ack this patch?
 
-iirc Andrea fixing up some all_unreclaimable bug in 2.6.11 but this
-looks like that for some reason it didn't go into the Normal zone which
-has plenty of free pages...
+Note that in our setup, we know that there are no PCI bridges involved
+because the device is not really PCI based but directly attached to
+the FlexIO port and just fakes a PCI-like config space.
 
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+
+--- linux-cg.orig/drivers/net/spider_net.c	2005-06-29 14:22:31.516896448 -0400
++++ linux-cg/drivers/net/spider_net.c	2005-06-29 14:22:22.567931328 -0400
+@@ -109,6 +109,23 @@ spider_net_write_reg(struct spider_net_c
+ }
+ 
+ /**
++ * spider_net_write_reg_sync - writes to an SMMIO register of a card
++ * @card: device structure
++ * @reg: register to write to
++ * @value: value to write into the specified SMMIO register
++ *
++ * Unlike spider_net_write_reg, this will also make sure the
++ * data arrives on the card by reading the reg again.
++ */
++static void
++spider_net_write_reg_sync(struct spider_net_card *card, u32 reg, u32 value)
++{
++	value = cpu_to_le32(value);
++	writel(value, card->regs + reg);
++	(void)readl(card->regs + reg);
++}
++
++/**
+  * spider_net_rx_irq_off - switch off rx irq on this spider card
+  * @card: device structure
+  *
+@@ -123,7 +140,7 @@ spider_net_rx_irq_off(struct spider_net_
+ 	spin_lock_irqsave(&card->intmask_lock, flags);
+ 	regvalue = spider_net_read_reg(card, SPIDER_NET_GHIINT0MSK);
+ 	regvalue &= ~SPIDER_NET_RXINT;
+-	spider_net_write_reg(card, SPIDER_NET_GHIINT0MSK, regvalue);
++	spider_net_write_reg_sync(card, SPIDER_NET_GHIINT0MSK, regvalue);
+ 	spin_unlock_irqrestore(&card->intmask_lock, flags);
+ }
+ 
+@@ -196,7 +213,7 @@ spider_net_rx_irq_on(struct spider_net_c
+ 	spin_lock_irqsave(&card->intmask_lock, flags);
+ 	regvalue = spider_net_read_reg(card, SPIDER_NET_GHIINT0MSK);
+ 	regvalue |= SPIDER_NET_RXINT;
+-	spider_net_write_reg(card, SPIDER_NET_GHIINT0MSK, regvalue);
++	spider_net_write_reg_sync(card, SPIDER_NET_GHIINT0MSK, regvalue);
+ 	spin_unlock_irqrestore(&card->intmask_lock, flags);
+ }
+ 
+@@ -215,7 +232,7 @@ spider_net_tx_irq_off(struct spider_net_
+ 	spin_lock_irqsave(&card->intmask_lock, flags);
+ 	regvalue = spider_net_read_reg(card, SPIDER_NET_GHIINT0MSK);
+ 	regvalue &= ~SPIDER_NET_TXINT;
+-	spider_net_write_reg(card, SPIDER_NET_GHIINT0MSK, regvalue);
++	spider_net_write_reg_sync(card, SPIDER_NET_GHIINT0MSK, regvalue);
+ 	spin_unlock_irqrestore(&card->intmask_lock, flags);
+ }
+ 
+@@ -234,7 +251,7 @@ spider_net_tx_irq_on(struct spider_net_c
+ 	spin_lock_irqsave(&card->intmask_lock, flags);
+ 	regvalue = spider_net_read_reg(card, SPIDER_NET_GHIINT0MSK);
+ 	regvalue |= SPIDER_NET_TXINT;
+-	spider_net_write_reg(card, SPIDER_NET_GHIINT0MSK, regvalue);
++	spider_net_write_reg_sync(card, SPIDER_NET_GHIINT0MSK, regvalue);
+ 	spin_unlock_irqrestore(&card->intmask_lock, flags);
+ }
+ 

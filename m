@@ -1,44 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262235AbVF2EUl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262240AbVF2EVQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262235AbVF2EUl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 00:20:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262239AbVF2EUk
+	id S262240AbVF2EVQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 00:21:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262253AbVF2EVQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 00:20:40 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:21387 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S262235AbVF2EUg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 00:20:36 -0400
-To: Sreeni <sreeni.pulichi@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Memory management while loading program in Linux
-References: <94e67edf05062810586d6141f3@mail.gmail.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Tue, 28 Jun 2005 22:20:27 -0600
-In-Reply-To: <94e67edf05062810586d6141f3@mail.gmail.com> (sreeni.pulichi@gmail.com's
- message of "Tue, 28 Jun 2005 13:58:54 -0400")
-Message-ID: <m1br5p3ib8.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 29 Jun 2005 00:21:16 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:48522 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S262240AbVF2EVA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 00:21:00 -0400
+Subject: Re: [PATCH 2/3] freevxfs: minor cleanups
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: Andrew Morton <akpm@osdl.org>
+Cc: hch@infradead.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20050628163114.6594e1e1.akpm@osdl.org>
+References: <iit0gm.lxobpl.5z2b9jduhy9fvx6tjxrco46v4.refire@cs.helsinki.fi>
+	 <iit0h1.q7pnex.bkir3xysppdufw6d9h65boz37.refire@cs.helsinki.fi>
+	 <20050628163114.6594e1e1.akpm@osdl.org>
+Date: Wed, 29 Jun 2005 07:20:21 +0300
+Message-Id: <1120018821.9658.4.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.2.1.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sreeni <sreeni.pulichi@gmail.com> writes:
+Hi,
 
-> Hello,
->
-> I have a query regarding memory management using Linux kernel.
->
-> In our system we have a secure physical memory starting and ending at
-> predefined addresses. We want to execute certain programs, which have
-> to be running secure in those address spaces only.
->
-> Is it possible to force the loader to load the "particular" program
-> (both the code and data segment) at that pre-defined secure physical
-> memory, without any major kernel changes?
+On Tue, 2005-06-28 at 16:31 -0700, Andrew Morton wrote:
+> That struct initialisation:
+> 
+> > +	*infp = (struct vxfs_sb_info) {
+> > +		.vsi_raw = rsbp,
+> > +		.vsi_bp = bp,
+> > +		.vsi_oltext = rsbp->vs_oltext[0],
+> > +		.vsi_oltsize = rsbp->vs_oltsize,
+> > +	};
+> 
+> Is a bit unconventional, but it doesn't alter the size of the .o file, so
+> whatever.
 
-Sounds a little silly but in essence the loader is implemented
-in user space so it shouldn't require any kernel changes.
+The rationale for this is that since NULL is not guaranteed to be zero
+by the C standard, memset() doesn't really initialize pointers properly.
+The above does. This came up when I wanted to replace explicit NULL
+assignments from the NTFS code with kcalloc() and the maintainer
+refused. Al Viro suggested the above form and was accepted by the NTFS
+maintainer as well.
 
-Eric
+			Pekka
+

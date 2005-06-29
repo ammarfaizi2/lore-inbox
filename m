@@ -1,59 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262448AbVF2Gfj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262209AbVF2GlT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262448AbVF2Gfj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 02:35:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262447AbVF2Gfi
+	id S262209AbVF2GlT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 02:41:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262444AbVF2GlT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 02:35:38 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:15238 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262446AbVF2GfW (ORCPT
+	Wed, 29 Jun 2005 02:41:19 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:47567 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S262209AbVF2GlN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 02:35:22 -0400
-Date: Wed, 29 Jun 2005 08:34:39 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Karsten Wiese <annabellesgarden@yahoo.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.50-24
-Message-ID: <20050629063439.GB12536@elte.hu>
-References: <200506281927.43959.annabellesgarden@yahoo.de> <20050628202147.GA30862@elte.hu> <20050628203017.GA371@elte.hu> <200506290151.53675.annabellesgarden@yahoo.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 29 Jun 2005 02:41:13 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: Greg KH <greg@kroah.com>, Mike Bell <kernel@mikebell.org>,
+       Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] ndevfs - a "nano" devfs
+Date: Wed, 29 Jun 2005 08:41:29 +0200
+User-Agent: KMail/1.8
+References: <20050624081808.GA26174@kroah.com> <200506281400.08777.oliver@neukum.org> <20050628200824.GA12851@kroah.com>
+In-Reply-To: <20050628200824.GA12851@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200506290151.53675.annabellesgarden@yahoo.de>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Message-Id: <200506290841.29785.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Am Dienstag, 28. Juni 2005 22:08 schrieben Sie:
+> On Tue, Jun 28, 2005 at 02:00:08PM +0200, Oliver Neukum wrote:
+> > Am Dienstag, 28. Juni 2005 09:40 schrieb Greg KH:
+> > > On Mon, Jun 27, 2005 at 04:26:00PM -0700, Mike Bell wrote:
+> > > > On Mon, Jun 27, 2005 at 05:35:50PM -0500, Dmitry Torokhov wrote:
+> > > > > AFAIK there is no requirement in input subsystem that devices should be
+> > > > > created under /dev/input. When devfs is activated they are created there
+> > > > > by default, but that's it.
+> > > > 
+> > > > Things which accept a path to an event file as an argument will work
+> > > > just fine. But anything which tries autodiscovery HAS to be able to find
+> > > > the device nodes. Think directfb, most (but not all) of the X patches,
+> > > > any user-space driver that wants to find the hardware it owns, etc.
+> > > > 
+> > > > This illustrates nicely my reasons for preferring devfs.
+> > > > 
+> > > > 1) Predictable, canonical device names are a Good Thing.
+> > > 
+> > > And impossible for the kernel to generate given hotpluggable devices.
+> > 
+> > That is not true. The kernel can generate predictable device names.
+> > It just cannot generate _stable_ device names under all circumstances.
+> 
+> Well, I view "canonical" as, "this is the name for this specific device,
+> and will always be that name".  But, if others think of it differently,
+> hey, that's fine with me too.
 
-* Karsten Wiese <annabellesgarden@yahoo.de> wrote:
+Isn't the canonical way to use canonical to mean a name that is independent
+of a particular system but set in a standard? Such a name could be generated
+only if the device itself is unique. Short of network cards and
+bluetooth devices you'll be short on canonical, stable names.
 
-> looked at -50-33 now and wonder why is mask_IO_APIC_irq() called twice 
-> from __do_IRQ()? given a threaded interrupt: __do_IRQ() calls 
-> desc->handler->ack(irq). ack points to 
-> mask_and_ack_level_ioapic_irq(), which calls mask_IO_APIC_irq(irq).  
-> some lines later in __do_IRQ() desc->handler->disable(irq) is called.  
-> disable points to mask_IO_APIC_irq(), now being called a 2nd time. I 
-> think this 2nd call isn't necessary. Is there a difference between 
-> masking an interrupt line and disabling it? What am I missing?
+In other cases you have heuristics and system configuration. These are nice
+to have, but have limits and problems. Firstly, they are heuristics and thus
+a bit risky to use. Secondly, they sometimes need system configuration.
+And this very much limits usefullness to embedded and indeed single user
+systems.
 
-you are not missing anything - but i found no easy way for the time 
-being to get rid of the second masking.
+What devfs and udev can do, and a static dev cannot, is names independent
+of order of detection. As for ressources, it is an illusion to think that user
+space means less ressources. A demon means page tables and a kernel
+stack. That 12K unswappable memory in the best case.
 
-> Back at 2.6.12-rc5-RT-48-16 mask_and_ack_level_ioapic_irq() also 
-> contained the mask_IO_APIC_irq(irq) call and level interrupt-rates 
-> where fine. Some versions later it vanished there. Why was that?
-
-i reorganized how redirection is being done, and i've implemented 
-auto-ACK for the i8259A, to reduce IRQ handling costs. One goal was to 
-avoid the masking of the interrupt line for the timer interrupt on 
-i8259A - but i think i'm going to revert that, it's causing too many 
-problems all around.
-
-	Ingo
+	Regards
+		Oliver

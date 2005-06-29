@@ -1,54 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262285AbVF2JvK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262318AbVF2Jvj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262285AbVF2JvK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 05:51:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262288AbVF2JvK
+	id S262318AbVF2Jvj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 05:51:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262489AbVF2Jvj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 05:51:10 -0400
-Received: from mail-in-01.arcor-online.net ([151.189.21.41]:22240 "EHLO
-	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
-	id S262285AbVF2JvH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 05:51:07 -0400
-Date: Wed, 29 Jun 2005 11:50:51 +0200 (CEST)
-From: Bodo Eggert <7eggert@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: [RFC] menu -> menuconfig changes
-Message-ID: <Pine.LNX.4.58.0506291131320.3554@be1.lrz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 29 Jun 2005 05:51:39 -0400
+Received: from free.hands.com ([83.142.228.128]:22950 "EHLO free.hands.com")
+	by vger.kernel.org with ESMTP id S262318AbVF2Jvc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 05:51:32 -0400
+Date: Wed, 29 Jun 2005 11:00:26 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Peter Chubb <peterc@gelato.unsw.edu.au>
+Cc: Grzegorz Kulewski <kangur@polcom.net>, linux-kernel@vger.kernel.org,
+       xen-devel@lists.xensource.com
+Subject: Re: accessing loopback filesystem+partitions on a file
+Message-ID: <20050629100026.GG10219@lkcl.net>
+References: <20050628233335.GB9087@lkcl.net> <Pine.LNX.4.63.0506290228380.7125@alpha.polcom.net> <20050629013731.GF9566@lkcl.net> <17089.65016.112262.278719@wombat.chubb.wattle.id.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <17089.65016.112262.278719@wombat.chubb.wattle.id.au>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There are many submenus in the config system where the fist option 
-controls the availability of the remaining options. This is very 
-inconvenient in menuconfig, since you'll have to enter each menu
-to see whether or not the corresponding subsystem is enabled.
+On Wed, Jun 29, 2005 at 11:48:40AM +1000, Peter Chubb wrote:
 
-I suggest moving the first option out of the subsystem by changing
-'menu' to 'menuconfig', as demonstrated by the patch below.
+> Luke> that loopback filesystems cannot be presented as block devices
+> Luke> by the linux kernel (with no involvement of xen) seems to be a
+> Luke> curious omission.
+> 
+> But they can!  But a loopback device can't be partitioned.  So do it
+> one partition at a time.
 
---- ../linux-2.6.12/drivers/cdrom/Kconfig	2005-06-19 14:16:31.000000000 +0200
-+++ ./drivers/cdrom/Kconfig	2005-06-29 11:27:02.000000000 +0200
-@@ -2,11 +2,9 @@
- # CDROM driver configuration
- #
+ ian and mark kindly responded pointing out some programs which
+ make that possible.
+
+ i liked the LVM one best.
+
+> You'll probably only have a few real filesystems on the disk image
+> anyway.
  
--menu "Old CD-ROM drivers (not SCSI, not IDE)"
-+menuconfig CD_NO_IDESCSI
-+	bool "Old CD-ROM drivers (not SCSI, IDE or ATAPI)"
- 	depends on ISA
--
--config CD_NO_IDESCSI
--	bool "Support non-SCSI/IDE/ATAPI CDROM drives"
- 	---help---
- 	  If you have a CD-ROM drive that is neither SCSI nor IDE/ATAPI, say Y
- 	  here, otherwise N. Read the CD-ROM-HOWTO, available from
-@@ -209,5 +207,3 @@ config CDU535
- 
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called sonycd535.
--
--endmenu
--- 
-Top 100 things you don't want the sysadmin to say:
-83. Damn, and I just bought that pop...
+ hi peter, thank you for responding.
+
+ see http://hands.com/d-i, searching for "xen0".
+
+ the key is to be able to test-run debian installations in
+ a xen guest domain (with absolute minimal changes to the
+ packages or the debian boot installs).
+
+ and of course a debian install expects to see a hard drive, which it
+ expects to be able to partition - so it is given one.
+
+ l.
+

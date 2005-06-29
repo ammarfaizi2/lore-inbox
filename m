@@ -1,55 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262443AbVF2G2x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262440AbVF2GdG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262443AbVF2G2x (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 02:28:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262444AbVF2G2w
+	id S262440AbVF2GdG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 02:33:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262209AbVF2GdG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 02:28:52 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:16560 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262443AbVF2G2u (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 02:28:50 -0400
-Date: Tue, 28 Jun 2005 23:30:54 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Linux 2.6.13-rc1
-Message-ID: <Pine.LNX.4.58.0506282310040.14331@ppc970.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 29 Jun 2005 02:33:06 -0400
+Received: from aktaia.intevation.org ([212.95.126.10]:12777 "EHLO
+	mail.intevation.de") by vger.kernel.org with ESMTP id S261668AbVF2GdB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 02:33:01 -0400
+Date: Wed, 29 Jun 2005 08:32:33 +0200
+From: Thomas Arendsen Hein <thomas@intevation.de>
+To: mercurial@selenic.com
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Git Mailing List <git@vger.kernel.org>
+Subject: Re: Mercurial vs Updated git HOWTO for kernel hackers
+Message-ID: <20050629063233.GE16872@intevation.de>
+Mail-Followup-To: mercurial@selenic.com,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Git Mailing List <git@vger.kernel.org>
+References: <42B9E536.60704@pobox.com> <20050623235634.GC14426@waste.org> <20050624064101.GB14292@pasky.ji.cz> <20050624123819.GD9519@64m.dyndns.org> <20050628150027.GB1275@pasky.ji.cz> <20050628180157.GI12006@waste.org> <62CF578B-B9DF-4DEA-8BAD-041F357771FD@mac.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <62CF578B-B9DF-4DEA-8BAD-041F357771FD@mac.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+(repost to all lists who received the original mail)
 
-Ok, guys,
- there was a lot of stuff pending after 2.6.12, and in the week and a half
-since the release, the current diff against it has grown to almost three
-megabytes compressed.
+* Kyle Moffett <mrmacman_g4@mac.com> [20050628 22:28]:
+> On Jun 28, 2005, at 14:01:57, Matt Mackall wrote:
+> >Everything in Mercurial is an append-only log. A transaction journal
+> >records the original length of each log so that it can be restored on
+> >failure.
+> 
+> Does this mean that (excepting the "undo" feature) one could set the
+> ext3 "append-only" attribute on the repository files to avoid losing
+> data due to user account compromise?
 
-Which is actually normal for a -rc1 release judging by the two last ones,
-but it usually takes us longer than ten days to get there. Which just
-shows that 2.6.12 was brewing for too long, but we can also think
-positively and say that perhaps it also seems to imply that this git thing
-is working out and not slowing people down.
+This will break Mercurial's journaling. If 'hg pull' fails it
+truncates the already appended-to files to the last known state.
 
-Anyway, I really don't want to drag out 2.6.13 as long as 2.6.12 took, and
-we don't have any reason to anyway, so let's try to see if we can calm
-things down again, and people who are thinking about writing new code
-might think about spending some quality time looking at the existing code
-and patches instead.
+Thomas
 
-Now, that big patch ends up being spread out over 2069 commits, and a
-noticeable chunk of it is actually the new xtensa architecture that got
-merged, but that still leaves a lot of patches all over the place (things
-like a few new console fonts, for example ;). The shortlog is over 100kB
-in size, which means that I think linux-kernel won't take it if I include
-it here, so I won't.  Similarly, the diffstat is 200kB, partly because of 
-the spread out nature of the pacthes.
-
-ARM, x86[-64], ppc, sparc updates, networking, sound, infiniband, input
-layer, ISDN, MD, DVB, V4L, network drivers, pcmcia, isofs, jfs, nfs,
-xfs, knfsd.. You name it.
-
-Git trees and traditional patches/tar-balls are out there, or at least 
-slowly mirroring out. Go wild,
-
-		Linus
+-- 
+Email: thomas@intevation.de
+http://intevation.de/~thomas/

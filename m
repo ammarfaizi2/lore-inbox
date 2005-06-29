@@ -1,50 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262453AbVF2HOl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262466AbVF2HOh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262453AbVF2HOl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 03:14:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262461AbVF2HOa
+	id S262466AbVF2HOh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 03:14:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262457AbVF2HOS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 03:14:30 -0400
-Received: from mta2.cl.cam.ac.uk ([128.232.0.14]:10904 "EHLO mta2.cl.cam.ac.uk")
-	by vger.kernel.org with ESMTP id S262453AbVF2HMu convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 03:12:50 -0400
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: accessing loopback filesystem+partitions on a file
-x-mimeole: Produced By Microsoft Exchange V6.5.7226.0
-Date: Wed, 29 Jun 2005 08:12:44 +0100
-Message-ID: <A95E2296287EAD4EB592B5DEEFCE0E9D28240E@liverpoolst.ad.cl.cam.ac.uk>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: accessing loopback filesystem+partitions on a file
-Thread-Index: AcV8TXg1851pRgL1RRW2XKJMpP2tewAK1UVA
-From: "Ian Pratt" <m+Ian.Pratt@cl.cam.ac.uk>
-To: "Luke Kenneth Casson Leighton" <lkcl@lkcl.net>,
-       "Grzegorz Kulewski" <kangur@polcom.net>
-Cc: <linux-kernel@vger.kernel.org>, <ian.pratt@cl.cam.ac.uk>
+	Wed, 29 Jun 2005 03:14:18 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:35769 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262464AbVF2HN4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 03:13:56 -0400
+Date: Wed, 29 Jun 2005 00:13:17 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Hellwig <hch@lst.de>
+Cc: zkambarov@coverity.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix Coverity braindamage in UDF
+Message-Id: <20050629001317.019476d9.akpm@osdl.org>
+In-Reply-To: <20050629070309.GA18901@lst.de>
+References: <20050629070309.GA18901@lst.de>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Christoph Hellwig <hch@lst.de> wrote:
+>
+>  Andrew, please don't blindly apply Coverity patches.  While the checker
+>  is smart at finding inconsistencies, that "obvious" fix is wrong most of
+>  the item.  As in this unreviewed UDF patch that got in:
+>  udf_find_entry can never be called with a NULL argument, so we shouldn't
+>  check for it instead of adding more assignments behind the check.
 
-> basically, the thing that is missing (or i can't find it) 
-> from linux is a driver with the ability to present [any] 
-> block devices with their major+minor numbers as a 
-> [fsck-]recogniseable block device with its own major number, 
-> with the implicit ability to create minor numbers within it.
+I reviewed it.  The code as it stood was wrong and the patch corrected it.
 
-The easiest thing to use is the 'lomount' utility that comes with qemu.
+Yes, I realised at the time that the test for null is probably redundant,
+but that's a separate thing - we have many such redundant tests and perhaps
+someone should do a cleanup sweep.  But I have no intention of doing that
+and I don't want to be leaving obvious coding errors in there.
 
-http://www.dad-answers.com/qemu/utilities/QEMU-HD-Mounter/lomount/lomoun
-t.c
-
-There's also kpartx which is part of device mapper, but its rather
-trickier to build.
-
-I think we should pull lomount into our tree until kpartx becomes
-ubiquitous.
-
-Ian
+A similar argument applies to the patch "coverity: tty_ldisc_ref return
+null check".

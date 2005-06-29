@@ -1,53 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262361AbVF2Aiq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262250AbVF2AmB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262361AbVF2Aiq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 20:38:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262351AbVF2Aig
+	id S262250AbVF2AmB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 20:42:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262317AbVF2AlT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 20:38:36 -0400
-Received: from natsmtp00.rzone.de ([81.169.145.165]:38816 "EHLO
-	natsmtp00.rzone.de") by vger.kernel.org with ESMTP id S262308AbVF2Aam
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 20:30:42 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Rodrigo Nascimento <underscore0x5f@gmail.com>
-Subject: Re: A new soldier
-Date: Wed, 29 Jun 2005 02:25:05 +0200
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org, kernel-janitors@lists.osdl.org
-References: <cbecb304050628072325516b6e@mail.gmail.com>
-In-Reply-To: <cbecb304050628072325516b6e@mail.gmail.com>
+	Tue, 28 Jun 2005 20:41:19 -0400
+Received: from alpha.polcom.net ([217.79.151.115]:1505 "EHLO alpha.polcom.net")
+	by vger.kernel.org with ESMTP id S262250AbVF2Afb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 20:35:31 -0400
+Date: Wed, 29 Jun 2005 02:35:25 +0200 (CEST)
+From: Grzegorz Kulewski <kangur@polcom.net>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: accessing loopback filesystem+partitions on a file
+In-Reply-To: <20050628233335.GB9087@lkcl.net>
+Message-ID: <Pine.LNX.4.63.0506290228380.7125@alpha.polcom.net>
+References: <20050628233335.GB9087@lkcl.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506290225.05793.arnd@arndb.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dinsdag 28 Juni 2005 16:23, Rodrigo Nascimento wrote:
-> I'm a Science of Computers student and I'd like help you in something.
-> I don't know if exists something that I could do. So if someone wants
-> a help, I'm a volunteer.
+On Wed, 29 Jun 2005, Luke Kenneth Casson Leighton wrote:
 
-The best place to start would probably be the kernel janitors project.
+> [if you are happy to reply at all, please reply cc'd thank you.]
+>
+> hi,
+>
+> i'm really sorry to be bothering people on this list but i genuinely
+> don't what phrases to google for what i am looking for without getting
+> swamped by useless pages, which you will understand why when you see
+> the question, below.
+>
+> the question is, therefore:
+>
+> 	* how the hell do you loopback mount (or lvm mount
+> 	  or _anything_! something!)  partitions that have
+> 	  been created in a loopback'd file!!!!
+>
+> 	  [aside from booting up a second pre-installed xen
+> 	  guest domain and making the filesystem-in-a-file
+> 	  available as /dev/hdb of course.]
+>
+> answers of the form "work out where the partitions are, then use
+> hexedit to remove the first few blocks" will win no prizes here.
 
-If you are looking for something bigger with a steep learning curve,
-you could try to do a sample architecture implementation like
-arch/skeleton and include/asm-skeleton, along the lines of the
-original include/asm-generic directory (asm-generic now serves
-as a place to put code that is the same on most archs but is different
-on others).
+The bad news: it was impossible (or at least very hard to do).
 
-Most new architectures that are added keep copying hacks and obsolete
-code from one of the existing trees, so it would be really nice to
-have a clean starting point for those who don't have as much time to
-find the correct solution as a CS student ;-).
+The good news: it is possible now. The anwser is:
+- figure where the partitions are (possibly using some simple script),
+- use device-mapper to create block devices covering partitions,
+- mount them.
 
-You would surely learn a lot about the architecture specific parts
-of the kernel and do something useful without the danger of breaking
-code that other people depend on, but it's a lot of work.
-Maybe that can also be done by more that one person.
+I do not know if this anwser will win your price but it is IMHO far better 
+than hexedit... :-) And probably this is the only anwser.
 
-	Arnd <><
+(IIRC if you have one partition you can skip partition table with offset 
+option to losetup. But this will only work in this special case...)
+
+
+Grzegorz Kulewski
+

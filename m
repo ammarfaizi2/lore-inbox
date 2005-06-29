@@ -1,60 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262706AbVF2Ww4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262712AbVF2Wzc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262706AbVF2Ww4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 18:52:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262712AbVF2Ww4
+	id S262712AbVF2Wzc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 18:55:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262720AbVF2Wzb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 18:52:56 -0400
-Received: from locomotive.csh.rit.edu ([129.21.60.149]:46853 "EHLO
-	locomotive.unixthugs.org") by vger.kernel.org with ESMTP
-	id S262706AbVF2Wwd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 18:52:33 -0400
-Date: Wed, 29 Jun 2005 18:52:28 -0400
-From: Jeff Mahoney <jeffm@suse.com>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] reiserfs: Check if attrs are enabled for attr ioctls
-Message-ID: <20050629225228.GA7241@locomotive.unixthugs.org>
+	Wed, 29 Jun 2005 18:55:31 -0400
+Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:63177 "EHLO
+	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S262712AbVF2WxB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 18:53:01 -0400
+X-ORBL: [63.202.173.158]
+Date: Wed, 29 Jun 2005 15:52:52 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Michael Buesch <mbuesch@freenet.de>
+Cc: linux-kernel@vger.kernel.org, Ville Sundell <ville.sundell@gmail.com>
+Subject: Re: Build-in XML support?
+Message-ID: <635171.636ad3ed642208e93e44c79901f90691e930c5afe6b95fe3e707420e71193c0022f01e95.IBX@taniwha.stupidest.org>
+References: <ec2c5c2205062903511d62d6bf@mail.gmail.com> <715093.8e23073dd5b3768051865c10fd31f542c39a3531079809488fc0f500cacb255a2afd49c2.ANY@taniwha.stupidest.org> <200506300025.03544.mbuesch@freenet.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Operating-System: Linux 2.6.5-7.151-smp (i686)
-X-GPG-Fingerprint: A16F A946 6C24 81CC 99BB  85AF 2CF5 B197 2B93 0FB2
-X-GPG-Key: http://www.csh.rit.edu/~jeffm/jeffm.gpg
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <200506300025.03544.mbuesch@freenet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- ReiserFS currently will allow the user to set/get attrs for files regardless
- if they are enabled. The patch checks to see if they are enabled, and returns
- -NOTTY if they are not.
+On Thu, Jun 30, 2005 at 12:25:03AM +0200, Michael Buesch wrote:
 
- ext[23] doesn't need this check because attrs are always enabled.
+> Search the archives.
+> There was a thread about this some time ago.
 
- Please apply.
+that doesn't make it a good idea
 
-Signed-off-by: Jeff Mahoney <jeffm@suse.com>
- 
-diff -ruNpX dontdiff linux-2.6.12-rc6/fs/reiserfs/ioctl.c linux-2.6.12-rc6.devel/fs/reiserfs/ioctl.c
---- linux-2.6.12-rc6/fs/reiserfs/ioctl.c	2005-06-13 14:34:32.000000000 -0400
-+++ linux-2.6.12-rc6.devel/fs/reiserfs/ioctl.c	2005-06-22 17:30:40.000000000 -0400
-@@ -34,10 +34,16 @@ int reiserfs_ioctl (struct inode * inode
- 	/* following two cases are taken from fs/ext2/ioctl.c by Remy
- 	   Card (card@masi.ibp.fr) */
- 	case REISERFS_IOC_GETFLAGS:
-+		if (!reiserfs_attrs (inode->i_sb))
-+			return -ENOTTY;
-+
- 		flags = REISERFS_I(inode) -> i_attrs;
- 		i_attrs_to_sd_attrs( inode, ( __u16 * ) &flags );
- 		return put_user(flags, (int __user *) arg);
- 	case REISERFS_IOC_SETFLAGS: {
-+		if (!reiserfs_attrs (inode->i_sb))
-+			return -ENOTTY;
-+
- 		if (IS_RDONLY(inode))
- 			return -EROFS;
- 
--- 
-Jeff Mahoney
-SuSE Labs
+> Tim Hockin talked about his XML parser there.
+
+> I'm currently using it (in a modified form) in some of my programs:
+
+> xmlparser.h:
+> http://websvn.kde.org/branches/pwmanager/1.2/pwmanager/pwmanager_dump/xmlparser.h?rev=416745&view=markup
+> xmlparser.c:
+> http://websvn.kde.org/branches/pwmanager/1.2/pwmanager/pwmanager_dump/xmlparser.c?rev=417577&view=markup
+
+all this tells me is that some desktop application programmer wants to
+put XML into the kernel
+
+so far nobody has explain what problem(s) this solves or why it's a
+good idea
+
+
+

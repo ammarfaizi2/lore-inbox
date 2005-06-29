@@ -1,33 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262395AbVF2FEL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262412AbVF2FSC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262395AbVF2FEL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 01:04:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262397AbVF2FEL
+	id S262412AbVF2FSC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 01:18:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbVF2FSC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 01:04:11 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:55454 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262395AbVF2FEG (ORCPT
+	Wed, 29 Jun 2005 01:18:02 -0400
+Received: from havoc.gtf.org ([69.61.125.42]:38283 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S262412AbVF2FRz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 01:04:06 -0400
-Date: Tue, 28 Jun 2005 22:03:34 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Mike Richards <mrmikerich@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Swap partition vs swap file
-Message-Id: <20050628220334.66da4656.akpm@osdl.org>
-In-Reply-To: <516d7fa80506281757188b2fda@mail.gmail.com>
-References: <516d7fa80506281757188b2fda@mail.gmail.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 29 Jun 2005 01:17:55 -0400
+Date: Wed, 29 Jun 2005 01:17:55 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH] ieee80211.h build fix
+Message-ID: <20050629051755.GA1061@havoc.gtf.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Richards <mrmikerich@gmail.com> wrote:
->
-> Given this situation, is there any significant performance or
->  stability advantage to using a swap partition instead of a swap file?
 
-In 2.6 they have the same reliability and they will have the same
-performance unless the swapfile is badly fragmented.
+This crept in with the resync-to-mainline.  Nothing uses 802.11-crypt in
+mainline, so we can safely comment it out for now.
+
+Signed-off-by: Jeff Garzik <jgarzik@pobox.com>
+
+
+diff --git a/include/net/ieee80211.h b/include/net/ieee80211.h
+--- a/include/net/ieee80211.h
++++ b/include/net/ieee80211.h
+@@ -426,7 +426,9 @@ struct ieee80211_stats {
+ 
+ struct ieee80211_device;
+ 
++#if 0 /* for later */
+ #include "ieee80211_crypt.h"
++#endif
+ 
+ #define SEC_KEY_1         (1<<0)
+ #define SEC_KEY_2         (1<<1)

@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262712AbVF2Wzc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262727AbVF2Wz6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262712AbVF2Wzc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 18:55:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262720AbVF2Wzb
+	id S262727AbVF2Wz6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 18:55:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262726AbVF2Wz6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 18:55:31 -0400
-Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:63177 "EHLO
-	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S262712AbVF2WxB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 18:53:01 -0400
-X-ORBL: [63.202.173.158]
-Date: Wed, 29 Jun 2005 15:52:52 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Michael Buesch <mbuesch@freenet.de>
-Cc: linux-kernel@vger.kernel.org, Ville Sundell <ville.sundell@gmail.com>
-Subject: Re: Build-in XML support?
-Message-ID: <635171.636ad3ed642208e93e44c79901f90691e930c5afe6b95fe3e707420e71193c0022f01e95.IBX@taniwha.stupidest.org>
-References: <ec2c5c2205062903511d62d6bf@mail.gmail.com> <715093.8e23073dd5b3768051865c10fd31f542c39a3531079809488fc0f500cacb255a2afd49c2.ANY@taniwha.stupidest.org> <200506300025.03544.mbuesch@freenet.de>
+	Wed, 29 Jun 2005 18:55:58 -0400
+Received: from locomotive.csh.rit.edu ([129.21.60.149]:47877 "EHLO
+	locomotive.unixthugs.org") by vger.kernel.org with ESMTP
+	id S262714AbVF2WxG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 18:53:06 -0400
+Date: Wed, 29 Jun 2005 18:53:06 -0400
+From: Jeff Mahoney <jeffm@suse.com>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] reiserfs: enable attrs by default if saf
+Message-ID: <20050629225306.GA7287@locomotive.unixthugs.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200506300025.03544.mbuesch@freenet.de>
+X-Operating-System: Linux 2.6.5-7.151-smp (i686)
+X-GPG-Fingerprint: A16F A946 6C24 81CC 99BB  85AF 2CF5 B197 2B93 0FB2
+X-GPG-Key: http://www.csh.rit.edu/~jeffm/jeffm.gpg
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 30, 2005 at 12:25:03AM +0200, Michael Buesch wrote:
 
-> Search the archives.
-> There was a thread about this some time ago.
+ The following patch enables attrs by default if the reiserfs_attrs_cleared
+ bit is set in the superblock. This allows chattr-type attrs to be used
+ without any further action by the user.
 
-that doesn't make it a good idea
+ Please apply.
 
-> Tim Hockin talked about his XML parser there.
-
-> I'm currently using it (in a modified form) in some of my programs:
-
-> xmlparser.h:
-> http://websvn.kde.org/branches/pwmanager/1.2/pwmanager/pwmanager_dump/xmlparser.h?rev=416745&view=markup
-> xmlparser.c:
-> http://websvn.kde.org/branches/pwmanager/1.2/pwmanager/pwmanager_dump/xmlparser.c?rev=417577&view=markup
-
-all this tells me is that some desktop application programmer wants to
-put XML into the kernel
-
-so far nobody has explain what problem(s) this solves or why it's a
-good idea
-
-
-
+Signed-off-by: Jeff Mahoney <jeffm@suse.com>
+ 
+diff -ruNpX dontdiff linux-2.6.12-rc6/fs/reiserfs/super.c linux-2.6.12-rc6.devel/fs/reiserfs/super.c
+--- linux-2.6.12-rc6/fs/reiserfs/super.c	2005-06-13 14:34:58.000000000 -0400
++++ linux-2.6.12-rc6.devel/fs/reiserfs/super.c	2005-06-22 17:34:55.000000000 -0400
+@@ -884,6 +884,8 @@ static void handle_attrs( struct super_b
+ 				reiserfs_warning(s, "reiserfs: cannot support attributes until flag is set in super-block" );
+ 				REISERFS_SB(s) -> s_mount_opt &= ~ ( 1 << REISERFS_ATTRS );
+ 		}
++	} else if (le32_to_cpu( rs -> s_flags ) & reiserfs_attrs_cleared) {
++		REISERFS_SB(s)->s_mount_opt |= REISERFS_ATTRS;
+ 	}
+ }
+ 
+-- 
+Jeff Mahoney
+SuSE Labs

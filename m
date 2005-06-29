@@ -1,63 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262640AbVF2UzD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262643AbVF2U4y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262640AbVF2UzD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 16:55:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262644AbVF2Uyd
+	id S262643AbVF2U4y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 16:56:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262644AbVF2U4x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 16:54:33 -0400
-Received: from alog0075.analogic.com ([208.224.220.90]:7568 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262640AbVF2Uv1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 16:51:27 -0400
-Date: Wed, 29 Jun 2005 16:50:27 -0400 (EDT)
-From: "Richard B. Johnson" <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Sreeni <sreeni.pulichi@gmail.com>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Forcing loader to load a prog at a fixed memory location
-In-Reply-To: <94e67edf05062913272899af73@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0506291633490.10538@chaos.analogic.com>
-References: <94e67edf05062810586d6141f3@mail.gmail.com>
- <m1br5p3ib8.fsf@ebiederm.dsl.xmission.com> <94e67edf050629083745bb4183@mail.gmail.com>
- <Pine.LNX.4.61.0506291245170.22243@chaos.analogic.com>
- <17090.65093.315260.889211@smtp.charter.net> <94e67edf05062913272899af73@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 29 Jun 2005 16:56:53 -0400
+Received: from khan.acc.umu.se ([130.239.18.139]:60078 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id S262643AbVF2U4l (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 16:56:41 -0400
+Date: Wed, 29 Jun 2005 22:56:36 +0200
+From: David Weinehall <tao@acc.umu.se>
+To: Markus =?iso-8859-1?Q?T=F6rnqvist?= <mjt@nysv.org>
+Cc: Douglas McNaught <doug@mcnaught.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Hubert Chan <hubert@uhoreg.ca>,
+       Kyle Moffett <mrmacman_g4@mac.com>, David Masover <ninja@slaphack.com>,
+       Valdis.Kletnieks@vt.edu, Lincoln Dale <ltd@cisco.com>,
+       Gregory Maxwell <gmaxwell@gmail.com>, Hans Reiser <reiser@namesys.com>,
+       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: reiser4 plugins
+Message-ID: <20050629205636.GN16867@khan.acc.umu.se>
+Mail-Followup-To: Markus =?iso-8859-1?Q?T=F6rnqvist?= <mjt@nysv.org>,
+	Douglas McNaught <doug@mcnaught.org>,
+	Horst von Brand <vonbrand@inf.utfsm.cl>,
+	Hubert Chan <hubert@uhoreg.ca>, Kyle Moffett <mrmacman_g4@mac.com>,
+	David Masover <ninja@slaphack.com>, Valdis.Kletnieks@vt.edu,
+	Lincoln Dale <ltd@cisco.com>, Gregory Maxwell <gmaxwell@gmail.com>,
+	Hans Reiser <reiser@namesys.com>, Jeff Garzik <jgarzik@pobox.com>,
+	Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org,
+	ReiserFS List <reiserfs-list@namesys.com>
+References: <200506290509.j5T595I6010576@laptop11.inf.utfsm.cl> <m2k6kd2rx8.fsf@Douglas-McNaughts-Powerbook.local> <20050629135820.GJ11013@nysv.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050629135820.GJ11013@nysv.org>
+User-Agent: Mutt/1.4.1i
+X-Editor: Vi Improved <http://www.vim.org/>
+X-Accept-Language: Swedish, English
+X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
+X-GPG-Key: http://www.acc.umu.se/~tao/files/pub_dc47ca16.gpg.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Jun 2005, Sreeni wrote:
+On Wed, Jun 29, 2005 at 04:58:20PM +0300, Markus   Törnqvist wrote:
+> On Wed, Jun 29, 2005 at 09:50:27AM -0400, Douglas McNaught wrote:
+> >
+> >I'll just note that the "applications bundled as directories" stuff on
+> >MacOS/NextStep is done completely in userspace--as far as the kernel
+> >is concerned, "Mail.app" is a regular directory.  The file manager
+> >handles recognition and invocation of application bundles (and there
+> >is an 'open' shell command that does the same thing).
+> 
+> Note that MacOS has the monopoly on what they ship, Linux has a
+> motherload of file managers and window systems and all.
+> 
+> What pisses me off is the fact that Gnome and friends implement
+> their own incompatible-with-others VFS's and automounters and
+> stuff.
+> 
+> Surely supporting this in the kernel and extending the LSB
+> to require this is the best step to take without infringing
+> anyone's freedom as such.
+> 
+> *still pissed off about having to hassle an automatic mount*
 
-> Hello,
->
-> May I know the possible ways of instrcuting the compiler/loader to
-> place a process's 'data segments (data, stack, heap bss etc)' at a
-> *fixed*  physical/virtual addresses?
->
-> Thanks
-> Sreeni
->
+GNOME and KDE run on operating systems that run other kernels than
+Linux, hence they have to implement their own userland VFS anyway.
+Adding this to the Linux kernel won't help them one bit, unless
+we can magically convince Sun to add it to Solaris, all different
+BSD:s to add it to their kernels, etc.  Not going to happen.
+An effort to get GNOME and KDE to unify their VFS:s would be
+far more benificial, and would if successful probably lead to
+other desktop environments (if there are any other DE:s with their
+own VFS:s, dunno about that) following their lead.
 
-.org	ADDRESS
+FreeDesktop is doing a lot of work to make GNOME, KDE, and other
+DE:s interoperate as much as possible.  Support their initiative
+instead of trying to get a monstrosity (albeit a very cool one,
+conceptually) into the kernel.  Sure, it could be made to work,
+but not without dropping our Unixness.  And if we do, we should
+start by looking at Plan 9 =)
 
-Starts code or data at the OFFSET specified. However, you would
-need to know where `ld` put the beginning of that segment to
-know what the offset referred to.
 
-If the code is in the kernel, You can tell the linker set fixups
-for some load address as the kernel does. Look at linux-`uname 
--r`/arch/i386/boot/compressed/Makefile to see a possible syntax.
-
-In user-space, you can check where the loader put label '_start' and
-'_end' using. You can make code that is supposed to execute at
-an offset from there. However, it will never be a physical location
-that you can count on.
-
-The way a user-mode program accesses physical memory is by using
-mmap() MAP_FIXED.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.12 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+Regards: David
+-- 
+ /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/

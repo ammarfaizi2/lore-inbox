@@ -1,59 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262161AbVF2Bx4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262258AbVF2CCB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262161AbVF2Bx4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 21:53:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262234AbVF2BvK
+	id S262258AbVF2CCB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 22:02:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262326AbVF2B61
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 21:51:10 -0400
-Received: from mail04.syd.optusnet.com.au ([211.29.132.185]:33413 "EHLO
-	mail04.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S262324AbVF2BtQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 21:49:16 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 28 Jun 2005 21:58:27 -0400
+Received: from gate.crashing.org ([63.228.1.57]:41376 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262328AbVF2B4r (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 21:56:47 -0400
+Subject: Re: [PATCH 7/13]: PCI Err: Symbios SCSI  driver recovery
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linas Vepstas <linas@austin.ibm.com>
+Cc: linux-kernel@vger.kernel.org, long <tlnguyen@snoqualmie.dp.intel.com>,
+       Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
+       Greg KH <greg@kroah.com>, ak@muc.de, Paul Mackerras <paulus@samba.org>,
+       linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, johnrose@us.ibm.com
+In-Reply-To: <20050628235919.GA6415@austin.ibm.com>
+References: <20050628235919.GA6415@austin.ibm.com>
+Content-Type: text/plain
+Date: Wed, 29 Jun 2005 11:51:07 +1000
+Message-Id: <1120009868.5133.232.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 
 Content-Transfer-Encoding: 7bit
-Message-ID: <17089.65016.112262.278719@wombat.chubb.wattle.id.au>
-Date: Wed, 29 Jun 2005 11:48:40 +1000
-From: Peter Chubb <peterc@gelato.unsw.edu.au>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Grzegorz Kulewski <kangur@polcom.net>, linux-kernel@vger.kernel.org
-Subject: Re: accessing loopback filesystem+partitions on a file
-In-Reply-To: <20050629013731.GF9566@lkcl.net>
-References: <20050628233335.GB9087@lkcl.net>
-	<Pine.LNX.4.63.0506290228380.7125@alpha.polcom.net>
-	<20050629013731.GF9566@lkcl.net>
-X-Mailer: VM 7.17 under 21.4 (patch 17) "Jumbo Shrimp" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Luke" == Luke Kenneth Casson Leighton <lkcl@lkcl.net> writes:
+On Tue, 2005-06-28 at 18:59 -0500, Linas Vepstas wrote:
+> pci-err-7-symbios.patch
+> 
+> Adds PCI Error recoervy callbacks to the Symbios Sym53c8xx driver.
+> Tested, seems to work well under i/o stress to one disk. Not
+> stress tested under heavy i/o to multiple scsi devices.
+> 
+> Note the check of the pci error state flag inside an infinite
+> loop inside the interrupt handler. Without this check, the 
+> device can spin forever, locking up hard, long before the 
+> asynchronous error event (and callbacks) are ever called. 
+
+I don't understand the logic of that check. In general, I don't think
+checking the error state is reliable at all. You may be in an interrupt
+on the only CPU in the system, thus the error management code may have
+no chance to update that error state field while you are looping... It
+may work for us since we call the eeh stuff from the IO accessors but
+will not in the generic case.
+
+Normally, you should check for non-responding hardware by testing things
+like reading all ff's or having a timeout in the loop. The bug is that
+the driver has a potential infinite loop in the first place.
+
+The only type of "synchronous" error checking that can be done is what
+is proposed by Hidetoshi Seto. You could use his stuff here.
+
+Ben.
 
 
-Luke> xen guest OSes manage it fine - the xen layer provides a means
-Luke> to present any block device as a "disk".
-
-You can do this witht he loop device, but you need to get the
-partition info out first.
-
-Use parted or fdisk to get the partition info.
-Then use losetup with the appropriate offset.
-
-Luke> that loopback filesystems cannot be presented as block devices
-Luke> by the linux kernel (with no involvement of xen) seems to be a
-Luke> curious omission.
-
-But they can!  But a loopback device can't be partitioned.  So do it
-one partition at a time.
-
-You'll probably only have a few real filesystems on the disk image
-anyway.
-
-
-
--- 
-Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
-The technical we do immediately,  the political takes *forever*

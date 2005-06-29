@@ -1,42 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262583AbVF2UQg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262592AbVF2USX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262583AbVF2UQg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 16:16:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262592AbVF2UQg
+	id S262592AbVF2USX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 16:18:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262597AbVF2USW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 16:16:36 -0400
-Received: from crl-mail-dmz.crl.hpl.hp.com ([192.58.210.9]:13958 "EHLO
-	crl-mailb.crl.dec.com") by vger.kernel.org with ESMTP
-	id S262583AbVF2UQe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 16:16:34 -0400
-Message-ID: <42C3019A.9000204@hp.com>
-Date: Wed, 29 Jun 2005 16:16:26 -0400
-From: Jamey Hicks <jamey.hicks@hp.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Wed, 29 Jun 2005 16:18:22 -0400
+Received: from postfix4-2.free.fr ([213.228.0.176]:52891 "EHLO
+	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S262592AbVF2USD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 16:18:03 -0400
+Message-ID: <42C301F7.4010309@free.fr>
+Date: Wed, 29 Jun 2005 22:17:59 +0200
+From: matthieu castet <castet.matthieu@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
+X-Accept-Language: fr-fr, en, en-us
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: handhelds.org git tree
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Greg KH <greg@kroah.com>
+CC: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: device_remove_file and disconnect
+References: <42C2D354.6060607@free.fr> <20050629184621.GA28447@kroah.com>
+In-Reply-To: <20050629184621.GA28447@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-HPLC-MailScanner-Information: Please contact the ISP for more information
-X-HPLC-MailScanner: Found to be clean
-X-HPLC-MailScanner-SpamCheck: not spam (whitelisted),
-	SpamAssassin (score=-4.9, required 5, BAYES_00 -4.90)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-As a step towards sending more patches upstream from handhelds.org, I 
-created a git tree with support for iPAQ models h2200, h3900, h5400, 
-hx2750 and hx4750 so far.  It's still a work in progress.  The kernels 
-and modules build but have not been tested.
+Greg KH wrote:
+> On Wed, Jun 29, 2005 at 06:59:00PM +0200, matthieu castet wrote:
+> 
+>>Hi,
+>>
+>>I have a question about sysfs interface.
+>>
+>>If you open a sysfs file created by a module, then remove it (rmmoding 
+>>the module that create this sysfs file), then try to read the opened 
+>>file, you often get strange result (segdefault or oppps).
+> 
+> 
+> What file did you do this for?  The module count should be incremented
+> if you do this, to prevent the module from being unloaded.
+> 
+Ok, but if we unplug a device, then disconnect will be called even if we 
+opened a sysfs file.
 
-http://handhelds.org/~jamey/gitweb.cgi?p=linux-2.6-jamey
+Couldn't be a race between the moment we read our private data and check 
+it is valid and the moment we use it :
 
-http://handhelds.org/~jamey/git/linux-2.6-jamey/
+Process A (read/write sysfs file) 		Process B (disconnect)
+recover our private data from struct device
+check it is valid
+						free our private data
+do operation on private data
 
--Jamey
 
+>>If it is the first case, I fear that lot's of modules are broken.
+> 
+> 
+> Remember, only root can unload modules, so it really isn't _that_ big of
+> a deal (I can do a lot more damage as root than just oopsing the
+> kernel...)
+> 
+Yes I know, but fewer possible opps won't hurt ;)
+
+thanks
+
+Matthieu

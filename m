@@ -1,64 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262250AbVF2AmB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262319AbVF2AnW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262250AbVF2AmB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 20:42:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262317AbVF2AlT
+	id S262319AbVF2AnW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 20:43:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261457AbVF2Amr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 20:41:19 -0400
-Received: from alpha.polcom.net ([217.79.151.115]:1505 "EHLO alpha.polcom.net")
-	by vger.kernel.org with ESMTP id S262250AbVF2Afb (ORCPT
+	Tue, 28 Jun 2005 20:42:47 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:1233 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262323AbVF2ABU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 20:35:31 -0400
-Date: Wed, 29 Jun 2005 02:35:25 +0200 (CEST)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: accessing loopback filesystem+partitions on a file
-In-Reply-To: <20050628233335.GB9087@lkcl.net>
-Message-ID: <Pine.LNX.4.63.0506290228380.7125@alpha.polcom.net>
-References: <20050628233335.GB9087@lkcl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 28 Jun 2005 20:01:20 -0400
+Date: Tue, 28 Jun 2005 17:02:12 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Roland Dreier <rolandd@cisco.com>
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [PATCH 06/16] IB uverbs: memory pinning implementation
+Message-Id: <20050628170212.24623191.akpm@osdl.org>
+In-Reply-To: <2005628163.qcqYIUxXOrm3IH43@cisco.com>
+References: <2005628163.jfSiMqRcI78iLMJP@cisco.com>
+	<2005628163.qcqYIUxXOrm3IH43@cisco.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Jun 2005, Luke Kenneth Casson Leighton wrote:
-
-> [if you are happy to reply at all, please reply cc'd thank you.]
+Roland Dreier <rolandd@cisco.com> wrote:
 >
-> hi,
->
-> i'm really sorry to be bothering people on this list but i genuinely
-> don't what phrases to google for what i am looking for without getting
-> swamped by useless pages, which you will understand why when you see
-> the question, below.
->
-> the question is, therefore:
->
-> 	* how the hell do you loopback mount (or lvm mount
-> 	  or _anything_! something!)  partitions that have
-> 	  been created in a loopback'd file!!!!
->
-> 	  [aside from booting up a second pre-installed xen
-> 	  guest domain and making the filesystem-in-a-file
-> 	  available as /dev/hdb of course.]
->
-> answers of the form "work out where the partitions are, then use
-> hexedit to remove the first few blocks" will win no prizes here.
+> Add support for pinning userspace memory regions and returning a list
+> of pages in the region.  This includes tracking pinned memory against
+> vm_locked and preventing unprivileged users from exceeding RLIMIT_MEMLOCK.
+> 
 
-The bad news: it was impossible (or at least very hard to do).
+Can you tell us a bit more about the design ideas here?  What's it doing,
+how and why?
 
-The good news: it is possible now. The anwser is:
-- figure where the partitions are (possibly using some simple script),
-- use device-mapper to create block devices covering partitions,
-- mount them.
+We should look at these things and also decide whether some of this should
+live in mm/*.
 
-I do not know if this anwser will win your price but it is IMHO far better 
-than hexedit... :-) And probably this is the only anwser.
+> +int ib_umem_get(struct ib_device *dev, struct ib_umem *mem,
+> +		void *addr, size_t size, int write)
+> +{
+> ...
+> +	if (!can_do_mlock())
+> +		return -EPERM;
+> +
+> ...
+> +	if ((locked > lock_limit) && !capable(CAP_IPC_LOCK)) {
 
-(IIRC if you have one partition you can skip partition table with offset 
-option to losetup. But this will only work in this special case...)
-
-
-Grzegorz Kulewski
-
+The capable() test is redundant.

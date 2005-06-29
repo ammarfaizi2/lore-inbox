@@ -1,70 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262633AbVF2Uui@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262640AbVF2UzD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262633AbVF2Uui (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 16:50:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262638AbVF2Uui
+	id S262640AbVF2UzD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 16:55:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262644AbVF2Uyd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 16:50:38 -0400
-Received: from ausc60pc101.us.dell.com ([143.166.85.206]:47909 "EHLO
-	ausc60pc101.us.dell.com") by vger.kernel.org with ESMTP
-	id S262633AbVF2Urm convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 16:47:42 -0400
-X-IronPort-AV: i="3.94,151,1118034000"; 
-   d="scan'208"; a="279735699:sNHT60984726"
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Wed, 29 Jun 2005 16:54:33 -0400
+Received: from alog0075.analogic.com ([208.224.220.90]:7568 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262640AbVF2Uv1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 16:51:27 -0400
+Date: Wed, 29 Jun 2005 16:50:27 -0400 (EDT)
+From: "Richard B. Johnson" <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Sreeni <sreeni.pulichi@gmail.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Forcing loader to load a prog at a fixed memory location
+In-Reply-To: <94e67edf05062913272899af73@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0506291633490.10538@chaos.analogic.com>
+References: <94e67edf05062810586d6141f3@mail.gmail.com>
+ <m1br5p3ib8.fsf@ebiederm.dsl.xmission.com> <94e67edf050629083745bb4183@mail.gmail.com>
+ <Pine.LNX.4.61.0506291245170.22243@chaos.analogic.com>
+ <17090.65093.315260.889211@smtp.charter.net> <94e67edf05062913272899af73@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [RFC][patch 2.6.12-rc3] dell_rbu: Resubmitting patch for new Dell BIOS update driver 
-Date: Wed, 29 Jun 2005 15:47:38 -0500
-Message-ID: <B37DF8F3777DDC4285FA831D366EB9E20730AD@ausx3mps302.aus.amer.dell.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [RFC][patch 2.6.12-rc3] dell_rbu: Resubmitting patch for new Dell BIOS update driver 
-Thread-Index: AcV84CA6mFAEAJvwSJObiFPDwmxVZwAC3c7w
-From: <Abhay_Salunke@Dell.com>
-To: <Valdis.Kletnieks@vt.edu>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 29 Jun 2005 20:47:39.0733 (UTC) FILETIME=[C9F48050:01C57CEB]
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 29 Jun 2005, Sreeni wrote:
 
+> Hello,
+>
+> May I know the possible ways of instrcuting the compiler/loader to
+> place a process's 'data segments (data, stack, heap bss etc)' at a
+> *fixed*  physical/virtual addresses?
+>
+> Thanks
+> Sreeni
+>
 
-> -----Original Message-----
-> From: Valdis.Kletnieks@vt.edu [mailto:Valdis.Kletnieks@vt.edu]
-> Sent: Wednesday, June 29, 2005 2:24 PM
-> To: Salunke, Abhay
-> Cc: linux-kernel@vger.kernel.org; greg@kroah.com
-> Subject: Re: [RFC][patch 2.6.12-rc3] dell_rbu: Resubmitting patch for
-new
-> Dell BIOS update driver
-> 
-> On Wed, 29 Jun 2005 15:26:40 CDT, Abhay Salunke said:
-> > This patch adds a new function to firmware_calss.c
-> request_firmware_nowait_nohotplug .
-> > The dell_rbu driver uses this call to create entries in
-> /sys/class/firmware.
-> >
-> > Signed-off-by: Abhay Salunke <Abhay_Salunke@dell.com>
-> >
-> > Thanks
-> > Abhay
-> > diff -uprN linux-2.6.11.11.orig/Documentation/dell_rbu.txt linux-
-> 2.6.11.11.new/Documentation/dell_rbu.txt
-> 
-> > +This driver enables userspace applications to update the BIOS on
-Dell
-> servers
-> > +(starting from servers sold since 1999), desktops and notebooks
-> (starting
-> > +from those sold in 2005).
-> 
-> I may be blind, but I'm not seeing where this code makes a check -
-what
-> happens
-> if I try to run this on my 3-year-old Latitude laptop?
-This driver should be able to support both server and client systems...
+.org	ADDRESS
+
+Starts code or data at the OFFSET specified. However, you would
+need to know where `ld` put the beginning of that segment to
+know what the offset referred to.
+
+If the code is in the kernel, You can tell the linker set fixups
+for some load address as the kernel does. Look at linux-`uname 
+-r`/arch/i386/boot/compressed/Makefile to see a possible syntax.
+
+In user-space, you can check where the loader put label '_start' and
+'_end' using. You can make code that is supposed to execute at
+an offset from there. However, it will never be a physical location
+that you can count on.
+
+The way a user-mode program accesses physical memory is by using
+mmap() MAP_FIXED.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.12 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

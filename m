@@ -1,37 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262657AbVF2VSR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262649AbVF2VRl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262657AbVF2VSR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 17:18:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262648AbVF2VSP
+	id S262649AbVF2VRl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 17:17:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262657AbVF2VR3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 17:18:15 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:1756 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262657AbVF2VRt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 17:17:49 -0400
-Date: Wed, 29 Jun 2005 17:17:39 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Eric Paris <eparis@parisplace.org>
-cc: Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
-       Stephen Smalley <sds@epoch.ncsc.mil>
-Subject: Re: [PATCH] selinux_sb_copy_data should not require a whole page
-In-Reply-To: <1120078016.9967.34.camel@localhost.localdomain>
-Message-ID: <Xine.LNX.4.44.0506291717130.13442-100000@thoron.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 29 Jun 2005 17:17:29 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:14770 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262649AbVF2VOi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 17:14:38 -0400
+Date: Wed, 29 Jun 2005 16:14:35 -0500
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: linux-kernel@vger.kernel.org, long <tlnguyen@snoqualmie.dp.intel.com>,
+       Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
+       Greg KH <greg@kroah.com>, ak@muc.de, Paul Mackerras <paulus@samba.org>,
+       linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, johnrose@us.ibm.com
+Subject: Re: [PATCH 8/13]: PCI Err: Event delivery utility
+Message-ID: <20050629211435.GN28499@austin.ibm.com>
+References: <20050628235932.GA6429@austin.ibm.com> <1120010387.5133.235.camel@gaston>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1120010387.5133.235.camel@gaston>
+User-Agent: Mutt/1.5.6+20040818i
+From: Linas Vepstas <linas@austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Jun 2005, Eric Paris wrote:
+On Wed, Jun 29, 2005 at 11:59:47AM +1000, Benjamin Herrenschmidt was heard to remark:
+> On Tue, 2005-06-28 at 18:59 -0500, Linas Vepstas wrote:
+> > pci-err-8-pci-err-event.patch
+> > 
+> > [RFC]
+> > 
+> > PCI Error distribution utility routine.  This patch defines 
+> > a utility routine that hasn't yet been discussed much on 
+> 
+> Certainly needs to be in a separate .h at least ... Also, you have some
+> lifetime issues. You probably want to do a get() on pci_dev when you put
+> it in your struct and put() it after the notifier... Oh wait, you are
+> doing pci_dev_put() ... but no pci_dev_get() ... The later must be
+> missing from peh_send_failure_event().
 
-> Signed-off-by: Eric Paris <eparis@parisplace.org>
+I'm pretty sure this was balanced, there is a get very early on when the
+error is detected.  But I'll review.
 
-Acked-by: James Morris <jmorris@redhat.com>
+> I'd keep that in arch code for now.
 
+OK, I'm moving it there. It did seem both confusing and semi-pointless
+after the last round of changes.
 
--- 
-James Morris
-<jmorris@redhat.com>
-
+--linas
 

@@ -1,57 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262701AbVF2Wuv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262711AbVF2WwW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262701AbVF2Wuv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 18:50:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262706AbVF2Wuv
+	id S262711AbVF2WwW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 18:52:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262706AbVF2WwW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 18:50:51 -0400
-Received: from smtp.lnxw.com ([207.21.185.24]:22794 "EHLO smtp.lnxw.com")
-	by vger.kernel.org with ESMTP id S262701AbVF2Wuo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 18:50:44 -0400
-Date: Wed, 29 Jun 2005 15:57:34 -0700
-To: Kristian Benoit <kbenoit@opersys.com>
-Cc: linux-kernel@vger.kernel.org, paulmck@us.ibm.com, bhuey@lnxw.com,
-       andrea@suse.de, tglx@linutronix.de, karim@opersys.com, mingo@elte.hu,
-       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
-       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, rpm@xenomai.org
-Subject: Re: PREEMPT_RT and I-PIPE: the numbers, take 3
-Message-ID: <20050629225734.GA23793@nietzsche.lynx.com>
-References: <42C320C4.9000302@opersys.com>
+	Wed, 29 Jun 2005 18:52:22 -0400
+Received: from smtp1.irishbroadband.ie ([62.231.32.12]:47837 "EHLO
+	smtp1.irishbroadband.ie") by vger.kernel.org with ESMTP
+	id S262707AbVF2Wvn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 18:51:43 -0400
+Subject: aic7xxx regression occuring after 2.6.12 final
+From: Tony Vroon <chainsaw@gentoo.org>
+To: linux-kernel@vger.kernel.org
+Cc: linux-scsi@vger.kernel.org
+Content-Type: text/plain
+Organization: Gentoo Linux
+Date: Wed, 29 Jun 2005 23:50:46 +0100
+Message-Id: <1120085446.9743.11.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42C320C4.9000302@opersys.com>
-User-Agent: Mutt/1.5.9i
-From: Bill Huey (hui) <bhuey@lnxw.com>
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 29, 2005 at 06:29:24PM -0400, Kristian Benoit wrote:
-> Overall analysis:
-...
-> We had not intended to redo a 3rd run so early, but we're happy we did
-> given the doubts expressed by some on the LKML. And as we suspected, these
-> new results very much corroborate what we had found earlier. As such, our
-> conclusions remain mostly unchanged:
+Hiya,
 
-Did you compile your host Linux kernel with CONFIG_SMP in place ? That's
-critical since a UP kernel removes both spinlock and blocking locks in
-critical paths makes micro benchmarks sort of invalid.
+For my Adaptec 29160 card; I see a regression after 2.6.12 final.
+To be exact, these releases work for me:
+2.6.12
+2.6.12.1
 
-The benchmark is sort of confusing two things and merging them into one.
-Both the latency statistic and kernel performance must be kept seperate.
-The overall kernel performance is a more complicate issue that has to be
-analysize differently using a more complicated methodology. That because
-an RTOS use of PREEMPT_RT is going to be under a different circumstance
-than that of a pure dual kernel set up of some sort. The functionalities
-aren't the same.
+These releases do not work for me:
+2.6.12-mm1
+2.6.12-mm2
+2.6.12-git7
+2.6.13-rc1
 
-I suggest that you compile the dual kernel with SMP turned on and try it
-again, otherwise it's not really testing the overhead of any of the locking
-for either the PREEMPT_RT or dual kernel set ups. That's really the only
-outstanding statistic that I've noticed in that benchmark.
+On a working kernel; I see the following:
+ACPI: PCI Interrupt Link [APC3] enabled at IRQ 18
+ACPI: PCI Interrupt 0000:01:08.0[A] -> Link [APC3] -> GSI 18 (level,
+high) -> IRQ 18
+scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.36
+        <Adaptec 29160 Ultra160 SCSI adapter>
+        aic7892: Ultra160 Wide Channel A, SCSI Id=7, 32/253 SCBs
 
-bill
+  Vendor: FUJITSU   Model: MAP3367NP         Rev: 0106
+  Type:   Direct-Access                      ANSI SCSI revision: 03
+scsi0:A:0:0: Tagged Queuing enabled.  Depth 253
+ target0:0:0: Beginning Domain Validation
+WIDTH IS 1
+(scsi0:A:0): 6.600MB/s transfers (16bit)
+(scsi0:A:0): 160.000MB/s transfers (80.000MHz DT, offset 127, 16bit)
+ target0:0:0: Ending Domain Validation
+
+On a failing kernel, I see:
+ACPI: PCI Interrupt Link [APC3] enabled at IRQ 18
+ACPI: PCI Interrupt 0000:01:08.0[A] -> Link [APC3] -> GSI 18 (level,
+high) -> IRQ 18
+scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.36
+        <Adaptec 29160 Ultra160 SCSI adapter>
+        aic7892: Ultra160 Wide Channel A, SCSI Id=7, 32/253 SCBs
+
+target0:0:0: asynchronous
+  Vendor: FUJITSU   Model: MAP3367NP         Rev: 0106
+  Type:   Direct-Access                      ANSI SCSI revision: 03
+scsi0:A:0:0: Tagged Queuing enabled.  Depth 253
+ target0:0:0: Beginning Domain Validation
+ target0:0:0: wide asynchronous
+(scsi0:A:0): refuses tagged commands. Performing non-tagged I/O
+ target0:0:0: asynchronous
+[The PC hangs at this point]
+
+
+lspci output for the adapter:
+0000:01:08.0 SCSI storage controller: Adaptec AIC-7892A U160/m (rev 02)
+        Subsystem: Adaptec 29160 Ultra160 SCSI Controller
+        Flags: bus master, 66Mhz, medium devsel, latency 32, IRQ 18
+        BIST result: 00
+        I/O ports at d800 [disabled] [size=256]
+        Memory at db000000 (64-bit, non-prefetchable) [size=4K]
+        Capabilities: [dc] Power Management version 2
+
+Please let me know if there are specific patches I need to apply or
+revert to debug this. I have more drives on this controller; to be exact
+I have 2 U320-capable drives and one U160-capable drive on wide channel
+A; and 3 removable media units (CD-R, DVD, CD-ROM) on the 50-pin
+SCSI-bus.
+
+Thanks,
+Tony.
+(Please CC replies to me as I am not subscribed to LKML or linux-scsi)
 

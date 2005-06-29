@@ -1,57 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262661AbVF2VX1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262656AbVF2VX0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262661AbVF2VX1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 17:23:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262668AbVF2VWu
+	id S262656AbVF2VX0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 17:23:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262661AbVF2VXU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 17:22:50 -0400
-Received: from wproxy.gmail.com ([64.233.184.199]:32344 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262648AbVF2VWO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 17:22:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=IoEK6D2HtxHDRT+kzgh+CnvVrIJwvzcBRkU+8PufgBdqvZSD3hAPl6xJZy2VgbxYKFvPibwUBuAKZU1zkr9iiPSZ4ysjCjP9llKFQFcHx5I+l5+Eqwc7C6YNQgQr2vC/Nckxg0UowGQ4c315Gov84gy4CTCGmFB/wOtYZVq76vQ=
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       Stefano Mangione <s.mangione@gmail.com>
-Subject: Re: [2.6.12] USB storage device stalls after a few KB transfer
-Date: Thu, 30 Jun 2005 01:28:23 +0400
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org
-References: <2d4e1ff6050627115141bb2828@mail.gmail.com> <200506272042.51578.s0348365@sms.ed.ac.uk>
-In-Reply-To: <200506272042.51578.s0348365@sms.ed.ac.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 29 Jun 2005 17:23:20 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:34450 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S262639AbVF2VWh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 17:22:37 -0400
+Date: Wed, 29 Jun 2005 23:22:30 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andy Whitcroft <apw@shadowen.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+Subject: Re: [patch 2] mm: speculative get_page
+Message-ID: <20050629212230.GB17462@atrey.karlin.mff.cuni.cz>
+References: <42BF9CD1.2030102@yahoo.com.au> <42BF9D67.10509@yahoo.com.au> <42BF9D86.90204@yahoo.com.au> <42C14662.40809@shadowen.org> <42C14D93.7090303@yahoo.com.au> <1119974566.14830.111.camel@localhost> <20050629163132.GB13336@elf.ucw.cz> <1120070616.12143.4.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200506300128.23976.adobriyan@gmail.com>
+In-Reply-To: <1120070616.12143.4.camel@localhost>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 27 June 2005 23:42, Alistair John Strachan wrote:
-> On Monday 27 Jun 2005 19:51, Stefano Mangione wrote:
-> > The device is seen, can be mounted and the filesystem listed, but file
-> > transfers run very slow, i guess they stop after a few KB.
-> >
-> > This happened in 2.6.12, 2.6.11.12 works well, everything else seems
-> > to work perfectly. The device is a 256MB OTi Flash Disk, my USB host
-> > is listed as a VIA VT6202, the motherboard is an MSI with A6712VMS
-> > V1.9 072903 BIOS
-> >
-> > /sbin/lspci -n:
-> > 00:10.0 Class 0c03: 1106:3038 (rev 80)
-> > 00:10.1 Class 0c03: 1106:3038 (rev 80)
-> > 00:10.2 Class 0c03: 1106:3038 (rev 80)
-> > 00:10.3 Class 0c03: 1106:3104 (rev 82)
+Hi!
+
+> > > > I think there are a a few ways that bits can be reclaimed if we
+> > > > start digging. swsusp uses 2 which seems excessive though may be
+> > > > fully justified. 
+> > > 
+> > > They (swsusp) actually don't need the bits at all until suspend-time, at
+> > > all.  Somebody coded up a "dynamic page flags" patch that let them kill
+> > > the page->flags use, but it didn't really go anywhere.  Might be nice if
+> > > someone dug it up.  I probably have a copy somewhere.
+> > 
+> > Unfortunately that patch was rather ugly :-(.
 > 
-> I get the same problem on an Intel laptop. Sometimes it works, sometimes it 
-> doesn't. I'm in the process of tracking it down..
+> Do you think the idea was ugly, or just the implementation?  Is there
+> something that you'd rather see?
 
-Folks, I've filed a bug at kernel bugzilla, so your reports won't be lost.
-See http://bugme.osdl.org/show_bug.cgi?id=4817
+Well, implementation was ugly and idea was unneccesary because we
+still had bits left.
 
-You can register at http://bugme.osdl.org/createaccount.cgi and add yourself
-to CC list.
+We could spare bits for swsusp by defining "PageReserved | PageLocked
+=> PageNosave" etc.... simply by choosing some otherwise unused
+combinations. swsusp is not performance critical...
+								Pavel
+-- 
+Boycott Kodak -- for their patent abuse against Java.

@@ -1,73 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262568AbVF2Myw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262562AbVF2M4A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262568AbVF2Myw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 08:54:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262566AbVF2Myd
+	id S262562AbVF2M4A (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 08:56:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262567AbVF2Mz7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 08:54:33 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:55482 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262562AbVF2My1 (ORCPT
+	Wed, 29 Jun 2005 08:55:59 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:19932 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S262562AbVF2Mzr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 08:54:27 -0400
-Date: Wed, 29 Jun 2005 14:54:09 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: William Weston <weston@sysex.net>
-Cc: "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       "Eugeny S. Mints" <emints@ru.mvista.com>,
-       Daniel Walker <dwalker@mvista.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
-Message-ID: <20050629125409.GA29188@elte.hu>
-References: <Pine.LNX.4.58.0506231330450.27096@echo.lysdexia.org> <Pine.LNX.4.58.0506231755020.27757@echo.lysdexia.org> <20050624070639.GB5941@elte.hu> <Pine.LNX.4.58.0506241510040.32173@echo.lysdexia.org> <20050625041453.GC6981@elte.hu> <Pine.LNX.4.58.0506262102250.32435@echo.lysdexia.org> <20050627081542.GA15096@elte.hu> <Pine.LNX.4.58.0506272001190.5720@echo.lysdexia.org> <20050628081053.GC7368@elte.hu> <Pine.LNX.4.58.0506281745040.10406@echo.lysdexia.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 29 Jun 2005 08:55:47 -0400
+From: Gernot Payer <gpayer@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: Patch to disarm timers after an exec syscall
+Date: Wed, 29 Jun 2005 14:55:45 +0200
+User-Agent: KMail/1.6.2
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0506281745040.10406@echo.lysdexia.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_RppwC0lazdULkGE"
+Message-Id: <200506291455.45468.gpayer@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* William Weston <weston@sysex.net> wrote:
+--Boundary-00=_RppwC0lazdULkGE
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-> I got a trace with VLC and one burnP6 instance running.  The second 
-> included trace was started in the background immediately before firing 
-> up a second burnP6, but I'm not sure it covers any of the time that 
-> the second burnP6 was running.
+Hi all,
 
-there doesnt seem to be too much of an interrupt related problem:
+while running the openposix testsuite I saw testcase timer_create/9-1.c 
+failing. This testcase tests whether timers are disarmed when a process calls 
+exec, as described in e.g. 
+http://www.opengroup.org/onlinepubs/009695399/functions/timer_create.html.
 
-   $ grep 'do_IRQ (' trace-it.2.txt
-   <...>-18659 0Dnh.  228us : do_IRQ (80480d2 0 0)
-   <...>-18659 0Dnh. 1228us : do_IRQ (80480d6 0 0)
-   <...>-18659 0Dnh. 2232us : do_IRQ (80480d6 0 0)
-   <...>-18659 0Dnh. 3229us : do_IRQ (80480c4 0 0)
-   <...>-18659 0Dnh. 4227us : do_IRQ (80480e8 0 0)
-   <...>-18659 0Dnh. 5227us : do_IRQ (80480df 0 0)
-   <...>-18659 0Dnh. 6226us : do_IRQ (80480e8 0 0)
-   <...>-18659 0Dnh. 7226us : do_IRQ (80480df 0 0)
-   <...>-18659 0Dnh. 8225us : do_IRQ (80480c4 0 0)
-   <...>-18659 0Dnh. 9231us : do_IRQ (80480e3 0 0)
-   <...>-18659 0Dnh. 10225us : do_IRQ (80480e8 0 0)
+The attached one-liner patch (+ one line comment) fixes this issue. I did the 
+diff against 2.6.12.1, but the fix is pretty much the same for every other 
+2.6.x kernel I had a look at.
 
-you are getting a timer interrupt (IRQ 0) every 1000 usecs, as expected.
+I don't think this patch breaks anything, as relying on this (undocumented) 
+behaviour would imho be bad style.
 
-i'd suggest to capture trace-it traces only during a clearly identified 
-anomalous event such as an interrupt storm. For latency analysis 
-purposes the default latency traces are better.
+So tell me what you think, and if you have some pointers to interesting 
+discussions about Linux and POSIX compliance then I would like to read that 
+as well.
 
-> > on SMP this could occur if the TSCs of different CPUs are too apart from 
-> > each other. I'll probably put an automatic check for this into the 
-> > /proc/latency_trace code.
-> 
-> Yup.  Got another one of these.
+mfg
+Gernot
 
-was this on a -29 or later kernel? (-29 had a couple of latency.c fixes)
+--Boundary-00=_RppwC0lazdULkGE
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="delete-old-itimers-in-do_execve-linux-2.6.12.1.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="delete-old-itimers-in-do_execve-linux-2.6.12.1.patch"
 
-	Ingo
+--- linux-2.6.12.1-orig/fs/exec.c	2005-06-29 14:29:31.069738264 +0200
++++ linux-2.6.12.1/fs/exec.c	2005-06-29 14:34:46.034856288 +0200
+@@ -1200,6 +1200,10 @@
+ 		acct_update_integrals(current);
+ 		update_mem_hiwater(current);
+ 		kfree(bprm);
++
++		/* delete old itimers */
++		exit_itimers(current->signal);
++		
+ 		return retval;
+ 	}
+ 
+
+--Boundary-00=_RppwC0lazdULkGE--

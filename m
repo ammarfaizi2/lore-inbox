@@ -1,46 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262486AbVF2TkB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262536AbVF2UBv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262486AbVF2TkB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 15:40:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262549AbVF2Tja
+	id S262536AbVF2UBv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 16:01:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262525AbVF2UBv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 15:39:30 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:22252 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262536AbVF2Tik (ORCPT
+	Wed, 29 Jun 2005 16:01:51 -0400
+Received: from mail.dif.dk ([193.138.115.101]:50863 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S262536AbVF2UBs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 15:38:40 -0400
-Date: Wed, 29 Jun 2005 21:38:04 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Karsten Wiese <annabellesgarden@yahoo.de>
-Cc: William Weston <weston@sysex.net>, linux-kernel@vger.kernel.org
-Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.50-24
-Message-ID: <20050629193804.GA6256@elte.hu>
-References: <200506281927.43959.annabellesgarden@yahoo.de> <20050629070058.GA15987@elte.hu> <Pine.LNX.4.58.0506290159050.12101@echo.lysdexia.org> <200506291648.16601.annabellesgarden@yahoo.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200506291648.16601.annabellesgarden@yahoo.de>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Wed, 29 Jun 2005 16:01:48 -0400
+Date: Wed, 29 Jun 2005 22:07:49 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: Chris Zankel <chris@zankel.net>, Scott Foehner <sfoehner@yahoo.com>,
+       Marc Gauthier <marc@tensilica.com>, Joe Taylor <joe@tensilica.com>,
+       Marc Gauthier <marc@alumni.uwaterloo.ca>,
+       Joe Taylor <joetylr@yahoo.com>
+Subject: [PATCH] make xtensa use valid_signal()
+Message-ID: <Pine.LNX.4.62.0506292202340.2998@dragon.hyggekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+xtensa should use valid_signal() instead of testing _NSIG directly like 
+everyone else.
 
-* Karsten Wiese <annabellesgarden@yahoo.de> wrote:
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+---
 
-> attached patch for io_apic.c lets
-> 1. gcc 3.4.3 optimize io_apic access a little better.
-> 2. CONFIG_X86_UP_IOAPIC_FAST work here.
->    Didn't check, if it really speeds up things.
+ arch/xtensa/kernel/ptrace.c |    5 +++--
+ 1 files changed, 3 insertions(+), 2 deletions(-)
 
-which change made CONFIG_X86_UP_IOAPIC_FAST work on your box? It seems 
-you've changed the per-register frontside read-cache to something else - 
-was that on purpose?
+--- linux-2.6.13-rc1-orig/arch/xtensa/kernel/ptrace.c	2005-06-29 21:44:49.000000000 +0200
++++ linux-2.6.13-rc1/arch/xtensa/kernel/ptrace.c	2005-06-29 22:00:34.000000000 +0200
+@@ -22,6 +22,7 @@
+ #include <linux/smp.h>
+ #include <linux/smp_lock.h>
+ #include <linux/security.h>
++#include <linux/signal.h>
+ 
+ #include <asm/pgtable.h>
+ #include <asm/page.h>
+@@ -239,7 +240,7 @@ int sys_ptrace(long request, long pid, l
+ 	case PTRACE_CONT: /* restart after signal. */
+ 	{
+ 		ret = -EIO;
+-		if ((unsigned long) data > _NSIG)
++		if (!valid_signal(data))
+ 			break;
+ 		if (request == PTRACE_SYSCALL)
+ 			set_tsk_thread_flag(child, TIF_SYSCALL_TRACE);
+@@ -269,7 +270,7 @@ int sys_ptrace(long request, long pid, l
+ 
+ 	case PTRACE_SINGLESTEP:
+ 		ret = -EIO;
+-		if ((unsigned long) data > _NSIG)
++		if (!valid_signal(data))
+ 			break;
+ 		clear_tsk_thread_flag(child, TIF_SYSCALL_TRACE);
+ 		child->ptrace |= PT_SINGLESTEP;
 
-	Ingo
+

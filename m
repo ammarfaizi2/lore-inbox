@@ -1,62 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262590AbVF2QS6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262604AbVF2QUQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262590AbVF2QS6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 12:18:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262597AbVF2QPW
+	id S262604AbVF2QUQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 12:20:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262596AbVF2QT3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 12:15:22 -0400
-Received: from mail.kroah.org ([69.55.234.183]:57553 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262506AbVF2QMp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 12:12:45 -0400
-Date: Wed, 29 Jun 2005 09:12:09 -0700
-From: Greg KH <greg@kroah.com>
-To: Troy Benjegerdes <hozer@hozed.org>
-Cc: Roland Dreier <rolandd@cisco.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [openib-general] Re: [PATCH 05/16] IB uverbs: core implementation
-Message-ID: <20050629161209.GA23781@kroah.com>
-References: <2005628163.lUk0bfpO8VsSXUh5@cisco.com> <2005628163.jfSiMqRcI78iLMJP@cisco.com> <20050629002709.GB17805@kroah.com> <20050629041321.GM4907@kalmia.hozed.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050629041321.GM4907@kalmia.hozed.org>
-User-Agent: Mutt/1.5.8i
+	Wed, 29 Jun 2005 12:19:29 -0400
+Received: from node-40240a4a.sjc.onnet.us.uu.net ([64.36.10.74]:3848 "EHLO
+	sphinx.zankel.net") by vger.kernel.org with ESMTP id S262506AbVF2QPh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 12:15:37 -0400
+Message-ID: <42C2CAB8.1080402@zankel.net>
+Date: Wed, 29 Jun 2005 09:22:16 -0700
+From: Christian Zankel <chris@zankel.net>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050210)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Arnd Bergmann <arnd@arndb.de>
+CC: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Xtensa syscalls (Was: Re: 2.6.12-rc5-mm1)
+References: <20050525134933.5c22234a.akpm@osdl.org> <200505272313.20734.arnd@arndb.de> <20050528070714.GB17005@infradead.org> <200506291542.02618.arnd@arndb.de>
+In-Reply-To: <200506291542.02618.arnd@arndb.de>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 28, 2005 at 11:13:22PM -0500, Troy Benjegerdes wrote:
-> On Tue, Jun 28, 2005 at 05:27:09PM -0700, Greg KH wrote:
-> > On Tue, Jun 28, 2005 at 04:03:43PM -0700, Roland Dreier wrote:
-> > > +++ linux/drivers/infiniband/core/uverbs_main.c	2005-06-28 15:20:04.363963991 -0700
-> > > @@ -0,0 +1,708 @@
-> > > +/*
-> > > + * Copyright (c) 2005 Topspin Communications.  All rights reserved.
-> > > + * Copyright (c) 2005 Cisco Systems.  All rights reserved.
-> > > + *
-> > > + * This software is available to you under a choice of one of two
-> > > + * licenses.  You may choose to be licensed under the terms of the GNU
-> > > + * General Public License (GPL) Version 2, available from the file
-> > > + * COPYING in the main directory of this source tree, or the
-> > > + * OpenIB.org BSD license below:
-> > 
-> > Ok, I've complained about this before, but due to the fact that you are
-> > calling EXPORT_SYMBOL_GPL() only functions in this code, the ability for
-> > it for someone to use the BSD license on it in the future, is pretty
-> > much impossible, right?
-> 
-> Only if someone tries to use it under a BSD license, strips off the GPL
-> notices, and then builds it against *Linux*.
+Arnd Bergmann wrote:
+>>>Chris, are there any existing binaries that rely on your implementations
+>>>of old_mmap, sys_fork, sys_vfork, sys_olduname or sys_ipc and need to
+>>>work with future kernels? Otherwise, you should probably drop these.
+>>>For sys_ipc, you would need to add the subcalls directly to the table,
+>>>like parisc does.
+> Hmm, xtensa is now in -rc1, with the obsolete syscalls still in there,
+> so I guess this about the last chance to correct the ABI. Applying the
+> patch obviously breaks all sorts of user space binaries and probably
+> also requires the appropriate changes to be made to libc.
 
-Exactly, that's my point.  It's pretty useless, and if you are going to
-build this code for another OS, well, that's going to be a tough job :)
+I have to admit, the -rc1 caught me a bit by surprise; I have a few 
+patches pending that I want to send out today.
 
-> If linux-kernel is going to be that fascist about licensing, let's
-> please clean up all the binary firmware blobs in header files first.
+The question is, if we had to break glibc compatibility, shouldn't we 
+use the opportunity to clean-up the syscall list? It was copied from 
+MIPS and, thus, has inherited a lot of legacy from there. As a new 
+architecture, maybe we should even go as far as removing all ni-syscalls 
+and start fresh?
 
-I'm not being "fascist", I'm just saying it's pretty pointless to try to
-dual license this code, that's all.
+> On the other hand, if a decision is made to keep the broken interface,
+> it should at least be a conscious one instead of an oversight.
 
-thanks,
+I will try out your patch and see if there are any obvious problems.
 
-greg k-h
+Thanks,
+~Chris

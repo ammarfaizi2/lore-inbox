@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262478AbVF2HpG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262483AbVF2Hr1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262478AbVF2HpG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 03:45:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262479AbVF2Hnf
+	id S262483AbVF2Hr1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 03:47:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262471AbVF2HpW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 03:43:35 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:19105 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S262472AbVF2Hmk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 03:42:40 -0400
-References: <iit0gm.lxobpl.5z2b9jduhy9fvx6tjxrco46v4.refire@cs.helsinki.fi>
-            <iit0h1.q7pnex.bkir3xysppdufw6d9h65boz37.refire@cs.helsinki.fi>
-            <20050628163114.6594e1e1.akpm@osdl.org>
-            <1120018821.9658.4.camel@localhost>
-            <20050629070814.GC16850@infradead.org>
-In-Reply-To: <20050629070814.GC16850@infradead.org>
-From: "Pekka J Enberg" <penberg@cs.helsinki.fi>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: freevxfs: minor cleanups
-Date: Wed, 29 Jun 2005 10:42:39 +0300
+	Wed, 29 Jun 2005 03:45:22 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:35465 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262472AbVF2Hnx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 03:43:53 -0400
+Date: Wed, 29 Jun 2005 09:43:39 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PREEMPT_RT & threading IRQ 0
+Message-ID: <20050629074339.GA19129@elte.hu>
+References: <1119287612.6863.1.camel@localhost> <20050621015542.GB1298@us.ibm.com> <42B77B8C.6050109@opersys.com> <20050622011931.GF1324@us.ibm.com> <42B9845B.8030404@opersys.com> <1119460661.491.31.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="utf-8,iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-ID: <courier.42C250EF.00000B88@courier.cs.helsinki.fi>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1119460661.491.31.camel@mindpipe>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 29, 2005 at 07:20:21AM +0300, Pekka Enberg wrote:
-> > The rationale for this is that since NULL is not guaranteed to be zero
-> > by the C standard, memset() doesn't really initialize pointers properly.
 
-On Wed, 2005-06-29 at 08:08 +0100, Christoph Hellwig wrote:
-> For all the machines we care it does. If a maintainer refuses to acccept
-> that he or she is stupid.
+* Lee Revell <rlrevell@joe-job.com> wrote:
 
-I agree that pointer initialization is not really an issue but I do prefer 
-the C99 struct initializers over an kcalloc(1, sizeof(*p)) call. 
+> Ingo, what's the status of putting irq 0 back in a thread with 
+> PREEMPT_RT?  IIRC this had some adverse (maybe unfixable?) effects so 
+> it was disabled a few months ago.
 
-Is this something you don't want for freevxfs or filesystems in general? 
-Should it be removed from NTFS as well? 
+the jury is still out on that one - but right now it seems it's too much 
+complexity for a handful of usecs of latency improvement. Especially 
+with things like high-resolution timer support, the threading IRQ0 
+doesnt seem to be worth it.
 
-			Pekka 
+	Ingo

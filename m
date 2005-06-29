@@ -1,89 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262605AbVF2Qez@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262602AbVF2QoN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262605AbVF2Qez (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 12:34:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262598AbVF2Qey
+	id S262602AbVF2QoN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 12:44:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262612AbVF2QoN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 12:34:54 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:63738 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262606AbVF2QeO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 12:34:14 -0400
-Date: Wed, 29 Jun 2005 11:34:08 -0500
-To: Andi Kleen <ak@muc.de>
-Cc: linux-kernel@vger.kernel.org,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       long <tlnguyen@snoqualmie.dp.intel.com>,
-       Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
-       Greg KH <greg@kroah.com>, Paul Mackerras <paulus@samba.org>,
-       linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, johnrose@us.ibm.com
-Subject: Re: [PATCH 7/13]: PCI Err: Symbios SCSI  driver recovery
-Message-ID: <20050629163408.GI28499@austin.ibm.com>
-References: <20050628235919.GA6415@austin.ibm.com> <20050629030237.GB71992@muc.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050629030237.GB71992@muc.de>
-User-Agent: Mutt/1.5.6+20040818i
-From: Linas Vepstas <linas@austin.ibm.com>
+	Wed, 29 Jun 2005 12:44:13 -0400
+Received: from mail.gmx.de ([213.165.64.20]:32466 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262602AbVF2Qes (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 12:34:48 -0400
+Date: Wed, 29 Jun 2005 18:34:46 +0200 (MEST)
+From: "Michael Kerrisk" <mtk-lkml@gmx.net>
+To: Robert Love <rml@novell.com>
+Cc: adi@hexapodia.org, samuel.thibault@ens-lyon.org,
+       linux-kernel@vger.kernel.org, mtk-lists@gmx.net
+MIME-Version: 1.0
+References: <1119983300.6745.1.camel@betsy>
+Subject: =?ISO-8859-1?Q?Re:_wrong_madvise(MADV_DONTNEED)_semantic?=
+X-Priority: 3 (Normal)
+X-Authenticated: #23581172
+Message-ID: <15933.1120062886@www35.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 29, 2005 at 05:02:37AM +0200, Andi Kleen was heard to remark:
-> On Tue, Jun 28, 2005 at 06:59:19PM -0500, Linas Vepstas wrote:
-> > 
-> > pci-err-7-symbios.patch
-> > 
-> > Adds PCI Error recoervy callbacks to the Symbios Sym53c8xx driver.
-> > Tested, seems to work well under i/o stress to one disk. Not
-> > stress tested under heavy i/o to multiple scsi devices.
+> On Tue, 2005-06-28 at 11:16 -0700, Andy Isaacson wrote:
 > 
-> What does this do to the IO requests currently being processed
-> by the firmware? Do they get all aborted? Is it ensured
-> that they all error out properly? 
+> > Besides, if you read the documentation closely, it does not say what 
+> > you
+> > think it says.
+> > 
+> >        MADV_DONTNEED
+> > 	      Do not expect access in the near future.  (For the time
+> > 	      being, the application is finished with the given range,
+> > 	      so the kernel can free resources associated with it.)
+> > 	      Subsequent accesses of pages in this range will succeed,
+> > 	      but will result either in reloading of the memory contents
+> > 	      from the underlying mapped file (see mmap) or
+> > 	      zero-fill-on-demand pages for mappings without an
+> > 	      underlying file.
+> > 
+> > You seem to think that "reloading ... from the underlying mapped file"
+> > means that changes are lost, but that's not implied.
+> 
+> This wording _does_ imply that changes are lost if the file is mapped
+> writable and not mysnc'ed or if the memory mapping is anonymous.
 
-Interesting question; two replies.
+A little late into this thread, but...
 
->From the hardware point of view, the scsi card is soft-reset, which
-wipes out all state on the card, including any command queues on the
-card.  In-progress transactions, e.g. disk drives in the middle of
-receiving commands or in the process of responding to reads, are lost.
-The freshly rebooted scsi controller may wonder why disks are suddenly
-sending it data. 
+Indeed it does imply that, because that was what I understood
+when (IIRC) I wrote that text in the man page.
 
-This may sound alarming, but it not much different than the existing
-standard/generic SCSI bus-reset/host resest sequences, which I
-beleive (hope) work correctly.  In particular, there shouldn't be 
-any data corrpution; here's why:
+> In the former, changes are dropped and the file is reread from the stale
+> on-disk copy.  In the latter case, the data is dropped and the pages are
+> zero-filled on access.
 
->From the kernel point of view, file system i/o goes through the block 
-device, through to scsi_dispatch_cmd(), to the symbios driver.  
-Any queued requests stay queued until they are fulfilled.  Queued
-requests get replayed, in a fashion similar to what would be needed
-after a host reset.  In particular, there shouldn't be and (permanent)
-file system corruption because any inconsistent state on the disk 
-would get over-written when the queued reqeusts get re-issued.
+Yes.
 
-At least, that's how i think it should work.  My testing was light ...
-inject errors while doing mild single-disk i/o.  Haven't run any
-full stress tests, with would e.g. write patterns to multiple disks
-and then read back the patterns and bit-compare.   Someday, I hope to 
-run this test :) However, if this reveals bugs, I beleive these will 
-be generic bugs, rather than PCI error recovery related bugs.
+Cheers,
 
-FWIW, yes, I have heard of devices that "cheat", and report back that a
-transaction is complete, even though it is still pending in firmware
-somewhere, either  on the host or the disk.  Those devices get screwed.
+Michael
 
-No doubt, this will happen to some giant banking customer, and result
-in the corruption of serious financial data.  There will be hundreds 
-of airplane trips as dozens of techies will be hunched over the system 
-wondering "what happened" while executives fume in the corner,
-threatening billion dollar lawsuits. The net output of this will be
-a one-line patch to drivers/scsi/scsi_lib.c which will be lost in the
-noise of the LKML.  Shit happens.
-
---linas
-
-
+-- 
+5 GB Mailbox, 50 FreeSMS http://www.gmx.net/de/go/promail
++++ GMX - die erste Adresse für Mail, Message, More +++

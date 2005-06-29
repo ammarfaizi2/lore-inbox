@@ -1,70 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262222AbVF2AmC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262376AbVF2BBn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262222AbVF2AmC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 20:42:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262371AbVF2AkV
+	id S262376AbVF2BBn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 21:01:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262380AbVF2BAj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 20:40:21 -0400
-Received: from mta08-winn.ispmail.ntl.com ([81.103.221.48]:41575 "EHLO
-	mta08-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S262324AbVF2ABX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 20:01:23 -0400
-Message-ID: <42C1E5CA.6060507@gentoo.org>
-Date: Wed, 29 Jun 2005 01:05:30 +0100
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050403)
-X-Accept-Language: en-us, en
+	Tue, 28 Jun 2005 21:00:39 -0400
+Received: from natsmtp00.rzone.de ([81.169.145.165]:12979 "EHLO
+	natsmtp00.rzone.de") by vger.kernel.org with ESMTP id S262376AbVF2ApF convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 20:45:05 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [PATCH] net: add driver for the NIC on Cell Blades
+Date: Wed, 29 Jun 2005 02:38:58 +0200
+User-Agent: KMail/1.7.2
+Cc: Jeff Garzik <jgarzik@pobox.com>, netdev@vger.kernel.org,
+       linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
+       Jens Osterkamp <Jens.Osterkamp@de.ibm.com>,
+       Utz Bacher <utz.bacher@de.ibm.com>
+References: <200506281528.08834.arnd@arndb.de> <1119966799.3175.32.camel@laptopd505.fenrus.org>
+In-Reply-To: <1119966799.3175.32.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-To: davej@codemonkey.org.uk
-Cc: ak@suse.de, linux-kernel@vger.kernel.org, sfudally@fau.edu
-Subject: [PATCH] amd64-agp: Add SIS760 PCI ID
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------080308020209010705030502"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200506290238.59231.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080308020209010705030502
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+On Dinsdag 28 Juni 2005 15:53, Arjan van de Ven wrote:
+> 
+> > +static void
+> > +spider_net_rx_irq_off(struct spider_net_card *card)
+> > +{
+> > +       u32 regvalue;
+> > +       unsigned long flags;
+> > +
+> > +       spin_lock_irqsave(&card->intmask_lock, flags);
+> > +       regvalue = spider_net_read_reg(card, SPIDER_NET_GHIINT0MSK);
+> > +       regvalue &= ~SPIDER_NET_RXINT;
+> > +       spider_net_write_reg(card, SPIDER_NET_GHIINT0MSK, regvalue);
+> > +       spin_unlock_irqrestore(&card->intmask_lock, flags);
+> > +}
+> 
+> I think you have a PCI posting bug here....
 
-From: Scott Fudally <sfudally@fau.edu>
+Could you be more specific? My guess would be that the 'sync' in writel
+takes care of this. Should there be an extra mmiowb() in here or are
+you referring to some other problem?
 
-This patch adds the SiS 760 ID to the amd64-agp driver, so that agpgart can be
-used on Athlon64 boards based on this chip.
-
-Scott already submitted this but did not recieve any response. To ensure it
-has been sent in correctly, I am resubmitting this now on his behalf.
-
-Signed-off-by: Daniel Drake <dsd@gentoo.org>
-
-
---------------080308020209010705030502
-Content-Type: text/x-patch;
- name="sis760-agp.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="sis760-agp.patch"
-
---- linux/drivers/char/agp/amd64-agp.c.orig	2005-06-29 00:54:37.000000000 +0100
-+++ linux/drivers/char/agp/amd64-agp.c	2005-06-29 00:56:16.000000000 +0100
-@@ -686,6 +686,15 @@ static struct pci_device_id agp_amd64_pc
- 	.subvendor	= PCI_ANY_ID,
- 	.subdevice	= PCI_ANY_ID,
- 	},
-+	/* SIS 760 */
-+	{
-+	.class		= (PCI_CLASS_BRIDGE_HOST << 8),
-+	.class_mask	= ~0,
-+	.vendor		= PCI_VENDOR_ID_SI,
-+	.device		= PCI_DEVICE_ID_SI_760,
-+	.subvendor	= PCI_ANY_ID,
-+	.subdevice	= PCI_ANY_ID,
-+	},
- 	{ }
- };
- 
-
---------------080308020209010705030502--
+	Arnd <><

@@ -1,59 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261564AbVF2Q3K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262596AbVF2QaU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261564AbVF2Q3K (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 12:29:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262596AbVF2Q3K
+	id S262596AbVF2QaU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 12:30:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262598AbVF2QaU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 12:29:10 -0400
-Received: from colo.lackof.org ([198.49.126.79]:31420 "EHLO colo.lackof.org")
-	by vger.kernel.org with ESMTP id S261564AbVF2Q3B (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 12:29:01 -0400
-Date: Wed, 29 Jun 2005 10:33:10 -0600
-From: Grant Grundler <grundler@parisc-linux.org>
-To: Greg K-H <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       rajesh.shah@intel.com
-Subject: Re: [PATCH] acpi bridge hotadd: ACPI based root bridge hot-add
-Message-ID: <20050629163310.GA4753@colo.lackof.org>
-References: <11199367713428@kroah.com> <11199367721003@kroah.com>
+	Wed, 29 Jun 2005 12:30:20 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:5338 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262596AbVF2Q3q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 12:29:46 -0400
+Date: Wed, 29 Jun 2005 17:29:41 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Christian Zankel <chris@zankel.net>
+Cc: Arnd Bergmann <arnd@arndb.de>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: Xtensa syscalls (Was: Re: 2.6.12-rc5-mm1)
+Message-ID: <20050629162941.GA30237@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Christian Zankel <chris@zankel.net>, Arnd Bergmann <arnd@arndb.de>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20050525134933.5c22234a.akpm@osdl.org> <200505272313.20734.arnd@arndb.de> <20050528070714.GB17005@infradead.org> <200506291542.02618.arnd@arndb.de> <42C2CAB8.1080402@zankel.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <11199367721003@kroah.com>
-X-Home-Page: http://www.parisc-linux.org/
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <42C2CAB8.1080402@zankel.net>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 27, 2005 at 10:32:52PM -0700, Greg KH wrote:
-> [PATCH] acpi bridge hotadd: ACPI based root bridge hot-add
-> 
-> When you hot-plug a (root) bridge hierarchy, it may have p2p bridges and
-> devices attached to it that have not been configured by firmware.  In this
-> case, we need to configure the devices before starting them.  This patch
-> separates device start from device scan so that we can introduce the
-> configuration step in the middle.
+On Wed, Jun 29, 2005 at 09:22:16AM -0700, Christian Zankel wrote:
+> The question is, if we had to break glibc compatibility, shouldn't we 
+> use the opportunity to clean-up the syscall list? It was copied from 
+> MIPS and, thus, has inherited a lot of legacy from there. As a new 
+> architecture, maybe we should even go as far as removing all ni-syscalls 
+> and start fresh?
 
-PA-RISC must have been doing this before somehow.
-All PARISC boxen with PAT PDC firmware (A500/N- and L-Class) 
-have to deal with unconfigured PCI Bus devices at boot time.
-But I also have to confess I know PCI-PCI Bridge support is broken
-on those boxes for the past year... /o\
-(system will hard fail/crash if a PCI-PCI Bridge is installed)
-Normal add-on PCI cards get configured properly AFAICT. 
+Yes, that should be done for a new architecture.  Unfortunately very
+few people actually care.  Btw, what libcs do you have ported to xtensa?
 
-"Card-mode" Dino boxen also have to deal with unconfigured PCI devices.
-Just PCI-PCI bridges are never below a card-mode Dino.
-(Alternative is "built-in" dino - firmware initializes everything
-in this case including PCI-PCI Bridges.)
-
-
-> Also, I have no way of testing the changes I made to the parisc files, so this
-> needs review by those folks.  Sorry for the massive cross-post, this touches
-> files in many different places.
-
-That's fine...I'll clean it up when I get into ottawa in July and have
-reliable bandwidth. Thanks for the heads up.
-
-grant

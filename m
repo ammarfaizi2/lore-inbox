@@ -1,57 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261467AbVF2PtD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261498AbVF2Pym@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261467AbVF2PtD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 11:49:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbVF2PtD
+	id S261498AbVF2Pym (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 11:54:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbVF2Pym
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 11:49:03 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:9386 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S261467AbVF2Pst convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 11:48:49 -0400
-Date: Wed, 29 Jun 2005 11:48:25 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@localhost.localdomain
-Reply-To: rostedt@goodmis.org
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-cc: Denis Vlasenko <vda@ilport.com.ua>, Arjan van de Ven <arjan@infradead.org>,
+	Wed, 29 Jun 2005 11:54:42 -0400
+Received: from mail.fh-wedel.de ([213.39.232.198]:40359 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S261498AbVF2Pyk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 11:54:40 -0400
+Date: Wed, 29 Jun 2005 17:54:36 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Denis Vlasenko <vda@ilport.com.ua>, Arjan van de Ven <arjan@infradead.org>,
        Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
 Subject: Re: kmalloc without GFP_xxx?
-In-Reply-To: <20050629151053.GC2130@wohnheim.fh-wedel.de>
-Message-ID: <Pine.LNX.4.58.0506291141090.22775@localhost.localdomain>
-References: <200506291402.18064.vda@ilport.com.ua> <1120045024.3196.34.camel@laptopd505.fenrus.org>
- <Pine.LNX.4.58.0506290927370.22775@localhost.localdomain>
- <200506291714.32990.vda@ilport.com.ua> <20050629142317.GB2130@wohnheim.fh-wedel.de>
- <Pine.LNX.4.58.0506291046020.22775@localhost.localdomain>
- <20050629151053.GC2130@wohnheim.fh-wedel.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Message-ID: <20050629155436.GD2130@wohnheim.fh-wedel.de>
+References: <200506291402.18064.vda@ilport.com.ua> <1120045024.3196.34.camel@laptopd505.fenrus.org> <Pine.LNX.4.58.0506290927370.22775@localhost.localdomain> <200506291714.32990.vda@ilport.com.ua> <20050629142317.GB2130@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0506291046020.22775@localhost.localdomain> <20050629151053.GC2130@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0506291141090.22775@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.58.0506291141090.22775@localhost.localdomain>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 29 June 2005 11:48:25 -0400, Steven Rostedt wrote:
+> On Wed, 29 Jun 2005, Jörn Engel wrote:
+> 
+> > All nice and well.  But still, for the sake of simplicity and me not
+> > wanting to think, I prefer always using spin_lock_irqsave for
+> > everything.  Since when should I stop and think about my own code?
+> 
+> OK, I use spin_lock_irqsave first, and then I only use spin_lock when I
+> already know interrupts are off.  But the locks I usually use are used by
+> interrupts and that is reason enough to use it.  I wouldn't use the
+> _irqsave for simplicity, I use it since I still believe it keeps latency
+> down for SMP.
 
+Ok, before even more people get confused - I was joking.  Simple code
+is obviously a good thing to have.  Not thinking about code, well...
 
-On Wed, 29 Jun 2005, Jörn Engel wrote:
+> > In fact, why don't we all sit down and start using KCSP for kernel
+> > hacking? ;)
+> 
+> Naw, I'm doing my PhD on implemting Linux drivers in SmallTalk. That will
+> make everybody happy!
 
->
-> All nice and well.  But still, for the sake of simplicity and me not
-> wanting to think, I prefer always using spin_lock_irqsave for
-> everything.  Since when should I stop and think about my own code?
+... but it appears as if you got the joke.
 
-OK, I use spin_lock_irqsave first, and then I only use spin_lock when I
-already know interrupts are off.  But the locks I usually use are used by
-interrupts and that is reason enough to use it.  I wouldn't use the
-_irqsave for simplicity, I use it since I still believe it keeps latency
-down for SMP.
+Jörn
 
->
-> In fact, why don't we all sit down and start using KCSP for kernel
-> hacking? ;)
->
-
-Naw, I'm doing my PhD on implemting Linux drivers in SmallTalk. That will
-make everybody happy!
-
--- Steve
+-- 
+Public Domain  - Free as in Beer
+General Public - Free as in Speech
+BSD License    - Free as in Enterprise
+Shared Source  - Free as in "Work will make you..."

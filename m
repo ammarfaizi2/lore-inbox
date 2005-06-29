@@ -1,80 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262469AbVF2HhX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262476AbVF2Hj2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262469AbVF2HhX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 03:37:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262457AbVF2HhX
+	id S262476AbVF2Hj2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 03:39:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262457AbVF2Hhn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 03:37:23 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:54991 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262469AbVF2Hcc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 03:32:32 -0400
-Subject: Re: [PATCH] net: add driver for the NIC on Cell Blades
-From: Arjan van de Ven <arjan@infradead.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Jeff Garzik <jgarzik@pobox.com>, netdev@vger.kernel.org,
-       linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-       Jens Osterkamp <Jens.Osterkamp@de.ibm.com>,
-       Utz Bacher <utz.bacher@de.ibm.com>
-In-Reply-To: <200506290238.59231.arnd@arndb.de>
-References: <200506281528.08834.arnd@arndb.de>
-	 <1119966799.3175.32.camel@laptopd505.fenrus.org>
-	 <200506290238.59231.arnd@arndb.de>
-Content-Type: text/plain
-Date: Wed, 29 Jun 2005 09:32:25 +0200
-Message-Id: <1120030346.3196.21.camel@laptopd505.fenrus.org>
+	Wed, 29 Jun 2005 03:37:43 -0400
+Received: from main.gmane.org ([80.91.229.2]:31447 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S262473AbVF2Hd0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 03:33:26 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Matthias Urlichs <smurf@smurf.noris.de>
+Subject: Re: [PATCH 2/3] freevxfs: minor cleanups
+Date: Wed, 29 Jun 2005 09:32:20 +0200
+Organization: {M:U} IT Consulting
+Message-ID: <pan.2005.06.29.07.32.18.523132@smurf.noris.de>
+References: <iit0gm.lxobpl.5z2b9jduhy9fvx6tjxrco46v4.refire@cs.helsinki.fi> <iit0h1.q7pnex.bkir3xysppdufw6d9h65boz37.refire@cs.helsinki.fi> <20050628163114.6594e1e1.akpm@osdl.org> <1120018821.9658.4.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: run.smurf.noris.de
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
+X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-06-29 at 02:38 +0200, Arnd Bergmann wrote:
-> On Dinsdag 28 Juni 2005 15:53, Arjan van de Ven wrote:
-> > 
-> > > +static void
-> > > +spider_net_rx_irq_off(struct spider_net_card *card)
-> > > +{
-> > > +       u32 regvalue;
-> > > +       unsigned long flags;
-> > > +
-> > > +       spin_lock_irqsave(&card->intmask_lock, flags);
-> > > +       regvalue = spider_net_read_reg(card, SPIDER_NET_GHIINT0MSK);
-> > > +       regvalue &= ~SPIDER_NET_RXINT;
-> > > +       spider_net_write_reg(card, SPIDER_NET_GHIINT0MSK, regvalue);
-> > > +       spin_unlock_irqrestore(&card->intmask_lock, flags);
-> > > +}
-> > 
-> > I think you have a PCI posting bug here....
-> 
-> Could you be more specific? My guess would be that the 'sync' in writel
-> takes care of this. Should there be an extra mmiowb() in here or are
-> you referring to some other problem?
+Hi, Pekka Enberg wrote:
 
-different problem. the sync will get the byte out of the cpu. It won't
-get it out of the pci bridges...
+> The rationale for this is that since NULL is not guaranteed to be zero
+> by the C standard
 
-In short, pci bridges are allowed to buffer (post) writes until data
-traffic in the other direction happens (eg readl() or dma). 
+... as opposed to the other 632719 places in the kernel source where
+we do the exact same thing?
 
-In cases where you want your writel to hit the device instantly (and
-disabling irqs is generally one of those) you need to flush this posting
-cache with a dummy readl().
+If Linux ever gets ported to an architecture where NULL is not
+all-bits-zero, the resulting patch will be so damn huge that the
+cleanliness-or-not of freevxfs will be the *least* of our worries.
 
-http://ftp.linux.org.uk/pub/linux/willy/patches/debug-write.diff
+-- 
+Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
+Disclaimer: The quote was selected randomly. Really. | http://smurf.noris.de
+ - -
+You'd best be snoozin', 'cause you don't be gettin' no work done at 5 a.m.
+anyway.
+		-- From the wall of the Wurster Hall stairwell
 
-is a patch to simulate this behavior more agressive
 

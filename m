@@ -1,62 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261164AbVF2CtK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261267AbVF2DCk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261164AbVF2CtK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 22:49:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261178AbVF2CtK
+	id S261267AbVF2DCk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 23:02:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261622AbVF2DCk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 22:49:10 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:44455 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261164AbVF2CtF (ORCPT
+	Tue, 28 Jun 2005 23:02:40 -0400
+Received: from colin.muc.de ([193.149.48.1]:33287 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S261267AbVF2DCi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 22:49:05 -0400
-Date: Wed, 29 Jun 2005 04:49:03 +0200
-From: Andi Kleen <ak@suse.de>
-To: Christoph Lameter <christoph@lameter.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Read only syscall tables for x86_64 and i386
-Message-ID: <20050629024903.GA21575@bragg.suse.de>
-References: <Pine.LNX.4.62.0506281141050.959@graphe.net.suse.lists.linux.kernel> <p73r7emuvi1.fsf@verdi.suse.de> <Pine.LNX.4.62.0506281238320.1734@graphe.net>
+	Tue, 28 Jun 2005 23:02:38 -0400
+Date: 29 Jun 2005 05:02:37 +0200
+Date: Wed, 29 Jun 2005 05:02:37 +0200
+From: Andi Kleen <ak@muc.de>
+To: Linas Vepstas <linas@austin.ibm.com>
+Cc: linux-kernel@vger.kernel.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       long <tlnguyen@snoqualmie.dp.intel.com>,
+       Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
+       Greg KH <greg@kroah.com>, Paul Mackerras <paulus@samba.org>,
+       linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, johnrose@us.ibm.com
+Subject: Re: [PATCH 7/13]: PCI Err: Symbios SCSI  driver recovery
+Message-ID: <20050629030237.GB71992@muc.de>
+References: <20050628235919.GA6415@austin.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0506281238320.1734@graphe.net>
+In-Reply-To: <20050628235919.GA6415@austin.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 28, 2005 at 12:41:59PM -0700, Christoph Lameter wrote:
-> On Tue, 28 Jun 2005, Andi Kleen wrote:
+On Tue, Jun 28, 2005 at 06:59:19PM -0500, Linas Vepstas wrote:
 > 
-> > It's unfortunately useless because all the kernel is mapped in the
-> > same 2 or 4MB page has to be writable because it overlaps with real
-> > direct mapped memory.
+> pci-err-7-symbios.patch
 > 
-> The question is: Are syscall tables are supposed to be 
-> writable? If no then this patch should go in. If yes then forget about it.
+> Adds PCI Error recoervy callbacks to the Symbios Sym53c8xx driver.
+> Tested, seems to work well under i/o stress to one disk. Not
+> stress tested under heavy i/o to multiple scsi devices.
 
-I think it would make sense in theory to write protect them
-together with the kernel code and the modules
-(just to make root kit writing slightly harder)
-
-It is just that it is not practical on i386/x86-64 right now
-without undue performance impact for the main kernel. TLB pressure is 
-unfortunately quite performance critical and we cannot goof off on this.
-
-Write protecting the modules would be possible right now because 
-they're vmalloced, but might be a problem later if we move them to the 
-direct mapping again (that was a beneficial 2.4 optimization), so I am not sure
-it would be a good idea.
-
-BTW the kernel actually needs to write to code once
-to apply alternative(), but it would't be a problem to use
-a temporary mapping for this.
-
-> On IA64 they are readonly and so I thought they should also be readonly
-> on i386 and x86_64.
-> 
-> The ability to protect a readonly section may be another issue.
-
-Well, it's the overriding issue here. Just pretending it's readonly
-when it isn't doesn't seem useful.
+What does this do to the IO requests currently being processed
+by the firmware? Do they get all aborted? Is it ensured
+that they all error out properly? 
 
 -Andi
-

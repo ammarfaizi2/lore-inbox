@@ -1,57 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262384AbVF2BBm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262222AbVF2AmC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262384AbVF2BBm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 21:01:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262376AbVF2BBF
+	id S262222AbVF2AmC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 20:42:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262371AbVF2AkV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 21:01:05 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:59866 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262408AbVF2Atc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 20:49:32 -0400
-Date: Tue, 28 Jun 2005 17:50:26 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Rusty Lynch <rusty@linux.intel.com>
-Cc: davem@davemloft.net, linux-kernel@vger.kernel.org
-Subject: Re: recent kprobe work
-Message-Id: <20050628175026.1bc55101.akpm@osdl.org>
-In-Reply-To: <20050628214006.GA19157@linux.jf.intel.com>
-References: <20050628.140136.57453291.davem@davemloft.net>
-	<20050628214006.GA19157@linux.jf.intel.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 28 Jun 2005 20:40:21 -0400
+Received: from mta08-winn.ispmail.ntl.com ([81.103.221.48]:41575 "EHLO
+	mta08-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S262324AbVF2ABX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 20:01:23 -0400
+Message-ID: <42C1E5CA.6060507@gentoo.org>
+Date: Wed, 29 Jun 2005 01:05:30 +0100
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050403)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: davej@codemonkey.org.uk
+Cc: ak@suse.de, linux-kernel@vger.kernel.org, sfudally@fau.edu
+Subject: [PATCH] amd64-agp: Add SIS760 PCI ID
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------080308020209010705030502"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Lynch <rusty@linux.intel.com> wrote:
->
-> On Tue, Jun 28, 2005 at 02:01:36PM -0700, David S. Miller wrote:
-> > 
-> > Can the folks submitting all of the kprobe stuff at least consult me
-> > when they can't figure out how to implement the sparc64 kprobe variant
-> > for new features?
-> > 
-> > Currently, the sparc64 build is broken by recent kprobe
-> > changes:
-> > 
-> > kernel/built-in.o: In function `init_kprobes':
-> > : undefined reference to `arch_init'
-> > 
-> > Also, can we use a more namespace friendly name for this kprobe layer
-> > specific function other than "arch_init()"?
-> > 
-> > Thanks.
-> 
-> Sorry, just an oversight.  We have several arch_* functions, maybe we should
-> start using kprobes_arch_* instead.
-> 
+This is a multi-part message in MIME format.
+--------------080308020209010705030502
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Absolutely - please send a patch once Dave's fix is merged up.
+From: Scott Fudally <sfudally@fau.edu>
 
-Dave: sorry, I would have caught the missing reference except I'm totally
-averse to `make allfooconfig' on non-x86[_64] architectures because so much
-stuff simply doesn't work.
+This patch adds the SiS 760 ID to the amd64-agp driver, so that agpgart can be
+used on Athlon64 boards based on this chip.
 
-But lo.  It does work on sparc64.
+Scott already submitted this but did not recieve any response. To ensure it
+has been sent in correctly, I am resubmitting this now on his behalf.
+
+Signed-off-by: Daniel Drake <dsd@gentoo.org>
+
+
+--------------080308020209010705030502
+Content-Type: text/x-patch;
+ name="sis760-agp.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="sis760-agp.patch"
+
+--- linux/drivers/char/agp/amd64-agp.c.orig	2005-06-29 00:54:37.000000000 +0100
++++ linux/drivers/char/agp/amd64-agp.c	2005-06-29 00:56:16.000000000 +0100
+@@ -686,6 +686,15 @@ static struct pci_device_id agp_amd64_pc
+ 	.subvendor	= PCI_ANY_ID,
+ 	.subdevice	= PCI_ANY_ID,
+ 	},
++	/* SIS 760 */
++	{
++	.class		= (PCI_CLASS_BRIDGE_HOST << 8),
++	.class_mask	= ~0,
++	.vendor		= PCI_VENDOR_ID_SI,
++	.device		= PCI_DEVICE_ID_SI_760,
++	.subvendor	= PCI_ANY_ID,
++	.subdevice	= PCI_ANY_ID,
++	},
+ 	{ }
+ };
+ 
+
+--------------080308020209010705030502--

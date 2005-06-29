@@ -1,56 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262629AbVF2UmF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262641AbVF2Unv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262629AbVF2UmF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 16:42:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262626AbVF2UmE
+	id S262641AbVF2Unv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 16:43:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262633AbVF2Unv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 16:42:04 -0400
-Received: from smtp-1.llnl.gov ([128.115.250.81]:58361 "EHLO smtp-1.llnl.gov")
-	by vger.kernel.org with ESMTP id S262629AbVF2Ul6 (ORCPT
+	Wed, 29 Jun 2005 16:43:51 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:22217 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262631AbVF2Und (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 16:41:58 -0400
-Date: Wed, 29 Jun 2005 13:41:57 -0700 (PDT)
-From: Chuck Harding <charding@llnl.gov>
-Subject: Re: Realtime Preemption - 2.6.12-final-RT-V0.7.50-35
-In-reply-to: <20050629192916.GA6079@elte.hu>
-To: Linux Kernel Discussion List <linux-kernel@vger.kernel.org>
-Message-id: <Pine.LNX.4.63.0506291333420.22748@ghostwheel.llnl.gov>
-Organization: Lawrence Livermore National Laboratory
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-Content-transfer-encoding: 7BIT
-User-Agent: Pine/4.62 (X11; U; Linux i686; en-US; rv:2.6.11-rc2-mm1)
-References: <Pine.LNX.4.63.0506291005390.4929@ghostwheel.llnl.gov>
- <20050629192916.GA6079@elte.hu>
+	Wed, 29 Jun 2005 16:43:33 -0400
+Subject: [PATCH] selinux_sb_copy_data should not require a whole page
+From: Eric Paris <eparis@parisplace.org>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Wed, 29 Jun 2005 16:46:56 -0400
+Message-Id: <1120078016.9967.34.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Jun 2005, Ingo Molnar wrote:
+Currently selinux_sb_copy_data requires an entire page be allocated to
+*orig when the function is called.  This "requirement" is based on the
+fact that we call copy_page(in_save, nosec_save) and in_save = orig when
+the data is not FS_BINARY_MOUNTDATA.  This means that if a caller were
+to call do_kern_mount with only about 10 bytes of options, they would
+get passed here and then we would corrupt PAGE_SIZE - 10 bytes of memory
+(with all zeros.)  
 
->
-> * Chuck Harding <charding@llnl.gov> wrote:
->
->> still having sox hang with no messages about what is going on. I have
->> CONFIG_DEBUG_PREEMPT enabled. It did work without hanging for about 50
->> times of playing a sound file, so the problem seems to take a bit of
->> time to develop. What other info would you need to figure this out?
->
-> could you chrt the sound IRQ thread to SCHED_OTHER (audio performance
-> will suck, but it will be more debuggable) - when the lockup happens, do
-> you see the IRQ thread looping? Do you have SOFTLOCKUP_DETECT turned on
-> too?
->
-> 	Ingo
+Currently it appears all in kernel FS's use one page of data so this has
+not been a problem.  An out of kernel FS did just what is described
+above and it would almost always panic shortly after they tried to
+mount.  From looking else where in the kernel it is obvious that this
+string of data must always be null terminated.  (See example in do_mount
+where it always zeros the last byte.)  Thus I suggest we use strcpy in
+place of copy_page.  In this way we make sure the amount we copy is
+always less than or equal to the amount we received and since do_mount
+is zeroing the last byte this should be safe for all.
 
-Did that, the IRQ thread is not looping, it doesn't seem to be using any
-CPU at all. And I do have SOFTLOCKUP_DETECT on.
+-Eric
 
-(PS, I am subbed to the list so please, no need to CC me. Thanks)
+Signed-off-by: Eric Paris <eparis@parisplace.org>
 
--- 
-Charles D. (Chuck) Harding <charding@llnl.gov>  Voice: 925-423-8879
-Senior Computer Associate         ICCD            Fax: 925-423-6961
-Lawrence Livermore National Laboratory      Computation Directorate
-Livermore, CA USA  http://www.llnl.gov  GPG Public Key ID: B9EB6601
------------------- http://tinyurl.com/5w5ey -----------------------
--- Oxymoron: Weather Forecast. --
+--- linux-2.6.12.1/security/selinux/hooks.c.eric	2005-06-29 14:48:54.000000000 -0400
++++ linux-2.6.12.1/security/selinux/hooks.c	2005-06-29 14:50:38.000000000 -0400
+@@ -68,6 +68,7 @@
+ #include <linux/personality.h>
+ #include <linux/sysctl.h>
+ #include <linux/audit.h>
++#include <linux/string.h>
+ 
+ #include "avc.h"
+ #include "objsec.h"
+@@ -1943,7 +1944,7 @@ static int selinux_sb_copy_data(struct f
+ 		}
+ 	} while (*in_end++);
+ 
+-	copy_page(in_save, nosec_save);
++	strcpy(in_save, nosec_save);
+ 	free_page((unsigned long)nosec_save);
+ out:
+ 	return rc;
+
+

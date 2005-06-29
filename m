@@ -1,53 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262376AbVF2BBn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262375AbVF2BEs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262376AbVF2BBn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 21:01:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262380AbVF2BAj
+	id S262375AbVF2BEs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 21:04:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262388AbVF2BCI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 21:00:39 -0400
-Received: from natsmtp00.rzone.de ([81.169.145.165]:12979 "EHLO
-	natsmtp00.rzone.de") by vger.kernel.org with ESMTP id S262376AbVF2ApF convert rfc822-to-8bit
+	Tue, 28 Jun 2005 21:02:08 -0400
+Received: from zproxy.gmail.com ([64.233.162.194]:37203 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262394AbVF2A5Z convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 20:45:05 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [PATCH] net: add driver for the NIC on Cell Blades
-Date: Wed, 29 Jun 2005 02:38:58 +0200
-User-Agent: KMail/1.7.2
-Cc: Jeff Garzik <jgarzik@pobox.com>, netdev@vger.kernel.org,
-       linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-       Jens Osterkamp <Jens.Osterkamp@de.ibm.com>,
-       Utz Bacher <utz.bacher@de.ibm.com>
-References: <200506281528.08834.arnd@arndb.de> <1119966799.3175.32.camel@laptopd505.fenrus.org>
-In-Reply-To: <1119966799.3175.32.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Tue, 28 Jun 2005 20:57:25 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=OQQLs4ZbqXFpfEnGW2a1F2Zr3xPMZ59Ylub3u0ypaoXMUdYC7nhrn9ekJ1FuqtU4UiUl1LWKwDTynD02jZLwkPPUcotq+EWYeSFwuEiU44gPv6NEu9s+S0yOqX+tVmOzGVvrwtLLyaFjo1csIbTHpq7xsoUD8MbZbby0hGn+ruM=
+Message-ID: <516d7fa80506281757188b2fda@mail.gmail.com>
+Date: Wed, 29 Jun 2005 00:57:21 +0000
+From: Mike Richards <mrmikerich@gmail.com>
+Reply-To: Mike Richards <mrmikerich@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Swap partition vs swap file
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200506290238.59231.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dinsdag 28 Juni 2005 15:53, Arjan van de Ven wrote:
-> 
-> > +static void
-> > +spider_net_rx_irq_off(struct spider_net_card *card)
-> > +{
-> > +       u32 regvalue;
-> > +       unsigned long flags;
-> > +
-> > +       spin_lock_irqsave(&card->intmask_lock, flags);
-> > +       regvalue = spider_net_read_reg(card, SPIDER_NET_GHIINT0MSK);
-> > +       regvalue &= ~SPIDER_NET_RXINT;
-> > +       spider_net_write_reg(card, SPIDER_NET_GHIINT0MSK, regvalue);
-> > +       spin_unlock_irqrestore(&card->intmask_lock, flags);
-> > +}
-> 
-> I think you have a PCI posting bug here....
+Is there any significant difference these days between a swap
+partition and a swap file?
 
-Could you be more specific? My guess would be that the 'sync' in writel
-takes care of this. Should there be an extra mmiowb() in here or are
-you referring to some other problem?
+An exhaustive Google search turns up several conflicting answers. The
+consensus seems to be that a swap partition is more efficient than a
+swap file, but whether or not the difference is noteworthy is never
+definitively answered.
 
-	Arnd <><
+For the sake of argument, let's assume you've got modern hardware with
+ample RAM and a recent kernel (a late 2.4.x or 2.6.x), and that under
+normal conditions you never seeing more than 50-100MB of swap used.
+
+Given this situation, is there any significant performance or
+stability advantage to using a swap partition instead of a swap file?

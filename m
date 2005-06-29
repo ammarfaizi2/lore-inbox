@@ -1,1504 +1,371 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262637AbVF2VKB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262607AbVF2VMn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262637AbVF2VKB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 17:10:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262549AbVF2VKB
+	id S262607AbVF2VMn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 17:12:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262676AbVF2VMF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 17:10:01 -0400
-Received: from mail.dif.dk ([193.138.115.101]:61363 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S262655AbVF2U6i (ORCPT
+	Wed, 29 Jun 2005 17:12:05 -0400
+Received: from mail.dif.dk ([193.138.115.101]:41908 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S262607AbVF2VJz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 16:58:38 -0400
-Date: Wed, 29 Jun 2005 23:04:29 +0200 (CEST)
+	Wed, 29 Jun 2005 17:09:55 -0400
+Date: Wed, 29 Jun 2005 23:15:55 +0200 (CEST)
 From: Jesper Juhl <juhl@dif.dk>
 Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] clean up  inline static  vs  static inline  
-Message-ID: <Pine.LNX.4.62.0506292256280.2998@dragon.hyggekrogen.localhost>
+Subject: Re: [PATCH] clean up  inline static  vs  static inline  
+In-Reply-To: <Pine.LNX.4.62.0506292256280.2998@dragon.hyggekrogen.localhost>
+Message-ID: <Pine.LNX.4.62.0506292310450.2998@dragon.hyggekrogen.localhost>
+References: <Pine.LNX.4.62.0506292256280.2998@dragon.hyggekrogen.localhost>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-581567288-1120079755=:2998"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-Andrew, I know you generally don't want to take patches for stuff that 
-only fixes gcc -W warnings except through maintainers, but this one I 
-found to be so obviously correct that I desided to take the chance anyway 
-- especially since you've taken patches like this one in the past. :-)
-Lets merge this and get rid of this little annoyance once and for all.
+--8323328-581567288-1120079755=:2998
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-gcc likes to complain if the static keyword is not at the beginning of the 
-declaration. This patch fixes all remaining occurrences of "inline static" 
-up with "static inline" in the entire kernel tree (140 occurrences in 47 
-files).
-While making this change I came across a few lines with trailing 
-whitespace that I also fixed up, I have also added or removed a blank line 
-or two here and there, but there are no functional changes in the patch.
+On Wed, 29 Jun 2005, Jesper Juhl wrote:
+
+> 
+> Andrew, I know you generally don't want to take patches for stuff that 
+> only fixes gcc -W warnings except through maintainers, but this one I 
+> found to be so obviously correct that I desided to take the chance anyway 
+> - especially since you've taken patches like this one in the past. :-)
+> Lets merge this and get rid of this little annoyance once and for all.
+> 
+> gcc likes to complain if the static keyword is not at the beginning of the 
+> declaration. This patch fixes all remaining occurrences of "inline static" 
+> up with "static inline" in the entire kernel tree (140 occurrences in 47 
+> files).
+> While making this change I came across a few lines with trailing 
+> whitespace that I also fixed up, I have also added or removed a blank line 
+> or two here and there, but there are no functional changes in the patch.
+> 
+
+Whoops, forgot the Signed-off-by and diffstat - here they are : 
+
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+---
+
+ arch/ia64/sn/include/pci/pcibr_provider.h |    2 +-
+ crypto/aes.c                              |    2 +-
+ drivers/cdrom/optcd.c                     |   28 ++++++++++++++--------------
+ drivers/char/ipmi/ipmi_si_intf.c          |    2 +-
+ drivers/ide/pci/cmd640.c                  |    2 +-
+ drivers/isdn/hisax/avm_a1.c               |    2 +-
+ drivers/isdn/hisax/isdnl2.c               |    2 +-
+ drivers/isdn/hisax/teles3.c               |    2 +-
+ drivers/md/md.c                           |    2 +-
+ drivers/media/radio/radio-maestro.c       |    4 ++--
+ drivers/media/radio/radio-maxiradio.c     |    2 +-
+ drivers/mmc/wbsd.c                        |    2 +-
+ drivers/net/3c505.c                       |    2 +-
+ drivers/net/plip.c                        |   29 ++++++++++++++---------------
+ drivers/net/via-velocity.h                |    4 ++--
+ drivers/net/wireless/airo.c               |    2 +-
+ drivers/oprofile/cpu_buffer.c             |   23 +++--------------------
+ drivers/s390/cio/qdio.c                   |   20 ++++++++++----------
+ drivers/s390/net/qeth.h                   |   26 +++++++++++++-------------
+ drivers/scsi/dc395x.c                     |    2 +-
+ drivers/scsi/fdomain.c                    |    2 +-
+ drivers/usb/image/microtek.c              |    3 +--
+ drivers/video/pm2fb.c                     |   16 ++++++++--------
+ fs/reiserfs/journal.c                     |    4 ++--
+ include/sound/vx_core.h                   |   16 ++++++++--------
+ kernel/time.c                             |    2 +-
+ net/core/pktgen.c                         |    2 +-
+ sound/core/seq/oss/seq_oss_device.h       |    6 +++---
+ sound/core/seq/seq_memory.c               |    4 ++--
+ sound/core/seq/seq_midi_event.c           |    2 +-
+ sound/drivers/serial-u16550.c             |   10 +++++-----
+ sound/isa/sb/emu8000_patch.c              |    2 +-
+ sound/oss/dmasound/dmasound_awacs.c       |    4 ++--
+ sound/pci/cmipci.c                        |   14 ++++++++------
+ sound/pci/cs4281.c                        |    2 +-
+ sound/pci/emu10k1/memory.c                |    2 +-
+ sound/pci/es1968.c                        |   12 ++++++------
+ sound/pci/maestro3.c                      |    8 ++++----
+ sound/pci/nm256/nm256.c                   |   16 ++++++++--------
+ sound/pci/trident/trident_main.c          |    2 +-
+ sound/pci/trident/trident_memory.c        |    2 +-
+ sound/pci/vx222/vx222_ops.c               |    4 ++--
+ sound/pcmcia/vx/vxp_ops.c                 |    2 +-
+ sound/ppc/burgundy.c                      |    4 ++--
+ sound/ppc/pmac.c                          |    8 ++++----
+ sound/usb/usbaudio.c                      |    8 ++++----
+ sound/usb/usbmixer.c                      |    4 ++--
+ 47 files changed, 152 insertions(+), 169 deletions(-)
 
 
---- linux-2.6.13-rc1-orig/arch/ia64/sn/include/pci/pcibr_provider.h	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc1/arch/ia64/sn/include/pci/pcibr_provider.h	2005-06-29 22:25:10.000000000 +0200
-@@ -114,7 +114,7 @@ struct pcibus_info {
- /*
-  * pcibus_info structure locking macros
-  */
--inline static unsigned long
-+static inline unsigned long
- pcibr_lock(struct pcibus_info *pcibus_info)
- {
- 	unsigned long flag;
---- linux-2.6.13-rc1-orig/crypto/aes.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc1/crypto/aes.c	2005-06-29 22:25:22.000000000 +0200
-@@ -67,7 +67,7 @@
- /*
-  * #define byte(x, nr) ((unsigned char)((x) >> (nr*8))) 
-  */
--inline static u8
-+static inline u8
- byte(const u32 x, const unsigned n)
- {
- 	return x >> (n << 3);
---- linux-2.6.13-rc1-orig/drivers/cdrom/optcd.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc1/drivers/cdrom/optcd.c	2005-06-29 22:26:54.000000000 +0200
-@@ -245,7 +245,7 @@ module_param(optcd_port, short, 0);
- 
- 
- /* Busy wait until FLAG goes low. Return 0 on timeout. */
--inline static int flag_low(int flag, unsigned long timeout)
-+static inline int flag_low(int flag, unsigned long timeout)
- {
- 	int flag_high;
- 	unsigned long count = 0;
-@@ -381,7 +381,7 @@ static int send_seek_params(struct cdrom
- 
- /* Wait for command execution status. Choice between busy waiting
-    and sleeping. Return value <0 indicates timeout. */
--inline static int get_exec_status(int busy_waiting)
-+static inline int get_exec_status(int busy_waiting)
- {
- 	unsigned char exec_status;
- 
-@@ -398,7 +398,7 @@ inline static int get_exec_status(int bu
- 
- /* Wait busy for extra byte of data that a command returns.
-    Return value <0 indicates timeout. */
--inline static int get_data(int short_timeout)
-+static inline int get_data(int short_timeout)
- {
- 	unsigned char data;
- 
-@@ -441,14 +441,14 @@ static int reset_drive(void)
- /* Facilities for asynchronous operation */
- 
- /* Read status/data availability flags FL_STEN and FL_DTEN */
--inline static int stdt_flags(void)
-+static inline int stdt_flags(void)
- {
- 	return inb(STATUS_PORT) & FL_STDT;
- }
- 
- 
- /* Fetch status that has previously been waited for. <0 means not available */
--inline static int fetch_status(void)
-+static inline int fetch_status(void)
- {
- 	unsigned char status;
- 
-@@ -462,7 +462,7 @@ inline static int fetch_status(void)
- 
- 
- /* Fetch data that has previously been waited for. */
--inline static void fetch_data(char *buf, int n)
-+static inline void fetch_data(char *buf, int n)
- {
- 	insb(DATA_PORT, buf, n);
- 	DEBUG((DEBUG_DRIVE_IF, "fetched 0x%x bytes", n));
-@@ -470,7 +470,7 @@ inline static void fetch_data(char *buf,
- 
- 
- /* Flush status and data fifos */
--inline static void flush_data(void)
-+static inline void flush_data(void)
- {
- 	while ((inb(STATUS_PORT) & FL_STDT) != FL_STDT)
- 		inb(DATA_PORT);
-@@ -482,7 +482,7 @@ inline static void flush_data(void)
- 
- /* Send a simple command and wait for response. Command codes < COMFETCH
-    are quick response commands */
--inline static int exec_cmd(int cmd)
-+static inline int exec_cmd(int cmd)
- {
- 	int ack = send_cmd(cmd);
- 	if (ack < 0)
-@@ -493,7 +493,7 @@ inline static int exec_cmd(int cmd)
- 
- /* Send a command with parameters. Don't wait for the response,
-  * which consists of data blocks read from the CD. */
--inline static int exec_read_cmd(int cmd, struct cdrom_msf *params)
-+static inline int exec_read_cmd(int cmd, struct cdrom_msf *params)
- {
- 	int ack = send_cmd(cmd);
- 	if (ack < 0)
-@@ -503,7 +503,7 @@ inline static int exec_read_cmd(int cmd,
- 
- 
- /* Send a seek command with parameters and wait for response */
--inline static int exec_seek_cmd(int cmd, struct cdrom_msf *params)
-+static inline int exec_seek_cmd(int cmd, struct cdrom_msf *params)
- {
- 	int ack = send_cmd(cmd);
- 	if (ack < 0)
-@@ -516,7 +516,7 @@ inline static int exec_seek_cmd(int cmd,
- 
- 
- /* Send a command with parameters and wait for response */
--inline static int exec_long_cmd(int cmd, struct cdrom_msf *params)
-+static inline int exec_long_cmd(int cmd, struct cdrom_msf *params)
- {
- 	int ack = exec_read_cmd(cmd, params);
- 	if (ack < 0)
-@@ -528,7 +528,7 @@ inline static int exec_long_cmd(int cmd,
- 
- 
- /* Binary to BCD (2 digits) */
--inline static void single_bin2bcd(u_char *p)
-+static inline void single_bin2bcd(u_char *p)
- {
- 	DEBUG((DEBUG_CONV, "bin2bcd %02d", *p));
- 	*p = (*p % 10) | ((*p / 10) << 4);
-@@ -565,7 +565,7 @@ static void lba2msf(int lba, struct cdro
- 
- 
- /* Two BCD digits to binary */
--inline static u_char bcd2bin(u_char bcd)
-+static inline u_char bcd2bin(u_char bcd)
- {
- 	DEBUG((DEBUG_CONV, "bcd2bin %x%02x", bcd));
- 	return (bcd >> 4) * 10 + (bcd & 0x0f);
-@@ -988,7 +988,7 @@ static char buf[CD_FRAMESIZE * N_BUFS];
- static volatile int buf_bn[N_BUFS], next_bn;
- static volatile int buf_in = 0, buf_out = NOBUF;
- 
--inline static void opt_invalidate_buffers(void)
-+static inline void opt_invalidate_buffers(void)
- {
- 	int i;
- 
---- linux-2.6.13-rc1-orig/drivers/char/ipmi/ipmi_si_intf.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc1/drivers/char/ipmi/ipmi_si_intf.c	2005-06-29 22:27:06.000000000 +0200
-@@ -1726,7 +1726,7 @@ static int dmi_table(u32 base, int len, 
- 	return status;
- }
- 
--inline static int dmi_checksum(u8 *buf)
-+static inline int dmi_checksum(u8 *buf)
- {
- 	u8   sum=0;
- 	int  a;
---- linux-2.6.13-rc1-orig/drivers/ide/pci/cmd640.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc1/drivers/ide/pci/cmd640.c	2005-06-29 22:27:20.000000000 +0200
-@@ -487,7 +487,7 @@ static void display_clocks (unsigned int
-  * Pack active and recovery counts into single byte representation
-  * used by controller
-  */
--inline static u8 pack_nibbles (u8 upper, u8 lower)
-+static inline u8 pack_nibbles (u8 upper, u8 lower)
- {
- 	return ((upper & 0x0f) << 4) | (lower & 0x0f);
- }
---- linux-2.6.13-rc1-orig/drivers/isdn/hisax/avm_a1.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc1/drivers/isdn/hisax/avm_a1.c	2005-06-29 22:27:33.000000000 +0200
-@@ -135,7 +135,7 @@ avm_a1_interrupt(int intno, void *dev_id
- 	return IRQ_HANDLED;
- }
- 
--inline static void
-+static inline void
- release_ioregs(struct IsdnCardState *cs, int mask)
- {
- 	release_region(cs->hw.avm.cfg_reg, 8);
---- linux-2.6.13-rc1-orig/drivers/isdn/hisax/isdnl2.c	2005-06-29 21:44:51.000000000 +0200
-+++ linux-2.6.13-rc1/drivers/isdn/hisax/isdnl2.c	2005-06-29 22:27:44.000000000 +0200
-@@ -212,7 +212,7 @@ sethdraddr(struct Layer2 *l2, u_char * h
- 	}
- }
- 
--inline static void
-+static inline void
- enqueue_super(struct PStack *st,
- 	      struct sk_buff *skb)
- {
---- linux-2.6.13-rc1-orig/drivers/isdn/hisax/teles3.c	2005-06-29 21:44:51.000000000 +0200
-+++ linux-2.6.13-rc1/drivers/isdn/hisax/teles3.c	2005-06-29 22:27:56.000000000 +0200
-@@ -143,7 +143,7 @@ teles3_interrupt(int intno, void *dev_id
- 	return IRQ_HANDLED;
- }
- 
--inline static void
-+static inline void
- release_ioregs(struct IsdnCardState *cs, int mask)
- {
- 	if (mask & 1)
---- linux-2.6.13-rc1-orig/drivers/md/md.c	2005-06-29 21:44:52.000000000 +0200
-+++ linux-2.6.13-rc1/drivers/md/md.c	2005-06-29 22:28:06.000000000 +0200
-@@ -284,7 +284,7 @@ static mdk_rdev_t * find_rdev(mddev_t * 
- 	return NULL;
- }
- 
--inline static sector_t calc_dev_sboffset(struct block_device *bdev)
-+static inline sector_t calc_dev_sboffset(struct block_device *bdev)
- {
- 	sector_t size = bdev->bd_inode->i_size >> BLOCK_SIZE_BITS;
- 	return MD_NEW_SIZE_BLOCKS(size);
---- linux-2.6.13-rc1-orig/drivers/media/radio/radio-maestro.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc1/drivers/media/radio/radio-maestro.c	2005-06-29 22:28:25.000000000 +0200
-@@ -154,7 +154,7 @@ static void radio_bits_set(struct radio_
- 	msleep(125);
- }
- 
--inline static int radio_function(struct inode *inode, struct file *file,
-+static inline int radio_function(struct inode *inode, struct file *file,
- 				 unsigned int cmd, void *arg)
- {
- 	struct video_device *dev = video_devdata(file);
-@@ -283,7 +283,7 @@ static int __init maestro_radio_init(voi
- module_init(maestro_radio_init);
- module_exit(maestro_radio_exit);
- 
--inline static __u16 radio_power_on(struct radio_device *dev)
-+static inline __u16 radio_power_on(struct radio_device *dev)
- {
- 	register __u16 io=dev->io;
- 	register __u32 ofreq;
---- linux-2.6.13-rc1-orig/drivers/media/radio/radio-maxiradio.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc1/drivers/media/radio/radio-maxiradio.c	2005-06-29 22:28:36.000000000 +0200
-@@ -166,7 +166,7 @@ static int get_tune(__u16 io)
- }
- 
- 
--inline static int radio_function(struct inode *inode, struct file *file,
-+static inline int radio_function(struct inode *inode, struct file *file,
- 				 unsigned int cmd, void *arg)
- {
- 	struct video_device *dev = video_devdata(file);
---- linux-2.6.13-rc1-orig/drivers/mmc/wbsd.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc1/drivers/mmc/wbsd.c	2005-06-29 22:28:48.000000000 +0200
-@@ -1054,7 +1054,7 @@ static struct mmc_host_ops wbsd_ops = {
-  * Tasklets
-  */
- 
--inline static struct mmc_data* wbsd_get_data(struct wbsd_host* host)
-+static inline struct mmc_data* wbsd_get_data(struct wbsd_host* host)
- {
- 	WARN_ON(!host->mrq);
- 	if (!host->mrq)
---- linux-2.6.13-rc1-orig/drivers/net/3c505.c	2005-06-29 21:44:56.000000000 +0200
-+++ linux-2.6.13-rc1/drivers/net/3c505.c	2005-06-29 22:28:58.000000000 +0200
-@@ -272,7 +272,7 @@ static inline void set_hsf(struct net_de
- 
- static int start_receive(struct net_device *, pcb_struct *);
- 
--inline static void adapter_reset(struct net_device *dev)
-+static inline void adapter_reset(struct net_device *dev)
- {
- 	unsigned long timeout;
- 	elp_device *adapter = dev->priv;
---- linux-2.6.13-rc1-orig/drivers/net/plip.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc1/drivers/net/plip.c	2005-06-29 22:32:39.000000000 +0200
-@@ -160,7 +160,7 @@ static struct net_device_stats *plip_get
- static int plip_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd);
- static int plip_preempt(void *handle);
- static void plip_wakeup(void *handle);
--
-+
- enum plip_connection_state {
- 	PLIP_CN_NONE=0,
- 	PLIP_CN_RECEIVE,
-@@ -231,8 +231,8 @@ struct net_local {
- 	atomic_t kill_timer;
- 	struct semaphore killed_timer_sem;
- };
--
--inline static void enable_parport_interrupts (struct net_device *dev)
-+
-+static inline void enable_parport_interrupts (struct net_device *dev)
- {
- 	if (dev->irq != -1)
- 	{
-@@ -242,7 +242,7 @@ inline static void enable_parport_interr
- 	}
- }
- 
--inline static void disable_parport_interrupts (struct net_device *dev)
-+static inline void disable_parport_interrupts (struct net_device *dev)
- {
- 	if (dev->irq != -1)
- 	{
-@@ -252,7 +252,7 @@ inline static void disable_parport_inter
- 	}
- }
- 
--inline static void write_data (struct net_device *dev, unsigned char data)
-+static inline void write_data (struct net_device *dev, unsigned char data)
- {
- 	struct parport *port =
- 	   ((struct net_local *)dev->priv)->pardev->port;
-@@ -260,14 +260,14 @@ inline static void write_data (struct ne
- 	port->ops->write_data (port, data);
- }
- 
--inline static unsigned char read_status (struct net_device *dev)
-+static inline unsigned char read_status (struct net_device *dev)
- {
- 	struct parport *port =
- 	   ((struct net_local *)dev->priv)->pardev->port;
- 
- 	return port->ops->read_status (port);
- }
--
-+
- /* Entry point of PLIP driver.
-    Probe the hardware, and register/initialize the driver.
- 
-@@ -316,7 +316,7 @@ plip_init_netdev(struct net_device *dev)
- 
- 	spin_lock_init(&nl->lock);
- }
--
-+
- /* Bottom half handler for the delayed request.
-    This routine is kicked by do_timer().
-    Request `plip_bh' to be invoked. */
-@@ -471,7 +471,7 @@ plip_bh_timeout_error(struct net_device 
- 
- 	return TIMEOUT;
- }
--
-+
- static int
- plip_none(struct net_device *dev, struct net_local *nl,
- 	  struct plip_local *snd, struct plip_local *rcv)
-@@ -481,7 +481,7 @@ plip_none(struct net_device *dev, struct
- 
- /* PLIP_RECEIVE --- receive a byte(two nibbles)
-    Returns OK on success, TIMEOUT on timeout */
--inline static int
-+static inline int
- plip_receive(unsigned short nibble_timeout, struct net_device *dev,
- 	     enum plip_nibble_state *ns_p, unsigned char *data_p)
- {
-@@ -582,7 +582,6 @@ static unsigned short plip_type_trans(st
- 	return htons(ETH_P_802_2);
- }
- 
--
- /* PLIP_RECEIVE_PACKET --- receive a packet */
- static int
- plip_receive_packet(struct net_device *dev, struct net_local *nl,
-@@ -702,7 +701,7 @@ plip_receive_packet(struct net_device *d
- 
- /* PLIP_SEND --- send a byte (two nibbles)
-    Returns OK on success, TIMEOUT when timeout    */
--inline static int
-+static inline int
- plip_send(unsigned short nibble_timeout, struct net_device *dev,
- 	  enum plip_nibble_state *ns_p, unsigned char data)
- {
-@@ -902,7 +901,7 @@ plip_error(struct net_device *dev, struc
- 
- 	return OK;
- }
--
-+
- /* Handle the parallel port interrupts. */
- static void
- plip_interrupt(int irq, void *dev_id, struct pt_regs * regs)
-@@ -957,7 +956,7 @@ plip_interrupt(int irq, void *dev_id, st
- 
- 	spin_unlock_irq(&nl->lock);
- }
--
-+
- static int
- plip_tx_packet(struct sk_buff *skb, struct net_device *dev)
- {
-@@ -1238,7 +1237,7 @@ plip_ioctl(struct net_device *dev, struc
- 	}
- 	return 0;
- }
--
-+
- static int parport[PLIP_MAX] = { [0 ... PLIP_MAX-1] = -1 };
- static int timid;
- 
---- linux-2.6.13-rc1-orig/drivers/net/via-velocity.h	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc1/drivers/net/via-velocity.h	2005-06-29 22:33:03.000000000 +0200
-@@ -1414,7 +1414,7 @@ static inline void mac_get_cam(struct ma
-  *	the rest of the logic from the result of sleep/wakeup
-  */
- 
--inline static void mac_wol_reset(struct mac_regs __iomem * regs)
-+static inline void mac_wol_reset(struct mac_regs __iomem * regs)
- {
- 
- 	/* Turn off SWPTAG right after leaving power mode */
-@@ -1811,7 +1811,7 @@ struct velocity_info {
-  *	CHECK ME: locking
-  */
- 
--inline static int velocity_get_ip(struct velocity_info *vptr)
-+static inline int velocity_get_ip(struct velocity_info *vptr)
- {
- 	struct in_device *in_dev = (struct in_device *) vptr->dev->ip_ptr;
- 	struct in_ifaddr *ifa;
---- linux-2.6.13-rc1-orig/drivers/net/wireless/airo.c	2005-06-29 21:44:58.000000000 +0200
-+++ linux-2.6.13-rc1/drivers/net/wireless/airo.c	2005-06-29 22:33:15.000000000 +0200
-@@ -5013,7 +5013,7 @@ static void proc_SSID_on_close( struct i
- 	enable_MAC(ai, &rsp, 1);
- }
- 
--inline static u8 hexVal(char c) {
-+static inline u8 hexVal(char c) {
- 	if (c>='0' && c<='9') return c -= '0';
- 	if (c>='a' && c<='f') return c -= 'a'-10;
- 	if (c>='A' && c<='F') return c -= 'A'-10;
---- linux-2.6.13-rc1-orig/drivers/oprofile/cpu_buffer.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc1/drivers/oprofile/cpu_buffer.c	2005-06-29 22:35:25.000000000 +0200
-@@ -42,8 +42,7 @@ void free_cpu_buffers(void)
- 		vfree(cpu_buffer[i].buffer);
- 	}
- }
-- 
-- 
-+
- int alloc_cpu_buffers(void)
- {
- 	int i;
-@@ -74,7 +73,6 @@ fail:
- 	free_cpu_buffers();
- 	return -ENOMEM;
- }
-- 
- 
- void start_cpu_work(void)
- {
-@@ -93,7 +91,6 @@ void start_cpu_work(void)
- 	}
- }
- 
--
- void end_cpu_work(void)
- {
- 	int i;
-@@ -109,7 +106,6 @@ void end_cpu_work(void)
- 	flush_scheduled_work();
- }
- 
--
- /* Resets the cpu buffer to a sane state. */
- void cpu_buffer_reset(struct oprofile_cpu_buffer * cpu_buf)
- {
-@@ -121,7 +117,6 @@ void cpu_buffer_reset(struct oprofile_cp
- 	cpu_buf->last_task = NULL;
- }
- 
--
- /* compute number of available slots in cpu_buffer queue */
- static unsigned long nr_available_slots(struct oprofile_cpu_buffer const * b)
- {
-@@ -134,7 +129,6 @@ static unsigned long nr_available_slots(
- 	return tail + (b->buffer_size - head) - 1;
- }
- 
--
- static void increment_head(struct oprofile_cpu_buffer * b)
- {
- 	unsigned long new_head = b->head_pos + 1;
-@@ -149,10 +143,7 @@ static void increment_head(struct oprofi
- 		b->head_pos = 0;
- }
- 
--
--
--
--inline static void
-+static inline void
- add_sample(struct oprofile_cpu_buffer * cpu_buf,
-            unsigned long pc, unsigned long event)
- {
-@@ -162,14 +153,12 @@ add_sample(struct oprofile_cpu_buffer * 
- 	increment_head(cpu_buf);
- }
- 
--
--inline static void
-+static inline void
- add_code(struct oprofile_cpu_buffer * buffer, unsigned long value)
- {
- 	add_sample(buffer, ESCAPE_CODE, value);
- }
- 
--
- /* This must be safe from any context. It's safe writing here
-  * because of the head/tail separation of the writer and reader
-  * of the CPU buffer.
-@@ -223,13 +212,11 @@ static int oprofile_begin_trace(struct o
- 	return 1;
- }
- 
--
- static void oprofile_end_trace(struct oprofile_cpu_buffer * cpu_buf)
- {
- 	cpu_buf->tracing = 0;
- }
- 
--
- void oprofile_add_sample(struct pt_regs * const regs, unsigned long event)
- {
- 	struct oprofile_cpu_buffer * cpu_buf = &cpu_buffer[smp_processor_id()];
-@@ -251,14 +238,12 @@ void oprofile_add_sample(struct pt_regs 
- 	oprofile_end_trace(cpu_buf);
- }
- 
--
- void oprofile_add_pc(unsigned long pc, int is_kernel, unsigned long event)
- {
- 	struct oprofile_cpu_buffer * cpu_buf = &cpu_buffer[smp_processor_id()];
- 	log_sample(cpu_buf, pc, is_kernel, event);
- }
- 
--
- void oprofile_add_trace(unsigned long pc)
- {
- 	struct oprofile_cpu_buffer * cpu_buf = &cpu_buffer[smp_processor_id()];
-@@ -283,8 +268,6 @@ void oprofile_add_trace(unsigned long pc
- 	add_sample(cpu_buf, pc, 0);
- }
- 
--
--
- /*
-  * This serves to avoid cpu buffer overflow, and makes sure
-  * the task mortuary progresses
---- linux-2.6.13-rc1-orig/drivers/s390/cio/qdio.c	2005-06-29 21:44:58.000000000 +0200
-+++ linux-2.6.13-rc1/drivers/s390/cio/qdio.c	2005-06-29 22:36:34.000000000 +0200
-@@ -432,7 +432,7 @@ tiqdio_clear_global_summary(void)
- 
- /************************* OUTBOUND ROUTINES *******************************/
- 
--inline static int
-+static inline int
- qdio_get_outbound_buffer_frontier(struct qdio_q *q)
- {
- 	int f,f_mod_no;
-@@ -510,7 +510,7 @@ out:
- }
- 
- /* all buffers are processed */
--inline static int
-+static inline int
- qdio_is_outbound_q_done(struct qdio_q *q)
- {
- 	int no_used;
-@@ -532,7 +532,7 @@ qdio_is_outbound_q_done(struct qdio_q *q
- 	return (no_used==0);
- }
- 
--inline static int
-+static inline int
- qdio_has_outbound_q_moved(struct qdio_q *q)
- {
- 	int i;
-@@ -552,7 +552,7 @@ qdio_has_outbound_q_moved(struct qdio_q 
- 	}
- }
- 
--inline static void
-+static inline void
- qdio_kick_outbound_q(struct qdio_q *q)
- {
- 	int result;
-@@ -641,7 +641,7 @@ qdio_kick_outbound_q(struct qdio_q *q)
- 		}
- }
- 
--inline static void
-+static inline void
- qdio_kick_outbound_handler(struct qdio_q *q)
- {
- 	int start, end, real_end, count;
-@@ -740,7 +740,7 @@ qdio_outbound_processing(struct qdio_q *
- /************************* INBOUND ROUTINES *******************************/
- 
- 
--inline static int
-+static inline int
- qdio_get_inbound_buffer_frontier(struct qdio_q *q)
- {
- 	int f,f_mod_no;
-@@ -865,7 +865,7 @@ out:
- 	return q->first_to_check;
- }
- 
--inline static int
-+static inline int
- qdio_has_inbound_q_moved(struct qdio_q *q)
- {
- 	int i;
-@@ -898,7 +898,7 @@ qdio_has_inbound_q_moved(struct qdio_q *
- }
- 
- /* means, no more buffers to be filled */
--inline static int
-+static inline int
- tiqdio_is_inbound_q_done(struct qdio_q *q)
- {
- 	int no_used;
-@@ -951,7 +951,7 @@ tiqdio_is_inbound_q_done(struct qdio_q *
- 	return 0;
- }
- 
--inline static int
-+static inline int
- qdio_is_inbound_q_done(struct qdio_q *q)
- {
- 	int no_used;
-@@ -1010,7 +1010,7 @@ qdio_is_inbound_q_done(struct qdio_q *q)
- 	}
- }
- 
--inline static void
-+static inline void
- qdio_kick_inbound_handler(struct qdio_q *q)
- {
- 	int count, start, end, real_end, i;
---- linux-2.6.13-rc1-orig/drivers/s390/net/qeth.h	2005-06-29 21:44:58.000000000 +0200
-+++ linux-2.6.13-rc1/drivers/s390/net/qeth.h	2005-06-29 22:38:21.000000000 +0200
-@@ -824,7 +824,7 @@ extern struct list_head qeth_notify_list
- 
- #define QETH_CARD_IFNAME(card) (((card)->dev)? (card)->dev->name : "")
- 
--inline static __u8
-+static inline __u8
- qeth_get_ipa_adp_type(enum qeth_link_types link_type)
- {
- 	switch (link_type) {
-@@ -835,7 +835,7 @@ qeth_get_ipa_adp_type(enum qeth_link_typ
- 	}
- }
- 
--inline static int
-+static inline int
- qeth_realloc_headroom(struct qeth_card *card, struct sk_buff **skb, int size)
- {
- 	struct sk_buff *new_skb = NULL;
-@@ -852,6 +852,7 @@ qeth_realloc_headroom(struct qeth_card *
- 	}
- 	return 0;
- }
-+
- static inline struct sk_buff *
- qeth_pskb_unshare(struct sk_buff *skb, int pri)
- {
-@@ -863,8 +864,7 @@ qeth_pskb_unshare(struct sk_buff *skb, i
-         return nskb;
- }
- 
--
--inline static void *
-+static inline void *
- qeth_push_skb(struct qeth_card *card, struct sk_buff **skb, int size)
- {
-         void *hdr;
-@@ -887,7 +887,7 @@ qeth_push_skb(struct qeth_card *card, st
- }
- 
- 
--inline static int
-+static inline int
- qeth_get_hlen(__u8 link_type)
- {
- #ifdef CONFIG_QETH_IPV6
-@@ -911,7 +911,7 @@ qeth_get_hlen(__u8 link_type)
- #endif /* CONFIG_QETH_IPV6 */
- }
- 
--inline static unsigned short
-+static inline unsigned short
- qeth_get_netdev_flags(struct qeth_card *card)
- {
- 	if (card->options.layer2)
-@@ -929,7 +929,7 @@ qeth_get_netdev_flags(struct qeth_card *
- 	}
- }
- 
--inline static int
-+static inline int
- qeth_get_initial_mtu_for_card(struct qeth_card * card)
- {
- 	switch (card->info.type) {
-@@ -950,7 +950,7 @@ qeth_get_initial_mtu_for_card(struct qet
- 	}
- }
- 
--inline static int
-+static inline int
- qeth_get_max_mtu_for_card(int cardtype)
- {
- 	switch (cardtype) {
-@@ -965,7 +965,7 @@ qeth_get_max_mtu_for_card(int cardtype)
- 	}
- }
- 
--inline static int
-+static inline int
- qeth_get_mtu_out_of_mpc(int cardtype)
- {
- 	switch (cardtype) {
-@@ -976,7 +976,7 @@ qeth_get_mtu_out_of_mpc(int cardtype)
- 	}
- }
- 
--inline static int
-+static inline int
- qeth_get_mtu_outof_framesize(int framesize)
- {
- 	switch (framesize) {
-@@ -993,7 +993,7 @@ qeth_get_mtu_outof_framesize(int framesi
- 	}
- }
- 
--inline static int
-+static inline int
- qeth_mtu_is_valid(struct qeth_card * card, int mtu)
- {
- 	switch (card->info.type) {
-@@ -1008,7 +1008,7 @@ qeth_mtu_is_valid(struct qeth_card * car
- 	}
- }
- 
--inline static int
-+static inline int
- qeth_get_arphdr_type(int cardtype, int linktype)
- {
- 	switch (cardtype) {
-@@ -1027,7 +1027,7 @@ qeth_get_arphdr_type(int cardtype, int l
- }
- 
- #ifdef CONFIG_QETH_PERF_STATS
--inline static int
-+static inline int
- qeth_get_micros(void)
- {
- 	return (int) (get_clock() >> 12);
---- linux-2.6.13-rc1-orig/drivers/scsi/dc395x.c	2005-06-29 21:44:58.000000000 +0200
-+++ linux-2.6.13-rc1/drivers/scsi/dc395x.c	2005-06-29 22:38:35.000000000 +0200
-@@ -744,7 +744,7 @@ static void free_tag(struct DeviceCtlBlk
- 
- 
- /* Find cmd in SRB list */
--inline static struct ScsiReqBlk *find_cmd(struct scsi_cmnd *cmd, 
-+static inline struct ScsiReqBlk *find_cmd(struct scsi_cmnd *cmd, 
- 		struct list_head *head)
- {
- 	struct ScsiReqBlk *i;
---- linux-2.6.13-rc1-orig/drivers/scsi/fdomain.c	2005-06-29 21:44:58.000000000 +0200
-+++ linux-2.6.13-rc1/drivers/scsi/fdomain.c	2005-06-29 22:38:47.000000000 +0200
-@@ -570,7 +570,7 @@ static void do_pause(unsigned amount)	/*
- 	mdelay(10*amount);
- }
- 
--inline static void fdomain_make_bus_idle( void )
-+static inline void fdomain_make_bus_idle( void )
- {
-    outb(0, port_base + SCSI_Cntl);
-    outb(0, port_base + SCSI_Mode_Cntl);
---- linux-2.6.13-rc1-orig/drivers/usb/image/microtek.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc1/drivers/usb/image/microtek.c	2005-06-29 22:39:15.000000000 +0200
-@@ -361,8 +361,7 @@ int mts_scsi_queuecommand (Scsi_Cmnd *sr
- static void mts_transfer_cleanup( struct urb *transfer );
- static void mts_do_sg(struct urb * transfer, struct pt_regs *regs);
- 
--
--inline static
-+static inline
- void mts_int_submit_urb (struct urb* transfer,
- 			int pipe,
- 			void* data,
---- linux-2.6.13-rc1-orig/drivers/video/pm2fb.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc1/drivers/video/pm2fb.c	2005-06-29 22:40:06.000000000 +0200
-@@ -138,27 +138,27 @@ static struct fb_var_screeninfo pm2fb_va
-  * Utility functions
-  */
- 
--inline static u32 RD32(unsigned char __iomem *base, s32 off)
-+static inline u32 RD32(unsigned char __iomem *base, s32 off)
- {
- 	return fb_readl(base + off);
- }
- 
--inline static void WR32(unsigned char __iomem *base, s32 off, u32 v)
-+static inline void WR32(unsigned char __iomem *base, s32 off, u32 v)
- {
- 	fb_writel(v, base + off);
- }
- 
--inline static u32 pm2_RD(struct pm2fb_par* p, s32 off)
-+static inline u32 pm2_RD(struct pm2fb_par* p, s32 off)
- {
- 	return RD32(p->v_regs, off);
- }
- 
--inline static void pm2_WR(struct pm2fb_par* p, s32 off, u32 v)
-+static inline void pm2_WR(struct pm2fb_par* p, s32 off, u32 v)
- {
- 	WR32(p->v_regs, off, v);
- }
- 
--inline static u32 pm2_RDAC_RD(struct pm2fb_par* p, s32 idx)
-+static inline u32 pm2_RDAC_RD(struct pm2fb_par* p, s32 idx)
- {
- 	int index = PM2R_RD_INDEXED_DATA;
- 	switch (p->type) {
-@@ -174,7 +174,7 @@ inline static u32 pm2_RDAC_RD(struct pm2
- 	return pm2_RD(p, index);
- }
- 
--inline static void pm2_RDAC_WR(struct pm2fb_par* p, s32 idx, u32 v)
-+static inline void pm2_RDAC_WR(struct pm2fb_par* p, s32 idx, u32 v)
- {
- 	int index = PM2R_RD_INDEXED_DATA;
- 	switch (p->type) {
-@@ -190,7 +190,7 @@ inline static void pm2_RDAC_WR(struct pm
- 	pm2_WR(p, index, v);
- }
- 
--inline static void pm2v_RDAC_WR(struct pm2fb_par* p, s32 idx, u32 v)
-+static inline void pm2v_RDAC_WR(struct pm2fb_par* p, s32 idx, u32 v)
- {
- 	pm2_WR(p, PM2VR_RD_INDEX_LOW, idx & 0xff);
- 	mb();
-@@ -200,7 +200,7 @@ inline static void pm2v_RDAC_WR(struct p
- #ifdef CONFIG_FB_PM2_FIFO_DISCONNECT
- #define WAIT_FIFO(p,a)
- #else
--inline static void WAIT_FIFO(struct pm2fb_par* p, u32 a)
-+static inline void WAIT_FIFO(struct pm2fb_par* p, u32 a)
- {
- 	while( pm2_RD(p, PM2R_IN_FIFO_SPACE) < a );
- 	mb();
---- linux-2.6.13-rc1-orig/fs/reiserfs/journal.c	2005-06-29 21:45:02.000000000 +0200
-+++ linux-2.6.13-rc1/fs/reiserfs/journal.c	2005-06-29 22:40:29.000000000 +0200
-@@ -515,13 +515,13 @@ static inline void insert_journal_hash(s
- }
- 
- /* lock the current transaction */
--inline static void lock_journal(struct super_block *p_s_sb) {
-+static inline void lock_journal(struct super_block *p_s_sb) {
-     PROC_INFO_INC( p_s_sb, journal.lock_journal );
-     down(&SB_JOURNAL(p_s_sb)->j_lock);
- }
- 
- /* unlock the current transaction */
--inline static void unlock_journal(struct super_block *p_s_sb) {
-+static inline void unlock_journal(struct super_block *p_s_sb) {
-     up(&SB_JOURNAL(p_s_sb)->j_lock);
- }
- 
---- linux-2.6.13-rc1-orig/include/sound/vx_core.h	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc1/include/sound/vx_core.h	2005-06-29 22:41:18.000000000 +0200
-@@ -233,37 +233,37 @@ irqreturn_t snd_vx_irq_handler(int irq, 
- /*
-  * lowlevel functions
-  */
--inline static int vx_test_and_ack(vx_core_t *chip)
-+static inline int vx_test_and_ack(vx_core_t *chip)
- {
- 	snd_assert(chip->ops->test_and_ack, return -ENXIO);
- 	return chip->ops->test_and_ack(chip);
- }
- 
--inline static void vx_validate_irq(vx_core_t *chip, int enable)
-+static inline void vx_validate_irq(vx_core_t *chip, int enable)
- {
- 	snd_assert(chip->ops->validate_irq, return);
- 	chip->ops->validate_irq(chip, enable);
- }
- 
--inline static unsigned char snd_vx_inb(vx_core_t *chip, int reg)
-+static inline unsigned char snd_vx_inb(vx_core_t *chip, int reg)
- {
- 	snd_assert(chip->ops->in8, return 0);
- 	return chip->ops->in8(chip, reg);
- }
- 
--inline static unsigned int snd_vx_inl(vx_core_t *chip, int reg)
-+static inline unsigned int snd_vx_inl(vx_core_t *chip, int reg)
- {
- 	snd_assert(chip->ops->in32, return 0);
- 	return chip->ops->in32(chip, reg);
- }
- 
--inline static void snd_vx_outb(vx_core_t *chip, int reg, unsigned char val)
-+static inline void snd_vx_outb(vx_core_t *chip, int reg, unsigned char val)
- {
- 	snd_assert(chip->ops->out8, return);
- 	chip->ops->out8(chip, reg, val);
- }
- 
--inline static void snd_vx_outl(vx_core_t *chip, int reg, unsigned int val)
-+static inline void snd_vx_outl(vx_core_t *chip, int reg, unsigned int val)
- {
- 	snd_assert(chip->ops->out32, return);
- 	chip->ops->out32(chip, reg, val);
-@@ -303,14 +303,14 @@ int snd_vx_check_reg_bit(vx_core_t *chip
- /*
-  * pseudo-DMA transfer
-  */
--inline static void vx_pseudo_dma_write(vx_core_t *chip, snd_pcm_runtime_t *runtime,
-+static inline void vx_pseudo_dma_write(vx_core_t *chip, snd_pcm_runtime_t *runtime,
- 				       vx_pipe_t *pipe, int count)
- {
- 	snd_assert(chip->ops->dma_write, return);
- 	chip->ops->dma_write(chip, runtime, pipe, count);
- }
- 
--inline static void vx_pseudo_dma_read(vx_core_t *chip, snd_pcm_runtime_t *runtime,
-+static inline void vx_pseudo_dma_read(vx_core_t *chip, snd_pcm_runtime_t *runtime,
- 				      vx_pipe_t *pipe, int count)
- {
- 	snd_assert(chip->ops->dma_read, return);
---- linux-2.6.13-rc1-orig/kernel/time.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc1/kernel/time.c	2005-06-29 22:41:27.000000000 +0200
-@@ -128,7 +128,7 @@ asmlinkage long sys_gettimeofday(struct 
-  * as real UNIX machines always do it. This avoids all headaches about
-  * daylight saving times and warping kernel clocks.
-  */
--inline static void warp_clock(void)
-+static inline void warp_clock(void)
- {
- 	write_seqlock_irq(&xtime_lock);
- 	wall_to_monotonic.tv_sec -= sys_tz.tz_minuteswest * 60;
---- linux-2.6.13-rc1-orig/net/core/pktgen.c	2005-06-29 21:45:09.000000000 +0200
-+++ linux-2.6.13-rc1/net/core/pktgen.c	2005-06-29 22:41:38.000000000 +0200
-@@ -363,7 +363,7 @@ struct pktgen_thread {
-  * All Rights Reserved.
-  *
-  */
--inline static s64 divremdi3(s64 x, s64 y, int type) 
-+static inline s64 divremdi3(s64 x, s64 y, int type) 
- {
-         u64 a = (x < 0) ? -x : x;
-         u64 b = (y < 0) ? -y : y;
---- linux-2.6.13-rc1-orig/sound/core/seq/oss/seq_oss_device.h	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc1/sound/core/seq/oss/seq_oss_device.h	2005-06-29 22:41:58.000000000 +0200
-@@ -158,21 +158,21 @@ void snd_seq_oss_readq_info_read(seq_oss
- #define is_nonblock_mode(mode)	((mode) & SNDRV_SEQ_OSS_FILE_NONBLOCK)
- 
- /* dispatch event */
--inline static int
-+static inline int
- snd_seq_oss_dispatch(seq_oss_devinfo_t *dp, snd_seq_event_t *ev, int atomic, int hop)
- {
- 	return snd_seq_kernel_client_dispatch(dp->cseq, ev, atomic, hop);
- }
- 
- /* ioctl */
--inline static int
-+static inline int
- snd_seq_oss_control(seq_oss_devinfo_t *dp, unsigned int type, void *arg)
- {
- 	return snd_seq_kernel_client_ctl(dp->cseq, type, arg);
- }
- 
- /* fill the addresses in header */
--inline static void
-+static inline void
- snd_seq_oss_fill_addr(seq_oss_devinfo_t *dp, snd_seq_event_t *ev,
- 		     int dest_client, int dest_port)
- {
---- linux-2.6.13-rc1-orig/sound/core/seq/seq_memory.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc1/sound/core/seq/seq_memory.c	2005-06-29 22:42:17.000000000 +0200
-@@ -36,12 +36,12 @@
- #define semaphore_of(fp)	((fp)->f_dentry->d_inode->i_sem)
- 
- 
--inline static int snd_seq_pool_available(pool_t *pool)
-+static inline int snd_seq_pool_available(pool_t *pool)
- {
- 	return pool->total_elements - atomic_read(&pool->counter);
- }
- 
--inline static int snd_seq_output_ok(pool_t *pool)
-+static inline int snd_seq_output_ok(pool_t *pool)
- {
- 	return snd_seq_pool_available(pool) >= pool->room;
- }
---- linux-2.6.13-rc1-orig/sound/core/seq/seq_midi_event.c	2005-06-29 21:45:12.000000000 +0200
-+++ linux-2.6.13-rc1/sound/core/seq/seq_midi_event.c	2005-06-29 22:42:28.000000000 +0200
-@@ -146,7 +146,7 @@ void snd_midi_event_free(snd_midi_event_
- /*
-  * initialize record
-  */
--inline static void reset_encode(snd_midi_event_t *dev)
-+static inline void reset_encode(snd_midi_event_t *dev)
- {
- 	dev->read = 0;
- 	dev->qlen = 0;
---- linux-2.6.13-rc1-orig/sound/drivers/serial-u16550.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc1/sound/drivers/serial-u16550.c	2005-06-29 22:43:20.000000000 +0200
-@@ -168,7 +168,7 @@ typedef struct _snd_uart16550 {
- 
- static snd_card_t *snd_serial_cards[SNDRV_CARDS] = SNDRV_DEFAULT_PTR;
- 
--inline static void snd_uart16550_add_timer(snd_uart16550_t *uart)
-+static inline void snd_uart16550_add_timer(snd_uart16550_t *uart)
- {
- 	if (! uart->timer_running) {
- 		/* timer 38600bps * 10bit * 16byte */
-@@ -178,7 +178,7 @@ inline static void snd_uart16550_add_tim
- 	}
- }
- 
--inline static void snd_uart16550_del_timer(snd_uart16550_t *uart)
-+static inline void snd_uart16550_del_timer(snd_uart16550_t *uart)
- {
- 	if (uart->timer_running) {
- 		del_timer(&uart->buffer_timer);
-@@ -187,7 +187,7 @@ inline static void snd_uart16550_del_tim
- }
- 
- /* This macro is only used in snd_uart16550_io_loop */
--inline static void snd_uart16550_buffer_output(snd_uart16550_t *uart)
-+static inline void snd_uart16550_buffer_output(snd_uart16550_t *uart)
- {
- 	unsigned short buff_out = uart->buff_out;
- 	if( uart->buff_in_count > 0 ) {
-@@ -579,7 +579,7 @@ static int snd_uart16550_output_close(sn
- 	return 0;
- };
- 
--inline static int snd_uart16550_buffer_can_write( snd_uart16550_t *uart, int Num )
-+static inline int snd_uart16550_buffer_can_write( snd_uart16550_t *uart, int Num )
- {
- 	if( uart->buff_in_count + Num < TX_BUFF_SIZE )
- 		return 1;
-@@ -587,7 +587,7 @@ inline static int snd_uart16550_buffer_c
- 		return 0;
- }
- 
--inline static int snd_uart16550_write_buffer(snd_uart16550_t *uart, unsigned char byte)
-+static inline int snd_uart16550_write_buffer(snd_uart16550_t *uart, unsigned char byte)
- {
- 	unsigned short buff_in = uart->buff_in;
- 	if( uart->buff_in_count < TX_BUFF_SIZE ) {
---- linux-2.6.13-rc1-orig/sound/isa/sb/emu8000_patch.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc1/sound/isa/sb/emu8000_patch.c	2005-06-29 22:43:51.000000000 +0200
-@@ -128,7 +128,7 @@ snd_emu8000_write_wait(emu8000_t *emu)
-  * This is therefore much slower than need be, but is at least
-  * working.
-  */
--inline static void
-+static inline void
- write_word(emu8000_t *emu, int *offset, unsigned short data)
- {
- 	if (emu8000_reset_addr) {
---- linux-2.6.13-rc1-orig/sound/oss/dmasound/dmasound_awacs.c	2005-06-29 21:45:12.000000000 +0200
-+++ linux-2.6.13-rc1/sound/oss/dmasound/dmasound_awacs.c	2005-06-29 22:44:06.000000000 +0200
-@@ -1557,7 +1557,7 @@ static int awacs_sleep_notify(struct pmu
- /* All the burgundy functions: */
- 
- /* Waits for busy flag to clear */
--inline static void
-+static inline void
- awacs_burgundy_busy_wait(void)
- {
- 	int count = 50; /* > 2 samples at 44k1 */
-@@ -1565,7 +1565,7 @@ awacs_burgundy_busy_wait(void)
- 		udelay(1) ;
- }
- 
--inline static void
-+static inline void
- awacs_burgundy_extend_wait(void)
- {
- 	int count = 50 ; /* > 2 samples at 44k1 */
---- linux-2.6.13-rc1-orig/sound/pci/cmipci.c	2005-06-29 21:45:13.000000000 +0200
-+++ linux-2.6.13-rc1/sound/pci/cmipci.c	2005-06-29 22:44:54.000000000 +0200
-@@ -488,32 +488,34 @@ struct snd_stru_cmipci {
- 
- 
- /* read/write operations for dword register */
--inline static void snd_cmipci_write(cmipci_t *cm, unsigned int cmd, unsigned int data)
-+static inline void snd_cmipci_write(cmipci_t *cm, unsigned int cmd, unsigned int data)
- {
- 	outl(data, cm->iobase + cmd);
- }
--inline static unsigned int snd_cmipci_read(cmipci_t *cm, unsigned int cmd)
-+
-+static inline unsigned int snd_cmipci_read(cmipci_t *cm, unsigned int cmd)
- {
- 	return inl(cm->iobase + cmd);
- }
- 
- /* read/write operations for word register */
--inline static void snd_cmipci_write_w(cmipci_t *cm, unsigned int cmd, unsigned short data)
-+static inline void snd_cmipci_write_w(cmipci_t *cm, unsigned int cmd, unsigned short data)
- {
- 	outw(data, cm->iobase + cmd);
- }
--inline static unsigned short snd_cmipci_read_w(cmipci_t *cm, unsigned int cmd)
-+
-+static inline unsigned short snd_cmipci_read_w(cmipci_t *cm, unsigned int cmd)
- {
- 	return inw(cm->iobase + cmd);
- }
- 
- /* read/write operations for byte register */
--inline static void snd_cmipci_write_b(cmipci_t *cm, unsigned int cmd, unsigned char data)
-+static inline void snd_cmipci_write_b(cmipci_t *cm, unsigned int cmd, unsigned char data)
- {
- 	outb(data, cm->iobase + cmd);
- }
- 
--inline static unsigned char snd_cmipci_read_b(cmipci_t *cm, unsigned int cmd)
-+static inline unsigned char snd_cmipci_read_b(cmipci_t *cm, unsigned int cmd)
- {
- 	return inb(cm->iobase + cmd);
- }
---- linux-2.6.13-rc1-orig/sound/pci/cs4281.c	2005-06-29 21:45:13.000000000 +0200
-+++ linux-2.6.13-rc1/sound/pci/cs4281.c	2005-06-29 22:45:07.000000000 +0200
-@@ -542,7 +542,7 @@ static void snd_cs4281_delay(unsigned in
- 	}
- }
- 
--inline static void snd_cs4281_delay_long(void)
-+static inline void snd_cs4281_delay_long(void)
- {
- 	set_current_state(TASK_UNINTERRUPTIBLE);
- 	schedule_timeout(1);
---- linux-2.6.13-rc1-orig/sound/pci/emu10k1/memory.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc1/sound/pci/emu10k1/memory.c	2005-06-29 22:45:20.000000000 +0200
-@@ -495,7 +495,7 @@ static int synth_free_pages(emu10k1_t *e
- }
- 
- /* calculate buffer pointer from offset address */
--inline static void *offset_ptr(emu10k1_t *emu, int page, int offset)
-+static inline void *offset_ptr(emu10k1_t *emu, int page, int offset)
- {
- 	char *ptr;
- 	snd_assert(page >= 0 && page < emu->max_cache_pages, return NULL);
---- linux-2.6.13-rc1-orig/sound/pci/es1968.c	2005-06-29 21:45:13.000000000 +0200
-+++ linux-2.6.13-rc1/sound/pci/es1968.c	2005-06-29 22:46:10.000000000 +0200
-@@ -636,7 +636,7 @@ static void __maestro_write(es1968_t *ch
- 	chip->maestro_map[reg] = data;
- }
- 
--inline static void maestro_write(es1968_t *chip, u16 reg, u16 data)
-+static inline void maestro_write(es1968_t *chip, u16 reg, u16 data)
- {
- 	unsigned long flags;
- 	spin_lock_irqsave(&chip->reg_lock, flags);
-@@ -654,7 +654,7 @@ static u16 __maestro_read(es1968_t *chip
- 	return chip->maestro_map[reg];
- }
- 
--inline static u16 maestro_read(es1968_t *chip, u16 reg)
-+static inline u16 maestro_read(es1968_t *chip, u16 reg)
- {
- 	unsigned long flags;
- 	u16 result;
-@@ -755,7 +755,7 @@ static void __apu_set_register(es1968_t 
- 	apu_data_set(chip, data);
- }
- 
--inline static void apu_set_register(es1968_t *chip, u16 channel, u8 reg, u16 data)
-+static inline void apu_set_register(es1968_t *chip, u16 channel, u8 reg, u16 data)
- {
- 	unsigned long flags;
- 	spin_lock_irqsave(&chip->reg_lock, flags);
-@@ -771,7 +771,7 @@ static u16 __apu_get_register(es1968_t *
- 	return __maestro_read(chip, IDR0_DATA_PORT);
- }
- 
--inline static u16 apu_get_register(es1968_t *chip, u16 channel, u8 reg)
-+static inline u16 apu_get_register(es1968_t *chip, u16 channel, u8 reg)
- {
- 	unsigned long flags;
- 	u16 v;
-@@ -957,7 +957,7 @@ static u32 snd_es1968_compute_rate(es196
- }
- 
- /* get current pointer */
--inline static unsigned int
-+static inline unsigned int
- snd_es1968_get_dma_ptr(es1968_t *chip, esschan_t *es)
- {
- 	unsigned int offset;
-@@ -978,7 +978,7 @@ static void snd_es1968_apu_set_freq(es19
- }
- 
- /* spin lock held */
--inline static void snd_es1968_trigger_apu(es1968_t *esm, int apu, int mode)
-+static inline void snd_es1968_trigger_apu(es1968_t *esm, int apu, int mode)
- {
- 	/* set the APU mode */
- 	__apu_set_register(esm, apu, 0,
---- linux-2.6.13-rc1-orig/sound/pci/maestro3.c	2005-06-29 21:45:13.000000000 +0200
-+++ linux-2.6.13-rc1/sound/pci/maestro3.c	2005-06-29 22:46:39.000000000 +0200
-@@ -1055,22 +1055,22 @@ static struct m3_hv_quirk m3_hv_quirk_li
- 	schedule_timeout(((msec) * HZ) / 1000);\
- } while (0)
- 	
--inline static void snd_m3_outw(m3_t *chip, u16 value, unsigned long reg)
-+static inline void snd_m3_outw(m3_t *chip, u16 value, unsigned long reg)
- {
- 	outw(value, chip->iobase + reg);
- }
- 
--inline static u16 snd_m3_inw(m3_t *chip, unsigned long reg)
-+static inline u16 snd_m3_inw(m3_t *chip, unsigned long reg)
- {
- 	return inw(chip->iobase + reg);
- }
- 
--inline static void snd_m3_outb(m3_t *chip, u8 value, unsigned long reg)
-+static inline void snd_m3_outb(m3_t *chip, u8 value, unsigned long reg)
- {
- 	outb(value, chip->iobase + reg);
- }
- 
--inline static u8 snd_m3_inb(m3_t *chip, unsigned long reg)
-+static inline u8 snd_m3_inb(m3_t *chip, unsigned long reg)
- {
- 	return inb(chip->iobase + reg);
- }
---- linux-2.6.13-rc1-orig/sound/pci/nm256/nm256.c	2005-06-29 21:45:13.000000000 +0200
-+++ linux-2.6.13-rc1/sound/pci/nm256/nm256.c	2005-06-29 22:47:36.000000000 +0200
-@@ -285,43 +285,43 @@ MODULE_DEVICE_TABLE(pci, snd_nm256_ids);
-  * lowlvel stuffs
-  */
- 
--inline static u8
-+static inline u8
- snd_nm256_readb(nm256_t *chip, int offset)
- {
- 	return readb(chip->cport + offset);
- }
- 
--inline static u16
-+static inline u16
- snd_nm256_readw(nm256_t *chip, int offset)
- {
- 	return readw(chip->cport + offset);
- }
- 
--inline static u32
-+static inline u32
- snd_nm256_readl(nm256_t *chip, int offset)
- {
- 	return readl(chip->cport + offset);
- }
- 
--inline static void
-+static inline void
- snd_nm256_writeb(nm256_t *chip, int offset, u8 val)
- {
- 	writeb(val, chip->cport + offset);
- }
- 
--inline static void
-+static inline void
- snd_nm256_writew(nm256_t *chip, int offset, u16 val)
- {
- 	writew(val, chip->cport + offset);
- }
- 
--inline static void
-+static inline void
- snd_nm256_writel(nm256_t *chip, int offset, u32 val)
- {
- 	writel(val, chip->cport + offset);
- }
- 
--inline static void
-+static inline void
- snd_nm256_write_buffer(nm256_t *chip, void *src, int offset, int size)
- {
- 	offset -= chip->buffer_start;
-@@ -926,7 +926,7 @@ snd_nm256_init_chip(nm256_t *chip)
- }
- 
- 
--inline static void
-+static inline void
- snd_nm256_intr_check(nm256_t *chip)
- {
- 	if (chip->badintrcount++ > 1000) {
---- linux-2.6.13-rc1-orig/sound/pci/trident/trident_main.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc1/sound/pci/trident/trident_main.c	2005-06-29 22:47:51.000000000 +0200
-@@ -3204,7 +3204,7 @@ static inline void snd_trident_free_game
- /*
-  * delay for 1 tick
-  */
--inline static void do_delay(trident_t *chip)
-+static inline void do_delay(trident_t *chip)
- {
- 	set_current_state(TASK_UNINTERRUPTIBLE);
- 	schedule_timeout(1);
---- linux-2.6.13-rc1-orig/sound/pci/trident/trident_memory.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc1/sound/pci/trident/trident_memory.c	2005-06-29 22:48:02.000000000 +0200
-@@ -118,7 +118,7 @@ static inline void set_silent_tlb(triden
- #endif /* PAGE_SIZE */
- 
- /* calculate buffer pointer from offset address */
--inline static void *offset_ptr(trident_t *trident, int offset)
-+static inline void *offset_ptr(trident_t *trident, int offset)
- {
- 	char *ptr;
- 	ptr = page_to_ptr(trident, get_aligned_page(offset));
---- linux-2.6.13-rc1-orig/sound/pci/vx222/vx222_ops.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc1/sound/pci/vx222/vx222_ops.c	2005-06-29 22:48:22.000000000 +0200
-@@ -82,7 +82,7 @@ static int vx2_reg_index[VX_REG_MAX] = {
- 	[VX_GPIOC]	= 0,	/* on the PLX */
- };
- 
--inline static unsigned long vx2_reg_addr(vx_core_t *_chip, int reg)
-+static inline unsigned long vx2_reg_addr(vx_core_t *_chip, int reg)
- {
- 	struct snd_vx222 *chip = (struct snd_vx222 *)_chip;
- 	return chip->port[vx2_reg_index[reg]] + vx2_reg_offset[reg];
-@@ -235,7 +235,7 @@ static void vx2_setup_pseudo_dma(vx_core
- /*
-  * vx_release_pseudo_dma - disable the pseudo-DMA mode
-  */
--inline static void vx2_release_pseudo_dma(vx_core_t *chip)
-+static inline void vx2_release_pseudo_dma(vx_core_t *chip)
- {
- 	/* HREQ pin disabled. */
- 	vx_outl(chip, ICR, 0);
---- linux-2.6.13-rc1-orig/sound/pcmcia/vx/vxp_ops.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc1/sound/pcmcia/vx/vxp_ops.c	2005-06-29 22:48:35.000000000 +0200
-@@ -49,7 +49,7 @@ static int vxp_reg_offset[VX_REG_MAX] = 
- };
- 
- 
--inline static unsigned long vxp_reg_addr(vx_core_t *_chip, int reg)
-+static inline unsigned long vxp_reg_addr(vx_core_t *_chip, int reg)
- {
- 	struct snd_vxpocket *chip = (struct snd_vxpocket *)_chip;
- 	return chip->port + vxp_reg_offset[reg];
---- linux-2.6.13-rc1-orig/sound/ppc/burgundy.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc1/sound/ppc/burgundy.c	2005-06-29 22:48:56.000000000 +0200
-@@ -30,7 +30,7 @@
- 
- 
- /* Waits for busy flag to clear */
--inline static void
-+static inline void
- snd_pmac_burgundy_busy_wait(pmac_t *chip)
- {
- 	int timeout = 50;
-@@ -40,7 +40,7 @@ snd_pmac_burgundy_busy_wait(pmac_t *chip
- 		printk(KERN_DEBUG "burgundy_busy_wait: timeout\n");
- }
- 
--inline static void
-+static inline void
- snd_pmac_burgundy_extend_wait(pmac_t *chip)
- {
- 	int timeout;
---- linux-2.6.13-rc1-orig/sound/ppc/pmac.c	2005-06-29 21:45:13.000000000 +0200
-+++ linux-2.6.13-rc1/sound/ppc/pmac.c	2005-06-29 22:49:23.000000000 +0200
-@@ -153,7 +153,7 @@ static pmac_stream_t *snd_pmac_get_strea
- /*
-  * wait while run status is on
-  */
--inline static void
-+static inline void
- snd_pmac_wait_ack(pmac_stream_t *rec)
- {
- 	int timeout = 50000;
-@@ -177,7 +177,7 @@ static void snd_pmac_pcm_set_format(pmac
- /*
-  * stop the DMA transfer
-  */
--inline static void snd_pmac_dma_stop(pmac_stream_t *rec)
-+static inline void snd_pmac_dma_stop(pmac_stream_t *rec)
- {
- 	out_le32(&rec->dma->control, (RUN|WAKE|FLUSH|PAUSE) << 16);
- 	snd_pmac_wait_ack(rec);
-@@ -186,7 +186,7 @@ inline static void snd_pmac_dma_stop(pma
- /*
-  * set the command pointer address
-  */
--inline static void snd_pmac_dma_set_command(pmac_stream_t *rec, pmac_dbdma_t *cmd)
-+static inline void snd_pmac_dma_set_command(pmac_stream_t *rec, pmac_dbdma_t *cmd)
- {
- 	out_le32(&rec->dma->cmdptr, cmd->addr);
- }
-@@ -194,7 +194,7 @@ inline static void snd_pmac_dma_set_comm
- /*
-  * start the DMA
-  */
--inline static void snd_pmac_dma_run(pmac_stream_t *rec, int status)
-+static inline void snd_pmac_dma_run(pmac_stream_t *rec, int status)
- {
- 	out_le32(&rec->dma->control, status | (status << 16));
- }
---- linux-2.6.13-rc1-orig/sound/usb/usbaudio.c	2005-06-29 21:45:13.000000000 +0200
-+++ linux-2.6.13-rc1/sound/usb/usbaudio.c	2005-06-29 22:49:50.000000000 +0200
-@@ -212,7 +212,7 @@ static snd_usb_audio_t *usb_chip[SNDRV_C
-  * convert a sampling rate into our full speed format (fs/1000 in Q16.16)
-  * this will overflow at approx 524 kHz
-  */
--inline static unsigned get_usb_full_speed_rate(unsigned int rate)
-+static inline unsigned get_usb_full_speed_rate(unsigned int rate)
- {
- 	return ((rate << 13) + 62) / 125;
- }
-@@ -221,19 +221,19 @@ inline static unsigned get_usb_full_spee
-  * convert a sampling rate into USB high speed format (fs/8000 in Q16.16)
-  * this will overflow at approx 4 MHz
-  */
--inline static unsigned get_usb_high_speed_rate(unsigned int rate)
-+static inline unsigned get_usb_high_speed_rate(unsigned int rate)
- {
- 	return ((rate << 10) + 62) / 125;
- }
- 
- /* convert our full speed USB rate into sampling rate in Hz */
--inline static unsigned get_full_speed_hz(unsigned int usb_rate)
-+static inline unsigned get_full_speed_hz(unsigned int usb_rate)
- {
- 	return (usb_rate * 125 + (1 << 12)) >> 13;
- }
- 
- /* convert our high speed USB rate into sampling rate in Hz */
--inline static unsigned get_high_speed_hz(unsigned int usb_rate)
-+static inline unsigned get_high_speed_hz(unsigned int usb_rate)
- {
- 	return (usb_rate * 125 + (1 << 9)) >> 10;
- }
---- linux-2.6.13-rc1-orig/sound/usb/usbmixer.c	2005-06-29 21:45:13.000000000 +0200
-+++ linux-2.6.13-rc1/sound/usb/usbmixer.c	2005-06-29 22:50:10.000000000 +0200
-@@ -363,7 +363,7 @@ static int get_cur_ctl_value(usb_mixer_e
- }
- 
- /* channel = 0: master, 1 = first channel */
--inline static int get_cur_mix_value(usb_mixer_elem_info_t *cval, int channel, int *value)
-+static inline int get_cur_mix_value(usb_mixer_elem_info_t *cval, int channel, int *value)
- {
- 	return get_ctl_value(cval, GET_CUR, (cval->control << 8) | channel, value);
- }
-@@ -399,7 +399,7 @@ static int set_cur_ctl_value(usb_mixer_e
- 	return set_ctl_value(cval, SET_CUR, validx, value);
- }
- 
--inline static int set_cur_mix_value(usb_mixer_elem_info_t *cval, int channel, int value)
-+static inline int set_cur_mix_value(usb_mixer_elem_info_t *cval, int channel, int value)
- {
- 	return set_ctl_value(cval, SET_CUR, (cval->control << 8) | channel, value);
- }
+I've attached the patch (gzip'ed due to size) to this mail - it was inline 
+in the previous one, but not sure if it'll make it to you since that mail 
+was ~50K
+
+
+-- Jesper
+
+
+--8323328-581567288-1120079755=:2998
+Content-Type: APPLICATION/octet-stream; name=inline_static-vs-static_inline.patch.gz
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.62.0506292315550.2998@dragon.hyggekrogen.localhost>
+Content-Description: inline_static-vs-static_inline.patch.gz
+Content-Disposition: attachment; filename=inline_static-vs-static_inline.patch.gz
+
+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
+AA==
+
+--8323328-581567288-1120079755=:2998--

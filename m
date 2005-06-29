@@ -1,65 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262536AbVF2UBv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262525AbVF2UCT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262536AbVF2UBv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 16:01:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262525AbVF2UBv
+	id S262525AbVF2UCT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 16:02:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262537AbVF2UCT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 16:01:51 -0400
-Received: from mail.dif.dk ([193.138.115.101]:50863 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S262536AbVF2UBs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 16:01:48 -0400
-Date: Wed, 29 Jun 2005 22:07:49 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: Chris Zankel <chris@zankel.net>, Scott Foehner <sfoehner@yahoo.com>,
-       Marc Gauthier <marc@tensilica.com>, Joe Taylor <joe@tensilica.com>,
-       Marc Gauthier <marc@alumni.uwaterloo.ca>,
-       Joe Taylor <joetylr@yahoo.com>
-Subject: [PATCH] make xtensa use valid_signal()
-Message-ID: <Pine.LNX.4.62.0506292202340.2998@dragon.hyggekrogen.localhost>
+	Wed, 29 Jun 2005 16:02:19 -0400
+Received: from mxsf12.cluster1.charter.net ([209.225.28.212]:5861 "EHLO
+	mxsf12.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S262525AbVF2UCO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 16:02:14 -0400
+X-IronPort-AV: i="3.93,243,1115006400"; 
+   d="scan'208"; a="1192742600:sNHT34720480"
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17090.65093.315260.889211@smtp.charter.net>
+Date: Wed, 29 Jun 2005 16:02:13 -0400
+From: "John Stoffel" <john@stoffel.org>
+To: linux-os@analogic.com
+Cc: Sreeni <sreeni.pulichi@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: **** How to lock memory pages?
+In-Reply-To: <Pine.LNX.4.61.0506291245170.22243@chaos.analogic.com>
+References: <94e67edf05062810586d6141f3@mail.gmail.com>
+	<m1br5p3ib8.fsf@ebiederm.dsl.xmission.com>
+	<94e67edf050629083745bb4183@mail.gmail.com>
+	<Pine.LNX.4.61.0506291245170.22243@chaos.analogic.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-xtensa should use valid_signal() instead of testing _NSIG directly like 
-everyone else.
+>>>>> "Richard" == Richard B Johnson <linux-os@analogic.com> writes:
 
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
----
+Richard> On Wed, 29 Jun 2005, Sreeni wrote:
 
- arch/xtensa/kernel/ptrace.c |    5 +++--
- 1 files changed, 3 insertions(+), 2 deletions(-)
+>> Is there a way to lock a particular portion of the memory pages during
+>> kernel bootup? I want to re-use these pages when I load my
+>> application. I *don't* wanna use the idea of reserving some physical
+>> memory and using ioremap. I want something that kernel should be able
+>> to manage this memory but I don't want any other application to use
+>> this memory.
 
---- linux-2.6.13-rc1-orig/arch/xtensa/kernel/ptrace.c	2005-06-29 21:44:49.000000000 +0200
-+++ linux-2.6.13-rc1/arch/xtensa/kernel/ptrace.c	2005-06-29 22:00:34.000000000 +0200
-@@ -22,6 +22,7 @@
- #include <linux/smp.h>
- #include <linux/smp_lock.h>
- #include <linux/security.h>
-+#include <linux/signal.h>
- 
- #include <asm/pgtable.h>
- #include <asm/page.h>
-@@ -239,7 +240,7 @@ int sys_ptrace(long request, long pid, l
- 	case PTRACE_CONT: /* restart after signal. */
- 	{
- 		ret = -EIO;
--		if ((unsigned long) data > _NSIG)
-+		if (!valid_signal(data))
- 			break;
- 		if (request == PTRACE_SYSCALL)
- 			set_tsk_thread_flag(child, TIF_SYSCALL_TRACE);
-@@ -269,7 +270,7 @@ int sys_ptrace(long request, long pid, l
- 
- 	case PTRACE_SINGLESTEP:
- 		ret = -EIO;
--		if ((unsigned long) data > _NSIG)
-+		if (!valid_signal(data))
- 			break;
- 		clear_tsk_thread_flag(child, TIF_SYSCALL_TRACE);
- 		child->ptrace |= PT_SINGLESTEP;
+Richard> Wrong kind of kernel for this kind of use. The kernel
+Richard> dynamically allocates/deallocates/pages of memory that it
+Richard> knows about. The only way to do what you want, with a kernel
+Richard> designed for multi-tasking multi-user applications use, is to
+Richard> reserve memory during boot.
 
+Sreeni, you might want to look at the mlockall() interface, but it's
+also hard to know what's right to do here if you don't explain what
+you are trying to do.  For example, why do you *care* which memory
+address(es) your application gets?  
 
+John

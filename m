@@ -1,63 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261324AbVF2PLo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261329AbVF2PMl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261324AbVF2PLo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 11:11:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261329AbVF2PLo
+	id S261329AbVF2PMl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 11:12:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261338AbVF2PMl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 11:11:44 -0400
-Received: from mail.fh-wedel.de ([213.39.232.198]:8868 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S261324AbVF2PLb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 11:11:31 -0400
-Date: Wed, 29 Jun 2005 17:10:53 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Denis Vlasenko <vda@ilport.com.ua>, Arjan van de Ven <arjan@infradead.org>,
-       Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
+	Wed, 29 Jun 2005 11:12:41 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:9920 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S261329AbVF2PMi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 11:12:38 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: Denis Vlasenko <vda@ilport.com.ua>
 Subject: Re: kmalloc without GFP_xxx?
-Message-ID: <20050629151053.GC2130@wohnheim.fh-wedel.de>
-References: <200506291402.18064.vda@ilport.com.ua> <1120045024.3196.34.camel@laptopd505.fenrus.org> <Pine.LNX.4.58.0506290927370.22775@localhost.localdomain> <200506291714.32990.vda@ilport.com.ua> <20050629142317.GB2130@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0506291046020.22775@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Date: Wed, 29 Jun 2005 17:12:55 +0200
+User-Agent: KMail/1.8
+Cc: rostedt@goodmis.org, Arjan van de Ven <arjan@infradead.org>,
+       Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
+References: <200506291402.18064.vda@ilport.com.ua> <Pine.LNX.4.58.0506290927370.22775@localhost.localdomain> <200506291714.32990.vda@ilport.com.ua>
+In-Reply-To: <200506291714.32990.vda@ilport.com.ua>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.58.0506291046020.22775@localhost.localdomain>
-User-Agent: Mutt/1.3.28i
+Message-Id: <200506291712.55893.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 June 2005 10:53:10 -0400, Steven Rostedt wrote:
-> On Wed, 29 Jun 2005, Jörn Engel wrote:
-> > On Wed, 29 June 2005 17:14:32 +0300, Denis Vlasenko wrote:
-> > >
-> > > This is why I always use _irqsave. Less error prone.
-> > > And locking is a very easy to get 'slightly' wrong, thus
-> > > I trade 0.1% of performance for code simplicity.
-> >
-> > But sometimes you get lucky and trade 100ms latency for code
-> > simplicity.  Of course, the audio people don't mind anymore, now that
-> > we have all sorts of realtime patches.  Everyone's happy!
-> >
-> 
-> God! If you are holding a spin_lock for 100ms, something is terribly
-> wrong, especialy since you better not schedule holding that spin_lock.
-> Spinlocks are _suppose_ to be for quick things.  The difference in latency
-> between a *_lock and *_lock_irqsave only effects UP, on SMP both will give
-> the same latency, since another CPU might be busy spinning while waiting
-> for that lock, heck, on SMP the latency of *_lock can actually be higher,
-> since, as I already said, the other CPU will even have to wait while the
-> CPU that has the lock is servicing interrupts.
+Am Mittwoch, 29. Juni 2005 16:14 schrieb Denis Vlasenko:
+> This is more or less what I meant. Why think about each kmalloc and when you
+> eventually did get it right: "Aha, we _sometimes_ get called from spinlocked code,
+> GFP_ATOMIC then" - you still do atomic alloc even if cases when you
+> were _not_ called from locked code! Thus you needed to think longer and got
+> code which is worse.
 
-All nice and well.  But still, for the sake of simplicity and me not
-wanting to think, I prefer always using spin_lock_irqsave for
-everything.  Since when should I stop and think about my own code?
+And if not? GFP_NOFS and GFP_NOIO exist for a reason.
 
-In fact, why don't we all sit down and start using KCSP for kernel
-hacking? ;)
-
-Jörn
-
--- 
-I can say that I spend most of my time fixing bugs even if I have lots
-of new features to implement in mind, but I give bugs more priority.
--- Andrea Arcangeli, 2000
+	Regards
+		Oliver

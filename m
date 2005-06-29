@@ -1,257 +1,366 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262696AbVF2Wg2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262695AbVF2Whz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262696AbVF2Wg2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 18:36:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262699AbVF2Wg2
+	id S262695AbVF2Whz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 18:37:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262700AbVF2Whz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 18:36:28 -0400
-Received: from opersys.com ([64.40.108.71]:35588 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S262696AbVF2Wfv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 18:35:51 -0400
-Message-ID: <42C320C4.9000302@opersys.com>
-Date: Wed, 29 Jun 2005 18:29:24 -0400
-From: Kristian Benoit <kbenoit@opersys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-US; rv:1.7.8) Gecko/20050515
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: paulmck@us.ibm.com, bhuey@lnxw.com, andrea@suse.de, tglx@linutronix.de,
-       karim@opersys.com, mingo@elte.hu, pmarques@grupopie.com,
-       bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au, ak@muc.de,
-       sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, rpm@xenomai.org, kbenoit@opersys.com
-Subject: PREEMPT_RT and I-PIPE: the numbers, take 3
+	Wed, 29 Jun 2005 18:37:55 -0400
+Received: from fmr20.intel.com ([134.134.136.19]:29652 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S262695AbVF2WgM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 18:36:12 -0400
+Date: Wed, 29 Jun 2005 15:35:40 -0700
+From: Rusty Lynch <rusty@linux.intel.com>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: Jeff Chua <jeffchua@silk.corp.fedex.com>,
+       Alejandro Bonilla <abonilla@linuxwireless.org>,
+       "'Arjan van de Ven'" <arjan@infradead.org>,
+       "'Jeff Chua'" <jeff96@silk.corp.fedex.com>,
+       ipw2100-devel@lists.sourceforge.net,
+       "'Linux Kernel'" <linux-kernel@vger.kernel.org>
+Subject: Re: [Ipw2100-devel] Re: ipw2200 can't compile under linux 2.6.13-rc1
+Message-ID: <20050629223540.GA22949@linux.jf.intel.com>
+References: <jeffchua@silk.corp.fedex.com> <Pine.LNX.4.63.0506292209050.6581@boston.corp.fedex.com> <200506291655.j5TGtpkX011008@laptop11.inf.utfsm.cl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <200506291655.j5TGtpkX011008@laptop11.inf.utfsm.cl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the 3rd run of our tests.
+On Wed, Jun 29, 2005 at 12:55:51PM -0400, Horst von Brand wrote:
+> Jeff Chua <jeffchua@silk.corp.fedex.com> wrote:
+> 
+> [...]
+> 
+> > All the ipw2200 files has ...
+> > 
+> >  	#include <net/ieee80211.h>
+> > 
+> > and that points to the new linux header in
+> > /usr/src/linux/include/net/ieee80211.h instead of the local include
+> > file under the ipw2200/net directory.
+> > 
+> > I've modified all ipw2200 files to #include "net/ieee80211.h" and now
+> > it compiles ok.
+> 
+> No, it doesn't. The warnings are about /function pointers/ that have the
+> wrong type (this comes from an earlier 2.6.12-git). AFAICS, this is due to
+> a change in device handling, and as long as this isn't fixed, I won't even
+> try to load the module.
+> 
+> Just need a little time to decrypt this macro mess...
+> 
+> And again, shouldn't we push for the header here going into the kernel? Or
+> fix up the code to work with the kernel version? The current situation
+> isn't confortable at all.
 
-Here are the changes since last time:
+The prototype for the driver show and store functions has a new argument,
+struct device_attribute *.  Here is a patch that adds the argument for the
+many device files that the ipw2200 has.
 
-- Modified the IRQ latency measurement code on the logger to do a busy-
-wait on the target instead of responding to an interrupt triggered by
-the target's "reply". As Ingo had suggested, this very much replicates
-what lpptest.c does. In fact, we actually copied Ingo's loop.
+    --rusty
 
-- LMbench runs are now conducted 5 times instead of just 3.
+ ipw2200.c |   95 +++++++++++++++++++++++++++++++++++++++++---------------------
+ 1 files changed, 63 insertions(+), 32 deletions(-)
 
-- The software versions being used were:
-  2.6.12 - final
-  RT-V0.7.50-35
-  I-pipe v0.7
-
-
-System load:
-------------
-
-As in the two first runs, total system load is measured by LMbench's
-execution time under various system loads. This time, however, each test
-was run 5 times instead of 3. While we would like to consider these
-tests to be generally more representative of general system behavior than
-previous published results, it remains that measuring the total running
-time of something like LMbench only gives a general idea of overall
-system overhead. In fact, looking at the raw results, we can note that
-the running times often vary quite a lot. For a more trustworthy
-measurement, one must look at the results found by LMbench.
-
-Note that the total running time of all configurations under the
-"plain" and "IRQ test" loads has gone down significantly (by about
-20 to 25 seconds). This is likely the result of an optimization within
-2.6.12-final. Most of the other results for the other loads are,
-nevertheless, in the same range of values found previously, except the
-"IRQ & hd" results for PREEMPT_RT which show an improvement.
-
-LMbench running times:
-+--------------------+-------+-------+-------+-------+-------+
-| Kernel             | plain | IRQ   | ping  | IRQ & | IRQ & |
-|                    |       | test  | flood | ping  |  hd   |
-+====================+=======+=======+=======+=======+=======+
-| Vanilla-2.6.12     | 150 s | 153 s | 183 s | 187 s | 242 s |
-+====================+=======+=======+=======+=======+=======+
-| with RT-V0.7.50-35 | 155 s | 155 s | 205 s | 206 s | 250 s |
-+--------------------+-------+-------+-------+-------+-------+
-| %                  |  3.3  |  1.3  | 12.0  | 10.2  |  3.3  |
-+====================+=======+=======+=======+=======+=======+
-| with Ipipe-0.7     | 153 s | 154 s | 193 s | 198 s | 259 s |
-+--------------------+-------+-------+-------+-------+-------+
-| %                  |  2.0  |  0.6  |  5.5  |  5.9  |  7.0  |
-+--------------------+-------+-------+-------+-------+-------+
-
-Legend:
-plain          = Nothing special
-IRQ test       = on logger: triggering target every 1ms
-ping flood     = on host: "sudo ping -f $TARGET_IP_ADDR"
-IRQ & ping     = combination of the previous two
-IRQ & hd       = IRQ test with the following being done on the target:
-                 "while [ true ]
-                     do dd if=/dev/zero of=/tmp/dummy count=512 bs=1m
-                  done"
-
-Looking at the LMbench output, which is clearly a more adequate
-benchmark, here are some highlights (this is averaged on 5 runs using
-lmbsum):
-
-"plain" run:
-
-Measurements   |   Vanilla   |  preemp_rt     |   ipipe
----------------+-------------+----------------+-------------
-fork           |      93us   |  157us (+69%)  |   95us (+2%)
-open/close     |     2.3us   |  3.7us (+43%)  |  2.4us (+4%)
-execve         |     351us   |  446us (+27%)  |  363us (+3%)
-select 500fd   |    12.7us   | 25.8us (+103%) | 12.8us (+1%)
-mmap           |     660us   | 2867us (+334%) |  677us (+3%)
-pipe           |     7.1us   | 11.6us (+63%)  |  7.4us (+4%)
-
-
-"IRQ test" run:
-Measurements   |   Vanilla   |  preemp_rt     |   ipipe
----------------+-------------+----------------+-------------
-fork           |      96us   |  158us (+65%)  |   97us (+1%)
-open/close     |     2.4us   |  3.7us (+54%)  |  2.4us (~)
-execve         |     355us   |  453us (+28%)  |  365us (+3%)
-select 500fd   |    12.8us   | 26.0us (+103%) | 12.8us (~%)
-mmap           |     662us   | 2893us (+337%) |  679us (+3%)
-pipe           |     7.1us   | 13.2us (+86%)  |  7.5us (+6%)
-
-
-"ping flood" run:
-Measurements   |   Vanilla   |  preemp_rt     |   ipipe
----------------+-------------+----------------+-------------
-fork           |     137us   |  288us (+110%) |  162us (+18%)
-open/close     |     3.9us   |  7.0us (+79%)  |  4.0us (+3%)
-execve         |     562us   |  865us (+54%)  |  657us (+17%)
-select 500fd   |    19.3us   | 47.4us (+146%) | 21.0us (+4%)
-mmap           |     987us   | 4921us (+399%) | 1056us (+7%)
-pipe           |    11.0us   | 23.7us (+115%) | 13.3us (+20%)
-
-
-"IRQ & ping" run:
-Measurements   |   Vanilla   |  preemp_rt     |   ipipe
----------------+-------------+----------------+-------------
-fork           |     143us   |  291us (+103%) |  163us (+14%)
-open/close     |     3.9us   |  7.1us (+82%)  |  4.0us (+3%)
-execve         |     567us   |  859us (+51%)  |  648us (+14%)
-select 500fd   |    19.6us   | 52.2us (+166%) | 21.4us (+9%)
-mmap           |     983us   | 5061us (+415%) | 1110us (+13%)
-pipe           |    12.2us   | 28.0us (+130%) | 12.7us (+4%)
-
-
-"IRQ & hd" run:
-Measurements   |   Vanilla   |  preemp_rt     |   ipipe
----------------+-------------+----------------+-------------
-fork           |      96us   |  164us (+71%)  |  100us (+4%)
-open/close     |     2.5us   |  3.8us (+52%)  |  2.5us (~)
-execve         |     373us   |  479us (+28%)  |  382us (+2%)
-select 500fd   |    13.3us   | 27.2us (+105%) | 13.4us (+1%)
-mmap           |     683us   | 3013us (+341%) |  712us (+4%)
-pipe           |     9.9us   | 23.0us (+132%) | 10.6us (+7%)
-
-These results are consistent with those highlighted during the discussion
-following the publication of the last test run.
-
-
-Interrupt response time:
-------------------------
-
-Unlike the two first times, these times are measured using a busy-wait
-on the logger. Basically, we disable interrupts, fire the interrupt to
-the target, log the time, while(1) until the input on the parallel port
-changes, and then log the time again to obtain the response time. Each
-of these runs accumulates above 1,000,000 interrupt latency measurements.
-
-We stand corrected as to the method that was used to collect interrupt
-latency measurements. Ingo's suggestion to disable all interrupts on
-the logger to collect the target's response does indeed mostly eliminate
-logger-side latencies. However, we've sporadically ran into situations
-where the logger locked-up, whereas it didn't before when we used to
-measure the response using another interrupt. This happened around 3 times
-in total over all of our test runs (and that's a lot of test runs), so
-it isn't systematic, but it did happen.
-
-+--------------------+------------+------+-------+------+--------+
-| Kernel             | sys load   | Aver | Max   | Min  | StdDev |
-+====================+============+======+=======+======+========+
-|                    | None       |  5.7 |  51.8 |  5.6 |  0.3   |
-|                    | Ping       |  5.8 |  51.8 |  5.6 |  0.5   |
-| Vanilla-2.6.12     | lm. + ping |  6.2 |  83.5 |  5.6 |  1.0   |
-|                    | lmbench    |  6.0 |  57.6 |  5.6 |  0.9   |
-|                    | lm. + hd   |  6.5 | 177.4 |  5.6 |  4.1   |
-|                    | DoHell     |  6.9 | 525.4 |  5.6 |  5.2   |
-+--------------------+------------+------+-------+------+--------+
-|                    | None       |  5.7 |  47.5 |  5.7 |  0.2   |
-|                    | Ping       |  7.0 |  63.4 |  5.7 |  1.6   |
-| with RT-V0.7.50-35 | lm. + ping |  7.9 |  66.2 |  5.7 |  1.9   |
-|                    | lmbench    |  7.4 |  51.8 |  5.7 |  1.4   |
-|                    | lm. + hd   |  7.3 |  53.4 |  5.7 |  1.9   |
-|                    | DoHell     |  7.9 |  59.1 |  5.7 |  1.8   |
-+--------------------+------------+------+-------+------+--------+
-|                    | None       |  7.1 |  50.4 |  5.7 |  0.2   |
-|                    | Ping       |  7.3 |  47.6 |  5.7 |  0.4   |
-| with Ipipe-0.7     | lm.+ ping  |  7.7 |  50.4 |  5.7 |  0.8   |
-|                    | lmbench    |  7.5 |  50.5 |  5.7 |  0.7   |
-|                    | lm. + hd   |  7.5 |  51.8 |  5.7 |  0.7   |
-|                    | DoHell     |  7.6 |  50.5 |  5.7 |  0.7   |
-+--------------------+------------+------+-------+------+--------+
-
-Legend:
-None           = nothing special
-ping           = on host: "sudo ping -f $TARGET_IP_ADDR"
-lm. + ping     = previous test and "make rerun" in lmbench-2.0.4/src/ on
-target
-lmbench        = "make rerun" in lmbench-2.0.4/src/ on target
-lm. + hd       = previous test  with the following being done on the target:
-                 "while [ true ]
-                     do dd if=/dev/zero of=/tmp/dummy count=512 bs=1m
-                  done"
-DoHell         = See:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=111947618802722&w=2
-
-We don't know whether we've hit the maximums Ingo alluded to, but we
-did integrate his dohell script and the only noticeable difference was
-with Linux where the maximum jumped to 525.4 micro-seconds. But that
-was with vanilla only. Neither PREEMPT_RT nor I-PIPE exhibited such
-maximums under the same load.
-
-
-Overall analysis:
------------------
-
-We had not intended to redo a 3rd run so early, but we're happy we did
-given the doubts expressed by some on the LKML. And as we suspected, these
-new results very much corroborate what we had found earlier. As such, our
-conclusions remain mostly unchanged:
-
-- Both approaches yield similar results in terms of interrupt response times.
-On most runs I-pipe seems to do slightly better on the maximums, but there
-are cases where PREEMPT_RT does better. The results obtained in this
-3rd round do corroborate the average latency extrapolated from analyzing
-previous runs, but they contradict our earlier analysis of the true
-maximum delays. Instead, it was Paul McKenny that was right, the maximums
-are indeed around 50us. Also, Ingo was right in as far as we found a
-maximum for vanilla Linux that went all the way up to 525us. We stand
-corrected on both these issues. Nevertheless, the above results are
-consistent with previously published ones.
-
-- In terms of system load, PREEMPT_RT is typically still higher in
-cost than I-pipe, as had been seen in the two previous runs. Please note
-that we've done our best to use the truly latest version of PREEMPT_RT
-available at this time. We actually did on purpose to finish all other
-tests before doing PREEMPT_RT runs in order to make sure we were using
-the latest possible release, as this was one of the main grievances
-expressed by those supporting PREEMPT_RT.
-
-For a more complete discussion of our conclusions please see our previous
-test results publication:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=111928813818151&w=2
-
-Again, we hope these results will help those interested in enhancing Linux
-for use in real-time applications to better direct their efforts.
-
-Kristian Benoit
-Karim Yaghmour
---
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || 1-866-677-4546
+Index: ipw2200-1.0.4/ipw2200.c
+===================================================================
+--- ipw2200-1.0.4.orig/ipw2200.c
++++ ipw2200-1.0.4/ipw2200.c
+@@ -1071,7 +1071,8 @@ static DRIVER_ATTR(debug_level, S_IWUSR 
+ 
+ #define STAT_PRINT(b, x, y) sprintf(b, # x ": " y "\n", priv->x);
+ 
+-static ssize_t show_stats(struct device *d, char *buf)
++static ssize_t show_stats(struct device *d, struct device_attribute *attr,
++			  char *buf)
+ {
+ 	struct ipw_priv *priv = dev_get_drvdata(d);
+ 	u32 len = 0;
+@@ -1081,13 +1082,15 @@ static ssize_t show_stats(struct device 
+ static DEVICE_ATTR(stats, S_IRUGO, show_stats, NULL);
+ 
+ 
+-static ssize_t show_scan_age(struct device *d, char *buf)
++static ssize_t show_scan_age(struct device *d, struct device_attribute *attr,
++			     char *buf)
+ {
+ 	struct ipw_priv *priv = dev_get_drvdata(d);
+ 	return sprintf(buf, "%d\n", priv->ieee->scan_age);
+ }
+ 
+-static ssize_t store_scan_age(struct device *d, const char *buf, size_t count)
++static ssize_t store_scan_age(struct device *d, struct device_attribute *attr,
++			      const char *buf, size_t count)
+ {
+ 	struct ipw_priv *priv = dev_get_drvdata(d);
+ #ifdef CONFIG_IPW_DEBUG
+@@ -1124,13 +1127,15 @@ static ssize_t store_scan_age(struct dev
+ }
+ static DEVICE_ATTR(scan_age, S_IWUSR | S_IRUGO, show_scan_age, store_scan_age);
+ 
+-static ssize_t show_led(struct device *d, char *buf)
++static ssize_t show_led(struct device *d, struct device_attribute *attr,
++			char *buf)
+ {
+ 	struct ipw_priv *priv = dev_get_drvdata(d);
+ 	return sprintf(buf, "%d\n", (priv->config & CFG_NO_LED) ? 0 : 1);
+ }
+ 
+-static ssize_t store_led(struct device *d, const char *buf, size_t count)
++static ssize_t store_led(struct device *d, struct device_attribute *attr,
++			 const char *buf, size_t count)
+ {
+ 	struct ipw_priv *priv = dev_get_drvdata(d);
+ 
+@@ -1155,21 +1160,24 @@ static ssize_t store_led(struct device *
+ static DEVICE_ATTR(led, S_IWUSR | S_IRUGO, show_led, store_led);
+ 
+ 
+-static ssize_t show_status(struct device *d, char *buf)
++static ssize_t show_status(struct device *d, struct device_attribute *attr,
++			   char *buf)
+ {
+ 	struct ipw_priv *p = (struct ipw_priv *)d->driver_data;
+ 	return sprintf(buf, "0x%08x\n", (int)p->status);
+ }
+ static DEVICE_ATTR(status, S_IRUGO, show_status, NULL);
+ 
+-static ssize_t show_cfg(struct device *d, char *buf)
++static ssize_t show_cfg(struct device *d, struct device_attribute *attr,
++			char *buf)
+ {
+ 	struct ipw_priv *p = (struct ipw_priv *)d->driver_data;
+ 	return sprintf(buf, "0x%08x\n", (int)p->config);
+ }
+ static DEVICE_ATTR(cfg, S_IRUGO, show_cfg, NULL);
+ 
+-static ssize_t show_nic_type(struct device *d, char *buf)
++static ssize_t show_nic_type(struct device *d, struct device_attribute *attr,
++			     char *buf)
+ {
+ 	struct ipw_priv *priv = (struct ipw_priv *)d->driver_data;
+ 
+@@ -1177,8 +1185,8 @@ static ssize_t show_nic_type(struct devi
+ }
+ static DEVICE_ATTR(nic_type, S_IRUGO, show_nic_type, NULL);
+ 
+-static ssize_t dump_error_log(struct device *d, const char *buf,
+-			      size_t count)
++static ssize_t dump_error_log(struct device *d, struct device_attribute *attr,
++			      const char *buf, size_t count)
+ {
+ 	char *p = (char *)buf;
+ 
+@@ -1189,8 +1197,8 @@ static ssize_t dump_error_log(struct dev
+ }
+ static DEVICE_ATTR(dump_errors, S_IWUSR, NULL, dump_error_log);
+ 
+-static ssize_t dump_event_log(struct device *d, const char *buf,
+-			      size_t count)
++static ssize_t dump_event_log(struct device *d, struct device_attribute *attr,
++			      const char *buf, size_t count)
+ {
+ 	char *p = (char *)buf;
+ 
+@@ -1201,7 +1209,8 @@ static ssize_t dump_event_log(struct dev
+ }
+ static DEVICE_ATTR(dump_events, S_IWUSR, NULL, dump_event_log);
+ 
+-static ssize_t show_ucode_version(struct device *d, char *buf)
++static ssize_t show_ucode_version(struct device *d,
++				  struct device_attribute *attr, char *buf)
+ {
+ 	u32 len = sizeof(u32), tmp = 0;
+ 	struct ipw_priv *p = (struct ipw_priv*)d->driver_data;
+@@ -1213,7 +1222,8 @@ static ssize_t show_ucode_version(struct
+ }
+ static DEVICE_ATTR(ucode_version, S_IWUSR|S_IRUGO, show_ucode_version, NULL);
+ 
+-static ssize_t show_rtc(struct device *d, char *buf)
++static ssize_t show_rtc(struct device *d, struct device_attribute *attr,
++			char *buf)
+ {
+ 	u32 len = sizeof(u32), tmp = 0;
+ 	struct ipw_priv *p = (struct ipw_priv*)d->driver_data;
+@@ -1229,13 +1239,15 @@ static DEVICE_ATTR(rtc, S_IWUSR|S_IRUGO,
+  * Add a device attribute to view/control the delay between eeprom
+  * operations.
+  */
+-static ssize_t show_eeprom_delay(struct device *d, char *buf)
++static ssize_t show_eeprom_delay(struct device *d,
++				 struct device_attribute *attr, char *buf)
+ {
+ 	int n = ((struct ipw_priv*)d->driver_data)->eeprom_delay;
+ 	return sprintf(buf, "%i\n", n);
+ }
+-static ssize_t store_eeprom_delay(struct device *d, const char *buf,
+-				  size_t count)
++static ssize_t store_eeprom_delay(struct device *d,
++				  struct device_attribute *attr,
++				  const char *buf, size_t count)
+ {
+ 	struct ipw_priv *p = (struct ipw_priv*)d->driver_data;
+ 	sscanf(buf, "%i", &p->eeprom_delay);
+@@ -1244,7 +1256,9 @@ static ssize_t store_eeprom_delay(struct
+ static DEVICE_ATTR(eeprom_delay, S_IWUSR|S_IRUGO,
+ 		   show_eeprom_delay,store_eeprom_delay);
+ 
+-static ssize_t show_command_event_reg(struct device *d, char *buf)
++static ssize_t show_command_event_reg(struct device *d,
++				      struct device_attribute *attr,
++				      char *buf)
+ {
+ 	u32 reg = 0;
+ 	struct ipw_priv *p = (struct ipw_priv *)d->driver_data;
+@@ -1253,6 +1267,7 @@ static ssize_t show_command_event_reg(st
+ 	return sprintf(buf, "0x%08x\n", reg);
+ }
+ static ssize_t store_command_event_reg(struct device *d,
++				       struct device_attribute *attr,
+ 				       const char *buf,
+ 				       size_t count)
+ {
+@@ -1266,7 +1281,9 @@ static ssize_t store_command_event_reg(s
+ static DEVICE_ATTR(command_event_reg, S_IWUSR|S_IRUGO,
+ 		   show_command_event_reg,store_command_event_reg);
+ 
+-static ssize_t show_mem_gpio_reg(struct device *d, char *buf)
++static ssize_t show_mem_gpio_reg(struct device *d,
++				 struct device_attribute *attr,
++				 char *buf)
+ {
+ 	u32 reg = 0;
+ 	struct ipw_priv *p = (struct ipw_priv *)d->driver_data;
+@@ -1275,6 +1292,7 @@ static ssize_t show_mem_gpio_reg(struct 
+ 	return sprintf(buf, "0x%08x\n", reg);
+ }
+ static ssize_t store_mem_gpio_reg(struct device *d,
++				  struct device_attribute *attr,
+ 				  const char *buf,
+ 				  size_t count)
+ {
+@@ -1288,7 +1306,8 @@ static ssize_t store_mem_gpio_reg(struct
+ static DEVICE_ATTR(mem_gpio_reg, S_IWUSR|S_IRUGO,
+ 		   show_mem_gpio_reg,store_mem_gpio_reg);
+ 
+-static ssize_t show_indirect_dword(struct device *d, char *buf)
++static ssize_t show_indirect_dword(struct device *d,
++				   struct device_attribute *attr, char *buf)
+ {
+ 	u32 reg = 0;
+ 	struct ipw_priv *priv = (struct ipw_priv *)d->driver_data;
+@@ -1300,8 +1319,9 @@ static ssize_t show_indirect_dword(struc
+ 	return sprintf(buf, "0x%08x\n", reg);
+ }
+ static ssize_t store_indirect_dword(struct device *d,
+-				   const char *buf,
+-				   size_t count)
++				    struct device_attribute *attr,
++				    const char *buf,
++				    size_t count)
+ {
+ 	struct ipw_priv *priv = (struct ipw_priv *)d->driver_data;
+ 
+@@ -1312,7 +1332,8 @@ static ssize_t store_indirect_dword(stru
+ static DEVICE_ATTR(indirect_dword, S_IWUSR|S_IRUGO,
+ 		   show_indirect_dword,store_indirect_dword);
+ 
+-static ssize_t show_indirect_byte(struct device *d, char *buf)
++static ssize_t show_indirect_byte(struct device *d,
++				  struct device_attribute *attr, char *buf)
+ {
+ 	u8 reg = 0;
+ 	struct ipw_priv *priv = (struct ipw_priv *)d->driver_data;
+@@ -1324,6 +1345,7 @@ static ssize_t show_indirect_byte(struct
+ 	return sprintf(buf, "0x%02x\n", reg);
+ }
+ static ssize_t store_indirect_byte(struct device *d,
++				   struct device_attribute *attr,
+ 				   const char *buf,
+ 				   size_t count)
+ {
+@@ -1336,7 +1358,8 @@ static ssize_t store_indirect_byte(struc
+ static DEVICE_ATTR(indirect_byte, S_IWUSR|S_IRUGO,
+ 		   show_indirect_byte, store_indirect_byte);
+ 
+-static ssize_t show_direct_dword(struct device *d, char *buf)
++static ssize_t show_direct_dword(struct device *d,
++				 struct device_attribute *attr, char *buf)
+ {
+ 	u32 reg = 0;
+ 	struct ipw_priv *priv = (struct ipw_priv *)d->driver_data;
+@@ -1349,8 +1372,9 @@ static ssize_t show_direct_dword(struct 
+ 	return sprintf(buf, "0x%08x\n", reg);
+ }
+ static ssize_t store_direct_dword(struct device *d,
+-				 const char *buf,
+-				 size_t count)
++				  struct device_attribute *attr,
++				  const char *buf,
++				  size_t count)
+ {
+ 	struct ipw_priv *priv = (struct ipw_priv *)d->driver_data;
+ 
+@@ -1372,7 +1396,8 @@ static inline int rf_kill_active(struct 
+ 	return (priv->status & STATUS_RF_KILL_HW) ? 1 : 0;
+ }
+ 
+-static ssize_t show_rf_kill(struct device *d, char *buf)
++static ssize_t show_rf_kill(struct device *d, struct device_attribute *attr,
++			    char *buf)
+ {
+ 	/* 0 - RF kill not enabled
+ 	   1 - SW based RF kill active (sysfs)
+@@ -1415,7 +1440,8 @@ static int ipw_radio_kill_sw(struct ipw_
+ 	return 1;
+ }
+ 
+-static ssize_t store_rf_kill(struct device *d, const char *buf, size_t count)
++static ssize_t store_rf_kill(struct device *d, struct device_attribute *attr,
++			     const char *buf, size_t count)
+ {
+ 	struct ipw_priv *priv = (struct ipw_priv *)d->driver_data;
+ 
+@@ -1425,7 +1451,8 @@ static ssize_t store_rf_kill(struct devi
+ }
+ static DEVICE_ATTR(rf_kill, S_IWUSR|S_IRUGO, show_rf_kill, store_rf_kill);
+ 
+-static ssize_t show_speed_scan(struct device *d, char *buf)
++static ssize_t show_speed_scan(struct device *d, struct device_attribute *attr,
++			       char *buf)
+ {
+ 	struct ipw_priv *priv = (struct ipw_priv *)d->driver_data;
+ 	int pos = 0, len = 0;
+@@ -1439,7 +1466,9 @@ static ssize_t show_speed_scan(struct de
+ 	return sprintf(buf, "0\n");
+ }
+ 
+-static ssize_t store_speed_scan(struct device *d, const char *buf, size_t count)
++static ssize_t store_speed_scan(struct device *d,
++				struct device_attribute *attr,
++				const char *buf, size_t count)
+ {
+ 	struct ipw_priv *priv = (struct ipw_priv *)d->driver_data;
+ 	int channel, pos = 0;
+@@ -1477,14 +1506,16 @@ static ssize_t store_speed_scan(struct d
+ static DEVICE_ATTR(speed_scan, S_IWUSR|S_IRUGO, show_speed_scan,
+ 		   store_speed_scan);
+ 
+-static ssize_t show_net_stats(struct device *d, char *buf)
++static ssize_t show_net_stats(struct device *d, struct device_attribute *attr,
++			      char *buf)
+ {
+ 	struct ipw_priv *priv = (struct ipw_priv *)d->driver_data;
+ 	return sprintf(buf, "%c\n", (priv->config & CFG_NET_STATS) ?
+ 		       '1' : '0');
+ }
+ 
+-static ssize_t store_net_stats(struct device *d, const char *buf, size_t count)
++static ssize_t store_net_stats(struct device *d, struct device_attribute *attr,
++			       const char *buf, size_t count)
+ {
+ 	struct ipw_priv *priv = (struct ipw_priv *)d->driver_data;
+ 	if (buf[0] == '1')

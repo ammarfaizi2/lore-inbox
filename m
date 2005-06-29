@@ -1,47 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262479AbVF2TaY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262506AbVF2TcQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262479AbVF2TaY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 15:30:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262486AbVF2TaX
+	id S262506AbVF2TcQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 15:32:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262535AbVF2TcP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 15:30:23 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:34794 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262479AbVF2T3g (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 15:29:36 -0400
-Date: Wed, 29 Jun 2005 21:29:16 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Chuck Harding <charding@llnl.gov>
-Cc: Linux Kernel Discussion List <linux-kernel@vger.kernel.org>
-Subject: Re: Realtime Preemption - 2.6.12-final-RT-V0.7.50-35
-Message-ID: <20050629192916.GA6079@elte.hu>
-References: <Pine.LNX.4.63.0506291005390.4929@ghostwheel.llnl.gov>
+	Wed, 29 Jun 2005 15:32:15 -0400
+Received: from zproxy.gmail.com ([64.233.162.193]:11992 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262506AbVF2Tb5 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 15:31:57 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=maIGQeXKhHDlnuytleOYb9o0E46QjYaCtb1nAHo/4K27DjMnLo0PQwIdyv7jEEpIX/XKqehoCc7+HebViECaMxtTaQk4Apt+IHym9j10L8EpLStoH8ZOYYvltcRW22+1HWuVu08p28W/87P/OnaOSBMLbDbhftaQuo+iVGVX5tY=
+Message-ID: <9a874849050629123150462099@mail.gmail.com>
+Date: Wed, 29 Jun 2005 21:31:53 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Linux 2.6.13-rc1
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0506282310040.14331@ppc970.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.63.0506291005390.4929@ghostwheel.llnl.gov>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+References: <Pine.LNX.4.58.0506282310040.14331@ppc970.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 6/29/05, Linus Torvalds <torvalds@osdl.org> wrote:
+> 
+[...]
+> 
+> Anyway, I really don't want to drag out 2.6.13 as long as 2.6.12 took, and
+> we don't have any reason to anyway, so let's try to see if we can calm
+> things down again, and people who are thinking about writing new code
+> might think about spending some quality time looking at the existing code
+> and patches instead.
+> 
+[...]
+> 
 
-* Chuck Harding <charding@llnl.gov> wrote:
+That sounds like a really good idea. If 2.6.13 could get out the door
+fairly quickly and be the result of everyone saying "let's make this a
+rock solid kernel and shake all the bugs out" that would be great..  A
+sort of 2.6.12 on stabilizers ;)
+I know I'll be doing my bit to fix some of the minor bits.
 
-> still having sox hang with no messages about what is going on. I have 
-> CONFIG_DEBUG_PREEMPT enabled. It did work without hanging for about 50 
-> times of playing a sound file, so the problem seems to take a bit of 
-> time to develop. What other info would you need to figure this out?
 
-could you chrt the sound IRQ thread to SCHED_OTHER (audio performance 
-will suck, but it will be more debuggable) - when the lockup happens, do 
-you see the IRQ thread looping? Do you have SOFTLOCKUP_DETECT turned on 
-too?
-
-	Ingo
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

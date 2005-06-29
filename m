@@ -1,45 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262305AbVF2ANv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262311AbVF2AVh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262305AbVF2ANv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 20:13:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262361AbVF2ANV
+	id S262311AbVF2AVh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 20:21:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262252AbVF2ANB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 20:13:21 -0400
-Received: from natnoddy.rzone.de ([81.169.145.166]:36003 "EHLO
-	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S262305AbVF2ALy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 20:11:54 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Christoph Lameter <christoph@lameter.com>
-Subject: Re: [PATCH] Read only syscall tables for x86_64 and i386
-Date: Wed, 29 Jun 2005 02:06:13 +0200
-User-Agent: KMail/1.7.2
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.62.0506281141050.959@graphe.net.suse.lists.linux.kernel> <p73r7emuvi1.fsf@verdi.suse.de> <Pine.LNX.4.62.0506281238320.1734@graphe.net>
-In-Reply-To: <Pine.LNX.4.62.0506281238320.1734@graphe.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 28 Jun 2005 20:13:01 -0400
+Received: from nome.ca ([65.61.200.81]:45755 "HELO gobo.nome.ca")
+	by vger.kernel.org with SMTP id S262311AbVF2AMo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 20:12:44 -0400
+Date: Tue, 28 Jun 2005 17:12:44 -0700
+From: Mike Bell <kernel@mikebell.org>
+To: Arjan van de Ven <arjan@infradead.org>, Greg KH <greg@kroah.com>,
+       Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] ndevfs - a "nano" devfs
+Message-ID: <20050629001243.GD4673@mikebell.org>
+Mail-Followup-To: Mike Bell <kernel@mikebell.org>,
+	Arjan van de Ven <arjan@infradead.org>, Greg KH <greg@kroah.com>,
+	Dmitry Torokhov <dtor_core@ameritech.net>,
+	linux-kernel@vger.kernel.org
+References: <20050625234305.GA11282@kroah.com> <20050627071907.GA5433@mikebell.org> <200506271735.50565.dtor_core@ameritech.net> <20050627232559.GA7690@mikebell.org> <20050628074015.GA3577@kroah.com> <20050628090852.GA966@mikebell.org> <1119950487.3175.21.camel@laptopd505.fenrus.org> <20050628214929.GB23980@voodoo> <20050628222318.GC4673@mikebell.org> <20050628234310.GA29653@mail>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200506290206.15221.arnd@arndb.de>
+In-Reply-To: <20050628234310.GA29653@mail>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dinsdag 28 Juni 2005 21:41, Christoph Lameter wrote:
+On Tue, Jun 28, 2005 at 07:43:10PM -0400, Jim Crilly wrote:
+> Well it looks like the ALSA library already abstracts the device node
+> enough that the app itself doesn't know what file is being used because it
+> just calls snd_card_get_name, snd_open_pcm, etc with the ALSA index. So
+> wouldn't it be feasible to make ALSA a little bit smarter so that it could
+> track/find the device nodes no matter what name they have?
 
-> The ability to protect a readonly section may be another issue.
+You could in theory do that to ALSA. Except for the aforementioned
+"how?". How is ALSA supposed to find out what its new device node name
+is? You could invent some sort of crazy libudev, but I think it would
+require a major redesign of how udev works, forcing it to keep state or
+such. The only alternatives I can see are what I already mentioned,
+searching every single device node in /dev to find the right one.
 
-Exactly. Mapping the readonly section readonly adds a nice way to
-check that constant data is handled correctly by all of the code.
-Otherwise, there might be some surprises if gcc performs
-constant folding and we incorrectly rely on one copy to be writable.
-
-A read-only text segment also raises the bar for authors of rootkits
-or other evil hacks that patch the running kernel code.
-
-Right now, s390 (and I believe arm, maybe others as well) is already
-able to map in the readonly sections of the kernel from ROM, in order
-to have more available RAM for other purposes.
-
-	Arnd <><
+Which is why I conclude (and, evidently, Greg agrees) that consistent
+naming schemes for /dev are very important. Now if I could just find out
+why devfs's failure to allow such broken configurations is a bug in his
+mind. :)

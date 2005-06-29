@@ -1,70 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261388AbVF2Dx4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262219AbVF2Dzb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261388AbVF2Dx4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 23:53:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262219AbVF2Dx4
+	id S262219AbVF2Dzb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 23:55:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262229AbVF2DzZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 23:53:56 -0400
-Received: from smtpout.mac.com ([17.250.248.86]:31172 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S261388AbVF2Dxx (ORCPT
+	Tue, 28 Jun 2005 23:55:25 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:13467 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262219AbVF2Dy3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 23:53:53 -0400
-In-Reply-To: <2661.10.10.10.24.1120004702.squirrel@linux1>
-References: <42B9E536.60704@pobox.com> <20050623235634.GC14426@waste.org> <20050624064101.GB14292@pasky.ji.cz> <20050624123819.GD9519@64m.dyndns.org> <20050628150027.GB1275@pasky.ji.cz> <20050628180157.GI12006@waste.org> <62CF578B-B9DF-4DEA-8BAD-041F357771FD@mac.com> <3886.10.10.10.24.1119991512.squirrel@linux1> <20050628221422.GT12006@waste.org> <3993.10.10.10.24.1119997389.squirrel@linux1> <20050628224946.GU12006@waste.org> <4846.10.10.10.24.1119999568.squirrel@linux1> <40A9C7C2-1AFE-45BC-90A5-571628304479@mac.com> <1765.10.10.10.24.1120001856.squirrel@linux1> <40A4071C-ED45-4280-928F-BCFC8761F47E@mac.com> <2661.10.10.10.24.1120004702.squirrel@linux1>
-Mime-Version: 1.0 (Apple Message framework v730)
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <12B6F9A5-81F8-46BD-A05D-B9FA1A70A9FF@mac.com>
-Cc: Matt Mackall <mpm@selenic.com>, Petr Baudis <pasky@ucw.cz>,
-       Christopher Li <hg@chrisli.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Git Mailing List <git@vger.kernel.org>, mercurial@selenic.com
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: Mercurial vs Updated git HOWTO for kernel hackers
-Date: Tue, 28 Jun 2005 23:53:47 -0400
-To: Sean <seanlkml@sympatico.ca>
-X-Mailer: Apple Mail (2.730)
+	Tue, 28 Jun 2005 23:54:29 -0400
+Date: Tue, 28 Jun 2005 23:52:48 -0400
+From: Dave Jones <davej@redhat.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Daniel Drake <dsd@gentoo.org>, davej@codemonkey.org.uk,
+       linux-kernel@vger.kernel.org, sfudally@fau.edu
+Subject: Re: [PATCH] amd64-agp: Add SIS760 PCI ID
+Message-ID: <20050629035248.GA12820@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, Andi Kleen <ak@suse.de>,
+	Daniel Drake <dsd@gentoo.org>, davej@codemonkey.org.uk,
+	linux-kernel@vger.kernel.org, sfudally@fau.edu
+References: <42C1E5CA.6060507@gentoo.org> <20050629032403.GB21575@bragg.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050629032403.GB21575@bragg.suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jun 28, 2005, at 20:25:02, Sean wrote:
-> there will be a price to pay if the linux community fragments over  
-> choice
-> of scm.
+On Wed, Jun 29, 2005 at 05:24:03AM +0200, Andi Kleen wrote:
+ > On Wed, Jun 29, 2005 at 01:05:30AM +0100, Daniel Drake wrote:
+ > > From: Scott Fudally <sfudally@fau.edu>
+ > > 
+ > > This patch adds the SiS 760 ID to the amd64-agp driver, so that agpgart can be
+ > > used on Athlon64 boards based on this chip.
+ > 
+ > You mean used automatically. You could always force it before.
+ > 
+ > > 
+ > > Scott already submitted this but did not recieve any response. To ensure it
+ > > has been sent in correctly, I am resubmitting this now on his behalf.
+ > 
+ > It's fine for me thanks. I assume Dave will queue it up.
 
-I don't agree.  With the current set of SCMs, I don't think it will  
-be long
-before somebody invents a gitweb/Mercurial/whatever gateway, such  
-that I can
-"hg serve" from my Mercurial repository and have Linus "git pull" from a
-multiprotocol bridge.
+Yep, Already sent to Linus.
 
-> the good news is that we're no longer locked into the whims of
-> some proprietary system.  so it should be straight forward for  
-> those who
-> choose any tool to work with those who've chosen another.  this is  
-> already
-> evidenced by the fact that the git repository is pulled and re- 
-> exeported
-> with mecurial.
+thanks.
 
-I agree completely!  Cheers to the end of proprietary revision storage!
-
-> anyway, all the best, just wish you guys would spend less time  
-> trying to
-> convert git users and more time advancing your own tool.
-
-A project with no users isn't much of a project, now is it?  In any  
-case,
-this thread has long since passed its usefulness, so let's let it  
-die, ok?
-
-Cheers,
-Kyle Moffett
-
---
-I lost interest in "blade servers" when I found they didn't throw  
-knives at people who weren't supposed to be in your machine room.
-   -- Anthony de Boer
+		Dave
 

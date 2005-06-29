@@ -1,76 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262670AbVF2V2s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262664AbVF2VaP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262670AbVF2V2s (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 17:28:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262681AbVF2V2s
+	id S262664AbVF2VaP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 17:30:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262667AbVF2V3a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 17:28:48 -0400
-Received: from zproxy.gmail.com ([64.233.162.202]:55385 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262678AbVF2V1o convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 17:27:44 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=c0WTDKvpiWzE0PijxM/NKl9fYW9v0yAW2aQXOkkmE/6bJiHitlyyfRQ2ubv5PAspCJ5Lfk8G1s6l2QDxkS/CFAelM2Dr4CeAlmd5SDT/ffVjKVPwa8/LykPRmTRg4BHsHkOJ0gUFbar4zDWF5SFROebUbM5iN0AX1Fvx4Y9eiCc=
-Message-ID: <9a87484905062914275c5de0c9@mail.gmail.com>
-Date: Wed, 29 Jun 2005 23:27:38 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
-To: Howard Owen <hbo@egbok.com>
-Subject: Re: Newbie Roadmap?
-Cc: LKML List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1119896432.9541.88.camel@Quirk.egbok.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <1119896432.9541.88.camel@Quirk.egbok.com>
+	Wed, 29 Jun 2005 17:29:30 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:16002 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S262664AbVF2V2Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 17:28:24 -0400
+Message-ID: <42C31268.8010606@adaptec.com>
+Date: Wed, 29 Jun 2005 17:28:08 -0400
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+CC: Greg KH <greg@kroah.com>
+Subject: struct class question
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 29 Jun 2005 21:27:18.0083 (UTC) FILETIME=[538FE930:01C57CF1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/27/05, Howard Owen <hbo@egbok.com> wrote:
-> I've embarked on a project to write device drivers for an obscure and
-> rare ISA card. It's a modern version of the HP 82973 HP-IL interface
-> produced by Cristoph Klug. HP-IL was a bit-serial, dog-slow version of
-> HP-IB (IEEE-488) that was designed to work with the HP-41C family of
-> calculators, and later with the HP-71 and HP-85. The 41C calculators are
-> my hobby interest. I'd like to introduce myself, and ask for pointers
-> for a newbie device driver author.
-> 
-[...]
-> 
-> What I've done so far: I've picked up and started reading "Linux Device
-> Drivers" both editions 2 and 3. I'm about half way through Love's "Linux
-> Kernel Development" 
+Hi guys,
 
-Good choice of books.
+AFAIU, struct class describes a class of devices
+for which a driver/kernel interface exists.  That is, the
+implication is "struct class => driver interface (i.e. LLDD)".
 
-[...]
-> I'm starting
-> out running Slack 10.1, so I'll probably tackle the 2.4 driver first.
-> 
-Slackware runs just fine with a 2.6 kernel. I've been running 2.5.x
-and 2.6.x kernels on Slack for ages and I'm currently running
-2.6.13-rc1 with Slackware-current.
+The reason for this, as I understand it, is that the kernel
+wants to be able to control such devices through the class
+interface (and the class device interface), and possibly
+hotplugging.
+
+Thus we get the pretty flat sysfs class hierarchy:
+/sys/class/<if>/<device>
+
+But there may be devices which are embedded in the controlled
+device and/or which are part of it but are _not_ directly controlled
+by the kernel or the driver interface and for which no driver
+interface exists.  And representing such devices on their own
+doesn't make sense: they do not exist on their own or/and they
+cannot be directly controlled.
+
+Example of such devices are phys, ports, of a SAS host adapter
+and expanders on the SAS domain.  They are "embedded devices",
+not directly controllable by the kernel or through the kernel
+interface.
+
+Such devices are controlled by the SAS Discover process.
+
+Now the SAS Discover process sees those devices as they're
+physically (and logically) connected (simplified):
+
+host adapter --> phys
+             --> ports (may not exists)
+                 --> participating phys (list, mask, etc)
+                 --> SAS device (target or initiator)
+                 --> expander device (edge or fanout)
+
+I was wondering if it is viable to represent
+this hierarchy, *as the SAS discover process sees it*, in
+sysfs, possibly through the class interface.
+
+So in effect, (remote) targets and initiators _would_ be present
+in /sys/class/scsi_device/ (as is normal) and hosts
+in /sys/class/scsi_host/ (again as is normal), but that the
+picture as seen by the SAS Discover process (intermediate)
+would be represented:
+
+/sys/class/sas/
+/sys/class/sas/ha0/
+/sys/class/sas/ha1/
+/sys/class/sas/ha1/phys/
+/sys/class/sas/ha1/ports/
+etc.
+
+And this is also what the Discover process would use in order
+to discover domains, control zones, configure expanders, etc.
+
+That is, this is nothing more but my trying to export in
+viewable form what the SAS Discover process saw and what it
+would use.
+
+Is this okay with kernel and scsi people?
+
+Thanks,
+	Luben
 
 
-[...]
-> If anyone has suggestions or pointers for a newbie with the above
-> background, I'd greatly appreciate hearing from you.
-> 
-You probably already know this, but since you ask I'll point out the obvious :-)
 
-Some good documents to read : 
- Documentation/CodingStyle
- Documentation/SubmittingDrivers
- Documentation/SubmittingPatches
-
-And this I find to be a good website for new kernel hackers : 
- http://kernelnewbies.org/
-
-
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html

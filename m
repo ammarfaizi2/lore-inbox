@@ -1,52 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261260AbVF2PDy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261303AbVF2PGW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261260AbVF2PDy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 11:03:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261288AbVF2PDy
+	id S261303AbVF2PGW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 11:06:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261288AbVF2PGV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 11:03:54 -0400
-Received: from smtp-103-wednesday.noc.nerim.net ([62.4.17.103]:53509 "EHLO
-	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
-	id S261260AbVF2PDu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 11:03:50 -0400
-Date: Wed, 29 Jun 2005 17:04:06 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Greg Kroah-Hartman <gregkh@suse.de>
-Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       Salah Coronya <salahx@yahoo.com>
-Subject: [PATCH 2.6] PCI: Add PCI quirk for SMBus on the Asus P4B-LX
-Message-Id: <20050629170406.1a48424d.khali@linux-fr.org>
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 29 Jun 2005 11:06:21 -0400
+Received: from silver.veritas.com ([143.127.12.111]:46442 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S261324AbVF2PGL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 11:06:11 -0400
+Date: Wed, 29 Jun 2005 16:07:30 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Tomasz Torcz <zdzichu@irc.pl>
+cc: "Ronny V. Vindenes" <s864@ii.uib.no>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.13-rc1
+In-Reply-To: <20050629145806.GA5803@irc.pl>
+Message-ID: <Pine.LNX.4.61.0506291604340.14413@goblin.wat.veritas.com>
+References: <4kEoS-Am-3@gated-at.bofh.it> <m37jgd9r8w.fsf@localhost.localdomain>
+ <20050629145806.GA5803@irc.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 29 Jun 2005 15:06:10.0936 (UTC) FILETIME=[15AE2F80:01C57CBC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
+On Wed, 29 Jun 2005, Tomasz Torcz wrote:
+> On Wed, Jun 29, 2005 at 04:23:11PM +0200, Ronny V. Vindenes wrote:
+> > 
+> > On x86_64 with reiserfs and ext3 on dm (using cfq scheduler) the log
+> > is full of this:
+> > 
+> > Badness in blk_remove_plug at drivers/block/ll_rw_blk.c:1424
+> 
+>  Also on x86, Reiserfs on LVM2, cfq, on sata_sil; Preemption set to
+> Voluntary.
 
-One more Asus motherboard requiring the SMBus quirk (P4B-LX). Original
-patch from Salah Coronya.
+You should find the patch I posted just a little earlier fixes all that...
 
-Please apply, thanks.
+get_request is now expected to be holding on to queue_lock, with interrupts
+disabled, when it returns NULL; but one path forgot that, causing all kinds
+of nastiness under swap load - badness backtraces, strange failures, BUGs.
 
-Signed-off-by: Salah Coronya <salahx@yahoo.com>
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
 
- drivers/pci/quirks.c |    1 +
- 1 files changed, 1 insertion(+)
-
---- linux-2.6.12-git5.orig/drivers/pci/quirks.c	2005-06-29 12:18:38.000000000 +0200
-+++ linux-2.6.12-git5/drivers/pci/quirks.c	2005-06-29 16:51:14.000000000 +0200
-@@ -767,6 +767,7 @@
- 	if (unlikely(dev->subsystem_vendor == PCI_VENDOR_ID_ASUSTEK)) {
- 		if (dev->device == PCI_DEVICE_ID_INTEL_82845_HB)
- 			switch(dev->subsystem_device) {
-+			case 0x8025: /* P4B-LX */
- 			case 0x8070: /* P4B */
- 			case 0x8088: /* P4B533 */
- 			case 0x1626: /* L3C notebook */
-
-
--- 
-Jean Delvare
+--- 2.6.13-rc1/drivers/block/ll_rw_blk.c	2005-06-29 11:54:08.000000000 +0100
++++ linux/drivers/block/ll_rw_blk.c	2005-06-29 14:41:04.000000000 +0100
+@@ -1917,10 +1917,9 @@ get_rq:
+ 	 * limit of requests, otherwise we could have thousands of requests
+ 	 * allocated with any setting of ->nr_requests
+ 	 */
+-	if (rl->count[rw] >= (3 * q->nr_requests / 2)) {
+-		spin_unlock_irq(q->queue_lock);
++	if (rl->count[rw] >= (3 * q->nr_requests / 2))
+ 		goto out;
+-	}
++
+ 	rl->count[rw]++;
+ 	rl->starved[rw] = 0;
+ 	if (rl->count[rw] >= queue_congestion_on_threshold(q))

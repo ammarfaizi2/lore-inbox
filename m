@@ -1,73 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262615AbVF2Qqv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262621AbVF2Qri@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262615AbVF2Qqv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 12:46:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261517AbVF2Qoo
+	id S262621AbVF2Qri (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 12:47:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262613AbVF2Qo3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 12:44:44 -0400
-Received: from zproxy.gmail.com ([64.233.162.200]:35083 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262609AbVF2Qk7 (ORCPT
+	Wed, 29 Jun 2005 12:44:29 -0400
+Received: from mx2.tippett.com ([64.81.248.66]:18275 "EHLO mx2.tippett.com")
+	by vger.kernel.org with ESMTP id S262611AbVF2Qj4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 12:40:59 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:x-enigmail-version:x-enigmail-supports:content-type:content-transfer-encoding;
-        b=AzLbtWhkSw1PfJSylZC1JC6WYB/nshFig4yWsKN5xMZUk5LS/PnPYhE+tQmUwGeHwqviQHRGkCXJk8Sf4VPsrKQUaGNBkVURspoyqHZXtLhymLB57tl4VwPVXNN7oERutGSwr964zyIOjoIkAEVuGvg4Y7HjRknk3kQ5hcp/aMY=
-Message-ID: <42C2BD26.7090209@gmail.com>
-Date: Wed, 29 Jun 2005 15:24:22 +0000
-From: Luca Falavigna <dktrkranz@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: it, it-it, en-us, en
+	Wed, 29 Jun 2005 12:39:56 -0400
+Message-ID: <42C2CE98.3020504@tippett.com>
+Date: Wed, 29 Jun 2005 09:38:48 -0700
+From: Christian Rice <xian@tippett.com>
+Reply-To: xian@tippett.com
+Organization: Tippett Studio
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: prasanna@in.ibm.com
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Kprobes: Verify probepoint in register_jprobe()
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-15
+To: Al Boldi <a1426z@gawab.com>
+CC: "'Nathan Scott'" <nathans@sgi.com>, linux-xfs@oss.sgi.com,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       reiserfs-list@namesys.com
+Subject: Re: XFS corruption during power-blackout
+References: <200506290453.HAA14576@raad.intranet>
+In-Reply-To: <200506290453.HAA14576@raad.intranet>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (mx2.tippett.com [192.168.12.2]); Wed, 29 Jun 2005 09:21:47 -0700 (PDT)
+X-Spam-Score: -4.532 () ALL_TRUSTED,BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch, built against version 2.6.12, checks if probepoint address is a
-function entry point using an offset value, obtained from kallsyms_lookup().
-If offset is zero, we register jprobe, otherwise we return -EINVAL.
+Al Boldi wrote:
 
+>Hi Nathan,
+>You wrote: {
+>On Tue, Jun 28, 2005 at 12:08:05PM +0300, Al Boldi wrote:
+>  
+>
+>>True now, not so around 2.4.20 when XFS was rock-solid. I think they 
+>>tried to improve on performance and broke something. I wish they would 
+>>fix that because it forced me back to ext3, as in consistency over 
+>>performance any time.
+>>    
+>>
+>
+>Can you provide any details...
+>}
+>
+>Specifically, in 2.4.20 I did an acid test:
+>Spawn 10 cp -a on some big dir like /usr.
+>Let it run for a few seconds, then pull the plug.
+>Don't reset-button, reset is different then pulling the plug.
+>Don't poweroff-button, poweroff is different then pulling the plug.
+>On reboot diff the dirs spawned.
+>
+>What I found were 4 things in the dest dir:
+>1. Missing Dirs,Files. That's OK.
+>2. Files of size 0. That's acceptable.
+>3. Corrupted Files. That's unacceptable.
+>4. Corrupted Files with original fingerprint. That's ABSOLUTELY
+>unacceptable.
+>
+>Ext3 performed best with minimal files of size 0.
+>XFS was second  with more files of size 0.
+>Reiser,JFS was worst with corruptions.
+>
+>When XFS was added into the vanilla-Kernel it caused corruptions like Reiser
+>and JFS, which forced me back to Ext3.
+>
+>
+>
+>  
+>
+Pardon me if I haven't seen the whole thread.
 
-Signed-off-by: Luca Falavigna <dktrkranz@gmail.com>
+Do you have hard drive write cache turned off or, if it's a raid card, a 
+battery backup on the write cache?  That makes a big difference when 
+operators begin doing things like pulling plugs and hitting reset.
 
---- ./kernel/kprobes.c.orig	2005-06-29 00:17:43.000000000 +0000
-+++ ./kernel/kprobes.c	2005-06-29 11:08:02.000000000 +0000
-@@ -33,6 +33,7 @@
- #include <linux/hash.h>
- #include <linux/init.h>
- #include <linux/module.h>
-+#include <linux/kallsyms.h>
- #include <asm/cacheflush.h>
- #include <asm/errno.h>
- #include <asm/kdebug.h>
-@@ -245,7 +246,15 @@ static struct notifier_block kprobe_exce
-
- int register_jprobe(struct jprobe *jp)
- {
--	/* Todo: Verify probepoint is a function entry point */
-+	unsigned long size, offset;
-+	char *modname, namebuf[KSYM_NAME_LEN+1];
-+	
-+	kallsyms_lookup((unsigned long)jp->kp.addr, &size,
-+			&offset, &modname, namebuf);
-+	
-+	if(unlikely(offset))
-+		return -EINVAL;
-+	
- 	jp->kp.pre_handler = setjmp_pre_handler;
- 	jp->kp.break_handler = longjmp_break_handler;
-
-
-Regards,
--- 
-					Luca
-
-
-
-
+Again, no offense, just one of those "have you taken it out of the box, 
+plugged it in and turned it on" kind of questions.

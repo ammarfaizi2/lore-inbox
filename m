@@ -1,40 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262557AbVF2Ltg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262561AbVF2L6y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262557AbVF2Ltg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 07:49:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262560AbVF2Ltg
+	id S262561AbVF2L6y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 07:58:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262562AbVF2L6y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 07:49:36 -0400
-Received: from sp-260-1.net4.netcentrix.net ([4.21.254.118]:30226 "EHLO
-	asmodeus.mcnaught.org") by vger.kernel.org with ESMTP
-	id S262557AbVF2Ltf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 07:49:35 -0400
-To: Marat Buharov <marat.buharov@gmail.com>
+	Wed, 29 Jun 2005 07:58:54 -0400
+Received: from mail.renesas.com ([202.234.163.13]:35580 "EHLO
+	mail03.idc.renesas.com") by vger.kernel.org with ESMTP
+	id S262561AbVF2L6s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 07:58:48 -0400
+Date: Wed, 29 Jun 2005 20:58:45 +0900 (JST)
+Message-Id: <20050629.205845.945132624.takata.hirokazu@renesas.com>
+To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Swap partition vs swap file
-References: <516d7fa80506281757188b2fda@mail.gmail.com>
-	<20050628220334.66da4656.akpm@osdl.org>
-	<698310e10506290337681fad81@mail.gmail.com>
-From: Douglas McNaught <doug@mcnaught.org>
-Date: Wed, 29 Jun 2005 07:46:34 -0400
-In-Reply-To: <698310e10506290337681fad81@mail.gmail.com> (Marat Buharov's message of "Wed, 29 Jun 2005 14:37:56 +0400")
-Message-ID: <m2wtod2xnp.fsf@Douglas-McNaughts-Powerbook.local>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (darwin)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: [PATCH 2.6.12-mm2] m32r: build fix for spinlock_t update
+From: Hirokazu Takata <takata@linux-m32r.org>
+X-Mailer: Mew version 3.3 on XEmacs 21.4.17 (Jumbo Shrimp)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marat Buharov <marat.buharov@gmail.com> writes:
+Hi,
 
-> Hmm, but what about tells mkswap(8) tells:
-> "...Note that a swap file must not contain any holes (so, using  cp
-> (1) to create the file is not acceptable)..."?
->
-> If swap file will be fragmented it will contain holes.
+There is a build error of arch/m32r/kernel/smp.c in 2.6.12-mm2.
+It is because that spinlock_t type was revised in the latest -mm tree.
+(Re: [patch] spinlock consolidation, v2
+ http://www.ussg.iu.edu/hypermail/linux/kernel/0506.0/1119.html)
 
-No, holes are actual missing blocks (which are read as zeros) while
-fragmentation just means the blocks of the file are not contiguous on
-disk.
+Here is a patch to fix the build error.
+Please apply.
 
--Doug
+	* arch/m32r/kernel/smp.c (send_IPI_mask_phys):
+          - Update for the spinlock consolidation, v2.
+          - Change asm portion to C code for good maintainability.
+
+Thanks,
+
+Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
+---
+
+ arch/m32r/kernel/smp.c |   48 ++++++++++++------------------------------------
+ 1 files changed, 12 insertions(+), 36 deletions(-)
+
+Index: linux-2.6.12-mm2/arch/m32r/kernel/smp.c
+===================================================================
+--- linux-2.6.12-mm2.orig/arch/m32r/kernel/smp.c	2005-06-28 10:54:48.000000000 +0900
++++ linux-2.6.12-mm2/arch/m32r/kernel/smp.c	2005-06-28 12:06:33.000000000 +0900
+@@ -892,7 +892,6 @@ unsigned long send_IPI_mask_phys(cpumask
+ 	int try)
+ {
+ 	spinlock_t *ipilock;
+-	unsigned long flags = 0;
+ 	volatile unsigned long *ipicr_addr;
+ 	unsigned long ipicr_val;
+ 	unsigned long my_physid_mask;
+@@ -916,50 +915,27 @@ unsigned long send_IPI_mask_phys(cpumask
+ 	 * write IPICRi (send IPIi)
+ 	 * unlock ipi_lock[i]
+ 	 */
++	spin_lock(ipilock);
+ 	__asm__ __volatile__ (
+-		";; LOCK ipi_lock[i]		\n\t"
++		";; CHECK IPICRi == 0		\n\t"
+ 		".fillinsn			\n"
+ 		"1:				\n\t"
+-		"mvfc	%1, psw 		\n\t"
+-		"clrpsw	#0x40 -> nop		\n\t"
+-		DCACHE_CLEAR("r4", "r5", "%2")
+-		"lock	r4, @%2			\n\t"
+-		"addi	r4, #-1			\n\t"
+-		"unlock	r4, @%2			\n\t"
+-		"mvtc	%1, psw			\n\t"
+-		"bnez	r4, 2f			\n\t"
+-		LOCK_SECTION_START(".balign 4 \n\t")
+-		".fillinsn			\n"
+-		"2:				\n\t"
+-		"ld	r4, @%2			\n\t"
+-		"blez	r4, 2b			\n\t"
++		"ld	%0, @%1			\n\t"
++		"and	%0, %4			\n\t"
++		"beqz	%0, 2f			\n\t"
++		"bnez	%3, 3f			\n\t"
+ 		"bra	1b			\n\t"
+-		LOCK_SECTION_END
+-		";; CHECK IPICRi == 0		\n\t"
+-		".fillinsn			\n"
+-		"3:				\n\t"
+-		"ld	%0, @%3			\n\t"
+-		"and	%0, %6			\n\t"
+-		"beqz	%0, 4f			\n\t"
+-		"bnez	%5, 5f			\n\t"
+-		"bra	3b			\n\t"
+ 		";; WRITE IPICRi (send IPIi)	\n\t"
+ 		".fillinsn			\n"
+-		"4:				\n\t"
+-		"st	%4, @%3			\n\t"
+-		";; UNLOCK ipi_lock[i]		\n\t"
++		"2:				\n\t"
++		"st	%2, @%1			\n\t"
+ 		".fillinsn			\n"
+-		"5:				\n\t"
+-		"ldi	r4, #1			\n\t"
+-		"st	r4, @%2			\n\t"
++		"3:				\n\t"
+ 		: "=&r"(ipicr_val)
+-		: "r"(flags), "r"(&ipilock->slock), "r"(ipicr_addr),
+-		  "r"(mask), "r"(try), "r"(my_physid_mask)
+-		: "memory", "r4"
+-#ifdef CONFIG_CHIP_M32700_TS1
+-		, "r5"
+-#endif	/* CONFIG_CHIP_M32700_TS1 */
++		: "r"(ipicr_addr), "r"(mask), "r"(try), "r"(my_physid_mask)
++		: "memory"
+ 	);
++	spin_unlock(ipilock);
+ 
+ 	return ipicr_val;
+ }
+
+--
+Hirokazu Takata <takata@linux-m32r.org>
+Linux/M32R Project:  http://www.linux-m32r.org/

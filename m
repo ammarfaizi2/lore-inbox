@@ -1,50 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262371AbVF2BzL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262161AbVF2Bx4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262371AbVF2BzL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 21:55:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262326AbVF2ByS
+	id S262161AbVF2Bx4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 21:53:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262234AbVF2BvK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 21:54:18 -0400
-Received: from gate.crashing.org ([63.228.1.57]:34720 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262208AbVF2Bwp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 21:52:45 -0400
-Subject: Re: [PATCH 4/13]: PCI Err: e100 ethernet driver recovery
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linas Vepstas <linas@austin.ibm.com>
-Cc: linux-kernel@vger.kernel.org, long <tlnguyen@snoqualmie.dp.intel.com>,
-       Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
-       Greg KH <greg@kroah.com>, ak@muc.de, Paul Mackerras <paulus@samba.org>,
-       linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, johnrose@us.ibm.com
-In-Reply-To: <20050628235848.GA6376@austin.ibm.com>
-References: <20050628235848.GA6376@austin.ibm.com>
-Content-Type: text/plain
-Date: Wed, 29 Jun 2005 11:46:58 +1000
-Message-Id: <1120009619.5133.228.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+	Tue, 28 Jun 2005 21:51:10 -0400
+Received: from mail04.syd.optusnet.com.au ([211.29.132.185]:33413 "EHLO
+	mail04.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S262324AbVF2BtQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 21:49:16 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17089.65016.112262.278719@wombat.chubb.wattle.id.au>
+Date: Wed, 29 Jun 2005 11:48:40 +1000
+From: Peter Chubb <peterc@gelato.unsw.edu.au>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: Grzegorz Kulewski <kangur@polcom.net>, linux-kernel@vger.kernel.org
+Subject: Re: accessing loopback filesystem+partitions on a file
+In-Reply-To: <20050629013731.GF9566@lkcl.net>
+References: <20050628233335.GB9087@lkcl.net>
+	<Pine.LNX.4.63.0506290228380.7125@alpha.polcom.net>
+	<20050629013731.GF9566@lkcl.net>
+X-Mailer: VM 7.17 under 21.4 (patch 17) "Jumbo Shrimp" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-06-28 at 18:58 -0500, Linas Vepstas wrote:
-> /** e100_io_error_detected() is called when PCI error is detected */
-> +static int e100_io_error_detected (struct pci_dev *pdev, enum
-> pci_channel_state state)
-> +{
-> +       struct net_device *netdev = pci_get_drvdata(pdev);
-> +       struct nic *nic = netdev_priv(netdev);
-> +
-> +       mod_timer(&nic->watchdog, jiffies + 30*HZ);
-> +       e100_down(nic);
-> +
-> +       /* Request a slot reset. */
-> +       return PCIERR_RESULT_NEED_RESET;
-> +}
+>>>>> "Luke" == Luke Kenneth Casson Leighton <lkcl@lkcl.net> writes:
 
-I'm not sure just "pushing" the watchdog timer to 30sec in the future is
-the way to go here. What about netif_stop_queue() or so ?
 
-Ben.
+Luke> xen guest OSes manage it fine - the xen layer provides a means
+Luke> to present any block device as a "disk".
 
+You can do this witht he loop device, but you need to get the
+partition info out first.
+
+Use parted or fdisk to get the partition info.
+Then use losetup with the appropriate offset.
+
+Luke> that loopback filesystems cannot be presented as block devices
+Luke> by the linux kernel (with no involvement of xen) seems to be a
+Luke> curious omission.
+
+But they can!  But a loopback device can't be partitioned.  So do it
+one partition at a time.
+
+You'll probably only have a few real filesystems on the disk image
+anyway.
+
+
+
+-- 
+Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
+The technical we do immediately,  the political takes *forever*

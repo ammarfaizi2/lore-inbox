@@ -1,55 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262503AbVF2KrI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262509AbVF2Krl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262503AbVF2KrI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 06:47:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262509AbVF2KrI
+	id S262509AbVF2Krl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 06:47:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262513AbVF2Krk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 06:47:08 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:19648 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S262503AbVF2KrE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 06:47:04 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: linux-kernel@vger.kernel.org
-Subject: dev_kfree_skb[_irq,_any] usage rules
-Date: Wed, 29 Jun 2005 13:46:28 +0300
-User-Agent: KMail/1.5.4
-Cc: "David S. Miller" <davem@davemloft.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
+	Wed, 29 Jun 2005 06:47:40 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:31212 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262509AbVF2Krf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 06:47:35 -0400
+Date: Wed, 29 Jun 2005 03:46:46 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Bodo Eggert <7eggert@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] menu -> menuconfig changes
+Message-Id: <20050629034646.18627190.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0506291131320.3554@be1.lrz>
+References: <Pine.LNX.4.58.0506291131320.3554@be1.lrz>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506291346.28142.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Bodo Eggert <7eggert@gmx.de> wrote:
+>
+> There are many submenus in the config system where the fist option 
+>  controls the availability of the remaining options. This is very 
+>  inconvenient in menuconfig, since you'll have to enter each menu
+>  to see whether or not the corresponding subsystem is enabled.
+> 
+>  I suggest moving the first option out of the subsystem by changing
+>  'menu' to 'menuconfig', as demonstrated by the patch below.
 
-I have this hard_start_xmit code (simplified):
+I'd agree with that.
 
-int start_xmit(struct sk_buff *skb, netdevice_t * dev)
-{
-        struct mydevice *priv = acx_netdev_priv(dev);
+>  --- ../linux-2.6.12/drivers/cdrom/Kconfig	2005-06-19 14:16:31.000000000 +0200
+>  +++ ./drivers/cdrom/Kconfig	2005-06-29 11:27:02.000000000 +0200
 
-        if (!skb) goto end;
-        if (!priv) goto end;
+eww.
 
-        /* there is no one to talk to */
-        if (priv->status != ACX_STATUS_4_ASSOCIATED) {
-                printk("start_xmit() called but not associated yet\n");
-                /* silently drop the packet, since we're not connected yet */
-                dev_kfree_skb(skb);
-                priv->stats.tx_errors++;
-                goto end;
-        }
-	...
-}
+   --- a/drivers/cdrom/Kconfig
+   +++ a/drivers/cdrom/Kconfig
 
-Should I use dev_kfree_skb(skb) here or dev_kfree_skb_irq(skb)?
-(IIRC hard_start_xmit is in atomic context, no?)
-
-There is also a dev_kfree_skb_any(skb). What are the rules?
---
-vda
-
+please.

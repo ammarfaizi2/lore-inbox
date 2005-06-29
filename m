@@ -1,69 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262433AbVF2TOz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262452AbVF2TRR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262433AbVF2TOz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 15:14:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262447AbVF2TOz
+	id S262452AbVF2TRR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 15:17:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262449AbVF2TRR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 15:14:55 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:11966 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S262433AbVF2TOw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 15:14:52 -0400
-Message-Id: <200506291914.j5TJEfwU025875@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Abhay Salunke <Abhay_Salunke@dell.com>
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com
-Subject: Re: [RFC][patch 2.6.12-rc3] dell_rbu: Resubmitting patch for new Dell BIOS update driver 
-In-Reply-To: Your message of "Wed, 29 Jun 2005 15:26:40 CDT."
-             <20050629202640.GA3975@abhays.us.dell.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <20050629202640.GA3975@abhays.us.dell.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1120072481_16560P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Wed, 29 Jun 2005 15:17:17 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:40932 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262447AbVF2TRG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 15:17:06 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Christian Zankel <chris@zankel.net>
+Subject: Re: Xtensa syscalls (Was: Re: 2.6.12-rc5-mm1)
+Date: Wed, 29 Jun 2005 21:11:20 +0200
+User-Agent: KMail/1.7.2
+Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+References: <20050525134933.5c22234a.akpm@osdl.org> <200506291542.02618.arnd@arndb.de> <42C2CAB8.1080402@zankel.net>
+In-Reply-To: <42C2CAB8.1080402@zankel.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Date: Wed, 29 Jun 2005 15:14:41 -0400
+Content-Disposition: inline
+Message-Id: <200506292111.21309.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1120072481_16560P
-Content-Type: text/plain; charset=us-ascii
+On Middeweken 29 Juni 2005 18:22, Christian Zankel wrote:
+> The question is, if we had to break glibc compatibility, shouldn't we 
+> use the opportunity to clean-up the syscall list? It was copied from 
+> MIPS and, thus, has inherited a lot of legacy from there. As a new 
+> architecture, maybe we should even go as far as removing all ni-syscalls 
+> and start fresh?
 
-On Wed, 29 Jun 2005 15:26:40 CDT, Abhay Salunke said:
+I tried to make the patch in a way that at least the majority of binaries
+built against the reduced set of syscalls would still work with old kernels,
+though typically not the other way round.
 
-> diff -uprN linux-2.6.11.11.orig/Documentation/dell_rbu.txt linux-2.6.11.11.ne
-w/Documentation/dell_rbu.txt
-> --- linux-2.6.11.11.orig/Documentation/dell_rbu.txt	1969-12-31 18:00:00.000
-000000 -0600
-> +++ linux-2.6.11.11.new/Documentation/dell_rbu.txt	2005-06-29 15:18:52.000
-000000 -0500
-> @@ -0,0 +1,72 @@
+If you don't mind reordering the syscalls, you could even take this
+a few steps further:
 
-> +The rbu driver needs to have an application which will inform the BIOS to
-> +enable the update in the next system reboot.
+- remove all 32 bit file syscalls that have a 64 bit replacement
+  (e.g. pread, lseek)
+- remove all legacy signal handling in favor of rt_sig*
+- remove struct stat and rename struct stat64 to stat
+- remove wait4 in favor of waitid
+- use utimes instead of utime
+- use normal calling conventions for sys_pipe
+- split sys_xtensa into separate sys_atomic_{set,exg_add,add,cmp_swp}
+- if you are still motivated, make this setup the default for an empty
+  arch/*/kernel/syscalls.c and no __ARCH_WANT_FOO definitions to make it
+  easier to explain to the next architecture port maintainer.
 
-And the API for the userspace application to do that is?  There's a comment in
-patch to drivers/firmware/dell_rbu.c that says:
-
-* contiguous and packetized. Both these methods still require having some
-* application to set the CMOS bit indicating the BIOS to update itself 
-* after a reboot.
-
-but no hint *which* CMOS bit needs to be tweaked - is the drivers/char/nvram.c
-driver sufficient if you know the bit/byte number to set?
-
-
-
---==_Exmh_1120072481_16560P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFCwvMgcC3lWbTT17ARAq2MAJwJ8OjlJdm3IDm1YN8g6B1u2M9ShgCgw1Tm
-5XhVrebms/GRMaqIw4it4vg=
-=r8VW
------END PGP SIGNATURE-----
-
---==_Exmh_1120072481_16560P--
+	Arnd <><

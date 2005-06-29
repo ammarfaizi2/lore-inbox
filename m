@@ -1,50 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262442AbVF2TDy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262402AbVF2TIb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262442AbVF2TDy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 15:03:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262433AbVF2TDx
+	id S262402AbVF2TIb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 15:08:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262432AbVF2TIb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 15:03:53 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:22933 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262442AbVF2TCr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 15:02:47 -0400
-Date: Wed, 29 Jun 2005 12:02:10 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Toufeeq Hussain <toufeeqh@gmail.com>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: 2.6.13-rc1 problems
-Message-Id: <20050629120210.489db9fd.akpm@osdl.org>
-In-Reply-To: <42C2EAE4.90007@gmail.com>
-References: <42C2EAE4.90007@gmail.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 29 Jun 2005 15:08:31 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:31913 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S262402AbVF2TIV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 15:08:21 -0400
+Message-Id: <200506291905.j5TJ5FIs025472@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: mjt@nysv.org (Markus =?UNKNOWN?Q?T=F6rnqvist?=)
+Cc: Douglas McNaught <doug@mcnaught.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Hubert Chan <hubert@uhoreg.ca>,
+       Kyle Moffett <mrmacman_g4@mac.com>, David Masover <ninja@slaphack.com>,
+       Lincoln Dale <ltd@cisco.com>, Gregory Maxwell <gmaxwell@gmail.com>,
+       Hans Reiser <reiser@namesys.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: reiser4 plugins 
+In-Reply-To: Your message of "Wed, 29 Jun 2005 16:58:20 +0300."
+             <20050629135820.GJ11013@nysv.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <200506290509.j5T595I6010576@laptop11.inf.utfsm.cl> <m2k6kd2rx8.fsf@Douglas-McNaughts-Powerbook.local>
+            <20050629135820.GJ11013@nysv.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: multipart/signed; boundary="==_Exmh_1120071898_16560P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Wed, 29 Jun 2005 15:05:12 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Toufeeq Hussain <toufeeqh@gmail.com> wrote:
->
-> After upgrading to 2.6.13-rc1 my system crashes after running for around
->  10 minutes.
+--==_Exmh_1120071898_16560P
+Content-Type: text/plain; charset=us-ascii
 
-Try this:
+On Wed, 29 Jun 2005 16:58:20 +0300, Markus =?UNKNOWN?Q?T=F6rnqvist?= said:
+> What pisses me off is the fact that Gnome and friends implement
+> their own incompatible-with-others VFS's and automounters and
+> stuff.
 
---- 25/drivers/block/ll_rw_blk.c~get_request-nastiness	2005-06-29 09:36:27.000000000 -0700
-+++ 25-akpm/drivers/block/ll_rw_blk.c	2005-06-29 09:36:27.000000000 -0700
-@@ -1918,10 +1918,9 @@ get_rq:
- 	 * limit of requests, otherwise we could have thousands of requests
- 	 * allocated with any setting of ->nr_requests
- 	 */
--	if (rl->count[rw] >= (3 * q->nr_requests / 2)) {
--		spin_unlock_irq(q->queue_lock);
-+	if (rl->count[rw] >= (3 * q->nr_requests / 2))
- 		goto out;
--	}
-+
- 	rl->count[rw]++;
- 	rl->starved[rw] = 0;
- 	if (rl->count[rw] >= queue_congestion_on_threshold(q))
-_
+The fact that things like Gnome, which are basically consumers of their own
+dogfood, have incompatible versions says very loudly that there's no consensus
+on the semantics....
 
+> Surely supporting this in the kernel and extending the LSB
+> to require this is the best step to take without infringing
+> anyone's freedom as such.
+
+First we need to decide *if* it's to be supported, then *what* to support....
+
+--==_Exmh_1120071898_16560P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFCwvDYcC3lWbTT17ARAhqcAKDYVA4BOqtoZtCRjutERb4BRbuIRACgj6lK
+wrsUkBCxbDzoH4Vo7CfLtm8=
+=wVqz
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1120071898_16560P--

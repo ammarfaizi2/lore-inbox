@@ -1,80 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261840AbVF2NB0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262571AbVF2NJ3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261840AbVF2NB0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 09:01:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262571AbVF2NBZ
+	id S262571AbVF2NJ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 09:09:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262572AbVF2NJ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 09:01:25 -0400
-Received: from smtp.gentoo.org ([134.68.220.30]:59047 "EHLO smtp.gentoo.org")
-	by vger.kernel.org with ESMTP id S261840AbVF2NAy (ORCPT
+	Wed, 29 Jun 2005 09:09:28 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:28349 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262571AbVF2NJY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 09:00:54 -0400
-Subject: Re: [Ipw2100-devel] RE: ipw2200 can't compile under linux
-	2.6.13-rc1
-From: Henrik Brix Andersen <brix@gentoo.org>
-To: abonilla@linuxwireless.org
-Cc: "'Arjan van de Ven'" <arjan@infradead.org>,
-       "'Jeff Chua'" <jeff96@silk.corp.fedex.com>,
-       ipw2100-devel@lists.sourceforge.net,
-       "'Linux Kernel'" <linux-kernel@vger.kernel.org>
-In-Reply-To: <001101c57ca8$30c7d640$600cc60a@amer.sykes.com>
-References: <001101c57ca8$30c7d640$600cc60a@amer.sykes.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-aLZVBCBkf1aJMebDLJm8"
-Organization: Gentoo Metadistribution
-Date: Wed, 29 Jun 2005 15:00:40 +0200
-Message-Id: <1120050040.12807.3.camel@sponge.fungus>
+	Wed, 29 Jun 2005 09:09:24 -0400
+Date: Wed, 29 Jun 2005 15:09:02 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: eliad lubovsky <eliadl@013.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Handle kernel page faults using task gate
+Message-ID: <20050629130901.GA29776@elte.hu>
+References: <1119997135.4074.106.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1119997135.4074.106.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-aLZVBCBkf1aJMebDLJm8
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+* eliad lubovsky <eliadl@013.net> wrote:
 
-On Wed, 2005-06-29 at 06:43 -0600, Alejandro Bonilla wrote:
-> Probably the same reason why it won't compile in 2.6.12.
->=20
-> Is it the is_multicast_ethr_addr error?
->=20
-> http://ipw2200.sourceforge.net/#patches
+> I am trying to handle page faults exceptions in the kernel using the 
+> task gate mechanism. I succeeded to transfer the execution to my page 
+> fault handler using a new TSS and updates to the GDT and IDT tables 
+> (similar to the double fault mechanism in 2.6). After handling the 
+> fault and allocating the physical page I use the iret instruction to 
+> switch back to the previous task. The problem is that I got a double 
+> fault with the same address that cause the fault (although the 
+> physical page is allocated and mapped). Any clues?
 
-No, it's due to the fact that someone decided to merge an old version of
-the ieee80211 subsystem into Linus' tree:
+are you clearing the 'nested task' (NT) flag of the new TSS once you 
+have switched to it?
 
-commit 279385949ebb41ad166fd37505fe552cdb74ed59
-Author: Christoph Hellwig <hch@lst.de>
-Date:   Sun Jun 19 01:27:20 2005 +0200
-
-    [PATCH] bring over ieee80211.h from mainline
-   =20
-    the prototypes and inlines aren't actually needed, but let's not diverg=
-e
-    from -mm too far.
-
-This version of the ieee80211 subsystem is incompatible with current
-ipw2100/ipw2200 drivers and break the compilation of these.
-
-Sincerely,
-Brix
-
-PS: I'm not subscribed to LKML, please CC: me on any replies.
---=20
-Henrik Brix Andersen <brix@gentoo.org>
-Gentoo Metadistribution | Mobile computing herd
-
---=-aLZVBCBkf1aJMebDLJm8
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBCwpt4v+Q4flTiePgRArHEAJoCzJfuAa8xkCiyMUynSP4W5+udJACfUKDP
-MU/KXn3ofGDEN7eR5x5xuR8=
-=kjmL
------END PGP SIGNATURE-----
-
---=-aLZVBCBkf1aJMebDLJm8--
-
+	Ingo

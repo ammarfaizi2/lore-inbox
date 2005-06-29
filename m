@@ -1,46 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262627AbVF2RA1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262624AbVF2RDb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262627AbVF2RA1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 13:00:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262623AbVF2RA0
+	id S262624AbVF2RDb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 13:03:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262620AbVF2RBI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 13:00:26 -0400
-Received: from mail.gmx.net ([213.165.64.20]:37040 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262618AbVF2Q6j (ORCPT
+	Wed, 29 Jun 2005 13:01:08 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:453 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S262609AbVF2Q5J (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 12:58:39 -0400
-X-Authenticated: #25753041
-From: Genadz Batsyan <gbatyan@gmx.net>
-To: linux-kernel@vger.kernel.org
-Subject: Newbie: added function not visible
-Date: Wed, 29 Jun 2005 18:59:04 +0200
-User-Agent: KMail/1.7.2
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506291859.04965.gbatyan@gmx.net>
-X-Y-GMX-Trusted: 0
+	Wed, 29 Jun 2005 12:57:09 -0400
+Message-Id: <200506291655.j5TGtpkX011008@laptop11.inf.utfsm.cl>
+To: Jeff Chua <jeffchua@silk.corp.fedex.com>
+cc: Alejandro Bonilla <abonilla@linuxwireless.org>,
+       "'Arjan van de Ven'" <arjan@infradead.org>,
+       "'Jeff Chua'" <jeff96@silk.corp.fedex.com>,
+       ipw2100-devel@lists.sourceforge.net,
+       "'Linux Kernel'" <linux-kernel@vger.kernel.org>
+Subject: Re: ipw2200 can't compile under linux 2.6.13-rc1 
+In-Reply-To: Message from Jeff Chua <jeffchua@silk.corp.fedex.com> 
+   of "Wed, 29 Jun 2005 22:17:06 +0800." <Pine.LNX.4.63.0506292209050.6581@boston.corp.fedex.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
+Date: Wed, 29 Jun 2005 12:55:51 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Wed, 29 Jun 2005 12:55:53 -0400 (CLT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm desperate, please help, if I'm missing something obvious.
+Jeff Chua <jeffchua@silk.corp.fedex.com> wrote:
 
-I am trying to add a function to the file drivers/char/keyboard.c
-and then be able to call this function from my kernel module
+[...]
 
-adding the function to keyboard.c, recompiling and booting with kernel
-results  /proc/kallsyms telling me that my function exists with the tag 'T',
-which I think is ok
+> All the ipw2200 files has ...
+> 
+>  	#include <net/ieee80211.h>
+> 
+> and that points to the new linux header in
+> /usr/src/linux/include/net/ieee80211.h instead of the local include
+> file under the ipw2200/net directory.
+> 
+> I've modified all ipw2200 files to #include "net/ieee80211.h" and now
+> it compiles ok.
 
-In my module I simply declare the function's prototype and use it.
+No, it doesn't. The warnings are about /function pointers/ that have the
+wrong type (this comes from an earlier 2.6.12-git). AFAICS, this is due to
+a change in device handling, and as long as this isn't fixed, I won't even
+try to load the module.
 
-When trying to compile the module, modpost tells that the function's symbol
-is not found. (insmodding results in error too)
+Just need a little time to decrypt this macro mess...
 
-I don't get it, WHY tha heck can it find all the other stuff and 
-what makes this new function different? I have read that 2.6 kernel exports
-any non-static symbols.
-
-Regards!
+And again, shouldn't we push for the header here going into the kernel? Or
+fix up the code to work with the kernel version? The current situation
+isn't confortable at all.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

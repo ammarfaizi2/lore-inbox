@@ -1,59 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261224AbVF2Oxw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbVF2O6O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261224AbVF2Oxw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 10:53:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261237AbVF2Oxw
+	id S261252AbVF2O6O (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 10:58:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261260AbVF2O6O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 10:53:52 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:9918 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S261224AbVF2Oxu convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 10:53:50 -0400
-Date: Wed, 29 Jun 2005 10:53:10 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@localhost.localdomain
-Reply-To: rostedt@goodmis.org
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-cc: Denis Vlasenko <vda@ilport.com.ua>, Arjan van de Ven <arjan@infradead.org>,
-       Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: kmalloc without GFP_xxx?
-In-Reply-To: <20050629142317.GB2130@wohnheim.fh-wedel.de>
-Message-ID: <Pine.LNX.4.58.0506291046020.22775@localhost.localdomain>
-References: <200506291402.18064.vda@ilport.com.ua> <1120045024.3196.34.camel@laptopd505.fenrus.org>
- <Pine.LNX.4.58.0506290927370.22775@localhost.localdomain>
- <200506291714.32990.vda@ilport.com.ua> <20050629142317.GB2130@wohnheim.fh-wedel.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Wed, 29 Jun 2005 10:58:14 -0400
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:40965 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261252AbVF2O6F
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 10:58:05 -0400
+Date: Wed, 29 Jun 2005 16:58:06 +0200
+From: Tomasz Torcz <zdzichu@irc.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.13-rc1
+Message-ID: <20050629145806.GA5803@irc.pl>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <4kEoS-Am-3@gated-at.bofh.it> <m37jgd9r8w.fsf@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m37jgd9r8w.fsf@localhost.localdomain>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jun 29, 2005 at 04:23:11PM +0200, Ronny V. Vindenes wrote:
+> Linus Torvalds <torvalds@osdl.org> writes:
+> 
+> > ARM, x86[-64], ppc, sparc updates, networking, sound, infiniband, input
+> > layer, ISDN, MD, DVB, V4L, network drivers, pcmcia, isofs, jfs, nfs,
+> > xfs, knfsd.. You name it.
+> > 
+> > Git trees and traditional patches/tar-balls are out there, or at least 
+> > slowly mirroring out. Go wild,
+> > 
+> > 		Linus
+> 
+> On x86_64 with reiserfs and ext3 on dm (using cfq scheduler) the log
+> is full of this:
+> 
+> Badness in blk_remove_plug at drivers/block/ll_rw_blk.c:1424
 
+ Also on x86, Reiserfs on LVM2, cfq, on sata_sil; Preemption set to
+Voluntary.
 
-On Wed, 29 Jun 2005, Jörn Engel wrote:
+Badness in blk_remove_plug at drivers/block/ll_rw_blk.c:1424
+ [<c027adf1>] blk_remove_plug+0x61/0x70
+ [<c027ae14>] __generic_unplug_device+0x14/0x30
+ [<c027b6d5>] get_request_wait+0xd5/0x100
+ [<c01322f0>] autoremove_wake_function+0x0/0x50
+ [<c01322f0>] autoremove_wake_function+0x0/0x50
+ [<c02837f0>] cfq_merge+0x0/0xc0
+ [<c027bf03>] __make_request+0x93/0x470
+ [<c027c617>] generic_make_request+0x107/0x1f0
+ [<c027b61b>] get_request_wait+0x1b/0x100
+ [<c01322f0>] autoremove_wake_function+0x0/0x50
+ [<c01322f0>] autoremove_wake_function+0x0/0x50
+ [<c01615bc>] bio_clone+0xcc/0xe0
+ [<c02ca72c>] __map_bio+0x3c/0x100
+ [<c02cab0b>] __clone_and_map+0x22b/0x240
+ [<c02cabb7>] __split_bio+0x97/0x100
+ [<c02cac7f>] dm_request+0x5f/0x90
+ [<c027c617>] generic_make_request+0x107/0x1f0
+ [<c01322f0>] autoremove_wake_function+0x0/0x50
+ [<c01322f0>] autoremove_wake_function+0x0/0x50
+ [<c027c74b>] submit_bio+0x4b/0xe0
+ [<c01612c1>] bio_alloc_bioset+0x181/0x200
+ [<c0160bba>] submit_bh+0xda/0x130
+ [<c01b0369>] write_ordered_chunk+0x29/0x50
+ [<c01b03cb>] add_to_chunk+0x3b/0x40
+ [<c01b0673>] write_ordered_buffers+0xb3/0x1a0
+ [<c01b0340>] write_ordered_chunk+0x0/0x50
+ [<c01b0c2c>] flush_commit_list+0x37c/0x460
+ [<c01b5469>] do_journal_end+0x8d9/0x930
+ [<c01477c0>] pdflush+0x0/0x20
+ [<c01b425c>] journal_end_sync+0x4c/0xb0
+ [<c01a2e55>] reiserfs_sync_fs+0x45/0x60
+ [<c01629cb>] sync_supers+0xbb/0xd0
+ [<c0146e85>] wb_kupdate+0x25/0x120
+ [<c0387eea>] schedule+0x2fa/0x5d0
+ [<c01477c0>] pdflush+0x0/0x20
+ [<c01476e6>] __pdflush+0x96/0x170
+ [<c01477da>] pdflush+0x1a/0x20
+ [<c0146e60>] wb_kupdate+0x0/0x120
+ [<c01477c0>] pdflush+0x0/0x20
+ [<c0131f05>] kthread+0x95/0xd0
+ [<c0131e70>] kthread+0x0/0xd0
+ [<c010134d>] kernel_thread_helper+0x5/0x18
 
-> On Wed, 29 June 2005 17:14:32 +0300, Denis Vlasenko wrote:
-> >
-> > This is why I always use _irqsave. Less error prone.
-> > And locking is a very easy to get 'slightly' wrong, thus
-> > I trade 0.1% of performance for code simplicity.
->
-> But sometimes you get lucky and trade 100ms latency for code
-> simplicity.  Of course, the audio people don't mind anymore, now that
-> we have all sorts of realtime patches.  Everyone's happy!
->
-
-God! If you are holding a spin_lock for 100ms, something is terribly
-wrong, especialy since you better not schedule holding that spin_lock.
-Spinlocks are _suppose_ to be for quick things.  The difference in latency
-between a *_lock and *_lock_irqsave only effects UP, on SMP both will give
-the same latency, since another CPU might be busy spinning while waiting
-for that lock, heck, on SMP the latency of *_lock can actually be higher,
-since, as I already said, the other CPU will even have to wait while the
-CPU that has the lock is servicing interrupts.
-
-Although I must say that with all the realtime patches I'm happy :-)
-
--- Steve
+-- 
+Tomasz Torcz                "Funeral in the morning, IDE hacking
+zdzichu@irc.-nie.spam-.pl    in the afternoon and evening." - Alan Cox
 

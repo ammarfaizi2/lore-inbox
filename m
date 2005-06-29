@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262504AbVF2KZN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262507AbVF2K1u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262504AbVF2KZN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 06:25:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262505AbVF2KZN
+	id S262507AbVF2K1u (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 06:27:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262505AbVF2K1s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 06:25:13 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:4307 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262504AbVF2KZD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 06:25:03 -0400
-Subject: Re: ipw2200 can't compile under linux 2.6.13-rc1
-From: Arjan van de Ven <arjan@infradead.org>
-To: Jeff Chua <jeff96@silk.corp.fedex.com>
-Cc: ipw2100-devel@lists.sourceforge.net, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.63.0506291806580.14237@boston.corp.fedex.com>
-References: <Pine.LNX.4.63.0506291806580.14237@boston.corp.fedex.com>
-Content-Type: text/plain
-Date: Wed, 29 Jun 2005 12:24:40 +0200
-Message-Id: <1120040680.3196.29.camel@laptopd505.fenrus.org>
+	Wed, 29 Jun 2005 06:27:48 -0400
+Received: from s243.chello.upc.cz ([62.24.84.243]:25564 "EHLO suse.cz")
+	by vger.kernel.org with ESMTP id S262500AbVF2K1f (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 06:27:35 -0400
+Date: Wed, 29 Jun 2005 12:27:46 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: Sean <seanlkml@sympatico.ca>, Matt Mackall <mpm@selenic.com>,
+       Petr Baudis <pasky@ucw.cz>, Christopher Li <hg@chrisli.org>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Git Mailing List <git@vger.kernel.org>, mercurial@selenic.com
+Subject: Re: Mercurial vs Updated git HOWTO for kernel hackers
+Message-ID: <20050629102746.GA2484@ucw.cz>
+References: <3886.10.10.10.24.1119991512.squirrel@linux1> <20050628221422.GT12006@waste.org> <3993.10.10.10.24.1119997389.squirrel@linux1> <20050628224946.GU12006@waste.org> <4846.10.10.10.24.1119999568.squirrel@linux1> <40A9C7C2-1AFE-45BC-90A5-571628304479@mac.com> <1765.10.10.10.24.1120001856.squirrel@linux1> <40A4071C-ED45-4280-928F-BCFC8761F47E@mac.com> <2661.10.10.10.24.1120004702.squirrel@linux1> <12B6F9A5-81F8-46BD-A05D-B9FA1A70A9FF@mac.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <12B6F9A5-81F8-46BD-A05D-B9FA1A70A9FF@mac.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-06-29 at 18:12 +0800, Jeff Chua wrote:
-> ipw2200-1.0.4 can't be compiled under linux 2.6.13-rc1.
+On Tue, Jun 28, 2005 at 11:53:47PM -0400, Kyle Moffett wrote:
+
+> On Jun 28, 2005, at 20:25:02, Sean wrote:
+> >there will be a price to pay if the linux community fragments over
+> >choice of scm.
 > 
-> ipw2200-1.0.4 compiled fine with linux 2.6.12.
+> I don't agree.  With the current set of SCMs, I don't think it will
+> be long before somebody invents a gitweb/Mercurial/whatever gateway,
+> such that I can "hg serve" from my Mercurial repository and have
+> Linus "git pull" from a multiprotocol bridge.
 
-soo..... what's the error ?
+I hope this will happen sooner than later, since that way the
+competition between git and mercurial will give us the best tools while
+keeping interoperability.
 
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

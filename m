@@ -1,39 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262458AbVF2HV0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262464AbVF2HXZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262458AbVF2HV0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 03:21:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262457AbVF2HV0
+	id S262464AbVF2HXZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 03:23:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262457AbVF2HXZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 03:21:26 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:38351 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262458AbVF2HVV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 03:21:21 -0400
-Date: Wed, 29 Jun 2005 08:21:15 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Christoph Hellwig <hch@infradead.org>, penberg@cs.helsinki.fi,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/3] freevxfs: minor cleanups
-Message-ID: <20050629072115.GA17261@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@osdl.org>, penberg@cs.helsinki.fi,
-	linux-kernel@vger.kernel.org
-References: <iit0gm.lxobpl.5z2b9jduhy9fvx6tjxrco46v4.refire@cs.helsinki.fi> <iit0h1.q7pnex.bkir3xysppdufw6d9h65boz37.refire@cs.helsinki.fi> <20050628163114.6594e1e1.akpm@osdl.org> <20050629070729.GB16850@infradead.org> <20050629001717.65fb272c.akpm@osdl.org>
+	Wed, 29 Jun 2005 03:23:25 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:39355 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262465AbVF2HXJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 03:23:09 -0400
+Date: Wed, 29 Jun 2005 00:21:39 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: penberg@cs.helsinki.fi, hch@infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/3] freevxfs: fix buffer_head leak
+Message-Id: <20050629002139.6acd4be7.akpm@osdl.org>
+In-Reply-To: <20050629071023.GD16850@infradead.org>
+References: <iit0gm.lxobpl.5z2b9jduhy9fvx6tjxrco46v4.refire@cs.helsinki.fi>
+	<20050628162812.483eb566.akpm@osdl.org>
+	<20050629071023.GD16850@infradead.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050629001717.65fb272c.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 29, 2005 at 12:17:17AM -0700, Andrew Morton wrote:
-> Come to think of it, it could be a problem if the comnpiler was silly and
-> built an entire temporary on the stack and the copied it over.  Hopefull it
-> won't do that.
+Christoph Hellwig <hch@infradead.org> wrote:
+>
+> you're still leaking a buffer in the hypothetical !buffer_mapped() case.
+>  Better remove that check completely.
 
-that patch is fine except for the second to last patch which should be
-droped.
+OK..
+
+
+--- 25/fs/freevxfs/vxfs_fshead.c~freevxfs-fix-buffer_head-leak	2005-06-28 23:55:53.000000000 -0700
++++ 25-akpm/fs/freevxfs/vxfs_fshead.c	2005-06-29 00:21:23.000000000 -0700
+@@ -78,17 +78,18 @@ vxfs_getfsh(struct inode *ip, int which)
+ 	struct buffer_head		*bp;
+ 
+ 	bp = vxfs_bread(ip, which);
+-	if (buffer_mapped(bp)) {
++	if (bp) {
+ 		struct vxfs_fsh		*fhp;
+ 
+-		if (!(fhp = kmalloc(sizeof(*fhp), SLAB_KERNEL)))
+-			return NULL;
++		if (!(fhp = kmalloc(sizeof(*fhp), GFP_KERNEL)))
++			goto out;
+ 		memcpy(fhp, bp->b_data, sizeof(*fhp));
+ 
+-		brelse(bp);
++		put_bh(bp);
+ 		return (fhp);
+ 	}
+-
++out:
++	brelse(bp);
+ 	return NULL;
+ }
+ 
+_
+

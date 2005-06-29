@@ -1,50 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262338AbVF2Rz4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262344AbVF2R5p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262338AbVF2Rz4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 13:55:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262346AbVF2Rzp
+	id S262344AbVF2R5p (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 13:57:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262346AbVF2R4z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 13:55:45 -0400
-Received: from dsl.dynamic851009584.ttnet.net.tr ([85.100.95.84]:7110 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262338AbVF2RyX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 13:54:23 -0400
-From: Ismail Donmez <ismail@kde.org.tr>
-Organization: Bogazici University
-To: Hugh Dickins <hugh@veritas.com>
-Subject: Re: 2.6.13-rc1 problems
-Date: Wed, 29 Jun 2005 20:55:01 +0300
-User-Agent: KMail/1.8.50
-Cc: randy_dunlap <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org
-References: <200506291934.32909.ismail@kde.org.tr> <200506292015.11494.ismail@kde.org.tr> <Pine.LNX.4.61.0506291842360.4262@goblin.wat.veritas.com>
-In-Reply-To: <Pine.LNX.4.61.0506291842360.4262@goblin.wat.veritas.com>
+	Wed, 29 Jun 2005 13:56:55 -0400
+Received: from mail00hq.adic.com ([63.81.117.10]:2132 "EHLO mail00hq.adic.com")
+	by vger.kernel.org with ESMTP id S262351AbVF2R4W (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 13:56:22 -0400
+Message-ID: <42C2E0BC.8040508@xfs.org>
+Date: Wed, 29 Jun 2005 12:56:12 -0500
+From: Steve Lord <lord@xfs.org>
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.3 (X11/20050513)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+To: Chris Wedgwood <cw@f00f.org>
+CC: Al Boldi <a1426z@gawab.com>, "'Nathan Scott'" <nathans@sgi.com>,
+       linux-xfs@oss.sgi.com, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: Re: XFS corruption during power-blackout
+References: <20050629001847.GB850@frodo> <200506290453.HAA14576@raad.intranet> <556815.441dd7d1ebc32b4a80e049e0ddca5d18e872c6e8a722b2aefa7525e9504533049d801014.ANY@taniwha.stupidest.org>
+In-Reply-To: <556815.441dd7d1ebc32b4a80e049e0ddca5d18e872c6e8a722b2aefa7525e9504533049d801014.ANY@taniwha.stupidest.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506292055.02153.ismail@kde.org.tr>
+X-OriginalArrivalTime: 29 Jun 2005 17:56:13.0812 (UTC) FILETIME=[D7118340:01C57CD3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 29 June 2005 20:51, Hugh Dickins wrote:
-> On Wed, 29 Jun 2005, Ismail Donmez wrote:
-> >=20
-> > Thank you both!.=C2=A0Any idea about this part? :
-> >=20
-> > Jun 29 19:16:32 localhost kernel: Badness in __kfree_skb at=20
-> > net/core/skbuff.c:290
->
-> I've not seen that one.  It's _possible_ that it's caused by the
-> same get_request bug: although that's over in a different subsystem,
-> it does mess up the preempt_count/hardirq_count enough to be able to
-> cause such a problem elsewhere.  But I see this message came 87 secs
-> after your others, which makes that unlikely.  Do you still see this
-> __kfree_skb badness after running with the get_request fix?
+Chris Wedgwood wrote:
+> On Wed, Jun 29, 2005 at 07:53:09AM +0300, Al Boldi wrote:
+> 
+> 
+>>What I found were 4 things in the dest dir:
+>>1. Missing Dirs,Files. That's OK.
+>>2. Files of size 0. That's acceptable.
+>>3. Corrupted Files. That's unacceptable.
+>>4. Corrupted Files with original fingerprint. That's ABSOLUTELY
+>>unacceptable.
+> 
+> 
+> disk usually default to caching these days and can lose data as a
+> result, disable that
+> 
 
-So far its fine. Thank you.
+There are IDE drives where the vendor will tell you that you will
+drasticly shorten the life of a drive if you turn off caching.
+There are also cool bits of technology which use the rotational
+energy of the spinning down drive to dump the cache out to a
+special track (or this may be an urban legend, not sure). Problem
+is, no one but the vendors really knows what any particular
+disk is going to do when you pull the plug.
 
-ismail
+I did spend a bunch of time once ensuring that when you typed
+sync on xfs you could pull the power right after that and
+everything from before the sync survived. There have been a
+lot of changes both in xfs and the surrounding kernel since
+then. I do not know if anyone has attempted this effort
+again recently.
 
--- 
-Animals use pee to mark their territories. Humans use others' girl friends
+If you care sufficiently about your data to want to do power fail
+testing then, even assuming the filesystem works perfectly:
+
+a) have a working, tested, regular backup policy
+b) keep the backups in a different building
+c) buy a UPS.
+
+Steve

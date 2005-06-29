@@ -1,85 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262239AbVF2R2Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262308AbVF2RcM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262239AbVF2R2Q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 13:28:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262251AbVF2R0K
+	id S262308AbVF2RcM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 13:32:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261285AbVF2RYl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 13:26:10 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:48043 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S262239AbVF2RWr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 13:22:47 -0400
-Date: Wed, 29 Jun 2005 13:22:07 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@localhost.localdomain
-Reply-To: rostedt@goodmis.org
-To: Timur Tabi <timur.tabi@ammasso.com>
-cc: Denis Vlasenko <vda@ilport.com.ua>, Arjan van de Ven <arjan@infradead.org>,
-       Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: kmalloc without GFP_xxx?
-In-Reply-To: <42C2D0C1.4030500@ammasso.com>
-Message-ID: <Pine.LNX.4.58.0506291306530.22775@localhost.localdomain>
-References: <200506291402.18064.vda@ilport.com.ua> <1120045024.3196.34.camel@laptopd505.fenrus.org>
- <Pine.LNX.4.58.0506290927370.22775@localhost.localdomain>
- <200506291714.32990.vda@ilport.com.ua> <42C2D0C1.4030500@ammasso.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 29 Jun 2005 13:24:41 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:45284 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S262251AbVF2RXb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 13:23:31 -0400
+Message-Id: <200506291719.j5THJCSg011438@laptop11.inf.utfsm.cl>
+To: mjt@nysv.org (Markus T rnqvist)
+cc: Douglas McNaught <doug@mcnaught.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Hubert Chan <hubert@uhoreg.ca>,
+       Kyle Moffett <mrmacman_g4@mac.com>, David Masover <ninja@slaphack.com>,
+       Valdis.Kletnieks@vt.edu, Lincoln Dale <ltd@cisco.com>,
+       Gregory Maxwell <gmaxwell@gmail.com>, Hans Reiser <reiser@namesys.com>,
+       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: reiser4 plugins 
+In-Reply-To: Message from mjt@nysv.org (Markus T rnqvist) 
+   of "Wed, 29 Jun 2005 16:58:20 +0300." <20050629135820.GJ11013@nysv.org> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
+Date: Wed, 29 Jun 2005 13:19:12 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Wed, 29 Jun 2005 13:19:24 -0400 (CLT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Markus Törnqvist <mjt@nysv.org> wrote:
 
-On Wed, 29 Jun 2005, Timur Tabi wrote:
+[...]
 
-> Denis Vlasenko wrote:
->
-> > This is why I always use _irqsave. Less error prone.
->
-> No, it's just bad programming.  How hard can it be to see which spinlocks are being used
-> by your ISR and which ones aren't?  Only the ones that your ISR touches should have
-> _irqsave.  It's really quite simple.
+> Note that MacOS has the monopoly on what they ship, Linux has a
+> motherload of file managers and window systems and all.
 
-What about my argument that spin_lock is actually a longer latency on an
-SMP system?  That is, if you grab a spin_lock and task on another CPU
-tries to grab it and starts to spin. It will spin while the first task is
-servicing interrupts.  It can be even worst with the following scenario:
+Yep. Part of what is nice about it, too ;-)
 
-task 1:
-  spin_lock(&non_irq_lock);
+> What pisses me off is the fact that Gnome and friends implement
+> their own incompatible-with-others VFS's and automounters and
+> stuff.
 
-task 2:
+Then get them to agree on a common framework! They are trying hard to get
+other parts of the GUI work well together, so this isn't far off in
+wishfull thinking land.
 
-  spin_lock_irqsave(&some_irq_used_lock);
-  spin_lock(&non_irq_lock);
+> Surely supporting this in the kernel and extending the LSB
+> to require this is the best step to take without infringing
+> anyone's freedom as such.
 
-Here we see that task 2 can spin with interrupts off, while the first task
-is servicing an interrupt, and God forbid if the IRQ handler sends some
-kind of SMP signal to the CPU running task 2 since that would be a
-deadlock.  Granted, this is a hypothetical situation, but makes using
-spin_lock with interrupts enabled a little scary.
+Right. So then we have Gnome's way of doing things (Gnome isn't just for
+Linux!), KDE's way, XFCE's way, ... (ditto). Plus the kernel way. Flambee
+with a monthly thread on all reachable fora about "Why on &%@# does the
+%&~#@ GUI not use the *#%&@ kernel's way?!".
 
+This is /not/ the way of fxing that particular problem. Shoving random
+stuff into the kernel /can't/ force its use. At least not until Linux is
+the only Unixy system around, and that is still some way off. And when that
+has happened, the kernel's way must be /clearly/ better for /all/ users, or
+it won't matter.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
 
-> > This is more or less what I meant. Why think about each kmalloc and when you
-> > eventually did get it right: "Aha, we _sometimes_ get called from spinlocked code,
-> > GFP_ATOMIC then" - you still do atomic alloc even if cases when you
-> > were _not_ called from locked code! Thus you needed to think longer and got
-> > code which is worse.
->
-> So you're saying that you're the kind of programmer who makes more mistakes the longer you
-> think about something?????
->
-> Using GFP_ATOMIC increases the probability that you won't be able to allocate the memory
-> you need, and it also increases the probability that some other module that really needs
-> GFP_ATOMIC will also be unable to allocate the memory it needs.  Please tell me, how is
-> this considered good programming?
-
-I believe he was trying to say that there might be a function that is
-called by both an interrupt and non interrupt (schedulable) code.  That
-means that the code would always need to do a GFP_ATOMIC and yes, it would
-mean that there's a higher chance that it would fail.  So if you have some
-function that's used by lots of schedulable code and that same function is
-seldom used by an interrupt, then you either need to maintain two versions
-of the function (one with GFP_ATOMIC and one without) or always use
-GFP_ATOMIC which would mean the the majority user would suffer
-unsuccessful allocations more often.
-
--- Steve

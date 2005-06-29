@@ -1,83 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262621AbVF2Qri@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262610AbVF2Qvh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262621AbVF2Qri (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 12:47:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262613AbVF2Qo3
+	id S262610AbVF2Qvh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 12:51:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262622AbVF2Qvg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 12:44:29 -0400
-Received: from mx2.tippett.com ([64.81.248.66]:18275 "EHLO mx2.tippett.com")
-	by vger.kernel.org with ESMTP id S262611AbVF2Qj4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 12:39:56 -0400
-Message-ID: <42C2CE98.3020504@tippett.com>
-Date: Wed, 29 Jun 2005 09:38:48 -0700
-From: Christian Rice <xian@tippett.com>
-Reply-To: xian@tippett.com
-Organization: Tippett Studio
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Wed, 29 Jun 2005 12:51:36 -0400
+Received: from rrcs-24-227-247-8.sw.biz.rr.com ([24.227.247.8]:38789 "EHLO
+	emachine.austin.ammasso.com") by vger.kernel.org with ESMTP
+	id S262610AbVF2QvN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 12:51:13 -0400
+Message-ID: <42C2D0C1.4030500@ammasso.com>
+Date: Wed, 29 Jun 2005 11:48:01 -0500
+From: Timur Tabi <timur.tabi@ammasso.com>
+Organization: Ammasso
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.8) Gecko/20050511 Mnenhy/0.7.2.0
+X-Accept-Language: en-us, en, en-gb
 MIME-Version: 1.0
-To: Al Boldi <a1426z@gawab.com>
-CC: "'Nathan Scott'" <nathans@sgi.com>, linux-xfs@oss.sgi.com,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       reiserfs-list@namesys.com
-Subject: Re: XFS corruption during power-blackout
-References: <200506290453.HAA14576@raad.intranet>
-In-Reply-To: <200506290453.HAA14576@raad.intranet>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Denis Vlasenko <vda@ilport.com.ua>
+CC: rostedt@goodmis.org, Arjan van de Ven <arjan@infradead.org>,
+       Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: kmalloc without GFP_xxx?
+References: <200506291402.18064.vda@ilport.com.ua> <1120045024.3196.34.camel@laptopd505.fenrus.org> <Pine.LNX.4.58.0506290927370.22775@localhost.localdomain> <200506291714.32990.vda@ilport.com.ua>
+In-Reply-To: <200506291714.32990.vda@ilport.com.ua>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (mx2.tippett.com [192.168.12.2]); Wed, 29 Jun 2005 09:21:47 -0700 (PDT)
-X-Spam-Score: -4.532 () ALL_TRUSTED,BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Boldi wrote:
+Denis Vlasenko wrote:
 
->Hi Nathan,
->You wrote: {
->On Tue, Jun 28, 2005 at 12:08:05PM +0300, Al Boldi wrote:
->  
->
->>True now, not so around 2.4.20 when XFS was rock-solid. I think they 
->>tried to improve on performance and broke something. I wish they would 
->>fix that because it forced me back to ext3, as in consistency over 
->>performance any time.
->>    
->>
->
->Can you provide any details...
->}
->
->Specifically, in 2.4.20 I did an acid test:
->Spawn 10 cp -a on some big dir like /usr.
->Let it run for a few seconds, then pull the plug.
->Don't reset-button, reset is different then pulling the plug.
->Don't poweroff-button, poweroff is different then pulling the plug.
->On reboot diff the dirs spawned.
->
->What I found were 4 things in the dest dir:
->1. Missing Dirs,Files. That's OK.
->2. Files of size 0. That's acceptable.
->3. Corrupted Files. That's unacceptable.
->4. Corrupted Files with original fingerprint. That's ABSOLUTELY
->unacceptable.
->
->Ext3 performed best with minimal files of size 0.
->XFS was second  with more files of size 0.
->Reiser,JFS was worst with corruptions.
->
->When XFS was added into the vanilla-Kernel it caused corruptions like Reiser
->and JFS, which forced me back to Ext3.
->
->
->
->  
->
-Pardon me if I haven't seen the whole thread.
+> This is why I always use _irqsave. Less error prone.
 
-Do you have hard drive write cache turned off or, if it's a raid card, a 
-battery backup on the write cache?  That makes a big difference when 
-operators begin doing things like pulling plugs and hitting reset.
+No, it's just bad programming.  How hard can it be to see which spinlocks are being used 
+by your ISR and which ones aren't?  Only the ones that your ISR touches should have 
+_irqsave.  It's really quite simple.
 
-Again, no offense, just one of those "have you taken it out of the box, 
-plugged it in and turned it on" kind of questions.
+> This is more or less what I meant. Why think about each kmalloc and when you
+> eventually did get it right: "Aha, we _sometimes_ get called from spinlocked code,
+> GFP_ATOMIC then" - you still do atomic alloc even if cases when you
+> were _not_ called from locked code! Thus you needed to think longer and got
+> code which is worse.
+
+So you're saying that you're the kind of programmer who makes more mistakes the longer you 
+think about something?????
+
+Using GFP_ATOMIC increases the probability that you won't be able to allocate the memory 
+you need, and it also increases the probability that some other module that really needs 
+GFP_ATOMIC will also be unable to allocate the memory it needs.  Please tell me, how is 
+this considered good programming?
+
+-- 
+Timur Tabi
+Staff Software Engineer
+timur.tabi@ammasso.com
+
+One thing a Southern boy will never say is,
+"I don't think duct tape will fix it."
+      -- Ed Smylie, NASA engineer for Apollo 13

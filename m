@@ -1,55 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262688AbVF2Vea@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262474AbVF2Vtx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262688AbVF2Vea (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 17:34:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262639AbVF2Ve0
+	id S262474AbVF2Vtx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 17:49:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262549AbVF2Vtx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 17:34:26 -0400
-Received: from rgminet01.oracle.com ([148.87.122.30]:33506 "EHLO
-	rgminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S262549AbVF2VeO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 17:34:14 -0400
-Date: Wed, 29 Jun 2005 14:30:38 -0700
-From: Joel Becker <Joel.Becker@oracle.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: ocfs2-devel@oss.oracle.com, linux-kernel@vger.kernel.org
-Subject: Re: [-mm patch] CONFIGFS_FS shouldn't be user-visible
-Message-ID: <20050629213038.GA23823@ca-server1.us.oracle.com>
-Mail-Followup-To: Adrian Bunk <bunk@stusta.de>, ocfs2-devel@oss.oracle.com,
-	linux-kernel@vger.kernel.org
-References: <20050624080315.GC26545@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050624080315.GC26545@stusta.de>
-X-Burt-Line: Trees are cool.
-X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
-User-Agent: Mutt/1.5.9i
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
+	Wed, 29 Jun 2005 17:49:53 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:55224 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S262474AbVF2Vt3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 17:49:29 -0400
+Date: Wed, 29 Jun 2005 23:49:18 +0200 (MEST)
+Message-Id: <200506292149.j5TLnI8s020912@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: akpm@osdl.org
+Subject: [PATCH 2.6.12-mm2] UP spinlocks gcc-2.9x fix
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 24, 2005 at 10:03:15AM +0200, Adrian Bunk wrote:
-> I haven't found any reason why CONFIGFS_FS is user-visible.
-> Other parts of the kernel using configfs should simply select it.
+The spinlock consolidation patch that was included in 2.6.12-mm2
+removed the kernel's fixes for empty structure bugs in gcc-2.95.
 
-	Doesn't work for external modules that might want to use it.
-Imagine that configfs gets merged before OCFS2, which depends on it.
+This patch re-adds those fixes. It also updates the corresponding
+comment to state that the empty structure bug also is present in
+early gcc-2.96 versions.
 
-Joel
+Signed-off-by: Mikael Pettersson <mikpe@csd.uu.se>
 
--- 
+ include/linux/spinlock_types_up.h |   14 ++++++++++++++
+ 1 files changed, 14 insertions(+)
 
-"There is shadow under this red rock.
- (Come in under the shadow of this red rock)
- And I will show you something different from either
- Your shadow at morning striding behind you
- Or your shadow at evening rising to meet you.
- I will show you fear in a handful of dust."
-
-Joel Becker
-Senior Member of Technical Staff
-Oracle
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127
+diff -rupN linux-2.6.12-mm2/include/linux/spinlock_types_up.h linux-2.6.12-mm2.up-spinlocks-gcc29x-fix/include/linux/spinlock_types_up.h
+--- linux-2.6.12-mm2/include/linux/spinlock_types_up.h	2005-06-29 21:54:08.000000000 +0200
++++ linux-2.6.12-mm2.up-spinlocks-gcc29x-fix/include/linux/spinlock_types_up.h	2005-06-29 22:49:34.000000000 +0200
+@@ -22,16 +22,30 @@ typedef struct {
+ 
+ #else
+ 
++/*
++ * All gcc 2.95 versions and early versions of 2.96 have a nasty bug
++ * with empty initializers.
++ */
++#if (__GNUC__ > 2)
+ typedef struct { } raw_spinlock_t;
+ 
+ #define __RAW_SPIN_LOCK_UNLOCKED { }
++#else
++typedef struct { int gcc_is_buggy; } raw_spinlock_t;
++#define __RAW_SPIN_LOCK_UNLOCKED (raw_spinlock_t) { 0 }
++#endif
+ 
+ #endif
+ 
++#if (__GNUC__ > 2)
+ typedef struct {
+ 	/* no debug version on UP */
+ } raw_rwlock_t;
+ 
+ #define __RAW_RW_LOCK_UNLOCKED { }
++#else
++typedef struct { int gcc_is_buggy; } raw_rwlock_t;
++#define __RAW_RW_LOCK_UNLOCKED (raw_rwlock_t) { 0 }
++#endif
+ 
+ #endif /* __LINUX_SPINLOCK_TYPES_UP_H */

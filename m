@@ -1,64 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261389AbVF2B32@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261530AbVF2Bdh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261389AbVF2B32 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Jun 2005 21:29:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262282AbVF2B0T
+	id S261530AbVF2Bdh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Jun 2005 21:33:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261191AbVF2Bb3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Jun 2005 21:26:19 -0400
-Received: from warden3-p.diginsite.com ([208.147.64.186]:37525 "HELO
-	warden3.diginsite.com") by vger.kernel.org with SMTP
-	id S262307AbVF2Aju (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Jun 2005 20:39:50 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: Mike Bell <kernel@mikebell.org>
-Cc: Arjan van de Ven <arjan@infradead.org>, Greg KH <greg@kroah.com>,
-       Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org
-X-X-Sender: dlang@dlang.diginsite.com
-Date: Tue, 28 Jun 2005 17:39:16 -0700 (PDT)
-X-X-Sender: dlang@dlang.diginsite.com
-Subject: Re: [ANNOUNCE] ndevfs - a "nano" devfs
-In-Reply-To: <20050629001243.GD4673@mikebell.org>
-Message-ID: <Pine.LNX.4.62.0506281737340.24459@qynat.qvtvafvgr.pbz>
-References: <20050625234305.GA11282@kroah.com> <20050627071907.GA5433@mikebell.org>
- <200506271735.50565.dtor_core@ameritech.net> <20050627232559.GA7690@mikebell.org>
- <20050628074015.GA3577@kroah.com> <20050628090852.GA966@mikebell.org>
- <1119950487.3175.21.camel@laptopd505.fenrus.org> <20050628214929.GB23980@voodoo>
- <20050628222318.GC4673@mikebell.org> <20050628234310.GA29653@mail>
- <20050629001243.GD4673@mikebell.org>
+	Tue, 28 Jun 2005 21:31:29 -0400
+Received: from [218.94.38.158] ([218.94.38.158]:61073 "EHLO xianan.com.cn")
+	by vger.kernel.org with ESMTP id S261594AbVF2B3Z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Jun 2005 21:29:25 -0400
+X-AuthUser: chengq@xianan.com.cn
+Message-ID: <42C1F91D.4060609@gmail.com>
+Date: Wed, 29 Jun 2005 09:27:57 +0800
+From: Benbenshi <benbenshi@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: Re:Re: route trouble with kernel
+Content-Type: text/plain; charset=GB2312
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Jun 2005, Mike Bell wrote:
+Valdis.Kletnieks@vt.edu wrote:
 
-> On Tue, Jun 28, 2005 at 07:43:10PM -0400, Jim Crilly wrote:
->> Well it looks like the ALSA library already abstracts the device node
->> enough that the app itself doesn't know what file is being used because it
->> just calls snd_card_get_name, snd_open_pcm, etc with the ALSA index. So
->> wouldn't it be feasible to make ALSA a little bit smarter so that it could
->> track/find the device nodes no matter what name they have?
+
+>>On Tue, 28 Jun 2005 20:57:04 +0800, cigarette Chan said:
+>>  
+>>
+>  
 >
-> You could in theory do that to ALSA. Except for the aforementioned
-> "how?". How is ALSA supposed to find out what its new device node name
-> is? You could invent some sort of crazy libudev, but I think it would
-> require a major redesign of how udev works, forcing it to keep state or
-> such. The only alternatives I can see are what I already mentioned,
-> searching every single device node in /dev to find the right one.
+>>>>i add a route to the kernel
+>>>>eg: # route add -net XXX.XXX.XXX.XXX/24 gw XXX.XXX.XXX.XXX dev eth1
+>>>>
+>>>>but after i restart eth1
+>>>>
+>>>>#ifdown eth1
+>>>>#ifup eth1
+>>>>
+>>>>the route disappear,this make me a lot of troubles.i have several
+>>>>interfaces,and i have to
+>>>>re-add all of these routes...
+>>>>
+>>>>Is there any way or patches to make route work like iptables,after i
+>>>>restart the interface,
+>>>>rules  are still there.
+>>>>    
+>>>>
+>>    
+>>
+>>
+>>Your system should have a way of doing this in a callout during the ifup
+>>and ifdown scripts.  Under Fedora, ifup calls ifup-post, which calls
+>>/sbin/ifup-local - you could add your routes there.
+>>
+>>  
+>>
+>  
 >
-> Which is why I conclude (and, evidently, Greg agrees) that consistent
-> naming schemes for /dev are very important. Now if I could just find out
-> why devfs's failure to allow such broken configurations is a bug in his
-> mind. :)
+nerver used Fedora before. On my Debian sarge, ifup will call
+/etc/network/interfaces,
+which looks like follow:
+################################
+auto lo
+iface lo inet loopback
+auto eth0
+iface eth0 inet static
+address 192.168.10.200
+netmask 255.255.255.0
+broadcast 192.168.10.255
+network 192.168.10.0
+gateway 192.168.10.1
+###############################
+with this script,ifup know how to add default gateway to the route
+table. Is that your mean ?
 
-worse yet, go way back in the archives and you will find that prior to 
-being merged into the kernel devfs supported two nameing schemes, the one 
-you see now and a compatability version that matched the standard /dev 
-names. one requirement for allowing it to be merged was to remove the 
-compatability set of names.
 
-David Lang
+>>More importantly, routes are different from iptables.  At worst, an iptable
+>>rule has a dangling '-i ethX' match that will fail if the interface is down,
+>>but that's a harmless because the packet isn't from that interface.
+>>
+>>On the other hand, what is the kernel supposed to do with a route that
+>>points to a down'ed ethX after you've done the ifdown, but before you've
+>>done the ifup?  It may as well clear routes to the down'ed interface....
+>>  
+>>
+>  
+>
+If ethX was down, can kernel just drop the packages to ethX ? Is there
+anything wrong with kernel to work like this ?
 
--- 
-There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
-  -- C.A.R. Hoare
+Thanks for your great reply.
+
+

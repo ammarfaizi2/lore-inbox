@@ -1,66 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262641AbVF2Unv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262642AbVF2UqB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262641AbVF2Unv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 16:43:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262633AbVF2Unv
+	id S262642AbVF2UqB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 16:46:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262633AbVF2Upi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 16:43:51 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:22217 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262631AbVF2Und (ORCPT
+	Wed, 29 Jun 2005 16:45:38 -0400
+Received: from dbl.q-ag.de ([213.172.117.3]:10161 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S262639AbVF2Uo3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 16:43:33 -0400
-Subject: [PATCH] selinux_sb_copy_data should not require a whole page
-From: Eric Paris <eparis@parisplace.org>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Wed, 29 Jun 2005 16:46:56 -0400
-Message-Id: <1120078016.9967.34.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+	Wed, 29 Jun 2005 16:44:29 -0400
+Message-ID: <42C3081A.1040108@colorfullife.com>
+Date: Wed, 29 Jun 2005 22:44:10 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.8) Gecko/20050513 Fedora/1.7.8-1.3.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Steven Rostedt <rostedt@goodmis.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kmalloc without GFP_xxx?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Currently selinux_sb_copy_data requires an entire page be allocated to
-*orig when the function is called.  This "requirement" is based on the
-fact that we call copy_page(in_save, nosec_save) and in_save = orig when
-the data is not FS_BINARY_MOUNTDATA.  This means that if a caller were
-to call do_kern_mount with only about 10 bytes of options, they would
-get passed here and then we would corrupt PAGE_SIZE - 10 bytes of memory
-(with all zeros.)  
+Hi,
 
-Currently it appears all in kernel FS's use one page of data so this has
-not been a problem.  An out of kernel FS did just what is described
-above and it would almost always panic shortly after they tried to
-mount.  From looking else where in the kernel it is obvious that this
-string of data must always be null terminated.  (See example in do_mount
-where it always zeros the last byte.)  Thus I suggest we use strcpy in
-place of copy_page.  In this way we make sure the amount we copy is
-always less than or equal to the amount we received and since do_mount
-is zeroing the last byte this should be safe for all.
+One question from Linux-Tag was about the lack of documentation about/in 
+the kernel. I try to maintain docbook entries when I modify code, even 
+though I think it's mostly wasted time: Virtually noone reads it anyway, 
+instead armchair logic on lkml.
 
--Eric
+Steven wrote:
 
-Signed-off-by: Eric Paris <eparis@parisplace.org>
+>Here we see that task 2 can spin with interrupts off, while the first task
+>is servicing an interrupt, and God forbid if the IRQ handler sends some
+>kind of SMP signal to the CPU running task 2 since that would be a
+>deadlock.  Granted, this is a hypothetical situation, but makes using
+>spin_lock with interrupts enabled a little scary.
+>  
+>
+Not, it's not even a hypothetical situation. It's an explicitely 
+forbidden situation: SMP signals are sent with smp_call_function and the 
+documentation to that function clearly says:
+ *
+ * You must not call this function with disabled interrupts or from a
+ * hardware interrupt handler or from a bottom half handler.
+ */
 
---- linux-2.6.12.1/security/selinux/hooks.c.eric	2005-06-29 14:48:54.000000000 -0400
-+++ linux-2.6.12.1/security/selinux/hooks.c	2005-06-29 14:50:38.000000000 -0400
-@@ -68,6 +68,7 @@
- #include <linux/personality.h>
- #include <linux/sysctl.h>
- #include <linux/audit.h>
-+#include <linux/string.h>
- 
- #include "avc.h"
- #include "objsec.h"
-@@ -1943,7 +1944,7 @@ static int selinux_sb_copy_data(struct f
- 		}
- 	} while (*in_end++);
- 
--	copy_page(in_save, nosec_save);
-+	strcpy(in_save, nosec_save);
- 	free_page((unsigned long)nosec_save);
- out:
- 	return rc;
-
-
+--
+    Manfred

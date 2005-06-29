@@ -1,64 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262445AbVF2GSM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262443AbVF2G2x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262445AbVF2GSM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 02:18:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262446AbVF2GSM
+	id S262443AbVF2G2x (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 02:28:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262444AbVF2G2w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 02:18:12 -0400
-Received: from nproxy.gmail.com ([64.233.182.194]:39333 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262445AbVF2GSI convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 02:18:08 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=FXVqI7BIVnqJhAUE6ZhPCwNS9x68CvScx6XIvULLZCt8L6W1zRNCRbNar3rFx1Bb68Gtwtk/yzq++cQbJE+al8mtcn32zqN3zZXyVMwHg6b1g3hippxRewFp6CWwg6DRWtB9oRPmAOObLDPQW9+EHIKlgnymzGk56BwvszHiwP0=
-Message-ID: <84144f02050628231814e9e6db@mail.gmail.com>
-Date: Wed, 29 Jun 2005 09:18:07 +0300
-From: Pekka Enberg <penberg@gmail.com>
-Reply-To: Pekka Enberg <penberg@gmail.com>
-To: Hans Reiser <reiser@namesys.com>
-Subject: Re: reiser4 merging action list
-Cc: Andrew Morton <akpm@osdl.org>, tytso@mit.edu, mjt@nysv.org,
-       vonbrand@inf.utfsm.cl, ninja@slaphack.com, alan@lxorguk.ukuu.org.uk,
-       jgarzik@pobox.com, hch@infradead.org, linux-kernel@vger.kernel.org,
-       reiserfs-list@namesys.com, lord@xfs.org, vs <vs@thebsh.namesys.com>,
-       Pekka Enberg <penberg@cs.helsinki.fi>
-In-Reply-To: <42C2348F.3000908@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <42BB7B32.4010100@slaphack.com>
-	 <200506240334.j5O3YowB008100@laptop11.inf.utfsm.cl>
-	 <20050627092138.GD11013@nysv.org> <20050627124255.GB6280@thunk.org>
-	 <42C0578F.7030608@namesys.com> <20050627212628.GB27805@thunk.org>
-	 <42C084F1.70607@namesys.com> <20050627162303.156551b4.akpm@osdl.org>
-	 <42C2348F.3000908@namesys.com>
+	Wed, 29 Jun 2005 02:28:52 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:16560 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262443AbVF2G2u (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 02:28:50 -0400
+Date: Tue, 28 Jun 2005 23:30:54 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Linux 2.6.13-rc1
+Message-ID: <Pine.LNX.4.58.0506282310040.14331@ppc970.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> > There's also the custom list, hash and debug code.  We should either
-> >
-> > a) remove them or
-> >
-> > b) generify them and submit as standalone works or
-> >
-> > c) justify them as custom-to-reiser4 and leave them as-is.
 
-On 6/29/05, Hans Reiser <reiser@namesys.com> wrote:
-> either b) or c) is ok with me for the list code.  The debug code should
-> be c) I think.
-> 
-> Probably vs can offer a more detailed and accurate opinion,
+Ok, guys,
+ there was a lot of stuff pending after 2.6.12, and in the week and a half
+since the release, the current diff against it has grown to almost three
+megabytes compressed.
 
-I completely agree that the current state of the generic hashing
-facilities is somewhat poor but I fail to see why you can't use
-<linux/list.h>.
+Which is actually normal for a -rc1 release judging by the two last ones,
+but it usually takes us longer than ten days to get there. Which just
+shows that 2.6.12 was brewing for too long, but we can also think
+positively and say that perhaps it also seems to imply that this git thing
+is working out and not slowing people down.
 
-As for the debugging code, I would love to see that turned into
-something generic (every subsystem has their own now) but it is
-definitely not something that should stop you from merging.
+Anyway, I really don't want to drag out 2.6.13 as long as 2.6.12 took, and
+we don't have any reason to anyway, so let's try to see if we can calm
+things down again, and people who are thinking about writing new code
+might think about spending some quality time looking at the existing code
+and patches instead.
 
-                                Pekka
+Now, that big patch ends up being spread out over 2069 commits, and a
+noticeable chunk of it is actually the new xtensa architecture that got
+merged, but that still leaves a lot of patches all over the place (things
+like a few new console fonts, for example ;). The shortlog is over 100kB
+in size, which means that I think linux-kernel won't take it if I include
+it here, so I won't.  Similarly, the diffstat is 200kB, partly because of 
+the spread out nature of the pacthes.
+
+ARM, x86[-64], ppc, sparc updates, networking, sound, infiniband, input
+layer, ISDN, MD, DVB, V4L, network drivers, pcmcia, isofs, jfs, nfs,
+xfs, knfsd.. You name it.
+
+Git trees and traditional patches/tar-balls are out there, or at least 
+slowly mirroring out. Go wild,
+
+		Linus

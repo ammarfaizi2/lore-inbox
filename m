@@ -1,57 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262513AbVF2Ktk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262520AbVF2KvN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262513AbVF2Ktk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 06:49:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262520AbVF2Ktk
+	id S262520AbVF2KvN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 06:51:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262527AbVF2KvN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 06:49:40 -0400
-Received: from sv1.valinux.co.jp ([210.128.90.2]:16026 "EHLO sv1.valinux.co.jp")
-	by vger.kernel.org with ESMTP id S262513AbVF2Ktc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 06:49:32 -0400
-Date: Wed, 29 Jun 2005 19:49:59 +0900 (JST)
-Message-Id: <20050629.194959.98866345.taka@valinux.co.jp>
-To: nickpiggin@yahoo.com.au
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [rfc] lockless pagecache
-From: Hirokazu Takahashi <taka@valinux.co.jp>
-In-Reply-To: <42BF9CD1.2030102@yahoo.com.au>
-References: <42BF9CD1.2030102@yahoo.com.au>
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
+	Wed, 29 Jun 2005 06:51:13 -0400
+Received: from wproxy.gmail.com ([64.233.184.198]:11501 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262520AbVF2KvG convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 06:51:06 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=sGXzAsOYp4A4VjwtiY4yxt/yDdL3ZiRkGIlX239R+W1ljLCuUJOVK2QJ0h8FaHxQ7N0EmMiVlKR3z6Dt55XCDSbnOveWUlapHR3QU7F54xlt2ZMSJbVahGHXl2Ez3axl3Xs3g9dye0F86u2BR5TXUvH48cQnb6ztAPvDWs8UXYg=
+Message-ID: <ec2c5c2205062903511d62d6bf@mail.gmail.com>
+Date: Wed, 29 Jun 2005 13:51:06 +0300
+From: Ville Sundell <ville.sundell@gmail.com>
+Reply-To: Ville Sundell <ville.sundell@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Build-in XML support?
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Nick,
+Hi!
+I know, this maybe is F.A.Q, but I ask it anyway (because I have not found it
+in kernel mail-list, so don't shot me!)  :
 
-Your patches improve the performance if lots of processes are
-accessing the same file at the same time, right?
+How about build-in XML-support to kernel?
 
-If so, I think we can introduce multiple radix-trees instead,
-which enhance each inode to be able to have two or more radix-trees
-in it to avoid the race condition traversing the trees.
-Some decision mechanism is needed which radix-tree each page
-should be in, how many radix-tree should be prepared.
+Good or bad?
 
-It seems to be simple and effective.
+It would be wery useful for config-files? 
+Yes, XML-format is big, an need disk space (that tag system needs
+space), but it is easy to understand and it is standard way to format
+data.
 
-What do you think?
+(...and I have a draft for small XML-parser in C-language;) )
 
-> Now the tree_lock was recently(ish) converted to an rwlock, precisely
-> for such a workload and that was apparently very successful. However
-> an rwlock is significantly heavier, and as machines get faster and
-> bigger, rwlocks (and any locks) will tend to use more and more of Paul
-> McKenney's toilet paper due to cacheline bouncing.
-> 
-> So in the interest of saving some trees, let's try it without any locks.
-> 
-> First I'll put up some numbers to get you interested - of a 64-way Altix
-> with 64 processes each read-faulting in their own 512MB part of a 32GB
-> file that is preloaded in pagecache (with the proper NUMA memory
-> allocation).
-
-Thanks,
-Hirokazu Takahashi.
-
+-Ville Sundell

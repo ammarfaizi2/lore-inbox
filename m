@@ -1,63 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262539AbVF2UHj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262583AbVF2UQg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262539AbVF2UHj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 16:07:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262537AbVF2UHh
+	id S262583AbVF2UQg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 16:16:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262592AbVF2UQg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 16:07:37 -0400
-Received: from smtp103.sbc.mail.re2.yahoo.com ([68.142.229.102]:24701 "HELO
-	smtp103.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S262539AbVF2UHd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 16:07:33 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org, hetfield666@gmail.com
-Subject: Re: psmouse sysfs problems
-Date: Wed, 29 Jun 2005 15:07:27 -0500
-User-Agent: KMail/1.8.1
-References: <1120057685.31934.36.camel@blight.blightgroup>
-In-Reply-To: <1120057685.31934.36.camel@blight.blightgroup>
+	Wed, 29 Jun 2005 16:16:36 -0400
+Received: from crl-mail-dmz.crl.hpl.hp.com ([192.58.210.9]:13958 "EHLO
+	crl-mailb.crl.dec.com") by vger.kernel.org with ESMTP
+	id S262583AbVF2UQe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 16:16:34 -0400
+Message-ID: <42C3019A.9000204@hp.com>
+Date: Wed, 29 Jun 2005 16:16:26 -0400
+From: Jamey Hicks <jamey.hicks@hp.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+To: linux-kernel@vger.kernel.org
+Subject: handhelds.org git tree
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506291507.28015.dtor_core@ameritech.net>
+X-HPLC-MailScanner-Information: Please contact the ISP for more information
+X-HPLC-MailScanner: Found to be clean
+X-HPLC-MailScanner-SpamCheck: not spam (whitelisted),
+	SpamAssassin (score=-4.9, required 5, BAYES_00 -4.90)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 29 June 2005 10:08, Hetfield wrote:
-> pwd
-> /sys/bus/serio/devices/serio0
-> root@blight serio0 # cat protocol
-> ImPS/2
-> root@blight serio0 # cat resetafter
-> 0
-> root@blight serio0 # echo 5 > res
-> resetafter  resolution
-> root@blight serio0 # echo 5 > resetafter
-> root@blight serio0 # cat resetafter
-> 0
-> root@blight serio0 #            
-> 
-> and sending 0, 1, 2 to protocol changed nothing.
-> same for resolution.
-> i needed that feature to switch from synaptics to imps protocol and
-> back.
-> 
-> i'm using 2.6.12-git10.
-> 
-> what should i do?
->
 
-Hi,
+As a step towards sending more patches upstream from handhelds.org, I 
+created a git tree with support for iPAQ models h2200, h3900, h5400, 
+hx2750 and hx4750 so far.  It's still a work in progress.  The kernels 
+and modules build but have not been tested.
 
-try this:
+http://handhelds.org/~jamey/gitweb.cgi?p=linux-2.6-jamey
 
-    echo -n "imps" > /sys/bus/serio/devices/serioX/protocol
-    echo -n "auto" > /sys/bus/serio/devices/serioX/protocol
+http://handhelds.org/~jamey/git/linux-2.6-jamey/
 
-psmouse (and serio core in general) does not like exta characters (like
-newline) in requests and discards such requests.
+-Jamey
 
--- 
-Dmitry

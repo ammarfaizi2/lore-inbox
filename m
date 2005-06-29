@@ -1,68 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262308AbVF2RcM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261285AbVF2RcN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262308AbVF2RcM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 13:32:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261285AbVF2RYl
+	id S261285AbVF2RcN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 13:32:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262289AbVF2RVE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 13:24:41 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:45284 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S262251AbVF2RXb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 13:23:31 -0400
-Message-Id: <200506291719.j5THJCSg011438@laptop11.inf.utfsm.cl>
-To: mjt@nysv.org (Markus T rnqvist)
-cc: Douglas McNaught <doug@mcnaught.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Hubert Chan <hubert@uhoreg.ca>,
-       Kyle Moffett <mrmacman_g4@mac.com>, David Masover <ninja@slaphack.com>,
-       Valdis.Kletnieks@vt.edu, Lincoln Dale <ltd@cisco.com>,
-       Gregory Maxwell <gmaxwell@gmail.com>, Hans Reiser <reiser@namesys.com>,
-       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: reiser4 plugins 
-In-Reply-To: Message from mjt@nysv.org (Markus T rnqvist) 
-   of "Wed, 29 Jun 2005 16:58:20 +0300." <20050629135820.GJ11013@nysv.org> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Wed, 29 Jun 2005 13:19:12 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Wed, 29 Jun 2005 13:19:24 -0400 (CLT)
+	Wed, 29 Jun 2005 13:21:04 -0400
+Received: from 64-60-250-34.cust.telepacific.net ([64.60.250.34]:17709 "EHLO
+	panta-1.pantasys.com") by vger.kernel.org with ESMTP
+	id S262653AbVF2RRK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 13:17:10 -0400
+Message-ID: <42C2D791.9020204@pantasys.com>
+Date: Wed, 29 Jun 2005 10:17:05 -0700
+From: Peter Buckingham <peter@pantasys.com>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Sean Bruno <sean.bruno@dsl-only.net>
+CC: linux-kernel@vger.kernel.org, kevin.mullins@asusts.com,
+       JASON_RILEY@asusts.com, karim@opersys.com,
+       Andreas Koch <koch@esa.informatik.tu-darmstadt.de>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>, dave.jones@redhat.com
+Subject: Re: ASUS K8N-DL Beta BIOS AKA PROBLEM: Devices behind	PCI	Express-to-PCI
+ bridge not mapped
+References: <1119996349.3484.40.camel@oscar.metro1.com>	 <42C1FD7F.2060003@opersys.com> <1120018942.6936.20.camel@home-lap>	 <42C2D3FD.2080306@pantasys.com> <1120064967.3511.4.camel@oscar.metro1.com>
+In-Reply-To: <1120064967.3511.4.camel@oscar.metro1.com>
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 29 Jun 2005 17:14:04.0875 (UTC) FILETIME=[F3B459B0:01C57CCD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Markus Törnqvist <mjt@nysv.org> wrote:
+Hi Sean,
 
-[...]
+Sean Bruno wrote:
+>>>Aperture from northbridge cpu 0 too small (32 MB)
+>>>No AGP bridge found
+>>>Your BIOS doesn't leave a aperture memory hole
+>>>Please enable the IOMMU option in the BIOS setup
+>>>This costs you 64 MB of RAM
+>>
+>>this isn't a big deal, but linux expects an apperture of >= 64MB, you 
+>>may want to change this setting in your bios.
+>>
+> 
+> If the system doesn't have an AGP slot, would it even need to leave an
+> aperture(this mobo has a 16x PCI-E slot for the video)?
 
-> Note that MacOS has the monopoly on what they ship, Linux has a
-> motherload of file managers and window systems and all.
+The IOMMU is still used for some devices that are only 32bit in a 64bit 
+OS. Linux actually will allocate the 64MB anyway, so it doesn't hurt to 
+have the bios and linux in sync ;-)
 
-Yep. Part of what is nice about it, too ;-)
+> Would this require ASUS to modify their board/bios?
 
-> What pisses me off is the fact that Gnome and friends implement
-> their own incompatible-with-others VFS's and automounters and
-> stuff.
+yep, good luck!
 
-Then get them to agree on a common framework! They are trying hard to get
-other parts of the GUI work well together, so this isn't far off in
-wishfull thinking land.
+>>>ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
+>>>    ACPI-0352: *** Error: Looking up [\_SB_.PCI0.APC0] in namespace, AE_NOT_FOUND
+>>>search_node ffff810142857180 start_node ffff810142857180 return_node 0000000000000000
+>>>    ACPI-1138: *** Error: Method execution failed [\_SB_.PCI0._PRT] (Node ffff810142857140), AE_NOT_FOUND
+>>
+>>same as above, the acpi tables are missing information.
+> 
+> So, this is something that ASUS "needs" to fix or is it something that
+> needs to change in the ACPI part of the kernel?
 
-> Surely supporting this in the kernel and extending the LSB
-> to require this is the best step to take without infringing
-> anyone's freedom as such.
+Yeah, this is again something that ASUS would need to fix in their bios. 
+I'm not sure how important it is though...
 
-Right. So then we have Gnome's way of doing things (Gnome isn't just for
-Linux!), KDE's way, XFCE's way, ... (ditto). Plus the kernel way. Flambee
-with a monthly thread on all reachable fora about "Why on &%@# does the
-%&~#@ GUI not use the *#%&@ kernel's way?!".
-
-This is /not/ the way of fxing that particular problem. Shoving random
-stuff into the kernel /can't/ force its use. At least not until Linux is
-the only Unixy system around, and that is still some way off. And when that
-has happened, the kernel's way must be /clearly/ better for /all/ users, or
-it won't matter.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
-
+peter

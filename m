@@ -1,60 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262632AbVF2UvM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262633AbVF2Uui@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262632AbVF2UvM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 16:51:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262639AbVF2UvL
+	id S262633AbVF2Uui (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 16:50:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262638AbVF2Uui
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 16:51:11 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:9095 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262632AbVF2Us1 (ORCPT
+	Wed, 29 Jun 2005 16:50:38 -0400
+Received: from ausc60pc101.us.dell.com ([143.166.85.206]:47909 "EHLO
+	ausc60pc101.us.dell.com") by vger.kernel.org with ESMTP
+	id S262633AbVF2Urm convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 16:48:27 -0400
-Date: Wed, 29 Jun 2005 15:48:23 -0500
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: linux-kernel@vger.kernel.org, long <tlnguyen@snoqualmie.dp.intel.com>,
-       Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
-       Greg KH <greg@kroah.com>, ak@muc.de, Paul Mackerras <paulus@samba.org>,
-       linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, johnrose@us.ibm.com
-Subject: Re: [PATCH 7/13]: PCI Err: Symbios SCSI  driver recovery
-Message-ID: <20050629204823.GM28499@austin.ibm.com>
-References: <20050628235919.GA6415@austin.ibm.com> <1120009868.5133.232.camel@gaston>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1120009868.5133.232.camel@gaston>
-User-Agent: Mutt/1.5.6+20040818i
-From: Linas Vepstas <linas@austin.ibm.com>
+	Wed, 29 Jun 2005 16:47:42 -0400
+X-IronPort-AV: i="3.94,151,1118034000"; 
+   d="scan'208"; a="279735699:sNHT60984726"
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [RFC][patch 2.6.12-rc3] dell_rbu: Resubmitting patch for new Dell BIOS update driver 
+Date: Wed, 29 Jun 2005 15:47:38 -0500
+Message-ID: <B37DF8F3777DDC4285FA831D366EB9E20730AD@ausx3mps302.aus.amer.dell.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [RFC][patch 2.6.12-rc3] dell_rbu: Resubmitting patch for new Dell BIOS update driver 
+Thread-Index: AcV84CA6mFAEAJvwSJObiFPDwmxVZwAC3c7w
+From: <Abhay_Salunke@Dell.com>
+To: <Valdis.Kletnieks@vt.edu>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 29 Jun 2005 20:47:39.0733 (UTC) FILETIME=[C9F48050:01C57CEB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 29, 2005 at 11:51:07AM +1000, Benjamin Herrenschmidt was heard to remark:
-> On Tue, 2005-06-28 at 18:59 -0500, Linas Vepstas wrote:
-> > pci-err-7-symbios.patch
-> > 
-> > Adds PCI Error recoervy callbacks to the Symbios Sym53c8xx driver.
-> > Tested, seems to work well under i/o stress to one disk. Not
-> > stress tested under heavy i/o to multiple scsi devices.
-> > 
-> > Note the check of the pci error state flag inside an infinite
-> > loop inside the interrupt handler. Without this check, the 
-> > device can spin forever, locking up hard, long before the 
-> > asynchronous error event (and callbacks) are ever called. 
+
+
+> -----Original Message-----
+> From: Valdis.Kletnieks@vt.edu [mailto:Valdis.Kletnieks@vt.edu]
+> Sent: Wednesday, June 29, 2005 2:24 PM
+> To: Salunke, Abhay
+> Cc: linux-kernel@vger.kernel.org; greg@kroah.com
+> Subject: Re: [RFC][patch 2.6.12-rc3] dell_rbu: Resubmitting patch for
+new
+> Dell BIOS update driver
 > 
-> Normally, you should check for non-responding hardware by testing things
-> like reading all ff's or having a timeout in the loop. 
-
-For ppc64, that does happen in the loop, and so the flag does get
-set synchronously, even on a single-cpu system.  But point taken.
-
-> The bug is that
-> the driver has a potential infinite loop in the first place.
+> On Wed, 29 Jun 2005 15:26:40 CDT, Abhay Salunke said:
+> > This patch adds a new function to firmware_calss.c
+> request_firmware_nowait_nohotplug .
+> > The dell_rbu driver uses this call to create entries in
+> /sys/class/firmware.
+> >
+> > Signed-off-by: Abhay Salunke <Abhay_Salunke@dell.com>
+> >
+> > Thanks
+> > Abhay
+> > diff -uprN linux-2.6.11.11.orig/Documentation/dell_rbu.txt linux-
+> 2.6.11.11.new/Documentation/dell_rbu.txt
 > 
-> The only type of "synchronous" error checking that can be done is what
-> is proposed by Hidetoshi Seto. You could use his stuff here.
-
-Yes. However, I will leave this bit in for now, (and mark it as a hack) 
-until Seto-san's patches are on deck. I'd rather not have a built-in 
-pre-req right now.
-
---linas
+> > +This driver enables userspace applications to update the BIOS on
+Dell
+> servers
+> > +(starting from servers sold since 1999), desktops and notebooks
+> (starting
+> > +from those sold in 2005).
+> 
+> I may be blind, but I'm not seeing where this code makes a check -
+what
+> happens
+> if I try to run this on my 3-year-old Latitude laptop?
+This driver should be able to support both server and client systems...

@@ -1,45 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262593AbVF2QOm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261588AbVF2QKP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262593AbVF2QOm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 12:14:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbVF2QKz
+	id S261588AbVF2QKP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 12:10:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbVF2QHm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 12:10:55 -0400
-Received: from mail.kroah.org ([69.55.234.183]:11984 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261583AbVF2QHV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 12:07:21 -0400
-Date: Wed, 29 Jun 2005 09:06:59 -0700
-From: Greg KH <greg@kroah.com>
-To: Oliver Neukum <oliver@neukum.org>
-Cc: Mike Bell <kernel@mikebell.org>, Dmitry Torokhov <dtor_core@ameritech.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] ndevfs - a "nano" devfs
-Message-ID: <20050629160659.GA23594@kroah.com>
-References: <20050624081808.GA26174@kroah.com> <200506281400.08777.oliver@neukum.org> <20050628200824.GA12851@kroah.com> <200506290841.29785.oliver@neukum.org>
-Mime-Version: 1.0
+	Wed, 29 Jun 2005 12:07:42 -0400
+Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:2359 "EHLO
+	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
+	id S261564AbVF2QGY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 12:06:24 -0400
+X-IronPort-AV: i="3.93,242,1115017200"; 
+   d="scan'208"; a="284267518:sNHT27005680"
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [PATCH 12/16] IB uverbs: add mthca user PD support
+X-Message-Flag: Warning: May contain useful information
+References: <2005628163.gtJFW6uLUrGQteys@cisco.com>
+	<2005628163.px5sYyzsYWf21dJY@cisco.com>
+	<20050628170718.0b2a9cad.akpm@osdl.org>
+From: Roland Dreier <rolandd@cisco.com>
+Date: Wed, 29 Jun 2005 09:06:22 -0700
+Message-ID: <52slz1f8qp.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200506290841.29785.oliver@neukum.org>
-User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 29, 2005 at 08:41:29AM +0200, Oliver Neukum wrote:
-> What devfs and udev can do, and a static dev cannot, is names independent
-> of order of detection.
+    Andrew> What is a userspace protection domain?
 
-devfs can not do that.
+A protection domain is an abstraction enforced by IB hardware --
+loosely put, every resource (work queue, memory region, etc) in put in
+a PD when it is created, and different resources can only see each
+other if they belong to the same PD.
 
-> As for ressources, it is an illusion to think that user space means
-> less ressources. A demon means page tables and a kernel stack. That
-> 12K unswappable memory in the best case.
+As an example, PDs are needed because IB allows unprivileged processes
+to directly post requests to work queues.  Work requests refer to
+memory regions by memory keys (32 bit cookies).  Without PDs, a
+process could get access to another process's memory region if it
+could guess the 32-bit key -- with PDs, it can't because the other
+process's memory region will be in a different PD from its work queue.
 
-You don't have to run the udevd process if you are worried about an
-extra process in your kernel tables.  Although this is the first time I
-have heard anyone voice the "oh no, not another userspace task running"
-point :)
-
-thanks,
-
-greg k-h
+ - R.

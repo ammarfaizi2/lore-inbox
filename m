@@ -1,54 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262525AbVF2UCT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262539AbVF2UHj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262525AbVF2UCT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 16:02:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262537AbVF2UCT
+	id S262539AbVF2UHj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 16:07:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262537AbVF2UHh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 16:02:19 -0400
-Received: from mxsf12.cluster1.charter.net ([209.225.28.212]:5861 "EHLO
-	mxsf12.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S262525AbVF2UCO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 16:02:14 -0400
-X-IronPort-AV: i="3.93,243,1115006400"; 
-   d="scan'208"; a="1192742600:sNHT34720480"
+	Wed, 29 Jun 2005 16:07:37 -0400
+Received: from smtp103.sbc.mail.re2.yahoo.com ([68.142.229.102]:24701 "HELO
+	smtp103.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S262539AbVF2UHd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 16:07:33 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org, hetfield666@gmail.com
+Subject: Re: psmouse sysfs problems
+Date: Wed, 29 Jun 2005 15:07:27 -0500
+User-Agent: KMail/1.8.1
+References: <1120057685.31934.36.camel@blight.blightgroup>
+In-Reply-To: <1120057685.31934.36.camel@blight.blightgroup>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-ID: <17090.65093.315260.889211@smtp.charter.net>
-Date: Wed, 29 Jun 2005 16:02:13 -0400
-From: "John Stoffel" <john@stoffel.org>
-To: linux-os@analogic.com
-Cc: Sreeni <sreeni.pulichi@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: **** How to lock memory pages?
-In-Reply-To: <Pine.LNX.4.61.0506291245170.22243@chaos.analogic.com>
-References: <94e67edf05062810586d6141f3@mail.gmail.com>
-	<m1br5p3ib8.fsf@ebiederm.dsl.xmission.com>
-	<94e67edf050629083745bb4183@mail.gmail.com>
-	<Pine.LNX.4.61.0506291245170.22243@chaos.analogic.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
+Content-Disposition: inline
+Message-Id: <200506291507.28015.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Richard" == Richard B Johnson <linux-os@analogic.com> writes:
+On Wednesday 29 June 2005 10:08, Hetfield wrote:
+> pwd
+> /sys/bus/serio/devices/serio0
+> root@blight serio0 # cat protocol
+> ImPS/2
+> root@blight serio0 # cat resetafter
+> 0
+> root@blight serio0 # echo 5 > res
+> resetafter  resolution
+> root@blight serio0 # echo 5 > resetafter
+> root@blight serio0 # cat resetafter
+> 0
+> root@blight serio0 #            
+> 
+> and sending 0, 1, 2 to protocol changed nothing.
+> same for resolution.
+> i needed that feature to switch from synaptics to imps protocol and
+> back.
+> 
+> i'm using 2.6.12-git10.
+> 
+> what should i do?
+>
 
-Richard> On Wed, 29 Jun 2005, Sreeni wrote:
+Hi,
 
->> Is there a way to lock a particular portion of the memory pages during
->> kernel bootup? I want to re-use these pages when I load my
->> application. I *don't* wanna use the idea of reserving some physical
->> memory and using ioremap. I want something that kernel should be able
->> to manage this memory but I don't want any other application to use
->> this memory.
+try this:
 
-Richard> Wrong kind of kernel for this kind of use. The kernel
-Richard> dynamically allocates/deallocates/pages of memory that it
-Richard> knows about. The only way to do what you want, with a kernel
-Richard> designed for multi-tasking multi-user applications use, is to
-Richard> reserve memory during boot.
+    echo -n "imps" > /sys/bus/serio/devices/serioX/protocol
+    echo -n "auto" > /sys/bus/serio/devices/serioX/protocol
 
-Sreeni, you might want to look at the mlockall() interface, but it's
-also hard to know what's right to do here if you don't explain what
-you are trying to do.  For example, why do you *care* which memory
-address(es) your application gets?  
+psmouse (and serio core in general) does not like exta characters (like
+newline) in requests and discards such requests.
 
-John
+-- 
+Dmitry

@@ -1,68 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262584AbVF2OPM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262591AbVF2OQK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262584AbVF2OPM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 10:15:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262586AbVF2OPM
+	id S262591AbVF2OQK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 10:16:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262594AbVF2OPW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 10:15:12 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:20955 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S262584AbVF2OO7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 10:14:59 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: rostedt@goodmis.org, Arjan van de Ven <arjan@infradead.org>
-Subject: Re: kmalloc without GFP_xxx?
-Date: Wed, 29 Jun 2005 17:14:32 +0300
-User-Agent: KMail/1.5.4
-Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
-References: <200506291402.18064.vda@ilport.com.ua> <1120045024.3196.34.camel@laptopd505.fenrus.org> <Pine.LNX.4.58.0506290927370.22775@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.58.0506290927370.22775@localhost.localdomain>
+	Wed, 29 Jun 2005 10:15:22 -0400
+Received: from mx15.sac.fedex.com ([199.81.195.17]:9746 "EHLO
+	mx15.sac.fedex.com") by vger.kernel.org with ESMTP id S262585AbVF2OPI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 10:15:08 -0400
+Date: Wed, 29 Jun 2005 22:17:06 +0800 (SGT)
+From: Jeff Chua <jeffchua@silk.corp.fedex.com>
+X-X-Sender: root@boston.corp.fedex.com
+To: Alejandro Bonilla <abonilla@linuxwireless.org>
+cc: "'Arjan van de Ven'" <arjan@infradead.org>,
+       "'Jeff Chua'" <jeff96@silk.corp.fedex.com>,
+       ipw2100-devel@lists.sourceforge.net,
+       "'Linux Kernel'" <linux-kernel@vger.kernel.org>
+Subject: RE: ipw2200 can't compile under linux 2.6.13-rc1
+In-Reply-To: <001101c57ca8$30c7d640$600cc60a@amer.sykes.com>
+Message-ID: <Pine.LNX.4.63.0506292209050.6581@boston.corp.fedex.com>
+References: <001101c57ca8$30c7d640$600cc60a@amer.sykes.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506291714.32990.vda@ilport.com.ua>
+X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 06/29/2005
+ 10:15:00 PM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 06/29/2005
+ 10:15:03 PM,
+	Serialize complete at 06/29/2005 10:15:03 PM
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 29 June 2005 16:44, Steven Rostedt wrote:
-> 
-> On Wed, 29 Jun 2005, Arjan van de Ven wrote:
-> > >
-> > > but it sets irqs_disabled() IIRC.
-> >
-> > only spin_lock_irq() and co do.
-> > not the simple spin_lock()
-> >
-> 
-> It may be dangerous to use spin_lock with interrupts enabled, since you
-> have to make sure that no interrupt ever grabs that lock.  Although I do
-> recall seeing a few locks like this.  But even so, you can transfer the
-> latency of the interrupts going off while holding that lock to another CPU
-> which IMHO is a bad thing.  Also a simple spin_lock would disable
+On Wed, 29 Jun 2005, Alejandro Bonilla wrote:
 
-This is why I always use _irqsave. Less error prone.
-And locking is a very easy to get 'slightly' wrong, thus
-I trade 0.1% of performance for code simplicity.
+>>> ipw2200-1.0.4 can't be compiled under linux 2.6.13-rc1.
+>> soo..... what's the error ?
+>
+> Probably the same reason why it won't compile in 2.6.12.
 
-> preemption with CONFIG_PREEMPT set and that would make in_atomic fail.
-> But to implement a kmalloc_auto you would always need to have a preempt
-> count.
-> 
-> I'm not for a kmalloc_auto, but something like it would be useful for a
-> function that can work for either context, and just fail nicely if the
-> ATOMIC is set and the malloc can't get memory.  A function like this would
-> currently have to always use ATOMIC even if it could have used KERNEL for
-> some scenarios, since it would suffer the same pitfalls as a kmalloc_auto
-> in determining its context.
+Sorry for not being specific. I managed to trace down the problem to the 
+new patch. linux 2.6.13-rc1 created a new file include/net/ieee80211.h
+and there's an existing file in the ipw2200 directory with the same 
+name ieee80211.h.
 
-This is more or less what I meant. Why think about each kmalloc and when you
-eventually did get it right: "Aha, we _sometimes_ get called from spinlocked code,
-GFP_ATOMIC then" - you still do atomic alloc even if cases when you
-were _not_ called from locked code! Thus you needed to think longer and got
-code which is worse.
---
-vda
+All the ipw2200 files has ...
 
+ 	#include <net/ieee80211.h>
 
+and that points to the new linux header in 
+/usr/src/linux/include/net/ieee80211.h instead of the local include file 
+under the ipw2200/net directory.
+
+I've modified all ipw2200 files to #include "net/ieee80211.h" and now it 
+compiles ok.
+
+Thanks,
+Jeff.

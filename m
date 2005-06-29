@@ -1,39 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261382AbVF2PaH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261416AbVF2PgW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261382AbVF2PaH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 11:30:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261405AbVF2PaH
+	id S261416AbVF2PgW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 11:36:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261358AbVF2PgW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 11:30:07 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:36829 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S261382AbVF2P20 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 11:28:26 -0400
-Message-ID: <42C2BE15.6060705@pobox.com>
-Date: Wed, 29 Jun 2005 11:28:21 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
+	Wed, 29 Jun 2005 11:36:22 -0400
+Received: from lakermmtao05.cox.net ([68.230.240.34]:54507 "EHLO
+	lakermmtao05.cox.net") by vger.kernel.org with ESMTP
+	id S261416AbVF2Pfn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 11:35:43 -0400
+From: "Steve Lee" <steve@tuxsoft.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: RTNETLINK Failure 2.6.12.1
+Date: Wed, 29 Jun 2005 10:40:05 -0500
+Message-ID: <000001c57cc0$d75823d0$8119fea9@pluto>
 MIME-Version: 1.0
-To: Dave Kleikamp <shaggy@austin.ibm.com>, Linus Torvalds <torvalds@osdl.org>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.13-rc1 - bad tag in git tree?
-References: <Pine.LNX.4.58.0506282310040.14331@ppc970.osdl.org> <1120057260.9321.22.camel@kleikamp.austin.ibm.com>
-In-Reply-To: <1120057260.9321.22.camel@kleikamp.austin.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4024
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Kleikamp wrote:
-> $ cat refs/tags/v2.6.13-rc1
-> 733ad933f62e82ebc92fed988c7f0795e64dea62
-> 
-> This object doesn't appear to be in the git tree.
+With 2.6.12.1 when the loopback device is being initialized, I get the
+following:
 
-ACK, I don't see it either.
+RTNETLINK: answers: File exists
 
-	Jeff
+However, with 2.6.11.11, I don't get this.  I've searched the net via
+google as well as the kernel archives, with no luck.  Could someone give
+me a clue as to what I need to do to fix this?  My system is a Linux
+>From Scratch 6.0 plus BLFS updates.  Works without error with <=
+2.6.11.11, but gives the above error with >= 2.6.12.  However, even with
+this error, the system seems to be working just fine.
+
+Please CC me as I'm not a member of this mailing list.
+
+Thanks,
+Steve
 
 

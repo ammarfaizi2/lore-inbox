@@ -1,67 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262555AbVF2LjK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262556AbVF2LrU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262555AbVF2LjK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 07:39:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262557AbVF2LjK
+	id S262556AbVF2LrU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 07:47:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262557AbVF2LrU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 07:39:10 -0400
-Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:24170 "HELO
-	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262555AbVF2Liv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 07:38:51 -0400
-Message-ID: <42C28846.60702@yahoo.com.au>
-Date: Wed, 29 Jun 2005 21:38:46 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Hirokazu Takahashi <taka@valinux.co.jp>
-CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [rfc] lockless pagecache
-References: <42BF9CD1.2030102@yahoo.com.au> <20050629.194959.98866345.taka@valinux.co.jp>
-In-Reply-To: <20050629.194959.98866345.taka@valinux.co.jp>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 29 Jun 2005 07:47:20 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:12258 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262556AbVF2LrL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 07:47:11 -0400
+Date: Wed, 29 Jun 2005 17:17:02 +0530
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Mark Kettenis <mark.kettenis@xs4all.nl>
+Cc: gdb@sources.redhat.com, dan@debian.org, fastboot@lists.osdl.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, bunk@stusta.de,
+       alexn@dsv.su.se
+Subject: Re: [Fastboot] Re: [-mm patch] i386: enable REGPARM by default
+Message-ID: <20050629114702.GD3771@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <20050624200916.GJ6656@stusta.de> <20050624132826.4cdfb63c.akpm@osdl.org> <20050627132941.GD3764@in.ibm.com> <20050627140029.GB29121@nevyn.them.org> <20050628045111.GB4296@in.ibm.com> <20050628112412.GB5652@in.ibm.com> <200506281959.j5SJxaeM022138@elgar.sibelius.xs4all.nl> <20050629083452.GC3771@in.ibm.com> <8824.192.87.1.200.1120039619.squirrel@192.87.1.200>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <8824.192.87.1.200.1120039619.squirrel@192.87.1.200>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hirokazu Takahashi wrote:
-> Hi Nick,
+> > In this case I am building linux kernel with debug info (-g) and -mregparm
+> > is not specified. So parameters should be passed on stack. Following
+> > is the effective command line to build kernel/sysfs.c. I am not sure if
+> > any of the below mentioned options are going to affect the gdb results.
+> >
+> >   gcc -m32 -Wp,-MD,kernel/.ksysfs.o.d  -nostdinc -isystem
+> > /usr/lib/gcc/i386-redhat-linux/3.4.3/include -D__KERNEL__ -Iinclude
+> > -Wall -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing
+> > -fno-common -ffreestanding -O2     -fomit-frame-pointer -g -pipe
+> > -msoft-float -mpreferred-stack-boundary=2 -fno-unit-at-a-time
+> > -march=i686 -mtune=pentium4 -Iinclude/asm-i386/mach-default
+> > -Wdeclaration-after-statement     -DKBUILD_BASENAME=ksysfs
+> > -DKBUILD_MODNAME=ksysfs -c -o kernel/ksysfs.o kernel/ksysfs.c
 > 
-
-Hi,
-
-> Your patches improve the performance if lots of processes are
-> accessing the same file at the same time, right?
+> -O2 will have some effect.  The compiler might optimize away variables
+> (including function arguments) and doesn't always record that fact in
+> the debug information.
 > 
-
-Yes.
-
-> If so, I think we can introduce multiple radix-trees instead,
-> which enhance each inode to be able to have two or more radix-trees
-> in it to avoid the race condition traversing the trees.
-> Some decision mechanism is needed which radix-tree each page
-> should be in, how many radix-tree should be prepared.
+> But the real killer here is probably -fomit-frame-pointer.  Last time I
+> looked GCC didn't generate the correct debug information in that case.
+> I didn't really look into this, but it seemed as if GCC blindly produces
+> location descriptions relative to the frame pointer even though there no
+> longer is a frame pointer.  GCC 4.0 or 4.1 might have this fixed.
 > 
-> It seems to be simple and effective.
+> >
+> >> Repeating what Daniel said before, by using "regparm", function
+> >> arguments are now passed in registers instead of on the stack.  It's
+> >> extremely unlikely that these function arguments will stay in those
+> >> registers for ever, especially since you've only got a handfull of
+> >> them on the i386.
+> >
+> > Sorry for the confusion. In the last mail all the results were reported
+> > with REGPARM disabled. I wanted to make sure that first normal case works
+> > fine and then discuss the REGPARM case later.
 > 
-> What do you think?
-> 
+> If you're prepared to do some more tests, you might want to check out
+> what happens if you leave out -O2 and -fomit-frame-pointer, and then add
+> back only -O2
 
-Sure it is a possibility.
+I built another kernel with -fno-omit-frame-pointer and output seems to
+have worsen a lot now. I am not able to build a kernel without -02. There
+seems to be some dependencies which I am sorting out.
 
-I don't think you could call it effective like a completely
-lockless version is effective. You might take more locks during
-gang lookups, you may have a lot of ugly and not-always-working
-heuristics (hey, my app goes really fast if it spreads accesses
-over a 1GB file, but falls on its face with a 10MB one). You
-might get increased cache footprints for common operations.
+With frame pointer support, following is the command line.
 
-I mainly did the patches for a bit of fun rather than to address
-a particular problem with a real workload and as such I won't be
-pushing to get them in the kernel for the time being.
+gcc -m32 -Wp,-MD,kernel/.ksysfs.o.d  -nostdinc -isystem /usr/lib/gcc/i386-redhat-linux/3.4.3/include -D__KERNEL__ -Iinclude  -Wall -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -ffreestanding -O2     -fno-omit-frame-pointer -fno-optimize-sibling-calls -g -pipe -msoft-float -mpreferred-stack-boundary=2 -fno-unit-at-a-time -march=i686 -mtune=pentium4 -Iinclude/asm-i386/mach-default -Wdeclaration-after-statement     -DKBUILD_BASENAME=ksysfs -DKBUILD_MODNAME=ksysfs -c -o kernel/ksysfs.o kernel/ksysfs.c
 
--- 
-SUSE Labs, Novell Inc.
+And the gdb trace has worsened. Trace is not even showing all the calls
+as it was showing when kernel was built with -fomit-frame-pointer.
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+
+#0  crash_get_current_regs (regs=0xec3b5e34) at arch/i386/kernel/crash.c:103
+#1  0xc0114077 in crash_save_self (saved_regs=0xec3b5e34)
+    at arch/i386/kernel/crash.c:134
+#2  0xec3b5f04 in ?? ()
+#3  0x00000014 in ?? ()
+#4  0xec3b5e98 in ?? ()
+#5  0xc013d7e6 in crash_kexec (regs=0x2) at kernel/kexec.c:1059
+#6  0xecb29c80 in ?? ()
+#7  0xecb29c80 in ?? ()
+#8  0x00000000 in ?? ()
+
+Thanks
+Vivek

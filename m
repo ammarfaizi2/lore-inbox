@@ -1,40 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261329AbVF2PMl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261338AbVF2PVs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261329AbVF2PMl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 11:12:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261338AbVF2PMl
+	id S261338AbVF2PVs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 11:21:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261357AbVF2PVs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 11:12:41 -0400
-Received: from mail1.kontent.de ([81.88.34.36]:9920 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S261329AbVF2PMi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 11:12:38 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: Denis Vlasenko <vda@ilport.com.ua>
-Subject: Re: kmalloc without GFP_xxx?
-Date: Wed, 29 Jun 2005 17:12:55 +0200
-User-Agent: KMail/1.8
-Cc: rostedt@goodmis.org, Arjan van de Ven <arjan@infradead.org>,
-       Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
-References: <200506291402.18064.vda@ilport.com.ua> <Pine.LNX.4.58.0506290927370.22775@localhost.localdomain> <200506291714.32990.vda@ilport.com.ua>
-In-Reply-To: <200506291714.32990.vda@ilport.com.ua>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 29 Jun 2005 11:21:48 -0400
+Received: from sommereik.ii.uib.no ([129.177.16.236]:29677 "EHLO
+	sommereik.ii.uib.no") by vger.kernel.org with ESMTP id S261338AbVF2PVq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 11:21:46 -0400
+Subject: Re: Linux 2.6.13-rc1
+From: "Ronny V. Vindenes" <s864@ii.uib.no>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Tomasz Torcz <zdzichu@irc.pl>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0506291604340.14413@goblin.wat.veritas.com>
+References: <4kEoS-Am-3@gated-at.bofh.it>
+	 <m37jgd9r8w.fsf@localhost.localdomain> <20050629145806.GA5803@irc.pl>
+	 <Pine.LNX.4.61.0506291604340.14413@goblin.wat.veritas.com>
+Content-Type: text/plain
+Date: Wed, 29 Jun 2005 17:20:45 +0200
+Message-Id: <1120058445.3463.0.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-11.fc5) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506291712.55893.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mittwoch, 29. Juni 2005 16:14 schrieb Denis Vlasenko:
-> This is more or less what I meant. Why think about each kmalloc and when you
-> eventually did get it right: "Aha, we _sometimes_ get called from spinlocked code,
-> GFP_ATOMIC then" - you still do atomic alloc even if cases when you
-> were _not_ called from locked code! Thus you needed to think longer and got
-> code which is worse.
+ons, 29,.06.2005 kl. 16.07 +0100, skrev Hugh Dickins:
+> On Wed, 29 Jun 2005, Tomasz Torcz wrote:
+> > On Wed, Jun 29, 2005 at 04:23:11PM +0200, Ronny V. Vindenes wrote:
+> > > 
+> > > On x86_64 with reiserfs and ext3 on dm (using cfq scheduler) the log
+> > > is full of this:
+> > > 
+> > > Badness in blk_remove_plug at drivers/block/ll_rw_blk.c:1424
+> > 
+> >  Also on x86, Reiserfs on LVM2, cfq, on sata_sil; Preemption set to
+> > Voluntary.
+> 
+> You should find the patch I posted just a little earlier fixes all that...
 
-And if not? GFP_NOFS and GFP_NOIO exist for a reason.
+Confirmed.
 
-	Regards
-		Oliver
+-- 
+Ronny V. Vindenes <s864@ii.uib.no>
+

@@ -1,81 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262481AbVF2IIe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262472AbVF2IHg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262481AbVF2IIe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 04:08:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262482AbVF2IIe
+	id S262472AbVF2IHg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 04:07:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262481AbVF2IHg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 04:08:34 -0400
-Received: from smtp-103-wednesday.nerim.net ([62.4.16.103]:64270 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S262481AbVF2IIT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 04:08:19 -0400
-Date: Wed, 29 Jun 2005 10:08:35 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       Chris Wright <chrisw@osdl.org>
-Cc: linux-kernel@vger.kernel.org, stable@kernel.org, tytso@mit.edu,
-       zwane@arm.linux.org.uk, jmforbes@linuxtx.org, rdunlap@xenotime.net,
-       torvalds@osdl.org, chuckw@quantumlinux.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, andrew.vasquez@qlogic.com,
-       James.Bottomley@SteelEye.com
-Subject: Re: [02/07] [SCSI] qla2xxx: Pull-down scsi-host-addition to follow
- board initialization.
-Message-Id: <20050629100835.60dc42f8.khali@linux-fr.org>
-In-Reply-To: <20050628152037.690c3840.akpm@osdl.org>
-References: <20050627224651.GI9046@shell0.pdx.osdl.net>
-	<20050627225349.GK9046@shell0.pdx.osdl.net>
-	<20050628235148.4512d046.khali@linux-fr.org>
-	<20050628152037.690c3840.akpm@osdl.org>
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 29 Jun 2005 04:07:36 -0400
+Received: from isilmar.linta.de ([213.239.214.66]:21485 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S262472AbVF2IH2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 04:07:28 -0400
+Date: Wed, 29 Jun 2005 10:07:26 +0200
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: Erik Slagter <erik@slagter.name>
+Cc: linux-kernel@vger.kernel.org, Jim serio <jseriousenet@gmail.com>,
+       Andrew Haninger <ahaning@gmail.com>
+Subject: Re: C2/C3 on SMP [Was: Re: 2.6.X not recognizing second CPU]
+Message-ID: <20050629080726.GA14930@isilmar.linta.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
+	Erik Slagter <erik@slagter.name>, linux-kernel@vger.kernel.org,
+	Jim serio <jseriousenet@gmail.com>,
+	Andrew Haninger <ahaning@gmail.com>
+References: <3642108305062711524e1e163@mail.gmail.com> <105c793f050627123583a70d0@mail.gmail.com> <3642108305062713487326b672@mail.gmail.com> <105c793f05062714022ad4359@mail.gmail.com> <20050627214249.GA29657@isilmar.linta.de> <1119958379.3969.9.camel@localhost.localdomain> <20050628212905.GA31610@isilmar.linta.de> <1120030846.7429.32.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1120030846.7429.32.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
-
-> If the person who originally raised that patch put unrelated things
-> into a single patch then that's where the problem started.
-
-Agreed.
-
-> Bear in mind that there is also risk in only part-applying a patch.
-
-If applying only a part of a given patch doesn't sound safe, then I
-would question the supposed obvious correctness of this patch in the
-first place.
-
-Some times ago, Alan stated he liked -stable because "its small enough
-that most of the add on patches people use aren't breaking against it"
-[1]. I found this a sound statement, but if we now accept non-minimum
-changes, this won't be true any longer (or at least this will tend to
-become less true).
-
-> > This aint -stable material.
+On Wed, Jun 29, 2005 at 09:40:45AM +0200, Erik Slagter wrote:
+> On Tue, 2005-06-28 at 23:29 +0200, Dominik Brodowski wrote:
+> > On Tue, Jun 28, 2005 at 01:32:59PM +0200, Erik Slagter wrote:
+> > > On Mon, 2005-06-27 at 23:42 +0200, Dominik Brodowski wrote:
+> > > > a) Power Management is available on SMP, though support for it is a bit less
+> > > >    wide-spread than it is for UP
+> > > 
+> > > Still no C2/C3 handling :-(
+> > 
+> > Uh, wasn't there a small, nice patch implementing this in bk-acpi a few 
+> > weeks ago?
+> > *clicketyclick* Oh yes,
+> > http://bugzilla.kernel.org/show_bug.cgi?id=4401
+> > states it was merged into bk-acpi-test on 2005-04-22. However, I can't find
+> > it in current -mm any more...
 > 
-> But it's obviously safe.  Let's use our brains on these patches and
-> not become beholden to doctrine, OK?
+> You're probably talking about the amd768 module.
 
-Why did we write down and discuss rules for -stable in the first place
-then [2]? Of the 9 rules Greg first listed as conditions for a patch to
-be accepted in -stable, this patch breaks 4 (it is bigger than 100
-lines, if fixes more than one thing, including one that doesn't bother
-people as far as I can see, and it has trivial fixes in it.) So I don't
-think I am actually splitting hair as you seemed to suggest. I know some
-of these rules were slightly reworded afterwards, but still.
+No, I'm not. I'm talking about plain ACPI C-States.
 
-I reviewed the latest stable series of patches with these rules in mind,
-trying to help. If the rules have since changed - and it seems they did,
-then instead of helping, I have been wasting your time, and mine. Where
-were the new rules discussed? We better have a web page summarizing the
-current rules for -stable if we want submitters and reviewers to do the
-right thing.
+> I could use it, but I
+> never got it working correctly, there is no actual power reduction. It
+> may have to do with the fast (1000 Hz) 2.6 clock though, making it sleep
+> in C2/C3 for only very short intervals. Also the selection for idle
+> CPU's seems to be too simple.
 
-Thanks.
+The ACPI C-State selection algorithm needs a major overhaul, that's true.
 
-[1] http://kerneltraffic.org/kernel-traffic/kt20050612_315.html#5
-[2] http://kerneltraffic.org/kernel-traffic/kt20050403_303.html#9
-
--- 
-Jean Delvare
+	Dominik

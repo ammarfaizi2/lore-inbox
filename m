@@ -1,75 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262562AbVF2M4A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262567AbVF2M5e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262562AbVF2M4A (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 08:56:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262567AbVF2Mz7
+	id S262567AbVF2M5e (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 08:57:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262572AbVF2M5d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 08:55:59 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:19932 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S262562AbVF2Mzr (ORCPT
+	Wed, 29 Jun 2005 08:57:33 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:26043 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262567AbVF2M5V (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 08:55:47 -0400
-From: Gernot Payer <gpayer@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: Patch to disarm timers after an exec syscall
-Date: Wed, 29 Jun 2005 14:55:45 +0200
-User-Agent: KMail/1.6.2
-MIME-Version: 1.0
+	Wed, 29 Jun 2005 08:57:21 -0400
+Date: Wed, 29 Jun 2005 14:56:57 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: William Weston <weston@sysex.net>
+Cc: Karsten Wiese <annabellesgarden@yahoo.de>, linux-kernel@vger.kernel.org
+Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.50-24
+Message-ID: <20050629125657.GA29475@elte.hu>
+References: <200506281927.43959.annabellesgarden@yahoo.de> <20050628202147.GA30862@elte.hu> <20050628203017.GA371@elte.hu> <200506290151.53675.annabellesgarden@yahoo.de> <20050629063439.GB12536@elte.hu> <20050629070058.GA15987@elte.hu> <Pine.LNX.4.58.0506290159050.12101@echo.lysdexia.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_RppwC0lazdULkGE"
-Message-Id: <200506291455.45468.gpayer@suse.de>
+In-Reply-To: <Pine.LNX.4.58.0506290159050.12101@echo.lysdexia.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Boundary-00=_RppwC0lazdULkGE
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+* William Weston <weston@sysex.net> wrote:
 
-Hi all,
+> On Wed, 29 Jun 2005, Ingo Molnar wrote:
+> 
+> > > [...] but i think i'm going to revert that, it's causing too many 
+> > > problems all around.
+> > 
+> > reverted it and this enabled the removal of the extra ->disable() you 
+> > noticed - this should further speed up the IOAPIC code. These changes 
+> > are in the -50-34 kernel i just uploaded.
+> 
+> -50-34 fixed the wakeup latency regression I was seeing on my Athlon 
+> box with -50-33, and seems a bit more responsive than -50-25.  Max 
+> wakeup latency is back down to 14us (from 39us), even while running 
+> JACK (xrun free) and two instances of burnK7.  Overall system response 
+> is probably the best I've seen with the RT kernels ;-}
 
-while running the openposix testsuite I saw testcase timer_create/9-1.c 
-failing. This testcase tests whether timers are disarmed when a process calls 
-exec, as described in e.g. 
-http://www.opengroup.org/onlinepubs/009695399/functions/timer_create.html.
+great! The SMP box running BurnP6 is another system, right? Could you 
+sum up the remaining regressions you are seeing under -RT? (the 
+latency.c warning is one, what others are remaining?)
 
-The attached one-liner patch (+ one line comment) fixes this issue. I did the 
-diff against 2.6.12.1, but the fix is pretty much the same for every other 
-2.6.x kernel I had a look at.
-
-I don't think this patch breaks anything, as relying on this (undocumented) 
-behaviour would imho be bad style.
-
-So tell me what you think, and if you have some pointers to interesting 
-discussions about Linux and POSIX compliance then I would like to read that 
-as well.
-
-mfg
-Gernot
-
---Boundary-00=_RppwC0lazdULkGE
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="delete-old-itimers-in-do_execve-linux-2.6.12.1.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="delete-old-itimers-in-do_execve-linux-2.6.12.1.patch"
-
---- linux-2.6.12.1-orig/fs/exec.c	2005-06-29 14:29:31.069738264 +0200
-+++ linux-2.6.12.1/fs/exec.c	2005-06-29 14:34:46.034856288 +0200
-@@ -1200,6 +1200,10 @@
- 		acct_update_integrals(current);
- 		update_mem_hiwater(current);
- 		kfree(bprm);
-+
-+		/* delete old itimers */
-+		exit_itimers(current->signal);
-+		
- 		return retval;
- 	}
- 
-
---Boundary-00=_RppwC0lazdULkGE--
+	Ingo

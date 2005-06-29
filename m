@@ -1,111 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262563AbVF2MOH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262541AbVF2MoH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262563AbVF2MOH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 08:14:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262564AbVF2MOH
+	id S262541AbVF2MoH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 08:44:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262562AbVF2MoH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 08:14:07 -0400
-Received: from moutng.kundenserver.de ([212.227.126.177]:12751 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S262563AbVF2MN7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 08:13:59 -0400
-Message-ID: <42C29082.8060104@punnoor.de>
-Date: Wed, 29 Jun 2005 14:13:54 +0200
-From: Prakash Punnoor <prakash@punnoor.de>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050511)
-X-Accept-Language: de-DE, de, en-us, en
+	Wed, 29 Jun 2005 08:44:07 -0400
+Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:27303
+	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
+	with ESMTP id S262541AbVF2MoE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 08:44:04 -0400
+Reply-To: <abonilla@linuxwireless.org>
+From: "Alejandro Bonilla" <abonilla@linuxwireless.org>
+To: "'Arjan van de Ven'" <arjan@infradead.org>,
+       "'Jeff Chua'" <jeff96@silk.corp.fedex.com>
+Cc: <ipw2100-devel@lists.sourceforge.net>,
+       "'Linux Kernel'" <linux-kernel@vger.kernel.org>
+Subject: RE: ipw2200 can't compile under linux 2.6.13-rc1
+Date: Wed, 29 Jun 2005 06:43:45 -0600
+Message-ID: <001101c57ca8$30c7d640$600cc60a@amer.sykes.com>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>, se.witt@gmx.net
-Subject: Re: Linux 2.6.13-rc1 - [PATCH] Don't fill up log with atxp1 vcore
- change message
-References: <Pine.LNX.4.58.0506282310040.14331@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0506282310040.14331@ppc970.osdl.org>
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig65E439B98C6F3F897173B649"
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:cec1af1025af73746bdd9be3587eb485
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <1120040680.3196.29.camel@laptopd505.fenrus.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1478
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig65E439B98C6F3F897173B649
-Content-Type: multipart/mixed;
- boundary="------------080807010004040004070604"
 
-This is a multi-part message in MIME format.
---------------080807010004040004070604
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+> On Wed, 2005-06-29 at 18:12 +0800, Jeff Chua wrote:
+> > ipw2200-1.0.4 can't be compiled under linux 2.6.13-rc1.
+> > 
+> > ipw2200-1.0.4 compiled fine with linux 2.6.12.
+> 
+> soo..... what's the error ?
+> 
 
-Hi,
+Probably the same reason why it won't compile in 2.6.12.
 
-I am using atxp1 module to change vcore on my NForce2 via userspace daemon
-(see punnoor.de). Currently atxp1 module will write to the log on every vcore
-change, thus filling up my log - which I don't want. I am no kernel coder, but
-I guess, this one-liner will change this behaviour in a wanted way, ie output
-will be made for debug purposes only. (Please use the attached patch, if
-inlined one got fsked up by TB.)
+Is it the is_multicast_ethr_addr error?
 
-Cheers,
-
-Prakash
+http://ipw2200.sourceforge.net/#patches
 
 
-
-Signed-off-by: Prakash Punnoor <prakash@punnoor.de>
-
-
-
---- drivers/i2c/chips/atxp1.c~	2005-06-29 13:59:04.000000000 +0200
-+++ drivers/i2c/chips/atxp1.c	2005-06-29 13:59:22.164237992 +0200
-@@ -144,7 +144,7 @@
- 	if (vid == cvid)
- 		return count;
-
--	dev_info(dev, "Setting VCore to %d mV (0x%02x)\n", vcore, vid);
-+	dev_dbg(dev, "Setting VCore to %d mV (0x%02x)\n", vcore, vid);
-
- 	/* Write every 25 mV step to increase stability */
- 	if (cvid > vid) {
-
-
-
-
---------------080807010004040004070604
-Content-Type: text/plain;
- name="atxp1_debug.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="atxp1_debug.diff"
-
---- drivers/i2c/chips/atxp1.c~	2005-06-29 13:59:04.000000000 +0200
-+++ drivers/i2c/chips/atxp1.c	2005-06-29 13:59:22.164237992 +0200
-@@ -144,7 +144,7 @@
- 	if (vid == cvid)
- 		return count;
- 
--	dev_info(dev, "Setting VCore to %d mV (0x%02x)\n", vcore, vid);
-+	dev_dbg(dev, "Setting VCore to %d mV (0x%02x)\n", vcore, vid);
- 
- 	/* Write every 25 mV step to increase stability */
- 	if (cvid > vid) {
-
---------------080807010004040004070604--
-
---------------enig65E439B98C6F3F897173B649
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFCwpCFxU2n/+9+t5gRAmmkAJ90zMe71B1c1BzTadz8QloJ1F/GZACg2fO2
-HNtMBpv0iU08ks49OFyv3H8=
-=5f95
------END PGP SIGNATURE-----
-
---------------enig65E439B98C6F3F897173B649--
+.Alejandro

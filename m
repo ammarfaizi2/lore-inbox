@@ -1,55 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262717AbVF2XDV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262738AbVF2XGU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262717AbVF2XDV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 19:03:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262714AbVF2XDV
+	id S262738AbVF2XGU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 19:06:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262736AbVF2XGU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 19:03:21 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:45857
-	"EHLO g5.random") by vger.kernel.org with ESMTP id S262722AbVF2XDL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 19:03:11 -0400
-Date: Thu, 30 Jun 2005 01:03:08 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Bill Huey <bhuey@lnxw.com>
-Cc: Kristian Benoit <kbenoit@opersys.com>, linux-kernel@vger.kernel.org,
-       paulmck@us.ibm.com, tglx@linutronix.de, karim@opersys.com,
-       mingo@elte.hu, pmarques@grupopie.com, bruce@andrew.cmu.edu,
-       nickpiggin@yahoo.com.au, ak@muc.de, sdietrich@mvista.com,
-       dwalker@mvista.com, hch@infradead.org, akpm@osdl.org, rpm@xenomai.org
-Subject: Re: PREEMPT_RT and I-PIPE: the numbers, take 3
-Message-ID: <20050629230308.GC6421@g5.random>
-References: <42C320C4.9000302@opersys.com> <20050629225734.GA23793@nietzsche.lynx.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050629225734.GA23793@nietzsche.lynx.com>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-User-Agent: Mutt/1.5.9i
+	Wed, 29 Jun 2005 19:06:20 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:24217 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S262714AbVF2XD7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 19:03:59 -0400
+Message-ID: <42C328D5.7050602@adaptec.com>
+Date: Wed, 29 Jun 2005 19:03:49 -0400
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: James Bottomley <James.Bottomley@SteelEye.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Greg KH <greg@kroah.com>
+Subject: Re: struct class question
+References: <42C31268.8010606@adaptec.com> <1120082466.5866.13.camel@mulgrave>
+In-Reply-To: <1120082466.5866.13.camel@mulgrave>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 29 Jun 2005 23:02:59.0130 (UTC) FILETIME=[B17E29A0:01C57CFE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 29, 2005 at 03:57:34PM -0700, Bill Huey wrote:
-> Did you compile your host Linux kernel with CONFIG_SMP in place ? That's
-> critical since a UP kernel removes both spinlock and blocking locks in
-> critical paths makes micro benchmarks sort of invalid.
+On 06/29/05 18:01, James Bottomley wrote:
+>>Thus we get the pretty flat sysfs class hierarchy:
+>>/sys/class/<if>/<device>
+> 
+> That's by design.  The class contains a list of all the devices
+> implementing the interface.
 
-Why should he compile with CONFIG_SMP when CONFIG_SMP is absolutely
-unnecessary without preempt-RT?
+Ok, makes sense.
 
-If you're an embedded developer, and you're _not_ using preempt-RT, why
-in your right mind would you compile your kernel with CONFIG_SMP
-enabled if you've only 1 cpu and no SMP in the hardware?
+> Interface (class) is tied to struct device.  If it doesn't have a struct
+> device, then it can't have a class and isn't a proper sysfs leaf.  If
 
-> I suggest that you compile the dual kernel with SMP turned on and try it
-> again, otherwise it's not really testing the overhead of any of the locking
-> for either the PREEMPT_RT or dual kernel set ups. That's really the only
-> outstanding statistic that I've noticed in that benchmark.
+Makes sense.
 
-On UP the overhead of the spinlocks is measurable but it doesn't have
-such huge order of magnitude, so even if you would enable CONFIG_SMP
-(which makes absolutely no sense since embedded developers have 1 cpu to
-deal with), you'd still underperform greatly compared to only
-CONFIG_SMP=y. So even if somebody could buy that the benchmark is unfair
-with CONFIG_SMP=n, I can just tell you that comparing against
-CONFIG_SMP=y isn't going to save preempt-rt.
+> the device doesn't exist or it can't be directly controlled, then we
+> probably don't need a class for it, right?  As to whether it needs to
+
+Yes, we don't need a struct device and/or struct class_device for it.
+
+> exist at all if we can't do anything with it, I suppose that depends on
+> whether it's necessary to the tree representation or not (a bit like
+> channels in SCSI.  They have meaning, but no sysfs representation on
+> their own).
+
+Very good analogy.  In this respect I think we should represent
+phys, ports, and expanders just as the discover process sees them,
+in the same way, as you pointed out, channels are represented
+even though the do not quite exist (but are an abstraction).
+
+>>/sys/class/sas/
+>>/sys/class/sas/ha0/
+>>/sys/class/sas/ha1/
+>>/sys/class/sas/ha1/phys/
+>>/sys/class/sas/ha1/ports/
+>>etc.
+> 
+> 
+> No, this is where you go wrong.  The sysfs tree exists under the host<n>
+> for scsi (and is parented to the PCI/etc device), so you can have
+> something like
+> 
+> .../host1/
+> .../host1/phys/
+> .../host1/ports/
+
+Is this
+
+/sys/class/scsi_host/host1
+
+Or is it (e.g.),
+
+/sys/devices/pci0000:00/0000:00:1f.2/host1
+
+?
+
+> (and obviously you need to know where you're putting the targets under
+> this).
+
+True.
+
+> So the rich deep tree is under devices and the class tree represents a
+> flat look into that for devices implementing the specific interface.
+
+In which case the flat class/ wouldn't represent phys, ports and expanders
+as they do not have struct device/struct class_device; and not directly
+controlled by the kernel;  just as "channel".
+
+	Luben
+

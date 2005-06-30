@@ -1,86 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262899AbVF3PiM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262782AbVF3Pmx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262899AbVF3PiM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 11:38:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262901AbVF3PiL
+	id S262782AbVF3Pmx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 11:42:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262981AbVF3Pmx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 11:38:11 -0400
-Received: from nysv.org ([213.157.66.145]:45273 "EHLO nysv.org")
-	by vger.kernel.org with ESMTP id S262899AbVF3Ph7 (ORCPT
+	Thu, 30 Jun 2005 11:42:53 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:4484 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262782AbVF3Pmp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 11:37:59 -0400
-Date: Thu, 30 Jun 2005 18:37:38 +0300
-To: Nikita Danilov <nikita@clusterfs.com>
-Cc: Douglas McNaught <doug@mcnaught.org>, Hubert Chan <hubert@uhoreg.ca>,
-       Kyle Moffett <mrmacman_g4@mac.com>, David Masover <ninja@slaphack.com>,
-       Valdis.Kletnieks@vt.edu, Lincoln Dale <ltd@cisco.com>,
-       Gregory Maxwell <gmaxwell@gmail.com>, Hans Reiser <reiser@namesys.com>,
-       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: reiser4 plugins
-Message-ID: <20050630153738.GU11013@nysv.org>
-References: <20050629135820.GJ11013@nysv.org> <200506291719.j5THJCSg011438@laptop11.inf.utfsm.cl> <20050630095926.GN11013@nysv.org> <17091.60930.633968.822210@gargle.gargle.HOWL> <20050630142107.GQ11013@nysv.org> <17092.3415.28856.827179@gargle.gargle.HOWL>
+	Thu, 30 Jun 2005 11:42:45 -0400
+Date: Thu, 30 Jun 2005 08:43:05 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Bill Huey <bhuey@lnxw.com>, Kristian Benoit <kbenoit@opersys.com>,
+       linux-kernel@vger.kernel.org, andrea@suse.de, tglx@linutronix.de,
+       karim@opersys.com, pmarques@grupopie.com, bruce@andrew.cmu.edu,
+       nickpiggin@yahoo.com.au, ak@muc.de, sdietrich@mvista.com,
+       dwalker@mvista.com, hch@infradead.org, akpm@osdl.org, rpm@xenomai.org
+Subject: Re: PREEMPT_RT and I-PIPE: the numbers, take 3
+Message-ID: <20050630154304.GA1298@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <42C320C4.9000302@opersys.com> <20050629225734.GA23793@nietzsche.lynx.com> <20050629235422.GI1299@us.ibm.com> <20050630070709.GA26239@elte.hu>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="/Z3Qj54wC++taHdq"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <17092.3415.28856.827179@gargle.gargle.HOWL>
-User-Agent: Mutt/1.5.9i
-From: mjt@nysv.org (Markus  =?ISO-8859-1?Q?=20T=F6rnqvist?=)
+In-Reply-To: <20050630070709.GA26239@elte.hu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jun 30, 2005 at 09:07:09AM +0200, Ingo Molnar wrote:
+> 
+> * Paul E. McKenney <paulmck@us.ibm.com> wrote:
+> 
+> > However, on a UP system, I have to agree with Kristian's choice of 
+> > configuration.  An embedded system developer running on a UP system 
+> > would naturally use a UP Linux kernel build, so it makes sense to 
+> > benchmark a UP kernel on a UP system.
+> 
+> sure.
+> 
+> keeping that in mind, PREEMPT_RT is quite similar to the SMP kernel (it 
+> in fact activates much of the SMP code), so if you want to isolate the 
+> overhead coming from the non-locking portions of PREEMPT_RT, you'd 
+> compare to the SMP kernel. I do that frequently.
 
---/Z3Qj54wC++taHdq
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Agreed!  For someone working on making PREEMPT_RT better, comparing to
+SMP code running on a UP kernel is extremely useful, since it gives an
+idea on where to focus.  But someone who was wanting to build a realtime
+application might not care so much.
 
-On Thu, Jun 30, 2005 at 07:18:47PM +0400, Nikita Danilov wrote:
+Me, I would like to see an SMP-kernel comparison on a 2-CPU or 4-CPU
+system, though probably not too many applications want SMP realtime
+quite yet.  My guess is that SMP realtime will be increasingly
+important, though.
 
->Sorry, I don't see your point. Again: if you think that user level
->developers are unlikely to agree to the common framework, what
->difference it makes whether this framework is defined at the kernel or
->library boundary? Applications would have to be changed to conform to
->the common API either way.
+> another point is that this test is measuring the overhead of PREEMPT_RT, 
+> without measuring the benefit of the cost: RT-task scheduling latencies.  
+> We know since the rtirq patch (to which i-pipe is quite similar) that we 
+> can achieve good irq-service latencies via relatively simple means, but 
+> that's not what PREEMPT_RT attempts to do. (PREEMPT_RT necessarily has 
+> to have good irq-response times too, but much of the focus went to the 
+> other aspects of RT task scheduling.)
 
-I see it as a heavier incentive to do it by a framework that's in
-the kernel.
+Agreed, a PREEMPT_RT-to-IPIPE comparison will never be an apples-to-apples
+comparison.  Raw data will never be a substitute for careful thought,
+right?  ;-)
 
->If you can force application developers to conform to the LSB why you
->cannot do the same with the library level interface?
+> were the wakeup latencies of true RT tasks tested, you could see which 
+> technique does what. But all that is being tested here is pure overhead 
+> to non-RT tasks, and the worst-case latency of raw interrupt handling.  
+> While they are important and necessary components of the whole picture, 
+> they are not the whole picture. This is a test that is pretty much 
+> guaranteed to show -RT as having higher costs - in fact i'm surprised it 
+> held up this well :)
 
-If I want to access metadata with bash, do I patch bash to support
-both Gnome's and KDE's solutions? Was there one of XFCE too?
-And FooBarXyzzyWM that'll want to do it's own VFS next year?
+Me too!  ;-)  For me, the real surprise was that I-PIPE's and PREEMPT_RT's
+worst-case irq latencies were roughly comparable.  I would have guessed
+that I-PIPE would have been 2x-3x better than PREEMPT_RT.
 
-I'd also guess that the upstream guys would much rather have
-patches for their progs that conform to the kernel than some
-obscure neighbor userspace system.
+And I expect that there are a number of applications where it is worth
+paying the extra system-call cost in order to gain the better latencies,
+particularly those that spend most of their time executing in user mode.
+As you continue your work reducing the costs, more and more applications
+would see the benefit.
 
-Sure looks like having this in the kernel makes it easiest; there's
-just one common denominator to patch for.
+Other applications might need the low-cost system calls badly enough
+that they want to deal with the greater complexity of the non-unified
+I-PIPE programming model.
 
-This doesn't even invalidate the userland VFSs of the other guys,
-they're still needed for systems whose kernels don't have a
-metadata facility.
+Still others might be satisfied with the less-good realtime latency of
+a straight CONFIG_PREEMPT kernel.  Or even of a non-CONFIG_PREEMPT
+kernel.
 
---=20
-mjt
+> so in that sense, this test is like running an SMP kernel on an UP box 
+> and comparing it against the UP kernel (or running an SMP kernel on an 
+> SMP box but only running a single task to measure performance), and 
+> concluding that it has higher costs. It is a technically correct 
+> conclusion, but obviously misses the whole picture, and totally misses 
+> the point behind the SMP kernel.
 
+Agreed, this experiment would not be useful to an user -- after all,
+if the user has a single-threaded application, they should just buy
+a UP box, run a UP kernel on it, and not bother with the experiment.
+This experiment -might- be useful to a developer who is working on
+either the SMP kernel or on the hardware, and who wants to measure the
+overhead of SMP -- in fact, I did this sort of experiment (among others,
+of course!) in my RCU dissertation.
 
---/Z3Qj54wC++taHdq
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+I also agree that Kristian's and Karim's benchmark does not show the
+full picture.  No set of benchmark data, no matter how carefully designed
+and collected, will ever be a substitute for careful consideration of
+all aspects of the problem.  The realtime latency and the added overhead
+are important, but they are not the only important things.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+But, for the moment, I need to get back to an RCU implementation that
+I owe you.  It is at least limping, which is better than I would have
+expect, but needs quite a bit more work.  ;-)
 
-iD8DBQFCxBHCIqNMpVm8OhwRApbMAKCQQN/xEG7W1/znVBUkdaOSALsP8wCdETVb
-S4Pqxjw9SMMfqVXp7mh8zMk=
-=Ti36
------END PGP SIGNATURE-----
-
---/Z3Qj54wC++taHdq--
+						Thanx, Paul

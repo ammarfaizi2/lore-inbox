@@ -1,77 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262790AbVF3RO0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262734AbVF3RW4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262790AbVF3RO0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 13:14:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262841AbVF3RO0
+	id S262734AbVF3RW4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 13:22:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262783AbVF3RW4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 13:14:26 -0400
-Received: from ausc60ps301.us.dell.com ([143.166.148.206]:1976 "EHLO
-	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
-	id S262790AbVF3ROR convert rfc822-to-8bit (ORCPT
+	Thu, 30 Jun 2005 13:22:56 -0400
+Received: from sabe.cs.wisc.edu ([128.105.6.20]:44443 "EHLO sabe.cs.wisc.edu")
+	by vger.kernel.org with ESMTP id S262734AbVF3RWy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 13:14:17 -0400
-X-IronPort-AV: i="3.94,154,1118034000"; 
-   d="scan'208"; a="260707072:sNHT24169024"
-Content-class: urn:content-classes:message
+	Thu, 30 Jun 2005 13:22:54 -0400
+Message-ID: <34128.127.0.0.1.1120152169.squirrel@localhost>
+In-Reply-To: <20050630060206.GA23321@kroah.com>
+References: <20050630060206.GA23321@kroah.com>
+Date: Thu, 30 Jun 2005 12:22:49 -0500 (CDT)
+Subject: Re: [GIT PATCH] Driver core patches for 2.6.13-rc1
+From: "John Lenz" <lenz@cs.wisc.edu>
+To: "Greg KH" <gregkh@suse.de>
+Cc: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.4
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Subject: RE: page allocation/attributes question (i386/x86_64 specific)
-Date: Thu, 30 Jun 2005 12:14:16 -0500
-Message-ID: <B1939BC11A23AE47A0DBE89A37CB26B407434C@ausx3mps305.aus.amer.dell.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: page allocation/attributes question (i386/x86_64 specific)
-Thread-Index: AcV9jvboLnykyAOORAS/GMIhlJZYBQABJtZgAAB8XiA=
-From: <Stuart_Hayes@Dell.com>
-To: <Stuart_Hayes@Dell.com>, <ak@suse.de>
-Cc: <riel@redhat.com>, <andrea@suse.dk>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 30 Jun 2005 17:14:16.0646 (UTC) FILETIME=[25223660:01C57D97]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hayes, Stuart wrote:
-> Andi Kleen wrote:
->> 
->> I only fixed it for x86-64 correct. Does it work for you on x86-64?
->> 
->> If yes then the changes could be brought over.
->> 
->> What do you all need this for anyways?
->> 
->> -Andi
-> 
-> We need this because the NVidia driver uses change_page_attr() to
-> make pages non-cachable, which is causing systems to spontaneously
-> reboot when it gets a page that's in the first 8MB of memory.  
-> 
-> I'll look at x86_64.  The problem was seen originally with i386, and
-> I haven't taken much time to look at the x86_64 stuff yet. 
-> 
-> Thanks,
-> Stuart
+On Thu, June 30, 2005 1:02 am, Greg KH said:
+> Here are some small patches for the driver core.  They fix a bug that
+> has caused some people to see deadlocks when some drivers are unloaded
+> (like ieee1394), and add the ability to bind and unbind drivers from
+> devices from userspace (something that people have been asking for for a
+> long time.)
 
-Doesn't x86_64 map the kernel code into a different virtual address
-range than the direct mapping of physical memory--and __get_free_pages()
-returns a pointer to the direct mapping area rather than to the kernel
-text area?  This would prevent the problem, because I assume the entire
-direct mapping of physical memory area is set to non-executable.
+As long as there are a whole bunch of class API changes going on, I would
+request that the class_interface add and remove functions get passed the
+class_interface pointer as well as the class_device.  This way, the same
+function can be used on multiple class_interfaces.
 
-The problem with i386 occurs because the kernel code and kernel memory
-is all mapped to the same virtual address range (at 0xC0000000), so
-kernel code, and free pages returned by __get_free_pages(), both reside
-in the same large page.
-
-So, if I understand correctly what's going on in x86_64, your fix
-wouldn't be applicable to i386.  In x86_64, every large page has a
-correct "ref_prot" that is the normal setting for that page... but in
-i386, the kernel text area does not--it should ideally be split into
-small pages all the time if there are both kernel code & free pages
-residing in the same 2M area.
-
-Stuart
-
-
+John
 

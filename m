@@ -1,51 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262667AbVF3Rlx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261209AbVF3SBr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262667AbVF3Rlx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 13:41:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262842AbVF3Rlw
+	id S261209AbVF3SBr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 14:01:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261216AbVF3SBq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 13:41:52 -0400
-Received: from fed1rmmtao01.cox.net ([68.230.241.38]:38620 "EHLO
-	fed1rmmtao01.cox.net") by vger.kernel.org with ESMTP
-	id S262667AbVF3Rlv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 13:41:51 -0400
-Date: Thu, 30 Jun 2005 10:41:44 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: john stultz <johnstul@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, benh@kernel.crashing.org,
-       paulus@samba.org, linuxppc-dev@ozlabs.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC][PATCH] ppc misusing NTP's time_offset value
-Message-ID: <20050630174144.GG13179@smtp.west.cox.net>
-References: <1120082751.24889.120.camel@cog.beaverton.ibm.com>
+	Thu, 30 Jun 2005 14:01:46 -0400
+Received: from iron.pdx.net ([207.149.241.18]:50350 "EHLO iron.pdx.net")
+	by vger.kernel.org with ESMTP id S261209AbVF3SBZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Jun 2005 14:01:25 -0400
+Subject: RE: RE: ASUS K8N-DL Beta AKA PROBLEM: Devices behindPCO Express-t
+	o-PCI bridge not mapped
+From: Sean Bruno <sean.bruno@dsl-only.net>
+To: "Hodle, Brian" <BHodle@harcroschem.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <D9A1161581BD7541BC59D143B4A06294021FAAA4@KCDC1>
+References: <D9A1161581BD7541BC59D143B4A06294021FAAA4@KCDC1>
+Content-Type: text/plain
+Date: Thu, 30 Jun 2005 11:01:22 -0700
+Message-Id: <1120154483.2764.5.camel@home-lap>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1120082751.24889.120.camel@cog.beaverton.ibm.com>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 29, 2005 at 03:05:51PM -0700, john stultz wrote:
-> Hey everyone,
+On Thu, 2005-06-30 at 09:33 -0500, Hodle, Brian wrote:
+> Guys,
 > 
-> 	As part of my timeofday rework, I've been looking at the NTP code and I
-> noticed that the PPC architecture is apparently misusing the NTP's
-> time_offset (it is a terrible name!) value as some form of timezone
-> offset. This could cause problems when time_offset changed by the NTP
-> code.
-> 	
-> 	This patch changes the PPC code so it uses a more clear local variable:
-> timezone_offset.
+> I actually disabled the AGP bus entireley to prevent the mapping of a 64mb 
+> aperature when I recompiled. So did the BIOS update help you gents at all?
+> The 
+> only thing it allows me to do now is Enable the ACPI SRAT and ACPI APIC
+> without 
+> the computer hanging. Although now, I am having USB bus IRQ conflicts and
+> the 
+> MB still won't correctly allocate resources.
 > 
-> Could a PPC maintainer verify this is correct?
+> Cheers,
+> 
+> -Brian
+> 
+Not much help here with the latest BIOS.  There is actually a release
+1004 version today on the ASUS web site.
 
-As mentioned by Mikael, it's odd that this problem came up, since i
-guess the wrong patch made it in.  Andrew, please grab this if you
-haven't already.  Thanks.
+Pretty much in the same board as you Brian.  I will call ASUS today and
+see if they can help me out.  I have an open Case with them(#44951),
+maybe all you K8N-DL owners can start calling in and get some kind of
+traction on this issue...Or at least talk with their Linux folks.
 
-Acked-by: Tom Rini <trini@kernel.crashing.org>
+Sean
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/

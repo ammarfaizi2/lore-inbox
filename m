@@ -1,76 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262857AbVF3F66@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262864AbVF3GCo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262857AbVF3F66 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 01:58:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262859AbVF3F66
+	id S262864AbVF3GCo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 02:02:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262862AbVF3GCn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 01:58:58 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:9884 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S262857AbVF3F6H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 01:58:07 -0400
-Date: Thu, 30 Jun 2005 01:57:47 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@localhost.localdomain
-Reply-To: rostedt@goodmis.org
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: kmalloc without GFP_xxx?
-In-Reply-To: <42C3081A.1040108@colorfullife.com>
-Message-ID: <Pine.LNX.4.58.0506300144530.14989@localhost.localdomain>
-References: <42C3081A.1040108@colorfullife.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 30 Jun 2005 02:02:43 -0400
+Received: from mail.kroah.org ([69.55.234.183]:38283 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262858AbVF3GCR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Jun 2005 02:02:17 -0400
+Date: Wed, 29 Jun 2005 23:02:06 -0700
+From: Greg KH <gregkh@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [GIT PATCH] Driver core patches for 2.6.13-rc1
+Message-ID: <20050630060206.GA23321@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Here are some small patches for the driver core.  They fix a bug that
+has caused some people to see deadlocks when some drivers are unloaded
+(like ieee1394), and add the ability to bind and unbind drivers from
+devices from userspace (something that people have been asking for for a
+long time.)
 
+Please pull from:
+	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-2.6.git/
+or if master.kernel.org hasn't synced up yet:
+	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/driver-2.6.git/
 
-On Wed, 29 Jun 2005, Manfred Spraul wrote:
+thanks,
 
-> Hi,
->
-> One question from Linux-Tag was about the lack of documentation about/in
-> the kernel. I try to maintain docbook entries when I modify code, even
-> though I think it's mostly wasted time: Virtually noone reads it anyway,
-> instead armchair logic on lkml.
+greg k-h
 
-Hmm, I do like to read the comments, see below.
+ drivers/base/base.h    |    1 
+ drivers/base/bus.c     |  117 +++++++++++++++++++++++++++++++++++++++++--------
+ drivers/base/core.c    |    2 
+ drivers/base/dd.c      |    2 
+ drivers/base/driver.c  |   35 ++++++++++++++
+ include/linux/device.h |    7 ++
+ 6 files changed, 143 insertions(+), 21 deletions(-)
 
->
-> Steven wrote:
->
-> >Here we see that task 2 can spin with interrupts off, while the first task
-> >is servicing an interrupt, and God forbid if the IRQ handler sends some
-> >kind of SMP signal to the CPU running task 2 since that would be a
-> >deadlock.  Granted, this is a hypothetical situation, but makes using
-> >spin_lock with interrupts enabled a little scary.
-> >
-> >
-> Not, it's not even a hypothetical situation. It's an explicitely
-> forbidden situation: SMP signals are sent with smp_call_function and the
-> documentation to that function clearly says:
+--------------------
 
-When I said _hypothetical_ I ment it.  That's basically stating that the
-situation wont happen, but lets pretend that it will. And no, SMP signals
-(on intel anyway) are sent with send_IPI_* which even smp_call_function
-uses.
+Cornelia Huck:
+  driver core: add bus_find_device & driver_find_device functions
 
->  *
->  * You must not call this function with disabled interrupts or from a
->  * hardware interrupt handler or from a bottom half handler.
->  */
->
+Greg Kroah-Hartman:
+  driver core: Add the ability to bind drivers to devices from userspace
+  driver core: change bus_rescan_devices to return void
+  driver core: Add the ability to unbind drivers to devices from userspace
 
-And if you had read my other emails you would have noticed that I
-even mentioned this particular comment. When I said:
-
-"This is probably the reason it is not allowed to call most IPIs from
-interrupt or bottom half context."
-
-Also, a comment doesn't force this, and there's no test in
-smp_call_function that prevents a user from calling this form a
-bottom_half!
-
--- Steve
+Patrick Mochel:
+  Driver core: Use klist_del() instead of klist_remove().
 

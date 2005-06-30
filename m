@@ -1,81 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263070AbVF3W3A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263073AbVF3We0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263070AbVF3W3A (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 18:29:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263089AbVF3W3A
+	id S263073AbVF3We0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 18:34:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263082AbVF3We0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 18:29:00 -0400
-Received: from frankvm.xs4all.nl ([80.126.170.174]:20150 "EHLO
-	janus.localdomain") by vger.kernel.org with ESMTP id S263070AbVF3W2c
+	Thu, 30 Jun 2005 18:34:26 -0400
+Received: from rproxy.gmail.com ([64.233.170.197]:56804 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S263073AbVF3WeV convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 18:28:32 -0400
-Date: Fri, 1 Jul 2005 00:28:28 +0200
-From: Frank van Maarseveen <frankvm@frankvm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Anton Altaparmakov <aia21@cam.ac.uk>, arjan@infradead.org,
-       miklos@szeredi.hu, linux-kernel@vger.kernel.org,
-       Frank van Maarseveen <frankvm@frankvm.com>
-Subject: Re: FUSE merging?
-Message-ID: <20050630222828.GA32357@janus>
-References: <E1DnvCq-0000Q4-00@dorka.pomaz.szeredi.hu> <20050630022752.079155ef.akpm@osdl.org> <E1Dnvhv-0000SK-00@dorka.pomaz.szeredi.hu> <1120125606.3181.32.camel@laptopd505.fenrus.org> <E1Dnw2J-0000UM-00@dorka.pomaz.szeredi.hu> <1120126804.3181.34.camel@laptopd505.fenrus.org> <1120129996.5434.1.camel@imp.csi.cam.ac.uk> <20050630124622.7c041c0b.akpm@osdl.org>
+	Thu, 30 Jun 2005 18:34:21 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=aVhSfGyk2r/1+fVPamb80YgCoJh6SUGSgitFkEpX72Di7wMRbtwEOI8THRVbA2IRLa5LJDCWSL37Lc2h0YtN7xDY2ueO3Dshc+xYXnrnFsRHlBW5H/Gh4uQQyUnkqvY6DJp8/aeF7vUuWpE1d3pT6nsAZFmuk/cuFHSgRvQ6THE=
+Message-ID: <d120d50005063015345a4968a@mail.gmail.com>
+Date: Thu, 30 Jun 2005 17:34:21 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: "Theodore Ts'o" <tytso@mit.edu>, David Masover <ninja@slaphack.com>,
+       Markus T?rnqvist <mjt@nysv.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Hans Reiser <reiser@namesys.com>,
+       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: reiser4 plugins
+In-Reply-To: <20050630214950.GA14286@thunk.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20050630124622.7c041c0b.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-Subliminal-Message: Use Linux!
+References: <42BB7B32.4010100@slaphack.com>
+	 <200506240334.j5O3YowB008100@laptop11.inf.utfsm.cl>
+	 <20050627092138.GD11013@nysv.org> <20050627124255.GB6280@thunk.org>
+	 <42C018E5.8030805@slaphack.com> <20050627162839.GA22799@thunk.org>
+	 <42C06BC6.7090002@slaphack.com> <20050630214950.GA14286@thunk.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 30, 2005 at 12:46:22PM -0700, Andrew Morton wrote:
+On 6/30/05, Theodore Ts'o <tytso@mit.edu> wrote:
+> On Mon, Jun 27, 2005 at 04:12:38PM -0500, David Masover wrote:
+> > >     Streamload cannot warrant and does not guarantee, and You
+> > >     should not expect, that all of Your private communications and
+> > >     other personal information will never be disclosed in ways not
+> > >     otherwise described in this Privacy Policy.
+> >
+> > gpg.  Was in my upload script to begin with.  I keep my key written many
+> > times on a single hidden CD.  So long as the isofs can be read, at least
+> > one of the copies should be usable.
+> >
+> > They don't have any billing information on me.  If they charge me for
+> > something, I'll cancel my account.
 > 
-> - Frank points out that a user can send a sigstop to his own setuid(0)
->   task and he intimates that this could cause DoS problems with FUSE.  More
->   details needed please?
+> If you are using the free service, and are encrypting the data, you
+> are explicitly violating their terms of service, and they can delete
+> your data at any time, once they notice.
+> 
 
-It's the other way around:
-Apparently it is not a security problem to SIGSTOP or even SIGKILL a
-setuid program. So why is it a security problem when such a program is
-delayed by a supposedly malicious behaving FUSE mount?
+Does not look like it:
 
-I think that setuid programs take too many things for granted, especially
-"time". I also think the ptrace equivalence principle (item C2 in the
-FUSE doc) is too harsh for FUSE.
-
-Suppose the process changes id to full root and we can no longer send
-signals to it. Are there any other ways we could affect its scheduling
-without FUSE? I think "yes", clearly not that easy as when it accesses a
-FUSE mount but "yes". Think about typing ^S (XOFF), or by letting it read
-from a pipe or from a file on a very very slow device. Or by renicing
-the parent in advance. Regarding the pipe: yes the setuid program could
-check that with fstat() but is such a check fundamentally the right
-approach? I have doubt because unified I/O is a good thing and there is
-no guarantee whatsoever about completion of any FS operation within a
-certain amount of time. Suppose another malicious process does a lookup
-in a huge directory without hashed names? What about a process consuming
-lots of memory, pushing everything else into swap? What about deleting
-a _huge_ file or do other things which might(?) take a considerable
-amount of kernel time? [id]notify might even help using this to delay
-a root process at a crucial point to exploit a race. So, I think there
-are many ways to affect the execution speed of [setuid] programs. I
-have never heard of a setuid root program which renices itself, such,
-that it successfully avoids a race or DoS exploit.
-
-And then the DoS thing using simulated endless files within FUSE. It is
-already possible to create terabyte sized [sparse] files. Can the fstat()
-size/blocks info be trusted from FUSE? no more than fstat() outside FUSE
-because the file may still be growing!
-
-> - I don't recall seeing an exhaustive investigation of how an
->   unprivileged user could use a FUSE mount to implement DoS attacks against
->   other users or against root.
-
-In general I think it is _hard_ to protect against a local DoS for many
-reasons and I don't see any new fundamental problem here with FUSE:
-it is just making it more obvious that it's hard to write secure setuid
-programs. Those programs should _know_ that input data and anything else
-from the user is "tainted" and that they must be _very_ careful with it,
-in every detail.
+3c. No encryption and/or steganography for the purpose of
+circumventing Streamload's rules.
+... For example, if you'd like to encrypt something for an extra sense
+of security and privacy, please feel free to do so. However, when
+these tools are used solely for the purpose of circumventing
+Streamload's rules, as determined by the sole discretion of
+Streamload, the files will be deleted.
 
 -- 
-Frank
+Dmitry

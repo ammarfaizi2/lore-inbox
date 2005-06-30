@@ -1,48 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262600AbVF3NCv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262650AbVF3NF1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262600AbVF3NCv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 09:02:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262662AbVF3NCv
+	id S262650AbVF3NF1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 09:05:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261183AbVF3NF1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 09:02:51 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:27355 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S262600AbVF3NCq (ORCPT
+	Thu, 30 Jun 2005 09:05:27 -0400
+Received: from coop-efa-adsl-ipfija1.ipfija.uolsinectis.com.ar ([216.244.196.244]:40722
+	"EHLO coop-efa-adsl-ipfija1.ipfija.uolsinectis.com.ar")
+	by vger.kernel.org with ESMTP id S262650AbVF3NFQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 09:02:46 -0400
-Message-ID: <42C3EF9F.D5E7761E@tv-sign.ru>
-Date: Thu, 30 Jun 2005 17:11:59 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
+	Thu, 30 Jun 2005 09:05:16 -0400
+Message-ID: <001301c57d6c$8fa7b580$a11f000a@nKtJR>
+From: "Maria Eugenia" <sdemidova@100ra.ru>
+To: "linux-kernel-owner" <linux-kernel-owner@vger.kernel.org>
+Subject: Re[2]: hi from Marina Eugenia P.
+Date: Thu, 30 Jun 2005 16:10:07 +0400
 MIME-Version: 1.0
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] rpc_delete_timer() cleanup
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="windows-1251"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When rpc task receives a signal while sleeping on RPC_TASK_QUEUED bit,
-__rpc_execute() calls rpc_wake_up_task(). If rpc timer starts on another
-cpu at the same time it can set RPC_TASK_WAKEUP bit before rpc_wake_up_task()
-called from __rpc_execute() does so. Now the main loop in __rpc_execute
-restarted with RPC_TASK_QUEUED bit and with still executing tk_timer.
+Hello .	
 
-I don't see too bad in this (the task already has RPC_TASK_KILLED flag,
-so ->tk_exit() should not call rpc_delay(), and it has TIF_SIGPENDING),
-but still I think it was not intended to happen.
+I want to start my first letter from a question: "Is it possible to be happy without LOVE?"
+I think that you will agree with me if the answer will be "NO WAY". Love is the most beautiful and exciting thing
+that may happen between man and woman! It inspires us only for doing positive things towards each other.
+One very famous writer said: "The beauty will rescue the world" i agree with his words but still i would add :
+" LOVE and Beauty will rescure the world". 
+I hope you agree with me that Love is a big notion.
+There's love to  God, to Mother, to a child to the country where you were born, and there's love that joins a man
+and woman for all their life. That is the LOVE i'm looking for! And i'm seeking for the man who is also eager to have
+this life long adventure full of surprises and new experience we can share together! Will you join me for this trip?
+I do realise that it should be very difficult to say "Yes" from the first letter having no idea about me.
+That's why i just offer to get to know each other better though correspondence that will help us to reveal many things
+about each other whether we mach perfectly or not. In addition you can look at my pictures and read some info about me here
+http://Q6LBKDMf8dDYYOvYutM.lokingforaman.org/
+I hope you'll like what you see and read there.
+Well closing my first letter to you i just want to thank you for reading it and i really hope that you'll share
+my point of view on what i said above. I do really hope that you'll answer me soon.
 
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+ta-ta!!
+Maria Eugenia
 
---- 2.6.13-rc1/net/sunrpc/sched.c~	Thu Jun 30 17:03:08 2005
-+++ 2.6.13-rc1/net/sunrpc/sched.c	Thu Jun 30 17:03:25 2005
-@@ -135,8 +135,6 @@ __rpc_add_timer(struct rpc_task *task, r
- static void
- rpc_delete_timer(struct rpc_task *task)
- {
--	if (RPC_IS_QUEUED(task))
--		return;
- 	if (test_and_clear_bit(RPC_TASK_HAS_TIMER, &task->tk_runstate)) {
- 		del_singleshot_timer_sync(&task->tk_timer);
- 		dprintk("RPC: %4d deleting timer\n", task->tk_pid);
+

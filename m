@@ -1,82 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263115AbVF3UaG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263138AbVF3UfW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263115AbVF3UaG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 16:30:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263130AbVF3U3g
+	id S263138AbVF3UfW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 16:35:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263127AbVF3UfK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 16:29:36 -0400
-Received: from postfix3-1.free.fr ([213.228.0.44]:5290 "EHLO
-	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S263115AbVF3U1v
+	Thu, 30 Jun 2005 16:35:10 -0400
+Received: from postfix4-2.free.fr ([213.228.0.176]:15829 "EHLO
+	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S263131AbVF3Ubq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 16:27:51 -0400
-Message-ID: <42C455C1.30503@free.fr>
-Date: Thu, 30 Jun 2005 22:27:45 +0200
-From: Eric Valette <eric.valette@free.fr>
-Reply-To: eric.valette@free.fr
-Organization: HOME
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
+	Thu, 30 Jun 2005 16:31:46 -0400
+Message-ID: <42C456B0.6010706@free.fr>
+Date: Thu, 30 Jun 2005 22:31:44 +0200
+From: matthieu castet <castet.matthieu@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
+X-Accept-Language: fr-fr, en, en-us
 MIME-Version: 1.0
 To: Greg KH <greg@kroah.com>
-CC: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: updating kernel to 2.6.13-rc1 from 2.6.12 + CONFIG_DEVFS_FS +
- empty /dev
-References: <42C30CBC.5030704@free.fr> <20050629224040.GB18462@kroah.com> <1120137161.42c3efc93b36c@imp1-q.free.fr> <20050630155453.GA6828@kroah.com>
-In-Reply-To: <20050630155453.GA6828@kroah.com>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=us-ascii
+CC: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: device_remove_file and disconnect
+References: <42C2D354.6060607@free.fr> <20050629184621.GA28447@kroah.com> <42C301F7.4010309@free.fr> <20050629224235.GC18462@kroah.com> <20050630072643.GA14703@mut38-1-82-67-62-65.fbx.proxad.net> <20050630170406.GA11334@kroah.com>
+In-Reply-To: <20050630170406.GA11334@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+
 Greg KH wrote:
-> On Thu, Jun 30, 2005 at 03:12:41PM +0200, eric.valette@free.fr wrote:
-> 
->>Quoting Greg KH <greg@kroah.com>:
->>
->>
->>>On Wed, Jun 29, 2005 at 11:03:56PM +0200, Eric Valette wrote:
+
+>>>>Ok, but if we unplug a device, then disconnect will be called even if we 
+>>>>opened a sysfs file.
 >>>
->>>>For years now my /dev has been empty. When upgrading to 2.6.13-rc1 from
->>>>2.6.12, and updating my kernel config file via "make oldconfig" I got no
->>>>visible warning about CONFIG_DEVFS_FS options being set (or at least did
->>>>no see it).
+>>>Yes but the device structure will still be in memory, so you will be ok.
 >>>
->>>devfs has been marked OBSOLETE for a year now.  It has also been
->>>documented as going away.  Because of this, you should not have been
->>>supprised at all.
 >>
->>I knew it! I just the announce for 2.6.13-rc1 did not contain this fact and I
->>did not realize booting this new kernel will fail on my machine which is bad for
->>a stable serie.
+>>disconnect method isn't supposed to clear the device structure in memory ?
 > 
 > 
-> As there is no longer a "development series" calling 2.6 a "stable
-> series" isn't really true :)
+> It all depends on the bus you are talking about :)
+> 
+> 
+usb, but should be for all bus that accept a hot remove of the device...
+>>>>Couldn't be a race between the moment we read our private data and check 
+>>>>it is valid and the moment we use it :
+>>>>
+>>>>Process A (read/write sysfs file) 		Process B (disconnect)
+>>>>recover our private data from struct device
+>>>>check it is valid
+>>>>						free our private data
+>>>>do operation on private data
+>>>
+>>>No, you should not be freeing your private data on your own.  You should
+>>>do that in the device release function.
+>>
+>>But that's what I do !
+> 
+> 
+> What type of driver?
+> 
+> 
+a driver for an usb modem.
+>>I free it in  device release function = usb_disconnect in my case =
+>>Process B. Process A is call by sysfs and don't seem serialized with
+>>Process B.
+>>Is there another place where I could free my private data later : I don't
+>>think so.
+> 
+> 
+> For usb, no, you are correct.  I was referring to the driver core when
+> you were mentioning the sysfs stuff, sorry.
+> 
+> Hm, in thinking about it, it might make more sense to rework the usb
+> core to handle this better.  Possibly add a release() callback to the
+> driver when the device is actually being freed.  Wouldn't be that hard
+> to do so, and might cut down on some of the common locking errors.
+> 
+> 
+So a diconnect when the device is removed and a released when the 
+resource counter reach 0 ?
 
-Curious to wait until 2.6.13 pops up to see how much people will end up
-having non working systems either because :
-	1) They removed entries in their /dev
-	2) Did not maintain their /dev for years because anyway it was not
-directly accessed
-	3) modified their /etc/fstab to put devfs names rather than FHS/LSB
-compliant names...
-	4) other weird /dev-devfs interaction I cannot imagine yet
 
-BTW speaking of initramfs to hold the minimal /dev, in the embedded
-world initramfs has to be stored in flash as udev binary and eventually
-additionnal scripts, this represent flash memory (OK very little I have
-to admit but when you need to find 10K of flash or change the flash
-size...).
+>>I believe some drivers expected that sysfs read/write callback are always
+>>called when the device is plugged so they don't check if
+>>to_usb_interface/usb_get_intfdata return valid pointer.
+> 
+> 
+> Then they should be fixed.  Any specific examples?
+> 
+> 
+I am a little lasy to list all, but some drivers in driver/usb should 
+have this problem : the first driver I look : ./misc/phidgetkit.c do 
+[1]. So sysfs read don't check if to_usb_interface or usb_get_intfdata 
+return NULL pointer...
+And it is a bit your fault, as many developper should have read your 
+great tutorial [2] ;)
 
-I hope someone will pick-up your nano defvs proposal and enhance it to
-support a  version enabling to boot a system without anything in /dev.
-Unfortunately no time yet on my side.
+>>Also I always see driver free their privatre data in device disconnect,
+>>so if read/write from sysfs aren't serialized with device disconnect
+>>there are still a possible race like I show in my example.
+> 
+> 
+> Yes, you are correct.  Again, any specific drivers you see with this
+> problem?
+I believe near all drivers that use sysfs via device_create_file, as I 
+never see them use mutex in read/write in order to check there aren't in 
+the same time in their disconnect that could free there private data 
+when they do operation on it...
 
-Thanks for all the things you have done in linux,
 
--- eric
+Couldn't be possible the make device_remove_file blocking until all the 
+open file are closed ?
 
+thanks,
 
+Matthieu
 
+[1]
+#define show_input(value)       \
+static ssize_t show_input##value(struct device *dev, char *buf) \
+{                                                                       \
+         struct usb_interface *intf = to_usb_interface(dev);             \
+         struct phidget_interfacekit *kit = usb_get_intfdata(intf);      \
+                                                                         \
+         return sprintf(buf, "%d\n", kit->inputs[value - 1]);            \
+}                                                                       \
+static DEVICE_ATTR(input##value, S_IRUGO, show_input##value, NULL);
 
+[2] http://www.linuxjournal.com/article/7353

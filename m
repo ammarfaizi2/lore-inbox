@@ -1,102 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262774AbVF3QtV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263004AbVF3QwY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262774AbVF3QtV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 12:49:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263003AbVF3QtU
+	id S263004AbVF3QwY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 12:52:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263005AbVF3QwY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 12:49:20 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:17403 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S262774AbVF3QtM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 12:49:12 -0400
-Subject: Re: PREEMPT_RT and I-PIPE: the numbers, take 3
-From: Sven-Thorsten Dietrich <sdietrich@mvista.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: "Paul E. McKenney" <paulmck@us.ibm.com>, Bill Huey <bhuey@lnxw.com>,
-       Kristian Benoit <kbenoit@opersys.com>, linux-kernel@vger.kernel.org,
-       andrea@suse.de, tglx@linutronix.de, karim@opersys.com,
-       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
-       ak@muc.de, dwalker@mvista.com, hch@infradead.org, akpm@osdl.org,
-       rpm@xenomai.org
-In-Reply-To: <20050630161726.GA11185@elte.hu>
-References: <42C320C4.9000302@opersys.com>
-	 <20050629225734.GA23793@nietzsche.lynx.com>
-	 <20050629235422.GI1299@us.ibm.com> <20050630070709.GA26239@elte.hu>
-	 <20050630154304.GA1298@us.ibm.com>  <20050630161726.GA11185@elte.hu>
-Content-Type: text/plain
-Date: Thu, 30 Jun 2005 09:48:53 -0700
-Message-Id: <1120150133.4453.79.camel@sdietrich-xp.vilm.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
+	Thu, 30 Jun 2005 12:52:24 -0400
+Received: from wproxy.gmail.com ([64.233.184.200]:39923 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S263004AbVF3Qv6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Jun 2005 12:51:58 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:openpgp:content-type;
+        b=RzUoKJM3Gz7XlucwO3kUta+0H2c/dN5Yy/J1yHL+1S1zepctBncUWUf9NzJfJ4IcpyjtmA//APJDr5iriM0hE1EDRXG9jHvbWhpo7AClIrThzGyjYGr8CdrCb3Iodai0I3nqZjMSqbkklyGjjrqnbz99sdjfNSzHTloWS8L65xg=
+Message-ID: <42C4232B.7090904@gmail.com>
+Date: Thu, 30 Jun 2005 22:21:55 +0530
+From: Toufeeq Hussain <toufeeqh@gmail.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: 2.6.13-rc1 problems
+References: <42C2EAE4.90007@gmail.com> <20050629120210.489db9fd.akpm@osdl.org>
+In-Reply-To: <20050629120210.489db9fd.akpm@osdl.org>
+X-Enigmail-Version: 0.91.0.0
+OpenPGP: id=218783B9
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig4D0B5F511F7A253D1DECB29F"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-06-30 at 18:17 +0200, Ingo Molnar wrote:
-> * Paul E. McKenney <paulmck@us.ibm.com> wrote:
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig4D0B5F511F7A253D1DECB29F
+Content-Type: multipart/mixed;
+ boundary="------------090102090306020402010103"
+
+This is a multi-part message in MIME format.
+--------------090102090306020402010103
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+Andrew Morton wrote:
+> Try this:
 > 
-> > > another point is that this test is measuring the overhead of PREEMPT_RT, 
-> > > without measuring the benefit of the cost: RT-task scheduling latencies.  
-> > > We know since the rtirq patch (to which i-pipe is quite similar) that we 
-> > > can achieve good irq-service latencies via relatively simple means, but 
-> > > that's not what PREEMPT_RT attempts to do. (PREEMPT_RT necessarily has 
-> > > to have good irq-response times too, but much of the focus went to the 
-> > > other aspects of RT task scheduling.)
-> > 
-> > Agreed, a PREEMPT_RT-to-IPIPE comparison will never be an 
-> > apples-to-apples comparison.  Raw data will never be a substitute for 
-> > careful thought, right?  ;-)
-> 
-> well, it could still be tested, since it's so easy: the dohell script is 
-> already doing all of that as it runs rtc_wakeup - which runs a 
-> SCHED_FIFO task and carefully measures wakeup latencies. If it is used 
-> with 1024 Hz (the default) and it can be used in every test without 
-> impacting the system load in any noticeable way.
-> 
+> --- 25/drivers/block/ll_rw_blk.c~get_request-nastiness	2005-06-29 09:36:27.000000000 -0700
+> +++ 25-akpm/drivers/block/ll_rw_blk.c	2005-06-29 09:36:27.000000000 -0700
+> @@ -1918,10 +1918,9 @@ get_rq:
+>  	 * limit of requests, otherwise we could have thousands of requests
+>  	 * allocated with any setting of ->nr_requests
+>  	 */
+> -	if (rl->count[rw] >= (3 * q->nr_requests / 2)) {
+> -		spin_unlock_irq(q->queue_lock);
+> +	if (rl->count[rw] >= (3 * q->nr_requests / 2))
+>  		goto out;
+> -	}
+> +
+>  	rl->count[rw]++;
+>  	rl->starved[rw] = 0;
+>  	if (rl->count[rw] >= queue_congestion_on_threshold(q))
 
-I use a parallel implementation that has acquired the name FRD 
-(Fast Real Time Domain). 
+working fine now.
+No spurious messages in /var/log/kern.log or in /var/log/syslog.
 
-It triggers off any IRQ, and measures time to get RT task(s) running.  
+Thanks,
+Toufeeq
 
-The objective is to measure periodic task performance for one or more
-tasks of equal, ascending, or descending priorities. 
+-- 
+Linux 2.6.13-rc1 i686 GNU/Linux
 
-The first task is worken by IRQ, the other tasks wake each other and
-either yield or preempt, depending on ascending or descending priority. 
+--------------090102090306020402010103
+Content-Type: text/x-vcard; charset=utf-8;
+ name="toufeeqh.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="toufeeqh.vcf"
 
-Especially when one RT task wakes an RT task of higher priority,
-interesting things happen.
-
-Average and Worst-case Histograms are produced in /proc, for sleep time,
-run time, task wake-up latency (preemption), inter-task switch, and
-absolute latency from IRQ assertion (IRQ latency + preemption) if the
-IRQ assertion time is available.
-
-On many archs, a spare auto-resetting timer can be used for the IRQ
-source. With the auto-rest timer, the rollover count is available
-a-priori. 
-
-This allows getting the absolute latency since IRQ assertion, i.e. time
-since timer rollover. 
-
-It is nice to get a feel for the combined impact of IRQ disable and
-preemption on task response.
-
-For portability, I have a hook into do_timer, and I acknowledge the
-blind spot this creates, but like I said, you can use any IRQ and just
-hook up your own way to get the IRQ-assert time stamps.
-
-For a really scientific test, you can write an IRQ handler and a driver
-to hook up an external signal generator, Cesium or GPS, and GPIB, or
-what have you. Anything to drive the external time stamps into the
-program, but that is an exercise for the developer.
-
-If anyone is interested, I can update it for Ingo's latest RT tree and
-send it out.
-
-Sven
+begin:vcard
+fn:Toufeeq Hussain
+n:Hussain;Toufeeq
+email;internet:toufeeqh@gmail.com
+tel;home:091-044-24832063
+tel;cell:091-9840196690
+x-mozilla-html:FALSE
+version:2.1
+end:vcard
 
 
+--------------090102090306020402010103--
 
+--------------enig4D0B5F511F7A253D1DECB29F
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFCxCMr/4Tq3iGHg7kRAkghAKCFf2uW6L9vBSgVm/Z1k1A6PsonIwCfXTEI
+o4sl0jEnzfNdONT3FtpCyHc=
+=8HoW
+-----END PGP SIGNATURE-----
+
+--------------enig4D0B5F511F7A253D1DECB29F--

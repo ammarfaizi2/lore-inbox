@@ -1,59 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263011AbVF3Q5b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263012AbVF3Q4b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263011AbVF3Q5b (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 12:57:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263014AbVF3Q4n
+	id S263012AbVF3Q4b (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 12:56:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263013AbVF3Q4a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 12:56:43 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:10112 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S263011AbVF3Q40 (ORCPT
+	Thu, 30 Jun 2005 12:56:30 -0400
+Received: from ausc60ps301.us.dell.com ([143.166.148.206]:21396 "EHLO
+	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
+	id S263012AbVF3Q4G convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 12:56:26 -0400
-Date: Thu, 30 Jun 2005 18:55:57 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Kristian Benoit <kbenoit@opersys.com>
-Cc: linux-kernel@vger.kernel.org, paulmck@us.ibm.com, bhuey@lnxw.com,
-       andrea@suse.de, tglx@linutronix.de, karim@opersys.com,
-       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
-       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, rpm@xenomai.org
-Subject: Re: PREEMPT_RT and I-PIPE: the numbers, take 3
-Message-ID: <20050630165557.GA15692@elte.hu>
-References: <42C320C4.9000302@opersys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42C320C4.9000302@opersys.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Thu, 30 Jun 2005 12:56:06 -0400
+X-IronPort-AV: i="3.94,154,1118034000"; 
+   d="scan'208"; a="260697037:sNHT23638808"
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Subject: RE: page allocation/attributes question (i386/x86_64 specific)
+Date: Thu, 30 Jun 2005 11:56:02 -0500
+Message-ID: <B1939BC11A23AE47A0DBE89A37CB26B407434B@ausx3mps305.aus.amer.dell.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: page allocation/attributes question (i386/x86_64 specific)
+Thread-Index: AcV9jvboLnykyAOORAS/GMIhlJZYBQABJtZg
+From: <Stuart_Hayes@Dell.com>
+To: <ak@suse.de>
+Cc: <riel@redhat.com>, <andrea@suse.dk>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 30 Jun 2005 16:56:03.0821 (UTC) FILETIME=[99C259D0:01C57D94]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Kristian Benoit <kbenoit@opersys.com> wrote:
-
-> "plain" run:
+Andi Kleen wrote:
 > 
-> Measurements   |   Vanilla   |  preemp_rt     |
-> ---------------+-------------+----------------+
-> fork           |      93us   |  157us (+69%)  |
-> open/close     |     2.3us   |  3.7us (+43%)  |
-> execve         |     351us   |  446us (+27%)  |
-> select 500fd   |    12.7us   | 25.8us (+103%) |
-> mmap           |     660us   | 2867us (+334%) |
-> pipe           |     7.1us   | 11.6us (+63%)  |
+> I only fixed it for x86-64 correct. Does it work for you on x86-64?
+> 
+> If yes then the changes could be brought over.
+> 
+> What do you all need this for anyways?
+> 
+> -Andi
 
-update: these tests should perform significantly better on the freshly 
-released -50-37 (or later) PREEMPT_RT kernels. (fork, execve, mmap [*] 
-was improved in -50-36, the others in -50-37)
+We need this because the NVidia driver uses change_page_attr() to make
+pages non-cachable, which is causing systems to spontaneously reboot
+when it gets a page that's in the first 8MB of memory.
 
-	Ingo
+I'll look at x86_64.  The problem was seen originally with i386, and I
+haven't taken much time to look at the x86_64 stuff yet.
 
-[*] the extent of the above fork/execve/mmap costs is still unexplained, 
-    unless the test was run with HIGHMEM64 and HIGHPTE enabled.
+Thanks,
+Stuart
+

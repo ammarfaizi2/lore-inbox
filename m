@@ -1,91 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262838AbVF3RLg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262790AbVF3RO0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262838AbVF3RLg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 13:11:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262840AbVF3RLf
+	id S262790AbVF3RO0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 13:14:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262841AbVF3RO0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 13:11:35 -0400
-Received: from khan.acc.umu.se ([130.239.18.139]:44219 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id S262838AbVF3RLF (ORCPT
+	Thu, 30 Jun 2005 13:14:26 -0400
+Received: from ausc60ps301.us.dell.com ([143.166.148.206]:1976 "EHLO
+	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
+	id S262790AbVF3ROR convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 13:11:05 -0400
-Date: Thu, 30 Jun 2005 19:10:57 +0200
-From: David Weinehall <tao@acc.umu.se>
-To: Hubert Chan <hubert@uhoreg.ca>
-Cc: Hans Reiser <reiser@namesys.com>, Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Kyle Moffett <mrmacman_g4@mac.com>, David Masover <ninja@slaphack.com>,
-       Valdis.Kletnieks@vt.edu, Lincoln Dale <ltd@cisco.com>,
-       Gregory Maxwell <gmaxwell@gmail.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: reiser4 plugins
-Message-ID: <20050630171057.GT16867@khan.acc.umu.se>
-Mail-Followup-To: Hubert Chan <hubert@uhoreg.ca>,
-	Hans Reiser <reiser@namesys.com>,
-	Horst von Brand <vonbrand@inf.utfsm.cl>,
-	Kyle Moffett <mrmacman_g4@mac.com>,
-	David Masover <ninja@slaphack.com>, Valdis.Kletnieks@vt.edu,
-	Lincoln Dale <ltd@cisco.com>, Gregory Maxwell <gmaxwell@gmail.com>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org,
-	ReiserFS List <reiserfs-list@namesys.com>
-References: <hubert@uhoreg.ca> <200506290509.j5T595I6010576@laptop11.inf.utfsm.cl> <87hdfgvqvl.fsf@evinrude.uhoreg.ca> <8783be6605062914341bcff7cb@mail.gmail.com> <42C3615A.9020600@namesys.com> <871x6kv4zd.fsf@evinrude.uhoreg.ca> <20050630062956.GP16867@khan.acc.umu.se> <87psu3vnvc.fsf@evinrude.uhoreg.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87psu3vnvc.fsf@evinrude.uhoreg.ca>
-User-Agent: Mutt/1.4.1i
-X-Editor: Vi Improved <http://www.vim.org/>
-X-Accept-Language: Swedish, English
-X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
-X-GPG-Key: http://www.acc.umu.se/~tao/files/pub_dc47ca16.gpg.asc
+	Thu, 30 Jun 2005 13:14:17 -0400
+X-IronPort-AV: i="3.94,154,1118034000"; 
+   d="scan'208"; a="260707072:sNHT24169024"
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Subject: RE: page allocation/attributes question (i386/x86_64 specific)
+Date: Thu, 30 Jun 2005 12:14:16 -0500
+Message-ID: <B1939BC11A23AE47A0DBE89A37CB26B407434C@ausx3mps305.aus.amer.dell.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: page allocation/attributes question (i386/x86_64 specific)
+Thread-Index: AcV9jvboLnykyAOORAS/GMIhlJZYBQABJtZgAAB8XiA=
+From: <Stuart_Hayes@Dell.com>
+To: <Stuart_Hayes@Dell.com>, <ak@suse.de>
+Cc: <riel@redhat.com>, <andrea@suse.dk>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 30 Jun 2005 17:14:16.0646 (UTC) FILETIME=[25223660:01C57D97]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 30, 2005 at 11:57:27AM -0400, Hubert Chan wrote:
-> On Thu, 30 Jun 2005 08:29:56 +0200, David Weinehall <tao@acc.umu.se> said:
+Hayes, Stuart wrote:
+> Andi Kleen wrote:
+>> 
+>> I only fixed it for x86-64 correct. Does it work for you on x86-64?
+>> 
+>> If yes then the changes could be brought over.
+>> 
+>> What do you all need this for anyways?
+>> 
+>> -Andi
 > 
-> > On Thu, Jun 30, 2005 at 12:33:10AM -0400, Hubert Chan wrote:
-> >> It's sort of like the way web servers handle index.html, for those
-> >> who think it's a stupid idea.  (Of course, some people may still
-> >> think it's a stupid idea... ;-) )
+> We need this because the NVidia driver uses change_page_attr() to
+> make pages non-cachable, which is causing systems to spontaneously
+> reboot when it gets a page that's in the first 8MB of memory.  
 > 
-> > And guess what?  That's handled on the web server level (userland),
-> > not by the file system.  So different web servers can handle it
-> > differently (think index.html.sv, index.html.zh, index.php, etc).
+> I'll look at x86_64.  The problem was seen originally with i386, and
+> I haven't taken much time to look at the x86_64 stuff yet. 
 > 
-> >From the web *browser*'s point of view, it is handled by the
-> "filesystem" (which is provided by the various servers).  The browser
-> doesn't care how or where the data is stored.  It just requests a file,
-> and gets some data back.  So the browser doesn't have to check for
-> http://www.example.com/, get a failure (trying to read a directory),
-> check for http://www.example.com/index.html, etc.  In this way, the web
-> server controls (which I think takes the place of the filesystem in this
-> case) what gets shown (index.html.sv, etc.), instead of the leaving it
-> up to the browser.
-> 
-> In the same way, you don't want every single user program to have to
-> guess whether it should look at .data, or .contents, or whatever.
+> Thanks,
+> Stuart
 
-For the analogy to be complete:
+Doesn't x86_64 map the kernel code into a different virtual address
+range than the direct mapping of physical memory--and __get_free_pages()
+returns a pointer to the direct mapping area rather than to the kernel
+text area?  This would prevent the problem, because I assume the entire
+direct mapping of physical memory area is set to non-executable.
 
-User has a file browser (say Nautilus)
-The file browser sees the userland VFS (say a unified VFS between GNOME
-and KDE)
-The VFS sees the real file system
+The problem with i386 occurs because the kernel code and kernel memory
+is all mapped to the same virtual address range (at 0xC0000000), so
+kernel code, and free pages returned by __get_free_pages(), both reside
+in the same large page.
 
-This way the userland VFS can be ported to almost any platform.
+So, if I understand correctly what's going on in x86_64, your fix
+wouldn't be applicable to i386.  In x86_64, every large page has a
+correct "ref_prot" that is the normal setting for that page... but in
+i386, the kernel text area does not--it should ideally be split into
+small pages all the time if there are both kernel code & free pages
+residing in the same 2M area.
 
-When toying around on the desktop, an abstraction of what a file
-is works fine with me.  When doing serious work (programming,
-tar:ing up stuff, etc) I want to be bloody sure that I see the
-files in the same way always.  I don't want surprises such as
-files suddenly behaving as directories or vice versa.
+Stuart
 
 
-Regards: David
--- 
- /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/
+

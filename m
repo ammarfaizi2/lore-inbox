@@ -1,299 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263001AbVF3QeG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262774AbVF3QtV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263001AbVF3QeG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 12:34:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263004AbVF3QeG
+	id S262774AbVF3QtV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 12:49:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263003AbVF3QtU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 12:34:06 -0400
-Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:37657 "EHLO
-	mta07-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S263001AbVF3QdH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 12:33:07 -0400
-From: SA <n0td1scl0s3d@ntlworld.com>
-Subject: Fwd: dvd ram / ext2 / oops / massive logfile
-Date: Thu, 30 Jun 2005 17:33:03 +0100
-User-Agent: KMail/1.7.1
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 30 Jun 2005 12:49:20 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:17403 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S262774AbVF3QtM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Jun 2005 12:49:12 -0400
+Subject: Re: PREEMPT_RT and I-PIPE: the numbers, take 3
+From: Sven-Thorsten Dietrich <sdietrich@mvista.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: "Paul E. McKenney" <paulmck@us.ibm.com>, Bill Huey <bhuey@lnxw.com>,
+       Kristian Benoit <kbenoit@opersys.com>, linux-kernel@vger.kernel.org,
+       andrea@suse.de, tglx@linutronix.de, karim@opersys.com,
+       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
+       ak@muc.de, dwalker@mvista.com, hch@infradead.org, akpm@osdl.org,
+       rpm@xenomai.org
+In-Reply-To: <20050630161726.GA11185@elte.hu>
+References: <42C320C4.9000302@opersys.com>
+	 <20050629225734.GA23793@nietzsche.lynx.com>
+	 <20050629235422.GI1299@us.ibm.com> <20050630070709.GA26239@elte.hu>
+	 <20050630154304.GA1298@us.ibm.com>  <20050630161726.GA11185@elte.hu>
+Content-Type: text/plain
+Date: Thu, 30 Jun 2005 09:48:53 -0700
+Message-Id: <1120150133.4453.79.camel@sdietrich-xp.vilm.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506301733.03178.n0td1scl0s3d@ntlworld.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2005-06-30 at 18:17 +0200, Ingo Molnar wrote:
+> * Paul E. McKenney <paulmck@us.ibm.com> wrote:
+> 
+> > > another point is that this test is measuring the overhead of PREEMPT_RT, 
+> > > without measuring the benefit of the cost: RT-task scheduling latencies.  
+> > > We know since the rtirq patch (to which i-pipe is quite similar) that we 
+> > > can achieve good irq-service latencies via relatively simple means, but 
+> > > that's not what PREEMPT_RT attempts to do. (PREEMPT_RT necessarily has 
+> > > to have good irq-response times too, but much of the focus went to the 
+> > > other aspects of RT task scheduling.)
+> > 
+> > Agreed, a PREEMPT_RT-to-IPIPE comparison will never be an 
+> > apples-to-apples comparison.  Raw data will never be a substitute for 
+> > careful thought, right?  ;-)
+> 
+> well, it could still be tested, since it's so easy: the dohell script is 
+> already doing all of that as it runs rtc_wakeup - which runs a 
+> SCHED_FIFO task and carefully measures wakeup latencies. If it is used 
+> with 1024 Hz (the default) and it can be used in every test without 
+> impacting the system load in any noticeable way.
+> 
 
-Supplementary:
+I use a parallel implementation that has acquired the name FRD 
+(Fast Real Time Domain). 
 
-I could not halt the machine since it shutdown and halt both hung without
-messages, as did sync.
+It triggers off any IRQ, and measures time to get RT task(s) running.  
 
-telinit 6 produced the following messages:
-PID 4246:
-umount2: Device busy
-umount: /dev/pts device is busy
+The objective is to measure periodic task performance for one or more
+tasks of equal, ascending, or descending priorities. 
 
-so I hit the power button...
+The first task is worken by IRQ, the other tasks wake each other and
+either yield or preempt, depending on ascending or descending priority. 
 
-Dear List,
+Especially when one RT task wakes an RT task of higher priority,
+interesting things happen.
 
-When writing to a DVD RAM on my system I got >48000 lines of compliant in
-my system logs (sample below) and the file was corrupt.  The final error
- keeps occurring and the logfile is growing at 40kb/minute which isn't good.
+Average and Worst-case Histograms are produced in /proc, for sleep time,
+run time, task wake-up latency (preemption), inter-task switch, and
+absolute latency from IRQ assertion (IRQ latency + preemption) if the
+IRQ assertion time is available.
 
-There is a kernel oops bug down done messages a way in the ext2 module.
+On many archs, a spare auto-resetting timer can be used for the IRQ
+source. With the auto-rest timer, the rollover count is available
+a-priori. 
 
-After rescuing my data I tried to eject the disk (eject /media/cdrecoder) -
- it removed it from the mtab but the eject never completed so the disk is
- currently stuck in the driver and the system is still throwing messages.
+This allows getting the absolute latency since IRQ assertion, i.e. time
+since timer rollover. 
 
+It is nice to get a feel for the combined impact of IRQ disable and
+preemption on task response.
 
-Anyway I must go a reboot now before my logs fill up.
+For portability, I have a hook into do_timer, and I acknowledge the
+blind spot this creates, but like I said, you can use any IRQ and just
+hook up your own way to get the IRQ-assert time stamps.
 
-SA
+For a really scientific test, you can write an IRQ handler and a driver
+to hook up an external signal generator, Cesium or GPS, and GPIB, or
+what have you. Anything to drive the external time stamps into the
+program, but that is an exercise for the developer.
 
-uname -a
-Linux valium 2.6.11-1.14_FC3 #1 Thu Apr 7 19:25:50 EDT 2005 x86_64 x86_64
- x86_64 GNU/Linux
+If anyone is interested, I can update it for Ingo's latest RT tree and
+send it out.
 
-
-
-
-
-** early on
-Jun 30 15:08:36 valium kernel: cdrom: open failed.
-Jun 30 15:08:36 valium kernel: cdrom: open failed.
-Jun 30 15:08:44 valium kernel: hdb: packet command error: status=0x51 {
- DriveReady SeekComplete Error } Jun 30 15:08:44 valium kernel: hdb: packet
- command error: error=0x54 { AbortedCommand LastFailedSense=0x05 } Jun 30
- 15:08:44 valium kernel: ide: failed opcode was: unknown
-Jun 30 15:08:44 valium kernel: ATAPI device hdb:
-Jun 30 15:08:44 valium kernel:   Error: Illegal request -- (Sense key=0x05)
-Jun 30 15:08:44 valium kernel:   Cannot read medium - incompatible format --
- (asc=0x30, ascq=0x02) Jun 30 15:08:44 valium kernel:   The failed "Read
- Subchannel" packet command was: Jun 30 15:08:44 valium kernel:   "42 02 40
- 01 00 00 00 00 10 00 00 00 00 00 00 00 " Jun 30 15:08:45 valium kernel: hdb:
- packet command error: status=0x51 { DriveReady SeekComplete Error } Jun 30
- 15:08:45 valium kernel: hdb: packet command error: error=0x54 {
- AbortedCommand LastFailedSense=0x05 } Jun 30 15:08:45 valium kernel: ide:
- failed opcode was: unknown
-Jun 30 15:08:45 valium kernel: ATAPI device hdb:
-Jun 30 15:08:45 valium kernel:   Error: Illegal request -- (Sense key=0x05)
-Jun 30 15:08:45 valium kernel:   Cannot read medium - incompatible format --
- (asc=0x30, ascq=0x02) Jun 30 15:08:45 valium kernel:   The failed "Read
- Subchannel" packet command was: Jun 30 15:08:45 valium kernel:   "42 02 40
- 01 00 00 00 00 10 00 00 00 00 00 00 00 " Jun 30 15:08:46 valium kernel:
- SELinux: initialized (dev hdb, type ext2), uses xattr Jun 30 15:08:46 valium
- kernel: hdb: packet command error: status=0x51 { DriveReady SeekComplete
- Error } Jun 30 15:08:46 valium kernel: hdb: packet command error: error=0x54
- { AbortedCommand LastFailedSense=0x05 } Jun 30 15:08:46 valium kernel: ide:
- failed opcode was: unknown
-Jun 30 15:08:46 valium kernel: ATAPI device hdb:
-...
-
-
-** then later when writing a large file:
-Jun 30 15:56:47 valium kernel: hdb: packet command error: status=0x51 {
- DriveReady SeekComplete Error } Jun 30 15:56:47 valium kernel: hdb: packet
- command error: error=0x54 { AbortedCommand LastFailedSense=0x05 } Jun 30
- 15:56:47 valium kernel: ide: failed opcode was: unknown
-Jun 30 15:56:47 valium kernel: ATAPI device hdb:
-Jun 30 15:56:47 valium kernel:   Error: Illegal request -- (Sense key=0x05)
-Jun 30 15:56:47 valium kernel:   Cannot read medium - incompatible format --
- (asc=0x30, ascq=0x02) Jun 30 15:56:47 valium kernel:   The failed "Read
- Subchannel" packet command was: Jun 30 15:56:47 valium kernel:   "42 02 40
- 01 00 00 00 00 10 00 00 00 00 00 00 00 " Jun 30 15:56:47 valium kernel:
- attempt to access beyond end of device Jun 30 15:56:47 valium kernel: hdb:
- rw=0, want=1312928, limit=1279588 Jun 30 15:56:54 valium kernel: attempt to
- access beyond end of device Jun 30 15:56:54 valium kernel: hdb: rw=1,
- want=1279768, limit=1279588 Jun 30 15:56:54 valium kernel: attempt to access
- beyond end of device Jun 30 15:56:54 valium kernel: hdb: rw=1, want=1280024,
- limit=1279588 Jun 30 15:56:54 valium kernel: attempt to access beyond end of
- device Jun 30 15:56:54 valium kernel: hdb: rw=1, want=1280280, limit=1279588
- Jun 30 15:56:54 valium kernel: attempt to access beyond end of device Jun 30
- 15:56:54 valium kernel: hdb: rw=1, want=1280536, limit=1279588 Jun 30
- 15:56:54 valium kernel: attempt to access beyond end of device Jun 30
- 15:56:54 valium kernel: hdb: rw=1, want=1280664, limit=1279588 ...
-
-** then nasty messages:
-
-Jun 30 15:56:54 valium kernel: hdb: rw=1, want=1304912, limit=1279588
-Jun 30 15:56:54 valium kernel: attempt to access beyond end of device
-Jun 30 15:56:54 valium kernel: hdb: rw=1, want=1305168, limit=1279588
-Jun 30 15:56:54 valium kernel: attempt to access beyond end of device
-Jun 30 15:56:54 valium kernel: hdb: rw=1, want=1305264, limit=1279588
-Jun 30 15:56:54 valium kernel: ----------- [cut here ] --------- [please bite
- here ] --------- Jun 30 15:56:54 valium kernel: Kernel BUG at buffer:2706
-Jun 30 15:56:54 valium kernel: invalid operand: 0000 [1]
-Jun 30 15:56:54 valium kernel: CPU 0
-Jun 30 15:56:54 valium kernel: Modules linked in: vfat fat sch_tbf nvidia(U)
- pcspkr ipt_MASQUERADE ipt_LOG ipt_state iptable_nat ip_conntrack
- iptable_filter ip_tables md5 ipv6 parport_pc l p parport w83627hf eeprom
- lm75 i2c_sensor i2c_isa dm_mod video button battery ac usb_storage uhci_hcd
- ehci_hcd i2c_viapro i2c_core snd_via82xx snd_ac97_codec snd_pcm_oss
- snd_mixer_oss snd_ pcm snd_timer snd_page_alloc gameport snd_mpu401_uart
- snd_rawmidi snd_seq_device snd soundcore r8169 sk98lin ext3 jbd sata_via
- libata sd_mod scsi_mod Jun 30 15:56:54 valium kernel: Pid: 149, comm:
- pdflush Tainted: P      2.6.11-1.14_FC3 Jun 30 15:56:54 valium kernel: RIP:
- 0010:[<ffffffff8019b4ea>] <ffffffff8019b4ea>{submit_bh+58} Jun 30 15:56:54
- valium kernel: RSP: 0018:ffff81007fdbba28  EFLAGS: 00010246 Jun 30 15:56:55
- valium kernel: RAX: 0000000000000005 RBX: ffff8100249442f0 RCX:
- 0000000000000000 Jun 30 15:56:55 valium kernel: RDX: ffff81007fdbba88 RSI:
- ffff8100249442f0 RDI: 0000000000000001 Jun 30 15:56:55 valium kernel: RBP:
- ffff8100249442f0 R08: 0000000000000000 R09: 0000000000000007 Jun 30 15:56:55
- valium kernel: R10: ffffffff805187e0 R11: ffffffff8016f320 R12:
- 0000000000000001 Jun 30 15:56:55 valium kernel: R13: 0000000000000000 R14:
- 0000000000000001 R15: 0000000000000001 Jun 30 15:56:55 valium kernel: FS:
- 00002aaaaaad6360(0000) GS:ffffffff80550700(0000) knlGS:00000000556c0b20 Jun
- 30 15:56:55 valium kernel: CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
- Jun 30 15:56:55 valium kernel: CR2: 00002aaaaaaac000 CR3: 000000007ee59000
- CR4: 00000000000006e0 Jun 30 15:56:55 valium kernel: Process pdflush (pid:
- 149, threadinfo ffff81007fdba000, task ffff81007fd1e030) Jun 30 15:56:55
- valium kernel: Stack: ffff81006461c608 ffff8100249442f0 0000000000000001
- ffff81007fdbba88 Jun 30 15:56:55 valium kernel:        0000000000000001
- ffffffff8019b669 ffff81007fdbbbf8 0000000000000001 Jun 30 15:56:55 valium
- kernel:        ffff810001d2c9e8 0000000000000000 Jun 30 15:56:55 valium
- kernel: Call Trace:<ffffffff8019b669>{ll_rw_block+105}
- <ffffffff8019b6d0>{write_boundary_block+48} Jun 30 15:56:55 valium kernel:
-      <ffffffff801cc86b>{mpage_writepages+1819}
- <ffffffff801f42a0>{ext2_get_block+0} Jun 30 15:56:55 valium kernel:
- <ffffffff8019dc49>{__getblk+57}
- <ffffffff801ca2fa>{__writeback_single_inode+874} Jun 30 15:56:55 valium
- kernel:        <ffffffff801cb18c>{sync_sb_inodes+508}
- <ffffffff803a3f38>{__down_failed_trylock+53} Jun 30 15:56:55 valium kernel:
-       <ffffffff801cb861>{writeback_inodes+577}
- <ffffffff801a03cc>{sync_supers+476} Jun 30 15:56:55 valium kernel:
- <ffffffff80172427>{wb_kupdate+167} <ffffffff803a2049>{thread_return+41} Jun
- 30 15:56:55 valium kernel:        <ffffffff801739a8>{pdflush+952}
- <ffffffff80172380>{wb_kupdate+0} Jun 30 15:56:55 valium kernel:
- <ffffffff801735f0>{pdflush+0} <ffffffff8015921d>{kthread+205} Jun 30
- 15:56:55 valium kernel:        <ffffffff8010f743>{child_rip+8}
- <ffffffff80159260>{keventd_create_kthread+0} Jun 30 15:56:55 valium kernel:
-       <ffffffff80159150>{kthread+0} <ffffffff8010f73b>{child_rip+0} Jun 30
- 15:56:55 valium kernel:
-Jun 30 15:56:55 valium kernel:
-Jun 30 15:56:55 valium kernel: Code: 0f 0b f3 6b 3d 80 ff ff ff ff 92 0a 48
- 83 7d 38 00 75 13 0f Jun 30 15:56:55 valium kernel: RIP
- <ffffffff8019b4ea>{submit_bh+58} RSP <ffff81007fdbba28> Jun 30 15:56:55
- valium kernel:  <2>EXT2-fs error (device hdb): read_block_bitmap: Cannot
- read block bitmap - block_group = 5, block_bitmap = 164115 Jun 30 15:56:55
- valium kernel: attempt to access beyond end of device Jun 30 15:56:55 valium
- kernel: hdb: rw=0, want=1312928, limit=1279588 Jun 30 15:57:01 valium
- kernel: EXT2-fs error (device hdb): read_block_bitmap: Cannot read block
- bitmap - block_group = 5, block_bitmap = 164115 Jun 30 15:57:01 valium
- kernel: attempt to access beyond end of device Jun 30 15:57:01 valium
- kernel: hdb: rw=0, want=1312928, limit=1279588 Jun 30 15:57:01 valium
- kernel: hdb: packet command error: status=0x51 { DriveReady SeekComplete
- Error } Jun 30 15:57:01 valium kernel: hdb: packet command error: error=0x54
- { AbortedCommand LastFailedSense=0x05 } Jun 30 15:57:01 valium kernel: ide:
- failed opcode was: unknown
-Jun 30 15:57:01 valium kernel: ATAPI device hdb:
-Jun 30 15:57:01 valium kernel:   Error: Illegal request -- (Sense key=0x05)
-Jun 30 15:57:01 valium kernel:   Cannot read medium - incompatible format --
- (asc=0x30, ascq=0x02) Jun 30 15:57:01 valium kernel:   The failed "Read
- Subchannel" packet command was: Jun 30 15:57:01 valium kernel:   "42 02 40
- 01 00 00 00 00 10 00 00 00 00 00 00 00 " Jun 30 15:57:01 valium kernel:
- EXT2-fs error (device hdb): read_block_bitmap: Cannot read block bitmap -
- block_group = 5, block_bitmap = 164115 Jun 30 15:57:01 valium kernel:
- attempt to access beyond end of device Jun 30 15:57:01 valium kernel: hdb:
- rw=0, want=1312928, limit=1279588 Jun 30 15:57:01 valium kernel: EXT2-fs
- error (device hdb): read_block_bitmap: Cannot read block bitmap -
- block_group = 5, block_bitmap = 164115 Jun 30 15:57:01 valium kernel:
- attempt to access beyond end of device Jun 30 15:57:01 valium kernel: hdb:
- rw=0, want=1312928, limit=1279588 Jun 30 15:57:01 valium kernel: EXT2-fs
- error (device hdb): read_block_bitmap: Cannot read block bitmap -
- block_group = 5, block_bitmap = 164115 Jun 30 15:57:01 valium kernel:
- attempt to access beyond end of device Jun 30 15:57:01 valium kernel: hdb:
- rw=0, want=1312928, limit=1279588 Jun 30 15:57:01 valium kernel: EXT2-fs
- error (device hdb): read_block_bitmap: Cannot read block bitmap -
- block_group = 5, block_bitmap = 164115 Jun 30 15:57:01 valium kernel:
- attempt to access beyond end of device Jun 30 15:57:01 valium kernel: hdb:
- rw=0, want=1312928, limit=1279588 Jun 30 15:57:01 valium kernel: EXT2-fs
- error (device hdb): read_block_bitmap: Cannot read block bitmap -
- block_group = 5, block_bitmap = 164115 Jun 30 15:57:02 valium kernel:
- attempt to access beyond end of device Jun 30 15:57:02 valium kernel: hdb:
- rw=0, want=1312928, limit=1279588 Jun 30 15:57:02 valium kernel: EXT2-fs
- error (device hdb): read_block_bitmap: Cannot read block bitmap -
- block_group = 5, block_bitmap = 164115 ...
-
-** then (get this a few times)
-Jun 30 15:57:02 valium kernel: attempt to access beyond end of device
-Jun 30 15:57:02 valium kernel: hdb: rw=0, want=1312928, limit=1279588
-Jun 30 15:57:02 valium kernel: EXT2-fs error (device hdb): read_block_bitmap:
- Cannot read block bitmap - block_group = 5, block_bitmap = 164115 Jun 30
- 15:57:02 valium kernel: attempt to access beyond end of device Jun 30
- 15:57:02 valium kernel: hdb: rw=0, want=1312928, limit=1279588 Jun 30
- 15:57:02 valium kernel: EXT2-fs error (device hdb): read_block_bitmap:
- Cannot read block bitmap - block_group = 5, block_bitmap = 164115 Jun 30
- 15:57:02 valium kernel: hdb: packet command error: status=0x51 { DriveReady
- SeekComplete Error } Jun 30 15:57:02 valium kernel: hdb: packet command
- error: error=0x54 { AbortedCommand LastFailedSense=0x05 } Jun 30 15:57:02
- valium kernel: ide: failed opcode was: unknown
-Jun 30 15:57:02 valium kernel: ATAPI device hdb:
-Jun 30 15:57:02 valium kernel:   Error: Illegal request -- (Sense key=0x05)
-Jun 30 15:57:02 valium kernel:   Cannot read medium - incompatible format --
- (asc=0x30, ascq=0x02) Jun 30 15:57:02 valium kernel:   The failed "Read
- Subchannel" packet command was: Jun 30 15:57:02 valium kernel:   "42 02 40
- 01 00 00 00 00 10 00 00 00 00 00 00 00 " Jun 30 15:57:02 valium kernel:
- attempt to access beyond end of device Jun 30 15:57:02 valium kernel: hdb:
- rw=0, want=1312928, limit=1279588 Jun 30 15:57:02 valium kernel: EXT2-fs
- error (device hdb): read_block_bitmap: Cannot read block bitmap -
- block_group = 5, block_bitmap = 164115 Jun 30 15:57:02 valium kernel:
- attempt to access beyond end of device Jun 30 15:57:02 valium kernel: hdb:
- rw=0, want=1312928, limit=1279588 Jun 30 15:57:02 valium kernel: EXT2-fs
- error (device hdb): read_block_bitmap: Cannot read block bitmap -
- block_group = 5, block_bitmap = 164115 Jun 30 15:57:02 valium kernel:
- attempt to access beyond end of device Jun 30 15:57:02 valium kernel: hdb:
- rw=0, want=1312928, limit=1279588 ...
-** then
+Sven
 
 
 
-Jun 30 15:57:10 valium kernel: attempt to access beyond end of device
-Jun 30 15:57:10 valium kernel: hdb: rw=0, want=1312928, limit=1279588
-Jun 30 15:57:10 valium kernel: EXT2-fs error (device hdb): read_block_bitmap:
- Cannot read block bitmap - block_group = 5, block_bitmap = 164115 Jun 30
- 15:57:10 valium kernel: attempt to access beyond end of device Jun 30
- 15:57:10 valium kernel: hdb: rw=0, want=1312928, limit=1279588 Jun 30
- 15:57:10 valium kernel: EXT2-fs error (device hdb): read_block_bitmap:
- Cannot read block bitmap - block_group = 5, block_bitmap = 164115 Jun 30
- 15:57:10 valium kernel: attempt to access beyond end of device Jun 30
- 15:57:10 valium kernel: hdb: rw=0, want=1312928, limit=1279588 Jun 30
- 15:57:10 valium kernel: EXT2-fs error (device hdb): read_block_bitmap:
- Cannot read block bitmap - block_group = 5, block_bitmap = 164115 Jun 30
- 15:57:10 valium kernel: attempt to access beyond end of device Jun 30
- 15:57:10 valium kernel: hdb: rw=0, want=1312928, limit=1279588 Jun 30
- 15:57:10 valium kernel: EXT2-fs error (device hdb): read_block_bitmap:
- Cannot read block bitmap - block_group = 5, block_bitmap = 164115 Jun 30
- 15:57:10 valium kernel: attempt to access beyond end of device Jun 30
- 15:57:10 valium kernel: hdb: rw=0, want=1312928, limit=1279588 Jun 30
- 15:57:10 valium kernel: EXT2-fs error (device hdb): read_block_bitmap:
- Cannot read block bitmap - block_group = 5, block_bitmap = 164115 Jun 30
- 15:57:10 valium kernel: hdb: packet command error: status=0x51 { DriveReady
- SeekComplete Error } Jun 30 15:57:10 valium kernel: hdb: packet command
- error: error=0x54 { AbortedCommand LastFailedSense=0x05 } Jun 30 15:57:10
- valium kernel: ide: failed opcode was: unknown
-Jun 30 15:57:10 valium kernel: ATAPI device hdb:
-Jun 30 15:57:10 valium kernel:   Error: Illegal request -- (Sense key=0x05)
-Jun 30 15:57:10 valium kernel:   Cannot read medium - incompatible format --
- (asc=0x30, ascq=0x02) Jun 30 15:57:10 valium kernel:   The failed "Read
- Subchannel" packet command was: Jun 30 15:57:10 valium kernel:   "42 02 40
- 01 00 00 00 00 10 00 00 00 00 00 00 00 " Jun 30 15:57:11 valium kernel: hdb:
- packet command error: status=0x51 { DriveReady SeekComplete Error } Jun 30
- 15:57:11 valium kernel: hdb: packet command error: error=0x54 {
- AbortedCommand LastFailedSense=0x05 } Jun 30 15:57:11 valium kernel: ide:
- failed opcode was: unknown
-Jun 30 15:57:11 valium kernel: ATAPI device hdb:
-Jun 30 15:57:11 valium kernel:   Error: Illegal request -- (Sense key=0x05)
-Jun 30 15:57:11 valium kernel:   Cannot read medium - incompatible format --
- (asc=0x30, ascq=0x02) Jun 30 15:57:11 valium kernel:   The failed "Read
- Subchannel" packet command was: Jun 30 15:57:11 valium kernel:   "42 02 40
- 01 00 00 00 00 10 00 00 00 00 00 00 00 " Jun 30 15:57:12 valium kernel: hdb:
- packet command error: status=0x51 { DriveReady SeekComplete Error } Jun 30
- 15:57:12 valium kernel: hdb: packet command error: error=0x54 {
- AbortedCommand LastFailedSense=0x05 } ** This continues for ever...
 
--------------------------------------------------------
-
--------------------------------------------------------

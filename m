@@ -1,54 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262800AbVF3DNq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262801AbVF3D3t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262800AbVF3DNq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 23:13:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262801AbVF3DNq
+	id S262801AbVF3D3t (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 23:29:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262802AbVF3D3Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 23:13:46 -0400
-Received: from mailwasher.lanl.gov ([192.65.95.54]:47198 "EHLO
-	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
-	id S262800AbVF3DNo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 23:13:44 -0400
-Date: Wed, 29 Jun 2005 21:13:38 -0600 (MDT)
-From: "Ronald G. Minnich" <rminnich@lanl.gov>
-To: Greg KH <greg@kroah.com>
-cc: Roland Dreier <rolandd@cisco.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [openib-general] Re: [PATCH 05/16] IB uverbs: core implementation
-In-Reply-To: <20050629002709.GB17805@kroah.com>
-Message-ID: <Pine.LNX.4.58.0506292112380.15717@enigma.lanl.gov>
-References: <2005628163.lUk0bfpO8VsSXUh5@cisco.com> <2005628163.jfSiMqRcI78iLMJP@cisco.com>
- <20050629002709.GB17805@kroah.com>
+	Wed, 29 Jun 2005 23:29:25 -0400
+Received: from natsmtp00.rzone.de ([81.169.145.165]:63629 "EHLO
+	natsmtp00.rzone.de") by vger.kernel.org with ESMTP id S262801AbVF3D3T
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 23:29:19 -0400
+Message-ID: <42C36711.6020306@man-made.de>
+Date: Thu, 30 Jun 2005 05:29:21 +0200
+From: Frank Schruefer <kernel@man-made.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040906
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-PMX-Version: 4.7.0.111621
+To: linux-kernel@vger.kernel.org
+Subject: PROBLEM: No dentry alias for page host in writepage.
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hy,
 
+There is some rare case which hits me aprox. once in a million writepage calls
+where for the page handed over there can not be get a connected dentry of its
+inode host (via i_dentry).
 
-On Tue, 28 Jun 2005, Greg KH wrote:
+Unluckily I'm absolutely depending on at least one alias at that point and I'm
+not able to implement the export filesystem functions because for implementing
+the get_name etc... functions I'd already need the dentry to contain the valid
+name. Hence reconnecting is out of the question.
 
-> On Tue, Jun 28, 2005 at 04:03:43PM -0700, Roland Dreier wrote:
-> > +++ linux/drivers/infiniband/core/uverbs_main.c	2005-06-28 15:20:04.363963991 -0700
-> > @@ -0,0 +1,708 @@
-> > +/*
-> > + * Copyright (c) 2005 Topspin Communications.  All rights reserved.
-> > + * Copyright (c) 2005 Cisco Systems.  All rights reserved.
-> > + *
-> > + * This software is available to you under a choice of one of two
-> > + * licenses.  You may choose to be licensed under the terms of the GNU
-> > + * General Public License (GPL) Version 2, available from the file
-> > + * COPYING in the main directory of this source tree, or the
-> > + * OpenIB.org BSD license below:
-> 
-> Ok, I've complained about this before, but due to the fact that you are
-> calling EXPORT_SYMBOL_GPL() only functions in this code, the ability for
-> it for someone to use the BSD license on it in the future, is pretty
-> much impossible, right?
+It seems not to be possible to circumvent that situation by just making the
+d_delete dentry operations function returning 0 if the inode is dirty or has
+dirty pages (mapping_tagged ... PAGECACHE_TAG_DIRTY).
 
-This does seem odd. If the goal is kernel inclusion, and the kernel is 
-GPL, seems like this license boilerplate should now change. It makes no 
-real sense otherwise, as far as I can tell.
+I programmed a really ugly workaround dget'ing an alias as soon as I dirty an
+inode and dput it as soon as the last page is writepage'd - that works for now -
+but I really hate it and it seems to be memory leak prone (why I'd still have
+to find out) and having possible side effects with rename and unlink ...
 
-ron
+My question is why are the dentries/aliases dropped/disconnected if the inode is
+still dirty or it's pages are under writeout and why am I not asked via d_delete
+or have any other option to deny dropping/disconnecting the dentry/aliases?
+Is this a bug?
+What could I do?
+
+Until now I just have that ugly workaround - please make my day, someone, please ;-)
+
+-- 
+
+Thanks,
+    Frank Schruefer
+    SITEFORUM Software Europe GmbH
+    Germany (Thuringia)
+

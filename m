@@ -1,276 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262999AbVF3QAY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262989AbVF3QB0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262999AbVF3QAY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 12:00:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262994AbVF3P7d
+	id S262989AbVF3QB0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 12:01:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262983AbVF3QBI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 11:59:33 -0400
-Received: from ausc60ps301.us.dell.com ([143.166.148.206]:21155 "EHLO
-	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
-	id S262983AbVF3P4o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 11:56:44 -0400
-X-IronPort-AV: i="3.94,154,1118034000"; 
-   d="scan'208"; a="260663539:sNHT1152848414"
-Date: Thu, 30 Jun 2005 15:55:01 -0500
-From: Abhay Salunke <Abhay_Salunke@dell.com>
-To: linux-kernel@vger.kernel.org, abhay_salunke@dell.com
-Cc: greg@kroah.com
-Subject: [RFC][patch 2.6.12-rc3] modified firmware_class.c to add a new function request_firmware_nowait_nohotplug
-Message-ID: <20050630205501.GA3588@abhays.us.dell.com>
-Mime-Version: 1.0
+	Thu, 30 Jun 2005 12:01:08 -0400
+Received: from services106.cs.uwaterloo.ca ([129.97.152.164]:35520 "EHLO
+	services106.cs.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S262989AbVF3P5u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Jun 2005 11:57:50 -0400
+X-Mailer: emacs 21.4.1 (via feedmail 8 I)
+To: Hans Reiser <reiser@namesys.com>
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Kyle Moffett <mrmacman_g4@mac.com>, David Masover <ninja@slaphack.com>,
+       Valdis.Kletnieks@vt.edu, Lincoln Dale <ltd@cisco.com>,
+       Gregory Maxwell <gmaxwell@gmail.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: reiser4 plugins
+From: Hubert Chan <hubert@uhoreg.ca>
+In-Reply-To: <20050630062956.GP16867@khan.acc.umu.se> (David Weinehall's
+ message of "Thu, 30 Jun 2005 08:29:56 +0200")
+References: <hubert@uhoreg.ca>
+	<200506290509.j5T595I6010576@laptop11.inf.utfsm.cl>
+	<87hdfgvqvl.fsf@evinrude.uhoreg.ca>
+	<8783be6605062914341bcff7cb@mail.gmail.com>
+	<42C3615A.9020600@namesys.com> <871x6kv4zd.fsf@evinrude.uhoreg.ca>
+	<20050630062956.GP16867@khan.acc.umu.se>
+X-Hashcash: 1:23:050630:reiser@namesys.com::1+U1CkHnXsRGc4T/:00000000000000000000000000000000000000000009aLv
+X-Hashcash: 1:23:050630:vonbrand@inf.utfsm.cl::0sgkgtLwyjiPlZzr:0000000000000000000000000000000000000000108U
+X-Hashcash: 1:23:050630:mrmacman_g4@mac.com::pJMb/UX11KozJ3MC:000000000000000000000000000000000000000000byby
+X-Hashcash: 1:23:050630:ninja@slaphack.com::WLQ0+ERu/4sSWEQr:00000000000000000000000000000000000000000012Sb/
+X-Hashcash: 1:23:050630:valdis.kletnieks@vt.edu::SiYXr3ftb/7McHnX:00000000000000000000000000000000000000NA0P
+X-Hashcash: 1:23:050630:ltd@cisco.com::J+8HfNCEMz+pwhBr:0000EeJI
+X-Hashcash: 1:23:050630:gmaxwell@gmail.com::0L/eXUAiuP3t1PdO:00000000000000000000000000000000000000000003sEs
+X-Hashcash: 1:23:050630:jgarzik@pobox.com::dIdJupMAoAxuDGkj:00000000000000000000000000000000000000000000U/TW
+X-Hashcash: 1:23:050630:hch@infradead.org::RVWt+1PzAcD3qoPj:0000000000000000000000000000000000000000000021mv
+X-Hashcash: 1:23:050630:akpm@osdl.org::e1Shon5f+s01/Qjm:0000TVGO
+X-Hashcash: 1:23:050630:linux-kernel@vger.kernel.org::kaWUYjzAv+POM8yR:0000000000000000000000000000000017xxC
+X-Hashcash: 1:23:050630:reiserfs-list@namesys.com::dEQAogopwLUh23S4:000000000000000000000000000000000000KrIj
+Date: Thu, 30 Jun 2005 11:57:27 -0400
+Message-ID: <87psu3vnvc.fsf@evinrude.uhoreg.ca>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-Miltered: at rhadamanthus with ID 42C416AD.002 by Joe's j-chkmail (http://j-chkmail.ensmp.fr)!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry for having wrong subject line in earlier email of this patch. 
-resending it with correct subject line...
+On Thu, 30 Jun 2005 08:29:56 +0200, David Weinehall <tao@acc.umu.se> said:
 
-This is a patch which add a new function request_firmware_nowait_nohotplug in firmware_calss.c 
-This function is exported and used by dell_rbu driver. It makes the file entries created by request_firmware
-to be agnostic to any hotplug or timeout events.
+> On Thu, Jun 30, 2005 at 12:33:10AM -0400, Hubert Chan wrote:
+>> It's sort of like the way web servers handle index.html, for those
+>> who think it's a stupid idea.  (Of course, some people may still
+>> think it's a stupid idea... ;-) )
 
-Signed-off-by: Abhay Salunke <Abhay_Salunke@dell.com>
+> And guess what?  That's handled on the web server level (userland),
+> not by the file system.  So different web servers can handle it
+> differently (think index.html.sv, index.html.zh, index.php, etc).
 
-Thanks
-Abhay
-diff -uprN linux-2.6.11.11.orig/drivers/base/firmware_class.c linux-2.6.11.11.new/drivers/base/firmware_class.c
---- linux-2.6.11.11.orig/drivers/base/firmware_class.c	2005-06-17 22:02:47.000000000 -0500
-+++ linux-2.6.11.11.new/drivers/base/firmware_class.c	2005-06-22 00:16:06.000000000 -0500
-@@ -28,6 +28,7 @@ enum {
- 	FW_STATUS_DONE,
- 	FW_STATUS_ABORT,
- 	FW_STATUS_READY,
-+	FW_STATUS_READY_NOHOTPLUG,
- };
- 
- static int loading_timeout = 10;	/* In seconds */
-@@ -334,7 +335,7 @@ error_kfree:
- 
- static int
- fw_setup_class_device(struct firmware *fw, struct class_device **class_dev_p,
--		      const char *fw_name, struct device *device)
-+		      const char *fw_name, struct device *device, int hotplug)
- {
- 	struct class_device *class_dev;
- 	struct firmware_priv *fw_priv;
-@@ -365,8 +366,11 @@ fw_setup_class_device(struct firmware *f
- 		       __FUNCTION__);
- 		goto error_unreg;
- 	}
--
--	set_bit(FW_STATUS_READY, &fw_priv->status);
-+	
-+	if (hotplug)
-+		set_bit(FW_STATUS_READY, &fw_priv->status);
-+	else
-+		set_bit(FW_STATUS_READY_NOHOTPLUG, &fw_priv->status);
- 	*class_dev_p = class_dev;
- 	goto out;
- 
-@@ -376,21 +380,9 @@ out:
- 	return retval;
- }
- 
--/**
-- * request_firmware: - request firmware to hotplug and wait for it
-- * Description:
-- *	@firmware will be used to return a firmware image by the name
-- *	of @name for device @device.
-- *
-- *	Should be called from user context where sleeping is allowed.
-- *
-- *	@name will be use as $FIRMWARE in the hotplug environment and
-- *	should be distinctive enough not to be confused with any other
-- *	firmware image for this or any other device.
-- **/
--int
--request_firmware(const struct firmware **firmware_p, const char *name,
--		 struct device *device)
-+static int
-+_request_firmware(const struct firmware **firmware_p, const char *name,
-+		 struct device *device, int hotplug)
- {
- 	struct class_device *class_dev;
- 	struct firmware_priv *fw_priv;
-@@ -409,22 +401,25 @@ request_firmware(const struct firmware *
- 	}
- 	memset(firmware, 0, sizeof (*firmware));
- 
--	retval = fw_setup_class_device(firmware, &class_dev, name, device);
-+	retval = fw_setup_class_device(firmware, &class_dev, name, device, 
-+		hotplug);
- 	if (retval)
- 		goto error_kfree_fw;
- 
- 	fw_priv = class_get_devdata(class_dev);
-+	
-+	if (hotplug) {
-+		if (loading_timeout) {
-+			fw_priv->timeout.expires = jiffies + loading_timeout * HZ;
-+			add_timer(&fw_priv->timeout);
-+		}
- 
--	if (loading_timeout) {
--		fw_priv->timeout.expires = jiffies + loading_timeout * HZ;
--		add_timer(&fw_priv->timeout);
--	}
--
--	kobject_hotplug(&class_dev->kobj, KOBJ_ADD);
--	wait_for_completion(&fw_priv->completion);
--	set_bit(FW_STATUS_DONE, &fw_priv->status);
--
--	del_timer_sync(&fw_priv->timeout);
-+		kobject_hotplug(&class_dev->kobj, KOBJ_ADD);
-+		wait_for_completion(&fw_priv->completion);
-+		set_bit(FW_STATUS_DONE, &fw_priv->status);
-+		del_timer_sync(&fw_priv->timeout);
-+	} else
-+		wait_for_completion(&fw_priv->completion);
- 
- 	down(&fw_lock);
- 	if (!fw_priv->fw->size || test_bit(FW_STATUS_ABORT, &fw_priv->status)) {
-@@ -445,6 +440,26 @@ out:
- }
- 
- /**
-+ * request_firmware: - request firmware to hotplug and wait for it
-+ * Description:
-+ *      @firmware will be used to return a firmware image by the name
-+ *      of @name for device @device.
-+ *
-+ *      Should be called from user context where sleeping is allowed.
-+ *
-+ *      @name will be use as $FIRMWARE in the hotplug environment and
-+ *      should be distinctive enough not to be confused with any other
-+ *      firmware image for this or any other device.
-+ **/
-+int
-+request_firmware(const struct firmware **firmware_p, const char *name,
-+                 struct device *device)
-+{
-+	int hotplug = 1;
-+	return _request_firmware(firmware_p, name, device, hotplug);	
-+}
-+
-+/**
-  * release_firmware: - release the resource associated with a firmware image
-  **/
- void
-@@ -481,6 +496,7 @@ struct firmware_work {
- 	struct device *device;
- 	void *context;
- 	void (*cont)(const struct firmware *fw, void *context);
-+	int hotplug;
- };
- 
- static int
-@@ -493,7 +509,8 @@ request_firmware_work_func(void *arg)
- 		return 0;
- 	}
- 	daemonize("%s/%s", "firmware", fw_work->name);
--	request_firmware(&fw, fw_work->name, fw_work->device);
-+	_request_firmware(&fw, fw_work->name, fw_work->device, 
-+		fw_work->hotplug);
- 	fw_work->cont(fw, fw_work->context);
- 	release_firmware(fw);
- 	module_put(fw_work->module);
-@@ -501,23 +518,9 @@ request_firmware_work_func(void *arg)
- 	return 0;
- }
- 
--/**
-- * request_firmware_nowait:
-- *
-- * Description:
-- *	Asynchronous variant of request_firmware() for contexts where
-- *	it is not possible to sleep.
-- *
-- *	@cont will be called asynchronously when the firmware request is over.
-- *
-- *	@context will be passed over to @cont.
-- *
-- *	@fw may be %NULL if firmware request fails.
-- *
-- **/
--int
--request_firmware_nowait(
--	struct module *module,
-+static int
-+_request_firmware_nowait(
-+	struct module *module, int hotplug,
- 	const char *name, struct device *device, void *context,
- 	void (*cont)(const struct firmware *fw, void *context))
- {
-@@ -538,6 +541,7 @@ request_firmware_nowait(
- 		.device = device,
- 		.context = context,
- 		.cont = cont,
-+		.hotplug = hotplug,
- 	};
- 
- 	ret = kernel_thread(request_firmware_work_func, fw_work,
-@@ -550,6 +554,56 @@ request_firmware_nowait(
- 	return 0;
- }
- 
-+/**
-+ * request_firmware_nowait:
-+ *
-+ * Description:
-+ *      Asynchronous variant of request_firmware() for contexts where
-+ *      it is not possible to sleep.
-+ *
-+ *      @cont will be called asynchronously when the firmware request is over.
-+ *
-+ *      @context will be passed over to @cont.
-+ *
-+ *      @fw may be %NULL if firmware request fails.
-+ *
-+ **/
-+int
-+request_firmware_nowait(
-+        struct module *module,
-+        const char *name, struct device *device, void *context,
-+        void (*cont)(const struct firmware *fw, void *context))
-+{
-+	int hotplug = 1;
-+	return _request_firmware_nowait(module, hotplug, name, device,
-+		context, cont);	
-+}
-+
-+/**
-+ * request_firmware_nowait_nohotplug:
-+ *
-+ * Description:
-+ *      Similar to request_firmware_nowait except it does not use 
-+ * 	hotplug.
-+ *
-+ *      @cont will be called asynchronously when the firmware request is over.
-+ *
-+ *      @context will be passed over to @cont.
-+ *
-+ *      @fw may be %NULL if firmware request fails.
-+ *
-+ **/
-+int
-+request_firmware_nowait_nohotplug(
-+        struct module *module,
-+        const char *name, struct device *device, void *context,
-+        void (*cont)(const struct firmware *fw, void *context))
-+{
-+        int hotplug = 0;
-+        return _request_firmware_nowait(module, hotplug, name, device,
-+                context, cont);
-+}
-+
- static int __init
- firmware_class_init(void)
- {
-@@ -580,4 +634,5 @@ module_exit(firmware_class_exit);
- EXPORT_SYMBOL(release_firmware);
- EXPORT_SYMBOL(request_firmware);
- EXPORT_SYMBOL(request_firmware_nowait);
-+EXPORT_SYMBOL(request_firmware_nowait_nohotplug);
- EXPORT_SYMBOL(register_firmware);
+>From the web *browser*'s point of view, it is handled by the
+"filesystem" (which is provided by the various servers).  The browser
+doesn't care how or where the data is stored.  It just requests a file,
+and gets some data back.  So the browser doesn't have to check for
+http://www.example.com/, get a failure (trying to read a directory),
+check for http://www.example.com/index.html, etc.  In this way, the web
+server controls (which I think takes the place of the filesystem in this
+case) what gets shown (index.html.sv, etc.), instead of the leaving it
+up to the browser.
+
+In the same way, you don't want every single user program to have to
+guess whether it should look at .data, or .contents, or whatever.
+
+-- 
+Hubert Chan <hubert@uhoreg.ca> - http://www.uhoreg.ca/
+PGP/GnuPG key: 1024D/124B61FA
+Fingerprint: 96C5 012F 5F74 A5F7 1FF7  5291 AF29 C719 124B 61FA
+Key available at wwwkeys.pgp.net.   Encrypted e-mail preferred.
+

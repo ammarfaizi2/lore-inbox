@@ -1,60 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262864AbVF3GCo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262861AbVF3GC7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262864AbVF3GCo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 02:02:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262862AbVF3GCn
+	id S262861AbVF3GC7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 02:02:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262858AbVF3GC7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 02:02:43 -0400
-Received: from mail.kroah.org ([69.55.234.183]:38283 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262858AbVF3GCR (ORCPT
+	Thu, 30 Jun 2005 02:02:59 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:28394 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S262861AbVF3GCh convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 02:02:17 -0400
-Date: Wed, 29 Jun 2005 23:02:06 -0700
-From: Greg KH <gregkh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [GIT PATCH] Driver core patches for 2.6.13-rc1
-Message-ID: <20050630060206.GA23321@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.8i
+	Thu, 30 Jun 2005 02:02:37 -0400
+Date: Thu, 30 Jun 2005 02:02:06 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@localhost.localdomain
+Reply-To: rostedt@goodmis.org
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Arjan van de Ven <arjan@infradead.org>, Denis Vlasenko <vda@ilport.com.ua>,
+       Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: kmalloc without GFP_xxx?
+In-Reply-To: <1120093373.31924.39.camel@gaston>
+Message-ID: <Pine.LNX.4.58.0506300158100.14989@localhost.localdomain>
+References: <200506291402.18064.vda@ilport.com.ua> 
+ <1120043739.3196.32.camel@laptopd505.fenrus.org>  <200506291420.09956.vda@ilport.com.ua>
+  <1120045024.3196.34.camel@laptopd505.fenrus.org> 
+ <Pine.LNX.4.58.0506290927370.22775@localhost.localdomain>
+ <1120093373.31924.39.camel@gaston>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are some small patches for the driver core.  They fix a bug that
-has caused some people to see deadlocks when some drivers are unloaded
-(like ieee1394), and add the ability to bind and unbind drivers from
-devices from userspace (something that people have been asking for for a
-long time.)
 
-Please pull from:
-	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-2.6.git/
-or if master.kernel.org hasn't synced up yet:
-	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/driver-2.6.git/
 
-thanks,
+On Thu, 30 Jun 2005, Benjamin Herrenschmidt wrote:
 
-greg k-h
+>
+> There are cases where using spin_lock instead of _irqsave version is a
+> matter of correctness. For example, the page table lock beeing always
+> taking without _irq is important to let the IPIs flow.
+>
 
- drivers/base/base.h    |    1 
- drivers/base/bus.c     |  117 +++++++++++++++++++++++++++++++++++++++++--------
- drivers/base/core.c    |    2 
- drivers/base/dd.c      |    2 
- drivers/base/driver.c  |   35 ++++++++++++++
- include/linux/device.h |    7 ++
- 6 files changed, 143 insertions(+), 21 deletions(-)
+There's always exceptions! ;-)
 
---------------------
+As Jörn mentioned, you don't just use spin_lock_irqsave just to keep from
+thinking, which I totally agree, but most of the time I use spin_locks, it
+is better to not let interrupts flow, and for this reason, I try to keep
+the places that use spin_locks as short as possible, since I don't want
+100ms latencies.
 
-Cornelia Huck:
-  driver core: add bus_find_device & driver_find_device functions
-
-Greg Kroah-Hartman:
-  driver core: Add the ability to bind drivers to devices from userspace
-  driver core: change bus_rescan_devices to return void
-  driver core: Add the ability to unbind drivers to devices from userspace
-
-Patrick Mochel:
-  Driver core: Use klist_del() instead of klist_remove().
+-- Steve
 

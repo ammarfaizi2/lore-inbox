@@ -1,76 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262740AbVF3PBh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262834AbVF3P23@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262740AbVF3PBh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 11:01:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262750AbVF3PBh
+	id S262834AbVF3P23 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 11:28:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262849AbVF3P23
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 11:01:37 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:27141 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S262740AbVF3PBe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 11:01:34 -0400
-Message-ID: <42C408ED.5030306@tmr.com>
-Date: Thu, 30 Jun 2005 10:59:57 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050319
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Bill Huey (hui)" <bhuey@lnxw.com>
-CC: Kristian Benoit <kbenoit@opersys.com>, linux-kernel@vger.kernel.org,
-       andrea@suse.de, tglx@linutronix.de, karim@opersys.com, mingo@elte.hu,
-       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
-       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, rpm@xenomai.org
-Subject: Re: PREEMPT_RT and I-PIPE: the numbers, take 3
-References: <42C320C4.9000302@opersys.com> <20050629225734.GA23793@nietzsche.lynx.com> <20050629235422.GI1299@us.ibm.com> <20050630015041.GA24234@nietzsche.lynx.com>
-In-Reply-To: <20050630015041.GA24234@nietzsche.lynx.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 30 Jun 2005 11:28:29 -0400
+Received: from nysv.org ([213.157.66.145]:27305 "EHLO nysv.org")
+	by vger.kernel.org with ESMTP id S262834AbVF3P2T (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Jun 2005 11:28:19 -0400
+Date: Thu, 30 Jun 2005 18:27:55 +0300
+To: Christopher Warner <chris@servertogo.com>, shevek@bur.st,
+       linux-kernel@vger.kernel.org
+Subject: Re: reiser4 vs politics: linux misses out again
+Message-ID: <20050630152755.GT11013@nysv.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="vk2EvGhio7iZz8DU"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
+From: mjt@nysv.org (Markus  =?ISO-8859-1?Q?=20T=F6rnqvist?=)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Huey (hui) wrote:
-> On Wed, Jun 29, 2005 at 04:54:22PM -0700, Paul E. McKenney wrote:
-> 
->>If you were suggesting this to be run on an SMP system, I would agree
->>with you.  I, too, would very much like to see these results run on a
->>2-CPU or 4-CPU system, although I am most certainly -not- asking Kristian
->>and Karim to do this work -- it is very much someone else's turn in the
->>barrel, I would say!
-> 
-> 
-> No, I'm suggesting that you and other folks understand the basic ideas
-> behind this patch and stop asking unbelievably stupid questions. This has
-> been covered over and over again, and I shouldn't have to repeat these
-> positions constantly because folks have both a language comprehension
-> problem and inability to bug off appropriately.
 
-The reasons you have to repeat yourself are (a) you lack communications 
-skills and expect people to read past your insults, (b) you're just 
-technically wrong in some cases, such as saying that the results would 
-be different if the kernel were compiled in an unrealistic way.
-> 
-> 
->>However, on a UP system, I have to agree with Kristian's choice of
->>configuration.  An embedded system developer running on a UP system would
->>naturally use a UP Linux kernel build, so it makes sense to benchmark
->>a UP kernel on a UP system.
-> 
-> 
-> Dual cores are going to be standard in the next few years so RTOSs should
-> anticipate these things coming down the pipeline.
+--vk2EvGhio7iZz8DU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-s/standard/common/
+Christopher Warner wrote:
 
-I doubt that single core CPUs are going to vanish, there are too many 
-power critical (heat critical) embedded applications. In many the 
-response time is important but the total CPU capability isn't an issue 
-while battery life or fanless operation is.
+>Sweeping change is nice, incremental change is much more sweeter. The
 
-Your point that SMP operation is important is true, but I see no reason 
-to think Ingo has missed that.
+Incremental change which should nonetheless lead to something much
+more than what we have now, as sweetly as possible.
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+>problem is that the "filesystem" in and of itself is where data is kept.
+>In most cases people who run commercial businesses aren't going to
+>change their filesystem type unless their is a clear advantage.
+
+And no one's asking them to.
+
+>Therefore, you're argument negates real world. Your argument should be
+>more about structure and a seamless migration path.
+
+Yeah, boot the new kernel and it's there ;)
+Oh and upgrade the userland tools if you want to use the extensions,
+but certainly it has to be backward-compatible as well.
+
+In this case people won't have to mkfs their enterprise servers.
+
+>The argument isn't about technical merit.
+
+No, it's about where Linux is going and where some people feel
+it should go, and about discussing if it's a good idea to do
+something a little different than everyone else, or most of
+them, to get the best system out there shipped out.
+
+Which I think is a no-brainer, who doesn't want Linux to be best ;)
+
+The Mac/MS situation is of course a real threat, but Linux
+does have the potential to be so much more.
+
+Oh, and it's not just the VFS. What if someone gets a killer
+idea for some other minor revolution inside the code that's
+difficult to implement and may be un-unixy and more plan9y?
+
+The argument is, therefore, mostly politics.
+
+And on how to accomplish this:
+
+The clearest idea is to fork off 2.7, or whatever, and extend
+the VFS, and whatever, there and make sure it works before 2.8 is out.
+Or figure out how to do this with -mm.
+
+It just has to be very difficult with -mm, whose apparent intention
+is to serve as proving ground for backportable patches, not
+really major overhauls.
+
+Socially a new, official dev tree would draw the most attention,=20
+a lot more than an obscure semi- or un-official dev tree.
+
+Furthermore, having a change this size pop up as 2.6.25 from
+an -mm backport seems a bit off...
+
+--=20
+mjt
+
+
+--vk2EvGhio7iZz8DU
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFCxA97IqNMpVm8OhwRAofMAJ4rc1JwpVnNsVVBx0HkE1jQOFh8hACgjpzs
+CJ5p7NJrBLY38hJeAtpIGl0=
+=E4bJ
+-----END PGP SIGNATURE-----
+
+--vk2EvGhio7iZz8DU--

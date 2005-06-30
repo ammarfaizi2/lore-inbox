@@ -1,76 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262703AbVF3A3Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262723AbVF3AaK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262703AbVF3A3Y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 20:29:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262723AbVF3A3Y
+	id S262723AbVF3AaK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 20:30:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262756AbVF3AaJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 20:29:24 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:4258 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262703AbVF3A3R (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 20:29:17 -0400
-Message-ID: <42C33CD8.6080002@engr.sgi.com>
-Date: Wed, 29 Jun 2005 17:29:12 -0700
-From: Jay Lan <jlan@engr.sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040906
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: [patch 2.6.12] Improper initrd failure message at boot time
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------050602050105070309080006"
+	Wed, 29 Jun 2005 20:30:09 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:25506 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262723AbVF3A3k
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 20:29:40 -0400
+Date: Wed, 29 Jun 2005 19:29:36 -0500
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: linux-kernel@vger.kernel.org, long <tlnguyen@snoqualmie.dp.intel.com>,
+       Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
+       Greg KH <greg@kroah.com>, ak@muc.de, Paul Mackerras <paulus@samba.org>,
+       linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, johnrose@us.ibm.com
+Subject: Re: [PATCH 8/13]: PCI Err: Event delivery utility
+Message-ID: <20050630002936.GS28499@austin.ibm.com>
+References: <20050628235932.GA6429@austin.ibm.com> <1120010387.5133.235.camel@gaston> <20050629211435.GN28499@austin.ibm.com> <1120088522.31924.25.camel@gaston>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1120088522.31924.25.camel@gaston>
+User-Agent: Mutt/1.5.6+20040818i
+From: Linas Vepstas <linas@austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050602050105070309080006
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Thu, Jun 30, 2005 at 09:42:01AM +1000, Benjamin Herrenschmidt was heard to remark:
+> On Wed, 2005-06-29 at 16:14 -0500, Linas Vepstas wrote:
+> 
+> > I'm pretty sure this was balanced, there is a get very early on when the
+> > error is detected.  But I'll review.
+> > 
+> > > I'd keep that in arch code for now.
+> > 
+> > OK, I'm moving it there. It did seem both confusing and semi-pointless
+> > after the last round of changes.
+> 
+> Well, it's logical for the get and put to be in the same "layer" don't
+> you think ?
 
-On system boot up, there was an failure reported to boot.msg:
+Yes, it could be made more symmetrical; I'll do that.
 
-     <5>Trying to move old root to /initrd ... failed
+The get happened along with the malloc of the event structure, the put
+happens right before the free of the same structure.  
 
-According to initrd(4) man page, step #7 of BOOT-UP OPERATION
-is described as below:
-          7. If the normal root file has directory /initrd, device
-          /dev/ram0 is moved from  /  to  /initrd.   Otherwise  if
-          directory  /initrd  does  not  exist device /dev/ram0 is
-          unmounted.
+The reason for the event was in order to get the recovery of the error
+out of line from the detection of the error; detection may occur in an
+interrupt context; recovery happens in a work queue.  Thus, get may
+happen in that interrupt context, the put only after the work is
+complete.
 
-We got service calls from customers concerning about this failure
-message at boot time. Many systems do not have /initrd and thus
-the message can be changed in the case of non-existing /initrd
-so that it does not sound like a failure of the system.
+I'll make the code more symmetrical with regards to the event malloc/free
+and that should make it more readable.
 
+--linas
 
-Signed-off-by: Jay Lan <jlan@sgi.com>
-
---------------050602050105070309080006
-Content-Type: text/plain;
- name="handle_initrd-2.6.12"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="handle_initrd-2.6.12"
-
-Index: linux/init/do_mounts_initrd.c
-===================================================================
---- linux.orig/init/do_mounts_initrd.c	2005-06-17 12:48:29.000000000 -0700
-+++ linux/init/do_mounts_initrd.c	2005-06-29 16:48:21.512229871 -0700
-@@ -86,7 +86,10 @@ static void __init handle_initrd(void)
- 		printk("okay\n");
- 	else {
- 		int fd = sys_open("/dev/root.old", O_RDWR, 0);
--		printk("failed\n");
-+		if (error == -ENOENT)
-+			printk("/initrd does not exist. Ignored.\n");
-+		else
-+			printk("failed\n");
- 		printk(KERN_NOTICE "Unmounting old root\n");
- 		sys_umount("/old", MNT_DETACH);
- 		printk(KERN_NOTICE "Trying to free ramdisk memory ... ");
-
---------------050602050105070309080006--

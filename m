@@ -1,108 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262856AbVF3F5E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262857AbVF3F66@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262856AbVF3F5E (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 01:57:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262857AbVF3F5E
+	id S262857AbVF3F66 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 01:58:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262859AbVF3F66
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 01:57:04 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:18589 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262856AbVF3F4j (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 01:56:39 -0400
-Date: Thu, 30 Jun 2005 07:55:35 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Kristian Benoit <kbenoit@opersys.com>
-Cc: linux-kernel@vger.kernel.org, paulmck@us.ibm.com, bhuey@lnxw.com,
-       andrea@suse.de, tglx@linutronix.de, karim@opersys.com,
-       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
-       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, rpm@xenomai.org
-Subject: Re: PREEMPT_RT and I-PIPE: the numbers, take 3
-Message-ID: <20050630055535.GB23962@elte.hu>
-References: <42C320C4.9000302@opersys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42C320C4.9000302@opersys.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Thu, 30 Jun 2005 01:58:58 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:9884 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S262857AbVF3F6H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Jun 2005 01:58:07 -0400
+Date: Thu, 30 Jun 2005 01:57:47 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@localhost.localdomain
+Reply-To: rostedt@goodmis.org
+To: Manfred Spraul <manfred@colorfullife.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kmalloc without GFP_xxx?
+In-Reply-To: <42C3081A.1040108@colorfullife.com>
+Message-ID: <Pine.LNX.4.58.0506300144530.14989@localhost.localdomain>
+References: <42C3081A.1040108@colorfullife.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Kristian Benoit <kbenoit@opersys.com> wrote:
 
-> This is the 3rd run of our tests.
+On Wed, 29 Jun 2005, Manfred Spraul wrote:
 
-thanks for the testing!
+> Hi,
+>
+> One question from Linux-Tag was about the lack of documentation about/in
+> the kernel. I try to maintain docbook entries when I modify code, even
+> though I think it's mostly wasted time: Virtually noone reads it anyway,
+> instead armchair logic on lkml.
 
-> Here are the changes since last time:
-> 
-> - Modified the IRQ latency measurement code on the logger to do a 
-> busy- wait on the target instead of responding to an interrupt 
-> triggered by the target's "reply". As Ingo had suggested, this very 
-> much replicates what lpptest.c does. In fact, we actually copied 
-> Ingo's loop.
-[...]
+Hmm, I do like to read the comments, see below.
 
-> We stand corrected as to the method that was used to collect interrupt 
-> latency measurements. Ingo's suggestion to disable all interrupts on 
-> the logger to collect the target's response does indeed mostly 
-> eliminate logger-side latencies. However, we've sporadically ran into 
-> situations where the logger locked-up, whereas it didn't before when 
-> we used to measure the response using another interrupt. This happened 
-> around 3 times in total over all of our test runs (and that's a lot of 
-> test runs), so it isn't systematic, but it did happen. [...]
+>
+> Steven wrote:
+>
+> >Here we see that task 2 can spin with interrupts off, while the first task
+> >is servicing an interrupt, and God forbid if the IRQ handler sends some
+> >kind of SMP signal to the CPU running task 2 since that would be a
+> >deadlock.  Granted, this is a hypothetical situation, but makes using
+> >spin_lock with interrupts enabled a little scary.
+> >
+> >
+> Not, it's not even a hypothetical situation. It's an explicitely
+> forbidden situation: SMP signals are sent with smp_call_function and the
+> documentation to that function clearly says:
 
-are you timing-out based on a TSC-based deadline like lpptest does? If 
-an interrupt gets lost then the logger may lock up, if it's looping with 
-interrupts disabled.
+When I said _hypothetical_ I ment it.  That's basically stating that the
+situation wont happen, but lets pretend that it will. And no, SMP signals
+(on intel anyway) are sent with send_IPI_* which even smp_call_function
+uses.
 
-> +--------------------+------------+------+-------+------+--------+
-> | Kernel             | sys load   | Aver | Max   | Min  | StdDev |
-> +====================+============+======+=======+======+========+
+>  *
+>  * You must not call this function with disabled interrupts or from a
+>  * hardware interrupt handler or from a bottom half handler.
+>  */
+>
 
-> +--------------------+------------+------+-------+------+--------+
-> |                    | None       |  5.7 |  47.5 |  5.7 |  0.2   |
-> |                    | Ping       |  7.0 |  63.4 |  5.7 |  1.6   |
-> | with RT-V0.7.50-35 | lm. + ping |  7.9 |  66.2 |  5.7 |  1.9   |
-> |                    | lmbench    |  7.4 |  51.8 |  5.7 |  1.4   |
-> |                    | lm. + hd   |  7.3 |  53.4 |  5.7 |  1.9   |
-> |                    | DoHell     |  7.9 |  59.1 |  5.7 |  1.8   |
-> +--------------------+------------+------+-------+------+--------+
+And if you had read my other emails you would have noticed that I
+even mentioned this particular comment. When I said:
 
-> We don't know whether we've hit the maximums Ingo alluded to, but we 
-> did integrate his dohell script and the only noticeable difference was 
-> with Linux where the maximum jumped to 525.4 micro-seconds. But that 
-> was with vanilla only. Neither PREEMPT_RT nor I-PIPE exhibited such 
-> maximums under the same load.
+"This is probably the reason it is not allowed to call most IPIs from
+interrupt or bottom half context."
 
-i'm seeing roughly half of that worst-case IRQ latency on similar 
-hardware (2GHz Athlon64), so i believe your system has some hardware 
-latency that masks the capabilities of the underlying RTOS. It would be 
-interesting to see IRQSOFF_TIMING + LATENCY_TRACE critical path
-information from the -RT tree. Just enable those two options in the
-.config (on the host side), and do:
+Also, a comment doesn't force this, and there's no test in
+smp_call_function that prevents a user from calling this form a
+bottom_half!
 
-	echo 0 > /proc/sys/kernel/preempt_max_latency
+-- Steve
 
-and the kernel will begin measuring and tracing worst-case latency 
-paths. Then put some load on the host when you see a 50+ usec latency 
-reported to the syslog, send me the /proc/latency_trace. It should be a 
-matter of a few minutes to capture this information.
-
-also, i'm wondering why you tested with only 1,000,000 samples. I 
-routinely do 100,000,000 sample tests, and i did one overnight test with 
-more than 1 billion samples, and the latency difference is quite 
-significant between say 1,000,000 samples and 100,000,000 samples. All 
-you need to do is to increase the rate of interrupts generated by the 
-logger - e.g. my testbox can handle 80,000 irqs/sec with only 15% CPU 
-overhead.
-
-	Ingo

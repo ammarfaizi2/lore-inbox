@@ -1,90 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262952AbVF3K2Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262937AbVF3K2Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262952AbVF3K2Z (ORCPT <rfc822;willy@w.ods.org>);
+	id S262937AbVF3K2Z (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 30 Jun 2005 06:28:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262935AbVF3K0v
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262939AbVF3K1W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 06:26:51 -0400
-Received: from ausmtp01.au.ibm.com ([202.81.18.186]:57244 "EHLO
-	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP id S262938AbVF3KUz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 06:20:55 -0400
-Date: Thu, 30 Jun 2005 20:20:39 +1000
-To: linuxppc64-dev@ozlabs.org, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-From: Michael Ellerman <michael@ellerman.id.au>
-Subject: [PATCH 8/12] iseries_veth: Replace lock-protected atomic with an ordinary variable
-In-Reply-To: <200506302016.55125.michael@ellerman.id.au>
-Message-Id: <1120126839.641415.625704757570.qpatch@concordia>
+	Thu, 30 Jun 2005 06:27:22 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:48271 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S262937AbVF3KVe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Jun 2005 06:21:34 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] deinline sleep/delay functions
+Date: Thu, 30 Jun 2005 13:21:20 +0300
+User-Agent: KMail/1.5.4
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+References: <200506300852.25943.vda@ilport.com.ua> <20050630021111.35aaf45f.akpm@osdl.org> <1120123189.3181.28.camel@laptopd505.fenrus.org>
+In-Reply-To: <1120123189.3181.28.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200506301321.20692.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The iseries_veth driver uses atomic ops to manipulate the in_use field of
-one of its per-connection structures. However all references to the
-flag occur while the connection's lock is held, so the atomic ops aren't
-necessary.
+On Thursday 30 June 2005 12:19, Arjan van de Ven wrote:
+> 
+> > > There are a number of compile-time checks that your patch has removed
+> > > which catch such things, and as such your patch is not acceptable.
+> > > Some architectures have a lower threshold of acceptability for the
+> > > maximum udelay value, so it's absolutely necessary to keep this.
+> > 
+> > It removes that check from x86 - other architectures retain it.
+> > 
+> > I don't recall seeing anyone trigger the check,
+> 
+> I do ;) Esp in vendor out of tree crap. It's a good compile time
+> diagnostic so the junk code doesnt' hit mainline but gets fixed first.
 
+It seems my patch was incomplete.
 
----
+Thinking more about it, since it exists in all arches
+and also since delaying is not performance critical
+(hey, if we're going to delay/sleep, we surely can burn
+a few more cycles), this can be done as follows:
 
- drivers/net/iseries_veth.c |   13 +++++++------
- 1 files changed, 7 insertions(+), 6 deletions(-)
+linux/timer.c:
 
-Index: veth-dev/drivers/net/iseries_veth.c
-===================================================================
---- veth-dev.orig/drivers/net/iseries_veth.c
-+++ veth-dev/drivers/net/iseries_veth.c
-@@ -117,7 +117,7 @@ struct veth_msg {
- 	struct veth_msg *next;
- 	struct VethFramesData data;
- 	int token;
--	unsigned long in_use;
-+	int in_use;
- 	struct sk_buff *skb;
- 	struct device *dev;
- };
-@@ -959,6 +959,8 @@ static int veth_transmit_to_one(struct s
- 		goto drop;
- 	}
- 
-+	msg->in_use = 1;
-+
- 	dma_length = skb->len;
- 	dma_address = dma_map_single(port->dev, skb->data,
- 				     dma_length, DMA_TO_DEVICE);
-@@ -973,7 +975,6 @@ static int veth_transmit_to_one(struct s
- 	msg->data.addr[0] = dma_address;
- 	msg->data.len[0] = dma_length;
- 	msg->data.eofmask = 1 << VETH_EOF_SHIFT;
--	set_bit(0, &(msg->in_use));
- 	rc = veth_signaldata(cnx, VethEventTypeFrames, msg->token, &msg->data);
- 
- 	if (rc != HvLpEvent_Rc_Good)
-@@ -983,10 +984,8 @@ static int veth_transmit_to_one(struct s
- 	return 0;
- 
-  recycle_and_drop:
-+	/* we free the skb below, so tell veth_recycle_msg() not to. */
- 	msg->skb = NULL;
--	/* need to set in use to make veth_recycle_msg in case this
--	 * was a mapping failure */
--	set_bit(0, &msg->in_use);
- 	veth_recycle_msg(cnx, msg);
-  drop:
- 	port->stats.tx_errors++;
-@@ -1068,12 +1067,14 @@ static int veth_start_xmit(struct sk_buf
- 	return 0;
- }
- 
-+/* You musT hold the connection's lock when you call this function. */
- static void veth_recycle_msg(struct veth_lpar_connection *cnx,
- 			     struct veth_msg *msg)
- {
- 	u32 dma_address, dma_length;
- 
--	if (test_and_clear_bit(0, &msg->in_use)) {
-+	if (msg->in_use) {
-+		msg->in_use = 0;
- 		dma_address = msg->data.addr[0];
- 		dma_length = msg->data.len[0];
- 
+void ndelay(unsigned int nsecs)
+{
+	unsigned int m = nsecs/(1024*1024);
+       	while (m--)
+		__ndelay(1024);
+	__ndelay(nsecs % (1024*1024));
+}
+
+void udelay(unsigned int usecs)
+{
+	unsigned int k = usecs/1024;
+       	while (k--)
+		__udelay(1024);
+	__udelay(usecs % 1024);
+}
+
+void mdelay(unsigned int msecs)
+{
+       	while (msecs--)
+		udelay(1000);
+}
+
+void ssleep(unsigned int secs)
+{
+        msleep(secs * 1000);
+}
+
+and arches will need to only supply two functions:
+
+__udelay(n) [n is guaranteed <1024]
+__ndelay(n) [n is guaranteed <1024*1024]
+
+For users, _any_ value, however large, will work for
+any delay function.
+
+Comments?
+--
+vda
+

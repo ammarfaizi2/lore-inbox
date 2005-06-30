@@ -1,41 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263159AbVF3Uu5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263093AbVF3UzM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263159AbVF3Uu5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 16:50:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263149AbVF3Uuu
+	id S263093AbVF3UzM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 16:55:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263094AbVF3UzK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 16:50:50 -0400
-Received: from isilmar.linta.de ([213.239.214.66]:49319 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S263159AbVF3UuX (ORCPT
+	Thu, 30 Jun 2005 16:55:10 -0400
+Received: from 90.Red-213-97-199.pooles.rima-tde.net ([213.97.199.90]:58756
+	"HELO fargo") by vger.kernel.org with SMTP id S263086AbVF3UwG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 16:50:23 -0400
-Date: Thu, 30 Jun 2005 22:50:17 +0200
-From: Dominik Brodowski <linux@dominikbrodowski.net>
-To: john stultz <johnstul@us.ibm.com>
-Cc: "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 1/] timers: tsc using for cpu scheduling
-Message-ID: <20050630205017.GB5437@isilmar.linta.de>
-Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
-	john stultz <johnstul@us.ibm.com>,
-	"Ananiev, Leonid I" <leonid.i.ananiev@intel.com>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <6EDC9204B3704C4C8522539D5C1185E5019D060F@mssmsx403.ccr.corp.intel.com> <1120158468.24889.150.camel@cog.beaverton.ibm.com>
+	Thu, 30 Jun 2005 16:52:06 -0400
+Date: Thu, 30 Jun 2005 22:48:32 +0200
+From: David =?utf-8?B?R8OzbWV6?= <david@pleyades.net>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Cc: Robert Love <rml@novell.com>, John McCutchan <ttb@tentacle.dhs.org>,
+       Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Problem with inotify
+Message-ID: <20050630204832.GA3854@fargo>
+Mail-Followup-To: Anton Altaparmakov <aia21@cam.ac.uk>,
+	Robert Love <rml@novell.com>, John McCutchan <ttb@tentacle.dhs.org>,
+	Linux-kernel <linux-kernel@vger.kernel.org>
+References: <20050630181824.GA1058@fargo> <1120156188.6745.103.camel@betsy> <20050630193320.GA1136@fargo> <Pine.LNX.4.60.0506302138230.29755@hermes-1.csi.cam.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <1120158468.24889.150.camel@cog.beaverton.ibm.com>
-User-Agent: Mutt/1.5.9i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.60.0506302138230.29755@hermes-1.csi.cam.ac.uk>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 30, 2005 at 12:07:48PM -0700, john stultz wrote:
-> Well, not quite. First of all, I believe (Dominik would know better)
-> that not all CPUs that support frequency scaling actually modify their
-> TSC frequency. So in some cases the TSC is time and in others it is
-> work.
+Hi Anton,
 
-Indeed. For example, P4s capable of Enhanced SpeedStep do not modify the TSC
-tick rate.
+On Jun 30 at 09:39:47, Anton Altaparmakov wrote:
+> > I tested it again, wchan says "inode_wait"...
+> 
+> Do you have any ntfs volumes mounted by any chance? 
 
-	Dominik
+No, just ext2
+
+-- 
+David Gómez                                      Jabber ID: davidge@jabber.org

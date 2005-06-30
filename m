@@ -1,49 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263092AbVF3U6r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263086AbVF3U4O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263092AbVF3U6r (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 16:58:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263088AbVF3U41
+	id S263086AbVF3U4O (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 16:56:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263152AbVF3U4B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 16:56:27 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:39564 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S263151AbVF3UvD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 16:51:03 -0400
-Date: Thu, 30 Jun 2005 22:50:29 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Karsten Wiese <annabellesgarden@yahoo.de>
-Cc: William Weston <weston@sysex.net>, linux-kernel@vger.kernel.org
-Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.50-24
-Message-ID: <20050630205029.GB1824@elte.hu>
-References: <200506281927.43959.annabellesgarden@yahoo.de> <20050629193804.GA6256@elte.hu> <200506300136.01061.annabellesgarden@yahoo.de> <200506301952.22022.annabellesgarden@yahoo.de>
-Mime-Version: 1.0
+	Thu, 30 Jun 2005 16:56:01 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:50586 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S263088AbVF3Uz3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Jun 2005 16:55:29 -0400
+To: Andrew Vasquez <andrew.vasquez@qlogic.com>
+Cc: linux-kernel@vger.kernel.org, YhLu <YhLu@tyan.com>,
+       Andi Kleen <ak@suse.de>, Peter Buckingham <peter@pantasys.com>
+Subject: Re: 2.6.12 with dual way dual core ck804 MB
+References: <20050630185418.GD7226@plap.qlogic.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Thu, 30 Jun 2005 14:54:49 -0600
+In-Reply-To: <20050630185418.GD7226@plap.qlogic.org> (Andrew Vasquez's
+ message of "Thu, 30 Jun 2005 11:54:18 -0700")
+Message-ID: <m1oe9nlg4m.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200506301952.22022.annabellesgarden@yahoo.de>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Vasquez <andrew.vasquez@qlogic.com> writes:
 
-* Karsten Wiese <annabellesgarden@yahoo.de> wrote:
+>> A couple more tidbits of information on this problem.
+>>
+>> 1) I have seen this on two different boards
+>> a Tyan S4882 and a Arima HDAMA, with and without linuxbios.
+>> In just messing around adding "debug" on the kernel command line
+>> or changing Dprintk in smpboot.c:smp_callin() to printk,
+>> avoids this boot lock up for me.
+>
+> All,
+>
+> Has there been any resolution to this problem.  I've just tried
+> 2.6.13-rc1 on a Dell PowerEdge 2850 (dual-proc em64t) and am running
+> into what appears to be a similar case where cpu initialization never
+> completes.  I'll attach my .config, boot-up messages, and the output
+> of lspci.
+>
+> I've also tried the s/Dprintk/printk/ hack with no success.
 
-> Here come some numbers to back up the usefullness of 
-> CONFIG_X86_UP_IOAPIC_FAST. (and to show that my patch actually works 
-> ;-)) All measurement where taken on an UP Athlon64 2Ghz running 32bit 
-> 2.6.12-RT-50-35 PREEMPT_RT on a K8T800 mobo.
+I can confirm that I am seeing this on Xeons as well with my problem
+2.6.12 kernel.  And specifying debug does cause it to go away, for me.
 
-thanks - the numbers are pretty convincing. I've applied most of your 
-patch (except the instrumentation bits), and it seems to work quite well 
-- one of my testsystems that had interrupt storms before can now run 
-IOAPIC_FAST. (i also enabled the option to be selectable for SMP kernels 
-too. If things work out fine we can make it default-on.) I've uploaded 
-the -50-39 patch with these changes included.
+As for which debug messages cause the bug not to be trigger I am
+logging to the serial console which may be part of the difference.
 
-	Ingo
+Eric

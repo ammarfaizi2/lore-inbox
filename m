@@ -1,44 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262909AbVF3IeK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262887AbVF3IoW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262909AbVF3IeK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 04:34:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262917AbVF3IeK
+	id S262887AbVF3IoW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 04:44:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262888AbVF3IoV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 04:34:10 -0400
-Received: from ns.suse.de ([195.135.220.2]:35480 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S262909AbVF3IeH (ORCPT
+	Thu, 30 Jun 2005 04:44:21 -0400
+Received: from spieleck.de ([217.197.84.238]:11026 "EHLO spieleck.de")
+	by vger.kernel.org with ESMTP id S262887AbVF3IoT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 04:34:07 -0400
-From: Gernot Payer <gpayer@suse.de>
-To: Roland McGrath <roland@redhat.com>
-Subject: Re: Patch to disarm timers after an exec syscall
-Date: Thu, 30 Jun 2005 10:34:06 +0200
-User-Agent: KMail/1.6.2
-References: <200506291850.j5TIo72x032190@magilla.sf.frob.com>
-In-Reply-To: <200506291850.j5TIo72x032190@magilla.sf.frob.com>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Thu, 30 Jun 2005 04:44:19 -0400
+Date: Thu, 30 Jun 2005 10:44:26 +0200
+From: Stefan Seyfried <seife@gmane0305.slipkontur.de>
+To: Fedor Karpelevitch <fedor@karpelevitch.net>
+Cc: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
+Subject: Re: AE_NO_MEMORY on ACPI init after memory upgrade and oops
+Message-ID: <20050630084426.GA30436@message-id.gmane0305.slipkontur.de>
+References: <200506300042.22255.fedor@karpelevitch.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200506301034.06372.gpayer@suse.de>
+In-Reply-To: <200506300042.22255.fedor@karpelevitch.net>
+X-Operating-System: SuSE Linux 9.3 (i586), Kernel 2.6.11.4-21.7-default
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 29 June 2005 20:50, Roland McGrath wrote:
-> In the current code, de_thread already calls exit_itimers to address
-> exactly this issue.  Can someone please send me the test case that
-> demonstrates this is not working right?
+On Thu, Jun 30, 2005 at 12:42:19AM -0700, Fedor Karpelevitch wrote:
+> I tried to upgrade memory on my laptop from 2 x 128m by replacing one of the chips 
+> with a 256m chip (these are PC2100 SODIMMS in case that matters). The new chip 
+> appears to be fine - I do not see any memory corruptions or whatnot and I ran 
+> memtest without any problems.
+> 
+> However there are two issues related to ACPI with this new chip (the problems
+> go away when I replace it with the old one):
+> 
+> 1) when booting I get these error when "ec" module is being loaded:
+> 
+> Jun 23 23:25:28 bologoe kernel: [4294720.883000]     ACPI-0405: *** Error: Handler for [SystemMemory] returned AE_NO_MEMORY
 
-This test case can be found here:
-
-http://cvs.sourceforge.net/viewcvs.py/posixtest/posixtestsuite/conformance/interfaces/timer_create/9-1.c?view=markup
-
-But as already mentioned in this thread, this test case is wrong.
-
-> Thanks,
-> Roland
-
-mfg
-Gernot
+Did you override your DSDT?
+-- 
+Stefan Seyfried

@@ -1,46 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262540AbVF3LPm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262716AbVF3LWA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262540AbVF3LPm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 07:15:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262943AbVF3LPl
+	id S262716AbVF3LWA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 07:22:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262941AbVF3LWA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 07:15:41 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:42419 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262540AbVF3LNq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 07:13:46 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: chris@zankel.net
-Subject: Re: xtensa-cleanups-for-errno-and-ipc.patch added to -mm tree
-Date: Thu, 30 Jun 2005 13:07:59 +0200
-User-Agent: KMail/1.7.2
-Cc: sfr@canb.auug.org.au, akpm@osdl.org, linux-kernel@vger.kernel.org
-References: <200506300113.j5U1DxLH013112@shell0.pdx.osdl.net>
-In-Reply-To: <200506300113.j5U1DxLH013112@shell0.pdx.osdl.net>
-MIME-Version: 1.0
+	Thu, 30 Jun 2005 07:22:00 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:28946 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262716AbVF3LV5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Jun 2005 07:21:57 -0400
+Date: Thu, 30 Jun 2005 12:21:52 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Denis Vlasenko <vda@ilport.com.ua>
+Cc: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] deinline sleep/delay functions
+Message-ID: <20050630122152.B16103@flint.arm.linux.org.uk>
+Mail-Followup-To: Denis Vlasenko <vda@ilport.com.ua>,
+	Arjan van de Ven <arjan@infradead.org>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <200506300852.25943.vda@ilport.com.ua> <200506301321.20692.vda@ilport.com.ua> <1120128441.3181.37.camel@laptopd505.fenrus.org> <200506301410.43524.vda@ilport.com.ua>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200506301308.00186.arnd@arndb.de>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200506301410.43524.vda@ilport.com.ua>; from vda@ilport.com.ua on Thu, Jun 30, 2005 at 02:10:43PM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dunnersdag 30 Juni 2005 03:13, akpm@osdl.org wrote:
-
-> From: Chris Zankel <chris@zankel.net>
->
-> I noticed this because I was doing some more ipc cleanups and I did the
-> original errno and ipc cleanups for other architectures, so it stuck out.
+On Thu, Jun 30, 2005 at 02:10:43PM +0300, Denis Vlasenko wrote:
+> On Thursday 30 June 2005 13:47, Arjan van de Ven wrote:
+> > On Thu, 2005-06-30 at 13:21 +0300, Denis Vlasenko wrote:
+> > > On Thursday 30 June 2005 12:19, Arjan van de Ven wrote:
+> > > > 
+> > > > > > There are a number of compile-time checks that your patch has removed
+> > > > > > which catch such things, and as such your patch is not acceptable.
+> > > > > > Some architectures have a lower threshold of acceptability for the
+> > > > > > maximum udelay value, so it's absolutely necessary to keep this.
+> > > > > 
+> > > > > It removes that check from x86 - other architectures retain it.
+> > > > > 
+> > > > > 
+> > > For users, _any_ value, however large, will work for
+> > > any delay function.
+> > 
+> > that's not desired though. Desired is to limit udelay() to say 2000 or
+> > so. And force anything above that to go via mdelay() (just to make it
+> > stand out as broken code ;)
 > 
-> Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
-> Signed-off-by: Chris Zankel <chris@zankel.net>
-> Signed-off-by: Andrew Morton <akpm@osdl.org>
+> An if(usec > 2000) { printk(..); dump_stack(); } will do.
 
-Actually, it would be better not to have sys_ipc or include/asm-xtensa/ipc.h
-at all but rather have all ipc syscalls as separate entry points.
+No it won't - that's a run time test which will only get caught if the
+code is run.  There's no guarantees of that.
 
-IIRC, parisc is the only architecture to get this right so far, so please
-have a look there.
+> But do you really want to do this? There might be legitimate reasons
+> to compute udelay's parameter with results which are sometimes large.
 
-	Arnd <><
+Yes.  udelay() has overflow issues - if you pass too large a number
+to udelay() you get a randomised delay because you've lost the top
+bits.
+
+The maximum delay is dependent on the architecture implementation,
+and it depends on bogomips.  There is no one single value for it.
+Architectures have to decide this from the way that they do the
+math and the expected range of bogomips.
+
+Please - leave asm-*/delay.h alone.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

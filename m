@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263102AbVF3UCE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263031AbVF3UCG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263102AbVF3UCE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 16:02:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263031AbVF3UBB
+	id S263031AbVF3UCG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 16:02:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263032AbVF3UAg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 16:01:01 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:55736 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S263028AbVF3Tsg
+	Thu, 30 Jun 2005 16:00:36 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:11914 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S263031AbVF3Tqs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 15:48:36 -0400
-Date: Thu, 30 Jun 2005 14:54:28 -0500
+	Thu, 30 Jun 2005 15:46:48 -0400
+Date: Thu, 30 Jun 2005 14:52:29 -0500
 From: serue@us.ibm.com
 To: lkml <linux-kernel@vger.kernel.org>
 Cc: Chris Wright <chrisw@osdl.org>, Stephen Smalley <sds@epoch.ncsc.mil>,
@@ -17,8 +17,8 @@ Cc: Chris Wright <chrisw@osdl.org>, Stephen Smalley <sds@epoch.ncsc.mil>,
        Michael Halcrow <mhalcrow@us.ibm.com>,
        David Safford <safford@watson.ibm.com>,
        Reiner Sailer <sailer@us.ibm.com>, Gerrit Huizenga <gerrit@us.ibm.com>
-Subject: [patch 10/12] lsm stacking v0.2: hook completeness verification
-Message-ID: <20050630195428.GJ23538@serge.austin.ibm.com>
+Subject: [patch 7/12] lsm stacking v0.2: selinux: update security structs
+Message-ID: <20050630195229.GG23538@serge.austin.ibm.com>
 References: <20050630194458.GA23439@serge.austin.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -28,79 +28,90 @@ User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add a script to check whether all security_operations hooks are defined
-in both dummy_security_ops (through security_fixup_ops) and in stacker_ops.
-Also adds a note in security.h to remind developers that all hooks must
-be defined in these two modules, and to verify this using the
-lsm_verify_hooks.sh script.
+Add the struct security_list lsm_list; to each structure which SELinux will be
+appending to a kernel object.
 
 Signed-off-by: Serge Hallyn <serue@us.ibm.com>
 ---
- include/linux/security.h    |    4 ++++
- scripts/lsm_verify_hooks.sh |   44 ++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 48 insertions(+)
+ objsec.h |   19 +++++++++++--------
+ 1 files changed, 11 insertions(+), 8 deletions(-)
 
-Index: linux-2.6.13-rc1/include/linux/security.h
+Index: linux-2.6.13-rc1/security/selinux/include/objsec.h
 ===================================================================
---- linux-2.6.13-rc1.orig/include/linux/security.h	2005-06-30 14:15:01.000000000 -0500
-+++ linux-2.6.13-rc1/include/linux/security.h	2005-06-30 15:40:16.000000000 -0500
-@@ -121,6 +121,10 @@ struct swap_info_struct;
- /**
-  * struct security_operations - main security structure
-  *
-+ * When adding functions to this structure, please add them to
-+ * dummy.c and stacker.c, and run linux/scripts/lsm_verify_hooks.sh
-+ * to verify their inclusion in these modules.
-+ *
-  * Security hooks for program execution operations.
-  *
-  * @bprm_alloc_security:
-Index: linux-2.6.13-rc1/scripts/lsm_verify_hooks.sh
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.13-rc1/scripts/lsm_verify_hooks.sh	2005-06-30 15:40:16.000000000 -0500
-@@ -0,0 +1,44 @@
-+#!/bin/sh
+--- linux-2.6.13-rc1.orig/security/selinux/include/objsec.h	2005-06-30 15:32:49.000000000 -0500
++++ linux-2.6.13-rc1/security/selinux/include/objsec.h	2005-06-30 15:33:47.000000000 -0500
+@@ -23,11 +23,14 @@
+ #include <linux/fs.h>
+ #include <linux/binfmts.h>
+ #include <linux/in.h>
++#include <linux/security.h>
+ #include "flask.h"
+ #include "avc.h"
+ 
++#define SELINUX_LSM_ID 0xB65
 +
-+# Author: Serge E. Hallyn <serue@us.ibm.com>
-+
-+# Checks that both the dummy and stacker modules define all the
-+# security hooks.
-+
-+# This probably should be done in perl
-+
-+# Copyright (C) 2002,2003,2004,2005 Serge E. Hallyn <serue@us.ibm.com>
-+# Copyright (C) 2002 David A. Wheeler <dwheeler@dwheeler.com>.
-+#  This program is free software; you can redistribute it and/or modify
-+#  it under the terms of the GNU General Public License as published by
-+#  the Free Software Foundation; either version 2 of the License, or
-+#  (at your option) any later version.
-+
-+# Grab the relevant pieces of text
-+sed -n '/^void security_fixup_ops /,/}/p' dummy.c > dummy.out
-+sed -n '/^static struct security_operations/,/}/p' stacker.c > stack.out
-+../scripts/Lindent -o tmpsec.h ../include/linux/security.h
-+sed -n '/^struct security_operations {/,/}/p' tmpsec.h > sech.out
-+rm tmpsec.h
-+
-+# Get a list of functions in security.h
-+cat sech.out | sed -n '/\t[a-z]/p' | sed -e 's/^\t[a-z]* (\*\([^)]*\).*$/\1/' > sech.out
-+
-+# check dummy.c
-+for line in `cat sech.out`; do
-+	grep $line dummy.out > /dev/null 2>&1
-+	if [ $? -ne 0 ]; then
-+		echo "WARNING: $line missing from dummy module!"
-+	fi
-+done
-+
-+# check stacker.c
-+for line in `cat sech.out`; do
-+	grep $line stack.out > /dev/null 2>&1
-+	if [ $? -ne 0 ]; then
-+		echo "WARNING: $line missing from stacker module!"
-+	fi
-+done
-+
-+rm sech.out stack.out dummy.out
-+echo "LSM hook verification done."
+ struct task_security_struct {
+-        unsigned long magic;           /* magic number for this module */
++	struct security_list lsm_list; /* chained security objects */
+ 	struct task_struct *task;      /* back pointer to task object */
+ 	u32 osid;            /* SID prior to last execve */
+ 	u32 sid;             /* current SID */
+@@ -37,7 +40,7 @@ struct task_security_struct {
+ };
+ 
+ struct inode_security_struct {
+-	unsigned long magic;           /* magic number for this module */
++	struct security_list lsm_list; /* chained security objects */
+         struct inode *inode;           /* back pointer to inode object */
+ 	struct list_head list;         /* list of inode_security_struct */
+ 	u32 task_sid;        /* SID of creating task */
+@@ -49,14 +52,14 @@ struct inode_security_struct {
+ };
+ 
+ struct file_security_struct {
+-	unsigned long magic;            /* magic number for this module */
++	struct security_list lsm_list; /* chained security objects */
+ 	struct file *file;              /* back pointer to file object */
+ 	u32 sid;              /* SID of open file description */
+ 	u32 fown_sid;         /* SID of file owner (for SIGIO) */
+ };
+ 
+ struct superblock_security_struct {
+-	unsigned long magic;            /* magic number for this module */
++	struct security_list lsm_list; /* chained security objects */
+ 	struct super_block *sb;         /* back pointer to sb object */
+ 	struct list_head list;          /* list of superblock_security_struct */
+ 	u32 sid;              /* SID of file system */
+@@ -70,20 +73,20 @@ struct superblock_security_struct {
+ };
+ 
+ struct msg_security_struct {
+-        unsigned long magic;		/* magic number for this module */
++ 	struct security_list lsm_list; /* chained security objects */
+ 	struct msg_msg *msg;		/* back pointer */
+ 	u32 sid;              /* SID of message */
+ };
+ 
+ struct ipc_security_struct {
+-        unsigned long magic;		/* magic number for this module */
++ 	struct security_list lsm_list; /* chained security objects */
+ 	struct kern_ipc_perm *ipc_perm; /* back pointer */
+ 	u16 sclass;	/* security class of this object */
+ 	u32 sid;              /* SID of IPC resource */
+ };
+ 
+ struct bprm_security_struct {
+-	unsigned long magic;           /* magic number for this module */
++	struct security_list lsm_list; /* chained security objects */
+ 	struct linux_binprm *bprm;     /* back pointer to bprm object */
+ 	u32 sid;                       /* SID for transformed process */
+ 	unsigned char set;
+@@ -102,7 +105,7 @@ struct netif_security_struct {
+ };
+ 
+ struct sk_security_struct {
+-	unsigned long magic;		/* magic number for this module */
++	struct security_list lsm_list; /* chained security objects */
+ 	struct sock *sk;		/* back pointer to sk object */
+ 	u32 peer_sid;			/* SID of peer */
+ };

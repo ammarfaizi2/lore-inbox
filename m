@@ -1,57 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262963AbVF3TKy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262970AbVF3TM7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262963AbVF3TKy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 15:10:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262964AbVF3TKy
+	id S262970AbVF3TM7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 15:12:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262969AbVF3TM7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 15:10:54 -0400
-Received: from zproxy.gmail.com ([64.233.162.192]:18719 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262963AbVF3TKw convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 15:10:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=EmfV8en2B9HmtPKfc++phbKUuGrpcKKiRaApiMVKPMl7+pooIdLuT6EJ2oyJ7jhep7QOb+EL/QxR/ZYDjpUFPbFqCOyIG6R914VnhM5WVNzN26hsxJEvSoPxG4cyDFkLmwd3M1FKL8Mn9rx8BsItJtO/gdiSHgtmg7eYQJK05OU=
-Message-ID: <9a874849050630121031e6ecf3@mail.gmail.com>
-Date: Thu, 30 Jun 2005 21:10:47 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
-To: mkrufky@m1k.net
-Subject: Re: [TRIVIAL 2.6.12 / 2.6.13 PATCH] v4l cx88 hue offset fix
-Cc: Andrew Morton <akpm@osdl.org>,
-       Mauro Carvalho Chehab <mchehab@brturbo.com.br>, trivial@rustcorp.com.au,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <42C41B0B.2080708@m1k.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <42C35C65.8030900@m1k.net> <42C3F871.7060008@brturbo.com.br>
-	 <42C41B0B.2080708@m1k.net>
+	Thu, 30 Jun 2005 15:12:59 -0400
+Received: from ausc60ps301.us.dell.com ([143.166.148.206]:3193 "EHLO
+	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
+	id S262964AbVF3TM5 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Jun 2005 15:12:57 -0400
+X-IronPort-AV: i="3.94,155,1118034000"; 
+   d="scan'208"; a="260760735:sNHT26414772"
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Subject: RE: page allocation/attributes question (i386/x86_64 specific)
+Date: Thu, 30 Jun 2005 14:11:10 -0500
+Message-ID: <B1939BC11A23AE47A0DBE89A37CB26B407434D@ausx3mps305.aus.amer.dell.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: page allocation/attributes question (i386/x86_64 specific)
+Thread-Index: AcV9mgpSa+MuTDTrQMaLclcywN+W7QADQn8w
+From: <Stuart_Hayes@Dell.com>
+To: <arjan@infradead.org>
+Cc: <ak@suse.de>, <riel@redhat.com>, <andrea@suse.dk>,
+       <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 30 Jun 2005 19:11:10.0909 (UTC) FILETIME=[79F5CED0:01C57DA7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/30/05, Michael Krufky <mkrufky@m1k.net> wrote:
-> Mauro Carvalho Chehab wrote:
+Arjan van de Ven wrote:
+> On Thu, 2005-06-30 at 11:56 -0500, Stuart_Hayes@Dell.com wrote:
+>> Andi Kleen wrote:
+>>> 
+>>> I only fixed it for x86-64 correct. Does it work for you on x86-64?
+>>> 
+>>> If yes then the changes could be brought over.
+>>> 
+>>> What do you all need is for anyways?
+>>> 
+>>> -Andi
+>> 
+>> We need this because the NVidia driver uses change_page_attr() to
+>> make pages non-cachable, which is causing systems to spontaneously
+>> reboot when it gets a page that's in the first 8MB of memory.
+>> 
 > 
-> >Acked-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-> >
-> >This small patch fixes top complaint about CX88 cards, which had a
-> >different behavior than other V4L cards for hue setting.
-> >
-[...]
-> 
-> I would send this to Greg Kroah-Hartman / Chris Wright myself, but I
-> don't know if that is proper protocol for doing this.
+> that's not a linux problem since there isn't really a linux driver
+> that does this ;) 
 
-http://kerneltrap.org/mailarchive/1/message/33322/thread
-See the "Procedure for submitting patches to the -stable tree" section
-in particular.
-
-(that document really should go into Documentation/ by the way)
-
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+That's why I didn't mention what failed in the first place!  :P

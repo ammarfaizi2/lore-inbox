@@ -1,28 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262974AbVF3P4I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262999AbVF3QAY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262974AbVF3P4I (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 11:56:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262784AbVF3P4I
+	id S262999AbVF3QAY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 12:00:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262994AbVF3P7d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 11:56:08 -0400
-Received: from ausc60pc101.us.dell.com ([143.166.85.206]:23640 "EHLO
-	ausc60pc101.us.dell.com") by vger.kernel.org with ESMTP
-	id S262989AbVF3PyU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 11:54:20 -0400
+	Thu, 30 Jun 2005 11:59:33 -0400
+Received: from ausc60ps301.us.dell.com ([143.166.148.206]:21155 "EHLO
+	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
+	id S262983AbVF3P4o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Jun 2005 11:56:44 -0400
 X-IronPort-AV: i="3.94,154,1118034000"; 
-   d="scan'208"; a="280109491:sNHT24924538"
-Date: Thu, 30 Jun 2005 15:52:37 -0500
+   d="scan'208"; a="260663539:sNHT1152848414"
+Date: Thu, 30 Jun 2005 15:55:01 -0500
 From: Abhay Salunke <Abhay_Salunke@dell.com>
 To: linux-kernel@vger.kernel.org, abhay_salunke@dell.com
 Cc: greg@kroah.com
-Subject: [RFC][patch 2.6.12-rc3] dell_rbu: Resubmitting patch for new Dell BIOS update driver
-Message-ID: <20050630205237.GA3577@abhays.us.dell.com>
+Subject: [RFC][patch 2.6.12-rc3] modified firmware_class.c to add a new function request_firmware_nowait_nohotplug
+Message-ID: <20050630205501.GA3588@abhays.us.dell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+Sorry for having wrong subject line in earlier email of this patch. 
+resending it with correct subject line...
 
 This is a patch which add a new function request_firmware_nowait_nohotplug in firmware_calss.c 
 This function is exported and used by dell_rbu driver. It makes the file entries created by request_firmware

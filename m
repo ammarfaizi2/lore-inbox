@@ -1,73 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262960AbVF3MVQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262687AbVF3MV3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262960AbVF3MVQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 08:21:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262687AbVF3MVQ
+	id S262687AbVF3MV3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 08:21:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262961AbVF3MV3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 08:21:16 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:46291 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S262960AbVF3MVD convert rfc822-to-8bit (ORCPT
+	Thu, 30 Jun 2005 08:21:29 -0400
+Received: from [85.8.12.41] ([85.8.12.41]:22714 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S262687AbVF3MVY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 08:21:03 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: [PATCH] deinline sleep/delay functions
-Date: Thu, 30 Jun 2005 15:20:49 +0300
-User-Agent: KMail/1.5.4
-Cc: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-References: <200506300852.25943.vda@ilport.com.ua> <200506301444.51463.vda@ilport.com.ua> <20050630130454.C16103@flint.arm.linux.org.uk>
-In-Reply-To: <20050630130454.C16103@flint.arm.linux.org.uk>
+	Thu, 30 Jun 2005 08:21:24 -0400
+Message-ID: <42C3E3A4.3090305@drzeus.cx>
+Date: Thu, 30 Jun 2005 14:20:52 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 1.0.2-7 (X11/20050623)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200506301520.49371.vda@ilport.com.ua>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: LKML <linux-kernel@vger.kernel.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: ISA DMA controller hangs
+References: <42987450.9000601@drzeus.cx>	 <1117288285.2685.10.camel@localhost.localdomain>	 <42A2B610.1020408@drzeus.cx> <42A3061C.7010604@drzeus.cx>	 <42B1A08B.8080601@drzeus.cx> <20050616170622.A1712@flint.arm.linux.org.uk>	 <42C3A698.9020404@drzeus.cx> <1120130926.6482.83.camel@localhost.localdomain>
+In-Reply-To: <1120130926.6482.83.camel@localhost.localdomain>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 30 June 2005 15:04, Russell King wrote:
-> On Thu, Jun 30, 2005 at 02:44:51PM +0300, Denis Vlasenko wrote:
-> > On Thursday 30 June 2005 14:21, Russell King wrote:
-> > > The maximum delay is dependent on the architecture implementation,
-> > > and it depends on bogomips.  There is no one single value for it.
-> > > Architectures have to decide this from the way that they do the
-> > > math and the expected range of bogomips.
-> > 
-> > In example I posted these limitations are lifted. Granted these
-> > limitations were not critical, but removing them can't do harm,
-> > I guess?
-> 
-> They're lifted poorly.  You include a mandatory division in the path.
-> On systems where division has to be done in code, this is not acceptable,
-> especially when we're trying to get short delays on embedded CPUs
-> running below 100MHz.  The time it takes to do the division could
-> swamp the required delay value.
+Alan Cox wrote:
 
-What divisions? Where?
+>
+>It is spelt "weird"
+>  
+>
 
-void udelay(unsigned int usecs)
-{
-        unsigned int k = usecs/1024;
-        while (k--)
-                __udelay(1024);
-        __udelay(usecs % 1024);
-}
+Ooops... :)
 
-I see no divisions. I see shifts and ANDs.
-I can code them explicitly:
+>Looks basically OK although it would be good to document the situation
+>for a bus mastering DMA controller. Does the device have to reconfigure
+>the DMA on a resume or is that something the restore code for the device
+>should handle ?
+>
+>My own feeling is tha we should dump that on the device (safer) and also
+>expect the device to prevent suspends during an active DMA transfer (eg
+>floppy)
+>
+>  
+>
 
-void udelay(unsigned int usecs)
-{
-        unsigned int k = usecs >> 10; /* divide by 1024 */
-        while (k--)
-                __udelay(0x400); /* 1024 */
-        __udelay(usecs & 0x3ff); /* mod 1024 */
-}
+If you mean that the device drivers should restore any state then I
+fully agree. A central restore of the complete state of the DMA
+controller would require keeping a copy of all data passed to it (since
+some registers are write only). The reason for my piece of code here is
+that nobody "owns" channel 4 so it must be restored centrally. Also,
+resetting the other registers makes the DMA controller behave the same
+way on all systems (from the drivers' point of view at least).
 
-Should be ok now.
---
-vda
+Preventing suspend also needs to be done from the drivers. Simply
+because only they can determine when the devices are doing the transfer
+(examining the DMA controller will only tell us if it's _prepared_ for a
+transfer).
+
+I'll fix the typo and whip up a patch for x86_64 then.
+
+Rgds
+Pierre
 

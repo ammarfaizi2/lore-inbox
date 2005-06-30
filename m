@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263168AbVF3VQx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263085AbVF3Ueu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263168AbVF3VQx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 17:16:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263035AbVF3VPw
+	id S263085AbVF3Ueu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 16:34:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263084AbVF3UVs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 17:15:52 -0400
-Received: from pop.gmx.de ([213.165.64.20]:35285 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261254AbVF3VJW (ORCPT
+	Thu, 30 Jun 2005 16:21:48 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:60045 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S263051AbVF3Txt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 17:09:22 -0400
-X-Authenticated: #20450766
-Date: Thu, 30 Jun 2005 21:51:47 +0200 (CEST)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-cc: =?ISO-8859-1?Q?Gustavo_Guillermo_P=E9rez?= <gustavo@compunauta.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [OT] build just one driver
-In-Reply-To: <9a874849050629122775d0542c@mail.gmail.com>
-Message-ID: <Pine.LNX.4.60.0506302149500.8278@poirot.grange>
-References: <200506282309.20296.gustavo@compunauta.com>
- <9a874849050629122775d0542c@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1463811839-1149222367-1120161107=:8278"
-X-Y-GMX-Trusted: 0
+	Thu, 30 Jun 2005 15:53:49 -0400
+Date: Thu, 30 Jun 2005 21:52:58 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: William Weston <weston@sysex.net>
+Cc: Karsten Wiese <annabellesgarden@yahoo.de>, linux-kernel@vger.kernel.org
+Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.50-37
+Message-ID: <20050630195258.GB20310@elte.hu>
+References: <200506281927.43959.annabellesgarden@yahoo.de> <20050629193804.GA6256@elte.hu> <200506300136.01061.annabellesgarden@yahoo.de> <200506301952.22022.annabellesgarden@yahoo.de> <Pine.LNX.4.58.0506301238450.20655@echo.lysdexia.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0506301238450.20655@echo.lysdexia.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
 
----1463811839-1149222367-1120161107=:8278
-Content-Type: TEXT/PLAIN; charset=koi8-r
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+* William Weston <weston@sysex.net> wrote:
 
-On Wed, 29 Jun 2005, Jesper Juhl wrote:
+> Hi Ingo,
+> 
+> -50-37 wouldn't compile out of the box on my debug config.
+> Here's a couple minor cleanups:
 
-> On 6/29/05, Gustavo Guillermo P=E9rez <gustavo@compunauta.com> wrote:
-> > How can I build just one driver without building everthing or removing =
-the
-> > others from the config.
->=20
-> See "make help" :=20
->=20
-> $ make help | grep "dir/"
->   dir/            - Build all files in dir and below
->   dir/file.[ois]  - Build specified target only
+thanks, applied. except these:
 
-Unfortunately, one cannot do make dir/module.ko... Would it be too=20
-difficult to add?
+> -	struct thread_info *ti = current_thread_info();
+> +	//struct thread_info *ti = current_thread_info();
 
-Thanks
-Guennadi
----
-Guennadi Liakhovetski
+> -	struct thread_info *ti = current_thread_info();
+> +	//struct thread_info *ti = current_thread_info();
 
----1463811839-1149222367-1120161107=:8278--
+they are needed in the nondebug build - i'll fix this up.
+
+	Ingo

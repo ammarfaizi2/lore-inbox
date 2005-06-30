@@ -1,41 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262493AbVF2HuH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262471AbVF2HuI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262493AbVF2HuH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 03:50:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262471AbVF2Hrp
+	id S262471AbVF2HuI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 03:50:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262489AbVF2Htg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 03:47:45 -0400
-Received: from pilet.ens-lyon.fr ([140.77.167.16]:11218 "EHLO
-	relaissmtp.ens-lyon.fr") by vger.kernel.org with ESMTP
-	id S262474AbVF2HqM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 03:46:12 -0400
-Message-ID: <42C251BE.7030505@ens-lyon.org>
-Date: Wed, 29 Jun 2005 09:46:06 +0200
-From: Brice Goglin <Brice.Goglin@ens-lyon.org>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.13-rc1
-References: <Pine.LNX.4.58.0506282310040.14331@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0506282310040.14331@ppc970.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	Wed, 29 Jun 2005 03:49:36 -0400
+Received: from zeus2.kernel.org ([204.152.191.36]:15301 "EHLO zeus2.kernel.org")
+	by vger.kernel.org with ESMTP id S262475AbVF2HtN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 03:49:13 -0400
+Message-Id: <200506290749.j5T7n1LA027830@zeus2.kernel.org>
+Date: Wed, 29 Jun 2005 17:49:37 -0700
+From: "Skg.Beard@comcast.net" <Feao.Hanson@comcast.net>
+To: linux-kernel-announce@vger.kernel.org
+Subject: linux-kernel-announce@vger.kernel.org Your Application Confirmation Wed, 29 Jun 2005 16:53:37 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le 29.06.2005 08:30, Linus Torvalds a écrit :
-> Ok, guys,
->  there was a lot of stuff pending after 2.6.12, and in the week and a half
-> since the release, the current diff against it has grown to almost three
-> megabytes compressed.
+Microsoft Office Outlook, Build 11.0.6353
+Message-Id: <2.20020816120021.01316aFeao.Hanson@comcast.net>
 
-Hi Linus,
+Hello,
 
-My video and music is played too fast. The ratio seems to be 1,6666.
-Note that I'm using HZ=1000. But I'm also using HZ=1000 in -mm for a
-while without any problem.
-Any idea ?
+We sent you an email a while ago, because you now qualify
+for a much lower rate based on the biggest rate drop in years.
 
-Brice
+You can now get $327,000 for as little as $617 a month!
+Bad credit? Doesn't matter, ^low rates are fixed no matter what!
+
+Follow this link to process your application and a 24 hour approval:
+
+http://www.fhrefi.net
+
+Best Regards,
+Roberta Mccoy
+
+
+http://www.fhrefi.net/book.php

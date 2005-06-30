@@ -1,77 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263120AbVF3XhT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261230AbVF3Xjt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263120AbVF3XhT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 19:37:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263123AbVF3XhS
+	id S261230AbVF3Xjt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 19:39:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263117AbVF3Xjs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 19:37:18 -0400
-Received: from chilli.pcug.org.au ([203.10.76.44]:28039 "EHLO smtps.tip.net.au")
-	by vger.kernel.org with ESMTP id S263120AbVF3XhJ (ORCPT
+	Thu, 30 Jun 2005 19:39:48 -0400
+Received: from gate.crashing.org ([63.228.1.57]:24505 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261230AbVF3Xji (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 19:37:09 -0400
-Date: Fri, 1 Jul 2005 09:36:50 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: chris@zankel.net, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: xtensa-cleanups-for-errno-and-ipc.patch added to -mm tree
-Message-Id: <20050701093650.5c211b31.sfr@canb.auug.org.au>
-In-Reply-To: <200506301308.00186.arnd@arndb.de>
-References: <200506300113.j5U1DxLH013112@shell0.pdx.osdl.net>
-	<200506301308.00186.arnd@arndb.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Thu, 30 Jun 2005 19:39:38 -0400
+Subject: Re: PCI Power management (was: Re: [PATCH 4/13]: PCI Err: e100
+	ethernet driver recovery
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linas Vepstas <linas@austin.ibm.com>
+Cc: Andi Kleen <ak@muc.de>, sfr@canb.auug.org.au, linux-kernel@vger.kernel.org,
+       long <tlnguyen@snoqualmie.dp.intel.com>,
+       Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
+       Greg KH <greg@kroah.com>, Paul Mackerras <paulus@samba.org>,
+       linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, johnrose@us.ibm.com,
+       linux-laptop@vger.kernel.org, mochel@transmeta.com, pavel@suse.cz
+In-Reply-To: <20050630203931.GY28499@austin.ibm.com>
+References: <20050628235848.GA6376@austin.ibm.com>
+	 <1120009619.5133.228.camel@gaston> <20050629155954.GH28499@austin.ibm.com>
+	 <20050629165828.GA73550@muc.de>  <20050630203931.GY28499@austin.ibm.com>
+Content-Type: text/plain
+Date: Fri, 01 Jul 2005 09:32:43 +1000
+Message-Id: <1120174364.31924.57.camel@gaston>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Fri__1_Jul_2005_09_36_50_+1000_WmfOjyby0L9hdpv0"
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Fri__1_Jul_2005_09_36_50_+1000_WmfOjyby0L9hdpv0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Thu, 2005-06-30 at 15:39 -0500, Linas Vepstas wrote:
 
-On Thu, 30 Jun 2005 13:07:59 +0200 Arnd Bergmann <arnd@arndb.de> wrote:
->
-> On Dunnersdag 30 Juni 2005 03:13, akpm@osdl.org wrote:
->=20
-> > From: Chris Zankel <chris@zankel.net>
-> >
-> > I noticed this because I was doing some more ipc cleanups and I did the
-> > original errno and ipc cleanups for other architectures, so it stuck ou=
-t.
-> >=20
-> > Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
-> > Signed-off-by: Chris Zankel <chris@zankel.net>
-> > Signed-off-by: Andrew Morton <akpm@osdl.org>
->=20
-> Actually, it would be better not to have sys_ipc or include/asm-xtensa/ip=
-c.h
-> at all but rather have all ipc syscalls as separate entry points.
+> Thus, the right thing to do might be to split up the 
+> struct pci_dev->suspend() and pci_dev->resume() calls into
+> 
+>    suspend()
+>    poweroff()
+>    poweron()
+>    resume()
 
-Absolutely true and I think the patch xtensa-remove-old-syscalls.patch
-that is in -mm also gets rid of sys_ipc.  If that is the case, then=20
-include/asm-xtensa/ipc.h can, indeed, be completely removed.
+No. There are very good reasons not to do that split at the pci_dev
+level.
+ 
+> and then have the generic pci error recovery routines call
+> suspend/resume only, skipping the poweroff-on calls.  Does that 
+> sound good?
+> 
+> I'm not sure I can pull this off without having someone from 
+> the power-management world throw a brick at me.
 
-> IIRC, parisc is the only architecture to get this right so far, so please
-> have a look there.
+Just keep the error recovery callbacks for now, and we might be able to
+provide a generic "helper" doing the watchdog thing (yes, there is a
+watchdog in the net core)
 
-alpha, x86_64 also has this done.
+Ben.
 
---=20
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
 
---Signature=_Fri__1_Jul_2005_09_36_50_+1000_WmfOjyby0L9hdpv0
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFCxIIXFdBgD/zoJvwRAqiuAJ9P65odiVBcIy4XHPlIdJmREClWNACfWyGi
-O4uDYz4gf66FVgfFlFn3zZo=
-=qz9H
------END PGP SIGNATURE-----
-
---Signature=_Fri__1_Jul_2005_09_36_50_+1000_WmfOjyby0L9hdpv0--

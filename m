@@ -1,56 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263140AbVF3UkN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263155AbVF3UlQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263140AbVF3UkN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 16:40:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263127AbVF3UgI
+	id S263155AbVF3UlQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 16:41:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263157AbVF3UkI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 16:36:08 -0400
-Received: from mail.dif.dk ([193.138.115.101]:19668 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S263112AbVF3UWY (ORCPT
+	Thu, 30 Jun 2005 16:40:08 -0400
+Received: from mail.dif.dk ([193.138.115.101]:17621 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S263150AbVF3Uja (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 16:22:24 -0400
-Date: Thu, 30 Jun 2005 22:28:27 +0200 (CEST)
+	Thu, 30 Jun 2005 16:39:30 -0400
+Date: Thu, 30 Jun 2005 22:45:29 +0200 (CEST)
 From: Jesper Juhl <juhl-lkml@dif.dk>
 Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Hannu Savolainen <hannu@opensound.com>,
-       linux-sound <linux-sound@vger.kernel.org>, akpm@osdl.org
-Subject: [PATCH] vfree cleanup for sound/oss/sequencer.c
-Message-ID: <Pine.LNX.4.62.0506302223340.2858@dragon.hyggekrogen.localhost>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Zach Brown <zab@zabbo.net>, linux-sound@vger.kernel.org, akpm@osdl.org
+Subject: [PATCH] cleanup NULL pointer check before vfree in sound/oss/maestro3.c
+Message-ID: <Pine.LNX.4.62.0506302241251.2858@dragon.hyggekrogen.localhost>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Don't bother checking for NULL, vfree can handle it.
+vfree() can take a NULL pointer so don't waste time checking first.
 
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
----
+ sound/oss/maestro3.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
- sound/oss/sequencer.c |   14 ++++----------
- 1 files changed, 4 insertions(+), 10 deletions(-)
-
---- linux-2.6.13-rc1-orig/sound/oss/sequencer.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc1/sound/oss/sequencer.c	2005-06-30 22:21:49.000000000 +0200
-@@ -1671,14 +1671,8 @@ void sequencer_init(void)
+--- linux-2.6.13-rc1-orig/sound/oss/maestro3.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.13-rc1/sound/oss/maestro3.c	2005-06-30 22:40:42.000000000 +0200
+@@ -2580,10 +2580,10 @@ static int alloc_dsp_suspendmem(struct m
  
- void sequencer_unload(void)
- {
--	if(queue)
--	{
--		vfree(queue);
--		queue=NULL;
--	}
--	if(iqueue)
--	{
--		vfree(iqueue);
--		iqueue=NULL;
--	}
-+	vfree(queue);
-+	queue = NULL;
-+	vfree(iqueue);
-+	iqueue = NULL;
+     return 0;
  }
-
++
+ static void free_dsp_suspendmem(struct m3_card *card)
+ {
+-   if(card->suspend_mem)
+-       vfree(card->suspend_mem);
++	vfree(card->suspend_mem);
+ }
+ 
+ #else
 
 

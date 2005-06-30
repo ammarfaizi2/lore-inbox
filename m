@@ -1,69 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262959AbVF3KzP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262940AbVF3LLE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262959AbVF3KzP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 06:55:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262946AbVF3Kym
+	id S262940AbVF3LLE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 07:11:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262941AbVF3LLE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 06:54:42 -0400
-Received: from ausmtp01.au.ibm.com ([202.81.18.186]:15517 "EHLO
-	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP id S262941AbVF3KVD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 06:21:03 -0400
-Date: Thu, 30 Jun 2005 20:20:39 +1000
-To: linuxppc64-dev@ozlabs.org, netdev@oss.sgi.com,
+	Thu, 30 Jun 2005 07:11:04 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:15550 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S262940AbVF3LK6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Jun 2005 07:10:58 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [PATCH] deinline sleep/delay functions
+Date: Thu, 30 Jun 2005 14:10:43 +0300
+User-Agent: KMail/1.5.4
+Cc: Andrew Morton <akpm@osdl.org>, Russell King <rmk+lkml@arm.linux.org.uk>,
        linux-kernel@vger.kernel.org
-From: Michael Ellerman <michael@ellerman.id.au>
-Subject: [PATCH 1/12] iseries_veth: Make error messages more user friendly, and add a debug macro
-In-Reply-To: <200506302016.55125.michael@ellerman.id.au>
-Message-Id: <1120126839.106943.128468321759.qpatch@concordia>
+References: <200506300852.25943.vda@ilport.com.ua> <200506301321.20692.vda@ilport.com.ua> <1120128441.3181.37.camel@laptopd505.fenrus.org>
+In-Reply-To: <1120128441.3181.37.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200506301410.43524.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Currently the iseries_veth driver prints the file name and line number in its
-error messages. This isn't very useful for most users, so just print
-"iseries_veth: message" instead.
+On Thursday 30 June 2005 13:47, Arjan van de Ven wrote:
+> On Thu, 2005-06-30 at 13:21 +0300, Denis Vlasenko wrote:
+> > On Thursday 30 June 2005 12:19, Arjan van de Ven wrote:
+> > > 
+> > > > > There are a number of compile-time checks that your patch has removed
+> > > > > which catch such things, and as such your patch is not acceptable.
+> > > > > Some architectures have a lower threshold of acceptability for the
+> > > > > maximum udelay value, so it's absolutely necessary to keep this.
+> > > > 
+> > > > It removes that check from x86 - other architectures retain it.
+> > > > 
+> > > > 
+> > For users, _any_ value, however large, will work for
+> > any delay function.
+> 
+> that's not desired though. Desired is to limit udelay() to say 2000 or
+> so. And force anything above that to go via mdelay() (just to make it
+> stand out as broken code ;)
 
-Also add a veth_debug() and veth_info() macro to replace the current
-veth_printk().
+An if(usec > 2000) { printk(..); dump_stack(); } will do.
 
+But do you really want to do this? There might be legitimate reasons
+to compute udelay's parameter with results which are sometimes large.
 
----
+If you really want to, let's decide on this limit now,
+before patch cooking. I err to conservative (large) limit
+(mostly in order to catch math underflows) or no limit at all.
+--
+vda
 
- drivers/net/iseries_veth.c |   15 ++++++++++++---
- 1 files changed, 12 insertions(+), 3 deletions(-)
-
-Index: veth-dev/drivers/net/iseries_veth.c
-===================================================================
---- veth-dev.orig/drivers/net/iseries_veth.c
-+++ veth-dev/drivers/net/iseries_veth.c
-@@ -79,6 +79,8 @@
- #include <asm/iommu.h>
- #include <asm/vio.h>
- 
-+#define DEBUG	1
-+
- #include "iseries_veth.h"
- 
- MODULE_AUTHOR("Kyle Lucke <klucke@us.ibm.com>");
-@@ -176,11 +178,18 @@ static void veth_timed_ack(unsigned long
-  * Utility functions
-  */
- 
--#define veth_printk(prio, fmt, args...) \
--	printk(prio "%s: " fmt, __FILE__, ## args)
-+#define veth_info(fmt, args...) \
-+	printk(KERN_INFO "iseries_veth: " fmt, ## args)
- 
- #define veth_error(fmt, args...) \
--	printk(KERN_ERR "(%s:%3.3d) ERROR: " fmt, __FILE__, __LINE__ , ## args)
-+	printk(KERN_ERR "iseries_veth: Error: " fmt, ## args)
-+
-+#ifdef DEBUG
-+#define veth_debug(fmt, args...) \
-+	printk(KERN_DEBUG "iseries_veth: " fmt, ## args)
-+#else
-+#define veth_debug(fmt, args...) do {} while (0)
-+#endif
- 
- static inline void veth_stack_push(struct veth_lpar_connection *cnx,
- 				   struct veth_msg *msg)

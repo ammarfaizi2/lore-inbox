@@ -1,48 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262986AbVF3Tcl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263003AbVF3Tcl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262986AbVF3Tcl (ORCPT <rfc822;willy@w.ods.org>);
+	id S263003AbVF3Tcl (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 30 Jun 2005 15:32:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262985AbVF3Tbq
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262987AbVF3Tb0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 15:31:46 -0400
-Received: from mail.kroah.org ([69.55.234.183]:16526 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262986AbVF3TaB (ORCPT
+	Thu, 30 Jun 2005 15:31:26 -0400
+Received: from mail.kroah.org ([69.55.234.183]:14990 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262985AbVF3T37 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 15:30:01 -0400
-Date: Thu, 30 Jun 2005 08:54:53 -0700
+	Thu, 30 Jun 2005 15:29:59 -0400
+Date: Thu, 30 Jun 2005 09:05:06 -0700
 From: Greg KH <greg@kroah.com>
-To: eric.valette@free.fr
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: updating kernel to 2.6.13-rc1 from 2.6.12 + CONFIG_DEVFS_FS + empty /dev
-Message-ID: <20050630155453.GA6828@kroah.com>
-References: <42C30CBC.5030704@free.fr> <20050629224040.GB18462@kroah.com> <1120137161.42c3efc93b36c@imp1-q.free.fr>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: Kristen Accardi <kristen.c.accardi@intel.com>, rajesh.shah@intel.com,
+       gregkh@suse.de, ak@suse.de, len.brown@intel.com, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       acpi-devel@lists.sourceforge.net
+Subject: Re: [patch 2/2] i386/x86_64: collect host bridge resources v2
+Message-ID: <20050630160506.GD6828@kroah.com>
+References: <20050602224147.177031000@csdlinux-1> <20050602224327.051278000@csdlinux-1> <20050628155152.A24551@jurassic.park.msu.ru> <1119982914.19258.6.camel@whizzy> <20050629000300.A26118@jurassic.park.msu.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1120137161.42c3efc93b36c@imp1-q.free.fr>
+In-Reply-To: <20050629000300.A26118@jurassic.park.msu.ru>
 User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 30, 2005 at 03:12:41PM +0200, eric.valette@free.fr wrote:
-> Quoting Greg KH <greg@kroah.com>:
+On Wed, Jun 29, 2005 at 12:03:00AM +0400, Ivan Kokshaysky wrote:
+> On Tue, Jun 28, 2005 at 11:21:54AM -0700, Kristen Accardi wrote:
+> > I gave this patch a try (against mm2), and found that I now get many
+> > errors on boot up complaining about not being able to allocate PCI
+> > resources due to resource collisions, and then the system begins to
+> > complain about lost interrupts on hda, and is never able to mount the
+> > root filesystem.
 > 
-> > On Wed, Jun 29, 2005 at 11:03:56PM +0200, Eric Valette wrote:
-> > > For years now my /dev has been empty. When upgrading to 2.6.13-rc1 from
-> > > 2.6.12, and updating my kernel config file via "make oldconfig" I got no
-> > > visible warning about CONFIG_DEVFS_FS options being set (or at least did
-> > > no see it).
-> >
-> > devfs has been marked OBSOLETE for a year now.  It has also been
-> > documented as going away.  Because of this, you should not have been
-> > supprised at all.
-> 
-> I knew it! I just the announce for 2.6.13-rc1 did not contain this fact and I
-> did not realize booting this new kernel will fail on my machine which is bad for
-> a stable serie.
+> Well, I'm not surprised. :-(
+> Probably there is a conflict between e820 map and root bus ranges
+> reported by ACPI. I think that it would be better to just drop
+> gregkh-pci-pci-collect-host-bridge-resources-02.patch rather than
+> try to fix it, at least until such conflicts can be resolved in
+> a sane way.
 
-As there is no longer a "development series" calling 2.6 a "stable
-series" isn't really true :)
+Ok, I'll drop it.  Any objections to me doing this?
+
+So, with the remaining pci patches, (as seen in
+kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/patches/pci/) are
+there any objections to me pushing these (with the exception of the
+above one) to Linus?  I think there was one report of the
+pci-assign-unassigned-resources.patch patch causing boot problems on one
+box, but that might have also been due to the above patch, am not sure.
+
+Ah, the joys of acpi and pci resources... bleah.
 
 thanks,
 

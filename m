@@ -1,264 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262980AbVF3OWY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262979AbVF3O0n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262980AbVF3OWY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 10:22:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262979AbVF3OWY
+	id S262979AbVF3O0n (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 10:26:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262985AbVF3O0n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 10:22:24 -0400
-Received: from [195.22.6.196] ([195.22.6.196]:56004 "HELO evoluta.pt")
-	by vger.kernel.org with SMTP id S262983AbVF3OTh (ORCPT
+	Thu, 30 Jun 2005 10:26:43 -0400
+Received: from mout.perfora.net ([217.160.230.41]:42455 "EHLO mout.perfora.net")
+	by vger.kernel.org with ESMTP id S262974AbVF3OYi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 10:19:37 -0400
-Subject: Qlogic ISP1020
-From: Rui Barreiros <rbarreiros@evoluta.pt>
-To: linux-kernel@vger.kernel.org
+	Thu, 30 Jun 2005 10:24:38 -0400
+Subject: Re: reiser4 vs politics: linux misses out again
+From: Christopher Warner <chris@servertogo.com>
+To: shevek@bur.st
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1120134372.42c3e4e49e610@webmail.bur.st>
+References: <1120134372.42c3e4e49e610@webmail.bur.st>
 Content-Type: text/plain
-Date: Thu, 30 Jun 2005 15:19:21 +0100
-Message-Id: <1120141161.7136.104.camel@aragorn>
+Date: Thu, 30 Jun 2005 05:44:00 -0400
+Message-Id: <1120124641.29714.10.camel@sabrina>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
+X-Provags-ID: perfora.net abuse@perfora.net login:d2cbd72fb1ab4860f78cabc62f71ec31
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Sweeping change is nice, incremental change is much more sweeter. The
+problem is that the "filesystem" in and of itself is where data is kept.
+In most cases people who run commercial businesses aren't going to
+change their filesystem type unless their is a clear advantage.
 
-I recently acquired an alphaserver 1000a 5/400 and after struggling a
-bit to get a decent linux distro running i finally made it.
+Therefore, you're argument negates real world. Your argument should be
+more about structure and a seamless migration path.
 
-Right now it's using alphacore, with a vanilla kernel (that is,
-downloaded yesterday from kernel.org not the stock fedora kernel in
-which is based the distro)
+The argument isn't about technical merit.
 
-[root@gimli ~]# uname -a
-Linux gimli 2.6.12.2 #1 Thu Jun 30 10:48:19 WEST 2005 alpha alpha alpha
-GNU/Linux
+-- 
+.-Christopher Warner---------------------------------------------.
+| my email is recycled to be sure; bcc my personal email address |
+`----------------------------------------------------------------'
 
-The problem is with the usage of the tape that comes with the system (a
-DEC TLZ09 aka Sony SDT-7000), the problem seems not to be the tape, but
-qlogicisp scsi driver, whatever i do with the tape, the device get's
-offlined and that console hangs here is the messages log (note i can do
-a mt status without any problem, all the other commands that imply the
-usage of the tape like erase, rewind, retension etc, have the problem)
-
-Jun 30 13:14:36 gimli kernel: scsi(0): Resetting
-Cmnd=0xfffffc000d9eacc0, Handle=0x0000000000000202, action=0x2
-Jun 30 13:14:36 gimli kernel: scsi(0:0:4:0): Queueing device reset
-command.
-Jun 30 13:14:36 gimli kernel: scsi(0): Resetting
-Cmnd=0xfffffc000d9eacc0, Handle=0x0000000000000202, action=0x3
-Jun 30 13:14:36 gimli kernel: qla1280(0:0): Issuing BUS DEVICE RESET
-Jun 30 13:14:36 gimli kernel: scsi(0:1): Resetting SCSI BUS
-Jun 30 13:14:36 gimli kernel: scsi(0): Resetting
-Cmnd=0xfffffc000d9eacc0, Handle=0x0000000000000202, action=0x4
-Jun 30 13:14:36 gimli kernel: scsi(0): Issued ADAPTER RESET
-Jun 30 13:14:36 gimli kernel: scsi(0): I/O processing will continue
-automatically
-Jun 30 13:14:36 gimli kernel: scsi(0): dequeuing outstanding commands
-Jun 30 13:14:37 gimli kernel: scsi(0:0): Resetting SCSI BUS
-Jun 30 13:14:47 gimli kernel: scsi: Device offlined - not ready after
-error recovery: host 0 channel 0 id 4 lun 0
-Jun 30 13:14:47 gimli kernel: st0: Error 2 (sugg. bt 0x0, driver bt 0x0,
-host bt 0x0).
-Jun 30 13:14:47 gimli kernel: scsi0 (4:0): rejecting I/O to offline
-device
-
-I had a look at the driver source in the kernel and noticed this in
-qla1280.c
-
-    Rev  3.25, September 28, 2004, Christoph Hellwig
-        - add support for ISP1020/1040
-        - don't include "scsi.h" anymore for 2.6.x
-    Rev  3.24.4 June 7, 2004 Christoph Hellwig
-        - restructure firmware loading, cleanup initialization code
-        - prepare support for ISP1020/1040 chips
-
-does this mean it isn't fully supported yet ?
-
-Another thing, i wasn't supposed to send this to this list, but i
-couldn't find the correct mantainer of this specific driver, can someone
-point him out so that we can further talk into solving this issue.
-
-Best regards,
-
-Here goes complete dmesg:
-
-Linux version 2.6.12.2 (root@gimli) (gcc version 3.4.3 20050221 (Red Hat
-3.4.3-20)) #1 Thu Jun 30 10:48:19 WEST 2005
-Booting on Noritake using machine vector Noritake-Primo from SRM
-Major Options: EV56 LEGACY_START DEBUG_SPINLOCK MAGIC_SYSRQ
-Command line:  root=/dev/sdb1
-memcluster 0, usage 1, start        0, end      226
-memcluster 1, usage 0, start      226, end    32742
-memcluster 2, usage 1, start    32742, end    32768
-freeing pages 226:384
-freeing pages 976:32742
-reserving pages 976:977
-Initial ramdisk at: 0xfffffc000fea2000 (1215791 bytes)
-2048K Bcache detected; load hit latency 38 cycles, load miss latency 172
-cycles
-pci: cia revision 2
-On node 0 totalpages: 32742
-  DMA zone: 32742 pages, LIFO batch:15
-  Normal zone: 0 pages, LIFO batch:1
-  HighMem zone: 0 pages, LIFO batch:1
-Built 1 zonelists
-Kernel command line:  root=/dev/sdb1
-PID hash table entries: 1024 (order: 10, 32768 bytes)
-Using epoch = 2000
-Console: colour VGA+ 80x25
-Dentry cache hash table entries: 65536 (order: 6, 524288 bytes)
-Inode-cache hash table entries: 32768 (order: 5, 262144 bytes)
-Memory: 250880k/261936k available (2941k kernel code, 8560k reserved,
-640k data, 208k init)
-Calibrating delay loop... 793.68 BogoMIPS (lpj=387072)
-Security Framework v1.0.0 initialized
-SELinux:  Initializing.
-SELinux:  Starting in permissive mode
-selinux_register_security:  Registering secondary module capability
-Capability LSM initialized as secondary
-Mount-cache hash table entries: 512
-checking if image is initramfs... it is
-Freeing initrd memory: 1187k freed
-NET: Registered protocol family 16
-EISA bus registered
-pci: passed tb register update test
-pci: passed sg loopback i/o read test
-pci: passed tbia test
-pci: passed pte write cache snoop test
-pci: failed valid tag invalid pte reload test (mcheck; workaround
-available)
-pci: passed pci machine check test
-pci: enabling save/restore of SRM state
-PCI: Bridge: 0000:00:08.0
-  IO window: 9000-9fff
-  MEM window: 04000000-057fffff
-  PREFETCH window: disabled.
-Linux Plug and Play Support v0.97 (c) Adam Belay
-audit: initializing netlink socket (disabled)
-audit(1120133401.805:0): initialized
-VFS: Disk quotas dquot_6.5.1
-Dquot-cache hash table entries: 1024 (order 0, 8192 bytes)
-SELinux:  Registering netfilter hooks
-Initializing Cryptographic API
-isapnp: Scanning for PnP cards...
-isapnp: No Plug & Play device found
-rtc: SRM (post-2000) epoch (2000) detected
-Real Time Clock Driver v1.12
-Linux agpgart interface v0.101 (c) Dave Jones
-[drm] Initialized drm 1.0.0 20040925
-serio: i8042 AUX port at 0x60,0x64 irq 12
-serio: i8042 KBD port at 0x60,0x64 irq 1
-Serial: 8250/16550 driver $Revision: 1.90 $ 8 ports, IRQ sharing enabled
-ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
-ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
-io scheduler noop registered
-io scheduler anticipatory registered
-io scheduler deadline registered
-io scheduler cfq registered
-RAMDISK driver initialized: 16 RAM disks of 16384K size 1024 blocksize
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-ide: Assuming 33MHz system bus speed for PIO modes; override with
-idebus=xx
-Probing IDE interface ide0...
-Probing IDE interface ide1...
-Probing IDE interface ide2...
-Probing IDE interface ide3...
-ide-floppy driver 0.99.newide
-mice: PS/2 mouse device common for all mice
-md: md driver 0.90.1 MAX_MD_DEVS=256, MD_SB_DISKS=27
-EISA: Probing bus 0 at 0000:00:07.0
-EISA: Mainboard DEC5000 detected.
-EISA: Detected 0 cards.
-NET: Registered protocol family 2
-IP: routing cache hash table of 512 buckets, 28Kbytes
-TCP established hash table entries: 32768 (order: 5, 262144 bytes)
-TCP bind hash table entries: 32768 (order: 7, 1835008 bytes)
-TCP: Hash tables configured (established 32768 bind 32768)
-NET: Registered protocol family 1
-Freeing unused kernel memory: 208k freed
-SCSI subsystem initialized
-qla1280: QLA1040 found on PCI bus 1, dev 0
-input: AT Translated Set 2 keyboard on isa0060/serio0
-scsi(0:0): Resetting SCSI BUS
-scsi0 : QLogic QLA1040 PCI to SCSI Host Adapter
-       Firmware version:  7.65.00, Driver version 3.25
-input: ImPS/2 Generic Wheel Mouse on isa0060/serio1
-  Vendor: DEC       Model: RZ1BB-BS (C) DEC  Rev: 0818
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-scsi(0:0:0:0): Sync: period 10, offset 12, Wide, Tagged queuing: depth
-255
-SCSI device sda: 4110480 512-byte hdwr sectors (2105 MB)
-SCSI device sda: drive cache: write through
-SCSI device sda: 4110480 512-byte hdwr sectors (2105 MB)
-SCSI device sda: drive cache: write through
- sda: sda1 sda2 sda3
-Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
-  Vendor: DEC       Model: RZ2CA-KA (C) DEC  Rev: N1H1
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-scsi(0:0:1:0): Sync: period 10, offset 12, Wide, Tagged queuing: depth
-255
-SCSI device sdb: 8380080 512-byte hdwr sectors (4291 MB)
-SCSI device sdb: drive cache: write through
-SCSI device sdb: 8380080 512-byte hdwr sectors (4291 MB)
-SCSI device sdb: drive cache: write through
- sdb: sdb1
-Attached scsi disk sdb at scsi0, channel 0, id 1, lun 0
-  Vendor: DEC       Model: RZ2CA-KA (C) DEC  Rev: N1H1
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-scsi(0:0:2:0): Sync: period 10, offset 12, Wide, Tagged queuing: depth
-255
-SCSI device sdc: 8380080 512-byte hdwr sectors (4291 MB)
-SCSI device sdc: drive cache: write through
-SCSI device sdc: 8380080 512-byte hdwr sectors (4291 MB)
-SCSI device sdc: drive cache: write through
- sdc: sdc1
-Attached scsi disk sdc at scsi0, channel 0, id 2, lun 0
-  Vendor: DEC       Model: TLZ09     (C)DEC  Rev: 0173
-  Type:   Sequential-Access                  ANSI SCSI revision: 02
-scsi(0:0:4:0): Sync: period 10, offset 12
-  Vendor: DEC       Model: RRD46   (C) DEC   Rev: 1337
-  Type:   CD-ROM                             ANSI SCSI revision: 02
-scsi(0:0:5:0): Sync: period 10, offset 12
-kjournald starting.  Commit interval 5 seconds
-EXT3-fs: mounted filesystem with ordered data mode.
-SELinux:  Disabled at runtime.
-SELinux:  Unregistering netfilter hooks
-st: Version 20050312, fixed bufsize 32768, s/g segs 256
-Attached scsi tape st0 at scsi0, channel 0, id 4, lun 0
-st0: try direct i/o: yes (alignment 512 B), max page reachable by HBA
-32742
-sr0: scsi-1 drive
-Uniform CD-ROM driver Revision: 3.20
-Attached scsi CD-ROM sr0 at scsi0, channel 0, id 5, lun 0
-Floppy drive(s): fd0 is 2.88M
-FDC 0 is a National Semiconductor PC87306
-3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
-0000:00:0d.0: 3Com PCI 3c905B Cyclone 100baseTx at 0xa000. Vers LK1.1.19
-md: Autodetecting RAID arrays.
-md: autorun ...
-md: ... autorun DONE.
-EXT3 FS on sdb1, internal journal
-device-mapper: 4.4.0-ioctl (2005-01-12) initialised: dm-devel@redhat.com
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS on sda1, internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS on sda3, internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS on sdc1, internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-Adding 511984k swap on /dev/sda2.  Priority:-1 extents:1
-parport0: PC-style at 0x3bc [PCSPP]
-st0: Block limits 1 - 16777215 bytes.
-ip_tables: (C) 2000-2002 Netfilter core team
-ip_conntrack version 2.1 (1023 buckets, 8184 max) - 384 bytes per
-conntrack
-NET: Registered protocol family 17
-NET: Registered protocol family 10
-Disabled Privacy Extensions on device fffffc0000709850(lo)
-IPv6 over IPv4 tunneling driver
-eth0: no IPv6 routers present
+On Thu, 2005-06-30 at 22:26 +1000, shevek@bur.st wrote:
+> As far as I'm concerned, commercial trolls have successfully taken away
+> linux's only ever chance to sweep the field.
+> 
+> It is now gone. OSX rocks harder than linux, the spotlight function is superb.
+> 
+> That plus this squabbling is buying m$ enough time to make their version.
+> 
+> I label according to the observed effect. I haven't read the code.
+> 
+> Linux coulda had the OSX-type spotlight thing working, plus twice as fast
+> filesystem 6 months or a year before Apple ... and a couple of years before m$.
+> 
+> Someone shoulda simply forked it then. When Hans first said 'replace VFS with
+> reiser4'. I doubt he could have done it by himself ... they (trolls) would
+> simply isolate his work and write his efforts off as the typical actions of a
+> lone looney ... as they already characterise him.
+> 
+> The achievement reiser4 represents cannot be overstated. Genuine linux
+> developers would have bent over backwards to get this as the primary filesystem
+> for linux. Noone has ever doubled filesystem performance before, as far as I
+> know, except the BeOS development team who have been divided as spoils of war
+> between the two major competitors Apple and M$.
+> 
+> And he did so in a way that (a) provides for simple expansion in arbitrary
+> directions without hackish horror such as AVFS presents; and (b) enables
+> provision of compatibility with any arbitrary filesystem featureset.
+> 
+> What is all the complaining about?
+> 
+> And who are these guys?
+> 
+> Reiser has chased around trying to respond to all your criticisms for how long
+> now? A year? Many of the critics I recall hadn't even read the material on his
+> web site. Are these the same people now further delaying linux's adoption of
+> 21st century filesystem semantics?
+> 
+> So many of the arguments I read are circular.
+> 
+> eg
+> 
+> * reiser4 can't be included until it has had widespread testing.
+> 
+> * reiser4 shouldn't contain two levels of plugins, since plugins properly belong
+> in the awful hackish AVFS layer, above the VFS layer.
+> 
+> In fact the main impediment to reiser4 having been widely tested, in my
+> ill-educated opinion, is simply that the directories look like files. This
+> means a lot of application code needs minor tweaks, or at least thorough
+> testing. Yet, it should be trivial to fix reiser4 so that directories don't
+> look like files, no? using plugins?
+> 
+> Some arguments against reiser4 show that the arguer in question is even less
+> well educated than even myself. ie, the person has not even tried reiser4.
+> 
+> Anyone who has, finds themselves so blown away by the apparent doubling of speed
+> of any disk-bound task, that they start to question how much effort must have
+> gone into making previous filesystems so slow. Who ever thought putting a
+> transaction log at the end of the disk furthest away from where the data needs
+> to be written would be a good thing? Why should it not go just near to where
+> the head happens to be already? Thankyou Hans for showing us how.
+> 
+> To argue that benchmarks do not truly reflect real world use, you must never
+> have even taken the time to real world use this thing. While Herr Reiser has
+> put years of his life, and now apparently also much of his money, into creating
+> it for you.
+> 
+> Try and get a wider scope on life, people. What is better for the future? Slow,
+> dawdling development on slow dawdling filesystems and their supporting
+> architecture, when we have been shown a fully functioning, effective and I am
+> led to believe, simple replacement?
+> 
+> Well, like I said at the start, it's too late, if you do not like that path. We
+> are now trapped there. The masses of users who would have been attracted by
+> linux beating Apple and M$ to the punch, are now fading into some potential
+> parallel universe. It's not this one. Hang your heads in shame, and cry. We
+> lost. We are back to the same commercial monopoly-dominated market that we ever
+> had. The loser is all of us, the common good, which has been sacrificed for the
+> good of the few, by the invisible hand of the market, and the collective
+> unconsciousness.
+> 
+> Simeon
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 

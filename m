@@ -1,56 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262907AbVF3JMD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262910AbVF3JRe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262907AbVF3JMD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 05:12:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262908AbVF3JMD
+	id S262910AbVF3JRe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 05:17:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262911AbVF3JRe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 05:12:03 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:1255 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262907AbVF3JL4 (ORCPT
+	Thu, 30 Jun 2005 05:17:34 -0400
+Received: from mail.zmailer.org ([62.78.96.67]:746 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id S262910AbVF3JRb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 05:11:56 -0400
-Date: Thu, 30 Jun 2005 02:11:11 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: vda@ilport.com.ua, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] deinline sleep/delay functions
-Message-Id: <20050630021111.35aaf45f.akpm@osdl.org>
-In-Reply-To: <20050630095246.A13407@flint.arm.linux.org.uk>
-References: <200506300852.25943.vda@ilport.com.ua>
-	<20050630095246.A13407@flint.arm.linux.org.uk>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 30 Jun 2005 05:17:31 -0400
+Date: Thu, 30 Jun 2005 12:17:27 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Ville Sundell <ville.sundell@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Build-in XML support?
+Message-ID: <20050630091727.GB22165@mea-ext.zmailer.org>
+References: <ec2c5c2205062903511d62d6bf@mail.gmail.com> <ec2c5c2205063002091ba9e818@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ec2c5c2205063002091ba9e818@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King <rmk+lkml@arm.linux.org.uk> wrote:
->
-> On Thu, Jun 30, 2005 at 08:52:25AM +0300, Denis Vlasenko wrote:
-> > Hi Andrew,
-> > 
-> > Optimizing delay functions for speed is utterly pointless.
-> > 
-> > This patch turns ssleep(n), mdelay(n), udelay(n) and ndelay(n)
-> > into functions, thus they generate the smallest possible code
-> > at the callsite. Previously they were more or less inlined.
-> > 
-> > Run tested. Saved a few kb off vmlinux.
-> > 
-> > Signed-off-by: Denis Vlasenko <vda@ilport.com.ua>
+On Thu, Jun 30, 2005 at 12:09:35PM +0300, Ville Sundell wrote:
+> Sorry guys!
+> I say it wrong way, I mean:
+> Other programs would like use build-in and "standard" linux XML-parser.
 > 
-> Rejected-by: Russell King 8)
-> 
-> The reason is that now we're unable to find out if anyone's doing
-> udelay(100000000000000000) which breaks on most architectures.
-> 
-> There are a number of compile-time checks that your patch has removed
-> which catch such things, and as such your patch is not acceptable.
-> Some architectures have a lower threshold of acceptability for the
-> maximum udelay value, so it's absolutely necessary to keep this.
+> It would make standard way to read xml-files in Linux?
+> Advertise speech:
+>     No more 1 000 different XML readers, only one, and people can
+> make it better :D
 
-It removes that check from x86 - other architectures retain it.
+And why should it be in KERNEL ?   You are writing in
+Linux-Kernel -list about it, after all ?
 
-I don't recall seeing anyone trigger the check, and it hardly seems worth
-adding a "few kb" to vmlinux for it?
+Kernel sources do not carry things like glibc, on which all
+applications do rely on rather heavily.  Why should there
+be XML-support, which is not needed by all programs ?
+
+> Michael Buesch, that source you paste, it is good, it is better than mine! :)
+> 
+> Comments please!
+> -Ville Sundell
+
+/Matti Aarnio

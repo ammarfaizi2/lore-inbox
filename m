@@ -1,214 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263130AbVF3VY3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263107AbVF3Uet@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263130AbVF3VY3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 17:24:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263074AbVF3VW2
+	id S263107AbVF3Uet (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 16:34:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263085AbVF3UWP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 17:22:28 -0400
-Received: from sabe.cs.wisc.edu ([128.105.6.20]:52636 "EHLO sabe.cs.wisc.edu")
-	by vger.kernel.org with ESMTP id S263152AbVF3VSs (ORCPT
+	Thu, 30 Jun 2005 16:22:15 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:31141 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S263074AbVF3Tzx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 17:18:48 -0400
-Message-ID: <37114.127.0.0.1.1120166322.squirrel@localhost>
-In-Reply-To: <20050630194540.GA15389@suse.de>
-References: <20050630060206.GA23321@kroah.com>
-    <34128.127.0.0.1.1120152169.squirrel@localhost>
-    <20050630194540.GA15389@suse.de>
-Date: Thu, 30 Jun 2005 16:18:42 -0500 (CDT)
-Subject: [PATCH] add class_interface pointer to add and remove functions
-From: "John Lenz" <lenz@cs.wisc.edu>
-To: "Greg KH" <gregkh@suse.de>
-Cc: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.4
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+	Thu, 30 Jun 2005 15:55:53 -0400
+Message-Id: <200506301952.j5UJqPrn013513@laptop11.inf.utfsm.cl>
+To: mjt@nysv.org (Markus =?ISO-8859-1?Q?=20T=F6rnqvist?=)
+cc: Nikita Danilov <nikita@clusterfs.com>,
+       Douglas McNaught <doug@mcnaught.org>, Hubert Chan <hubert@uhoreg.ca>,
+       Kyle Moffett <mrmacman_g4@mac.com>, David Masover <ninja@slaphack.com>,
+       Valdis.Kletnieks@vt.edu, Lincoln Dale <ltd@cisco.com>,
+       Gregory Maxwell <gmaxwell@gmail.com>, Hans Reiser <reiser@namesys.com>,
+       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: reiser4 plugins 
+In-Reply-To: Message from mjt@nysv.org (Markus =?ISO-8859-1?Q?=20T=F6rnqvist?=) 
+   of "Thu, 30 Jun 2005 18:37:38 +0300." <20050630153738.GU11013@nysv.org> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
+Date: Thu, 30 Jun 2005 15:52:25 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, June 30, 2005 2:45 pm, Greg KH said:
-> On Thu, Jun 30, 2005 at 12:22:49PM -0500, John Lenz wrote:
->> As long as there are a whole bunch of class API changes going on, I would
->> request that the class_interface add and remove functions get passed the
->> class_interface pointer as well as the class_device.  This way, the same
->> function can be used on multiple class_interfaces.
->
-> I'm sorry, I seem to have missed the patch in this email that implements
-> this feature...
->
+Markus   Törnqvist <mjt@nysv.org> wrote:
+> On Thu, Jun 30, 2005 at 07:18:47PM +0400, Nikita Danilov wrote:
+> >Sorry, I don't see your point. Again: if you think that user level
+> >developers are unlikely to agree to the common framework, what
+> >difference it makes whether this framework is defined at the kernel or
+> >library boundary? Applications would have to be changed to conform to
+> >the common API either way.
 
-Here is a patch that updates every usage of class_interface I could find.
+> I see it as a heavier incentive to do it by a framework that's in
+> the kernel.
 
-Signed-off-by: John Lenz <lenz@cs.wisc.edu>
+API is API, if in-kernel, in-X-lib, or in-userland-VFS-lib is completely
+irrelevant.
 
-Index: linux-2.6.12/drivers/message/i2o/device.c
-===================================================================
---- linux-2.6.12.orig/drivers/message/i2o/device.c	2005-06-30 11:54:55.000000000 -0500
-+++ linux-2.6.12/drivers/message/i2o/device.c	2005-06-30 16:00:55.756158383 -0500
-@@ -385,7 +385,7 @@
-  *
-  *	Returns 0 on success or negative error code on failure.
-  */
--static int i2o_device_class_add(struct class_device *cd)
-+static int i2o_device_class_add(struct class_interface *class_intf, struct class_device *cd)
- {
- 	struct i2o_device *i2o_dev, *tmp;
- 	struct i2o_controller *c;
-Index: linux-2.6.12/drivers/base/class.c
-===================================================================
---- linux-2.6.12.orig/drivers/base/class.c	2005-06-30 11:54:52.000000000 -0500
-+++ linux-2.6.12/drivers/base/class.c	2005-06-30 15:58:53.321286879 -0500
-@@ -505,7 +505,7 @@
- 		list_add_tail(&class_dev->node, &parent->children);
- 		list_for_each_entry(class_intf, &parent->interfaces, node)
- 			if (class_intf->add)
--				class_intf->add(class_dev);
-+				class_intf->add(class_intf, class_dev);
- 		up(&parent->sem);
- 	}
- 	kobject_hotplug(&class_dev->kobj, KOBJ_ADD);
-@@ -585,7 +585,7 @@
- 		list_del_init(&class_dev->node);
- 		list_for_each_entry(class_intf, &parent->interfaces, node)
- 			if (class_intf->remove)
--				class_intf->remove(class_dev);
-+				class_intf->remove(class_intf, class_dev);
- 		up(&parent->sem);
- 	}
+> >If you can force application developers to conform to the LSB why you
+> >cannot do the same with the library level interface?
 
-@@ -688,7 +688,7 @@
- 	list_add_tail(&class_intf->node, &parent->interfaces);
- 	if (class_intf->add) {
- 		list_for_each_entry(class_dev, &parent->children, node)
--			class_intf->add(class_dev);
-+			class_intf->add(class_intf, class_dev);
- 	}
- 	up(&parent->sem);
+> If I want to access metadata with bash, do I patch bash to support
+> both Gnome's and KDE's solutions? Was there one of XFCE too?
+> And FooBarXyzzyWM that'll want to do it's own VFS next year?
 
-@@ -707,7 +707,7 @@
- 	list_del_init(&class_intf->node);
- 	if (class_intf->remove) {
- 		list_for_each_entry(class_dev, &parent->children, node)
--			class_intf->remove(class_dev);
-+			class_intf->remove(class_intf, class_dev);
- 	}
- 	up(&parent->sem);
+It's your only option... or get them together and define a common
+framework.
 
-Index: linux-2.6.12/drivers/pcmcia/ds.c
-===================================================================
---- linux-2.6.12.orig/drivers/pcmcia/ds.c	2005-06-30 11:54:56.000000000 -0500
-+++ linux-2.6.12/drivers/pcmcia/ds.c	2005-06-30 16:02:14.382619884 -0500
-@@ -1148,7 +1148,7 @@
- 	.requery = pcmcia_bus_rescan,
- };
+But then again, what would I want to do with metadata in bash? If needed,
+it is probably much easier to write tools to extract whatever is needed, no
+reason to futz around with the shell. That simple idea was the single most
+important advance Unix introduced: The shell is a /simple/ program, it
+doesn't do word processing and coffee brewing for you. That is handled by
+other programs, one for each task.
 
--static int __devinit pcmcia_bus_add_socket(struct class_device *class_dev)
-+static int __devinit pcmcia_bus_add_socket(struct class_interface *class_intf, struct class_device *class_dev)
- {
- 	struct pcmcia_socket *socket = class_get_devdata(class_dev);
- 	int ret;
-@@ -1183,7 +1183,7 @@
- 	return 0;
- }
+> I'd also guess that the upstream guys would much rather have
+> patches for their progs that conform to the kernel than some
+> obscure neighbor userspace system.
 
--static void pcmcia_bus_remove_socket(struct class_device *class_dev)
-+static void pcmcia_bus_remove_socket(struct class_interface *class_intf, struct class_device *class_dev)
- {
- 	struct pcmcia_socket *socket = class_get_devdata(class_dev);
+Or just keep only their own obscure userspace system, no need to have to
+mess with our own format and a kernel system.
 
-Index: linux-2.6.12/drivers/scsi/sg.c
-===================================================================
---- linux-2.6.12.orig/drivers/scsi/sg.c	2005-06-30 11:54:57.000000000 -0500
-+++ linux-2.6.12/drivers/scsi/sg.c	2005-06-30 16:06:23.123755439 -0500
-@@ -104,8 +104,8 @@
+> Sure looks like having this in the kernel makes it easiest; there's
+> just one common denominator to patch for.
 
- #define SG_DEV_ARR_LUMP 32	/* amount to over allocate sg_dev_arr by */
+Again: API is API. If in kernel or in a standard library makes no
+difference. Libary is /much/ easier to develop, and hugely more
+flexible. It is for a reason that printf(3) and qsort(3) are /not/
+in-kernel.
 
--static int sg_add(struct class_device *);
--static void sg_remove(struct class_device *);
-+static int sg_add(struct class_interface *class_intf, struct class_device *);
-+static void sg_remove(struct class_interface *class_intf, struct class_device *);
+> This doesn't even invalidate the userland VFSs of the other guys,
+> they're still needed for systems whose kernels don't have a
+> metadata facility.
 
- static Scsi_Request *dummy_cmdp;	/* only used for sizeof */
-
-@@ -1507,7 +1507,7 @@
- }
-
- static int
--sg_add(struct class_device *cl_dev)
-+sg_add(struct class_interface *class_intf, struct class_device *cl_dev)
- {
- 	struct scsi_device *scsidp = to_scsi_device(cl_dev->dev);
- 	struct gendisk *disk;
-@@ -1583,7 +1583,7 @@
- }
-
- static void
--sg_remove(struct class_device *cl_dev)
-+sg_remove(struct class_interface *class_intf, struct class_device *cl_dev)
- {
- 	struct scsi_device *scsidp = to_scsi_device(cl_dev->dev);
- 	Sg_device *sdp = NULL;
-Index: linux-2.6.12/drivers/pcmcia/socket_sysfs.c
-===================================================================
---- linux-2.6.12.orig/drivers/pcmcia/socket_sysfs.c	2005-06-30 11:54:56.000000000 -0500
-+++ linux-2.6.12/drivers/pcmcia/socket_sysfs.c	2005-06-30 16:04:24.233249703 -0500
-@@ -342,7 +342,7 @@
- 	.write = pccard_store_cis,
- };
-
--static int __devinit pccard_sysfs_add_socket(struct class_device *class_dev)
-+static int __devinit pccard_sysfs_add_socket(struct class_interface *class_intf, struct class_device *class_dev)
- {
- 	struct class_device_attribute **attr;
- 	int ret = 0;
-@@ -358,7 +358,7 @@
- 	return ret;
- }
-
--static void __devexit pccard_sysfs_remove_socket(struct class_device *class_dev)
-+static void __devexit pccard_sysfs_remove_socket(struct class_interface *class_intf, struct class_device *class_dev)
- {
- 	struct class_device_attribute **attr;
-
-Index: linux-2.6.12/drivers/pcmcia/rsrc_nonstatic.c
-===================================================================
---- linux-2.6.12.orig/drivers/pcmcia/rsrc_nonstatic.c	2005-06-30 11:54:56.000000000 -0500
-+++ linux-2.6.12/drivers/pcmcia/rsrc_nonstatic.c	2005-06-30 16:03:49.738193763 -0500
-@@ -994,7 +994,7 @@
- 	NULL,
- };
-
--static int __devinit pccard_sysfs_add_rsrc(struct class_device *class_dev)
-+static int __devinit pccard_sysfs_add_rsrc(struct class_interface *class_intf, struct class_device *class_dev)
- {
- 	struct pcmcia_socket *s = class_get_devdata(class_dev);
- 	struct class_device_attribute **attr;
-@@ -1011,7 +1011,7 @@
- 	return ret;
- }
-
--static void __devexit pccard_sysfs_remove_rsrc(struct class_device *class_dev)
-+static void __devexit pccard_sysfs_remove_rsrc(struct class_interface *class_intf, struct class_device *class_dev)
- {
- 	struct pcmcia_socket *s = class_get_devdata(class_dev);
- 	struct class_device_attribute **attr;
-Index: linux-2.6.12/include/linux/device.h
-===================================================================
---- linux-2.6.12.orig/include/linux/device.h	2005-06-30 11:54:59.000000000 -0500
-+++ linux-2.6.12/include/linux/device.h	2005-06-30 15:59:44.921353866 -0500
-@@ -246,8 +246,8 @@
- 	struct list_head	node;
- 	struct class		*class;
-
--	int (*add)	(struct class_device *);
--	void (*remove)	(struct class_device *);
-+	int (*add)	(struct class_interface *, struct class_device *);
-+	void (*remove)	(struct class_interface *, struct class_device *);
- };
-
- extern int class_interface_register(struct class_interface *);
-
-
+So the metadata facility in kernel won't be used, for portability's sake.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

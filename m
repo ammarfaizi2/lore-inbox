@@ -1,78 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262938AbVF3Kgh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262949AbVF3KZZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262938AbVF3Kgh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 06:36:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262964AbVF3Kew
+	id S262949AbVF3KZZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 06:25:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262939AbVF3KYX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 06:34:52 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:57277 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262938AbVF3KdL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 06:33:11 -0400
-Date: Thu, 30 Jun 2005 12:32:05 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Kristian Benoit <kbenoit@opersys.com>
-Cc: linux-kernel@vger.kernel.org, paulmck@us.ibm.com, bhuey@lnxw.com,
-       andrea@suse.de, tglx@linutronix.de, karim@opersys.com,
-       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
-       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, rpm@xenomai.org
-Subject: Re: PREEMPT_RT and I-PIPE: the numbers, take 3
-Message-ID: <20050630103205.GA32508@elte.hu>
-References: <42C320C4.9000302@opersys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42C320C4.9000302@opersys.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Thu, 30 Jun 2005 06:24:23 -0400
+Received: from ausmtp02.au.ibm.com ([202.81.18.187]:62918 "EHLO
+	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S262934AbVF3KUy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Jun 2005 06:20:54 -0400
+Date: Thu, 30 Jun 2005 20:20:39 +1000
+To: linuxppc64-dev@ozlabs.org, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+From: Michael Ellerman <michael@ellerman.id.au>
+Subject: [PATCH 5/12] iseries_veth: Try to avoid pathological reset behaviour
+In-Reply-To: <200506302016.55125.michael@ellerman.id.au>
+Message-Id: <1120126839.441162.530324669503.qpatch@concordia>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The iseries_veth driver contains a state machine which is used to manage
+how connections are setup and neogotiated between LPARs.
 
-* Kristian Benoit <kbenoit@opersys.com> wrote:
+If one side of a connection resets for some reason, the two LPARs can get
+stuck in a race to re-setup the connection. This can lead to the connection
+being declared dead by one or both ends. In practice this happens ~8/10 times
+a connection is reset, although it's rare for connections to be reset.
 
-> This is the 3rd run of our tests.
+(an example here: http://michael.ellerman.id.au/files/misc/veth-trace.html)
 
-i'm still having problems reproducing your numbers, even the 'plain' 
-ones. I cannot even get the same ballpark figures, on 3 separate 
-systems. To pick one number:
+The core of the problem is that the end that resets the connection doesn't
+wait for the other end to become aware of the reset. So the resetting end
+starts setting the connection back up, and then receives a reset from the
+other end (which is the response to the initial reset). And so on.
 
-> "plain" run:
-> 
-> Measurements   |   Vanilla   |  preemp_rt     |
-> ---------------+-------------+----------------+
-> mmap           |     660us   | 2867us (+334%) |
+We're severely limited in what we can do to fix this. The protocol between
+LPARs is essentially fixed, as we have to interoperate with both OS/400
+and old Linux drivers. Which also means we need a fix that only changes the
+code on one end.
 
-i was unable to reproduce this level of lat_mmap degradation. I do 
-indeed see a slowdown [*], but nowhere near the 4.3x slowdown measured 
-here. I have tried the very lmbench version you used (2.0.4) on 3 
-different systems (Athlon64 2GHz, Celeron 466MHz, Xeon 2.4GHz - the last 
-one should be pretty similar to your 2.8GHz Xeon testbox) and neither 
-showed this level of slowdown.
+The only fix I've found given that, is to just blindly sleep for a bit when
+resetting the connection, in the hope that the other end will get itself
+sorted.  Needless to say I'd love it if someone has a better idea.
 
-i couldnt figure out which precise options were used by your test, 
-because i only found the summary lmbench page of one of the older tests 
-- so i did my lat_mmap testing with various sizes: 10MB, 30MB, 70MB, 
-150MB, 200MB, 500MB. (My best guess would be that since your target box 
-has 512MB of RAM, lmbench will pick an mmap-file size of 144 MB. Or if 
-it's the 256MB box, lmbench will pick roughly 70 MB. I covered those 
-likely sizes too.) Neither size showed this level of slowdown.
+This does work, I've so far been unable to get it to break, whereas without
+the fix a reset of one end will lead to a dead connection ~8/10 times.
 
-so my tentative conclusion would be that the -RT kernel is still 
-misconfigured somehow. Did you have HIGHMEM64 and HIGHPTE enabled 
-perhaps? Those i suggested to be turned off in one of my first mails to 
-you, it is something that will cause bad performance under PREEMPT_RT.  
-(Highmem64 is unwarranted for an embedded test anyway - it's only needed 
-to support more than 4 GB of RAM.) Could you send me the test 3 .config 
-you used on the -RT kernel?
 
-	Ingo
+---
 
-[*] fixed in -50-36 and later PREEMPT_RT kernels
+ drivers/net/iseries_veth.c |   23 +++++++++++++++++++++--
+ 1 files changed, 21 insertions(+), 2 deletions(-)
+
+Index: veth-dev/drivers/net/iseries_veth.c
+===================================================================
+--- veth-dev.orig/drivers/net/iseries_veth.c
++++ veth-dev/drivers/net/iseries_veth.c
+@@ -324,8 +324,12 @@ static void veth_take_monitor_ack(struct
+ 
+ 	spin_lock_irqsave(&cnx->lock, flags);
+ 	veth_debug("cnx %d: lost connection.\n", cnx->remote_lp);
+-	cnx->state |= VETH_STATE_RESET;
+-	veth_kick_statemachine(cnx);
++	/* Avoid kicking the statemachine once we're shutdown.
++	 * It's unnecessary and it could break veth_stop_connection(). */
++	if (! (cnx->state & VETH_STATE_SHUTDOWN)) {
++		cnx->state |= VETH_STATE_RESET;
++		veth_kick_statemachine(cnx);
++	}
+ 	spin_unlock_irqrestore(&cnx->lock, flags);
+ }
+ 
+@@ -483,6 +487,12 @@ static void veth_statemachine(void *p)
+ 
+ 		if (cnx->state & VETH_STATE_RESET)
+ 			goto restart;
++
++		/* Hack, wait for the other end to reset itself. */
++		if (! (cnx->state & VETH_STATE_SHUTDOWN)) {
++			schedule_delayed_work(&cnx->statemachine_wq, 5 * HZ);
++			goto out;
++		}
+ 	}
+ 
+ 	if (cnx->state & VETH_STATE_SHUTDOWN)
+@@ -667,6 +677,15 @@ static void veth_stop_connection(u8 rlp)
+ 	veth_kick_statemachine(cnx);
+ 	spin_unlock_irq(&cnx->lock);
+ 
++	/* There's a slim chance the reset code has just queued the
++	 * statemachine to run in five seconds. If so we need to cancel
++	 * that and requeue the work to run now. */
++	if (cancel_delayed_work(&cnx->statemachine_wq)) {
++		spin_lock_irq(&cnx->lock);
++		veth_kick_statemachine(cnx);
++		spin_unlock_irq(&cnx->lock);
++	}
++
+ 	/* Wait for the state machine to run. */
+ 	flush_scheduled_work();
+ }

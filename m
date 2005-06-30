@@ -1,78 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263045AbVF3W1Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263070AbVF3W3A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263045AbVF3W1Y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 18:27:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263050AbVF3W1X
+	id S263070AbVF3W3A (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 18:29:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263089AbVF3W3A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 18:27:23 -0400
-Received: from smtp003.mail.ukl.yahoo.com ([217.12.11.34]:48525 "HELO
-	smtp003.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S263045AbVF3W1R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 18:27:17 -0400
-From: Karsten Wiese <annabellesgarden@yahoo.de>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.50-24
-Date: Fri, 1 Jul 2005 00:27:32 +0200
-User-Agent: KMail/1.8.1
-Cc: William Weston <weston@sysex.net>, linux-kernel@vger.kernel.org
-References: <200506281927.43959.annabellesgarden@yahoo.de> <200506301952.22022.annabellesgarden@yahoo.de> <20050630205029.GB1824@elte.hu>
-In-Reply-To: <20050630205029.GB1824@elte.hu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 30 Jun 2005 18:29:00 -0400
+Received: from frankvm.xs4all.nl ([80.126.170.174]:20150 "EHLO
+	janus.localdomain") by vger.kernel.org with ESMTP id S263070AbVF3W2c
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Jun 2005 18:28:32 -0400
+Date: Fri, 1 Jul 2005 00:28:28 +0200
+From: Frank van Maarseveen <frankvm@frankvm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Anton Altaparmakov <aia21@cam.ac.uk>, arjan@infradead.org,
+       miklos@szeredi.hu, linux-kernel@vger.kernel.org,
+       Frank van Maarseveen <frankvm@frankvm.com>
+Subject: Re: FUSE merging?
+Message-ID: <20050630222828.GA32357@janus>
+References: <E1DnvCq-0000Q4-00@dorka.pomaz.szeredi.hu> <20050630022752.079155ef.akpm@osdl.org> <E1Dnvhv-0000SK-00@dorka.pomaz.szeredi.hu> <1120125606.3181.32.camel@laptopd505.fenrus.org> <E1Dnw2J-0000UM-00@dorka.pomaz.szeredi.hu> <1120126804.3181.34.camel@laptopd505.fenrus.org> <1120129996.5434.1.camel@imp.csi.cam.ac.uk> <20050630124622.7c041c0b.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200507010027.33079.annabellesgarden@yahoo.de>
+In-Reply-To: <20050630124622.7c041c0b.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
+X-Subliminal-Message: Use Linux!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Donnerstag, 30. Juni 2005 22:50 schrieb Ingo Molnar:
+On Thu, Jun 30, 2005 at 12:46:22PM -0700, Andrew Morton wrote:
 > 
-> * Karsten Wiese <annabellesgarden@yahoo.de> wrote:
-> 
-> > Here come some numbers to back up the usefullness of 
-> > CONFIG_X86_UP_IOAPIC_FAST. (and to show that my patch actually works 
-> > ;-)) All measurement where taken on an UP Athlon64 2Ghz running 32bit 
-> > 2.6.12-RT-50-35 PREEMPT_RT on a K8T800 mobo.
-> 
-> thanks - the numbers are pretty convincing. I've applied most of your 
-> patch (except the instrumentation bits), and it seems to work quite well 
-> - one of my testsystems that had interrupt storms before can now run 
-> IOAPIC_FAST. (i also enabled the option to be selectable for SMP kernels 
-> too. If things work out fine we can make it default-on.) I've uploaded 
-> the -50-39 patch with these changes included.
-> 
-Ooops, you didn't apply this part of the patch:
+> - Frank points out that a user can send a sigstop to his own setuid(0)
+>   task and he intimates that this could cause DoS problems with FUSE.  More
+>   details needed please?
 
-<snip>
---- linux-2.6.12-RT-50-35/arch/i386/kernel/mpparse.c	2005-06-30 16:38:00.000000000 +0200
-+++ linux-2.6.12-RT/arch/i386/kernel/mpparse.c	2005-06-29 20:30:50.000000000 +0200
-@@ -263,6 +263,7 @@
- 		return;
- 	}
- 	mp_ioapics[nr_ioapics] = *m;
-+	io_apic_base[nr_ioapics] = IO_APIC_BASE(nr_ioapics);
- 	nr_ioapics++;
- }
- 
-@@ -914,6 +915,7 @@
- 	mp_ioapics[idx].mpc_apicaddr = address;
- 
- 	set_fixmap_nocache(FIX_IO_APIC_BASE_0 + idx, address);
-+	io_apic_base[idx] = IO_APIC_BASE(idx);
- 	mp_ioapics[idx].mpc_apicid = io_apic_get_unique_id(idx, id);
- 	mp_ioapics[idx].mpc_apicver = io_apic_get_version(idx);
-</snip>
+It's the other way around:
+Apparently it is not a security problem to SIGSTOP or even SIGKILL a
+setuid program. So why is it a security problem when such a program is
+delayed by a supposedly malicious behaving FUSE mount?
 
-It provides the precalculation of the ioapics's virtual address.
-Or does IO_APIC_BASE() compile to an indexed lookup?
- then io_apic_base[] wouldn't be needed...
+I think that setuid programs take too many things for granted, especially
+"time". I also think the ptrace equivalence principle (item C2 in the
+FUSE doc) is too harsh for FUSE.
 
-Karsten
+Suppose the process changes id to full root and we can no longer send
+signals to it. Are there any other ways we could affect its scheduling
+without FUSE? I think "yes", clearly not that easy as when it accesses a
+FUSE mount but "yes". Think about typing ^S (XOFF), or by letting it read
+from a pipe or from a file on a very very slow device. Or by renicing
+the parent in advance. Regarding the pipe: yes the setuid program could
+check that with fstat() but is such a check fundamentally the right
+approach? I have doubt because unified I/O is a good thing and there is
+no guarantee whatsoever about completion of any FS operation within a
+certain amount of time. Suppose another malicious process does a lookup
+in a huge directory without hashed names? What about a process consuming
+lots of memory, pushing everything else into swap? What about deleting
+a _huge_ file or do other things which might(?) take a considerable
+amount of kernel time? [id]notify might even help using this to delay
+a root process at a crucial point to exploit a race. So, I think there
+are many ways to affect the execution speed of [setuid] programs. I
+have never heard of a setuid root program which renices itself, such,
+that it successfully avoids a race or DoS exploit.
 
-	
+And then the DoS thing using simulated endless files within FUSE. It is
+already possible to create terabyte sized [sparse] files. Can the fstat()
+size/blocks info be trusted from FUSE? no more than fstat() outside FUSE
+because the file may still be growing!
 
-	
-		
-___________________________________________________________ 
-Gesendet von Yahoo! Mail - Jetzt mit 1GB Speicher kostenlos - Hier anmelden: http://mail.yahoo.de
+> - I don't recall seeing an exhaustive investigation of how an
+>   unprivileged user could use a FUSE mount to implement DoS attacks against
+>   other users or against root.
+
+In general I think it is _hard_ to protect against a local DoS for many
+reasons and I don't see any new fundamental problem here with FUSE:
+it is just making it more obvious that it's hard to write secure setuid
+programs. Those programs should _know_ that input data and anything else
+from the user is "tainted" and that they must be _very_ careful with it,
+in every detail.
+
+-- 
+Frank

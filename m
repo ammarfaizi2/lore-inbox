@@ -1,55 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262891AbVF3Iwy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262902AbVF3JJh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262891AbVF3Iwy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 04:52:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262892AbVF3Iwy
+	id S262902AbVF3JJh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 05:09:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262907AbVF3JJg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 04:52:54 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:65295 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262891AbVF3Iww (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 04:52:52 -0400
-Date: Thu, 30 Jun 2005 09:52:46 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Denis Vlasenko <vda@ilport.com.ua>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] deinline sleep/delay functions
-Message-ID: <20050630095246.A13407@flint.arm.linux.org.uk>
-Mail-Followup-To: Denis Vlasenko <vda@ilport.com.ua>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <200506300852.25943.vda@ilport.com.ua>
+	Thu, 30 Jun 2005 05:09:36 -0400
+Received: from wproxy.gmail.com ([64.233.184.204]:52836 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262902AbVF3JJf convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Jun 2005 05:09:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Fl5Vn1EuvQe9mus2TcjDuadwxzxXOxSdURn1y5O/YQQMrI0A7YuUpSQKCrJU/CSXMkP+SyDJaMuc1mcG/giy+J+6rap6DJh87jda1B+9ThNRYfsDG4zXY19TJ5Ip+W1w1cX/cDi43C7ZSxlUVo39VBLoL+CHhfKOPgrSYxWtQ4Q=
+Message-ID: <ec2c5c2205063002091ba9e818@mail.gmail.com>
+Date: Thu, 30 Jun 2005 12:09:35 +0300
+From: Ville Sundell <ville.sundell@gmail.com>
+Reply-To: Ville Sundell <ville.sundell@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Build-in XML support?
+In-Reply-To: <ec2c5c2205062903511d62d6bf@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200506300852.25943.vda@ilport.com.ua>; from vda@ilport.com.ua on Thu, Jun 30, 2005 at 08:52:25AM +0300
+References: <ec2c5c2205062903511d62d6bf@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 30, 2005 at 08:52:25AM +0300, Denis Vlasenko wrote:
-> Hi Andrew,
-> 
-> Optimizing delay functions for speed is utterly pointless.
-> 
-> This patch turns ssleep(n), mdelay(n), udelay(n) and ndelay(n)
-> into functions, thus they generate the smallest possible code
-> at the callsite. Previously they were more or less inlined.
-> 
-> Run tested. Saved a few kb off vmlinux.
-> 
-> Signed-off-by: Denis Vlasenko <vda@ilport.com.ua>
+Sorry guys!
+I say it wrong way, I mean:
+Other programs would like use build-in and "standard" linux XML-parser.
 
-Rejected-by: Russell King 8)
+It would make standard way to read xml-files in Linux?
+Advertise speech:
+    No more 1 000 different XML readers, only one, and people can
+make it better :D
 
-The reason is that now we're unable to find out if anyone's doing
-udelay(100000000000000000) which breaks on most architectures.
+Michael Buesch, that source you paste, it is good, it is better than mine! :)
 
-There are a number of compile-time checks that your patch has removed
-which catch such things, and as such your patch is not acceptable.
-Some architectures have a lower threshold of acceptability for the
-maximum udelay value, so it's absolutely necessary to keep this.
+Comments please!
+-Ville Sundell
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+PS. Thanks to all, for previous comments!
+PS2. Sorry my bad bad english:)

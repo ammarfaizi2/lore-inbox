@@ -1,90 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262937AbVF3K2Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262957AbVF3KeV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262937AbVF3K2Z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 06:28:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262939AbVF3K1W
+	id S262957AbVF3KeV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 06:34:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262955AbVF3KdE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 06:27:22 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:48271 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S262937AbVF3KVe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 06:21:34 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] deinline sleep/delay functions
-Date: Thu, 30 Jun 2005 13:21:20 +0300
-User-Agent: KMail/1.5.4
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-References: <200506300852.25943.vda@ilport.com.ua> <20050630021111.35aaf45f.akpm@osdl.org> <1120123189.3181.28.camel@laptopd505.fenrus.org>
-In-Reply-To: <1120123189.3181.28.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
+	Thu, 30 Jun 2005 06:33:04 -0400
+Received: from wproxy.gmail.com ([64.233.184.201]:21735 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262938AbVF3Kbl convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Jun 2005 06:31:41 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=n2ul0CgMWSVwuMITT6plThzW+NgOyAGO7cSCTtYMxqXmbzNfE5yzzGJCF0weWyFii+67UULsttNoPp9HRPWWCsVZcHPdvI+VWsvsbl5xHbHiiZYWI++ZkLN8tpLHzNy9RW/wuWgP2rz8V+ypXTmOOorTCOhvRICdv6DUxC+grNA=
+Message-ID: <cce092220506300331401efa35@mail.gmail.com>
+Date: Thu, 30 Jun 2005 18:31:37 +0800
+From: Wang Jian <larkwang@gmail.com>
+Reply-To: Wang Jian <larkwang@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12.1 problems I meet (please CC: me)
+In-Reply-To: <20050630111916.FEA2.LARKWANG@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200506301321.20692.vda@ilport.com.ua>
+References: <20050630111916.FEA2.LARKWANG@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 30 June 2005 12:19, Arjan van de Ven wrote:
+2005/6/30, Wang Jian <larkwang@gmail.com>:
+> Hi,
 > 
-> > > There are a number of compile-time checks that your patch has removed
-> > > which catch such things, and as such your patch is not acceptable.
-> > > Some architectures have a lower threshold of acceptability for the
-> > > maximum udelay value, so it's absolutely necessary to keep this.
-> > 
-> > It removes that check from x86 - other architectures retain it.
-> > 
-> > I don't recall seeing anyone trigger the check,
+> I use a customized kernel to do packets analysis. The analysis code is
+> linked into kernel. It will vmalloc() nearly 128M (a little less) when
+> initialized.
 > 
-> I do ;) Esp in vendor out of tree crap. It's a good compile time
-> diagnostic so the junk code doesnt' hit mainline but gets fixed first.
+> The original code runs on 2.6.10 and works fine. The platform is a
+> general P4 with 100M ethernet. The user space system is a 8M compressed
+> ramdisk image which is a 32M filesystem.
+> 
+> Now I want to make it work on 2.6.12+ and on Athlon64 platform, for
+> better driver and better CPU/NIC performance.
+> 
+> I have a P4 box (compilation bed, CB), a 2-way Athlon64 box (test bed,
+> TB).
+> 
+> The problems are:
+> 
+> 2. I compile kernel 2.6.12.1 for K7 on CB. Boot it on TB, the system
+> boot up execept that the analysis code can't vmalloc() the needed memory.
+> 
+> "allocation failed: out of vmalloc space - use vmalloc=<size> to increase size."
+> 
+> If I use vmalloc=256m in boot command line, then
+> 
+> initrd extends beyond end of memory (0x37fef716 > 0x30000000)
+> initrd extends beyond end of memory (0x37fef716 > 0x30000000)
+> Kernel panic - unsyncing: VFS: Unable to mount root fs on unknown-block
+> (1,0)
+> 
 
-It seems my patch was incomplete.
+This problem also presents itself in 2.6.10.
 
-Thinking more about it, since it exists in all arches
-and also since delaying is not performance critical
-(hey, if we're going to delay/sleep, we surely can burn
-a few more cycles), this can be done as follows:
+I remove 512M physic RAM from this TB, so it has 512M RAM left. The
+problem is  then gone. The needed memory can be correctly vmalloc()
+during boot without vmalloc=256m specified in boot command line.
 
-linux/timer.c:
+I am curious why this happens?
 
-void ndelay(unsigned int nsecs)
-{
-	unsigned int m = nsecs/(1024*1024);
-       	while (m--)
-		__ndelay(1024);
-	__ndelay(nsecs % (1024*1024));
-}
-
-void udelay(unsigned int usecs)
-{
-	unsigned int k = usecs/1024;
-       	while (k--)
-		__udelay(1024);
-	__udelay(usecs % 1024);
-}
-
-void mdelay(unsigned int msecs)
-{
-       	while (msecs--)
-		udelay(1000);
-}
-
-void ssleep(unsigned int secs)
-{
-        msleep(secs * 1000);
-}
-
-and arches will need to only supply two functions:
-
-__udelay(n) [n is guaranteed <1024]
-__ndelay(n) [n is guaranteed <1024*1024]
-
-For users, _any_ value, however large, will work for
-any delay function.
-
-Comments?
---
-vda
-
+1. With 512M physic RAM, vmalloc(16776989 * 8) succeeds.
+2. With 1G physic RAM, vmalloc(16776989 * 8) fails.
+3. With 1G physic RAM, vmalloc=256m boot option will cause kernel fail
+to expand a 8M initrd image which is of 32M filesystem.

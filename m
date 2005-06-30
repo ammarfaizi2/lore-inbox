@@ -1,65 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263007AbVF3QKX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262784AbVF3QPa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263007AbVF3QKX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 12:10:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262995AbVF3QHE
+	id S262784AbVF3QPa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 12:15:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262996AbVF3QP3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 12:07:04 -0400
-Received: from web53506.mail.yahoo.com ([206.190.37.67]:62338 "HELO
-	web53506.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263003AbVF3QGN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 12:06:13 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=OpKD2dnworeg4PWg/UASvQyd8FkHduxEygHxdsFGlkVvL7WNgtpQ6JyOzwcuJLcKctaJmeByckIdE7uS4O6BYj+Lq2ZMloOcGy67nWPe1o9EAP9mZLnWflSrpFv/tXnmCtSAhwpLIqPa9ixj1T+Dbrbqq8Cvvit60WTRnAWSvT8=  ;
-Message-ID: <20050630160608.39346.qmail@web53506.mail.yahoo.com>
-Date: Thu, 30 Jun 2005 09:06:08 -0700 (PDT)
-From: roger blofeld <blofeldus@yahoo.com>
-Subject: [TRIVIAL PATCH] Fix GCC4 warning in asm-ppc/time.h
-To: lkml <linux-kernel@vger.kernel.org>, paulus@samba.org
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="0-1366467806-1120147568=:33612"
-Content-Transfer-Encoding: 8bit
+	Thu, 30 Jun 2005 12:15:29 -0400
+Received: from ns2.suse.de ([195.135.220.15]:44252 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S262784AbVF3QPG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Jun 2005 12:15:06 -0400
+Date: Thu, 30 Jun 2005 18:15:03 +0200
+From: Andi Kleen <ak@suse.de>
+To: Stuart_Hayes@Dell.com
+Cc: ak@suse.de, riel@redhat.com, andrea@suse.dk, linux-kernel@vger.kernel.org
+Subject: Re: page allocation/attributes question (i386/x86_64 specific)
+Message-ID: <20050630161503.GA1627@wotan.suse.de>
+References: <7A8F92187EF7A249BF847F1BF4903C040240AE4E@ausx2kmpc103.aus.amer.dell.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7A8F92187EF7A249BF847F1BF4903C040240AE4E@ausx2kmpc103.aus.amer.dell.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0-1366467806-1120147568=:33612
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Content-Id: 
-Content-Disposition: inline
+On Tue, Jun 28, 2005 at 03:16:51PM -0500, Stuart_Hayes@Dell.com wrote:
+> >> set and isn't executable.  And, since PAGE_KERNEL (with _PAGE_NX set)
+> >> didn't match the original pages attributes, the 512 PTEs weren't
+> >> reverted back into a large page.  (Also, __change_page_attr() did
+> >> *another* get_page() on the page containing these 512 PTEs, so now
+> >> the page_count has gone up to 3, instead of going back down to 1 (or
+> >> staying at 2).)
+> > 
+> > That should be already fixed.
+> 
+> It doesn't appear to be fixed (in the i386 arch).  The
 
-Hi
- GCC4 complains:
+I only fixed it for x86-64 correct. Does it work for you on x86-64?
 
-include/asm/time.h:61: warning: type qualifiers ignored on function
-return type
+If yes then the changes could be brought over.
 
-when building CONFIG_6xx, so I propose this patch.
+What do you all need this for anyways?
 
-Signed off by: Roger Blofeld <blofeldus@yahoo.com>
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
---0-1366467806-1120147568=:33612
-Content-Type: text/plain; name="gcc4-asm-time.patch.txt"
-Content-Description: 4252903260-gcc4-asm-time.patch.txt
-Content-Disposition: inline; filename="gcc4-asm-time.patch.txt"
-
-diff --git a/include/asm-ppc/time.h b/include/asm-ppc/time.h
---- a/include/asm-ppc/time.h
-+++ b/include/asm-ppc/time.h
-@@ -58,7 +58,7 @@ static __inline__ void set_dec(unsigned 
- /* Accessor functions for the timebase (RTC on 601) registers. */
- /* If one day CONFIG_POWER is added just define __USE_RTC as 1 */
- #ifdef CONFIG_6xx
--extern __inline__ int const __USE_RTC(void) {
-+extern __inline__ int __attribute_const__ __USE_RTC(void) {
- 	return (mfspr(SPRN_PVR)>>16) == 1;
- }
- #else
-
---0-1366467806-1120147568=:33612--
+-Andi

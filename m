@@ -1,85 +1,214 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263033AbVF3VQ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263130AbVF3VY3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263033AbVF3VQ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 17:16:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263156AbVF3VPj
+	id S263130AbVF3VY3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 17:24:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263074AbVF3VW2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 17:15:39 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:26078 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S263035AbVF3VHz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 17:07:55 -0400
-Date: Thu, 30 Jun 2005 16:07:48 -0500
-To: Andi Kleen <ak@muc.de>, sfr@canb.auug.org.au
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       linux-kernel@vger.kernel.org, long <tlnguyen@snoqualmie.dp.intel.com>,
-       Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
-       Greg KH <greg@kroah.com>, Paul Mackerras <paulus@samba.org>,
-       linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, johnrose@us.ibm.com,
-       linux-laptop@vger.kernel.org, mochel@transmeta.com, pavel@suse.cz
-Subject: Re: PCI Power management (was: Re: [PATCH 4/13]: PCI Err: e100 ethernet driver recovery
-Message-ID: <20050630210748.GZ28499@austin.ibm.com>
-References: <20050628235848.GA6376@austin.ibm.com> <1120009619.5133.228.camel@gaston> <20050629155954.GH28499@austin.ibm.com> <20050629165828.GA73550@muc.de> <20050630203931.GY28499@austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050630203931.GY28499@austin.ibm.com>
-User-Agent: Mutt/1.5.6+20040818i
-From: Linas Vepstas <linas@austin.ibm.com>
+	Thu, 30 Jun 2005 17:22:28 -0400
+Received: from sabe.cs.wisc.edu ([128.105.6.20]:52636 "EHLO sabe.cs.wisc.edu")
+	by vger.kernel.org with ESMTP id S263152AbVF3VSs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Jun 2005 17:18:48 -0400
+Message-ID: <37114.127.0.0.1.1120166322.squirrel@localhost>
+In-Reply-To: <20050630194540.GA15389@suse.de>
+References: <20050630060206.GA23321@kroah.com>
+    <34128.127.0.0.1.1120152169.squirrel@localhost>
+    <20050630194540.GA15389@suse.de>
+Date: Thu, 30 Jun 2005 16:18:42 -0500 (CDT)
+Subject: [PATCH] add class_interface pointer to add and remove functions
+From: "John Lenz" <lenz@cs.wisc.edu>
+To: "Greg KH" <gregkh@suse.de>
+Cc: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.4
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, June 30, 2005 2:45 pm, Greg KH said:
+> On Thu, Jun 30, 2005 at 12:22:49PM -0500, John Lenz wrote:
+>> As long as there are a whole bunch of class API changes going on, I would
+>> request that the class_interface add and remove functions get passed the
+>> class_interface pointer as well as the class_device.  This way, the same
+>> function can be used on multiple class_interfaces.
+>
+> I'm sorry, I seem to have missed the patch in this email that implements
+> this feature...
+>
 
-Hm,
+Here is a patch that updates every usage of class_interface I could find.
 
-Scratch the idea I outline below, seems like its not a good idea.
+Signed-off-by: John Lenz <lenz@cs.wisc.edu>
 
-I'm reading the e100, e1000 and the ixgb power management code, and they
-go through all sorts of steps I don't need to do for PCI device reset.
-There's no clear abstraction that would serve both needs.
+Index: linux-2.6.12/drivers/message/i2o/device.c
+===================================================================
+--- linux-2.6.12.orig/drivers/message/i2o/device.c	2005-06-30 11:54:55.000000000 -0500
++++ linux-2.6.12/drivers/message/i2o/device.c	2005-06-30 16:00:55.756158383 -0500
+@@ -385,7 +385,7 @@
+  *
+  *	Returns 0 on success or negative error code on failure.
+  */
+-static int i2o_device_class_add(struct class_device *cd)
++static int i2o_device_class_add(struct class_interface *class_intf, struct class_device *cd)
+ {
+ 	struct i2o_device *i2o_dev, *tmp;
+ 	struct i2o_controller *c;
+Index: linux-2.6.12/drivers/base/class.c
+===================================================================
+--- linux-2.6.12.orig/drivers/base/class.c	2005-06-30 11:54:52.000000000 -0500
++++ linux-2.6.12/drivers/base/class.c	2005-06-30 15:58:53.321286879 -0500
+@@ -505,7 +505,7 @@
+ 		list_add_tail(&class_dev->node, &parent->children);
+ 		list_for_each_entry(class_intf, &parent->interfaces, node)
+ 			if (class_intf->add)
+-				class_intf->add(class_dev);
++				class_intf->add(class_intf, class_dev);
+ 		up(&parent->sem);
+ 	}
+ 	kobject_hotplug(&class_dev->kobj, KOBJ_ADD);
+@@ -585,7 +585,7 @@
+ 		list_del_init(&class_dev->node);
+ 		list_for_each_entry(class_intf, &parent->interfaces, node)
+ 			if (class_intf->remove)
+-				class_intf->remove(class_dev);
++				class_intf->remove(class_intf, class_dev);
+ 		up(&parent->sem);
+ 	}
 
-On Thu, Jun 30, 2005 at 03:39:31PM -0500, Linas Vepstas was heard to remark:
-> On Wed, Jun 29, 2005 at 06:58:29PM +0200, Andi Kleen was heard to remark:
-> > > Yep, OK. Pushig the timer would in fact break if the device was marked
-> > > perm disabled.
-> > 
-> > I think for network drivers you should just write a generic error handler
-> > (perhaps in net/core/dev.c) that calls the watchdog handler. 
-> > Then all drivers could be easily converted without much code duplication.
-> 
-> Well, there's no watchdog per-se in "struct net_device" -- are you
-> suggesting I add one?
-> 
-> It looks like I can almost create generic handlers for net devices; 
-> looks like calling netdev->stop() is enough to handle the error
-> detection. 
-> 
-> However, a generic bringup would need to call pci_enable_device(), 
-> and net/core/dev.c does not include pci.h so I can't really do it 
-> there.  Other than that, a generic recovry routine looks like it might
-> be possible; I'll have to experiment; its hard to tell by reading code.
-> 
-> This might be the wrong paradigm, though.  The pci error recovery 
-> routines are *almost identical* to the power-management suspend/resume
-> routines.  From what I can tell, the only real difference is that 
-> I want to not actually turn off/on the power. 
-> 
-> Thus, the right thing to do might be to split up the 
-> struct pci_dev->suspend() and pci_dev->resume() calls into
-> 
->    suspend()
->    poweroff()
->    poweron()
->    resume()
-> 
-> and then have the generic pci error recovery routines call
-> suspend/resume only, skipping the poweroff-on calls.  Does that 
-> sound good?
-> 
-> I'm not sure I can pull this off without having someone from 
-> the power-management world throw a brick at me.
-> 
-> --linas
-> 
-> 
+@@ -688,7 +688,7 @@
+ 	list_add_tail(&class_intf->node, &parent->interfaces);
+ 	if (class_intf->add) {
+ 		list_for_each_entry(class_dev, &parent->children, node)
+-			class_intf->add(class_dev);
++			class_intf->add(class_intf, class_dev);
+ 	}
+ 	up(&parent->sem);
+
+@@ -707,7 +707,7 @@
+ 	list_del_init(&class_intf->node);
+ 	if (class_intf->remove) {
+ 		list_for_each_entry(class_dev, &parent->children, node)
+-			class_intf->remove(class_dev);
++			class_intf->remove(class_intf, class_dev);
+ 	}
+ 	up(&parent->sem);
+
+Index: linux-2.6.12/drivers/pcmcia/ds.c
+===================================================================
+--- linux-2.6.12.orig/drivers/pcmcia/ds.c	2005-06-30 11:54:56.000000000 -0500
++++ linux-2.6.12/drivers/pcmcia/ds.c	2005-06-30 16:02:14.382619884 -0500
+@@ -1148,7 +1148,7 @@
+ 	.requery = pcmcia_bus_rescan,
+ };
+
+-static int __devinit pcmcia_bus_add_socket(struct class_device *class_dev)
++static int __devinit pcmcia_bus_add_socket(struct class_interface *class_intf, struct class_device *class_dev)
+ {
+ 	struct pcmcia_socket *socket = class_get_devdata(class_dev);
+ 	int ret;
+@@ -1183,7 +1183,7 @@
+ 	return 0;
+ }
+
+-static void pcmcia_bus_remove_socket(struct class_device *class_dev)
++static void pcmcia_bus_remove_socket(struct class_interface *class_intf, struct class_device *class_dev)
+ {
+ 	struct pcmcia_socket *socket = class_get_devdata(class_dev);
+
+Index: linux-2.6.12/drivers/scsi/sg.c
+===================================================================
+--- linux-2.6.12.orig/drivers/scsi/sg.c	2005-06-30 11:54:57.000000000 -0500
++++ linux-2.6.12/drivers/scsi/sg.c	2005-06-30 16:06:23.123755439 -0500
+@@ -104,8 +104,8 @@
+
+ #define SG_DEV_ARR_LUMP 32	/* amount to over allocate sg_dev_arr by */
+
+-static int sg_add(struct class_device *);
+-static void sg_remove(struct class_device *);
++static int sg_add(struct class_interface *class_intf, struct class_device *);
++static void sg_remove(struct class_interface *class_intf, struct class_device *);
+
+ static Scsi_Request *dummy_cmdp;	/* only used for sizeof */
+
+@@ -1507,7 +1507,7 @@
+ }
+
+ static int
+-sg_add(struct class_device *cl_dev)
++sg_add(struct class_interface *class_intf, struct class_device *cl_dev)
+ {
+ 	struct scsi_device *scsidp = to_scsi_device(cl_dev->dev);
+ 	struct gendisk *disk;
+@@ -1583,7 +1583,7 @@
+ }
+
+ static void
+-sg_remove(struct class_device *cl_dev)
++sg_remove(struct class_interface *class_intf, struct class_device *cl_dev)
+ {
+ 	struct scsi_device *scsidp = to_scsi_device(cl_dev->dev);
+ 	Sg_device *sdp = NULL;
+Index: linux-2.6.12/drivers/pcmcia/socket_sysfs.c
+===================================================================
+--- linux-2.6.12.orig/drivers/pcmcia/socket_sysfs.c	2005-06-30 11:54:56.000000000 -0500
++++ linux-2.6.12/drivers/pcmcia/socket_sysfs.c	2005-06-30 16:04:24.233249703 -0500
+@@ -342,7 +342,7 @@
+ 	.write = pccard_store_cis,
+ };
+
+-static int __devinit pccard_sysfs_add_socket(struct class_device *class_dev)
++static int __devinit pccard_sysfs_add_socket(struct class_interface *class_intf, struct class_device *class_dev)
+ {
+ 	struct class_device_attribute **attr;
+ 	int ret = 0;
+@@ -358,7 +358,7 @@
+ 	return ret;
+ }
+
+-static void __devexit pccard_sysfs_remove_socket(struct class_device *class_dev)
++static void __devexit pccard_sysfs_remove_socket(struct class_interface *class_intf, struct class_device *class_dev)
+ {
+ 	struct class_device_attribute **attr;
+
+Index: linux-2.6.12/drivers/pcmcia/rsrc_nonstatic.c
+===================================================================
+--- linux-2.6.12.orig/drivers/pcmcia/rsrc_nonstatic.c	2005-06-30 11:54:56.000000000 -0500
++++ linux-2.6.12/drivers/pcmcia/rsrc_nonstatic.c	2005-06-30 16:03:49.738193763 -0500
+@@ -994,7 +994,7 @@
+ 	NULL,
+ };
+
+-static int __devinit pccard_sysfs_add_rsrc(struct class_device *class_dev)
++static int __devinit pccard_sysfs_add_rsrc(struct class_interface *class_intf, struct class_device *class_dev)
+ {
+ 	struct pcmcia_socket *s = class_get_devdata(class_dev);
+ 	struct class_device_attribute **attr;
+@@ -1011,7 +1011,7 @@
+ 	return ret;
+ }
+
+-static void __devexit pccard_sysfs_remove_rsrc(struct class_device *class_dev)
++static void __devexit pccard_sysfs_remove_rsrc(struct class_interface *class_intf, struct class_device *class_dev)
+ {
+ 	struct pcmcia_socket *s = class_get_devdata(class_dev);
+ 	struct class_device_attribute **attr;
+Index: linux-2.6.12/include/linux/device.h
+===================================================================
+--- linux-2.6.12.orig/include/linux/device.h	2005-06-30 11:54:59.000000000 -0500
++++ linux-2.6.12/include/linux/device.h	2005-06-30 15:59:44.921353866 -0500
+@@ -246,8 +246,8 @@
+ 	struct list_head	node;
+ 	struct class		*class;
+
+-	int (*add)	(struct class_device *);
+-	void (*remove)	(struct class_device *);
++	int (*add)	(struct class_interface *, struct class_device *);
++	void (*remove)	(struct class_interface *, struct class_device *);
+ };
+
+ extern int class_interface_register(struct class_interface *);
+
+

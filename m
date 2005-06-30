@@ -1,74 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262957AbVF3KeV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262938AbVF3Kgh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262957AbVF3KeV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 06:34:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262955AbVF3KdE
+	id S262938AbVF3Kgh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 06:36:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262964AbVF3Kew
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 06:33:04 -0400
-Received: from wproxy.gmail.com ([64.233.184.201]:21735 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262938AbVF3Kbl convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 06:31:41 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=n2ul0CgMWSVwuMITT6plThzW+NgOyAGO7cSCTtYMxqXmbzNfE5yzzGJCF0weWyFii+67UULsttNoPp9HRPWWCsVZcHPdvI+VWsvsbl5xHbHiiZYWI++ZkLN8tpLHzNy9RW/wuWgP2rz8V+ypXTmOOorTCOhvRICdv6DUxC+grNA=
-Message-ID: <cce092220506300331401efa35@mail.gmail.com>
-Date: Thu, 30 Jun 2005 18:31:37 +0800
-From: Wang Jian <larkwang@gmail.com>
-Reply-To: Wang Jian <larkwang@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12.1 problems I meet (please CC: me)
-In-Reply-To: <20050630111916.FEA2.LARKWANG@gmail.com>
+	Thu, 30 Jun 2005 06:34:52 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:57277 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262938AbVF3KdL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Jun 2005 06:33:11 -0400
+Date: Thu, 30 Jun 2005 12:32:05 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Kristian Benoit <kbenoit@opersys.com>
+Cc: linux-kernel@vger.kernel.org, paulmck@us.ibm.com, bhuey@lnxw.com,
+       andrea@suse.de, tglx@linutronix.de, karim@opersys.com,
+       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
+       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org, rpm@xenomai.org
+Subject: Re: PREEMPT_RT and I-PIPE: the numbers, take 3
+Message-ID: <20050630103205.GA32508@elte.hu>
+References: <42C320C4.9000302@opersys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20050630111916.FEA2.LARKWANG@gmail.com>
+In-Reply-To: <42C320C4.9000302@opersys.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2005/6/30, Wang Jian <larkwang@gmail.com>:
-> Hi,
-> 
-> I use a customized kernel to do packets analysis. The analysis code is
-> linked into kernel. It will vmalloc() nearly 128M (a little less) when
-> initialized.
-> 
-> The original code runs on 2.6.10 and works fine. The platform is a
-> general P4 with 100M ethernet. The user space system is a 8M compressed
-> ramdisk image which is a 32M filesystem.
-> 
-> Now I want to make it work on 2.6.12+ and on Athlon64 platform, for
-> better driver and better CPU/NIC performance.
-> 
-> I have a P4 box (compilation bed, CB), a 2-way Athlon64 box (test bed,
-> TB).
-> 
-> The problems are:
-> 
-> 2. I compile kernel 2.6.12.1 for K7 on CB. Boot it on TB, the system
-> boot up execept that the analysis code can't vmalloc() the needed memory.
-> 
-> "allocation failed: out of vmalloc space - use vmalloc=<size> to increase size."
-> 
-> If I use vmalloc=256m in boot command line, then
-> 
-> initrd extends beyond end of memory (0x37fef716 > 0x30000000)
-> initrd extends beyond end of memory (0x37fef716 > 0x30000000)
-> Kernel panic - unsyncing: VFS: Unable to mount root fs on unknown-block
-> (1,0)
-> 
 
-This problem also presents itself in 2.6.10.
+* Kristian Benoit <kbenoit@opersys.com> wrote:
 
-I remove 512M physic RAM from this TB, so it has 512M RAM left. The
-problem is  then gone. The needed memory can be correctly vmalloc()
-during boot without vmalloc=256m specified in boot command line.
+> This is the 3rd run of our tests.
 
-I am curious why this happens?
+i'm still having problems reproducing your numbers, even the 'plain' 
+ones. I cannot even get the same ballpark figures, on 3 separate 
+systems. To pick one number:
 
-1. With 512M physic RAM, vmalloc(16776989 * 8) succeeds.
-2. With 1G physic RAM, vmalloc(16776989 * 8) fails.
-3. With 1G physic RAM, vmalloc=256m boot option will cause kernel fail
-to expand a 8M initrd image which is of 32M filesystem.
+> "plain" run:
+> 
+> Measurements   |   Vanilla   |  preemp_rt     |
+> ---------------+-------------+----------------+
+> mmap           |     660us   | 2867us (+334%) |
+
+i was unable to reproduce this level of lat_mmap degradation. I do 
+indeed see a slowdown [*], but nowhere near the 4.3x slowdown measured 
+here. I have tried the very lmbench version you used (2.0.4) on 3 
+different systems (Athlon64 2GHz, Celeron 466MHz, Xeon 2.4GHz - the last 
+one should be pretty similar to your 2.8GHz Xeon testbox) and neither 
+showed this level of slowdown.
+
+i couldnt figure out which precise options were used by your test, 
+because i only found the summary lmbench page of one of the older tests 
+- so i did my lat_mmap testing with various sizes: 10MB, 30MB, 70MB, 
+150MB, 200MB, 500MB. (My best guess would be that since your target box 
+has 512MB of RAM, lmbench will pick an mmap-file size of 144 MB. Or if 
+it's the 256MB box, lmbench will pick roughly 70 MB. I covered those 
+likely sizes too.) Neither size showed this level of slowdown.
+
+so my tentative conclusion would be that the -RT kernel is still 
+misconfigured somehow. Did you have HIGHMEM64 and HIGHPTE enabled 
+perhaps? Those i suggested to be turned off in one of my first mails to 
+you, it is something that will cause bad performance under PREEMPT_RT.  
+(Highmem64 is unwarranted for an embedded test anyway - it's only needed 
+to support more than 4 GB of RAM.) Could you send me the test 3 .config 
+you used on the -RT kernel?
+
+	Ingo
+
+[*] fixed in -50-36 and later PREEMPT_RT kernels

@@ -1,62 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262941AbVF3LXY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262823AbVF3Lb6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262941AbVF3LXY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 07:23:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262943AbVF3LXY
+	id S262823AbVF3Lb6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 07:31:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262948AbVF3Lb6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 07:23:24 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:22145 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262941AbVF3LXM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 07:23:12 -0400
-Subject: Re: [PATCH] deinline sleep/delay functions
-From: Arjan van de Ven <arjan@infradead.org>
-To: Denis Vlasenko <vda@ilport.com.ua>
-Cc: Andrew Morton <akpm@osdl.org>, Russell King <rmk+lkml@arm.linux.org.uk>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200506301410.43524.vda@ilport.com.ua>
-References: <200506300852.25943.vda@ilport.com.ua>
-	 <200506301321.20692.vda@ilport.com.ua>
-	 <1120128441.3181.37.camel@laptopd505.fenrus.org>
-	 <200506301410.43524.vda@ilport.com.ua>
+	Thu, 30 Jun 2005 07:31:58 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:40170 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S262823AbVF3Lb4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Jun 2005 07:31:56 -0400
+Subject: Re: ISA DMA controller hangs
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>,
+       Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <42C3A698.9020404@drzeus.cx>
+References: <42987450.9000601@drzeus.cx>
+	 <1117288285.2685.10.camel@localhost.localdomain>
+	 <42A2B610.1020408@drzeus.cx> <42A3061C.7010604@drzeus.cx>
+	 <42B1A08B.8080601@drzeus.cx> <20050616170622.A1712@flint.arm.linux.org.uk>
+	 <42C3A698.9020404@drzeus.cx>
 Content-Type: text/plain
-Date: Thu, 30 Jun 2005 13:22:53 +0200
-Message-Id: <1120130573.3181.42.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Message-Id: <1120130926.6482.83.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 30 Jun 2005 12:28:48 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Iau, 2005-06-30 at 09:00, Pierre Ossman wrote:
+> +	for (i = 0;i < 8;i++) {
+> +	  set_dma_addr(i, 0x000000);
+> +	  /* DMA count is a bit wierd so this is not 0 */
+> +	  set_dma_count(i, 1);
 
-> An if(usec > 2000) { printk(..); dump_stack(); } will do.
+It is spelt "weird"
 
-that's runtime not compile time.
-The old situation was a compile time check which is far more powerful.
+Looks basically OK although it would be good to document the situation
+for a bus mastering DMA controller. Does the device have to reconfigure
+the DMA on a resume or is that something the restore code for the device
+should handle ?
 
-> 
-> But do you really want to do this? There might be legitimate reasons
-> to compute udelay's parameter with results which are sometimes large.
+My own feeling is tha we should dump that on the device (safer) and also
+expect the device to prevent suspends during an active DMA transfer (eg
+floppy)
 
-however that's not valid, because a really large udelay parameter will
-cause the delay loop math to overflow. That was the main reason for the
-"no more than 2ms or so" restriction.
-> 
-> If you really want to, let's decide on this limit now,
-
-the existing code already has a limit so why not just use that?
-
+Alan
 

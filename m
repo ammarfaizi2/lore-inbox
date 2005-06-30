@@ -1,55 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262819AbVF3N4N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262827AbVF3OAd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262819AbVF3N4N (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 09:56:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262827AbVF3N4N
+	id S262827AbVF3OAd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 10:00:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262828AbVF3OAc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 09:56:13 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:44244 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S262819AbVF3N4K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 09:56:10 -0400
-Message-ID: <42C3F9DD.8080502@grupopie.com>
-Date: Thu, 30 Jun 2005 14:55:41 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Thu, 30 Jun 2005 10:00:32 -0400
+Received: from [212.76.81.127] ([212.76.81.127]:27653 "EHLO raad.intranet")
+	by vger.kernel.org with ESMTP id S262827AbVF3OA2 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Jun 2005 10:00:28 -0400
+Message-Id: <200506301246.PAA29464@raad.intranet>
+From: "Al Boldi" <a1426z@gawab.com>
+To: "=?iso-8859-1?Q?'Markus___T=F6rnqvist'?=" <mjt@nysv.org>
+Cc: "'Douglas McNaught'" <doug@mcnaught.org>,
+       "'Horst von Brand'" <vonbrand@inf.utfsm.cl>,
+       "'Hubert Chan'" <hubert@uhoreg.ca>,
+       "'Kyle Moffett'" <mrmacman_g4@mac.com>,
+       "'David Masover'" <ninja@slaphack.com>, <Valdis.Kletnieks@vt.edu>,
+       "'Lincoln Dale'" <ltd@cisco.com>,
+       "'Gregory Maxwell'" <gmaxwell@gmail.com>,
+       "'Hans Reiser'" <reiser@namesys.com>,
+       "'Jeff Garzik'" <jgarzik@pobox.com>,
+       "'Christoph Hellwig'" <hch@infradead.org>,
+       "'Andrew Morton'" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
+       "'ReiserFS List'" <reiserfs-list@namesys.com>
+Subject: Linux and Plan-9ness
+Date: Thu, 30 Jun 2005 15:45:48 +0300
 MIME-Version: 1.0
-To: Robert Love <rml@novell.com>
-Cc: linux-kernel@vger.kernel.org,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Andrew Morton <akpm@osdl.org>, John McCutchan <ttb@tentacle.dhs.org>
-Subject: Re: [patch] latest inotify.
-References: <1119989024.6745.20.camel@betsy>
-In-Reply-To: <1119989024.6745.20.camel@betsy>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: AcV9Wt0bSjLkkcI4Rh+0gHZkGiP+2AADx4qg
+In-Reply-To: <20050630100119.GO11013@nysv.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love wrote:
-> Below is the latest inotify patch, against 2.6.12.
-> 
-> [...]
-> +/*
-> + * fsnotify_oldname_init - save off the old filename before we change it
-> + *
-> + * XXX: This could be kstrdup if only we could add that to lib/string.c
-> + */
+Markus   Törnqvist wrote: {
+On Wed, Jun 29, 2005 at 10:56:36PM +0200, David Weinehall wrote:
+>instead of trying to get a monstrosity (albeit a very cool one,
+>conceptually) into the kernel.  Sure, it could be made to work, but not 
+>without dropping our Unixness.  And if we do, we should start by 
+>looking at Plan 9 =)
 
-I knew you were waiting for this, so I just wanted to let you know that 
-the kstrdup function is already available in Linus tree 2.6.13-rc1. It 
-is declared linux/string.h and implemented in mm/slab.c.
+What's wrong with "dropping our Unixness" if it means taking an extra step
+toward Plan 9?
 
-It is not implemented in lib/string.c because some architectures use lib 
-functions in their bootloading code where the allocation functions are 
-not available, and the linking stage then fails because of the kmalloc 
-reference :P
+Why is this a bad idea?
+}
 
--- 
-Paulo Marques - www.grupopie.com
+Please explain!
 
-It is a mistake to think you can solve any major problems
-just with potatoes.
-Douglas Adams

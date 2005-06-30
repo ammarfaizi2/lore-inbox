@@ -1,75 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262806AbVF3DcW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262802AbVF3Edf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262806AbVF3DcW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 23:32:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262805AbVF3DcV
+	id S262802AbVF3Edf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 00:33:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262808AbVF3Edb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 23:32:21 -0400
-Received: from sv1.valinux.co.jp ([210.128.90.2]:18358 "EHLO sv1.valinux.co.jp")
-	by vger.kernel.org with ESMTP id S262803AbVF3DcA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 23:32:00 -0400
-Date: Thu, 30 Jun 2005 12:32:21 +0900 (JST)
-Message-Id: <20050630.123221.41649450.taka@valinux.co.jp>
-To: nickpiggin@yahoo.com.au
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [rfc] lockless pagecache
-From: Hirokazu Takahashi <taka@valinux.co.jp>
-In-Reply-To: <42C28846.60702@yahoo.com.au>
-References: <42BF9CD1.2030102@yahoo.com.au>
-	<20050629.194959.98866345.taka@valinux.co.jp>
-	<42C28846.60702@yahoo.com.au>
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Thu, 30 Jun 2005 00:33:31 -0400
+Received: from services106.cs.uwaterloo.ca ([129.97.152.164]:25539 "EHLO
+	services106.cs.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S262802AbVF3Ed1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Jun 2005 00:33:27 -0400
+X-Mailer: emacs 21.4.1 (via feedmail 8 I)
+To: Hans Reiser <reiser@namesys.com>
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Kyle Moffett <mrmacman_g4@mac.com>, David Masover <ninja@slaphack.com>,
+       Valdis.Kletnieks@vt.edu, Lincoln Dale <ltd@cisco.com>,
+       Gregory Maxwell <gmaxwell@gmail.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: reiser4 plugins
+From: Hubert Chan <hubert@uhoreg.ca>
+In-Reply-To: <42C3615A.9020600@namesys.com> (Hans Reiser's message of "Wed,
+ 29 Jun 2005 20:04:58 -0700")
+References: <hubert@uhoreg.ca>
+	<200506290509.j5T595I6010576@laptop11.inf.utfsm.cl>
+	<87hdfgvqvl.fsf@evinrude.uhoreg.ca>
+	<8783be6605062914341bcff7cb@mail.gmail.com>
+	<42C3615A.9020600@namesys.com>
+X-Hashcash: 1:23:050630:reiser@namesys.com::Gk4MSeaYIyjqKBJB:0000000000000000000000000000000000000000000XBU1
+X-Hashcash: 1:23:050630:vonbrand@inf.utfsm.cl::JezaYEbKEsOON5cB:0000000000000000000000000000000000000000rDB+
+X-Hashcash: 1:23:050630:mrmacman_g4@mac.com::WdTEI0tkqjwLzC6T:000000000000000000000000000000000000000000BhnE
+X-Hashcash: 1:23:050630:ninja@slaphack.com::5MP38ms5fvqD+tlh:0000000000000000000000000000000000000000000WiQY
+X-Hashcash: 1:23:050630:valdis.kletnieks@vt.edu::oMKuPF1bbjIgQbak:000000000000000000000000000000000000006TbX
+X-Hashcash: 1:23:050630:ltd@cisco.com::KsdF/VVo2QduOroP:00011kMd
+X-Hashcash: 1:23:050630:gmaxwell@gmail.com::4hRWRd6JqoRVseKC:0000000000000000000000000000000000000000000knrZ
+X-Hashcash: 1:23:050630:jgarzik@pobox.com::BAqtjXIkKn/lhNL6:00000000000000000000000000000000000000000000KYQ0
+X-Hashcash: 1:23:050630:hch@infradead.org::Qcrk949HNsErI0aa:0000000000000000000000000000000000000000000041C5
+X-Hashcash: 1:23:050630:akpm@osdl.org::Lomg6DC2Eqa5cIEo:0000AZOn
+X-Hashcash: 1:23:050630:linux-kernel@vger.kernel.org::MqGUFro2IbBcULZQ:00000000000000000000000000000000098Yv
+X-Hashcash: 1:23:050630:reiserfs-list@namesys.com::CG2HFiVT0hSUu523:0000000000000000000000000000000000006/7/
+Date: Thu, 30 Jun 2005 00:33:10 -0400
+Message-ID: <871x6kv4zd.fsf@evinrude.uhoreg.ca>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Miltered: at rhadamanthus with ID 42C37647.004 by Joe's j-chkmail (http://j-chkmail.ensmp.fr)!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 29 Jun 2005 20:04:58 -0700, Hans Reiser <reiser@namesys.com> said:
 
-> > Your patches improve the performance if lots of processes are
-> > accessing the same file at the same time, right?
-> > 
-> 
-> Yes.
-> 
-> > If so, I think we can introduce multiple radix-trees instead,
-> > which enhance each inode to be able to have two or more radix-trees
-> > in it to avoid the race condition traversing the trees.
-> > Some decision mechanism is needed which radix-tree each page
-> > should be in, how many radix-tree should be prepared.
-> > 
-> > It seems to be simple and effective.
-> > 
-> > What do you think?
-> > 
-> 
-> Sure it is a possibility.
-> 
-> I don't think you could call it effective like a completely
-> lockless version is effective. You might take more locks during
-> gang lookups, you may have a lot of ugly and not-always-working
-> heuristics (hey, my app goes really fast if it spreads accesses
-> over a 1GB file, but falls on its face with a 10MB one). You
-> might get increased cache footprints for common operations.
+> Ross Biro wrote:
+>> How is directories as files logically any different than putting all
+>> data into .data files and making all files directories (yes you would
+>> need some sort of special handling for files that were really called
+>> .data).
 
-I guess it would be enough to split a huge file into the same
-size pieces simply and put each of them in its associated radix-tree
-in most cases for practical use.
+> Add to this that you make .data the default if the file within the
+> directory is not specified,
 
-And I also feel your approach is interesting.
+It's sort of like the way web servers handle index.html, for those who
+think it's a stupid idea.  (Of course, some people may still think it's
+a stupid idea... ;-) )
 
-> I mainly did the patches for a bit of fun rather than to address
-> a particular problem with a real workload and as such I won't be
-> pushing to get them in the kernel for the time being.
+> and define a stanadard set of names for metafiles, and you've got the
+> essential idea, and any differences are details.
 
-I see.
+-- 
+Hubert Chan <hubert@uhoreg.ca> - http://www.uhoreg.ca/
+PGP/GnuPG key: 1024D/124B61FA
+Fingerprint: 96C5 012F 5F74 A5F7 1FF7  5291 AF29 C719 124B 61FA
+Key available at wwwkeys.pgp.net.   Encrypted e-mail preferred.
 
-I propose another idea if you don't mind, seqlock seems to make
-your code much simpler though I'm not sure whether it works well
-under heavy load. It would become stable without the tricks,
-which makes VM hard to be enhanced in the future.
-
-Thanks,
-Hirokazu Takahashi.

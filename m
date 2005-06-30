@@ -1,74 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263015AbVF3Tj7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263023AbVF3TlL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263015AbVF3Tj7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 15:39:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263019AbVF3Tjs
+	id S263023AbVF3TlL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 15:41:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263019AbVF3TkN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 15:39:48 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:18430 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S263015AbVF3TjL
+	Thu, 30 Jun 2005 15:40:13 -0400
+Received: from zproxy.gmail.com ([64.233.162.204]:52930 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262987AbVF3Tjk convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 15:39:11 -0400
-Date: Thu, 30 Jun 2005 14:44:58 -0500
-From: serue@us.ibm.com
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Chris Wright <chrisw@osdl.org>, Stephen Smalley <sds@epoch.ncsc.mil>,
-       James Morris <jmorris@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Michael Halcrow <mhalcrow@us.ibm.com>,
-       David Safford <safford@watson.ibm.com>,
-       Reiner Sailer <sailer@us.ibm.com>, Gerrit Huizenga <gerrit@us.ibm.com>,
-       emily@serge.austin.ibm.com
-Subject: [patch 0/12] lsm stacking v0.2: intro
-Message-ID: <20050630194458.GA23439@serge.austin.ibm.com>
+	Thu, 30 Jun 2005 15:39:40 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=sZKAqkpYt5BwhQyacAagrkxWm92rBB4Z01DpO3COfG1oASk8BCAHuXosN+KkOJqNiNEG+cJxEZ97D/GDB8YIBTG1saECP0SgAopFIj3FvDyjQRF2QSS4hZ+yAV3fPCk8RlmYzfO4mSdtmmIqKs95KLhSHBpmHPVUbYadESqnRcQ=
+Message-ID: <3aa654a4050630123937e1fcba@mail.gmail.com>
+Date: Thu, 30 Jun 2005 12:39:37 -0700
+From: Avuton Olrich <avuton@gmail.com>
+Reply-To: Avuton Olrich <avuton@gmail.com>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Subject: Re: FUSE merging?
+Cc: arjan@infradead.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <E1DnwDI-0000WT-00@dorka.pomaz.szeredi.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.5.8i
+References: <E1DnvCq-0000Q4-00@dorka.pomaz.szeredi.hu>
+	 <20050630022752.079155ef.akpm@osdl.org>
+	 <E1Dnvhv-0000SK-00@dorka.pomaz.szeredi.hu>
+	 <1120125606.3181.32.camel@laptopd505.fenrus.org>
+	 <E1Dnw2J-0000UM-00@dorka.pomaz.szeredi.hu>
+	 <1120126804.3181.34.camel@laptopd505.fenrus.org>
+	 <E1DnwDI-0000WT-00@dorka.pomaz.szeredi.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 6/30/05, Miklos Szeredi <miklos@szeredi.hu> wrote:
+> > Then can you please accept that FUSE will not get merged right now.
+> My argument is: IF it's not going to get merged now, can we please
+> continue the discussion about why it's unacceptable, and what are the
+> alternatives.
 
-The set of patches to follow introduces support for stacking LSMs.
-This is its second posting to lkml.  I am sending it out in the hopes of
-soliciting feedback and testing, with the obvious eventual goal of
-mainline adoption.
+Why has there not been more discussion about just making an option for
+those 15 lines, just for merging's sake, and hopefully after more
+discussion, the option will go away one way or another. On the other
+hand everyone says security, security, security and I don't remember
+one person actually saying something negative about what it does to
+security.
 
-The patches mainly do the following:
+avuton
 
-   1. Introduce the stacker LSM.
-   2. Change the kernel object void * security fields to be hlists,
-      and introduce an api for modules to share these.
-   3. Modify SELinux to make use of stacker.
-   4. Modify seclvl to use stacker.
-
-Motivation:
-
-The purpose of these patches is to enable stacking multiple security
-modules.  There are several cases where this would be very useful.  It
-eases the testing of new modules with distro kernels, as it makes it
-possible to stack new modules with selinux and capabilities -- for
-instance if a user is running fedora.  Second, it enables running
-selinux (or LIDS, etc) with integrity verification modules.  (Digsig is
-an example of these, and within a few months hopefully the TPM-enabled
-slim+evm modules, which verifies integrity of file contents and extended
-attributes such as selinux contexts
-(http://www.acsac.org/2004/workshop/David-Safford.pdf) will be released
-for mainline inclusion).  Thirdly, there are systems where running
-selinux is not practical for footprint reasons, and the security goals
-are easily expressed as a very small module.  For instance, it might
-be desirable to confine a web browser on a zaurus, or to implement a
-site security policy on old hardware as per
-http://mail.wirex.com/pipermail/linux-security-module/2005-May/6071.html
-
-Performance impact of the actual stacker module is negligable.  The
-security_{get,set,del,add}_value API does have a small performance
-impact.  Please see
-http://marc.theaimsgroup.com/?l=linux-security-module&m=111820455332752&w=2
-and
-http://marc.theaimsgroup.com/?l=linux-security-module&m=111824326500837&w=2
-if interested in the performance results.  I am certainly interested in
-ways to further speed up security_get_value.
-
-thanks,
--serge
+-- 
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

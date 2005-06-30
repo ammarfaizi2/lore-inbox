@@ -1,129 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263125AbVF3XkV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263091AbVF3Xxb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263125AbVF3XkV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 19:40:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263117AbVF3XkV
+	id S263091AbVF3Xxb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 19:53:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263126AbVF3Xxb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 19:40:21 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:47744 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S263125AbVF3Xjy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 19:39:54 -0400
-Date: Fri, 1 Jul 2005 01:37:32 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Pascal CHAPPERON <pascal.chapperon@wanadoo.fr>
-Cc: Juha Laiho <Juha.Laiho@iki.fi>, Andrew Hutchings <info@a-wing.co.uk>,
-       linux-kernel@vger.kernel.org, vinay kumar <b4uvin@yahoo.co.in>,
-       jgarzik@pobox.com
-Subject: Re: sis190
-Message-ID: <20050630233732.GA16886@electric-eye.fr.zoreil.com>
-References: <20935204.1119789594907.JavaMail.www@wwinf0901>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20935204.1119789594907.JavaMail.www@wwinf0901>
-User-Agent: Mutt/1.4.2.1i
-X-Organisation: Land of Sunshine Inc.
+	Thu, 30 Jun 2005 19:53:31 -0400
+Received: from po2.wam.umd.edu ([128.8.10.164]:57999 "EHLO po2.wam.umd.edu")
+	by vger.kernel.org with ESMTP id S263091AbVF3XxS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Jun 2005 19:53:18 -0400
+Date: Thu, 30 Jun 2005 19:53:15 -0400 (EDT)
+From: Patrick Jenkins <patjenk@wam.umd.edu>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Multipath routing algorithm determination
+Message-ID: <Pine.GSO.4.61.0506301947360.5941@rac1.wam.umd.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pascal CHAPPERON <pascal.chapperon@wanadoo.fr> :
-[...]
-> 1) sis190 freezes the box when kernel PREEMPT is enabled :
-> 
-> I made many tries, but i could not solve it;
-> - it does not occur while receiving huge files.
-> - it does not occur when only a few packets are
->   transmitted (remote connection, ls, find)
-> - it occurs only while transmiting huge files AND
->   trying to do someting else (open a new term,...)
-> - I could transfer a huge file (700MB) several times
->   as i was at the console (and i could switch to another
-> console to perform find, ls,... during the transfer).
+Hi,
 
-Are you saying that PREEMPT and X are both needed to freeze the box ?
+This patch assigns the multipath routing algorithm into the fib_info
+struct's fib_mp_alg variable. Previously, the algorithm was always set to
+IP_MP_ALG_NONE which was incorrect. This patch corrects the problem by
+assigning the correct value when a fib_info is initialized.
 
-If so, could you try preempt + console + rsync (+ dd from disk) ?
+This patch was tested against kernel 2.6.12.1 for all multipath routing
+algorithms (none, round robin, interface round robin, random, weighted
+random).
 
-> I managed the system so the sis190 had its own IRQ, but it
-> made no difference.
-> 
-> As i suspected nvidia driver, i switched to nv driver : no result.
+Please look this patch over and apply it to the kernel. I have been unable 
+to contact the creators of the multipath algorithm feature so this is why 
+I sent it to the lkml.
 
-Please keep binary modules out of the loop until the things are stable.
-I do not want to try and diagnose a bug in a system wherein such an amount
-of unknown code was loaded (even if it was unloaded later).
+I am not a member of the list so please cc me in the reply.
 
-> It seems to me that a task inside the sis190_tx_interrupt() is 
-> not protected against preemption (and it is probably the same
-> on a SMP not prempted).
-> 
-> I tried to play with spinlocks, but with no result :
-> @@ -621,6 +621,7 @@ static irqreturn_t sis190_interrupt(int
->         void __iomem *ioaddr = tp->mmio_addr;
->         int handled = 0;
->         int boguscnt;
-> +       unsigned long flags;
-> 
->         for (boguscnt = max_interrupt_work; boguscnt > 0; boguscnt--) {
->                 u32 status = SIS_R32(IntrStatus);
-> @@ -651,9 +652,9 @@ static irqreturn_t sis190_interrupt(int
->                         sis190_rx_interrupt(dev, tp, ioaddr);
-> 
->                 if (status & TxQ0Int) {
-> -                       spin_lock(&tp->lock);
-> +                       spin_lock_irqsave(&tp->lock, flags);
->                         sis190_tx_interrupt(dev, tp, ioaddr);
-> -                       spin_unlock(&tp->lock);
-> +                       spin_unlock_irqrestore(&tp->lock, flags);
+Signed-off-by: Patrick Jenkins <patjenk@wam.umd.edu>
 
-Afaik the irq handler is already protected against reentrancy (see
-kernel/irq.c::__do_IRQ) and softirq (see arch/xxx/kernel/irq.c::irq_exit).
-So this change should not make a difference.
+--- net/ipv4/fib_semantics.orig.c       2005-06-30 18:47:05.000000000 
+-0400
++++ net/ipv4/fib_semantics.c    2005-06-30 18:55:08.000000000 -0400
+@@ -9,6 +9,9 @@
+   *
+   * Authors:    Alexey Kuznetsov, <kuznet@ms2.inr.ac.ru>
+   *
++ * Fixes:
++ *             Patrick Jenkins :       multipath routing algorithm wasnt 
+being assigned correctly
++ *
+   *             This program is free software; you can redistribute it 
+and/or
+   *             modify it under the terms of the GNU General Public 
+License
+   *             as published by the Free Software Foundation; either 
+version
+@@ -650,9 +653,20 @@ fib_create_info(const struct rtmsg *r, s
+  #else
+         const int nhs = 1;
+  #endif
++
+  #ifdef CONFIG_IP_ROUTE_MULTIPATH_CACHED
++#ifdef CONFIG_IP_ROUTE_MULTIPATH_RR
++       u32 mp_alg = IP_MP_ALG_RR;
++#elif CONFIG_IP_ROUTE_MULTIPATH_DRR
++       u32 mp_alg = IP_MP_ALG_DRR;
++#elif CONFIG_IP_ROUTE_MULTIPATH_RANDOM
++       u32 mp_alg = IP_MP_ALG_RANDOM;
++#elif CONFIG_IP_ROUTE_MULTIPATH_WRANDOM
++       u32 mp_alg = IP_MP_ALG_WRANDOM;
++#else
+         u32 mp_alg = IP_MP_ALG_NONE;
+-#endif
++#endif /* multipath algorithm determination */
++#endif /* CONFIG_IP_ROUTE_MULTIPATH_CACHED */
 
-[...]
-> @@ -581,6 +581,7 @@ static void sis190_tx_interrupt(struct n
->                                 struct sis190_private *tp, void __iomem *ioaddr)
->  {
->         unsigned int tx_left, dirty_tx = tp->dirty_tx;
-> +       unsigned long flags;
-> 
->         for (tx_left = tp->cur_tx - dirty_tx; tx_left > 0; tx_left--) {
->                 unsigned int entry = dirty_tx % NUM_TX_DESC;
-> @@ -604,10 +605,12 @@ static void sis190_tx_interrupt(struct n
->                 dirty_tx++;
->         }
-> 
-> +       spin_lock_irqsave(&tp->lock, flags);
->         if (tp->dirty_tx != dirty_tx) {
->                 tp->dirty_tx = dirty_tx;
->                 netif_wake_queue(dev);
->         }
-> +       spin_unlock_irqrestore(&tp->lock, flags);
->  }
+         /* Fast check to catch the most weird cases */
+         if (fib_props[r->rtm_type].scope > r->rtm_scope)
 
-The irqsave/restore should not be needed for the same reason as above.
 
-> In fact, i don't know where are the critical sections...
 
-In the Tx path the critical section is related to netif_{start/stop}_queue.
-
-> 2) sis190 freezes the box when the link partner is
-> a r8169 forced in 10 full autoneg off (preempted or not
-> preempted kernel) :
-
-The r8169 driver will not necessarily do what you would expect when you
-autoneg it off and it faces an unstable driver. I'll send an update for it.
-
-Any TX timeout message on the console ? Freeze == sysrq has no effect
-and keyboard leds do not blink any more ?
-
-There is an updated version at 
-http://www.zoreil.com/~romieu/sis190/20050630-2.6.13-rc1-sis190-test.patch
-
-It would be nice to know how it behaves wrt preempt (no need to experiment
-with the media management), especially if you can describe the freeze more
-specifically.
-
---
-Ueimor

@@ -1,103 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262929AbVF3KX4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262932AbVF3KXz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262929AbVF3KX4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 06:23:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262925AbVF3KWr
+	id S262932AbVF3KXz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 06:23:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262929AbVF3KXM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 06:22:47 -0400
-Received: from ausmtp01.au.ibm.com ([202.81.18.186]:49052 "EHLO
-	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP id S262929AbVF3KUx
+	Thu, 30 Jun 2005 06:23:12 -0400
+Received: from ausmtp02.au.ibm.com ([202.81.18.187]:58822 "EHLO
+	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S262932AbVF3KUy
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 06:20:53 -0400
+	Thu, 30 Jun 2005 06:20:54 -0400
 Date: Thu, 30 Jun 2005 20:20:39 +1000
 To: linuxppc64-dev@ozlabs.org, netdev@oss.sgi.com,
        linux-kernel@vger.kernel.org
 From: Michael Ellerman <michael@ellerman.id.au>
-Subject: [PATCH 10/12] iseries_veth: Remove TX timeout code
+Subject: [PATCH 3/12] iseries_veth: Make init_connection() & destroy_connection() symmetrical
 In-Reply-To: <200506302016.55125.michael@ellerman.id.au>
-Message-Id: <1120126839.908017.660889424014.qpatch@concordia>
+Message-Id: <1120126839.290253.340047065213.qpatch@concordia>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The iseries_veth driver uses the generic TX timeout watchdog, however a better
-solution is in the works, so remove this code.
+This patch makes veth_init_connection() and veth_destroy_connection()
+symmetrical in that they allocate/deallocate the same data.
+
+Currently if there's an error while initialising connections (ie. ENOMEM)
+we call veth_module_cleanup(), however this will oops because we call
+driver_unregister() before we've called driver_register(). I've never seen
+this actually happen though.
+
+So instead we explicitly call veth_destroy_connection() in a reverse
+loop for the connections we've successfully initialised.
 
 
 ---
 
- drivers/net/iseries_veth.c |   48 ---------------------------------------------
- 1 files changed, 48 deletions(-)
+ drivers/net/iseries_veth.c |   22 +++++++++++-----------
+ 1 files changed, 11 insertions(+), 11 deletions(-)
 
 Index: veth-dev/drivers/net/iseries_veth.c
 ===================================================================
 --- veth-dev.orig/drivers/net/iseries_veth.c
 +++ veth-dev/drivers/net/iseries_veth.c
-@@ -813,49 +813,6 @@ static struct ethtool_ops ops = {
- 	.get_link = veth_get_link,
- };
+@@ -664,6 +664,14 @@ static void veth_stop_connection(u8 rlp)
+ 	 * been deleted by the state machine, just want to make sure
+ 	 * its not running any more */
+ 	del_timer_sync(&cnx->ack_timer);
++}
++
++static void veth_destroy_connection(u8 rlp)
++{
++	struct veth_lpar_connection *cnx = veth_cnx[rlp];
++
++	if (! cnx)
++		return;
  
--static void veth_tx_timeout(struct net_device *dev)
--{
--	struct veth_port *port = (struct veth_port *)dev->priv;
--	struct net_device_stats *stats = &port->stats;
--	unsigned long flags;
--	int i;
--
--	stats->tx_errors++;
--
--	spin_lock_irqsave(&port->pending_gate, flags);
--
--	if (!port->pending_lpmask) {
--		spin_unlock_irqrestore(&port->pending_gate, flags);
--		return;
--	}
--
--	printk(KERN_WARNING "%s: Tx timeout!  Resetting lp connections: %08x\n",
--	       dev->name, port->pending_lpmask);
--
--	for (i = 0; i < HVMAXARCHITECTEDLPS; i++) {
--		struct veth_lpar_connection *cnx = veth_cnx[i];
--
--		if (! (port->pending_lpmask & (1<<i)))
--			continue;
--
--		/* If we're pending on it, we must be connected to it,
--		 * so we should certainly have a structure for it. */
--		BUG_ON(! cnx);
--
--		/* Theoretically we could be kicking a connection
--		 * which doesn't deserve it, but in practice if we've
--		 * had a Tx timeout, the pending_lpmask will have
--		 * exactly one bit set - the connection causing the
--		 * problem. */
--		spin_lock(&cnx->lock);
--		cnx->state |= VETH_STATE_RESET;
--		veth_kick_statemachine(cnx);
--		spin_unlock(&cnx->lock);
--	}
--
--	spin_unlock_irqrestore(&port->pending_gate, flags);
+ 	if (cnx->num_events > 0)
+ 		mf_deallocate_lp_events(cnx->remote_lp,
+@@ -675,14 +683,6 @@ static void veth_stop_connection(u8 rlp)
+ 				      HvLpEvent_Type_VirtualLan,
+ 				      cnx->num_ack_events,
+ 				      NULL, NULL);
 -}
 -
- static struct net_device * __init veth_probe_one(int vlan, struct device *vdev)
+-static void veth_destroy_connection(u8 rlp)
+-{
+-	struct veth_lpar_connection *cnx = veth_cnx[rlp];
+-
+-	if (! cnx)
+-		return;
+ 
+ 	kfree(cnx->msgs);
+ 	kfree(cnx);
+@@ -1424,15 +1424,15 @@ module_exit(veth_module_cleanup);
+ 
+ int __init veth_module_init(void)
  {
- 	struct net_device *dev;
-@@ -904,9 +861,6 @@ static struct net_device * __init veth_p
- 	dev->set_multicast_list = veth_set_multicast_list;
- 	SET_ETHTOOL_OPS(dev, &ops);
+-	int i;
+-	int rc;
++	int i, rc;
  
--	dev->watchdog_timeo = 2 * (VETH_ACKTIMEOUT * HZ / 1000000);
--	dev->tx_timeout = veth_tx_timeout;
--
- 	SET_NETDEV_DEV(dev, vdev);
+ 	this_lp = HvLpConfig_getLpIndex_outline();
  
- 	rc = register_netdev(dev);
-@@ -1047,8 +1001,6 @@ static int veth_start_xmit(struct sk_buf
- 
- 	lpmask = veth_transmit_to_many(skb, lpmask, dev);
- 
--	dev->trans_start = jiffies;
--
- 	if (! lpmask) {
- 		dev_kfree_skb(skb);
- 	} else {
+ 	for (i = 0; i < HVMAXARCHITECTEDLPS; ++i) {
+ 		rc = veth_init_connection(i);
+ 		if (rc != 0) {
+-			veth_module_cleanup();
++			for (; i >= 0; i--)
++				veth_destroy_connection(i);
+ 			return rc;
+ 		}
+ 	}

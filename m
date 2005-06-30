@@ -1,63 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262906AbVF3I2Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262903AbVF3I2b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262906AbVF3I2Q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 04:28:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262904AbVF3I2P
+	id S262903AbVF3I2b (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 04:28:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262886AbVF3I2a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 04:28:15 -0400
-Received: from mx1.suse.de ([195.135.220.2]:36503 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S262886AbVF3I17 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 04:27:59 -0400
-From: Gernot Payer <gpayer@suse.de>
-To: Chris Wright <chrisw@osdl.org>
-Subject: Re: Patch to disarm timers after an exec syscall
-Date: Thu, 30 Jun 2005 10:27:57 +0200
-User-Agent: KMail/1.6.2
-References: <200506291455.45468.gpayer@suse.de> <20050629182725.GF9153@shell0.pdx.osdl.net>
-In-Reply-To: <20050629182725.GF9153@shell0.pdx.osdl.net>
+	Thu, 30 Jun 2005 04:28:30 -0400
+Received: from wproxy.gmail.com ([64.233.184.204]:24358 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262903AbVF3I2C convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Jun 2005 04:28:02 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=UgkJokGx9OnP0+m0MfzFa5bS1l8wQDA2vBuLZopdcCdLgjKm7vPYoZngSC9uxGP+iUnidF5AnXrlahrWj48NgPBz+iPdIgXHgvEdSJCRpwyX2NZbTgeyjhbKf5tv8UsD290cSl48+6VA0PgyEBGzOgEeK5emw34w16mVYYyn+Lw=
+Message-ID: <cce092220506300128356b3bbb@mail.gmail.com>
+Date: Thu, 30 Jun 2005 16:28:01 +0800
+From: Wang Jian <larkwang@gmail.com>
+Reply-To: Wang Jian <larkwang@gmail.com>
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: 2.6.12.1 problems I meet (please CC: me)
 Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+In-Reply-To: <cce092220506292344264b9a53@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200506301027.57380.gpayer@suse.de>
+References: <20050630111916.FEA2.LARKWANG@gmail.com>
+	 <20050630063721.GB2243@suse.de>
+	 <cce092220506292344264b9a53@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 29 June 2005 20:27, Chris Wright wrote:
-> No, this can't do.  It conflicts with the other bit of requirements.
-> Specifically:
-> http://www.opengroup.org/onlinepubs/009695399/functions/exec.html
->
-> As you mention:
->
->   [TMR] Per-process timers created by the calling process
->   shall be deleted before replacing the current process image with the new
->   process image.
->
-> But also:
->
->   The new process shall inherit at least the following attributes from the
->   calling process image:
->   <snip>
->   o [XSI] Interval timers
->
-> And this kills the latter.
+The problem #1 is gone for 2.6.12.2. Thanks.
 
-Ah, thanks for pointing that out. Unfortunately this fact isn't made clear in 
-the timer_create page and the exec page isn't very understandable for 
-non-native speakers and non-lawyers. ;-)
-
-But after reading the parts you mentioned (expecially the [XSI] and [TMR] 
-acronyms), I have to agree with you, the patch is wrong and so is the test 
-case I mentioned.
-
-However, poking around in the kernel was fun anyway. ;-)
-
-> thanks,
-> -chris
-
-mfg
-Gernot
+2005/6/30, Wang Jian <larkwang@gmail.com>:
+> [root@devel root]# gcc --version
+> gcc (GCC) 3.3.2 (Mandrake Linux 10.0 3.3.2-6mdk)
+> 
+> I will try 2.6.12.2 and report back.
+> 
+> On 6/30/05, Jens Axboe <axboe@suse.de> wrote:
+> > On Thu, Jun 30 2005, Wang Jian wrote:
+> > > Hi,
+> > >
+> > > I use a customized kernel to do packets analysis. The analysis code is
+> > > linked into kernel. It will vmalloc() nearly 128M (a little less) when
+> > > initialized.
+> > >
+> > > The original code runs on 2.6.10 and works fine. The platform is a
+> > > general P4 with 100M ethernet. The user space system is a 8M compressed
+> > > ramdisk image which is a 32M filesystem.
+> > >
+> > > Now I want to make it work on 2.6.12+ and on Athlon64 platform, for
+> > > better driver and better CPU/NIC performance.
+> > >
+> > > I have a P4 box (compilation bed, CB), a 2-way Athlon64 box (test bed,
+> > > TB).
+> > >
+> > > The problems are:
+> > >
+> > > 1. I port the code directly to 2.6.12.1 on CB, and it compiles ok. But
+> > > during boot, the kernel boot with error "unknown bus type 0" and freeze.
+> > > Especially, it can't detect harddisk's partition table. I use "quiet" to
+> > > strip non-error message and hand copy error messages
+> >
+> > Which compiler? 2.6.12.2 should work for you, looks like you are hit my
+> > the memcpy reordering bug.
+> >
+> > --
+> > Jens Axboe
+> >
+> >
+>

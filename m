@@ -1,74 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262796AbVF3CoI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262799AbVF3DE5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262796AbVF3CoI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 22:44:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262798AbVF3CoH
+	id S262799AbVF3DE5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 23:04:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262800AbVF3DE4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 22:44:07 -0400
-Received: from hulk.hostingexpert.com ([69.57.134.39]:23775 "EHLO
-	hulk.hostingexpert.com") by vger.kernel.org with ESMTP
-	id S262796AbVF3CoE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 22:44:04 -0400
-Message-ID: <42C35C65.8030900@m1k.net>
-Date: Wed, 29 Jun 2005 22:43:49 -0400
-From: Michael Krufky <mkrufky@m1k.net>
-Reply-To: mkrufky@m1k.net
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+	Wed, 29 Jun 2005 23:04:56 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:29174 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S262799AbVF3DEx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 23:04:53 -0400
+Message-ID: <42C3615A.9020600@namesys.com>
+Date: Wed, 29 Jun 2005 20:04:58 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Mauro Carvalho Chehab <mchehab@brturbo.com.br>,
-       Linux and Kernel Video <video4linux-list@redhat.com>,
-       trivial@rustcorp.com.au, linux-kernel@vger.kernel.org
-Subject: [TRIVIAL PATCH] v4l cx88 hue offset fix
-Content-Type: multipart/mixed;
- boundary="------------080007060906070007090700"
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - m1k.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+To: Ross Biro <ross.biro@gmail.com>
+CC: Hubert Chan <hubert@uhoreg.ca>, Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Kyle Moffett <mrmacman_g4@mac.com>, David Masover <ninja@slaphack.com>,
+       Valdis.Kletnieks@vt.edu, Lincoln Dale <ltd@cisco.com>,
+       Gregory Maxwell <gmaxwell@gmail.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: reiser4 plugins
+References: <hubert@uhoreg.ca>	 <200506290509.j5T595I6010576@laptop11.inf.utfsm.cl>	 <87hdfgvqvl.fsf@evinrude.uhoreg.ca> <8783be6605062914341bcff7cb@mail.gmail.com>
+In-Reply-To: <8783be6605062914341bcff7cb@mail.gmail.com>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080007060906070007090700
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Ross Biro wrote:
 
+>On 6/29/05, Hubert Chan <hubert@uhoreg.ca> wrote:
+>  
+>
+>>On Wed, 29 Jun 2005 01:09:05 -0400, Horst von Brand <vonbrand@inf.utfsm.cl> said:
+>>
+>>    
+>>
+>>>Hubert Chan <hubert@uhoreg.ca> wrote: [...]
+>>>And doing "tar cf /dev/tape /usr/games/tetris" gives you a nice tangle
+>>>of undecipherable junk.
+>>>      
+>>>
+>
+>I'm confused.  Can someone on one of these lists enlighten me?
+>
+>How is directories as files logically any different than putting all
+>data into .data files and making all files directories (yes you would
+>need some sort of special handling for files that were really called
+>.data). 
+>
+Add to this that you make .data the default if the file within the
+directory is not specified, and define a stanadard set of names for
+metafiles, and you've got the essential idea, and any differences are
+details.
 
+> Then it's just a matter of deciding what happens when you
+>call open and stat on one of these files?
+>
+>For backwards compatibility, current existing system calls have to
+>treat these things as directories.  Perhaps an exception could be made
+>for exec.
+>
+>But we could have a whole new set of system calls that treat things as
+>magic, and if files as directories is as cool as many people think,
+>apps will start using the new api.  If not, they won't and the new api
+>can be deprecated.
+>
+>    Ross
+>
+>
+>  
+>
 
---------------080007060906070007090700
-Content-Type: text/plain;
- name="trivial-v4l-cx88-video-hue-offset-fix.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="trivial-v4l-cx88-video-hue-offset-fix.patch"
-
-  Changed hue offset to 128 to correct behavior in cx88 cards.
-  Previously, setting 0% or 100% hue was required to avoid blue/green
-  people on screen.  Now, 50% Hue means no offset, just like bt878 stuff.
-
-Signed-off-by: Michael Krufky <mkrufky@m1k.net>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-
- cx88-video.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-diff -upr a/drivers/media/video/cx88/cx88-video.c b/drivers/media/video/cx88/cx88-video.c
---- a/drivers/media/video/cx88/cx88-video.c	2005-06-29 21:59:40.000000000 -0400
-+++ b/drivers/media/video/cx88/cx88-video.c	2005-06-29 21:54:27.000000000 -0400
-@@ -268,7 +268,7 @@ static struct cx88_ctrl cx8800_ctls[] = 
- 			.default_value = 0,
- 			.type          = V4L2_CTRL_TYPE_INTEGER,
- 		},
--		.off                   = 0,
-+		.off                   = 128,
- 		.reg                   = MO_HUE,
- 		.mask                  = 0x00ff,
- 		.shift                 = 0,
-
---------------080007060906070007090700--

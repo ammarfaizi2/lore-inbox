@@ -1,54 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262704AbVF3Bnv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262707AbVF3Bvm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262704AbVF3Bnv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 21:43:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262707AbVF3Bnv
+	id S262707AbVF3Bvm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 21:51:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262737AbVF3Bvm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 21:43:51 -0400
-Received: from smtp.lnxw.com ([207.21.185.24]:15119 "EHLO smtp.lnxw.com")
-	by vger.kernel.org with ESMTP id S262704AbVF3Bnt (ORCPT
+	Wed, 29 Jun 2005 21:51:42 -0400
+Received: from unused.mind.net ([69.9.134.98]:25253 "EHLO echo.lysdexia.org")
+	by vger.kernel.org with ESMTP id S262707AbVF3Bve (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 21:43:49 -0400
-Date: Wed, 29 Jun 2005 18:50:41 -0700
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-Cc: Bill Huey <bhuey@lnxw.com>, Kristian Benoit <kbenoit@opersys.com>,
-       linux-kernel@vger.kernel.org, andrea@suse.de, tglx@linutronix.de,
-       karim@opersys.com, mingo@elte.hu, pmarques@grupopie.com,
-       bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au, ak@muc.de,
-       sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, rpm@xenomai.org
-Subject: Re: PREEMPT_RT and I-PIPE: the numbers, take 3
-Message-ID: <20050630015041.GA24234@nietzsche.lynx.com>
-References: <42C320C4.9000302@opersys.com> <20050629225734.GA23793@nietzsche.lynx.com> <20050629235422.GI1299@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050629235422.GI1299@us.ibm.com>
-User-Agent: Mutt/1.5.9i
-From: Bill Huey (hui) <bhuey@lnxw.com>
+	Wed, 29 Jun 2005 21:51:34 -0400
+Date: Wed, 29 Jun 2005 18:50:10 -0700 (PDT)
+From: William Weston <weston@sysex.net>
+X-X-Sender: weston@echo.lysdexia.org
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.50-24
+In-Reply-To: <20050629125657.GA29475@elte.hu>
+Message-ID: <Pine.LNX.4.58.0506291730000.16060@echo.lysdexia.org>
+References: <200506281927.43959.annabellesgarden@yahoo.de> <20050628202147.GA30862@elte.hu>
+ <20050628203017.GA371@elte.hu> <200506290151.53675.annabellesgarden@yahoo.de>
+ <20050629063439.GB12536@elte.hu> <20050629070058.GA15987@elte.hu>
+ <Pine.LNX.4.58.0506290159050.12101@echo.lysdexia.org> <20050629125657.GA29475@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 29, 2005 at 04:54:22PM -0700, Paul E. McKenney wrote:
-> If you were suggesting this to be run on an SMP system, I would agree
-> with you.  I, too, would very much like to see these results run on a
-> 2-CPU or 4-CPU system, although I am most certainly -not- asking Kristian
-> and Karim to do this work -- it is very much someone else's turn in the
-> barrel, I would say!
+On Wed, 29 Jun 2005, Ingo Molnar wrote:
 
-No, I'm suggesting that you and other folks understand the basic ideas
-behind this patch and stop asking unbelievably stupid questions. This has
-been covered over and over again, and I shouldn't have to repeat these
-positions constantly because folks have both a language comprehension
-problem and inability to bug off appropriately.
+> great! The SMP box running BurnP6 is another system, right? Could you 
+> sum up the remaining regressions you are seeing under -RT? (the 
+> latency.c warning is one, what others are remaining?)
 
-> However, on a UP system, I have to agree with Kristian's choice of
-> configuration.  An embedded system developer running on a UP system would
-> naturally use a UP Linux kernel build, so it makes sense to benchmark
-> a UP kernel on a UP system.
+Right.  I'm doing the bulk of my RT testing on three machines:
 
-Dual cores are going to be standard in the next few years so RTOSs should
-anticipate these things coming down the pipeline.
+Home:  UP  Athlon  2GHz    VIA KT400   desktop, audio & MIDI dev
+Work:  UP  Xeon    1.8GHz  Intel 845   video encoding & mcast streaming
+Work:  SMT Xeon/HT 3.2GHz  Intel 865   desktop, video streaming testing
 
-bill
+Here's the max wakeup latencies I'm seeing on each machine with -50-35:
+
+Athlon   15us 
+Xeon     22us
+Xeon/HT  290us
+
+In all fairness, the Xeon/HT machine is still running with the debug and 
+trace options enabled, while the other two have all debug except wakeup 
+latency timing disabled.
+
+On UP, everything looks good.  No JACK xruns, even while running burnK7.  
+Streaming with VLC from a Hauppauge card to UDP/multicast is almost
+flawless (usually takes at least a day before any UDP packets are sent out
+too late).  I only saw one warning in my logs on the Athlon box for the
+whole -50 series, and that was in -50-15.  The non-HT Xeon box hasn't seen
+any bug warnings since plist_init() on -48-33.
+
+On SMT, everything works well under normal desktop load (X, wmaker, 10
+dockapps, 10-20 xterms, and firefox).  VLC runs very smoothly when I'm not
+stress-testing.  System responsiveness is much better than the 
+vanilla kernels.  Wakeup latencies have decreased since the -48 series
+(generally <100us, spiking to <300us now instead of generally <200us
+spiking to <1000us).
+
+When it comes to stress testing, I'm still finding conditions where CPU
+hungry processes (like burnP6) can make the box completely unresponsive.  
+So far, I've narrowed it down to the following conditions:  X is running
+(xorg-6.8.2), along with two burnP6 instances, and X apps that are
+actively updating the screen (like VLC or a collection of wmaker
+dockapps).  If one of these conditions is absent, there's no meltdown.
+
+I've been toying with a script to fire up two instances of burnP6, grab
+some traces with your trace-it code, and kill off those burnP6 processes.  
+The script generally takes the form:
+
+#!/bin/bash
+trace-it > trace1.out
+sync
+burn &
+usleep 100000
+trace-it > trace2.out
+sync
+burn &
+usleep 100000
+trace-it > trace2.out
+sync
+killall burn
+
+I copied 'burnP6' to 'burn' so that the process name shows up in the 
+traces.  Every time system response disappears, I never get any traces 
+after the second burnP6 fires up.  Most of the time, I can still move the 
+mouse pointer for a few minutes (with serio lost synchro warnings on the 
+serial console) before it goes dead, too.  Keyboard is almost always lost.
+
+The results of two tests (one resulting in a meltdown) are located at:
+
+http://sysex.net/testing/2.6.12-RT-V0.7.50-35
+
+The 'test' directory has some traces with X and burnP6 (no VLC or
+dockapps)  running.  These traces have chunks of dead time ranging from
+roughly 500 to 900 us.
+
+The 'crash' directory has a trace with X, burnP6, and VLC running, and a
+bug warning.  As soon as the second burnP6 instance started up, the system
+showed no signs of being alive other than the mouse synchro warnings on
+the serial console.
+
+Overall, I would have to say that RT_PREEMPT is nearly ready for
+primetime, especially for audio, MIDI, and video.  SMT needs some help
+when it comes to doing anything that requires X.  I'm not sure about true
+SMP, since I can't find a true SMP system to play with right now.
+
+Great Work, Ingo!
+
+
+Best Regards,
+--ww
 

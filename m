@@ -1,74 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263154AbVF3VDH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263141AbVF3UlP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263154AbVF3VDH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 17:03:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263074AbVF3UmZ
+	id S263141AbVF3UlP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 16:41:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263163AbVF3UlK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 16:42:25 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:10209 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S263142AbVF3Ujy
+	Thu, 30 Jun 2005 16:41:10 -0400
+Received: from tron.kn.vutbr.cz ([147.229.191.152]:33041 "EHLO
+	tron.kn.vutbr.cz") by vger.kernel.org with ESMTP id S263149AbVF3UjD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 16:39:54 -0400
-Date: Thu, 30 Jun 2005 15:39:31 -0500
-To: Andi Kleen <ak@muc.de>, sfr@canb.auug.org.au
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       linux-kernel@vger.kernel.org, long <tlnguyen@snoqualmie.dp.intel.com>,
-       Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
-       Greg KH <greg@kroah.com>, Paul Mackerras <paulus@samba.org>,
-       linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, johnrose@us.ibm.com,
-       linux-laptop@vger.kernel.org, mochel@transmeta.com, pavel@suse.cz
-Subject: PCI Power management (was: Re: [PATCH 4/13]: PCI Err: e100 ethernet driver recovery
-Message-ID: <20050630203931.GY28499@austin.ibm.com>
-References: <20050628235848.GA6376@austin.ibm.com> <1120009619.5133.228.camel@gaston> <20050629155954.GH28499@austin.ibm.com> <20050629165828.GA73550@muc.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050629165828.GA73550@muc.de>
-User-Agent: Mutt/1.5.6+20040818i
-From: Linas Vepstas <linas@austin.ibm.com>
+	Thu, 30 Jun 2005 16:39:03 -0400
+Message-ID: <42C4585E.7090204@stud.feec.vutbr.cz>
+Date: Thu, 30 Jun 2005 22:38:54 +0200
+From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050603)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: William Weston <weston@sysex.net>
+CC: Karsten Wiese <annabellesgarden@yahoo.de>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.50-38
+References: <200506281927.43959.annabellesgarden@yahoo.de> <20050629193804.GA6256@elte.hu> <200506300136.01061.annabellesgarden@yahoo.de> <200506301952.22022.annabellesgarden@yahoo.de> <Pine.LNX.4.58.0506301238450.20655@echo.lysdexia.org>
+In-Reply-To: <Pine.LNX.4.58.0506301238450.20655@echo.lysdexia.org>
+Content-Type: multipart/mixed;
+ boundary="------------010809080401050200020307"
+X-Spam-Flag: NO
+X-Spam-Report: Spam detection software, running on the system "tron.kn.vutbr.cz", has
+  tested this incoming email. See other headers to know if the email
+  has beed identified as possible spam.  The original message
+  has been attached to this so you can view it (if it isn't spam) or block
+  similar future email.  If you have any questions, see
+  the administrator of that system for details.
+  ____
+  Content analysis details:   (-4.2 points, 6.0 required)
+  ____
+   pts rule name              description
+  ---- ---------------------- --------------------------------------------
+   0.7 FROM_ENDS_IN_NUMS      From: ends in numbers
+  -4.9 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+                              [score: 0.0000]
+  ____
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 29, 2005 at 06:58:29PM +0200, Andi Kleen was heard to remark:
-> > Yep, OK. Pushig the timer would in fact break if the device was marked
-> > perm disabled.
-> 
-> I think for network drivers you should just write a generic error handler
-> (perhaps in net/core/dev.c) that calls the watchdog handler. 
-> Then all drivers could be easily converted without much code duplication.
+This is a multi-part message in MIME format.
+--------------010809080401050200020307
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Well, there's no watchdog per-se in "struct net_device" -- are you
-suggesting I add one?
+Here are some more fixes for -RT-2.6.12-final-V0.7.50-38 needed to 
+compile it on x86_64.
 
-It looks like I can almost create generic handlers for net devices; 
-looks like calling netdev->stop() is enough to handle the error
-detection. 
+Michal
 
-However, a generic bringup would need to call pci_enable_device(), 
-and net/core/dev.c does not include pci.h so I can't really do it 
-there.  Other than that, a generic recovry routine looks like it might
-be possible; I'll have to experiment; its hard to tell by reading code.
+--------------010809080401050200020307
+Content-Type: text/plain;
+ name="rt-amd64-PER_CPU_LOCKED.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="rt-amd64-PER_CPU_LOCKED.diff"
 
-This might be the wrong paradigm, though.  The pci error recovery 
-routines are *almost identical* to the power-management suspend/resume
-routines.  From what I can tell, the only real difference is that 
-I want to not actually turn off/on the power. 
+diff -Nurp -X dontdiff.new linux-RT/arch/x86_64/mm/init.c linux-RT.mich/arch/x86_64/mm/init.c
+--- linux-RT/arch/x86_64/mm/init.c	2005-06-30 21:22:33.000000000 +0200
++++ linux-RT.mich/arch/x86_64/mm/init.c	2005-06-30 22:28:16.000000000 +0200
+@@ -47,7 +47,7 @@ extern int swiotlb;
+ 
+ extern char _stext[];
+ 
+-DEFINE_PER_CPU(struct mmu_gather, mmu_gathers);
++DEFINE_PER_CPU_LOCKED(struct mmu_gather, mmu_gathers);
+ 
+ /*
+  * NOTE: pagetable_init alloc all the fixmap pagetables contiguous on the
+diff -Nurp -X dontdiff.new linux-RT/include/asm-x86_64/percpu.h linux-RT.mich/include/asm-x86_64/percpu.h
+--- linux-RT/include/asm-x86_64/percpu.h	2005-06-30 21:44:37.000000000 +0200
++++ linux-RT.mich/include/asm-x86_64/percpu.h	2005-06-30 22:26:10.000000000 +0200
+@@ -63,6 +63,9 @@ extern void setup_per_cpu_areas(void);
+ #endif	/* SMP */
+ 
+ #define DECLARE_PER_CPU(type, name) extern __typeof__(type) per_cpu__##name
++#define DECLARE_PER_CPU_LOCKED(type, name) \
++	extern spinlock_t per_cpu_lock__##name##_locked; \
++	extern __typeof__(type) per_cpu__##name##_locked
+ 
+ #define EXPORT_PER_CPU_SYMBOL(var) EXPORT_SYMBOL(per_cpu__##var)
+ #define EXPORT_PER_CPU_SYMBOL_GPL(var) EXPORT_SYMBOL_GPL(per_cpu__##var)
 
-Thus, the right thing to do might be to split up the 
-struct pci_dev->suspend() and pci_dev->resume() calls into
-
-   suspend()
-   poweroff()
-   poweron()
-   resume()
-
-and then have the generic pci error recovery routines call
-suspend/resume only, skipping the poweroff-on calls.  Does that 
-sound good?
-
-I'm not sure I can pull this off without having someone from 
-the power-management world throw a brick at me.
-
---linas
-
+--------------010809080401050200020307--

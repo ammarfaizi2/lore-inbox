@@ -1,223 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262846AbVF3Fey@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262851AbVF3Fst@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262846AbVF3Fey (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 01:34:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262851AbVF3Fe2
+	id S262851AbVF3Fst (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 01:48:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262853AbVF3Fst
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 01:34:28 -0400
-Received: from outmx022.isp.belgacom.be ([195.238.2.203]:47520 "EHLO
-	outmx022.isp.belgacom.be") by vger.kernel.org with ESMTP
-	id S262846AbVF3FeF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 01:34:05 -0400
-Message-ID: <42C38444.7000504@skynet.be>
-Date: Thu, 30 Jun 2005 07:33:56 +0200
-From: Eric FAURE <eric.faure@skynet.be>
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.3 (X11/20050513)
-X-Accept-Language: en-us, en
+	Thu, 30 Jun 2005 01:48:49 -0400
+Received: from wproxy.gmail.com ([64.233.184.206]:47541 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262851AbVF3Fsp convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Jun 2005 01:48:45 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:subject:message-id:mime-version:content-type:content-transfer-encoding:x-mailer;
+        b=AiWPzPfIfmQ6ILwNmrUo+I0c40jSbTye38QqrYpiDzihcLTaOkHvFirwozMQ6YQoxYXnDc7u3wDddWWRS1CuF7M50Wrj5ERBNUp2q5LZ1e6eTjaBHoVL9beuFyJkOMo2nmb5zhoEiuumsl0uGVgIhDF8kCjpXW+XlYkQctyRTTk=
+Date: Thu, 30 Jun 2005 13:46:43 +0800
+From: Wang Jian <larkwang@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.12.1 problems I meet (please CC: me)
+Message-Id: <20050630111916.FEA2.LARKWANG@gmail.com>
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: tungsten t5 doesn't sync anymore with kernel 2.6.12
-References: <42C0E879.5010605@skynet.be> <20050628083644.GA4246@kroah.com> <42C27DCD.1090107@skynet.be> <20050630000132.GD19727@kroah.com>
-In-Reply-To: <20050630000132.GD19727@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Becky! ver. 2.20 [CN]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-I have tried to push the button, before, on going, after...
-if it looks ok for you, then I will send it to the pilot-link list
-Thanks anyway.
-Eric
+I use a customized kernel to do packets analysis. The analysis code is
+linked into kernel. It will vmalloc() nearly 128M (a little less) when
+initialized.
 
-Greg KH wrote:
-> On Wed, Jun 29, 2005 at 12:54:05PM +0200, Eric FAURE wrote:
-> 
->>hi,
->>I don't know if it's normal, but I see the line
->>visor_set_termios - nothing to change...
->>several times in the kernel 2.6.12 (not working one...)
->>
->>here under, the output of kernel 2.6.12 and 2.6.11
->>thanks,
->>eric
->>
->>
->>here the dmesg with kernel 2.6.11 from the visor debug=1 (the working one):
->>
->>drivers/usb/serial/visor.c: visor_write - port 1
-> 
-> 
-> <snip>  This isn't the "startup" output, right?  Looks like you are in
-> the middle of a sync.
-> 
-> 
->>and here the dmesg from kernel 2.6.12 (not working) :
->>
->>usbcore: registered new driver usbserial
->>drivers/usb/serial/usb-serial.c: USB Serial support registered for Generic
->>usbcore: registered new driver usbserial_generic
->>drivers/usb/serial/usb-serial.c: USB Serial Driver core v2.0
->>drivers/usb/serial/usb-serial.c: USB Serial support registered for 
->>Handspring Visor / Palm OS
->>drivers/usb/serial/usb-serial.c: USB Serial support registered for Sony 
->>Clie 3.5
->>drivers/usb/serial/usb-serial.c: USB Serial support registered for Sony 
->>Clie 5.0
->>usbcore: registered new driver visor
->>drivers/usb/serial/visor.c: USB HandSpring Visor / Palm OS driver v2.1
->>usb 3-2: new full speed USB device using uhci_hcd and address 2
->>usb 3-2: device descriptor read/64, error -71
->>drivers/usb/serial/visor.c: visor_probe
->>drivers/usb/serial/visor.c: palm_os_4_probe
->>usb 3-2: palm_os_4_probe - length = 20, data = 01 01 00 00 4c 73 66 72 
->>00 67 00 00 00 00 00 00 01 01 00 00
->>visor 3-2:1.0: Handspring Visor / Palm OS converter detected
->>usb 3-2: Handspring Visor / Palm OS converter now attached to ttyUSB0
->>usb 3-2: Handspring Visor / Palm OS converter now attached to ttyUSB1
->>usb 3-2: USB disconnect, address 2
->>drivers/usb/serial/visor.c: visor_shutdown
->>visor ttyUSB0: Handspring Visor / Palm OS converter now disconnected 
->>from ttyUSB0
->>visor ttyUSB1: Handspring Visor / Palm OS converter now disconnected 
->>from ttyUSB1
->>visor 3-2:1.0: device disconnected
-> 
-> 
-> The device was disconnected here, what happened?
-> 
-> 
->>usb 3-2: new full speed USB device using uhci_hcd and address 3
->>drivers/usb/serial/visor.c: visor_probe
->>drivers/usb/serial/visor.c: palm_os_4_probe
->>usb 3-2: palm_os_4_probe - length = 20, data = 01 01 00 00 63 6e 79 73 
->>00 67 00 00 00 00 00 00 01 01 00 00
->>visor 3-2:1.0: Handspring Visor / Palm OS converter detected
->>usb 3-2: Handspring Visor / Palm OS converter now attached to ttyUSB0
->>usb 3-2: Handspring Visor / Palm OS converter now attached to ttyUSB1
->>drivers/usb/serial/visor.c: visor_open - port 1
->>drivers/usb/serial/visor.c: visor_ioctl - port 1, cmd 0x5401
->>drivers/usb/serial/visor.c: visor_ioctl - port 1, cmd 0x5401
->>drivers/usb/serial/visor.c: visor_ioctl - port 1, cmd 0x5402
->>drivers/usb/serial/visor.c: visor_set_termios - port 1
->>drivers/usb/serial/visor.c: visor_set_termios - data bits = 8
->>drivers/usb/serial/visor.c: visor_set_termios - parity = none
->>drivers/usb/serial/visor.c: visor_set_termios - stop bits = 1
->>drivers/usb/serial/visor.c: visor_set_termios - RTS/CTS is disabled
->>drivers/usb/serial/visor.c: visor_set_termios - XON/XOFF is disabled
->>drivers/usb/serial/visor.c: visor_set_termios - baud rate = 9600
->>drivers/usb/serial/visor.c: visor_ioctl - port 1, cmd 0x5401
->>drivers/usb/serial/visor.c: visor_ioctl - port 1, cmd 0x5401
->>drivers/usb/serial/visor.c: visor_ioctl - port 1, cmd 0x5403
->>drivers/usb/serial/visor.c: visor_chars_in_buffer - port 1
->>drivers/usb/serial/visor.c: visor_set_termios - port 1
->>drivers/usb/serial/visor.c: visor_set_termios - nothing to change...
->>drivers/usb/serial/visor.c: visor_chars_in_buffer - port 1
->>drivers/usb/serial/visor.c: visor_write_room - port 1
->>drivers/usb/serial/visor.c: visor_read_bulk_callback - port 1
->>visor ttyUSB1: visor_read_bulk_callback - length = 6, data = 01 ff 00 00 00 16
->>drivers/usb/serial/visor.c: visor_chars_in_buffer - port 1
->>drivers/usb/serial/visor.c: visor_write_room - port 1
->>drivers/usb/serial/visor.c: visor_chars_in_buffer - port 1
->>drivers/usb/serial/visor.c: visor_write_room - port 1
->>drivers/usb/serial/visor.c: visor_chars_in_buffer - port 1
->>drivers/usb/serial/visor.c: visor_write_room - port 1
->>drivers/usb/serial/visor.c: visor_chars_in_buffer - port 1
->>drivers/usb/serial/visor.c: visor_write_room - port 1
->>drivers/usb/serial/visor.c: visor_chars_in_buffer - port 1
->>drivers/usb/serial/visor.c: visor_write_room - port 1
->>drivers/usb/serial/visor.c: visor_close - port 1
->>drivers/usb/serial/visor.c: visor_read_bulk_callback - port 1
->>drivers/usb/serial/visor.c: visor_read_bulk_callback - nonzero read bulk status received: -2
-> 
-> 
-> Ok, this looks fine, someone opened the port, and then closed it.  Did
-> you try to sync with it at that moment?
-> 
-> 
->>drivers/usb/serial/visor.c: visor_open - port 1
->>drivers/usb/serial/visor.c: visor_ioctl - port 1, cmd 0x5401
->>drivers/usb/serial/visor.c: visor_ioctl - port 1, cmd 0x5401
->>drivers/usb/serial/visor.c: visor_ioctl - port 1, cmd 0x5402
->>drivers/usb/serial/visor.c: visor_set_termios - port 1
->>drivers/usb/serial/visor.c: visor_set_termios - nothing to change...
->>drivers/usb/serial/visor.c: visor_ioctl - port 1, cmd 0x5401
->>drivers/usb/serial/visor.c: visor_ioctl - port 1, cmd 0x5401
->>drivers/usb/serial/visor.c: visor_ioctl - port 1, cmd 0x5403
->>drivers/usb/serial/visor.c: visor_chars_in_buffer - port 1
->>drivers/usb/serial/visor.c: visor_set_termios - port 1
->>drivers/usb/serial/visor.c: visor_set_termios - nothing to change...
->>drivers/usb/serial/visor.c: visor_chars_in_buffer - port 1
->>drivers/usb/serial/visor.c: visor_write_room - port 1
->>drivers/usb/serial/visor.c: visor_chars_in_buffer - port 1
->>drivers/usb/serial/visor.c: visor_write_room - port 1
->>drivers/usb/serial/visor.c: visor_close - port 1
->>drivers/usb/serial/visor.c: visor_read_bulk_callback - port 1
->>drivers/usb/serial/visor.c: visor_read_bulk_callback - nonzero read bulk status received: -2
-> 
-> 
-> Again, an open and close.
-> 
-> 
-> 
->>drivers/usb/serial/visor.c: visor_open - port 1
->>drivers/usb/serial/visor.c: visor_ioctl - port 1, cmd 0x5401
->>drivers/usb/serial/visor.c: visor_ioctl - port 1, cmd 0x5401
->>drivers/usb/serial/visor.c: visor_ioctl - port 1, cmd 0x5402
->>drivers/usb/serial/visor.c: visor_set_termios - port 1
->>drivers/usb/serial/visor.c: visor_set_termios - nothing to change...
->>drivers/usb/serial/visor.c: visor_ioctl - port 1, cmd 0x5401
->>drivers/usb/serial/visor.c: visor_ioctl - port 1, cmd 0x5401
->>drivers/usb/serial/visor.c: visor_ioctl - port 1, cmd 0x5403
->>drivers/usb/serial/visor.c: visor_chars_in_buffer - port 1
->>drivers/usb/serial/visor.c: visor_set_termios - port 1
->>drivers/usb/serial/visor.c: visor_set_termios - nothing to change...
->>drivers/usb/serial/visor.c: visor_chars_in_buffer - port 1
->>drivers/usb/serial/visor.c: visor_write_room - port 1
->>drivers/usb/serial/visor.c: visor_chars_in_buffer - port 1
->>drivers/usb/serial/visor.c: visor_write_room - port 1
->>drivers/usb/serial/visor.c: visor_close - port 1
->>drivers/usb/serial/visor.c: visor_read_bulk_callback - port 1
->>drivers/usb/serial/visor.c: visor_read_bulk_callback - nonzero read bulk status received: -2
-> 
-> 
-> Another open and close.
-> 
-> 
->>usb 3-2: USB disconnect, address 3
-> 
-> 
-> Then the device disappears (they usually disconnect themselves.)
-> 
-> 
->>drivers/usb/serial/visor.c: visor_shutdown
->>visor ttyUSB0: Handspring Visor / Palm OS converter now disconnected from ttyUSB0
->>visor ttyUSB1: Handspring Visor / Palm OS converter now disconnected from ttyUSB1
->>visor 3-2:1.0: device disconnected
-> 
-> 
-> It completes disconnection.
-> 
-> 
-> 
->>usb 3-2: new full speed USB device using uhci_hcd and address 4
->>drivers/usb/serial/visor.c: visor_probe
->>drivers/usb/serial/visor.c: palm_os_4_probe
->>usb 3-2: palm_os_4_probe - length = 20, data = 01 01 00 00 4c 73 66 72 
->>00 67 00 00 00 00 00 00 01 01 00 00
->>visor 3-2:1.0: Handspring Visor / Palm OS converter detected
->>usb 3-2: Handspring Visor / Palm OS converter now attached to ttyUSB0
->>usb 3-2: Handspring Visor / Palm OS converter now attached to ttyUSB1
-> 
-> 
-> Did you press the button on it again?
-> 
-> I don't see anything odd here in the kernel log.  Have you tried asking
-> this on the pilot-link mailing list?
-> 
-> thanks,
-> 
-> greg k-h
-> 
-> 
+The original code runs on 2.6.10 and works fine. The platform is a
+general P4 with 100M ethernet. The user space system is a 8M compressed
+ramdisk image which is a 32M filesystem.
+
+Now I want to make it work on 2.6.12+ and on Athlon64 platform, for
+better driver and better CPU/NIC performance.
+
+I have a P4 box (compilation bed, CB), a 2-way Athlon64 box (test bed,
+TB).
+
+The problems are:
+
+1. I port the code directly to 2.6.12.1 on CB, and it compiles ok. But
+during boot, the kernel boot with error "unknown bus type 0" and freeze.
+Especially, it can't detect harddisk's partition table. I use "quiet" to
+strip non-error message and hand copy error messages
+
+unknown bus type 0.
+...
+<repeat for several times>
+...
+unknown bus type 0.
+irq 15: nobody cared!
+handlers:
+[<c0252927>]  (ide_intr+0x0/0x146)
+Disabling IRQ #15
+irq 1: nobody cared!
+handlers:
+[<c021a79a>]  (i8042_interrupt+0x0/0x256)
+Disabling IRQ #1
+
+But the same configuration works fine for 2.6.10.
+
+
+2. I compile kernel 2.6.12.1 for K7 on CB. Boot it on TB, the system
+boot up execept that the analysis code can't vmalloc() the needed memory.
+
+"allocation failed: out of vmalloc space - use vmalloc=<size> to increase size."
+
+If I use vmalloc=256m in boot command line, then
+
+initrd extends beyond end of memory (0x37fef716 > 0x30000000)
+initrd extends beyond end of memory (0x37fef716 > 0x30000000)
+Kernel panic - unsyncing: VFS: Unable to mount root fs on unknown-block
+(1,0)
+
+BTW: Is there any way that a 512M memory chunk can be alloc? The system
+has a lot of memory (1G+) and can't be used. It's better to provide a
+mechanism to alloc big chunk of memory for special purpose (they will
+never be freed and will be used as a single big chunk)
+
+
+-- 
+Wang Jian
+

@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263000AbVF3Qcs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263001AbVF3QeG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263000AbVF3Qcs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 12:32:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263001AbVF3Qcs
+	id S263001AbVF3QeG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 12:34:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263004AbVF3QeG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 12:32:48 -0400
-Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:59150 "EHLO
+	Thu, 30 Jun 2005 12:34:06 -0400
+Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:37657 "EHLO
 	mta07-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S263000AbVF3Qc3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 12:32:29 -0400
+	id S263001AbVF3QdH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Jun 2005 12:33:07 -0400
 From: SA <n0td1scl0s3d@ntlworld.com>
 Subject: Fwd: dvd ram / ext2 / oops / massive logfile
-Date: Thu, 30 Jun 2005 17:32:24 +0100
+Date: Thu, 30 Jun 2005 17:33:03 +0100
 User-Agent: KMail/1.7.1
 To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
@@ -19,12 +19,22 @@ Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200506301732.24867.n0td1scl0s3d@ntlworld.com>
+Message-Id: <200506301733.03178.n0td1scl0s3d@ntlworld.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Supplementary:
 
+I could not halt the machine since it shutdown and halt both hung without
+messages, as did sync.
+
+telinit 6 produced the following messages:
+PID 4246:
+umount2: Device busy
+umount: /dev/pts device is busy
+
+so I hit the power button...
 
 Dear List,
 
@@ -134,7 +144,7 @@ Jun 30 15:56:54 valium kernel: Modules linked in: vfat fat sch_tbf nvidia(U)
  ffff8100249442f0 R08: 0000000000000000 R09: 0000000000000007 Jun 30 15:56:55
  valium kernel: R10: ffffffff805187e0 R11: ffffffff8016f320 R12:
  0000000000000001 Jun 30 15:56:55 valium kernel: R13: 0000000000000000 R14:
- 0000000000000001 R15: 0000000000000001 Jun 30 15:56:55 valium kernel: FS: 
+ 0000000000000001 R15: 0000000000000001 Jun 30 15:56:55 valium kernel: FS:
  00002aaaaaad6360(0000) GS:ffffffff80550700(0000) knlGS:00000000556c0b20 Jun
  30 15:56:55 valium kernel: CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
  Jun 30 15:56:55 valium kernel: CR2: 00002aaaaaaac000 CR3: 000000007ee59000
@@ -145,21 +155,21 @@ Jun 30 15:56:54 valium kernel: Modules linked in: vfat fat sch_tbf nvidia(U)
  ffffffff8019b669 ffff81007fdbbbf8 0000000000000001 Jun 30 15:56:55 valium
  kernel:        ffff810001d2c9e8 0000000000000000 Jun 30 15:56:55 valium
  kernel: Call Trace:<ffffffff8019b669>{ll_rw_block+105}
- <ffffffff8019b6d0>{write_boundary_block+48} Jun 30 15:56:55 valium kernel:  
+ <ffffffff8019b6d0>{write_boundary_block+48} Jun 30 15:56:55 valium kernel:
       <ffffffff801cc86b>{mpage_writepages+1819}
- <ffffffff801f42a0>{ext2_get_block+0} Jun 30 15:56:55 valium kernel:       
+ <ffffffff801f42a0>{ext2_get_block+0} Jun 30 15:56:55 valium kernel:
  <ffffffff8019dc49>{__getblk+57}
  <ffffffff801ca2fa>{__writeback_single_inode+874} Jun 30 15:56:55 valium
  kernel:        <ffffffff801cb18c>{sync_sb_inodes+508}
- <ffffffff803a3f38>{__down_failed_trylock+53} Jun 30 15:56:55 valium kernel: 
+ <ffffffff803a3f38>{__down_failed_trylock+53} Jun 30 15:56:55 valium kernel:
        <ffffffff801cb861>{writeback_inodes+577}
- <ffffffff801a03cc>{sync_supers+476} Jun 30 15:56:55 valium kernel:       
+ <ffffffff801a03cc>{sync_supers+476} Jun 30 15:56:55 valium kernel:
  <ffffffff80172427>{wb_kupdate+167} <ffffffff803a2049>{thread_return+41} Jun
  30 15:56:55 valium kernel:        <ffffffff801739a8>{pdflush+952}
- <ffffffff80172380>{wb_kupdate+0} Jun 30 15:56:55 valium kernel:       
+ <ffffffff80172380>{wb_kupdate+0} Jun 30 15:56:55 valium kernel:
  <ffffffff801735f0>{pdflush+0} <ffffffff8015921d>{kthread+205} Jun 30
  15:56:55 valium kernel:        <ffffffff8010f743>{child_rip+8}
- <ffffffff80159260>{keventd_create_kthread+0} Jun 30 15:56:55 valium kernel: 
+ <ffffffff80159260>{keventd_create_kthread+0} Jun 30 15:56:55 valium kernel:
        <ffffffff80159150>{kthread+0} <ffffffff8010f73b>{child_rip+0} Jun 30
  15:56:55 valium kernel:
 Jun 30 15:56:55 valium kernel:
@@ -283,5 +293,7 @@ Jun 30 15:57:11 valium kernel:   Cannot read medium - incompatible format --
  packet command error: status=0x51 { DriveReady SeekComplete Error } Jun 30
  15:57:12 valium kernel: hdb: packet command error: error=0x54 {
  AbortedCommand LastFailedSense=0x05 } ** This continues for ever...
+
+-------------------------------------------------------
 
 -------------------------------------------------------

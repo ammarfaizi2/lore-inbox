@@ -1,102 +1,261 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262949AbVF3KZZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262951AbVF3KiO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262949AbVF3KZZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 06:25:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262939AbVF3KYX
+	id S262951AbVF3KiO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 06:38:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262934AbVF3KZ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 06:24:23 -0400
-Received: from ausmtp02.au.ibm.com ([202.81.18.187]:62918 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S262934AbVF3KUy
+	Thu, 30 Jun 2005 06:25:57 -0400
+Received: from ausmtp02.au.ibm.com ([202.81.18.187]:57030 "EHLO
+	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S262935AbVF3KUz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 06:20:54 -0400
+	Thu, 30 Jun 2005 06:20:55 -0400
 Date: Thu, 30 Jun 2005 20:20:39 +1000
 To: linuxppc64-dev@ozlabs.org, netdev@oss.sgi.com,
        linux-kernel@vger.kernel.org
 From: Michael Ellerman <michael@ellerman.id.au>
-Subject: [PATCH 5/12] iseries_veth: Try to avoid pathological reset behaviour
+Subject: [PATCH 2/12] iseries_veth: Cleanup error and debug messages
 In-Reply-To: <200506302016.55125.michael@ellerman.id.au>
-Message-Id: <1120126839.441162.530324669503.qpatch@concordia>
+Message-Id: <1120126839.217047.4847506912.qpatch@concordia>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The iseries_veth driver contains a state machine which is used to manage
-how connections are setup and neogotiated between LPARs.
-
-If one side of a connection resets for some reason, the two LPARs can get
-stuck in a race to re-setup the connection. This can lead to the connection
-being declared dead by one or both ends. In practice this happens ~8/10 times
-a connection is reset, although it's rare for connections to be reset.
-
-(an example here: http://michael.ellerman.id.au/files/misc/veth-trace.html)
-
-The core of the problem is that the end that resets the connection doesn't
-wait for the other end to become aware of the reset. So the resetting end
-starts setting the connection back up, and then receives a reset from the
-other end (which is the response to the initial reset). And so on.
-
-We're severely limited in what we can do to fix this. The protocol between
-LPARs is essentially fixed, as we have to interoperate with both OS/400
-and old Linux drivers. Which also means we need a fix that only changes the
-code on one end.
-
-The only fix I've found given that, is to just blindly sleep for a bit when
-resetting the connection, in the hope that the other end will get itself
-sorted.  Needless to say I'd love it if someone has a better idea.
-
-This does work, I've so far been unable to get it to break, whereas without
-the fix a reset of one end will lead to a dead connection ~8/10 times.
+This patch:
+* converts uses of veth_printk() to veth_debug()/veth_error()
+* makes terminology consistent, ie. always refer to LPAR not lpar
+* be consistent about printing return codes as %d not %x
+* make printf formats fit in 80 columns
 
 
 ---
 
- drivers/net/iseries_veth.c |   23 +++++++++++++++++++++--
- 1 files changed, 21 insertions(+), 2 deletions(-)
+ drivers/net/iseries_veth.c |   87 ++++++++++++++++++++++-----------------------
+ 1 files changed, 43 insertions(+), 44 deletions(-)
 
 Index: veth-dev/drivers/net/iseries_veth.c
 ===================================================================
 --- veth-dev.orig/drivers/net/iseries_veth.c
 +++ veth-dev/drivers/net/iseries_veth.c
-@@ -324,8 +324,12 @@ static void veth_take_monitor_ack(struct
+@@ -287,7 +287,7 @@ static void veth_take_cap(struct veth_lp
+ 						  HvLpEvent_Type_VirtualLan);
+ 
+ 	if (cnx->state & VETH_STATE_GOTCAPS) {
+-		veth_error("Received a second capabilities from lpar %d\n",
++		veth_error("Received a second capabilities from LPAR %d.\n",
+ 			   cnx->remote_lp);
+ 		event->base_event.xRc = HvLpEvent_Rc_BufferNotAvailable;
+ 		HvCallEvent_ackLpEvent((struct HvLpEvent *) event);
+@@ -306,7 +306,7 @@ static void veth_take_cap_ack(struct vet
  
  	spin_lock_irqsave(&cnx->lock, flags);
- 	veth_debug("cnx %d: lost connection.\n", cnx->remote_lp);
--	cnx->state |= VETH_STATE_RESET;
--	veth_kick_statemachine(cnx);
-+	/* Avoid kicking the statemachine once we're shutdown.
-+	 * It's unnecessary and it could break veth_stop_connection(). */
-+	if (! (cnx->state & VETH_STATE_SHUTDOWN)) {
-+		cnx->state |= VETH_STATE_RESET;
-+		veth_kick_statemachine(cnx);
-+	}
+ 	if (cnx->state & VETH_STATE_GOTCAPACK) {
+-		veth_error("Received a second capabilities ack from lpar %d\n",
++		veth_error("Received a second capabilities ack from LPAR %d.\n",
+ 			   cnx->remote_lp);
+ 	} else {
+ 		memcpy(&cnx->cap_ack_event, event,
+@@ -323,8 +323,7 @@ static void veth_take_monitor_ack(struct
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&cnx->lock, flags);
+-	veth_printk(KERN_DEBUG, "Monitor ack returned for lpar %d\n",
+-		    cnx->remote_lp);
++	veth_debug("cnx %d: lost connection.\n", cnx->remote_lp);
+ 	cnx->state |= VETH_STATE_RESET;
+ 	veth_kick_statemachine(cnx);
  	spin_unlock_irqrestore(&cnx->lock, flags);
+@@ -345,8 +344,8 @@ static void veth_handle_ack(struct VethL
+ 		veth_take_monitor_ack(cnx, event);
+ 		break;
+ 	default:
+-		veth_error("Unknown ack type %d from lpar %d\n",
+-			   event->base_event.xSubtype, rlp);
++		veth_error("Unknown ack type %d from LPAR %d.\n",
++				event->base_event.xSubtype, rlp);
+ 	};
  }
  
-@@ -483,6 +487,12 @@ static void veth_statemachine(void *p)
+@@ -382,8 +381,8 @@ static void veth_handle_int(struct VethL
+ 		veth_receive(cnx, event);
+ 		break;
+ 	default:
+-		veth_error("Unknown interrupt type %d from lpar %d\n",
+-			   event->base_event.xSubtype, rlp);
++		veth_error("Unknown interrupt type %d from LPAR %d.\n",
++				event->base_event.xSubtype, rlp);
+ 	};
+ }
  
- 		if (cnx->state & VETH_STATE_RESET)
- 			goto restart;
-+
-+		/* Hack, wait for the other end to reset itself. */
-+		if (! (cnx->state & VETH_STATE_SHUTDOWN)) {
-+			schedule_delayed_work(&cnx->statemachine_wq, 5 * HZ);
-+			goto out;
-+		}
+@@ -409,8 +408,8 @@ static int veth_process_caps(struct veth
+ 	     || (remote_caps->ack_threshold > VETH_MAX_ACKS_PER_MSG)
+ 	     || (remote_caps->ack_threshold == 0)
+ 	     || (cnx->ack_timeout == 0) ) {
+-		veth_error("Received incompatible capabilities from lpar %d\n",
+-			   cnx->remote_lp);
++		veth_error("Received incompatible capabilities from LPAR %d.\n",
++				cnx->remote_lp);
+ 		return HvLpEvent_Rc_InvalidSubtypeData;
  	}
  
- 	if (cnx->state & VETH_STATE_SHUTDOWN)
-@@ -667,6 +677,15 @@ static void veth_stop_connection(u8 rlp)
- 	veth_kick_statemachine(cnx);
- 	spin_unlock_irq(&cnx->lock);
+@@ -427,8 +426,8 @@ static int veth_process_caps(struct veth
+ 			cnx->num_ack_events += num;
  
-+	/* There's a slim chance the reset code has just queued the
-+	 * statemachine to run in five seconds. If so we need to cancel
-+	 * that and requeue the work to run now. */
-+	if (cancel_delayed_work(&cnx->statemachine_wq)) {
-+		spin_lock_irq(&cnx->lock);
-+		veth_kick_statemachine(cnx);
-+		spin_unlock_irq(&cnx->lock);
-+	}
+ 		if (cnx->num_ack_events < num_acks_needed) {
+-			veth_error("Couldn't allocate enough ack events for lpar %d\n",
+-				   cnx->remote_lp);
++			veth_error("Couldn't allocate enough ack events "
++					"for LPAR %d.\n", cnx->remote_lp);
+ 
+ 			return HvLpEvent_Rc_BufferNotAvailable;
+ 		}
+@@ -507,9 +506,8 @@ static void veth_statemachine(void *p)
+ 		} else {
+ 			if ( (rc != HvLpEvent_Rc_PartitionDead)
+ 			     && (rc != HvLpEvent_Rc_PathClosed) )
+-				veth_error("Error sending monitor to "
+-					   "lpar %d, rc=%x\n",
+-					   rlp, (int) rc);
++				veth_error("Error sending monitor to LPAR %d, "
++						"rc = %d\n", rlp, rc);
+ 
+ 			/* Oh well, hope we get a cap from the other
+ 			 * end and do better when that kicks us */
+@@ -532,9 +530,9 @@ static void veth_statemachine(void *p)
+ 		} else {
+ 			if ( (rc != HvLpEvent_Rc_PartitionDead)
+ 			     && (rc != HvLpEvent_Rc_PathClosed) )
+-				veth_error("Error sending caps to "
+-					   "lpar %d, rc=%x\n",
+-					   rlp, (int) rc);
++				veth_error("Error sending caps to LPAR %d, "
++						"rc = %d\n", rlp, rc);
 +
- 	/* Wait for the state machine to run. */
- 	flush_scheduled_work();
+ 			/* Oh well, hope we get a cap from the other
+ 			 * end and do better when that kicks us */
+ 			goto out;
+@@ -574,10 +572,8 @@ static void veth_statemachine(void *p)
+ 			add_timer(&cnx->ack_timer);
+ 			cnx->state |= VETH_STATE_READY;
+ 		} else {
+-			veth_printk(KERN_ERR, "Caps rejected (rc=%d) by "
+-				    "lpar %d\n",
+-				    cnx->cap_ack_event.base_event.xRc,
+-				    rlp);
++			veth_error("Caps rejected by LPAR %d, rc = %d\n",
++					rlp, cnx->cap_ack_event.base_event.xRc);
+ 			goto cant_cope;
+ 		}
+ 	}
+@@ -590,8 +586,8 @@ static void veth_statemachine(void *p)
+ 	/* FIXME: we get here if something happens we really can't
+ 	 * cope with.  The link will never work once we get here, and
+ 	 * all we can do is not lock the rest of the system up */
+-	veth_error("Badness on connection to lpar %d (state=%04lx) "
+-		   " - shutting down\n", rlp, cnx->state);
++	veth_error("Unrecoverable error on connection to LPAR %d, shutting down"
++			" (state = 0x%04lx)\n", rlp, cnx->state);
+ 	cnx->state |= VETH_STATE_SHUTDOWN;
+ 	spin_unlock_irq(&cnx->lock);
  }
+@@ -623,7 +619,7 @@ static int veth_init_connection(u8 rlp)
+ 
+ 	msgs = kmalloc(VETH_NUMBUFFERS * sizeof(struct veth_msg), GFP_KERNEL);
+ 	if (! msgs) {
+-		veth_error("Can't allocate buffers for lpar %d\n", rlp);
++		veth_error("Can't allocate buffers for LPAR %d.\n", rlp);
+ 		return -ENOMEM;
+ 	}
+ 
+@@ -639,8 +635,7 @@ static int veth_init_connection(u8 rlp)
+ 	cnx->num_events = veth_allocate_events(rlp, 2 + VETH_NUMBUFFERS);
+ 
+ 	if (cnx->num_events < (2 + VETH_NUMBUFFERS)) {
+-		veth_error("Can't allocate events for lpar %d, only got %d\n",
+-			   rlp, cnx->num_events);
++		veth_error("Can't allocate enough events for LPAR %d.\n", rlp);
+ 		return -ENOMEM;
+ 	}
+ 
+@@ -898,15 +893,17 @@ static struct net_device * __init veth_p
+ 
+ 	rc = register_netdev(dev);
+ 	if (rc != 0) {
+-		veth_printk(KERN_ERR,
+-			    "Failed to register ethernet device for vlan %d\n",
+-			    vlan);
++		veth_error("Failed registering net device for vlan%d.\n", vlan);
+ 		free_netdev(dev);
+ 		return NULL;
+ 	}
+ 
+-	veth_printk(KERN_DEBUG, "%s attached to iSeries vlan %d (lpar_map=0x%04x)\n",
+-		    dev->name, vlan, port->lpar_map);
++	veth_info("%s attached to iSeries vlan %d.\n", dev->name, vlan);
++
++	for (i = 0; i < HVMAXARCHITECTEDLPS; i++) {
++		if (port->lpar_map & (1 << i))
++			veth_info("%s connected to LPAR %d.\n", dev->name, i);
++	}
+ 
+ 	return dev;
+ }
+@@ -1039,7 +1036,7 @@ static int veth_start_xmit(struct sk_buf
+ 		dev_kfree_skb(skb);
+ 	} else {
+ 		if (port->pending_skb) {
+-			veth_error("%s: Tx while skb was pending!\n",
++			veth_error("%s: TX while skb was pending!\n",
+ 				   dev->name);
+ 			dev_kfree_skb(skb);
+ 			spin_unlock_irqrestore(&port->pending_gate, flags);
+@@ -1075,10 +1072,10 @@ static void veth_recycle_msg(struct veth
+ 
+ 		memset(&msg->data, 0, sizeof(msg->data));
+ 		veth_stack_push(cnx, msg);
+-	} else
+-		if (cnx->state & VETH_STATE_OPEN)
+-			veth_error("Bogus frames ack from lpar %d (#%d)\n",
+-				   cnx->remote_lp, msg->token);
++	} else if (cnx->state & VETH_STATE_OPEN) {
++		veth_error("Non-pending frame (# %d) acked by LPAR %d.\n",
++				cnx->remote_lp, msg->token);
++	}
+ }
+ 
+ static void veth_flush_pending(struct veth_lpar_connection *cnx)
+@@ -1188,8 +1185,8 @@ static void veth_flush_acks(struct veth_
+ 			     0, &cnx->pending_acks);
+ 
+ 	if (rc != HvLpEvent_Rc_Good)
+-		veth_error("Error 0x%x acking frames from lpar %d!\n",
+-			   (unsigned)rc, cnx->remote_lp);
++		veth_error("Failed acking frames from LPAR %d, rc = %d\n",
++				cnx->remote_lp, (int)rc);
+ 
+ 	cnx->num_pending_acks = 0;
+ 	memset(&cnx->pending_acks, 0xff, sizeof(cnx->pending_acks));
+@@ -1225,9 +1222,10 @@ static void veth_receive(struct veth_lpa
+ 		/* make sure that we have at least 1 EOF entry in the
+ 		 * remaining entries */
+ 		if (! (senddata->eofmask >> (startchunk + VETH_EOF_SHIFT))) {
+-			veth_error("missing EOF frag in event "
+-				   "eofmask=0x%x startchunk=%d\n",
+-				   (unsigned) senddata->eofmask, startchunk);
++			veth_error("Missing EOF fragment in event "
++					"eofmask = 0x%x startchunk = %d\n",
++					(unsigned)senddata->eofmask,
++					startchunk);
+ 			break;
+ 		}
+ 
+@@ -1246,8 +1244,9 @@ static void veth_receive(struct veth_lpa
+ 		/* nchunks == # of chunks in this frame */
+ 
+ 		if ((length - ETH_HLEN) > VETH_MAX_MTU) {
+-			veth_error("Received oversize frame from lpar %d "
+-				   "(length=%d)\n", cnx->remote_lp, length);
++			veth_error("Received oversize frame from LPAR %d "
++					"(length = %d)\n",
++					cnx->remote_lp, length);
+ 			continue;
+ 		}
+ 

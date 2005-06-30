@@ -1,61 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262801AbVF3D3t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262806AbVF3DcW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262801AbVF3D3t (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 23:29:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262802AbVF3D3Z
+	id S262806AbVF3DcW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 23:32:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262805AbVF3DcV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 23:29:25 -0400
-Received: from natsmtp00.rzone.de ([81.169.145.165]:63629 "EHLO
-	natsmtp00.rzone.de") by vger.kernel.org with ESMTP id S262801AbVF3D3T
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 23:29:19 -0400
-Message-ID: <42C36711.6020306@man-made.de>
-Date: Thu, 30 Jun 2005 05:29:21 +0200
-From: Frank Schruefer <kernel@man-made.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040906
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: No dentry alias for page host in writepage.
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 29 Jun 2005 23:32:21 -0400
+Received: from sv1.valinux.co.jp ([210.128.90.2]:18358 "EHLO sv1.valinux.co.jp")
+	by vger.kernel.org with ESMTP id S262803AbVF3DcA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 23:32:00 -0400
+Date: Thu, 30 Jun 2005 12:32:21 +0900 (JST)
+Message-Id: <20050630.123221.41649450.taka@valinux.co.jp>
+To: nickpiggin@yahoo.com.au
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [rfc] lockless pagecache
+From: Hirokazu Takahashi <taka@valinux.co.jp>
+In-Reply-To: <42C28846.60702@yahoo.com.au>
+References: <42BF9CD1.2030102@yahoo.com.au>
+	<20050629.194959.98866345.taka@valinux.co.jp>
+	<42C28846.60702@yahoo.com.au>
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hy,
+Hi,
 
-There is some rare case which hits me aprox. once in a million writepage calls
-where for the page handed over there can not be get a connected dentry of its
-inode host (via i_dentry).
+> > Your patches improve the performance if lots of processes are
+> > accessing the same file at the same time, right?
+> > 
+> 
+> Yes.
+> 
+> > If so, I think we can introduce multiple radix-trees instead,
+> > which enhance each inode to be able to have two or more radix-trees
+> > in it to avoid the race condition traversing the trees.
+> > Some decision mechanism is needed which radix-tree each page
+> > should be in, how many radix-tree should be prepared.
+> > 
+> > It seems to be simple and effective.
+> > 
+> > What do you think?
+> > 
+> 
+> Sure it is a possibility.
+> 
+> I don't think you could call it effective like a completely
+> lockless version is effective. You might take more locks during
+> gang lookups, you may have a lot of ugly and not-always-working
+> heuristics (hey, my app goes really fast if it spreads accesses
+> over a 1GB file, but falls on its face with a 10MB one). You
+> might get increased cache footprints for common operations.
 
-Unluckily I'm absolutely depending on at least one alias at that point and I'm
-not able to implement the export filesystem functions because for implementing
-the get_name etc... functions I'd already need the dentry to contain the valid
-name. Hence reconnecting is out of the question.
+I guess it would be enough to split a huge file into the same
+size pieces simply and put each of them in its associated radix-tree
+in most cases for practical use.
 
-It seems not to be possible to circumvent that situation by just making the
-d_delete dentry operations function returning 0 if the inode is dirty or has
-dirty pages (mapping_tagged ... PAGECACHE_TAG_DIRTY).
+And I also feel your approach is interesting.
 
-I programmed a really ugly workaround dget'ing an alias as soon as I dirty an
-inode and dput it as soon as the last page is writepage'd - that works for now -
-but I really hate it and it seems to be memory leak prone (why I'd still have
-to find out) and having possible side effects with rename and unlink ...
+> I mainly did the patches for a bit of fun rather than to address
+> a particular problem with a real workload and as such I won't be
+> pushing to get them in the kernel for the time being.
 
-My question is why are the dentries/aliases dropped/disconnected if the inode is
-still dirty or it's pages are under writeout and why am I not asked via d_delete
-or have any other option to deny dropping/disconnecting the dentry/aliases?
-Is this a bug?
-What could I do?
+I see.
 
-Until now I just have that ugly workaround - please make my day, someone, please ;-)
-
--- 
+I propose another idea if you don't mind, seqlock seems to make
+your code much simpler though I'm not sure whether it works well
+under heavy load. It would become stable without the tricks,
+which makes VM hard to be enhanced in the future.
 
 Thanks,
-    Frank Schruefer
-    SITEFORUM Software Europe GmbH
-    Germany (Thuringia)
-
+Hirokazu Takahashi.

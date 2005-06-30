@@ -1,75 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263110AbVF3XUN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263120AbVF3XhT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263110AbVF3XUN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 19:20:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263117AbVF3XUN
+	id S263120AbVF3XhT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 19:37:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263123AbVF3XhS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 19:20:13 -0400
-Received: from zproxy.gmail.com ([64.233.162.192]:44306 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S263110AbVF3XUD convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 19:20:03 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Uuh20zGxjBGdF/ygKleYUxrleuFHdTHaX+cyNHkUETJiby3+xcnLB5LPm7zVVSHDeMlKPXD8uJXItISODjJOOE3d/e8/+etcmeecenO6F78MZbzFcXiuQJG98kF1qi9izioU5XQe2/0MFAzx3CB3lioNPdYjKDSTUe+Jd+A6fMA=
-Message-ID: <9a874849050630162042f10062@mail.gmail.com>
-Date: Fri, 1 Jul 2005 01:20:01 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
-To: =?ISO-8859-1?Q?Markus_T=F6rnqvist?= <mjt@nysv.org>
-Subject: Re: reiser4 plugins
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Hans Reiser <reiser@namesys.com>, David Masover <ninja@slaphack.com>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-In-Reply-To: <20050627125555.GE11013@nysv.org>
+	Thu, 30 Jun 2005 19:37:18 -0400
+Received: from chilli.pcug.org.au ([203.10.76.44]:28039 "EHLO smtps.tip.net.au")
+	by vger.kernel.org with ESMTP id S263120AbVF3XhJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Jun 2005 19:37:09 -0400
+Date: Fri, 1 Jul 2005 09:36:50 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: chris@zankel.net, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: xtensa-cleanups-for-errno-and-ipc.patch added to -mm tree
+Message-Id: <20050701093650.5c211b31.sfr@canb.auug.org.au>
+In-Reply-To: <200506301308.00186.arnd@arndb.de>
+References: <200506300113.j5U1DxLH013112@shell0.pdx.osdl.net>
+	<200506301308.00186.arnd@arndb.de>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-References: <200506231924.j5NJOvLA031008@laptop11.inf.utfsm.cl>
-	 <42BB31E9.50805@slaphack.com>
-	 <1119570225.18655.75.camel@localhost.localdomain>
-	 <42BB5E1A.70903@namesys.com>
-	 <1119609680.17066.81.camel@localhost.localdomain>
-	 <20050627091808.GC11013@nysv.org> <42BFCAE7.6070708@yahoo.com.au>
-	 <20050627125555.GE11013@nysv.org>
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Fri__1_Jul_2005_09_36_50_+1000_WmfOjyby0L9hdpv0"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/27/05, Markus   Törnqvist <mjt@nysv.org> wrote:
-[...]
-> 
-> I hate to say this without digging out any URLs, but one friend
-> of mine says he has a very hard time doing any networking code
-> because it's too labile. Maybe that's being embettered for something
-> else too?
-> 
-> Or the other friend who curses that the networking code is just
-> crap and basically has to rewrite the code to get it working.
-> Yes, I've tried to get these guys to submit their code, but they
-> argue back that no one wants to see it.
-> 
-[...]
+--Signature=_Fri__1_Jul_2005_09_36_50_+1000_WmfOjyby0L9hdpv0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I'm pretty damn sure the relevant maintainers (and a bunch of people
-on LKML and the netdev lists in general) would like to see patches
-that improves their code.
-If these friends of yours are sitting on patches that make massive
-improvements to the code and they are not submitting patches then they
-are not exactely helping (and I'd suspect them to just be full of BS)
-- they should get their code merged instead of having to maintain it
-themselves out-of-tree for ever - let the rest of us bennefit as well.
-It's my experience that if you can explain the problems your patch fix
-and explain well why the fix is sane, then getting your patches merged
-doesn't have to be hard.
+On Thu, 30 Jun 2005 13:07:59 +0200 Arnd Bergmann <arnd@arndb.de> wrote:
+>
+> On Dunnersdag 30 Juni 2005 03:13, akpm@osdl.org wrote:
+>=20
+> > From: Chris Zankel <chris@zankel.net>
+> >
+> > I noticed this because I was doing some more ipc cleanups and I did the
+> > original errno and ipc cleanups for other architectures, so it stuck ou=
+t.
+> >=20
+> > Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
+> > Signed-off-by: Chris Zankel <chris@zankel.net>
+> > Signed-off-by: Andrew Morton <akpm@osdl.org>
+>=20
+> Actually, it would be better not to have sys_ipc or include/asm-xtensa/ip=
+c.h
+> at all but rather have all ipc syscalls as separate entry points.
 
+Absolutely true and I think the patch xtensa-remove-old-syscalls.patch
+that is in -mm also gets rid of sys_ipc.  If that is the case, then=20
+include/asm-xtensa/ipc.h can, indeed, be completely removed.
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+> IIRC, parisc is the only architecture to get this right so far, so please
+> have a look there.
+
+alpha, x86_64 also has this done.
+
+--=20
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
+
+--Signature=_Fri__1_Jul_2005_09_36_50_+1000_WmfOjyby0L9hdpv0
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFCxIIXFdBgD/zoJvwRAqiuAJ9P65odiVBcIy4XHPlIdJmREClWNACfWyGi
+O4uDYz4gf66FVgfFlFn3zZo=
+=qz9H
+-----END PGP SIGNATURE-----
+
+--Signature=_Fri__1_Jul_2005_09_36_50_+1000_WmfOjyby0L9hdpv0--

@@ -1,83 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263013AbVF3RAA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262778AbVF3RJN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263013AbVF3RAA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 13:00:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263019AbVF3Q64
+	id S262778AbVF3RJN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 13:09:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262838AbVF3RJN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 12:58:56 -0400
-Received: from liaag1ac.mx.compuserve.com ([149.174.40.29]:27816 "EHLO
-	liaag1ac.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S263006AbVF3Q4l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 12:56:41 -0400
-Date: Thu, 30 Jun 2005 12:53:31 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: Handle kernel page faults using task gate
-To: eliad lubovsky <eliadl@013.net>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200506301256_MC3-1-A31A-143@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
+	Thu, 30 Jun 2005 13:09:13 -0400
+Received: from zproxy.gmail.com ([64.233.162.194]:46725 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262778AbVF3RJJ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Jun 2005 13:09:09 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=ZF66gPDUdFAxHZx9Xiw5NYk4TyeAlKE6AbOb6w+qgJnZJrvwOmkVQz7SSwjWyP86/78cF1tlVnVsXBbDqTIYNfxwW3hSDIkdJHfuig31myQP9JqTlPu5EFl7iKTJOVcC3gCOEX/JwKLbv2KqW1Bx/ZFjSKBIkvL1lHPwGSGDIAM=
+Message-ID: <4789af9e050630100934f81fca@mail.gmail.com>
+Date: Thu, 30 Jun 2005 11:09:06 -0600
+From: Jim Ramsay <jim.ramsay@gmail.com>
+Reply-To: Jim Ramsay <jim.ramsay@gmail.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>, kmalkki@cc.hut.fi,
+       frodol@dds.nl, hpfan@mvista.com, source@mvista.com
+Subject: i2c-adap-ite.h is missing from kernel tree
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Jun 2005 at 18:43:47 +0300, eliad lubovsky wrote:
+I'm trying to get this i2c-ite.c (formerly 'i2c-adap-ite.c', in the
+2.4 kernel) driver to compile in a 2.6.11 kernel, but there is the
+following line which is a stumper:
 
-> my page fault handler:
-> static void pagefault_fn(void)
-> {
->   unsigned int address, aligned_page_fault_address;
->   struct vm_struct *area;
-> 
->   /* retrieve the page fault address */ 
->   __asm__("movl %%cr2,%0":"=r" (address));
-> 
->   aligned_page_fault_address = ((address+PAGE_SIZE)&(~(4096-1)));
-> 
->   area = find_vm_area((void*)(aligned_page_fault_address));
-> 
->   /* allocate a new physical page, expand the stack size */
->   expend_stack_size(area);
-> 
->  // asm ("pushf; orl  $0x00004000, (%esp); popf; iret"); /* sets NT   */
->  // asm ("pushf; andl $0xffffbfff, (%esp); popf; iret"); /* clears NT */
->  asm ("iret");
-> }
+#include <linux/i2c-adap-ite.h>
 
+I can't for the life of me (or anywhere in google even!) find a file
+called i2c-adap-ite.h in the 2.6 or 2.4 kernel.
 
- That will work exactly once. :(
+Does anyone out there have it or know where it went?
 
- On the next fault, control wil be transferred to the instruction after
-the iret.  It needs to be like this:
-
-======================
-
-static void pagefault_fn(void) {
-        unsigned int address, aligned_page_fault_address;
-        struct vm_struct *area;
-
-        /* put one-time initialization code here */
-
-        goto handle_fault;
-
-return_from_fault:
-        asm("iret");
-
-handle_fault:
-        aligned_page_fault_address = ((address+PAGE_SIZE)&(~(4096-1)));
-        area = find_vm_area((void*)(aligned_page_fault_address));
-
-        /* allocate a new physical page, expand the stack size */
-        expend_stack_size(area);
-
-        goto return_from_fault;
-}
-
-======================
-
- (You also need a private stack to hold the local vars for each TSS.)
-
---
-Chuck
+-- 
+Jim Ramsay
+"Me fail English?  That's unpossible!"

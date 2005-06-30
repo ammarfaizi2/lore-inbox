@@ -1,84 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262760AbVF3Anz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262762AbVF3Arr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262760AbVF3Anz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 20:43:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262762AbVF3Anz
+	id S262762AbVF3Arr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 20:47:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262761AbVF3Arr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 20:43:55 -0400
-Received: from smtpout6.uol.com.br ([200.221.4.197]:27531 "EHLO
-	smtp.uol.com.br") by vger.kernel.org with ESMTP id S262760AbVF3Anw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 20:43:52 -0400
-Date: Wed, 29 Jun 2005 21:43:49 -0300
-From: =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
-To: stefanr@s5r6.in-berlin.de
-Cc: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net,
-       akpm@osdl.org, bcollins@debian.org
-Subject: Re: Problems with Firewire and -mm kernels
-Message-ID: <20050630004349.GA1405@ime.usp.br>
-Mail-Followup-To: stefanr@s5r6.in-berlin.de, linux-kernel@vger.kernel.org,
-	linux1394-devel@lists.sourceforge.net, akpm@osdl.org,
-	bcollins@debian.org
-References: <20050626040329.3849cf68.akpm@osdl.org> <42BE99C3.9080307@trex.wsi.edu.pl> <20050627025059.GC10920@ime.usp.br> <20050627164540.7ded07fc.akpm@osdl.org> <20050628010052.GA3947@ime.usp.br> <20050627202226.43ebd761.akpm@osdl.org> <42C0FF50.7080300@s5r6.in-berlin.de>
+	Wed, 29 Jun 2005 20:47:47 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:43026 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262762AbVF3Ark (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 20:47:40 -0400
+Date: Thu, 30 Jun 2005 02:47:38 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: ocfs2-devel@oss.oracle.com, linux-kernel@vger.kernel.org
+Subject: [-mm patch] CONFIGFS_FS: "If unsure, say N."
+Message-ID: <20050630004738.GA27478@stusta.de>
+References: <20050624080315.GC26545@stusta.de> <20050629213038.GA23823@ca-server1.us.oracle.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <42C0FF50.7080300@s5r6.in-berlin.de>
+In-Reply-To: <20050629213038.GA23823@ca-server1.us.oracle.com>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jun 28 2005, Stefan Richter wrote:
-> If the node with the highest ID does not fulfill certain criteria, Linux 
-> tries to get the highest ID moved to the local node. This function is 
-> unrelated to SBP-2 (it is necessary to let streaming devices like 
-> cameras work) but it has been observed that it disturbs a few SBP-2 
-> devices. But again, I don't see how -mm and the stock kernel should 
-> differ to that respect.
+On Wed, Jun 29, 2005 at 02:30:38PM -0700, Joel Becker wrote:
+> On Fri, Jun 24, 2005 at 10:03:15AM +0200, Adrian Bunk wrote:
+> > I haven't found any reason why CONFIGFS_FS is user-visible.
+> > Other parts of the kernel using configfs should simply select it.
+> 
+> 	Doesn't work for external modules that might want to use it.
+> Imagine that configfs gets merged before OCFS2, which depends on it.
 
-Well, my observation is that they differ. Well, up to kernel 2.6.13-rc1.
-This latest kernel shows the same behaviour that -mm showed, unfortunately.
+I was surprised if configfs was merged with zero users in the kernel.
 
-> You could load ieee1394 with a new parameter that supresses the "Root 
-> node is not cycle master capable..." routine:
-> # modprobe ieee1394 disable_irm=1
-> before ohci1394 and the other 1394 related drivers are loaded.
+But I get your point, what about the patch below?
 
-Now *this* made things work! I have put another dmesg log on my homepage at
-http://www.ime.usp.br/~rbrito/bug/ (see the 3rd-try log). This made things
-work and I could mount the device.
+> Joel
 
-I had to disable hotplug and udev, since trying to unload the Firewire
-modules made my machine hang (I think that it was trying to unload ohci1394
-that made my machine hang).
+cu
+Adrian
 
-So, does this ring any bell? Can I provide extra information?
 
-I am keeping the following diff just for reference's sake:
+<--  snip  -->
 
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-> SCSI subsystem initialized
-> sbp2: $Rev: 1219 $ Ben Collins <bcollins@debian.org>
->@@ -300,14 +308,6 @@
-> ieee1394: sbp2: Logged into SBP-2 device
-> ieee1394: Node 0-00:1023: Max speed [S400] - Max payload [2048]
->   Vendor: ST316002  Model: 1A                Rev: 3.06
->-  Type:   Direct-Access                      ANSI SCSI revision: 06
->-SCSI device sda: 312581808 512-byte hdwr sectors (160042 MB)
->-sda: asking for cache data failed
->-sda: assuming drive cache: write through
->-SCSI device sda: 312581808 512-byte hdwr sectors (160042 MB)
->-sda: asking for cache data failed
->-sda: assuming drive cache: write through
->- sda: [mac] sda1 sda2 sda3 sda4
->-Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
->+  Type:   Unknown                            ANSI SCSI revision: 04
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-Thanks for all your kind responses, Rogério Brito.
+Make it clear that users usually shouldn't manually enable CONFIGFS_FS.
 
--- 
-Rogério Brito : rbrito@ime.usp.br : http://www.ime.usp.br/~rbrito
-Homepage of the algorithms package : http://algorithms.berlios.de
-Homepage on freshmeat:  http://freshmeat.net/projects/algorithms/
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.12-mm2-full/fs/Kconfig.old	2005-06-30 01:51:51.000000000 +0200
++++ linux-2.6.12-mm2-full/fs/Kconfig	2005-06-30 01:54:01.000000000 +0200
+@@ -934,13 +934,11 @@
+ 	tristate "Userspace-driven configuration filesystem (EXPERIMENTAL)"
+ 	depends on EXPERIMENTAL
+ 	help
+-	  configfs is a ram-based filesystem that provides the converse
+-	  of sysfs's functionality. Where sysfs is a filesystem-based
+-	  view of kernel objects, configfs is a filesystem-based manager
+-	  of kernel objects, or config_items.
++	  This option is provided for the case where no in-kernel-tree
++	  modules require configfs, but a module built outside the kernel
++	  tree does. Such modules require Y or M here.
+ 
+-	  Both sysfs and configfs can and should exist together on the
+-	  same system. One is not a replacement for the other.
++	  If unsure, say N.
+ 
+ config RELAYFS_FS
+ 	tristate "Relayfs file system support"
+

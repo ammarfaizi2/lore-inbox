@@ -1,55 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262828AbVF3OGf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262829AbVF3OJV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262828AbVF3OGf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 10:06:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262885AbVF3OGf
+	id S262829AbVF3OJV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 10:09:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262966AbVF3OJV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 10:06:35 -0400
-Received: from spc2-brig1-3-0-cust232.asfd.broadband.ntl.com ([82.1.142.232]:34452
-	"EHLO ppgpenguin.kenmoffat.uklinux.net") by vger.kernel.org with ESMTP
-	id S262828AbVF3OGc convert rfc822-to-8bit (ORCPT
+	Thu, 30 Jun 2005 10:09:21 -0400
+Received: from nysv.org ([213.157.66.145]:35977 "EHLO nysv.org")
+	by vger.kernel.org with ESMTP id S262829AbVF3OIz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 10:06:32 -0400
-Date: Thu, 30 Jun 2005 15:06:31 +0100 (BST)
-From: Ken Moffat <ken@kenmoffat.uklinux.net>
-To: Ville Sundell <ville.sundell@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Build-in XML support?
-In-Reply-To: <ec2c5c2205063002091ba9e818@mail.gmail.com>
-Message-ID: <Pine.LNX.4.58.0506301445180.31917@ppg_penguin.kenmoffat.uklinux.net>
-References: <ec2c5c2205062903511d62d6bf@mail.gmail.com>
- <ec2c5c2205063002091ba9e818@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+	Thu, 30 Jun 2005 10:08:55 -0400
+Date: Thu, 30 Jun 2005 17:08:32 +0300
+To: Al Boldi <a1426z@gawab.com>
+Cc: "'Douglas McNaught'" <doug@mcnaught.org>,
+       "'Horst von Brand'" <vonbrand@inf.utfsm.cl>,
+       "'Hubert Chan'" <hubert@uhoreg.ca>,
+       "'Kyle Moffett'" <mrmacman_g4@mac.com>,
+       "'David Masover'" <ninja@slaphack.com>, Valdis.Kletnieks@vt.edu,
+       "'Lincoln Dale'" <ltd@cisco.com>,
+       "'Gregory Maxwell'" <gmaxwell@gmail.com>,
+       "'Hans Reiser'" <reiser@namesys.com>,
+       "'Jeff Garzik'" <jgarzik@pobox.com>,
+       "'Christoph Hellwig'" <hch@infradead.org>,
+       "'Andrew Morton'" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       "'ReiserFS List'" <reiserfs-list@namesys.com>
+Subject: Re: Linux and Plan-9ness
+Message-ID: <20050630140832.GP11013@nysv.org>
+References: <20050630100119.GO11013@nysv.org> <200506301246.PAA29464@raad.intranet>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="JZhpBjp/UIQS9x0q"
+Content-Disposition: inline
+In-Reply-To: <200506301246.PAA29464@raad.intranet>
+User-Agent: Mutt/1.5.9i
+From: mjt@nysv.org (Markus  =?ISO-8859-1?Q?=20T=F6rnqvist?=)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 30 Jun 2005, Ville Sundell wrote:
 
-> Sorry guys!
-> I say it wrong way, I mean:
-> Other programs would like use build-in and "standard" linux XML-parser.
+--JZhpBjp/UIQS9x0q
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, Jun 30, 2005 at 03:45:48PM +0300, Al Boldi wrote:
+>Markus   T=F6rnqvist wrote: {
 >
-
- Applications should be using whatever the libraries available to them
-provide.  This does *not* belong in the kernel.
-
-> It would make standard way to read xml-files in Linux?
-> Advertise speech:
->     No more 1 000 different XML readers, only one, and people can
-> make it better :D
+>What's wrong with "dropping our Unixness" if it means taking an extra step
+>toward Plan 9?
 >
+>Why is this a bad idea?
+>}
+>
+>Please explain!
 
- Diversity is good.  Competition between projects often benefits the end
-users.  If you want to write a better XML parsing library, or to assist
-one of the existing projects, please do so (after you have identified
-whatever shortcomings you see in the existing choices) - but in
-userspace.  And in userspace you will find that many potential users of
-an xml parser are kernel-agnostic - they run on linux 2.2 or 2.4 (which
-are in maintenance mode), BSDs, and others.
+You mean you want me to explain this or someone else to explain
+why this is a bad idea?-)
 
-Ken
--- 
- das eine Mal als Tragödie, das andere Mal als Farce
+My take on this is that Linux should be allowed to move toward
+the directions outlined here on the list a million times, and
+"dropping our Unixness" may be a bit harsh, it should probably
+be more along the lines of "not being so uptightly unixy" :)
 
+--=20
+mjt
+
+
+
+--JZhpBjp/UIQS9x0q
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFCw/zgIqNMpVm8OhwRAtysAJ9GPQ95OdlFToj4/YCTNs8wrnToXQCeP6vp
+cNA5qoS3BKoyNGPnA1ueCbo=
+=8Mac
+-----END PGP SIGNATURE-----
+
+--JZhpBjp/UIQS9x0q--

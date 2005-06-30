@@ -1,92 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262905AbVF3SvD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262916AbVF3Swb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262905AbVF3SvD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 14:51:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262916AbVF3SvD
+	id S262916AbVF3Swb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 14:52:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262942AbVF3Swb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 14:51:03 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:55003 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S262905AbVF3Suq (ORCPT
+	Thu, 30 Jun 2005 14:52:31 -0400
+Received: from smtp.lnxw.com ([207.21.185.24]:13580 "EHLO smtp.lnxw.com")
+	by vger.kernel.org with ESMTP id S262916AbVF3SwI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 14:50:46 -0400
-Message-Id: <200506301847.j5UIlp6u012775@laptop11.inf.utfsm.cl>
-To: Hubert Chan <hubert@uhoreg.ca>, Hans Reiser <reiser@namesys.com>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Kyle Moffett <mrmacman_g4@mac.com>, David Masover <ninja@slaphack.com>,
-       Valdis.Kletnieks@vt.edu, Lincoln Dale <ltd@cisco.com>,
-       Gregory Maxwell <gmaxwell@gmail.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: reiser4 plugins 
-In-Reply-To: Message from David Weinehall <tao@acc.umu.se> 
-   of "Thu, 30 Jun 2005 19:10:57 +0200." <20050630171057.GT16867@khan.acc.umu.se> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Thu, 30 Jun 2005 14:47:51 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Thu, 30 Jun 2005 14:52:08 -0400
+Date: Thu, 30 Jun 2005 11:59:13 -0700
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: "Bill Huey (hui)" <bhuey@lnxw.com>, Kristian Benoit <kbenoit@opersys.com>,
+       linux-kernel@vger.kernel.org, andrea@suse.de, tglx@linutronix.de,
+       karim@opersys.com, mingo@elte.hu, pmarques@grupopie.com,
+       bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au, ak@muc.de,
+       sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org, rpm@xenomai.org
+Subject: Re: PREEMPT_RT and I-PIPE: the numbers, take 3
+Message-ID: <20050630185913.GA26707@nietzsche.lynx.com>
+References: <42C320C4.9000302@opersys.com> <20050629225734.GA23793@nietzsche.lynx.com> <20050629235422.GI1299@us.ibm.com> <20050630015041.GA24234@nietzsche.lynx.com> <42C408ED.5030306@tmr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42C408ED.5030306@tmr.com>
+User-Agent: Mutt/1.5.9i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Weinehall <tao@acc.umu.se> wrote:
-> On Thu, Jun 30, 2005 at 11:57:27AM -0400, Hubert Chan wrote:
-> > On Thu, 30 Jun 2005 08:29:56 +0200, David Weinehall <tao@acc.umu.se> said:
+On Thu, Jun 30, 2005 at 10:59:57AM -0400, Bill Davidsen wrote:
+> The reasons you have to repeat yourself are (a) you lack communications 
+> skills and expect people to read past your insults, (b) you're just 
+> technically wrong in some cases, such as saying that the results would 
+> be different if the kernel were compiled in an unrealistic way.
 
-[...]
+I'm going to stick to my original points that I've already discussed in
+a number of earlier threads. SMP is needed for this patch to really
+work. What was not understood by folks, still isn't, is that the
+functionality of this system is more extensive than a simple dual kernel
+set up. This is not a personality or communication skills issue. It's
+folks not understand the patch out of ignorance and irrational fear, how
+it really works, and what advantages it gives over dual kernels.
 
-> > >From the web *browser*'s point of view, it is handled by the
-> > "filesystem" (which is provided by the various servers).  The browser
-> > doesn't care how or where the data is stored.  It just requests a file,
-> > and gets some data back.  So the browser doesn't have to check for
-> > http://www.example.com/, get a failure (trying to read a directory),
-> > check for http://www.example.com/index.html, etc.  In this way, the web
-> > server controls (which I think takes the place of the filesystem in this
-> > case) what gets shown (index.html.sv, etc.), instead of the leaving it
-> > up to the browser.
+A lot of it is just flat out ignorance about RTOS in the Linux community.
+They confuse theoretical and practical issues and assume that they are
+right when they don't write RT apps, don't understand the patch or the
+direction it's going.
 
-> > In the same way, you don't want every single user program to have to
-> > guess whether it should look at .data, or .contents, or whatever.
-> 
-> For the analogy to be complete:
+This material has been covered over and over again in previous threads,
+but a disconnected, persistent and hysterical group still FUDs this patch
+continuously, which is why I'm losing patience with this. If you're coming
+in middle of this story it can certainly seem that way, but the reverse is
+true. If I have to insult folks as a preventative for negative rumors about
+this patch, then so be it.
 
-> User has a file browser (say Nautilus)
-> The file browser sees the userland VFS (say a unified VFS between GNOME
-> and KDE)
-> The VFS sees the real file system
+> Your point that SMP operation is important is true, but I see no reason 
+> to think Ingo has missed that.
 
-> This way the userland VFS can be ported to almost any platform.
+No negative comments were directed at Ingo of any sort. The nature of RTOS
+changes as hardware advances. That's all I'm saying.
 
-That is /very/ nice to have.
-
-> When toying around on the desktop, an abstraction of what a file
-> is works fine with me.  When doing serious work (programming,
-> tar:ing up stuff, etc) I want to be bloody sure that I see the
-> files in the same way always.  I don't want surprises such as
-> files suddenly behaving as directories or vice versa.
-
-Let me moderate that a bit: I'd be happy to have (some) files behaving
-strangely, /if in exchange I get something very worthwhile/. I.e., Unix
-filesystem sockets, named pipes, virtual filesystems all behave in weird
-ways, but this downside is more than compensated by huge advantages (even
-being able to do things that would otherwise be impossible). But all I see
-is that file-is-directory advocates explain over and over how they are
-bending over backards to get the whole mess working exactly like true
-directories (nothing more, in the end quite a bit less). The uses I've seen
-discussed don't really need files-as-directories (you get most of the
-advantages by just tar(1)-ing up the contents, or packing them in some
-other way; OpenOffice /has/ structured files, XML inside zipped files, Java
-also uses zip files for its structuring needs, etc), or are ideas that
-might be nice to have on exclusively one-user, isolated machines, like
-"keep /my/ annotations/icon/application name/whatever with the file's
-data", but that break down in multiuser (even serially, one user after the
-other) systems or when files are shared (via network, or simply by sending
-by mail or by copying from one machine to the other). In my rather ample
-experience, that situation is rare today, rapidly dwindling in the arena
-where Linux is mostly used. So this particular case of strange semantics
-for files has no upsides I can see, only downsides. The downsides have been
-discussed to death, and AFAICS there are fundamental problems with the idea
-that can't be fixed or sanely worked around. So why bother?
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+bill
 

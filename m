@@ -1,58 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262679AbVF3Bdr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262704AbVF3Bnv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262679AbVF3Bdr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Jun 2005 21:33:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262704AbVF3Bdr
+	id S262704AbVF3Bnv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Jun 2005 21:43:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262707AbVF3Bnv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Jun 2005 21:33:47 -0400
-Received: from rgminet03.oracle.com ([148.87.122.32]:64688 "EHLO
-	rgminet03.oracle.com") by vger.kernel.org with ESMTP
-	id S262679AbVF3Bdo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Jun 2005 21:33:44 -0400
-Date: Wed, 29 Jun 2005 18:30:11 -0700
-From: Joel Becker <Joel.Becker@oracle.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: ocfs2-devel@oss.oracle.com, linux-kernel@vger.kernel.org
-Subject: Re: [Ocfs2-devel] [-mm patch] CONFIGFS_FS: "If unsure, say N."
-Message-ID: <20050630013011.GF23823@ca-server1.us.oracle.com>
-Mail-Followup-To: Adrian Bunk <bunk@stusta.de>, ocfs2-devel@oss.oracle.com,
-	linux-kernel@vger.kernel.org
-References: <20050624080315.GC26545@stusta.de> <20050629213038.GA23823@ca-server1.us.oracle.com> <20050630004738.GA27478@stusta.de> <20050630005723.GE23823@ca-server1.us.oracle.com> <20050630011015.GC27478@stusta.de>
+	Wed, 29 Jun 2005 21:43:51 -0400
+Received: from smtp.lnxw.com ([207.21.185.24]:15119 "EHLO smtp.lnxw.com")
+	by vger.kernel.org with ESMTP id S262704AbVF3Bnt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Jun 2005 21:43:49 -0400
+Date: Wed, 29 Jun 2005 18:50:41 -0700
+To: "Paul E. McKenney" <paulmck@us.ibm.com>
+Cc: Bill Huey <bhuey@lnxw.com>, Kristian Benoit <kbenoit@opersys.com>,
+       linux-kernel@vger.kernel.org, andrea@suse.de, tglx@linutronix.de,
+       karim@opersys.com, mingo@elte.hu, pmarques@grupopie.com,
+       bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au, ak@muc.de,
+       sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org, rpm@xenomai.org
+Subject: Re: PREEMPT_RT and I-PIPE: the numbers, take 3
+Message-ID: <20050630015041.GA24234@nietzsche.lynx.com>
+References: <42C320C4.9000302@opersys.com> <20050629225734.GA23793@nietzsche.lynx.com> <20050629235422.GI1299@us.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050630011015.GC27478@stusta.de>
-X-Burt-Line: Trees are cool.
-X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
+In-Reply-To: <20050629235422.GI1299@us.ibm.com>
 User-Agent: Mutt/1.5.9i
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 30, 2005 at 03:10:15AM +0200, Adrian Bunk wrote:
-> The question is:
-> Assume a user doesn't use external modules, will enabling this option 
-> have any effect for him except that it wastes some bytes of his RAM?
-> 
-> sysfs is useful in this case.
-> How is configfs useful in this case?
+On Wed, Jun 29, 2005 at 04:54:22PM -0700, Paul E. McKenney wrote:
+> If you were suggesting this to be run on an SMP system, I would agree
+> with you.  I, too, would very much like to see these results run on a
+> 2-CPU or 4-CPU system, although I am most certainly -not- asking Kristian
+> and Karim to do this work -- it is very much someone else's turn in the
+> barrel, I would say!
 
-	I'm not saying it is.  I'm saying that "Hey, if you are unsure
-you want 'N'" is a good thing to say, but removing the description of
-"what configfs is" is unhelpful and unneeded.
+No, I'm suggesting that you and other folks understand the basic ideas
+behind this patch and stop asking unbelievably stupid questions. This has
+been covered over and over again, and I shouldn't have to repeat these
+positions constantly because folks have both a language comprehension
+problem and inability to bug off appropriately.
 
-Joel
+> However, on a UP system, I have to agree with Kristian's choice of
+> configuration.  An embedded system developer running on a UP system would
+> naturally use a UP Linux kernel build, so it makes sense to benchmark
+> a UP kernel on a UP system.
 
--- 
+Dual cores are going to be standard in the next few years so RTOSs should
+anticipate these things coming down the pipeline.
 
-"And yet I fight,
- And yet I fight this battle all alone.
- No one to cry to;
- No place to call home."
+bill
 
-Joel Becker
-Senior Member of Technical Staff
-Oracle
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127

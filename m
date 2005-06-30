@@ -1,58 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263003AbVF3Tcl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262985AbVF3ThH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263003AbVF3Tcl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 15:32:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262987AbVF3Tb0
+	id S262985AbVF3ThH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 15:37:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262987AbVF3ThH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 15:31:26 -0400
-Received: from mail.kroah.org ([69.55.234.183]:14990 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262985AbVF3T37 (ORCPT
+	Thu, 30 Jun 2005 15:37:07 -0400
+Received: from 90.Red-213-97-199.pooles.rima-tde.net ([213.97.199.90]:30341
+	"HELO fargo") by vger.kernel.org with SMTP id S262985AbVF3Tgv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 15:29:59 -0400
-Date: Thu, 30 Jun 2005 09:05:06 -0700
-From: Greg KH <greg@kroah.com>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Kristen Accardi <kristen.c.accardi@intel.com>, rajesh.shah@intel.com,
-       gregkh@suse.de, ak@suse.de, len.brown@intel.com, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       acpi-devel@lists.sourceforge.net
-Subject: Re: [patch 2/2] i386/x86_64: collect host bridge resources v2
-Message-ID: <20050630160506.GD6828@kroah.com>
-References: <20050602224147.177031000@csdlinux-1> <20050602224327.051278000@csdlinux-1> <20050628155152.A24551@jurassic.park.msu.ru> <1119982914.19258.6.camel@whizzy> <20050629000300.A26118@jurassic.park.msu.ru>
+	Thu, 30 Jun 2005 15:36:51 -0400
+Date: Thu, 30 Jun 2005 21:33:20 +0200
+From: David =?utf-8?B?R8OzbWV6?= <david@pleyades.net>
+To: Robert Love <rml@novell.com>
+Cc: John McCutchan <ttb@tentacle.dhs.org>,
+       Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Problem with inotify
+Message-ID: <20050630193320.GA1136@fargo>
+Mail-Followup-To: Robert Love <rml@novell.com>,
+	John McCutchan <ttb@tentacle.dhs.org>,
+	Linux-kernel <linux-kernel@vger.kernel.org>
+References: <20050630181824.GA1058@fargo> <1120156188.6745.103.camel@betsy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20050629000300.A26118@jurassic.park.msu.ru>
-User-Agent: Mutt/1.5.8i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1120156188.6745.103.camel@betsy>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 29, 2005 at 12:03:00AM +0400, Ivan Kokshaysky wrote:
-> On Tue, Jun 28, 2005 at 11:21:54AM -0700, Kristen Accardi wrote:
-> > I gave this patch a try (against mm2), and found that I now get many
-> > errors on boot up complaining about not being able to allocate PCI
-> > resources due to resource collisions, and then the system begins to
-> > complain about lost interrupts on hda, and is never able to mount the
-> > root filesystem.
+Hi Robert,
+
+On Jun 30 at 02:29:48, Robert Love wrote:
+> > I just patched 2.6.12 kernel with the inotify latest patch
+> > (inotify-0.23-rml-2.6.12-14.patch). Inotify is working ok with the test program
+> > provided in inotify-utils but... I can no longer mount my IDE cdrom devices
+> > :(. Each time i try to mount a disc, the mount proccess get stuck in D state. I
+> > don't see what's the relation between inotify and IDE devices, but if i switch
+> > back to the unpatched 2.6.12, mounting works again.
 > 
-> Well, I'm not surprised. :-(
-> Probably there is a conflict between e820 map and root bus ranges
-> reported by ACPI. I think that it would be better to just drop
-> gregkh-pci-pci-collect-host-bridge-resources-02.patch rather than
-> try to fix it, at least until such conflicts can be resolved in
-> a sane way.
+> Very weird.
+> 
+> Did everything work with an earlier inotify?
+> 
+> Does wchan show anything useful (ps -ewo user,pid,command,wchan)?
 
-Ok, I'll drop it.  Any objections to me doing this?
+I tested it again, wchan says "inode_wait"...
 
-So, with the remaining pci patches, (as seen in
-kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/patches/pci/) are
-there any objections to me pushing these (with the exception of the
-above one) to Linus?  I think there was one report of the
-pci-assign-unassigned-resources.patch patch causing boot problems on one
-box, but that might have also been due to the above patch, am not sure.
 
-Ah, the joys of acpi and pci resources... bleah.
-
-thanks,
-
-greg k-h
+-- 
+David Gómez                                      Jabber ID: davidge@jabber.org

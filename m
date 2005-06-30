@@ -1,86 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263107AbVF3Uet@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263071AbVF3Ues@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263107AbVF3Uet (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 16:34:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263085AbVF3UWP
+	id S263071AbVF3Ues (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 16:34:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263113AbVF3UW1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 16:22:15 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:31141 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S263074AbVF3Tzx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 15:55:53 -0400
-Message-Id: <200506301952.j5UJqPrn013513@laptop11.inf.utfsm.cl>
-To: mjt@nysv.org (Markus =?ISO-8859-1?Q?=20T=F6rnqvist?=)
-cc: Nikita Danilov <nikita@clusterfs.com>,
-       Douglas McNaught <doug@mcnaught.org>, Hubert Chan <hubert@uhoreg.ca>,
+	Thu, 30 Jun 2005 16:22:27 -0400
+Received: from wproxy.gmail.com ([64.233.184.198]:60795 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S263087AbVF3T5V convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Jun 2005 15:57:21 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=WgbNNtGha/d7K6npKGkwT7y9UjXN6SRAOg9iADrPKaY6qCNJzI4z1ccrGkay2n5y5bdOG4IdDoXnAmE85wFEhw6Ma0hIeLE9vaKuXEJ+HCCPGsmzap6xtPr4PQnY/CHuumzmf6FCZLt+vZDTfXBYpbSM+S5ljyXRqSN3IaBlSjA=
+Message-ID: <a4e6962a0506301257827759c@mail.gmail.com>
+Date: Thu, 30 Jun 2005 14:57:19 -0500
+From: Eric Van Hensbergen <ericvh@gmail.com>
+Reply-To: Eric Van Hensbergen <ericvh@gmail.com>
+To: =?ISO-8859-1?Q?Markus_T=F6rnqvist?= <mjt@nysv.org>
+Subject: Re: reiser4 plugins
+Cc: Douglas McNaught <doug@mcnaught.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Hubert Chan <hubert@uhoreg.ca>,
        Kyle Moffett <mrmacman_g4@mac.com>, David Masover <ninja@slaphack.com>,
        Valdis.Kletnieks@vt.edu, Lincoln Dale <ltd@cisco.com>,
        Gregory Maxwell <gmaxwell@gmail.com>, Hans Reiser <reiser@namesys.com>,
        Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
        Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
        ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: reiser4 plugins 
-In-Reply-To: Message from mjt@nysv.org (Markus =?ISO-8859-1?Q?=20T=F6rnqvist?=) 
-   of "Thu, 30 Jun 2005 18:37:38 +0300." <20050630153738.GU11013@nysv.org> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Thu, 30 Jun 2005 15:52:25 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+In-Reply-To: <20050630100119.GO11013@nysv.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+References: <200506290509.j5T595I6010576@laptop11.inf.utfsm.cl>
+	 <m2k6kd2rx8.fsf@Douglas-McNaughts-Powerbook.local>
+	 <20050629135820.GJ11013@nysv.org>
+	 <20050629205636.GN16867@khan.acc.umu.se>
+	 <20050630100119.GO11013@nysv.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Markus   TÃ¶rnqvist <mjt@nysv.org> wrote:
-> On Thu, Jun 30, 2005 at 07:18:47PM +0400, Nikita Danilov wrote:
-> >Sorry, I don't see your point. Again: if you think that user level
-> >developers are unlikely to agree to the common framework, what
-> >difference it makes whether this framework is defined at the kernel or
-> >library boundary? Applications would have to be changed to conform to
-> >the common API either way.
+On 6/30/05, Markus   Törnqvist <mjt@nysv.org> wrote:
+> 
+> >instead of trying to get a monstrosity (albeit a very cool one,
+> >conceptually) into the kernel.  Sure, it could be made to work,
+> >but not without dropping our Unixness.  And if we do, we should
+> >start by looking at Plan 9 =)
+> 
+> What's wrong with "dropping our Unixness" if it means taking
+> an extra step toward Plan 9?
+> 
+> Why is this a bad idea?
+> 
 
-> I see it as a heavier incentive to do it by a framework that's in
-> the kernel.
+It's not.  For those who don't already know about it: check out the
+v9fs project (http://v9fs.sf.net) - we're taking steps of moving the
+Linux kernel towards Plan 9 while trying to preserve Unix semantics
+where they make sense.
 
-API is API, if in-kernel, in-X-lib, or in-userland-VFS-lib is completely
-irrelevant.
-
-> >If you can force application developers to conform to the LSB why you
-> >cannot do the same with the library level interface?
-
-> If I want to access metadata with bash, do I patch bash to support
-> both Gnome's and KDE's solutions? Was there one of XFCE too?
-> And FooBarXyzzyWM that'll want to do it's own VFS next year?
-
-It's your only option... or get them together and define a common
-framework.
-
-But then again, what would I want to do with metadata in bash? If needed,
-it is probably much easier to write tools to extract whatever is needed, no
-reason to futz around with the shell. That simple idea was the single most
-important advance Unix introduced: The shell is a /simple/ program, it
-doesn't do word processing and coffee brewing for you. That is handled by
-other programs, one for each task.
-
-> I'd also guess that the upstream guys would much rather have
-> patches for their progs that conform to the kernel than some
-> obscure neighbor userspace system.
-
-Or just keep only their own obscure userspace system, no need to have to
-mess with our own format and a kernel system.
-
-> Sure looks like having this in the kernel makes it easiest; there's
-> just one common denominator to patch for.
-
-Again: API is API. If in kernel or in a standard library makes no
-difference. Libary is /much/ easier to develop, and hugely more
-flexible. It is for a reason that printf(3) and qsort(3) are /not/
-in-kernel.
-
-> This doesn't even invalidate the userland VFSs of the other guys,
-> they're still needed for systems whose kernels don't have a
-> metadata facility.
-
-So the metadata facility in kernel won't be used, for portability's sake.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+     -eric

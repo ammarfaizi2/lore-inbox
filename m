@@ -1,82 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262829AbVF3OJV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262966AbVF3OLx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262829AbVF3OJV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 10:09:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262966AbVF3OJV
+	id S262966AbVF3OLx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 10:11:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262967AbVF3OLw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 10:09:21 -0400
-Received: from nysv.org ([213.157.66.145]:35977 "EHLO nysv.org")
-	by vger.kernel.org with ESMTP id S262829AbVF3OIz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 10:08:55 -0400
-Date: Thu, 30 Jun 2005 17:08:32 +0300
-To: Al Boldi <a1426z@gawab.com>
-Cc: "'Douglas McNaught'" <doug@mcnaught.org>,
-       "'Horst von Brand'" <vonbrand@inf.utfsm.cl>,
-       "'Hubert Chan'" <hubert@uhoreg.ca>,
-       "'Kyle Moffett'" <mrmacman_g4@mac.com>,
-       "'David Masover'" <ninja@slaphack.com>, Valdis.Kletnieks@vt.edu,
-       "'Lincoln Dale'" <ltd@cisco.com>,
-       "'Gregory Maxwell'" <gmaxwell@gmail.com>,
-       "'Hans Reiser'" <reiser@namesys.com>,
-       "'Jeff Garzik'" <jgarzik@pobox.com>,
-       "'Christoph Hellwig'" <hch@infradead.org>,
-       "'Andrew Morton'" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       "'ReiserFS List'" <reiserfs-list@namesys.com>
-Subject: Re: Linux and Plan-9ness
-Message-ID: <20050630140832.GP11013@nysv.org>
-References: <20050630100119.GO11013@nysv.org> <200506301246.PAA29464@raad.intranet>
+	Thu, 30 Jun 2005 10:11:52 -0400
+Received: from wproxy.gmail.com ([64.233.184.196]:6226 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262966AbVF3OLp convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Jun 2005 10:11:45 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=HF+Qxyd6DQkNXsgF7tnoupUEIHwpsrGSfII/I9IEj3opWVl9xvrC6bSRgX0oTwbNKEMRSFkDvP4KOG4hC5T09usELpkeVcUzxdJrQ7aQr1N9Ia7doYF9vtQre3U+4wkWuvJ+04PRI/sh6pVw1dn0i+PgEppugSj7bCj5jJkSqjo=
+Message-ID: <dc849d850506300711a92042@mail.gmail.com>
+Date: Thu, 30 Jun 2005 22:11:44 +0800
+From: chengq <benbenshi@gmail.com>
+Reply-To: chengq <benbenshi@gmail.com>
+To: Denis Vlasenko <vda@ilport.com.ua>
+Subject: Re: route reload after interface restart
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200506301418.04419.vda@ilport.com.ua>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="JZhpBjp/UIQS9x0q"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <200506301246.PAA29464@raad.intranet>
-User-Agent: Mutt/1.5.9i
-From: mjt@nysv.org (Markus  =?ISO-8859-1?Q?=20T=F6rnqvist?=)
+References: <dc849d8505063004136573e59e@mail.gmail.com>
+	 <200506301418.04419.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 6/30/05, Denis Vlasenko <vda@ilport.com.ua> wrote:
+> On Thursday 30 June 2005 14:13, chengq wrote:
+> > hi
+> >
+> > Routes relate to ethX were deleted from kernel after i shutdown ethX
+> > (ifconfig ethX down),but after i start ethX (ifconfig ethX
+> > XXX.XXX.XXX.XXX up ),  deleted  routes were not re-add to kernel .
+> >
+> > Is there any patch or daemon can do this  for me, after i restart
+> > ethX,deleted rotues were re-added to kernel automatically.
+> 
+> This is offtopic for lkml.
+> 
+> Make a script which configure iface and add routes.
+> --
+> vda
+> 
+> 
 
---JZhpBjp/UIQS9x0q
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+script is not a good choice when you have several uncertain virtual
+interfaces and some other administrators need to add route
+,enable/disable interfaces freely~~
 
-On Thu, Jun 30, 2005 at 03:45:48PM +0300, Al Boldi wrote:
->Markus   T=F6rnqvist wrote: {
->
->What's wrong with "dropping our Unixness" if it means taking an extra step
->toward Plan 9?
->
->Why is this a bad idea?
->}
->
->Please explain!
-
-You mean you want me to explain this or someone else to explain
-why this is a bad idea?-)
-
-My take on this is that Linux should be allowed to move toward
-the directions outlined here on the list a million times, and
-"dropping our Unixness" may be a bit harsh, it should probably
-be more along the lines of "not being so uptightly unixy" :)
-
---=20
-mjt
-
-
-
---JZhpBjp/UIQS9x0q
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFCw/zgIqNMpVm8OhwRAtysAJ9GPQ95OdlFToj4/YCTNs8wrnToXQCeP6vp
-cNA5qoS3BKoyNGPnA1ueCbo=
-=8Mac
------END PGP SIGNATURE-----
-
---JZhpBjp/UIQS9x0q--
+after that ,i have no shell in my embedded system ~~

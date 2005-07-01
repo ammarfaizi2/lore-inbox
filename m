@@ -1,60 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263390AbVGAQqN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263391AbVGAQuX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263390AbVGAQqN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 12:46:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263391AbVGAQqN
+	id S263391AbVGAQuX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 12:50:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263384AbVGAQuX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 12:46:13 -0400
-Received: from main.gmane.org ([80.91.229.2]:63622 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S263390AbVGAQqH (ORCPT
+	Fri, 1 Jul 2005 12:50:23 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:30594 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S263389AbVGAQuD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 12:46:07 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Matthias Urlichs <smurf@smurf.noris.de>
-Subject: Re: FUSE merging?
-Date: Fri, 01 Jul 2005 18:45:28 +0200
-Organization: {M:U} IT Consulting
-Message-ID: <pan.2005.07.01.16.45.25.992688@smurf.noris.de>
-References: <E1DnvCq-0000Q4-00@dorka.pomaz.szeredi.hu> <20050630022752.079155ef.akpm@osdl.org> <E1Dnvhv-0000SK-00@dorka.pomaz.szeredi.hu> <1120125606.3181.32.camel@laptopd505.fenrus.org> <E1Dnw2J-0000UM-00@dorka.pomaz.szeredi.hu> <1120126804.3181.34.camel@laptopd505.fenrus.org> <1120129996.5434.1.camel@imp.csi.cam.ac.uk> <20050630124622.7c041c0b.akpm@osdl.org> <E1DoF86-0002Kk-00@dorka.pomaz.szeredi.hu> <20050630235059.0b7be3de.akpm@osdl.org> <E1DoFcK-0002Ox-00@dorka.pomaz.szeredi.hu> <20050701001439.63987939.akpm@osdl.org> <E1DoG6p-0002Rf-00@dorka.pomaz.szeredi.hu> <20050701010229.4214f04e.akpm@osdl.org> <E1DoIUz-0002a5-00@dorka.pomaz.szeredi.hu> <20050701042955.39bf46ef.akpm@osdl.org>
+	Fri, 1 Jul 2005 12:50:03 -0400
+Date: Fri, 1 Jul 2005 18:51:24 +0200
+From: Jens Axboe <axboe@suse.de>
+To: "Miller, Mike (OS Dev)" <mike.miller@hp.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [PATCH 1/1] cciss per disk queue for 2.6
+Message-ID: <20050701165124.GA5117@suse.de>
+References: <D4CFB69C345C394284E4B78B876C1CF107DC0868@cceexc23.americas.cpqcorp.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: run.smurf.noris.de
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
-X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <D4CFB69C345C394284E4B78B876C1CF107DC0868@cceexc23.americas.cpqcorp.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Andrew Morton wrote:
+On Fri, Jul 01 2005, Miller, Mike (OS Dev) wrote:
+> > > This has been tested in our labs. There is no difference in 
+> > > performance, it just fixes the Oops. Please consider this patch for 
+> > > inclusion.
+> > 
+> > Going to per-disk queues is undoubtedly a good idea, 
+> > performance will be much better this way. So far, so good.
+> > 
+> > But you need to do something about the queueing for this to 
+> > be acceptable, imho. You have a per-controller queueing limit 
+> > in place, you need to enforce some fairness to ensure an 
+> > equal distribution of commands between the disks.
+> 
+> Sometime back I submitted what we called the "fair enough" algorithm. I
+> don't know how I managed to separate the two. :( But it was accepted and
+> is in the mainstream kernel. Here's a snippet:
+> ------------------------------------------------------------------------
+> -
+> -	/*
+> -	 * See if we can queue up some more IO
+> -	 * check every disk that exists on this controller
+> -	 * and start it's IO
+> -	 */
+> -	for(j=0; j < NWD; j++){
+> -		/* make sure the disk has been added and the drive is
+> real */
+> -		/* because this can be called from the middle of
+> init_one */
+> -		if(!(h->gendisk[j]->queue) || !(h->drv[j].heads))
+> +	/* check to see if we have maxed out the number of commands that
+> can
+> +	 * be placed on the queue.  If so then exit.  We do this check
+> here
+> +	 * in case the interrupt we serviced was from an ioctl and did
+> not
+> +	 * free any new commands.
+> +	*/
+> +	if ((find_first_zero_bit(h->cmd_pool_bits, NR_CMDS)) == NR_CMDS)
+> +		goto cleanup;
+> +
+> +	/* We have room on the queue for more commands.  Now we need to
+> queue
+> +	 * them up.  We will also keep track of the next queue to run so
+> +	 * that every queue gets a chance to be started first.
+> +	*/
+> +	for (j=0; j < NWD; j++){
+> +		int curr_queue = (start_queue + j) % NWD;
+> +		/* make sure the disk has been added and the drive is
+> real
+> +		 * because this can be called from the middle of
+> init_one.
+> +		*/
+> +		if(!(h->gendisk[curr_queue]->queue) || 
+> +		   !(h->drv[curr_queue].heads))
 
-> Sorry, but I'm not buying it.  I still don't see a solid reason why all
-> this could not be done with nfs/v9fs, some kernel tweaks and the rest in
-> userspace.
+I suppose that will be fair-enough, at least as long as NR_CMDS >>
+q->nr_requests. With eg 4 volumes, I don't think this will be the case.
+Just making sure you round-robin start the queues is not enough to
+ensure fair queueing between them.
 
-Let's forget about NFS here. It's stateless. You don't want a wholly
-stateless layer between two stateful instances; the fact that it works for
-a disk-based NFS server isn't proof that it'd work for gmailfs or sshfs.
+> > Perhaps just limit the per-queue depth to something sane, 
+> > instead of the huuuge 384 commands you have now. I've had 
+> > several people complain to me, that ciss is doing some nasty 
+> > starvation with that many commands in flight and we've 
+> > effectively had to limit the queueing depth to something 
+> > really low to get adequate read performance in presence of writes.
+> 
+> The combination of per disk queues and this "fairness" prevents
+> starvation on different LV's. Ex: if volumes 0 & 1 are being written and
+> volume 3 is being read all will get _almost_ equal time. We believe the
 
-There are a lot of FUSE server implementations out there already.
-You want all of them to rewrite their code for v9fs?
+Different thing, I'm talking about single volume starvation, not
+volume-to-volume.
 
-I admit that I don't know zilch about how difficult it is to write a v9fs
-server (is there sane sample code / a support library?) or how much
-overhead such a server would incur or how safe it'd be to run a
-user-controlled server on the same machine as the mountpoint.
-The point is that the FUSE people already cover all these points,
-thus: unless there's a major technical problem with it that v9fs solves
-better, I'd advocate to include it.
+> elevator algoritm(s) may be causing writes to starve reads on the same
+> logical volume. We continue to investigate our other performance issues.
+
+I completely disagree. Even with an intelligent io scheduler, starvation
+is seen on ciss that does not happen on other queueing hardware such as
+'normal' scsi controllers/drives. So something else is going on, and the
+only 'fix' so far is to limit the ciss queue depth heavily.
 
 -- 
-Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
-Disclaimer: The quote was selected randomly. Really. | http://smurf.noris.de
- - -
-Magpie, n.:
-	A bird whose thievish disposition suggested to someone that it
-	might be taught to talk.
-		-- Ambrose Bierce, "The Devil's Dictionary"
-
+Jens Axboe
 

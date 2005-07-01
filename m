@@ -1,82 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263091AbVF3Xxb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263127AbVGAAIy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263091AbVF3Xxb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 19:53:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263126AbVF3Xxb
+	id S263127AbVGAAIy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 20:08:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263128AbVGAAIy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 19:53:31 -0400
-Received: from po2.wam.umd.edu ([128.8.10.164]:57999 "EHLO po2.wam.umd.edu")
-	by vger.kernel.org with ESMTP id S263091AbVF3XxS (ORCPT
+	Thu, 30 Jun 2005 20:08:54 -0400
+Received: from animx.eu.org ([216.98.75.249]:58503 "EHLO animx.eu.org")
+	by vger.kernel.org with ESMTP id S263127AbVGAAIx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 19:53:18 -0400
-Date: Thu, 30 Jun 2005 19:53:15 -0400 (EDT)
-From: Patrick Jenkins <patjenk@wam.umd.edu>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Multipath routing algorithm determination
-Message-ID: <Pine.GSO.4.61.0506301947360.5941@rac1.wam.umd.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 30 Jun 2005 20:08:53 -0400
+Date: Thu, 30 Jun 2005 20:25:03 -0400
+From: Wakko Warner <wakko@animx.eu.org>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OT] build just one driver
+Message-ID: <20050701002503.GA14098@animx.eu.org>
+Mail-Followup-To: Jesper Juhl <jesper.juhl@gmail.com>,
+	linux-kernel@vger.kernel.org
+References: <200506282309.20296.gustavo@compunauta.com> <9a874849050629122775d0542c@mail.gmail.com> <Pine.LNX.4.60.0506302149500.8278@poirot.grange> <Pine.LNX.4.62.0507010053390.2858@dragon.hyggekrogen.localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.62.0507010053390.2858@dragon.hyggekrogen.localhost>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Jesper Juhl wrote:
+> > Unfortunately, one cannot do make dir/module.ko... Would it be too 
+> > difficult to add?
+> 
+> Hmm, I suspect people would find that useful. 
+> I'm not making any promises, but I might take a look at adding that later, 
+> on the other hand I don't have much time at the moment, so maybe I 
+> won't...
 
-This patch assigns the multipath routing algorithm into the fib_info
-struct's fib_mp_alg variable. Previously, the algorithm was always set to
-IP_MP_ALG_NONE which was incorrect. This patch corrects the problem by
-assigning the correct value when a fib_info is initialized.
+How about a target that does only stage 2 module building?
 
-This patch was tested against kernel 2.6.12.1 for all multipath routing
-algorithms (none, round robin, interface round robin, random, weighted
-random).
-
-Please look this patch over and apply it to the kernel. I have been unable 
-to contact the creators of the multipath algorithm feature so this is why 
-I sent it to the lkml.
-
-I am not a member of the list so please cc me in the reply.
-
-Signed-off-by: Patrick Jenkins <patjenk@wam.umd.edu>
-
---- net/ipv4/fib_semantics.orig.c       2005-06-30 18:47:05.000000000 
--0400
-+++ net/ipv4/fib_semantics.c    2005-06-30 18:55:08.000000000 -0400
-@@ -9,6 +9,9 @@
-   *
-   * Authors:    Alexey Kuznetsov, <kuznet@ms2.inr.ac.ru>
-   *
-+ * Fixes:
-+ *             Patrick Jenkins :       multipath routing algorithm wasnt 
-being assigned correctly
-+ *
-   *             This program is free software; you can redistribute it 
-and/or
-   *             modify it under the terms of the GNU General Public 
-License
-   *             as published by the Free Software Foundation; either 
-version
-@@ -650,9 +653,20 @@ fib_create_info(const struct rtmsg *r, s
-  #else
-         const int nhs = 1;
-  #endif
-+
-  #ifdef CONFIG_IP_ROUTE_MULTIPATH_CACHED
-+#ifdef CONFIG_IP_ROUTE_MULTIPATH_RR
-+       u32 mp_alg = IP_MP_ALG_RR;
-+#elif CONFIG_IP_ROUTE_MULTIPATH_DRR
-+       u32 mp_alg = IP_MP_ALG_DRR;
-+#elif CONFIG_IP_ROUTE_MULTIPATH_RANDOM
-+       u32 mp_alg = IP_MP_ALG_RANDOM;
-+#elif CONFIG_IP_ROUTE_MULTIPATH_WRANDOM
-+       u32 mp_alg = IP_MP_ALG_WRANDOM;
-+#else
-         u32 mp_alg = IP_MP_ALG_NONE;
--#endif
-+#endif /* multipath algorithm determination */
-+#endif /* CONFIG_IP_ROUTE_MULTIPATH_CACHED */
-
-         /* Fast check to catch the most weird cases */
-         if (fib_props[r->rtm_type].scope > r->rtm_scope)
-
-
-
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals

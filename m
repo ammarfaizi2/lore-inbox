@@ -1,74 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263380AbVGAQOW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263374AbVGAQRz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263380AbVGAQOW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 12:14:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263374AbVGAQOW
+	id S263374AbVGAQRz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 12:17:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263381AbVGAQRz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 12:14:22 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:47573 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263380AbVGAQOI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 12:14:08 -0400
-Date: Fri, 1 Jul 2005 18:15:34 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "Manfred.Scherer.Mhm@t-online.de" <Manfred.Scherer.Mhm@t-online.de>
-Cc: paul@paulbristow.net, linux-kernel@vger.kernel.org,
-       manfred.scherer@siemens.com
-Subject: Re: PATCH for ide_floppy
-Message-ID: <20050701161534.GJ2243@suse.de>
-References: <1DoNSU-0kLq880@fwd18.aul.t-online.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1DoNSU-0kLq880@fwd18.aul.t-online.de>
+	Fri, 1 Jul 2005 12:17:55 -0400
+Received: from build.arklinux.osuosl.org ([140.211.166.26]:53475 "EHLO
+	mail.arklinux.org") by vger.kernel.org with ESMTP id S263374AbVGAQRx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Jul 2005 12:17:53 -0400
+From: Bernhard Rosenkraenzer <bero@arklinux.org>
+Organization: Ark Linux team
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.6.13-rc1-mm1 unresolved symbols
+Date: Fri, 1 Jul 2005 18:18:17 +0200
+User-Agent: KMail/1.8.1
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_JzWxCn3y4oUeHAW"
+Message-Id: <200507011818.17828.bero@arklinux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 01 2005, Manfred.Scherer.Mhm@t-online.de wrote:
-> --- linux-2.6.12/drivers/ide/ide-floppy.c.ORIG  2005-06-17
-> 21:48:29.000000000 +0200
-> +++ linux-2.6.12/drivers/ide/ide-floppy.c       2005-06-25
-> 03:29:45.000000000 +0200
-> @@ -125,7 +125,14 @@
->  /*
->   *     Some drives require a longer irq timeout.
->   */
-> +#if 0
->  #define IDEFLOPPY_WAIT_CMD             (5 * WAIT_CMD)
-> +#endif
-> +#if 0
-> +#define IDEFLOPPY_WAIT_CMD             200     /* --ms  */
-> +#endif
-> +#define IDEFLOPPY_WAIT_CMD             WAIT_CMD        /* 2004/12/31
-> --ms */
-> +
-> 
->  /*
->   *     After each failed packet command we issue a request sense
-> command
-> @@ -317,7 +324,13 @@
->         unsigned long flags;
->  } idefloppy_floppy_t;
-> 
-> +#if 0
->  #define IDEFLOPPY_TICKS_DELAY  3       /* default delay for ZIP 100 */
-> +#define IDEFLOPPY_TICKS_DELAY  6       /* default delay for ZIP 100
-> --ms 2005/01/01 */
-> +#define IDEFLOPPY_TICKS_DELAY  12      /* default delay for ZIP 100
-> --ms 2005/01/01 */
-> +#endif
-> +#define IDEFLOPPY_TICKS_DELAY  60      /* default delay for ZIP 100
-> --ms 2005/01/07 */
-> +
+--Boundary-00=_JzWxCn3y4oUeHAW
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-This seems to be basically what your patch changes, along with the
-expiry addition. Neither of which should make any change in performance,
-since you should normally not time commands out. Do you normally get
-lots of errors or timeouts running that workload?
+ipw2200 in 2.6.13-rc1-mm1 makes use of is_broadcast_ether_addr, which was 
+removed.
 
-I don't see how your patch changes anything for a normally running
-ide-floppy.
+The attached patch restores that function for now.
 
--- 
-Jens Axboe
+LLaP
+bero
 
+--Boundary-00=_JzWxCn3y4oUeHAW
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="2.6.13-rc1-mm1-restore-is_broadcast_ether_addr.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="2.6.13-rc1-mm1-restore-is_broadcast_ether_addr.patch"
+
+--- linux-2.6.13-rc1/include/net/ieee80211.h.ark	2005-07-01 17:46:22.000000000 +0200
++++ linux-2.6.13-rc1/include/net/ieee80211.h	2005-07-01 17:47:26.000000000 +0200
+@@ -627,6 +627,11 @@
+ #define MAC_FMT "%02x:%02x:%02x:%02x:%02x:%02x"
+ #define MAC_ARG(x) ((u8*)(x))[0],((u8*)(x))[1],((u8*)(x))[2],((u8*)(x))[3],((u8*)(x))[4],((u8*)(x))[5]
+ 
++extern inline int is_broadcast_ether_addr(const u8 *addr)
++{
++	return ((addr[0] == 0xff) && (addr[1] == 0xff) && (addr[2] == 0xff) &&
++		(addr[3] == 0xff) && (addr[4] == 0xff) && (addr[5] == 0xff));
++}
+ 
+ #define CFG_IEEE80211_RESERVE_FCS (1<<0)
+ #define CFG_IEEE80211_COMPUTE_FCS (1<<1)
+
+--Boundary-00=_JzWxCn3y4oUeHAW--

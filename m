@@ -1,34 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261345AbVGAXUz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261626AbVGAX3E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261345AbVGAXUz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 19:20:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261626AbVGAXUy
+	id S261626AbVGAX3E (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 19:29:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262710AbVGAX3E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 19:20:54 -0400
-Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:60265 "EHLO
-	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
-	id S261345AbVGAXUv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 19:20:51 -0400
-X-IronPort-AV: i="3.93,252,1115017200"; 
-   d="scan'208"; a="285177671:sNHT25345068"
-To: Adrian Bunk <bunk@stusta.de>
+	Fri, 1 Jul 2005 19:29:04 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:34577 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261626AbVGAX3B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Jul 2005 19:29:01 -0400
+Date: Sat, 2 Jul 2005 01:28:59 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Roland Dreier <rolandd@cisco.com>
 Cc: Robert Love <rml@novell.com>, linux-kernel@vger.kernel.org
 Subject: Re: [-mm patch] inotify: fsnotify.h: use kstrdup
-X-Message-Flag: Warning: May contain useful information
-References: <20050701225559.GC3592@stusta.de>
-From: Roland Dreier <rolandd@cisco.com>
-Date: Fri, 01 Jul 2005 16:20:49 -0700
-In-Reply-To: <20050701225559.GC3592@stusta.de> (Adrian Bunk's message of
- "Sat, 2 Jul 2005 00:55:59 +0200")
-Message-ID: <52ekai15bi.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
-MIME-Version: 1.0
+Message-ID: <20050701232859.GD3592@stusta.de>
+References: <20050701225559.GC3592@stusta.de> <52ekai15bi.fsf@topspin.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <52ekai15bi.fsf@topspin.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Why not just convert all calls of fsnotify_oldname_init() to kstrdup()
-and delete the inline function?  The wrapper isn't adding much beyond
-hard-coding GFP_KERNEL.
+On Fri, Jul 01, 2005 at 04:20:49PM -0700, Roland Dreier wrote:
 
- - R.
+> Why not just convert all calls of fsnotify_oldname_init() to kstrdup()
+> and delete the inline function?  The wrapper isn't adding much beyond
+> hard-coding GFP_KERNEL.
+
+There's a different wrapper for CONFIG_INOTIFY=n.
+
+>  - R.
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

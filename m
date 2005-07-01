@@ -1,71 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263325AbVGAMyX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263329AbVGANBk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263325AbVGAMyX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 08:54:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263327AbVGAMyX
+	id S263329AbVGANBk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 09:01:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263330AbVGANBe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 08:54:23 -0400
-Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:28891 "EHLO
-	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S263325AbVGAMyN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 08:54:13 -0400
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Subject: Re: FUSE merging?
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Miklos Szeredi <miklos@szeredi.hu>, arjan@infradead.org,
-       linux-kernel@vger.kernel.org, frankvm@frankvm.com
-In-Reply-To: <20050701042955.39bf46ef.akpm@osdl.org>
-References: <E1DnvCq-0000Q4-00@dorka.pomaz.szeredi.hu>
-	 <20050630022752.079155ef.akpm@osdl.org>
-	 <E1Dnvhv-0000SK-00@dorka.pomaz.szeredi.hu>
-	 <1120125606.3181.32.camel@laptopd505.fenrus.org>
-	 <E1Dnw2J-0000UM-00@dorka.pomaz.szeredi.hu>
-	 <1120126804.3181.34.camel@laptopd505.fenrus.org>
-	 <1120129996.5434.1.camel@imp.csi.cam.ac.uk>
-	 <20050630124622.7c041c0b.akpm@osdl.org>
-	 <E1DoF86-0002Kk-00@dorka.pomaz.szeredi.hu>
-	 <20050630235059.0b7be3de.akpm@osdl.org>
-	 <E1DoFcK-0002Ox-00@dorka.pomaz.szeredi.hu>
-	 <20050701001439.63987939.akpm@osdl.org>
-	 <E1DoG6p-0002Rf-00@dorka.pomaz.szeredi.hu>
-	 <20050701010229.4214f04e.akpm@osdl.org>
-	 <E1DoIUz-0002a5-00@dorka.pomaz.szeredi.hu>
-	 <20050701042955.39bf46ef.akpm@osdl.org>
-Content-Type: text/plain
-Organization: Computing Service, University of Cambridge, UK
-Date: Fri, 01 Jul 2005 13:53:54 +0100
-Message-Id: <1120222434.23346.16.camel@imp.csi.cam.ac.uk>
+	Fri, 1 Jul 2005 09:01:34 -0400
+Received: from wproxy.gmail.com ([64.233.184.201]:61028 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S263329AbVGANB0 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Jul 2005 09:01:26 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=emtTCguRCZoyrAvvWZ78Gw3l28dBLm64Gi0VMYAm/iDpvhe6ywYf98ZLDBVWZ8gpLmURCBTO2GJucTmlPp/kjAFEuSV4TY/EEHwXmZrthoeM36AaA75k4H9yNJ/xxnoSJB2FaYsDYOaWTcrTl9XRY2bMTKgyVqppTvdtfOW3pT4=
+Message-ID: <f0cc385605070106017d05c0ff@mail.gmail.com>
+Date: Fri, 1 Jul 2005 15:01:26 +0200
+From: "M." <vo.sinh@gmail.com>
+Reply-To: "M." <vo.sinh@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: reiser4 plugins
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-07-01 at 04:29 -0700, Andrew Morton wrote:
-> Sorry, but I'm not buying it.  I still don't see a solid reason why all
-> this could not be done with nfs/v9fs, some kernel tweaks and the rest in
-> userspace.  It would take some effort, but that effort would end up
-> strengthening existing kernel capabilities rather than adding brand new
-> things, which is good.
+On 6/28/05, Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
+> Markus   Törnqvist <mjt@nysv.org> wrote:
+> > On Thu, Jun 23, 2005 at 11:34:50PM -0400, Horst von Brand wrote:
+> > >David Masover <ninja@slaphack.com> wrote:
+> > >> I think Hans (or someone) decided that when hardware stops working, it's
+> > >> not the job of the FS to compensate, it's the job of lower layers, or
+> > >> better, the job of the admin to replace the disk and restore from
+> > >> backups.
+>
+> > >Handling other people's data this way is just reckless irresponsibility.
+> > >Sure, you can get high performance if you just forego some of your basic
+> > >responsibilities.
+>
+> > Your honest-to-bog opinion is that the FS vendor is responsible for
+> > the admin not taking backups or the hardware vendor shipping crap?
+>
+> No. But just relying on perfect hardware and concientious sysadmins is
+> reckless. Hardware /is/ flaky, sysadmins /are/ (sometimes) lazy (and
+> besides, today they are increasingly just plain Joe Sixpack users). Also,
+> backing up a few hundred GiB is /not/ fun, and then keeping track of all
+> the backups is messy.
+>
+> Also, I'm not claiming that they are /solely/ responsible, but not having
+> the filesystem fall apart utterly every time some bug breaths on it /is/ a
+> requirement.
+>
+Bug ? We're speaking about bad blocks NOT bugs...
 
-FUSE is a generic FS API which is _very_ easy to write an FS for
-(learning curve is about 10-15 minutes starting after you have unpacked
-the fuse source code, at least it took me that long to start writing an
-FS based on the example one provided).  NFS is not anything like that.
+When your hard disk get a bad block you can't keep using it and rely
+on the "badblocks-proof filesystem structure that prevents you to do
+backups"..even with FAT, the simpler filesystem structure around, if
+you keep using you disk you are likely going to loose some data (yes,
+maybe not entire files). But, even with the metadata's richer
+filesystem, if you detect the first badblock you can save almost
+everything.
 
-Also can the NFS approach provide me with different content depending on
-the uid of the accessing process?  With FUSE that is easy as pie.  Even
-easier than that actually...
+Does it really makes sense to design a filesystem in a way that gives
+users some more time to use their filesystem from the first happened
+badblock or it's better to focus on new features that give better
+everyday use in terms of performance, functionalities, etc ?
 
-Best regards,
+And, are you sure that users who dont do and dont know they have to do
+backups of sensitive data are able to recover a corrupted filesystem ?
 
-        Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+> > *still trying to understand how that can be*
+>
+> You haven't been around too much yet, do you?
+> --
+> Dr. Horst H. von Brand                   User #22616 counter.li.org
+> Departamento de Informatica                     Fono: +56 32 654431
+> Universidad Tecnica Federico Santa Maria              +56 32 654239
+> Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
+Michele
+--
+"Share your knowledge. It is a way to achieve immortality."

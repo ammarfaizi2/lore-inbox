@@ -1,60 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261409AbVGAXcc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261348AbVGAXgW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261409AbVGAXcc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 19:32:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261348AbVGAXcb
+	id S261348AbVGAXgW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 19:36:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261636AbVGAXgW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 19:32:31 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:19591 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261632AbVGAXb4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 19:31:56 -0400
-Date: Fri, 1 Jul 2005 19:31:55 -0400
-From: Dave Jones <davej@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix up non-NUMA breakage in mmzone.h
-Message-ID: <20050701233155.GC10534@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	linux-kernel@vger.kernel.org
-References: <20050701212606.GA2970@redhat.com>
+	Fri, 1 Jul 2005 19:36:22 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:28877 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S261348AbVGAXgS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Jul 2005 19:36:18 -0400
+Subject: Re: [-mm patch] inotify: fsnotify.h: use kstrdup
+From: Robert Love <rml@novell.com>
+To: Roland Dreier <rolandd@cisco.com>
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <52ekai15bi.fsf@topspin.com>
+References: <20050701225559.GC3592@stusta.de>  <52ekai15bi.fsf@topspin.com>
+Content-Type: text/plain
+Date: Fri, 01 Jul 2005 19:36:16 -0400
+Message-Id: <1120260976.7270.23.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050701212606.GA2970@redhat.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 01, 2005 at 05:26:07PM -0400, Dave Jones wrote:
- > I was wondering why the rawhide gcc (4.0.0 20050622 (Red Hat 4.0.0-13))
- > blew up whilst trying to compile -rc3 and newer, with this informative
- > error..
- > 
- > include/asm/mmzone.h:154: error: syntax error before numeric constant
+On Fri, 2005-07-01 at 16:20 -0700, Roland Dreier wrote:
+> Why not just convert all calls of fsnotify_oldname_init() to kstrdup()
+> and delete the inline function?  The wrapper isn't adding much beyond
+> hard-coding GFP_KERNEL.
 
-If CONFIG_NUMA isn't set, we use the define in <linux/mmzone.h>
-for early_pfn_to_nid (which defines it to 0).
+Good idea, but the function is different if !CONFIG_INOTIFY.  It exists
+to save us some ugly ifdefs in the source.
 
-Because of this, the prototype needs to move inside the CONFIG_NUMA
-too, or anal gcc's get really confused.
+	Robert Love
 
-Signed-off-by: Dave Jones <davej@redhat.com>
 
---- linux-2.6.12/include/asm-i386/mmzone.h~	2005-07-01 18:30:14.000000000 -0400
-+++ linux-2.6.12/include/asm-i386/mmzone.h	2005-07-01 18:30:30.000000000 -0400
-@@ -37,6 +37,8 @@ static inline void get_memcfg_numa(void)
- 	get_memcfg_numa_flat();
- }
- 
-+extern int early_pfn_to_nid(unsigned long pfn);
-+
- #else /* !CONFIG_NUMA */
- #define get_memcfg_numa get_memcfg_numa_flat
- #define get_zholes_size(n) (0)
-@@ -149,6 +151,4 @@ static inline int pfn_valid(int pfn)
- 
- #endif /* CONFIG_NEED_MULTIPLE_NODES */
- 
--extern int early_pfn_to_nid(unsigned long pfn);
--
- #endif /* _ASM_MMZONE_H_ */

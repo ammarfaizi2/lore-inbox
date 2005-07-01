@@ -1,66 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262542AbVGAUrQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262332AbVGAUvC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262542AbVGAUrQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 16:47:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262560AbVGAUrP
+	id S262332AbVGAUvC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 16:51:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261585AbVGAUvB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 16:47:15 -0400
-Received: from web50713.mail.yahoo.com ([68.142.224.80]:39321 "HELO
-	web50713.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262542AbVGAUnz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 16:43:55 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=6fyd2MUUMUAxxyowJNCFovDemzk6AczlAHVtKS7pwwVbduq9iLKig/qlbXdOmdhiPW3eEI1G/oJxV35r2yWMmPoeMMEgs2yffPdLjU/csQB9f/lV2lUmo6L37NyMaSTFevExfyXElCffwpT6WVvDqSUifcpqiRVVWGjvFRadfOY=  ;
-Message-ID: <20050701204351.94386.qmail@web50713.mail.yahoo.com>
-Date: Fri, 1 Jul 2005 13:43:51 -0700 (PDT)
-From: Badari Pulavarty <pbadari@yahoo.com>
-Subject: [PATCH] 2.6.13-rc1-mm1 audit_log_start() warning fix
-To: akpm <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="0-1074257400-1120250631=:94063"
-Content-Transfer-Encoding: 8bit
+	Fri, 1 Jul 2005 16:51:01 -0400
+Received: from mail.kroah.org ([69.55.234.183]:10465 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262560AbVGAUru (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Jul 2005 16:47:50 -0400
+Date: Fri, 1 Jul 2005 13:47:41 -0700
+From: Greg KH <gregkh@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: [GIT PATCH] PCI patches for 2.6.13-rc1
+Message-ID: <20050701204741.GA1137@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0-1074257400-1120250631=:94063
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Content-Id: 
-Content-Disposition: inline
+Here are some PCI patches against your latest git tree.  These are the
+rest of the PCI patches that have been in the -mm tree for a while, with
+(hopefully) the patches that caused all the pcmcia problems removed.
 
-Hi Andrew,
+Please pull from:
+	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/pci-2.6.git/
+or if master.kernel.org hasn't synced up yet:
+	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/pci-2.6.git/
 
-audit_log_start() seems to take 3 arguments, but
-its defined to take only 2 when AUDIT is turned
-off. Simple patch to fix it.
+The full patches will be sent to the linux-kernel and linux-pci mailing
+lists, if anyone wants to see them.
 
-security/selinux/avc.c:553:75: macro "audit_log_start"
-passed 3 arguments, but takes just 2
+thanks,
 
-Thanks,
-Badari
+greg k-h
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
---0-1074257400-1120250631=:94063
-Content-Type: text/x-patch; name="audit-log-start-fix.patch"
-Content-Description: 2444494241-audit-log-start-fix.patch
-Content-Disposition: inline; filename="audit-log-start-fix.patch"
 
---- linux-2.6.13-rc1.org/include/linux/audit.h	2005-07-01 12:57:31.000000000 -0700
-+++ linux-2.6.13-rc1/include/linux/audit.h	2005-07-01 13:24:21.000000000 -0700
-@@ -286,7 +286,7 @@ extern void		    audit_log_lost(const ch
- extern struct semaphore audit_netlink_sem;
- #else
- #define audit_log(c,t,f,...) do { ; } while (0)
--#define audit_log_start(c,t) ({ NULL; })
-+#define audit_log_start(c,g,t) ({ NULL; })
- #define audit_log_vformat(b,f,a) do { ; } while (0)
- #define audit_log_format(b,f,...) do { ; } while (0)
- #define audit_log_end(b) do { ; } while (0)
+ arch/i386/kernel/cpu/cpufreq/gx-suspmod.c |    2 
+ arch/i386/pci/common.c                    |    1 
+ arch/i386/pci/i386.c                      |   11 +
+ drivers/char/hw_random.c                  |    2 
+ drivers/char/watchdog/i8xx_tco.c          |    2 
+ drivers/ide/setup-pci.c                   |    2 
+ drivers/parport/parport_pc.c              |    2 
+ drivers/pci/Makefile                      |    1 
+ drivers/pci/hotplug.c                     |    2 
+ drivers/pci/pci-driver.c                  |  196 ++++++++++--------------------
+ drivers/pci/pci.c                         |    6 
+ drivers/pci/pcie/portdrv.h                |    5 
+ drivers/pci/pcie/portdrv_core.c           |    8 +
+ drivers/pci/pcie/portdrv_pci.c            |   79 +++++++++++-
+ drivers/pci/probe.c                       |   24 +++
+ drivers/pci/quirks.c                      |    1 
+ drivers/pci/setup-bus.c                   |    2 
+ include/linux/pci-dynids.h                |   18 --
+ include/linux/pci.h                       |    5 
+ sound/pci/bt87x.c                         |    2 
+ 20 files changed, 205 insertions(+), 166 deletions(-)
 
---0-1074257400-1120250631=:94063--
+------------
+
+Andy Whitcroft:
+  gregkh-pci-pci-assign-unassigned-resources fix
+
+Greg Kroah-Hartman:
+  PCI: clean up dynamic pci id logic
+  PCI: Fix up PCI routing in parent bridge
+
+Hannes Reinecke:
+  PCI: Remove newline from pci MODALIAS variable
+
+Ivan Kokshaysky:
+  PCI: handle subtractive decode pci-pci bridge better
+  PCI: pci_assign_unassigned_resources() on x86
+
+Jean Delvare:
+  PCI: Add PCI quirk for SMBus on the Asus P4B-LX
+
+John W. Linville:
+  pci: cleanup argument comments for pci_{save,restore}_state
+
+long:
+  PCI: acpi tg3 ethernet not coming back properly after S3 suspendon DellM70
+
+rajesh.shah@intel.com:
+  PCI: Increase the number of PCI bus resources
+

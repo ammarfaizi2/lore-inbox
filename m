@@ -1,75 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262362AbVGAUid@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262367AbVGAUkv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262362AbVGAUid (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 16:38:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262332AbVGAUid
+	id S262367AbVGAUkv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 16:40:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262332AbVGAUir
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 16:38:33 -0400
-Received: from mail.kroah.org ([69.55.234.183]:35292 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262362AbVGAUfm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 16:35:42 -0400
-Date: Fri, 1 Jul 2005 13:35:26 -0700
-From: Greg KH <greg@kroah.com>
-To: serue@us.ibm.com
-Cc: lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@osdl.org>,
-       Stephen Smalley <sds@epoch.ncsc.mil>, James Morris <jmorris@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, Michael Halcrow <mhalcrow@us.ibm.com>,
-       David Safford <safford@watson.ibm.com>,
-       Reiner Sailer <sailer@us.ibm.com>, Gerrit Huizenga <gerrit@us.ibm.com>
-Subject: Re: [patch 5/12] lsm stacking v0.2: actual stacker module
-Message-ID: <20050701203526.GA824@kroah.com>
-References: <20050630194458.GA23439@serge.austin.ibm.com> <20050630195043.GE23538@serge.austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050630195043.GE23538@serge.austin.ibm.com>
-User-Agent: Mutt/1.5.8i
+	Fri, 1 Jul 2005 16:38:47 -0400
+Received: from alog0205.analogic.com ([208.224.220.220]:40419 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262367AbVGAUgE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Jul 2005 16:36:04 -0400
+Date: Fri, 1 Jul 2005 16:34:39 -0400 (EDT)
+From: "Richard B. Johnson" <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Christoph Lameter <christoph@lameter.com>
+cc: Andi Kleen <ak@suse.de>, Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Read only syscall tables for x86_64 and i386
+In-Reply-To: <Pine.LNX.4.62.0507011302090.19234@graphe.net>
+Message-ID: <Pine.LNX.4.61.0507011624320.5188@chaos.analogic.com>
+References: <Pine.LNX.4.62.0506281141050.959@graphe.net.suse.lists.linux.kernel>
+ <p73r7emuvi1.fsf@verdi.suse.de> <Pine.LNX.4.62.0506281238320.1734@graphe.net>
+ <20050629024903.GA21575@bragg.suse.de> <Pine.LNX.4.62.0507011302090.19234@graphe.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 30, 2005 at 02:50:43PM -0500, serue@us.ibm.com wrote:
-> +/* variables to hold kobject/sysfs data */
-> +static struct subsystem stacker_subsys;
+On Fri, 1 Jul 2005, Christoph Lameter wrote:
 
-Use decl_subsys please.
+> On Wed, 29 Jun 2005, Andi Kleen wrote:
+>
+>> On Tue, Jun 28, 2005 at 12:41:59PM -0700, Christoph Lameter wrote:
+>>> On Tue, 28 Jun 2005, Andi Kleen wrote:
+>>>
+>>>> It's unfortunately useless because all the kernel is mapped in the
+>>>> same 2 or 4MB page has to be writable because it overlaps with real
+>>>> direct mapped memory.
+>>>
+>>> The question is: Are syscall tables are supposed to be
+>>> writable? If no then this patch should go in. If yes then forget about it.
+>>
+>> I think it would make sense in theory to write protect them
+>> together with the kernel code and the modules
+>> (just to make root kit writing slightly harder)
+>
+> Seems that you are evading the question that I asked. Are syscall tables
+> supposed to be writable?
+>
+>> BTW the kernel actually needs to write to code once
+>> to apply alternative(), but it would't be a problem to use
+>> a temporary mapping for this.
+>
+> What does this have to do with the syscall table???
+>
+>>> The ability to protect a readonly section may be another issue.
+>>
+>> Well, it's the overriding issue here. Just pretending it's readonly
+>> when it isn't doesn't seem useful.
+>
+> This is all are off-topic talking about a different issue. And we are
+> already "pretending" that lots of other stuff in the readonly section is
+> readonly.
+>
+> The issue is correct placement of variables. Read only variables are
+> placed in a different section and the syscall tables are read only and
+> need to be place in the correct section.
 
-And yes, James is right, only value per sysfs file is allowed.
+I modified my sycall table to put it in ".section .rodata". It appears
+as though read-only is not enforced in the kernel. I don't know
+why because, at least with ix86, both data and code can be made read-
+only.
 
-> +	result = subsystem_register(&stacker_subsys);
+You just write to it with a segment descriptor that allows R/W, then
+use another for R/O.  It is true that kernel code can create any
+segment descriptor it wants, dynamically, thus a properly-written
+program can ultimately write to what was once R/O data. However,
+I think it should default to R/O which should cut down on the
+number of cheap hacks that can damage it.
 
-Why are you putting this at the root of sysfs.  It should go in
-/sys/kernel/security/ right?  Please put it there.
-
-> +	sysfs_create_file(&stacker_subsys.kset.kobj,
-> +			&stacker_attr_lockdown.attr);
-> +	sysfs_create_file(&stacker_subsys.kset.kobj,
-> +			&stacker_attr_listmodules.attr);
-> +	sysfs_create_file(&stacker_subsys.kset.kobj,
-> +			&stacker_attr_stop_responding.attr);
-> +	sysfs_create_file(&stacker_subsys.kset.kobj,
-> +			&stacker_attr_unload.attr);
-
-Hm, I think those functions return error values, you might want to check
-them...
-
-> +	sysfsfiles_registered = 1;
-
-Why?  You know if this works or not, otherwise you would have failed
-here.
-
-> +	printk(KERN_NOTICE "LSM stacker registered as the primary "
-> +			   "security module\n");
-
-And everyone really wants to see this in their logs?
-
-> +	if (unregister_security (&stacker_ops))
-> +		printk(KERN_WARNING "Error unregistering LSM stacker.\n");
-> +	else
-> +		printk(KERN_WARNING "LSM stacker removed.\n");
-
-Same here as above...
-
-thanks,
-
-greg k-h
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.12 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

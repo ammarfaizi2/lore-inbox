@@ -1,74 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263314AbVGANH6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263331AbVGANKU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263314AbVGANH6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 09:07:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263333AbVGANH5
+	id S263331AbVGANKU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 09:10:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263334AbVGANIU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 09:07:57 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:7664 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263314AbVGANH2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 09:07:28 -0400
-From: Kevin Corry <kevcorry@us.ibm.com>
-Organization: IBM
-To: Andrew Morton <akpm@osdl.org>, zhaoqian@aaastor.com
-Subject: Re: [PATCH] device-mapper: dm-raid1: Limit bios to size of mirror region
-Date: Fri, 1 Jul 2005 07:56:35 -0500
-User-Agent: KMail/1.8
-Cc: Alasdair G Kergon <agk@redhat.com>, linux-kernel@vger.kernel.org
-References: <20050630181931.GL4211@agk.surrey.redhat.com> <20050701002626.630c2b7d.akpm@osdl.org>
-In-Reply-To: <20050701002626.630c2b7d.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 1 Jul 2005 09:08:20 -0400
+Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:16004 "EHLO
+	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S263330AbVGANHn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Jul 2005 09:07:43 -0400
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Subject: Re: FUSE merging?
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Miklos Szeredi <miklos@szeredi.hu>, arjan@infradead.org,
+       linux-kernel@vger.kernel.org, frankvm@frankvm.com
+In-Reply-To: <1120222434.23346.16.camel@imp.csi.cam.ac.uk>
+References: <E1DnvCq-0000Q4-00@dorka.pomaz.szeredi.hu>
+	 <20050630022752.079155ef.akpm@osdl.org>
+	 <E1Dnvhv-0000SK-00@dorka.pomaz.szeredi.hu>
+	 <1120125606.3181.32.camel@laptopd505.fenrus.org>
+	 <E1Dnw2J-0000UM-00@dorka.pomaz.szeredi.hu>
+	 <1120126804.3181.34.camel@laptopd505.fenrus.org>
+	 <1120129996.5434.1.camel@imp.csi.cam.ac.uk>
+	 <20050630124622.7c041c0b.akpm@osdl.org>
+	 <E1DoF86-0002Kk-00@dorka.pomaz.szeredi.hu>
+	 <20050630235059.0b7be3de.akpm@osdl.org>
+	 <E1DoFcK-0002Ox-00@dorka.pomaz.szeredi.hu>
+	 <20050701001439.63987939.akpm@osdl.org>
+	 <E1DoG6p-0002Rf-00@dorka.pomaz.szeredi.hu>
+	 <20050701010229.4214f04e.akpm@osdl.org>
+	 <E1DoIUz-0002a5-00@dorka.pomaz.szeredi.hu>
+	 <20050701042955.39bf46ef.akpm@osdl.org>
+	 <1120222434.23346.16.camel@imp.csi.cam.ac.uk>
+Content-Type: text/plain
+Organization: Computing Service, University of Cambridge, UK
+Date: Fri, 01 Jul 2005 14:07:28 +0100
+Message-Id: <1120223248.23346.23.camel@imp.csi.cam.ac.uk>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507010756.36015.kevcorry@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri July 1 2005 2:26 am, Andrew Morton wrote:
-> Alasdair G Kergon <agk@redhat.com> wrote:
-> > --- diff/drivers/md/dm-raid1.c 2005-06-17 20:48:29.000000000 +0100
-> > +++ source/drivers/md/dm-raid1.c 2005-06-29 21:12:13.000000000 +0100
-> > @@ -1060,6 +1060,7 @@
-> >   }
-> >
-> >   ti->private = ms;
-> > +  ti->split_io = ms->rh->region_size;
-> >
-> >   r = kcopyd_client_create(DM_IO_PAGES, &ms->kcopyd_client);
-> >   if (r) {
->
-> Ahem.
->
-> drivers/md/dm-raid1.c: In function `mirror_ctr':
-> drivers/md/dm-raid1.c:1072: invalid type argument of `->'
->
-> ---
-> devel/drivers/md/dm-raid1.c~device-mapper-dm-raid1-limit-bios-to-size-of-mi
->rror-region-fix 2005-07-01 00:25:26.000000000 -0700 +++
-> devel-akpm/drivers/md/dm-raid1.c 2005-07-01 00:25:26.000000000 -0700 @@
-> -1060,7 +1060,7 @@ static int mirror_ctr(struct dm_target *
->   }
->
->   ti->private = ms;
-> -  ti->split_io = ms->rh->region_size;
-> +  ti->split_io = ms->rh.region_size;
->
->   r = kcopyd_client_create(DM_IO_PAGES, &ms->kcopyd_client);
->   if (r) {
->
-> How well tested was this?
+On Fri, 2005-07-01 at 13:53 +0100, Anton Altaparmakov wrote:
+> On Fri, 2005-07-01 at 04:29 -0700, Andrew Morton wrote:
+> > Sorry, but I'm not buying it.  I still don't see a solid reason why all
+> > this could not be done with nfs/v9fs, some kernel tweaks and the rest in
+> > userspace.  It would take some effort, but that effort would end up
+> > strengthening existing kernel capabilities rather than adding brand new
+> > things, which is good.
+> 
+> FUSE is a generic FS API which is _very_ easy to write an FS for
+> (learning curve is about 10-15 minutes starting after you have unpacked
+> the fuse source code, at least it took me that long to start writing an
+> FS based on the example one provided).  NFS is not anything like that.
+> 
+> Also can the NFS approach provide me with different content depending on
+> the uid of the accessing process?  With FUSE that is easy as pie.  Even
+> easier than that actually...
 
-Ehh...oops...sorry about that. :(
+I forgot:  And doesn't NFS require stable inode numbers and other
+"invariables" like that for it to work?  FUSE doesn't and those
+requirements are a real PITA in a lot of cases where there simply are no
+inodes and the numbers are synthetic and change on each remount or even
+on each access after the dentry has expired...
 
-Zhao, you reported this issue originally. Have you been able to test this yet 
-to see if it fixes the corruption problem you were describing? Or can you 
-give us a test-case that I can run?
+And I always thought that doing FS in userspace via NFS is considered an
+ugly hack.  I didn't have the impression that that had changed recently.
+(-;
 
+Best regards,
+
+        Anton
 -- 
-Kevin Corry
-kevcorry@us.ibm.com
-http://www.ibm.com/linux/
-http://evms.sourceforge.net/
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+

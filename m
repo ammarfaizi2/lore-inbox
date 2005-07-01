@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262713AbVGAU7E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261585AbVGAVD5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262713AbVGAU7E (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 16:59:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261585AbVGAU5u
+	id S261585AbVGAVD5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 17:03:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262763AbVGAU7k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 16:57:50 -0400
-Received: from mail.kroah.org ([69.55.234.183]:51681 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262713AbVGAUtj convert rfc822-to-8bit
+	Fri, 1 Jul 2005 16:59:40 -0400
+Received: from mail.kroah.org ([69.55.234.183]:52961 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262765AbVGAUtl convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 16:49:39 -0400
-Cc: hare@suse.de
-Subject: [PATCH] PCI: Remove newline from pci MODALIAS variable
-In-Reply-To: <11202509121851@kroah.com>
+	Fri, 1 Jul 2005 16:49:41 -0400
+Cc: linville@tuxdriver.com
+Subject: [PATCH] pci: cleanup argument comments for pci_{save,restore}_state
+In-Reply-To: <11202509122830@kroah.com>
 X-Mailer: gregkh_patchbomb
 Date: Fri, 1 Jul 2005 13:48:32 -0700
-Message-Id: <11202509122229@kroah.com>
+Message-Id: <11202509123@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,34 +24,45 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] PCI: Remove newline from pci MODALIAS variable
+[PATCH] pci: cleanup argument comments for pci_{save,restore}_state
 
-the pci core sends out a hotplug event variable MODALIAS with a trailing
-newline. This is inconsistent with all other event variables and breaks
-some hotplug tools. This patch removes the said newline.
+The buffer arguments have been removed from pci_{save,restore}_state.
+The comment blocks for those functions should reflect that.
 
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit c6e21e1683c2508a2b23588e1fc2e7bf6fc2549e
-tree 17e925938d956a3eb17aa59ce0d3add0957906e1
-parent 5823d100ae260d022b4dd5ec9cc0b85f0bf0d646
-author Hannes Reinecke <hare@suse.de> Tue, 28 Jun 2005 14:57:10 +0200
-committer Greg Kroah-Hartman <gregkh@suse.de> Fri, 01 Jul 2005 13:35:51 -0700
+commit 5848f23d811acc1cb6c19a12e1341e0640a85d0e
+tree 03281e4a15e538ffb18ab1f3f02a1b61736a8c84
+parent c6e21e1683c2508a2b23588e1fc2e7bf6fc2549e
+author John W. Linville <linville@tuxdriver.com> Fri, 01 Jul 2005 14:07:28 -0400
+committer Greg Kroah-Hartman <gregkh@suse.de> Fri, 01 Jul 2005 13:35:52 -0700
 
- drivers/pci/hotplug.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ drivers/pci/pci.c |    6 ------
+ 1 files changed, 0 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/pci/hotplug.c b/drivers/pci/hotplug.c
---- a/drivers/pci/hotplug.c
-+++ b/drivers/pci/hotplug.c
-@@ -54,7 +54,7 @@ int pci_hotplug (struct device *dev, cha
- 
- 	envp[i++] = scratch;
- 	length += scnprintf (scratch, buffer_size - length,
--			    "MODALIAS=pci:v%08Xd%08Xsv%08Xsd%08Xbc%02Xsc%02Xi%02x\n",
-+			    "MODALIAS=pci:v%08Xd%08Xsv%08Xsd%08Xbc%02Xsc%02Xi%02x",
- 			    pdev->vendor, pdev->device,
- 			    pdev->subsystem_vendor, pdev->subsystem_device,
- 			    (u8)(pdev->class >> 16), (u8)(pdev->class >> 8),
+diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -334,10 +334,6 @@ EXPORT_SYMBOL(pci_choose_state);
+ /**
+  * pci_save_state - save the PCI configuration space of a device before suspending
+  * @dev: - PCI device that we're dealing with
+- * @buffer: - buffer to hold config space context
+- *
+- * @buffer must be large enough to hold the entire PCI 2.2 config space 
+- * (>= 64 bytes).
+  */
+ int
+ pci_save_state(struct pci_dev *dev)
+@@ -352,8 +348,6 @@ pci_save_state(struct pci_dev *dev)
+ /** 
+  * pci_restore_state - Restore the saved state of a PCI device
+  * @dev: - PCI device that we're dealing with
+- * @buffer: - saved PCI config space
+- *
+  */
+ int 
+ pci_restore_state(struct pci_dev *dev)
 

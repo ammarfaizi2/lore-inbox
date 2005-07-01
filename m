@@ -1,63 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261566AbVGATy0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261182AbVGAT5I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261566AbVGATy0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 15:54:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261182AbVGATy0
+	id S261182AbVGAT5I (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 15:57:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262292AbVGAT5G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 15:54:26 -0400
-Received: from 69-18-3-179.lisco.net ([69.18.3.179]:59659 "EHLO
-	ninja.slaphack.com") by vger.kernel.org with ESMTP id S263426AbVGATsy
+	Fri, 1 Jul 2005 15:57:06 -0400
+Received: from 69-18-3-179.lisco.net ([69.18.3.179]:528 "EHLO
+	ninja.slaphack.com") by vger.kernel.org with ESMTP id S261182AbVGATy4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 15:48:54 -0400
-Message-ID: <42C59E36.6050006@slaphack.com>
-Date: Fri, 01 Jul 2005 14:49:10 -0500
+	Fri, 1 Jul 2005 15:54:56 -0400
+Message-ID: <42C59FA0.1090908@slaphack.com>
+Date: Fri, 01 Jul 2005 14:55:12 -0500
 From: David Masover <ninja@slaphack.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
 X-Accept-Language: en
 MIME-Version: 1.0
-To: "Theodore Ts'o" <tytso@mit.edu>
-Cc: dtor_core@ameritech.net, Markus T?rnqvist <mjt@nysv.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Hans Reiser <reiser@namesys.com>,
-       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: backup (was Re: reiser4 plugins)
-References: <42BB7B32.4010100@slaphack.com> <200506240334.j5O3YowB008100@laptop11.inf.utfsm.cl> <20050627092138.GD11013@nysv.org> <20050627124255.GB6280@thunk.org> <42C018E5.8030805@slaphack.com> <20050627162839.GA22799@thunk.org> <42C06BC6.7090002@slaphack.com> <20050630214950.GA14286@thunk.org> <d120d50005063015345a4968a@mail.gmail.com> <42C4EACC.7020604@slaphack.com> <20050701141952.GA2719@thunk.org>
-In-Reply-To: <20050701141952.GA2719@thunk.org>
+To: David Weinehall <tao@acc.umu.se>
+Cc: =?ISO-8859-1?Q?Markus_T=F6rnqvist?= <mjt@nysv.org>,
+       Douglas McNaught <doug@mcnaught.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Hubert Chan <hubert@uhoreg.ca>,
+       Kyle Moffett <mrmacman_g4@mac.com>, Valdis.Kletnieks@vt.edu,
+       Lincoln Dale <ltd@cisco.com>, Gregory Maxwell <gmaxwell@gmail.com>,
+       Hans Reiser <reiser@namesys.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: reiser4 plugins
+References: <200506290509.j5T595I6010576@laptop11.inf.utfsm.cl> <m2k6kd2rx8.fsf@Douglas-McNaughts-Powerbook.local> <20050629135820.GJ11013@nysv.org> <20050629205636.GN16867@khan.acc.umu.se> <42C4FA1A.1050100@slaphack.com> <20050701155446.GZ16867@khan.acc.umu.se>
+In-Reply-To: <20050701155446.GZ16867@khan.acc.umu.se>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Theodore Ts'o wrote:
-> Rule #3 from http://www.streamload.com/About/Legal_eng.asp?page=id73#
-> is pretty clear about what applies if you have a trial account (which
-> seems to be what you have since you say you'll cancel your account if
-> they charge you anything):
+David Weinehall wrote:
+> On Fri, Jul 01, 2005 at 03:08:58AM -0500, David Masover wrote:
 > 
->   3. Do not circumvent Freeloader download restrictions.
->   Any attempt to circumvent Freeloader trial account restrictions will
->   result in a permanent banishment from the Streamload community. This
->   includes (3a) files with an invalid or disguised file format; (3b)
->   encryption; (3c) steganography and/or (3d) creating multiple
->   freeloader accounts.
+>>David Weinehall wrote:
+>>
+>>
+>>>GNOME and KDE run on operating systems that run other kernels than
+>>>Linux, hence they have to implement their own userland VFS anyway.
+>>>Adding this to the Linux kernel won't help them one bit, unless
+>>>we can magically convince Sun to add it to Solaris, all different
+>>>BSD:s to add it to their kernels, etc.  Not going to happen.
+>>>An effort to get GNOME and KDE to unify their VFS:s would be
+>>>far more benificial,
+>>
+>>Than what?  Creating a unified VFS which I can access from Bash, and 
+>>which obsoletes both GNOME and KDE's VFSes except in their presentation?
 > 
-> You can interpret that whatever way you like, but if you're that
-> cavalier with your data, hey, I'm not sure _I'd_ trust your judgement
-> about which filesystem to trust.  :-)
+> 
+> On one of the platforms that they support, yes.  But only for kernels
+> newer than 2.6.yy...  So they'd still have to have their own VFS for
+> 2.4.xx, 2.6.xx (xx < yy), FreeBSD, OpenBSD, Solaris, etc...
 
-Streamload is one possibility.  There are others -- gmail and such. 
-This is just what can be had *for*free*.
+Right.  But, /proc started somewhere, didn't it?
 
-For that matter, the uploading process doesn't require a user to agree 
-to those terms at all.  There's a module in CPAN that allows an upload, 
-and never asks me to agree to any terms, nor does it ask me for an 
-account password.
+I have the feeling that other systems will duplicate it if it's good.
 
-I don't have multiple accounts, I don't *use* the encryption to attempt 
-to circumvent the download restrictions, especially considering that 
-said download restrictions don't even come into play until I need a 
-restore.  By the time I do need a restore, I'm willing to pay money, as 
-100 megs a month is certainly not going to be enough.
+Even if they don't, it would be more beneficial to me and probably most 
+Linux users to have metafs supported in both GNOME and KDE, even if they 
+still need an emulation layer to support other systems.
+
+I agree that the emulation layer should be common.
+
+>>>FreeDesktop is doing a lot of work to make GNOME, KDE, and other
+>>>DE:s interoperate as much as possible.  Support their initiative
+>>>instead of trying to get a monstrosity (albeit a very cool one,
+>>>conceptually) into the kernel.  Sure, it could be made to work,
+>>>but not without dropping our Unixness.
+>>
+>>(I'm talking about the metafs (/meta) idea, which isn't nearly as much a 
+>>monstrocity, and doesn't kill our unixness, it enhances it.)
+> 
+> 
+> Which would neither need VFS changes nor be dependent on Reiser4 in
+> any way, so I don't see why this thread lives on.  Just get down to
+> business and implement this metafs =)
+
+I am trying, at least getting the conceptual glitches ironed out.
+
+But, it does need GNOME/KDE VFS changes in order to be sane -- 
+otherwise, GNOME/KDE will duplicate it, creating even more of a mess 
+than we already have.
+
+I'm not sure why the thread still lives, but now that I've typed this, I 
+may as well send it...

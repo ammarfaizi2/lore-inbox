@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262601AbVGAU5t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263207AbVGAVOM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262601AbVGAU5t (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 16:57:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262565AbVGAU4V
+	id S263207AbVGAVOM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 17:14:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262560AbVGAUzb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 16:56:21 -0400
-Received: from mail.kroah.org ([69.55.234.183]:50401 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262601AbVGAUti convert rfc822-to-8bit
+	Fri, 1 Jul 2005 16:55:31 -0400
+Received: from mail.kroah.org ([69.55.234.183]:50657 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262617AbVGAUti convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 1 Jul 2005 16:49:38 -0400
-Cc: ink@jurassic.park.msu.ru
-Subject: [PATCH] PCI: handle subtractive decode pci-pci bridge better
-In-Reply-To: <11202509111375@kroah.com>
+Cc: khali@linux-fr.org
+Subject: [PATCH] PCI: Add PCI quirk for SMBus on the Asus P4B-LX
+In-Reply-To: <11202509124001@kroah.com>
 X-Mailer: gregkh_patchbomb
 Date: Fri, 1 Jul 2005 13:48:32 -0700
-Message-Id: <11202509121295@kroah.com>
+Message-Id: <11202509121851@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,48 +24,34 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] PCI: handle subtractive decode pci-pci bridge better
+[PATCH] PCI: Add PCI quirk for SMBus on the Asus P4B-LX
 
-With the number of PCI bus resources increased to 8, we can
-handle the subtractive decode PCI-PCI bridge like a normal
-bridge, taking into account standard PCI-PCI bridge windows
-(resources 0-2). This helps to avoid problems with peer-to-peer DMA
-behind such bridges, poor performance for MMIO ranges outside bridge
-windows and prefetchable vs. non-prefetchable memory issues.
+One more Asus motherboard requiring the SMBus quirk (P4B-LX). Original
+patch from Salah Coronya.
 
-To reflect the fact that such bridges do forward all addresses to
-the secondary bus (transparency), remaining bus resources 3-7 are
-linked to resources 0-4 of the primary bus. These resources will be
-used as fallback by resource management code if allocation from
-standard bridge windows fails for some reason.
-
-Signed-off-by: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Acked-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Signed-off-by: Salah Coronya <salahx@yahoo.com>
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit 90b54929b626c80056262d9d99b3f48522e404d0
-tree d5cb91ff7bd0ac9ffeab5f7bf68235e8b35d050c
-parent a03fa955576af50df80bec9127b46ef57e0877c0
-author Ivan Kokshaysky <ink@jurassic.park.msu.ru> Tue, 07 Jun 2005 04:07:02 +0400
-committer Greg Kroah-Hartman <gregkh@suse.de> Fri, 01 Jul 2005 13:35:50 -0700
+commit a00db371624e2e3718e5ab7d73bf364681098106
+tree e1911719bc7bb14eb806b93950ac8c73e5f77e19
+parent 75865858971add95809c5c9cd35dc4cfba08e33b
+author Jean Delvare <khali@linux-fr.org> Wed, 29 Jun 2005 17:04:06 +0200
+committer Greg Kroah-Hartman <gregkh@suse.de> Fri, 01 Jul 2005 13:35:51 -0700
 
- drivers/pci/probe.c |    5 ++---
- 1 files changed, 2 insertions(+), 3 deletions(-)
+ drivers/pci/quirks.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
---- a/drivers/pci/probe.c
-+++ b/drivers/pci/probe.c
-@@ -239,9 +239,8 @@ void __devinit pci_read_bridge_bases(str
- 
- 	if (dev->transparent) {
- 		printk(KERN_INFO "PCI: Transparent bridge - %s\n", pci_name(dev));
--		for(i = 0; i < PCI_BUS_NUM_RESOURCES; i++)
--			child->resource[i] = child->parent->resource[i];
--		return;
-+		for(i = 3; i < PCI_BUS_NUM_RESOURCES; i++)
-+			child->resource[i] = child->parent->resource[i - 3];
- 	}
- 
- 	for(i=0; i<3; i++)
+diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -767,6 +767,7 @@ static void __init asus_hides_smbus_host
+ 	if (unlikely(dev->subsystem_vendor == PCI_VENDOR_ID_ASUSTEK)) {
+ 		if (dev->device == PCI_DEVICE_ID_INTEL_82845_HB)
+ 			switch(dev->subsystem_device) {
++			case 0x8025: /* P4B-LX */
+ 			case 0x8070: /* P4B */
+ 			case 0x8088: /* P4B533 */
+ 			case 0x1626: /* L3C notebook */
 

@@ -1,56 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263410AbVGATeV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263437AbVGATeZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263410AbVGATeV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 15:34:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263440AbVGATeV
+	id S263437AbVGATeZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 15:34:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263440AbVGATeZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 15:34:21 -0400
-Received: from smtp-3.llnl.gov ([128.115.41.83]:65161 "EHLO smtp-3.llnl.gov")
-	by vger.kernel.org with ESMTP id S263410AbVGATeQ (ORCPT
+	Fri, 1 Jul 2005 15:34:25 -0400
+Received: from [62.206.217.67] ([62.206.217.67]:14317 "EHLO kaber.coreworks.de")
+	by vger.kernel.org with ESMTP id S263437AbVGATeU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 15:34:16 -0400
-Date: Fri, 01 Jul 2005 12:34:13 -0700 (PDT)
-From: Chuck Harding <charding@llnl.gov>
-Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.50-24
-In-reply-to: <20050701071850.GA18926@elte.hu>
-To: Linux Kernel Discussion List <linux-kernel@vger.kernel.org>
-Message-id: <Pine.LNX.4.63.0507011220280.5411@ghostwheel.llnl.gov>
-Organization: Lawrence Livermore National Laboratory
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-Content-transfer-encoding: 7BIT
-User-Agent: Pine/4.62 (X11; U; Linux i686; en-US; rv:2.6.11-rc2-mm1)
-References: <200506281927.43959.annabellesgarden@yahoo.de>
- <200506301952.22022.annabellesgarden@yahoo.de> <20050630205029.GB1824@elte.hu>
- <200507010027.33079.annabellesgarden@yahoo.de> <20050701071850.GA18926@elte.hu>
+	Fri, 1 Jul 2005 15:34:20 -0400
+Message-ID: <42C59ABA.1070305@trash.net>
+Date: Fri, 01 Jul 2005 21:34:18 +0200
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.8) Gecko/20050514 Debian/1.7.8-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Thomas Graf <tgraf@suug.ch>
+CC: Patrick Jenkins <patjenk@wam.umd.edu>, linux-kernel@vger.kernel.org,
+       Maillist netdev <netdev@oss.sgi.com>
+Subject: Re: [PATCH] multipath routing algorithm, better patch
+References: <Pine.GSO.4.61.0506302014160.7400@rac1.wam.umd.edu> <42C4919A.5000009@trash.net> <20050701174117.GW16076@postel.suug.ch>
+In-Reply-To: <20050701174117.GW16076@postel.suug.ch>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Jul 2005, Ingo Molnar wrote:
+Thomas Graf wrote:
+> * Patrick McHardy <42C4919A.5000009@trash.net> 2005-07-01 02:43
+> 
+>>If it isn't set correctly its an iproute problem. Did you actually
+>>experience any problems?
+> 
+> Well, my patch for iproute2 to enable multipath algorithm selection
+> is currently being merged to Stephen together with the ematch bits.
+> We had to work out a dependency on GNU flex first (the berkley
+> version uses the same executable names) so the inclusion was
+> delayed a bit.
 
->
-> * Karsten Wiese <annabellesgarden@yahoo.de> wrote:
->
->> Ooops, you didn't apply this part of the patch:
->
-> oops - i had it in my tree (so all my tests passed), but it escaped the
-> -39 patch. I've uploaded -50-40 with this included too.
->
-> 	Ingo
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+So its no problem but simply missing support. BTW, do you know if
+Stephen's new CVS repository is exported somewhere?
 
-Well, the -50-42 still has the problem with sox locking up too tightly to
-kill. Just saw that the sox processes are all in state 'D', FWIW.
-
--- 
-Charles D. (Chuck) Harding <charding@llnl.gov>  Voice: 925-423-8879
-Senior Computer Associate         ICCD            Fax: 925-423-6961
-Lawrence Livermore National Laboratory      Computation Directorate
-Livermore, CA USA  http://www.llnl.gov  GPG Public Key ID: B9EB6601
------------------- http://tinyurl.com/5w5ey -----------------------
--- Bad breath is better than no breath. --
+Regards
+Patrick

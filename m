@@ -1,49 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263313AbVGANGu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263314AbVGANH6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263313AbVGANGu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 09:06:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263331AbVGANGk
+	id S263314AbVGANH6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 09:07:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263333AbVGANH5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 09:06:40 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:21228 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S263314AbVGANGg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 09:06:36 -0400
-From: Parag Warudkar <kernel-stuff@comcast.net>
-To: linux-os@analogic.com
-Subject: Re: [OT] reiser4 vs politics: linux misses out again
-Date: Fri, 1 Jul 2005 09:06:34 -0400
-User-Agent: KMail/1.8.1
-Cc: Luigi Genoni <venom@sns.it>, Linux kernel <linux-kernel@vger.kernel.org>
-References: <063020052237.1867.42C47440000D7FD90000074B220700095300009A9B9CD3040A029D0A05@comcast.net> <4246.192.167.206.189.1120218233.squirrel@new.host.name> <Pine.LNX.4.61.0507010806480.18810@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0507010806480.18810@chaos.analogic.com>
+	Fri, 1 Jul 2005 09:07:57 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:7664 "EHLO e32.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263314AbVGANH2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Jul 2005 09:07:28 -0400
+From: Kevin Corry <kevcorry@us.ibm.com>
+Organization: IBM
+To: Andrew Morton <akpm@osdl.org>, zhaoqian@aaastor.com
+Subject: Re: [PATCH] device-mapper: dm-raid1: Limit bios to size of mirror region
+Date: Fri, 1 Jul 2005 07:56:35 -0500
+User-Agent: KMail/1.8
+Cc: Alasdair G Kergon <agk@redhat.com>, linux-kernel@vger.kernel.org
+References: <20050630181931.GL4211@agk.surrey.redhat.com> <20050701002626.630c2b7d.akpm@osdl.org>
+In-Reply-To: <20050701002626.630c2b7d.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200507010906.34336.kernel-stuff@comcast.net>
+Message-Id: <200507010756.36015.kevcorry@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 01 July 2005 08:17, Richard B. Johnson wrote:
-> It would be a major marketing slap for Jobs if the
-> new design was done in Indiana (USA), now it's going
-> to be done in India.
+On Fri July 1 2005 2:26 am, Andrew Morton wrote:
+> Alasdair G Kergon <agk@redhat.com> wrote:
+> > --- diff/drivers/md/dm-raid1.c 2005-06-17 20:48:29.000000000 +0100
+> > +++ source/drivers/md/dm-raid1.c 2005-06-29 21:12:13.000000000 +0100
+> > @@ -1060,6 +1060,7 @@
+> >   }
+> >
+> >   ti->private = ms;
+> > +  ti->split_io = ms->rh->region_size;
+> >
+> >   r = kcopyd_client_create(DM_IO_PAGES, &ms->kcopyd_client);
+> >   if (r) {
+>
+> Ahem.
+>
+> drivers/md/dm-raid1.c: In function `mirror_ctr':
+> drivers/md/dm-raid1.c:1072: invalid type argument of `->'
+>
+> ---
+> devel/drivers/md/dm-raid1.c~device-mapper-dm-raid1-limit-bios-to-size-of-mi
+>rror-region-fix 2005-07-01 00:25:26.000000000 -0700 +++
+> devel-akpm/drivers/md/dm-raid1.c 2005-07-01 00:25:26.000000000 -0700 @@
+> -1060,7 +1060,7 @@ static int mirror_ctr(struct dm_target *
+>   }
+>
+>   ti->private = ms;
+> -  ti->split_io = ms->rh->region_size;
+> +  ti->split_io = ms->rh.region_size;
+>
+>   r = kcopyd_client_create(DM_IO_PAGES, &ms->kcopyd_client);
+>   if (r) {
+>
+> How well tested was this?
 
-Intel maybe moving part of chipset design to India but Apple still have their 
-product design with them which they haven't announced they will move anywhere 
-- or have they? 
+Ehh...oops...sorry about that. :(
 
-I am not sure if Apple today designs and manufactures chipsets and CPUs in USA 
-- most likely not, they buy it from IBM/Freescale. IBM/Freescale must have 
-designed / manufactured the chipsets and CPUs anywhere - again most likely 
-outside the US.  And from what I have heard Apple computers are assembled in 
-China. 
+Zhao, you reported this issue originally. Have you been able to test this yet 
+to see if it fixes the corruption problem you were describing? Or can you 
+give us a test-case that I can run?
 
-So since long Apple's computers are designed in the US and manufactured / 
-assembled outside of the USA. And that continues to be the case going 
-forward, unless Apple announced they will move "their" product design to 
-somewhere else as a result of Intel's move.
-
-Parag
+-- 
+Kevin Corry
+kevcorry@us.ibm.com
+http://www.ibm.com/linux/
+http://evms.sourceforge.net/

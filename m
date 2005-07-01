@@ -1,58 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261284AbVGAOlK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263363AbVGAOvd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261284AbVGAOlK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 10:41:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263359AbVGAOlK
+	id S263363AbVGAOvd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 10:51:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263364AbVGAOvd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 10:41:10 -0400
-Received: from smtp-105-friday.nerim.net ([62.4.16.105]:28934 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S261284AbVGAOlG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 10:41:06 -0400
-Date: Fri, 1 Jul 2005 16:41:08 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Sebastian Pigulak <dreamin@interia.pl>, linux-kernel@vger.kernel.org,
-       Sebastian Witt <se.witt@gmx.net>, Greg KH <greg@kroah.com>,
-       lm-sensors@lm-sensors.org
-Subject: Re: [2.6 patch] SENSORS_ATXP1 must select I2C_SENSOR
-Message-Id: <20050701164108.0bc4e364.khali@linux-fr.org>
-In-Reply-To: <20050630221727.GE27478@stusta.de>
-References: <20050630234709.1ad1512a@DreaM.darnet>
-	<20050630221727.GE27478@stusta.de>
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 1 Jul 2005 10:51:33 -0400
+Received: from vsmtp12.tin.it ([212.216.176.206]:7297 "EHLO vsmtp12.tin.it")
+	by vger.kernel.org with ESMTP id S263363AbVGAOva (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Jul 2005 10:51:30 -0400
+Message-ID: <2442.192.167.206.189.1120229488.squirrel@new.host.name>
+In-Reply-To: <20050701131950.GA15180@ime.usp.br>
+References: <20050629001847.GB850@frodo>
+    <200506290453.HAA14576@raad.intranet>
+    <556815.441dd7d1ebc32b4a80e049e0ddca5d18e872c6e8a722b2aefa7525e9504533049d801014.ANY@taniwha.stupidest.org>
+    <42C4FC14.7070402@slaphack.com> <20050701092412.GD2243@suse.de>
+    <20050701131950.GA15180@ime.usp.br>
+Date: Fri, 1 Jul 2005 16:51:28 +0200 (CEST)
+Subject: Re: XFS corruption during power-blackout
+From: "Luigi Genoni" <genoni@darkstar.linuxpratico.net>
+To: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.5.1 [CVS]
+MIME-Version: 1.0
+Content-Type: text/plain;charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Adrian,
+problem can be that most disk become too slow to be usable if cache is
+disabled.
 
-> > I've tried patching linux-2.6.13-RC1 with patch-2.6.13-rc1-git2 and
-> > building atxp1(it allows Vcore voltage changing) into the kernel.
-> > Unfortunately, the kernel compilation stops with:
-> > 
-> > LD      init/built-in.o
-> > LD      vmlinux
-> > drivers/built-in.o(.text+0x92298): In function `atxp1_detect':
-> > : undefined reference to `i2c_which_vrm'
-> > drivers/built-in.o(.text+0x921ae): In function
-> > `atxp1_attach_adapter': : undefined reference to `i2c_detect'
-> > make: *** [vmlinux] B??d 1
-> > ==> ERROR: Build Failed.  Aborting... 
-> > 
-> > Could someone have a look at the module and possibly fix it up?
-> 
-> The patch below should fix it.
 
-Good catch. However, this fix will conflict with a larger patch I am
-working on (moving hardware monitoring drivers to a different directory
-[1]), so I applied a different fix on top of my own stack, and will send
-all this stuff to Greg as soon as possible.
+On Fri, July 1, 2005 15:19, Rogério Brito wrote:
+> On Jul 01 2005, Jens Axboe wrote:
+>
+>> On Fri, Jul 01 2005, David Masover wrote:
+>>
+>>> Not always possible.  Some disks lie and leave caching on anyway.
+>>>
+>>
+>> And the same (and others) disks will not honor a flush anyways.
+>> Moral of that story - avoid bad hardware.
+>>
+>
+> But how does the end-user know what hardware is "good hardware"? Which
+> vendors don't lie (or, at least, lie less than others) regarding HDs?
+>
+>
+> Thanks, Rogério Brito.
+>
+>
+> --
+> Rogério Brito : rbrito@ime.usp.br : http://www.ime.usp.br/~rbrito
+> Homepage of the algorithms package : http://algorithms.berlios.de
+> Homepage on freshmeat:  http://freshmeat.net/projects/algorithms/
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>  the body of a message to majordomo@vger.kernel.org More majordomo info at
+> http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
 
-[1] http://lkml.org/lkml/2005/6/27/302
-
-Thanks,
--- 
-Jean Delvare

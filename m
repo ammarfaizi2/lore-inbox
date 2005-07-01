@@ -1,75 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263192AbVGAHPn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263100AbVGAHPx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263192AbVGAHPn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 03:15:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263194AbVGAHPm
+	id S263100AbVGAHPx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 03:15:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263194AbVGAHPx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 03:15:42 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:24243 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S263192AbVGAHPe (ORCPT
+	Fri, 1 Jul 2005 03:15:53 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:2226 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S263100AbVGAHPe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 1 Jul 2005 03:15:34 -0400
-Date: Fri, 1 Jul 2005 09:14:36 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       eliad lubovsky <eliadl@013.net>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [patch 2.6.13-rc1] i386: fix incorrect TSS entry for LDT
-Message-ID: <20050701071436.GA18008@elte.hu>
-References: <200507010043_MC3-1-A32F-B78B@compuserve.com>
+Date: Fri, 1 Jul 2005 00:14:39 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: aia21@cam.ac.uk, arjan@infradead.org, linux-kernel@vger.kernel.org,
+       frankvm@frankvm.com
+Subject: Re: FUSE merging?
+Message-Id: <20050701001439.63987939.akpm@osdl.org>
+In-Reply-To: <E1DoFcK-0002Ox-00@dorka.pomaz.szeredi.hu>
+References: <E1DnvCq-0000Q4-00@dorka.pomaz.szeredi.hu>
+	<20050630022752.079155ef.akpm@osdl.org>
+	<E1Dnvhv-0000SK-00@dorka.pomaz.szeredi.hu>
+	<1120125606.3181.32.camel@laptopd505.fenrus.org>
+	<E1Dnw2J-0000UM-00@dorka.pomaz.szeredi.hu>
+	<1120126804.3181.34.camel@laptopd505.fenrus.org>
+	<1120129996.5434.1.camel@imp.csi.cam.ac.uk>
+	<20050630124622.7c041c0b.akpm@osdl.org>
+	<E1DoF86-0002Kk-00@dorka.pomaz.szeredi.hu>
+	<20050630235059.0b7be3de.akpm@osdl.org>
+	<E1DoFcK-0002Ox-00@dorka.pomaz.szeredi.hu>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200507010043_MC3-1-A32F-B78B@compuserve.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Miklos Szeredi <miklos@szeredi.hu> wrote:
+>
+> > >
+> > >  > - aren't we going to remove the nfs semi-server feature?
+> > > 
+> > >  I leave the decision to you ;)  It's a separate independent patch
+> > >  already (fuse-nfs-export.patch).
+> > 
+> > Let's leave it out - that'll stimulate some activity in the
+> > userspace-nfs-server-for-FUSE area.
+> > 
+> > Speaking of which, dumb question: what does FUSE offer over simply using
+> > NFS protocol to talk to the userspace filesystem driver?
+> 
+> Oh lots:
+> 
+>   - no deadlocks (NFS mounted from localhost is riddled with them)
 
-* Chuck Ebbert <76306.1226@compuserve.com> wrote:
+It is?  We had some low-memory problems a while back, but they got fixed. 
+During that work I did some nfs-to-localhost testing and things seemed OK.
 
-> The LDT entry in the i386 TSS needs to be a selector, not an entry 
-> number.
+>   - efficient protocol, optimized for less context switches
 
-you are right - but this shouldnt really matter, because this TSS field 
-is only loaded by a CPU upon a real TSS switch, which we never do. We 
-load the LDT selector manually, via the lldt instruction (load_LDT*()).  
-(It could at most matter when we do a double-fault, but the TSS of the 
-doublefault handler is set up separately, which has the .ldt field 
-cleared.)
+One wouldn't really expect a userspace filesystem to be particularly fast,
+and the performance will be dominated by memory copies and IO wait anyway.
 
-so i'd rather suggest to remove the initialization altogether, as per 
-the (tested) patch below.
+>   - dcache invalidation policy
 
-	Ingo
+What's that?
 
----
+>   - probably more, but I can't remember
 
-noticed by Chuck Ebbert: the .ldt entry of the TSS was set up
-incorrectly. It never mattered since this was a leftover from
-old times, so remove it.
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-
- include/asm-i386/processor.h |    1 -
- 1 files changed, 1 deletion(-)
-
-Index: linux/include/asm-i386/processor.h
-===================================================================
---- linux.orig/include/asm-i386/processor.h
-+++ linux/include/asm-i386/processor.h
-@@ -474,7 +474,6 @@ struct thread_struct {
- 	.esp0		= sizeof(init_stack) + (long)&init_stack,	\
- 	.ss0		= __KERNEL_DS,					\
- 	.ss1		= __KERNEL_CS,					\
--	.ldt		= GDT_ENTRY_LDT,				\
- 	.io_bitmap_base	= INVALID_IO_BITMAP_OFFSET,			\
- 	.io_bitmap	= { [ 0 ... IO_BITMAP_LONGS] = ~0 },		\
- }
+Please do..

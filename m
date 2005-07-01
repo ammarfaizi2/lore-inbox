@@ -1,59 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263352AbVGAOVB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263358AbVGAOYc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263352AbVGAOVB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 10:21:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263357AbVGAOVB
+	id S263358AbVGAOYc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 10:24:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263360AbVGAOYc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 10:21:01 -0400
-Received: from thunk.org ([69.25.196.29]:684 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S263352AbVGAOUs (ORCPT
+	Fri, 1 Jul 2005 10:24:32 -0400
+Received: from kanga.kvack.org ([66.96.29.28]:2478 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S263358AbVGAOY3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 10:20:48 -0400
-Date: Fri, 1 Jul 2005 10:19:52 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: David Masover <ninja@slaphack.com>
-Cc: dtor_core@ameritech.net, Markus T?rnqvist <mjt@nysv.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Hans Reiser <reiser@namesys.com>,
-       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: backup (was Re: reiser4 plugins)
-Message-ID: <20050701141952.GA2719@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	David Masover <ninja@slaphack.com>, dtor_core@ameritech.net,
-	Markus T?rnqvist <mjt@nysv.org>,
-	Horst von Brand <vonbrand@inf.utfsm.cl>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Hans Reiser <reiser@namesys.com>, Jeff Garzik <jgarzik@pobox.com>,
-	Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	ReiserFS List <reiserfs-list@namesys.com>
-References: <42BB7B32.4010100@slaphack.com> <200506240334.j5O3YowB008100@laptop11.inf.utfsm.cl> <20050627092138.GD11013@nysv.org> <20050627124255.GB6280@thunk.org> <42C018E5.8030805@slaphack.com> <20050627162839.GA22799@thunk.org> <42C06BC6.7090002@slaphack.com> <20050630214950.GA14286@thunk.org> <d120d50005063015345a4968a@mail.gmail.com> <42C4EACC.7020604@slaphack.com>
+	Fri, 1 Jul 2005 10:24:29 -0400
+Date: Fri, 1 Jul 2005 10:25:55 -0400
+From: Benjamin LaHaise <bcrl@kvack.org>
+To: Suparna Bhattacharya <suparna@in.ibm.com>
+Cc: linux-aio@kvack.org, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: aio-stress throughput regressions from 2.6.11 to 2.6.12
+Message-ID: <20050701142555.GB31989@kvack.org>
+References: <20050701075600.GC4625@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42C4EACC.7020604@slaphack.com>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20050701075600.GC4625@in.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rule #3 from http://www.streamload.com/About/Legal_eng.asp?page=id73#
-is pretty clear about what applies if you have a trial account (which
-seems to be what you have since you say you'll cancel your account if
-they charge you anything):
+On Fri, Jul 01, 2005 at 01:26:00PM +0530, Suparna Bhattacharya wrote:
+> On one test system I see a degradation from around 17+ MB/s to 11MB/s
+> for random O_DIRECT AIO (aio-stress -o3 testext3/rwfile5) from 2.6.11
+> to 2.6.12. It doesn't seem filesystem specific. Not good :(
 
-  3. Do not circumvent Freeloader download restrictions.
-  Any attempt to circumvent Freeloader trial account restrictions will
-  result in a permanent banishment from the Streamload community. This
-  includes (3a) files with an invalid or disguised file format; (3b)
-  encryption; (3c) steganography and/or (3d) creating multiple
-  freeloader accounts.
+What sort of io subsystem does it have?  Also, does changing the 
+elevator make any difference?  I'm away for the long weekend, but will 
+help look into this next week.
 
-You can interpret that whatever way you like, but if you're that
-cavalier with your data, hey, I'm not sure _I'd_ trust your judgement
-about which filesystem to trust.  :-)
-
-						- Ted
+		-ben

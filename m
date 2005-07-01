@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261637AbVGAXJo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261635AbVGAXOn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261637AbVGAXJo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 19:09:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261635AbVGAXJj
+	id S261635AbVGAXOn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 19:14:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262988AbVGAXN6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 19:09:39 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:13293 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261637AbVGAXGq (ORCPT
+	Fri, 1 Jul 2005 19:13:58 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:1920 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261640AbVGAXJt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 19:06:46 -0400
+	Fri, 1 Jul 2005 19:09:49 -0400
 From: Jeff Moyer <jmoyer@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <17093.52356.183683.823424@segfault.boston.redhat.com>
-Date: Fri, 1 Jul 2005 19:06:44 -0400
+Message-ID: <17093.52534.420781.92366@segfault.boston.redhat.com>
+Date: Fri, 1 Jul 2005 19:09:42 -0400
 To: mpm@selenic.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [rfc | patch 0/6] netpoll: add support for the bonding driver
+Subject: [rfc | patch 5/6] netpoll: modify bonding driver to support netpoll
 In-Reply-To: <17093.52306.136742.190912@segfault.boston.redhat.com>
 References: <17093.52306.136742.190912@segfault.boston.redhat.com>
 X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
@@ -27,131 +27,172 @@ X-PCLoadLetter: What the f**k does that mean?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Move the poll_lock and poll_owner to the struct net_device.  This change is
-important for the bonding driver support, as multiple real devices will
-point at the same netpoll_info.  In such cases, we would be artificially
-limiting ourselves to calling the polling routine of only one member of a
-bond at a time.
+Implement netpoll hooks in the bonding driver.  We register the following
+netpoll specific routines:
 
-To understand how this benefits the bonding driver, let's consider a
-netpoll client that sends packets in response to receiving packets.  Let's
-assume a packet comes in on eth0, and the response is to be delivered over
-eth1.  If the poll_lock lived in the npinfo (and hence, there was only one
-per bond), then we would have to queue the packet.  With this patch in
-place, we can send the outbound packet immediately.
+bond_netpoll_setup
+  This routine associates the struct netpoll_info of the master device with
+  each of the slave devices.
+
+bond_xmit_netpoll
+  This routine sets bonding->netpoll to the struct netpoll provided by
+  netpoll_send_skb.  This pointer is then passed along to netpoll_send_skb
+  in bond_dev_queue_xmit, when we are ready to send the skb out over the
+  real network device.
+
+bond_poll_controller
+  This routine calls netpoll_poll_dev for each of the slaves in the bond.
+
+When a new slave is added to the bond, if it does not support netpoll, then
+netpoll is disabled for the bond.  When a slave is released, that slave's
+npinfo pointer is cleared.
+
+I have tested this code extensively, and it works well in my environment.
 
 Signed-off-by: Jeff Moyer <jmoyer@redhat.com>
 ---
 
-
---- linux-2.6.12/net/core/netpoll.c.orig	2005-07-01 14:52:11.932101811 -0400
-+++ linux-2.6.12/net/core/netpoll.c	2005-07-01 14:53:59.322183590 -0400
-@@ -131,19 +131,20 @@ static int checksum_udp(struct sk_buff *
- static void poll_napi(struct netpoll *np)
- {
- 	struct netpoll_info *npinfo = np->dev->npinfo;
-+	struct net_device *dev = np->dev;
- 	int budget = 16;
- 
--	if (test_bit(__LINK_STATE_RX_SCHED, &np->dev->state) &&
--	    npinfo->poll_owner != smp_processor_id() &&
--	    spin_trylock(&npinfo->poll_lock)) {
-+	if (test_bit(__LINK_STATE_RX_SCHED, &dev->state) &&
-+	    dev->poll_owner != smp_processor_id() &&
-+	    spin_trylock(&dev->poll_lock)) {
- 		npinfo->rx_flags |= NETPOLL_RX_DROP;
- 		atomic_inc(&trapped);
- 
--		np->dev->poll(np->dev, &budget);
-+		dev->poll(dev, &budget);
- 
- 		atomic_dec(&trapped);
- 		npinfo->rx_flags &= ~NETPOLL_RX_DROP;
--		spin_unlock(&npinfo->poll_lock);
-+		spin_unlock(&dev->poll_lock);
- 	}
- }
- 
-@@ -246,7 +247,6 @@ repeat:
- static void netpoll_send_skb(struct netpoll *np, struct sk_buff *skb)
- {
- 	int status;
--	struct netpoll_info *npinfo;
- 
- repeat:
- 	if(!np || !np->dev || !netif_running(np->dev)) {
-@@ -255,8 +255,7 @@ repeat:
+--- linux-2.6.12/drivers/net/bonding/bond_main.c.orig	2005-06-29 14:28:08.000000000 -0400
++++ linux-2.6.12/drivers/net/bonding/bond_main.c	2005-06-30 19:33:50.641009622 -0400
+@@ -821,8 +821,12 @@ int bond_dev_queue_xmit(struct bonding *
  	}
  
- 	/* avoid recursion */
--	npinfo = np->dev->npinfo;
--	if (npinfo->poll_owner == smp_processor_id() ||
-+	if (dev->poll_owner == smp_processor_id() ||
- 	    np->dev->xmit_lock_owner == smp_processor_id()) {
- 		if (np->drop)
- 			np->drop(skb);
-@@ -641,8 +640,6 @@ int netpoll_setup(struct netpoll *np)
- 
- 		npinfo->rx_flags = 0;
- 		npinfo->rx_np = NULL;
--		npinfo->poll_lock = SPIN_LOCK_UNLOCKED;
--		npinfo->poll_owner = -1;
- 		npinfo->rx_lock = SPIN_LOCK_UNLOCKED;
- 	} else
- 		npinfo = ndev->npinfo;
---- linux-2.6.12/net/core/dev.c.orig	2005-07-01 14:52:08.613655521 -0400
-+++ linux-2.6.12/net/core/dev.c	2005-07-01 14:52:38.495669512 -0400
-@@ -3069,6 +3069,10 @@ struct net_device *alloc_netdev(int size
- 
- 	setup(dev);
- 	strcpy(dev->name, name);
-+#ifdef CONFIG_NETPOLL
-+	dev->poll_owner = -1;
-+	dev->poll_lock = SPIN_LOCK_UNLOCKED;
+ 	skb->priority = 1;
+-	dev_queue_xmit(skb);
+-
++#ifdef CONFIG_NET_POLL_CONTROLLER
++	if (bond->netpoll)
++		netpoll_send_skb(bond->netpoll, skb);
++	else
 +#endif
- 	return dev;
++		dev_queue_xmit(skb);
+ 	return 0;
  }
- EXPORT_SYMBOL(alloc_netdev);
---- linux-2.6.12/include/linux/netpoll.h.orig	2005-07-01 14:52:16.016420312 -0400
-+++ linux-2.6.12/include/linux/netpoll.h	2005-07-01 14:52:38.495669512 -0400
-@@ -24,8 +24,6 @@ struct netpoll {
+ 
+@@ -1567,6 +1571,45 @@ static void bond_detach_slave(struct bon
+ 	bond->slave_cnt--;
+ }
+ 
++#ifdef CONFIG_NET_POLL_CONTROLLER
++static int slaves_support_netpoll(struct net_device *bond_dev)
++{
++	struct bonding *bond = bond_dev->priv;
++	struct slave *slave;
++	int i;
++
++	bond_for_each_slave(bond, slave, i) {
++		if (!slave->dev->poll_controller)
++			return 0;
++	}
++
++	return 1;
++}
++
++static void bond_poll_controller(struct net_device *bond_dev)
++{
++	struct bonding *bond = bond_dev->priv;
++	struct slave *slave;
++	int i;
++
++	bond_for_each_slave(bond, slave, i) {
++		if (slave->dev->poll_controller)
++			netpoll_poll_dev(slave->dev);
++	}
++}
++
++static void bond_netpoll_setup(struct net_device *bond_dev,
++			       struct netpoll_info *npinfo)
++{
++	struct bonding *bond = bond_dev->priv;
++	struct slave *slave;
++	int i;
++
++	bond_for_each_slave(bond, slave, i)
++		slave->dev->npinfo = npinfo;
++}
++#endif
++
+ /*---------------------------------- IOCTL ----------------------------------*/
+ 
+ static int bond_sethwaddr(struct net_device *bond_dev, struct net_device *slave_dev)
+@@ -1969,6 +2012,17 @@ static int bond_enslave(struct net_devic
+ 	       new_slave->state == BOND_STATE_ACTIVE ? "n active" : " backup",
+ 	       new_slave->link != BOND_LINK_DOWN ? "n up" : " down");
+ 
++#ifdef CONFIG_NET_POLL_CONTROLLER
++	if (slaves_support_netpoll(bond_dev)) {
++		bond_dev->poll_controller = bond_poll_controller;
++		slave_dev->npinfo = bond_dev->npinfo;
++	} else if (bond_dev->poll_controller) {
++		bond_dev->poll_controller = NULL;
++		printk("New slave device %s does not support netpoll.\n",
++			slave_dev->name);
++		printk("netpoll disabled for %s.\n", bond_dev->name);
++	}
++#endif
+ 	/* enslave is successful */
+ 	return 0;
+ 
+@@ -2173,6 +2227,9 @@ static int bond_release(struct net_devic
+ 		slave_dev->flags &= ~IFF_NOARP;
+ 	}
+ 
++#ifdef CONFIG_NET_POLL_CONTROLLER
++	slave_dev->npinfo = NULL;
++#endif
+ 	kfree(slave);
+ 
+ 	return 0;  /* deletion OK */
+@@ -4203,6 +4260,21 @@ out:
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_NET_POLL_CONTROLLER
++int bond_xmit_netpoll(struct netpoll *np, struct sk_buff *skb,
++		      struct net_device *bond_dev)
++{
++	struct bonding *bond = bond_dev->priv;
++	int ret;
++
++	bond->netpoll = np;
++	ret = bond_dev->hard_start_xmit(skb, bond_dev);
++	bond->netpoll = NULL;
++
++	return ret;
++}
++#endif
++
+ /*------------------------- Device initialization ---------------------------*/
+ 
+ /*
+@@ -4277,6 +4349,10 @@ static int __init bond_init(struct net_d
+ 
+ 	bond_dev->destructor = free_netdev;
+ 
++#ifdef CONFIG_NET_POLL_CONTROLLER
++	bond_dev->netpoll_setup = bond_netpoll_setup;
++	bond_dev->netpoll_start_xmit = bond_xmit_netpoll;
++#endif
+ 	/* Initialize the device options */
+ 	bond_dev->tx_queue_len = 0;
+ 	bond_dev->flags |= IFF_MASTER|IFF_MULTICAST;
+--- linux-2.6.12/drivers/net/bonding/bonding.h.orig	2005-06-29 14:29:40.000000000 -0400
++++ linux-2.6.12/drivers/net/bonding/bonding.h	2005-06-30 19:02:54.000000000 -0400
+@@ -33,6 +33,7 @@
+ #include <linux/timer.h>
+ #include <linux/proc_fs.h>
+ #include <linux/if_bonding.h>
++#include <linux/netpoll.h>
+ #include "bond_3ad.h"
+ #include "bond_alb.h"
+ 
+@@ -203,6 +204,9 @@ struct bonding {
+ 	struct   bond_params params;
+ 	struct   list_head vlan_list;
+ 	struct   vlan_group *vlgrp;
++#ifdef CONFIG_NET_POLL_CONTROLLER
++	struct   netpoll *netpoll;
++#endif
  };
  
- struct netpoll_info {
--	spinlock_t poll_lock;
--	int poll_owner;
- 	int rx_flags;
- 	spinlock_t rx_lock;
- 	struct netpoll *rx_np; /* netpoll that registered an rx_hook */
-@@ -63,16 +61,16 @@ static inline int netpoll_rx(struct sk_b
- static inline void netpoll_poll_lock(struct net_device *dev)
- {
- 	if (dev->npinfo) {
--		spin_lock(&dev->npinfo->poll_lock);
--		dev->npinfo->poll_owner = smp_processor_id();
-+		spin_lock(&dev->poll_lock);
-+		dev->poll_owner = smp_processor_id();
- 	}
- }
- 
- static inline void netpoll_poll_unlock(struct net_device *dev)
- {
- 	if (dev->npinfo) {
--		dev->npinfo->poll_owner = -1;
--		spin_unlock(&dev->npinfo->poll_lock);
-+		dev->poll_owner = -1;
-+		spin_unlock(&dev->poll_lock);
- 	}
- }
- 
---- linux-2.6.12/include/linux/netdevice.h.orig	2005-07-01 14:52:22.666310731 -0400
-+++ linux-2.6.12/include/linux/netdevice.h	2005-07-01 14:52:38.496669345 -0400
-@@ -469,6 +469,8 @@ struct net_device
- 	int			(*neigh_setup)(struct net_device *dev, struct neigh_parms *);
- #ifdef CONFIG_NETPOLL
- 	struct netpoll_info	*npinfo;
-+	spinlock_t		poll_lock;
-+	int			poll_owner;
- #endif
- #ifdef CONFIG_NET_POLL_CONTROLLER
- 	void                    (*poll_controller)(struct net_device *dev);
+ /**

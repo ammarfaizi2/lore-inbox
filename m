@@ -1,59 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262277AbVGAWEK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262765AbVGAWFW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262277AbVGAWEK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 18:04:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262545AbVGAWEK
+	id S262765AbVGAWFW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 18:05:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262845AbVGAWFV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 18:04:10 -0400
-Received: from animx.eu.org ([216.98.75.249]:13780 "EHLO animx.eu.org")
-	by vger.kernel.org with ESMTP id S262277AbVGAWBG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 18:01:06 -0400
-Date: Fri, 1 Jul 2005 18:16:17 -0400
-From: Wakko Warner <wakko@animx.eu.org>
-To: Ondrej Zary <linux@rainbow-software.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Booting uncompressed kernel image on i386?
-Message-ID: <20050701221617.GA16873@animx.eu.org>
-Mail-Followup-To: Ondrej Zary <linux@rainbow-software.org>,
-	linux-kernel@vger.kernel.org
-References: <42C13BF1.1040904@rainbow-software.org> <42C5BB4E.2040000@rainbow-software.org>
+	Fri, 1 Jul 2005 18:05:21 -0400
+Received: from rproxy.gmail.com ([64.233.170.201]:52195 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262765AbVGAWE4 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Jul 2005 18:04:56 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=KOPa7IXK2iymWWmhCQhZwbNCXej55Tn+By3IKdDF/E7RgQXR9WNXuKe9HLRaiU/flmNJVRy9wM96/rdkau23A7qaITDmWJjjlgYmPYynN18ootlpDx8t4uWz1yZaMEW6rxUw14iqQx3WYS1MwN2tdQeFIHSn2ImxXrElsnj6yIs=
+Message-ID: <a728f9f9050701150414d8e557@mail.gmail.com>
+Date: Fri, 1 Jul 2005 18:04:55 -0400
+From: Alex Deucher <alexdeucher@gmail.com>
+Reply-To: Alex Deucher <alexdeucher@gmail.com>
+To: Luigi Genoni <genoni@darkstar.linuxpratico.net>
+Subject: Re: jfs mount causes oops on sparc64
+Cc: jfs-discussion@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, ag@m-cam.com
+In-Reply-To: <3505.192.167.206.189.1120243369.squirrel@new.host.name>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <42C5BB4E.2040000@rainbow-software.org>
-User-Agent: Mutt/1.5.6+20040907i
+References: <a728f9f905070111133a24590@mail.gmail.com>
+	 <3505.192.167.206.189.1120243369.squirrel@new.host.name>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ondrej Zary wrote:
-> Nobody answered, time to look at the code :-)
-> The attached patch is a quick hack so "make" will create uncompressed 
-> kernel that can be booted in regular way.
+On 7/1/05, Luigi Genoni <genoni@darkstar.linuxpratico.net> wrote:
+> It would be interesting to understand if it is FS related as it seems.
+> have you tried another FS?
+> 
+> does it work with reiserfs, XFS or ext3 and ext2?
+> 
 
-> --- linux-2.6.12-printserver/arch/i386/boot/compressed/misc.c	2005-06-17 21:48:29.000000000 +0200
-> +++ linux-2.6.12-pentium/arch/i386/boot/compressed/misc.c	2005-07-01 23:34:55.000000000 +0200
-> @@ -374,7 +374,15 @@
->  
->  	makecrc();
->  	putstr("Uncompressing Linux... ");
+It works fine with ext3. so it's apparently a jfs problem.
 
-Would it not make sense to remove the above line?  You're not actually
-uncompressing anything.
+Alex
 
-> -	gunzip();
-> +	int i;
-> +	for (i = 0; i < input_len / WSIZE; i++) {
-> +		memcpy(window, input_data+i*WSIZE, WSIZE);
-> +		outcnt = WSIZE;
-> +		flush_window();
-> +	}
-> +	memcpy(window, input_data+i*WSIZE, input_len % WSIZE);
-> +	outcnt = input_len % WSIZE;
-> +	flush_window();
->  	putstr("Ok, booting the kernel.\n");
->  	if (high_loaded) close_output_buffer_if_we_run_high(mv);
->  	return high_loaded;
-
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+> 
+> 
+> On Fri, July 1, 2005 20:13, Alex Deucher wrote:
+> > I have a 6.9 TB jfs LVM volume on a sparc64 debian box, however mount
+> > seems to cause an oops when I attempt to mount the volume:
+> >
+> > jfs_mount: diMount(ipaimap) failed w/rc = -5
+> > data_access_exception: SFSR[0000000000801009] SFAR[000000000043f770],
+> > going. \|/ ____ \|/
+> > "@'/ .. \`@"
+> > /_| \__/ |_\
+> > \__U_/
+> > mount(3502): Dax [#1]
+> > TSTATE: 0000004411009607 TPC: 000000000051b8d0 TNPC: 000000000051b8d4
+> > Y: 00000000    Not tainted
+> > TPC: <diFree+0x30/0xe20>
+> > g0: fffff800bd24aca1 g1: 0000000000000000 g2: fffff800bdd39800 g3:
+> > fffff800bdd398c8 g4: fffff800bbcce800 g5: 0000000000000000 g6:
+> > fffff800bd248000 g7: fffff80093977d88 o0: 0000000000000000 o1:
+> > 0000000000000001 o2: fffff800bd167c10 o3:
+> > 0000000000000000
+> > o4: fffffffffffffffa o5: 0000000000000001 sp: fffff800bd24acf1 ret_pc:
+> > 00000000004410d4
+> > RPC: <__wake_up_common+0x34/0x80>
+> > l0: 0000000000000000 l1: 0000000000000001 l2: 0000000000444d0c l3:
+> > 0000000000000400
+> > l4: 0000000000000000 l5: 0000000000000000 l6: 0000000000000000 l7:
+> > 0000000000000008
+> > i0: fffff80093977d68 i1: fffff800bd24b6d0 i2: 0000000000000001 i3:
+> > 737400000043f76c
+> > i4: 0000000000000000 i5: 00000000007e1400 i6: fffff800bd24ae61 i7:
+> > 000000000050fcd0
+> > I7: <jfs_delete_inode+0x30/0x160>
+> > Caller[000000000050fcd0]: jfs_delete_inode+0x30/0x160
+> > Caller[000000000049f004]: generic_delete_inode+0xc4/0x160
+> > Caller[000000000049f28c]: iput+0x6c/0xc0
+> > Caller[0000000000512c8c]: jfs_mount+0x8c/0x320
+> > Caller[000000000050f3b0]: jfs_fill_super+0xb0/0x2c0
+> > Caller[000000000048bd68]: get_sb_bdev+0x108/0x160
+> > Caller[000000000048bfc0]: do_kern_mount+0x40/0x100
+> > Caller[00000000004a1ca4]: do_new_mount+0x64/0xa0
+> > Caller[00000000004a2338]: do_mount+0x118/0x180
+> > Caller[00000000004ad950]: compat_sys_mount+0xb0/0x160
+> > Caller[0000000000410df4]: linux_sparc_syscall32+0x34/0x40
+> > Caller[0000000000012824]: 0x12824
+> > Instruction DUMP: c2586028  c277a767  f6587f98 <c206e004> 80a58001
+> > 16400369  ae100018  f40e3dfa  833da000
+> >
+> >
+> > kernel is 2.6.12rc3 on debian sparc.  Any ideas?
+> >
+> > Alex
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> >  the body of a message to majordomo@vger.kernel.org More majordomo info at
+> > http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
+> >
+> 
+>

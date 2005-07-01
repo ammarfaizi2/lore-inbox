@@ -1,135 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263206AbVGADpp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263208AbVGAD5n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263206AbVGADpp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Jun 2005 23:45:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263209AbVGADpo
+	id S263208AbVGAD5n (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Jun 2005 23:57:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263209AbVGAD5n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Jun 2005 23:45:44 -0400
-Received: from colo.tr0n.com ([66.207.132.11]:7096 "EHLO tr0n.com")
-	by vger.kernel.org with ESMTP id S263206AbVGADp0 (ORCPT
+	Thu, 30 Jun 2005 23:57:43 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:42221 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S263208AbVGAD5h (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Jun 2005 23:45:26 -0400
-Message-ID: <42C4BC11.1000005@nauticom.net>
-Date: Thu, 30 Jun 2005 23:44:17 -0400
-From: Chet Hosey <chosey@nauticom.net>
-User-Agent: Mozilla Thunderbird 0.9 (Windows/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Horst von Brand <vonbrand@inf.utfsm.cl>, linux-kernel@vger.kernel.org,
-       reiserfs-list@namesys.com
-Subject: Re: reiser4 plugins
-References: <200506300141.j5U1f5Hm004913@laptop11.inf.utfsm.cl>
-In-Reply-To: <200506300141.j5U1f5Hm004913@laptop11.inf.utfsm.cl>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Thu, 30 Jun 2005 23:57:37 -0400
+Message-Id: <200507010328.j613SV3h004647@laptop11.inf.utfsm.cl>
+To: Kevin Bowen <kevin@ucsd.edu>
+cc: Horst von Brand <vonbrand@inf.utfsm.cl>, Hubert Chan <hubert@uhoreg.ca>,
+       Hans Reiser <reiser@namesys.com>, Kyle Moffett <mrmacman_g4@mac.com>,
+       David Masover <ninja@slaphack.com>, Valdis.Kletnieks@vt.edu,
+       Lincoln Dale <ltd@cisco.com>, Gregory Maxwell <gmaxwell@gmail.com>,
+       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: reiser4 plugins 
+In-Reply-To: Message from Kevin Bowen <kevin@ucsd.edu> 
+   of "Thu, 30 Jun 2005 13:08:42 MST." <1120162123.22241.53.camel@punchline.ucsd.edu> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
+Date: Thu, 30 Jun 2005 23:28:31 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst von Brand wrote:
+Kevin Bowen <kevin@ucsd.edu> wrote:
+> > might be nice to have on exclusively one-user, isolated machines, like
+> > "keep /my/ annotations/icon/application name/whatever with the file's
+> > data", but that break down in multiuser (even serially, one user after the
 
-I think you probably meant to reply publicly. I'm taking the liberty of
-CC'ing the two mailing lists to which I'd replied.
+> If this is really the core of your (and the rest of the reiser-
+> obstructionist crowd's) objection to the file-as-directory concept, then
+> you just haven't thought it through thoroughly enough. Ignore for the
+> moment the case of system-wide or network-wide shared data,
 
->Chet Hosey <chosey@nauticom.net> wrote:
->  
->
->
->>The point of such ventures is that by placing features at a lower level you get to keep the advantages of UNIX in the first place
->>    
->>
->
->You mean "simple interfaces", "elegance of design", "one way to do each
->thing", "tools that can be endlessly combined"? You are advocating throwing
->all that out the window, for no discernible gain.
->
->  
->
-No, I'm not. I'm saying that implementing features which cannot be
-utilized by core UNIX utilities limits the utility of those features.
-How can tools be "endlessly combined" when they can't interact with the
-objects that a GUI _insists_ are there?
+I.e., something like 90% of the use of Linux here. OK.
 
->>                                                          -- namely,
->>that many small tools can do neat things with most objects. By placing
->>everything in a largish userspace library instead of at a system level
->>(kernel, libc, etc.) you're essentially saying that, for instance, vi
->>would have to be rewritten in order to interact with objects presented
->>by the VFS. So would bash, fmt, sort, less, aspell, or anything else
->>that can open a file. You'd end up with a situation in which you see
->>objects via the VFS browser (file manager) that no longer exist when you
->>want to drop to a shell to use common UNIX utilities and find that the
->>object doesn't actually exist to the OS itself.
->>    
->>
->
->So what? Files can get deleted under your feet right now too.
->
->  
->
-What does a file disappearing have to do with an inconsistent UI? The
-fact that files can get deleted isn't an inconsistency. It's the fact
-that the filesystem behaves differently based on the interface chosen
-(GUI vs. command-line), and that's a bad thing. If you delete a file,
-it's gone everywhere. If it were gone in one place but still present in
-another view of the same directory your analogy would hold more water.
+>                                                             and think
+> about it just limited to a user's home directory, and the storage and
+> organization of actual *data* (as opposed to system files).
 
->>This sounds like Joel Spolsky's law of leaky abstractions,
->>    
->>
->
->So what?
->
->  
->
-The problem is that when an abstraction is implented in a way that isn't
-complete, the interface suffers and unexpected behavior results. If you
-don't see this as a problem, that's fine -- however, those who value a
-decent user interface might disagree. I can only speak for myself, and I
-think it's an inelegant solution.
+Who is to say what is "data" and what is "system files"? And if you are
+limiting yourself to /user/ data, why not have the /user/ decide how they
+want to organize it, and give them the tools?
 
-If it *looks* like the VFS as much as possible, but suddenly behaves
-differently under various circumstances, it's not a perfect solution.
-Worse, it's misleading.
+>                                                             The desire
+> amongst users for ubiquitous metadata is very real - the current wave of
+> "desktop search" products and technologies demonstrates this - 
 
->>                                                           and the fact
->>that most operating systems lack a useful facility (which is why GNOME
->>and KDE roll their own VFS) sounds like a poor excuse for keeping useful
->>features out of the kernel.
->>    
->>
->
->That some feature is useful, or could possibly be useful, is /no/ reason to
->implement it in the kernel, or anywhere else for that matter. The kernel,
->together with assorted libraries and programming languages, offers
->programmers useful abstractions (like computing with hyperbolic functions
->or futzing around with GUIs). Defining exactly where you implement your
->abstraction is the job of a software architect (or some such). Just
->shouting "Place it in the kernel!" (or, for that matter, "Implement
->everything in userland!") is counterproductive. The first leads to bloat,
->the second to the microkernel mess. Find out /where/ it is easiest, most
->flexible, ... to place, and put it there. Chance is, it won't be the
->kernel.
->
->  
->
-See my explanation that I'm not advocating placing bad things into the
-kernel, only arguing against high-level VFS implementations that present
-a view that cannot be used by core UNIX tools. Wait for it...
+Just like each previous claim "this /must/ be the next cool technology!",
+also called later the "dotcom crash"...
 
->>I'm *not* arguing for putting anything specific into the kernel. I *am*
->>arguing that an inconsistent presentation in which some apps see VFS
->>objects and others don't makes for a less-than-ideal UI.
->>    
->>
->
->Finding out which is the simplest, most natural way to do something is
->/very/ hard work. Problem is, if done right it later seems obvious. That
->there is a mess in some area means just that the "right" way to do it has
->not yet been found. Placing some half-baked solution in the kernel won't
->help at all, quite the contrary.
->  
->
-...and you totally missed the point anyways. The point isn't that you
-should be shoving garbage into the kernel; the point is that high-level
-GUI-based VFS kludges shouldn't be seen as a complete solution.
+>                                                                but
+> search is really only the lowest-hanging fruit of this new way of
+> looking at data. Application-layer solutions like Beagle,
 
+That works without screwing up the whole system, AFAIU.
+
+>                                                           Google Desktop
+> Search et al allow for querying on metadata, but actually *acting* on
+> the results of those queries requires that they be exposed via first
+> class primitives which can be manipulated with arbitrary tools, not via
+> some proprietary userland api which only one tool ever actually
+> implements. 
+
+Could you please explain in plain english? The only part I get out is
+"propietary API", and I don't see anybody advocating such here.
+
+> As to the case of system-wide shared files, there is already a mechanism
+> to prevent users from inappropriately annotating files that don't belong
+> to them: file permissions.
+
+And who says that a normal user isn't allowed to annotate each and every
+file with its purpose or something else? I can very well imagine a system
+in which users (say students in a Linux class) want to do so... on a shared
+machine. Or users having a shared MP3 or photograph or ... collection, with
+individual notes on each. Or even developers wanting to annotate source
+code files with their comments, but leave them read-only (or have them
+under SCM).
+
+>                            If you're sysadmining a multiuser reiser4
+> box, and your users are able to modify the metadata of files they don't
+> own, then you go to sysadmin purgatory. 
+
+Bingo! And thus goes much of the supposed advantage of this nonsense.
+
+[I see that /opponents/ are accused here of lack of imagination, while I
+ see that the /proponents/ lack imagination... or perhaps just real-world
+ experience.]
+
+> > other way; OpenOffice /has/ structured files, XML inside zipped files,
+> > Java also uses zip files for its structuring needs, etc), or are ideas
+> > that
+
+> And as a Java developer, I can tell you that the wide consensus is that
+> this solution is half-assed and insufficient for both developers and
+> users needs. In fact, I believe there is currently a JSR in progress to
+> develop a more sophisticated Java packaging model.
+
+Presumably based on ReiserFS 4, which then has to be ported to whatever
+platform you want to run Java on ASAP? Great for you! Wait a bit, and
+you'll get what you want then, even across the board!
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

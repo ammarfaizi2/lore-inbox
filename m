@@ -1,67 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263267AbVGAHae@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261433AbVGAHjc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263267AbVGAHae (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 03:30:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263268AbVGAHae
+	id S261433AbVGAHjc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 03:39:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263256AbVGAHjc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 03:30:34 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:23731 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S263267AbVGAH3b (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 03:29:31 -0400
-Date: Fri, 1 Jul 2005 00:26:26 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Alasdair G Kergon <agk@redhat.com>
-Cc: linux-kernel@vger.kernel.org, kevcorry@us.ibm.com, zhaoqian@aaastor.com
-Subject: Re: [PATCH] device-mapper: dm-raid1: Limit bios to size of mirror
- region
-Message-Id: <20050701002626.630c2b7d.akpm@osdl.org>
-In-Reply-To: <20050630181931.GL4211@agk.surrey.redhat.com>
-References: <20050630181931.GL4211@agk.surrey.redhat.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 1 Jul 2005 03:39:32 -0400
+Received: from 238-071.adsl.pool.ew.hu ([193.226.238.71]:24583 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S261433AbVGAHjY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Jul 2005 03:39:24 -0400
+To: akpm@osdl.org
+CC: miklos@szeredi.hu, aia21@cam.ac.uk, arjan@infradead.org,
+       linux-kernel@vger.kernel.org, frankvm@frankvm.com
+In-reply-to: <20050701001439.63987939.akpm@osdl.org> (message from Andrew
+	Morton on Fri, 1 Jul 2005 00:14:39 -0700)
+Subject: Re: FUSE merging?
+References: <E1DnvCq-0000Q4-00@dorka.pomaz.szeredi.hu>
+	<20050630022752.079155ef.akpm@osdl.org>
+	<E1Dnvhv-0000SK-00@dorka.pomaz.szeredi.hu>
+	<1120125606.3181.32.camel@laptopd505.fenrus.org>
+	<E1Dnw2J-0000UM-00@dorka.pomaz.szeredi.hu>
+	<1120126804.3181.34.camel@laptopd505.fenrus.org>
+	<1120129996.5434.1.camel@imp.csi.cam.ac.uk>
+	<20050630124622.7c041c0b.akpm@osdl.org>
+	<E1DoF86-0002Kk-00@dorka.pomaz.szeredi.hu>
+	<20050630235059.0b7be3de.akpm@osdl.org>
+	<E1DoFcK-0002Ox-00@dorka.pomaz.szeredi.hu> <20050701001439.63987939.akpm@osdl.org>
+Message-Id: <E1DoG6p-0002Rf-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Fri, 01 Jul 2005 09:38:47 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alasdair G Kergon <agk@redhat.com> wrote:
->
-> Set the target's split_io field when building a dm-mirror device so
-> incoming bios won't span the mirror's internal regions.  Without
-> this, regions can be accessed while not holding correct locks and data
-> corruption is possible.
+> >
+> > > >
+> > > >  > - aren't we going to remove the nfs semi-server feature?
+> > > > 
+> > > >  I leave the decision to you ;)  It's a separate independent patch
+> > > >  already (fuse-nfs-export.patch).
+> > > 
+> > > Let's leave it out - that'll stimulate some activity in the
+> > > userspace-nfs-server-for-FUSE area.
+> > > 
+> > > Speaking of which, dumb question: what does FUSE offer over simply using
+> > > NFS protocol to talk to the userspace filesystem driver?
+> > 
+> > Oh lots:
+> > 
+> >   - no deadlocks (NFS mounted from localhost is riddled with them)
 > 
-> Reported-By: "Zhao Qian" <zhaoqian@aaastor.com>
-> From: Kevin Corry <kevcorry@us.ibm.com>
-> Signed-Off-By: Alasdair G Kergon <agk@redhat.com>
+> It is?  We had some low-memory problems a while back, but they got fixed. 
+> During that work I did some nfs-to-localhost testing and things seemed OK.
+
+Well, there's the "unsolvable" writeback deadlock problem, that FUSE
+works around by not buffering dirty pages (and not allowing writable
+mmap).  Does NFS solve that?  I'm interested :)
+
+Then there's the usual "filesystem recursing into itself" deadlock.
+Mounting with 'intr' probably solves this for NFS, but that has
+unwanted side effects.  FUSE only allows KILL to interrupt a request.
+
+> >   - efficient protocol, optimized for less context switches
 > 
-> --- diff/drivers/md/dm-raid1.c	2005-06-17 20:48:29.000000000 +0100
-> +++ source/drivers/md/dm-raid1.c	2005-06-29 21:12:13.000000000 +0100
-> @@ -1060,6 +1060,7 @@
->  	}
->  
->  	ti->private = ms;
-> + 	ti->split_io = ms->rh->region_size;
->  
->  	r = kcopyd_client_create(DM_IO_PAGES, &ms->kcopyd_client);
->  	if (r) {
+> One wouldn't really expect a userspace filesystem to be particularly fast,
 
-Ahem.
+FUSE is pretty fast.  >100Mbytes/s transfer speeds on a moderate
+hardware are not unusual.
 
-drivers/md/dm-raid1.c: In function `mirror_ctr':
-drivers/md/dm-raid1.c:1072: invalid type argument of `->'
+> and the performance will be dominated by memory copies and IO wait anyway.
 
---- devel/drivers/md/dm-raid1.c~device-mapper-dm-raid1-limit-bios-to-size-of-mirror-region-fix	2005-07-01 00:25:26.000000000 -0700
-+++ devel-akpm/drivers/md/dm-raid1.c	2005-07-01 00:25:26.000000000 -0700
-@@ -1060,7 +1060,7 @@ static int mirror_ctr(struct dm_target *
- 	}
- 
- 	ti->private = ms;
-- 	ti->split_io = ms->rh->region_size;
-+ 	ti->split_io = ms->rh.region_size;
- 
- 	r = kcopyd_client_create(DM_IO_PAGES, &ms->kcopyd_client);
- 	if (r) {
+Memory copies don't seem to be an issue (and FUSE does very little of
+it).  Performance is mostly dominated by context switch times (if the
+underlying filesystem can keep up).  Unfortunately unbuffered writes
+mean a separate request for each written page, and thus a context
+switch (on UP at least).  This has a marked effect on write
+performance.
 
-How well tested was this?
+> >   - dcache invalidation policy
+> 
+> What's that?
+
+Userspace can tell the kernel, how long a dentry should be valid.  I
+don't think the NFS protocol provides this. Same holds for the inode
+attributes.
+
+> >   - probably more, but I can't remember
+> 
+> Please do..
+
+OK, I'll do a little research.
+
+Miklos

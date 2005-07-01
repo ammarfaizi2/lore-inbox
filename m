@@ -1,36 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262684AbVGARuf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263415AbVGARyV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262684AbVGARuf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 13:50:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263415AbVGARue
+	id S263415AbVGARyV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 13:54:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263417AbVGARyV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 13:50:34 -0400
-Received: from rly-ip05.mx.aol.com ([64.12.138.9]:17361 "EHLO
-	rly-ip05.mx.aol.com") by vger.kernel.org with ESMTP id S262684AbVGARub
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 13:50:31 -0400
-Message-ID: <42C58203.40606@yahoo.co.uk>
-Date: Fri, 01 Jul 2005 18:48:51 +0100
-From: christos gentsis <christos_gentsis@yahoo.co.uk>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
+	Fri, 1 Jul 2005 13:54:21 -0400
+Received: from moutng.kundenserver.de ([212.227.126.187]:61145 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S263415AbVGARyR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Jul 2005 13:54:17 -0400
+Message-ID: <42C582CC.5050907@free.fr>
+Date: Fri, 01 Jul 2005 19:52:12 +0200
+From: Olivier Croquette <ocroquette@free.fr>
+Reply-To: ocroquette@free.fr
+User-Agent: Mozilla Thunderbird 1.0.2 (Macintosh/20050317)
+X-Accept-Language: fr-fr, en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: PCI-X support
+To: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
+       marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
+Subject: Re: setitimer expire too early (Kernel 2.4)
+References: <42C444AA.2070508@free.fr>	<20050630165053.GA8220@logos.cnet> <20050630160537.7d05d467.akpm@osdl.org>
+In-Reply-To: <20050630160537.7d05d467.akpm@osdl.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-AOL-IP: 195.93.24.100
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:e39ae1980843c849592344a98bbbf26f
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+Andrew Morton wrote:
+>>Linus, Andrew, do you consider this critical enough to be merged to 
+>>the v2.4 tree?
+> 
+> 
+> No.  I'd expect this would hurt more people than it would benefit.
 
-I have a friend that his Msc project is related with the development 
-over a PCI-X card. the problem is that he do not know if the Linux 
-kernel support the PCI-X bus. i try to find something related with the 
-PCI-X in the kernel source but i didn't found any file or folder with a 
-relevant name... Does any one know if PCI-X bus supported from Linux and 
-if no how can he patch the kernel to support it...?
 
-Thanks
-Chris
+Probably.
+Does that mean that the kernel 2.4 will keep this bug for ever?
+

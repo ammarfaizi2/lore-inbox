@@ -1,71 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261576AbVGAVd0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261237AbVGAVfH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261576AbVGAVd0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 17:33:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261565AbVGAVdZ
+	id S261237AbVGAVfH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 17:35:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261565AbVGAVdi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 17:33:25 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:62451 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S262901AbVGAVQD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 17:16:03 -0400
-Message-ID: <42C5B242.5010002@mvista.com>
-Date: Fri, 01 Jul 2005 14:14:42 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-CC: Olivier Croquette <ocroquette@free.fr>, Andrew Morton <akpm@osdl.org>,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: setitimer expire too early (Kernel 2.4)
-References: <42C444AA.2070508@free.fr> <20050630165053.GA8220@logos.cnet> <20050630160537.7d05d467.akpm@osdl.org> <42C582CC.5050907@free.fr> <20050701144901.GC11975@logos.cnet>
-In-Reply-To: <20050701144901.GC11975@logos.cnet>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 1 Jul 2005 17:33:38 -0400
+Received: from mail.kroah.org ([69.55.234.183]:11140 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261593AbVGAVb3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Jul 2005 17:31:29 -0400
+Date: Fri, 1 Jul 2005 14:31:09 -0700
+From: Greg KH <greg@kroah.com>
+To: Adam Belay <ambx1@neo.rr.com>
+Cc: linux-kernel@vger.kernel.org, Matt_Domsch@dell.com,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [RFC] PCI: clean up the dynamic pci id logic
+Message-ID: <20050701213109.GA1834@kroah.com>
+References: <20050630091812.GA25285@kroah.com> <20050701195232.GB3742@neo.rr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050701195232.GB3742@neo.rr.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti wrote:
-> Hi Olivier,
-> 
-> On Fri, Jul 01, 2005 at 07:52:12PM +0200, Olivier Croquette wrote:
-> 
->>Andrew Morton wrote:
->>
->>>>Linus, Andrew, do you consider this critical enough to be merged to 
->>>>the v2.4 tree?
->>>
->>>
->>>No.  I'd expect this would hurt more people than it would benefit.
->>
->>
->>Probably.
->>Does that mean that the kernel 2.4 will keep this bug for ever?
-> 
-> 
-> Probably, yes. I've never heard such complaints before your message.
-> 
-> The right way to do it seems something else BTW:
-> 
-> quoting Nish Aravamudan (http://lkml.org/lkml/2005/4/29/240):
-> 
-> Your patch is the only way to guarantee no early timeouts, as far as I know.
-> 
-> Really, what you want is:
-> 
-> on adding timers, take the ceiling of the interval into which it could be added
-> on expiring timers, take the floor
-> 
-> This combination guarantees no timers go off early (and takes away
-> many of these corner cases). I do exactly this in my patch, btw.
+On Fri, Jul 01, 2005 at 03:52:32PM -0400, Adam Belay wrote:
+> I was wondering why we need dynamic id support in the driver core.  Is there
+> an issue where the bind/unbind mechanism requires this feature?  I was hoping
+> bind/unbind would replace it.
 
-IMNSHO that is just another way of saying "add 1 to the jiffie count" which is 
-what the proposed patch does.
+No, bind/unbind (well bind, unbind doesn't care) only will work if the
+driver's probe function can accept the device.  Without dynamic ids,
+it's not possible to have a driver bind to a device that it does not
+know about.
 
+I want to put the sysfs file, and a common callback in the driver core,
+to make it easier for busses to support dynamic ids.  That's why I am
+suggesting we add it there.  But I'll play with implementing it and see
+if it's really worth it or not.
 
--- 
-George Anzinger   george@mvista.com
-HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/
+Either way, this patch fixes up the pci code to make the dynamic ids for
+it, much more readable and smaller.
+
+> I understand that there are PCI drivers that use .driver_data and read from
+> their ID table (e.g. pci_serial), but we don't really want the user modifying
+> these IDs because they're often attached to some device specific tables.
+
+True, if you look at the current pci dynamic id stuff, we don't set the
+driver_data field at all.  Some USB drivers use this field too.
+
+> It was my understanding that the *probe function should be responsible for
+> accepting any device, and then gracefully fail if it knows it will be unable
+> to support it.  For some drivers this could include failing if it's missing
+> from the ID table.
+
+For this to happen, we would have to rewrite all drivers :(  Right now
+they assume that the MODULE_TABLE must have matched, in order for the
+probe() call to be called.  
+
+Remember, probe() of most busses pass in a valid id structure too...
+
+> If the driver developer requires the driver to match to an unknown
+> pool of devices, then the *probe function could be made more advanced.
+
+If the bus/driver core supports dynamic ids, then the individual drivers
+don't have to be changed at all :)
+
+thanks,
+
+greg k-h

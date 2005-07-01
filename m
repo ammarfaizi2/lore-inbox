@@ -1,50 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263425AbVGAST5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263427AbVGASj7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263425AbVGAST5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 14:19:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263423AbVGAST5
+	id S263427AbVGASj7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 14:39:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263428AbVGASj7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 14:19:57 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:1990 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263420AbVGASTx (ORCPT
+	Fri, 1 Jul 2005 14:39:59 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:49595 "EHLO suse.cz")
+	by vger.kernel.org with ESMTP id S263427AbVGASj5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 14:19:53 -0400
-Date: Fri, 1 Jul 2005 20:21:12 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "Miller, Mike (OS Dev)" <mike.miller@hp.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH 1/1] cciss per disk queue for 2.6
-Message-ID: <20050701182111.GA24146@suse.de>
-References: <D4CFB69C345C394284E4B78B876C1CF107DC0869@cceexc23.americas.cpqcorp.net>
+	Fri, 1 Jul 2005 14:39:57 -0400
+Date: Fri, 1 Jul 2005 20:40:09 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: "Richard B. Johnson" <linux-os@analogic.com>
+Cc: christos gentsis <christos_gentsis@yahoo.co.uk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: PCI-X support
+Message-ID: <20050701184009.GA2034@ucw.cz>
+References: <42C58203.40606@yahoo.co.uk> <Pine.LNX.4.61.0507011357290.5350@chaos.analogic.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <D4CFB69C345C394284E4B78B876C1CF107DC0869@cceexc23.americas.cpqcorp.net>
+In-Reply-To: <Pine.LNX.4.61.0507011357290.5350@chaos.analogic.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 01 2005, Miller, Mike (OS Dev) wrote:
-> Jens Axboe wrote:
-> > Different thing, I'm talking about single volume starvation, 
-> > not volume-to-volume.
-> > 
-> > > elevator algoritm(s) may be causing writes to starve reads 
-> > on the same 
-> > > logical volume. We continue to investigate our other 
-> > performance issues.
-> > 
-> > I completely disagree. Even with an intelligent io scheduler, 
-> > starvation is seen on ciss that does not happen on other 
-> > queueing hardware such as 'normal' scsi controllers/drives. 
-> > So something else is going on, and the only 'fix' so far is 
-> > to limit the ciss queue depth heavily.
+On Fri, Jul 01, 2005 at 02:00:15PM -0400, Richard B. Johnson wrote:
+> On Fri, 1 Jul 2005, christos gentsis wrote:
 > 
-> We will investigate this further and come up with a solution. Could be
-> the firmware, I suppose.
+> >Hello
+> >
+> >I have a friend that his Msc project is related with the development
+> >over a PCI-X card. the problem is that he do not know if the Linux
+> >kernel support the PCI-X bus. i try to find something related with the
+> >PCI-X in the kernel source but i didn't found any file or folder with a
+> >relevant name... Does any one know if PCI-X bus supported from Linux and
+> >if no how can he patch the kernel to support it...?
+> >
+> >Thanks
+> >Chris
+> 
+> Sure PCI-X is just PCI/66 with 64-bits. It's just like PCI/66
+> from a software standpoint.
+ 
+Not really. 64-bit 66MHz PCI is normal PCI, within the PCI 2.1 spec.
+Common PCI-X is running at 133MHz, 64-bit wide.
 
-Unfortunately I don't have any hardware at hand for testing, so I cannot
-do it myself. Would be appreciated!
+You're correct, though, that from the software standpoint it's not much
+different and Linux supports it natively. I'm not sure about MSI-X
+extensions, though.
 
 -- 
-Jens Axboe
-
+Vojtech Pavlik
+SuSE Labs, SuSE CR

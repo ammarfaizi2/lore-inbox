@@ -1,93 +1,156 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261433AbVGAHjc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263256AbVGAHnB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261433AbVGAHjc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 03:39:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263256AbVGAHjc
+	id S263256AbVGAHnB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 03:43:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263266AbVGAHnA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 03:39:32 -0400
-Received: from 238-071.adsl.pool.ew.hu ([193.226.238.71]:24583 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S261433AbVGAHjY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 03:39:24 -0400
-To: akpm@osdl.org
-CC: miklos@szeredi.hu, aia21@cam.ac.uk, arjan@infradead.org,
-       linux-kernel@vger.kernel.org, frankvm@frankvm.com
-In-reply-to: <20050701001439.63987939.akpm@osdl.org> (message from Andrew
-	Morton on Fri, 1 Jul 2005 00:14:39 -0700)
-Subject: Re: FUSE merging?
-References: <E1DnvCq-0000Q4-00@dorka.pomaz.szeredi.hu>
-	<20050630022752.079155ef.akpm@osdl.org>
-	<E1Dnvhv-0000SK-00@dorka.pomaz.szeredi.hu>
-	<1120125606.3181.32.camel@laptopd505.fenrus.org>
-	<E1Dnw2J-0000UM-00@dorka.pomaz.szeredi.hu>
-	<1120126804.3181.34.camel@laptopd505.fenrus.org>
-	<1120129996.5434.1.camel@imp.csi.cam.ac.uk>
-	<20050630124622.7c041c0b.akpm@osdl.org>
-	<E1DoF86-0002Kk-00@dorka.pomaz.szeredi.hu>
-	<20050630235059.0b7be3de.akpm@osdl.org>
-	<E1DoFcK-0002Ox-00@dorka.pomaz.szeredi.hu> <20050701001439.63987939.akpm@osdl.org>
-Message-Id: <E1DoG6p-0002Rf-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Fri, 01 Jul 2005 09:38:47 +0200
+	Fri, 1 Jul 2005 03:43:00 -0400
+Received: from colo.tr0n.com ([66.207.132.11]:60600 "EHLO tr0n.com")
+	by vger.kernel.org with ESMTP id S263256AbVGAHmx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Jul 2005 03:42:53 -0400
+Message-ID: <42C4F38C.9020000@nauticom.net>
+Date: Fri, 01 Jul 2005 03:41:00 -0400
+From: Chet Hosey <chosey@nauticom.net>
+User-Agent: Mozilla Thunderbird 0.9 (Windows/20041103)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+CC: Kevin Bowen <kevin@ucsd.edu>, Hubert Chan <hubert@uhoreg.ca>,
+       Hans Reiser <reiser@namesys.com>, Kyle Moffett <mrmacman_g4@mac.com>,
+       David Masover <ninja@slaphack.com>, Valdis.Kletnieks@vt.edu,
+       Lincoln Dale <ltd@cisco.com>, Gregory Maxwell <gmaxwell@gmail.com>,
+       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: reiser4 plugins
+References: <200507010328.j613SV3h004647@laptop11.inf.utfsm.cl>
+In-Reply-To: <200507010328.j613SV3h004647@laptop11.inf.utfsm.cl>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >
-> > > >
-> > > >  > - aren't we going to remove the nfs semi-server feature?
-> > > > 
-> > > >  I leave the decision to you ;)  It's a separate independent patch
-> > > >  already (fuse-nfs-export.patch).
-> > > 
-> > > Let's leave it out - that'll stimulate some activity in the
-> > > userspace-nfs-server-for-FUSE area.
-> > > 
-> > > Speaking of which, dumb question: what does FUSE offer over simply using
-> > > NFS protocol to talk to the userspace filesystem driver?
-> > 
-> > Oh lots:
-> > 
-> >   - no deadlocks (NFS mounted from localhost is riddled with them)
-> 
-> It is?  We had some low-memory problems a while back, but they got fixed. 
-> During that work I did some nfs-to-localhost testing and things seemed OK.
+Horst von Brand wrote:
 
-Well, there's the "unsolvable" writeback deadlock problem, that FUSE
-works around by not buffering dirty pages (and not allowing writable
-mmap).  Does NFS solve that?  I'm interested :)
+>Kevin Bowen <kevin@ucsd.edu> wrote:
+>  
+>
+>>                                                            and think
+>>about it just limited to a user's home directory, and the storage and
+>>organization of actual *data* (as opposed to system files).
+>>    
+>>
+>
+>Who is to say what is "data" and what is "system files"? And if you are
+>limiting yourself to /user/ data, why not have the /user/ decide how they
+>want to organize it, and give them the tools?
+>  
+>
+That's exactly what the idea of exporting the metadata as files within a
+file-as-dir is intended to do: let the user decide how to manage
+metadata. They have the tools -- anything which can interact with a
+file. This includes users who never start X.
 
-Then there's the usual "filesystem recursing into itself" deadlock.
-Mounting with 'intr' probably solves this for NFS, but that has
-unwanted side effects.  FUSE only allows KILL to interrupt a request.
+>  
+>
+>>                                                            The desire
+>>amongst users for ubiquitous metadata is very real - the current wave of
+>>"desktop search" products and technologies demonstrates this - 
+>>    
+>>
+>
+>Just like each previous claim "this /must/ be the next cool technology!",
+>also called later the "dotcom crash"...
+>  
+>
+How does that analogy hold? An example of a technology which is actually
+in demand is similar to the tech bubble exactly how?
 
-> >   - efficient protocol, optimized for less context switches
-> 
-> One wouldn't really expect a userspace filesystem to be particularly fast,
+>>                                                               but
+>>search is really only the lowest-hanging fruit of this new way of
+>>looking at data. Application-layer solutions like Beagle,
+>>    
+>>
+>
+>That works without screwing up the whole system, AFAIU.
+>
+>  
+>
+If you define "works" as "implements a proprietary layer which can't be
+used naturally by the same tools UNIX users have used for years to
+manage data".
 
-FUSE is pretty fast.  >100Mbytes/s transfer speeds on a moderate
-hardware are not unusual.
+>And who says that a normal user isn't allowed to annotate each and every
+>file with its purpose or something else? I can very well imagine a system
+>in which users (say students in a Linux class) want to do so... on a shared
+>machine. Or users having a shared MP3 or photograph or ... collection, with
+>individual notes on each. Or even developers wanting to annotate source
+>code files with their comments, but leave them read-only (or have them
+>under SCM).
+>
+>  
+>
+This same argument could be used to attack the idea of group permissions
+-- that groups of users might have conflicting goals. Implementing
+metadata in userspace via bundled files has the same drawback.
 
-> and the performance will be dominated by memory copies and IO wait anyway.
+>>                           If you're sysadmining a multiuser reiser4
+>>box, and your users are able to modify the metadata of files they don't
+>>own, then you go to sysadmin purgatory. 
+>>    
+>>
+>
+>Bingo! And thus goes much of the supposed advantage of this nonsense.
+>
+>  
+>
+You seem to be implying that on a Reiser4 filesystem used by multiple
+users that people other than file owners will be about to apply
+arbitrary metadata to any object. It seems to me that adding metadata to
+a file-as-dir will require the same permissions as writing to the file
+itself, giving Reiser4 *zero* disadvantage against other multiuser
+systems. What gives you the impression that adding metadata to a
+file-as-dir is any harder to secure against modification from other
+users than the files themselves are in the first place?
 
-Memory copies don't seem to be an issue (and FUSE does very little of
-it).  Performance is mostly dominated by context switch times (if the
-underlying filesystem can keep up).  Unfortunately unbuffered writes
-mean a separate request for each written page, and thus a context
-switch (on UP at least).  This has a marked effect on write
-performance.
+>[I see that /opponents/ are accused here of lack of imagination, while I
+> see that the /proponents/ lack imagination... or perhaps just real-world
+> experience.]
+>
+>  
+>
+Huh? The idea of arbitrary metadata isn't just with annotating MP3
+files. One seemingly important consideration would be the flexible
+implementation of add-on mechanisms, like security data, that could be
+implemented with zero changes to the filesystem. And you get to use
+existing tools to deal with new and arbitrary interfaces instead of
+having to deal with GUI garbage just to interact with metadata.
 
-> >   - dcache invalidation policy
-> 
-> What's that?
+>>>other way; OpenOffice /has/ structured files, XML inside zipped files,
+>>>Java also uses zip files for its structuring needs, etc), or are ideas
+>>>that
+>>>      
+>>>
+>
+>  
+>
+>>And as a Java developer, I can tell you that the wide consensus is that
+>>this solution is half-assed and insufficient for both developers and
+>>users needs. In fact, I believe there is currently a JSR in progress to
+>>develop a more sophisticated Java packaging model.
+>>    
+>>
+>
+>Presumably based on ReiserFS 4, which then has to be ported to whatever
+>platform you want to run Java on ASAP? Great for you! Wait a bit, and
+>you'll get what you want then, even across the board!
+>  
+>
+Are unable to differentiate between a statement that a given solution is
+non-ideal and a suggestion that everything be done in a way that
+requires Reiser4? Someone mentions that the current solution isn't quite
+meeting all of their needs, and you respond with rhetoric accusing them
+of wanting everything to depend on Reiser4 and bloat the kernel. How is
+this productive?
 
-Userspace can tell the kernel, how long a dentry should be valid.  I
-don't think the NFS protocol provides this. Same holds for the inode
-attributes.
-
-> >   - probably more, but I can't remember
-> 
-> Please do..
-
-OK, I'll do a little research.
-
-Miklos

@@ -1,78 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263339AbVGANeT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263342AbVGANve@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263339AbVGANeT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 09:34:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263341AbVGANeT
+	id S263342AbVGANve (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 09:51:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263341AbVGANvd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 09:34:19 -0400
-Received: from alog0085.analogic.com ([208.224.220.100]:51402 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S263339AbVGANeN
+	Fri, 1 Jul 2005 09:51:33 -0400
+Received: from frankvm.xs4all.nl ([80.126.170.174]:64950 "EHLO
+	janus.localdomain") by vger.kernel.org with ESMTP id S263344AbVGANvc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 09:34:13 -0400
-Date: Fri, 1 Jul 2005 09:33:21 -0400 (EDT)
-From: "Richard B. Johnson" <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Parag Warudkar <kernel-stuff@comcast.net>
-cc: Luigi Genoni <venom@sns.it>, Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] reiser4 vs politics: linux misses out again
-In-Reply-To: <200507010906.34336.kernel-stuff@comcast.net>
-Message-ID: <Pine.LNX.4.61.0507010918330.19685@chaos.analogic.com>
-References: <063020052237.1867.42C47440000D7FD90000074B220700095300009A9B9CD3040A029D0A05@comcast.net>
- <4246.192.167.206.189.1120218233.squirrel@new.host.name>
- <Pine.LNX.4.61.0507010806480.18810@chaos.analogic.com>
- <200507010906.34336.kernel-stuff@comcast.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 1 Jul 2005 09:51:32 -0400
+Date: Fri, 1 Jul 2005 15:51:31 +0200
+From: Frank van Maarseveen <frankvm@frankvm.com>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Cc: Andrew Morton <akpm@osdl.org>, Miklos Szeredi <miklos@szeredi.hu>,
+       arjan@infradead.org, linux-kernel@vger.kernel.org, frankvm@frankvm.com
+Subject: Re: FUSE merging?
+Message-ID: <20050701135131.GB5805@janus>
+References: <20050630124622.7c041c0b.akpm@osdl.org> <E1DoF86-0002Kk-00@dorka.pomaz.szeredi.hu> <20050630235059.0b7be3de.akpm@osdl.org> <E1DoFcK-0002Ox-00@dorka.pomaz.szeredi.hu> <20050701001439.63987939.akpm@osdl.org> <E1DoG6p-0002Rf-00@dorka.pomaz.szeredi.hu> <20050701010229.4214f04e.akpm@osdl.org> <E1DoIUz-0002a5-00@dorka.pomaz.szeredi.hu> <20050701042955.39bf46ef.akpm@osdl.org> <1120222434.23346.16.camel@imp.csi.cam.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1120222434.23346.16.camel@imp.csi.cam.ac.uk>
+User-Agent: Mutt/1.4.1i
+X-Subliminal-Message: Use Linux!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Jul 2005, Parag Warudkar wrote:
+On Fri, Jul 01, 2005 at 01:53:54PM +0100, Anton Altaparmakov wrote:
+> On Fri, 2005-07-01 at 04:29 -0700, Andrew Morton wrote:
+> > Sorry, but I'm not buying it.  I still don't see a solid reason why all
+> > this could not be done with nfs/v9fs, some kernel tweaks and the rest in
+> > userspace.  It would take some effort, but that effort would end up
+> > strengthening existing kernel capabilities rather than adding brand new
+> > things, which is good.
+> 
+> Also can the NFS approach provide me with different content depending on
+> the uid of the accessing process?  With FUSE that is easy as pie.  Even
+> easier than that actually...
 
-> On Friday 01 July 2005 08:17, Richard B. Johnson wrote:
->> It would be a major marketing slap for Jobs if the
->> new design was done in Indiana (USA), now it's going
->> to be done in India.
->
-> Intel maybe moving part of chipset design to India but Apple still have their
-> product design with them which they haven't announced they will move anywhere
-> - or have they?
->
+unfsd can that I believe. However, FUSE and user space NFSd are complementary.
+For every NFS solution one still needs to do the mounting as root. FUSE
+addresses the client side: it can implement a user space NFS client.
 
-Their Web Page doesn't show anything new as a result of the Intel
-deal. I understand that the Intel deal involved Intel-provided
-hardware design in one of Intel's new campuses in India. Intel
-has been in China for several years and established a $US200M
-"China-venture" fund to bring 20-21st century technology to
-China (broadband, semiconductor design, etc.)
-
-> I am not sure if Apple today designs and manufactures chipsets and CPUs in USA
-> - most likely not, they buy it from IBM/Freescale. IBM/Freescale must have
-> designed / manufactured the chipsets and CPUs anywhere - again most likely
-> outside the US.  And from what I have heard Apple computers are assembled in
-> China.
->
-
-Yes. Enough "final assembly", i.e., putting it in its shipping-box
-is done in the US so they don't need a "made in China" label!
-
-Similar to GE appliances.
-
-> So since long Apple's computers are designed in the US and manufactured /
-> assembled outside of the USA. And that continues to be the case going
-> forward, unless Apple announced they will move "their" product design to
-> somewhere else as a result of Intel's move.
->
-
-I think the US design is going away. I think in a few years, Silicon
-Valley will revert to some plum trees with migrant workers picking
-the crop. I might be able to buy an orchard at Apple's former site
-for a few thousand dollars. I've got to start saving now, though.
-
-> Parag
->
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.12 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+-- 
+Frank

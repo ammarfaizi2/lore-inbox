@@ -1,89 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263257AbVGAHAV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263258AbVGAHBd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263257AbVGAHAV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 03:00:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263260AbVGAHAV
+	id S263258AbVGAHBd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 03:01:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263256AbVGAHBX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 03:00:21 -0400
-Received: from 238-071.adsl.pool.ew.hu ([193.226.238.71]:12042 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S263257AbVGAG6l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 02:58:41 -0400
-To: frankvm@frankvm.com
-CC: akpm@osdl.org, aia21@cam.ac.uk, arjan@infradead.org, miklos@szeredi.hu,
-       linux-kernel@vger.kernel.org, frankvm@frankvm.com
-In-reply-to: <20050630222828.GA32357@janus> (message from Frank van Maarseveen
-	on Fri, 1 Jul 2005 00:28:28 +0200)
-Subject: Re: FUSE merging?
-References: <E1DnvCq-0000Q4-00@dorka.pomaz.szeredi.hu> <20050630022752.079155ef.akpm@osdl.org> <E1Dnvhv-0000SK-00@dorka.pomaz.szeredi.hu> <1120125606.3181.32.camel@laptopd505.fenrus.org> <E1Dnw2J-0000UM-00@dorka.pomaz.szeredi.hu> <1120126804.3181.34.camel@laptopd505.fenrus.org> <1120129996.5434.1.camel@imp.csi.cam.ac.uk> <20050630124622.7c041c0b.akpm@osdl.org> <20050630222828.GA32357@janus>
-Message-Id: <E1DoFTR-0002NH-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Fri, 01 Jul 2005 08:58:05 +0200
+	Fri, 1 Jul 2005 03:01:23 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:54450 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S263258AbVGAHBG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Jul 2005 03:01:06 -0400
+Date: Fri, 1 Jul 2005 09:02:20 +0200
+From: Jens Axboe <axboe@suse.de>
+To: mike.miller@hp.com
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [PATCH 1/1] cciss per disk queue for 2.6
+Message-ID: <20050701070219.GV2243@suse.de>
+References: <20050630210342.GA28770@beardog.cca.cpqcorp.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050630210342.GA28770@beardog.cca.cpqcorp.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > 
-> > - Frank points out that a user can send a sigstop to his own setuid(0)
-> >   task and he intimates that this could cause DoS problems with FUSE.  More
-> >   details needed please?
+On Thu, Jun 30 2005, mike.miller@hp.com wrote:
+> This patch adds per disk queue functionality to cciss. Sometime back I
+> submitted a patch but it looks like only part of what I needed. In the
+> 2.6 kernel if we have more than one logical volume the driver will
+> Oops during rmmod. It seems all of the queues actually point back to
+> the same queue. So after deleting the first volume you hit a null
+> pointer on the second one.
 > 
-> It's the other way around:
-> Apparently it is not a security problem to SIGSTOP or even SIGKILL a
-> setuid program. So why is it a security problem when such a program is
-> delayed by a supposedly malicious behaving FUSE mount?
+> This has been tested in our labs. There is no difference in
+> performance, it just fixes the Oops. Please consider this patch for
+> inclusion.
 
-Perfectly valid argument.  My question: is it not a security problem
-to allow signals to reach a suid program?
+Going to per-disk queues is undoubtedly a good idea, performance will be
+much better this way. So far, so good.
 
-> I think that setuid programs take too many things for granted, especially
-> "time". I also think the ptrace equivalence principle (item C2 in the
-> FUSE doc) is too harsh for FUSE.
+But you need to do something about the queueing for this to be
+acceptable, imho. You have a per-controller queueing limit in place, you
+need to enforce some fairness to ensure an equal distribution of
+commands between the disks.
 
-It's obviously not equivalence.  FUSE filesystem gets a subset of
-ptrace's capabilities (and rather a small one).
+Perhaps just limit the per-queue depth to something sane, instead of the
+huuuge 384 commands you have now. I've had several people complain to
+me, that ciss is doing some nasty starvation with that many commands in
+flight and we've effectively had to limit the queueing depth to
+something really low to get adequate read performance in presence of
+writes.
 
-> Suppose the process changes id to full root and we can no longer send
-> signals to it. Are there any other ways we could affect its scheduling
-> without FUSE? I think "yes", clearly not that easy as when it accesses a
-> FUSE mount but "yes". Think about typing ^S (XOFF), or by letting it read
-> from a pipe or from a file on a very very slow device. Or by renicing
-> the parent in advance. Regarding the pipe: yes the setuid program could
-> check that with fstat() but is such a check fundamentally the right
-> approach? I have doubt because unified I/O is a good thing and there is
-> no guarantee whatsoever about completion of any FS operation within a
-> certain amount of time. Suppose another malicious process does a lookup
-> in a huge directory without hashed names? What about a process consuming
-> lots of memory, pushing everything else into swap? What about deleting
-> a _huge_ file or do other things which might(?) take a considerable
-> amount of kernel time? [id]notify might even help using this to delay
-> a root process at a crucial point to exploit a race. So, I think there
-> are many ways to affect the execution speed of [setuid] programs. I
-> have never heard of a setuid root program which renices itself, such,
-> that it successfully avoids a race or DoS exploit.
 
-There's a huge difference between slowing down, and stopping a
-process.  I wouldn't consider the first a true DoS. 
+-- 
+Jens Axboe
 
-> And then the DoS thing using simulated endless files within FUSE. It is
-> already possible to create terabyte sized [sparse] files. Can the fstat()
-> size/blocks info be trusted from FUSE? no more than fstat() outside FUSE
-> because the file may still be growing!
-> 
-> > - I don't recall seeing an exhaustive investigation of how an
-> >   unprivileged user could use a FUSE mount to implement DoS attacks against
-> >   other users or against root.
-> 
-> In general I think it is _hard_ to protect against a local DoS for many
-> reasons and I don't see any new fundamental problem here with FUSE:
-> it is just making it more obvious that it's hard to write secure setuid
-> programs. Those programs should _know_ that input data and anything else
-> from the user is "tainted" and that they must be _very_ careful with it,
-> in every detail.
-
-Yes.  The extra problem with FUSE, is that they are not _able_ to be
-careful.  They can't even check if a file is in fact on a FUSE mount
-or not without the FUSE daemon's intervention (lookup on a file will
-be passed to userspace).
-
-Thanks,
-Miklos

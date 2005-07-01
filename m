@@ -1,47 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263305AbVGAMIa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261428AbVGAMSK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263305AbVGAMIa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 08:08:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263313AbVGAMIa
+	id S261428AbVGAMSK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 08:18:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263315AbVGAMSK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 08:08:30 -0400
-Received: from frankvm.xs4all.nl ([80.126.170.174]:59574 "EHLO
-	janus.localdomain") by vger.kernel.org with ESMTP id S263305AbVGAMI1
+	Fri, 1 Jul 2005 08:18:10 -0400
+Received: from alog0036.analogic.com ([208.224.220.51]:22155 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261428AbVGAMSD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 08:08:27 -0400
-Date: Fri, 1 Jul 2005 14:08:26 +0200
-From: Frank van Maarseveen <frankvm@frankvm.com>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: akpm@osdl.org, aia21@cam.ac.uk, arjan@infradead.org,
-       linux-kernel@vger.kernel.org, frankvm@frankvm.com
-Subject: Re: FUSE merging?
-Message-ID: <20050701120826.GC5218@janus>
-References: <1120126804.3181.34.camel@laptopd505.fenrus.org> <1120129996.5434.1.camel@imp.csi.cam.ac.uk> <20050630124622.7c041c0b.akpm@osdl.org> <E1DoF86-0002Kk-00@dorka.pomaz.szeredi.hu> <20050630235059.0b7be3de.akpm@osdl.org> <E1DoFcK-0002Ox-00@dorka.pomaz.szeredi.hu> <20050701001439.63987939.akpm@osdl.org> <E1DoG6p-0002Rf-00@dorka.pomaz.szeredi.hu> <20050701010229.4214f04e.akpm@osdl.org> <E1DoIUz-0002a5-00@dorka.pomaz.szeredi.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1DoIUz-0002a5-00@dorka.pomaz.szeredi.hu>
-User-Agent: Mutt/1.4.1i
-X-Subliminal-Message: Use Linux!
+	Fri, 1 Jul 2005 08:18:03 -0400
+Date: Fri, 1 Jul 2005 08:17:14 -0400 (EDT)
+From: "Richard B. Johnson" <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Luigi Genoni <venom@sns.it>
+cc: Parag Warudkar <kernel-stuff@comcast.net>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: reiser4 vs politics: linux misses out again
+In-Reply-To: <4246.192.167.206.189.1120218233.squirrel@new.host.name>
+Message-ID: <Pine.LNX.4.61.0507010806480.18810@chaos.analogic.com>
+References: <063020052237.1867.42C47440000D7FD90000074B220700095300009A9B9CD3040A029D0A05@comcast.net>
+    <Pine.LNX.4.61.0507010728270.18722@chaos.analogic.com>
+ <4246.192.167.206.189.1120218233.squirrel@new.host.name>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 01, 2005 at 12:11:53PM +0200, Miklos Szeredi wrote:
-> > > Userspace can tell the kernel, how long a dentry should be valid.  I
-> > > don't think the NFS protocol provides this. Same holds for the inode
-> > > attributes.
-> > 
-> > Why is that needed?
-> 
-> Because, I can well imagine a synthetic filesystem, where file
-> data/metadata change aribitrarily.  In this case the timeout heuristic
-> in NFS is not useful.
-> 
-> In fact with NFS it's often a PITA, that it doesn't want to refresh a
-> file's data/metatata, which I _know_ has changed on the server.
+On Fri, 1 Jul 2005, Luigi Genoni wrote:
 
-This NFS issue is on my radar for years already. I have a patch which
-is practical but a bit disgusting. IMHO it's orthogonal to FUSE.
+> maybe I don't understand the point.
+> where the problem is?
+>
 
--- 
-Frank
+Apple's major claim-to-fame was that it represents an
+"awesome, all-American computer", created by California
+liberal entrepreneurs like Steve Wosniak and Steve Jobs.
+Now, all engineering for the new platform will be done
+in India.
+
+It would be a major marketing slap for Jobs if the
+new design was done in Indiana (USA), now it's going
+to be done in India.
+
+> On Fri, July 1, 2005 13:29, Richard B. Johnson wrote:
+>> On Thu, 30 Jun 2005, Parag Warudkar wrote:
+>>
+>>
+>>>> Now that Apple is going Intel, we will be forced to use whatever the
+>>>> Indians >provide.
+>>>>
+>>>
+>>> What are the Indians going to provide that they didn't before Apple
+>>> went the Intel route? I never knew we manufactured Apple hardware.
+>>> Perhaps you wanted to say Chinese? Just curious...
+>>>
+>>>
+>>> Parag
+>>>
+>>>
+>>
+>> Intel is moving everything (except sales and administration) to
+>> India according to recent reports in EETimes.
+>>
+>>
+>>>
+>>>
+>>
+>> Cheers,
+>> Dick Johnson
+>> Penguin : Linux version 2.6.12 on an i686 machine (5537.79 BogoMips).
+>> Notice : All mail here is now cached for review by Dictator Bush.
+>> 98.36% of all statistics are fiction.
+>> -
+>> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>>  the body of a message to majordomo@vger.kernel.org More majordomo info at
+>> http://vger.kernel.org/majordomo-info.html
+>> Please read the FAQ at  http://www.tux.org/lkml/
+>>
+>>
+>
+>
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.12 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

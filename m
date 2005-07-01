@@ -1,83 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263331AbVGANKU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263332AbVGANPv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263331AbVGANKU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 09:10:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263334AbVGANIU
+	id S263332AbVGANPv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 09:15:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263333AbVGANPv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 09:08:20 -0400
-Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:16004 "EHLO
-	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S263330AbVGANHn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 09:07:43 -0400
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Subject: Re: FUSE merging?
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Miklos Szeredi <miklos@szeredi.hu>, arjan@infradead.org,
-       linux-kernel@vger.kernel.org, frankvm@frankvm.com
-In-Reply-To: <1120222434.23346.16.camel@imp.csi.cam.ac.uk>
-References: <E1DnvCq-0000Q4-00@dorka.pomaz.szeredi.hu>
-	 <20050630022752.079155ef.akpm@osdl.org>
-	 <E1Dnvhv-0000SK-00@dorka.pomaz.szeredi.hu>
-	 <1120125606.3181.32.camel@laptopd505.fenrus.org>
-	 <E1Dnw2J-0000UM-00@dorka.pomaz.szeredi.hu>
-	 <1120126804.3181.34.camel@laptopd505.fenrus.org>
-	 <1120129996.5434.1.camel@imp.csi.cam.ac.uk>
-	 <20050630124622.7c041c0b.akpm@osdl.org>
-	 <E1DoF86-0002Kk-00@dorka.pomaz.szeredi.hu>
-	 <20050630235059.0b7be3de.akpm@osdl.org>
-	 <E1DoFcK-0002Ox-00@dorka.pomaz.szeredi.hu>
-	 <20050701001439.63987939.akpm@osdl.org>
-	 <E1DoG6p-0002Rf-00@dorka.pomaz.szeredi.hu>
-	 <20050701010229.4214f04e.akpm@osdl.org>
-	 <E1DoIUz-0002a5-00@dorka.pomaz.szeredi.hu>
-	 <20050701042955.39bf46ef.akpm@osdl.org>
-	 <1120222434.23346.16.camel@imp.csi.cam.ac.uk>
-Content-Type: text/plain
-Organization: Computing Service, University of Cambridge, UK
-Date: Fri, 01 Jul 2005 14:07:28 +0100
-Message-Id: <1120223248.23346.23.camel@imp.csi.cam.ac.uk>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
-Content-Transfer-Encoding: 7bit
+	Fri, 1 Jul 2005 09:15:51 -0400
+Received: from cantor.suse.de ([195.135.220.2]:44266 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S263332AbVGANPq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Jul 2005 09:15:46 -0400
+To: "liyu@WAN" <liyu@ccoss.com.cn>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: one question about pgd allocation
+References: <42C53E7D.7090404@ccoss.com.cn.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 01 Jul 2005 15:15:43 +0200
+In-Reply-To: <42C53E7D.7090404@ccoss.com.cn.suse.lists.linux.kernel>
+Message-ID: <p73k6kafz0g.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-07-01 at 13:53 +0100, Anton Altaparmakov wrote:
-> On Fri, 2005-07-01 at 04:29 -0700, Andrew Morton wrote:
-> > Sorry, but I'm not buying it.  I still don't see a solid reason why all
-> > this could not be done with nfs/v9fs, some kernel tweaks and the rest in
-> > userspace.  It would take some effort, but that effort would end up
-> > strengthening existing kernel capabilities rather than adding brand new
-> > things, which is good.
+"liyu@WAN" <liyu@ccoss.com.cn> writes:
 > 
-> FUSE is a generic FS API which is _very_ easy to write an FS for
-> (learning curve is about 10-15 minutes starting after you have unpacked
-> the fuse source code, at least it took me that long to start writing an
-> FS based on the example one provided).  NFS is not anything like that.
-> 
-> Also can the NFS approach provide me with different content depending on
-> the uid of the accessing process?  With FUSE that is easy as pie.  Even
-> easier than that actually...
+>     I can not understand this. I search intel developer mannal. but
+> nothing to help.
+> Who can tell me why?
 
-I forgot:  And doesn't NFS require stable inode numbers and other
-"invariables" like that for it to work?  FUSE doesn't and those
-requirements are a real PITA in a lot of cases where there simply are no
-inodes and the numbers are synthetic and change on each remount or even
-on each access after the dentry has expired...
+bit 0 is the present bit which needs to be set on the PGD, otherwise
+the CPU will ignore it. A clearer way to write this would have been
 
-And I always thought that doing FS in userspace via NFS is considered an
-ugly hack.  I didn't have the impression that that had changed recently.
-(-;
+        __pgd(__pa(pmd) | _PAGE_PRESENT)
 
-Best regards,
-
-        Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
-
+-Andi

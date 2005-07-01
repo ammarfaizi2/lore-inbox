@@ -1,48 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263266AbVGAHpT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263270AbVGAHrK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263266AbVGAHpT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 03:45:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263269AbVGAHpT
+	id S263270AbVGAHrK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 03:47:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261464AbVGAHrK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 03:45:19 -0400
-Received: from mailfe03.tele2.fr ([212.247.154.76]:43137 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S263266AbVGAHpN convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 03:45:13 -0400
-X-T2-Posting-ID: k1c2aGMK8Lj9Cnpb+Eju4eOhqUzXuhsckJNC9B9P7R8=
-Date: Fri, 1 Jul 2005 09:46:41 +0200
-From: Frederik Deweerdt <frederik.deweerdt@gmail.com>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: akpm@osdl.org, aia21@cam.ac.uk, arjan@infradead.org,
-       linux-kernel@vger.kernel.org, frankvm@frankvm.com
-Subject: Re: FUSE merging?
-Message-ID: <20050701074641.GD8679@gilgamesh.home.res>
-Mail-Followup-To: Miklos Szeredi <miklos@szeredi.hu>, akpm@osdl.org,
-	aia21@cam.ac.uk, arjan@infradead.org, linux-kernel@vger.kernel.org,
-	frankvm@frankvm.com
-References: <E1DnvCq-0000Q4-00@dorka.pomaz.szeredi.hu> <20050630022752.079155ef.akpm@osdl.org> <E1Dnvhv-0000SK-00@dorka.pomaz.szeredi.hu> <1120125606.3181.32.camel@laptopd505.fenrus.org> <E1Dnw2J-0000UM-00@dorka.pomaz.szeredi.hu> <1120126804.3181.34.camel@laptopd505.fenrus.org> <1120129996.5434.1.camel@imp.csi.cam.ac.uk> <20050630124622.7c041c0b.akpm@osdl.org> <E1DoF86-0002Kk-00@dorka.pomaz.szeredi.hu>
+	Fri, 1 Jul 2005 03:47:10 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:6568 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263268AbVGAHqq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Jul 2005 03:46:46 -0400
+Date: Fri, 1 Jul 2005 13:26:00 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: linux-aio@kvack.org, linux-fsdevel@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: aio-stress throughput regressions from 2.6.11 to 2.6.12
+Message-ID: <20050701075600.GC4625@in.ibm.com>
+Reply-To: suparna@in.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E1DoF86-0002Kk-00@dorka.pomaz.szeredi.hu>
-User-Agent: Mutt/1.5.6i
-Content-Transfer-Encoding: 8BIT
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le 01/07/05 08:36 +0200, Miklos Szeredi écrivit:
-> Here's a description of a theoretical DoS scenario:
-> 
->   http://marc.theaimsgroup.com/?l=linux-fsdevel&m=111522019516694&w=2
-> 
-> Miklos
-Could this be solved by implementing some sort of (optional) timeout on fuse
-syscalls (in request_send)?
 
-Fred
+Has anyone else noticed major throughput regressions for random
+reads/writes with aio-stress in 2.6.12 ?
+Or have there been any other FS/IO regressions lately ?
+
+On one test system I see a degradation from around 17+ MB/s to 11MB/s
+for random O_DIRECT AIO (aio-stress -o3 testext3/rwfile5) from 2.6.11
+to 2.6.12. It doesn't seem filesystem specific. Not good :(
+
+BTW, Chris/Ben, it doesn't look like the changes to aio.c have had an impact
+(I copied those back to my 2.6.11 tree and tried the runs with no effect)
+So it is something else ...
+
+Ideas/thoughts/observations ?
+
+Regards
+Suparna
 
 -- 
-o---------------------------------------------o
-| http://open-news.net : l'info alternative   |
-| Tech - Sciences - Politique - International |
-o---------------------------------------------o
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Lab, India
+

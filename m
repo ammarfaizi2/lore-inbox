@@ -1,48 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263270AbVGAHrK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263268AbVGAHsH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263270AbVGAHrK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 03:47:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261464AbVGAHrK
+	id S263268AbVGAHsH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 03:48:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263271AbVGAHsH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 03:47:10 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:6568 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263268AbVGAHqq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 03:46:46 -0400
-Date: Fri, 1 Jul 2005 13:26:00 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: linux-aio@kvack.org, linux-fsdevel@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: aio-stress throughput regressions from 2.6.11 to 2.6.12
-Message-ID: <20050701075600.GC4625@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	Fri, 1 Jul 2005 03:48:07 -0400
+Received: from 69-18-3-179.lisco.net ([69.18.3.179]:4881 "EHLO
+	ninja.slaphack.com") by vger.kernel.org with ESMTP id S263268AbVGAHry
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Jul 2005 03:47:54 -0400
+Message-ID: <42C4F52B.4080508@slaphack.com>
+Date: Fri, 01 Jul 2005 02:47:55 -0500
+From: David Masover <ninja@slaphack.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Hubert Chan <hubert@uhoreg.ca>
+Cc: Hans Reiser <reiser@namesys.com>, Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Kyle Moffett <mrmacman_g4@mac.com>, Valdis.Kletnieks@vt.edu,
+       Lincoln Dale <ltd@cisco.com>, Gregory Maxwell <gmaxwell@gmail.com>,
+       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: reiser4 plugins
+References: <hubert@uhoreg.ca>	<200506290509.j5T595I6010576@laptop11.inf.utfsm.cl>	<87hdfgvqvl.fsf@evinrude.uhoreg.ca>	<8783be6605062914341bcff7cb@mail.gmail.com>	<42C3615A.9020600@namesys.com> <871x6kv4zd.fsf@evinrude.uhoreg.ca>	<20050630062956.GP16867@khan.acc.umu.se> <87psu3vnvc.fsf@evinrude.uhoreg.ca>
+In-Reply-To: <87psu3vnvc.fsf@evinrude.uhoreg.ca>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hubert Chan wrote:
+> On Thu, 30 Jun 2005 08:29:56 +0200, David Weinehall <tao@acc.umu.se> said:
+> 
+> 
+>>On Thu, Jun 30, 2005 at 12:33:10AM -0400, Hubert Chan wrote:
+>>
+>>>It's sort of like the way web servers handle index.html, for those
+>>>who think it's a stupid idea.  (Of course, some people may still
+>>>think it's a stupid idea... ;-) )
+> 
+> 
+>>And guess what?  That's handled on the web server level (userland),
+>>not by the file system.  So different web servers can handle it
+>>differently (think index.html.sv, index.html.zh, index.php, etc).
+> 
+> 
+> From the web *browser*'s point of view, it is handled by the
+> "filesystem" (which is provided by the various servers).  The browser
+> doesn't care how or where the data is stored.  It just requests a file,
+> and gets some data back.  So the browser doesn't have to check for
+> http://www.example.com/, get a failure (trying to read a directory),
+> check for http://www.example.com/index.html, etc.  In this way, the web
+> server controls (which I think takes the place of the filesystem in this
+> case) what gets shown (index.html.sv, etc.), instead of the leaving it
+> up to the browser.
 
-Has anyone else noticed major throughput regressions for random
-reads/writes with aio-stress in 2.6.12 ?
-Or have there been any other FS/IO regressions lately ?
+Somewhat flawed analogy, though.  After the protocol definition, the 
+browser proper will take any URL that the protocol handler likes, which 
+is why file:// works.  After the domain, the http/https handler will 
+take any URL at all, except for maybe some character set issues.  So 
+assuming the server is compatible with itself, we don't have to worry 
+about whether the browser supports going to a directory and having it 
+behave as a file (index.html behavior), or going to a file and having it 
+behave as a directory (as some scripts do -- I've seen urls that look 
+like http://example.com/foo.cgi/bar.html)
 
-On one test system I see a degradation from around 17+ MB/s to 11MB/s
-for random O_DIRECT AIO (aio-stress -o3 testext3/rwfile5) from 2.6.11
-to 2.6.12. It doesn't seem filesystem specific. Not good :(
+Among protocols that behave more like filesystems, such as FTP, you 
+can't really pull the same tricks.  When an FTP client asks for a 
+directory, it's probably asking for a directory listing, and would be 
+quite surprised to find a file there -- or the user would when binary 
+data floods their terminal.
 
-BTW, Chris/Ben, it doesn't look like the changes to aio.c have had an impact
-(I copied those back to my 2.6.11 tree and tried the runs with no effect)
-So it is something else ...
+I *think* this is how FTP works, but I haven't used it in years, except 
+through a web browser.  I still get the feeling that even a web browser 
+expects an FTP file to behave as a file and an FTP directory to behave 
+as a directory.
 
-Ideas/thoughts/observations ?
-
-Regards
-Suparna
-
--- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Lab, India
+But I'm also pretty sure that FTP would be much more receptive to 
+file-as-directory than your average sysadmin would.  For one, breaking 
+tar is unforgivable, and the only ways I can think of fixing that issue 
+are shaky at best when you consider how many apps might do things 
+oh-so-slightly different than tar.
 

@@ -1,49 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261463AbVGAKp7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263303AbVGAKst@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261463AbVGAKp7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 06:45:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263234AbVGAKp6
+	id S263303AbVGAKst (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 06:48:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263234AbVGAKst
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 06:45:58 -0400
-Received: from 238-071.adsl.pool.ew.hu ([193.226.238.71]:24335 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S261463AbVGAKpx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 06:45:53 -0400
-To: frankvm@frankvm.com
-CC: akpm@osdl.org, aia21@cam.ac.uk, arjan@infradead.org,
-       linux-kernel@vger.kernel.org, frankvm@frankvm.com
-In-reply-to: <20050701093627.GB4317@janus> (message from Frank van Maarseveen
-	on Fri, 1 Jul 2005 11:36:27 +0200)
-Subject: Re: FUSE merging?
-References: <E1DnvCq-0000Q4-00@dorka.pomaz.szeredi.hu> <20050630022752.079155ef.akpm@osdl.org> <E1Dnvhv-0000SK-00@dorka.pomaz.szeredi.hu> <1120125606.3181.32.camel@laptopd505.fenrus.org> <E1Dnw2J-0000UM-00@dorka.pomaz.szeredi.hu> <1120126804.3181.34.camel@laptopd505.fenrus.org> <1120129996.5434.1.camel@imp.csi.cam.ac.uk> <20050630124622.7c041c0b.akpm@osdl.org> <E1DoF86-0002Kk-00@dorka.pomaz.szeredi.hu> <20050701093627.GB4317@janus>
-Message-Id: <E1DoJ1O-0002cu-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Fri, 01 Jul 2005 12:45:22 +0200
+	Fri, 1 Jul 2005 06:48:49 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:41127 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S263303AbVGAKso
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Jul 2005 06:48:44 -0400
+Message-ID: <42C5210B.8080806@in.ibm.com>
+Date: Fri, 01 Jul 2005 16:25:07 +0530
+From: suzuki <suzuki@in.ibm.com>
+Organization: IBM Global Services India
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: [RFC] [PATCH] madvise() does not always return -EBADF on non-file
+ mapped area 
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > 
-> > Here's a description of a theoretical DoS scenario:
-> > 
-> >   http://marc.theaimsgroup.com/?l=linux-fsdevel&m=111522019516694&w=2
-> 
-> So the open() hangs indefinately. but what if blackhat tries to install
-> a package from a no longer existing server on /net or via NFS?
-> 
-> A user supplied pathname is not to be trusted by any setuid (or full
-> root) program.
+hi,
 
-If /net won't detect a dead server within a timeout, I think it can be
-considered broken.
+madvise() system call returns -EBADF for areas which does not map to 
+files, only for *behaviour* request MADV_WILLNEED.
 
-> Another example: I'm not sure if there are still /dev/tty devices which
-> may block indefinately upon open() but:
-> 
-> -	I have yet to see a setuid program which always uses O_NONBLOCK
-> 	when opening user supplied pathnames.
-> -	one cannot stat() and then open() because that gives a race.
+Is it the intended behaviour of madvise() ?
 
-Is "being already broken" an excuse for preventing future breakage,
-when these are fixed?
+According to man pages, madvise returns :
 
-Miklos
+EBADF - the map exists, but the area maps something that isn’t a file.
+
+I have attached a patch which could resolve the issue.
+
+-- 
+regards,
+
+Suzuki K P
+Linux Technology Centre,
+IBM Software Labs,
+India.
+
+
+
+Patch to fix madvise() to return -EBADF for non-file mapped area on any 
+requested behaviour.
+
+Signed Off by : Suzuki K P <suzuki@in.ibm.com>
+================================================
+
+--- mm/madvise.c        2005-07-01 16:08:26.000000000 +0530
++++ mm/madvise.c.new    2005-07-01 16:07:45.000000000 +0530
+@@ -62,9 +62,6 @@ static long madvise_willneed(struct vm_a
+  {
+         struct file *file = vma->vm_file;
+
+-       if (!file)
+-               return -EBADF;
+-
+         start = ((start - vma->vm_start) >> PAGE_SHIFT) + vma->vm_pgoff;
+         if (end > vma->vm_end)
+                 end = vma->vm_end;
+@@ -114,8 +111,12 @@ static long madvise_dontneed(struct vm_a
+  static long madvise_vma(struct vm_area_struct * vma, unsigned long start,
+                         unsigned long end, int behavior)
+  {
++       struct file* filp = vma->vm_file;
+         long error = -EBADF;
+
++       if(!filp)
++               goto  out;
++
+         switch (behavior) {
+         case MADV_NORMAL:
+         case MADV_SEQUENTIAL:
+@@ -136,6 +137,7 @@ static long madvise_vma(struct vm_area_s
+                 break;
+         }
+
++out:
+         return error;
+  }
+

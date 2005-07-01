@@ -1,73 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263338AbVGAN3J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263339AbVGANeT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263338AbVGAN3J (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 09:29:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263339AbVGAN3J
+	id S263339AbVGANeT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 09:34:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263341AbVGANeT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 09:29:09 -0400
-Received: from wproxy.gmail.com ([64.233.184.206]:8682 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S263338AbVGAN3E convert rfc822-to-8bit
+	Fri, 1 Jul 2005 09:34:19 -0400
+Received: from alog0085.analogic.com ([208.224.220.100]:51402 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S263339AbVGANeN
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 09:29:04 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=PLslrBSO9hMWdBTuPeFZmvqSPJ18IGtztKM7WNroUuFREhy66gRrQPfP+F8iGAN24aIteGiM5s4QeExqcZR/NP7gNxa09EDH3VWnGRl2Bh3Nu2kgNj97TbMhVd1of0asQX66+30zkDW6KIjUGd/VYVLR+muaMpGwMGUAu5/6uvo=
-Message-ID: <a4e6962a050701062939ed1eb3@mail.gmail.com>
-Date: Fri, 1 Jul 2005 08:29:01 -0500
-From: Eric Van Hensbergen <ericvh@gmail.com>
-Reply-To: Eric Van Hensbergen <ericvh@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: FUSE merging?
-Cc: Miklos Szeredi <miklos@szeredi.hu>, aia21@cam.ac.uk, arjan@infradead.org,
-       linux-kernel@vger.kernel.org, frankvm@frankvm.com,
-       v9fs-developer@lists.sourceforge.net
-In-Reply-To: <20050701042955.39bf46ef.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <E1DnvCq-0000Q4-00@dorka.pomaz.szeredi.hu>
-	 <20050630124622.7c041c0b.akpm@osdl.org>
-	 <E1DoF86-0002Kk-00@dorka.pomaz.szeredi.hu>
-	 <20050630235059.0b7be3de.akpm@osdl.org>
-	 <E1DoFcK-0002Ox-00@dorka.pomaz.szeredi.hu>
-	 <20050701001439.63987939.akpm@osdl.org>
-	 <E1DoG6p-0002Rf-00@dorka.pomaz.szeredi.hu>
-	 <20050701010229.4214f04e.akpm@osdl.org>
-	 <E1DoIUz-0002a5-00@dorka.pomaz.szeredi.hu>
-	 <20050701042955.39bf46ef.akpm@osdl.org>
+	Fri, 1 Jul 2005 09:34:13 -0400
+Date: Fri, 1 Jul 2005 09:33:21 -0400 (EDT)
+From: "Richard B. Johnson" <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Parag Warudkar <kernel-stuff@comcast.net>
+cc: Luigi Genoni <venom@sns.it>, Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] reiser4 vs politics: linux misses out again
+In-Reply-To: <200507010906.34336.kernel-stuff@comcast.net>
+Message-ID: <Pine.LNX.4.61.0507010918330.19685@chaos.analogic.com>
+References: <063020052237.1867.42C47440000D7FD90000074B220700095300009A9B9CD3040A029D0A05@comcast.net>
+ <4246.192.167.206.189.1120218233.squirrel@new.host.name>
+ <Pine.LNX.4.61.0507010806480.18810@chaos.analogic.com>
+ <200507010906.34336.kernel-stuff@comcast.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/1/05, Andrew Morton <akpm@osdl.org> wrote:
-> Miklos Szeredi <miklos@szeredi.hu> wrote: 
-> > > > Userspace can tell the kernel, how long a dentry should be valid.  I
-> > > > don't think the NFS protocol provides this. Same holds for the inode
-> > > > attributes.
-> > >
-> > > Why is that needed?
-> >
-> > Because, I can well imagine a synthetic filesystem, where file
-> > data/metadata change aribitrarily.  In this case the timeout heuristic
-> > in NFS is not useful.
-> >
-> > In fact with NFS it's often a PITA, that it doesn't want to refresh a
-> > file's data/metatata, which I _know_ has changed on the server.
-> 
-> I think nfs can do this, as long as the modification was done through the
-> server.  I'd expect v9fs would be the same.
-> 
+On Fri, 1 Jul 2005, Parag Warudkar wrote:
 
-v9fs aggressively invalidates dentries by default -- it is our
-experience that caching metadata (particularly in synthetics) causes
-more problems than it is worth.  That being said, there are prototype
-designs for v9fs cache layers which actively detect if underlying file
-systems are synthetic or static and allow parametrized cache policies
-(for both the dcache and the page cache).
+> On Friday 01 July 2005 08:17, Richard B. Johnson wrote:
+>> It would be a major marketing slap for Jobs if the
+>> new design was done in Indiana (USA), now it's going
+>> to be done in India.
+>
+> Intel maybe moving part of chipset design to India but Apple still have their
+> product design with them which they haven't announced they will move anywhere
+> - or have they?
+>
 
-As a side-note which I know less about, I believe NFSv4 includes
-server-push invalidation semantics, but I can't remember if that
-applies to metadata or just data.
+Their Web Page doesn't show anything new as a result of the Intel
+deal. I understand that the Intel deal involved Intel-provided
+hardware design in one of Intel's new campuses in India. Intel
+has been in China for several years and established a $US200M
+"China-venture" fund to bring 20-21st century technology to
+China (broadband, semiconductor design, etc.)
 
-          -eric
+> I am not sure if Apple today designs and manufactures chipsets and CPUs in USA
+> - most likely not, they buy it from IBM/Freescale. IBM/Freescale must have
+> designed / manufactured the chipsets and CPUs anywhere - again most likely
+> outside the US.  And from what I have heard Apple computers are assembled in
+> China.
+>
+
+Yes. Enough "final assembly", i.e., putting it in its shipping-box
+is done in the US so they don't need a "made in China" label!
+
+Similar to GE appliances.
+
+> So since long Apple's computers are designed in the US and manufactured /
+> assembled outside of the USA. And that continues to be the case going
+> forward, unless Apple announced they will move "their" product design to
+> somewhere else as a result of Intel's move.
+>
+
+I think the US design is going away. I think in a few years, Silicon
+Valley will revert to some plum trees with migrant workers picking
+the crop. I might be able to buy an orchard at Apple's former site
+for a few thousand dollars. I've got to start saving now, though.
+
+> Parag
+>
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.12 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

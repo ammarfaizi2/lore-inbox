@@ -1,80 +1,159 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263279AbVGAIYw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263282AbVGAI1h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263279AbVGAIYw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 04:24:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263282AbVGAIYw
+	id S263282AbVGAI1h (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 04:27:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263283AbVGAI1h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 04:24:52 -0400
-Received: from [84.77.109.143] ([84.77.109.143]:2281 "EHLO
-	dardhal.24x7linux.com") by vger.kernel.org with ESMTP
-	id S263279AbVGAIYs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 04:24:48 -0400
-Date: Fri, 1 Jul 2005 10:24:47 +0200
-From: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: route reload after interface restart
-Message-ID: <20050701082447.GB4859@localhost>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <dc849d8505063004136573e59e@mail.gmail.com> <200506301418.04419.vda@ilport.com.ua> <dc849d850506300711a92042@mail.gmail.com> <42C492A8.3020702@trash.net> <42C49511.3060307@gmail.com> <42C498ED.4050400@trash.net> <42C4C964.2090200@gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="U+BazGySraz5kW0T"
-Content-Disposition: inline
-In-Reply-To: <42C4C964.2090200@gmail.com>
-User-Agent: Mutt/1.5.9i
+	Fri, 1 Jul 2005 04:27:37 -0400
+Received: from 69-18-3-179.lisco.net ([69.18.3.179]:7182 "EHLO
+	ninja.slaphack.com") by vger.kernel.org with ESMTP id S263282AbVGAI11
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Jul 2005 04:27:27 -0400
+Message-ID: <42C4FE70.4020809@slaphack.com>
+Date: Fri, 01 Jul 2005 03:27:28 -0500
+From: David Masover <ninja@slaphack.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Hans Reiser <reiser@namesys.com>
+Cc: Hubert Chan <hubert@uhoreg.ca>, Ross Biro <ross.biro@gmail.com>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Kyle Moffett <mrmacman_g4@mac.com>, Valdis.Kletnieks@vt.edu,
+       Lincoln Dale <ltd@cisco.com>, Gregory Maxwell <gmaxwell@gmail.com>,
+       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: reiser4 plugins
+References: <hubert@uhoreg.ca>	<200506290509.j5T595I6010576@laptop11.inf.utfsm.cl>	<87hdfgvqvl.fsf@evinrude.uhoreg.ca>	<8783be6605062914341bcff7cb@mail.gmail.com> <878y0svj1h.fsf@evinrude.uhoreg.ca> <42C4F97B.1080803@slaphack.com> <42C4FC0E.7010104@namesys.com>
+In-Reply-To: <42C4FC0E.7010104@namesys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hans Reiser wrote:
+> It was always the expectation that users would want to have one
+> mountpoint with the files having metafiles as files, and another with
+> the same files but strictly posix, and then their apps can use whichever
+> they have the power to understand.
 
---U+BazGySraz5kW0T
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+It was never in the early betas I tried :(
 
-On Friday, 01 July 2005, at 12:41:08 +0800,
-Benbenshi wrote:
+I'm proposing (or re-proposing) that the /meta mountpoint be strictly 
+for accessing meta-files, with no intention of eventually using this by 
+default.  Furthermore, /meta should follow POSIX anyway, mostly -- no 
+file-as-dir there, either, although you still wouldn't want to use tar 
+on it.
 
-> i have done an experiment as follow:
->=20
-> 1. default route was add to eth0
-> 2.ifconfig eth0 down
-> 3.ifconfig eth0 192.168.10.57 netmask 255.255.255.0 up
->=20
-> no default route was re-added to kernel, failed!
->=20
-And how the kernel is supposed to know what your desired default gateway is?
+With only a few patches, using /meta could be almost as convenient as 
+using file/..metas/foo, and it completely kills the file-as-directory 
+flamewar -- everybody's happy.
 
-When you bring a network interface down, it wipes every route using that
-interface. If you then bring the interface up again, and give it an IP and
-network mask, there will be no more added routing information but the
-route to the network where the interface is directly connected.
+Or so I thought.  It seems that the people arguing for file-as-directory 
+are ignoring /meta, and the people arguing against it are arguing 
+against all meta-files, saying that the good things about meta-files 
+don't justify the risks of file-as-dir.  Only once did I see someone 
+bring up /meta.
 
-What you need is not the way the kernel works. Think about, for example, a
-dial-up network interface with frequent IP changes. Suddenly the link goes
-down, it makes the call, and gets a differente IP/mask _and_ default route
-to the Internet. If the kernel somewhat remembered the previous default
-route, if wouldn't work.
+I don't like the idea of having /meta have file-as-dir and everything as 
+we originally wanted, because then we've duplicated the interface.  To 
+read the *contents* of /foo, I can either cat /foo or cat /meta/foo. 
+I'd hate to have the POSIX mountpoint still lying around if no one's 
+using it, even more than I hate the idea of "foo" being in two places 
+for no good reason.
 
-So, to make the default route persistent, script the thing.
+Is there a technical (performance?) reason that my approach is wrong? 
+(metas go in /meta, files go in /, and everything feels POSIX-y)
 
-Greetings,
+> Hans
+> 
+> David Masover wrote:
+> 
+> 
+>>Hubert Chan wrote:
+>>
+>>
+>>>On Wed, 29 Jun 2005 17:34:41 -0400, Ross Biro <ross.biro@gmail.com>
+>>>said:
+>>>
+>>>
+>>>
+>>>>I'm confused.  Can someone on one of these lists enlighten me?
+>>>
+>>>
+>>>
+>>>>How is directories as files logically any different than putting all
+>>>>data into .data files and making all files directories (yes you would
+>>>>need some sort of special handling for files that were really called
+>>>>.data).  Then it's just a matter of deciding what happens when you
+>>>>call open and stat on one of these files?
+>>>
+>>>
+>>>
+>>>Logically, I don't think there is a difference. A filesystem that
+>>>doesn't support file-as-dir could implement the same functionality that
+>>>way. [1]  In fact, that's essentially what MacOS X/NeXTSTEP does with
+>>>its
+>>>bundle format -- it's just a regular directory with regular files
+>>>inside.
+>>
+>>
+>>I, personally, would hate it if everything in my /bin suddenly became
+>>a directory, mainly because everything would stop working.  Is that
+>>the kind of thing you're suggesting?
+>>
+>>I'm a little confused about the .data idea, I guess.
+>>
+>>
+>>>>But we could have a whole new set of system calls that treat things as
+>>>>magic, and if files as directories is as cool as many people think,
+>>>>apps will start using the new api.  If not, they won't and the new api
+>>>>can be deprecated.
+>>>
+>>>
+>>>
+>>>File-as-dir doesn't require new system calls (that I know of), which is
+>>>the whole point of the idea.  Existing programs can edit the strange new
+>>>attributes without being modified.
+>>
+>>
+>>That is indeed the point, but scroll down.
+>>
+>>
+>>>The main thing blocking file-as-dir is that there are some
+>>>locking(IIRC?) issues.  And, of course, some people wouldn't want it to
+>>>be merged into the mainline kernel.  (Of course, the latter doesn't
+>>>prevent Namesys from maintaining their own patches for people to play
+>>>around with.)
+>>
+>>
+>>What's the locking issue?  I think that was more about transactions...
+>>
+>>[...]
+>>
+>>
+>>>People like Horst (and probably others, who are less vocal), I think,
+>>>don't think that it's even worth trying it out because they don't see
+>>>any major advantages.  Or at least they think that the potential
+>>>negatives outweigh the potential positives.  I respect that they have
+>>>different opinions, but I of course disagree and attempt to convince
+>>>them otherwise.
+>>
+>>
+>>Did the /meta (metafs) idea get killed while I was out?  Using that
+>>approach, your potential negatives are that apps which crawl the
+>>entire FS tree, starting at /, with hardcoded apps for /proc and /sys,
+>>are now broken -- but then, /sys already broke them once, so I don't
+>>particularly care if we break them again.
+>>
+>>Potential positives?  I think even just because we like the idea is
+>>enough, because it doesn't break anything and doesn't really affect
+>>anyone who doesn't use it.
+>>
+>>Maybe there are coding standards, but I think others are working that
+>>out now.
+>>
+>>
+> 
+> 
 
---=20
-Jose Luis Domingo Lopez
-Linux Registered User #189436     Debian Linux Sid (Linux 2.6.13-rc1)
-
-
---U+BazGySraz5kW0T
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFCxP3Pao1/w/yPYI0RAmhzAJ44+KRTshF467orL32hJ1Gl8Y+MuACfWhi0
-e5Bgfh4SU57ZQgdFLSgxhoA=
-=lozq
------END PGP SIGNATURE-----
-
---U+BazGySraz5kW0T--

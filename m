@@ -1,58 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263309AbVGALfA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263302AbVGALdy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263309AbVGALfA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 07:35:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263227AbVGALfA
+	id S263302AbVGALdy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 07:33:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263227AbVGALdx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 07:35:00 -0400
-Received: from frankvm.xs4all.nl ([80.126.170.174]:54710 "EHLO
-	janus.localdomain") by vger.kernel.org with ESMTP id S263306AbVGALeK
+	Fri, 1 Jul 2005 07:33:53 -0400
+Received: from smtp-105-friday.nerim.net ([62.4.16.105]:16391 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S263302AbVGALdB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 07:34:10 -0400
-Date: Fri, 1 Jul 2005 13:34:08 +0200
-From: Frank van Maarseveen <frankvm@frankvm.com>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: frankvm@frankvm.com, akpm@osdl.org, aia21@cam.ac.uk, arjan@infradead.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: FUSE merging?
-Message-ID: <20050701113408.GA5218@janus>
-References: <20050630022752.079155ef.akpm@osdl.org> <E1Dnvhv-0000SK-00@dorka.pomaz.szeredi.hu> <1120125606.3181.32.camel@laptopd505.fenrus.org> <E1Dnw2J-0000UM-00@dorka.pomaz.szeredi.hu> <1120126804.3181.34.camel@laptopd505.fenrus.org> <1120129996.5434.1.camel@imp.csi.cam.ac.uk> <20050630124622.7c041c0b.akpm@osdl.org> <E1DoF86-0002Kk-00@dorka.pomaz.szeredi.hu> <20050701093627.GB4317@janus> <E1DoJ1O-0002cu-00@dorka.pomaz.szeredi.hu>
+	Fri, 1 Jul 2005 07:33:01 -0400
+Date: Fri, 1 Jul 2005 13:32:56 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [02/07] [SCSI] qla2xxx: Pull-down scsi-host-addition to follow
+ board initialization.
+Message-Id: <20050701133256.1f08b065.khali@linux-fr.org>
+In-Reply-To: <1120062974.4824.18.camel@mulgrave>
+References: <20050627224651.GI9046@shell0.pdx.osdl.net>
+	<20050627225349.GK9046@shell0.pdx.osdl.net>
+	<20050628235148.4512d046.khali@linux-fr.org>
+	<20050628152037.690c3840.akpm@osdl.org>
+	<20050629100835.60dc42f8.khali@linux-fr.org>
+	<1120062974.4824.18.camel@mulgrave>
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1DoJ1O-0002cu-00@dorka.pomaz.szeredi.hu>
-User-Agent: Mutt/1.4.1i
-X-Subliminal-Message: Use Linux!
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 01, 2005 at 12:45:22PM +0200, Miklos Szeredi wrote:
-> > > 
-> > > Here's a description of a theoretical DoS scenario:
-> > > 
-> > >   http://marc.theaimsgroup.com/?l=linux-fsdevel&m=111522019516694&w=2
-> > 
-> > So the open() hangs indefinately. but what if blackhat tries to install
-> > a package from a no longer existing server on /net or via NFS?
-> > 
-> > A user supplied pathname is not to be trusted by any setuid (or full
-> > root) program.
-> 
-> If /net won't detect a dead server within a timeout, I think it can be
-> considered broken.
-> 
-> > Another example: I'm not sure if there are still /dev/tty devices which
-> > may block indefinately upon open() but:
-> > 
-> > -	I have yet to see a setuid program which always uses O_NONBLOCK
-> > 	when opening user supplied pathnames.
-> > -	one cannot stat() and then open() because that gives a race.
-> 
-> Is "being already broken" an excuse for preventing future breakage,
-> when these are fixed?
+Hi James,
 
-All this breakage points into the same direction: A user supplied pathname
-is not to be trusted by any setuid (or full root) program.
+> > this patch breaks 4 (it is bigger than 100 lines, (...)
+>
+> Not according to my diffstat, it doesn't:
+> 
+> qla_os.c |   55
+> ++++++++++++++++++++++++++++---------------------------
+>  1 files changed, 28 insertions(+), 27 deletions(-)
+
+The original rule was including the context, diffstat doesn't. This
+patch was 136 lines long including the context.
+
+Anyway, it doesn't seem to matter anymore.
 
 -- 
-Frank
+Jean Delvare

@@ -1,53 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263255AbVGAG5h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263254AbVGAG5t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263255AbVGAG5h (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 02:57:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263257AbVGAG5g
+	id S263254AbVGAG5t (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 02:57:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263256AbVGAG5t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Fri, 1 Jul 2005 02:57:49 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:42417 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S263254AbVGAG5g (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 1 Jul 2005 02:57:36 -0400
-Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:59561 "EHLO
-	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S263255AbVGAG52
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 02:57:28 -0400
-X-ORBL: [69.109.163.12]
-From: Fedor Karpelevitch <fedor@karpelevitch.net>
-To: Stefan Seyfried <seife@gmane0305.slipkontur.de>
-Subject: Re: [ACPI] Re: AE_NO_MEMORY on ACPI init after memory upgrade and oops
-Date: Thu, 30 Jun 2005 23:56:44 -0700
-User-Agent: KMail/1.8.1
-Cc: acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <200506300042.22255.fedor@karpelevitch.net> <20050630194954.GA20844@message-id.s3e.de> <2e3c17f30506301319704f6de0@mail.gmail.com>
-In-Reply-To: <2e3c17f30506301319704f6de0@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Date: Fri, 1 Jul 2005 08:57:21 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.13-rc1 CONFIG_DEBUG_SPINLOCK is useless on SMP
+Message-ID: <20050701065721.GA17321@elte.hu>
+References: <6140.1120192710@kao2.melbourne.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200506302356.44979.fedor@karpelevitch.net>
+In-Reply-To: <6140.1120192710@kao2.melbourne.sgi.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fedor Karpelevitch wrote:
-> > > > > I tried to upgrade memory on my laptop from 2 x 128m by
-> > > > > replacing
-> > > >
-> > > > Did you override your DSDT?
-> > >
-> > > Yes, I did.
-> >
-> > So you need to modify your _new_ _original_ DSDT again after the
-> > memory upgrade.
-> > AFAIK the DSDT contains numbers that depend on the amount of
-> > memory and is often built dynamically by the BIOS => even
-> > changing some BIOS settings may change the DSDT.
-> > --
-> > Stefan Seyfried
->
-> Thanks! I'll try it out. I thought DSDT was static...
->
-> Fedor
 
-removing custom DSDT worked. Fortunately all fixes in DSDT are 
-non-critical.
+* Keith Owens <kaos@ocs.com.au> wrote:
 
-Fedor.
+> 2.6.13-rc1 built with SMP=Y and DEBUG_SPINLOCK=y.  That uses 
+> kernel/spinlock.c instead of the inline definitions of the spinlock 
+> functions.  Alas only the inline definitions test for 
+> DEBUG_SPINLOCK=y, none of the code in in spinlock.c has any debug 
+> facilities.
+
+the spinlock cleanups in -mm (not yet in -git) obsolete most of the 
+debugging approach of the current kernel.
+
+but even in terms of 2.6.13-rc1, i'm not completely sure what you mean.
+Yes, there's no debugging code in kernel/spinlock.c because much of the
+DEBUG_SPINLOCK code (under the old method) is located in the arch
+spinlock.h files. I.e. on x86 you'll get SMP spinlock debugging from
+asm-i386/spinlock.h:
+
+ static inline void _raw_spin_lock(spinlock_t *lock)
+ {
+ #ifdef CONFIG_DEBUG_SPINLOCK
+         if (unlikely(lock->magic != SPINLOCK_MAGIC)) {
+                 printk("eip: %p\n", __builtin_return_address(0));
+                 BUG();
+         }
+ #endif
+
+the only practical exception is when CONFIG_PREEMPT is enabled: the arch 
+level trylock, upon which the PREEMPT spinlocks rely on heavily, has no 
+meaningful DEBUG_SPINLOCK checks. (but PREEMPT has other checks which 
+partly offset this.) In any case, this too is fixed by my spinlock 
+cleanups - there all debugging is done centrally in 
+lib/spinlock_debug.c.
+
+	Ingo

@@ -1,54 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262532AbVGAHyv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262666AbVGAIBP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262532AbVGAHyv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 03:54:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262653AbVGAHyu
+	id S262666AbVGAIBP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 04:01:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262772AbVGAIBP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 03:54:50 -0400
-Received: from styx.suse.cz ([82.119.242.94]:9134 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S262532AbVGAHyh (ORCPT
+	Fri, 1 Jul 2005 04:01:15 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:11736 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262666AbVGAIBL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 03:54:37 -0400
-Date: Fri, 1 Jul 2005 09:54:34 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Denis Vlasenko <vda@ilport.com.ua>, Andrew Morton <akpm@osdl.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] deinline sleep/delay functions
-Message-ID: <20050701075434.GB2041@ucw.cz>
-References: <200506300852.25943.vda@ilport.com.ua> <20050630021111.35aaf45f.akpm@osdl.org> <1120123189.3181.28.camel@laptopd505.fenrus.org> <200506301321.20692.vda@ilport.com.ua> <1120128441.3181.37.camel@laptopd505.fenrus.org>
+	Fri, 1 Jul 2005 04:01:11 -0400
+Date: Fri, 1 Jul 2005 10:02:43 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Srihari Vijayaraghavan <sriharivijayaraghavan@yahoo.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PROBLEM] kernel BUG at include/linux/blkdev.h:601
+Message-ID: <20050701080243.GX2243@suse.de>
+References: <20050630153717.GB2243@suse.de> <20050701004801.50905.qmail@web52607.mail.yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1120128441.3181.37.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20050701004801.50905.qmail@web52607.mail.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 30, 2005 at 12:47:21PM +0200, Arjan van de Ven wrote:
-> On Thu, 2005-06-30 at 13:21 +0300, Denis Vlasenko wrote:
-> > On Thursday 30 June 2005 12:19, Arjan van de Ven wrote:
-> > > 
-> > > > > There are a number of compile-time checks that your patch has removed
-> > > > > which catch such things, and as such your patch is not acceptable.
-> > > > > Some architectures have a lower threshold of acceptability for the
-> > > > > maximum udelay value, so it's absolutely necessary to keep this.
-> > > > 
-> > > > It removes that check from x86 - other architectures retain it.
-> > > > 
-> > > > 
-> > For users, _any_ value, however large, will work for
-> > any delay function.
+On Fri, Jul 01 2005, Srihari Vijayaraghavan wrote:
+> --- Jens Axboe <axboe@suse.de> wrote:
+> > On Thu, Jun 30 2005, Srihari Vijayaraghavan wrote:
+> > > --- Srihari Vijayaraghavan
+> > > <sriharivijayaraghavan@yahoo.com.au> wrote:
+> > [...] 
+> > > 2.6.13-rc1 (plus Hugh's get_request patch) doesn't
+> > > suffer from this problem, unlike 2.6.12 and
+> > 2.6.12-git
+> > > releases.
+> > 
+> > That's a little strange, as there should be no
+> > changes in this area so
+> > far. Are you 100% sure?
 > 
-> that's not desired though. Desired is to limit udelay() to say 2000 or
-> so. And force anything above that to go via mdelay() (just to make it
-> stand out as broken code ;)
+> Absolutely. 2.6.12 and 2.6.12-git9 crash within
+> minutes/seconds; OTOH, 2.6.13-rc1 (plus Hugh's patch)
+> survives this torture test for hours (despite
+> generating 30+ MB of kernel/IDE error messages :). No
+> OOPS, no BUGs, no panics, just truck load of error
+> messages.
 > 
-> Over time we also want to phase out mdelay of course...
- 
-The joystick drivers will (sadly) need mdelay forever,
-due to hardware crappines.
+> I haven't tested whether earlier releases of 2.6
+> suffer from this (such as 2.6.10, 2.6.11 ..) or other
+> hardware combinations exhibit the same problem etc.
+> Tell me, if you want me to.
+
+There are some minor ide updates outside of ide-cd, they must be
+accounting for your success in 2.6.13-rc1 then. Could you test 2.6.12
+with this patch applied?
+
+diff --git a/drivers/ide/ide-iops.c b/drivers/ide/ide-iops.c
+--- a/drivers/ide/ide-iops.c
++++ b/drivers/ide/ide-iops.c
+@@ -1181,7 +1181,8 @@ static ide_startstop_t do_reset1 (ide_dr
+ 		pre_reset(drive);
+ 		SELECT_DRIVE(drive);
+ 		udelay (20);
+-		hwif->OUTB(WIN_SRST, IDE_COMMAND_REG);
++		hwif->OUTBSYNC(drive, WIN_SRST, IDE_COMMAND_REG);
++		ndelay(400);
+ 		hwgroup->poll_timeout = jiffies + WAIT_WORSTCASE;
+ 		hwgroup->polling = 1;
+ 		__ide_set_handler(drive, &atapi_reset_pollfunc, HZ/20, NULL);
+
 
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Jens Axboe
+

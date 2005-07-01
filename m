@@ -1,57 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263199AbVGAElo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263215AbVGAEoT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263199AbVGAElo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 00:41:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263212AbVGAElo
+	id S263215AbVGAEoT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 00:44:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263216AbVGAEoT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 00:41:44 -0400
-Received: from [218.94.38.154] ([218.94.38.154]:13974 "EHLO xianan.com.cn")
-	by vger.kernel.org with ESMTP id S263199AbVGAElg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 00:41:36 -0400
-X-AuthUser: chengq@xianan.com.cn
-Message-ID: <42C4C964.2090200@gmail.com>
-Date: Fri, 01 Jul 2005 12:41:08 +0800
-From: Benbenshi <benbenshi@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
+	Fri, 1 Jul 2005 00:44:19 -0400
+Received: from siaag2af.compuserve.com ([149.174.40.136]:26754 "EHLO
+	siaag2af.compuserve.com") by vger.kernel.org with ESMTP
+	id S263215AbVGAEoN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Jul 2005 00:44:13 -0400
+Date: Fri, 1 Jul 2005 00:40:27 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: [patch 2.6.13-rc1] i386: fix incorrect TSS entry for LDT
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, eliad lubovsky <eliadl@013.net>,
+       Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@osdl.org>
+Message-ID: <200507010043_MC3-1-A32F-B78B@compuserve.com>
 MIME-Version: 1.0
-To: Patrick McHardy <kaber@trash.net>, linux-kernel@vger.kernel.org
-Subject: Re: route reload after interface restart
-References: <dc849d8505063004136573e59e@mail.gmail.com>	 <200506301418.04419.vda@ilport.com.ua> <dc849d850506300711a92042@mail.gmail.com> <42C492A8.3020702@trash.net> <42C49511.3060307@gmail.com> <42C498ED.4050400@trash.net>
-In-Reply-To: <42C498ED.4050400@trash.net>
-Content-Type: text/plain; charset=GB2312
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick McHardy wrote:
+The LDT entry in the i386 TSS needs to be a selector, not an entry number.
 
->Benbenshi wrote:
->  
->
->>you mean i have to specify the netmask when i startup the device ?
->>    
->>
->
->Yes.
->
->  
->
-i have done an experiment as follow:
+Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
 
-1. default route was add to eth0
-2.ifconfig eth0 down
-3.ifconfig eth0 192.168.10.57 netmask 255.255.255.0 up
+Index: 2.6.13-rc1/include/asm-i386/processor.h
+===================================================================
+--- 2.6.13-rc1.orig/include/asm-i386/processor.h        2005-06-30 15:46:17.176906000 -0400
++++ 2.6.13-rc1/include/asm-i386/processor.h     2005-07-01 00:23:38.666906000 -0400
+@@ -474,7 +474,7 @@
+        .esp0           = sizeof(init_stack) + (long)&init_stack,       \
+        .ss0            = __KERNEL_DS,                                  \
+        .ss1            = __KERNEL_CS,                                  \
+-       .ldt            = GDT_ENTRY_LDT,                                \
++       .ldt            = GDT_ENTRY_LDT * 8,                            \
+        .io_bitmap_base = INVALID_IO_BITMAP_OFFSET,                     \
+        .io_bitmap      = { [ 0 ... IO_BITMAP_LONGS] = ~0 },            \
+ }
 
-no default route was re-added to kernel, failed!
 
->>can you tell more details ?
->>    
->>
->
->Just try yourself.
->
->  
->
-
+--
+Chuck

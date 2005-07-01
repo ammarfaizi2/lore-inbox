@@ -1,59 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262772AbVGAICT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262775AbVGAIDl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262772AbVGAICT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 04:02:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263269AbVGAICT
+	id S262775AbVGAIDl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 04:03:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262653AbVGAIDl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 04:02:19 -0400
-Received: from ee.oulu.fi ([130.231.61.23]:11945 "EHLO ee.oulu.fi")
-	by vger.kernel.org with ESMTP id S262772AbVGAIB4 (ORCPT
+	Fri, 1 Jul 2005 04:03:41 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:51897 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S263269AbVGAIDY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 04:01:56 -0400
-Date: Fri, 1 Jul 2005 11:01:46 +0300
-From: Pekka Pietikainen <pp@ee.oulu.fi>
-To: linux-ide@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: host protected area fun
-Message-ID: <20050701080146.GA2054@ee.oulu.fi>
+	Fri, 1 Jul 2005 04:03:24 -0400
+Date: Fri, 1 Jul 2005 01:02:29 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: miklos@szeredi.hu, aia21@cam.ac.uk, arjan@infradead.org,
+       linux-kernel@vger.kernel.org, frankvm@frankvm.com
+Subject: Re: FUSE merging?
+Message-Id: <20050701010229.4214f04e.akpm@osdl.org>
+In-Reply-To: <E1DoG6p-0002Rf-00@dorka.pomaz.szeredi.hu>
+References: <E1DnvCq-0000Q4-00@dorka.pomaz.szeredi.hu>
+	<20050630022752.079155ef.akpm@osdl.org>
+	<E1Dnvhv-0000SK-00@dorka.pomaz.szeredi.hu>
+	<1120125606.3181.32.camel@laptopd505.fenrus.org>
+	<E1Dnw2J-0000UM-00@dorka.pomaz.szeredi.hu>
+	<1120126804.3181.34.camel@laptopd505.fenrus.org>
+	<1120129996.5434.1.camel@imp.csi.cam.ac.uk>
+	<20050630124622.7c041c0b.akpm@osdl.org>
+	<E1DoF86-0002Kk-00@dorka.pomaz.szeredi.hu>
+	<20050630235059.0b7be3de.akpm@osdl.org>
+	<E1DoFcK-0002Ox-00@dorka.pomaz.szeredi.hu>
+	<20050701001439.63987939.akpm@osdl.org>
+	<E1DoG6p-0002Rf-00@dorka.pomaz.szeredi.hu>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Possible problem documented in irc conversation below, too lazy to rewrite 
-all that :-)
+Miklos Szeredi <miklos@szeredi.hu> wrote:
+>
+> > >
+> > > > >
+> > > > >  > - aren't we going to remove the nfs semi-server feature?
+> > > > > 
+> > > > >  I leave the decision to you ;)  It's a separate independent patch
+> > > > >  already (fuse-nfs-export.patch).
+> > > > 
+> > > > Let's leave it out - that'll stimulate some activity in the
+> > > > userspace-nfs-server-for-FUSE area.
+> > > > 
+> > > > Speaking of which, dumb question: what does FUSE offer over simply using
+> > > > NFS protocol to talk to the userspace filesystem driver?
+> > > 
+> > > Oh lots:
+> > > 
+> > >   - no deadlocks (NFS mounted from localhost is riddled with them)
+> > 
+> > It is?  We had some low-memory problems a while back, but they got fixed. 
+> > During that work I did some nfs-to-localhost testing and things seemed OK.
+> 
+> Well, there's the "unsolvable" writeback deadlock problem, that FUSE
+> works around by not buffering dirty pages (and not allowing writable
+> mmap).  Does NFS solve that?  I'm interested :)
 
-Have there been some behavioural changes in this area recently? 
-Linux happily overwriting the HPA seems to have happened between 
-fc3 and fc4. Could be some userspace partitioning related/bios brokedness
-thing too I suppose?
+I don't know - first you'd have to describe it.
 
-02:04  * pp tries to figure out host protected area stuff
-02:04 < pp> _apparently_ these stinkpads have a hidden partition containing
-            windows xp etc.
-02:04 < pp> which the bios protects
-02:04 < pp> linux happily ignores that setting and tries to use that area as
-well
-02:05 < pp> which works until you eg. resume  from suspend and the area is
-            locked again
-02:05 < pp> which makes your box pretty unhappy
-02:05 < pp> at some point the behaviour was to just ignore the extra space
-02:06 < freitag> pp: i think i have machines that print at boot they ignore
-the host protected area
-02:06 < pp> so whatever is there got nuked :-)
-02:07 < pp> apparently could even be bios setup etc. on some models
-02:07 < rdd> they can reinstall XP from there too (if it's not nuked)
-02:07 < pp> yea
-02:08 < pp> basically my laptop went into a state where in "normal" setting
-it
-            worked until resuming from suspend, after which it got io errors
-02:08 < pp> in "secure" mode (no OS access to hpa) the box refused to boot
-at all
-02:08 < pp> and in "disabled" it's totally happy
-02:08 < pp> but the fancy ibm stuff disappeared
-02:09 < pp> oh well
-02:09 < freitag> tell linux-ide
+> Then there's the usual "filesystem recursing into itself" deadlock.
 
-:-)
+Describe this completely as well, please.
+
+> Mounting with 'intr' probably solves this for NFS, but that has
+> unwanted side effects.  FUSE only allows KILL to interrupt a request.
+
+Maybe these things can be solved in NFS?
+
+> > >   - dcache invalidation policy
+> > 
+> > What's that?
+> 
+> Userspace can tell the kernel, how long a dentry should be valid.  I
+> don't think the NFS protocol provides this. Same holds for the inode
+> attributes.
+
+Why is that needed?
+
+> > >   - probably more, but I can't remember
+> > 
+> > Please do..
+> 
+> OK, I'll do a little research.
+> 
+
+v9fs has a user-level server too.  Maybe it has been used in FUSE-like
+scenarios more than NFS.
+
+Plus NFS and v9fs work across the network...

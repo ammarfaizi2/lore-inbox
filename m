@@ -1,94 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261636AbVGAXoR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263190AbVGAXo4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261636AbVGAXoR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 19:44:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261643AbVGAXoO
+	id S263190AbVGAXo4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 19:44:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262927AbVGAXom
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 19:44:14 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:5260 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261636AbVGAXnx (ORCPT
+	Fri, 1 Jul 2005 19:44:42 -0400
+Received: from cpe-24-93-204-161.neo.res.rr.com ([24.93.204.161]:22411 "EHLO
+	neo.rr.com") by vger.kernel.org with ESMTP id S261638AbVGAXny (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 19:43:53 -0400
-From: Jeff Moyer <jmoyer@redhat.com>
-MIME-Version: 1.0
+	Fri, 1 Jul 2005 19:43:54 -0400
+Date: Fri, 1 Jul 2005 19:37:36 -0400
+From: Adam Belay <ambx1@neo.rr.com>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, Matt_Domsch@dell.com,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [RFC] PCI: clean up the dynamic pci id logic
+Message-ID: <20050701233736.GA8691@neo.rr.com>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
+	Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+	Matt_Domsch@dell.com, linux-pci@atrey.karlin.mff.cuni.cz
+References: <20050630091812.GA25285@kroah.com> <20050701195232.GB3742@neo.rr.com> <20050701213109.GA1834@kroah.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17093.54582.647650.438340@segfault.boston.redhat.com>
-Date: Fri, 1 Jul 2005 19:43:50 -0400
-To: Matt Mackall <mpm@selenic.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [rfc | patch 0/6] netpoll: add support for the bonding driver
-In-Reply-To: <20050701233811.GQ12006@waste.org>
-References: <17093.52306.136742.190912@segfault.boston.redhat.com>
-	<20050701233811.GQ12006@waste.org>
-X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
-Reply-To: jmoyer@redhat.com
-X-PGP-KeyID: 1F78E1B4
-X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
-X-PCLoadLetter: What the f**k does that mean?
+Content-Disposition: inline
+In-Reply-To: <20050701213109.GA1834@kroah.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-==> Regarding Re: [rfc | patch 0/6] netpoll: add support for the bonding driver; Matt Mackall <mpm@selenic.com> adds:
+On Fri, Jul 01, 2005 at 02:31:09PM -0700, Greg KH wrote:
+> On Fri, Jul 01, 2005 at 03:52:32PM -0400, Adam Belay wrote:
+> > I was wondering why we need dynamic id support in the driver core.  Is there
+> > an issue where the bind/unbind mechanism requires this feature?  I was hoping
+> > bind/unbind would replace it.
+> 
+> No, bind/unbind (well bind, unbind doesn't care) only will work if the
+> driver's probe function can accept the device.  Without dynamic ids,
+> it's not possible to have a driver bind to a device that it does not
+> know about.
 
-mpm> On Fri, Jul 01, 2005 at 07:05:54PM -0400, Jeff Moyer wrote:
->> New netpoll function implemented by the network drivers:
->> 
-net_device-> netpoll_setup
->> This is required, since the bonding device has to walk through each
->> slave and point its slave_dev->npinfo at the npinfo for the master
->> device.  The reason for this is so that when we're doing the napi
->> polling, we can set the rx_flags appropriately.
->> 
-net_device-> netpoll_start_xmit
->> This routine is required since, otherwise, there is no way to intercept
->> packets bound for interfaces that are not ready for them.  Of course, it
->> requires further logic in the bonding driver to then call into the
->> netpoll_send_skb routine (which is a new export).
->> 
->> Note that neither of these pointers has to be filled in by the driver.
->> These functions should only be implemented where needed, and to date,
->> that is only in the bonding driver.
->> 
->> Newly exported are:
->> 
->> netpoll_send_skb This is exported so that the bonding driver can queue a
->> packet to be sent via the real ethernet device it has chosen.
->> 
->> netpoll_poll_dev This is a new routine that was created and exported so
->> that the poll_controller implementation in the bonding driver could poll
->> each of the underlying real devices without duplicating all of the logic
->> that exists internally to netpoll already.
->> 
->> 
->> To test this, as I mentioned above, I wrote a simple module which, upon
->> receipt of any packet, sends out a packet with the message "PONG".  I
->> fired up netcat to send test packets, and receive the responses.  I also
->> loaded the netconsole module for the very same interface, bond0, and
->> issue a series of sysrq-X's, both via sysrq-trigger and via the
->> keyboard.  I did this while simultaneously testing the PING server on an
->> SMP machine.  As things stand, it is very stable in my environment.
->> 
->> And so, the patch set follows.  Any and all comments are appreciated.
+This could be easily changed.  We would just have to make some tweaks to the
+bus drivers.  See below...
 
-mpm> Patches 1, 3, and 6 are unrelated bugfixes and should just go in.
+> 
+> I want to put the sysfs file, and a common callback in the driver core,
+> to make it easier for busses to support dynamic ids.  That's why I am
+> suggesting we add it there.  But I'll play with implementing it and see
+> if it's really worth it or not.
+> 
+> Either way, this patch fixes up the pci code to make the dynamic ids for
+> it, much more readable and smaller.
 
-Right.  Sorry I lumped them together.
+Yeah, agreed.
 
-mpm> I don't like that we rely on queueing to process round trips for PONG.
-mpm> Is this really unavoidable?
+> 
+> > I understand that there are PCI drivers that use .driver_data and read from
+> > their ID table (e.g. pci_serial), but we don't really want the user modifying
+> > these IDs because they're often attached to some device specific tables.
+> 
+> True, if you look at the current pci dynamic id stuff, we don't set the
+> driver_data field at all.  Some USB drivers use this field too.
 
-That's how it works without these patches, too.
+Personally, I'd like to remove .driver_data in favor of internal driver
+heuristics (possibly with some <insert bus here> helper functions).  The
+only driver I've ever seen that wouldn't have completely trivial breakage
+is "serial-pci".
 
-mpm> And I think the most controversial thing here is moving locks from
-mpm> npinfo into the device.
+The right way to fix this driver would be to have it bind to the PCI serial
+class code.  It would then have an internal ID table with flags and
+instructions for each device.  If the device isn't in the table, and
+controlling it is not obvious, ->probe would fail.
 
-Well, as I mentioned, that's a bit of an optimization, if you will.
+> 
+> > It was my understanding that the *probe function should be responsible for
+> > accepting any device, and then gracefully fail if it knows it will be unable
+> > to support it.  For some drivers this could include failing if it's missing
+> > from the ID table.
+> 
+> For this to happen, we would have to rewrite all drivers :(  Right now
+> they assume that the MODULE_TABLE must have matched, in order for the
+> probe() call to be called.  
+> 
+> Remember, probe() of most busses pass in a valid id structure too...
 
-mpm> Not really happy about how incestuous this makes the bonding driver
-mpm> with netpoll. I'll try to think more about it over the weekend.
+Yes, but the vast majority (though not all) of driver-level probe functions
+completely ignore it.  We could fix drivers that need it to handle a null ID
+structure.  Most of these drivers are not going to be able to handle an
+unknown target device anyway, so they could just fail if there isn't an ID.
 
-I'd be delighted if you came up with a better way to do things.  However, I
-think you'll find that this is about as clean as it gets.
+> 
+> > If the driver developer requires the driver to match to an unknown
+> > pool of devices, then the *probe function could be made more advanced.
+> 
+> If the bus/driver core supports dynamic ids, then the individual drivers
+> don't have to be changed at all :)
 
--Jeff
+I understand.  I'm just trying to avoid some extra complexity, code, and
+memory usage.  I'd like to have a more direct approach :)
+
+Thanks,
+Adam
+
+P.S.: One final thought, the bus driver could create a new ID ( based on
+available identification data) on the fly when a driver is bound to the
+device.
+
+
+Also, don't we need a way to turn off automatic driver binding?  The end
+user might want to select a specific driver for a device.  Removing the
+automatically bound driver every time is a bit ugly (and probably sometimes
+impossible depending on the bus/hardware).

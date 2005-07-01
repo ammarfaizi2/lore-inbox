@@ -1,62 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263374AbVGAQRz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263381AbVGAQfi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263374AbVGAQRz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 12:17:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263381AbVGAQRz
+	id S263381AbVGAQfi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 12:35:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263384AbVGAQfi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 12:17:55 -0400
-Received: from build.arklinux.osuosl.org ([140.211.166.26]:53475 "EHLO
-	mail.arklinux.org") by vger.kernel.org with ESMTP id S263374AbVGAQRx
+	Fri, 1 Jul 2005 12:35:38 -0400
+Received: from mail.metronet.co.uk ([213.162.97.75]:35496 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S263381AbVGAQfZ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 12:17:53 -0400
-From: Bernhard Rosenkraenzer <bero@arklinux.org>
-Organization: Ark Linux team
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.6.13-rc1-mm1 unresolved symbols
-Date: Fri, 1 Jul 2005 18:18:17 +0200
+	Fri, 1 Jul 2005 12:35:25 -0400
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: "Al Boldi" <a1426z@gawab.com>
+Subject: Re: XFS corruption during power-blackout
+Date: Fri, 1 Jul 2005 17:35:30 +0100
 User-Agent: KMail/1.8.1
+Cc: "'Jens Axboe'" <axboe@suse.de>, "'David Masover'" <ninja@slaphack.com>,
+       "'Chris Wedgwood'" <cw@f00f.org>, "'Nathan Scott'" <nathans@sgi.com>,
+       linux-xfs@oss.sgi.com, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, reiserfs-list@namesys.com
+References: <200507011405.RAA27425@raad.intranet>
+In-Reply-To: <200507011405.RAA27425@raad.intranet>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_JzWxCn3y4oUeHAW"
-Message-Id: <200507011818.17828.bero@arklinux.org>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200507011735.30229.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_JzWxCn3y4oUeHAW
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Friday 01 Jul 2005 15:05, Al Boldi wrote:
+> Jens Axboe wrote: {
+>
+> On Fri, Jul 01 2005, David Masover wrote:
+> > Chris Wedgwood wrote:
+> > >On Wed, Jun 29, 2005 at 07:53:09AM +0300, Al Boldi wrote:
+> > >>What I found were 4 things in the dest dir:
+> > >>1. Missing Dirs,Files. That's OK.
+> > >>2. Files of size 0. That's acceptable.
+> > >>3. Corrupted Files. That's unacceptable.
+> > >>4. Corrupted Files with original fingerprint. That's ABSOLUTELY
+> > >>unacceptable.
+> > >
+> > >disk usually default to caching these days and can lose data as a
+> > >result, disable that
+> >
+> > Not always possible.  Some disks lie and leave caching on anyway.
+>
+> And the same (and others) disks will not honor a flush anyways.
+> Moral of that story - avoid bad hardware.
+> }
+>
+> 1. Sync is not the issue. The issue is whether a journaled FS can detect
+> corrupted files and flag them after a power-blackout!
+> 2. Moral of the story is: What's ext3 doing the others aren't?
+>
 
-ipw2200 in 2.6.13-rc1-mm1 makes use of is_broadcast_ether_addr, which was 
-removed.
+I agree, I've used XFS for about three years on Linux now, and whilst I love 
+the performance and self-repair attributes of the filesystem, I do think it 
+leaves a lot to be desired when it comes to file corruption.
 
-The attached patch restores that function for now.
+In my experience, using a standard XFS log/volume setup on the same physical, 
+cheap IDE HD, any files open at the time as a power down or hardware lockup 
+end up being filled either with zeros, or garbage.
 
-LLaP
-bero
+However, I'd far rather lose a few files once in a blue moon than have to sit 
+through 10 minute fsck's every time the kernel crashes or I kick out the 
+plugs.
 
---Boundary-00=_JzWxCn3y4oUeHAW
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="2.6.13-rc1-mm1-restore-is_broadcast_ether_addr.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="2.6.13-rc1-mm1-restore-is_broadcast_ether_addr.patch"
+-- 
+Cheers,
+Alistair.
 
---- linux-2.6.13-rc1/include/net/ieee80211.h.ark	2005-07-01 17:46:22.000000000 +0200
-+++ linux-2.6.13-rc1/include/net/ieee80211.h	2005-07-01 17:47:26.000000000 +0200
-@@ -627,6 +627,11 @@
- #define MAC_FMT "%02x:%02x:%02x:%02x:%02x:%02x"
- #define MAC_ARG(x) ((u8*)(x))[0],((u8*)(x))[1],((u8*)(x))[2],((u8*)(x))[3],((u8*)(x))[4],((u8*)(x))[5]
- 
-+extern inline int is_broadcast_ether_addr(const u8 *addr)
-+{
-+	return ((addr[0] == 0xff) && (addr[1] == 0xff) && (addr[2] == 0xff) &&
-+		(addr[3] == 0xff) && (addr[4] == 0xff) && (addr[5] == 0xff));
-+}
- 
- #define CFG_IEEE80211_RESERVE_FCS (1<<0)
- #define CFG_IEEE80211_COMPUTE_FCS (1<<1)
-
---Boundary-00=_JzWxCn3y4oUeHAW--
+personal:   alistair()devzero!co!uk
+university: s0348365()sms!ed!ac!uk
+student:    CS/CSim Undergraduate
+contact:    1F2 55 South Clerk Street,
+            Edinburgh. EH8 9PP.

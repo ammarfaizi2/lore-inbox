@@ -1,68 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263254AbVGAG5t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263257AbVGAHAV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263254AbVGAG5t (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 02:57:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263256AbVGAG5t
+	id S263257AbVGAHAV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 03:00:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263260AbVGAHAV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 02:57:49 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:42417 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S263254AbVGAG5g (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 02:57:36 -0400
-Date: Fri, 1 Jul 2005 08:57:21 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.13-rc1 CONFIG_DEBUG_SPINLOCK is useless on SMP
-Message-ID: <20050701065721.GA17321@elte.hu>
-References: <6140.1120192710@kao2.melbourne.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <6140.1120192710@kao2.melbourne.sgi.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Fri, 1 Jul 2005 03:00:21 -0400
+Received: from 238-071.adsl.pool.ew.hu ([193.226.238.71]:12042 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S263257AbVGAG6l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Jul 2005 02:58:41 -0400
+To: frankvm@frankvm.com
+CC: akpm@osdl.org, aia21@cam.ac.uk, arjan@infradead.org, miklos@szeredi.hu,
+       linux-kernel@vger.kernel.org, frankvm@frankvm.com
+In-reply-to: <20050630222828.GA32357@janus> (message from Frank van Maarseveen
+	on Fri, 1 Jul 2005 00:28:28 +0200)
+Subject: Re: FUSE merging?
+References: <E1DnvCq-0000Q4-00@dorka.pomaz.szeredi.hu> <20050630022752.079155ef.akpm@osdl.org> <E1Dnvhv-0000SK-00@dorka.pomaz.szeredi.hu> <1120125606.3181.32.camel@laptopd505.fenrus.org> <E1Dnw2J-0000UM-00@dorka.pomaz.szeredi.hu> <1120126804.3181.34.camel@laptopd505.fenrus.org> <1120129996.5434.1.camel@imp.csi.cam.ac.uk> <20050630124622.7c041c0b.akpm@osdl.org> <20050630222828.GA32357@janus>
+Message-Id: <E1DoFTR-0002NH-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Fri, 01 Jul 2005 08:58:05 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > 
+> > - Frank points out that a user can send a sigstop to his own setuid(0)
+> >   task and he intimates that this could cause DoS problems with FUSE.  More
+> >   details needed please?
+> 
+> It's the other way around:
+> Apparently it is not a security problem to SIGSTOP or even SIGKILL a
+> setuid program. So why is it a security problem when such a program is
+> delayed by a supposedly malicious behaving FUSE mount?
 
-* Keith Owens <kaos@ocs.com.au> wrote:
+Perfectly valid argument.  My question: is it not a security problem
+to allow signals to reach a suid program?
 
-> 2.6.13-rc1 built with SMP=Y and DEBUG_SPINLOCK=y.  That uses 
-> kernel/spinlock.c instead of the inline definitions of the spinlock 
-> functions.  Alas only the inline definitions test for 
-> DEBUG_SPINLOCK=y, none of the code in in spinlock.c has any debug 
-> facilities.
+> I think that setuid programs take too many things for granted, especially
+> "time". I also think the ptrace equivalence principle (item C2 in the
+> FUSE doc) is too harsh for FUSE.
 
-the spinlock cleanups in -mm (not yet in -git) obsolete most of the 
-debugging approach of the current kernel.
+It's obviously not equivalence.  FUSE filesystem gets a subset of
+ptrace's capabilities (and rather a small one).
 
-but even in terms of 2.6.13-rc1, i'm not completely sure what you mean.
-Yes, there's no debugging code in kernel/spinlock.c because much of the
-DEBUG_SPINLOCK code (under the old method) is located in the arch
-spinlock.h files. I.e. on x86 you'll get SMP spinlock debugging from
-asm-i386/spinlock.h:
+> Suppose the process changes id to full root and we can no longer send
+> signals to it. Are there any other ways we could affect its scheduling
+> without FUSE? I think "yes", clearly not that easy as when it accesses a
+> FUSE mount but "yes". Think about typing ^S (XOFF), or by letting it read
+> from a pipe or from a file on a very very slow device. Or by renicing
+> the parent in advance. Regarding the pipe: yes the setuid program could
+> check that with fstat() but is such a check fundamentally the right
+> approach? I have doubt because unified I/O is a good thing and there is
+> no guarantee whatsoever about completion of any FS operation within a
+> certain amount of time. Suppose another malicious process does a lookup
+> in a huge directory without hashed names? What about a process consuming
+> lots of memory, pushing everything else into swap? What about deleting
+> a _huge_ file or do other things which might(?) take a considerable
+> amount of kernel time? [id]notify might even help using this to delay
+> a root process at a crucial point to exploit a race. So, I think there
+> are many ways to affect the execution speed of [setuid] programs. I
+> have never heard of a setuid root program which renices itself, such,
+> that it successfully avoids a race or DoS exploit.
 
- static inline void _raw_spin_lock(spinlock_t *lock)
- {
- #ifdef CONFIG_DEBUG_SPINLOCK
-         if (unlikely(lock->magic != SPINLOCK_MAGIC)) {
-                 printk("eip: %p\n", __builtin_return_address(0));
-                 BUG();
-         }
- #endif
+There's a huge difference between slowing down, and stopping a
+process.  I wouldn't consider the first a true DoS. 
 
-the only practical exception is when CONFIG_PREEMPT is enabled: the arch 
-level trylock, upon which the PREEMPT spinlocks rely on heavily, has no 
-meaningful DEBUG_SPINLOCK checks. (but PREEMPT has other checks which 
-partly offset this.) In any case, this too is fixed by my spinlock 
-cleanups - there all debugging is done centrally in 
-lib/spinlock_debug.c.
+> And then the DoS thing using simulated endless files within FUSE. It is
+> already possible to create terabyte sized [sparse] files. Can the fstat()
+> size/blocks info be trusted from FUSE? no more than fstat() outside FUSE
+> because the file may still be growing!
+> 
+> > - I don't recall seeing an exhaustive investigation of how an
+> >   unprivileged user could use a FUSE mount to implement DoS attacks against
+> >   other users or against root.
+> 
+> In general I think it is _hard_ to protect against a local DoS for many
+> reasons and I don't see any new fundamental problem here with FUSE:
+> it is just making it more obvious that it's hard to write secure setuid
+> programs. Those programs should _know_ that input data and anything else
+> from the user is "tainted" and that they must be _very_ careful with it,
+> in every detail.
 
-	Ingo
+Yes.  The extra problem with FUSE, is that they are not _able_ to be
+careful.  They can't even check if a file is in fact on a FUSE mount
+or not without the FUSE daemon's intervention (lookup on a file will
+be passed to userspace).
+
+Thanks,
+Miklos

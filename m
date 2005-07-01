@@ -1,51 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263455AbVGATg5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263450AbVGATm3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263455AbVGATg5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 15:36:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263441AbVGATgl
+	id S263450AbVGATm3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 15:42:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263457AbVGATmD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 15:36:41 -0400
-Received: from smtp.andrew.cmu.edu ([128.2.10.83]:49551 "EHLO
-	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP id S263440AbVGATfL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 15:35:11 -0400
-From: Jeremy Maitin-Shepard <jbms@cmu.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: FUSE merging?
-References: <20050630222828.GA32357@janus>
-	<E1DoFTR-0002NH-00@dorka.pomaz.szeredi.hu> <20050701092444.GA4317@janus>
-	<E1DoIjd-0002bM-00@dorka.pomaz.szeredi.hu> <20050701120028.GB5218@janus>
-	<E1DoKko-0002ml-00@dorka.pomaz.szeredi.hu> <20050701130510.GA5805@janus>
-	<E1DoLSx-0002sR-00@dorka.pomaz.szeredi.hu> <20050701152003.GA7073@janus>
-	<E1DoOwc-000368-00@dorka.pomaz.szeredi.hu> <20050701180415.GA7755@janus>
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-1: winter into spring
-Date: Fri, 01 Jul 2005 15:35:11 -0400
-In-Reply-To: <20050701180415.GA7755@janus> (Frank van Maarseveen's message of
-	"Fri, 1 Jul 2005 20:04:15 +0200")
-Message-ID: <871x6ijp5c.fsf@jbms.ath.cx>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/22.0.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain
+	Fri, 1 Jul 2005 15:42:03 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2993 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S263443AbVGATjZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Jul 2005 15:39:25 -0400
+Date: Fri, 1 Jul 2005 11:49:01 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Olivier Croquette <ocroquette@free.fr>
+Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: setitimer expire too early (Kernel 2.4)
+Message-ID: <20050701144901.GC11975@logos.cnet>
+References: <42C444AA.2070508@free.fr> <20050630165053.GA8220@logos.cnet> <20050630160537.7d05d467.akpm@osdl.org> <42C582CC.5050907@free.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42C582CC.5050907@free.fr>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Frank van Maarseveen <frankvm@frankvm.com> writes:
+Hi Olivier,
 
-[snip]
+On Fri, Jul 01, 2005 at 07:52:12PM +0200, Olivier Croquette wrote:
+> Andrew Morton wrote:
+> >>Linus, Andrew, do you consider this critical enough to be merged to 
+> >>the v2.4 tree?
+> >
+> >
+> >No.  I'd expect this would hurt more people than it would benefit.
+> 
+> 
+> Probably.
+> Does that mean that the kernel 2.4 will keep this bug for ever?
 
-> But put otherwise: is there a compelling reason to permit FUSE mounts on
-> non-leaf nodes?
+Probably, yes. I've never heard such complaints before your message.
 
-In my own use of FUSE, I have found it handy to stick mount scripts in
-some of the directories that I use as FUSE mount points.
+The right way to do it seems something else BTW:
 
--- 
-Jeremy Maitin-Shepard
+quoting Nish Aravamudan (http://lkml.org/lkml/2005/4/29/240):
+
+Your patch is the only way to guarantee no early timeouts, as far as I know.
+
+Really, what you want is:
+
+on adding timers, take the ceiling of the interval into which it could be added
+on expiring timers, take the floor
+
+This combination guarantees no timers go off early (and takes away
+many of these corner cases). I do exactly this in my patch, btw.

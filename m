@@ -1,74 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262666AbVGAIBP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262772AbVGAICT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262666AbVGAIBP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 04:01:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262772AbVGAIBP
+	id S262772AbVGAICT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 04:02:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263269AbVGAICT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 04:01:15 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:11736 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262666AbVGAIBL (ORCPT
+	Fri, 1 Jul 2005 04:02:19 -0400
+Received: from ee.oulu.fi ([130.231.61.23]:11945 "EHLO ee.oulu.fi")
+	by vger.kernel.org with ESMTP id S262772AbVGAIB4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 04:01:11 -0400
-Date: Fri, 1 Jul 2005 10:02:43 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Srihari Vijayaraghavan <sriharivijayaraghavan@yahoo.com.au>
+	Fri, 1 Jul 2005 04:01:56 -0400
+Date: Fri, 1 Jul 2005 11:01:46 +0300
+From: Pekka Pietikainen <pp@ee.oulu.fi>
+To: linux-ide@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PROBLEM] kernel BUG at include/linux/blkdev.h:601
-Message-ID: <20050701080243.GX2243@suse.de>
-References: <20050630153717.GB2243@suse.de> <20050701004801.50905.qmail@web52607.mail.yahoo.com>
+Subject: host protected area fun
+Message-ID: <20050701080146.GA2054@ee.oulu.fi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20050701004801.50905.qmail@web52607.mail.yahoo.com>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 01 2005, Srihari Vijayaraghavan wrote:
-> --- Jens Axboe <axboe@suse.de> wrote:
-> > On Thu, Jun 30 2005, Srihari Vijayaraghavan wrote:
-> > > --- Srihari Vijayaraghavan
-> > > <sriharivijayaraghavan@yahoo.com.au> wrote:
-> > [...] 
-> > > 2.6.13-rc1 (plus Hugh's get_request patch) doesn't
-> > > suffer from this problem, unlike 2.6.12 and
-> > 2.6.12-git
-> > > releases.
-> > 
-> > That's a little strange, as there should be no
-> > changes in this area so
-> > far. Are you 100% sure?
-> 
-> Absolutely. 2.6.12 and 2.6.12-git9 crash within
-> minutes/seconds; OTOH, 2.6.13-rc1 (plus Hugh's patch)
-> survives this torture test for hours (despite
-> generating 30+ MB of kernel/IDE error messages :). No
-> OOPS, no BUGs, no panics, just truck load of error
-> messages.
-> 
-> I haven't tested whether earlier releases of 2.6
-> suffer from this (such as 2.6.10, 2.6.11 ..) or other
-> hardware combinations exhibit the same problem etc.
-> Tell me, if you want me to.
+Possible problem documented in irc conversation below, too lazy to rewrite 
+all that :-)
 
-There are some minor ide updates outside of ide-cd, they must be
-accounting for your success in 2.6.13-rc1 then. Could you test 2.6.12
-with this patch applied?
+Have there been some behavioural changes in this area recently? 
+Linux happily overwriting the HPA seems to have happened between 
+fc3 and fc4. Could be some userspace partitioning related/bios brokedness
+thing too I suppose?
 
-diff --git a/drivers/ide/ide-iops.c b/drivers/ide/ide-iops.c
---- a/drivers/ide/ide-iops.c
-+++ b/drivers/ide/ide-iops.c
-@@ -1181,7 +1181,8 @@ static ide_startstop_t do_reset1 (ide_dr
- 		pre_reset(drive);
- 		SELECT_DRIVE(drive);
- 		udelay (20);
--		hwif->OUTB(WIN_SRST, IDE_COMMAND_REG);
-+		hwif->OUTBSYNC(drive, WIN_SRST, IDE_COMMAND_REG);
-+		ndelay(400);
- 		hwgroup->poll_timeout = jiffies + WAIT_WORSTCASE;
- 		hwgroup->polling = 1;
- 		__ide_set_handler(drive, &atapi_reset_pollfunc, HZ/20, NULL);
+02:04  * pp tries to figure out host protected area stuff
+02:04 < pp> _apparently_ these stinkpads have a hidden partition containing
+            windows xp etc.
+02:04 < pp> which the bios protects
+02:04 < pp> linux happily ignores that setting and tries to use that area as
+well
+02:05 < pp> which works until you eg. resume  from suspend and the area is
+            locked again
+02:05 < pp> which makes your box pretty unhappy
+02:05 < pp> at some point the behaviour was to just ignore the extra space
+02:06 < freitag> pp: i think i have machines that print at boot they ignore
+the host protected area
+02:06 < pp> so whatever is there got nuked :-)
+02:07 < pp> apparently could even be bios setup etc. on some models
+02:07 < rdd> they can reinstall XP from there too (if it's not nuked)
+02:07 < pp> yea
+02:08 < pp> basically my laptop went into a state where in "normal" setting
+it
+            worked until resuming from suspend, after which it got io errors
+02:08 < pp> in "secure" mode (no OS access to hpa) the box refused to boot
+at all
+02:08 < pp> and in "disabled" it's totally happy
+02:08 < pp> but the fancy ibm stuff disappeared
+02:09 < pp> oh well
+02:09 < freitag> tell linux-ide
 
-
--- 
-Jens Axboe
-
+:-)

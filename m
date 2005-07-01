@@ -1,56 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263450AbVGATm3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263444AbVGATrT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263450AbVGATm3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 15:42:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263457AbVGATmD
+	id S263444AbVGATrT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 15:47:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263443AbVGATrS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 15:42:03 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2993 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S263443AbVGATjZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 15:39:25 -0400
-Date: Fri, 1 Jul 2005 11:49:01 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Olivier Croquette <ocroquette@free.fr>
-Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: setitimer expire too early (Kernel 2.4)
-Message-ID: <20050701144901.GC11975@logos.cnet>
-References: <42C444AA.2070508@free.fr> <20050630165053.GA8220@logos.cnet> <20050630160537.7d05d467.akpm@osdl.org> <42C582CC.5050907@free.fr>
+	Fri, 1 Jul 2005 15:47:18 -0400
+Received: from iron.pdx.net ([207.149.241.18]:58572 "EHLO iron.pdx.net")
+	by vger.kernel.org with ESMTP id S263459AbVGATmK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Jul 2005 15:42:10 -0400
+Subject: Re: ASUS K8N-DL Beta BIOS
+From: Sean Bruno <sean.bruno@dsl-only.net>
+To: "Hodle, Brian" <BHodle@harcroschem.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'ipsoa@posiden.hopto.org'" <ipsoa@posiden.hopto.org>
+In-Reply-To: <D9A1161581BD7541BC59D143B4A06294021FAAAF@KCDC1>
+References: <D9A1161581BD7541BC59D143B4A06294021FAAAF@KCDC1>
+Content-Type: text/plain
+Date: Fri, 01 Jul 2005 12:42:06 -0700
+Message-Id: <1120246927.2764.26.camel@home-lap>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42C582CC.5050907@free.fr>
-User-Agent: Mutt/1.5.5.1i
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Olivier,
 
-On Fri, Jul 01, 2005 at 07:52:12PM +0200, Olivier Croquette wrote:
-> Andrew Morton wrote:
-> >>Linus, Andrew, do you consider this critical enough to be merged to 
-> >>the v2.4 tree?
-> >
-> >
-> >No.  I'd expect this would hurt more people than it would benefit.
+On Fri, 2005-07-01 at 14:19 -0500, Hodle, Brian wrote:
+> Sean,
+>    You might get a laugh out of this! It's a reply from ASUS about the
+> motherboard (this was 2 days b4 they released the 1004.7 BETA BIOS.
 > 
+> Pretty sad when ASUS tells you to "Clear your CMOS". I thought I asked a
+> pretty straightforward tech question... Makes me wonder if they even read
+> it, or they had a PERL script do it!
 > 
-> Probably.
-> Does that mean that the kernel 2.4 will keep this bug for ever?
+> Ps. New BIOS didn't change a thing. The PCI Device names in the ACPI table
+> are not entered in a fashion that the kernel recognizes. Maybe ASUS decided
+> to 'optimize' routing by making a more efficient table?' nah..
+> 
+> Cheers,
+> 
+> -Brian
+> 
+This is pretty much the reaction that I am getting from calling ASUS
+tech support.  They have told me on several occasions that they will
+"call me back" and never do.  I am fairly certain that there is a
+problem with the BIOS, but the kernel could be modified to ignore the
+issue as a backup plan.
 
-Probably, yes. I've never heard such complaints before your message.
+I received some insight from an individual at Nvidia that looks
+something like this:
 
-The right way to do it seems something else BTW:
+There are several issues immediately apparent with the BIOS.
 
-quoting Nish Aravamudan (http://lkml.org/lkml/2005/4/29/240):
+It has an ACPI interrupt override for IRQ0 to Global System Interrupt 2
+(GSI 2) that is incorrect -
 
-Your patch is the only way to guarantee no early timeouts, as far as I know.
+ACPI: INT_SRC_OVR (bus 0 bus_irq 0 global_irq 2 dfl dfl)
 
-Really, what you want is:
+and is the root cause of the later warnings to do with the timer:
 
-on adding timers, take the ceiling of the interval into which it could be added
-on expiring timers, take the floor
+..MP-BIOS bug: 8254 timer not connected to IO-APIC
+...trying to set up timer (IRQ0) through the 8259A ...  failed.
+timer doesn't work through the IO-APIC - disabling NMI Watchdog!
+...trying to set up timer as Virtual Wire IRQ...Uhhuh. NMI received for
+unknown reason 3d.
+Dazed and confused, but trying to continue
+Do you have a strange power saving mode enabled?
+ failed.
+...trying to set up timer as ExtINT IRQ... works.
 
-This combination guarantees no timers go off early (and takes away
-many of these corner cases). I do exactly this in my patch, btw.
+The Linux kernel (2.6.9 onwards) contains code to specifically detect
+this interrupt redirect on NVIDIA hardware, and ignore it, but for some
+reason it isn't kicking in on your setup. Not sure why that is.
+
+Also, the ACPI PCI Interrupt Routing Table (PRT) contains references to
+entries that don't exist elsewhere in the ACPI tables:
+
+ACPI: Subsystem revision 20050309
+    ACPI-0352: *** Error: Looking up [\_SB_.PCI0.LNK0] in namespace,
+AE_NOT_FOUND
+search_node ffff81013ffca240 start_node ffff81013ffca240 return_node
+0000000000000000
+    ACPI-0352: *** Error: Looking up [\_SB_.PCI0.APC0] in namespace,
+AE_NOT_FOUND
+search_node ffff81013ffca140 start_node ffff81013ffca140 return_node
+0000000000000000
+
+Linux unfortunately appears to give up on parsing the PRT when this
+happens, unlike Windows, which will parse the table despite these
+errors. Without parsing the PRT, Linux cannot know how to route
+interrupts for various PCI devices, which results in the later errors:
+
+...
+ACPI: PCI Interrupt 0000:02:00.0[A]: no GSI - using IRQ 3
+...
+ACPI: PCI Interrupt 0000:00:04.0[A]: no GSI - using IRQ 11
+
+I'm guessing that your Broadcom networking, AC97 sound and USB 1.1
+controller may not be working correctly as a result of this.
+
+The Linux kernel could be modified to continue parsing PRTs when errors
+are encountered. However, it is the BIOS that is at fault here.
+
+Sean
+

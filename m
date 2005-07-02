@@ -1,60 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261681AbVGBBzd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261684AbVGBB5v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261681AbVGBBzd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 21:55:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261211AbVGBBzc
+	id S261684AbVGBB5v (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 21:57:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261702AbVGBB52
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 21:55:32 -0400
-Received: from ipx10786.ipxserver.de ([80.190.251.108]:11244 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S261681AbVGBBzQ
+	Fri, 1 Jul 2005 21:57:28 -0400
+Received: from ipx10786.ipxserver.de ([80.190.251.108]:13292 "EHLO
+	allen.werkleitz.de") by vger.kernel.org with ESMTP id S261684AbVGBBzU
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 21:55:16 -0400
-Message-Id: <20050702015618.434567000@abc>
+	Fri, 1 Jul 2005 21:55:20 -0400
+Message-Id: <20050702015619.204999000@abc>
 References: <20050702015506.631451000@abc>
-Date: Sat, 02 Jul 2005 03:55:08 +0200
+Date: Sat, 02 Jul 2005 03:55:12 +0200
 From: Johannes Stezenbach <js@linuxtv.org>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Patrick Boettcher <pb@linuxtv.org>
-Content-Disposition: inline; filename=dvb-usb-timeout-fix.patch
+Cc: linux-kernel@vger.kernel.org, Steffen Motzer <motzersn@t-link.de>,
+       Manu Abraham <manu@kromtek.com>
+Content-Disposition: inline; filename=dvb-dst-tuning-fix.patch
 X-SA-Exim-Connect-IP: 84.189.246.3
-Subject: [DVB patch 2/8] usb: dont use HZ for timeouts
+Subject: [DVB patch 6/8] dst: fix tuning problem
 X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
 X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Patrick Boettcher <pb@linuxtv.org>
+From: Steffen Motzer <motzersn@t-link.de>
 
-Don't use HZ for usb-transfer-timeouts.
+Fix tuning failure for 200103A, 200103A failed to tune to low band
+due to wrong tone setting on the 200103A.
 
-Signed-off-by: Patrick Boettcher <pb@linuxtv.org>
+Signed-off-by: Steffen Motzer <motzersn@t-link.de>
+Signed-off-by: Manu Abraham <manu@kromtek.com>
 Signed-off-by: Johannes Stezenbach <js@linuxtv.org>
 
- drivers/media/dvb/dvb-usb/dvb-usb-urb.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/media/dvb/bt8xx/dst.c |    6 +++++-
+ 1 files changed, 5 insertions(+), 1 deletion(-)
 
-Index: linux-2.6.13-rc1-mm1/drivers/media/dvb/dvb-usb/dvb-usb-urb.c
+Index: linux-2.6.13-rc1-mm1/drivers/media/dvb/bt8xx/dst.c
 ===================================================================
---- linux-2.6.13-rc1-mm1.orig/drivers/media/dvb/dvb-usb/dvb-usb-urb.c	2005-07-02 03:22:09.000000000 +0200
-+++ linux-2.6.13-rc1-mm1/drivers/media/dvb/dvb-usb/dvb-usb-urb.c	2005-07-02 03:22:26.000000000 +0200
-@@ -29,7 +29,7 @@ int dvb_usb_generic_rw(struct dvb_usb_de
+--- linux-2.6.13-rc1-mm1.orig/drivers/media/dvb/bt8xx/dst.c	2005-07-02 03:22:09.000000000 +0200
++++ linux-2.6.13-rc1-mm1/drivers/media/dvb/bt8xx/dst.c	2005-07-02 03:22:31.000000000 +0200
+@@ -1147,7 +1147,11 @@ static int dst_set_tone(struct dvb_front
  
- 	ret = usb_bulk_msg(d->udev,usb_sndbulkpipe(d->udev,
- 			d->props.generic_bulk_ctrl_endpoint), wbuf,wlen,&actlen,
--			2*HZ);
-+			2000);
+ 	switch (tone) {
+ 		case SEC_TONE_OFF:
+-			state->tx_tuna[2] = 0xff;
++			if (state->type_flags & DST_TYPE_HAS_OBS_REGS)
++			    state->tx_tuna[2] = 0x00;
++			else
++			    state->tx_tuna[2] = 0xff;
++
+ 			break;
  
- 	if (ret)
- 		err("bulk message failed: %d (%d/%d)",ret,wlen,actlen);
-@@ -43,7 +43,7 @@ int dvb_usb_generic_rw(struct dvb_usb_de
- 
- 		ret = usb_bulk_msg(d->udev,usb_rcvbulkpipe(d->udev,
- 				d->props.generic_bulk_ctrl_endpoint),rbuf,rlen,&actlen,
--				2*HZ);
-+				2000);
- 
- 		if (ret)
- 			err("recv bulk message failed: %d",ret);
+ 		case SEC_TONE_ON:
 
 --
 

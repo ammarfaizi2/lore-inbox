@@ -1,57 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261316AbVGBWjj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261318AbVGBWzi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261316AbVGBWjj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Jul 2005 18:39:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261318AbVGBWjj
+	id S261318AbVGBWzi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Jul 2005 18:55:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261320AbVGBWzi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Jul 2005 18:39:39 -0400
-Received: from [202.136.32.45] ([202.136.32.45]:35752 "EHLO
-	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S261316AbVGBWjg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Jul 2005 18:39:36 -0400
-From: Grant Coady <grant_lkml@dodo.com.au>
-To: CyberOptic <mail@cyberoptic.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ppa / parport zip-drive / kernel 2.6.12.2
-Date: Sun, 03 Jul 2005 08:39:20 +1000
-Organization: <http://scatter.mine.nu/>
-Message-ID: <4g5ec1pftrkmejqs3rdl8lms2j49a7duhp@4ax.com>
-References: <42C6FD00.2060408@cyberoptic.de> <1a3ec1t4evi7dcops742493hv7vd9aijb5@4ax.com> <42C71353.3000802@cyberoptic.de>
-In-Reply-To: <42C71353.3000802@cyberoptic.de>
-X-Mailer: Forte Agent 2.0/32.652
+	Sat, 2 Jul 2005 18:55:38 -0400
+Received: from wproxy.gmail.com ([64.233.184.197]:21917 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261318AbVGBWz0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Jul 2005 18:55:26 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=pQKYmzJaC8YObkWw342+xPEWn3jMKu55AieC/G6nmQlHoN8UGawf0vs9Ne9V7u6A9EPuEWiaXBvEN5Qpv1XpOGidVxo+ERst13y72gWVRxyJTE1DeAwTxwc8GT01lp4xtS9OXpH+LlTYU5X7JKn+Qi3Gs9TevI1+Rz+dldscFlA=
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Nicholas Hans Simmonds <nhstux@gmail.com>
+Subject: Re: [PATCH] Filesystem capabilities support
+Date: Sun, 3 Jul 2005 03:01:48 +0400
+User-Agent: KMail/1.7.2
+Cc: linux-kernel@vger.kernel.org, "Andrew G. Morgan" <morgan@transmeta.com>,
+       Alexander Kjeldaas <astor@guardian.no>
+References: <20050702214108.GA755@laptop>
+In-Reply-To: <20050702214108.GA755@laptop>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200507030301.48862.adobriyan@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 03 Jul 2005 00:21:07 +0200, CyberOptic <mail@cyberoptic.de> wrote:
->Can you post your dmesg-output after loading the ppa module, please?
->Maybe this might help me.
->
-ppa: Version 2.07 (for Linux 2.4.x)
-ppa: Found device at ID 6, Attempting to use EPP 32 bit
-ppa: Found device at ID 6, Attempting to use PS/2
-ppa: Communication established with ID 6 using PS/2
-scsi0 : Iomega VPI0 (ppa) interface
-  Vendor: IOMEGA    Model: ZIP 100           Rev: D.17
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-Attached scsi removable disk sda at scsi0, channel 0, id 6, lun 0
-grant@pooh:~$ uname -r
-2.6.12.2a
+On Sunday 03 July 2005 01:41, Nicholas Hans Simmonds wrote:
+> This is a simple attempt at providing capability support through extended
+> attributes. Setting security.cap_set to contain a struct cap_xattr_data which
+> defines the desired capabilities will switch on the new behaviour otherwise
+> there is no change. When a file is written to then the xattr (if it exists) is
+> removed to prevent tampering with priveleged executables. Whilst I'm not sure
+> this provides a secure implementation, I can't see any problem with it myself.
 
-After mount:
-SCSI device sda: 196608 512-byte hdwr sectors (101 MB)
-sda: Write Protect is off
-sda: Mode Sense: 25 00 00 08
-sda: cache data unavailable
-sda: assuming drive cache: write through
-SCSI device sda: 196608 512-byte hdwr sectors (101 MB)
-sda: Write Protect is off
-sda: Mode Sense: 25 00 00 08
-sda: cache data unavailable
-sda: assuming drive cache: write through
- sda: sda4
+> --- a/security/commoncap.c
+> +++ b/security/commoncap.c
 
---Grant.
+>  int cap_bprm_set_security (struct linux_binprm *bprm)
+>  {
+> +	ssize_t (*bprm_getxattr)(struct dentry *,const char *,void *,size_t);
+> +	struct dentry *bprm_dentry;
+> +	ssize_t ret;
+> +	struct cap_xattr_data caps;
+> +	
 
+$ make security/commoncap.o
+  CC      security/commoncap.o
+security/commoncap.c: In function `cap_bprm_set_security':
+security/commoncap.c:114: warning: unused variable `bprm_getxattr'
+security/commoncap.c:115: warning: unused variable `bprm_dentry'
+security/commoncap.c:116: warning: unused variable `ret'
+security/commoncap.c:117: warning: unused variable `caps'
+
+with an obvious change in .config
+
+> +#ifdef CONFIG_SECURITY_FS_CAPABILITIES
+> +	/* Locate any VFS capabilities: */
+> +
+> +	bprm_dentry = bprm->file->f_dentry;
+> +	if(!(bprm_dentry->d_inode->i_op &&
+> +				bprm_dentry->d_inode->i_op->getxattr))
+> +		return 0;
+> +	bprm_getxattr = bprm_dentry->d_inode->i_op->getxattr;
+> +	
+> +	down(&bprm_dentry->d_inode->i_sem);
+> +	ret = bprm_getxattr(bprm_dentry,XATTR_CAP_SET,&caps,sizeof(caps));
+> +	if(ret == sizeof(caps)) {
+> +		if(caps.version == _LINUX_CAPABILITY_VERSION) {
+> +			cap_t(bprm->cap_effective) &= caps.mask_effective;
+> +			cap_t(bprm->cap_effective) |= caps.effective;
+> +			
+> +			cap_t(bprm->cap_permitted) &= caps.mask_permitted;
+> +			cap_t(bprm->cap_permitted) |= caps.permitted;
+> +			
+> +			cap_t(bprm->cap_inheritable) &= caps.mask_inheritable;
+> +			cap_t(bprm->cap_inheritable) |= caps.inheritable;
+> +		} else
+> +			printk(KERN_WARNING "Warning: %s capability set has "
+> +				"incorrect version\n",bprm->filename);
+
+You may want to print this incorrect version.
+
+> +	}
+> +	up(&bprm_dentry->d_inode->i_sem);
+> +#endif /* CONFIG_SECURITY_FS_CAPABILITIES */

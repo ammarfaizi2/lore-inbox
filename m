@@ -1,79 +1,141 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261310AbVGBWO6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261305AbVGBWOc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261310AbVGBWO6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Jul 2005 18:14:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbVGBWO5
+	id S261305AbVGBWOc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Jul 2005 18:14:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261308AbVGBWOb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Jul 2005 18:14:57 -0400
-Received: from [85.8.12.41] ([85.8.12.41]:7356 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S261310AbVGBWIn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Jul 2005 18:08:43 -0400
-Message-ID: <42C70F81.4010500@drzeus.cx>
-Date: Sun, 03 Jul 2005 00:04:49 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 1.0.2-7 (X11/20050623)
-X-Accept-Language: en-us, en
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=_hermes.drzeus.cx-8504-1120342118-0001-2"
-To: Andi Kleen <ak@suse.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] ISA DMA suspend for x86_64
-References: <42B1A08B.8080601@drzeus.cx.suse.lists.linux.kernel> <20050616170622.A1712@flint.arm.linux.org.uk.suse.lists.linux.kernel> <42C3A698.9020404@drzeus.cx.suse.lists.linux.kernel> <1120130926.6482.83.camel@localhost.localdomain.suse.lists.linux.kernel> <42C3E3A4.3090305@drzeus.cx.suse.lists.linux.kernel> <42C432BB.407@drzeus.cx.suse.lists.linux.kernel> <p73u0jeg5lg.fsf@verdi.suse.de> <42C6CF40.4040308@drzeus.cx> <20050702174055.GI21330@wotan.suse.de> <42C6D3D5.6070909@drzeus.cx> <20050702182749.GJ21330@wotan.suse.de>
-In-Reply-To: <20050702182749.GJ21330@wotan.suse.de>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+	Sat, 2 Jul 2005 18:14:31 -0400
+Received: from ppsw-1.csi.cam.ac.uk ([131.111.8.131]:441 "EHLO
+	ppsw-1.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S261305AbVGBWJa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Jul 2005 18:09:30 -0400
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Date: Sat, 2 Jul 2005 23:09:22 +0100 (BST)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Daniel Drake <dsd@gentoo.org>
+cc: =?UTF-8?B?RGF2aWQgR8OzbWV6?= <david@pleyades.net>,
+       Robert Love <rml@novell.com>, John McCutchan <ttb@tentacle.dhs.org>,
+       Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Problem with inotify
+In-Reply-To: <42C65A8B.9060705@gentoo.org>
+Message-ID: <Pine.LNX.4.60.0507022253080.30401@hermes-1.csi.cam.ac.uk>
+References: <20050630181824.GA1058@fargo> <1120156188.6745.103.camel@betsy>
+ <20050630193320.GA1136@fargo> <Pine.LNX.4.60.0506302138230.29755@hermes-1.csi.cam.ac.uk>
+ <20050630204832.GA3854@fargo> <Pine.LNX.4.60.0506302158190.29755@hermes-1.csi.cam.ac.uk>
+ <42C65A8B.9060705@gentoo.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME-formatted message.  If you see this text it means that your
-E-mail software does not support MIME-formatted messages.
+Hi,
 
---=_hermes.drzeus.cx-8504-1120342118-0001-2
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+On Sat, 2 Jul 2005, Daniel Drake wrote:
+> I'm trying to work around the NTFS lockup issue. Like others, I can reproduce
+> it just by opening nautilus on an NTFS partition (i.e. creating an inotify
+> watch on it) and then unmount at some point after - instant system lockup.
+> 
+> I have tried applying two patches:
+> fix-soft-lockup-due-to-ntfs-vfs-part-and-explanation.patch from 2.6.13-rc1-mm1
+> and the "NTFS: Fix a nasty deadlock that appeared in recent kernels" patch
+> from your git tree.
+> 
+> However, I still get the freezing up on unmount. I am using 2.6.12, plus
+> inotify-0.23-15, and the two patches mentioned above. Anything else I can try?
 
-Andi Kleen wrote:
+Thinking about it some more made me realize that there may be a problem in 
+inotify after all...  Could you try the below patch to fs/inotify.c and 
+tell me if it cures the lockup you are seeing?  (Note patch compiles but 
+is otherwise untested.  But given it locks up without the patch it can't 
+do much worse with it!)
 
->>Like this?
->>    
->>
->
->You still need to add it to the obj-ys
->
->  
->
+Thanks a lot in advance!
 
-Ah, sorry. Not quite familiar with how the kernel's build system works.
-Is it more correct this time? =)
+Best regards,
 
-Rgds
-Pierre
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 
+inotify_unmount_inodes-list-iteration-fix.diff
 
---=_hermes.drzeus.cx-8504-1120342118-0001-2
-Content-Type: text/x-patch; name="i8237-x86_64.patch"; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="i8237-x86_64.patch"
+Patch description: I believe that the inode reference that is being 
+dropped by inotify's remove_watch() can cause inodes other than the 
+current @inode to be moved away from the per-sb list.  And if this happens 
+to be the next inode in the list, i.e. @next_i, then the iteration will 
+proceed on the list that @next_i was moved to rather than the per-sb list.  
+Thus, the check in the for loop (list_for_each_entry_safe()) for the @head 
+being reached will _never_ be true and hence the for loop will keep going 
+for ever...  Even worse the memory backing @next_i could be completely 
+freed and then completely random results would be obtained.
 
-Index: linux-wbsd/arch/x86_64/kernel/Makefile
-===================================================================
---- linux-wbsd/arch/x86_64/kernel/Makefile	(revision 153)
-+++ linux-wbsd/arch/x86_64/kernel/Makefile	(working copy)
-@@ -7,7 +7,7 @@
- obj-y	:= process.o semaphore.o signal.o entry.o traps.o irq.o \
- 		ptrace.o time.o ioport.o ldt.o setup.o i8259.o sys_x86_64.o \
- 		x8664_ksyms.o i387.o syscall.o vsyscall.o \
--		setup64.o bootflag.o e820.o reboot.o quirks.o
-+		setup64.o bootflag.o e820.o reboot.o quirks.o i8237.o
+Basically, I do not believe that using list_for_each_entry_safe() is safe 
+at all as it only guards against removal of the current entry but not 
+against removal of the next entry.  This patch tries to work around this 
+by getting a reference to @next_i whilst the inode_lock is dropped.
 
- obj-$(CONFIG_X86_MCE)         += mce.o
- obj-$(CONFIG_X86_MCE_INTEL)	+= mce_intel.o
-@@ -44,3 +45,4 @@
- microcode-$(subst m,y,$(CONFIG_MICROCODE))  += ../../i386/kernel/microcode.o
- intel_cacheinfo-y		+= ../../i386/kernel/cpu/intel_cacheinfo.o
- quirks-y			+= ../../i386/kernel/quirks.o
-+i8237-y				+= ../../i386/kernel/i8237.o
+Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
 
---=_hermes.drzeus.cx-8504-1120342118-0001-2--
+--- linux-2.6.13-rc1-mm1-vanilla/fs/inotify.c	2005-07-01 14:51:09.000000000 +0100
++++ linux-2.6.13-rc1-mm1/fs/inotify.c	2005-07-02 22:11:11.000000000 +0100
+@@ -560,9 +560,10 @@ EXPORT_SYMBOL_GPL(inotify_get_cookie);
+  */
+ void inotify_unmount_inodes(struct list_head *list)
+ {
+-	struct inode *inode, *next_i;
++	struct inode *inode, *next_i, *need_iput = NULL;
+ 
+ 	list_for_each_entry_safe(inode, next_i, list, i_sb_list) {
++		struct inode *need_iput_tmp;
+ 		struct inotify_watch *watch, *next_w;
+ 		struct list_head *watches;
+ 
+@@ -574,8 +575,20 @@ void inotify_unmount_inodes(struct list_
+ 		if (inode->i_state & (I_CLEAR | I_FREEING))
+ 			continue;
+ 
++		need_iput_tmp = need_iput;
++		need_iput = NULL;
++
+ 		/* In case the remove_watch() drops a reference */
+-		__iget(inode);
++		if (inode != need_iput_tmp)
++			__iget(inode);
++		else
++			need_iput_tmp = NULL;
++
++		/* In case the dropping of a reference would nuke next_i. */
++		if (!next_i->i_state & (I_CLEAR | I_FREEING)) {
++			__iget(next_i);
++			need_iput = next_i;
++		}
+ 
+ 		/*
+ 		 * We can safely drop inode_lock here because the per-sb list
+@@ -584,6 +597,9 @@ void inotify_unmount_inodes(struct list_
+ 		 */
+ 		spin_unlock(&inode_lock);
+ 
++		if (need_iput_tmp)
++			iput(need_iput_tmp);
++
+ 		/* for each watch, send IN_UNMOUNT and then remove it */
+ 		down(&inode->inotify_sem);
+ 		watches = &inode->inotify_watches;
+@@ -599,6 +615,11 @@ void inotify_unmount_inodes(struct list_
+ 
+ 		spin_lock(&inode_lock);
+ 	}
++	if (need_iput) {
++		spin_unlock(&inode_lock);
++		iput(need_iput);
++		spin_lock(&inode_lock);
++	}
+ }
+ EXPORT_SYMBOL_GPL(inotify_unmount_inodes);
+ 

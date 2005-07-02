@@ -1,45 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261274AbVGBUN7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261275AbVGBUY4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261274AbVGBUN7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Jul 2005 16:13:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261275AbVGBUN7
+	id S261275AbVGBUY4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Jul 2005 16:24:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261277AbVGBUYz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Jul 2005 16:13:59 -0400
-Received: from nome.ca ([65.61.200.81]:44008 "HELO gobo.nome.ca")
-	by vger.kernel.org with SMTP id S261274AbVGBUN5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Jul 2005 16:13:57 -0400
-Date: Sat, 2 Jul 2005 13:13:58 -0700
-From: Mike Bell <mike@mikebell.org>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: updating kernel to 2.6.13-rc1 from 2.6.12 + CONFIG_DEVFS_FS + empty /dev
-Message-ID: <20050702201356.GA32409@mikebell.org>
-Mail-Followup-To: Mike Bell <mike@mikebell.org>,
-	Willy Tarreau <willy@w.ods.org>, linux-kernel@vger.kernel.org
-References: <42C30CBC.5030704@free.fr> <20050629224040.GB18462@kroah.com> <1120137161.42c3efc93b36c@imp1-q.free.fr> <20050630155453.GA6828@kroah.com> <42C455C1.30503@free.fr> <20050702053711.GA5635@kroah.com> <42C640AC.1020602@free.fr> <20050702082218.GM8907@alpha.home.local> <42C659B2.8010002@free.fr> <20050702100349.GA25749@alpha.home.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050702100349.GA25749@alpha.home.local>
-User-Agent: Mutt/1.5.9i
+	Sat, 2 Jul 2005 16:24:55 -0400
+Received: from hulk.hostingexpert.com ([69.57.134.39]:27229 "EHLO
+	hulk.hostingexpert.com") by vger.kernel.org with ESMTP
+	id S261275AbVGBUYt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Jul 2005 16:24:49 -0400
+Message-ID: <42C6F812.1090700@m1k.net>
+Date: Sat, 02 Jul 2005 16:24:50 -0400
+From: Michael Krufky <mkrufky@m1k.net>
+Reply-To: mkrufky@m1k.net
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Linux and Kernel Video <video4linux-list@redhat.com>, luckas@musoft.de,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] v4l: add TerraTec Cinergy 1400 DVB-T
+References: <200507010838.08542.luckas@musoft.de>
+In-Reply-To: <200507010838.08542.luckas@musoft.de>
+Content-Type: multipart/mixed;
+ boundary="------------060702020708080608070800"
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - m1k.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 02, 2005 at 12:03:49PM +0200, Willy Tarreau wrote:
-> They cost almost nothing, and in all cases, far less than the required code
-> to autodetect them.
+This is a multi-part message in MIME format.
+--------------060702020708080608070800
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I beg to differ on that. As ndevfs has shown, the code required to
-create a device node from kernel space is actually very minimal, when
-you utilize all the infrastructure already available to you in the
-kernel. libfs has most of what you need, the rest is easily stolen from
-ramfs. Almost undoubtebly much less than all those device nodes,
-especially when you consider the need to be able to perform chown/chmod
-on nodes (thus they can't be stored in the read-only flash image, but
-must instead be created at each boot on a kernel-generated filesystem
-like ramfs)
 
-devfs not utilizing it is perfectly explainable by the fact none of it
-was around way back when devfs was created. Back then kernel generated
-filesystems were proc, proc and proc. proc is pretty ugly too.
+
+--------------060702020708080608070800
+Content-Type: text/plain;
+ name="v4l-add-terratec-cinergy-1400-dvb-t.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="v4l-add-terratec-cinergy-1400-dvb-t.patch"
+
+Add support for TerraTec Cinergy 1400 DVB-T.
+
+Signed-off-by: Uli Luckas <luckas@musoft.de>
+Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+ linux/drivers/media/video/cx88/cx88-cards.c |   15 ++++++++++++++-
+ linux/drivers/media/video/cx88/cx88-dvb.c   |    3 ++-
+ linux/drivers/media/video/cx88/cx88.h       |    3 ++-
+ 3 files changed, 18 insertions(+), 3 deletions(-)
+
+diff -u linux-2.6.13/drivers/media/video/cx88/cx88.h linux/drivers/media/video/cx88/cx88.h
+--- linux-2.6.13/drivers/media/video/cx88/cx88.h	2005-07-02 13:19:07.000000000 +0000
++++ linux/drivers/media/video/cx88/cx88.h	2005-07-02 16:04:23.000000000 +0000
+@@ -1,5 +1,5 @@
+ /*
+- * $Id: cx88.h,v 1.66 2005/06/22 22:58:04 mchehab Exp $
++ * $Id: cx88.h,v 1.67 2005/07/01 12:10:07 mkrufky Exp $
+  *
+  * v4l2 device driver for cx2388x based TV cards
+  *
+@@ -170,6 +170,7 @@
+ #define CX88_BOARD_PIXELVIEW_PLAYTV_ULTRA_PRO 27
+ #define CX88_BOARD_DVICO_FUSIONHDTV_3_GOLD_T  28
+ #define CX88_BOARD_ADSTECH_DVB_T_PCI          29
++#define CX88_BOARD_TERRATEC_CINERGY_1400_DVB_T1  30
+ 
+ enum cx88_itype {
+ 	CX88_VMUX_COMPOSITE1 = 1,
+diff -u linux-2.6.13/drivers/media/video/cx88/cx88-cards.c linux/drivers/media/video/cx88/cx88-cards.c
+--- linux-2.6.13/drivers/media/video/cx88/cx88-cards.c	2005-07-02 14:24:10.000000000 +0000
++++ linux/drivers/media/video/cx88/cx88-cards.c	2005-07-02 16:04:23.000000000 +0000
+@@ -1,5 +1,5 @@
+ /*
+- * $Id: cx88-cards.c,v 1.82 2005/06/28 04:33:53 mkrufky Exp $
++ * $Id: cx88-cards.c,v 1.84 2005/07/02 19:42:09 mkrufky Exp $
+  *
+  * device driver for Conexant 2388x based TV cards
+  * card-specific stuff.
+@@ -743,6 +743,15 @@
+                 }},
+ 		.dvb            = 1,
+ 	},
++	[CX88_BOARD_TERRATEC_CINERGY_1400_DVB_T1] = {
++		.name           = "TerraTec Cinergy 1400 DVB-T",
++		.tuner_type     = TUNER_ABSENT,
++		.input          = {{
++			.type   = CX88_VMUX_DVB,
++			.vmux   = 0,
++		}},
++		.dvb            = 1,
++	},
+ };
+ const unsigned int cx88_bcount = ARRAY_SIZE(cx88_boards);
+ 
+@@ -866,6 +875,10 @@
+ 		.subvendor = 0x1421,
+ 		.subdevice = 0x0334,
+ 		.card      = CX88_BOARD_ADSTECH_DVB_T_PCI,
++ 	},{
++		.subvendor = 0x153b,
++		.subdevice = 0x1166,
++		.card      = CX88_BOARD_TERRATEC_CINERGY_1400_DVB_T1,
+ 	},
+ };
+ const unsigned int cx88_idcount = ARRAY_SIZE(cx88_subids);
+diff -u linux-2.6.13/drivers/media/video/cx88/cx88-dvb.c linux/drivers/media/video/cx88/cx88-dvb.c
+--- linux-2.6.13/drivers/media/video/cx88/cx88-dvb.c	2005-07-02 14:24:10.000000000 +0000
++++ linux/drivers/media/video/cx88/cx88-dvb.c	2005-07-02 16:04:23.000000000 +0000
+@@ -1,5 +1,5 @@
+ /*
+- * $Id: cx88-dvb.c,v 1.37 2005/06/28 23:41:47 mkrufky Exp $
++ * $Id: cx88-dvb.c,v 1.39 2005/07/02 20:00:46 mkrufky Exp $
+  *
+  * device driver for Conexant 2388x based TV cards
+  * MPEG Transport Stream (DVB) routines
+@@ -235,6 +235,7 @@
+ 		dev->dvb.frontend = cx22702_attach(&hauppauge_novat_config,
+ 						   &dev->core->i2c_adap);
+ 		break;
++	case CX88_BOARD_TERRATEC_CINERGY_1400_DVB_T1:
+ 	case CX88_BOARD_CONEXANT_DVB_T1:
+ 		dev->dvb.frontend = cx22702_attach(&connexant_refboard_config,
+ 						   &dev->core->i2c_adap);
+
+--------------060702020708080608070800--

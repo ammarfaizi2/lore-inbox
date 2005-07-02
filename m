@@ -1,101 +1,252 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261687AbVGBB60@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261341AbVGBB62@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261687AbVGBB60 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 21:58:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261341AbVGBB6F
+	id S261341AbVGBB62 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 21:58:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263409AbVGBB4u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 21:58:05 -0400
-Received: from ipx10786.ipxserver.de ([80.190.251.108]:14572 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S261687AbVGBBzW
+	Fri, 1 Jul 2005 21:56:50 -0400
+Received: from ipx10786.ipxserver.de ([80.190.251.108]:12780 "EHLO
+	allen.werkleitz.de") by vger.kernel.org with ESMTP id S261683AbVGBBzU
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 21:55:22 -0400
-Message-Id: <20050702015619.602668000@abc>
+	Fri, 1 Jul 2005 21:55:20 -0400
+Message-Id: <20050702015618.622926000@abc>
 References: <20050702015506.631451000@abc>
-Date: Sat, 02 Jul 2005 03:55:14 +0200
+Date: Sat, 02 Jul 2005 03:55:09 +0200
 From: Johannes Stezenbach <js@linuxtv.org>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Patrick Boettcher <pb@linuxtv.org>
-Content-Disposition: inline; filename=dvb-usb-readme-update.patch
+Cc: linux-kernel@vger.kernel.org, Oliver Endriss <o.endriss@gmx.de>
+Content-Disposition: inline; filename=dvb-ttpci-preempt-timeout-fix.patch
 X-SA-Exim-Connect-IP: 84.189.246.3
-Subject: [DVB patch 8/8] usb: README update
+Subject: [DVB patch 3/8] ttpci: fix timeout handling to be save with PREEMPT
 X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
 X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Patrick Boettcher <pb@linuxtv.org>
+From: Oliver Endriss <o.endriss@gmx.de>
 
-Updated the readme file to point to the DVB USB wikipage to find
-out which firmware necessary, + minor updates.
+Timeout handling fixed, especially for preemtible kernels and/or high system load.
 
-Signed-off-by: Patrick Boettcher <pb@linuxtv.org>
+Signed-off-by: Oliver Endriss <o.endriss@gmx.de>
 Signed-off-by: Johannes Stezenbach <js@linuxtv.org>
 
- Documentation/dvb/README.dvb-usb |   28 ++++++++++------------------
- 1 files changed, 10 insertions(+), 18 deletions(-)
+ drivers/media/common/saa7146_core.c |   11 +++--
+ drivers/media/dvb/ttpci/av7110_hw.c |   72 ++++++++++++++++++++++++------------
+ 2 files changed, 56 insertions(+), 27 deletions(-)
 
-Index: linux-2.6.13-rc1-mm1/Documentation/dvb/README.dvb-usb
+Index: linux-2.6.13-rc1-mm1/drivers/media/common/saa7146_core.c
 ===================================================================
---- linux-2.6.13-rc1-mm1.orig/Documentation/dvb/README.dvb-usb	2005-07-02 03:22:09.000000000 +0200
-+++ linux-2.6.13-rc1-mm1/Documentation/dvb/README.dvb-usb	2005-07-02 03:22:34.000000000 +0200
-@@ -48,6 +48,7 @@ cards/drivers/firmwares:
- http://www.linuxtv.org/wiki/index.php/DVB_USB
+--- linux-2.6.13-rc1-mm1.orig/drivers/media/common/saa7146_core.c	2005-07-02 03:22:09.000000000 +0200
++++ linux-2.6.13-rc1-mm1/drivers/media/common/saa7146_core.c	2005-07-02 03:22:28.000000000 +0200
+@@ -62,13 +62,15 @@ void saa7146_setgpio(struct saa7146_dev 
+ int saa7146_wait_for_debi_done(struct saa7146_dev *dev, int nobusyloop)
+ {
+ 	unsigned long start;
++	int err;
  
- 0. History & News:
-+  2005-06-30 - added support for WideView WT-220U (Thanks to Steve Chang)
-   2005-05-30 - added basic isochronous support to the dvb-usb-framework
-                added support for Conexant Hybrid reference design and Nebula DigiTV USB
-   2005-04-17 - all dibusb devices ported to make use of the dvb-usb-framework
-@@ -64,7 +65,7 @@ http://www.linuxtv.org/wiki/index.php/DV
-   2005-01-31 - distorted streaming is gone for USB1.1 devices
-   2005-01-13 - moved the mirrored pid_filter_table back to dvb-dibusb
-              - first almost working version for HanfTek UMT-010
--             - found out, that Yakumo/HAMA/Typhoon are predessors of the HanfTek UMT-010
-+             - found out, that Yakumo/HAMA/Typhoon are predecessors of the HanfTek UMT-010
-   2005-01-10 - refactoring completed, now everything is very delightful
-              - tuner quirks for some weird devices (Artec T1 AN2235 device has sometimes a
-                Panasonic Tuner assembled). Tunerprobing implemented. Thanks a lot to Gunnar Wittich.
-@@ -114,25 +115,13 @@ http://www.linuxtv.org/wiki/index.php/DV
- 1. How to use?
- 1.1. Firmware
+ 	/* wait for registers to be programmed */
+ 	start = jiffies;
+ 	while (1) {
+-                if (saa7146_read(dev, MC2) & 2)
+-                        break;
+-		if (time_after(jiffies, start + HZ/20)) {
++		err = time_after(jiffies, start + HZ/20);
++		if (saa7146_read(dev, MC2) & 2)
++			break;
++		if (err) {
+ 			DEB_S(("timed out while waiting for registers getting programmed\n"));
+ 			return -ETIMEDOUT;
+ 		}
+@@ -79,10 +81,11 @@ int saa7146_wait_for_debi_done(struct sa
+ 	/* wait for transfer to complete */
+ 	start = jiffies;
+ 	while (1) {
++		err = time_after(jiffies, start + HZ/4);
+ 		if (!(saa7146_read(dev, PSR) & SPCI_DEBI_S))
+ 			break;
+ 		saa7146_read(dev, MC2);
+-		if (time_after(jiffies, start + HZ/4)) {
++		if (err) {
+ 			DEB_S(("timed out while waiting for transfer completion\n"));
+ 			return -ETIMEDOUT;
+ 		}
+Index: linux-2.6.13-rc1-mm1/drivers/media/dvb/ttpci/av7110_hw.c
+===================================================================
+--- linux-2.6.13-rc1-mm1.orig/drivers/media/dvb/ttpci/av7110_hw.c	2005-07-02 03:22:09.000000000 +0200
++++ linux-2.6.13-rc1-mm1/drivers/media/dvb/ttpci/av7110_hw.c	2005-07-02 03:22:28.000000000 +0200
+@@ -308,6 +308,7 @@ int av7110_wait_msgstate(struct av7110 *
+ {
+ 	unsigned long start;
+ 	u32 stat;
++	int err;
  
--Most of the USB drivers need to download a firmware to start working.
-+Most of the USB drivers need to download a firmware to the device before start
-+working.
+ 	if (FW_VERSION(av7110->arm_app) <= 0x261c) {
+ 		/* not supported by old firmware */
+@@ -318,14 +319,14 @@ int av7110_wait_msgstate(struct av7110 *
+ 	/* new firmware */
+ 	start = jiffies;
+ 	for (;;) {
++		err = time_after(jiffies, start + ARM_WAIT_FREE);
+ 		if (down_interruptible(&av7110->dcomlock))
+ 			return -ERESTARTSYS;
+ 		stat = rdebi(av7110, DEBINOSWAP, MSGSTATE, 0, 2);
+ 		up(&av7110->dcomlock);
+-		if ((stat & flags) == 0) {
++		if ((stat & flags) == 0)
+ 			break;
+-		}
+-		if (time_after(jiffies, start + ARM_WAIT_FREE)) {
++		if (err) {
+ 			printk(KERN_ERR "%s: timeout waiting for MSGSTATE %04x\n",
+ 				__FUNCTION__, stat & flags);
+ 			return -ETIMEDOUT;
+@@ -342,6 +343,7 @@ static int __av7110_send_fw_cmd(struct a
+ 	char *type = NULL;
+ 	u16 flags[2] = {0, 0};
+ 	u32 stat;
++	int err;
  
--for USB1.1 (AN2135) you need: dvb-usb-dibusb-5.0.0.11.fw
--for USB2.0 HanfTek: dvb-usb-umt-010-02.fw
--for USB2.0 DiBcom: dvb-usb-dibusb-6.0.0.8.fw
--for USB2.0 AVerMedia AverTV DVB-T USB2: dvb-usb-avertv-a800-01.fw
--for USB2.0 TwinhanDTV Alpha/MagicBox II: dvb-usb-vp7045-01.fw
-+Have a look at the Wikipage for the DVB-USB-drivers to find out, which firmware
-+you need for your device:
+ //	dprintk(4, "%p\n", av7110);
  
--The files can be found on http://www.linuxtv.org/download/firmware/ .
--
--We do not have the permission (yet) to publish the following firmware-files.
--You'll need to extract them from the windows drivers.
--
--You should be able to use "get_dvb_firmware dvb-usb" to get the firmware:
--
--for USB1.1 (AN2235) (a few Artec T1 devices): dvb-usb-dibusb-an2235-01.fw
--for USB2.0 Hauppauge: dvb-usb-nova-t-usb2-01.fw
--for USB2.0 ADSTech/Kworld USB2.0: dvb-usb-adstech-usb2-01.fw
--for USB2.0 Yakumo/Typhoon/Hama: dvb-usb-dtt200u-01.fw
-+http://www.linuxtv.org/wiki/index.php/DVB_USB
+@@ -351,8 +353,11 @@ static int __av7110_send_fw_cmd(struct a
+ 	}
  
- 1.2. Compiling
+ 	start = jiffies;
+-	while (rdebi(av7110, DEBINOSWAP, COMMAND, 0, 2 )) {
+-		if (time_after(jiffies, start + ARM_WAIT_FREE)) {
++	while (1) {
++		err = time_after(jiffies, start + ARM_WAIT_FREE);
++		if (rdebi(av7110, DEBINOSWAP, COMMAND, 0, 2) == 0)
++			break;
++		if (err) {
+ 			printk(KERN_ERR "dvb-ttpci: %s(): timeout waiting for COMMAND idle\n", __FUNCTION__);
+ 			return -ETIMEDOUT;
+ 		}
+@@ -363,8 +368,11 @@ static int __av7110_send_fw_cmd(struct a
  
-@@ -226,6 +215,9 @@ Patches, comments and suggestions are ve
-    Jennifer Chen, Jeff and Jack from Twinhan for kindly supporting by
- 	writing the vp7045-driver.
+ #ifndef _NOHANDSHAKE
+ 	start = jiffies;
+-	while (rdebi(av7110, DEBINOSWAP, HANDSHAKE_REG, 0, 2 )) {
+-		if (time_after(jiffies, start + ARM_WAIT_SHAKE)) {
++	while (1) {
++		err = time_after(jiffies, start + ARM_WAIT_SHAKE);
++		if (rdebi(av7110, DEBINOSWAP, HANDSHAKE_REG, 0, 2) == 0)
++			break;
++		if (err) {
+ 			printk(KERN_ERR "dvb-ttpci: %s(): timeout waiting for HANDSHAKE_REG\n", __FUNCTION__);
+ 			return -ETIMEDOUT;
+ 		}
+@@ -401,6 +409,7 @@ static int __av7110_send_fw_cmd(struct a
+ 		/* non-immediate COMMAND type */
+ 		start = jiffies;
+ 		for (;;) {
++			err = time_after(jiffies, start + ARM_WAIT_FREE);
+ 			stat = rdebi(av7110, DEBINOSWAP, MSGSTATE, 0, 2);
+ 			if (stat & flags[0]) {
+ 				printk(KERN_ERR "%s: %s QUEUE overflow\n",
+@@ -409,7 +418,7 @@ static int __av7110_send_fw_cmd(struct a
+ 			}
+ 			if ((stat & flags[1]) == 0)
+ 				break;
+-			if (time_after(jiffies, start + ARM_WAIT_FREE)) {
++			if (err) {
+ 				printk(KERN_ERR "%s: timeout waiting on busy %s QUEUE\n",
+ 					__FUNCTION__, type);
+ 				return -ETIMEDOUT;
+@@ -432,12 +441,13 @@ static int __av7110_send_fw_cmd(struct a
  
-+   Steve Chang from WideView for providing information for new devices and
-+	firmware files.
-+
-    Michael Paxton for submitting remote control keymaps.
+ #ifdef COM_DEBUG
+ 	start = jiffies;
+-	while (rdebi(av7110, DEBINOSWAP, COMMAND, 0, 2 )) {
+-		if (time_after(jiffies, start + ARM_WAIT_FREE)) {
++	while (1) {
++		err = time_after(jiffies, start + ARM_WAIT_FREE);
++		if (rdebi(av7110, DEBINOSWAP, COMMAND, 0, 2) == 0)
++			break;
++		if (err) {
+ 			printk(KERN_ERR "dvb-ttpci: %s(): timeout waiting for COMMAND %d to complete\n",
+-			       __FUNCTION__,
+-				(buf[0] >> 8) & 0xff
+-			       );
++			       __FUNCTION__, (buf[0] >> 8) & 0xff);
+ 			return -ETIMEDOUT;
+ 		}
+ 		msleep(1);
+@@ -553,8 +563,11 @@ int av7110_fw_request(struct av7110 *av7
+ 	}
  
-    Some guys on the linux-dvb mailing list for encouraging me.
+ 	start = jiffies;
+-	while (rdebi(av7110, DEBINOSWAP, COMMAND, 0, 2)) {
+-		if (time_after(jiffies, start + ARM_WAIT_FREE)) {
++	while (1) {
++		err = time_after(jiffies, start + ARM_WAIT_FREE);
++		if (rdebi(av7110, DEBINOSWAP, COMMAND, 0, 2) == 0)
++			break;
++		if (err) {
+ 			printk(KERN_ERR "%s: timeout waiting for COMMAND to complete\n", __FUNCTION__);
+ 			up(&av7110->dcomlock);
+ 			return -ETIMEDOUT;
+@@ -566,8 +579,11 @@ int av7110_fw_request(struct av7110 *av7
+ 
+ #ifndef _NOHANDSHAKE
+ 	start = jiffies;
+-	while (rdebi(av7110, DEBINOSWAP, HANDSHAKE_REG, 0, 2 )) {
+-		if (time_after(jiffies, start + ARM_WAIT_SHAKE)) {
++	while (1) {
++		err = time_after(jiffies, start + ARM_WAIT_SHAKE);
++		if (rdebi(av7110, DEBINOSWAP, HANDSHAKE_REG, 0, 2) == 0)
++			break;
++		if (err) {
+ 			printk(KERN_ERR "%s: timeout waiting for HANDSHAKE_REG\n", __FUNCTION__);
+ 			up(&av7110->dcomlock);
+ 			return -ETIMEDOUT;
+@@ -707,12 +723,16 @@ static inline int SetFont(struct av7110 
+ static int FlushText(struct av7110 *av7110)
+ {
+ 	unsigned long start;
++	int err;
+ 
+ 	if (down_interruptible(&av7110->dcomlock))
+ 		return -ERESTARTSYS;
+ 	start = jiffies;
+-	while (rdebi(av7110, DEBINOSWAP, BUFF1_BASE, 0, 2)) {
+-		if (time_after(jiffies, start + ARM_WAIT_OSD)) {
++	while (1) {
++		err = time_after(jiffies, start + ARM_WAIT_OSD);
++		if (rdebi(av7110, DEBINOSWAP, BUFF1_BASE, 0, 2) == 0)
++			break;
++		if (err) {
+ 			printk(KERN_ERR "dvb-ttpci: %s(): timeout waiting for BUFF1_BASE == 0\n",
+ 			       __FUNCTION__);
+ 			up(&av7110->dcomlock);
+@@ -735,8 +755,11 @@ static int WriteText(struct av7110 *av71
+ 		return -ERESTARTSYS;
+ 
+ 	start = jiffies;
+-	while (rdebi(av7110, DEBINOSWAP, BUFF1_BASE, 0, 2)) {
+-		if (time_after(jiffies, start + ARM_WAIT_OSD)) {
++	while (1) {
++		ret = time_after(jiffies, start + ARM_WAIT_OSD);
++		if (rdebi(av7110, DEBINOSWAP, BUFF1_BASE, 0, 2) == 0)
++			break;
++		if (ret) {
+ 			printk(KERN_ERR "dvb-ttpci: %s: timeout waiting for BUFF1_BASE == 0\n",
+ 			       __FUNCTION__);
+ 			up(&av7110->dcomlock);
+@@ -746,8 +769,11 @@ static int WriteText(struct av7110 *av71
+ 	}
+ #ifndef _NOHANDSHAKE
+ 	start = jiffies;
+-	while (rdebi(av7110, DEBINOSWAP, HANDSHAKE_REG, 0, 2)) {
+-		if (time_after(jiffies, start + ARM_WAIT_SHAKE)) {
++	while (1) {
++		ret = time_after(jiffies, start + ARM_WAIT_SHAKE);
++		if (rdebi(av7110, DEBINOSWAP, HANDSHAKE_REG, 0, 2) == 0)
++			break;
++		if (ret) {
+ 			printk(KERN_ERR "dvb-ttpci: %s: timeout waiting for HANDSHAKE_REG\n",
+ 			       __FUNCTION__);
+ 			up(&av7110->dcomlock);
 
 --
 

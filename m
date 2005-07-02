@@ -1,64 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261291AbVGCLIB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261302AbVGCLJK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261291AbVGCLIB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Jul 2005 07:08:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261306AbVGCLIA
+	id S261302AbVGCLJK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Jul 2005 07:09:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261308AbVGCLIZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Jul 2005 07:08:00 -0400
-Received: from zproxy.gmail.com ([64.233.162.204]:48989 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261291AbVGCLHw convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Jul 2005 07:07:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=j8WmfNFXulierB1EZGdm70MLDz3drFztXfCbfMR0tHts0ko7oyCNvGRcoQCSNeKJVUdhqF9WAg24ibxynZ6texFWgdW5qEac3sqnRZF/hR+U+a3ZyC5ukh6LevKye/amg4s1YtesDtHyrivkFSf9jYwzNvQQs4QyPKVDhWULksw=
-Message-ID: <9a8748490507030407547fa29b@mail.gmail.com>
-Date: Sun, 3 Jul 2005 13:07:52 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [ltp] IBM HDAPS Someone interested? (Accelerometer)
-Cc: Alejandro Bonilla <abonilla@linuxwireless.org>,
-       Pavel Machek <pavel@suse.cz>, Paul Sladen <thinkpad@paul.sladen.org>,
-       linux-thinkpad@linux-thinkpad.org,
-       Eric Piel <Eric.Piel@tremplin-utc.net>, borislav@users.sourceforge.net,
-       Yani Ioannou <yani.ioannou@gmail.com>, linux-kernel@vger.kernel.org,
-       hdaps-devel@lists.sourceforge.net
-In-Reply-To: <20050703101613.GA2372@ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sun, 3 Jul 2005 07:08:25 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:5533 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S261302AbVGCLH5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Jul 2005 07:07:57 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Chuck Ebbert <76306.1226@compuserve.com>,
+       "cutaway@bellsouth.net" <cutaway@bellsouth.net>
+Subject: Re: [RFC] exit_thread() speedups in x86 process.c
+Date: Sat, 2 Jul 2005 14:56:40 +0300
+User-Agent: KMail/1.5.4
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>,
+       "Coywolf Qi Hunt" <coywolf@gmail.com>
+References: <200507012258_MC3-1-A340-3A81@compuserve.com>
+In-Reply-To: <200507012258_MC3-1-A340-3A81@compuserve.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <1119559367.20628.5.camel@mindpipe>
-	 <Pine.LNX.4.21.0506250712140.10376-100000@starsky.19inch.net>
-	 <20050625144736.GB7496@atrey.karlin.mff.cuni.cz>
-	 <42BD9EBD.8040203@linuxwireless.org> <20050625200953.GA1591@ucw.cz>
-	 <42C7A3B2.4090502@linuxwireless.org> <20050703101613.GA2372@ucw.cz>
+Message-Id: <200507021456.40667.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/3/05, Vojtech Pavlik <vojtech@suse.cz> wrote:
-> On Sun, Jul 03, 2005 at 03:37:06AM -0500, Alejandro Bonilla wrote:
+On Saturday 02 July 2005 05:57, Chuck Ebbert wrote:
+> On Wed, 22 Jun 2005 at 04:41:47 -0400, cutaway wrote:
 > 
-> > Guys,
-> >
-> >    We might have something here. If you are a driver writer, developer
-> > or want to help us, this is when.
-> >
-> > PLEASE read the following article, it has the data of a guy that made a
-> > driver in IBM for Linux and he described the driver he made. He cannot
-> > release it, but he explained it and someone can write one. Believe me,
-> > that I would do it, if I would have any knowledge. ;-)
-> > http://www.almaden.ibm.com/cs/people/marksmith/tpaps.html
+> > The compilers got tweaked to be able to emit
+> > function code to different text sections and a massive system wide code
+> > triage was undertaken based on "common usage scenario" profiling run data
+> > from the perf analysis group.
 > 
-> This should indeed be enough to write a Linux driver.
+>   Linux scheduler code is in its own text section already, but
+> that might be for profiling the code instead of for performance.
+> (Look for "__sched" in the source code.)
 > 
-I'll give it a shot. I've got the day off today so I'll try a simple
-module and test it on my T42. I'll post whatever I come up with
-tonight.
+>   The gains may not be as much as you think since on X86 and at least
+> some other archs the entire kernel is in one large page.  Still, it's
+> got to make some kind of sense to put infrequently-used code in its
+> own section just to reduce cache pollution.
+> 
+>   I came up with this
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Nice.
+
+> but only the "__slow" part really makes sense:
+
+80/20 rule says that 80% of code runs 20% of time,
+thus we need only __fast. Everything else will be by default __slow.
+(IOW: normal .text section is __slow, no need to add another one).
+
+If gcc will someday get per-function support for using -O2 / -Os
+like optimizations, they could be added to the __fast macro.
+
+> --- 2.6.12.1/arch/i386/kernel/vmlinux.lds.S     2004-09-03 19:55:27.000000000 -0400
+> +++ 2.6.12.1-ce1/arch/i386/kernel/vmlinux.lds.S 2005-06-26 01:48:23.770212000 -0400
+> @@ -16,9 +16,11 @@ SECTIONS
+>    /* read-only */
+>    _text = .;                   /* Text and read-only data */
+>    .text : {
+> +       *(.fast.text)
+>         *(.text)
+>         SCHED_TEXT
+>         LOCK_TEXT
+> +       *(.slow.text)
+>         *(.fixup)
+>         *(.gnu.warning)
+>         } = 0x9090
+> --- 2.6.12.1/arch/x86_64/kernel/vmlinux.lds.S   2005-06-24 00:50:21.180212000 -0400
+> +++ 2.6.12.1-ce1/arch/x86_64/kernel/vmlinux.lds.S       2005-06-26 01:50:09.100212000 -0400
+> @@ -15,9 +15,11 @@ SECTIONS
+>    phys_startup_64 = startup_64 - LOAD_OFFSET;
+>    _text = .;                   /* Text and read-only data */
+>    .text : {
+> +       *(.fast.text)
+>         *(.text)
+>         SCHED_TEXT
+>         LOCK_TEXT
+> +       *(.slow.text)
+>         *(.fixup)
+>         *(.gnu.warning)
+>         } = 0x9090
+> --- 2.6.12.1/include/linux/init.h       2005-01-04 21:48:02.000000000 -0500
+> +++ 2.6.12.1-ce1/include/linux/init.h   2005-06-26 01:59:29.580212000 -0400
+> @@ -46,6 +46,17 @@
+>  #define __exitdata     __attribute__ ((__section__(".exit.data")))
+>  #define __exit_call    __attribute_used__ __attribute__ ((__section__ (".exitcall.exit")))
+>  
+> +/*
+> + * Probably belongs in some other header (compiler.h?)
+> + */
+> +#ifdef CONFIG_X86
+> +#define __fast         __attribute__ ((__section__(".fast.text")))
+> +#define __slow         __attribute__ ((__section__(".slow.text")))
+> +#else
+> +#define __fast
+> +#define __slow
+> +#endif
+> +
+>  #ifdef MODULE
+>  #define __exit         __attribute__ ((__section__(".exit.text")))
+>  #else
+--
+vda
+

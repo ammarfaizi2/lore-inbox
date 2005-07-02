@@ -1,75 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261706AbVGBDLf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261720AbVGBDOG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261706AbVGBDLf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 23:11:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261720AbVGBDLd
+	id S261720AbVGBDOG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 23:14:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261762AbVGBDOF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 23:11:33 -0400
-Received: from [67.137.28.189] ([67.137.28.189]:29830 "EHLO vger")
-	by vger.kernel.org with ESMTP id S261706AbVGBDL1 (ORCPT
+	Fri, 1 Jul 2005 23:14:05 -0400
+Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:19432
+	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
+	with ESMTP id S261720AbVGBDOA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 23:11:27 -0400
-Message-ID: <42C5F143.3040305@utah-nac.org>
-Date: Fri, 01 Jul 2005 19:43:31 -0600
-From: jmerkey <jmerkey@utah-nac.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
+	Fri, 1 Jul 2005 23:14:00 -0400
+Message-ID: <42C5F867.2060706@linuxwireless.org>
+Date: Fri, 01 Jul 2005 21:13:59 -0500
+From: Alejandro Bonilla <abonilla@linuxwireless.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Alejandro Bonilla <abonilla@linuxwireless.org>
-Cc: linux-kernel@vger.kernel.org
+To: Paul Jakma <paul@clubi.ie>
+CC: jmerkey <jmerkey@utah-nac.org>, linux-kernel@vger.kernel.org
 Subject: Re: [OT] New Anti-Terrorism Law makes "hacking" punishable by life
  in prison
-References: <42C5DACA.2040507@utah-nac.org> <42C5E6E8.30009@linuxwireless.org>
-In-Reply-To: <42C5E6E8.30009@linuxwireless.org>
+References: <42C5DACA.2040507@utah-nac.org> <42C5E6E8.30009@linuxwireless.org> <Pine.LNX.4.63.0507020336180.31084@sheen.jakma.org>
+In-Reply-To: <Pine.LNX.4.63.0507020336180.31084@sheen.jakma.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Paul Jakma wrote:
 
+> On Fri, 1 Jul 2005, Alejandro Bonilla wrote:
+>
+>> spam. And I can't believe, "agencies" are contacting you for this 
+>> thread for the last 4 years... If they are, REALLY ask for the thread 
+>> to be removed or something like that.
+>
+>
+> http://lwn.net/Articles/140157/
 
-OK.  I ask for this thread and associated posts to be removed, is this 
-is allowed.  The Provo Daily Herald and KSL Channel 5
-news asked me questions about it.  I did not author it. 
+Nice URL. It made my night. Is funny.
 
-Jeff
+It definitely looks like someone needs a clean start. Leave the pride 
+back and start all over. After all, if one stops or starts to help in 
+Linux, nobody cares.
 
-Alejandro Bonilla wrote:
+Jeff,
 
-> jmerkey wrote:
->
->>
->>
->> LKML,
->>
->> Several News Agencies have contacted me about the atached email as 
->> the result of Simon Best and others
->> distributing it around the internet and to news agencies in Utah.  
->> For the record, James Mooney had access as
->> well as did his associates to the timpanogas offices in 2001 during 
->> this time period and these comments apparently were
->> posted by one of them using my linux desktop system since the Utah 
->> NAC also operated out of the TRG
->> officesa at that time.
->
->
-> Why are you sending this things after 4 years. This looks like sexual 
-> pills spam. And I can't believe, "agencies" are contacting you for 
-> this thread for the last 4 years... If they are, REALLY ask for the 
-> thread to be removed or something like that.
->
-> Also, this email only showing your username without the Full name, 
-> looks like if someone is trying to use your account again... ;-)
->
-> If they are really harassing you, ask for the thread to be removed. (I 
-> dunno the policy about this)
->
-> .Alejandro
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+    I'm not aware of your "issues" or "rights", but it really looks like 
+you should drop whatever you have in hands. It's not worth to battle.
 
+.....
+
+    The topic of this email is missleading, the "hacking" done in the 
+Linux Kernel, is not the "hacking" that is punishable with prison.
+
+    I hope this topic drops. Sorry for mentioning about it. I had no 
+idea on what this was about cause I have only been reading LKML for a year.
+
+.Alejandro

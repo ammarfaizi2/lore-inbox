@@ -1,208 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261257AbVGBSym@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261265AbVGBTEu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261257AbVGBSym (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Jul 2005 14:54:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261259AbVGBSym
+	id S261265AbVGBTEu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Jul 2005 15:04:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261264AbVGBTEt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Jul 2005 14:54:42 -0400
-Received: from hulk.hostingexpert.com ([69.57.134.39]:61785 "EHLO
-	hulk.hostingexpert.com") by vger.kernel.org with ESMTP
-	id S261257AbVGBSyb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Jul 2005 14:54:31 -0400
-Message-ID: <42C6E2EE.4030908@m1k.net>
-Date: Sat, 02 Jul 2005 14:54:38 -0400
-From: Michael Krufky <mkrufky@m1k.net>
-Reply-To: mkrufky@m1k.net
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Mac Michaels <wmichaels1@earthlink.net>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Linux and Kernel Video <video4linux-list@redhat.com>
-Subject: [PATCH] v4l: add DVB support for DViCO FusionHDTV3 Gold-Q
-Content-Type: multipart/mixed;
- boundary="------------050108050603060109040208"
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - m1k.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Sat, 2 Jul 2005 15:04:49 -0400
+Received: from smtp2.irishbroadband.ie ([62.231.32.13]:18393 "EHLO
+	smtp2.irishbroadband.ie") by vger.kernel.org with ESMTP
+	id S261259AbVGBTEj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Jul 2005 15:04:39 -0400
+Subject: Re: aic7xxx regression occuring after 2.6.12 final
+From: Tony Vroon <chainsaw@gentoo.org>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Andy Whitcroft <apw@shadowen.org>
+In-Reply-To: <1120329389.5073.21.camel@mulgrave>
+References: <1120085446.9743.11.camel@localhost>
+	 <1120318925.21935.9.camel@localhost>  <1120321322.5073.4.camel@mulgrave>
+	 <1120322788.22046.2.camel@localhost>  <1120323691.5073.12.camel@mulgrave>
+	 <1120324426.21967.1.camel@localhost>  <1120325613.5073.16.camel@mulgrave>
+	 <1120326423.22057.3.camel@localhost>  <1120329389.5073.21.camel@mulgrave>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-QP8h+ashCezb8Fh45Y+O"
+Organization: Gentoo Linux
+Date: Sat, 02 Jul 2005 20:03:46 +0100
+Message-Id: <1120331026.22021.2.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050108050603060109040208
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-This patch depends on:
+--=-QP8h+ashCezb8Fh45Y+O
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-dvb-frontend-add-driver-for-lgdt3302.patch
+On Sat, 2005-07-02 at 14:36 -0400, James Bottomley wrote:
+> Well, I think this is it.  The drive is actually offering IU and QAS.
+> That's fun; I've never seen a u160 drive that could do those before.
 
-in -mm.
+The Fujitsu is a U320 unit, just like my Seagate. It's just the
+controller that's the limiting factor.
 
---------------050108050603060109040208
-Content-Type: text/plain;
- name="v4l-add-dvb-support-for-dvico-fusionhdtv3-gold-q.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="v4l-add-dvb-support-for-dvico-fusionhdtv3-gold-q.patch"
+> Although the aic7xxx driver is apparently coded to allow this, it looks
+> like the code paths have never been exercised.
+> So, although I think this patch will fix up the first error, there's
+> probably a long line behind it ...
 
-Add dvb support in v4l for DViCO FusionHDTV3 Gold-Q
-using lgdt3302 frontend.
+As you predicted, it tried but gave up.
 
-Signed-off-by: Mac Michaels <wmichaels1@earthlink.net>
-Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+Output follows:
+scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.36
+        <Adaptec 29160 Ultra160 SCSI adapter>
+        aic7892: Ultra160 Wide Channel A, SCSI Id=3D7, 32/253 SCBs
 
- linux/drivers/media/video/cx88/cx88-cards.c |    1 
- linux/drivers/media/video/cx88/cx88-dvb.c   |   43 +++++++++++++++++++-
- linux/drivers/media/video/cx88/cx88-i2c.c   |    3 -
- linux/drivers/media/video/cx88/cx88-mpeg.c  |   13 ++++--
- 4 files changed, 53 insertions(+), 7 deletions(-)
+scsi0: Slave Alloc 0
+(scsi0:A:0:0): Sending WDTR 0
+(scsi0:A:0:0): Received WDTR 0 filtered to 0
+ target0:0:0: FAST-5 SCSI 1.0 MB/s ST (1020 ns, offset 255)
+scsi0: target 0 using 8bit transfers
+(scsi0:A:0:0): Sending SDTR period 45, offset 0
+(scsi0:A:0:0): Received SDTR period 45, offset 0
+Filtered to period 0, offset 0
+ target0:0:0: asynchronous.
+scsi0: target 0 using asynchronous transfers
+ Vendor: FUJITSU   Model: MAP3367NP         Rev: 0106
+  Type:   Direct-Access                      ANSI SCSI revision: 03
+scsi0: Slave Configure 0
+ target0:0:0: asynchronous.
+scsi0:A:0:0:0: Tagged Queuing enabled.  Depth 32
+ target0:0:0: Beginning Domain Validation
+(scsi0:A:0:0): Sending WDTR 1
+(scsi0:A:0:0): Received WDTR 1 filtered to 1
+ target0:0:0: FAST-5 WIDE SCSI 2.0 MB/s ST (1020 ns, offset 255)
+scsi0: target 0 using 16bit transfers
+(scsi0:A:0:0): Sending SDTR period 45, offset 0
+(scsi0:A:0:0): Received SDTR period 45, offset 0
+Filtered to period 0, offset 0
+ target0:0:0: wide asynchronous
+scsi0: target 0 using asynchronous transfers
+(scsi0:A:0:0): Sending PPR bus_width 1, period 9, offset 7f, ppr_options
+7
+(scsi0:A:0:0): Received PPR bus_width 1, period 9, offset 7f,
+ppr_options 7
+Filtered to width 1, period 9, offset 7f, options 7
+ target0:0:0: FAST-80 WIDE SCSI 160.0 Mscsi0: target 0 synchronous at
+80.0MHz DT, offset =3D 0x7
+(scsi0:A:0:0): Unexpected busfree in Message-in phease
+SEQADDR =3D=3D 0x16b
+ target0:0:0: Write Buffer failure 70000
+ target0:0:0: Domain Validation Disabling Information Units
+(scsi0:A:0:0): Sending PPR bus_width 1, period 9, offset 7f, ppr_options
+6
+(scsi0:A:0:0): refuses tagged comands.  Performing non-tagged I/O
+ target0:0:0: FAST-80 WIDE SCSI 160.0 MB/s ST IU (12.5 ns, offset 127)
+*PC hangs here*
 
-diff -u linux-2.6.13/drivers/media/video/cx88/cx88-cards.c linux/drivers/media/video/cx88/cx88-cards.c
---- linux-2.6.13/drivers/media/video/cx88/cx88-cards.c	2005-07-02 13:19:07.000000000 +0000
-+++ linux/drivers/media/video/cx88/cx88-cards.c	2005-07-02 14:06:32.000000000 +0000
-@@ -485,6 +485,7 @@
- 			.vmux   = 2,
- 			.gpio0	= 0x0f00,
- 		}},
-+		.dvb            = 1,
- 	},
-         [CX88_BOARD_HAUPPAUGE_DVB_T1] = {
- 		.name           = "Hauppauge Nova-T DVB-T",
-diff -u linux-2.6.13/drivers/media/video/cx88/cx88-i2c.c linux/drivers/media/video/cx88/cx88-i2c.c
---- linux-2.6.13/drivers/media/video/cx88/cx88-i2c.c	2005-07-02 13:18:36.000000000 +0000
-+++ linux/drivers/media/video/cx88/cx88-i2c.c	2005-07-02 14:06:32.000000000 +0000
-@@ -1,5 +1,5 @@
- /*
--    $Id: cx88-i2c.c,v 1.23 2005/06/12 04:19:19 mchehab Exp $
-+    $Id: cx88-i2c.c,v 1.24 2005/06/17 18:46:23 mkrufky Exp $
- 
-     cx88-i2c.c  --  all the i2c code is here
- 
-@@ -157,6 +157,7 @@
- };
- 
- static char *i2c_devs[128] = {
-+	[ 0x1c >> 1 ] = "lgdt3302",
- 	[ 0x86 >> 1 ] = "tda9887/cx22702",
- 	[ 0xa0 >> 1 ] = "eeprom",
- 	[ 0xc0 >> 1 ] = "tuner (analog)",
-diff -u linux-2.6.13/drivers/media/video/cx88/cx88-mpeg.c linux/drivers/media/video/cx88/cx88-mpeg.c
---- linux-2.6.13/drivers/media/video/cx88/cx88-mpeg.c	2005-07-02 13:18:36.000000000 +0000
-+++ linux/drivers/media/video/cx88/cx88-mpeg.c	2005-07-02 14:06:32.000000000 +0000
-@@ -1,5 +1,5 @@
- /*
-- * $Id: cx88-mpeg.c,v 1.26 2005/06/03 13:31:51 mchehab Exp $
-+ * $Id: cx88-mpeg.c,v 1.28 2005/06/20 03:36:00 mkrufky Exp $
-  *
-  *  Support for the mpeg transport stream transfers
-  *  PCI function #2 of the cx2388x.
-@@ -70,11 +70,16 @@
- 
- 	if (cx88_boards[core->board].dvb) {
- 		/* negedge driven & software reset */
--		cx_write(TS_GEN_CNTRL, 0x40);
-+		cx_write(TS_GEN_CNTRL, 0x0040 | dev->ts_gen_cntrl);
- 		udelay(100);
- 		cx_write(MO_PINMUX_IO, 0x00);
--		cx_write(TS_HW_SOP_CNTRL,47<<16|188<<4|0x00);
--		cx_write(TS_SOP_STAT,0x00);
-+		if (core->board == CX88_BOARD_DVICO_FUSIONHDTV_3_GOLD_Q) {
-+			cx_write(TS_HW_SOP_CNTRL,0x47<<16 | 188<<4 | 0x00);
-+			cx_write(TS_SOP_STAT, 0<<16 | 0<<14 | 1<<13 | 0<<12);
-+		} else {
-+			cx_write(TS_HW_SOP_CNTRL,47<<16|188<<4|0x00);
-+			cx_write(TS_SOP_STAT,0x00);
-+		}
- 		cx_write(TS_GEN_CNTRL, dev->ts_gen_cntrl);
- 		udelay(100);
- 	}
-diff -u linux-2.6.13/drivers/media/video/cx88/cx88-dvb.c linux/drivers/media/video/cx88/cx88-dvb.c
---- linux-2.6.13/drivers/media/video/cx88/cx88-dvb.c	2005-07-02 13:19:07.000000000 +0000
-+++ linux/drivers/media/video/cx88/cx88-dvb.c	2005-07-02 14:06:32.000000000 +0000
-@@ -1,5 +1,5 @@
- /*
-- * $Id: cx88-dvb.c,v 1.36 2005/06/21 06:08:12 mkrufky Exp $
-+ * $Id: cx88-dvb.c,v 1.37 2005/06/28 23:41:47 mkrufky Exp $
-  *
-  * device driver for Conexant 2388x based TV cards
-  * MPEG Transport Stream (DVB) routines
-@@ -30,9 +30,10 @@
- #include <linux/file.h>
- #include <linux/suspend.h>
- 
--/* those two frontends need merging via linuxtv cvs ... */
-+/* these three frontends need merging via linuxtv cvs ... */
- #define HAVE_CX22702 1
- #define HAVE_OR51132 1
-+#define HAVE_LGDT3302 1
- 
- #include "cx88.h"
- #include "dvb-pll.h"
-@@ -44,6 +45,9 @@
- #if HAVE_OR51132
- # include "or51132.h"
- #endif
-+#if HAVE_LGDT3302
-+# include "lgdt3302.h"
-+#endif
- 
- MODULE_DESCRIPTION("driver for cx2388x based DVB cards");
- MODULE_AUTHOR("Chris Pascoe <c.pascoe@itee.uq.edu.au>");
-@@ -199,6 +203,25 @@
- };
- #endif
- 
-+#if HAVE_LGDT3302
-+static int lgdt3302_set_ts_param(struct dvb_frontend* fe, int is_punctured)
-+{
-+	struct cx8802_dev *dev= fe->dvb->priv;
-+	if (is_punctured)
-+		dev->ts_gen_cntrl |= 0x04;
-+	else
-+		dev->ts_gen_cntrl &= ~0x04;
-+	return 0;
-+}
-+
-+static struct lgdt3302_config fusionhdtv_3_gold_q = {
-+	.demod_address    = 0x0e,
-+	.pll_address      = 0x61,
-+	.pll_desc         = &dvb_pll_microtune_4042,
-+	.set_ts_params    = lgdt3302_set_ts_param,
-+};
-+#endif
-+
- static int dvb_register(struct cx8802_dev *dev)
- {
- 	/* init struct videobuf_dvb */
-@@ -243,6 +266,22 @@
- 						 &dev->core->i2c_adap);
- 		break;
- #endif
-+#if HAVE_LGDT3302
-+	case CX88_BOARD_DVICO_FUSIONHDTV_3_GOLD_Q:
-+		dev->ts_gen_cntrl = 0x08;
-+		{
-+		/* Do a hardware reset of chip before using it. */
-+		struct cx88_core *core = dev->core;
-+
-+		cx_clear(MO_GP0_IO, 1);
-+		mdelay(100);
-+		cx_set(MO_GP0_IO, 9); // ANT connector too FIXME
-+		mdelay(200);
-+		dev->dvb.frontend = lgdt3302_attach(&fusionhdtv_3_gold_q,
-+						    &dev->core->i2c_adap);
-+		}
-+		break;
-+#endif
- 	default:
- 		printk("%s: The frontend of your DVB/ATSC card isn't supported yet\n",
- 		       dev->core->name);
 
---------------050108050603060109040208--
+--=-QP8h+ashCezb8Fh45Y+O
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1-ecc0.1.6 (GNU/Linux)
+
+iD8DBQBCxuUSp5vW4rUFj5oRArdHAKCStHOVfLADpCg2AoPIjTQfncnY3QCeJHM2
+rYxzHxlKSQDVV3l0jdF+IA0=
+=p94Q
+-----END PGP SIGNATURE-----
+
+--=-QP8h+ashCezb8Fh45Y+O--
+

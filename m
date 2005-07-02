@@ -1,47 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261831AbVGBJMu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261835AbVGBJQH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261831AbVGBJMu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Jul 2005 05:12:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261835AbVGBJMu
+	id S261835AbVGBJQH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Jul 2005 05:16:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261847AbVGBJQG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Jul 2005 05:12:50 -0400
-Received: from mta09-winn.ispmail.ntl.com ([81.103.221.49]:58277 "EHLO
-	mta09-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S261831AbVGBJMq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Jul 2005 05:12:46 -0400
-Message-ID: <42C65A8B.9060705@gentoo.org>
-Date: Sat, 02 Jul 2005 10:12:43 +0100
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050403)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: =?UTF-8?B?RGF2aWQgR8OzbWV6?= <david@pleyades.net>,
-       Robert Love <rml@novell.com>, John McCutchan <ttb@tentacle.dhs.org>,
-       Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Problem with inotify
-References: <20050630181824.GA1058@fargo> <1120156188.6745.103.camel@betsy> <20050630193320.GA1136@fargo> <Pine.LNX.4.60.0506302138230.29755@hermes-1.csi.cam.ac.uk> <20050630204832.GA3854@fargo> <Pine.LNX.4.60.0506302158190.29755@hermes-1.csi.cam.ac.uk>
-In-Reply-To: <Pine.LNX.4.60.0506302158190.29755@hermes-1.csi.cam.ac.uk>
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+	Sat, 2 Jul 2005 05:16:06 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:64516 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261835AbVGBJQC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Jul 2005 05:16:02 -0400
+Date: Sat, 2 Jul 2005 11:16:00 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.6.13-rc1-mm1: git-mtd.patch breaks i386 compile
+Message-ID: <20050702091600.GF3592@stusta.de>
+References: <20050701044018.281b1ebd.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050701044018.281b1ebd.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Anton,
+<--  snip  -->
 
-I'm trying to work around the NTFS lockup issue. Like others, I can reproduce
-it just by opening nautilus on an NTFS partition (i.e. creating an inotify
-watch on it) and then unmount at some point after - instant system lockup.
+...
+  CC      drivers/mtd/chips/cfi_cmdset_0002.o
+In file included from drivers/mtd/chips/cfi_cmdset_0002.c:41:
+include/linux/mtd/xip.h:78:2: warning: #warning "missing IRQ and timer primitives for XIP MTD support"
+include/linux/mtd/xip.h:79:2: warning: #warning "some of the XIP MTD support code will be disabled"
+include/linux/mtd/xip.h:80:2: warning: #warning "your system will therefore be unresponsive when writing or erasing flash"
+drivers/mtd/chips/cfi_cmdset_0002.c:584:26: asm/hardware.h: No such file or directory
+...
+make[3]: *** [drivers/mtd/chips/cfi_cmdset_0002.o] Error 1
 
-I have tried applying two patches:
-fix-soft-lockup-due-to-ntfs-vfs-part-and-explanation.patch from 2.6.13-rc1-mm1
-and the "NTFS: Fix a nasty deadlock that appeared in recent kernels" patch
-from your git tree.
+<--  snip  -->
 
-However, I still get the freezing up on unmount. I am using 2.6.12, plus
-inotify-0.23-15, and the two patches mentioned above. Anything else I can try?
 
-Thanks,
-Daniel
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

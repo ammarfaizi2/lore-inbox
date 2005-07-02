@@ -1,58 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261187AbVGBP4G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261189AbVGBQAR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261187AbVGBP4G (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Jul 2005 11:56:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbVGBP4G
+	id S261189AbVGBQAR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Jul 2005 12:00:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261191AbVGBQAR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Jul 2005 11:56:06 -0400
-Received: from opersys.com ([64.40.108.71]:46858 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261187AbVGBPzW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Jul 2005 11:55:22 -0400
-Message-ID: <42C6BB79.8070903@opersys.com>
-Date: Sat, 02 Jul 2005 12:06:17 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
-MIME-Version: 1.0
-To: Michael Raymond <mraymond@sgi.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>, LTT-Dev <ltt-dev@shafik.org>,
-       Tom Zanussi <zanussi@us.ibm.com>,
-       Robert Wisniewski <bob@watson.ibm.com>,
-       Mathieu Desnoyers <compudj@krystal.dyndns.org>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: Re: [ltt-dev] [PATCH/RFC] Significantly reworked LTT core
-References: <42C60001.5050609@opersys.com> <20050702081437.A57232@xanatos.americas.sgi.com> <42C6A58B.6020000@opersys.com>
-In-Reply-To: <42C6A58B.6020000@opersys.com>
+	Sat, 2 Jul 2005 12:00:17 -0400
+Received: from frankvm.xs4all.nl ([80.126.170.174]:3768 "EHLO
+	janus.localdomain") by vger.kernel.org with ESMTP id S261189AbVGBQAD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Jul 2005 12:00:03 -0400
+Date: Sat, 2 Jul 2005 18:00:02 +0200
+From: Frank van Maarseveen <frankvm@frankvm.com>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: frankvm@frankvm.com, akpm@osdl.org, aia21@cam.ac.uk, arjan@infradead.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: FUSE merging?
+Message-ID: <20050702160002.GA13730@janus>
+References: <20050701092444.GA4317@janus> <E1DoIjd-0002bM-00@dorka.pomaz.szeredi.hu> <20050701120028.GB5218@janus> <E1DoKko-0002ml-00@dorka.pomaz.szeredi.hu> <20050701130510.GA5805@janus> <E1DoLSx-0002sR-00@dorka.pomaz.szeredi.hu> <20050701152003.GA7073@janus> <E1DoOwc-000368-00@dorka.pomaz.szeredi.hu> <20050701180415.GA7755@janus> <E1DojJ6-00047F-00@dorka.pomaz.szeredi.hu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <E1DojJ6-00047F-00@dorka.pomaz.szeredi.hu>
+User-Agent: Mutt/1.4.1i
+X-Subliminal-Message: Use Linux!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Jul 02, 2005 at 04:49:24PM +0200, Miklos Szeredi wrote:
+> > 
+> > All things considered I'd still prefer forbidding FUSE mounts on non-leaf
+> > dirs. For name space sanity. And it may be easier to get the whole thing
+> > accepted:
+> > 
+> 
+> But I don't think it would matter in the acceptance of the mount
+> hiding patch, since that patch was not rejected on the basis of what
+> FUSE would use it for, rather for the general philosophy of not
+> allowing namespace differences based on user id.
 
-Karim Yaghmour wrote:
-> I think this one needs more thinking ... I did think about adding such a
-> hook, but I didn't like the idea of it, it just seems unclean. After all
-> the problem is limited to a very small subset of events, namely NMIs and
-> page fault traps. One thing I was thinking about is that in both these
-> cases there's always an entry event and an exit event. ltt_mux could then
-> coordinate using these events. IOW, if it just got an NMI entry, it
-> doesn't allow any other event to get logged until it sees the NMI exit
-> go by ... same for page faults. By doing this, we can just keep just one
-> hook: ltt_mux. Right?
+That would really be a loss.
 
-Brain was slow this morning. What we're trying to do is to avoid getting
-those very NMIs and page faults into the logging path if we're already
-in that path ... That's different from what my brain came up with this
-morning. We may need that hook after all ... something like:
+After some thinking, the whole "not allowing namespace differences
+based on user id" philosophy is unenforcable and not even true sometimes
+nowadays. Think NFS: have a look at the unfsd server, you'll be surprised
+what it can do. Think any other networked file system exported by a
+machine with an unusual disk file-system underneath. IIRC ncpfs does
+this on the server based on access and thus based on uid.
 
-if (ltt_post)
-	ltt_post(...);
+(hmm, I _hated_ it seeing empty directories only because I had no access
+ to anything below. Based on that I'd prefer EACCES instead of seeing an
+ empty mount stub when FUSE denies access to root or any other user.)
 
-Karim
+The thing is, root rules the _local_ part of the name space. So it should
+make a _huge_ difference if FUSE can fiddle with that or only with what's
+below the leaf nodes.
+
+> > What is your opinion about replacing the ptrace check by a signal check
+> > (later on, no hurry)?
+> 
+> Maybe.  You'd still have to convince me, that signals sent to suid
+> programs are not a security problem.
+
+google kill(2):
+
+	http://www.opengroup.org/onlinepubs/007908799/xsh/kill.html
+
+It is _defined_ behavior. So, it is up to the quality of the programmer
+whether or not it results in a security problem ;-)
+
 -- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+Frank

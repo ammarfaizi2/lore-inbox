@@ -1,207 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261154AbVGBKw2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261156AbVGBKzf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261154AbVGBKw2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Jul 2005 06:52:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261156AbVGBKw2
+	id S261156AbVGBKzf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Jul 2005 06:55:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261160AbVGBKzf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Jul 2005 06:52:28 -0400
-Received: from smtp15.wanadoo.fr ([193.252.23.84]:47136 "EHLO
-	smtp15.wanadoo.fr") by vger.kernel.org with ESMTP id S261154AbVGBKwI convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Jul 2005 06:52:08 -0400
-X-ME-UUID: 20050702105207306.4AD277000081@mwinf1504.wanadoo.fr
-Message-ID: <22391136.1120301527301.JavaMail.www@wwinf1518>
-From: Pascal CHAPPERON <pascal.chapperon@wanadoo.fr>
-Reply-To: pascal.chapperon@wanadoo.fr
-To: Francois Romieu <romieu@fr.zoreil.com>
-Subject: Re: sis190
-Cc: Juha Laiho <Juha.Laiho@iki.fi>, Andrew Hutchings <info@a-wing.co.uk>,
-       linux-kernel@vger.kernel.org, vinay kumar <b4uvin@yahoo.co.in>,
-       jgarzik@pobox.com
+	Sat, 2 Jul 2005 06:55:35 -0400
+Received: from oldconomy.demon.nl ([212.238.217.56]:54948 "EHLO
+	artemis.slagter.name") by vger.kernel.org with ESMTP
+	id S261156AbVGBKzE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Jul 2005 06:55:04 -0400
+Subject: [PATCH] ich6m-pciid-piix.patch
+From: Erik Slagter <erik@slagter.name>
+To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-d9CY5WW9SRLrbIkgBGaQ"
+Date: Sat, 02 Jul 2005 12:57:54 +0200
+Message-Id: <1120301874.4300.35.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-X-Originating-IP: [80.13.96.141]
-X-WUM-FROM: |~|
-X-WUM-TO: |~|
-X-WUM-CC: |~||~||~||~||~|
-X-WUM-REPLYTO: |~|
-Date: Sat,  2 Jul 2005 12:52:07 +0200 (CEST)
+X-Mailer: Evolution 2.2.2 (2.2.2-8) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Message du 01/07/05 01:39
-> De : "Francois Romieu" <romieu@fr.zoreil.com>
-[...]
-> 
-> There is an updated version at 
-> http://www.zoreil.com/~romieu/sis190/20050630-2.6.13-rc1-sis190-test.patch
-> 
-> It would be nice to know how it behaves wrt preempt (no need to experiment
-> with the media management), especially if you can describe the freeze more
-> specifically.
-> 
-> --
-> Ueimor
-> 
-> 
-François, it's really incredible! 
-A few lines diff, and now the driver is very stable with or 
-without preempted kernel...
 
-I'll be very happy if you can tell me where is the trick.
-
-I tried it carefully : console, X11 (without nvidia), X11 (with nvidia),
-IRQ sharing between sis190/nvidia, full load : it worked perfectly.
-
-# uname -a
-Linux local 2.6.12.1 #2 Thu Jun 23 11:05:57 CEST 2005 x86_64 x86_64 x86_64 GNU/Linux
+--=-d9CY5WW9SRLrbIkgBGaQ
+Content-Type: multipart/mixed; boundary="=-IYlZOT46YpJrPZPVe1bF"
 
 
-# modinfo sis190
-filename:       /lib/modules/2.6.12.1/kernel/drivers/net/sis190.ko
-[...]
-vermagic:       2.6.12.1 preempt gcc-3.4
+--=-IYlZOT46YpJrPZPVe1bF
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+Hi,
+
+I am not sure someone already did this one, but it doesn't seem to be in
+git nor mm at the moment.
+
+This adds ICH6M to the pci ids of the (standard) piix ide driver. This
+makes it possible to use the standard ide driver for this chipset and
+enable udma.
+
+The other way is to use the libata driver, but this has too many
+drawback for the moment (no hdparm/smart/atapi support, with
+patch/#define it does, but doesn't work for me and crashes). Also pata
+harddisks are assigned incorrectly sda device names.
+
+This look okay to me, having said this, I must admit I don't know ***
+from this source file ;-)
+
+Thx.
+
+diff -ur a/drivers/ide/pci/piix.c linux-2.6.12/drivers/ide/pci/piix.c
+--- a/drivers/ide/pci/piix.c	2005-06-17 21:48:29.000000000 +0200
++++ b/drivers/ide/pci/piix.c	2005-07-02 12:37:43.000000000 +0200
+@@ -133,6 +133,7 @@
+ 		case PCI_DEVICE_ID_INTEL_82801EB_11:
+ 		case PCI_DEVICE_ID_INTEL_ESB_2:
+ 		case PCI_DEVICE_ID_INTEL_ICH6_19:
++		case PCI_DEVICE_ID_INTEL_ICH6_5:
+ 		case PCI_DEVICE_ID_INTEL_ICH7_21:
+ 		case PCI_DEVICE_ID_INTEL_ESB2_18:
+ 			mode =3D 3;
+@@ -447,6 +448,7 @@
+ 		case PCI_DEVICE_ID_INTEL_82801E_11:
+ 		case PCI_DEVICE_ID_INTEL_ESB_2:
+ 		case PCI_DEVICE_ID_INTEL_ICH6_19:
++		case PCI_DEVICE_ID_INTEL_ICH6_5:
+ 		case PCI_DEVICE_ID_INTEL_ICH7_21:
+ 		case PCI_DEVICE_ID_INTEL_ESB2_18:
+ 		{
+@@ -575,6 +577,7 @@
+ 	/* 21 */ DECLARE_PIIX_DEV("ICH7"),
+ 	/* 22 */ DECLARE_PIIX_DEV("ICH4"),
+ 	/* 23 */ DECLARE_PIIX_DEV("ESB2"),
++	/* 24 */ DECLARE_PIIX_DEV("ICH6M"),
+ };
+=20
+ /**
+@@ -651,6 +654,7 @@
+ 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH7_21, PCI_ANY_ID,
+PCI_ANY_ID, 0, 0, 21},
+ 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801DB_1, PCI_ANY_ID,
+PCI_ANY_ID, 0, 0, 22},
+ 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ESB2_18, PCI_ANY_ID,
+PCI_ANY_ID, 0, 0, 23},
++ 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH6_5, PCI_ANY_ID,
+PCI_ANY_ID, 0, 0, 24},
+ 	{ 0, },
+ };
+ MODULE_DEVICE_TABLE(pci, piix_pci_tbl);
 
 
-# cat /proc/interrupts
-           CPU0
-  0:    4403978          XT-PIC  timer
-  1:       4594          XT-PIC  i8042
-  2:          0          XT-PIC  cascade
-  3:          1          XT-PIC  ohci_hcd:usb3
-  5:          1          XT-PIC  ohci_hcd:usb4
-  7:          7          XT-PIC  ohci_hcd:usb2
-  8:          0          XT-PIC  rtc
-  9:          0          XT-PIC  acpi
- 10:          1          XT-PIC  ehci_hcd:usb1
- 11:   18607531          XT-PIC  SiS SI7012, nvidia, eth0
- 12:     139167          XT-PIC  i8042
- 14:     196392          XT-PIC  ide0
- 15:      39224          XT-PIC  ide1
-NMI:       2849
-LOC:    4403221
-ERR:          0
-MIS:          0
+--=-IYlZOT46YpJrPZPVe1bF
+Content-Disposition: inline; filename=ich6m-pciid-piix.patch
+Content-Type: text/x-patch; name=ich6m-pciid-piix.patch; charset=UTF-8
+Content-Transfer-Encoding: base64
+
+ZGlmZiAtdXIgYS9kcml2ZXJzL2lkZS9wY2kvcGlpeC5jIGxpbnV4LTIuNi4xMi9kcml2ZXJzL2lk
+ZS9wY2kvcGlpeC5jDQotLS0gYS9kcml2ZXJzL2lkZS9wY2kvcGlpeC5jCTIwMDUtMDYtMTcgMjE6
+NDg6MjkuMDAwMDAwMDAwICswMjAwDQorKysgYi9kcml2ZXJzL2lkZS9wY2kvcGlpeC5jCTIwMDUt
+MDctMDIgMTI6Mzc6NDMuMDAwMDAwMDAwICswMjAwDQpAQCAtMTMzLDYgKzEzMyw3IEBADQogCQlj
+YXNlIFBDSV9ERVZJQ0VfSURfSU5URUxfODI4MDFFQl8xMToNCiAJCWNhc2UgUENJX0RFVklDRV9J
+RF9JTlRFTF9FU0JfMjoNCiAJCWNhc2UgUENJX0RFVklDRV9JRF9JTlRFTF9JQ0g2XzE5Og0KKwkJ
+Y2FzZSBQQ0lfREVWSUNFX0lEX0lOVEVMX0lDSDZfNToNCiAJCWNhc2UgUENJX0RFVklDRV9JRF9J
+TlRFTF9JQ0g3XzIxOg0KIAkJY2FzZSBQQ0lfREVWSUNFX0lEX0lOVEVMX0VTQjJfMTg6DQogCQkJ
+bW9kZSA9IDM7DQpAQCAtNDQ3LDYgKzQ0OCw3IEBADQogCQljYXNlIFBDSV9ERVZJQ0VfSURfSU5U
+RUxfODI4MDFFXzExOg0KIAkJY2FzZSBQQ0lfREVWSUNFX0lEX0lOVEVMX0VTQl8yOg0KIAkJY2Fz
+ZSBQQ0lfREVWSUNFX0lEX0lOVEVMX0lDSDZfMTk6DQorCQljYXNlIFBDSV9ERVZJQ0VfSURfSU5U
+RUxfSUNINl81Og0KIAkJY2FzZSBQQ0lfREVWSUNFX0lEX0lOVEVMX0lDSDdfMjE6DQogCQljYXNl
+IFBDSV9ERVZJQ0VfSURfSU5URUxfRVNCMl8xODoNCiAJCXsNCkBAIC01NzUsNiArNTc3LDcgQEAN
+CiAJLyogMjEgKi8gREVDTEFSRV9QSUlYX0RFVigiSUNINyIpLA0KIAkvKiAyMiAqLyBERUNMQVJF
+X1BJSVhfREVWKCJJQ0g0IiksDQogCS8qIDIzICovIERFQ0xBUkVfUElJWF9ERVYoIkVTQjIiKSwN
+CisJLyogMjQgKi8gREVDTEFSRV9QSUlYX0RFVigiSUNINk0iKSwNCiB9Ow0KIA0KIC8qKg0KQEAg
+LTY1MSw2ICs2NTQsNyBAQA0KIAl7IFBDSV9WRU5ET1JfSURfSU5URUwsIFBDSV9ERVZJQ0VfSURf
+SU5URUxfSUNIN18yMSwgUENJX0FOWV9JRCwgUENJX0FOWV9JRCwgMCwgMCwgMjF9LA0KIAl7IFBD
+SV9WRU5ET1JfSURfSU5URUwsIFBDSV9ERVZJQ0VfSURfSU5URUxfODI4MDFEQl8xLCBQQ0lfQU5Z
+X0lELCBQQ0lfQU5ZX0lELCAwLCAwLCAyMn0sDQogCXsgUENJX1ZFTkRPUl9JRF9JTlRFTCwgUENJ
+X0RFVklDRV9JRF9JTlRFTF9FU0IyXzE4LCBQQ0lfQU5ZX0lELCBQQ0lfQU5ZX0lELCAwLCAwLCAy
+M30sDQorIAl7IFBDSV9WRU5ET1JfSURfSU5URUwsIFBDSV9ERVZJQ0VfSURfSU5URUxfSUNINl81
+LCBQQ0lfQU5ZX0lELCBQQ0lfQU5ZX0lELCAwLCAwLCAyNH0sDQogCXsgMCwgfSwNCiB9Ow0KIE1P
+RFVMRV9ERVZJQ0VfVEFCTEUocGNpLCBwaWl4X3BjaV90YmwpOw0K
 
 
-I executed simultaneously :
-- a loop within 2 TX 700MB and 1 RX 700MB
-- a loop within /usr/src/linux/make clean;make
-- an audio stream
-- an openglx demo
-- my usual tasks (mozilla, xemacs)
+--=-IYlZOT46YpJrPZPVe1bF--
 
-# ifconfig
-eth0      Link encap:Ethernet  HWaddr 00:11:2F:E9:42:70
-          inet addr:10.169.21.21  Bcast:10.169.23.255  Mask:255.255.252.0
-          inet6 addr: fe80::211:2fff:fee9:4270/64 Scope:Link
-          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-          RX packets:9922052 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:17974399 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:1000
-          RX bytes:8064017712 (7.5 GiB)  TX bytes:23410613404 (21.8 GiB)
-          Interrupt:11 Base address:0xdead
+--=-d9CY5WW9SRLrbIkgBGaQ
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-The average speed of the transfers was about 10MB/s under full load
-without hurting too much CPU resource.
+iD8DBQBCxnMyJgD/6j32wUYRAoYiAJ9HOL9P6cCwSTwItmZKztLrb15Y3gCdEtsA
+UFBh2pJow4FXNea0CDD2tCY=
+=F/jy
+-----END PGP SIGNATURE-----
 
-I retried the previous patch in the same conditions : it frooze the
-box after a few seconds, not only with X11 (no nvidia), but also
-with an audio stream (at the console).
-
-I also retried (last patch) 10Mb/full autoneg off on the r8169 link 
-partner (it prevously froze the box) : it worked perfectly.
-
-The TX performances are also improved (r8169 LP):
-- 10 full autoneg off : 1,2 MB both directions
-- 100 full autoneg off : 11.6MB/s both directions
-
-It still remains a problem in half duplex modes.
-
-Perhaps somebody else want to try the patch with different
-link partners (switchs, 10Mb cards, ...)
-
-I can not make other tries before Monday, but i'll take a
-look at the media management after...
-
-BTW, can you remove the following printks from the patch ?
-The printks in interrupt functions make dmesg unusuable, 
-and the stuff in sis190_get_drvinfo triggers a kernel oops
-when the module is loaded (null pointer assignment).
-
-# diff -puN sis190-20050630.c sis190.c
---- sis190-20050630.c   2005-07-02 09:07:19.000000000 +0200
-+++ sis190.c    2005-07-02 10:49:52.000000000 +0200
-@@ -456,8 +456,6 @@ static inline int sis190_try_rx_copy(str
-                skb = dev_alloc_skb(pkt_size + NET_IP_ALIGN);
-                if (skb) {
-                        skb_reserve(skb, NET_IP_ALIGN);
--                       printk(KERN_INFO "sk_buff[0]->tail = %p\n",
--                              sk_buff[0]->tail);
-                        eth_copy_and_sum(skb, sk_buff[0]->tail, pkt_size, 0);
-                        *sk_buff = skb;
-                        sis190_give_to_asic(desc, rx_buf_sz);
-@@ -483,15 +481,12 @@ static int sis190_rx_interrupt(struct ne
-                u32 status;
-
-                rmb();
--               printk(KERN_INFO "%s: Rx status = %08x\n", dev->name,
--                      desc->status);
-
-                if (desc->status & OWNbit)
-                        break;
-
-                status = le32_to_cpu(desc->PSize);
-
--               printk(KERN_INFO "%s: Rx PSize = %08x\n", dev->name, status);
-
-                if (status & RxCRC) {
-                        printk(KERN_INFO "%s: crc error. status = %08x\n",
-@@ -638,7 +633,6 @@ static irqreturn_t sis190_interrupt(int
-
-                SIS_W32(IntrStatus, status);
-
--               printk(KERN_INFO "%s: status = %08x\n", dev->name, status);
-
-                if ((status & LinkChange) && netif_running(dev)) {
-                        printk(KERN_INFO "%s: link change\n", dev->name);
-@@ -1230,31 +1224,11 @@ static void sis190_get_drvinfo(struct ne
-                               struct ethtool_drvinfo *info)
- {
-        struct sis190_private *tp = netdev_priv(dev);
--       unsigned int i;
--       u32 *u;
-
-        strcpy(info->driver, DRV_NAME);
-        strcpy(info->version, DRV_VERSION);
-        strcpy(info->bus_info, pci_name(tp->pci_dev));
-
--       printk(KERN_INFO "%s: dirty_rx=%ld cur_rx=%ld\n",
--              dev->name, tp->dirty_rx, tp->cur_rx);
--       u = (void *) tp->RxDescRing;
--       printk(KERN_INFO "   PSize    status   addr     size     PSize    status   addr     size\n");
--       for (i = 0; i < (NUM_RX_DESC / 2); i++) {
--               printk(KERN_INFO "%02d:%08x %08x %08x %08x %08x %08x %08x %08x\n",
--                      i, u[0], u[1], u[2], u[3], u[4], u[5], u[6], u[7]);
--               u += 8;
--       }
--       printk(KERN_INFO "%s: dirty_tx=%ld cur_tx=%ld\n",
--              dev->name, tp->dirty_tx, tp->cur_tx);
--       u = (void *) tp->TxDescRing;
--       printk(KERN_INFO "   PSize    status   addr     size     PSize    status   addr     size\n");
--       for (i = 0; i < (NUM_TX_DESC / 2); i++) {
--               printk(KERN_INFO "%02d %08x %08x %08x %08x %08x %08x %08x %08x\n",
--                      i, u[0], u[1], u[2], u[3], u[4], u[5], u[6], u[7]);
--               u += 8;
--       }
- }
-
- static struct ethtool_ops sis190_ethtool_ops = {
-
-
-Regards
-Pascal
-
-
+--=-d9CY5WW9SRLrbIkgBGaQ--

@@ -1,190 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261198AbVGBPox@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261220AbVGBPr4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261198AbVGBPox (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Jul 2005 11:44:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261200AbVGBPoj
+	id S261220AbVGBPr4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Jul 2005 11:47:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261187AbVGBPqF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Jul 2005 11:44:39 -0400
-Received: from smtp2.irishbroadband.ie ([62.231.32.13]:37623 "EHLO
-	smtp2.irishbroadband.ie") by vger.kernel.org with ESMTP
-	id S261188AbVGBPm7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Jul 2005 11:42:59 -0400
-Subject: Re: aic7xxx regression occuring after 2.6.12 final
-From: Tony Vroon <chainsaw@gentoo.org>
+	Sat, 2 Jul 2005 11:46:05 -0400
+Received: from soufre.accelance.net ([213.162.48.15]:19165 "EHLO
+	soufre.accelance.net") by vger.kernel.org with ESMTP
+	id S261194AbVGBPpH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Jul 2005 11:45:07 -0400
+Message-ID: <42C6B67E.8050706@xenomai.org>
+Date: Sat, 02 Jul 2005 17:45:02 +0200
+From: Philippe Gerum <rpm@xenomai.org>
+Organization: Xenomai
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Cc: linux-scsi@vger.kernel.org, James Bottomley <James.Bottomley@SteelEye.com>,
-       Andy Whitcroft <apw@shadowen.org>
-In-Reply-To: <1120085446.9743.11.camel@localhost>
-References: <1120085446.9743.11.camel@localhost>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-VkdlJCP7UODfnNxpOxuA"
-Organization: Gentoo Linux
-Date: Sat, 02 Jul 2005 16:42:05 +0100
-Message-Id: <1120318925.21935.9.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+Subject: [patch] I-pipe 2.6.12-v0.8-00
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-VkdlJCP7UODfnNxpOxuA
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+The interrupt pipeline patch v0.8-00 has been released, including
+support for both x86 and ppc32 architectures.
 
-On Wed, 2005-06-29 at 23:50 +0100, Tony Vroon wrote:
-> For my Adaptec 29160 card; I see a regression after 2.6.12 final.
-> To be exact, these releases work for me:
-> 2.6.12
-> 2.6.12.1
->=20
-> These releases do not work for me:
-> 2.6.12-mm1
-> 2.6.12-mm2
-> 2.6.12-git7
-> 2.6.13-rc1
-I can add 2.6.13-rc1-mm1 to that list.
+At the following location, you will find a split version of the most
+recent patch: http://download.gna.org/adeos/patches/v2.6/ipipe/split/
 
-> On a working kernel; I see the following:
-I'd like to extend this so all devices on this adapter are visible,
-perhaps it helps in debugging this case. Note that I also lowered the
-tagged queuing depth to the default of 32. This had no effect.:
-ACPI: PCI Interrupt Link [APC3] enabled at IRQ 18
-ACPI: PCI Interrupt 0000:01:08.0[A] -> Link [APC3] -> GSI 18 (level,
-high) -> IRQ 18
-scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.36
-        <Adaptec 29160 Ultra160 SCSI adapter>
-        aic7892: Ultra160 Wide Channel A, SCSI Id=3D7, 32/253 SCBs
+diffstat ipipe-core-2.6.12-v0.8-00.patch:
+  2.6.12-ipipe-0.8/include/linux/ipipe.h  |  379 +++++++++++++++++++++++++++
+  2.6.12-ipipe-0.8/include/linux/sched.h  |    1
+  2.6.12-ipipe-0.8/init/Kconfig           |    1
+  2.6.12-ipipe-0.8/init/main.c            |    3
+  2.6.12-ipipe-0.8/kernel/Makefile        |    1
+  2.6.12-ipipe-0.8/kernel/ipipe/Kconfig   |    9
+  2.6.12-ipipe-0.8/kernel/ipipe/Makefile  |    2
+  2.6.12-ipipe-0.8/kernel/ipipe/core.c    |  443 
+++++++++++++++++++++++++++++++++
+  2.6.12-ipipe-0.8/kernel/ipipe/generic.c |  240 +++++++++++++++++
+  2.6.12-ipipe-0.8/kernel/irq/handle.c    |   13
+  2.6.12-ipipe-0.8/kernel/printk.c        |   59 ++++
+  2.6.12-ipipe-0.8/kernel/sched.c         |    5
+  2.6.12-ipipe-0.8/kernel/sysctl.c        |    1
+  2.6.12-ipipe-0.8/lib/kernel_lock.c      |    4
+  2.6.12-ipipe-0.8/mm/vmalloc.c           |    4
+  include/linux/hardirq.h                 |   13
+  16 files changed, 1178 insertions(+)
 
-  Vendor: FUJITSU   Model: MAP3367NP         Rev: 0106
-  Type:   Direct-Access                      ANSI SCSI revision: 03
-scsi0:A:0:0: Tagged Queuing enabled.  Depth 32
- target0:0:0: Beginning Domain Validation
-WIDTH IS 1
-(scsi0:A:0): 6.600MB/s transfers (16bit)
-(scsi0:A:0): 160.000MB/s transfers (80.000MHz DT, offset 127, 16bit)
- target0:0:0: Ending Domain Validation
-(scsi0:A:1:0): refuses WIDE negotiation.  Using 8bit transfers
-  Vendor: YAMAHA    Model: CRW2100S          Rev: 1.0N
-  Type:   CD-ROM                             ANSI SCSI revision: 02
- target0:0:1: Beginning Domain Validation
- target0:0:1: Domain Validation skipping write tests
-(scsi0:A:1): 20.000MB/s transfers (20.000MHz, offset 7)
- target0:0:1: Ending Domain Validation
-(scsi0:A:2:0): refuses WIDE negotiation.  Using 8bit transfers
-  Vendor: PIONEER   Model: DVD-ROM DVD-305   Rev: 1.03
-  Type:   CD-ROM                             ANSI SCSI revision: 02
- target0:0:2: Beginning Domain Validation
- target0:0:2: Domain Validation skipping write tests
-(scsi0:A:2): 20.000MB/s transfers (20.000MHz, offset 16)
- target0:0:2: Ending Domain Validation
-  Vendor: PLEXTOR   Model: CD-ROM PX-40TS    Rev: 1.11
-  Type:   CD-ROM                             ANSI SCSI revision: 02
- target0:0:3: Beginning Domain Validation
- target0:0:3: Domain Validation skipping write tests
-(scsi0:A:3): 20.000MB/s transfers (20.000MHz, offset 15)
- target0:0:3: Ending Domain Validation
-  Vendor: QUANTUM   Model: ATLAS10K3_36_SCA  Rev: 020W
-  Type:   Direct-Access                      ANSI SCSI revision: 03
-scsi0:A:5:0: Tagged Queuing enabled.  Depth 32
- target0:0:5: Beginning Domain Validation
-WIDTH IS 1
-(scsi0:A:5): 6.600MB/s transfers (16bit)
-(scsi0:A:5): 160.000MB/s transfers (80.000MHz DT, offset 127, 16bit)
- target0:0:5: Ending Domain Validation
-  Vendor: SEAGATE   Model: ST373405LC        Rev: 0003
-  Type:   Direct-Access                      ANSI SCSI revision: 03
-scsi0:A:6:0: Tagged Queuing enabled.  Depth 32
- target0:0:6: Beginning Domain Validation
-WIDTH IS 1(scsi0:A:6): 6.600MB/s transfers (16bit)
-(scsi0:A:6): 160.000MB/s transfers (80.000MHz DT, offset 63, 16bit)
- target0:0:6: Ending Domain Validation
-SCSI device sda: 71775284 512-byte hdwr sectors (36749 MB)
-SCSI device sda: drive cache: write back
-SCSI device sda: 71775284 512-byte hdwr sectors (36749 MB)
-SCSI device sda: drive cache: write back
- sda: sda1 sda2 sda3
-Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
-SCSI device sdb: 71833096 512-byte hdwr sectors (36779 MB)
-SCSI device sdb: drive cache: write back
-SCSI device sdb: 71833096 512-byte hdwr sectors (36779 MB)
-SCSI device sdb: drive cache: write back
- sdb: sdb1
-Attached scsi disk sdb at scsi0, channel 0, id 5, lun 0
-CSI device sdc: 143374738 512-byte hdwr sectors (73408 MB)
-SCSI device sdc: drive cache: write back
-SCSI device sdc: 143374738 512-byte hdwr sectors (73408 MB)
-SCSI device sdc: drive cache: write back
- sdc: sdc1
-Attached scsi disk sdc at scsi0, channel 0, id 6, lun 0
-sr0: scsi3-mmc drive: 40x/40x writer cd/rw xa/form2 cdda tray
-Uniform CD-ROM driver Revision: 3.20
-Attached scsi CD-ROM sr0 at scsi0, channel 0, id 1, lun 0
-sr1: scsi3-mmc drive: 16x/40x cd/rw xa/form2 cdda tray
-Attached scsi CD-ROM sr1 at scsi0, channel 0, id 2, lun 0
-sr2: scsi-1 drive
-Attached scsi CD-ROM sr2 at scsi0, channel 0, id 3, lun 0
-Attached scsi generic sg0 at scsi0, channel 0, id 0, lun 0,  type 0
-Attached scsi generic sg1 at scsi0, channel 0, id 1, lun 0,  type 5
-Attached scsi generic sg2 at scsi0, channel 0, id 2, lun 0,  type 5
-Attached scsi generic sg3 at scsi0, channel 0, id 3, lun 0,  type 5
-Attached scsi generic sg4 at scsi0, channel 0, id 5, lun 0,  type 0
-Attached scsi generic sg5 at scsi0, channel 0, id 6, lun 0,  type 0
+diffstat ipipe-i386-2.6.12-v0.8-00.patch:
+  arch/i386/Kconfig                        |    3
+  arch/i386/kernel/Makefile                |    1
+  arch/i386/kernel/apic.c                  |    7
+  arch/i386/kernel/entry.S                 |   80 +++-
+  arch/i386/kernel/i8259.c                 |   33 +
+  arch/i386/kernel/io_apic.c               |  145 ++++++-
+  arch/i386/kernel/ipipe-core.c            |  619 
++++++++++++++++++++++++++++++++
+  arch/i386/kernel/ipipe-root.c            |  354 +++++++++++++++++
+  arch/i386/kernel/process.c               |    1
+  arch/i386/kernel/smp.c                   |   29 +
+  arch/i386/kernel/time.c                  |    5
+  arch/i386/kernel/traps.c                 |    8
+  arch/i386/mach-visws/visws_apic.c        |    6
+  arch/i386/mm/fault.c                     |    2
+  arch/i386/mm/ioremap.c                   |    2
+  include/asm-i386/apic.h                  |    6
+  include/asm-i386/io_apic.h               |    4
+  include/asm-i386/ipipe.h                 |  318 +++++++++++++++
+  include/asm-i386/mach-default/do_timer.h |    5
+  include/asm-i386/mach-visws/do_timer.h   |    5
+  include/asm-i386/pgalloc.h               |   23 +
+  include/asm-i386/spinlock.h              |    4
+  include/asm-i386/system.h                |   31 +
+  23 files changed, 1625 insertions(+), 66 deletions(-)
 
-> On a failing kernel, I see:
-I still see this on 2.6.13-rc1-mm1:
+diffstat ipipe-ppc-2.6.12-v0.8-00.patch:
+  arch/ppc/Kconfig                 |    2
+  arch/ppc/kernel/Makefile         |    1
+  arch/ppc/kernel/entry.S          |   13
+  arch/ppc/kernel/head.S           |   14
+  arch/ppc/kernel/head_44x.S       |    6
+  arch/ppc/kernel/head_4xx.S       |   14
+  arch/ppc/kernel/head_8xx.S       |   13
+  arch/ppc/kernel/head_booke.h     |   16 +
+  arch/ppc/kernel/head_fsl_booke.S |    4
+  arch/ppc/kernel/idle.c           |    4
+  arch/ppc/kernel/ipipe-core.c     |  592 
++++++++++++++++++++++++++++++++++++++++
+  arch/ppc/kernel/ipipe-root.c     |  360 +++++++++++++++++++++++
+  arch/ppc/platforms/pmac_pic.c    |    2
+  include/asm-ppc/hw_irq.h         |   33 ++
+  include/asm-ppc/ipipe.h          |  338 ++++++++++++++++++++++
+  include/asm-ppc/pgalloc.h        |    5
+  16 files changed, 1414 insertions(+), 3 deletions(-)
 
-ACPI: PCI Interrupt Link [APC3] enabled at IRQ 18
-ACPI: PCI Interrupt 0000:01:08.0[A] -> Link [APC3] -> GSI 18 (level,high) -=
-> IRQ 18
-scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.36
-        <Adaptec 29160 Ultra160 SCSI adapter>
-        aic7892: Ultra160 Wide Channel A, SCSI Id=3D7, 32/253 SCBs
+Patch sequence to build a Linux 2.6.12 tree with I-pipe support:
 
-target0:0:0: asynchronous
-  Vendor: FUJITSU   Model: MAP3367NP         Rev: 0106
-  Type:   Direct-Access                      ANSI SCSI revision: 03
-scsi0:A:0:0: Tagged Queuing enabled.  Depth 32
- target0:0:0: Beginning Domain Validation
- target0:0:0: wide asynchronous
-(scsi0:A:0): refuses tagged commands. Performing non-tagged I/O
- target0:0:0: asynchronous
-[The PC hangs at this point]
+http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.12.tar.bz2
+http://download.gna.org/adeos/patches/v2.6/ipipe/ipipe-2.6.12-v0.8-00.patch
 
+-- 
 
-> lspci output for the adapter:
-> 0000:01:08.0 SCSI storage controller: Adaptec AIC-7892A U160/m (rev 02)
->         Subsystem: Adaptec 29160 Ultra160 SCSI Controller
->         Flags: bus master, 66Mhz, medium devsel, latency 32, IRQ 18
->         BIST result: 00
->         I/O ports at d800 [disabled] [size=3D256]
->         Memory at db000000 (64-bit, non-prefetchable) [size=3D4K]
->         Capabilities: [dc] Power Management version 2
-
-> Please let me know if there are specific patches I need to apply or
-> revert to debug this.
-
-This stands. I would like to debug this, but a few recommendations of
-what to do and where to start would be appreciated.
-
->  I have more drives on this controller; to be exact
-> I have 2 U320-capable drives and one U160-capable drive on wide channel
-> A; and 3 removable media units (CD-R, DVD, CD-ROM) on the 50-pin
-> SCSI-bus.
-
-Thanks,
-Tony.
-(Please CC replies to me as I am not subscribed to LKML or linux-scsi)
-
---=-VkdlJCP7UODfnNxpOxuA
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1-ecc0.1.6 (GNU/Linux)
-
-iD8DBQBCxrXNp5vW4rUFj5oRAmFGAJ9NZmw2wI+kqlCnXtiqWuXgMmqONgCfVozk
-7AcCNQzY3WPAqzwJVt5RZcU=
-=q13x
------END PGP SIGNATURE-----
-
---=-VkdlJCP7UODfnNxpOxuA--
-
+Philippe.

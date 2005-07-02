@@ -1,100 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261243AbVGBRuZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261244AbVGBR4k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261243AbVGBRuZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Jul 2005 13:50:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261244AbVGBRuZ
+	id S261244AbVGBR4k (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Jul 2005 13:56:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261247AbVGBR4k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Jul 2005 13:50:25 -0400
-Received: from smtp2.irishbroadband.ie ([62.231.32.13]:47598 "EHLO
-	smtp2.irishbroadband.ie") by vger.kernel.org with ESMTP
-	id S261243AbVGBRsB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Jul 2005 13:48:01 -0400
-Subject: Re: aic7xxx regression occuring after 2.6.12 final
-From: Tony Vroon <chainsaw@gentoo.org>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Andy Whitcroft <apw@shadowen.org>
-In-Reply-To: <1120325613.5073.16.camel@mulgrave>
-References: <1120085446.9743.11.camel@localhost>
-	 <1120318925.21935.9.camel@localhost>  <1120321322.5073.4.camel@mulgrave>
-	 <1120322788.22046.2.camel@localhost>  <1120323691.5073.12.camel@mulgrave>
-	 <1120324426.21967.1.camel@localhost>  <1120325613.5073.16.camel@mulgrave>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-yNyqSUa+lPYodlExjBVn"
-Organization: Gentoo Linux
-Date: Sat, 02 Jul 2005 18:47:03 +0100
-Message-Id: <1120326423.22057.3.camel@localhost>
+	Sat, 2 Jul 2005 13:56:40 -0400
+Received: from [85.8.12.41] ([85.8.12.41]:5564 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S261244AbVGBR4h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Jul 2005 13:56:37 -0400
+Message-ID: <42C6D3D5.6070909@drzeus.cx>
+Date: Sat, 02 Jul 2005 19:50:13 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 1.0.2-7 (X11/20050623)
+X-Accept-Language: en-us, en
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+Content-Type: multipart/mixed; boundary="=_hermes.drzeus.cx-7633-1120326994-0001-2"
+To: Andi Kleen <ak@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/2] ISA DMA suspend for x86_64
+References: <42A2B610.1020408@drzeus.cx.suse.lists.linux.kernel> <42A3061C.7010604@drzeus.cx.suse.lists.linux.kernel> <42B1A08B.8080601@drzeus.cx.suse.lists.linux.kernel> <20050616170622.A1712@flint.arm.linux.org.uk.suse.lists.linux.kernel> <42C3A698.9020404@drzeus.cx.suse.lists.linux.kernel> <1120130926.6482.83.camel@localhost.localdomain.suse.lists.linux.kernel> <42C3E3A4.3090305@drzeus.cx.suse.lists.linux.kernel> <42C432BB.407@drzeus.cx.suse.lists.linux.kernel> <p73u0jeg5lg.fsf@verdi.suse.de> <42C6CF40.4040308@drzeus.cx> <20050702174055.GI21330@wotan.suse.de>
+In-Reply-To: <20050702174055.GI21330@wotan.suse.de>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a MIME-formatted message.  If you see this text it means that your
+E-mail software does not support MIME-formatted messages.
 
---=-yNyqSUa+lPYodlExjBVn
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+--=_hermes.drzeus.cx-7633-1120326994-0001-2
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 
-On Sat, 2005-07-02 at 13:33 -0400, James Bottomley wrote:
-> There should be more debugging information after this as the device goes
-> through domain validation, isn't there?
+Andi Kleen wrote:
 
-There is, but I have to write this out manually. I have only one PC
-available. Got myself more paper and a better pen. Here it is:
+>
+>I think that will break in builds with separate objdirs. You'll need
+>to do it like the other files (see the end of the Makefile)
+>
+>  
+>
 
-scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.36
-        <Adaptec 29160 Ultra160 SCSI adapter>
-        aic7892: Ultra160 Wide Channel A, SCSI Id=3D7, 32/253 SCBs
+Like this?
 
-scsi0: Slave Alloc 0
-(scsi0:A:0:0): Sending WDTR 0
-(scsi0:A:0:0): Received WDTR 0 filtered to 0
- target0:0:0: FAST-5 SCSI 1.0 MB/s ST (1020 ns, offset 255)
-scsi0: target 0 using 8bit transfers
-(scsi0:A:0:0): Sending SDTR period 45, offset 0
-(scsi0:A:0:0): Received SDTR period 45, offset 0
-Filtered to period 0, offset 0
- target0:0:0: asynchronous.
-scsi0: target 0 using asynchronous transfers
-  Vendor: FUJITSU   Model: MAP3367NP         Rev: 0106
-  Type:   Direct-Access                      ANSI SCSI revision: 03
-scsi0: Slave Configure 0
- target0:0:0: asynchronous.
-scsi0:A:0:0:0: Tagged Queuing enabled.  Depth 32
- target0:0:0: Beginning Domain Validation
-(scsi0:A:0:0): Sending WDTR 1
-(scsi0:A:0:0): Received WDTR 1 filtered to 1
- target0:0:0: FAST-5 WIDE SCSI 2.0 MB/s ST (1020 ns, offset 255)
-scsi0: target 0 using 16bit transfers
-(scsi0:A:0:0): Sending SDTR period 45, offset 0
-(scsi0:A:0:0): Received SDTR period 45, offset 0
-Filtered to period 0, offset 0
- target0:0:0: wide asynchronous
-scsi0: target 0 using asynchronous transfers
-(scsi0:A:0:0): Sending PPR bus_width 1, period 9, offset 7f, ppr_options
-7
-(scsi0:A:0:0): Received PPR bus_width 1, period 9, offset 7f,
-ppr_options 7
-Filtered to width 0, period 0, offset 0, options 0
- target0:0:0: asynchronous.
-scsi0: target 0 using 8bit transfers
-(scsi0:A:0:0): refuses tagged comands.  Performing non-tagged I/O
- target0:0:0: asynchronous
-*PC hangs here*
+Rgds
+Pierre
 
-> James=20
-Tony.
 
---=-yNyqSUa+lPYodlExjBVn
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+--=_hermes.drzeus.cx-7633-1120326994-0001-2
+Content-Type: text/x-patch; name="i8237-x86_64.patch"; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="i8237-x86_64.patch"
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1-ecc0.1.6 (GNU/Linux)
+Index: linux-wbsd/arch/x86_64/kernel/Makefile
+===================================================================
+--- linux-wbsd/arch/x86_64/kernel/Makefile	(revision 153)
++++ linux-wbsd/arch/x86_64/kernel/Makefile	(working copy)
+@@ -44,3 +45,4 @@
+ microcode-$(subst m,y,$(CONFIG_MICROCODE))  += ../../i386/kernel/microcode.o
+ intel_cacheinfo-y		+= ../../i386/kernel/cpu/intel_cacheinfo.o
+ quirks-y			+= ../../i386/kernel/quirks.o
++i8237-y				+= ../../i386/kernel/i8237.o
 
-iD8DBQBCxtMXp5vW4rUFj5oRAl92AJ9REnCPJeBWbE6F4zRzVG418gWKdwCfbEPO
-V73wUrzlPO+7dTsQSokbRVg=
-=Qx+P
------END PGP SIGNATURE-----
-
---=-yNyqSUa+lPYodlExjBVn--
-
+--=_hermes.drzeus.cx-7633-1120326994-0001-2--

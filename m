@@ -1,48 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261330AbVGBXlx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261328AbVGBXvR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261330AbVGBXlx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Jul 2005 19:41:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261328AbVGBXlx
+	id S261328AbVGBXvR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Jul 2005 19:51:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261331AbVGBXvR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Jul 2005 19:41:53 -0400
-Received: from unknown.ghostnet.de ([217.69.161.74]:30106 "EHLO nexave.de")
-	by vger.kernel.org with ESMTP id S261330AbVGBXl3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Jul 2005 19:41:29 -0400
-Message-ID: <42C725E5.8020405@cyberoptic.de>
-Date: Sun, 03 Jul 2005 01:40:21 +0200
-From: CyberOptic <mail@cyberoptic.de>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Grant Coady <grant_lkml@dodo.com.au>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: ppa / parport zip-drive / kernel 2.6.12.2 [RESOLVED]
-References: <42C6FD00.2060408@cyberoptic.de> <1a3ec1t4evi7dcops742493hv7vd9aijb5@4ax.com> <42C71353.3000802@cyberoptic.de> <4g5ec1pftrkmejqs3rdl8lms2j49a7duhp@4ax.com>
-In-Reply-To: <4g5ec1pftrkmejqs3rdl8lms2j49a7duhp@4ax.com>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
-X-Scanner: exiscan *1Dorbt-00047X-00*7luz.mITiQw*
+	Sat, 2 Jul 2005 19:51:17 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:53258 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261328AbVGBXvL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Jul 2005 19:51:11 -0400
+Date: Sun, 3 Jul 2005 01:51:09 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: jgarzik@pobox.com
+Cc: jkmaline@cc.hut.fi, hostap@shmoo.com, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: [-mm patch] net/ieee80211/: remove pci.h #include's
+Message-ID: <20050702235109.GJ5346@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
----working!---
-ppa: Version 2.07 (for Linux 2.4.x)
-ppa: Found device at ID 6, Attempting to use EPP 32 bit
-ppa: Found device at ID 6, Attempting to use PS/2
-ppa: Communication established with ID 6 using PS/2
-scsi9 : Iomega VPI0 (ppa) interface
-  Vendor: IOMEGA    Model: ZIP 100           Rev: D.13
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-Attached scsi removable disk sda at scsi9, channel 0, id 6, lun 0
-Attached scsi generic sg0 at scsi9, channel 0, id 6, lun 0,  type 0
+I was wondering why editing pci.h triggered the rebuild of three files 
+under net/, and as far as I can see, there's no reason for these three 
+files to #include pci.h .
 
-Grant, thanks for your help. I kicked the drive in a act of desperation
-with my feet and know what - it works now. ;-) Looks like a insulate
-contact. Maybe i´ll get my soldering iron hot tomorrow to fix this.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Best Regards
-Sebastian
+---
 
+This patch was already sent on:
+- 30 May 2005
+- 1 May 2005
+
+ net/ieee80211/ieee80211_module.c |    1 -
+ net/ieee80211/ieee80211_rx.c     |    1 -
+ net/ieee80211/ieee80211_tx.c     |    1 -
+ 3 files changed, 3 deletions(-)
+
+--- linux-2.6.12-rc3-mm1-full/net/ieee80211/ieee80211_module.c.old	2005-04-30 23:23:14.000000000 +0200
++++ linux-2.6.12-rc3-mm1-full/net/ieee80211/ieee80211_module.c	2005-04-30 23:23:18.000000000 +0200
+@@ -40,7 +40,6 @@
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/netdevice.h>
+-#include <linux/pci.h>
+ #include <linux/proc_fs.h>
+ #include <linux/skbuff.h>
+ #include <linux/slab.h>
+--- linux-2.6.12-rc3-mm1-full/net/ieee80211/ieee80211_tx.c.old	2005-04-30 23:23:25.000000000 +0200
++++ linux-2.6.12-rc3-mm1-full/net/ieee80211/ieee80211_tx.c	2005-04-30 23:23:32.000000000 +0200
+@@ -33,7 +33,6 @@
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/netdevice.h>
+-#include <linux/pci.h>
+ #include <linux/proc_fs.h>
+ #include <linux/skbuff.h>
+ #include <linux/slab.h>
+--- linux-2.6.12-rc3-mm1-full/net/ieee80211/ieee80211_rx.c.old	2005-04-30 23:23:42.000000000 +0200
++++ linux-2.6.12-rc3-mm1-full/net/ieee80211/ieee80211_rx.c	2005-04-30 23:23:46.000000000 +0200
+@@ -23,7 +23,6 @@
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/netdevice.h>
+-#include <linux/pci.h>
+ #include <linux/proc_fs.h>
+ #include <linux/skbuff.h>
+ #include <linux/slab.h>
 

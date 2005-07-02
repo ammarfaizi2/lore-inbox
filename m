@@ -1,670 +1,298 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261282AbVGBVYw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261281AbVGBViJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261282AbVGBVYw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Jul 2005 17:24:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261281AbVGBVYw
+	id S261281AbVGBViJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Jul 2005 17:38:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261287AbVGBViJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Jul 2005 17:24:52 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:57097 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261282AbVGBVXv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Jul 2005 17:23:51 -0400
-Date: Sat, 2 Jul 2005 23:23:47 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Yoshihiro MATSUYAMA <y.matsu@jp.fujitsu.com>,
-       David Howells <dhowells@redhat.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: [2.6 patch] FRV: Add defconfig
-Message-ID: <20050702212347.GA5346@stusta.de>
+	Sat, 2 Jul 2005 17:38:09 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:12225 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261281AbVGBVhY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Jul 2005 17:37:24 -0400
+Subject: Re: If ACPI doesn't find an irq listed, don't accept 0 as a valid
+	PCI irq.
+From: David Woodhouse <dwmw2@infradead.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Len Brown <len.brown@intel.com>,
+       Natalie Protasevich <Natalie.Protasevich@UNISYS.com>, torvalds@osdl.org
+In-Reply-To: <200507021908.j62J8m4D009707@hera.kernel.org>
+References: <200507021908.j62J8m4D009707@hera.kernel.org>
+Content-Type: multipart/mixed; boundary="=-ALojQjjxiCuGMWSpHajY"
+Date: Sat, 02 Jul 2005 22:36:25 +0100
+Message-Id: <1120340186.9275.52.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch by Yoshihiro MATSUYAMA (already ACK'ed by David Howells) adds 
-a defconfig for the frv arch.
+
+--=-ALojQjjxiCuGMWSpHajY
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+On Sat, 2005-07-02 at 12:08 -0700, Linux Kernel Mailing List wrote:
+> If ACPI doesn't find an irq listed, don't accept 0 as a valid PCI irq.
+> 
+> That zero just means that nothing else found any irq information
+> either.
+
+> -               if (dev->irq >= 0 && (dev->irq <= 0xF)) {
+> +               if (dev->irq > 0 && (dev->irq <= 0xF)) {
+
+Zero _is_ a valid IRQ number. You're undoing the fix which was made as
+part of cset 1.1803.119.54 (attached).
+
+-- 
+dwmw2
+
+--=-ALojQjjxiCuGMWSpHajY
+Content-Disposition: inline
+Content-Description: Attached message - [ACPI] acpi_pci_irq_enable() now
+	returns 0 on success.
+Content-Type: message/rfc822
+
+Return-path: <bk-commits-head-owner@vger.kernel.org>
+Envelope-to: dwmw2@baythorne.infradead.org
+Delivery-date: Thu, 02 Dec 2004 02:02:33 +0000
+Received: from [2002:cde9:da46::1] (helo=canuck.infradead.org) by
+	baythorne.infradead.org with esmtps (Exim 4.42 #1 (Red Hat Linux)) id
+	1CZgIi-0005jl-74 for dwmw2@baythorne.infradead.org; Thu, 02 Dec 2004
+	02:02:33 +0000
+Received: from vger.kernel.org ([12.107.209.244]) by canuck.infradead.org
+	with esmtp (Exim 4.42 #1 (Red Hat Linux)) id 1CZgK4-0000nW-50 for
+	dwmw2@lists.infradead.org; Wed, 01 Dec 2004 21:03:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id
+	S261545AbULBCDx (ORCPT <rfc822;dwmw2@lists.infradead.org>); Wed, 1 Dec 2004
+	21:03:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261546AbULBCDx
+	(ORCPT <rfc822;bk-commits-head-outgoing>); Wed, 1 Dec 2004 21:03:53 -0500
+Received: from hera.kernel.org ([63.209.29.2]:11481 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S261545AbULBCDn (ORCPT
+	<rfc822;bk-commits-head@vger.kernel.org>); Wed, 1 Dec 2004 21:03:43 -0500
+Received: from hera.kernel.org (localhost [127.0.0.1]) by hera.kernel.org
+	(8.12.11/8.12.8) with ESMTP id iB223gZ5008974 for
+	<bk-commits-head@vger.kernel.org>; Wed, 1 Dec 2004 18:03:42 -0800
+Received: (from dwmw2@localhost) by hera.kernel.org
+	(8.12.11/8.12.11/Submit) id iB223VGb008939 for
+	bk-commits-head@vger.kernel.org; Wed, 1 Dec 2004 18:03:31 -0800
+Message-Id: <200412020203.iB223VGb008939@hera.kernel.org>
+Subject: [ACPI] acpi_pci_irq_enable() now returns 0 on success.
+Date: Tue, 09 Nov 2004 08:08:42 +0000
+From: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: bk-commits-head@vger.kernel.org
+X-BK-Repository: hera.kernel.org:/home/dwmw2/BK/linus-2.5
+X-BK-ChangeSetKey: len.brown@intel.com|ChangeSet|20041109080842|44022
+Sender: bk-commits-head-owner@vger.kernel.org
+Precedence: bulk
+X-Mailing-List: bk-commits-head@vger.kernel.org
+X-Evolution-Source: imap://dwmw2@pentafluge.infradead.org/
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+
+ChangeSet 1.1803.119.54, 2004/11/09 03:08:42-05:00, len.brown@intel.com
+
+	[ACPI] acpi_pci_irq_enable() now returns 0 on success.
+	This bubbles all the way up to pci_enable_device().
+	This allows IRQ0 to be used as a legal PCI device IRQ.
+	
+	The ES7000 uses an interrupt source override to assign pin20 to IRQ0.
+	Then platform_rename_gsi assigns pin0 a high-numbered IRQ -- available
+	for PCI devices.  But IRQ0 needs to be a legal PCI IRQ in the lookup code
+	to make it as far as the re-name code. 
+	
+	Signed-off-by: Natalie Protasevich <Natalie.Protasevich@UNISYS.com>
+	Signed-off-by: Len Brown <len.brown@intel.com>
 
 
-Signed-Off-By: Yoshihiro MATSUYAMA <y.matsu@jp.fujitsu.com>
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
----
+ pci_irq.c  |   41 ++++++++++++++++++++++++++++-------------
+ pci_link.c |   15 ++++++++++-----
+ 2 files changed, 38 insertions(+), 18 deletions(-)
 
- arch/frv/defconfig |  627 +++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 627 insertions(+)
 
---- /dev/null	2005-05-13 08:26:46.161652216 +0000
-+++ linux-2.6.12-rc4-mm1/arch/frv/defconfig	2005-05-13 17:
-50:58.796082968 +0000
-@@ -0,0 +1,627 @@
-+#
-+# Automatically generated make config: don't edit
-+# Linux kernel version: 2.6.11.8
-+# Fri May 13 17:16:03 2005
-+#
-+CONFIG_FRV=y
-+CONFIG_UID16=y
-+CONFIG_RWSEM_GENERIC_SPINLOCK=y
-+CONFIG_GENERIC_FIND_NEXT_BIT=y
-+# CONFIG_GENERIC_CALIBRATE_DELAY is not set
-+# CONFIG_GENERIC_HARDIRQS is not set
-+
-+#
-+# Code maturity level options
-+#
-+CONFIG_EXPERIMENTAL=y
-+CONFIG_CLEAN_COMPILE=y
-+CONFIG_BROKEN_ON_SMP=y
-+CONFIG_INIT_ENV_ARG_LIMIT=32
-+
-+#
-+# General setup
-+#
-+CONFIG_LOCALVERSION=""
-+CONFIG_SWAP=y
-+CONFIG_SYSVIPC=y
-+CONFIG_POSIX_MQUEUE=y
-+# CONFIG_BSD_PROCESS_ACCT is not set
-+CONFIG_SYSCTL=y
-+# CONFIG_AUDIT is not set
-+# CONFIG_HOTPLUG is not set
-+# CONFIG_KOBJECT_UEVENT is not set
-+# CONFIG_IKCONFIG is not set
-+CONFIG_EMBEDDED=y
-+CONFIG_KALLSYMS=y
-+# CONFIG_KALLSYMS_ALL is not set
-+# CONFIG_KALLSYMS_EXTRA_PASS is not set
-+CONFIG_PRINTK=y
-+CONFIG_BUG=y
-+CONFIG_BASE_FULL=y
-+CONFIG_FUTEX=y
-+CONFIG_EPOLL=y
-+# CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
-+CONFIG_SHMEM=y
-+CONFIG_CC_ALIGN_FUNCTIONS=0
-+CONFIG_CC_ALIGN_LABELS=0
-+CONFIG_CC_ALIGN_LOOPS=0
-+CONFIG_CC_ALIGN_JUMPS=0
-+# CONFIG_TINY_SHMEM is not set
-+CONFIG_BASE_SMALL=0
-+
-+#
-+# Loadable module support
-+#
-+# CONFIG_MODULES is not set
-+
-+#
-+# Fujitsu FR-V system setup
-+#
-+CONFIG_MMU=y
-+CONFIG_FRV_OUTOFLINE_ATOMIC_OPS=y
-+CONFIG_HIGHMEM=y
-+CONFIG_HIGHPTE=y
-+CONFIG_SELECT_MEMORY_MODEL=y
-+CONFIG_FLATMEM_MANUAL=y
-+# CONFIG_DISCONTIGMEM_MANUAL is not set
-+# CONFIG_SPARSEMEM_MANUAL is not set
-+CONFIG_FLATMEM=y
-+CONFIG_FLAT_NODE_MEM_MAP=y
-+# CONFIG_FRV_DEFL_CACHE_WBACK is not set
-+# CONFIG_FRV_DEFL_CACHE_WBEHIND is not set
-+CONFIG_FRV_DEFL_CACHE_WTHRU=y
-+# CONFIG_FRV_DEFL_CACHE_DISABLED is not set
-+
-+#
-+# CPU core support
-+#
-+CONFIG_CPU_FR451=y
-+CONFIG_CPU_FR451_COMPILE=y
-+CONFIG_FRV_L1_CACHE_SHIFT=5
-+CONFIG_MB93091_VDK=y
-+# CONFIG_MB93093_PDK is not set
-+CONFIG_MB93090_MB00=y
-+# CONFIG_MB93091_NO_MB is not set
-+# CONFIG_GPREL_DATA_8 is not set
-+CONFIG_GPREL_DATA_4=y
-+# CONFIG_GPREL_DATA_NONE is not set
-+CONFIG_PCI=y
-+# CONFIG_PCI_LEGACY_PROC is not set
-+# CONFIG_PCI_NAMES is not set
-+# CONFIG_PCI_DEBUG is not set
-+# CONFIG_PCMCIA is not set
-+
-+#
-+# Power management options
-+#
-+# CONFIG_PM is not set
-+
-+#
-+# Executable formats
-+#
-+# CONFIG_BINFMT_ELF is not set
-+CONFIG_BINFMT_ELF_FDPIC=y
-+# CONFIG_BINFMT_MISC is not set
-+
-+#
-+# Device Drivers
-+#
-+
-+#
-+# Generic Driver Options
-+#
-+# CONFIG_STANDALONE is not set
-+# CONFIG_PREVENT_FIRMWARE_BUILD is not set
-+# CONFIG_FW_LOADER is not set
-+# CONFIG_DEBUG_DRIVER is not set
-+
-+#
-+# Connector - unified userspace <-> kernelspace linker
-+#
-+# CONFIG_CONNECTOR is not set
-+# CONFIG_FORK_CONNECTOR is not set
-+
-+#
-+# Memory Technology Devices (MTD)
-+#
-+# CONFIG_MTD is not set
-+
-+#
-+# Parallel port support
-+#
-+# CONFIG_PARPORT is not set
-+
-+#
-+# Plug and Play support
-+#
-+
-+#
-+# Block devices
-+#
-+# CONFIG_BLK_DEV_FD is not set
-+# CONFIG_BLK_CPQ_DA is not set
-+# CONFIG_BLK_CPQ_CISS_DA is not set
-+# CONFIG_BLK_DEV_DAC960 is not set
-+# CONFIG_BLK_DEV_UMEM is not set
-+# CONFIG_BLK_DEV_COW_COMMON is not set
-+# CONFIG_BLK_DEV_LOOP is not set
-+# CONFIG_BLK_DEV_NBD is not set
-+# CONFIG_BLK_DEV_SX8 is not set
-+# CONFIG_BLK_DEV_RAM is not set
-+CONFIG_BLK_DEV_RAM_COUNT=16
-+CONFIG_INITRAMFS_SOURCE=""
-+# CONFIG_CDROM_PKTCDVD is not set
-+
-+#
-+# IO Schedulers
-+#
-+CONFIG_IOSCHED_NOOP=y
-+CONFIG_IOSCHED_AS=y
-+CONFIG_IOSCHED_DEADLINE=y
-+CONFIG_IOSCHED_CFQ=y
-+# CONFIG_ATA_OVER_ETH is not set
-+
-+#
-+# ATA/ATAPI/MFM/RLL support
-+#
-+# CONFIG_IDE is not set
-+
-+#
-+# SCSI device support
-+#
-+# CONFIG_SCSI is not set
-+
-+#
-+# Multi-device support (RAID and LVM)
-+#
-+# CONFIG_MD is not set
-+
-+#
-+# Fusion MPT device support
-+#
-+# CONFIG_FUSION is not set
-+
-+#
-+# IEEE 1394 (FireWire) support
-+#
-+# CONFIG_IEEE1394 is not set
-+
-+#
-+# I2O device support
-+#
-+# CONFIG_I2O is not set
-+
-+#
-+# Networking support
-+#
-+CONFIG_NET=y
-+
-+#
-+# Networking options
-+#
-+CONFIG_PACKET=y
-+# CONFIG_PACKET_MMAP is not set
-+CONFIG_UNIX=y
-+# CONFIG_NET_KEY is not set
-+CONFIG_INET=y
-+# CONFIG_IP_MULTICAST is not set
-+# CONFIG_IP_ADVANCED_ROUTER is not set
-+CONFIG_IP_PNP=y
-+# CONFIG_IP_PNP_DHCP is not set
-+# CONFIG_IP_PNP_BOOTP is not set
-+# CONFIG_IP_PNP_RARP is not set
-+# CONFIG_NET_IPIP is not set
-+# CONFIG_NET_IPGRE is not set
-+# CONFIG_ARPD is not set
-+# CONFIG_SYN_COOKIES is not set
-+# CONFIG_INET_AH is not set
-+# CONFIG_INET_ESP is not set
-+# CONFIG_INET_IPCOMP is not set
-+# CONFIG_INET_TUNNEL is not set
-+# CONFIG_IP_TCPDIAG is not set
-+# CONFIG_IP_TCPDIAG_IPV6 is not set
-+# CONFIG_IPV6 is not set
-+# CONFIG_NETFILTER is not set
-+
-+#
-+# SCTP Configuration (EXPERIMENTAL)
-+#
-+# CONFIG_IP_SCTP is not set
-+# CONFIG_ATM is not set
-+# CONFIG_BRIDGE is not set
-+# CONFIG_VLAN_8021Q is not set
-+# CONFIG_DECNET is not set
-+# CONFIG_LLC2 is not set
-+# CONFIG_IPX is not set
-+# CONFIG_ATALK is not set
-+# CONFIG_X25 is not set
-+# CONFIG_LAPB is not set
-+# CONFIG_NET_DIVERT is not set
-+# CONFIG_ECONET is not set
-+# CONFIG_WAN_ROUTER is not set
-+
-+#
-+# QoS and/or fair queueing
-+#
-+# CONFIG_NET_SCHED is not set
-+# CONFIG_NET_CLS_ROUTE is not set
-+
-+#
-+# Network testing
-+#
-+# CONFIG_NET_PKTGEN is not set
-+# CONFIG_KGDBOE is not set
-+# CONFIG_NETPOLL is not set
-+# CONFIG_NETPOLL_RX is not set
-+# CONFIG_NETPOLL_TRAP is not set
-+# CONFIG_NET_POLL_CONTROLLER is not set
-+# CONFIG_HAMRADIO is not set
-+# CONFIG_IRDA is not set
-+# CONFIG_BT is not set
-+# CONFIG_IEEE80211 is not set
-+CONFIG_NETDEVICES=y
-+# CONFIG_DUMMY is not set
-+# CONFIG_BONDING is not set
-+# CONFIG_EQUALIZER is not set
-+# CONFIG_TUN is not set
-+
-+#
-+# ARCnet devices
-+#
-+# CONFIG_ARCNET is not set
-+
-+#
-+# Ethernet (10 or 100Mbit)
-+#
-+CONFIG_NET_ETHERNET=y
-+CONFIG_MII=y
-+# CONFIG_HAPPYMEAL is not set
-+# CONFIG_SUNGEM is not set
-+# CONFIG_NET_VENDOR_3COM is not set
-+
-+#
-+# Tulip family network device support
-+#
-+# CONFIG_NET_TULIP is not set
-+# CONFIG_HP100 is not set
-+CONFIG_NET_PCI=y
-+# CONFIG_PCNET32 is not set
-+# CONFIG_AMD8111_ETH is not set
-+# CONFIG_ADAPTEC_STARFIRE is not set
-+# CONFIG_B44 is not set
-+# CONFIG_FORCEDETH is not set
-+# CONFIG_DGRS is not set
-+# CONFIG_EEPRO100 is not set
-+# CONFIG_E100 is not set
-+# CONFIG_FEALNX is not set
-+# CONFIG_NATSEMI is not set
-+CONFIG_NE2K_PCI=y
-+# CONFIG_8139CP is not set
-+# CONFIG_8139TOO is not set
-+# CONFIG_SIS900 is not set
-+# CONFIG_EPIC100 is not set
-+# CONFIG_SUNDANCE is not set
-+# CONFIG_TLAN is not set
-+# CONFIG_VIA_RHINE is not set
-+
-+#
-+# Ethernet (1000 Mbit)
-+#
-+# CONFIG_ACENIC is not set
-+# CONFIG_DL2K is not set
-+# CONFIG_E1000 is not set
-+# CONFIG_NS83820 is not set
-+# CONFIG_HAMACHI is not set
-+# CONFIG_YELLOWFIN is not set
-+# CONFIG_R8169 is not set
-+# CONFIG_SKGE is not set
-+# CONFIG_SK98LIN is not set
-+# CONFIG_VIA_VELOCITY is not set
-+# CONFIG_TIGON3 is not set
-+
-+#
-+# Ethernet (10000 Mbit)
-+#
-+# CONFIG_CHELSIO_T1 is not set
-+# CONFIG_IXGB is not set
-+# CONFIG_S2IO is not set
-+
-+#
-+# Token Ring devices
-+#
-+# CONFIG_TR is not set
-+
-+#
-+# Wireless LAN (non-hamradio)
-+#
-+# CONFIG_NET_RADIO is not set
-+
-+#
-+# Wan interfaces
-+#
-+# CONFIG_WAN is not set
-+# CONFIG_FDDI is not set
-+# CONFIG_HIPPI is not set
-+# CONFIG_PPP is not set
-+# CONFIG_SLIP is not set
-+# CONFIG_SHAPER is not set
-+# CONFIG_NETCONSOLE is not set
-+
-+#
-+# ISDN subsystem
-+#
-+# CONFIG_ISDN is not set
-+
-+#
-+# Telephony Support
-+#
-+# CONFIG_PHONE is not set
-+
-+#
-+# Input device support
-+#
-+# CONFIG_INPUT is not set
-+
-+#
-+# Hardware I/O ports
-+#
-+# CONFIG_SERIO is not set
-+# CONFIG_GAMEPORT is not set
-+
-+#
-+# Character devices
-+#
-+# CONFIG_VT is not set
-+# CONFIG_SERIAL_NONSTANDARD is not set
-+
-+#
-+# Serial drivers
-+#
-+CONFIG_SERIAL_8250=y
-+CONFIG_SERIAL_8250_CONSOLE=y
-+CONFIG_SERIAL_8250_NR_UARTS=1
-+CONFIG_SERIAL_8250_EXTENDED=y
-+# CONFIG_SERIAL_8250_MANY_PORTS is not set
-+CONFIG_SERIAL_8250_SHARE_IRQ=y
-+# CONFIG_SERIAL_8250_DETECT_IRQ is not set
-+# CONFIG_SERIAL_8250_MULTIPORT is not set
-+# CONFIG_SERIAL_8250_RSA is not set
-+
-+#
-+# Non-8250 serial port support
-+#
-+CONFIG_SERIAL_CORE=y
-+CONFIG_SERIAL_CORE_CONSOLE=y
-+# CONFIG_SERIAL_JSM is not set
-+CONFIG_UNIX98_PTYS=y
-+# CONFIG_LEGACY_PTYS is not set
-+
-+#
-+# IPMI
-+#
-+# CONFIG_IPMI_HANDLER is not set
-+
-+#
-+# Watchdog Cards
-+#
-+# CONFIG_WATCHDOG is not set
-+# CONFIG_RTC is not set
-+# CONFIG_GEN_RTC is not set
-+# CONFIG_DTLK is not set
-+# CONFIG_R3964 is not set
-+# CONFIG_APPLICOM is not set
-+
-+#
-+# Ftape, the floppy tape device driver
-+#
-+# CONFIG_DRM is not set
-+# CONFIG_RAW_DRIVER is not set
-+
-+#
-+# TPM devices
-+#
-+# CONFIG_TCG_TPM is not set
-+
-+#
-+# I2C support
-+#
-+# CONFIG_I2C is not set
-+
-+#
-+# Dallas's 1-wire bus
-+#
-+# CONFIG_W1 is not set
-+
-+#
-+# Misc devices
-+#
-+
-+#
-+# Multimedia devices
-+#
-+# CONFIG_VIDEO_DEV is not set
-+
-+#
-+# Digital Video Broadcasting Devices
-+#
-+# CONFIG_DVB is not set
-+
-+#
-+# Graphics support
-+#
-+# CONFIG_FB is not set
-+
-+#
-+# Sound
-+#
-+# CONFIG_SOUND is not set
-+
-+#
-+# USB support
-+#
-+CONFIG_USB_ARCH_HAS_HCD=y
-+CONFIG_USB_ARCH_HAS_OHCI=y
-+# CONFIG_USB is not set
-+
-+#
-+# USB Gadget Support
-+#
-+# CONFIG_USB_GADGET is not set
-+
-+#
-+# MMC/SD Card support
-+#
-+# CONFIG_MMC is not set
-+
-+#
-+# InfiniBand support
-+#
-+# CONFIG_INFINIBAND is not set
-+
-+#
-+# File systems
-+#
-+# CONFIG_EXT2_FS is not set
-+# CONFIG_EXT3_FS is not set
-+# CONFIG_JBD is not set
-+# CONFIG_REISER4_FS is not set
-+# CONFIG_REISERFS_FS is not set
-+# CONFIG_JFS_FS is not set
-+
-+#
-+# XFS support
-+#
-+# CONFIG_XFS_FS is not set
-+# CONFIG_MINIX_FS is not set
-+# CONFIG_ROMFS_FS is not set
-+CONFIG_INOTIFY=y
-+# CONFIG_QUOTA is not set
-+CONFIG_DNOTIFY=y
-+# CONFIG_AUTOFS_FS is not set
-+# CONFIG_AUTOFS4_FS is not set
-+
-+#
-+# Caches
-+#
-+# CONFIG_FSCACHE is not set
-+# CONFIG_FUSE_FS is not set
-+
-+#
-+# CD-ROM/DVD Filesystems
-+#
-+# CONFIG_ISO9660_FS is not set
-+# CONFIG_UDF_FS is not set
-+
-+#
-+# DOS/FAT/NT Filesystems
-+#
-+# CONFIG_MSDOS_FS is not set
-+# CONFIG_VFAT_FS is not set
-+# CONFIG_NTFS_FS is not set
-+
-+#
-+# Pseudo filesystems
-+#
-+CONFIG_PROC_FS=y
-+# CONFIG_PROC_KCORE is not set
-+CONFIG_SYSFS=y
-+# CONFIG_DEVFS_FS is not set
-+# CONFIG_DEVPTS_FS_XATTR is not set
-+CONFIG_TMPFS=y
-+# CONFIG_TMPFS_XATTR is not set
-+# CONFIG_HUGETLB_PAGE is not set
-+CONFIG_RAMFS=y
-+# CONFIG_RELAYFS_FS is not set
-+
-+#
-+# Miscellaneous filesystems
-+#
-+# CONFIG_ADFS_FS is not set
-+# CONFIG_AFFS_FS is not set
-+# CONFIG_HFS_FS is not set
-+# CONFIG_HFSPLUS_FS is not set
-+# CONFIG_BEFS_FS is not set
-+# CONFIG_BFS_FS is not set
-+# CONFIG_EFS_FS is not set
-+# CONFIG_CRAMFS is not set
-+# CONFIG_VXFS_FS is not set
-+# CONFIG_HPFS_FS is not set
-+# CONFIG_QNX4FS_FS is not set
-+# CONFIG_SYSV_FS is not set
-+# CONFIG_UFS_FS is not set
-+
-+#
-+# Network File Systems
-+#
-+CONFIG_NFS_FS=y
-+# CONFIG_NFS_V3 is not set
-+# CONFIG_NFS_V4 is not set
-+# CONFIG_NFS_DIRECTIO is not set
-+# CONFIG_NFSD is not set
-+CONFIG_ROOT_NFS=y
-+CONFIG_LOCKD=y
-+CONFIG_NFS_COMMON=y
-+CONFIG_SUNRPC=y
-+# CONFIG_RPCSEC_GSS_KRB5 is not set
-+# CONFIG_RPCSEC_GSS_SPKM3 is not set
-+# CONFIG_SMB_FS is not set
-+# CONFIG_CIFS is not set
-+# CONFIG_NCP_FS is not set
-+# CONFIG_CODA_FS is not set
-+# CONFIG_AFS_FS is not set
-+
-+#
-+# Partition Types
-+#
-+# CONFIG_PARTITION_ADVANCED is not set
-+CONFIG_MSDOS_PARTITION=y
-+
-+#
-+# Native Language Support
-+#
-+# CONFIG_NLS is not set
-+
-+#
-+# Kernel hacking
-+#
-+# CONFIG_PRINTK_TIME is not set
-+CONFIG_DEBUG_KERNEL=y
-+# CONFIG_MAGIC_SYSRQ is not set
-+CONFIG_LOG_BUF_SHIFT=14
-+CONFIG_DETECT_SOFTLOCKUP=y
-+# CONFIG_SCHEDSTATS is not set
-+# CONFIG_DEBUG_SLAB is not set
-+# CONFIG_DEBUG_SPINLOCK is not set
-+# CONFIG_DEBUG_SPINLOCK_SLEEP is not set
-+# CONFIG_DEBUG_KOBJECT is not set
-+# CONFIG_DEBUG_HIGHMEM is not set
-+# CONFIG_DEBUG_BUGVERBOSE is not set
-+# CONFIG_DEBUG_INFO is not set
-+# CONFIG_DEBUG_FS is not set
-+# CONFIG_FRAME_POINTER is not set
-+# CONFIG_EARLY_PRINTK is not set
-+CONFIG_DEBUG_STACKOVERFLOW=y
-+# CONFIG_DEBUG_PAGEALLOC is not set
-+# CONFIG_GDBSTUB is not set
-+
-+#
-+# Security options
-+#
-+# CONFIG_KEYS is not set
-+# CONFIG_SECURITY is not set
-+
-+#
-+# Cryptographic options
-+#
-+# CONFIG_CRYPTO is not set
-+
-+#
-+# Hardware crypto devices
-+#
-+
-+#
-+# Library routines
-+#
-+# CONFIG_CRC_CCITT is not set
-+CONFIG_CRC32=y
-+# CONFIG_LIBCRC32C is not set
+diff -Nru a/drivers/acpi/pci_irq.c b/drivers/acpi/pci_irq.c
+--- a/drivers/acpi/pci_irq.c	2004-12-01 18:03:42 -08:00
++++ b/drivers/acpi/pci_irq.c	2004-12-01 18:03:42 -08:00
+@@ -227,6 +227,11 @@
+                           PCI Interrupt Routing Support
+    -------------------------------------------------------------------------- */
+ 
++/*
++ * acpi_pci_irq_lookup
++ * success: return IRQ >= 0
++ * failure: return -1
++ */
+ static int
+ acpi_pci_irq_lookup (
+ 	struct pci_bus		*bus,
+@@ -249,14 +254,14 @@
+ 	entry = acpi_pci_irq_find_prt_entry(segment, bus_nr, device, pin); 
+ 	if (!entry) {
+ 		ACPI_DEBUG_PRINT((ACPI_DB_INFO, "PRT entry not found\n"));
+-		return_VALUE(0);
++		return_VALUE(-1);
+ 	}
+ 	
+ 	if (entry->link.handle) {
+ 		irq = acpi_pci_link_get_irq(entry->link.handle, entry->link.index, edge_level, active_high_low);
+-		if (!irq) {
++		if (irq < 0) {
+ 			ACPI_DEBUG_PRINT((ACPI_DB_WARN, "Invalid IRQ link routing entry\n"));
+-			return_VALUE(0);
++			return_VALUE(-1);
+ 		}
+ 	} else {
+ 		irq = entry->link.index;
+@@ -269,6 +274,11 @@
+ 	return_VALUE(irq);
+ }
+ 
++/*
++ * acpi_pci_irq_derive
++ * success: return IRQ >= 0
++ * failure: return < 0
++ */
+ static int
+ acpi_pci_irq_derive (
+ 	struct pci_dev		*dev,
+@@ -277,7 +287,7 @@
+ 	int			*active_high_low)
+ {
+ 	struct pci_dev		*bridge = dev;
+-	int			irq = 0;
++	int			irq = -1;
+ 	u8			bridge_pin = 0;
+ 
+ 	ACPI_FUNCTION_TRACE("acpi_pci_irq_derive");
+@@ -289,7 +299,7 @@
+ 	 * Attempt to derive an IRQ for this device from a parent bridge's
+ 	 * PCI interrupt routing entry (eg. yenta bridge and add-in card bridge).
+ 	 */
+-	while (!irq && bridge->bus->self) {
++	while (irq < 0 && bridge->bus->self) {
+ 		pin = (pin + PCI_SLOT(bridge->devfn)) % 4;
+ 		bridge = bridge->bus->self;
+ 
+@@ -299,7 +309,7 @@
+ 			if (!bridge_pin) {
+ 				ACPI_DEBUG_PRINT((ACPI_DB_INFO, 
+ 					"No interrupt pin configured for device %s\n", pci_name(bridge)));
+-				return_VALUE(0);
++				return_VALUE(-1);
+ 			}
+ 			/* Pin is from 0 to 3 */
+ 			bridge_pin --;
+@@ -310,9 +320,9 @@
+ 			pin, edge_level, active_high_low);
+ 	}
+ 
+-	if (!irq) {
++	if (irq < 0) {
+ 		ACPI_DEBUG_PRINT((ACPI_DB_WARN, "Unable to derive IRQ for device %s\n", pci_name(dev)));
+-		return_VALUE(0);
++		return_VALUE(-1);
+ 	}
+ 
+ 	ACPI_DEBUG_PRINT((ACPI_DB_INFO, "Derive IRQ %d for device %s from %s\n",
+@@ -321,6 +331,11 @@
+ 	return_VALUE(irq);
+ }
+ 
++/*
++ * acpi_pci_irq_enable
++ * success: return 0
++ * failure: return < 0
++ */
+ 
+ int
+ acpi_pci_irq_enable (
+@@ -358,20 +373,20 @@
+ 	 * If no PRT entry was found, we'll try to derive an IRQ from the
+ 	 * device's parent bridge.
+ 	 */
+-	if (!irq)
++	if (irq < 0)
+  		irq = acpi_pci_irq_derive(dev, pin, &edge_level, &active_high_low);
+  
+ 	/*
+ 	 * No IRQ known to the ACPI subsystem - maybe the BIOS / 
+ 	 * driver reported one, then use it. Exit in any case.
+ 	 */
+-	if (!irq) {
++	if (irq < 0) {
+ 		printk(KERN_WARNING PREFIX "PCI interrupt %s[%c]: no GSI",
+ 			pci_name(dev), ('A' + pin));
+ 		/* Interrupt Line values above 0xF are forbidden */
+-		if (dev->irq && (dev->irq <= 0xF)) {
++		if (dev->irq >= 0 && (dev->irq <= 0xF)) {
+ 			printk(" - using IRQ %d\n", dev->irq);
+-			return_VALUE(dev->irq);
++			return_VALUE(0);
+ 		}
+ 		else {
+ 			printk("\n");
+@@ -388,5 +403,5 @@
+ 		(active_high_low == ACPI_ACTIVE_LOW) ? "low" : "high",
+ 		dev->irq);
+ 
+-	return_VALUE(dev->irq);
++	return_VALUE(0);
+ }
+diff -Nru a/drivers/acpi/pci_link.c b/drivers/acpi/pci_link.c
+--- a/drivers/acpi/pci_link.c	2004-12-01 18:03:42 -08:00
++++ b/drivers/acpi/pci_link.c	2004-12-01 18:03:42 -08:00
+@@ -577,6 +577,11 @@
+ 	return_VALUE(0);
+ }
+ 
++/*
++ * acpi_pci_link_get_irq
++ * success: return IRQ >= 0
++ * failure: return -1
++ */
+ 
+ int
+ acpi_pci_link_get_irq (
+@@ -594,27 +599,27 @@
+ 	result = acpi_bus_get_device(handle, &device);
+ 	if (result) {
+ 		ACPI_DEBUG_PRINT((ACPI_DB_ERROR, "Invalid link device\n"));
+-		return_VALUE(0);
++		return_VALUE(-1);
+ 	}
+ 
+ 	link = (struct acpi_pci_link *) acpi_driver_data(device);
+ 	if (!link) {
+ 		ACPI_DEBUG_PRINT((ACPI_DB_ERROR, "Invalid link context\n"));
+-		return_VALUE(0);
++		return_VALUE(-1);
+ 	}
+ 
+ 	/* TBD: Support multiple index (IRQ) entries per Link Device */
+ 	if (index) {
+ 		ACPI_DEBUG_PRINT((ACPI_DB_ERROR, "Invalid index %d\n", index));
+-		return_VALUE(0);
++		return_VALUE(-1);
+ 	}
+ 
+ 	if (acpi_pci_link_allocate(link))
+-		return_VALUE(0);
++		return_VALUE(-1);
+ 	   
+ 	if (!link->irq.active) {
+ 		ACPI_DEBUG_PRINT((ACPI_DB_ERROR, "Link active IRQ is 0!\n"));
+-		return_VALUE(0);
++		return_VALUE(-1);
+ 	}
+ 
+ 	if (edge_level) *edge_level = link->irq.edge_level;
+-
+To unsubscribe from this list: send the line "unsubscribe bk-commits-head" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+--=-ALojQjjxiCuGMWSpHajY--
 

@@ -1,127 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261280AbVGDCeg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261333AbVGDCkw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261280AbVGDCeg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Jul 2005 22:34:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261333AbVGDCe1
+	id S261333AbVGDCkw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Jul 2005 22:40:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261349AbVGDCkw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Jul 2005 22:34:27 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:2469 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S261280AbVGDCeF (ORCPT
+	Sun, 3 Jul 2005 22:40:52 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:30165 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S261333AbVGDCkg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Jul 2005 22:34:05 -0400
-Message-Id: <200507040135.j641Z7s1004602@laptop11.inf.utfsm.cl>
-To: Ed Cogburn <edcogburn@hotpop.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: reiser4 vs politics: linux misses out again 
-In-Reply-To: Message from Ed Cogburn <edcogburn@hotpop.com> 
-   of "Sun, 03 Jul 2005 19:30:57 -0400." <da9sfg$nt8$1@sea.gmane.org> 
+	Sun, 3 Jul 2005 22:40:36 -0400
+Message-Id: <200507020212.j622CQgb006811@laptop11.inf.utfsm.cl>
+To: Kevin Bowen <kevin@ucsd.edu>
+cc: Horst von Brand <vonbrand@inf.utfsm.cl>, Hubert Chan <hubert@uhoreg.ca>,
+       Hans Reiser <reiser@namesys.com>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Valdis.Kletnieks@vt.edu, Lincoln Dale <ltd@cisco.com>,
+       Gregory Maxwell <gmaxwell@gmail.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: reiser4 plugins 
+In-Reply-To: Message from Kevin Bowen <kevin@ucsd.edu> 
+   of "Fri, 01 Jul 2005 13:26:31 MST." <1120249592.22241.84.camel@punchline.ucsd.edu> 
 X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Sun, 03 Jul 2005 21:35:07 -0400
+Date: Fri, 01 Jul 2005 22:12:26 -0400
 From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ed Cogburn <edcogburn@hotpop.com> wrote:
-> Jim Crilly wrote:
-> > On 07/02/05 09:05:41AM -0400, Ed Cogburn wrote:
-> >> Jim Crilly wrote:
+Kevin Bowen <kevin@ucsd.edu> wrote:
 
-> >> Assuming "fast and cool" here equates to some level of improvement to the
-> >> existing kernel, and/or new features/capabilities not currently
-> >> available, then are you saying "fast and cool" isn't good enough anymore,
-> >> you now have to be politically correct and socially popular and a master
-> >> brown-noser as well to get code into the kernel even just on an
-> >> *experimental* basis?
+[...]
 
-> > Fast and cool by themselves shouldn't be good enough, infact fast could
-> > definately be optional
+> > So, for instance, if I want to grab all mp3s with Artist "Paul 
+> > Oakenfold" and change the genre to "techno" (can you do that?), I can 
+> > use Beagle's search tool to find all mp3s by Oakenfold, but to change 
+> > the genre, I have to use some separate tool to manipulate id3 tags, 
 
-> And please point out where anyone has said ANYWHERE that R4 is going to be
-> FORCED on people!  Stop accusing Hans of refusing to answer relevent points
-> when you're doing the same damn thing.
+> Yes, this is basically what I was getting at, although I was thinking
+> more in terms of the reiser5/6/whatever set theoretic semantics, which,
+> from my point of view at least, reiser4 is simply the first step towards
+> building the enabling infrastructure of. But the fact that reiser4
+> semantics + trivial shell scripting enables, as illustrated by David,
+> the rough equivalent of set-theoretic semantics, demonstrates how
+> reiser4 is in fact a step in this direction.
 
-Even if I'm not forced to /use/ it, if it gets shoved into the kernel, it
-is being forced on me. You are talking to /kernel developers/ here, who
-care for the /code/; not /users/, who only care for whatever their
-distribution dishes up (leaving out experimental/unstable/nonsensical
-stuff).
+I don't see any "trivial shell scripting", just need for a plethora of
+magic extract-this-or-that-metadata programs. Which can very well work
+exactly the same on independent files, no need to shove junk /into/ the
+indexed files.
 
-> > Obviously you don't care about the code
+> > > moment the case of system-wide or network-wide shared data,
+> > I.e., something like 90% of the use of Linux here. OK.
 
-> Bullshit.  If the code doesn't work
+> 90% of *what* exactly? 90% of what machines deal with, or 90% of what
+> humans interact with?
 
-Check. Can't, due to basic design problems.
+Both. Most use here is in computer labs, where most is shared via NFS
+(readonly), plus user data mounted read-write.
 
->                                      or is unstable
+> > > users needs. In fact, I believe there is currently a JSR in 
+> > > progress to develop a more sophisticated Java packaging model.
 
-Check.
+> > Presumably based on ReiserFS 4, which then has to be ported to 
+> > whatever platform you want to run Java on ASAP? Great for you! Wait a
+> > bit, and you'll get what you want then, even across the board!
 
->                                                     or unmaintained
+> No, obviously that's not what I was saying. But the need for these kinds
+> of domain-specific packaging/metadata formats, each requiring their own
+> tools to work with, would be alleviated if there were simply a more
+> powerful filesystem semantic.
 
-Has happened before with code from the same people. Can't even get them to
-clean up for considering for inclusion. Check.
+*Please explain HOW*!! The domain-specific formats /will/ stay (if nothing
+else, because the /domains/ have /specific/ needs), the special tools to
+work with them /will/ have to be written exactly the same (because of the
+above). All for use on /one/ non-standard filesystem. Plus exactly the same
+stuff to work on sane filesystems. The kernel is *not* a magic piece of
+software that solves the problem of world hunger if you just can figure out
+what strange extension to force onto Linus' kernel version.
 
->                                                                     then
-> everyone is concerned.
+>                               Clearly forcing reiser on the world is a
+> non-starter, but try extending your imagination a little bit to a future
+> in which there's a 'new POSIX' specifying a set-theoretic filesystem
+> model.
 
-Yep.
+Sorry, I just don't see any need of shoving Oracle into the kernel. It
+leads a quite confortable life in userland.
 
->                         BUT THOSE ARE NOT THE ISSUES HERE.  Maybe Hans will
-> be a little more sociable towards you when you guys start being a little
-> more sociable towards him,
+>        So-called 'database-filesystems' ARE coming, whether from
+> Microsoft, Apple, or us.
 
-Sorry, the community has been sometimes abrasive, but on the whole helpful
-and polite to newcomers. In this case they have been accused of everything,
-including dishonesty... and this has been going on for the 4th round right
-now.
+IBM did it, long ago (AS/400 and OS/400 ring a bell?). And is now slowly
+moving away from it (and other structured filesystems), AFAICS, towards
+(guess what!) POSIX and Linux...
 
->                            or maybe he's just a jerk and will never
-change,
+Again, Linux is what it is today in large part because "We have to get
+$FEATURE, because if not, $COMPETITOR will win on us!" arguments have no
+traction.
 
-Looks that way. And /again/ there are people who tell nicely what would
-have to happen to fix ReiserFS 4 to get it into shape.
+>                          Who gets there first will determine who gets to
+> make the rules.
 
-> I don't know, and frankly I don't care, but R4 deserves its shot anyway
-> based just on its potential alone.
-
-And who will take over when the authors make for the woodwork, yet again?
-
->                                     Its reached the point where it can only
-> get better with more *exposure*, and as I said in my response to Christoph,
-> -mm is not the place to get exposure from a wider audience, due to its
-> instability, even Andrew has said his -mm tree isn't meant to be a "stable"
-> kernel series.
-
-And what stops you from creating -rfs4 just for checking? If it /really/ is
-so great, word will go round and people /will/ check it out.
-
-> In the meantime, if a fork does happen, I'm going with the one that gives
-> good ideas their chance at the mainstream no matter who the author is.  If
-> you guys really want to kill the Linux success story, just keep right on
-> putting your ego and personal feelings in front of what's good for the
-> users and good for the success of Linux outside your elite club.
-
-Addressed at the ReiserFS crowd? Sounds about right...
-
->                                                                   And
-> before you tell yourself that the users don't matter, you'd better ask
-> around among all the *other* developers here why *they* are working on
-> Linux now, and not a BSD, or another fork of Linux.
-
-A /very/ good question...
-
->                                                      Hint: many are
-> employed by companies whose customer's are ... Linux *USERS*.  Linux's
-> initial success was not pre-ordained or guaranteed, it was accomplished
-> because a core group of people started WORKING TOGETHER with a common
-> vision, if you now decide to forget what got you to this point, I
-> GUARANTEE YOU that the success of your version of Linux will not
-> continue.
-
-And again, historically "Work towards /my/ vision", "Linux is doomed if you
-don't do as I say", etc arguments go nowhere. Rightly so, they are usually
-from people who don't have a clue. If you /really/ can do it /that/ much
-better than Linus & Co, go ahead and show us.
+So what? Let /them/ make the mistakes and pay for them, and learn how to do
+it /right/, even if later!
 -- 
 Dr. Horst H. von Brand                   User #22616 counter.li.org
 Departamento de Informatica                     Fono: +56 32 654431

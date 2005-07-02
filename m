@@ -1,71 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261181AbVGBO7R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbVGBO7e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261181AbVGBO7R (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Jul 2005 10:59:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261184AbVGBO7R
+	id S261184AbVGBO7e (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Jul 2005 10:59:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261185AbVGBO7d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Jul 2005 10:59:17 -0400
-Received: from 238-071.adsl.pool.ew.hu ([193.226.238.71]:4619 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S261181AbVGBO7M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Jul 2005 10:59:12 -0400
-To: ebiederm@xmission.com
-CC: ericvh@gmail.com, akpm@osdl.org, aia21@cam.ac.uk, arjan@infradead.org,
-       linux-kernel@vger.kernel.org, frankvm@frankvm.com,
-       v9fs-developer@lists.sourceforge.net
-In-reply-to: <m1acl5frw6.fsf@ebiederm.dsl.xmission.com>
-Subject: Re: FUSE merging?
-References: <E1DnvCq-0000Q4-00@dorka.pomaz.szeredi.hu>
-	<E1DoF86-0002Kk-00@dorka.pomaz.szeredi.hu>
-	<20050630235059.0b7be3de.akpm@osdl.org>
-	<E1DoFcK-0002Ox-00@dorka.pomaz.szeredi.hu>
-	<20050701001439.63987939.akpm@osdl.org>
-	<E1DoG6p-0002Rf-00@dorka.pomaz.szeredi.hu>
-	<20050701010229.4214f04e.akpm@osdl.org>
-	<E1DoIUz-0002a5-00@dorka.pomaz.szeredi.hu>
-	<a4e6962a050701062136435471@mail.gmail.com>
-	<E1DoLxK-0002ua-00@dorka.pomaz.szeredi.hu>
-	<a4e6962a05070107183862ed22@mail.gmail.com>
-	<E1DoMYJ-0002ya-00@dorka.pomaz.szeredi.hu> <m1acl5frw6.fsf@ebiederm.dsl.xmission.com>
-Message-Id: <E1DojRm-00047s-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Sat, 02 Jul 2005 16:58:22 +0200
+	Sat, 2 Jul 2005 10:59:33 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:38587 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261184AbVGBO73 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Jul 2005 10:59:29 -0400
+Date: Sat, 2 Jul 2005 15:59:28 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Ed Cogburn <edcogburn@hotpop.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: reiser4 vs politics: linux misses out again
+Message-ID: <20050702145928.GA28201@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Ed Cogburn <edcogburn@hotpop.com>, linux-kernel@vger.kernel.org
+References: <1120134372.42c3e4e49e610@webmail.bur.st> <20050630153326.GB24468@voodoo> <20050630160244.GV11013@nysv.org> <20050630180959.GC24468@voodoo> <da61a8$il6$1@sea.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <da61a8$il6$1@sea.gmane.org>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Taking a quick glance at v9fs and fuse I fail to see how either
-> plays nicely with the page cache.
+On Sat, Jul 02, 2005 at 09:05:41AM -0400, Ed Cogburn wrote:
+> Assuming "fast and cool" here equates to some level of improvement to the
+> existing kernel, and/or new features/capabilities not currently available,
+> then are you saying "fast and cool" isn't good enough anymore, you now have
+> to be politically correct and socially popular and a master brown-noser as
+> well to get code into the kernel even just on an *experimental* basis?
 > 
-> v9fs according to my reading of the protocol specification does
-> not have any concept of a lease.  So you can't tell if you are
-> talking about a virtual filesystem where all calls should be passed
-> straight to the server or a real filesystem where you can perform
-> caching.  The implementation simply appears to bypass the pagecache
-> which seems sane.
-> 
-> Skimming through the FUSE code I see the same problem, in that you can't
-> autodetect the right thing.  This is currently hacked around with
-> "direct_io" mount option selecting between a cached and a non-cached
-> status on a filesystem basis at mount time.  But having
-> a per file flag would be nicer.
+> In reality, the implied attitude behind your statement actually *guarantees*
+> a fork of Linux at some point down the road if you keep stonewalling the
+> inclusion of something that clearly has enormous potential, because for
+> many people "fast and cool" IS THE DESIRED OBJECTIVE, and by saying no to
+> that, YOU are the one setting the stage for a fork.
 
-There's a plan to make this work.  The kernel ABI has alredy been
-prepared for this, it would be relatively little work to implement.
-But I usually wait with something like this until people actually
-start asking for this feature.
+In fact such a fork would be a great thing.  Let people play fast and loose
+who want to do that, and if they don't manage to break it and the feature
+is still cool a while later we clean it up and merge it into Linux proper.
 
-> I also don't understand why in fuse direct_io is an if statement in
-> fuse_file_read/write instead of simply being a different set of
-> filesystem operations.
-
-Good point.  I'll fix that.
-
-> Neither implementation seems to forward user space locks to the
-> filesystem server.
-
-This too has been discussed.  The last half year has been mostly spend
-with ironing out problems cought during integration.  Sometime this
-summer I'll start implementing these new features (inode based API,
-locking, userspace NFS serving, maybe shared writable mmap support).
-
-Miklos

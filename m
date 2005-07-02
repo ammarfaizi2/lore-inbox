@@ -1,154 +1,372 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263333AbVGBAWs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261674AbVGBB03@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263333AbVGBAWs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 20:22:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263341AbVGBAWs
+	id S261674AbVGBB03 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 21:26:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261672AbVGBB03
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 20:22:48 -0400
-Received: from mail01.syd.optusnet.com.au ([211.29.132.182]:59046 "EHLO
-	mail01.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S263333AbVGBAWk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 20:22:40 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] sched: consider migration thread with smp nice
-Date: Sat, 2 Jul 2005 10:22:29 +1000
-User-Agent: KMail/1.8.1
-Cc: Andrew Morton <akpm@osdl.org>
-References: <20050701044018.281b1ebd.akpm@osdl.org>
-In-Reply-To: <20050701044018.281b1ebd.akpm@osdl.org>
+	Fri, 1 Jul 2005 21:26:29 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:33244 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261674AbVGBBY0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Jul 2005 21:24:26 -0400
+Message-ID: <42C5ECB1.1050608@engr.sgi.com>
+Date: Fri, 01 Jul 2005 18:24:01 -0700
+From: Jay Lan <jlan@engr.sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: zh-tw, en-us, en, zh-cn, zh-hk
 MIME-Version: 1.0
-X-Length: 3420
-Content-Type: multipart/signed;
-  boundary="nextPart20373517.hsKLUKJpss";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: Badari Pulavarty <pbadari@us.ibm.com>
+CC: guillaume.thouvenin@bull.net, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       erikj@sgi.com, John Hesterberg <jh@sgi.com>
+Subject: Re: exit notifier for 2.6.12-mm2
+References: <1120150372.13376.136.camel@dyn9047017102.beaverton.ibm.com>
+In-Reply-To: <1120150372.13376.136.camel@dyn9047017102.beaverton.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200507021022.31933.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart20373517.hsKLUKJpss
-Content-Type: multipart/mixed;
-  boundary="Boundary-01=_F5dxC3yMNCJ732g"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+CSA needs a hook at do_exit(), but this patch does not fit our needs.
 
---Boundary-01=_F5dxC3yMNCJ732g
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+1) the exit_connector() is invoked too earlier. Accounting data are
+     updated later in the do_exit() routine.
 
-On Fri, 1 Jul 2005 21:40, Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13-rc1/=
-2.
->6.13-rc1-mm1/
+     -->  acct_update_integrals(tsk);
+     -->  update_mem_hiwater(tsk);
+          group_dead = atomic_dec_and_test(&tsk->signal->live);
+          if (group_dead)
+     -->          acct_process(code);  <--- BSD accounting hook here
 
-Hi akpm
+          exit_mm(tsk);
 
-With your 4 bazillion patches I guess this got missed. It's an add-on=20
-to the smp-nice series.
+     The exit_connector() should be at least after exit_mm(tsk) to be
+     useful for accounting packages.
 
-Cheers,
-Con
-=2D--
+2) The hook should allow CSA to do a little processing, similar to the
+    BSD hook. In current design, both BSD and CSA write to disk file of
+     accounting data from the kernel. If there is a plan to move that
+     function to user space, we need to send the data to user land.
+     Sending the accounting data through the connector remains just
+     an idea AFAIK. I am not comfortable with built-in unreliable
+     delivery in connector to trust serious system accounting data
+     to this machnism. And we could fail in allocating memory for
+     the data at exit time also.
+
+I would be interested in knowing who need this patch and how they
+are going to use this patch.
+
+Thanks,
+   - jay
 
 
 
---Boundary-01=_F5dxC3yMNCJ732g
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="sched-consider_migration_thread_smp_nice.patch"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline;
-	filename="sched-consider_migration_thread_smp_nice.patch"
+Badari Pulavarty wrote:
+> Hi,
+> 
+> Here is the patch to add exit-notifier to the current connector
+> infrastructure in -mm tree. Its directly derived from Guillaume's 
+> fork notifier.
+> 
+> BTW, I have no direct need for it, heard that few people wanted it.
+> 
+> Thanks,
+> Badari 
+> 
+> 
+> 
+> 
+> ------------------------------------------------------------------------
+> 
+> diff -Narup -X /usr/src/dontdiff linux-2.6.12/drivers/connector/Kconfig linux-2.6.12.exit/drivers/connector/Kconfig
+> --- linux-2.6.12/drivers/connector/Kconfig	2005-06-29 16:29:03.000000000 -0700
+> +++ linux-2.6.12.exit/drivers/connector/Kconfig	2005-06-29 15:44:39.000000000 -0700
+> @@ -21,4 +21,14 @@ config FORK_CONNECTOR
+>  	  The fork connector can be enable/disable by sending a message to the
+>  	  connector with the corresponding group id.
+>  
+> +config EXIT_CONNECTOR
+> +	bool "Enable exit connector"
+> +	select CONNECTOR
+> +	default y
+> +	---help---
+> +	  It adds a connector in kernel/exit.c:do_exit() function. When a exit
+> +	  occurs, netlink is used to transfer information about the process and
+> +	  its parent. This information can be used by a user space application.
+> +	  The exit connector can be enable/disable by sending a message to the
+> +	  connector with the corresponding group id.
+>  endmenu
+> diff -Narup -X /usr/src/dontdiff linux-2.6.12/drivers/connector/Makefile linux-2.6.12.exit/drivers/connector/Makefile
+> --- linux-2.6.12/drivers/connector/Makefile	2005-06-29 16:29:03.000000000 -0700
+> +++ linux-2.6.12.exit/drivers/connector/Makefile	2005-06-29 15:44:59.000000000 -0700
+> @@ -1,3 +1,4 @@
+>  obj-$(CONFIG_CONNECTOR)		+= cn.o
+>  obj-$(CONFIG_FORK_CONNECTOR)	+= cn_fork.o
+> +obj-$(CONFIG_EXIT_CONNECTOR)	+= cn_exit.o
+>  cn-objs		:= cn_queue.o connector.o
+> diff -Narup -X /usr/src/dontdiff linux-2.6.12/drivers/connector/cn_exit.c linux-2.6.12.exit/drivers/connector/cn_exit.c
+> --- linux-2.6.12/drivers/connector/cn_exit.c	1969-12-31 16:00:00.000000000 -0800
+> +++ linux-2.6.12.exit/drivers/connector/cn_exit.c	2005-06-29 16:23:05.000000000 -0700
+> @@ -0,0 +1,166 @@
+> +/*
+> + * cn_exit.c - Exit connector
+> + *
+> + * Copyright (C) 2005 IBM Corporation
+> + * Author: Badari Pulavarty <pbadari@us.ibm.com>
+> + *
+> + * derived from connector/cn_fork.c - Copyright (C) 2005 BULL SA.
+> + *
+> + * This module implements the exit connector. It allows to send a
+> + * netlink datagram, when enabled, from the do_exit() routine. The
+> + * message can be read by a user space application. By this way,
+> + * the user space application is alerted when a exit occurs.
+> + *
+> + * It uses the userspace <-> kernelspace connector that works on top of
+> + * the netlink protocol. The exit connector is enabled or disabled by
+> + * sending a message to the connector. The unique sequence number of
+> + * messages can be used to check if a message is lost.
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License as published by
+> + * the Free Software Foundation; either version 2 of the License, or
+> + * (at your option) any later version.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + *
+> + * You should have received a copy of the GNU General Public License
+> + * along with this program; if not, write to the Free Software
+> + * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+> + */
+> +
+> +#include <linux/module.h>
+> +#include <linux/kernel.h>
+> +#include <linux/init.h>
+> +
+> +#include <linux/cn_exit.h>
+> +
+> +#define CN_EXIT_INFO_SIZE	sizeof(struct cn_exit_msg)
+> +#define CN_EXIT_MSG_SIZE 	(sizeof(struct cn_msg) + CN_EXIT_INFO_SIZE)
+> +
+> +static int cn_exit_enable = 0;
+> +struct cb_id cb_exit_id = { CN_IDX_EXIT, CN_VAL_EXIT };
+> +
+> +/* exit_counts is used as the sequence number of the netlink message */
+> +static DEFINE_PER_CPU(unsigned long, exit_counts);
+> +
+> +/**
+> + * exit_connector - send information about exit through a connector
+> + * @pid: Process ID
+> + * @ptid: Process thread ID
+> + * @code: Process exit code
+> + *
+> + * It sends information to a user space application through the
+> + * connector when a new process is created.
+> + */
+> +void exit_connector(pid_t pid, pid_t ptid, long code)
+> +{
+> +	if (cn_exit_enable) {
+> +		struct cn_msg *msg;
+> +		struct cn_exit_msg *exitmsg;
+> +		__u8 buffer[CN_EXIT_MSG_SIZE];
+> +
+> +		msg = (struct cn_msg *)buffer;
+> +
+> +		memcpy(&msg->id, &cb_exit_id, sizeof(msg->id));
+> +
+> +		msg->ack = 0;	/* not used */
+> +		msg->seq = get_cpu_var(exit_counts)++;
+> +
+> +		msg->len = CN_EXIT_INFO_SIZE;
+> +		exitmsg = (struct cn_exit_msg *)msg->data;
+> +		exitmsg->type = EXIT_CN_MSG_P;
+> +		exitmsg->cpu = smp_processor_id();
+> +		exitmsg->u.s.pid = pid;
+> +		exitmsg->u.s.ptid = ptid;
+> +		exitmsg->u.s.code = code;
+> +
+> +		put_cpu_var(exit_counts);
+> +
+> +		/*  If cn_netlink_send() failed, the data is not send */
+> +		cn_netlink_send(msg, CN_IDX_EXIT, GFP_KERNEL);
+> +	}
+> +}
+> +
+> +/**
+> + * cn_exit_send_status - send a message with the status
+> + *
+> + * It sends information about the status of the exit connector
+> + * to a user space application through the connector. The status
+> + * is stored in the global variable "cn_exit_enable".
+> + */
+> +static inline void cn_exit_send_status(void)
+> +{
+> +	struct cn_msg *msg;
+> +	struct cn_exit_msg *exitmsg;
+> +	__u8 buffer[CN_EXIT_MSG_SIZE];
+> +
+> +	msg = (struct cn_msg *)buffer;
+> +
+> +	memcpy(&msg->id, &cb_exit_id, sizeof(msg->id));
+> +
+> +	msg->ack = 0;	/* not used */
+> +	msg->seq = 0;	/* not used */
+> +
+> +	msg->len = CN_EXIT_INFO_SIZE;
+> +	exitmsg = (struct cn_exit_msg *)msg->data;
+> +	exitmsg->type = EXIT_CN_MSG_S;
+> +	exitmsg->u.status = cn_exit_enable;
+> +
+> +	cn_netlink_send(msg, CN_IDX_EXIT, GFP_KERNEL);
+> +}
+> +
+> +/**
+> + * cn_exit_callback - enable or disable the exit connector
+> + * @data: message send by the connector
+> + *
+> + * The callback allows to enable or disable the sending of information
+> + * about exit in the do_exit() routine. To enable the exit, the user
+> + * space application must send the integer 1 in the data part of the
+> + * message. To disable the exit connector, it must send the integer 0.
+> + */
+> +static void cn_exit_callback(void *data)
+> +{
+> +	struct cn_msg *msg = data;
+> +	int action;
+> +
+> +	if (cn_already_initialized && (msg->len == sizeof(cn_exit_enable))) {
+> +		memcpy(&action, msg->data, sizeof(cn_exit_enable));
+> +		switch (action) {
+> +		case EXIT_CN_START:
+> +			cn_exit_enable = 1;
+> +			break;
+> +		case EXIT_CN_STOP:
+> +			cn_exit_enable = 0;
+> +			break;
+> +		case EXIT_CN_STATUS:
+> +			cn_exit_send_status();
+> +			break;
+> +		}
+> +	}
+> +}
+> +
+> +/**
+> + * cn_exit_init - initialization entry point
+> + *
+> + * This routine will be run at kernel boot time because this driver is
+> + * built in the kernel. It adds the connector callback to the connector
+> + * driver.
+> + */
+> +int __init cn_exit_init(void)
+> +{
+> +	int err;
+> +
+> +	err = cn_add_callback(&cb_exit_id, "cn_exit", &cn_exit_callback);
+> +	if (err) {
+> +		printk(KERN_WARNING "Failed to register cn_exit\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	printk(KERN_NOTICE "cn_exit is registered\n");
+> +	return 0;
+> +}
+> +
+> +__initcall(cn_exit_init);
+> diff -Narup -X /usr/src/dontdiff linux-2.6.12/include/linux/cn_exit.h linux-2.6.12.exit/include/linux/cn_exit.h
+> --- linux-2.6.12/include/linux/cn_exit.h	1969-12-31 16:00:00.000000000 -0800
+> +++ linux-2.6.12.exit/include/linux/cn_exit.h	2005-06-29 16:30:46.000000000 -0700
+> @@ -0,0 +1,65 @@
+> +/*
+> + * cn_exit.h - Exit connector
+> + *
+> + * Copyright (C) 2005 IBM Corporation
+> + * 
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License as published by
+> + * the Free Software Foundation; either version 2 of the License, or
+> + * (at your option) any later version.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + *
+> + * You should have received a copy of the GNU General Public License
+> + * along with this program; if not, write to the Free Software
+> + * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+> + */
+> +
+> +#ifndef CN_EXIT_H
+> +#define CN_EXIT_H
+> +
+> +#include <linux/types.h>
+> +#include <linux/connector.h>
+> +
+> +#define EXIT_CN_STOP	0
+> +#define EXIT_CN_START	1
+> +#define EXIT_CN_STATUS	2
+> +
+> +#define EXIT_CN_MSG_P   0  /* Message about processes */
+> +#define EXIT_CN_MSG_S   1  /* Message about exit connector's state */
+> +
+> +/*
+> + * The exit connector sends information to a user-space
+> + * application. From the user's point of view, the process
+> + * ID is the thread group ID and thread ID is the internal
+> + * kernel "pid". So, fields are assigned as follow:
+> + */
+> +struct cn_exit_msg {
+> +	int type;	/* 0: information about processes
+> +			   1: exit connector's state      */
+> +	int cpu;	/* ID of the cpu where the exit occurred */
+> +	union {
+> +		struct {
+> +			pid_t pid;	/* process ID */
+> +			pid_t ptid;	/* process thread ID  */
+> +			pid_t code;	/* process exit code */
+> +		} s;
+> +		int status;
+> +	} u;
+> +};
+> +
+> +/* Code above is only inside the kernel */
+> +#ifdef __KERNEL__
+> +#ifdef CONFIG_EXIT_CONNECTOR
+> +extern void exit_connector(pid_t pid, pid_t ptid, long code);
+> +#else
+> +static inline void exit_connector(pid_t ppid, pid_t ptid, long code)
+> +{
+> +	return;
+> +}
+> +#endif				/* CONFIG_EXIT_CONNECTOR */
+> +#endif				/* __KERNEL__ */
+> +#endif				/* CN_EXIT_H */
+> diff -Narup -X /usr/src/dontdiff linux-2.6.12/include/linux/connector.h linux-2.6.12.exit/include/linux/connector.h
+> --- linux-2.6.12/include/linux/connector.h	2005-06-29 16:29:07.000000000 -0700
+> +++ linux-2.6.12.exit/include/linux/connector.h	2005-06-29 16:03:19.000000000 -0700
+> @@ -29,6 +29,9 @@
+>  #define CN_IDX_FORK			0xfeed  /* fork events */
+>  #define CN_VAL_FORK			0xbeef
+>  
+> +#define CN_IDX_EXIT			0xfeec  /* exit events */
+> +#define CN_VAL_EXIT			0xceef
+> +
+>  /*
+>   * Maximum connector's message size.
+>   */
+> diff -Narup -X /usr/src/dontdiff linux-2.6.12/kernel/exit.c linux-2.6.12.exit/kernel/exit.c
+> --- linux-2.6.12/kernel/exit.c	2005-06-29 16:29:07.000000000 -0700
+> +++ linux-2.6.12.exit/kernel/exit.c	2005-06-29 16:07:50.000000000 -0700
+> @@ -803,6 +803,7 @@ fastcall NORET_TYPE void do_exit(long co
+>  	if (tsk->io_context)
+>  		exit_io_context();
+>  
+> +	exit_connector(tsk->tgid, tsk->pid, code);
+>  	if (unlikely(current->ptrace & PT_TRACE_EXIT)) {
+>  		current->ptrace_message = code;
+>  		ptrace_notify((PTRACE_EVENT_EXIT << 8) | SIGTRAP);
 
-The intermittent scheduling of the migration thread at ultra high priority
-makes the smp nice handling see that runqueue as being heavily loaded. The
-migration thread itself actually handles the balancing so its influence on
-priority balancing should be ignored.
 
-Signed-off-by: Con Kolivas <kernel@kolivas.org>
 
-Index: linux-2.6.12-mm1/kernel/sched.c
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-=2D-- linux-2.6.12-mm1.orig/kernel/sched.c	2005-06-26 17:59:10.000000000 +1=
-000
-+++ linux-2.6.12-mm1/kernel/sched.c	2005-06-26 18:02:01.000000000 +1000
-@@ -669,6 +669,31 @@ static inline void dec_prio_bias(runqueu
- {
- 	rq->prio_bias -=3D MAX_PRIO - prio;
- }
-+
-+static inline void inc_nr_running(task_t *p, runqueue_t *rq)
-+{
-+	rq->nr_running++;
-+	if (rt_task(p)) {
-+		if (p !=3D rq->migration_thread)
-+			/*
-+			 * The migration thread does the actual balancing. Do
-+			 * not bias by its priority as the ultra high priority
-+			 * will skew balancing adversely.
-+			 */
-+			inc_prio_bias(rq, p->prio);
-+	} else
-+		inc_prio_bias(rq, p->static_prio);
-+}
-+
-+static inline void dec_nr_running(task_t *p, runqueue_t *rq)
-+{
-+	rq->nr_running--;
-+	if (rt_task(p)) {
-+		if (p !=3D rq->migration_thread)
-+			dec_prio_bias(rq, p->prio);
-+	} else
-+		dec_prio_bias(rq, p->static_prio);
-+}
- #else
- static inline void inc_prio_bias(runqueue_t *rq, int prio)
- {
-@@ -677,25 +702,17 @@ static inline void inc_prio_bias(runqueu
- static inline void dec_prio_bias(runqueue_t *rq, int prio)
- {
- }
-=2D#endif
-=20
- static inline void inc_nr_running(task_t *p, runqueue_t *rq)
- {
- 	rq->nr_running++;
-=2D	if (rt_task(p))
-=2D		inc_prio_bias(rq, p->prio);
-=2D	else
-=2D		inc_prio_bias(rq, p->static_prio);
- }
-=20
- static inline void dec_nr_running(task_t *p, runqueue_t *rq)
- {
- 	rq->nr_running--;
-=2D	if (rt_task(p))
-=2D		dec_prio_bias(rq, p->prio);
-=2D	else
-=2D		dec_prio_bias(rq, p->static_prio);
- }
-+#endif
-=20
- /*
-  * __activate_task - move a task to the runqueue.
 
---Boundary-01=_F5dxC3yMNCJ732g--
-
---nextPart20373517.hsKLUKJpss
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBCxd5HZUg7+tp6mRURArISAJ9XBdnpRUWH8DMeXyhhFgESm9ZTYwCaAx3l
-3qXYEnLWT3quP86K09ho18k=
-=qRzW
------END PGP SIGNATURE-----
-
---nextPart20373517.hsKLUKJpss--

@@ -1,60 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261152AbVGBKkr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261155AbVGBKqV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261152AbVGBKkr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Jul 2005 06:40:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261154AbVGBKkr
+	id S261155AbVGBKqV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Jul 2005 06:46:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261156AbVGBKqV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Jul 2005 06:40:47 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:1553 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261152AbVGBKko (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Jul 2005 06:40:44 -0400
-Date: Sat, 2 Jul 2005 11:40:34 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Kenneth Parrish <Kenneth.Parrish@family-bbs.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc1-git2 Oops on rmmod serial_core
-Message-ID: <20050702114034.B7790@flint.arm.linux.org.uk>
-Mail-Followup-To: Kenneth Parrish <Kenneth.Parrish@family-bbs.org>,
-	linux-kernel@vger.kernel.org
-References: <503fc0.e20f3b@family-bbs.org>
+	Sat, 2 Jul 2005 06:46:21 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:44293 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261155AbVGBKqT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Jul 2005 06:46:19 -0400
+Date: Sat, 2 Jul 2005 12:46:17 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, Jesper Juhl <juhl-lkml@dif.dk>
+Subject: [2.6 patch] Documentation/Changes: document the required udev version
+Message-ID: <20050702104617.GH3592@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <503fc0.e20f3b@family-bbs.org>; from Kenneth.Parrish@family-bbs.org on Sat, Jul 02, 2005 at 06:57:54AM +0000
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 02, 2005 at 06:57:54AM +0000, Kenneth Parrish wrote:
-> The serial support code newly allows selecting the max number of serial
-> ports. This computer has one s-port so i typed '1'.
-> 
->  config SERIAL_8250_NR_UARTS
->  int "Maximum number of 8250/16550 serial ports"
->  depends on SERIAL_8250
->  default "4"
->  help
->  Set this to the number of serial ports you want the driver
->  to support.  This includes any ports discovered via ACPI or
->  PCI enumeration and any ports that may be added at run-time
->  via hot-plug, or any ISA multi-port serial cards.
-> 
-> I found the value needs to be at least '4' or we oops at rmmod
-> serial_core.  2.6.13-rc1-git2 kernels with values from one through four
-> were tested.
+Document that udev 058 is required.
 
-It's actually worse than that.  If you set it to less than 4 on an x86
-PC, it'll stamp over memory.  All is not lost though - it's fixed in:
+A similar patch (that no longger applies due to unrelated context 
+changes) was sent by Jesper Juhl.
 
-http://www.kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=44454bcdb90532b372c74e3546043d8a3a468939
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-I'd advise people _not_ to run -git2.  If they do and they see any
-oddities, please don't bother reporting them unless you can reproduce
-them with a later version or with this set to at least '4'.  This
-problem can cause oopses in other parts of the kernel.
+--- linux-2.6.13-rc1-mm1-full/Documentation/Changes.old	2005-07-02 12:41:09.000000000 +0200
++++ linux-2.6.13-rc1-mm1-full/Documentation/Changes	2005-07-02 12:41:42.000000000 +0200
+@@ -66,6 +66,7 @@
+ o  nfs-utils              1.0.5                   # showmount --version
+ o  procps                 3.2.0                   # ps --version
+ o  oprofile               0.9                     # oprofiled --version
++o  udev                   058                     # udevinfo -V
+ 
+ Kernel compilation
+ ==================
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core

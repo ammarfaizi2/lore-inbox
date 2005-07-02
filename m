@@ -1,111 +1,670 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261210AbVGBVEd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261282AbVGBVYw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261210AbVGBVEd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Jul 2005 17:04:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261280AbVGBVEc
+	id S261282AbVGBVYw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Jul 2005 17:24:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261281AbVGBVYw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Jul 2005 17:04:32 -0400
-Received: from opersys.com ([64.40.108.71]:7436 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261210AbVGBVEX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Jul 2005 17:04:23 -0400
-Message-ID: <42C703E4.2060202@opersys.com>
-Date: Sat, 02 Jul 2005 17:15:16 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: linux-kernel <linux-kernel@vger.kernel.org>, LTT-Dev <ltt-dev@shafik.org>,
-       Tom Zanussi <zanussi@us.ibm.com>,
-       Robert Wisniewski <bob@watson.ibm.com>,
-       Mathieu Desnoyers <compudj@krystal.dyndns.org>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Michael Raymond <mraymond@sgi.com>
-Subject: Re: [PATCH/RFC] Significantly reworked LTT core
-References: <42C60001.5050609@opersys.com> <20050702160445.GA29262@infradead.org>
-In-Reply-To: <20050702160445.GA29262@infradead.org>
+	Sat, 2 Jul 2005 17:24:52 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:57097 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261282AbVGBVXv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Jul 2005 17:23:51 -0400
+Date: Sat, 2 Jul 2005 23:23:47 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Yoshihiro MATSUYAMA <y.matsu@jp.fujitsu.com>,
+       David Howells <dhowells@redhat.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: [2.6 patch] FRV: Add defconfig
+Message-ID: <20050702212347.GA5346@stusta.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch by Yoshihiro MATSUYAMA (already ACK'ed by David Howells) adds 
+a defconfig for the frv arch.
 
-Thanks for the feedback, it's greatly appreciated.
 
-Christoph Hellwig wrote:
-> This code is rather pointless.  The ltt_mux is doing all the real
-> work and it's not included.  And while we're at it the layering for
-> it is wrong aswell - the ltt_log_event API should be implemented by
-> the actual multiplexer with what's in ltt_log_event now minus the
-> irq disabling becoming a library function.
+Signed-Off-By: Yoshihiro MATSUYAMA <y.matsu@jp.fujitsu.com>
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Actually I kind of disagree here. Yes, you're partially right, ltt_mux
-is doing a lot of work, and it's not included. However, what work
-ltt_mux is doing is administrative and that's what was complained
-about a lot last time the ltt patches were included. So yes, I could
-provide a very basic ltt_mux that would instantiate a single relayfs
-channel and does no filtering whatsoever, but that would be
-insufficient for real usage. And if I provided a full mux, then we'd
-pretty much end up with the same code we had previously.
+---
 
-By having it this way, the essential part of the mechanism, its
-logging code, is shared by all, yet there can be any number of muxes
-loaded on top of it. The LKST project, for example, has got a module
-that just counts the events that occur. Plug that as the mux, and
-always return NULL (no channel to write to) and you've ready to go.
+ arch/frv/defconfig |  627 +++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 627 insertions(+)
 
-For ltt, the mux would be quite involved, including having netlink
-sockets going back and forth talking to a user-space daemon, and
-allowing quite a few options/features to be set.
+--- /dev/null	2005-05-13 08:26:46.161652216 +0000
++++ linux-2.6.12-rc4-mm1/arch/frv/defconfig	2005-05-13 17:
+50:58.796082968 +0000
+@@ -0,0 +1,627 @@
++#
++# Automatically generated make config: don't edit
++# Linux kernel version: 2.6.11.8
++# Fri May 13 17:16:03 2005
++#
++CONFIG_FRV=y
++CONFIG_UID16=y
++CONFIG_RWSEM_GENERIC_SPINLOCK=y
++CONFIG_GENERIC_FIND_NEXT_BIT=y
++# CONFIG_GENERIC_CALIBRATE_DELAY is not set
++# CONFIG_GENERIC_HARDIRQS is not set
++
++#
++# Code maturity level options
++#
++CONFIG_EXPERIMENTAL=y
++CONFIG_CLEAN_COMPILE=y
++CONFIG_BROKEN_ON_SMP=y
++CONFIG_INIT_ENV_ARG_LIMIT=32
++
++#
++# General setup
++#
++CONFIG_LOCALVERSION=""
++CONFIG_SWAP=y
++CONFIG_SYSVIPC=y
++CONFIG_POSIX_MQUEUE=y
++# CONFIG_BSD_PROCESS_ACCT is not set
++CONFIG_SYSCTL=y
++# CONFIG_AUDIT is not set
++# CONFIG_HOTPLUG is not set
++# CONFIG_KOBJECT_UEVENT is not set
++# CONFIG_IKCONFIG is not set
++CONFIG_EMBEDDED=y
++CONFIG_KALLSYMS=y
++# CONFIG_KALLSYMS_ALL is not set
++# CONFIG_KALLSYMS_EXTRA_PASS is not set
++CONFIG_PRINTK=y
++CONFIG_BUG=y
++CONFIG_BASE_FULL=y
++CONFIG_FUTEX=y
++CONFIG_EPOLL=y
++# CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
++CONFIG_SHMEM=y
++CONFIG_CC_ALIGN_FUNCTIONS=0
++CONFIG_CC_ALIGN_LABELS=0
++CONFIG_CC_ALIGN_LOOPS=0
++CONFIG_CC_ALIGN_JUMPS=0
++# CONFIG_TINY_SHMEM is not set
++CONFIG_BASE_SMALL=0
++
++#
++# Loadable module support
++#
++# CONFIG_MODULES is not set
++
++#
++# Fujitsu FR-V system setup
++#
++CONFIG_MMU=y
++CONFIG_FRV_OUTOFLINE_ATOMIC_OPS=y
++CONFIG_HIGHMEM=y
++CONFIG_HIGHPTE=y
++CONFIG_SELECT_MEMORY_MODEL=y
++CONFIG_FLATMEM_MANUAL=y
++# CONFIG_DISCONTIGMEM_MANUAL is not set
++# CONFIG_SPARSEMEM_MANUAL is not set
++CONFIG_FLATMEM=y
++CONFIG_FLAT_NODE_MEM_MAP=y
++# CONFIG_FRV_DEFL_CACHE_WBACK is not set
++# CONFIG_FRV_DEFL_CACHE_WBEHIND is not set
++CONFIG_FRV_DEFL_CACHE_WTHRU=y
++# CONFIG_FRV_DEFL_CACHE_DISABLED is not set
++
++#
++# CPU core support
++#
++CONFIG_CPU_FR451=y
++CONFIG_CPU_FR451_COMPILE=y
++CONFIG_FRV_L1_CACHE_SHIFT=5
++CONFIG_MB93091_VDK=y
++# CONFIG_MB93093_PDK is not set
++CONFIG_MB93090_MB00=y
++# CONFIG_MB93091_NO_MB is not set
++# CONFIG_GPREL_DATA_8 is not set
++CONFIG_GPREL_DATA_4=y
++# CONFIG_GPREL_DATA_NONE is not set
++CONFIG_PCI=y
++# CONFIG_PCI_LEGACY_PROC is not set
++# CONFIG_PCI_NAMES is not set
++# CONFIG_PCI_DEBUG is not set
++# CONFIG_PCMCIA is not set
++
++#
++# Power management options
++#
++# CONFIG_PM is not set
++
++#
++# Executable formats
++#
++# CONFIG_BINFMT_ELF is not set
++CONFIG_BINFMT_ELF_FDPIC=y
++# CONFIG_BINFMT_MISC is not set
++
++#
++# Device Drivers
++#
++
++#
++# Generic Driver Options
++#
++# CONFIG_STANDALONE is not set
++# CONFIG_PREVENT_FIRMWARE_BUILD is not set
++# CONFIG_FW_LOADER is not set
++# CONFIG_DEBUG_DRIVER is not set
++
++#
++# Connector - unified userspace <-> kernelspace linker
++#
++# CONFIG_CONNECTOR is not set
++# CONFIG_FORK_CONNECTOR is not set
++
++#
++# Memory Technology Devices (MTD)
++#
++# CONFIG_MTD is not set
++
++#
++# Parallel port support
++#
++# CONFIG_PARPORT is not set
++
++#
++# Plug and Play support
++#
++
++#
++# Block devices
++#
++# CONFIG_BLK_DEV_FD is not set
++# CONFIG_BLK_CPQ_DA is not set
++# CONFIG_BLK_CPQ_CISS_DA is not set
++# CONFIG_BLK_DEV_DAC960 is not set
++# CONFIG_BLK_DEV_UMEM is not set
++# CONFIG_BLK_DEV_COW_COMMON is not set
++# CONFIG_BLK_DEV_LOOP is not set
++# CONFIG_BLK_DEV_NBD is not set
++# CONFIG_BLK_DEV_SX8 is not set
++# CONFIG_BLK_DEV_RAM is not set
++CONFIG_BLK_DEV_RAM_COUNT=16
++CONFIG_INITRAMFS_SOURCE=""
++# CONFIG_CDROM_PKTCDVD is not set
++
++#
++# IO Schedulers
++#
++CONFIG_IOSCHED_NOOP=y
++CONFIG_IOSCHED_AS=y
++CONFIG_IOSCHED_DEADLINE=y
++CONFIG_IOSCHED_CFQ=y
++# CONFIG_ATA_OVER_ETH is not set
++
++#
++# ATA/ATAPI/MFM/RLL support
++#
++# CONFIG_IDE is not set
++
++#
++# SCSI device support
++#
++# CONFIG_SCSI is not set
++
++#
++# Multi-device support (RAID and LVM)
++#
++# CONFIG_MD is not set
++
++#
++# Fusion MPT device support
++#
++# CONFIG_FUSION is not set
++
++#
++# IEEE 1394 (FireWire) support
++#
++# CONFIG_IEEE1394 is not set
++
++#
++# I2O device support
++#
++# CONFIG_I2O is not set
++
++#
++# Networking support
++#
++CONFIG_NET=y
++
++#
++# Networking options
++#
++CONFIG_PACKET=y
++# CONFIG_PACKET_MMAP is not set
++CONFIG_UNIX=y
++# CONFIG_NET_KEY is not set
++CONFIG_INET=y
++# CONFIG_IP_MULTICAST is not set
++# CONFIG_IP_ADVANCED_ROUTER is not set
++CONFIG_IP_PNP=y
++# CONFIG_IP_PNP_DHCP is not set
++# CONFIG_IP_PNP_BOOTP is not set
++# CONFIG_IP_PNP_RARP is not set
++# CONFIG_NET_IPIP is not set
++# CONFIG_NET_IPGRE is not set
++# CONFIG_ARPD is not set
++# CONFIG_SYN_COOKIES is not set
++# CONFIG_INET_AH is not set
++# CONFIG_INET_ESP is not set
++# CONFIG_INET_IPCOMP is not set
++# CONFIG_INET_TUNNEL is not set
++# CONFIG_IP_TCPDIAG is not set
++# CONFIG_IP_TCPDIAG_IPV6 is not set
++# CONFIG_IPV6 is not set
++# CONFIG_NETFILTER is not set
++
++#
++# SCTP Configuration (EXPERIMENTAL)
++#
++# CONFIG_IP_SCTP is not set
++# CONFIG_ATM is not set
++# CONFIG_BRIDGE is not set
++# CONFIG_VLAN_8021Q is not set
++# CONFIG_DECNET is not set
++# CONFIG_LLC2 is not set
++# CONFIG_IPX is not set
++# CONFIG_ATALK is not set
++# CONFIG_X25 is not set
++# CONFIG_LAPB is not set
++# CONFIG_NET_DIVERT is not set
++# CONFIG_ECONET is not set
++# CONFIG_WAN_ROUTER is not set
++
++#
++# QoS and/or fair queueing
++#
++# CONFIG_NET_SCHED is not set
++# CONFIG_NET_CLS_ROUTE is not set
++
++#
++# Network testing
++#
++# CONFIG_NET_PKTGEN is not set
++# CONFIG_KGDBOE is not set
++# CONFIG_NETPOLL is not set
++# CONFIG_NETPOLL_RX is not set
++# CONFIG_NETPOLL_TRAP is not set
++# CONFIG_NET_POLL_CONTROLLER is not set
++# CONFIG_HAMRADIO is not set
++# CONFIG_IRDA is not set
++# CONFIG_BT is not set
++# CONFIG_IEEE80211 is not set
++CONFIG_NETDEVICES=y
++# CONFIG_DUMMY is not set
++# CONFIG_BONDING is not set
++# CONFIG_EQUALIZER is not set
++# CONFIG_TUN is not set
++
++#
++# ARCnet devices
++#
++# CONFIG_ARCNET is not set
++
++#
++# Ethernet (10 or 100Mbit)
++#
++CONFIG_NET_ETHERNET=y
++CONFIG_MII=y
++# CONFIG_HAPPYMEAL is not set
++# CONFIG_SUNGEM is not set
++# CONFIG_NET_VENDOR_3COM is not set
++
++#
++# Tulip family network device support
++#
++# CONFIG_NET_TULIP is not set
++# CONFIG_HP100 is not set
++CONFIG_NET_PCI=y
++# CONFIG_PCNET32 is not set
++# CONFIG_AMD8111_ETH is not set
++# CONFIG_ADAPTEC_STARFIRE is not set
++# CONFIG_B44 is not set
++# CONFIG_FORCEDETH is not set
++# CONFIG_DGRS is not set
++# CONFIG_EEPRO100 is not set
++# CONFIG_E100 is not set
++# CONFIG_FEALNX is not set
++# CONFIG_NATSEMI is not set
++CONFIG_NE2K_PCI=y
++# CONFIG_8139CP is not set
++# CONFIG_8139TOO is not set
++# CONFIG_SIS900 is not set
++# CONFIG_EPIC100 is not set
++# CONFIG_SUNDANCE is not set
++# CONFIG_TLAN is not set
++# CONFIG_VIA_RHINE is not set
++
++#
++# Ethernet (1000 Mbit)
++#
++# CONFIG_ACENIC is not set
++# CONFIG_DL2K is not set
++# CONFIG_E1000 is not set
++# CONFIG_NS83820 is not set
++# CONFIG_HAMACHI is not set
++# CONFIG_YELLOWFIN is not set
++# CONFIG_R8169 is not set
++# CONFIG_SKGE is not set
++# CONFIG_SK98LIN is not set
++# CONFIG_VIA_VELOCITY is not set
++# CONFIG_TIGON3 is not set
++
++#
++# Ethernet (10000 Mbit)
++#
++# CONFIG_CHELSIO_T1 is not set
++# CONFIG_IXGB is not set
++# CONFIG_S2IO is not set
++
++#
++# Token Ring devices
++#
++# CONFIG_TR is not set
++
++#
++# Wireless LAN (non-hamradio)
++#
++# CONFIG_NET_RADIO is not set
++
++#
++# Wan interfaces
++#
++# CONFIG_WAN is not set
++# CONFIG_FDDI is not set
++# CONFIG_HIPPI is not set
++# CONFIG_PPP is not set
++# CONFIG_SLIP is not set
++# CONFIG_SHAPER is not set
++# CONFIG_NETCONSOLE is not set
++
++#
++# ISDN subsystem
++#
++# CONFIG_ISDN is not set
++
++#
++# Telephony Support
++#
++# CONFIG_PHONE is not set
++
++#
++# Input device support
++#
++# CONFIG_INPUT is not set
++
++#
++# Hardware I/O ports
++#
++# CONFIG_SERIO is not set
++# CONFIG_GAMEPORT is not set
++
++#
++# Character devices
++#
++# CONFIG_VT is not set
++# CONFIG_SERIAL_NONSTANDARD is not set
++
++#
++# Serial drivers
++#
++CONFIG_SERIAL_8250=y
++CONFIG_SERIAL_8250_CONSOLE=y
++CONFIG_SERIAL_8250_NR_UARTS=1
++CONFIG_SERIAL_8250_EXTENDED=y
++# CONFIG_SERIAL_8250_MANY_PORTS is not set
++CONFIG_SERIAL_8250_SHARE_IRQ=y
++# CONFIG_SERIAL_8250_DETECT_IRQ is not set
++# CONFIG_SERIAL_8250_MULTIPORT is not set
++# CONFIG_SERIAL_8250_RSA is not set
++
++#
++# Non-8250 serial port support
++#
++CONFIG_SERIAL_CORE=y
++CONFIG_SERIAL_CORE_CONSOLE=y
++# CONFIG_SERIAL_JSM is not set
++CONFIG_UNIX98_PTYS=y
++# CONFIG_LEGACY_PTYS is not set
++
++#
++# IPMI
++#
++# CONFIG_IPMI_HANDLER is not set
++
++#
++# Watchdog Cards
++#
++# CONFIG_WATCHDOG is not set
++# CONFIG_RTC is not set
++# CONFIG_GEN_RTC is not set
++# CONFIG_DTLK is not set
++# CONFIG_R3964 is not set
++# CONFIG_APPLICOM is not set
++
++#
++# Ftape, the floppy tape device driver
++#
++# CONFIG_DRM is not set
++# CONFIG_RAW_DRIVER is not set
++
++#
++# TPM devices
++#
++# CONFIG_TCG_TPM is not set
++
++#
++# I2C support
++#
++# CONFIG_I2C is not set
++
++#
++# Dallas's 1-wire bus
++#
++# CONFIG_W1 is not set
++
++#
++# Misc devices
++#
++
++#
++# Multimedia devices
++#
++# CONFIG_VIDEO_DEV is not set
++
++#
++# Digital Video Broadcasting Devices
++#
++# CONFIG_DVB is not set
++
++#
++# Graphics support
++#
++# CONFIG_FB is not set
++
++#
++# Sound
++#
++# CONFIG_SOUND is not set
++
++#
++# USB support
++#
++CONFIG_USB_ARCH_HAS_HCD=y
++CONFIG_USB_ARCH_HAS_OHCI=y
++# CONFIG_USB is not set
++
++#
++# USB Gadget Support
++#
++# CONFIG_USB_GADGET is not set
++
++#
++# MMC/SD Card support
++#
++# CONFIG_MMC is not set
++
++#
++# InfiniBand support
++#
++# CONFIG_INFINIBAND is not set
++
++#
++# File systems
++#
++# CONFIG_EXT2_FS is not set
++# CONFIG_EXT3_FS is not set
++# CONFIG_JBD is not set
++# CONFIG_REISER4_FS is not set
++# CONFIG_REISERFS_FS is not set
++# CONFIG_JFS_FS is not set
++
++#
++# XFS support
++#
++# CONFIG_XFS_FS is not set
++# CONFIG_MINIX_FS is not set
++# CONFIG_ROMFS_FS is not set
++CONFIG_INOTIFY=y
++# CONFIG_QUOTA is not set
++CONFIG_DNOTIFY=y
++# CONFIG_AUTOFS_FS is not set
++# CONFIG_AUTOFS4_FS is not set
++
++#
++# Caches
++#
++# CONFIG_FSCACHE is not set
++# CONFIG_FUSE_FS is not set
++
++#
++# CD-ROM/DVD Filesystems
++#
++# CONFIG_ISO9660_FS is not set
++# CONFIG_UDF_FS is not set
++
++#
++# DOS/FAT/NT Filesystems
++#
++# CONFIG_MSDOS_FS is not set
++# CONFIG_VFAT_FS is not set
++# CONFIG_NTFS_FS is not set
++
++#
++# Pseudo filesystems
++#
++CONFIG_PROC_FS=y
++# CONFIG_PROC_KCORE is not set
++CONFIG_SYSFS=y
++# CONFIG_DEVFS_FS is not set
++# CONFIG_DEVPTS_FS_XATTR is not set
++CONFIG_TMPFS=y
++# CONFIG_TMPFS_XATTR is not set
++# CONFIG_HUGETLB_PAGE is not set
++CONFIG_RAMFS=y
++# CONFIG_RELAYFS_FS is not set
++
++#
++# Miscellaneous filesystems
++#
++# CONFIG_ADFS_FS is not set
++# CONFIG_AFFS_FS is not set
++# CONFIG_HFS_FS is not set
++# CONFIG_HFSPLUS_FS is not set
++# CONFIG_BEFS_FS is not set
++# CONFIG_BFS_FS is not set
++# CONFIG_EFS_FS is not set
++# CONFIG_CRAMFS is not set
++# CONFIG_VXFS_FS is not set
++# CONFIG_HPFS_FS is not set
++# CONFIG_QNX4FS_FS is not set
++# CONFIG_SYSV_FS is not set
++# CONFIG_UFS_FS is not set
++
++#
++# Network File Systems
++#
++CONFIG_NFS_FS=y
++# CONFIG_NFS_V3 is not set
++# CONFIG_NFS_V4 is not set
++# CONFIG_NFS_DIRECTIO is not set
++# CONFIG_NFSD is not set
++CONFIG_ROOT_NFS=y
++CONFIG_LOCKD=y
++CONFIG_NFS_COMMON=y
++CONFIG_SUNRPC=y
++# CONFIG_RPCSEC_GSS_KRB5 is not set
++# CONFIG_RPCSEC_GSS_SPKM3 is not set
++# CONFIG_SMB_FS is not set
++# CONFIG_CIFS is not set
++# CONFIG_NCP_FS is not set
++# CONFIG_CODA_FS is not set
++# CONFIG_AFS_FS is not set
++
++#
++# Partition Types
++#
++# CONFIG_PARTITION_ADVANCED is not set
++CONFIG_MSDOS_PARTITION=y
++
++#
++# Native Language Support
++#
++# CONFIG_NLS is not set
++
++#
++# Kernel hacking
++#
++# CONFIG_PRINTK_TIME is not set
++CONFIG_DEBUG_KERNEL=y
++# CONFIG_MAGIC_SYSRQ is not set
++CONFIG_LOG_BUF_SHIFT=14
++CONFIG_DETECT_SOFTLOCKUP=y
++# CONFIG_SCHEDSTATS is not set
++# CONFIG_DEBUG_SLAB is not set
++# CONFIG_DEBUG_SPINLOCK is not set
++# CONFIG_DEBUG_SPINLOCK_SLEEP is not set
++# CONFIG_DEBUG_KOBJECT is not set
++# CONFIG_DEBUG_HIGHMEM is not set
++# CONFIG_DEBUG_BUGVERBOSE is not set
++# CONFIG_DEBUG_INFO is not set
++# CONFIG_DEBUG_FS is not set
++# CONFIG_FRAME_POINTER is not set
++# CONFIG_EARLY_PRINTK is not set
++CONFIG_DEBUG_STACKOVERFLOW=y
++# CONFIG_DEBUG_PAGEALLOC is not set
++# CONFIG_GDBSTUB is not set
++
++#
++# Security options
++#
++# CONFIG_KEYS is not set
++# CONFIG_SECURITY is not set
++
++#
++# Cryptographic options
++#
++# CONFIG_CRYPTO is not set
++
++#
++# Hardware crypto devices
++#
++
++#
++# Library routines
++#
++# CONFIG_CRC_CCITT is not set
++CONFIG_CRC32=y
++# CONFIG_LIBCRC32C is not set
 
-In other cases, it should be fairly simple to implement a mux
-local to a given subsystem that a developer needs to monitor. He
-can then manage everything about how tracing goes on without having
-to rewrite his own logging function.
-
-The rational here is simple: there is no need to have multiple
-logging functions, but there are already multiple existing
-implementations of deciding how and what needs to be logged,
-how it's control, and how it interfaces with the outside world
-(be it user-space or otherwise.) This code, simplistic as it may be,
-serves this reality quite well.
-
-If what's in ltt_log_event goes into the multiplexer, then we're
-back to having each implementation have its own buffering mechanism
-and yet no single entry-point for tracing inside the kernel.
-
-Replacing local_irq_disable/enable() with function pointers is not
-a problem, if that's something desirable.
-
-> Exporting a pointer to the root dentry seems like a very wrong API
-> aswell, that's an implementation detail that should be hidden.
-
-That's just to allow add-on modules to find the hook point within
-relayfs. We could just leave it to the multiplexer to "init tracing"
-and then provide an API such as ltt_chan_add, ltt_chan_del,
-ltt_chan_ctl, etc.
-
-> Besides that the code is not following Documentation/CodingStyle
-> at all, please read it.
-
-I'll double-check, thanks.
-
-> Besides that I'd sugest scrapping the ltt name and ltt_ prefix - we know
-> we're on linux, adn we don't care whether it's a toolkit, but spelling trace_
-> out would actually be a lot more descriptive.  So what about trace_* symbol
-> names and trace.[ch] filenames?
-
-I don't feel in any way patriotic about the ltt_ prefix, any other
-name will do just fine. However, trace_ is so generic as to be
-confusing. There are already plenty of trace* in the kernel. If
-you've got any other more-specific/less-generic name, I'm all ears.
-How about evtrace?
-
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546

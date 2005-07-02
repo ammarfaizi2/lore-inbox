@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261322AbVGBXDO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261320AbVGBXJp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261322AbVGBXDO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Jul 2005 19:03:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261323AbVGBXDO
+	id S261320AbVGBXJp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Jul 2005 19:09:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261323AbVGBXJp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Jul 2005 19:03:14 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:13581 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S261322AbVGBXDH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Jul 2005 19:03:07 -0400
-Date: Sun, 3 Jul 2005 01:03:03 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Mike Bell <mike@mikebell.org>, linux-kernel@vger.kernel.org
-Subject: Re: updating kernel to 2.6.13-rc1 from 2.6.12 + CONFIG_DEVFS_FS + empty /dev
-Message-ID: <20050702230303.GA27261@alpha.home.local>
-References: <20050629224040.GB18462@kroah.com> <1120137161.42c3efc93b36c@imp1-q.free.fr> <20050630155453.GA6828@kroah.com> <42C455C1.30503@free.fr> <20050702053711.GA5635@kroah.com> <42C640AC.1020602@free.fr> <20050702082218.GM8907@alpha.home.local> <42C659B2.8010002@free.fr> <20050702100349.GA25749@alpha.home.local> <20050702201356.GA32409@mikebell.org>
+	Sat, 2 Jul 2005 19:09:45 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:56487 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261320AbVGBXJm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Jul 2005 19:09:42 -0400
+Subject: Re: [Jfs-discussion] jfs mount causes oops on sparc64
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: Alex Deucher <alexdeucher@gmail.com>
+Cc: jfs-discussion@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, ag@m-cam.com
+In-Reply-To: <a728f9f905070111133a24590@mail.gmail.com>
+References: <a728f9f905070111133a24590@mail.gmail.com>
+Content-Type: text/plain
+Date: Sat, 02 Jul 2005 18:09:39 -0500
+Message-Id: <1120345779.9901.6.camel@kleikamp.austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050702201356.GA32409@mikebell.org>
-User-Agent: Mutt/1.4i
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 02, 2005 at 01:13:58PM -0700, Mike Bell wrote:
-> On Sat, Jul 02, 2005 at 12:03:49PM +0200, Willy Tarreau wrote:
-> > They cost almost nothing, and in all cases, far less than the required code
-> > to autodetect them.
+On Fri, 2005-07-01 at 14:13 -0400, Alex Deucher wrote:
+> I have a 6.9 TB jfs LVM volume on a sparc64 debian box, however mount
+> seems to cause an oops when I attempt to mount the volume:
 > 
-> I beg to differ on that. As ndevfs has shown, the code required to
-> create a device node from kernel space is actually very minimal, when
-> you utilize all the infrastructure already available to you in the
-> kernel. libfs has most of what you need, the rest is easily stolen from
-> ramfs. Almost undoubtebly much less than all those device nodes,
-> especially when you consider the need to be able to perform chown/chmod
-> on nodes (thus they can't be stored in the read-only flash image, but
-> must instead be created at each boot on a kernel-generated filesystem
-> like ramfs)
+> jfs_mount: diMount(ipaimap) failed w/rc = -5
+> data_access_exception: SFSR[0000000000801009] SFAR[000000000043f770], going.
 
-Well, here on my firewall, the /.preinit script is 1.7 kB and the init
-binary which does everything (mkdir,mknod,chmod,chown,mount,...) is 5.6 kB.
-I doubt you can enable devfs in a kernel for less than 8 kB. One /tmpfs
-entry consumes about 600 bytes of RAM, which is still fairly acceptable
-IMHO.
+> kernel is 2.6.12rc3 on debian sparc.  Any ideas?
 
-> devfs not utilizing it is perfectly explainable by the fact none of it
-> was around way back when devfs was created. Back then kernel generated
-> filesystems were proc, proc and proc. proc is pretty ugly too.
+JFS has never worked on architectures with a page size greater than 4K
+until (would you believe?) 2.6.12-rc4.  I bet if you would try a more
+recent kernel, you would no longer see this problem.
 
-Regards,
-Willy
+In case you would continue to see problems with a newer kernel, I'd like
+to know.  I'll be on vacation until July 13, so my email access will be
+sporadic.
+
+Thanks,
+Shaggy
+-- 
+David Kleikamp
+IBM Linux Technology Center
 

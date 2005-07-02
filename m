@@ -1,60 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261180AbVGBOub@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261181AbVGBO7R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261180AbVGBOub (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Jul 2005 10:50:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261181AbVGBOub
+	id S261181AbVGBO7R (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Jul 2005 10:59:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261184AbVGBO7R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Jul 2005 10:50:31 -0400
-Received: from 238-071.adsl.pool.ew.hu ([193.226.238.71]:9732 "EHLO
+	Sat, 2 Jul 2005 10:59:17 -0400
+Received: from 238-071.adsl.pool.ew.hu ([193.226.238.71]:4619 "EHLO
 	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S261180AbVGBOuY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Jul 2005 10:50:24 -0400
-To: frankvm@frankvm.com
-CC: akpm@osdl.org, aia21@cam.ac.uk, arjan@infradead.org,
-       linux-kernel@vger.kernel.org
-In-reply-to: <20050701180415.GA7755@janus> (message from Frank van Maarseveen
-	on Fri, 1 Jul 2005 20:04:15 +0200)
+	id S261181AbVGBO7M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Jul 2005 10:59:12 -0400
+To: ebiederm@xmission.com
+CC: ericvh@gmail.com, akpm@osdl.org, aia21@cam.ac.uk, arjan@infradead.org,
+       linux-kernel@vger.kernel.org, frankvm@frankvm.com,
+       v9fs-developer@lists.sourceforge.net
+In-reply-to: <m1acl5frw6.fsf@ebiederm.dsl.xmission.com>
 Subject: Re: FUSE merging?
-References: <20050630222828.GA32357@janus> <E1DoFTR-0002NH-00@dorka.pomaz.szeredi.hu> <20050701092444.GA4317@janus> <E1DoIjd-0002bM-00@dorka.pomaz.szeredi.hu> <20050701120028.GB5218@janus> <E1DoKko-0002ml-00@dorka.pomaz.szeredi.hu> <20050701130510.GA5805@janus> <E1DoLSx-0002sR-00@dorka.pomaz.szeredi.hu> <20050701152003.GA7073@janus> <E1DoOwc-000368-00@dorka.pomaz.szeredi.hu> <20050701180415.GA7755@janus>
-Message-Id: <E1DojJ6-00047F-00@dorka.pomaz.szeredi.hu>
+References: <E1DnvCq-0000Q4-00@dorka.pomaz.szeredi.hu>
+	<E1DoF86-0002Kk-00@dorka.pomaz.szeredi.hu>
+	<20050630235059.0b7be3de.akpm@osdl.org>
+	<E1DoFcK-0002Ox-00@dorka.pomaz.szeredi.hu>
+	<20050701001439.63987939.akpm@osdl.org>
+	<E1DoG6p-0002Rf-00@dorka.pomaz.szeredi.hu>
+	<20050701010229.4214f04e.akpm@osdl.org>
+	<E1DoIUz-0002a5-00@dorka.pomaz.szeredi.hu>
+	<a4e6962a050701062136435471@mail.gmail.com>
+	<E1DoLxK-0002ua-00@dorka.pomaz.szeredi.hu>
+	<a4e6962a05070107183862ed22@mail.gmail.com>
+	<E1DoMYJ-0002ya-00@dorka.pomaz.szeredi.hu> <m1acl5frw6.fsf@ebiederm.dsl.xmission.com>
+Message-Id: <E1DojRm-00047s-00@dorka.pomaz.szeredi.hu>
 From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Sat, 02 Jul 2005 16:49:24 +0200
+Date: Sat, 02 Jul 2005 16:58:22 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I'm not saying this is a problem, but also I don't see any
-> > overwhelming reason to not allow user mounts over non-leaf
-> > directories.
+> Taking a quick glance at v9fs and fuse I fail to see how either
+> plays nicely with the page cache.
 > 
-> All things considered I'd still prefer forbidding FUSE mounts on non-leaf
-> dirs. For name space sanity. And it may be easier to get the whole thing
-> accepted:
+> v9fs according to my reading of the protocol specification does
+> not have any concept of a lease.  So you can't tell if you are
+> talking about a virtual filesystem where all calls should be passed
+> straight to the server or a real filesystem where you can perform
+> caching.  The implementation simply appears to bypass the pagecache
+> which seems sane.
 > 
-> -	One could argue that the existing name space is extended rather than
-> 	changed [for a subset of processes], what Al Viro seems to reject.
-> -	The processes which cannot be ptraced/sent a signal by the mount
-> 	owner are not "forced" to traverse the FUSE mount for the sake of
-> 	name space invariancy, with all associated security problems: they
-> 	can see everything up to the leaf node of all the usual mounts.
-> 
-> But put otherwise: is there a compelling reason to permit FUSE mounts on
-> non-leaf nodes?
+> Skimming through the FUSE code I see the same problem, in that you can't
+> autodetect the right thing.  This is currently hacked around with
+> "direct_io" mount option selecting between a cached and a non-cached
+> status on a filesystem basis at mount time.  But having
+> a per file flag would be nicer.
 
-Not really.  Maybe it does have some uses, but I'm not aware of any.
+There's a plan to make this work.  The kernel ABI has alredy been
+prepared for this, it would be relatively little work to implement.
+But I usually wait with something like this until people actually
+start asking for this feature.
 
-But I don't think it would matter in the acceptance of the mount
-hiding patch, since that patch was not rejected on the basis of what
-FUSE would use it for, rather for the general philosophy of not
-allowing namespace differences based on user id.
+> I also don't understand why in fuse direct_io is an if statement in
+> fuse_file_read/write instead of simply being a different set of
+> filesystem operations.
 
-> Can FUSE mount on a file like NFS?
+Good point.  I'll fix that.
 
-Yes.
+> Neither implementation seems to forward user space locks to the
+> filesystem server.
 
-> What is your opinion about replacing the ptrace check by a signal check
-> (later on, no hurry)?
-
-Maybe.  You'd still have to convince me, that signals sent to suid
-programs are not a security problem.
+This too has been discussed.  The last half year has been mostly spend
+with ironing out problems cought during integration.  Sometime this
+summer I'll start implementing these new features (inode based API,
+locking, userspace NFS serving, maybe shared writable mmap support).
 
 Miklos

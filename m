@@ -1,141 +1,205 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261305AbVGBWOc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261309AbVGBWUd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261305AbVGBWOc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Jul 2005 18:14:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261308AbVGBWOb
+	id S261309AbVGBWUd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Jul 2005 18:20:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261308AbVGBWUc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Jul 2005 18:14:31 -0400
-Received: from ppsw-1.csi.cam.ac.uk ([131.111.8.131]:441 "EHLO
-	ppsw-1.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S261305AbVGBWJa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Jul 2005 18:09:30 -0400
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Date: Sat, 2 Jul 2005 23:09:22 +0100 (BST)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Daniel Drake <dsd@gentoo.org>
-cc: =?UTF-8?B?RGF2aWQgR8OzbWV6?= <david@pleyades.net>,
-       Robert Love <rml@novell.com>, John McCutchan <ttb@tentacle.dhs.org>,
-       Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Problem with inotify
-In-Reply-To: <42C65A8B.9060705@gentoo.org>
-Message-ID: <Pine.LNX.4.60.0507022253080.30401@hermes-1.csi.cam.ac.uk>
-References: <20050630181824.GA1058@fargo> <1120156188.6745.103.camel@betsy>
- <20050630193320.GA1136@fargo> <Pine.LNX.4.60.0506302138230.29755@hermes-1.csi.cam.ac.uk>
- <20050630204832.GA3854@fargo> <Pine.LNX.4.60.0506302158190.29755@hermes-1.csi.cam.ac.uk>
- <42C65A8B.9060705@gentoo.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 2 Jul 2005 18:20:32 -0400
+Received: from [85.8.12.41] ([85.8.12.41]:8892 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S261321AbVGBWS5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Jul 2005 18:18:57 -0400
+Message-ID: <42C712C9.7080603@drzeus.cx>
+Date: Sun, 03 Jul 2005 00:18:49 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 1.0.2-7 (X11/20050623)
+X-Accept-Language: en-us, en
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="=_hermes.drzeus.cx-8518-1120342732-0001-2"
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] ISA DMA API documentation
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This is a MIME-formatted message.  If you see this text it means that your
+E-mail software does not support MIME-formatted messages.
 
-On Sat, 2 Jul 2005, Daniel Drake wrote:
-> I'm trying to work around the NTFS lockup issue. Like others, I can reproduce
-> it just by opening nautilus on an NTFS partition (i.e. creating an inotify
-> watch on it) and then unmount at some point after - instant system lockup.
-> 
-> I have tried applying two patches:
-> fix-soft-lockup-due-to-ntfs-vfs-part-and-explanation.patch from 2.6.13-rc1-mm1
-> and the "NTFS: Fix a nasty deadlock that appeared in recent kernels" patch
-> from your git tree.
-> 
-> However, I still get the freezing up on unmount. I am using 2.6.12, plus
-> inotify-0.23-15, and the two patches mentioned above. Anything else I can try?
+--=_hermes.drzeus.cx-8518-1120342732-0001-2
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 
-Thinking about it some more made me realize that there may be a problem in 
-inotify after all...  Could you try the below patch to fs/inotify.c and 
-tell me if it cures the lockup you are seeing?  (Note patch compiles but 
-is otherwise untested.  But given it locks up without the patch it can't 
-do much worse with it!)
+Documentation for how the ISA DMA controller is handled in the kernel.
 
-Thanks a lot in advance!
+Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
 
-Best regards,
+I found the documentation about the ISA DMA controller a bit lacking so
+I figured I could save the next guy some work by documentation the
+lessons learned.
 
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+(English is not my native language so please feel free to point out any
+problems with spelling or grammar.)
 
-inotify_unmount_inodes-list-iteration-fix.diff
+Rgds
+Pierre
 
-Patch description: I believe that the inode reference that is being 
-dropped by inotify's remove_watch() can cause inodes other than the 
-current @inode to be moved away from the per-sb list.  And if this happens 
-to be the next inode in the list, i.e. @next_i, then the iteration will 
-proceed on the list that @next_i was moved to rather than the per-sb list.  
-Thus, the check in the for loop (list_for_each_entry_safe()) for the @head 
-being reached will _never_ be true and hence the for loop will keep going 
-for ever...  Even worse the memory backing @next_i could be completely 
-freed and then completely random results would be obtained.
+--=_hermes.drzeus.cx-8518-1120342732-0001-2
+Content-Type: text/x-patch; name="DMA-ISA-LPC.patch"; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="DMA-ISA-LPC.patch"
 
-Basically, I do not believe that using list_for_each_entry_safe() is safe 
-at all as it only guards against removal of the current entry but not 
-against removal of the next entry.  This patch tries to work around this 
-by getting a reference to @next_i whilst the inode_lock is dropped.
-
-Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
-
---- linux-2.6.13-rc1-mm1-vanilla/fs/inotify.c	2005-07-01 14:51:09.000000000 +0100
-+++ linux-2.6.13-rc1-mm1/fs/inotify.c	2005-07-02 22:11:11.000000000 +0100
-@@ -560,9 +560,10 @@ EXPORT_SYMBOL_GPL(inotify_get_cookie);
-  */
- void inotify_unmount_inodes(struct list_head *list)
- {
--	struct inode *inode, *next_i;
-+	struct inode *inode, *next_i, *need_iput = NULL;
- 
- 	list_for_each_entry_safe(inode, next_i, list, i_sb_list) {
-+		struct inode *need_iput_tmp;
- 		struct inotify_watch *watch, *next_w;
- 		struct list_head *watches;
- 
-@@ -574,8 +575,20 @@ void inotify_unmount_inodes(struct list_
- 		if (inode->i_state & (I_CLEAR | I_FREEING))
- 			continue;
- 
-+		need_iput_tmp = need_iput;
-+		need_iput = NULL;
+Index: linux-wbsd/Documentation/DMA-ISA-LPC.txt
+===================================================================
+--- linux-wbsd/Documentation/DMA-ISA-LPC.txt	(revision 0)
++++ linux-wbsd/Documentation/DMA-ISA-LPC.txt	(revision 0)
+@@ -0,0 +1,146 @@
++                        DMA with ISA and LPC devices
++                        ============================
 +
- 		/* In case the remove_watch() drops a reference */
--		__iget(inode);
-+		if (inode != need_iput_tmp)
-+			__iget(inode);
-+		else
-+			need_iput_tmp = NULL;
++                      Pierre Ossman <drzeus@drzeus.cx>
 +
-+		/* In case the dropping of a reference would nuke next_i. */
-+		if (!next_i->i_state & (I_CLEAR | I_FREEING)) {
-+			__iget(next_i);
-+			need_iput = next_i;
-+		}
- 
- 		/*
- 		 * We can safely drop inode_lock here because the per-sb list
-@@ -584,6 +597,9 @@ void inotify_unmount_inodes(struct list_
- 		 */
- 		spin_unlock(&inode_lock);
- 
-+		if (need_iput_tmp)
-+			iput(need_iput_tmp);
++This document describes how to do DMA transfers using the old ISA DMA
++controller. Even though ISA is more or less dead today the LPC bus
++uses the same DMA system so it will be around for quite some time.
 +
- 		/* for each watch, send IN_UNMOUNT and then remove it */
- 		down(&inode->inotify_sem);
- 		watches = &inode->inotify_watches;
-@@ -599,6 +615,11 @@ void inotify_unmount_inodes(struct list_
- 
- 		spin_lock(&inode_lock);
- 	}
-+	if (need_iput) {
-+		spin_unlock(&inode_lock);
-+		iput(need_iput);
-+		spin_lock(&inode_lock);
-+	}
- }
- EXPORT_SYMBOL_GPL(inotify_unmount_inodes);
- 
++Part I - Headers and dependencies
++---------------------------------
++
++To do ISA style DMA you need to include two headers:
++
++#include <linux/dma-mapping.h>
++#include <asm/dma.h>
++
++The first is the generic DMA API used to convert virtual addresses to
++physical addresses (see DMA-API.txt for details).
++
++The second contains the routines specific to ISA DMA transfers. Since
++this is not present on all platforms make sure you construct your
++Kconfig to be dependent on ISA_DMA_API (not ISA) so that nobody tries
++to build your driver on unsupported platforms.
++
++Part II - Buffer allocation
++---------------------------
++
++The ISA DMA controller has some very strict requirements on which
++memory it can access so extra care must be taken when allocating
++buffers.
++
++(You usually need a special buffer for DMA transfers instead of
++transferring directly to and from your normal data structures.)
++
++The DMA:able address space is the lowest 16 MB of _physical_ memory.
++Also the transfer block may not cross page boundaries (which are 64k).
++
++In order to allocate a piece of memory that satisfies all these
++requirements you pass the flag GFP_DMA to kmalloc.
++
++Unfortunately the memory available for ISA DMA is scarce so unless you
++allocate the memory during boot-up it's a good idea to also pass
++__GFP_REPEAT and __GFP_NOWARN to make the allocater try a bit harder.
++
++(This scarcity also means that you should allocate the buffer as
++early as possible and not release it until the driver is unloaded.)
++
++Part III - Address translation
++------------------------------
++
++To translate the virtual address to a physical use the normal DMA
++API. Do _not_ use isa_virt_to_phys() even though it does the same
++thing. The reason for this is that you will get a requirement to ISA
++(instead of only ISA_DMA_API).
++
++Note: x86_64 had a broken DMA API when it came to ISA but has since
++been fixed. If your arch has problems then fix the DMA API instead of
++reverting to the ISA functions.
++
++Part IV - Channels
++------------------
++
++A normal ISA DMA controller has 8 channels. The lower four are for
++8-bit transfers and the upper four are for 16-bit transfers.
++
++(Actually the DMA controller is really two separate controllers where
++channel 4 is used to give DMA access for the second controller (0-3).
++This means that of the four 16-bits channels only three are usable.)
++
++You allocate these in a similar fashion as all basic resources:
++
++extern int request_dma(unsigned int dmanr, const char * device_id);
++extern void free_dma(unsigned int dmanr);
++
++The ability to use 16-bit or 8-bit transfers is _not_ up to you as a
++driver author but depends on what the hardware supports. Check your
++specs or test different channels.
++
++Part V - Transfer data
++----------------------
++
++Now for the good stuff, the actual DMA transfer. :)
++
++Before you use any ISA DMA routines you need to claim the DMA lock
++using claim_dma_lock(). The reason is that some DMA operations are
++not atomic so only one driver may fiddle with the registers at a
++time.
++
++The first time you use the DMA controller you should call
++clear_dma_ff(). This clears an internal register in the DMA
++controller that is used for the non-atomic operations. As long as you
++(and everyone else) uses the locking functions then you only need to
++reset this once.
++
++Next, you tell the controller in which direction you intend to do the
++transfer using set_dma_mode(). Currently you have the options
++DMA_MODE_READ and DMA_MODE_WRITE.
++
++Set the address from where the transfer should start (this needs to
++be word-aligned for 16-bit transfers) and how many bytes to transfer.
++Note that it's _bytes_. The DMA routines will do all the required
++translation to values that the DMA controller understands.
++
++The final step is enabling the DMA channel and releasing the DMA
++lock.
++
++Once the DMA transfer is finished (or timed out) you should disable
++the channel again. You should also check get_dma_residue() to make
++sure that all data has been transfered.
++
++Example:
++
++int flags;
++
++flags = claim_dma_lock();
++
++clear_dma_ff();
++
++set_dma_mode(channel, DMA_MODE_WRITE);
++set_dma_addr(channel, phys_addr);
++set_dma_count(channel, num_bytes);
++
++dma_enable(channel);
++
++release_dma_lock(flags);
++
++while (!device_done());
++
++flags = claim_dma_flags();
++
++dma_disable(channel);
++
++if (dma_get_residue(channel) != 0)
++	printk(KERN_ERR "Incomplete DMA transfer!\n");
++
++release_dma_lock(flags);
++
++Part VI - Suspend/resume
++------------------------
++
++It is the drivers' responsibility to make sure that the machine isn't
++suspended while a DMA transfer is in progress. Also, all DMA settings
++are lost when the system suspends so if your driver relies on the DMA
++controller being in a certain state then you have to restore these
++registers upon resume.
+
+--=_hermes.drzeus.cx-8518-1120342732-0001-2--

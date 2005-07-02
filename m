@@ -1,372 +1,146 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261674AbVGBB03@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261676AbVGBBfu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261674AbVGBB03 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 21:26:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261672AbVGBB03
+	id S261676AbVGBBfu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 21:35:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261677AbVGBBfu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 21:26:29 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:33244 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261674AbVGBBY0 (ORCPT
+	Fri, 1 Jul 2005 21:35:50 -0400
+Received: from [67.137.28.189] ([67.137.28.189]:25222 "EHLO vger")
+	by vger.kernel.org with ESMTP id S261676AbVGBBf2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 21:24:26 -0400
-Message-ID: <42C5ECB1.1050608@engr.sgi.com>
-Date: Fri, 01 Jul 2005 18:24:01 -0700
-From: Jay Lan <jlan@engr.sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: zh-tw, en-us, en, zh-cn, zh-hk
+	Fri, 1 Jul 2005 21:35:28 -0400
+Message-ID: <42C5DACA.2040507@utah-nac.org>
+Date: Fri, 01 Jul 2005 18:07:38 -0600
+From: jmerkey <jmerkey@utah-nac.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Badari Pulavarty <pbadari@us.ibm.com>
-CC: guillaume.thouvenin@bull.net, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       erikj@sgi.com, John Hesterberg <jh@sgi.com>
-Subject: Re: exit notifier for 2.6.12-mm2
-References: <1120150372.13376.136.camel@dyn9047017102.beaverton.ibm.com>
-In-Reply-To: <1120150372.13376.136.camel@dyn9047017102.beaverton.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: linux-kernel@vger.kernel.org
+Subject: Re: [OT] New Anti-Terrorism Law makes "hacking" punishable by life
+ in prison
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-CSA needs a hook at do_exit(), but this patch does not fit our needs.
-
-1) the exit_connector() is invoked too earlier. Accounting data are
-     updated later in the do_exit() routine.
-
-     -->  acct_update_integrals(tsk);
-     -->  update_mem_hiwater(tsk);
-          group_dead = atomic_dec_and_test(&tsk->signal->live);
-          if (group_dead)
-     -->          acct_process(code);  <--- BSD accounting hook here
-
-          exit_mm(tsk);
-
-     The exit_connector() should be at least after exit_mm(tsk) to be
-     useful for accounting packages.
-
-2) The hook should allow CSA to do a little processing, similar to the
-    BSD hook. In current design, both BSD and CSA write to disk file of
-     accounting data from the kernel. If there is a plan to move that
-     function to user space, we need to send the data to user land.
-     Sending the accounting data through the connector remains just
-     an idea AFAIK. I am not comfortable with built-in unreliable
-     delivery in connector to trust serious system accounting data
-     to this machnism. And we could fail in allocating memory for
-     the data at exit time also.
-
-I would be interested in knowing who need this patch and how they
-are going to use this patch.
-
-Thanks,
-   - jay
 
 
+LKML,
 
-Badari Pulavarty wrote:
-> Hi,
+Several News Agencies have contacted me about the atached email as the 
+result of Simon Best and others
+distributing it around the internet and to news agencies in Utah.  For 
+the record, James Mooney had access as
+well as did his associates to the timpanogas offices in 2001 during this 
+time period and these comments apparently were
+posted by one of them using my linux desktop system since the Utah NAC 
+also operated out of the TRG
+officesa at that time.
+
+During TRG's operations, several people used my email account to post 
+bugs to the list.  I did not
+write this particular email or post it, and I do not know who did.  I do 
+not want it removed nor I am
+asking for it to be removed from LKML or the archives.  I am clarifying 
+that I did not write or author this content.
+
+Please attach this email to the parent thread from 2001 for the 
+permanent record.   I have and had no objection
+to TRG employees using my master account to post bugs or development 
+questions to LKML, but I did not
+author the content of this email.
+
+Sincerely,
+
+Jeff V. Merkey
+
+
+
+
+
+Date 	Mon, 24 Sep 2001 18:29:39 -0700
+>From 	"Jeff V. Merkey" <>
+Subject 	Re: [OT] New Anti-Terrorism Law makes "hacking" punishable by 
+life in prison
+
+On Mon, Sep 24, 2001 at 08:37:11PM -0300, Rik van Riel wrote:
+
+When people are crashing planes into buildings and killing people
+by the thousands, hacking laws should be tough.  The US has shut off
+internet access from Cyprus and several other places, and I've 
+noticed a fall-off of hacking on my servers -- GOOD!.  
+
+Maureen O'Gara at Client Server News is based in NY, and from what she 
+describes, the entire city is in a terrible state.  Let anyone in New 
+York know who is our friend on this list that the Utah Native American 
+Church has sent James Mooney to New York City to conduct ceremonies for 
+the victims and their families.   The mayor's office has given us 
+permission to conduct our ceremonies there for these people without 
+fear of police harassment.
+
+I am sending him enough peyote to trip out half the city.  Anyone in NY 
+who needs to find healing who is a member of our linux "Family" is 
+welcome at these ceremonies.  These people involved in this terrifying 
+ordeal need to sit in a tepee and go somewhere else for a couple of days
+with the sacred medicine.  
+
+New York folks who wish to be involved in these ceremonies can call 
+212-755-0968 or 212-929-9396 to find out where and when.  We have so far
+hosted thousands of the victims in these ceremonies.  All are welcome and 
+their families.  The laws in New York allow non-Indians to use peyote 
+for religious purposes of any race, unlike Utah.  Tell our brothers we 
+open our doors to those in need of spiritual and emotional healing for 
+the people of New York.
+
+These ceremonies are **FREE**.  The Utah NAC is picking up the tab.
+
+Do-na-da Go-hv-e
+
+Wa-do
+
+Jeff
+
+
+> On Mon, 24 Sep 2001, Paul G. Allen wrote:
 > 
-> Here is the patch to add exit-notifier to the current connector
-> infrastructure in -mm tree. Its directly derived from Guillaume's 
-> fork notifier.
+> > If this passes, everyone working in computer security can be
+> > arrested and thrown in prison for life. In addition, people such
+> > as Kevin Mitnick can be thrown back in prison even though they
+> > have already paid for their crime (double jeopardy?).
+> >
+> > http://www.securityfocus.com/news/257
 > 
-> BTW, I have no direct need for it, heard that few people wanted it.
+> So, would anybody have a nice piece of real estate in the
+> free world where silicon valley could be evacuated to ?
 > 
-> Thanks,
-> Badari 
+> (time to find volunteers to maintain thefreeworld.net ?)
 > 
+> cheers,
 > 
+> Rik
+> --
+> IA64: a worthy successor to the i860.
 > 
+> 		http://www.surriel.com/
+> http://www.conectiva.com/	http://distro.conectiva.com/
 > 
-> ------------------------------------------------------------------------
-> 
-> diff -Narup -X /usr/src/dontdiff linux-2.6.12/drivers/connector/Kconfig linux-2.6.12.exit/drivers/connector/Kconfig
-> --- linux-2.6.12/drivers/connector/Kconfig	2005-06-29 16:29:03.000000000 -0700
-> +++ linux-2.6.12.exit/drivers/connector/Kconfig	2005-06-29 15:44:39.000000000 -0700
-> @@ -21,4 +21,14 @@ config FORK_CONNECTOR
->  	  The fork connector can be enable/disable by sending a message to the
->  	  connector with the corresponding group id.
->  
-> +config EXIT_CONNECTOR
-> +	bool "Enable exit connector"
-> +	select CONNECTOR
-> +	default y
-> +	---help---
-> +	  It adds a connector in kernel/exit.c:do_exit() function. When a exit
-> +	  occurs, netlink is used to transfer information about the process and
-> +	  its parent. This information can be used by a user space application.
-> +	  The exit connector can be enable/disable by sending a message to the
-> +	  connector with the corresponding group id.
->  endmenu
-> diff -Narup -X /usr/src/dontdiff linux-2.6.12/drivers/connector/Makefile linux-2.6.12.exit/drivers/connector/Makefile
-> --- linux-2.6.12/drivers/connector/Makefile	2005-06-29 16:29:03.000000000 -0700
-> +++ linux-2.6.12.exit/drivers/connector/Makefile	2005-06-29 15:44:59.000000000 -0700
-> @@ -1,3 +1,4 @@
->  obj-$(CONFIG_CONNECTOR)		+= cn.o
->  obj-$(CONFIG_FORK_CONNECTOR)	+= cn_fork.o
-> +obj-$(CONFIG_EXIT_CONNECTOR)	+= cn_exit.o
->  cn-objs		:= cn_queue.o connector.o
-> diff -Narup -X /usr/src/dontdiff linux-2.6.12/drivers/connector/cn_exit.c linux-2.6.12.exit/drivers/connector/cn_exit.c
-> --- linux-2.6.12/drivers/connector/cn_exit.c	1969-12-31 16:00:00.000000000 -0800
-> +++ linux-2.6.12.exit/drivers/connector/cn_exit.c	2005-06-29 16:23:05.000000000 -0700
-> @@ -0,0 +1,166 @@
-> +/*
-> + * cn_exit.c - Exit connector
-> + *
-> + * Copyright (C) 2005 IBM Corporation
-> + * Author: Badari Pulavarty <pbadari@us.ibm.com>
-> + *
-> + * derived from connector/cn_fork.c - Copyright (C) 2005 BULL SA.
-> + *
-> + * This module implements the exit connector. It allows to send a
-> + * netlink datagram, when enabled, from the do_exit() routine. The
-> + * message can be read by a user space application. By this way,
-> + * the user space application is alerted when a exit occurs.
-> + *
-> + * It uses the userspace <-> kernelspace connector that works on top of
-> + * the netlink protocol. The exit connector is enabled or disabled by
-> + * sending a message to the connector. The unique sequence number of
-> + * messages can be used to check if a message is lost.
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License as published by
-> + * the Free Software Foundation; either version 2 of the License, or
-> + * (at your option) any later version.
-> + *
-> + * This program is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> + * GNU General Public License for more details.
-> + *
-> + * You should have received a copy of the GNU General Public License
-> + * along with this program; if not, write to the Free Software
-> + * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-> + */
-> +
-> +#include <linux/module.h>
-> +#include <linux/kernel.h>
-> +#include <linux/init.h>
-> +
-> +#include <linux/cn_exit.h>
-> +
-> +#define CN_EXIT_INFO_SIZE	sizeof(struct cn_exit_msg)
-> +#define CN_EXIT_MSG_SIZE 	(sizeof(struct cn_msg) + CN_EXIT_INFO_SIZE)
-> +
-> +static int cn_exit_enable = 0;
-> +struct cb_id cb_exit_id = { CN_IDX_EXIT, CN_VAL_EXIT };
-> +
-> +/* exit_counts is used as the sequence number of the netlink message */
-> +static DEFINE_PER_CPU(unsigned long, exit_counts);
-> +
-> +/**
-> + * exit_connector - send information about exit through a connector
-> + * @pid: Process ID
-> + * @ptid: Process thread ID
-> + * @code: Process exit code
-> + *
-> + * It sends information to a user space application through the
-> + * connector when a new process is created.
-> + */
-> +void exit_connector(pid_t pid, pid_t ptid, long code)
-> +{
-> +	if (cn_exit_enable) {
-> +		struct cn_msg *msg;
-> +		struct cn_exit_msg *exitmsg;
-> +		__u8 buffer[CN_EXIT_MSG_SIZE];
-> +
-> +		msg = (struct cn_msg *)buffer;
-> +
-> +		memcpy(&msg->id, &cb_exit_id, sizeof(msg->id));
-> +
-> +		msg->ack = 0;	/* not used */
-> +		msg->seq = get_cpu_var(exit_counts)++;
-> +
-> +		msg->len = CN_EXIT_INFO_SIZE;
-> +		exitmsg = (struct cn_exit_msg *)msg->data;
-> +		exitmsg->type = EXIT_CN_MSG_P;
-> +		exitmsg->cpu = smp_processor_id();
-> +		exitmsg->u.s.pid = pid;
-> +		exitmsg->u.s.ptid = ptid;
-> +		exitmsg->u.s.code = code;
-> +
-> +		put_cpu_var(exit_counts);
-> +
-> +		/*  If cn_netlink_send() failed, the data is not send */
-> +		cn_netlink_send(msg, CN_IDX_EXIT, GFP_KERNEL);
-> +	}
-> +}
-> +
-> +/**
-> + * cn_exit_send_status - send a message with the status
-> + *
-> + * It sends information about the status of the exit connector
-> + * to a user space application through the connector. The status
-> + * is stored in the global variable "cn_exit_enable".
-> + */
-> +static inline void cn_exit_send_status(void)
-> +{
-> +	struct cn_msg *msg;
-> +	struct cn_exit_msg *exitmsg;
-> +	__u8 buffer[CN_EXIT_MSG_SIZE];
-> +
-> +	msg = (struct cn_msg *)buffer;
-> +
-> +	memcpy(&msg->id, &cb_exit_id, sizeof(msg->id));
-> +
-> +	msg->ack = 0;	/* not used */
-> +	msg->seq = 0;	/* not used */
-> +
-> +	msg->len = CN_EXIT_INFO_SIZE;
-> +	exitmsg = (struct cn_exit_msg *)msg->data;
-> +	exitmsg->type = EXIT_CN_MSG_S;
-> +	exitmsg->u.status = cn_exit_enable;
-> +
-> +	cn_netlink_send(msg, CN_IDX_EXIT, GFP_KERNEL);
-> +}
-> +
-> +/**
-> + * cn_exit_callback - enable or disable the exit connector
-> + * @data: message send by the connector
-> + *
-> + * The callback allows to enable or disable the sending of information
-> + * about exit in the do_exit() routine. To enable the exit, the user
-> + * space application must send the integer 1 in the data part of the
-> + * message. To disable the exit connector, it must send the integer 0.
-> + */
-> +static void cn_exit_callback(void *data)
-> +{
-> +	struct cn_msg *msg = data;
-> +	int action;
-> +
-> +	if (cn_already_initialized && (msg->len == sizeof(cn_exit_enable))) {
-> +		memcpy(&action, msg->data, sizeof(cn_exit_enable));
-> +		switch (action) {
-> +		case EXIT_CN_START:
-> +			cn_exit_enable = 1;
-> +			break;
-> +		case EXIT_CN_STOP:
-> +			cn_exit_enable = 0;
-> +			break;
-> +		case EXIT_CN_STATUS:
-> +			cn_exit_send_status();
-> +			break;
-> +		}
-> +	}
-> +}
-> +
-> +/**
-> + * cn_exit_init - initialization entry point
-> + *
-> + * This routine will be run at kernel boot time because this driver is
-> + * built in the kernel. It adds the connector callback to the connector
-> + * driver.
-> + */
-> +int __init cn_exit_init(void)
-> +{
-> +	int err;
-> +
-> +	err = cn_add_callback(&cb_exit_id, "cn_exit", &cn_exit_callback);
-> +	if (err) {
-> +		printk(KERN_WARNING "Failed to register cn_exit\n");
-> +		return -EINVAL;
-> +	}
-> +
-> +	printk(KERN_NOTICE "cn_exit is registered\n");
-> +	return 0;
-> +}
-> +
-> +__initcall(cn_exit_init);
-> diff -Narup -X /usr/src/dontdiff linux-2.6.12/include/linux/cn_exit.h linux-2.6.12.exit/include/linux/cn_exit.h
-> --- linux-2.6.12/include/linux/cn_exit.h	1969-12-31 16:00:00.000000000 -0800
-> +++ linux-2.6.12.exit/include/linux/cn_exit.h	2005-06-29 16:30:46.000000000 -0700
-> @@ -0,0 +1,65 @@
-> +/*
-> + * cn_exit.h - Exit connector
-> + *
-> + * Copyright (C) 2005 IBM Corporation
-> + * 
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License as published by
-> + * the Free Software Foundation; either version 2 of the License, or
-> + * (at your option) any later version.
-> + *
-> + * This program is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> + * GNU General Public License for more details.
-> + *
-> + * You should have received a copy of the GNU General Public License
-> + * along with this program; if not, write to the Free Software
-> + * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-> + */
-> +
-> +#ifndef CN_EXIT_H
-> +#define CN_EXIT_H
-> +
-> +#include <linux/types.h>
-> +#include <linux/connector.h>
-> +
-> +#define EXIT_CN_STOP	0
-> +#define EXIT_CN_START	1
-> +#define EXIT_CN_STATUS	2
-> +
-> +#define EXIT_CN_MSG_P   0  /* Message about processes */
-> +#define EXIT_CN_MSG_S   1  /* Message about exit connector's state */
-> +
-> +/*
-> + * The exit connector sends information to a user-space
-> + * application. From the user's point of view, the process
-> + * ID is the thread group ID and thread ID is the internal
-> + * kernel "pid". So, fields are assigned as follow:
-> + */
-> +struct cn_exit_msg {
-> +	int type;	/* 0: information about processes
-> +			   1: exit connector's state      */
-> +	int cpu;	/* ID of the cpu where the exit occurred */
-> +	union {
-> +		struct {
-> +			pid_t pid;	/* process ID */
-> +			pid_t ptid;	/* process thread ID  */
-> +			pid_t code;	/* process exit code */
-> +		} s;
-> +		int status;
-> +	} u;
-> +};
-> +
-> +/* Code above is only inside the kernel */
-> +#ifdef __KERNEL__
-> +#ifdef CONFIG_EXIT_CONNECTOR
-> +extern void exit_connector(pid_t pid, pid_t ptid, long code);
-> +#else
-> +static inline void exit_connector(pid_t ppid, pid_t ptid, long code)
-> +{
-> +	return;
-> +}
-> +#endif				/* CONFIG_EXIT_CONNECTOR */
-> +#endif				/* __KERNEL__ */
-> +#endif				/* CN_EXIT_H */
-> diff -Narup -X /usr/src/dontdiff linux-2.6.12/include/linux/connector.h linux-2.6.12.exit/include/linux/connector.h
-> --- linux-2.6.12/include/linux/connector.h	2005-06-29 16:29:07.000000000 -0700
-> +++ linux-2.6.12.exit/include/linux/connector.h	2005-06-29 16:03:19.000000000 -0700
-> @@ -29,6 +29,9 @@
->  #define CN_IDX_FORK			0xfeed  /* fork events */
->  #define CN_VAL_FORK			0xbeef
->  
-> +#define CN_IDX_EXIT			0xfeec  /* exit events */
-> +#define CN_VAL_EXIT			0xceef
-> +
->  /*
->   * Maximum connector's message size.
->   */
-> diff -Narup -X /usr/src/dontdiff linux-2.6.12/kernel/exit.c linux-2.6.12.exit/kernel/exit.c
-> --- linux-2.6.12/kernel/exit.c	2005-06-29 16:29:07.000000000 -0700
-> +++ linux-2.6.12.exit/kernel/exit.c	2005-06-29 16:07:50.000000000 -0700
-> @@ -803,6 +803,7 @@ fastcall NORET_TYPE void do_exit(long co
->  	if (tsk->io_context)
->  		exit_io_context();
->  
-> +	exit_connector(tsk->tgid, tsk->pid, code);
->  	if (unlikely(current->ptrace & PT_TRACE_EXIT)) {
->  		current->ptrace_message = code;
->  		ptrace_notify((PTRACE_EVENT_EXIT << 8) | SIGTRAP);
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 
+      
 
-
+	
+<http://www.isp-services.nl>
+<http://validator.w3.org/check/referer> 		  	
+<http://jigsaw.w3.org/css-validator/check/referer> 	  	Last update: 
+2005-03-22 13:03    [W:0.259 / U:4.943 seconds]
+©2003-2005 Jasper Spaans <http://jsp.vs19.net/> 	 
 

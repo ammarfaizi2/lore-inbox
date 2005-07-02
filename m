@@ -1,57 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263453AbVGBCLn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263359AbVGBCLn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263453AbVGBCLn (ORCPT <rfc822;willy@w.ods.org>);
+	id S263359AbVGBCLn (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 1 Jul 2005 22:11:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263359AbVGBCKO
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261696AbVGBCJ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 22:10:14 -0400
-Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:35511
-	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
-	with ESMTP id S263409AbVGBB73 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 21:59:29 -0400
-Message-ID: <42C5E6E8.30009@linuxwireless.org>
-Date: Fri, 01 Jul 2005 19:59:20 -0500
-From: Alejandro Bonilla <abonilla@linuxwireless.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: jmerkey <jmerkey@utah-nac.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [OT] New Anti-Terrorism Law makes "hacking" punishable by life
- in prison
-References: <42C5DACA.2040507@utah-nac.org>
-In-Reply-To: <42C5DACA.2040507@utah-nac.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 1 Jul 2005 22:09:58 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:741 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S263451AbVGBCCI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Jul 2005 22:02:08 -0400
+Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.50-24
+From: Lee Revell <rlrevell@joe-job.com>
+To: William Weston <weston@sysex.net>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.58.0507011739550.27619@echo.lysdexia.org>
+References: <200506281927.43959.annabellesgarden@yahoo.de>
+	 <200506301952.22022.annabellesgarden@yahoo.de>
+	 <20050630205029.GB1824@elte.hu>
+	 <200507010027.33079.annabellesgarden@yahoo.de>
+	 <20050701071850.GA18926@elte.hu>
+	 <Pine.LNX.4.58.0507011739550.27619@echo.lysdexia.org>
+Content-Type: text/plain
+Date: Fri, 01 Jul 2005 22:02:02 -0400
+Message-Id: <1120269723.12256.11.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.3.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jmerkey wrote:
+On Fri, 2005-07-01 at 18:46 -0700, William Weston wrote:
+> FWIW, I'm still seeing the SMT scheduling? meltdown issues with
+> -50-42.  
+> Running two instances of 'dd if=/dev/zero of=/dev/null bs=65536'
+> instead 
+> of 'burnP6' results in the same behavior.  Here's a quick recap:
+> 
+> - Start (or login to ) X.
+> - Start an X app that constantly updates the screen, like wmcube, or
+> vlc. 
 
->
->
-> LKML,
->
-> Several News Agencies have contacted me about the atached email as the 
-> result of Simon Best and others
-> distributing it around the internet and to news agencies in Utah.  For 
-> the record, James Mooney had access as
-> well as did his associates to the timpanogas offices in 2001 during 
-> this time period and these comments apparently were
-> posted by one of them using my linux desktop system since the Utah NAC 
-> also operated out of the TRG
-> officesa at that time.
+Which video driver is X using?  What nice value is the X server running
+at?
 
-Why are you sending this things after 4 years. This looks like sexual 
-pills spam. And I can't believe, "agencies" are contacting you for this 
-thread for the last 4 years... If they are, REALLY ask for the thread to 
-be removed or something like that.
+Does adding:
 
-Also, this email only showing your username without the Full name, looks 
-like if someone is trying to use your account again... ;-)
+Option "NoAccel"
 
-If they are really harassing you, ask for the thread to be removed. (I 
-dunno the policy about this)
+to the Device section of your X config file make any difference?
 
-.Alejandro
+(on most systems X is the only thing besides the kernel that can access
+hardware directly, which can cause problems)
+
+Lee
+

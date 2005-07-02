@@ -1,60 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261720AbVGBDOG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261753AbVGBDUP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261720AbVGBDOG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Jul 2005 23:14:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261762AbVGBDOF
+	id S261753AbVGBDUP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Jul 2005 23:20:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261762AbVGBDUP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Jul 2005 23:14:05 -0400
-Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:19432
-	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
-	with ESMTP id S261720AbVGBDOA (ORCPT
+	Fri, 1 Jul 2005 23:20:15 -0400
+Received: from smtpout1.uol.com.br ([200.221.4.192]:4085 "EHLO smtp.uol.com.br")
+	by vger.kernel.org with ESMTP id S261753AbVGBDUJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Jul 2005 23:14:00 -0400
-Message-ID: <42C5F867.2060706@linuxwireless.org>
-Date: Fri, 01 Jul 2005 21:13:59 -0500
-From: Alejandro Bonilla <abonilla@linuxwireless.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Paul Jakma <paul@clubi.ie>
-CC: jmerkey <jmerkey@utah-nac.org>, linux-kernel@vger.kernel.org
-Subject: Re: [OT] New Anti-Terrorism Law makes "hacking" punishable by life
- in prison
-References: <42C5DACA.2040507@utah-nac.org> <42C5E6E8.30009@linuxwireless.org> <Pine.LNX.4.63.0507020336180.31084@sheen.jakma.org>
-In-Reply-To: <Pine.LNX.4.63.0507020336180.31084@sheen.jakma.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 1 Jul 2005 23:20:09 -0400
+Date: Sat, 2 Jul 2005 00:19:55 -0300
+From: =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net
+Subject: Firewire/SBP2 and the -mm tree (was: Re: 2.6.13-rc1-mm1)
+Message-ID: <20050702031955.GC28251@ime.usp.br>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net
+References: <20050701044018.281b1ebd.akpm@osdl.org> <200507020005.04947.rjw@sisk.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050701044018.281b1ebd.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jakma wrote:
+Hi, Andrew.
 
-> On Fri, 1 Jul 2005, Alejandro Bonilla wrote:
->
->> spam. And I can't believe, "agencies" are contacting you for this 
->> thread for the last 4 years... If they are, REALLY ask for the thread 
->> to be removed or something like that.
->
->
-> http://lwn.net/Articles/140157/
+On Friday, 1 of July 2005 13:40, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13-rc1/2.6.13-rc1-mm1/
 
-Nice URL. It made my night. Is funny.
+Please, correct me if I am wrong, but this doesn't seem to include any
+fixes for the SBP2 problems that I was seeing, right?
 
-It definitely looks like someone needs a clean start. Leave the pride 
-back and start all over. After all, if one stops or starts to help in 
-Linux, nobody cares.
+I generated a patch from Linus's 2.6.13-rc1 against the trunk of
+linux1394.org's tree containing (as Ben Collins suggested), just the
+differences on sbp2.[ch] and it applied without any problems (no skips, no
+rejects, no nothing) in -rc1-mm1.
 
-Jeff,
+I have not tested -rc1-mm1 without the patch, but assuming that all other
+things are equal regarding it, I need this patch for using Firewire on my
+computer.
 
-    I'm not aware of your "issues" or "rights", but it really looks like 
-you should drop whatever you have in hands. It's not worth to battle.
+Is there any estimated possibility of including an update from the
+linux1394 team in future versions of -mm or, even better, pushing them to
+Linus's tree?
 
-.....
 
-    The topic of this email is missleading, the "hacking" done in the 
-Linux Kernel, is not the "hacking" that is punishable with prison.
+Thank you very much, Rogério.
 
-    I hope this topic drops. Sorry for mentioning about it. I had no 
-idea on what this was about cause I have only been reading LKML for a year.
-
-.Alejandro
+-- 
+Rogério Brito : rbrito@ime.usp.br : http://www.ime.usp.br/~rbrito
+Homepage of the algorithms package : http://algorithms.berlios.de
+Homepage on freshmeat:  http://freshmeat.net/projects/algorithms/

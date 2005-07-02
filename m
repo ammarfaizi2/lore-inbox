@@ -1,61 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261171AbVGBLgg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261175AbVGBLlu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261171AbVGBLgg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Jul 2005 07:36:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261166AbVGBLgg
+	id S261175AbVGBLlu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Jul 2005 07:41:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261176AbVGBLlu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Jul 2005 07:36:36 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:23424 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S261171AbVGBLgA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Jul 2005 07:36:00 -0400
-Date: Sat, 2 Jul 2005 13:33:11 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Pascal CHAPPERON <pascal.chapperon@wanadoo.fr>
-Cc: Juha Laiho <Juha.Laiho@iki.fi>, Andrew Hutchings <info@a-wing.co.uk>,
-       linux-kernel@vger.kernel.org, vinay kumar <b4uvin@yahoo.co.in>,
-       jgarzik@pobox.com
-Subject: Re: sis190
-Message-ID: <20050702113311.GA12832@electric-eye.fr.zoreil.com>
-References: <22391136.1120301527301.JavaMail.www@wwinf1518>
+	Sat, 2 Jul 2005 07:41:50 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:9478 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261175AbVGBLht (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Jul 2005 07:37:49 -0400
+Date: Sat, 2 Jul 2005 13:37:47 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] mm/slab: unexport kmem_cache_alloc_node
+Message-ID: <20050702113747.GM3592@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <22391136.1120301527301.JavaMail.www@wwinf1518>
-User-Agent: Mutt/1.4.2.1i
-X-Organisation: Land of Sunshine Inc.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pascal CHAPPERON <pascal.chapperon@wanadoo.fr> :
-[...]
-> A few lines diff, and now the driver is very stable with or
-> without preempted kernel...
->
-> I'll be very happy if you can tell me where is the trick.
+I didn't find any modular usage of kmem_cache_alloc_node.
 
-Probably:
-- when it filled the last Tx descriptor sis190_start_xmit()
-  issued a netif_stop_queue and returned NETDEV_TX_BUSY;
-- the asic completed DMAing the packet and acked it;
-- sis190_tx_interrupt later released the descriptor and freed the skb;
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
--> since NETDEV_TX_BUSY assumes that the driver does not play with the skb,
-   one gets interesting results.
+---
 
-[...]
-> I tried it carefully : console, X11 (without nvidia), X11 (with nvidia),
-> IRQ sharing between sis190/nvidia, full load : it worked perfectly.
+This patch was already sent on:
+- 21 Jun 2005
+- 30 May 2005
+- 15 May 2005
 
-Megateuf Wayne !
+--- linux-2.6.11-mm1-full/mm/slab.c.old	2005-03-06 15:40:38.000000000 +0100
++++ linux-2.6.11-mm1-full/mm/slab.c	2005-03-06 15:41:06.000000000 +0100
+@@ -2431,7 +2440,6 @@
+ 					__builtin_return_address(0));
+ 	return objp;
+ }
+-EXPORT_SYMBOL(kmem_cache_alloc_node);
+ 
+ #endif
+ 
 
-[...]
-> BTW, can you remove the following printks from the patch ?
-> The printks in interrupt functions make dmesg unusuable,
-> and the stuff in sis190_get_drvinfo triggers a kernel oops
-> when the module is loaded (null pointer assignment).
-
-I'll polish the thing and sprinkle a few netif_msg_xxx() later today.
-
---
-Ueimor

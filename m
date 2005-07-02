@@ -1,72 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261189AbVGBQAR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261188AbVGBQEv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261189AbVGBQAR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Jul 2005 12:00:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261191AbVGBQAR
+	id S261188AbVGBQEv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Jul 2005 12:04:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbVGBQEv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Jul 2005 12:00:17 -0400
-Received: from frankvm.xs4all.nl ([80.126.170.174]:3768 "EHLO
-	janus.localdomain") by vger.kernel.org with ESMTP id S261189AbVGBQAD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Jul 2005 12:00:03 -0400
-Date: Sat, 2 Jul 2005 18:00:02 +0200
-From: Frank van Maarseveen <frankvm@frankvm.com>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: frankvm@frankvm.com, akpm@osdl.org, aia21@cam.ac.uk, arjan@infradead.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: FUSE merging?
-Message-ID: <20050702160002.GA13730@janus>
-References: <20050701092444.GA4317@janus> <E1DoIjd-0002bM-00@dorka.pomaz.szeredi.hu> <20050701120028.GB5218@janus> <E1DoKko-0002ml-00@dorka.pomaz.szeredi.hu> <20050701130510.GA5805@janus> <E1DoLSx-0002sR-00@dorka.pomaz.szeredi.hu> <20050701152003.GA7073@janus> <E1DoOwc-000368-00@dorka.pomaz.szeredi.hu> <20050701180415.GA7755@janus> <E1DojJ6-00047F-00@dorka.pomaz.szeredi.hu>
+	Sat, 2 Jul 2005 12:04:51 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:44988 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261188AbVGBQEt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Jul 2005 12:04:49 -0400
+Date: Sat, 2 Jul 2005 17:04:45 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Karim Yaghmour <karim@opersys.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, LTT-Dev <ltt-dev@shafik.org>,
+       Tom Zanussi <zanussi@us.ibm.com>,
+       Robert Wisniewski <bob@watson.ibm.com>,
+       Mathieu Desnoyers <compudj@krystal.dyndns.org>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Michael Raymond <mraymond@sgi.com>
+Subject: Re: [PATCH/RFC] Significantly reworked LTT core
+Message-ID: <20050702160445.GA29262@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Karim Yaghmour <karim@opersys.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	LTT-Dev <ltt-dev@shafik.org>, Tom Zanussi <zanussi@us.ibm.com>,
+	Robert Wisniewski <bob@watson.ibm.com>,
+	Mathieu Desnoyers <compudj@krystal.dyndns.org>,
+	Michel Dagenais <michel.dagenais@polymtl.ca>,
+	Michael Raymond <mraymond@sgi.com>
+References: <42C60001.5050609@opersys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E1DojJ6-00047F-00@dorka.pomaz.szeredi.hu>
+In-Reply-To: <42C60001.5050609@opersys.com>
 User-Agent: Mutt/1.4.1i
-X-Subliminal-Message: Use Linux!
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 02, 2005 at 04:49:24PM +0200, Miklos Szeredi wrote:
-> > 
-> > All things considered I'd still prefer forbidding FUSE mounts on non-leaf
-> > dirs. For name space sanity. And it may be easier to get the whole thing
-> > accepted:
-> > 
-> 
-> But I don't think it would matter in the acceptance of the mount
-> hiding patch, since that patch was not rejected on the basis of what
-> FUSE would use it for, rather for the general philosophy of not
-> allowing namespace differences based on user id.
+This code is rather pointless.  The ltt_mux is doing all the real
+work and it's not included.  And while we're at it the layering for
+it is wrong aswell - the ltt_log_event API should be implemented by
+the actual multiplexer with what's in ltt_log_event now minus the
+irq disabling becoming a library function.
 
-That would really be a loss.
+Exporting a pointer to the root dentry seems like a very wrong API
+aswell, that's an implementation detail that should be hidden.
 
-After some thinking, the whole "not allowing namespace differences
-based on user id" philosophy is unenforcable and not even true sometimes
-nowadays. Think NFS: have a look at the unfsd server, you'll be surprised
-what it can do. Think any other networked file system exported by a
-machine with an unusual disk file-system underneath. IIRC ncpfs does
-this on the server based on access and thus based on uid.
+Besides that the code is not following Documentation/CodingStyle
+at all, please read it.
 
-(hmm, I _hated_ it seeing empty directories only because I had no access
- to anything below. Based on that I'd prefer EACCES instead of seeing an
- empty mount stub when FUSE denies access to root or any other user.)
+Besides that I'd sugest scrapping the ltt name and ltt_ prefix - we know
+we're on linux, adn we don't care whether it's a toolkit, but spelling trace_
+out would actually be a lot more descriptive.  So what about trace_* symbol
+names and trace.[ch] filenames?
 
-The thing is, root rules the _local_ part of the name space. So it should
-make a _huge_ difference if FUSE can fiddle with that or only with what's
-below the leaf nodes.
-
-> > What is your opinion about replacing the ptrace check by a signal check
-> > (later on, no hurry)?
-> 
-> Maybe.  You'd still have to convince me, that signals sent to suid
-> programs are not a security problem.
-
-google kill(2):
-
-	http://www.opengroup.org/onlinepubs/007908799/xsh/kill.html
-
-It is _defined_ behavior. So, it is up to the quality of the programmer
-whether or not it results in a security problem ;-)
-
--- 
-Frank

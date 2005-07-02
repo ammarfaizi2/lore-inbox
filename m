@@ -1,50 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261847AbVGBJe4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261605AbVGBJ6D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261847AbVGBJe4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Jul 2005 05:34:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261851AbVGBJe4
+	id S261605AbVGBJ6D (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Jul 2005 05:58:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261411AbVGBJ6C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Jul 2005 05:34:56 -0400
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:15853
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S261847AbVGBJey
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Jul 2005 05:34:54 -0400
-Subject: Re: 2.6.13-rc1-mm1: git-mtd.patch breaks i386 compile
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Nicolas Pitre <nico@cam.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050702091600.GF3592@stusta.de>
-References: <20050701044018.281b1ebd.akpm@osdl.org>
-	 <20050702091600.GF3592@stusta.de>
-Content-Type: text/plain
-Organization: linutronix
-Date: Sat, 02 Jul 2005 11:37:23 +0200
-Message-Id: <1120297044.9241.4.camel@tglx.tec.linutronix.de>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+	Sat, 2 Jul 2005 05:58:02 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:26022 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S261660AbVGBJ5M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Jul 2005 05:57:12 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <42C664CE.9020009@s5r6.in-berlin.de>
+Date: Sat, 02 Jul 2005 11:56:30 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Reply-To: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net
+CC: =?ISO-8859-1?Q?Rog=E9rio_Brito?= <rbrito@ime.usp.br>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: Firewire/SBP2 and the -mm tree
+References: <20050701044018.281b1ebd.akpm@osdl.org> <200507020005.04947.rjw@sisk.pl> <20050702031955.GC28251@ime.usp.br>
+In-Reply-To: <20050702031955.GC28251@ime.usp.br>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Score: (-1.556) AWL,BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-07-02 at 11:16 +0200, Adrian Bunk wrote:
-> <--  snip  -->
-> 
-> ...
->   CC      drivers/mtd/chips/cfi_cmdset_0002.o
-> In file included from drivers/mtd/chips/cfi_cmdset_0002.c:41:
-> include/linux/mtd/xip.h:78:2: warning: #warning "missing IRQ and timer primitives for XIP MTD support"
-> include/linux/mtd/xip.h:79:2: warning: #warning "some of the XIP MTD support code will be disabled"
-> include/linux/mtd/xip.h:80:2: warning: #warning "your system will therefore be unresponsive when writing or erasing flash"
-> drivers/mtd/chips/cfi_cmdset_0002.c:584:26: asm/hardware.h: No such file or directory
-> ...
-> make[3]: *** [drivers/mtd/chips/cfi_cmdset_0002.o] Error 1
+Rogério Brito wrote:
+> Is there any estimated possibility of including an update from the
+> linux1394 team in future versions of -mm or, even better, pushing them to
+> Linus's tree?
 
-Hmm, why is XIP support enabled ?
+That is what usually happens. But the sbp2 related diffs between 2.6.13 
+and linux1394 are not an update by linux1394 but rather a rewrite by the 
+scsi folk. Unfortunately, that rewrite was not tested by the linux1394 
+team. (And was therefore not checked in at svn.linux1394.org. Lack of 
+manpower was one factor.) So, applying the sbp2 portion of your diff is 
+a back-out, not an update.
 
-Nico, shouldn't MTD_XIP depend on XIP_KERNEL ?
-
-tglx
-
-
+I have a question: Do you need _both_ the sbp2 back-out and ieee1394's 
+disable_irm parameter, or only one of them?
+-- 
+Stefan Richter
+-=====-=-=-= -=== ---=-
+http://arcgraph.de/sr/

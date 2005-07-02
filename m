@@ -1,54 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261199AbVGBPtU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261187AbVGBP4G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261199AbVGBPtU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Jul 2005 11:49:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261226AbVGBPsO
+	id S261187AbVGBP4G (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Jul 2005 11:56:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbVGBP4G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Jul 2005 11:48:14 -0400
-Received: from dsl017-059-136.wdc2.dsl.speakeasy.net ([69.17.59.136]:56473
-	"EHLO luther.kurtwerks.com") by vger.kernel.org with ESMTP
-	id S261199AbVGBPqQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Jul 2005 11:46:16 -0400
-Date: Sat, 2 Jul 2005 11:46:26 -0400
-From: Kurt Wall <kwall@kurtwerks.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [OT] New Anti-Terrorism Law makes "hacking" punishable by life in prison
-Message-ID: <20050702154626.GC5290@kurtwerks.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <42C5DACA.2040507@utah-nac.org>
-Mime-Version: 1.0
+	Sat, 2 Jul 2005 11:56:06 -0400
+Received: from opersys.com ([64.40.108.71]:46858 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S261187AbVGBPzW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Jul 2005 11:55:22 -0400
+Message-ID: <42C6BB79.8070903@opersys.com>
+Date: Sat, 02 Jul 2005 12:06:17 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+MIME-Version: 1.0
+To: Michael Raymond <mraymond@sgi.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>, LTT-Dev <ltt-dev@shafik.org>,
+       Tom Zanussi <zanussi@us.ibm.com>,
+       Robert Wisniewski <bob@watson.ibm.com>,
+       Mathieu Desnoyers <compudj@krystal.dyndns.org>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>
+Subject: Re: [ltt-dev] [PATCH/RFC] Significantly reworked LTT core
+References: <42C60001.5050609@opersys.com> <20050702081437.A57232@xanatos.americas.sgi.com> <42C6A58B.6020000@opersys.com>
+In-Reply-To: <42C6A58B.6020000@opersys.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42C5DACA.2040507@utah-nac.org>
-User-Agent: Mutt/1.4.2.1i
-X-Operating-System: Linux 2.6.12
-X-Woot: Woot!
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 01, 2005 at 06:07:38PM -0600, jmerkey took 0 lines to write:
-> 
-> 
-> LKML,
-> 
-> Several News Agencies have contacted me about the atached email as the 
-> result of Simon Best and others
-> distributing it around the internet and to news agencies in Utah.  For 
-> the record, James Mooney had access as
-> well as did his associates to the timpanogas offices in 2001 during this 
-> time period and these comments apparently were
-> posted by one of them using my linux desktop system since the Utah NAC 
-> also operated out of the TRG
-> officesa at that time.
 
-Hey, Merkey, you're a mentally unbalanced, lying, thieving crackpot.
-Whatever you're taking, please take less or more. If you're not taking
-anything, please take something.
+Karim Yaghmour wrote:
+> I think this one needs more thinking ... I did think about adding such a
+> hook, but I didn't like the idea of it, it just seems unclean. After all
+> the problem is limited to a very small subset of events, namely NMIs and
+> page fault traps. One thing I was thinking about is that in both these
+> cases there's always an entry event and an exit event. ltt_mux could then
+> coordinate using these events. IOW, if it just got an NMI entry, it
+> doesn't allow any other event to get logged until it sees the NMI exit
+> go by ... same for page faults. By doing this, we can just keep just one
+> hook: ltt_mux. Right?
 
-Does this mean you'll sue me for libel, too? I'm eager to join that
-exclusive club.
+Brain was slow this morning. What we're trying to do is to avoid getting
+those very NMIs and page faults into the logging path if we're already
+in that path ... That's different from what my brain came up with this
+morning. We may need that hook after all ... something like:
 
-Kurt
+if (ltt_post)
+	ltt_post(...);
+
+Karim
 -- 
-TV is chewing gum for the eyes.
-		-- Frank Lloyd Wright
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546

@@ -1,63 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261222AbVGBQny@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261191AbVGBQrg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261222AbVGBQny (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Jul 2005 12:43:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261194AbVGBQnx
+	id S261191AbVGBQrg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Jul 2005 12:47:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261194AbVGBQrg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Jul 2005 12:43:53 -0400
-Received: from mta1.prod1.dngr.net ([216.220.209.220]:9327 "EHLO
-	mfe1.prod.danger.com") by vger.kernel.org with ESMTP
-	id S261222AbVGBQnu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Jul 2005 12:43:50 -0400
-Date: Sat, 2 Jul 2005 12:43:46 -0400
-Subject: Re: FUSE merging?
-Reply-To: Eric Van Hensbergen <ericvh@gmail.com>
-X-Mailer: Danger Service
-Content-Transfer-Encoding: 7bit
-In-Reply-To: <m1acl5frw6.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain; charset="us-ascii"; format="flowed"
-To: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Miklos Szeredi <miklos@szeredi.hu>
-Cc: akpm@osdl.org, aia21@cam.ac.uk, arjan@infradead.org,
-       linux-kernel@vger.kernel.org, frankvm@frankvm.com,
-       v9fs-developer@lists.sourceforge.net
+	Sat, 2 Jul 2005 12:47:36 -0400
+Received: from smtp2.irishbroadband.ie ([62.231.32.13]:54744 "EHLO
+	smtp2.irishbroadband.ie") by vger.kernel.org with ESMTP
+	id S261191AbVGBQrW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Jul 2005 12:47:22 -0400
+Subject: Re: aic7xxx regression occuring after 2.6.12 final
+From: Tony Vroon <chainsaw@gentoo.org>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Andy Whitcroft <apw@shadowen.org>
+In-Reply-To: <1120321322.5073.4.camel@mulgrave>
+References: <1120085446.9743.11.camel@localhost>
+	 <1120318925.21935.9.camel@localhost>  <1120321322.5073.4.camel@mulgrave>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-+gXiVETEcM9B9TC//Mvg"
+Organization: Gentoo Linux
+Date: Sat, 02 Jul 2005 17:46:28 +0100
+Message-Id: <1120322788.22046.2.camel@localhost>
 Mime-Version: 1.0
-References: <E1DnvCq-0000Q4-00@dorka.pomaz.szeredi.hu> <m1acl5frw6.fsf@ebiederm.dsl.xmission.com>
-From: Eric Van Hensbergen <ericvh@gmail.com>
-Message-Id: <1120322629.381A13EE@dl11.dngr.org>
+X-Mailer: Evolution 2.2.1.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2 Jul 2005 6:15 am, Eric W. Biederman wrote:
->
-> Taking a quick glance at v9fs and fuse I fail to see how either
-> plays nicely with the page cache.
->
 
-True, in fact it actively avoids using it.  The previous version used 
-both the page cache and the dcache with undesirable effects on synthetic 
-file systems so we removed cache support.  Our intention is to design a 
-cache layer (similar to cfs on Plan 9) which handles cache semantics 
-which can be parameterized with the appropriate cache policy depending 
-on the underlying file server.
+--=-+gXiVETEcM9B9TC//Mvg
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> v9fs according to my reading of the protocol specification does
-> not have any concept of a lease.  So you can't tell if you are
-> talking about a virtual filesystem where all calls should be passed
-> straight to the server or a real filesystem where you can perform
-> caching.
+On Sat, 2005-07-02 at 12:22 -0400, James Bottomley wrote:
+> Well, my best guess is that this is a double bug.  I think the
+> aic7xxx_core is processing the reject wrongly and the device is
+> rejecting a QAS or IU negotiation attempt.
+>=20
+> So, see if the attached patch helps.
 
-While 9P contains no explicit support for leases and cacheing there is 
-an informal mechanism which is used (at least for plan 9 file servers).  
-If the qid.vers is 0 the file can be assumed to be a synthetic file and 
-so it is not cached.
+Unfortunately I see no visible changes in the output; the system hangs
+at the same point.
+What does that asynchronous line mean? I  see that on all kernels that
+do not boot properly. 2.6.12; 2.6.12.1 and 2.6.12.2 do not display it,
+and boot just fine.
 
->
-> Neither implementation seems to forward user space locks to the
-> filesystem server.
->
+target0:0:0: asynchronous
 
-Yup.  We have exclusive open semantics but not locks in the Posix 
-sense.  Lock support is on our 2.1 roadmap.
+It appears even before vendor & model information is displayed for the
+Fujitsu drive.
 
-    -eric
+> James
+
+Tony.
+
+
+--=-+gXiVETEcM9B9TC//Mvg
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1-ecc0.1.6 (GNU/Linux)
+
+iD8DBQBCxsTkp5vW4rUFj5oRAr/YAJ9tPuwTwJJ7nWywS5cPxoMtkfWpmQCfRbYV
+3+VGphrHLIjhjPqzl9owsIs=
+=RMKJ
+-----END PGP SIGNATURE-----
+
+--=-+gXiVETEcM9B9TC//Mvg--
+

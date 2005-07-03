@@ -1,70 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261417AbVGCNAs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261424AbVGCNDB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261417AbVGCNAs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Jul 2005 09:00:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261422AbVGCNAs
+	id S261424AbVGCNDB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Jul 2005 09:03:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261427AbVGCNDB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Jul 2005 09:00:48 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:52431 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S261420AbVGCNAd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Jul 2005 09:00:33 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 0.5/4 :) ] ROR -> ror32
-Date: Sun, 3 Jul 2005 16:00:20 +0300
-User-Agent: KMail/1.5.4
-Cc: linux-crypto@vger.kernel.org, davem@davemloft.net,
-       linux-kernel@vger.kernel.org
-References: <200506201354.22187.vda@ilport.com.ua> <20050703113700.GA4848@gondor.apana.org.au> <200507031557.15416.vda@ilport.com.ua>
-In-Reply-To: <200507031557.15416.vda@ilport.com.ua>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_kF+xCj3Ix5BuTLv"
-Message-Id: <200507031600.20219.vda@ilport.com.ua>
+	Sun, 3 Jul 2005 09:03:01 -0400
+Received: from [62.253.222.6] ([62.253.222.6]:21713 "EHLO caveman.xisl.com")
+	by vger.kernel.org with ESMTP id S261425AbVGCNC3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Jul 2005 09:02:29 -0400
+Subject: Problems with USB Scanner in 2.6.11.12 kernel
+From: John M Collins <jmc@xisl.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: Xi Software Ltd
+Date: Sun, 03 Jul 2005 14:02:21 +0100
+Message-Id: <1120395741.11280.101.camel@caveman.xisl.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.1-1mdk 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Please CC to me at jmc AT xisl.com as I'm not subscribed - thanks
 
---Boundary-00=_kF+xCj3Ix5BuTLv
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+I recently (well about 3 weeks ago) upgraded the kernel on one of our
+machines to 2.6.11.12 at the time the "latest and greatest".
 
-Remove local ROR, use ror32 instead.
+However since then I've been having problems with a USB Scanner I'm
+using. It seems to die after a couple of pages have been scanned with
+the following message sequence in /var/log/messages:
 
---Boundary-00=_kF+xCj3Ix5BuTLv
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="05.ror.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="05.ror.patch"
+Jul  3 13:19:22 caveman kernel: usb 3-1: device descriptor read/64,
+error -19
+Jul  3 13:19:22 caveman kernel: usb 3-1: USB disconnect, address 3
 
-diff -urpN linux-2.6.12.0.orig/crypto/des.c linux-2.6.12.05.n/crypto/des.c
---- linux-2.6.12.0.orig/crypto/des.c	Tue Oct 19 00:55:29 2004
-+++ linux-2.6.12.05.n/crypto/des.c	Sun Jul  3 15:27:12 2005
-@@ -35,8 +35,6 @@
- #define DES3_EDE_EXPKEY_WORDS	(3 * DES_EXPKEY_WORDS)
- #define DES3_EDE_BLOCK_SIZE	DES_BLOCK_SIZE
- 
--#define ROR(d,c,o)	((d) = (d) >> (c) | (d) << (o))
--
- struct des_ctx {
- 	u8 iv[DES_BLOCK_SIZE];
- 	u32 expkey[DES_EXPKEY_WORDS];
-@@ -1159,9 +1157,7 @@ not_weak:
- 		w  |= (b1[k[18+24]] | b0[k[19+24]]) << 4;
- 		w  |= (b1[k[20+24]] | b0[k[21+24]]) << 2;
- 		w  |=  b1[k[22+24]] | b0[k[23+24]];
--		
--		ROR(w, 4, 28);      /* could be eliminated */
--		expkey[1] = w;
-+		expkey[1] = ror32(w, 4);	/* could be eliminated */
- 
- 		k += 48;
- 		expkey += 2;
+(note the messages either side of this happened without me doing
+anything and the entry disappeared from /proc/bus/usb/003/003 and
+appeared in /proc/bus/usb/003/004).
 
---Boundary-00=_kF+xCj3Ix5BuTLv--
+Jul  3 13:19:22 caveman kernel: usb 3-1: new full speed USB device using
+uhci_hc
+d and address 4
+Jul  3 13:21:35 caveman kernel: usb 3-1: reset full speed USB device
+using uhci_
+hcd and address 4
+Jul  3 13:22:39 caveman kernel: usb 3-1: reset full speed USB device
+using uhci_
+hcd and address 4
+Jul  3 13:23:43 caveman kernel: usb 3-1: reset full speed USB device
+using uhci_
+hcd and address 4
+Jul  3 13:24:53 caveman last message repeated 2 times
+Jul  3 13:25:23 caveman kernel: usb 3-1: reset full speed USB device
+using uhci_
+hcd and address 4
+Jul  3 13:25:41 caveman kernel: hub 3-0:1.0: port 1 disabled by hub
+(EMI?), re-e
+nabling...
+Jul  3 13:25:41 caveman kernel: usb 3-1: reset full speed USB device
+using uhci_
+hcd and address 4
+Jul  3 13:25:41 caveman kernel: usb 3-1: device descriptor read/64,
+error -19
+Jul  3 13:25:41 caveman kernel: usb 3-1: device descriptor read/64,
+error -19
+Jul  3 13:25:41 caveman kernel: usb 3-1: reset full speed USB device
+using uhci_
+hcd and address 4
+Jul  3 13:25:42 caveman kernel: usb 3-1: device descriptor read/64,
+error -19
+Jul  3 13:25:42 caveman kernel: usb 3-1: device descriptor read/64,
+error -19
+Jul  3 13:25:42 caveman kernel: usb 3-1: USB disconnect, address 4
+
+After which it doesn't appear anywhere in /proc/bus/usb
+
+I've tried swapping usb ports - there are several on the machine.
+I've tried swapping scanners (they're both Epson ones, different
+models).
+
+It seems OK with previous versions of the kernel on other machines.
+
+I see we're now on 2.6.12.2 and there have been mods to bits of the USB
+but I don't see anything directly related but I might have missed
+something.
+
+I'd be grateful for any advice you could give - thanks.
+
+-- 
+John Collins Xi Software Ltd jmc AT xisl.com
 

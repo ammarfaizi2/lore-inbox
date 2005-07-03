@@ -1,202 +1,200 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261332AbVGBXvh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261334AbVGCAI4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261332AbVGBXvh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Jul 2005 19:51:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261331AbVGBXvh
+	id S261334AbVGCAI4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Jul 2005 20:08:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261331AbVGCAI4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Jul 2005 19:51:37 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:54538 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261332AbVGBXvO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Jul 2005 19:51:14 -0400
-Date: Sun, 3 Jul 2005 01:51:12 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: sct@redhat.com, adilger@clusterfs.com, linux-kernel@vger.kernel.org,
-       ext3-users@redhat.com
-Subject: [2.6 patch] fs/jbd/: possible cleanups
-Message-ID: <20050702235112.GK5346@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Sat, 2 Jul 2005 20:08:56 -0400
+Received: from ppsw-9.csi.cam.ac.uk ([131.111.8.139]:42721 "EHLO
+	ppsw-9.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S261334AbVGCAIM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Jul 2005 20:08:12 -0400
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Date: Sun, 3 Jul 2005 01:08:05 +0100 (BST)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Daniel Drake <dsd@gentoo.org>
+cc: =?UTF-8?B?RGF2aWQgR8OzbWV6?= <david@pleyades.net>,
+       Robert Love <rml@novell.com>, John McCutchan <ttb@tentacle.dhs.org>,
+       Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Problem with inotify
+In-Reply-To: <42C72563.7040103@gentoo.org>
+Message-ID: <Pine.LNX.4.60.0507030053040.15398@hermes-1.csi.cam.ac.uk>
+References: <20050630181824.GA1058@fargo> <1120156188.6745.103.camel@betsy>
+ <20050630193320.GA1136@fargo> <Pine.LNX.4.60.0506302138230.29755@hermes-1.csi.cam.ac.uk>
+ <20050630204832.GA3854@fargo> <Pine.LNX.4.60.0506302158190.29755@hermes-1.csi.cam.ac.uk>
+ <42C65A8B.9060705@gentoo.org> <Pine.LNX.4.60.0507022253080.30401@hermes-1.csi.cam.ac.uk>
+ <42C72563.7040103@gentoo.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following possible cleanups:
-- make needlessly global functions static
-- journal.c: remove the unused global function __journal_internal_check
-             and move the check to journal_init
-- remove the following write-only global variable:
-  - journal.c: current_journal
-- remove the following unneeded EXPORT_SYMBOL's:
-  - journal.c: journal_check_used_features
-  - journal.c: journal_recover
+Hi Daniel,
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+On Sun, 3 Jul 2005, Daniel Drake wrote:
+> Anton Altaparmakov wrote:
+> > Thinking about it some more made me realize that there may be a problem in 
+> > inotify after all...  Could you try the below patch to fs/inotify.c and 
+> > tell me if it cures the lockup you are seeing?  (Note patch compiles but 
+> > is otherwise untested.  But given it locks up without the patch it can't 
+> > do much worse with it!)
+> 
+> Thanks for writing that patch, the effort is much appreciated. Unfortunately
+> it does not help :(
 
----
+)-:
 
-This patch was already sent on:
-- 14 Jun 2005
+> I've done a bit more investigating for you though. I did some tests purely on
+> the console, using inotify-test (from inotify-utils) which is the most
+> simplistic way you can use inotify: it just prints out the recieved events to
+> the screen.
+> 
+> I found out that unmount works perfectly well as long as there are no active
+> inotify watches (this might be quite obvious though!) - i.e. closing
+> inotify-test before unmounting results in a clean unmount. Unmounting while
+> inotify-test is watching the NTFS partition causes the freeze.
 
- fs/jbd/journal.c    |   41 ++++++++++++++++++-----------------------
- fs/jbd/revoke.c     |    3 ++-
- include/linux/jbd.h |    3 ---
- 3 files changed, 20 insertions(+), 27 deletions(-)
+Great stuff.  Thanks!  At least my patch appears to have been on the right 
+track!  My analysis was that there is an infinite loop and this is what 
+you are observing.  (-:  It is very interesting that the infinite loop 
+only happens when actual watches are present.  It is 1am here so I am 
+going to bed but I will think about this tomorrow/Monday and hopefully 
+cook up a new patch which if you could test it would be great.
 
---- linux-2.6.12-rc6-mm1-full/include/linux/jbd.h.old	2005-06-14 03:58:20.000000000 +0200
-+++ linux-2.6.12-rc6-mm1-full/include/linux/jbd.h	2005-06-14 04:00:56.000000000 +0200
-@@ -900,8 +900,6 @@
- 				int start, int len, int bsize);
- extern journal_t * journal_init_inode (struct inode *);
- extern int	   journal_update_format (journal_t *);
--extern int	   journal_check_used_features 
--		   (journal_t *, unsigned long, unsigned long, unsigned long);
- extern int	   journal_check_available_features 
- 		   (journal_t *, unsigned long, unsigned long, unsigned long);
- extern int	   journal_set_features 
-@@ -914,7 +912,6 @@
- extern int	   journal_skip_recovery	(journal_t *);
- extern void	   journal_update_superblock	(journal_t *, int);
- extern void	   __journal_abort_hard	(journal_t *);
--extern void	   __journal_abort_soft	(journal_t *, int);
- extern void	   journal_abort      (journal_t *, int);
- extern int	   journal_errno      (journal_t *);
- extern void	   journal_ack_err    (journal_t *);
---- linux-2.6.12-rc6-mm1-full/fs/jbd/journal.c.old	2005-06-14 03:57:39.000000000 +0200
-+++ linux-2.6.12-rc6-mm1-full/fs/jbd/journal.c	2005-06-14 04:08:24.000000000 +0200
-@@ -59,13 +59,11 @@
- EXPORT_SYMBOL(journal_init_dev);
- EXPORT_SYMBOL(journal_init_inode);
- EXPORT_SYMBOL(journal_update_format);
--EXPORT_SYMBOL(journal_check_used_features);
- EXPORT_SYMBOL(journal_check_available_features);
- EXPORT_SYMBOL(journal_set_features);
- EXPORT_SYMBOL(journal_create);
- EXPORT_SYMBOL(journal_load);
- EXPORT_SYMBOL(journal_destroy);
--EXPORT_SYMBOL(journal_recover);
- EXPORT_SYMBOL(journal_update_superblock);
- EXPORT_SYMBOL(journal_abort);
- EXPORT_SYMBOL(journal_errno);
-@@ -81,6 +79,7 @@
- EXPORT_SYMBOL(journal_force_commit);
- 
- static int journal_convert_superblock_v1(journal_t *, journal_superblock_t *);
-+static void __journal_abort_soft (journal_t *journal, int errno);
- 
- /*
-  * Helper function used to manage commit timeouts
-@@ -93,16 +92,6 @@
- 	wake_up_process(p);
- }
- 
--/* Static check for data structure consistency.  There's no code
-- * invoked --- we'll just get a linker failure if things aren't right.
-- */
--void __journal_internal_check(void)
--{
--	extern void journal_bad_superblock_size(void);
--	if (sizeof(struct journal_superblock_s) != 1024)
--		journal_bad_superblock_size();
--}
--
- /*
-  * kjournald: The main thread function used to manage a logging device
-  * journal.
-@@ -119,16 +108,12 @@
-  *    known as checkpointing, and this thread is responsible for that job.
+> When the machine freezes, it still responds to ping, but not to ssh. Sysrq
+> works, so I got a sysrq-p trace:
+> 
+> Pid 8997 comm umount
+> EIP is at inotify_unmount_inodes+0x38/0x140
+> 
+> stack trace:
+> invalidate_inodes+0x40/0x90
+> generic_shutdown_super+0x59/0x140
+> kill_block_super+0x2d/0x50
+> deactivate_super+0x5a/0x90
+> sys_umount+0x3f/0x90
+> filp_close+0x52/0xa0
+> sys_oldumount+0x17/0x20
+> sysenter_past_esp+0x54/0x75
+> 
+> Investigating that function:
+> 
+> (gdb) list *inotify_unmount_inodes+0x38
+> 0x9c8 is in inotify_unmount_inodes (inotify.c:565).
+> 560      */
+> 561     void inotify_unmount_inodes(struct list_head *list)
+> 562     {
+> 563             struct inode *inode, *next_i, *need_iput = NULL;
+> 564
+> 565             list_for_each_entry_safe(inode, next_i, list, i_sb_list) {
+> 566                     struct inode *need_iput_tmp;
+> 567                     struct inotify_watch *watch, *next_w;
+> 568                     struct list_head *watches;
+> 569
+> 
+> I then added a loop counter printk in at line 569 above. It shows that the
+> loop iterates 8 times on a clean unmount, and goes into a seemingly infinite
+> loop (i.e. freeze) when unmounting with inotify watches active.
+
+Cool.  Thanks for that.  Could you modify your printk to output:
+
+printk(KERN_ERR "doing sb 0x%lx, inode 0x%lx, i_state 0x%x\n", 
+(unsigned long)inode->i_sb, inode->i_ino, inode->i_state);
+
+Eeek!  I just reread my patch.  I am a muppet!  Instead of the printk (or 
+in addition if you like), please try the corrected version below.  The 
+original version completely fails to do anything at all.  It's amazing 
+what the omission of a single parenthesis pair can do to your code logic.  
+)-:
+
+Thanks a lot in advance and many apologies for wasting your time with a 
+bogus patch!
+
+Best regards,
+
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+
+inotify_unmount_inodes-list-iteration-fix2.diff
+
+Patch description: I believe that the inode reference that is being 
+dropped by inotify's remove_watch() can cause inodes other than the 
+current @inode to be moved away from the per-sb list.  And if this happens 
+to be the next inode in the list, i.e. @next_i, then the iteration will 
+proceed on the list that @next_i was moved to rather than the per-sb list.  
+Thus, the check in the for loop (list_for_each_entry_safe()) for the @head 
+being reached will _never_ be true and hence the for loop will keep going 
+for ever...  Even worse the memory backing @next_i could be completely 
+freed and then completely random results would be obtained.
+
+Basically, I do not believe that using list_for_each_entry_safe() is safe 
+at all as it only guards against removal of the current entry but not 
+against removal of the next entry.  This patch tries to work around this 
+by getting a reference to @next_i whilst the inode_lock is dropped.
+
+Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
+
+--- linux-2.6.13-rc1-mm1-vanilla/fs/inotify.c	2005-07-01 14:51:09.000000000 +0100
++++ linux-2.6.13-rc1-mm1/fs/inotify.c	2005-07-02 22:11:11.000000000 +0100
+@@ -560,9 +560,10 @@ EXPORT_SYMBOL_GPL(inotify_get_cookie);
   */
- 
--journal_t *current_journal;		// AKPM: debug
--
--int kjournald(void *arg)
-+static int kjournald(void *arg)
+ void inotify_unmount_inodes(struct list_head *list)
  {
- 	journal_t *journal = (journal_t *) arg;
- 	transaction_t *transaction;
- 	struct timer_list timer;
+-	struct inode *inode, *next_i;
++	struct inode *inode, *next_i, *need_iput = NULL;
  
--	current_journal = journal;
--
- 	daemonize("kjournald");
+ 	list_for_each_entry_safe(inode, next_i, list, i_sb_list) {
++		struct inode *need_iput_tmp;
+ 		struct inotify_watch *watch, *next_w;
+ 		struct list_head *watches;
  
- 	/* Set up an interval timer which can be used to trigger a
-@@ -1181,8 +1166,10 @@
-  * features.  Return true (non-zero) if it does. 
-  **/
+@@ -574,8 +575,20 @@ void inotify_unmount_inodes(struct list_
+ 		if (inode->i_state & (I_CLEAR | I_FREEING))
+ 			continue;
  
--int journal_check_used_features (journal_t *journal, unsigned long compat,
--				 unsigned long ro, unsigned long incompat)
-+static int journal_check_used_features (journal_t *journal,
-+					unsigned long compat,
-+					unsigned long ro,
-+					unsigned long incompat)
- {
- 	journal_superblock_t *sb;
- 
-@@ -1439,7 +1426,7 @@
-  * device this journal is present.
-  */
- 
--const char *journal_dev_name(journal_t *journal, char *buffer)
-+static const char *journal_dev_name(journal_t *journal, char *buffer)
- {
- 	struct block_device *bdev;
- 
-@@ -1485,7 +1472,7 @@
- 
- /* Soft abort: record the abort error status in the journal superblock,
-  * but don't do any other IO. */
--void __journal_abort_soft (journal_t *journal, int errno)
-+static void __journal_abort_soft (journal_t *journal, int errno)
- {
- 	if (journal->j_flags & JFS_ABORT)
- 		return;
-@@ -1888,7 +1875,7 @@
- 
- static struct proc_dir_entry *proc_jbd_debug;
- 
--int read_jbd_debug(char *page, char **start, off_t off,
-+static int read_jbd_debug(char *page, char **start, off_t off,
- 			  int count, int *eof, void *data)
- {
- 	int ret;
-@@ -1898,7 +1885,7 @@
- 	return ret;
- }
- 
--int write_jbd_debug(struct file *file, const char __user *buffer,
-+static int write_jbd_debug(struct file *file, const char __user *buffer,
- 			   unsigned long count, void *data)
- {
- 	char buf[32];
-@@ -1987,6 +1974,14 @@
- {
- 	int ret;
- 
-+/* Static check for data structure consistency.  There's no code
-+ * invoked --- we'll just get a linker failure if things aren't right.
-+ */
-+	extern void journal_bad_superblock_size(void);
-+	if (sizeof(struct journal_superblock_s) != 1024)
-+		journal_bad_superblock_size();
++		need_iput_tmp = need_iput;
++		need_iput = NULL;
 +
+ 		/* In case the remove_watch() drops a reference */
+-		__iget(inode);
++		if (inode != need_iput_tmp)
++			__iget(inode);
++		else
++			need_iput_tmp = NULL;
 +
- 	ret = journal_init_caches();
- 	if (ret != 0)
- 		journal_destroy_caches();
---- linux-2.6.12-rc6-mm1-full/fs/jbd/revoke.c.old	2005-06-14 03:58:36.000000000 +0200
-+++ linux-2.6.12-rc6-mm1-full/fs/jbd/revoke.c	2005-06-14 03:58:41.000000000 +0200
-@@ -116,7 +116,8 @@
- 		(block << (hash_shift - 12))) & (table->hash_size - 1);
- }
++		/* In case the dropping of a reference would nuke next_i. */
++		if (!(next_i->i_state & (I_CLEAR | I_FREEING))) {
++			__iget(next_i);
++			need_iput = next_i;
++		}
  
--int insert_revoke_hash(journal_t *journal, unsigned long blocknr, tid_t seq)
-+static int insert_revoke_hash(journal_t *journal, unsigned long blocknr,
-+			      tid_t seq)
- {
- 	struct list_head *hash_list;
- 	struct jbd_revoke_record_s *record;
-
+ 		/*
+ 		 * We can safely drop inode_lock here because the per-sb list
+@@ -584,6 +597,9 @@ void inotify_unmount_inodes(struct list_
+ 		 */
+ 		spin_unlock(&inode_lock);
+ 
++		if (need_iput_tmp)
++			iput(need_iput_tmp);
++
+ 		/* for each watch, send IN_UNMOUNT and then remove it */
+ 		down(&inode->inotify_sem);
+ 		watches = &inode->inotify_watches;
+@@ -599,6 +615,11 @@ void inotify_unmount_inodes(struct list_
+ 
+ 		spin_lock(&inode_lock);
+ 	}
++	if (need_iput) {
++		spin_unlock(&inode_lock);
++		iput(need_iput);
++		spin_lock(&inode_lock);
++	}
+ }
+ EXPORT_SYMBOL_GPL(inotify_unmount_inodes);
+ 

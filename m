@@ -1,75 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261476AbVGCR1H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261480AbVGCRme@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261476AbVGCR1H (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Jul 2005 13:27:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261480AbVGCR1H
+	id S261480AbVGCRme (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Jul 2005 13:42:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261482AbVGCRme
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Jul 2005 13:27:07 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:23541 "EHLO
-	godzilla.mvista.com") by vger.kernel.org with ESMTP id S261476AbVGCR1A
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Jul 2005 13:27:00 -0400
-Date: Sun, 3 Jul 2005 10:26:50 -0700 (PDT)
-From: Daniel Walker <dwalker@mvista.com>
-To: Anton Blanchard <anton@samba.org>
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+	Sun, 3 Jul 2005 13:42:34 -0400
+Received: from ozlabs.org ([203.10.76.45]:53961 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261480AbVGCRmc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Jul 2005 13:42:32 -0400
+Date: Mon, 4 Jul 2005 03:38:37 +1000
+From: Anton Blanchard <anton@samba.org>
+To: Daniel Walker <dwalker@mvista.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] quieten OOM killer noise
-In-Reply-To: <20050723150209.GA15055@krispykreme>
-Message-ID: <Pine.LNX.4.10.10507031021410.5964-100000@godzilla.mvista.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20050703173837.GB15055@krispykreme>
+References: <20050723150209.GA15055@krispykreme> <Pine.LNX.4.10.10507031021410.5964-100000@godzilla.mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.10.10507031021410.5964-100000@godzilla.mvista.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Why not just remove the printk's when DEBUG_KERNEL is off. The problem
-that I've found is that the latency in the system sky rockets when OOM
-triggers. It's due to the excessive printk usage. 
+Hi,
 
-I'm sure it's not ifdef'ed for a reason , but it would be nice to have an
-easy way to silence it.
+> Why not just remove the printk's when DEBUG_KERNEL is off. The problem
+> that I've found is that the latency in the system sky rockets when OOM
+> triggers. It's due to the excessive printk usage. 
+> 
+> I'm sure it's not ifdef'ed for a reason , but it would be nice to have an
+> easy way to silence it.
 
-Daniel
+We've had customer situations where that information would have been
+very useful. Also DEBUG_KERNEL is enabled on some distros so it wouldnt
+help there.
 
-On Sun, 24 Jul 2005, Anton Blanchard wrote:
+Id suggest adding a printk level to the printks in mm/oom-kill.c and
+using /proc/sys/kernel/printk to silence them.
 
-> 
-> We now print statistics when invoking the OOM killer, however this
-> information is not rate limited and you can get into situations where
-> the console is continually spammed.
-> 
-> For example, when a task is exiting the OOM killer will simply return
-> (waiting for that task to exit and clear up memory). If the VM
-> continually calls back into the OOM killer we get thousands of copies of
-> show_mem() on the console.
-> 
-> Use printk_ratelimit() to quieten it.
-> 
-> Signed-off-by: Anton Blanchard <anton@samba.org>
-> 
-> Index: foobar2/mm/oom_kill.c
-> ===================================================================
-> --- foobar2.orig/mm/oom_kill.c	2005-07-02 15:56:13.000000000 +1000
-> +++ foobar2/mm/oom_kill.c	2005-07-04 01:38:59.474324542 +1000
-> @@ -258,9 +258,11 @@
->  	struct mm_struct *mm = NULL;
->  	task_t * p;
->  
-> -	printk("oom-killer: gfp_mask=0x%x\n", gfp_mask);
-> -	/* print memory stats */
-> -	show_mem();
-> +	if (printk_ratelimit()) {
-> +		printk("oom-killer: gfp_mask=0x%x\n", gfp_mask);
-> +		/* print memory stats */
-> +		show_mem();
-> +	}
->  
->  	read_lock(&tasklist_lock);
->  retry:
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+Anton

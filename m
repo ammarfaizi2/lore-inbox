@@ -1,43 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261445AbVGCOKd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261446AbVGCOOM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261445AbVGCOKd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Jul 2005 10:10:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261446AbVGCOKd
+	id S261446AbVGCOOM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Jul 2005 10:14:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261447AbVGCOOM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Jul 2005 10:10:33 -0400
-Received: from frankvm.xs4all.nl ([80.126.170.174]:61880 "EHLO
-	janus.localdomain") by vger.kernel.org with ESMTP id S261445AbVGCOK3
+	Sun, 3 Jul 2005 10:14:12 -0400
+Received: from zproxy.gmail.com ([64.233.162.199]:50720 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261446AbVGCOOH convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Jul 2005 10:10:29 -0400
-Date: Sun, 3 Jul 2005 16:10:28 +0200
-From: Frank van Maarseveen <frankvm@frankvm.com>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: frankvm@frankvm.com, akpm@osdl.org, aia21@cam.ac.uk, arjan@infradead.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: FUSE merging? (2)
-Message-ID: <20050703141028.GB1298@janus>
-References: <20050701130510.GA5805@janus> <E1DoLSx-0002sR-00@dorka.pomaz.szeredi.hu> <20050701152003.GA7073@janus> <E1DoOwc-000368-00@dorka.pomaz.szeredi.hu> <20050701180415.GA7755@janus> <E1DojJ6-00047F-00@dorka.pomaz.szeredi.hu> <20050702160002.GA13730@janus> <E1DoxmP-0004gV-00@dorka.pomaz.szeredi.hu> <20050703112541.GA32288@janus> <E1Dp4S4-0004ub-00@dorka.pomaz.szeredi.hu>
+	Sun, 3 Jul 2005 10:14:07 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=G8ojqyDv0NKIbwBKHL8nj4UXBkBr63KQhv94SqPKBY2eAGMjyqwPD5M3aiqWsbjnPcWW0KGZ9cTa6q3TpsVm/jpKWvnIkTG6lBr3J1d6yRgKJO9VsoQswX1NzXyQznuugzca+8/3RkVCaZuNIKE2KnnEJGAxEWwoZjA1EhIX8Ms=
+Message-ID: <9a8748490507030714d2a1b45@mail.gmail.com>
+Date: Sun, 3 Jul 2005 16:14:07 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
+To: Denis Vlasenko <vda@ilport.com.ua>
+Subject: Re: [PATCH] all-arch delay functions take 2
+Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Russell King <rmk+lkml@arm.linux.org.uk>,
+       Vojtech Pavlik <vojtech@suse.cz>
+In-Reply-To: <200507031650.13770.vda@ilport.com.ua>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <E1Dp4S4-0004ub-00@dorka.pomaz.szeredi.hu>
-User-Agent: Mutt/1.4.1i
-X-Subliminal-Message: Use Linux!
+References: <200507031650.13770.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 03, 2005 at 03:24:04PM +0200, Miklos Szeredi wrote:
+On 7/3/05, Denis Vlasenko <vda@ilport.com.ua> wrote:
+> Hi folks,
 > 
-> > But that's not really acceptable (see previous audit case) unless FUSE
-> > refuses to mount on non-leaf dirs.
+> This patch makes mdelay/udelay/ndelay calls as small
+> as possible (just a function call), uses macros which
+> do compile-time checks on delay duration if parameter
+> is a constant, otherwise check is done at run time
+> to prevent udelay(-1) disasters.
 > 
-> I don't think the audit case is important.  It's easy to work around
-> it manually by the sysadmin, and for the automatic case it doesn't
-> really matter (as detailed above).
+[snip]
 
-Note that the audit case "as user" is less important than the root case. I
-consider the latter very important and EACCES will break it when FUSE
-permits mounting on non-leaf dirs.
+> 
+> -#define ndelay(n)      udelay((n) * 5)
+> +//BOGUS! #define ndelay(n)     udelay((n) * 5)
+> 
+If it's bogus, why not just remove it instead of leaving it in as a
+comment (and a C++ style comment at that) ?
+
+[snip]
+> +//extern struct timer_opts* timer;
+
+Why add this at all if you are just going to comment it out anyway?
+
+
 
 -- 
-Frank
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

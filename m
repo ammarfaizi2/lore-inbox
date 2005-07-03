@@ -1,104 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261493AbVGCTGA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261495AbVGCTGw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261493AbVGCTGA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Jul 2005 15:06:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261492AbVGCTF7
+	id S261495AbVGCTGw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Jul 2005 15:06:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261492AbVGCTGv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Jul 2005 15:05:59 -0400
-Received: from smtp104.mail.sc5.yahoo.com ([66.163.169.223]:53641 "HELO
-	smtp104.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261493AbVGCTFQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Jul 2005 15:05:16 -0400
-Message-ID: <42C83759.1070809@asmallpond.org>
-Date: Sun, 03 Jul 2005 21:07:05 +0200
-From: Richard Fish <bigfish@asmallpond.org>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050623)
-X-Accept-Language: en-us, en
+	Sun, 3 Jul 2005 15:06:51 -0400
+Received: from imf16aec.mail.bellsouth.net ([205.152.59.64]:4510 "EHLO
+	imf16aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
+	id S261497AbVGCTGk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Jul 2005 15:06:40 -0400
+Message-ID: <005801c58009$b1a13400$2800000a@pc365dualp2>
+From: <cutaway@bellsouth.net>
+To: "Denis Vlasenko" <vda@ilport.com.ua>
+Cc: <linux-kernel@vger.kernel.org>
+References: <200507012258_MC3-1-A340-3A81@compuserve.com> <200507021456.40667.vda@ilport.com.ua>
+Subject: Re: [RFC] exit_thread() speedups in x86 process.c
+Date: Sun, 3 Jul 2005 15:59:11 -0400
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Mount/umount badness after initramfs pivot_root
-Content-Type: multipart/mixed;
- boundary="------------020908090900020308090207"
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1478
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1478
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020908090900020308090207
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
-Hi all,
-
-Using 2.6.12, or 2.6.12.1 or 2.6.13-rc1, I have two problems with
-mount/umount commands after I boot using an initramfs instead of an
-initrd.  The problems are:
-
-1. If I try to unmount the initramfs (umount /old_root), the system hangs.
-2. If I try to use "mount --move", the system hangs.
-
-Alt-SysRq-p still works, and I was able to determine that for #1, the
-kernel gets into an endless loop in the following lines in umount_tree()
-in fs/namespace.c:
-
-    for (p = mnt; p; p = next_mnt(p, mnt)) {
-        list_del(&p->mnt_list);
-        list_add(&p->mnt_list, &kill);
-    }
-
-For #2, it appears the following lines in do_move_mount() in
-fs/namespace.c cause the endless loop:
-
-    for (p = nd->mnt; p->mnt_parent!=p; p = p->mnt_parent)
-        if (p == old_nd.mnt)
-            goto out2;
-
-Problem #2 does not occur if I do not execute the pivot_root in my
-initramfs, and neither problem occurs if I boot using an initrd, with or
-without using pivot_root.
-
-I added debug printk's to the detach_mnt and attach_mnt functions, which
-produced the following when pivot_root is run:
-
-detach_mnt: mnt=d7ee3300, old_nd=d7d39ee8
-detach_mnt: mnt=d7ee3780, old_nd=d7d39ea8
-attach_mnt: mnt=d7ee3780, nd=d7d39f28
-            mnt->mnt_parent=d7ee3300
-attach_mnt: mnt=d7ee3300, nd=d7d39ea8
-            mnt->mnt_parent=d7ee3780
-
-Notice the mnt->mnt_parent assignments in the attach_mnt calls...they
-create a circular reference in the mount tree!
-
-I have attached the best patch to pivot_root that I can come up with for
-this.  It preserves the behavior for initrd (leaving the rootfs as the
-top of the tree), while fixing the case where it is the rootfs that is
-being pivoted.  This passes the WOMM test, but maybe there is a better
-way? In particular, does something need to be done with
-current->namespace->root in this case?
-
--Richard
+----- Original Message ----- 
+From: "Denis Vlasenko" <vda@ilport.com.ua>
+To: "Chuck Ebbert" <76306.1226@compuserve.com>; <cutaway@bellsouth.net>
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>; "Coywolf Qi Hunt"
+<coywolf@gmail.com>
+Sent: Saturday, July 02, 2005 07:56
+Subject: Re: [RFC] exit_thread() speedups in x86 process.c
 
 
---------------020908090900020308090207
-Content-Type: text/plain;
- name="fix_pivot_root_from_rootfs.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="fix_pivot_root_from_rootfs.patch"
+>
+> 80/20 rule says that 80% of code runs 20% of time,
+> thus we need only __fast. Everything else will be by default __slow.
+> (IOW: normal .text section is __slow, no need to add another one).
 
---- linux-2.6.13-rc1/fs/namespace.c.orig	2005-07-03 20:30:18.000000000 +0200
-+++ linux-2.6.13-rc1/fs/namespace.c	2005-07-03 20:31:54.000000000 +0200
-@@ -1344,6 +1344,9 @@
- 		goto out3;
- 	detach_mnt(new_nd.mnt, &parent_nd);
- 	detach_mnt(user_nd.mnt, &root_parent);
-+	if (user_nd.mnt == current->namespace->root) {
-+		root_parent.mnt = new_nd.mnt; /* avoid creating a mount loop */
-+	}
- 	attach_mnt(user_nd.mnt, &old_nd);     /* mount old root on put_old */
- 	attach_mnt(new_nd.mnt, &root_parent); /* mount new_root on / */
- 	spin_unlock(&vfsmount_lock);
+What makes you think __fast implies everything else should necessarily be
+"slow"?
 
+You might want to entertain the idea that some systems employ several
+different speeds of memory where the penalty for making such assumptions
+could be extreme if the bootstrap were to metric available memory regions
+for response and locate portions of the system accordingly someday.
 
-
---------------020908090900020308090207--

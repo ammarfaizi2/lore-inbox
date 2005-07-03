@@ -1,46 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261529AbVGCVAJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261540AbVGCVCJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261529AbVGCVAJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Jul 2005 17:00:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261537AbVGCVAI
+	id S261540AbVGCVCJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Jul 2005 17:02:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261544AbVGCVCI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Jul 2005 17:00:08 -0400
-Received: from lyle.provo.novell.com ([137.65.81.174]:13672 "EHLO
-	lyle.provo.novell.com") by vger.kernel.org with ESMTP
-	id S261529AbVGCVAE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Jul 2005 17:00:04 -0400
-Date: Sun, 3 Jul 2005 13:59:55 -0700
-From: Greg KH <gregkh@suse.de>
-To: John Lenz <lenz@cs.wisc.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] add class_interface pointer to add and remove functions
-Message-ID: <20050703205955.GB17461@suse.de>
-References: <20050630060206.GA23321@kroah.com> <34128.127.0.0.1.1120152169.squirrel@localhost> <20050630194540.GA15389@suse.de> <37114.127.0.0.1.1120166322.squirrel@localhost>
+	Sun, 3 Jul 2005 17:02:08 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:52913 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261540AbVGCVBx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Jul 2005 17:01:53 -0400
+Date: Sun, 3 Jul 2005 22:29:12 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@zip.com.au>
+Subject: [patch] One more system where video works with S3
+Message-ID: <20050703202912.GA24404@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <37114.127.0.0.1.1120166322.squirrel@localhost>
-User-Agent: Mutt/1.5.8i
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 30, 2005 at 04:18:42PM -0500, John Lenz wrote:
-> On Thu, June 30, 2005 2:45 pm, Greg KH said:
-> > On Thu, Jun 30, 2005 at 12:22:49PM -0500, John Lenz wrote:
-> >> As long as there are a whole bunch of class API changes going on, I would
-> >> request that the class_interface add and remove functions get passed the
-> >> class_interface pointer as well as the class_device.  This way, the same
-> >> function can be used on multiple class_interfaces.
-> >
-> > I'm sorry, I seem to have missed the patch in this email that implements
-> > this feature...
-> >
-> 
-> Here is a patch that updates every usage of class_interface I could find.
+One more system where video works with S3.
 
-Do you have a patch that will take advantage of this change?  I would
-prefer to have that before accepting this patch.
+Signed-off-by: Pavel Machek <pavel@suse.cz>
 
-thanks,
+---
+commit 4b632470fc69174a9732c19419be5d1fc2cdeb0e
+tree 008b3b066671d1d30257a6a52606268884731985
+parent bf6565cc60d70997000b3ee19f0330fbde21e382
+author <pavel@amd.(none)> Sun, 03 Jul 2005 22:28:28 +0200
+committer <pavel@amd.(none)> Sun, 03 Jul 2005 22:28:28 +0200
 
-greg k-h
+ Documentation/power/video.txt |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+diff --git a/Documentation/power/video.txt b/Documentation/power/video.txt
+--- a/Documentation/power/video.txt
++++ b/Documentation/power/video.txt
+@@ -117,6 +117,7 @@ IBM Thinkpad X40 Type 2371-7JG  s3_bios,
+ Medion MD4220			??? (*)
+ Samsung P35			vbetool needed (6)
+ Sharp PC-AR10 (ATI rage)	none (1)
++Sony Vaio PCG-C1VRX/K		s3_bios (2)
+ Sony Vaio PCG-F403		??? (*)
+ Sony Vaio PCG-N505SN		??? (*)
+ Sony Vaio vgn-s260		X or boot-radeon can init it (5)
+
+-- 
+teflon -- maybe it is a trademark, but it should not be.

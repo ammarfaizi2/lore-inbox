@@ -1,49 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261410AbVGCTNg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261499AbVGCTUM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261410AbVGCTNg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Jul 2005 15:13:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261492AbVGCTNg
+	id S261499AbVGCTUM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Jul 2005 15:20:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261497AbVGCTUM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Jul 2005 15:13:36 -0400
-Received: from cerebus.immunix.com ([198.145.28.33]:53467 "EHLO
-	ermintrude.int.immunix.com") by vger.kernel.org with ESMTP
-	id S261410AbVGCTNe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Jul 2005 15:13:34 -0400
-Date: Sun, 3 Jul 2005 12:09:14 -0700
-From: Tony Jones <tonyj@suse.de>
-To: James Morris <jmorris@redhat.com>
-Cc: Tony Jones <tonyj@suse.de>, serge@hallyn.com, Greg KH <greg@kroah.com>,
-       serue@us.ibm.com, lkml <linux-kernel@vger.kernel.org>,
-       Chris Wright <chrisw@osdl.org>, Stephen Smalley <sds@epoch.ncsc.mil>,
-       Andrew Morton <akpm@osdl.org>, Michael Halcrow <mhalcrow@us.ibm.com>,
-       David Safford <safford@watson.ibm.com>,
-       Reiner Sailer <sailer@us.ibm.com>, Gerrit Huizenga <gh@us.ibm.com>
-Subject: Re: [patch 5/12] lsm stacking v0.2: actual stacker module
-Message-ID: <20050703190914.GB30292@immunix.com>
-References: <20050703182505.GA29491@immunix.com> <Xine.LNX.4.44.0507031450540.30297-100000@thoron.boston.redhat.com>
+	Sun, 3 Jul 2005 15:20:12 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:60004 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S261499AbVGCTUA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Jul 2005 15:20:00 -0400
+Date: Sun, 3 Jul 2005 21:22:24 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Mikael Pettersson <mikpe@csd.uu.se>,
+       Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [patch 2.6.12] Add -Wno-pointer-sign to HOSTCFLAGS
+Message-ID: <20050703192224.GB8052@mars.ravnborg.org>
+References: <200506190923.j5J9Nbq0011676@harpo.it.uu.se> <11208.1119177144@ocs3.ocs.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Xine.LNX.4.44.0507031450540.30297-100000@thoron.boston.redhat.com>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <11208.1119177144@ocs3.ocs.com.au>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 03, 2005 at 02:53:17PM -0400, James Morris wrote:
+> 
+> >cc-option checks to see if the flag is supported by $(CC) which could
+> >be a completely different compiler from $(HOSTCC).  Hence the above
+> >can incorrectly supply/fail to supply the argument.
+> 
+> Good point.  New patch.
 
-> It might be worth thinking about a more general securityfs as part of LSM,
-> to be used by stacker and LSM modules.  SELinux could use this instead of
-> managing its own selinuxfs.
+I am having this patch queued:
 
-Good idea.   In the case of stacked modules each with a custom fs, having them
-be part of a common hierarchy makes a lot of sense.
-
-I'm assuming you are advocating for adding LSM support to provide some level 
-of consistency in presentation rather than it _just_ being a new mount point
-for every module to live under?
-
-Take the discussion to the LSM list?
-
-Thanks!
-
-Tony
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2005/04/03 22:26:47+02:00 sam@mars.ravnborg.org 
+#   kbuild: Use -Wno-pointer-sign when building for host
+#   
+#   Avoid lot's of useless warning when building host utilities.
+#   A brave sould may take a look sometime - but not all warnings are correct.
+#   
+#   From: Pawel Sikora <pluto@pld-linux.org>
+#   Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+# 
+# Makefile
+#   2005/04/03 22:26:24+02:00 sam@mars.ravnborg.org +12 -4
+#   -Wno-pointer-sign for gcc 4.xx when compiling host programs
+# 
+diff -Nru a/Makefile b/Makefile
+--- a/Makefile	2005-04-30 00:35:17 +02:00
++++ b/Makefile	2005-04-30 00:35:17 +02:00
+@@ -201,10 +201,10 @@
+ 	  else if [ -x /bin/bash ]; then echo /bin/bash; \
+ 	  else echo sh; fi ; fi)
+ 
+-HOSTCC  	= gcc
+-HOSTCXX  	= g++
+-HOSTCFLAGS	= -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer
+-HOSTCXXFLAGS	= -O2
++HOSTCC  	:= gcc
++HOSTCXX  	:= g++
++HOSTCFLAGS	:= -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer
++HOSTCXXFLAGS	:= -O2
+ 
+ # 	Decide whether to build built-in, modular, or both.
+ #	Normally, just do built-in.
+@@ -538,6 +538,14 @@
+ 
+ # disable pointer signedness warnings in gcc 4.0
+ CFLAGS += $(call cc-option,-Wno-pointer-sign,)
++
++HOSTCFLAGS += $(shell if $(HOSTCC) $(HOSTCFLAGS) -Wno-pointer-sign -S \
++              -o /dev/null -xc /dev/null > /dev/null 2>&1; then \
++               echo "-Wno-pointer-sign"; fi ;)
++
++HOSTCXXFLAGS += $(shell if $(HOSTCXX) $(HOSTCXXFLAGS) -Wno-pointer-sign -S \
++              -o /dev/null -xc /dev/null > /dev/null 2>&1; then \
++               echo "-Wno-pointer-sign"; fi ;)
+ 
+ # Default kernel image to build when no specific target is given.
+ # KBUILD_IMAGE may be overruled on the commandline or

@@ -1,56 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261504AbVGCThr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261505AbVGCTkG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261504AbVGCThr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Jul 2005 15:37:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261505AbVGCThr
+	id S261505AbVGCTkG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Jul 2005 15:40:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261511AbVGCTkF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Jul 2005 15:37:47 -0400
-Received: from blackbird.sr71.net ([64.146.134.44]:10880 "EHLO
-	blackbird.sr71.net") by vger.kernel.org with ESMTP id S261504AbVGCThg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Jul 2005 15:37:36 -0400
-Subject: Re: [Hdaps-devel] Re: [ltp] IBM HDAPS Someone
-	interested?	(Accelerometer)
-From: Dave Hansen <dave@sr71.net>
-To: Alejandro Bonilla <abonilla@linuxwireless.org>
-Cc: Jesper Juhl <jesper.juhl@gmail.com>, Vojtech Pavlik <vojtech@suse.cz>,
-       Pavel Machek <pavel@suse.cz>, Paul Sladen <thinkpad@paul.sladen.org>,
-       linux-thinkpad@linux-thinkpad.org,
-       Eric Piel <Eric.Piel@tremplin-utc.net>, borislav@users.sourceforge.net,
-       Yani Ioannou <yani.ioannou@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       hdaps-devel@lists.sourceforge.net
-In-Reply-To: <42C82E75.7070108@linuxwireless.org>
-References: <1119559367.20628.5.camel@mindpipe>
-	 <Pine.LNX.4.21.0506250712140.10376-100000@starsky.19inch.net>
-	 <20050625144736.GB7496@atrey.karlin.mff.cuni.cz>
-	 <42BD9EBD.8040203@linuxwireless.org> <20050625200953.GA1591@ucw.cz>
-	 <42C7A3B2.4090502@linuxwireless.org> <20050703101613.GA2372@ucw.cz>
-	 <9a8748490507030407547fa29b@mail.gmail.com>  <42C82BBB.9090008@gmail.com>
-	 <1120418514.4351.6.camel@localhost>  <42C82E75.7070108@linuxwireless.org>
-Content-Type: text/plain
-Date: Sun, 03 Jul 2005 12:37:07 -0700
-Message-Id: <1120419427.4351.15.camel@localhost>
+	Sun, 3 Jul 2005 15:40:05 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:2250 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261505AbVGCTjm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Jul 2005 15:39:42 -0400
+Date: Sun, 3 Jul 2005 21:39:42 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Miklos Szeredi <miklos@szeredi.hu>, aia21@cam.ac.uk, arjan@infradead.org,
+       linux-kernel@vger.kernel.org, frankvm@frankvm.com
+Subject: Re: FUSE merging?
+Message-ID: <20050703193941.GA27204@elf.ucw.cz>
+References: <E1Dnw2J-0000UM-00@dorka.pomaz.szeredi.hu> <1120126804.3181.34.camel@laptopd505.fenrus.org> <1120129996.5434.1.camel@imp.csi.cam.ac.uk> <20050630124622.7c041c0b.akpm@osdl.org> <E1DoF86-0002Kk-00@dorka.pomaz.szeredi.hu> <20050630235059.0b7be3de.akpm@osdl.org> <E1DoFcK-0002Ox-00@dorka.pomaz.szeredi.hu> <20050701001439.63987939.akpm@osdl.org> <E1DoG6p-0002Rf-00@dorka.pomaz.szeredi.hu> <20050701010229.4214f04e.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050701010229.4214f04e.akpm@osdl.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-07-03 at 13:29 -0500, Alejandro Bonilla wrote:
-> or, is this patch against Brix source?
+Hi!
 
-It was against the files posted in this message:
+> > > > > >  I leave the decision to you ;)  It's a separate independent patch
+> > > > > >  already (fuse-nfs-export.patch).
+> > > > > 
+> > > > > Let's leave it out - that'll stimulate some activity in the
+> > > > > userspace-nfs-server-for-FUSE area.
+> > > > > 
+> > > > > Speaking of which, dumb question: what does FUSE offer over simply using
+> > > > > NFS protocol to talk to the userspace filesystem driver?
+> > > > 
+> > > > Oh lots:
+> > > > 
+> > > >   - no deadlocks (NFS mounted from localhost is riddled with them)
+> > > 
+> > > It is?  We had some low-memory problems a while back, but they got fixed. 
+> > > During that work I did some nfs-to-localhost testing and things seemed OK.
+> > 
+> > Well, there's the "unsolvable" writeback deadlock problem, that FUSE
+> > works around by not buffering dirty pages (and not allowing writable
+> > mmap).  Does NFS solve that?  I'm interested :)
+> 
+> I don't know - first you'd have to describe it.
 
->    From: Henrik Brix Andersen <brix@ge...>
->    Re: Re: [ltp] IBM HDAPS Someone interested? (Accelerometer)
->    2005-07-03 09:01
+Actually, the right question is "how is fuse better than coda". I've
+asked that before; unlike nfs, userspace filesystems implemented with
+coda actually *work*, but do not provide partial-file writes.
 
-Sorry, I wasn't on the m/l then, and I don't have a full msgid.  
-
-I'll redo and retest against the files that were just posted under
-msgid:
-42C82BBB.9090008@gmail.com.
-
--- Dave
-
+								Pavel
+-- 
+teflon -- maybe it is a trademark, but it should not be.

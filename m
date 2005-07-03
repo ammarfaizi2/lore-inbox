@@ -1,65 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261484AbVGCSQL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261486AbVGCS33@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261484AbVGCSQL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Jul 2005 14:16:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261486AbVGCSQL
+	id S261486AbVGCS33 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Jul 2005 14:29:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261487AbVGCS33
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Jul 2005 14:16:11 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:51370 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261484AbVGCSMp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Jul 2005 14:12:45 -0400
-Date: Sun, 3 Jul 2005 20:12:29 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: William Weston <weston@sysex.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.50-24
-Message-ID: <20050703181229.GA32741@elte.hu>
-References: <200506281927.43959.annabellesgarden@yahoo.de> <200506301952.22022.annabellesgarden@yahoo.de> <20050630205029.GB1824@elte.hu> <200507010027.33079.annabellesgarden@yahoo.de> <20050701071850.GA18926@elte.hu> <Pine.LNX.4.58.0507011739550.27619@echo.lysdexia.org> <20050703140432.GA19074@elte.hu>
+	Sun, 3 Jul 2005 14:29:29 -0400
+Received: from cerebus.immunix.com ([198.145.28.33]:12756 "EHLO
+	ermintrude.int.immunix.com") by vger.kernel.org with ESMTP
+	id S261486AbVGCS30 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Jul 2005 14:29:26 -0400
+Date: Sun, 3 Jul 2005 11:25:05 -0700
+From: Tony Jones <tonyj@suse.de>
+To: serge@hallyn.com
+Cc: Greg KH <greg@kroah.com>, serue@us.ibm.com,
+       lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@osdl.org>,
+       Stephen Smalley <sds@epoch.ncsc.mil>, James Morris <jmorris@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, Michael Halcrow <mhalcrow@us.ibm.com>,
+       David Safford <safford@watson.ibm.com>,
+       Reiner Sailer <sailer@us.ibm.com>, Gerrit Huizenga <gh@us.ibm.com>
+Subject: Re: [patch 5/12] lsm stacking v0.2: actual stacker module
+Message-ID: <20050703182505.GA29491@immunix.com>
+References: <20050630194458.GA23439@serge.austin.ibm.com> <20050630195043.GE23538@serge.austin.ibm.com> <20050701203526.GA824@kroah.com> <20050703002441.GA25052@vino.hallyn.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050703140432.GA19074@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20050703002441.GA25052@vino.hallyn.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Ingo Molnar <mingo@elte.hu> wrote:
-
-> > A few things are left working (but not enough to get the system back):
-> > 
-> > - Mouse pointer (movements are chunky) and window focus.
-> > - Mouse scroll wheel can still scroll xterms and switch workspaces.
-> > - SysRq-B
+On Sat, Jul 02, 2005 at 07:24:41PM -0500, serge@hallyn.com wrote:
+> Hmm, I could instead have one file per loaded LSM, which could
+> obviate the need for the stacker/unload file, but that would make
+> it more work for a user to find the ordering of the LSMs.  I wonder
+> how much that would matter.
 > 
-> hm, i can reproduce a variant of this, by starting enough 'dd' tasks.  
-> (it needed more than two on a 2-way/4-way HT testbox though) Indeed 
-> everything seems to be starved, but SysRq still worked so i was able 
-> to SysRq-kIll all tasks and thus the system recovered.
-> 
-> i'm debugging this now.
+> I'll implement your other changes, and consider switching to a
+> stackerfs (versus changing the content presentation under sysfs).
 
-ok, found a bug that could explain the situation: mutex sleeps+wakeups 
-were incorrectly credited as 'interactive sleep' periods, causing the dd 
-processes to be boosted incorrectly. The dd processes created a workload 
-in which they blocked each other in such a pattern that they got boosted 
-periodically, starving pretty much every other task.
+I'd prefer each file (per loaded LSM) when read returned it's ordering
+position, even though it's much clumsier than your current implementation.
 
-the fix is significant and affects alot of workloads, and should further 
-improve interactivity in noticeable ways. I'm not 100% sure it solves 
-all the starvation problems (e.g. how could normal-prio dd tasks starve 
-the SCHED_FIFO irq threads that drove SysRq?), but the results so far 
-look promising.
+There just isn't enough content to justify a stacker specific filesystem IMHO.
 
-i've uploaded the -50-45 patch, can you under this kernel trigger a 
-'meltdown' on your SMT box?
-
-	Ingo
+Tony

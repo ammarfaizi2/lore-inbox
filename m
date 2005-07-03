@@ -1,91 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261508AbVGCTvG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261511AbVGCTwh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261508AbVGCTvG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Jul 2005 15:51:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261511AbVGCTvG
+	id S261511AbVGCTwh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Jul 2005 15:52:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261512AbVGCTwg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Jul 2005 15:51:06 -0400
-Received: from smtp.gentoo.org ([134.68.220.30]:33939 "EHLO smtp.gentoo.org")
-	by vger.kernel.org with ESMTP id S261508AbVGCTu6 (ORCPT
+	Sun, 3 Jul 2005 15:52:36 -0400
+Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:21720
+	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
+	with ESMTP id S261511AbVGCTwQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Jul 2005 15:50:58 -0400
-Subject: Re: [Hdaps-devel] Re: [ltp] IBM HDAPS Someone interested?
-	(Accelerometer)
-From: Henrik Brix Andersen <brix@gentoo.org>
+	Sun, 3 Jul 2005 15:52:16 -0400
+Message-ID: <42C833D7.10006@linuxwireless.org>
+Date: Sun, 03 Jul 2005 13:52:07 -0500
+From: Alejandro Bonilla <abonilla@linuxwireless.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
+X-Accept-Language: en
+MIME-Version: 1.0
 To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: Dave Hansen <dave@sr71.net>,
-       Alejandro Bonilla <abonilla@linuxwireless.org>,
+CC: Dave Hansen <dave@sr71.net>, Henrik Brix Andersen <brix@gentoo.org>,
        Vojtech Pavlik <vojtech@suse.cz>, Pavel Machek <pavel@suse.cz>,
        Paul Sladen <thinkpad@paul.sladen.org>,
-       linux-thinkpad@linux-thinkpad.org,
-       Eric Piel <Eric.Piel@tremplin-utc.net>, borislav@users.sourceforge.net,
-       Yani Ioannou <yani.ioannou@gmail.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        hdaps-devel@lists.sourceforge.net
+Subject: Re: [Hdaps-devel] Re: [ltp] IBM HDAPS Someone interested? (Accelerometer)
+References: <1119559367.20628.5.camel@mindpipe>	 <Pine.LNX.4.21.0506250712140.10376-100000@starsky.19inch.net>	 <20050625144736.GB7496@atrey.karlin.mff.cuni.cz>	 <42BD9EBD.8040203@linuxwireless.org> <20050625200953.GA1591@ucw.cz>	 <42C7A3B2.4090502@linuxwireless.org> <20050703101613.GA2372@ucw.cz>	 <9a8748490507030407547fa29b@mail.gmail.com>	 <42C82BBB.9090008@gmail.com> <1120418514.4351.6.camel@localhost> <9a8748490507031242270cc89@mail.gmail.com>
 In-Reply-To: <9a8748490507031242270cc89@mail.gmail.com>
-References: <1119559367.20628.5.camel@mindpipe>
-	 <Pine.LNX.4.21.0506250712140.10376-100000@starsky.19inch.net>
-	 <20050625144736.GB7496@atrey.karlin.mff.cuni.cz>
-	 <42BD9EBD.8040203@linuxwireless.org> <20050625200953.GA1591@ucw.cz>
-	 <42C7A3B2.4090502@linuxwireless.org> <20050703101613.GA2372@ucw.cz>
-	 <9a8748490507030407547fa29b@mail.gmail.com> <42C82BBB.9090008@gmail.com>
-	 <1120418514.4351.6.camel@localhost>
-	 <9a8748490507031242270cc89@mail.gmail.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ouMBkYBo9fmenTVv9H6t"
-Organization: Gentoo Metadistribution
-Date: Sun, 03 Jul 2005 21:42:02 +0200
-Message-Id: <1120419722.23835.21.camel@sponge.fungus>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jesper Juhl wrote:
 
---=-ouMBkYBo9fmenTVv9H6t
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+>On 7/3/05, Dave Hansen <dave@sr71.net> wrote:
+>  
+>
+>>On Sun, 2005-07-03 at 20:17 +0200, Jesper Juhl wrote:
+>>    
+>>
+>>>Ok, just to show you people what I've done so far.
+>>>This doesn't work yet, but it should be resonably close (at least it
+>>>builds ;)
+>>>      
+>>>
+>>On top of what you sent at first this morning (not the most recent one)
+>>    
+>>
+>
+>I believe you are refering to the driver Henrik Brix Andersen wrote.
+>It seems we both started implementing the same thing at aproximately
+>the same time. I only saw Henriks version after I had send in my own.
+>His seems to work a bit better than mine :-)
+>  
+>
+Guys,
 
-On Sun, 2005-07-03 at 21:42 +0200, Jesper Juhl wrote:
-> Henrik: Are you planning on doing more work on this?   I ask since it
-> seems we are duplicating effort atm.  I think we should instead pool
-> our resources and work on just one implementation (don't know if
-> you've seen mine, but it's in the lkml archives earlier in this
-> thread).
+    Great job, by looking at Dave's posts, he got data from the accel. 
+Nice. I'm removing some people from the CC list as I'm getting flooded 
+with admin messages from the ML settings and crap... Will leave LKML, 
+HDAPS and dev.
 
-No need to duplicate effort.
+    Thanks again. I hope we can make a tarball by the end of the day and 
+see what we have.
 
-> What are your plans? Got any suggestions on how we should proceed?=20
-> Personally I just want to end up with a working driver and I don't
-> care much if we use your work or mine as a starting point.
-
-I'd love to be able to work on this driver, but unfortunately it seem
-IBM did not put any accelerometers in the X31, which is what I have
-available for testing.
-
-I keep getting 0x01 and 0x80 from the first latch check instead of 0x0.
-So unless someone wants to sponsor me an X41... ;)
-
->  Great, nice to see that something seems to be working. :-)
-
-Yes, good to hear.
-
-Sincerely,
-Brix
---=20
-Henrik Brix Andersen <brix@gentoo.org>
-Gentoo Metadistribution | Mobile computing herd
-
---=-ouMBkYBo9fmenTVv9H6t
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBCyD+Kv+Q4flTiePgRAgyTAJoDghIaWq/A+VYRqMCFJl2QVhvRPwCfcwny
-aUJHeCF+qnjm6APNApybZls=
-=SrQh
------END PGP SIGNATURE-----
-
---=-ouMBkYBo9fmenTVv9H6t--
+.Alejandro
 

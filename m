@@ -1,52 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261336AbVGCAZS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261344AbVGCBP2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261336AbVGCAZS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Jul 2005 20:25:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261337AbVGCAZS
+	id S261344AbVGCBP2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Jul 2005 21:15:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261346AbVGCBP2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Jul 2005 20:25:18 -0400
-Received: from ms-smtp-04.texas.rr.com ([24.93.47.43]:20684 "EHLO
-	ms-smtp-04.texas.rr.com") by vger.kernel.org with ESMTP
-	id S261336AbVGCAZM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Jul 2005 20:25:12 -0400
-Date: Sat, 2 Jul 2005 19:24:41 -0500
-From: serge@hallyn.com
-To: Greg KH <greg@kroah.com>
-Cc: serue@us.ibm.com, lkml <linux-kernel@vger.kernel.org>,
-       Chris Wright <chrisw@osdl.org>, Stephen Smalley <sds@epoch.ncsc.mil>,
-       James Morris <jmorris@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Michael Halcrow <mhalcrow@us.ibm.com>,
-       David Safford <safford@watson.ibm.com>,
-       Reiner Sailer <sailer@us.ibm.com>, Gerrit Huizenga <gh@us.ibm.com>
-Subject: Re: [patch 5/12] lsm stacking v0.2: actual stacker module
-Message-ID: <20050703002441.GA25052@vino.hallyn.com>
-References: <20050630194458.GA23439@serge.austin.ibm.com> <20050630195043.GE23538@serge.austin.ibm.com> <20050701203526.GA824@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050701203526.GA824@kroah.com>
-User-Agent: Mutt/1.5.8i
+	Sat, 2 Jul 2005 21:15:28 -0400
+Received: from web51802.mail.yahoo.com ([206.190.38.233]:62061 "HELO
+	web51802.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261344AbVGCBPZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Jul 2005 21:15:25 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=QxTJh+Fx2+zGR4ifOm+Zr22G4E/Qtsbgck8s6vEEQalttYpP7SgsvrLx83+Dc/BEkJV1lvDjvncrsd7f59CCamj05xFadE9mLZ5Hfl9Mw0/MdH6mNlioIMJBObXF/nAk6EsVuqn3eKb4znzGnWT+9JqnaWvrAPh3z8teR1t0yPI=  ;
+Message-ID: <20050703011524.1581.qmail@web51802.mail.yahoo.com>
+Date: Sat, 2 Jul 2005 18:15:24 -0700 (PDT)
+From: Phy Prabab <phyprabab@yahoo.com>
+Subject: ramdisk max size limitation?
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for all your comments.
+Hello,
 
-Quoting Greg KH (greg@kroah.com):
-> On Thu, Jun 30, 2005 at 02:50:43PM -0500, serue@us.ibm.com wrote:
-> > +/* variables to hold kobject/sysfs data */
-> > +static struct subsystem stacker_subsys;
-> 
-> Use decl_subsys please.
-> 
-> And yes, James is right, only value per sysfs file is allowed.
+Is there a limitation to the max size you can create a
+ramdisk?  I have a 1.5G system and I am trying to
+allocate a 1G RAM disk, yet no matter what I do, the
+max I can create and use is 512M.  Is there a way to
+get over this limitation?
 
-Hmm, I could instead have one file per loaded LSM, which could
-obviate the need for the stacker/unload file, but that would make
-it more work for a user to find the ordering of the LSMs.  I wonder
-how much that would matter.
+Thanks for the help!
 
-I'll implement your other changes, and consider switching to a
-stackerfs (versus changing the content presentation under sysfs).
-
-thanks,
--serge
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

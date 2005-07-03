@@ -1,49 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261238AbVGCUMa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261395AbVGCU3m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261238AbVGCUMa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Jul 2005 16:12:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261515AbVGCUMa
+	id S261395AbVGCU3m (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Jul 2005 16:29:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261526AbVGCU3m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Jul 2005 16:12:30 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:55547 "EHLO
-	dhcp153.mvista.com") by vger.kernel.org with ESMTP id S261238AbVGCUM0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Jul 2005 16:12:26 -0400
-Date: Sun, 3 Jul 2005 13:12:19 -0700 (PDT)
-From: Daniel Walker <dwalker@mvista.com>
-To: Anton Blanchard <anton@samba.org>
-cc: akpm@osdl.org, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] quieten OOM killer noise
-In-Reply-To: <20050703173837.GB15055@krispykreme>
-Message-ID: <Pine.LNX.4.44.0507031307040.4517-100000@dhcp153.mvista.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 3 Jul 2005 16:29:42 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:42675 "EHLO suse.cz")
+	by vger.kernel.org with ESMTP id S261395AbVGCU3j (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Jul 2005 16:29:39 -0400
+Date: Sun, 3 Jul 2005 22:29:56 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: =?iso-8859-2?Q?Micha=B3?= Piotrowski <piotrowskim@trex.wsi.edu.pl>
+Cc: linux-kernel@vger.kernel.org,
+       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
+       Paul TT <paultt@bilug.linux.it>, randy_dunlap <rdunlap@xenotime.net>,
+       Jesper Juhl <jesper.juhl@gmail.com>, cp@absolutedigital.net
+Subject: Re: [ANNOUNCE] ORT - Oops Reporting Tool v.b4
+Message-ID: <20050703202956.GA3534@ucw.cz>
+References: <42C7FBD3.1020002@trex.wsi.edu.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <42C7FBD3.1020002@trex.wsi.edu.pl>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Jul 2005, Anton Blanchard wrote:
+On Sun, Jul 03, 2005 at 04:53:07PM +0200, Micha³ Piotrowski wrote:
 
+> Here is our (see copyright section ;)) simple script that help to create 
+> a bug report:
+> http://stud.wsi.edu.pl/~piotrowskim/files/ort/beta/ort-b4.tar.bz2
 > 
-> Hi,
+> Why do we do this?
+> Because many people don't have time to prepare a good (with all 
+> importrant pieces of information) bug report.
 > 
-> > Why not just remove the printk's when DEBUG_KERNEL is off. The problem
-> > that I've found is that the latency in the system sky rockets when OOM
-> > triggers. It's due to the excessive printk usage. 
-> > 
-> > I'm sure it's not ifdef'ed for a reason , but it would be nice to have an
-> > easy way to silence it.
-> 
-> We've had customer situations where that information would have been
-> very useful. Also DEBUG_KERNEL is enabled on some distros so it wouldnt
-> help there.
-> 
-> Id suggest adding a printk level to the printks in mm/oom-kill.c and
-> using /proc/sys/kernel/printk to silence them.
+> How does it work?
+> It creates file with information about your system (software, hardware, 
+> used modules etc.), add file with oops into it and in the future sends 
+> it to the chosen mainterner or lkml.
 
-The latency problem stems from running printk, so I'm not sure that 
-silencing them in this way would help . We could add a debug option just 
-for this ? I'm sure OOM has other debugging output . CONFIG_OOM, and 
-CONFIG_DEBUG_OOM .
+Sorry to say that, but:
 
-Daniel  
+I definitely won't be interested in bug reports from an automated tool
+like this. I don't have the time to go through the heaps of information
+it collects - I need a short and to the point description of the problem
+from the user. Most of the time less is more, and if something is
+missing, asking is always an option.
 
+As if bug reports filled exactly in accordance with the "Reporting Bugs"
+howto from Richard Gooch weren't bad enough.
+
+> How can you help?
+> If you know something about bash scripting you can review it, add some 
+> useful features and make some optimalisations. Or just send me an idea.
+> 
+> Changelog:
+> - Cal Peake (greate thanks for big patch ;)){
+>    - remove the need to run the (whole) script as root
+>    - add support for Pine MUA
+>    - add support for nail MUA
+>    - add pager selection
+>    - whitespace cleanup
+>    - user interface consistency
+>    - code simplification
+>    - some other small things
+> }
+> 
+> Todo before final version:
+> - more e-mail clients?
+> - nice ascii logo?
+
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

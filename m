@@ -1,18 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261507AbVGCTm2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261510AbVGCTnq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261507AbVGCTm2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Jul 2005 15:42:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261509AbVGCTm1
+	id S261510AbVGCTnq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Jul 2005 15:43:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261509AbVGCTmr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Jul 2005 15:42:27 -0400
-Received: from blackbird.sr71.net ([64.146.134.44]:37568 "EHLO
-	blackbird.sr71.net") by vger.kernel.org with ESMTP id S261507AbVGCTl3
+	Sun, 3 Jul 2005 15:42:47 -0400
+Received: from zproxy.gmail.com ([64.233.162.206]:4366 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261508AbVGCTmR convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Jul 2005 15:41:29 -0400
-Subject: Re: [Hdaps-devel] Re: [ltp] IBM HDAPS Someone interested?
-	(Accelerometer)
-From: Dave Hansen <dave@sr71.net>
-To: Jesper Juhl <jesper.juhl@gmail.com>
+	Sun, 3 Jul 2005 15:42:17 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=fWI3h5n30TtLMOuYUj/iXeiK76nBo6hVkgICMq7h0D+TW8/9U41gBTLQNcZIw/eqekn8x1ZydmeN4WyM2M591wjbQDnznRZMvgbL+iObq6hdb4MYzQruVpJvgdpiYQ4MDo42Hn/G1nBIyaACj31OEgEl/7N17I6rw3CUwYKg6zM=
+Message-ID: <9a8748490507031242270cc89@mail.gmail.com>
+Date: Sun, 3 Jul 2005 21:42:17 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
+To: Dave Hansen <dave@sr71.net>, Henrik Brix Andersen <brix@gentoo.org>
+Subject: Re: [Hdaps-devel] Re: [ltp] IBM HDAPS Someone interested? (Accelerometer)
 Cc: Alejandro Bonilla <abonilla@linuxwireless.org>,
        Vojtech Pavlik <vojtech@suse.cz>, Pavel Machek <pavel@suse.cz>,
        Paul Sladen <thinkpad@paul.sladen.org>,
@@ -21,134 +27,60 @@ Cc: Alejandro Bonilla <abonilla@linuxwireless.org>,
        Yani Ioannou <yani.ioannou@gmail.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        hdaps-devel@lists.sourceforge.net
-In-Reply-To: <42C82BBB.9090008@gmail.com>
+In-Reply-To: <1120418514.4351.6.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 References: <1119559367.20628.5.camel@mindpipe>
 	 <Pine.LNX.4.21.0506250712140.10376-100000@starsky.19inch.net>
 	 <20050625144736.GB7496@atrey.karlin.mff.cuni.cz>
 	 <42BD9EBD.8040203@linuxwireless.org> <20050625200953.GA1591@ucw.cz>
 	 <42C7A3B2.4090502@linuxwireless.org> <20050703101613.GA2372@ucw.cz>
-	 <9a8748490507030407547fa29b@mail.gmail.com>  <42C82BBB.9090008@gmail.com>
-Content-Type: multipart/mixed; boundary="=-0m0uIMGytBDTaTkLahWG"
-Date: Sun, 03 Jul 2005 12:41:02 -0700
-Message-Id: <1120419662.4351.20.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+	 <9a8748490507030407547fa29b@mail.gmail.com>
+	 <42C82BBB.9090008@gmail.com> <1120418514.4351.6.camel@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 7/3/05, Dave Hansen <dave@sr71.net> wrote:
+> On Sun, 2005-07-03 at 20:17 +0200, Jesper Juhl wrote:
+> > Ok, just to show you people what I've done so far.
+> > This doesn't work yet, but it should be resonably close (at least it
+> > builds ;)
+> 
+> On top of what you sent at first this morning (not the most recent one)
 
---=-0m0uIMGytBDTaTkLahWG
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+I believe you are refering to the driver Henrik Brix Andersen wrote.
+It seems we both started implementing the same thing at aproximately
+the same time. I only saw Henriks version after I had send in my own.
+His seems to work a bit better than mine :-)
 
-On Sun, 2005-07-03 at 20:17 +0200, Jesper Juhl wrote:
->         while (1) {
-....
->                 } else if (time_before(jiffies, wait_until)) {
->                         set_current_state(TASK_INTERRUPTIBLE);
->                         schedule_timeout(HZ);
->                 } else {
 
-Please don't do the manual task state setting.  It's preferable to just
-use msleep_interruptable().  jiffies and HZ can change with each kernel
-configuration, and are not dependable.  
+Henrik: Are you planning on doing more work on this?   I ask since it
+seems we are duplicating effort atm.  I think we should instead pool
+our resources and work on just one implementation (don't know if
+you've seen mine, but it's in the lkml archives earlier in this
+thread).
+What are your plans? Got any suggestions on how we should proceed? 
+Personally I just want to end up with a working driver and I don't
+care much if we use your work or mine as a starting point.
 
-I've attached an untested patch that cleans up the init function a bit
-(I think).
-
--- Dave
-
---=-0m0uIMGytBDTaTkLahWG
-Content-Disposition: attachment; filename=init-function-cleanup.patch
-Content-Type: text/x-patch; name=init-function-cleanup.patch; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 7bit
-
---- accelerometer.c-0.1.orig	2005-07-03 12:28:28.000000000 -0700
-+++ accelerometer.c	2005-07-03 12:33:39.000000000 -0700
-@@ -158,45 +158,49 @@
- }
  
- /* initialize the accelerometer, wait up to `timeout' seconds for success */
--int accelerometer_init(unsigned int timeout)
-+int accelerometer_init(unsigned int timeout_secs)
- {
--	unsigned long wait_until = jiffies + timeout * HZ;
-+	unsigned long total_wait_msecs = timeout_secs * 1000;
-+	unsinged msec_per_wait = 10;
-+	unsigned long msecs_waited = 0;
-+	int ret = -EIO;
- 	
- 	outb(0x13, 0x1610);
- 	outb(0x01, 0x161f);
-  	if (!wait_latch(0x00, 0x161f))
--		return -EIO;
-+		return ret;
- 	if (!wait_latch(0x03, 0x1611))
--		return -EIO;
-+		return ret;
- 	outb(0x17, 0x1610);
- 	outb(0x81, 0x1611);
- 	outb(0x01, 0x161f);
- 	if (!wait_latch(0x00, 0x161f))
--		return -EIO;
-+		return ret;
- 	if (!wait_latch(0x00, 0x1611))
--		return -EIO;
-+		return ret;
- 	if (!wait_latch(0x60, 0x1612))
--		return -EIO;
-+		return ret;
- 	if (!wait_latch(0x00, 0x1613))
--		return -EIO;
-+		return ret;
- 	outb(0x14, 0x1610);
- 	outb(0x01, 0x1611);
- 	outb(0x01, 0x161f);
- 	if (!wait_latch(0x00, 0x161f))
--		return -EIO;
-+		return ret;
- 	outb(0x10, 0x1610);
- 	outb(0xc8, 0x1611);
- 	outb(0x00, 0x1612);
- 	outb(0x02, 0x1613);
- 	outb(0x01, 0x161f);
- 	if (!wait_latch(0x00, 0x161f))
--		return -EIO;
-+		return ret;
- 	if (!request_refresh(REFRESH_SYNC))
--		return -EIO;
-+		return ret;
- 	if (!wait_latch(0x00, 0x1611))
--		return -EIO;
-+		return ret;
- 
--	while (1) {
-+	ret = -ENXIO;
-+	while (msecs_waited <= total_wait_msecs) {
- 		if (wait_latch(0x02, 0x1611)) {
- 			struct hdaps_accel_data data;
- 			/* 
-@@ -204,15 +208,13 @@
- 			 * return success.
- 			 */
- 			 accelerometer_read(&data);
--			return 0;
--		} else if (time_before(jiffies, wait_until)) {
--			set_current_state(TASK_INTERRUPTIBLE);
--			schedule_timeout(HZ);
--		} else {
--			/* we timed out, return failure */
--			return -ENXIO;
-+			ret = 0;
-+			break;
- 		}
-+		msleep(msecs_per_wait);
-+		msecs_waited += msecs_per_wait;
- 	}
-+	return ret;
- }
- 
- static int ibm_hdaps_init(void)
+> I did some stuff (in the attached patch).  It implements the last bit of
+> initialization that your earlier one didn't do, but I see you've done in
+> the most recent one.
+> 
+Again, you did something on top of Henriks driver, but it is fairly
+close to what I myself did.
 
---=-0m0uIMGytBDTaTkLahWG--
+> Anyway, I get 10 reads out of it, 1 second apart, and it appears to be
+> getting real data:
+> 
 
+Great, nice to see that something seems to be working. :-)
+
+
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

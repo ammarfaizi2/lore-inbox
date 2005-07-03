@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261533AbVGCUz6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261529AbVGCVAJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261533AbVGCUz6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Jul 2005 16:55:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261529AbVGCUz5
+	id S261529AbVGCVAJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Jul 2005 17:00:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261537AbVGCVAI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Jul 2005 16:55:57 -0400
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:4881 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261533AbVGCUzQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Jul 2005 16:55:16 -0400
-Date: Sun, 3 Jul 2005 22:53:31 +0200
-From: Tomasz Torcz <zdzichu@irc.pl>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Hdaps-devel] Re: [ltp] IBM HDAPS Someone interested? (Accelerometer)
-Message-ID: <20050703205331.GA9300@irc.pl>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1119559367.20628.5.camel@mindpipe> <Pine.LNX.4.21.0506250712140.10376-100000@starsky.19inch.net> <20050625144736.GB7496@atrey.karlin.mff.cuni.cz> <42BD9EBD.8040203@linuxwireless.org> <20050625200953.GA1591@ucw.cz> <42C7A3B2.4090502@linuxwireless.org> <20050703101613.GA2372@ucw.cz> <9a8748490507030407547fa29b@mail.gmail.com> <42C82BBB.9090008@gmail.com> <1120418514.4351.6.camel@localhost>
+	Sun, 3 Jul 2005 17:00:08 -0400
+Received: from lyle.provo.novell.com ([137.65.81.174]:13672 "EHLO
+	lyle.provo.novell.com") by vger.kernel.org with ESMTP
+	id S261529AbVGCVAE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Jul 2005 17:00:04 -0400
+Date: Sun, 3 Jul 2005 13:59:55 -0700
+From: Greg KH <gregkh@suse.de>
+To: John Lenz <lenz@cs.wisc.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] add class_interface pointer to add and remove functions
+Message-ID: <20050703205955.GB17461@suse.de>
+References: <20050630060206.GA23321@kroah.com> <34128.127.0.0.1.1120152169.squirrel@localhost> <20050630194540.GA15389@suse.de> <37114.127.0.0.1.1120166322.squirrel@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1120418514.4351.6.camel@localhost>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <37114.127.0.0.1.1120166322.squirrel@localhost>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 03, 2005 at 12:21:54PM -0700, Dave Hansen wrote:
-> On Sun, 2005-07-03 at 20:17 +0200, Jesper Juhl wrote:
-> > Ok, just to show you people what I've done so far.
-> > This doesn't work yet, but it should be resonably close (at least it
-> > builds ;)
+On Thu, Jun 30, 2005 at 04:18:42PM -0500, John Lenz wrote:
+> On Thu, June 30, 2005 2:45 pm, Greg KH said:
+> > On Thu, Jun 30, 2005 at 12:22:49PM -0500, John Lenz wrote:
+> >> As long as there are a whole bunch of class API changes going on, I would
+> >> request that the class_interface add and remove functions get passed the
+> >> class_interface pointer as well as the class_device.  This way, the same
+> >> function can be used on multiple class_interfaces.
+> >
+> > I'm sorry, I seem to have missed the patch in this email that implements
+> > this feature...
+> >
 > 
-> On top of what you sent at first this morning (not the most recent one)
-> I did some stuff (in the attached patch).  It implements the last bit of
-> initialization that your earlier one didn't do, but I see you've done in
-> the most recent one.
-> 
-> Anyway, I get 10 reads out of it, 1 second apart, and it appears to be
-> getting real data:
+> Here is a patch that updates every usage of class_interface I could find.
 
- Could this be done in userspace?
+Do you have a patch that will take advantage of this change?  I would
+prefer to have that before accepting this patch.
 
+thanks,
 
--- 
-Tomasz Torcz                Only gods can safely risk perfection,
-zdzichu@irc.-nie.spam-.pl     it's a dangerous thing for a man.  -- Alia
-
+greg k-h

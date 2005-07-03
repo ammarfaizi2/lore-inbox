@@ -1,61 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261449AbVGCO1u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261450AbVGCOw5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261449AbVGCO1u (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Jul 2005 10:27:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261452AbVGCO1u
+	id S261450AbVGCOw5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Jul 2005 10:52:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261452AbVGCOw4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Jul 2005 10:27:50 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:7583 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S261449AbVGCO1n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Jul 2005 10:27:43 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Subject: Re: [PATCH] all-arch delay functions take 2
-Date: Sun, 3 Jul 2005 17:27:27 +0300
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, Russell King <rmk+lkml@arm.linux.org.uk>,
-       Vojtech Pavlik <vojtech@suse.cz>
-References: <200507031650.13770.vda@ilport.com.ua> <9a8748490507030714d2a1b45@mail.gmail.com>
-In-Reply-To: <9a8748490507030714d2a1b45@mail.gmail.com>
+	Sun, 3 Jul 2005 10:52:56 -0400
+Received: from trex.wsi.edu.pl ([195.117.114.133]:45015 "EHLO trex.wsi.edu.pl")
+	by vger.kernel.org with ESMTP id S261450AbVGCOwt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Jul 2005 10:52:49 -0400
+Message-ID: <42C7FBD3.1020002@trex.wsi.edu.pl>
+Date: Sun, 03 Jul 2005 16:53:07 +0200
+From: =?ISO-8859-2?Q?Micha=B3_Piotrowski?= <piotrowskim@trex.wsi.edu.pl>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: pl, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507031727.27445.vda@ilport.com.ua>
+To: linux-kernel@vger.kernel.org,
+       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
+       Paul TT <paultt@bilug.linux.it>, randy_dunlap <rdunlap@xenotime.net>,
+       Jesper Juhl <jesper.juhl@gmail.com>, cp@absolutedigital.net
+Subject: [ANNOUNCE] ORT - Oops Reporting Tool v.b4
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 03 July 2005 17:14, Jesper Juhl wrote:
-> On 7/3/05, Denis Vlasenko <vda@ilport.com.ua> wrote:
-> > Hi folks,
-> > 
-> > This patch makes mdelay/udelay/ndelay calls as small
-> > as possible (just a function call), uses macros which
-> > do compile-time checks on delay duration if parameter
-> > is a constant, otherwise check is done at run time
-> > to prevent udelay(-1) disasters.
-> > 
-> [snip]
-> 
-> > 
-> > -#define ndelay(n)      udelay((n) * 5)
-> > +//BOGUS! #define ndelay(n)     udelay((n) * 5)
-> > 
-> If it's bogus, why not just remove it instead of leaving it in as a
-> comment (and a C++ style comment at that) ?
+Hi all,
 
-I wanted to draw attention of someone who knows what's going on.
-Can be removed altogether instead.
- 
-> [snip]
-> > +//extern struct timer_opts* timer;
-> 
-> Why add this at all if you are just going to comment it out anyway?
+Here is our (see copyright section ;)) simple script that help to create 
+a bug report:
+http://stud.wsi.edu.pl/~piotrowskim/files/ort/beta/ort-b4.tar.bz2
 
-Sorry, this is a leftover meant to be deleted.
---
-vda
+Why do we do this?
+Because many people don't have time to prepare a good (with all 
+importrant pieces of information) bug report.
 
+How does it work?
+It creates file with information about your system (software, hardware, 
+used modules etc.), add file with oops into it and in the future sends 
+it to the chosen mainterner or lkml.
+
+How can you help?
+If you know something about bash scripting you can review it, add some 
+useful features and make some optimalisations. Or just send me an idea.
+
+Changelog:
+- Cal Peake (greate thanks for big patch ;)){
+    - remove the need to run the (whole) script as root
+    - add support for Pine MUA
+    - add support for nail MUA
+    - add pager selection
+    - whitespace cleanup
+    - user interface consistency
+    - code simplification
+    - some other small things
+}
+
+Todo before final version:
+- more e-mail clients?
+- nice ascii logo?
+
+Regards,
+Micha³ Piotrowski

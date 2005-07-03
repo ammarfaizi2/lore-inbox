@@ -1,525 +1,796 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261306AbVGCLSB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261313AbVGCLW5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261306AbVGCLSB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Jul 2005 07:18:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261317AbVGCLSA
+	id S261313AbVGCLW5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Jul 2005 07:22:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261317AbVGCLW4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Jul 2005 07:18:00 -0400
-Received: from nproxy.gmail.com ([64.233.182.196]:44568 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261306AbVGCLQ4 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Jul 2005 07:16:56 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=epkeR+lisW0Dp4WWM3mxN23T5L4WZC96m/paRSTInUNHclrkZkzDGAZlDqhqpkMF206u9HY/xRkhLWz81ZQfVUqC0olc0BSB/a4ZjcD6ZoNUeNVbSfTu35lbTlFR/zn4Us18xyDVGyQSVwz8SdpVPZwhJ6JWET1yG4C9dIJSfN4=
-Message-ID: <9cfa10eb05070304167e1cd051@mail.gmail.com>
-Date: Sun, 3 Jul 2005 14:16:53 +0300
-From: Marko Kohtala <marko.kohtala@gmail.com>
-Reply-To: Marko Kohtala <marko.kohtala@gmail.com>
+	Sun, 3 Jul 2005 07:22:56 -0400
+Received: from lyris.ittoolbox.com ([66.179.234.51]:39533 "HELO ittoolbox.com")
+	by vger.kernel.org with SMTP id S261313AbVGCLVo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Jul 2005 07:21:44 -0400
+Message-Id: <LYRIS0-1120390043--3852-lyris-admin@groups.ittoolbox.com>
+X-lyris-type: error-mail-detection
+From: "Lyris ListManager" <lyris-admin@groups.ittoolbox.com>
+Reply-To: "Lyris ListManager" <lyris-admin@groups.ittoolbox.com>
 To: linux-kernel@vger.kernel.org
-Subject: IRQ routing problem
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Subject: Message rejected
+Date: Sun, 03 Jul 2005 07:27:23 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been having interrupt problems. 2.6.12 worked fine, but soon
-after it got broken and was still broken just now that I checked git
-version.
+Your message posting was rejected because:
 
-Interrupts get somehow misrouted.
+  > Subject: header contains: 'RETURNED MAIL'
 
-Here is a part from the syslog showing the problem:
+This text is usually only included by automated email programs, such as
+"vacation" programs. For this reason, Lyris ListManager does not accept messages
+which contain this text, because it is highly likely that they are
+automated messages, and not appropriate for a mailing list.  
 
-Jul  3 13:17:09 kohtala kernel: USB Universal Host Controller
-Interface driver v2.3
-Jul  3 13:17:09 kohtala kernel: <7>Pin 2-12 already programmed
-Jul  3 13:17:09 kohtala kernel: ACPI: PCI Interrupt 0000:00:11.2[D] ->
-GSI 12 (level, low) -> IRQ 20
-Jul  3 13:17:09 kohtala kernel: PCI: Via IRQ fixup for 0000:00:11.2,
-from 12 to 4
-Jul  3 13:17:09 kohtala kernel: uhci_hcd 0000:00:11.2: VIA
-Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller
-Jul  3 13:17:09 kohtala kernel: uhci_hcd 0000:00:11.2: new USB bus
-registered, assigned bus number 4
-Jul  3 13:17:09 kohtala kernel: uhci_hcd 0000:00:11.2: irq 20, io base
-0x0000cc00
-Jul  3 13:17:09 kohtala kernel: hub 4-0:1.0: USB hub found
-Jul  3 13:17:09 kohtala kernel: hub 4-0:1.0: 2 ports detected
-Jul  3 13:17:09 kohtala kernel: usb 3-1: new low speed USB device
-using ohci_hcd and address 2
-Jul  3 13:17:09 kohtala kernel: irq 20: nobody cared (try booting with
-the "irqpoll" option)
+If you are receiving this message, it means that you accidentally set off
+this safeguard.
 
-Working kernel uses IRQ 12.
+Please resubmit your email message, without including this "trigger text".
 
-Motherboard is MSI-6380 ver 2, i.e. K7T266 Pro2-RU
+---
 
-I do not know what exactly do to help you trace this down, but e-mail
-me preferably directly and I'll try to give you what you need to fix
-this.
+For your convenience, the message is question in reproduced below:
+
+Return-Path: <linux-kernel@vger.kernel.org>
+Received: from vger.kernel.org ([80.80.119.148]) by  with SMTP (Lyris ListManager WIN32 version 7.0f); Sun, 03 Jul 2005 07:26:49 -0400
+From: linux-kernel@vger.kernel.org
+To: clarify-l@openitx.com
+Subject: Returned mail: Data format error
+Date: Sun, 3 Jul 2005 15:19:11 +0400
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_0011_A5B4A2F4.F5348318"
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+
+This is a multi-part message in MIME format.
+
+------=_NextPart_000_0011_A5B4A2F4.F5348318
+Content-Type: text/plain;
+	charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+Your message was undeliverable due to the following reason:
+
+Your message was not delivered because the destination server was
+not reachable within the allowed queue period. The amount of time
+a message is queued before it is returned depends on local configura-
+tion parameters.
+
+Most likely there is a network problem that prevented delivery, but
+it is also possible that the computer is turned off, or does not
+have a mail system running right now.
+
+Your message could not be delivered within 2 days:
+Host 65.101.136.83 is not responding.
+
+The following recipients could not receive this message:
+<clarify-l@openitx.com>
+
+Please reply to postmaster@vger.kernel.org
+if you feel this message to be in error.
 
 
-This is the whole syslog
+------=_NextPart_000_0011_A5B4A2F4.F5348318
+Content-Type: application/octet-stream;
+	name="clarify-l@openitx.com"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="clarify-l@openitx.com"
 
-Jul  3 13:17:09 kohtala syslogd 1.4.1#17: restart.
-Jul  3 13:17:09 kohtala kernel: klogd 1.4.1#17, log source = /proc/kmsg started.
-Jul  3 13:17:09 kohtala kernel: Inspecting /boot/System.map-2.6.13-rc1
-Jul  3 13:17:09 kohtala kernel: Loaded 31540 symbols from
-/boot/System.map-2.6.13-rc1.
-Jul  3 13:17:09 kohtala kernel: Symbols match kernel version 2.6.13.
-Jul  3 13:17:09 kohtala kernel: No module symbols loaded - kernel
-modules not enabled.
-Jul  3 13:17:09 kohtala kernel: 
-Jul  3 13:17:09 kohtala kernel:     Floating point unit present.
-Jul  3 13:17:09 kohtala kernel:     Machine Exception supported.
-Jul  3 13:17:09 kohtala kernel:     64 bit compare & exchange supported.
-Jul  3 13:17:09 kohtala kernel:     Internal APIC present.
-Jul  3 13:17:09 kohtala kernel:     SEP present.
-Jul  3 13:17:09 kohtala kernel:     MTRR  present.
-Jul  3 13:17:09 kohtala kernel:     PGE  present.
-Jul  3 13:17:09 kohtala kernel:     MCA  present.
-Jul  3 13:17:09 kohtala kernel:     CMOV  present.
-Jul  3 13:17:09 kohtala kernel:     PAT  present.
-Jul  3 13:17:09 kohtala kernel:     PSE  present.
-Jul  3 13:17:09 kohtala kernel:     MMX  present.
-Jul  3 13:17:09 kohtala kernel:     FXSR  present.
-Jul  3 13:17:09 kohtala kernel:     XMM  present.
-Jul  3 13:17:09 kohtala kernel:     Bootup CPU
-Jul  3 13:17:09 kohtala kernel: ACPI: IOAPIC (id[0x02]
-address[0xfec00000] gsi_base[0])
-Jul  3 13:17:09 kohtala kernel: IOAPIC[0]: apic_id 2, version 17,
-address 0xfec00000, GSI 0-23
-Jul  3 13:17:09 kohtala kernel: ACPI: INT_SRC_OVR (bus 0 bus_irq 0
-global_irq 2 dfl dfl)
-Jul  3 13:17:09 kohtala kernel: Int: type 0, pol 0, trig 0, bus 0, irq 0, 2-2
-Jul  3 13:17:09 kohtala kernel: ACPI: INT_SRC_OVR (bus 0 bus_irq 9
-global_irq 9 low level)
-Jul  3 13:17:09 kohtala kernel: Int: type 0, pol 3, trig 3, bus 0, irq 9, 2-9
-Jul  3 13:17:09 kohtala kernel: Bus #0 is ISA
-Jul  3 13:17:09 kohtala kernel: ACPI: IRQ0 used by override.
-Jul  3 13:17:09 kohtala kernel: Int: type 0, pol 0, trig 0, bus 0, irq 1, 2-1
-Jul  3 13:17:09 kohtala kernel: ACPI: IRQ2 used by override.
-Jul  3 13:17:09 kohtala kernel: Int: type 0, pol 0, trig 0, bus 0, irq 3, 2-3
-Jul  3 13:17:09 kohtala kernel: Int: type 0, pol 0, trig 0, bus 0, irq 4, 2-4
-Jul  3 13:17:09 kohtala kernel: Int: type 0, pol 0, trig 0, bus 0, irq 5, 2-5
-Jul  3 13:17:09 kohtala kernel: Int: type 0, pol 0, trig 0, bus 0, irq 6, 2-6
-Jul  3 13:17:09 kohtala kernel: Int: type 0, pol 0, trig 0, bus 0, irq 7, 2-7
-Jul  3 13:17:09 kohtala kernel: Int: type 0, pol 0, trig 0, bus 0, irq 8, 2-8
-Jul  3 13:17:09 kohtala kernel: ACPI: IRQ9 used by override.
-Jul  3 13:17:09 kohtala kernel: Int: type 0, pol 0, trig 0, bus 0, irq 10, 2-10
-Jul  3 13:17:09 kohtala kernel: Int: type 0, pol 0, trig 0, bus 0, irq 11, 2-11
-Jul  3 13:17:09 kohtala kernel: Int: type 0, pol 0, trig 0, bus 0, irq 12, 2-12
-Jul  3 13:17:09 kohtala kernel: Int: type 0, pol 0, trig 0, bus 0, irq 13, 2-13
-Jul  3 13:17:09 kohtala kernel: Int: type 0, pol 0, trig 0, bus 0, irq 14, 2-14
-Jul  3 13:17:09 kohtala kernel: Int: type 0, pol 0, trig 0, bus 0, irq 15, 2-15
-Jul  3 13:17:09 kohtala kernel: Enabling APIC mode:  Flat.  Using 1 I/O APICs
-Jul  3 13:17:09 kohtala kernel: Using ACPI (MADT) for SMP
-configuration information
-Jul  3 13:17:09 kohtala kernel: Allocating PCI resources starting at
-20000000 (gap: 20000000:dec00000)
-Jul  3 13:17:09 kohtala kernel: Built 1 zonelists
-Jul  3 13:17:09 kohtala kernel: Kernel command line:
-BOOT_IMAGE=2.6.13-rc1 ro root=303 parport_pc.parport=auto
-snd-via82xx.dxs_support=1 acpi=debug pci=routeirq 3
-Jul  3 13:17:09 kohtala kernel: Unknown boot option
-`parport_pc.parport=auto': ignoring
-Jul  3 13:17:09 kohtala kernel: mapped APIC to ffffd000 (fee00000)
-Jul  3 13:17:09 kohtala kernel: mapped IOAPIC to ffffc000 (fec00000)
-Jul  3 13:17:09 kohtala kernel: Initializing CPU#0
-Jul  3 13:17:09 kohtala kernel: PID hash table entries: 2048 (order:
-11, 32768 bytes)
-Jul  3 13:17:09 kohtala kernel: Detected 1466.601 MHz processor.
-Jul  3 13:17:09 kohtala kernel: Using tsc for high-res timesource
-Jul  3 13:17:09 kohtala kernel: Console: colour VGA+ 80x25
-Jul  3 13:17:09 kohtala kernel: Dentry cache hash table entries:
-131072 (order: 7, 524288 bytes)
-Jul  3 13:17:09 kohtala kernel: Inode-cache hash table entries: 65536
-(order: 6, 262144 bytes)
-Jul  3 13:17:09 kohtala kernel: Memory: 514736k/524224k available
-(2488k kernel code, 8936k reserved, 1068k data, 180k init, 0k highmem)
-Jul  3 13:17:09 kohtala kernel: Checking if this processor honours the
-WP bit even in supervisor mode... Ok.
-Jul  3 13:17:09 kohtala kernel: Calibrating delay using timer specific
-routine.. 2936.76 BogoMIPS (lpj=1468380)
-Jul  3 13:17:09 kohtala kernel: Mount-cache hash table entries: 512
-Jul  3 13:17:09 kohtala kernel: CPU: After generic identify, caps:
-0383fbff c1cbfbff 00000000 00000000 00000000 00000000 00000000
-Jul  3 13:17:09 kohtala kernel: CPU: After vendor identify, caps:
-0383fbff c1cbfbff 00000000 00000000 00000000 00000000 00000000
-Jul  3 13:17:09 kohtala kernel: CPU: L1 I Cache: 64K (64 bytes/line),
-D cache 64K (64 bytes/line)
-Jul  3 13:17:09 kohtala kernel: CPU: L2 Cache: 256K (64 bytes/line)
-Jul  3 13:17:09 kohtala kernel: CPU: After all inits, caps: 0383fbff
-c1cbfbff 00000000 00000020 00000000 00000000 00000000
-Jul  3 13:17:09 kohtala kernel: Intel machine check architecture supported.
-Jul  3 13:17:09 kohtala kernel: Intel machine check reporting enabled on CPU#0.
-Jul  3 13:17:09 kohtala kernel: CPU: AMD Athlon(tm) XP 1700+ stepping 02
-Jul  3 13:17:09 kohtala kernel: Enabling fast FPU save and restore... done.
-Jul  3 13:17:09 kohtala kernel: Enabling unmasked SIMD FPU exception
-support... done.
-Jul  3 13:17:09 kohtala kernel: Checking 'hlt' instruction... OK.
-Jul  3 13:17:09 kohtala kernel:  tbxface-0118 [02] acpi_load_tables   
-  : ACPI Tables successfully acquired
-Jul  3 13:17:09 kohtala kernel: Parsing all Control
-Methods:................................................................................................................................
-Jul  3 13:17:09 kohtala kernel: Table [DSDT](id F004) - 480 Objects
-with 39 Devices 128 Methods 23 Regions
-Jul  3 13:17:09 kohtala kernel: ACPI Namespace successfully loaded at
-root c04c3e80
-Jul  3 13:17:09 kohtala kernel: evxfevnt-0094 [03] acpi_enable        
-  : Transition to ACPI mode successful
-Jul  3 13:17:09 kohtala kernel: ENABLING IO-APIC IRQs
-Jul  3 13:17:09 kohtala kernel: ..TIMER: vector=0x31 pin1=2 pin2=-1
-Jul  3 13:17:09 kohtala kernel: NET: Registered protocol family 16
-Jul  3 13:17:09 kohtala kernel: PCI: PCI BIOS revision 2.10 entry at
-0xfdb21, last bus=1
-Jul  3 13:17:09 kohtala kernel: PCI: Using configuration type 1
-Jul  3 13:17:09 kohtala kernel: mtrr: v2.0 (20020519)
-Jul  3 13:17:09 kohtala kernel: ACPI: Subsystem revision 20050309
-Jul  3 13:17:09 kohtala kernel: evgpeblk-0979 [06] ev_create_gpe_block
-  : GPE 00 to 0F [_GPE] 2 regs on int 0x9
-Jul  3 13:17:09 kohtala kernel: evgpeblk-0987 [06] ev_create_gpe_block
-  : Found 6 Wake, Enabled 0 Runtime GPEs in this block
-Jul  3 13:17:09 kohtala kernel: Completing Region/Field/Buffer/Package
-initialization:..................................................................................
-Jul  3 13:17:09 kohtala kernel: Initialized 23/23 Regions 9/9 Fields
-41/41 Buffers 9/18 Packages (489 nodes)
-Jul  3 13:17:09 kohtala kernel: Executing all Device _STA and_INI
-methods:..........................................
-Jul  3 13:17:09 kohtala kernel: 42 Devices found containing: 42 _STA,
-1 _INI methods
-Jul  3 13:17:09 kohtala kernel: ACPI: Interpreter enabled
-Jul  3 13:17:09 kohtala kernel: ACPI: Using IOAPIC for interrupt routing
-Jul  3 13:17:09 kohtala kernel: ACPI: PCI Root Bridge [PCI0] (0000:00)
-Jul  3 13:17:09 kohtala kernel: PCI: Probing PCI hardware (bus 00)
-Jul  3 13:17:09 kohtala kernel: Boot video device is 0000:01:00.0
-Jul  3 13:17:09 kohtala kernel: ACPI: PCI Interrupt Routing Table
-[\_SB_.PCI0._PRT]
-Jul  3 13:17:09 kohtala kernel: ACPI: Power Resource [URP1] (off)
-Jul  3 13:17:09 kohtala kernel: ACPI: Power Resource [URP2] (off)
-Jul  3 13:17:09 kohtala kernel: ACPI: Power Resource [FDDP] (off)
-Jul  3 13:17:09 kohtala kernel: ACPI: Power Resource [LPTP] (off)
-Jul  3 13:17:09 kohtala kernel: ACPI: PCI Interrupt Link [LNKA] (IRQs
-3 4 5 6 7 10 *11 12 14 15)
-Jul  3 13:17:09 kohtala kernel: ACPI: PCI Interrupt Link [LNKB] (IRQs
-3 4 5 6 7 *10 11 12 14 15)
-Jul  3 13:17:09 kohtala kernel: ACPI: PCI Interrupt Link [LNKC] (IRQs
-*3 4 5 6 7 10 11 12 14 15)
-Jul  3 13:17:09 kohtala kernel: ACPI: PCI Interrupt Link [LNKD] (IRQs
-3 4 5 6 7 10 11 *12 14 15)
-Jul  3 13:17:09 kohtala kernel: usbcore: registered new driver usbfs
-Jul  3 13:17:09 kohtala kernel: usbcore: registered new driver hub
-Jul  3 13:17:09 kohtala kernel: PCI: Using ACPI for IRQ routing
-Jul  3 13:17:09 kohtala kernel: PCI: Routing PCI interrupts for all
-devices because "pci=routeirq" specified
-Jul  3 13:17:09 kohtala kernel: ACPI: PCI Interrupt 0000:00:05.0[A] ->
-GSI 16 (level, low) -> IRQ 16
-Jul  3 13:17:09 kohtala kernel: ACPI: PCI Interrupt 0000:00:06.0[A] ->
-GSI 17 (level, low) -> IRQ 17
-Jul  3 13:17:09 kohtala kernel: ACPI: PCI Interrupt 0000:00:08.0[A] ->
-GSI 19 (level, low) -> IRQ 18
-Jul  3 13:17:09 kohtala kernel: <7>Pin 2-16 already programmed
-Jul  3 13:17:09 kohtala kernel: ACPI: PCI Interrupt 0000:00:0b.0[A] ->
-GSI 16 (level, low) -> IRQ 16
-Jul  3 13:17:09 kohtala kernel: <7>Pin 2-17 already programmed
-Jul  3 13:17:09 kohtala kernel: ACPI: PCI Interrupt 0000:00:0b.1[B] ->
-GSI 17 (level, low) -> IRQ 17
-Jul  3 13:17:09 kohtala kernel: ACPI: PCI Interrupt 0000:00:0b.2[C] ->
-GSI 18 (level, low) -> IRQ 19
-Jul  3 13:17:09 kohtala kernel: <7>Pin 2-17 already programmed
-Jul  3 13:17:09 kohtala kernel: ACPI: PCI Interrupt 0000:00:0c.0[A] ->
-GSI 17 (level, low) -> IRQ 17
-Jul  3 13:17:09 kohtala kernel: ACPI: PCI Interrupt 0000:00:11.2[D] ->
-GSI 12 (level, low) -> IRQ 20
-Jul  3 13:17:09 kohtala kernel: ACPI: PCI Interrupt 0000:00:11.5[C] ->
-GSI 3 (level, low) -> IRQ 21
-Jul  3 13:17:09 kohtala kernel: <7>Pin 2-16 already programmed
-Jul  3 13:17:09 kohtala kernel: ACPI: PCI Interrupt 0000:01:00.0[A] ->
-GSI 16 (level, low) -> IRQ 16
-Jul  3 13:17:09 kohtala kernel: Machine check exception polling timer started.
-Jul  3 13:17:09 kohtala kernel: Initializing Cryptographic API
-Jul  3 13:17:09 kohtala kernel: ACPI: Power Button (FF) [PWRF]
-Jul  3 13:17:09 kohtala kernel: ACPI: Sleep Button (CM) [SLPB]
-Jul  3 13:17:09 kohtala kernel: ACPI: Processor [CPU1] (supports 16
-throttling states)
-Jul  3 13:17:09 kohtala kernel: Real Time Clock Driver v1.12
-Jul  3 13:17:09 kohtala kernel: Linux agpgart interface v0.101 (c) Dave Jones
-Jul  3 13:17:09 kohtala kernel: agpgart: Detected VIA KT266/KY266x/KT333 chipset
-Jul  3 13:17:09 kohtala kernel: agpgart: AGP aperture is 64M @ 0xe0000000
-Jul  3 13:17:09 kohtala kernel: [drm] Initialized drm 1.0.0 20040925
-Jul  3 13:17:09 kohtala kernel: <7>Pin 2-16 already programmed
-Jul  3 13:17:09 kohtala kernel: ACPI: PCI Interrupt 0000:01:00.0[A] ->
-GSI 16 (level, low) -> IRQ 16
-Jul  3 13:17:09 kohtala kernel: [drm] Initialized mga 3.1.0 20021029
-on minor 0: Matrox Graphics, Inc. MGA G550 AGP
-Jul  3 13:17:09 kohtala kernel: serio: i8042 AUX port at 0x60,0x64 irq 12
-Jul  3 13:17:09 kohtala kernel: serio: i8042 KBD port at 0x60,0x64 irq 1
-Jul  3 13:17:09 kohtala kernel: Serial: 8250/16550 driver $Revision:
-1.90 $ 4 ports, IRQ sharing disabled
-Jul  3 13:17:09 kohtala kernel: ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
-Jul  3 13:17:09 kohtala kernel: ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
-Jul  3 13:17:09 kohtala kernel: io scheduler noop registered
-Jul  3 13:17:09 kohtala kernel: io scheduler anticipatory registered
-Jul  3 13:17:09 kohtala kernel: io scheduler deadline registered
-Jul  3 13:17:09 kohtala kernel: io scheduler cfq registered
-Jul  3 13:17:09 kohtala kernel: Floppy drive(s): fd0 is 1.44M
-Jul  3 13:17:09 kohtala kernel: FDC 0 is a post-1991 82077
-Jul  3 13:17:09 kohtala kernel: 8139too Fast Ethernet driver 0.9.27
-Jul  3 13:17:09 kohtala kernel: <7>Pin 2-16 already programmed
-Jul  3 13:17:09 kohtala kernel: ACPI: PCI Interrupt 0000:00:05.0[A] ->
-GSI 16 (level, low) -> IRQ 16
-Jul  3 13:17:09 kohtala kernel: eth0: RealTek RTL8139 at 0xe080ef00,
-00:50:fc:69:c6:e7, IRQ 16
-Jul  3 13:17:09 kohtala kernel: eth0:  Identified 8139 chip type 'RTL-8139C'
-Jul  3 13:17:09 kohtala kernel: Uniform Multi-Platform E-IDE driver
-Revision: 7.00alpha2
-Jul  3 13:17:09 kohtala kernel: ide: Assuming 33MHz system bus speed
-for PIO modes; override with idebus=xx
-Jul  3 13:17:09 kohtala kernel: PDC20265: IDE controller at PCI slot
-0000:00:0c.0
-Jul  3 13:17:09 kohtala kernel: <7>Pin 2-17 already programmed
-Jul  3 13:17:09 kohtala kernel: ACPI: PCI Interrupt 0000:00:0c.0[A] ->
-GSI 17 (level, low) -> IRQ 17
-Jul  3 13:17:09 kohtala kernel: PDC20265: chipset revision 2
-Jul  3 13:17:09 kohtala kernel: PDC20265: ROM enabled at 0xdffd0000
-Jul  3 13:17:09 kohtala kernel: PDC20265: 100%% native mode on irq 17
-Jul  3 13:17:09 kohtala kernel: PDC20265: (U)DMA Burst Bit ENABLED
-Primary MASTER Mode Secondary MASTER Mode.
-Jul  3 13:17:09 kohtala kernel:     ide2: BM-DMA at 0xdc00-0xdc07,
-BIOS settings: hde:pio, hdf:pio
-Jul  3 13:17:09 kohtala kernel:     ide3: BM-DMA at 0xdc08-0xdc0f,
-BIOS settings: hdg:pio, hdh:pio
-Jul  3 13:17:09 kohtala kernel: Probing IDE interface ide2...
-Jul  3 13:17:09 kohtala kernel: hde: IC35L120AVVA07-0, ATA DISK drive
-Jul  3 13:17:09 kohtala kernel: ide2 at 0xec00-0xec07,0xe802 on irq 17
-Jul  3 13:17:09 kohtala kernel: Probing IDE interface ide3...
-Jul  3 13:17:09 kohtala kernel: hdg: SAMSUNG SP1614N, ATA DISK drive
-Jul  3 13:17:09 kohtala kernel: hdh: Maxtor 85120 A8 -, ATA DISK drive
-Jul  3 13:17:09 kohtala kernel: ide3 at 0xe400-0xe407,0xe002 on irq 17
-Jul  3 13:17:09 kohtala kernel: VP_IDE: IDE controller at PCI slot 0000:00:11.1
-Jul  3 13:17:09 kohtala kernel: PCI: Via IRQ fixup for 0000:00:11.1,
-from 255 to 0
-Jul  3 13:17:09 kohtala kernel: VP_IDE: chipset revision 6
-Jul  3 13:17:09 kohtala kernel: VP_IDE: not 100%% native mode: will
-probe irqs later
-Jul  3 13:17:09 kohtala kernel: VP_IDE: VIA vt8233 (rev 00) IDE
-UDMA100 controller on pci0000:00:11.1
-Jul  3 13:17:09 kohtala kernel:     ide0: BM-DMA at 0xfc00-0xfc07,
-BIOS settings: hda:DMA, hdb:DMA
-Jul  3 13:17:09 kohtala kernel:     ide1: BM-DMA at 0xfc08-0xfc0f,
-BIOS settings: hdc:DMA, hdd:pio
-Jul  3 13:17:09 kohtala kernel: Probing IDE interface ide0...
-Jul  3 13:17:09 kohtala kernel: hda: IBM-DPTA-372050, ATA DISK drive
-Jul  3 13:17:09 kohtala kernel: hdb: Pioneer DVD-ROM ATAPIModel
-DVD-106S 012, ATAPI CD/DVD-ROM drive
-Jul  3 13:17:09 kohtala kernel: ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-Jul  3 13:17:09 kohtala kernel: Probing IDE interface ide1...
-Jul  3 13:17:09 kohtala kernel: hdc: LITE-ON LTR-52246S, ATAPI CD/DVD-ROM drive
-Jul  3 13:17:09 kohtala kernel: ide1 at 0x170-0x177,0x376 on irq 15
-Jul  3 13:17:09 kohtala kernel: hde: max request size: 128KiB
-Jul  3 13:17:09 kohtala kernel: hde: 241254720 sectors (123522 MB)
-w/1863KiB Cache, CHS=65535/16/63, UDMA(100)
-Jul  3 13:17:09 kohtala kernel: hde: cache flushes supported
-Jul  3 13:17:09 kohtala kernel:  hde: hde1 hde2
-Jul  3 13:17:09 kohtala kernel: hdg: max request size: 128KiB
-Jul  3 13:17:09 kohtala kernel: hdg: 312581808 sectors (160041 MB)
-w/8192KiB Cache, CHS=19457/255/63, UDMA(100)
-Jul  3 13:17:09 kohtala kernel: hdg: cache flushes supported
-Jul  3 13:17:09 kohtala kernel:  hdg: hdg1 hdg2
-Jul  3 13:17:09 kohtala kernel: hdh: max request size: 128KiB
-Jul  3 13:17:09 kohtala kernel: hdh: 10003456 sectors (5121 MB)
-w/256KiB Cache, CHS=9924/16/63, DMA
-Jul  3 13:17:09 kohtala kernel: hdh: cache flushes not supported
-Jul  3 13:17:09 kohtala kernel:  hdh: hdh1 hdh2
-Jul  3 13:17:09 kohtala kernel: hda: max request size: 128KiB
-Jul  3 13:17:09 kohtala kernel: hda: 40088160 sectors (20525 MB)
-w/1961KiB Cache, CHS=39770/16/63, UDMA(66)
-Jul  3 13:17:09 kohtala kernel: hda: cache flushes not supported
-Jul  3 13:17:09 kohtala kernel:  hda: hda1 hda2 hda3
-Jul  3 13:17:09 kohtala kernel: hdb: ATAPI 40X DVD-ROM drive, 256kB
-Cache, UDMA(66)
-Jul  3 13:17:09 kohtala kernel: Uniform CD-ROM driver Revision: 3.20
-Jul  3 13:17:09 kohtala kernel: hdc: ATAPI 52X CD-ROM CD-R/RW drive,
-2048kB Cache, UDMA(33)
-Jul  3 13:17:09 kohtala kernel: <7>Pin 2-18 already programmed
-Jul  3 13:17:09 kohtala kernel: ACPI: PCI Interrupt 0000:00:0b.2[C] ->
-GSI 18 (level, low) -> IRQ 19
-Jul  3 13:17:09 kohtala kernel: ehci_hcd 0000:00:0b.2: NEC Corporation USB 2.0
-Jul  3 13:17:09 kohtala kernel: ehci_hcd 0000:00:0b.2: new USB bus
-registered, assigned bus number 1
-Jul  3 13:17:09 kohtala kernel: ehci_hcd 0000:00:0b.2: irq 19, io mem 0xdffcfe00
-Jul  3 13:17:09 kohtala kernel: ehci_hcd 0000:00:0b.2: USB 2.0
-initialized, EHCI 0.95, driver 10 Dec 2004
-Jul  3 13:17:09 kohtala kernel: hub 1-0:1.0: USB hub found
-Jul  3 13:17:09 kohtala kernel: hub 1-0:1.0: 5 ports detected
-Jul  3 13:17:09 kohtala kernel: ohci_hcd: 2005 April 22 USB 1.1 'Open'
-Host Controller (OHCI) Driver (PCI)
-Jul  3 13:17:09 kohtala kernel: <7>Pin 2-16 already programmed
-Jul  3 13:17:09 kohtala kernel: ACPI: PCI Interrupt 0000:00:0b.0[A] ->
-GSI 16 (level, low) -> IRQ 16
-Jul  3 13:17:09 kohtala kernel: ohci_hcd 0000:00:0b.0: NEC Corporation USB
-Jul  3 13:17:09 kohtala kernel: ohci_hcd 0000:00:0b.0: new USB bus
-registered, assigned bus number 2
-Jul  3 13:17:09 kohtala kernel: ohci_hcd 0000:00:0b.0: irq 16, io mem 0xdffcd000
-Jul  3 13:17:09 kohtala kernel: hub 2-0:1.0: USB hub found
-Jul  3 13:17:09 kohtala kernel: hub 2-0:1.0: 3 ports detected
-Jul  3 13:17:09 kohtala kernel: <7>Pin 2-17 already programmed
-Jul  3 13:17:09 kohtala kernel: ACPI: PCI Interrupt 0000:00:0b.1[B] ->
-GSI 17 (level, low) -> IRQ 17
-Jul  3 13:17:09 kohtala kernel: ohci_hcd 0000:00:0b.1: NEC Corporation USB (#2)
-Jul  3 13:17:09 kohtala kernel: ohci_hcd 0000:00:0b.1: new USB bus
-registered, assigned bus number 3
-Jul  3 13:17:09 kohtala kernel: ohci_hcd 0000:00:0b.1: irq 17, io mem 0xdffce000
-Jul  3 13:17:09 kohtala kernel: hub 3-0:1.0: USB hub found
-Jul  3 13:17:09 kohtala kernel: hub 3-0:1.0: 2 ports detected
-Jul  3 13:17:09 kohtala kernel: USB Universal Host Controller
-Interface driver v2.3
-Jul  3 13:17:09 kohtala kernel: <7>Pin 2-12 already programmed
-Jul  3 13:17:09 kohtala kernel: ACPI: PCI Interrupt 0000:00:11.2[D] ->
-GSI 12 (level, low) -> IRQ 20
-Jul  3 13:17:09 kohtala kernel: PCI: Via IRQ fixup for 0000:00:11.2,
-from 12 to 4
-Jul  3 13:17:09 kohtala kernel: uhci_hcd 0000:00:11.2: VIA
-Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller
-Jul  3 13:17:09 kohtala kernel: uhci_hcd 0000:00:11.2: new USB bus
-registered, assigned bus number 4
-Jul  3 13:17:09 kohtala kernel: uhci_hcd 0000:00:11.2: irq 20, io base
-0x0000cc00
-Jul  3 13:17:09 kohtala kernel: hub 4-0:1.0: USB hub found
-Jul  3 13:17:09 kohtala kernel: hub 4-0:1.0: 2 ports detected
-Jul  3 13:17:09 kohtala kernel: usb 3-1: new low speed USB device
-using ohci_hcd and address 2
-Jul  3 13:17:09 kohtala kernel: irq 20: nobody cared (try booting with
-the "irqpoll" option)
-Jul  3 13:17:09 kohtala kernel:  [dump_stack+30/32] dump_stack+0x1e/0x20
-Jul  3 13:17:09 kohtala kernel:  [__report_bad_irq+43/144]
-__report_bad_irq+0x2b/0x90
-Jul  3 13:17:09 kohtala kernel:  [note_interrupt+113/208]
-note_interrupt+0x71/0xd0
-Jul  3 13:17:09 kohtala kernel:  [__do_IRQ+306/336] __do_IRQ+0x132/0x150
-Jul  3 13:17:09 kohtala kernel:  [do_IRQ+51/96] do_IRQ+0x33/0x60
-Jul  3 13:17:09 kohtala kernel:  [common_interrupt+26/32]
-common_interrupt+0x1a/0x20
-Jul  3 13:17:09 kohtala kernel:  [cpu_idle+87/96] cpu_idle+0x57/0x60
-Jul  3 13:17:09 kohtala kernel:  [rest_init+59/64] rest_init+0x3b/0x40
-Jul  3 13:17:09 kohtala kernel:  [start_kernel+344/384] start_kernel+0x158/0x180
-Jul  3 13:17:09 kohtala kernel:  [L6+0/2] 0xc0100199
-Jul  3 13:17:09 kohtala kernel: handlers:
-Jul  3 13:17:09 kohtala kernel: [usb_hcd_irq+0/112] (usb_hcd_irq+0x0/0x70)
-Jul  3 13:17:09 kohtala kernel: Disabling IRQ #20
-Jul  3 13:17:09 kohtala kernel: drivers/usb/input/hid-core.c: timeout
-initializing reports
-Jul  3 13:17:09 kohtala kernel: 
-Jul  3 13:17:09 kohtala kernel: input: USB HID v1.00 Joystick
-[Logitech  Logitech MOMO Force ] on usb-0000:00:0b.1-1
-Jul  3 13:17:09 kohtala kernel: usbcore: registered new driver usbhid
-Jul  3 13:17:09 kohtala kernel: drivers/usb/input/hid-core.c:
-v2.01:USB HID core driver
-Jul  3 13:17:09 kohtala kernel: mice: PS/2 mouse device common for all mice
-Jul  3 13:17:09 kohtala kernel: input: PC Speaker
-Jul  3 13:17:09 kohtala kernel: Advanced Linux Sound Architecture
-Driver Version 1.0.9 (Sun May 29 07:31:02 2005 UTC).
-Jul  3 13:17:09 kohtala kernel: <7>Pin 2-3 already programmed
-Jul  3 13:17:09 kohtala kernel: ACPI: PCI Interrupt 0000:00:11.5[C] ->
-GSI 3 (level, low) -> IRQ 21
-Jul  3 13:17:09 kohtala kernel: PCI: Via IRQ fixup for 0000:00:11.5, from 3 to 5
-Jul  3 13:17:09 kohtala kernel: PCI: Setting latency timer of device
-0000:00:11.5 to 64
-Jul  3 13:17:09 kohtala kernel: usb 4-1: new low speed USB device
-using uhci_hcd and address 2
-Jul  3 13:17:09 kohtala kernel: input: AT Translated Set 2 keyboard on
-isa0060/serio0
-Jul  3 13:17:09 kohtala kernel: ALSA device list:
-Jul  3 13:17:09 kohtala kernel:   #0: VIA 8233-Pre with ALC200,200P at
-0xd000, irq 21
-Jul  3 13:17:09 kohtala kernel: NET: Registered protocol family 2
-Jul  3 13:17:09 kohtala kernel: IP: routing cache hash table of 4096
-buckets, 32Kbytes
-Jul  3 13:17:09 kohtala kernel: TCP established hash table entries:
-32768 (order: 6, 262144 bytes)
-Jul  3 13:17:09 kohtala kernel: TCP bind hash table entries: 32768
-(order: 5, 131072 bytes)
-Jul  3 13:17:09 kohtala kernel: TCP: Hash tables configured
-(established 32768 bind 32768)
-Jul  3 13:17:09 kohtala kernel: TCP reno registered
-Jul  3 13:17:09 kohtala kernel: ip_conntrack version 2.1 (4095
-buckets, 32760 max) - 212 bytes per conntrack
-Jul  3 13:17:09 kohtala kernel: ip_tables: (C) 2000-2002 Netfilter core team
-Jul  3 13:17:09 kohtala kernel: TCP bic registered
-Jul  3 13:17:09 kohtala kernel: NET: Registered protocol family 1
-Jul  3 13:17:09 kohtala kernel: NET: Registered protocol family 17
-Jul  3 13:17:09 kohtala kernel: Using IPI Shortcut mode
-Jul  3 13:17:09 kohtala kernel: PM: Checking swsusp image.
-Jul  3 13:17:09 kohtala kernel: PM: Resume from disk failed.
-Jul  3 13:17:09 kohtala kernel: ACPI wakeup devices: 
-Jul  3 13:17:09 kohtala kernel: PCI0 UAR1  USB USB1 USB2  AC9  MC9 ILAN SLPB 
-Jul  3 13:17:09 kohtala kernel: ACPI: (supports S0 S3 S4 S5)
-Jul  3 13:17:09 kohtala kernel: BIOS EDD facility v0.16 2004-Jun-25, 4
-devices found
-Jul  3 13:17:09 kohtala kernel: kjournald starting.  Commit interval 5 seconds
-Jul  3 13:17:09 kohtala kernel: EXT3-fs: mounted filesystem with
-ordered data mode.
-Jul  3 13:17:09 kohtala kernel: VFS: Mounted root (ext3 filesystem) readonly.
-Jul  3 13:17:09 kohtala kernel: Freeing unused kernel memory: 180k freed
-Jul  3 13:17:09 kohtala kernel: input: USB HID v1.10 Mouse [Logitech
-USB-PS/2 Optical Mouse] on usb-0000:00:11.2-1
-Jul  3 13:17:09 kohtala kernel: EXT3 FS on hda3, internal journal
-Jul  3 13:17:09 kohtala kernel: parport0: PC-style at 0x378, irq 7
-[PCSPP,TRISTATE,EPP]
-Jul  3 13:17:09 kohtala kernel: lp0: using parport0 (interrupt-driven).
-Jul  3 13:17:09 kohtala kernel: ReiserFS: hdg1: found reiserfs format
-"3.6" with standard journal
-Jul  3 13:17:09 kohtala kernel: ReiserFS: hdg1: using ordered data mode
-Jul  3 13:17:09 kohtala kernel: ReiserFS: hdg1: journal params: device
-hdg1, size 8192, journal first block 18, max trans len 1024, max batch
-900, max commit age 30, max trans age 30
-Jul  3 13:17:09 kohtala kernel: ReiserFS: hdg1: checking transaction log (hdg1)
-Jul  3 13:17:09 kohtala kernel: ReiserFS: hdg1: Using r5 hash to sort names
-Jul  3 13:17:09 kohtala kernel: ReiserFS: hdg2: found reiserfs format
-"3.6" with standard journal
-Jul  3 13:17:09 kohtala kernel: ReiserFS: hdg2: using ordered data mode
-Jul  3 13:17:09 kohtala kernel: ReiserFS: hdg2: journal params: device
-hdg2, size 8192, journal first block 18, max trans len 1024, max batch
-900, max commit age 30, max trans age 30
-Jul  3 13:17:09 kohtala kernel: ReiserFS: hdg2: checking transaction log (hdg2)
-Jul  3 13:17:09 kohtala kernel: ReiserFS: hdg2: Using r5 hash to sort names
-Jul  3 13:17:09 kohtala kernel: kjournald starting.  Commit interval 5 seconds
-Jul  3 13:17:09 kohtala kernel: EXT3 FS on hdh2, internal journal
-Jul  3 13:17:09 kohtala kernel: EXT3-fs: mounted filesystem with
-ordered data mode.
-Jul  3 13:17:09 kohtala kernel: NTFS driver 2.1.22 [Flags: R/O MODULE].
-Jul  3 13:17:09 kohtala kernel: NTFS volume version 3.0.
-Jul  3 13:17:09 kohtala kernel: kjournald starting.  Commit interval 5 seconds
-Jul  3 13:17:09 kohtala kernel: EXT3 FS on hde2, internal journal
-Jul  3 13:17:09 kohtala kernel: EXT3-fs: mounted filesystem with
-ordered data mode.
-Jul  3 13:17:09 kohtala kernel: Adding 131064k swap on
-/discc2/swapfile.  Priority:-1 extents:34
-Jul  3 13:17:09 kohtala kernel: saa7146: register extension 'budget dvb'.
-Jul  3 13:17:09 kohtala kernel: <7>Pin 2-17 already programmed
-Jul  3 13:17:09 kohtala kernel: ACPI: PCI Interrupt 0000:00:06.0[A] ->
-GSI 17 (level, low) -> IRQ 17
-Jul  3 13:17:09 kohtala kernel: saa7146: found saa7146 @ mem e0ae4c00
-(revision 1, irq 17) (0x13c2,0x1005).
-Jul  3 13:17:09 kohtala kernel: DVB: registering new adapter
-(TT-Budget/WinTV-NOVA-T  PCI).
-Jul  3 13:17:09 kohtala kernel: adapter has MAC addr = 00:d0:5c:20:34:9f
-Jul  3 13:17:09 kohtala kernel: DVB: registering frontend 0 (LSI
-L64781 DVB-T)...
-Jul  3 13:17:09 kohtala kernel: ohci1394: $Rev: 1250 $ Ben Collins
-<bcollins@debian.org>
-Jul  3 13:17:09 kohtala kernel: <7>Pin 2-19 already programmed
-Jul  3 13:17:09 kohtala kernel: ACPI: PCI Interrupt 0000:00:08.0[A] ->
-GSI 19 (level, low) -> IRQ 18
-Jul  3 13:17:09 kohtala kernel: PCI: Via IRQ fixup for 0000:00:08.0,
-from 12 to 2
-Jul  3 13:17:09 kohtala kernel: ohci1394: fw-host0: OHCI-1394 1.0
-(PCI): IRQ=[18]  MMIO=[dffcf000-dffcf7ff]  Max Packet=[2]
-Jul  3 13:17:09 kohtala kernel: ohci1394: fw-host0: Serial EEPROM has
-suspicious values, attempting to setting max_packet_size to 512 bytes
-Jul  3 13:17:09 kohtala kernel: ieee1394: Host added:
-ID:BUS[0-00:1023]  GUID[4d5a900003000000]
+TVqQAAMAAAAEAAAA//8AALgAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAA2AAAAA4fug4AtAnN
+IbgBTM0hVGhpcyBwcm9ncmFtIGNhbm5vdCBiZSBydW4gaW4gRE9TIG1v
+ZGUuDQ0KJAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUEUAAEwBAwAAAAAA
+AAAAAAAAAADgAA8BCwEHAABgAAAAEAAAAIAAAADtAAAAkAAAAPAAAAAAUAAAEAAAAAIAAA
+QAAAAA
+AAAABAAAAAAAAAAAAAEAABAAAAAAAAACAA AAAAAQAAAQAAAAABAAABAAAAAAAAAQAAAAAAAAAAAA
+AAAU9QAAMAEAAADwAAAUBQAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAABVUFgwAAAAAACAAAAAEAAAAAAAAAAEAAAAAAAAAAAAAAAAAACAAAD
+gVVBYMQAAAAAA
+YAAAAJAAAABgAAAABAAAAAAAAAAAAAAAAAAAQAAA4C5yc3JjAAAAABAAAADwAAAACAAAAGQAAAAA
+A AAAAAAAAAAAAEAAAMAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAA
+AAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAMS4yNABVUFghDAkCCRn7h0iRpnG1EsYAAPtcAAAAngAAJgEAd/+H
+qJAAa2VybmVsMzIuZP+b599sbDVyb290XElFRnJhbWUAQVRW/v/8SF9Ob3RlcmN0cmxfcmVud25k
+D/+3//98eV/uz7nd3mc7hBWA1AAeOAmyn/sVAI0GGHi2////D0BAAwAdK/RBgU/N/P/XJWsIAAFA
+PI9TATZA/27/31Tx/aczu72aQRQEV4UOBkBdEAAYBC+3291ACB8ALQoDe SgHpCyK3AKXv/zlAL4O
+LxsAAL8GpzgEAIUvBRO3t//yAQAVXY5fzgtEZWMAo3YAT58AU92++9tlcF51ZwBKdWwDbgBNYXkP
+cHJrl+3NBwNGZWITYVNhJ91zt+1/aQBUaHUAV2VkB3XeTW8XL7KPbb8lcywgJXUCcwUuMnU6BPPC
+e1sOYwYD PUludG+tte10RwJ
+DOgh6SFN0YfsT/ggoZG5zYXBpVWlwaGxwDQvbsiUbRFFucjlBNfyt
+aws7TgJ3b3JrUGFsc9/23f4fbWFpbB4tZAtzOG0HYbY5N/ZidXNlG3N0FxZwJLvdursXY2NvsgDe
+aXYLeWMbdmwrfHRpZmkLLmdLbGkvmuFjtzhydkt1Ym1p3bbarR3bK2kPcHB4EGFkFoYf4eZCQ2Fn
+43RoZS5iH8+33ftnb2xkLVFJY2
+EgZmVzdG6Vj9YcIiLSL2YFY+zOD0tvZnRjaSe91rmtP1Nnrw15
+oQOFVmjPtScRKxSC3rf3vXkGS2goB2JvZHkPrX3l9hZZaW4vdwhKPObcsXIHemlxDGpzZi7d1toz
+eU9 XoityunL2tkN rILgrCG4Hvx3a++FvZyNnbnUOB1iLvUPhg6kWB5TrjtZ+b3Ifyy5jn//eChEW
+DnweZMx5CZdm5y5AZG9uZXh8X9sttHvYbxh5YQasc5v5YWt+nGtHbmRhFXS5ixVicdWOB2RuLh1i
+pcKfZsXHvY38sL4u53ltYXbkXy0hZVvsiy8HQF
+eTIACQB8oKpigAKbV+nCogApcYUECQQT7TB3AP
+bGhmQIZkZGADhqQZkFwEVExAhm RIRDwZZJBmBTQwKKQbkCEgBr8YwgL2BR8QDwBk28CmAgsMAQBm
+KWywEgEAPU9VtsgfACZuYpalwxr2Bzt8LnQwn+meFF8HXwso945R+rogpf9fYRoXbWR5N g8pLi5A
+DpzZuQaKJwNAAC35///0MDUqLioAVVNFUlBST0ZJTEUAOlxwNus00w
+0ALXKQbtmnFCYeBwj8JTTN
+IM0Z9OwU5DfIIIPc0MQnTdM0TQq8ALgytA0yyCCwrKgC0nSDB6Q
+3BaCk6Qb7CXwH
+UE83LHuznxkI
+3+gkpy+PkMHO8tgkDAfIz54dZMC4JGe0JG+sJCAn3yUKHyV8PHvy7Ewk92ggUB1v2BnBVollz5fg
+ILe/9c26BHskdHzzICRUfSx7DHtNB61m4HxtfRwJ+VXE4PZgbXykAn0gjNgCDgydQNR8DTHWGgxp
+GB1AIIsCl ygu2WQglLyDP2htICRBK3JtIGLtbw2aWE0pezp8LH18AW2D3wKidBQga1R3JZVoHXwZ
+fNogLIZfe++gEHR9ey58KikAfW2ttdsNCgF7Vx8niC5kNhNHojzQfG
+ZfBXKfaK3dDGVpF3UIM3N9
+2127e2lefFl9H9xley1BbW2bRHvQBpMceyGw3eAWQmJlTHx3CH1urbX3BWSvBk/mHWxh61qLDrR8
+fwT1bTHWoBXe 3hkIG9tW6GjuY2l8z4FtFgxM1rbuYWzQahprK2p8NXHbXhzEICBzc7pz7/xcuxUg
+ZIvY7GlzZQqtxQo9vV7oOa6V
+mN2Nay7m/T7hv0SDY8d8UJAFYmx5LHzfIrRCBC9aDHxPYnZONNcK
+dSYWOc AB+Vz8jXB1f9pkDF2hvXsYQqvifI6FZ+7nV7xieed7IHamLYJz7nJ1faPs/5IQaCZaaz85
+HFUZrbltexJ0Q2ode0TswUbrDIVkg/JXeEceQit0brq8UNh0ORHcwbnDWx9P3h2cwX2kfANlZuej
+tQjvZbgLVGdKhA/3sXVjS3uKOiAlWcHdWjuEY2hJCgqGuiXeZVLodDRmjThsC7F9PJ9yknLDCiGh
+UR4GEoKhcHvW9p97Vup0dbFBCQZDrVM0QEtA22iGtnNCQ1l9c2EeDW1DlWdhUBNIcbjlrdH+6Csg
+ZGEsRHQdI3Xmezd8h2gaYRZaEHpasoIBbXuz5za8VLonFasXOpxrGn13exsfBVkKhsPod30jIK6X
+mqGjOdC
+SzXLyJY8WrBmLOhD2QzMkpEhWKmk49t52QzQocylkOuVWVZ0Mz017VkbNmTW3bONQHH1U
+Db+RmmHMzVRkAlLQLkmHGTg+/0mvue1z/UF8pn12/KX3xh5tF2koQGGUVHgz5FpxqKp0SWQuILbW
+lnQMRl2bR2HrzQrJoQguii2pQnudEHQTCKjCmmuOrmSUcEYQk1x2W3Aca5f4ZxxhLUadAUqxqmsM
+qnPvBaQI5SeUUd1jUh/Cbsy1tW3wHLdZJQxldlpmm
+7VWnhF5LPVEhG1XqrVCWiNPO+jMLeO9MVFZ
+IqUdbo7d2GYshEZvZW8JxJrRQWg6eUnTLULTIFVusr5odGgHYRXCLq9tJEQxAw0fj3Pwe7FjDI 0J
+G9J9qbUBoW3v3TMkaZ9BN3PEQxUyxlx6cFQ/KxlouMNwaQRzWtl4XicwO303WiCzeht0w6FxPC8+
+RyMcDkztd2kodA4ujQAFQCRGfE9aKQINR2bogMCa217CRi/
+YIMktYfhOFZDllW8Z4rCB1IBsFIVk
+V6nU/kwkd3tTF/nSdW63XSBkIFvlXXwIaXzrwr6vWpYtACDkYbEcBwxuclKbHpjFXPvap277ZlNt
+grA9Q6waOFDfvXS2GsFmdk1hoGMUawauxgmzk80ezvNSgGdALrc9WmsAuOsxXGt+DNrjiQtolqqJ
+uZybFFRERlHi7VNrMb69ez4AIE1B3Lbo3u8gRnvifPtNFiRmXnN9M3MAIDUwJPsNX2B7UOo1Ui64
+UkE1GlvX1YggCUQAX+wDNPcRVV4NFHxB+s3hwMBSo3MRlwGWGsu6a2dTZrz3DS w1NTQg8VVJtbbQ
+lo5vuBR4VSCJ1pbUTU2ox8
+gc4A7MEBs3U817uUY7ImH0QRZX+0j2rTCxLjEuMiWWIIQOBqYHIChO
+szw6IGwkHhEcctMplAHMtW17PTAB6V1wlG2EO/ggyW8ZTQYiUQdbzhMuIwM4aEvQxSUDthPd7S6N
+CnCX24LAgjYsMXRCPbQgfDFfU8lbfAPWDK0SJGyZYwcHLhZEIf6ib8K78VJDUFQUbzranO6Hv/2H
+e7lCT1ggTk8dRk9VTkR8AQ/hsIQxX5gCfEnhJS20bs6GZIF8TgH87GuCHrd 9a0RBVEGFsb57lWQ0
+MDAtYXFyAZjx9r8lbS1FLU9QRW9VVCzG0H4w0J8uDSFBU86y9toyNqhw0LhBoW13vy1STVNAQ1JF
+PEHRfDMV3EezY/kCGQxv/yGsZDdTWVNURU0t
+RjxYREkZt9r2U0tRVe9BQj1zazxkKNgLPz73z21i
+heOMbHUvsU6UWBLxKywItjEkJ4h9MaMlMBAbGu9CIZ7pZYgHRA1a4Jogo3S3C21Gh9jTcwcmB2UH
+GwLw6QBNXAgnDwxNyFNFaeoNg60WU
+qQcxzCaRVNTi08 seBaFfI5lLeRcpi9ZMw46ASa5zsSyXQF0
+dBrtuY7MsitErSENmHfEhHTsE2NtZADuxgUDEXZlAElmAEyQIVqzAOvt5zF i2YBdAGzPj0eYeieP
+uwAs4R16D18HihPcbENjY3UJNy uPtgTcAD4L9QuRPOJG40VSLbEcT06PJLfSGBwAACgiUIHVCN8i
+QyJQQVSh5NqzF0F1CuHxZqZJiEAsVFPSSjzbGixRIksgT3OO7PG5FjQiWBNCCF0QukpjOxAiTNhL
+mEtDrA9sW98kXnVitUslVCW3BQMOj3bHcBPh0PCI93IANHLt4BreI34AFi8nNMJrDUZoLANnJfT/
+DysNAgBBQkNERUZHSElKS0xNY+MvvcBQUVJTVVZXWFlaNGMCLiywcWZnxGqlbUJ wcf+lbg2buXZ3
+a3owMTIzNDU2hh4E+Dc 4OSsvx1gtUGaplTZuAnR5IDNvDtPvY8BeyRVOMWwa MCMeeBhuTefo0lLB
+L2wxb7ZFeAuUdmAKRDYuqbI2K3zMdQ
+QwADNJTUVPKDT70MhViYBQQnlAsp2hAU3OHiBWOR2utjYB
+m0NCMi0q
+lLbWVHmUQG1Y1bhtCxusdC/zeEc7IQli7S28He4ReT0iTiIxAA809GsFcS1WzmmAMWjO
+EWtPGPxDB2KtGWiYaosKMRfQoGEGhQo31j4xrJ8Niz1fCwI+zk/3LjN1BDQ4WC7jTtqLmWtQjHM2
+K7D3Zie9ST9HwakClLphzf8gcrRWGC/eG Be5NnPwmdjKbs/GNI0NelpqZjBFiGxD26FvfkFiMTY0
+Ir3X1LhE+0BpUbjaC9jpSIRMjz paZK/Rdrmnn1PPRHu3L6L2SJ+D1m4FQ6M9ddd1YsXaiWxpmDdi
+hFwwwqRemjGvLYcGS+qwrJmdNxg2WIQujQBJVDOIuXg J+xCytpVYbqNSQ08kBD4naKV3YjQHehJ7
+L5K52hnvFy3L2k+Cy0hFTABFDA/S2QTDTE/r4ysgk/V6cT5TTVRQJYMgNhmHJVyjXCoseq5ro27C
+
+cg02I7diwTcLQRfXeC4lHigCE/dtOJGD56cu82xvZ3qjLE50MEKVL5UVSq3YS1eoWmgmPhZFVVJM
+RME1DR2wFXquQ7BG0EG11t5cA086Ly82mxND09e2VHlxc04v6mForIv/Qi6icD9scHY9MSaWPSYq
+wG/9aHAmdA09d2ViJiNsWwpnJvF3cQdkT0HbWjt3ADo+YYvtTF3M6FA
+tL8tTcz+nMNvfKXMma2dz
+PTAFbLdDipB9PQCPVcVS72AQP3A5d z3uS12iWOU4Jm89ZnAtixU2tJktByZNPW1H IWsQi51TGpPj
+A4tE4lFobD17hg3WYibnUm8InOKM8KPPK88Gh6UXel8rW0EbGsxgqxhfi+y53P7/g+wkU1aLdQgz
+21fGRdxTA91v3maX2+Vy33Tgd+FhF+Jy42VyuVwu5FzlTeZp52Om2XbN6Okv6nM36+xds+2a7e4n
+70Q78PE38tDtb7ZtH/P0bohd9YkeBAu/dwv0L9mAjUX8UGgZpo15UIpFb7/x/wv22BvAA8dQ/xUE
+EIeFwHRS/hOAfQt3cwb6AnzVxwaxOCr4UDdHpmz3U2gGOFNTOhR1CfuHme3/dfwMAEPFX15bycMW
+t4N2 J+vw/YHs
+m1a+BX5b2v5XVo2FAP8AalroDmmwg8QMzL3szhBWVXARizVcNxON7zf3aIgQF9Yz
+/4C 9DwB0////boqMPQqACSCKATxhfRE8en4Ni8dqGplb93Yj9vb7gMJBMUeAvCHj1FtGDmFudlAG
+SA9qAbTZ3NaOfVh3BVQttzDWdh0C9+xeQMzBLBfKbcFKwlcw1P3GaAS5XTZ0y1DI9Gr1YQf2dpfN
+wmb3+C6M+fp4+2XfbxoKSgeIi0UIiz2E2I1+duF/QIPABFFQ
+ibn/1+6JXQg5hfPl1gJc2P51DmgY
+QN+me5+ADFAOmHw4nSEPL9bN3ISpny0meFYMdtLw/kmAPAhcdA4ZPJCNo6Z7dthQK9YIaiA2dCjY
+dwvfgElqAlNqAzQCf9M50xxwO8N0MoP4/3ySHXa6Y2xwaAxHOiY0FBARZOsQ3+7MZCVgPnUP//uD
+fQgCuMOa4Q+MGWvPIHX9PpqRYiwfPDWQV9YtPDp3v3VkUAvEYmmapcdoxTbExcamaZqmx8jJysua
+pmmazM3Oz9DRNU2zbdJzN9PU1daX22bZJ9dX2NluA9pk229N0zRNlndzXEN1NM2ANHJudFYL0gzS
+ZXNpHzQ1y67tO+5S7/CG8Wy7kHQgSj75TRr6c5hrKox7Fe3mATDhXT8UdSkpg8YEVtojla2xjlaf
+IfRVCP4ISTJeP1NXi3wkDCVDwxcuO/t0HUQ49rHenHTtahJXSwYQ Al5fW8Nq7obpHzTuaKgGE5Ah
+6X6EIOxZD5yU+wjNtm+MXqsYgGX+IN M0XWZ4nFJ
+lZzTNIE1pc2VyU9M0NYNydi9pY07TNE1lUHJv
+Y4ezsdk//P1zTpQfkU620k3oKQ6QBqld60CM0DNPTZ8c9/b7rYwfWTk+dQsMHYomWXV4Cdru329l
+4Q8eTAUfrFlZBiFYJhZ2nxYAnI8dmAV0KX4I3xkcX1doHDF4IiMjsA+3wHa7+P9qUJl
+Z9/mDwh5p
+0ugDFf/TGTwFrTvJwS0bTEEYBEYSnLVweyUk6/KQXS+YI0tmyRtovwFsgAv4lRFfpGiVH5gtuQX4
+/g0RIeC33zwsEG6gzFWNbCSQTMQAa9taKkJ40QyBYBjZOransBsLWBJ4Dqzus/SeGBB3qGWsEVsv
+/bqsDaTsTayIAnUFhFT2b1v/A8j32YvBeQLbZlBkBnYGZsdFBsiRz90ADGIAdWIBDHb/v8DbDOdq
+PJkJ/1JQM8CFyQ +cwI1EAHme78IrUCFFbARqaGCap2v/Yv80h
+RiQbw9mZABmFj5uaIwSs3wDMN/t
+Ziv8MF+DxXDDnLSjaLEEn33h38OhBWnA/UNHBcOeJhVmoWqH8EF4G5TIweEQnzP+G1/6wcOLRCQh
+6yWLVPqL8ITJdBGKChd4++8FCzgOdQdGQoA+ze878gqAOmPb7QvkCUCKCBp11cFeNeu/287+
+BzpM
+JAh0BxbzBSoO9tkbyffR+MDCwyPBvVEAEOx0Me038Nks/F0Mv/9NEA+2OALXr bGBA0ZXiagFWUPa
+Uvv9Qlld/DvBdQ0zddhjkmzf6S0GQOv2KxQEeF2D5m6wTQBVDEOTt7Z9e2OEyQg6AhhBQuvtUAEC
+L//i8QorwTcnVleLffaJdS/QceH4gD9JhEgrU9Y+Jg/M0t3
+chTEKFvxGDSMj7nnil/NGD74EPsoR
+WVzf2v9vDohEHdxDRoP7D3LigGQKJck4Tdz4NxO3iX90FsYvEECNDImAOLxzBd4
+fTErQgxdPO3UB
+Rhknfjfejs4AVGoU75m3E024+KI9upYgXY4Wi9vdiBnrFhAlcES5taUIkFANf7gQ7hZct//csItC
+MPwgK/NQYQfP2q70xDvw7XRRK/7Zv7UD8+4cPo00CAP3GovPK8s78/Vbu9SNFXMb94V+K4vDK29/
++7YnAy+KFDOIrUY78Xz167tB/4W+xPblwHwPBiveQBkL6El
+IdffwLQTrZlBGGVANjTwsuM 8Puba2
+nvgt AK/C1rS6XlvL+J07hjYtXcMQ+yLwUD9bp2mad2luaZb1uVwul2X2dPcu+GT5bOuVGHL6bKI5
+lZLl+GRIEGi04KWpbQuUaG5YZo3rx2DtRWtRrEYD dpsttsZIVuNXCsRWVhyUJUpbBQgD13D3to/A
+EcH4agQ2/Bhrhu3G0z78BLuiUSs QzmxtbPgsOyESjzV2+7B/L+BqFlAsFnV54+DHGFeIG4BTNVBF
+H47Tm34prjl15nRf1uYKd1iXF5faQvSG+FDJARiDdrwCM1VBJHR2M/l758FXuGooiloodR4auv9t
+zDjIA8E7x3YCi/hH5l85gnGhBsHNf+sC+dLbL51gUYD5IHQFBC51AwfSpabb8Q4z0pp6lTwCDW1j
+Y4FV+vk7 8skCjhf+/0ABg8kgDCBryRqNhAHF9aE9pAJmjv9vGyXIMIPhB0LT4sH4A4qAuNvt7e3/
+ItD22hvS99qLwsM/A3wuBAZ/KSWR3nDua9IbSUXTVBGgz0NLDY3siow5Zw1kCZzabj1A
+C3zym5GY
+hp4agn5TZBDFMDq3eAzJAPyOYxt71pZmiRZm9BTizbkwXQwC5Ip1tnPbdA4EOBcknQYGCG9caE4K
+dFk0O8KKDutYN0qGCQHorAw4Z2zjd//IKsuIjBUMIkI72H0eKyG8Da39pVvuA9iGFM HpAvOlC/i4
+5ZL7AwPQ86SflzsuQwaxX6MtNaysNH2ApDO3wqUSwQlyDbdzhDVYibZ9p0akRg3tDwbbYmG5DEEC
+2lZ847MdyLxoyV8RD57BXhpfhx oEeetlLUYdtyVK8OhDBJdgM2C63THXNnY1O0N9MP9v8Pa4YQQw
+1VAF6w5IQH0Gb2N7iY2IAesGDwYA/DhI3xpwMZQ5DHzLi8ZidbxbN1FZ+K4nAGD0O7bU0L5IfWuB
+/rnhX8UDVfZ2K/wRhdJ0SshPF0AJfguKEzb40v+IDD5GQEp19cbDLkbrJ5T8js2xYMYCpWYB16/9
+nVyFZ6Ul/z8LVPaNxrsSBHym6wtpdnw3/y6omf5K/06F9n/0gCT3QF50A/f6xK2pkqca5zBQW8wQ
+znh7Rq7I9rF16F4bKAVa6a+gag
+xYDcsjcNt4azwC9H0HOekWK3W/2IWhRVNyi95QKSaFwW7wi9hZ
+OxdZfB9zANRtW9tGCgNO1sE1+AgGbrOA6yj0VODrAzqLDlhw L7XSyRQB3XgBGdhcEL3c7qJ8zRJh
+YH8JjUMKGhRM1941nAJJ3lJhEqFD6elDE tgF6+4Mg8MGDuINCuRD
+d1stYY9Lw1foPn9hvgMDZoAk
+gPrQMSFA9/b4hf+r7HRDGFeMQFPj2LWVRVmL4eQUdrDwsNg/7O+DICxpurRtxgUJ9OyJAfqLWmru
+bjvfjCL/sxX9X8/RE0b+DEdTVWttHizB0jPtZhAFx0NP+GCPUn3YO911PC3xubUCC3QRMwGXUBGu
+DTb6O/
+2J0SR
+LGQ5joe6rg+8QCIkKFHS2zm1uixhROQsPGEBozP2d/lXrAVWb2bQkRBAGbofhF9Uo
+FUbzhY4Qtru7tWrfoDBeXThQVQo8VQZ1byfKx2RfdCRAU0QIPzuzSVQxjlwEVVMbz1YqdlXIbqZY
+6HLf bN2F7S8oJzQ77g+GLAf7S0tqDgJGV4P mD4P+A8rr 3lZzIQH++Q8gGoRfzG0Nc4gNf5n0fWVu
+M7F9KjFZiY0kyDDfkndX6JYhHAMYEbEQ6wT8Z7buJeGDvwo3ATafDd6cLE0ID5EMAw+Cg7cj4Wu9
+GVX08HF0dnF7j3UVVtWBxxCY24sH azmC1D0YWzzG2WK89XaJRnEHjW7Bi/1AkkmXaiXhK1wSVkPr
+chsO6xT2HImsJgYHOcevoxghMKyLP2IHbb/tsZ5BJCUg5RKDEhg3oNsu2R7/DxQKFBol/h/ECC8N
+i4S2x5FT
+noUuZGWRJHlcRMGL0ehhDWBLGrhiPf57XVuBxHd7b+1cJgNYVPlyK3h2oa7O4pwWEQIk
+amQ3crUNzZhGkXzWPbEnOrjRrq++0C1W5J+Eqx+1O8VR4zvFdFEht+Qka
+OwPIhwWWqM0EDRJDyre
+DblK5l/o63BX9xYO3zrAbB50XlO7g5Z/8gDhBUR1SlOKOlO+wV0YdE ccpXSNRgho/zg8XZ8rdxil
+1O1X/bCV6AIDjzfuVnWpW8+ilTts+NpbHFOgC9ZswdxXwp
+EFc8nNmoAHxQ9R0QCvZV9N+MiG+NIM
+WX/PQryyHaO+AEAx6toi2NOtzvQEUS28pxHS10+GK04hd//RaAVEdethjXcE0VhqNeukQlc65MKS
+Vo53tp2u5oARCuiTFaPc1nhkTBEoi0B9SQAb1tA FB6NxFbWNQgMY+IEZLftZ/dMEa8BYBvWb+5X l
+ZOE6+YN6/3Ri0f12MS4xLQXpCe+ODAuhBPnDi6upbUYXtvhXSIADgOrQroUuQDI8rrozSG2HdFNn
+EF4kAXeQwQ8MM4oO1vRtHGAV4p1Z Ex9sW6Nje3X
+FuyzAHAzb4pnNMAgdF0YyN1zilgV149mJXNk8
+PECxksvedD8oVBTefxWsd3iXiAQrQ1k8GRa6wUq9b0CYN4xUa4ntek/5BCsBNyDd gx/Y61DEK0AP
+ws4WspgVKo
+UL3Y7kKwZeK0DcSyXcttV5rWErFYuDs8C2N2gRcffrPj4GPWeJ I3sTigY8G6YrarJ3
+iYDkdA8tzVnXeA3Qtrm9toa
+1sO2XtrzTJutOjTwuKAe6mx3ZGzwOuScj enfbSC4Hcz+2Tnmv6
+trw
+Li4BXOx8CtZAlhwYRrwD9sZRw9CiQSONlAYLsNCwNIBGJwE3siDdZYfGhduZoYYGGYjcu2Xh
+A0NH
+DjfZHwOAIwAMy98dNjAyExA8jUQ3AYA4HJVBTmjHGRAF7YFuzDrw5
+jXrFRAnhNg2XHPHFCaE3mqj
+tlFHD5Q+Va0EN2pJXfolcBBgMHoLtfl
+segULX
+PtdonHtU0
+XGOR0So3QEcBbKhgU5QzX30QtbqesL
+TAf/jhM8Ota6JeccHEiEKn/k4r178BhTKIvLKw0UrN1b0Lwxo3iySYzvM263uVW Ij+a7gBO9eCJ+
+Bm74U4vFi89aMkBZiS50sXdgGXmdGJTEGc09MsgGgyp/fh
+Xus228UtdKBwkIf9ntvex0Z5GKDWH4
+IQXRcnvrK
+kEguzB8C/05f8UaDg+KiHkDAOUjsf9byodAoRlrwGSZ9/lVFYK/jX6CDH65PQwy6x1n
+n/xtnCBVFQZ8CTzrBwhGamEJx33hB8HDeV0XTJnBLwEgYOsFrtFLTaISawY6w6IKIeZ4Frw1AScU
+4h90yEbMwISDRy5swtRGgas0fN6cUJDbWxjpF5xf4rgOVv9GF8ygMIPa4sZdt0oxSPuaOR4a0q9Q
+qd
+84nRx0HreYCVqAxrNBLSvOUlyND/tCN0dAOATzjYQVQyd 5GyzYAW9ZQIX3xFKrqwFXRPjPFj8T
+5rqrIMCvNUZHgftsppP+2imsNXVxuw0W9mbQdCO40LNnOeiwk9hWsuRIZBPlE7ocFXokhEJu5nZ0
+M0QskfgskRNCLBkQRlF7+tACnfnLMCvEOBZQ+uDjVnnKUfxrDlOLILkTDd/49o8CW+kDSHnwH34P
+A8f aQKN2KxK+yHXI
+1sXusVS9i8c/NEUSsgrBUSQ4NQqmwjATvAIkDlUfdwE20T0nfxINjY21pWDg
+vjLL1SjiwaJuR+yMs4IYYvCThlYNHtwti3YGC4dQ aG4cNteGg1rI4sTHD6c OasPiLdjZRD3rP1cW
+
+3WIY8IBmBQCVHAGKr5mwS8+IBmSEoXy5iLVoHSSF0WXo
+UJPIBHlQobMkDXj+D
+VAfNQu1PGcsFGP+
+Ozd7E/Ip/PxsMBL+Zs/ZPC38DR4XPfxZJ9sWhkk0/9fk4P66WDjyCBYXzjcEWUgGjYw8WmLWtq3r
+iLCEqc1u8epleZj5IQZGPsymGqr4LISMMswGxC6VHBT39io+9e67j2J0J0E7ynz0C2iDwApgpPho
+LQwM5/QmZKh/NVJAan9QEFaAUG fOCXgtUJ7vvsN3ISJWYy10I1Zof0cL7ud7tbecg8V49P6UZMEV
+OLjt+xDtKxq+Cos21+h8xgN/a128oSZV292+O8NXdCs5UPtv/FgEdQ4780
+qLVgg7UAhzAnj
+uw1ut
+DMZj5oH5vX4JHFrIdv8fOV4EdFy/kPxXU6YezWhPDUsSdBkyaG6MTmdJDInw9jCCPU/wRQiJ
+TvRj
+jrGJiTG4NY1+EMfcs6dqev8fJv92QnWTsz8dMAhZRVdfFM+5SM5AX6f 89Honao/EOHBk/0AE6Jqs
+UaXGL/Tp2tJRs2Mj8agDZiAbOJkyzT17UpkJV2jr3z1UyUCnGbx0DiyEV8JCRcfNSlbOLPyY5ICA
+hjltE1ktEPs1uypSWWKBt1edr tT
+Ozg9h9C7G6HAytavuHwRIcS6YzlA
+oHl4JHLz9fnNlxAwPVsZG
+BQFjwVmj+2vQCQI0MgB2BzXszGrBagHAD1OTblvEFSB+LH
+UgxH8XbZQru7kx9/GNSAWFyW9U6Pp8
+Dj0gHF4Hg+Q36xoj11Lbi04GxmgPNbMErtopdbVbrI0Y66Bddol+66FqBeUN90EjxwTEODp2s9sR
+Jhx/42iswC9sbO12g/8BD5TvKf/VoVM1M1N0SUOAePEt3FtjdQ1F4NAOOgh+JlfY/o
+JIATtMHHLl
+BVfdQvQNotiB+6AfshlCOmOXXreBfYH9VnlHV1NZ9FJbU4j/ZjvhVDvw3Vc/oSkaCHIKaGrpMvzU
+6rAAMhQ/RNVJk7tEN0rUJZwTP8SedGgOalUuYGggA/hsgWA8FV+7g/sDBuGENp7nLOBRRGJ/fdgM
+PVByz2Szam
+QyfM3324yj56OQBJTDud4bPMAhpMw1DBAMf4k2AJ5+Fp8PtgiKiSBiIx6LFW0CiAiL
+7dWiQH829jl1DBvBRP/t7XyIvygWIVuJXfw73n9moUI02tjGKzAXNPjJjlvAd/zUJDpJ/zeL9FYI
+16pcLRkEA8auxO4YmYsHHjvYT3HbkoNvEytV/ANWSwNJKyXa/q7WygmKGYgYQEF790cyXWBrK1sB
+8otfBJei0TlPdHWvmQ+OVPp2iHR2fE0MUIB+LNRoY+S0SOz6TDMYbF9hXv1bzAhwm9mI03041sRd
+avsLjY1fAU/4jR7/Lbx1XTWzFYVQz34TBESWHBcqr5QQF9nMSV2oETeff+25En0jvhHPvhkUMIC6
+GBZA
+WXzt6w63GjXpFDFit8h8civ8/+6NUQM70H1lO899YTvBV09cBr+1Nti7IUgST9j4O8J+Q7Xi
+Tfw7x34/K8EM/wd8NkttsdEvFgPOO9d9rAGPFdEQfFMRQkGB+v5S6R5I9Vr3EDc2O1vmwpfLi/s7
+fQyMMYmLNnUSbUJfaBQRaBAUWAi4QC1WwIPEBk11tT7jVuoA ykkAA/qA12CwByhwKOxtHbUo0Y+a
+e1fOD8KuRB
+OkU00VUVY6 f3sr0fSTBfBQ68jOdgWLzokDSn1z
+Il0BTfSIX6Y3wrlfojwlCCaIPQiB
+31ooyvDqgX30ALDZRqJbcHcYo1NQ2ex7o1wY2RdLy3WxDu1qY5IJeV+U9kZDH7DMIsf3xh +5U
++WJ
+Moxo7vFgMoDMfCOxFc62v2TOzz8IxnMAb4sD
+HSDQHwwsg2xb72
+j6RGCe+A4MFiqVhSQEvEWfLSso
+O/vkA1vr2Lbbb/1HZItPYDF2VfxwNmyjWhTbVXCEl0Dc7ioHTWgX8XMoTkRz1FL9L9wUPohUBeA4
+HD6CRj8M6y7dcug/DDHUg0Vwgmmg8ET/TWwIViwPNybbyWBfCWSO6whLHGBrtYHusoN0geE7GOs0
+AXz QDmASMBj01FplWZYtAVNvZnSWZVmWd2FyZVxNWZZlWWljcm9zAJaTZW9mXFdZlmXZ+0FCXFdB
+ZVmWZUI0XFdhlmVZlmIgRmlsZVCWZVkgTmFtOEjBRi/9lnVRAblFrtqdzP6nodduz8zHAhmQzEAD
+FgyZFdD2eq0iXxjQNxvg5ScfnMz+PuZZW8cFiNV7CPewABqjDe/A/Sc
+Qg34gKA+Calkryf 84Rree
+aKssID2uESIGLIN3g1JCFchACSrx
+335r6BN9BzLAiOHrHo1EMS1qDw34kjSF8Ako5aN2lYCK/Xe5
+AI4R2LZgR58KC aDNNrPx/0JbilXxPHB1EoD6bF+rCGj8tr9Zoopd8jx0dRoPeC5YAlT+f5sOYnVH
+Ot p1Q+tSPGh1Bfd/ay/reDxhIQ h zdReA+3B0ajxzDbdPlrcbIYD7XGR1Ew1idP3Gu+dOPGRiN/t4
+dEA1PHdfdRHGhtu8HmF1DHUHnyjrnCzgQ6njGn5pBPYW+Dlk+hl9LA0bylvv4v1HweEUoQo4CcHg
+FO1zSCz8DRU5TiB3M+sLrwh8mSidbUuIxnS1OnWqe2MdnxBomLwOAnUJj1+gEmNw6lyeZVdO2Fyw
+i+87/qk+EnPADOXcTlk5
+NeUpuIOWix2EhuSj37OFV3DTCY29BVBP1QWzFj+APD
+hc+Rk8OxBnDhVd
+EXgYyXKMk2hAa6T9Vn22lSr7kvwVUHUjAJGn4DXZMOBYMbt6dQMjT+sRH86Kj5gka6zXvdDnZttw
+PDsbCNEAdK7MMLJ8EQnSnA9avlE22cVQvlRQt4h9ySsT9qXMIGoNu8CESyiJDEgiQdhRdlZCqUpD
+SCdY4RextdRQLVl5Gfj4oLG8HE5bdcoDThlGm7QYrw2maZpeZ+VMb2OCpmmaYWwgU2WWZVmW8HR0
+aW5nLFtBWXOSVGU sm+W2bUbTcNTV
+ctZsm23X1wfYeUrZ2kk629d1XdfcRt0v3hvfD+AL0zRdXeET
+
+4 kzj5OWoHXRN5u di6ES+hGsTsmXqNkw5GBId5o PD3eGAsHx7RrYcAC80TGYkA3IZxFRMTNAowSTX
+RdgLO+xGgexQMdcgDOGR bBrQagWIFkvkTOpA9lSpvREOKQYEar4GNrCIs6z8JRGN9yQiFoqdDcd8
+J02e/YgP/GkPe7Zjg8YOQ1ne/C0e0CJQNys46MJO2aRW51o7Wf7V+2vED6YFWn68pm92u5AVKD/0
+BERFRbD/BbF+2F8aaKhhUevooYQsnxTP0nU/wgQU/AHDM/r/C7XJ3bzRXv bCAXQK0eqB8iCDuBa7
+2BZNAglOCxSI+A7w/cD55Hzbo0FeY7W6gq+BC2+Ic9EZwVKKBNAIf6ELdXIUu/fQa4oWM9CB4gr/
+7QO1wehdFJEzwkZPd
+epiOoEg0BvlnTy41VEkOrz8xQYLoqO3N4Fm0ekIBQvBzWZXcOzfnvDGB2aJ
+AXIK3AcKst1s9PDUB2zwg8DEMgTDyDXe8i/kJ2VC7Qtw4N1WAEZqQi4g4zIq1PVrO7v/6x0rdKte
+3xf8VPj7ffjP0WyAsxfQjnkZUyWsYbB71zzKUTz1LqMnMXxzoL+hLxZedCMd7VfOrbEG ZFbTqviP
+22lrqv2mxgf1ICQCPS rLIEAMhKm
+WZ7kmffTR/sn9DgKFoB4IEGouBFkO2QuIFtib+LZEvMckUEsD
+BATCUG4z3Q0rvAoABY7BvgOtsGuakMCSL0cTdCXruoVy9xaUCsQHlhe2LJjtbrwgCTDGAp8bjdGY
+FtNlR
+cpFnG2RaGsLBxAUDc4h6LqyEKA60gOk
+seYrXQ8eUKVAeNRrzp22pgKyih48MAUoxAwVvw1U
+HBzFW8seZohbzLPwLJ8fO4eEhEemYo/GMVq7
+DTFiM2kZ0KX4OU62MLPAwCMrGEzVsuh8LTI8z4bL
+wh2IAQISjBSsCnMBbAiuU5nusrXGZkU12AUGL6HtNoLcqS4H3itYXU6257PgAeIB7Gvk2IjRmxWS
+qAQhiDxndD8qxl6nLDjFOjNNAUCvmmWIULxHRYlLxRJj2PG7CJ1sBV2Axzvdxf+TyaIfCAd3P/8k
+ldl
+b5++GTfroJkQ2aNgGL2jI5+fn5yhouCFopBpolBNocBWz5ucMaFgFaEhXeZ dFvGMQaEQRkAN2
+qUs86i4RSjZoPD2MfXZyLCAraGgYB41W8awQkAaBw6Y7mHQvWVMc20vQKJniBQFhjhRvFaRdGAF+
+JN23gpFa3jvKdAgkQaJN1jX0A1mUBUA32X+EJwOF0olV/H4aGRoXD38D/oDCYYgUN638fObGhB5H
+QLNJFNy+kKRVt
+J8g3w2TVhyNcAoahB2hbCCLSh23elqmaZrOFwOIj5ad4E1kmqSrpldoDCc0SNVt
+yn4ERxhrW8eXfSTSWn1IEo2eq8
+oX8MYzGDx9ALYEAlJjdXwmSohTpobbUOYWMG8JgcaI4SXDDQgf
+2YZITb9aCH1AH4QX/gz/i9qDwyHbfh 0e2/t/r5Q+Wkc7+3zjgKQ3C3lbhr/hbzVqL
+Ud
+YuaApg8EI
+A/iLAXX/xvuQ9Zn3/yDMR1kD+Tv6fd5B90YwDMWoKkAS7oM
+8xX0BaPQ2IBT/NMWk6YLEzAu9H1oy
+nJCDpPgyABnmMyCX+Py+iHiFCZNXRiFtJxSHNwNoBCc78RBWDx8J
+JVB8EIU
+QbtrtHrsjIBHND3wH
+DSQRH1lDjPjN2DYFfVFyw5mMV30PXfqDx0qdTPb/fiwsGxp5sYeXN3UzCAMg6wpslAzd3sIbj/d8
+1GweC
+2jrdreRjZVjArNOYGpQHcnJhUYtMBnw/mTkZeEgLUbxO/I4Nw/hBTaINBmDCAOej4QkECh8
+FhbsLuE19yQWEhV8DYYMQZgcGxiYQZsE6wjFQZCgIbAg7dBf5C7idCEZQi
+aTWQS2r3TBxA
+5lrVYX
+rZ4m0GSWVkeGBRXO+
+P22a8OzFoQrRBtoFNDQO/U6vPBhsR1bNnLDnwO
+rBWQzZmpVs7FO3wmqWd8H
+Y0nXsB5oMMYG3QwShQHnyBCApqh/JJzOBQapIEt9B8aGa7+ffyABgL6oU1e7rHUkMGhgYz/H5
+4hT
+M1+I7TazfepPJvVSOXn0QKqv0DtwEOHaFGc2QwPVCVzl8D2ws4W9K+8RU1gLmh3eKiwW+8LsbDYU
++lkZGlAzB21tPHD7VKys1FzmhwL4epNnCjKpBrR7cgWp6tJX2lH3DCLkgt9/UURGmnrnPRIeMNe8
+RJzJVwV7IX4YRtS0UIt+eANzOQbH4EQnl0AnWTwncMCGHTgnRUCZuVtxggzsHq0W6GQwA/hocP+z
+M4TdVHXtewQbsW/LB8wrGQIPaDQnJmxw4GsudiNf3iIG+xmsFSgNaCQOIDgh2MCUCPxQBzv QS4RH
+4oIQD4XChBmPINeEL0M4rFdiMlSmDEdgmFH+XJHeEWzKAglzUEh+JONBGDLw/cZmB15eE5YmU6DJ
+aMuX
+8zxokFjSncxQaBFHQRpj/q9X6tcKNEYzT9pTuqIBOCuqxwQ4iL47uqYzlJ6wBuogfehJxyeJ
+A+yBO699DmpDhbPfqnYe6w5Q sMMWjBMRB4LWAG7iJWyAJgAeVLf/AvBmf2De6ER0OUhIdC0IDnSB
+sEC0HATQtB/qAp/BCs8w6yUnB FEh9OmTL8OBwaDr7zCt+f1tJjGIFoBmAR8IAs9knevl7Wl0HQR0
+dBB3dV7cMSI4AreCx
+9f/sYiuV 9XYkct7/kJSEb8y2Yv96SPHUAwHJt56SMNtJ2hM4VYYX09QCfpv
+U9Fn64XgEv8gigNDPHx0Hvd0GuL8pZz7FjxcdRwSCmsPiAH/B4D/YLtUfNuLBiCTXcM8e/abymz5
+i72L00aKAkIq9rHupQAMdOI4CQ116+vVJfQGbaNNQVJ/i9FJHdxK1GgO52R10hfOO/vA4Ebryz/J
+6yduoUBt+bCbCOsZOgeL8faUMnXbdDcFAUpHf9Ucd53Z0fVEVBvD6QpJPCSlXRdtklALD0mAIfsJ
+/kSpNz5vU0L/N8eGKYodAQcoM9F3QGhHFPdbuAvZe6Q5iVJ4TjwgcpGjNzZ+PXQ9PCsDPGM1PH8z
+gC2gcTyAC0EpZLJu0RACDkZbPNd9IdqnfsYEB g0GRgeWePdECnSyDF+AJAZYY5CDpGkKoApBkgGZ
+qKAI22mih1ukWlAYIWowuGMbrl5QgOMFOETqEL5YBAtQob6VfbzzpeJppIBupf6KTA28X4gK/g9w
+Aen+919zweEEwe4EC84XiEoBikgBGAI+W5ZlDwIGXhkCikAMBrffFeA/ikQFDEIDvRgisRXOeOsF
+DCzFZAOBVy5wDYJFg+h4uYivwgQoYOwBKhUX/n3wYT2yAAtxciZQV1/orTYCXOhcOSmTIRbAmZ81
+i0ZCSvD/vv4DioQFK4hENfN1u41VQXpnqguOVpeOObi4BwbOS2rXMBSQAfQWWmjUfQk5lwMYEeZ2
+T94NBH0NDUMECkMM61uL1vg1+IgMTmVLnUyhiLnYcg0dqCA2hhBdewRynuBtV58Bu/ApRFav53Qq
+iJ9tg3ajcwTdPQgC+j2XujUEQnUfPAMTBKVWiYZzDOETf6WqQjlqtMFcdzf63ouct7TAjZ+00GVj
+5SDmm1AFu6FnjHEPUg/YKFAExalAZrga7Oi2eG
+1Mh1/TrBRWX2 +nDVUtDKoo/7dVaLtWqrGgFtWV
+G8CBxxGwBxqIbJAWmo3tJkccaIgV1xhDswbJoP IWfLYtrEQQM0 9fJxv3gI4imllP7fxt
+uijleIu4
+22jwKTVVswOSsVnTore9zSRXBfK4mB1Bs++9ahpUVwrJRq/7QVUUgIwiUlxfcEFMuVLcX3wFuVFj
+0bmEI1YFNFHmJut2Rmj4q1dWGFANBRzgYbRpMwlIyPdSFSvk8w50gxH4wMNTSEW54aJ9nxoBrwF+
+CEUHD4wKwmgk d8C
+KG9NA+I+JnQ//8dSyscpGmk Z9Bom1Wgk5eBveCftzoQ1u+H1E+Im9RPpC7D
+tz
+wB9eWQxBC4N8kt0KS/VNw421T/SoxLer3V51c4uxvwE
+/Rbj34AItbQWfI2EjaK0HDBMMQHe7wUn1
+FVAP9CKIGE4//GYnV74KzliRLSc4nSeJI9Tq/HDr/dY5XY7EF2w3CZDoWOsYohKUwCY8IXJBwwoZ
+MbgANJQ4R7F+clbYghbnCFEpDibCC9jFEDg9mTokUW6hvb+rBewHMkUhYqbH3i586j1kF JxG ASdV
+9AjawYDSfiUTjYLI1iQOWDJ4CVeDFDNJAgp0CgANwKVYA8PTl/8cQHPSFFSWg8j/66wiFaX3jsJb
+iwvV4AmZdj8wRRs5pGJXxgcwHyJa1YCa9qDLbPxCP8A78FciY+pHlpFtCAhaDFEQD9+
+g+82OSIoG
+PA10DI4IdXQEPAnmaokSEzDrQiYrESPMKv40JZoObmJGMj48OpANCtoG9WYqAgQXPQ 84QA30JYk4
+hA3/8BB8Itr
+OJknOiBA+gfmNjf1fMXK+6wFOgKQSAF3MuVAHwhVUQQD/mKG16NN+SqkPBTFXuw4k
+ODEyRw27e5U4OnVhHvAjxWSm Rg/cEUDsip65RtLKAUZ00k+JpnNNWBbBuWFdQh/Lwh8KQjvXfOp1
+DAIoQrr213UdC+M3Pgp18QUMKl1qo+gJCDANrusLGmJjriALHAcGNQ0c0RZUVoVDNFAPI+rGTo0K
+4Q020g0AjpI1Y/2FarkNdYTzRwSLwooK6x+kKNQtPAcXODx1FPysbXwSPh+IoxXxgCIADIGBINtG
+Pgxi4was8HQyex AkhGko0FERLAYx axhzFUTEr+kIgkS/QOszbqnGSlKyipQgqb7RW/n6CXU
+TQQc5
+fxKD0o0EgCb8v5fURELQHjB96YA5LXUZaR3Z1KP6VFq0f7aABkF6m0i9vOjULHJTOUJQFjBd3Cqg
+ut9s5FuFVht
+DXTEn/LPmkkOMEC4b6j0BZifdio0Fk9AVjnlJBzEAXIAfEuVg
+jEBTlvT9I3JVh2q/
+5WKyrgfYg/vk/C2LgshS56fWU1FAX8cPFpIBBDB1+ MN5Yc0Cb4C+eFk7xllalz3dbKsTz0iM42a/
+Bet23yBOMYi8aHwEVzfbbPPNxDR8Bz0rfi8rJnh5tpE8bFo8K8FFk/CPMT671Rp
+gzbeBDmQ2VFM0
+bq1Ocwe/jTb6AJLnO0QxMUw8ss+cPdUALM0lNCCxke5Z4bUAho+qIgsGHltePTSMaouqZePj0OsN
+1huaDULJaG+Z++f4dewI7EdR6N0GQhHr7jvCAQCDByxEEQ8Bj9OboXKQzwUTKwZ+0YnIEGd+RgJJ
+3nVF3qAqBWgsKt8RDtj8apl8H3d
+9GNokYGvWPogTD
+h73WeCM6ISv/KrGlDiHUUKRJP7ThYdP6bjk
+dlCD2Coj32dDwNyusCpoqFKgLUyaYxdc/5g1JBfQggbpn9YBsYCzM1fZHgd jSMlKYfD3QYzYhwcQ
+EF7WOPi2yETfVx/RJtiZrBWSSvyz5yN+vEh6ggAU3CjRZAF77HIB3+zp0txXnzjwvAKPen3nPhyI
+vrlUnFtQ4HQrahktcgTZDtzhsrlUmKreqfhd/bFWuO0HIPSwnUtEwx6jAO/0dRi6cgCOysqHVRs
+W
+gCtI/+8xXtJdJ1sPlPYUAyohcFsNDEtW7D1FkJMD6VHQDOzmAvk87Pzs/AU0bR5qX7uEQFfV
+7F0o
+TIzWnDp7CHPJyJPw8HQk7AzE/yVL7ux0RIsbhdt1xyHUjkML3x26SoPo40DdvqpCSHQ4Ai5I2wQF
+i3Rm+Gn+cqMf 0IcP0+slfmNzQxiy710m69do7AbQJtaARf41sQgAdFiNp2TAA Mg3nC/33rl4fA8v
+d2KvgKVQN04to7skYI9ZFV3iB56O50Az149okXRg9zfn8UGIjAX8nUA993MRADZffBgkrhdXoB7V
+po4ZrKmJbUeBWSCoxJYTJAwgCQHvLDNYWZG7dPaC23ZCIYp5+xHYXHQVBGzxvcUvGMaEBSJcBQVP
+s88BQ69cOIsIG8hgkSsNAH9QMpjAzWmrlsFIXL9rkFa54kHiK5LZqw4xVsKXIRhWzYAbm8gPhpUB
+O2Nj5CafGSw3AjHAQA+Aj45fEQAOdJreH+B3qkYxRmZYQmCHSarBFY4XXarzNFdVifN1zhK+51I2
+izXWTdbNgk1GwK1Tm7NlEKXsaRrT8ZEB6 /h0WgLAwnnChr5TUR2N+MqSSZru6yihU/gI5OVsWBeh
+XdY5XYLLJlXPmljahF0klJVkZ7+aheYq5TC7FwZDkQi2zb2o86tOqFeqDZmQAAAvOvalV5gje0A4
+nAUt9jszSEchJDanFDyzPc0PqIglqVkgx4Z0IBgNMBgjgxB5rCUxAqgPIMggwHxEcAjBdQ8WO3c2
++9coY9djeFlX9TVQPMDDik39ECu2akQNQ4AL+l 5WW/yowC1RC9e
+4goFiLXIQDhciUaFV3WY6J1Nm
+FkoNAyVkTB/D8LKgk2jgJ2ogJ0jWBWMAXX7cor8As
+NJfi8/38bhzET0ND0sALLjgWoR62vy3nCM8
+WSEFcwdogOvcXRPerFw4rlBzC1iEuws5aHQ
+sJSAaZ1fyeTxzJiQnMj
+VwiZH8JiXcJWlw3AA3G1R z
+BmA1e/bYdQRn3mhoOywJ0BmbzJEeLtc2fFCB+sIKf1ImJ+Oc8IR9KQyDQXIqCzI+ydmTHnIXEhQK
+ D4OoGrpmKD/GR+lDHB5C3txZigI4aNgrPHITt912SnNlQtAw60E/BwN7eCU
+3SGiY9/c2BDhjO7ts
+60FZPyWUWPJSnMBskDMYAzQEAnap3GhIR1dL UAMlIgw7AxiVu0XAviQlWBEwpGoZ1Q
+U
+D+f0wKzgr
+OM0lHH2A/P4EqM5EYHi5TQ5fn1TCBbL/Jfh7JQBFYYYAsgAniiIsA4gSpmma5lAAhIB8eHSapmma
+cGxoZGBcaZqmaVhUUExInfuZpkRAAAgVBwP4mqZplhTs5NzU
+zGmapmnEvLSspKZpmqaclIyEfJqm
+aZp0bGRcVExpmqZpRDgwKCCmoGGmGAAEmmV3uhATCAP4E/DoaZqmaeDc2NDIpmmapsC8uLCs2KZp
+mqSglIyEE180TWe2lxMDbGRYmqY721ATq0A7ODAof5CmaSAYDAwb0UFCQXl22W0ARQO+vvlBAAFB
+8v/uKoEET177T0H1SIxg+UAN+////xUpKDJhMTMuJjMgLGEiIC8vLjVhIyRhMzQvYSgCBWD/fwUO
+
+EmEsLiUkb0xMS2VBAPsn5O0RBBMNQEKhQU5ASkBGzOvek2ZhUTEmLAMx3ZBv9gUXQ/c8RexsFuzB
+Mx4MUQf2t+wNBgBPRUBBAJuET0UUERlxqFHEI91kI8qhJ3BhnVzZYP9bJwFzSNlgk9wx/F8nohFE
+dvIA/v+PpeF1J2BNSENIBO0/dCaUQoJjAvqyNDe3IlZpZ0y+Xuv/u//fAK04MwuAA3oTOK rhTr4A
+RgrsH5Aq2QfAQf/9//+Mx+8BuMujaHvf/vvVSnZXEgYkrU/rI6ix/MwZ5////w7sPu8L2mAakZPK
+Z9qyludSSfAro1COZjVg5f/////qQXhcz6nUC63MlgdrUq0SUEKZRIi9RKl5tsjTviOi9P7//z9A
+92FvV9Qv24xMD3mcoDQOIV2wmiokMy8kLf//hQDYJS0ttrr+Ps5jZDJjRmRveWvr7vY5b2QitIZW
+NzhvLWY7Vf/7
+/38iKDUkQTnlK5YX9oapmjFhZa+PVvyA7k49tLv9//9rh8YGUgdx6UDUB7yZ2cEo
+7rY
+FyvAaHf+WI/////8dyGNQ0SrSMNm8zwI452BJ9QgjZF+3AfIBgRAbH2f////P64b3qBxRbpcS
+VQVDwKfgmYm6kqanjKB
+gl0Z2//9f/oLGTJS1rFW3vhsERKii6Lnirr2YQ8bLDWvMA///w/94u77A
+tzDGYyDcTixNeaS8Bav/5eiOnwohCv+f///6tzH9/v+HP9ppu2b
+gq8RxrpVEXMlFeJGVmKSP/P//
+2JqnuT3jXiQX7Y
+UFY2i11r5rAuZi1Xjh0vP///+9ghgaJNONTc48ta6+kBzFxA4/6S6hp22/VQJA
+/////+LgUEkPwz8StnSze/z6k5Zr0JLHqkZNUFdESE9VR Ur/////UY91nL5WR0tOVEFAQ0JCRUNA
+RFAvxJpEREdGNm5AJDX/////H5q3t6AILzUsNQZDAi4vSSJPJb6s/qASNSAMFMwtZc3/v/3/wK19
+RHYSFxYrYRhygfcZscz8+bx7cpqy6ofEdLf///+/SEBHdrg+GjlyD8FkQcqHEmqGE
+czFfHlulv4R
+t//W/8oEPb4xRb5UxVFGeoLIBC1Oz/+BuXoG////mBuavL 89lMzEeXkRKdNQY2m60GzZUG5
+lOP9/
++//LzUQdtp6ev8G4HTW6bjVOh8 VEYx3J3UR4Rpr/////Pzo2ynxhaCskKzlCvpbCgUIjJUYh rPI+
+ygwlTu6JEAz/////KRlQYBOML/uYzHxMNcKFWWO3qPv+mytDEitCKf+BWl0S/7f/ub7s+pz+uClO
+jso8PcgcJf9BS6pQ/9/g/xwxrq Q+uj9lyhSlMcKjPszNTHm6y9VU4P///7G2tze6cVC+BDFDJXhE
+PZ3MYRIQESN6Kvceuv///9/bKRhZElEXUJ6ZQiA2WT7nTsGPYUSWXKDIHkUoef///2/4gVMtJ/E2
+KXQ3DEe+8p5axKl47MwE+UlZhV VW6f+3+K1crSsdF1tlST5OvCYpmo2waRcjv/3/f3sNRNVO3K3s
+4Fo6Aa1RPagHGBL
+yQu1B7FVJ/////+U9Vks+RJ/n5T8QnEEtemCYn/aHSjE3RMpHpy2CGmrZX/j/
+/1G4ZVpOzZYV93yYcV3WQjwtXuXMl7aiTXq3/////+7luBjinUz4HenVQdfKdHmTscOwl2t5ohHH
+LnkglE170P///zxRK1AYdIMvyrwEFY
+YEUQX CRhGYK0DBLIzs////v01MW33AJ5EBJZg/8 n ohxIE1
+VCu+vRUljCU9LBkpTL/B//+X2S0eor6Evx8 awoQ1iIKqzKpLyq3CrW3//1v7Bq03aAeP0Vl1UdPW
+Wr4gcUqRepLIFLkM/v+X/
+oZAFsq+roeoc4GpUHEWTRZJFBjCDLW+wiSO3+A3zQr2vfp+rMUEDkVh
+zv9v/P/MvSVJykWAegNNNQ1yk6g/UM
+o0uXhF1zVEA/////+XP6ovDj2yQnRgtcSTPUxWasSsgr41
+sEV6NZBFN2AEWv/////XixhMMdJsCj9JTU5HEpf/+BfxKxhDekY92Ed/uS71tv3///+BPVcsJo65
+yEXYAsK6USzlHBr0Kq3RtUGTqH6Zjjz/v/0vMxDCwUJOzMJP6WYA9pwsujwqygZ7DA9931j4/4kr
+ejnpEXJybtbQgQwYAcxCtopV/////zd4FtVfTXhxP1FRLqwumsF2Tai2cHqXPEZXz33ZAvL0//+/
+8LM+7TyGnz3PvkfbMvaWPEV3MnK3GCoUaVsr/9/+/0n/VFddd7eVsgK1zFVxLSFWXDxOylDCgEXI
+FcT/rf//mXysq3M0fi1AlVpSTBhIKydvWajfScl2Al3o////wodGerI9Z+Bs+fUxmrlghW2CsC4n
+9zhTfBgY+AX+Xw+xxH4DtGUSyhxJF/XKcRetz9/4/xdFjL4yTUlTWcq5ysS+ParnXzp2yg//////
+ywW4RWIywE
+paGtHsQEUy4ECok+y6nHdO91tshknF+0T/////CUdNJy/
+e6jV9SMTzqZ1/Ie/ik52F
+A2FOw863gh4mVhH/////JlLLGCCMqjzYKp45IBsYeFfJvT8VquxHoL4+GAjKi4D/////oELMfVF6
+fzxSyj9FAY6xXz8geHhJyD3EnXmnDg+Dcsb/////eZ0ydL1GoK/yfk
+tHPe+YqlESRkODqlKeWcUe
+SU
+Srahc3/v+l4R3EtyoSqp41ZGdGocoHoCyZs3X/Rv//Hgl5Fy1PKR/WX3VxIz9hqbt2cpx yS2LR
+/wv//1BN9JosE834xgFNRzRFlZkZ7CyoyokwQFQv/////zT37Fye2XE1TwNLwrsCq18fRqhJrl6B
+Aaq5/3UWx0gC/sb/S40xT mpJWK5L0VMfoOu8yDyxKUvSv/03hTSt1t1H8ux+VhdPBK/D2Qy0v8H/
+0lH1YPMsTr3E1eLKe2It+DJA//+3C84WRuW4u
+E2Zmj1ZT8oIT5hFwt28OVz/////TqpTbjJ8Uv+/
+MWxhKSVQxr0ss1hYxR q9jY00vRyDpw//L
+/X/M1BSUHe4kfHIgmpjKtkfHvvwlMPHs0h58L/A/9k1
+Cf+VdAQyMbYwiX2RFhc8+cyt////v4Tea1XAeS4/WplKes9mKyV+trAFHjJL
+5Eqs4HHVnfT///8I
+Q0WigvfoyhpjJWVnFEo9Zaex8J9xmc9LKdl7///Lv0FhvnaevvbORnKs1sKKvnhpGD9+epw9YTr/
+/4X/DfqF uuyx/w2Z/1J5//aBL5301izYLLgbPVX/S/z/cGC+dbE3ILpg5DRDyp9Llz2AElztgDcy
+/7/B/wQY5WeZFomvjNyRTrSxerTCqUIQKV15w Hip9P+/4KP3bP2d/OnCvw
+F6R0k/Qv///5dNd/mc
+48VlvgVCwrjhT0st/p1VETwRH3qxPy//G/z/sZIl
+Xj92+j9kGEvSXVTqVq67Pgo8QAcEv9H//3qv
+PZoC7UYphUhsHJ+dHl/DfLcwUIGVQP+F//9NfH4Nhs4+USnRHkCifS+9KdrEn CGrbq/CeP/W//9t
+NUvbzV2T7kcrrxhJjUVNiUlAdEW9JtGn1vr//1u3P2C6VBBzPttRvcHlRLwvB1/bbAQBee3f+Leu
+l5Zw0YBMKW7Jk8IvN1cizv//L/TOKVNdN0n0SXFjutjF7HH3aVRRwIOxY1P/////XCz3ExcE3pUX
+c4Sp2SjCkAFAGK9mfPscgb8VnhKHBIX/////Qhxv1oqELocnhjWJNoggiqQz+FaLM4okjR2MDI8s
+lm3/////1iiOIpGQbpMydorvKNuSlZSXZpYWmRzynXeYL16bJZrAC///nQ6cjDOaNGqfXp4CAqE0
+oEkcljXd//+/XqVqpH6nF06mqvvvKqlWqG6rBqp+rV6aRKz///8LJROusS/JHLD3tdssknS0b7e2
+N9+5uNnn9yr/0l/ou1K6NcoFlnu/bXoEgf5HTxG/S////65uS1xEkFnBOcKDAE8yWFVANG6nLEQ6
+iAUR2/+/wU9j7djsgD TmgVlBSUkxooqB4Cckhbr/9rQpAeepj5aGEyQmKDQKMm63///tM4GwBy+S
+SrOyN5EoIiQMJtvnETMubb2h/7/9/zZ3N368MjsN+AypxsCIsU8JbIFtIVcbkcapVRL//3/rXeSI
+fqZxGYFsL LS8NEgBH8CFYIIiRva/bjH/////uiufHJ0AyEeOAR6qO5gBzaDieFYDyABRgYY3hjxW
+aEX+Rv//TF9KTQ3KXEULXrzewidJQU/5o V45uob/v/G3Kj
+GSymztqlk3V
+doMKw5KKbtaPGN
+3/xJ/
+4x6hqvZqK/JDowd0lH2X9FqFFtv/Bv8RSXLtjzT+KXAiXDE+BOmIrOwAzFv8//ZuTY4R4nddU0MO
+974UFMgvWcjlYf9/iYVgDMPyJ54rsD9ZM1z5
+/vKotyH/////7ONazAZOJll6vUePXDpJM0uVBshK
+Bnf68Zr3P8ggXST//y/9UXKtBhRJSQz2YRRdZV2GTRGCca3Q7 KBkUe f9////5T5IFpuBxPGxqsQu
+FC+Zl5gZ+mk0VuWD4VbBw9ubf4H/L0tRtkYayrp1AiU+kJ8REYZTCwJJ/4UL/RFsrfMuwdRFNDgU
+bXytPaBxRrzQ//9EEilRWL/c7GCcXnn90d9x8/Rl+0DxLX2DC4tL gBVUu1uDB4j///8LNhLLmcu6
+PbC3/gCCyrvKkIChUSdIgKhD4MLb////4IRN/7LrHhqAHOT0nb4YpcI/TUE0s4YHTQOUmhJf+v9T
+7HchpyFTggo+Qm97rI6CEgs4FCr0/6sPMYT3vFzRBnq4JGf/F/pb+B+OSUIHguzRFWA3OjHI4jRE
+/////5V5B0lii9SbqWqJCoLua+72UwbzyB/0Dqp4/uYGh063/////3qOP0cKnoCiQhKakdkqvgOO
+yBdFNfPKigF0ATKggfQY39rq/4Mm5IkqlYQsUGE/PMoMwFr7Ff////96SgE1eoM9CNkR0TmJvh/o
++VOcNtoRVRiEesqGtpGHcv//N/jm/+y1eMc8Z1N2UWY9yl4seeJwRyh9gCb8W3yrKgxPF4tH71IY
+RvLYFxT///8vlAa2ehbnc0YJFgh6gDVQcuL0LEpKiwKDNngtvIn/v/EXHyuDH0X M8+rqvk8eC2EK
+rAkGx/9/q3+64fqRQ3m/ufhm6tf8xypQOz l1OxA5of///61pEPVVRhgLtQis6y2xNGC4qcCk56Je
+iBwH//+/VVw1Q7aUBPW49izIyN6G/g10NJDCZ0Hj32ijK6RZIhy01UCqR5CK/7 /9fzZdDDSvEWpc
+cLcKPa2EV7aTcIeBRQg0tTua/y/Q4q9brXtpHMwvRV+EYaj0C0L6b///zXoNupivNRx6vN9ZI5Jo
+H0nH+jpZNK43Vn+jErcLH/rvhGwgWa1
+8vhf6t/pqGSzu0J8eWV0OofR+f0UP/////zSabTvDaRJK
+w 4VHmhJ4K KLzIXoBck0quTQDRiB6MeY0/8b//994X1+sw1esEBbo2Uo8meX327naTWeL5fSb//+/
+9JyV28oNVMgNoM+LZQ7lmb1e9jv30Jm5JVmC/v+l/5tfPZFnXJ3wHpDYFojQ5ydlImWdv5h eCF/U
+4P /fBZE1D BbOvUO96ndyiB7IvWb63+Avrsngdht1X/krzKEAf2Uaki////8XBD2mj17UnVEhc3Od
+SQKxl3oCSmRV5sI8RBg+2/9C/0as87UL 8sXDKXhNEloRyT+WdtDN//
+///y6FI8VGcC2Ap0MXwMMO
+fMz9R/5XH6RCYywkypIybBQxv8WN/tGhmng0CCA1SSptuB7DWf+g1NvbHbe 9iT9PRNJT
+9dsb/f/f
+prdCW1hJgx2qP+KaFKMVkdwViRVHQv9/62zIARes24pJek5bYpYvzJ9Bif/03+r/8tAhPd4pJiEJ
+Qwg2TT8NIeQCgv///3cucXoMUZ4 pyvGh/2cGSfpUPalgTV0Z3ELTFPUc/8b/W9LA6GH7jjmIiHL3
+NUdCF8FBJq1r6f8 X/ji6vhw7bVRI011dGDkXFyceVR3DGnnf+v9/Q7kWB3qHnx85aoLXRT9EM7U1
+Bfw+fgyW/y/0/2RIF9wX3ZUS9pSu 6upR3Dy9N1tUVBkXRv////+TNlRwzdbhDe+q6hImGDH9I8y2
+VYgARRd3/DVIERBuVdX/G/xEWWyDWaep2zGwJSfNJoXRFuE3KPC/v+3RvPxRzRfpg8aty0C/8P//
+xZ2fEYsAqYTJQDOrRDJaeSmGL0tGWmqLyRT/t///4hRLWQ7 MjyKvcYcTgVjQZR+8BM0xTeYLJy2u
+iF/g//+fV1IONItPQqkk3TsH8BgplMwRFGNK8fT+L/T/QRPs9GNN+YQ48qt223KBeUI1YAHBfUK/
+/f+3Q7hXQoLLCb4x6N477U33RoeK
+IUCj6Fdf4Nv/HE2p0AsSEyL3FI5E4r1hOKyAva7f6C/0gFU/
+C1m5CvS+U8N7RKl9ry/1/1v/cz1Lvpz+eqOAcapby19bUsH/v9T/oOket5jYWohaNku2vrhhWABC
+i3XJTwfJ//+/xKFiHYVOvrtNNPi9F9DZsS0l GYLyEcL+Bf//L/Wa VUFCekBiBCaGAVLNHj866oyu
+R0m/nfv1/wv/2U03FXNRySxMqin8FurkQUtNYJ97S////y+32aoSsuTj1w+sGsRNBNhTGDwFqYz8
+xbhP2aRH/1Lf+kQ5NlOa+fStZYhBtdJC5E5g1db/rf53bbCJ2TlDwFSqT9HKpahvoU73/gsX+JlL
+yz3x1Ca+Z01Mycw+urf9//+lUkM1aAo1VkNKtpdKzHK2QoeqaWS5Pir/L/RLiJ5yn6pcQ7aS Yp68
+g/qPvGK/wv//20qeSlZOn/Ritkqfz575EMsq18zZr0J8//+t/4CcL/6xGGoMaStFk q/KSZKh Ra1C
+nMHo+oF/g///SrHzQifDcx9A423E6G5MentiwNcZAWK1/f///09HZJ8j6ElZmQrKlxoZooOaV7x5
+xgs0tx+Igzs0mf///y90dgFReS1sbvDvFvtRyoBCbZjkLMBuQ36Ao0Kt4////8hTMg6emaMD oSsB
+Bh76XEAPVfsRoeRq6J4zDJL//9+qU1VkVxBxs7TLVVDJVUkAPMkHLtMzs/+NfuvMCLyCa4S3WhdD
+gjJhx0kiA1r+/1/qrafoQIBbwlK54fGQxPp4HDCi3p43ntf8v9QNng9qv1ULzDUQQpbLRdyR+L/F
+G51LyUWOijO0RhyeCYB1l////99BTlH 4A57EbPf3eSdHzuteUfwwaqbbvRj6+VL5wf+/1P/8jJEu
+CTNCKzkY1R
+A0AvGXRs65EUpSbiB86///GWPBahXOVUfI9QEvU80qFlQHGhKVekSj+tb/b/FcABLo
+r0RJRna0ovg2oHSG4lYb/2+UK6
+fgQVwogbzBtha/ArlE/i/ 9/4LfZ04n4ENagMHEj82JPta5GNmh
+c oCC
+HX//9v+tMsCgxOw03qvAuERLVyREV7ksPE3p/////wNWRr/oUWRCzp+fR7G+f EVR7TURBzoZ
+ND2CEBf/4SMX/43e+rc0SksYGesds57tWxEJ9h2ee9/iF/hEIx mqTgpfEL55ZumRtplaN/pb/4FC
+Hxj5Ce5KT7V8x9ErfZvGLvr///+SlsxAXFFQEW5FEXW2z68sWZIfRU7E4+pqcRq6D/8X/jc5emBT
+zqzGPFHfpFcRbVc0OMpRFsH0t/jt1hxrw3QRBE7RWJ4hJCffp/9f4m8sJ2GnSzYZGRvAW+LtEVpA
+Wf2 H7Vv8//9QiRRMZZ848VxUN3IW+StpyzwoGr8bg1/4BRb6jXmJW3pjQyupG4AGp////5dVYWhf
+kCmM5VC0GXuQgw7/I9RRYh+rG8RJMpD9X/r/lkCQq40sMvURYKsEvXa6rpyvTv6OYUVQ/63+S2Vw
+aoDkfQYnwFGe7OI3PaUJ2Pv/X/hqB8zDBvIx+p6z+0cSCWt9R0UBnkKKyT6N/v9/LLx
+Jc4gntpia
+C/UaK2y0k4McA07edP9f4P9IO4Cq/9ePR1yE1WwqNfcN1nqFYcqy/CX/////29jl6ZeQd4k5UZKp
+SreasJzuzNRX5XFcY08UqUvK3EH//8L/bGBc65FNbvEEBg5dqf9PASc0uuMKqzOxVC3/X1jos7cE
+6v0YNXbMzATUwveK6kSmf4m/9ffIIgnGRZsTpv8xEEGAqykMOf////80qNEna6GdSuskprHuTWHV
+fm8OXaz3tNSkulFhEB3LlP//b/+4Wgo3wA6nNBMFqEVxVtTumrLR
+Da48sXO2PK2txP9f4oaHwuEa
+4FCavLfHSPqgBgRoRv//37oFrZ6oqfn08CYeSEOtfXCqfJG3J+esrapf4v+lMbFCcw4puF+q7jjZ
+zY01HWouUl/g/zc8c4GkyQSlwzH/1Vo6nL/L/7/A/1A9bJedl1lNIZxHXqtX7fggRBlhSRylof//
+/1gvbnmqZzwxGGM0pO4VN1jgVDApjUFBa2Ev/7/Uf0i/2qdpzVFApSAlBygtJFhBvx8SJDX///9G
+Ri4oLvK37fxOFjM oRlsCM2RKLqQe9wBmf6m/1AYVuCoCLjRMLc+ct4D3M1cE8P//L1YkLDERaClM
+CfB+mi9wMQd3JEjSL/Uv7S4iY7+nn5rfSSQyMlVgl7j9/zIkCSAvJQ5/+oQ+ RSQvIiD+
+Lr8JgP9W
+QK0lNC05DyAslv+/wH8lJTOCj0OnBIkA6i2XJ5wVKUclPaM/1v///xuIvy yyMTgNLl0NKCMz IDM4
+c8RunCHYALggTi7 0//8zEkkvTMH2JhMOIyswVQQ5w5FfvAUk60v8BRoueShXC9hcAhcgLcTf4P9/
+Sob3JG0ATg4xWwokOE/mmB2uTnXnNfi3f4lRSbE2MjEzMSe6PW2K83SxT//ud9/QUVJ18wt4RVZI
+QIMJU0xDMkm3v0j/GfXSODguDUBDIk+z5RhlQ1H/L/0Gx0EngI+PzVpFckYZdhq3EU17pf7//2lR
+RhHPZFpHQi1uGFZh7VdBJf1f8U5KHbxwq//FOQQnY9G/NyCqRWJ6IW8l/f8vLQMg9qUqTQoBV4FB
+wSC6Rc1xQo/MiQN5RhRhviGoY/+3bRFtzAWBvr4Wwoy+qlHRAMt74/+NRzJGBkCaNEbKX8KvvU8z
+rPlBK90O2BFQgQwyrioOpS7BBzKl cIhzM0zhHdi3ukk9wo41NciEL4jCQvaEDDRhABxMC/y3f8KA
+Q8C8QbKVwpBAzFVuwrz5TkrxRu7LQwOUpLaoIov+0v8N9EPCg0XIRsKGRcIINrBAjqgNl9i67xYf
+yLb4NanLKW3NQDbBwm/1tsF+QFbKRsseRVSpNvj9vw6BUceFaLnBqqlAsTtEyGmYt98a5f9MI0iB
+NQTKJ8zFdd92hXEY67IRH0m+1yUL1Mv//9ZOSR2dyLg4Rk72RgYRBvgWCbPvFCk3278zN0bIQsKC
+RaqZEC0gqAJEBeaq+b4AuZBbowMTJTHYIW mGpDXnPddc
+YJvwxTFX/Ysfgww2SJupB7dJqvQjAHVB
+CgQTD5yPUf8X9gUNDUEABRcAEQgDQRQSuckHaxoKFhJzHjFtg9VqTe5OAA0GXK8taPCHIo
+GsYCy2
+1Q9IKBAMQedqtbbAAs6/Ow2oSvgvMCgvNScA8xRFWEVEgYDAGo0WCAjkAQAwCgAkUQW/aSYgqBwB
+RmluZENEAaDybG9zZRtEzN4V1FNpemUX73/7TEwRQQ5NYXBWaWV3T2YPbm9hbw5Vbm0QLgNycyJu
+d8MvS0VudhBvbnario5dViJhYhg5iLgdRAx2
+ZdrukYqYDn1UaW1GKuKstVcaC1FDotu697ELe3Be
+Zy1Mw25fIH5MaWJyTnlBIfZMULRQYyhLxkQ5tv1iYWxBbAZjWExhtz3sVNMqTXUDeCgbm7VbbBdy
+Yw9+sHQQB/vnWlYdRkNvcHnFRGXahzdrBoMXJUhh5wsg3cKdRVNj2XY7+WxlblTfcFAvaA1hCwrD
+VytYRB2zt0VE8W/KkbZQxMlweU2RbFt2Z4IiTR
+NFeGlCQfFi3WhxZB/xvVnAJv8vmY33hg27BWVw
+oTZCN+LCw7AzblqcZUl7EXGiy/sX
+bCD8XnIYVG+TFYaZorhMqQ68JXsTYhENCGNrQ4VvT0RyAeNk
+ZUNop9xdRGw0TW9CeXQiEhQnIpyeua+1L
+QpjmDYqUqCyvSfhVEdQb2koGUh7wWbtcEYmXL0TGYRD
+mDDoOm5FTLisMGkJaZwWpCImBDpNGDPXOEN1GH0ZOiQ5Y
+W9rpURlLJWEIMWVaLXHHuObwGcbS2V5
+DE9w
+69yjazELRWoOgFZbvQAadnVlD4vM3K
+WEESl1bTAMT7PNJrc/ZML4baCiYW6Hc2UwijcXa4xy
+EPYHaXNkvfZcCXoZ8s4QFKJ4rltQCCI5N6ErMyphKiECSg9ms1TNIAGhVVwPFrDfTkJ1ZmZBDwtM
+b3f2GbYjd3ZJcpQjdwqFm3Fa9MwMTYLCAKhtWbZN17fYYkD/BAITC2VZlmU0FxIQA6tlWZYPCRRz
+Ob//hLw8UEVMAQPgAA8BCwEHrnvSbBNyKoAyBBADgmxnsZA1CwIzBJlb0s0HDNAeNHvZG9gQBwYA
+wHkIQIBbZHgCGAVGuMJ2K2R4AR4uL9iToJikcJDrNn+7sAQjIAtgLmRhdGGYI+5CusH7Iid2QL3N
+YBuFLuUJAM PABny/KXs0J0AbsHsNlAAASkE8CQAAAP8AAAA AAGC+AJBQAI2+AID//1eDzf/rEJCQ
+kJCQkIoGR ogHRwHbdQeLHoPu/BHbcu24AQAAAAHbdQeLHoPu/BHbEcAB23PvdQmLHoPu/BHbc+Qx
+yYPoA3INweAIigZGg/D/dHSJxQHbdQeLHoPu/BHbEckB23U
+Hix6D7vwR2xHJdS
+BBAdt1B4seg+78
+EdsRyQHbc+91CYseg+7 8Edtz5IPBAoH9APP//4PRAY0UL4P9/HYPigJCiAdHSXX36WP///+QiwKD
+wgSJB4PHBIPpBHfxAc/pTP
+///16J97kBAQAAigdHLOg8AXf3gD8BdfKLB4pfBGbB6AjBwBCGxCn4
+gOvoAfCJB4PHBYnY4tmNvgDAAACLBwnAdEWLXw
+SNhDAU
+5QAAAfNQg8cI/5aM5QAAlYoHRwjAdNyJ
++XkHD7cHR1BHuVdI8q5V/5aQ5QAACcB0B4kDg8ME69j/lpTlAABh6SNE//
+8AAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAgADAAAAIAAAgA4AAACQAACAAAAAAAAAAAAAAAAAAAACAAEA
+AABAAACAAgAAAGgAAIAAAAAAAAAAAAAAAAAAAAEACQQAAFgAAADY8AAA6AIAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAABAAkEAACAAAAAxPMAACgBAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAEAAADQAACA
+qAAAgAAAAAAAA AAAAAAAAAAAAQAJBAAAwAAAAPD0AAAiAAAAAAAAAAAAAAABADAA4MAAACgAAAAg
+AAAAQAAA AAEABAAAAAAAgAIAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAACAAACAAAAAgIAAgAAAAIAA
+gACAgAAAwMDAAICAgAAAAP8AAP8AAAD//wD/AAAA/wD/AP//AAD///8AAAAAAAAAAAAAAAAAAAAA
+AAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAACIiIiIiIiI
+iIiIiIiIgAAAj////////////////4AAAIf///////////////eAAACPf/////////////9/gAAA
+j/f////////////3/4AAAI//f///////////f/+AAACP//f/////////9///gAAAj///f///////
+/3///4AAAI
+////f///////f/
+//+AAACP//
+93d3d3d3d3f///gAAAj//3f39/f39/f3f//4AAAI//
+d/f39/f39/f3f/+AAACP939/f39/f39/f3f/gAAAh3f39/f39/f39/f3d4AAAI9/f39/f39/f39/
+f3+AAACP////////////////AAAACP//////////////8AAAAACP/////////////wAAAAAACP//
+//////////AAAAAAAACP//////////8AAAAAAAAACP/////////wAAAAAAAAAACP////////AAAA
+AAAAAAAACP//////
+8AAAAAAAAAAAAACP/////wAAAAAAAAAAAAAACIiIiIgAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAD////////////////AAAAD
+wAAAA8AAAAPAAAADwAAAA8AAAAPAAAADwAAAA8AAAAPAAAADwAAAA8AAAAPAAAADwAAAA8AAAAPA
+AAADwAAAB+AAAA/wAAAf+AAAP/wAAH/+AAD
+//wAB//+AA///wAf//+AP/////////////////8jD
+AAAoAAAAEAAAACAAAAABAAQAAA
+AAAMAAAAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAgAAAgAAAAIC A
+AIAAAACAAIAAgIAAAMDAwACAgIAAAAD/AAD/AAAA//8A/wAAAP8A/wD//wAA////AAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAACP//////8AAIj/
+////+AAAj4////+PAACP+P
+//+P8AAI+PiIiPjwAA
+iPf39/f4AACPf39/f38AAAj39/f38AAAAI9/f38AAAAACPf38AAAAAAAiIiAAAAAAAAAAAAAAAAA
+AAAAAAAA//8AAP//AADAAQAAwAEAAMABAADAAQAAwAEAAMABAADAAQAAwAEAAO ADAADwBwAA+A8A
+APwfAAD//wAA//8AAPDEAAAAAAEAAgAgIBAAAQAEAOgCAAABABAQEAABAAQAKAEAAAIAAAAAAAAA
+AAAAAAAAAAC89Q AAjPU
+AAAAAAAAAAAAAAAAAAMn 1AACc9QAAAAAAAAAAAAAAAAAA1vUAAKT1AAAA
+A AAAAAAAAA
+AAAADh9QAArPUAAAAAAAAAAAAAAAAAAOz1AAC09QAA AAAAAAAAAAAAAAAAAAAAAAAA
+AAD29QAABPYAABT2AAAAAAAAIvYAAAAAAAAw9gAAAAAAADj2AAAAAAAAOQAAgAAAAABLRVJORUwz
+Mi5ETE
+wAQURWQVBJMzIuZGxsAE1TVkNSVC5kbGwAVVNFUjMyLmRsbABXUzJfMz IuZGxsAABMb2Fk
+TGlicmFyeUEAAEdldFByb 2NBZGRyZXNzAABFeGl0UHJvY2Vzc wAAAFJlZ0Nsb3NlS2V5AAAAbWVt
+c2V0AAB3c3ByaW50ZkEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+A
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA AAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAT6kGVOAGjj9PK1MIsJUOKU8+bKhPtz39sDmEYE8L7NxBIaiPrkgzie6OIJGuHVb+rue+zq77
+ZjIhtstBsW5FhgWViaf1pGPi9aZysvWsa0DqUH286uCDzl7ZrUvq1gMGaxwy+IQpmyhUS8xihPgP
+JwuLJMzEs7uBVEvEDE3PYu9xqkW7nmxLx55me5KeMdNsnmS+NZ4x00WeZa1MnkcehKF1uv8O2iVT
+TroMWk459wdRCAATniKNCg7aMiVRT54JsQzn+17WhRBeSzGwXuSsiEF7DFZe6t2RHqN4ul7WKgYh
+NKgfznKa5M5OHK6OmyHHoctX4c5d3YvO0pKW0T+eJJSotNp7RUGEe+kOU6k1D8Bk+0qu6pVtpGSZ
+XYZ7bqoK8I6XiR8irAUfaqrRAPF1cx9Is1RfIR5QALVcjF8hBV6NUrubsptrGCIkKUbt xa+tYnxJ
+f2JuRUN90Vgg3rdMyq5pI1YBxqs9XokYZl4dLblBow59Xonpd15R149Bxj6iEWggPuH9DqYuP9/A
+4ceitixcxiO+x7+R4VICyuG0peNNgD3ovbNVZ+IvtBAeYLp+ogwB7L32iZOi9eUgosNDR
+SQoMmvU
+tySYGRzXA8tv5FfURlauy1JuActrsLnLp4Sdv1dH20+3lOffwFniT21jVBCGLilQkVJ IEPjduBD4
+z+mwvaprX/p6mkCEWTdfZ8iEQEXM918kVKZfGZUpHxIjzCFgmjpFT7idziMf7kH3MF9FT6Gmjs8I
+lM6CVdcHs+6SH0UlDbDqv6mg3b3
+tsOqszSwjgvXwLEjSsOqsEvAGW7+srvL2XJ0ZaFwtEatctaaX
+XJcGXpCjHDlZMBwSzDnlukCT4EXvPH99sKgrwbCgGs+vEzNkr/c6PiAE9bevXBalhja26916D9Qp
+mT4pKZk/NmlIbMt2DU0laUzqz2ne/fWCTo+UbZdVoHJ0q0Zt1CpMbY a9n2UKqBFlYPVobYl5b7o4
+xj5KAuNLFE/Li0pHJZpVotAB nO0I6RWXT/9KTnIoskoMwkK3GiddrjLoXadWaRws77xdI3d+XZA5
+A112okA
+G1iAN9u7RvOmc9d hdmpnj6ZAS0+lW/o3pEC6M6RoelNXhZuEll9XHJZVy1CXYmrro1Q7B
+Oqa3Kzqp05To1YDisX9PAV5DsYVBAK22HtDHWUFMzRxePCL7XhYT7EFMtWCv3jqbQBDP5l8XWc Jf
+1Q4eX+27KEAQ3uJAEgWKAHGoXTG29wHe8TkjwYzR0MHCJDaeGWh+nhl+9N71eeGeGX97SqftgKXO
+gAul0jm+NJoAonaqAeCl66I9d/OCEaUr2mA4SIdqyDU9gh+hL
+ofX59kY1661utcL68jIPjTCyEjl
+RDQ1OXvbmQ/hxEO9hNvdc40GfzagHgkDHdu844WbmqPLj2cOJWDu4dAgyJH4YFvImtyHhapgIN/I
+IMiU7GAtrNvCXhujbDi8nDJn5+Jt8YH0oskMPG3 xk0stGuhYLZgKXpjVSQ53koOpw5n0p3exsjdo
+72ESp
+eGt5We8ugWYjXpe0NLKlj8IB2vvhTQM0KFAztDm+YvQtvMxL15QFy+zHbk=
+
+------=_NextPart_000_0011_A5B4A2F4.F5348318--
+
+
+

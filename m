@@ -1,45 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261414AbVGCM7v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261417AbVGCNAs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261414AbVGCM7v (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Jul 2005 08:59:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261417AbVGCM7v
+	id S261417AbVGCNAs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Jul 2005 09:00:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261422AbVGCNAs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Jul 2005 08:59:51 -0400
-Received: from zork.zork.net ([64.81.246.102]:32213 "EHLO zork.zork.net")
-	by vger.kernel.org with ESMTP id S261414AbVGCM7t (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Jul 2005 08:59:49 -0400
-From: Sean Neakums <sneakums@zork.net>
-To: mingo@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] realtime preempt V0.7.50-43: arch/ppc/Kconfig sources non-existent file
-Mail-Followup-To: mingo@redhat.com, linux-kernel@vger.kernel.org
-Date: Sun, 03 Jul 2005 13:59:44 +0100
-Message-ID: <6u4qbct58f.fsf@zork.zork.net>
+	Sun, 3 Jul 2005 09:00:48 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:52431 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S261420AbVGCNAd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Jul 2005 09:00:33 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 0.5/4 :) ] ROR -> ror32
+Date: Sun, 3 Jul 2005 16:00:20 +0300
+User-Agent: KMail/1.5.4
+Cc: linux-crypto@vger.kernel.org, davem@davemloft.net,
+       linux-kernel@vger.kernel.org
+References: <200506201354.22187.vda@ilport.com.ua> <20050703113700.GA4848@gondor.apana.org.au> <200507031557.15416.vda@ilport.com.ua>
+In-Reply-To: <200507031557.15416.vda@ilport.com.ua>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: sneakums@zork.net
-X-SA-Exim-Scanned: No (on zork.zork.net); SAEximRunCond expanded to false
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_kF+xCj3Ix5BuTLv"
+Message-Id: <200507031600.20219.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-No __raw_local_irq_restore so I guess ppc is not expected to work
-right now anyway.
 
+--Boundary-00=_kF+xCj3Ix5BuTLv
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
---- S12-rtpe/arch/ppc/Kconfig~	2005-07-03 13:29:11.000000000 +0100
-+++ S12-rtpe/arch/ppc/Kconfig	2005-07-03 13:32:33.000000000 +0100
-@@ -904,7 +904,7 @@
- 	depends on SMP
- 	default "4"
+Remove local ROR, use ror32 instead.
+
+--Boundary-00=_kF+xCj3Ix5BuTLv
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="05.ror.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="05.ror.patch"
+
+diff -urpN linux-2.6.12.0.orig/crypto/des.c linux-2.6.12.05.n/crypto/des.c
+--- linux-2.6.12.0.orig/crypto/des.c	Tue Oct 19 00:55:29 2004
++++ linux-2.6.12.05.n/crypto/des.c	Sun Jul  3 15:27:12 2005
+@@ -35,8 +35,6 @@
+ #define DES3_EDE_EXPKEY_WORDS	(3 * DES_EXPKEY_WORDS)
+ #define DES3_EDE_BLOCK_SIZE	DES_BLOCK_SIZE
  
--source "lib/Kconfig.RT"
-+source "kernel/Kconfig.preempt"
+-#define ROR(d,c,o)	((d) = (d) >> (c) | (d) << (o))
+-
+ struct des_ctx {
+ 	u8 iv[DES_BLOCK_SIZE];
+ 	u32 expkey[DES_EXPKEY_WORDS];
+@@ -1159,9 +1157,7 @@ not_weak:
+ 		w  |= (b1[k[18+24]] | b0[k[19+24]]) << 4;
+ 		w  |= (b1[k[20+24]] | b0[k[21+24]]) << 2;
+ 		w  |=  b1[k[22+24]] | b0[k[23+24]];
+-		
+-		ROR(w, 4, 28);      /* could be eliminated */
+-		expkey[1] = w;
++		expkey[1] = ror32(w, 4);	/* could be eliminated */
  
- config HIGHMEM
- 	bool "High memory support"
+ 		k += 48;
+ 		expkey += 2;
 
+--Boundary-00=_kF+xCj3Ix5BuTLv--
 
--- 
-Dag vijandelijk luchtschip de huismeester is dood

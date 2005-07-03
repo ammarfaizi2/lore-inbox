@@ -1,69 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261289AbVGCLHJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261291AbVGCLIB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261289AbVGCLHJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Jul 2005 07:07:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261291AbVGCLHJ
+	id S261291AbVGCLIB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Jul 2005 07:08:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261306AbVGCLIA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Jul 2005 07:07:09 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:1737 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261289AbVGCLHB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Jul 2005 07:07:01 -0400
-Date: Sun, 3 Jul 2005 13:06:39 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Christoph Lameter <christoph@lameter.com>
-Cc: Ray Bryant <raybry@engr.sgi.com>, Linus Torvalds <torvalds@osdl.org>,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Fix SMP brokenness for PF_FREEZE and make freezing usable for other purposes
-Message-ID: <20050703110638.GA1312@elf.ucw.cz>
-References: <20050625025122.GC22393@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.62.0506242311220.7971@graphe.net> <20050626023053.GA2871@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.62.0506251954470.26198@graphe.net> <20050626030925.GA4156@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.62.0506261928010.1679@graphe.net> <Pine.LNX.4.58.0506262121070.19755@ppc970.osdl.org> <Pine.LNX.4.62.0506262249080.4374@graphe.net> <42C1C627.5040404@engr.sgi.com> <Pine.LNX.4.62.0506281450490.5895@graphe.net>
+	Sun, 3 Jul 2005 07:08:00 -0400
+Received: from zproxy.gmail.com ([64.233.162.204]:48989 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261291AbVGCLHw convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Jul 2005 07:07:52 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=j8WmfNFXulierB1EZGdm70MLDz3drFztXfCbfMR0tHts0ko7oyCNvGRcoQCSNeKJVUdhqF9WAg24ibxynZ6texFWgdW5qEac3sqnRZF/hR+U+a3ZyC5ukh6LevKye/amg4s1YtesDtHyrivkFSf9jYwzNvQQs4QyPKVDhWULksw=
+Message-ID: <9a8748490507030407547fa29b@mail.gmail.com>
+Date: Sun, 3 Jul 2005 13:07:52 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: [ltp] IBM HDAPS Someone interested? (Accelerometer)
+Cc: Alejandro Bonilla <abonilla@linuxwireless.org>,
+       Pavel Machek <pavel@suse.cz>, Paul Sladen <thinkpad@paul.sladen.org>,
+       linux-thinkpad@linux-thinkpad.org,
+       Eric Piel <Eric.Piel@tremplin-utc.net>, borislav@users.sourceforge.net,
+       Yani Ioannou <yani.ioannou@gmail.com>, linux-kernel@vger.kernel.org,
+       hdaps-devel@lists.sourceforge.net
+In-Reply-To: <20050703101613.GA2372@ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0506281450490.5895@graphe.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+References: <1119559367.20628.5.camel@mindpipe>
+	 <Pine.LNX.4.21.0506250712140.10376-100000@starsky.19inch.net>
+	 <20050625144736.GB7496@atrey.karlin.mff.cuni.cz>
+	 <42BD9EBD.8040203@linuxwireless.org> <20050625200953.GA1591@ucw.cz>
+	 <42C7A3B2.4090502@linuxwireless.org> <20050703101613.GA2372@ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > >  -			freeze(p);
-> > > +			set_thread_flag(TIF_FREEZE);
-> > 
-> > Shouldn't that be "set_ti_thread_flag(p->thread_info, TIF_FREEZE)"?
-> > Otherwise you freeze current, not the thread "p".
+On 7/3/05, Vojtech Pavlik <vojtech@suse.cz> wrote:
+> On Sun, Jul 03, 2005 at 03:37:06AM -0500, Alejandro Bonilla wrote:
 > 
-> Correct. Which also means that we have not progressed yet beyond an 
-> academic version of the patch:
+> > Guys,
+> >
+> >    We might have something here. If you are a driver writer, developer
+> > or want to help us, this is when.
+> >
+> > PLEASE read the following article, it has the data of a guy that made a
+> > driver in IBM for Linux and he described the driver he made. He cannot
+> > release it, but he explained it and someone can write one. Believe me,
+> > that I would do it, if I would have any knowledge. ;-)
+> > http://www.almaden.ibm.com/cs/people/marksmith/tpaps.html
 > 
-> ---
+> This should indeed be enough to write a Linux driver.
 > 
-> Revise handling of freezing in the suspend code
-> 
-> The current suspend code modifies thread flags from outside the context of process.
-> This creates a SMP race.
-> 
-> The patch fixes that by introducing a TIF_FREEZE flag (for all arches). Also
-> 
-> - Uses a completion handler instead of waiting in a schedule loop in the refrigerator.
-> 
-> - Introduces a semaphore freezer_sem to provide a way that multiple kernel
->   subsystems can use the freezing ability without interfering with one another.
-> 
-> - Include necessary definitions for the migration code if CONFIG_MIGRATE is set.
-> 
-> - Removes PF_FREEZE
-> 
-> Signed-off-by: Christoph Lameter <christoph@lameter.com>
-
-This patch breaks suspend for me (first suspend works, second suspend
-fails to freeze processes). [I was offline, that's why it took so
-long.]
-
-I see patches 1/2 and 2/2 submitted; if you still feel I should apply
-some of them, tell me.
-								Pavel
+I'll give it a shot. I've got the day off today so I'll try a simple
+module and test it on my T42. I'll post whatever I come up with
+tonight.
 
 -- 
-teflon -- maybe it is a trademark, but it should not be.
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

@@ -1,45 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261448AbVGCPDs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261454AbVGCPIJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261448AbVGCPDs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Jul 2005 11:03:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261452AbVGCPDs
+	id S261454AbVGCPIJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Jul 2005 11:08:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261455AbVGCPIJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Jul 2005 11:03:48 -0400
-Received: from ns1.suse.de ([195.135.220.2]:21391 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S261448AbVGCPDq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Jul 2005 11:03:46 -0400
-Date: Sun, 3 Jul 2005 17:03:44 +0200
-From: Andi Kleen <ak@suse.de>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] ISA DMA suspend for x86_64
-Message-ID: <20050703150344.GL21330@wotan.suse.de>
-References: <42C3A698.9020404@drzeus.cx.suse.lists.linux.kernel> <1120130926.6482.83.camel@localhost.localdomain.suse.lists.linux.kernel> <42C3E3A4.3090305@drzeus.cx.suse.lists.linux.kernel> <42C432BB.407@drzeus.cx.suse.lists.linux.kernel> <p73u0jeg5lg.fsf@verdi.suse.de> <42C6CF40.4040308@drzeus.cx> <20050702174055.GI21330@wotan.suse.de> <42C6D3D5.6070909@drzeus.cx> <20050702182749.GJ21330@wotan.suse.de> <42C70F81.4010500@drzeus.cx>
+	Sun, 3 Jul 2005 11:08:09 -0400
+Received: from wproxy.gmail.com ([64.233.184.205]:53260 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261454AbVGCPIF convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Jul 2005 11:08:05 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Ic399F012ogvLQaeOAgI5VULJc+346MCaLCtZt6kpIiaiRltMjdc1ToLSsW558jFnbHQP9hVL1ePUaqhi9atmhxdDZc4XNWvsOOLgwYPp7wVs0IhV23GB/wVi2F9wRnAlrE3854pGd+OcgS4mejvTrZ5/gMdKB2O4bRow5/JpJg=
+Message-ID: <9e473391050703080877d7cbde@mail.gmail.com>
+Date: Sun, 3 Jul 2005 11:08:05 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: =?ISO-8859-2?Q?Micha=B3_Piotrowski?= <piotrowskim@trex.wsi.edu.pl>
+Subject: Re: [ANNOUNCE] ORT - Oops Reporting Tool v.b4
+Cc: linux-kernel@vger.kernel.org,
+       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
+       Paul TT <paultt@bilug.linux.it>, randy_dunlap <rdunlap@xenotime.net>,
+       Jesper Juhl <jesper.juhl@gmail.com>, cp@absolutedigital.net
+In-Reply-To: <42C7FBD3.1020002@trex.wsi.edu.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <42C70F81.4010500@drzeus.cx>
+References: <42C7FBD3.1020002@trex.wsi.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 03, 2005 at 12:04:49AM +0200, Pierre Ossman wrote:
-> Andi Kleen wrote:
-> 
-> >>Like this?
-> >>    
-> >>
-> >
-> >You still need to add it to the obj-ys
-> >
-> >  
-> >
-> 
-> Ah, sorry. Not quite familiar with how the kernel's build system works.
-> Is it more correct this time? =)
+Can you make a script that takes an OOPS and finds the right line in
+the kernel source? I can never remember how to make the kernel build
+system generate mixed C/ASM output for a specific file.
 
-Yes, looks good now.  Thanks.
-
-But I can't apply it before the i386 part didn't go in.
-
--Andi
+-- 
+Jon Smirl
+jonsmirl@gmail.com

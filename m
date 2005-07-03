@@ -1,50 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261352AbVGCEcM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261350AbVGCEhe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261352AbVGCEcM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Jul 2005 00:32:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261350AbVGCEcM
+	id S261350AbVGCEhe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Jul 2005 00:37:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261359AbVGCEhe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Jul 2005 00:32:12 -0400
-Received: from iron.pdx.net ([207.149.241.18]:51905 "EHLO iron.pdx.net")
-	by vger.kernel.org with ESMTP id S261352AbVGCEcI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Jul 2005 00:32:08 -0400
+	Sun, 3 Jul 2005 00:37:34 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:54563 "EHLO
+	pd3mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S261350AbVGCEh0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Jul 2005 00:37:26 -0400
+Date: Sat, 02 Jul 2005 22:37:11 -0600
+From: Robert Hancock <hancockr@shaw.ca>
 Subject: Re: ASUS K8N-DL Beta BIOS
-From: Sean Bruno <sean.bruno@dsl-only.net>
-To: Andi Kleen <ak@muc.de>
-Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       "Hodle, Brian" <BHodle@harcroschem.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'ipsoa@posiden.hopto.org'" <ipsoa@posiden.hopto.org>
-In-Reply-To: <20050702194455.GA80118@muc.de>
-References: <D9A1161581BD7541BC59D143B4A06294021FAAAF@KCDC1>
-	 <1120246927.2764.26.camel@home-lap>
-	 <200507021843.45450.s0348365@sms.ed.ac.uk>  <20050702194455.GA80118@muc.de>
-Content-Type: text/plain
-Date: Sat, 02 Jul 2005 21:32:05 -0700
-Message-Id: <1120365125.4107.4.camel@home-lap>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
+In-reply-to: <4lzQi-2fw-21@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <42C76B77.9020709@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=ISO-8859-1
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+References: <4lznf-1XY-7@gated-at.bofh.it> <4lzQi-2fw-21@gated-at.bofh.it>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-07-02 at 21:44 +0200, Andi Kleen wrote:
-> > I can't really remember whether the detection problem was resolved; my 
-> > specific (APIC related) issue was.
-> > 
-> > Andi?
+Sean Bruno wrote:
+> Also, the ACPI PCI Interrupt Routing Table (PRT) contains references to
+> entries that don't exist elsewhere in the ACPI tables:
 > 
-> Does it work with acpi_skip_timer_override ? 
+> ACPI: Subsystem revision 20050309
+>     ACPI-0352: *** Error: Looking up [\_SB_.PCI0.LNK0] in namespace,
+> AE_NOT_FOUND
+> search_node ffff81013ffca240 start_node ffff81013ffca240 return_node
+> 0000000000000000
+>     ACPI-0352: *** Error: Looking up [\_SB_.PCI0.APC0] in namespace,
+> AE_NOT_FOUND
+> search_node ffff81013ffca140 start_node ffff81013ffca140 return_node
+> 0000000000000000
 > 
-> -Andi
+> Linux unfortunately appears to give up on parsing the PRT when this
+> happens, unlike Windows, which will parse the table despite these
+> errors. Without parsing the PRT, Linux cannot know how to route
+> interrupts for various PCI devices, which results in the later errors:
 
-Not to be a crank here, but I can't find reference to this
-function/variable/#DEFINE in any of the ACPI code nor can I find a
-decent reference to this in the lkml lists...So I must not understand
-your suggestion.
+Is there a reason Linux couldn't behave similarly to Windows in this 
+situation? That might provide some better compatibility with such buggy 
+BIOSes..
 
-What are you asking me to check?
-
-Sean
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 

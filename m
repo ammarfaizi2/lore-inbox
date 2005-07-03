@@ -1,128 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261205AbVGDDWr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261403AbVGDDml@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261205AbVGDDWr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Jul 2005 23:22:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261335AbVGDDWr
+	id S261403AbVGDDml (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Jul 2005 23:42:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261385AbVGDDml
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Jul 2005 23:22:47 -0400
-Received: from cerebus.immunix.com ([198.145.28.33]:49608 "EHLO
-	ermintrude.int.immunix.com") by vger.kernel.org with ESMTP
-	id S261205AbVGDDWl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Jul 2005 23:22:41 -0400
-Date: Sun, 3 Jul 2005 20:18:20 -0700
-From: Tony Jones <tonyj@suse.de>
-To: serue@us.ibm.com
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 5/12] lsm stacking v0.2: actual stacker module
-Message-ID: <20050704031820.GA6871@immunix.com>
-References: <20050630194458.GA23439@serge.austin.ibm.com> <20050630195043.GE23538@serge.austin.ibm.com>
+	Sun, 3 Jul 2005 23:42:41 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17628 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261403AbVGDDlz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Jul 2005 23:41:55 -0400
+Date: Sun, 3 Jul 2005 19:45:55 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Roy Keene <rkeene@psislidell.com>
+Cc: Alexander Nyberg <alexn@telia.com>,
+       Anthony DiSante <theant@nodivisions.com>, andrea@suse.de, akpm@osdl.org,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: oom-killings, but I'm not out of memory!
+Message-ID: <20050703224555.GB21450@logos.cnet>
+References: <42C179D5.3040603@nodivisions.com> <1119977073.1723.2.camel@localhost.localdomain> <42C18031.50206@nodivisions.com> <1120049835.1176.7.camel@localhost.localdomain> <20050703205357.GA21166@logos.cnet> <Pine.LNX.4.62.0507032142290.25063@hammer.psislidell.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="LQksG6bCIzRHxTLp"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050630195043.GE23538@serge.austin.ibm.com>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <Pine.LNX.4.62.0507032142290.25063@hammer.psislidell.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---LQksG6bCIzRHxTLp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Hi Roy,
 
-Hey Serge,
+On Sun, Jul 03, 2005 at 09:44:37PM -0500, Roy Keene wrote:
+> I think I'm having the same issue.
+> 
+> I've 2 systems with 4GB of RAM and 2GB of swap that kill processes when 
+> they get a lot of disk I/O.  I've attached the full dmesg output which 
+> includes portions where it killed stuff despite having massive amounts of 
+> free memory.
 
-I don't think your symbol_get() is doing what you think it is ;-)
+What kernel version is that?
 
-> + * Add the stacked module (as specified by name and ops).
-> + * If the module is not compiled in, the symbol_get at the end will
-> + * prevent the the module from being unloaded.
-> +*/
-> +static int stacker_register (const char *name, struct security_operations *ops)
-> +{
- ...
-> +	symbol_get(ops);
-> +
-> +out:
-> +	spin_unlock(&stacker_lock);
-> +	return ret;
-> +}
+> oom-killer: gfp_mask=0xd0
+> Mem-info:
+> DMA per-cpu:
+> cpu 0 hot: low 2, high 6, batch 1
+> cpu 0 cold: low 0, high 2, batch 1
+> cpu 1 hot: low 2, high 6, batch 1
+> cpu 1 cold: low 0, high 2, batch 1
+> cpu 2 hot: low 2, high 6, batch 1
+> cpu 2 cold: low 0, high 2, batch 1
+> cpu 3 hot: low 2, high 6, batch 1
+> cpu 3 cold: low 0, high 2, batch 1
+> Normal per-cpu:
+> cpu 0 hot: low 32, high 96, batch 16
+> cpu 0 cold: low 0, high 32, batch 16
+> cpu 1 hot: low 32, high 96, batch 16
+> cpu 1 cold: low 0, high 32, batch 16
+> cpu 2 hot: low 32, high 96, batch 16
+> cpu 2 cold: low 0, high 32, batch 16
+> cpu 3 hot: low 32, high 96, batch 16
+> cpu 3 cold: low 0, high 32, batch 16
+> HighMem per-cpu:
+> cpu 0 hot: low 32, high 96, batch 16
+> cpu 0 cold: low 0, high 32, batch 16
+> cpu 1 hot: low 32, high 96, batch 16
+> cpu 1 cold: low 0, high 32, batch 16
+> cpu 2 hot: low 32, high 96, batch 16
+> cpu 2 cold: low 0, high 32, batch 16
+> cpu 3 hot: low 32, high 96, batch 16
+> cpu 3 cold: low 0, high 32, batch 16
+> 
+> Free pages:       14304kB (1664kB HighMem)
+> Active:7971 inactive:994335 dirty:327523 writeback:25721 unstable:0 free:3576 slab:29113 mapped:7996 pagetables:341
 
+There are about 100M of writeout data onflight - I suppose thats too much. 
 
-Seemed useful to be able to view which modules had been unloaded.
-Easier to maintain them on their own list than to compute the difference
-of <stacked_modules> and <all_modules>.  Patch attached, not sure if you
-are cool with reusing the 'unload' file.
+Guess: can you switch to another IO scheduler than CFQ or reduce its queue size?
 
-> +static struct stacker_attribute stacker_attr_unload = {
-> +	.attr = {.name = "unload", .mode = S_IFREG | S_IRUGO | S_IWUSR},
-> +	.store = stacker_unload_write,
-> +};
+IIRC you can do that by reducing /sys/block/device/queue/nr_requests.
 
+> DMA free:12640kB min:16kB low:32kB high:48kB active:0kB inactive:0kB present:16384kB pages_scanned:877 all_unreclaimable? yes
+> protections[]: 0 0 0
+>
+> Normal free:0kB min:928kB low:1856kB high:2784kB active:0kB inactive:739100kB present:901120kB pages_scanned:1556742 all_unreclaimable? yes
+> protections[]: 0 0 0
 
-Apart from this, looks good.  I ran it against our regression tests using
-AppArmor (SubDomain) composed with Capability and everything was functionally
-as expected.   I still need to run it through our SMP stress tests.
+You've got no reservations for the normal zone either. 
 
-Thanks
+How does /proc/sys/vm/lowmem_reserve_ratio looks like?
 
-Tony
-
---LQksG6bCIzRHxTLp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="stacker_v2.diff"
-
---- stacker.c.orig	2005-07-03 19:57:21.000000000 -0700
-+++ stacker.c	2005-07-03 19:55:40.000000000 -0700
-@@ -39,6 +39,7 @@
- 	struct security_operations module_operations;
- };
- static struct list_head stacked_modules;  /* list of stacked modules */
-+static struct list_head unloaded_modules; /* list of unloaded modules */
- static struct list_head all_modules;  /* list of all modules, including freed */
- 
- static short sysfsfiles_registered;
-@@ -1439,6 +1440,7 @@
- 
- 	rcu_read_lock();
- 	list_del_rcu(&m->lsm_list);
-+	list_add_tail_rcu(&m->lsm_list, &unloaded_modules);
- 	if (list_empty(&stacked_modules)) {
- 		INIT_LIST_HEAD(&default_module.lsm_list);
- 		list_add_tail_rcu(&default_module.lsm_list, &stacked_modules);
-@@ -1452,9 +1454,26 @@
- 	return ret;
- }
- 
-+/* list unloaded modules */
-+static ssize_t stacker_unload_read (struct stacker_kobj *obj, char *buff)
-+{
-+	ssize_t len = 0;
-+	struct module_entry *m;
-+
-+	rcu_read_lock();
-+	stack_for_each_entry(m, &unloaded_modules, lsm_list) {
-+		len += snprintf(buff+len, PAGE_SIZE - len, "%s\n",
-+			m->module_name);
-+	}
-+	rcu_read_unlock();
-+
-+	return len;
-+}
-+
- static struct stacker_attribute stacker_attr_unload = {
- 	.attr = {.name = "unload", .mode = S_IFREG | S_IRUGO | S_IWUSR},
- 	.store = stacker_unload_write,
-+	.show =  stacker_unload_read,
- };
- 
- 
-@@ -1525,6 +1544,7 @@
- 
- 	INIT_LIST_HEAD(&stacked_modules);
- 	INIT_LIST_HEAD(&all_modules);
-+	INIT_LIST_HEAD(&unloaded_modules);
- 	spin_lock_init(&stacker_lock);
- 	default_module.module_name = DEFAULT_MODULE_NAME;
- 	default_module.namelen = strlen(DEFAULT_MODULE_NAME);
-
---LQksG6bCIzRHxTLp--

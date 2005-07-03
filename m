@@ -1,97 +1,162 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261559AbVGCW4b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261570AbVGCXYY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261559AbVGCW4b (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Jul 2005 18:56:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261560AbVGCW4a
+	id S261570AbVGCXYY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Jul 2005 19:24:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261574AbVGCXYY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Jul 2005 18:56:30 -0400
-Received: from cerebus.immunix.com ([198.145.28.33]:49588 "EHLO
-	ermintrude.int.immunix.com") by vger.kernel.org with ESMTP
-	id S261559AbVGCW4P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Jul 2005 18:56:15 -0400
-Date: Sun, 3 Jul 2005 15:51:52 -0700
-From: Tony Jones <tonyj@immunix.com>
-To: Kurt Garloff <garloff@suse.de>,
-       Linux kernel list <linux-kernel@vger.kernel.org>,
-       Chris Wright <chrisw@osdl.org>, Stephen Smalley <sds@epoch.ncsc.mil>,
-       James Morris <jmorris@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
-       Steve Beattie <smb@wirex.com>
-Subject: Re: [PATCH 1/3] Make cap default
-Message-ID: <20050703225152.GA25706@immunix.com>
-References: <20050703154333.GB11093@tpkurt.garloff.de>
+	Sun, 3 Jul 2005 19:24:24 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:22533 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261570AbVGCXYI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Jul 2005 19:24:08 -0400
+Date: Mon, 4 Jul 2005 01:24:05 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Cc: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/ieee1394/: schedule unused EXPORT_SYMBOL's for removal (fwd)
+Message-ID: <20050703232405.GR5346@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050703154333.GB11093@tpkurt.garloff.de>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 03, 2005 at 05:43:33PM +0200, Kurt Garloff wrote:
+This patch I sent on 13 May 2005 is still not in Linus' tree, and now 
+it's July.
 
-> Note that we could think of getting rid of dummy; however, it's
-> still used as fallback for stubs that are not implemented by an
-> LSM. I did not want to change this with this patch set, though
-> I'd like to see it done if everyone agrees it's a good idea.
+What shall I do?
+- resend this patch with the removal date set to August or
+- send a patch to remove these symbols
 
-I think this needs to happen (dummy goes away or it's contents are replaced
-by cap routines as appropriate).
+cu
+Adrian
 
-Currently in security_init() verify(&dummy_security_ops) calling 
-security_fixup_ops is a no-op in terms of modifying dummy. In your patch as
-you suggest verify(&capability_security_ops) now patches routines from dummy 
-into this default capability_security_ops.  The code is already too baroque,
-no point making it more complex.
+<--  snip  -->
 
-I think the necessary functions need to be present in this new base structure
-and security_fixup_ops patches from it into whatever new ops a caller passes, 
-dummy goes away. As a bonus, at this point your capability_ops struct in
-capability.c can really be different :-)
 
---- linux-2.6.10.orig/security/commoncap.c
-+++ linux-2.6.10/security/commoncap.c
-[snip]
-> +EXPORT_SYMBOL(capability_security_ops);
-> +/* Note: If the capability security module is loaded, we do NOT register
-> + * the capability_security_ops but a second structure that has the
-> + * identical entries. The reason is that this way,
-> + * - we could stack on top of capability if it was stackable
-> + * - a loaded capability module will prevent others to register, which
-> + *   is the previous behaviour; if capabilities are used as default (not
-> + *   because the module has been loaded), we allow the replacement.
-> + */
-> +#endif
+This patch schedules unused EXPORT_SYMBOL's for removal.
 
-The intent here is to make it past the 
-	if (security_ops != &capability_security_ops)
-check in security.c::register_security so that it is possible to actually
-register capability (capability_ops) subsequently as a module should you
-so desire, no?
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-The above description doesn't impart that.  Plus why would you want to stack
-capability on top of this base capability, even if it it supported stacking?
+---
 
---- linux-2.6.10.orig/security/capability.c
-+++ linux-2.6.10/security/capability.c
+ Documentation/feature-removal-schedule.txt |   21 ++++++++++++++
+ drivers/ieee1394/ieee1394_core.c           |   31 +++++++++++++++++++++
+ 2 files changed, 52 insertions(+)
 
-+/* Note: If the capability security module is loaded, we do NOT register
-+ * the capability_security_ops but a second structure capability_ops
-+ * that has the identical entries. The reasons:
-+ * - we could stack on top of capability if it was stackable
-+ * - a loaded capability module will prevent others to register, which
-+ *   is the previous behaviour; if capabilities are used as default (not
-+ *   because the module has been loaded), we allow the replacement.
+--- linux-2.6.12-rc4-mm1-full/Documentation/feature-removal-schedule.txt.old	2005-05-13 15:19:54.000000000 +0200
++++ linux-2.6.12-rc4-mm1-full/Documentation/feature-removal-schedule.txt	2005-05-13 15:29:24.000000000 +0200
+@@ -93,0 +94,21 @@
++
++---------------------------
++
++What:	remove the following ieee1394 EXPORT_SYMBOL's:
++	- hpsb_send_phy_config
++	- hpsb_send_packet_and_wait
++	- highlevel_add_host
++	- highlevel_remove_host
++	- nodemgr_for_each_host
++	- csr1212_create_csr
++	- csr1212_init_local_csr
++	- csr1212_new_immediate
++	- csr1212_associate_keyval
++	- csr1212_new_string_descriptor_leaf
++	- csr1212_destroy_csr
++	- csr1212_generate_csr_image
++	- csr1212_parse_csr
++When:	July 2005
++Files:	drivers/ieee1394/ieee1394_core.c
++Why:	No modular usage in the kernel.
++Who:	Adrian Bunk <bunk@stusta.de>
+--- linux-2.6.12-rc4-mm1-full/drivers/ieee1394/ieee1394_core.c.old	2005-05-13 15:19:34.000000000 +0200
++++ linux-2.6.12-rc4-mm1-full/drivers/ieee1394/ieee1394_core.c	2005-05-13 15:28:17.000000000 +0200
+@@ -1226,7 +1226,13 @@
+ EXPORT_SYMBOL(hpsb_alloc_packet);
+ EXPORT_SYMBOL(hpsb_free_packet);
++
++/* EXPORT_SYMBOL scheduled for removal */
+ EXPORT_SYMBOL(hpsb_send_phy_config);
++
+ EXPORT_SYMBOL(hpsb_send_packet);
++
++/* EXPORT_SYMBOL scheduled for removal */
+ EXPORT_SYMBOL(hpsb_send_packet_and_wait);
++
+ EXPORT_SYMBOL(hpsb_reset_bus);
+ EXPORT_SYMBOL(hpsb_bus_reset);
+@@ -1265,6 +1271,11 @@
+ EXPORT_SYMBOL(hpsb_get_hostinfo_bykey);
+ EXPORT_SYMBOL(hpsb_set_hostinfo);
++
++/* EXPORT_SYMBOL scheduled for removal */
+ EXPORT_SYMBOL(highlevel_add_host);
++
++/* EXPORT_SYMBOL scheduled for removal */
+ EXPORT_SYMBOL(highlevel_remove_host);
++
+ EXPORT_SYMBOL(highlevel_host_reset);
+ 
+@@ -1275,4 +1286,6 @@
+ EXPORT_SYMBOL(hpsb_unregister_protocol);
+ EXPORT_SYMBOL(ieee1394_bus_type);
++
++/* EXPORT_SYMBOL scheduled for removal */
+ EXPORT_SYMBOL(nodemgr_for_each_host);
+ 
+@@ -1312,18 +1325,36 @@
+ 
+ /** csr1212.c **/
++
++/* EXPORT_SYMBOLs scheduled for removal */
+ EXPORT_SYMBOL(csr1212_create_csr);
+ EXPORT_SYMBOL(csr1212_init_local_csr);
+ EXPORT_SYMBOL(csr1212_new_immediate);
++
+ EXPORT_SYMBOL(csr1212_new_directory);
++
++/* EXPORT_SYMBOL scheduled for removal */
+ EXPORT_SYMBOL(csr1212_associate_keyval);
++
+ EXPORT_SYMBOL(csr1212_attach_keyval_to_directory);
++
++/* EXPORT_SYMBOL scheduled for removal */
+ EXPORT_SYMBOL(csr1212_new_string_descriptor_leaf);
++
+ EXPORT_SYMBOL(csr1212_detach_keyval_from_directory);
+ EXPORT_SYMBOL(csr1212_release_keyval);
++
++/* EXPORT_SYMBOL scheduled for removal */
+ EXPORT_SYMBOL(csr1212_destroy_csr);
++
+ EXPORT_SYMBOL(csr1212_read);
++
++/* EXPORT_SYMBOL scheduled for removal */
+ EXPORT_SYMBOL(csr1212_generate_csr_image);
++
+ EXPORT_SYMBOL(csr1212_parse_keyval);
++
++/* EXPORT_SYMBOL scheduled for removal */
+ EXPORT_SYMBOL(csr1212_parse_csr);
++
+ EXPORT_SYMBOL(_csr1212_read_keyval);
+ EXPORT_SYMBOL(_csr1212_destroy_keyval);
 
-Ditto for this comment.
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 
->  static int __init capability_init (void)
->  {
-> +	memcpy(&capability_ops, &capability_security_ops, sizeof(capability_ops));
->  	if (capability_disable) {
->  		printk(KERN_INFO "Capabilities disabled at initialization\n");
->  		return 0;
->  	}
+----- End forwarded message -----
 
-No point doing the memcpy if capability_disable is true.
+cu
+Adrian
 
-Tony
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

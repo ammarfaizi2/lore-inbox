@@ -1,70 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbVGCWRX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261552AbVGCWUQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261551AbVGCWRX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Jul 2005 18:17:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261552AbVGCWRX
+	id S261552AbVGCWUQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Jul 2005 18:20:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261555AbVGCWUP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Jul 2005 18:17:23 -0400
-Received: from [85.8.12.41] ([85.8.12.41]:16828 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S261551AbVGCWRR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Jul 2005 18:17:17 -0400
-Message-ID: <42C8653D.9040103@drzeus.cx>
-Date: Mon, 04 Jul 2005 00:22:53 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 1.0.2-7 (X11/20050623)
-X-Accept-Language: en-us, en
+	Sun, 3 Jul 2005 18:20:15 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:36868 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261552AbVGCWUF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Jul 2005 18:20:05 -0400
+Date: Mon, 4 Jul 2005 00:20:02 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: netdev@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, zippel@linux-m68k.org
+Subject: [2.6 patch] fix IP_FIB_HASH kconfig warning
+Message-ID: <20050703222002.GQ5346@stusta.de>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=_hermes.drzeus.cx-31469-1120429036-0001-2"
-To: LKML <linux-kernel@vger.kernel.org>, jgarzik@pobox.com
-Subject: [PATCH] 8139cp - redetect link after suspend
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME-formatted message.  If you see this text it means that your
-E-mail software does not support MIME-formatted messages.
+[ This time with a subject... ]
 
---=_hermes.drzeus.cx-31469-1120429036-0001-2
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+This patch fixes the following kconfig warning:
+  net/ipv4/Kconfig:92:warning: defaults for choice values not supported
 
-After suspend the driver needs to retest link status in case the cable
-has been inserted or removed during the suspend.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
+---
 
---=_hermes.drzeus.cx-31469-1120429036-0001-2
-Content-Type: text/x-patch; name="8139cp-mii-suspend.patch"; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="8139cp-mii-suspend.patch"
+I've Cc'ed Roman because I might have missed a more elegant solution.
 
-Index: linux-wbsd/drivers/net/8139cp.c
-===================================================================
---- linux-wbsd/drivers/net/8139cp.c	(revision 153)
-+++ linux-wbsd/drivers/net/8139cp.c	(working copy)
-@@ -1858,6 +1858,7 @@
- {
- 	struct net_device *dev;
- 	struct cp_private *cp;
-+	unsigned long flags;
+--- linux-2.6.13-rc1-mm1-full/net/ipv4/Kconfig.old	2005-07-02 20:07:25.000000000 +0200
++++ linux-2.6.13-rc1-mm1-full/net/ipv4/Kconfig	2005-07-02 20:13:05.000000000 +0200
+@@ -58,8 +58,9 @@
+ 	depends on IP_ADVANCED_ROUTER
+ 	default IP_FIB_HASH
  
- 	dev = pci_get_drvdata (pdev);
- 	cp  = netdev_priv(dev);
-@@ -1871,6 +1872,12 @@
- 	
- 	cp_init_hw (cp);
- 	netif_start_queue (dev);
-+
-+	spin_lock_irqsave (&cp->lock, flags);
-+
-+	mii_check_media(&cp->mii_if, netif_msg_link(cp), FALSE);
-+
-+	spin_unlock_irqrestore (&cp->lock, flags);
- 	
- 	return 0;
- }
-
---=_hermes.drzeus.cx-31469-1120429036-0001-2--
+-config IP_FIB_HASH
++config ASK_IP_FIB_HASH
+ 	bool "FIB_HASH"
++	select IP_FIB_HASH
+ 	---help---
+ 	Current FIB is very proven and good enough for most users.
+ 
+@@ -84,12 +85,9 @@
+        
+ endchoice
+ 
+-# If the user does not enable advanced routing, he gets the safe
+-# default of the fib-hash algorithm.
+ config IP_FIB_HASH
+ 	bool
+-	depends on !IP_ADVANCED_ROUTER
+-	default y
++	default y if !IP_ADVANCED_ROUTER
+ 
+ config IP_MULTIPLE_TABLES
+ 	bool "IP: policy routing"

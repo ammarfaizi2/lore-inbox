@@ -1,70 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261506AbVGCTd1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261502AbVGCTgk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261506AbVGCTd1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Jul 2005 15:33:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261505AbVGCTd1
+	id S261502AbVGCTgk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Jul 2005 15:36:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261504AbVGCTgk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Jul 2005 15:33:27 -0400
-Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:49616
-	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
-	with ESMTP id S261506AbVGCTap (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Jul 2005 15:30:45 -0400
-Message-ID: <42C82E75.7070108@linuxwireless.org>
-Date: Sun, 03 Jul 2005 13:29:09 -0500
-From: Alejandro Bonilla <abonilla@linuxwireless.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Dave Hansen <dave@sr71.net>
-CC: Jesper Juhl <jesper.juhl@gmail.com>, Vojtech Pavlik <vojtech@suse.cz>,
-       Pavel Machek <pavel@suse.cz>, Paul Sladen <thinkpad@paul.sladen.org>,
-       linux-thinkpad@linux-thinkpad.org,
-       Eric Piel <Eric.Piel@tremplin-utc.net>, borislav@users.sourceforge.net,
-       Yani Ioannou <yani.ioannou@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       hdaps-devel@lists.sourceforge.net
-Subject: Re: [Hdaps-devel] Re: [ltp] IBM HDAPS Someone interested?	(Accelerometer)
-References: <1119559367.20628.5.camel@mindpipe>	 <Pine.LNX.4.21.0506250712140.10376-100000@starsky.19inch.net>	 <20050625144736.GB7496@atrey.karlin.mff.cuni.cz>	 <42BD9EBD.8040203@linuxwireless.org> <20050625200953.GA1591@ucw.cz>	 <42C7A3B2.4090502@linuxwireless.org> <20050703101613.GA2372@ucw.cz>	 <9a8748490507030407547fa29b@mail.gmail.com>  <42C82BBB.9090008@gmail.com> <1120418514.4351.6.camel@localhost>
-In-Reply-To: <1120418514.4351.6.camel@localhost>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 3 Jul 2005 15:36:40 -0400
+Received: from frankvm.xs4all.nl ([80.126.170.174]:8633 "EHLO
+	janus.localdomain") by vger.kernel.org with ESMTP id S261502AbVGCTgY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Jul 2005 15:36:24 -0400
+Date: Sun, 3 Jul 2005 21:36:19 +0200
+From: Frank van Maarseveen <frankvm@frankvm.com>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: frankvm@frankvm.com, akpm@osdl.org, aia21@cam.ac.uk, arjan@infradead.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: FUSE merging? (2)
+Message-ID: <20050703193619.GA2928@janus>
+References: <20050701152003.GA7073@janus> <E1DoOwc-000368-00@dorka.pomaz.szeredi.hu> <20050701180415.GA7755@janus> <E1DojJ6-00047F-00@dorka.pomaz.szeredi.hu> <20050702160002.GA13730@janus> <E1DoxmP-0004gV-00@dorka.pomaz.szeredi.hu> <20050703112541.GA32288@janus> <E1Dp4S4-0004ub-00@dorka.pomaz.szeredi.hu> <20050703141028.GB1298@janus> <E1Dp6hK-00056d-00@dorka.pomaz.szeredi.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1Dp6hK-00056d-00@dorka.pomaz.szeredi.hu>
+User-Agent: Mutt/1.4.1i
+X-Subliminal-Message: Use Linux!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen wrote:
+On Sun, Jul 03, 2005 at 05:47:58PM +0200, Miklos Szeredi wrote:
+> > > > But that's not really acceptable (see previous audit case) unless FUSE
+> > > > refuses to mount on non-leaf dirs.
+> > > 
+> > > I don't think the audit case is important.  It's easy to work around
+> > > it manually by the sysadmin, and for the automatic case it doesn't
+> > > really matter (as detailed above).
+> > 
+> > Note that the audit case "as user" is less important than the root case. I
+> > consider the latter very important and EACCES will break it when FUSE
+> > permits mounting on non-leaf dirs.
+> 
+> OK.  Can you tell me, why you consider it important?  And what's your
+> proposal for dealing with it?
 
->On Sun, 2005-07-03 at 20:17 +0200, Jesper Juhl wrote:
->  
->
->>Ok, just to show you people what I've done so far.
->>This doesn't work yet, but it should be resonably close (at least it
->>builds ;)
->>    
->>
->
->On top of what you sent at first this morning (not the most recent one)
->I did some stuff (in the attached patch).  It implements the last bit of
->initialization that your earlier one didn't do, but I see you've done in
->the most recent one.
->
->Anyway, I get 10 reads out of it, 1 second apart, and it appears to be
->getting real data:
->
->10 seconds while tilting my thinkpad around:
->
->x_accel: 372
->y_accel: 339
->x_accel: 475
->  
->
-Dave,
+It is important because on UNIX, "root" rules on local filesystems.
+I dont't like the idea of root not being able to run "find -xdev" anymore
+for administrative tasks, just because something got hidden by accident
+or just for fun by a user. It's not about malicious users who want to
+hide data: they can do that in tons of ways. The simple "find -xdev"
+by root should just not be affected unless there is a very good reason
+(SELinux or other "hardened" solutions).
 
-Simply awesome. Could you please send me the complete source that you 
-have? Maybe also cc hdaps mailing list?
+IMHO The best thing FUSE could do is to make the mount totally invisible:
+don't return EACCES, don't follow the FUSE mount but stay on the original
+tree. I think it's either this or returning EACCES plus the leaf node
+constraint at mount time.
 
-It's appreciated.
+The name-space variancy introduced by the first option is only minor:
+Mounting anything over a tree which is still in use by a process is
+much worse because it tends to be disruptive. And that has always been
+possible.
 
-or, is this patch against Brix source?
+[And I would use the kill() equivalence instead of ptrace() because it
+is more appropriate. Doing so avoids the risk of accidentally breaking
+useful setuid programs - I don't know if that will happen but I don't
+see any security issues here.]
 
-.Alejandro
+-- 
+Frank

@@ -1,84 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261279AbVGCKxA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261289AbVGCLHJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261279AbVGCKxA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Jul 2005 06:53:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261255AbVGCKxA
+	id S261289AbVGCLHJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Jul 2005 07:07:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261291AbVGCLHJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Jul 2005 06:53:00 -0400
-Received: from oldconomy.demon.nl ([212.238.217.56]:59016 "EHLO
-	artemis.slagter.name") by vger.kernel.org with ESMTP
-	id S261268AbVGCKwx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Jul 2005 06:52:53 -0400
-Subject: RE: [PATCH] ich6m-pciid-piix.patch
-From: Erik Slagter <erik@slagter.name>
-To: "Gaston, Jason D" <jason.d.gaston@intel.com>
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <26CEE2C804D7BE47BC4686CDE863D0F5043A5782@orsmsx410>
-References: <26CEE2C804D7BE47BC4686CDE863D0F5043A5782@orsmsx410>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-9U87uiTZY3feCAs3gMDa"
-Date: Sun, 03 Jul 2005 12:55:59 +0200
-Message-Id: <1120388159.4300.57.camel@localhost.localdomain>
+	Sun, 3 Jul 2005 07:07:09 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:1737 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261289AbVGCLHB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Jul 2005 07:07:01 -0400
+Date: Sun, 3 Jul 2005 13:06:39 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Christoph Lameter <christoph@lameter.com>
+Cc: Ray Bryant <raybry@engr.sgi.com>, Linus Torvalds <torvalds@osdl.org>,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Fix SMP brokenness for PF_FREEZE and make freezing usable for other purposes
+Message-ID: <20050703110638.GA1312@elf.ucw.cz>
+References: <20050625025122.GC22393@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.62.0506242311220.7971@graphe.net> <20050626023053.GA2871@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.62.0506251954470.26198@graphe.net> <20050626030925.GA4156@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.62.0506261928010.1679@graphe.net> <Pine.LNX.4.58.0506262121070.19755@ppc970.osdl.org> <Pine.LNX.4.62.0506262249080.4374@graphe.net> <42C1C627.5040404@engr.sgi.com> <Pine.LNX.4.62.0506281450490.5895@graphe.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-8) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.62.0506281450490.5895@graphe.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
---=-9U87uiTZY3feCAs3gMDa
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> > >  -			freeze(p);
+> > > +			set_thread_flag(TIF_FREEZE);
+> > 
+> > Shouldn't that be "set_ti_thread_flag(p->thread_info, TIF_FREEZE)"?
+> > Otherwise you freeze current, not the thread "p".
+> 
+> Correct. Which also means that we have not progressed yet beyond an 
+> academic version of the patch:
+> 
+> ---
+> 
+> Revise handling of freezing in the suspend code
+> 
+> The current suspend code modifies thread flags from outside the context of process.
+> This creates a SMP race.
+> 
+> The patch fixes that by introducing a TIF_FREEZE flag (for all arches). Also
+> 
+> - Uses a completion handler instead of waiting in a schedule loop in the refrigerator.
+> 
+> - Introduces a semaphore freezer_sem to provide a way that multiple kernel
+>   subsystems can use the freezing ability without interfering with one another.
+> 
+> - Include necessary definitions for the migration code if CONFIG_MIGRATE is set.
+> 
+> - Removes PF_FREEZE
+> 
+> Signed-off-by: Christoph Lameter <christoph@lameter.com>
 
-On Sat, 2005-07-02 at 17:23 -0700, Gaston, Jason D wrote:
+This patch breaks suspend for me (first suspend works, second suspend
+fails to freeze processes). [I was offline, that's why it took so
+long.]
 
->>> Please do not apply this patch.  The ICH6M SATA DID is all ready
->>> being used in the SATA ata_piix.c and ahci.c drivers.  Adding the
->>> ICH6M SATA DID to the PATA piix.c driver will conflict.  This patch
->>> would add the ICH6M >SATA controller DID 0x2653 to the PATA
->>> piix.c driver.
+I see patches 1/2 and 2/2 submitted; if you still feel I should apply
+some of them, tell me.
+								Pavel
 
-> > That's why you either enable piix support from the standard ide driver
-> > xor from libsata. The comments in the configure script even mention thi=
-s
-> > fact!
-
-> You need to have support for both at the same time if you want to run in
-> enhanced mode and have full access to your PATA and SATA controllers and
-> drives.
-
-Hmmm. I guess this would be in the (imho unlikely) situation where you
-have both PATA and SATA drives connected to the ICH6M.
-
-I do see the problem, though. It's a "works for me(r)" solution ;-)
-
-> I suggest you try to place your BIOS in Enhanced mode for the SATA/PATA
-> controllers so that you have both the PATA and SATA DID's and
-> controllers showing up.  Then your PATA drive will show up as an IDE
-> device and use the piix driver.
-
-Bzzzt! Nice theory, but in practise, MANY bioses (including mine) don't
-offer the choice to put the controller in whatever mode. Add to that,
-that if you only have pata drives attached, it doesn't make much sense
-to drive it with libata.
-
-I'd be happy to drive my ICH6M with libata, but it just doesn't work
-well. No smart&hdparm (the corresponding patch freezes the kernel every
-now and then) support, drives show up as scsi drives..., no atapi
-(unless #defined, but also not yet bugfree).
-
-Well anyway, this is just my $0.02 I guess it won't make it into the
-kernel, but you never know how might be able to use it.
-
---=-9U87uiTZY3feCAs3gMDa
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBCx8Q/JgD/6j32wUYRAl7+AJ9OyBsnSFMQvV0iOttb5cNqrp5+qQCfccRo
-Pj/g45LFdGGPtFEc+PLwJ1Q=
-=t2PA
------END PGP SIGNATURE-----
-
---=-9U87uiTZY3feCAs3gMDa--
+-- 
+teflon -- maybe it is a trademark, but it should not be.

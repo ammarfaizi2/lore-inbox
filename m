@@ -1,82 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261387AbVGCHJm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261386AbVGCHhW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261387AbVGCHJm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Jul 2005 03:09:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261389AbVGCHJm
+	id S261386AbVGCHhW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Jul 2005 03:37:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261389AbVGCHhW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Jul 2005 03:09:42 -0400
-Received: from wproxy.gmail.com ([64.233.184.198]:17291 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261387AbVGCHJi convert rfc822-to-8bit
+	Sun, 3 Jul 2005 03:37:22 -0400
+Received: from mailfe08.swip.net ([212.247.154.225]:1510 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S261386AbVGCHhR convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Jul 2005 03:09:38 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=FvezIQo7rxKfXCNeXd7C4AbgcEAT7ktsTfWVvpijcUhBthHnS6KyxYhd8S2ZnS92DLYVqUGkTrpdY1256eoh+i40TwzP49Etr1JB8OD7JfoWdeQbmBxqtPPK8PH01dE82KQ8oS7kFAR3Mzb5CTauGrBSXzi3zOWbGU2aBXP+y1M=
-Message-ID: <a44ae5cd05070300097a18790a@mail.gmail.com>
-Date: Sun, 3 Jul 2005 00:09:33 -0700
-From: Miles Lane <miles.lane@gmail.com>
-Reply-To: Miles Lane <miles.lane@gmail.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: 2.6.13-rc1-mm1 -- Synaptics touchpad not detected correctly
+	Sun, 3 Jul 2005 03:37:17 -0400
+X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
+Subject: Re: ASUS K8N-DL Beta BIOS
+From: Alexander Nyberg <alexn@telia.com>
+To: Sean Bruno <sean.bruno@dsl-only.net>
+Cc: Andi Kleen <ak@muc.de>, Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       "Hodle, Brian" <BHodle@harcroschem.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'ipsoa@posiden.hopto.org'" <ipsoa@posiden.hopto.org>
+In-Reply-To: <1120365125.4107.4.camel@home-lap>
+References: <D9A1161581BD7541BC59D143B4A06294021FAAAF@KCDC1>
+	 <1120246927.2764.26.camel@home-lap>
+	 <200507021843.45450.s0348365@sms.ed.ac.uk>  <20050702194455.GA80118@muc.de>
+	 <1120365125.4107.4.camel@home-lap>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Sun, 03 Jul 2005 09:37:16 +0200
+Message-Id: <1120376236.1175.1.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+lör 2005-07-02 klockan 21:32 -0700 skrev Sean Bruno:
+> On Sat, 2005-07-02 at 21:44 +0200, Andi Kleen wrote:
+> > > I can't really remember whether the detection problem was resolved; my 
+> > > specific (APIC related) issue was.
+> > > 
+> > > Andi?
+> > 
+> > Does it work with acpi_skip_timer_override ? 
+> > 
+> > -Andi
+> 
+> Not to be a crank here, but I can't find reference to this
+> function/variable/#DEFINE in any of the ACPI code nor can I find a
+> decent reference to this in the lkml lists...So I must not understand
+> your suggestion.
+> 
+> What are you asking me to check?
 
-Any ideas why my Synaptics touchpad isn't getting recognized
-as supporting multi-finger tap detection?  I haven't seen detection
-work with earlier kernels, either.  However, multifinger taps work
-under WinXP.
+It's a boot command line parameter (Documentation/kernel-parameters.txt)
 
-dmesg is reporting:
-
-           Synaptics Touchpad, model: 1, fw: 5.10, id: 0x258eb1, caps:
-0xa04713/0x0
-           input: SynPS/2 Synaptics TouchPad on isa0060/serio1
-
-On the web, I found this reference:
-http://www.softwarelibremorelos.gob.mx/pipermail/slm/2005-March/001267.html
-Which, for 2.6.10, shows:
-           Synaptics Touchpad, model: 1
-            Firmware: 5.10
-            Sensor: 37
-            new absolute packet format
-            Touchpad has extended capability bits
-            -> multifinger detection
-            -> palm detection
-           input: SynPS/2 Synaptics TouchPad on isa0060/serio1
-
-My .config contains:
-
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1280
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-# CONFIG_INPUT_JOYDEV is not set
-# CONFIG_INPUT_TSDEV is not set
-CONFIG_INPUT_EVDEV=y
-# CONFIG_INPUT_EVBUG is not set
-
-#
-# Input Device Drivers
-#
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-# CONFIG_KEYBOARD_SUNKBD is not set
-# CONFIG_KEYBOARD_LKKBD is not set
-# CONFIG_KEYBOARD_XTKBD is not set
-# CONFIG_KEYBOARD_NEWTON is not set
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=m
-
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_SERIO_SERPORT=m
-CONFIG_SERIO_CT82C710=m
-CONFIG_SERIO_PCIPS2=m
-CONFIG_SERIO_LIBPS2=y

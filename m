@@ -1,55 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261588AbVGDTmW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261603AbVGDTpy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261588AbVGDTmW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Jul 2005 15:42:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbVGDTmW
+	id S261603AbVGDTpy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Jul 2005 15:45:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbVGDTpy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Jul 2005 15:42:22 -0400
-Received: from cerebus.immunix.com ([198.145.28.33]:44428 "EHLO
-	ermintrude.int.immunix.com") by vger.kernel.org with ESMTP
-	id S261588AbVGDTmR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Jul 2005 15:42:17 -0400
-Date: Mon, 4 Jul 2005 12:37:53 -0700
-From: Tony Jones <tonyj@suse.de>
-To: serge@hallyn.com
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 5/12] lsm stacking v0.2: actual stacker module
-Message-ID: <20050704193753.GA28893@immunix.com>
-References: <20050630194458.GA23439@serge.austin.ibm.com> <20050630195043.GE23538@serge.austin.ibm.com> <20050704031820.GA6871@immunix.com> <20050704115135.GA27617@vino.hallyn.com>
+	Mon, 4 Jul 2005 15:45:54 -0400
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:19729 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261603AbVGDTof
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Jul 2005 15:44:35 -0400
+Date: Mon, 4 Jul 2005 21:44:59 +0200
+From: Tomasz Torcz <zdzichu@irc.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Consistent kernel panic on 2.6.12 in sk_alloc when using vmware vmnet bridge. Works perfect on 2.6.11.x
+Message-ID: <20050704194459.GA8340@irc.pl>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <42C98E5A.2050309@0Bits.COM>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-In-Reply-To: <20050704115135.GA27617@vino.hallyn.com>
-User-Agent: Mutt/1.5.9i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <42C98E5A.2050309@0Bits.COM>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 04, 2005 at 06:51:35AM -0500, serge@hallyn.com wrote:
+On Mon, Jul 04, 2005 at 11:30:34PM +0400, Mitch wrote:
+> Hi,
+> 
+> I'm getting a 100% reproduceable panic (stack attached) when testing out 
+> vmware bridged net module on 2.6.12, 2.6.12.[12]. Reverting back to 
+> 2.6.11.12 (or 2.6.11) works fine.
 
-> > I don't think your symbol_get() is doing what you think it is ;-)
+ I believe this was fixed by and update. Download
+http://platan.vc.cvut.cz/ftp/pub/vmware/vmware-any-any-update92.tar.gz
 
-> Hmm, I wonder whether something changed.  It shouldn't be possible to
-> rmmod module b if module a has done a symbol_get on it...  
 
-Are you thinking of resolve_symbol rather than get_symbol?
+-- 
+Tomasz Torcz                        To co nierealne - tutaj jest normalne.
+zdzichu@irc.-nie.spam-.pl          Ziomale na ¿ycie maj± tu patenty specjalne.
 
-You are calling __symbol_get("ops").
-
-Maybe (/probably :-)) I'm totally misunderstanding what you are doing but:
-
-a) I would have thought you would need to call symbol_get on the name the
-   caller was passing, i.e symbol_get(capability_security_ops)
-b) The module registering these ops would need to EXPORT_SYMBOL this name.
-c) mod->state is MODULE_STATE_COMING right before the call to mod->init
-   in sys_init_module which causes any symbol_gets() to return 0 (not that
-   you actually care about the return value, only it's side effect)
-d) I don't see anything in this code path that would incr a ref on the 
-   registering module as a side effect of returning the sym.
-
-> more stringent locking will be required after all to support unloading.
-> That, or a rmmod lsm hook.
-
-Yep.  I was able to rmmod subdomain and capability, the former with unpleasant
-results.
-
-Tony

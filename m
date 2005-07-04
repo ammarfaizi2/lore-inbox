@@ -1,44 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261416AbVGDQ4d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261362AbVGDQ5L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261416AbVGDQ4d (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Jul 2005 12:56:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261418AbVGDQ4d
+	id S261362AbVGDQ5L (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Jul 2005 12:57:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261418AbVGDQ5L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Jul 2005 12:56:33 -0400
-Received: from fsmlabs.com ([168.103.115.128]:40895 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S261416AbVGDQ4a (ORCPT
+	Mon, 4 Jul 2005 12:57:11 -0400
+Received: from wproxy.gmail.com ([64.233.184.198]:6296 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261362AbVGDQ5G (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Jul 2005 12:56:30 -0400
-Date: Mon, 4 Jul 2005 11:01:01 -0600 (MDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Martin Mokrejs <mmokrejs@ribosome.natur.cuni.cz>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Two 2.6.13-rc1 kernel crashes
-In-Reply-To: <42C96047.60602@ribosome.natur.cuni.cz>
-Message-ID: <Pine.LNX.4.61.0507041100110.2986@montezuma.fsmlabs.com>
-References: <42C96047.60602@ribosome.natur.cuni.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 4 Jul 2005 12:57:06 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:subject:from:reply-to:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+        b=DxzUV5CbT8J3UYYBMA7neXZ6sIFPey5JXN1ZspN9N5xqBpjs/43y6JQEKnIbiE0yC7ShxlHHxyx+iP7EeJcqJFCxzYzyznMiEqSfwdGqIXmerjyeuM2AGDn3rnwHIEwmLtRu/o9zLi0ig3Os/cjn8S+Af7BmGfaU4VwX8ekDIq8=
+Subject: Re: notebook buttons trouble, acpi related
+From: Hetfield <hetfield666@gmail.com>
+Reply-To: hetfield666@gmail.com
+To: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E1DpTqG-00038x-00@chiark.greenend.org.uk>
+References: <1120493152.17493.30.camel@blight.blightgroup>
+	 <E1DpTqG-00038x-00@chiark.greenend.org.uk>
+Content-Type: text/plain
+Date: Mon, 04 Jul 2005 18:57:00 +0200
+Message-Id: <1120496221.17493.38.camel@blight.blightgroup>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Jul 2005, Martin Mokrejs wrote:
+Il giorno lun, 04/07/2005 alle 17.30 +0100, Matthew Garrett ha scritto:
+> Hetfield <hetfield666@gmail.com> wrote:
+> 
+> > if it turns off tft and change brightness i guess kernel should receive
+> > some events but
+> > /proc/acpi/event doesn't get them.
+> 
+> In general, these keys generate events that are handled by the hardware.
+> The kernel never gets told about them. If you disassemble your DSDT, you
+> may be able to find methods that correspond to the hotkeys - then you
+> can use the ACPI generic hotkey driver to bind them to events. However,
+> this isn't always true and is very hardware dependent.
+> 
+i'm sorry, but i've no idea about how disasseble dsdt and how to use
+that.
 
-> Hi,
->   I use on i686 architecture Gentoo linux with XFS filesystem.
-> Recently it happened to me 3 time that the machine locked,
-> although at least once sys-rq+b worked. Here is the log
-> from remote console. I don't remeber having such problems
-> with 2.6.12-rc6-git2, which was my previous testing kernel.
-> The problems appear under heavy load when I compile/install
-> some packages and maybe it's just a bad coincidence or not,
-> when I move my usb mouse in fvwm2 environment. The machine
-> locks.
-> Any clues? Please Cc: me in replies.
+how can i get support?
 
-Could you send your .config, and also test without CONFIG_4KSTACKS (if 
-enabled)?
-
-Thanks,
-	Zwane
+(i know the question is google too )
 

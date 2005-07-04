@@ -1,124 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261580AbVGCXwk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261581AbVGDAQF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261580AbVGCXwk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Jul 2005 19:52:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261581AbVGCXwk
+	id S261581AbVGDAQF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Jul 2005 20:16:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261587AbVGDAQF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Jul 2005 19:52:40 -0400
-Received: from pne-smtpout2-sn1.fre.skanova.net ([81.228.11.159]:1260 "EHLO
-	pne-smtpout2-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S261580AbVGCXwe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Jul 2005 19:52:34 -0400
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>,
-       Linus Torvalds <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] ALPS: fix enabling hardware tapping
-References: <200506150138.49880.dtor_core@ameritech.net>
-	<m3slyw6reu.fsf@telia.com> <20050703203401.GA3733@ucw.cz>
-From: Peter Osterlund <petero2@telia.com>
-Date: 04 Jul 2005 01:28:06 +0200
-In-Reply-To: <20050703203401.GA3733@ucw.cz>
-Message-ID: <m3vf3rlbax.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 3 Jul 2005 20:16:05 -0400
+Received: from zproxy.gmail.com ([64.233.162.203]:19868 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261581AbVGDAP4 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Jul 2005 20:15:56 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ZN8FOloQ9LMg+UwGK/7hvIwbss++1grGmuOYJRo75koYgZ1Id92dX6Hln+c6U7YteR7/tEBaMT9W5TG67yjIx5gRvJ6z7m9Yhv/gcwGhcs+9XQMAprLhQdcNPhFdHXOpdw9EETpJOHr8Fb65rJ2imxAYOkB02FQiBN+jJJ24a/E=
+Message-ID: <8e6f947205070317156cabb964@mail.gmail.com>
+Date: Sun, 3 Jul 2005 20:15:55 -0400
+From: Will Dyson <will.dyson@gmail.com>
+Reply-To: Will Dyson <will.dyson@gmail.com>
+To: Peter Ronnquist <pronnquist@yahoo.com>
+Subject: Re: Where/how to start implementing vertical retrace interrupt interface?
+Cc: linux-kernel@vger.kernel.org, dri-devel@lists.sourceforge.net,
+       xorg@lists.freedesktop.org
+In-Reply-To: <20050702154153.88754.qmail@web30507.mail.mud.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050702154153.88754.qmail@web30507.mail.mud.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik <vojtech@suse.cz> writes:
+On 7/2/05, Peter Ronnquist <pronnquist@yahoo.com> wrote:
 
-> On Sun, Jul 03, 2005 at 01:49:13PM +0200, Peter Osterlund wrote:
-> > Dmitry Torokhov <dtor_core@ameritech.net> writes:
-> > 
-> > > It looks like logic for enabling hardware tapping in ALPS driver was
-> > > inverted and we enable it only if it was already enabled by BIOS or
-> > > firmware.
-> > 
-> > It looks like alps_init() has the same bug.  This patch fixes that
-> > function too by moving the check if the tapping mode needs to change
-> > into the alps_tap_mode() function, so that the test doesn't have to be
-> > duplicated.
+I've added the dri-devel and xorg mailing lists to the cc: list.
+
+> If I have understood things correctly then X/x.org can
+> not provide a flicker free update of the graphics on a
+> display since the linux kernel does not provide a way
+> to synchronize to the vertical retrace of a display.
 > 
-> This looks good. However - what's the point in checking whether tapping
-> is enabled before enabling it?
+> See
+> http://lists.freedesktop.org/archives/xdg/2004-August/004561.html
 
-I don't think there is a point. IFAIK this code was added by Dmitry as
-part of the hardware auto-detection changes. In that version the check
-prevented a printk line when the touchpad was already in the correct
-state. That printk is deleted anyway by this patch, so the check can
-be removed. (Modulo weird hardware behavior, which can't be completely
-ruled out because the driver is based largely on reverse engineering,
-since no public docs are available.)
+I don't know if that was true at the time it was written, but today
+the DRM implements vblank wait for 3 drivers (mga, r128, and radeon).
+However, as far as I can tell, none of the X server's 2d  drivers
+makes use of it. Perhaps some more work is needed to make the
+interface convient for the X server?
 
-Signed-off-by: Peter Osterlund <petero2@telia.com>
----
+If you have a card supported by one of these drivers, you can move on
+to getting the X server to use that capability to support vblank
+counters in the XSync extension.
 
- linux-petero/drivers/input/mouse/alps.c |   22 ++++------------------
- 1 files changed, 4 insertions(+), 18 deletions(-)
+http://freedesktop.org/~jg/roadmap.html#mozTocId921013
 
-diff -puN drivers/input/mouse/alps.c~alps-hwtaps-fix drivers/input/mouse/alps.c
---- linux/drivers/input/mouse/alps.c~alps-hwtaps-fix	2005-07-03 13:42:47.000000000 +0200
-+++ linux-petero/drivers/input/mouse/alps.c	2005-07-03 23:50:06.000000000 +0200
-@@ -2,7 +2,7 @@
-  * ALPS touchpad PS/2 mouse driver
-  *
-  * Copyright (c) 2003 Neil Brown <neilb@cse.unsw.edu.au>
-- * Copyright (c) 2003 Peter Osterlund <petero2@telia.com>
-+ * Copyright (c) 2003-2005 Peter Osterlund <petero2@telia.com>
-  * Copyright (c) 2004 Dmitry Torokhov <dtor@mail.ru>
-  * Copyright (c) 2005 Vojtech Pavlik <vojtech@suse.cz>
-  *
-@@ -350,7 +350,6 @@ static int alps_tap_mode(struct psmouse 
- static int alps_reconnect(struct psmouse *psmouse)
- {
- 	struct alps_data *priv = psmouse->private;
--	unsigned char param[4];
- 	int version;
- 
- 	psmouse_reset(psmouse);
-@@ -361,11 +360,7 @@ static int alps_reconnect(struct psmouse
- 	if (priv->i->flags & ALPS_PASS && alps_passthrough_mode(psmouse, 1))
- 		return -1;
- 
--	if (alps_get_status(psmouse, param))
--		return -1;
--
--	if (!(param[0] & 0x04))
--		alps_tap_mode(psmouse, 1);
-+	alps_tap_mode(psmouse, 1);
- 
- 	if (alps_absolute_mode(psmouse)) {
- 		printk(KERN_ERR "alps.c: Failed to enable absolute mode\n");
-@@ -389,7 +384,6 @@ static void alps_disconnect(struct psmou
- int alps_init(struct psmouse *psmouse)
- {
- 	struct alps_data *priv;
--	unsigned char param[4];
- 	int version;
- 
- 	psmouse->private = priv = kmalloc(sizeof(struct alps_data), GFP_KERNEL);
-@@ -403,16 +397,8 @@ int alps_init(struct psmouse *psmouse)
- 	if ((priv->i->flags & ALPS_PASS) && alps_passthrough_mode(psmouse, 1))
- 		goto init_fail;
- 
--	if (alps_get_status(psmouse, param)) {
--		printk(KERN_ERR "alps.c: touchpad status report request failed\n");
--		goto init_fail;
--	}
--
--	if (param[0] & 0x04) {
--		printk(KERN_INFO "alps.c: Enabling hardware tapping\n");
--		if (alps_tap_mode(psmouse, 1))
--			printk(KERN_WARNING "alps.c: Failed to enable hardware tapping\n");
--	}
-+	if (alps_tap_mode(psmouse, 1))
-+		printk(KERN_WARNING "alps.c: Failed to enable hardware tapping\n");
- 
- 	if (alps_absolute_mode(psmouse)) {
- 		printk(KERN_ERR "alps.c: Failed to enable absolute mode\n");
-_
+Then you only need for toolkits (and/or individual apps) to get with
+the program and start using using XSync.
+
+> If a person with little previous experience of the
+> linux kernel source tree would like to start on such a
+> feature then how complicated do you believe it is to
+> implement? (days or months of work)
+>
+> Where in the kernel source is a good place to start
+> looking?
+
+linux/drivers/char/drm/  is where the kernel drivers for graphics cards live. 
+
+Here is an overview of the different pieces of the current
+drm/dri/xserver graphics puzzle:
+http://dri.freedesktop.org/wiki/DriverFiles
 
 -- 
-Peter Osterlund - petero2@telia.com
-http://web.telia.com/~u89404340
+Will Dyson

@@ -1,52 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261173AbVGDOq2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261209AbVGDO7t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261173AbVGDOq2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Jul 2005 10:46:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261167AbVGDOq2
+	id S261209AbVGDO7t (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Jul 2005 10:59:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261214AbVGDO7s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Jul 2005 10:46:28 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:47498 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261173AbVGDOpU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Jul 2005 10:45:20 -0400
-Date: Mon, 4 Jul 2005 16:46:35 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Shawn Starr <shawn.starr@rogers.com>
-Cc: Lenz Grimmer <lenz@grimmer.com>, Jesper Juhl <jesper.juhl@gmail.com>,
-       Alejandro Bonilla <abonilla@linuxwireless.org>,
-       Dave Hansen <dave@sr71.net>, Henrik Brix Andersen <brix@gentoo.org>,
-       hdaps-devel@lists.sourceforge.net,
-       LKML List <linux-kernel@vger.kernel.org>
-Subject: Re: IBM HDAPS things are looking up (was: Re: [Hdaps-devel] Re: [ltp] IBM HDAPS Someone interested? (Accelerometer))
-Message-ID: <20050704144634.GQ1444@suse.de>
-References: <20050704061713.GA1444@suse.de> <20050704142723.2202.qmail@web88009.mail.re2.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050704142723.2202.qmail@web88009.mail.re2.yahoo.com>
+	Mon, 4 Jul 2005 10:59:48 -0400
+Received: from mail-in-04.arcor-online.net ([151.189.21.44]:43151 "EHLO
+	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261209AbVGDO7o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Jul 2005 10:59:44 -0400
+Date: Mon, 4 Jul 2005 16:59:18 +0200 (CEST)
+From: Bodo Eggert <7eggert@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Documentation mismatch in Documentation/kbuild/kconfig-language.txt
+Message-ID: <Pine.LNX.4.58.0507041639500.24224@be1.lrz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--- Documentation/kbuild/kconfig-language.txt ---
+- input prompt: "prompt" <prompt> ["if" <expr>]
+  Every menu entry can have at most one prompt, which is used to display
+  to the user. Optionally dependencies only for this prompt can be added
+  with "if".
+---
 
-(don't top post!)
+This is misleading, since the "if" will not affect only the prompt, but 
+also the config option. 
 
-On Mon, Jul 04 2005, Shawn Starr wrote:
-> 
-> We could put it in userspace, but if the system is
-> swapping like mad, can we still get a critical
-> response if this remains in userspace fully?
+Therefore I can't use
+config SGI_IOC4
+    tristate
+    prompt "SGI IOC4 Base IO support" if PROMPT_FOR_UNUSED_CORES
+    depends on (IA64_GENERIC || IA64_SGI_SN2) && MMTIMER
+    default n
 
-Just make sure the program isn't swapped out.
+to hide this option unless PROMPT_FOR_UNUSED_CORES is selected.
 
-> Someone mentioned we should use a kernel thread(s) to
-> handle stopping all I/O so we can safely park heads.
-
-That's madness, we can't add a kernel thread for every single little
-silly thing. You don't need to stop any io, you just want to make sure
-that your park request gets issued right after the current io has
-finished.
-
+Since the "if" is useless, misleading and redundand with this behaviour, I 
+suggest stripping it out.
 
 -- 
-Jens Axboe
-
+Top 100 things you don't want the sysadmin to say:
+43. The backup procedure works fine, but the restore is tricky!

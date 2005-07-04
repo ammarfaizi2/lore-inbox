@@ -1,39 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261242AbVGDHqw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261526AbVGDH6L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261242AbVGDHqw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Jul 2005 03:46:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261413AbVGDHqw
+	id S261526AbVGDH6L (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Jul 2005 03:58:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261460AbVGDH6L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Jul 2005 03:46:52 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:18641 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261242AbVGDHfS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Jul 2005 03:35:18 -0400
-Date: Mon, 4 Jul 2005 09:35:11 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Stefan Seyfried <seife@suse.de>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] call device_shutdown with interrupts enabled
-Message-ID: <20050704073511.GF15370@elf.ucw.cz>
-References: <20050703214929.GA9214@elf.ucw.cz> <42C8D83A.70705@suse.de>
+	Mon, 4 Jul 2005 03:58:11 -0400
+Received: from cerebus.immunix.com ([198.145.28.33]:13495 "EHLO
+	ermintrude.int.immunix.com") by vger.kernel.org with ESMTP
+	id S261554AbVGDHtQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Jul 2005 03:49:16 -0400
+Date: Mon, 4 Jul 2005 00:44:49 -0700
+From: Tony Jones <tonyj@suse.de>
+To: Kurt Garloff <garloff@suse.de>,
+       Linux kernel list <linux-kernel@vger.kernel.org>,
+       Chris Wright <chrisw@osdl.org>, Stephen Smalley <sds@epoch.ncsc.mil>,
+       James Morris <jmorris@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
+       Steve Beattie <smb@wirex.com>,
+       Linux LSM list <linux-security-module@wirex.com>
+Subject: Re: [PATCH 3/3] Use conditional
+Message-ID: <20050704074449.GA12963@immunix.com>
+References: <20050703154405.GE11093@tpkurt.garloff.de> <20050703190007.GA30292@immunix.com> <20050704065902.GO11093@tpkurt.garloff.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42C8D83A.70705@suse.de>
-X-Warning: Reading this can be dangerous to your mental health.
+In-Reply-To: <20050704065902.GO11093@tpkurt.garloff.de>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Mon, Jul 04, 2005 at 08:59:02AM +0200, Kurt Garloff wrote:
 
-> > Do not call device_shutdown with interrupts disabled. It is wrong and
-> > produces ugly warnings.
+> > The topic of replacing dummy (with capability) was discussed there
+> > last week, in the context of stacker, but a common solution for both
+> > cases would be needed.
 > 
-> Hm. How about (possible whitespace damage):
+> Both cases?
 
-Hmm, right, that's better patch. Applied (will push upstream with next
-batch).
-							Pavel
--- 
-teflon -- maybe it is a trademark, but it should not be.
+CONFIG_SECURITY_STACKER and !CONFIG_SECURITY_STACKER ;-)
+
+http://mail.wirex.com/pipermail/linux-security-module/2005-June/6200.html
+
+I was assuming (bad of me I know) that Serge's patch would nail both cases
+with one stone.
+
+Tony

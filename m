@@ -1,124 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261404AbVGDDyS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261385AbVGDD6o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261404AbVGDDyS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Jul 2005 23:54:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261385AbVGDDyS
+	id S261385AbVGDD6o (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Jul 2005 23:58:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261397AbVGDD6n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Jul 2005 23:54:18 -0400
-Received: from cog1.w2cog.org ([206.251.188.12]:41347 "EHLO mail1.w2cog.org")
-	by vger.kernel.org with ESMTP id S261404AbVGDDyG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Jul 2005 23:54:06 -0400
-Date: Sun, 3 Jul 2005 22:52:43 -0500 (CDT)
-From: Roy Keene <rkeene@psislidell.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-cc: Alexander Nyberg <alexn@telia.com>,
-       Anthony DiSante <theant@nodivisions.com>, andrea@suse.de, akpm@osdl.org,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: oom-killings, but I'm not out of memory!
-In-Reply-To: <20050703224555.GB21450@logos.cnet>
-Message-ID: <Pine.LNX.4.62.0507032247170.25627@hammer.psislidell.com>
-References: <42C179D5.3040603@nodivisions.com> <1119977073.1723.2.camel@localhost.localdomain>
- <42C18031.50206@nodivisions.com> <1120049835.1176.7.camel@localhost.localdomain>
- <20050703205357.GA21166@logos.cnet> <Pine.LNX.4.62.0507032142290.25063@hammer.psislidell.com>
- <20050703224555.GB21450@logos.cnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Sun, 3 Jul 2005 23:58:43 -0400
+Received: from chretien.genwebhost.com ([209.59.175.22]:18569 "EHLO
+	chretien.genwebhost.com") by vger.kernel.org with ESMTP
+	id S261385AbVGDD6j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Jul 2005 23:58:39 -0400
+Date: Sun, 3 Jul 2005 20:58:34 -0700
+From: randy_dunlap <rdunlap@xenotime.net>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ISA DMA API documentation
+Message-Id: <20050703205834.51b43435.rdunlap@xenotime.net>
+In-Reply-To: <42C712C9.7080603@drzeus.cx>
+References: <42C712C9.7080603@drzeus.cx>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-ClamAntiVirus-Scanner: This mail is clean
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - chretien.genwebhost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - xenotime.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Howdy,
+On Sun, 03 Jul 2005 00:18:49 +0200 Pierre Ossman wrote:
 
- 	Roy Keene
- 	Planning Systems Inc.
+| Documentation for how the ISA DMA controller is handled in the kernel.
+| 
+| Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
+| 
+| I found the documentation about the ISA DMA controller a bit lacking so
+| I figured I could save the next guy some work by documentation the
+| lessons learned.
+| 
+| (English is not my native language so please feel free to point out any
+| problems with spelling or grammar.)
 
-On Sun, 3 Jul 2005, Marcelo Tosatti wrote:
++The first is the generic DMA API used to convert virtual addresses to
++physical addresses (see DMA-API.txt for details).
+                    (see Documentation/DMA-API.txt for details).
 
->
-> Hi Roy,
->
-> On Sun, Jul 03, 2005 at 09:44:37PM -0500, Roy Keene wrote:
->> I think I'm having the same issue.
->>
->> I've 2 systems with 4GB of RAM and 2GB of swap that kill processes when
->> they get a lot of disk I/O.  I've attached the full dmesg output which
->> includes portions where it killed stuff despite having massive amounts of
->> free memory.
->
-> What kernel version is that?
->
-
-Linux cog2 2.6.9-11.ELsmp #1 SMP Fri May 20 18:26:27 EDT 2005 i686 i686 i386 GNU/Linux
+We generally try to use file/path names rooted at the top-level
+linux directory.
 
 
->> oom-killer: gfp_mask=0xd0
->> Mem-info:
->> DMA per-cpu:
->> cpu 0 hot: low 2, high 6, batch 1
->> cpu 0 cold: low 0, high 2, batch 1
->> cpu 1 hot: low 2, high 6, batch 1
->> cpu 1 cold: low 0, high 2, batch 1
->> cpu 2 hot: low 2, high 6, batch 1
->> cpu 2 cold: low 0, high 2, batch 1
->> cpu 3 hot: low 2, high 6, batch 1
->> cpu 3 cold: low 0, high 2, batch 1
->> Normal per-cpu:
->> cpu 0 hot: low 32, high 96, batch 16
->> cpu 0 cold: low 0, high 32, batch 16
->> cpu 1 hot: low 32, high 96, batch 16
->> cpu 1 cold: low 0, high 32, batch 16
->> cpu 2 hot: low 32, high 96, batch 16
->> cpu 2 cold: low 0, high 32, batch 16
->> cpu 3 hot: low 32, high 96, batch 16
->> cpu 3 cold: low 0, high 32, batch 16
->> HighMem per-cpu:
->> cpu 0 hot: low 32, high 96, batch 16
->> cpu 0 cold: low 0, high 32, batch 16
->> cpu 1 hot: low 32, high 96, batch 16
->> cpu 1 cold: low 0, high 32, batch 16
->> cpu 2 hot: low 32, high 96, batch 16
->> cpu 2 cold: low 0, high 32, batch 16
->> cpu 3 hot: low 32, high 96, batch 16
->> cpu 3 cold: low 0, high 32, batch 16
->>
->> Free pages:       14304kB (1664kB HighMem)
->> Active:7971 inactive:994335 dirty:327523 writeback:25721 unstable:0 free:3576 slab:29113 mapped:7996 pagetables:341
->
-> There are about 100M of writeout data onflight - I suppose thats too much.
->
-> Guess: can you switch to another IO scheduler than CFQ or reduce its queue size?
->
-> IIRC you can do that by reducing /sys/block/device/queue/nr_requests.
->
++The DMA:able address space is the lowest 16 MB of _physical_ memory.
+ The DMA-able
++Also the transfer block may not cross page boundaries (which are 64k).
+ I would write:                                        (which are 64 KB).
 
-For all the devices I use this is set to 8192
+if I knew that was correct, but I don't.
+Does Linux limit all ISA-DMA to not crossing 64 KB boundaries?
+I haven't looked at the code yet, just PC-AT Technical Reference,
+which says that DMA controller 1 is limited to 8-bit transfers and
+64 KB blocks and DMA controller 2 is limited to 16-bit data transfers
+and 128 KB boundaries.
+Does i386-compatible and later chipsets or LPC change/affect this?
+(I see that you cover 8/16-bit transfers later in the doc.)
 
-I set "sda" to 512 now.
++To translate the virtual address to a physical use the normal DMA
++API. Do _not_ use isa_virt_to_phys() even though it does the same
++thing. The reason for this is that you will get a requirement to ISA
++(instead of only ISA_DMA_API).
 
-[root@cog2 ~]# cat /sys/block/{sda,nbd0,nbd1}/queue/nr_requests
-8192
-8192
-8192
+I don't understand what you are trying to say in:
+... is that you will get a requirement to ISA....
+Oh, it's Kconfig-related, right?  So maybe:
+"... is that you will get a config requirement for ISA..." ?
 
 
->> DMA free:12640kB min:16kB low:32kB high:48kB active:0kB inactive:0kB present:16384kB pages_scanned:877 all_unreclaimable? yes
->> protections[]: 0 0 0
->>
->> Normal free:0kB min:928kB low:1856kB high:2784kB active:0kB inactive:739100kB present:901120kB pages_scanned:1556742 all_unreclaimable? yes
->> protections[]: 0 0 0
->
-> You've got no reservations for the normal zone either.
->
-> How does /proc/sys/vm/lowmem_reserve_ratio looks like?
->
->
++Set the address from where the transfer should start (this needs to
++be word-aligned for 16-bit transfers) and how many bytes to transfer.
 
-It looks like it doesn't exist..
-[root@cog2 ~]# ls /proc/sys/vm
-block_dump              dirty_ratio                laptop_mode 
-max_map_count    nr_pdflush_threads  page-cluster
-dirty_background_ratio  dirty_writeback_centisecs  legacy_va_layout 
-min_free_kbytes  overcommit_memory   swappiness
-dirty_expire_centisecs  hugetlb_shm_group          lower_zone_protection 
-nr_hugepages     overcommit_ratio    vfs_cache_pressure
-[root@cog2 ~]#
+"word-aligned" is probably ambiguous to some people and in some
+x86 CPU modes.  Better to say "16-bit aligned" IMO.
+
++flags = claim_dma_flags();
+
+Should be claim_dma_lock();
+
++if (dma_get_residue(channel) != 0)
++	printk(KERN_ERR "Incomplete DMA transfer!\n");
+
+A printk should identify where it comes from (like a module ID or
+source file name) and possibly what DMA channel and how much
+residue there was (but at least the module/source ID).
+
++It is the drivers' responsibility to make sure that the machine isn't
+
+           driver's
+
+HTH.
+---
+~Randy

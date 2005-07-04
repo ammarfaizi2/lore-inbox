@@ -1,54 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261521AbVGDTJR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261575AbVGDT1h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261521AbVGDTJR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Jul 2005 15:09:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbVGDTJR
+	id S261575AbVGDT1h (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Jul 2005 15:27:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261579AbVGDT1h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Jul 2005 15:09:17 -0400
-Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:2707 "EHLO
-	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S261521AbVGDTJP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Jul 2005 15:09:15 -0400
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Date: Mon, 4 Jul 2005 20:09:11 +0100 (BST)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Daniel Drake <dsd@gentoo.org>
-cc: =?UTF-8?B?RGF2aWQgR8OzbWV6?= <david@pleyades.net>,
-       Robert Love <rml@novell.com>, John McCutchan <ttb@tentacle.dhs.org>,
-       Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Problem with inotify
-In-Reply-To: <42C9788F.50205@gentoo.org>
-Message-ID: <Pine.LNX.4.60.0507042008310.7572@hermes-1.csi.cam.ac.uk>
-References: <20050630181824.GA1058@fargo> <1120156188.6745.103.camel@betsy>
-  <20050630193320.GA1136@fargo>  <Pine.LNX.4.60.0506302138230.29755@hermes-1.csi.cam.ac.uk>
-  <20050630204832.GA3854@fargo>  <Pine.LNX.4.60.0506302158190.29755@hermes-1.csi.cam.ac.uk>
-  <42C65A8B.9060705@gentoo.org>  <Pine.LNX.4.60.0507022253080.30401@hermes-1.csi.cam.ac.uk>
-  <42C72563.7040103@gentoo.org>  <Pine.LNX.4.60.0507030053040.15398@hermes-1.csi.cam.ac.uk>
-  <42C7BF37.9010005@gentoo.org> <1120487242.11399.5.camel@imp.csi.cam.ac.uk>
- <42C9788F.50205@gentoo.org>
+	Mon, 4 Jul 2005 15:27:37 -0400
+Received: from ws6-4.us4.outblaze.com ([205.158.62.107]:21637 "HELO
+	ws6-4.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S261575AbVGDT1e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Jul 2005 15:27:34 -0400
+Message-ID: <42C98DB5.9090603@grimmer.com>
+Date: Mon, 04 Jul 2005 21:27:49 +0200
+From: Lenz Grimmer <lenz@grimmer.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050322)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: aaron@assonance.org
+CC: hdaps-devel@lists.sourceforge.net,
+       LKML List <linux-kernel@vger.kernel.org>
+Subject: Re: IBM HDAPS things are looking up (was: Re: [Hdaps-devel] Re: [ltp]
+ IBM HDAPS Someone interested? (Accelerometer))
+References: <9a8748490507031832546f383a@mail.gmail.com>	 <42C8D06C.2020608@grimmer.com> <20050704061713.GA1444@suse.de> <727e501505070411594cac3c45@mail.gmail.com>
+In-Reply-To: <727e501505070411594cac3c45@mail.gmail.com>
+X-Enigmail-Version: 0.91.0.0
+OpenPGP: id=B27291F2
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Jul 2005, Daniel Drake wrote:
-> Anton Altaparmakov wrote:
-> > )-:  I have addressed the only things I can think off that could cause
-> > the oops and below is the resulting patch.  Could you please test it?
-> 
-> Yeah!! After removing I_WILL_FREE stuff, that fixed both the oops *and* the
-> hang. Everything works nicely now.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Great!  Thanks a lot for testing!  I will send a patch to Robert and 
-Andrew in a minute with more comments added.
+Hi,
 
-Best regards,
+Aaron Cohen wrote:
 
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+> Can't the accelerometer be used as an input device in addition to just
+> being a "about to fall detector?"
+
+Yes, it can - the kernel driver just prints the data taken from the
+accelerometer. It's up to another application to make sense out of this.
+One purpose would be the mentioned "fall detector" that would then
+instruct the disk drive to part its head.
+
+> I seem to remember games where the the input method involved tilting
+> the device in the direction you want a marble to roll or something
+> like that.
+
+Correct, that would be one option. Mark Smith (they IBM guy who wrote up
+the information required to write the kernel module) actually mentioned
+he had patched SDL to support the accelerometer as an input device.
+
+Playing "Neverball" by tilting your Laptop sounds like fun :)
+
+Bye,
+	LenZ
+- --
+- ------------------------------------------------------------------
+ Lenz Grimmer <lenz@grimmer.com>                             -o)
+ [ICQ: 160767607 | Jabber: LenZGr@jabber.org]                /\\
+ http://www.lenzg.org/                                       V_V
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFCyY20SVDhKrJykfIRAjo/AJ0dyN0GXE7U5H3+updjuMKALoHlXQCdExrA
+FwgCv2ELKCc9cC0M47E5B+w=
+=pigJ
+-----END PGP SIGNATURE-----

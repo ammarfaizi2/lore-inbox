@@ -1,72 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261218AbVGDPMU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261214AbVGDPQu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261218AbVGDPMU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Jul 2005 11:12:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261228AbVGDPMT
+	id S261214AbVGDPQu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Jul 2005 11:16:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261225AbVGDPQu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Jul 2005 11:12:19 -0400
-Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:11907 "EHLO
-	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S261218AbVGDPMM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Jul 2005 11:12:12 -0400
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Subject: Re: Problem with inotify
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Daniel Drake <dsd@gentoo.org>
-Cc: David =?ISO-8859-1?Q?G=F3mez?= <david@pleyades.net>,
-       Robert Love <rml@novell.com>, John McCutchan <ttb@tentacle.dhs.org>,
-       Linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1120487948.11399.7.camel@imp.csi.cam.ac.uk>
-References: <20050630181824.GA1058@fargo> <1120156188.6745.103.camel@betsy>
-	 <20050630193320.GA1136@fargo>
-	 <Pine.LNX.4.60.0506302138230.29755@hermes-1.csi.cam.ac.uk>
-	 <20050630204832.GA3854@fargo>
-	 <Pine.LNX.4.60.0506302158190.29755@hermes-1.csi.cam.ac.uk>
-	 <42C65A8B.9060705@gentoo.org>
-	 <Pine.LNX.4.60.0507022253080.30401@hermes-1.csi.cam.ac.uk>
-	 <42C72563.7040103@gentoo.org>
-	 <Pine.LNX.4.60.0507030053040.15398@hermes-1.csi.cam.ac.uk>
-	 <42C7BF37.9010005@gentoo.org>  <1120487242.11399.5.camel@imp.csi.cam.ac.uk>
-	 <1120487948.11399.7.camel@imp.csi.cam.ac.uk>
-Content-Type: text/plain
-Organization: Computing Service, University of Cambridge, UK
-Date: Mon, 04 Jul 2005 16:12:02 +0100
-Message-Id: <1120489922.11399.10.camel@imp.csi.cam.ac.uk>
+	Mon, 4 Jul 2005 11:16:50 -0400
+Received: from khan.acc.umu.se ([130.239.18.139]:969 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id S261214AbVGDPQf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Jul 2005 11:16:35 -0400
+Date: Mon, 4 Jul 2005 17:16:32 +0200
+From: David Weinehall <tao@acc.umu.se>
+To: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net,
+       zippel@linux-m68k.org
+Subject: Re: [PATCH]Fix menuconfig error message
+Message-ID: <20050704151632.GF16867@khan.acc.umu.se>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	kbuild-devel@lists.sourceforge.net, zippel@linux-m68k.org
+References: <20050704135700.GB32056@kurtwerks.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050704135700.GB32056@kurtwerks.com>
+User-Agent: Mutt/1.4.1i
+X-Editor: Vi Improved <http://www.vim.org/>
+X-Accept-Language: Swedish, English
+X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
+X-GPG-Key: http://www.acc.umu.se/~tao/files/pub_dc47ca16.gpg.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-07-04 at 15:39 +0100, Anton Altaparmakov wrote:
-> On Mon, 2005-07-04 at 15:27 +0100, Anton Altaparmakov wrote:
-> > On Sun, 2005-07-03 at 11:34 +0100, Daniel Drake wrote:
-> > > I reverted the patch you sent earlier
-> > > (inotify_unmount_inodes-list-iteration-fix.diff) and applied the one you
-> > > attached here (inotify_unmount_inodes-list-iteration-fix2.diff).
-> > > 
-> > > The good news is that the hang is gone. The bad news is that you cured the
-> > > hang by introducing an oops :(
-> > 
-> > )-:  I have addressed the only things I can think off that could cause
-> > the oops and below is the resulting patch.  Could you please test it?
+On Mon, Jul 04, 2005 at 09:57:00AM -0400, Kurt Wall wrote:
+> If you try to run `make menuconfig' on a system that lacks ncurses
+> development libs, you get an error message telling you to install
+> ncurses-devel. Some popular distributions don't have an ncurses-devel
+> package. This patch generalizes the error message. Patch is against
+> 2.6.12.
 > 
-> I forgot to say that this patch is a replacement for the previous
-> (inotify_unmount_inodes-list-iteration-fix{,2}.diff}.
+> MAINTAINERS doesn't list a maintainer for menuconfig or lxdialog,
+> so I sent this to lkml, kbuild-devel, and to the kconfig maintainer.
+> 
+> Signed-off-by: Kurt Wall <kwall@kurtwerks.com>
+> 
+> 
+> --- a/scripts/lxdialog/Makefile	2005-07-04 09:31:38.000000000 -0400
+> +++ b/scripts/lxdialog/Makefile	2005-07-04 09:38:05.000000000 -0400
+> @@ -35,8 +35,10 @@
+>  		echo -e "\007" ;\
+>  		echo ">> Unable to find the Ncurses libraries." ;\
+>  		echo ">>" ;\
+> -		echo ">> You must install ncurses-devel in order" ;\
+> -		echo ">> to use 'make menuconfig'" ;\
+> +		echo ">> You must install ncurses development libraries" ;\
+> +		echo ">> to use 'make menuconfig'. If you have an RPM-based" ;\
+> +		echo ">> Debian-based distribution you should install the" ;\ 
+> +		echo ">> ncurses-devel package." ;\
+>  		echo ;\
+>  		exit 1 ;\
+>  	fi
 
-Note I seem to remember you are using 2.6.12?  If so I am not sure when
-the I_WILL_FREE stuff came into existence, so should inotify.c not
-compile after applying this patch just delete the " | I_WILL_FREE " in
-the two places it occurs introduced by the patch and all should be fine.
+You know, I'd say that *very* few (approximately zero)
+Debian-based distributions are RPM-based =)  The Debian package is
+called libncurses5-dev, btw.
 
-Best regards,
 
-        Anton
+Regards: David Weinehall
 -- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
-
+ /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/

@@ -1,52 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261606AbVGDK2W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261323AbVGDKbw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261606AbVGDK2W (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Jul 2005 06:28:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261611AbVGDK1l
+	id S261323AbVGDKbw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Jul 2005 06:31:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261240AbVGDK3w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Jul 2005 06:27:41 -0400
-Received: from gold.veritas.com ([143.127.12.110]:8821 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S261394AbVGDK1J (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Jul 2005 06:27:09 -0400
-Date: Mon, 4 Jul 2005 11:28:12 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Christoph Hellwig <hch@infradead.org>
-cc: Arjan van de Ven <arjan@infradead.org>, Denis Vlasenko <vda@ilport.com.ua>,
-       Chuck Ebbert <76306.1226@compuserve.com>,
-       "cutaway@bellsouth.net" <cutaway@bellsouth.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Coywolf Qi Hunt <coywolf@gmail.com>
-Subject: Re: function ordering (was: Re: [RFC] exit_thread() speedups in x86
- process.c)
-In-Reply-To: <20050704092958.GA29325@infradead.org>
-Message-ID: <Pine.LNX.4.61.0507041124140.11956@goblin.wat.veritas.com>
-References: <200507012258_MC3-1-A340-3A81@compuserve.com>
- <200507021456.40667.vda@ilport.com.ua> <1120391140.3164.39.camel@laptopd505.fenrus.org>
- <Pine.LNX.4.61.0507031323280.6427@goblin.wat.veritas.com>
- <20050704092958.GA29325@infradead.org>
+	Mon, 4 Jul 2005 06:29:52 -0400
+Received: from ws6-4.us4.outblaze.com ([205.158.62.107]:4505 "HELO
+	ws6-4.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S261619AbVGDK2r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Jul 2005 06:28:47 -0400
+Message-ID: <42C90F58.9090205@grimmer.com>
+Date: Mon, 04 Jul 2005 12:28:40 +0200
+From: Lenz Grimmer <lenz@grimmer.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050322)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 04 Jul 2005 10:27:08.0661 (UTC) FILETIME=[EE928250:01C58082]
+To: Jens Axboe <axboe@suse.de>
+CC: Jesper Juhl <jesper.juhl@gmail.com>,
+       Alejandro Bonilla <abonilla@linuxwireless.org>,
+       Dave Hansen <dave@sr71.net>, Henrik Brix Andersen <brix@gentoo.org>,
+       hdaps-devel@lists.sourceforge.net,
+       LKML List <linux-kernel@vger.kernel.org>
+Subject: Re: IBM HDAPS things are looking up (was: Re: [Hdaps-devel] Re: [ltp]
+ IBM HDAPS Someone interested? (Accelerometer))
+References: <9a8748490507031832546f383a@mail.gmail.com> <42C8D06C.2020608@grimmer.com> <20050704061713.GA1444@suse.de>
+In-Reply-To: <20050704061713.GA1444@suse.de>
+X-Enigmail-Version: 0.91.0.0
+OpenPGP: id=B27291F2
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Jul 2005, Christoph Hellwig wrote:
-> On Sun, Jul 03, 2005 at 01:30:23PM +0100, Hugh Dickins wrote:
-> > > this way we don't need to put a lot of __slow's in the code *and* it's
-> > > based on measurements not assumptions, and can be tuned for a specific
-> > > situation in addition.
-> > 
-> > This is reminiscent of "fur", whose source Old SCO opened.
-> > Google for SCO fur: amidst all the hits about "fur flying"
-> > you might find something useful!
-> 
-> Was it?  I was at Scaldera back in the days when it was supposed to get
-> opensourced, but AFAIK it never actually happened, everyone just talked
-> about it.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Look like you're right.  Google shows me an announcement of intent,
-and a man page, and an interesting gcc discussion; but no fur source.
+Hi Jens,
 
-Hugh
+thanks for your quick reply!
+
+Jens Axboe wrote:
+
+> Dunno if there's something that explicitly only parks the head, the
+> best option is probably to issue a STANDBY_NOW command. You can test
+> this with hdparm -y.
+
+Thanks for the hint! As others already mentioned, STANDBY_NOW may not be
+the best option in this case - we shall investigate what the IBM Windows
+driver is using here.
+
+> Generel observation on this driver - why isn't it just contained in
+> user space? You need to do the monitoring and sending of ide commands
+> from there anyways, I don't see the point of putting it in the
+> kernel.
+
+Sorry, my comments may have been misleading - I agree that this should
+be better done in userspace.
+
+The kernel module just reads out the accelerometer, a user space app
+could then interpret the values and take appropriate action (e.g.
+parking the hdd head). This allows other apps to make use of these
+acceleratometer values as well (think SDL for games).
+
+Bye,
+	LenZ
+- --
+- ------------------------------------------------------------------
+ Lenz Grimmer <lenz@grimmer.com>                             -o)
+ [ICQ: 160767607 | Jabber: LenZGr@jabber.org]                /\\
+ http://www.lenzg.org/                                       V_V
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFCyQ9XSVDhKrJykfIRAktdAJ9eltvz0sjTfKT7oVgqikGFEYJwHQCfdr7n
+b7M02yR0n2UrUFLL03xA804=
+=MHtj
+-----END PGP SIGNATURE-----

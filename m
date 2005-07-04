@@ -1,54 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261496AbVGDRjD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261498AbVGDRpK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261496AbVGDRjD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Jul 2005 13:39:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261467AbVGDRjC
+	id S261498AbVGDRpK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Jul 2005 13:45:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbVGDRpK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Jul 2005 13:39:02 -0400
-Received: from mailhub3.nextra.sk ([195.168.1.146]:34322 "EHLO
-	mailhub3.nextra.sk") by vger.kernel.org with ESMTP id S261433AbVGDRi6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Jul 2005 13:38:58 -0400
-Message-ID: <42C9742E.8000204@rainbow-software.org>
-Date: Mon, 04 Jul 2005 19:38:54 +0200
-From: Ondrej Zary <linux@rainbow-software.org>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Al Boldi <a1426z@gawab.com>
-CC: "'Bartlomiej Zolnierkiewicz'" <bzolnier@gmail.com>,
-       "'Linus Torvalds'" <torvalds@osdl.org>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [git patches] IDE update
-References: <200507041706.UAA11178@raad.intranet>
-In-Reply-To: <200507041706.UAA11178@raad.intranet>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 4 Jul 2005 13:45:10 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:47764 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261498AbVGDRpB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Jul 2005 13:45:01 -0400
+Date: Mon, 4 Jul 2005 09:47:53 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.4.32-pre1
+Message-ID: <20050704124753.GA23706@logos.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Boldi wrote:
-> Bartlomiej Zolnierkiewicz wrote: {
-> 
->>On 7/4/05, Al Boldi <a1426z@gawab.com> wrote:
->>Hdparm -tT gives 38mb/s in 2.4.31
->>Cat /dev/hda > /dev/null gives 2% user 33% sys 65% idle
->>
->>Hdparm -tT gives 28mb/s in 2.6.12
->>Cat /dev/hda > /dev/null gives 2% user 25% sys 0% idle 73% IOWAIT
->>
->>It feels like DMA is not being applied properly in 2.6.12.
-> 
-> 
-> Are earlier 2.6.x kernels okay?
-> 
-> dmesg output?
-> }
-> 
-> Same on 2.6.10,11,12.
-> No errors though, only sluggish system.
+Hi,
 
-Something like this http://lkml.org/lkml/2005/6/13/1 ?
+Here goes the first -pre of v2.4.32. 
 
--- 
-Ondrej Zary
+It contains a small amount of fixes, most notably x86_64 security updates.
+
+
+Check for canonical addresses in ptrace (CAN-2005-1762)
+Fix canonical checking for segment registers in ptrace (CAN-2005-0756)
+Fix buffer overflow in 32bit execve on x86-64/ia64 (CAN-2005-1768)
+
+
+Summary of changes from v2.4.31 to v2.4.32-pre1
+============================================
+
+Andi Kleen <ak@suse.de>:
+  x86-64: Enable Nvidia timer override workaround for SMP kernels too
+  x86-64: Fix build with !CONFIG_SWIOTLB
+  x86_64: Disable exception stack for stack faults
+  Fix canonical checking for segment registers in ptrace
+  Check for canonical addresses in ptrace
+  Fix buffer overflow in x86-64/ia64 32bit execve
+
+David S. Miller <davem@davemloft.net>:
+  [NETLINK]: Fix two socket hashing bugs.
+  [SPARC64]: Fix cmsg length checks in Solaris emulation layer.
+  [SPARC64]: Fix conflicting __bzero_noasi() prototypes.
+
+H. J. Lu <hjl@lucon.org>:
+  newer i386/x86_64 assemblers prohibit instructions for moving between a seg register and a 32bit location
+
+Marcel Holtmann <marcel@holtmann.org>:
+  Fix" introduced in 2.4.27pre2 for bluetooth hci_usb race causes kernel hang
+
+Marcelo <marcelo@xeon.cnet>:
+  Change VERSION to 2.4.32-pre1
+
+NeilBrown <neilb@cse.unsw.edu.au>:
+  Claim i_alloc_sem while changing file size in nfsd
+  Don't drop setuid on directories when ownership changed by NFSd
+
+Pete Zaitcev <zaitcev@redhat.com>:
+  USB 2.4.31: ftdi_sio fixes
+
+Ralf Baechle <ralf@linux-mips.org>:
+  update netdev address
+

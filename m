@@ -1,65 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261211AbVGDOmP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261173AbVGDOq2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261211AbVGDOmP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Jul 2005 10:42:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261167AbVGDOmP
+	id S261173AbVGDOq2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Jul 2005 10:46:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261167AbVGDOq2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Jul 2005 10:42:15 -0400
-Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:23731 "EHLO
-	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S261211AbVGDOjS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Jul 2005 10:39:18 -0400
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Subject: Re: Problem with inotify
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Daniel Drake <dsd@gentoo.org>
-Cc: David =?ISO-8859-1?Q?G=F3mez?= <david@pleyades.net>,
-       Robert Love <rml@novell.com>, John McCutchan <ttb@tentacle.dhs.org>,
-       Linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1120487242.11399.5.camel@imp.csi.cam.ac.uk>
-References: <20050630181824.GA1058@fargo> <1120156188.6745.103.camel@betsy>
-	 <20050630193320.GA1136@fargo>
-	 <Pine.LNX.4.60.0506302138230.29755@hermes-1.csi.cam.ac.uk>
-	 <20050630204832.GA3854@fargo>
-	 <Pine.LNX.4.60.0506302158190.29755@hermes-1.csi.cam.ac.uk>
-	 <42C65A8B.9060705@gentoo.org>
-	 <Pine.LNX.4.60.0507022253080.30401@hermes-1.csi.cam.ac.uk>
-	 <42C72563.7040103@gentoo.org>
-	 <Pine.LNX.4.60.0507030053040.15398@hermes-1.csi.cam.ac.uk>
-	 <42C7BF37.9010005@gentoo.org>  <1120487242.11399.5.camel@imp.csi.cam.ac.uk>
-Content-Type: text/plain
-Organization: Computing Service, University of Cambridge, UK
-Date: Mon, 04 Jul 2005 15:39:08 +0100
-Message-Id: <1120487948.11399.7.camel@imp.csi.cam.ac.uk>
+	Mon, 4 Jul 2005 10:46:28 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:47498 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261173AbVGDOpU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Jul 2005 10:45:20 -0400
+Date: Mon, 4 Jul 2005 16:46:35 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Shawn Starr <shawn.starr@rogers.com>
+Cc: Lenz Grimmer <lenz@grimmer.com>, Jesper Juhl <jesper.juhl@gmail.com>,
+       Alejandro Bonilla <abonilla@linuxwireless.org>,
+       Dave Hansen <dave@sr71.net>, Henrik Brix Andersen <brix@gentoo.org>,
+       hdaps-devel@lists.sourceforge.net,
+       LKML List <linux-kernel@vger.kernel.org>
+Subject: Re: IBM HDAPS things are looking up (was: Re: [Hdaps-devel] Re: [ltp] IBM HDAPS Someone interested? (Accelerometer))
+Message-ID: <20050704144634.GQ1444@suse.de>
+References: <20050704061713.GA1444@suse.de> <20050704142723.2202.qmail@web88009.mail.re2.yahoo.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050704142723.2202.qmail@web88009.mail.re2.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-07-04 at 15:27 +0100, Anton Altaparmakov wrote:
-> On Sun, 2005-07-03 at 11:34 +0100, Daniel Drake wrote:
-> > I reverted the patch you sent earlier
-> > (inotify_unmount_inodes-list-iteration-fix.diff) and applied the one you
-> > attached here (inotify_unmount_inodes-list-iteration-fix2.diff).
-> > 
-> > The good news is that the hang is gone. The bad news is that you cured the
-> > hang by introducing an oops :(
+
+(don't top post!)
+
+On Mon, Jul 04 2005, Shawn Starr wrote:
 > 
-> )-:  I have addressed the only things I can think off that could cause
-> the oops and below is the resulting patch.  Could you please test it?
+> We could put it in userspace, but if the system is
+> swapping like mad, can we still get a critical
+> response if this remains in userspace fully?
 
-I forgot to say that this patch is a replacement for the previous
-(inotify_unmount_inodes-list-iteration-fix{,2}.diff}.
+Just make sure the program isn't swapped out.
 
-Best regards,
+> Someone mentioned we should use a kernel thread(s) to
+> handle stopping all I/O so we can safely park heads.
 
-        Anton
+That's madness, we can't add a kernel thread for every single little
+silly thing. You don't need to stop any io, you just want to make sure
+that your park request gets issued right after the current io has
+finished.
+
+
 -- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+Jens Axboe
 

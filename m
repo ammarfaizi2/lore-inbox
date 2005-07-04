@@ -1,99 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261714AbVGDNyT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261703AbVGDNzY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261714AbVGDNyT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Jul 2005 09:54:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261708AbVGDNyT
+	id S261703AbVGDNzY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Jul 2005 09:55:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261723AbVGDNzY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Jul 2005 09:54:19 -0400
-Received: from mx2.suse.de ([195.135.220.15]:4013 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261722AbVGDNcI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Jul 2005 09:32:08 -0400
-Date: Mon, 4 Jul 2005 15:31:51 +0200
-From: Kurt Garloff <garloff@suse.de>
-To: serge@hallyn.com
-Cc: Tony Jones <tonyj@suse.de>,
-       Linux kernel list <linux-kernel@vger.kernel.org>,
-       Chris Wright <chrisw@osdl.org>, Stephen Smalley <sds@epoch.ncsc.mil>,
-       James Morris <jmorris@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
-       Steve Beattie <smb@wirex.com>,
-       Linux LSM list <linux-security-module@wirex.com>
-Subject: Re: [PATCH 3/3] Use conditional
-Message-ID: <20050704133151.GW11137@tpkurt.garloff.de>
-Mail-Followup-To: Kurt Garloff <garloff@suse.de>, serge@hallyn.com,
-	Tony Jones <tonyj@suse.de>,
-	Linux kernel list <linux-kernel@vger.kernel.org>,
-	Chris Wright <chrisw@osdl.org>, Stephen Smalley <sds@epoch.ncsc.mil>,
-	James Morris <jmorris@redhat.com>,
-	Greg Kroah-Hartman <gregkh@suse.de>, Steve Beattie <smb@wirex.com>,
-	Linux LSM list <linux-security-module@wirex.com>
-References: <20050703154405.GE11093@tpkurt.garloff.de> <20050703190007.GA30292@immunix.com> <20050704065902.GO11093@tpkurt.garloff.de> <20050704074449.GA12963@immunix.com> <20050704120105.GB27617@vino.hallyn.com> <20050704120809.GR11137@tpkurt.garloff.de> <20050704123721.GA28322@vino.hallyn.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0p3EEgCnBt7M6rub"
-Content-Disposition: inline
-In-Reply-To: <20050704123721.GA28322@vino.hallyn.com>
-X-Operating-System: Linux 2.6.11.4-21.7-default i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E
-Organization: SUSE/Novell
-User-Agent: Mutt/1.5.6i
+	Mon, 4 Jul 2005 09:55:24 -0400
+Received: from mail-in-09.arcor-online.net ([151.189.21.49]:19073 "EHLO
+	mail-in-09.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261703AbVGDNkL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Jul 2005 09:40:11 -0400
+Date: Mon, 4 Jul 2005 15:39:32 +0200 (CEST)
+From: Bodo Eggert <7eggert@gmx.de>
+To: Bodo Eggert <7eggert@gmx.de>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Kconfig changes 6: Move the Fusion MPT menu
+In-Reply-To: <Pine.LNX.4.58.0507041251220.8687@be1.lrz>
+Message-ID: <Pine.LNX.4.58.0507041520370.11818@be1.lrz>
+References: <Pine.LNX.4.58.0506301152460.11960@be1.lrz>
+ <Pine.LNX.4.58.0507041134410.3798@be1.lrz> <Pine.LNX.4.58.0507041210190.6165@be1.lrz>
+ <Pine.LNX.4.58.0507041231200.6165@be1.lrz> <Pine.LNX.4.58.0507041251220.8687@be1.lrz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 4 Jul 2005, Bodo Eggert wrote:
 
---0p3EEgCnBt7M6rub
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Part 4: The profiling menu.
+       ^
+Obviously I can't count to 5.
 
-Hi Serge,
+And now to something completely different:
 
-On Mon, Jul 04, 2005 at 07:37:21AM -0500, serge@hallyn.com wrote:
-> Quoting Kurt Garloff (garloff@suse.de):
-> > Getting rid of dummy entirely would be better, I agree, but someone
-> > needs to review that this won't break anything.
->=20
-> Unfortunately I think it's way too soon for that.  Even if stacker is
-> accepted, it is still a module (for now at least) which can be compiled
-> out.  So we'll need dummy hooks for modules (like seclvl) to use.  I
-> just don't think it's possible to get rid of that yet.
+The Fusion MPT controler seems to belong into the SCSI low level driver 
+submenu. I may well be wrong here.
 
-Hmmmm, getting rid of dummy would mean replacing it with capability.
-- The differences between cap and dummy affect a relatively small
-  subset of hooks
-- If all of these hooks are implemented by all LSMs, we're done and
-  can just remove dummy and replace it by capability.
-- If not, we'd need to review for all of these LSMs, whether defaulting
-  to capability rather than dummy could create a problem and whether=20
-  that can be addressed easily.
+patch is for 2.6.12, 2.6.13 will be posted in a reply
 
-seclvl would probably need some changes, indeed.
-
-root_plug could become shorter :-)
-
-> > So how should we proceed?
-> > You want to do the dummy removal first, then have stacker merged
-> > and then what remains of my patches? Or should I start ... ?
->=20
-> I think your patches to make capability the default are the best
-> place to start.  Doing the same under stacker will be trivial, and
-> I'll do that in the next set I send out.
-
-Sounds good!
---=20
-Kurt Garloff, Director SUSE Labs, Novell Inc.
-
---0p3EEgCnBt7M6rub
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFCyTpHxmLh6hyYd04RAgpRAJ418VoVgKnTUr8Im++9EBg6GMuIPwCgnhKX
-yBjzJLz8bpIjycHwwBAlWS4=
-=WJir
------END PGP SIGNATURE-----
-
---0p3EEgCnBt7M6rub--
+--- a/./arch/arm/Kconfig	2005-07-04 12:44:17.000000000 +0200
++++ b/./arch/arm/Kconfig	2005-07-04 13:04:23.000000000 +0200
+@@ -695,8 +695,6 @@ source "drivers/scsi/Kconfig"
+ 
+ source "drivers/md/Kconfig"
+ 
+-source "drivers/message/fusion/Kconfig"
+-
+ source "drivers/ieee1394/Kconfig"
+ 
+ source "drivers/message/i2o/Kconfig"
+--- a/./arch/v850/Kconfig	2005-05-02 02:25:41.000000000 +0200
++++ b/./arch/v850/Kconfig	2005-07-04 13:05:04.000000000 +0200
+@@ -275,8 +275,6 @@ endmenu
+ 
+ source "drivers/md/Kconfig"
+ 
+-source "drivers/message/fusion/Kconfig"
+-
+ source "drivers/ieee1394/Kconfig"
+ 
+ source "drivers/message/i2o/Kconfig"
+--- a/./arch/sparc64/Kconfig	2005-06-19 14:16:20.000000000 +0200
++++ b/./arch/sparc64/Kconfig	2005-07-04 13:05:19.000000000 +0200
+@@ -506,10 +506,6 @@ source "drivers/fc4/Kconfig"
+ 
+ source "drivers/md/Kconfig"
+ 
+-if PCI
+-source "drivers/message/fusion/Kconfig"
+-endif
+-
+ source "drivers/ieee1394/Kconfig"
+ 
+ source "net/Kconfig"
+--- a/./drivers/scsi/Kconfig	2005-07-04 11:10:43.000000000 +0200
++++ b/./drivers/scsi/Kconfig	2005-07-04 13:13:38.000000000 +0200
+@@ -1489,19 +1489,6 @@ config SCSI_NSP32
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called nsp32.
+ 
+-config SCSI_DEBUG
+-	tristate "SCSI debugging host simulator"
+-	depends on SCSI
+-	help
+-	  This is a host adapter simulator that can simulate multiple hosts
+-	  each with multiple dummy SCSI devices (disks). It defaults to one
+-	  host adapter with one dummy SCSI disk. Each dummy disk uses kernel
+-	  RAM as storage (i.e. it is a ramdisk). To save space when multiple
+-	  dummy disks are simulated, they share the same kernel RAM for 
+-	  their storage. See <http://www.torque.net/sg/sdebug.html> for more
+-	  information. This driver is primarily of use to those testing the
+-	  SCSI and block subsystems. If unsure, say N.
+-
+ config SCSI_MESH
+ 	tristate "MESH (Power Mac internal SCSI) support"
+ 	depends on PPC32 && PPC_PMAC && SCSI
+@@ -1791,6 +1778,21 @@ config ZFCP
+           called zfcp. If you want to compile it as a module, say M here
+           and read <file:Documentation/modules.txt>.
+ 
+-endmenu
++source "drivers/message/fusion/Kconfig"
+ 
+ source "drivers/scsi/pcmcia/Kconfig"
++
++config SCSI_DEBUG
++	tristate "SCSI debugging host simulator"
++	depends on SCSI
++	help
++	  This is a host adapter simulator that can simulate multiple hosts
++	  each with multiple dummy SCSI devices (disks). It defaults to one
++	  host adapter with one dummy SCSI disk. Each dummy disk uses kernel
++	  RAM as storage (i.e. it is a ramdisk). To save space when multiple
++	  dummy disks are simulated, they share the same kernel RAM for 
++	  their storage. See <http://www.torque.net/sg/sdebug.html> for more
++	  information. This driver is primarily of use to those testing the
++	  SCSI and block subsystems. If unsure, say N.
++
++endmenu
+--- a/./drivers/Kconfig	2005-05-02 02:25:41.000000000 +0200
++++ b/./drivers/Kconfig	2005-07-04 13:05:25.000000000 +0200
+@@ -20,8 +20,6 @@ source "drivers/cdrom/Kconfig"
+ 
+ source "drivers/md/Kconfig"
+ 
+-source "drivers/message/fusion/Kconfig"
+-
+ source "drivers/ieee1394/Kconfig"
+ 
+ source "drivers/message/i2o/Kconfig"
+-- 
+S.U.Z.U.K.I.: Synthetic Unit Zoned for Ultimate Killing and Infiltration
+        -- http://www.brunching.com/toys/toy-cyborger.html

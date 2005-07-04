@@ -1,64 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261515AbVGDIyg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261584AbVGDI52@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261515AbVGDIyg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Jul 2005 04:54:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261536AbVGDIyg
+	id S261584AbVGDI52 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Jul 2005 04:57:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261599AbVGDI51
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Jul 2005 04:54:36 -0400
-Received: from unused.mind.net ([69.9.134.98]:27361 "EHLO echo.lysdexia.org")
-	by vger.kernel.org with ESMTP id S261515AbVGDIy2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Jul 2005 04:54:28 -0400
-Date: Mon, 4 Jul 2005 01:53:20 -0700 (PDT)
-From: William Weston <weston@sysex.net>
-X-X-Sender: weston@echo.lysdexia.org
-To: Lee Revell <rlrevell@joe-job.com>
-cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.50-24
-In-Reply-To: <1120269723.12256.11.camel@mindpipe>
-Message-ID: <Pine.LNX.4.58.0507040042220.31967@echo.lysdexia.org>
-References: <200506281927.43959.annabellesgarden@yahoo.de> 
- <200506301952.22022.annabellesgarden@yahoo.de>  <20050630205029.GB1824@elte.hu>
-  <200507010027.33079.annabellesgarden@yahoo.de>  <20050701071850.GA18926@elte.hu>
-  <Pine.LNX.4.58.0507011739550.27619@echo.lysdexia.org> <1120269723.12256.11.camel@mindpipe>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 4 Jul 2005 04:57:27 -0400
+Received: from 238-071.adsl.pool.ew.hu ([193.226.238.71]:9491 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S261584AbVGDI5G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Jul 2005 04:57:06 -0400
+To: frankvm@frankvm.com
+CC: akpm@osdl.org, aia21@cam.ac.uk, arjan@infradead.org,
+       linux-kernel@vger.kernel.org
+In-reply-to: <20050703193619.GA2928@janus> (message from Frank van Maarseveen
+	on Sun, 3 Jul 2005 21:36:19 +0200)
+Subject: Re: FUSE merging? (2)
+References: <20050701152003.GA7073@janus> <E1DoOwc-000368-00@dorka.pomaz.szeredi.hu> <20050701180415.GA7755@janus> <E1DojJ6-00047F-00@dorka.pomaz.szeredi.hu> <20050702160002.GA13730@janus> <E1DoxmP-0004gV-00@dorka.pomaz.szeredi.hu> <20050703112541.GA32288@janus> <E1Dp4S4-0004ub-00@dorka.pomaz.szeredi.hu> <20050703141028.GB1298@janus> <E1Dp6hK-00056d-00@dorka.pomaz.szeredi.hu> <20050703193619.GA2928@janus>
+Message-Id: <E1DpMkg-00064O-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Mon, 04 Jul 2005 10:56:30 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Jul 2005, Lee Revell wrote:
+> It is important because on UNIX, "root" rules on local filesystems.
+> I dont't like the idea of root not being able to run "find -xdev"
+> anymore for administrative tasks, just because something got hidden
+> by accident or just for fun by a user.  It's not about malicious
+> users who want to hide data: they can do that in tons of ways.
 
-> On Fri, 2005-07-01 at 18:46 -0700, William Weston wrote:
-> > FWIW, I'm still seeing the SMT scheduling? meltdown issues with
-> > -50-42.  
-> > Running two instances of 'dd if=/dev/zero of=/dev/null bs=65536'
-> > instead 
-> > of 'burnP6' results in the same behavior.  Here's a quick recap:
-> > 
-> > - Start (or login to ) X.
-> > - Start an X app that constantly updates the screen, like wmcube, or
-> > vlc. 
-> 
-> Which video driver is X using?  What nice value is the X server running
-> at?
+That's a sort of security by obscurity: if the user is dumb enough he
+cannot do any harm.  But I'm not interested in that sort of thing.  If
+this issue important, then it should be solved properly, and not just
+by "preventing accidents".
 
-Hardware is Intel 82865G (integrated) with DRM i915 1.1.0 20040405 and 
-xorg-3.8.2 i810 driver, running at nice 0, priority 15.  Should I bump the 
-priority up?  To realtime?
+> IMHO The best thing FUSE could do is to make the mount totally
+> invisible: don't return EACCES, don't follow the FUSE mount but stay
+> on the original tree. I think it's either this or returning EACCES
+> plus the leaf node constraint at mount time.
 
-> Does adding:
-> 
-> Option "NoAccel"
-> 
-> to the Device section of your X config file make any difference?
+The leaf node constranint doesn't make sense.  The hidden mount thing
+does, but it has been very flatly rejected by Al Viro.
 
-Disabling the dri and drm modules didn't help.  I'll turn on NoAccel when 
-I'm back in the office on Tuesday.
+There's a nice solution to this (discussed at length earlier): private
+namespaces.
 
-> (on most systems X is the only thing besides the kernel that can access
-> hardware directly, which can cause problems)
+I think we are still confusing these two issues, which are in fact
+separate.
 
-So would running X through the framebuffer device be the way to go for 
-stability under realtime?  It's been a couple years since I've used fb.
+  1) polluting global namespace is bad (find -xdev issue)
 
---ww
+  2) not ptraceable (or not killable) processes should not be able to
+     access an unprivileged mount
+
+For 1) private namespaces are the proper solution.  For 2) the
+fuse_allow_task() in it's current or modified form (to check
+killability) should be OK.
+
+1) is completely orthogonal to FUSE.  2) is currently provably secure,
+and doesn't seem cause problems in practice.  Do you have a concrete
+example, where it would cause problems?
+
+Miklos

@@ -1,65 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261660AbVGDUqU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261661AbVGDUsF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261660AbVGDUqU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Jul 2005 16:46:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261658AbVGDUqU
+	id S261661AbVGDUsF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Jul 2005 16:48:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261666AbVGDUsF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Jul 2005 16:46:20 -0400
-Received: from cerebus.immunix.com ([198.145.28.33]:7361 "EHLO
-	ermintrude.int.immunix.com") by vger.kernel.org with ESMTP
-	id S261660AbVGDUqP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Jul 2005 16:46:15 -0400
-Date: Mon, 4 Jul 2005 13:41:55 -0700
-From: Tony Jones <tonyj@immunix.com>
-To: serge@hallyn.com
-Cc: Tony Jones <tonyj@suse.de>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 5/12] lsm stacking v0.2: actual stacker module
-Message-ID: <20050704204155.GA30210@immunix.com>
-References: <20050630194458.GA23439@serge.austin.ibm.com> <20050630195043.GE23538@serge.austin.ibm.com> <20050704031820.GA6871@immunix.com> <20050704115135.GA27617@vino.hallyn.com> <20050704193753.GA28893@immunix.com> <20050704200646.GA4211@vino.hallyn.com>
+	Mon, 4 Jul 2005 16:48:05 -0400
+Received: from nproxy.gmail.com ([64.233.182.207]:3143 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261661AbVGDUrn convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Jul 2005 16:47:43 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=QB/erSysmJhWWqyRltDRhgyhbX/w2WZQuZOsM1mej1FcQfStFGPE4UDnpkQ+xD86B+FcEtDepBNWk3bJniYM1KdCk1uIFhsCHltrRY7xK5NpiwpHl+XnLSmC2Xk6g5UBGK73eTW3txk+yIYy2PSuPsz+51OYFCtNRrVurVnIhpI=
+Message-ID: <58cb370e05070413472629dd58@mail.gmail.com>
+Date: Mon, 4 Jul 2005 22:47:39 +0200
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Al Boldi <a1426z@gawab.com>
+Subject: Re: [git patches] IDE update
+Cc: Ondrej Zary <linux@rainbow-software.org>,
+       Linus Torvalds <torvalds@osdl.org>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200507042033.XAA19724@raad.intranet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20050704200646.GA4211@vino.hallyn.com>
-User-Agent: Mutt/1.5.9i
+References: <58cb370e0507041251dd5a@mail.gmail.com>
+	 <200507042033.XAA19724@raad.intranet>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 04, 2005 at 03:06:46PM -0500, serge@hallyn.com wrote:
-
-> > You are calling __symbol_get("ops").
-> > 
-> > Maybe (/probably :-)) I'm totally misunderstanding what you are doing but:
-> > a) I would have thought you would need to call symbol_get on the name the
-> >    caller was passing, i.e symbol_get(capability_security_ops)
-> > b) The module registering these ops would need to EXPORT_SYMBOL this name.
-> > c) mod->state is MODULE_STATE_COMING right before the call to mod->init
-> >    in sys_init_module which causes any symbol_gets() to return 0 (not that
-> >    you actually care about the return value, only it's side effect)
-> > d) I don't see anything in this code path that would incr a ref on the 
-> >    registering module as a side effect of returning the sym.
+On 7/4/05, Al Boldi <a1426z@gawab.com> wrote:
+> Bartlomiej Zolnierkiewicz wrote: {
+> > >
+> > >>On 7/4/05, Al Boldi <a1426z@gawab.com> wrote:
+> > >>Hdparm -tT gives 38mb/s in 2.4.31
+> > >>Cat /dev/hda > /dev/null gives 2% user 33% sys 65% idle
+> > >>
+> > >>Hdparm -tT gives 28mb/s in 2.6.12
+> > >>Cat /dev/hda > /dev/null gives 2% user 25% sys 0% idle 73% IOWAIT
+> > >>
+> > >>It feels like DMA is not being applied properly in 2.6.12.
+> > >
+> > > Same on 2.6.10,11,12.
+> > > No errors though, only sluggish system.
 > 
-> __symbol_get should eventually call try_module_get, which increments the
-> use count, right?
+> What about earlier kernels?
+> Please try to narrow down the problem to a specific kernel version.
+> }
+> 
+> Don't know about 2.6.0-2.6.9, but 2.4.31 is ok.
 
-Duh, I missed the call to try_module_get,  probably because it's right
-below the 'if (mod && mod->state == MODULE_STATE_COMING) return 0;' :-)
-in strong_try_module_get (2.6.13-rc1)
+2.4 -> 2.6 means zillions of changes.
+ 
+> Bartlomiej,
+> When you compare 2.4.31 with 2.6.12 don't you see this problem on your
+> machine?
 
-mod->state is MODULE_STATE_COMING until after mod->init returns and since
-you are calling __symbol_get indirectly from the modules init routine,
-bammo.
+Unfortunately I've never encountered this problem on any machine.
 
-> Any suggestions on a good way to do what I wanted to do?  Frankly a
-> new LSM hook seems the cleanest solution.  Or, I could ramp up the
-> locking and permit module deletion, probably at a bit of performance
-> cost.  Or I could just count on modules doing a symbol_get on
-> themselves?
+> If you have a fast system the slowdown won't show, but your IOWAIT will be
+> higher anyway!
 
-I think any symbol_get is problematic given the above. I was thinking
-you could wrap mod_reg_security but it would still need to be called from
-within the modules init fn.
+AFAIK high iowait is a known block layer problem
 
-I'm going to have to give it some thought, but a new rmmod hook does seem
-a good solution off the top of my head.
-
-Tony
+> It feels like running on PIO instead of DMA.

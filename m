@@ -1,51 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261165AbVGDQXF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261358AbVGDQas@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261165AbVGDQXF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Jul 2005 12:23:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261358AbVGDQXF
+	id S261358AbVGDQas (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Jul 2005 12:30:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261409AbVGDQas
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Jul 2005 12:23:05 -0400
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:46732
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S261165AbVGDQWx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Jul 2005 12:22:53 -0400
-Subject: Re: patch to create sysfs char device nodes
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: coywolf@lovecn.org
-Cc: Paolo Galtieri <pgaltieri@mvista.com>, Andrew Morton <akpm@osdl.org>,
-       linux-mtd@lists.infradead.org, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <2cd57c90050704091420198987@mail.gmail.com>
-References: <1118327333.2401.42.camel@playin.mvista.com>
-	 <2cd57c90050704091420198987@mail.gmail.com>
-Content-Type: text/plain
-Organization: linutronix
-Date: Mon, 04 Jul 2005 18:25:41 +0200
-Message-Id: <1120494341.18862.100.camel@tglx.tec.linutronix.de>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+	Mon, 4 Jul 2005 12:30:48 -0400
+Received: from chiark.greenend.org.uk ([193.201.200.170]:26022 "EHLO
+	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
+	id S261358AbVGDQao (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Jul 2005 12:30:44 -0400
+To: hetfield666@gmail.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: notebook buttons trouble, acpi related
+In-Reply-To: <1120493152.17493.30.camel@blight.blightgroup>
+References: <1120493152.17493.30.camel@blight.blightgroup>
+Date: Mon, 4 Jul 2005 17:30:44 +0100
+Message-Id: <E1DpTqG-00038x-00@chiark.greenend.org.uk>
+From: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-07-05 at 00:14 +0800, Coywolf Qi Hunt wrote:
-> On 6/9/05, Paolo Galtieri <pgaltieri@mvista.com> wrote:
-> > Hi,
-> >   with DEVFS going away I discovered that no character device nodes are
-> > created if a flash device is present which contains filesystems. The
-> > mtd-utils package requires the existence of character device nodes for
-> > performing erase, lock and unlock functions.  The problem is that the
-> > flash device driver has not been modified to use sysfs instead of devfs.
-> > 
-> > I have attached a patch to mtdchar.c which uses the sysfs interface to
-> > create the appropriate nodes.  Please let me know if you have comments.
-> 
-> I encountered the same problem days ago. Thanks for the patch. A patch
-> based on yours will be sent in the next mail.
+Hetfield <hetfield666@gmail.com> wrote:
 
-A reworked patch is in the MTD CVS and in the mtd-git tree already. No
-need to send something
+> if it turns off tft and change brightness i guess kernel should receive
+> some events but
+> /proc/acpi/event doesn't get them.
 
-tglx
+In general, these keys generate events that are handled by the hardware.
+The kernel never gets told about them. If you disassemble your DSDT, you
+may be able to find methods that correspond to the hotkeys - then you
+can use the ACPI generic hotkey driver to bind them to events. However,
+this isn't always true and is very hardware dependent.
 
-
+-- 
+Matthew Garrett | mjg59-chiark.mail.linux-rutgers.kernel@srcf.ucam.org

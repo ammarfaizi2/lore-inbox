@@ -1,50 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261522AbVGDGop@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261523AbVGDGtY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261522AbVGDGop (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Jul 2005 02:44:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261379AbVGDGop
+	id S261523AbVGDGtY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Jul 2005 02:49:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261525AbVGDGtY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Jul 2005 02:44:45 -0400
-Received: from node-40240a4a.sjc.onnet.us.uu.net ([64.36.10.74]:17412 "EHLO
-	sphinx.zankel.net") by vger.kernel.org with ESMTP id S261522AbVGDGnh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Jul 2005 02:43:37 -0400
-Message-ID: <42C8DC70.4090602@zankel.net>
-Date: Sun, 03 Jul 2005 23:51:28 -0700
-From: Christian Zankel <chris@zankel.net>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050210)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jan Dittmer <jdittmer@ppp0.net>
-CC: czankel@tensilica.com, Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: arch xtensa does not compile
-References: <42BD6557.9070102@ppp0.net> <42BD8622.8060506@zankel.net> <42C80B34.80007@ppp0.net>
-In-Reply-To: <42C80B34.80007@ppp0.net>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 4 Jul 2005 02:49:24 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:26562 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261523AbVGDGtW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Jul 2005 02:49:22 -0400
+Date: Mon, 4 Jul 2005 08:50:56 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Ed Cogburn <edcogburn@hotpop.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: reiser4 vs politics: linux misses out again
+Message-ID: <20050704065056.GE1444@suse.de>
+References: <1120134372.42c3e4e49e610@webmail.bur.st> <20050630153326.GB24468@voodoo> <20050630160244.GV11013@nysv.org> <20050630180959.GC24468@voodoo> <da61a8$il6$1@sea.gmane.org> <20050702215645.GB4907@voodoo> <da9sfg$nt8$1@sea.gmane.org> <20050704011330.GG4907@voodoo> <daa36t$2mp$1@sea.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <daa36t$2mp$1@sea.gmane.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Dittmer wrote:
+On Sun, Jul 03 2005, Ed Cogburn wrote:
+> Jim Crilly wrote:
+> 
+> > From a user's standpoint, no of course not. But once it's included in the
+> > mainline it's forced upon the kernel maintainers
+> 
+> 
+> No it isn't.  Its just like any other optional feature.  If it stays
+> unmaintained for too long it just gets removed from the kernel, this
+> happens all the time.  This is another one of those non-issues that isn't
+> relevent to this discussion but is being used to avoid the real issue.  Go
 
-> Current git tip (2.6.12-rc1-git5) still does not compile for me:
-> I guess I'm using the wrong binutils version (2.15.94.0.2.2). Which is the
-> recommended gcc/binutils pair which is supposed to compile the kernel?
+Yeah right, you really nailed that one, Ed. You obviously have years of
+kernel maintenance under your belt.
 
-Unfortunately, I don't think the correct configuration is currently 
-checked into the binutils/gcc tree. I'll talk to Bob (he is the 
-maintainer for binutils+gcc for Xtensa) when I have a chance (Monday is 
-  Independence Day). It compiles fine with a local copy of binutils+gcc 
-with the correct configuration.
-
-BTW, I really like your website. Are you planing to release the script 
-files?
-
-Thanks,
-~Chris
-
-
-
+-- 
+Jens Axboe
 

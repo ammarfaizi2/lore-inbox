@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261382AbVGDQHh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261428AbVGDQJK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261382AbVGDQHh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Jul 2005 12:07:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261165AbVGDQHh
+	id S261428AbVGDQJK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Jul 2005 12:09:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261390AbVGDQIR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Jul 2005 12:07:37 -0400
-Received: from mail.harddata.com ([216.123.194.198]:50576 "EHLO
-	mail.harddata.com") by vger.kernel.org with ESMTP id S261382AbVGDQAc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Jul 2005 12:00:32 -0400
-Date: Mon, 4 Jul 2005 10:00:22 -0600
-From: Michal Jaegermann <michal@harddata.com>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: A "new driver model" and EXPORT_SYMBOL_GPL question
-Message-ID: <20050704100022.A23509@mail.harddata.com>
-References: <20050703171202.A7210@mail.harddata.com> <20050704054441.GA19936@kroah.com>
+	Mon, 4 Jul 2005 12:08:17 -0400
+Received: from wproxy.gmail.com ([64.233.184.198]:55028 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261230AbVGDQF4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Jul 2005 12:05:56 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:subject:from:reply-to:to:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+        b=kv7MmDyzgorlfCdDAprIPUvyvvG9swioWqIkBpl9X0Zg0OMdfmF8zkc5uOnPpm+0dKAIQUxeSChVxIr7URU/n689RR5gF1Etc1ootO4BvaUAxonr1mSGCgOIVwGnQWoJHNsxPVtQs9PPIdIkM26SOP8kDbgNJwwIFAHxo/eRESg=
+Subject: notebook buttons trouble, acpi related
+From: Hetfield <hetfield666@gmail.com>
+Reply-To: hetfield666@gmail.com
+To: Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Mon, 04 Jul 2005 18:05:52 +0200
+Message-Id: <1120493152.17493.30.camel@blight.blightgroup>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050704054441.GA19936@kroah.com>; from greg@kroah.com on Sun, Jul 03, 2005 at 10:44:41PM -0700
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 03, 2005 at 10:44:41PM -0700, Greg KH wrote:
-> On Sun, Jul 03, 2005 at 05:12:02PM -0600, Michal Jaegermann wrote:
-> 
-> > Was a decision to use EXPORT_SYMBOL_GPL deliberate and if yes then
-> > what considerations dictated it, other then the patch author wrote
-> > it that way, and what drivers in question are supposed to use when
-> > this change will show up in the mainline?  It looks that 2.6.13
-> > will do this.
-> 
-> Please see the archives for the answers to these questions.
+hi,
 
-I actually tried that before posting.  Maybe I attempted to look for
-wrong things but, beyond conversion examples, I found some postings
-with a general theme "there is no point to make life easy for
-binary-only modules" and not much else.  I am afraid that this
-leaves me not much wiser.
+i have a problem with my Asus a1000 notebook.
 
-Also, at least when dealing with 2.6.13-r1, neither
-Documentation/feature-removal-schedule.txt, nor files in
-Documentation/driver-model/ directory, mention anything about a
-switch to EXPORT_SYMBOL_GPL for relevant symbols.  The only thing I
-can find about the later in "feature-removal..." is a note about RCU
-API.
+some buttons, like video switch, mute on/off, brightness up/down
+are not detected by acpi nor keyboard driver.
 
-   Michal
+the strange thing is that brightness works and video switch turn on/off
+my tft (can't enable other video mode, but this is not a trouble).
+
+if it turns off tft and change brightness i guess kernel should receive
+some events but
+/proc/acpi/event doesn't get them.
+
+how can i see what happens when i press those keys?
+
+acpi4asus doesn't support my notebook.
+
+Thanks so much.
+
+ps. of course, as usual, i'm ready to test every suggestions/ patches
+

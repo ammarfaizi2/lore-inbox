@@ -1,76 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261518AbVGDGj1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261522AbVGDGop@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261518AbVGDGj1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Jul 2005 02:39:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261379AbVGDGj0
+	id S261522AbVGDGop (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Jul 2005 02:44:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261379AbVGDGop
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Jul 2005 02:39:26 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:39100 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261518AbVGDGgU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Jul 2005 02:36:20 -0400
-Date: Mon, 4 Jul 2005 08:37:42 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Alejandro Bonilla <abonilla@linuxwireless.org>
-Cc: Lenz Grimmer <lenz@grimmer.com>, Jesper Juhl <jesper.juhl@gmail.com>,
-       Dave Hansen <dave@sr71.net>, Henrik Brix Andersen <brix@gentoo.org>,
-       hdaps-devel@lists.sourceforge.net,
-       LKML List <linux-kernel@vger.kernel.org>
-Subject: Re: IBM HDAPS things are looking up (was: Re: [Hdaps-devel] Re: [ltp] IBM HDAPS Someone interested? (Accelerometer))
-Message-ID: <20050704063741.GC1444@suse.de>
-References: <9a8748490507031832546f383a@mail.gmail.com> <42C8D06C.2020608@grimmer.com> <20050704061713.GA1444@suse.de> <42C8C978.4030409@linuxwireless.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42C8C978.4030409@linuxwireless.org>
+	Mon, 4 Jul 2005 02:44:45 -0400
+Received: from node-40240a4a.sjc.onnet.us.uu.net ([64.36.10.74]:17412 "EHLO
+	sphinx.zankel.net") by vger.kernel.org with ESMTP id S261522AbVGDGnh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Jul 2005 02:43:37 -0400
+Message-ID: <42C8DC70.4090602@zankel.net>
+Date: Sun, 03 Jul 2005 23:51:28 -0700
+From: Christian Zankel <chris@zankel.net>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050210)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jan Dittmer <jdittmer@ppp0.net>
+CC: czankel@tensilica.com, Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: arch xtensa does not compile
+References: <42BD6557.9070102@ppp0.net> <42BD8622.8060506@zankel.net> <42C80B34.80007@ppp0.net>
+In-Reply-To: <42C80B34.80007@ppp0.net>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 04 2005, Alejandro Bonilla wrote:
-> Jens Axboe wrote:
-> 
-> >On Mon, Jul 04 2005, Lenz Grimmer wrote:
-> > 
-> >
-> >>>I'll be working on adding sysfs stuff to it tomorrow so it's generally
-> >>>useful (at least for monitoring things - not yet for parking disk
-> >>>heads).
-> >>>     
-> >>>
-> >>Maybe there is some kind of all-purpose ATA command that instructs the
-> >>disk drive to park the heads? Jens, could you give us a hint on how a
-> >>userspace application would do that?
-> >>   
-> >>
-> >
-> >Dunno if there's something that explicitly only parks the head, the best
-> >option is probably to issue a STANDBY_NOW command. You can test this
-> >with hdparm -y.
-> > 
-> >
-> This is exactly what I said. Use hdparm to make the HD park 
-> inmediatelly. I did send the email to the HDPARM developer, but he never 
-> replied. I asked him what would be the best way to make the HD park with 
-> no exception and then let it come back 5 or 10 seconds later.
+Jan Dittmer wrote:
 
-IIRC, you don't have to do anything to wake up the drive after a
-STANDBYNOW command, if you want to be on the safe side you just issue an
-IDLEIMMEDIATE. So your code will look something like:
+> Current git tip (2.6.12-rc1-git5) still does not compile for me:
+> I guess I'm using the wrong binutils version (2.15.94.0.2.2). Which is the
+> recommended gcc/binutils pair which is supposed to compile the kernel?
 
-int drive_standby(int fd)
-{
-        char foo[4] = { 0xe0, 0, 0, 0 };
+Unfortunately, I don't think the correct configuration is currently 
+checked into the binutils/gcc tree. I'll talk to Bob (he is the 
+maintainer for binutils+gcc for Xtensa) when I have a chance (Monday is 
+  Independence Day). It compiles fine with a local copy of binutils+gcc 
+with the correct configuration.
 
-        return ioctl(fd, HDIO_DRIVE_CMD, &foo);
-}
+BTW, I really like your website. Are you planing to release the script 
+files?
 
-int drive_wakeup(int fd)
-{
-        char foo[4] = { 0xe1, 0, 0, 0 };
+Thanks,
+~Chris
 
-        return ioctl(fd, HDIO_DRIVE_CMD, &foo);
-}
 
--- 
-Jens Axboe
+
 

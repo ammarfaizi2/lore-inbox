@@ -1,113 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261592AbVGDKsC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261600AbVGDKsJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261592AbVGDKsC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Jul 2005 06:48:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261394AbVGDKsC
+	id S261600AbVGDKsJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Jul 2005 06:48:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261394AbVGDKsI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Jul 2005 06:48:02 -0400
-Received: from mail-in-01.arcor-online.net ([151.189.21.41]:35971 "EHLO
-	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
-	id S261592AbVGDKon (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Jul 2005 06:44:43 -0400
-Date: Mon, 4 Jul 2005 12:43:56 +0200 (CEST)
-From: Bodo Eggert <7eggert@gmx.de>
-To: Bodo Eggert <7eggert@gmx.de>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Kconfig changes 4: s/menu/menuconfig/ CPU scaling menu
-In-Reply-To: <Pine.LNX.4.58.0507041231200.6165@be1.lrz>
-Message-ID: <Pine.LNX.4.58.0507041243070.8687@be1.lrz>
-References: <Pine.LNX.4.58.0506301152460.11960@be1.lrz>
- <Pine.LNX.4.58.0507041134410.3798@be1.lrz> <Pine.LNX.4.58.0507041210190.6165@be1.lrz>
- <Pine.LNX.4.58.0507041231200.6165@be1.lrz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 4 Jul 2005 06:48:08 -0400
+Received: from nproxy.gmail.com ([64.233.182.204]:10110 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261600AbVGDKqH convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Jul 2005 06:46:07 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=q8V10t8oAsvajTEvWr9452z9xFIMwXMZNjKqy96gJ16xaKr0DDJl0VMr4LiBCXPH3iyht/QkR2UY1n4VX/GjAu09SSje75Q292ylUwPGfCPBdGJSBl+5g4tPVtJ3Scb8yTaVJsGCNJnzeUPl3N/+a7DhStS+XY4cz8MqoP20W6c=
+Message-ID: <84144f02050704034674ee702d@mail.gmail.com>
+Date: Mon, 4 Jul 2005 13:46:04 +0300
+From: Pekka Enberg <penberg@gmail.com>
+Reply-To: Pekka Enberg <penberg@gmail.com>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Subject: Re: FUSE merging?
+Cc: pavel@suse.cz, akpm@osdl.org, aia21@cam.ac.uk, arjan@infradead.org,
+       linux-kernel@vger.kernel.org, frankvm@frankvm.com
+In-Reply-To: <E1DpMqc-00065G-00@dorka.pomaz.szeredi.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1120129996.5434.1.camel@imp.csi.cam.ac.uk>
+	 <20050630235059.0b7be3de.akpm@osdl.org>
+	 <E1DoFcK-0002Ox-00@dorka.pomaz.szeredi.hu>
+	 <20050701001439.63987939.akpm@osdl.org>
+	 <E1DoG6p-0002Rf-00@dorka.pomaz.szeredi.hu>
+	 <20050701010229.4214f04e.akpm@osdl.org>
+	 <20050703193941.GA27204@elf.ucw.cz>
+	 <E1DpMTJ-000639-00@dorka.pomaz.szeredi.hu>
+	 <20050704084900.GG15370@elf.ucw.cz>
+	 <E1DpMqc-00065G-00@dorka.pomaz.szeredi.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Part 4: The CPU scaling menu.
+On 7/4/05, Miklos Szeredi <miklos@szeredi.hu> wrote:
+> Here are some numbers on the size these filesystems as in current -mm
+> ('wc fs/${fs}/* include/linux/${fs}*')
 
-In many config submenus, the first menu option will enable the rest 
-of the menu options. For these menus, It's appropriate to use the more 
-convenient "menuconfig" keyword.
+Sloccount [1] gives more meaningful numbers than wc:
 
-This patch is designed for 2.6.13-rc1
+('sloccount fs/${fs}/* include/linux/${fs}*')
 
+nfs:  21,046
+9p:    3,856
+coda:  3,358
+fuse:  2,829
 
---- rc1-a/./arch/sh/Kconfig	2005-06-30 11:22:17.000000000 +0200
-+++ rc1-b/./arch/sh/Kconfig	2005-07-04 12:39:29.000000000 +0200
-@@ -657,8 +657,6 @@ config SH_PCLK_FREQ
- 	  with an auto-probed frequency which should be considered the proper
- 	  value for your hardware.
- 
--menu "CPU Frequency scaling"
--
- source "drivers/cpufreq/Kconfig"
- 
- config SH_CPU_FREQ
-@@ -673,8 +671,6 @@ config SH_CPU_FREQ
- 
- 	  If unsure, say N.
- 
--endmenu
--
- source "arch/sh/drivers/dma/Kconfig"
- 
- source "arch/sh/cchips/Kconfig"
---- rc1-a/./arch/arm/Kconfig	2005-06-30 11:22:15.000000000 +0200
-+++ rc1-b/./arch/arm/Kconfig	2005-07-04 12:39:29.000000000 +0200
-@@ -516,8 +516,6 @@ endmenu
- 
- if (ARCH_SA1100 || ARCH_INTEGRATOR)
- 
--menu "CPU Frequency scaling"
--
- source "drivers/cpufreq/Kconfig"
- 
- config CPU_FREQ_SA1100
-@@ -541,8 +539,6 @@ config CPU_FREQ_INTEGRATOR
- 
- 	  If in doubt, say Y.
- 
--endmenu
--
- endif
- 
- menu "Floating point emulation"
---- rc1-a/./arch/i386/kernel/cpu/cpufreq/Kconfig	2005-06-30 11:21:18.000000000 +0200
-+++ rc1-b/./arch/i386/kernel/cpu/cpufreq/Kconfig	2005-07-04 12:39:29.000000000 +0200
-@@ -2,8 +2,6 @@
- # CPU Frequency scaling
- #
- 
--menu "CPU Frequency scaling"
--
- source "drivers/cpufreq/Kconfig"
- 
- if CPU_FREQ
-@@ -239,5 +237,3 @@ config X86_SPEEDSTEP_RELAXED_CAP_CHECK
- 	  parameter "relaxed_check=1" is passed to the module.
- 
- endif	# CPU_FREQ
--
--endmenu
---- rc1-a/./arch/x86_64/kernel/cpufreq/Kconfig	2005-06-30 11:21:31.000000000 +0200
-+++ rc1-b/./arch/x86_64/kernel/cpufreq/Kconfig	2005-07-04 12:39:29.000000000 +0200
-@@ -2,8 +2,6 @@
- # CPU Frequency scaling
- #
- 
--menu "CPU Frequency scaling"
--
- source "drivers/cpufreq/Kconfig"
- 
- if CPU_FREQ
-@@ -92,5 +90,3 @@ config X86_SPEEDSTEP_LIB
- 
- endif
- 
--endmenu
--
+  1. http://www.dwheeler.com/sloccount/
 
--- 
-Top 100 things you don't want the sysadmin to say:
-97. Go get your backup tape. (You _do_ have a backup tape?)
+                              Pekka

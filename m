@@ -1,47 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261423AbVGDRIs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261426AbVGDRSg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261423AbVGDRIs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Jul 2005 13:08:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261433AbVGDRIr
+	id S261426AbVGDRSg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Jul 2005 13:18:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261463AbVGDRSf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Jul 2005 13:08:47 -0400
-Received: from [212.76.87.20] ([212.76.87.20]:64516 "EHLO raad.intranet")
-	by vger.kernel.org with ESMTP id S261423AbVGDRGj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Jul 2005 13:06:39 -0400
-Message-Id: <200507041706.UAA11178@raad.intranet>
-From: "Al Boldi" <a1426z@gawab.com>
-To: "'Bartlomiej Zolnierkiewicz'" <bzolnier@gmail.com>
-Cc: "'Linus Torvalds'" <torvalds@osdl.org>, <linux-ide@vger.kernel.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: [git patches] IDE update
-Date: Mon, 4 Jul 2005 20:06:04 +0300
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-In-Reply-To: <58cb370e05070408417dc3c067@mail.gmail.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Thread-Index: AcWArlsKInyyaT8QRJmaImRU6lPw7AAC+liA
+	Mon, 4 Jul 2005 13:18:35 -0400
+Received: from wproxy.gmail.com ([64.233.184.198]:39187 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261426AbVGDRSd convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Jul 2005 13:18:33 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=d/rjHwhHsT4Kg+rFEB+7adzdf6EnxhDFBsna0na+o2l0L8rYdcTmrCPcTvtWpmr5MYZ9m5A78ix3Do39PgVLH9MjIAj92n9+0tih/uE/t0B1xsb0gLiAh8gkqTp/zzSjyOw1kFnrN+76m8wXUfj+MNIxm/vcGtFG418uyDjuybs=
+Message-ID: <5a59ce5305070410182b2f2eec@mail.gmail.com>
+Date: Mon, 4 Jul 2005 13:18:32 -0400
+From: studdugie <studdugie@gmail.com>
+Reply-To: studdugie <studdugie@gmail.com>
+To: linux-kernel@vger.kernel.org, ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: Linux and Plan-9ness
+In-Reply-To: <200506301246.PAA29464@raad.intranet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+References: <20050630100119.GO11013@nysv.org>
+	 <200506301246.PAA29464@raad.intranet>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz wrote: {
-> On 7/4/05, Al Boldi <a1426z@gawab.com> wrote:
-> Hdparm -tT gives 38mb/s in 2.4.31
-> Cat /dev/hda > /dev/null gives 2% user 33% sys 65% idle
+If you dropped the "Unixness" you would have to rename. Maybe Linine,
+or  Linsoft, or ....
+
+Think of all the chaos that would cause. You don't want chaos do you?
+I mean really, do u want to force all the
+\w*(?ilinux)\w*(\.(com|org|net))? sites and publications to rename
+too? Unconscionable!
+
+On 6/30/05, Al Boldi <a1426z@gawab.com> wrote:
+> Markus   Törnqvist wrote: {
+> On Wed, Jun 29, 2005 at 10:56:36PM +0200, David Weinehall wrote:
+> >instead of trying to get a monstrosity (albeit a very cool one,
+> >conceptually) into the kernel.  Sure, it could be made to work, but not
+> >without dropping our Unixness.  And if we do, we should start by
+> >looking at Plan 9 =)
 > 
-> Hdparm -tT gives 28mb/s in 2.6.12
-> Cat /dev/hda > /dev/null gives 2% user 25% sys 0% idle 73% IOWAIT
+> What's wrong with "dropping our Unixness" if it means taking an extra step
+> toward Plan 9?
 > 
-> It feels like DMA is not being applied properly in 2.6.12.
-
-Are earlier 2.6.x kernels okay?
-
-dmesg output?
-}
-
-Same on 2.6.10,11,12.
-No errors though, only sluggish system.
-
+> Why is this a bad idea?
+> }
+> 
+> Please explain!
+> 
+>

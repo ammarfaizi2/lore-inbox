@@ -1,63 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbVGDF3g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261429AbVGDFpq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261443AbVGDF3g (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Jul 2005 01:29:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261440AbVGDF3g
+	id S261429AbVGDFpq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Jul 2005 01:45:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261425AbVGDFpq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Jul 2005 01:29:36 -0400
-Received: from pcsbom.patni.com ([203.124.139.208]:15202 "EHLO
-	pcsspz.PATNI.COM") by vger.kernel.org with ESMTP id S261443AbVGDF3d
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Jul 2005 01:29:33 -0400
-Reply-To: <lakshmi.shanmugam@patni.com>
-From: "Lakshmi Shanmugam" <lakshmi.shanmugam@patni.com>
-To: "Linux-Kernel" <linux-kernel@vger.kernel.org>
-Cc: "Deepak Kotian" <Deepak.Kotian@patni.com>
-Subject: Team can subscribe to ext3-users-request@redhat.com
-Date: Mon, 4 Jul 2005 11:05:08 +0530
-Message-ID: <PKEEIKPBPHKDCLNEEFABKELFCGAA.lakshmi.shanmugam@patni.com>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="----------=_1120455332-24882-189"
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
+	Mon, 4 Jul 2005 01:45:46 -0400
+Received: from mail.kroah.org ([69.55.234.183]:2964 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261440AbVGDFou (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Jul 2005 01:44:50 -0400
+Date: Sun, 3 Jul 2005 22:44:41 -0700
+From: Greg KH <greg@kroah.com>
+To: Michal Jaegermann <michal@harddata.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: A "new driver model" and EXPORT_SYMBOL_GPL question
+Message-ID: <20050704054441.GA19936@kroah.com>
+References: <20050703171202.A7210@mail.harddata.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050703171202.A7210@mail.harddata.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format...
+On Sun, Jul 03, 2005 at 05:12:02PM -0600, Michal Jaegermann wrote:
+> It dawned on me only now that a "new driver model" introduced
+> in patches from GKH export symbols like that:
+> 
+> EXPORT_SYMBOL_GPL(class_create);
+> EXPORT_SYMBOL_GPL(class_destroy);
+> 
+> and so on.  The problem is that corresponding old symbols, which
+> are still present in 2.6.12, were exported
+> 
+> EXPORT_SYMBOL(class_simple_create);
+> EXPORT_SYMBOL(class_simple_destroy);
+> ....
+> 
+> This creates a problem.  There exist out-of-tree drivers which are
+> using those symbols
 
-------------=_1120455332-24882-189
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Where?  What drivers?
 
-Hi Team,
+> and, even if sources are available, are not
+> licensed GPL for whatever reasons.  No, I am not the author of any
+> of those so I cannot do very much about re-licensing.  As an effect
+> a conversion to a "new driver model", even if simple, does not work.
+> In particular I bumped into that with Myrinet card drivers.
 
-	The team the can subscribe to ext3-users-request@redhat.com , a useful
-mailing list
-	for Filesystem related queries
+Then take it up with them.  Users of those symbols have had many months
+advance notice that this was going to happen.
 
-Thanks&Regards,
-Lakshmi
+> Was a decision to use EXPORT_SYMBOL_GPL deliberate and if yes then
+> what considerations dictated it, other then the patch author wrote
+> it that way, and what drivers in question are supposed to use when
+> this change will show up in the mainline?  It looks that 2.6.13
+> will do this.
 
+Please see the archives for the answers to these questions.
 
+thanks,
 
-http://www.patni.com
-World-Wide Partnerships. World-Class Solutions.
-_____________________________________________________________________
-
-This e-mail message may contain proprietary, confidential or legally
-privileged information for the sole use of the person or entity to
-whom this message was originally addressed. Any review, e-transmission
-dissemination or other use of or taking of any action in reliance upon
-this information by persons or entities other than the intended
-recipient is prohibited. If you have received this e-mail in error
-kindly delete  this e-mail from your records. If it appears that this
-mail has been forwarded to you without proper authority, please notify
-us immediately at netadmin@patni.com and delete this mail. 
-_____________________________________________________________________
-
-------------=_1120455332-24882-189--
+greg k-h

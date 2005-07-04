@@ -1,55 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261517AbVGDSDM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261228AbVGDSWo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261517AbVGDSDM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Jul 2005 14:03:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261521AbVGDSDM
+	id S261228AbVGDSWo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Jul 2005 14:22:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261237AbVGDSWn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Jul 2005 14:03:12 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:36264 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261517AbVGDSCx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Jul 2005 14:02:53 -0400
-Date: Mon, 4 Jul 2005 20:04:26 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Martin Mokrejs <mmokrejs@ribosome.natur.cuni.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Two 2.6.13-rc1 kernel crashes
-Message-ID: <20050704180426.GS1444@suse.de>
-References: <42C96047.60602@ribosome.natur.cuni.cz>
+	Mon, 4 Jul 2005 14:22:43 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:57105 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261228AbVGDSWl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Jul 2005 14:22:41 -0400
+Date: Mon, 4 Jul 2005 20:22:37 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Denis Vlasenko <vda@ilport.com.ua>
+Cc: Alexander Nyberg <alexn@telia.com>, linux-kernel@vger.kernel.org
+Subject: Re: RFC: i386: kill !4KSTACKS
+Message-ID: <20050704182237.GW5346@stusta.de>
+References: <20050607212706.GB7962@stusta.de> <200506081339.57012.vda@ilport.com.ua> <20050608111200.GG3641@stusta.de> <200506081513.09828.vda@ilport.com.ua>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42C96047.60602@ribosome.natur.cuni.cz>
+In-Reply-To: <200506081513.09828.vda@ilport.com.ua>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 04 2005, Martin Mokrejs wrote:
-> Hi,
->   I use on i686 architecture Gentoo linux with XFS filesystem.
-> Recently it happened to me 3 time that the machine locked,
-> although at least once sys-rq+b worked. Here is the log
-> from remote console. I don't remeber having such problems
-> with 2.6.12-rc6-git2, which was my previous testing kernel.
-> The problems appear under heavy load when I compile/install
-> some packages and maybe it's just a bad coincidence or not,
-> when I move my usb mouse in fvwm2 environment. The machine
-> locks.
+On Wed, Jun 08, 2005 at 03:13:09PM +0300, Denis Vlasenko wrote:
+> On Wednesday 08 June 2005 14:12, Adrian Bunk wrote:
+> > On Wed, Jun 08, 2005 at 01:39:56PM +0300, Denis Vlasenko wrote:
+> > >...
+> > > NB: gcc 3.4.3 can use excessive stack in degenerate cases, so please
+> > > include gcc version in your reports.
+> > 
+> > But this can't occur in the kernel.
+> 
+> It can. I saw the OOPS myself.
+> One of the functions in crypto/wp512.c was compiled with 3k+ stack usage.
 
-You need this fix from Hugh.
+Strange that "make checkstack" didn't show this.
 
---- 2.6.13-rc1/drivers/block/ll_rw_blk.c	2005-06-29 11:54:08.000000000 +0100
-+++ linux/drivers/block/ll_rw_blk.c	2005-06-29 14:41:04.000000000 +0100
-@@ -1917,10 +1917,9 @@ get_rq:
- 	 * limit of requests, otherwise we could have thousands of requests
- 	 * allocated with any setting of ->nr_requests
- 	 */
--	if (rl->count[rw] >= (3 * q->nr_requests / 2)) {
--		spin_unlock_irq(q->queue_lock);
-+	if (rl->count[rw] >= (3 * q->nr_requests / 2))
- 		goto out;
--	}
-+
+Are there any other 4KSTACKS problems you know about?
+
+> vda
+
+cu
+Adrian
 
 -- 
-Jens Axboe
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

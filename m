@@ -1,22 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261591AbVGDJzM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261608AbVGDKGK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261591AbVGDJzM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Jul 2005 05:55:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261608AbVGDJzM
+	id S261608AbVGDKGK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Jul 2005 06:06:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbVGDKGK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Jul 2005 05:55:12 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:7396 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S261591AbVGDJvX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Jul 2005 05:51:23 -0400
-Date: Mon, 4 Jul 2005 11:49:51 +0200 (CEST)
+	Mon, 4 Jul 2005 06:06:10 -0400
+Received: from mail-in-03.arcor-online.net ([151.189.21.43]:64482 "EHLO
+	mail-in-03.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261608AbVGDJzo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Jul 2005 05:55:44 -0400
+Date: Mon, 4 Jul 2005 11:55:37 +0200 (CEST)
 From: Bodo Eggert <7eggert@gmx.de>
 To: Bodo Eggert <7eggert@gmx.de>
 cc: linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] Kconfig changes: s/menu/menuconfig/
-In-Reply-To: <Pine.LNX.4.58.0506301152460.11960@be1.lrz>
-Message-ID: <Pine.LNX.4.58.0507041134410.3798@be1.lrz>
+In-Reply-To: <Pine.LNX.4.58.0507041134410.3798@be1.lrz>
+Message-ID: <Pine.LNX.4.58.0507041153020.3798@be1.lrz>
 References: <Pine.LNX.4.58.0506301152460.11960@be1.lrz>
+ <Pine.LNX.4.58.0507041134410.3798@be1.lrz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -28,13 +29,11 @@ In many config submenus, the first menu option will enable the rest
 of the menu options. For these menus, It's appropriate to use the more 
 convenient "menuconfig" keyword.
 
-This patch is designed for 2.6.12; the patch for .13-rc1 will be posted
-as a reply.
+Patch for .13-rc1. Only offset changes compared to .12.
 
 
-
---- a/./drivers/usb/net/Kconfig	2005-06-19 14:17:06.000000000 +0200
-+++ b/./drivers/usb/net/Kconfig	2005-07-04 11:27:11.000000000 +0200
+--- rc1-a/./drivers/usb/net/Kconfig	2005-06-30 11:21:50.000000000 +0200
++++ rc1-b/./drivers/usb/net/Kconfig	2005-07-04 11:52:34.000000000 +0200
 @@ -2,10 +2,13 @@
  # USB Network devices configuration
  #
@@ -58,8 +57,8 @@ as a reply.
  
 -endmenu
 +endif
---- a/./drivers/usb/input/Kconfig	2005-05-02 02:25:51.000000000 +0200
-+++ b/./drivers/usb/input/Kconfig	2005-07-04 11:16:26.000000000 +0200
+--- rc1-a/./drivers/usb/input/Kconfig	2005-06-30 11:22:40.000000000 +0200
++++ rc1-b/./drivers/usb/input/Kconfig	2005-07-04 11:52:34.000000000 +0200
 @@ -2,11 +2,9 @@
  # USB Input driver configuration
  #
@@ -72,8 +71,8 @@ as a reply.
  	---help---
  	  Say Y here if you want full HID support to connect keyboards,
  	  mice, joysticks, graphic tablets, or any other HID based devices
---- a/./drivers/usb/Kconfig	2005-06-19 14:17:02.000000000 +0200
-+++ b/./drivers/usb/Kconfig	2005-07-04 11:43:31.000000000 +0200
+--- rc1-a/./drivers/usb/Kconfig	2005-06-30 11:21:48.000000000 +0200
++++ rc1-b/./drivers/usb/Kconfig	2005-07-04 11:52:34.000000000 +0200
 @@ -2,8 +2,6 @@
  # USB device configuration
  #
@@ -130,8 +129,8 @@ as a reply.
 -endmenu
 +source "drivers/usb/gadget/Kconfig"
  
---- a/./drivers/usb/gadget/Kconfig	2005-06-19 14:17:04.000000000 +0200
-+++ b/./drivers/usb/gadget/Kconfig	2005-07-04 11:26:11.000000000 +0200
+--- rc1-a/./drivers/usb/gadget/Kconfig	2005-06-30 11:22:40.000000000 +0200
++++ rc1-b/./drivers/usb/gadget/Kconfig	2005-07-04 11:52:34.000000000 +0200
 @@ -12,10 +12,8 @@
  # With help from a special transceiver and a "Mini-AB" jack, systems with
  # both kinds of controller can also support "USB On-the-Go" (CONFIG_USB_OTG).
@@ -145,14 +144,14 @@ as a reply.
  	help
  	   USB is a master/slave protocol, organized with one master
  	   host (such as a PC) controlling up to 127 peripheral devices.
-@@ -385,5 +383,3 @@ config USB_G_SERIAL
+@@ -394,5 +392,3 @@ config USB_G_SERIAL
  # - none yet
  
  endchoice
 -
 -endmenu
---- a/./drivers/usb/serial/Kconfig	2005-07-04 11:10:43.000000000 +0200
-+++ b/./drivers/usb/serial/Kconfig	2005-07-04 11:19:53.000000000 +0200
+--- rc1-a/./drivers/usb/serial/Kconfig	2005-07-04 11:36:04.000000000 +0200
++++ rc1-b/./drivers/usb/serial/Kconfig	2005-07-04 11:52:34.000000000 +0200
 @@ -4,7 +4,6 @@
  
  menuconfig USB_SERIAL
@@ -162,6 +161,4 @@ as a reply.
  	  Say Y here if you have a USB device that provides normal serial
  	  ports, or acts like a serial device, and you want to connect it to
 -- 
-Top 100 things you don't want the sysadmin to say:
-39. It is only a minor upgrade, the system should be back up in
-    a few hours.  ( This is said on a monday afternoon.)
+Today's assembler command: EXOP Execute Operator 

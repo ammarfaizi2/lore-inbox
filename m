@@ -1,58 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261412AbVGDHjJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261568AbVGDHjJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261412AbVGDHjJ (ORCPT <rfc822;willy@w.ods.org>);
+	id S261568AbVGDHjJ (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 4 Jul 2005 03:39:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261413AbVGDHgs
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261412AbVGDHgk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Jul 2005 03:36:48 -0400
-Received: from mailfe10.tele2.se ([212.247.155.33]:35783 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S261268AbVGDH2h (ORCPT
+	Mon, 4 Jul 2005 03:36:40 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:56805 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261413AbVGDH3T (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Jul 2005 03:28:37 -0400
-X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
-Subject: Re: If ACPI doesn't find an irq listed, don't accept 0 as a valid
-	PCI irq.
-From: Alexander Nyberg <alexn@telia.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: stable@kernel.org, torvalds@osdl.org
-In-Reply-To: <200507021908.j62J8m4D009707@hera.kernel.org>
-References: <200507021908.j62J8m4D009707@hera.kernel.org>
-Content-Type: text/plain
-Date: Mon, 04 Jul 2005 09:28:35 +0200
-Message-Id: <1120462115.1172.3.camel@localhost.localdomain>
+	Mon, 4 Jul 2005 03:29:19 -0400
+Date: Mon, 4 Jul 2005 09:30:32 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Alejandro Bonilla <abonilla@linuxwireless.org>,
+       Lenz Grimmer <lenz@grimmer.com>, Jesper Juhl <jesper.juhl@gmail.com>,
+       Dave Hansen <dave@sr71.net>, Henrik Brix Andersen <brix@gentoo.org>,
+       hdaps-devel@lists.sourceforge.net,
+       LKML List <linux-kernel@vger.kernel.org>
+Subject: Re: IBM HDAPS things are looking up (was: Re: [Hdaps-devel] Re: [ltp] IBM HDAPS Someone interested? (Accelerometer))
+Message-ID: <20050704073031.GI1444@suse.de>
+References: <9a8748490507031832546f383a@mail.gmail.com> <42C8D06C.2020608@grimmer.com> <20050704061713.GA1444@suse.de> <42C8C978.4030409@linuxwireless.org> <20050704063741.GC1444@suse.de> <1120461401.3174.10.camel@laptopd505.fenrus.org> <20050704072231.GG1444@suse.de> <1120462037.3174.25.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1120462037.3174.25.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> tree e6a38b3d6bf434f08054562113bb660c4227769f
-> parent 4a89a04f1ee21a7c1f4413f1ad7dcfac50ff9b63
-> author Linus Torvalds <torvalds@g5.osdl.org> Sun, 03 Jul 2005 00:35:33 -0700
-> committer Linus Torvalds <torvalds@g5.osdl.org> Sun, 03 Jul 2005 00:35:33 -0700
+On Mon, Jul 04 2005, Arjan van de Ven wrote:
 > 
-> If ACPI doesn't find an irq listed, don't accept 0 as a valid PCI irq.
+> > 
+> > Yeah, that likely needs a little help from the ide driver. If you force
+> > a spindown, you will effectively have parked the head for as long as the
+> > spindown + spinup takes. That could turn out to be enough, it will take
+> > more than 1-2 seconds anyways.
 > 
-> That zero just means that nothing else found any irq information either.
-> 
->  drivers/acpi/pci_irq.c |    2 +-
->  1 files changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/acpi/pci_irq.c b/drivers/acpi/pci_irq.c
-> --- a/drivers/acpi/pci_irq.c
-> +++ b/drivers/acpi/pci_irq.c
-> @@ -433,7 +433,7 @@ acpi_pci_irq_enable (
->  		printk(KERN_WARNING PREFIX "PCI Interrupt %s[%c]: no GSI",
->  			pci_name(dev), ('A' + pin));
->  		/* Interrupt Line values above 0xF are forbidden */
-> -		if (dev->irq >= 0 && (dev->irq <= 0xF)) {
-> +		if (dev->irq > 0 && (dev->irq <= 0xF)) {
->  			printk(" - using IRQ %d\n", dev->irq);
->  			acpi_register_gsi(dev->irq, ACPI_LEVEL_SENSITIVE, ACPI_ACTIVE_LOW);
->  			return_VALUE(0);
+> I doubt it; laptop disks seem to be optimized for spinning up/down fast
+> (for powersaving reasons) so while for normal disks I'd agree with you,
+> for laptop disks I'm far less sure.
 
-Could this go into stable please? I've got it confirmed it fixes:
-http://bugme.osdl.org/show_bug.cgi?id=4824
+It isn't too pretty to rely on such unreliable timing anyways. I'm not
+too crazy about spinning the disk down either, it's useless wear
+compared to just parking the head.
 
-Which was introduced in -stable 2.6.12.2.
+-- 
+Jens Axboe
 

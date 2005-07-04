@@ -1,96 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261697AbVGDNqR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261714AbVGDNyT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261697AbVGDNqR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Jul 2005 09:46:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261702AbVGDNqQ
+	id S261714AbVGDNyT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Jul 2005 09:54:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261708AbVGDNyT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Jul 2005 09:46:16 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:6839 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261697AbVGDNXu (ORCPT
+	Mon, 4 Jul 2005 09:54:19 -0400
+Received: from mx2.suse.de ([195.135.220.15]:4013 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S261722AbVGDNcI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Jul 2005 09:23:50 -0400
-Date: Mon, 4 Jul 2005 15:25:18 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Lenz Grimmer <lenz@grimmer.com>
-Cc: hdaps-devel@lists.sourceforge.net,
-       LKML List <linux-kernel@vger.kernel.org>
-Subject: Re: IBM HDAPS things are looking up
-Message-ID: <20050704132516.GO1444@suse.de>
-References: <20050704061713.GA1444@suse.de> <42C8C978.4030409@linuxwireless.org> <20050704063741.GC1444@suse.de> <1120461401.3174.10.camel@laptopd505.fenrus.org> <20050704072231.GG1444@suse.de> <1120462037.3174.25.camel@laptopd505.fenrus.org> <20050704073031.GI1444@suse.de> <42C91073.80900@grimmer.com> <20050704110604.GL1444@suse.de> <42C93733.1090708@grimmer.com>
+	Mon, 4 Jul 2005 09:32:08 -0400
+Date: Mon, 4 Jul 2005 15:31:51 +0200
+From: Kurt Garloff <garloff@suse.de>
+To: serge@hallyn.com
+Cc: Tony Jones <tonyj@suse.de>,
+       Linux kernel list <linux-kernel@vger.kernel.org>,
+       Chris Wright <chrisw@osdl.org>, Stephen Smalley <sds@epoch.ncsc.mil>,
+       James Morris <jmorris@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
+       Steve Beattie <smb@wirex.com>,
+       Linux LSM list <linux-security-module@wirex.com>
+Subject: Re: [PATCH 3/3] Use conditional
+Message-ID: <20050704133151.GW11137@tpkurt.garloff.de>
+Mail-Followup-To: Kurt Garloff <garloff@suse.de>, serge@hallyn.com,
+	Tony Jones <tonyj@suse.de>,
+	Linux kernel list <linux-kernel@vger.kernel.org>,
+	Chris Wright <chrisw@osdl.org>, Stephen Smalley <sds@epoch.ncsc.mil>,
+	James Morris <jmorris@redhat.com>,
+	Greg Kroah-Hartman <gregkh@suse.de>, Steve Beattie <smb@wirex.com>,
+	Linux LSM list <linux-security-module@wirex.com>
+References: <20050703154405.GE11093@tpkurt.garloff.de> <20050703190007.GA30292@immunix.com> <20050704065902.GO11093@tpkurt.garloff.de> <20050704074449.GA12963@immunix.com> <20050704120105.GB27617@vino.hallyn.com> <20050704120809.GR11137@tpkurt.garloff.de> <20050704123721.GA28322@vino.hallyn.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="0p3EEgCnBt7M6rub"
 Content-Disposition: inline
-In-Reply-To: <42C93733.1090708@grimmer.com>
+In-Reply-To: <20050704123721.GA28322@vino.hallyn.com>
+X-Operating-System: Linux 2.6.11.4-21.7-default i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E
+Organization: SUSE/Novell
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 04 2005, Lenz Grimmer wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Hi Jens!
-> 
-> Thanks for the sample code. I've trimmed the recipient list a bit...
-> 
-> Jens Axboe wrote:
-> 
-> > Perhaps the IDLE or IDLEIMMEDIATE commands imply a head parking, that
-> > would make sense. As you say, you can hear a drive parking its head.
-> > Here's a test case, it doesn't sound like it's parking the hard here.
-> 
-> Not here either, but let me check, if I understand this correctly:
-> 
-> > #include <stdio.h>
-> > #include <unistd.h>
-> > #include <fcntl.h>
-> > #include <sys/ioctl.h>
-> > #include <linux/hdreg.h>
-> > 
-> > int main(int argc, char *argv[])
-> > {
-> > 	char cmd[4] = { 0xe1, 0, 0, 0 };
-> 
-> The "0xe1" in here is what is defined as "WIN_IDLEIMMEDIATE" in hdreg.h,
-> correct?
 
-Correct.
+--0p3EEgCnBt7M6rub
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> > 	int fd;
-> > 
-> > 	if (argc < 2) {
-> > 		printf("%s <dev>\n", argv[0]);
-> > 		return 1;
-> > 	}
-> > 
-> > 	fd = open(argv[1], O_RDONLY);
-> 
-> Hmm, don't I need to actually have *write* access for sending an ioctl?
+Hi Serge,
 
-No, but you need CAP_SYS_RAWIO capability. So run it as root.
+On Mon, Jul 04, 2005 at 07:37:21AM -0500, serge@hallyn.com wrote:
+> Quoting Kurt Garloff (garloff@suse.de):
+> > Getting rid of dummy entirely would be better, I agree, but someone
+> > needs to review that this won't break anything.
+>=20
+> Unfortunately I think it's way too soon for that.  Even if stacker is
+> accepted, it is still a module (for now at least) which can be compiled
+> out.  So we'll need dummy hooks for modules (like seclvl) to use.  I
+> just don't think it's possible to get rid of that yet.
 
-> > 	if (fd == -1) {
-> > 		perror("open");
-> > 		return 1;
-> > 	}
-> > 
-> > 	if (ioctl(fd, HDIO_DRIVE_CMD, cmd))
-> > 		perror("ioctl");
-> > 
-> > 	close(fd);
-> > 	return 0;
-> > }
-> 
-> I will give it another try, after clarifying the above questions - maybe
-> there is a command that will perform the desired task. If not, I guess
-> we're back at snooping what the Windows driver does here...
+Hmmmm, getting rid of dummy would mean replacing it with capability.
+- The differences between cap and dummy affect a relatively small
+  subset of hooks
+- If all of these hooks are implemented by all LSMs, we're done and
+  can just remove dummy and replace it by capability.
+- If not, we'd need to review for all of these LSMs, whether defaulting
+  to capability rather than dummy could create a problem and whether=20
+  that can be addressed easily.
 
-I'm not aware of a generally specificed command, it's likely that the
-ibm drive has a vendor specific one. Or that one of the idle commands
-can be configured to park the drive. Or... I'm not sure you'll find
-anything interesting in the windows driver, I would imagine that the
-user app is the one issuing the ide command (like the linux equiv would
-as well).
+seclvl would probably need some changes, indeed.
 
--- 
-Jens Axboe
+root_plug could become shorter :-)
 
+> > So how should we proceed?
+> > You want to do the dummy removal first, then have stacker merged
+> > and then what remains of my patches? Or should I start ... ?
+>=20
+> I think your patches to make capability the default are the best
+> place to start.  Doing the same under stacker will be trivial, and
+> I'll do that in the next set I send out.
+
+Sounds good!
+--=20
+Kurt Garloff, Director SUSE Labs, Novell Inc.
+
+--0p3EEgCnBt7M6rub
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFCyTpHxmLh6hyYd04RAgpRAJ418VoVgKnTUr8Im++9EBg6GMuIPwCgnhKX
+yBjzJLz8bpIjycHwwBAlWS4=
+=WJir
+-----END PGP SIGNATURE-----
+
+--0p3EEgCnBt7M6rub--

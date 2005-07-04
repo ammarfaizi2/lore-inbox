@@ -1,44 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261595AbVGDI5k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261474AbVGDJGy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261595AbVGDI5k (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Jul 2005 04:57:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261599AbVGDI5j
+	id S261474AbVGDJGy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Jul 2005 05:06:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261536AbVGDJGy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Jul 2005 04:57:39 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:12306 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261595AbVGDI5O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Jul 2005 04:57:14 -0400
-Date: Mon, 4 Jul 2005 09:57:02 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Linux Serial List <linux-serial@vger.kernel.org>
-Subject: Re: [CFT:PATCH] Serial + Serial&Parallel PCI card cleanup
-Message-ID: <20050704095702.A26015@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	Linux Serial List <linux-serial@vger.kernel.org>
-References: <20050625162100.A21120@flint.arm.linux.org.uk> <20050704081500.GA24025@pazke>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050704081500.GA24025@pazke>; from pazke@donpac.ru on Mon, Jul 04, 2005 at 12:15:00PM +0400
+	Mon, 4 Jul 2005 05:06:54 -0400
+Received: from 238-071.adsl.pool.ew.hu ([193.226.238.71]:3600 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S261474AbVGDJDW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Jul 2005 05:03:22 -0400
+To: pavel@suse.cz
+CC: akpm@osdl.org, aia21@cam.ac.uk, arjan@infradead.org,
+       linux-kernel@vger.kernel.org, frankvm@frankvm.com
+In-reply-to: <20050704084900.GG15370@elf.ucw.cz> (message from Pavel Machek on
+	Mon, 4 Jul 2005 10:49:00 +0200)
+Subject: Re: FUSE merging?
+References: <1120129996.5434.1.camel@imp.csi.cam.ac.uk> <20050630124622.7c041c0b.akpm@osdl.org> <E1DoF86-0002Kk-00@dorka.pomaz.szeredi.hu> <20050630235059.0b7be3de.akpm@osdl.org> <E1DoFcK-0002Ox-00@dorka.pomaz.szeredi.hu> <20050701001439.63987939.akpm@osdl.org> <E1DoG6p-0002Rf-00@dorka.pomaz.szeredi.hu> <20050701010229.4214f04e.akpm@osdl.org> <20050703193941.GA27204@elf.ucw.cz> <E1DpMTJ-000639-00@dorka.pomaz.szeredi.hu> <20050704084900.GG15370@elf.ucw.cz>
+Message-Id: <E1DpMqc-00065G-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Mon, 04 Jul 2005 11:02:38 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 04, 2005 at 12:15:00PM +0400, Andrey Panin wrote:
-> Me too, but I can confirm that my SIIG single port serial card still works
-> with the patch, so at least SIIG quirk table cleanup didn't broke anything.
+[CC restored]
 
-Thanks for testing.
+> Okay, I just wanted to mention CODA. Modifying CODA is probably still
+> better than modifying NFS (as akpm suggested at one point).
 
-> IMHO this cleanup could became a separate easy to merge patch.
+Definitely.
 
-I think the only split which would be reasonable is to make the changes
-to 8250_pci separate from parport_serial.  Trying to split the changes
-to parport_serial would be a recipe for disaster.
+Here are some numbers on the size these filesystems as in current -mm
+('wc fs/${fs}/* include/linux/${fs}*')
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+nfs:  25495
+9p:    6102
+coda:  4752
+fuse:  3733
+
+I'm sure FUSE came out smallest because I'm biased and did something
+wrong ;)
+
+Miklos

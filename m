@@ -1,37 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261620AbVGDK7n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261616AbVGDLJE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261620AbVGDK7n (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Jul 2005 06:59:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261622AbVGDK4k
+	id S261616AbVGDLJE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Jul 2005 07:09:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261621AbVGDLJE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Jul 2005 06:56:40 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:29463 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S261616AbVGDKyk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Jul 2005 06:54:40 -0400
-Date: Mon, 4 Jul 2005 12:57:22 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Bodo Eggert <7eggert@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Kconfig changes: s/menu/menuconfig/
-Message-ID: <20050704105722.GA21437@mars.ravnborg.org>
-References: <Pine.LNX.4.58.0506301152460.11960@be1.lrz>
+	Mon, 4 Jul 2005 07:09:04 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:9389 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261616AbVGDLEt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Jul 2005 07:04:49 -0400
+Date: Mon, 4 Jul 2005 13:06:06 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Lenz Grimmer <lenz@grimmer.com>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Alejandro Bonilla <abonilla@linuxwireless.org>,
+       Jesper Juhl <jesper.juhl@gmail.com>, Dave Hansen <dave@sr71.net>,
+       hdaps-devel@lists.sourceforge.net,
+       LKML List <linux-kernel@vger.kernel.org>
+Subject: Re: IBM HDAPS things are looking up (was: Re: [Hdaps-devel] Re: [ltp] IBM HDAPS Someone interested? (Accelerometer))
+Message-ID: <20050704110604.GL1444@suse.de>
+References: <9a8748490507031832546f383a@mail.gmail.com> <42C8D06C.2020608@grimmer.com> <20050704061713.GA1444@suse.de> <42C8C978.4030409@linuxwireless.org> <20050704063741.GC1444@suse.de> <1120461401.3174.10.camel@laptopd505.fenrus.org> <20050704072231.GG1444@suse.de> <1120462037.3174.25.camel@laptopd505.fenrus.org> <20050704073031.GI1444@suse.de> <42C91073.80900@grimmer.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0506301152460.11960@be1.lrz>
-User-Agent: Mutt/1.5.8i
+In-Reply-To: <42C91073.80900@grimmer.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 30, 2005 at 11:06:01PM +0200, Bodo Eggert wrote:
-> Part 1: The easy stuff.
+On Mon, Jul 04 2005, Lenz Grimmer wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> In many config submenus, the first menu option will enable the rest 
-> of the menu options. For these menus, It's appropriate to use the more 
-> convenient "menuconfig" keyword.
+> Hi,
+> 
+> Jens Axboe wrote:
+> 
+> > It isn't too pretty to rely on such unreliable timing anyways. I'm 
+> > not too crazy about spinning the disk down either, it's useless wear 
+> > compared to just parking the head.
+> 
+> Fully agreed, and that's the approach the IBM Windows driver seems to
+> take - you just hear the disk park its head when the sensor kicks in
+> (you can hear it) - the disk does not spin down when this happens.
+> 
+> Could this be some reserved ATA command that only works with certain#
+> drives?
 
-Please do not touch net/Kconfig and friends. I am preparing an
-update of this part so it will conflict.
+Perhaps the IDLE or IDLEIMMEDIATE commands imply a head parking, that
+would make sense. As you say, you can hear a drive parking its head.
+Here's a test case, it doesn't sound like it's parking the hard here.
 
-	Sam
+#include <stdio.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/ioctl.h>
+#include <linux/hdreg.h>
+
+int main(int argc, char *argv[])
+{
+	char cmd[4] = { 0xe1, 0, 0, 0 };
+	int fd;
+
+	if (argc < 2) {
+		printf("%s <dev>\n", argv[0]);
+		return 1;
+	}
+
+	fd = open(argv[1], O_RDONLY);
+	if (fd == -1) {
+		perror("open");
+		return 1;
+	}
+
+	if (ioctl(fd, HDIO_DRIVE_CMD, cmd))
+		perror("ioctl");
+
+	close(fd);
+	return 0;
+}
+
+-- 
+Jens Axboe
+

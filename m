@@ -1,60 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261439AbVGDHgd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261425AbVGDHg3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261439AbVGDHgd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Jul 2005 03:36:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261412AbVGDHgd
+	id S261425AbVGDHg3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Jul 2005 03:36:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261412AbVGDHg3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Jul 2005 03:36:33 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:11738 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261608AbVGDH1Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Jul 2005 03:27:25 -0400
-Subject: Re: IBM HDAPS things are looking up (was: Re: [Hdaps-devel] Re:
-	[ltp] IBM HDAPS Someone interested? (Accelerometer))
-From: Arjan van de Ven <arjan@infradead.org>
-To: Jens Axboe <axboe@suse.de>
-Cc: Alejandro Bonilla <abonilla@linuxwireless.org>,
-       Lenz Grimmer <lenz@grimmer.com>, Jesper Juhl <jesper.juhl@gmail.com>,
-       Dave Hansen <dave@sr71.net>, Henrik Brix Andersen <brix@gentoo.org>,
-       hdaps-devel@lists.sourceforge.net,
-       LKML List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050704072231.GG1444@suse.de>
-References: <9a8748490507031832546f383a@mail.gmail.com>
-	 <42C8D06C.2020608@grimmer.com> <20050704061713.GA1444@suse.de>
-	 <42C8C978.4030409@linuxwireless.org> <20050704063741.GC1444@suse.de>
-	 <1120461401.3174.10.camel@laptopd505.fenrus.org>
-	 <20050704072231.GG1444@suse.de>
-Content-Type: text/plain
-Date: Mon, 04 Jul 2005 09:27:16 +0200
-Message-Id: <1120462037.3174.25.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 4 Jul 2005 03:36:29 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:14543 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261599AbVGDHYr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Jul 2005 03:24:47 -0400
+Date: Mon, 4 Jul 2005 03:24:39 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@localhost.localdomain
+Reply-To: rostedt@goodmis.org
+To: "liyu@WAN" <liyu@ccoss.com.cn>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: the magic in do_page_fault() ???
+In-Reply-To: <42C8C7EE.8040906@ccoss.com.cn>
+Message-ID: <Pine.LNX.4.58.0507040308470.10498@localhost.localdomain>
+References: <42C8C7EE.8040906@ccoss.com.cn>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> 
-> Yeah, that likely needs a little help from the ide driver. If you force
-> a spindown, you will effectively have parked the head for as long as the
-> spindown + spinup takes. That could turn out to be enough, it will take
-> more than 1-2 seconds anyways.
+On Mon, 4 Jul 2005, liyu@WAN wrote:
 
-I doubt it; laptop disks seem to be optimized for spinning up/down fast
-(for powersaving reasons) so while for normal disks I'd agree with you,
-for laptop disks I'm far less sure.
+>     in do_page_fault() (kernel 2.6.11.11) include one piece of code as
+> follow:
+>
+>
+>         if (!down_read_trylock(&mm->mmap_sem)) {
+>         if ((error_code & 4) == 0 &&
+>             !search_exception_tables(regs->eip))
+>             goto bad_area_nosemaphore;
+>         down_read(&mm->mmap_sem);
+>     }
+>
+>
+>     I think I can understand these operations on mm->mmap_sem and
+> "error_code&4".
+> but how "search_exception_tables(regs->eip)" work here?
 
+This is pretty much linker magic :-)
+
+Look at the code in copy_from_user and friends. It also gets quite
+confusing on intel.  Down in the bowels you might get to a function/macro
+like __copy_user.  This function is used to copy to and from a user space
+program address that we can't trust.
+
+Here you see three different linker sections:
+
+We start in the normal .text section
+
+		"	cmp  $7,%0\n"					\
+		"	jbe  1f\n"					\
+		"	movl %1,%0\n"					\
+		"	negl %0\n"					\
+		"	andl $7,%0\n"					\
+		"	subl %0,%3\n"					\
+labels 4 and 0 store the address of a bad read (we are reading from a user
+address that might not be in memory either because it is swapped out, or
+is just a bad memory location.  Can't trust those users ;-)
+
+		"4:	rep; movsb\n"					\
+		"	movl %3,%0\n"					\
+		"	shrl $2,%0\n"					\
+		"	andl $3,%3\n"					\
+		"	.align 2,0x90\n"				\
+		"0:	rep; movsl\n"					\
+		"	movl %3,%0\n"					\
+		"1:	rep; movsb\n"					\
+		"2:\n"							\
+
+The fixup section is what to do if it was a bad read, that is, it's not
+swapped out, but the user sent us a bad address.
+
+		".section .fixup,\"ax\"\n"				\
+		"5:	addl %3,%0\n"					\
+		"	jmp 2b\n"					\
+		"3:	lea 0(%3,%0,4),%0\n"				\
+		"	jmp 2b\n"					\
+		".previous\n"						\
+
+This adds to the exception table. On error at address of label 4 we jump
+to label 5, on error at label 0 we jump to label 3 and so on.
+
+		".section __ex_table,\"a\"\n"				\
+		"	.align 4\n"					\
+		"	.long 4b,5b\n"					\
+		"	.long 0b,3b\n"					\
+		"	.long 1b,2b\n"					\
+
+
+The linker will put all sections of __ex_table together.  The function you
+are wondering about "search_exception_tables" calls search_extable passing
+in the address of the start of the __ex_table section and the end of that
+section.  Then, if it finds an address in the section, it then returns
+that entry of the table (the address,fixup pair).
+
+Later down in do_page_fault, fixup_exception is called, and this will
+again search the execption tables (this might be optimized better to do
+the search once!), and if it finds the entry, it will then jump to the
+fixup part of the code, and that will do what is expected if the user
+passed in a bad address.
+
+
+Hope this helps,
+
+
+-- Steve
 

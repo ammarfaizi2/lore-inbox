@@ -1,206 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261643AbVGDMJ6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261647AbVGDMLj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261643AbVGDMJ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Jul 2005 08:09:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261627AbVGDMJ4
+	id S261647AbVGDMLj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Jul 2005 08:11:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261627AbVGDMKZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Jul 2005 08:09:56 -0400
-Received: from [85.8.12.41] ([85.8.12.41]:24508 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S261645AbVGDMIJ (ORCPT
+	Mon, 4 Jul 2005 08:10:25 -0400
+Received: from ns1.suse.de ([195.135.220.2]:14723 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261648AbVGDMIL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Jul 2005 08:08:09 -0400
-Message-ID: <42C926A8.8030305@drzeus.cx>
-Date: Mon, 04 Jul 2005 14:08:08 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 1.0.2-7 (X11/20050623)
-X-Accept-Language: en-us, en
+	Mon, 4 Jul 2005 08:08:11 -0400
+Date: Mon, 4 Jul 2005 14:08:09 +0200
+From: Kurt Garloff <garloff@suse.de>
+To: serge@hallyn.com
+Cc: Tony Jones <tonyj@suse.de>,
+       Linux kernel list <linux-kernel@vger.kernel.org>,
+       Chris Wright <chrisw@osdl.org>, Stephen Smalley <sds@epoch.ncsc.mil>,
+       James Morris <jmorris@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
+       Steve Beattie <smb@wirex.com>,
+       Linux LSM list <linux-security-module@wirex.com>
+Subject: Re: [PATCH 3/3] Use conditional
+Message-ID: <20050704120809.GR11137@tpkurt.garloff.de>
+Mail-Followup-To: Kurt Garloff <garloff@suse.de>, serge@hallyn.com,
+	Tony Jones <tonyj@suse.de>,
+	Linux kernel list <linux-kernel@vger.kernel.org>,
+	Chris Wright <chrisw@osdl.org>, Stephen Smalley <sds@epoch.ncsc.mil>,
+	James Morris <jmorris@redhat.com>,
+	Greg Kroah-Hartman <gregkh@suse.de>, Steve Beattie <smb@wirex.com>,
+	Linux LSM list <linux-security-module@wirex.com>
+References: <20050703154405.GE11093@tpkurt.garloff.de> <20050703190007.GA30292@immunix.com> <20050704065902.GO11093@tpkurt.garloff.de> <20050704074449.GA12963@immunix.com> <20050704120105.GB27617@vino.hallyn.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=_hermes.drzeus.cx-2854-1120478888-0001-2"
-To: linux-kernel@vger.kernel.org
-CC: randy_dunlap <rdunlap@xenotime.net>
-Subject: Re: [PATCH] ISA DMA API documentation
-References: <42C712C9.7080603@drzeus.cx> <20050703205834.51b43435.rdunlap@xenotime.net> <42C8F26E.3080403@drzeus.cx>
-In-Reply-To: <42C8F26E.3080403@drzeus.cx>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Hnpg0BSo5EvPlUVi"
+Content-Disposition: inline
+In-Reply-To: <20050704120105.GB27617@vino.hallyn.com>
+X-Operating-System: Linux 2.6.11.4-21.7-default i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E
+Organization: SUSE/Novell
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME-formatted message.  If you see this text it means that your
-E-mail software does not support MIME-formatted messages.
 
---=_hermes.drzeus.cx-2854-1120478888-0001-2
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+--Hnpg0BSo5EvPlUVi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Documentation for how the ISA DMA controller is handled in the kernel.
+Hi Serge,
 
-Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
+On Mon, Jul 04, 2005 at 07:01:05AM -0500, serge@hallyn.com wrote:
+> Quoting Tony Jones (tonyj@suse.de):
+> > On Mon, Jul 04, 2005 at 08:59:02AM +0200, Kurt Garloff wrote:
+> >=20
+> > > > The topic of replacing dummy (with capability) was discussed there
+> > > > last week, in the context of stacker, but a common solution for both
+> > > > cases would be needed.
+> > >=20
+> > > Both cases?
+> >=20
+> > CONFIG_SECURITY_STACKER and !CONFIG_SECURITY_STACKER ;-)
+> >=20
+> > http://mail.wirex.com/pipermail/linux-security-module/2005-June/6200.ht=
+ml
+> >=20
+> > I was assuming (bad of me I know) that Serge's patch would nail both ca=
+ses
+> > with one stone.
+>=20
+> Yes, sorry, I never got around to the replace-dummy-with-capability
+> patch.  There wasn't a single cry when Chris asked for anyone who'd
+> care about dummy being removed, so I do plan on switching that.
 
-New version after feedback from Randy Dunlap.
+I was a bit careful: My patch did switch the default, but LSMs that
+don't fill in all security_ops would still fall back to dummy, just
+to make sure there is no possibly unintended change in behaviour.
 
+Getting rid of dummy entirely would be better, I agree, but someone
+needs to review that this won't break anything.
 
---=_hermes.drzeus.cx-2854-1120478888-0001-2
-Content-Type: text/x-patch; name="DMA-ISA-LPC.patch"; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="DMA-ISA-LPC.patch"
+So how should we proceed?
+You want to do the dummy removal first, then have stacker merged
+and then what remains of my patches? Or should I start ... ?
 
-Index: linux-wbsd/Documentation/DMA-ISA-LPC.txt
-===================================================================
---- linux-wbsd/Documentation/DMA-ISA-LPC.txt	(revision 0)
-+++ linux-wbsd/Documentation/DMA-ISA-LPC.txt	(revision 0)
-@@ -0,0 +1,151 @@
-+                        DMA with ISA and LPC devices
-+                        ============================
-+
-+                      Pierre Ossman <drzeus@drzeus.cx>
-+
-+This document describes how to do DMA transfers using the old ISA DMA
-+controller. Even though ISA is more or less dead today the LPC bus
-+uses the same DMA system so it will be around for quite some time.
-+
-+Part I - Headers and dependencies
-+---------------------------------
-+
-+To do ISA style DMA you need to include two headers:
-+
-+#include <linux/dma-mapping.h>
-+#include <asm/dma.h>
-+
-+The first is the generic DMA API used to convert virtual addresses to
-+physical addresses (see Documentation/DMA-API.txt for details).
-+
-+The second contains the routines specific to ISA DMA transfers. Since
-+this is not present on all platforms make sure you construct your
-+Kconfig to be dependent on ISA_DMA_API (not ISA) so that nobody tries
-+to build your driver on unsupported platforms.
-+
-+Part II - Buffer allocation
-+---------------------------
-+
-+The ISA DMA controller has some very strict requirements on which
-+memory it can access so extra care must be taken when allocating
-+buffers.
-+
-+(You usually need a special buffer for DMA transfers instead of
-+transferring directly to and from your normal data structures.)
-+
-+The DMA-able address space is the lowest 16 MB of _physical_ memory.
-+Also the transfer block may not cross page boundaries (which are 64
-+or 128 KiB depending on which channel you use).
-+
-+In order to allocate a piece of memory that satisfies all these
-+requirements you pass the flag GFP_DMA to kmalloc.
-+
-+Unfortunately the memory available for ISA DMA is scarce so unless you
-+allocate the memory during boot-up it's a good idea to also pass
-+__GFP_REPEAT and __GFP_NOWARN to make the allocater try a bit harder.
-+
-+(This scarcity also means that you should allocate the buffer as
-+early as possible and not release it until the driver is unloaded.)
-+
-+Part III - Address translation
-+------------------------------
-+
-+To translate the virtual address to a physical use the normal DMA
-+API. Do _not_ use isa_virt_to_phys() even though it does the same
-+thing. The reason for this is that the function isa_virt_to_phys()
-+will require a Kconfig dependency to ISA, not just ISA_DMA_API which
-+is really all you need. Remember that even though the DMA controller
-+has its origins in ISA it is used elsewhere.
-+
-+Note: x86_64 had a broken DMA API when it came to ISA but has since
-+been fixed. If your arch has problems then fix the DMA API instead of
-+reverting to the ISA functions.
-+
-+Part IV - Channels
-+------------------
-+
-+A normal ISA DMA controller has 8 channels. The lower four are for
-+8-bit transfers and the upper four are for 16-bit transfers.
-+
-+(Actually the DMA controller is really two separate controllers where
-+channel 4 is used to give DMA access for the second controller (0-3).
-+This means that of the four 16-bits channels only three are usable.)
-+
-+You allocate these in a similar fashion as all basic resources:
-+
-+extern int request_dma(unsigned int dmanr, const char * device_id);
-+extern void free_dma(unsigned int dmanr);
-+
-+The ability to use 16-bit or 8-bit transfers is _not_ up to you as a
-+driver author but depends on what the hardware supports. Check your
-+specs or test different channels.
-+
-+Part V - Transfer data
-+----------------------
-+
-+Now for the good stuff, the actual DMA transfer. :)
-+
-+Before you use any ISA DMA routines you need to claim the DMA lock
-+using claim_dma_lock(). The reason is that some DMA operations are
-+not atomic so only one driver may fiddle with the registers at a
-+time.
-+
-+The first time you use the DMA controller you should call
-+clear_dma_ff(). This clears an internal register in the DMA
-+controller that is used for the non-atomic operations. As long as you
-+(and everyone else) uses the locking functions then you only need to
-+reset this once.
-+
-+Next, you tell the controller in which direction you intend to do the
-+transfer using set_dma_mode(). Currently you have the options
-+DMA_MODE_READ and DMA_MODE_WRITE.
-+
-+Set the address from where the transfer should start (this needs to
-+be 16-bit aligned for 16-bit transfers) and how many bytes to
-+transfer. Note that it's _bytes_. The DMA routines will do all the
-+required translation to values that the DMA controller understands.
-+
-+The final step is enabling the DMA channel and releasing the DMA
-+lock.
-+
-+Once the DMA transfer is finished (or timed out) you should disable
-+the channel again. You should also check get_dma_residue() to make
-+sure that all data has been transfered.
-+
-+Example:
-+
-+int flags, residue;
-+
-+flags = claim_dma_lock();
-+
-+clear_dma_ff();
-+
-+set_dma_mode(channel, DMA_MODE_WRITE);
-+set_dma_addr(channel, phys_addr);
-+set_dma_count(channel, num_bytes);
-+
-+dma_enable(channel);
-+
-+release_dma_lock(flags);
-+
-+while (!device_done());
-+
-+flags = claim_dma_lock();
-+
-+dma_disable(channel);
-+
-+residue = dma_get_residue(channel);
-+if (residue != 0)
-+	printk(KERN_ERR "driver: Incomplete DMA transfer!"
-+		" %d bytes left!\n", residue);
-+
-+release_dma_lock(flags);
-+
-+Part VI - Suspend/resume
-+------------------------
-+
-+It is the driver's responsibility to make sure that the machine isn't
-+suspended while a DMA transfer is in progress. Also, all DMA settings
-+are lost when the system suspends so if your driver relies on the DMA
-+controller being in a certain state then you have to restore these
-+registers upon resume.
+Regards,
+--=20
+Kurt Garloff, Director SUSE Labs, Novell Inc.
 
---=_hermes.drzeus.cx-2854-1120478888-0001-2--
+--Hnpg0BSo5EvPlUVi
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFCySapxmLh6hyYd04RAgpyAJ9DdbsugAo+vMPQ1FXkXBw0W/OBvACdEErn
+KNjs6L8Ow2a5Q2354fmVVIE=
+=lOrs
+-----END PGP SIGNATURE-----
+
+--Hnpg0BSo5EvPlUVi--

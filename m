@@ -1,53 +1,206 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261642AbVGDMIx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261643AbVGDMJ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261642AbVGDMIx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Jul 2005 08:08:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261625AbVGDMIw
+	id S261643AbVGDMJ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Jul 2005 08:09:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261627AbVGDMJ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Jul 2005 08:08:52 -0400
-Received: from mail-in-09.arcor-online.net ([151.189.21.49]:34710 "EHLO
-	mail-in-09.arcor-online.net") by vger.kernel.org with ESMTP
-	id S261642AbVGDMCs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Jul 2005 08:02:48 -0400
-Date: Mon, 4 Jul 2005 14:02:34 +0200 (CEST)
-From: Bodo Eggert <7eggert@gmx.de>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-cc: Bodo Eggert <7eggert@gmx.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Kconfig changes 4: s/menu/menuconfig/ CPU scaling menu
-In-Reply-To: <20050704115357.A587@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.58.0507041334430.11818@be1.lrz>
-References: <Pine.LNX.4.58.0506301152460.11960@be1.lrz>
- <Pine.LNX.4.58.0507041134410.3798@be1.lrz> <Pine.LNX.4.58.0507041210190.6165@be1.lrz>
- <Pine.LNX.4.58.0507041231200.6165@be1.lrz> <Pine.LNX.4.58.0507041243070.8687@be1.lrz>
- <20050704115357.A587@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 4 Jul 2005 08:09:56 -0400
+Received: from [85.8.12.41] ([85.8.12.41]:24508 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S261645AbVGDMIJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Jul 2005 08:08:09 -0400
+Message-ID: <42C926A8.8030305@drzeus.cx>
+Date: Mon, 04 Jul 2005 14:08:08 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 1.0.2-7 (X11/20050623)
+X-Accept-Language: en-us, en
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="=_hermes.drzeus.cx-2854-1120478888-0001-2"
+To: linux-kernel@vger.kernel.org
+CC: randy_dunlap <rdunlap@xenotime.net>
+Subject: Re: [PATCH] ISA DMA API documentation
+References: <42C712C9.7080603@drzeus.cx> <20050703205834.51b43435.rdunlap@xenotime.net> <42C8F26E.3080403@drzeus.cx>
+In-Reply-To: <42C8F26E.3080403@drzeus.cx>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Jul 2005, Russell King wrote:
-> On Mon, Jul 04, 2005 at 12:43:56PM +0200, Bodo Eggert wrote:
-> > Part 4: The CPU scaling menu.
-> > 
-> > In many config submenus, the first menu option will enable the rest 
-> > of the menu options. For these menus, It's appropriate to use the more 
-> > convenient "menuconfig" keyword.
-> > 
-> > This patch is designed for 2.6.13-rc1
-> 
-> This is inappropriate for ARM - take a look at the ARM Kconfig file
-> around those lines which you deleted.  You'll notice that ARM contains
-> some extra options for cpufreq which aren't offered on other
-> architectures.
-> 
-> These options should appear under the cpufreq menu, and making this
-> change means that they no longer do so.
+This is a MIME-formatted message.  If you see this text it means that your
+E-mail software does not support MIME-formatted messages.
 
-My script missed some changes (Shouldn't be possible). I'll post the 
-missing parts, which will restore the desired behaviour.
+--=_hermes.drzeus.cx-2854-1120478888-0001-2
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 
-The update will change the main CPU scaling config to menuconfig,
-and all other options will be added to the menu because they depend on 
-that config.
--- 
-Justify my text? I'm sorry but it has no excuse. 
+Documentation for how the ISA DMA controller is handled in the kernel.
+
+Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
+
+New version after feedback from Randy Dunlap.
+
+
+--=_hermes.drzeus.cx-2854-1120478888-0001-2
+Content-Type: text/x-patch; name="DMA-ISA-LPC.patch"; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="DMA-ISA-LPC.patch"
+
+Index: linux-wbsd/Documentation/DMA-ISA-LPC.txt
+===================================================================
+--- linux-wbsd/Documentation/DMA-ISA-LPC.txt	(revision 0)
++++ linux-wbsd/Documentation/DMA-ISA-LPC.txt	(revision 0)
+@@ -0,0 +1,151 @@
++                        DMA with ISA and LPC devices
++                        ============================
++
++                      Pierre Ossman <drzeus@drzeus.cx>
++
++This document describes how to do DMA transfers using the old ISA DMA
++controller. Even though ISA is more or less dead today the LPC bus
++uses the same DMA system so it will be around for quite some time.
++
++Part I - Headers and dependencies
++---------------------------------
++
++To do ISA style DMA you need to include two headers:
++
++#include <linux/dma-mapping.h>
++#include <asm/dma.h>
++
++The first is the generic DMA API used to convert virtual addresses to
++physical addresses (see Documentation/DMA-API.txt for details).
++
++The second contains the routines specific to ISA DMA transfers. Since
++this is not present on all platforms make sure you construct your
++Kconfig to be dependent on ISA_DMA_API (not ISA) so that nobody tries
++to build your driver on unsupported platforms.
++
++Part II - Buffer allocation
++---------------------------
++
++The ISA DMA controller has some very strict requirements on which
++memory it can access so extra care must be taken when allocating
++buffers.
++
++(You usually need a special buffer for DMA transfers instead of
++transferring directly to and from your normal data structures.)
++
++The DMA-able address space is the lowest 16 MB of _physical_ memory.
++Also the transfer block may not cross page boundaries (which are 64
++or 128 KiB depending on which channel you use).
++
++In order to allocate a piece of memory that satisfies all these
++requirements you pass the flag GFP_DMA to kmalloc.
++
++Unfortunately the memory available for ISA DMA is scarce so unless you
++allocate the memory during boot-up it's a good idea to also pass
++__GFP_REPEAT and __GFP_NOWARN to make the allocater try a bit harder.
++
++(This scarcity also means that you should allocate the buffer as
++early as possible and not release it until the driver is unloaded.)
++
++Part III - Address translation
++------------------------------
++
++To translate the virtual address to a physical use the normal DMA
++API. Do _not_ use isa_virt_to_phys() even though it does the same
++thing. The reason for this is that the function isa_virt_to_phys()
++will require a Kconfig dependency to ISA, not just ISA_DMA_API which
++is really all you need. Remember that even though the DMA controller
++has its origins in ISA it is used elsewhere.
++
++Note: x86_64 had a broken DMA API when it came to ISA but has since
++been fixed. If your arch has problems then fix the DMA API instead of
++reverting to the ISA functions.
++
++Part IV - Channels
++------------------
++
++A normal ISA DMA controller has 8 channels. The lower four are for
++8-bit transfers and the upper four are for 16-bit transfers.
++
++(Actually the DMA controller is really two separate controllers where
++channel 4 is used to give DMA access for the second controller (0-3).
++This means that of the four 16-bits channels only three are usable.)
++
++You allocate these in a similar fashion as all basic resources:
++
++extern int request_dma(unsigned int dmanr, const char * device_id);
++extern void free_dma(unsigned int dmanr);
++
++The ability to use 16-bit or 8-bit transfers is _not_ up to you as a
++driver author but depends on what the hardware supports. Check your
++specs or test different channels.
++
++Part V - Transfer data
++----------------------
++
++Now for the good stuff, the actual DMA transfer. :)
++
++Before you use any ISA DMA routines you need to claim the DMA lock
++using claim_dma_lock(). The reason is that some DMA operations are
++not atomic so only one driver may fiddle with the registers at a
++time.
++
++The first time you use the DMA controller you should call
++clear_dma_ff(). This clears an internal register in the DMA
++controller that is used for the non-atomic operations. As long as you
++(and everyone else) uses the locking functions then you only need to
++reset this once.
++
++Next, you tell the controller in which direction you intend to do the
++transfer using set_dma_mode(). Currently you have the options
++DMA_MODE_READ and DMA_MODE_WRITE.
++
++Set the address from where the transfer should start (this needs to
++be 16-bit aligned for 16-bit transfers) and how many bytes to
++transfer. Note that it's _bytes_. The DMA routines will do all the
++required translation to values that the DMA controller understands.
++
++The final step is enabling the DMA channel and releasing the DMA
++lock.
++
++Once the DMA transfer is finished (or timed out) you should disable
++the channel again. You should also check get_dma_residue() to make
++sure that all data has been transfered.
++
++Example:
++
++int flags, residue;
++
++flags = claim_dma_lock();
++
++clear_dma_ff();
++
++set_dma_mode(channel, DMA_MODE_WRITE);
++set_dma_addr(channel, phys_addr);
++set_dma_count(channel, num_bytes);
++
++dma_enable(channel);
++
++release_dma_lock(flags);
++
++while (!device_done());
++
++flags = claim_dma_lock();
++
++dma_disable(channel);
++
++residue = dma_get_residue(channel);
++if (residue != 0)
++	printk(KERN_ERR "driver: Incomplete DMA transfer!"
++		" %d bytes left!\n", residue);
++
++release_dma_lock(flags);
++
++Part VI - Suspend/resume
++------------------------
++
++It is the driver's responsibility to make sure that the machine isn't
++suspended while a DMA transfer is in progress. Also, all DMA settings
++are lost when the system suspends so if your driver relies on the DMA
++controller being in a certain state then you have to restore these
++registers upon resume.
+
+--=_hermes.drzeus.cx-2854-1120478888-0001-2--

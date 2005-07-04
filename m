@@ -1,92 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261367AbVGDDMl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261205AbVGDDWr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261367AbVGDDMl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Jul 2005 23:12:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261385AbVGDDMl
+	id S261205AbVGDDWr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Jul 2005 23:22:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261335AbVGDDWr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Jul 2005 23:12:41 -0400
-Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:51178
-	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
-	with ESMTP id S261367AbVGDDMd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Jul 2005 23:12:33 -0400
-Message-ID: <42C89B09.6040201@linuxwireless.org>
-Date: Sun, 03 Jul 2005 21:12:25 -0500
-From: Alejandro Bonilla <abonilla@linuxwireless.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jesper Juhl <jesper.juhl@gmail.com>
-CC: Dave Hansen <dave@sr71.net>, Henrik Brix Andersen <brix@gentoo.org>,
-       hdaps-devel@lists.sourceforge.net,
-       LKML List <linux-kernel@vger.kernel.org>
-Subject: Re: IBM HDAPS things are looking up (was: Re: [Hdaps-devel] Re: [ltp]
- IBM HDAPS Someone interested? (Accelerometer))
-References: <9a8748490507031832546f383a@mail.gmail.com>
-In-Reply-To: <9a8748490507031832546f383a@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 3 Jul 2005 23:22:47 -0400
+Received: from cerebus.immunix.com ([198.145.28.33]:49608 "EHLO
+	ermintrude.int.immunix.com") by vger.kernel.org with ESMTP
+	id S261205AbVGDDWl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Jul 2005 23:22:41 -0400
+Date: Sun, 3 Jul 2005 20:18:20 -0700
+From: Tony Jones <tonyj@suse.de>
+To: serue@us.ibm.com
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 5/12] lsm stacking v0.2: actual stacker module
+Message-ID: <20050704031820.GA6871@immunix.com>
+References: <20050630194458.GA23439@serge.austin.ibm.com> <20050630195043.GE23538@serge.austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="LQksG6bCIzRHxTLp"
+Content-Disposition: inline
+In-Reply-To: <20050630195043.GE23538@serge.austin.ibm.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl wrote:
 
->On 7/3/05, Alejandro Bonilla <abonilla@linuxwireless.org> wrote:
->  
->
->>BTW, we are on irc.freenode.org in #hdaps If anyone is interested.
->>
->>.Alejandro
->>
->>    
->>
->I just had a nice chat with the guys there and we got some
->improvements made by them and us merged up. And I /think/ we agreed
->that I'll maintain the driver, merge fixes/features etc and eventually
->try to get it merged.
->
->  
->
-Jesper,
+--LQksG6bCIzRHxTLp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-    Deal. Since the beggining, when you look at the thread I created, I 
-was always looking for someone interested. You all are, and you all will 
-maintain the driver and we all will help with it. Thanks again Jesper.
+Hey Serge,
 
-    Thanks to Brix as well for the kickstart and for helping on part of 
-the initial code.
+I don't think your symbol_get() is doing what you think it is ;-)
 
-    I will put up hdaps.sf.net. I have someone that will/might make a 
-nice site and will put us up. We also need a Laptop matrix that will 
-tell the users if their laptops have HDAPS and so on.
+> + * Add the stacked module (as specified by name and ops).
+> + * If the module is not compiled in, the symbol_get at the end will
+> + * prevent the the module from being unloaded.
+> +*/
+> +static int stacker_register (const char *name, struct security_operations *ops)
+> +{
+ ...
+> +	symbol_get(ops);
+> +
+> +out:
+> +	spin_unlock(&stacker_lock);
+> +	return ret;
+> +}
 
-    I will also look on to give access to hdaps.sf.net to whomever 
-maintains the tarball, which is in other words, Jesper.
 
-    Again, I want to thanks everyone for helping further on this. ANY 
-help is appreciated.
+Seemed useful to be able to view which modules had been unloaded.
+Easier to maintain them on their own list than to compute the difference
+of <stacked_modules> and <all_modules>.  Patch attached, not sure if you
+are cool with reusing the 'unload' file.
 
-    Unfortunately, I'm not good at coding, but I can help with 
-Documentation, installation tips and improved user help. Also, to help 
-make things easier.
+> +static struct stacker_attribute stacker_attr_unload = {
+> +	.attr = {.name = "unload", .mode = S_IFREG | S_IRUGO | S_IWUSR},
+> +	.store = stacker_unload_write,
+> +};
 
-The IRC channel is there. Whoever sticks around and give nice support (I 
-will) gets their access, here is the mailing list, if someone wants to 
-be added as a List admin, please let me know.
 
-Thanks again all for everything. It's incredible on how fast this 
-process is going. I can't imagine how soon we will make it into 
-mainline, even more with kernel people.
+Apart from this, looks good.  I ran it against our regression tests using
+AppArmor (SubDomain) composed with Capability and everything was functionally
+as expected.   I still need to run it through our SMP stress tests.
 
-If anyone needs access to anything, or wants to be copied to anything, 
-please let me know.
+Thanks
 
-It is a holiday for me tomorrow, so I can listed to every need that we 
-will have, to make a TODO and bla bla...
+Tony
 
-Anyway... Let's have a chat tomorrow at irc and see what we have to do.
+--LQksG6bCIzRHxTLp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="stacker_v2.diff"
 
-(It still doesn't work for me.) ;-(
+--- stacker.c.orig	2005-07-03 19:57:21.000000000 -0700
++++ stacker.c	2005-07-03 19:55:40.000000000 -0700
+@@ -39,6 +39,7 @@
+ 	struct security_operations module_operations;
+ };
+ static struct list_head stacked_modules;  /* list of stacked modules */
++static struct list_head unloaded_modules; /* list of unloaded modules */
+ static struct list_head all_modules;  /* list of all modules, including freed */
+ 
+ static short sysfsfiles_registered;
+@@ -1439,6 +1440,7 @@
+ 
+ 	rcu_read_lock();
+ 	list_del_rcu(&m->lsm_list);
++	list_add_tail_rcu(&m->lsm_list, &unloaded_modules);
+ 	if (list_empty(&stacked_modules)) {
+ 		INIT_LIST_HEAD(&default_module.lsm_list);
+ 		list_add_tail_rcu(&default_module.lsm_list, &stacked_modules);
+@@ -1452,9 +1454,26 @@
+ 	return ret;
+ }
+ 
++/* list unloaded modules */
++static ssize_t stacker_unload_read (struct stacker_kobj *obj, char *buff)
++{
++	ssize_t len = 0;
++	struct module_entry *m;
++
++	rcu_read_lock();
++	stack_for_each_entry(m, &unloaded_modules, lsm_list) {
++		len += snprintf(buff+len, PAGE_SIZE - len, "%s\n",
++			m->module_name);
++	}
++	rcu_read_unlock();
++
++	return len;
++}
++
+ static struct stacker_attribute stacker_attr_unload = {
+ 	.attr = {.name = "unload", .mode = S_IFREG | S_IRUGO | S_IWUSR},
+ 	.store = stacker_unload_write,
++	.show =  stacker_unload_read,
+ };
+ 
+ 
+@@ -1525,6 +1544,7 @@
+ 
+ 	INIT_LIST_HEAD(&stacked_modules);
+ 	INIT_LIST_HEAD(&all_modules);
++	INIT_LIST_HEAD(&unloaded_modules);
+ 	spin_lock_init(&stacker_lock);
+ 	default_module.module_name = DEFAULT_MODULE_NAME;
+ 	default_module.namelen = strlen(DEFAULT_MODULE_NAME);
 
-.Alejandro
-
+--LQksG6bCIzRHxTLp--

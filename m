@@ -1,62 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261683AbVGDMpo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261678AbVGDMpr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261683AbVGDMpo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Jul 2005 08:45:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261678AbVGDMoU
+	id S261678AbVGDMpr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Jul 2005 08:45:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261675AbVGDMoH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Jul 2005 08:44:20 -0400
-Received: from trex.wsi.edu.pl ([195.117.114.133]:6329 "EHLO trex.wsi.edu.pl")
-	by vger.kernel.org with ESMTP id S261672AbVGDMn5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Jul 2005 08:43:57 -0400
-Message-ID: <42C92F22.80708@trex.wsi.edu.pl>
-Date: Mon, 04 Jul 2005 14:44:18 +0200
-From: =?ISO-8859-2?Q?Micha=B3_Piotrowski?= <piotrowskim@trex.wsi.edu.pl>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: pl, en-us, en
+	Mon, 4 Jul 2005 08:44:07 -0400
+Received: from mail-in-06.arcor-online.net ([151.189.21.46]:13036 "EHLO
+	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261668AbVGDMho (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Jul 2005 08:37:44 -0400
+Date: Mon, 4 Jul 2005 14:37:22 +0200 (CEST)
+From: Bodo Eggert <7eggert@gmx.de>
+To: Sam Ravnborg <sam@ravnborg.org>
+cc: Bodo Eggert <7eggert@gmx.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Kconfig changes: s/menu/menuconfig/
+In-Reply-To: <20050704105722.GA21437@mars.ravnborg.org>
+Message-ID: <Pine.LNX.4.58.0507041436520.11818@be1.lrz>
+References: <Pine.LNX.4.58.0506301152460.11960@be1.lrz>
+ <20050704105722.GA21437@mars.ravnborg.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org,
-       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-       Paul TT <paultt@bilug.linux.it>, randy_dunlap <rdunlap@xenotime.net>,
-       Vojtech Pavlik <vojtech@suse.cz>, Jesper Juhl <jesper.juhl@gmail.com>,
-       cp@absolutedigital.net
-Subject: [ANNOUNCE] OOPS Reporting Tool v.b5
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Mon, 4 Jul 2005, Sam Ravnborg wrote:
+> On Thu, Jun 30, 2005 at 11:06:01PM +0200, Bodo Eggert wrote:
+> > Part 1: The easy stuff.
 
-Here is our (see copyright section ;)) simple script that help to create 
-a bug report:
-http://stud.wsi.edu.pl/~piotrowskim/files/ort/beta/ort-b5.tar.bz2
+> > In many config submenus, the first menu option will enable the rest 
+> > of the menu options. For these menus, It's appropriate to use the more 
+> > convenient "menuconfig" keyword.
+> 
+> Please do not touch net/Kconfig and friends. I am preparing an
+> update of this part so it will conflict.
 
-Why do we do this?
-Because many people don't have time to prepare a good (with all 
-importrant pieces of information) bug report.
-
-How does it work?
-It creates file with information about your system (software, hardware, 
-used modules etc.), add file with oops into it and in the future sends 
-it to the chosen mainterner or lkml.
-
-How can you help?
-If you know something about bash scripting you can review it, add some 
-useful features and make some optimalisations. Or just send me an idea.
-
-Changelog:
-now you may do:
-- short report (first 5 points)
-- long report (old verbose style)
-- custom report (you can choose what do you want to send)
-- from template (ie. with USB informations)
-
-- new logo (Maciej Soltysiak)
-
-Todo:
-- more e-mail clients
-- more templates
-
-Regards,
-Micha³ Piotrowski
+What about drivers/net/*?
+-- 
+The complexity of a weapon is inversely proportional to the IQ of the
+weapon's operator.

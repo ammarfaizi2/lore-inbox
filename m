@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261598AbVGDUUk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261618AbVGDUWu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261598AbVGDUUk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Jul 2005 16:20:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261613AbVGDUUj
+	id S261618AbVGDUWu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Jul 2005 16:22:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261629AbVGDUWt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Jul 2005 16:20:39 -0400
-Received: from wproxy.gmail.com ([64.233.184.203]:1669 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261598AbVGDUUf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Jul 2005 16:20:35 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=bvcJ3bBtWb9Z2VNVow7dg40D3dEfv6wlwS8/FrcfX02Vu1466SoBOfWHzR6Y0eYQx7/MdvcgHKfqoeO91sxkpTtktfAz1OQ3g5uxpCEl4FSpAVQAjEqnFptgnzHvRAG4VllJe0fbtfz6I3DN54wJoj3S0rV0/BvKfaEaRFy5NQI=
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: 2.6.13-rc1-mm1
-Date: Tue, 5 Jul 2005 00:27:07 +0400
-User-Agent: KMail/1.8.1
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20050701044018.281b1ebd.akpm@osdl.org> <200507020005.04947.rjw@sisk.pl>
-In-Reply-To: <200507020005.04947.rjw@sisk.pl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 4 Jul 2005 16:22:49 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:12165 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261618AbVGDUWi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Jul 2005 16:22:38 -0400
+Date: Mon, 4 Jul 2005 14:32:33 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Alejandro Bonilla <abonilla@linuxwireless.org>,
+       Dave Hansen <dave@sr71.net>, Henrik Brix Andersen <brix@gentoo.org>,
+       hdaps-devel@lists.sourceforge.net,
+       LKML List <linux-kernel@vger.kernel.org>
+Subject: Re: IBM HDAPS things are looking up (was: Re: [Hdaps-devel] Re: [ltp] IBM HDAPS Someone interested? (Accelerometer))
+Message-ID: <20050704123233.GA3449@openzaurus.ucw.cz>
+References: <9a8748490507031832546f383a@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200507050027.08731.adobriyan@gmail.com>
+In-Reply-To: <9a8748490507031832546f383a@mail.gmail.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 02 July 2005 02:05, Rafael J. Wysocki wrote:
-> I get this errors on a dual-Opteron box (64-bit):
+Hi!
 
-> ReiserFS: sdb3: warning: sh-2006: read_super_block: bread failed (dev sdb3, block 16, size 512)
-> ReiserFS: sdb3: warning: sh-2006: read_super_block: bread failed (dev sdb3, block 128, size 512)
-> EXT3-fs: unable to read superblock
-> EXT2-fs: unable to read superblock
-> Kernel panic - not syncing: VFS: Unable to mount root fs on unknown-block(8,19)
+> > BTW, we are on irc.freenode.org in #hdaps If anyone is interested.
+> > 
+> > .Alejandro
+> > 
+> I just had a nice chat with the guys there and we got some
+> improvements made by them and us merged up. And I /think/ we agreed
+> that I'll maintain the driver, merge fixes/features etc and eventually
+> try to get it merged.
+> 
+> Currently the driver loads, initializes the accelerometer and we can
+> read data from it.
+> I'll be working on adding sysfs stuff to it tomorrow so it's generally
+> useful (at least for monitoring things - not yet for parking disk
 
-I've filed a bug at kernel bugzilla so your report won't be lost.
-See http://bugme.osdl.org/show_bug.cgi?id=4841
+Actually you should probably implement it as an input device; no need to
+mess with sysfs. drivers/input/accell ?
 
-You can register at http://bugme.osdl.org/createaccount.cgi and add yourself
-to CC list.
+				Pavel
+-- 
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+

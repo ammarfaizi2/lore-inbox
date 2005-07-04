@@ -1,52 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261705AbVGDWgQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261725AbVGDXB6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261705AbVGDWgQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Jul 2005 18:36:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261725AbVGDWgQ
+	id S261725AbVGDXB6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Jul 2005 19:01:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261727AbVGDXB6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Jul 2005 18:36:16 -0400
-Received: from smtp108.sbc.mail.re2.yahoo.com ([68.142.229.97]:32178 "HELO
-	smtp108.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S261705AbVGDWgL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Jul 2005 18:36:11 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: ALPS psmouse_reset on reconnect confusing Tecra M2
-Date: Mon, 4 Jul 2005 17:05:17 -0500
-User-Agent: KMail/1.8.1
-Cc: Mike Waychison <mike@waychison.com>, Dmitry Torokhov <dtor@mail.ru>,
-       Vojtech Pavlik <vojtech@suse.cz>, Andrew Morton <akpm@osdl.org>
-References: <42C9A69A.5050905@waychison.com>
-In-Reply-To: <42C9A69A.5050905@waychison.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 4 Jul 2005 19:01:58 -0400
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:36751
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S261725AbVGDXB5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Jul 2005 19:01:57 -0400
+Subject: Re: 2.6.13-rc1-mm1: git-mtd.patch breaks i386 compile
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <1120297044.9241.4.camel@tglx.tec.linutronix.de>
+References: <20050701044018.281b1ebd.akpm@osdl.org>
+	 <20050702091600.GF3592@stusta.de>
+	 <1120297044.9241.4.camel@tglx.tec.linutronix.de>
+Content-Type: text/plain
+Organization: linutronix
+Date: Tue, 05 Jul 2005 01:04:37 +0200
+Message-Id: <1120518278.18862.107.camel@tglx.tec.linutronix.de>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507041705.17626.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 04 July 2005 16:14, Mike Waychison wrote:
-> Hi,
-> 
-> I just upgrade my Tecra M2 this weekend to the latest GIT tree and
-> noticed that my mouse pointer/touchpad is now broken on resume.
-> 
-> Investigating, it appears that mouse device gets confused due to the
-> introduced psmouse_reset(psmouse) during reconnect:
->
-> http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=f3a5c73d5ecb40909db662c4d2ace497b25c5940
+On Sat, 2005-07-02 at 11:37 +0200, Thomas Gleixner wrote:
+> On Sat, 2005-07-02 at 11:16 +0200, Adrian Bunk wrote:
+> > <--  snip  -->
+> > drivers/mtd/chips/cfi_cmdset_0002.c:584:26: asm/hardware.h: No such file or directory
+> > ...
+> > make[3]: *** [drivers/mtd/chips/cfi_cmdset_0002.o] Error 1
 
-Hi,
+Fixed in current mtd git tree. 
 
-Please try the following patch:
+tglx
 
-	http://www.ucw.cz/~vojtech/input/alps-suspend-typo
- 
-> Are you sure that the psmouse_reset is really the right thing to do?
 
-Yes, it helps on some other laptops.
-
--- 
-Dmitry

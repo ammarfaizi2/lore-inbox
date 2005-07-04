@@ -1,41 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261467AbVGDR5i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261517AbVGDSDM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261467AbVGDR5i (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Jul 2005 13:57:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261517AbVGDR5i
+	id S261517AbVGDSDM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Jul 2005 14:03:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261521AbVGDSDM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Jul 2005 13:57:38 -0400
-Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:44092 "EHLO
-	mta07-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S261467AbVGDR5h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Jul 2005 13:57:37 -0400
-Message-ID: <42C9788F.50205@gentoo.org>
-Date: Mon, 04 Jul 2005 18:57:35 +0100
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050403)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: =?UTF-8?B?RGF2aWQgR8OzbWV6?= <david@pleyades.net>,
-       Robert Love <rml@novell.com>, John McCutchan <ttb@tentacle.dhs.org>,
-       Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Problem with inotify
-References: <20050630181824.GA1058@fargo> <1120156188.6745.103.camel@betsy>	 <20050630193320.GA1136@fargo>	 <Pine.LNX.4.60.0506302138230.29755@hermes-1.csi.cam.ac.uk>	 <20050630204832.GA3854@fargo>	 <Pine.LNX.4.60.0506302158190.29755@hermes-1.csi.cam.ac.uk>	 <42C65A8B.9060705@gentoo.org>	 <Pine.LNX.4.60.0507022253080.30401@hermes-1.csi.cam.ac.uk>	 <42C72563.7040103@gentoo.org>	 <Pine.LNX.4.60.0507030053040.15398@hermes-1.csi.cam.ac.uk>	 <42C7BF37.9010005@gentoo.org> <1120487242.11399.5.camel@imp.csi.cam.ac.uk>
-In-Reply-To: <1120487242.11399.5.camel@imp.csi.cam.ac.uk>
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+	Mon, 4 Jul 2005 14:03:12 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:36264 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261517AbVGDSCx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Jul 2005 14:02:53 -0400
+Date: Mon, 4 Jul 2005 20:04:26 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Martin Mokrejs <mmokrejs@ribosome.natur.cuni.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Two 2.6.13-rc1 kernel crashes
+Message-ID: <20050704180426.GS1444@suse.de>
+References: <42C96047.60602@ribosome.natur.cuni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42C96047.60602@ribosome.natur.cuni.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Altaparmakov wrote:
-> )-:  I have addressed the only things I can think off that could cause
-> the oops and below is the resulting patch.  Could you please test it?
+On Mon, Jul 04 2005, Martin Mokrejs wrote:
+> Hi,
+>   I use on i686 architecture Gentoo linux with XFS filesystem.
+> Recently it happened to me 3 time that the machine locked,
+> although at least once sys-rq+b worked. Here is the log
+> from remote console. I don't remeber having such problems
+> with 2.6.12-rc6-git2, which was my previous testing kernel.
+> The problems appear under heavy load when I compile/install
+> some packages and maybe it's just a bad coincidence or not,
+> when I move my usb mouse in fvwm2 environment. The machine
+> locks.
 
-Yeah!! After removing I_WILL_FREE stuff, that fixed both the oops *and* the
-hang. Everything works nicely now.
+You need this fix from Hugh.
 
-Thanks a million!
+--- 2.6.13-rc1/drivers/block/ll_rw_blk.c	2005-06-29 11:54:08.000000000 +0100
++++ linux/drivers/block/ll_rw_blk.c	2005-06-29 14:41:04.000000000 +0100
+@@ -1917,10 +1917,9 @@ get_rq:
+ 	 * limit of requests, otherwise we could have thousands of requests
+ 	 * allocated with any setting of ->nr_requests
+ 	 */
+-	if (rl->count[rw] >= (3 * q->nr_requests / 2)) {
+-		spin_unlock_irq(q->queue_lock);
++	if (rl->count[rw] >= (3 * q->nr_requests / 2))
+ 		goto out;
+-	}
++
 
-Daniel
+-- 
+Jens Axboe
+

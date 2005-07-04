@@ -1,123 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261308AbVGDKZN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261612AbVGDK3S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261308AbVGDKZN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Jul 2005 06:25:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261240AbVGDKZN
+	id S261612AbVGDK3S (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Jul 2005 06:29:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261592AbVGDK3R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Jul 2005 06:25:13 -0400
-Received: from mail-in-09.arcor-online.net ([151.189.21.49]:54231 "EHLO
-	mail-in-09.arcor-online.net") by vger.kernel.org with ESMTP
-	id S261394AbVGDKXo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Jul 2005 06:23:44 -0400
-Date: Mon, 4 Jul 2005 12:23:25 +0200 (CEST)
-From: Bodo Eggert <7eggert@gmx.de>
-To: Bodo Eggert <7eggert@gmx.de>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Kconfig changes 3: s/menu/menuconfig/ APM menu
-In-Reply-To: <Pine.LNX.4.58.0507041210190.6165@be1.lrz>
-Message-ID: <Pine.LNX.4.58.0507041221100.6165@be1.lrz>
-References: <Pine.LNX.4.58.0506301152460.11960@be1.lrz>
- <Pine.LNX.4.58.0507041134410.3798@be1.lrz> <Pine.LNX.4.58.0507041210190.6165@be1.lrz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 4 Jul 2005 06:29:17 -0400
+Received: from 238-071.adsl.pool.ew.hu ([193.226.238.71]:7178 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S261612AbVGDK2I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Jul 2005 06:28:08 -0400
+To: frankvm@frankvm.com
+CC: miklos@szeredi.hu, frankvm@frankvm.com, akpm@osdl.org, aia21@cam.ac.uk,
+       arjan@infradead.org, linux-kernel@vger.kernel.org
+In-reply-to: <20050704095914.GA6949@janus> (message from Frank van Maarseveen
+	on Mon, 4 Jul 2005 11:59:14 +0200)
+Subject: Re: FUSE merging? (2)
+References: <20050701180415.GA7755@janus> <E1DojJ6-00047F-00@dorka.pomaz.szeredi.hu> <20050702160002.GA13730@janus> <E1DoxmP-0004gV-00@dorka.pomaz.szeredi.hu> <20050703112541.GA32288@janus> <E1Dp4S4-0004ub-00@dorka.pomaz.szeredi.hu> <20050703141028.GB1298@janus> <E1Dp6hK-00056d-00@dorka.pomaz.szeredi.hu> <20050703193619.GA2928@janus> <E1DpMkg-00064O-00@dorka.pomaz.szeredi.hu> <20050704095914.GA6949@janus>
+Message-Id: <E1DpOAT-00069p-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Mon, 04 Jul 2005 12:27:13 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Jul 2005, Bodo Eggert wrote:
+> "solving it properly" refers to hardening the leaf node constraint
+> against circumvention I assume. Suppose there's a script for doing simple
+> on-line backups using "find". Now explain to the user why he lost his
+> data due to a backup script geting EACCES on a non-leaf FUSE mount.
 
-Part 3: The APM menu.
+I see your point.  But then this is really not a security issue, but
+an "are you sure you want to format C:" style protection for the
+user's own sake.  Adding a mount option (checked by the library) for
+this would be fine.  E.g. with "mount_nonempty" it would not refuse to
+mount on a non-leaf dir, and README would document, that using this
+option might cause trouble.  Otherwise the mount would be refused with
+a reference to the above option.
 
-In many config submenus, the first menu option will enable the rest 
-of the menu options. For these menus, It's appropriate to use the more 
-convenient "menuconfig" keyword.
+Is that what you were thinking?
 
-This patch is designed for .13-rc1.
+> > There's a nice solution to this (discussed at length earlier): private
+> > namespaces.
+> 
+> I thought that's rejected because a process doesn't automatically get the
+> right namespace after rsh into such a machine? And fixing it by adjusting
+> the name-space of a process (by whatever means) is not transparent.
 
+Private namespaces in their current form are not really useful.  But
+that's irrelevant to the current discussion.  If somebody needs
+private namespaces they will have to add the missing features (Ram Pai
+is working on shared subtrees, the biggest chunk).
 
---- rc1-a/./arch/i386/Kconfig	2005-06-30 11:22:16.000000000 +0200
-+++ rc1-b/./arch/i386/Kconfig	2005-07-04 12:09:08.000000000 +0200
-@@ -987,12 +987,9 @@ source kernel/power/Kconfig
- 
- source "drivers/acpi/Kconfig"
- 
--menu "APM (Advanced Power Management) BIOS Support"
--depends on PM && !X86_VISWS
--
--config APM
-+menuconfig APM
- 	tristate "APM (Advanced Power Management) BIOS support"
--	depends on PM
-+	depends on PM && !X86_VISWS
- 	---help---
- 	  APM is a BIOS specification for saving power using several different
- 	  techniques. This is mostly useful for battery powered laptops with
-@@ -1049,9 +1046,10 @@ config APM
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called apm.
- 
-+if APM
-+
- config APM_IGNORE_USER_SUSPEND
- 	bool "Ignore USER SUSPEND"
--	depends on APM
- 	help
- 	  This option will ignore USER SUSPEND requests. On machines with a
- 	  compliant APM BIOS, you want to say N. However, on the NEC Versa M
-@@ -1059,7 +1057,6 @@ config APM_IGNORE_USER_SUSPEND
- 
- config APM_DO_ENABLE
- 	bool "Enable PM at boot time"
--	depends on APM
- 	---help---
- 	  Enable APM features at boot time. From page 36 of the APM BIOS
- 	  specification: "When disabled, the APM BIOS does not automatically
-@@ -1077,7 +1074,6 @@ config APM_DO_ENABLE
- 
- config APM_CPU_IDLE
- 	bool "Make CPU Idle calls when idle"
--	depends on APM
- 	help
- 	  Enable calls to APM CPU Idle/CPU Busy inside the kernel's idle loop.
- 	  On some machines, this can activate improved power savings, such as
-@@ -1089,7 +1085,6 @@ config APM_CPU_IDLE
- 
- config APM_DISPLAY_BLANK
- 	bool "Enable console blanking using APM"
--	depends on APM
- 	help
- 	  Enable console blanking using the APM. Some laptops can use this to
- 	  turn off the LCD backlight when the screen blanker of the Linux
-@@ -1103,7 +1098,6 @@ config APM_DISPLAY_BLANK
- 
- config APM_RTC_IS_GMT
- 	bool "RTC stores time in GMT"
--	depends on APM
- 	help
- 	  Say Y here if your RTC (Real Time Clock a.k.a. hardware clock)
- 	  stores the time in GMT (Greenwich Mean Time). Say N if your RTC
-@@ -1116,7 +1110,6 @@ config APM_RTC_IS_GMT
- 
- config APM_ALLOW_INTS
- 	bool "Allow interrupts during APM BIOS calls"
--	depends on APM
- 	help
- 	  Normally we disable external interrupts while we are making calls to
- 	  the APM BIOS as a measure to lessen the effects of a badly behaving
-@@ -1127,13 +1120,12 @@ config APM_ALLOW_INTS
- 
- config APM_REAL_MODE_POWER_OFF
- 	bool "Use real mode APM BIOS call to power off"
--	depends on APM
- 	help
- 	  Use real mode APM BIOS calls to switch off the computer. This is
- 	  a work-around for a number of buggy BIOSes. Switch this option on if
- 	  your computer crashes instead of powering off properly.
- 
--endmenu
-+endif
- 
- source "arch/i386/kernel/cpu/cpufreq/Kconfig"
- 
--- 
-Top 100 things you don't want the sysadmin to say:
-66. What do you mean you needed that directory?
+> > I think we are still confusing these two issues, which are in fact
+> > separate.
+> > 
+> >   1) polluting global namespace is bad (find -xdev issue)
+> > 
+> >   2) not ptraceable (or not killable) processes should not be able to
+> >      access an unprivileged mount
+> > 
+> > For 1) private namespaces are the proper solution.  For 2) the
+> > fuse_allow_task() in it's current or modified form (to check
+> > killability) should be OK.
+> > 
+> > 1) is completely orthogonal to FUSE.  2) is currently provably secure,
+> > and doesn't seem cause problems in practice.  Do you have a concrete
+> > example, where it would cause problems?
+> 
+> See above backup scenario.
+
+The backup problem is a consequence of 1).  It has absolutely zero to
+do with 2).  If the fuse_allow_task() security check didn't exist the
+backup script would still not work.
+
+> Issues (1) and (2) are tied together I'm afraid:
+> 
+> When using a private name-space and thus assuming an unrelated process
+> needs to do something very special to get that name-space then (2)
+> would not be needed at all.
+
+Wrong.  It's still needed, because suid/sgid programs can
+
+  - run under the private namespace without doing anything special
+
+  - run with extra privileges, not possesed by the user executing the
+    program
+
+> On the other hand, Name-space inheritance by setuid processes suddenly
+> becomes an issue: issue (2) is re-appearing but at another place.
+
+I don't think you could change the rules of namespace inheritence,
+without causing trouble.
+
+Miklos

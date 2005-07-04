@@ -1,164 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261608AbVGDKGK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261610AbVGDKLZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261608AbVGDKGK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Jul 2005 06:06:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbVGDKGK
+	id S261610AbVGDKLZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Jul 2005 06:11:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261604AbVGDKLZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Jul 2005 06:06:10 -0400
-Received: from mail-in-03.arcor-online.net ([151.189.21.43]:64482 "EHLO
-	mail-in-03.arcor-online.net") by vger.kernel.org with ESMTP
-	id S261608AbVGDJzo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Jul 2005 05:55:44 -0400
-Date: Mon, 4 Jul 2005 11:55:37 +0200 (CEST)
-From: Bodo Eggert <7eggert@gmx.de>
-To: Bodo Eggert <7eggert@gmx.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Kconfig changes: s/menu/menuconfig/
-In-Reply-To: <Pine.LNX.4.58.0507041134410.3798@be1.lrz>
-Message-ID: <Pine.LNX.4.58.0507041153020.3798@be1.lrz>
-References: <Pine.LNX.4.58.0506301152460.11960@be1.lrz>
- <Pine.LNX.4.58.0507041134410.3798@be1.lrz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 4 Jul 2005 06:11:25 -0400
+Received: from frankvm.xs4all.nl ([80.126.170.174]:41145 "EHLO
+	janus.localdomain") by vger.kernel.org with ESMTP id S261613AbVGDJ7R
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Jul 2005 05:59:17 -0400
+Date: Mon, 4 Jul 2005 11:59:14 +0200
+From: Frank van Maarseveen <frankvm@frankvm.com>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: frankvm@frankvm.com, akpm@osdl.org, aia21@cam.ac.uk, arjan@infradead.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: FUSE merging? (2)
+Message-ID: <20050704095914.GA6949@janus>
+References: <20050701180415.GA7755@janus> <E1DojJ6-00047F-00@dorka.pomaz.szeredi.hu> <20050702160002.GA13730@janus> <E1DoxmP-0004gV-00@dorka.pomaz.szeredi.hu> <20050703112541.GA32288@janus> <E1Dp4S4-0004ub-00@dorka.pomaz.szeredi.hu> <20050703141028.GB1298@janus> <E1Dp6hK-00056d-00@dorka.pomaz.szeredi.hu> <20050703193619.GA2928@janus> <E1DpMkg-00064O-00@dorka.pomaz.szeredi.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1DpMkg-00064O-00@dorka.pomaz.szeredi.hu>
+User-Agent: Mutt/1.4.1i
+X-Subliminal-Message: Use Linux!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Part 2: The USB menu.
+On Mon, Jul 04, 2005 at 10:56:30AM +0200, Miklos Szeredi wrote:
+> > It is important because on UNIX, "root" rules on local filesystems.
+> > I dont't like the idea of root not being able to run "find -xdev"
+> > anymore for administrative tasks, just because something got hidden
+> > by accident or just for fun by a user.  It's not about malicious
+> > users who want to hide data: they can do that in tons of ways.
+> 
+> That's a sort of security by obscurity: if the user is dumb enough he
+> cannot do any harm.  But I'm not interested in that sort of thing.  If
+> this issue important, then it should be solved properly, and not just
+> by "preventing accidents".
 
-In many config submenus, the first menu option will enable the rest 
-of the menu options. For these menus, It's appropriate to use the more 
-convenient "menuconfig" keyword.
+"solving it properly" refers to hardening the leaf node constraint
+against circumvention I assume. Suppose there's a script for doing simple
+on-line backups using "find". Now explain to the user why he lost his
+data due to a backup script geting EACCES on a non-leaf FUSE mount. I
+don't think that's acceptable. On the other hand, when the user stored
+something _deliberately_ under a mountpoint, circumventing the leaf node
+constraint by some trickery then it is clearly his own fault when the data
+is lost. Anyway, a leaf node constraint can be hardened against misuse
+later on, should it become necessary. Your bind-mount case to circumvent
+this restriction is slightly flawed because it requires root interaction.
 
-Patch for .13-rc1. Only offset changes compared to .12.
+> 
+> There's a nice solution to this (discussed at length earlier): private
+> namespaces.
 
+I thought that's rejected because a process doesn't automatically get the
+right namespace after rsh into such a machine? And fixing it by adjusting
+the name-space of a process (by whatever means) is not transparent.
 
---- rc1-a/./drivers/usb/net/Kconfig	2005-06-30 11:21:50.000000000 +0200
-+++ rc1-b/./drivers/usb/net/Kconfig	2005-07-04 11:52:34.000000000 +0200
-@@ -2,10 +2,13 @@
- # USB Network devices configuration
- #
- comment "Networking support is needed for USB Network Adapter support"
--	depends on USB && !NET
-+	depends on !NET
- 
--menu "USB Network Adapters"
--	depends on USB && NET
-+menuconfig USB_NET_DEVICES
-+	bool "USB Network Adapters"
-+	depends on NET
-+
-+if USB_NET_DEVICES
- 
- config USB_CATC
- 	tristate "USB CATC NetMate-based Ethernet device support (EXPERIMENTAL)"
-@@ -308,4 +311,4 @@ config USB_ZD1201
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called zd1201.
- 
--endmenu
-+endif
---- rc1-a/./drivers/usb/input/Kconfig	2005-06-30 11:22:40.000000000 +0200
-+++ rc1-b/./drivers/usb/input/Kconfig	2005-07-04 11:52:34.000000000 +0200
-@@ -2,11 +2,9 @@
- # USB Input driver configuration
- #
- comment "USB Input Devices"
--	depends on USB
- 
- config USB_HID
- 	tristate "USB Human Interface Device (full HID) support"
--	depends on USB
- 	---help---
- 	  Say Y here if you want full HID support to connect keyboards,
- 	  mice, joysticks, graphic tablets, or any other HID based devices
---- rc1-a/./drivers/usb/Kconfig	2005-06-30 11:21:48.000000000 +0200
-+++ rc1-b/./drivers/usb/Kconfig	2005-07-04 11:52:34.000000000 +0200
-@@ -2,8 +2,6 @@
- # USB device configuration
- #
- 
--menu "USB support"
--
- # Host-side USB depends on having a host controller
- # NOTE:  dummy_hcd is always an option, but it's ignored here ...
- # NOTE:  SL-811 option should be board-specific ...
-@@ -29,9 +27,12 @@ config USB_ARCH_HAS_OHCI
- 	# more:
- 	default PCI
- 
-+comment "USB (host side) may require PCI"
-+	depends on !USB_ARCH_HAS_HCD && !PCI
-+
- # ARM SA1111 chips have a non-PCI based "OHCI-compatible" USB host interface.
--config USB
--	tristate "Support for Host-side USB"
-+menuconfig USB
-+	tristate "USB (host side)"
- 	depends on USB_ARCH_HAS_HCD
- 	---help---
- 	  Universal Serial Bus (USB) is a specification for a serial bus
-@@ -65,6 +66,8 @@ config USB
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called usbcore.
- 
-+if USB
-+
- source "drivers/usb/core/Kconfig"
- 
- source "drivers/usb/host/Kconfig"
-@@ -84,11 +87,10 @@ source "drivers/usb/net/Kconfig"
- source "drivers/usb/mon/Kconfig"
- 
- comment "USB port drivers"
--	depends on USB
- 
- config USB_USS720
- 	tristate "USS720 parport driver"
--	depends on USB && PARPORT
-+	depends on PARPORT
- 	select PARPORT_NOT_PC
- 	---help---
- 	  This driver is for USB parallel port adapters that use the Lucent
-@@ -121,7 +123,7 @@ source "drivers/usb/misc/Kconfig"
- 
- source "drivers/usb/atm/Kconfig"
- 
--source "drivers/usb/gadget/Kconfig"
-+endif
- 
--endmenu
-+source "drivers/usb/gadget/Kconfig"
- 
---- rc1-a/./drivers/usb/gadget/Kconfig	2005-06-30 11:22:40.000000000 +0200
-+++ rc1-b/./drivers/usb/gadget/Kconfig	2005-07-04 11:52:34.000000000 +0200
-@@ -12,10 +12,8 @@
- # With help from a special transceiver and a "Mini-AB" jack, systems with
- # both kinds of controller can also support "USB On-the-Go" (CONFIG_USB_OTG).
- #
--menu "USB Gadget Support"
--
--config USB_GADGET
--	tristate "Support for USB Gadgets"
-+menuconfig USB_GADGET
-+	tristate "USB Gadgets (device side)"
- 	help
- 	   USB is a master/slave protocol, organized with one master
- 	   host (such as a PC) controlling up to 127 peripheral devices.
-@@ -394,5 +392,3 @@ config USB_G_SERIAL
- # - none yet
- 
- endchoice
--
--endmenu
---- rc1-a/./drivers/usb/serial/Kconfig	2005-07-04 11:36:04.000000000 +0200
-+++ rc1-b/./drivers/usb/serial/Kconfig	2005-07-04 11:52:34.000000000 +0200
-@@ -4,7 +4,6 @@
- 
- menuconfig USB_SERIAL
- 	tristate "USB Serial Converter support"
--	depends on USB
- 	---help---
- 	  Say Y here if you have a USB device that provides normal serial
- 	  ports, or acts like a serial device, and you want to connect it to
+> I think we are still confusing these two issues, which are in fact
+> separate.
+> 
+>   1) polluting global namespace is bad (find -xdev issue)
+> 
+>   2) not ptraceable (or not killable) processes should not be able to
+>      access an unprivileged mount
+> 
+> For 1) private namespaces are the proper solution.  For 2) the
+> fuse_allow_task() in it's current or modified form (to check
+> killability) should be OK.
+> 
+> 1) is completely orthogonal to FUSE.  2) is currently provably secure,
+> and doesn't seem cause problems in practice.  Do you have a concrete
+> example, where it would cause problems?
+
+See above backup scenario.
+
+Issues (1) and (2) are tied together I'm afraid:
+
+When using a private name-space and thus assuming an unrelated process
+needs to do something very special to get that name-space then (2)
+would not be needed at all.
+
+On the other hand, Name-space inheritance by setuid processes suddenly
+becomes an issue: issue (2) is re-appearing but at another place.
+
 -- 
-Today's assembler command: EXOP Execute Operator 
+Frank

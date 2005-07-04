@@ -1,64 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261561AbVGDHVw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261560AbVGDHWN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261561AbVGDHVw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Jul 2005 03:21:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261536AbVGDHVw
+	id S261560AbVGDHWN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Jul 2005 03:22:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261601AbVGDHWM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Jul 2005 03:21:52 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:63961 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261561AbVGDHQ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Jul 2005 03:16:58 -0400
-Subject: Re: IBM HDAPS things are looking up (was: Re: [Hdaps-devel] Re:
-	[ltp] IBM HDAPS Someone interested? (Accelerometer))
-From: Arjan van de Ven <arjan@infradead.org>
-To: Jens Axboe <axboe@suse.de>
-Cc: Alejandro Bonilla <abonilla@linuxwireless.org>,
-       Lenz Grimmer <lenz@grimmer.com>, Jesper Juhl <jesper.juhl@gmail.com>,
-       Dave Hansen <dave@sr71.net>, Henrik Brix Andersen <brix@gentoo.org>,
-       hdaps-devel@lists.sourceforge.net,
-       LKML List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050704063741.GC1444@suse.de>
-References: <9a8748490507031832546f383a@mail.gmail.com>
-	 <42C8D06C.2020608@grimmer.com> <20050704061713.GA1444@suse.de>
-	 <42C8C978.4030409@linuxwireless.org>  <20050704063741.GC1444@suse.de>
-Content-Type: text/plain
-Date: Mon, 04 Jul 2005 09:16:41 +0200
-Message-Id: <1120461401.3174.10.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 4 Jul 2005 03:22:12 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:32747 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S261560AbVGDHSN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Jul 2005 03:18:13 -0400
+Message-ID: <42C8D83A.70705@suse.de>
+Date: Mon, 04 Jul 2005 08:33:30 +0200
+From: Stefan Seyfried <seife@suse.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041207 Thunderbird/1.0 Mnenhy/0.7.2.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] call device_shutdown with interrupts enabled
+References: <20050703214929.GA9214@elf.ucw.cz>
+In-Reply-To: <20050703214929.GA9214@elf.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Pavel Machek wrote:
+> Do not call device_shutdown with interrupts disabled. It is wrong and
+> produces ugly warnings.
 
-> > This is exactly what I said. Use hdparm to make the HD park 
-> > inmediatelly. I did send the email to the HDPARM developer, but he never 
-> > replied. I asked him what would be the best way to make the HD park with 
-> > no exception and then let it come back 5 or 10 seconds later.
-> 
-> IIRC, you don't have to do anything to wake up the drive after a
-> STANDBYNOW command, if you want to be on the safe side you just issue an
-> IDLEIMMEDIATE. So your code will look something like:
+Hm. How about (possible whitespace damage):
 
-the problem for this will be that this app will also want to prevent ANY
-io going to the disk for a few seconds.
+--- linux/kernel/power/disk.c~	2005-07-04 08:26:47.000000000 +0200
++++ linux/kernel/power/disk.c	2005-07-04 08:27:45.000000000 +0200
+@@ -53,19 +53,17 @@ static void power_down(suspend_disk_meth
+ 	unsigned long flags;
+ 	int error = 0;
 
-I mean, what use is parking the head if you notice the laptop falling,
-when the kernel submits IO to it and wakes it up again before it hits
-the ground :)
++	device_shutdown();
+ 	local_irq_save(flags);
+ 	switch(mode) {
+ 	case PM_DISK_PLATFORM:
+- 		device_shutdown();
+ 		error = pm_ops->enter(PM_SUSPEND_DISK);
+ 		break;
+ 	case PM_DISK_SHUTDOWN:
+ 		printk("Powering off system\n");
+-		device_shutdown();
+ 		machine_power_off();
+ 		break;
+ 	case PM_DISK_REBOOT:
+-		device_shutdown();
+ 		machine_restart(NULL);
+ 		break;
+ 	}
 
+
+-- 
+Stefan Seyfried                  \ "I didn't want to write for pay. I
+QA / R&D Team Mobile Devices      \ wanted to be paid for what I write."
+SUSE LINUX Products GmbH, Nürnberg \                    -- Leonard Cohen
 

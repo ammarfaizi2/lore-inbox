@@ -1,64 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261630AbVGDLIo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261641AbVGDLOD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261630AbVGDLIo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Jul 2005 07:08:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261621AbVGDLIn
+	id S261641AbVGDLOD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Jul 2005 07:14:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261647AbVGDLOD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Jul 2005 07:08:43 -0400
-Received: from zproxy.gmail.com ([64.233.162.201]:42260 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261630AbVGDLAv convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Jul 2005 07:00:51 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=VOqSdz5O8i898XMsoaWBc80D0I+oMbSZf09RVP92H4ym1Sj8XEEyTIKiAxU2MEefnO7vmwW7+fDEzPqIaW7aPhnmrP5ea/97hk+GjeBYD7s9ZomKiGA6ezVUJJQ3HOA+slUcYlXF4rTStrBK+oJa76qpJmT69Hu89XrVZqdX6Jw=
-Message-ID: <9a874849050704040068baf36e@mail.gmail.com>
-Date: Mon, 4 Jul 2005 13:00:46 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
-To: Pekka Enberg <penberg@gmail.com>
-Subject: Re: IBM HDAPS things are looking up (was: Re: [Hdaps-devel] Re: [ltp] IBM HDAPS Someone interested? (Accelerometer))
-Cc: Alejandro Bonilla <abonilla@linuxwireless.org>,
-       Dave Hansen <dave@sr71.net>, Henrik Brix Andersen <brix@gentoo.org>,
-       hdaps-devel@lists.sourceforge.net,
-       LKML List <linux-kernel@vger.kernel.org>
-In-Reply-To: <84144f020507040349e4b9723@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <9a8748490507031832546f383a@mail.gmail.com>
-	 <84144f020507040349e4b9723@mail.gmail.com>
+	Mon, 4 Jul 2005 07:14:03 -0400
+Received: from redpine-92-161-hyd.redpinesignals.com ([203.196.161.92]:31194
+	"EHLO redpinesignals.com") by vger.kernel.org with ESMTP
+	id S261646AbVGDLNE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Jul 2005 07:13:04 -0400
+Message-ID: <42C919D5.4070503@redpinesignals.com>
+Date: Mon, 04 Jul 2005 16:43:25 +0530
+From: P Lavin <lavin.p@redpinesignals.com>
+Reply-To: lavin.p@redpinesignals.com
+Organization: www.redpinesignals.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: P Lavin <lavin.p@redpinesignals.com>
+Subject: wireless lan, defragmentation in driver module.
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/4/05, Pekka Enberg <penberg@gmail.com> wrote:
-> Hi Jesper,
-> 
-> On 7/4/05, Jesper Juhl <jesper.juhl@gmail.com> wrote:
-> > static int
-> > ibm_hdaps_open(struct inode *inode, struct file *filp)
-> > {
-> >       printk("%s() start\n", __func__);
-> >       if (!atomic_dec_and_test(&ibm_hdaps_available)) {
-> >               printk("%s() busy\n", __func__);
-> >               atomic_inc(&ibm_hdaps_available);
-> >               return -EBUSY;
-> >       }
-> >       printk("%s() good\n", __func__);
-> >
-> >       filp->private_data = kmalloc(sizeof(struct hdaps_accel_data), GFP_KERNEL);
-> 
-> You seem to be leaking private_data.
-> 
-Thanks. It still needs a lot of work (as can also be seen from all the
-nice feedback in this thread).
-I just woke up and I'll start looking at the mails people have posted
-in a few hours.
+Hi,
+
+I need help in the following issue, i'll explain the mechanisum & the 
+problem i'm facing,
+
+1) In the existing wireless lan driver we've MPDU's & MSDU's, all the 
+MPDU's are handled by the firmware where as all the MSDU's by the 
+driver. Now i need to implement 802.11E protocol based block ack 
+mechanisum, in this mechanisum ther will not be any wirelss ack's for 
+each MPDU's insted the Transmitter  can request for Blockack by 
+transmitting BlockAck.request , for which the receiver will respond with 
+an block ack by indication all the lost mpdu's.
+The MSDU's given by the driver/os can be fragmented in the MAC(by 
+firmware) if the packet is exceeding the fragmentation threshold limit. 
+Previously the defragmentation was done in firmware but as firmware is 
+lacking memory we've to move the de-fragmentation (only in block ack 
+mechansum) into driver. In the old driver this was not a problem because 
+driver will get only MSDU's & not MPDU's. So that i can happely copy 
+these packets from our h/w queue into an sk_buff & give it to OS,
+    a) in the present case i cannot do this if block.ack mechanisum was 
+established, i'll get only mpdu's & i've to assemble it & form the MSDU's.
+    b) I'll have a scheduler who'll come & take these packets from my 
+software queue's & give it to OS.
+
+So i need to know
+    a) whenever i've 10mpdu's of an MSDU from Station A to be 
+transmitted into StationB
+
+A                                 B
+
+mpdu1---------------->Success
+mpdu2---------------->Success
+mpdu3---------------->Success
+mpdu4---------------->Failed
+mpdu5---------------->Success
+mpdu6---------------->Success
+mpdu7---------------->Failed
+mpdu8---------------->Success
+mpdu9---------------->Failed
+mpdu10---------------->Success
+
+mpdu's 3, 7 & 9 are lost this we'll indicate in the block-acksent 
+whenever transmitter is requesting for block ack using blockack.request 
+, but in the receiver all these mpdu's has to be stored untill station A 
+succesfully transmits all the lost mpdu's. Once these mpdu's are 
+received correctly i've to put these mpdu's in the correct position & 
+form the MSDU, then only i can give this MSDU to OS.
+
+This is the scenario which can happen in a simple MSDU transfer from 
+station A to B.
+------------------------------------------------------------------------------------------------------------------------
+Is it possible to allocate one skbuff for one packet (this will be 
+mainatained in my s/w queues), as &  when some mpdu's come i'll insert 
+it in the correct offset ??Weather any kernel calls are available for 
+manipulating skbuff. i searched in net/core.c but i was not sure weather 
+this can be used in my own de-fragmentation mechanism...
+
+Or should i directly maintain my own buffers & copy it only in the end 
+to a single skbuff, i dont think this a good way coz this will decrease 
+the performance of the mechanisum !!!
+Can anyone help me !
+
+Regards,
+P.Lavin
 
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html

@@ -1,67 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261240AbVGDKdp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261554AbVGDKnS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261240AbVGDKdp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Jul 2005 06:33:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261394AbVGDKdp
+	id S261554AbVGDKnS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Jul 2005 06:43:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261592AbVGDKnS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Jul 2005 06:33:45 -0400
-Received: from ws6-4.us4.outblaze.com ([205.158.62.107]:9390 "HELO
-	ws6-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S261240AbVGDKdY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Jul 2005 06:33:24 -0400
-Message-ID: <42C91073.80900@grimmer.com>
-Date: Mon, 04 Jul 2005 12:33:23 +0200
-From: Lenz Grimmer <lenz@grimmer.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050322)
-X-Accept-Language: en-us, en
+	Mon, 4 Jul 2005 06:43:18 -0400
+Received: from mail-in-04.arcor-online.net ([151.189.21.44]:60121 "EHLO
+	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261554AbVGDKkr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Jul 2005 06:40:47 -0400
+Date: Mon, 4 Jul 2005 12:40:37 +0200 (CEST)
+From: Bodo Eggert <7eggert@gmx.de>
+To: Bodo Eggert <7eggert@gmx.de>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Kconfig changes 4: s/menu/menuconfig/ CPU scaling menu
+In-Reply-To: <Pine.LNX.4.58.0507041210190.6165@be1.lrz>
+Message-ID: <Pine.LNX.4.58.0507041231200.6165@be1.lrz>
+References: <Pine.LNX.4.58.0506301152460.11960@be1.lrz>
+ <Pine.LNX.4.58.0507041134410.3798@be1.lrz> <Pine.LNX.4.58.0507041210190.6165@be1.lrz>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Arjan van de Ven <arjan@infradead.org>,
-       Alejandro Bonilla <abonilla@linuxwireless.org>,
-       Jesper Juhl <jesper.juhl@gmail.com>, Dave Hansen <dave@sr71.net>,
-       hdaps-devel@lists.sourceforge.net,
-       LKML List <linux-kernel@vger.kernel.org>
-Subject: Re: IBM HDAPS things are looking up (was: Re: [Hdaps-devel] Re: [ltp]
- IBM HDAPS Someone interested? (Accelerometer))
-References: <9a8748490507031832546f383a@mail.gmail.com> <42C8D06C.2020608@grimmer.com> <20050704061713.GA1444@suse.de> <42C8C978.4030409@linuxwireless.org> <20050704063741.GC1444@suse.de> <1120461401.3174.10.camel@laptopd505.fenrus.org> <20050704072231.GG1444@suse.de> <1120462037.3174.25.camel@laptopd505.fenrus.org> <20050704073031.GI1444@suse.de>
-In-Reply-To: <20050704073031.GI1444@suse.de>
-X-Enigmail-Version: 0.91.0.0
-OpenPGP: id=B27291F2
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, 4 Jul 2005, Bodo Eggert wrote:
 
-Hi,
+Part 4: The CPU scaling menu.
 
-Jens Axboe wrote:
+In many config submenus, the first menu option will enable the rest 
+of the menu options. For these menus, It's appropriate to use the more 
+convenient "menuconfig" keyword.
 
-> It isn't too pretty to rely on such unreliable timing anyways. I'm 
-> not too crazy about spinning the disk down either, it's useless wear 
-> compared to just parking the head.
+This patch is designed for 2.6.12 , the patch for .13-rc1 will be sent in 
+a reply
 
-Fully agreed, and that's the approach the IBM Windows driver seems to
-take - you just hear the disk park its head when the sensor kicks in
-(you can hear it) - the disk does not spin down when this happens.
 
-Could this be some reserved ATA command that only works with certain#
-drives?
 
-Bye,
-	LenZ
-- --
-- ------------------------------------------------------------------
- Lenz Grimmer <lenz@grimmer.com>                             -o)
- [ICQ: 160767607 | Jabber: LenZGr@jabber.org]                /\\
- http://www.lenzg.org/                                       V_V
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFCyRBySVDhKrJykfIRAkM+AJ9UDbO8JU48UcEgVE2Kf35X1f4PjgCfaNPx
-xEHnSU5BagtmC02nwGx66F4=
-=BDfq
------END PGP SIGNATURE-----
+--- a/./arch/sh/Kconfig	2005-06-19 14:16:18.000000000 +0200
++++ b/./arch/sh/Kconfig	2005-07-04 12:36:57.000000000 +0200
+@@ -655,8 +655,6 @@ config SH_PCLK_FREQ
+ 	  with an auto-probed frequency which should be considered the proper
+ 	  value for your hardware.
+ 
+-menu "CPU Frequency scaling"
+-
+ source "drivers/cpufreq/Kconfig"
+ 
+ config SH_CPU_FREQ
+@@ -671,8 +669,6 @@ config SH_CPU_FREQ
+ 
+ 	  If unsure, say N.
+ 
+-endmenu
+-
+ source "arch/sh/drivers/dma/Kconfig"
+ 
+ source "arch/sh/cchips/Kconfig"
+--- a/./arch/arm/Kconfig	2005-06-19 14:15:59.000000000 +0200
++++ b/./arch/arm/Kconfig	2005-07-04 12:37:23.000000000 +0200
+@@ -491,8 +491,6 @@ endmenu
+ 
+ if (ARCH_SA1100 || ARCH_INTEGRATOR)
+ 
+-menu "CPU Frequency scaling"
+-
+ source "drivers/cpufreq/Kconfig"
+ 
+ config CPU_FREQ_SA1100
+@@ -516,8 +514,6 @@ config CPU_FREQ_INTEGRATOR
+ 
+ 	  If in doubt, say Y.
+ 
+-endmenu
+-
+ endif
+ 
+ menu "Floating point emulation"
+--- a/./arch/i386/kernel/cpu/cpufreq/Kconfig	2005-06-19 14:16:03.000000000 +0200
++++ b/./arch/i386/kernel/cpu/cpufreq/Kconfig	2005-07-04 12:27:46.000000000 +0200
+@@ -2,8 +2,6 @@
+ # CPU Frequency scaling
+ #
+ 
+-menu "CPU Frequency scaling"
+-
+ source "drivers/cpufreq/Kconfig"
+ 
+ if CPU_FREQ
+@@ -239,5 +237,3 @@ config X86_SPEEDSTEP_RELAXED_CAP_CHECK
+ 	  parameter "relaxed_check=1" is passed to the module.
+ 
+ endif	# CPU_FREQ
+-
+-endmenu
+--- a/./arch/x86_64/kernel/cpufreq/Kconfig	2005-06-19 14:16:25.000000000 +0200
++++ b/./arch/x86_64/kernel/cpufreq/Kconfig	2005-07-04 12:28:05.000000000 +0200
+@@ -2,8 +2,6 @@
+ # CPU Frequency scaling
+ #
+ 
+-menu "CPU Frequency scaling"
+-
+ source "drivers/cpufreq/Kconfig"
+ 
+ if CPU_FREQ
+@@ -92,5 +90,3 @@ config X86_SPEEDSTEP_LIB
+ 
+ endif
+ 
+-endmenu
+-
+-- 
+To steal information from a person is called plagiarism. To steal
+information from the enemy is called gathering intelligence.

@@ -1,54 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261228AbVGDSWo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261528AbVGDS16@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261228AbVGDSWo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Jul 2005 14:22:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261237AbVGDSWn
+	id S261528AbVGDS16 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Jul 2005 14:27:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261524AbVGDS16
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Jul 2005 14:22:43 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:57105 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261228AbVGDSWl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Jul 2005 14:22:41 -0400
-Date: Mon, 4 Jul 2005 20:22:37 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Denis Vlasenko <vda@ilport.com.ua>
-Cc: Alexander Nyberg <alexn@telia.com>, linux-kernel@vger.kernel.org
-Subject: Re: RFC: i386: kill !4KSTACKS
-Message-ID: <20050704182237.GW5346@stusta.de>
-References: <20050607212706.GB7962@stusta.de> <200506081339.57012.vda@ilport.com.ua> <20050608111200.GG3641@stusta.de> <200506081513.09828.vda@ilport.com.ua>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200506081513.09828.vda@ilport.com.ua>
-User-Agent: Mutt/1.5.9i
+	Mon, 4 Jul 2005 14:27:58 -0400
+Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:52396
+	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
+	with ESMTP id S261566AbVGDSYt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Jul 2005 14:24:49 -0400
+Message-ID: <42C970D1.3090609@linuxwireless.org>
+Date: Mon, 04 Jul 2005 12:24:33 -0500
+From: Alejandro Bonilla <abonilla@linuxwireless.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: Shawn Starr <shawn.starr@rogers.com>, Lenz Grimmer <lenz@grimmer.com>,
+       Jesper Juhl <jesper.juhl@gmail.com>, Dave Hansen <dave@sr71.net>,
+       Henrik Brix Andersen <brix@gentoo.org>,
+       hdaps-devel@lists.sourceforge.net,
+       LKML List <linux-kernel@vger.kernel.org>
+Subject: Re: IBM HDAPS things are looking up
+References: <20050704061713.GA1444@suse.de> <20050704142723.2202.qmail@web88009.mail.re2.yahoo.com> <20050704144634.GQ1444@suse.de>
+In-Reply-To: <20050704144634.GQ1444@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 08, 2005 at 03:13:09PM +0300, Denis Vlasenko wrote:
-> On Wednesday 08 June 2005 14:12, Adrian Bunk wrote:
-> > On Wed, Jun 08, 2005 at 01:39:56PM +0300, Denis Vlasenko wrote:
-> > >...
-> > > NB: gcc 3.4.3 can use excessive stack in degenerate cases, so please
-> > > include gcc version in your reports.
-> > 
-> > But this can't occur in the kernel.
-> 
-> It can. I saw the OOPS myself.
-> One of the functions in crypto/wp512.c was compiled with 3k+ stack usage.
+Jens Axboe wrote:
 
-Strange that "make checkstack" didn't show this.
+>
+>That's madness, we can't add a kernel thread for every single little
+>silly thing. You don't need to stop any io, you just want to make sure
+>that your park request gets issued right after the current io has
+>finished.
+>  
+>
+HI,
 
-Are there any other 4KSTACKS problems you know about?
+    For me, the heads have to park so fast. That I would be afraid of a 
+kernel panil or something that could happen if you park the head so fast 
+that it won't even tell the kernel it did, or because ext3 couldn't 
+update or any crazy reason.
 
-> vda
+    I use a lot a project called laptop_mode, which suspend the hd until 
+you do a request to the kernel or the HD and it spins up the HD. I think 
+somehow, the kernel is not fast enough to do what we want, I mean, I 
+don't see it.
 
-cu
-Adrian
+    Imagine you are in starbucks, your laptop is over a 1.2 M table, 
+Linus just said that a new kernel is out. So you simply download it, and 
+now you are compiling it. But, you invited your kid to Starbucks. And 
+while your CPU is at 100% and full throttle HD usage. Then your kid 
+trips on the cable or simply pushes the PC out.
 
--- 
+    Do you think that the kernel will STOP, HOLD and park the head in 
+less than a second? OR on the time we need?
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+    I would say is a dammed good kernel if it would. (could RTOS, make 
+things faster)
 
+Simply send the flames my way if you think I'm totally wrong. Which I 
+might be. I really don't know...
+
+.Alejandro

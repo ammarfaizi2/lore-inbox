@@ -1,59 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261492AbVGDGZe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261516AbVGDGao@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261492AbVGDGZe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Jul 2005 02:25:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261516AbVGDGZe
+	id S261516AbVGDGao (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Jul 2005 02:30:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261262AbVGDGan
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Jul 2005 02:25:34 -0400
-Received: from smtp108.sbc.mail.re2.yahoo.com ([68.142.229.97]:40015 "HELO
-	smtp108.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S261492AbVGDGZX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Jul 2005 02:25:23 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Peter Osterlund <petero2@telia.com>
-Subject: Re: [PATCH] ALPS: fix enabling hardware tapping
-Date: Mon, 4 Jul 2005 01:25:17 -0500
-User-Agent: KMail/1.8.1
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Linus Torvalds <torvalds@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-References: <200506150138.49880.dtor_core@ameritech.net> <20050703203401.GA3733@ucw.cz> <m3vf3rlbax.fsf@telia.com>
-In-Reply-To: <m3vf3rlbax.fsf@telia.com>
+	Mon, 4 Jul 2005 02:30:43 -0400
+Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:950
+	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
+	with ESMTP id S261516AbVGDGaj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Jul 2005 02:30:39 -0400
+Message-ID: <42C8C978.4030409@linuxwireless.org>
+Date: Mon, 04 Jul 2005 00:30:32 -0500
+From: Alejandro Bonilla <abonilla@linuxwireless.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Jens Axboe <axboe@suse.de>
+CC: Lenz Grimmer <lenz@grimmer.com>, Jesper Juhl <jesper.juhl@gmail.com>,
+       Dave Hansen <dave@sr71.net>, Henrik Brix Andersen <brix@gentoo.org>,
+       hdaps-devel@lists.sourceforge.net,
+       LKML List <linux-kernel@vger.kernel.org>
+Subject: Re: IBM HDAPS things are looking up (was: Re: [Hdaps-devel] Re: [ltp]
+ IBM HDAPS Someone interested? (Accelerometer))
+References: <9a8748490507031832546f383a@mail.gmail.com> <42C8D06C.2020608@grimmer.com> <20050704061713.GA1444@suse.de>
+In-Reply-To: <20050704061713.GA1444@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507040125.18049.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 03 July 2005 18:28, Peter Osterlund wrote:
-> Vojtech Pavlik <vojtech@suse.cz> writes:
-> 
-> > On Sun, Jul 03, 2005 at 01:49:13PM +0200, Peter Osterlund wrote:
-> > > Dmitry Torokhov <dtor_core@ameritech.net> writes:
-> > > 
-> > > > It looks like logic for enabling hardware tapping in ALPS driver was
-> > > > inverted and we enable it only if it was already enabled by BIOS or
-> > > > firmware.
-> > > 
-> > > It looks like alps_init() has the same bug.  This patch fixes that
-> > > function too by moving the check if the tapping mode needs to change
-> > > into the alps_tap_mode() function, so that the test doesn't have to be
-> > > duplicated.
-> > 
-> > This looks good. However - what's the point in checking whether tapping
-> > is enabled before enabling it?
-> 
-> I don't think there is a point. IFAIK this code was added by Dmitry as
-> part of the hardware auto-detection changes. In that version the check
-> prevented a printk line when the touchpad was already in the correct
-> state. That printk is deleted anyway by this patch, so the check can
-> be removed. (Modulo weird hardware behavior, which can't be completely
-> ruled out because the driver is based largely on reverse engineering,
-> since no public docs are available.)
->
-the only reason for not doing it unconditionally.
+Jens Axboe wrote:
 
--- 
-Dmitry
+>On Mon, Jul 04 2005, Lenz Grimmer wrote:
+>  
+>
+>>>I'll be working on adding sysfs stuff to it tomorrow so it's generally
+>>>useful (at least for monitoring things - not yet for parking disk
+>>>heads).
+>>>      
+>>>
+>>Maybe there is some kind of all-purpose ATA command that instructs the
+>>disk drive to park the heads? Jens, could you give us a hint on how a
+>>userspace application would do that?
+>>    
+>>
+>
+>Dunno if there's something that explicitly only parks the head, the best
+>option is probably to issue a STANDBY_NOW command. You can test this
+>with hdparm -y.
+>  
+>
+This is exactly what I said. Use hdparm to make the HD park 
+inmediatelly. I did send the email to the HDPARM developer, but he never 
+replied. I asked him what would be the best way to make the HD park with 
+no exception and then let it come back 5 or 10 seconds later.
+
+Never heard back. ;-(
+
+.Alejandro

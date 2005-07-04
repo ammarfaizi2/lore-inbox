@@ -1,37 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261712AbVGDNYV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261707AbVGDN3s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261712AbVGDNYV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Jul 2005 09:24:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261700AbVGDNYU
+	id S261707AbVGDN3s (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Jul 2005 09:29:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261723AbVGDN3r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Jul 2005 09:24:20 -0400
-Received: from mail-in-07.arcor-online.net ([151.189.21.47]:18134 "EHLO
-	mail-in-07.arcor-online.net") by vger.kernel.org with ESMTP
-	id S261712AbVGDNNu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Jul 2005 09:13:50 -0400
-Date: Mon, 4 Jul 2005 15:13:19 +0200 (CEST)
+	Mon, 4 Jul 2005 09:29:47 -0400
+Received: from mail-in-06.arcor-online.net ([151.189.21.46]:12777 "EHLO
+	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261707AbVGDNMr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Jul 2005 09:12:47 -0400
+Date: Mon, 4 Jul 2005 15:11:45 +0200 (CEST)
 From: Bodo Eggert <7eggert@gmx.de>
 To: Bodo Eggert <7eggert@gmx.de>
 cc: linux-kernel@vger.kernel.org
 Subject: [PATCH][Update 2] Kconfig changes: s/menu/menuconfig/
-In-Reply-To: <Pine.LNX.4.58.0507011041480.3566@be1.lrz>
-Message-ID: <Pine.LNX.4.58.0507041511530.11818@be1.lrz>
+In-Reply-To: <Pine.LNX.4.58.0506301152460.11960@be1.lrz>
+Message-ID: <Pine.LNX.4.58.0507041503440.11818@be1.lrz>
 References: <Pine.LNX.4.58.0506301152460.11960@be1.lrz>
- <Pine.LNX.4.58.0507011041480.3566@be1.lrz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Jul 2005, Bodo Eggert wrote:
+> Part 1: The easy stuff.
+> 
+> In many config submenus, the first menu option will enable the rest 
+> of the menu options. For these menus, It's appropriate to use the more 
+> convenient "menuconfig" keyword.
+> 
+> I hope I got it right, especially the conversions to "if SYMBOL" and 
+> merging the "depends on"s. It looks right, but please check that.
+> 
+> This patch is designed for 2.6.12; the patch for .13-rc1 will be posted
+> tomorrow as a reply, unless there are major objections to this patch.
 
-> Part 1b: The easy stuff for 2.6.13-rc1.
-
-This is the same patch without the changes in /net, as requested by Sam
+This is the same patch without the changes in /net, as requested by Sam 
 Ravnborg. It does include the first update.
 
---- rc1-a/drivers/md/Kconfig	2005-06-30 11:21:40.000000000 +0200
-+++ rc1-b/drivers/md/Kconfig	2005-06-30 11:06:30.000000000 +0200
+--- a/drivers/md/Kconfig	2005-06-19 14:16:41.000000000 +0200
++++ b/drivers/md/Kconfig	2005-06-29 13:23:07.000000000 +0200
 @@ -3,7 +3,5 @@
  #
  
@@ -47,8 +54,8 @@ Ravnborg. It does include the first update.
 -
 -endmenu
 -
---- rc1-a/drivers/w1/Kconfig	2005-06-30 11:22:41.000000000 +0200
-+++ rc1-b/drivers/w1/Kconfig	2005-06-30 11:06:30.000000000 +0200
+--- a/drivers/w1/Kconfig	2005-05-02 02:25:01.000000000 +0200
++++ b/drivers/w1/Kconfig	2005-06-29 13:25:37.000000000 +0200
 @@ -1,6 +1,4 @@
 -menu "Dallas's 1-wire bus"
 -
@@ -57,14 +64,14 @@ Ravnborg. It does include the first update.
 +menuconfig W1
 +	tristate "Dallas's 1-wire bus support"
  	---help---
- 	  Dallas's 1-wire bus is usefull to connect slow 1-pin devices
+ 	  Dallas's 1-wire bus is usefull to connect slow 1-pin devices 
 @@ -54,4 +52,2 @@ config W1_SMEM
- 	  Say Y here if you want to connect 1-wire
+ 	  Say Y here if you want to connect 1-wire 
  	  simple 64bit memory rom(ds2401/ds2411/ds1990*) to you wire.
 -
 -endmenu
---- rc1-a/drivers/i2c/Kconfig	2004-08-14 07:36:32.000000000 +0200
-+++ rc1-b/drivers/i2c/Kconfig	2005-06-30 11:06:30.000000000 +0200
+--- a/drivers/i2c/Kconfig	2004-08-14 07:36:32.000000000 +0200
++++ b/drivers/i2c/Kconfig	2005-06-29 13:32:15.000000000 +0200
 @@ -3,7 +3,5 @@
  #
  
@@ -80,8 +87,8 @@ Ravnborg. It does include the first update.
 -
 -endmenu
 -
---- rc1-a/drivers/fc4/Kconfig	2004-08-14 07:36:56.000000000 +0200
-+++ rc1-b/drivers/fc4/Kconfig	2005-06-30 11:06:30.000000000 +0200
+--- a/drivers/fc4/Kconfig	2004-08-14 07:36:56.000000000 +0200
++++ b/drivers/fc4/Kconfig	2005-06-29 13:33:48.000000000 +0200
 @@ -3,7 +3,5 @@
  #
  
@@ -97,8 +104,8 @@ Ravnborg. It does include the first update.
 -
 -endmenu
 -
---- rc1-a/drivers/ide/Kconfig	2005-06-30 11:22:23.000000000 +0200
-+++ rc1-b/drivers/ide/Kconfig	2005-06-30 11:06:30.000000000 +0200
+--- a/drivers/ide/Kconfig	2005-06-19 14:16:37.000000000 +0200
++++ b/drivers/ide/Kconfig	2005-06-29 13:40:15.000000000 +0200
 @@ -5,7 +5,5 @@
  #
  
@@ -108,13 +115,13 @@ Ravnborg. It does include the first update.
 +menuconfig IDE
  	tristate "ATA/ATAPI/MFM/RLL support"
  	---help---
-@@ -1059,4 +1057,2 @@ config BLK_DEV_HD
+@@ -1053,4 +1051,2 @@ config BLK_DEV_HD
  
  endif
 -
 -endmenu
---- rc1-a/drivers/mmc/Kconfig	2005-06-30 11:21:42.000000000 +0200
-+++ rc1-b/drivers/mmc/Kconfig	2005-06-30 11:06:30.000000000 +0200
+--- a/drivers/mmc/Kconfig	2005-06-19 14:16:46.000000000 +0200
++++ b/drivers/mmc/Kconfig	2005-06-29 13:41:02.000000000 +0200
 @@ -3,8 +3,6 @@
  #
  
@@ -131,8 +138,8 @@ Ravnborg. It does include the first update.
  	  If unsure, say N.
 -
 -endmenu
---- rc1-a/drivers/net/wan/Kconfig	2005-06-30 11:22:37.000000000 +0200
-+++ rc1-b/drivers/net/wan/Kconfig	2005-06-30 11:06:30.000000000 +0200
+--- a/drivers/net/wan/Kconfig	2005-06-19 14:16:52.000000000 +0200
++++ b/drivers/net/wan/Kconfig	2005-06-29 13:49:27.000000000 +0200
 @@ -3,9 +3,7 @@
  #
  
@@ -151,8 +158,8 @@ Ravnborg. It does include the first update.
 -
 -endmenu
 -
---- rc1-a/drivers/net/irda/Kconfig	2005-06-30 11:21:44.000000000 +0200
-+++ rc1-b/drivers/net/irda/Kconfig	2005-06-30 11:06:30.000000000 +0200
+--- a/drivers/net/irda/Kconfig	2005-06-19 14:16:48.000000000 +0200
++++ b/drivers/net/irda/Kconfig	2005-06-30 10:13:49.000000000 +0200
 @@ -1,6 +1,9 @@
  
 -menu "Infrared-port device drivers"
@@ -170,8 +177,8 @@ Ravnborg. It does include the first update.
 -endmenu
 -
 +endif
---- rc1-a/drivers/net/tulip/Kconfig	2005-06-30 11:18:11.000000000 +0200
-+++ rc1-b/drivers/net/tulip/Kconfig	2005-06-30 11:06:30.000000000 +0200
+--- a/drivers/net/tulip/Kconfig	2005-05-02 02:24:03.000000000 +0200
++++ b/drivers/net/tulip/Kconfig	2005-06-29 14:09:18.000000000 +0200
 @@ -3,9 +3,7 @@
  #
  
@@ -190,8 +197,8 @@ Ravnborg. It does include the first update.
 -
 -endmenu
 -
---- rc1-a/drivers/net/Kconfig	2005-06-30 11:22:26.000000000 +0200
-+++ rc1-b/drivers/net/Kconfig	2005-06-30 11:06:30.000000000 +0200
+--- a/drivers/net/Kconfig	2005-06-19 14:16:46.000000000 +0200
++++ b/drivers/net/Kconfig	2005-06-30 09:07:31.000000000 +0200
 @@ -136,8 +136,6 @@ endif
  #
  
@@ -209,14 +216,14 @@ Ravnborg. It does include the first update.
 +
  config MII
  	tristate "Generic Media Independent Interface device support"
-@@ -1752,5 +1752,5 @@ config NE_H8300
+@@ -1763,5 +1763,5 @@ config NE_H8300
  source "drivers/net/fec_8xx/Kconfig"
  
 -endmenu
 +endif
  
  #
-@@ -1758,7 +1758,10 @@ endmenu
+@@ -1769,7 +1769,10 @@ endmenu
  #
  
 -menu "Ethernet (1000 Mbit)"
@@ -228,14 +235,14 @@ Ravnborg. It does include the first update.
 +
  config ACENIC
  	tristate "Alteon AceNIC/3Com 3C985/NetGear GA620 Gigabit support"
-@@ -2083,5 +2086,5 @@ config MV643XX_ETH_2
+@@ -2082,5 +2085,5 @@ config MV643XX_ETH_2
  	  Ethernet.
  
 -endmenu
 +endif
  
  #
-@@ -2089,7 +2092,10 @@ endmenu
+@@ -2088,7 +2091,10 @@ endmenu
  #
  
 -menu "Ethernet (10000 Mbit)"
@@ -247,15 +254,15 @@ Ravnborg. It does include the first update.
 +
  config IXGB
  	tristate "Intel(R) PRO/10GbE support"
-@@ -2167,5 +2173,5 @@ config 2BUFF_MODE
+@@ -2166,5 +2172,5 @@ config 2BUFF_MODE
  	If not sure please say N.
  
 -endmenu
 +endif
  
  if !UML
---- rc1-a/drivers/net/arcnet/Kconfig	2005-06-30 11:20:35.000000000 +0200
-+++ rc1-b/drivers/net/arcnet/Kconfig	2005-06-30 11:06:30.000000000 +0200
+--- a/drivers/net/arcnet/Kconfig	2005-05-02 02:25:46.000000000 +0200
++++ b/drivers/net/arcnet/Kconfig	2005-06-29 13:48:05.000000000 +0200
 @@ -3,9 +3,7 @@
  #
  
@@ -274,8 +281,8 @@ Ravnborg. It does include the first update.
 -
 -endmenu
 -
---- rc1-a/drivers/net/tokenring/Kconfig	2005-06-30 11:20:36.000000000 +0200
-+++ rc1-b/drivers/net/tokenring/Kconfig	2005-06-30 11:06:30.000000000 +0200
+--- a/drivers/net/tokenring/Kconfig	2005-05-02 02:25:48.000000000 +0200
++++ b/drivers/net/tokenring/Kconfig	2005-06-29 14:13:55.000000000 +0200
 @@ -3,10 +3,8 @@
  #
  
@@ -295,8 +302,8 @@ Ravnborg. It does include the first update.
 -
 -endmenu
 -
---- rc1-a/drivers/net/pcmcia/Kconfig	2005-06-30 11:20:36.000000000 +0200
-+++ rc1-b/drivers/net/pcmcia/Kconfig	2005-06-30 11:06:30.000000000 +0200
+--- a/drivers/net/pcmcia/Kconfig	2005-05-02 02:25:47.000000000 +0200
++++ b/drivers/net/pcmcia/Kconfig	2005-06-29 14:21:56.000000000 +0200
 @@ -3,9 +3,7 @@
  #
  
@@ -315,8 +322,8 @@ Ravnborg. It does include the first update.
 -
 -endmenu
 -
---- rc1-a/drivers/net/wireless/Kconfig	2005-06-30 11:21:45.000000000 +0200
-+++ rc1-b/drivers/net/wireless/Kconfig	2005-06-30 11:06:30.000000000 +0200
+--- a/drivers/net/wireless/Kconfig	2005-06-19 14:16:52.000000000 +0200
++++ b/drivers/net/wireless/Kconfig	2005-06-29 14:25:06.000000000 +0200
 @@ -3,9 +3,7 @@
  #
  
@@ -335,8 +342,8 @@ Ravnborg. It does include the first update.
 -
 -endmenu
 -
---- rc1-a/drivers/mtd/nand/Kconfig	2005-06-30 11:20:35.000000000 +0200
-+++ rc1-b/drivers/mtd/nand/Kconfig	2005-06-30 11:06:30.000000000 +0200
+--- a/drivers/mtd/nand/Kconfig	2005-05-02 02:25:46.000000000 +0200
++++ b/drivers/mtd/nand/Kconfig	2005-06-29 14:45:32.000000000 +0200
 @@ -2,9 +2,10 @@
  # $Id: Kconfig,v 1.26 2005/01/05 12:42:24 dwmw2 Exp $
  
@@ -365,8 +372,8 @@ Ravnborg. It does include the first update.
  	  MTD nand layer.
 - 
 -endmenu
---- rc1-a/drivers/mtd/Kconfig	2005-06-30 11:21:42.000000000 +0200
-+++ rc1-b/drivers/mtd/Kconfig	2005-06-30 11:06:30.000000000 +0200
+--- a/drivers/mtd/Kconfig	2005-06-19 14:16:46.000000000 +0200
++++ b/drivers/mtd/Kconfig	2005-06-29 14:30:26.000000000 +0200
 @@ -1,7 +1,5 @@
  # $Id: Kconfig,v 1.7 2004/11/22 11:33:56 ijc Exp $
  
@@ -382,8 +389,8 @@ Ravnborg. It does include the first update.
 -
 -endmenu
 -
---- rc1-a/drivers/pci/hotplug/Kconfig	2005-06-30 11:20:37.000000000 +0200
-+++ rc1-b/drivers/pci/hotplug/Kconfig	2005-06-30 11:06:30.000000000 +0200
+--- a/drivers/pci/hotplug/Kconfig	2005-05-02 02:25:49.000000000 +0200
++++ b/drivers/pci/hotplug/Kconfig	2005-06-29 14:49:25.000000000 +0200
 @@ -3,7 +3,5 @@
  #
  
@@ -399,8 +406,8 @@ Ravnborg. It does include the first update.
 -
 -endmenu
 -
---- rc1-a/drivers/pnp/Kconfig	2005-06-30 11:19:30.000000000 +0200
-+++ rc1-b/drivers/pnp/Kconfig	2005-06-30 11:06:30.000000000 +0200
+--- a/drivers/pnp/Kconfig	2005-05-02 02:24:56.000000000 +0200
++++ b/drivers/pnp/Kconfig	2005-06-29 14:51:49.000000000 +0200
 @@ -3,7 +3,5 @@
  #
  
@@ -416,8 +423,8 @@ Ravnborg. It does include the first update.
 -
 -endmenu
 -
---- rc1-a/drivers/usb/serial/Kconfig	2005-06-30 11:21:50.000000000 +0200
-+++ rc1-b/drivers/usb/serial/Kconfig	2005-06-30 11:06:30.000000000 +0200
+--- a/drivers/usb/serial/Kconfig	2005-06-19 14:17:06.000000000 +0200
++++ b/drivers/usb/serial/Kconfig	2005-06-29 15:05:18.000000000 +0200
 @@ -3,8 +3,5 @@
  #
  
@@ -433,8 +440,8 @@ Ravnborg. It does include the first update.
  
 -endmenu
 -
---- rc1-a/drivers/acpi/Kconfig	2005-06-30 11:22:22.000000000 +0200
-+++ rc1-b/drivers/acpi/Kconfig	2005-06-30 11:06:30.000000000 +0200
+--- a/drivers/acpi/Kconfig	2005-06-19 14:16:26.000000000 +0200
++++ b/drivers/acpi/Kconfig	2005-06-29 15:08:06.000000000 +0200
 @@ -3,13 +3,10 @@
  #
  
@@ -456,8 +463,8 @@ Ravnborg. It does include the first update.
  endif	# ACPI
 -
 -endmenu
---- rc1-a/drivers/char/tpm/Kconfig	2005-06-30 11:21:32.000000000 +0200
-+++ rc1-b/drivers/char/tpm/Kconfig	2005-06-30 11:06:30.000000000 +0200
+--- a/drivers/char/tpm/Kconfig	2005-06-19 14:16:33.000000000 +0200
++++ b/drivers/char/tpm/Kconfig	2005-06-29 15:10:22.000000000 +0200
 @@ -3,7 +3,5 @@
  #
  
@@ -473,8 +480,8 @@ Ravnborg. It does include the first update.
 -
 -endmenu
 -
---- rc1-a/drivers/char/ipmi/Kconfig	2005-06-30 11:20:27.000000000 +0200
-+++ rc1-b/drivers/char/ipmi/Kconfig	2005-06-30 11:06:30.000000000 +0200
+--- a/drivers/char/ipmi/Kconfig	2005-05-02 02:25:43.000000000 +0200
++++ b/drivers/char/ipmi/Kconfig	2005-06-29 15:11:42.000000000 +0200
 @@ -3,6 +3,5 @@
  #
  
@@ -488,8 +495,8 @@ Ravnborg. It does include the first update.
  	 the IPMI management controller is capable of this.
 -
 -endmenu
---- rc1-a/drivers/char/watchdog/Kconfig	2005-06-30 11:22:23.000000000 +0200
-+++ rc1-b/drivers/char/watchdog/Kconfig	2005-06-30 11:06:30.000000000 +0200
+--- a/drivers/char/watchdog/Kconfig	2005-06-19 14:16:33.000000000 +0200
++++ b/drivers/char/watchdog/Kconfig	2005-06-29 15:14:36.000000000 +0200
 @@ -3,7 +3,5 @@
  #
  
@@ -499,13 +506,13 @@ Ravnborg. It does include the first update.
 +menuconfig WATCHDOG
  	bool "Watchdog Timer Support"
  	---help---
-@@ -556,4 +554,2 @@ config USBPCWATCHDOG
+@@ -546,4 +544,2 @@ config USBPCWATCHDOG
  
  	  Most people will say N.
 -
 -endmenu
---- rc1-a/drivers/isdn/hisax/Kconfig	2005-06-30 11:21:40.000000000 +0200
-+++ rc1-b/drivers/isdn/hisax/Kconfig	2005-06-30 11:06:30.000000000 +0200
+--- a/drivers/isdn/hisax/Kconfig	2005-06-19 14:16:40.000000000 +0200
++++ b/drivers/isdn/hisax/Kconfig	2005-06-29 15:24:55.000000000 +0200
 @@ -1,8 +1,6 @@
  
 -menu "Passive cards"
@@ -523,8 +530,8 @@ Ravnborg. It does include the first update.
 -
 -endmenu
 -
---- rc1-a/drivers/isdn/Kconfig	2004-08-14 07:38:04.000000000 +0200
-+++ rc1-b/drivers/isdn/Kconfig	2005-06-30 11:06:30.000000000 +0200
+--- a/drivers/isdn/Kconfig	2004-08-14 07:38:04.000000000 +0200
++++ b/drivers/isdn/Kconfig	2005-06-29 15:26:04.000000000 +0200
 @@ -3,8 +3,6 @@
  #
  
@@ -542,8 +549,8 @@ Ravnborg. It does include the first update.
 -
 -endmenu
 -
---- rc1-a/drivers/isdn/hardware/avm/Kconfig	2005-06-30 11:19:17.000000000 +0200
-+++ rc1-b/drivers/isdn/hardware/avm/Kconfig	2005-06-30 11:06:30.000000000 +0200
+--- a/drivers/isdn/hardware/avm/Kconfig	2005-05-02 02:24:52.000000000 +0200
++++ b/drivers/isdn/hardware/avm/Kconfig	2005-06-29 15:29:00.000000000 +0200
 @@ -3,9 +3,7 @@
  #
  
@@ -562,8 +569,8 @@ Ravnborg. It does include the first update.
 -
 -endmenu
 -
---- rc1-a/drivers/isdn/hardware/eicon/Kconfig	2004-08-14 07:36:59.000000000 +0200
-+++ rc1-b/drivers/isdn/hardware/eicon/Kconfig	2005-06-30 11:06:30.000000000 +0200
+--- a/drivers/isdn/hardware/eicon/Kconfig	2004-08-14 07:36:59.000000000 +0200
++++ b/drivers/isdn/hardware/eicon/Kconfig	2005-06-29 15:29:27.000000000 +0200
 @@ -3,9 +3,7 @@
  #
  
@@ -582,8 +589,8 @@ Ravnborg. It does include the first update.
 -
 -endmenu
 -
---- rc1-a/drivers/scsi/Kconfig	2005-06-30 11:22:39.000000000 +0200
-+++ rc1-b/drivers/scsi/Kconfig	2005-06-30 11:06:30.000000000 +0200
+--- a/drivers/scsi/Kconfig	2005-06-19 14:16:58.000000000 +0200
++++ b/drivers/scsi/Kconfig	2005-06-29 15:30:59.000000000 +0200
 @@ -1,5 +1,3 @@
 -menu "SCSI device support"
 -
@@ -591,13 +598,13 @@ Ravnborg. It does include the first update.
 +menuconfig SCSI
  	tristate "SCSI device support"
  	---help---
-@@ -1793,4 +1791,2 @@ endmenu
+@@ -1797,4 +1795,2 @@ endmenu
  
  source "drivers/scsi/pcmcia/Kconfig"
 -
 -endmenu
---- rc1-a/drivers/scsi/pcmcia/Kconfig	2004-08-14 07:37:25.000000000 +0200
-+++ rc1-b/drivers/scsi/pcmcia/Kconfig	2005-06-30 11:06:30.000000000 +0200
+--- a/drivers/scsi/pcmcia/Kconfig	2004-08-14 07:37:25.000000000 +0200
++++ b/drivers/scsi/pcmcia/Kconfig	2005-06-29 15:33:03.000000000 +0200
 @@ -3,7 +3,10 @@
  #
  
@@ -615,8 +622,8 @@ Ravnborg. It does include the first update.
  
 -endmenu
 +endif
---- rc1-a/drivers/infiniband/Kconfig	2005-06-30 11:20:30.000000000 +0200
-+++ rc1-b/drivers/infiniband/Kconfig	2005-06-30 11:06:30.000000000 +0200
+--- a/drivers/infiniband/Kconfig	2005-05-02 02:25:44.000000000 +0200
++++ b/drivers/infiniband/Kconfig	2005-06-29 15:35:18.000000000 +0200
 @@ -1,5 +1,3 @@
 -menu "InfiniBand support"
 -
@@ -629,8 +636,8 @@ Ravnborg. It does include the first update.
  source "drivers/infiniband/ulp/ipoib/Kconfig"
 -
 -endmenu
---- rc1-a/drivers/cdrom/Kconfig	2005-06-30 11:21:32.000000000 +0200
-+++ rc1-b/drivers/cdrom/Kconfig	2005-06-30 11:06:30.000000000 +0200
+--- a/drivers/cdrom/Kconfig	2005-06-19 14:16:31.000000000 +0200
++++ b/drivers/cdrom/Kconfig	2005-06-29 11:27:02.000000000 +0200
 @@ -3,9 +3,7 @@
  #
  
@@ -648,8 +655,8 @@ Ravnborg. It does include the first update.
  	  module will be called sonycd535.
 -
 -endmenu
---- rc1-a/drivers/media/dvb/Kconfig	2005-06-30 11:22:25.000000000 +0200
-+++ rc1-b/drivers/media/dvb/Kconfig	2005-06-30 11:06:30.000000000 +0200
+--- a/drivers/media/dvb/Kconfig	2005-06-19 14:16:41.000000000 +0200
++++ b/drivers/media/dvb/Kconfig	2005-06-29 15:50:58.000000000 +0200
 @@ -3,8 +3,6 @@
  #
  
@@ -666,8 +673,8 @@ Ravnborg. It does include the first update.
  source "drivers/media/dvb/frontends/Kconfig"
 -
 -endmenu
---- rc1-a/drivers/video/logo/Kconfig	2005-06-30 11:21:52.000000000 +0200
-+++ rc1-b/drivers/video/logo/Kconfig	2005-06-30 11:06:30.000000000 +0200
+--- a/drivers/video/logo/Kconfig	2005-06-19 14:17:08.000000000 +0200
++++ b/drivers/video/logo/Kconfig	2005-06-29 15:59:13.000000000 +0200
 @@ -3,8 +3,6 @@
  #
  
@@ -685,8 +692,8 @@ Ravnborg. It does include the first update.
 -
 -endmenu
 -
---- rc1-a/drivers/message/i2o/Kconfig	2005-06-30 11:22:26.000000000 +0200
-+++ rc1-b/drivers/message/i2o/Kconfig	2005-06-30 11:06:30.000000000 +0200
+--- a/drivers/message/i2o/Kconfig	2004-08-14 07:36:13.000000000 +0200
++++ b/drivers/message/i2o/Kconfig	2005-06-29 16:05:13.000000000 +0200
 @@ -1,6 +1,3 @@
 -
 -menu "I2O device support"
@@ -695,30 +702,31 @@ Ravnborg. It does include the first update.
 +menuconfig I2O
  	tristate "I2O support"
  	depends on PCI
-@@ -107,5 +104,2 @@ config I2O_PROC
+@@ -71,5 +68,2 @@ config I2O_PROC
  	  To compile this support as a module, choose M here: the
  	  module will be called i2o_proc.
 -
 -endmenu
 -
---- rc1-a/drivers/message/fusion/Kconfig	2005-06-30 11:22:25.000000000 +0200
-+++ rc1-b/drivers/message/fusion/Kconfig	2005-06-30 11:13:57.000000000 +0200
-@@ -1,4 +1,7 @@
- 
+--- a/drivers/message/fusion/Kconfig	2005-05-02 02:24:54.000000000 +0200
++++ b/drivers/message/fusion/Kconfig	2005-06-29 16:07:51.000000000 +0200
+@@ -1,7 +1,4 @@
+-
 -menu "Fusion MPT device support"
-+menuconfig FUSION_DEVICES
-+	bool "Fusion MPT device support"
-+
-+if FUSION_DEVICES
+-
+-config FUSION
+-	tristate "Fusion MPT (base + ScsiHost) drivers"
++menuconfig FUSION
++	tristate "Fusion MPT support (base + ScsiHost)"
+ 	depends on PCI && SCSI
+ 	---help---
+@@ -63,4 +60,2 @@ config FUSION_LAN
  
- config FUSION
-@@ -84,3 +87,3 @@ config FUSION_LAN
  	  If unsure whether you really want or need this, say N.
- 
+-
 -endmenu
-+endif
---- rc1-a/drivers/ieee1394/Kconfig	2005-06-30 11:21:33.000000000 +0200
-+++ rc1-b/drivers/ieee1394/Kconfig	2005-06-30 11:06:30.000000000 +0200
+--- a/drivers/ieee1394/Kconfig	2005-06-19 14:16:37.000000000 +0200
++++ b/drivers/ieee1394/Kconfig	2005-06-29 16:10:10.000000000 +0200
 @@ -1,7 +1,5 @@
  # -*- shell-script -*-
  
@@ -733,8 +741,8 @@ Ravnborg. It does include the first update.
  	  module will be called amdtp.
 -
 -endmenu
---- rc1-a/drivers/pcmcia/Kconfig	2005-06-30 11:22:38.000000000 +0200
-+++ rc1-b/drivers/pcmcia/Kconfig	2005-06-30 11:06:30.000000000 +0200
+--- a/drivers/pcmcia/Kconfig	2005-06-19 14:16:54.000000000 +0200
++++ b/drivers/pcmcia/Kconfig	2005-06-29 16:12:49.000000000 +0200
 @@ -6,7 +6,5 @@
  #
  
@@ -744,13 +752,13 @@ Ravnborg. It does include the first update.
 +menuconfig PCCARD
  	tristate "PCCard (PCMCIA/CardBus) support"
  	select HOTPLUG
-@@ -229,4 +227,2 @@ config PCCARD_NONSTATIC
+@@ -200,4 +198,2 @@ config PCCARD_NONSTATIC
  
  endif	# PCCARD
 -
 -endmenu
---- rc1-a/drivers/telephony/Kconfig	2004-08-14 07:36:32.000000000 +0200
-+++ rc1-b/drivers/telephony/Kconfig	2005-06-30 11:06:30.000000000 +0200
+--- a/drivers/telephony/Kconfig	2004-08-14 07:36:32.000000000 +0200
++++ b/drivers/telephony/Kconfig	2005-06-29 16:31:22.000000000 +0200
 @@ -3,8 +3,6 @@
  #
  
@@ -768,8 +776,8 @@ Ravnborg. It does include the first update.
 -
 -endmenu
 -
---- rc1-a/drivers/parport/Kconfig	2005-06-30 11:21:45.000000000 +0200
-+++ rc1-b/drivers/parport/Kconfig	2005-06-30 11:06:30.000000000 +0200
+--- a/drivers/parport/Kconfig	2005-06-19 14:16:53.000000000 +0200
++++ b/drivers/parport/Kconfig	2005-06-29 16:33:53.000000000 +0200
 @@ -6,7 +6,5 @@
  #
  
@@ -791,8 +799,8 @@ Ravnborg. It does include the first update.
 -
 -endmenu
 -
---- rc1-a/fs/nls/Kconfig	2004-08-14 07:36:10.000000000 +0200
-+++ rc1-b/fs/nls/Kconfig	2005-06-30 11:06:30.000000000 +0200
+--- a/fs/nls/Kconfig	2004-08-14 07:36:10.000000000 +0200
++++ b/fs/nls/Kconfig	2005-06-30 08:37:19.000000000 +0200
 @@ -3,8 +3,6 @@
  #
  
@@ -809,8 +817,8 @@ Ravnborg. It does include the first update.
  
 -endmenu
 -
---- rc1-a/fs/xfs/Kconfig	2005-06-30 11:20:52.000000000 +0200
-+++ rc1-b/fs/xfs/Kconfig	2005-06-30 11:06:30.000000000 +0200
+--- a/fs/xfs/Kconfig	2005-05-02 02:25:53.000000000 +0200
++++ b/fs/xfs/Kconfig	2005-06-30 08:41:21.000000000 +0200
 @@ -1,6 +1,4 @@
 -menu "XFS support"
 -
@@ -859,9 +867,9 @@ Ravnborg. It does include the first update.
  
 -endmenu
 +endif
---- rc1-a/fs/Kconfig	2005-06-30 11:22:41.000000000 +0200
-+++ rc1-b/fs/Kconfig	2005-06-30 11:06:30.000000000 +0200
-@@ -1728,10 +1728,6 @@ config RXRPC
+--- a/fs/Kconfig	2005-06-19 14:17:10.000000000 +0200
++++ b/fs/Kconfig	2005-06-30 09:40:19.000000000 +0200
+@@ -1718,10 +1718,6 @@ config RXRPC
  endmenu
  
 -menu "Partition Types"
@@ -872,9 +880,9 @@ Ravnborg. It does include the first update.
 -
  source "fs/nls/Kconfig"
  
---- rc1-a/init/Kconfig	2005-06-30 11:22:50.000000000 +0200
-+++ rc1-b/init/Kconfig	2005-06-30 11:06:30.000000000 +0200
-@@ -392,8 +392,6 @@ config BASE_SMALL
+--- a/init/Kconfig	2005-06-19 14:17:44.000000000 +0200
++++ b/init/Kconfig	2005-06-30 09:17:08.000000000 +0200
+@@ -391,8 +391,6 @@ config BASE_SMALL
  	default 1 if !BASE_FULL
  
 -menu "Loadable module support"
@@ -885,7 +893,7 @@ Ravnborg. It does include the first update.
 +	bool "Loadable module support"
  	help
  	  Kernel modules are small pieces of compiled code which can
-@@ -414,7 +412,8 @@ config MODULES
+@@ -413,7 +411,8 @@ config MODULES
  	  If unsure, say Y.
  
 +if MODULES
@@ -895,39 +903,39 @@ Ravnborg. It does include the first update.
 -	depends on MODULES
  	help
  	  Without this option you will not be able to unload any
-@@ -436,5 +435,4 @@ config OBSOLETE_MODPARM
+@@ -435,5 +434,4 @@ config OBSOLETE_MODPARM
  	bool
  	default y
 -	depends on MODULES
  	help
  	  You need this option to use module parameters on modules which
-@@ -444,5 +442,5 @@ config OBSOLETE_MODPARM
+@@ -443,5 +441,5 @@ config OBSOLETE_MODPARM
  config MODVERSIONS
  	bool "Module versioning support (EXPERIMENTAL)"
 -	depends on MODULES && EXPERIMENTAL
 +	depends on EXPERIMENTAL
  	help
  	  Usually, you have to use modules compiled with your kernel.
-@@ -455,5 +453,4 @@ config MODVERSIONS
+@@ -454,5 +452,4 @@ config MODVERSIONS
  config MODULE_SRCVERSION_ALL
  	bool "Source checksum for all modules"
 -	depends on MODULES
  	help
  	  Modules which contain a MODULE_VERSION get an extra "srcversion"
-@@ -467,5 +464,4 @@ config MODULE_SRCVERSION_ALL
+@@ -466,5 +463,4 @@ config MODULE_SRCVERSION_ALL
  config KMOD
  	bool "Automatic kernel module loading"
 -	depends on MODULES
  	help
  	  Normally when you have selected some parts of the kernel to
-@@ -483,3 +479,4 @@ config STOP_MACHINE
+@@ -482,3 +478,4 @@ config STOP_MACHINE
  	help
  	  Need stop_machine() primitive.
 -endmenu
 +
 +endif
---- rc1-a/sound/Kconfig	2005-06-30 11:22:53.000000000 +0200
-+++ rc1-b/sound/Kconfig	2005-06-30 11:06:30.000000000 +0200
+--- a/sound/Kconfig	2005-05-02 02:26:19.000000000 +0200
++++ b/sound/Kconfig	2005-06-29 16:50:57.000000000 +0200
 @@ -2,7 +2,5 @@
  #
  
@@ -953,7 +961,7 @@ Ravnborg. It does include the first update.
 +menuconfig SND
  	tristate "Advanced Linux Sound Architecture"
  	depends on SOUND
-@@ -75,12 +72,7 @@ source "sound/sparc/Kconfig"
+@@ -70,12 +67,7 @@ source "sound/sparc/Kconfig"
  source "sound/parisc/Kconfig"
  
 -endmenu
@@ -968,7 +976,7 @@ Ravnborg. It does include the first update.
 +	depends on SOUND && (BROKEN || (!SPARC32 && !SPARC64))
  	help
  	  Say 'Y' or 'M' to enable Open Sound System drivers.
-@@ -88,7 +80,5 @@ config SOUND_PRIME
+@@ -83,7 +75,5 @@ config SOUND_PRIME
  source "sound/oss/Kconfig"
  
 -endmenu
@@ -1007,5 +1015,5 @@ Ravnborg. It does include the first update.
  	tristate
 +	depends on SOUND
 -- 
-Top 100 things you don't want the sysadmin to say:
-44. System coming down in 0 min....
+The perfect officer for the job will transfer in the day after that billet
+is filled by someone else.

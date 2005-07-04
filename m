@@ -1,67 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261343AbVGDLvt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261370AbVGDMBc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261343AbVGDLvt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Jul 2005 07:51:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261643AbVGDLvs
+	id S261370AbVGDMBc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Jul 2005 08:01:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261625AbVGDMBc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Jul 2005 07:51:48 -0400
-Received: from ms-smtp-05.texas.rr.com ([24.93.47.44]:47869 "EHLO
-	ms-smtp-05-eri0.texas.rr.com") by vger.kernel.org with ESMTP
-	id S261343AbVGDLvq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Jul 2005 07:51:46 -0400
-Date: Mon, 4 Jul 2005 06:51:35 -0500
+	Mon, 4 Jul 2005 08:01:32 -0400
+Received: from ms-smtp-01.texas.rr.com ([24.93.47.40]:42390 "EHLO
+	ms-smtp-01-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S261370AbVGDMBa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Jul 2005 08:01:30 -0400
+Date: Mon, 4 Jul 2005 07:01:05 -0500
 From: serge@hallyn.com
 To: Tony Jones <tonyj@suse.de>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 5/12] lsm stacking v0.2: actual stacker module
-Message-ID: <20050704115135.GA27617@vino.hallyn.com>
-References: <20050630194458.GA23439@serge.austin.ibm.com> <20050630195043.GE23538@serge.austin.ibm.com> <20050704031820.GA6871@immunix.com>
+Cc: Kurt Garloff <garloff@suse.de>,
+       Linux kernel list <linux-kernel@vger.kernel.org>,
+       Chris Wright <chrisw@osdl.org>, Stephen Smalley <sds@epoch.ncsc.mil>,
+       James Morris <jmorris@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
+       Steve Beattie <smb@wirex.com>,
+       Linux LSM list <linux-security-module@wirex.com>
+Subject: Re: [PATCH 3/3] Use conditional
+Message-ID: <20050704120105.GB27617@vino.hallyn.com>
+References: <20050703154405.GE11093@tpkurt.garloff.de> <20050703190007.GA30292@immunix.com> <20050704065902.GO11093@tpkurt.garloff.de> <20050704074449.GA12963@immunix.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050704031820.GA6871@immunix.com>
+In-Reply-To: <20050704074449.GA12963@immunix.com>
 User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Quoting Tony Jones (tonyj@suse.de):
-> Hey Serge,
+> On Mon, Jul 04, 2005 at 08:59:02AM +0200, Kurt Garloff wrote:
 > 
-> I don't think your symbol_get() is doing what you think it is ;-)
-
-Hmm, I wonder whether something changed.  It shouldn't be possible to
-rmmod module b if module a has done a symbol_get on it...  This may mean
-more stringent locking will be required after all to support unloading.
-That, or a rmmod lsm hook.
-
-> > + * Add the stacked module (as specified by name and ops).
-> > + * If the module is not compiled in, the symbol_get at the end will
-> > + * prevent the the module from being unloaded.
-> > +*/
-> > +static int stacker_register (const char *name, struct security_operations *ops)
-> > +{
->  ...
-> > +	symbol_get(ops);
-> > +
-> > +out:
-> > +	spin_unlock(&stacker_lock);
-> > +	return ret;
-> > +}
+> > > The topic of replacing dummy (with capability) was discussed there
+> > > last week, in the context of stacker, but a common solution for both
+> > > cases would be needed.
+> > 
+> > Both cases?
 > 
+> CONFIG_SECURITY_STACKER and !CONFIG_SECURITY_STACKER ;-)
 > 
-> Seemed useful to be able to view which modules had been unloaded.
-> Easier to maintain them on their own list than to compute the difference
-> of <stacked_modules> and <all_modules>.  Patch attached, not sure if you
-> are cool with reusing the 'unload' file.
+> http://mail.wirex.com/pipermail/linux-security-module/2005-June/6200.html
+> 
+> I was assuming (bad of me I know) that Serge's patch would nail both cases
+> with one stone.
 
-No, that's good, thanks.  Though I guess "unloading" of this type won't
-be needed if true module deletion has to be supported.
-
-> Apart from this, looks good.  I ran it against our regression tests using
-> AppArmor (SubDomain) composed with Capability and everything was functionally
-> as expected.   I still need to run it through our SMP stress tests.
-
-Excellent :)
+Yes, sorry, I never got around to the replace-dummy-with-capability
+patch.  There wasn't a single cry when Chris asked for anyone who'd
+care about dummy being removed, so I do plan on switching that.
 
 thanks,
 -serge

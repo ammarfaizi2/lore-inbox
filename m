@@ -1,83 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261366AbVGDCrv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261367AbVGDDMl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261366AbVGDCrv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Jul 2005 22:47:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261356AbVGDCru
+	id S261367AbVGDDMl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Jul 2005 23:12:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261385AbVGDDMl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Jul 2005 22:47:50 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:60645 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S261366AbVGDCrV (ORCPT
+	Sun, 3 Jul 2005 23:12:41 -0400
+Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:51178
+	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
+	with ESMTP id S261367AbVGDDMd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Jul 2005 22:47:21 -0400
-Message-Id: <200507020148.j621m9m0006559@laptop11.inf.utfsm.cl>
-To: David Masover <ninja@slaphack.com>
-cc: David Weinehall <tao@acc.umu.se>,
-       =?ISO-8859-1?Q?Markus_T=F6rnqvist?= <mjt@nysv.org>,
-       Douglas McNaught <doug@mcnaught.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Hubert Chan <hubert@uhoreg.ca>,
-       Kyle Moffett <mrmacman_g4@mac.com>, Valdis.Kletnieks@vt.edu,
-       Lincoln Dale <ltd@cisco.com>, Gregory Maxwell <gmaxwell@gmail.com>,
-       Hans Reiser <reiser@namesys.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: reiser4 plugins 
-In-Reply-To: Message from David Masover <ninja@slaphack.com> 
-   of "Fri, 01 Jul 2005 14:55:12 EST." <42C59FA0.1090908@slaphack.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Fri, 01 Jul 2005 21:48:09 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Sun, 3 Jul 2005 23:12:33 -0400
+Message-ID: <42C89B09.6040201@linuxwireless.org>
+Date: Sun, 03 Jul 2005 21:12:25 -0500
+From: Alejandro Bonilla <abonilla@linuxwireless.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jesper Juhl <jesper.juhl@gmail.com>
+CC: Dave Hansen <dave@sr71.net>, Henrik Brix Andersen <brix@gentoo.org>,
+       hdaps-devel@lists.sourceforge.net,
+       LKML List <linux-kernel@vger.kernel.org>
+Subject: Re: IBM HDAPS things are looking up (was: Re: [Hdaps-devel] Re: [ltp]
+ IBM HDAPS Someone interested? (Accelerometer))
+References: <9a8748490507031832546f383a@mail.gmail.com>
+In-Reply-To: <9a8748490507031832546f383a@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Masover <ninja@slaphack.com> wrote:
-> David Weinehall wrote:
-> > On Fri, Jul 01, 2005 at 03:08:58AM -0500, David Masover wrote:
-> >>David Weinehall wrote:
+Jesper Juhl wrote:
 
-> >>>GNOME and KDE run on operating systems that run other kernels than
-> >>>Linux, hence they have to implement their own userland VFS anyway.
-> >>>Adding this to the Linux kernel won't help them one bit, unless
-> >>>we can magically convince Sun to add it to Solaris, all different
-> >>>BSD:s to add it to their kernels, etc.  Not going to happen.
-> >>>An effort to get GNOME and KDE to unify their VFS:s would be
-> >>>far more benificial,
+>On 7/3/05, Alejandro Bonilla <abonilla@linuxwireless.org> wrote:
+>  
+>
+>>BTW, we are on irc.freenode.org in #hdaps If anyone is interested.
+>>
+>>.Alejandro
+>>
+>>    
+>>
+>I just had a nice chat with the guys there and we got some
+>improvements made by them and us merged up. And I /think/ we agreed
+>that I'll maintain the driver, merge fixes/features etc and eventually
+>try to get it merged.
+>
+>  
+>
+Jesper,
 
-> >> Than what?  Creating a unified VFS which I can access from Bash,
-> >> and which obsoletes both GNOME and KDE's VFSes except in their
-> >> presentation?
+    Deal. Since the beggining, when you look at the thread I created, I 
+was always looking for someone interested. You all are, and you all will 
+maintain the driver and we all will help with it. Thanks again Jesper.
 
-> > On one of the platforms that they support, yes.  But only for kernels
-> > newer than 2.6.yy...  So they'd still have to have their own VFS for
-> > 2.4.xx, 2.6.xx (xx < yy), FreeBSD, OpenBSD, Solaris, etc...
+    Thanks to Brix as well for the kickstart and for helping on part of 
+the initial code.
 
-> Right.  But, /proc started somewhere, didn't it?
+    I will put up hdaps.sf.net. I have someone that will/might make a 
+nice site and will put us up. We also need a Laptop matrix that will 
+tell the users if their laptops have HDAPS and so on.
 
-Sun.
+    I will also look on to give access to hdaps.sf.net to whomever 
+maintains the tarball, which is in other words, Jesper.
 
-> I have the feeling that other systems will duplicate it if it's good.
+    Again, I want to thanks everyone for helping further on this. ANY 
+help is appreciated.
 
-Linux copied here.
+    Unfortunately, I'm not good at coding, but I can help with 
+Documentation, installation tips and improved user help. Also, to help 
+make things easier.
 
-> Even if they don't, it would be more beneficial to me
+The IRC channel is there. Whoever sticks around and give nice support (I 
+will) gets their access, here is the mailing list, if someone wants to 
+be added as a List admin, please let me know.
 
-How, exactly?
+Thanks again all for everything. It's incredible on how fast this 
+process is going. I can't imagine how soon we will make it into 
+mainline, even more with kernel people.
 
-Besides, /your/ convenience isn't the only thing that matters...
+If anyone needs access to anything, or wants to be copied to anything, 
+please let me know.
 
->                                                       and probably
-> most Linux users
+It is a holiday for me tomorrow, so I can listed to every need that we 
+will have, to make a TODO and bla bla...
 
-"Most Linux users" don't use experimental filesystems at all...
+Anyway... Let's have a chat tomorrow at irc and see what we have to do.
 
->                  to have metafs supported in both GNOME and KDE, even
-> if they still need an emulation layer to support other systems.
+(It still doesn't work for me.) ;-(
 
-So Gnome and KDE get larger (and thus slower) for everybody. Besides, Gnome
-and KDE will have to agree on the formats involved first, which is /exactly/
-what is supposed to be impossible unless this stuff is implemented in the
-kernel...
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+.Alejandro
+

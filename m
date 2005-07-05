@@ -1,65 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261826AbVGEMZ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261818AbVGEMgE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261826AbVGEMZ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Jul 2005 08:25:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261818AbVGEMZv
+	id S261818AbVGEMgE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Jul 2005 08:36:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261813AbVGEMgD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Jul 2005 08:25:51 -0400
-Received: from mail05.syd.optusnet.com.au ([211.29.132.186]:61568 "EHLO
-	mail05.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261839AbVGEMQs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Jul 2005 08:16:48 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Subject: Re: [ANNOUNCE][RFC] PlugSched-5.2.1 for 2.6.11 and 2.6.12
-Date: Tue, 5 Jul 2005 22:16:44 +1000
-User-Agent: KMail/1.8.1
-Cc: linux-kernel@vger.kernel.org
-References: <42B65525.1060308@bigpond.net.au> <200507051953.49132.kernel@kolivas.org> <42CA6E2F.7000408@bigpond.net.au>
-In-Reply-To: <42CA6E2F.7000408@bigpond.net.au>
+	Tue, 5 Jul 2005 08:36:03 -0400
+Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:13720
+	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
+	with ESMTP id S261818AbVGEM36 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Jul 2005 08:29:58 -0400
+Reply-To: <abonilla@linuxwireless.org>
+From: "Alejandro Bonilla" <abonilla@linuxwireless.org>
+To: "'Jens Axboe'" <axboe@suse.de>
+Cc: <hdaps-devel@lists.sourceforge.net>,
+       "'LKML List'" <linux-kernel@vger.kernel.org>
+Subject: RE: IBM HDAPS things are looking up (was: Re: [Hdaps-devel] Re: [ltp] IBM HDAPS Someone interested? (Accelerometer))
+Date: Tue, 5 Jul 2005 06:29:48 -0600
+Message-ID: <000701c5815d$3c29c840$600cc60a@amer.sykes.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507052216.45018.kernel@kolivas.org>
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <20050705071449.GV1444@suse.de>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1478
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Jul 2005 21:25, Peter Williams wrote:
-> Con Kolivas wrote:
-> > On Tue, 5 Jul 2005 17:46, Peter Williams wrote:
-> >>Peter Williams wrote:
-> >>>Con Kolivas wrote:
-> >>>>On Mon, 20 Jun 2005 15:33, Peter Williams wrote:
-> >>>>>PlugSched-5.2.1 is available for 2.6.11 and 2.6.12 kernels.  This
-> >>>>>version applies Con Kolivas's latest modifications to his "nice" aware
-> >>>>>SMP load balancing patches.
-> >>>>
-> >>>>Thanks Peter.
-> >>>>Any word from your own testing/testers on how well smp nice balancing
-> >>>>is working for them now?
-> >>>
-> >>>No, they got side tracked onto something else but should start working
-> >>>on it again soon.  I'll give them a prod :-)
-> >>
-> >>Con,
-> >>	We've done some more testing with this with results that are still
-> >>disappointing.
-> >
-> > Is this with the migration thread accounted patch as well?
 
-The results from smp nice I've received so far show that a 30% slowdown 
-(instead of 5% on uniprocessor) occurs to high priority tasks in the presence 
-of low priority tasks worst case scenario when the tasks sleep frequently. 
-However excellent smp nice support with negligible slowdown occurs (ie nice 
-is well respected) when the tasks are fully cpu bound. This suggests that 
-what is happening on task wakeup is the limiting factor with this smp nice 
-implementation. This makes sense given that most of the balancing occurs 
-during busy rebalance when the queues are busy. I tried ignoring the length 
-of queue (ie not having the single task running check for idle rebalance) and 
-while this improved the nice effect substantially, it also cost us heavily in 
-throughput making it unwarranted.
+>
+> As Lenz already suggested, you both pretty much seem to be describing
+> laptop mode. See the documentation.
+>
+> --
+> Jens Axboe
+>
+Jens,
 
-Cheers,
-Con
+	Yes, I know about laptop_mode, I always use it, but HD APS does not
+automatically starts laptop_mode currently. That's why I was spitting out
+that it could be a good idea to kick something like laptop_mode or
+laptop_mode if normall vibration is detected, and then if higher vibration
+or tilting numbers are detected, then park the head.
+
+	If you check the IBM software in Windows, it shows 2 things. First, when it
+pauses the HD and when it stops the HD. It all depends on how hard you hit
+the PC. In one we suspend the drive and in the other we park the drive.
+
+.Alejandro
+(removing some people so they don't get triplicated emails)
+

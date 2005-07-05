@@ -1,48 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261989AbVGEV7b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261987AbVGEV73@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261989AbVGEV7b (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Jul 2005 17:59:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261975AbVGEVrE
+	id S261987AbVGEV73 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Jul 2005 17:59:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261990AbVGEVqY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Jul 2005 17:47:04 -0400
-Received: from mailhub3.nextra.sk ([195.168.1.146]:30733 "EHLO
-	mailhub3.nextra.sk") by vger.kernel.org with ESMTP id S261810AbVGEVgY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Jul 2005 17:36:24 -0400
-Message-ID: <42CAFD52.2020106@rainbow-software.org>
-Date: Tue, 05 Jul 2005 23:36:18 +0200
-From: Ondrej Zary <linux@rainbow-software.org>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: "=?ISO-8859-1?Q?Andr=E9_Tomt?=" <andre@tomt.net>,
-       Al Boldi <a1426z@gawab.com>,
-       "'Bartlomiej Zolnierkiewicz'" <bzolnier@gmail.com>,
-       "'Linus Torvalds'" <torvalds@osdl.org>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [git patches] IDE update
-References: <20050705101414.GB18504@suse.de> <42CA5EAD.7070005@rainbow-software.org> <20050705104208.GA20620@suse.de> <42CA7EA9.1010409@rainbow-software.org> <1120567900.12942.8.camel@linux> <42CA84DB.2050506@rainbow-software.org> <1120569095.12942.11.camel@linux> <42CAAC7D.2050604@rainbow-software.org> <20050705142122.GY1444@suse.de> <42CAA075.4040406@rainbow-software.org> <20050705192550.GF30235@suse.de>
-In-Reply-To: <20050705192550.GF30235@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 5 Jul 2005 17:46:24 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:5294 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261962AbVGEVeh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Jul 2005 17:34:37 -0400
+Date: Tue, 5 Jul 2005 14:33:48 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH] Fix printk format vs argument warning
+Message-Id: <20050705143348.29348633.akpm@osdl.org>
+In-Reply-To: <1284.1120593819@warthog.cambridge.redhat.com>
+References: <1284.1120593819@warthog.cambridge.redhat.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> On Tue, Jul 05 2005, Ondrej Zary wrote:
-> 
->>oread is faster than dd, but still not as fast as 2.4. In 2.6.12, HDD 
->>led is blinking, in 2.4 it's solid on during the read.
-> 
-> 
-> Oh, and please do test 2.6 by first setting the deadline scheduler for
-> hda. I can see you are using the 'as' scheduler right now.
-> 
-> # echo deadline > /sys/block/hda/queue/scheduler
-> 
+David Howells <dhowells@redhat.com> wrote:
+>
+> The attached patch makes the argument to this printk in
+>  calibrate_migration_costs() always long to match the format string.
 
-No change, still >25 seconds.
+That darn printk again.  You wouldn't believe...
 
--- 
-Ondrej Zary
+calibrate_migration_costs() causes a storm of boot-time output and I think
+all those printks should be removed before this code goes up to Linus. 
+Maybe split out into a separate -mm-only patch?
+
+>  Signed-Off-By: David Howells <dhowells@redhat.com>
+>  ---
+>  warthog>diffstat -p1 format-arg-size-2612mm1-10.diff 
+>   kernel/sched.c |    2 +-
+>   1 files changed, 1 insertion(+), 1 deletion(-)
+> 
+>  diff -uNrp linux-2.6.12-mm1/kernel/sched.c linux-2.6.12-mm1-cachefs-wander/kernel/sched.c
+>  --- linux-2.6.12-mm1/kernel/sched.c	2005-06-22 13:54:08.000000000 +0100
+>  +++ linux-2.6.12-mm1-cachefs-wander/kernel/sched.c	2005-06-22 14:10:57.000000000 +0100
+>  @@ -5572,7 +5572,7 @@ void __devinit calibrate_migration_costs
+>   	printk("| migration cost matrix (max_cache_size: %d, cpu: %ld MHz):\n",
+>   			max_cache_size,
+>   #ifdef CONFIG_X86
+>  -			cpu_khz/1000
+>  +			cpu_khz/1000L
+>   #else
+
+It's currently %d in my tree.  This is why I converted x86's cpu_khz from
+unsigned long to unsigned, to match x86_64's.

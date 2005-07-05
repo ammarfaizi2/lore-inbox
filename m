@@ -1,103 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261925AbVGERNp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261940AbVGER1p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261925AbVGERNp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Jul 2005 13:13:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261933AbVGERNo
+	id S261940AbVGER1p (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Jul 2005 13:27:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261935AbVGER1e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Jul 2005 13:13:44 -0400
-Received: from ppsw-7.csi.cam.ac.uk ([131.111.8.137]:31687 "EHLO
-	ppsw-7.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S261925AbVGERL1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Jul 2005 13:11:27 -0400
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Date: Tue, 5 Jul 2005 18:11:20 +0100 (BST)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Robert Love <rml@novell.com>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [-mm patch] Fix inotify umount hangs.
-In-Reply-To: <Pine.LNX.4.60.0507051734420.1458@hermes-1.csi.cam.ac.uk>
-Message-ID: <Pine.LNX.4.60.0507051807530.1458@hermes-1.csi.cam.ac.uk>
-References: <Pine.LNX.4.60.0507042009170.7572@hermes-1.csi.cam.ac.uk>
- <1120576805.6745.197.camel@betsy> <Pine.LNX.4.60.0507051734420.1458@hermes-1.csi.cam.ac.uk>
+	Tue, 5 Jul 2005 13:27:34 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:55510 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261915AbVGER1Z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Jul 2005 13:27:25 -0400
+Date: Tue, 5 Jul 2005 10:27:06 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jens Axboe <axboe@suse.de>
+cc: Ondrej Zary <linux@rainbow-software.org>,
+       =?ISO-8859-1?Q?Andr=E9_Tomt?= <andre@tomt.net>,
+       Al Boldi <a1426z@gawab.com>,
+       "'Bartlomiej Zolnierkiewicz'" <bzolnier@gmail.com>,
+       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [git patches] IDE update
+In-Reply-To: <20050705142122.GY1444@suse.de>
+Message-ID: <Pine.LNX.4.58.0507051016420.3570@g5.osdl.org>
+References: <42C9C56D.7040701@tomt.net> <42CA5A84.1060005@rainbow-software.org>
+ <20050705101414.GB18504@suse.de> <42CA5EAD.7070005@rainbow-software.org>
+ <20050705104208.GA20620@suse.de> <42CA7EA9.1010409@rainbow-software.org>
+ <1120567900.12942.8.camel@linux> <42CA84DB.2050506@rainbow-software.org>
+ <1120569095.12942.11.camel@linux> <42CAAC7D.2050604@rainbow-software.org>
+ <20050705142122.GY1444@suse.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Jul 2005, Anton Altaparmakov wrote:
-> On Tue, 5 Jul 2005, Robert Love wrote:
-> > On Mon, 2005-07-04 at 20:28 +0100, Anton Altaparmakov wrote:
-> > > The below patch against 2.6.13-rc1-mm1 fixes the umount hangs caused by 
-> > > inotify.
-> > 
-> > Thank you, very much, Anton, for hacking on this over the weekend.
-> 
-> You are welcome.  (-:
-> 
-> > It's definitely not the prettiest thing, but there may be no easier
-> > approach.  One thing, the messy code is working around the list
-> > changing, doesn't invalidate_inodes() have the same problem?  If so, it
-> > solves it differently.
-> 
-> It does.  It first goes over the i_sb_list and anything it finds that it 
-> is interested in (i.e. all inodes with zero i_count), it moves the inode 
-> (i_list) over to a private list (this is done in invalidate_list()).  
-> Then, when it is finished accessing the i_sb_list, and all inodes of 
-> interest (zero i_count) are on the private list, dispose_list() is called, 
-> and all inodes on the private list are exterminated.  This obviously no 
-> longer uses i_sb_list so it does not matter that that is changing now.
-> 
-> > I'm also curious if the I_WILL_FREE or i_count check fixed the bug.  I
-> > suspect the other fix did, but we probably still want this.  Or at least
-> > the I_WILL_FREE check.
-> 
-> The i_count check is at least sensible if not required (not sure) 
-> otherwise you do iget() on inode with zero i_count then waste your time 
-> looking for watches (which can't be there or i_count would not be zero), 
-> and then iput() kills off the inode and throws it out of the icache.  This 
-> would be done in invalidate_inodes() anyway, no need for you to do it 
-> first.  Even if this is not a required check it saves some cpu cycles.
-> 
-> The I_WILL_FREE is definitely required otherwise you will catch inodes 
-> that will suddenly become I_FREEING and then I_CLEAR under your feet once 
-> you drop the inode_lock and we know that is a Bad Thing (TM) as it causes 
-> the BUG_ON(i_state == I_CLEAR) in iput() to trigger that was reported 
-> before (when I got drawn into inotify in the first place).
-> 
-> Note that if you want to be really thorough you could wait on the inode 
-> to be destroyed for good:
-> 
-> if (inode->i_state & (I_FREEING|I_CLEAR|I_WILL_FREE))
-> 	__wait_on_freeing_inode(inode);
-> 
-> And then re-check in the i_sb_list if the inode is still there (e.g. via 
-> prev member of next_i->i_sb_list which will no longer be "inode" if the 
-> inode has been evicted).  If the inode is still there someone 
-> "reactivated" it while you were waiting and you need to redo the 
-> i_count and i_state checks and deal with the inode as appropriate.
-> 
-> However given this is umount we are talking about there doesn't seem to be 
-> much point in being that thorough.
-> 
-> I am not familiar enough with i_notify but _if_ it is possible for a user 
-> to get a watch on an inode which is I_FREEING|I_CLEAR|I_WILLFREE then you 
-> have to do the waiting otherwise you will miss that watch with I don't 
-> know what results but probably not good ones...
 
-Actually given that watches increment i_count, the results would be quite 
-obvious if it were possible for this to happen.  The user would see my 
-favourite printk (see fs/super.c::generic_shutdown_super()) in dmesg! (-;
 
-printk("VFS: Busy inodes after unmount. "
-   "Self-destruct in 5 seconds.  Have a nice day...\n");
+On Tue, 5 Jul 2005, Jens Axboe wrote:
+> 
+> Looks interesting, 2.6 spends oodles of times copying to user space.
+> Lets check if raw reads perform ok, please try and time this app in 2.4
+> and 2.6 as well.
 
-Cheers,
+I think it's just that 2.4.x used to allow longer command queues. I think
+MAX_NR_REQUESTS is 1024 in 2.4.x, and just 128 in 2.6.x or something like
+that.
 
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+Also, the congestion thresholds are questionable: we consider a queue
+congested if it is within 12% of full, but then we consider it uncongested
+whenever it falls to within 18% of full, which I bet means that for some
+streaming loads we have just a 6% "window" that we keep adding new
+requests to (we wait when we're almost full, but then we start adding
+requests again when we're _still_ almost full). Jens, we talked about this
+long ago, but I don't think we ever did any timings.
+
+Making things worse, things like this are only visible on stupid hardware
+that has long latencies to get started (many SCSI controllers used to have
+horrid latencies), so you'll never even see any difference on a lot of 
+hardware.
+
+It's probably worth testing with a bigger request limit. I forget what the 
+/proc interfaces are (and am too lazy to look it up), Jens can tell us ;)
+
+		Linus

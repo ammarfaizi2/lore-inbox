@@ -1,60 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261861AbVGEPZL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261887AbVGEP2n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261861AbVGEPZL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Jul 2005 11:25:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261838AbVGEPZL
+	id S261887AbVGEP2n (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Jul 2005 11:28:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261875AbVGEP2n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Jul 2005 11:25:11 -0400
-Received: from 66-23-228-155.clients.speedfactory.net ([66.23.228.155]:22472
-	"EHLO kevlar.burdell.org") by vger.kernel.org with ESMTP
-	id S261881AbVGEPNb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Jul 2005 11:13:31 -0400
-Date: Tue, 5 Jul 2005 11:11:19 -0400
-From: Sonny Rao <sonny@burdell.org>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: "'Christoph Lameter'" <christoph@lameter.com>,
-       "'Badari Pulavarty'" <pbadari@us.ibm.com>,
-       "'Nick Piggin'" <nickpiggin@yahoo.com.au>, Lincoln Dale <ltd@cisco.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: [rfc] lockless pagecache
-Message-ID: <20050705151119.GA12279@kevlar.burdell.org>
-References: <Pine.LNX.4.62.0506271221540.21616@graphe.net> <200506271942.j5RJgig23410@unix-os.sc.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200506271942.j5RJgig23410@unix-os.sc.intel.com>
-User-Agent: Mutt/1.4.2.1i
+	Tue, 5 Jul 2005 11:28:43 -0400
+Received: from po2.wam.umd.edu ([128.8.10.164]:25763 "EHLO po2.wam.umd.edu")
+	by vger.kernel.org with ESMTP id S261887AbVGEPRp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Jul 2005 11:17:45 -0400
+Date: Tue, 5 Jul 2005 11:17:35 -0400 (EDT)
+From: Patrick Jenkins <patjenk@wam.umd.edu>
+To: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [PATCH] multipath routing algorithm, better patch
+Message-ID: <Pine.GSO.4.61.0507051114310.15834@rac3.wam.umd.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 27, 2005 at 12:42:44PM -0700, Chen, Kenneth W wrote:
-> Christoph Lameter wrote on Monday, June 27, 2005 12:23 PM
-> > On Mon, 27 Jun 2005, Chen, Kenneth W wrote:
-> > > I don't recall seeing tree_lock to be a problem for DSS workload either.
-> > 
-> > I have seen the tree_lock being a problem a number of times with large 
-> > scale NUMA type workloads.
-> 
-> I totally agree!  My earlier posts are strictly referring to industry
-> standard db workloads (OLTP, DSS).  I'm not saying it's not a problem
-> for everyone :-)  Obviously you just outlined a few ....
+>Thomas Graf wrote:
+>> * Patrick McHardy <42C4919A.5000009@trash.net> 2005-07-01 02:43
+>>
+>>>If it isn't set correctly its an iproute problem. Did you actually
+>>>experience any problems?
+>>
+>> Well, my patch for iproute2 to enable multipath algorithm selection
+>> is currently being merged to Stephen together with the ematch bits.
+>> We had to work out a dependency on GNU flex first (the berkley
+>> version uses the same executable names) so the inclusion was
+>> delayed a bit.
+>
+>So its no problem but simply missing support. BTW, do you know if
+>Stephen's new CVS repository is exported somewhere?
 
-I'm a bit late to the party here (was gone on vacation), but I do have
-profiles from DSS workloads using page-cache rather than O_DIRECT and
-I do see spin_lock_irq() in the profiles which I'm pretty certain are
-locks spinning for access to the radix_tree.  I'll talk about it a bit
-more up in Ottawa but here's the top 5 on my profile (sorry don't have
-the number of ticks at the momement):
+Yes, we did experience a problem. The routing doesnt work as advertised 
+(i.e. it wont utilize the multiple routes). Patrick is correct in saying 
+its missing support.
 
-1. dedicated_idle (waiting for I/O)
-2. __copy_tofrom_user
-3. radix_tree_delete
-4. _spin_lock_irq
-5. __find_get_block
+>From what you are saying it seems the problem will be corrected by a new 
+feature in iproute2 that allows the user to select this ability. Is this 
+correct? Also, does this mean my patch is not needed? It seems to me that 
+it should be supported somehow in the kernel seeing as how everyone might 
+not utilize iproute2.
 
-So, yes, if the page-cache is used in a DSS workload then one will see
-the tree-lock.  BTW, this was on a PPC64 machine w/ a fairly small
-NUMA factor.
+Once again, please cc me in the reply because I am not a member of the 
+list.
 
-Sonny
+Thanks,
+Patrick Jenkins
+
+

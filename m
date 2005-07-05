@@ -1,67 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261897AbVGEQrS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261899AbVGEQrA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261897AbVGEQrS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Jul 2005 12:47:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261893AbVGEQrS
+	id S261899AbVGEQrA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Jul 2005 12:47:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261897AbVGEQrA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Jul 2005 12:47:18 -0400
-Received: from dsl081-242-086.sfo1.dsl.speakeasy.net ([64.81.242.86]:42635
-	"EHLO lapdance.christiehouse.net") by vger.kernel.org with ESMTP
-	id S261931AbVGEQkz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Jul 2005 12:40:55 -0400
-Message-ID: <42CAB7E6.7050604@waychison.com>
-Date: Tue, 05 Jul 2005 12:40:06 -0400
-From: Mike Waychison <mike@waychison.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-CC: linux-kernel@vger.kernel.org, Dmitry Torokhov <dtor@mail.ru>,
-       Vojtech Pavlik <vojtech@suse.cz>, Andrew Morton <akpm@osdl.org>
-Subject: Re: ALPS psmouse_reset on reconnect confusing Tecra M2
-References: <42C9A69A.5050905@waychison.com> <200507041705.17626.dtor_core@ameritech.net>
-In-Reply-To: <200507041705.17626.dtor_core@ameritech.net>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 5 Jul 2005 12:47:00 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:3764 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261901AbVGEQnu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Jul 2005 12:43:50 -0400
+Subject: Re: ASUS K8N-DL Beta BIOS
+From: Lee Revell <rlrevell@joe-job.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Sean Bruno <sean.bruno@dsl-only.net>,
+       "Hodle, Brian" <BHodle@harcroschem.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'ipsoa@posiden.hopto.org'" <ipsoa@posiden.hopto.org>
+In-Reply-To: <1120578876.23127.19.camel@localhost.localdomain>
+References: <D9A1161581BD7541BC59D143B4A06294021FAAAF@KCDC1>
+	 <1120246927.2764.26.camel@home-lap>
+	 <1120578876.23127.19.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Tue, 05 Jul 2005 12:43:48 -0400
+Message-Id: <1120581829.21514.3.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Dmitry Torokhov wrote:
-> On Monday 04 July 2005 16:14, Mike Waychison wrote:
+On Tue, 2005-07-05 at 16:54 +0100, Alan Cox wrote:
+> On Gwe, 2005-07-01 at 20:42, Sean Bruno wrote:
+> > This is pretty much the reaction that I am getting from calling ASUS
+> > tech support.  They have told me on several occasions that they will
+> > "call me back" and never do. 
 > 
->>Hi,
->>
->>I just upgrade my Tecra M2 this weekend to the latest GIT tree and
->>noticed that my mouse pointer/touchpad is now broken on resume.
->>
->>Investigating, it appears that mouse device gets confused due to the
->>introduced psmouse_reset(psmouse) during reconnect:
->>
->>http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=f3a5c73d5ecb40909db662c4d2ace497b25c5940
-> 
-> 
-> Hi,
-> 
-> Please try the following patch:
-> 
-> 	http://www.ucw.cz/~vojtech/input/alps-suspend-typo
->  
->
+> Ditto with problems I've seen on ASUS boards, even the high end ones. 
 
-Yup.  This did the trick :D
+Translation: "I have no idea what's wrong, and we don't have a working
+escalation procedure.  Hopefully by the time you call us back, I'll be
+gone for the day or on another call, and someone else will have to deal
+with it."
 
-Thanks,
+Lee
 
-Mike Waychison
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFCyrfldQs4kOxk3/MRAs6CAJwMeMy8uZK3wVxwptihGtyRQUKVPQCaAnSO
-XP1TQKemZRAbwiy/0UovARM=
-=YVQS
------END PGP SIGNATURE-----

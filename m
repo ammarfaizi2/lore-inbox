@@ -1,75 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261805AbVGEK0H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261800AbVGEKZk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261805AbVGEK0H (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Jul 2005 06:26:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261789AbVGEK0H
+	id S261800AbVGEKZk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Jul 2005 06:25:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261789AbVGEKZj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Jul 2005 06:26:07 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:29578 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261805AbVGEKTw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Jul 2005 06:19:52 -0400
+	Tue, 5 Jul 2005 06:25:39 -0400
+Received: from mailhub3.nextra.sk ([195.168.1.146]:40461 "EHLO
+	mailhub3.nextra.sk") by vger.kernel.org with ESMTP id S261800AbVGEKTd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Jul 2005 06:19:33 -0400
+Message-ID: <42CA5EAD.7070005@rainbow-software.org>
+Date: Tue, 05 Jul 2005 12:19:25 +0200
+From: Ondrej Zary <linux@rainbow-software.org>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+To: Jens Axboe <axboe@suse.de>
+CC: "=?ISO-8859-1?Q?Andr=E9_Tomt?=" <andre@tomt.net>,
+       Al Boldi <a1426z@gawab.com>,
+       "'Bartlomiej Zolnierkiewicz'" <bzolnier@gmail.com>,
+       "'Linus Torvalds'" <torvalds@osdl.org>, linux-ide@vger.kernel.org,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] x86-64: ptrace ia32 BP fix
-In-Reply-To: Andi Kleen's message of  Tuesday, 5 July 2005 11:59:16 +0200 <20050705095916.GV21330@wotan.suse.de>
-X-Antipastobozoticataclysm: Bariumenemanilow
-Message-Id: <20050705101934.2E307180980@magilla.sf.frob.com>
-Date: Tue,  5 Jul 2005 03:19:34 -0700 (PDT)
+Subject: Re: [git patches] IDE update
+References: <200507042033.XAA19724@raad.intranet> <42C9C56D.7040701@tomt.net> <42CA5A84.1060005@rainbow-software.org> <20050705101414.GB18504@suse.de>
+In-Reply-To: <20050705101414.GB18504@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Tue, Jul 05, 2005 at 02:31:15AM -0700, Roland McGrath wrote:
-> > --- a/arch/x86_64/ia32/ia32entry.S
-> > +++ b/arch/x86_64/ia32/ia32entry.S
-> > @@ -102,6 +102,7 @@ sysenter_do_call:	
-> >  	.byte	0xf, 0x35
-> >  
-> >  sysenter_tracesys:
-> > +	movl	%r9d,%ebp
-> >  	SAVE_REST
+Jens Axboe wrote:
+> On Tue, Jul 05 2005, Ondrej Zary wrote:
 > 
-> This is wrong because it will clobber ebp before it is saved.
-> It is only saved in SAVE_REST.
-
-It is right because it stores %ebp before it is saved in the argument block
-that ptrace can access.  That is the point of it.  %r9d has the value
-loaded from (%rbp) just prior to this code, which is what %ebp should
-reflect to match the i386 behavior.
-
+>>André Tomt wrote:
+>>
+>>>Al Boldi wrote:
+>>>
+>>>
+>>>>Bartlomiej Zolnierkiewicz wrote: {
+>>>>
+>>>>
+>>>>>>>On 7/4/05, Al Boldi <a1426z@gawab.com> wrote:
+>>>>>>>Hdparm -tT gives 38mb/s in 2.4.31
+>>>>>>>Cat /dev/hda > /dev/null gives 2% user 33% sys 65% idle
+>>>>>>>
+>>>>>>>Hdparm -tT gives 28mb/s in 2.6.12
+>>>>>>>Cat /dev/hda > /dev/null gives 2% user 25% sys 0% idle 73% IOWAIT
+>>>
+>>>
+>>>The "hdparm doesn't get as high scores as in 2.4" is a old discussed to 
+>>>death "problem" on LKML. So far nobody has been able to show it affects 
+>>>anything  but that pretty useless quasi-benchmark.
+>>>
+>>
+>>No, it's not a problem with hdparm. hdparm only shows that there is 
+>>_really_ a problem:
+>>
+>>2.6.12
+>>root@pentium:/home/rainbow# time dd if=/dev/hda of=/dev/null bs=512
+>>count=1048576
+>>1048576+0 records in
+>>1048576+0 records out
+>>
+>>real    0m32.339s
+>>user    0m1.500s
+>>sys     0m14.560s
+>>
+>>2.4.26
+>>root@pentium:/home/rainbow# time dd if=/dev/hda of=/dev/null bs=512
+>>count=1048576
+>>1048576+0 records in
+>>1048576+0 records out
+>>
+>>real    0m23.858s
+>>user    0m1.750s
+>>sys     0m15.180s
 > 
-> >  	CLEAR_RREGS
-> >  	movq	$-ENOSYS,RAX(%rsp)	/* really needed? */
-> > @@ -109,13 +110,7 @@ sysenter_tracesys:
-> >  	call	syscall_trace_enter
-> >  	LOAD_ARGS ARGOFFSET  /* reload args from stack in case ptrace changed it */
-> >  	RESTORE_REST
-> > -	movl	%ebp, %ebp
-> > -	/* no need to do an access_ok check here because rbp has been
-> > -	   32bit zero extended */ 
-> > -1:	movl	(%rbp),%r9d
-> > -	.section __ex_table,"a"
-> > -	.quad 1b,ia32_badarg
-> > -	.previous
-> > +	movl	%ebp,%r9d
 > 
-> And this also cannot be correct because RESTORE_REST has overwritten %rbp
-> already.
+> Perhaps some read-ahead bug. What happens if you use bs=128k for
+> instance?
+> 
+Nothing - it's still the same.
 
-This is also correct because RESTORE_REST has stored into %rbp the value in
-the argument block, which ptrace may have modified.  This movl ensures that
-this changed value is what the system call's argument will be.
+root@pentium:/home/rainbow# time dd if=/dev/hda of=/dev/null bs=128k 
+count=4096
+4096+0 records in
+4096+0 records out
 
-The patch is tested and works.  Just try strace on a 32-bit program that
-calls mmap2 and look at the 6th argument value.  It shows a stack address
-without this patch.  With this patch, it shows the argument value the same
-as strace on a native i386 kernel does.
+real    0m32.832s
+user    0m0.040s
+sys     0m15.670s
 
-
-Thanks,
-Roland
+-- 
+Ondrej Zary

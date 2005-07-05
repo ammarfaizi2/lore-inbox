@@ -1,63 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261738AbVGEBDS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261743AbVGEBIf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261738AbVGEBDS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Jul 2005 21:03:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261742AbVGEBDS
+	id S261743AbVGEBIf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Jul 2005 21:08:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261742AbVGEBIf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Jul 2005 21:03:18 -0400
-Received: from omta04sl.mx.bigpond.com ([144.140.93.156]:56736 "EHLO
-	omta04sl.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S261738AbVGEBDN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Jul 2005 21:03:13 -0400
-Message-ID: <42C9DC4A.4020003@bigpond.net.au>
-Date: Tue, 05 Jul 2005 11:03:06 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
+	Mon, 4 Jul 2005 21:08:35 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:665 "EHLO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
+	id S261743AbVGEBIa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Jul 2005 21:08:30 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Date: Tue, 5 Jul 2005 11:08:17 +1000
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Chris Han <xiphux@gmail.com>, Con Kolivas <kernel@kolivas.org>,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: [ANNOUNCE][RFC] PlugSched-5.2.2 for 2.6.13-rc1 and 2.6.13-rc1-mm1
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta04sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Tue, 5 Jul 2005 01:03:06 +0000
+Message-ID: <17097.56705.490622.759154@cse.unsw.edu.au>
+Subject: REGRESSION in 2.6.13-rc1: Massive slowdown with Adaptec SCSI
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-PlugSched-5.2.2 is available for 2.6.13-rc1 at:
 
-<http://prdownloads.sourceforge.net/cpuse/plugsched-5.2.2-for-2.6.13-rc1.patch?download>
+Hi,
+ I have a server with a:
+        SCSI storage controller: Adaptec AHA-3960D / AIC-7899A U160/m (rev 01)
+        Subsystem: Adaptec AHA-3960D U160/m
 
-and for 2.6.13-rc1-mm1 at:
+ connected to 14 
+      Vendor: MAXTOR   Model: ATLAS15K_36SCA   Rev: DTA0
 
-<http://prdownloads.sourceforge.net/cpuse/plugsched-5.2.2-for-2.6.13-rc1-mm1.patch?download>
+ 7 on each channel.
 
-Very Brief Documentation:
+ On  2.6.12  a simple 'dd' write test gives 70 Meg/second:
 
-You can select a default scheduler at kernel build time.  If you wish to
-boot with a scheduler other than the default it can be selected at boot
-time by adding:
+cage #  time dd of=/dev/null if=/dev/sdl bs=1024k count=100
+100+0 records in
+100+0 records out
+104857600 bytes transferred in 1.555210 seconds (67423431 bytes/sec)
 
-cpusched=<scheduler>
+real    0m1.557s
+user    0m0.001s
+sys     0m0.770s
 
-to the boot command line where <scheduler> is one of: ingosched,
-nicksched, staircase, spa_no_frills or zaphod.  If you don't change the
-default when you build the kernel the default scheduler will be
-ingosched (which is the normal scheduler).
 
-The scheduler in force on a running system can be determined by the
-contents of:
+ On 2.6.13-rc1 the same test takes just short on 1 minute and reports
+ slightly less than 2 M/Second.
 
-/proc/scheduler
+cage #  time dd of=/dev/null if=/dev/sdl bs=1024k count=100
+100+0 records in
+100+0 records out
+104857600 bytes transferred in 54.576592 seconds (1921293 bytes/sec)
 
-Control parameters for the scheduler can be read/set via files in:
+real    0m54.578s
+user    0m0.000s
+sys     0m0.360s
 
-/sys/cpusched/<scheduler>/
+I'm happy to try patches or perform other tests.
 
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+NeilBrown

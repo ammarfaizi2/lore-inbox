@@ -1,86 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261937AbVGEQdi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261928AbVGEQZ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261937AbVGEQdi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Jul 2005 12:33:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261941AbVGEQaQ
+	id S261928AbVGEQZ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Jul 2005 12:25:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261929AbVGEQY4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Jul 2005 12:30:16 -0400
-Received: from mx2.suse.de ([195.135.220.15]:18362 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261939AbVGEQ0w (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Jul 2005 12:26:52 -0400
-Date: Tue, 5 Jul 2005 18:26:49 +0200
-From: Kurt Garloff <garloff@suse.de>
-To: James Morris <jmorris@redhat.com>
-Cc: Tony Jones <tonyj@immunix.com>,
-       Linux kernel list <linux-kernel@vger.kernel.org>,
-       Chris Wright <chrisw@osdl.org>, Stephen Smalley <sds@epoch.ncsc.mil>,
-       Greg Kroah-Hartman <gregkh@suse.de>, Steve Beattie <smb@wirex.com>,
-       Linux LSM list <linux-security-module@wirex.com>
-Subject: Re: [PATCH 1/3] Make cap default
-Message-ID: <20050705162649.GB12583@tpkurt.garloff.de>
-Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
-	James Morris <jmorris@redhat.com>, Tony Jones <tonyj@immunix.com>,
-	Linux kernel list <linux-kernel@vger.kernel.org>,
-	Chris Wright <chrisw@osdl.org>, Stephen Smalley <sds@epoch.ncsc.mil>,
-	Greg Kroah-Hartman <gregkh@suse.de>, Steve Beattie <smb@wirex.com>,
-	Linux LSM list <linux-security-module@wirex.com>
-References: <20050705072111.GA10453@tpkurt.garloff.de> <Xine.LNX.4.44.0507051139470.3247-100000@thoron.boston.redhat.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="eAbsdosE1cNLO4uF"
-Content-Disposition: inline
-In-Reply-To: <Xine.LNX.4.44.0507051139470.3247-100000@thoron.boston.redhat.com>
-X-Operating-System: Linux 2.6.11.4-21.7-xen i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E
-Organization: SUSE/Novell
-User-Agent: Mutt/1.5.6i
+	Tue, 5 Jul 2005 12:24:56 -0400
+Received: from adsl-67-39-48-196.dsl.milwwi.ameritech.net ([67.39.48.196]:33702
+	"EHLO mail.wit.org") by vger.kernel.org with ESMTP id S261928AbVGEQQ1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Jul 2005 12:16:27 -0400
+Message-ID: <42CAB369.5020901@linuxmachines.com>
+Date: Tue, 05 Jul 2005 09:20:57 -0700
+From: Jeff Carr <jcarr@linuxmachines.com>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: A correct method to use the x86 breakpoint registers (DR0-7)
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'm trying to set the x86 breakpoint registers to trip on write data.
 
---eAbsdosE1cNLO4uF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+After they are set, nothing seems to happen when I trigger them.
 
-Hi James,
+It's possible I'm not setting them correctly, I tried putting the
+virt_to_phys() value in them. And, I tried looking at what KPROBE puts
+in them, but it looks like kprobe doesn't use them at all.
 
-On Tue, Jul 05, 2005 at 11:40:40AM -0400, James Morris wrote:
-> On Tue, 5 Jul 2005, Kurt Garloff wrote:
->=20
-> > #  define COND_SECURITY(seop, def)			\
-> > 	(security_opt->seop =3D=3D NULL) ||			\
-> > 	 security_ops =3D=3D &capability_security_ops)?	\
-> > 	 def: security_ops->seop
->=20
-> Why is this a macro and not a static inline?
+In 2.6.11, arch/i386/ has 5 places where it modifies the db regs:
+	do_debug()              in traps.c    (??)
+	do_signal()             in signal.c   (re-enable them)
+	fix_processor_context() in cpu.c      (reload them)
+	__switch_to()		in process.c  (reload them)
+	cpu_init()		in common.c   (clears them)
 
-Good question ...
+Just FYI: sometime after 2.6.11, the macros get_debugreg() and
+set_debugreg() were defined in include/asm-i386/processor.h and set to
+be used in the 5 places above. In any case, the functionality seems the
+same the above routines. (And the registers names corrected s/db/dr/g )
 
-The number and type of parameters is variable, so we can't=20
-easily do it with ONE static inline function.
+In any case, setting these registers never seems to do anything. No INT3
+or INT1 (is it really supposed to generate an interrupt?) Perhaps I need
+to have kgdb setup.
 
-seop is the function call including parameters, as is def.
-Which means that the idea won't work the way I suggested in
-the email. We'd need a three arg version, one for the security_ops
-function name, one for the cap version and one for the arguments.
+The closest I can get to making anything happen is if I set bit 13 of
+DR7 (triggers on the next access of the breakpoint registers) then when
+I insmod I get:
 
-Best,
---=20
-Kurt Garloff, Director SUSE Labs, Novell Inc.
+root@foxtrot:~/dbregtest# insmod ./dbregtest.ko
+Trace/breakpoint trap
+root@foxtrot:~/dbregtest#
 
---eAbsdosE1cNLO4uF
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+If I set BR0 with the value from virt_to_phys() I don't get this
+trace/breakpoint trap.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+Enjoy,
+Jeff
 
-iD8DBQFCyrTJxmLh6hyYd04RArV6AJ41YHLKEtA4gESzmH0kaTBPhTu/IgCgm5rE
-b2bUF7lzp6SzBetFQqUixdo=
-=ZqDv
------END PGP SIGNATURE-----
+// Current documentation for these registers is in Vol 3 Section 15.2:
+// Also note: EFLAGS BIT 16 (Resume) section 2.3 disables #DB exceptions
+// http://developer.intel.com/design/pentium4/manuals/index_new.htm
 
---eAbsdosE1cNLO4uF--
+static int __init db_reg_test(void)
+{
+        u32 *i;
+        unsigned int phys_addr;
+
+        i = kmalloc( 0x1000, GFP_DMA );
+        printk("i == 0x%08X\n", (int) i);
+        phys_addr = virt_to_phys(i);
+
+        printk("virt_to_phys(i)  == 0x%08X\n", (int) phys_addr);
+        __asm__ __volatile__( "movl %0, %%dr0\n" : : "r" (phys_addr) );
+
+        // clear out the DR6 status register
+        __asm__ __volatile__( "movl %0, %%dr6\n" : : "r" (0xFFFF0FF0) );
+
+        // Enable DR0 as a global breakpoint
+        __asm__ __volatile__( "movl %0, %%dr7\n" : : "r" (0x00030002) );
+
+        // Enables all four BR registers as global breakpoints
+        __asm__ __volatile__( "movl %0, %%dr7\n" : : "r" (0x333300AA) );
+
+        // shouldn't this trigger a breakpoint exception?
+        i[0] = 0xDEADBEEF;
+
+        kfree(i);
+
+	// this will correctly trigger a breakpoint
+	// __asm__ ( "movl %0, %%dr7\n" : : "r" (0x333320AA) );
+        // __asm__ ( "movl %0, %%dr7\n" : : "r" (0x333300AA) );
+        return 0;
+}
+
+module_init(db_reg_test);
+
+root@foxtrot:~/dbregtest# tail /var/log/kern.log
+Jul  5 09:01:16 localhost kernel: i == 0xC046E000
+Jul  5 09:01:16 localhost kernel: virt_to_phys(i)  == 0x0046E000
+
+
+

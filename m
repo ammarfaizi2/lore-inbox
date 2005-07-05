@@ -1,117 +1,144 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261957AbVGEVdF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261977AbVGEVik@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261957AbVGEVdF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Jul 2005 17:33:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261956AbVGEVdE
+	id S261977AbVGEVik (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Jul 2005 17:38:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261976AbVGEVij
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Jul 2005 17:33:04 -0400
-Received: from mta206-rme.xtra.co.nz ([210.86.15.58]:53161 "EHLO
-	mta206-rme.xtra.co.nz") by vger.kernel.org with ESMTP
-	id S261957AbVGEV1R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Jul 2005 17:27:17 -0400
-Message-ID: <40BC5D4C2DD333449FBDE8AE961E0C334F9366@psexc03.nbnz.co.nz>
-From: "Roberts-Thomson, James" <James.Roberts-Thomson@NBNZ.CO.NZ>
-To: "'Alan Stern'" <stern@rowland.harvard.edu>
-Cc: Stefano Rivoir <s.rivoir@gts.it>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-Subject: RE: [linux-usb-devel] Kernel unable to read partition table on US
-	B Memory Key
-Date: Wed, 6 Jul 2005 09:19:30 +1200 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	Tue, 5 Jul 2005 17:38:39 -0400
+Received: from chretien.genwebhost.com ([209.59.175.22]:24812 "EHLO
+	chretien.genwebhost.com") by vger.kernel.org with ESMTP
+	id S261971AbVGEV1v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Jul 2005 17:27:51 -0400
+Date: Tue, 5 Jul 2005 14:27:35 -0700
+From: randy_dunlap <rdunlap@xenotime.net>
+To: <Stuart_Hayes@Dell.com>
+Cc: ak@suse.de, riel@redhat.com, andrea@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: page allocation/attributes question (i386/x86_64 specific)
+Message-Id: <20050705142735.15daabb7.rdunlap@xenotime.net>
+In-Reply-To: <B1939BC11A23AE47A0DBE89A37CB26B407435C@ausx3mps305.aus.amer.dell.com>
+References: <B1939BC11A23AE47A0DBE89A37CB26B407435C@ausx3mps305.aus.amer.dell.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-ClamAntiVirus-Scanner: This mail is clean
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - chretien.genwebhost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - xenotime.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan,
+On Tue, 5 Jul 2005 15:02:26 -0500 Stuart_Hayes@Dell.com wrote:
 
-Thanks very much for the input.
+| Hayes, Stuart wrote:
+| >> So, if I understand correctly what's going on in x86_64, your fix
+| >> wouldn't be applicable to i386.  In x86_64, every large page has a
+| >> correct "ref_prot" that is the normal setting for that page... but in
+| >> i386, the kernel text area does not--it should ideally be split into
+| >> small pages all the time if there are both kernel code & free pages
+| >> residing in the same 2M area. 
+| >> 
+| >> Stuart
+| > 
+| > (This isn't a submission--I'm just posting this for comments.)
+| > 
+| > Right now, any large page that touches anywhere from PAGE_OFFSET to
+| > __init_end is initially set up as a large, executable page... but
+| > some of this area contains data & free pages.  The patch below adds a
+| > "cleanup_nx_in_kerneltext()" function, called at the end of
+| > free_initmem(), which changes these pages--except for the range from
+| > "_text" to "_etext"--to PAGE_KERNEL (i.e., non-executable).     
+| > 
+| > This does result in two large pages being split up into small PTEs
+| > permanently, but all the non-code regions will be non-executable, and
+| > change_page_attr() will work correctly.  
+| > 
+| > What do you think of this?  I have tested this on 2.6.12.
+| > 
+| > (I've attached the patch as a file, too, since my mail server can't
+| > be convinced to not wrap text.) 
+| > 
+| > Stuart
+| > 
+| 
+| Andi--
+| 
+| I made another pass at this.  This does roughly the same thing, but it
+| doesn't create the new "change_page_attr_perm()" functions.  With this
+| patch, the change to init.c (cleanup_nx_in_kerneltext()) is optional.  I
+| changed __change_page_attr() so that, if the page to be changed is part
+| of a large executable page, it splits the page up *keeping the
+| executability of the extra 511 pages*, and then marks the new PTE page
+| as reserved so that it won't be reverted.
+| 
+| So, basically, without the changes to init.c, the NX bits for data in
+| the first two big pages won't get fixed until someone calls
+| change_page_attr() on them.  If NX is disabled, these patches have no
+| functional effect at all.
+| 
+| How does this look?
 
-> > I'm trying to diagnose an issue with a USB "Memory Key" 
-> (128Mb Flash 
-> > drive) on my workstation (i386 Linux 2.6.12 kernel, using udev 058).
-> > 
-> > When connecting the key, the kernel fails to read the 
-> partition table, 
-> > and therefore the block device /dev/sda1 isn't created, so I can't 
-> > mount the volume.  Calling "fdisk" manually, however, makes 
-> it all work.
-> 
-> You don't even have to call fdisk.  Probably "touch /dev/sda" 
-> would be enough.
+Look?  It has lots of bad line breaks and other style issues.
 
-Yes, indeed that does make it work.
+But I'll let Andi comment on the technical issues.
 
-> The device is not supposed to send the "Unit Attention, Not 
-> ready to ready change" message more than once.  It's 
-> violating the SCSI protocol by doing so.  (In fact it's not 
-> supposed to send that message at all; it's supposed to send 
-> "Power on or reset".)
+| -----
+| 
+| diff -purN linux-2.6.12grep/arch/i386/mm/init.c
+| linux-2.6.12/arch/i386/mm/init.c
+| --- linux-2.6.12grep/arch/i386/mm/init.c	2005-07-01
+| 15:09:27.000000000 -0500
+| +++ linux-2.6.12/arch/i386/mm/init.c	2005-07-05 14:32:57.000000000
+| -0500
+| @@ -666,6 +666,28 @@ static int noinline do_test_wp_bit(void)
+|  	return flag;
+|  }
+|  
+| +/*
+| + * In kernel_physical_mapping_init(), any big pages that contained
+| kernel text area were
+| + * set up as big executable pages.  This function should be called when
+| the initmem
+| + * is freed, to correctly set up the executable & non-executable pages
+| in this area.
+| + */
+| +static void cleanup_nx_in_kerneltext(void)
+| +{
+| +	unsigned long from, to;
+| +
+| +	if (!nx_enabled) return;
 
-Oh well, so much for the "Linux Compatible" markings on the box... :-)
+return; on separate line.
 
-> Replacing 
-> the device won't help, because the device is behaving as 
-> designed and the design is broken.
+| +	from = PAGE_OFFSET;
+| +	to = (unsigned long)_text & PAGE_MASK;
+| +	for (; from<to; from += PAGE_SIZE)
+	       from < to
 
-Yes, I'd imagine so, but I just wanted to make sure that it wasn't a bad
-chip etc - generally speaking QA isn't what it used to be for most products
-on the market these days.....
+(i.e., use the spacebar)
 
-> What might help would be a direct comparison of the commands 
-> being sent by Linux and by Windows.  If you turn on USB Mass 
-> Storage verbose debugging
-> (CONFIG_USB_STORAGE_DEBUG) in the kernel configuration then 
-> the system debugging log will contain the commands sent by 
-> usb-storage.  You can use a USB sniffer program like USB 
-> Snoop (available from Sourceforge) to record the commands 
-> sent by Windows.  Perhaps looking over the two logs will 
-> reveal what magic command the device is waiting for.
+| +		change_page_attr(virt_to_page(from), 1, PAGE_KERNEL); 
+| +	
+| +	from = ((unsigned long)_etext + PAGE_SIZE - 1) & PAGE_MASK;
+| +	to = ((unsigned long)__init_end + LARGE_PAGE_SIZE) &
+| LARGE_PAGE_MASK;
+| +	for (; from<to; from += PAGE_SIZE)
 
-OK, I'll try and do that today, and if I get anything meaningful, I'll send
-it to the list(s).
+add spaces:    from < to
 
-One more additional note is that the key came with some s/w that allows you
-to partition the key into "private" and "public" areas, where the private
-area is accessed by a password.  Naturally, this s/w (Ustorage) is Windows
-only; but looking at how it works under Windows it would appear that the key
-has some firmware inside that is controlling access etc - could it be that
-this firmware hasn't finished initialising by the time Linux tries to read
-block 0, which is why the messages occur?
+| +		change_page_attr(virt_to_page(from), 1, PAGE_KERNEL); 
+| +}
+| +
+|  void free_initmem(void)
+|  {
+|  	unsigned long addr;
 
-If this is the case, then a subtle delay somewhere in the initialisation
-chain may help.  I'm not a Kernel Guru by any stretch, but I imagine the
-sequence is something like this:
 
-<key insert>
-<usb subsystem identifies device>
-<usb-storage driver takes device control> (existing specifiable delay in
-here, via "delay_use")
-<usb-storage drivers creates /dev/sdX> (via some form of udev interaction, I
-guess...)
-<sd_mod informed that new SCSI disk exists>
-*
-<sd_mod tries to read partition table etc>
-<sd_mod creates /dev/sdXn entries> (also via udev)
-...etc....
-
-Perhaps the ability to create an additional "settle" delay at the "*" above
-may help - presumably, I'd need to hack the sd_mod driver, so I'll have a
-look there, too.
-
-Thanks,
-
-James Roberts-Thomson
-----------
-f u cn rd ths, u cn gt a gd jb n cmptr prgrmmng.
-
-Mailing list Readers:  Please ignore the following disclaimer - this email
-is explicitly declared to be non confidential and does not contain
-privileged information.
-
-This communication is confidential and may contain privileged material.
-If you are not the intended recipient you must not use, disclose, copy or retain it.
-If you have received it in error please immediately notify me by return email
-and delete the emails.
-Thank you.
+---
+~Randy

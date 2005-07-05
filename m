@@ -1,73 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261956AbVGEWfC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261963AbVGEWmh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261956AbVGEWfC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Jul 2005 18:35:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261962AbVGEWfB
+	id S261963AbVGEWmh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Jul 2005 18:42:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261962AbVGEWma
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Jul 2005 18:35:01 -0400
-Received: from email.esoft.com ([199.45.143.4]:43496 "EHLO esoft.com")
-	by vger.kernel.org with ESMTP id S261956AbVGEWce (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Jul 2005 18:32:34 -0400
-Subject: Re: reiser4 plugins
-From: Jonathan Briggs <jbriggs@esoft.com>
-To: Martin Waitz <tali@admingilde.org>
-Cc: Hans Reiser <reiser@namesys.com>, Ross Biro <ross.biro@gmail.com>,
-       Hubert Chan <hubert@uhoreg.ca>, Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Kyle Moffett <mrmacman_g4@mac.com>, David Masover <ninja@slaphack.com>,
-       Valdis.Kletnieks@vt.edu, Lincoln Dale <ltd@cisco.com>,
-       Gregory Maxwell <gmaxwell@gmail.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, ReiserFS List <reiserfs-list@namesys.com>
-In-Reply-To: <20050705154624.GC15652@admingilde.org>
-References: <hubert@uhoreg.ca>
-	 <200506290509.j5T595I6010576@laptop11.inf.utfsm.cl>
-	 <87hdfgvqvl.fsf@evinrude.uhoreg.ca>
-	 <8783be6605062914341bcff7cb@mail.gmail.com> <42C3615A.9020600@namesys.com>
-	 <20050705154624.GC15652@admingilde.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-8kci6TVVZuC746Y35uAa"
-Organization: eSoft, Inc.
-Date: Tue, 05 Jul 2005 16:32:00 -0600
-Message-Id: <1120602720.27600.79.camel@localhost>
+	Tue, 5 Jul 2005 18:42:30 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:35855 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261946AbVGEWmZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Jul 2005 18:42:25 -0400
+Date: Tue, 5 Jul 2005 23:42:20 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.12: arm compilation problems
+Message-ID: <20050705234220.A19003@flint.arm.linux.org.uk>
+Mail-Followup-To: Pavel Machek <pavel@ucw.cz>,
+	kernel list <linux-kernel@vger.kernel.org>
+References: <20050705215001.GC2259@elf.ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-X-Envelope-From: jbriggs@esoft.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050705215001.GC2259@elf.ucw.cz>; from pavel@ucw.cz on Tue, Jul 05, 2005 at 11:50:01PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jul 05, 2005 at 11:50:01PM +0200, Pavel Machek wrote:
+> I get this, trying to cross-compile 2.6.12 for arm. I tried different
+> configs... What am I doing wrong? [2.6.11 compiles ok, and even works
+> on my zaurus after some patches. I tried unpatched 2.6.12, too.]
+> 
+>   GEN     .version
+>   CHK     include/linux/compile.h
+>   UPD     include/linux/compile.h
+>   CC      init/version.o
+>   LD      init/built-in.o
+>   LD      .tmp_vmlinux1
+> /scratchbox/compilers/arm-gcc-3.3.4-glibc-2.3.2/bin/arm-linux-ld:arch/arm/kernel/vmlinux.lds:648:
+> syntax error
 
---=-8kci6TVVZuC746Y35uAa
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Your binutils is probably too old and therefore buggy.  2.16 seems
+reasonable, others prefer the known-buggy in other respects 2.15
+version (iirc assembler doesn't complain about undefined constant
+symbols, doesn't correctly hide $a, $d, $t symbols.)
 
-On Tue, 2005-07-05 at 17:46 +0200, Martin Waitz wrote:
-[snip]
-> Filesystems are there to store files.
-> Everything else can be done in userspace.
+The exact problem is the ASSERT() macro in the linker script - it
+appears some versions of binutils are documented to accept this
+but unfortunately it incorrectly errors out with a ficticious syntax
+error.
 
-You could do filesystems in userspace too and just use the kernel's
-block layer.
-
-In fact you can reduce the OS kernel to just interrupts, memory
-management, context switches and message passing.
-
-Everything else can be done in userspace, but that doesn't always make
-it a good idea.
---=20
-Jonathan Briggs <jbriggs@esoft.com>
-eSoft, Inc.
-
---=-8kci6TVVZuC746Y35uAa
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBCywpgG8fHaOLTWwgRAp8BAJ9YGvjZK++7+QwqNFOeJTeaApzyNQCgkGL/
-mnF9Wp8ltaQonvU3R8kBczo=
-=h5A0
------END PGP SIGNATURE-----
-
---=-8kci6TVVZuC746Y35uAa--
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

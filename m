@@ -1,61 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261577AbVGETVx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261668AbVGETZU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261577AbVGETVx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Jul 2005 15:21:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261557AbVGETVw
+	id S261668AbVGETZU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Jul 2005 15:25:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261520AbVGETZS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Jul 2005 15:21:52 -0400
-Received: from sj-iport-5.cisco.com ([171.68.10.87]:1140 "EHLO
-	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
-	id S261577AbVGETVE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Jul 2005 15:21:04 -0400
-X-IronPort-AV: i="3.93,261,1115017200"; 
-   d="scan'208"; a="196446071:sNHT29935028"
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [PATCH 11/16] IB uverbs: add mthca mmap support
-X-Message-Flag: Warning: May contain useful information
-References: <2005628163.o84QGfsM7oMSy0oU@cisco.com>
-	<2005628163.gtJFW6uLUrGQteys@cisco.com>
-	<20050628170553.00a14a29.akpm@osdl.org>
-From: Roland Dreier <rolandd@cisco.com>
-Date: Tue, 05 Jul 2005 12:20:58 -0700
-In-Reply-To: <20050628170553.00a14a29.akpm@osdl.org> (Andrew Morton's
- message of "Tue, 28 Jun 2005 17:05:53 -0700")
-Message-ID: <52mzp1oy91.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
-MIME-Version: 1.0
+	Tue, 5 Jul 2005 15:25:18 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:26070 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261668AbVGETYY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Jul 2005 15:24:24 -0400
+Date: Tue, 5 Jul 2005 21:25:50 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Ondrej Zary <linux@rainbow-software.org>
+Cc: =?iso-8859-1?Q?Andr=E9?= Tomt <andre@tomt.net>,
+       Al Boldi <a1426z@gawab.com>,
+       "'Bartlomiej Zolnierkiewicz'" <bzolnier@gmail.com>,
+       "'Linus Torvalds'" <torvalds@osdl.org>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [git patches] IDE update
+Message-ID: <20050705192550.GF30235@suse.de>
+References: <20050705101414.GB18504@suse.de> <42CA5EAD.7070005@rainbow-software.org> <20050705104208.GA20620@suse.de> <42CA7EA9.1010409@rainbow-software.org> <1120567900.12942.8.camel@linux> <42CA84DB.2050506@rainbow-software.org> <1120569095.12942.11.camel@linux> <42CAAC7D.2050604@rainbow-software.org> <20050705142122.GY1444@suse.de> <42CAA075.4040406@rainbow-software.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42CAA075.4040406@rainbow-software.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Andrew> What's the thinking behind the VM_DONTCOPY there?
+On Tue, Jul 05 2005, Ondrej Zary wrote:
+> oread is faster than dd, but still not as fast as 2.4. In 2.6.12, HDD 
+> led is blinking, in 2.4 it's solid on during the read.
 
-As I said before, I don't think the thinking behind VM_DONTCOPY was
-correct thinking.  Let's take it out.
+Oh, and please do test 2.6 by first setting the deadline scheduler for
+hda. I can see you are using the 'as' scheduler right now.
 
-I've now answered all your questions on this patchset (or at least
-written something in response to all your questions ;).  What's your
-feeling on merging?  If more info is required, just let me know.  I'll
-also be at the kernel summit in a couple of weeks if you want to go
-over it in person.
+# echo deadline > /sys/block/hda/queue/scheduler
 
- - R.
+Thanks!
 
+-- 
+Jens Axboe
 
-There's no need to set VM_DONTCOPY when mmap()ing the hardware
-doorbell page into userspace.
-
-Signed-off-by: Roland Dreier <rolandd@cisco.com>
-
-
---- linux-export.orig/drivers/infiniband/hw/mthca/mthca_provider.c	2005-06-28 15:20:28.000000000 -0700
-+++ linux-export/drivers/infiniband/hw/mthca/mthca_provider.c	2005-07-05 12:14:20.838664330 -0700
-@@ -347,7 +347,6 @@
- 		return -EINVAL;
- 
- 	vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
--	vma->vm_flags    |= VM_DONTCOPY;
- 
- 	if (remap_pfn_range(vma, vma->vm_start,
- 			    to_mucontext(context)->uar.pfn,

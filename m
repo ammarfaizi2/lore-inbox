@@ -1,45 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261970AbVGEWD0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262008AbVGEWMf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261970AbVGEWD0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Jul 2005 18:03:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261985AbVGEWBU
+	id S262008AbVGEWMf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Jul 2005 18:12:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262010AbVGEWJA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Jul 2005 18:01:20 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:57309 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261963AbVGEVuK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Jul 2005 17:50:10 -0400
-Date: Tue, 5 Jul 2005 23:50:01 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>
-Subject: 2.6.12: arm compilation problems
-Message-ID: <20050705215001.GC2259@elf.ucw.cz>
-Mime-Version: 1.0
+	Tue, 5 Jul 2005 18:09:00 -0400
+Received: from ams-iport-1.cisco.com ([144.254.224.140]:48745 "EHLO
+	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S261963AbVGEWHo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Jul 2005 18:07:44 -0400
+To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+Subject: Re: [PATCH 11/16] IB uverbs: add mthca mmap support
+X-Message-Flag: Warning: May contain useful information
+References: <2005628163.o84QGfsM7oMSy0oU@cisco.com>
+	<2005628163.gtJFW6uLUrGQteys@cisco.com>
+	<20050628170553.00a14a29.akpm@osdl.org> <52mzp1oy91.fsf@topspin.com>
+	<20050705205351.GB28064@mellanox.co.il>
+From: Roland Dreier <rolandd@cisco.com>
+Date: Tue, 05 Jul 2005 15:07:28 -0700
+In-Reply-To: <20050705205351.GB28064@mellanox.co.il> (Michael S. Tsirkin's
+ message of "Tue, 5 Jul 2005 23:53:51 +0300")
+Message-ID: <52d5pwnbz3.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+X-OriginalArrivalTime: 05 Jul 2005 22:07:40.0386 (UTC) FILETIME=[F5D88420:01C581AD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+    Michael> Roland, I think VM_DONTCOPY is needed here.
 
-I get this, trying to cross-compile 2.6.12 for arm. I tried different
-configs... What am I doing wrong? [2.6.11 compiles ok, and even works
-on my zaurus after some patches. I tried unpatched 2.6.12, too.]
+    Michael> If a process forks, we must prevent the child from
+    Michael> accessing the parent's hardware page. Otherwise the child
+    Michael> can corrupt the parent's queues since the hardware wont
+    Michael> be able to distinguish between parent and child.
 
-  GEN     .version
-  CHK     include/linux/compile.h
-  UPD     include/linux/compile.h
-  CC      init/version.o
-  LD      init/built-in.o
-  LD      .tmp_vmlinux1
-/scratchbox/compilers/arm-gcc-3.3.4-glibc-2.3.2/bin/arm-linux-ld:arch/arm/kernel/vmlinux.lds:648:
-syntax error
-make: *** [.tmp_vmlinux1] Error 1
-207.04user 14.19system 237.78 (3m57.784s) elapsed 93.04%CPU
-pavel@amd:/data/l/linux-delme$
+    Michael> Does this make sense?
 
-							Pavel
--- 
-teflon -- maybe it is a trademark, but it should not be.
+This is true, but there are a number of pieces that are required
+before fork will work for processes using userspace verbs.  One of the
+ingredients that's missing is adding something like PROT_DONTCOPY for
+mprotect().  Once that's in place, an app can use that on the
+doorbell page before forking.
+
+I don't consider this attack by children of a process very serious,
+since a process can always fork, munmap the doorbell page in the child
+process, and then fork the untrusted child into yet another child.
+
+ - R.

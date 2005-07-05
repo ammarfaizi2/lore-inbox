@@ -1,62 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261631AbVGETvh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261500AbVGETxH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261631AbVGETvh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Jul 2005 15:51:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbVGETvh
+	id S261500AbVGETxH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Jul 2005 15:53:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261658AbVGETxH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Jul 2005 15:51:37 -0400
-Received: from urchin.mweb.co.za ([196.2.24.26]:39549 "EHLO urchin.mweb.co.za")
-	by vger.kernel.org with ESMTP id S261658AbVGETve (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Jul 2005 15:51:34 -0400
-From: Bongani Hlope <bonganilinux@mweb.co.za>
-To: Sven Rudolph <rudsve@drewag.de>
-Subject: Re: Tracking a bug in x86-64
-Date: Tue, 5 Jul 2005 21:52:23 +0200
-User-Agent: KMail/1.8.50
-Cc: Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>,
-       Juan Gallego <Little.Boss@physics.mcgill.ca>
-References: <200506132259.22151.bonganilinux@mweb.co.za> <200506160139.04389.bonganilinux@mweb.co.za> <xfkll4lfy41.fsf@uxkm53.drewag.de>
-In-Reply-To: <xfkll4lfy41.fsf@uxkm53.drewag.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 5 Jul 2005 15:53:07 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:16345
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S261500AbVGETw4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Jul 2005 15:52:56 -0400
+Date: Tue, 05 Jul 2005 12:52:42 -0700 (PDT)
+Message-Id: <20050705.125242.104033031.davem@davemloft.net>
+To: linux-kernel@vger.kernel.org
+Subject: empty_zero_page
+From: "David S. Miller" <davem@davemloft.net>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507052152.24022.bonganilinux@mweb.co.za>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 05 July 2005 10:36 am, Sven Rudolph wrote:
-> Bongani Hlope <bonganilinux@mweb.co.za> writes:
-> 
 
-8<
+Why does mm/filemap_xip.c make an explicit reference to
+"empty_zero_page"?  That's bogus, and ZERO_PAGE() is how
+generic code should get at this thing.
 
-> > Hi Linus
-> >
-> > I just tested, 2.6.12-rc6 minus randomisation-top-of-stack-randomization.patch Works For Me (tm)
-> 
-> Sorry, I didn't follow the original discussion: Is this problem
-> expected to be solved in 2.6.12.2? Is it solved for you?
-> 
-> (I get similiar problems in 2.6.12.2, and I am uns ure know how to
-> proceed.)
-> 
-> 	Sven
+In fact, what the mm/filemap_xip.c code wants is the page
+struct, not the address of the page itself, because it
+does a virt_to_page() on empty_zero_page in every such
+reference.
 
-Hi Sven
+This causes build failures for XIP support on sparc64.
 
-I haven't tested 2.6.12.2 but the problem was introduced around 2.6.11-mm1 and
-found its way to 2.6.12-rcX. First try to run the following command (this works for me)
-echo 0 > /proc/sys/kernel/randomize_va_space
-I got an email from Juan Gallego (cc'd), he says that command does not work for him though.
-
-Andrew,
-Should I log this on the kernel's bugzilla?
-
-Regards
-/etc/sysctl.conf
+When moving mm/filemap_xip.c over to ZERO_PAGE(), we will
+need to determine the virtual address at which the ZERO_PAGE()
+will be mapped.  This shouldn't be difficult to determine,
+and it's incredibly important to get this right, wrt. page
+coloring concerns, particularly on MIPS which does make use
+of the 'vaddr' argument to ZERO_PAGE().

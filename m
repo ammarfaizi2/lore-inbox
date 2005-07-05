@@ -1,79 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261931AbVGEQvP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261964AbVGEQ65@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261931AbVGEQvP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Jul 2005 12:51:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261918AbVGEQuo
+	id S261964AbVGEQ65 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Jul 2005 12:58:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261925AbVGEQ6m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Jul 2005 12:50:44 -0400
-Received: from alog0326.analogic.com ([208.224.222.102]:23687 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261838AbVGEQtT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Jul 2005 12:49:19 -0400
-Date: Tue, 5 Jul 2005 12:48:03 -0400 (EDT)
-From: "Richard B. Johnson" <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Karel Kulhavy <clock@twibright.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Sending ethernet frames one after another
-In-Reply-To: <20050705155249.GA11451@kestrel>
-Message-ID: <Pine.LNX.4.61.0507051239330.6413@chaos.analogic.com>
-References: <20050705155249.GA11451@kestrel>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 5 Jul 2005 12:58:42 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:27596 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261985AbVGEQ4p (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Jul 2005 12:56:45 -0400
+Date: Tue, 5 Jul 2005 09:55:52 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Dave Jones <davej@redhat.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       jgarzik@pobox.com
+Subject: Re: [PATCH] skge: remove unused declarations
+Message-ID: <20050705095552.0150dffb@dxpl.pdx.osdl.net>
+In-Reply-To: <20050701225158.GA6762@redhat.com>
+References: <200506281916.j5SJGi5m012509@hera.kernel.org>
+	<20050701225158.GA6762@redhat.com>
+Organization: Open Source Development Lab
+X-Mailer: Sylpheed-Claws 1.0.5 (GTK+ 1.2.10; x86_64-unknown-linux-gnu)
+X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
+ /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Jul 2005, Karel Kulhavy wrote:
+Here is a patch that adds back the dev reg enum's. 
+BTW: I haven't tested this driver on big endian systems yet.
 
-> Hello
->
-> I have written a software to test connected optical datalink in loopback
-> mode which works by sending a burst of e. g. 1024 raw Ethernet frames
-> directly to that interface, then waiting a little bit, and counting from
-> ifconfig how many were received.
->
-> Some people report a problem that on their eepro100 in IBM Thinkpad, the
-> program (probably sendto) is returning error "No buffer space available".
->
-> Why doesn't the sendto block instead? Does it mean that I cannot use
-> this testing mode with that card? I need to send as fast as possible,
-> because it's necessary to constantly transmit, as the link must be
-> tested in load going in both directions simultaneously, to catch
-> possible crosstalks.
->
+Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
 
-If sendto is used on a data-gram socket, it may just dump
-extra packets on the floor. If you have a connected socket,
-sendto will return an error when no buffers are available.
-
-If you want RELIABLE communication, then you use a connected
-stream socket and send() or write(). These handle transmission
-problems transparently.
-
-> Or is that an error that should be handled by the application? In which
-> way, then?
->
-
-Generally, it is least expensive as far as performance is concerned
-if you let the kernel handle errors, retries, duplicate packets, etc.
-That's what you get with a connected stream socket. However, since
-every packet is ACKed, the round-trip time can be a performance
-killer. So, a private protocol for talking through satellites which
-have awful round-trip time might be to number packets at the application
-level, send everything, then query the receiver software about the
-missing packets. This continues until all the packets have been
-received.
-
-> Regards,
->
-> CL<
->
-
-
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.12 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+Index: sky2/drivers/net/skge.h
+===================================================================
+--- sky2.orig/drivers/net/skge.h
++++ sky2/drivers/net/skge.h
+@@ -8,6 +8,19 @@
+ #define PCI_DEV_REG1	0x40
+ #define PCI_DEV_REG2	0x44
+ 
++enum pci_dev_reg_2 {
++	PCI_VPD_WR_THR	= 0xffL<<24,	/* Bit 31..24:	VPD Write Threshold */
++	PCI_DEV_SEL	= 0x7fL<<17,	/* Bit 23..17:	EEPROM Device Select */
++	PCI_VPD_ROM_SZ	= 7L<<14,	/* Bit 16..14:	VPD ROM Size	*/
++
++	PCI_PATCH_DIR	= 0xfL<<8,	/* Bit 11.. 8:	Ext Patches dir 3..0 */
++	PCI_EXT_PATCHS	= 0xfL<<4,	/* Bit	7.. 4:	Extended Patches 3..0 */
++	PCI_EN_DUMMY_RD	= 1<<3,		/* Enable Dummy Read */
++	PCI_REV_DESC	= 1<<2,		/* Reverse Desc. Bytes */
++
++	PCI_USEDATA64	= 1<<0,		/* Use 64Bit Data bus ext */
++};
++
+ #define PCI_STATUS_ERROR_BITS (PCI_STATUS_DETECTED_PARITY | \
+ 			       PCI_STATUS_SIG_SYSTEM_ERROR | \
+ 			       PCI_STATUS_REC_MASTER_ABORT | \

@@ -1,70 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261960AbVGEVOQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261905AbVGEVNY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261960AbVGEVOQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Jul 2005 17:14:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261959AbVGEVOD
+	id S261905AbVGEVNY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Jul 2005 17:13:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261927AbVGEVNQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Jul 2005 17:14:03 -0400
-Received: from smtp006.bizmail.sc5.yahoo.com ([66.163.175.83]:62809 "HELO
-	smtp006.bizmail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261961AbVGEVG2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Jul 2005 17:06:28 -0400
-Reply-To: <matts@commtech-fastcom.com>
-From: "Matt Schulte" <matts@commtech-fastcom.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Serial PCI driver in 2.6.x kernel (i.e. 8250_pci HOWTO)
-Date: Tue, 5 Jul 2005 16:06:22 -0500
-Message-ID: <MFEBKNPNJBEAJEICJEJNOEBECLAA.matts@commtech-fastcom.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1506
+	Tue, 5 Jul 2005 17:13:16 -0400
+Received: from ozlabs.org ([203.10.76.45]:13763 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261965AbVGEVGz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Jul 2005 17:06:55 -0400
+Date: Wed, 6 Jul 2005 07:02:04 +1000
+From: Anton Blanchard <anton@samba.org>
+To: akpm@osdl.org
+Cc: paulus@samba.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] ppc64: add ioprio syscalls
+Message-ID: <20050705210204.GH12786@krispykreme>
+References: <20050705205632.GF12786@krispykreme> <20050705205804.GG12786@krispykreme>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050705205804.GG12786@krispykreme>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am paraphrasing my thread "development of serial driver" from the
-linux-serial list.  I have not received much of a response on the serial
-list.  I have noticed that there seems to be a fair amount of serial traffic
-on this list and I am hoping to do a little bit better here.
 
-When you respond, can you please copy the serial list at
-linux-serial@vger.kernel.org
+- Clean up sys32_getpriority comment.
+- Add ioprio syscalls, and sign extend 32bit versions.
 
-I am a developer for a line of multi-port PCI serial cards.  I have received
-enough requests that it is time to make the cards work with the 2.6.x
-kernels.  I see that serial.c has been deprecated and I am wondering if
-anyone can tell me exactly how the serial is supposed to work in the new
-kernel?
+Signed-off-by: Anton Blanchard <anton@samba.org>
 
-I have been painfully digging through the linux kernel mailing list archive
-in an attempt to glean some insight as to the new serial driver.  But
-haven't had much luck.  I am hoping somebody might be able to help me
-understand how I can use the new driver (or at least point me where I need
-to go).
-
-In the past (2.4.x days) I have just hacked the serial.c code to do what I
-needed and then recompiled it as something else.
-
-I would like for someone to explain to me exactly how a guy like me is
-"supposed" to use this new driver.  Let's say that I have submitted a patch
-to 8250_pci.c that inserts my cards' device and vendor ids and my cards'
-.init and .setup routines (if I need them).  Now they can be recognized by
-the driver and will initialize correctly as 16550A type ports.  Now I need
-to be able to write a few routines that can configure my card's special
-features.  In my hijacked serial.c I just added these routines as IOCTL's
-and life was good.  How should I "correctly" write these routines for the
-new driver?
-
-Thank you,
-
-Remember, please copy the serial list at linux-serial@vger.kernel.org
-
-Matt Schulte
-Commtech, Inc.
-http://www.commtech-fastcom.com
-
+Index: linux-2.6.git-work/arch/ppc64/kernel/sys_ppc32.c
+===================================================================
+--- linux-2.6.git-work.orig/arch/ppc64/kernel/sys_ppc32.c	2005-07-06 01:16:21.000000000 +1000
++++ linux-2.6.git-work/arch/ppc64/kernel/sys_ppc32.c	2005-07-06 01:16:35.000000000 +1000
+@@ -822,16 +822,6 @@
+ }
+ 
+ 
+-/* Note: it is necessary to treat which and who as unsigned ints,
+- * with the corresponding cast to a signed int to insure that the 
+- * proper conversion (sign extension) between the register representation of a signed int (msr in 32-bit mode)
+- * and the register representation of a signed int (msr in 64-bit mode) is performed.
+- */
+-asmlinkage long sys32_getpriority(u32 which, u32 who)
+-{
+-	return sys_getpriority((int)which, (int)who);
+-}
+-
+ 
+ /* Note: it is necessary to treat pid as an unsigned int,
+  * with the corresponding cast to a signed int to insure that the 
+@@ -1023,6 +1013,11 @@
+ 	return sys_setpgid((int)pid, (int)pgid);
+ }
+ 
++long sys32_getpriority(u32 which, u32 who)
++{
++	/* sign extend which and who */
++	return sys_getpriority((int)which, (int)who);
++}
+ 
+ long sys32_setpriority(u32 which, u32 who, u32 niceval)
+ {
+@@ -1030,6 +1025,18 @@
+ 	return sys_setpriority((int)which, (int)who, (int)niceval);
+ }
+ 
++long sys32_ioprio_get(u32 which, u32 who)
++{
++	/* sign extend which and who */
++	return sys_ioprio_get((int)which, (int)who);
++}
++
++long sys32_ioprio_set(u32 which, u32 who, u32 ioprio)
++{
++	/* sign extend which, who and ioprio */
++	return sys_ioprio_set((int)which, (int)who, (int)ioprio);
++}
++
+ /* Note: it is necessary to treat newmask as an unsigned int,
+  * with the corresponding cast to a signed int to insure that the 
+  * proper conversion (sign extension) between the register representation of a signed int (msr in 32-bit mode)
+Index: linux-2.6.git-work/include/asm-ppc64/unistd.h
+===================================================================
+--- linux-2.6.git-work.orig/include/asm-ppc64/unistd.h	2005-07-06 01:16:17.000000000 +1000
++++ linux-2.6.git-work/include/asm-ppc64/unistd.h	2005-07-06 01:16:35.000000000 +1000
+@@ -283,8 +283,10 @@
+ #define __NR_request_key	270
+ #define __NR_keyctl		271
+ #define __NR_waitid		272
++#define __NR_ioprio_set		273
++#define __NR_ioprio_get		274
+ 
+-#define __NR_syscalls		273
++#define __NR_syscalls		275
+ #ifdef __KERNEL__
+ #define NR_syscalls	__NR_syscalls
+ #endif
+Index: linux-2.6.git-work/arch/ppc64/kernel/misc.S
+===================================================================
+--- linux-2.6.git-work.orig/arch/ppc64/kernel/misc.S	2005-07-06 01:04:40.000000000 +1000
++++ linux-2.6.git-work/arch/ppc64/kernel/misc.S	2005-07-06 01:16:35.000000000 +1000
+@@ -1124,9 +1124,11 @@
+ 	.llong .compat_sys_mq_getsetattr
+ 	.llong .compat_sys_kexec_load
+ 	.llong .sys32_add_key
+-	.llong .sys32_request_key
++	.llong .sys32_request_key	/* 270 */
+ 	.llong .compat_sys_keyctl
+ 	.llong .compat_sys_waitid
++	.llong .sys32_ioprio_set
++	.llong .sys32_ioprio_get
+ 
+ 	.balign 8
+ _GLOBAL(sys_call_table)
+@@ -1403,3 +1405,5 @@
+ 	.llong .sys_request_key		/* 270 */
+ 	.llong .sys_keyctl
+ 	.llong .sys_waitid
++	.llong .sys_ioprio_set
++	.llong .sys_ioprio_get

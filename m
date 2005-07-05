@@ -1,64 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261891AbVGEVsn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261965AbVGEVt0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261891AbVGEVsn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Jul 2005 17:48:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261976AbVGEVrp
+	id S261965AbVGEVt0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Jul 2005 17:49:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261994AbVGEVrR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Jul 2005 17:47:45 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:19345 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261978AbVGEVkT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Jul 2005 17:40:19 -0400
-Date: Tue, 5 Jul 2005 23:40:04 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix printk format vs argument warning
-Message-ID: <20050705214004.GA11695@elte.hu>
-References: <1284.1120593819@warthog.cambridge.redhat.com> <20050705143348.29348633.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050705143348.29348633.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Tue, 5 Jul 2005 17:47:17 -0400
+Received: from adsl-67-39-48-196.dsl.milwwi.ameritech.net ([67.39.48.196]:51376
+	"EHLO mail.wit.org") by vger.kernel.org with ESMTP id S261971AbVGEVjB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Jul 2005 17:39:01 -0400
+Message-ID: <42CAFF09.4000406@linuxmachines.com>
+Date: Tue, 05 Jul 2005 14:43:37 -0700
+From: Jeff Carr <jcarr@linuxmachines.com>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Cc: Hien Nguyen <hien@us.ibm.com>, Jim Keniston <jkenisto@us.ibm.com>,
+       Prasanna S Panchamukhi <prasanna@in.ibm.com>
+Subject: kprobe support for memory access watchpoints
+References: <42CAB369.5020901@linuxmachines.com>
+In-Reply-To: <42CAB369.5020901@linuxmachines.com>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I was wondering if there are plans to support a method to register
+watchpoints for memory data access with kprobe. On x86, it's possible to
+watch for read/write access to arbitrary memory locations via DR memory
+registers.
 
-* Andrew Morton <akpm@osdl.org> wrote:
+Perhaps register_kprobe() could be modified to support this or perhaps
+some new function. This would probably be difficult based on how
+differently kprobe works vs. how the DR registers work. I thought I
+would send an email because you might be doing or thinking something
+similar.
 
-> calibrate_migration_costs() causes a storm of boot-time output and I 
-> think all those printks should be removed before this code goes up to 
-> Linus.  Maybe split out into a separate -mm-only patch?
-
-it was only a debugging measure. Patch below turns off.
-
-------
-turn off migration debugging.
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-
- kernel/sched.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-Index: linux-sched-curr/kernel/sched.c
-===================================================================
---- linux-sched-curr.orig/kernel/sched.c
-+++ linux-sched-curr/kernel/sched.c
-@@ -5043,7 +5043,7 @@ __init static unsigned long domain_dista
- 	return distance;
- }
- 
--static __initdata unsigned int migration_debug = 1;
-+static __initdata unsigned int migration_debug = 0;
- 
- static int __init setup_migration_debug(char *str)
- {
+Enjoy,
+Jeff

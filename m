@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261845AbVGEOPG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261865AbVGEO1F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261845AbVGEOPG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Jul 2005 10:15:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261830AbVGEOPF
+	id S261865AbVGEO1F (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Jul 2005 10:27:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261878AbVGEO1F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Jul 2005 10:15:05 -0400
-Received: from vms046pub.verizon.net ([206.46.252.46]:63931 "EHLO
-	vms046pub.verizon.net") by vger.kernel.org with ESMTP
-	id S261845AbVGEN7Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Jul 2005 09:59:24 -0400
-Date: Tue, 05 Jul 2005 09:59:25 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: RT 50-51 : cannot compile on i386
-In-reply-to: <1120567250.6225.24.camel@ibiza.btsn.frna.bull.fr>
-To: linux-kernel@vger.kernel.org
-Message-id: <200507050959.25503.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <1120567250.6225.24.camel@ibiza.btsn.frna.bull.fr>
-User-Agent: KMail/1.7
+	Tue, 5 Jul 2005 10:27:05 -0400
+Received: from nevyn.them.org ([66.93.172.17]:7903 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id S261871AbVGEOHa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Jul 2005 10:07:30 -0400
+Date: Tue, 5 Jul 2005 10:07:24 -0400
+From: Daniel Jacobowitz <drow@false.org>
+To: Roland McGrath <roland@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] x86-64: ptrace ia32 BP fix
+Message-ID: <20050705140724.GA19552@nevyn.them.org>
+Mail-Followup-To: Roland McGrath <roland@redhat.com>,
+	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+	Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+References: <200507050931.j659VFEa028271@magilla.sf.frob.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200507050931.j659VFEa028271@magilla.sf.frob.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 05 July 2005 08:40, Serge Noiraud wrote:
->Hi,
->
->I have another compile problem :
->
->  CC      arch/i386/kernel/apm.o
->arch/i386/kernel/apm.c:424: error: syntax error before ',' token
->arch/i386/kernel/apm.c:425: error: syntax error before ',' token
->arch/i386/kernel/apm.c:427: error: syntax error before ',' token
->
-thats the sort of things I can get out of a bad download, you may want 
-to dl another copy & retry.
+On Tue, Jul 05, 2005 at 02:31:15AM -0700, Roland McGrath wrote:
+> 
+> When the 32-bit vDSO is used to make a system call, the %ebp register for
+> the 6th syscall arg has to be loaded from the user stack (where it's pushed
+> by the vDSO user code).  The native i386 kernel always does this before
+> stopping for syscall tracing, so %ebp can be seen and modified via ptrace
+> to access the 6th syscall argument.  The x86-64 kernel fails to do this,
+> presenting the stack address to ptrace instead.  This makes the %rbp value
+> seen by 64-bit ptrace of a 32-bit process, and the %ebp value seen by a
+> 32-bit caller of ptrace, both differ from the native i386 behavior.
+> 
+> This patch fixes the problem by putting the word loaded from the user stack
+> into %rbp before calling syscall_trace_enter, and reloading the 6th syscall
+> argument from there afterwards (so ptrace can change it).  This makes the
+> behavior match that of i386 kernels.
+
+Wouldn't this  to botch a debugger which supported both backtracing and
+PTRACE_SYSCALL, when stopped in a syscall?  We have unwind information
+for the VDSO and it's not going to tell us that the kernel has done
+something clever to the value of %ebp.
+
 
 -- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.35% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+Daniel Jacobowitz
+CodeSourcery, LLC

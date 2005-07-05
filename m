@@ -1,64 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261384AbVGEHq4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261481AbVGEH6i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261384AbVGEHq4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Jul 2005 03:46:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261464AbVGEHq4
+	id S261481AbVGEH6i (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Jul 2005 03:58:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261464AbVGEH6i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Jul 2005 03:46:56 -0400
-Received: from omta02ps.mx.bigpond.com ([144.140.83.154]:34265 "EHLO
-	omta02ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S261384AbVGEHqx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Jul 2005 03:46:53 -0400
-Message-ID: <42CA3AEA.3020204@bigpond.net.au>
-Date: Tue, 05 Jul 2005 17:46:50 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
+	Tue, 5 Jul 2005 03:58:38 -0400
+Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:44258 "EHLO
+	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S261752AbVGEH4S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Jul 2005 03:56:18 -0400
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Date: Tue, 5 Jul 2005 08:56:15 +0100 (BST)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: John McCutchan <ttb@tentacle.dhs.org>
+cc: Daniel Drake <dsd@gentoo.org>,
+       David =?ISO-8859-1?Q?G=F3mez?= <david@pleyades.net>,
+       Robert Love <rml@novell.com>,
+       Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Problem with inotify
+In-Reply-To: <1120527203.18268.2.camel@vertex>
+Message-ID: <Pine.LNX.4.60.0507050855410.27724@hermes-1.csi.cam.ac.uk>
+References: <20050630181824.GA1058@fargo> <1120156188.6745.103.camel@betsy>
+  <20050630193320.GA1136@fargo>  <Pine.LNX.4.60.0506302138230.29755@hermes-1.csi.cam.ac.uk>
+  <20050630204832.GA3854@fargo>  <Pine.LNX.4.60.0506302158190.29755@hermes-1.csi.cam.ac.uk>
+  <42C65A8B.9060705@gentoo.org>  <Pine.LNX.4.60.0507022253080.30401@hermes-1.csi.cam.ac.uk>
+  <42C72563.7040103@gentoo.org>  <Pine.LNX.4.60.0507030053040.15398@hermes-1.csi.cam.ac.uk>
+  <42C7BF37.9010005@gentoo.org> <1120487242.11399.5.camel@imp.csi.cam.ac.uk>
+  <42C9788F.50205@gentoo.org>  <Pine.LNX.4.60.0507042008310.7572@hermes-1.csi.cam.ac.uk>
+ <1120527203.18268.2.camel@vertex>
 MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE][RFC] PlugSched-5.2.1 for 2.6.11 and 2.6.12
-References: <42B65525.1060308@bigpond.net.au> <200506201541.29668.kernel@kolivas.org> <42B65FAC.4090400@bigpond.net.au>
-In-Reply-To: <42B65FAC.4090400@bigpond.net.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta02ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Tue, 5 Jul 2005 07:46:50 +0000
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Williams wrote:
-> Con Kolivas wrote:
+On Mon, 4 Jul 2005, John McCutchan wrote:
+> On Mon, 2005-07-04 at 20:09 +0100, Anton Altaparmakov wrote:
+> > On Mon, 4 Jul 2005, Daniel Drake wrote:
+> > > Anton Altaparmakov wrote:
+> > > > )-:  I have addressed the only things I can think off that could cause
+> > > > the oops and below is the resulting patch.  Could you please test it?
+> > > 
+> > > Yeah!! After removing I_WILL_FREE stuff, that fixed both the oops *and* the
+> > > hang. Everything works nicely now.
+> > 
+> > Great!  Thanks a lot for testing!  I will send a patch to Robert and 
+> > Andrew in a minute with more comments added.
 > 
->> On Mon, 20 Jun 2005 15:33, Peter Williams wrote:
->>
->>> PlugSched-5.2.1 is available for 2.6.11 and 2.6.12 kernels.  This
->>> version applies Con Kolivas's latest modifications to his "nice" aware
->>> SMP load balancing patches.
->>
->>
->>
->> Thanks Peter.
->> Any word from your own testing/testers on how well smp nice balancing 
->> is working for them now? 
-> 
-> 
-> No, they got side tracked onto something else but should start working 
-> on it again soon.  I'll give them a prod :-)
+> Nice work, I am going to have a closer look at the patch soon. Could you
+> post the final patch at http://bugzilla.kernel.org/show_bug.cgi?id=4796
 
-Con,
-	We've done some more testing with this with results that are still 
-disappointing.  We think that one reason for this is that move_tasks() 
-doesn't take "nice" into account.  I'm going to look at modifying it so 
-that it moves a certain amount of niceness rather than a specified 
-number of tasks.
-	A second (more difficult to solve) issue is that we think it would work 
-better if both queue lengths and "nice" loads were kept approximately 
-equal between the queues.  It's hard to see how this can be managed 
-without considerable overhead.
+Thanks.  Now done.  But I am not sure about the white space.  I can't get 
+anything sensible out of IE on Mac OS 9 which I am on at the moment.
 
-Peter
+Best regards,
+
+	Anton
 -- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/

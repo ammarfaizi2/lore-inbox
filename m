@@ -1,48 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261920AbVGESYn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261939AbVGES3E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261920AbVGESYn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Jul 2005 14:24:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261924AbVGESYn
+	id S261939AbVGES3E (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Jul 2005 14:29:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261936AbVGES3E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Jul 2005 14:24:43 -0400
-Received: from postfix3-1.free.fr ([213.228.0.44]:44490 "EHLO
-	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S261920AbVGESVM
+	Tue, 5 Jul 2005 14:29:04 -0400
+Received: from wproxy.gmail.com ([64.233.184.195]:5954 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261953AbVGESXl convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Jul 2005 14:21:12 -0400
-Message-ID: <42CACF8D.2060203@free.fr>
-Date: Tue, 05 Jul 2005 20:21:01 +0200
-From: matthieu castet <castet.matthieu@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
-X-Accept-Language: fr-fr, en, en-us
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ide-cd and bad sectors
-References: <42C6A12A.8030009@free.fr> <1120579233.23118.22.camel@localhost.localdomain>
-In-Reply-To: <1120579233.23118.22.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 5 Jul 2005 14:23:41 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=fyScPvY7AGdGG+2sQ2ADhEmmuQ7Qr9Qcj5/T6A+1MmSvroUhnQz80fXd25GPJ4tx5gtqD4stdh/CBV+vAfTwrOI+qJkwv1UxJfM9HFxgH1LY/WVVdzZs4X1A5F3MI/P3ISC1QTyaMJZxNBBI+eBO+Uk45WMRxSamNOP7aiWJwq0=
+Message-ID: <4ae3c140507051123758bb61e@mail.gmail.com>
+Date: Tue, 5 Jul 2005 14:23:39 -0400
+From: Xin Zhao <uszhaoxin@gmail.com>
+Reply-To: Xin Zhao <uszhaoxin@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Why cannot I do "insmod nfsd.ko" directly?
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
+I tried to do "insmod nfsd.ko", but always got the error message
+"insmod: error inserting 'nfsd.ko': -1 Unknown symbol in module"
 
-Alan Cox wrote:
-> On Sad, 2005-07-02 at 15:14, matthieu castet wrote:
-> 
->>Also I was wondering if all the sector that ide-cd failed to read are 
->>bad sector, or if ide-cd failed to put the drive in a consistent state 
->>for reading the next sector after corrupted one.
-> 
-> 
-> ide-cd wrongly errors all the sectors around an error, ide-scsi gets it
-> right if the IDE firmware does. I sent Bartlomiej patches to fix that
-> and I believe he accepted them
-> 
-thanks,
+Why?
 
-they don't seem to be in his tree : 
-http://www.kernel.org/git/?p=linux%2Fkernel%2Fgit%2Fbart%2Fide-2.6.git&a=search&s=ide-cd 
-:(
+The kernel is 2.6.11.10
+The command I used is:
+1. insmod lockd.ko  ---succeed
+2. exportfs -r   ---succeed
+3. insmod nfsd.ko --- failed 
 
-Matthieu
+
+Moreover, I noticed that if I do the following commands, nfsd.ko can
+be inserted:
+
+1. rpc.mountd
+2. exportfs -r
+3. rpc.nfsd 1
+
+Can someone explain what trick rpc.mountd and rpc.nfsd do to make
+nfsd.ko insertable?
+
+Thanks in advance for your kind help!
+
+-x

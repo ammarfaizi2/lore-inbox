@@ -1,78 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261791AbVGEKNI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261793AbVGEKRe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261791AbVGEKNI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Jul 2005 06:13:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261789AbVGEKNI
+	id S261793AbVGEKRe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Jul 2005 06:17:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261789AbVGEKRe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Jul 2005 06:13:08 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:43494 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261786AbVGEKMz convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Jul 2005 06:12:55 -0400
-Date: Tue, 5 Jul 2005 12:14:15 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Ondrej Zary <linux@rainbow-software.org>
-Cc: =?iso-8859-1?Q?Andr=E9?= Tomt <andre@tomt.net>,
-       Al Boldi <a1426z@gawab.com>,
-       "'Bartlomiej Zolnierkiewicz'" <bzolnier@gmail.com>,
-       "'Linus Torvalds'" <torvalds@osdl.org>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [git patches] IDE update
-Message-ID: <20050705101414.GB18504@suse.de>
-References: <200507042033.XAA19724@raad.intranet> <42C9C56D.7040701@tomt.net> <42CA5A84.1060005@rainbow-software.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <42CA5A84.1060005@rainbow-software.org>
-Content-Transfer-Encoding: 8BIT
+	Tue, 5 Jul 2005 06:17:34 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:24456 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261793AbVGEKQK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Jul 2005 06:16:10 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <200507050931.j659VFEa028271@magilla.sf.frob.com>
+Date: Tue, 5 Jul 2005 02:31:15 -0700
+From: Roland McGrath <roland@redhat.com>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andi Kleen <ak@suse.de>
+X-Fcc: ~/Mail/linus
+Subject: [PATCH] x86-64: ptrace ia32 BP fix
+X-Shopping-List: (1) Ambitious metric attention
+   (2) Recoilless putty
+   (3) Pubescent ink
+   (4) Expectant heretical aggressors
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 05 2005, Ondrej Zary wrote:
-> André Tomt wrote:
-> >Al Boldi wrote:
-> >
-> >>Bartlomiej Zolnierkiewicz wrote: {
-> >>
-> >>>>>On 7/4/05, Al Boldi <a1426z@gawab.com> wrote:
-> >>>>>Hdparm -tT gives 38mb/s in 2.4.31
-> >>>>>Cat /dev/hda > /dev/null gives 2% user 33% sys 65% idle
-> >>>>>
-> >>>>>Hdparm -tT gives 28mb/s in 2.6.12
-> >>>>>Cat /dev/hda > /dev/null gives 2% user 25% sys 0% idle 73% IOWAIT
-> >
-> >
-> >The "hdparm doesn't get as high scores as in 2.4" is a old discussed to 
-> >death "problem" on LKML. So far nobody has been able to show it affects 
-> >anything  but that pretty useless quasi-benchmark.
-> >
-> 
-> No, it's not a problem with hdparm. hdparm only shows that there is 
-> _really_ a problem:
-> 
-> 2.6.12
-> root@pentium:/home/rainbow# time dd if=/dev/hda of=/dev/null bs=512
-> count=1048576
-> 1048576+0 records in
-> 1048576+0 records out
-> 
-> real    0m32.339s
-> user    0m1.500s
-> sys     0m14.560s
-> 
-> 2.4.26
-> root@pentium:/home/rainbow# time dd if=/dev/hda of=/dev/null bs=512
-> count=1048576
-> 1048576+0 records in
-> 1048576+0 records out
-> 
-> real    0m23.858s
-> user    0m1.750s
-> sys     0m15.180s
 
-Perhaps some read-ahead bug. What happens if you use bs=128k for
-instance?
+When the 32-bit vDSO is used to make a system call, the %ebp register for
+the 6th syscall arg has to be loaded from the user stack (where it's pushed
+by the vDSO user code).  The native i386 kernel always does this before
+stopping for syscall tracing, so %ebp can be seen and modified via ptrace
+to access the 6th syscall argument.  The x86-64 kernel fails to do this,
+presenting the stack address to ptrace instead.  This makes the %rbp value
+seen by 64-bit ptrace of a 32-bit process, and the %ebp value seen by a
+32-bit caller of ptrace, both differ from the native i386 behavior.
 
--- 
-Jens Axboe
+This patch fixes the problem by putting the word loaded from the user stack
+into %rbp before calling syscall_trace_enter, and reloading the 6th syscall
+argument from there afterwards (so ptrace can change it).  This makes the
+behavior match that of i386 kernels.
 
+Signed-off-by: Roland McGrath <roland@redhat.com>
+
+--- a/arch/x86_64/ia32/ia32entry.S
++++ b/arch/x86_64/ia32/ia32entry.S
+@@ -102,6 +102,7 @@ sysenter_do_call:	
+ 	.byte	0xf, 0x35
+ 
+ sysenter_tracesys:
++	movl	%r9d,%ebp
+ 	SAVE_REST
+ 	CLEAR_RREGS
+ 	movq	$-ENOSYS,RAX(%rsp)	/* really needed? */
+@@ -109,13 +110,7 @@ sysenter_tracesys:
+ 	call	syscall_trace_enter
+ 	LOAD_ARGS ARGOFFSET  /* reload args from stack in case ptrace changed it */
+ 	RESTORE_REST
+-	movl	%ebp, %ebp
+-	/* no need to do an access_ok check here because rbp has been
+-	   32bit zero extended */ 
+-1:	movl	(%rbp),%r9d
+-	.section __ex_table,"a"
+-	.quad 1b,ia32_badarg
+-	.previous
++	movl	%ebp,%r9d
+ 	jmp	sysenter_do_call
+ 	CFI_ENDPROC
+ 
+@@ -183,6 +178,7 @@ cstar_do_call:	
+ 	sysretl
+ 	
+ cstar_tracesys:	
++	movl %r9d,%ebp
+ 	SAVE_REST
+ 	CLEAR_RREGS
+ 	movq $-ENOSYS,RAX(%rsp)	/* really needed? */
+@@ -191,12 +187,7 @@ cstar_tracesys:	
+ 	LOAD_ARGS ARGOFFSET  /* reload args from stack in case ptrace changed it */
+ 	RESTORE_REST
+ 	movl RSP-ARGOFFSET(%rsp), %r8d
+-	/* no need to do an access_ok check here because r8 has been
+-	   32bit zero extended */ 
+-1:	movl	(%r8),%r9d
+-	.section __ex_table,"a"
+-	.quad 1b,ia32_badarg
+-	.previous
++	movl %ebp,%r9d
+ 	jmp cstar_do_call
+ 				
+ ia32_badarg:

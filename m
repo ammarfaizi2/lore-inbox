@@ -1,55 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261795AbVGEUHY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261742AbVGEUPa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261795AbVGEUHY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Jul 2005 16:07:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261787AbVGEUHY
+	id S261742AbVGEUPa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Jul 2005 16:15:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261739AbVGEUPa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Jul 2005 16:07:24 -0400
-Received: from wproxy.gmail.com ([64.233.184.207]:22345 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261741AbVGEUFh convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Jul 2005 16:05:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=T2eiW7DMhTh8ic4elSIntqky7YeG2LYcv850KmP9DLAZZ2f3fMDdVoQZhAfUMbmmAYdf9EqenPjMcyQLRoKILkpqNWl6BM3xbszsx5DVG3d9jEY7FNlGM/qeMxC6+QEYOIu5zgFe2GMjTIo3J9Xyqg2Tt9LtzbbDRrfduuePV3o=
-Message-ID: <4ae3c14050705130544e5abc1@mail.gmail.com>
-Date: Tue, 5 Jul 2005 16:05:35 -0400
-From: Xin Zhao <uszhaoxin@gmail.com>
-Reply-To: Xin Zhao <uszhaoxin@gmail.com>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Subject: Re: Why cannot I do "insmod nfsd.ko" directly?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200507051858.j65IwKlv005612@laptop11.inf.utfsm.cl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <uszhaoxin@gmail.com> <4ae3c140507051123758bb61e@mail.gmail.com>
-	 <200507051858.j65IwKlv005612@laptop11.inf.utfsm.cl>
+	Tue, 5 Jul 2005 16:15:30 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:17347 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261798AbVGEUKa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Jul 2005 16:10:30 -0400
+From: David Howells <dhowells@redhat.com>
+To: torvalds@osdl.org, akpm@osdl.org
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Provide better printk() support for SMP machines
+X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 22.0.50.4
+Date: Tue, 05 Jul 2005 21:10:24 +0100
+Message-ID: <1491.1120594224@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just found the problem. I have to insmod exportfs.ko first. 
 
-I can certainly use modprobe, but what I really want to do is to use
-my own nfsd.ko instead of the default one.  But my nfsd.ko is not in
-the default /lib/module/... directory. So if I use modprobe, it will
-complaint cannot find nfsd.ko.
+The attached patch prevents oopses interleaving with characters from other
+printks on other machines by only zapping the locks if the oops is happening
+on the machine holding the lock.
 
-How to do this? Thanks!
+It might be better if the oops generator got the lock and then called an inner
+vprintk routine that assumed the caller holds the lock, thus making oops
+reports "atomic".
 
--x
-
-On 7/5/05, Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
-> Xin Zhao <uszhaoxin@gmail.com> wrote:
-> > I tried to do "insmod nfsd.ko", but always got the error message
-> > "insmod: error inserting 'nfsd.ko': -1 Unknown symbol in module"
-> 
-> Use modprobe(8), it knows about module dependencies and what to load.
-> --
-> Dr. Horst H. von Brand                   User #22616 counter.li.org
-> Departamento de Informatica                     Fono: +56 32 654431
-> Universidad Tecnica Federico Santa Maria              +56 32 654239
-> Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
->
+Signed-Off-By: David Howells <dhowells@redhat.com>
+---
+diff -uNrp linux-2.6.12-mm1/kernel/printk.c linux-2.6.12-mm1-cachefs-wander/kernel/printk.c
+--- linux-2.6.12-mm1/kernel/printk.c	2005-06-22 13:54:08.000000000 +0100
++++ linux-2.6.12-mm1-cachefs-wander/kernel/printk.c	2005-06-22 13:57:02.000000000 +0100
+@@ -514,6 +514,9 @@ asmlinkage int printk(const char *fmt, .
+ 	return r;
+ }
+ 
++/* cpu currently holding logbuf_lock */
++static volatile int printk_cpu = -1;
++
+ asmlinkage int vprintk(const char *fmt, va_list args)
+ {
+ 	unsigned long flags;
+@@ -522,11 +525,15 @@ asmlinkage int vprintk(const char *fmt, 
+ 	static char printk_buf[1024];
+ 	static int log_level_unknown = 1;
+ 
+-	if (unlikely(oops_in_progress))
++	if (unlikely(oops_in_progress) && printk_cpu == smp_processor_id())
++		/* If a crash is occurring during printk() on this CPU,
++		 * make sure we can't deadlock */
+ 		zap_locks();
+ 
+ 	/* This stops the holder of console_sem just where we want him */
+ 	spin_lock_irqsave(&logbuf_lock, flags);
++	printk_cpu = smp_processor_id();
++	smp_wmb();
+ 
+ 	/* Emit the output into the temporary buffer */
+ 	printed_len = vscnprintf(printk_buf, sizeof(printk_buf), fmt, args);
+@@ -595,6 +602,7 @@ asmlinkage int vprintk(const char *fmt, 
+ 		 * CPU until it is officially up.  We shouldn't be calling into
+ 		 * random console drivers on a CPU which doesn't exist yet..
+ 		 */
++		printk_cpu = -1;
+ 		spin_unlock_irqrestore(&logbuf_lock, flags);
+ 		goto out;
+ 	}
+@@ -604,6 +612,7 @@ asmlinkage int vprintk(const char *fmt, 
+ 		 * We own the drivers.  We can drop the spinlock and let
+ 		 * release_console_sem() print the text
+ 		 */
++		printk_cpu = -1;
+ 		spin_unlock_irqrestore(&logbuf_lock, flags);
+ 		console_may_schedule = 0;
+ 		release_console_sem();
+@@ -613,6 +622,7 @@ asmlinkage int vprintk(const char *fmt, 
+ 		 * allows the semaphore holder to proceed and to call the
+ 		 * console drivers with the output which we just produced.
+ 		 */
++		printk_cpu = -1;
+ 		spin_unlock_irqrestore(&logbuf_lock, flags);
+ 	}
+ out:

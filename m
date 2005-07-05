@@ -1,60 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261922AbVGEQKJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261917AbVGEQZ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261922AbVGEQKJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Jul 2005 12:10:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261903AbVGEQGN
+	id S261917AbVGEQZ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Jul 2005 12:25:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbVGEQZT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Jul 2005 12:06:13 -0400
-Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:46050
-	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
-	with ESMTP id S261904AbVGEPwu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Jul 2005 11:52:50 -0400
-Reply-To: <abonilla@linuxwireless.org>
-From: "Alejandro Bonilla" <abonilla@linuxwireless.org>
-To: <sander@humilis.net>, "'Alejandro Bonilla'" <abonilla@linuxwireless.org>
-Cc: "'Jens Axboe'" <axboe@suse.de>, <hdaps-devel@lists.sourceforge.net>,
-       "'LKML List'" <linux-kernel@vger.kernel.org>
-Subject: RE: IBM HDAPS things are looking up (was: Re: [Hdaps-devel] Re: [ltp] IBM HDAPS Someone interested? (Accelerometer))
-Date: Tue, 5 Jul 2005 09:52:39 -0600
-Message-ID: <002001c58179$92d7a880$600cc60a@amer.sykes.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <20050705154119.GB27286@favonius>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1506
+	Tue, 5 Jul 2005 12:25:19 -0400
+Received: from zproxy.gmail.com ([64.233.162.205]:48490 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261917AbVGEQNE convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Jul 2005 12:13:04 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=LDfache8oSvUaoGlGhQrMqVZGzaJgV/pFPm/VeQcqFkGOfQKXguEvHYxZpmK1B9ua6rEtocS2cFWZ6dYxvHyFQRVV/4pj7d2AcO3MyNFUvPEwxAOgzT0Q43P0a4tRk7X9/pH5Mzk/9hWrKxxh4YeQ2u7OqReQHvTrIcDJJlk9bs=
+Message-ID: <465e1cd3050705091374315f62@mail.gmail.com>
+Date: Tue, 5 Jul 2005 18:13:04 +0200
+From: davide vecchio <davide.vecchio@gmail.com>
+Reply-To: davide vecchio <davide.vecchio@gmail.com>
+To: Russell Miller <rmiller@duskglow.com>
+Subject: Re: Problem with PS/2 Logitech WheelMouse
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200507050905.51865.rmiller@duskglow.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <465e1cd305070508442be8af@mail.gmail.com>
+	 <200507050905.51865.rmiller@duskglow.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Alejandro Bonilla wrote (ao):
-> > 	If you check the IBM software in Windows, it shows 2 things.
-> > 	First, when it pauses the HD and when it stops the HD. It all
-> > 	depends on how hard you hit the PC. In one we suspend the drive
-> > 	and in the other we park the drive.
+Sorry Russel,
+what kind of patches ? As I was trying to explain I've tried 2 diffent
+distros with many different kernel versions (2.6.11-4, 2.6.11-7 and
+2.6.12) and on all the combinations the mouse doesn't work. did you
+have a look at the dmesg snapshot?
+What about that? are the boot messages correct?
+Thanks in advance,
+regards,
+ Davide
+
+On 7/5/05, Russell Miller <rmiller@duskglow.com> wrote:
+> On Tuesday 05 July 2005 08:44, you wrote:
+> 
+> > Could you please give me any indication on what to try for ?
+> >
+> > Best regards,
+> >  Davide
+> >
+> > PS: hoping this help I've attached the dmesg log for my last kernel
+> > 2.6.12 rebuild and boot. Hope this help
+> 
+> Have you tried applying some of the patches that the distro kernels have
+> applied and seeing if they fix the problem?
+> 
+> --Russell
 >
-> This is not true. The software only parks the head, it does not spin
-> down the disk. That would take too much time to protect against a fall
-> anyway.
->
->         Sander
-
-Sander,
-
-	Sorry for not making myself clear "In one we suspend the drive and in the
-other we park the drive" means that it would be nice to do that in Linux. We
-don't have to do things like Windows does them. We can improve them to our
-needs.
-
-	In windows, there are 2 Simbols. 1. When the drive detects vibration and
-then pauses the HD(yellow II sign in the taskbar) 2. When the HD is stop
-when a free fall is detected. (Red simbol in the Taskbar)
-
-	Please check it out in windows so you can see what I'm talking about.
-
-.Alejandro
-

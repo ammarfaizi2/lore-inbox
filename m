@@ -1,53 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261405AbVGEHOp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261384AbVGEHq4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261405AbVGEHOp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Jul 2005 03:14:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261384AbVGEHOo
+	id S261384AbVGEHq4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Jul 2005 03:46:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261464AbVGEHq4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Jul 2005 03:14:44 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:6853 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261405AbVGEHNk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Jul 2005 03:13:40 -0400
-Date: Tue, 5 Jul 2005 09:14:54 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Alejandro Bonilla <abonilla@linuxwireless.org>
-Cc: Pavel Machek <pavel@suse.cz>, Arjan van de Ven <arjan@infradead.org>,
-       Lenz Grimmer <lenz@grimmer.com>, Jesper Juhl <jesper.juhl@gmail.com>,
-       Dave Hansen <dave@sr71.net>, Henrik Brix Andersen <brix@gentoo.org>,
-       hdaps-devel@lists.sourceforge.net,
-       LKML List <linux-kernel@vger.kernel.org>
-Subject: Re: IBM HDAPS things are looking up (was: Re: [Hdaps-devel] Re: [ltp] IBM HDAPS Someone interested? (Accelerometer))
-Message-ID: <20050705071449.GV1444@suse.de>
-References: <9a8748490507031832546f383a@mail.gmail.com> <42C8D06C.2020608@grimmer.com> <20050704061713.GA1444@suse.de> <42C8C978.4030409@linuxwireless.org> <20050704063741.GC1444@suse.de> <1120461401.3174.10.camel@laptopd505.fenrus.org> <20050704072231.GG1444@suse.de> <20050704130336.GB3449@openzaurus.ucw.cz> <42C9A562.5090900@linuxwireless.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42C9A562.5090900@linuxwireless.org>
+	Tue, 5 Jul 2005 03:46:56 -0400
+Received: from omta02ps.mx.bigpond.com ([144.140.83.154]:34265 "EHLO
+	omta02ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S261384AbVGEHqx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Jul 2005 03:46:53 -0400
+Message-ID: <42CA3AEA.3020204@bigpond.net.au>
+Date: Tue, 05 Jul 2005 17:46:50 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Con Kolivas <kernel@kolivas.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE][RFC] PlugSched-5.2.1 for 2.6.11 and 2.6.12
+References: <42B65525.1060308@bigpond.net.au> <200506201541.29668.kernel@kolivas.org> <42B65FAC.4090400@bigpond.net.au>
+In-Reply-To: <42B65FAC.4090400@bigpond.net.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta02ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Tue, 5 Jul 2005 07:46:50 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 04 2005, Alejandro Bonilla wrote:
-> Pavel Machek wrote:
+Peter Williams wrote:
+> Con Kolivas wrote:
 > 
-> >
-> >Actually, "spin disk down and keep it down" would be nice for other
-> >reasons. Taking computer for a jog playing mp3s from ramdisk is
-> >something I'd like to do...
-> >				Pavel
-> > 
-> >
-> This is exactly what I wanted to do. hdparm suspend which would send 
-> things to cache or buffer and then copy or get files only when needed. I 
-> just hope is fast enough, but we could trigger this with tilting or 
-> vibration and then something heavier when we find a free fall.
+>> On Mon, 20 Jun 2005 15:33, Peter Williams wrote:
+>>
+>>> PlugSched-5.2.1 is available for 2.6.11 and 2.6.12 kernels.  This
+>>> version applies Con Kolivas's latest modifications to his "nice" aware
+>>> SMP load balancing patches.
+>>
+>>
+>>
+>> Thanks Peter.
+>> Any word from your own testing/testers on how well smp nice balancing 
+>> is working for them now? 
 > 
-> This driver does not exactly has to behave like Windows. It can be 
-> better. We always make things better.
+> 
+> No, they got side tracked onto something else but should start working 
+> on it again soon.  I'll give them a prod :-)
 
-As Lenz already suggested, you both pretty much seem to be describing
-laptop mode. See the documentation.
+Con,
+	We've done some more testing with this with results that are still 
+disappointing.  We think that one reason for this is that move_tasks() 
+doesn't take "nice" into account.  I'm going to look at modifying it so 
+that it moves a certain amount of niceness rather than a specified 
+number of tasks.
+	A second (more difficult to solve) issue is that we think it would work 
+better if both queue lengths and "nice" loads were kept approximately 
+equal between the queues.  It's hard to see how this can be managed 
+without considerable overhead.
 
+Peter
 -- 
-Jens Axboe
+Peter Williams                                   pwil3058@bigpond.net.au
 
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

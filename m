@@ -1,119 +1,164 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261872AbVGEOe4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261830AbVGEOe5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261872AbVGEOe4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Jul 2005 10:34:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261830AbVGEOdc
+	id S261830AbVGEOe5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Jul 2005 10:34:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbVGEOdK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Jul 2005 10:33:32 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:13751 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261873AbVGEOUM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Jul 2005 10:20:12 -0400
-Date: Tue, 5 Jul 2005 16:21:26 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Ondrej Zary <linux@rainbow-software.org>
-Cc: =?iso-8859-1?Q?Andr=E9?= Tomt <andre@tomt.net>,
-       Al Boldi <a1426z@gawab.com>,
-       "'Bartlomiej Zolnierkiewicz'" <bzolnier@gmail.com>,
-       "'Linus Torvalds'" <torvalds@osdl.org>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [git patches] IDE update
-Message-ID: <20050705142122.GY1444@suse.de>
-References: <42C9C56D.7040701@tomt.net> <42CA5A84.1060005@rainbow-software.org> <20050705101414.GB18504@suse.de> <42CA5EAD.7070005@rainbow-software.org> <20050705104208.GA20620@suse.de> <42CA7EA9.1010409@rainbow-software.org> <1120567900.12942.8.camel@linux> <42CA84DB.2050506@rainbow-software.org> <1120569095.12942.11.camel@linux> <42CAAC7D.2050604@rainbow-software.org>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="5vNYLRcllDrimb99"
-Content-Disposition: inline
-In-Reply-To: <42CAAC7D.2050604@rainbow-software.org>
+	Tue, 5 Jul 2005 10:33:10 -0400
+Received: from webapps.arcom.com ([194.200.159.168]:27149 "EHLO
+	webapps.arcom.com") by vger.kernel.org with ESMTP id S261830AbVGEOTm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Jul 2005 10:19:42 -0400
+Message-ID: <42CA96FC.9000708@arcom.com>
+Date: Tue, 05 Jul 2005 15:19:40 +0100
+From: David Vrabel <dvrabel@arcom.com>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: rmk+serial@arm.linux.org.uk
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: serial: 8250 fails to detect Exar XR16L2551 correctly
+Content-Type: multipart/mixed;
+ boundary="------------070508090102050304080704"
+X-OriginalArrivalTime: 05 Jul 2005 14:30:10.0359 (UTC) FILETIME=[0C5ACC70:01C5816E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------070508090102050304080704
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
---5vNYLRcllDrimb99
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Hi,
 
-On Tue, Jul 05 2005, Ondrej Zary wrote:
-> Jens Axboe wrote:
-> >On Tue, 2005-07-05 at 15:02 +0200, Ondrej Zary wrote:
-> >
-> >>>Ok, looks alright for both. Your machine is quite slow, perhaps that is
-> >>>showing the slower performance. Can you try and make HZ 100 in 2.6 and
-> >>>test again? 2.6.13-recent has it as a config option, otherwise edit
-> >>>include/asm/param.h appropriately.
-> >>>
-> >>
-> >>I forgot to write that my 2.6.12 kernel is already compiled with HZ 100 
-> >>(it makes the system more responsive).
-> >>I've just tried 2.6.8.1 with HZ 1000 and there is no difference in HDD 
-> >>performance comparing to 2.6.12.
-> >
-> >
-> >OK, interesting. You could try and boot with profile=2 and do
-> >
-> ># readprofile -r
-> ># dd if=/dev/hda of=/dev/null bs=128k 
-> ># readprofile > prof_output
-> >
-> >for each kernel and post it here, so we can see if anything sticks out.
-> >
-> Here are the profiles (used dd with count=4096) from 2.4.26 and 2.6.12 
-> (nothing from 2.6.8.1 because I don't have the .map file anymore).
+The 8250 serial driver detects the Exar XR16L2551 as a 16550A.  The
+XR16L2551 has an EFR register and sleep capabilities (UART_CAP_FIFO |
+UART_CAP_EFR | UART_CAP_SLEEP).  However, broken_efr() thinks it's a
+buggy Exar ST16C255x.
 
-Looks interesting, 2.6 spends oodles of times copying to user space.
-Lets check if raw reads perform ok, please try and time this app in 2.4
-and 2.6 as well.
+Any suggestion on how to differentiate between the two parts?  Exar have
+made the ST16C255x with the same registers as the XR16L255x...
 
-# gcc -Wall -O2 -o oread oread.c
-# time ./oread /dev/hda
+Perhaps it's okay for the ST16C255x to be detected as something with
+UART_CAP_EFR | UART_CAP_SLEEP even if it doesn't work? i.e., by removing
+broken_efr().
 
+Also, the initial IER test was failing (after a soft reboot) with the
+XR16L2551 part since the sleep mode bit was set but was read-only.  It
+seems sensible to make this test only look at the lower 4 bits.
+
+David Vrabel
 -- 
-Jens Axboe
+David Vrabel, Design Engineer
 
+Arcom, Clifton Road           Tel: +44 (0)1223 411200 ext. 3233
+Cambridge CB1 7EA, UK         Web: http://www.arcom.com/
 
---5vNYLRcllDrimb99
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="oread.c"
+--------------070508090102050304080704
+Content-Type: text/plain;
+ name="serial-XR16550"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="serial-XR16550"
 
-#include <stdio.h>
-#include <unistd.h>
-#define __USE_GNU
-#include <fcntl.h>
-#include <stdlib.h>
+%state
+pending
+%patch
+Index: linux-2.6-working/drivers/serial/8250.c
+===================================================================
+--- linux-2.6-working.orig/drivers/serial/8250.c	2005-07-04 13:43:13.000000000 +0100
++++ linux-2.6-working/drivers/serial/8250.c	2005-07-05 15:08:05.000000000 +0100
+@@ -249,6 +249,14 @@
+ 		.fcr		= UART_FCR_ENABLE_FIFO | UART_FCR_R_TRIG_10,
+ 		.flags		= UART_CAP_FIFO | UART_CAP_UUE,
+ 	},
++	[PORT_XR16550] = {
++		.name		= "XR16550",
++		.fifo_size	= 16,
++		.tx_loadsz	= 16,
++		.fcr		= UART_FCR_ENABLE_FIFO | UART_FCR_R_TRIG_01 |
++				  UART_FCR_T_TRIG_00,
++		.flags		= UART_CAP_FIFO | UART_CAP_EFR | UART_CAP_SLEEP,
++	},
+ };
+ 
+ static _INLINE_ unsigned int serial_in(struct uart_8250_port *up, int offset)
+@@ -573,6 +581,15 @@
+ 		up->port.type = PORT_16850;
+ 		return;
+ 	}
++	/* The Exar XR16L255x has an DVID of 0x02. This will misdetect the
++	 * Exar ST16C255x (A2 revision) which has registers like the XR16L255x
++	 * but doesn't have a working sleep mode.  However, it's safe to claim
++	 * sleep capabilities even if they don't work. See also
++	 * http://www.exar.com/info.php?pdf=dan180_oct2004.pdf */
++	if (id2 == 0x02) {
++		up->port.type = PORT_XR16550;
++		return;
++	}
+ 
+ 	/*
+ 	 * It wasn't an XR16C850.
+@@ -585,7 +602,7 @@
+ 	 */
+ 	if (size_fifo(up) == 64)
+ 		up->port.type = PORT_16654;
+-	else
++	else if(size_fifo(up) == 32)
+ 		up->port.type = PORT_16650V2;
+ }
+ 
+@@ -611,19 +628,6 @@
+ 		up->port.type = PORT_16450;
+ }
+ 
+-static int broken_efr(struct uart_8250_port *up)
+-{
+-	/*
+-	 * Exar ST16C2550 "A2" devices incorrectly detect as
+-	 * having an EFR, and report an ID of 0x0201.  See
+-	 * http://www.exar.com/info.php?pdf=dan180_oct2004.pdf
+-	 */
+-	if (autoconfig_read_divisor_id(up) == 0x0201 && size_fifo(up) == 16)
+-		return 1;
+-
+-	return 0;
+-}
+-
+ /*
+  * We know that the chip has FIFOs.  Does it have an EFR?  The
+  * EFR is located in the same register position as the IIR and
+@@ -661,7 +665,7 @@
+ 	 * (other ST16C650V2 UARTs, TI16C752A, etc)
+ 	 */
+ 	serial_outp(up, UART_LCR, 0xBF);
+-	if (serial_in(up, UART_EFR) == 0 && !broken_efr(up)) {
++	if (serial_in(up, UART_EFR) == 0) {
+ 		DEBUG_AUTOCONF("EFRv2 ");
+ 		autoconfig_has_efr(up);
+ 		return;
+@@ -828,7 +832,7 @@
+ #endif
+ 		scratch3 = serial_inp(up, UART_IER);
+ 		serial_outp(up, UART_IER, scratch);
+-		if (scratch2 != 0 || scratch3 != 0x0F) {
++		if ((scratch2 & 0x0f) != 0 || (scratch3 & 0x0f) != 0x0F) {
+ 			/*
+ 			 * We failed; there's nothing here
+ 			 */
+Index: linux-2.6-working/include/linux/serial_core.h
+===================================================================
+--- linux-2.6-working.orig/include/linux/serial_core.h	2005-07-04 13:43:13.000000000 +0100
++++ linux-2.6-working/include/linux/serial_core.h	2005-07-05 15:07:58.000000000 +0100
+@@ -39,7 +39,8 @@
+ #define PORT_RSA	13
+ #define PORT_NS16550A	14
+ #define PORT_XSCALE	15
+-#define PORT_MAX_8250	15	/* max port ID */
++#define PORT_XR16550	16
++#define PORT_MAX_8250	16	/* max port ID */
+ 
+ /*
+  * ARM specific type numbers.  These are not currently guaranteed
 
-#define BS		(131072)
-#define BLOCKS		(4096)
-#define ALIGN(buf)	(char *) (((unsigned long) (buf) + 4095) & ~(4095))
-
-int main(int argc, char *argv[])
-{
-	char *buffer;
-	int fd, i;
-
-	if (argc < 2) {
-		printf("%s: <device>\n", argv[0]);
-		return 1;
-	}
-
-	fd = open(argv[1], O_RDONLY | O_DIRECT);
-	if (fd == -1) {
-		perror("open");
-		return 2;
-	}
-
-	buffer = ALIGN(malloc(BS + 4095));
-
-	for (i = 0; i < BLOCKS; i++) {
-		int ret = read(fd, buffer, BS);
-
-		if (!ret)
-			break;
-		else if (ret < 0) {
-			perror("read infile");
-			break;
-		}
-	}
-
-	return 0;
-}
-
---5vNYLRcllDrimb99--
+--------------070508090102050304080704--

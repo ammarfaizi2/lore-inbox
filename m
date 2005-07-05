@@ -1,53 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261954AbVGESkD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261981AbVGESmw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261954AbVGESkD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Jul 2005 14:40:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261948AbVGESkD
+	id S261981AbVGESmw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Jul 2005 14:42:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261974AbVGESms
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Jul 2005 14:40:03 -0400
-Received: from kanga.kvack.org ([66.96.29.28]:36774 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S261954AbVGESjM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Jul 2005 14:39:12 -0400
-Date: Tue, 5 Jul 2005 14:40:26 -0400
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: Jeff Dike <jdike@addtoit.com>
+	Tue, 5 Jul 2005 14:42:48 -0400
+Received: from chretien.genwebhost.com ([209.59.175.22]:7857 "EHLO
+	chretien.genwebhost.com") by vger.kernel.org with ESMTP
+	id S261961AbVGESmb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Jul 2005 14:42:31 -0400
+Date: Tue, 5 Jul 2005 11:42:18 -0700
+From: randy_dunlap <rdunlap@xenotime.net>
+To: Xin Zhao <uszhaoxin@gmail.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] uml-v2.6.12-bcrl-fix-tlb.diff
-Message-ID: <20050705184026.GA21739@kvack.org>
+Subject: Re: Why cannot I do "insmod nfsd.ko" directly?
+Message-Id: <20050705114218.20c494bc.rdunlap@xenotime.net>
+In-Reply-To: <4ae3c140507051123758bb61e@mail.gmail.com>
+References: <4ae3c140507051123758bb61e@mail.gmail.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-ClamAntiVirus-Scanner: This mail is clean
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - chretien.genwebhost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - xenotime.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+On Tue, 5 Jul 2005 14:23:39 -0400 Xin Zhao wrote:
 
-This patch fixes a fairly serious tlb flushing bug that makes aio use under 
-uml very unreliable -- SEGVs, Oops and panic()s occur as a result of stale 
-tlb entires being used by uml when aio switches mms due to the fact that 
-uml does not implement the activate_mm() hook.  This patch introduces a 
-simple but correct approach (read: hammer) for implementing activate_mm() 
-in uml by doing a force_flush_all() if the new mm is different from old.
-With this patch in place, uml is able to succeed at the aio test case that 
-was randomly faulting for me before.
+| I tried to do "insmod nfsd.ko", but always got the error message
+| "insmod: error inserting 'nfsd.ko': -1 Unknown symbol in module"
 
-		-ben
+The kernel message log would at least tell you what symbol
+is missing and then you/we can determnine why and where that
+symbol is located.  Maybe there's just another module that needs
+to be loaded before nfsd.ko.  And try using modprobe instead
+of insmod since modprobe will look for module dependencies.
 
-diff -purN 60_pipe_aio/include/asm-um/mmu_context.h test.diff/include/asm-um/mmu_context.h
---- 60_pipe_aio/include/asm-um/mmu_context.h	2004-12-24 16:34:57.000000000 -0500
-+++ test.diff/include/asm-um/mmu_context.h	2005-07-05 14:38:34.569235552 -0400
-@@ -14,8 +14,12 @@
- 
- #define deactivate_mm(tsk,mm)	do { } while (0)
- 
-+extern void force_flush_all(void);
-+
- static inline void activate_mm(struct mm_struct *old, struct mm_struct *new)
- {
-+	if (old != new)
-+		force_flush_all();
- }
- 
- extern void switch_mm_skas(int mm_fd);
+
+| Why?
+| 
+| The kernel is 2.6.11.10
+| The command I used is:
+| 1. insmod lockd.ko  ---succeed
+| 2. exportfs -r   ---succeed
+| 3. insmod nfsd.ko --- failed 
+| 
+| 
+| Moreover, I noticed that if I do the following commands, nfsd.ko can
+| be inserted:
+| 
+| 1. rpc.mountd
+| 2. exportfs -r
+| 3. rpc.nfsd 1
+| 
+| Can someone explain what trick rpc.mountd and rpc.nfsd do to make
+| nfsd.ko insertable?
+| 
+| Thanks in advance for your kind help!
+
+
+---
+~Randy

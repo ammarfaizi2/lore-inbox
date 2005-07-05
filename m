@@ -1,46 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261201AbVGEGOs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261383AbVGEGgx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261201AbVGEGOs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Jul 2005 02:14:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261381AbVGEGOr
+	id S261383AbVGEGgx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Jul 2005 02:36:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261384AbVGEGgx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Jul 2005 02:14:47 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:62882 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S261201AbVGEGOq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Jul 2005 02:14:46 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: RFC: i386: kill !4KSTACKS
-Date: Tue, 5 Jul 2005 09:14:30 +0300
-User-Agent: KMail/1.5.4
-Cc: Alexander Nyberg <alexn@telia.com>, linux-kernel@vger.kernel.org
-References: <20050607212706.GB7962@stusta.de> <200506081513.09828.vda@ilport.com.ua> <20050704182237.GW5346@stusta.de>
-In-Reply-To: <20050704182237.GW5346@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
+	Tue, 5 Jul 2005 02:36:53 -0400
+Received: from nproxy.gmail.com ([64.233.182.207]:51401 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261383AbVGEGgw convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Jul 2005 02:36:52 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Wr4E30pPchs05qm8Rf/Xfhg2VPHiPv9+YwO0KTvq20x/tbadWSDPOeI8hp0PWkbUgyy9zgsD+OTG2nGRkntVB29JkxAarooUKrU4Fte2tiQuJeH1O1I/JFh31/admjqkNG6arUjOWam5XRUqomeX9moBi4rkzDle2pTPvSQAhC0=
+Message-ID: <84144f02050704233675c36643@mail.gmail.com>
+Date: Tue, 5 Jul 2005 09:36:49 +0300
+From: Pekka Enberg <penberg@gmail.com>
+Reply-To: Pekka Enberg <penberg@gmail.com>
+To: ncunningham@cyclades.com
+Subject: Re: Submission of Suspend2 for inclusion in mainline
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Bernard Blackham <bernard@blackham.com.au>,
+       Pekka Enberg <penberg@cs.helsinki.fi>
+In-Reply-To: <1120543335.4179.29.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200507050914.30701.vda@ilport.com.ua>
+References: <1120543335.4179.29.camel@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > > NB: gcc 3.4.3 can use excessive stack in degenerate cases, so please
-> > > > include gcc version in your reports.
-> > > 
-> > > But this can't occur in the kernel.
-> > 
-> > It can. I saw the OOPS myself.
-> > One of the functions in crypto/wp512.c was compiled with 3k+ stack usage.
-> 
-> Strange that "make checkstack" didn't show this.
+On 7/5/05, Nigel Cunningham <ncunningham@cyclades.com> wrote:
+> Would people like me to post the patches to LKML, or are you happy to
+> download from suspend2.net for yourselves?
 
-It happens with certain gcc versions only.
- 
-> Are there any other 4KSTACKS problems you know about?
+Please post it so we can be sure that we're reviewing the same version.
 
-Currently no.
---
-vda
-
+                           Pekka

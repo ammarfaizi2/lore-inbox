@@ -1,49 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261803AbVGEMDx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261816AbVGEMJl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261803AbVGEMDx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Jul 2005 08:03:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261811AbVGEMDx
+	id S261816AbVGEMJl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Jul 2005 08:09:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261813AbVGEMJk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Jul 2005 08:03:53 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:49611 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261803AbVGEMDv (ORCPT
+	Tue, 5 Jul 2005 08:09:40 -0400
+Received: from gate.in-addr.de ([212.8.193.158]:45218 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S261816AbVGEMGb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Jul 2005 08:03:51 -0400
-Subject: Re: Memory leak with 2.6.12 and cdrecord
-From: Jens Axboe <axboe@suse.de>
-To: Patrick Plattes <patrick@erdbeere.net>
-Cc: linux-kernel@vger.kernel.org,
-       Aleksander Pavic <aleksander.pavic@t-online.de>
-In-Reply-To: <20050705113343.GA6349@erdbeere.net>
-References: <20050705113343.GA6349@erdbeere.net>
-Content-Type: text/plain
-Date: Tue, 05 Jul 2005 14:06:45 +0200
-Message-Id: <1120565206.12942.3.camel@linux>
+	Tue, 5 Jul 2005 08:06:31 -0400
+Date: Tue, 5 Jul 2005 14:06:21 +0200
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: "Richard B. Johnson" <linux-os@analogic.com>,
+       Michal Jaegermann <michal@harddata.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: A "new driver model" and EXPORT_SYMBOL_GPL question
+Message-ID: <20050705120621.GM2879@marowsky-bree.de>
+References: <20050703171202.A7210@mail.harddata.com> <Pine.LNX.4.61.0507050703220.20388@chaos.analogic.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.61.0507050703220.20388@chaos.analogic.com>
+X-Ctuhulu: HASTUR
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-07-05 at 13:33 +0200, Patrick Plattes wrote:
-> Hi Ho :-),
-> 
-> we have some trouble with the 2.6v kernel tree and CDRecord 2.01 (Debian
-> Sarge package). If we try to write an 150MB CD the memory fills up to
-> 150MB. The memory will not deallocate after closing cdrecord. Next if we
-> try to write an 200MB CD the memory will filled up to additional 50MB.
-> 
-> We don't know which part of the software is steals our memory. This only
-> happens on 2.6, not on an 2.4 system and we can reproduce the bug only
-> on the asus notebook.
-> 
-> We have tried to find the leak with top and slabtop, but inconclusively. I 
-> put some information together. The informations are taken from the system 
-> after burning a 154MB CD. Please have a look at: http://cdrecord.sourcecode.cc . 
-> I uploaded the files to this address, to avoid high traffic on the lkml.
+On 2005-07-05T07:09:47, "Richard B. Johnson" <linux-os@analogic.com> wrote:
 
-Please post /proc/slabinfo as well.
+> This problem will continue. Eventually there will be no general
+> exported symbols. The apparent idea is to prevent the use of the
+> kernel in proprietary systems.
+
+... with proprietary kernel extensions. There's a difference.
+
+> Not to worry. The tools provided with a typical Linux distribution
+> are capable of resolving those symbols. You can make a script
+> that `greps`  System.map for the correct offsets of those symbols.
+> You can use those offsets in a linker script.
+
+If it wasn't you, I'd be assuming you'd be joking when suggesting to
+subvert the clear wishes of and licensing granted by the copyright
+holders and authors.
+
+
+
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
 
 -- 
-Jens Axboe <axboe@suse.de>
+High Availability & Clustering
+SUSE Labs, Research and Development
+SUSE LINUX Products GmbH - A Novell Business	 -- Charles Darwin
+"Ignorance more frequently begets confidence than does knowledge"
 

@@ -1,52 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262008AbVGEWMf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261984AbVGEWDZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262008AbVGEWMf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Jul 2005 18:12:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262010AbVGEWJA
+	id S261984AbVGEWDZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Jul 2005 18:03:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261970AbVGEWBc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Jul 2005 18:09:00 -0400
-Received: from ams-iport-1.cisco.com ([144.254.224.140]:48745 "EHLO
-	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S261963AbVGEWHo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Jul 2005 18:07:44 -0400
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-Subject: Re: [PATCH 11/16] IB uverbs: add mthca mmap support
-X-Message-Flag: Warning: May contain useful information
-References: <2005628163.o84QGfsM7oMSy0oU@cisco.com>
-	<2005628163.gtJFW6uLUrGQteys@cisco.com>
-	<20050628170553.00a14a29.akpm@osdl.org> <52mzp1oy91.fsf@topspin.com>
-	<20050705205351.GB28064@mellanox.co.il>
-From: Roland Dreier <rolandd@cisco.com>
-Date: Tue, 05 Jul 2005 15:07:28 -0700
-In-Reply-To: <20050705205351.GB28064@mellanox.co.il> (Michael S. Tsirkin's
- message of "Tue, 5 Jul 2005 23:53:51 +0300")
-Message-ID: <52d5pwnbz3.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
-MIME-Version: 1.0
+	Tue, 5 Jul 2005 18:01:32 -0400
+Received: from mail.kroah.org ([69.55.234.183]:5826 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261984AbVGEV5x (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Jul 2005 17:57:53 -0400
+Date: Tue, 5 Jul 2005 14:57:40 -0700
+From: Greg KH <greg@kroah.com>
+To: Zan Lynx <zlynx@acm.org>
+Cc: Michal Jaegermann <michal@harddata.com>, linux-kernel@vger.kernel.org
+Subject: Re: A "new driver model" and EXPORT_SYMBOL_GPL question
+Message-ID: <20050705215739.GA2635@kroah.com>
+References: <20050703171202.A7210@mail.harddata.com> <20050704054441.GA19936@kroah.com> <1120600243.27600.75.camel@localhost>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 05 Jul 2005 22:07:40.0386 (UTC) FILETIME=[F5D88420:01C581AD]
+Content-Disposition: inline
+In-Reply-To: <1120600243.27600.75.camel@localhost>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Michael> Roland, I think VM_DONTCOPY is needed here.
+On Tue, Jul 05, 2005 at 03:50:43PM -0600, Zan Lynx wrote:
+> Sourced from here:
+> http://hulllug.principalhosting.net/archive/index.php/t-52440.html
 
-    Michael> If a process forks, we must prevent the child from
-    Michael> accessing the parent's hardware page. Otherwise the child
-    Michael> can corrupt the parent's queues since the hardware wont
-    Michael> be able to distinguish between parent and child.
+No, that is not the same topic or thread.
 
-    Michael> Does this make sense?
+> That was the way it was as of 2.6.10-mm1 and it stayed that way through
+> 2.6.12.  When did that decision change?  If it was there in the
+> archives, I missed it in the search.
 
-This is true, but there are a number of pieces that are required
-before fork will work for processes using userspace verbs.  One of the
-ingredients that's missing is adding something like PROT_DONTCOPY for
-mprotect().  Once that's in place, an app can use that on the
-doorbell page before forking.
+The code was totally rewritten from what was in 2.6.10-mm1, it was not
+just a simple "license change".  All in-kernel users were converted, and
+the known closed-source users of this code were also contacted and they
+have already changed their code (nvidia being one of these users.)
 
-I don't consider this attack by children of a process very serious,
-since a process can always fork, munmap the doorbell page in the child
-process, and then fork the untrusted child into yet another child.
+If you know of any closed source code, using those functions, please put
+them in contact with me.
 
- - R.
+> If this was a Greg-only decision, perhaps a patch reversing the change
+> addressed to Linus would get a solid yes/no decision from the top.
+
+What problem is this change causing you?  Do you have code that calls
+these old, now gone, functions?
+
+thanks,
+
+greg k-h

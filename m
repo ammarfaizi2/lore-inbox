@@ -1,52 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261733AbVGDXeJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261738AbVGEBDS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261733AbVGDXeJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Jul 2005 19:34:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261736AbVGDXeJ
+	id S261738AbVGEBDS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Jul 2005 21:03:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261742AbVGEBDS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Jul 2005 19:34:09 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:16616 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S261733AbVGDXeF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Jul 2005 19:34:05 -0400
-Date: Tue, 5 Jul 2005 01:30:18 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Pascal CHAPPERON <pascal.chapperon@wanadoo.fr>
-Cc: Juha Laiho <Juha.Laiho@iki.fi>, Andrew Hutchings <info@a-wing.co.uk>,
-       linux-kernel@vger.kernel.org, lars.vahlenberg@mandator.com,
-       vinay kumar <b4uvin@yahoo.co.in>, jgarzik@pobox.com
-Subject: Re: sis190
-Message-ID: <20050704233018.GA4496@electric-eye.fr.zoreil.com>
-References: <22391136.1120301527301.JavaMail.www@wwinf1518>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <22391136.1120301527301.JavaMail.www@wwinf1518>
-User-Agent: Mutt/1.4.2.1i
-X-Organisation: Land of Sunshine Inc.
+	Mon, 4 Jul 2005 21:03:18 -0400
+Received: from omta04sl.mx.bigpond.com ([144.140.93.156]:56736 "EHLO
+	omta04sl.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S261738AbVGEBDN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Jul 2005 21:03:13 -0400
+Message-ID: <42C9DC4A.4020003@bigpond.net.au>
+Date: Tue, 05 Jul 2005 11:03:06 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Chris Han <xiphux@gmail.com>, Con Kolivas <kernel@kolivas.org>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: [ANNOUNCE][RFC] PlugSched-5.2.2 for 2.6.13-rc1 and 2.6.13-rc1-mm1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta04sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Tue, 5 Jul 2005 01:03:06 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pascal CHAPPERON <pascal.chapperon@wanadoo.fr> :
-[...]
-> I can not make other tries before Monday, but i'll take a
-> look at the media management after...
-> 
-> BTW, can you remove the following printks from the patch ?
-> The printks in interrupt functions make dmesg unusuable, 
-> and the stuff in sis190_get_drvinfo triggers a kernel oops
-> when the module is loaded (null pointer assignment).
+PlugSched-5.2.2 is available for 2.6.13-rc1 at:
 
-Done.
+<http://prdownloads.sourceforge.net/cpuse/plugsched-5.2.2-for-2.6.13-rc1.patch?download>
 
-Can you check if there is a regression in sis190-000.patch available at
-http://www.zoreil.com/~romieu/sis190/20050704-2.6.13-rc1/patches ?
+and for 2.6.13-rc1-mm1 at:
 
-If it works and you want some entertainment, you can apply sis190-010.patch
-+ sis190-020.patch and experience with ethtool/mii-tool. 
+<http://prdownloads.sourceforge.net/cpuse/plugsched-5.2.2-for-2.6.13-rc1-mm1.patch?download>
 
-There is a tarball as well:
-http://www.zoreil.com/~romieu/sis190/20050704-2.6.13-rc1.tar.bz2
+Very Brief Documentation:
 
---
-Ueimor
+You can select a default scheduler at kernel build time.  If you wish to
+boot with a scheduler other than the default it can be selected at boot
+time by adding:
+
+cpusched=<scheduler>
+
+to the boot command line where <scheduler> is one of: ingosched,
+nicksched, staircase, spa_no_frills or zaphod.  If you don't change the
+default when you build the kernel the default scheduler will be
+ingosched (which is the normal scheduler).
+
+The scheduler in force on a running system can be determined by the
+contents of:
+
+/proc/scheduler
+
+Control parameters for the scheduler can be read/set via files in:
+
+/sys/cpusched/<scheduler>/
+
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

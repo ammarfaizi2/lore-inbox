@@ -1,71 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262016AbVGEXmG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262015AbVGEXsG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262016AbVGEXmG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Jul 2005 19:42:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262015AbVGEXmG
+	id S262015AbVGEXsG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Jul 2005 19:48:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262019AbVGEXsG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Jul 2005 19:42:06 -0400
-Received: from dvhart.com ([64.146.134.43]:49844 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S262016AbVGEXj6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Jul 2005 19:39:58 -0400
-Message-ID: <42CB1A4A.7000501@dvhart.com>
-Date: Tue, 05 Jul 2005 16:39:54 -0700
-From: Darren Hart <darren@dvhart.com>
-Reply-To: dvhltc@us.ibm.com
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050404)
+	Tue, 5 Jul 2005 19:48:06 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:37040 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S262015AbVGEXsD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Jul 2005 19:48:03 -0400
+Message-ID: <42CB1C20.3030204@namesys.com>
+Date: Tue, 05 Jul 2005 16:47:44 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
-Cc: Robert Love <rml@novell.com>,
-       Samuel Thibault <samuel.thibault@ens-lyon.org>,
-       Andy Isaacson <adi@hexapodia.org>, linux-kernel@vger.kernel.org
-Subject: Re: wrong madvise(MADV_DONTNEED) semantic
-References: <20050628134316.GS5044@implementation.labri.fr> <20050628181620.GA1423@hexapodia.org> <1119983300.6745.1.camel@betsy> <20050628185300.GB30079@hexapodia.org> <1119986623.6745.10.camel@betsy> <20050628194128.GM4645@bouh.labri.fr> <20050628200330.GB4453@wohnheim.fh-wedel.de> <1119989111.6745.21.camel@betsy> <20050628201704.GC4453@wohnheim.fh-wedel.de>
-In-Reply-To: <20050628201704.GC4453@wohnheim.fh-wedel.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+To: David Masover <ninja@slaphack.com>
+CC: Hubert Chan <hubert@uhoreg.ca>, Ross Biro <ross.biro@gmail.com>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Kyle Moffett <mrmacman_g4@mac.com>, Valdis.Kletnieks@vt.edu,
+       Lincoln Dale <ltd@cisco.com>, Gregory Maxwell <gmaxwell@gmail.com>,
+       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       ReiserFS List <reiserfs-list@namesys.com>,
+       Alexander Zarochentcev <zam@namesys.com>, vs <vs@thebsh.namesys.com>,
+       Nate Diller <ndiller@namesys.com>
+Subject: Re: reiser4 plugins
+References: <hubert@uhoreg.ca>	<200506290509.j5T595I6010576@laptop11.inf.utfsm.cl>	<87hdfgvqvl.fsf@evinrude.uhoreg.ca>	<8783be6605062914341bcff7cb@mail.gmail.com>	<878y0svj1h.fsf@evinrude.uhoreg.ca> <42C4F97B.1080803@slaphack.com> <87ll4lynky.fsf@evinrude.uhoreg.ca> <42CB0328.3070706@namesys.com> <42CB07EB.4000605@slaphack.com> <42CB0ED7.8070501@namesys.com> <42CB1128.6000000@slaphack.com>
+In-Reply-To: <42CB1128.6000000@slaphack.com>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jörn Engel wrote:
-> On Tue, 28 June 2005 16:05:11 -0400, Robert Love wrote:
-> 
->>I like the idea (I think someone suggested this early on) of renaming
->>the current MADV_DONTNEED to MADV_FREE and then adding a correct
->>MADV_DONTNEED.
-> 
-> 
-> Imo, that's still a crime against common sense.  Madvice should give
-> the kernel some advice about which data to keep or not to keep in
-> memory, hence the name.  It should *not* tell the kernel to corrupt
-> data, which currently appears to be the case.
-> 
-> If the application knows 100% that it is the _only_ possible user of
-> this data and will never again use it, dropping dirty pages might be a
-> sane option.  Effectively that translates to anonymous memory only.
-> In all other cases, dirty pages should be written back.
+David Masover wrote:
 
-There is also the case of shmget/shmat memory segments.  Some 
-applications will use these in order to map a very large amount of 
-memory and then madvise(MADV_DONTNEED) in order to play nice with the 
-rest of the system should memory pressure / system load / etc require 
-it.  Obviously if other tasks have these segments mapped, the pages 
-cannot be discarded.  If a task is the sole "mapper" of the region and 
-doesn't need that memory (ever again) it would be good to avoid the i/o 
-overhead of swapping it out and just discarding it.  Perhaps 
-MADV_DONTNEED isn't the right place for this, but there is demand for 
-this behavior.
+>Now, can anyone think of a situation where we want user-created
+>hardlinks inside metadata?  More importantly, what do we do about it?
+>  
+>
+I think the equivalent of symlinks would be good enough to get by on for
+now for most linking of metafiles.  Maybe some years from now somebody
+can fault me for saying this and write a patch to fix it to be better,
+at which point I will be happy to concede the point.
 
---Darren Hart
+So the basic principal here is, one can have hardlinks to directories
+without cycles provided that one does not allow any child of the
+directory to have a hardlink.  The question is, how cleanly can that
+relaxed restriction be coded?
 
-> 
-> 
->>And, as I said, the man page needs clarification.
-> 
-> 
-> Definitely.
-> 
-> Jörn
-> 
-
+Hans

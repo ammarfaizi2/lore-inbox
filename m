@@ -1,53 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261984AbVGEWDZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261999AbVGEWSs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261984AbVGEWDZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Jul 2005 18:03:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261970AbVGEWBc
+	id S261999AbVGEWSs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Jul 2005 18:18:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261986AbVGEWNs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Jul 2005 18:01:32 -0400
-Received: from mail.kroah.org ([69.55.234.183]:5826 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261984AbVGEV5x (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Jul 2005 17:57:53 -0400
-Date: Tue, 5 Jul 2005 14:57:40 -0700
-From: Greg KH <greg@kroah.com>
-To: Zan Lynx <zlynx@acm.org>
-Cc: Michal Jaegermann <michal@harddata.com>, linux-kernel@vger.kernel.org
-Subject: Re: A "new driver model" and EXPORT_SYMBOL_GPL question
-Message-ID: <20050705215739.GA2635@kroah.com>
-References: <20050703171202.A7210@mail.harddata.com> <20050704054441.GA19936@kroah.com> <1120600243.27600.75.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1120600243.27600.75.camel@localhost>
-User-Agent: Mutt/1.5.8i
+	Tue, 5 Jul 2005 18:13:48 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:17883 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP id S262004AbVGEWIz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Jul 2005 18:08:55 -0400
+Date: Tue, 5 Jul 2005 18:08:47 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: "Roberts-Thomson, James" <James.Roberts-Thomson@NBNZ.CO.NZ>
+cc: Stefano Rivoir <s.rivoir@gts.it>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+Subject: RE: [linux-usb-devel] Kernel unable to read partition table on US
+ B Memory Key
+In-Reply-To: <40BC5D4C2DD333449FBDE8AE961E0C334F9366@psexc03.nbnz.co.nz>
+Message-ID: <Pine.LNX.4.44L0.0507051757130.31731-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 05, 2005 at 03:50:43PM -0600, Zan Lynx wrote:
-> Sourced from here:
-> http://hulllug.principalhosting.net/archive/index.php/t-52440.html
+On Wed, 6 Jul 2005, Roberts-Thomson, James wrote:
 
-No, that is not the same topic or thread.
+> One more additional note is that the key came with some s/w that allows you
+> to partition the key into "private" and "public" areas, where the private
+> area is accessed by a password.  Naturally, this s/w (Ustorage) is Windows
+> only; but looking at how it works under Windows it would appear that the key
+> has some firmware inside that is controlling access etc - could it be that
+> this firmware hasn't finished initialising by the time Linux tries to read
+> block 0, which is why the messages occur?
 
-> That was the way it was as of 2.6.10-mm1 and it stayed that way through
-> 2.6.12.  When did that decision change?  If it was there in the
-> archives, I missed it in the search.
+That's certainly possible.  The question is, at what time does that 
+firmware start initializing and how long does it take?  You mentioned 
+before that setting "delay_use" to 30 seconds didn't make any difference.
 
-The code was totally rewritten from what was in 2.6.10-mm1, it was not
-just a simple "license change".  All in-kernel users were converted, and
-the known closed-source users of this code were also contacted and they
-have already changed their code (nvidia being one of these users.)
+> If this is the case, then a subtle delay somewhere in the initialisation
+> chain may help.  I'm not a Kernel Guru by any stretch, but I imagine the
+> sequence is something like this:
+> 
+> <key insert>
+> <usb subsystem identifies device>
+> <usb-storage driver takes device control> (existing specifiable delay in
+> here, via "delay_use")
+> <usb-storage drivers creates /dev/sdX> (via some form of udev interaction, I
+> guess...)
+> <sd_mod informed that new SCSI disk exists>
+> *
+> <sd_mod tries to read partition table etc>
+> <sd_mod creates /dev/sdXn entries> (also via udev)
+> ...etc....
 
-If you know of any closed source code, using those functions, please put
-them in contact with me.
+That's not quite right.  It really goes like this:
 
-> If this was a Greg-only decision, perhaps a patch reversing the change
-> addressed to Linus would get a solid yes/no decision from the top.
+<key insert>
+<usb subsystem identifies device>
+<usb-storage driver takes device control> (existing specifiable delay in
+	here, via "delay_use")
+<sd_mod informed that new SCSI disk exists>
+<sd_mod gets total disk capacity, write-protection setting, and other
+	stuff>
+<sd_mod registers /dev/sdX as a disk and udev learns about it>
+<the general disk driver tries to read partition table etc>
+<gendisk creates /dev/sdXn entries> (also via udev)
+...etc....
 
-What problem is this change causing you?  Do you have code that calls
-these old, now gone, functions?
+It's not clear how any of this affects the device's internal state.
 
-thanks,
+> Perhaps the ability to create an additional "settle" delay at the "*" above
+> may help - presumably, I'd need to hack the sd_mod driver, so I'll have a
+> look there, too.
 
-greg k-h
+Try putting delays at various spots in sd_revalidate_disk: the beginning,
+the middle, and the end.
+
+Alan Stern
+

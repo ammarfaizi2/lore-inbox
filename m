@@ -1,72 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261237AbVGETNo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261613AbVGETRw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261237AbVGETNo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Jul 2005 15:13:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261553AbVGETNo
+	id S261613AbVGETRw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Jul 2005 15:17:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261553AbVGETRp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Jul 2005 15:13:44 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:5073 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261398AbVGETNd (ORCPT
+	Tue, 5 Jul 2005 15:17:45 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:3795 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261398AbVGETRP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Jul 2005 15:13:33 -0400
-Date: Tue, 5 Jul 2005 21:14:48 +0200
+	Tue, 5 Jul 2005 15:17:15 -0400
+Date: Tue, 5 Jul 2005 21:18:42 +0200
 From: Jens Axboe <axboe@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Ondrej Zary <linux@rainbow-software.org>,
-       =?iso-8859-1?Q?Andr=E9?= Tomt <andre@tomt.net>,
+To: Ondrej Zary <linux@rainbow-software.org>
+Cc: =?iso-8859-1?Q?Andr=E9?= Tomt <andre@tomt.net>,
        Al Boldi <a1426z@gawab.com>,
        "'Bartlomiej Zolnierkiewicz'" <bzolnier@gmail.com>,
-       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+       "'Linus Torvalds'" <torvalds@osdl.org>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
 Subject: Re: [git patches] IDE update
-Message-ID: <20050705191448.GB30235@suse.de>
-References: <20050705101414.GB18504@suse.de> <42CA5EAD.7070005@rainbow-software.org> <20050705104208.GA20620@suse.de> <42CA7EA9.1010409@rainbow-software.org> <1120567900.12942.8.camel@linux> <42CA84DB.2050506@rainbow-software.org> <1120569095.12942.11.camel@linux> <42CAAC7D.2050604@rainbow-software.org> <20050705142122.GY1444@suse.de> <Pine.LNX.4.58.0507051016420.3570@g5.osdl.org>
+Message-ID: <20050705191840.GC30235@suse.de>
+References: <20050705101414.GB18504@suse.de> <42CA5EAD.7070005@rainbow-software.org> <20050705104208.GA20620@suse.de> <42CA7EA9.1010409@rainbow-software.org> <1120567900.12942.8.camel@linux> <42CA84DB.2050506@rainbow-software.org> <1120569095.12942.11.camel@linux> <42CAAC7D.2050604@rainbow-software.org> <20050705142122.GY1444@suse.de> <42CAA075.4040406@rainbow-software.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0507051016420.3570@g5.osdl.org>
+In-Reply-To: <42CAA075.4040406@rainbow-software.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 05 2005, Linus Torvalds wrote:
+On Tue, Jul 05 2005, Ondrej Zary wrote:
+> Jens Axboe wrote:
+> >On Tue, Jul 05 2005, Ondrej Zary wrote:
+> >
+> >>Jens Axboe wrote:
+> >>
+> >>>On Tue, 2005-07-05 at 15:02 +0200, Ondrej Zary wrote:
+> >>>
+> >>>
+> >>>>>Ok, looks alright for both. Your machine is quite slow, perhaps that is
+> >>>>>showing the slower performance. Can you try and make HZ 100 in 2.6 and
+> >>>>>test again? 2.6.13-recent has it as a config option, otherwise edit
+> >>>>>include/asm/param.h appropriately.
+> >>>>>
+> >>>>
+> >>>>I forgot to write that my 2.6.12 kernel is already compiled with HZ 100 
+> >>>>(it makes the system more responsive).
+> >>>>I've just tried 2.6.8.1 with HZ 1000 and there is no difference in HDD 
+> >>>>performance comparing to 2.6.12.
+> >>>
+> >>>
+> >>>OK, interesting. You could try and boot with profile=2 and do
+> >>>
+> >>># readprofile -r
+> >>># dd if=/dev/hda of=/dev/null bs=128k 
+> >>># readprofile > prof_output
+> >>>
+> >>>for each kernel and post it here, so we can see if anything sticks out.
+> >>>
+> >>
+> >>Here are the profiles (used dd with count=4096) from 2.4.26 and 2.6.12 
+> >>(nothing from 2.6.8.1 because I don't have the .map file anymore).
+> >
+> >
+> >Looks interesting, 2.6 spends oodles of times copying to user space.
+> >Lets check if raw reads perform ok, please try and time this app in 2.4
+> >and 2.6 as well.
+> >
+> ># gcc -Wall -O2 -o oread oread.c
+> ># time ./oread /dev/hda
+> >
+> oread is faster than dd, but still not as fast as 2.4. In 2.6.12, HDD 
+> led is blinking, in 2.4 it's solid on during the read.
 > 
+> 2.6.12:
+> root@pentium:/home/rainbow# time ./oread /dev/hda
 > 
-> On Tue, 5 Jul 2005, Jens Axboe wrote:
-> > 
-> > Looks interesting, 2.6 spends oodles of times copying to user space.
-> > Lets check if raw reads perform ok, please try and time this app in 2.4
-> > and 2.6 as well.
+> real    0m25.082s
+> user    0m0.000s
+> sys     0m0.680s
 > 
-> I think it's just that 2.4.x used to allow longer command queues. I think
-> MAX_NR_REQUESTS is 1024 in 2.4.x, and just 128 in 2.6.x or something like
-> that.
+> 2.4.26:
+> root@pentium:/home/rainbow# time ./oread /dev/hda
+> 
+> real    0m23.513s
+> user    0m0.000s
+> sys     0m2.360s
 
-But for this case, you only have one command in flight. hdparm is highly
-synchronous, my oread case is as well.
+Hmm, still not as fast, not so good. 2.6 shows more idle time than 2.4,
+about 20% more. I seem to remember Ken Chen saying that 2.6 direct io
+was still a little slower than 2.4, your really slow hardware could be
+showing this to a much greater effect.
 
-> Also, the congestion thresholds are questionable: we consider a queue
-> congested if it is within 12% of full, but then we consider it uncongested
-> whenever it falls to within 18% of full, which I bet means that for some
-> streaming loads we have just a 6% "window" that we keep adding new
-> requests to (we wait when we're almost full, but then we start adding
-> requests again when we're _still_ almost full). Jens, we talked about this
-> long ago, but I don't think we ever did any timings.
-
-In theory, the ioc batching should handle that case. But as you can see
-from recent commits, I'm not very happy with how this currently works.
-It should not impact this testing, though.
-
-> Making things worse, things like this are only visible on stupid hardware
-> that has long latencies to get started (many SCSI controllers used to have
-> horrid latencies), so you'll never even see any difference on a lot of 
-> hardware.
-
-IDE still has much lower overhead per command than your average SCSI
-hardware. SATA with FIS even improves on this, definitely a good thing!
-
-> It's probably worth testing with a bigger request limit. I forget what the 
-> /proc interfaces are (and am too lazy to look it up), Jens can tell us ;)
-
-It's /sys/block/<device>/queue/nr_requests now, can be changed at will.
+I'll try and play with this tomorrow!
 
 -- 
 Jens Axboe

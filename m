@@ -1,62 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261814AbVGELih@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261786AbVGELpJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261814AbVGELih (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Jul 2005 07:38:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261811AbVGELie
+	id S261786AbVGELpJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Jul 2005 07:45:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261778AbVGELpI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Jul 2005 07:38:34 -0400
-Received: from omta01ps.mx.bigpond.com ([144.140.82.153]:43369 "EHLO
-	omta01ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S261830AbVGELZm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Jul 2005 07:25:42 -0400
-Message-ID: <42CA6E2F.7000408@bigpond.net.au>
-Date: Tue, 05 Jul 2005 21:25:35 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE][RFC] PlugSched-5.2.1 for 2.6.11 and 2.6.12
-References: <42B65525.1060308@bigpond.net.au> <42B65FAC.4090400@bigpond.net.au> <42CA3AEA.3020204@bigpond.net.au> <200507051953.49132.kernel@kolivas.org>
-In-Reply-To: <200507051953.49132.kernel@kolivas.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta01ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Tue, 5 Jul 2005 11:25:36 +0000
+	Tue, 5 Jul 2005 07:45:08 -0400
+Received: from serv4.servweb.de ([82.96.83.76]:26828 "EHLO serv4.servweb.de")
+	by vger.kernel.org with ESMTP id S261786AbVGELdq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Jul 2005 07:33:46 -0400
+Date: Tue, 5 Jul 2005 13:33:43 +0200
+From: Patrick Plattes <patrick@erdbeere.net>
+To: linux-kernel@vger.kernel.org
+Cc: Aleksander Pavic <aleksander.pavic@t-online.de>
+Subject: Memory leak with 2.6.12 and cdrecord
+Message-ID: <20050705113343.GA6349@erdbeere.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote:
-> On Tue, 5 Jul 2005 17:46, Peter Williams wrote:
-> 
->>Peter Williams wrote:
->>
->>>Con Kolivas wrote:
->>>
->>>>On Mon, 20 Jun 2005 15:33, Peter Williams wrote:
->>>>
->>>>>PlugSched-5.2.1 is available for 2.6.11 and 2.6.12 kernels.  This
->>>>>version applies Con Kolivas's latest modifications to his "nice" aware
->>>>>SMP load balancing patches.
->>>>
->>>>Thanks Peter.
->>>>Any word from your own testing/testers on how well smp nice balancing
->>>>is working for them now?
->>>
->>>No, they got side tracked onto something else but should start working
->>>on it again soon.  I'll give them a prod :-)
->>
->>Con,
->>	We've done some more testing with this with results that are still
->>disappointing. 
-> 
-> 
-> Is this with the migration thread accounted patch as well?
+Hi Ho :-),
 
-Yes.
+we have some trouble with the 2.6v kernel tree and CDRecord 2.01 (Debian
+Sarge package). If we try to write an 150MB CD the memory fills up to
+150MB. The memory will not deallocate after closing cdrecord. Next if we
+try to write an 200MB CD the memory will filled up to additional 50MB.
 
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
+We don't know which part of the software is steals our memory. This only
+happens on 2.6, not on an 2.4 system and we can reproduce the bug only
+on the asus notebook.
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+We have tried to find the leak with top and slabtop, but inconclusively. I 
+put some information together. The informations are taken from the system 
+after burning a 154MB CD. Please have a look at: http://cdrecord.sourcecode.cc . 
+I uploaded the files to this address, to avoid high traffic on the lkml.
+
+Thanks for help,
+Patrick

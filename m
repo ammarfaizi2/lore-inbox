@@ -1,86 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262415AbVGFRTP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262409AbVGFRYa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262415AbVGFRTP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 13:19:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262386AbVGFRQu
+	id S262409AbVGFRYa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 13:24:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262389AbVGFRXa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 13:16:50 -0400
-Received: from mail.metronet.co.uk ([213.162.97.75]:60881 "EHLO
-	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S261155AbVGFMv1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 08:51:27 -0400
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Realtime Preemption, 2.6.12, Beginners Guide?
-Date: Wed, 6 Jul 2005 13:51:18 +0100
+	Wed, 6 Jul 2005 13:23:30 -0400
+Received: from mail15.syd.optusnet.com.au ([211.29.132.196]:47786 "EHLO
+	mail15.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261788AbVGFNEQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Jul 2005 09:04:16 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: rt-preempt build failure
+Date: Wed, 6 Jul 2005 23:03:58 +1000
 User-Agent: KMail/1.8.1
-Cc: Ingo Molnar <mingo@elte.hu>
-References: <200507061257.36738.s0348365@sms.ed.ac.uk>
-In-Reply-To: <200507061257.36738.s0348365@sms.ed.ac.uk>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <200507052308.43970.kernel@kolivas.org> <20050705135143.GA13614@elte.hu>
+In-Reply-To: <20050705135143.GA13614@elte.hu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: multipart/signed;
+  boundary="nextPart1850615.vujcIGIsii";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507061351.18410.s0348365@sms.ed.ac.uk>
+Message-Id: <200507062304.03944.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 06 Jul 2005 12:57, Alistair John Strachan wrote:
-[snip]
-> Which debugging options are most useful for testing purposes? Is what I've
-> selected enough? Also, I got a few unexpected messages in dmesg on bootup.
+--nextPart1850615.vujcIGIsii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-I decided to just enable everything, as I got a lockup within 5 minutes of 
-using the patch. The new options have made the BUG warning a bit more 
-verbose, and I thought I'd share the information in case it's useful.
-
-[snip]
-> Finally, I got this:
+On Tue, 5 Jul 2005 23:51, Ingo Molnar wrote:
+> * Con Kolivas <kernel@kolivas.org> wrote:
+> > Hi Ingo
+> >
+> > This config on i386:
+> > http://ck.kolivas.org/crap/rt-config
+> >
+> > realtime-preempt-2.6.12-final-V0.7.50-51
+> > fails to build with these errors:
 >
-> BUG: soft lockup detected on CPU#0!
->  [<c013d7e9>] softlockup_tick+0x89/0xb0 (8)
->  [<c0108590>] timer_interrupt+0x50/0xf0 (20)
->  [<c013da91>] handle_IRQ_event+0x81/0x100 (16)
->  [<c013dbfc>] __do_IRQ+0xec/0x190 (48)
->  [<c0105a28>] do_IRQ+0x48/0x70 (40)
->  =======================
->  [<c024df3b>] acpi_processor_idle+0x0/0x258 (8)
->  [<c0103d03>] common_interrupt+0x1f/0x24 (12)
->  [<c024df3b>] acpi_processor_idle+0x0/0x258 (4)
->  [<c024e05e>] acpi_processor_idle+0x123/0x258 (40)
->  [<c024df3b>] acpi_processor_idle+0x0/0x258 (32)
->  [<c0101116>] cpu_idle+0x56/0x80 (16)
->  [<c03a486c>] start_kernel+0x17c/0x1c0 (12)
->  [<c03a43b0>] unknown_bootoption+0x0/0x1f0 (20)
->
+> thanks, i have fixed this and have uploaded the -51-00 patch.
 
-BUG: soft lockup detected on CPU#0!
- [<c010421f>] dump_stack+0x1f/0x30 (20)
- [<c0144a3a>] softlockup_tick+0x8a/0xb0 (24)
- [<c0108607>] timer_interrupt+0x57/0x100 (20)
- [<c0144ce5>] handle_IRQ_event+0x85/0x110 (52)
- [<c0144e4a>] __do_IRQ+0xda/0x170 (44)
- [<c0105b15>] do_IRQ+0x65/0xa0 (933642172)
- =======================
- [<c0103ceb>] common_interrupt+0x1f/0x24 (-942757148)
-------------------------------
-| showing all locks held by: |  (sed/2285 [f7e3c880, 123]):
-------------------------------
+Thanks. boots and runs stable after a swag of these initially (?netconsole=
+=20
+related):
 
-Then it continues to boot. I'm getting periodic lockups under high network 
-load, however, though I suspect that might be the ipw2200 driver I compiled 
-against the realtime-preempt kernel. Are there any known issues with external 
-modules versus PREEMPT-RT?
+BUG: scheduling with irqs disabled: swapper/0x00000000/1
+caller is __down_mutex+0x143/0x200
+ [<c02dd908>] schedule+0x95/0xf5 (8)
+ [<c02de5b6>] __down_mutex+0x143/0x200 (28)
+ [<c02422c3>] b44_start_xmit+0x23/0x3ee (84)
+ [<c0292beb>] find_skb+0xa4/0xe4 (8)
+ [<c0292c3e>] netpoll_send_skb+0x13/0xb0 (48)
+ [<c0243dcb>] write_msg+0x5f/0xb6 (16)
+ [<c0243d6c>] write_msg+0x0/0xb6 (12)
+ [<c011c3e1>] __call_console_drivers+0x41/0x4d (8)
+ [<c011c551>] call_console_drivers+0xec/0x109 (20)
+ [<c011c973>] release_console_sem+0x24/0xd4 (32)
+ [<c0243e7e>] init_netconsole+0x40/0x74 (24)
+ [<c03fa9ac>] do_initcalls+0x55/0xc7 (12)
+ [<c010038b>] init+0x8a/0x1b3 (32)
+ [<c0100301>] init+0x0/0x1b3 (16)
+ [<c0100f71>] kernel_thread_helper+0x5/0xb (8)
 
-Any way to debug these problems?
+There's a 75KB dmesg with all of them (not sure if any differ) here:
+http://ck.kolivas.org/crap/rt.dmesg
 
--- 
+same config:
+http://ck.kolivas.org/crap/rt-config
+
 Cheers,
-Alistair.
+Con
 
-personal:   alistair()devzero!co!uk
-university: s0348365()sms!ed!ac!uk
-student:    CS/CSim Undergraduate
-contact:    1F2 55 South Clerk Street,
-            Edinburgh. EH8 9PP.
+--nextPart1850615.vujcIGIsii
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBCy9bDZUg7+tp6mRURAvIxAJ9QXAviEMgbPxHjITKp69T7td4lcgCaAwsg
+ABAdBszjZULNetIJT4jx9UY=
+=y+BC
+-----END PGP SIGNATURE-----
+
+--nextPart1850615.vujcIGIsii--

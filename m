@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261706AbVGFDzl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262067AbVGFEAQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261706AbVGFDzl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Jul 2005 23:55:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261628AbVGFDwe
+	id S262067AbVGFEAQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 00:00:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261488AbVGFD5Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Jul 2005 23:52:34 -0400
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:10393 "EHLO
+	Tue, 5 Jul 2005 23:57:24 -0400
+Received: from b3162.static.pacific.net.au ([203.143.238.98]:11417 "EHLO
 	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S262077AbVGFCTd convert rfc822-to-8bit (ORCPT
+	id S262079AbVGFCTd convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 5 Jul 2005 22:19:33 -0400
-Subject: [PATCH] [34/48] Suspend2 2.1.9.8 for 2.6.12: 610-extent.patch
+Subject: [PATCH] [32/48] Suspend2 2.1.9.8 for 2.6.12: 609-driver-model.patch
 In-Reply-To: <11206164393426@foobar.com>
 X-Mailer: gregkh_patchbomb
-Date: Wed, 6 Jul 2005 12:20:43 +1000
-Message-Id: <1120616443531@foobar.com>
+Date: Wed, 6 Jul 2005 12:20:42 +1000
+Message-Id: <11206164423660@foobar.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Nigel Cunningham <nigel@suspend2.net>
@@ -24,1062 +24,606 @@ From: Nigel Cunningham <nigel@suspend2.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -ruNp 611-io.patch-old/kernel/power/suspend2_core/io.c 611-io.patch-new/kernel/power/suspend2_core/io.c
---- 611-io.patch-old/kernel/power/suspend2_core/io.c	1970-01-01 10:00:00.000000000 +1000
-+++ 611-io.patch-new/kernel/power/suspend2_core/io.c	2005-07-05 23:48:59.000000000 +1000
-@@ -0,0 +1,1006 @@
+diff -ruNp 610-encryption.patch-old/kernel/power/suspend2_core/encryption.c 610-encryption.patch-new/kernel/power/suspend2_core/encryption.c
+--- 610-encryption.patch-old/kernel/power/suspend2_core/encryption.c	1970-01-01 10:00:00.000000000 +1000
++++ 610-encryption.patch-new/kernel/power/suspend2_core/encryption.c	2005-07-05 23:54:31.000000000 +1000
+@@ -0,0 +1,598 @@
 +/*
-+ * kernel/power/io.c
++ * kernel/power/suspend2_core/encryption.c
 + *
-+ * Copyright (C) 1998-2001 Gabor Kuti <seasons@fornax.hu>
-+ * Copyright (C) 1998,2001,2002 Pavel Machek <pavel@suse.cz>
-+ * Copyright (C) 2002-2003 Florent Chabaud <fchabaud@free.fr>
-+ * Copyright (C) 2002-2005 Nigel Cunningham <nigel@suspend2.net>
++ * Copyright (C) 2003-2005 Nigel Cunningham <nigel@suspend2.net>
 + *
 + * This file is released under the GPLv2.
 + *
-+ * It contains high level IO routines for suspending.
++ * This file contains data encryption routines for suspend,
++ * using cryptoapi transforms.
 + *
++ * ToDo:
++ * - Apply min/max_keysize the cipher changes.
++ * - Test.
 + */
 +
 +#include <linux/suspend.h>
-+#include <linux/version.h>
-+#include <linux/utsname.h>
++#include <linux/module.h>
++#include <linux/highmem.h>
++#include <linux/vmalloc.h>
++#include <linux/crypto.h>
++#include <asm/scatterlist.h>
 +
-+#include "version.h"
-+#include "plugins.h"
-+#include "pageflags.h"
-+#include "io.h"
-+#include "ui.h"
-+#include "suspend2_common.h"
 +#include "suspend.h"
++#include "plugins.h"
++#include "proc.h"
++#include "suspend2_common.h"
++#include "utility.h"
++#include "io.h"
 +
-+/* attempt_to_parse_resume_device
++#define S2C_WRITE 0
++#define S2C_READ 1
++
++static struct suspend_plugin_ops s2_encryption_ops;
++static struct suspend_plugin_ops * next_driver;
++
++static char s2_encryptor_name[32];
++static struct crypto_tfm * s2_encryptor_transform;
++static char s2_encryptor_key[256];
++static int s2_key_len;
++static char s2_encryptor_iv[256];
++static int s2_encryptor_mode;
++static int s2_encryptor_save_key_and_iv;
++
++static u8 *page_buffer = NULL;
++static unsigned int bufofs;
++
++static struct scatterlist s2_crypt_sg[PAGE_SIZE/8];
++
++/* ---- Local buffer management ---- */
++
++/* allocate_local_buffer
 + *
-+ * Can we suspend, using the current resume2= parameter?
++ * Description:	Allocates a page of memory for buffering output.
++ * Returns:	Int: Zero if successful, -ENONEM otherwise.
 + */
-+void attempt_to_parse_resume_device(void)
++
++static int allocate_local_buffer(void)
 +{
-+	struct list_head *writer;
-+	struct suspend_plugin_ops * this_writer;
-+	int result = 0;
-+
-+	active_writer = NULL;
-+	clear_suspend_state(SUSPEND_RESUME_DEVICE_OK);
-+	set_suspend_state(SUSPEND_DISABLED);
-+	CLEAR_RESULT_STATE(SUSPEND_ABORTED);
-+
-+	if (!num_writers) {
-+		printk(name_suspend "No writers have been registered. Suspending will be disabled.\n");
-+		return;
-+	}
++	if (!page_buffer) {
++		int i;
++		
++		page_buffer = (char *) get_zeroed_page(GFP_ATOMIC);
 +	
-+	if (!resume2_file[0]) {
-+		printk(name_suspend "Resume2 parameter is empty. Suspending will be disabled.\n");
-+		return;
-+	}
-+
-+	list_for_each(writer, &suspend_writers) {
-+		this_writer = list_entry(writer, struct suspend_plugin_ops,
-+				ops.writer.writer_list);
-+
-+		/* 
-+		 * Not sure why you'd want to disable a writer, but
-+		 * we should honour the flag if we're providing it
-+		 */
-+		if (this_writer->disabled) {
-+			printk(name_suspend
-+					"Writer '%s' is disabled. Ignoring it.\n",
-+					this_writer->name);
-+			continue;
++		if (!page_buffer) {
++			printk(KERN_ERR
++				"Failed to allocate the page buffer for "
++				"suspend2 encryption driver.\n");
++			return -ENOMEM;
 +		}
 +
-+		result = this_writer->ops.writer.parse_image_location(
-+				resume2_file, (num_writers == 1));
-+
-+		switch (result) {
-+			case -EINVAL:
-+				/* 
-+				 * For this writer, but not a valid 
-+				 * configuration. Error already printed.
-+				 */
-+
-+				return;
-+
-+			case 0:
-+				/*
-+				 * For this writer and valid.
-+				 */
-+
-+				active_writer = this_writer;
-+
-+				set_suspend_state(SUSPEND_RESUME_DEVICE_OK);
-+				clear_suspend_state(SUSPEND_DISABLED);
-+				printk(name_suspend "Suspending enabled.\n");
-+
-+				return;
++		for (i=0; i < (PAGE_SIZE / s2_key_len); i++) {
++			s2_crypt_sg[i].page = virt_to_page(page_buffer);
++			s2_crypt_sg[i].offset = s2_key_len * i;
++			s2_crypt_sg[i].length = s2_key_len;
 +		}
 +	}
-+	printk(name_suspend "No matching enabled writer found. Suspending disabled.\n");
++
++	return 0;
 +}
 +
-+/* suspend2_cleanup_finished_io
++/* free_local_buffer
 + *
-+ * Description:	Very simple helper function to save #including all the
-+ * 		suspend code in fs/buffer.c and anywhere else we might
-+ * 		want to wait on suspend I/O in future.
++ * Description:	Frees memory allocated for buffering output.
 + */
 +
-+void suspend2_cleanup_finished_io(void)
++static inline void free_local_buffer(void)
 +{
-+	active_writer->ops.writer.wait_on_io(0);
++	if (page_buffer)
++		free_pages((unsigned long) page_buffer, 0);
++
++	page_buffer = NULL;
 +}
 +
-+/* noresume_reset_plugins
++/* suspend2_crypto_cleanup
 + *
-+ * Description:	When we read the start of an image, plugins (and especially the
-+ * 		active writer) might need to reset data structures if we decide
-+ * 		to invalidate the image rather than resuming from it.
++ * Description:	Frees memory allocated for our labours.
 + */
 +
-+static void noresume_reset_plugins(void)
++static void suspend2_crypto_cleanup(void)
 +{
-+	struct suspend_plugin_ops * this_filter;
-+	
-+	list_for_each_entry(this_filter, &suspend_filters, ops.filter.filter_list) {
-+		if (this_filter->ops.filter.noresume_reset)
-+			this_filter->ops.filter.noresume_reset();
++	if (s2_encryptor_transform) {
++		crypto_free_tfm(s2_encryptor_transform);
++		s2_encryptor_transform = NULL;
++	}
++}
++
++/* suspend2_crypto_prepare
++ *
++ * Description:	Prepare to do some work by allocating buffers and transforms.
++ * Returns:	Int: Zero if successful, -ENONEM otherwise.
++ */
++
++static int s2_encrypt_crypto_prepare(int mode)
++{
++	if (!*s2_encryptor_name) {
++		printk("Suspend2: Encryptor enabled but no name set.\n");
++		return 1;
 +	}
 +
-+	if (active_writer && active_writer->ops.writer.noresume_reset)
-+		active_writer->ops.writer.noresume_reset();
-+}
++	if (!(s2_encryptor_transform = crypto_alloc_tfm(s2_encryptor_name,
++					1 << s2_encryptor_mode))) {
++		printk("Suspend2: Failed to initialise the encryption transform (%s, mode %d).\n",
++				s2_encryptor_name, s2_encryptor_mode);
++		return 1;
++	}
 +
-+/* fill_suspend_header()
-+ * 
-+ * Description:	Fill the suspend header structure.
-+ * Arguments:	struct suspend_header: Header data structure to be filled.
-+ */
++	if (mode)
++		bufofs = PAGE_SIZE;
++	else
++		bufofs = 0;
 +
-+static void fill_suspend_header(struct suspend_header *sh)
-+{
-+	int i;
++	s2_key_len = strlen(s2_encryptor_key);
++
++	if (crypto_cipher_setkey(s2_encryptor_transform, s2_encryptor_key, 
++				s2_key_len)) {
++		printk("%d is an invalid key length for cipher %s.\n",
++					s2_key_len,
++					s2_encryptor_name);
++		return 1;
++	}
 +	
-+	memset((char *)sh, 0, sizeof(*sh));
-+
-+	sh->version_code = LINUX_VERSION_CODE;
-+	sh->num_physpages = num_physpages;
-+	sh->orig_mem_free = suspend2_orig_mem_free;
-+	strncpy(sh->machine, system_utsname.machine, 65);
-+	strncpy(sh->version, system_utsname.version, 65);
-+	sh->num_cpus = num_online_cpus();
-+	sh->page_size = PAGE_SIZE;
-+	sh->pagedir = pagedir1;
-+	sh->pageset_2_size = pagedir2.pageset_size;
-+	sh->param0 = suspend_result;
-+	sh->param1 = suspend_action;
-+	sh->param2 = suspend_debug_state;
-+	sh->param3 = console_loglevel;
-+	for (i = 0; i < 4; i++)
-+		sh->io_time[i/2][i%2] =
-+		       suspend_io_time[i/2][i%2];
++	if (!mode) {
++		crypto_cipher_set_iv(s2_encryptor_transform,
++				s2_encryptor_iv,
++				crypto_tfm_alg_ivsize(s2_encryptor_transform));
++	}
++		
++	return 0;
 +}
 +
-+/* write_pageset()
++/* ---- Exported functions ---- */
++
++/* write_init()
 + *
-+ * Description:	Write a pageset to disk.
-+ * Arguments:	pagedir:	Pointer to the pagedir to be saved.
-+ * 		whichtowrite:	Controls what debugging output is printed.
-+ * Returns:	Zero on success or -1 on failure.
++ * Description:	Allocate buffers and prepare to encrypt data.
++ * Arguments:	Stream_number:	Ignored.
++ * Returns:	Zero on success, -ENOMEM if unable to vmalloc.
 + */
 +
-+int write_pageset(struct pagedir * pagedir, int whichtowrite)
++static int s2_encrypt_write_init(int stream_number)
 +{
-+	int nextupdate = 0, size, ret = 0, i, base = 0;
-+	int barmax = pagedir1.pageset_size + pagedir2.pageset_size;
-+	int start_time, end_time, pc, step = 1;
-+	long error = 0;
-+	struct suspend_plugin_ops * this_plugin, * first_filter = get_next_filter(NULL);
-+	dyn_pageflags_t *pageflags;
-+	int current_page_index = -1;
++	int result;
++	
++	next_driver = get_next_filter(&s2_encryption_ops);
 +
-+	size = pagedir->pageset_size;
-+	if (!size)
-+		return 0;
++	if (!next_driver) {
++		printk("Encryption Driver: Argh! No one wants my output!");
++		return -ECHILD;
++	}
 +
-+	if (whichtowrite == 1) {
-+		suspend2_prepare_status(1, 0, "Writing kernel & process data...");
-+		base = pagedir2.pageset_size;
-+		if (TEST_ACTION_STATE(SUSPEND_TEST_FILTER_SPEED))
-+			pageflags = &pageset1_map;
-+		else
-+			pageflags = &pageset1_copy_map;
-+	} else {
-+		suspend2_prepare_status(1, 1, "Writing caches...");
-+		pageflags = &pageset2_map;
++	if ((result = s2_encrypt_crypto_prepare(S2C_WRITE))) {
++		SET_RESULT_STATE(SUSPEND_ENCRYPTION_SETUP_FAILED);
++		suspend2_crypto_cleanup();
++		return result;
++	}
++	
++	if ((result = allocate_local_buffer()))
++		return result;
++
++	/* Only reset the stats if starting to write an image */
++	if (stream_number == 2)
 +		bytes_in = bytes_out = 0;
-+	}	
 +	
-+	start_time = jiffies;
++	bufofs = 0;
 +
-+	/* Initialise page transformers */
-+	list_for_each_entry(this_plugin, &suspend_filters, ops.filter.filter_list) {
-+		if (this_plugin->disabled)
-+			continue;
-+		if (this_plugin->write_init)
-+			if (this_plugin->write_init(whichtowrite)) {
-+				SET_RESULT_STATE(SUSPEND_ABORTED);
-+				goto write_pageset_free_buffers;
-+			}
-+	}
-+
-+	/* Initialise writer */
-+	active_writer->write_init(whichtowrite);
-+
-+	/* Initialise other plugins */
-+	list_for_each_entry(this_plugin, &suspend_plugins, plugin_list) {
-+		if (this_plugin->disabled)
-+			continue;
-+		if ((this_plugin->type == FILTER_PLUGIN) ||
-+		    (this_plugin->type == WRITER_PLUGIN))
-+			continue;
-+		if (this_plugin->write_init)
-+			if (this_plugin->write_init(whichtowrite)) {
-+				SET_RESULT_STATE(SUSPEND_ABORTED);
-+				goto write_pageset_free_buffers;
-+			}
-+	}
-+
-+	current_page_index = __get_next_bit_on(*pageflags, -1);
-+
-+	pc = size / 5;
-+
-+	/* Write the data */
-+	for (i=0; i<size; i++) {
-+		int was_mapped = 0;
-+		struct page * page = pfn_to_page(current_page_index);
-+
-+		/* Status update */
-+		if ((i+base) >= nextupdate)
-+			nextupdate = suspend2_update_status(i + base, barmax, 
-+				" %d/%d MB ", MB(base+i+1), MB(barmax));
-+
-+		if ((i + 1) == pc) {
-+			printk("%d%%...", 20 * step);
-+			step++;
-+			pc = size * step / 5;
-+		}
-+
-+		/* Write */
-+		was_mapped = suspend_map_kernel_page(page, 1);
-+		ret = first_filter->ops.filter.write_chunk(page);
-+		if (!was_mapped)
-+			suspend_map_kernel_page(page, 0);
-+
-+		if (ret) {
-+			printk("Write chunk returned %d.\n", ret);
-+			abort_suspend("Failed to write a chunk of the "
-+					"image.");
-+			error = -1;
-+			goto write_pageset_free_buffers;
-+		}
-+
-+		/* Interactivity */
-+		check_shift_keys(0, NULL);
-+
-+		if (TEST_RESULT_STATE(SUSPEND_ABORTED)) {
-+			abort_suspend("Aborting as requested.");
-+			error = -1;
-+			goto write_pageset_free_buffers;
-+		}
-+
-+		/* Prepare next */
-+		current_page_index = __get_next_bit_on(*pageflags, current_page_index);
-+	}
-+
-+	printk("done.\n");
-+
-+	suspend2_update_status(base+size, barmax, " %d/%d MB ",
-+			MB(base+size), MB(barmax));
-+
-+write_pageset_free_buffers:
-+	
-+	/* Cleanup other plugins */
-+	list_for_each_entry(this_plugin, &suspend_plugins, plugin_list) {
-+		if (this_plugin->disabled)
-+			continue;
-+		if ((this_plugin->type == FILTER_PLUGIN) ||
-+		    (this_plugin->type == WRITER_PLUGIN))
-+			continue;
-+		if (this_plugin->write_cleanup)
-+			this_plugin->write_cleanup();
-+	}
-+
-+	/* Flush data and cleanup */
-+	list_for_each_entry(this_plugin, &suspend_filters, ops.filter.filter_list) {
-+		if (this_plugin->disabled)
-+			continue;
-+		if (this_plugin->write_cleanup)
-+			this_plugin->write_cleanup();
-+	}
-+	active_writer->write_cleanup();
-+
-+	/* Statistics */
-+	end_time = jiffies;
-+	
-+	if ((end_time - start_time) && (!TEST_RESULT_STATE(SUSPEND_ABORTED))) {
-+		suspend_io_time[0][0] += size,
-+		suspend_io_time[0][1] += (end_time - start_time);
-+	}
-+
-+	return error;
++	return 0;
 +}
 +
-+/* read_pageset()
++/* s2_encrypt_write_chunk()
 + *
-+ * Description:	Read a pageset from disk.
-+ * Arguments:	pagedir:	Pointer to the pagedir to be saved.
-+ * 		whichtowrite:	Controls what debugging output is printed.
-+ * 		overwrittenpagesonly: Whether to read the whole pageset or
-+ * 		only part.
-+ * Returns:	Zero on success or -1 on failure.
++ * Description:	Encrypt a page of data, buffering output and passing on
++ * 		filled pages to the next plugin in the pipeline.
++ * Arguments:	Buffer_page:	Pointer to a buffer of size PAGE_SIZE, 
++ * 				containing data to be encrypted.
++ * Returns:	0 on success. Otherwise the error is that returned by later
++ * 		plugins, -ECHILD if we have a broken pipeline or -EIO if
++ * 		zlib errs.
 + */
 +
-+static int read_pageset(struct pagedir * pagedir, int whichtoread,
-+		int overwrittenpagesonly)
++static int s2_encrypt_write_chunk(struct page * buffer_page)
 +{
-+	int nextupdate = 0, result = 0, base = 0;
-+	int start_time, end_time, finish_at = pagedir->pageset_size;
-+	int barmax = pagedir1.pageset_size + pagedir2.pageset_size;
-+	int i, pc, step = 1;
-+	struct suspend_plugin_ops * this_plugin, * first_filter = get_next_filter(NULL);
-+	dyn_pageflags_t *pageflags;
-+	int current_page_index;
++	int ret; 
++	unsigned int len;
++	u16 len_written;
++	char * buffer_start;
++	
++	if (!s2_encryptor_transform)
++		return next_driver->ops.filter.write_chunk(buffer_page);
 +
-+	if (whichtoread == 1) {
-+		suspend2_prepare_status(1, 1, "Reading kernel & process data...");
-+		pageflags = &pageset1_copy_map;
++	buffer_start = kmap(buffer_page);
++	memcpy(page_buffer, buffer_start, PAGE_SIZE);
++	kunmap(buffer_page);
++	
++	bytes_in += PAGE_SIZE;
++
++	len = PAGE_SIZE;
++
++	ret = crypto_cipher_encrypt(s2_encryptor_transform,
++			s2_crypt_sg, s2_crypt_sg, PAGE_SIZE);
++	
++	if (ret) {
++		printk("Encryption failed.\n");
++		return -EIO;
++	}
++	
++	len_written = (u16) len;
++
++	ret = next_driver->ops.filter.write_chunk(virt_to_page(page_buffer));
++
++	return ret;
++}
++
++/* write_cleanup()
++ *
++ * Description: Write unflushed data and free workspace.
++ * Returns:	Result of writing last page.
++ */
++
++static int s2_encrypt_write_cleanup(void)
++{
++	suspend2_crypto_cleanup();
++	free_local_buffer();
++
++	return 0;
++}
++
++/* read_init()
++ *
++ * Description:	Prepare to read a new stream of data.
++ * Arguments:	int: Section of image about to be read.
++ * Returns:	int: Zero on success, error number otherwise.
++ */
++
++static int s2_encrypt_read_init(int stream_number)
++{
++	int result;
++
++	next_driver = get_next_filter(&s2_encryption_ops);
++
++	if (!next_driver) {
++		printk("Encryption Driver: Argh! No one wants "
++				"to feed me data!");
++		return -ECHILD;
++	}
++	
++	if ((result = s2_encrypt_crypto_prepare(S2C_READ))) {
++		SET_RESULT_STATE(SUSPEND_ENCRYPTION_SETUP_FAILED);
++		suspend2_crypto_cleanup();
++		return result;
++	}
++	
++	if ((result = allocate_local_buffer()))
++		return result;
++
++	bufofs = PAGE_SIZE;
++
++	return 0;
++}
++
++/* s2_encrypt_read_chunk()
++ *
++ * Description:	Retrieve data from later plugins and deencrypt it until the
++ * 		input buffer is filled.
++ * Arguments:	Buffer_start: 	Pointer to a buffer of size PAGE_SIZE.
++ * 		Sync:		Whether the previous plugin (or core) wants its
++ * 				data synchronously.
++ * Returns:	Zero if successful. Error condition from me or from downstream
++ * 		on failure.
++ */
++
++static int s2_encrypt_read_chunk(struct page * buffer_page, int sync)
++{
++	int ret; 
++	char * buffer_start;
++
++	if (!s2_encryptor_transform)
++		return next_driver->ops.filter.read_chunk(buffer_page, sync);
++
++	/* 
++	 * All our reads must be synchronous - we can't deencrypt
++	 * data that hasn't been read yet.
++	 */
++
++	if ((ret = next_driver->ops.filter.read_chunk(
++			virt_to_page(page_buffer), SUSPEND_SYNC)) < 0) {
++		printk("Failed to read an encrypted block.\n");
++		return ret;
++	}
++
++	ret = crypto_cipher_decrypt(s2_encryptor_transform,
++			s2_crypt_sg, s2_crypt_sg, PAGE_SIZE);
++
++	if (ret)
++		printk("Decrypt function returned %d.\n", ret);
++
++	buffer_start = kmap(buffer_page);
++	memcpy(buffer_start, page_buffer, PAGE_SIZE);
++	kunmap(buffer_page);
++	return ret;
++}
++
++/* read_cleanup()
++ *
++ * Description:	Clean up after reading part or all of a stream of data.
++ * Returns:	int: Always zero. Never fails.
++ */
++
++static int s2_encrypt_read_cleanup(void)
++{
++	suspend2_crypto_cleanup();
++	free_local_buffer();
++	return 0;
++}
++
++/* s2_encrypt_print_debug_stats
++ *
++ * Description:	Print information to be recorded for debugging purposes into a
++ * 		buffer.
++ * Arguments:	buffer: Pointer to a buffer into which the debug info will be
++ * 			printed.
++ * 		size:	Size of the buffer.
++ * Returns:	Number of characters written to the buffer.
++ */
++
++static int s2_encrypt_print_debug_stats(char * buffer, int size)
++{
++	int len;
++	
++	len = suspend_snprintf(buffer, size, "- Encryptor %s enabled.\n",
++			s2_encryptor_name);
++	return len;
++}
++
++/* encryption_memory_needed
++ *
++ * Description:	Tell the caller how much memory we need to operate during
++ * 		suspend/resume.
++ * Returns:	Unsigned long. Maximum number of bytes of memory required for
++ * 		operation.
++ */
++
++static unsigned long s2_encrypt_memory_needed(void)
++{
++	return PAGE_SIZE;
++}
++
++static unsigned long s2_encrypt_storage_needed(void)
++{
++	return 2 * sizeof(unsigned long) + sizeof(int);
++}
++
++/* s2_encrypt_save_config_info
++ *
++ * Description:	Save informaton needed when reloading the image at resume time.
++ * Arguments:	Buffer:		Pointer to a buffer of size PAGE_SIZE.
++ * Returns:	Number of bytes used for saving our data.
++ */
++
++static int s2_encrypt_save_config_info(char * buffer)
++{
++	int buf_offset, str_size;
++
++	str_size = strlen(s2_encryptor_name);
++	*buffer = (char) str_size;
++	strncpy(buffer + 1, s2_encryptor_name, str_size + 1);
++	buf_offset = str_size + 2;
++
++	*(buffer + buf_offset) = (char) s2_encryptor_mode;
++	buf_offset++;
++
++	*(buffer + buf_offset) = (char) s2_encryptor_save_key_and_iv;
++	buf_offset++;
++
++	if (s2_encryptor_save_key_and_iv) {
++		
++		str_size = strlen(s2_encryptor_key);
++		*(buffer + buf_offset) = (char) str_size;
++		strncpy(buffer + buf_offset + 1, s2_encryptor_key, str_size + 1);
++
++		buf_offset+= str_size + 2;
++
++		str_size = strlen(s2_encryptor_iv);
++		*(buffer + buf_offset) = (char) str_size;
++		strncpy(buffer + buf_offset + 1, s2_encryptor_iv, str_size + 1);
++
++		buf_offset += str_size + 2;
++	}
++
++	return buf_offset;
++}
++
++/* s2_encrypt_load_config_info
++ *
++ * Description:	Reload information needed for deencrypting the image at 
++ * 		resume time.
++ * Arguments:	Buffer:		Pointer to the start of the data.
++ *		Size:		Number of bytes that were saved.
++ */
++
++static void s2_encrypt_load_config_info(char * buffer, int size)
++{
++	int buf_offset, str_size;
++
++	str_size = (int) *buffer;
++	strncpy(s2_encryptor_name, buffer + 1, str_size + 1);
++	buf_offset = str_size + 2;
++	
++	s2_encryptor_mode = (int) *(buffer + buf_offset);
++	buf_offset++;
++
++	s2_encryptor_save_key_and_iv = (int) *(buffer + buf_offset);
++	buf_offset++;
++
++	if (s2_encryptor_save_key_and_iv) {
++		str_size = (int) *(buffer + buf_offset);
++		strncpy(s2_encryptor_key, buffer + buf_offset + 1, str_size + 1);
++
++		buf_offset+= str_size + 2;
++
++		str_size = (int) *(buffer + buf_offset);
++		strncpy(s2_encryptor_iv, buffer + buf_offset + 1, str_size + 1);
++
++		buf_offset += str_size + 2;
 +	} else {
-+		suspend2_prepare_status(1, 0, "Reading caches...");
-+		if (overwrittenpagesonly)
-+			barmax = finish_at = min(pageset1_size, pageset2_size);
-+		else {
-+			base = pagedir1.pageset_size;
-+		}
-+		pageflags = &pageset2_map;
-+	}	
++		*s2_encryptor_key = 0;
++		*s2_encryptor_iv = 0;
++	}
 +	
-+	start_time=jiffies;
-+
-+	/* Initialise page transformers */
-+	list_for_each_entry(this_plugin, &suspend_filters, ops.filter.filter_list) {
-+		if (this_plugin->disabled)
-+			continue;
-+		if (this_plugin->read_init && 
-+				this_plugin->read_init(whichtoread)) {
-+			abort_suspend("Failed to initialise a filter.");
-+			result = 1;
-+			goto read_pageset_free_buffers;
-+		}
++	if (buf_offset != size) {
++		printk("Suspend Encryptor config info size mismatch (%d != %d): settings ignored.\n",
++				buf_offset, size);
++		*s2_encryptor_key = 0;
++		*s2_encryptor_iv = 0;
 +	}
-+
-+	/* Initialise writer */
-+	if (active_writer->read_init(whichtoread)) {
-+		abort_suspend("Failed to initialise the writer."); 
-+		result = 1;
-+		goto read_pageset_free_buffers;
-+	}
-+
-+	/* Initialise other plugins */
-+	list_for_each_entry(this_plugin, &suspend_plugins, plugin_list) {
-+		if (this_plugin->disabled)
-+			continue;
-+		if ((this_plugin->type == FILTER_PLUGIN) ||
-+		    (this_plugin->type == WRITER_PLUGIN))
-+			continue;
-+		if (this_plugin->read_init)
-+			if (this_plugin->read_init(whichtoread)) {
-+				SET_RESULT_STATE(SUSPEND_ABORTED);
-+				goto read_pageset_free_buffers;
-+			}
-+	}
-+
-+	current_page_index = __get_next_bit_on(*pageflags, -1);
-+
-+	pc = finish_at / 5;
-+
-+	/* Read the pages */
-+	for (i=0; i< finish_at; i++) {
-+		int was_mapped = 0;
-+		struct page * page = pfn_to_page(current_page_index);
-+
-+		/* Status */
-+		if ((i+base) >= nextupdate)
-+			nextupdate = suspend2_update_status(i+base, barmax,
-+				" %d/%d MB ", MB(base+i+1), MB(barmax));
-+
-+		if ((i + 1) == pc) {
-+			printk("%d%%...", 20 * step);
-+			step++;
-+			pc = finish_at * step / 5;
-+		}
-+		
-+		was_mapped = suspend_map_kernel_page(page, 1);
-+		result = first_filter->ops.filter.read_chunk(page, SUSPEND_ASYNC);
-+		if (!was_mapped)
-+			suspend_map_kernel_page(page, 0);
-+
-+		if (result) {
-+			panic("Failed to read chunk %d/%d of the image. (%d)",
-+					i, finish_at, result);
-+			goto read_pageset_free_buffers;
-+		}
-+
-+		/* Interactivity*/
-+		check_shift_keys(0, NULL);
-+
-+		/* Prepare next */
-+		current_page_index = __get_next_bit_on(*pageflags, current_page_index);
-+	}
-+
-+	printk("done.\n");
-+
-+	suspend2_update_status(base+finish_at, barmax, " %d/%d MB ",
-+			MB(base+finish_at), MB(barmax));
-+
-+read_pageset_free_buffers:
-+
-+	/* Cleanup other plugins */
-+	list_for_each_entry(this_plugin, &suspend_plugins, plugin_list) {
-+		if (this_plugin->disabled)
-+			continue;
-+		if ((this_plugin->type == FILTER_PLUGIN) ||
-+		    (this_plugin->type == WRITER_PLUGIN))
-+			continue;
-+		if (this_plugin->read_cleanup)
-+			this_plugin->read_cleanup();
-+	}
-+
-+	/* Finish I/O, flush data and cleanup reads. */
-+	list_for_each_entry(this_plugin, &suspend_filters, ops.filter.filter_list) {
-+		if (this_plugin->disabled)
-+			continue;
-+		if (this_plugin->read_cleanup &&
-+				this_plugin->read_cleanup()) {
-+			abort_suspend("Failed to cleanup a filter.");
-+			result = 1;
-+		}
-+	}
-+
-+	if (active_writer->read_cleanup()) {
-+		abort_suspend("Failed to cleanup the writer.");
-+		result = 1;
-+	}
-+
-+	/* Statistics */
-+	end_time=jiffies;
-+	if ((end_time - start_time) && (!TEST_RESULT_STATE(SUSPEND_ABORTED))) {
-+		suspend_io_time[1][0] += finish_at,
-+		suspend_io_time[1][1] += (end_time - start_time);
-+	}
-+
-+	return result;
++	return;
 +}
 +
-+/* write_plugin_configs()
-+ *
-+ * Description:	Store the configuration for each plugin in the image header.
-+ * Returns:	Int: Zero on success, Error value otherwise.
-+ */
-+static int write_plugin_configs(void)
++static void s2_encryptor_disable_if_empty(void)
 +{
-+	struct suspend_plugin_ops * this_plugin;
-+	char * buffer = (char *) get_zeroed_page(GFP_ATOMIC);
-+	int len, index = 1;
-+	struct plugin_header plugin_header;
-+
-+	if (!buffer) {
-+		printk("Failed to allocate a buffer for saving "
-+				"plugin configuration info.\n");
-+		return -ENOMEM;
-+	}
-+		
-+	/* 
-+	 * We have to know which data goes with which plugin, so we at
-+	 * least write a length of zero for a plugin. Note that we are
-+	 * also assuming every plugin's config data takes <= PAGE_SIZE.
-+	 */
-+
-+	/* For each plugin (in registration order) */
-+	list_for_each_entry(this_plugin, &suspend_plugins, plugin_list) {
-+
-+		/* Get the data from the plugin */
-+		len = 0;
-+		if (this_plugin->save_config_info)
-+			len = this_plugin->save_config_info(buffer);
-+
-+		/* Save the details of the plugin */
-+		plugin_header.disabled = this_plugin->disabled;
-+		plugin_header.type = this_plugin->type;
-+		plugin_header.index = index++;
-+		strncpy(plugin_header.name, this_plugin->name, 
-+					sizeof(plugin_header.name));
-+		active_writer->ops.writer.write_header_chunk(
-+				(char *) &plugin_header,
-+				sizeof(plugin_header));
-+
-+		/* Save the size of the data and any data returned */
-+		active_writer->ops.writer.write_header_chunk((char *) &len,
-+				sizeof(int));
-+		if (len)
-+			active_writer->ops.writer.write_header_chunk(
-+					buffer, len);
-+	}
-+
-+	/* Write a blank header to terminate the list */
-+	plugin_header.name[0] = '\0';
-+	active_writer->ops.writer.write_header_chunk(
-+			(char *) &plugin_header,
-+			sizeof(plugin_header));
-+
-+	free_pages((unsigned long) buffer, 0);
-+	return 0;
++	s2_encryption_ops.disabled = !(*s2_encryptor_name);
 +}
 +
-+/* read_plugin_configs()
-+ *
-+ * Description:	Reload plugin configurations from the image header.
-+ * Returns:	Int. Zero on success, error value otherwise.
-+ */
-+
-+static int read_plugin_configs(void)
++static int s2_encrypt_initialise(int starting_cycle)
 +{
-+	struct suspend_plugin_ops * this_plugin;
-+	char * buffer = (char *) get_zeroed_page(GFP_ATOMIC);
-+	int len, result = 0;
-+	struct plugin_header plugin_header;
-+
-+	if (!buffer) {
-+		printk("Failed to allocate a buffer for reloading plugin "
-+				"configuration info.\n");
-+		return -ENOMEM;
-+	}
-+		
-+	/* All plugins are initially disabled. That way, if we have a plugin
-+	 * loaded now that wasn't loaded when we suspended, it won't be used
-+	 * in trying to read the data.
-+	 */
-+	list_for_each_entry(this_plugin, &suspend_plugins, plugin_list)
-+		this_plugin->disabled = 1;
-+	
-+	/* Get the first plugin header */
-+	result = active_writer->ops.writer.read_header_chunk(
-+			(char *) &plugin_header, sizeof(plugin_header));
-+	if (!result) {
-+		printk("Failed to read the next plugin header.\n");
-+		free_pages((unsigned long) buffer, 0);
-+		return -EINVAL;
-+	}
-+
-+	/* For each plugin (in registration order) */
-+	while (plugin_header.name[0]) {
-+		
-+		/* Find the plugin */
-+		this_plugin = find_plugin_given_name(plugin_header.name);
-+		
-+		if (!this_plugin) {
-+			/* 
-+			 * Is it used? Only need to worry about filters. The active
-+			 * writer must be loaded!
-+			 */
-+			if ((!plugin_header.disabled) &&
-+			    (plugin_header.type == FILTER_PLUGIN)) {
-+				suspend_early_boot_message(1, SUSPEND_CONTINUE_REQ,
-+					"It looks like we need plugin %s for "
-+					"reading the image but it hasn't been "
-+					"registered.\n",
-+					plugin_header.name);
-+				if (!(test_suspend_state(SUSPEND_CONTINUE_REQ))) {
-+					active_writer->ops.writer.invalidate_image();
-+					result = -EINVAL;
-+					noresume_reset_plugins();
-+					free_pages((unsigned long) buffer, 0);
-+					return -EINVAL;
-+				}
-+			} else
-+				printk("Plugin %s configuration data found, but the plugin "
-+					"hasn't registered. Looks like it was disabled, so "
-+					"we're ignoring it's data.",
-+					plugin_header.name);
-+		}
-+		
-+		/* Get the length of the data (if any) */
-+		result = active_writer->ops.writer.read_header_chunk(
-+				(char *) &len, sizeof(int));
-+		if (!result) {
-+			printk("Failed to read the length of the plugin %s's"
-+					" configuration data.\n",
-+					plugin_header.name);
-+			free_pages((unsigned long) buffer, 0);
-+			return -EINVAL;
-+		}
-+
-+		/* Read any data and pass to the plugin (if we found one) */
-+		if (len) {
-+			active_writer->ops.writer.read_header_chunk(buffer, len);
-+			if (this_plugin) {
-+				if (!this_plugin->save_config_info) {
-+					printk("Huh? Plugin %s appears to have a "
-+						"save_config_info, but not a "
-+						"load_config_info function!\n",
-+						this_plugin->name);
-+				} else
-+					this_plugin->load_config_info(buffer, len);
-+			}
-+		}
-+
-+		if (this_plugin) {
-+			/* Now move this plugin to the tail of its lists. This will put it
-+			 * in order. Any new plugins will end up at the top of the lists.
-+			 * They should have been set to disabled when loaded (people will
-+			 * normally not edit an initrd to load a new module and then
-+			 * suspend without using it!).
-+			 */
-+
-+			suspend_move_plugin_tail(this_plugin);
-+
-+			/* 
-+			 * We apply the disabled state; plugins don't need to save whether they
-+			 * were disabled and if they do, we override them anyway.
-+			 */
-+			this_plugin->disabled = plugin_header.disabled;
-+		}
-+
-+		/* Get the next plugin header */
-+		result = active_writer->ops.writer.read_header_chunk(
-+				(char *) &plugin_header, sizeof(plugin_header));
-+
-+		if (!result) {
-+			printk("Failed to read the next plugin header.\n");
-+			free_pages((unsigned long) buffer, 0);
-+			return -EINVAL;
-+		}
-+
-+	}
-+
-+	free_pages((unsigned long) buffer, 0);
-+	return 0;
-+}
-+
-+/* write_image_header()
-+ *
-+ * Description:	Write the image header after write the image proper.
-+ * Returns:	Int. Zero on success or -1 on failure.
-+ */
-+
-+int write_image_header(void)
-+{
-+	int ret;
-+	int total = pagedir1.pageset_size + pagedir2.pageset_size+2;
-+	char * header_buffer = NULL;
-+
-+	/* Now prepare to write the header */
-+	if ((ret = active_writer->ops.writer.write_header_init())) {
-+		abort_suspend("Active writer's write_header_init"
-+				" function failed.");
-+		goto write_image_header_abort;
-+	}
-+
-+	/* Get a buffer */
-+	header_buffer = (char *) get_zeroed_page(GFP_ATOMIC);
-+	if (!header_buffer) {
-+		abort_suspend("Out of memory when trying to get page "
-+				"for header!");
-+		goto write_image_header_abort;
-+	}
-+
-+	/* Write suspend header */
-+	fill_suspend_header((struct suspend_header *) header_buffer);
-+	active_writer->ops.writer.write_header_chunk(header_buffer,
-+			sizeof(struct suspend_header));
-+
-+	free_pages((unsigned long) header_buffer, 0);
-+
-+	/* Write plugin configurations */
-+	if ((ret = write_plugin_configs())) {
-+		abort_suspend("Failed to write plugin configs.");
-+		goto write_image_header_abort;
-+	}
-+
-+	save_dyn_pageflags(pageset1_map);
-+
-+	if ((ret = active_writer->ops.writer.serialise_extents())) {
-+		abort_suspend("Active writer's prepare_save_extents "
-+				"function failed.");
-+		goto write_image_header_abort;
-+	}
-+
-+	/* Flush data and let writer cleanup */
-+	if (active_writer->ops.writer.write_header_cleanup()) {
-+		abort_suspend("Failed to cleanup writing header.");
-+		goto write_image_header_abort_no_cleanup;
-+	}
-+
-+	if (TEST_RESULT_STATE(SUSPEND_ABORTED))
-+		goto write_image_header_abort_no_cleanup;
-+
-+	suspend_message(SUSPEND_IO, SUSPEND_VERBOSE, 1, "|\n");
-+	suspend2_update_status(total, total, NULL);
-+
-+	return 0;
-+
-+write_image_header_abort:
-+	active_writer->ops.writer.write_header_cleanup();
-+write_image_header_abort_no_cleanup:
-+	return -1;
-+}
-+
-+/* sanity_check()
-+ *
-+ * Description:	Perform a few checks, seeking to ensure that the kernel being
-+ * 		booted matches the one suspended. They need to match so we can
-+ * 		be _sure_ things will work. It is not absolutely impossible for
-+ * 		resuming from a different kernel to work, just not assured.
-+ * Arguments:	Struct suspend_header. The header which was saved at suspend
-+ * 		time.
-+ */
-+static int sanity_check(struct suspend_header *sh)
-+{
-+	if (sh->version_code != LINUX_VERSION_CODE)
-+		return suspend_early_boot_message(1, SUSPEND_CONTINUE_REQ,
-+				"Incorrect kernel version");
-+	
-+	if (sh->num_physpages != num_physpages)
-+		return suspend_early_boot_message(1, SUSPEND_CONTINUE_REQ,
-+				"Incorrect memory size");
-+
-+	if (strncmp(sh->machine, system_utsname.machine, 65))
-+		return suspend_early_boot_message(1, SUSPEND_CONTINUE_REQ,
-+				"Incorrect machine type");
-+
-+	if (strncmp(sh->version, system_utsname.version, 65))
-+		return suspend_early_boot_message(1, SUSPEND_CONTINUE_REQ,
-+			      "Incorrect version");
-+
-+	if (sh->num_cpus != num_online_cpus())
-+		return suspend_early_boot_message(1, SUSPEND_CONTINUE_REQ,  
-+				"Incorrect number of cpus");
-+
-+	if (sh->page_size != PAGE_SIZE)
-+		return suspend_early_boot_message(1, SUSPEND_CONTINUE_REQ,
-+				"Incorrect PAGE_SIZE");
++	if (starting_cycle)
++		s2_encryptor_disable_if_empty();
 +
 +	return 0;
 +}
-+
-+/* __read_pageset1
-+ *
-+ * Description:	Test for the existence of an image and attempt to load it.
-+ * Returns:	Int. Zero if image found and pageset1 successfully loaded.
-+ * 		Error if no image found or loaded.
-+ */
-+static int __read_pageset1(void)
-+{			
-+	int i, result = 0;
-+	char * header_buffer = (char *) get_zeroed_page(GFP_ATOMIC);
-+	struct suspend_header * suspend_header;
-+
-+	if (!header_buffer)
-+		return -ENOMEM;
-+	
-+	/* Check for an image */
-+	if (!(result = active_writer->ops.writer.image_exists())) {
-+		result = -ENODATA;
-+		noresume_reset_plugins();
-+		goto out;
-+	}
-+
-+	/* Check for noresume command line option */
-+	if (test_suspend_state(SUSPEND_NORESUME_SPECIFIED)) {
-+		active_writer->ops.writer.invalidate_image();
-+		result = -EINVAL;
-+		noresume_reset_plugins();
-+		goto out;
-+	}
-+
-+#ifdef CONFIG_SOFTWARE_SUSPEND_CHECK_RESUME_SAFE
-+	/* Check whether we've got filesystems mounted that make
-+	 * resuming unsafe */
-+
-+	suspend_check_mounts();
-+
-+	if (!test_suspend_state(SUSPEND_CONTINUE_REQ)) {
-+		active_writer->ops.writer.invalidate_image();
-+		result = -EINVAL;
-+		noresume_reset_plugins();
-+		goto out;
-+	}
-+
-+	clear_suspend_state(SUSPEND_CONTINUE_REQ);
-+#endif
-+
-+	/* Check whether we've resumed before */
-+	if (test_suspend_state(SUSPEND_RESUMED_BEFORE)) {
-+		int resumed_before_default = 0;
-+		if (test_suspend_state(SUSPEND_RETRY_RESUME))
-+			resumed_before_default = SUSPEND_CONTINUE_REQ;
-+		suspend_early_boot_message(1, resumed_before_default, NULL);
-+		clear_suspend_state(SUSPEND_RETRY_RESUME);
-+		if (!(test_suspend_state(SUSPEND_CONTINUE_REQ))) {
-+			active_writer->ops.writer.invalidate_image();
-+			result = -EINVAL;
-+			noresume_reset_plugins();
-+			goto out;
-+		}
-+	}
-+
-+	clear_suspend_state(SUSPEND_CONTINUE_REQ);
-+
-+	/* 
-+	 * Prepare the active writer for reading the image header. The
-+	 * activate writer might read its own configuration or set up
-+	 * a network connection here.
-+	 * 
-+	 * NB: This call may never return because there might be a signature
-+	 * for a different image such that we warn the user and they choose
-+	 * to reboot. (If the device ids look erroneous (2.4 vs 2.6) or the
-+	 * location of the image might be unavailable if it was stored on a
-+	 * network connection.
-+	 */
-+
-+	if ((result = active_writer->ops.writer.read_header_init())) {
-+		noresume_reset_plugins();
-+		goto out;
-+	}
-+	
-+	/* Read suspend header */
-+	if ((result = active_writer->ops.writer.read_header_chunk(
-+			header_buffer, sizeof(struct suspend_header))) < 0) {
-+		noresume_reset_plugins();
-+		goto out;
-+	}
-+	
-+	suspend_header = (struct suspend_header *) header_buffer;
-+
-+	/*
-+	 * NB: This call may also result in a reboot rather than returning.
-+	 */
-+
-+	if (sanity_check(suspend_header)) { /* Is this the same machine? */
-+		active_writer->ops.writer.invalidate_image();
-+		result = -EINVAL;
-+		noresume_reset_plugins();
-+		goto out;
-+	}
-+
-+	/*
-+	 * ---------------------------------------------------- 
-+	 * We have an image and it looks like it will load okay.
-+	 * ---------------------------------------------------- 
-+	 */
-+
-+	/* Get metadata from header. Don't override commandline parameters.
-+	 *
-+	 * We don't need to save the image size limit because it's not used
-+	 * during resume and will be restored with the image anyway.
-+	 */
-+	
-+	suspend2_orig_mem_free = suspend_header->orig_mem_free;
-+	memcpy((char *) &pagedir1,
-+		(char *) &suspend_header->pagedir, sizeof(pagedir1));
-+	suspend_result = suspend_header->param0;
-+	if (!test_suspend_state(SUSPEND_ACT_USED))
-+		suspend_action = suspend_header->param1;
-+	if (!test_suspend_state(SUSPEND_DBG_USED))
-+		suspend_debug_state = suspend_header->param2;
-+	if (!test_suspend_state(SUSPEND_LVL_USED))
-+		suspend_default_console_level = suspend_header->param3;
-+	clear_suspend_state(SUSPEND_IGNORE_LOGLEVEL);
-+	pagedir2.pageset_size = suspend_header->pageset_2_size;
-+	for (i = 0; i < 4; i++)
-+		suspend_io_time[i/2][i%2] =
-+			suspend_header->io_time[i/2][i%2];
-+
-+	set_suspend_state(SUSPEND_NOW_RESUMING);
-+
-+	/* Read plugin configurations */
-+	if ((result = read_plugin_configs())) {
-+		noresume_reset_plugins();
-+		pagedir1.pageset_size =
-+			pagedir2.pageset_size = 0;
-+		goto out;
-+	}
-+
-+	suspend2_prepare_console();
-+
-+	check_shift_keys(1, "About to read original pageset1 locations.");
-+	/* Read original pageset1 locations. These are the addresses we can't use for
-+	 * the data to be restored */
-+	suspend_allocate_dyn_pageflags(&pageset1_map);
-+	load_dyn_pageflags(pageset1_map);
-+
-+	/* Relocate it so that it's not overwritten while we're using it to
-+	 * copy the original contents back */
-+	relocate_dyn_pageflags(&pageset1_map);
-+	
-+	suspend_allocate_dyn_pageflags(&pageset1_copy_map);
-+	relocate_dyn_pageflags(&pageset1_copy_map);
-+
-+	/* Read extent pages */
-+	if ((result = active_writer->ops.writer.load_extents())) {
-+		noresume_reset_plugins();
-+		abort_suspend("Active writer's load_extents "
-+				"function failed.");
-+		goto out;
-+	}
-+
-+	/* Clean up after reading the header */
-+	if ((result = active_writer->ops.writer.read_header_cleanup())) {
-+		noresume_reset_plugins();
-+		goto out;
-+	}
-+
-+	check_shift_keys(1, "About to read pagedir.");
-+
-+	/* 
-+	 * Get the addresses of pages into which we will load the kernel to
-+	 * be copied back
-+	 */
-+	if (suspend2_get_pageset1_load_addresses()) {
-+		result = -ENOMEM;
-+		noresume_reset_plugins();
-+		goto out;
-+	}
-+
-+	/* Read the original kernel back */
-+	check_shift_keys(1, "About to read pageset 1.");
-+
-+	if (read_pageset(&pagedir1, 1, 0)) {
-+		suspend2_prepare_status(1, 1, "Failed to read pageset 1.");
-+		result = -EPERM;
-+		noresume_reset_plugins();
-+		goto out;
-+	}
-+
-+	check_shift_keys(1, "About to restore original kernel.");
-+	result = 0;
-+
-+	if (active_writer->ops.writer.mark_resume_attempted)
-+		active_writer->ops.writer.mark_resume_attempted();
-+
-+out:
-+	free_pages((unsigned long) header_buffer, 0);
-+	return result;
-+}
-+
-+/* read_pageset1()
-+ *
-+ * Description:	Attempt to read the header and pageset1 of a suspend image.
-+ * 		Handle the outcome, complaining where appropriate.
-+ */
-+int read_pageset1(void)
-+{
-+	int error;
-+
-+	error = __read_pageset1();
-+
-+	switch (error) {
-+		case 0:
-+		case -ENODATA:
-+		case -EINVAL:	/* non fatal error */
-+			return error;
-+		case -EIO:
-+			printk(KERN_CRIT name_suspend "I/O error\n");
-+			break;
-+		case -ENOENT:
-+			printk(KERN_CRIT name_suspend "No such file or directory\n");
-+			break;
-+		case -EPERM:
-+			printk(KERN_CRIT name_suspend "Sanity check error\n");
-+			break;
-+		default:
-+			printk(KERN_CRIT name_suspend "Error %d resuming\n", error);
-+			break;
-+	}
-+	abort_suspend("Error %d in read_pageset1",error);
-+	return error;
-+}
-+
-+/* read_pageset2()
-+ *
-+ * Description:	Read in part or all of pageset2 of an image, depending upon
-+ * 		whether we are suspending and have only overwritten a portion
-+ * 		with pageset1 pages, or are resuming and need to read them 
-+ * 		all.
-+ * Arguments:	Int. Boolean. Read only pages which would have been
-+ * 		overwritten by pageset1?
-+ * Returns:	Int. Zero if no error, otherwise the error value.
-+ */
-+int read_pageset2(int overwrittenpagesonly)
-+{
-+	int result = 0;
-+
-+	if (!pageset2_size)
-+		return 0;
-+
-+	result = read_pageset(&pagedir2, 2, overwrittenpagesonly);
-+
-+	suspend2_update_status(100, 100, NULL);
-+	check_shift_keys(1, "Pagedir 2 read.");
-+
-+	return result;
-+}
-diff -ruNp 611-io.patch-old/kernel/power/suspend2_core/io.h 611-io.patch-new/kernel/power/suspend2_core/io.h
---- 611-io.patch-old/kernel/power/suspend2_core/io.h	1970-01-01 10:00:00.000000000 +1000
-+++ 611-io.patch-new/kernel/power/suspend2_core/io.h	2005-07-04 23:14:19.000000000 +1000
-@@ -0,0 +1,44 @@
 +/*
-+ * kernel/power/io.h
++ * data for our proc entries.
 + */
 +
-+#include "pagedir.h"
++static struct suspend_proc_data proc_params[] = {
++	{
++		.filename			= "encryptor",
++		.permissions			= PROC_RW,
++		.type				= SUSPEND_PROC_DATA_STRING,
++		.data = {
++			.string = {
++				.variable	= s2_encryptor_name,
++				.max_length	= 31,
++			}
++		},
++		.write_proc			= s2_encryptor_disable_if_empty,
++	},
 +
-+/* Non-plugin data saved in our image header */
-+struct suspend_header {
-+	u32 version_code;
-+	unsigned long num_physpages;
-+	unsigned long orig_mem_free;
-+	char machine[65];
-+	char version[65];
-+	int num_cpus;
-+	int page_size;
-+	int pageset_2_size;
-+	int param0;
-+	int param1;
-+	int param2;
-+	int param3;
-+	int progress0;
-+	int progress1;
-+	int progress2;
-+	int progress3;
-+	int io_time[2][2];
++	{
++		.filename			= "encryption_mode",
++		.permissions			= PROC_RW,
++		.type				= SUSPEND_PROC_DATA_INTEGER,
++		.data = {
++			.integer = {
++				.variable	= &s2_encryptor_mode,
++				.minimum	= 0,
++				.maximum	= 3,
++			}
++		}
++	},
++
++	{
++		.filename			= "encryption_save_key_and_iv",
++		.permissions			= PROC_RW,
++		.type				= SUSPEND_PROC_DATA_INTEGER,
++		.data = {
++			.integer = {
++				.variable	= &s2_encryptor_save_key_and_iv,
++				.minimum	= 0,
++				.maximum	= 1,
++			}
++		}
++	},
++
++	{
++		.filename			= "encryption_key",
++		.permissions			= PROC_RW,
++		.type				= SUSPEND_PROC_DATA_STRING,
++		.data = {
++			.string = {
++				.variable	= s2_encryptor_key,
++				.max_length	= 255,
++			}
++		}
++	},
++
++	{
++		.filename			= "encryption_iv",
++		.permissions			= PROC_RW,
++		.type				= SUSPEND_PROC_DATA_STRING,
++		.data = {
++			.string = {
++				.variable	= s2_encryptor_iv,
++				.max_length	= 255,
++			}
++		}
++	},
++
++	{
++		.filename			= "disable_encryption",
++		.permissions			= PROC_RW,
++		.type				= SUSPEND_PROC_DATA_INTEGER,
++		.data = {
++			.integer = {
++				.variable	= &s2_encryption_ops.disabled,
++				.minimum	= 0,
++				.maximum	= 1,
++			}
++		}
++	},
 +	
-+	/* Implementation specific variables */
-+#ifdef KERNEL_POWER_SWSUSP_C
-+	suspend_pagedir_t *suspend_pagedir;
-+	unsigned int num_pbes;
-+#else
-+	struct pagedir pagedir;
-+#endif
 +};
 +
-+extern int write_pageset(struct pagedir * pagedir, int whichtowrite);
-+extern int write_image_header(void);
-+extern int read_pageset1(void);
-+extern int read_pageset2(int overwrittenpagesonly);
++/*
++ * Ops structure.
++ */
 +
-+extern void attempt_to_parse_resume_device(void);
-+extern dev_t name_to_dev_t(char *line);
-+extern __nosavedata unsigned long bytes_in, bytes_out;
++static struct suspend_plugin_ops s2_encryption_ops = {
++	.type			= FILTER_PLUGIN,
++	.name			= "Encryptor",
++	.module			= THIS_MODULE,
++	.memory_needed 		= s2_encrypt_memory_needed,
++	.print_debug_info	= s2_encrypt_print_debug_stats,
++	.save_config_info	= s2_encrypt_save_config_info,
++	.load_config_info	= s2_encrypt_load_config_info,
++	.storage_needed		= s2_encrypt_storage_needed,
++	
++	.initialise		= s2_encrypt_initialise,
++	
++	.write_init		= s2_encrypt_write_init,
++	.write_cleanup		= s2_encrypt_write_cleanup,
++	.read_init		= s2_encrypt_read_init,
++	.read_cleanup		= s2_encrypt_read_cleanup,
 +
++	.ops = {
++		.filter = {
++			.write_chunk		= s2_encrypt_write_chunk,
++			.read_chunk		= s2_encrypt_read_chunk,
++		}
++	}
++};
++
++/* ---- Registration ---- */
++
++static __init int s2_encrypt_load(void)
++{
++	int result;
++	int i, numfiles = sizeof(proc_params) / sizeof(struct suspend_proc_data);
++
++	printk("Software Suspend Encryption Driver loading.\n");
++	if (!(result = suspend_register_plugin(&s2_encryption_ops))) {
++		for (i=0; i< numfiles; i++)
++			suspend_register_procfile(&proc_params[i]);
++	} else
++		printk("Software Suspend Encryption Driver unable to register!\n");
++	return result;
++}
++
++late_initcall(s2_encrypt_load);
 

@@ -1,136 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261994AbVGFCC6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262010AbVGFCEQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261994AbVGFCC6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Jul 2005 22:02:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262034AbVGFCC6
+	id S262010AbVGFCEQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Jul 2005 22:04:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262034AbVGFCEH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Jul 2005 22:02:58 -0400
-Received: from natfrord.rzone.de ([81.169.145.161]:12419 "EHLO
-	natfrord.rzone.de") by vger.kernel.org with ESMTP id S261994AbVGFCCt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Jul 2005 22:02:49 -0400
-Message-ID: <42CB3BC6.2070705@man-made.de>
-Date: Wed, 06 Jul 2005 04:02:46 +0200
-From: Frank Schruefer <kernel@man-made.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040906
-X-Accept-Language: en-us, en
+	Tue, 5 Jul 2005 22:04:07 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:25036 "EHLO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
+	id S262010AbVGFCDv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Jul 2005 22:03:51 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Hans Reiser <reiser@namesys.com>
+Date: Wed, 6 Jul 2005 11:59:25 +1000
+Message-ID: <17099.15101.233487.623549@cse.unsw.edu.au>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: alan@redhat.com
-Subject: [PATCH] update( Documentation -> vfs.txt -> file_system_type );
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Cc: David Masover <ninja@slaphack.com>, Hubert Chan <hubert@uhoreg.ca>,
+       Ross Biro <ross.biro@gmail.com>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Kyle Moffett <mrmacman_g4@mac.com>, Valdis.Kletnieks@vt.edu,
+       Lincoln Dale <ltd@cisco.com>, Gregory Maxwell <gmaxwell@gmail.com>,
+       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       ReiserFS List <reiserfs-list@namesys.com>,
+       Alexander Zarochentcev <zam@namesys.com>, vs <vs@thebsh.namesys.com>,
+       Nate Diller <ndiller@namesys.com>
+Subject: Re: reiser4 plugins
+In-Reply-To: message from Hans Reiser on Tuesday July 5
+References: <hubert@uhoreg.ca>
+	<200506290509.j5T595I6010576@laptop11.inf.utfsm.cl>
+	<87hdfgvqvl.fsf@evinrude.uhoreg.ca>
+	<8783be6605062914341bcff7cb@mail.gmail.com>
+	<878y0svj1h.fsf@evinrude.uhoreg.ca>
+	<42C4F97B.1080803@slaphack.com>
+	<87ll4lynky.fsf@evinrude.uhoreg.ca>
+	<42CB0328.3070706@namesys.com>
+	<42CB07EB.4000605@slaphack.com>
+	<42CB0ED7.8070501@namesys.com>
+	<42CB1128.6000000@slaphack.com>
+	<42CB1E12.2090005@namesys.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hy,
+On Tuesday July 5, reiser@namesys.com wrote:
+> I got it slightly wrong.
+> 
+> One can have hardlinks to a directory without cycles provided that one
+> does not have hardlinks from the children of that directory to any file
+> not a child of that directory.  (Mountpoints currently implement that
+> restriction.)
+> 
+> Question: can one implement that lesser restriction above with elegant
+> code?  Is the greater restriction below easier to code?  (If no to the
+> first and yes to the second is correct, then I can accept the greater
+> restriction described below.)
 
-The current description was tagged as of kernel 2.1.99 - so whatever story
-I'll write here should be more truthful than that fossil ;-)
+<technical-content>
+I think the "lesser restriction above" can be implemented elegantly,
+but it would require major dcache surgery.
 
+Currently all the dentries of names in a directory are linked to the
+dentry of the directory.  As you would have to let a directory have
+multiple dentries, it would be best to change that linkage so that the
+dentries of names in a directory were linked to the "inode" of that
+directory (of which there is still only one).
+Thus instead of just having a dentry tree with inodes attached at each
+point, you would have a dentry/inode tree with inodes a more integral
+part of the tree. (i.e. the path from the root down would be dentry ->
+inode -> dentry ->inode -> dentry etc).
+This would have major implications for the current code.
 
-Stone:/usr/src # diff -r -u linux-2.6.13-rc1.UNTOUCHED linux-2.6.13-rc1
-------------------------------SNIPON-----------------------------------
-diff -r -u linux-2.6.13-rc1.UNTOUCHED/Documentation/filesystems/vfs.txt linux-2.6.13-rc1/Documentation/filesystems/vfs.txt
---- linux-2.6.13-rc1.UNTOUCHED/Documentation/filesystems/vfs.txt        2005-06-30 01:00:53.000000000 +0200
-+++ linux-2.6.13-rc1/Documentation/filesystems/vfs.txt  2005-07-06 03:36:23.000000000 +0200
-@@ -126,46 +126,53 @@
-  struct file_system_type                                               <section>
-  =======================
+The "greater restriction below" should be easy to code providing you
+were willing to have two sorts of directories: those which could be
+linked (ie. they sometimes look like files) and those which cannot
+(they never look like files).  Then for each dentry, you remember the
+closest parent which is a can-be-linked directory an make sure a
+hard-link will never want to change the can-be-linked directory for
+the target.
 
--This describes the filesystem. As of kernel 2.1.99, the following
-+This describes the filesystem. As of kernel 2.6.13, the following
-  members are defined:
+If you want to be more general, and have only one sort of directory
+that just behaves differently in different situations, then it would
+be much harder.
+You have to make sure both 
+ a/ that you never hard link a file that is under a hard-linked
+    directory to somewhere outside of that hard-linked directory and
+ b/ that you never hard link a directory that contains a file which is
+    hard-linked to somewhere outside that directory.
 
-  struct file_system_type {
--       const char *name;
--       int fs_flags;
--       struct super_block *(*read_super) (struct super_block *, void *, int);
--       struct file_system_type * next;
--};
--
--  name: the name of the filesystem type, such as "ext2", "iso9660",
--       "msdos" and so on
--
--  fs_flags: various flags (i.e. FS_REQUIRES_DEV, FS_NO_DCACHE, etc.)
--
--  read_super: the method to call when a new instance of this
--       filesystem should be mounted
--
--  next: for internal VFS use: you should initialise this to NULL
--
--The read_super() method has the following arguments:
--
--  struct super_block *sb: the superblock structure. This is partially
--       initialised by the VFS and the rest must be initialised by the
--       read_super() method
--
--  void *data: arbitrary mount options, usually comes as an ASCII
--       string
-+        const char *name;
-+        int fs_flags;
-+        struct super_block *(*get_sb)
-+               (struct file_system_type *, int, const char *, void *);
-+        void (*kill_sb) (struct super_block *);
-+        struct module *owner;
-+        struct file_system_type * next;
-+        struct list_head fs_supers;
-+       };
-+
-+  name: The name of the filesystem type, such as "ext2", "iso9660",
-+       "msdos" and so on.
-+
-+  fs_flags: A combination of: FS_REQUIRES_DEV, FS_BINARY_MOUNTDATA,
-+       FS_REVAL_DOT, FS_ODD_RENAME (deprecated). See include/linux/fs.h.
-+
-+  get_sb: The function responsible for returning the super_block structure
-+       containing the filesystems blocksize, it's super block,
-+       super operations struct s_op (which is the most interesting field
-+       filled by this method and a pointer to struct super_operations
-+       which describes the next level of the filesystem implementation),
-+       the magic byte and max filesize and the like.
-+       It is called when a new instance of this filesystem is mounted and
-+       replaces the read_super function of former kernels (see porting).
-+       As an example of what to do here please look at one of the default
-+       functions in the kernel code named 'get_sb_nodev'.
-+       The get_sb_nodev functions last parameter is a pointer to a function
-+       which would act like the former read_super function just mentioned.
-+       The data parameter contains arbitrary mount options passed by the
-+       unix mount program, it usually comes as an ASCII string but can
-+       be set to come as binary (now please don't ask me where I saw this
-+       flag, look at the source, Mr. Skywalker ;-).
-+       Return value: New super block on success, ERR_PTR if failed.
-+
-+  kill_sb: the function which gets called when the sb needs to be destroyed.
-+       One generic function for this is 'kill_anon_super', look there for
-+       more inspiration.
+The first is probably quite manageable.  The second is essentially the
+cycle-detection problem.
 
--  int silent: whether or not to be silent on error
-+  owner: This is usually set to the macro 'THIS_MODULE'.
+</technical-content>
 
--The read_super() method must determine if the block device specified
--in the superblock contains a filesystem of the type the method
--supports. On success the method returns the superblock pointer, on
--failure it returns NULL.
-+  next: Managed by the kernel. Please leave it as NULL.
+<humour>
+SUN used to advertise:
+  "The network is the computer"
+However I think we have all come to realise that the network is the
+network, and the computer is the computer.
 
--The most interesting member of the superblock structure that the
--read_super() method fills in is the "s_op" field. This is a pointer to
--a "struct super_operations" which describes the next level of the
--filesystem implementation.
-+  fs_supers: Managed by the kernel. Please leave it as NULL.
+Now Hans wants to tells that
+   "The directory is the file"
 
+but I don't find it any more convincing than SUN's message...
 
-  struct super_operations                                               <section>
-------------------------------SNIPOFF----------------------------------
-Stone:/usr/src #
+</humour>
 
--- 
+<opinion>
+If you really want to change traditional Unix semantics, I would
+suggest you get rid of hard-links.  They really are more trouble than
+they are worth, and discarding them makes this whole issue moot.
+</opinion>
 
-Thanks,
-    Frank Schruefer
-    SITEFORUM Software Europe GmbH
-    Germany (Thuringia)
-
+NeilBrown

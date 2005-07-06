@@ -1,35 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262121AbVGFHuc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262141AbVGFIFK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262121AbVGFHuc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 03:50:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262089AbVGFHsV
+	id S262141AbVGFIFK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 04:05:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262144AbVGFIFJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 03:48:21 -0400
-Received: from math.ut.ee ([193.40.36.2]:8336 "EHLO math.ut.ee")
-	by vger.kernel.org with ESMTP id S262121AbVGFG1j (ORCPT
+	Wed, 6 Jul 2005 04:05:09 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:61872 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262141AbVGFGcL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 02:27:39 -0400
-Date: Wed, 6 Jul 2005 09:27:36 +0300 (EEST)
-From: Meelis Roos <mroos@linux.ee>
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: ALSA bt87x compile failure in 2.6.13-rc3
-Message-ID: <Pine.SOC.4.61.0507060925010.22423@math.ut.ee>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 6 Jul 2005 02:32:11 -0400
+Date: Tue, 5 Jul 2005 23:31:59 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Jussi Hamalainen <count@theblah.fi>
+Cc: Chris Wright <chrisw@osdl.org>, Thomas Backlund <tmb@mandriva.org>,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       Andy <genanr@emsphone.com>
+Subject: Re: WARNING : kernel 2.6.11.7 (others) kills megaraid 4e/Si dead
+Message-ID: <20050706063158.GY9046@shell0.pdx.osdl.net>
+References: <20050503151532.GA1316@thumper2> <20050503190005.GS23013@shell0.pdx.osdl.net> <42CA9E93.1050802@mandriva.org> <20050705155808.GI9153@shell0.pdx.osdl.net> <Pine.LNX.4.62.0507060735570.24203@mir.senvnet.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.62.0507060735570.24203@mir.senvnet.fi>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   CC [M]  sound/pci/bt87x.o
-sound/pci/bt87x.c: In function `snd_bt87x_detect_card':
-sound/pci/bt87x.c:807: error: `driver' undeclared (first use in this function)
-sound/pci/bt87x.c:807: error: (Each undeclared identifier is reported only once
-sound/pci/bt87x.c:807: error: for each function it appears in.)
-sound/pci/bt87x.c: At top level:
-sound/pci/bt87x.c:910: error: `driver' used prior to declaration
-make[2]: *** [sound/pci/bt87x.o] Error 1
+* Jussi Hamalainen (count@theblah.fi) wrote:
+> On Tue, 5 Jul 2005, Chris Wright wrote:
+> 
+> >>Any news on this matter?
+> >>I hvr a PE1850 waiting for kernel upgrade, but I'm afraid to do so now...
+> >>
+> >>I can't break my box with tests since it's in active use...
+> >>For now I'm running a 2.6.8.1 based kernel on the box...
+> >
+> >Last known good one (that Andy tested) was 2.6.10.  His was the only
+> >report I've seen, and I haven't found any more details on it.
+> 
+> I have several PE1850s running 2.6.11.10 and above. I have never had 
+> a megaraid controller die on me. This might be something related to a 
+> particular firmware version or setup. I could check the firmware 
+> versions if you want.
 
-Substituting driver with pci->driver seems to cure it, it this the 
-correct fix?
+Good to hear.  Andy gave this firmware info:
 
--- 
-Meelis Roos (mroos@linux.ee)
+  Megaraid (256 mb cache), firmware : 516A BIOS : H418

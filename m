@@ -1,66 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262493AbVGFXq5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262497AbVGFXq4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262493AbVGFXq5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 19:46:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262489AbVGFUHi
+	id S262497AbVGFXq4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 19:46:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262493AbVGFUHn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 16:07:38 -0400
-Received: from box3.punkt.pl ([217.8.180.76]:44813 "HELO box.punkt.pl")
-	by vger.kernel.org with SMTP id S262268AbVGFSe1 (ORCPT
+	Wed, 6 Jul 2005 16:07:43 -0400
+Received: from tag.witbe.net ([81.88.96.48]:401 "EHLO tag.witbe.net")
+	by vger.kernel.org with ESMTP id S262465AbVGFSgg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 14:34:27 -0400
-From: Mariusz Mazur <mmazur@kernel.pl>
-To: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] linux-libc-headers 2.6.12.0
-Date: Wed, 6 Jul 2005 20:30:56 +0200
-User-Agent: KMail/1.8
-Cc: llh-announce@lists.pld-linux.org
+	Wed, 6 Jul 2005 14:36:36 -0400
+Message-Id: <200507061836.j66IaWD27125@tag.witbe.net>
+Reply-To: <rol@as2917.net>
+From: "Paul Rolland" <rol@as2917.net>
+To: <linux-kernel@vger.kernel.org>
+Cc: <rol@as2917.net>
+Subject: Spy'ing characters sent to serial port.
+Date: Wed, 6 Jul 2005 20:36:32 +0200
+Organization: AS2917
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-2"
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507062030.56451.mmazur@kernel.pl>
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+Thread-Index: AcWCWaGEKSLPIe2NSZuIDBdWjyoVMQ==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Available at http://ep09.pld-linux.org/~mmazur/linux-libc-headers/
-Changes:
-- updated to 2.6.12
-- various C++/ANSI C compatibility fixes
-- various small fixes
+Hello,
 
-Sorry for the long delay (2.6.12 was released some time ago), but I've been 
-rather busy.
+We have a machine connected to a modem using the serial port, and from
+time to time, the modem complains the machine sent him a full 2K buffer
+(in fact, 2047 bytes) which were already sent.
 
-The most interesting changes in this release are the C++/ANSI C compatibility 
-fixes mostly provided by Jeff Bailey of Ubuntu/Debian. Jeff also made llh 
-klibc compatible, but got missing in action before managing to commit the 
-changes (hope he'll reemerge in the near future). Those changes will probably 
-break some builds, but I believe klibc compatibility is worth it (afaik llh 
-is already used by the uclibc project) and llh is too glibc-centric anyway.
+We've been investigating at the application level, using strace to 
+monitor what is sent to the serial port, and at no time such a buffer is
+sent.
 
-Since I was in a hurry with this release, I've left out some things. If I 
-remember correctly, I was bugged about some iproute2 and C++ compatibility 
-issues. I'll need to ask the people that bugged me, to do it again (the C++ 
-stuff might be solved already, though). This, and the fact that I'll have to 
-mess a little with llh's internals (nothing noticeable; assuming I don't 
-introduce any new bugs that is :) will probably result in a new release in a 
-week or two. So stay tuned.
+This problem is occuring on a random basis, and attempts to reproduce
+it in a test environment failed to date.
 
-Oh, and one last thing. I'll be CCing these announcements to 
-llh-announce@lists.pld-linux.org (subscription at 
-http://lists.pld-linux.org/mailman/listinfo/llh-announce), so anybody 
-interested in new releases, but not interested in lkml's traffic, can just 
-subscribe there.
+Is it possible to '(log|copy|...)' the chars that are sent on the
+serial port to some other place (without altering too much the performance
+of the machine, we are running the port a 9600bps), at the lowest level ?
 
+Or is there a known issue of the serial port (or tty) buffer being 
+resent on the line in some weird conditions ? Any change done on 
+->head and ->tail handling that could fix that ?
 
-Happy summer (of code/sunbaths/or whatever).
+This problem is with Linux 2.4.27 (I know 2.4.31 is out, but nothing 
+related to that is present in the Changelog)
 
+Regards,
+Paul
 
--- 
-In the year eighty five ten
-God is gonna shake his mighty head
-He'll either say,
-"I'm pleased where man has been"
-Or tear it down, and start again

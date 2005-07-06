@@ -1,65 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262086AbVGGARt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262159AbVGFT7b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262086AbVGGARt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 20:17:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262420AbVGFUFX
+	id S262159AbVGFT7b (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 15:59:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262131AbVGFT4Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 16:05:23 -0400
-Received: from ns2.suse.de ([195.135.220.15]:55002 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S262454AbVGFSNu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 14:13:50 -0400
-Date: Wed, 6 Jul 2005 20:13:49 +0200
-From: Andi Kleen <ak@suse.de>
-To: Christoph Lameter <christoph@lameter.com>
-Cc: Andi Kleen <ak@suse.de>, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       linux-pci@vger.kernel.org, gregkh@suse.de
-Subject: Re: [PATCH] Run PCI driver initialization on local node
-Message-ID: <20050706181349.GN21330@wotan.suse.de>
-References: <20050706133248.GG21330@wotan.suse.de> <Pine.LNX.4.62.0507060934360.20107@graphe.net> <20050706175603.GL21330@wotan.suse.de> <Pine.LNX.4.62.0507061058260.30702@graphe.net>
+	Wed, 6 Jul 2005 15:56:24 -0400
+Received: from oracle.bridgewayconsulting.com.au ([203.56.14.38]:39353 "EHLO
+	oracle.bridgewayconsulting.com.au") by vger.kernel.org with ESMTP
+	id S262159AbVGFPiW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Jul 2005 11:38:22 -0400
+Date: Wed, 6 Jul 2005 23:38:13 +0800
+From: Bernard Blackham <bernard@blackham.com.au>
+To: Shaohua Li <shaohua.li@intel.com>
+Cc: Nigel Cunningham <nigel@suspend2.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [4/48] Suspend2 2.1.9.8 for 2.6.12: 302-init-hooks.patch
+Message-ID: <20050706153813.GE4165@blackham.com.au>
+References: <11206164392@foobar.com> <1120639125.2908.5.camel@linux-hp.sh.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0507061058260.30702@graphe.net>
+In-Reply-To: <1120639125.2908.5.camel@linux-hp.sh.intel.com>
+Organization: Dagobah Systems
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 06, 2005 at 11:01:14AM -0700, Christoph Lameter wrote:
-> On Wed, 6 Jul 2005, Andi Kleen wrote:
+On Wed, Jul 06, 2005 at 04:38:45PM +0800, Shaohua Li wrote:
+> On Wed, 2005-07-06 at 12:20 +1000, Nigel Cunningham wrote:
+> > diff -ruNp 350-workthreads.patch-old/drivers/acpi/osl.c 350-workthreads.patch-new/drivers/acpi/osl.c
+> > --- 350-workthreads.patch-old/drivers/acpi/osl.c	2005-06-20 11:46:50.000000000 +1000
+> > +++ 350-workthreads.patch-new/drivers/acpi/osl.c	2005-07-04 23:14:18.000000000 +1000
+> > @@ -95,7 +95,7 @@ acpi_os_initialize1(void)
+> >  		return AE_NULL_ENTRY;
+> >  	}
+> >  #endif
+> > -	kacpid_wq = create_singlethread_workqueue("kacpid");
+> > +	kacpid_wq = create_singlethread_workqueue("kacpid", PF_NOFREEZE);
+> >  	BUG_ON(!kacpid_wq);
 > 
-> > On Wed, Jul 06, 2005 at 09:35:32AM -0700, Christoph Lameter wrote:
-> > > On Wed, 6 Jul 2005, Andi Kleen wrote:
-> > > 
-> > > > Instead of adding messy kmalloc_node()s everywhere run the 
-> > > > PCI driver probe on the node local to the device.
-> > > > Then the normal NUMA aware allocators do the right thing.
-> > > 
-> > > That depends on the architecture. Some do round robin allocs for periods 
-> > > of time during bootup. I think it is better to explicitly place control 
-> > 
-> > slab will usually do the right thing because it has a forced
-> > local node policy, but __gfp might not.
-> 
-> GFP allocs may not do the right thing. If you want to do this then it 
-> may be best to set the memory policy to restrict allocations to the node 
-> on which the device resides.
+> I'm not sure but kacpid can run any kind of code (depends on BIOS, it
+> might touch some devices), is this safe?
 
-They will do the right thing. Under memory pressue on the node 
-it is better to back off than to fail.
+FYI, the reason it's there is to do something about acpi events
+whilst resuming. If kacpid is not running the following bug occurs:
 
-> 
-> Plus there are CPU less nodes. What happens to those?
+ - during suspend, prior to the atomic copy, a GPE fires (eg, a
+   battery notification)
+ - the GPE is disabled until it is serviced by kacpid, but as kacpid
+   is not running, it isn't serviced - only disabled.
+ - the disabled state of the GPE is recorded in the atomic copy, and
+   written to disk
+ - poweroff/S4
+ - on resume, ACPI initialises the GPEs and enables them all.
+ - after the restoring the atomic copy, the GPE may fire. However,
+   the kernel thinks it is already disabled and so refuses to
+   disable it again.
+ - this sends the machine into an interrupt-induced death as the GPE
+   fires over and over and over ...
 
-They are not worse off that they are now.
+I prepared a patch a while ago that simply omitted the check and
+disabled the GPE unconditionally (which was how things were before
+the big ACPI merge of 2.6.9), but this made the battery status
+unreadable for at least one user. I never followed that up, but
+instead some more general GPE suspend/resume handling was discussed,
+making GPEs system devices that were suspended and resumed
+accordingly. I don't think any code eventuated from this discussion
+though ...
 
-> 
-> > Patching every driver in existence? That sounds like a lot of
-> > work. 
-> 
-> No just patch those that would benefit from it. The existing 
+Letting kacpid run during suspend appeared to be a good compromise
+(but still racy if GPEs were to occur at exactly the right instant
+- just before the atomic copy). Implementing suspend/resume support
+for GPEs would be the more ideal solution.
 
-This would be "all devices that SGI ships on Altixes" ?
+Bernard.
 
-IMHO all can benefit.
-
--Andi
+-- 
+ Bernard Blackham <bernard at blackham dot com dot au>

@@ -1,82 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262511AbVGFULl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262215AbVGFUPX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262511AbVGFULl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 16:11:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbVGFULG
+	id S262215AbVGFUPX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 16:15:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261718AbVGFUNw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 16:11:06 -0400
-Received: from chretien.genwebhost.com ([209.59.175.22]:23705 "EHLO
-	chretien.genwebhost.com") by vger.kernel.org with ESMTP
-	id S262358AbVGFTeT convert rfc822-to-8bit (ORCPT
+	Wed, 6 Jul 2005 16:13:52 -0400
+Received: from main.gmane.org ([80.91.229.2]:56749 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S262215AbVGFT5F (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 15:34:19 -0400
-Date: Wed, 6 Jul 2005 12:34:15 -0700
-From: randy_dunlap <rdunlap@xenotime.net>
-To: =?ISO-8859-1?B?TWljaGFfXw==?= Piotrowski 
-	<piotrowskim@trex.wsi.edu.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc2 white spaces patch
-Message-Id: <20050706123415.19a33a8a.rdunlap@xenotime.net>
-In-Reply-To: <42CC30C2.5030300@trex.wsi.edu.pl>
-References: <42CBDF6D.8090802@trex.wsi.edu.pl>
-	<20050706120957.1a88b46f.rdunlap@xenotime.net>
-	<42CC30C2.5030300@trex.wsi.edu.pl>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 6 Jul 2005 15:57:05 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Bill Davidsen <davidsen@tmr.com>
+Subject: Re: speedstep-centrino on dothan
+Date: Wed, 06 Jul 2005 15:58:53 -0400
+Message-ID: <42CC37FD.5040708@tmr.com>
+References: <20050706112202.33d63d4d@horst.morte.male>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-ClamAntiVirus-Scanner: This mail is clean
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - chretien.genwebhost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - xenotime.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: prgy-npn1.prodigy.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050319
+X-Accept-Language: en-us, en
+In-Reply-To: <20050706112202.33d63d4d@horst.morte.male>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 06 Jul 2005 21:28:02 +0200 Micha__ Piotrowski wrote:
+st3@riseup.net wrote:
+> Currently, the speedstep-centrino support has built-in frequency/voltage
+> pairs only for Banias CPUs. For Dothan CPUs, these tables are read from
+> BIOS ACPI.
+> 
+> But ACPI encoding may not be available or not reliable, so why shouldn't we
+> provide built-in tables for Dothan CPUs, too? Intel has released this
+> datasheet:
+> 
+> http://www.intel.com/design/mobile/datashts/302189.htm
+> 
+> with frequency/voltage pairs for every version of Dothan CPUs.
+> 
+> Moreover, I checked on Pentium M 725 and Pentium M 715 that the lowest
+> frequency at which the CPU can be set safely is not the 600MHz given in
+> datasheets, but 400MHz instead, with VID#A, VID#B, VID#C and VID#D (see
+> datasheet for more details) set to 0.908V.
+> 
+> I can provide a patch, let me know.
 
-| Hi Randy,
-| 
-| randy_dunlap napisa__(a):
-| 
-| >On Wed, 06 Jul 2005 15:41:01 +0200 Micha__ Piotrowski wrote:
-| >
-| >| Hi,
-| >| 
-| >| This patch is against 2.6.13-rc2. It cleans whitespaces in init/* and 
-| >| crypto/*.
-| >
-| >General comment:  needs a Signed-off-by: line (see
-| >Documenation/SubmittingPatches ).
-| >
-| >Howver, I am having trouble seeing changes in lots of the
-| >-/+ lines.  Did thunderbird perhaps mangle your patch?
-| >
-| >After that is fixed, we can see if it's worthwhile to do this
-| >kind of patch....  (some doubt here)
-| >
-| >
+Slower is better, and not depending on ACPI for anything which can be 
+gotten elsewhere is a good thing. Sounds like a good idea to me.
 
-| >---
-| >~Randy
-| >
-| >  
-| >
-| Ups,
-| 
-| I resend the patrch, because iso-8859-2 coding in thunderbird is f%##**%%#.
-| Patch is in atachment ;) (bz'iped).
-
-OK, I can see the whitespace changes now, but please don't send patches
-in any kind of zip format, it makes them impossible for someone to review
-and comment on them.  Attachments are allowed (or tolerated) if they
-are of type text/plain so that an email client can display them
-inline with the rest of the mail message.
-
----
-~Randy

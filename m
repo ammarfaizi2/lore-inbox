@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262092AbVGFCWA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262043AbVGFC0z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262092AbVGFCWA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Jul 2005 22:22:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262041AbVGFCU3
+	id S262043AbVGFC0z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Jul 2005 22:26:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262050AbVGFCWp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Jul 2005 22:20:29 -0400
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:60568 "EHLO
+	Tue, 5 Jul 2005 22:22:45 -0400
+Received: from b3162.static.pacific.net.au ([203.143.238.98]:58008 "EHLO
 	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S262042AbVGFCTO convert rfc822-to-8bit (ORCPT
+	id S262052AbVGFCTQ convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Jul 2005 22:19:14 -0400
-Subject: [PATCH] [11/48] Suspend2 2.1.9.8 for 2.6.12: 401-e820-table-support.patch
+	Tue, 5 Jul 2005 22:19:16 -0400
+Subject: [PATCH] [6/48] Suspend2 2.1.9.8 for 2.6.12: 351-syncthreads.patch
 In-Reply-To: <11206164393426@foobar.com>
 X-Mailer: gregkh_patchbomb
-Date: Wed, 6 Jul 2005 12:20:40 +1000
-Message-Id: <11206164403490@foobar.com>
+Date: Wed, 6 Jul 2005 12:20:39 +1000
+Message-Id: <11206164391570@foobar.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Nigel Cunningham <nigel@suspend2.net>
@@ -24,72 +24,37 @@ From: Nigel Cunningham <nigel@suspend2.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -ruNp 402-mtrr-remove-sysdev.patch-old/arch/i386/kernel/cpu/mtrr/main.c 402-mtrr-remove-sysdev.patch-new/arch/i386/kernel/cpu/mtrr/main.c
---- 402-mtrr-remove-sysdev.patch-old/arch/i386/kernel/cpu/mtrr/main.c	2005-06-20 11:46:42.000000000 +1000
-+++ 402-mtrr-remove-sysdev.patch-new/arch/i386/kernel/cpu/mtrr/main.c	2005-07-04 23:14:19.000000000 +1000
-@@ -166,7 +166,6 @@ static void ipi_handler(void *info)
- 	atomic_dec(&data->count);
- 	local_irq_restore(flags);
- }
--
- #endif
+diff -ruNp 352-disable-pdflush-during-suspend.patch-old/mm/page-writeback.c 352-disable-pdflush-during-suspend.patch-new/mm/page-writeback.c
+--- 352-disable-pdflush-during-suspend.patch-old/mm/page-writeback.c	2005-06-20 11:47:32.000000000 +1000
++++ 352-disable-pdflush-during-suspend.patch-new/mm/page-writeback.c	2005-07-04 23:14:19.000000000 +1000
+@@ -29,6 +29,7 @@
+ #include <linux/sysctl.h>
+ #include <linux/cpu.h>
+ #include <linux/syscalls.h>
++#include <linux/suspend.h>
  
- /**
-@@ -560,7 +559,7 @@ struct mtrr_value {
+ /*
+  * The maximum number of pages to writeout in a single bdflush/kupdate
+@@ -404,6 +405,12 @@ static void wb_kupdate(unsigned long arg
+ 		.for_kupdate	= 1,
+ 	};
  
- static struct mtrr_value * mtrr_state;
++	if (test_suspend_state(SUSPEND_DISABLE_SYNCING)) {
++		start_jif = jiffies;
++		next_jif = start_jif + (dirty_writeback_centisecs * HZ) / 100;
++		goto out;
++	}
++
+ 	sync_supers();
  
--static int mtrr_save(struct sys_device * sysdev, u32 state)
-+int mtrr_save(void)
- {
- 	int i;
- 	int size = num_var_ranges * sizeof(struct mtrr_value);
-@@ -580,28 +579,27 @@ static int mtrr_save(struct sys_device *
- 	return 0;
- }
- 
--static int mtrr_restore(struct sys_device * sysdev)
-+/* Restore mtrrs on this CPU only.
-+ * Done with interrupts disabled via __smp_lowlevel_suspend
-+ */
-+int mtrr_restore_one_cpu(void)
- {
- 	int i;
- 
- 	for (i = 0; i < num_var_ranges; i++) {
- 		if (mtrr_state[i].lsize) 
--			set_mtrr(i,
-+			mtrr_if->set(i,
- 				 mtrr_state[i].lbase,
- 				 mtrr_state[i].lsize,
- 				 mtrr_state[i].ltype);
+ 	get_writeback_state(&wbs);
+@@ -424,6 +431,8 @@ static void wb_kupdate(unsigned long arg
+ 		}
+ 		nr_to_write -= MAX_WRITEBACK_PAGES - wbc.nr_to_write;
  	}
--	kfree(mtrr_state);
- 	return 0;
- }
- 
--
--
--static struct sysdev_driver mtrr_sysdev_driver = {
--	.suspend	= mtrr_save,
--	.resume		= mtrr_restore,
--};
--
-+void mtrr_restore_finish(void)
-+{
-+	kfree(mtrr_state);
-+}
- 
- /**
-  * mtrr_init - initialize mtrrs on the boot CPU
-@@ -669,8 +667,7 @@ static int __init mtrr_init(void)
- 		init_table();
- 		init_other_cpus();
- 
--		return sysdev_driver_register(&cpu_sysdev_class,
--					      &mtrr_sysdev_driver);
-+		return 0;
- 	}
- 	return -ENXIO;
- }
++
++out:
+ 	if (time_before(next_jif, jiffies + HZ))
+ 		next_jif = jiffies + HZ;
+ 	if (dirty_writeback_centisecs)
 

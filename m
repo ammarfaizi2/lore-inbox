@@ -1,70 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262036AbVGFBpr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261994AbVGFCC6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262036AbVGFBpr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Jul 2005 21:45:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262034AbVGFBpr
+	id S261994AbVGFCC6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Jul 2005 22:02:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262034AbVGFCC6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Jul 2005 21:45:47 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:17041 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262036AbVGFBpU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Jul 2005 21:45:20 -0400
-Subject: Re: realtime-preempt-2.6.12-final-V0.7.51-01 compile error and
-	more problems
-From: Lee Revell <rlrevell@joe-job.com>
-To: William Weston <weston@sysex.net>
-Cc: Carlo Scarfoglio <mi2332@mclink.it>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58.0507051701440.13700@echo.lysdexia.org>
-References: <42CB1707.6000205@mclink.it>
-	 <Pine.LNX.4.58.0507051701440.13700@echo.lysdexia.org>
-Content-Type: text/plain
-Date: Tue, 05 Jul 2005 21:45:16 -0400
-Message-Id: <1120614316.22671.64.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
+	Tue, 5 Jul 2005 22:02:58 -0400
+Received: from natfrord.rzone.de ([81.169.145.161]:12419 "EHLO
+	natfrord.rzone.de") by vger.kernel.org with ESMTP id S261994AbVGFCCt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Jul 2005 22:02:49 -0400
+Message-ID: <42CB3BC6.2070705@man-made.de>
+Date: Wed, 06 Jul 2005 04:02:46 +0200
+From: Frank Schruefer <kernel@man-made.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040906
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: alan@redhat.com
+Subject: [PATCH] update( Documentation -> vfs.txt -> file_system_type );
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-07-05 at 18:13 -0700, William Weston wrote:
-> Audio without xruns is an RT requirement, IMHO  ;-}
-> 
+Hy,
 
-This isn't even an opinion, it's a fact.  If you are capturing data and
-your audio handling thread does not get scheduled in (periods_per_buffer
-- 1) * period_time time units, you lose that chunk of sound *forever*.
+The current description was tagged as of kernel 2.1.99 - so whatever story
+I'll write here should be more truthful than that fossil ;-)
 
-Some people on this list make the ridiculous argument that this is
-different from more conventional RT applications because "they can
-always record again".  Try telling that to someone who is paying for
-studio time; you won't be running a studio for long.  Pro audio is
-exactly like controlling a satellite or monitoring a power plant, if you
-don't get scheduled in time, it's a fatal error.
 
-In practice you only have to be more reliable than the alternatives,
-which are pretty reliable these days.
+Stone:/usr/src # diff -r -u linux-2.6.13-rc1.UNTOUCHED linux-2.6.13-rc1
+------------------------------SNIPON-----------------------------------
+diff -r -u linux-2.6.13-rc1.UNTOUCHED/Documentation/filesystems/vfs.txt linux-2.6.13-rc1/Documentation/filesystems/vfs.txt
+--- linux-2.6.13-rc1.UNTOUCHED/Documentation/filesystems/vfs.txt        2005-06-30 01:00:53.000000000 +0200
++++ linux-2.6.13-rc1/Documentation/filesystems/vfs.txt  2005-07-06 03:36:23.000000000 +0200
+@@ -126,46 +126,53 @@
+  struct file_system_type                                               <section>
+  =======================
 
-> > 4) Xruns occur every 10-60 minutes even when the system is
-> practically 
-> > idle (no playback
-> > or recording). When copying large files (between sata disks on two 
-> > sil3112 controllers)
-> > xruns frequency is much higher.  When sound is used xruns occur
-> every 2 
-> > or 20 minutes.
-> 
-> Do these xruns coincide with the RTC 'Read missed before next
-> interrupt'
-> messages?
-> 
-> Have you tried running JACK with a larger buffer period size?  Some
-> cards
+-This describes the filesystem. As of kernel 2.1.99, the following
++This describes the filesystem. As of kernel 2.6.13, the following
+  members are defined:
 
-Disable CONFIG_RTC_HISTOGRAM.
+  struct file_system_type {
+-       const char *name;
+-       int fs_flags;
+-       struct super_block *(*read_super) (struct super_block *, void *, int);
+-       struct file_system_type * next;
+-};
+-
+-  name: the name of the filesystem type, such as "ext2", "iso9660",
+-       "msdos" and so on
+-
+-  fs_flags: various flags (i.e. FS_REQUIRES_DEV, FS_NO_DCACHE, etc.)
+-
+-  read_super: the method to call when a new instance of this
+-       filesystem should be mounted
+-
+-  next: for internal VFS use: you should initialise this to NULL
+-
+-The read_super() method has the following arguments:
+-
+-  struct super_block *sb: the superblock structure. This is partially
+-       initialised by the VFS and the rest must be initialised by the
+-       read_super() method
+-
+-  void *data: arbitrary mount options, usually comes as an ASCII
+-       string
++        const char *name;
++        int fs_flags;
++        struct super_block *(*get_sb)
++               (struct file_system_type *, int, const char *, void *);
++        void (*kill_sb) (struct super_block *);
++        struct module *owner;
++        struct file_system_type * next;
++        struct list_head fs_supers;
++       };
++
++  name: The name of the filesystem type, such as "ext2", "iso9660",
++       "msdos" and so on.
++
++  fs_flags: A combination of: FS_REQUIRES_DEV, FS_BINARY_MOUNTDATA,
++       FS_REVAL_DOT, FS_ODD_RENAME (deprecated). See include/linux/fs.h.
++
++  get_sb: The function responsible for returning the super_block structure
++       containing the filesystems blocksize, it's super block,
++       super operations struct s_op (which is the most interesting field
++       filled by this method and a pointer to struct super_operations
++       which describes the next level of the filesystem implementation),
++       the magic byte and max filesize and the like.
++       It is called when a new instance of this filesystem is mounted and
++       replaces the read_super function of former kernels (see porting).
++       As an example of what to do here please look at one of the default
++       functions in the kernel code named 'get_sb_nodev'.
++       The get_sb_nodev functions last parameter is a pointer to a function
++       which would act like the former read_super function just mentioned.
++       The data parameter contains arbitrary mount options passed by the
++       unix mount program, it usually comes as an ASCII string but can
++       be set to come as binary (now please don't ask me where I saw this
++       flag, look at the source, Mr. Skywalker ;-).
++       Return value: New super block on success, ERR_PTR if failed.
++
++  kill_sb: the function which gets called when the sb needs to be destroyed.
++       One generic function for this is 'kill_anon_super', look there for
++       more inspiration.
 
-Then before you try anything else, check the /proc/latency trace output.
-What's the max reported latency?  Is it significantly less than the
-xruns?
+-  int silent: whether or not to be silent on error
++  owner: This is usually set to the macro 'THIS_MODULE'.
 
-Lee
+-The read_super() method must determine if the block device specified
+-in the superblock contains a filesystem of the type the method
+-supports. On success the method returns the superblock pointer, on
+-failure it returns NULL.
++  next: Managed by the kernel. Please leave it as NULL.
+
+-The most interesting member of the superblock structure that the
+-read_super() method fills in is the "s_op" field. This is a pointer to
+-a "struct super_operations" which describes the next level of the
+-filesystem implementation.
++  fs_supers: Managed by the kernel. Please leave it as NULL.
+
+
+  struct super_operations                                               <section>
+------------------------------SNIPOFF----------------------------------
+Stone:/usr/src #
+
+-- 
+
+Thanks,
+    Frank Schruefer
+    SITEFORUM Software Europe GmbH
+    Germany (Thuringia)
 

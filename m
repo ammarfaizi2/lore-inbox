@@ -1,104 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262342AbVGFXZ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262339AbVGFX3e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262342AbVGFXZ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 19:25:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262339AbVGFXXa
+	id S262339AbVGFX3e (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 19:29:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262576AbVGFX1p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 19:23:30 -0400
-Received: from main.gmane.org ([80.91.229.2]:48551 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S262546AbVGFXV4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 19:21:56 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Alexander Fieroch <fieroch@web.de>
-Subject: Re: PROBLEM: "drive appears confused" and "irq 18: nobody cared!"
-Date: Thu, 07 Jul 2005 01:20:52 +0200
-Message-ID: <42CC6754.8050208@web.de>
-References: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04C30@USRV-EXCH4.na.uis.unisys.com>
+	Wed, 6 Jul 2005 19:27:45 -0400
+Received: from chretien.genwebhost.com ([209.59.175.22]:31136 "EHLO
+	chretien.genwebhost.com") by vger.kernel.org with ESMTP
+	id S262563AbVGFX1H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Jul 2005 19:27:07 -0400
+Date: Wed, 6 Jul 2005 16:27:01 -0700
+From: randy_dunlap <rdunlap@xenotime.net>
+To: dwalker@mvista.com
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, mingo@elte.hu,
+       greg@kroah.com, alan@lxorguk.ukuu.org.uk
+Subject: Re: [PATCH] Documentation fixes
+Message-Id: <20050706162701.20614562.rdunlap@xenotime.net>
+In-Reply-To: <1120691531.16159.42.camel@dhcp153.mvista.com>
+References: <1120691531.16159.42.camel@dhcp153.mvista.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="------------090505040608030900070801"
-X-Complaints-To: usenet@sea.gmane.org
-Cc: Jesper Juhl <jesper.juhl@gmail.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       bzolnier@gmail.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, axboe@suse.de,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Alexey Dobriyan <adobriyan@gmail.com>, Andrew Morton <akpm@osdl.org>
-X-Gmane-NNTP-Posting-Host: osten.wh.uni-dortmund.de
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050611)
-X-Accept-Language: de-de, en-us, en
-In-Reply-To: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04C30@USRV-EXCH4.na.uis.unisys.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-ClamAntiVirus-Scanner: This mail is clean
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - chretien.genwebhost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - xenotime.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090505040608030900070801
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Wed, 06 Jul 2005 16:12:11 -0700 Daniel Walker wrote:
 
-Protasevich, Natalie wrote:
-> Hi Alexander,
-> To me, it looks like both IDE channels get wrong IRQ. Didn't you
-> verified previously that when you go without IDE the system boots up OK?
+| 
+| I noticed some typo's or mis-thoughts .. Here are my corrections. I
+| tried to CC all the authors.
 
-Yes it does. That's the way I'm currently using linux.
+Yes, mostly good corrections.  Here are more on top of yours.
 
-> They get some interrupts because when IRQ 201 occurs triggered by USB,
-> the handler for ide runs also, since it is shared with both ide and
-> uhci. (Can you also attach output for "cat /proc/interrupts" please).
+Thanks,
+~Randy
 
-Ah, acknowledged. IDE and USB iterrupts are shared. /proc/interrupts is 
-attached.
 
->> >Then I would try forth-feeding IRQ 14 to the IDE.
->>
->>I don't know how to do that.
-> 
-> I was going to put some code together for you over the weekend, but got
-> caught up in other things, sorry. 
+| Index: linux-2.6.12/Documentation/watchdog/watchdog.txt
+| ===================================================================
+| --- linux-2.6.12.orig/Documentation/watchdog/watchdog.txt	2005-06-17 19:48:29.000000000 +0000
+| +++ linux-2.6.12/Documentation/watchdog/watchdog.txt	2005-07-03 18:12:40.000000000 +0000
+| @@ -18,12 +18,12 @@ The following watchdog drivers are curre
+|  All six interfaces provide /dev/watchdog, which when open must be written
+|  to within a timeout or the machine will reboot. Each write delays the reboot
+|  time another timeout. In the case of the software watchdog the ability to 
+| -reboot will depend on the state of the machines and interrupts. The hardware
+| +reboot will depend on the state of the machine and interrupts. The hardware
+|  boards physically pull the machine down off their own onboard timers and
+|  will reboot from almost anything.
+|  
+|  A second temperature monitoring interface is available on the WDT501P cards
+| -and some Berkshire cards. This provides /dev/temperature. This is the machine 
+| +and some Berkshire cards. This provides /dev/temperature. This is the machines 
+                                                                         machine's
+  (and kill the trailing space)
 
-No problem. I just wanted to know that the problem is not forgotten.
+|  internal temperature in degrees Fahrenheit. Each read returns a single byte 
+|  giving the temperature.
+|  
+| @@ -37,16 +37,16 @@ The wdt card cannot be safely probed for
+|  wdt=ioaddr,irq as a boot parameter - eg "wdt=0x240,11".
+|  
+|  The SA1100 watchdog module can be configured with the "sa1100_margin"
+| -commandline argument which specifies timeout value in seconds.
+| +commandline argument which specifies the timeout value in seconds.
+|  
+|  The i810 TCO watchdog modules can be configured with the "i810_margin"
+| -commandline argument which specifies the counter initial value. The counter
+| -is decremented every 0.6 seconds and default to 50 (30 seconds). Values can
+| +commandline argument which specifies the counters initial value. The counter
+                                            counter's
+| +is decremented every 0.6 seconds and defaults to 50 (30 seconds). Values can
+|  range between 3 and 63.
+|  
+|  The i810 TCO watchdog driver also implements the WDIOC_GETSTATUS and
+|  WDIOC_GETBOOTSTATUS ioctl()s. WDIOC_GETSTATUS returns the actual counter value
+| -and WDIOC_GETBOOTSTATUS returns the value of TCO2 Status Register (see Intel's
+| +and WDIOC_GETBOOTSTATUS returns the value of the TCO2 Status Register (see Intel's
 
-> The idea was to forcibly assign IRQ 14
-> for ide0 and IRQ 15 for ide1 in the ide driver, setup-pci.c (just for
-> diagnostics and proof of concept so to speak) and see if devices become
-> sane.
-> I will try tweaking it tonight. I need to make sure it works on my
-> system first and if it does I will send you the code. 
+Please wrap lines at < 80 characters per line.
 
-> Thanks,
-> --Natalie
-
-No, thank you for working on that problem!
-
-Regards,
-Alexander
-
---------------090505040608030900070801
-Content-Type: text/plain;
- name="interrupts"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="interrupts"
-
-           CPU0       CPU1       
-  0:     143266          0    IO-APIC-edge  timer
-  1:        908          0    IO-APIC-edge  i8042
-  7:          0          0    IO-APIC-edge  parport0
-  8:          0          0    IO-APIC-edge  rtc
-  9:          0          0   IO-APIC-level  acpi
- 10:          0          0    IO-APIC-edge  MPU401 UART
-169:       1857          0   IO-APIC-level  skge, uhci_hcd:usb5, HDA Intel
-177:          3          0   IO-APIC-level  bttv0
-185:        365          0   IO-APIC-level  ide2, ehci_hcd:usb1, uhci_hcd:usb2
-193:      13324          0   IO-APIC-level  libata, uhci_hcd:usb3
-201:    1600000          0   IO-APIC-level  ide0, uhci_hcd:usb4
-209:          3          0   IO-APIC-level  ohci1394, Ensoniq AudioPCI
-NMI:         51          1 
-LOC:     140268     140272 
-ERR:          1
-MIS:          0
-
---------------090505040608030900070801--
-
+|  documentation for the 82801AA and 82801AB datasheet). 

@@ -1,59 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262149AbVGFPvr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262240AbVGFPyY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262149AbVGFPvr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 11:51:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262119AbVGFPvq
+	id S262240AbVGFPyY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 11:54:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262218AbVGFPyX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 11:51:46 -0400
-Received: from [203.171.93.254] ([203.171.93.254]:48547 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S262263AbVGFLkF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 07:40:05 -0400
-Subject: Re: [PATCH] [26/48] Suspend2 2.1.9.8 for 2.6.12:
-	603-suspend2_common-headers.patch
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Pekka Enberg <penberg@cs.helsinki.fi>
-In-Reply-To: <84144f0205070603223790e4df@mail.gmail.com>
-References: <11206164393426@foobar.com> <11206164424053@foobar.com>
-	 <84144f0205070603223790e4df@mail.gmail.com>
-Content-Type: text/plain
-Organization: Cycades
-Message-Id: <1120650075.4860.212.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Wed, 06 Jul 2005 21:41:15 +1000
-Content-Transfer-Encoding: 7bit
+	Wed, 6 Jul 2005 11:54:23 -0400
+Received: from mail.bencastricum.nl ([213.84.203.196]:36785 "EHLO
+	bencastricum.nl") by vger.kernel.org with ESMTP id S262314AbVGFLoy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Jul 2005 07:44:54 -0400
+Date: Wed, 6 Jul 2005 13:44:05 +0200 (CEST)
+From: Ben Castricum <benc@bencastricum.nl>
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.6.13-rc2 Compile error in bt87x.c
+Message-ID: <Pine.LNX.4.58.0507061342100.4612@gateway.bencastricum.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-bencastricum-MailScanner-Information: Please contact the ISP for more information
+X-bencastricum-MailScanner: Found to be clean
+X-MailScanner-From: benc@bencastricum.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
 
-On Wed, 2005-07-06 at 20:22, Pekka Enberg wrote:
-> > diff -ruNp 604-utility-header.patch-old/kernel/power/suspend2_core/utility.h 604-utility-header.patch-new/kernel/power/suspend2_core/utility.h
-> > --- 604-utility-header.patch-old/kernel/power/suspend2_core/utility.h   1970-01-01 10:00:00.000000000 +1000
-> > +++ 604-utility-header.patch-new/kernel/power/suspend2_core/utility.h   2005-07-05 23:48:59.000000000 +1000
-> 
-> Please do move these.
+  CC [M]  sound/pci/bt87x.o
+sound/pci/bt87x.c: In function `snd_bt87x_detect_card':
+sound/pci/bt87x.c:807: `driver' undeclared (first use in this function)
+sound/pci/bt87x.c:807: (Each undeclared identifier is reported only once
+sound/pci/bt87x.c:807: for each function it appears in.)
+sound/pci/bt87x.c: At top level:
+sound/pci/bt87x.c:910: `driver' used prior to declaration
+make[2]: *** [sound/pci/bt87x.o] Error 1
+make[1]: *** [sound/pci] Error 2
+make: *** [sound] Error 2
 
-Okay.
+My .config can be found at http://www.bencastricum.nl/.config
 
-> > +
-> > +extern int suspend_snprintf(char * buffer, int buffer_size, const char *fmt, ...);
-> 
-> What's wrong with regular snprintf?
-
-If there's a buffer overrun, it returns the number of bytes it wanted to
-use, not the number actually used.
-
-Regards,
-
-Nigel
--- 
-Evolution.
-Enumerate the requirements.
-Consider the interdependencies.
-Calculate the probabilities.
-Be amazed that people believe it happened. 
-
+Hope this helps,
+Ben

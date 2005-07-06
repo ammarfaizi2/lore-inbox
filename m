@@ -1,42 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262530AbVGFVmz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262555AbVGFVnG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262530AbVGFVmz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 17:42:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262516AbVGFVjs
+	id S262555AbVGFVnG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 17:43:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262546AbVGFVnC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 17:39:48 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:3795 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262530AbVGFVjY (ORCPT
+	Wed, 6 Jul 2005 17:43:02 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:15059 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261272AbVGFVkX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 17:39:24 -0400
-Date: Wed, 6 Jul 2005 14:39:12 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jeff Mahoney <jeffm@suse.com>
-cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       benh@kernel.crashing.org
-Subject: Re: [PATCH 2/3 (updated)] openfirmware: add sysfs nodes for open
- firmware devices
-In-Reply-To: <Pine.LNX.4.58.0507061346440.4159@g5.osdl.org>
-Message-ID: <Pine.LNX.4.58.0507061438080.3847@g5.osdl.org>
-References: <20050706192627.GA17492@locomotive.unixthugs.org>
- <Pine.LNX.4.58.0507061241010.3570@g5.osdl.org> <Pine.LNX.4.58.0507061317250.4114@g5.osdl.org>
- <42CC4177.9020607@suse.com> <Pine.LNX.4.58.0507061346440.4159@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 6 Jul 2005 17:40:23 -0400
+Date: Wed, 6 Jul 2005 14:41:14 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Nick Wilson <njw@osdl.org>
+Cc: trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org,
+       nfs@lists.sourceforge.net
+Subject: Re: [PATCH] NFS: fix client hang due to race condition
+Message-Id: <20050706144114.37bd05be.akpm@osdl.org>
+In-Reply-To: <20050706212744.GC20698@njw.pdx.osdl.net>
+References: <20050706212744.GC20698@njw.pdx.osdl.net>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 6 Jul 2005, Linus Torvalds wrote:
+Nick Wilson <njw@osdl.org> wrote:
+>
+> The flags field in struct nfs_inode is protected by the BKL. This patch
+> fixes a couple places where the lock is not obtained before changing the
+> flags.
 > 
-> However, I don't think it was your patches after all.  I'm still hunting, 
-> but it might even have been a totally unrelated "yum upgrade". 
 
-Confirmed. Sorry for the noise. The upgrade had apparently decided to 
-replace my xorg.conf with a "failsafe" one.
+Yeah, nasty.  Well caught.
 
-Patches applied and pushed out.
+>  		}
+>  		invalidate_inode_pages2(mapping);
+> +		lock_kernel();
+>  		nfsi->flags &= ~NFS_INO_INVALID_DATA;
+> +		unlock_kernel();
 
-		Linus
+Adding new lock_kernel()s is a bit retro.  We might want to use a per-inode
+lock for this, or set_bit/clear_bit and friends.
+
+If we choose to use a per-inode lock then it is legal to use inode.i_lock
+(coz I said) as long as no locks are nested inside it.  i_lock's mandate is
+"a general-purpose innermost per-inode lock".

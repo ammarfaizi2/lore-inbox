@@ -1,43 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262256AbVGFQ4T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262257AbVGFQzr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262256AbVGFQ4T (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 12:56:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262334AbVGFQux
+	id S262257AbVGFQzr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 12:55:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262303AbVGFQvO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 12:50:53 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:48039 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S262256AbVGFMbD (ORCPT
+	Wed, 6 Jul 2005 12:51:14 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:52647 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S262257AbVGFMdE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 08:31:03 -0400
-Message-Id: <200507060255.j662tndQ005308@laptop11.inf.utfsm.cl>
-To: David Masover <ninja@slaphack.com>
-cc: Hans Reiser <reiser@namesys.com>, Hubert Chan <hubert@uhoreg.ca>,
-       Ross Biro <ross.biro@gmail.com>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Kyle Moffett <mrmacman_g4@mac.com>, Valdis.Kletnieks@vt.edu,
+	Wed, 6 Jul 2005 08:33:04 -0400
+Message-Id: <200507060251.j662p7OC005227@laptop11.inf.utfsm.cl>
+To: Hubert Chan <hubert@uhoreg.ca>
+cc: Chet Hosey <chosey@nauticom.net>, Kevin Bowen <kevin@ucsd.edu>,
+       Hans Reiser <reiser@namesys.com>, Kyle Moffett <mrmacman_g4@mac.com>,
+       David Masover <ninja@slaphack.com>, Valdis.Kletnieks@vt.edu,
        Lincoln Dale <ltd@cisco.com>, Gregory Maxwell <gmaxwell@gmail.com>,
        Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
        Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
        ReiserFS List <reiserfs-list@namesys.com>
 Subject: Re: reiser4 plugins 
-In-Reply-To: Message from David Masover <ninja@slaphack.com> 
-   of "Tue, 05 Jul 2005 18:00:56 EST." <42CB1128.6000000@slaphack.com> 
+In-Reply-To: Message from Hubert Chan <hubert@uhoreg.ca> 
+   of "Tue, 05 Jul 2005 16:55:33 -0400." <87pstxynui.fsf@evinrude.uhoreg.ca> 
 X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Tue, 05 Jul 2005 22:55:49 -0400
+Date: Tue, 05 Jul 2005 22:51:07 -0400
 From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Wed, 06 Jul 2005 08:30:02 -0400 (CLT)
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Wed, 06 Jul 2005 08:30:03 -0400 (CLT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Masover <ninja@slaphack.com> wrote:
+Hubert Chan <hubert@uhoreg.ca> wrote:
+> On Fri, 01 Jul 2005 03:41:00 -0400, Chet Hosey <chosey@nauticom.net> said:
+> > Horst von Brand wrote:
+> >> And who says that a normal user isn't allowed to annotate each and
+> >> every file with its purpose or something else?
+
+> Explain how you currently allow users to annotate arbitrary files.
+
+By keeping annotations /outside/ the files.
 
 [...]
 
-> Just don't allow user-created hardlinks inside either metafs (/meta) or
-> the magical meta directory inside files.
+> The situation is even better with file-as-dir.  If the administrator
+> wants to allow users to edit the description metadata for the file foo,
+> the administrator can set the appropriate permissions for
+> foo/.../description, and keep foo read-only.
 
-And what is it useful for, after its advantage was that it was /exactly/
-like regular files &c, and now it is severely crippled?
+So now root is responsible in exquisite detail for random other users being
+able to keep info about my files?
+
+[...]
+
+> Actually, you could use something like unionfs to allow users to keep
+> their own annotations without affecting everyone else's.
+
+Again, root has to mount that stuff for each and every user?
 -- 
 Dr. Horst H. von Brand                   User #22616 counter.li.org
 Departamento de Informatica                     Fono: +56 32 654431

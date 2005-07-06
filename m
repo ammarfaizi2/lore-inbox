@@ -1,48 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262377AbVGFW3v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262512AbVGFWqE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262377AbVGFW3v (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 18:29:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262512AbVGFW25
+	id S262512AbVGFWqE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 18:46:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261718AbVGFWop
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 18:28:57 -0400
-Received: from mail.kroah.org ([69.55.234.183]:47509 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262333AbVGFWS1 (ORCPT
+	Wed, 6 Jul 2005 18:44:45 -0400
+Received: from vsmtp3alice.tin.it ([212.216.176.143]:21493 "EHLO vsmtp3.tin.it")
+	by vger.kernel.org with ESMTP id S262463AbVGFWc0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 18:18:27 -0400
-Date: Wed, 6 Jul 2005 15:18:18 -0700
-From: Greg KH <greg@kroah.com>
-To: Mike Snitzer <snitzer@gmail.com>
-Cc: Kay Sievers <kay.sievers@vrfy.org>, Robert Love <rml@novell.com>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] kernel sysfs events layer
-Message-ID: <20050706221818.GA6696@kroah.com>
-References: <1093989513.4815.45.camel@betsy.boston.ximian.com> <20040831150645.4aa8fd27.akpm@osdl.org> <1093989924.4815.56.camel@betsy.boston.ximian.com> <20040902083407.GC3191@kroah.com> <1094142321.2284.12.camel@betsy.boston.ximian.com> <20040904005433.GA18229@kroah.com> <1094353088.2591.19.camel@localhost> <20040905121814.GA1855@vrfy.org> <20040906020601.GA3199@vrfy.org> <170fa0d2050706150255ec7019@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <170fa0d2050706150255ec7019@mail.gmail.com>
-User-Agent: Mutt/1.5.8i
+	Wed, 6 Jul 2005 18:32:26 -0400
+Message-ID: <42CC5C51.80507@gmail.com>
+Date: Thu, 07 Jul 2005 00:33:53 +0200
+From: Davide Vecchio <davide.vecchio@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: it, it-it, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, dtor_core@ameritech.net,
+       rmiller@duskglow.com
+Subject: Problem with PS/2 Logitech WheelMouse  - some more details
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 06, 2005 at 04:02:35PM -0600, Mike Snitzer wrote:
-> So this is a blast from the past
+Hi guys,
+sorry to bother you again but tring to collect more details, browing 
+into the kernel version change log files  I've found that (it can be a 
+coincidence) but the lates kernel version I was able to re-compile by 
+myself that doesn't brake my Logitech PS/2  Wheel working  support is 
+the 2.6.7. At that version something was changed on the PS/2 driver... 
+and I can't get it working anymore ....
+Hope this can help to find out any reason ...
+Best Regards,
+ Davide
 
-Yes it is, why are you trying to argue about GPL issues on lkml?
 
-> but I'd like to understand why kobject_uevent and kbject_uevent_atomic
-> are EXPORT_SYMBOL_GPL rather than EXPORT_SYMBOL.
-
-Because only GPL code should be causing kevents.
-
-> During the evoloution from a separate kevents over netlink (rml, kay,
-> arjan) then folding it in to kobject with hotplug (kay, greg kh, etc)
-> it went from GPL to not, as listed below in one of kay's early
-> patches, back to EXPORT_SYMBOL_GPL as it stands today.
-
-I asked that it be put back.  Is there a problem with this?  Do you have
-non-GPL kernel code that wants to use this interface?
-
-thanks,
-
-greg k-h

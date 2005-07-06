@@ -1,64 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261657AbVGFJFu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262250AbVGFJKb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261657AbVGFJFu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 05:05:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262187AbVGFJFt
+	id S262250AbVGFJKb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 05:10:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262151AbVGFJKb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 05:05:49 -0400
-Received: from mail.kroah.org ([69.55.234.183]:33413 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261657AbVGFHND (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 03:13:03 -0400
-Date: Tue, 5 Jul 2005 22:26:23 -0700
-From: Greg KH <greg@kroah.com>
-To: Michal Jaegermann <michal@harddata.com>
-Cc: Zan Lynx <zlynx@acm.org>, linux-kernel@vger.kernel.org
-Subject: Re: A "new driver model" and EXPORT_SYMBOL_GPL question
-Message-ID: <20050706052623.GA9881@kroah.com>
-References: <20050703171202.A7210@mail.harddata.com> <20050704054441.GA19936@kroah.com> <1120600243.27600.75.camel@localhost> <20050705215739.GA2635@kroah.com> <20050705223743.A28905@mail.harddata.com>
+	Wed, 6 Jul 2005 05:10:31 -0400
+Received: from lyle.provo.novell.com ([137.65.81.174]:1228 "EHLO
+	lyle.provo.novell.com") by vger.kernel.org with ESMTP
+	id S262123AbVGFHRe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Jul 2005 03:17:34 -0400
+Date: Wed, 6 Jul 2005 00:17:30 -0700
+From: Greg KH <gregkh@suse.de>
+To: John Lenz <lenz@cs.wisc.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] add class_interface pointer to add and remove functions
+Message-ID: <20050706071730.GA18669@suse.de>
+References: <20050630060206.GA23321@kroah.com> <34128.127.0.0.1.1120152169.squirrel@localhost> <20050630194540.GA15389@suse.de> <37114.127.0.0.1.1120166322.squirrel@localhost> <20050703205955.GB17461@suse.de> <41050.127.0.0.1.1120617353.squirrel@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050705223743.A28905@mail.harddata.com>
+In-Reply-To: <41050.127.0.0.1.1120617353.squirrel@localhost>
 User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 05, 2005 at 10:37:43PM -0600, Michal Jaegermann wrote:
-> On Tue, Jul 05, 2005 at 02:57:40PM -0700, Greg KH wrote:
-> > On Tue, Jul 05, 2005 at 03:50:43PM -0600, Zan Lynx wrote:
-> > > Sourced from here:
-> > > http://hulllug.principalhosting.net/archive/index.php/t-52440.html
-> > 
-> > No, that is not the same topic or thread.
+On Tue, Jul 05, 2005 at 09:35:53PM -0500, John Lenz wrote:
+> On Sun, July 3, 2005 3:59 pm, Greg KH said:
+> > On Thu, Jun 30, 2005 at 04:18:42PM -0500, John Lenz wrote:
+> >> Here is a patch that updates every usage of class_interface I could
+> >> find.
+> >
+> > Do you have a patch that will take advantage of this change?  I would
+> > prefer to have that before accepting this patch.
+> >
 > 
-> Formally you are correct but from my POV this sounds casuistic and
-> fit for a patent lawyer.
-
-You must have have dealt with many patent lawyers.  I have, and they
-operate in a league of their own on how to intrepret the english
-language in patent claims :)
-
-> You were "recently advised not to change
-> these symbols" and you stated that you will not. So instead you did
-> an end run and you removed an old interface and introduced a
-> replacement; but this time with EXPORT_SYMBOL_GPL - which has the
-> same effect as what you told you will not do.
-
-I was "advised" to not do so, until the parties that were complaining
-about the change, had time to convert their code.  They then did so, and
-so, a number of MONTHS later, I did a rewrite of the code, which caused
-me to create new functions and delete old, non-used functions.  Those
-new functions were marked with the EXPORT_SYMBOL_GPL mark, as ALL of the
-driver core functions are.  This change had lived in the -mm tree for a
-number of months now, with no objections.
-
-> > If you know of any closed source code, using those functions, please put
-> > them in contact with me.
+> No, not for inclusion.  I needed this change while I was working on the
+> touchscreen driver for Zaurus (http://www.cs.wisc.edu/~lenz/zaurus).  I
+> have not yet completed that driver, and am currently working on some other
+> drivers.  So I won't really have a patch until I (or someone else, we can
+> always use volunteers!) goes back and tries to work on the touchscreen
+> driver.
 > 
-> Well, I gave an example in my original question.  Yes, I asked them
-> to contact you.  If they will do that I have no idea.
+> I just thought that since the class API is changing anyway, this API
+> change could come along.  Otherwise I will resubmit this patch when I (or
+> someone else) gets around to working on the touchscreen driver.
 
-Thanks for doing so.
+Yeah, I prefer to wait until someone uses it.  There's no reason we
+can't change the API any time we need to :)
+
+thanks,
 
 greg k-h

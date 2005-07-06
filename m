@@ -1,211 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262221AbVGFOPj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262291AbVGFOVp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262221AbVGFOPj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 10:15:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261794AbVGFOPj
+	id S262291AbVGFOVp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 10:21:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262282AbVGFOVp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 10:15:39 -0400
-Received: from nproxy.gmail.com ([64.233.182.199]:4329 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262295AbVGFKOh convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 06:14:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=sNdW9QxynIpKSks5fw3xsMwZZba6vkP2PyBlQjwdSFj75ODh2esK9vgomEXPyrz1wOUDpM/VsZiEDBO5RyJDcotYu6w0Z4EjwKOD4mXNx3crNONa4ulTyg3sQbOB3fs7jKxeftYrye0Y/kVy8yPtGauN3nXrA00OyW5YfvMsbvA=
-Message-ID: <84144f0205070603147c430dcd@mail.gmail.com>
-Date: Wed, 6 Jul 2005 13:14:36 +0300
-From: Pekka Enberg <penberg@gmail.com>
-Reply-To: Pekka Enberg <penberg@gmail.com>
-To: Nigel Cunningham <nigel@suspend2.net>
-Subject: Re: [PATCH] [34/48] Suspend2 2.1.9.8 for 2.6.12: 610-extent.patch
-Cc: linux-kernel@vger.kernel.org, Pekka Enberg <penberg@cs.helsinki.fi>
-In-Reply-To: <1120616443531@foobar.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <11206164393426@foobar.com> <1120616443531@foobar.com>
+	Wed, 6 Jul 2005 10:21:45 -0400
+Received: from mxout2.iskon.hr ([213.191.128.16]:43483 "HELO mxout2.iskon.hr")
+	by vger.kernel.org with SMTP id S262291AbVGFKNG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Jul 2005 06:13:06 -0400
+X-Remote-IP: 213.191.142.123
+X-Remote-IP: 213.202.85.31
+Date: Wed, 6 Jul 2005 12:12:57 +0200
+From: Vid Strpic <vms@bofhlet.net>
+To: Stefano Rivoir <s.rivoir@gts.it>
+Cc: "Roberts-Thomson, James" <James.Roberts-Thomson@NBNZ.CO.NZ>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       "linux-usb-devel@lists.sourceforge.net" 
+	<linux-usb-devel@lists.sourceforge.net>
+Subject: Re: Kernel unable to read partition table on USB Memory Key
+Message-ID: <20050706101257.GH25884@home.bofhlet.net>
+Mail-Followup-To: Vid Strpic <vms@bofhlet.net>,
+	Stefano Rivoir <s.rivoir@gts.it>,
+	"Roberts-Thomson, James" <James.Roberts-Thomson@NBNZ.CO.NZ>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"linux-usb-devel@lists.sourceforge.net" <linux-usb-devel@lists.sourceforge.net>
+References: <40BC5D4C2DD333449FBDE8AE961E0C334F9364@psexc03.nbnz.co.nz> <42CA51E3.8030803@gts.it>
+In-Reply-To: <42CA51E3.8030803@gts.it>
+X-Operating-System: Linux 2.6.11
+X-Editor: VIM - Vi IMproved 6.3 (2004 June 7, compiled Jun 26 2004 15:03:59)
+X-I-came-from: scary devil monastery
+X-Politics: UNIX fundamentalist
+X-Face: -|!t[0Pql@=P`A=@?]]hx(Oh!2jK='NQO#A$ir7jYOC*/4DA~eH7XpA/:vM>M@GLqAYUg9$ n|mt)QK1=LZBL3sp?mL=lFuw3V./Q&XotFmCH<Rr(ugDuDx,mM*If&mJvqtb3BF7~~Guczc0!G0C`2 _A.v7)%SGk:.dgpOc1Ra^A$1wgMrW=66X|Lyk
+User-Agent: Mutt/1.5.9i
+X-Sanitizer: This message has been sanitized!
+X-Sanitizer-URL: http://mailtools.anomy.net/
+X-Sanitizer-Rev: $Id: Sanitizer.pm,v 1.87 2004/05/07 17:42:12 bre Exp $
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="MIMEStream=_0+283920_68302748117508_859229203"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/6/05, Nigel Cunningham <nigel@suspend2.net> wrote:
-> diff -ruNp 611-io.patch-old/kernel/power/suspend2_core/io.c 611-io.patch-new/kernel/power/suspend2_core/io.c
-> --- 611-io.patch-old/kernel/power/suspend2_core/io.c    1970-01-01 10:00:00.000000000 +1000
-> +++ 611-io.patch-new/kernel/power/suspend2_core/io.c    2005-07-05 23:48:59.000000000 +1000
-> @@ -0,0 +1,1006 @@
-> +/*
-> + * kernel/power/io.c
-> + *
-> + * Copyright (C) 1998-2001 Gabor Kuti <seasons@fornax.hu>
-> + * Copyright (C) 1998,2001,2002 Pavel Machek <pavel@suse.cz>
-                                           ^
 
-Whitespace damage (appears elsewhere too).
+--MIMEStream=_0+283920_68302748117508_859229203
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="GpGaEY17fSl8rd50"
+Content-Disposition: inline
 
-> + * Copyright (C) 2002-2003 Florent Chabaud <fchabaud@free.fr>
-> + * Copyright (C) 2002-2005 Nigel Cunningham <nigel@suspend2.net>
-> + *
 
-[snip]
+--GpGaEY17fSl8rd50
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> +       pc = size / 5;
-> +
-> +       /* Write the data */
-> +       for (i=0; i<size; i++) {
-> +               int was_mapped = 0;
-> +               struct page * page = pfn_to_page(current_page_index);
-> +
-> +               /* Status update */
-> +               if ((i+base) >= nextupdate)
-> +                       nextupdate = suspend2_update_status(i + base, barmax,
-> +                               " %d/%d MB ", MB(base+i+1), MB(barmax));
-> +
-> +               if ((i + 1) == pc) {
-> +                       printk("%d%%...", 20 * step);
-> +                       step++;
-> +                       pc = size * step / 5;
-> +               }
-> +
-> +               /* Write */
-> +               was_mapped = suspend_map_kernel_page(page, 1);
-> +               ret = first_filter->ops.filter.write_chunk(page);
-> +               if (!was_mapped)
-> +                       suspend_map_kernel_page(page, 0);
-> +
-> +               if (ret) {
-> +                       printk("Write chunk returned %d.\n", ret);
-> +                       abort_suspend("Failed to write a chunk of the "
-> +                                       "image.");
-> +                       error = -1;
-> +                       goto write_pageset_free_buffers;
-> +               }
-> +
-> +               /* Interactivity */
-> +               check_shift_keys(0, NULL);
-> +
-> +               if (TEST_RESULT_STATE(SUSPEND_ABORTED)) {
+On Tue, Jul 05, 2005 at 11:24:51AM +0200, Stefano Rivoir wrote:
+> Roberts-Thomson, James wrote:
+> >I'm trying to diagnose an issue with a USB "Memory Key" (128Mb Flash dri=
+ve)
+> >on my workstation (i386 Linux 2.6.12 kernel, using udev 058).
+> >When connecting the key, the kernel fails to read the partition table, a=
+nd
+> >therefore the block device /dev/sda1 isn't created, so I can't mount the
+> >volume.  Calling "fdisk" manually, however, makes it all work.
+> >Bus 001 Device 004: ID 0ea0:2168 Ours Technology, Inc. Transcend JetFlash
+> >2.0
+> Just a "vote" for this: same USB key, same symptoms, same inability to=20
+> use the key: I can create the fs and use it, but once unmounted it won't=
+=20
+> be mounted anymore.
 
-Why is the above in upper case but test_action_state is in lower case?
+I have the same memory key (128Mb also), I didn't try it on recent 2.6,
+but on previous ones (like, 2.6.8 for example), I know it DID work...
+without problems... with factory partitioning though, I didn't
+repartition...
 
-> +                       abort_suspend("Aborting as requested.");
-> +                       error = -1;
-> +                       goto write_pageset_free_buffers;
-> +               }
-> +
-> +               /* Prepare next */
-> +               current_page_index = __get_next_bit_on(*pageflags, current_page_index);
-> +       }
-> +
-> +       printk("done.\n");
-> +
-> +       suspend2_update_status(base+size, barmax, " %d/%d MB ",
-> +                       MB(base+size), MB(barmax));
-> +
-> +write_pageset_free_buffers:
-> +
-> +       /* Cleanup other plugins */
-> +       list_for_each_entry(this_plugin, &suspend_plugins, plugin_list) {
-> +               if (this_plugin->disabled)
-> +                       continue;
-> +               if ((this_plugin->type == FILTER_PLUGIN) ||
-> +                   (this_plugin->type == WRITER_PLUGIN))
-> +                       continue;
-> +               if (this_plugin->write_cleanup)
-> +                       this_plugin->write_cleanup();
-> +       }
-> +
-> +       /* Flush data and cleanup */
-> +       list_for_each_entry(this_plugin, &suspend_filters, ops.filter.filter_list) {
-> +               if (this_plugin->disabled)
-> +                       continue;
-> +               if (this_plugin->write_cleanup)
-> +                       this_plugin->write_cleanup();
-> +       }
-> +       active_writer->write_cleanup();
-> +
-> +       /* Statistics */
-> +       end_time = jiffies;
-> +
-> +       if ((end_time - start_time) && (!TEST_RESULT_STATE(SUSPEND_ABORTED))) {
-> +               suspend_io_time[0][0] += size,
-> +               suspend_io_time[0][1] += (end_time - start_time);
-> +       }
-> +
-> +       return error;
-> +}
-> +
-> +/* read_pageset()
-> + *
-> + * Description:        Read a pageset from disk.
-> + * Arguments:  pagedir:        Pointer to the pagedir to be saved.
-> + *             whichtowrite:   Controls what debugging output is printed.
-> + *             overwrittenpagesonly: Whether to read the whole pageset or
-> + *             only part.
-> + * Returns:    Zero on success or -1 on failure.
-> + */
-> +
-> +static int read_pageset(struct pagedir * pagedir, int whichtoread,
-> +               int overwrittenpagesonly)
-> +{
-> +       int nextupdate = 0, result = 0, base = 0;
-> +       int start_time, end_time, finish_at = pagedir->pageset_size;
-> +       int barmax = pagedir1.pageset_size + pagedir2.pageset_size;
-> +       int i, pc, step = 1;
-> +       struct suspend_plugin_ops * this_plugin, * first_filter = get_next_filter(NULL);
-> +       dyn_pageflags_t *pageflags;
-> +       int current_page_index;
-> +
-> +       if (whichtoread == 1) {
-> +               suspend2_prepare_status(1, 1, "Reading kernel & process data...");
-> +               pageflags = &pageset1_copy_map;
-> +       } else {
-> +               suspend2_prepare_status(1, 0, "Reading caches...");
-> +               if (overwrittenpagesonly)
-> +                       barmax = finish_at = min(pageset1_size, pageset2_size);
-> +               else {
-> +                       base = pagedir1.pageset_size;
-> +               }
-> +               pageflags = &pageset2_map;
-> +       }
-> +
-> +       start_time=jiffies;
-> +
-> +       /* Initialise page transformers */
-> +       list_for_each_entry(this_plugin, &suspend_filters, ops.filter.filter_list) {
-> +               if (this_plugin->disabled)
-> +                       continue;
-> +               if (this_plugin->read_init &&
-> +                               this_plugin->read_init(whichtoread)) {
-> +                       abort_suspend("Failed to initialise a filter.");
-> +                       result = 1;
-> +                       goto read_pageset_free_buffers;
-> +               }
-> +       }
-> +
-> +       /* Initialise writer */
-> +       if (active_writer->read_init(whichtoread)) {
-> +               abort_suspend("Failed to initialise the writer.");
-> +               result = 1;
-> +               goto read_pageset_free_buffers;
-> +       }
-> +
-> +       /* Initialise other plugins */
-> +       list_for_each_entry(this_plugin, &suspend_plugins, plugin_list) {
-> +               if (this_plugin->disabled)
-> +                       continue;
-> +               if ((this_plugin->type == FILTER_PLUGIN) ||
-> +                   (this_plugin->type == WRITER_PLUGIN))
-> +                       continue;
-> +               if (this_plugin->read_init)
-> +                       if (this_plugin->read_init(whichtoread)) {
-> +                               SET_RESULT_STATE(SUSPEND_ABORTED);
-> +                               goto read_pageset_free_buffers;
-> +                       }
-> +       }
-> +
-> +       current_page_index = __get_next_bit_on(*pageflags, -1);
-> +
-> +       pc = finish_at / 5;
+--=20
+           vms@bofhlet.net, IRC:*@Martin, /bin/zsh. C|N>K
+Linux moria 2.6.11 #1 Wed Mar 9 19:08:59 CET 2005 i686
+ 12:10:51 up 18 days, 17:21,  1 user,  load average: 0.04, 0.49, 0.68
 
-What's the magic number 5 that pops up everywhere?
+--GpGaEY17fSl8rd50
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.7 (GNU/Linux)
+
+iD8DBQFCy66pq1AzG0/iPGMRAhlGAKDI7gNQsTFqIkFrN+B6mZJU7ycPzwCfRZBw
+/eQ3Nvsek2FjMGdr0rAeIKQ=
+=cdfb
+-----END PGP SIGNATURE-----
+
+--GpGaEY17fSl8rd50--
+--MIMEStream=_0+283920_68302748117508_859229203
+Content-Type: text/sanitizer-log; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: attachment; filename="sanitizer.log"
+
+This message has been 'sanitized'.  This means that potentially
+dangerous content has been rewritten or removed.  The following
+log describes which actions were taken.
+
+Sanitizer (start="1120644779"):
+  Forcing message to be multipart/mixed, to facilitate logging.
+
+
+Anomy 0.0.0 : Sanitizer.pm
+$Id: Sanitizer.pm,v 1.87 2004/05/07 17:42:12 bre Exp $
+
+--MIMEStream=_0+283920_68302748117508_859229203--

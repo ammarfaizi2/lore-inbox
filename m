@@ -1,53 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261576AbVGFFUe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261689AbVGFFUZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261576AbVGFFUe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 01:20:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262087AbVGFFUe
+	id S261689AbVGFFUZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 01:20:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262087AbVGFFUY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 01:20:34 -0400
-Received: from fsmlabs.com ([168.103.115.128]:60062 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S261576AbVGFDan (ORCPT
+	Wed, 6 Jul 2005 01:20:24 -0400
+Received: from [213.184.187.37] ([213.184.187.37]:42756 "EHLO raad.intranet")
+	by vger.kernel.org with ESMTP id S261689AbVGFD2W (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Jul 2005 23:30:43 -0400
-Date: Tue, 5 Jul 2005 21:34:53 -0600 (MDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Nigel Cunningham <nigel@suspend2.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [7/48] Suspend2 2.1.9.8 for 2.6.12:
- 352-disable-pdflush-during-suspend.patch
-In-Reply-To: <11206164401583@foobar.com>
-Message-ID: <Pine.LNX.4.61.0507052134290.2149@montezuma.fsmlabs.com>
-References: <11206164401583@foobar.com>
+	Tue, 5 Jul 2005 23:28:22 -0400
+Message-Id: <200507060326.GAA25248@raad.intranet>
+From: "Al Boldi" <a1426z@gawab.com>
+To: "'Linus Torvalds'" <torvalds@osdl.org>,
+       "'Grant Coady'" <grant_lkml@dodo.com.au>
+Cc: "'Jens Axboe'" <axboe@suse.de>,
+       "'Ondrej Zary'" <linux@rainbow-software.org>,
+       "=?windows-1256?Q?'Andr=E9_Tomt'?=" <andre@tomt.net>,
+       "'Bartlomiej Zolnierkiewicz'" <bzolnier@gmail.com>,
+       <linux-ide@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: RE: [git patches] IDE update
+Date: Wed, 6 Jul 2005 06:26:03 +0300
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="windows-1256"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+In-Reply-To: <Pine.LNX.4.58.0507051748540.3570@g5.osdl.org>
+Thread-Index: AcWBxGnjRVIkuePeQnCOyjecro3VlgAFRGIg
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Jul 2005, Nigel Cunningham wrote:
+Linus Torvalds wrote: {
+On Wed, 6 Jul 2005, Grant Coady wrote:
+> 
+> Executive Summary
 
-> diff -ruNp 353-disable-highmem-tlb-flush-for-copyback.patch-old/mm/highmem.c 353-disable-highmem-tlb-flush-for-copyback.patch-new/mm/highmem.c
-> --- 353-disable-highmem-tlb-flush-for-copyback.patch-old/mm/highmem.c	2005-06-20 11:47:32.000000000 +1000
-> +++ 353-disable-highmem-tlb-flush-for-copyback.patch-new/mm/highmem.c	2005-07-04 23:14:20.000000000 +1000
-> @@ -26,6 +26,7 @@
->  #include <linux/init.h>
->  #include <linux/hash.h>
->  #include <linux/highmem.h>
-> +#include <linux/suspend.h>
->  #include <asm/tlbflush.h>
->  
->  static mempool_t *page_pool, *isa_page_pool;
-> @@ -95,7 +96,10 @@ static void flush_all_zero_pkmaps(void)
->  
->  		set_page_address(page, NULL);
->  	}
-> -	flush_tlb_kernel_range(PKMAP_ADDR(0), PKMAP_ADDR(LAST_PKMAP));
-> +	if (test_suspend_state(SUSPEND_FREEZE_SMP))
-> +		__flush_tlb();
-> +	else
-> +		flush_tlb_kernel_range(PKMAP_ADDR(0), PKMAP_ADDR(LAST_PKMAP));
->  }
->  
->  static inline unsigned long map_new_virtual(struct page *page)
+Btw, can you try this same thing (or at least a subset) with a large file on
+a filesystem? Does that show the same pattern, or is it always just the raw
+device?
+}
 
-What state are the other processors in when you hit this path?
+Linus,
+Cat /dev/hda > /dev/null and cat /tmp/tst.dsk > /dev/null show the same
+symptoms.
+The problem shows most when the cpu is slow and the hd is fast.
+When the cpu is fast and the hd is slow the cpu will make up for lost cycles
+and the problem will not show!
+
 

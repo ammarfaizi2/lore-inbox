@@ -1,187 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261701AbVGFHsU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262064AbVGFHsU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261701AbVGFHsU (ORCPT <rfc822;willy@w.ods.org>);
+	id S262064AbVGFHsU (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 6 Jul 2005 03:48:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262089AbVGFHrv
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262144AbVGFHsM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 03:47:51 -0400
-Received: from nproxy.gmail.com ([64.233.182.200]:40352 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262064AbVGFGSp convert rfc822-to-8bit
+	Wed, 6 Jul 2005 03:48:12 -0400
+Received: from yue.linux-ipv6.org ([203.178.140.15]:9999 "EHLO
+	yue.st-paulia.net") by vger.kernel.org with ESMTP id S262147AbVGFGZz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 02:18:45 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=cG0XMZlrNgCaEpr3zE5ygxzWtE+PP9Ly/UqmJaSEIUI5GNHtnPniE89+Q54INatE3Z+wjr8jbtfYbBBeIbgVPNbjrGDT7XWItN4WGR6OPfa3q3xtZHLVLf00QFKGeP/SLDXhiwS+qK5fhjGtjUeOq7jOxRDSqx0j9ez+byG8Ows=
-Message-ID: <84144f02050705231878434225@mail.gmail.com>
-Date: Wed, 6 Jul 2005 09:18:37 +0300
-From: Pekka Enberg <penberg@gmail.com>
-Reply-To: Pekka Enberg <penberg@gmail.com>
-To: Nigel Cunningham <nigel@suspend2.net>
-Subject: Re: [PATCH] [43/48] Suspend2 2.1.9.8 for 2.6.12: 619-userspace-nofreeze.patch
-Cc: linux-kernel@vger.kernel.org, Pekka Enberg <penberg@cs.helsinki.fi>
-In-Reply-To: <1120616444351@foobar.com>
+	Wed, 6 Jul 2005 02:25:55 -0400
+Date: Wed, 06 Jul 2005 15:26:27 +0900 (JST)
+Message-Id: <20050706.152627.68274440.yoshfuji@linux-ipv6.org>
+To: seto.hidetoshi@jp.fujitsu.com
+Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
+       tony.luck@intel.com, linas@austin.ibm.com, benh@kernel.crashing.org,
+       tlnguyen@snoqualmie.dp.intel.com, linux-pci@atrey.karlin.mff.cuni.cz,
+       linuxppc64-dev@ozlabs.org, yoshfuji@linux-ipv6.org
+Subject: Re: [PATCH 2.6.13-rc1 01/10] IOCHK interface for I/O error
+ handling/detecting
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <42CB63B2.6000505@jp.fujitsu.com>
+References: <42CB63B2.6000505@jp.fujitsu.com>
+Organization: USAGI/WIDE Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <11206164393426@foobar.com> <1120616444351@foobar.com>
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/6/05, Nigel Cunningham <nigel@suspend2.net> wrote:
-> diff -ruNp 620-userui-header.patch-old/kernel/power/suspend2_core/ui.c 620-userui-header.patch-new/kernel/power/suspend2_core/ui.c
-> --- 620-userui-header.patch-old/kernel/power/suspend2_core/ui.c 1970-01-01 10:00:00.000000000 +1000
+In article <42CB63B2.6000505@jp.fujitsu.com> (at Wed, 06 Jul 2005 13:53:06 +0900), Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com> says:
 
-Is a directory this deep really necessary? Please consider putting
-this under kernel/power/.
-
-> +++ 620-userui-header.patch-new/kernel/power/suspend2_core/ui.c 2005-07-05 23:48:59.000000000 +1000
-> @@ -0,0 +1,1186 @@
-> +/*
-> + * kernel/power/ui.c
-> + *
-> + * Copyright (C) 1998-2001 Gabor Kuti <seasons@fornax.hu>
-> + * Copyright (C) 1998,2001,2002 Pavel Machek <pavel@suse.cz>
-> + * Copyright (C) 2002-2003 Florent Chabaud <fchabaud@free.fr>
-> + * Copyright (C) 2002-2005 Nigel Cunningham <nigel@suspend2.net>
-> + *
-> + * This file is released under the GPLv2.
-> + *
-> + * Routines for Software Suspend's user interface.
-> + *
-> + * The user interface code talks to a userspace program via a
-> + * netlink socket.
-> + *
-> + * The kernel side:
-> + * - starts the userui program;
-> + * - sends text messages and progress bar status;
-> + *
-> + * The user space side:
-> + * - passes messages regarding user requests (abort, toggle reboot etc)
-> + *
+> Index: linux-2.6.13-rc1/lib/iomap.c
+> ===================================================================
+> --- linux-2.6.13-rc1.orig/lib/iomap.c
+> +++ linux-2.6.13-rc1/lib/iomap.c
+> @@ -230,3 +230,9 @@ void pci_iounmap(struct pci_dev *dev, vo
+>   }
+>   EXPORT_SYMBOL(pci_iomap);
+>   EXPORT_SYMBOL(pci_iounmap);
+> +
+> +#ifndef HAVE_ARCH_IOMAP_CHECK
+> +/* Since generic funcs are inlined and defined in header, just export */
+> +EXPORT_SYMBOL(iochk_clear);
+> +EXPORT_SYMBOL(iochk_read);
+> +#endif
+> Index: linux-2.6.13-rc1/include/asm-generic/iomap.h
+> ===================================================================
+> --- linux-2.6.13-rc1.orig/include/asm-generic/iomap.h
+> +++ linux-2.6.13-rc1/include/asm-generic/iomap.h
+:
 > + */
-> +#define SUSPEND_CONSOLE_C
+> +#ifdef HAVE_ARCH_IOMAP_CHECK
+> +extern void iochk_init(void);
+> +extern void iochk_clear(iocookie *cookie, struct pci_dev *dev);
+> +extern int iochk_read(iocookie *cookie);
+> +#else
+> +static inline void iochk_init(void) {}
+> +static inline void iochk_clear(iocookie *cookie, struct pci_dev *dev) {}
+> +static inline int iochk_read(iocookie *cookie) { return 0; }
+> +#endif
 > +
-> +#include "../power.h"
+>   #endif
 
-Please either move this file under kernel/power/ or move the header to
-include/linux/.
+It looks strange to me.
+You cannot export "static inline" functions.
+You can export iochk_{init,clear,read} only
+if HAVE_ARCH_IOMAP_CHECK is defined.
 
-> +void s2_userui_message(unsigned long section, unsigned long level,
-> +               int normally_logged,
-> +               const char *fmt, va_list args);
-> +unsigned long userui_update_progress(unsigned long value, unsigned long maximum,
-> +               const char *fmt, va_list args);
-> +void userui_prepare_console(void);
-> +void userui_cleanup_console(void);
-
-Shouldn't these be extern and in a header file?
-
-> +static int userui_nl_set_state(int n)
-> +{
-> +       /* Only let them change certain settings */
-> +       static const int suspend_action_mask =
-> +               (1 << SUSPEND_REBOOT) | (1 << SUSPEND_PAUSE) | (1 << SUSPEND_SLOW) |
-> +               (1 << SUSPEND_LOGALL) | (1 << SUSPEND_SINGLESTEP) |
-> +               (1 << SUSPEND_PAUSE_NEAR_PAGESET_END);
-> +
-> +       suspend_action = (suspend_action & (~suspend_action_mask)) |
-> +               (n & suspend_action_mask);
-> +
-> +       return 0;
-
-Always returns zero so drop the return value.
-
-> +}
-> +
-> +static int userui_nl_set_progress_granularity(int n)
-> +{
-> +       if (n < 1) n = 1;
-> +       progress_granularity = n;
-> +       return 0;
-
-Same here.
-
-> +}
-> +
-> +static int userui_user_rcv_msg(struct sk_buff *skb, struct nlmsghdr *nlh, int *errp)
-> +{
-> +       int type;
-> +       int *data;
-> +
-> +       *errp = 0;
-> +
-> +       if (!(nlh->nlmsg_flags & NLM_F_REQUEST))
-> +               return 0;
-> +
-> +       type = nlh->nlmsg_type;
-> +
-> +       /* A control message: ignore them */
-> +       if (type < USERUI_MSG_BASE)
-> +               return 0;
-> +
-> +       /* Unknown message: reply with EINVAL */
-> +       if (type >= USERUI_MSG_MAX) {
-> +               *errp = -EINVAL;
-> +               return -1;
-
-Just return the error value and errp can go away.
-
-> +static unsigned long userui_memory_needed(void)
-> +{
-> +       /* ball park figure of 128 pages */
-> +       return (128 * PAGE_SIZE);
-
-Where does this magic 128 come from?
-
-> +}
-> +
-> +unsigned long userui_update_progress(unsigned long value, unsigned long maximum,
-> +               const char *fmt, va_list args)
-> +{
-> +       static int last_step = -1;
-> +       struct userui_msg_params msg;
-> +       int bitshift = generic_fls(maximum) - 16;
-
-What's this magic 16?
-
-> +char suspend_wait_for_keypress(int timeout)
-> +{
-> +       int fd;
-> +       char key = '\0';
-> +       struct termios t, t_backup;
-> +
-> +       if (userui_pid != -1) {
-> +               wait_for_key_via_userui();
-> +               key = 32;
-
-What's this magic 32?
-
-> +/* abort_suspend
-> + *
-> + * Description: Begin to abort a cycle. If this wasn't at the user's request
-> + *             (and we're displaying output), tell the user why and wait for
-> + *             them to acknowledge the message.
-> + * Arguments:  A parameterised string (imagine this is printk) to display,
-> + *             telling the user why we're aborting.
-> + */
-
-Please use proper kerneldoc format instead of inventing your own.
-
-> +void suspend2_schedule_message(int message_number)
-> +{
-> +       struct waiting_message * new_message =
-> +               kmalloc(sizeof(struct waiting_message), GFP_ATOMIC);
-> +
-> +       if (!new_message) {
-> +               printk("Argh. Unable to allocate memory for "
-> +                               "scheduling the display of a message.\n");
-
-KERN_* constants please.
-
-> +extern asmlinkage long sys_ioctl(unsigned int fd, unsigned int cmd,
-> +               unsigned long arg);
-
-Looks as if you're doing quite a bit of sys_* calls in the kernel.
-Could this stuff be pushed out to userspace by any chance?
+--yoshfuji

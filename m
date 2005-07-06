@@ -1,76 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261823AbVGFFXH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261724AbVGFFXH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261823AbVGFFXH (ORCPT <rfc822;willy@w.ods.org>);
+	id S261724AbVGFFXH (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 6 Jul 2005 01:23:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261534AbVGFFVC
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262087AbVGFFUp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 01:21:02 -0400
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:58812 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S261644AbVGFDlt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Jul 2005 23:41:49 -0400
-Subject: Re: [PATCH] [7/48] Suspend2 2.1.9.8 for 2.6.12:
-	352-disable-pdflush-during-suspend.patch
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: Nigel Cunningham <nigel@suspend2.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0507052134290.2149@montezuma.fsmlabs.com>
-References: <11206164401583@foobar.com>
-	 <Pine.LNX.4.61.0507052134290.2149@montezuma.fsmlabs.com>
-Content-Type: text/plain
-Organization: Cycades
-Message-Id: <1120621388.4860.3.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Wed, 06 Jul 2005 13:43:08 +1000
-Content-Transfer-Encoding: 7bit
+	Wed, 6 Jul 2005 01:20:45 -0400
+Received: from fsmlabs.com ([168.103.115.128]:59806 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S261534AbVGFDam (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Jul 2005 23:30:42 -0400
+Date: Tue, 5 Jul 2005 21:35:10 -0600 (MDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Nigel Cunningham <nigel@suspend2.net>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>, shaohua.li@intel.com
+Subject: Re: [PATCH] [11/48] Suspend2 2.1.9.8 for 2.6.12: 401-e820-table-support.patch
+In-Reply-To: <11206164403490@foobar.com>
+Message-ID: <Pine.LNX.4.61.0507052131140.2149@montezuma.fsmlabs.com>
+References: <11206164403490@foobar.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Wed, 6 Jul 2005, Nigel Cunningham wrote:
 
-On Wed, 2005-07-06 at 13:34, Zwane Mwaikambo wrote:
-> On Wed, 6 Jul 2005, Nigel Cunningham wrote:
-> 
-> > diff -ruNp 353-disable-highmem-tlb-flush-for-copyback.patch-old/mm/highmem.c 353-disable-highmem-tlb-flush-for-copyback.patch-new/mm/highmem.c
-> > --- 353-disable-highmem-tlb-flush-for-copyback.patch-old/mm/highmem.c	2005-06-20 11:47:32.000000000 +1000
-> > +++ 353-disable-highmem-tlb-flush-for-copyback.patch-new/mm/highmem.c	2005-07-04 23:14:20.000000000 +1000
-> > @@ -26,6 +26,7 @@
-> >  #include <linux/init.h>
-> >  #include <linux/hash.h>
-> >  #include <linux/highmem.h>
-> > +#include <linux/suspend.h>
-> >  #include <asm/tlbflush.h>
-> >  
-> >  static mempool_t *page_pool, *isa_page_pool;
-> > @@ -95,7 +96,10 @@ static void flush_all_zero_pkmaps(void)
-> >  
-> >  		set_page_address(page, NULL);
-> >  	}
-> > -	flush_tlb_kernel_range(PKMAP_ADDR(0), PKMAP_ADDR(LAST_PKMAP));
-> > +	if (test_suspend_state(SUSPEND_FREEZE_SMP))
-> > +		__flush_tlb();
-> > +	else
-> > +		flush_tlb_kernel_range(PKMAP_ADDR(0), PKMAP_ADDR(LAST_PKMAP));
-> >  }
-> >  
-> >  static inline unsigned long map_new_virtual(struct page *page)
-> 
-> What state are the other processors in when you hit this path?
+> diff -ruNp 402-mtrr-remove-sysdev.patch-old/arch/i386/kernel/cpu/mtrr/main.c 402-mtrr-remove-sysdev.patch-new/arch/i386/kernel/cpu/mtrr/main.c
+> --- 402-mtrr-remove-sysdev.patch-old/arch/i386/kernel/cpu/mtrr/main.c	2005-06-20 11:46:42.000000000 +1000
+> +++ 402-mtrr-remove-sysdev.patch-new/arch/i386/kernel/cpu/mtrr/main.c	2005-07-04 23:14:19.000000000 +1000
+> @@ -166,7 +166,6 @@ static void ipi_handler(void *info)
+>  	atomic_dec(&data->count);
+>  	local_irq_restore(flags);
+>  }
+> -
+>  #endif
+>  
+>  /**
+> @@ -560,7 +559,7 @@ struct mtrr_value {
+>  
+>  static struct mtrr_value * mtrr_state;
+>  
+> -static int mtrr_save(struct sys_device * sysdev, u32 state)
+> +int mtrr_save(void)
+>  {
+>  	int i;
+>  	int size = num_var_ranges * sizeof(struct mtrr_value);
+> @@ -580,28 +579,27 @@ static int mtrr_save(struct sys_device *
+>  	return 0;
+>  }
 
-Looping in arch specific code, waiting for an atomic_t to tell them it's
-time to restore state and carry on. They're there the whole time CPU0 is
-restoring the image and highmem.
-
-Regards,
-
-Nigel
--- 
-Evolution.
-Enumerate the requirements.
-Consider the interdependencies.
-Calculate the probabilities.
-Be amazed that people believe it happened. 
-
+Isn't this covered by Shaohua Li's patch?

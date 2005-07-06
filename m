@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262093AbVGFGte@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262096AbVGFG4f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262093AbVGFGte (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 02:49:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262184AbVGFGra
+	id S262096AbVGFG4f (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 02:56:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262095AbVGFG4e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 02:47:30 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:48848 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S262093AbVGFFPw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 01:15:52 -0400
-Message-ID: <42CB69BD.1090607@jp.fujitsu.com>
-Date: Wed, 06 Jul 2005 14:18:53 +0900
+	Wed, 6 Jul 2005 02:56:34 -0400
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:25019 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S262108AbVGFFQt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Jul 2005 01:16:49 -0400
+Message-ID: <42CB6A0F.4080304@jp.fujitsu.com>
+Date: Wed, 06 Jul 2005 14:20:15 +0900
 From: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
 User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
 X-Accept-Language: en-us, en
@@ -22,7 +22,7 @@ CC: Linas Vepstas <linas@austin.ibm.com>,
        long <tlnguyen@snoqualmie.dp.intel.com>,
        linux-pci@atrey.karlin.mff.cuni.cz,
        linuxppc64-dev <linuxppc64-dev@ozlabs.org>
-Subject: [PATCH 2.6.13-rc1 08/10] IOCHK interface for I/O error handling/detecting
+Subject: [PATCH 2.6.13-rc1 09/10] IOCHK interface for I/O error handling/detecting
 References: <42CB63B2.6000505@jp.fujitsu.com>
 In-Reply-To: <42CB63B2.6000505@jp.fujitsu.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
@@ -30,26 +30,41 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[This is 8 of 10 patches, "iochk-08-mcadrv.patch"]
+[This is 9 of 10 patches, "iochk-09-cpeh.patch"]
 
-- Touching poisoned data become a MCA, so now it assumed as
-   a fatal error, directly will be a system down. But since
-   the MCA tells us a physical address - "where it happens",
-   we can do some action to survive.
+- SAL behavior doesn't affect only MCA. There are other
+   chances to call SAL_GET_STATE_INFO, that's when CMC, CPE,
+   and INIT is happen.
 
-   If the address is present in resource of "check-in" device,
-   it is guaranteed that its driver will call iochk_read in
-   the very near future, and that now the driver have a
-   ability and responsibility of recovery from the error.
+    - CMC(Corrected Machine Check) is for non-fatal, processor
+      local errors. Fortunately, calling SAL_GET_STATE_INFO for
+      CMC only collect data from a processor issued it, without
+      touching any bridge and its status. So, this is safe.
 
-   So if it was "check-in" address, what OS should do is mark
-   "check-in" devices and just restart usual works. Soon
-   the driver will notice the error and operate it properly.
+    - CPE(Corrected Platform Error) is for non-fatal, platform
+      related errors. Even it says corrected, but calling
+      SAL procedure for CPE touchs every bridge on the platform,
+      and "correct" bridge status that's bad for iochk works.
 
-   Note:
-     We can identify a affected device, but because of SAL
-     behavior (mentioned at 6 of 10), we need to mark all
-     "check-in" devices. Fix in future, if possible.
+    - INIT is a kind of system reset request, as far as I know.
+      So restarting from INIT is out of design, also iochk after
+      INIT is not required at this time.
+
+   In short, only MCA and CPE have the problem of SAL behavior.
+   One of the difference from MCA is that SAL will not gather
+   data before OS actually request it.
+
+   MCA:
+       1) SAL gathers data and keep it internally
+       2) OS gets control
+       3) if OS requests, SAL returns data gathered at beginning.
+   CPE:
+       1) OS gets control
+       2) OS request to SAL
+       3) SAL gathers data and return it to OS
+
+   Therefore, we can make CPE handler to care bridge states,
+   to check states before calling SAL procedure.
 
 Changes from previous one for 2.6.11.11:
    - (non)
@@ -58,127 +73,87 @@ Signed-off-by: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
 
 ---
 
-  arch/ia64/kernel/mca_drv.c  |   84 ++++++++++++++++++++++++++++++++++++++++++++
-  arch/ia64/lib/iomap_check.c |    1
-  2 files changed, 85 insertions(+)
+  arch/ia64/kernel/mca.c      |   21 +++++++++++++++++++++
+  arch/ia64/lib/iomap_check.c |   17 +++++++++++++++++
+  2 files changed, 38 insertions(+)
 
 Index: linux-2.6.13-rc1/arch/ia64/lib/iomap_check.c
 ===================================================================
 --- linux-2.6.13-rc1.orig/arch/ia64/lib/iomap_check.c
 +++ linux-2.6.13-rc1/arch/ia64/lib/iomap_check.c
-@@ -147,3 +147,4 @@ void clear_bridge_error(struct pci_dev *
+@@ -19,6 +19,7 @@ static int have_error(struct pci_dev *de
 
-  EXPORT_SYMBOL(iochk_read);
-  EXPORT_SYMBOL(iochk_clear);
-+EXPORT_SYMBOL(iochk_devices);	/* for MCA driver */
-Index: linux-2.6.13-rc1/arch/ia64/kernel/mca_drv.c
-===================================================================
---- linux-2.6.13-rc1.orig/arch/ia64/kernel/mca_drv.c
-+++ linux-2.6.13-rc1/arch/ia64/kernel/mca_drv.c
-@@ -35,6 +35,12 @@
+  void notify_bridge_error(struct pci_dev *bridge);
+  void clear_bridge_error(struct pci_dev *bridge);
++void save_bridge_error(void);
 
-  #include "mca_drv.h"
-
-+#ifdef CONFIG_IOMAP_CHECK
-+#include <linux/pci.h>
-+#include <asm/io.h>
-+extern struct list_head iochk_devices;
-+#endif
-+
-  /* max size of SAL error record (default) */
-  static int sal_rec_max = 10000;
-
-@@ -377,6 +383,79 @@ is_mca_global(peidx_table_t *peidx, pal_
-  	return MCA_IS_GLOBAL;
+  void iochk_init(void)
+  {
+@@ -145,6 +146,22 @@ void clear_bridge_error(struct pci_dev *
+  	}
   }
 
-+#ifdef CONFIG_IOMAP_CHECK
-+
-+/**
-+ * get_target_identifier - get address of target_identifier
-+ * @peidx:	pointer of index of processor error section
-+ *
-+ * Return value:
-+ *	addr if valid / 0 if not valid
-+ */
-+static u64 get_target_identifier(peidx_table_t *peidx)
++void save_bridge_error(void)
 +{
-+	sal_log_mod_error_info_t *smei;
-+
-+	smei = peidx_bus_check(peidx, 0);
-+	if (smei->valid.target_identifier)
-+		return (smei->target_identifier);
-+	return 0;
-+}
-+
-+/**
-+ * offending_addr_in_check - Check if the addr is in checking resource.
-+ * @addr:	address offending this MCA
-+ *
-+ * Return value:
-+ *	1 if in / 0 if out
-+ */
-+static int offending_addr_in_check(u64 addr)
-+{
-+	int i;
-+	struct pci_dev *tdev;
 +	iocookie *cookie;
 +
 +	if (list_empty(&iochk_devices))
-+		return 0;
++		return;
 +
++	/* mark devices if its root bus bridge have errors */
 +	list_for_each_entry(cookie, &iochk_devices, list) {
-+		tdev = cookie->dev;
-+		for (i = 0; i < PCI_ROM_RESOURCE; i++) {
-+		  if (tdev->resource[i].start <= addr
-+		      && addr <= tdev->resource[i].end)
-+			return 1;
-+		  if ((tdev->resource[i].flags
-+		      & (PCI_BASE_ADDRESS_SPACE|PCI_BASE_ADDRESS_MEM_TYPE_MASK))
-+		      == (PCI_BASE_ADDRESS_SPACE_MEMORY|PCI_BASE_ADDRESS_MEM_TYPE_64))
-+			i++;
-+		}
++		if (cookie->error)
++			continue;
++		if (have_error(cookie->host))
++			notify_bridge_error(cookie->host);
 +	}
-+	return 0;
 +}
 +
-+/**
-+ * pci_error_recovery - Check if MCA occur on transaction in iochk.
-+ * @peidx:	pointer of index of processor error section
-+ *
-+ * Return value:
-+ *	1 if error could be cought in driver / 0 if not
-+ */
-+static int pci_error_recovery(peidx_table_t *peidx)
-+{
-+	u64 addr;
-+
-+	addr = get_target_identifier(peidx);
-+	if (!addr)
-+		return 0;
-+
-+	if (offending_addr_in_check(addr))
-+		return 1;
-+
-+	return 0;
-+}
-+
-+#endif /* CONFIG_IOMAP_CHECK */
-+
-  /**
-   * recover_from_read_error - Try to recover the errors which type are "read"s.
-   * @slidx:	pointer of index of SAL error record
-@@ -399,6 +478,11 @@ recover_from_read_error(slidx_table_t *s
-  	if (!pbci->tv)
-  		return 0;
+  EXPORT_SYMBOL(iochk_read);
+  EXPORT_SYMBOL(iochk_clear);
+  EXPORT_SYMBOL(iochk_devices);	/* for MCA driver */
+Index: linux-2.6.13-rc1/arch/ia64/kernel/mca.c
+===================================================================
+--- linux-2.6.13-rc1.orig/arch/ia64/kernel/mca.c
++++ linux-2.6.13-rc1/arch/ia64/kernel/mca.c
+@@ -80,6 +80,8 @@
+  #ifdef CONFIG_IOMAP_CHECK
+  #include <linux/pci.h>
+  extern void notify_bridge_error(struct pci_dev *bridge);
++extern void save_bridge_error(void);
++extern spinlock_t iochk_lock;
+  #endif
 
-+#ifdef CONFIG_IOMAP_CHECK
-+	if (pci_error_recovery(peidx))
-+		return 1;
+  #if defined(IA64_MCA_DEBUG_INFO)
+@@ -288,11 +290,30 @@ ia64_mca_cpe_int_handler (int cpe_irq, v
+  	IA64_MCA_DEBUG("%s: received interrupt vector = %#x on CPU %d\n",
+  		       __FUNCTION__, cpe_irq, smp_processor_id());
+
++#ifndef CONFIG_IOMAP_CHECK
++
+  	/* SAL spec states this should run w/ interrupts enabled */
+  	local_irq_enable();
+
+  	/* Get the CPE error record and log it */
+  	ia64_mca_log_sal_error_record(SAL_INFO_TYPE_CPE);
++#else
++	/*
++	 * Because SAL_GET_STATE_INFO for CPE might clear bridge states
++	 * in process of gathering error information from the system,
++	 * we should check the states before clearing it.
++	 * While OS and SAL are handling bridge status, we have to protect
++	 * the states from changing by any other I/Os running simultaneously,
++	 * so this should be handled w/ lock and interrupts disabled.
++	 */
++	spin_lock(&iochk_lock);
++	save_bridge_error();
++	ia64_mca_log_sal_error_record(SAL_INFO_TYPE_CPE);
++	spin_unlock(&iochk_lock);
++
++	/* Rests can go w/ interrupt enabled as usual */
++	local_irq_enable();
 +#endif
-+
-  	/*
-  	 * cpu read or memory-mapped io read
-  	 *
 
+  	spin_lock(&cpe_history_lock);
+  	if (!cpe_poll_enabled && cpe_vector >= 0) {
 

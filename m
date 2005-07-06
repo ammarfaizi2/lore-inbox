@@ -1,139 +1,231 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261372AbVGFGP7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261768AbVGFGQ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261372AbVGFGP7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 02:15:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262064AbVGFGP6
+	id S261768AbVGFGQ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 02:16:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262064AbVGFGQ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 02:15:58 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:53975 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S261372AbVGFEuN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 00:50:13 -0400
-Message-ID: <42CB63B2.6000505@jp.fujitsu.com>
-Date: Wed, 06 Jul 2005 13:53:06 +0900
-From: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-ia64@vger.kernel.org, "Luck, Tony" <tony.luck@intel.com>
-CC: Linas Vepstas <linas@austin.ibm.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       long <tlnguyen@snoqualmie.dp.intel.com>,
-       linux-pci@atrey.karlin.mff.cuni.cz,
-       linuxppc64-dev <linuxppc64-dev@ozlabs.org>
-Subject: [PATCH 2.6.13-rc1 01/10] IOCHK interface for I/O error handling/detecting
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 6 Jul 2005 02:16:58 -0400
+Received: from rproxy.gmail.com ([64.233.170.207]:20588 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261768AbVGFEvM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Jul 2005 00:51:12 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type;
+        b=gpdQzY+PHgo75WdgvN0i1LEVwx1zlL2+Y47V2UP4YEHdPuOgw0BM2CpRecLgs7Qkvgbkqpw+CO94O7/DG3DXGcsIpvxf+ESe4pfXirpWpHzIXupHz1ecuUIfEXvtC43vTEHiBZh3HA+lx8rW82n1WtfiL9y/RKyOyPQ4WQfOf2c=
+Message-ID: <5a4c581d0507052150446a32fa@mail.gmail.com>
+Date: Wed, 6 Jul 2005 06:50:55 +0200
+From: Alessandro Suardi <alessandro.suardi@gmail.com>
+Reply-To: Alessandro Suardi <alessandro.suardi@gmail.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: oops in free_block in 2.6.12-git5
+Mime-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_3977_15898319.1120625455606"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+------=_Part_3977_15898319.1120625455606
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
 Hi all,
 
-The followings are updated version of patches I've posted to
-implement IOCHK interface for I/O error handling/detecting.
+  my bittorrent box running 2.6.12-git5 (AMD K7-800,
+  256MB RAM, fairly recently updated FC3) decided to
+  oops  a few hours ago. On the console I had a very long
+  trace before the actual lockup, but I didn't write it down
+  (it had ide_dma_<xx>_request  and bh_<xx> calls as
+  main part of the trace, though it took up all of my screen
+  and more so I can't tell where the EIP was).
 
-The abstraction of patches hasn't changed, so please refer
-archives if you need, e.g.: http://lwn.net/Articles/139240/
+At reboot however I have an oops with EIP in free_block
+ very likely happened after/during an updatedb run which
+ very closely resembles this report that hit isofs in 2.6.9-rc2:
 
-Tony, how do you think about applying my patches to your tree?
+http://www.ussg.iu.edu/hypermail/linux/kernel/0409.1/1790.html
+
+The only thing running on the box at that time was a
+ download of a 8GB torrent with bittorrent from the
+ FC3 bittorrent-4.1.1-2.1.fc3.rf package.
+
+Attached the oops trace and the decoded oops
+ after I edited the trace to remove the timed printks
+ and ran it through ksymoops 2.4.11.
+
+kernel isn't running CONFIG_DEBUG_SLAB but
+ if you think this is a legitimate slab bug I'll later
+ update to the current -git kernel and enable the
+ slab debugging.
 
 Thanks,
-H.Seto
 
-[This is 1 of 10 patches, "iochk-01-generic.patch"]
+--alessandro
 
-- It defines:
-     a pair of function  : iochk_clear and iochk_read
-     a function for init : iochk_init
-     type of control var : iocookie
-   and describe "no-ops" as its "generic" action.
+ "When it comes to luck / you make your own
+  Tonight I've got dirt on my hands
+  But I'm building me a new home"
 
-- HAVE_ARCH_IOMAP_CHECK allows us to change whole definition
-   of these functions and type from generic one to specific one.
-   See next patch (2 of 10).
+    (Bruce Springsteen - "Lucky Town")
 
-Changes from previous one for 2.6.11.11:
-   - reform default "nop" functions in static inline style.
-   - I don't mind using EXPORT_SYMBOL_GPL but keep them as
-     before. Does anyone worry about this?
+------=_Part_3977_15898319.1120625455606
+Content-Type: application/octet-stream; name="oops-02.txt.decoded"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="oops-02.txt.decoded"
 
-Signed-off-by: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
+a3N5bW9vcHMgMi40LjExIG9uIGk2ODYgMi42LjEyLWdpdDUuICBPcHRpb25zIHVzZWQKICAgICAt
+ViAoZGVmYXVsdCkKICAgICAtayAvcHJvYy9rc3ltcyAoZGVmYXVsdCkKICAgICAtbCAvcHJvYy9t
+b2R1bGVzIChkZWZhdWx0KQogICAgIC1vIC9saWIvbW9kdWxlcy8yLjYuMTItZ2l0NS8gKGRlZmF1
+bHQpCiAgICAgLW0gL3Vzci9zcmMvbGludXgvU3lzdGVtLm1hcCAoZGVmYXVsdCkKCldhcm5pbmc6
+IFlvdSBkaWQgbm90IHRlbGwgbWUgd2hlcmUgdG8gZmluZCBzeW1ib2wgaW5mb3JtYXRpb24uICBJ
+IHdpbGwKYXNzdW1lIHRoYXQgdGhlIGxvZyBtYXRjaGVzIHRoZSBrZXJuZWwgYW5kIG1vZHVsZXMg
+dGhhdCBhcmUgcnVubmluZwpyaWdodCBub3cgYW5kIEknbGwgdXNlIHRoZSBkZWZhdWx0IG9wdGlv
+bnMgYWJvdmUgZm9yIHN5bWJvbCByZXNvbHV0aW9uLgpJZiB0aGUgY3VycmVudCBrZXJuZWwgYW5k
+L29yIG1vZHVsZXMgZG8gbm90IG1hdGNoIHRoZSBsb2csIHlvdSBjYW4gZ2V0Cm1vcmUgYWNjdXJh
+dGUgb3V0cHV0IGJ5IHRlbGxpbmcgbWUgdGhlIGtlcm5lbCB2ZXJzaW9uIGFuZCB3aGVyZSB0byBm
+aW5kCm1hcCwgbW9kdWxlcywga3N5bXMgZXRjLiAga3N5bW9vcHMgLWggZXhwbGFpbnMgdGhlIG9w
+dGlvbnMuCgpFcnJvciAocmVndWxhcl9maWxlKTogcmVhZF9rc3ltcyBzdGF0IC9wcm9jL2tzeW1z
+IGZhaWxlZApObyBtb2R1bGVzIGluIGtzeW1zLCBza2lwcGluZyBvYmplY3RzCk5vIGtzeW1zLCBz
+a2lwcGluZyBsc21vZApKdWwgIDYgMDQ6MDI6MTEgZG9ua2V5IGtlcm5lbDogVW5hYmxlIHRvIGhh
+bmRsZSBrZXJuZWwgcGFnaW5nIHJlcXVlc3QgYXQgdmlydHVhbCBhZGRyZXNzIDIwNzFmY2U0Ckp1
+bCAgNiAwNDowMjoxMSBkb25rZXkga2VybmVsOiBjMDEzYzhlZgpKdWwgIDYgMDQ6MDI6MTEgZG9u
+a2V5IGtlcm5lbDogKnBkZSA9IDAwMDAwMDAwCkp1bCAgNiAwNDowMjoxMSBkb25rZXkga2VybmVs
+OiBPb3BzOiAwMDAwIFsjMV0KSnVsICA2IDA0OjAyOjExIGRvbmtleSBrZXJuZWw6IENQVTogICAg
+MApKdWwgIDYgMDQ6MDI6MTEgZG9ua2V5IGtlcm5lbDogRUlQOiAgICAwMDYwOls8YzAxM2M4ZWY+
+XSAgICBOb3QgdGFpbnRlZCBWTEkKVXNpbmcgZGVmYXVsdHMgZnJvbSBrc3ltb29wcyAtdCBlbGYz
+Mi1pMzg2IC1hIGkzODYKSnVsICA2IDA0OjAyOjExIGRvbmtleSBrZXJuZWw6IEVGTEFHUzogMDAw
+MTAwMTYgICAoMi42LjEyLWdpdDUpCkp1bCAgNiAwNDowMjoxMSBkb25rZXkga2VybmVsOiBlYXg6
+IDAwODAwMDAwICAgZWJ4OiAyMDcxZmNlMCAgIGVjeDogMDAwMDAwMDAgICBlZHg6IGMxMDAwMDAw
+Ckp1bCAgNiAwNDowMjoxMSBkb25rZXkga2VybmVsOiBlc2k6IGNmZmVmMWUwICAgZWRpOiAwMDAw
+MDA0ZiAgIGVicDogY2ZmYTNlZjAgICBlc3A6IGNmZmEzZWQ0Ckp1bCAgNiAwNDowMjoxMSBkb25r
+ZXkga2VybmVsOiBkczogMDA3YiAgIGVzOiAwMDdiICAgc3M6IDAwNjgKSnVsICA2IDA0OjAyOjEx
+IGRvbmtleSBrZXJuZWw6IFN0YWNrOiBjZmZlZjFlYyBjZmZlZjFmYyAyOTcyYzIxNCBjZmZlYTIx
+MCBjZmZlYTIxMCBjZmZlYTIwMCAyOTcyYzIxNCBjZmZhM2YwOApKdWwgIDYgMDQ6MDI6MTEgZG9u
+a2V5IGtlcm5lbDogICAgICAgIGMwMTNjZmJmIGNmZmVmMWUwIGNmZmVmNmZjIGNmZmVmMWUwIDAw
+MDAwMDAzIGNmZmEzZjM0IGMwMTNkMDc0IGNmZmEyMDAwCkp1bCAgNiAwNDowMjoxMSBkb25rZXkg
+a2VybmVsOiAgICAgICAgY2ZmZWY2ZmMgY2ZmYTIwMDAgY2ZmYTIwMDAgY2ZmZWYyNTAgY2ZmYTNm
+MzQgYzA0NmNhODAgMDAwMDAyOTcgYzA0NmNhODQKSnVsICA2IDA0OjAyOjExIGRvbmtleSBrZXJu
+ZWw6IENhbGwgVHJhY2U6Ckp1bCAgNiAwNDowMjoxMSBkb25rZXkga2VybmVsOiAgWzxjMDEwMzE2
+YT5dIHNob3dfc3RhY2srMHg3YS8weDkwCkp1bCAgNiAwNDowMjoxMSBkb25rZXkga2VybmVsOiAg
+WzxjMDEwMzJmNj5dIHNob3dfcmVnaXN0ZXJzKzB4MTU2LzB4MWQwCkp1bCAgNiAwNDowMjoxMSBk
+b25rZXkga2VybmVsOiAgWzxjMDEwMzRmND5dIGRpZSsweGU0LzB4MTcwCkp1bCAgNiAwNDowMjox
+MSBkb25rZXkga2VybmVsOiAgWzxjMDExMGJkMz5dIGRvX3BhZ2VfZmF1bHQrMHg0NTMvMHg2NzEK
+SnVsICA2IDA0OjAyOjExIGRvbmtleSBrZXJuZWw6ICBbPGMwMTAyZDlmPl0gZXJyb3JfY29kZSsw
+eDRmLzB4NTQKSnVsICA2IDA0OjAyOjExIGRvbmtleSBrZXJuZWw6ICBbPGMwMTNjZmJmPl0gZHJh
+aW5fYXJyYXlfbG9ja2VkKzB4NWYvMHhhMApKdWwgIDYgMDQ6MDI6MTEgZG9ua2V5IGtlcm5lbDog
+IFs8YzAxM2QwNzQ+XSBjYWNoZV9yZWFwKzB4NzQvMHgxZDAKSnVsICA2IDA0OjAyOjExIGRvbmtl
+eSBrZXJuZWw6ICBbPGMwMTI1ZTU0Pl0gd29ya2VyX3RocmVhZCsweDFjNC8weDI4MApKdWwgIDYg
+MDQ6MDI6MTEgZG9ua2V5IGtlcm5lbDogIFs8YzAxMjlmZmI+XSBrdGhyZWFkKzB4OGIvMHhjMApK
+dWwgIDYgMDQ6MDI6MTEgZG9ua2V5IGtlcm5lbDogIFs8YzAxMDBkNDU+XSBrZXJuZWxfdGhyZWFk
+X2hlbHBlcisweDUvMHgxMApKdWwgIDYgMDQ6MDI6MTEgZG9ua2V5IGtlcm5lbDogQ29kZTogOGIg
+NTUgZTggODkgNWUgMWMgODkgNTMgMDQgNDcgM2IgN2QgZWMgN2QgNmQgOGIgNDUgZjAgOGIgMTUg
+OTAgY2IgNDYgYzAgOGIgMGMgYjggOGQgODEgMDAgMDAgMDAgNDAgYzEgZTggMGMgYzEgZTAgMDUg
+OGIgNWMgMTAgMWMgPDhiPiA1MyAwNCA4YiAwMyA4OSA1MCAwNCA4OSAwMiAzMSBkMiAyYiA0YiAw
+YyBjNyAwMyAwMCAwMSAxMCAwMAoKCj4+RUlQOyBjMDEzYzhlZiA8ZnJlZV9ibG9jays2Zi9lMD4g
+ICA8PT09PT0KCj4+ZWR4OyBjMTAwMDAwMCA8cGcwK2I2ZDAwMC8zZmI2YjQwMD4KPj5lc2k7IGNm
+ZmVmMWUwIDxwZzArZmI1YzFlMC8zZmI2YjQwMD4KPj5lYnA7IGNmZmEzZWYwIDxwZzArZmIxMGVm
+MC8zZmI2YjQwMD4KPj5lc3A7IGNmZmEzZWQ0IDxwZzArZmIxMGVkNC8zZmI2YjQwMD4KClRyYWNl
+OyBjMDEwMzE2YSA8c2hvd19zdGFjays3YS85MD4KVHJhY2U7IGMwMTAzMmY2IDxzaG93X3JlZ2lz
+dGVycysxNTYvMWQwPgpUcmFjZTsgYzAxMDM0ZjQgPGRpZStlNC8xNzA+ClRyYWNlOyBjMDExMGJk
+MyA8ZG9fcGFnZV9mYXVsdCs0NTMvNjcxPgpUcmFjZTsgYzAxMDJkOWYgPGVycm9yX2NvZGUrNGYv
+NTQ+ClRyYWNlOyBjMDEzY2ZiZiA8ZHJhaW5fYXJyYXlfbG9ja2VkKzVmL2EwPgpUcmFjZTsgYzAx
+M2QwNzQgPGNhY2hlX3JlYXArNzQvMWQwPgpUcmFjZTsgYzAxMjVlNTQgPHdvcmtlcl90aHJlYWQr
+MWM0LzI4MD4KVHJhY2U7IGMwMTI5ZmZiIDxrdGhyZWFkKzhiL2MwPgpUcmFjZTsgYzAxMDBkNDUg
+PGtlcm5lbF90aHJlYWRfaGVscGVyKzUvMTA+CgpUaGlzIGFyY2hpdGVjdHVyZSBoYXMgdmFyaWFi
+bGUgbGVuZ3RoIGluc3RydWN0aW9ucywgZGVjb2RpbmcgYmVmb3JlIGVpcAppcyB1bnJlbGlhYmxl
+LCB0YWtlIHRoZXNlIGluc3RydWN0aW9ucyB3aXRoIGEgcGluY2ggb2Ygc2FsdC4KCkNvZGU7ICBj
+MDEzYzhjNCA8ZnJlZV9ibG9jays0NC9lMD4KMDAwMDAwMDAgPF9FSVA+OgpDb2RlOyAgYzAxM2M4
+YzQgPGZyZWVfYmxvY2srNDQvZTA+CiAgIDA6ICAgOGIgNTUgZTggICAgICAgICAgICAgICAgICBt
+b3YgICAgMHhmZmZmZmZlOCglZWJwKSwlZWR4CkNvZGU7ICBjMDEzYzhjNyA8ZnJlZV9ibG9jays0
+Ny9lMD4KICAgMzogICA4OSA1ZSAxYyAgICAgICAgICAgICAgICAgIG1vdiAgICAlZWJ4LDB4MWMo
+JWVzaSkKQ29kZTsgIGMwMTNjOGNhIDxmcmVlX2Jsb2NrKzRhL2UwPgogICA2OiAgIDg5IDUzIDA0
+ICAgICAgICAgICAgICAgICAgbW92ICAgICVlZHgsMHg0KCVlYngpCkNvZGU7ICBjMDEzYzhjZCA8
+ZnJlZV9ibG9jays0ZC9lMD4KICAgOTogICA0NyAgICAgICAgICAgICAgICAgICAgICAgIGluYyAg
+ICAlZWRpCkNvZGU7ICBjMDEzYzhjZSA8ZnJlZV9ibG9jays0ZS9lMD4KICAgYTogICAzYiA3ZCBl
+YyAgICAgICAgICAgICAgICAgIGNtcCAgICAweGZmZmZmZmVjKCVlYnApLCVlZGkKQ29kZTsgIGMw
+MTNjOGQxIDxmcmVlX2Jsb2NrKzUxL2UwPgogICBkOiAgIDdkIDZkICAgICAgICAgICAgICAgICAg
+ICAgamdlICAgIDdjIDxfRUlQKzB4N2M+CkNvZGU7ICBjMDEzYzhkMyA8ZnJlZV9ibG9jays1My9l
+MD4KICAgZjogICA4YiA0NSBmMCAgICAgICAgICAgICAgICAgIG1vdiAgICAweGZmZmZmZmYwKCVl
+YnApLCVlYXgKQ29kZTsgIGMwMTNjOGQ2IDxmcmVlX2Jsb2NrKzU2L2UwPgogIDEyOiAgIDhiIDE1
+IDkwIGNiIDQ2IGMwICAgICAgICAgbW92ICAgIDB4YzA0NmNiOTAsJWVkeApDb2RlOyAgYzAxM2M4
+ZGMgPGZyZWVfYmxvY2srNWMvZTA+CiAgMTg6ICAgOGIgMGMgYjggICAgICAgICAgICAgICAgICBt
+b3YgICAgKCVlYXgsJWVkaSw0KSwlZWN4CkNvZGU7ICBjMDEzYzhkZiA8ZnJlZV9ibG9jays1Zi9l
+MD4KICAxYjogICA4ZCA4MSAwMCAwMCAwMCA0MCAgICAgICAgIGxlYSAgICAweDQwMDAwMDAwKCVl
+Y3gpLCVlYXgKQ29kZTsgIGMwMTNjOGU1IDxmcmVlX2Jsb2NrKzY1L2UwPgogIDIxOiAgIGMxIGU4
+IDBjICAgICAgICAgICAgICAgICAgc2hyICAgICQweGMsJWVheApDb2RlOyAgYzAxM2M4ZTggPGZy
+ZWVfYmxvY2srNjgvZTA+CiAgMjQ6ICAgYzEgZTAgMDUgICAgICAgICAgICAgICAgICBzaGwgICAg
+JDB4NSwlZWF4CkNvZGU7ICBjMDEzYzhlYiA8ZnJlZV9ibG9jays2Yi9lMD4KICAyNzogICA4YiA1
+YyAxMCAxYyAgICAgICAgICAgICAgIG1vdiAgICAweDFjKCVlYXgsJWVkeCwxKSwlZWJ4CgpUaGlz
+IGRlY29kZSBmcm9tIGVpcCBvbndhcmRzIHNob3VsZCBiZSByZWxpYWJsZQoKQ29kZTsgIGMwMTNj
+OGVmIDxmcmVlX2Jsb2NrKzZmL2UwPgowMDAwMDAwMCA8X0VJUD46CkNvZGU7ICBjMDEzYzhlZiA8
+ZnJlZV9ibG9jays2Zi9lMD4gICA8PT09PT0KICAgMDogICA4YiA1MyAwNCAgICAgICAgICAgICAg
+ICAgIG1vdiAgICAweDQoJWVieCksJWVkeCAgIDw9PT09PQpDb2RlOyAgYzAxM2M4ZjIgPGZyZWVf
+YmxvY2srNzIvZTA+CiAgIDM6ICAgOGIgMDMgICAgICAgICAgICAgICAgICAgICBtb3YgICAgKCVl
+YngpLCVlYXgKQ29kZTsgIGMwMTNjOGY0IDxmcmVlX2Jsb2NrKzc0L2UwPgogICA1OiAgIDg5IDUw
+IDA0ICAgICAgICAgICAgICAgICAgbW92ICAgICVlZHgsMHg0KCVlYXgpCkNvZGU7ICBjMDEzYzhm
+NyA8ZnJlZV9ibG9jays3Ny9lMD4KICAgODogICA4OSAwMiAgICAgICAgICAgICAgICAgICAgIG1v
+diAgICAlZWF4LCglZWR4KQpDb2RlOyAgYzAxM2M4ZjkgPGZyZWVfYmxvY2srNzkvZTA+CiAgIGE6
+ICAgMzEgZDIgICAgICAgICAgICAgICAgICAgICB4b3IgICAgJWVkeCwlZWR4CkNvZGU7ICBjMDEz
+YzhmYiA8ZnJlZV9ibG9jays3Yi9lMD4KICAgYzogICAyYiA0YiAwYyAgICAgICAgICAgICAgICAg
+IHN1YiAgICAweGMoJWVieCksJWVjeApDb2RlOyAgYzAxM2M4ZmUgPGZyZWVfYmxvY2srN2UvZTA+
+CiAgIGY6ICAgYzcgMDMgMDAgMDEgMTAgMDAgICAgICAgICBtb3ZsICAgJDB4MTAwMTAwLCglZWJ4
+KQoKCjEgd2FybmluZyBhbmQgMSBlcnJvciBpc3N1ZWQuICBSZXN1bHRzIG1heSBub3QgYmUgcmVs
+aWFibGUuCg==
+------=_Part_3977_15898319.1120625455606
+Content-Type: text/plain; name="oops-02.txt"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="oops-02.txt"
 
----
-
-  drivers/pci/pci.c           |    2 ++
-  include/asm-generic/iomap.h |   32 ++++++++++++++++++++++++++++++++
-  lib/iomap.c                 |    6 ++++++
-  3 files changed, 40 insertions(+)
-
-Index: linux-2.6.13-rc1/lib/iomap.c
-===================================================================
---- linux-2.6.13-rc1.orig/lib/iomap.c
-+++ linux-2.6.13-rc1/lib/iomap.c
-@@ -230,3 +230,9 @@ void pci_iounmap(struct pci_dev *dev, vo
-  }
-  EXPORT_SYMBOL(pci_iomap);
-  EXPORT_SYMBOL(pci_iounmap);
-+
-+#ifndef HAVE_ARCH_IOMAP_CHECK
-+/* Since generic funcs are inlined and defined in header, just export */
-+EXPORT_SYMBOL(iochk_clear);
-+EXPORT_SYMBOL(iochk_read);
-+#endif
-Index: linux-2.6.13-rc1/include/asm-generic/iomap.h
-===================================================================
---- linux-2.6.13-rc1.orig/include/asm-generic/iomap.h
-+++ linux-2.6.13-rc1/include/asm-generic/iomap.h
-@@ -65,4 +65,36 @@ struct pci_dev;
-  extern void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long max);
-  extern void pci_iounmap(struct pci_dev *dev, void __iomem *);
-
-+/*
-+ * IOMAP_CHECK provides additional interfaces for drivers to detect
-+ * some IO errors, supports drivers having ability to recover errors.
-+ *
-+ * All works around iomap-check depends on the design of "iocookie"
-+ * structure. Every architecture owning its iomap-check is free to
-+ * define the actual design of iocookie to fit its special style.
-+ */
-+#ifndef HAVE_ARCH_IOMAP_CHECK
-+/* Dummy definition of default iocookie */
-+typedef int iocookie;
-+#endif
-+
-+/*
-+ * Clear/Read iocookie to check IO error while using iomap.
-+ *
-+ * Note that default iochk_clear-read pair interfaces don't have
-+ * any effective error check, but some high-reliable platforms
-+ * would provide useful information to you.
-+ * And note that some action may be limited (ex. irq-unsafe)
-+ * between the pair depend on the facility of the platform.
-+ */
-+#ifdef HAVE_ARCH_IOMAP_CHECK
-+extern void iochk_init(void);
-+extern void iochk_clear(iocookie *cookie, struct pci_dev *dev);
-+extern int iochk_read(iocookie *cookie);
-+#else
-+static inline void iochk_init(void) {}
-+static inline void iochk_clear(iocookie *cookie, struct pci_dev *dev) {}
-+static inline int iochk_read(iocookie *cookie) { return 0; }
-+#endif
-+
-  #endif
-Index: linux-2.6.13-rc1/drivers/pci/pci.c
-===================================================================
---- linux-2.6.13-rc1.orig/drivers/pci/pci.c
-+++ linux-2.6.13-rc1/drivers/pci/pci.c
-@@ -767,6 +767,8 @@ static int __devinit pci_init(void)
-  	while ((dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
-  		pci_fixup_device(pci_fixup_final, dev);
-  	}
-+
-+	iochk_init();
-  	return 0;
-  }
-
-
-
+SnVsICA2IDA0OjAyOjExIGRvbmtleSBrZXJuZWw6IFsxOTgwNjQuODUzODk0XSBVbmFibGUgdG8g
+aGFuZGxlIGtlcm5lbCBwYWdpbmcgcmVxdWVzdCBhdCB2aXJ0dWFsIGFkZHJlc3MgMjA3MWZjZTQK
+SnVsICA2IDA0OjAyOjExIGRvbmtleSBrZXJuZWw6IFsxOTgwNjQuODU0NDY0XSAgcHJpbnRpbmcg
+ZWlwOgpKdWwgIDYgMDQ6MDI6MTEgZG9ua2V5IGtlcm5lbDogWzE5ODA2NC44NTQ2NjVdIGMwMTNj
+OGVmCkp1bCAgNiAwNDowMjoxMSBkb25rZXkga2VybmVsOiBbMTk4MDY0Ljg1NDgyOF0gKnBkZSA9
+IDAwMDAwMDAwCkp1bCAgNiAwNDowMjoxMSBkb25rZXkga2VybmVsOiBbMTk4MDY0Ljg1NTAzNV0g
+T29wczogMDAwMCBbIzFdCkp1bCAgNiAwNDowMjoxMSBkb25rZXkga2VybmVsOiBbMTk4MDY0Ljg1
+NTI0Ml0gUFJFRU1QVApKdWwgIDYgMDQ6MDI6MTEgZG9ua2V5IGtlcm5lbDogWzE5ODA2NC44NTU0
+MTZdIE1vZHVsZXMgbGlua2VkIGluOiBubHNfaXNvODg1OV8xIHBhcnBvcnRfcGMgcGFycG9ydCA4
+MTM5dG9vIGZsb3BweQpKdWwgIDYgMDQ6MDI6MTEgZG9ua2V5IGtlcm5lbDogWzE5ODA2NC44NTYw
+MjFdIENQVTogICAgMApKdWwgIDYgMDQ6MDI6MTEgZG9ua2V5IGtlcm5lbDogWzE5ODA2NC44NTYw
+MjNdIEVJUDogICAgMDA2MDpbPGMwMTNjOGVmPl0gICAgTm90IHRhaW50ZWQgVkxJCkp1bCAgNiAw
+NDowMjoxMSBkb25rZXkga2VybmVsOiBbMTk4MDY0Ljg1NjAyN10gRUZMQUdTOiAwMDAxMDAxNiAg
+ICgyLjYuMTItZ2l0NSkKSnVsICA2IDA0OjAyOjExIGRvbmtleSBrZXJuZWw6IFsxOTgwNjQuODU2
+OTAxXSBFSVAgaXMgYXQgZnJlZV9ibG9jaysweDZmLzB4ZTAKSnVsICA2IDA0OjAyOjExIGRvbmtl
+eSBrZXJuZWw6IFsxOTgwNjQuODU3MjAyXSBlYXg6IDAwODAwMDAwICAgZWJ4OiAyMDcxZmNlMCAg
+IGVjeDogMDAwMDAwMDAgICBlZHg6IGMxMDAwMDAwCkp1bCAgNiAwNDowMjoxMSBkb25rZXkga2Vy
+bmVsOiBbMTk4MDY0Ljg1NzY5MV0gZXNpOiBjZmZlZjFlMCAgIGVkaTogMDAwMDAwNGYgICBlYnA6
+IGNmZmEzZWYwICAgZXNwOiBjZmZhM2VkNApKdWwgIDYgMDQ6MDI6MTEgZG9ua2V5IGtlcm5lbDog
+WzE5ODA2NC44NTgxNzddIGRzOiAwMDdiICAgZXM6IDAwN2IgICBzczogMDA2OApKdWwgIDYgMDQ6
+MDI6MTEgZG9ua2V5IGtlcm5lbDogWzE5ODA2NC44NTg0NzZdIFByb2Nlc3MgZXZlbnRzLzAgKHBp
+ZDogMywgdGhyZWFkaW5mbz1jZmZhMjAwMCB0YXNrPWMxMjdhMDIwKQpKdWwgIDYgMDQ6MDI6MTEg
+ZG9ua2V5IGtlcm5lbDogWzE5ODA2NC44NTg5NTZdIFN0YWNrOiBjZmZlZjFlYyBjZmZlZjFmYyAy
+OTcyYzIxNCBjZmZlYTIxMCBjZmZlYTIxMCBjZmZlYTIwMCAyOTcyYzIxNCBjZmZhM2YwOApKdWwg
+IDYgMDQ6MDI6MTEgZG9ua2V5IGtlcm5lbDogWzE5ODA2NC44NTk2NzhdICAgICAgICBjMDEzY2Zi
+ZiBjZmZlZjFlMCBjZmZlZjZmYyBjZmZlZjFlMCAwMDAwMDAwMyBjZmZhM2YzNCBjMDEzZDA3NCBj
+ZmZhMjAwMApKdWwgIDYgMDQ6MDI6MTEgZG9ua2V5IGtlcm5lbDogWzE5ODA2NC44NjAzOThdICAg
+ICAgICBjZmZlZjZmYyBjZmZhMjAwMCBjZmZhMjAwMCBjZmZlZjI1MCBjZmZhM2YzNCBjMDQ2Y2E4
+MCAwMDAwMDI5NyBjMDQ2Y2E4NApKdWwgIDYgMDQ6MDI6MTEgZG9ua2V5IGtlcm5lbDogWzE5ODA2
+NC44NjExMThdIENhbGwgVHJhY2U6Ckp1bCAgNiAwNDowMjoxMSBkb25rZXkga2VybmVsOiBbMTk4
+MDY0Ljg2MTQ5NF0gIFs8YzAxMDMxNmE+XSBzaG93X3N0YWNrKzB4N2EvMHg5MApKdWwgIDYgMDQ6
+MDI6MTEgZG9ua2V5IGtlcm5lbDogWzE5ODA2NC44NjIwMTZdICBbPGMwMTAzMmY2Pl0gc2hvd19y
+ZWdpc3RlcnMrMHgxNTYvMHgxZDAKSnVsICA2IDA0OjAyOjExIGRvbmtleSBrZXJuZWw6IFsxOTgw
+NjQuODYyNTcwXSAgWzxjMDEwMzRmND5dIGRpZSsweGU0LzB4MTcwCkp1bCAgNiAwNDowMjoxMSBk
+b25rZXkga2VybmVsOiBbMTk4MDY0Ljg2MzA0OV0gIFs8YzAxMTBiZDM+XSBkb19wYWdlX2ZhdWx0
+KzB4NDUzLzB4NjcxCkp1bCAgNiAwNDowMjoxMSBkb25rZXkga2VybmVsOiBbMTk4MDY0Ljg2MzYw
+NF0gIFs8YzAxMDJkOWY+XSBlcnJvcl9jb2RlKzB4NGYvMHg1NApKdWwgIDYgMDQ6MDI6MTEgZG9u
+a2V5IGtlcm5lbDogWzE5ODA2NC44NjQxMjBdICBbPGMwMTNjZmJmPl0gZHJhaW5fYXJyYXlfbG9j
+a2VkKzB4NWYvMHhhMApKdWwgIDYgMDQ6MDI6MTEgZG9ua2V5IGtlcm5lbDogWzE5ODA2NC44NjQ2
+ODZdICBbPGMwMTNkMDc0Pl0gY2FjaGVfcmVhcCsweDc0LzB4MWQwCkp1bCAgNiAwNDowMjoxMSBk
+b25rZXkga2VybmVsOiBbMTk4MDY0Ljg2NTIwOV0gIFs8YzAxMjVlNTQ+XSB3b3JrZXJfdGhyZWFk
+KzB4MWM0LzB4MjgwCkp1bCAgNiAwNDowMjoxMSBkb25rZXkga2VybmVsOiBbMTk4MDY0Ljg2NTc2
+Ml0gIFs8YzAxMjlmZmI+XSBrdGhyZWFkKzB4OGIvMHhjMApKdWwgIDYgMDQ6MDI6MTEgZG9ua2V5
+IGtlcm5lbDogWzE5ODA2NC44NjYyNjZdICBbPGMwMTAwZDQ1Pl0ga2VybmVsX3RocmVhZF9oZWxw
+ZXIrMHg1LzB4MTAKSnVsICA2IDA0OjAyOjExIGRvbmtleSBrZXJuZWw6IFsxOTgwNjQuODY2ODM1
+XSBDb2RlOiA4YiA1NSBlOCA4OSA1ZSAxYyA4OSA1MyAwNCA0NyAzYiA3ZCBlYyA3ZCA2ZCA4YiA0
+NSBmMCA4YiAxNSA5MCBjYiA0NiBjMCA4YiAwYyBiOCA4ZCA4MSAwMCAwMCAwMCA0MCBjMSBlOCAw
+YyBjMSBlMCAwNSA4YiA1YyAxMCAxYyA8OGI+IDUzIDA0IDhiIDAzIDg5IDUwIDA0IDg5IDAyIDMx
+IGQyIDJiIDRiIDBjIGM3IDAzIDAwIDAxIDEwIDAwCkp1bCAgNiAwNDowMjoxMSBkb25rZXkga2Vy
+bmVsOiBbMTk4MDY0Ljk1NTEzNV0gIDw2Pm5vdGU6IGV2ZW50cy8wWzNdIGV4aXRlZCB3aXRoIHBy
+ZWVtcHRfY291bnQgMQo=
+------=_Part_3977_15898319.1120625455606--

@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262174AbVGFKJv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262079AbVGFKJw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262174AbVGFKJv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 06:09:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262079AbVGFKF7
+	id S262079AbVGFKJw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 06:09:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262157AbVGFKGd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 06:05:59 -0400
-Received: from [203.171.93.254] ([203.171.93.254]:59868 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S262179AbVGFIML (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 04:12:11 -0400
-Subject: Re: [PATCH] [16/48] Suspend2 2.1.9.8 for 2.6.12:
-	406-dynamic-pageflags.patch
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Li Shaohua <shaohua.li@intel.com>
-Cc: Nigel Cunningham <nigel@suspend2.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1120635983.6970.4.camel@linux-hp.sh.intel.com>
-References: <11206164411593@foobar.com>
-	 <1120635983.6970.4.camel@linux-hp.sh.intel.com>
-Content-Type: text/plain
-Organization: Cycades
-Message-Id: <1120637607.4860.34.camel@localhost>
+	Wed, 6 Jul 2005 06:06:33 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:51162 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262199AbVGFIQA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Jul 2005 04:16:00 -0400
+Date: Wed, 6 Jul 2005 10:15:32 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <nigel@suspend2.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [14/48] Suspend2 2.1.9.8 for 2.6.12: 404-check-mounts-support.patch
+Message-ID: <20050706081523.GD1412@elf.ucw.cz>
+References: <11206164393426@foobar.com> <11206164403506@foobar.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Wed, 06 Jul 2005 18:13:27 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <11206164403506@foobar.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On St 06-07-05 12:20:40, Nigel Cunningham wrote:
+> diff -ruNp 405-clear-swapfile-bdev-in-swapoff.patch-old/mm/swapfile.c 405-clear-swapfile-bdev-in-swapoff.patch-new/mm/swapfile.c
+> --- 405-clear-swapfile-bdev-in-swapoff.patch-old/mm/swapfile.c	2005-07-06 11:22:01.000000000 +1000
+> +++ 405-clear-swapfile-bdev-in-swapoff.patch-new/mm/swapfile.c	2005-07-04 23:14:19.000000000 +1000
+> @@ -1162,6 +1162,7 @@ asmlinkage long sys_swapoff(const char _
+>  	swap_file = p->swap_file;
+>  	p->swap_file = NULL;
+>  	p->max = 0;
+> +	p->bdev = NULL;
+>  	swap_map = p->swap_map;
+>  	p->swap_map = NULL;
+>  	p->flags = 0;
 
-On Wed, 2005-07-06 at 17:46, Shaohua Li wrote:
-> we are using cpu hotplug for S3 & S4 SMP to avoid nasty deadlocks. Could
-> this be avoided in suspend2 SMP?
-
-I haven't had any problems with this code but yes, I do want to switch
-to using hotplug. It's only in -mm, not mainline?
-
-Regards,
-
-Nigel
+I guess some explanation is needed here; and if it is bugfix it should
+just go in...
+								Pavel
 -- 
-Evolution.
-Enumerate the requirements.
-Consider the interdependencies.
-Calculate the probabilities.
-Be amazed that people believe it happened. 
-
+teflon -- maybe it is a trademark, but it should not be.

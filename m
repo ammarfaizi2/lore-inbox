@@ -1,75 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262440AbVGFTsX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262350AbVGFTs0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262440AbVGFTsX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 15:48:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262341AbVGFTpw
+	id S262350AbVGFTs0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 15:48:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262189AbVGFTpV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 15:45:52 -0400
-Received: from nproxy.gmail.com ([64.233.182.199]:56617 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262181AbVGFOwh convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 10:52:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=kDS+CFjOrMs0n2HZYPpGHvNFVm77+QboScQIAqoEZBDI5rHfh2VoIeJhH0dhJQ+4jOd2ZZK9NnZ38dr+ExBX1x6VBlE/ZHiRBkTa2hQtL1wD8t7aF1V6VzwgbX5BipcC/Obieti3zBXPmPRZ8zw+30V2INHyP5QB82sueL0GbMY=
-Message-ID: <ea6b1902050706075248674f97@mail.gmail.com>
-Date: Wed, 6 Jul 2005 16:52:34 +0200
-From: Alexis Ballier <alexis.ballier@gmail.com>
-Reply-To: Alexis Ballier <alexis.ballier@gmail.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.13-rc2 - Inconsistent kallsyms data
-In-Reply-To: <42CBE05F.4090706@grupopie.com>
+	Wed, 6 Jul 2005 15:45:21 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:19679 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262285AbVGFOb7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Jul 2005 10:31:59 -0400
+Date: Wed, 6 Jul 2005 16:31:57 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Serge Noiraud <serge.noiraud@bull.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: PREEMPT_RT and mptfusion
+Message-ID: <20050706143157.GA22156@elte.hu>
+References: <1120633558.6225.64.camel@ibiza.btsn.frna.bull.fr> <20050706120848.GB16843@elte.hu> <1120653209.6225.96.camel@ibiza.btsn.frna.bull.fr> <1120659178.6225.99.camel@ibiza.btsn.frna.bull.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <Pine.LNX.4.58.0507052126190.3570@g5.osdl.org>
-	 <42CB8088.1090508@ppp0.net>
-	 <ea6b190205070602091b50e204@mail.gmail.com>
-	 <42CBE05F.4090706@grupopie.com>
+In-Reply-To: <1120659178.6225.99.camel@ibiza.btsn.frna.bull.fr>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, that fixed it. However, there was no problem with rc1 with the
-same .config.
 
+* Serge Noiraud <serge.noiraud@bull.net> wrote:
 
+> > Yes it was 50-47.
+> > CONFIG_X86_UP_IOAPIC is not present in my .config
+> > CONFIG_PCI_MSI is set to yes.
+> > 
+> > I'll try with CONFIG_PCI_MSI=n
+> It's OK for me. good job.
 
+good. But it would be nice to make it work with PCI_MSI=y too. Does 
+PCI_MSI=y work if you apply the patch below?
 
+	Ingo
 
-2005/7/6, Paulo Marques <pmarques@grupopie.com>:
-> Alexis Ballier wrote:
-> > Hi !
-> >
-> > I have a problem building the rc2 (or rc3, whatever ;) )
-> >
-> > Here is the end of the log :
-> >
-> > [...]
-> > Inconsistent kallsyms data
-> > Try setting CONFIG_KALLSYMS_EXTRA_PASS
-> > make: *** [vmlinux] Erreur 1
-> 
-> Can you try to change this setting in scripts/kallsyms.c:
-> 
-> #define WORKING_SET             1024
-> 
-> to somethig like:
-> 
-> #define WORKING_SET            65536
-> 
-> If this fixes it, then it is a known problem and the fix is already in
-> -mm. The fix is more complex than this, however.
-> 
-> --
-> Paulo Marques - www.grupopie.com
-> 
-> It is a mistake to think you can solve any major problems
-> just with potatoes.
-> Douglas Adams
-> 
-
-
--- 
-Alexis Ballier.
+--- linux/arch/i386/kernel/io_apic.c.orig
++++ linux/arch/i386/kernel/io_apic.c
+@@ -2136,11 +2136,7 @@ static void end_level_ioapic_vector (uns
+ {
+ 	int irq = vector_to_irq(vector);
+ 
+-#ifdef CONFIG_PREEMPT_HARDIRQS
+-	if (!(irq_desc[vector].status & (IRQ_DISABLED | IRQ_INPROGRESS)) &&
+-							irq_desc[vector].action)
+-#endif
+-		end_level_ioapic_irq(irq);
++	end_level_ioapic_irq(irq);
+ }
+ 
+ static void enable_level_ioapic_vector(unsigned int vector)

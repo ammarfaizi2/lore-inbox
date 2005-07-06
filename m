@@ -1,81 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262419AbVGGDBm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262176AbVGFT6J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262419AbVGGDBm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 23:01:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262248AbVGGDBl
+	id S262176AbVGFT6J (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 15:58:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261207AbVGFTzz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 23:01:41 -0400
-Received: from hummeroutlaws.com ([12.161.0.3]:33806 "EHLO atpro.com")
-	by vger.kernel.org with ESMTP id S262419AbVGGDBJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 23:01:09 -0400
-Date: Wed, 6 Jul 2005 22:52:46 -0400
-From: Jim Crilly <jim@why.dont.jablowme.net>
-To: Doug Wicks <doug@ccbill.com>
-Cc: Hans Reiser <reiser@namesys.com>, David Masover <ninja@slaphack.com>,
-       Hubert Chan <hubert@uhoreg.ca>,
-       "Alexander G. M. Smith" <agmsmith@rogers.com>, ross.biro@gmail.com,
-       vonbrand@inf.utfsm.cl, mrmacman_g4@mac.com, Valdis.Kletnieks@vt.edu,
-       ltd@cisco.com, gmaxwell@gmail.com, jgarzik@pobox.com, hch@infradead.org,
-       akpm@osdl.org, linux-kernel@vger.kernel.org, reiserfs-list@namesys.com,
-       zam@namesys.com, vs@thebsh.namesys.com, ndiller@namesys.com,
-       vitaly@thebsh.namesys.com
-Subject: Re: reiser4 plugins
-Message-ID: <20050707025246.GA2181@mail>
-Mail-Followup-To: Doug Wicks <doug@ccbill.com>,
-	Hans Reiser <reiser@namesys.com>, David Masover <ninja@slaphack.com>,
-	Hubert Chan <hubert@uhoreg.ca>,
-	"Alexander G. M. Smith" <agmsmith@rogers.com>, ross.biro@gmail.com,
-	vonbrand@inf.utfsm.cl, mrmacman_g4@mac.com, Valdis.Kletnieks@vt.edu,
-	ltd@cisco.com, gmaxwell@gmail.com, jgarzik@pobox.com,
-	hch@infradead.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-	reiserfs-list@namesys.com, zam@namesys.com, vs@thebsh.namesys.com,
-	ndiller@namesys.com, vitaly@thebsh.namesys.com
-References: <889A47B16278164FB657E0FFB1CAB8C7B729A7@hq-exchange.ccbill-hq.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <889A47B16278164FB657E0FFB1CAB8C7B729A7@hq-exchange.ccbill-hq.local>
-User-Agent: Mutt/1.5.9i
+	Wed, 6 Jul 2005 15:55:55 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:1521 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261652AbVGFPbm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Jul 2005 11:31:42 -0400
+Message-ID: <42CBF908.7060106@mvista.com>
+Date: Wed, 06 Jul 2005 08:30:16 -0700
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Build TAGS problem with O=
+References: <42C5B967.6040908@mvista.com>
+In-Reply-To: <42C5B967.6040908@mvista.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 07/06/05 03:54:09PM -0700, Doug Wicks wrote:
-> How do I get off the mail list here? 
+Cleaned up to be a standard "p 1" patch.  Make the comments more concise.
 
-Read the auto-appended signature at the bottom of every message.
-> 
->  
-> doug@cavecreek.com
->  
-> 
 
-Jim.
+  make O=/dir TAGS
 
-> -----Original Message-----
-> From: Hans Reiser [mailto:reiser@namesys.com] 
-> Sent: Wednesday, July 06, 2005 3:50 PM
-> To: David Masover
-> Cc: Hubert Chan; Alexander G. M. Smith; ross.biro@gmail.com;
-> vonbrand@inf.utfsm.cl; mrmacman_g4@mac.com; Valdis.Kletnieks@vt.edu;
-> ltd@cisco.com; gmaxwell@gmail.com; jgarzik@pobox.com; hch@infradead.org;
-> akpm@osdl.org; linux-kernel@vger.kernel.org; reiserfs-list@namesys.com;
-> zam@namesys.com; vs@thebsh.namesys.com; ndiller@namesys.com;
-> vitaly@thebsh.namesys.com
-> Subject: Re: reiser4 plugins
-> 
-> David Masover wrote:
-> 
-> > So, will the format change happen at mount time?  Will it need a
-> > special mount flag?  Will I need to use debugfs or some other offline
-> > tool?
-> 
-> 
-> First we make sure we have the right answer.  Have we solved the cycle
-> problem?  Can we run out of memory as Horst/Nikita suggest?
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+  fails with:
+
+    MAKE   TAGS
+  find: security/selinux/include: No such file or directory
+  find: include: No such file or directory
+  find: include/asm-i386: No such file or directory
+  find: include/asm-generic: No such file or directory
+
+
+  The problem is in this line:
+  ifeq ($(KBUILD_OUTPUT),)
+
+KBUILD_OUTPUT is not defined (ever) after make reruns itself.  This line is used 
+in the TAGS, tags, and cscope makes.
+
+Here is a fix:
+
+Signed-off-by:  George Anzinger  <george@mvista.com>
+
+--- linux-2.6.12-org/Makefile	2005-07-01 14:37:44.000000000 -0700
++++ linux-2.6.13-rc/Makefile	2005-07-05 19:45:00.588314304 -0700
+@@ -1149,7 +1149,7 @@
+  #(which is the most common case IMHO) to avoid unneeded clutter in the big
+tags file.
+  #Adding $(srctree) adds about 20M on i386 to the size of the output file!
+
+-ifeq ($(KBUILD_OUTPUT),)
++ifeq ($(src),$(obj))
+  __srctree =
+  else
+  __srctree = $(srctree)/
+
+
+
+-- 
+George Anzinger   george@mvista.com
+HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/
+

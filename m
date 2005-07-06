@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261562AbVGFDlK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261770AbVGFDqV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261562AbVGFDlK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Jul 2005 23:41:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261617AbVGFDjh
+	id S261770AbVGFDqV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Jul 2005 23:46:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261749AbVGFDnq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Jul 2005 23:39:37 -0400
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:10905 "EHLO
+	Tue, 5 Jul 2005 23:43:46 -0400
+Received: from b3162.static.pacific.net.au ([203.143.238.98]:11673 "EHLO
 	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S262075AbVGFCTa convert rfc822-to-8bit (ORCPT
+	id S262081AbVGFCTd convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Jul 2005 22:19:30 -0400
-Subject: [PATCH] [40/48] Suspend2 2.1.9.8 for 2.6.12: 616-prepare_image.patch
+	Tue, 5 Jul 2005 22:19:33 -0400
+Subject: [PATCH] [33/48] Suspend2 2.1.9.8 for 2.6.12: 610-encryption.patch
 In-Reply-To: <11206164393426@foobar.com>
 X-Mailer: gregkh_patchbomb
 Date: Wed, 6 Jul 2005 12:20:43 +1000
-Message-Id: <11206164431308@foobar.com>
+Message-Id: <11206164431243@foobar.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Nigel Cunningham <nigel@suspend2.net>
@@ -24,414 +24,302 @@ From: Nigel Cunningham <nigel@suspend2.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -ruNp 617-proc.patch-old/kernel/power/suspend2_core/proc.c 617-proc.patch-new/kernel/power/suspend2_core/proc.c
---- 617-proc.patch-old/kernel/power/suspend2_core/proc.c	1970-01-01 10:00:00.000000000 +1000
-+++ 617-proc.patch-new/kernel/power/suspend2_core/proc.c	2005-07-04 23:14:19.000000000 +1000
-@@ -0,0 +1,336 @@
+diff -ruNp 610-extent.patch-old/kernel/power/suspend2_core/extent.c 610-extent.patch-new/kernel/power/suspend2_core/extent.c
+--- 610-extent.patch-old/kernel/power/suspend2_core/extent.c	1970-01-01 10:00:00.000000000 +1000
++++ 610-extent.patch-new/kernel/power/suspend2_core/extent.c	2005-07-04 23:14:19.000000000 +1000
+@@ -0,0 +1,206 @@
 +/*
-+ * /kernel/power/proc.c
++ * kernel/power/suspend2_core/extent.c
++ * 
++ * Suspend2 routines for manipulating extents.
 + *
-+ * Copyright (C) 2002-2005 Nigel Cunningham <nigel@suspend2.net>
++ * (C) 2003-2005 Nigel Cunningham <nigel@suspend2.net>
 + *
-+ * This file is released under the GPLv2.
++ * Distributed under GPLv2.
++ * 
++ * These functions encapsulate the manipulation of extents.
++ * They work like this:
 + *
-+ * This file contains support for proc entries for tuning Software Suspend.
++ * A lot of the data that suspend saves involves continguous extents of memory
++ * or storage. Let's say that we're storing data on disk in blocks 1-32768 and
++ * 49152-49848 of a swap partition. Rather than recording 1, 2, 3... in arrays
++ * pointing to the locations, we simply use:
 + *
-+ * We have a generic handler that deals with the most common cases, and
-+ * hooks for special handlers to use.
++ * struct extent {
++ * 	unsigned long min;
++ * 	unsigned long max;
++ * 	struct extent * next;
++ * }
 + *
-+ * Versions:
-+ * 1: /proc/sys/kernel/suspend the only tuning interface
-+ * 2: Initial version of this file
-+ * 3: Removed kernel debugger parameter.
-+ *    Added checkpage parameter (for checking checksum of a page over time).
-+ * 4: Added entry for maximum granularity in splash screen progress bar.
-+ *    (Progress bar is slow, but the right setting will vary with disk &
-+ *    processor speed and the user's tastes).
-+ * 5: Added enable_escape to control ability to cancel aborting by pressing
-+ *    ESC key.
-+ * 6: Removed checksumming and checkpage parameter. Made all debugging proc
-+ *    entries dependant upon debugging being compiled in.
-+ *    Meaning of some flags also changed in this version.
-+ * 7: Added header_locations entry to simplify getting the resume= parameter for
-+ *    swapfiles easy and swapfile entry for automatically doing swapon/off from
-+ *    swapfiles as well as partitions.
-+ * 8: Added option for marking process pages as pageset 2 (processes_pageset2).
-+ * 9: Added option for keep image mode.
-+ *    Enumeration patch from Michael Frank applied.
-+ * 10: Various corrections to when options are disabled/enabled;
-+ *     Added option for specifying expected compression.
-+ * 11: Added option for freezer testing. Debug only.
-+ * 12: Removed test entries no_async_[read|write], processes_pageset2 and
-+ *     NoPageset2.
-+ * 13: Make default_console_level available when debugging disabled, but limited
-+ *     to 0 or 1.
-+ * 14: Rewrite to allow for dynamic registration of proc entries and smooth the
-+ *     transition to kobjects in 2.6.
-+ * 15: Add setting resume2 parameter without rebooting (still need to run lilo
-+ *     though!). Add support for generic string handling and switch resume2 to use
-+ *     it.
-+ * 16: Switched to cryptoapi, adding entries for selecting encryptor and compressor.
++ * We can then store 1-32768 and 49152-49848 in 2 struct extents, using 24 bytes
++ * instead of something like 133,860. This is of course inefficient where a extent
++ * covers only one or two values, but the benefits gained by the much larger
++ * extents more than outweigh these instances.
++ *
++ * When _all_ the metadata was stored in extents, we used to have fancier code that
++ * stored them in pages and was optimised for our usage. Nowadays they are only
++ * used for storage information. We therefore kmalloc them as required, and
++ * provide a far simpler routine to serialise them in the image header.
 + */
 +
-+#define SUSPEND_PROC_C
-+
-+static int suspend_proc_version = 16;
-+static int suspend_proc_initialised = 0;
-+
-+#include <linux/suspend.h>
 +#include <linux/module.h>
-+#include <asm/uaccess.h>
++#include <linux/suspend.h>
++#include "plugins.h"
++#include "extent.h"
++#include "ui.h"
 +
-+#include "proc.h"
-+#include "suspend.h"
++int extents_allocated = 0, max_extents_used = 0;
 +
-+static struct list_head suspend_proc_entries;
-+static struct proc_dir_entry *suspend_dir;
-+static struct suspend_proc_data proc_params[];
-+
-+extern void __suspend2_try_resume(void);
-+extern void __suspend2_try_suspend(void);
-+
-+/* suspend2_read_proc
++/* get_extent
 + *
-+ * Generic handling for reading the contents of bits, integers,
-+ * unsigned longs and strings.
-+ */
-+static int suspend2_read_proc(char * page, char ** start, off_t off, int count,
-+		int *eof, void *data)
-+{
-+	int len = 0;
-+	struct suspend_proc_data * proc_data = (struct suspend_proc_data *) data;
-+
-+	if (suspend_start_anything(0))
-+		return -EBUSY;
-+	
-+	switch (proc_data->type) {
-+		case SUSPEND_PROC_DATA_CUSTOM:
-+			if (proc_data->data.special.read_proc) {
-+				read_proc_t * read_proc = proc_data->data.special.read_proc;
-+				len = read_proc(page, start, off, count, eof, data);
-+			} else
-+				len = 0;
-+			break;
-+		case SUSPEND_PROC_DATA_BIT:
-+			len = sprintf(page, "%d\n", 
-+				-test_bit(proc_data->data.bit.bit,
-+					proc_data->data.bit.bit_vector));
-+			break;
-+		case SUSPEND_PROC_DATA_INTEGER:
-+			{
-+				int * variable = proc_data->data.integer.variable;
-+				len = sprintf(page, "%d\n", *variable);
-+				break;
-+			}
-+		case SUSPEND_PROC_DATA_UL:
-+			{
-+				long * variable = proc_data->data.ul.variable;
-+				len = sprintf(page, "%lu\n", *variable);
-+				break;
-+			}
-+		case SUSPEND_PROC_DATA_STRING:
-+			{
-+				char * variable = proc_data->data.string.variable;
-+				len = sprintf(page, "%s\n", variable);
-+				break;
-+			}
-+	}
-+	/* Side effect routine? */
-+	if (proc_data->read_proc)
-+		proc_data->read_proc();
-+	if ((proc_data->type != SUSPEND_PROC_DATA_CUSTOM) || (!proc_data->data.special.read_proc))
-+		*eof = 1;
-+	
-+	suspend_finish_anything(0);
-+	
-+	return len;
-+}
-+/* suspend2_write_proc
-+ *
-+ * Generic routine for handling writing to files representing
-+ * bits, integers and unsigned longs.
++ * Returns a free extent.
++ * May fail, returning NULL instead.
 + */
 +
-+static int suspend2_write_proc(struct file *file, const char * buffer,
-+		unsigned long count, void * data)
++static struct extent * get_extent(void)
 +{
-+	struct suspend_proc_data * proc_data = (struct suspend_proc_data *) data;
-+	char * my_buf = (char *) get_zeroed_page(GFP_ATOMIC);
-+	int result = count, assigned_temp_buffer = 0;
-+
-+	if (!my_buf)
-+		return -ENOMEM;
-+
-+	if (count > PAGE_SIZE)
-+		count = PAGE_SIZE;
-+
-+	if (copy_from_user(my_buf, buffer, count))
-+		return -EFAULT;
++	struct extent * result;
 +	
-+	if (suspend_start_anything(proc_data == &proc_params[0]))
-+		return -EBUSY;
++	if (!(result = kmalloc(sizeof(struct extent), GFP_ATOMIC)))
++		return NULL;
 +
-+	my_buf[count] = 0;
-+
-+	switch (proc_data->type) {
-+		case SUSPEND_PROC_DATA_CUSTOM:
-+			if (proc_data->data.special.write_proc) {
-+				write_proc_t * write_proc = proc_data->data.special.write_proc;
-+				result = write_proc(file, buffer, count, data);
-+			}
-+			break;
-+		case SUSPEND_PROC_DATA_BIT:
-+			{
-+			int value = simple_strtoul(my_buf, NULL, 0);
-+			if (value)
-+				set_bit(proc_data->data.bit.bit, 
-+					(proc_data->data.bit.bit_vector));
-+			else
-+				clear_bit(proc_data->data.bit.bit,
-+					(proc_data->data.bit.bit_vector));
-+			}
-+			break;
-+		case SUSPEND_PROC_DATA_INTEGER:
-+			{
-+				int * variable = proc_data->data.integer.variable;
-+				int minimum = proc_data->data.integer.minimum;
-+				int maximum = proc_data->data.integer.maximum;
-+				*variable = simple_strtol(my_buf, NULL, 0);
-+				if (((*variable) < minimum))
-+					*variable = minimum;
-+
-+				if (((*variable) > maximum))
-+					*variable = maximum;
-+				break;
-+			}
-+		case SUSPEND_PROC_DATA_UL:
-+			{
-+				unsigned long * variable = proc_data->data.ul.variable;
-+				unsigned long minimum = proc_data->data.ul.minimum;
-+				unsigned long maximum = proc_data->data.ul.maximum;
-+				*variable = simple_strtoul(my_buf, NULL, 0);
-+				
-+				if (minimum && ((*variable) < minimum))
-+					*variable = minimum;
-+
-+				if (maximum && ((*variable) > maximum))
-+					*variable = maximum;
-+				break;
-+			}
-+			break;
-+		case SUSPEND_PROC_DATA_STRING:
-+			{
-+				int copy_len = count;
-+				char * variable =
-+					proc_data->data.string.variable;
-+
-+				if (proc_data->data.string.max_length &&
-+				    (copy_len > proc_data->data.string.max_length))
-+					copy_len = proc_data->data.string.max_length;
-+
-+				if (!variable) {
-+					proc_data->data.string.variable =
-+						variable = (char *) get_zeroed_page(GFP_ATOMIC);
-+					assigned_temp_buffer = 1;
-+				}
-+				strncpy(variable, my_buf, copy_len);
-+				if ((copy_len) &&
-+					 (my_buf[copy_len - 1] == '\n'))
-+					variable[count - 1] = 0;
-+				variable[count] = 0;
-+			}
-+			break;
-+	}
-+	free_pages((unsigned long) my_buf, 0);
-+	/* Side effect routine? */
-+	if (proc_data->write_proc)
-+		proc_data->write_proc();
-+
-+	/* Free temporary buffers */
-+	if (assigned_temp_buffer) {
-+		free_pages((unsigned long) proc_data->data.string.variable, 0);
-+		proc_data->data.string.variable = NULL;
-+	}
-+
-+	suspend_finish_anything(proc_data == &proc_params[0]);
-+	
++	extents_allocated++;
++	if (extents_allocated > max_extents_used)
++		max_extents_used++;
++	result->minimum = result->maximum = 0;
++	result->next = NULL;
 +	return result;
 +}
 +
-+/* Non-plugin proc entries.
-+ *
-+ * This array contains entries that are automatically registered at
-+ * boot. Plugins and the console code register their own entries separately.
-+ *
-+ * NB: If you move do_suspend, change suspend2_write_proc's test so that
-+ * suspend_start_anything still gets a 1 when the user echos > do_suspend!
-+ */
-+
-+static struct suspend_proc_data proc_params[] = {
-+	{ .filename			= "do_suspend",
-+	  .permissions			= PROC_WRITEONLY,
-+	  .type				= SUSPEND_PROC_DATA_CUSTOM,
-+	  .write_proc			= __suspend2_try_suspend,
-+	},
-+
-+	{ .filename			= "do_resume",
-+	  .permissions			= PROC_WRITEONLY,
-+	  .type				= SUSPEND_PROC_DATA_CUSTOM,
-+	  .write_proc			= __suspend2_try_resume,
-+	},
-+
-+
-+	{ .filename			= "interface_version",
-+	  .permissions			= PROC_READONLY,
-+	  .type				= SUSPEND_PROC_DATA_INTEGER,
-+	  .data = {
-+		  .integer = {
-+			  .variable	= &suspend_proc_version,
-+		  }
-+	  }
-+	},
-+};
-+
-+/* suspend_initialise_proc
-+ *
-+ * Initialise the /proc/software_suspend directory.
-+ */
-+
-+static void suspend_initialise_proc(void)
-+{
-+	int i;
-+	int numfiles = sizeof(proc_params) / sizeof(struct suspend_proc_data);
-+	
-+	if (suspend_proc_initialised)
-+		return;
-+
-+	suspend_dir = proc_mkdir("software_suspend", NULL);
-+	
-+	BUG_ON(!suspend_dir);
-+
-+	INIT_LIST_HEAD(&suspend_proc_entries);
-+
-+	suspend_proc_initialised = 1;
-+
-+	for (i=0; i< numfiles; i++)
-+		suspend_register_procfile(&proc_params[i]);
-+}
-+
-+/* suspend_register_procfile
-+ *
-+ * Helper for registering a new /proc/software_suspend entry.
-+ */
-+
-+struct proc_dir_entry * suspend_register_procfile(
-+		struct suspend_proc_data * suspend_proc_data)
-+{
-+	struct proc_dir_entry * new_entry;
-+	
-+	if (!suspend_proc_initialised)
-+		suspend_initialise_proc();
-+
-+	new_entry = create_proc_entry(
-+			suspend_proc_data->filename,
-+			suspend_proc_data->permissions, 
-+			suspend_dir);
-+	if (new_entry) {
-+		list_add_tail(&suspend_proc_data->proc_data_list, &suspend_proc_entries);
-+		new_entry->read_proc = suspend2_read_proc;
-+		new_entry->write_proc = suspend2_write_proc;
-+		new_entry->data = suspend_proc_data;
-+	} else {
-+		printk("Error! create_proc_entry returned NULL.\n");
-+		INIT_LIST_HEAD(&suspend_proc_data->proc_data_list);
-+	}
-+	return new_entry;
-+}
-+
-+/* suspend_unregister_procfile
-+ *
-+ * Helper for removing unwanted /proc/software_suspend entries.
-+ *
-+ */
-+void suspend_unregister_procfile(struct suspend_proc_data * suspend_proc_data)
-+{
-+	if (list_empty(&suspend_proc_data->proc_data_list))
-+		return;
-+
-+	remove_proc_entry(
-+		suspend_proc_data->filename,
-+		suspend_dir);
-+	list_del(&suspend_proc_data->proc_data_list);
-+}
-diff -ruNp 617-proc.patch-old/kernel/power/suspend2_core/proc.h 617-proc.patch-new/kernel/power/suspend2_core/proc.h
---- 617-proc.patch-old/kernel/power/suspend2_core/proc.h	1970-01-01 10:00:00.000000000 +1000
-+++ 617-proc.patch-new/kernel/power/suspend2_core/proc.h	2005-07-05 23:48:59.000000000 +1000
-@@ -0,0 +1,66 @@
 +/*
-+ * kernel/power/proc.h
++ * put_extent.
++ *
++ * Frees an extent.
++ *
++ * Assumes unlinking is done by the caller.
++ */
++void put_extent(struct extent * extent)
++{
++	if (!extent) {
++		printk("Error! put_extent called with NULL extent.\n");
++		return;
++	}
++	kfree(extent);
++	extents_allocated--;
++}
++
++/*
++ * put_extent_chain.
++ *
++ * Frees a whole chain of extents.
++ */
++void put_extent_chain(struct extentchain * chain)
++{
++	struct extent * this;
++
++	this = chain->first;
++
++	if (!this)
++		return;
++
++	while(this) {
++		struct extent * next = this->next;
++		kfree(this);
++		chain->frees++;
++		extents_allocated --;
++		this = next;
++	}
++	
++	BUG_ON(chain->frees != chain->allocs);
++	chain->first = chain->last = NULL;
++	chain->size = chain->allocs = chain->frees = 0;
++}
++
++/* 
++ * append_extent_to_extent_chain
++ *
++ * Used where we know a extent is to be added to the end of the list
++ * and does not need merging with the current last extent.
++ */
++
++int append_extent_to_extent_chain(struct extentchain * chain, 
++		unsigned long minimum, unsigned long maximum)
++{
++	struct extent * newextent = NULL;
++
++	newextent = get_extent();
++	if (!newextent) {
++		printk("Error unable to append a new extent to the chain.\n");
++		return 2;
++	}
++
++	chain->allocs++;
++	chain->size+= (maximum - minimum + 1);
++	newextent->minimum = minimum;
++	newextent->maximum = maximum;
++	newextent->next = NULL;
++
++	if (chain->last) {
++		chain->last->next = newextent;
++		chain->last = newextent;
++	} else 
++		chain->last = chain->first = newextent;
++
++	/* No need to reset optimisation info since added to end */
++	return 0;
++}
++
++/* 
++ * serialise_extent_chain
++ *
++ * Write a chain in the image.
++ */
++int serialise_extent_chain(struct extentchain * chain)
++{
++	struct extent * this;
++	int ret, i = 1;
++	
++	if ((ret = active_writer->ops.writer.write_header_chunk((char *) chain,
++		sizeof(struct extentchain) - 2 * sizeof(struct extent *)))) {
++		printk("Write header chunk returned %d - aborting serialising chain.\n",
++				ret);
++		return ret;
++	}
++
++	this = chain->first;
++	while (this) {
++		if ((ret = active_writer->ops.writer.write_header_chunk((char *) this,
++				2 * sizeof(unsigned long)))) {
++			printk("Failed to write extent.\n");
++			return ret;
++		}
++		this = this->next;
++		i++;
++	}
++	return ret;
++}
++
++/* 
++ * load_extent_chain
++ *
++ * Read back a chain saved in the image.
++ */
++int load_extent_chain(struct extentchain * chain)
++{
++	struct extent * this, * last = NULL;
++	int i, ret;
++
++	if (!(ret = active_writer->ops.writer.read_header_chunk((char *) chain,
++		sizeof(struct extentchain) - 2 * sizeof(struct extent *)))) {
++		printk("Read header chunk returned %d - aborting serialising chain.\n",
++				ret);
++		return ret;
++	}
++
++	for (i = 0; i < (chain->allocs - chain->frees); i++) {
++		this = kmalloc(sizeof(struct extent), GFP_ATOMIC);
++		BUG_ON(!this); /* Shouldn't run out of memory trying this! */
++		this->next = NULL;
++		if (!(ret = active_writer->ops.writer.read_header_chunk((char *) this,
++				2 * sizeof(unsigned long)))) {
++			printk("Failed to read extent.\n");
++			return ret;
++		}
++		if (last)
++			last->next = this;
++		else
++			chain->first = this;
++		last = this;
++	}
++	chain->last = last;
++	return ret;
++}
+diff -ruNp 610-extent.patch-old/kernel/power/suspend2_core/extent.h 610-extent.patch-new/kernel/power/suspend2_core/extent.h
+--- 610-extent.patch-old/kernel/power/suspend2_core/extent.h	1970-01-01 10:00:00.000000000 +1000
++++ 610-extent.patch-new/kernel/power/suspend2_core/extent.h	2005-07-05 23:48:59.000000000 +1000
+@@ -0,0 +1,84 @@
++/*
++ * kernel/power/extent.h
 + *
 + * Copyright (C) 2004-2005 Nigel Cunningham <nigel@suspend2.net>
 + *
 + * This file is released under the GPLv2.
 + *
-+ * It provides declarations for suspend to use in managing
-+ * /proc/software_suspend. When we switch to kobjects,
-+ * this will become redundant.
++ * It contains declarations related to extents. Extents are
++ * suspend's method of storing some of the metadata for the image.
++ * See extent.c for more info.
 + *
 + */
 +
-+#include <linux/proc_fs.h>
-+
-+struct suspend_proc_data {
-+	char * filename;
-+	int permissions;
-+	int type;
-+	union {
-+		struct {
-+			unsigned long * bit_vector;
-+			int bit;
-+		} bit;
-+		struct {
-+			int * variable;
-+			int minimum;
-+			int maximum;
-+		} integer;
-+		struct {
-+			unsigned long * variable;
-+			unsigned long minimum;
-+			unsigned long maximum;
-+		} ul;
-+		struct {
-+			char * variable;
-+			int max_length;
-+		} string;
-+		struct {
-+			read_proc_t * read_proc;
-+			write_proc_t * write_proc;
-+			void * data;
-+		} special;
-+	} data;
-+	
-+	/* Side effects routines. Used, eg, for reparsing the
-+	 * resume2 entry when it changes */
-+	void (* read_proc) (void);
-+	void (* write_proc) (void); 
-+	struct list_head proc_data_list;
++#ifndef EXTENT_H
++#define EXTENT_H
++struct extentchain {
++	int size; /* size of the extent ie sum (max-min+1) */
++	int allocs;
++	int frees;
++	int debug;
++	int timesusedoptimisation;
++	char * name;
++	struct extent * first;
++	struct extent * last;
 +};
 +
-+#define SUSPEND_PROC_DATA_CUSTOM	0
-+#define SUSPEND_PROC_DATA_BIT		1
-+#define SUSPEND_PROC_DATA_INTEGER	2
-+#define SUSPEND_PROC_DATA_UL		3
-+#define SUSPEND_PROC_DATA_STRING	4
++/*
++ * We rely on extents not fitting evenly into a page.
++ * The last four bytes are used to store the number
++ * of the page, to make saving & reloading pages simpler.
++ */
++struct extent {
++	unsigned long minimum;
++	unsigned long maximum;
++	struct extent * next;
++};
 +
-+#define PROC_WRITEONLY 0200
-+#define PROC_READONLY 0400
-+#define PROC_RW 0600
 +
-+struct proc_dir_entry * suspend_register_procfile(
-+		struct suspend_proc_data * suspend_proc_data);
-+void suspend_unregister_procfile(struct suspend_proc_data * suspend_proc_data);
++#define extent_for_each(extentchain, extentpointer, value) \
++if ((extentchain)->first) \
++	for ((extentpointer) = (extentchain)->first, (value) = \
++			(extentpointer)->minimum; \
++	     ((extentpointer) && ((extentpointer)->next || (value) <= \
++				 (extentpointer)->maximum)); \
++	     (((value) == (extentpointer)->maximum) ? \
++		((extentpointer) = (extentpointer)->next, (value) = \
++		 ((extentpointer) ? (extentpointer)->minimum : 0)) : \
++			(value)++))
 +
++/*
++ * When using compression and expected_compression > 0,
++ * we allocate fewer swap entries, so GET_EXTENT_NEXT can
++ * validly run out of data to return.
++ */
++#define GET_EXTENT_NEXT(currentextent, currentval) \
++{ \
++	if (currentextent) { \
++		if ((currentval) == (currentextent)->maximum) { \
++			if ((currentextent)->next) { \
++				(currentextent) = (currentextent)->next; \
++				(currentval) = (currentextent)->minimum; \
++			} else { \
++				(currentextent) = NULL; \
++				(currentval) = 0; \
++			} \
++		} else \
++			currentval++; \
++	} \
++}
++
++extern int max_extents_used, extents_allocated;
++void put_extent(struct extent * extent);
++void put_extent_chain(struct extentchain * chain);
++int append_extent_to_extent_chain(struct extentchain * chain, 
++		unsigned long minimum, unsigned long maximum);
++int serialise_extent_chain(struct extentchain * chain);
++int load_extent_chain(struct extentchain * chain);
++
++/* swap_entry_to_extent_val & extent_val_to_swap_entry: 
++ * We are putting offset in the low bits so consecutive swap entries
++ * make consecutive extent values */
++#define swap_entry_to_extent_val(swp_entry) (swp_entry.val)
++#define extent_val_to_swap_entry(val) (swp_entry_t) { (val) }
++#endif
 

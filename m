@@ -1,71 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262592AbVGGCRe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262408AbVGGAXD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262592AbVGGCRe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 22:17:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262590AbVGGCRX
+	id S262408AbVGGAXD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 20:23:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262351AbVGFUER
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 22:17:23 -0400
-Received: from zeus2.kernel.org ([204.152.191.36]:43424 "EHLO zeus2.kernel.org")
-	by vger.kernel.org with ESMTP id S262352AbVGGCQR (ORCPT
+	Wed, 6 Jul 2005 16:04:17 -0400
+Received: from graphe.net ([209.204.138.32]:7815 "EHLO graphe.net")
+	by vger.kernel.org with ESMTP id S261801AbVGFRrJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 22:16:17 -0400
-Message-Id: <200507070216.j672G14v005668@zeus2.kernel.org>
-From: "joeoti60" <joeoti60@yahoo.co.in>
-To: "linux-hams" <linux-hams@vger.kernel.org>
-Subject: Investment Offer From Joseph Otisa
-Date: Thu, 07 Jul 05 02:43:36 Greenwich Standard Time
+	Wed, 6 Jul 2005 13:47:09 -0400
+Date: Wed, 6 Jul 2005 10:47:07 -0700 (PDT)
+From: Christoph Lameter <christoph@lameter.com>
+X-X-Sender: christoph@graphe.net
+To: torvalds@osdl.org
+cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Fix broken kmalloc_node in rc1/rc2
+Message-ID: <Pine.LNX.4.62.0507061042460.30563@graphe.net>
 MIME-Version: 1.0
-Content-Type: multipart/mixed;boundary= "----=_NextPart_000_002B_941B7432.3639AF4"
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2462.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000 
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -5.8
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_NextPart_000_002B_941B7432.3639AF4
-Content-Type: text/plain
-Content-Transfer-Encoding: base64
+This patch used to be in Andrew's tree before the NUMA slab allocator went 
+in. Either this patch or the NUMA slab allocator is needed in order for
+kmalloc_node to work correctly.
 
-SW52ZXN0bWVudCBPZmZlciBGcm9tIEpvc2VwaCBPdGlzYQ0KDQpDb21wbGltZW50cyBvZiB0
-aGUgc2Vhc29uLCBteSBuYW1lIGlzIE1yLiBKb3NlcGggT3Rpc2EsIHRoZSBicmFuY2ggbWFu
-YWdlciBvZiBBbGxzdGF0ZXNUcnVzdCBCYW5rIG9mIE5pZ2VyaWEgcGxjIExhZ29zIFN0YXRl
-IEJyYW5jaC4gIA0KIA0KSSBhbSB3cml0aW5nIGluIHJlc3BlY3Qgb2YgYSBmb3JlaWduIGN1
-c3RvbWVyIG9mIG15IGJhbmsgKE1yLndhaGFiIERhbmllbCkgd2l0aCBhY2NvdW50IG51bWJl
-ciBBVFMgMTAyMjAwMi0xMDkgd2hvIHBlcmlzaGVkIHdpdGggaGlzIGZhbWlseSBpbiBhbiBh
-dXRvIGNyYXNoIGluIEFidWphIGV4cHJlc3dheSwgaW4gTmlnZXJpYSwgb24gdGhlIDMwdGgg
-b2YgTm92ZW1iZXIgMjAwMC4NCiANClNpbmNlIHRoZSBkZW1pc2Ugb2YgTXIuIERhbmllbCwg
-SSBwZXJzb25hbGx5IGhhdmUgd2F0Y2hlZCB3aXRoIGtlZW4gaW50ZXJlc3QgdG8gc2VlIHRo
-ZSBuZXh0IG9mIGtpbiBidXQgYWxsIGhhcyBwcm92ZWQgYWJvcnRpdmUgYXMgbm8gb25lIGhh
-cyBjb21lIHRvIGNsYWltIGhpcyBmdW5kcyBvZiB1c2Q2LjIzbSwgc2l4IG1pbGxpb24sIHR3
-byBodW5kcmVkIGFuZCB0aGlydHkgdGhvdXNhbmQgdW5pdGVkIHN0YXRlcyBkb2xsYXJzXSBo
-YXMgYmVlbiB3aXRoIG91ciBiYW5rIGhlcmUgZm9yIGEgdmVyeSBsb25nIHRpbWUsIHdoaWNo
-IGhhcyBhY2N1bXVsYXRlZCBzb21lIGludGVyZXN0LiBvbiB0aGlzIG5vdGUgSSBkZWNpZGVk
-IHRvIHNlZWsgZm9yIHlvdSwgeW91ciBuYW1lIHNoYWxsIGJlIHVzZWQgYXMgdGhlIG5leHQg
-b2Yga2luLCBhcyBubyBvbmUgaGFzIGNvbWUgdXAgdG8gcHV0IGNsYWltIGFzIHRoZSBuZXh0
-IG9mIGtpbiB0byB0aGlzIGZ1bmRzIGFuZCB0aGUgYmFua2luZyBldGhpY3MgaGVyZSBkb2Vz
-IG5vdCBhbGxvdyBzdWNoIG1vbmV5IHRvIHN0YXkgbW9yZSB0aGFuIGZpdmUgeWVhcnMsIGJl
-Y3Vhc2UgYWZ0ZXIgZml2ZSB5ZWFycyB0aGUgbW9uZXkgd2lsbCBiZSBjYWxsZWQgYmFjayB0
-byB0aGUgYmFuayB0cmVhc3VyeSBhcyB1bmNsYWltZWQgYmlsbC4uDQogDQpJIGFtIGNvbnZp
-bmNlZCBpbiBteSBtaW5kIHRoYXQgeW91ciBuYW1lIGNvdWxkIGJlIHVzZWQgYXMgdGhlIG5l
-eHQgb2Yga2luIHRvIHRoaXMgY2xhaW0uIFRoZSByZXF1ZXN0IG9mIHRoZSBmb3JlaWduZXIg
-YXMgYSBuZXh0IG9mIGtpbiBpbiB0aGlzIGJ1c2luZXNzIGlzIG9jY2FzaW9uZWQgYnkgdGhl
-IGZhY3QgdGhhdCB0aGUgY3VzdG9tZXIgd2FzIGZvcmVpZ25lciBhbmQgYSBOaWdlcmlhbiBj
-YW5ub3Qgc3RhbmQgYXMgdGhlIG5leHQgb2Yga2luIHRvIGEgZm9yZWlnbmVyLg0KIA0KSSBo
-YXZlIGFncmVlZCB0byBzaGFyZSB0aGlzIG1vbmV5IHdpdGggeW91IGluIHRoZSBtdXR1YWwg
-dW5kZXJzdGFuZGluZyBvZiA3MCUvMzAlLnlvdSBrZWVwIDMwJSB3aGlsZSBJIGtlZXAgNzAl
-LCB0aGVyZWFmdGVyIEkgd2lsbCB2aXNpdCB5b3VyIGNvdW50cnksIGZvciBkaXNidXJzZW1l
-bnQgYXMgSSBhbSBhbG1vc3QgZHVlIGZvciByZXRpcmVtZW50LiBUaGVyZWZvcmUgdG8gZW5k
-ZWF2b3VyIHRoZSBpbW1lZGlhdGUgdHJhbnNmZXIgb2YgdGhpcyBmdW5kcyB0byB5b3VyIGFj
-Y291bnQsIHlvdSBoYXZlIHRvIGFwcGx5IGZpcnN0IHRvIHRoZSBiYW5rIGFzIHRoZSBuZXh0
-IG9mIGtpbiB0byB0aGUgZGVjZWFzZWQgaW5kaWNhdGluZyBieSBzZW5kaW5nIGFuIGFwcGxp
-Y2F0aW9uIGFuZCBsb2NhdGlvbiB3aGVyZSB0aGUgbW9uZXkgd2lsbCBiZSByZW1pdHRlZC4N
-CiANCkkgd2lsbCBub3QgZmFpbCB0byBicmluZyB0byB5b3VyIG5vdGljZSB0aGF0IHRoaXMg
-YnVzaW5lc3MgaXMgaGl0Y2ggZnJlZSBhbmQgdGhhdCB5b3Ugc2hvdWxkIG5vdCBlbnRlcnRh
-aW4gYW55IGZlYXIgYXMgdGhlIHdob2xlIHJlcXVpcmVkIGFycmFuZ2VtZW50IGFzIGJlZW4g
-cGVyZmVjdGVkIGZvciB0aGUgdHJhbnNmZXIuDQogDQpJIHdhbnQgdG8gbWFrZSB5b3UgdGhp
-cyBvZmZlciwgKCBqb2VvdGk3QHN3aXNzaW5mby5vcmcgKSB0aGlzIGlzIG15IHByaXZhdGUg
-ZW1haWwgYWRkcmVzcyBkbyBub3QgaGVzaXRhdGUgdG8gcmVwbHkgbWUgdGhyb3VnaCB0aGlz
-IGVtYWlsIGFkZHJlc3MgaWYgeW91IGFyZSBpbnRlcmVzdGVkLg0KIA0KS2luZCByZWdhcmRz
-LiAgICA=
-------=_NextPart_000_002B_941B7432.3639AF4--
+pcibus_to_node may be used to generate the node information passed to 
+kmalloc_node. pcibus_to_node returns -1 if it was not able to determine
+on which node a pcibus is located. For that case kmalloc_node must
+work like kmalloc.
+
+Signed-off-by: Christoph Lameter <christoph@lameter.com>
+
+Index: linux-2.6.13-rc2/mm/slab.c
+===================================================================
+--- linux-2.6.13-rc2.orig/mm/slab.c	2005-07-06 03:46:33.000000000 +0000
++++ linux-2.6.13-rc2/mm/slab.c	2005-07-06 17:34:19.000000000 +0000
+@@ -2372,6 +2372,9 @@ void *kmem_cache_alloc_node(kmem_cache_t
+ 	struct slab *slabp;
+ 	kmem_bufctl_t next;
+ 
++	if (nodeid == -1)
++		return kmem_cache_alloc(cachep, flags);
++
+ 	for (loop = 0;;loop++) {
+ 		struct list_head *q;
+ 

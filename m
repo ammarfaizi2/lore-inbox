@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262214AbVGFIRS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262136AbVGFIU0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262214AbVGFIRS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 04:17:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261824AbVGFIOu
+	id S262136AbVGFIU0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 04:20:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262131AbVGFIUZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 04:14:50 -0400
-Received: from nproxy.gmail.com ([64.233.182.193]:28642 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262163AbVGFGhR convert rfc822-to-8bit
+	Wed, 6 Jul 2005 04:20:25 -0400
+Received: from nproxy.gmail.com ([64.233.182.205]:9752 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262136AbVGFGkL convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 02:37:17 -0400
+	Wed, 6 Jul 2005 02:40:11 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=mNjm5NrwhfuWx8cHhLAR7c4vEkKx9Q0JasIyqgtJVTdfVbRatnVvg5n5U88roKspMEpJ4EYTwOfu6JmwHaLRNfzAb3u+VCDTyTjE17cxFfHtRokcvxRrMCyM79VNJiYWihNzym/ncvnHWcepHkspszt08LpTX3EACmNF86a+yhA=
-Message-ID: <84144f02050705233723e70b9b@mail.gmail.com>
-Date: Wed, 6 Jul 2005 09:37:16 +0300
+        b=p66yB5wc7dhV9qVEzt2fRY/DduLK1RMIiEpk/KohNcTUg2xbCKk0kHP3m+MqjlA2MH974DblTXN1m9GEHjBMGHUwb3SejarWErYx/J510E7dSbiybdMPPdIZwhL7icKCUKxzoLwJtwrUVnrHoiDyj7o1OcqTMxa5E+26w6P0fYM=
+Message-ID: <84144f02050705234074ff7b99@mail.gmail.com>
+Date: Wed, 6 Jul 2005 09:40:03 +0300
 From: Pekka Enberg <penberg@gmail.com>
 Reply-To: Pekka Enberg <penberg@gmail.com>
 To: Nigel Cunningham <nigel@suspend2.net>
-Subject: Re: [PATCH] [1/48] Suspend2 2.1.9.8 for 2.6.12: submit_intro
+Subject: Re: [0/48] Suspend2 2.1.9.8 for 2.6.12
 Cc: linux-kernel@vger.kernel.org, Pekka Enberg <penberg@cs.helsinki.fi>
-In-Reply-To: <11206164393057@foobar.com>
+In-Reply-To: <11206164393426@foobar.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <11206164393426@foobar.com> <11206164393057@foobar.com>
+References: <nigel@suspend2.net> <11206164393426@foobar.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/6/05, Nigel Cunningham <nigel@suspend2.net> wrote:
-> diff -ruNp 300-reboot-handler-hook.patch-old/kernel/sys.c 300-reboot-handler-hook.patch-new/kernel/sys.c
-> --- 300-reboot-handler-hook.patch-old/kernel/sys.c      2005-06-20 11:47:32.000000000 +1000
-> +++ 300-reboot-handler-hook.patch-new/kernel/sys.c      2005-07-04 23:14:18.000000000 +1000
-> @@ -436,12 +436,12 @@ asmlinkage long sys_reboot(int magic1, i
->                 machine_restart(buffer);
->                 break;
-> 
-> -#ifdef CONFIG_SOFTWARE_SUSPEND
-> +#ifdef CONFIG_SUSPEND2
->         case LINUX_REBOOT_CMD_SW_SUSPEND:
->                 {
-> -                       int ret = software_suspend();
-> +                       suspend2_try_suspend();
->                         unlock_kernel();
-> -                       return ret;
+Hi Nigel,
 
-Are both mechanisms intended to live in the kernel? If not, where's
-the patch to remove the old code?
+On 7/6/05, Nigel Cunningham <nigel@suspend2.net> wrote:
+> As requested, here are the patches that form Suspend2, for review.
+> 
+> I've tried to split it up into byte size chunks, but please don't expect
+> that these will be patches that can mutate swsusp into Suspend2. That
+> would roughly equivalent to asking for patches that patch Reiser3 into
+> Reiser4 - it's a redesign.
+
+Please consider putting diffstat in the patches. They make navigating
+large patchsets easier.
+
+                               Pekka

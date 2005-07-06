@@ -1,45 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262320AbVGFTs0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261152AbVGFTsY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262320AbVGFTs0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 15:48:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262285AbVGFTpY
+	id S261152AbVGFTsY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 15:48:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262349AbVGFTqO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 15:45:24 -0400
-Received: from mail24.syd.optusnet.com.au ([211.29.133.165]:15324 "EHLO
-	mail24.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S262123AbVGFOdN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 10:33:13 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: rt-preempt build failure
-Date: Thu, 7 Jul 2005 00:33:03 +1000
+	Wed, 6 Jul 2005 15:46:14 -0400
+Received: from wproxy.gmail.com ([64.233.184.195]:10402 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262362AbVGFOxJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Jul 2005 10:53:09 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=jY7OTCXmxVlsOcwLgw1wGgE9bQ90vZxMtZAlDh1pwWcNb88sFnRaTsEJ328/QzhgQrvuWX+NUZGDDelxpeaYX0PwD12fmt1h80lk5H6zkjqRA8SJndCEoL5/UAwjQTK4sMeV74xlmBHjoFj1ggpxoStG/T+lF8gHdCR7NEMigTE=
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Jeremy Laine <jeremy.laine@polytechnique.org>
+Subject: Re: OOPS: frequent crashes with bttv in 2.6.X series (inc. 2.6.12)
+Date: Wed, 6 Jul 2005 18:59:39 +0400
 User-Agent: KMail/1.8.1
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <200507052308.43970.kernel@kolivas.org> <200507062304.03944.kernel@kolivas.org> <20050706134950.GC19467@elte.hu>
-In-Reply-To: <20050706134950.GC19467@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+References: <1120644686.42cbae4e16ea3@webmail.jerryweb.org>
+In-Reply-To: <1120644686.42cbae4e16ea3@webmail.jerryweb.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200507070033.03948.kernel@kolivas.org>
+Message-Id: <200507061859.40565.adobriyan@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Jul 2005 23:49, Ingo Molnar wrote:
-> * Con Kolivas <kernel@kolivas.org> wrote:
-> > > thanks, i have fixed this and have uploaded the -51-00 patch.
-> >
-> > Thanks. boots and runs stable after a swag of these initially
-> > (?netconsole related):
+On Wednesday 06 July 2005 14:11, Jeremy Laine wrote:
+> I keep getting OOPS's when using a Bt878 TV card, I am basically unable to watch
+> TV for more than about 20-30mn without my system grinding to a halt.
 
-> ok, the patch below (or -51-04 and later kernels) should fix this one.
-> printk is fully preemptible from now on - lets see how it works out in
-> practice. (i kept it under irqs-off to make sure we get all crash
-> messages out. Perhaps we could disable irqs/preemption if
-> oops_in_progress?) This patch should also fix similar, fbcon related
-> messages.
+> I have seen suggestions to try without PREEMPT enabled, which I will be doing
+> shortly. Any other suggestions to get to the bottom of this problem are most
+> welcome!
 
-Works fine, thanks!
+Try without loading all those proprietary modules (vmmon, vmnet, nvidia).
 
-Con
+> Jul  6 10:55:44 sharky kernel: EIP:    0060:[__link_path_walk+1862/3520]   
+> Tainted: P      VLI

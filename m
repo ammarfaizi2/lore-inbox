@@ -1,40 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262241AbVGFKJs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262157AbVGFKJx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262241AbVGFKJs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 06:09:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262225AbVGFKHD
+	id S262157AbVGFKJx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 06:09:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262202AbVGFKGn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 06:07:03 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:59351 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262228AbVGFIVv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 04:21:51 -0400
-Date: Wed, 6 Jul 2005 10:21:27 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <nigel@suspend2.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [0/48] Suspend2 2.1.9.8 for 2.6.12
-Message-ID: <20050706082127.GE1412@elf.ucw.cz>
-References: <11206164393426@foobar.com>
+	Wed, 6 Jul 2005 06:06:43 -0400
+Received: from fmr19.intel.com ([134.134.136.18]:29119 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S262116AbVGFIUF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Jul 2005 04:20:05 -0400
+Subject: Re: [PATCH] [16/48] Suspend2 2.1.9.8 for 2.6.12:
+	406-dynamic-pageflags.patch
+From: Shaohua Li <shaohua.li@intel.com>
+To: ncunningham@cyclades.com
+Cc: Nigel Cunningham <nigel@suspend2.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1120637607.4860.34.camel@localhost>
+References: <11206164411593@foobar.com>
+	 <1120635983.6970.4.camel@linux-hp.sh.intel.com>
+	 <1120637607.4860.34.camel@localhost>
+Content-Type: text/plain
+Date: Wed, 06 Jul 2005 16:30:32 +0800
+Message-Id: <1120638632.2908.0.camel@linux-hp.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <11206164393426@foobar.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On St 06-07-05 12:20:39, Nigel Cunningham wrote:
-> As requested, here are the patches that form Suspend2, for review.
+On Wed, 2005-07-06 at 18:13 +1000, Nigel Cunningham wrote:
+> Hi.
 > 
-> I've tried to split it up into byte size chunks, but please don't expect
-> that these will be patches that can mutate swsusp into Suspend2. That
-> would roughly equivalent to asking for patches that patch Reiser3 into
-> Reiser4 - it's a redesign.
+> On Wed, 2005-07-06 at 17:46, Shaohua Li wrote:
+> > we are using cpu hotplug for S3 & S4 SMP to avoid nasty deadlocks. Could
+> > this be avoided in suspend2 SMP?
+> 
+> I haven't had any problems with this code but yes, I do want to switch
+> to using hotplug. It's only in -mm, not mainline?
+It's in base kernel now.
 
-It still has quite a big impact outside kernel/power :-(.
+Thanks,
+Shaohua
 
-								Pavel
--- 
-teflon -- maybe it is a trademark, but it should not be.

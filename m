@@ -1,53 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262230AbVGFQnW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262252AbVGFQuS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262230AbVGFQnW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 12:43:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262368AbVGFQnG
+	id S262252AbVGFQuS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 12:50:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262303AbVGFQuS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 12:43:06 -0400
-Received: from ms-smtp-01.texas.rr.com ([24.93.47.40]:28360 "EHLO
-	ms-smtp-01-eri0.texas.rr.com") by vger.kernel.org with ESMTP
-	id S262230AbVGFMZu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 08:25:50 -0400
-Date: Wed, 6 Jul 2005 07:25:13 -0500
-From: serge@hallyn.com
-To: Greg KH <greg@kroah.com>
-Cc: James Morris <jmorris@redhat.com>, Tony Jones <tonyj@suse.de>,
-       lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@osdl.org>,
-       Stephen Smalley <sds@epoch.ncsc.mil>, Andrew Morton <akpm@osdl.org>,
-       Michael Halcrow <mhalcrow@us.ibm.com>,
-       David Safford <safford@watson.ibm.com>,
-       Reiner Sailer <sailer@us.ibm.com>, Gerrit Huizenga <gh@us.ibm.com>
-Subject: Re: [PATCH] securityfs
-Message-ID: <20050706122513.GA13520@vino.hallyn.com>
-References: <20050703182505.GA29491@immunix.com> <Xine.LNX.4.44.0507031450540.30297-100000@thoron.boston.redhat.com> <20050703204423.GA17418@kroah.com> <20050704155321.GA25153@vino.hallyn.com> <20050705060700.GA29650@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050705060700.GA29650@kroah.com>
-User-Agent: Mutt/1.5.8i
+	Wed, 6 Jul 2005 12:50:18 -0400
+Received: from hobbit.corpit.ru ([81.13.94.6]:21857 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S262252AbVGFMaZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Jul 2005 08:30:25 -0400
+Message-ID: <42CBCEDD.2020401@tls.msk.ru>
+Date: Wed, 06 Jul 2005 16:30:21 +0400
+From: Michael Tokarev <mjt@tls.msk.ru>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: sent an invalid ICMP type 11, code 0 error to a broadcast: 0.0.0.0
+ on lo?
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Greg KH (greg@kroah.com):
-> Nice, glad to see this makes your code smaller and simpler.  Although I
-> think it could be made even smaller if you use the default read and
-> write file type functions in libfs (look at the debugfs wrappers of them
-> for u8, u16, etc, for examples of how to use them.)
+On our gateway machine, wich is running 2.6 kernel, I'm seeing quite
+several messages like this:
 
-Hmm, I looked around at libfs and debugfs yesterday...  it seems that
-the simple_attr_read as used by fops_u8 would have been great for
-seclvl - except that -1 is a valid input for seclvl  :)
+kernel: 192.168.4.2 sent an invalid ICMP type 11, code 0 error to a broadcast: 0.0.0.0 on lo
+last message repeated 3 times
+kernel: 192.168.4.2 sent an invalid ICMP type 11, code 0 error to a broadcast: 0.0.0.0 on lo
+last message repeated 3 times
 
-A more specialized per-type API in security/security.c in the line of
-debugfs/file.c might be good,simple_attr_read as used by fops_u8 would
-have been great for
-seclvl - except that -1 is a valid input for seclvl  :)
+kernel: 81.13.90.174 sent an invalid ICMP type 11, code 0 error to a broadcast: 0.0.0.0 on lo
+gate last message repeated 10 times
 
-The general type of API provided by debugfs/file.c might be useful in
-security/security.c, though, provided that the securityfs_create_int()
-and friends also took a function pointer to an update() or validate()
-function.  I'll try to do something like that later today or tomorrow.
+kernel: 81.13.90.174 sent an invalid ICMP type 11, code 0 error to a broadcast: 0.0.0.0 on lo
+last message repeated 9 times
 
-thanks,
--serge
+All the IP addresses mentioned are local to this box.  It's always
+like this, type11 code0 to 0.0.0.0 on lo.
+
+The box is a gateway, which have "external" interface, several "LAN"
+ifaces, DMZ, dialin modem pool and accepts vtund connections.  And
+it has iptables-based firewall and NAT enabled.  Here's a lis of
+network-related modules:
+
+ppp_deflate             4736  0
+zlib_deflate           21528  1 ppp_deflate
+zlib_inflate           16640  1 ppp_deflate
+ppp_async               8576  0
+crc_ccitt               1920  1 ppp_async
+ppp_generic            19860  2 ppp_deflate,ppp_async
+slhc                    6144  1 ppp_generic
+tun                     8320  13
+crc32                   3968  1 tun
+ipt_ECN                 2944  163
+iptable_mangle          2304  1
+ipt_REJECT              4096  1
+ipt_LOG                 6272  3
+ipt_state               1664  3
+ipt_comment             1536  22
+iptable_filter          2432  1
+iptable_nat            19420  1
+ipt_NOTRACK             1920  3
+iptable_raw             1792  1
+ip_tables              18304  10 ipt_ECN,iptable_mangle,ipt_REJECT,ipt_LOG,ipt_state,ipt_comment,iptable_filter,iptable_nat,ipt_NOTRACK,iptable_raw
+md5                     3840  1
+ipv6                  218688  12
+ip_conntrack           37560  3 ipt_state,iptable_nat,ipt_NOTRACK
+aes_i586               38656  1
+airo                   63520  0
+3c509                  11476  0
+
+I've seen several posts about problems *like* this, but
+they're all not from the same box (usually it's some problem
+with *another* device on the network which is sending bogus
+packets, or with hubs/switches or cables).  In this case,
+it looks like it is this same box who's generating those
+bad packets.
+
+So far, I wasn't able to relate this message with any particular
+network activity.  It happens "randomly".
+
+What it can be?
+
+Thanks.
+
+/mjt

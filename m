@@ -1,56 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262388AbVGFRYc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262389AbVGFRYb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262388AbVGFRYc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 13:24:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262400AbVGFRW4
+	id S262389AbVGFRYb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 13:24:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262388AbVGFRXE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 13:22:56 -0400
-Received: from zproxy.gmail.com ([64.233.162.201]:24717 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261670AbVGFM6g convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 08:58:36 -0400
+	Wed, 6 Jul 2005 13:23:04 -0400
+Received: from wproxy.gmail.com ([64.233.184.192]:24000 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261156AbVGFNAQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Jul 2005 09:00:16 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=kOTQZk3hymDhUo8Qhl/D09Y3rrdKZ8qkezBKIYK94JWz84+LEC3LPgt6eYAC1SkfkI4G70yl8rBTsusxagaeINvXum4trdPcIJX2nAsAaCK/dpBtl/sR/jBR2i/4mzNHBwLQJmdU1qrQfxG4M4PgYC1Z53dRVrSUyUD9tnhQDt4=
-Message-ID: <9a874849050706055831ec5aae@mail.gmail.com>
-Date: Wed, 6 Jul 2005 14:58:34 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=EC/GOqZJHYXPpqSwpIfAnnRsFZZH6G1h1MlYBauSJ9tVCSEj7BiDnXEnNzM9lPaP5qsnYocDueASfGpF09cEqth0VENEO2yjL/eaEoSbeKG1syNnDV8vosd6tqPdtal2L2ShHo5l78mqvO42H3fKx06gENsEAb6TZChfGDpVRWU=
+From: Alexey Dobriyan <adobriyan@gmail.com>
 To: Rob Prowel <tempest766@yahoo.com>
 Subject: Re: PROBLEM: please remove reserved word "new" from kernel headers
+Date: Wed, 6 Jul 2005 17:06:29 +0400
+User-Agent: KMail/1.8.1
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050706092657.95280.qmail@web60012.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
 References: <20050706092657.95280.qmail@web60012.mail.yahoo.com>
+In-Reply-To: <20050706092657.95280.qmail@web60012.mail.yahoo.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200507061706.29843.adobriyan@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/6/05, Rob Prowel <tempest766@yahoo.com> wrote:
-> [1.] One line summary of the problem:
-> 
-> 2.4 and 2.6 kernel headers use c++ reserved word "new"
-> as identifier in function prototypes.
-> 
-"new" is not a reserved word in C. the kernel is written in C.
-
-
-> [2.] Full description of the problem/report:
-> 
+On Wednesday 06 July 2005 13:26, Rob Prowel wrote:
 > When kernel headers are included in compilation of c++
 > programs the compile fails because some header files
-> use "new" in a way that is illegal for c++.
+> use "new" in a way that is illegal for c++.  This
+> shows up when compiling mySQL under linux 2.6.  It
+> uses $KERNELSOURCE/include/asm-i386/system.h.
 
-Userspace programs should not include kernel headers directly.
+Please read http://marc.theaimsgroup.com/?t=111637777000001&r=2&w=2
+where people discuss this brokeness of MySQL.
 
-But, if you really want it changed I suggest you create a patch and
-submit that for review/inclusion and see what feedback you get.
-
-
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html

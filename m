@@ -1,76 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262533AbVGFUxH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262559AbVGFVTk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262533AbVGFUxH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 16:53:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262528AbVGFUtT
+	id S262559AbVGFVTk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 17:19:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262535AbVGFVT0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 16:49:19 -0400
-Received: from qmailer.bethesdahosting.com ([209.183.221.248]:51461 "EHLO
-	qMailer.bethesdahosting.com") by vger.kernel.org with ESMTP
-	id S262534AbVGFUrU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 16:47:20 -0400
-From: Charlie at Brief Encounters USA <DCMetro@briefencountersusa.com>
-To: <linux-kernel@vger.kernel.org>
-Date: Wed, 06 Jul 2005 21:04:59 GMT
-X-MSMail-Priority: Normal
-Reply-To: DCMetro@briefencountersusa.com
-X-mailer: AspMail 4.0 4.03 (SMT4B845CF)
-Subject: New DC Events
+	Wed, 6 Jul 2005 17:19:26 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:4525
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S262539AbVGFU6W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Jul 2005 16:58:22 -0400
+Date: Wed, 06 Jul 2005 13:58:07 -0700 (PDT)
+Message-Id: <20050706.135807.105431412.davem@davemloft.net>
+To: davej@redhat.com
+Cc: pmarques@grupopie.com, linux-kernel@vger.kernel.org
+Subject: Re: Slowdown with randomize_va_space in 2.6.12.2
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20050706205315.GC27630@redhat.com>
+References: <42CBE97C.2060208@grupopie.com>
+	<20050706.125719.08321870.davem@davemloft.net>
+	<20050706205315.GC27630@redhat.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <SHADYGHW5uUJvf5whLm000a8146@qMailer.bethesdahosting.com>
-X-OriginalArrivalTime: 06 Jul 2005 21:04:59.0531 (UTC) FILETIME=[5E9D55B0:01C5826E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Dave Jones <davej@redhat.com>
+Subject: Re: Slowdown with randomize_va_space in 2.6.12.2
+Date: Wed, 6 Jul 2005 16:53:15 -0400
 
-Hi,
+> On Wed, Jul 06, 2005 at 12:57:19PM -0700, David S. Miller wrote:
+>  > It might be attributable to more cpu cache misses in userspace since
+>  > the virtual addresses of everything are changing each and every
+>  > invocation.
+> 
+> On Transmeta CPUs that probably triggers a retranslation of
+> x86->native bytecode, if it thinks it hasn't seen code at that
+> address before.
 
-We invite you to join us for an upcoming Brief Encounters event.  It guarantees to be an exciting time!  Plus, it’s your easiest way to meet fun and attractive DC single professionals. 
-
-Take a minute to sign up to meet these cute and outgoing guys and gals at some of metro DC’s hottest spots!
-
-Check out what’s coming up…
-
--------------------------------------------
-Love In The City... And, On The Metro
-Thursday, July 7th
-Who: Women: 30-39 Men 30-39
-Where: Champps, Pentagon City
-http://www.briefencountersusa.com/eventdescription.asp?eventID=326
-
--------------------------------------------
-Smile, laugh, blush
-Summer Sparks In Georgetown.
-Sunday, July 17th
-Who: Women: 38-46 Men 40-48
-Where: Riverside Waterfront In Georgetown
-http://www.briefencountersusa.com/eventdescription.asp?eventID=327
-
--------------------------------------------
-Hot! Hot! Fun in Bethesda.
-Bethesda
-Thursday, July 14th
-Who: Women: 30-39 Men 30-39
-Where: Guapo’s
-http://www.briefencountersusa.com/eventdescription.asp?eventID=328
-
--------------------------------------------
-Flirting over Tea (or beer ;-))
-Downtown by the Metro
-Thursday, July 21st
-Who: Ages 24- 34
-Where: Teaism  A NEW Night Out!
-http://www.briefencountersusa.com/eventdescription.asp?eventID=325
-
-Sign up today to meet NEW singles.
-
--Jenn
-
-Briefencounters.com
-
-*****************************************************************
-
-To unsubscribe yourself from future mailings, click this link http://www.briefencountersusa.com/mailinglist.asp?page=unsubscribe
-
+That sounds like a more likely cause than my theory.

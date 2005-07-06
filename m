@@ -1,48 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262367AbVGGA3z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262328AbVGGAXg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262367AbVGGA3z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 20:29:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262321AbVGGA2C
+	id S262328AbVGGAXg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 20:23:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262131AbVGFT7h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 20:28:02 -0400
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:22198 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S262420AbVGGA0F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 20:26:05 -0400
-Subject: Re: [0/48] Suspend2 2.1.9.8 for 2.6.12
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050706082230.GF1412@elf.ucw.cz>
-References: <11206164393426@foobar.com>  <20050706082230.GF1412@elf.ucw.cz>
-Content-Type: text/plain
-Organization: Cycades
-Message-Id: <1120696047.4860.525.camel@localhost>
+	Wed, 6 Jul 2005 15:59:37 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:50061 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262281AbVGFQ26 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Jul 2005 12:28:58 -0400
+Date: Wed, 6 Jul 2005 18:28:56 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Realtime Preemption, 2.6.12, Beginners Guide?
+Message-ID: <20050706162856.GB24728@elte.hu>
+References: <200507061257.36738.s0348365@sms.ed.ac.uk> <200507061351.18410.s0348365@sms.ed.ac.uk> <20050706133915.GB19467@elte.hu> <200507061658.53845.s0348365@sms.ed.ac.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 07 Jul 2005 10:27:28 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200507061658.53845.s0348365@sms.ed.ac.uk>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi again.
 
-On Wed, 2005-07-06 at 18:22, Pavel Machek wrote:
-> Is swsusp1 expected to be functional after these are applied? You
-> removed *some* of its hooks, but not all, so I'm confused.
+* Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
 
-I've been thinking about this some more and wondering whether I should
-just replace swsusp. I really don't want to step on your toes though.
-What would you like to see happen?
+> On Wednesday 06 Jul 2005 14:39, Ingo Molnar wrote:
+> > * Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
+> > > Then it continues to boot. I'm getting periodic lockups under high
+> > > network load, however, though I suspect that might be the ipw2200
+> > > driver I compiled against the realtime-preempt kernel. Are there any
+> > > known issues with external modules versus PREEMPT-RT?
+> >
+> > you should keep an eye on compile-time warnings, but otherwise, most of
+> > the API deviations should be runtime detected and should be reported in
+> > one way or another (if you have all debugging options enabled).
+> 
+> I now no longer suspect the ipw2200 module. It locks up within 5 
+> minutes, reliably, with or without network load. I seem to always have 
+> to promote a large redraw in X11 before it occurs, but this is just 
+> hand waving, I don't really have any evidence.
 
-Regards,
+just to make sure: you dont have debug_direct_keyboard when using the 
+console keyboard and mouse, correct? Sometimes i forget to turn it off 
+and i get a crash in the keyboard or mouse irq after some time. Under X 
+that often looks like a silent hard lockup.
 
-Nigel
--- 
-Evolution.
-Enumerate the requirements.
-Consider the interdependencies.
-Calculate the probabilities.
-Be amazed that people believe it happened. 
-
+	Ingo

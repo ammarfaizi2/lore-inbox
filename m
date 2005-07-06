@@ -1,79 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262025AbVGFUXg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262362AbVGFUTv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262025AbVGFUXg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 16:23:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262526AbVGFUUV
+	id S262362AbVGFUTv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 16:19:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261885AbVGFUK4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 16:20:21 -0400
-Received: from smtprelay04.ispgateway.de ([80.67.18.16]:27566 "EHLO
-	smtprelay04.ispgateway.de") by vger.kernel.org with ESMTP
-	id S262288AbVGFUNI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 16:13:08 -0400
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH] add securityfs for all LSMs to use
-Date: Wed, 6 Jul 2005 22:12:59 +0200
-User-Agent: KMail/1.7.2
-Cc: Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-security-module@wirex.com
-References: <20050706081725.GA15544@kroah.com>
-In-Reply-To: <20050706081725.GA15544@kroah.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1339000.2MjMhP4ciA";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200507062213.05337.ioe-lkml@rameria.de>
+	Wed, 6 Jul 2005 16:10:56 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:33459 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262163AbVGFT3T (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Jul 2005 15:29:19 -0400
+Date: Wed, 6 Jul 2005 15:29:09 -0400
+From: Dave Jones <davej@redhat.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@suse.de>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] Fix bt87x.c build problem
+Message-ID: <20050706192909.GA23293@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Greg Kroah-Hartman <gregkh@suse.de>,
+	Linus Torvalds <torvalds@osdl.org>
+References: <200507061824.j66IODbD018395@hera.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200507061824.j66IODbD018395@hera.kernel.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1339000.2MjMhP4ciA
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Wed, Jul 06, 2005 at 11:24:13AM -0700, Linux Kernel wrote:
+ > tree 2fe5cb66de97b707e23d531578dc2a656855415e
+ > parent 3d3c2ae1101c1f2dff7e2f9d514769779dbd2737
+ > author Greg KH <greg@kroah.com> Wed, 06 Jul 2005 22:51:03 -0700
+ > committer Linus Torvalds <torvalds@g5.osdl.org> Wed, 06 Jul 2005 23:34:23 -0700
+ > 
+ > [PATCH] Fix bt87x.c build problem
+ > 
+ > Missing forward declaration
+ > 
+ > Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+ > Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+ > 
+ >  sound/pci/bt87x.c |    2 ++
+ >  1 files changed, 2 insertions(+)
+ > 
+ > diff --git a/sound/pci/bt87x.c b/sound/pci/bt87x.c
+ > --- a/sound/pci/bt87x.c
+ > +++ b/sound/pci/bt87x.c
+ > @@ -798,6 +798,8 @@ static struct {
+ >  	{0x270f, 0xfc00}, /* Chaintech Digitop DST-1000 DVB-S */
+ >  };
+ >  
+ > +static struct pci_driver driver;
+ > +
+ >  /* return the rate of the card, or a negative value if it's blacklisted */
+ >  static int __devinit snd_bt87x_detect_card(struct pci_dev *pci)
+ >  {
+ > -
 
-Hi Greg,
+Still not enough to make it build here..
 
-On Wednesday 06 July 2005 10:17, Greg KH wrote:
-> + * TODO:
-> + *   I think I can get rid of these default_file_ops, but not quite sure=
-=2E..
-> + */
-> +static ssize_t default_read_file(struct file *file, char __user *buf,
-> +				 size_t count, loff_t *ppos)
-> +{
-> +	return 0;
-> +}
-> +
-> +static ssize_t default_write_file(struct file *file, const char __user *=
-buf,
-> +				   size_t count, loff_t *ppos)
-> +{
-> +	return count;
-> +}
+sound/pci/bt87x.c:809: error: incompatible type for argument 1 of 'pci_match_device'
 
-Yes, you can get rid of both, if you move read_null and write_null from=20
-drivers/char/mem.c to fs/libfs.c and export them.
+Signed-off-by: Dave Jones <davej@redhat.com>
 
-But for what do you need a successful dummy read/write?
-
-
-Regards
-
-Ingo Oeser
-
-
---nextPart1339000.2MjMhP4ciA
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBCzDtRU56oYWuOrkARAuEnAJ4/udnTIGSb3wZBjnu7cNAtgBesSgCgqtUv
-4aM+IAVGGU1ctCEReD5Lsvo=
-=e4oy
------END PGP SIGNATURE-----
-
---nextPart1339000.2MjMhP4ciA--
+--- linux-2.6.12/sound/pci/bt87x.c~	2005-07-06 14:59:08.000000000 -0400
++++ linux-2.6.12/sound/pci/bt87x.c	2005-07-06 15:26:35.000000000 -0400
+@@ -806,7 +806,7 @@ static int __devinit snd_bt87x_detect_ca
+ 	int i;
+ 	const struct pci_device_id *supported;
+ 
+-	supported = pci_match_device(driver, pci);
++	supported = pci_match_device(&driver, pci);
+ 	if (supported)
+ 		return supported->driver_data;
+ 

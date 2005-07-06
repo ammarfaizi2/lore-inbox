@@ -1,41 +1,29 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262262AbVGFUTs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262535AbVGFV1F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262262AbVGFUTs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 16:19:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbVGFULr
+	id S262535AbVGFV1F (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 17:27:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261272AbVGFVXc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 16:11:47 -0400
-Received: from graphe.net ([209.204.138.32]:19850 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S262287AbVGFTcD (ORCPT
+	Wed, 6 Jul 2005 17:23:32 -0400
+Received: from coderock.org ([193.77.147.115]:19335 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S262558AbVGFVTr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 15:32:03 -0400
-Date: Wed, 6 Jul 2005 12:31:57 -0700 (PDT)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@graphe.net
-To: Andi Kleen <ak@suse.de>
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org,
-       gregkh@suse.de
-Subject: Re: [PATCH] Run PCI driver initialization on local node
-In-Reply-To: <20050706181349.GN21330@wotan.suse.de>
-Message-ID: <Pine.LNX.4.62.0507061231310.720@graphe.net>
-References: <20050706133248.GG21330@wotan.suse.de> <Pine.LNX.4.62.0507060934360.20107@graphe.net>
- <20050706175603.GL21330@wotan.suse.de> <Pine.LNX.4.62.0507061058260.30702@graphe.net>
- <20050706181349.GN21330@wotan.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.8
+	Wed, 6 Jul 2005 17:19:47 -0400
+Date: Wed, 6 Jul 2005 23:19:43 +0200
+From: Domen Puncer <domen@coderock.org>
+To: Jesse Millan <jessem@cs.pdx.edu>
+Cc: kj <kernel-janitors@lists.osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [KJ] 2.6.13-rc2-kj (Should work now, was: (Broken Link))
+Message-ID: <20050706211943.GA27151@homer.coderock.org>
+References: <20050706200006.GA12464@homer.coderock.org> <42CC3C34.8050302@cs.pdx.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42CC3C34.8050302@cs.pdx.edu>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Jul 2005, Andi Kleen wrote:
+That's what happens if you close the console with reminder to copy. :-)
 
-> > GFP allocs may not do the right thing. If you want to do this then it 
-> > may be best to set the memory policy to restrict allocations to the node 
-> > on which the device resides.
-> 
-> They will do the right thing. Under memory pressue on the node 
-> it is better to back off than to fail.
-
-Node specific allocs fall back to other nodes and will not fail unless 
-there is no memory available.
-
+	Domen

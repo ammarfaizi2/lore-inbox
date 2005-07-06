@@ -1,196 +1,208 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262423AbVGGAxu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261156AbVGGAXb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262423AbVGGAxu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 20:53:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262441AbVGGAxq
+	id S261156AbVGGAXb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 20:23:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262486AbVGFUDE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 20:53:46 -0400
-Received: from mail.tyan.com ([66.122.195.4]:23558 "EHLO tyanweb.tyan")
-	by vger.kernel.org with ESMTP id S262423AbVGGAvb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 20:51:31 -0400
-Message-ID: <3174569B9743D511922F00A0C94314230AF97867@TYANWEB>
-From: YhLu <YhLu@tyan.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Peter Buckingham <peter@pantasys.com>, linux-kernel@vger.kernel.org,
-       "'discuss@x86-64.org'" <discuss@x86-64.org>
-Subject: RE: 2.6.13-rc2 with dual way dual core ck804 MB
-Date: Wed, 6 Jul 2005 17:56:17 -0700 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	Wed, 6 Jul 2005 16:03:04 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:47603 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262436AbVGFRcO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Jul 2005 13:32:14 -0400
+Date: Wed, 6 Jul 2005 23:01:34 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: schwidefsky@de.ibm.com, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org, manfred@colorfullife.com
+Subject: Re: [RFC] (How to) Let idle CPUs sleep
+Message-ID: <20050706173134.GA24636@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20050507182728.GA29592@in.ibm.com> <1115524211.17482.23.camel@localhost.localdomain> <427D921F.8070602@yahoo.com.au> <20050630124711.GC17928@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050630124711.GC17928@in.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-andi,
+On Thu, Jun 30, 2005 at 06:17:11PM +0530, Srivatsa Vaddagiri wrote:
+> Digging further revealed that this max time was restricted by 
+> various timers kernel uses. Mostly it was found to be because of
+> the slab allocator reap timer (it requests a timer every ~2sec on
+> every CPU) and machine_check timer (MCE_RATE in arch/i386/kernel/cpu/mcheck/
+> non-fatal.c ).
 
-please refer the patch, it will move cpu_set(, cpu_callin_map) from
-smi_callin to start_secondary.
+I modified the slab allocator to do a slightly better job of handling timers.
+(instead of blindly increasing the reap timeout to 20 sec as I did in my last 
+run).  The patch below is merely a hack meant to see what kind of benefits we 
+can possibly hope to get by reworking the reap timer.  A good solution would 
+probably increase/decrease the reap periods based on memory pressure and 
+idleness of the system. Anyway the patch I tried out is:
 
---- /home/yhlu/xx1/linux-2.6.13-rc2/arch/x86_64/kernel/smpboot.c.orig
-2005-07-06 18:41:16.789767168 -0700
-+++ /home/yhlu/xx1/linux-2.6.13-rc2/arch/x86_64/kernel/smpboot.c
-2005-07-06 18:45:11.923021480 -0700
-@@ -442,7 +442,7 @@
-        /*
-         * Allow the master to continue.
-         */
--       cpu_set(cpuid, cpu_callin_map);
-+//     cpu_set(cpuid, cpu_callin_map); // moved to start_secondary by yhlu
+
+---
+
+ linux-2.6.13-rc1-root/mm/slab.c |   40 ++++++++++++++++++++++++++++++++--------
+ 1 files changed, 32 insertions(+), 8 deletions(-)
+
+diff -puN mm/slab.c~vst-slab mm/slab.c
+--- linux-2.6.13-rc1/mm/slab.c~vst-slab	2005-07-05 16:36:03.000000000 +0530
++++ linux-2.6.13-rc1-root/mm/slab.c	2005-07-06 18:01:28.000000000 +0530
+@@ -371,6 +371,8 @@ struct kmem_cache_s {
+  */
+ #define REAPTIMEOUT_CPUC	(2*HZ)
+ #define REAPTIMEOUT_LIST3	(4*HZ)
++#define MAX_REAP_TIMEOUT	(30*HZ)
++#define MAX_DRAIN_COUNT		2
+ 
+ #if STATS
+ #define	STATS_INC_ACTIVE(x)	((x)->num_active++)
+@@ -569,6 +571,7 @@ static enum {
+ } g_cpucache_up;
+ 
+ static DEFINE_PER_CPU(struct work_struct, reap_work);
++static DEFINE_PER_CPU(unsigned long, last_timeout);
+ 
+ static void free_block(kmem_cache_t* cachep, void** objpp, int len);
+ static void enable_cpucache (kmem_cache_t *cachep);
+@@ -883,8 +886,10 @@ static int __init cpucache_init(void)
+ 	 * pages to gfp.
+ 	 */
+ 	for (cpu = 0; cpu < NR_CPUS; cpu++) {
+-		if (cpu_online(cpu))
++		if (cpu_online(cpu)) {
++			per_cpu(last_timeout, cpu) = REAPTIMEOUT_CPUC + cpu;
+ 			start_cpu_timer(cpu);
++		}
+ 	}
+ 
+ 	return 0;
+@@ -1543,7 +1548,7 @@ static void smp_call_function_all_cpus(v
+ 	preempt_enable();
  }
-
- static inline void set_cpu_sibling_map(int cpu)
-@@ -529,8 +529,11 @@
-        /* Wait for TSC sync to not schedule things before.
-           We still process interrupts, which could see an inconsistent
-           time in that window unfortunately. */
-+
-        tsc_sync_wait();
-
-+       cpu_set(smp_processor_id(), cpu_callin_map); // moved from
-smp_callin by yhlu
-+
-        cpu_idle();
+ 
+-static void drain_array_locked(kmem_cache_t* cachep,
++static int drain_array_locked(kmem_cache_t* cachep,
+ 				struct array_cache *ac, int force);
+ 
+ static void do_drain(void *arg)
+@@ -2753,10 +2758,10 @@ static void enable_cpucache(kmem_cache_t
+ 					cachep->name, -err);
  }
+ 
+-static void drain_array_locked(kmem_cache_t *cachep,
++static int drain_array_locked(kmem_cache_t *cachep,
+ 				struct array_cache *ac, int force)
+ {
+-	int tofree;
++	int tofree = 1;
+ 
+ 	check_spinlock_acquired(cachep);
+ 	if (ac->touched && !force) {
+@@ -2771,6 +2776,8 @@ static void drain_array_locked(kmem_cach
+ 		memmove(&ac_entry(ac)[0], &ac_entry(ac)[tofree],
+ 					sizeof(void*)*ac->avail);
+ 	}
++
++	return tofree;
+ }
+ 
+ /**
+@@ -2787,17 +2794,20 @@ static void drain_array_locked(kmem_cach
+ static void cache_reap(void *unused)
+ {
+ 	struct list_head *walk;
++	int drain_count = 0, freed_slab_count = 0;
++	unsigned long timeout = __get_cpu_var(last_timeout);
++	int cpu = smp_processor_id();
+ 
+ 	if (down_trylock(&cache_chain_sem)) {
+ 		/* Give up. Setup the next iteration. */
+-		schedule_delayed_work(&__get_cpu_var(reap_work), REAPTIMEOUT_CPUC + smp_processor_id());
++		schedule_delayed_work(&__get_cpu_var(reap_work), timeout);
+ 		return;
+ 	}
+ 
+ 	list_for_each(walk, &cache_chain) {
+ 		kmem_cache_t *searchp;
+ 		struct list_head* p;
+-		int tofree;
++		int tofree, count;
+ 		struct slab *slabp;
+ 
+ 		searchp = list_entry(walk, kmem_cache_t, next);
+@@ -2809,7 +2819,9 @@ static void cache_reap(void *unused)
+ 
+ 		spin_lock_irq(&searchp->spinlock);
+ 
+-		drain_array_locked(searchp, ac_data(searchp), 0);
++		count = drain_array_locked(searchp, ac_data(searchp), 0);
++		if (count > drain_count)
++			drain_count = count;
+ 
+ 		if(time_after(searchp->lists.next_reap, jiffies))
+ 			goto next_unlock;
+@@ -2825,6 +2837,9 @@ static void cache_reap(void *unused)
+ 		}
+ 
+ 		tofree = (searchp->free_limit+5*searchp->num-1)/(5*searchp->num);
++		if (tofree > freed_slab_count)
++			freed_slab_count = tofree;
++
+ 		do {
+ 			p = list3_data(searchp)->slabs_free.next;
+ 			if (p == &(list3_data(searchp)->slabs_free))
+@@ -2854,7 +2869,16 @@ next:
+ 	up(&cache_chain_sem);
+ 	drain_remote_pages();
+ 	/* Setup the next iteration */
+-	schedule_delayed_work(&__get_cpu_var(reap_work), REAPTIMEOUT_CPUC + smp_processor_id());
++#ifdef CONFIG_NO_IDLE_HZ
++	if (drain_count < MAX_DRAIN_COUNT && !freed_slab_count) {
++		if (timeout * 2 < MAX_REAP_TIMEOUT)
++			timeout *= 2;
++	} else
++#endif
++		timeout = REAPTIMEOUT_CPUC + cpu;
++
++	__get_cpu_var(last_timeout) = timeout;
++	schedule_delayed_work(&__get_cpu_var(reap_work), timeout);
+ }
+ 
+ #ifdef CONFIG_PROC_FS
+_
 
-the other solution will be change cpu_callin_map to cpu_online_map in
-do_boot_cpu
+The results with this patch on a 8way Intel box are:
 
-                /*
-                 * allow APs to start initializing.
-                 */
-                Dprintk("Before Callout %d.\n", cpu);
-                cpu_set(cpu, cpu_callout_map);
-                Dprintk("After Callout %d.\n", cpu);
-
-                /*
-                 * Wait 5s total for a response
-                 */
-                for (timeout = 0; timeout < 50000; timeout++) {
-                        if (cpu_isset(cpu, cpu_callin_map))
---------------------------> cpu_online_map
-                                break;  /* It has booted */
-                        udelay(100);
-                }
-
-                if (cpu_isset(cpu, cpu_callin_map)) {
---------------------------------> cpu_online_map
-                        /* number CPUs logically, starting from 1 (BSP is 0)
-*/
-                        Dprintk("CPU has booted.\n");
-                } else {
-                        boot_error = 1;
-                        if (*((volatile unsigned char
-*)phys_to_virt(SMP_TRAMPOLINE_BASE))
-                                        == 0xA5)
-                                /* trampoline started but...? */
-                                printk("Stuck ??\n");
-                        else
-                                /* trampoline code not run */
-                                printk("Not responding.\n");
-#if APIC_DEBUG
-                        inquire_remote_apic(apicid);
-#endif
-                }
+CPU#   # of       Mean          Std Dev     Max                 Min
+       samples
 
 
-the result will be
-
-Booting processor 1/1 rip 6000 rsp ffff81013ff89f58
-Initializing CPU#1
-masked ExtINT on CPU#1
-Calibrating delay using timer specific routine.. 4422.98 BogoMIPS
-(lpj=8845965)
-CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-CPU: L2 Cache: 1024K (64 bytes/line)
-CPU 1(2) -> Node 0 -> Core 1
- stepping 00
-CPU 1: Syncing TSC to CPU 0.
-sync_master: 1 smp_processor_id() = 00, boot_cpu_id= 00
-sync_master: 2 smp_processor_id() = 00, boot_cpu_id= 00
-CPU 1: synchronized TSC with CPU 0 (last diff 0 cycles, maxerr 595 cycles)
----------------------> it is in right place.
-Booting processor 2/2 rip 6000 rsp ffff81023ff1df58
-Initializing CPU#2
-masked ExtINT on CPU#2
-Calibrating delay using timer specific routine.. 4422.99 BogoMIPS
-(lpj=8845997)
-CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-CPU: L2 Cache: 1024K (64 bytes/line)
-CPU 2(2) -> Node 1 -> Core 0
- stepping 00
-CPU 2: Syncing TSC to CPU 0.
-sync_master: 1 smp_processor_id() = 00, boot_cpu_id= 00
-sync_master: 1 smp_processor_id() = 01, boot_cpu_id= 00
-sync_master: 2 smp_processor_id() = 00, boot_cpu_id= 00
-CPU 2: synchronized TSC with CPU 0 (last diff -4 cycles, maxerr 1097 cycles)
-Booting processor 3/3 rip 6000 rsp ffff81013ff53f58
-Initializing CPU#3
-masked ExtINT on CPU#3
-Calibrating delay using timer specific routine.. 4423.03 BogoMIPS
-(lpj=8846075)
-CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-CPU: L2 Cache: 1024K (64 bytes/line)
-CPU 3(2) -> Node 1 -> Core 1
- stepping 00
-CPU 3: Syncing TSC to CPU 0.
-sync_master: 1 smp_processor_id() = 00, boot_cpu_id= 00
-sync_master: 1 smp_processor_id() = 01, boot_cpu_id= 00
-sync_master: 1 smp_processor_id() = 02, boot_cpu_id= 00
-sync_master: 2 smp_processor_id() = 00, boot_cpu_id= 00
-CPU 3: synchronized TSC with CPU 0 (last diff -4 cycles, maxerr 1097 cycles)
-Brought up 4 CPUs
+1:      31       4124.742     4331.914      14317.000          0.000
+2:      35       3603.600     3792.050      12556.000         14.000
+3:    2585         49.458        4.207         50.000          2.000
+4:     151        847.682      329.343       1139.000         15.000
+5:      23       5432.652     3461.856      12024.000        120.000
+6:      19       6229.158     5641.813      15000.000        169.000
+7:      67       1865.672     1528.343       5000.000         19.000
 
 
-> -----Original Message-----
-> From: YhLu 
-> Sent: Wednesday, July 06, 2005 3:25 PM
-> To: Andi Kleen
-> Cc: Peter Buckingham; linux-kernel@vger.kernel.org
-> Subject: 2.6.13-rc2 with dual way dual core ck804 MB
-> 
-> andi,
-> 
-> the core1/node0 take a long while to get TSC synchronized. Is 
-> it normal?
-> i guess
-> "CPU 1: synchronized TSC with CPU 0"  should be just after 
-> "CPU 1: Syncing TSC to CPU0"
-> 
-> YH
-> 
-> 
-> cpu 1: setting up apic clock
-> cpu 1: enabling apic timer
-> CPU 1: Syncing TSC to CPU 0.
-> CPU has booted.
-> waiting for cpu 1
-> 
-> cpu 2: setting up apic clock
-> cpu 2: enabling apic timer
-> CPU 2: Syncing TSC to CPU 0.
-> CPU 2: synchronized TSC with CPU 0 (last diff -4 cycles, 
-> maxerr 1097 cycles) CPU has booted.
-> waiting for cpu 2
-> 
-> cpu 3: setting up apic clock
-> cpu 3: enabling apic timer
-> CPU 3: Syncing TSC to CPU 0.
-> CPU 3: synchronized TSC with CPU 0 (last diff 1 cycles, 
-> maxerr 1087 cycles) CPU has booted.
-> waiting for cpu 3
-> 
-> testing NMI watchdog ... CPU#1: NMI appears to be stuck (1->1)!
-> checking if image is initramfs...<6>CPU 1: synchronized TSC 
-> with CPU 0 (last diff 0 cycles, maxerr 595 cycles) it isn't 
-> (no cpio magic); looks like an initrd
-> 
-> 
-> the
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in the body of a message to 
-> majordomo@vger.kernel.org More majordomo info at  
-> http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Note that the best average is around ~6sec (with max being 15 sec).
+
+Given, this do you still advocate that we restrict idle CPUs to wakeup
+every 100ms and check for imbalance? IMO, we should let them sleep
+much longer (few seconds) ..What are the consequences on load balancing
+if idle CPUs sleep that long? Does it mean that system can remain unresponsive
+for few seconds under some circumstances (when there is a burst of activity and
+at that time idle CPUs are sleeping)?
+
+
+-- 
+
+
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

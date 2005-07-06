@@ -1,164 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261998AbVGFBOi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262026AbVGFBRC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261998AbVGFBOi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Jul 2005 21:14:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262026AbVGFBOi
+	id S262026AbVGFBRC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Jul 2005 21:17:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262033AbVGFBRB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Jul 2005 21:14:38 -0400
-Received: from unused.mind.net ([69.9.134.98]:6041 "EHLO echo.lysdexia.org")
-	by vger.kernel.org with ESMTP id S261998AbVGFBOV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Jul 2005 21:14:21 -0400
-Date: Tue, 5 Jul 2005 18:13:18 -0700 (PDT)
-From: William Weston <weston@sysex.net>
-X-X-Sender: weston@echo.lysdexia.org
-To: Carlo Scarfoglio <mi2332@mclink.it>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: realtime-preempt-2.6.12-final-V0.7.51-01 compile error and more
- problems
-In-Reply-To: <42CB1707.6000205@mclink.it>
-Message-ID: <Pine.LNX.4.58.0507051701440.13700@echo.lysdexia.org>
-References: <42CB1707.6000205@mclink.it>
+	Tue, 5 Jul 2005 21:17:01 -0400
+Received: from services106.cs.uwaterloo.ca ([129.97.152.164]:141 "EHLO
+	services106.cs.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S262026AbVGFBQu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Jul 2005 21:16:50 -0400
+X-Mailer: emacs 21.4.1 (via feedmail 8 I)
+To: "Alexander G. M. Smith" <agmsmith@rogers.com>
+Cc: ross.biro@gmail.com, vonbrand@inf.utfsm.cl, mrmacman_g4@mac.com,
+       Valdis.Kletnieks@vt.edu, ltd@cisco.com, gmaxwell@gmail.com,
+       jgarzik@pobox.com, hch@infradead.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com,
+       zam@namesys.com, vs@thebsh.namesys.com, ndiller@namesys.com,
+       ninja@slaphack.com
+Subject: Re: reiser4 plugins
+From: Hubert Chan <hubert@uhoreg.ca>
+In-Reply-To: <1740726161-BeMail@cr593174-a> (Alexander G. M. Smith's message
+ of "Tue, 05 Jul 2005 20:50:08 -0400 EDT")
+References: <42CB1E12.2090005@namesys.com> <1740726161-BeMail@cr593174-a>
+X-Hashcash: 1:23:050706:agmsmith@rogers.com::VfTVPQQ0CulmvAtE:000000000000000000000000000000000000000000E7Jb
+X-Hashcash: 1:23:050706:ross.biro@gmail.com::cHdvJQwm153POEvy:000000000000000000000000000000000000000000H0uf
+X-Hashcash: 1:23:050706:vonbrand@inf.utfsm.cl::FzRQn6zwR56yC4nG:0000000000000000000000000000000000000000m/AB
+X-Hashcash: 1:23:050706:mrmacman_g4@mac.com::A1W6vcVrD0H1SYYp:000000000000000000000000000000000000000000HWNk
+X-Hashcash: 1:23:050706:valdis.kletnieks@vt.edu::JtYHAuqP/1Huffcx:00000000000000000000000000000000000000dgJh
+X-Hashcash: 1:23:050706:ltd@cisco.com::dMo0JFbiuTk9DxJo:0000H27U
+X-Hashcash: 1:23:050706:gmaxwell@gmail.com::8/pDn7H2QTkrlGUA:0000000000000000000000000000000000000000001dMJR
+X-Hashcash: 1:23:050706:jgarzik@pobox.com::2iK51E9rTqqkbDOY:00000000000000000000000000000000000000000000Bqc4
+X-Hashcash: 1:23:050706:hch@infradead.org::+vrY8+RBCs5N1tiQ:000000000000000000000000000000000000000000002dGN
+X-Hashcash: 1:23:050706:akpm@osdl.org::V2FePIxi75NjSSTU:0000SST9
+X-Hashcash: 1:23:050706:linux-kernel@vger.kernel.org::c0LPGoglPFLVovfs:0000000000000000000000000000000003lRy
+X-Hashcash: 1:23:050706:reiserfs-list@namesys.com::cQh02zmH0uZCl96l:000000000000000000000000000000000000EAH4
+X-Hashcash: 1:23:050706:zam@namesys.com::VP0O7mPGmUzx51y/:00H0tp
+X-Hashcash: 1:23:050706:vs@thebsh.namesys.com::0W50KT7GvS8uZ1Ws:0000000000000000000000000000000000000001BX+A
+X-Hashcash: 1:23:050706:ndiller@namesys.com::Ri4zyDh15ZiFLkwz:000000000000000000000000000000000000000001ZNtF
+X-Hashcash: 1:23:050706:ninja@slaphack.com::+g5w4kc+fvjuVJWX:0000000000000000000000000000000000000000000ZM9z
+Date: Tue, 05 Jul 2005 21:16:21 -0400
+Message-ID: <87hdf8zqca.fsf@evinrude.uhoreg.ca>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (services106.cs.uwaterloo.ca [129.97.152.132]); Tue, 05 Jul 2005 21:16:37 -0400 (EDT)
+X-Miltered: at minos with ID 42CB308C.000 by Joe's j-chkmail (http://j-chkmail.ensmp.fr)!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Jul 2005, Carlo Scarfoglio wrote:
+On Tue, 05 Jul 2005 20:50:08 -0400 EDT, "Alexander G. M. Smith" <agmsmith@rogers.com> said:
 
-> Compilation stops at this point:
-> 
-> make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
->    CHK     include/linux/compile.h
->    CHK     usr/initramfs_list
->    CC      net/ipv4/netfilter/ip_conntrack_proto_tcp.o
-> net/ipv4/netfilter/ip_conntrack_proto_tcp.c: In function 
-> `tcp_print_conntrack':
-> net/ipv4/netfilter/ip_conntrack_proto_tcp.c:333: error: `tcp_lock' 
-> undeclared (first use in this function)
-> net/ipv4/netfilter/ip_conntrack_proto_tcp.c:333: error: (Each undeclared 
-> identifier is reported only once
-> net/ipv4/netfilter/ip_conntrack_proto_tcp.c:333: error: for each 
-> function it appears in.)
-> net/ipv4/netfilter/ip_conntrack_proto_tcp.c:333: warning: type defaults 
-> to `int' in declaration of `type name'
-> etc. etc..
-> 
-> Most likely it depends on the redefinition of DECLARE_RWLOCK in lockhelp.h
+> That sounds equivalent to no hard links (other than the usual parent
+> directory one).  If there's any directory with two links to it, then
+> there will be a cycle somewhere!
 
-Same here...
+What we want is no directed cycles.  That is A is the parent of B is the
+parent of C is the parent of A.  We don't care about A is the parent of
+B is the parent of C; A is the parent of B is the parent of C.
 
-> More problems....
-> 
-> Patch 7.50-48 has been the first rt kernel that compiled and booted 
-> cleanly on my system.
+OK, here's a random idea that just popped into my head, and to which
+I've given little thought (read: none whatsoever), and may be the
+stupidest idea ever proposed on LKML, but thought I would just toss it
+out to see if it could stimulate someone to come up with something
+better (read: sane):  Conceptually, foo/.... is just a symlink to
+/meta/[filesystem]/[inode of foo].
 
--50-43 is the most recent out of the -50 series that's compiled and
-operated cleanly on my Athlon box.  So far, it appears to be rock-solid.  
-I'd recommend giving it a try if you haven't already.
+And a question: is it feasible to store, for each inode, its parent(s),
+instead of just the hard link count?
 
-> I'm testing the rt kernels because I want to use jack as my system sound 
-> mixer/router
-> and to record lp's with my ice1712-based sound card. I have no rt 
-> requrements, of course,
-> but I want to get rid of xruns. Kernel 2.6.12 vanilla is quite good 
-> already (a big improvement
-> over previous kernels) but still ...
+-- 
+Hubert Chan <hubert@uhoreg.ca> - http://www.uhoreg.ca/
+PGP/GnuPG key: 1024D/124B61FA
+Fingerprint: 96C5 012F 5F74 A5F7 1FF7  5291 AF29 C719 124B 61FA
+Key available at wwwkeys.pgp.net.   Encrypted e-mail preferred.
 
-Audio without xruns is an RT requirement, IMHO  ;-}
-
-> Patch 7.50-48 been running for two days now and seems pretty stable but:
-> 
-> 1) My logs are filled with Apic errors all like this
-> 
-> Jul  5 04:30:01 linux kernel: APIC error on CPU0: 02(02)
-> 
-> every 2 seconds, or minute, at random. I've never seen these messages 
-> before with vanilla kernels,
-> so it's a bit weird.
-
-Have you tried disabling CONFIG_X86_IOAPIC_FAST?  This is new in the
-realtime-preempt patches.  It's currently stable on 3 out of the 4 boxes
-I'm testing RT on.  On the fourth (P4 with an SIS chipset), it didn't seem
-to make any difference.  I finally had to switch from APIC to PIC (in
-BIOS) to get the APIC errors on CPU0 to go away.
-
-> 2) Whenever I play an mp3 or watch a movie (through jack) I get 
-> thousands of times these errors in the logs
-> 
-> Jul  5 20:45:56 linux kernel: `IRQ 8'[828] is being piggy. 
-> need_resched=0, cpu=0
-> Jul  5 20:45:56 linux kernel: Read missed before next interrupt
-> Jul  5 20:45:56 linux kernel: wow!  That was a 12 millisec bump
-> Jul  5 20:45:56 linux kernel: bug in rtc_read(): called in state S_IDLE!
-> Jul  5 20:45:56 linux kernel: `IRQ 8'[828] is being piggy. 
-> need_resched=0, cpu=0
-> Jul  5 20:45:56 linux kernel: Read missed before next interrupt
-> Jul  5 20:45:56 linux kernel: wow!  That was a 3 millisec bump
-> Jul  5 20:45:56 linux kernel: bug in rtc_read(): called in state S_IDLE!
-> 
-> This is a known issue, RTC  interrupts are missed. I have noticed it 
-> many times when ntp is
-> running. It stops working after a few minutes of playing when the the 
-> error exceeds 500 PPM.
-> But I thought that ntp compared external reference clocks to the system 
-> timer, so the system
-> was missing int 0, not int 8.  My mobo has a crappy timer anyway. I had 
-> to reduce the tick to 9934
-> in order to allow ntp to run.
-
-Is the RTC the only thing on IRQ 8?  The last time I saw the 'IRQ 8 is 
-being piggy' messages on my Athlon box was when the RTC was sharing IRQ 8 
-with either the video or the USB.
-
-> 3) I had to disable polling of the cpu temperature by kacpid because 
-> whenever it did the sound
-> stopped for 1-3 seconds. The polling took longer and longer after a few 
-> hours of uptime.
-> The nice thing is, it caused no xruns. Kernel 2.6.12 vanilla has the 
-> same problem, though.
-> 
-> 4) Xruns occur every 10-60 minutes even when the system is practically 
-> idle (no playback
-> or recording). When copying large files (between sata disks on two 
-> sil3112 controllers)
-> xruns frequency is much higher.  When sound is used xruns occur every 2 
-> or 20 minutes.
-
-Do these xruns coincide with the RTC 'Read missed before next interrupt'
-messages?
-
-Have you tried running JACK with a larger buffer period size?  Some cards
-are perfectly happy with -p64, while others need -p128 or -p256 to be xrun
-free for an extended time.  In the past, I've seen a difference between
-running with 2 and 3 buffer periods (-n2 or -n3).
-
-Also, have you tried bumping up JACK's RT priority?  If JACK is running at 
-a lower priority than the IRQ threads for your SATA, then disk activity 
-will most likely cause additional xruns.  I've had good luck running JACK 
-with '-R -P60', which sets it's realtime priority above all the IRQ 
-threads.
-
-You may also want to run the IRQ threads for your audio hardware at a 
-slightly higher RT priority than the rest of the IRQ threads.
-
-> This is a nForce2-mobo (Abit NF7-S V 2.0), Athlon 2800, 1 GB Ram, 
-> Terratec DMX6Fire,
-> nVidia 4200 video card, 2 sil3112 sata controllers with 3 disks,etc. 
-> SuSE 9.1 with KDE 3.4 and
-> uptodate jack, xmms, mplayer, sound libraries and recording apps.
-> 
-> If more details are needed or I can perform some tests, feel free to ask.
-
-If you haven't tried this out yet, jack_test4.1 should be a big help for 
-system tuning:
-
-http://www.joq.us/jack/tests/jack_test4.1.tar.gz
-
-Edit jack_test4_run.sh to change settings for JACK priority, number of 
-test clients, etc.  On your system, you should be able to run with 28 or 
-more clients without any xruns.
-
-
-Best Regards,
---ww

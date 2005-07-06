@@ -1,106 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261921AbVGFS6x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262211AbVGFTTc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261921AbVGFS6x (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 14:58:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262025AbVGFSzW
+	id S262211AbVGFTTc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 15:19:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262025AbVGFTTb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 14:55:22 -0400
-Received: from posti5.jyu.fi ([130.234.4.34]:22727 "EHLO posti5.jyu.fi")
-	by vger.kernel.org with ESMTP id S262125AbVGFNrd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 09:47:33 -0400
-Date: Wed, 6 Jul 2005 16:47:28 +0300 (EEST)
-From: Tero Roponen <teanropo@cc.jyu.fi>
-To: gregkh@suse.de
-cc: linux-kernel@vger.kernel.org
-Subject: 2.6.13-rc2 hangs at boot
-Message-ID: <Pine.GSO.4.58.0507061638380.13297@tukki.cc.jyu.fi>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Checked: by miltrassassin
-	at posti5.jyu.fi; Wed, 06 Jul 2005 16:47:29 +0300
+	Wed, 6 Jul 2005 15:19:31 -0400
+Received: from nproxy.gmail.com ([64.233.182.196]:16222 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262297AbVGFOFR convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Jul 2005 10:05:17 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=K807fPjemyLFDhxqDuy5BBwE+4KWTCWCK9Em6PaFKkMba1Pxs8u1uRG3DLqEM3L5Qtm4wYaVte1wHN3dAknhnZVQVPVP9YJcrRkTbrMXDx8DnJZfMI4M6lOJhDUUknctmm1GCnVZrtOt8joa7uc3UqLaI1xGc/BmdO0vs7UA/8M=
+Message-ID: <58cb370e050706070512c93ee1@mail.gmail.com>
+Date: Wed, 6 Jul 2005 16:05:15 +0200
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH] Fix crash on boot in kmalloc_node IDE changes
+Cc: linux-ide@vger.kernel.org, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       christoph@lameter.com
+In-Reply-To: <20050706133052.GF21330@wotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050706133052.GF21330@wotan.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 7/6/05, Andi Kleen <ak@suse.de> wrote:
+> 
+> Without this patch a dual Xeon EM64T machine would oops on boot
+> because the hwif pointer here was NULL. I also added a check for
+> pci_dev because it's doubtful that all IDE devices have pci_devs.
+> 
+> Signed-off-by: Andi Kleen <ak@suse.de>
+> 
+> 
+> Index: linux/drivers/ide/ide-probe.c
+> ===================================================================
+> --- linux.orig/drivers/ide/ide-probe.c
+> +++ linux/drivers/ide/ide-probe.c
+> @@ -978,8 +978,10 @@ static int ide_init_queue(ide_drive_t *d
+>          *      do not.
+>          */
+> 
+> -       q = blk_init_queue_node(do_ide_request, &ide_lock,
+> -                               pcibus_to_node(drive->hwif->pci_dev->bus));
+> +       int node = 0; /* Should be -1 */
+> +       if (drive->hwif && drive->hwif->pci_dev)
+> +               node = pcibus_to_node(drive->hwif->pci_dev->bus);
+> +       q = blk_init_queue_node(do_ide_request, &ide_lock, node);
+>         if (!q)
+>                 return 1;
 
-my computer (a ThinkPad 380XD laptop) hangs at boot in 2.6.13-rc2.
-When I revert the patch below everything seems to be fine.
+drive->hwif check is redundant, please remove it
 
-thanks,
-Tero Roponen
+> @@ -1096,8 +1098,13 @@ static int init_irq (ide_hwif_t *hwif)
+>                 hwgroup->hwif->next = hwif;
+>                 spin_unlock_irq(&ide_lock);
+>         } else {
+> -               hwgroup = kmalloc_node(sizeof(ide_hwgroup_t), GFP_KERNEL,
+> -                       pcibus_to_node(hwif->drives[0].hwif->pci_dev->bus));
+> +               int node = 0;
+> +               if (hwif->drives[0].hwif) {
+> +                       struct pci_dev *pdev = hwif->drives[0].hwif->pci_dev;
+> +                       if (pdev)
+> +                               node = pcibus_to_node(pdev->bus);
+> +               }
 
+ditto, moreover hwif->drives[0].hwif == hwif
 
-Patch to revert:
-
-Author: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Date: Wed, 15 Jun 2005 14:59:27 +0000 (+0400)
-Source: http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=299de0343c7d18448a69c635378342e9214b14af
-
-  [PATCH] PCI: pci_assign_unassigned_resources() on x86
-
-  - Add sanity check for io[port,mem]_resource in setup-bus.c. These
-    resources look like "free" as they have no parents, but obviously
-    we must not touch them.
-  - In i386.c:pci_allocate_bus_resources(), if a bridge resource cannot be
-    allocated for some reason, then clear its flags. This prevents any child
-    allocations in this range, so the setup-bus code will work with a clean
-    resource sub-tree.
-  - i386.c:pcibios_enable_resources() doesn't enable bridges, as it checks
-    only resources 0-5, which looks like a clear bug to me. I suspect it
-    might break hotplug as well in some cases.
-
-  From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-  Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-
---- a/arch/i386/pci/common.c
-+++ b/arch/i386/pci/common.c
-@@ -165,6 +165,7 @@ static int __init pcibios_init(void)
- 	if ((pci_probe & PCI_BIOS_SORT) && !(pci_probe & PCI_NO_SORT))
- 		pcibios_sort();
- #endif
-+	pci_assign_unassigned_resources();
- 	return 0;
- }
-
---- a/arch/i386/pci/i386.c
-+++ b/arch/i386/pci/i386.c
-@@ -106,11 +106,16 @@ static void __init pcibios_allocate_bus_
- 		if ((dev = bus->self)) {
- 			for (idx = PCI_BRIDGE_RESOURCES; idx < PCI_NUM_RESOURCES; idx++) {
- 				r = &dev->resource[idx];
--				if (!r->start)
-+				if (!r->flags)
- 					continue;
- 				pr = pci_find_parent_resource(dev, r);
--				if (!pr || request_resource(pr, r) < 0)
-+				if (!r->start || !pr || request_resource(pr, r) < 0) {
- 					printk(KERN_ERR "PCI: Cannot allocate resource region %d of bridge %s\n", idx, pci_name(dev));
-+					/* Something is wrong with the region.
-+					   Invalidate the resource to prevent child
-+					   resource allocations in this range. */
-+					r->flags = 0;
-+				}
- 			}
- 		}
- 		pcibios_allocate_bus_resources(&bus->children);
-@@ -227,7 +232,7 @@ int pcibios_enable_resources(struct pci_
-
- 	pci_read_config_word(dev, PCI_COMMAND, &cmd);
- 	old_cmd = cmd;
--	for(idx=0; idx<6; idx++) {
-+	for(idx = 0; idx < PCI_NUM_RESOURCES; idx++) {
- 		/* Only set up the requested stuff */
- 		if (!(mask & (1<<idx)))
- 			continue;
---- a/drivers/pci/setup-bus.c
-+++ b/drivers/pci/setup-bus.c
-@@ -273,6 +273,8 @@ find_free_bus_resource(struct pci_bus *b
-
- 	for (i = 0; i < PCI_BUS_NUM_RESOURCES; i++) {
- 		r = bus->resource[i];
-+		if (r == &ioport_resource || r == &iomem_resource)
-+			continue;
- 		if (r && (r->flags & type_mask) == type && !r->parent)
- 			return r;
- 	}
+> +               hwgroup = kmalloc_node(sizeof(ide_hwgroup_t), GFP_KERNEL,node);
+>                 if (!hwgroup)
+>                         goto out_up;

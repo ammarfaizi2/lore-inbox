@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262165AbVGFDXA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261639AbVGFDbE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262165AbVGFDXA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Jul 2005 23:23:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262152AbVGFDTo
+	id S261639AbVGFDbE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Jul 2005 23:31:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261730AbVGFD2h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Jul 2005 23:19:44 -0400
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:9625 "EHLO
+	Tue, 5 Jul 2005 23:28:37 -0400
+Received: from b3162.static.pacific.net.au ([203.143.238.98]:10137 "EHLO
 	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S262070AbVGFCT1 convert rfc822-to-8bit (ORCPT
+	id S262072AbVGFCT3 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Jul 2005 22:19:27 -0400
-Subject: [PATCH] [35/48] Suspend2 2.1.9.8 for 2.6.12: 611-io.patch
+	Tue, 5 Jul 2005 22:19:29 -0400
+Subject: [PATCH] [37/48] Suspend2 2.1.9.8 for 2.6.12: 613-pageflags.patch
 In-Reply-To: <11206164393426@foobar.com>
 X-Mailer: gregkh_patchbomb
 Date: Wed, 6 Jul 2005 12:20:43 +1000
-Message-Id: <1120616443224@foobar.com>
+Message-Id: <11206164434190@foobar.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Nigel Cunningham <nigel@suspend2.net>
@@ -24,403 +24,525 @@ From: Nigel Cunningham <nigel@suspend2.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -ruNp 612-pagedir.patch-old/kernel/power/suspend2_core/pagedir.c 612-pagedir.patch-new/kernel/power/suspend2_core/pagedir.c
---- 612-pagedir.patch-old/kernel/power/suspend2_core/pagedir.c	1970-01-01 10:00:00.000000000 +1000
-+++ 612-pagedir.patch-new/kernel/power/suspend2_core/pagedir.c	2005-07-05 23:48:59.000000000 +1000
-@@ -0,0 +1,336 @@
+diff -ruNp 614-plugins.patch-old/kernel/power/suspend2_core/plugins.c 614-plugins.patch-new/kernel/power/suspend2_core/plugins.c
+--- 614-plugins.patch-old/kernel/power/suspend2_core/plugins.c	1970-01-01 10:00:00.000000000 +1000
++++ 614-plugins.patch-new/kernel/power/suspend2_core/plugins.c	2005-07-04 23:14:19.000000000 +1000
+@@ -0,0 +1,341 @@
 +/*
-+ * kernel/power/pagedir.c
++ * kernel/power/plugins.c
 + *
-+ * Copyright (C) 1998-2001 Gabor Kuti <seasons@fornax.hu>
-+ * Copyright (C) 1998,2001,2002 Pavel Machek <pavel@suse.cz>
-+ * Copyright (C) 2002-2003 Florent Chabaud <fchabaud@free.fr>
-+ * Copyright (C) 2002-2005 Nigel Cunningham <nigel@suspend2.net>
++ * Copyright (C) 2004-2005 Nigel Cunningham <nigel@suspend2.net>
 + *
-+ * This file is released under the GPLv2.
-+ *
-+ * Routines for handling pagesets.
-+ * Note that pbes aren't actually stored as such. They're stored as
-+ * bitmaps and extents.
 + */
 +
 +#include <linux/suspend.h>
-+#include <linux/highmem.h>
-+#include <linux/bootmem.h>
++#include <linux/module.h>
++#include "suspend.h"
++#include "plugins.h"
 +
-+#include "pageflags.h"
-+#include "ui.h"
-+#include "pagedir.h"
++struct list_head suspend_filters, suspend_writers, suspend_plugins;
++struct suspend_plugin_ops * active_writer = NULL;
++static int num_filters = 0, num_ui = 0;
++int num_writers = 0, num_plugins = 0;
 +
-+int extra_pagedir_pages_allocated = 0;
-+static LIST_HEAD(conflicting_pages);
-+
-+/* suspend2_free_pagedir_data
++/*
++ * header_storage_for_plugins
 + *
-+ * Description:	Free a previously pagedir metadata.
++ * Returns the amount of space needed to store configuration
++ * data needed by the plugins prior to copying back the original
++ * kernel. We can exclude data for pageset2 because it will be
++ * available anyway once the kernel is copied back.
 + */
-+void suspend2_free_pagedir_data(void)
++unsigned long header_storage_for_plugins(void)
 +{
-+	int pagenumber;
-+
-+	free_dyn_pageflags(&pageset1_map);
-+	free_dyn_pageflags(&pageset2_map);
-+	free_dyn_pageflags(&pageset1_copy_map);
-+
-+	/* Free allocated pages */
-+	if (allocd_pages_map) {
-+		BITMAP_FOR_EACH_SET(allocd_pages_map, pagenumber) {
-+			struct page * page = pfn_to_page(pagenumber);
-+			ClearPageNosave(page);
-+			__free_pages(page, 0);
-+			extra_pagedir_pages_allocated--;
-+		}
-+		free_dyn_pageflags(&allocd_pages_map);
++	struct suspend_plugin_ops * this_plugin;
++	unsigned long bytes = 0;
++	
++	list_for_each_entry(this_plugin, &suspend_plugins, plugin_list) {
++		if (this_plugin->disabled)
++			continue;
++		if (this_plugin->storage_needed)
++			bytes += this_plugin->storage_needed();
 +	}
 +
-+	pagedir1.pageset_size = pagedir2.pageset_size = 0;
++	return bytes;
 +}
 +
-+/* suspend2_allocate_extra_pagedir_memory
++/*
++ * expected_compression_ratio
 + *
-+ * Description:	Allocate memory for making the atomic copy of pagedir1 in the
-+ * 		case where it is bigger than pagedir2.
-+ * Arguments:	struct pagedir *: 	The pagedir for which we should 
-+ * 					allocate memory.
-+ * 		int:			Size of pageset 1.
-+ * 		int:			Size of pageset 2.
-+ * Result:	int. Zero on success. One if unable to allocate enough memory.
++ * Returns the expected ratio between the amount of memory
++ * to be saved and the amount of space required on the
++ * storage device.
 + */
-+int suspend2_allocate_extra_pagedir_memory(struct pagedir * p, int pageset_size,
-+		int alloc_from)
++int expected_compression_ratio(void)
 +{
-+	int num_to_alloc = pageset_size - alloc_from - extra_pagedir_pages_allocated;
-+	int j, order;
-+
-+	if (num_to_alloc < 1)
-+		num_to_alloc = 0;
-+
-+	if (num_to_alloc) {
-+		int num_added = 0;
++	struct suspend_plugin_ops * this_filter;
++	unsigned long ratio = 100;
 +	
-+		order = generic_fls(num_to_alloc);
-+		if (order >= MAX_ORDER)
-+			order = MAX_ORDER - 1;
++	list_for_each_entry(this_filter, &suspend_filters, ops.filter.filter_list) {
++		if (this_filter->disabled)
++			continue;
++		if (this_filter->ops.filter.expected_compression)
++			ratio = ratio * this_filter->ops.filter.expected_compression() / 100;
++	}
 +
-+		while (num_added < num_to_alloc) {
-+			struct page * newpage;
-+			unsigned long virt;
-+			
-+			while ((1 << order) > (num_to_alloc - num_added))
-+				order--;
++	return (int) ratio;
++}
 +
-+			virt = __get_free_pages(GFP_ATOMIC, order);
-+			while ((!virt) && (order > 0)) {
-+				order--;
-+				virt = __get_free_pages(GFP_ATOMIC, order);
-+			}
++/*
++ * memory_for_plugins
++ *
++ * Returns the amount of memory requested by plugins for
++ * doing their work during the cycle.
++ */
 +
-+			if (!virt) {
-+				p->pageset_size += num_added;
-+				return 1;
-+			}
++unsigned long memory_for_plugins(void)
++{
++	unsigned long bytes = 0;
++	struct suspend_plugin_ops * this_plugin;
 +
-+			newpage = virt_to_page(virt);
-+			for (j = 0; j < (1 << order); j++) {
-+				SetPageNosave(newpage + j);
-+				/* Pages will be freed one at a time. */
-+				set_page_count(newpage + j, 1);
-+				SetPageAllocd(newpage + j);
-+				extra_pagedir_pages_allocated++;
-+			}
-+			num_added+= (1 << order);
++	list_for_each_entry(this_plugin, &suspend_plugins, plugin_list) {
++		if (this_plugin->disabled)
++			continue;
++		if (this_plugin->memory_needed)
++			bytes += this_plugin->memory_needed();
++	}
++
++	return ((bytes + PAGE_SIZE - 1) >> PAGE_SHIFT);
++}
++
++/* find_plugin_given_name
++ * Functionality :	Return a plugin (if found), given a pointer
++ * 			to its name
++ */
++
++struct suspend_plugin_ops * find_plugin_given_name(char * name)
++{
++	struct suspend_plugin_ops * this_plugin, * found_plugin = NULL;
++	
++	list_for_each_entry(this_plugin, &suspend_plugins, plugin_list) {
++		if (!strcmp(name, this_plugin->name)) {
++			found_plugin = this_plugin;
++			break;
++		}			
++	}
++
++	return found_plugin;
++}
++
++/*
++ * print_plugin_debug_info
++ * Functionality   : Get debugging info from plugins into a buffer.
++ */
++int print_plugin_debug_info(char * buffer, int buffer_size)
++{
++	struct suspend_plugin_ops *this_plugin;
++	int len = 0;
++
++	list_for_each_entry(this_plugin, &suspend_plugins, plugin_list) {
++		if (this_plugin->disabled)
++			continue;
++		if (this_plugin->print_debug_info) {
++			int result;
++			result = this_plugin->print_debug_info(buffer + len, 
++					buffer_size - len);
++			len += result;
 +		}
 +	}
 +
-+	//p->pageset_size = pageset_size;
++	return len;
++}
++
++/*
++ * suspend_register_plugin
++ *
++ * Register a plugin.
++ */
++int suspend_register_plugin(struct suspend_plugin_ops * plugin)
++{
++	if (find_plugin_given_name(plugin->name))
++		return -EBUSY;
++
++	switch (plugin->type) {
++		case FILTER_PLUGIN:
++			list_add_tail(&plugin->ops.filter.filter_list,
++					&suspend_filters);
++			num_filters++;
++			break;
++
++		case WRITER_PLUGIN:
++			list_add_tail(&plugin->ops.writer.writer_list,
++					&suspend_writers);
++			num_writers++;
++			break;
++
++		case MISC_PLUGIN:
++			break;
++
++		default:
++			printk("Hmmm. Plugin '%s' has an invalid type."
++				" It has been ignored.\n", plugin->name);
++			return -EINVAL;
++	}
++	list_add_tail(&plugin->plugin_list, &suspend_plugins);
++	num_plugins++;
++
++	return 0;	
++}
++
++/*
++ * suspend_unregister_plugin
++ *
++ * Remove a plugin.
++ */
++void suspend_unregister_plugin(struct suspend_plugin_ops * plugin)
++{
++	switch (plugin->type) {
++		case FILTER_PLUGIN:
++			list_del(&plugin->ops.filter.filter_list);
++			num_filters--;
++			break;
++
++		case WRITER_PLUGIN:
++			list_del(&plugin->ops.writer.writer_list);
++			num_writers--;
++			if (active_writer == plugin) {
++				active_writer = NULL;
++				set_suspend_state(SUSPEND_DISABLED);
++			}
++			break;
++		
++		case MISC_PLUGIN:
++			break;
++
++		default:
++			printk("Hmmm. Plugin '%s' has an invalid type."
++				" It has been ignored.\n", plugin->name);
++			return;
++	}
++	list_del(&plugin->plugin_list);
++	num_plugins--;
++}
++
++/*
++ * suspend_move_plugin_tail
++ *
++ * Rearrange plugins when reloading the config.
++ */
++void suspend_move_plugin_tail(struct suspend_plugin_ops * plugin)
++{
++	switch (plugin->type) {
++		case FILTER_PLUGIN:
++			if (num_filters > 1)
++				list_move_tail(&plugin->ops.filter.filter_list,
++						&suspend_filters);
++			break;
++
++		case WRITER_PLUGIN:
++			if (num_writers > 1)
++				list_move_tail(&plugin->ops.writer.writer_list,
++						&suspend_writers);
++			break;
++		
++		case MISC_PLUGIN:
++			break;
++		default:
++			printk("Hmmm. Plugin '%s' has an invalid type."
++				" It has been ignored.\n", plugin->name);
++			return;
++	}
++	if ((num_filters + num_writers + num_ui) > 1)
++		list_move_tail(&plugin->plugin_list, &suspend_plugins);
++}
++
++/*
++ * suspend2_initialise_plugins
++ *
++ * Get ready to do some work!
++ */
++int suspend2_initialise_plugins(int starting_cycle)
++{
++	struct suspend_plugin_ops * this_plugin;
++	int result;
++	
++	list_for_each_entry(this_plugin, &suspend_plugins, plugin_list) {
++		if (this_plugin->disabled)
++			continue;
++		if (this_plugin->type == WRITER_PLUGIN && 
++				this_plugin != active_writer)
++			continue;
++		if (this_plugin->initialise) {
++			suspend_message(SUSPEND_MEMORY, SUSPEND_MEDIUM, 1,
++				"Initialising plugin %s.\n",
++				this_plugin->name);
++			if ((result = this_plugin->initialise(starting_cycle))) {
++				printk("%s didn't initialise okay.\n",
++						this_plugin->name);
++				return result;
++			}
++		}
++	}
++
 +	return 0;
 +}
 +
-+/*
-+ * suspend2_mark_task_as_pageset1
-+ * Functionality   : Marks all the pages belonging to a given process as
-+ *                   pageset 1 pages.
-+ * Called From     : pagedir.c - mark_pages_for_pageset2
++/* 
++ * suspend2_cleanup_plugins
 + *
-+ * This is a builtin to avoid exporting follow_page.
++ * Tell plugins the work is done.
 + */
-+void suspend2_mark_task_as_pageset1(struct task_struct *t)
++void suspend2_cleanup_plugins(int finishing_cycle)
 +{
-+	struct vm_area_struct *vma;
-+	struct mm_struct *mm;
-+
-+	mm = t->active_mm;
-+
-+	if (!mm || !mm->mmap) return;
-+
-+	down_read(&mm->mmap_sem);
-+	for (vma = mm->mmap; vma; vma = vma->vm_next) {
-+		unsigned long posn;
-+
-+		if (!vma->vm_start)
-+			continue;
-+
-+		for (posn = vma->vm_start; posn < vma->vm_end; posn += PAGE_SIZE) {
-+			struct page *page = follow_page(mm, posn, 0);
-+			if (page)
-+				ClearPagePageset2(page);
-+		}
-+	}
-+	up_read(&mm->mmap_sem);
-+}
-+
-+/* mark_pages_for_pageset2
-+ *
-+ * Description:	Mark unshared pages in processes not needed for suspend as
-+ * 		being able to be written out in a separate pagedir.
-+ * 		HighMem pages are simply marked as pageset2. They won't be
-+ * 		needed during suspend.
-+ */
-+
-+void suspend2_mark_pages_for_pageset2(void)
-+{
-+	struct zone * zone;
-+	struct task_struct *p, *g;
-+	unsigned long flags;
-+	int i;
-+
-+	clear_dyn_pageflags(pageset2_map);
-+
-+	/* 
-+	 * Note that we don't clear the map to begin with!
-+	 * This is because if we eat memory, we loose track
-+	 * of LRU pages that are still in use but taken off
-+	 * the LRU. If I can figure out how the VM keeps
-+	 * track of them, I might be able to tweak this a
-+	 * little further and decrease pageset one's size
-+	 * further.
-+	 *
-+	 * (Memory grabbing clears the pageset2 flag on
-+	 * pages that are really freed!).
-+	 */
++	struct suspend_plugin_ops * this_plugin;
 +	
-+	/* Add LRU pages */
-+	for_each_zone(zone) {
-+		spin_lock_irqsave(&zone->lru_lock, flags);
-+		if (zone->nr_inactive) {
-+			struct page * page;
-+			list_for_each_entry(page, &zone->inactive_list, lru)
-+				SetPagePageset2(page);
++	list_for_each_entry(this_plugin, &suspend_plugins, plugin_list) {
++		if (this_plugin->disabled)
++			continue;
++		if (this_plugin->type == WRITER_PLUGIN && 
++				this_plugin != active_writer)
++			continue;
++		if (this_plugin->cleanup) {
++			suspend_message(SUSPEND_MEMORY, SUSPEND_MEDIUM, 1,
++				"Cleaning up plugin %s.\n",
++				this_plugin->name);
++			this_plugin->cleanup(finishing_cycle);
 +		}
-+		if (zone->nr_active) {
-+			struct page * page;
-+			list_for_each_entry(page, &zone->active_list, lru)
-+				SetPagePageset2(page);
-+		}
-+		spin_unlock_irqrestore(&zone->lru_lock, flags);
-+	}
-+
-+	/* Now we find all userspace process (with task->mm) marked PF_NOFREEZE
-+	 * and move them into pageset1.
-+	 */
-+	read_lock(&tasklist_lock);
-+	do_each_thread(g, p) {
-+		if ((p->mm || p->active_mm) && (p->flags & PF_NOFREEZE))
-+			suspend2_mark_task_as_pageset1(p);
-+	} while_each_thread(g, p);
-+	read_unlock(&tasklist_lock);
-+
-+	for (i = 0; i < max_pfn; i++) {
-+		struct page * page = pfn_to_page(i);
-+		BUG_ON(PagePageset2(page) && PageSlab(page));
 +	}
 +}
 +
-+/* suspend2_get_nonconflicting_pages
++/*
++ * get_next_filter
 + *
-+ * Description: Gets higher-order pages that won't be overwritten
-+ *		while copying the original pages.
-+ *
-+ *		Note that if only one of the allocated pages overlaps
-+ *		with the pages that overlap, another set must be
-+ *		tried. Therefore, you shouldn't use this function
-+ *		much, and not with high orders.
++ * Get the next filter in the pipeline.
++ */
++struct suspend_plugin_ops * 
++get_next_filter(struct suspend_plugin_ops * filter_sought)
++{
++	struct suspend_plugin_ops * last_filter = NULL, *this_filter = NULL;
++
++	list_for_each_entry(this_filter, &suspend_filters, ops.filter.filter_list) {
++		if (this_filter->disabled)
++			continue;
++		if ((last_filter == filter_sought) || (!filter_sought))
++			return this_filter;
++		last_filter = this_filter;
++	}
++
++	return active_writer;
++}
++
++/* suspend2_get_modules
++ * 
++ * Take a reference to modules so they can't go away under us.
 + */
 +
-+unsigned long suspend2_get_nonconflicting_pages(const int order)
++int suspend2_get_modules(void)
 +{
-+	struct page * page;
-+	unsigned long new_page;
-+	int more = 0;
-+	unsigned long pgcount;
-+
-+	do {
-+		new_page = __get_free_pages(GFP_ATOMIC | __GFP_NOWARN, order);
-+		if (!new_page)
-+			return 0;
-+		more = 0;
-+		for (pgcount = 0; pgcount < (1UL << order); pgcount++) {
-+			page = virt_to_page(new_page + PAGE_SIZE * pgcount);
-+			if (PagePageset1(page)) {
-+				more = 1;
-+				break;
++	struct suspend_plugin_ops * this_plugin;
++	
++	list_for_each_entry(this_plugin, &suspend_plugins, plugin_list) {
++		if (!try_module_get(this_plugin->module)) {
++			/* Failed! Reverse gets and return error */
++			struct suspend_plugin_ops * this_plugin2;
++			list_for_each_entry(this_plugin2, &suspend_plugins, plugin_list) {
++				if (this_plugin == this_plugin2)
++					return -EINVAL;
++				module_put(this_plugin2->module);
 +			}
 +		}
-+		if (more) {
-+			page = virt_to_page(new_page);
-+			list_add(&page->lru, &conflicting_pages);
-+
-+			/* since this page is technically free, we can abuse it to
-+			 * store the order. When we resume it'll just be overwritten,
-+			 * but we need this value when freeing it in
-+			 * suspend2_release_conflicting_pages. */
-+			*((int*)new_page) = order;
-+		}
 +	}
-+	while (more);
 +
-+	memset((void*)new_page, 0, PAGE_SIZE * (1<<order));
-+	return new_page;
++	return 0;
 +}
 +
-+/* suspend2_get_nonconflicting_page
++/* suspend2_put_modules
 + *
-+ * Description: Gets a page that will not be overwritten as we copy the
-+ * 		original kernel page.
++ * Release our references to modules we used.
 + */
 +
-+unsigned long suspend2_get_nonconflicting_page(void)
++void suspend2_put_modules(void)
 +{
-+	return suspend2_get_nonconflicting_pages(0);
-+}
-+
-+/* suspend2_release_conflicting_pages
-+ *
-+ * Description: Release conflicting pages. If we resume, we don't care (their
-+ * 		status will not matter), but if we abort for some reason, they
-+ * 		should not leak.
-+ */
-+
-+void suspend2_release_conflicting_pages(void)
-+{
-+	struct page *this_page, *next;
-+	int order;
-+
-+	list_for_each_entry_safe(this_page, next, &conflicting_pages, lru)
-+	{
-+		order = *((int*)(page_address(this_page)));
-+		__free_pages(virt_to_page(this_page), order);
-+	}
-+}
-+
-+/* relocate_page_if_required
-+ *
-+ * Description: Given the address of a pointer to a page, we check if the page
-+ * 		needs relocating and do so if needs be, adjusting the pointer
-+ * 		too.
-+ */
-+
-+void suspend2_relocate_page_if_required(void ** page_pointer_addr)
-+{
-+	void * current_value = *page_pointer_addr;
-+	if PagePageset1(virt_to_page(current_value)) {
-+		unsigned long * new_page = (unsigned long *) suspend2_get_nonconflicting_page();
-+		memcpy(new_page, current_value, PAGE_SIZE);
-+		free_pages((unsigned long) current_value, 0);
-+		*page_pointer_addr = new_page;
-+	}
-+}
-+
-+/* get_pageset1_load_addresses
-+ * 
-+ * Description: We check here that pagedir & pages it points to won't collide
-+ * 		with pages where we're going to restore from the loaded pages
-+ * 		later.
-+ * Returns:	Zero on success, one if couldn't find enough pages (shouldn't
-+ * 		happen).
-+ */
-+
-+int suspend2_get_pageset1_load_addresses(void)
-+{
-+	int i, nrdone = 0, result = 0;
-+	void *this;
-+
-+	/*
-+	 * Because we're trying to make this work when we're saving as much
-+	 * memory as possible we need to remember the pages we reject here
-+	 * and then free them when we're done.
-+	 */
++	struct suspend_plugin_ops * this_plugin;
 +	
-+	for(i=0; i < pagedir1.pageset_size; i++) {
-+		this = (void *) suspend2_get_nonconflicting_page();
-+		if (!this) {
-+			abort_suspend("Error: Ran out of memory seeking locations for reloading data.");
-+			result = 1;
-+			break;
-+		}
-+		SetPagePageset1Copy(virt_to_page(this));
-+		nrdone++;
++	list_for_each_entry(this_plugin, &suspend_plugins, plugin_list) {
++		module_put(this_plugin->module);
 +	}
-+	suspend2_release_conflicting_pages();
-+
-+	return result;
 +}
-diff -ruNp 612-pagedir.patch-old/kernel/power/suspend2_core/pagedir.h 612-pagedir.patch-new/kernel/power/suspend2_core/pagedir.h
---- 612-pagedir.patch-old/kernel/power/suspend2_core/pagedir.h	1970-01-01 10:00:00.000000000 +1000
-+++ 612-pagedir.patch-new/kernel/power/suspend2_core/pagedir.h	2005-07-04 23:14:19.000000000 +1000
-@@ -0,0 +1,55 @@
+diff -ruNp 614-plugins.patch-old/kernel/power/suspend2_core/plugins.h 614-plugins.patch-new/kernel/power/suspend2_core/plugins.h
+--- 614-plugins.patch-old/kernel/power/suspend2_core/plugins.h	1970-01-01 10:00:00.000000000 +1000
++++ 614-plugins.patch-new/kernel/power/suspend2_core/plugins.h	2005-07-05 23:48:59.000000000 +1000
+@@ -0,0 +1,172 @@
 +/*
-+ * kernel/power/suspend2_core/pagedir.h
++ * kernel/power/plugin.h
 + *
 + * Copyright (C) 2004-2005 Nigel Cunningham <nigel@suspend2.net>
 + *
 + * This file is released under the GPLv2.
 + *
-+ * Declarations for routines for handling pagesets.
-+ */
-+
-+/* Pagedir
++ * It contains declarations for plugins. Plugins are additions to
++ * suspend2 that provide facilities such as image compression or
++ * encryption, backends for storage of the image and user interfaces.
 + *
-+ * Contains the metadata for a set of pages saved in the image.
 + */
 +
-+struct pagedir {
-+	int pageset_size;
-+	int lastpageset_size;
++/* This is the maximum size we store in the image header for a plugin name */
++#define SUSPEND_MAX_PLUGIN_NAME_LENGTH 30
++
++/* Per-plugin metadata */
++struct plugin_header {
++	char name[SUSPEND_MAX_PLUGIN_NAME_LENGTH];
++	int disabled;
++	int type;
++	int index;
++	int data_length;
++	unsigned long signature;
 +};
 +
-+extern struct pagedir pagedir1, pagedir2;
++extern int num_plugins, num_writers;
 +
-+#define pageset1_size (pagedir1.pageset_size)
-+#define pageset2_size (pagedir2.pageset_size)
++#define FILTER_PLUGIN 1
++#define WRITER_PLUGIN 2
++#define MISC_PLUGIN 4 // Block writer, eg.
++#define CHECKSUM_PLUGIN 5
 +
-+extern void suspend2_copy_pageset1(void);
++#define SUSPEND_ASYNC 0
++#define SUSPEND_SYNC  1
 +
-+extern void suspend2_free_pagedir_data(void);
++#define SUSPEND_COMMON_IO_OPS \
++	/* Writing the image proper */ \
++	int (*write_chunk) (struct page * buffer_page); \
++\
++	/* Reading the image proper */ \
++	int (*read_chunk) (struct page * buffer_page, int sync); \
++\
++	/* Reset plugin if image exists but reading aborted */ \
++	void (*noresume_reset) (void);
 +
-+extern int suspend2_allocate_extra_pagedir_memory(struct pagedir * p, int pageset_size, int alloc_from);
++struct suspend_filter_ops {
++	SUSPEND_COMMON_IO_OPS
++	int (*expected_compression) (void);
++	struct list_head filter_list;
++};
 +
-+extern void suspend2_mark_task_as_pageset1 (struct task_struct *t);
-+extern void suspend2_mark_pages_for_pageset2(void);
++struct suspend_writer_ops {
++	
++	SUSPEND_COMMON_IO_OPS
 +
-+extern void suspend2_release_conflicting_pages(void);
-+extern void suspend2_relocate_page_if_required(void ** page_pointer_addr);
-+extern int suspend2_get_pageset1_load_addresses(void);
++	/* Calls for allocating storage */
 +
-+extern int extra_pagedir_pages_allocated;
++	int (*storage_available) (void); // Maximum size of image we can save
++					  // (incl. space already allocated).
++	
++	int (*storage_allocated) (void);
++					// Amount of storage already allocated
++	int (*release_storage) (void);
++	
++	/* 
++	 * Header space is allocated separately. Note that allocation
++	 * of space for the header might result in allocated space 
++	 * being stolen from the main pool if there is no unallocated
++	 * space. We have to be able to allocate enough space for
++	 * the header. We can eat memory to ensure there is enough
++	 * for the main pool.
++	 */
++	int (*allocate_header_space) (int space_requested);
++	int (*allocate_storage) (int space_requested);
++	
++	/* Read and write the metadata */	
++	int (*write_header_init) (void);
++	int (*write_header_chunk) (char * buffer_start, int buffer_size);
++	int (*write_header_cleanup) (void);
 +
-+#ifdef CONFIG_DEBUG_PAGEALLOC
-+/* Returns whether it was already in the requested state */
-+extern int suspend2_map_kernel_page(struct page * page, int enable);
++	int (*read_header_init) (void);
++	int (*read_header_chunk) (char * buffer_start, int buffer_size);
++	int (*read_header_cleanup) (void);
 +
-+extern void suspend2_map_atomic_copy_pages(void);
-+extern void suspend2_unmap_atomic_copy_pages(void);
-+#else
-+#define suspend2_map_atomic_copy_pages() do { } while(0)
-+#define suspend2_unmap_atomic_copy_pages() do { } while(0)
-+static inline int suspend2_map_kernel_page(struct page * page, int enable)
-+{
-+	return 1;
++	/* Prepare metadata to be saved (relativise/absolutise extents) */
++	int (*serialise_extents) (void);
++	int (*load_extents) (void);
++	
++	/* Attempt to parse an image location */
++	int (*parse_image_location) (char * buffer, int only_writer);
++
++	/* Determine whether image exists that we can restore */
++	int (*image_exists) (void);
++	
++	/* Mark the image as having tried to resume */
++	void (*mark_resume_attempted) (void);
++
++	/* Destroy image if one exists */
++	int (*invalidate_image) (void);
++	
++	/* Wait on I/O */
++	int (*wait_on_io) (int flush_all);
++
++	struct list_head writer_list;
++};
++
++struct suspend_plugin_ops {
++	/* Functions common to all plugins */
++	int type;
++	char * name;
++	struct module * module;
++	int disabled;
++	struct list_head plugin_list;
++
++	/* Bytes! */
++	unsigned long (*memory_needed) (void);
++	unsigned long (*storage_needed) (void);
++
++	int (*print_debug_info) (char * buffer, int size);
++	int (*save_config_info) (char * buffer);
++	void (*load_config_info) (char * buffer, int len);
++	
++	/* Initialise & cleanup - general routines called
++	 * at the start and end of a cycle. */
++	int (*initialise) (int starting_cycle);
++	void (*cleanup) (int finishing_cycle);
++
++	int (*write_init) (int stream_number);
++	int (*write_cleanup) (void);
++
++	int (*read_init) (int stream_number);
++	int (*read_cleanup) (void);
++
++	union {
++		struct suspend_filter_ops filter;
++		struct suspend_writer_ops writer;
++	} ops;
++};
++
++extern struct suspend_plugin_ops * active_writer;
++extern struct list_head suspend_filters, suspend_writers, suspend_plugins;
++
++extern void prepare_console_plugins(void);
++extern void cleanup_console_plugins(void);
++
++extern struct suspend_plugin_ops * find_plugin_given_name(char * name);
++extern struct suspend_plugin_ops * get_next_filter(struct suspend_plugin_ops *);
++
++extern int suspend_register_plugin(struct suspend_plugin_ops * plugin);
++extern void suspend_move_plugin_tail(struct suspend_plugin_ops * plugin);
++
++extern unsigned long header_storage_for_plugins(void);
++extern unsigned long memory_for_plugins(void);
++
++extern int print_plugin_debug_info(char * buffer, int buffer_size);
++extern int suspend_register_plugin(struct suspend_plugin_ops * plugin);
++extern void suspend_unregister_plugin(struct suspend_plugin_ops * plugin);
++
++extern int suspend2_initialise_plugins(int starting_cycle);
++extern void suspend2_cleanup_plugins(int finishing_cycle);
++
++int suspend2_get_modules(void);
++void suspend2_put_modules(void);
++
++static inline void suspend_initialise_plugin_lists(void) {
++	INIT_LIST_HEAD(&suspend_filters);
++	INIT_LIST_HEAD(&suspend_writers);
++	INIT_LIST_HEAD(&suspend_plugins);
 +}
-+#endif
 +
++extern int expected_compression_ratio(void);
 

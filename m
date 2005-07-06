@@ -1,58 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262328AbVGGAXg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261411AbVGGAXg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262328AbVGGAXg (ORCPT <rfc822;willy@w.ods.org>);
+	id S261411AbVGGAXg (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 6 Jul 2005 20:23:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262131AbVGFT7h
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262328AbVGFUAU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 15:59:37 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:50061 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262281AbVGFQ26 (ORCPT
+	Wed, 6 Jul 2005 16:00:20 -0400
+Received: from mail.kroah.org ([69.55.234.183]:34510 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262370AbVGFQnT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 12:28:58 -0400
-Date: Wed, 6 Jul 2005 18:28:56 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+	Wed, 6 Jul 2005 12:43:19 -0400
+Date: Wed, 6 Jul 2005 09:43:15 -0700
+From: Greg KH <greg@kroah.com>
+To: Ben Castricum <benc@bencastricum.nl>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Realtime Preemption, 2.6.12, Beginners Guide?
-Message-ID: <20050706162856.GB24728@elte.hu>
-References: <200507061257.36738.s0348365@sms.ed.ac.uk> <200507061351.18410.s0348365@sms.ed.ac.uk> <20050706133915.GB19467@elte.hu> <200507061658.53845.s0348365@sms.ed.ac.uk>
+Subject: Re: Linux 2.6.13-rc2 Compile error in bt87x.c
+Message-ID: <20050706164315.GA14165@kroah.com>
+References: <Pine.LNX.4.58.0507061342100.4612@gateway.bencastricum.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200507061658.53845.s0348365@sms.ed.ac.uk>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <Pine.LNX.4.58.0507061342100.4612@gateway.bencastricum.nl>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
-
-> On Wednesday 06 Jul 2005 14:39, Ingo Molnar wrote:
-> > * Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
-> > > Then it continues to boot. I'm getting periodic lockups under high
-> > > network load, however, though I suspect that might be the ipw2200
-> > > driver I compiled against the realtime-preempt kernel. Are there any
-> > > known issues with external modules versus PREEMPT-RT?
-> >
-> > you should keep an eye on compile-time warnings, but otherwise, most of
-> > the API deviations should be runtime detected and should be reported in
-> > one way or another (if you have all debugging options enabled).
+On Wed, Jul 06, 2005 at 01:44:05PM +0200, Ben Castricum wrote:
 > 
-> I now no longer suspect the ipw2200 module. It locks up within 5 
-> minutes, reliably, with or without network load. I seem to always have 
-> to promote a large redraw in X11 before it occurs, but this is just 
-> hand waving, I don't really have any evidence.
+>   CC [M]  sound/pci/bt87x.o
+> sound/pci/bt87x.c: In function `snd_bt87x_detect_card':
+> sound/pci/bt87x.c:807: `driver' undeclared (first use in this function)
+> sound/pci/bt87x.c:807: (Each undeclared identifier is reported only once
+> sound/pci/bt87x.c:807: for each function it appears in.)
+> sound/pci/bt87x.c: At top level:
+> sound/pci/bt87x.c:910: `driver' used prior to declaration
+> make[2]: *** [sound/pci/bt87x.o] Error 1
+> make[1]: *** [sound/pci] Error 2
+> make: *** [sound] Error 2
+> 
+> My .config can be found at http://www.bencastricum.nl/.config
 
-just to make sure: you dont have debug_direct_keyboard when using the 
-console keyboard and mouse, correct? Sometimes i forget to turn it off 
-and i get a crash in the keyboard or mouse irq after some time. Under X 
-that often looks like a silent hard lockup.
+Try this, already-posted patch.
 
-	Ingo
+thanks,
+
+greg k-h
+
+
+---
+ sound/pci/bt87x.c |    2 ++
+ 1 files changed, 2 insertions(+)
+
+--- gregkh-2.6.orig/sound/pci/bt87x.c	2005-07-06 08:48:29.000000000 -0700
++++ gregkh-2.6/sound/pci/bt87x.c	2005-07-06 08:48:54.000000000 -0700
+@@ -798,6 +798,8 @@
+ 	{0x270f, 0xfc00}, /* Chaintech Digitop DST-1000 DVB-S */
+ };
+ 
++static struct pci_driver driver;
++
+ /* return the rate of the card, or a negative value if it's blacklisted */
+ static int __devinit snd_bt87x_detect_card(struct pci_dev *pci)
+ {

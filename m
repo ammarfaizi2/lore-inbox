@@ -1,66 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262502AbVGFXq4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262493AbVGFXq5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262502AbVGFXq4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 19:46:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262497AbVGFUH4
+	id S262493AbVGFXq5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 19:46:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262489AbVGFUHi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 16:07:56 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:60870 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261807AbVGFSj3 (ORCPT
+	Wed, 6 Jul 2005 16:07:38 -0400
+Received: from box3.punkt.pl ([217.8.180.76]:44813 "HELO box.punkt.pl")
+	by vger.kernel.org with SMTP id S262268AbVGFSe1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 14:39:29 -0400
-Date: Wed, 6 Jul 2005 20:38:36 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Realtime Preemption, 2.6.12, Beginners Guide?
-Message-ID: <20050706183836.GA31269@elte.hu>
-References: <200507061257.36738.s0348365@sms.ed.ac.uk> <200507061814.23656.s0348365@sms.ed.ac.uk> <20050706172716.GA28755@elte.hu> <200507061923.37746.s0348365@sms.ed.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 6 Jul 2005 14:34:27 -0400
+From: Mariusz Mazur <mmazur@kernel.pl>
+To: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] linux-libc-headers 2.6.12.0
+Date: Wed, 6 Jul 2005 20:30:56 +0200
+User-Agent: KMail/1.8
+Cc: llh-announce@lists.pld-linux.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200507061923.37746.s0348365@sms.ed.ac.uk>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Message-Id: <200507062030.56451.mmazur@kernel.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Available at http://ep09.pld-linux.org/~mmazur/linux-libc-headers/
+Changes:
+- updated to 2.6.12
+- various C++/ANSI C compatibility fixes
+- various small fixes
 
-* Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
+Sorry for the long delay (2.6.12 was released some time ago), but I've been 
+rather busy.
 
-> Interesting. They're both exactly 10001 jiffies apart.
->
-> BUG: soft lockup detected on CPU#0! -283805--293806
+The most interesting changes in this release are the C++/ANSI C compatibility 
+fixes mostly provided by Jeff Bailey of Ubuntu/Debian. Jeff also made llh 
+klibc compatible, but got missing in action before managing to commit the 
+changes (hope he'll reemerge in the near future). Those changes will probably 
+break some builds, but I believe klibc compatibility is worth it (afaik llh 
+is already used by the uclibc project) and llh is too glibc-centric anyway.
 
-yes, that's the 10 second softlockup timeout.
+Since I was in a hurry with this release, I've left out some things. If I 
+remember correctly, I was bugged about some iproute2 and C++ compatibility 
+issues. I'll need to ask the people that bugged me, to do it again (the C++ 
+stuff might be solved already, though). This, and the fact that I'll have to 
+mess a little with llh's internals (nothing noticeable; assuming I don't 
+introduce any new bugs that is :) will probably result in a new release in a 
+week or two. So stay tuned.
 
-does the patch below help? We initialized the timestamps to 0, but with 
-jiffies starting out negative, that means a ~5 minutes gap until we 
-first reach a value of 0. That would explain the messages. The only 
-thing it doesnt explain, why did this only trigger on your box?
+Oh, and one last thing. I'll be CCing these announcements to 
+llh-announce@lists.pld-linux.org (subscription at 
+http://lists.pld-linux.org/mailman/listinfo/llh-announce), so anybody 
+interested in new releases, but not interested in lkml's traffic, can just 
+subscribe there.
 
-	Ingo
 
-Index: linux/kernel/softlockup.c
-===================================================================
---- linux.orig/kernel/softlockup.c
-+++ linux/kernel/softlockup.c
-@@ -16,9 +16,9 @@
- 
- static DEFINE_RAW_SPINLOCK(print_lock);
- 
--static DEFINE_PER_CPU(unsigned long, timeout) = 0;
--static DEFINE_PER_CPU(unsigned long, timestamp) = 0;
--static DEFINE_PER_CPU(unsigned long, print_timestamp) = 0;
-+static DEFINE_PER_CPU(unsigned long, timeout) = INITIAL_JIFFIES;
-+static DEFINE_PER_CPU(unsigned long, timestamp) = INITIAL_JIFFIES;
-+static DEFINE_PER_CPU(unsigned long, print_timestamp) = INITIAL_JIFFIES;
- static DEFINE_PER_CPU(struct task_struct *, watchdog_task);
- 
- static int did_panic = 0;
+Happy summer (of code/sunbaths/or whatever).
+
+
+-- 
+In the year eighty five ten
+God is gonna shake his mighty head
+He'll either say,
+"I'm pleased where man has been"
+Or tear it down, and start again

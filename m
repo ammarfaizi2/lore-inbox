@@ -1,36 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262329AbVGFPES@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262317AbVGFPMQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262329AbVGFPES (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 11:04:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262310AbVGFPES
+	id S262317AbVGFPMQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 11:12:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262316AbVGFPMQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 11:04:18 -0400
-Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:41868 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S262329AbVGFK30 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 06:29:26 -0400
-Date: Wed, 6 Jul 2005 12:29:20 +0200
+	Wed, 6 Jul 2005 11:12:16 -0400
+Received: from mail.gmx.de ([213.165.64.20]:63940 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262350AbVGFKa7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Jul 2005 06:30:59 -0400
+X-Authenticated: #428038
+Date: Wed, 6 Jul 2005 12:30:48 +0200
 From: Matthias Andree <matthias.andree@gmx.de>
 To: Linus Torvalds <torvalds@osdl.org>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Linux 2.6.13-rc2
-Message-ID: <20050706102920.GA21007@merlin.emma.line.org>
+Message-ID: <20050706103048.GA22909@merlin.emma.line.org>
 Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
 	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 References: <Pine.LNX.4.58.0507052126190.3570@g5.osdl.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="W/nzBZO5zC0uMSeA"
+Content-Type: multipart/mixed; boundary="fUYQa+Pmc3FrFX/N"
 Content-Disposition: inline
 In-Reply-To: <Pine.LNX.4.58.0507052126190.3570@g5.osdl.org>
 X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
 User-Agent: Mutt/1.5.9i
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---W/nzBZO5zC0uMSeA
+--fUYQa+Pmc3FrFX/N
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+
+[resending different route to circumvent bogus SPF restrictions]
 
 On Tue, 05 Jul 2005, Linus Torvalds wrote:
 
@@ -54,7 +58,7 @@ configuration attached.
 -- 
 Matthias Andree
 
---W/nzBZO5zC0uMSeA
+--fUYQa+Pmc3FrFX/N
 Content-Type: application/x-gunzip
 Content-Disposition: attachment; filename="config.gz"
 Content-Transfer-Encoding: base64
@@ -123,4 +127,4 @@ RQfDmdhx9EMMP4YzfVGO9+WuTM8n4hW06r1i/NT8BhX99I110OXeRHJ1dhMIHfP77qPmQb5V
 8H44VTXNgFfVA/6vysggtxuGYb8qIYRiaEu0HGLXstBvYBgK8K/PtGrT/Uky7olN+IqNx/7h
 C9W+Kx7Gzg/RguYPNWfX9f+YPDtebzAAAA==
 
---W/nzBZO5zC0uMSeA--
+--fUYQa+Pmc3FrFX/N--

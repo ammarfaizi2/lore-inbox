@@ -1,105 +1,713 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262539AbVGFVfK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262522AbVGFVe0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262539AbVGFVfK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 17:35:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262528AbVGFVfD
+	id S262522AbVGFVe0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 17:34:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262510AbVGFVbV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 17:35:03 -0400
-Received: from services106.cs.uwaterloo.ca ([129.97.152.164]:31108 "EHLO
-	services106.cs.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S262539AbVGFVcQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 17:32:16 -0400
-X-Mailer: emacs 21.4.1 (via feedmail 8 I)
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: Jonathan Briggs <jbriggs@esoft.com>,
-       "Alexander G. M. Smith" <agmsmith@rogers.com>, ross.biro@gmail.com,
-       mrmacman_g4@mac.com, Valdis.Kletnieks@vt.edu, ltd@cisco.com,
-       gmaxwell@gmail.com, jgarzik@pobox.com, hch@infradead.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com,
-       zam@namesys.com, vs@thebsh.namesys.com, ndiller@namesys.com,
-       ninja@slaphack.com, vitaly@thebsh.namesys.com
-Subject: Re: reiser4 plugins
-From: Hubert Chan <hubert@uhoreg.ca>
-In-Reply-To: <200507062033.j66KXNqM008212@laptop11.inf.utfsm.cl> (Horst von
- Brand's message of "Wed, 06 Jul 2005 16:33:23 -0400")
-References: <hubert@uhoreg.ca>
-	<200507062033.j66KXNqM008212@laptop11.inf.utfsm.cl>
-X-Hashcash: 1:23:050706:vonbrand@inf.utfsm.cl::Hw5GqB9slG3HnbEB:0000000000000000000000000000000000000000g61h
-X-Hashcash: 1:23:050706:jbriggs@esoft.com::bsLUp703UxTIb/ou:00000000000000000000000000000000000000000000bGJI
-X-Hashcash: 1:23:050706:agmsmith@rogers.com::BJXJONCTT7zq2wN6:000000000000000000000000000000000000000001YA8o
-X-Hashcash: 1:23:050706:ross.biro@gmail.com::XvIGHckj2tmLWU0J:000000000000000000000000000000000000000001UV4D
-X-Hashcash: 1:23:050706:mrmacman_g4@mac.com::H9zyatPOH6c5Ud3R:0000000000000000000000000000000000000000000qWv
-X-Hashcash: 1:23:050706:valdis.kletnieks@vt.edu::6AEb4ohyByh5i+Rh:00000000000000000000000000000000000000DaC7
-X-Hashcash: 1:23:050706:ltd@cisco.com::WNRwvusnTYRqGTGq:0000Nvw9
-X-Hashcash: 1:23:050706:gmaxwell@gmail.com::I3F+4Mc8BaceAM/F:0000000000000000000000000000000000000000000RovR
-X-Hashcash: 1:23:050706:jgarzik@pobox.com::CHiJTSLYsCXpDanU:000000000000000000000000000000000000000000009vCK
-X-Hashcash: 1:23:050706:hch@infradead.org::vStD153UZ7d91iTE:000000000000000000000000000000000000000000013e4W
-X-Hashcash: 1:23:050706:akpm@osdl.org::mWOWvCWn6tOmBtPI:0000ur6Z
-X-Hashcash: 1:23:050706:linux-kernel@vger.kernel.org::MHIG8oX/Bvr9B/cH:0000000000000000000000000000000027x4R
-X-Hashcash: 1:23:050706:reiserfs-list@namesys.com::VmQ7kaFpOoPw/51E:0000000000000000000000000000000000001eZn
-X-Hashcash: 1:23:050706:zam@namesys.com::Ce8imtfGXKp7j5tw:01QhDE
-X-Hashcash: 1:23:050706:vs@thebsh.namesys.com::Outx+VsmK4YKF/r2:0000000000000000000000000000000000000000GLN8
-X-Hashcash: 1:23:050706:ndiller@namesys.com::7JngQFbM25TKn1Xo:000000000000000000000000000000000000000001GnMm
-X-Hashcash: 1:23:050706:ninja@slaphack.com::5VKTVSNOsHbNTyzn:0000000000000000000000000000000000000000000BR27
-X-Hashcash: 1:23:050706:vitaly@thebsh.namesys.com::nx9+sgMsArqkkWil:000000000000000000000000000000000000DDUy
-Date: Wed, 06 Jul 2005 17:31:58 -0400
-Message-ID: <87ackzei41.fsf@evinrude.uhoreg.ca>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Wed, 6 Jul 2005 17:31:21 -0400
+Received: from fmr18.intel.com ([134.134.136.17]:10630 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S262549AbVGFV1c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Jul 2005 17:27:32 -0400
+From: Mark Gross <mgross@linux.intel.com>
+Organization: Intel
+To: "Bouchard, Sebastien" <Sebastien.Bouchard@ca.kontron.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: Patch of a new driver for kernel 2.4.x that need review
+Date: Wed, 6 Jul 2005 14:14:44 -0700
+User-Agent: KMail/1.5.4
+Cc: "Lorenzini, Mario" <mario.lorenzini@ca.kontron.com>
+References: <5009AD9521A8D41198EE00805F85F18F067F6A36@sembo111.teknor.com>
+In-Reply-To: <5009AD9521A8D41198EE00805F85F18F067F6A36@sembo111.teknor.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (services106.cs.uwaterloo.ca [129.97.152.132]); Wed, 06 Jul 2005 17:32:06 -0400 (EDT)
-X-Miltered: at persephone with ID 42CC4D9C.001 by Joe's j-chkmail (http://j-chkmail.ensmp.fr)!
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200507061414.48764.mgross@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 06 Jul 2005 16:33:23 -0400, Horst von Brand <vonbrand@inf.utfsm.cl> said:
+On Wednesday 22 June 2005 08:12, Bouchard, Sebastien wrote:
+> Hi,
+>
+> Here is a driver (only for 2.4.x) I've done to provide support of a
+> hardware module (available on some ATCA board) used with telecom expension
+> card on the new ATCA platform. This module provide redundant reference
+> clock for telecom hardware with alarm handling when there is a new event
+> (ex.: one of the ref clock is gone).
+> This char driver provide IOCTL for configuration of this module and
+> interrupt handler for processing alarm events.
+>
+> I send this driver so people in this mailing list can do a review of the
+> code.
+>
+> Please reply me directly to my email, i'm not subscribed to the mailing
+> list.
+>
+> Thanks
+> Sebastien Bouchard
+> Software designer
+> Kontron Canada Inc.
+> <mailto:sebastien.bouchard@ca.kontron.com>
+> <http://www.kontron.com/>
 
-> Hubert Chan <hubert@uhoreg.ca> wrote:
->> If you can store the parents, then finding cycles (relatively)
->> quickly is pretty easy: before you try to make A the parent of B,
->> walk up the parent pointers starting from A.  If you ever reach B,
->> you have a cycle.  If not, you don't have a cycle.  (Hmmm.  Do I need
->> a proof of correctness for this?  It's just depth-first-search, which
->> everybody learned in their first algorithms course.)
+I'm helping out a bit with the maintaining of this driver for Sebastien.  
+The following is a 2.6.12 port of Sebastien's 2.4 driver.  
 
-> Correct. And you need space for potentially a huge lot of up pointers
-> for each file.
+--mgross
 
-People (that I know of) don't normally have a huge lot of hardlinks to a
-single file.
-
-> And then there is the (very minor) problem is that meanwhile /nothing/
-> can touch the filesystem to do any change...
-
-If the DFS is quick, it shouldn't make much difference.
-
-Lock nodes as you walk up the tree, and people can change unlocked nodes
-without harming anything.  All you need to do is make sure that no up
-pointers get added to nodes that you've already looked at.
-
-People can also still edit files without changing the tree (and hence
-not screwing up the DFS).
-
-> How do you delete such an object? You will have to delete from each
-> child down to the first object that has a pointer to it from the
-> outside, if you don't want garbage left behind. And that means walking
-> down to /each/ reachable object, then walking up from there to see if
-> all its parents are in the DAG rooted at what you are going to
-> delete. This means potentially walking through the whole filesystem
-> (if you want to delete the root, or something near). You will run out
-> of memory, and again, meanwhile no changes can be allowed.
-
-What does deleting have to do with up pointers?  If you delete a
-directory that has refcount greater than 1, you decrease the refcount,
-remove the appropriate up pointer, and remove the inode entry from its
-parent.  If you delete a directory that has refcount equal to 1, well,
-we're in the same situation we're in right now when you delete a
-directory; you need to "rm -r", which doesn't lock up the whole
-filesystem.
-
--- 
-Hubert Chan <hubert@uhoreg.ca> - http://www.uhoreg.ca/
-PGP/GnuPG key: 1024D/124B61FA
-Fingerprint: 96C5 012F 5F74 A5F7 1FF7  5291 AF29 C719 124B 61FA
-Key available at wwwkeys.pgp.net.   Encrypted e-mail preferred.
+diff -urN -X dontdiff_osdl vanilla/linux-2.6.12/drivers/char/Kconfig linux-2.6.12/drivers/char/Kconfig
+--- vanilla/linux-2.6.12/drivers/char/Kconfig	2005-06-17 12:48:29.000000000 -0700
++++ linux-2.6.12/drivers/char/Kconfig	2005-07-06 13:25:18.585951744 -0700
+@@ -998,5 +998,16 @@
+ 
+ source "drivers/char/tpm/Kconfig"
+ 
++config TELCLOCK
++	tristate "Telecom clock driver for ATCA"
++	depends on EXPERIMENTAL
++	default n
++	help
++	  The telecom clock device allows direct userspace access to the
++	  configuration of the telecom clock configuration settings.
++	  This device is used for hardware synchronization across the ATCA
++	  back plane fabric.
++
++
+ endmenu
+ 
+diff -urN -X dontdiff_osdl vanilla/linux-2.6.12/drivers/char/Makefile linux-2.6.12/drivers/char/Makefile
+--- vanilla/linux-2.6.12/drivers/char/Makefile	2005-06-17 12:48:29.000000000 -0700
++++ linux-2.6.12/drivers/char/Makefile	2005-07-06 13:26:15.139354320 -0700
+@@ -81,6 +81,7 @@
+ obj-$(CONFIG_NWFLASH) += nwflash.o
+ obj-$(CONFIG_SCx200_GPIO) += scx200_gpio.o
+ obj-$(CONFIG_TANBAC_TB0219) += tb0219.o
++obj-$(CONFIG_TELCLOCK) += tlclk.o
+ 
+ obj-$(CONFIG_WATCHDOG)	+= watchdog/
+ obj-$(CONFIG_MWAVE) += mwave/
+diff -urN -X dontdiff_osdl vanilla/linux-2.6.12/drivers/char/tlclk.c linux-2.6.12/drivers/char/tlclk.c
+--- vanilla/linux-2.6.12/drivers/char/tlclk.c	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.12/drivers/char/tlclk.c	2005-07-06 13:25:18.600949464 -0700
+@@ -0,0 +1,447 @@
++/*
++ * Telecom Clock driver for Wainwright board
++ *
++ * Copyright (C) 2005 Kontron Canada
++ *
++ * All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or (at
++ * your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
++ * NON INFRINGEMENT.  See the GNU General Public License for more
++ * details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ *
++ * Send feedback to <sebastien.bouchard@ca.kontron.com>
++ *
++ * Description : This is the TELECOM CLOCK module driver for the ATCA platform.
++ */
++#ifndef __KERNEL__
++#  define __KERNEL__
++#endif
++
++#include <linux/config.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/sched.h>
++#include <linux/kernel.h>	/* printk() */
++#include <linux/fs.h>		/* everything... */
++#include <linux/errno.h>	/* error codes */
++#include <linux/delay.h>	/* udelay */
++#include <asm/uaccess.h>
++#include <linux/slab.h>
++#include <linux/ioport.h>
++#include <linux/devfs_fs_kernel.h>	/* Devfs support */
++#include <linux/interrupt.h>
++#include <linux/spinlock.h>
++#include <linux/timer.h>
++#include <asm/io.h>		/* inb/outb */
++
++#include "tlclk.h"	/* TELECOM IOCTL DEFINE */
++
++MODULE_AUTHOR("Sebastien Bouchard <sebastien.bouchard@ca.kontron.com>");
++MODULE_LICENSE("GPL");
++
++/* Telecom clock I/O register definition */
++#define TLCLK_BASE 0xa08            
++#define TLCLK_REG0 TLCLK_BASE
++#define TLCLK_REG1 (TLCLK_BASE+1)
++#define TLCLK_REG2 (TLCLK_BASE+2)
++#define TLCLK_REG3 (TLCLK_BASE+3)
++#define TLCLK_REG4 (TLCLK_BASE+4)
++#define TLCLK_REG5 (TLCLK_BASE+5)
++#define TLCLK_REG6 (TLCLK_BASE+6)
++#define TLCLK_REG7 (TLCLK_BASE+7)
++
++#define SET_PORT_BITS(port, mask, val) outb(((inb(port) & mask) | val), port)
++
++/* 0 = Dynamic allocation of the major device number */
++#define TLCLK_MAJOR 252
++
++/* Contain the interrupt used for telecom clock */
++static unsigned int telclk_interrupt;
++
++static int int_events;		/* Event that generate a interrupt */
++static int got_event;		/* if events processing have been done */
++
++static struct timer_list switchover_timer;
++
++struct tlclk_alarms *alarm_events;
++
++spinlock_t event_lock = SPIN_LOCK_UNLOCKED;
++
++/* DEVFS support or not */
++#ifdef CONFIG_DEVFS_FS
++devfs_handle_t devfs_handle;
++#else
++static int tlclk_major = TLCLK_MAJOR;
++#endif
++
++static void switchover_timeout(unsigned long data);
++irqreturn_t tlclk_interrupt(int irq, void *dev_id, struct pt_regs *regs);
++
++DECLARE_WAIT_QUEUE_HEAD(wq);
++/*
++*  Function : Module I/O functions
++*  Description : Almost all the control stuff is done here, check I/O dn for
++*  help.
++*/
++static int
++tlclk_ioctl(struct inode *inode,
++	    struct file *filp, unsigned int cmd, unsigned long arg)
++{
++	unsigned long flags;
++	unsigned char val;
++	val = (unsigned char) arg;
++
++	if (_IOC_TYPE(cmd) != TLCLK_IOC_MAGIC)
++		return -ENOTTY;
++
++	if (_IOC_NR(cmd) > TLCLK_IOC_MAXNR)
++		return -ENOTTY;
++
++	switch (cmd) {
++	case IOCTL_RESET:
++		SET_PORT_BITS(TLCLK_REG4, 0xfd, val);
++		break;
++	case IOCTL_MODE_SELECT:
++		SET_PORT_BITS(TLCLK_REG0, 0xcf, val);
++		break;
++	case IOCTL_REFALIGN:
++		/* GENERATING 0 to 1 transistion */
++		SET_PORT_BITS(TLCLK_REG0, 0xf7, 0);
++		udelay(2);
++		SET_PORT_BITS(TLCLK_REG0, 0xf7, 0x08);
++		udelay(2);
++		SET_PORT_BITS(TLCLK_REG0, 0xf7, 0);
++		break;
++	case IOCTL_HARDWARE_SWITCHING:
++		SET_PORT_BITS(TLCLK_REG0, 0x7f, val);
++		break;
++	case IOCTL_HARDWARE_SWITCHING_MODE:
++		SET_PORT_BITS(TLCLK_REG0, 0xbf, val);
++		break;
++	case IOCTL_FILTER_SELECT:
++		SET_PORT_BITS(TLCLK_REG0, 0xfb, val);
++		break;
++	case IOCTL_SELECT_REF_FREQUENCY:
++		spin_lock_irqsave(&event_lock, flags);
++		SET_PORT_BITS(TLCLK_REG1, 0xfd, val);
++		spin_unlock_irqrestore(&event_lock, flags);
++		break;
++	case IOCTL_SELECT_REDUNDANT_CLOCK:
++		spin_lock_irqsave(&event_lock, flags);
++		SET_PORT_BITS(TLCLK_REG1, 0xfe, val);
++		spin_unlock_irqrestore(&event_lock, flags);
++		break;
++	case IOCTL_SELECT_AMCB1_TRANSMIT_CLOCK:
++		if ((val == CLK_8kHz) || (val == CLK_16_384MHz)) {
++			SET_PORT_BITS(TLCLK_REG3, 0xf8, 0x5);
++			SET_PORT_BITS(TLCLK_REG1, 0xfb, ~val);
++		} else if (val >= CLK_8_592MHz) {
++			SET_PORT_BITS(TLCLK_REG3, 0xf8, 0x7);
++			switch (val) {
++			case CLK_8_592MHz:
++				SET_PORT_BITS(TLCLK_REG0, 0xfc, 1);
++				break;
++			case CLK_11_184MHz:
++				SET_PORT_BITS(TLCLK_REG0, 0xfc, 0);
++				break;
++			case CLK_34_368MHz:
++				SET_PORT_BITS(TLCLK_REG0, 0xfc, 3);
++				break;
++			case CLK_44_736MHz:
++				SET_PORT_BITS(TLCLK_REG0, 0xfc, 2);
++				break;
++			}
++		} else
++			SET_PORT_BITS(TLCLK_REG3, 0xf8, val);
++		break;
++	case IOCTL_SELECT_AMCB2_TRANSMIT_CLOCK:
++		if ((val == CLK_8kHz) || (val == CLK_16_384MHz)) {
++			SET_PORT_BITS(TLCLK_REG3, 0xc7, 0x28);
++			SET_PORT_BITS(TLCLK_REG1, 0xfb, ~val);
++		} else if (val >= CLK_8_592MHz) {
++			SET_PORT_BITS(TLCLK_REG3, 0xc7, 0x38);
++			switch (val) {
++			case CLK_8_592MHz:
++				SET_PORT_BITS(TLCLK_REG0, 0xfc, 1);
++				break;
++			case CLK_11_184MHz:
++				SET_PORT_BITS(TLCLK_REG0, 0xfc, 0);
++				break;
++			case CLK_34_368MHz:
++				SET_PORT_BITS(TLCLK_REG0, 0xfc, 3);
++				break;
++			case CLK_44_736MHz:
++				SET_PORT_BITS(TLCLK_REG0, 0xfc, 2);
++				break;
++			}
++		} else
++			SET_PORT_BITS(TLCLK_REG3, 0xc7, val << 3);
++		break;
++	case IOCTL_TEST_MODE:
++		SET_PORT_BITS(TLCLK_REG4, 0xfd, 2);
++		break;
++	case IOCTL_ENABLE_CLKA0_OUTPUT:
++		SET_PORT_BITS(TLCLK_REG2, 0xfe, val);
++		break;
++	case IOCTL_ENABLE_CLKB0_OUTPUT:
++		SET_PORT_BITS(TLCLK_REG2, 0xfd, val << 1);
++		break;
++	case IOCTL_ENABLE_CLKA1_OUTPUT:
++		SET_PORT_BITS(TLCLK_REG2, 0xfb, val << 2);
++		break;
++	case IOCTL_ENABLE_CLKB1_OUTPUT:
++		SET_PORT_BITS(TLCLK_REG2, 0xf7, val << 3);
++		break;
++	case IOCTL_ENABLE_CLK3A_OUTPUT:
++		SET_PORT_BITS(TLCLK_REG3, 0xbf, val << 6);
++		break;
++	case IOCTL_ENABLE_CLK3B_OUTPUT:
++		SET_PORT_BITS(TLCLK_REG3, 0x7f, val << 7);
++		break;
++	case IOCTL_READ_ALARMS:
++		return (inb(TLCLK_REG2) & 0xf0);
++		break;
++	case IOCTL_READ_INTERRUPT_SWITCH:
++		return inb(TLCLK_REG6);
++		break;
++	case IOCTL_READ_CURRENT_REF:
++		return ((inb(TLCLK_REG1) & 0x08) >> 3);
++		break;
++	}
++
++	return 0;
++}
++
++/*
++*  Function : Module Opening
++*  Description : Called when a program open the 
++*  /dev/telclock file related to the module.
++*/
++static int
++tlclk_open(struct inode *inode, struct file *filp)
++{
++	int result;
++	/* Make sure there is no interrupt pending will 
++	   *  initialising interrupt handler */
++	inb(TLCLK_REG6);
++
++	result = request_irq(telclk_interrupt, &tlclk_interrupt,
++			     SA_SHIRQ, "telclock", tlclk_interrupt);
++	printk("\ntelclock: Reserving IRQ%d...\n", telclk_interrupt);
++	if (result == -EBUSY) {
++		printk(KERN_ERR
++		       "telclock: Interrupt can't be reserved!\n");
++		return -EBUSY;
++	}
++	inb(TLCLK_REG6);	/* Clear interrupt events */
++	return 0;
++}
++
++/*
++*  Function : Module Releasing
++*  Description : Called when a program stop using the module.
++*/
++static int
++tlclk_release(struct inode *inode, struct file *filp)
++{
++		free_irq(telclk_interrupt, tlclk_interrupt);
++	return 0;
++}
++
++ssize_t
++tlclk_read(struct file * filp, char *buf, size_t count, loff_t * f_pos)
++{
++	int count0 = sizeof(struct tlclk_alarms);
++	wait_event_interruptible(wq, got_event);
++	if (copy_to_user(buf, alarm_events, sizeof(struct tlclk_alarms)))
++		return -EFAULT;
++
++	memset(alarm_events, 0, sizeof(struct tlclk_alarms));
++	got_event = 0;
++	
++	return count0;
++}
++
++ssize_t
++tlclk_write(struct file * filp, const char *buf, size_t count, loff_t * f_pos)
++{
++	return 0;
++}
++
++/*
++* This is where you set what function is called when an action is done to your
++*  /dev file.
++*/
++static struct file_operations tlclk_fops = {
++	.read = tlclk_read,
++	.write = tlclk_write,
++	.ioctl = tlclk_ioctl,
++	.open = tlclk_open,
++	.release = tlclk_release,
++
++};
++/*
++* Function : Module Initialisation                      
++* Description : Called at module loading, 
++* all the OS registering stuff is her
++*/
++static int __init
++tlclk_init(void)
++{
++/* DEVFS or NOT? */
++#ifdef CONFIG_DEVFS_FS
++	devfs_handle = devfs_register(NULL, "telclock",
++					DEVFS_FL_AUTO_DEVNUM, TLCLK_MAJOR,
++					0,
++					S_IFCHR | S_IRUGO | S_IWUGO,
++					&tlclk_fops, NULL);
++	if (!devfs_handle)
++		goto out1;
++#else
++	tlclk_major = register_chrdev(tlclk_major, "telclock", &tlclk_fops);
++
++	if (tlclk_major < 0) {
++		printk(KERN_ERR "telclock: can't get major! %d\n", tlclk_major);
++		return tlclk_major;
++	}
++#endif
++
++	alarm_events = kmalloc(sizeof(struct tlclk_alarms), GFP_KERNEL);
++	
++	if (!alarm_events)
++		goto out1;
++	
++	memset(alarm_events, 0, sizeof(struct tlclk_alarms));
++
++/* Read telecom clock IRQ number (Set by BIOS) */
++
++	printk(KERN_WARNING "telclock: Reserving I/O region...\n");
++
++	if ( !request_region(TLCLK_BASE, 8, "telclock") ) {
++		printk(KERN_ERR "telclock: request_region failed!\n");
++			goto out2;
++	}
++	telclk_interrupt = (inb(TLCLK_REG7) & 0x0f);
++
++	init_timer(&switchover_timer);
++	switchover_timer.function = switchover_timeout;
++	switchover_timer.data = 0;
++
++	return 0;
++out2:
++	kfree(alarm_events);
++out1:
++	return -EBUSY;
++}
++
++/*
++*  Function : Module Cleaning
++*  Description : Called when unloading the module
++*/
++static void __exit
++tlclk_cleanup(void)
++{
++#ifdef CONFIG_DEVFS_FS
++	devfs_unregister(devfs_handle);
++#else
++	unregister_chrdev(tlclk_major, "telclock");
++#endif
++	release_region(TLCLK_BASE, 8);
++	del_timer_sync(&switchover_timer);
++	kfree(alarm_events);
++	
++}
++static void
++switchover_timeout(unsigned long data)
++{
++	if ((data & 1)) {
++		if ((inb(TLCLK_REG1) & 0x08) != (data & 0x08))
++			alarm_events->switchover_primary++;
++	} else {
++		if ((inb(TLCLK_REG1) & 0x08) != (data & 0x08))
++			alarm_events->switchover_secondary++;
++	}
++
++	/* Alarm processing is done, wake up read task */
++	del_timer(&switchover_timer);
++	got_event = 1;
++	wake_up(&wq);
++}
++/*
++*  Function : Interrupt Handler
++*  Description :
++*/
++irqreturn_t
++tlclk_interrupt(int irq, void *dev_id, struct pt_regs *regs)
++{
++	unsigned long flags;
++	spin_lock_irqsave(&event_lock, flags);
++	/* Read and clear interrupt events */
++	int_events = inb(TLCLK_REG6);
++	spin_unlock_irqrestore(&event_lock, flags);
++	
++	/* Primary_Los changed from 0 to 1 ? */
++	if (int_events & PRI_LOS_01_MASK) {
++		if (inb(TLCLK_REG2) & SEC_LOST_MASK)
++			alarm_events->lost_clocks++;
++		else
++			alarm_events->lost_primary_clock++;
++	}
++
++	/* Primary_Los changed from 1 to 0 ? */
++	if (int_events & PRI_LOS_10_MASK) {
++		alarm_events->primary_clock_back++;
++		spin_lock_irqsave(&event_lock, flags);
++		SET_PORT_BITS(TLCLK_REG1, 0xFE, 1);
++		spin_unlock_irqrestore(&event_lock, flags);
++	}
++	/* Secondary_Los changed from 0 to 1 ? */
++	if (int_events & SEC_LOS_01_MASK) {
++		if (inb(TLCLK_REG2) & PRI_LOST_MASK)
++			alarm_events->lost_clocks++;
++		else
++			alarm_events->lost_secondary_clock++;
++	}
++	/* Secondary_Los changed from 1 to 0 ? */
++	if (int_events & SEC_LOS_10_MASK) {
++		alarm_events->secondary_clock_back++;
++		spin_lock_irqsave(&event_lock, flags);
++		SET_PORT_BITS(TLCLK_REG1, 0xFE, 0);
++		spin_unlock_irqrestore(&event_lock, flags);
++	}
++	if (int_events & HOLDOVER_10_MASK)
++		alarm_events->pll_end_holdover++;
++
++	if (int_events & UNLOCK_01_MASK)
++		alarm_events->pll_lost_sync++;
++
++	if (int_events & UNLOCK_10_MASK)
++		alarm_events->pll_sync++;
++
++	/* Holdover changed from 0 to 1 ? */
++	if (int_events & HOLDOVER_01_MASK) {
++		alarm_events->pll_holdover++;
++
++		switchover_timer.expires = jiffies + 1;	/* TIMEOUT in ~10ms */
++		switchover_timer.data = inb(TLCLK_REG1);
++		add_timer(&switchover_timer);
++	} else {
++		got_event = 1;
++		wake_up(&wq);
++	}
++	return IRQ_HANDLED;
++}
++
++module_init(tlclk_init);
++module_exit(tlclk_cleanup);
+diff -urN -X dontdiff_osdl vanilla/linux-2.6.12/drivers/char/tlclk.h linux-2.6.12/drivers/char/tlclk.h
+--- vanilla/linux-2.6.12/drivers/char/tlclk.h	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.12/drivers/char/tlclk.h	2005-07-06 13:25:18.607948400 -0700
+@@ -0,0 +1,167 @@
++/*
++ * Telecom Clock driver for Wainwright board
++ *
++ * Copyright (C) 2005 Kontron Canada
++ *
++ * All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or (at
++ * your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
++ * NON INFRINGEMENT.  See the GNU General Public License for more
++ * details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ *
++ * Send feedback to <sebastien.bouchard@ca.kontron.com>
++ *
++ */
++ 
++/* Ioctl definitions  */
++
++/* Use 0xA1 as magic number */
++#define TLCLK_IOC_MAGIC 0xA1
++
++/*Hardware Reset of the PLL */
++
++#define RESET_ON 0x00
++#define RESET_OFF 0x01
++#define IOCTL_RESET _IO(TLCLK_IOC_MAGIC,  1)
++
++#define IOCTL_REFALIGN _IO(TLCLK_IOC_MAGIC,  2)
++
++/* MODE SELECT */
++
++#define NORMAL_MODE 0x00
++#define HOLDOVER_MODE 0x10
++#define FREERUN_MODE 0x20
++
++#define IOCTL_MODE_SELECT _IOR(TLCLK_IOC_MAGIC,  3, char)
++
++/* FILTER SELECT */
++
++#define FILTER_6HZ 0x04
++#define FILTER_12HZ 0x00
++
++#define IOCTL_FILTER_SELECT _IOR(TLCLK_IOC_MAGIC,  4, char)
++
++/* SELECT REFERENCE FREQUENCY */
++
++#define REF_CLK1_8kHz 0x00
++#define REF_CLK2_19_44MHz 0x02
++
++#define IOCTL_SELECT_REF_FREQUENCY _IOR(TLCLK_IOC_MAGIC,  6, char)
++
++/* Select primary or secondary redundant clock */
++
++#define PRIMARY_CLOCK 0x00
++#define SECONDARY_CLOCK 0x01
++#define IOCTL_SELECT_REDUNDANT_CLOCK _IOR(TLCLK_IOC_MAGIC,  7, char)
++
++/* CLOCK TRANSMISSION DEFINE */
++
++#define CLK_8kHz 0xff
++#define CLK_16_384MHz 0xfb
++
++#define CLK_1_544MHz 0x00
++#define CLK_2_048MHz 0x01
++#define CLK_4_096MHz 0x02
++#define CLK_6_312MHz 0x03
++#define CLK_8_192MHz 0x04
++#define CLK_19_440MHz 0x06
++
++#define CLK_8_592MHz 0x08
++#define CLK_11_184MHz 0x09
++#define CLK_34_368MHz 0x0b
++#define CLK_44_736MHz 0x0a
++
++#define IOCTL_SELECT_AMCB1_TRANSMIT_CLOCK _IOR(TLCLK_IOC_MAGIC,  9, char)
++#define IOCTL_SELECT_AMCB2_TRANSMIT_CLOCK _IOR(TLCLK_IOC_MAGIC,  10, char)
++
++/* RECEIVED REFERENCE */
++
++#define AMC_B1 0
++#define AMC_B2 1
++
++#define IOCTL_SELECT_RECEIVED_REF_CLK3A _IOR(TLCLK_IOC_MAGIC,  11, char)
++#define IOCTL_SELECT_RECEIVED_REF_CLK3B _IOR(TLCLK_IOC_MAGIC,  12, char)
++
++/* OEM COMMAND - NOT IN FINAL VERSION */
++
++#define IOCTL_TEST_MODE _IO(TLCLK_IOC_MAGIC,  13)
++
++/* HARDWARE SWITCHING DEFINE */
++
++#define HW_ENABLE 0x80
++#define HW_DISABLE 0x00
++
++#define IOCTL_HARDWARE_SWITCHING _IOR(TLCLK_IOC_MAGIC,  14, char)
++
++/* HARDWARE SWITCHING MODE DEFINE */
++
++#define PLL_HOLDOVER 0x40
++#define LOST_CLOCK 0x00
++
++#define IOCTL_HARDWARE_SWITCHING_MODE _IOR(TLCLK_IOC_MAGIC,  15, char)
++
++/* CLOCK OUTPUT DEFINE */
++
++#define IOCTL_ENABLE_CLKA0_OUTPUT _IOR(TLCLK_IOC_MAGIC,  16, char)
++#define IOCTL_ENABLE_CLKB0_OUTPUT _IOR(TLCLK_IOC_MAGIC,  17, char)
++#define IOCTL_ENABLE_CLKA1_OUTPUT _IOR(TLCLK_IOC_MAGIC,  18, char)
++#define IOCTL_ENABLE_CLKB1_OUTPUT _IOR(TLCLK_IOC_MAGIC,  19, char)
++
++#define IOCTL_ENABLE_CLK3A_OUTPUT _IOR(TLCLK_IOC_MAGIC,  20, char)
++#define IOCTL_ENABLE_CLK3B_OUTPUT _IOR(TLCLK_IOC_MAGIC,  21, char)
++
++/* ALARMS DEFINE */
++
++#define UNLOCK_MASK 0x10
++#define HOLDOVER_MASK 0x20
++#define SEC_LOST_MASK 0x40
++#define PRI_LOST_MASK 0x80
++
++#define IOCTL_READ_ALARMS _IO(TLCLK_IOC_MAGIC,  22)
++
++/* INTERRUPT CAUSE DEFINE */
++
++#define PRI_LOS_01_MASK 0x01
++#define PRI_LOS_10_MASK 0x02
++
++#define SEC_LOS_01_MASK 0x04
++#define SEC_LOS_10_MASK 0x08
++
++#define HOLDOVER_01_MASK 0x10
++#define HOLDOVER_10_MASK 0x20
++
++#define UNLOCK_01_MASK 0x40
++#define UNLOCK_10_MASK 0x80
++
++#define IOCTL_READ_INTERRUPT_SWITCH _IO(TLCLK_IOC_MAGIC,  23)
++
++#define IOCTL_READ_CURRENT_REF _IO(TLCLK_IOC_MAGIC,  25)
++
++/* MAX NUMBER OF IOCTL */
++#define TLCLK_IOC_MAXNR 25
++
++struct tlclk_alarms {
++	unsigned int lost_clocks;
++	unsigned int lost_primary_clock;
++	unsigned int lost_secondary_clock;
++	unsigned int primary_clock_back;
++	unsigned int secondary_clock_back;
++	unsigned int switchover_primary;
++	unsigned int switchover_secondary;
++	unsigned int pll_holdover;
++	unsigned int pll_end_holdover;
++	unsigned int pll_lost_sync;
++	unsigned int pll_sync;
++};
++
 

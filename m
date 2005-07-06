@@ -1,79 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261983AbVGFSd7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261520AbVGFSiu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261983AbVGFSd7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 14:33:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262419AbVGFSd7
+	id S261520AbVGFSiu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 14:38:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbVGFSiu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 14:33:59 -0400
-Received: from ns2.suse.de ([195.135.220.15]:47036 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261983AbVGFNct (ORCPT
+	Wed, 6 Jul 2005 14:38:50 -0400
+Received: from fsmlabs.com ([168.103.115.128]:38068 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S261520AbVGFNft (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 09:32:49 -0400
-Date: Wed, 6 Jul 2005 15:32:48 +0200
-From: Andi Kleen <ak@suse.de>
-To: christoph@lameter.com, akpm@osdl.org, linux-kernel@vger.kernel.org
-Cc: linux-pci@vger.kernel.org, gregkh@suse.de
-Subject: [PATCH] Run PCI driver initialization on local node
-Message-ID: <20050706133248.GG21330@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	Wed, 6 Jul 2005 09:35:49 -0400
+Date: Wed, 6 Jul 2005 07:40:32 -0600 (MDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Nigel Cunningham <ncunningham@cyclades.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] [19/48] Suspend2 2.1.9.8 for 2.6.12: 510-version-specific-mac.patch
+In-Reply-To: <1120622393.4860.22.camel@localhost>
+Message-ID: <Pine.LNX.4.61.0507060739110.2149@montezuma.fsmlabs.com>
+References: <11206164411926@foobar.com>  <Pine.LNX.4.61.0507052145470.2149@montezuma.fsmlabs.com>
+ <1120622393.4860.22.camel@localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 6 Jul 2005, Nigel Cunningham wrote:
 
-Run PCI driver initialization on local node
+> I've just noticed that all the subject lines are off by one. Sorry.
+> Shall I repost with it right this time?
 
-Instead of adding messy kmalloc_node()s everywhere run the 
-PCI driver probe on the node local to the device.
-Then the normal NUMA aware allocators do the right thing.
+Yes the subject lines did look a bit confusing, it may be easier in future 
+to add a short description of the patch instead of relying on the 
+patch name.
 
-This would not have helped for IDE, but should for 
-other more clean drivers that do more initialization in probe().
-It won't help for drivers that do most of the work
-on first open (like many network drivers)
+> Regarding this x86_64 patch, I haven't been able to test x86_64 support
+> yet (no hardware here), so I'm sure you're right about all the things.
+> I've really just parroted what swsusp does in its lowlevel code, since
+> saving and restoring cpu state is one thing we do the same way.
+> 
+> Will apply changes.
 
-Signed-off-by: Andi Kleen <ak@suse.de> 
-cc: christoph@lameter.com
+Fair enough.
 
-Index: linux/drivers/pci/pci-driver.c
-===================================================================
---- linux.orig/drivers/pci/pci-driver.c
-+++ linux/drivers/pci/pci-driver.c
-@@ -167,6 +167,27 @@ const struct pci_device_id *pci_match_de
- 	return NULL;
- }
- 
-+static int pci_call_probe(struct pci_driver *drv, struct pci_dev *dev, 
-+			  const struct pci_device_id *id)
-+{
-+	int error;
-+#ifdef CONFIG_NUMA
-+	/* Execute driver initialization on node where the 
-+	   device's bus is attached to.  This way the driver likely
-+	   allocates its local memory on the right node without
-+	   any need to change it. */
-+	cpumask_t oldmask = current->cpus_allowed;
-+	int node = pcibus_to_node(dev->bus);
-+	if (node >= 0 && node_online(node))
-+	    set_cpus_allowed(current, node_to_cpumask(node));	
-+#endif
-+	error = drv->probe(dev, id);
-+#ifdef CONFIG_NUMA
-+	set_cpus_allowed(current, oldmask);
-+#endif
-+	return error;
-+}
-+
- /**
-  * __pci_device_probe()
-  * 
-@@ -184,7 +205,7 @@ __pci_device_probe(struct pci_driver *dr
- 
- 		id = pci_match_device(drv, pci_dev);
- 		if (id)
--			error = drv->probe(pci_dev, id);
-+			error = pci_call_probe(drv, pci_dev, id);
- 		if (error >= 0) {
- 			pci_dev->driver = drv;
- 			error = 0;
+Thanks,
+	Zwane
+

@@ -1,45 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262404AbVGFSJ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262220AbVGFSZ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262404AbVGFSJ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 14:09:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262195AbVGFSHF
+	id S262220AbVGFSZ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 14:25:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262170AbVGFSZ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 14:07:05 -0400
-Received: from fsmlabs.com ([168.103.115.128]:180 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S262206AbVGFNZX (ORCPT
+	Wed, 6 Jul 2005 14:25:59 -0400
+Received: from cantor.suse.de ([195.135.220.2]:42452 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S262227AbVGFNa7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 09:25:23 -0400
-Date: Wed, 6 Jul 2005 07:29:42 -0600 (MDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Nigel Cunningham <ncunningham@cyclades.com>
-cc: Nigel Cunningham <nigel@suspend2.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       shaohua.li@intel.com
-Subject: Re: [PATCH] [11/48] Suspend2 2.1.9.8 for 2.6.12: 401-e820-table-support.patch
-In-Reply-To: <1120621474.4860.6.camel@localhost>
-Message-ID: <Pine.LNX.4.61.0507060728470.2149@montezuma.fsmlabs.com>
-References: <11206164403490@foobar.com>  <Pine.LNX.4.61.0507052131140.2149@montezuma.fsmlabs.com>
- <1120621474.4860.6.camel@localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 6 Jul 2005 09:30:59 -0400
+Date: Wed, 6 Jul 2005 15:30:53 +0200
+From: Andi Kleen <ak@suse.de>
+To: linux-ide@vger.kernel.org, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       christoph@lameter.com
+Subject: [PATCH] Fix crash on boot in kmalloc_node IDE changes
+Message-ID: <20050706133052.GF21330@wotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Jul 2005, Nigel Cunningham wrote:
 
-> On Wed, 2005-07-06 at 13:35, Zwane Mwaikambo wrote:
-> > 
-> > Isn't this covered by Shaohua Li's patch?
-> 
-> I believe so, but Shaohua Li's patch isn't merged in 2.6.12 (is it yet
-> at all). This is the solution I've been using for... can't remember how
-> long.
-> 
-> Thanks for the feedback.
+Without this patch a dual Xeon EM64T machine would oops on boot
+because the hwif pointer here was NULL. I also added a check for
+pci_dev because it's doubtful that all IDE devices have pci_devs.
 
-That's fine, i just want to make sure i know which parts can be used by 
-your project too.
+Signed-off-by: Andi Kleen <ak@suse.de>
 
-Thanks Nigel,
-	Zwane
+
+Index: linux/drivers/ide/ide-probe.c
+===================================================================
+--- linux.orig/drivers/ide/ide-probe.c
++++ linux/drivers/ide/ide-probe.c
+@@ -978,8 +978,10 @@ static int ide_init_queue(ide_drive_t *d
+ 	 *	do not.
+ 	 */
+ 
+-	q = blk_init_queue_node(do_ide_request, &ide_lock,
+-				pcibus_to_node(drive->hwif->pci_dev->bus));
++	int node = 0; /* Should be -1 */
++	if (drive->hwif && drive->hwif->pci_dev)
++		node = pcibus_to_node(drive->hwif->pci_dev->bus); 
++	q = blk_init_queue_node(do_ide_request, &ide_lock, node);
+ 	if (!q)
+ 		return 1;
+ 
+@@ -1096,8 +1098,13 @@ static int init_irq (ide_hwif_t *hwif)
+ 		hwgroup->hwif->next = hwif;
+ 		spin_unlock_irq(&ide_lock);
+ 	} else {
+-		hwgroup = kmalloc_node(sizeof(ide_hwgroup_t), GFP_KERNEL,
+-			pcibus_to_node(hwif->drives[0].hwif->pci_dev->bus));
++		int node = 0; 
++		if (hwif->drives[0].hwif) { 
++			struct pci_dev *pdev = hwif->drives[0].hwif->pci_dev;  
++			if (pdev)
++				node = pcibus_to_node(pdev->bus);
++		}
++		hwgroup = kmalloc_node(sizeof(ide_hwgroup_t), GFP_KERNEL,node);
+ 		if (!hwgroup)
+ 	       		goto out_up;
+ 
+
 

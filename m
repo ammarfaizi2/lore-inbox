@@ -1,208 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261156AbVGGAXb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262126AbVGGAXa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261156AbVGGAXb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 20:23:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262486AbVGFUDE
+	id S262126AbVGGAXa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 20:23:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261156AbVGFUDR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 16:03:04 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:47603 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262436AbVGFRcO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 13:32:14 -0400
-Date: Wed, 6 Jul 2005 23:01:34 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: schwidefsky@de.ibm.com, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, manfred@colorfullife.com
-Subject: Re: [RFC] (How to) Let idle CPUs sleep
-Message-ID: <20050706173134.GA24636@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20050507182728.GA29592@in.ibm.com> <1115524211.17482.23.camel@localhost.localdomain> <427D921F.8070602@yahoo.com.au> <20050630124711.GC17928@in.ibm.com>
+	Wed, 6 Jul 2005 16:03:17 -0400
+Received: from animx.eu.org ([216.98.75.249]:29389 "EHLO animx.eu.org")
+	by vger.kernel.org with ESMTP id S262126AbVGFReA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Jul 2005 13:34:00 -0400
+Date: Wed, 6 Jul 2005 13:51:27 -0400
+From: Wakko Warner <wakko@animx.eu.org>
+To: linux-kernel@vger.kernel.org
+Subject: USB OOPS 2.6.12
+Message-ID: <20050706175127.GA11912@animx.eu.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050630124711.GC17928@in.ibm.com>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 30, 2005 at 06:17:11PM +0530, Srivatsa Vaddagiri wrote:
-> Digging further revealed that this max time was restricted by 
-> various timers kernel uses. Mostly it was found to be because of
-> the slab allocator reap timer (it requests a timer every ~2sec on
-> every CPU) and machine_check timer (MCE_RATE in arch/i386/kernel/cpu/mcheck/
-> non-fatal.c ).
+I plugged in a USB 2.0 external hard disk (ION) and the usb controller
+apparently could not power the device (wouldn't spin up, the device itself
+works on other machines).  I unplug the drive and I received an OOPS.
 
-I modified the slab allocator to do a slightly better job of handling timers.
-(instead of blindly increasing the reap timeout to 20 sec as I did in my last 
-run).  The patch below is merely a hack meant to see what kind of benefits we 
-can possibly hope to get by reworking the reap timer.  A good solution would 
-probably increase/decrease the reap periods based on memory pressure and 
-idleness of the system. Anyway the patch I tried out is:
+DMESG:
+usb 4-5: new high speed USB device using ehci_hcd and address 6
+scsi5 : SCSI emulation for USB Mass Storage devices
+usb-storage: device found at 6
+usb-storage: waiting for device to settle before scanning
+scsi: Device offlined - not ready after error recovery: host 5 channel 0 id 0 lun 0
+usb 4-5: USB disconnect, address 6
+usb-storage: device scan complete
+Unable to handle kernel NULL pointer dereference at virtual address 00000050
+ printing eip:
+c018cdef
+*pde = 00000000
+Oops: 0000 [#1]
+PREEMPT SMP 
+Modules linked in: nls_utf8 hfsplus nls_base mga drm nfsd exportfs tun ipv6 nfs lockd sunrpc parport_pc parport 8250_pnp sg sr_mod cdrom snd_ens1370 snd_rawmidi snd_seq_device snd_pcm_oss snd_mixer_oss snd_pcm snd_timer snd_page_alloc snd_ak4531_codec snd soundcore usb_storage ehci_hcd tsdev ohci_hcd usbhid i2c_piix4 i2c_core uhci_hcd usbcore piix ide_core intel_agp agpgart typhoon crc32 bridge reiserfs dm_mod 8250 serial_core
+CPU:    0
+EIP:    0060:[<c018cdef>]    Not tainted VLI
+EFLAGS: 00010282   (2.6.12) 
+eax: 00000000   ebx: c02c2603   ecx: 0000001f   edx: 00000000
+esi: cbe1264c   edi: c02fe7b0   ebp: c02fe740   esp: de84ade0
+ds: 007b   es: 007b   ss: 0068
+Process khubd (pid: 1057, threadinfo=de84a000 task=dfdf4590)
+Stack: 00000202 00000202 cbe12400 cbe12654 cbe1264c c02fe7b0 c02fe740 c0206808 
+       00000000 c02c2603 cbe1264c cbe12598 d0b22800 db0f00e0 c0206833 cbe1264c 
+       cbe12400 c02217f8 cbe1264c 00000003 cbe12400 d0b22800 d0b227f8 c02218fb 
+Call Trace:
+ [<c0206808>]
+ [<c0206833>]
+ [<c02217f8>]
+ [<c02218fb>]
+ [<c02207e5>]
+ [<c0219339>]
+ [<e0c7aba3>]
+ [<e0c19136>]
+ [<c0205208>]
+ [<c02054bb>]
+ [<c0204269>]
+ [<e0c20a50>]
+ [<e0c1b6e6>]
+ [<e0c1cb9f>]
+ [<e0c1bac9>]
+ [<e0c1ce68>]
+ [<e0c1cfd5>]
+ [<c0131520>]
+ [<c0103272>]
+ [<c0131520>]
+ [<e0c1cfa0>]
+ [<c010148d>]
+Code: 5c 24 08 8b 74 24 0c 8b 7c 24 10 83 c4 14 c3 8d b6 00 00 00 00 8d bc 27 00 00 00 00 55 57 56 53 83 ec 0c 8b 44 24 20 8b 5c 24 24 <8b> 48 50 8b 50 10 f0 ff 4a 78 0f 88 e3 00 00 00 8b 51 0c 8d 6a 
 
-
----
-
- linux-2.6.13-rc1-root/mm/slab.c |   40 ++++++++++++++++++++++++++++++++--------
- 1 files changed, 32 insertions(+), 8 deletions(-)
-
-diff -puN mm/slab.c~vst-slab mm/slab.c
---- linux-2.6.13-rc1/mm/slab.c~vst-slab	2005-07-05 16:36:03.000000000 +0530
-+++ linux-2.6.13-rc1-root/mm/slab.c	2005-07-06 18:01:28.000000000 +0530
-@@ -371,6 +371,8 @@ struct kmem_cache_s {
-  */
- #define REAPTIMEOUT_CPUC	(2*HZ)
- #define REAPTIMEOUT_LIST3	(4*HZ)
-+#define MAX_REAP_TIMEOUT	(30*HZ)
-+#define MAX_DRAIN_COUNT		2
- 
- #if STATS
- #define	STATS_INC_ACTIVE(x)	((x)->num_active++)
-@@ -569,6 +571,7 @@ static enum {
- } g_cpucache_up;
- 
- static DEFINE_PER_CPU(struct work_struct, reap_work);
-+static DEFINE_PER_CPU(unsigned long, last_timeout);
- 
- static void free_block(kmem_cache_t* cachep, void** objpp, int len);
- static void enable_cpucache (kmem_cache_t *cachep);
-@@ -883,8 +886,10 @@ static int __init cpucache_init(void)
- 	 * pages to gfp.
- 	 */
- 	for (cpu = 0; cpu < NR_CPUS; cpu++) {
--		if (cpu_online(cpu))
-+		if (cpu_online(cpu)) {
-+			per_cpu(last_timeout, cpu) = REAPTIMEOUT_CPUC + cpu;
- 			start_cpu_timer(cpu);
-+		}
- 	}
- 
- 	return 0;
-@@ -1543,7 +1548,7 @@ static void smp_call_function_all_cpus(v
- 	preempt_enable();
- }
- 
--static void drain_array_locked(kmem_cache_t* cachep,
-+static int drain_array_locked(kmem_cache_t* cachep,
- 				struct array_cache *ac, int force);
- 
- static void do_drain(void *arg)
-@@ -2753,10 +2758,10 @@ static void enable_cpucache(kmem_cache_t
- 					cachep->name, -err);
- }
- 
--static void drain_array_locked(kmem_cache_t *cachep,
-+static int drain_array_locked(kmem_cache_t *cachep,
- 				struct array_cache *ac, int force)
- {
--	int tofree;
-+	int tofree = 1;
- 
- 	check_spinlock_acquired(cachep);
- 	if (ac->touched && !force) {
-@@ -2771,6 +2776,8 @@ static void drain_array_locked(kmem_cach
- 		memmove(&ac_entry(ac)[0], &ac_entry(ac)[tofree],
- 					sizeof(void*)*ac->avail);
- 	}
-+
-+	return tofree;
- }
- 
- /**
-@@ -2787,17 +2794,20 @@ static void drain_array_locked(kmem_cach
- static void cache_reap(void *unused)
- {
- 	struct list_head *walk;
-+	int drain_count = 0, freed_slab_count = 0;
-+	unsigned long timeout = __get_cpu_var(last_timeout);
-+	int cpu = smp_processor_id();
- 
- 	if (down_trylock(&cache_chain_sem)) {
- 		/* Give up. Setup the next iteration. */
--		schedule_delayed_work(&__get_cpu_var(reap_work), REAPTIMEOUT_CPUC + smp_processor_id());
-+		schedule_delayed_work(&__get_cpu_var(reap_work), timeout);
- 		return;
- 	}
- 
- 	list_for_each(walk, &cache_chain) {
- 		kmem_cache_t *searchp;
- 		struct list_head* p;
--		int tofree;
-+		int tofree, count;
- 		struct slab *slabp;
- 
- 		searchp = list_entry(walk, kmem_cache_t, next);
-@@ -2809,7 +2819,9 @@ static void cache_reap(void *unused)
- 
- 		spin_lock_irq(&searchp->spinlock);
- 
--		drain_array_locked(searchp, ac_data(searchp), 0);
-+		count = drain_array_locked(searchp, ac_data(searchp), 0);
-+		if (count > drain_count)
-+			drain_count = count;
- 
- 		if(time_after(searchp->lists.next_reap, jiffies))
- 			goto next_unlock;
-@@ -2825,6 +2837,9 @@ static void cache_reap(void *unused)
- 		}
- 
- 		tofree = (searchp->free_limit+5*searchp->num-1)/(5*searchp->num);
-+		if (tofree > freed_slab_count)
-+			freed_slab_count = tofree;
-+
- 		do {
- 			p = list3_data(searchp)->slabs_free.next;
- 			if (p == &(list3_data(searchp)->slabs_free))
-@@ -2854,7 +2869,16 @@ next:
- 	up(&cache_chain_sem);
- 	drain_remote_pages();
- 	/* Setup the next iteration */
--	schedule_delayed_work(&__get_cpu_var(reap_work), REAPTIMEOUT_CPUC + smp_processor_id());
-+#ifdef CONFIG_NO_IDLE_HZ
-+	if (drain_count < MAX_DRAIN_COUNT && !freed_slab_count) {
-+		if (timeout * 2 < MAX_REAP_TIMEOUT)
-+			timeout *= 2;
-+	} else
-+#endif
-+		timeout = REAPTIMEOUT_CPUC + cpu;
-+
-+	__get_cpu_var(last_timeout) = timeout;
-+	schedule_delayed_work(&__get_cpu_var(reap_work), timeout);
- }
- 
- #ifdef CONFIG_PROC_FS
-_
-
-The results with this patch on a 8way Intel box are:
-
-CPU#   # of       Mean          Std Dev     Max                 Min
-       samples
-
-
-1:      31       4124.742     4331.914      14317.000          0.000
-2:      35       3603.600     3792.050      12556.000         14.000
-3:    2585         49.458        4.207         50.000          2.000
-4:     151        847.682      329.343       1139.000         15.000
-5:      23       5432.652     3461.856      12024.000        120.000
-6:      19       6229.158     5641.813      15000.000        169.000
-7:      67       1865.672     1528.343       5000.000         19.000
-
-
-Note that the best average is around ~6sec (with max being 15 sec).
-
-Given, this do you still advocate that we restrict idle CPUs to wakeup
-every 100ms and check for imbalance? IMO, we should let them sleep
-much longer (few seconds) ..What are the consequences on load balancing
-if idle CPUs sleep that long? Does it mean that system can remain unresponsive
-for few seconds under some circumstances (when there is a burst of activity and
-at that time idle CPUs are sleeping)?
-
+I guess I don't have symbols turned on, so here's the same thing from syslog:
+Jul  6 13:47:01 ani kernel: usb 4-5: new high speed USB device using ehci_hcd and address 6
+Jul  6 13:47:01 ani kernel: scsi5 : SCSI emulation for USB Mass Storage devices
+Jul  6 13:47:01 ani kernel: usb-storage: device found at 6
+Jul  6 13:47:01 ani kernel: usb-storage: waiting for device to settle before scanning
+Jul  6 13:47:30 ani kernel: scsi: Device offlined - not ready after error recovery: host 5 channel 0 id 0 lun 0
+Jul  6 13:47:30 ani kernel: usb 4-5: USB disconnect, address 6
+Jul  6 13:47:30 ani kernel: usb-storage: device scan complete
+Jul  6 13:47:30 ani kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000050
+Jul  6 13:47:30 ani kernel:  printing eip:
+Jul  6 13:47:30 ani kernel: c018cdef
+Jul  6 13:47:30 ani kernel: *pde = 00000000
+Jul  6 13:47:30 ani kernel: Oops: 0000 [#1]
+Jul  6 13:47:30 ani kernel: PREEMPT SMP 
+Jul  6 13:47:30 ani kernel: Modules linked in: nls_utf8 hfsplus nls_base mga drm nfsd exportfs tun ipv6 nfs lockd sunrpc parport_pc parport 8250_pnp sg sr_mod cdrom snd_ens1370 snd_rawmidi snd_seq_device snd_pcm_oss snd_mixer_oss snd_pcm snd_timer snd_page_alloc snd_ak4531_codec snd soundcore usb_storage ehci_hcd tsdev ohci_hcd usbhid i2c_piix4 i2c_core uhci_hcd usbcore piix ide_core intel_agp agpgart typhoon crc32 bridge reiserfs dm_mod 8250 serial_core
+Jul  6 13:47:30 ani kernel: CPU:    0
+Jul  6 13:47:30 ani kernel: EIP:    0060:[sysfs_hash_and_remove+15/258]    Not tainted VLI
+Jul  6 13:47:30 ani kernel: EFLAGS: 00010282   (2.6.12) 
+Jul  6 13:47:30 ani kernel: eax: 00000000   ebx: c02c2603   ecx: 0000001f   edx: 00000000
+Jul  6 13:47:30 ani kernel: esi: cbe1264c   edi: c02fe7b0   ebp: c02fe740   esp: de84ade0
+Jul  6 13:47:30 ani kernel: ds: 007b   es: 007b   ss: 0068
+Jul  6 13:47:30 ani kernel: Process khubd (pid: 1057, threadinfo=de84a000 task=dfdf4590)
+Jul  6 13:47:30 ani kernel: Stack: 00000202 00000202 cbe12400 cbe12654 cbe1264c c02fe7b0 c02fe740 c0206808 
+Jul  6 13:47:30 ani kernel:        00000000 c02c2603 cbe1264c cbe12598 d0b22800 db0f00e0 c0206833 cbe1264c 
+Jul  6 13:47:30 ani kernel:        cbe12400 c02217f8 cbe1264c 00000003 cbe12400 d0b22800 d0b227f8 c02218fb 
+Jul  6 13:47:30 ani kernel: Call Trace:
+Jul  6 13:47:30 ani kernel:  [class_device_del+184/208]
+Jul  6 13:47:30 ani kernel:  [class_device_unregister+19/48]
+Jul  6 13:47:30 ani kernel:  [scsi_remove_device+72/176]
+Jul  6 13:47:30 ani kernel:  [__scsi_remove_target+155/192]
+Jul  6 13:47:30 ani kernel:  [scsi_forget_host+69/112]
+Jul  6 13:47:30 ani kernel:  [scsi_remove_host+25/128]
+Jul  6 13:47:30 ani kernel:  [pg0+546339747/1070117888]
+Jul  6 13:47:30 ani kernel:  [pg0+545939766/1070117888]
+Jul  6 13:47:30 ani kernel:  [device_release_driver+120/128]
+Jul  6 13:47:30 ani kernel:  [bus_remove_device+123/192]
+Jul  6 13:47:30 ani kernel:  [device_del+89/160]
+Jul  6 13:47:30 ani kernel:  [pg0+545970768/1070117888]
+Jul  6 13:47:30 ani kernel:  [pg0+545949414/1070117888]
+Jul  6 13:47:30 ani kernel:  [pg0+545954719/1070117888]
+Jul  6 13:47:30 ani kernel:  [pg0+545950409/1070117888]
+Jul  6 13:47:30 ani kernel:  [pg0+545955432/1070117888]
+Jul  6 13:47:30 ani kernel:  [pg0+545955797/1070117888]
+Jul  6 13:47:30 ani kernel:  [autoremove_wake_function+0/96]
+Jul  6 13:47:30 ani kernel:  [ret_from_fork+6/20]
+Jul  6 13:47:30 ani kernel:  [autoremove_wake_function+0/96]
+Jul  6 13:47:30 ani kernel:  [pg0+545955744/1070117888]
+Jul  6 13:47:30 ani kernel:  [kernel_thread_helper+5/24]
+Jul  6 13:47:30 ani kernel: Code: 5c 24 08 8b 74 24 0c 8b 7c 24 10 83 c4 14 c3 8d b6 00 00 00 00 8d bc 27 00 00 00 00 55 57 56 53 83 ec 0c 8b 44 24 20 8b 5c 24 24 <8b> 48 50 8b 50 10 f0 ff 4a 78 0f 88 e3 00 00 00 8b 51 0c 8d 6a 
 
 -- 
-
-
-Thanks and Regards,
-Srivatsa Vaddagiri,
-Linux Technology Center,
-IBM Software Labs,
-Bangalore, INDIA - 560017
+ Lab tests show that use of micro$oft causes cancer in lab animals

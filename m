@@ -1,95 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262191AbVGGAXD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262345AbVGGAXC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262191AbVGGAXD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 20:23:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262413AbVGFUFP
+	id S262345AbVGGAXC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 20:23:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262191AbVGFT7l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 16:05:15 -0400
-Received: from alog0294.analogic.com ([208.224.222.70]:23773 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262416AbVGFSKN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 14:10:13 -0400
-Date: Wed, 6 Jul 2005 14:08:56 -0400 (EDT)
-From: "Richard B. Johnson" <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Alexey Dobriyan <adobriyan@gmail.com>
-cc: Rob Prowel <tempest766@yahoo.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: please remove reserved word "new" from kernel headers
-In-Reply-To: <200507061706.29843.adobriyan@gmail.com>
-Message-ID: <Pine.LNX.4.61.0507061407030.5558@chaos.analogic.com>
-References: <20050706092657.95280.qmail@web60012.mail.yahoo.com>
- <200507061706.29843.adobriyan@gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 6 Jul 2005 15:59:41 -0400
+Received: from mail.kroah.org ([69.55.234.183]:62916 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262248AbVGFQ1X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Jul 2005 12:27:23 -0400
+Date: Wed, 6 Jul 2005 09:27:10 -0700
+From: Greg KH <greg@kroah.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Eyal Lebedinsky <eyal@eyal.emu.id.au>,
+       Matthias Andree <matthias.andree@gmx.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.13-rc2
+Message-ID: <20050706162710.GC13777@kroah.com>
+References: <Pine.LNX.4.58.0507052126190.3570@g5.osdl.org> <42CBA650.8080004@eyal.emu.id.au> <Pine.LNX.4.58.0507060837510.3570@g5.osdl.org> <20050706155103.GA13115@kroah.com> <Pine.LNX.4.58.0507060917530.3570@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0507060917530.3570@g5.osdl.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Jul 2005, Alexey Dobriyan wrote:
+On Wed, Jul 06, 2005 at 09:22:05AM -0700, Linus Torvalds wrote:
+> 
+> 
+> On Wed, 6 Jul 2005, Greg KH wrote:
+> > 
+> > --- gregkh-2.6.orig/sound/pci/bt87x.c	2005-07-06 08:48:29.000000000 -0700
+> > +++ gregkh-2.6/sound/pci/bt87x.c	2005-07-06 08:48:54.000000000 -0700
+> > @@ -798,6 +798,8 @@
+> >  	{0x270f, 0xfc00}, /* Chaintech Digitop DST-1000 DVB-S */
+> >  };
+> >  
+> > +static struct pci_driver driver;
+> > +
+> 
+> Hmm.. Shouldn't you at a _minimum_ initialize the name and owner fields?
 
-> On Wednesday 06 July 2005 13:26, Rob Prowel wrote:
->> When kernel headers are included in compilation of c++
->> programs the compile fails because some header files
->> use "new" in a way that is illegal for c++.  This
->> shows up when compiling mySQL under linux 2.6.  It
->> uses $KERNELSOURCE/include/asm-i386/system.h.
->
-> Please read http://marc.theaimsgroup.com/?t=111637777000001&r=2&w=2
-> where people discuss this brokeness of MySQL.
->
+It's done so a few functions down.  This is just a "forward" reference
+to the real thing there.
 
-Just for kicks, see if this 'fixes' it. Then contact the MySQL
-people and complain.
+thanks,
 
-
---- /usr/src/linux-2.6.12/include/asm-i386/system.h.orig	2005-07-06 14:01:25.000000000 -0400
-+++ /usr/src/linux-2.6.12/include/asm-i386/system.h	2005-07-06 14:03:42.000000000 -0400
-@@ -235,7 +235,7 @@
-
-  /*
-   * Atomic compare and exchange.  Compare OLD with MEM, if identical,
-- * store NEW in MEM.  Return the initial value in MEM.  Success is
-+ * store New in MEM.  Return the initial value in MEM.  Success is
-   * indicated by comparing RETURN with OLD.
-   */
-
-@@ -244,26 +244,26 @@
-  #endif
-
-  static inline unsigned long __cmpxchg(volatile void *ptr, unsigned long old,
--				      unsigned long new, int size)
-+				      unsigned long New, int size)
-  {
-  	unsigned long prev;
-  	switch (size) {
-  	case 1:
-  		__asm__ __volatile__(LOCK_PREFIX "cmpxchgb %b1,%2"
-  				     : "=a"(prev)
--				     : "q"(new), "m"(*__xg(ptr)), "0"(old)
-+				     : "q"(New), "m"(*__xg(ptr)), "0"(old)
-  				     : "memory");
-  		return prev;
-  	case 2:
-  		__asm__ __volatile__(LOCK_PREFIX "cmpxchgw %w1,%2"
-  				     : "=a"(prev)
--				     : "q"(new), "m"(*__xg(ptr)), "0"(old)
-+				     : "q"(New), "m"(*__xg(ptr)), "0"(old)
-  				     : "memory");
-  		return prev;
-  	case 4:
-  		__asm__ __volatile__(LOCK_PREFIX "cmpxchgl %1,%2"
-  				     : "=a"(prev)
--				     : "q"(new), "m"(*__xg(ptr)), "0"(old)
-+				     : "q"(New), "m"(*__xg(ptr)), "0"(old)
-  				     : "memory");
-  		return prev;
-  	}
-
-
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.12 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+greg k-h

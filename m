@@ -1,217 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262243AbVGFMCc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262175AbVGFMKr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262243AbVGFMCc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 08:02:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262191AbVGFMAT
+	id S262175AbVGFMKr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 08:10:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262118AbVGFMKq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 08:00:19 -0400
-Received: from nproxy.gmail.com ([64.233.182.194]:10198 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262248AbVGFJJI (ORCPT
+	Wed, 6 Jul 2005 08:10:46 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:8071 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262257AbVGFJMm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 05:09:08 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:references;
-        b=cIwGs6CXUOWgeJahn7SXygbLZEF+AMW7ybfhywaTqMiPhEgia2nBXIXgLc1AYDIlsYn+UzgCFktiDsAQB4nm5tmFAF/+sDjXWBFfTGjHH0TDwA1xfiLIhCFeJzHEY5Ml+ZRJGWPqiqJtX58ga0mP1VKg5CcIQaGpY20jIar+wlw=
-Message-ID: <ea6b190205070602091b50e204@mail.gmail.com>
-Date: Wed, 6 Jul 2005 11:09:06 +0200
-From: Alexis Ballier <alexis.ballier@gmail.com>
-Reply-To: Alexis Ballier <alexis.ballier@gmail.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.13-rc2 - Inconsistent kallsyms data
-In-Reply-To: <42CB8088.1090508@ppp0.net>
+	Wed, 6 Jul 2005 05:12:42 -0400
+Date: Wed, 6 Jul 2005 11:11:57 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, ast@domdv.de
+Subject: Re: [swsusp] encrypt suspend data for easy wiping
+Message-ID: <20050706091104.GB1301@elf.ucw.cz>
+References: <20050703213519.GA6750@elf.ucw.cz> <20050706020251.2ba175cc.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_14138_26405028.1120640946492"
-References: <Pine.LNX.4.58.0507052126190.3570@g5.osdl.org>
-	 <42CB8088.1090508@ppp0.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050706020251.2ba175cc.akpm@osdl.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_14138_26405028.1120640946492
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Hi!
 
-Hi !=20
+> > To prevent data gathering from swap after resume you can encrypt the
+> > suspend image with a temporary key that is deleted on resume. Note
+> > that the temporary key is stored unencrypted on disk while the system
+> > is suspended... still it means that saved data are wiped from disk
+> > during resume by simply overwritting the key.
+> 
+> hm, how useful is that?  swap can still contain sensitive userspace
+> stuff.
 
+At least userspace has chance to mark *really* sensitive stuff as
+unswappable. Unfortunately that does not work against swsusp :-(.
 
-I have a problem building the rc2 (or rc3, whatever ;) )
+[BTW... I was thinking about just generating random key on swapon, and
+using it, so that data in swap is garbage after reboot; no userspace
+changes needed. What do you think?]
 
-Here is the end of the log :=20
+> Are there any plans to allow the user to type the key in on resume?
 
-GEN     .version
-  CHK     include/linux/compile.h
-  UPD     include/linux/compile.h
-  CC      init/version.o
-  LD      init/built-in.o
-  LD      .tmp_vmlinux1
-  KSYM    .tmp_kallsyms1.S
-  AS      .tmp_kallsyms1.o
-  LD      .tmp_vmlinux2
-  KSYM    .tmp_kallsyms2.S
-  AS      .tmp_kallsyms2.o
-  LD      vmlinux
-  SYSMAP  System.map
-  SYSMAP  .tmp_System.map
-Inconsistent kallsyms data
-Try setting CONFIG_KALLSYMS_EXTRA_PASS
-make: *** [vmlinux] Erreur 1
+Plans... ;-).
 
+> > +Encrypted suspend image:
+> > +------------------------
+> > +If you want to store your suspend image encrypted with a temporary
+> > +key to prevent data gathering after resume you must compile
+> > +crypto and the aes algorithm into the kernel - modules won't work
+> > +as they cannot be loaded at resume time.
+> 
+> Why not just `select' the needed symbols in Kconfig?  It makes
+> configuration much easier for the user.
+> 
+> > +	if(!*tfm) {
+> > +	if(sizeof(key) < crypto_tfm_alg_min_keysize(*tfm)) {
+> > +	if (mode) {
+> 
+> Coding style nit: please use a single space after `if'.
+> 
+> > +fail:	crypto_free_tfm(*tfm);
+> > +out:	return error;
+> 
+> We conventionally insert a newline directly after labels.
+> 
+> > +#ifdef CONFIG_SWSUSP_ENCRYPT
+> > +#ifdef CONFIG_SWSUSP_ENCRYPT
+> > +#ifdef CONFIG_SWSUSP_ENCRYPT
+> > +#ifdef CONFIG_SWSUSP_ENCRYPT
+> > +#ifdef CONFIG_SWSUSP_ENCRYPT
+> > +#ifdef CONFIG_SWSUSP_ENCRYPT
+> > +#ifdef CONFIG_SWSUSP_ENCRYPT
+> > +#ifdef CONFIG_SWSUSP_ENCRYPT
+> > +#ifdef CONFIG_SWSUSP_ENCRYPT
+> 
+> err, no.  Please find a way to reduce the ifdeffery.
 
-
-
-However, while setting the extra pass, it compiles fine.
-
-My gcc version : gcc --version
-gcc (GCC) 3.4.4 (Gentoo 3.4.4, ssp-3.4.4-1.0, pie-8.7.8)
-
-
-
-I enclose the .config.
-
-
-
-
---=20
-Alexis Ballier.
-
-------=_Part_14138_26405028.1120640946492
-Content-Type: application/x-bzip2; name="config.bz2"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="config.bz2"
-
-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
-cXFEc8ZjyMhm/4u5IpwoSBl2f6EA
-------=_Part_14138_26405028.1120640946492--
+Andreas, these are yours.
+								Pavel
+-- 
+teflon -- maybe it is a trademark, but it should not be.

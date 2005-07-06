@@ -1,258 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262050AbVGFHEO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261534AbVGFHEZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262050AbVGFHEO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 03:04:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262101AbVGFHEN
+	id S261534AbVGFHEZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 03:04:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262159AbVGFHEZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 03:04:13 -0400
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:59067 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S262050AbVGFFSF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 01:18:05 -0400
-Message-ID: <42CB6A4B.9000906@jp.fujitsu.com>
-Date: Wed, 06 Jul 2005 14:21:15 +0900
-From: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
+	Wed, 6 Jul 2005 03:04:25 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:53413 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261534AbVGFFXW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Jul 2005 01:23:22 -0400
+Date: Tue, 5 Jul 2005 22:22:59 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Grant Coady <grant_lkml@dodo.com.au>
+cc: Jens Axboe <axboe@suse.de>, Ondrej Zary <linux@rainbow-software.org>,
+       =?ISO-8859-1?Q?Andr=E9_Tomt?= <andre@tomt.net>,
+       Al Boldi <a1426z@gawab.com>,
+       "'Bartlomiej Zolnierkiewicz'" <bzolnier@gmail.com>,
+       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [git patches] IDE update
+In-Reply-To: <nljmc1h40t2bv316ufij10o2am5607hpse@4ax.com>
+Message-ID: <Pine.LNX.4.58.0507052209180.3570@g5.osdl.org>
+References: <42CA5A84.1060005@rainbow-software.org> <20050705101414.GB18504@suse.de>
+ <42CA5EAD.7070005@rainbow-software.org> <20050705104208.GA20620@suse.de>
+ <42CA7EA9.1010409@rainbow-software.org> <1120567900.12942.8.camel@linux>
+ <42CA84DB.2050506@rainbow-software.org> <1120569095.12942.11.camel@linux>
+ <42CAAC7D.2050604@rainbow-software.org> <20050705142122.GY1444@suse.de>
+ <6m8mc1lhug5d345uqikru1vpsqi6hciv41@4ax.com> <Pine.LNX.4.58.0507051748540.3570@g5.osdl.org>
+ <nljmc1h40t2bv316ufij10o2am5607hpse@4ax.com>
 MIME-Version: 1.0
-To: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-ia64@vger.kernel.org, "Luck, Tony" <tony.luck@intel.com>
-CC: Linas Vepstas <linas@austin.ibm.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       long <tlnguyen@snoqualmie.dp.intel.com>,
-       linux-pci@atrey.karlin.mff.cuni.cz,
-       linuxppc64-dev <linuxppc64-dev@ozlabs.org>
-Subject: [PATCH 2.6.13-rc1 10/10] IOCHK interface for I/O error handling/detecting
-References: <42CB63B2.6000505@jp.fujitsu.com>
-In-Reply-To: <42CB63B2.6000505@jp.fujitsu.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[This is 10 of 10 patches, "iochk-10-rwlock.patch"]
 
-- If a read access (i.g. readX/inX) cause a error while SAL
-   gathers system data on other processor ,it could be happen
-   a bridge error status is marked and vanished in a blink.
 
-   In case of MCA, thanks to rz_always flag, all MCA are
-   handled as global, so all processor except one is paused
-   during its handling.
-   But in case of CPE, as same as other interruption, it
-   have to be handled beside of all other active processors.
+On Wed, 6 Jul 2005, Grant Coady wrote:
+>
+> Sure, take a while longer to vary by block size.  One effect seems 
+> to be wrong is interaction between /dev/hda and /dev/hdc in 'peetoo', 
+> the IDE channels not independent?
 
-   Therefore, to avoid such status crash, exclusive control
-   between read access and SAL_GET_STATE_INFO is required.
+Well, looking at your numbers for "silly" and "tosh", which were perhaps
+the most extreme examples of slowdown on the /dev/hda thing:
 
-   To realize this, I changed control lock from spin to rw.
-   There would be better way, if so, this part should be
-   replaced.
+	silly:  22MB/s   -> 8.5MB/s, oread similar    13GB
+	tosh:   35MB/s   -> 23MB/s,  oread similar    40GB 2.5"
 
-Changes from previous one for 2.6.11.11:
-   - (non)
+now it says:
 
-Signed-off-by: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
+> summary		2.4.31-hf1	2.6.12.2
+> boxen \ time ->	 w 	 r	 w	 r
+> ---------------	----	----	----	----
+> silly			54	24	49	25
+> tosh			30	19.5	27	19.5
 
----
+ie here both silly and tosh do equally well on 2.4.x and 2.6.x on reads, 
+and seem to perhaps show a bit of slowdown on writes (which I suspect may 
+be due to the fact that we try to limit the queues a bit more, but hey, 
+that's handwaving).
 
-  arch/ia64/kernel/mca.c      |    6 +++---
-  arch/ia64/lib/iomap_check.c |   11 ++++++-----
-  include/asm-ia64/io.h       |   24 ++++++++++++++++++++++++
-  3 files changed, 33 insertions(+), 8 deletions(-)
+The point being that the slowdown you see seems to really largely be
+limited to the raw partition code. Your filesystem throughput numbers for 
+reads are generally _better_ on 2.6.x than on 2.4.x when doing filesystem 
+accesses (but the differences aren't all that big).
 
-Index: linux-2.6.13-rc1/arch/ia64/lib/iomap_check.c
-===================================================================
---- linux-2.6.13-rc1.orig/arch/ia64/lib/iomap_check.c
-+++ linux-2.6.13-rc1/arch/ia64/lib/iomap_check.c
-@@ -12,7 +12,7 @@ void iochk_clear(iocookie *cookie, struc
-  int  iochk_read(iocookie *cookie);
+So my gut feel is that the reason hdparm and dd from the raw partition 
+gives different performance is not so much the driver, but probably that 
+we've tweaked read-ahead for file access or something like that. Maybe 
+the maximum fs-level read-ahead changed?
 
-  struct list_head iochk_devices;
--DEFINE_SPINLOCK(iochk_lock);	/* all works are excluded on this lock */
-+DEFINE_RWLOCK(iochk_lock);	/* all works are excluded on this lock */
-
-  static struct pci_dev *search_host_bridge(struct pci_dev *dev);
-  static int have_error(struct pci_dev *dev);
-@@ -36,14 +36,14 @@ void iochk_clear(iocookie *cookie, struc
-  	cookie->dev = dev;
-  	cookie->host = search_host_bridge(dev);
-
--	spin_lock_irqsave(&iochk_lock, flag);
-+	write_lock_irqsave(&iochk_lock, flag);
-  	if (cookie->host && have_error(cookie->host)) {
-  		/* someone under my bridge causes error... */
-  		notify_bridge_error(cookie->host);
-  		clear_bridge_error(cookie->host);
-  	}
-  	list_add(&cookie->list, &iochk_devices);
--	spin_unlock_irqrestore(&iochk_lock, flag);
-+	write_unlock_irqrestore(&iochk_lock, flag);
-
-  	cookie->error = 0;
-  }
-@@ -53,12 +53,12 @@ int iochk_read(iocookie *cookie)
-  	unsigned long flag;
-  	int ret = 0;
-
--	spin_lock_irqsave(&iochk_lock, flag);
-+	write_lock_irqsave(&iochk_lock, flag);
-  	if ( cookie->error || have_error(cookie->dev)
-  		|| (cookie->host && have_error(cookie->host)) )
-  		ret = 1;
-  	list_del(&cookie->list);
--	spin_unlock_irqrestore(&iochk_lock, flag);
-+	write_unlock_irqrestore(&iochk_lock, flag);
-
-  	return ret;
-  }
-@@ -162,6 +162,7 @@ void save_bridge_error(void)
-  	}
-  }
-
-+EXPORT_SYMBOL(iochk_lock);
-  EXPORT_SYMBOL(iochk_read);
-  EXPORT_SYMBOL(iochk_clear);
-  EXPORT_SYMBOL(iochk_devices);	/* for MCA driver */
-Index: linux-2.6.13-rc1/include/asm-ia64/io.h
-===================================================================
---- linux-2.6.13-rc1.orig/include/asm-ia64/io.h
-+++ linux-2.6.13-rc1/include/asm-ia64/io.h
-@@ -73,6 +73,7 @@ extern unsigned int num_io_spaces;
-
-  #ifdef CONFIG_IOMAP_CHECK
-  #include <linux/list.h>
-+#include <linux/spinlock.h>
-
-  /* ia64 iocookie */
-  typedef struct {
-@@ -82,6 +83,8 @@ typedef struct {
-  	unsigned long		error;	/* error flag */
-  } iocookie;
-
-+extern rwlock_t iochk_lock;  /* see arch/ia64/lib/iomap_check.c */
-+
-  /* Enable ia64 iochk - See arch/ia64/lib/iomap_check.c */
-  #define HAVE_ARCH_IOMAP_CHECK
-
-@@ -196,10 +199,13 @@ ___ia64_inb (unsigned long port)
-  {
-  	volatile unsigned char *addr = __ia64_mk_io_addr(port);
-  	unsigned char ret;
-+	unsigned long flags;
-
-+	read_lock_irqsave(&iochk_lock,flags);
-  	ret = *addr;
-  	__ia64_mf_a();
-  	ia64_mca_barrier(ret);
-+	read_unlock_irqrestore(&iochk_lock,flags);
-
-  	return ret;
-  }
-@@ -209,10 +215,13 @@ ___ia64_inw (unsigned long port)
-  {
-  	volatile unsigned short *addr = __ia64_mk_io_addr(port);
-  	unsigned short ret;
-+	unsigned long flags;
-
-+	read_lock_irqsave(&iochk_lock,flags);
-  	ret = *addr;
-  	__ia64_mf_a();
-  	ia64_mca_barrier(ret);
-+	read_unlock_irqrestore(&iochk_lock,flags);
-
-  	return ret;
-  }
-@@ -222,10 +231,13 @@ ___ia64_inl (unsigned long port)
-  {
-  	volatile unsigned int *addr = __ia64_mk_io_addr(port);
-  	unsigned int ret;
-+	unsigned long flags;
-
-+	read_lock_irqsave(&iochk_lock,flags);
-  	ret = *addr;
-  	__ia64_mf_a();
-  	ia64_mca_barrier(ret);
-+	read_unlock_irqrestore(&iochk_lock,flags);
-
-  	return ret;
-  }
-@@ -390,9 +402,12 @@ static inline unsigned char
-  ___ia64_readb (const volatile void __iomem *addr)
-  {
-  	unsigned char val;
-+	unsigned long flags;
-
-+	read_lock_irqsave(&iochk_lock,flags);
-  	val = *(volatile unsigned char __force *)addr;
-  	ia64_mca_barrier(val);
-+	read_unlock_irqrestore(&iochk_lock,flags);
-
-  	return val;
-  }
-@@ -401,9 +416,12 @@ static inline unsigned short
-  ___ia64_readw (const volatile void __iomem *addr)
-  {
-  	unsigned short val;
-+	unsigned long flags;
-
-+	read_lock_irqsave(&iochk_lock,flags);
-  	val = *(volatile unsigned short __force *)addr;
-  	ia64_mca_barrier(val);
-+	read_unlock_irqrestore(&iochk_lock,flags);
-
-  	return val;
-  }
-@@ -412,9 +430,12 @@ static inline unsigned int
-  ___ia64_readl (const volatile void __iomem *addr)
-  {
-  	unsigned int val;
-+	unsigned long flags;
-
-+	read_lock_irqsave(&iochk_lock,flags);
-  	val = *(volatile unsigned int __force *) addr;
-  	ia64_mca_barrier(val);
-+	read_unlock_irqrestore(&iochk_lock,flags);
-
-  	return val;
-  }
-@@ -423,9 +444,12 @@ static inline unsigned long
-  ___ia64_readq (const volatile void __iomem *addr)
-  {
-  	unsigned long val;
-+	unsigned long flags;
-
-+	read_lock_irqsave(&iochk_lock,flags);
-  	val = *(volatile unsigned long __force *) addr;
-  	ia64_mca_barrier(val);
-+	read_unlock_irqrestore(&iochk_lock,flags);
-
-  	return val;
-  }
-Index: linux-2.6.13-rc1/arch/ia64/kernel/mca.c
-===================================================================
---- linux-2.6.13-rc1.orig/arch/ia64/kernel/mca.c
-+++ linux-2.6.13-rc1/arch/ia64/kernel/mca.c
-@@ -81,7 +81,7 @@
-  #include <linux/pci.h>
-  extern void notify_bridge_error(struct pci_dev *bridge);
-  extern void save_bridge_error(void);
--extern spinlock_t iochk_lock;
-+extern rwlock_t iochk_lock;
-  #endif
-
-  #if defined(IA64_MCA_DEBUG_INFO)
-@@ -306,10 +306,10 @@ ia64_mca_cpe_int_handler (int cpe_irq, v
-  	 * the states from changing by any other I/Os running simultaneously,
-  	 * so this should be handled w/ lock and interrupts disabled.
-  	 */
--	spin_lock(&iochk_lock);
-+	write_lock(&iochk_lock);
-  	save_bridge_error();
-  	ia64_mca_log_sal_error_record(SAL_INFO_TYPE_CPE);
--	spin_unlock(&iochk_lock);
-+	write_unlock(&iochk_lock);
-
-  	/* Rests can go w/ interrupt enabled as usual */
-  	local_irq_enable();
-
+		Linus

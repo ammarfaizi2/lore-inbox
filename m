@@ -1,56 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262475AbVGFT54@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262134AbVGGD32@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262475AbVGFT54 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 15:57:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262194AbVGFT5Q
+	id S262134AbVGGD32 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 23:29:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262471AbVGFT5z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 15:57:16 -0400
-Received: from mail.kroah.org ([69.55.234.183]:58288 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262205AbVGFPz7 (ORCPT
+	Wed, 6 Jul 2005 15:57:55 -0400
+Received: from mail.kroah.org ([69.55.234.183]:52921 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262171AbVGFQJm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 11:55:59 -0400
-Date: Wed, 6 Jul 2005 08:55:56 -0700
-From: Greg KH <greg@kroah.com>
-To: Jan Dittmer <jdittmer@ppp0.net>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.13-rc2
-Message-ID: <20050706155556.GB13115@kroah.com>
-References: <Pine.LNX.4.58.0507052126190.3570@g5.osdl.org> <42CB8088.1090508@ppp0.net> <Pine.LNX.4.58.0507060832380.3570@g5.osdl.org> <42CBFE61.9030308@ppp0.net>
+	Wed, 6 Jul 2005 12:09:42 -0400
+Date: Wed, 6 Jul 2005 09:09:38 -0700
+From: Greg KH <gregkh@suse.de>
+To: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: [PATCH] PCI: fix !CONFIG_HOTPLUG pci build problem
+Message-ID: <20050706160938.GD13115@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42CBFE61.9030308@ppp0.net>
 User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 06, 2005 at 05:53:05PM +0200, Jan Dittmer wrote:
-> Linus Torvalds wrote:
-> > 
-> > On Wed, 6 Jul 2005, Jan Dittmer wrote:
-> > 
-> >>Linus Torvalds wrote:
-> >>
-> >>>Ok,
-> >>> -rc3 is pretty small, with the bulk of the diff being some defconfig
-> >>
-> >>...
-> >>
-> >>>Linus Torvalds:
-> >>>  Linux v2.6.13-rc3
-> >>
-> >>Confused?!
-> > 
-> > 
-> > Constantly.
-> > 
-> > Let's hope that commit naming bug was the worst part of the release..
-> 
-> Nah, compared to git7 you (or greg?) managed to break alpha, sparc and x86_64.
+Here's a patch to fix the build issue when CONFIG_HOTPLUG is not enabled
+in 2.6.13-rc2.
 
-This was a CONFIG_HOTPLUG issue, I'll fix it in a bit...
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
-thanks,
+---
+ drivers/pci/pci-driver.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-greg k-h
+--- gregkh-2.6.orig/drivers/pci/pci-driver.c	2005-07-06 01:03:26.000000000 -0700
++++ gregkh-2.6/drivers/pci/pci-driver.c	2005-07-06 09:07:09.000000000 -0700
+@@ -17,13 +17,13 @@
+  * Dynamic device IDs are disabled for !CONFIG_HOTPLUG
+  */
+ 
+-#ifdef CONFIG_HOTPLUG
+-
+ struct pci_dynid {
+ 	struct list_head node;
+ 	struct pci_device_id id;
+ };
+ 
++#ifdef CONFIG_HOTPLUG
++
+ /**
+  * store_new_id
+  *

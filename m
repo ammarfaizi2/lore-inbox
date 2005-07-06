@@ -1,45 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262150AbVGFLQm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261593AbVGFLRW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262150AbVGFLQm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 07:16:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262124AbVGFLQl
+	id S261593AbVGFLRW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 07:17:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262124AbVGFLRV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 07:16:41 -0400
-Received: from tartu.cyber.ee ([193.40.6.68]:32520 "EHLO tartu.cyber.ee")
-	by vger.kernel.org with ESMTP id S262170AbVGFImv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 04:42:51 -0400
-From: Meelis Roos <mroos@linux.ee>
-To: linux-kernel@vger.kernel.org
-Subject: Re: ALSA bt87x compile failure in 2.6.13-rc3
-In-Reply-To: <Pine.SOC.4.61.0507060925010.22423@math.ut.ee>
-User-Agent: tin/1.7.8-20050315 ("Scalpay") (UNIX) (Linux/2.6.13-rc1 (i686))
-Message-Id: <20050706084245.9736F14132@rhn.tartu-labor>
-Date: Wed,  6 Jul 2005 11:42:45 +0300 (EEST)
+	Wed, 6 Jul 2005 07:17:21 -0400
+Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:1426 "EHLO
+	mta07-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S261593AbVGFIov (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Jul 2005 04:44:51 -0400
+Subject: [RESEND][PATCH] Allow cscope to index multiple architectures
+From: Ian Campbell <ijc@hellion.org.uk>
+To: sam@ravnborg.org, kai@germaschewski.name
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Wed, 06 Jul 2005 09:44:46 +0100
+Message-Id: <1120639486.27796.107.camel@icampbell-debian>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-MR> Substituting driver with pci->driver seems to cure it, it this the 
-MR> correct fix?
+Hi,
 
-I mean, the second argument to pci_match_device is already pci so it
-looks strange.
+I have a single source tree which I cross compile for a couple of
+different architectures using ARCH=foo O=blah etc.
 
-Anyway, here is the patch that I used to get it to compile - untested.
+The existing cscope target is very handy but only indexes the current
+$(ARCH), which is a pain since inevitably I'm interested in the other
+one at any given time ;-). This patch allows me to pass a list of
+architectures for cscope to index. e.g.
+	make ALLSOURCE_ARCHS="i386 arm" cscope
 
-Signed-off-by: Meelis Roos <mroos@linux.ee>
+This change also works for etags etc, and I presume it is just as useful
+there.
 
-diff --git a/sound/pci/bt87x.c b/sound/pci/bt87x.c
---- a/sound/pci/bt87x.c
-+++ b/sound/pci/bt87x.c
-@@ -804,7 +804,7 @@ static int __devinit snd_bt87x_detect_ca
- 	int i;
- 	const struct pci_device_id *supported;
+Signed-off-by: Ian Campbell <ijc@hellion.org.uk>
+
+Index: 2.6/Makefile
+===================================================================
+--- 2.6.orig/Makefile	2005-06-23 11:15:05.000000000 +0100
++++ 2.6/Makefile	2005-06-23 11:24:12.000000000 +0100
+@@ -1156,19 +1156,25 @@
+ __srctree = $(srctree)/
+ endif
  
--	supported = pci_match_device(driver, pci);
-+	supported = pci_match_device(pci->driver, pci);
- 	if (supported)
- 		return supported->driver_data;
- 
++ALLSOURCE_ARCHS := $(ARCH)
++
+ define all-sources
+ 	( find $(__srctree) $(RCS_FIND_IGNORE) \
+ 	       \( -name include -o -name arch \) -prune -o \
+ 	       -name '*.[chS]' -print; \
+-	  find $(__srctree)arch/$(ARCH) $(RCS_FIND_IGNORE) \
+-	       -name '*.[chS]' -print; \
++	  for ARCH in $(ALLSOURCE_ARCHS) ; do \
++	       find $(__srctree)arch/$${ARCH} $(RCS_FIND_IGNORE) \
++	            -name '*.[chS]' -print; \
++	  done ; \
+ 	  find $(__srctree)security/selinux/include $(RCS_FIND_IGNORE) \
+ 	       -name '*.[chS]' -print; \
+ 	  find $(__srctree)include $(RCS_FIND_IGNORE) \
+ 	       \( -name config -o -name 'asm-*' \) -prune \
+ 	       -o -name '*.[chS]' -print; \
+-	  find $(__srctree)include/asm-$(ARCH) $(RCS_FIND_IGNORE) \
+-	       -name '*.[chS]' -print; \
++	  for ARCH in $(ALLSOURCE_ARCHS) ; do \
++	       find $(__srctree)include/asm-$${ARCH} $(RCS_FIND_IGNORE) \
++	            -name '*.[chS]' -print; \
++	  done ; \
+ 	  find $(__srctree)include/asm-generic $(RCS_FIND_IGNORE) \
+ 	       -name '*.[chS]' -print )
+ endef
+
+
+
 -- 
-Meelis Roos
+Ian Campbell
+Current Noise: The Doors - Five To One
+
+The brain is a wonderful organ; it starts working the moment you get up
+in the morning, and does not stop until you get to school.
+

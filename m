@@ -1,44 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262032AbVGFAwr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262031AbVGFAxj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262032AbVGFAwr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Jul 2005 20:52:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262036AbVGFAwf
+	id S262031AbVGFAxj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Jul 2005 20:53:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262033AbVGFAxj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Jul 2005 20:52:35 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:26332 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262032AbVGFAwZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Jul 2005 20:52:25 -0400
-Date: Tue, 5 Jul 2005 17:51:50 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Grant Coady <grant_lkml@dodo.com.au>
-cc: Jens Axboe <axboe@suse.de>, Ondrej Zary <linux@rainbow-software.org>,
-       =?ISO-8859-1?Q?Andr=E9_Tomt?= <andre@tomt.net>,
-       Al Boldi <a1426z@gawab.com>,
-       "'Bartlomiej Zolnierkiewicz'" <bzolnier@gmail.com>,
-       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [git patches] IDE update
-In-Reply-To: <6m8mc1lhug5d345uqikru1vpsqi6hciv41@4ax.com>
-Message-ID: <Pine.LNX.4.58.0507051748540.3570@g5.osdl.org>
-References: <42C9C56D.7040701@tomt.net> <42CA5A84.1060005@rainbow-software.org>
- <20050705101414.GB18504@suse.de> <42CA5EAD.7070005@rainbow-software.org>
- <20050705104208.GA20620@suse.de> <42CA7EA9.1010409@rainbow-software.org>
- <1120567900.12942.8.camel@linux> <42CA84DB.2050506@rainbow-software.org>
- <1120569095.12942.11.camel@linux> <42CAAC7D.2050604@rainbow-software.org>
- <20050705142122.GY1444@suse.de> <6m8mc1lhug5d345uqikru1vpsqi6hciv41@4ax.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 5 Jul 2005 20:53:39 -0400
+Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:2725 "EHLO
+	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S262031AbVGFAxf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Jul 2005 20:53:35 -0400
+X-ORBL: [63.202.173.158]
+Date: Tue, 5 Jul 2005 17:53:20 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Doug Warzecha <Douglas_Warzecha@dell.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       randy_dunlap <rdunlap@xenotime.net>
+Subject: Re: [PATCH] char: Add Dell Systems Management Base driver
+Message-ID: <20050706005320.GA23709@taniwha.stupidest.org>
+References: <20050706001333.GA3569@sysman-doug.us.dell.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050706001333.GA3569@sysman-doug.us.dell.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jul 05, 2005 at 07:13:34PM -0500, Doug Warzecha wrote:
 
+> This patch adds the Dell Systems Management Base driver.
 
-On Wed, 6 Jul 2005, Grant Coady wrote:
-> 
-> Executive Summary
-
-Btw, can you try this same thing (or at least a subset) with a large file
-on a filesystem? Does that show the same pattern, or is it always just the 
-raw device?
-
-		Linus
+You keep posting this driver without explaining/showing how it's used.
+Could you perhaps give some more details here please?

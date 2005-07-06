@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262109AbVGFCqP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262111AbVGFCvB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262109AbVGFCqP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Jul 2005 22:46:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262100AbVGFCmU
+	id S262111AbVGFCvB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Jul 2005 22:51:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262098AbVGFCsr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Jul 2005 22:42:20 -0400
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:7833 "EHLO
+	Tue, 5 Jul 2005 22:48:47 -0400
+Received: from b3162.static.pacific.net.au ([203.143.238.98]:9369 "EHLO
 	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S262064AbVGFCTX convert rfc822-to-8bit (ORCPT
+	id S262071AbVGFCTZ convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Jul 2005 22:19:23 -0400
-Subject: [PATCH] [24/48] Suspend2 2.1.9.8 for 2.6.12: 601-kernel_power_power-header.patch
+	Tue, 5 Jul 2005 22:19:25 -0400
+Subject: [PATCH] [26/48] Suspend2 2.1.9.8 for 2.6.12: 603-suspend2_common-headers.patch
 In-Reply-To: <11206164393426@foobar.com>
 X-Mailer: gregkh_patchbomb
 Date: Wed, 6 Jul 2005 12:20:42 +1000
-Message-Id: <11206164422542@foobar.com>
+Message-Id: <11206164424053@foobar.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Nigel Cunningham <nigel@suspend2.net>
@@ -24,31 +24,70 @@ From: Nigel Cunningham <nigel@suspend2.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -ruNp 602-smp.patch-old/kernel/power/suspend2_core/smp.c 602-smp.patch-new/kernel/power/suspend2_core/smp.c
---- 602-smp.patch-old/kernel/power/suspend2_core/smp.c	1970-01-01 10:00:00.000000000 +1000
-+++ 602-smp.patch-new/kernel/power/suspend2_core/smp.c	2005-07-04 23:14:19.000000000 +1000
+diff -ruNp 604-utility-header.patch-old/kernel/power/suspend2_core/utility.c 604-utility-header.patch-new/kernel/power/suspend2_core/utility.c
+--- 604-utility-header.patch-old/kernel/power/suspend2_core/utility.c	1970-01-01 10:00:00.000000000 +1000
++++ 604-utility-header.patch-new/kernel/power/suspend2_core/utility.c	2005-07-05 23:48:59.000000000 +1000
+@@ -0,0 +1,46 @@
++/*
++ * kernel/power/utility.c
++ *
++ * Copyright (C) 2004-2005 Nigel Cunningham <nigel@suspend2.net>
++ * 
++ * This file is released under the GPLv2.
++ *
++ * Routines that only suspend uses at the moment, but which might move
++ * when we merge because they're generic.
++ */
++
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/mm.h>
++#include <linux/proc_fs.h>
++#include <asm/string.h>
++
++#include "pageflags.h"
++
++/*
++ * suspend_snprintf
++ *
++ * Functionality    : Print a string with parameters to a buffer of a 
++ *                    limited size. Unlike vsnprintf, we return the number
++ *                    of bytes actually put in the buffer, not the number
++ *                    that would have been put in if it was big enough.
++ */
++int suspend_snprintf(char * buffer, int buffer_size, const char *fmt, ...)
++{
++	int result;
++	va_list args;
++
++	if (!buffer_size) {
++		return 0;
++	}
++
++	va_start(args, fmt);
++	result = vsnprintf(buffer, buffer_size, fmt, args);
++	va_end(args);
++
++	if (result > buffer_size) {
++		return buffer_size;
++	}
++
++	return result;
++}
+diff -ruNp 604-utility-header.patch-old/kernel/power/suspend2_core/utility.h 604-utility-header.patch-new/kernel/power/suspend2_core/utility.h
+--- 604-utility-header.patch-old/kernel/power/suspend2_core/utility.h	1970-01-01 10:00:00.000000000 +1000
++++ 604-utility-header.patch-new/kernel/power/suspend2_core/utility.h	2005-07-05 23:48:59.000000000 +1000
 @@ -0,0 +1,12 @@
-+#include <linux/sched.h>
++/*
++ * kernel/power/suspend2_core/utility.h
++ *
++ * Copyright (C) 2004-2005 Nigel Cunningham <nigel@suspend2.net>
++ * 
++ * This file is released under the GPLv2.
++ *
++ * Routines that only suspend uses at the moment, but which might move
++ * when we merge because they're generic.
++ */
 +
-+void ensure_on_processor_zero(void)
-+{
-+	set_cpus_allowed(current, cpumask_of_cpu(0));
-+	BUG_ON(smp_processor_id() != 0);
-+}
-+
-+void return_to_all_processors(void)
-+{
-+	set_cpus_allowed(current, CPU_MASK_ALL);
-+}
-diff -ruNp 602-smp.patch-old/kernel/power/suspend2_core/smp.h 602-smp.patch-new/kernel/power/suspend2_core/smp.h
---- 602-smp.patch-old/kernel/power/suspend2_core/smp.h	1970-01-01 10:00:00.000000000 +1000
-+++ 602-smp.patch-new/kernel/power/suspend2_core/smp.h	2005-07-04 23:14:19.000000000 +1000
-@@ -0,0 +1,7 @@
-+#ifdef CONFIG_SMP
-+extern void ensure_on_processor_zero(void);
-+extern void return_to_all_processors(void);
-+#else
-+#define ensure_on_processor_zero() do { } while(0)
-+#define return_to_all_processors() do { } while(0)
-+#endif
++extern int suspend_snprintf(char * buffer, int buffer_size, const char *fmt, ...);
 

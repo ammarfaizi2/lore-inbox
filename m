@@ -1,67 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261835AbVGFSEF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262417AbVGFSJz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261835AbVGFSEF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 14:04:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262110AbVGFSBK
+	id S262417AbVGFSJz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 14:09:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262416AbVGFSHi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 14:01:10 -0400
-Received: from fsmlabs.com ([168.103.115.128]:62899 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S262145AbVGFNXh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 09:23:37 -0400
-Date: Wed, 6 Jul 2005 07:27:37 -0600 (MDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Nigel Cunningham <ncunningham@cyclades.com>
-cc: Nigel Cunningham <nigel@suspend2.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] [7/48] Suspend2 2.1.9.8 for 2.6.12:
- 352-disable-pdflush-during-suspend.patch
-In-Reply-To: <1120621388.4860.3.camel@localhost>
-Message-ID: <Pine.LNX.4.61.0507060726030.2149@montezuma.fsmlabs.com>
-References: <11206164401583@foobar.com>  <Pine.LNX.4.61.0507052134290.2149@montezuma.fsmlabs.com>
- <1120621388.4860.3.camel@localhost>
+	Wed, 6 Jul 2005 14:07:38 -0400
+Received: from 69-18-3-179.lisco.net ([69.18.3.179]:7184 "EHLO
+	ninja.slaphack.com") by vger.kernel.org with ESMTP id S262209AbVGFN0C
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Jul 2005 09:26:02 -0400
+Message-ID: <42CBDBF4.30801@slaphack.com>
+Date: Wed, 06 Jul 2005 08:26:12 -0500
+From: David Masover <ninja@slaphack.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: Hubert Chan <hubert@uhoreg.ca>, Chet Hosey <chosey@nauticom.net>,
+       Kevin Bowen <kevin@ucsd.edu>, Hans Reiser <reiser@namesys.com>,
+       Kyle Moffett <mrmacman_g4@mac.com>, Valdis.Kletnieks@vt.edu,
+       Lincoln Dale <ltd@cisco.com>, Gregory Maxwell <gmaxwell@gmail.com>,
+       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: reiser4 plugins
+References: <200507060251.j662p7OC005227@laptop11.inf.utfsm.cl>
+In-Reply-To: <200507060251.j662p7OC005227@laptop11.inf.utfsm.cl>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Jul 2005, Nigel Cunningham wrote:
-
-> On Wed, 2005-07-06 at 13:34, Zwane Mwaikambo wrote:
-> > On Wed, 6 Jul 2005, Nigel Cunningham wrote:
-> > 
-> > > diff -ruNp 353-disable-highmem-tlb-flush-for-copyback.patch-old/mm/highmem.c 353-disable-highmem-tlb-flush-for-copyback.patch-new/mm/highmem.c
-> > > --- 353-disable-highmem-tlb-flush-for-copyback.patch-old/mm/highmem.c	2005-06-20 11:47:32.000000000 +1000
-> > > +++ 353-disable-highmem-tlb-flush-for-copyback.patch-new/mm/highmem.c	2005-07-04 23:14:20.000000000 +1000
-> > > @@ -26,6 +26,7 @@
-> > >  #include <linux/init.h>
-> > >  #include <linux/hash.h>
-> > >  #include <linux/highmem.h>
-> > > +#include <linux/suspend.h>
-> > >  #include <asm/tlbflush.h>
-> > >  
-> > >  static mempool_t *page_pool, *isa_page_pool;
-> > > @@ -95,7 +96,10 @@ static void flush_all_zero_pkmaps(void)
-> > >  
-> > >  		set_page_address(page, NULL);
-> > >  	}
-> > > -	flush_tlb_kernel_range(PKMAP_ADDR(0), PKMAP_ADDR(LAST_PKMAP));
-> > > +	if (test_suspend_state(SUSPEND_FREEZE_SMP))
-> > > +		__flush_tlb();
-> > > +	else
-> > > +		flush_tlb_kernel_range(PKMAP_ADDR(0), PKMAP_ADDR(LAST_PKMAP));
-> > >  }
-> > >  
-> > >  static inline unsigned long map_new_virtual(struct page *page)
-> > 
-> > What state are the other processors in when you hit this path?
+Horst von Brand wrote:
+> Hubert Chan <hubert@uhoreg.ca> wrote:
 > 
-> Looping in arch specific code, waiting for an atomic_t to tell them it's
-> time to restore state and carry on. They're there the whole time CPU0 is
-> restoring the image and highmem.
+>>On Fri, 01 Jul 2005 03:41:00 -0400, Chet Hosey <chosey@nauticom.net> said:
+>>
+>>>Horst von Brand wrote:
+>>>
+>>>>And who says that a normal user isn't allowed to annotate each and
+>>>>every file with its purpose or something else?
+> 
+> 
+>>Explain how you currently allow users to annotate arbitrary files.
+> 
+> 
+> By keeping annotations /outside/ the files.
+> 
+> [...]
+> 
+> 
+>>The situation is even better with file-as-dir.  If the administrator
+>>wants to allow users to edit the description metadata for the file foo,
+>>the administrator can set the appropriate permissions for
+>>foo/.../description, and keep foo read-only.
+> 
+> 
+> So now root is responsible in exquisite detail for random other users being
+> able to keep info about my files?
 
-Oh ok, so they wouldn't have TLB entries for the above.
+If it's the general info that's associated with the file, and may even 
+be stored inside the file, then yes, that's fair.
 
-Thanks,
-	Zwane
+Although I could certainly imagine foo/.../descriptions being a 
+directory that's world-writable, allowing each user to maintain their 
+own file inside of it.  You can even set these per-user descriptions to 
+be stored somewhere else, like the user's home directory, and that could 
+work for CDs.
 
+>>Actually, you could use something like unionfs to allow users to keep
+>>their own annotations without affecting everyone else's.
+> 
+> 
+> Again, root has to mount that stuff for each and every user?
+
+Why is that a problem?  Put it in a script.  Mount each user's unionfs 
+at boot.
+
+And it's "something like unionfs" -- maybe it's a feature of metafs or 
+reiserfs that we haven't thought of yet.  It certainly can't be unionfs 
+as it stands, as unionfs doesn't work on top of any reiser.

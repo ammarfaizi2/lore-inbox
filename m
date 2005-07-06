@@ -1,95 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262104AbVGFIl6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261740AbVGFIpZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262104AbVGFIl6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 04:41:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262035AbVGFIl5
+	id S261740AbVGFIpZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 04:45:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262081AbVGFIpY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 04:41:57 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:39833 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262170AbVGFGxK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 02:53:10 -0400
-Date: Wed, 6 Jul 2005 02:52:47 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Greg KH <greg@kroah.com>
-cc: Tony Jones <tonyj@suse.de>, <serge@hallyn.com>, <serue@us.ibm.com>,
-       lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@osdl.org>,
-       Stephen Smalley <sds@epoch.ncsc.mil>, Andrew Morton <akpm@osdl.org>,
-       Michael Halcrow <mhalcrow@us.ibm.com>,
-       David Safford <safford@watson.ibm.com>,
-       Reiner Sailer <sailer@us.ibm.com>, Gerrit Huizenga <gh@us.ibm.com>
-Subject: Re: [PATCH] securityfs
-In-Reply-To: <20050703204423.GA17418@kroah.com>
-Message-ID: <Xine.LNX.4.44.0507060243500.6302-100000@thoron.boston.redhat.com>
+	Wed, 6 Jul 2005 04:45:24 -0400
+Received: from mail.portrix.net ([212.202.157.208]:55229 "EHLO
+	zoidberg.portrix.net") by vger.kernel.org with ESMTP
+	id S261740AbVGFG4W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Jul 2005 02:56:22 -0400
+Message-ID: <42CB8088.1090508@ppp0.net>
+Date: Wed, 06 Jul 2005 08:56:08 +0200
+From: Jan Dittmer <jdittmer@ppp0.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050331 Thunderbird/1.0.2 Mnenhy/0.6.0.104
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.13-rc2
+References: <Pine.LNX.4.58.0507052126190.3570@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0507052126190.3570@g5.osdl.org>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 3 Jul 2005, Greg KH wrote:
+Linus Torvalds wrote:
+> Ok,
+>  -rc3 is pretty small, with the bulk of the diff being some defconfig
+...
+> Linus Torvalds:
+>   Linux v2.6.13-rc3
 
-> Good idea.  Here's a patch to do just that (compile tested only...)
-> 
-> Comments?
+Confused?!
 
-Looks promising so far.
-
-I'm currently porting selinuxfs funtionality to securityfs, although I'm
-not sure if we'll be ok during early initialization.  selinuxfs is
-currently kern_mounted via an initcall.  We may need an initcall
-kern_mount() of securityfs before SELinux kicks in.
-
-Stephen: opinions on this?
-
-Otherwise, it looks like it'll allow SELinux to drop some code.  Generally 
-it will mean that other LSM components won't have to create their own 
-filesystems, and their subdirectories will be hanging off /security (or 
-wherever selinuxfs is mounted), rather than scattered across /
-
-Some of the SELinux code may be useful as part of securityfs later, as 
-well.
-
-
-> +struct dentry *securityfs_create_file(const char *name, mode_t mode,
-> +				   struct dentry *parent, void *data,
-> +				   struct file_operations *fops)
-> +{
-> +	struct dentry *dentry = NULL;
-> +	int error;
-> +
-> +	pr_debug("securityfs: creating file '%s'\n",name);
-> +
-> +	error = simple_pin_fs("securityfs", &mount, &mount_count);
-> +	if (error)
-> +		goto exit;
-> +
-> +	error = create_by_name(name, mode, parent, &dentry);
-> +	if (error) {
-> +		dentry = NULL;
-> +		goto exit;
-> +	}
-> +
-> +	if (dentry->d_inode) {
-> +		if (data)
-> +			dentry->d_inode->u.generic_ip = data;
-> +		if (fops)
-> +			dentry->d_inode->i_fop = fops;
-> +	}
-> +exit:
-> +	return dentry;
-> +}
-> +EXPORT_SYMBOL_GPL(securityfs_create_file);
-
-How about having all API functions which return a pointer be converted to 
-use ERR_PTR() ?
-
-This will allow errors to be propagated to the calling code.
-
-
-- James
 -- 
-James Morris
-<jmorris@redhat.com>
-
-
+Jan
